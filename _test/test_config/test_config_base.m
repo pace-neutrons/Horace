@@ -9,6 +9,9 @@ classdef test_config_base < TestCase
         
         function test_store_restore_in_memory(this)
             config = config_base_tester();
+            ws=warning('off','CONFIG_STORE:restore_config');
+            clob = onCleanup(@()warning(ws));
+            
             
             config_store.instance().clear_config(config)
             config_file = fullfile(config_store.instance().config_folder(),'config_base_tester.mat');
@@ -38,6 +41,9 @@ classdef test_config_base < TestCase
         end
    
         function test_store_restore_in_file(this)
+            ws=warning('off','CONFIG_STORE:restore_config');
+            clob = onCleanup(@()warning(ws));
+            
             config = config_base_tester();
             
             config_store.instance().clear_config(config)

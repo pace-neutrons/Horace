@@ -34,8 +34,10 @@ test_folders={...
     'test_map_mask',...
     'test_mslice_objects',...
     'test_multifit',...
+    'test_multifit_legacy',...    
     'test_utilities',...
     'test_admin'...
+    'test_docify'...
     };
 %=============================================================================
 warn_state_init = warning('off','MATLAB:class:DestructorError');
@@ -54,8 +56,8 @@ test_folders_full = cellfun(@(x)fullfile(test_path,x),test_folders,'UniformOutpu
 %  appropriate action when deployed, but we do not want this to be done
 %  during validation)
 
-cur_config=get(herbert_config);
-cleanup_obj=onCleanup(@()validate_herbert_cleanup(cur_config,test_folders_full));
+current_conf =herbert_config();
+cleanup_obj=onCleanup(@()validate_herbert_cleanup(current_conf,test_folders_full));
 
 
 % Run unit tests
@@ -63,11 +65,11 @@ cleanup_obj=onCleanup(@()validate_herbert_cleanup(cur_config,test_folders_full))
 % Set Herbert configuration to the default (but don't save)
 % (The validation should be done starting with the defaults, otherwise an error
 %  may be due to a poor choice by the user of configuration parameters)
-hconfig = herbert_config();
+hconfig =herbert_config();
 hconfig.saveable = false; % equivalent to older '-buffer' option for all setters below
 
-set(hconfig,'defaults');
-set(hconfig,'init_tests',1);       % initialise unit tests
+hconfig=set(hconfig,'defaults','-buffer');
+hconfig.init_tests = 1;    % initialise unit tests
 if ~talkative
     set(hconfig,'log_level',-1);   % turn off herbert informational output
 end

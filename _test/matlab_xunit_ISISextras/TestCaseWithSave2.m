@@ -1,4 +1,4 @@
-classdef TestCaseWithSave2 < TestCase
+classdef TestCaseWithSave2 < TestCaseWithSave
     % Class to enable an xUnit-style unit test framework with tests against stored values
     %
     % This class extends the TestCase class with additional methods that enable
@@ -86,13 +86,13 @@ classdef TestCaseWithSave2 < TestCase
     %   or: >> TestSomeStuff ('-save','my_file.mat')   % saves to the named file
     %
     %   The default file is <TestClassName>_output.mat in the temporary folder given
-    %   by the matlab function tempdir(). In this instance, our test suite is 
+    %   by the matlab function tempdir(). In this instance, our test suite is
     %   TestSomeStuff so the default is fullfile(tempdir,'TestSomeStuff_output.mat')
     %
     %   TIP: if you want to replace the test results for just one test, append
     %   the test name to the '-save' option. In this case:
-    %       >> TestSomeStuff ('-save:testColormap')                 
-    %   or: >> TestSomeStuff ('-save:testColormap','my_file.mat')   
+    %       >> TestSomeStuff ('-save:testColormap')
+    %   or: >> TestSomeStuff ('-save:testColormap','my_file.mat')
     %
     %
     % - To run the test suite testing against stored values
@@ -163,31 +163,8 @@ classdef TestCaseWithSave2 < TestCase
     %
     % $Revision: 649 $ ($Date: 2017-11-01 19:42:04 +0000 (Wed, 01 Nov 2017) $)
     
-    
-    properties (SetAccess=private)
-        % True if calculated data is to be saved
-        save_output = false;
-    end
-    
-    properties (Access=private)
-        % List of the reference data aganst which to compare, or save
-        ref_data_=struct();
-        
-        % Filename for reading or writing test output
-        test_results_file_ = '';
-        
-        % Name of test method to be saved if save_output==true ({} means all methods)
-        test_method_to_save_ = {};
-
-        % List of files to delete after test case is completed
-        files_to_delete_={};
-        
-        % List of paths to remove after test case is completed
-        paths_to_remove_={};
-    end
-    
     methods
-        function this = TestCaseWithSave2 (name, filename)
+        function this = TestCaseWithSave2 (name,varargin)
             % Construct your test class by inheriting this constructor:
             %
             %   function self = TestSomeStuff (name)
@@ -219,15 +196,15 @@ classdef TestCaseWithSave2 < TestCase
             %              blindly!
             %
             %   filename    Name of file that contains saved output against which
-            %              values created in the test methods can be tested. Only 
+            %              values created in the test methods can be tested. Only
             %              needed if the file is different from the default value
             %              <myTestSuite>_output.mat in the folder containing
             %              <myTestSuite>. In this example the default file is
             %              'TestSomeStuff_output.mat'
-                
+            
             % - If the call is made from a test suite, then name will be the name of the
             %   test suite (that is how Alex Buts' modification of TestCase works)
-            % - 
+            % -
             
             % Get the default name: the calling TestCase subclass, if one, or else this class
             name_default = mfilename('class');
@@ -238,12 +215,12 @@ classdef TestCaseWithSave2 < TestCase
                 if isTestCaseWithSave2Subclass(cont{1})
                     name_default = cont{1};
                     caller_is_test_suite = true;
-                end    
+                end
             end
             
             % Create object
             if exist('name','var')
-                if ischarstring(name)
+                if is_string(name)
                     if strcmpi(name,name_default)
                         % Either this class, or test suite class, and no saving of output
                         save_output = false;
@@ -262,12 +239,14 @@ classdef TestCaseWithSave2 < TestCase
                 else
                     error(['Argument ''',name,''' must be a non-empty character string'])
                 end
+                argi = varargin{2:end};
             else
                 save_output = false;
+                name = name_default;
+                argi = {};
             end
-            
-            name = name_default;
-            this = this@TestCase(name);
+            this = this@TestCaseWithSave(name,argi{:});            
+
             this.save_output = save_output;
             
             % Determine which test methods to save
@@ -284,504 +263,12 @@ classdef TestCaseWithSave2 < TestCase
                     end
                 end
             end
-            
-            % Load saved data, or save according value of save_output
-            class_name = class(this);
-            if ~save_output
-                % Check name is the test class (if not '-save'): message that
-                % the this superclass has been incorrectly used if not
-                if ~strcmp(name,class_name)
-                    error(['Invalid use of ',mfilename('class')])
-                end
-                
-                % Construct file name to read from the input filename
-                if exist('filename','var')
-                    if ischarstring(filename) && exist(filename,'file')
-                        if isempty(fileparts(filename))
-                            filename = fullfile (fileparts(which(class_name)),...
-                                filename);
-                        end
-                    else
-                        error('Check stored data file name')
-                    end
-                else
-                    % Construct default file name to read. If the default file
-                    % doesn't exist this is not an error - it means that the
-                    % situation is that there is
-                    % no request to a read a file and the file doesn't exist,
-                    % so we are just using TestCaseWithSave like TestCase
-                    filename = fullfile (fileparts(which(class_name)),...
-                        [class_name,'_output.mat']);
-                end
-                
-                % Load old data
-                if exist(filename,'file')
-                    try
-                        this.ref_data_ = load(filename);
-                    catch
-                        error(['Unable to read saved data from file: ',filename])
-                    end
-                end
-                
-            else
-                % Saving output
-                if exist('filename','var')
-                    if ischarstring(filename)
-                        if isempty(fileparts(filename))
-                            filename = fullfile (tempdir(), filename);
-                        end
-                    else
-                        error('Check output file name')
-                    end
-                else
-                    filename = fullfile (tempdir(), [class_name,'_output.mat']);
-                end
-            end
-            
-            % Keep filename as a property
-            this.test_results_file_ = filename;
-            
         end
         
         %------------------------------------------------------------------
-        function add_to_files_cleanList (this, varargin)
-            % Add names of files to be deleted once the test case is run
-            %
-            %   add_to_files_cleanList (this, file1, file2, ...)
-            %
-            % Utility method to use in subclass constructor to clean up
-            % large temporary files that are created for the tests
-            %
-            % (Note that because the test class is a handle object, no
-            % return argument is needed)
-            
-            this.files_to_delete_ = add_to_list (this.files_to_delete_, varargin{:});
-        end
-        
-        %------------------------------------------------------------------
-        function add_to_path_cleanList(this,varargin)
-            % Add paths to be deleted once the test case is run
-            %
-            %   add_to_path_cleanList (this, path1, path2, ...)
-            %
-            % Utility method to use in subclass constructor to clean up
-            % unwanted paths that are created for the tests
-            %
-            % (Note that because the test class is a handle object, no
-            % return argument is needed)
-            
-            this.paths_to_remove_ = add_to_list (this.paths_to_remove_, varargin{:});
-        end
-        
-        %------------------------------------------------------------------
-        function assertEqualWithSave (this, var, varargin)
-            % Assert that input and saved value are equal
-            %
-            %   assertEqualWithSave (this, var)
-            %   assertEqualWithSave (this, var, message)
-            %
-            % Input:
-            % ------
-            %   this        test class object
-            %   var         variable to be tested
-            %
-            % Optional:
-            %   message     message to be prepended to the assertion message is the
-            %               test fails
-            %
-            % This is the 'WithSave' extension of the xUnit unit test assertEqual
-            %
-            % See also assertEqual
-            
-            try
-                assertMethodWithSave (this, var, inputname(2),...
-                    @assertEqual, varargin{:});
-            catch ME
-                throwAsCaller (ME)
-            end
-        end
-        
-        %------------------------------------------------------------------
-        function assertElementsAlmostEqualWithSave (this, var, varargin)
-            % Assert floating-point array elements almost equal to saved array elements.
-            %
-            %   assertElementsAlmostEqualWithSave (this, var, tol_type, tol, floor_tol)
-            %
-            % Input:
-            % ------
-            %   this        test class object
-            %   var         variable to be tested
-            %   tol_type    Tolerance type: 'relative' or 'absolute'
-            %   tol         Tolerance value
-            %   tol_floor   Floor tolerance value
-            %
-            % Optional:
-            %   message     message to be prepended to the assertion message is the
-            %               test fails
-            %
-            % If the tolerance type is 'relative', then the tolerance test used is:
-            %  
-            %       all( abs(var(:) - saved_var(:)) <= tol * max(abs(var(:)), abs(saved_var(:))) + floor_tol )
-            %  
-            % If the tolerance type is 'absolute', then the tolerance test used is:
-            %  
-            %       all( abs(var(:) - saved_var(:)) <= tol )
-            %
-            % This is the 'WithSave' extension of the xUnit unit test assertElementsAlmostEqual
-            %
-            % See also assertElementsAlmostEqual
-
-            try
-                assertMethodWithSave (this, var, inputname(2),...
-                    @assertElementsAlmostEqual, varargin{:});
-            catch ME
-                throwAsCaller (ME)
-            end
-        end
-        
-        %------------------------------------------------------------------
-        function assertVectorsAlmostEqualWithSave (this, var, varargin)
-            % Assert floating-point vector is almost equal to saved vector in norm sense.
-            %
-            %   assertVectorsAlmostEqualWithSave (this, var, tol_type, tol, floor_tol)
-            %
-            % Input:
-            % ------
-            %   this        test class object
-            %   var         variable to be tested
-            %   tol_type    Tolerance type: 'relative' or 'absolute'
-            %   tol         Tolerance value
-            %   tol_floor   Floor tolerance value
-            %
-            % Optional:
-            %   message     message to be prepended to the assertion message is the
-            %               test fails
-            %
-            % If the tolerance type is 'relative', then the tolerance test used is:
-            %  
-            %       all( norm(var - saved_var) <= tol * max(norm(var), norm(saved_var)) + floor_tol )
-            %  
-            % If the tolerance type is 'absolute', then the tolerance test used is:
-            %  
-            %       all( norm(var - saved_var) <= tol )
-            %
-            % This is the 'WithSave' extension of the xUnit unit test assertVectorsAlmostEqual
-            %
-            % See also assertVectorsAlmostEqual
-        
-            try
-                assertMethodWithSave (this, var, inputname(2),...
-                    @assertVectorsAlmostEqual, varargin{:});
-            catch ME
-                throwAsCaller (ME)
-            end
-        end
-        
-        %------------------------------------------------------------------
-        function assertEqualToTolWithSave (this, var, varargin)
-            % Test equality with stored value to within a tolerance, or save
-            %   >> this = assertEqualToTolWithSave (this, var)
-            %   >> this = assertEqualToTolWithSave (this, var, 'key1', val1, 'key2', val2, ...)
-            %
-            % When a test suite is launched with runtests, then if the test fails
-            % a message is output to the screen.
-            %
-            % If the test class is run with the option '-save', then instead of
-            % testing the variable against thestored value, the newly calculated variable
-            % is saved to a file for future use as the stored value.
-            %
-            % Input:
-            % ------
-            %   var         Variable to test against stored values.
-            %               The stored value is held in the object, having been
-            %              loaded when the running of the test suite was started.
-            %
-            %  'key1',val1  Optional keywords and associated values. These control
-            %              the tolerance and other parameters in the comparison.
-            %               Valid keywords are:
-            %                   'tol', 'reltol', abstol', 'ignore_str', 'nan_equal'
-            %               For full details of keywords that control the comparsion
-            %              see <a href="matlab:help('equal_to_tol');">equal_to_tol</a>
-            %              or class specific implementations of equal_to_tol, for example
-            %              see <a href="matlab:help('equal_to_tol');">equal_to_tol</a>
-            
-            var_name = inputname(2);
-            try
-                assertMethodWithSave (this, var, var_name, @assertEqualToTol, varargin{:},...
-                    'name_a',var_name);
-            catch ME
-                throwAsCaller (ME)
-            end
-        end
-        
-        %------------------------------------------------------------------
-        function save (this)
-            % Save output of the tests to file to test against later, if requested.
-            %
-            %   >> save (this)
-            
-            if ~this.save_output
-                return
-            end
-            
-            hc = herbert_config;
-            
-            % Find unit test methods (begin 'test' or 'Test', excluding the constructor)
-            if isempty(this.test_method_to_save_)
-                test_methods = getTestMethods(this);
-                save_all = true;
-                msg = ['Save output from test class: ',class(this)];
-            else
-                test_methods = this.test_method_to_save_;
-                save_all = false;
-                msg = ['Save output from test method: ',class(this),':',test_methods{1}];
-            end
-            if hc.log_level>-1
-                disp(msg)
-            end
-            
-            % Clear reference data from possibly loaded previous datasets
-            this.ref_data_ = struct();
-            
-            % Run test methods, when any test utilities that write to the
-            % object will have comparison tests deactivated because
-            % this.save_output is true
-            for i=1:numel(test_methods)
-                fhandle=@(x)this.(test_methods{i});
-                this.setUp();   % ensure any setup method is called
-                fhandle(this);
-                this.tearDown();% ensure any teardown method is called
-            end
-            
-            % Save data, if any has been returned
-            if ~isempty(fieldnames(this.ref_data_))
-                % Save results
-                ref_data = this.ref_data_;
-                if save_all
-                    % Saving entire test suite output
-                    save (this.test_results_file_, '-struct','ref_data')
-                else
-                    % Saving only selected test method output; append or replace
-                    % existing test method output
-                    if ~exist(this.test_results_file_,'file')
-                        save (this.test_results_file_, '-struct','ref_data')
-                    else
-                        save (this.test_results_file_, '-struct','ref_data','-append')
-                    end
-                end
-                
-                if hc.log_level>-1
-                    disp(' ')
-                    disp(['Output saved to: ',this.test_results_file_])
-                    disp(' ')
-                end
-                
-            else
-                % No data to be saved
-                if hc.log_level>-1
-                    disp(' ')
-                    disp('No data to be saved')
-                    disp(' ')
-                end
-            end
-        end
-        
-        %------------------------------------------------------------------
-        function delete (this)
-            % Function that will be called on destruction by virtue of the
-            % class being a handle class
-            
-            % Use static utility methods
-            this.delete_files (this.files_to_delete_)
-            this.remove_paths (this.paths_to_remove_)
-        end
-    end
-    
-    
-    %----------------------------------------------------------------------
-    % Static methods
-    %----------------------------------------------------------------------
-    % These methods are used to delte files and paths in the destructor of
-    % the class.
-    % However, they have been made static methods so that they are also
-    % available for general use in test suites
-    
-    methods(Static)
-        %------------------------------------------------------------------
-        function delete_files (files)
-            % Delete file or files
-            %
-            %   testCaseWithSave2.delete_files (files)
-            %
-            % files is a file name or cell array of file names
-            
-            % Turn warnings off to prevent distracting messages
-            warn = warning('off','all');
-            % Delete files
-            if ischar(files)
-                files={files};
-            end
-            for i=1:numel(files)
-                if exist(files{i},'file')
-                    try
-                        delete(files{i});
-                    catch
-                    end
-                end
-            end
-            % Turn warnings back on
-            warning(warn);
-        end
-        
-        %------------------------------------------------------------------
-        function remove_paths (paths)
-            % Remove path or paths
-            %
-            %   testCaseWithSave2.remove_paths (paths)
-            %
-            % paths is a path name or cell array of path names
-            
-            % Turn warnings off to prevent distracting messages
-            warn = warning('off','all');
-            % Delete paths
-            if ischar(paths)
-                paths={paths};
-            end
-            for i=1:numel(paths)
-                rmpath(paths{i});
-            end
-            % Turn warnings back on
-            warning(warn);
-        end
         
     end
     
-    
-    %----------------------------------------------------------------------
-    % Private methods
-    %----------------------------------------------------------------------
-    methods(Access=private)
-        function assertMethodWithSave (this, var, var_name, funcHandle, varargin)
-            % Wrapper to assertion methods to enable test or save functionality
-            %
-            %   >> assertMethodWithSave (this, var, var_name, funcHandle, varargin)
-            %
-            % Input:
-            % ------
-            %   var     Variable to test or save
-            %   var_name    Name of variable under which it will be saved
-            %   funcHandle  Handle to assertion function
-            %   varargin{:} Arguments to pass to asserion function, which has
-            %               the form e.g. assertVectorsAlmostEqual(A,B,varargin{:})
-            
-            % Get the name of the test method. Determine this as the highest
-            % method of the class in the call stack that begins with 'test'
-            % ignoring case
-            class_name = class(this);
-            call_struct = dbstack(1);
-            for i=numel(call_struct):-1:2
-                cont=regexp(call_struct(i).name,'\.','split');
-                if strcmp(cont{1},class_name) && ~strcmp(cont{end},class_name) &&...
-                        strncmpi(cont{end},'test',4)
-                    test_name = cont{end};
-                    break
-                end
-            end
-            
-            % Give default name if arg_name is empty
-            if isempty(var_name)
-                var_name = [test_name,'_1'];
-            end
-            
-            % Perform the test, or save
-            if ~this.save_output
-                stored_reference = this.get_ref_dataset_(var_name, test_name);
-                funcHandle(var, stored_reference, varargin{:})
-            else
-                this.set_ref_dataset_ (var, var_name, test_name);
-            end
-        end
-        
-        %------------------------------------------------------------------
-        function var = get_ref_dataset_(this, var_name, test_name)
-            % Retrive variable from the store for the named test
-            %
-            % Input:
-            % ------
-            %   var_name    -- the name opf the variable to retrieve
-            %   test_name   -- the name of the test the variable belongs to
-            %
-            % Outut:
-            % ------
-            %   var         -- retrieved variable
-            %
-            % NOTE: for backwards compatibiity with earlier versions:
-            % If the variable is not found in the structure for the named
-            % test it is looked for at the top level of the class property
-            % ref_data_.
-            
-            if isfield(this.ref_data_,test_name) && isstruct(this.ref_data_.(test_name))
-                % Structure called test_name exists - assume new format
-                S = this.ref_data_.(test_name);
-                if isfield(S,var_name)
-                    var = S.(var_name);
-                else
-                    error('TestCaseWithSave:invalid_argument',...
-                        'variable: %s does not exist in stored data for the test: %s',...
-                        var_name,test_name);
-                end
-            else
-                % No structure called test_name exists - assume legacy format
-                % of variable stored at top level, not in test_name
-                if isfield(this.ref_data_,var_name)
-                    var = this.ref_data_.(var_name);
-                else
-                    % Give the error message for the new format, as we assume that
-                    % old format files are correct (we should not be creating any new ones)
-                    error('TestCaseWithSave:invalid_argument',...
-                        'variable: %s does not exist in stored data for the test: %s',...
-                        var_name,test_name);
-                end
-            end
-        end
-        
-        %------------------------------------------------------------------
-        function this = set_ref_dataset_(this, var, var_name, test_name)
-            % Save a variable to the store for the named test
-            %
-            % Input:
-            % ------
-            %   var         -- variable to store
-            %   var_name    -- the name by which to save the variable
-            %   test_name   -- the name of the test with which to associate
-            %                  the saved variable
-            %
-            % The variable will be saved in
-            %   this.ref_data_.(test_name).(var_name)
-            
-            % Get store area of named test, or create if doesnt exist
-            if isfield(this.ref_data_,test_name)
-                S = this.ref_data_.(test_name);
-            else
-                S = struct();
-            end
-            S.(var_name) = var;
-            this.ref_data_.(test_name) = S;
-        end
-        
-        
-        %--------------------------------------------------------------------------
-        function test_methods = getTestMethods(this)
-            % Find unit test methods (begin 'test' or 'Test', excluding the constructor)
-            class_name = class(this);
-            method_names = methods(this);
-            idx = cellfun(@(x)((~isempty(regexp(x,'^test','once')) ||...
-                ~isempty(regexp(x,'^Test','once'))) &&...
-                ~strcmpi(x,class_name)), method_names);
-            test_methods = method_names(idx);
-        end
-        
-    end
 end
 
 
@@ -834,49 +321,5 @@ end
 
 end
 
-%--------------------------------------------------------------------------
-function new_list = add_to_list (initial_list, varargin)
-% Append character strings to a cell array of strings
-%
-%   >> new_list = add_to_list (initial_list, str1, str2, ...)
-%
-% Only the first occurence of new strings is appended, and then only if
-% it doesn't appear in the initial list.
-%
-% Input:
-% ------
-%   initial_list    Row cell arrayof character strings
-%   str1, str2,...  Can be strings or cell arrays of strings
-%
-% Output:
-% -------
-%   new_list        Row cell array with unique instances
-
-for i=1:numel(varargin)
-    str = varargin{i};
-    if ischar(str) && numel(size(str))==2
-        varargin{i} = {str};
-    elseif iscellstr(str)
-        varargin{i} = varargin{i}(:)';
-    else
-        error('Not all arguments are strings or cell arrays of strings')
-    end
-end
-
-add_list = cat(2,varargin{:});  % make one long row
-if ~isempty(add_list)
-    [~,ix] = unique(add_list,'first','legacy');
-    add_list = add_list(sort(ix));
-    new=~ismember(add_list,initial_list);
-    new_list = [initial_list,add_list(new)];
-else
-    new_list = initial_list;
-end
-
-end
 
 
-%--------------------------------------------------------------------------
-function ok = ischarstring (x)
-ok = (ischar(x) && numel(size(x))==2 && size(x,1)==1 && size(x,2)>0);
-end

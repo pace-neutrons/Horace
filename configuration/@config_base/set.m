@@ -40,21 +40,31 @@ options = {'defaults','saved','-buffer','-save'};
 [ok,mess,set_defaults,set_saved,save_to_buffer,save_to_file,other_options]=parse_char_options(varargin,options);
 if ~ok, error('CONFIG_BASE:set',mess); end
 
-saveable = ~save_to_buffer || save_to_file;
-this.saveable = saveable;
+if this.saveable
+    saveable = (~save_to_buffer || save_to_file);
+    this.saveable = saveable;
+end
 
 if set_saved
     config_store.instance().clear_config(this);
 end
-if set_defaults
-   config_store.instance().clear_config(this,'-file');
+if set_defaults &&~save_to_buffer
+    config_store.instance().clear_config(this,'-file');
 end
 
 % transform other options into standard form
-[S,ok,mess] = parse_set_internal(other_options{:});
-if ~ok, error('CONFIG_BASE:set',mess); end
+if set_defaults
+    this.returns_defaults = true;
+    S = this.get_defaults;
+else
+    [S,ok,mess] = parse_set_internal(other_options{:});
+    if ~ok, error('CONFIG_BASE:set',mess); end
+end
+
 
 fields = fieldnames(S);
-for i=1:numel(fields);
+for i=1:numel(fields)
     this.(fields{i})= S.(fields{i});
 end
+
+

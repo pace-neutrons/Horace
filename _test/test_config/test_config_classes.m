@@ -22,13 +22,18 @@ classdef test_config_classes< TestCase
             set(tgp_test_class2,'default');
             
             ws=warning('off','CONFIG_STORE:restore_config');
+            clob = onCleanup(@()warning(ws));
+            
             this.s0_def=get(tgp_test_class);
             this.s1_def=get(tgp_test_class1);
             this.s2_def=get(tgp_test_class2);
-            warning(ws)
+            
         end
         function this=test_getstruct(this)
             config_store.instance().clear_config(tgp_test_class2,'-files');
+            ws=warning('off','CONFIG_STORE:restore_config');
+            clob = onCleanup(@()warning(ws));
+            
             % ----------------------------------------------------------------------------
             % Test getting values from a configuration
             % ----------------------------------------------------------------------------
@@ -47,6 +52,8 @@ classdef test_config_classes< TestCase
         
         function this=test_get_wrongCase(this)
             % This should fail because V3 is upper case, but the field is v3
+            ws=warning('off','CONFIG_STORE:restore_config');
+            clob = onCleanup(@()warning(ws));
             
             try
                 [v1,v3]=get(tgp_test_class2,'v1','V3');
@@ -63,6 +70,9 @@ classdef test_config_classes< TestCase
             % Test getting values and saving
             % ----------------------------------------------------------------------------
             % Change the config without saving, change to default without saving - see that this is done properly
+            ws = warning('off','CONFIG_STORE:restore_config');
+            clob = onCleanup(@()warning(ws));
+            
             set(tgp_test_class2,'v1',55,'-buffer');
             s2_buf=get(tgp_test_class2);
             
