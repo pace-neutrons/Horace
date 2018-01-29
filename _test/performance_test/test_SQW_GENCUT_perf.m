@@ -146,6 +146,7 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
                 obj.perf_data_ = struct(tests_name,[]);
             end
         end
+        %
         function test_data = save_or_test_performance(obj,start_time,test_method_name)
             % save performance data if the previous version for current pc
             % does not exist or test performance against previously stored
@@ -188,7 +189,6 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
             
         end
         %-------------------------------------------------------------
-        
         
         function set.n_files_to_use(obj,val)
             % change number of files to use and modify all related
@@ -282,7 +282,8 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
             % workers to run the test routines with.
             %
             % n_workers>1 sets up parallel file combining.
-            % 1 or absent does not change current Horace configuration.
+            % if n_workers==0 or absent the class does not change the 
+            % number of workers defined by current Horace configuration.
             if nargin == 1
                 n_workers = 0;
             else
@@ -320,7 +321,7 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
             
             ts = tic();
             sqw1 = cut_sqw(obj.sqw_file,proj1,[-0.1,0.1],0.01,[-0.1,0.1],[-5,5]);
-            obj.save_or_test_performance(ts,['cutK1D__Small_nw',nwk]);
+            obj.save_or_test_performance(ts,['cutK1D_Small_nw',nwk]);
             
             ts = tic();
             sqw1 = cut_sqw(obj.sqw_file,proj1,[-0.1,0.1],[-0.1,0.1],0.01,[-5,5]);
@@ -328,7 +329,7 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
             
             ts = tic();
             sqw1 = cut_sqw(obj.sqw_file,proj1,[-0.1,0.1],[-0.1,0.1],[-0.1,0.1],0.2);
-            obj.save_or_test_performance(ts,['cutE__Small_nw',nwk]);
+            obj.save_or_test_performance(ts,['cutE_Small_nw',nwk]);
             
             % check nopix performance -- read and integrate the whole file from the HDD
             hs = head_sqw(obj.sqw_file);
@@ -336,19 +337,19 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
             ts = tic();
             proj1 = struct('u',[1,0,0],'v',[0,1,1]);
             sqw1=cut_sqw(obj.sqw_file,proj1,0.01,urng(2,:),urng(3,:),urng(4,:),'-nopix');
-            obj.save_or_test_performance(ts,['cutH1D_AllInt_fbnw',nwk]);
+            obj.save_or_test_performance(ts,['cutH1D_AllInt_nopix_nw',nwk]);
             
             ts = tic();
             sqw1=cut_sqw(obj.sqw_file,proj1,urng(1,:),0.01,urng(3,:),urng(4,:),'-nopix');
-            obj.save_or_test_performance(ts,['cutK1D_AllInt_npnw',nwk]);
+            obj.save_or_test_performance(ts,['cutK1D_AllInt_nopix_nw',nwk]);
             
             ts = tic();
             sqw1=cut_sqw(obj.sqw_file,proj1,urng(1,:),urng(2,:),0.01,urng(4,:),'-nopix');
-            obj.save_or_test_performance(ts,['cutL1D_AllInt_npnw',nwk]);
+            obj.save_or_test_performance(ts,['cutL1D_AllInt_nopix_nw',nwk]);
             
             ts = tic();
             sqw1=cut_sqw(obj.sqw_file,proj1,urng(1,:),urng(2,:),urng(3,:),0.2,'-nopix');
-            obj.save_or_test_performance(ts,['cutE_AllInt_npnw',nwk]);
+            obj.save_or_test_performance(ts,['cutE_AllInt_nopix_nw',nwk]);
             
             
             % test large 1 dimensional cuts, non-axis aligned, with whole
@@ -361,19 +362,19 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
             ts = tic();
             proj1 = struct('u',[1,0,0],'v',[0,1,1]);
             cut_sqw(obj.sqw_file,proj1,0.01,urng(2,:),urng(3,:),urng(4,:),'cutH1D_AllInt.sqw');
-            obj.save_or_test_performance(ts,['cutH1D_AllInt_fbnw',nwk]);
+            obj.save_or_test_performance(ts,['cutH1D_AllInt_filebased_nw',nwk]);
             
             ts = tic();
             cut_sqw(obj.sqw_file,proj1,urng(1,:),0.01,urng(3,:),urng(4,:),'cutK1D_AllInt.sqw');
-            obj.save_or_test_performance(ts,['cutK1D_AllInt_fbnw',nwk]);
+            obj.save_or_test_performance(ts,['cutK1D_AllInt_filebased_nw',nwk]);
             
             ts = tic();
             cut_sqw(obj.sqw_file,proj1,urng(1,:),urng(2,:),0.01,urng(4,:),'cutL1D_AllInt.sqw');
-            obj.save_or_test_performance(ts,['cutL1D_AllInt_fbnw',nwk]);
+            obj.save_or_test_performance(ts,['cutL1D_AllInt_filebased_nw',nwk]);
             
             ts = tic();
             cut_sqw(obj.sqw_file,proj1,urng(1,:),urng(2,:),urng(3,:),0.2,'cutE_AllInt.sqw');
-            perf_res=obj.save_or_test_performance(ts,['cutE_AllInt_fbnw',nwk]);
+            perf_res=obj.save_or_test_performance(ts,['cutE_AllInt_filebased_nw',nwk]);
             
             % spurious check to ensure the cleanup object is not deleted
             % before the end of the test
