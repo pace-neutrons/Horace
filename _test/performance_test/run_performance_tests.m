@@ -31,7 +31,7 @@ else
 end
 
 
-% run performance tests for small (default file)
+% run performance tests for small sqw file (default file)
 small_perf = hor_tes.test_gensqw_performance(n_workers);
 perf_res.small_ds_perf = small_perf;
 
