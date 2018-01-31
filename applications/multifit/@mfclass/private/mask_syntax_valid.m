@@ -136,7 +136,7 @@ function [ok,xout] = check_mskformat(xin)
 xout=xin(:)';
 empty = cellfun(@isempty,xout);
 if any(empty), xout{empty}=[]; end
-ok = all(@(x)(isempty(x) || islognum(x)),xout);
+ok = all(cellfun(@(x)(isempty(x) || islognum(x)),xout));
 
 %--------------------------------------------------------------------------------------------------
 function [xkeep,xremove,mask] = error_output(nd)
