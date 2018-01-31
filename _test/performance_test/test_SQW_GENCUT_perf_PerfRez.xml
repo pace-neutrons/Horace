@@ -159,5 +159,30 @@
          <comment>large 1D cut along energy direction with whole dataset integration along 3 other directions. -nopix mode</comment>
          <completed_on>[2018 1 31 16 22 35.943]</completed_on>
       </cutE_AllInt_nopix_nw4>
+      <cutH1D_AllInt_filebased_nw4>
+         <time_sec>191.71204657204</time_sec>
+         <comment>large file-based 1D cut. Direction 1; Whole dataset integration along 3 other directions</comment>
+         <completed_on>[2018 1 31 16 25 47.819]</completed_on>
+      </cutH1D_AllInt_filebased_nw4>
+      <cutK1D_AllInt_filebased_nw4>
+         <time_sec>292.881879369729</time_sec>
+         <comment>large file-based 1D cut. Direction 2; Whole dataset integration along 3 other directions</comment>
+         <completed_on>[2018 1 31 16 30 45.778]</completed_on>
+      </cutK1D_AllInt_filebased_nw4>
+      <cutL1D_AllInt_filebased_nw4>
+         <time_sec>246.869742377795</time_sec>
+         <comment>large file-based 1D cut. Direction 1; Whole dataset integration along 3 other directions</comment>
+         <completed_on>[2018 1 31 16 34 52.894]</completed_on>
+      </cutL1D_AllInt_filebased_nw4>
+      <cutE_AllInt_filebased_nw4>
+         <time_sec>259.75389432957</time_sec>
+         <comment>large file-based 1D cut. Energy directin; Whole dataset integration along 3 other directions</comment>
+         <completed_on>[2018 1 31 16 39 12.95]</completed_on>
+      </cutE_AllInt_filebased_nw4>
+      <combine_tmp_using_MEX_mode0>
+         <time_sec>792.46317533083</time_sec>
+         <comment>performance of the tmp-files combine procedure</comment>
+         <completed_on>[2018 1 31 16 52 30.464]</completed_on>
+      </combine_tmp_using_MEX_mode0>
    </ndw1676_nf50>
 </SQW_GENCUT_perf>
