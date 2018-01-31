@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestPerformance>
+   <ndw1676_TestPerformance>
+      <test_constructor_operations>
+         <time_sec>0.000613173360862124</time_sec>
+         <comment>this is not a performance test itself but the test of performance test operational</comment>
+         <completed_on>[2018 1 31 13 18 52.959]</completed_on>
+      </test_constructor_operations>
+   </ndw1676_TestPerformance>
+</TestPerformance>

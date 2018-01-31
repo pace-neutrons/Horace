@@ -110,8 +110,8 @@ classdef TestCaseWithSave < TestCase
         function set.test_results_file(obj,name)
             % verify if the test results file name is acceptable and refers
             % to allowed location and set this file and location as target
-            % for test results
-            check_and_set_test_results_file(obj,name);
+            % for the test results
+            obj.test_results_file_ = check_test_results_file(obj,name);
         end
         function set.ref_data(obj,val)
             % retrieve the name of the file, where the test results will be
@@ -151,11 +151,8 @@ classdef TestCaseWithSave < TestCase
             if nargin > 0
                 name = varargin{1};
                 if nargin>1
-                    argi = varargin{2:end};
-                    if ~iscell(argi)
-                        argi = {argi};
-                    end
-                else
+                    argi = varargin(2:end);
+                 else
                     argi = {};
                 end
             else
@@ -163,11 +160,7 @@ classdef TestCaseWithSave < TestCase
                 argi = {};
             end
             % has option '-save' been provided
-            if strcmpi(name,'-save')
-                save_out=true;
-            else
-                save_out=false;
-            end
+            [save_out,name,argi] = check_save_provided_(name,argi{:});
             
             this = this@TestCase(name);
             this.save_output = save_out;
@@ -192,7 +185,7 @@ classdef TestCaseWithSave < TestCase
                         this.ref_data_ = load(this.test_results_file);
                     catch
                         error('TEST_CASE_WITH_SAVE:runtime_error',...
-                            'Unable to read saved data from file: %s',filename)
+                            'Unable to read saved data from file: %s',this.test_results_file)
                     end
                 end
             end
@@ -506,7 +499,7 @@ classdef TestCaseWithSave < TestCase
             assert_or_save_variable_(this,var_name,var,funcHandle,varargin{:})
         end
         %
-        function check_and_set_test_results_file(obj,name)
+        function filename = check_test_results_file(obj,name)
             % The method to check test results file name used in
             % set.test_results_file method. Made protected to allow child
             % classes to overload it.
@@ -520,7 +513,7 @@ classdef TestCaseWithSave < TestCase
             % not exist and the class folder is writtable, sets the default
             % target file path to class folder.
             %
-            check_and_set_test_results_fname_(obj,name)
+            filename = check_test_results_fname_(obj,name);
         end
     end
     

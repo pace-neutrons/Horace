@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestPerformanceChildTestHelper>
+   <ndw1676_TestPerformanceChildTestHelper>
+      <fake_test_operations>
+         <time_sec>0.00151604795863265</time_sec>
+         <comment>this is not a performance test itself but the test of performance test inheritance operational</comment>
+         <completed_on>[2018 1 31 13 19 34.835]</completed_on>
+      </fake_test_operations>
+   </ndw1676_TestPerformanceChildTestHelper>
+</TestPerformanceChildTestHelper>
