@@ -112,9 +112,9 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             for i=1:this.nfiles_max
                 this.spe_file{i}=fullfile(tempdir,['gen_sqw_acc_sqw_spe',num2str(i),'.nxspe']);
             end
-            
+            results_path = fileparts(this.test_results_file);
             %this.par_file=fullfile(this.results_path,'96dets.par');
-            this.par_file=fullfile(this.results_path,'gen_sqw_96dets.nxspe');
+            this.par_file=fullfile(results_path ,'gen_sqw_96dets.nxspe');
             
             % initiate test parameters
             en=cell(1,this.nfiles_max);
@@ -147,8 +147,6 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             this.scale=0.3;
             % build test files if they have not been build
             this=build_test_files(this,true);
-            % sort workspace pixels for their comparison
-            this.sort_pixels = true;
         end
         %
         function [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this,varargin)
@@ -394,7 +392,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
                 emode, alatt, angdeg, u, v, psi(1:4), omega(1:4), dpsi(1:4), gl(1:4), gs(1:4),'clean');
             
             
-            if not(this.want_to_save_output)
+            if not(this.save_output)
                 assertElementsAlmostEqual(urange14,acc_urange14,'relative',1.e-2)
             end
             
@@ -443,7 +441,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             [dummy,dummy,acc_urange1456]=accumulate_sqw (spe_accum, '', sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             
             % This is actually bad as urange is not really close
-            if ~this.want_to_save_output
+            if ~this.save_output
                 assertElementsAlmostEqual(urange1456,acc_urange1456,'relative',4.e-2);
             end
             [ok,mess,w2_1456]=is_cut_equal(sqw_file_1456,sqw_file_accum,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
@@ -495,7 +493,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             this=save_or_test_variables(this,w2_11456);
             
             
-            if this.want_to_save_output
+            if this.save_output
                 return;
             end
             

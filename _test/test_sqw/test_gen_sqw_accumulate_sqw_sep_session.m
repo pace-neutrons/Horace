@@ -127,8 +127,9 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
                 this.spe_file{i}=fullfile(tempdir,['gen_sqw_acc_sqw_spe',num2str(i),'.nxspe']);
             end
             
+            results_path = fileparts(this.test_results_file);            
             %this.par_file=fullfile(this.results_path,'96dets.par');
-            this.par_file=fullfile(this.results_path,'gen_sqw_96dets.nxspe');
+            this.par_file=fullfile(results_path,'gen_sqw_96dets.nxspe');
             
             
             % initiate test parameters
@@ -162,9 +163,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             this.scale=0.3;
             % build test files if they have not been build
             this=build_test_files(this);
-            % sort workspace pixels for their comparison
-            this.sort_pixels = true;
-            
+             
         end
         %
         function [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this,varargin)
@@ -279,7 +278,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             
             sqw_file_123456=fullfile(tempdir,'sqw_123456_multisession.sqw');             % output sqw file
             sqw_file_145623=fullfile(tempdir,'sqw_145623_multisession.sqw');            % output sqw file
-            if ~this.want_to_save_output
+            if ~this.save_output
                 cleanup_obj1=onCleanup(@()rm_files(this,sqw_file_123456,sqw_file_145623,sqw_file{:}));
             end
             %% ---------------------------------------
@@ -371,7 +370,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
                 emode, alatt, angdeg, u, v, psi(1:4), omega(1:4), dpsi(1:4), gl(1:4), gs(1:4),'clean');
             
             
-            if not(this.want_to_save_output)
+            if not(this.save_output)
                 assertElementsAlmostEqual(urange14,acc_urange14,'relative',1.e-2)
             end
             
@@ -404,7 +403,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             this=build_test_files(this);
             sqw_file_accum=fullfile(tempdir,'test_accumulate_and_combine14.sqw'); % output sqw file
             
-            if ~this.want_to_save_output
+            if ~this.save_output
                 co2=onCleanup(@()rm_files(this,sqw_file_accum));
             end
             
@@ -468,7 +467,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             sqw_file_accum=fullfile(tempdir,'test_sqw_accum_sqw1456_multisession.sqw');
             sqw_file_1456=fullfile(tempdir,'test_sqw_1456_multisession.sqw');                   % output sqw file
             
-            if ~this.want_to_save_output
+            if ~this.save_output
                 cleanup_obj1=onCleanup(@()rm_files(this,sqw_file_1456,sqw_file_accum));
             end
             % --------------------------------------- Test accumulate_sqw
@@ -491,7 +490,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             [dummy,dummy,acc_urange1456]=accumulate_sqw (spe_accum, '', sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             
             % This is actually bad as urange is not really close
-            if ~this.want_to_save_output
+            if ~this.save_output
                 assertElementsAlmostEqual(urange1456,acc_urange1456,'relative',4.e-2);
             end
             [ok,mess,w2_1456]=is_cut_equal(sqw_file_1456,sqw_file_accum,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
@@ -544,7 +543,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             this=save_or_test_variables(this,w2_11456);
             
             
-            if this.want_to_save_output
+            if this.save_output
                 return;
             end
             
