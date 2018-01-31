@@ -179,7 +179,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             % before the end of the test
             assertTrue(isa(clob_wk,'onCleanup'))
             
-            obj.rm_files(tmp_files{:});
+            obj.delete_files(tmp_files{:});
             
         end
         %------------------------------------------------------------------
@@ -278,7 +278,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             % file-based cuts
             fl2del = {'cutH1D_AllInt.sqw','cutK1D_AllInt.sqw',...
                 'cutL1D_AllInt.sqw','cutE_AllInt.sqw'};
-            clob = onCleanup(@()rm_files(obj,fl2del{:}));
+            clob = onCleanup(@()delete_files(obj,fl2del{:}));
             
             ts = tic();
             proj1 = struct('u',[1,0,0],'v',[0,1,1]);
