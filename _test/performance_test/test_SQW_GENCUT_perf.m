@@ -278,7 +278,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             % file-based cuts
             fl2del = {'cutH1D_AllInt.sqw','cutK1D_AllInt.sqw',...
                 'cutL1D_AllInt.sqw','cutE_AllInt.sqw'};
-            clob = onCleanup(@()delete_files(obj,fl2del{:}));
+            clob1 = onCleanup(@()delete_files(obj,fl2del{:}));
             
             ts = tic();
             proj1 = struct('u',[1,0,0],'v',[0,1,1]);
@@ -299,7 +299,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             ts = tic();
             cut_sqw(obj.sqw_file,proj1,urng(1,:),urng(2,:),urng(3,:),0.2,'cutE_AllInt.sqw');
             perf_res=obj.assertPerformance(ts,['cutE_AllInt_filebased_nw',nwk],...
-                'large file-based 1D cut. Energy directin; Whole dataset integration along 3 other directions');
+                'large file-based 1D cut. Energy direction; Whole dataset integration along 3 other directions');
             
             % spurious check to ensure the cleanup object is not deleted
             % before the end of the test

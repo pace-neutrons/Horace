@@ -66,9 +66,9 @@ hc = hor_config;
 wk_dir_is_default = hc.wkdir_is_default;
 if wk_dir_is_default % if working directory has not been explicitly set,
     % set is to the folder where sqw files are located
-    hc.working_driectory = tmp_path;
+    hc.working_directory = tmp_path;
 else % use explicitly defined working directory to store tmp files
-    tmp_path= hc.working_driectory;
+    tmp_path= hc.working_directory;
 end
 
 
