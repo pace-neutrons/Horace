@@ -411,7 +411,7 @@ cell_off{1}= offset;
 for i=2:n_cells
     t_range = buf_size;
     shift = buf_size*(i-1);
-    if shift+t_range > range; t_range = range-shift; end;
+    if shift+t_range > range; t_range = range-shift; end
     if t_range > 0
         cell_rg{i} = t_range;
     end
@@ -421,8 +421,13 @@ end
 
 end
 function pci = init_pix_combine_info(nfiles)
+% define fmp files to store in working directory.
+
+wk_dir = config_store.instance().get_value('hor_config','working_directory');
 
 tmpfiles = cell(1,nfiles);
-tmpfiles = cellfun(@(x)fullfile(tempdir,['horace',rand_digit_string(16),'.tmp']),tmpfiles,'UniformOutput',false);
+tmpfiles = cellfun(@(x)fullfile(wk_dir,['horace',rand_digit_string(16),'.tmp']),tmpfiles,'UniformOutput',false);
 pci = pix_combine_info(tmpfiles);
 end
+
+

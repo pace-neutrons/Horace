@@ -29,6 +29,7 @@ classdef hor_config<config_base
     %   use_mex           -  Use mex files for time-consuming operation, if available
     %   force_mex_if_use_mex - fail if mex can not be used.
     %   delete_tmp        -  automatically delete temporary files after generating sqw files
+    %   working_directory - the folder to write tmp files.
     %
     %-----
     % Methods related to parallel file processing/combining on a cluster:
@@ -79,6 +80,15 @@ classdef hor_config<config_base
         % by default its true, but you may set it to false to keep files
         % for later operations.
         delete_tmp
+        % the folder where tmp files should be stored.
+        % by default gen_sqw sets this value to place where spe files are
+        % located.  If you never did gen_sqw on a given machine,
+        % system tmp directory is used.
+        % Change this value to point to a fast&large disk or to a
+        % parallel file system.
+        % Assign empty value to restore it to default (system tmp
+        % directory)
+        working_directory
         % use multi-threaded mex code to combine various sqw/tmp files together
         use_mex_for_combine
         % various thread modes deployed when combining sqw files using mex code:
@@ -124,6 +134,7 @@ classdef hor_config<config_base
         use_mex_ = true;
         force_mex_if_use_mex_ = false;
         delete_tmp_ = true;
+        working_directory_ ='';
         
         use_mex_for_combine_ = false;
         %
@@ -140,6 +151,7 @@ classdef hor_config<config_base
         saved_properties_list_={'mem_chunk_size','threads','ignore_nan',...
             'ignore_inf', 'log_level','use_mex',...
             'force_mex_if_use_mex','delete_tmp',...
+            'working_directory',...
             'mex_combine_thread_mode','mex_combine_buffer_size','use_mex_for_combine',...
             'accum_in_separate_process','accumulating_process_num'}
     end
@@ -205,6 +217,25 @@ classdef hor_config<config_base
         end
         function accum = get.accumulating_process_num(this)
             accum = get_or_restore_field(this,'accumulating_process_num');
+        end
+        function work_dir = get.working_directory(this)
+            work_dir = get_or_restore_field(this,'working_directory');
+            if isempty(work_dir)
+                work_dir = tempdir;
+            end
+        end
+        function is = wkdir_is_default(this)
+            % return true if working directory has not been set and refers
+            % to default (system tmp) directory
+            % Usage
+            %>>is = hor_config_instance.wkdir_is_default;
+            %
+            work_dir = get_or_restore_field(this,'working_directory');
+            if isempty(work_dir)
+                is = true;
+            else
+                is = false;
+            end
         end
         
         %-----------------------------------------------------------------
@@ -368,7 +399,25 @@ classdef hor_config<config_base
             end
             config_store.instance().store_config(this,'accumulating_process_num',nproc);
         end
-        
+        function this = set.working_directory(this,val)
+            % Check and set working directory
+            if ~is_string(val)
+                error('HOR_CONFIG:invalid_argument',...
+                    'working directory value should be a ')
+            end
+            if ~isempty(val)
+                test_dir = fullfile(val,'horace_test_write_directory');
+                clob = onCleanup(@()rmdir(test_dir,'s'));
+                ok = mkdir(test_dir);
+                if ~ok
+                    warning('HOR_CONFIG:invalid_argument',...
+                        'working directory %s does not have write permissions. Changing it to %s directory',...
+                        val,tempdir);
+                    val = '';
+                end
+            end
+            config_store.instance().store_config(this,'working_directory',val);
+        end
         
         %--------------------------------------------------------------------
         

@@ -1,4 +1,4 @@
-function [tmp_file,sqw_file_tmp] = gen_tmp_filenames (spe_file, sqw_file, ind)
+function [tmp_file,sqw_file_tmp] = gen_tmp_filenames (spe_file, sqw_file,ind)
 % Create temporary sqw file names, one for each of the spe files to be processed
 %
 %   >> tmp_file = gen_tmp_filenames (spe_file, sqw_file, ind)
@@ -59,6 +59,18 @@ ntmp=numel(ind);
 tmp_file = cell(ntmp,1);
 [tmp_path,sqw_name,sqw_ext] = fileparts(sqw_file);
 tmp_ext = '.tmp';
+
+%
+hc = hor_config;
+%
+wk_dir_is_default = hc.wkdir_is_default;
+if wk_dir_is_default % if working directory has not been explicitly set,
+    % set is to the folder where sqw files are located
+    hc.working_driectory = tmp_path;
+else % use explicitly defined working directory to store tmp files
+    tmp_path= hc.working_driectory;
+end
+
 
 name=cell(ntmp,1);
 for i=1:ntmp

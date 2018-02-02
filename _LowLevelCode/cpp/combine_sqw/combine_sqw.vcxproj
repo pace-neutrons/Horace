@@ -217,6 +217,7 @@ copy $(OutDir)*.pdb  $(OutDir)..\..\..\..\..\DLL\_PCWIN64\*</Command>
       <AdditionalIncludeDirectories>$(MATLABDIR)64\extern\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BrowseInformation>false</BrowseInformation>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

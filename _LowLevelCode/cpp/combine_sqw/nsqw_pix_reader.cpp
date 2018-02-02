@@ -62,7 +62,7 @@ void nsqw_pix_reader::read_pix_info(size_t &n_buf_pixels, size_t &n_bins_process
             fileReaders[i].get_pix_map().get_npix_for_bin(n_bin, pix_start_num, npix);
             cell_pix += npix;
         }
-
+        // Number of bins to read pixels to
         n_bins_processed = n_bin;
         if (nBinBuffer) {
             nBinBuffer[n_bin] = cell_pix;
@@ -71,17 +71,17 @@ void nsqw_pix_reader::read_pix_info(size_t &n_buf_pixels, size_t &n_bins_process
         if (cell_pix == 0)continue;
 
         if (cell_pix + n_buf_pixels > pix_buffer_size) {
-            if (n_bins_processed == 0) {
+            if (n_bins_processed - first_bin == 0) {
                 if (n_buf_pixels == 0) {
                     pPixBuffer = Buff.get_read_buffer(cell_pix);
                     pix_buffer_size = Buff.pix_buf_size();
                 }
-                else {
+                else { // problem occurs if we have range of pixel read into buffer and written to target and then one large pixel. Currently we can only write complete pixels ranges
                     Buff.set_interrupted("==>output pixels buffer is too small to accommodate a single bin. Increase the size of output pixels buffer");
                     break;
                 }
             }
-            else {
+            else { // 
                 n_bins_processed--;
                 break;
             }

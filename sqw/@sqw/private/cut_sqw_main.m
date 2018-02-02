@@ -370,14 +370,15 @@ if source_is_file
     if fid<0
         error(['Unable to open file ',data_source])
     end
+    clobInput = onCleanup(@()fclose(fid));
+    
     status=fseek(fid,pix_position,'bof');    % Move directly to location of start of pixel data block
     if status<0;  fclose(fid);
         error(['Error finding location of pixel data in file ',data_source]);
     end
     [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
         proj, targ_pax, targ_nbin);
-    fclose(fid);
-    
+    clear clobInput;
     
 else
     [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_array (data.pix, nstart, nend, keep_pix, ...
@@ -386,8 +387,10 @@ end
 % For convenience later on, set a flag that indicates if pixel info buffered in files
 if isa(pix,'pix_combine_info')
     pix_tmpfile_ok=true;
+    tmpFilesClob = onCleanup(@()delete_tmp_pix_files(pix));
 else
     pix_tmpfile_ok=false;
+    tmpFilesClob = [];
 end
 
 % Convert range from steps to actual range with respect to output uoffset:
@@ -469,9 +472,7 @@ if save_to_file
         
         if pix_tmpfile_ok
             % mess = put_sqw (fout,w.main_header,w.header,w.detpar,w.data,'-pix',pix.tmpfiles,pix.pos_npixstart,pix.pos_pixstart,'nochange');
-            for ifile=1:pix.nfiles   % delete the temporary files
-                delete(pix.infiles{ifile});
-            end
+            clear tmpFilesClob;
         end
         if ~isempty(mess)
             warning('CUT_SQW_MAIN:io_error','Error saving pixels to file: %s',mess)
@@ -482,6 +483,9 @@ if save_to_file
     if hor_log_level>=0, disp(' '), end
 end
 
+if exist('tmpFilesClob','var') && ~isemtpy(tmpFilesClob) %to satisfy Matlab code analyzer who complain about 
+    clear tmpFilesClob    % tmpFilesClob missing
+end
 
 % Create output argument if requested
 % -----------------------------------
@@ -501,5 +505,12 @@ if hor_log_level>=1
     disp(' ')
     bigtoc('Total time in cut_sqw:',hor_log_level)
     disp('--------------------------------------------------------------------------------')
+end
+
+
+function delete_tmp_pix_files(pix_info)
+% delete temporary pix info files, created by file-based cut;
+for ifile=1:pix_info.nfiles   % delete the temporary files
+    delete(pix_info.infiles{ifile});
 end
 
