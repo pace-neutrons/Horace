@@ -253,7 +253,6 @@
          <completed_on>[2018 2 2 20 37 7.479]</completed_on>
       </cutE_AllInt_filebased_nw0>
    </ndw1676_nf250>
- </ndw1676_nf250>
    <!-- my laptop performance -->
    <ndlt618_SQW_GENCUT_perf/>
    <ndlt618_nf10>
@@ -392,7 +391,6 @@
          <completed_on>[2018 1 31 16 40 31.30864]</completed_on>
       </cutE_AllInt_filebased_nw8>
    </ndmlnx01_isis_cclrc_ac_uk_nf10>
-   
    <ndmlnx01_isis_cclrc_ac_uk_nf50>
       <gen_sqw_nWorkers8>
          <time_sec>199.381188</time_sec>
