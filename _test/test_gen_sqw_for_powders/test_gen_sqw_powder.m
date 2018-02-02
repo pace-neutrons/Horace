@@ -79,7 +79,7 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             pow_phx_file=fullfile(tempdir,'test_pow_rings.phx');
             this.sqw_pow_rings_file=fullfile(tempdir,'test_pow_rings.sqw');
             %
-            this.cleanup_obj=onCleanup(@()this.rm_files(this.sqw_pow_file,this.sqw_pow_rings_file,spe_pow_file,pow_par_file,pow_phx_file));
+            this.cleanup_obj=onCleanup(@()this.delete_files(this.sqw_pow_file,this.sqw_pow_rings_file,spe_pow_file,pow_par_file,pow_phx_file));
             
             %--------------------------------------------------------------------------------------------------
             % Perform a powder average in Horace

@@ -483,7 +483,7 @@ if save_to_file
     if hor_log_level>=0, disp(' '), end
 end
 
-if exist('tmpFilesClob','var') && ~isemtpy(tmpFilesClob) %to satisfy Matlab code analyzer who complain about 
+if exist('tmpFilesClob','var') && ~isempty(tmpFilesClob) %to satisfy Matlab code analyzer who complain about 
     clear tmpFilesClob    % tmpFilesClob missing
 end
 

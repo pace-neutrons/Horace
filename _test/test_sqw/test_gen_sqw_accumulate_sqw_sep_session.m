@@ -349,7 +349,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             
             sqw_file_accum=fullfile(tempdir,['test_sqw_accum_sqw14_multisession.sqw']);
             sqw_file_14=fullfile(tempdir,['test_sqw_14_multisession.sqw']);    % output sqw file
-            cleanup_obj1=onCleanup(@()rm_files(this,sqw_file_14,sqw_file_accum));
+            cleanup_obj1=onCleanup(@()delete_files(this,sqw_file_14,sqw_file_accum));
             
             % --------------------------------------- Test accumulate_sqw
             % ---------------------------------------
