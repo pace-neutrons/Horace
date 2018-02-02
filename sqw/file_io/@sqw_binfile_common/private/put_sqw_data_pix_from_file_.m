@@ -259,7 +259,11 @@ while ibin_end<nbin
                 %                 end
                 %                 ind=[nranges{:}];           % index into pix_buff of the order in which to write pixels
                 blocks_size = nend-nbeg+1;
-                all_sizes =[0;cumsum(blocks_size)];
+                if size(blocks_size,1) == 1
+                    all_sizes =[0,cumsum(blocks_size)];
+                else
+                    all_sizes =[0;cumsum(blocks_size)];
+                end
                 ind  = zeros(all_sizes(end),1);
                 for i=1:length(nbeg)
                     ind((all_sizes(i)+1):all_sizes(i+1))=nbeg(i):nend(i);
@@ -276,7 +280,7 @@ while ibin_end<nbin
                     total_size_written = total_size_written + count;
                     t_write=toc(tw);
                     %block_size = numel(pix_buff)*4/(1024*1024);
-                    block_size = count*4/(1024*1024);                    
+                    block_size = count*4/(1024*1024);
                     file_size = file_size+block_size;
                     disp(['   ***time to flush buffer : ',num2str(t_write),' speed: ',num2str(block_size/t_write),'MB/sec'])
                 end
@@ -303,6 +307,7 @@ end
 
 %profile off
 %profile viewer
+clear clob;
 mess_completion
 if (log_level>1)
     total_size_written = total_size_written*4/(1024*1024);
@@ -419,7 +424,7 @@ try
     end
     combine_sqw(in_params,out_param ,program_param);
     mess = '';
-catch ME;
+catch ME
     mess = [ME.identifier,'::',ME.message];
     disp(['Error using C to combine files: ',mess,'; Reverted to Matlab'])
 end
