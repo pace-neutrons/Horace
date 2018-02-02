@@ -117,7 +117,21 @@ classdef config_store < handle
         % saveble property is not stored to HDD and is the property
         % of the object persistent untill objects configuration is in memory
         function is = get_saveable(this,class_to_check)
-            class_name = class_to_check.class_name;
+            % returns true if a configuration class requested as input is saveable
+            % i.e. changes in configuration are stored on hdd
+            % usage:
+            %>>is = config_store.instance().get_saveable('class_name')
+            %or 
+            %>>is = config_store.instance().get_saveable(class_instance)
+            %
+            % where 'class_name' or class_instance is a configuration class
+            % to check
+            %
+            if is_string(class_to_check)
+                class_name  = class_to_check;
+            else
+                class_name = class_to_check.class_name;
+            end
             if this.saveable_.isKey(class_name)
                 is = this.saveable_(class_name);
             else
@@ -126,12 +140,29 @@ classdef config_store < handle
             end
         end
         function set_saveable(this,class_instance,is_it)
+            % set or clear the property, which defines if the changes in
+            % the class configuration are stored on hdd
+            % usage:
+            %>>config_store.instance().set_saveable('class_name',to_save)
+            %or 
+            %>>config_store.instance().set_saveable(class_instance,to_save)
+            %
+            % where 'class_name' or class_instance is a configuration class
+            % to set and the variable to_save is true if the class shold be
+            % made saveable and false otherwise. 
+            %
+
             if is_it > 0
                 is_saveable=true;
             else
                 is_saveable=false;
             end
-            class_name = class_instance.class_name;
+            if is_string(class_instance)
+                class_name  = class_instance;
+            else
+                class_name = class_instance.class_name;
+            end
+
             this.saveable_(class_name)=is_saveable;
         end
         %------------------------------------------------------------------
@@ -143,7 +174,7 @@ classdef config_store < handle
             %>>val =
             %      config_store.instance().get_value(class_name,property_name)
             % or
-            %>> val1,val2,val3 = config_store.instance().get_value(class_name,property_name1,property_name2,property_name3)
+            %>>[val1,val2,val3] = config_store.instance().get_value(class_name,property_name1,property_name2,property_name3)
             %
             [config_val,out] = this.get_config_val_internal(class_name,value_name,varargin);
             nout = max(nargout,1) - 1;
