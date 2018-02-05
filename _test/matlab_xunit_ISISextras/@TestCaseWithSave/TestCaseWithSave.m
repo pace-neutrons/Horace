@@ -152,7 +152,7 @@ classdef TestCaseWithSave < TestCase
                 name = varargin{1};
                 if nargin>1
                     argi = varargin(2:end);
-                 else
+                else
                     argi = {};
                 end
             else
@@ -420,19 +420,26 @@ classdef TestCaseWithSave < TestCase
     % available for general use in test suites
     methods(Static)
         %------------------------------------------------------------------
-        function delete_files (files)
+        function delete_files (varargin)
             % Delete file or files
             %
-            %   testCaseWithSave2.delete_files (files)
+            %   testCaseWithSave.delete_files (files)
             %
             % files is a file name or cell array of file names
             
             % Turn warnings off to prevent distracting messages
             warn = warning('off','all');
-            % Delete files
-            if ischar(files)
-                files={files};
+            % accept any form of fileslist to delete: a file, cellarray of
+            % filenames or list of arguments
+            if nargin == 1
+                files=varargin{1};                
+                if ischar(files)
+                    files = {files};
+                end
+            else
+                files = varargin;
             end
+            % Delete files
             for i=1:numel(files)
                 if exist(files{i},'file')
                     try
