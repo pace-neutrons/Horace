@@ -3,7 +3,8 @@ function [prop_value,out] =get_config_val_internal(this,class_name,prop_name,var
 %
 %input:
 % class_name -- name of the class to restore value from HDD or memory if
-%                     already loaded
+%               already loaded or the instance of such class
+% 
 % prop_name  -- the name of the property to get stored value
 %
 %Returns:
@@ -16,10 +17,16 @@ function [prop_value,out] =get_config_val_internal(this,class_name,prop_name,var
 
 
 % if class exist in memory, return it from memory;
+if ~ischar(class_name) % should be class instance; fail otherwise. 
+    class_to_restore  = class_name;
+    class_name = class_to_restore.class_name;
+else
+    class_to_restore = feval(class_name);    
+end
+%
 if isfield(this.config_storage_,class_name)
     config_data = this.config_storage_.(class_name);
 else
-    class_to_restore = feval(class_name);
     filename = fullfile(this.config_folder,[class_name,'.mat']);
     class_fields = class_to_restore.get_storage_field_names();
     [config_data,result,mess] = load_config_from_file(filename,class_fields);

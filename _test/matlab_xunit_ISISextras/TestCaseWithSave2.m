@@ -61,7 +61,7 @@ classdef TestCaseWithSave2 < TestCaseWithSave
     %               end
     %
     % Now follows each test method. The name of each of the methods must
-    % begin with 'test' or 'Test'. All the usual functions of the matlab xUnit
+    % begin with 'test' or 'Test'. All the usual functions of the Matlab xUnit
     % test suite are available (assertTrue, assertEqual etc.) but in addition
     % there is the function assertEqualToTol which tests equality of arbitrarily
     % complex structures and objects with various further options to control the
@@ -148,8 +148,8 @@ classdef TestCaseWithSave2 < TestCaseWithSave
     %   save_output             - if the test suite output is being saved or not
     %
     % It can be useful to know in a test method if the data is being saved for example
-    % if new output is being generated that would wotherwise cause tests to fail. A
-    % common case is with the assertion-witout-save functions e.g. assertEqualToTol or
+    % if new output is being generated that would otherwise cause tests to fail. A
+    % common case is with the assertion-without-save functions e.g. assertEqualToTol or
     % assertEqual. In this case, an error will be thrown and execution will cease.
     %
     %
@@ -225,7 +225,7 @@ classdef TestCaseWithSave2 < TestCaseWithSave
                         % Either this class, or test suite class, and no saving of output
                         save_output = false;
                     elseif caller_is_test_suite && strcmpi(name,'-save')
-                        % Save output from tests to file as reference datatsets for
+                        % Save output from tests to file as reference datasets for
                         % testing against in future running of the tests
                         save_output = true;
                         test_method_to_save = {};   % means all methods

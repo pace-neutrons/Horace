@@ -80,7 +80,7 @@ classdef TestCaseWithSave < TestCase
     
     properties(Access=protected)
         
-        % List of the reference data aganst which to compare, or save
+        % List of the reference data against which to compare, or save
         ref_data_=struct();
         
         % Filename for reading or writing test output
@@ -172,8 +172,8 @@ classdef TestCaseWithSave < TestCase
                 fname = build_default_test_results_filename_(class(this));
             end
             % check if generated filename acceptable and possibly modify it
-            % accordibng to -save operational modes. Warn if modification
-            % is requered
+            % according to -save operational modes. Warn if modification
+            % is required
             this.test_results_file=fname;
             
             
@@ -432,7 +432,7 @@ classdef TestCaseWithSave < TestCase
             % accept any form of fileslist to delete: a file, cellarray of
             % filenames or list of arguments
             if nargin == 1
-                files=varargin{1};                
+                files=varargin{1};
                 if ischar(files)
                     files = {files};
                 end
@@ -453,15 +453,26 @@ classdef TestCaseWithSave < TestCase
         end
         
         %------------------------------------------------------------------
-        function remove_paths (paths)
+        function remove_paths (varargin)
             % Remove path or paths
             %
-            %   testCaseWithSave2.remove_paths (paths)
+            %   testCaseWithSave.remove_paths (paths)
             %
             % paths is a path name or cell array of path names
             
             % Turn warnings off to prevent distracting messages
             warn = warning('off','all');
+            % accept any form of file path to delete: a path, cellarray of
+            % filenames or list of arguments            
+            if nargin == 1
+                paths=varargin{1};
+                if ischar(paths)
+                    paths = {paths};
+                end
+            else
+                paths = varargin;
+            end
+            
             % Delete paths
             if ischar(paths)
                 paths={paths};
