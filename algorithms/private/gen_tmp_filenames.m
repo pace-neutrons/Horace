@@ -60,26 +60,41 @@ tmp_file = cell(ntmp,1);
 [tmp_path,sqw_name,sqw_ext] = fileparts(sqw_file);
 tmp_ext = '.tmp';
 
+
+name=cell(ntmp,1);
+spe_path = '';
+for i=1:ntmp
+    if ~isempty(spe_file{ind(i)})
+        [sp,name{i}]=fileparts(spe_file{ind(i)});
+        if isempty(spe_path)
+            spe_path  = sp;
+        end
+    else
+        name{i}='dummy';
+    end
+end
+
 %
 hc = hor_config;
 %
 wk_dir_is_default = hc.wkdir_is_default;
 if wk_dir_is_default % if working directory has not been explicitly set,
     % set is to the folder where sqw files are located
-    hc.working_directory = tmp_path;
+    if isempty(tmp_path)
+        if isempty(spe_path)
+            tmp_path = pwd;
+        else
+            hc.working_directory = spe_path;
+            tmp_path = spe_path;
+            
+        end
+    else
+        hc.working_directory = tmp_path;
+    end
 else % use explicitly defined working directory to store tmp files
     tmp_path= hc.working_directory;
 end
 
-
-name=cell(ntmp,1);
-for i=1:ntmp
-    if ~isempty(spe_file{ind(i)})
-        [~,name{i}]=fileparts(spe_file{ind(i)});
-    else
-        name{i}='dummy';
-    end
-end
 
 % Must account for the possibility that the spe file is repeated, or that
 % the name is not unique even if the full name is unique
