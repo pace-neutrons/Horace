@@ -146,13 +146,13 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             
             
             
-            function fn = replace_fext(fn)
-                [fp,fn] = fileparts(fn);
+            function fn = replace_fext(fp,fn)
+                [~,fn] = fileparts(fn);
                 fn = fullfile(fp,[fn,'.tmp']);
             end
-            
+            wk_dir = hc.working_directory;
             spe_files = obj.test_source_files_list_;
-            tmp_files = cellfun(@(fn)(replace_fext(fn)),spe_files,'UniformOutput',false);
+            tmp_files = cellfun(@(fn)(replace_fext(wk_dir,fn)),spe_files,'UniformOutput',false);
             
             % check all tmp files were generated
             f_exist = cellfun(@(fn)(exist(fn,'file')==2),tmp_files,'UniformOutput',true);
@@ -179,7 +179,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             % before the end of the test
             assertTrue(isa(clob_wk,'onCleanup'))
             
-            obj.delete_files(tmp_files{:});
+            obj.delete_files(tmp_files);
             
         end
         %------------------------------------------------------------------
@@ -278,7 +278,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             % file-based cuts
             fl2del = {'cutH1D_AllInt.sqw','cutK1D_AllInt.sqw',...
                 'cutL1D_AllInt.sqw','cutE_AllInt.sqw'};
-            clob1 = onCleanup(@()delete_files(obj,fl2del{:}));
+            clob1 = onCleanup(@()obj.delete_files(fl2del));
             
             ts = tic();
             proj1 = struct('u',[1,0,0],'v',[0,1,1]);
@@ -315,11 +315,11 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             %  if input n_workers == 0, current number of parallel
             % workers remains unchanged
             %
+            hc = hor_config;            
             if n_workers == 0 % keep existing number of workers unchanged
                 clob = onCleanup(@()(0));
                 return;
             end
-            hc = hor_config;
             as = hc.accum_in_separate_process;
             an = hc.accumulating_process_num;
             if as && an > 1
