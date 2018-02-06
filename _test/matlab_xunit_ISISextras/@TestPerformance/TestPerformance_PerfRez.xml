@@ -2,9 +2,9 @@
 <TestPerformance>
    <ndw1676_TestPerformance>
       <test_constructor_operations>
-         <time_sec>0.00213915393333163</time_sec>
+         <time_sec>0.000690316661661733</time_sec>
          <comment>this is not a performance test itself but the test of performance test operational</comment>
-         <completed_on>[2018 2 2 20 43 17.096]</completed_on>
+         <completed_on>[2018 2 6 13 58 10.983]</completed_on>
       </test_constructor_operations>
    </ndw1676_TestPerformance>
 </TestPerformance>

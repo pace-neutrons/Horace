@@ -43,6 +43,8 @@ clob = onCleanup(@()this.clear_all_messages());
 prog_start_str = this.worker_prog_string;
 n_workers = numel(worker_inits);
 %
+processes = cell(1,n_workers);
+runtime = java.lang.Runtime.getRuntime();
 for i=1:n_workers
     worker_id = worker_inits{i};
     if ispc
@@ -57,14 +59,31 @@ for i=1:n_workers
         
     end
     % run external job
-    [nok,mess]=system(job_str);
-    if nok
-        error('JobDispatcher:starting_workers',[' Can not start worker N %d.',...
-            ' Message returned: %s'],worker_id,mess);
+    %[nok,mess]=system(job_str);
+    processes{i} = runtime.exec(job_str);
+    try
+        nok = processes{i}.exitValue();
+        if nok
+            error('JobDispatcher:starting_workers',[' Can not start worker N %d.',...
+                ' Message returned: %s'],worker_id,mess);
+        end        
+    catch Err
+        if strcmp(Err.identifier,'MATLAB:Java:GenericException')
+            pat = strfind(Err.message,'process has not exited');
+            if isempty(pat)
+                error(Err);
+            else
+                continue
+            end
+        else
+            error(Err);
+        end
     end
 end
+clob1 = onCleanup(@()clear_all_processes(processes));
 pause(1);
 waiting_time = this.jobs_check_time;
+
 
 count = 0;
 [completed,n_failed,~,this]=check_jobs_status_(this);
@@ -95,4 +114,9 @@ for ind = 1:n_workers
         outputs{ind} = job_info{ind}.outputs;
     end
 end
+
+function clear_all_processes(proc_list)
+
+for i=1:numel(proc_list)
+    proc_list{i}.destroy();
 end

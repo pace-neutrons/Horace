@@ -9,6 +9,9 @@ classdef test_job_dispatcher< TestCase
     methods
         %
         function this=test_job_dispatcher(name)
+            if ~exist('name','var')
+                name = 'test_job_dispatcher';
+            end
             this = this@TestCase(name);
             this.working_dir = tempdir;
         end

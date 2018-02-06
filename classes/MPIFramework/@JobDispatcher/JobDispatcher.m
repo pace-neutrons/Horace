@@ -1,5 +1,5 @@
 classdef JobDispatcher < MessagesFramework
-    % Simple multiple Matlab sessions spawner
+    % Simple multiple Matlab sessions spawner, spawning worker jobs.
     %
     % Similar to parfor bud does not need parallel toolbox and starts
     % separate Matlab sessions to do the job
