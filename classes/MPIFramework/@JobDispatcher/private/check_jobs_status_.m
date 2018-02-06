@@ -1,4 +1,4 @@
-function [completed,n_failed,all_changed,this]= check_jobs_status_(this)
+function [completed,n_failed,all_changed,this]= check_jobs_status_(this,processes)
 % Scan through the registered jobs list to identify the status of these jobs
 %
 % Report if all jobs were complteted or failed or how many jobs have
@@ -20,6 +20,8 @@ for id=1:n_jobs
     if isempty(this.running_jobs_(id)) %its a bug which should not happen
         continue;
     end
+    [completed,ok] = check_job_completed_(processes{id});
+        
     %
     job = this.running_jobs_{id};
     [job,is_running] = job.check_and_set_job_state(this,all_messages{id});

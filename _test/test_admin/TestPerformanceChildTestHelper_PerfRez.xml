@@ -7,4 +7,11 @@
          <completed_on>[2018 2 6 13 58 10.249]</completed_on>
       </fake_test_operations>
    </ndw1676_TestPerformanceChildTestHelper>
+   <ndmlnx01_isis_cclrc_ac_uk_TestPerformanceChildTestHelper>
+      <fake_test_operations>
+         <time_sec>0.003018</time_sec>
+         <comment>this is not a performance test itself but the test of performance test inheritance operational</comment>
+         <completed_on>[2018 2 6 14 0 27.462679]</completed_on>
+      </fake_test_operations>
+   </ndmlnx01_isis_cclrc_ac_uk_TestPerformanceChildTestHelper>
 </TestPerformanceChildTestHelper>

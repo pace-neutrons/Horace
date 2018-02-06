@@ -48,6 +48,7 @@ runtime = java.lang.Runtime.getRuntime();
 for i=1:n_workers
     worker_id = worker_inits{i};
     if ispc
+        %job_str = sprintf('%s  -nosplash -r worker(''%s'',''%s'');exit; & exit',...
         job_str = sprintf('%s -nojvm -nosplash -r worker(''%s'',''%s'');exit; & exit',...
             prog_start_str,job_class_name,worker_id);
     else
@@ -61,23 +62,10 @@ for i=1:n_workers
     % run external job
     %[nok,mess]=system(job_str);
     processes{i} = runtime.exec(job_str);
-    try
-        nok = processes{i}.exitValue();
-        if nok
-            error('JobDispatcher:starting_workers',[' Can not start worker N %d.',...
-                ' Message returned: %s'],worker_id,mess);
-        end        
-    catch Err
-        if strcmp(Err.identifier,'MATLAB:Java:GenericException')
-            pat = strfind(Err.message,'process has not exited');
-            if isempty(pat)
-                error(Err);
-            else
-                continue
-            end
-        else
-            error(Err);
-        end
+    [completed,ok,mess] = check_job_completed_(processes{i});
+    if completed && ~ok
+        error('JobDispatcher:starting_workers',[' Can not start worker N %d.',...
+            ' Message returned: %s'],worker_id,mess);
     end
 end
 clob1 = onCleanup(@()clear_all_processes(processes));
@@ -86,7 +74,7 @@ waiting_time = this.jobs_check_time;
 
 
 count = 0;
-[completed,n_failed,~,this]=check_jobs_status_(this);
+[completed,n_failed,~,this]=check_jobs_status_(this,processes);
 while(~completed)
     if count == 0
         fprintf('**** Waiting for workers to finish their jobs ****\n')
