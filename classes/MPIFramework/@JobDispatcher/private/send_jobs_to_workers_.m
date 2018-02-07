@@ -44,28 +44,36 @@ prog_start_str = this.worker_prog_string;
 n_workers = numel(worker_inits);
 %
 processes = cell(1,n_workers);
-runtime = java.lang.Runtime.getRuntime();
+%runtime = java.lang.Runtime.getRuntime();
+runtime = java.lang.ProcessBuilder({prog_start_str,' -nosplash',' -nojvm'});
 for i=1:n_workers
-    worker_id = worker_inits{i};
+    worker_init = worker_inits{i};
     if ispc
         %job_str = sprintf('%s  -nosplash -r worker(''%s'',''%s'');exit; & exit',...
         job_str = sprintf('%s -nojvm -nosplash -r worker(''%s'',''%s'');exit; & exit',...
-            prog_start_str,job_class_name,worker_id);
+            prog_start_str,job_class_name,worker_init);
+        run_mess = 'process has not exited';
     else
-        job_str = sprintf('%s -nosplash -r "worker(''%s'',''%s'');exit;" &',...
-            prog_start_str,job_class_name,worker_id);
-        %         job_str = sprintf('%s -logfile "/home/wkc26243/test_worker_log.log" -r "worker(''%s'',''%s'');exit;" &',...
-        %             prog_start_str,job_class_name,worker_id);
+        %job_str = sprintf('%s -nosplash -nojvm -r "worker(''%s'',''%s'');exit;" &',...
+        %    prog_start_str,job_class_name,worker_id);
+        job_str = {prog_start_str,'-nosplash','-nojvm','-logfile',...
+            '/home/wkc26243/test_worker_log.log', '-r', ....
+            sprintf('worker(''%s'',''%s'');exit;',job_class_name,worker_init)};
+
         
+        run_mess = 'process hasn''t exited';
         
     end
     % run external job
     %[nok,mess]=system(job_str);
-    processes{i} = runtime.exec(job_str);
-    [completed,ok,mess] = check_job_completed_(processes{i});
+    runtime = runtime.command(job_str);
+    processes{i} = runtime.start();
+    
+    
+    [completed,ok,mess] = check_job_completed_(processes{i},run_mess);
     if completed && ~ok
         error('JobDispatcher:starting_workers',[' Can not start worker N %d.',...
-            ' Message returned: %s'],worker_id,mess);
+            ' Message returned: %s'],i,mess);
     end
 end
 clob1 = onCleanup(@()clear_all_processes(processes));
@@ -74,14 +82,14 @@ waiting_time = this.jobs_check_time;
 
 
 count = 0;
-[completed,n_failed,~,this]=check_jobs_status_(this,processes);
+[completed,n_failed,~,this]=check_jobs_status_(this,processes,run_mess);
 while(~completed)
     if count == 0
         fprintf('**** Waiting for workers to finish their jobs ****\n')
         this.running_jobs_=print_job_progress_log_(this.running_jobs_);
     end
     pause(waiting_time);
-    [completed,n_failed,all_changed,this]=check_jobs_status_(this);
+    [completed,n_failed,all_changed,this]=check_jobs_status_(this,processes,run_mess);
     count = count+1;
     fprintf('.')
     if mod(count,19)==0 || all_changed
