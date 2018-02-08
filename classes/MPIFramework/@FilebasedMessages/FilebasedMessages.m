@@ -1,15 +1,19 @@
-classdef MessagesFramework
-    % Host class for message Herbert distributed jobs framework
+classdef FilebasedMessages < iMessagesFramework
+    % The class providing file-based message exchange functionality for Herbert
+    % distributed jobs framework.
     %
-    % Similar to parfor bud does not need parallel toolbox and starts
-    % separate Matlab sessions to do the job
-    %
+    % The framework's functionality is similar to parfor
+    % but does not requered parallel toolbox and works by starting
+    % separate Matlab sessions to do separate jobs.
     % Works in conjunction with worker function from admin folder,
     % The worker has to be placed on Matlab search path
     % defined before Herbert is initiated
     %
     %
-    % $Revision$ ($Date$)
+    % This class provides physical mechanism to exchange messages between jobs.
+    %
+    %
+    % $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
     %
     %
     properties(Dependent)
@@ -34,58 +38,12 @@ classdef MessagesFramework
         exchange_folder_;
         % default prefix is random string of 10 capital Latin letters
         % (25 such letters)
-        job_control_pref_ = char(floor(25*rand(1,10)) + 65);        
-    end
-    %----------------------------------------------------------------------
-    methods(Static)
-        %
-        function params = deserialize_par(par_string)
-            % function restores job parameters from job string
-            % representation
-            %
-            par_string = strrep(par_string,'x',' ');
-            len = numel(par_string)/3;
-            sa = reshape(par_string,len,3);
-            iarr = uint8(str2num(sa));
-            params  =  hlp_deserialize(iarr);
-        end
-        %
-        function [par,mess] = serialize_par(param)
-            % convert job parameters structure or class into job
-            % parameter's string
-            %
-            % (e.g. serialize job parameters in a way, to be able to
-            % transfer it to other Matlab session
-            %
-            mess = '';
-            par = '';
-            try
-                v = hlp_serialize(param);
-            catch ME
-                mess = ME.message;
-                return
-            end
-            par=num2str(v);
-            par = reshape(par,1,numel(par));
-            par = strrep(par,' ','x');
-            
-        end
-        function info = worker_job_info(id,file_pref)
-            % the structure, used to transmit information to worker and
-            % initialize jobExecutor
-            % where:
-            % id        -- the job identifier
-            % file_pref -- prefix, to distinguish job control files of one
-            %              JobDispatcher from another
-            info = struct('job_id',id,'file_prefix',file_pref);
-        end
-        
-        %
+        job_control_pref_ = char(floor(25*rand(1,10)) + 65);
     end
     %----------------------------------------------------------------------
     methods
         %
-        function jd = MessagesFramework(varargin)
+        function jd = FilebasedMessages(varargin)
             % Initialize Messages framework for particular job
             % If provided with parameters, the first parameter should be
             % the sting-prefix of the job control files, used to
@@ -94,15 +52,16 @@ classdef MessagesFramework
             %Example
             % jd = MessagesFramework() -- use randomly generated job control
             %                             prefix
-            % jd = MessagesFramework('target_file_name') -- add prefix
-            %      which distinguish this job as the job which will produce
-            %      the file with the name provided
+            % jd = MessagesFramework('target_name') -- add prefix
+            %      which discribes this job. 
+            % Filebased messages frimework creates the exchange folder with
+            % the filename specified as input.
             %
             % Initialise folder path
             if nargin>0
                 jd.job_control_pref_ = varargin{1};
             end
-            root_cf = make_config_folder(MessagesFramework.exchange_folder_name);
+            root_cf = make_config_folder(FilebasedMessages.exchange_folder_name);
             job_folder = fullfile(root_cf,jd.job_control_pref_);
             if ~exist(job_folder,'dir')
                 [ok, mess] = mkdir(job_folder);
@@ -165,33 +124,33 @@ classdef MessagesFramework
         end
         %
         function all_messages_names = list_all_messages(obj,job_ids)
-            % list all messages existing in the system for the jobs 
+            % list all messages existing in the system for the jobs
             % with id-s specified as input
-            %Input: 
+            %Input:
             %job_ids -- array of job id-s to check messages for
             %Return:
-            % cellarray of strings, containing message names for the requested 
+            % cellarray of strings, containing message names for the requested
             % jobs.
-            % if no message for a job is present in the systen, 
+            % if no message for a job is present in the systen,
             %its cell remains empty
             %
             all_messages_names = list_all_messages_(obj,job_ids);
         end
         %
         function [all_messages,job_ids] = receive_all_messages(obj,job_ids)
-            % retrieve (and remove from system) all messages 
+            % retrieve (and remove from system) all messages
             % existing in the system for the jobs with id-s specified as input
             %
-            %Input: 
+            %Input:
             %job_ids -- array of job id-s to check messages for
             %Return:
-            % all_messages -- cellarray of messages for the jobs requested and 
+            % all_messages -- cellarray of messages for the jobs requested and
             %                 have messages availible in the system .
             %job_ids       -- array of job id-s for these messages
             %
             %
             [all_messages,job_ids] = receive_all_messages_(obj,job_ids);
-        end        
+        end
         %------------------------------------------------------------------
         function preffix = get.job_control_pref(obj)
             % returns job control files prefix
@@ -207,7 +166,7 @@ classdef MessagesFramework
             % function to initiate worker's control structure, necessary to
             % initiate jobExecutor
             css = MessagesFramework.worker_job_info(job_id,obj.job_control_pref);
-            cs = MessagesFramework.serialize_par(css);
+            cs = iMessagesFramework.serialize_par(css);
         end
         %
         function clear_all_messages(obj)
@@ -224,6 +183,17 @@ classdef MessagesFramework
             
         end
     end
-    
+    methods(Static)
+        function info = worker_job_info(id,file_pref)
+            % the structure, used to transmit information to worker and
+            % initialize jobExecutor
+            % where:
+            % id        -- the job identifier
+            % file_pref -- prefix, to distinguish job control files of one
+            %              JobDispatcher from another
+            info = struct('job_id',id,'file_prefix',file_pref);
+        end
+        
+    end
 end
 

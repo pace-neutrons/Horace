@@ -27,7 +27,7 @@ function [n_failed,outputs,job_ids,this]=send_jobs_to_workers_(this,...
 %              job_param_list, assigned to this job
 %
 %
-% $Revision$ ($Date$)
+% $Revision: 698 $ ($Date: 2018-02-07 19:14:10 +0000 (Wed, 07 Feb 2018) $)
 %
 %
 % identify number of jobs on the basis of number of parameters
@@ -45,24 +45,24 @@ n_workers = numel(worker_inits);
 %
 processes = cell(1,n_workers);
 %runtime = java.lang.Runtime.getRuntime();
-runtime = java.lang.ProcessBuilder(prog_start_str);
-job_common_str = {prog_start_str,'-nosplash','-nojvm','-r'};
+runtime = java.lang.ProcessBuilder('');
 for i=1:n_workers
     worker_init = worker_inits{i};
-    worker_str = sprintf('worker(''%s'',''%s'');exit;',job_class_name,worker_init);
     if ispc
-        %job_str = sprintf('%s -nojvm -nosplash -r worker(''%s'',''%s'');exit; & exit',...
-        %    prog_start_str,job_class_name,worker_init);        
+        job_str = sprintf('%s -nojvm -nosplash -r worker(''%s'',''%s'');exit; & exit',...
+            prog_start_str,job_class_name,worker_init);
         run_mess = 'process has not exited';
     else
         %job_str = sprintf('%s -nosplash -nojvm -r "worker(''%s'',''%s'');exit;" &',...
         %    prog_start_str,job_class_name,worker_id);
-        %job_str = {prog_start_str,'-nosplash','-nojvm','-logfile',...
-        %    '/home/wkc26243/test_worker_log.log', '-r', ....
-        %    };       
+        job_str = {prog_start_str,'-nosplash','-nojvm','-logfile',...
+            '/home/wkc26243/test_worker_log.log', '-r', ....
+            sprintf('worker(''%s'',''%s'');exit;',job_class_name,worker_init)};
+
+        
         run_mess = 'process hasn''t exited';
+        
     end
-    job_str = [job_common_str,{worker_str}];
     % run external job
     %[nok,mess]=system(job_str);
     runtime = runtime.command(job_str);

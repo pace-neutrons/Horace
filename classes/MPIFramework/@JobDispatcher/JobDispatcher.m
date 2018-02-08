@@ -1,4 +1,4 @@
-classdef JobDispatcher < MessagesFramework
+classdef JobDispatcher
     % Simple multiple Matlab sessions spawner, spawning worker jobs.
     %
     % Similar to parfor bud does not need parallel toolbox and starts
@@ -36,6 +36,7 @@ classdef JobDispatcher < MessagesFramework
         fail_limit_ = 100; % number of times to try for changes in job status file until
         % decided the job have failed
         %
+        mess_transport_;
     end
     
     methods
@@ -52,7 +53,7 @@ classdef JobDispatcher < MessagesFramework
             %      the file with the name provided
             %
             % Initialise folder path
-            jd = jd@MessagesFramework(varargin{:});
+            jd.mess_transport_ = FilebasedMessages(varargin{:});
         end
         %
         function [n_failed,outputs,job_ids,this]=send_jobs(this,...
