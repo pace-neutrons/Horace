@@ -1,4 +1,4 @@
-function   clear_all_messages_(obj)
+function   delete_job_(obj)
 %
 % delete all messages, in the exchange folder, which satisfy the message template
 %
@@ -10,7 +10,7 @@ end
 % may be jobs are writing to the folder and one can not remove them
 % immidiately
 itry = 0;
-while ~ok &&itry<10;
+while ~ok &&itry<10
     pause(1);
     [ok, message] = rmdir(mess_folder,'s');
     itry = itry+1;
@@ -18,6 +18,6 @@ end
 if ~ok
     warning('MESSAGES_FRAMEWORK:invalid_state',...
         [' Can not clear up all messages belonging to the framework instance %s\n',...
-         ' Messages folder %s; Error message: %s\n,'],obj.job_control_pref,...
+         ' Messages folder %s; Error message: %s\n,'],obj.job_id,...
         obj.exchange_folder,message);
 end

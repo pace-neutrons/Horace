@@ -4,13 +4,13 @@ classdef FilebasedMessages < iMessagesFramework
     %
     % The framework's functionality is similar to parfor
     % but does not requered parallel toolbox and works by starting
-    % separate Matlab sessions to do separate jobs.
+    % separate Matlab sessions to do separate tasks.
     % Works in conjunction with worker function from admin folder,
     % The worker has to be placed on Matlab search path
     % defined before Herbert is initiated
     %
     %
-    % This class provides physical mechanism to exchange messages between jobs.
+    % This class provides physical mechanism to exchange messages between tasks.
     %
     %
     % $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
@@ -20,12 +20,9 @@ classdef FilebasedMessages < iMessagesFramework
         % Properties of a job dispatcher:
         % the full path to the folder where the exchange configuration is stored
         exchange_folder;
-        % method returns a qualified name of a program to run (e.g. Matlab
-        % with all attributes necessary to start it (e.g. path if the program
-        % is not on the path)
-        % Job control file prefix used to distinguish between control
-        % files of the same user but created by different Matlab sessions
-        job_control_pref;
+        % Time in seconds a system waits for blocking message intil
+        % returning "not-received"
+        time_to_fail;
     end
     %----------------------------------------------------------------------
     properties(Constant=true)
@@ -36,9 +33,8 @@ classdef FilebasedMessages < iMessagesFramework
     properties(Access=protected)
         % folder where the messages are located
         exchange_folder_;
-        % default prefix is random string of 10 capital Latin letters
-        % (25 such letters)
-        job_control_pref_ = char(floor(25*rand(1,10)) + 65);
+        % time in second to wait for blocking message
+        time_to_fail_ = 1000;
     end
     %----------------------------------------------------------------------
     methods
@@ -53,20 +49,21 @@ classdef FilebasedMessages < iMessagesFramework
             % jd = MessagesFramework() -- use randomly generated job control
             %                             prefix
             % jd = MessagesFramework('target_name') -- add prefix
-            %      which discribes this job. 
+            %      which discribes this job.
             % Filebased messages frimework creates the exchange folder with
             % the filename specified as input.
             %
             % Initialise folder path
+            jd = jd@iMessagesFramework();
             if nargin>0
-                jd.job_control_pref_ = varargin{1};
+                jd.job_id = varargin{1};
             end
             root_cf = make_config_folder(FilebasedMessages.exchange_folder_name);
-            job_folder = fullfile(root_cf,jd.job_control_pref_);
+            job_folder = fullfile(root_cf,jd.job_id);
             if ~exist(job_folder,'dir')
                 [ok, mess] = mkdir(job_folder);
                 if ~ok
-                    error('MESSAGES_FRAMEWORK:constructor_error',...
+                    error('FILEMESSAGES_FRAMEWORK:runtime_error',...
                         'Can not create control folder %s\n  Error message: %s',...
                         root_cf,mess);
                 end
@@ -74,44 +71,46 @@ classdef FilebasedMessages < iMessagesFramework
             jd.exchange_folder_ = job_folder;
             
         end
+        function folder = get.exchange_folder(obj)
+            % return job control files prefix
+            folder  = obj.exchange_folder_;
+        end
         %
-        function [ok,err_mess] = send_message(obj,job_id,message)
-            % send message to a job with specified id
+        
+        %------------------------------------------------------------------
+        function fn = mess_name(obj,task_id,mess_name)
+            % Fully qualified name of the task status message, which allows
+            % to identify message in the system. For filebased messages this
+            % is the name of the message file
+            fn = obj.job_stat_fname_(task_id,mess_name);
+        end
+
+        function [ok,err_mess] = send_message(obj,task_id,message)
+            % send message to a task with specified id
             % Usage:
             % >>mf = MessagesFramework();
             % >>mess = aMessage('mess_name')
             % >>[ok,err_mess] = mf.send_message(1,mess)
             % >>ok  if true, says that message have been successfully send to a
-            % >>    job with id==1. (not received)
+            % >>    task with id==1. (not received)
             % >>    if false, error_mess indicates reason for failure
             %
-            [ok,err_mess] = send_message_(obj,job_id,message);
+            [ok,err_mess] = send_message_(obj,task_id,message);
         end
         %
-        function [ok,err_mess,message] = receive_message(obj,job_id,mess_name)
-            % receive message from a job with specified id
+        function [ok,err_mess,message] = receive_message(obj,varargin)
+            % receive message from a task with specified id
             % Usage:
             % >>mf = MessagesFramework();
             % >>mess = aMessage(1,'mess_name')
             % >>[ok,err_mess] = mf.send_message(1,mess)
             % >>ok  if true, says that message have been successfully
-            %       received from job with id==1.
+            %       received from task with id==1.
             % >>    if false, error_mess indicates reason for failure
             % >> on success, message contains an object of class aMessage,
             %    with message contents
             %
-            [ok,err_mess,message] = receive_message_(obj,job_id,mess_name);
-        end
-        %
-        function ok=check_message(obj,job_id,mess_name)
-            % check if specified message from the job with specified id
-            % exist or not
-            mess_fname = obj.job_stat_fname_(job_id,mess_name);
-            if exist(mess_fname,'file') == 2
-                ok = true;
-            else
-                ok = false;
-            end
+            [ok,err_mess,message] = receive_message_(obj,varargin{:});
         end
         %
         function is = is_job_cancelled(obj)
@@ -123,63 +122,54 @@ classdef FilebasedMessages < iMessagesFramework
             end
         end
         %
-        function all_messages_names = list_all_messages(obj,job_ids)
-            % list all messages existing in the system for the jobs
+        function all_messages_names = probe_all(obj,task_ids)
+            % list all messages existing in the system for the tasks
             % with id-s specified as input
             %Input:
-            %job_ids -- array of job id-s to check messages for
+            %task_ids -- array of task id-s to check messages for
             %Return:
             % cellarray of strings, containing message names for the requested
-            % jobs.
+            % tasks.
             % if no message for a job is present in the systen,
             %its cell remains empty
             %
-            all_messages_names = list_all_messages_(obj,job_ids);
+            all_messages_names = list_all_messages_(obj,task_ids);
         end
         %
-        function [all_messages,job_ids] = receive_all_messages(obj,job_ids)
+        function [all_messages,task_ids] = receive_all_messages(obj,task_ids)
             % retrieve (and remove from system) all messages
-            % existing in the system for the jobs with id-s specified as input
+            % existing in the system for the tasks with id-s specified as input
             %
             %Input:
-            %job_ids -- array of job id-s to check messages for
+            %task_ids -- array of task id-s to check messages for
             %Return:
-            % all_messages -- cellarray of messages for the jobs requested and
+            % all_messages -- cellarray of messages for the tasks requested and
             %                 have messages availible in the system .
-            %job_ids       -- array of job id-s for these messages
+            %task_ids       -- array of task id-s for these messages
             %
             %
-            [all_messages,job_ids] = receive_all_messages_(obj,job_ids);
+            [all_messages,task_ids] = receive_all_messages_(obj,task_ids);
         end
         %------------------------------------------------------------------
-        function preffix = get.job_control_pref(obj)
-            % returns job control files prefix
-            preffix  = obj.job_control_pref_;
-        end
-        %
-        function folder = get.exchange_folder(obj)
-            % return job control files prefix
-            folder  = obj.exchange_folder_;
-        end
-        %
-        function cs  = init_worker_control(obj,job_id)
+        function cs  = init_worker_control(obj,task_id)
             % function to initiate worker's control structure, necessary to
             % initiate jobExecutor
-            css = MessagesFramework.worker_job_info(job_id,obj.job_control_pref);
-            cs = iMessagesFramework.serialize_par(css);
+            css = MessagesFramework.worker_job_info(task_id,obj.job_id);
+            cs  = iMessagesFramework.serialize_par(css);
         end
         %
-        function clear_all_messages(obj)
+        function finalize_all(obj)
             % delete all messages belonging to this instance of messages
-            % framework
-            clear_all_messages_(obj);
+            % framework and delete the framework itself
+            delete_job_(obj);
         end
     end
     %----------------------------------------------------------------------
     methods (Access=protected)
-        function mess_fname = job_stat_fname_(obj,job_id,mess_name)
+        function mess_fname = job_stat_fname_(obj,task_id,mess_name)
+            %build filename for a specific message
             mess_fname= fullfile(obj.exchange_folder,...
-                sprintf('mess_%s_JobN%d.mat',mess_name,job_id));
+                sprintf('mess_%s_TaskN%d.mat',mess_name,task_id));
             
         end
     end

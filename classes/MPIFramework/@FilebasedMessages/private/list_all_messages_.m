@@ -1,43 +1,34 @@
-function all_messages = list_all_messages_(obj,job_ids)
+function all_messages = list_all_messages_(obj,task_ids)
 % list all messages belonging to the job and retrieve all their names
 % for the lobs with id, provided as input.
 % if no message is returned for a job, its name cell remains empty.
+if ~exist('task_ids','var')
+    task_ids = [];
+end
 
-all_messages = cell(numel(job_ids),1);
 
 mess_folder = obj.exchange_folder;
 folder_contents = dir(mess_folder);
 if numel(folder_contents )==0
     return;
 end
-mess_template = 'mess_';
-len = numel(mess_template);
-
-is_mess = arrayfun(@(x)(~x.isdir && strncmpi(mess_template,x.name,len)),folder_contents);
-mess_files = folder_contents(is_mess);
-if numel(mess_files) ==0
-    return;
-end
-if verLessThan('matlab','8.12')
-    mess_fnames = arrayfun(@(x)(regexp(x.name,'_','split')),mess_files,'UniformOutput',false);
-else
-    mess_fnames = arrayfun(@(x)(strsplit(x.name,'_')),mess_files,'UniformOutput',false);
-end
-
-mess_names = arrayfun(@(x)(x{1}{2}),mess_fnames,'UniformOutput',false);
-mess_id    = arrayfun(@(x)(sscanf(x{1}{3},'JobN%d.mat')),mess_fnames,'UniformOutput',true);
-
-
-for id=1:numel(job_ids)
-    correct_ind = ismember(mess_id,job_ids(id));
-    if any(correct_ind)
-        if sum(correct_ind) > 1 % this may only happen in tests when test failed initially but then 
-            % has been fixed but previous messages have not been deleted.
-            all_messages(id)={mess_names(correct_ind)};
-        else
-            all_messages(id)=mess_names(correct_ind);
+[mess_names,mess_id] = parce_folder_contents_(folder_contents);
+if isempty(task_ids)||numel(task_ids) == 0
+    all_messages = mess_id;
+else    
+    all_messages = cell(numel(task_ids),1);
+    for id=1:numel(task_ids)
+        
+        %correct_ind = ismember(mess_id,task_ids(id));
+        correct_ind = (mess_id == task_ids(id));
+        if any(correct_ind)
+            if sum(correct_ind) > 1 % this may only happen in tests when test failed initially but then
+                % has been fixed but previous messages have not been deleted.
+                all_messages(id)={mess_names(correct_ind)};
+            else
+                all_messages(id)=mess_names(correct_ind);
+            end
         end
     end
+    
 end
-
-

@@ -1,8 +1,17 @@
-function [ok,err_mess,message] = receive_message_(obj,job_id,mess_name)
-%   Receive message for job with id
-if ~isnumeric(job_id)
+function [err_code,err_mess,message] = receive_message_(obj,task_id,mess_name)
+%   Receive message for job with the task_id (MPI rank) specified)
+if ~exist('task_id','var')
     error('MESSAGES_FRAMEWORK:invalid_argument',...
-        'Job id to recive message from should be a number');
+        'Task_id to recive message should be present');
+end
+if ~isnumeric(task_id)
+    error('MESSAGES_FRAMEWORK:invalid_argument',...
+        'Task_id to recive message should be a number');
+end
+blocking_message = false;
+if ~exist('mess_name','var')
+    blocking_message = true;
+    mess_name = '';
 end
 if ~ischar(mess_name)
     error('MESSAGES_FRAMEWORK:invalid_argument',...
@@ -11,17 +20,31 @@ end
 %
 message=[];
 if ~exist(obj.exchange_folder,'dir')
-    ok = -1;
-    err_mess = sprintf('Job with id %s have been canceled',obj.job_control_pref);
+    err_code = MPI_err.job_canceled;
+    err_mess = sprintf('Job with id %s have been canceled',obj.job_id);
     return;
 end
 %
-mess_fname = obj.job_stat_fname_(job_id,mess_name);
-if exist(mess_fname,'file') ~= 2
-    ok = false;
-    err_mess = sprintf('Message "%s" for job with id: %d does not exist',mess_name,job_id);
-    message = [];
-    return;
+if blocking_message % not yet implemented, just receive all messages for this task id
+    mess_folder = obj.exchange_folder;
+    folder_contents = dir(mess_folder);
+    if numel(folder_contents )==0
+        return;
+    end
+    [mess_names,task_ids] = parce_folder_contents_(folder_contents);
+    intended = (task_ids == task_id);
+    if any(intended)
+    else
+    end
+    
+else
+    mess_fname = obj.job_stat_fname_(task_id,mess_name);
+    if exist(mess_fname,'file') ~= 2
+        err_code = MPI_err.not_exist;
+        err_mess = sprintf('Message "%s" for task with id: %d does not exist',mess_name,task_id);
+        message = [];
+        return;
+    end
 end
 %
 % safeguard against message start beeing written up
@@ -36,11 +59,11 @@ while ~received
     catch err
         ic = ic+1;
         if ic>try_limit
-            ok = false;
+            err_code  =MPI_err.an_error;
             err_mess = ...
-                sprintf('Message "%s" for job with id: %d does not exist, reason: s%',...
-                mess_name,job_id,err.message);            
-            message = [];            
+                sprintf('Can not retrieve message "%s" for task with id: %d does not exist, reason: s%',...
+                mess_name,task_id,err.message);
+            message = [];
             return;
         end
         pause(1)
@@ -48,7 +71,7 @@ while ~received
 end
 % process received message
 message = mesl.message;
-ok = true;
+err_code  =MPI_err.ok;
 err_mess=[];
 delete(mess_fname);
 

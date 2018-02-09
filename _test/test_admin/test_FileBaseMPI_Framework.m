@@ -1,6 +1,6 @@
-classdef test_MessageFramework< TestCase
+classdef test_FileBaseMPI_Framework< TestCase
     %
-    % $Revision$ ($Date$)
+    % $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
     %
     
     properties
@@ -8,7 +8,10 @@ classdef test_MessageFramework< TestCase
     end
     methods
         %
-        function this=test_MessageFramework(name)
+        function this=test_FileBaseMPI_Framework(name)
+            if ~exist('name','var')
+                name = 'test_FileBaseMPI_Framework';
+            end
             this = this@TestCase(name);
             this.working_dir = tempdir;
         end
@@ -18,22 +21,29 @@ classdef test_MessageFramework< TestCase
             % not implemented
             mf = MFTester();
             [ok,err]=mf.send_message(1,'starting');
-            assertTrue(ok)
+            assertTrue(uint32(ok))
             assertTrue(isempty(err));
             [ok,err]=mf.send_message(2,'starting');
-            assertTrue(ok)
+            assertTrue(uint32(ok))
             assertTrue(isempty(err));
             
-            ok=mf.check_message(1,'starting');
-            assertTrue(ok)
-            ok=mf.check_message(2,'starting');
-            assertTrue(ok)
+            ok=mf.receive_message(1,'starting');
+            assertTrue(uint32(ok))
+            ok = mf.receive_message(2,'starting');
+            assertTrue(uint32(ok))
             
-            mf.clear_all_messages();
-            ok=mf.check_message(1,'starting');
-            assertFalse(ok)
-            ok=mf.check_message(2,'starting');
-            assertFalse(ok)
+            
+            ok=mf.receive_message(1,'starting');
+            assertFalse(uint32(ok))
+            ok=mf.receive_message(2,'starting');
+            assertFalse(uint32(ok))
+            
+            ok = mf.is_job_cancelled();
+            assertFalse(ok);
+            mf.finalize_all();
+            ok = mf.is_job_cancelled();
+            assertTrue(ok);
+            
             
         end
         
@@ -45,32 +55,34 @@ classdef test_MessageFramework< TestCase
             mess = aMessage('starting');
             mess.payload = job_param;
             mf = MFTester();
+            clob = onCleanup(@()mf.finalize_all());
             [ok,err] = mf.send_message(1,mess);
-            assertTrue(ok)
+            assertEqual(ok,MPI_err.ok)
             assertTrue(isempty(err));
             
-            mess_fname = mf.job_stat_fname(1,'starting');
+            mess_fname = mf.mess_name(1,'starting');
             assertTrue(exist(mess_fname,'file')==2);
             %
-            ok=mf.check_message(1,'starting');
-            assertTrue(ok)
+            [ok,err,the_mess]=mf.receive_message(1,'starting');
+            assertEqual(ok,MPI_err.ok)
+            assertTrue(isempty(err));
+            assertFalse(exist(mess_fname,'file')==2);% Message received
+            
+            cont = the_mess.payload;
+            assertEqual(job_param,cont);
+            
             
             [ok,err,the_mess]=mf.receive_message(1,'running');
-            assertFalse(ok)
+            assertEqual(ok,MPI_err.not_exist)
             assertFalse(isempty(err));
             assertTrue(isempty(the_mess));
             
-            [ok,err,the_mess]=mf.receive_message(1,'starting');
-            assertTrue(ok)
-            assertTrue(isempty(err));
-            assertFalse(exist(mess_fname,'file')==2);
-            cont = the_mess.payload;
             
-            assertEqual(job_param,cont);
-            ok=mf.check_message(1,'starting');
+            ok=mf.receive_message(1,'starting');
+            
             assertFalse(ok)
             
-            mf.clear_all_messages();
+            mf.finalize_all();
         end
         function test_receive_all_mess(this)
             mf = MessagesFramework('MFT_receive_messages');
