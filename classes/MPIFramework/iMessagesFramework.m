@@ -75,6 +75,17 @@ classdef iMessagesFramework
             par = strrep(par,' ','x');
         end
         %
+        function info = worker_job_info(id,file_pref)
+            % the structure, used to transmit information to worker and
+            % initialize jobExecutor
+            % where:
+            % id        -- the job identifier
+            % file_pref -- prefix, to distinguish task control files of one
+            %              job from another
+            % TODO: will probably need to be expanded            
+            info = struct('job_id',id,'file_prefix',file_pref);
+        end
+        
     end
     %----------------------------------------------------------------------
     methods(Abstract)

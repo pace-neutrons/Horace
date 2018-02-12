@@ -20,7 +20,7 @@ end
 %
 message=[];
 if ~exist(obj.exchange_folder,'dir')
-    err_code = MPI_err.job_canceled;
+    err_code = MES_CODES.job_canceled;
     err_mess = sprintf('Job with id %s have been canceled',obj.job_id);
     return;
 end
@@ -40,7 +40,7 @@ if blocking_message % not yet implemented, just receive all messages for this ta
 else
     mess_fname = obj.job_stat_fname_(task_id,mess_name);
     if exist(mess_fname,'file') ~= 2
-        err_code = MPI_err.not_exist;
+        err_code = MES_CODES.not_exist;
         err_mess = sprintf('Message "%s" for task with id: %d does not exist',mess_name,task_id);
         message = [];
         return;
@@ -59,7 +59,7 @@ while ~received
     catch err
         ic = ic+1;
         if ic>try_limit
-            err_code  =MPI_err.an_error;
+            err_code  =MES_CODES.an_error;
             err_mess = ...
                 sprintf('Can not retrieve message "%s" for task with id: %d does not exist, reason: s%',...
                 mess_name,task_id,err.message);
@@ -71,7 +71,7 @@ while ~received
 end
 % process received message
 message = mesl.message;
-err_code  =MPI_err.ok;
+err_code  =MES_CODES.ok;
 err_mess=[];
 delete(mess_fname);
 

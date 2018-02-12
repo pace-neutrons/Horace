@@ -33,7 +33,8 @@ classdef FilebasedMessages < iMessagesFramework
     properties(Access=protected)
         % folder where the messages are located
         exchange_folder_;
-        % time in second to wait for blocking message
+        %TODO: time in seconds to waiting in blocking message until
+        %unblocking.
         time_to_fail_ = 1000;
     end
     %----------------------------------------------------------------------
@@ -122,7 +123,7 @@ classdef FilebasedMessages < iMessagesFramework
             end
         end
         %
-        function all_messages_names = probe_all(obj,task_ids)
+        function [all_messages_names,task_ids] = probe_all(obj,varargin)
             % list all messages existing in the system for the tasks
             % with id-s specified as input
             %Input:
@@ -133,10 +134,10 @@ classdef FilebasedMessages < iMessagesFramework
             % if no message for a job is present in the systen,
             %its cell remains empty
             %
-            all_messages_names = list_all_messages_(obj,task_ids);
+            [all_messages_names,task_ids] = list_all_messages_(obj,varargin{:});
         end
         %
-        function [all_messages,task_ids] = receive_all_messages(obj,task_ids)
+        function [all_messages,task_ids] = receive_all_messages(obj,varargin)
             % retrieve (and remove from system) all messages
             % existing in the system for the tasks with id-s specified as input
             %
@@ -148,7 +149,7 @@ classdef FilebasedMessages < iMessagesFramework
             %task_ids       -- array of task id-s for these messages
             %
             %
-            [all_messages,task_ids] = receive_all_messages_(obj,task_ids);
+            [all_messages,task_ids] = receive_all_messages_(obj,varargin{:});
         end
         %------------------------------------------------------------------
         function cs  = init_worker_control(obj,task_id)
@@ -174,15 +175,6 @@ classdef FilebasedMessages < iMessagesFramework
         end
     end
     methods(Static)
-        function info = worker_job_info(id,file_pref)
-            % the structure, used to transmit information to worker and
-            % initialize jobExecutor
-            % where:
-            % id        -- the job identifier
-            % file_pref -- prefix, to distinguish job control files of one
-            %              JobDispatcher from another
-            info = struct('job_id',id,'file_prefix',file_pref);
-        end
         
     end
 end

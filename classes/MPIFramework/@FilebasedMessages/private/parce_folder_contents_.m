@@ -12,6 +12,8 @@ len = numel(mess_template);
 is_mess = arrayfun(@(x)(~x.isdir && strncmpi(mess_template,x.name,len)),folder_contents);
 mess_files = folder_contents(is_mess);
 if numel(mess_files) ==0
+    mess_names = {};
+    mess_id = [];
     return;
 end
 if verLessThan('matlab','8.12')
@@ -21,4 +23,4 @@ else
 end
 
 mess_names = arrayfun(@(x)(x{1}{2}),mess_fnames,'UniformOutput',false);
-mess_id    = arrayfun(@(x)(sscanf(x{1}{3},'JobN%d.mat')),mess_fnames,'UniformOutput',true);
+mess_id    = arrayfun(@(x)(sscanf(x{1}{3},'TaskN%d.mat')),mess_fnames,'UniformOutput',true);
