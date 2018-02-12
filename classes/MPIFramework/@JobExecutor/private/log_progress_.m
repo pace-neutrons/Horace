@@ -12,10 +12,11 @@ function  log_progress_(this,step,n_steps,time_per_step,add_info)
 % Sends message of type LogMessage to the job dispatcher.
 % Throws MESSAGE_FRAMEWORK:cancelled error in case the job has
 %
-if this.is_job_cancelled
+me = this.message_framework_;
+if me.is_job_cancelled
     error('MESSAGE_FRAMEWORK:cancelled',...
         'job with id %s have been canceled or not initialized',...
-        this.job_control_pref);
+        this.job_id);
 end 
 % cannibalize 'started' message as this job will send 'running' messages
 if this.check_message('started')

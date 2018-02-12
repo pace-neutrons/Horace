@@ -5,8 +5,7 @@ classdef JETester < JobExecutor
     end
     
     methods
-        function je = JETester(varargin)
-            je = je@JobExecutor(varargin{:});
+        function je = JETester()
         end
         function this=do_job(this,control_struct)
             % Test do_job method implementated for testing purposes
@@ -25,13 +24,13 @@ classdef JETester < JobExecutor
             % provided in test_job_dispatcher.m file
             %aa= input('enter_something')  
             n_jobs = control_struct.n_steps;
-            job_num = this.job_id();
+            task_num = this.task_id;
             disp('****************************************************');
             disp([' n_files: ',num2str(n_jobs)]);
             for ji = 1:n_jobs
                 job_par = control_struct.loop_param(ji);
                 
-                filename = sprintf(job_par.filename_template,job_num,ji);
+                filename = sprintf(job_par.filename_template,task_num,ji);
                 file = fullfile(job_par.filepath,filename);
                 f=fopen(file,'w');
                 fwrite(f,['file: ',file],'char');
@@ -41,7 +40,7 @@ classdef JETester < JobExecutor
                 disp('****************************************************');
             end
             if control_struct.return_results
-                out_str = sprintf('Job %d generated %d files',job_num,n_jobs);
+                out_str = sprintf('Job %d generated %d files',task_num,n_jobs);
             else
                 out_str = [];
             end

@@ -9,6 +9,9 @@ classdef test_job_executor< TestCase
     methods
         %
         function this=test_job_executor(name)
+            if ~exist('name','var')
+                name = 'test_job_executor';
+            end
             this = this@TestCase(name);
             this.working_dir = tempdir;
         end
@@ -17,9 +20,9 @@ classdef test_job_executor< TestCase
             mis = MPI_State.instance();
             mis.is_tested = true;
             clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));
-
-           
             
+            
+            % build jobs data
             job_param = struct('filepath',this.working_dir,...
                 'filename_template','test_jobDispatcher%d_nf%d.txt');
             
@@ -34,30 +37,35 @@ classdef test_job_executor< TestCase
             cs2.loop_param = job_param;
             cs2.return_results = false;
             
-            je = MessagesFramework('test_worker');
-            clo2 = onCleanup(@()(je.clear_all_messages()));
-            info1 = je.init_worker_control(1);
+            % initialize server side of the message framework, which will
+            % drive job executor locally.
+            mf = FilebasedMessages(struct('job_id','test_worker'));
+            clo2 = onCleanup(@()(mf.finalize_all()));
+            
+            % Prepare control sequences for two jobs:
+            % job 1
+            info1 = mf.build_control(1);
             mess = aMessage('starting');
             mess.payload = cs1;
-            [ok,err_mess]=je.send_message(1,mess);
-            assertTrue(ok);
-            assertTrue(isempty(err_mess));
-            
-            info2 = je.init_worker_control(2);
+            [ok,err_mess]=mf.send_message(1,mess);
+            assertEqual(ok,MES_CODES.ok,['Error: ',err_mess]);
+            % job 2
+            info2 = mf.build_control(2);
             mess.payload = cs2;
-            [ok,err_mess]=je.send_message(2,mess);
-            assertTrue(ok);
-            assertTrue(isempty(err_mess));
+            [ok,err_mess]=mf.send_message(2,mess);
+            assertEqual(ok,MES_CODES.ok,['Error: ',err_mess]);
+            
             if verLessThan('matlab','8.1')
                 if verLessThan('matlab','7.14')
                     warning('Signleton does not work properly on Maltab 2011a/b. not testing workers');
                     return
                 elseif strcmpi(computer,'pcwin')
-                    warning('Signleton does not work properly on Maltab 2012/b 32bit version. Not testing workers');                    
+                    warning('Signleton does not work properly on Maltab 2012/b 32bit version. Not testing workers');
                     return
                 end
             end
             
+            % start two pseudo-independent client jobs
             worker('JETester',info1);
             worker('JETester',info2);
             
@@ -74,27 +82,27 @@ classdef test_job_executor< TestCase
             delete(file1a);
             delete(file2);
             
-            [ok,err_mess,message] = je.receive_message(1,'completed');
-            assertTrue(ok);
+            [ok,err_mess,message] = mf.receive_message(1,'completed');
+            assertEqual(ok,MES_CODES.ok,['Error: ',err_mess]);
             assertTrue(isempty(err_mess));
             
             assertEqual(message.mess_name,'completed')
             assertEqual(message.payload,'Job 1 generated 2 files')
             
-            [ok,err_mess,message] = je.receive_message(2,'completed');
-            assertTrue(ok);
-            assertTrue(isempty(err_mess));
+            [ok,err_mess,message] = mf.receive_message(2,'completed');
+            assertEqual(ok,MES_CODES.ok,['Error: ',err_mess]);
             
             assertEqual(message.mess_name,'completed')
             assertTrue(isempty(message.payload))
             
-            je.clear_all_messages();
+            mf.finalize_all();
             
         end
         
         
         function test_do_job(this)
-            % Its a self test to be sure do_job is fine
+            % Its a self test of the JETester to be sure its do_job is fine
+            % not testing anything but JETester
             job_param = struct('filepath',this.working_dir,...
                 'filename_template','test_jobDispatcher%d_nf%d.txt');
             control_struct = struct('loop_param',[],'n_steps',1,...
@@ -107,10 +115,9 @@ classdef test_job_executor< TestCase
             assertTrue(exist(fullfile(this.working_dir,'test_jobDispatcher0_nf1.txt'),'file')==2);
             delete(fullfile(this.working_dir,'test_jobDispatcher0_nf1.txt'));
             
-            assertFalse(isempty(je.job_outputs));
-            assertEqual(je.job_outputs,'Job 0 generated 1 files')
+            assertFalse(isempty(je.task_outputs));
+            assertEqual(je.task_outputs,'Job 0 generated 1 files')
             
-            je.clear_all_messages();
         end
         
         

@@ -6,7 +6,7 @@ function [ok,err_mess]=finish_job_(this)
 this.receive_all_messages();
 % send completion message
 mess = aMessage('completed');
-mess.payload = this.job_outputs;
+mess.payload = this.task_outputs;
 [ok,err_mess] = this.send_message(mess);
 
 

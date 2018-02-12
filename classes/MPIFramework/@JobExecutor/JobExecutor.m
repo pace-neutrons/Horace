@@ -1,5 +1,5 @@
-classdef JobExecutor<MessagesFramework
-    % The class, responsible for running job on a worker
+classdef JobExecutor
+    % The class, responsible for running a task on a worker
     %
     %
     % Works in conjunction with worker function from admin folder,
@@ -14,15 +14,20 @@ classdef JobExecutor<MessagesFramework
         %-------------------------------------
         % Properties of a job runner:
         % the jd of the the job which is running
-        job_id;
+        task_id;
         % structure, containing output, returned from the job by
         % calling return_results method
-        job_outputs;
+        task_outputs;
+        % Access to messages framework used to exchange messages between
+        % executor and controller
+        mess_framework;
     end
     %
     properties(Access=private)
-        job_ID_ = 0;
-        job_outputs_ = [];
+        task_id_ = 0;
+        task_outputs_ = [];
+        % handle for the messages framework
+        mess_framework_ = [];
     end
     methods(Abstract)
         this=do_job(this,control_struct);
@@ -31,7 +36,7 @@ classdef JobExecutor<MessagesFramework
     end
     %------------------------------------------------------------------ ---
     methods
-        function je = JobExecutor(varargin)
+        function je = JobExecutor()
             % Initialize job executor
             % If provided with parameters, the first parameter should be
             % the sting-prefix of the job control files, used to distinguish
@@ -43,8 +48,7 @@ classdef JobExecutor<MessagesFramework
             %      which distinguish this job as the job which will produce
             %      the file with the name provided
             %
-            % Initialise messaging framework
-            je = je@MessagesFramework(varargin{:});
+            %je = je@MessagesFramework(varargin{:});
         end
         %
         function [this,argi,mess]=init_worker(this,job_control_string)
@@ -69,7 +73,7 @@ classdef JobExecutor<MessagesFramework
             % Clearly finish job execution
             [ok,mess] = finish_job_(this);
         end
-		%
+        %
         function log_progress(this,step,n_steps,time_per_step,add_info)
             % log progress of the job execution and report it to the
             % calling framework.
@@ -88,9 +92,9 @@ classdef JobExecutor<MessagesFramework
             log_progress_(this,step,n_steps,time_per_step,add_info);
         end
         %------------------------------------------------------------------
-        function id = get.job_id(this)
+        function id = get.task_id(this)
             % get number (job id) of current running job
-            id = this.job_ID_;
+            id = this.task_id_;
         end
         %
         function this = return_results(this,final_results)
@@ -98,16 +102,21 @@ classdef JobExecutor<MessagesFramework
             %
             % input:
             % final_results -- the structure, which contain the job
-            % output. As output is distributed within log message, it should not 
-			% be too heavy. 
-			% 
-            this.job_outputs_ = final_results;
+            % output. As output is distributed within log message, it should not
+            % be too heavy.
+            %
+            this.task_outputs_ = final_results;
         end
         %
-        function out = get.job_outputs(obj)
-            out = obj.job_outputs_;
+        function out = get.task_outputs(obj)
+            out = obj.task_outputs_;
         end
+        %
+        function out = get.mess_framework(obj)
+            out = obj.mess_framework_;
+        end        
         %------------------------------------------------------------------
+        % MPI interface
         % overloads to exchange messages with JobDispatcher for particular job Executor
         function [ok,err_mess] = send_message(obj,message)
             % send message to job dispatcher
@@ -115,27 +124,44 @@ classdef JobExecutor<MessagesFramework
             % message -- an instance of the class aMessage to send to job
             %            dispatcher
             %
-            [ok,err_mess] = send_message@MessagesFramework(obj,obj.job_id,...
+            [ok,err_mess] = obj.mess_framework_.send_message(obj.task_id,...
                 message);
         end
         function [ok,err_mess,message] = receive_message(obj,mess_name)
             % receive message from job dispatcher
-            [ok,err_mess,message] = receive_message@MessagesFramework(obj,obj.job_id,mess_name);
+            [ok,err_mess,message] = obj.mess_framework_.receive_message(obj.task_id,mess_name);
         end
-        function ok=check_message(obj,mess_name)
-            ok=check_message@MessagesFramework(obj,obj.job_id,mess_name);
+        function ok=probe_message(obj,mess_name)
+            all_names = obj.mess_framework_.probe_all(obj.task_id);
+            if exist('mess_name','var')
+                if any(ismember(mess_name,all_names))
+                    ok = true;
+                else
+                    ok = false;
+                end
+            else
+                if isempty(all_names)
+                    ok = false;
+                else
+                    ok = true;
+                end
+            end
+            
         end
         function messages = receive_all_messages(obj)
-            % retrieve (and remove from system) all messages 
+            % retrieve (and remove from system) all messages
             % existing in the system for the jobs with id-s specified as input
             %
             %Return:
             % all_messages -- cellarray of messages belonging to this job
             %                 have messages available in the system .
             %
-            messages = receive_all_messages@MessagesFramework(obj,obj.job_id);
+            messages = obj.mess_framework_.receive_all_messages(obj.task_id);
         end
-        
+        %
+        function is = is_job_cancelled(obj)
+            is = obj.mess_framework_.is_job_cancelled();
+        end
     end
     
 end

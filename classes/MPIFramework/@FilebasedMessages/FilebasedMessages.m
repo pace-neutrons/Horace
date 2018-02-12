@@ -57,35 +57,58 @@ classdef FilebasedMessages < iMessagesFramework
             % Initialise folder path
             jd = jd@iMessagesFramework();
             if nargin>0
-                jd.job_id = varargin{1};
+                jd = jd.init_framework(varargin{1});
+                
             end
-            root_cf = make_config_folder(FilebasedMessages.exchange_folder_name);
-            job_folder = fullfile(root_cf,jd.job_id);
-            if ~exist(job_folder,'dir')
-                [ok, mess] = mkdir(job_folder);
-                if ~ok
-                    error('FILEMESSAGES_FRAMEWORK:runtime_error',...
-                        'Can not create control folder %s\n  Error message: %s',...
-                        root_cf,mess);
-                end
-            end
-            jd.exchange_folder_ = job_folder;
             
         end
         function folder = get.exchange_folder(obj)
             % return job control files prefix
             folder  = obj.exchange_folder_;
         end
-        %
-        
         %------------------------------------------------------------------
+        % HERBERT Job control interface
+        function cs  = build_control(obj,task_id)
+            % initialize worker's control structure, necessary to
+            % initiate jobExecutor on a client
+            css = iMessagesFramework.worker_job_info(obj.job_id,task_id);
+            cs  = iMessagesFramework.serialize_par(css);
+        end
+        %
+        function  obj = init_framework(obj,framework_info)
+            % using control structure initialize operational message
+            % framework
+            if exist('framework_info','var') && isstruct(framework_info) ...
+                    && isfield(framework_info,'job_id')
+                obj.job_id = framework_info.job_id;
+            else
+                error('FILEBASED_MESSAGES:invalid_argument',...
+                    'inputs for init_framework function are missing or do not have correct structure')
+            end
+            
+            root_cf = make_config_folder(FilebasedMessages.exchange_folder_name);
+            job_folder = fullfile(root_cf,obj.job_id);
+            if ~exist(job_folder,'dir')
+                [ok, mess] = mkdir(job_folder);
+                if ~ok
+                    error('FILEBASED_MESSAGES:runtime_error',...
+                        'Can not create control folder %s\n  Error message: %s',...
+                        root_cf,mess);
+                end
+            end
+            obj.exchange_folder_ = job_folder;
+            
+        end
+        %------------------------------------------------------------------
+        % MPI intefce
+        %
         function fn = mess_name(obj,task_id,mess_name)
             % Fully qualified name of the task status message, which allows
             % to identify message in the system. For filebased messages this
             % is the name of the message file
             fn = obj.job_stat_fname_(task_id,mess_name);
         end
-
+        %
         function [ok,err_mess] = send_message(obj,task_id,message)
             % send message to a task with specified id
             % Usage:
@@ -126,13 +149,19 @@ classdef FilebasedMessages < iMessagesFramework
         function [all_messages_names,task_ids] = probe_all(obj,varargin)
             % list all messages existing in the system for the tasks
             % with id-s specified as input
-            %Input:
-            %task_ids -- array of task id-s to check messages for
-            %Return:
-            % cellarray of strings, containing message names for the requested
-            % tasks.
-            % if no message for a job is present in the systen,
-            %its cell remains empty
+            %Usage:
+            %>> [mess_names,task_ids] = obj.probe_all([task_ids]);
+            %Where:
+            % task_ids -- array of task id-s to check messages for or all
+            %             messages if this is empty
+            %Returns:
+            % mess_names   -- cellarray of strings, containing message names
+            %                 for the requested tasks.
+            % task_ids      -- array of task id-s for the message names
+            %                   in the mess_names
+            %
+            % if no messages are present in the system
+            % all_messages_names and task_ids are empty
             %
             [all_messages_names,task_ids] = list_all_messages_(obj,varargin{:});
         end
@@ -151,13 +180,6 @@ classdef FilebasedMessages < iMessagesFramework
             %
             [all_messages,task_ids] = receive_all_messages_(obj,varargin{:});
         end
-        %------------------------------------------------------------------
-        function cs  = init_worker_control(obj,task_id)
-            % function to initiate worker's control structure, necessary to
-            % initiate jobExecutor
-            css = MessagesFramework.worker_job_info(task_id,obj.job_id);
-            cs  = iMessagesFramework.serialize_par(css);
-        end
         %
         function finalize_all(obj)
             % delete all messages belonging to this instance of messages
@@ -173,9 +195,6 @@ classdef FilebasedMessages < iMessagesFramework
                 sprintf('mess_%s_TaskN%d.mat',mess_name,task_id));
             
         end
-    end
-    methods(Static)
-        
     end
 end
 

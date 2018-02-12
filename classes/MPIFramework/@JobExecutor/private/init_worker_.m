@@ -1,37 +1,38 @@
-function [this,argi,mess]=init_worker_(this,job_control_string)
+function [obj,argi,mess]=init_worker_(obj,job_control_string)
 % initiate the worker parameters
+% Inputs:
+% job_control_string - the serialized string, contaning information
+%                      necessary to initialize the messages framework.
+%Output:
+% obj    -- Initalized instance of the job executor
+% argi   -- the reecived input for the do_job method.
+% mess   -- empty on success or information about the reason for failure.
 %
 %
 argi = [];
 try
-    job_control_structe = this.deserialize_par(job_control_string);
+    job_control_struct = iMessagesFramework.deserialize_par(job_control_string);
 catch ME
     mess = ME.message;
     return
 end
+% here we need to know what framework to use
 try
-    this.job_ID_      = job_control_structe.job_id;    
-    new_control_pref_ = job_control_structe.file_prefix;
+    conf = hpc_config;
     
-    %
-    root_cf = make_config_folder(this.exchange_folder_name);
-    job_folder = fullfile(root_cf,new_control_pref_);
-    % worker is not expected to create exchange folder
-    if ~exist(job_folder,'dir')
-        mess = sprintf('Exchange control folder %s does not exist',job_folder);
-        return
-    else % HACK! 
-        % clear up all messages, which may be initated earlier, if this
-        % worker will not be related to them any more!
-        if ~strcmp(this.exchange_folder, job_folder)
-            this.clear_all_messages();
-        end
-        this.job_control_pref_ = new_control_pref_;
-        this.exchange_folder_  = job_folder;
-    end
+    mf = conf.messages_framework;
+catch
+    mf = FilebasedMessages;
+    warning('hpc config has not yet been implemented')
+end
+mf = mf.init_framework(job_control_struct);
+obj.mess_framework_  = mf;
 
-    
-    [ok,mess,message] = this.receive_message('starting');
+try
+    % TODO: HACK! this is filebased worker, which is initated by mpi_info only
+    obj.task_id_        = job_control_struct.mpi_info;
+    %
+    [ok,mess,message] = obj.receive_message('starting');
     if ok
         argi = message.payload;
     else
@@ -41,5 +42,5 @@ catch ME
     mess = ME.message;
     return;
 end
-[~,mess] = this.send_message('started');
+[~,mess] = obj.send_message('started');
 

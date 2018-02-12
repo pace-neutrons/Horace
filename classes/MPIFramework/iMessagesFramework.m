@@ -31,6 +31,7 @@ classdef iMessagesFramework
         function id = get.job_id(obj)
             id = obj.job_id_;
         end
+        
         function obj = set.job_id(obj,val)
             if is_string(val) && ~isempty(val)
                 obj.job_id_ = val;
@@ -39,6 +40,8 @@ classdef iMessagesFramework
                     'MPI job id has to be a string');
             end
         end
+        
+        
     end
     
     methods(Static)
@@ -75,20 +78,32 @@ classdef iMessagesFramework
             par = strrep(par,' ','x');
         end
         %
-        function info = worker_job_info(id,file_pref)
+        function info = worker_job_info(id,mpi_info)
             % the structure, used to transmit information to worker and
             % initialize jobExecutor
             % where:
-            % id        -- the job identifier
-            % file_pref -- prefix, to distinguish task control files of one
-            %              job from another
-            % TODO: will probably need to be expanded            
-            info = struct('job_id',id,'file_prefix',file_pref);
+            % id       -- the job identifier
+            % mpi_info -- other information necessary to initiate
+            %             the messages framework.
+            info = struct('job_id',id,'mpi_info',mpi_info);
         end
         
     end
-    %----------------------------------------------------------------------
     methods(Abstract)
+        %------------------------------------------------------------------
+        % HERBERT Job control interface
+        %
+        % initialize message framework
+        % framework_info -- data, necessary for framework to operate and
+        % do message exchange.
+        obj = init_framework(obj,framework_info)
+        
+        % build worker's control structure, necessary to
+        % initiate message framework and jobExecutor
+        cs  = build_control(obj,task_id)
+        %------------------------------------------------------------------
+        % MPI interface
+        %
         % Fully qualified name of a message, which allows
         % to identify message in a system.
         fn = mess_name(obj,task_id,mess_name)
