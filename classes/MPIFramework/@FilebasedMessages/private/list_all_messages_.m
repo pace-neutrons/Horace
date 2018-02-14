@@ -7,7 +7,7 @@ if ~exist('task_ids','var')
 end
 
 
-mess_folder = obj.exchange_folder;
+mess_folder = obj.mess_exchange_folder_;
 folder_contents = dir(mess_folder);
 if numel(folder_contents )==0
     return;

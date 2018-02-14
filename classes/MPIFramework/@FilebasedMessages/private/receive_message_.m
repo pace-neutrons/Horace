@@ -19,14 +19,14 @@ if ~ischar(mess_name)
 end
 %
 message=[];
-if ~exist(obj.exchange_folder,'dir')
+if ~exist(obj.mess_exchange_folder_,'dir')
     err_code = MES_CODES.job_canceled;
     err_mess = sprintf('Job with id %s have been canceled',obj.job_id);
     return;
 end
 %
 if blocking_message % not yet implemented, just receive all messages for this task id
-    mess_folder = obj.exchange_folder;
+    mess_folder = obj.mess_exchange_folder_;
     folder_contents = dir(mess_folder);
     if numel(folder_contents )==0
         return;

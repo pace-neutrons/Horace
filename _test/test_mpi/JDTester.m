@@ -9,8 +9,8 @@ classdef JDTester < JobDispatcher
         function jd = JDTester(varargin)
             jd = jd@JobDispatcher(varargin{:});
         end
-        function [this,job_ids,wc]=split_and_register_jobs_pub(this,job_param_list,n_workers)
-            [this,job_ids,wc]=this.split_and_register_jobs(job_param_list,n_workers);            
+        function [this,job_ids,wc]=split_and_register_tasks(this,job_param_list,n_workers)
+            [this,job_ids,wc]=split_and_register_tasks@JobDispatcher(this,job_param_list,n_workers);            
         end
         function [completed,n_failed,all_changed,this]= check_jobs_status_pub(this)        
                 [completed,n_failed,all_changed,this]= check_jobs_status(this);

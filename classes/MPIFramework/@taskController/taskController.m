@@ -1,35 +1,37 @@
-classdef jobController
+classdef taskController
     % Helper class used by JobDispatcher
-    % to analyse a running job state
+    % to analyse a running task state
     %
-    % Stores running job features and relations between them
+    % Stores running task features and relations between them
     %
     properties(Dependent)
-        % job number assigned by JobDispatcher
-        job_id
-        % job states:
+        % task number assigned by JobDispatcher (lab number)
+        task_id
+        % the handle to a class, used to controling the task directly 
+        % (not through messages)
+        taskHandle
+        % task states:
         is_starting
         is_running
         is_finished
         is_failed
-        % property indicate that state of the job have changed
+        % property indicate that state of the task have changed
         state_changed
-        % if job reports it progress. Enabling it allows to expect failure
-        % if reports do not come for a long time
+        % if task reports it progress. Enabling it allows to expect failure
+        % if reports do not come for a specifc period of time
         reports_progress
         % time to wait until next progress message appears before failing
         time_to_fail
-        % counts failed attempts to obtain something from a job
+        % counts failed attempts to obtain something from a task
         waiting_count
-        % job outputs
+        % task outputs
         outputs
-        % message containing information why class decided that job have
+        % message containing information why class decided that task have
         % failed
         fail_reason
     end
     properties(Access=private)
-        % JobDispatcher
-        job_id_
+        task_id_
         %
         is_running_=false;
         is_starting_=false
@@ -42,7 +44,7 @@ classdef jobController
         fail_reason_   = [];
         %
         reports_progress_ = false;
-        % time when waiting interval for the job, reporting results have
+        % time when waiting interval for the task, reporting results have
         % started.
         waiting_interval_start_;
         estimatied_wait_time_=0;
@@ -51,16 +53,14 @@ classdef jobController
     
     
     methods
-        function obj=jobController(id)
-            obj.job_id_=id;
-            if id>0
-                obj.is_starting_ = true;
-            end
+        function obj=taskController(id)
+            obj.task_id_=id;
         end
         %------------------------------------------------------------------
-        function info=get_job_info(obj)
-            % return the string, containing information about job state
-            info = sprintf('JobN:%02d| %8s |',obj.job_id,obj.state2str());
+        function info=get_task_info(obj)
+            % return the string, containing information about the task state
+            % given 
+            info = sprintf('TaskN:%02d| %8s |',obj.task_id,obj.state2str());
             pi = obj.progress_info_;
             if obj.is_running && obj.reports_progress && ~isempty(pi )
                 if pi.time_per_step == 0
@@ -79,16 +79,16 @@ classdef jobController
         end
         %
         function str = state2str(obj)
-            % convert job state into string representations
+            % convert task state into string representations
             str  = obj.state2str_();
         end
         %------------------------------------------------------------------
-        function id = get.job_id(obj)
-            id = obj.job_id_;
+        function id = get.task_id(obj)
+            id = obj.task_id_;
         end
         %
-        function obj = set_job_id(obj,ind)
-            obj.job_id_=ind;
+        function obj = set_task_id(obj,ind)
+            obj.task_id_=ind;
             obj.is_starting_ = true;
         end
         %
@@ -162,32 +162,32 @@ classdef jobController
         %
         function time =get.time_to_fail(obj)
             % returns time to wait until no information occurring from the
-            % job until decided that job have failed
+            % task until decided that task have failed
             if obj.reports_progress
                 if obj.estimatied_wait_time_ == 0
-                    % job can not estimate its wait time. will wait indefinitely
+                    % task can not estimate its wait time. will wait indefinitely
                     time  = Inf;
                 else
                     time = 5*obj.estimatied_wait_time_;
                 end
             else
-                % job can not estimate its wait time. will wait indefinitely
+                % task can not estimate its wait time. will wait indefinitely
                 time  = Inf;
             end
         end
         %------------------------------------------------------------------
-        function [obj,is_running] = check_and_set_job_state(obj,mpi,new_message)
-            % find the job state as function of its current state and
+        function [obj,is_running] = check_and_set_task_state(obj,mpi,new_message)
+            % find the task state as function of its current state and
             % message it receives from MPI framework
             %
             % changes the object internal information (e.g.
-            % finished also reads job output and running may modify
-            % job log
-            [obj,is_running] = check_and_set_job_state_(obj,mpi,new_message);
+            % finished also reads task output and running may modify
+            % task log
+            [obj,is_running] = check_and_set_task_state_(obj,mpi,new_message);
         end
         %------------------------------------------------------------------
         function is = is_wait_time_exceeded(obj)
-            % verify if job exceeded the time to send a message to the
+            % verify if task exceeded the time to send a message to the
             % framework (framework have not received a message during
             % time-out above)
             %

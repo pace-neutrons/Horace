@@ -17,9 +17,6 @@ classdef FilebasedMessages < iMessagesFramework
     %
     %
     properties(Dependent)
-        % Properties of a job dispatcher:
-        % the full path to the folder where the exchange configuration is stored
-        exchange_folder;
         % Time in seconds a system waits for blocking message intil
         % returning "not-received"
         time_to_fail;
@@ -31,11 +28,10 @@ classdef FilebasedMessages < iMessagesFramework
     end
     %----------------------------------------------------------------------
     properties(Access=protected)
-        % folder where the messages are located
-        exchange_folder_;
         %TODO: time in seconds to waiting in blocking message until
         %unblocking.
         time_to_fail_ = 1000;
+        mess_exchange_folder_;
     end
     %----------------------------------------------------------------------
     methods
@@ -62,42 +58,20 @@ classdef FilebasedMessages < iMessagesFramework
             end
             
         end
-        function folder = get.exchange_folder(obj)
-            % return job control files prefix
-            folder  = obj.exchange_folder_;
-        end
         %------------------------------------------------------------------
         % HERBERT Job control interface
         function cs  = build_control(obj,task_id)
             % initialize worker's control structure, necessary to
             % initiate jobExecutor on a client
-            css = iMessagesFramework.worker_job_info(obj.job_id,task_id);
+            name = class(obj);
+            css = obj.worker_job_info(name,task_id);
             cs  = iMessagesFramework.serialize_par(css);
         end
         %
         function  obj = init_framework(obj,framework_info)
             % using control structure initialize operational message
             % framework
-            if exist('framework_info','var') && isstruct(framework_info) ...
-                    && isfield(framework_info,'job_id')
-                obj.job_id = framework_info.job_id;
-            else
-                error('FILEBASED_MESSAGES:invalid_argument',...
-                    'inputs for init_framework function are missing or do not have correct structure')
-            end
-            
-            root_cf = make_config_folder(FilebasedMessages.exchange_folder_name);
-            job_folder = fullfile(root_cf,obj.job_id);
-            if ~exist(job_folder,'dir')
-                [ok, mess] = mkdir(job_folder);
-                if ~ok
-                    error('FILEBASED_MESSAGES:runtime_error',...
-                        'Can not create control folder %s\n  Error message: %s',...
-                        root_cf,mess);
-                end
-            end
-            obj.exchange_folder_ = job_folder;
-            
+            obj = init_framework_(obj,framework_info);            
         end
         %------------------------------------------------------------------
         % MPI intefce
@@ -139,7 +113,7 @@ classdef FilebasedMessages < iMessagesFramework
         %
         function is = is_job_cancelled(obj)
             % method verifies if job has been cancelled
-            if ~exist(obj.exchange_folder,'dir')
+            if ~exist(obj.mess_exchange_folder_,'dir')
                 is=true;
             else
                 is=false;
@@ -191,7 +165,7 @@ classdef FilebasedMessages < iMessagesFramework
     methods (Access=protected)
         function mess_fname = job_stat_fname_(obj,task_id,mess_name)
             %build filename for a specific message
-            mess_fname= fullfile(obj.exchange_folder,...
+            mess_fname= fullfile(obj.mess_exchange_folder_,...
                 sprintf('mess_%s_TaskN%d.mat',mess_name,task_id));
             
         end

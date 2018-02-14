@@ -1,25 +1,26 @@
 classdef iMessagesFramework
-    % Host class for message Herbert distributed jobs framework
+    % Interface for messages in Herbert distributed jobs framework
     %
-    % Similar to parfor bud does not need parallel toolbox and starts
-    % separate Matlab sessions to do the job
-    %
-    % Works in conjunction with worker function from admin folder,
-    % The worker has to be placed on Matlab search path
-    % defined before Herbert is initiated
+    % Defines generic interface a Horace program can use to exchange messages
+    % between jobs running either in separate Matlab sessions or in Matlab
+    % workers
     %
     %
     % $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
-    %
     %
     %----------------------------------------------------------------------
     properties(Dependent)
         % job ID  used to identify job control
         % messages intended for a particular MPI job.
         job_id;
+        % The folder located on a parallel file system and used for
+        % data exchange between tasks and storing input data.
+        % if empty, default Herbert value is used.
+        job_data_folder;
     end
     properties(Access=private)
         job_id_;
+        job_data_folder_ = '';
     end
     methods
         function obj = iMessagesFramework()
@@ -31,6 +32,9 @@ classdef iMessagesFramework
         function id = get.job_id(obj)
             id = obj.job_id_;
         end
+        function folder = get.job_data_folder(obj)
+            folder  = obj.job_data_folder_;
+        end
         
         function obj = set.job_id(obj,val)
             if is_string(val) && ~isempty(val)
@@ -40,7 +44,31 @@ classdef iMessagesFramework
                     'MPI job id has to be a string');
             end
         end
+        function obj = set.job_data_folder(obj,val)
+            if exist(val,'dir') == 7
+                obj.job_data_folder_ = val;
+            else
+                error('iMESSAGES_FRAMEWORK:invalid_argument',...
+                    'Job data exchange folder %s must exist',...
+                    val);
+            end
+        end
         
+        function info = worker_job_info(obj,framework_name,mpi_info)
+            % the structure, used to transmit information to worker and
+            % initialize jobExecutor
+            % where:
+            %
+            % framework_name -- the name of the class responsible for
+            %                   messages exchange. Should allow empty
+            %                   constructor for feval and initialization
+            %                   string
+            % mpi_info       -- other information necessary to initiate
+            %                   the messages framework.
+            info = struct('job_id',obj.job_id,...
+                'job_data_folder',obj.job_data_folder,...
+                'framework_name',framework_name,'mpi_info',mpi_info);
+        end
         
     end
     
@@ -78,17 +106,8 @@ classdef iMessagesFramework
             par = strrep(par,' ','x');
         end
         %
-        function info = worker_job_info(id,mpi_info)
-            % the structure, used to transmit information to worker and
-            % initialize jobExecutor
-            % where:
-            % id       -- the job identifier
-            % mpi_info -- other information necessary to initiate
-            %             the messages framework.
-            info = struct('job_id',id,'mpi_info',mpi_info);
-        end
-        
     end
+    
     methods(Abstract)
         %------------------------------------------------------------------
         % HERBERT Job control interface
@@ -99,7 +118,8 @@ classdef iMessagesFramework
         obj = init_framework(obj,framework_info)
         
         % build worker's control structure, necessary to
-        % initiate message framework and jobExecutor
+        % initiate message framework and jobExecutor. Must use
+        % iMessagesFramework.worker_job_info to build appropriate framework
         cs  = build_control(obj,task_id)
         %------------------------------------------------------------------
         % MPI interface

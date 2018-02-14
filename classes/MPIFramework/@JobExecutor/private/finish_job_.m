@@ -9,7 +9,3 @@ mess = aMessage('completed');
 mess.payload = this.task_outputs;
 [ok,err_mess] = this.send_message(mess);
 
-
-
-
-

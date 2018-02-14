@@ -1,10 +1,10 @@
-function [obj,is_running] = check_and_set_job_state_(obj,mpi,new_message_name)
+function [obj,is_running] = check_and_set_task_state_(obj,mpi,new_message_name)
 % find the job state as function of its current state and
 % message it receives from mpi framework
 %
 if ~isempty(new_message_name) && strcmpi(new_message_name,'failed')
-    [ok,err,mess] = mpi.receive_message(obj.job_id,'failed');
-    if ~ok
+    [ok,err,mess] = mpi.receive_message(obj.task_id,'failed');
+    if ok ~= MES_CODES.ok
         error('JOB_DISPATCHER:messages_error',err);
     end
     obj=obj.set_failed(mess.payload);

@@ -18,7 +18,7 @@ classdef test_FileBaseMPI_Framework< TestCase
         %
         function test_finalize_all(this)
             % not implemented
-            mf = MFTester();
+            mf = MFTester('test_finalize_all');
             [ok,err]=mf.send_message(1,'starting');
             assertEqual(ok,MES_CODES.ok)
             assertTrue(isempty(err));
@@ -52,7 +52,7 @@ classdef test_FileBaseMPI_Framework< TestCase
             
             mess = aMessage('starting');
             mess.payload = job_param;
-            mf = MFTester();
+            mf = MFTester('test_message');
             clob = onCleanup(@()mf.finalize_all());
             [ok,err] = mf.send_message(1,mess);
             assertEqual(ok,MES_CODES.ok)
@@ -204,8 +204,26 @@ classdef test_FileBaseMPI_Framework< TestCase
             assertEqual(task_ids(3),4);
             assertEqual(all_mess{4},'blabla');
             assertEqual(task_ids(4),5);
+        end
+        function test_shared_folder(this)
+            mf = FilebasedMessages();
+            mf.job_data_folder = this.working_dir;
+            mf = mf.init_framework('test_shared_folder');
+            clob = onCleanup(@()mf.finalize_all());
             
+            jfn = fullfile(this.working_dir,mf.exchange_folder_name,mf.job_id);
+            assertEqual(exist(jfn,'dir'),7);
             
+            [ok,err] = mf.send_message(1,'starting');
+            assertEqual(ok,MES_CODES.ok)
+            assertTrue(isempty(err));
+            
+            [ok,err] = mf.receive_message(1,'starting');
+            assertEqual(ok,MES_CODES.ok)
+            assertTrue(isempty(err));
+            
+            clear clob;
+            assertTrue(exist(jfn,'dir')==0);
         end
     end
 end

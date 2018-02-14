@@ -1,6 +1,6 @@
 classdef test_job_dispatcher< TestCase
     %
-    % $Revision$ ($Date$)
+    % $Revision: 696 $ ($Date: 2018-02-06 13:59:38 +0000 (Tue, 06 Feb 2018) $)
     %
     
     properties
@@ -202,7 +202,7 @@ classdef test_job_dispatcher< TestCase
             jd = JDTester('test_job_controls');
             clo = onCleanup(@()(jd.clear_all_messages()));
             
-            [jd,job_ids,worker_info] = jd.split_and_register_jobs_pub(job_param_list,1);
+            [jd,job_ids,worker_info] = jd.split_and_register_tasks(job_param_list,1);
             assertTrue(iscellstr(worker_info));
             assertEqual(numel(worker_info),numel(job_ids));
             

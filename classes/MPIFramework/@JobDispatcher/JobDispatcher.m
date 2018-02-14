@@ -17,26 +17,24 @@ classdef JobDispatcher
         % with all attributes necessary to start it (e.g. path if the program
         % is not on the path)
         worker_prog_string;
-        % the name of a service file, which indicates that job is running
-        running_job_file_name;
-        starting_job_file_name;
         % time to wait for job not changing its state until assuming the
         % job have failed
         time_to_fail;
-        % how often (in second) job dispatcher should query the job status
-        jobs_check_time;
+        % how often (in second) job dispatcher should query the task status
+        task_check_time;
         % fail limit -- number of times to try action until deciding the
         fail_limit     % action have failed
     end
     %
     properties(Access=protected)
-        running_jobs_=[];
+        tasks_list_={};
         time_to_fail_    = 400 %sec
-        jobs_check_time_ = 4;
+        task_check_time_ = 4;
         fail_limit_ = 100; % number of times to try for changes in job status file until
         % decided the job have failed
         %
-        mess_transport_;
+        % The framework to exchange messages with the tasks
+        mess_framework_;
     end
     
     methods
@@ -52,39 +50,42 @@ classdef JobDispatcher
             %      which distinguish this job as the job which will produce
             %      the file with the name provided
             %
-            % Initialise folder path
-            jd.mess_transport_ = FilebasedMessages(varargin{:});
+            % Initialise messages framework
+            jd.mess_framework_ = FilebasedMessages(varargin{:});
+            if nargin == 0 % initialize framework with default job id.
+                jd.mess_framework_  = jd.mess_framework_.init_famework(jd.job_id);
+            end
         end
         %
-        function [n_failed,outputs,job_ids,this]=send_jobs(this,...
-                job_class_name,job_param_list,number_of_workers,varargin)
+        function [n_failed,outputs,task_ids,this]=send_tasks(this,...
+                job_class_name,task_param_list,number_of_workers,varargin)
             % send range of jobs to execute by external program
             %
             % Usage:
-            % n_failed=send_jobs(this,job_class_name,job_param_list,[number_of_workers,[job_query_time]])
+            % n_failed=send_tasks(this,job_class_name,tasl_param_list,[number_of_workers,[job_query_time]])
             %Where:
             % job_class_name -- name of the class, which has method do_job
-            %                   and will process jobs on a separate worker
-            % job_param_list -- cellarray of structures containing the
-            %                   parameters of the jobs to run
+            %                   and will process task on a separate worker
+            % task_param_list -- cellarray of structures containing the
+            %                   parameters of the tasks to run
             % number_of_workers -- number of Matlab sessions to
-            %                   start to deal with the jobs.
+            %                   start to deal with the tasks.
             %
             % Optional:
-            % job_query_time -- if present -- time interval to check if
-            %                   jobs are completed. By default, check every
-            %                   4 seconds
+            % task_query_time -- if present -- time interval to check if
+            %                    taks are completed. By default, check every
+            %                    4 seconds
             %
             % Returns
-            % n_failed  -- number of jobs that have failed.
-            % outputs   -- cellarray of outputs from each job.
-            %              Empty if jobs do not return anything
-            % job_ids   -- cellarray containing relation between job_id (job
-            %              number) and job parameters from
-            %              job_param_list, assigned to this job
+            % n_failed  -- number of taks that have failed.
+            % outputs   -- cellarray of outputs from each task.
+            %              Empty if tasks do not return anything
+            % task_ids   -- cellarray containing relation between task_id
+            %              (task number) and task parameters from
+            %               tasks_param_list, assigned to this tak
             %
-            [n_failed,outputs,job_ids,this]=send_jobs_to_workers_(this,...
-                job_class_name,job_param_list,number_of_workers,varargin{:});
+            [n_failed,outputs,task_ids,this]=send_tasks_to_workers_(this,...
+                job_class_name,task_param_list,number_of_workers,varargin{:});
         end
         %
         function ok = job_state_is(this,job_id,state)
@@ -117,15 +118,15 @@ classdef JobDispatcher
             limit  = this.fail_limit_;
         end
         %
-        function time = get.jobs_check_time(this)
-            time = this.jobs_check_time_;
+        function time = get.task_check_time(this)
+            time = this.task_check_time_;
         end
         %
-        function this = set.jobs_check_time(this,val)
+        function this = set.task_check_time(this,val)
             if val<=0
                 error('JOB_DISPATCHER:jobs_check_time','time to check jobs has to be positive');
             end
-            this.jobs_check_time_ =val;
+            this.task_check_time_ =val;
             this.fail_limit_ = ceil(this.time_to_fail/val);
             if this.fail_limit_ < 2
                 this.fail_limit_ = 2;
@@ -142,38 +143,44 @@ classdef JobDispatcher
                 error('JOB_DISPATCHER:set_time_to_fail','time to fail can not be negative');
             end
             this.time_to_fail_ =val;
-            this.fail_limit_ = ceil(val/this.jobs_check_time);
+            this.fail_limit_ = ceil(val/this.tasks_check_time);
             if this.fail_limit_ < 2
                 this.fail_limit_ = 2;
             end
         end
-        % this method should be used for test purposes only.
-        function [this,job_ids,worker_controls]=split_and_register_jobs(this,job_param_list,n_workers)
-            % given list of job parameters, divide jobs between workers, initialize
-            % workers and register job info in the class for further job control
-            [this,job_ids,worker_controls]=this.split_and_register_jobs_(job_param_list,n_workers);
+        function [n_workers,task_par_ind]=split_tasks(this,task_param_list,n_workers)
+            % divide list of job parameters among given number of workers
+            %
+            %Inputs:
+            %job_param_list -- cellarray of classes or structures, containing task parameters.
+            %n_workers      -- number of workers to split job between workers
+            %
+            % returns: cell array of indexes from job_param_list dedicated to run on a
+            % worker.
+            [n_workers,task_par_ind]=this.split_tasks_(task_param_list,n_workers);
         end
     end
     methods(Access=protected)
-        
-        function [completed,n_failed,all_changed,this]= check_jobs_status(this)
-            % an algorithm tries to identify jobs state on basis of their
+        function [completed,n_failed,all_changed,this]= check_tasks_status(this)
+            % an algorithm tries to identify tasks state on basis of their
             % outputs and behaviour
-            [completed,n_failed,all_changed,this]= check_jobs_status_(this);
+            [completed,n_failed,all_changed,this]= check_tasks_status_(this);
         end
-        function info = init_worker(this,job_id,arguments)
-            % initialise a worker's info on the job dispatcher side
+        function info = init_worker(this,task_id,arguments)
+            % initialise a worker's info on the jobDispatcher side
+            % and send message to a worker
             %
             % Input:
-            % job_id    -- the identifier of the job to start
-            % arguments -- structure, containing job specific arguments
+            % task_id   -- the identifier of the task to start
+            % arguments -- structure, containing task specific arguments
+            %              for jobExecuter.do_job inputs
             % Output:
             % info      -- serialized string, used to initialize worker
-            [info,ok,err_mess] = this.init_worker_(job_id,arguments);
-            if ~ok
+            [info,ok,err_mess] = this.init_worker_(task_id,arguments);
+            if ok ~= MES_CODES.ok
                 error('JOB_DISPATCHER:init_workser',...
                     'Can not send message requesting start worker %d, Error %s',...
-                    job_id,err_mess)
+                    task_id,err_mess)
             end
         end
     end

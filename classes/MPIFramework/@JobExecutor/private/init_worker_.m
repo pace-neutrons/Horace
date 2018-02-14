@@ -17,14 +17,10 @@ catch ME
     return
 end
 % here we need to know what framework to use
-try
-    conf = hpc_config;
-    
-    mf = conf.messages_framework;
-catch
-    mf = FilebasedMessages;
-    warning('hpc config has not yet been implemented')
-end
+fr_class_name = job_control_struct.framework_name;
+
+mf = feval(fr_class_name);
+
 mf = mf.init_framework(job_control_struct);
 obj.mess_framework_  = mf;
 
