@@ -10,6 +10,7 @@ end
 mess_folder = obj.mess_exchange_folder_;
 folder_contents = dir(mess_folder);
 if numel(folder_contents )==0
+    all_messages = {};
     return;
 end
 [mess_names,mess_id] = parce_folder_contents_(folder_contents);

@@ -40,7 +40,7 @@ if ~isempty(err_mess)
     
     mess = aMessage('failed');
     mess.payload = sprintf('job N%d failed at init_worker. Reason: %s',...
-        je.job_id,err_mess);
+        je.task_id,err_mess);
     je.send_message(mess);
     if ~is_tested
         exit;
