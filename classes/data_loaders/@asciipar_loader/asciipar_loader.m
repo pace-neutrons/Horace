@@ -126,11 +126,11 @@ classdef asciipar_loader
             %           Note the reversed sign convention wrt the .par files. For details, see: SavePAR v
             % 5th (4) 	angular width e.g. delta scattered angle (deg)
             % 6th (5)	angular height e.g. delta azimuthal angle (deg)
-            % 7th (6)	 detector ID   – this is Mantid specific value, which may not hold similar meaning in files written by different applications.
+            % 7th (6)	 detector ID   ï¿½ this is Mantid specific value, which may not hold similar meaning in files written by different applications.
             %
             % In standard phx file only the columns 3,4,5 and 6 contain useful information.
             % You can expect to find column 1 to be the secondary flightpath and the column
-            % 7 – the detector ID in Mantid-generated phx files only or in
+            % 7 ï¿½ the detector ID in Mantid-generated phx files only or in
             % the files read from nxspe source
             %
             % reader ignores column 2, so -getphx option returns array of 
@@ -193,6 +193,7 @@ classdef asciipar_loader
             % get method for dependent property par_file_name
             fname = this.par_file_name_;
         end
+        %
         function this=set.par_file_name(this,par_f_name)
             % method checks if the ASCII file with the name par_file_name exists
             %
