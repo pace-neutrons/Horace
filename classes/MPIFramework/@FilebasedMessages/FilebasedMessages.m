@@ -24,7 +24,7 @@ classdef FilebasedMessages < iMessagesFramework
     %----------------------------------------------------------------------
     properties(Constant=true)
         % the name of the folder where the configuration is stored;
-        exchange_folder_name='mprogs_config';
+        exchange_folder_name='Herbert_FB_MPI';
     end
     %----------------------------------------------------------------------
     properties(Access=protected)

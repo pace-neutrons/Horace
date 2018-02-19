@@ -33,7 +33,8 @@ classdef test_job_dispatcher< TestCase
             
             jobs = job_contr;
             jd = JobDispatcher();
-            [n_failed,outputs]=jd.send_jobs('JETester',jobs,1,1);
+            
+            [n_failed,outputs]=jd.start_tasks('JETester',jobs,1,1);
             
             assertEqual(n_failed,0);
             assertTrue(isempty(outputs{1}));
@@ -64,7 +65,8 @@ classdef test_job_dispatcher< TestCase
             jobs = [jc1,jc2];
             
             jd = JobDispatcher();
-            [n_failed,outputs]=jd.send_jobs('JETester',jobs,2,1);
+            
+            [n_failed,outputs]=jd.start_tasks('JETester',jobs,2,1);
             assertEqual(n_failed,0);
             assertFalse(isempty(outputs));
             assertEqual(outputs{1},'Job 1 generated 2 files');
@@ -74,7 +76,6 @@ classdef test_job_dispatcher< TestCase
             assertTrue(exist(file2,'file')==2);
             assertTrue(exist(file3,'file')==2);
         end
-        
         % tests themself
         function test_jobs(this)
             job_param = struct('filepath',this.working_dir,...
@@ -94,7 +95,8 @@ classdef test_job_dispatcher< TestCase
             jobs = [job_contr,job_contr,job_contr];
             
             jd = JobDispatcher();
-            [n_failed,outputs,job_ids]=jd.send_jobs('JETester',jobs,3,1);
+            
+            [n_failed,outputs,job_ids]=jd.start_tasks('JETester',jobs,3,1);
             assertEqual(numel(outputs),3);
             assertTrue(all(cellfun(@(x)(~isempty(x)),outputs)));
             assertEqual(numel(job_ids),3);
@@ -105,90 +107,86 @@ classdef test_job_dispatcher< TestCase
             assertTrue(exist(file2,'file')==2);
             assertTrue(exist(file3,'file')==2);
         end
-        function test_job_with_logs(this)
-            mis = MPI_State.instance();
-            mis.is_tested = true;
-            mis.is_deployed = true;
-            clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));
-            
-            
-            jd = JDTester('jd_testjob_with_logs_worker');
-            clo = onCleanup(@()(jd.clear_all_messages()));
-            
-            job_par_list = struct('step',0,'n_steps',20);
-            
-            [jd,job_ids,worker_info] = jd.split_and_register_jobs_pub(job_par_list,2);
-            
-            assertTrue(iscellstr(worker_info));
-            assertEqual(numel(worker_info),1);
-            assertTrue(iscell(job_ids))
-            assertEqual(numel(job_ids),1);
-            assertEqual(numel(job_ids{1}),1);
-            
-            %
-            je = JEwithLogTester();
-            [je,job_arguments,err_mess]=je.init_worker(worker_info{1});
-            assertTrue(isempty(err_mess));           
-            mis.logger = @(step,n_steps,time,addmess)(je.log_progress(step,n_steps,time,addmess));
-            
-            
-            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
-            assertEqual(completed,false);
-            assertEqual(n_failed,0);
-            assertTrue(all_changed);            
-            
-            ok = jd.job_state_is(1,'started');
-            assertTrue(ok)
-            
-            je.do_job(job_arguments);
-            ok = jd.job_state_is(1,'started');
-            assertFalse(ok)
-            ok = jd.job_state_is(1,'running');
-            assertTrue(ok)
-            
-            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
-            assertFalse(completed);
-            assertEqual(n_failed,0);
-            assertTrue(all_changed);            
-            ok = jd.job_state_is(1,'running');
-            assertFalse(ok)
-            
-            
-            
-            
-            %assertTrue(isempty(err));
-            %step = mess.payload;
-            %assertEqual(step,1);
-            
-        end
+        %
+        %         function test_job_with_logs(this)
+        %             mis = MPI_State.instance();
+        %             mis.is_tested = true;
+        %             mis.is_deployed = true;
+        %             clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));
+        %
+        %
+        %             jd = JDTester('jd_testjob_with_logs_worker');
+        %             clo = onCleanup(@()(jd.mess_framework.finalize_all()));
+        %
+        %
+        %             job_par_list = struct('step',0,'n_steps',20);
+        %
+        %             [jd,job_ids,worker_info] = jd.split_tasks(job_par_list,2);
+        %
+        %             assertTrue(iscellstr(worker_info));
+        %             assertEqual(numel(worker_info),1);
+        %             assertTrue(iscell(job_ids))
+        %             assertEqual(numel(job_ids),1);
+        %             assertEqual(numel(job_ids{1}),1);
+        %
+        %             %
+        %             je = JEwithLogTester();
+        %             [je,job_arguments,err_mess]=je.init_worker(worker_info{1});
+        %             assertTrue(isempty(err_mess));
+        %             mis.logger = @(step,n_steps,time,addmess)(je.log_progress(step,n_steps,time,addmess));
+        %
+        %
+        %             [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
+        %             assertEqual(completed,false);
+        %             assertEqual(n_failed,0);
+        %             assertTrue(all_changed);
+        %
+        %             ok = jd.job_state_is(1,'started');
+        %             assertTrue(ok)
+        %
+        %             je.do_job(job_arguments);
+        %             ok = jd.job_state_is(1,'started');
+        %             assertFalse(ok)
+        %             ok = jd.job_state_is(1,'running');
+        %             assertTrue(ok)
+        %
+        %             [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
+        %             assertFalse(completed);
+        %             assertEqual(n_failed,0);
+        %             assertTrue(all_changed);
+        %             ok = jd.job_state_is(1,'running');
+        %             assertFalse(ok)
+        %
+        %
+        %         end
         
         %
         function test_job_with_logs_worker(this)
             mis = MPI_State.instance();
             mis.is_tested = true;
-            clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));           
+            clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));
             
             jd = JDTester('jd_testjob_with_logs_worker');
-            clo = onCleanup(@()(jd.clear_all_messages()));
+            mpi = jd.mess_framework;
+            clo = onCleanup(@()(mpi.finalize_all()));
+            
             
             job_par_list = struct('step',0,'n_steps',20);
             
-            [jd,job_ids,worker_info] = jd.split_and_register_jobs_pub(job_par_list,2);
+            [n_workers,job_indexes] = jd.split_tasks(job_par_list,2);
+            assertEqual(n_workers,1);
+            assertEqual(job_indexes{1},1);
             
-            assertTrue(iscellstr(worker_info));
-            assertEqual(numel(worker_info),1);
-            assertTrue(iscell(job_ids))
-            assertEqual(numel(job_ids),1);
-            assertEqual(numel(job_ids{1}),1);
+            mss = aMessage('starting');
+            mss.payload = job_par_list;
+            [ok,err]=mpi.send_message(1,mss);
+            assertEqual(ok,MES_CODES.ok,sprintf('sending starting message:  error: %s',err));
             
+            worker_info = mpi.build_control(1);
+            worker('JEwithLogTester',worker_info);
             
-            ok = jd.job_state_is(1,'starting');
-            assertTrue(ok);
-            
-            worker('JEwithLogTester',worker_info{:});
-            
-            [ok,err,mess] = jd.receive_message(1,'completed');
-            assertTrue(ok)
+            [ok,err,mess] = mpi.receive_message(1,'completed');
+            assertEqual(ok,MES_CODES.ok);
             assertTrue(isempty(err));
             step = mess.payload;
             assertEqual(step,1);
@@ -200,71 +198,68 @@ classdef test_job_dispatcher< TestCase
             job_param_list = {'job_arguments_list_for_worker'};
             
             jd = JDTester('test_job_controls');
-            clo = onCleanup(@()(jd.clear_all_messages()));
+            mpi = jd.mess_framework;
+            clo = onCleanup(@()(mpi.finalize_all()));
             
-            [jd,job_ids,worker_info] = jd.split_and_register_tasks(job_param_list,1);
-            assertTrue(iscellstr(worker_info));
-            assertEqual(numel(worker_info),numel(job_ids));
+            [n_workers,task_par_ind] = jd.split_tasks(job_param_list,1);
+            assertEqual(n_workers,1);
+            assertEqual(task_par_ind{1},1);
             
-            assertTrue(iscell(job_ids))
-            assertEqual(numel(job_ids),1);
-            assertEqual(numel(job_ids{1}),1);
-            
-            
-            ok = jd.job_state_is(1,'starting');
-            assertTrue(ok);
-            
+            worker_info = mpi.build_control(1);
+            mess = aMessage('starting');
+            mess.payload = job_param_list;
+            mpi.send_message(1,mess);
             
             je = JETester();
-            [je,job_arguments,err_mess]=je.init_worker(worker_info{1});
+            [je,job_arguments,err_mess]=je.init_worker(worker_info);
             assertTrue(isempty(err_mess))
-            assertEqual(job_arguments{1},'job_arguments_list_for_worker');
+            assertEqual(job_arguments{1},job_param_list{1});
             
-            ok = jd.job_state_is(1,'starting');
-            assertFalse(ok);
-            ok = jd.job_state_is(1,'started');
-            assertTrue(ok);
+            %ok = jd.job_state_is(1,'starting');
+            %assertFalse(ok);
+            %ok = jd.job_state_is(1,'started');
+            %assertTrue(ok);
             
             % set up job fail time-out conuter to 3
             tf = jd.time_to_fail;
-            jd.jobs_check_time = tf;
+            jd.task_check_time = tf;
             
-            % this will never fail -- program will wait for running job
-            % indefinetely
-            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
-            assertFalse(completed);
-            assertEqual(n_failed,0);
-            assertTrue(all_changed);            
-            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
-            assertFalse(completed);
-            assertEqual(n_failed,0);
-            assertTrue(all_changed);            
+%             % this will never fail -- program will wait for running job
+%             % indefinetely
+%             [completed,n_failed,all_changed,jd] = jd.check_tasks_status_pub();
+%             assertFalse(completed);
+%             assertEqual(n_failed,0);
+%             assertTrue(all_changed);
+%             [completed,n_failed,all_changed,jd] = jd.check_tasks_status_pub();
+%             assertFalse(completed);
+%             assertEqual(n_failed,0);
+%             assertTrue(all_changed);
+%             
+%             
+%             % pick up starting message and do not provide anything else
+%             [ok,err_mess,message]=mpi.receive_message(1,'started');
+%             assertTrue(ok);
+%             assertTrue(isempty(err_mess));
+%             
+%             %should fail after three checks
+%             [completed,n_failed,all_changed,jd] = jd.check_tasks_status_pub();
+%             assertFalse(completed);
+%             assertEqual(n_failed,0);
+%             assertTrue(all_changed);
+%             
+%             [~,~,~,jd] = jd.check_jobs_status_pub();
+%             [completed,n_failed,all_changed,jd] = jd.check_tasks_status_pub();
+%             assertTrue(completed);
+%             assertEqual(n_failed,1);
+%             assertTrue(all_changed);
+%             
+%             %
+%             job_run_info = jd.job_control_structure;
+%             assertTrue(job_run_info{1}.is_failed)
+%             assertEqual(job_run_info{1}.fail_reason,'Timeout waiting for job_completed message');
+%             
             
             
-            % pick up starting message and do not provide anything else
-            [ok,err_mess,message]=je.receive_message('started');
-            assertTrue(ok);
-            assertTrue(isempty(err_mess));
-            
-            %should fail after three checks
-            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
-            assertFalse(completed);
-            assertEqual(n_failed,0);
-            assertTrue(all_changed);
-            
-            [~,~,~,jd] = jd.check_jobs_status_pub();
-            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
-            assertTrue(completed);
-            assertEqual(n_failed,1);
-            assertTrue(all_changed);
-            
-            %
-            job_run_info = jd.job_control_structure;
-            assertTrue(job_run_info{1}.is_failed)
-            assertEqual(job_run_info{1}.fail_reason,'Timeout waiting for job_completed message');
-            
-           
-           
         end
         %
         function test_split_job_list(this)
@@ -272,157 +267,65 @@ classdef test_job_dispatcher< TestCase
             job_param_list = {'aaa','bbbb','s','aaanana'};
             
             jd = JDTester();
-            clo = onCleanup(@()(jd.clear_all_messages()));
+            clo = onCleanup(@()(jd.mess_framework.finalize_all()));
             
-            [jd,job_ids,wc] = jd.split_and_register_jobs_pub(job_param_list,1);
-            assertTrue(iscellstr(wc));
-            assertEqual(numel(wc),numel(job_ids));
+            [n_workers,task_par_ind]= jd.split_tasks(job_param_list,1);
             
-            assertTrue(iscell(job_ids))
-            assertEqual(numel(job_ids),1);
-            assertEqual(numel(job_ids{1}),4);
+            assertEqual(n_workers,1);
+            assertEqual(numel(task_par_ind{1}),numel(job_param_list));
             
             
-            ok = jd.job_state_is(1,'starting');
-            assertTrue(ok);
-            
-            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
-            assertFalse(completed);
-            assertEqual(n_failed,0);
-            assertFalse(all_changed);
             %-------------------------------------------------------------
             
             job_param_list = {'aaa',[1,2,3,4],'s',10};
-            [jd,job_ids,wc] = jd.split_and_register_jobs_pub(job_param_list,2);
+            [n_workers,task_par_ind] = jd.split_tasks(job_param_list,2);
             
-            assertTrue(iscellstr(wc));
-            assertEqual(numel(wc),numel(job_ids));
+            assertEqual(n_workers,2);
+            assertEqual(numel(task_par_ind{1}),2)
+            assertEqual(numel(task_par_ind{2}),2)
             
-            assertTrue(iscell(job_ids))
-            assertEqual(numel(job_ids),2);
+            [n_workers,task_par_ind] = jd.split_tasks(job_param_list,3);
+            
+            assertEqual(n_workers,3);
+            assertEqual(numel(task_par_ind{1}),2)
+            assertEqual(numel(task_par_ind{2}),1)
+            assertEqual(numel(task_par_ind{3}),1)
+            
+            %-------------------------------------------------------------
+            
+            [n_workers,task_par_ind] = jd.split_tasks(job_param_list,4);
+            assertEqual(n_workers,4);
+            assertEqual(numel(task_par_ind{1}),1)
+            assertEqual(numel(task_par_ind{2}),1)
+            assertEqual(numel(task_par_ind{3}),1)
+            assertEqual(numel(task_par_ind{4}),1)
+            
+            
+            %-------------------------------------------------------------
+            [n_workers,task_par_ind] = jd.split_tasks(job_param_list,5);
+            assertEqual(n_workers,4);
+            assertEqual(numel(task_par_ind{1}),1)
+            assertEqual(numel(task_par_ind{2}),1)
+            assertEqual(numel(task_par_ind{3}),1)
+            assertEqual(numel(task_par_ind{4}),1)
+            %-------------------------------------------------------------
+            %             tf = jd.time_to_fail;
+            %             %jd.jobs_check_time = tf; % DEPRICATED
+            %             % this will set time check counter to 2 and we already have one
+            %             % tick. Two ticks more would exceed job fail counter
+            %             [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
+            %             assertFalse(completed);
+            %             assertEqual(n_failed,0);
+            %             assertFalse(all_changed);
             %
-            ok = jd.job_state_is(1,'starting');
-            assertTrue(ok);
-            ok = jd.job_state_is(2,'starting');
-            assertTrue(ok);
-            
-            assertEqual(numel(job_ids{1}),2);
-            assertEqual(numel(job_ids{2}),2);
-            assertEqual(job_ids{1},[1,2]);
-            assertEqual(job_ids{2},[3,4]);
-            
-            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
-            assertFalse(completed);
-            assertEqual(n_failed,0);
-            assertFalse(all_changed);           
-            %-------------------------------------------------------------
-            [jd,job_ids,wc] = jd.split_and_register_jobs_pub(job_param_list,3);
-            assertTrue(iscellstr(wc));
-            assertEqual(numel(wc),numel(job_ids));
-            
-            assertTrue(iscell(job_ids))
-            assertEqual(numel(job_ids),3);
-            
-            ok = jd.job_state_is(1,'starting');
-            assertTrue(ok);
-            ok = jd.job_state_is(2,'starting');
-            assertTrue(ok);
-            ok = jd.job_state_is(3,'starting');
-            assertTrue(ok);
-            
-            
-            assertEqual(numel(job_ids{1}),2);
-            assertEqual(numel(job_ids{2}),1);
-            assertEqual(numel(job_ids{3}),1);            
-            assertEqual(job_ids{1},[1,2]);
-            assertEqual(job_ids{2},3);
-            assertEqual(job_ids{3},4);            
-            
-            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
-            assertFalse(completed);
-            assertEqual(n_failed,0);
-            assertFalse(all_changed);            
-            %-------------------------------------------------------------
-            
-            [jd,job_ids,wc] = jd.split_and_register_jobs_pub(job_param_list,4);
-            assertTrue(iscellstr(wc));
-            assertEqual(numel(wc),numel(job_ids));
-            
-            assertTrue(iscell(job_ids))
-            assertEqual(numel(job_ids),4);
-            
-            ok = jd.job_state_is(1,'starting');
-            assertTrue(ok);
-            ok = jd.job_state_is(2,'starting');
-            assertTrue(ok);
-            ok = jd.job_state_is(3,'starting');
-            assertTrue(ok);
-            ok = jd.job_state_is(4,'starting');
-            assertTrue(ok);
-            
-            
-            assertEqual(numel(job_ids{1}),1);
-            assertEqual(numel(job_ids{2}),1);
-            assertEqual(numel(job_ids{3}),1);
-            assertEqual(numel(job_ids{4}),1);
-            assertEqual(job_ids{1},1);
-            assertEqual(job_ids{2},2);
-            assertEqual(job_ids{3},3);
-            assertEqual(job_ids{4},4);
-            
-            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
-            assertFalse(completed);
-            assertEqual(n_failed,0);
-            assertFalse(all_changed);            
-            %-------------------------------------------------------------
-            [jd,job_ids,wc] = jd.split_and_register_jobs_pub(job_param_list,5);
-            assertTrue(iscellstr(wc));
-            assertEqual(numel(wc),numel(job_ids));
-            
-            assertTrue(iscell(job_ids))
-            assertEqual(numel(job_ids),4);
-            
-            ok = jd.job_state_is(1,'starting');
-            assertTrue(ok);
-            ok = jd.job_state_is(2,'starting');
-            assertTrue(ok);
-            ok = jd.job_state_is(3,'starting');
-            assertTrue(ok);
-            ok = jd.job_state_is(4,'starting');
-            assertTrue(ok);
-            
-            
-            assertEqual(numel(job_ids{1}),1);
-            assertEqual(numel(job_ids{2}),1);
-            assertEqual(numel(job_ids{3}),1);
-            assertEqual(numel(job_ids{4}),1);
-            assertEqual(job_ids{1},1);
-            assertEqual(job_ids{2},2);
-            assertEqual(job_ids{3},3);
-            assertEqual(job_ids{4},4);
-            
-            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
-            assertFalse(completed);
-            assertEqual(n_failed,0);
-            assertFalse(all_changed);            
-            %-------------------------------------------------------------
-            tf = jd.time_to_fail;
-            jd.jobs_check_time = tf;
-            % this will set time check counter to 2 and we already have one
-            % tick. Two ticks more would exceed job fail counter
-            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
-            assertFalse(completed);
-            assertEqual(n_failed,0);
-            assertFalse(all_changed);           
-            
-            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
-            assertTrue(completed);
-            assertEqual(n_failed,4);
-            assertTrue(all_changed);
-            
-            job_run_info = jd.job_control_structure;
-            assertTrue(job_run_info{1}.is_failed)
-            assertEqual(job_run_info{1}.fail_reason,'Timeout waiting for job_started message');
+            %             [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
+            %             assertTrue(completed);
+            %             assertEqual(n_failed,4);
+            %             assertTrue(all_changed);
+            %
+            %             job_run_info = jd.job_control_structure;
+            %             assertTrue(job_run_info{1}.is_failed)
+            %             assertEqual(job_run_info{1}.fail_reason,'Timeout waiting for job_started message');
             
         end
         

@@ -10,7 +10,7 @@ if isempty(new_message_name)
     end
 elseif strcmpi(new_message_name,'starting')
     obj.waiting_count_ = obj.waiting_count_+1;
-    if obj.waiting_count_ > mpi.fail_limit
+    if obj.waiting_count_ >= obj.fail_limit_
         is_running = false;
         obj=obj.set_failed('Timeout waiting for job_started message');
     end

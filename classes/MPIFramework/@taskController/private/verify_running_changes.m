@@ -13,7 +13,7 @@ if isempty(new_message_name)
         end
     else
         obj.waiting_count = obj.waiting_count+1;
-        if obj.waiting_count > mpi.fail_limit
+        if obj.waiting_count >= obj.fail_limit_
             obj=obj.set_failed('Timeout waiting for job_completed message');
             is_running = false;
         end
@@ -25,7 +25,15 @@ elseif strcmpi(new_message_name,'started')
 elseif strcmpi(new_message_name,'running')
     obj=get_progress_(obj,mpi,true);
 elseif strcmpi(new_message_name,'completed')
-    obj = get_output_(obj,mpi);
+    [obj,not_exist] = get_output_(obj,mpi);
+    if not_exist
+        obj.waiting_count = obj.waiting_count+1;
+        if obj.waiting_count >= obj.fail_limit_
+            obj=obj.set_failed('Timeout waiting for job_completed message');
+        end
+    else
+        obj.waiting_count = 0;
+    end
     is_running = false;
 else
     warning('JOB_CONTROLLER:job_status',...

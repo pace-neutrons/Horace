@@ -13,6 +13,11 @@ if numel(folder_contents )==0
     return;
 end
 [mess_names,mess_id] = parce_folder_contents_(folder_contents);
+if isempty(mess_names)
+    all_messages = mess_names;
+    task_ids     = mess_id;
+    return
+end
 if isempty(task_ids)||numel(task_ids) == 0
     task_ids = unique(mess_id);
 end
@@ -31,5 +36,4 @@ for id=1:numel(task_ids)
         end
     end
 end
-
 

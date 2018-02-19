@@ -3,7 +3,7 @@ function     obj = get_progress_(obj,mpi,is_already_running)
 % messages
 
 [ok,err,mess] = mpi.receive_message(obj.task_id,'running');
-if ~ok
+if ok ~= MES_CODES.ok
     if ~is_already_running
         obj = obj.set_failed(['Not able to retrieve "job_running" message. Err: ',...
             err]);

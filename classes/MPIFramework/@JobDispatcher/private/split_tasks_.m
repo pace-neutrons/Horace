@@ -17,12 +17,12 @@ num_par_per_task = floor(n_tasks/n_workers);
 if num_par_per_task<1; num_par_per_task =1; end
 
 % split job parameters list between workers
-each_task_npar = ones(n_workers,1)*num_par_per_job;
+each_task_npar = ones(n_workers,1)*num_par_per_task;
 n_alloc_tasks  = sum(each_task_npar);
 if num_par_per_task*n_workers<n_tasks
-    for i=1:n_workers
+    for task_id=1:n_workers
         if n_alloc_tasks<n_tasks
-            each_task_npar(i) = each_task_npar(i)+1;
+            each_task_npar(task_id) = each_task_npar(task_id)+1;
             n_alloc_tasks = n_alloc_tasks+1;
         else
             break;
@@ -36,5 +36,5 @@ worker_par_list = cell(1,n_workers);
 for task_id=1:n_workers
     
     task_par_nums = (n_alloc_tasks(task_id)+1):(n_alloc_tasks(task_id)+each_task_npar(task_id));
-    worker_par_list{i}  = task_par_nums;
+    worker_par_list{task_id}  = task_par_nums;
 end

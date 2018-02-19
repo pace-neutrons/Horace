@@ -1,4 +1,5 @@
-function [n_failed,outputs,task_ids,this]=send_tasks_to_workers_(this,...
+function [n_failed,outputs,task_par_id_per_worker,this]=...
+    send_tasks_to_workers_(this,...
     task_class_name,task_param_list,n_workers,varargin)
 % send range of jobs to execute by external program
 %
@@ -22,8 +23,8 @@ function [n_failed,outputs,task_ids,this]=send_tasks_to_workers_(this,...
 %
 % outputs   -- cellarray of outputs from each job.
 %              Empty if jobs do not return anything
-% task_ids   -- list containing relation between task_id (job
-%              number) and job parameters from
+% task_ids   -- list containing relation between task_id (task
+%              number) and task parameters from
 %              task_param_list, assigned to this job
 %
 %
@@ -36,83 +37,69 @@ function [n_failed,outputs,task_ids,this]=send_tasks_to_workers_(this,...
 % delete orphaned messages, which may belong to this framework, previous run
 %
 % clear all messages which may left in case of failure
-clob = onCleanup(@()this.clear_all_messages());
+mf = this.mess_framework_;
+clob_mf = onCleanup(@()mf.finalize_all());
 
-[this,task_ids,worker_inits]=this.split_and_register_jobs(task_param_list,n_workers);
-
-%par_in_cell = iscellstr(task_param_list); %this may be needed for task_parameter
-%list being a cellarray of strings
-% task id
-for task_id=1:n_workers
-    
-    obj.running_tasks_{task_id} = taskController(task_id);    
-    task_par_nums = (n_alloc_tasks(task_id)+1):(n_alloc_tasks(task_id)+each_task_npar(task_id));
-    
-    % Store task info for further usage and progress checking
-    task = obj.running_tasks_{task_id};
-    obj.running_tasks_{task_id} = task.set_task_id(task_id);
-    %
-    % generate first parameters string for the worker :
-    this_task_param = task_param_list(task_par_nums);
-    task_ids{task_id} = task_par_nums;
-    
-    taskControls{task_id} = obj.init_worker(task_id,this_task_param);
-    % finalize task parameters string
-    %---------------------------------------------------------------------
-end
+[n_workers,task_par_id_per_worker]=this.split_tasks(task_param_list,n_workers);
 
 
 prog_start_str = this.worker_prog_string;
-n_workers = numel(worker_inits);
-%
-processes = cell(1,n_workers);
-%runtime = java.lang.Runtime.getRuntime();
 task_common_str = {prog_start_str,'-nosplash','-nojvm','-r'};
-for i=1:n_workers
-    worker_init = worker_inits{i};
-    worker_str = sprintf('worker(''%s'',''%s'');exit;',task_class_name,worker_init);
- 
-    task_str = [task_common_str,{worker_str}];
-    this.
-    % run external job
-    %[nok,mess]=system(task_str);
-    runtime = runtime.command(task_str);
-    processes{i} = runtime.start();
+%
+for task_id=1:n_workers
+    
+    task_inputs = task_param_list(task_par_id_per_worker{task_id});
+    mess = aMessage('starting');
+    mess.payload = task_inputs;
     
     
-    [completed,ok,mess] = check_task_completed_(processes{i},run_mess);
-    if completed && ~ok
+    worker_init_info = mf.build_control(task_id);
+    worker_str = sprintf('worker(''%s'',''%s'');exit;',task_class_name,worker_init_info);
+    task_info = [task_common_str,{worker_str}];
+    
+    th = JavaTaskWrapper();
+    %-----------------------------
+    % --- the sequence of these two events may need to be different for different
+    % frameworks? TODO: fixIf
+    mf.send_message(task_id,mess);
+    th = th.start_task(task_info);
+    %-----------------------------
+    [ok,fail,err_mess] = th.is_running();
+    if ~ok && fail
         error('JobDispatcher:starting_workers',[' Can not start worker N %d.',...
-            ' Message returned: %s'],i,mess);
+            ' Message returned: %s'],task_id,err_mess);
     end
+    % wrap task into task controller to take care about it.
+    tc = taskController(task_id,th);
+    this.tasks_list_{task_id} = tc;
 end
-clob1 = onCleanup(@()clear_all_processes(processes));
-pause(1);
-waiting_time = this.jobs_check_time;
+clob_tasks = onCleanup(@()kill_all_tasks(this.tasks_list_));
+waiting_time = this.task_check_time;
+pause(waiting_time );
 
 
 count = 0;
-[completed,n_failed,~,this]=check_jobs_status_(this,processes,run_mess);
+[completed,n_failed,~,this]=check_tasks_status_(this);
 while(~completed)
     if count == 0
         fprintf('**** Waiting for workers to finish their jobs ****\n')
-        this.running_jobs_=print_task_progress_log_(this.running_jobs_);
+        this.tasks_list_=print_tasks_progress_log_(this.tasks_list_);
     end
     pause(waiting_time);
-    [completed,n_failed,all_changed,this]=check_jobs_status_(this,processes,run_mess);
+    [completed,n_failed,all_changed,this]=check_tasks_status_(this);
     count = count+1;
     fprintf('.')
-    if mod(count,19)==0 || all_changed
+    if mod(count,19)==0 || all_changed % 19 is the length of task progress message
         fprintf('\n')
-        this.running_jobs_=print_task_progress_log_(this.running_jobs_);
+        this.tasks_list_=print_tasks_progress_log_(this.tasks_list_);
     end
 end
 fprintf('\n')
-this.running_jobs_=print_task_progress_log_(this.running_jobs_);
+this.tasks_list_=print_tasks_progress_log_(this.tasks_list_);
 %--------------------------------------------------------------------------
 % retrieve outputs (if any)
 outputs = cell(n_workers,1);
-task_info=this.running_jobs_;
+task_info=this.tasks_list_;
 for ind = 1:n_workers
     if task_info{ind}.is_failed
         outputs{ind} = ['Failed, Reason: ',task_info{ind}.fail_reason];
@@ -121,8 +108,8 @@ for ind = 1:n_workers
     end
 end
 
-function clear_all_processes(proc_list)
+function kill_all_tasks(tasks_list)
 
-for i=1:numel(proc_list)
-    proc_list{i}.destroy();
+for i=1:numel(tasks_list)
+    tasks_list{i}.task_handle.stop_task();
 end

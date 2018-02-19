@@ -1,11 +1,15 @@
-function     obj = get_output_(obj,mpi)
-% Retrieve job outputs and attach it to the jobController
+function     [obj,not_exist] = get_output_(obj,mpi)
+% Retrieve job outputs and attach it to the taksController
 
 % get job output
-[ok,err,mess] = mpi.receive_message(obj.job_id,'completed');
-if ~ok
-    obj = obj.set_failed(['Not able to receive "job_completed" message. Err: ',...
-        err]);
+not_exist = false;
+[ok,err,mess] = mpi.receive_message(obj.task_id,'completed');
+if ok == MES_CODES.ok
+    obj.outputs = mess.payload;
+elseif ok == MES_CODES.not_exist
+    not_exist  = true;
 else
-    obj.outputs = mess.payload;    
+    obj = obj.set_failed(...
+        spfintf('Task %d Not able to receive "job_completed" message. Err: ',...
+        obj.task_id,err));
 end

@@ -18,9 +18,12 @@ classdef test_taskController < TestCase
             clob = onCleanup(@()(mpi.finalize_all()));
             
             % this sets up failing on 3 attempts to verify task status
-            mpi.time_to_fail=mpi.tasks_check_time;
+            %mpi.time_to_fail=mpi.tasks_check_time;
             
-            tc = taskController(3);
+            tcc  = aTaskWrapperForTest();
+            tcc.running = true;
+            tc = taskController(3,tcc);
+            
             [tc,is_running] = tc.check_and_set_task_state(mpi,'starting');
             assertTrue(is_running);
             assertEqual(tc.waiting_count,1);
@@ -36,7 +39,7 @@ classdef test_taskController < TestCase
             %
             
             ok = mpi.send_message(3,'started');
-            assertTrue(ok);
+            assertEqual(ok,MES_CODES.ok);
             % check recovery from failed state
             [tc,is_running] = tc.check_and_set_task_state(mpi,'started');
             assertTrue(is_running);
@@ -61,11 +64,11 @@ classdef test_taskController < TestCase
             
             % receive and discard 'started' message
             ok = mpi.receive_message(3,'started');
-            assertTrue(ok);
+            assertEqual(ok,MES_CODES.ok);
             % send log message instead
             mess = LogMessage(1,10,0.0,'bla bla bla');
             ok = mpi.send_message(3,mess);
-            assertTrue(ok);
+            assertEqual(ok,MES_CODES.ok);
             
             % check recovery from failed state
             [tc,is_running] = tc.check_and_set_task_state(mpi,mess.mess_name);
@@ -76,9 +79,8 @@ classdef test_taskController < TestCase
             assertTrue(tc.reports_progress);
             
             % Check never fails on waiting as waiting time is 0
-            ok = mpi.check_message(3,'running');
-            assertFalse(ok);
-            
+            %ok = mpi.check_message(3,'running');
+            %assertFalse(ok);
             [tc,is_running] = tc.check_and_set_task_state(mpi,'running');
             assertTrue(is_running);
             assertEqual(tc.waiting_count,0);
@@ -97,7 +99,8 @@ classdef test_taskController < TestCase
             % send message with timing and fail on time-out
             mess = LogMessage(1,10,0.01,'bla bla bla');
             ok = mpi.send_message(3,mess);
-            assertTrue(ok);
+            assertEqual(ok,MES_CODES.ok);
+            
             
             [tc,is_running] = tc.check_and_set_task_state(mpi,'running');
             assertTrue(is_running);
@@ -119,7 +122,8 @@ classdef test_taskController < TestCase
             mess = aMessage('completed');
             mess.payload = 'dummy task output';
             ok = mpi.send_message(3,mess);
-            assertTrue(ok);
+            assertEqual(ok,MES_CODES.ok);
+            
             
             [tc,is_running] = tc.check_and_set_task_state(mpi,'completed');
             assertFalse(is_running);
@@ -130,24 +134,44 @@ classdef test_taskController < TestCase
             assertTrue(tc.reports_progress);
             assertEqual(tc.outputs,'dummy task output');
             
-            ok = mpi.check_message(3,'completed');
-            assertFalse(ok);
+            mess = mpi.probe_all(3);
+            assertTrue(isempty(mess));
             
             % fail will even kill completed, though it should not ever
             % happen, though output still exist
             ok = mpi.send_message(3,'failed');
-            assertTrue(ok);
+            assertEqual(ok,MES_CODES.ok);
             [tc,is_running] = tc.check_and_set_task_state(mpi,'failed');
             assertFalse(is_running);
             assertTrue(tc.is_failed);
             assertTrue(isempty(tc.fail_reason));
             assertEqual(tc.outputs,'dummy task output');
+            
+            tc.task_handle.running = false;
+            tc.task_handle.failed = false;            
+            [tc,is_running] = tc.check_and_set_task_state(mpi,'running');
+            assertFalse(is_running);
+            assertFalse(tc.is_failed);            
+            assertTrue(tc.is_finished);
+
+            
+            tc.task_handle.running = false;
+            tc.task_handle.failed = true;            
+            [tc,is_running] = tc.check_and_set_task_state(mpi,'running');            
+            assertFalse(is_running);
+            assertTrue(tc.is_failed);
+            assertTrue(tc.is_finished);   
+            assertEqual(tc.fail_reason,...
+                'Task with id: 3 crashed, Error: job failed as property set to failed')
         end
         
         function test_log(this)
-            jc = taskController(2);
+            tcc  = aTaskWrapperForTest();
+            tcc.running = true;
+            
+            jc = taskController(2,tcc);
             log = jc.get_task_info();
-            assertEqual(log,'taskN:02| starting |')
+            assertEqual(log,'TaskN:02| starting |')
         end
         
     end
