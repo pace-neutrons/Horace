@@ -12,7 +12,7 @@ classdef gen_sqw_files_job < JobExecutor
     
     methods
         function obj = gen_sqw_files_job(varargin)
-            obj = obj@JobExecutor(varargin{:});
+            obj = obj@JobExecutor();
         end
         function this=do_job(this,varargin)
             % Run jobs of converting from rundata to sqw in separate Matlab

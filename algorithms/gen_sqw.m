@@ -768,13 +768,10 @@ else
     % effective but much easier to identify problem with
     % failing parallel job
     jex = gen_sqw_files_job();
-    % delete messages exchange folder created by parallel framework
-    % at the end of the procedure
-    clob = onCleanup(@()(rmdir(jex.exchange_folder,'s')));
     % run conversion
     jex = jex.do_job(job_par);
     % retrieve outputs
-    result = jex.job_outputs;
+    result = jex.task_outputs;
     %
     grid_size= result.grid_size;
     urange = result.urange;

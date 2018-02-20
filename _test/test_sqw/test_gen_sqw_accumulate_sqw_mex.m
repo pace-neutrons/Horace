@@ -371,7 +371,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             
             sqw_file_accum=fullfile(tempdir,['test_sqw_accum_sqw14',pref,'.sqw']);
             sqw_file_14=fullfile(tempdir,['test_sqw_14',pref,'.sqw']);    % output sqw file
-            cleanup_obj1=onCleanup(@()rm_files(this,sqw_file_14,sqw_file_accum));
+            cleanup_obj1=onCleanup(@()this.delete_files(sqw_file_14,sqw_file_accum));
             % ---------------------------------------
             % Test accumulate_sqw
             % ---------------------------------------
@@ -419,7 +419,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             % build test files if they have not been build
             sqw_file_accum=fullfile(tempdir,['test_sqw_accum_sqw1456',pref,'.sqw']);
             sqw_file_1456=fullfile(tempdir,['test_sqw_1456',pref,'.sqw']);                   % output sqw file
-            cleanup_obj1=onCleanup(@()rm_files(this,sqw_file_1456,sqw_file_accum));
+            cleanup_obj1=onCleanup(@()this.delete_files(sqw_file_1456,sqw_file_accum));
             % ---------------------------------------
             % Test accumulate_sqw
             % ---------------------------------------
@@ -465,7 +465,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             % output sqw files:
             sqw_file_accum=fullfile(tempdir,['test_sqw_acc_sqw11456',pref,'.sqw']);
             sqw_file_11456=fullfile(tempdir,['test_sqw_11456',pref,'.sqw']);
-            cleanup_obj1=onCleanup(@()rm_files(this,sqw_file_11456,sqw_file_accum));
+            cleanup_obj1=onCleanup(@()this.delete_files(sqw_file_11456,sqw_file_accum));
             
             % ---------------------------------------
             % Test accumulate_sqw
