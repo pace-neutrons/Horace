@@ -12,7 +12,7 @@ classdef combine_equivalent_zones_job < JobExecutor
     
     methods
         function obj = combine_equivalent_zones_job(varargin)
-            obj = obj@JobExecutor(varargin{:});
+            obj = obj@JobExecutor();
         end
         function this=do_job(this,varargin)
             % Run jobs of creating zones in separate Matlab

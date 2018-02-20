@@ -51,7 +51,7 @@ classdef test_symm_equivalent_zones< TestCase
             ranges{2}.zone_id = 2;
             ranges{2}.zone_center   = pos;
             ranges{2}.target_center = pos;
-            ranges{2} = ranges{2}.set_sigma_transf();            
+            ranges{2} = ranges{2}.set_sigma_transf();
             
             %zones = {zone1;pos};
             
@@ -64,19 +64,23 @@ classdef test_symm_equivalent_zones< TestCase
             
             
             jd = JobDispatcher('test_sym_equiv_zones_worker');
-            % split jobs on single worker
-            [~,~,wc]=jd.split_and_register_jobs(job_param_list,1);
+            mpi = jd.mess_framework;
+            wk_control = mpi.build_control(1);
+            mess = aMessage('starting');
+            mess.payload = job_param_list;
+            [ok,err] = mpi.send_message(1,mess);
+            assertEqual(ok,MES_CODES.ok,sprintf('Error sending message %s',err));
             
-            worker('combine_equivalent_zones_job',wc{1});
+            worker('combine_equivalent_zones_job',wk_control);
             %--------------------------
             % receive results of the work
-            [ok,err,mes] = jd.receive_message(1,'completed');
-            assertTrue(ok);
+            [ok,err,mes] = mpi.receive_message(1,'completed');
+            assertEqual(ok,MES_CODES.ok,sprintf('Error sending message %s',err));
             assertTrue(isempty(err));
             res = mes.payload;
             %out = struct('zone_id',zone_id,'zone_files',[]);
             %
-            jd.clear_all_messages();
+            mpi.finalize_all();
             %
             assertEqual(numel(res.zone_id),2);
             assertEqual(res.zone_id(1),1);
@@ -99,8 +103,8 @@ classdef test_symm_equivalent_zones< TestCase
             ranges = cut_transf([-0.1,0.025,0.1],[-0.1,0.025,0.1],[-Inf,Inf],[0,1.5,100]);
             
             %ranges = cut_transf([-0.1,0.025,0.1],[-0.1,0.025,0.1],[0.9,0.025,1.1],[0,1.5,100]);
-
-            ranges.zone_id = 1;            
+            
+            ranges.zone_id = 1;
             ranges.zone_center = zone1;
             ranges.target_center = pos;
             ranges = ranges.set_sigma_transf();
@@ -114,12 +118,11 @@ classdef test_symm_equivalent_zones< TestCase
             
             je = combine_equivalent_zones_job('test_sym_equiv_zones_do_job');
             je=je.do_job(job_param);
-            out = je.job_outputs;
+            out = je.task_outputs;
             outfile = fullfile(outdir,out.zone_files{1});
             
             assertTrue(exist(outfile,'file')==2);
             
-            je.clear_all_messages();
         end
         
         

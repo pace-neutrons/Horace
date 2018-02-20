@@ -279,7 +279,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             sqw_file_123456=fullfile(tempdir,'sqw_123456_multisession.sqw');             % output sqw file
             sqw_file_145623=fullfile(tempdir,'sqw_145623_multisession.sqw');            % output sqw file
             if ~this.save_output
-                cleanup_obj1=onCleanup(@()rm_files(this,sqw_file_123456,sqw_file_145623,sqw_file{:}));
+                cleanup_obj1=onCleanup(@()this.delete_files(sqw_file_123456,sqw_file_145623,sqw_file{:}));
             end
             %% ---------------------------------------
             % Test gen_sqw ---------------------------------------
@@ -347,9 +347,9 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             
             
             
-            sqw_file_accum=fullfile(tempdir,['test_sqw_accum_sqw14_multisession.sqw']);
-            sqw_file_14=fullfile(tempdir,['test_sqw_14_multisession.sqw']);    % output sqw file
-            cleanup_obj1=onCleanup(@()delete_files(this,sqw_file_14,sqw_file_accum));
+            sqw_file_accum=fullfile(tempdir,'test_sqw_accum_sqw14_multisession.sqw');
+            sqw_file_14=fullfile(tempdir,'test_sqw_14_multisession.sqw');    % output sqw file
+            cleanup_obj1=onCleanup(@()this.delete_files(sqw_file_14,sqw_file_accum));
             
             % --------------------------------------- Test accumulate_sqw
             % ---------------------------------------
@@ -404,7 +404,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             sqw_file_accum=fullfile(tempdir,'test_accumulate_and_combine14.sqw'); % output sqw file
             
             if ~this.save_output
-                co2=onCleanup(@()rm_files(this,sqw_file_accum));
+                co2=onCleanup(@()this.delete_files(sqw_file_accum));
             end
             
             spe_names = this.spe_file([1,4,5,6]);
@@ -468,7 +468,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             sqw_file_1456=fullfile(tempdir,'test_sqw_1456_multisession.sqw');                   % output sqw file
             
             if ~this.save_output
-                cleanup_obj1=onCleanup(@()rm_files(this,sqw_file_1456,sqw_file_accum));
+                cleanup_obj1=onCleanup(@()this.delete_files(sqw_file_1456,sqw_file_accum));
             end
             % --------------------------------------- Test accumulate_sqw
             % ---------------------------------------
@@ -515,7 +515,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             this=build_test_files(this);
             sqw_file_accum=fullfile(tempdir,'test_sqw_acc_sqw11456_multisession.sqw');
             sqw_file_11456=fullfile(tempdir,'test_sqw_11456_multisession.sqw');                   % output sqw file
-            cleanup_obj1=onCleanup(@()rm_files(this,sqw_file_11456,sqw_file_accum));
+            cleanup_obj1=onCleanup(@()this.delete_files(sqw_file_11456,sqw_file_accum));
             
             % --------------------------------------- Test accumulate_sqw
             % ---------------------------------------
@@ -601,23 +601,28 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             
             
             jd = JobDispatcher('test_gen_sqw_sep_ses_worker');
-            [~,~,wc]=jd.split_and_register_jobs(job_param_list,1);
+            mpi = jd.mess_framework;
+            mess = aMessage('starting');
+            mess.payload = job_param_list;
+            mpi.send_message(1,mess);
+            %[~,~,wc]=jd.split_and_register_jobs(job_param_list,1);
+            wk_control = mpi.build_control(1);
             
-            worker('gen_sqw_files_job',wc{1});
+            worker('gen_sqw_files_job',wk_control);
             
             assertTrue(exist(tmp_file1,'file')==2);
             assertTrue(exist(tmp_file2,'file')==2);
             delete(tmp_file1);
             delete(tmp_file2);
-            [ok,err,mes] = jd.receive_message(1,'completed');
-            assertTrue(ok);
+            [ok,err,mes] = mpi.receive_message(1,'completed');
+            assertTrue(ok==MES_CODES.ok);
             assertTrue(isempty(err));
             res = mes.payload;
             assertEqual(res.grid_size,[50 50 50 50]);
             assertElementsAlmostEqual(res.urange,...
                 [-1.5000 -2.1000 -0.5000 0;0 0 0.5000 35.0000]);
             %
-            jd.clear_all_messages();
+            mpi.finalize_all();
         end
         
         function test_do_job(this)
@@ -651,7 +656,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             job_param = job_par_fun(run,tmp_file,this.instrum(1),this.sample);
             
             je = gen_sqw_files_job('test_gen_sqw_sep_ses_do_job');
-            clob = onCleanup(@()(je.clear_all_messages()));
+
             je.do_job(job_param);
             
             assertTrue(exist(tmp_file,'file')==2);

@@ -77,7 +77,7 @@ classdef test_combine_pow < TestCaseWithSave
             % -------------------------------------------
             sqw_file_1=fullfile(tempdir,'test_pow_1.sqw');
             % clean up
-            cleanup_obj=onCleanup(@()rm_files(this,sqw_file_1));
+            cleanup_obj=onCleanup(@()this.delete_files(sqw_file_1));
             
             emode = 1;
             
@@ -105,7 +105,7 @@ classdef test_combine_pow < TestCaseWithSave
             % -------------------------------------------
             sqw_file_2=fullfile(tempdir,'test_pow_2.sqw');
             % clean up
-            cleanup_obj=onCleanup(@()rm_files(this,sqw_file_2));
+            cleanup_obj=onCleanup(@()this.delete_files(sqw_file_2));
             
             emode = 1;
             
@@ -131,7 +131,7 @@ classdef test_combine_pow < TestCaseWithSave
             % -------------------------------------------
             sqw_file_tot=fullfile(tempdir,'test_pow_tot.sqw');
             % clean up
-            cleanup_obj=onCleanup(@()rm_files(this,sqw_file_tot));
+            cleanup_obj=onCleanup(@()this.delete_files(sqw_file_tot));
             
             emode = 1;
             gen_sqw_powder_test ({this.spe_file_1,this.spe_file_2}, this.par_file, sqw_file_tot, this.efix, emode);

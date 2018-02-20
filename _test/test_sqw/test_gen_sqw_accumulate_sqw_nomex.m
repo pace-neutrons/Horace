@@ -88,7 +88,7 @@ classdef test_gen_sqw_accumulate_sqw_nomex < test_gen_sqw_accumulate_sqw_mex
             
             sqw_file_123_t8=fullfile(tempdir,'sqw_123_mex8_threading.sqw');             % output sqw file
             sqw_file_123_t1=fullfile(tempdir,'sqw_123_mex1_threading.sqw');        % output sqw file
-            cleanup_obj1=onCleanup(@()rm_files(this,sqw_file_123_t8,sqw_file_123_t1,spe_file_names{:}));
+            cleanup_obj1=onCleanup(@()this.delete_files(sqw_file_123_t8,sqw_file_123_t1,spe_file_names{:}));
             % ---------------------------------------
             % Test gen_sqw
             % ---------------------------------------
