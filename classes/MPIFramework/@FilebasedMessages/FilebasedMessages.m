@@ -32,6 +32,9 @@ classdef FilebasedMessages < iMessagesFramework
         %unblocking.
         time_to_fail_ = 1000;
         mess_exchange_folder_;
+        % time to wait for a message send from one session can be read from
+        % another one.
+        time_to_react_ = 0.1
     end
     %----------------------------------------------------------------------
     methods

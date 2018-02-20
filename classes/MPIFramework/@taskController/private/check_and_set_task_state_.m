@@ -4,7 +4,6 @@ function [obj,is_running] = check_and_set_task_state_(obj,mpi,new_message_name)
 %
 [ok,fail,err_job] = obj.task_handle.is_running();
 if ~ok
-    pause(1)
     obj.is_failed_ = fail;
     if fail
         [ok,err_mess,mess] = mpi.receive_message(obj.task_id,'failed');
@@ -21,6 +20,10 @@ if ~ok
         end
     else
         obj.is_running = false;
+        fail = wait_for_(obj,mpi,'completed');
+        if fail
+            obj = obj.set_failed('Job finished successfully but error waiting for the "completed" message');
+        end
     end
 end
 

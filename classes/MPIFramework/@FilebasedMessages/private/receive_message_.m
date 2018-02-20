@@ -38,6 +38,7 @@ if blocking_message % not yet implemented, just receive all messages for this ta
     end
     
 else
+    pause(obj.time_to_react_);
     mess_fname = obj.job_stat_fname_(task_id,mess_name);
     if exist(mess_fname,'file') ~= 2
         err_code = MES_CODES.not_exist;
