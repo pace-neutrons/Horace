@@ -54,7 +54,8 @@ change_fileno  = pix_comb_info.change_fileno;
 % size of buffer to hold pixel information, the log level and if use mex to
 % build the result
 
-[pmax,log_level,use_mex] = config_store.instance().get_value('hor_config','mem_chunk_size','log_level','use_mex_for_combine');
+[pmax,log_level] = config_store.instance().get_value('hor_config','mem_chunk_size','log_level');
+use_mex = config_store.instance().get_value('hpc_config','use_mex_for_combine');
 
 pix_out_position = obj.pix_pos_;
 if use_mex
@@ -400,9 +401,13 @@ end
 out_param = struct('file_name',fout_name ,...
     'npix_start_pos',NaN,'pix_start_pos',pix_out_position,'file_id',NaN);
 %
-[out_buf_size,log_level,buf_size,multithreaded_combining] = ...
-    config_store.instance().get_value('hor_config','mem_chunk_size',...
-    'log_level','mex_combine_buffer_size','mex_combine_thread_mode');
+[out_buf_size,log_level] = ...
+    config_store.instance().get_value('hor_config',...
+    'mem_chunk_size','log_level');
+[buf_size,multithreaded_combining] = ...
+    config_store.instance().get_value('hpc_config',...
+    'mex_combine_buffer_size','mex_combine_thread_mode');
+    
 % conversion parameters include:
 % n_bin        -- number of bins in the image array
 % 1            -- first bin to start copying pixels for
