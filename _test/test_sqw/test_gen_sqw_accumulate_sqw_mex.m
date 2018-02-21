@@ -273,7 +273,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             sqw_file_123456=fullfile(tempdir,['sqw_123456',pref,'.sqw']);             % output sqw file
             sqw_file_145623=fullfile(tempdir,['sqw_145623',pref,'.sqw']);            % output sqw file
             
-            cleanup_obj1=onCleanup(@()rm_files(this,sqw_file_123456,sqw_file_145623,sqw_file{:}));
+            cleanup_obj1=onCleanup(@()this.delete_files(sqw_file_123456,sqw_file_145623,sqw_file{:}));
             
             %% ---------------------------------------
             % Test gen_sqw

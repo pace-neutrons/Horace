@@ -139,7 +139,7 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             %--------------------------------------------------------------------------------------------------
             
             %--------------------------------------------------------------------------------------------------
-            this=save_or_test_variables(this,w2,w1, w2rings,w1rings,...
+            this.save_or_test_variables(w2,w1, w2rings,w1rings,...
                 'tol',-3.e-2,'ignore_str',1);
         end
     end
