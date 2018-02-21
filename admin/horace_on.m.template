@@ -59,12 +59,16 @@ if hc.is_default
 %  hc.use_mex = 1;
    hc.force_mex_if_use_mex = 0;
 %  hc.delete_tmp = 1;
-%  hc.use_mex_for_combine = 1;
-%  hc.mex_combine_thread_mode = 1;
-%  hc.mex_combine_buffer_size = 2048;
-%  hc.accum_in_separate_process = 1;
-%  hc.accumulating_process_num = 8;
 end
+hpc = hpc_config
+if hpc.is_default
+   hpc.use_mex_for_combine = 1;
+%  hpc.mex_combine_thread_mode = 1;
+%  hpc.mex_combine_buffer_size = 2048;
+%  hpc.accum_in_separate_process = 1;
+%  hpc.accumulating_process_num = 8;
+end
+
 warning('off','MATLAB:subscripting:noSubscriptsSpecified');
 
 function start_app(path)
