@@ -45,6 +45,7 @@ clob_mf = onCleanup(@()mf.finalize_all());
 
 prog_start_str = this.worker_prog_string;
 task_common_str = {prog_start_str,'-nosplash','-nojvm','-r'};
+DEBUG_REMOTE = false;
 %
 for task_id=1:n_workers
     
@@ -55,7 +56,16 @@ for task_id=1:n_workers
     
     worker_init_info = mf.build_control(task_id);
     worker_str = sprintf('worker(''%s'',''%s'');exit;',task_class_name,worker_init_info);
-    task_info = [task_common_str,{worker_str}];
+    if DEBUG_REMOTE
+        log_file = sprintf('output_jobN%d.log',task_id);
+        task_info = [task_common_str(1:end-1),{'-logfile'},{log_file },{'-r'},{worker_str}];
+    else
+        task_info = [task_common_str,{worker_str}];
+    end
+    
+    % if debugging client
+    
+    
     
     th = JavaTaskWrapper();
     %-----------------------------

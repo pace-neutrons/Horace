@@ -149,6 +149,9 @@ classdef test_taskController < TestCase
             
             tc.task_handle.running = false;
             tc.task_handle.failed = false;            
+            ok = mpi.send_message(3,'completed');
+            assertEqual(ok,MES_CODES.ok);
+            
             [tc,is_running] = tc.check_and_set_task_state(mpi,'running');
             assertFalse(is_running);
             assertFalse(tc.is_failed);            

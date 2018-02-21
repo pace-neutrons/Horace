@@ -42,16 +42,16 @@ cur_state = state2str_(obj);
 if obj.is_starting
     [obj,is_running] = verify_starting_changes(obj,mpi,new_message_name);
 elseif obj.is_running
-    [obj,is_running] = verify_running_changes(obj,mpi,new_message_name);
+    [obj,is_running] = verify_running_changes(obj,mpi,new_message_name,true);
 elseif obj.is_failed
     is_running = false;
     % Job was thought failed but have recovered for some reason -- at least new
     % non-failed message have been received from "failed" state
     if ~isempty(new_message_name)
-        [obj,is_running] = verify_running_changes(obj,mpi,new_message_name);
+        [obj,is_running] = verify_running_changes(obj,mpi,new_message_name,is_running);
     end
 elseif obj.is_finished % may be finished not by message but by framework control
-    [obj,is_running] = verify_running_changes(obj,mpi,'completed')  ;
+    [obj,is_running] = verify_running_changes(obj,mpi,'completed',false)  ;
 end
 
 new_state = state2str_(obj);
