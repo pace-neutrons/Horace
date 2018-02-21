@@ -466,7 +466,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
         end
         function this=test_accumulate_sqw11456(this)
             %-------------------------------------------------------------
-            [skip,cur_mex,pref,acsp,umc]=this.setup_mex_mode();
+            [skip,~,pref]=this.setup_mex_mode();
             cleanup_obj=onCleanup(@()this.restore_config());
             if skip
                 return
