@@ -11,7 +11,24 @@ for id=1:n_tasks
     log = job.get_task_info();
     job.state_changed = false;
     running_jobs_list{id} = job;
-    fprintf('%s\n',log);    
+    if job.is_failed
+        for i=1:numel(log)
+            cont = log{i};
+            if is_string(cont)                
+                fprintf('%s\n',cont);            
+            elseif isa(cont,'MException')
+                for j=1:numel(cont.stack)
+                    cl = cont.stack(j);
+                    fprintf('l: %d \t|fun: %s \t|row: %d \t|file: %s\n',...
+                        j,cl.name,cl.line,cl.file);
+                end
+            else
+                disp(cont);
+            end
+        end
+    else
+        fprintf('%s\n',log);    
+    end
 end
 
 

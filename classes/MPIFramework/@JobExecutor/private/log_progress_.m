@@ -20,8 +20,10 @@ if me.is_job_cancelled
 end
 % cannibalize 'started' message as this job will send 'running' messages
 all_mess = me.probe_all(this.task_id);
-if ismember('started',all_mess)
-    me.receive_message(this.task_id,'started');
+if ~isempty(all_mess)    
+    if ~isempty(all_mess{1}) && ismember('started',all_mess)
+        me.receive_message(this.task_id,'started');
+    end
 end
 % Prepare 'running' log message
 mess = LogMessage(step,n_steps,time_per_step,add_info);

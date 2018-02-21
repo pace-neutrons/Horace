@@ -23,7 +23,12 @@ for id=1:n_jobs
     end
     task = this.tasks_list_{id};
     %
-    [task,is_running] = task.check_and_set_task_state(mpi,all_messages{id});
+    if isempty(all_messages)  % no reply from the task during the query interval
+        % depending on the job state, start counting failure
+        [task,is_running] = task.check_and_set_task_state(mpi,'');
+    else
+        [task,is_running] = task.check_and_set_task_state(mpi,all_messages{id});
+    end
     if task.state_changed
         n_changed=n_changed+1;
     end

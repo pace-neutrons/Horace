@@ -144,10 +144,22 @@ classdef test_FileBaseMPI_Framework< TestCase
             mf = FilebasedMessages('MFT_probe_all_messages');
             clob = onCleanup(@()(mf.finalize_all()));
             
+            all_mess = mf.probe_all(1);
+            assertTrue(isempty(all_mess));
+            
+            
             mess = aMessage('starting');
             [ok,err] = mf.send_message(1,mess);
             assertEqual(ok,MES_CODES.ok)
             assertTrue(isempty(err));
+            all_mess = mf.probe_all(1);
+            if ~isempty(all_mess)
+                assertTrue(ismember('starting',all_mess))
+                assertFalse(ismember('started',all_mess))                
+            end
+            
+            
+            
             [ok,err] = mf.send_message(3,'started');
             assertEqual(ok,MES_CODES.ok)
             assertTrue(isempty(err));
@@ -225,6 +237,7 @@ classdef test_FileBaseMPI_Framework< TestCase
             clear clob;
             assertTrue(exist(jfn,'dir')==0);
         end
+        
     end
 end
 

@@ -6,11 +6,13 @@ classdef JavaTaskWrapper < iTaskWrapper
     properties(Access=private)
         mess_contents_
         task_handle_ = [];
+        is_pc_;
     end
     
     methods
         function obj = JavaTaskWrapper(varargin)
-            if ispc
+            obj.is_pc_ = ispc;
+            if obj.is_pc_
                 obj.mess_contents_= 'process has not exited';
             else
                 obj.mess_contents_= 'process hasn''t exited';
@@ -21,6 +23,7 @@ classdef JavaTaskWrapper < iTaskWrapper
         function obj = start_task(obj,job_param)
             runtime = java.lang.ProcessBuilder(job_param);
             obj.task_handle_ = runtime.start();
+            
         end
         %
         function obj = stop_task(obj)
@@ -43,7 +46,11 @@ classdef JavaTaskWrapper < iTaskWrapper
             mess = '';
             try
                 term = obj.task_handle_.exitValue();
-                ok = false;
+                if obj.is_pc_ % windows does not hold correct process for Matlab
+                    ok = true;
+                else
+                    ok = false; % unix does
+                end
                 if term == 0
                     failed = false;
                 else

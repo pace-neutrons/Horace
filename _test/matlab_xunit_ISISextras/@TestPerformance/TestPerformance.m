@@ -181,11 +181,11 @@ classdef TestPerformance < TestCaseWithSave
                 test_res = this_pc_perf_data.(test_method_name);
                 old_time = test_res.time_sec;
                 perf_change = 2*(old_time-run_time)/(old_time+run_time);
-                if (perf_change  < -0.1) % the time increase is 10%
+                if (perf_change  < -0.1 && old_time > 1) % the time increase is 10 and the interval is larger than 1 sec
                     warning('TEST_PERFORMANCE:performance_decreased',...
                         'Test: %s performance decreased by %3.2f perc. Old time: %d sec New time: %d sec',...
                         test_method_name,-100*perf_change,old_time,run_time);
-                elseif perf_change > 0.1
+                elseif perf_change > 0.1 && old_time > 1
                     fprintf('******** Test: %s performance increased by %3.2f perc. Old time: %d sec New time: %d sec\n',...
                         test_method_name,100*perf_change,old_time,run_time)
                 end

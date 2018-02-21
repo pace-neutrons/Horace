@@ -39,7 +39,7 @@ elseif strcmpi(new_message_name,'completed')
 else
     warning('JOB_CONTROLLER:job_status',...
         'Job with id: %d. Unknown job control state: %s',...
-        obj.job_id,new_message_name);
+        obj.task_id,new_message_name);
     is_running = false;
 end
 
