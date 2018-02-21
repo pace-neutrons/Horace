@@ -1,6 +1,6 @@
 classdef test_gen_sqw_accumulate_sqw_nomex < test_gen_sqw_accumulate_sqw_mex
     % Series of tests of gen_sqw and associated functions
-    % when mex code is disabled or not availible
+    % when mex code is disabled or not available
     %
     % Optionally writes results to output file to compare with previously
     % saved sample test results
@@ -62,21 +62,15 @@ classdef test_gen_sqw_accumulate_sqw_nomex < test_gen_sqw_accumulate_sqw_mex
             if n_errors>0
                 return % if no mex enabled, this tests nothing
             end
+            cleanup_obj=onCleanup(@()this.restore_config());
+            
             hc = hor_config;
-            cur_mex = hc.use_mex;
-            
-            acsp=hc.accum_in_separate_process;
-            umc= hc.use_mex_for_combine;
-            nthr = hc.threads;
-            %
-            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex,...
-                'accum_in_separate_process',acsp,'use_mex_for_combine',umc,...
-                'threads',nthr));
-            
-            
             hc.use_mex=true;
-            hc.accum_in_separate_process=false;
             hc.threads = 8;
+
+            hpc = hpc_config;
+            hpc.accum_in_separate_process=false;
+
             %-------------------------------------------------------------
             spe_file_names = cell(1,1);
             for i=1:1

@@ -315,7 +315,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             %  if input n_workers == 0, current number of parallel
             % workers remains unchanged
             %
-            hc = hor_config;            
+            hc = hpc_config;            
             if n_workers == 0 % keep existing number of workers unchanged
                 clob = onCleanup(@()(0));
                 return;
