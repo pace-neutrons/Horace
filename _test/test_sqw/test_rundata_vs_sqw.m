@@ -20,6 +20,14 @@ classdef test_rundata_vs_sqw < TestCase
         sqw_obj=[];
         clob_ = [];
     end
+    methods(Static)
+        function rm_sqw(filename)
+            if exist(filename,'file')
+                delete(filename);
+            end
+        end
+        
+    end
     
     methods
         function this=test_rundata_vs_sqw(varargin)
@@ -43,12 +51,8 @@ classdef test_rundata_vs_sqw < TestCase
             end
             
             this.sqw_obj = read_sqw(this.sqw_file_single);
-            this.clob_ = onCleanup(@()rm_sqw(this));
-        end
-        function rm_sqw(this)
-            if exist(this.sqw_file_single,'file')
-                delete(this.sqw_file_single);
-            end
+            fn =this.sqw_file_single;
+            this.clob_ = onCleanup(@()this.rm_sqw(fn));
         end
         
         function this=test_build_rundata(this)
