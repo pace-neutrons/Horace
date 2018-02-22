@@ -5,7 +5,7 @@ function [obj,is_running] = verify_starting_changes(obj,mpi,new_message_name)
 is_running = true;
 if isempty(new_message_name)
     obj.waiting_count_ = obj.waiting_count_+1;
-    if obj.waiting_count_ > mpi.fail_limit
+    if obj.waiting_count_ > obj.fail_limit_
         obj=obj.set_failed('Timeout waiting for job_started message. Error in JobExecutor.init_worker');
     end
 elseif strcmpi(new_message_name,'starting')
