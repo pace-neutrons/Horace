@@ -169,7 +169,9 @@ classdef hor_config<config_base
                 is = false;
             end
         end
-        
+        function hpcc = get.hpc_config_info(obj)
+            hpcc = hpc_config;
+        end
         %-----------------------------------------------------------------
         % overloaded setters
         function this = set.mem_chunk_size(this,val)

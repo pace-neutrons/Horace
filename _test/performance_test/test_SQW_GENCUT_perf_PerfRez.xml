@@ -53,49 +53,49 @@
          <completed_on>[2018 1 31 15 33 18.967]</completed_on>
       </cutH1D_AllInt_filebased_nw4>
       <gen_sqw_nWorkers0>
-         <time_sec>94.688264583643</time_sec>
+         <time_sec>81.6600543049107</time_sec>
          <comment>whole sqw file generation</comment>
-         <completed_on>[2018 1 31 15 17 41.388]</completed_on>
+         <completed_on>[2018 2 21 18 52 5.383]</completed_on>
       </gen_sqw_nWorkers0>
       <cutH1D_Small_nw0>
-         <time_sec>0.985335488931261</time_sec>
+         <time_sec>0.477933208469341</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 1</comment>
-         <completed_on>[2018 1 31 15 17 42.595]</completed_on>
+         <completed_on>[2018 2 21 18 52 6.198]</completed_on>
       </cutH1D_Small_nw0>
       <cutK1D_Small_nw0>
-         <time_sec>0.579486901034415</time_sec>
+         <time_sec>0.617926778757317</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 2</comment>
-         <completed_on>[2018 1 31 15 17 43.324]</completed_on>
+         <completed_on>[2018 2 21 18 52 7.14]</completed_on>
       </cutK1D_Small_nw0>
       <cutL1D_Small_nw0>
-         <time_sec>0.526940394053278</time_sec>
+         <time_sec>0.506082236083001</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 3</comment>
-         <completed_on>[2018 1 31 15 17 44.019]</completed_on>
+         <completed_on>[2018 2 21 18 52 7.646]</completed_on>
       </cutL1D_Small_nw0>
       <cutE_Small_nw0>
-         <time_sec>0.42072466364031</time_sec>
+         <time_sec>0.554401422615171</time_sec>
          <comment>small memory based 1D cut along energy direction (q are not axis aligned)</comment>
-         <completed_on>[2018 1 31 15 17 44.582]</completed_on>
+         <completed_on>[2018 2 21 18 52 8.201]</completed_on>
       </cutE_Small_nw0>
       <cutH1D_AllInt_nopix_nw0>
-         <time_sec>10.6188756744659</time_sec>
+         <time_sec>6.47758391154941</time_sec>
          <comment>large 1D cut direction 1 with whole dataset integration along 3 other directions. -nopix mode</comment>
-         <completed_on>[2018 1 31 15 17 55.689]</completed_on>
+         <completed_on>[2018 2 21 18 52 15.26]</completed_on>
       </cutH1D_AllInt_nopix_nw0>
       <cutK1D_AllInt_nopix_nw0>
-         <time_sec>11.3216441919206</time_sec>
+         <time_sec>7.08148683283047</time_sec>
          <comment>large 1D cut direction 2 with whole dataset integration along 3 other directions. -nopix mode</comment>
-         <completed_on>[2018 1 31 15 18 7.15]</completed_on>
+         <completed_on>[2018 2 21 18 52 22.64]</completed_on>
       </cutK1D_AllInt_nopix_nw0>
       <cutL1D_AllInt_nopix_nw0>
-         <time_sec>12.6874514336569</time_sec>
+         <time_sec>7.71121223247746</time_sec>
          <comment>large 1D cut direction 3 with whole dataset integration along 3 other directions. -nopix mode</comment>
-         <completed_on>[2018 1 31 15 18 19.973]</completed_on>
+         <completed_on>[2018 2 21 18 52 30.653]</completed_on>
       </cutL1D_AllInt_nopix_nw0>
       <cutE_AllInt_nopix_nw0>
-         <time_sec>10.4269514192546</time_sec>
+         <time_sec>6.37085665152385</time_sec>
          <comment>large 1D cut along energy direction with whole dataset integration along 3 other directions. -nopix mode</comment>
-         <completed_on>[2018 1 31 15 18 30.534]</completed_on>
+         <completed_on>[2018 2 21 18 52 37.32]</completed_on>
       </cutE_AllInt_nopix_nw0>
       <cutK1D_AllInt_filebased_nw4>
          <time_sec>36.3867458538787</time_sec>
@@ -113,70 +113,90 @@
          <completed_on>[2018 1 31 15 35 6.992]</completed_on>
       </cutE_AllInt_filebased_nw4>
       <gen_sqw_nWorkers2>
-         <time_sec>75.220215981377</time_sec>
+         <time_sec>106.091410507315</time_sec>
          <comment>whole sqw file generation</comment>
-         <completed_on>[2018 2 21 10 45 35.111]</completed_on>
+         <completed_on>[2018 2 22 9 24 43.7]</completed_on>
       </gen_sqw_nWorkers2>
       <cutH1D_Small_nw2>
-         <time_sec>0.58674764174916</time_sec>
+         <time_sec>0.709841531767975</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 1</comment>
-         <completed_on>[2018 2 21 10 45 35.699]</completed_on>
+         <completed_on>[2018 2 22 9 24 44.805]</completed_on>
       </cutH1D_Small_nw2>
       <cutK1D_Small_nw2>
-         <time_sec>0.618779659198776</time_sec>
+         <time_sec>0.779490675427673</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 2</comment>
-         <completed_on>[2018 2 21 10 45 36.621]</completed_on>
+         <completed_on>[2018 2 22 9 24 45.946]</completed_on>
       </cutK1D_Small_nw2>
       <cutL1D_Small_nw2>
-         <time_sec>0.618983939956687</time_sec>
+         <time_sec>0.866419587379356</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 3</comment>
-         <completed_on>[2018 2 21 10 45 37.545]</completed_on>
+         <completed_on>[2018 2 22 9 24 47.167]</completed_on>
       </cutL1D_Small_nw2>
       <cutE_Small_nw2>
-         <time_sec>0.420361129973881</time_sec>
+         <time_sec>0.583989354886664</time_sec>
          <comment>small memory based 1D cut along energy direction (q are not axis aligned)</comment>
-         <completed_on>[2018 2 21 10 45 38.304]</completed_on>
+         <completed_on>[2018 2 22 9 24 48.138]</completed_on>
       </cutE_Small_nw2>
       <cutH1D_AllInt_nopix_nw2>
-         <time_sec>6.6316208734542</time_sec>
+         <time_sec>6.89156168169747</time_sec>
          <comment>large 1D cut direction 1 with whole dataset integration along 3 other directions. -nopix mode</comment>
-         <completed_on>[2018 2 21 10 28 24.143]</completed_on>
+         <completed_on>[2018 2 22 9 24 55.686]</completed_on>
       </cutH1D_AllInt_nopix_nw2>
       <cutK1D_AllInt_nopix_nw2>
-         <time_sec>7.28233587266124</time_sec>
+         <time_sec>7.23866812918887</time_sec>
          <comment>large 1D cut direction 2 with whole dataset integration along 3 other directions. -nopix mode</comment>
-         <completed_on>[2018 2 21 10 28 31.694]</completed_on>
+         <completed_on>[2018 2 22 9 25 2.925]</completed_on>
       </cutK1D_AllInt_nopix_nw2>
       <cutL1D_AllInt_nopix_nw2>
-         <time_sec>7.87581517789477</time_sec>
+         <time_sec>7.6495975801504</time_sec>
          <comment>large 1D cut direction 3 with whole dataset integration along 3 other directions. -nopix mode</comment>
-         <completed_on>[2018 2 21 10 28 39.871]</completed_on>
+         <completed_on>[2018 2 22 9 25 10.575]</completed_on>
       </cutL1D_AllInt_nopix_nw2>
       <cutE_AllInt_nopix_nw2>
-         <time_sec>6.7583845331986</time_sec>
+         <time_sec>6.44973683539639</time_sec>
          <comment>large 1D cut along energy direction with whole dataset integration along 3 other directions. -nopix mode</comment>
-         <completed_on>[2018 2 21 10 28 46.924]</completed_on>
+         <completed_on>[2018 2 22 9 25 17.025]</completed_on>
       </cutE_AllInt_nopix_nw2>
       <cutH1D_AllInt_filebased_nw2>
-         <time_sec>36.6437423042936</time_sec>
+         <time_sec>36.4493183412667</time_sec>
          <comment>large file-based 1D cut. Direction 1; Whole dataset integration along 3 other directions</comment>
-         <completed_on>[2018 2 21 10 29 23.876]</completed_on>
+         <completed_on>[2018 2 22 9 25 53.474]</completed_on>
       </cutH1D_AllInt_filebased_nw2>
       <cutK1D_AllInt_filebased_nw2>
-         <time_sec>39.7918908816287</time_sec>
+         <time_sec>37.1732416707584</time_sec>
          <comment>large file-based 1D cut. Direction 2; Whole dataset integration along 3 other directions</comment>
-         <completed_on>[2018 2 21 10 30 3.963]</completed_on>
+         <completed_on>[2018 2 22 9 26 30.648]</completed_on>
       </cutK1D_AllInt_filebased_nw2>
       <cutL1D_AllInt_filebased_nw2>
-         <time_sec>42.0887171135294</time_sec>
+         <time_sec>40.8831487577776</time_sec>
          <comment>large file-based 1D cut. Direction 1; Whole dataset integration along 3 other directions</comment>
-         <completed_on>[2018 2 21 10 30 46.366]</completed_on>
+         <completed_on>[2018 2 22 9 27 11.532]</completed_on>
       </cutL1D_AllInt_filebased_nw2>
       <cutE_AllInt_filebased_nw2>
-         <time_sec>33.5872565226647</time_sec>
+         <time_sec>32.7015587250894</time_sec>
          <comment>large file-based 1D cut. Energy direction; Whole dataset integration along 3 other directions</comment>
-         <completed_on>[2018 2 21 10 31 20.261]</completed_on>
+         <completed_on>[2018 2 22 9 27 44.234]</completed_on>
       </cutE_AllInt_filebased_nw2>
+      <cutH1D_AllInt_filebased_nw0>
+         <time_sec>35.4157004164745</time_sec>
+         <comment>large file-based 1D cut. Direction 1; Whole dataset integration along 3 other directions</comment>
+         <completed_on>[2018 2 21 18 53 13.027]</completed_on>
+      </cutH1D_AllInt_filebased_nw0>
+      <cutK1D_AllInt_filebased_nw0>
+         <time_sec>37.2782966097009</time_sec>
+         <comment>large file-based 1D cut. Direction 2; Whole dataset integration along 3 other directions</comment>
+         <completed_on>[2018 2 21 18 53 50.636]</completed_on>
+      </cutK1D_AllInt_filebased_nw0>
+      <cutL1D_AllInt_filebased_nw0>
+         <time_sec>41.3362315596885</time_sec>
+         <comment>large file-based 1D cut. Direction 1; Whole dataset integration along 3 other directions</comment>
+         <completed_on>[2018 2 21 18 54 32.284]</completed_on>
+      </cutL1D_AllInt_filebased_nw0>
+      <cutE_AllInt_filebased_nw0>
+         <time_sec>33.322962911951</time_sec>
+         <comment>large file-based 1D cut. Energy direction; Whole dataset integration along 3 other directions</comment>
+         <completed_on>[2018 2 21 18 55 5.93]</completed_on>
+      </cutE_AllInt_filebased_nw0>
    </ndw1676_nf10>
    <ndw1676_nf50>
       <gen_sqw_nWorkers4>
@@ -250,70 +270,135 @@
          <completed_on>[2018 2 21 16 58 19.91]</completed_on>
       </combine_tmp_using_MEX_mode0>
       <gen_sqw_nWorkers2>
-         <time_sec>844.936310093555</time_sec>
+         <time_sec>457.730345757599</time_sec>
          <comment>whole sqw file generation</comment>
-         <completed_on>[2018 2 21 16 26 49.727]</completed_on>
+         <completed_on>[2018 2 22 9 35 43.826]</completed_on>
       </gen_sqw_nWorkers2>
       <cutH1D_Small_nw2>
-         <time_sec>2.48066500836161</time_sec>
+         <time_sec>2.73710622566303</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 1</comment>
-         <completed_on>[2018 2 21 16 26 53.112]</completed_on>
+         <completed_on>[2018 2 22 9 35 47.871]</completed_on>
       </cutH1D_Small_nw2>
       <cutK1D_Small_nw2>
-         <time_sec>5.99134273377979</time_sec>
+         <time_sec>7.52744530192332</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 2</comment>
-         <completed_on>[2018 2 21 16 26 59.434]</completed_on>
+         <completed_on>[2018 2 22 9 35 55.4]</completed_on>
       </cutK1D_Small_nw2>
       <cutL1D_Small_nw2>
-         <time_sec>4.03007198165248</time_sec>
+         <time_sec>4.03134136970083</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 3</comment>
-         <completed_on>[2018 2 21 16 27 3.791]</completed_on>
+         <completed_on>[2018 2 22 9 35 59.771]</completed_on>
       </cutL1D_Small_nw2>
       <cutE_Small_nw2>
-         <time_sec>1.0557755997395</time_sec>
+         <time_sec>0.907114168443225</time_sec>
          <comment>small memory based 1D cut along energy direction (q are not axis aligned)</comment>
-         <completed_on>[2018 2 21 16 27 5.174]</completed_on>
+         <completed_on>[2018 2 22 9 36 0.678]</completed_on>
       </cutE_Small_nw2>
       <cutH1D_AllInt_nopix_nw2>
-         <time_sec>98.1359748347296</time_sec>
+         <time_sec>108.965983777393</time_sec>
          <comment>large 1D cut direction 1 with whole dataset integration along 3 other directions. -nopix mode</comment>
-         <completed_on>[2018 2 21 16 28 44.112]</completed_on>
+         <completed_on>[2018 2 22 9 37 50.396]</completed_on>
       </cutH1D_AllInt_nopix_nw2>
       <cutK1D_AllInt_nopix_nw2>
-         <time_sec>54.7985907607488</time_sec>
+         <time_sec>54.7241487998257</time_sec>
          <comment>large 1D cut direction 2 with whole dataset integration along 3 other directions. -nopix mode</comment>
-         <completed_on>[2018 2 21 16 29 39.222]</completed_on>
+         <completed_on>[2018 2 22 9 38 45.478]</completed_on>
       </cutK1D_AllInt_nopix_nw2>
       <cutL1D_AllInt_nopix_nw2>
-         <time_sec>46.9858639039874</time_sec>
+         <time_sec>46.7540615285697</time_sec>
          <comment>large 1D cut direction 3 with whole dataset integration along 3 other directions. -nopix mode</comment>
-         <completed_on>[2018 2 21 16 30 26.566]</completed_on>
+         <completed_on>[2018 2 22 9 39 32.233]</completed_on>
       </cutL1D_AllInt_nopix_nw2>
       <cutE_AllInt_nopix_nw2>
-         <time_sec>32.8751351249341</time_sec>
+         <time_sec>31.9580145102245</time_sec>
          <comment>large 1D cut along energy direction with whole dataset integration along 3 other directions. -nopix mode</comment>
-         <completed_on>[2018 2 21 16 30 59.742]</completed_on>
+         <completed_on>[2018 2 22 9 40 4.191]</completed_on>
       </cutE_AllInt_nopix_nw2>
       <cutH1D_AllInt_filebased_nw2>
-         <time_sec>194.270339923843</time_sec>
+         <time_sec>200.389551817288</time_sec>
          <comment>large file-based 1D cut. Direction 1; Whole dataset integration along 3 other directions</comment>
-         <completed_on>[2018 2 21 16 34 14.327]</completed_on>
+         <completed_on>[2018 2 22 9 43 24.581]</completed_on>
       </cutH1D_AllInt_filebased_nw2>
       <cutK1D_AllInt_filebased_nw2>
-         <time_sec>325.64501996952</time_sec>
+         <time_sec>408.347462366154</time_sec>
          <comment>large file-based 1D cut. Direction 2; Whole dataset integration along 3 other directions</comment>
-         <completed_on>[2018 2 21 16 39 40.87]</completed_on>
+         <completed_on>[2018 2 22 9 50 12.933]</completed_on>
       </cutK1D_AllInt_filebased_nw2>
       <cutL1D_AllInt_filebased_nw2>
-         <time_sec>290.117294898974</time_sec>
+         <time_sec>416.177701083284</time_sec>
          <comment>large file-based 1D cut. Direction 1; Whole dataset integration along 3 other directions</comment>
-         <completed_on>[2018 2 21 16 44 32.093]</completed_on>
+         <completed_on>[2018 2 22 9 57 9.579]</completed_on>
       </cutL1D_AllInt_filebased_nw2>
       <cutE_AllInt_filebased_nw2>
          <time_sec>291.028059303002</time_sec>
          <comment>large file-based 1D cut. Energy direction; Whole dataset integration along 3 other directions</comment>
          <completed_on>[2018 2 21 16 49 23.55]</completed_on>
       </cutE_AllInt_filebased_nw2>
+      <gen_sqw_nWorkers0>
+         <time_sec>576.070354690329</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2018 2 21 19 5 4.853]</completed_on>
+      </gen_sqw_nWorkers0>
+      <cutH1D_Small_nw0>
+         <time_sec>1.49106511722305</time_sec>
+         <comment>small memory based 1D cut in non-axis aligned direction 1</comment>
+         <completed_on>[2018 2 21 19 5 6.96]</completed_on>
+      </cutH1D_Small_nw0>
+      <cutK1D_Small_nw0>
+         <time_sec>2.64545601126756</time_sec>
+         <comment>small memory based 1D cut in non-axis aligned direction 2</comment>
+         <completed_on>[2018 2 21 19 5 9.925]</completed_on>
+      </cutK1D_Small_nw0>
+      <cutL1D_Small_nw0>
+         <time_sec>1.97159537312361</time_sec>
+         <comment>small memory based 1D cut in non-axis aligned direction 3</comment>
+         <completed_on>[2018 2 21 19 5 12.232]</completed_on>
+      </cutL1D_Small_nw0>
+      <cutE_Small_nw0>
+         <time_sec>0.878731393317271</time_sec>
+         <comment>small memory based 1D cut along energy direction (q are not axis aligned)</comment>
+         <completed_on>[2018 2 21 19 5 13.468]</completed_on>
+      </cutE_Small_nw0>
+      <cutH1D_AllInt_nopix_nw0>
+         <time_sec>110.133748935969</time_sec>
+         <comment>large 1D cut direction 1 with whole dataset integration along 3 other directions. -nopix mode</comment>
+         <completed_on>[2018 2 21 19 7 4.337]</completed_on>
+      </cutH1D_AllInt_nopix_nw0>
+      <cutK1D_AllInt_nopix_nw0>
+         <time_sec>56.0009568417996</time_sec>
+         <comment>large 1D cut direction 2 with whole dataset integration along 3 other directions. -nopix mode</comment>
+         <completed_on>[2018 2 21 19 8 0.701]</completed_on>
+      </cutK1D_AllInt_nopix_nw0>
+      <cutL1D_AllInt_nopix_nw0>
+         <time_sec>47.4431452217671</time_sec>
+         <comment>large 1D cut direction 3 with whole dataset integration along 3 other directions. -nopix mode</comment>
+         <completed_on>[2018 2 21 19 8 48.485]</completed_on>
+      </cutL1D_AllInt_nopix_nw0>
+      <cutE_AllInt_nopix_nw0>
+         <time_sec>32.2942040218478</time_sec>
+         <comment>large 1D cut along energy direction with whole dataset integration along 3 other directions. -nopix mode</comment>
+         <completed_on>[2018 2 21 19 9 21.094]</completed_on>
+      </cutE_AllInt_nopix_nw0>
+      <cutH1D_AllInt_filebased_nw0>
+         <time_sec>193.542200861952</time_sec>
+         <comment>large file-based 1D cut. Direction 1; Whole dataset integration along 3 other directions</comment>
+         <completed_on>[2018 2 21 19 12 34.958]</completed_on>
+      </cutH1D_AllInt_filebased_nw0>
+      <cutK1D_AllInt_filebased_nw0>
+         <time_sec>399.206161663885</time_sec>
+         <comment>large file-based 1D cut. Direction 2; Whole dataset integration along 3 other directions</comment>
+         <completed_on>[2018 2 21 19 19 14.492]</completed_on>
+      </cutK1D_AllInt_filebased_nw0>
+      <cutL1D_AllInt_filebased_nw0>
+         <time_sec>340.99367358716</time_sec>
+         <comment>large file-based 1D cut. Direction 1; Whole dataset integration along 3 other directions</comment>
+         <completed_on>[2018 2 21 19 24 55.916]</completed_on>
+      </cutL1D_AllInt_filebased_nw0>
+      <cutE_AllInt_filebased_nw0>
+         <time_sec>320.853578704211</time_sec>
+         <comment>large file-based 1D cut. Energy direction; Whole dataset integration along 3 other directions</comment>
+         <completed_on>[2018 2 21 19 30 17.161]</completed_on>
+      </cutE_AllInt_filebased_nw0>
    </ndw1676_nf50>
    <ndw1676_nf250>
       <gen_sqw_nWorkers4>

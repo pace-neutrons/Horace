@@ -142,7 +142,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             else
                 n_workers = varargin{1};
             end
-            [clob_wk,hc] = check_and_set_workers_(obj,n_workers);
+            [clob_wk,hpc] = check_and_set_workers_(obj,n_workers);
             
             
             
@@ -150,6 +150,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
                 [~,fn] = fileparts(fn);
                 fn = fullfile(fp,[fn,'.tmp']);
             end
+            hc = hor_config;
             wk_dir = hc.working_directory;
             spe_files = obj.test_source_files_list_;
             tmp_files = cellfun(@(fn)(replace_fext(wk_dir,fn)),spe_files,'UniformOutput',false);
@@ -159,9 +160,9 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             
             assertTrue(all(f_exist),'Some tmp files necessary to run the test do not exist. Can not continue');
             
-            umc = hc.use_mex_for_combine;
+            umc = hpc.use_mex_for_combine;
             if umc
-                mode = hc.mex_combine_thread_mode;
+                mode = hpc.mex_combine_thread_mode;
                 combine_method = sprintf('MEX_mode%d',mode);
             else
                 combine_method='MATLAB';
