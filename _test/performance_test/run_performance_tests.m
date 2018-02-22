@@ -32,8 +32,8 @@ end
 
 
 % run performance tests for small sqw file (default file)
-% small_perf = hor_tes.test_gensqw_performance(n_workers);
-% perf_res.small_ds_perf = small_perf;
+small_perf = hor_tes.test_gensqw_performance(n_workers);
+perf_res.small_ds_perf = small_perf;
 
 % prepare performance tests for medium dataset
 hor_tes.n_files_to_use = 50;
