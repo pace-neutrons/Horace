@@ -14,7 +14,15 @@ function store_internal(this,config_class,force_save,varargin)
 %
 % $Revision$ ($Date$)
 %
-class_name = config_class.class_name;
+if isa(config_class,'config_base')
+    class_name = config_class.class_name;
+elseif(is_string(config_class))
+    class_name = config_class;
+    config_class = feval(class_name);
+else
+    error('CONFIG_STORE:invalid_argument',...
+        'input for config_store should be either instance of config class or string with a config class name')   
+end
 if nargin>3 % we need to set some fields before storing the configuration. 
     if isfield(this.config_storage_,class_name)
         data_to_save = this.config_storage_.(class_name);

@@ -92,24 +92,6 @@ classdef JobDispatcher
                 job_class_name,task_param_list,number_of_workers,varargin{:});
         end
         %
-        function prog_name = get.worker_prog_string(this)
-            % get fully qualified program name to start job with
-            %
-            % Here we expect to start Matlab
-            % Fully qualified means name with full path, which allows to
-            % start program which is not on system path.
-            %
-            prog_path  = find_matlab_path();
-            if isempty(prog_path)
-                error('JOB_DISPATCHER:invlid_settings','Can not find matlab');
-            end
-            if ispc
-                prog_name = fullfile(prog_path,'matlab.exe');
-            else
-                prog_name = fullfile(prog_path,'matlab');
-            end
-            %prog_name = 'c:\\Programming\\Matlab2015b64\\bin\\matlab.exe';
-        end
         %
         function limit = get.fail_limit(this)
             limit  = this.fail_limit_;

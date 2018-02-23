@@ -42,37 +42,15 @@ clob_mf = onCleanup(@()mf.finalize_all());
 
 [n_workers,task_par_id_per_worker]=this.split_tasks(task_param_list,n_workers);
 
-
-prog_start_str = this.worker_prog_string;
-task_common_str = {prog_start_str,'-nosplash','-nojvm','-r'};
+par_fm = parallel_config();
 DEBUG_REMOTE = false;
 %
 for task_id=1:n_workers
-    
     task_inputs = task_param_list(task_par_id_per_worker{task_id});
-    mess = aMessage('starting');
-    mess.payload = task_inputs;
     
-    
-    worker_init_info = mf.build_control(task_id);
-    worker_str = sprintf('worker(''%s'',''%s'');exit;',task_class_name,worker_init_info);
-    if DEBUG_REMOTE
-        log_file = sprintf('output_jobN%d.log',task_id);
-        task_info = [task_common_str(1:end-1),{'-logfile'},{log_file },{'-r'},{worker_str}];
-    else
-        task_info = [task_common_str,{worker_str}];
-    end
-    
-    % if debugging client
-    
-    
-    
-    th = JavaTaskWrapper();
+    th = par_fm.get_controller();
     %-----------------------------
-    % --- the sequence of these two events may need to be different for different
-    % frameworks? TODO: fixIf
-    mf.send_message(task_id,mess);
-    th = th.start_task(task_info);
+    th = th.start_task(mf,task_class_name,task_id,task_inputs,DEBUG_REMOTE);
     %-----------------------------
     [ok,fail,err_mess] = th.is_running();
     if ~ok && fail
