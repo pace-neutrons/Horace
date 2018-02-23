@@ -2,9 +2,23 @@
 <TestPerformanceChildTestHelper>
    <ndw1676_TestPerformanceChildTestHelper>
       <fake_test_operations>
-         <time_sec>0.00211432239873949</time_sec>
+         <time_sec>0.000954193102594299</time_sec>
          <comment>this is not a performance test itself but the test of performance test inheritance operational</comment>
-         <completed_on>[2018 2 2 20 43 16.451]</completed_on>
+         <completed_on>[2018 2 21 14 48 41.621]</completed_on>
       </fake_test_operations>
    </ndw1676_TestPerformanceChildTestHelper>
+   <ndmlnx01_isis_cclrc_ac_uk_TestPerformanceChildTestHelper>
+      <fake_test_operations>
+         <time_sec>0.003018</time_sec>
+         <comment>this is not a performance test itself but the test of performance test inheritance operational</comment>
+         <completed_on>[2018 2 6 14 0 27.462679]</completed_on>
+      </fake_test_operations>
+   </ndmlnx01_isis_cclrc_ac_uk_TestPerformanceChildTestHelper>
+   <ndmlnx02_isis_cclrc_ac_uk_TestPerformanceChildTestHelper>
+      <fake_test_operations>
+         <time_sec>0.002404</time_sec>
+         <comment>this is not a performance test itself but the test of performance test inheritance operational</comment>
+         <completed_on>[2018 2 21 18 1 9.2618]</completed_on>
+      </fake_test_operations>
+   </ndmlnx02_isis_cclrc_ac_uk_TestPerformanceChildTestHelper>
 </TestPerformanceChildTestHelper>

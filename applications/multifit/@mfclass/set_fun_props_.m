@@ -17,7 +17,7 @@ function obj = set_fun_props_ (obj, S)
 
 % Original author: T.G.Perring
 %
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 
 
 obj.foreground_is_local_ = S.foreground_is_local_;

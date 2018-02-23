@@ -51,7 +51,7 @@ classdef TestCaseWithSave < TestCase
     % were generated.
     %
     %
-    % $Revision: 682 $ ($Date: 2018-01-14 19:54:54 +0000 (Sun, 14 Jan 2018) $)
+    % $Revision$ ($Date$)
     %
     properties(Dependent)
         % Filename for reading or writing test output for saving/comparing

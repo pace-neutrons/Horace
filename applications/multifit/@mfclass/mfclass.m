@@ -118,7 +118,7 @@ classdef mfclass
 
     % Original author: T.G.Perring
     %
-    % $Revision: 668 $ ($Date: 2017-12-13 11:00:34 +0000 (Wed, 13 Dec 2017) $)
+    % $Revision$ ($Date$)
 
 
     % Notes on inheriting mfclass for use by particular classes:

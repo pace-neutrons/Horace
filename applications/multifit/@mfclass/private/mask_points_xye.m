@@ -50,7 +50,7 @@ function [msk,ok,mess] = mask_points_xye (x, xkeep, xremove, mask)
 
 % Original author: T.G.Perring
 %
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 
 
 % Remove data from outside selected ranges

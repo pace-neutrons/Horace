@@ -33,6 +33,13 @@ clot = onCleanup(@()(setattr(mis,'is_deployed',false)));
 je = feval(class_name);
 
 [je,job_arguments,err_mess]=je.init_worker(job_controls_string);
+old_Horace = false;
+try % transient changes to allow worker operating with old and new Horace
+    task_id = je.job_id;
+    old_Horace = true;
+catch
+    task_id = je.task_id;
+end
 
 if ~isempty(err_mess)
     % clear all existing messages for this job
@@ -40,7 +47,7 @@ if ~isempty(err_mess)
     
     mess = aMessage('failed');
     mess.payload = sprintf('job N%d failed at init_worker. Reason: %s',...
-        je.job_id,err_mess);
+        task_id,err_mess);
     je.send_message(mess);
     if ~is_tested
         exit;
@@ -53,8 +60,11 @@ mis.logger = @(step,n_steps,time,add_info)...
     (je.log_progress(step,n_steps,time,add_info));
 
 mis.check_cancelled = @()(f_canc(je));
+if ~old_Horace
+    mis.mpi_framework = je.mess_framework;
+end
 %
-%
+% Execute job (run main job executor's do_job method
 try
     if iscell(job_arguments)
         je = je.do_job(job_arguments{:});
@@ -68,7 +78,7 @@ catch ME
         
         mess = aMessage('failed');
         mess.payload = sprintf('job N%d failed at do_job method. Reason: %s',...
-            je.job_id,ME.message);
+            task_id,ME.message);
         je.send_message(mess);
     end
     if ~is_tested
@@ -88,6 +98,7 @@ end
 
 function f_canc(job_executor)
     if job_executor.is_job_cancelled()
-        error('MESSAGE_FRAMEWORK:cancelled','Messages framework has been cancelled or not initialized any more')
+        error('MESSAGE_FRAMEWORK:cancelled',...
+            'Messages framework has been cancelled or not initialized any more')
     end
 end

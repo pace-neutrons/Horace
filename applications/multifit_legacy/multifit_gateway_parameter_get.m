@@ -25,7 +25,7 @@ function p = multifit_gateway_parameter_get(plist)
  
 % Original author: T.G.Perring 
 % 
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $) 
+% $Revision$ ($Date$) 
 
 
 p = parameter_get(plist);

@@ -12,7 +12,7 @@ function [val, ok, mess] = set_option_fit_control_parameters (val_in)
 
 % Original author: T.G.Perring
 %
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 
 
 ok=true;

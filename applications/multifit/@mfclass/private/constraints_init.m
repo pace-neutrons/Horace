@@ -23,7 +23,7 @@ function Scon = constraints_init (np_, nbp_)
 
 % Original author: T.G.Perring
 %
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 
 
 n = sum(np_) + sum(nbp_);

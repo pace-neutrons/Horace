@@ -2,10 +2,11 @@ classdef MPI_State<handle
     % Helper class, to identify status of Matlab job, namely if current
     % Matlab session is independent session or is deployed by Herbert MPI
     % framework, and to help to deploy methods, which would depend on such
-    % status
+    % status, including access to messages framework to exchange messages
+    % between various tasks.
     %
-    % 'MPI-deployed' state is set up in worker.m (.template file is provided in 
-    % admin folder, to rename to the file with .m extension and 
+    % 'MPI-deployed' state is set up in worker.m (.template file is provided in
+    % admin folder, to rename to the file with .m extension and
     % place to Matlab search path). The state should be checked by the client,
     % inheriting from JobExecutor within the loop excecuted within do_job method.
     %
@@ -22,6 +23,9 @@ classdef MPI_State<handle
         % disable some framework capability, which should be used in this
         % situation
         is_tested
+        % current active message exchange framework for advanced messages
+        % exchange.
+        mpi_framework;
     end
     properties(Access=protected)
         is_deployed_=false;
@@ -32,10 +36,13 @@ classdef MPI_State<handle
         % calls to logging function
         start_time_=[];
         prev_time_interval_ = 0;
+        mpi_framework_ = [];
     end
     properties(Constant, Access=protected)
         % methods to set using setattr method
-        field_names_ = {'is_deployed','is_tested','logger','check_cancelled'}
+        field_names_ = {'is_deployed','is_tested',...
+            'logger','check_cancelled',...
+            'mpi_framework'}
     end
     %----------------------------------------------------------------------
     methods(Access=private)
@@ -93,6 +100,16 @@ classdef MPI_State<handle
                 obj.check_cancelled_();
             end
         end
+        function fw = get.mpi_framework(obj)
+            fw = obj.mpi_framework_;
+        end
+        function set.mpi_framework(obj,val)
+            if ~isa(val,'iMessagesFramework')
+                error('MPI_STATE:invalid_argument',...
+                    'input for MPI framework field should be instance of iMessageFramework class');
+            end
+            obj.mpi_framework_ = val;
+        end
         %-------------------------------------------------------
         function setattr(obj,varargin)
             par=varargin(1:2:nargin-1);
@@ -138,14 +155,14 @@ classdef MPI_State<handle
                         obj.start_time_ = tic;
                     end
                 end
-                if ttf < obj.prev_time_interval_ 
-                    if ttf == 0 
+                if ttf < obj.prev_time_interval_
+                    if ttf == 0
                         % 0 time resets timing preferences
                     else
-                    % let's decrease time gradually to deal with
-                    % blips in performance
+                        % let's decrease time gradually to deal with
+                        % blips in performance
                         ttf = 0.5*(ttf+obj.prev_time_interval_);
-                        obj.prev_time_interval_ = ttf;                        
+                        obj.prev_time_interval_ = ttf;
                     end
                 else
                     obj.prev_time_interval_ = ttf;

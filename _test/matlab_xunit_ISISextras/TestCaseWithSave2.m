@@ -161,7 +161,7 @@ classdef TestCaseWithSave2 < TestCaseWithSave
     
     % Original author A. Buts, rewritten T.G.Perring
     %
-    % $Revision: 649 $ ($Date: 2017-11-01 19:42:04 +0000 (Wed, 01 Nov 2017) $)
+    % $Revision$ ($Date$)
     
     methods
         function this = TestCaseWithSave2 (name,varargin)

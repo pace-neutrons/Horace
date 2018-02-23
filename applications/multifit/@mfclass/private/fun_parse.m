@@ -25,7 +25,7 @@ function [ok,mess,fun] = fun_parse (fun_in,size_fun)
 
 % Original author: T.G.Perring
 %
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 
 
 [ok,mess,fun]=is_valid_function_handles(fun_in);

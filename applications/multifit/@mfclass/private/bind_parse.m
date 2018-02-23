@@ -208,7 +208,7 @@ function [ok,mess,ipb,ifunb,ipf,ifunf,R,self_rem] = bind_parse_single(np,nbp,isf
 
 % Original author: T.G.Perring
 %
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 
 
 self_rem = false;

@@ -12,20 +12,24 @@ function  log_progress_(this,step,n_steps,time_per_step,add_info)
 % Sends message of type LogMessage to the job dispatcher.
 % Throws MESSAGE_FRAMEWORK:cancelled error in case the job has
 %
-if this.is_job_cancelled
-    error('MESSAGE_FRAMEWORK:cancelled',...
+me = this.mess_framework;
+if me.is_job_cancelled
+    error('MESSAGE_FRAMEWORK:runtime_error',...
         'job with id %s have been canceled or not initialized',...
-        this.job_control_pref);
-end 
-% cannibalize 'started' message as this job will send 'running' messages
-if this.check_message('started')
-    this.receive_message('started');
+        this.job_id);
 end
-%
+% cannibalize 'started' message as this job will send 'running' messages
+all_mess = me.probe_all(this.task_id);
+if ~isempty(all_mess)    
+    if ~isempty(all_mess{1}) && ismember('started',all_mess)
+        me.receive_message(this.task_id,'started');
+    end
+end
+% Prepare 'running' log message
 mess = LogMessage(step,n_steps,time_per_step,add_info);
-[ok,err]=this.send_message(mess);
-if ~ok
-    error('JOB_EXECUTOR:log_progress','Can not send log message, Err: %s',...
+[ok,err]=me.send_message(this.task_id,mess);
+if ok ~=MES_CODES.ok
+    error('JOB_EXECUTOR:runtime_error','Can not send log message, Err: %s',...
         err);
 end
 

@@ -25,7 +25,7 @@ function [ok, mess, data_out] = dataset_replace (data_in, idata, data)
 
 % Original author: T.G.Perring
 %
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 
 
 % Initialise output (accounts also for trivial case of no dat to replace)

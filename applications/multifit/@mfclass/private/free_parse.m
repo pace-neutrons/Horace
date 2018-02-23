@@ -137,7 +137,7 @@ function [ok,mess,free]=free_parse_single(free_in,np)
 
 % Original author: T.G.Perring
 %
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 
 
 if isempty(free_in)

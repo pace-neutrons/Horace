@@ -40,7 +40,7 @@ function [msk,ok,mess] = mask_points_for_fit_xye (x, y, e, mask)
 
 % Original author: T.G.Perring
 %
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 
 
 % Check mask array
