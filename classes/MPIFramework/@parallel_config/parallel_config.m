@@ -74,13 +74,13 @@ classdef parallel_config<config_base
             end
         end
         function controller = get_controller(obj)
-            % return the
+            % return the appropriate job controller
             fram = obj.parallel_framework;
             switch(fram)
                 case('matlab')
                     controller = JavaTaskWrapper();
                 case('parpool')
-                    controller = JavaTaskWrapper();
+                    controller = ParpoolTaskWrapper();
                 otherwise
                     error('PARALLEL_CONFIG:runtime_error',...
                         'Get unknown controller: %s',fram);

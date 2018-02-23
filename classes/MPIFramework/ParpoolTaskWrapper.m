@@ -1,4 +1,4 @@
-classdef JavaTaskWrapper < iTaskWrapper
+classdef ParpoolTaskWrapper < iTaskWrapper
     % wrapper to control java - controlled worker
     % Herber framework
     
@@ -16,7 +16,7 @@ classdef JavaTaskWrapper < iTaskWrapper
     end
     
     methods
-        function obj = JavaTaskWrapper(varargin)
+        function obj = ParpoolTaskWrapper(varargin)
             prog_path  = find_matlab_path();            
             if isempty(prog_path)
                 error('JOB_DISPATCHER:invlid_settings','Can not find matlab');

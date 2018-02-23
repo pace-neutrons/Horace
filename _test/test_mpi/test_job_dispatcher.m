@@ -5,6 +5,13 @@ classdef test_job_dispatcher< TestCase
     
     properties
         working_dir
+        test_dispatcher = 'matlab';
+        skip_tests = false;
+    end
+    properties(Access = private)
+        % the property to keep production parallel configuration
+        % until test configuration is used.
+        cur_par_config;
     end
     methods
         %
@@ -15,7 +22,20 @@ classdef test_job_dispatcher< TestCase
             this = this@TestCase(name);
             this.working_dir = tempdir;
         end
+        function setUp(obj)
+            pc = parallel_config;
+            obj.cur_par_config = pc.get_data_to_store;
+            pc.parallel_config = obj.test_dispatcher;
+        end
+        function tearDown(obj)
+            pc = parallel_config;
+            set(pc,obj.cur_par_config);
+        end
+        
         function test_jobs_one_worker(this)
+            if this.skip_tests
+                return
+            end
             % JETester specific control parameters
             job_param = struct('filepath',this.working_dir,...
                 'filename_template','test_jobDispatcherL%d_nf%d.txt');
@@ -44,6 +64,10 @@ classdef test_job_dispatcher< TestCase
         end
         
         function test_jobs_less_workers(this)
+            if this.skip_tests
+                return
+            end
+            
             % JETester specific control parameters
             job_param = struct('filepath',this.working_dir,...
                 'filename_template','test_jobDispatcherL%d_nf%d.txt');
@@ -78,6 +102,10 @@ classdef test_job_dispatcher< TestCase
         end
         % tests themself
         function test_jobs(this)
+            if this.skip_tests
+                return
+            end
+            
             job_param = struct('filepath',this.working_dir,...
                 'filename_template','test_jobDispatcher%d_nf%d.txt');
             
@@ -162,6 +190,10 @@ classdef test_job_dispatcher< TestCase
         
         %
         function test_job_with_logs_worker(this)
+            if this.skip_tests
+                return
+            end
+            
             mis = MPI_State.instance();
             mis.is_tested = true;
             clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));
@@ -194,6 +226,10 @@ classdef test_job_dispatcher< TestCase
         end
         %
         function test_job_controls_no_running(this)
+            if this.skip_tests
+                return
+            end
+            
             %
             job_param_list = {'job_arguments_list_for_worker'};
             
@@ -224,45 +260,46 @@ classdef test_job_dispatcher< TestCase
             tf = jd.time_to_fail;
             jd.task_check_time = tf;
             
-%             % this will never fail -- program will wait for running job
-%             % indefinetely
-%             [completed,n_failed,all_changed,jd] = jd.check_tasks_status_pub();
-%             assertFalse(completed);
-%             assertEqual(n_failed,0);
-%             assertTrue(all_changed);
-%             [completed,n_failed,all_changed,jd] = jd.check_tasks_status_pub();
-%             assertFalse(completed);
-%             assertEqual(n_failed,0);
-%             assertTrue(all_changed);
-%             
-%             
-%             % pick up starting message and do not provide anything else
-%             [ok,err_mess,message]=mpi.receive_message(1,'started');
-%             assertTrue(ok);
-%             assertTrue(isempty(err_mess));
-%             
-%             %should fail after three checks
-%             [completed,n_failed,all_changed,jd] = jd.check_tasks_status_pub();
-%             assertFalse(completed);
-%             assertEqual(n_failed,0);
-%             assertTrue(all_changed);
-%             
-%             [~,~,~,jd] = jd.check_jobs_status_pub();
-%             [completed,n_failed,all_changed,jd] = jd.check_tasks_status_pub();
-%             assertTrue(completed);
-%             assertEqual(n_failed,1);
-%             assertTrue(all_changed);
-%             
-%             %
-%             job_run_info = jd.job_control_structure;
-%             assertTrue(job_run_info{1}.is_failed)
-%             assertEqual(job_run_info{1}.fail_reason,'Timeout waiting for job_completed message');
-%             
+            %             % this will never fail -- program will wait for running job
+            %             % indefinetely
+            %             [completed,n_failed,all_changed,jd] = jd.check_tasks_status_pub();
+            %             assertFalse(completed);
+            %             assertEqual(n_failed,0);
+            %             assertTrue(all_changed);
+            %             [completed,n_failed,all_changed,jd] = jd.check_tasks_status_pub();
+            %             assertFalse(completed);
+            %             assertEqual(n_failed,0);
+            %             assertTrue(all_changed);
+            %
+            %
+            %             % pick up starting message and do not provide anything else
+            %             [ok,err_mess,message]=mpi.receive_message(1,'started');
+            %             assertTrue(ok);
+            %             assertTrue(isempty(err_mess));
+            %
+            %             %should fail after three checks
+            %             [completed,n_failed,all_changed,jd] = jd.check_tasks_status_pub();
+            %             assertFalse(completed);
+            %             assertEqual(n_failed,0);
+            %             assertTrue(all_changed);
+            %
+            %             [~,~,~,jd] = jd.check_jobs_status_pub();
+            %             [completed,n_failed,all_changed,jd] = jd.check_tasks_status_pub();
+            %             assertTrue(completed);
+            %             assertEqual(n_failed,1);
+            %             assertTrue(all_changed);
+            %
+            %             %
+            %             job_run_info = jd.job_control_structure;
+            %             assertTrue(job_run_info{1}.is_failed)
+            %             assertEqual(job_run_info{1}.fail_reason,'Timeout waiting for job_completed message');
+            %
             
             
         end
         %
         function test_split_job_list(this)
+            
             %
             job_param_list = {'aaa','bbbb','s','aaanana'};
             
