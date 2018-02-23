@@ -8,7 +8,7 @@ function wout=recompute_bin_data(w)
 
 % Original author: T.G.Perring
 %
-% $Revision: 1524 $ ($Date: 2017-09-27 15:48:11 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 
 wout=w;
 
@@ -51,13 +51,13 @@ if ~use_mex
                 ind=zeros(npixtot,1,'int32');
                 
                 
-                if get(hor_config,'log_level')>0
+                if log_level>0
                     warning('SQW:recompute_bin_data',' not enough memory to define bin indexes, running slow loop')
                 end
                 for i=1:nbin
                     ind(nbeg(i):nend(i))=i;
                 end
-                if get(hor_config,'log_level')>0
+                if log_level>0
                     warning('SQW:recompute_bin_data',' slow loop completed')
                 end
                 

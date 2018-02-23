@@ -40,19 +40,19 @@ if nargin>0
         [use_mex_fcr,mex_comb_tmr,mex_comb_bsr,acspr,acp_numr]=find_hpc_options();
         if use_mex_fcr ~= 1
             warning('HPC:using_mex_for_combine',['Setting: ''use_mex_for_combine=true'' on this system may decrease ',...
-                    'the Horace performance.\nCheck system performance and hor_config for optimal hpc options']);
+                    'the Horace performance.\nCheck system performance and hpc_config for optimal hpc options']);
         end
         if acspr ~= 1
             warning('HPC:accum_in_separate_process',['Setting ''accum_in_separate_process=true'' on this system may decrease ',...
-                'the Horace performance.\nCheck system performance and hor_config to select optimal hpc options']);
+                'the Horace performance.\nCheck system performance and hpc_config to select optimal hpc options']);
         end
         
-        set(hor_config,...
+        set(hpc_config,...
         'use_mex_for_combine',1,'mex_combine_thread_mode',mex_comb_tmr,...
         'mex_combine_buffer_size',mex_comb_bsr,...
         'accum_in_separate_process',1,'accumulating_process_num',acp_numr);        
     elseif strcmpi(val,'off')
-        hc = hor_config;
+        hc = hpc_config;
         hc.use_mex_for_combine = 0;
         hc.accum_in_separate_process = 0;
     else
@@ -60,7 +60,7 @@ if nargin>0
     end
 else
     [use_mex_fcr,mex_comb_tmr,mex_comb_bsr,acspr,acp_numr]=find_hpc_options();
-    [use_mex_fcc,mex_comb_tmc,mex_comb_bsc,acspc,acp_numc]=get(hor_config,...
+    [use_mex_fcc,mex_comb_tmc,mex_comb_bsc,acspc,acp_numc]=get(hpc_config,...
         'use_mex_for_combine','mex_combine_thread_mode','mex_combine_buffer_size',...
         'accum_in_separate_process','accumulating_process_num');
     

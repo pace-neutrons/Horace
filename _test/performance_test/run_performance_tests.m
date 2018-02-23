@@ -19,7 +19,7 @@ perf_res = struct('small_ds_perf',[],'medium_ds_perf',[],'large_ds_perf',[]);
 
 hor_tes = test_SQW_GENCUT_perf();
 % if hpc extensions are availible and enabled try to run the test in parallel
-hc = hor_config;
+hc = hpc_config;
 if nargin == 0
     if hc.accum_in_separate_process
         n_workers = hc.accumulating_process_num;
@@ -51,7 +51,7 @@ perf_res.medium_ds_perf = medium_perf;
 %run performance for combining tmp files only.
 medium_perf = hor_tes.combine_performance_test(n_workers);
 perf_res.medium_ds_perf = medium_perf;
-clear clob_tmp; % reset conguration not to keep tmp files any more
+clear clob_tmp; % reset configuration not to keep tmp files any more
 
 %
 % prepare performance tests for large dataset

@@ -90,7 +90,7 @@ outfile = fullfile(outdir,[outfile,'.sqw']);
 % function to combine all parameters into single structure, suitable for
 % serialization
 
-[use_separate_matlab,num_matlab_sessions]=get(hor_config,...
+[use_separate_matlab,num_matlab_sessions]=config_store.instance().get_value(hpc_config,...
     'accum_in_separate_process','accumulating_process_num');
 % define function to combine job parameters into list of structures,
 % suitable for serialization
@@ -115,7 +115,7 @@ if use_separate_matlab
     end
     jm = JobDispatcher(source_name);
     [n_failed,outputs,job_distr_by_id] = ...
-        jm.send_jobs('combine_equivalent_zones_job',job_par,n_workers);
+        jm.start_tasks('combine_equivalent_zones_job',job_par,n_workers);
     
     zone_files = analyze_and_combine_job_outputs(n_failed,outputs,...
         job_distr_by_id,job_par);

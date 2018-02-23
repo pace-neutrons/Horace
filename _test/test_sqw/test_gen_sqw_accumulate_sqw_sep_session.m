@@ -44,6 +44,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
         skip_tests=false;
         instrum
         sample
+        initial_config;        
     end
     methods(Static)
         function new_names = rename_file_list(input_list,new_ext)
@@ -81,7 +82,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             %
             % Reads previously created test data sets.
             
-            % onstructocr
+            % constructor
             if nargin > 0
                 name = varargin{1};
             else
@@ -94,19 +95,19 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             %else
             %    this.tol = 1.e-3;
             %end
-            
+            this = get_initial_settings(this);
             
             % do overloading mex/nomex
-            hc = hor_config();
-            sess_state = hc.accum_in_separate_process;
-            comb_state = hc.use_mex_for_combine;
-            co = onCleanup(@()set(hor_config,'accum_in_separate_process',sess_state,'use_mex_for_combine',comb_state));
-            hc.accum_in_separate_process = true;
-            hc.use_mex_for_combine = true;
+            hpc = hpc_config();
+            sess_state = hpc.accum_in_separate_process;
+            comb_state = hpc.use_mex_for_combine;
+
+            hpc.accum_in_separate_process = true;
+            hpc.use_mex_for_combine = true;
             
-            if ~hc.accum_in_separate_process
-                warning('TEST_GEN_SQW_ACC_SQW:multisession_mode',' multisession mode can not be enablesd');
-                if ~hc.use_mex_for_combine % nothing to do, this mode can not be enabled
+            if ~hpc.accum_in_separate_process
+                warning('TEST_GEN_SQW_ACC_SQW:multisession_mode',' multi-session mode can not be enablesd');
+                if ~hpc.use_mex_for_combine % nothing to do, this mode can not be enabled
                     this.skip_tests=true;
                 end
             else
@@ -165,6 +166,18 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             this=build_test_files(this);
              
         end
+        function this = get_initial_settings(this)
+                hc = hor_config;
+                hpc = hpc_config;
+                this.initial_config = struct('hc',hc.get_data_to_store(),'hpc',hpc.get_data_to_store());
+        end
+        function restore_config(obj)
+            hc = hor_config;
+            hpc = hpc_config;
+            set(hc,obj.initial_config.hc);
+            set(hpc,obj.initial_config.hpc);            
+        end
+        
         %
         function [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this,varargin)
             if nargin>1
@@ -192,14 +205,12 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             gs=this.gen_sqw_par{12}(select);
         end
         %
-        function [skip,sess_state,comb_state]=setup_multi_mode(this)
+        function skip=setup_multi_mode(this)
             if this.skip_tests
                 skip = true;
                 return
             end
-            hc = hor_config();
-            sess_state = hc.accum_in_separate_process;
-            comb_state = hc.use_mex_for_combine;
+            hc = hpc_config();
             hc.accum_in_separate_process = true;
             hc.use_mex_for_combine = true;
             %
@@ -257,11 +268,11 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
         %
         function this=test_gen_sqw(this)
             %-------------------------------------------------------------
-            [skip,sess_state,comb_state]=this.setup_multi_mode();
+            skip=this.setup_multi_mode();
+            co=onCleanup(@()this.restore_config());
             if skip
                 return
             end
-            co = onCleanup(@()set(hor_config,'accum_in_separate_process',sess_state,'use_mex_for_combine',comb_state));
             %-------------------------------------------------------------
             %hc = hor_config; hc.use_mex_for_combine=false;
             %hc.accum_in_separate_process=false; hc.threads = 8;
@@ -279,7 +290,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             sqw_file_123456=fullfile(tempdir,'sqw_123456_multisession.sqw');             % output sqw file
             sqw_file_145623=fullfile(tempdir,'sqw_145623_multisession.sqw');            % output sqw file
             if ~this.save_output
-                cleanup_obj1=onCleanup(@()rm_files(this,sqw_file_123456,sqw_file_145623,sqw_file{:}));
+                cleanup_obj1=onCleanup(@()this.delete_files(sqw_file_123456,sqw_file_145623,sqw_file{:}));
             end
             %% ---------------------------------------
             % Test gen_sqw ---------------------------------------
@@ -313,11 +324,11 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
         %
         function this=test_wrong_params_gen_sqw(this)
             %-------------------------------------------------------------
-            [skip,sess_state,comb_state]=this.setup_multi_mode();
+            skip=this.setup_multi_mode();
+            co=onCleanup(@()this.restore_config());
             if skip
                 return
             end
-            co = onCleanup(@()set(hor_config,'accum_in_separate_process',sess_state,'use_mex_for_combine',comb_state));
             %-------------------------------------------------------------
             
             sqw_file_15456=fullfile(tempdir,'sqw_123456_multisession.sqw');  % output sqw file which should never be created
@@ -337,19 +348,19 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
         %
         function this=test_accumulate_sqw14(this)
             %-------------------------------------------------------------
-            [skip,sess_state,comb_state]=this.setup_multi_mode();
+            skip=this.setup_multi_mode();
+            co=onCleanup(@()this.restore_config());
             if skip
                 return
             end
-            co = onCleanup(@()set(hor_config,'accum_in_separate_process',sess_state,'use_mex_for_combine',comb_state));
             %-------------------------------------------------------------
             
             
             
             
-            sqw_file_accum=fullfile(tempdir,['test_sqw_accum_sqw14_multisession.sqw']);
-            sqw_file_14=fullfile(tempdir,['test_sqw_14_multisession.sqw']);    % output sqw file
-            cleanup_obj1=onCleanup(@()delete_files(this,sqw_file_14,sqw_file_accum));
+            sqw_file_accum=fullfile(tempdir,'test_sqw_accum_sqw14_multisession.sqw');
+            sqw_file_14=fullfile(tempdir,'test_sqw_14_multisession.sqw');    % output sqw file
+            cleanup_obj1=onCleanup(@()this.delete_files(sqw_file_14,sqw_file_accum));
             
             % --------------------------------------- Test accumulate_sqw
             % ---------------------------------------
@@ -385,18 +396,11 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
         %
         function this=test_accumulate_and_combine1to4(this)
             %-------------------------------------------------------------
-            [skip,sess_state,comb_state]=this.setup_multi_mode();
-            hc = hor_config();
-            co1 = onCleanup(@()set(hor_config,'accum_in_separate_process',sess_state,'use_mex_for_combine',comb_state));
-            hc.use_mex_for_combine = true;
-            hc.accum_in_separate_process = false;
-            % only if use_mex_for_combine is true, this test verifies
-            % correct workflow.
-            use_mex_for_combine = hc.use_mex_for_combine;
-            if skip || ~use_mex_for_combine
+            skip=this.setup_multi_mode();
+            co=onCleanup(@()this.restore_config());
+            if skip
                 return
-            end
-            
+            end            
             %-------------------------------------------------------------
             
             % build test files if they have not been build
@@ -404,7 +408,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             sqw_file_accum=fullfile(tempdir,'test_accumulate_and_combine14.sqw'); % output sqw file
             
             if ~this.save_output
-                co2=onCleanup(@()rm_files(this,sqw_file_accum));
+                co2=onCleanup(@()this.delete_files(sqw_file_accum));
             end
             
             spe_names = this.spe_file([1,4,5,6]);
@@ -454,11 +458,11 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
         
         function this=test_accumulate_sqw1456(this)
             %-------------------------------------------------------------
-            [skip,sess_state,comb_state]=this.setup_multi_mode();
+            skip=this.setup_multi_mode();
+            co=onCleanup(@()this.restore_config());
             if skip
                 return
             end
-            co = onCleanup(@()set(hor_config,'accum_in_separate_process',sess_state,'use_mex_for_combine',comb_state));
             %-------------------------------------------------------------
             
             
@@ -468,7 +472,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             sqw_file_1456=fullfile(tempdir,'test_sqw_1456_multisession.sqw');                   % output sqw file
             
             if ~this.save_output
-                cleanup_obj1=onCleanup(@()rm_files(this,sqw_file_1456,sqw_file_accum));
+                cleanup_obj1=onCleanup(@()this.delete_files(sqw_file_1456,sqw_file_accum));
             end
             % --------------------------------------- Test accumulate_sqw
             % ---------------------------------------
@@ -503,11 +507,11 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
         %
         function this=test_accumulate_sqw11456(this)
             %-------------------------------------------------------------
-            [skip,sess_state,comb_state]=this.setup_multi_mode();
+            skip=this.setup_multi_mode();
+            co=onCleanup(@()this.restore_config());
             if skip
                 return
             end
-            co = onCleanup(@()set(hor_config,'accum_in_separate_process',sess_state,'use_mex_for_combine',comb_state));
             %-------------------------------------------------------------
             
             
@@ -515,7 +519,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             this=build_test_files(this);
             sqw_file_accum=fullfile(tempdir,'test_sqw_acc_sqw11456_multisession.sqw');
             sqw_file_11456=fullfile(tempdir,'test_sqw_11456_multisession.sqw');                   % output sqw file
-            cleanup_obj1=onCleanup(@()rm_files(this,sqw_file_11456,sqw_file_accum));
+            cleanup_obj1=onCleanup(@()this.delete_files(sqw_file_11456,sqw_file_accum));
             
             % --------------------------------------- Test accumulate_sqw
             % ---------------------------------------
@@ -601,23 +605,28 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             
             
             jd = JobDispatcher('test_gen_sqw_sep_ses_worker');
-            [~,~,wc]=jd.split_and_register_jobs(job_param_list,1);
+            mpi = jd.mess_framework;
+            mess = aMessage('starting');
+            mess.payload = job_param_list;
+            mpi.send_message(1,mess);
+            %[~,~,wc]=jd.split_and_register_jobs(job_param_list,1);
+            wk_control = mpi.build_control(1);
             
-            worker('gen_sqw_files_job',wc{1});
+            worker('gen_sqw_files_job',wk_control);
             
             assertTrue(exist(tmp_file1,'file')==2);
             assertTrue(exist(tmp_file2,'file')==2);
             delete(tmp_file1);
             delete(tmp_file2);
-            [ok,err,mes] = jd.receive_message(1,'completed');
-            assertTrue(ok);
+            [ok,err,mes] = mpi.receive_message(1,'completed');
+            assertTrue(ok==MES_CODES.ok);
             assertTrue(isempty(err));
             res = mes.payload;
             assertEqual(res.grid_size,[50 50 50 50]);
             assertElementsAlmostEqual(res.urange,...
                 [-1.5000 -2.1000 -0.5000 0;0 0 0.5000 35.0000]);
             %
-            jd.clear_all_messages();
+            mpi.finalize_all();
         end
         
         function test_do_job(this)
@@ -651,7 +660,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             job_param = job_par_fun(run,tmp_file,this.instrum(1),this.sample);
             
             je = gen_sqw_files_job('test_gen_sqw_sep_ses_do_job');
-            clob = onCleanup(@()(je.clear_all_messages()));
+
             je.do_job(job_param);
             
             assertTrue(exist(tmp_file,'file')==2);

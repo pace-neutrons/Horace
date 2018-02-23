@@ -184,10 +184,11 @@ accumulate_new_sqw=false;   % true if want to accumulate spe data to a new sqw f
 use_partial_tmp = false;    % true to generate a combined sqw file during accumulate sqw using tmp files calculated at
 % previous accumulation steps
 
-[log_level,use_mex_for_combine,delete_tmp]=...
-    config_store.instance().get_value('hor_config','log_level',...
-    'use_mex_for_combine','delete_tmp');
-
+[log_level,delete_tmp]=...
+    config_store.instance().get_value('hor_config','log_level','delete_tmp');
+use_mex_for_combine=...
+    config_store.instance().get_value('hpc_config','use_mex_for_combine');
+    
 if opt.accumulate
     if sqw_exist && ~opt.clean  % accumulate onto an existing sqw file
         accumulate_old_sqw=true;
@@ -471,7 +472,7 @@ if n_failed == n_workers
     error('GEN_SQW:separate_process_sqw_generation',...
         [' All parallel jobs have failed.\n',...
         ' Disable parallel sqw generation by setting\n',...
-        ' set(hor_config,''accum_in_separate_process'',0)']);
+        ' set(hpc_config,''accum_in_separate_process'',0)']);
 end
 if n_failed>0
     warning('GEN_SQW:separate_process_sqw_generation',' %d out of %d jobs to generate tmp files reported failure',...
@@ -481,18 +482,27 @@ if n_failed>0
             continue;
         end
         job_list = job_ids{ii};
+        grid_size_g = [];
+        urange_g = [];
         for np = 1:numel(job_list)
             par_num = job_list(np);
-            if ~(exist(job_par(par_num).tmp_file,'file')==2)
+            if ~(exist(job_par(par_num).sqw_file_name,'file')==2)
                 warning('GEN_SQW:separate_process_sqw_generation',...
                     ' The target file %s have not been created. Proceeding serially: ',...
                     job_par(par_num).sqw_file_name);
-                [grid_size,urange]=runfiles_to_sqw(dummy,job_par(par_num));
+                [grid_size,urange]=gen_sqw_files_job.runfiles_to_sqw(job_par(par_num));
+                if isempty(urange_g)
+                    urange_g     = urange;
+                    grid_size_g  = grid_size;
+                else
+                    urange_g = [min(urange(1,:));max(urange(2,:))];
+                    
+                end                
             end
             n_failed=n_failed-1;
         end
-        outputs{ii} = struct('grid_size',grid_size,...
-            'urange',urange);
+        outputs{ii} = struct('grid_size',grid_size_g,...
+            'urange',urange_g );
         
     end
 end
@@ -716,10 +726,12 @@ disp('--------------------------------------------------------------------------
 %---------------------------------------------------------------------------------------
 function  [grid_size,urange,tmp_file]=convert_to_tmp_files(run_files,sqw_file,instrument,sample,urange_in,grid_size_in)
 %
+log_level = ...
+    config_store.instance().get_value('hor_config','log_level');
 
-[use_separate_matlab,num_matlab_sessions,log_level] = ...
-    config_store.instance().get_value('hor_config',...
-    'accum_in_separate_process','accumulating_process_num','log_level');
+[use_separate_matlab,num_matlab_sessions] = ...
+    config_store.instance().get_value('hpc_config',...
+    'accum_in_separate_process','accumulating_process_num');
 
 % build names for tmp files to generate
 spe_file = cellfun(@(x)(x.loader.file_name),run_files,...
@@ -752,11 +764,11 @@ if use_separate_matlab
     % name parallel job by sqw file name
     jd = JobDispatcher(upper(par_job_name));
     %
-    [n_failed,outputs,job_ids] = jd.send_jobs('gen_sqw_files_job',...
+    [n_failed,outputs,job_ids] = jd.start_tasks('gen_sqw_files_job',...
         job_par,num_matlab_sessions);
     %
     [grid_size,urange]= check_and_combine_parallel_outputs(n_failed,...
-        num_matlab_sessions,outputs,job_ids);
+        num_matlab_sessions,outputs,job_ids,job_par);
 else
     %---------------------------------------------------------------------
     % serial rundata to sqw transformation
@@ -768,13 +780,10 @@ else
     % effective but much easier to identify problem with
     % failing parallel job
     jex = gen_sqw_files_job();
-    % delete messages exchange folder created by parallel framework
-    % at the end of the procedure
-    clob = onCleanup(@()(rmdir(jex.exchange_folder,'s')));
     % run conversion
     jex = jex.do_job(job_par);
     % retrieve outputs
-    result = jex.job_outputs;
+    result = jex.task_outputs;
     %
     grid_size= result.grid_size;
     urange = result.urange;

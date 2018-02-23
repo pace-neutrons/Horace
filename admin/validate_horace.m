@@ -41,7 +41,7 @@ test_folders={...
     'test_symmetrisation',...
     'test_transformation'...
     'test_utilities',...
-    %'test_spinw_integration',...    
+    %'test_spinw_integration',...
     };
 %==============================================================================
 
@@ -97,12 +97,17 @@ test_folders_full = cellfun(@(x)fullfile(test_path,x),test_folders,'UniformOutpu
 % ------------------------------------------------------------------
 % (Validation must always return Horace and Herbert to their initial states, regardless
 %  of any changes made in the test routines)
+hoc = hor_config();
+hpc = hpc_config();
+hec = herbert_config();
 
-cur_herbert_conf=herbert_config;
-cur_horace_config=hor_config;   % only get the public i.e. not sealed, fields
+cur_herbert_conf=hec.get_data_to_store();
+cur_horace_config=hoc.get_data_to_store();   % only get the public i.e. not sealed, fields
+cur_hpc_config = hpc.get_data_to_store();
 
 % Create cleanup object (*** MUST BE DONE BEFORE ANY CHANGES TO CONFIGURATIONS)
-cleanup_obj=onCleanup(@()validate_horace_cleanup(cur_herbert_conf,cur_horace_config,{}));
+cleanup_obj=onCleanup(@()...
+    validate_horace_cleanup(cur_herbert_conf,cur_horace_config,cur_hpc_config,{}));
 
 
 % Run unit tests
@@ -110,8 +115,6 @@ cleanup_obj=onCleanup(@()validate_horace_cleanup(cur_herbert_conf,cur_horace_con
 % Set Horace and Herbert configurations to the defaults (but don't save)
 % (The validation should be done starting with the defaults, otherwise an error
 %  may be due to a poor choice by the user of configuration parameters)
-hoc = hor_config();
-hec = herbert_config();
 
 set(hec,'defaults');
 set(hoc,'defaults');
@@ -161,13 +164,14 @@ close all
 
 
 %=================================================================================================================
-function validate_horace_cleanup(cur_herbert_config,cur_horace_config,test_folders)
+function validate_horace_cleanup(cur_herbert_config,cur_horace_config,cur_hpc_config,test_folders)
 % Reset the configurations, and remove unit test folders from the path
 set(hor_config,cur_horace_config);
 set(herbert_config,cur_herbert_config);
+set(hpc_config,cur_hpc_config);
 
 % Clear up the test folders, previously placed on the path
-warn = warning('off','all'); % avoid varning on deleting non-existent path
+warn = warning('off','all'); % avoid warning on deleting non-existent path
 for i=1:numel(test_folders)
     rmpath(test_folders{i});
 end
