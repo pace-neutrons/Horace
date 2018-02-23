@@ -19,18 +19,21 @@ classdef hor_config<config_base
     %
     %hor_config methods are:
     % -----------
-    %   mem_chunk_size  -   maximum length of buffer array to accumulate pixels
-    %                       from an input file.
-    %   threads         -   how many computational threads to use in mex files
-    %   ignore_nan      -   Ignore NaN data when making cuts
-    %   ignore_inf      -   Ignore Inf data when making cuts.
+    %   mem_chunk_size    -   maximum length of buffer array to accumulate pixels
+    %                         from an input file.
+    %   threads           -   how many computational threads to use in mex files
+    %   ignore_nan        -   Ignore NaN data when making cuts
+    %   ignore_inf        -   Ignore Inf data when making cuts.
     %   horace_info_level -  Set verbosity of informational output.
     %   log_level         -  The synonym for the horace_info_level
     %   use_mex           -  Use mex files for time-consuming operation, if available
     %   force_mex_if_use_mex - fail if mex can not be used.
     %   delete_tmp        -  automatically delete temporary files after generating sqw files
     %   working_directory - the folder to write tmp files.
-    %
+    %   --
+    %   hpc_config_info   - helper/compartibility property to access high performance
+    %                       computing settings. Use hpc_config to modify hpc
+    %                       settings intself.
     %
     % $Revision$ ($Date$)
     %
@@ -77,7 +80,7 @@ classdef hor_config<config_base
         working_directory
         % the property, related to high performance computing settings.
         % Here it provided for information only while changes to this
-        % propery should be made through hpc_config directly.
+        % propery should be made through hpc_config class settings directly.
         hpc_config_info
     end
     properties(Dependent,Hidden)
