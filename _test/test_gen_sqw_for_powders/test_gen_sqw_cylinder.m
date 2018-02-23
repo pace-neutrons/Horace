@@ -66,7 +66,7 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
             
             sqw_cyl_file=fullfile(tempdir,'test_cyl_4to1.sqw');
             % clean up
-            cleanup_obj=onCleanup(@()rm_files(this,sqw_cyl_file));
+            cleanup_obj=onCleanup(@()this.delete_files(sqw_cyl_file));
             
             emode=1;
             %--------------------------------------------------------------------------------------------------

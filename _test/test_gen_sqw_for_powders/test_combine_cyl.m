@@ -76,7 +76,7 @@ classdef test_combine_cyl < TestCaseWithSave
             % -------------------------------------------
             sqw_file_1=fullfile(tempdir,'test_cyl_1.sqw');
             % clean up
-            cleanup_obj=onCleanup(@()rm_files(this,sqw_file_1));
+            cleanup_obj=onCleanup(@()this.delete_files(sqw_file_1));
             
             emode = 1;
             
@@ -107,7 +107,7 @@ classdef test_combine_cyl < TestCaseWithSave
             % -------------------------------------------
             sqw_file_2=fullfile(tempdir,'test_cyl_2.sqw');
             % clean up
-            cleanup_obj=onCleanup(@()rm_files(this,sqw_file_2));
+            cleanup_obj=onCleanup(@()this.delete_files(sqw_file_2));
             
             emode = 1;
             
@@ -137,7 +137,7 @@ classdef test_combine_cyl < TestCaseWithSave
             % -------------------------------------------
             sqw_file_tot=fullfile(tempdir,'test_cyl_tot.sqw');
             % clean up
-            cleanup_obj=onCleanup(@()delete_files(this,sqw_file_tot));
+            cleanup_obj=onCleanup(@()this.delete_files(sqw_file_tot));
             
             emode = 1;
             gen_sqw_cylinder_test ({this.spe_file_1,this.spe_file_2}, this.par_file, sqw_file_tot, this.efix, emode, this.alatt(3), [this.psi_1,this.psi_2], 90, 0);

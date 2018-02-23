@@ -140,7 +140,7 @@ wout.data.e(~wout.data.npix)=0;
 %   wout=cut_sqw(wout,[]...) 
 % wrapped with commands to temporarily silence Horace.
 hc_log_level=get(hor_config,'log_level');
-set(hor_config,'log_level',-Inf);
+set(hor_config,'log_level',-1);
 cut_args = repmat({[]},size(wout.data.p));
 wout=cut_sqw(wout,cut_args{:});
 set(hor_config,'log_level',hc_log_level);

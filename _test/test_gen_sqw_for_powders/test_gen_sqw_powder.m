@@ -79,7 +79,7 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             pow_phx_file=fullfile(tempdir,'test_pow_rings.phx');
             this.sqw_pow_rings_file=fullfile(tempdir,'test_pow_rings.sqw');
             %
-            this.cleanup_obj=onCleanup(@()this.delete_files(this.sqw_pow_file,this.sqw_pow_rings_file,spe_pow_file,pow_par_file,pow_phx_file));
+            cleanup_obj=onCleanup(@()this.rm_files(spe_pow_file,pow_par_file,pow_phx_file));
             
             %--------------------------------------------------------------------------------------------------
             % Perform a powder average in Horace
@@ -106,6 +106,7 @@ classdef test_gen_sqw_powder < TestCaseWithSave
         end
         function test_powder_cuts(this)
             %--------------------------------------------------------------------------------------------------
+            clob = onCleanup(@()this.rm_files(this.sqw_pow_file,this.sqw_pow_rings_file));
             % Visual inspection
             % Plot the powder averaged sqw data
             wpow=read_sqw(this.sqw_pow_file);
@@ -138,7 +139,7 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             %--------------------------------------------------------------------------------------------------
             
             %--------------------------------------------------------------------------------------------------
-            this=save_or_test_variables(this,w2,w1, w2rings,w1rings,...
+            this.save_or_test_variables(w2,w1, w2rings,w1rings,...
                 'tol',-3.e-2,'ignore_str',1);
         end
     end

@@ -20,7 +20,7 @@ try
     cut_range = cut_par.cut_range;
     % get integration ranges of the cut to estimate number of pixels in
     % zone to transform.
-    % TODO: Should be better way of doing this useing DND object or
+    % TODO: Should be better way of doing this using DND object or
     % projection methods
     cut_ranges = cellfun(@(x)[x(1),x(end)],cut_range(1:end-1),'UniformOutput',false);
     ei_range = cut_range{end};

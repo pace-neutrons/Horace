@@ -71,7 +71,7 @@ if hc.is_default
         hc.use_mex = true;
     end
 %    % force saving default configuration if it has never been saved to hdd
-%    % to avoid repetative messaves about default configuration
+%    % to avoid repetitive messages about default configuration
 %    config_store.instance().store_config(hc,'-forcesave');
 end
 
