@@ -14,16 +14,21 @@ classdef hpc_config < config_base
     % >> val1 = hpc_config.name1;
     %or
     % >>[val1,val2,...]=get(hpc_config,'name1','name2',...)
-    %hpc_config methods are:
-    %-----
     %
-    % use_mex_for_combine     - use mex code to combine various sqw/tmp files
-    %                           together
-    % mex_combine_thread_mode - various thread modes deployed when
-    %                           combining sqw files using mex code.
-    % mex_combine_buffer_size - size of buffer used by mex code while
-    %                           combining files per each contributing file.
-    % accum_in_separate_process - if true, launch separate Matlab session(s) to generate tmp files
+    %hpc_config methods are:
+    %----------------------------
+    % use_mex_for_combine       - use mex code to combine various sqw/tmp files
+    %                             together
+    % mex_combine_thread_mode   - various thread modes deployed when
+    %                             combining sqw files using mex code.
+    %---
+    % parallel_framework        - what parallel framework use to perform
+    %                             parallel  tasks
+    % mex_combine_buffer_size   - size of buffer used by mex code while
+    %                             combining files per each contributing file.
+    % accum_in_separate_process - if true, use parallel framework to generate tmp files
+    %                             and do other computational-expensive
+    %                             tasks, benefiting from parallelization.
     % accumulating_process_num  - number of Matlab sessions to launch to calculate tmp files
     %
     %
@@ -54,6 +59,9 @@ classdef hpc_config < config_base
         % size of buffer used by mex code while combining files per each
         % file.
         mex_combine_buffer_size
+        % what parallel framework to use for parallel  tasks. Available
+        % options are: matlab, partool. Actually defined in Herbert
+        parallel_framework;
         % if true, launch separate Matlab session(s) to generate tmp files
         accum_in_separate_process
         % number of sessions to launch to calculate additional files
@@ -66,6 +74,7 @@ classdef hpc_config < config_base
         mex_combine_thread_mode_   = 0;
         mex_combine_buffer_size_ = 1024*64;
         
+        parallel_framework_;
         accum_in_separate_process_ = false;
         accumulating_process_num_ = 2;
     end
@@ -107,6 +116,9 @@ classdef hpc_config < config_base
         end
         function accum = get.accumulating_process_num(this)
             accum = get_or_restore_field(this,'accumulating_process_num');
+        end
+        function framework = get.parallel_framework(obj)
+            framework = config_store.instance.get_value('parallel_config','parallel_framework');
         end
         %----------------------------------------------------------------
         function this = set.use_mex_for_combine(this,val)
@@ -176,6 +188,11 @@ classdef hpc_config < config_base
             end
             config_store.instance().store_config(this,'accumulating_process_num',nproc);
         end
+        function obj = set.parallel_framework(obj,val)
+            pf = parallel_config;
+            pf.parallel_framework = val;
+        end
+        
         %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED
         %------------------------------------------------------------------
