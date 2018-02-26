@@ -11,8 +11,13 @@ for id=1:n_tasks
     log = job.get_task_info();
     job.state_changed = false;
     running_jobs_list{id} = job;
+    if iscell(log)
+        n_logs =numel(log); 
+    else
+        n_logs = 1;
+    end
     if job.is_failed
-        for i=1:numel(log)
+        for i=1:n_logs
             if iscell(log)
                 cont = log{i};
             else

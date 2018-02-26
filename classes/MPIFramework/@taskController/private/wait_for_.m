@@ -16,7 +16,7 @@ end
 
 function no =no_message(messages_names,mess_name)
 no = true;
-if ~isempty(messages_names{1})
+if ~isempty(messages_names) && ~isempty(messages_names{1})
     if ismember(mess_name,messages_names)
         no = false;
     end
