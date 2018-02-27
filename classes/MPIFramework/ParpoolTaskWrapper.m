@@ -6,7 +6,8 @@ classdef ParpoolTaskWrapper < iTaskWrapper
         mess_contents_
         task_handle_ = [];
         is_pc_;
-        prog_start_
+        
+        pool_ = [];
     end
     properties(Constant,Access=private)
         task_common_str_ = {'-nosplash','-nojvm','-r'};
@@ -17,21 +18,11 @@ classdef ParpoolTaskWrapper < iTaskWrapper
     
     methods
         function obj = ParpoolTaskWrapper(varargin)
-            prog_path  = find_matlab_path();            
-            if isempty(prog_path)
-                error('JOB_DISPATCHER:invlid_settings','Can not find matlab');
+            obj.pool_ = gcp();
+            if isempty(obj.pool_)
+                error('PARPOOL_TASK_WRAPPER:runtime_error',...
+                    'Can not access current parallel pool');
             end
-            %prog_name = 'c:\\Programming\\Matlab2015b64\\bin\\matlab.exe';
-            
-            obj.is_pc_ = ispc;
-            if obj.is_pc_
-                obj.mess_contents_= 'process has not exited';
-                obj.prog_start_ = fullfile(prog_path,'matlab.exe');                
-            else
-                obj.prog_start_= fullfile(prog_path,'matlab');                
-                obj.mess_contents_= 'process hasn''t exited';
-            end
-            
         end
         
         %
@@ -47,27 +38,24 @@ classdef ParpoolTaskWrapper < iTaskWrapper
             end
             
             worker_init_info = mpi.build_control(task_id);
-            worker_str = sprintf('worker(''%s'',''%s'');exit;',task_class_name,worker_init_info);
+            %worker_str = sprintf('worker(''%s'',''%s'');exit;',task_class_name,worker_init_info);
+            task_info  = {task_class_name,worker_init_info};
             
             if DEBUG_REMOTE
                 % if debugging client
                 log_file = sprintf('output_jobN%d.log',task_id);
-                task_info = [{obj.prog_start_},obj.task_common_str_(1:end),{'-logfile'},{log_file },{'-r'},{worker_str}];
-            else
-                task_info = [{obj.prog_start_},obj.task_common_str_(1:end),{worker_str}];
+                task_info = [task_info(:),{'-logfile'},{log_file }];
             end
-            
             mess = aMessage('starting');
             mess.payload = task_inputs;
             mpi.send_message(task_id,mess);
             
-            runtime = java.lang.ProcessBuilder(task_info);
-            obj.task_handle_ = runtime.start();
+            obj.task_handle_ = parfeval(obj.pool_,@worker,1,task_info{:});
             
         end
         %
         function obj = stop_task(obj)
-            obj.task_handle_.destroy();
+            obj.task_handle_.cancel();
             obj.task_handle_ = [];
         end
         
@@ -82,35 +70,15 @@ classdef ParpoolTaskWrapper < iTaskWrapper
                 mess = 'process has not been started';
                 return;
             end
-            
             mess = '';
-            try
-                term = obj.task_handle_.exitValue();
-                if obj.is_pc_ % windows does not hold correct process for Matlab
+            state = obj.task_handle_.State;
+            failed = obj.task_handle_.Error;       
+            switch state
+                case 'running'
                     ok = true;
-                else
-                    ok = false; % unix does
-                end
-                if term == 0
                     failed = false;
-                else
-                    failed = true;
-                    mess = fprintf('Startup error with ID: %d',term);
-                end
-            catch Err
-                if strcmp(Err.identifier,'MATLAB:Java:GenericException')
-                    part = strfind(Err.message, obj.mess_contents_);
-                    if isempty(part)
-                        mess = Err.message;
-                        failed = true;
-                        ok   = false;
-                    else
-                        ok = true;
-                        failed = false;
-                    end
-                else
-                    rethrow(Err);
-                end
+                case 'finished'
+                    ok = false;
             end
         end
     end
