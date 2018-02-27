@@ -11,11 +11,20 @@ for id=1:n_tasks
     log = job.get_task_info();
     job.state_changed = false;
     running_jobs_list{id} = job;
+    if iscell(log)
+        n_logs =numel(log); 
+    else
+        n_logs = 1;
+    end
     if job.is_failed
-        for i=1:numel(log)
-            cont = log{i};
-            if is_string(cont)                
-                fprintf('%s\n',cont);            
+        for i=1:n_logs
+            if iscell(log)
+                cont = log{i};
+            else
+                cont  = log;
+            end
+            if is_string(cont)
+                fprintf('%s\n',cont);
             elseif isa(cont,'MException')
                 for j=1:numel(cont.stack)
                     cl = cont.stack(j);
@@ -27,7 +36,7 @@ for id=1:n_tasks
             end
         end
     else
-        fprintf('%s\n',log);    
+        fprintf('%s\n',log);
     end
 end
 

@@ -22,6 +22,9 @@ for id=1:n_jobs
         continue;
     end
     task = this.tasks_list_{id};
+    if task.is_finished && ~task.is_failed
+        continue;
+    end
     %
     if isempty(all_messages)  % no reply from the task during the query interval
         % depending on the job state, start counting failure

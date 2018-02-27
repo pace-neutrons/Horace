@@ -24,7 +24,7 @@ elseif strcmpi(new_message_name,'started')
     obj.is_running = true;
 elseif strcmpi(new_message_name,'running')
     is_running = true;
-    obj=get_progress_(obj,mpi,true);
+    [obj,is_running]=get_progress_(obj,mpi,is_running);
 elseif strcmpi(new_message_name,'completed')
     is_running = false;    
     [obj,not_exist] = get_output_(obj,mpi);

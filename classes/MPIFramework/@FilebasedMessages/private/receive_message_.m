@@ -60,7 +60,7 @@ while ~received
     catch err
         ic = ic+1;
         if ic>try_limit
-            err_code  =MES_CODES.an_error;
+            err_code  =MES_CODES.runtime_error;
             err_mess = ...
                 sprintf('Can not retrieve message "%s" for task with id: %d does not exist, reason: s%',...
                 mess_name,task_id,err.message);

@@ -343,7 +343,10 @@ catch ex
 end
 
 if ~keep_lib
-    rmdir(lib_dir,'s');
+    try
+        rmdir(lib_dir,'s');
+    catch
+    end
 end
 
 

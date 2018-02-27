@@ -23,6 +23,8 @@ if ~ok
         fail = wait_for_(obj,mpi,'completed');
         if fail
             obj = obj.set_failed('Job finished successfully but error waiting for the "completed" message');
+        else
+            new_message_name = 'completed';
         end
     end
 end
