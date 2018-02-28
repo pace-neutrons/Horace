@@ -9,7 +9,7 @@ classdef JavaTaskWrapper < iTaskWrapper
         prog_start_
     end
     properties(Constant,Access=private)
-        task_common_str_ = {'-nosplash','-nojvm','-r'};
+        task_common_str_ = {'-nosplash','-r'};
     end
     methods(Static)
         
@@ -46,7 +46,7 @@ classdef JavaTaskWrapper < iTaskWrapper
                 DEBUG_REMOTE = false;
             end
             
-            worker_init_info = mpi.build_control(task_id);
+            worker_init_info = mpi.build_control(task_id,true);
             worker_str = sprintf('worker(''%s'',''%s'');exit;',task_class_name,worker_init_info);
             
             if DEBUG_REMOTE

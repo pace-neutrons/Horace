@@ -15,6 +15,15 @@ classdef test_FileBaseMPI_Framework< TestCase
             this = this@TestCase(name);
             this.working_dir = tempdir;
         end
+        function test_serialize_deserialize(this)
+            mf = MFTester('test_ser_deser');
+            css = mf.worker_job_info('SomeWorker',3);
+            dat = mf.serialize_par(css);
+            
+            csr = mf.deserialize_par(dat);
+            assertEqual(css,csr);
+        end
+        
         %
         function test_finalize_all(this)
             % not implemented
@@ -155,7 +164,7 @@ classdef test_FileBaseMPI_Framework< TestCase
             all_mess = mf.probe_all(1);
             if ~isempty(all_mess)
                 assertTrue(ismember('starting',all_mess))
-                assertFalse(ismember('started',all_mess))                
+                assertFalse(ismember('started',all_mess))
             end
             
             

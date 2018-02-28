@@ -50,7 +50,7 @@ classdef test_job_executor< TestCase
             [ok,err_mess]=mf.send_message(1,mess);
             assertEqual(ok,MES_CODES.ok,['Error: ',err_mess]);
             % job 2
-            info2 = mf.build_control(2);
+            info2 = mf.build_control(2,false);
             mess.payload = cs2;
             [ok,err_mess]=mf.send_message(2,mess);
             assertEqual(ok,MES_CODES.ok,['Error: ',err_mess]);

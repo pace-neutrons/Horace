@@ -21,11 +21,12 @@ classdef test_job_dispatcher< TestCase
             end
             this = this@TestCase(name);
             this.working_dir = tempdir;
+            pc = parallel_config;
+            this.cur_par_config = pc.get_data_to_store;
         end
         function setUp(obj)
             pc = parallel_config;
-            obj.cur_par_config = pc.get_data_to_store;
-            pc.parallel_config = obj.test_dispatcher;
+            pc.parallel_framework = obj.test_dispatcher;
         end
         function tearDown(obj)
             pc = parallel_config;
@@ -51,10 +52,10 @@ classdef test_job_dispatcher< TestCase
             files = {file1,file2,file3};
             co = onCleanup(@()(delete(files{:})));
             
-            jobs = job_contr;
+            job_par = job_contr;
             jd = JobDispatcher();
             
-            [n_failed,outputs]=jd.start_tasks('JETester',jobs,1,1);
+            [n_failed,outputs]=jd.start_tasks('JETester',job_par,1,1);
             
             assertEqual(n_failed,0);
             assertTrue(isempty(outputs{1}));
@@ -247,9 +248,12 @@ classdef test_job_dispatcher< TestCase
             mpi.send_message(1,mess);
             
             je = JETester();
-            [je,job_arguments,err_mess]=je.init_worker(worker_info);
+            [je,job_arguments,task_par,err_mess]=je.init_worker(worker_info);
             assertTrue(isempty(err_mess))
             assertEqual(job_arguments{1},job_param_list{1});
+            
+            test_task = mpi.worker_job_info('FilebasedMessages',1);
+            assertEqual(test_task,task_par);
             
             %ok = jd.job_state_is(1,'starting');
             %assertFalse(ok);

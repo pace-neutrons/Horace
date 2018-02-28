@@ -54,7 +54,7 @@ classdef iMessagesFramework
             end
         end
         
-        function info = worker_job_info(obj,framework_name,mpi_info)
+        function info = worker_job_info(obj,framework_name,mpi_info,varargin)
             % the structure, used to transmit information to worker and
             % initialize jobExecutor
             % where:
@@ -65,9 +65,15 @@ classdef iMessagesFramework
             %                   string
             % mpi_info       -- other information necessary to initiate
             %                   the messages framework.
+            if nargin>3
+                exit_on_complition = varargin{1};                
+            else
+                exit_on_complition = true;
+            end
             info = struct('job_id',obj.job_id,...
                 'job_data_folder',obj.job_data_folder,...
-                'framework_name',framework_name,'mpi_info',mpi_info);
+                'framework_name',framework_name,'mpi_info',mpi_info,...
+                'exit_on_compl',exit_on_complition);
         end
         
     end
@@ -79,10 +85,19 @@ classdef iMessagesFramework
             % representation, build to allow transfer through standard
             % system pipe
             %
-            par_string = strrep(par_string,'x',' ');
-            len = numel(par_string)/3;
-            sa = reshape(par_string,len,3);
-            iarr = uint8(str2num(sa));
+            par_string = strrep(par_string,'-','=');
+            y = uint8(strrep(par_string,'_','/'));
+            %import com.mathworks.mlwidgets.io.InterruptibleStreamCopier            
+            %a=java.io.ByteArrayInputStream(y);
+            %b=java.util.zip.InflaterInputStream(a);
+            %isc = InterruptibleStreamCopier.getInterruptibleStreamCopier;
+            %c = java.io.ByteArrayOutputStream;
+            %isc.copyStream(b,c);
+            %y=typecast(c.toByteArray,'uint8');
+            
+            base64 = org.apache.commons.codec.binary.Base64;
+            y = base64.decode(y);
+            iarr = mod(int16(y),256); % convert from int8 to uint8
             params  =  hlp_deserialize(iarr);
         end
         %
@@ -96,14 +111,22 @@ classdef iMessagesFramework
             mess = '';
             par = '';
             try
-                v = hlp_serialize(param);
+                v = hlp_serialize(param)';
             catch ME
                 mess = ME.message;
                 return
             end
-            par=num2str(v);
-            par = reshape(par,1,numel(par));
-            par = strrep(par,' ','x');
+            %f=java.io.ByteArrayOutputStream();
+            %g=java.util.zip.DeflaterOutputStream(f);
+            %g.write(v);
+            %g.close;
+            %v=typecast(f.toByteArray,'uint8');
+            %f.close;
+            base64 = org.apache.commons.codec.binary.Base64;
+            v = base64.encodeBase64(v, false);
+            v = char(v)';
+            v = strrep(v,'=','-');
+            par = strrep(v,'/','_');
         end
         %
     end
@@ -120,7 +143,7 @@ classdef iMessagesFramework
         % build worker's control structure, necessary to
         % initiate message framework and jobExecutor. Must use
         % iMessagesFramework.worker_job_info to build appropriate framework
-        cs  = build_control(obj,task_id)
+        cs  = build_control(obj,task_id,varargin)
         %------------------------------------------------------------------
         % MPI interface
         %

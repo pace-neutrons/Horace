@@ -51,7 +51,7 @@ classdef JobExecutor
             %je = je@MessagesFramework(varargin{:});
         end
         %
-        function [this,argi,mess]=init_worker(this,job_control_string)
+        function [this,argi,job_controls,mess]=init_worker(this,job_control_string)
             % initiate worker side.
             %e.g:
             % set up tag, indicating that the job have started
@@ -64,9 +64,10 @@ classdef JobExecutor
             % returns:
             % argi         the structure, containing job's arguments,
             %              used by do_job method
+            % job_controls - decoded job control structure
             % mess         if not empty, the reason for failure
             %
-            [this,argi,mess]=this.init_worker_(job_control_string);
+            [this,argi,job_controls,mess]=this.init_worker_(job_control_string);
         end
         %
         function [ok,mess] =finish_job(this)

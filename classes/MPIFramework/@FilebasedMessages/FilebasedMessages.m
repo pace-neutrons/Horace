@@ -63,11 +63,11 @@ classdef FilebasedMessages < iMessagesFramework
         end
         %------------------------------------------------------------------
         % HERBERT Job control interface
-        function cs  = build_control(obj,task_id)
+        function cs  = build_control(obj,task_id,varargin)
             % initialize worker's control structure, necessary to
             % initiate jobExecutor on a client
             name = class(obj);
-            css = obj.worker_job_info(name,task_id);
+            css = obj.worker_job_info(name,task_id,varargin{:});
             cs  = iMessagesFramework.serialize_par(css);
         end
         %

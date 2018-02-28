@@ -37,7 +37,7 @@ classdef ParpoolTaskWrapper < iTaskWrapper
                 DEBUG_REMOTE = false;
             end
             
-            worker_init_info = mpi.build_control(task_id);
+            worker_init_info = mpi.build_control(task_id,false);
             %worker_str = sprintf('worker(''%s'',''%s'');exit;',task_class_name,worker_init_info);
             task_info  = {task_class_name,worker_init_info};
             
@@ -61,7 +61,7 @@ classdef ParpoolTaskWrapper < iTaskWrapper
         
         
         function [ok,failed,mess] = is_running(obj)
-            % check if java process is still running or has been completed
+            % check if a process is still running or has been completed
             %
             % inputs:
             if isempty(obj.task_handle_)
@@ -72,13 +72,22 @@ classdef ParpoolTaskWrapper < iTaskWrapper
             end
             mess = '';
             state = obj.task_handle_.State;
-            failed = obj.task_handle_.Error;       
+            fail_state = obj.task_handle_.Error;       
             switch state
                 case 'running'
                     ok = true;
-                    failed = false;
                 case 'finished'
                     ok = false;
+                case 'queued'
+                    ok = true;                    
+                otherwise
+                    ok = false;
+            end
+            if isempty(fail_state)
+                failed = false;
+            else
+                mess = fail_state.message;
+                failed = true;
             end
         end
     end

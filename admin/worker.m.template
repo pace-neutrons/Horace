@@ -1,4 +1,4 @@
-function worker(class_name,job_controls_string)
+function ok=worker(class_name,job_controls_string)
 % function used as standard worker to do a job in different Matlab
 % session.
 %
@@ -12,7 +12,7 @@ function worker(class_name,job_controls_string)
 %               untouched (unless you understand what you are doing.)
 %
 % job_controls_string - the structure, containing information, necessary to
-%              initiate job. 
+%              initiate job.
 %
 %
 if isempty(which('herbert_init.m'))
@@ -22,47 +22,42 @@ end
 
 mis = MPI_State.instance();
 mis.is_deployed = true;
-is_tested = mis.is_tested; % set up to tested state within unit tests. 
+is_tested = mis.is_tested; % set up to tested state within unit tests.
 %
-% for testing we need to recover 'not-deployed' state to avoid clashes with 
+% for testing we need to recover 'not-deployed' state to avoid clashes with
 % other unit tests. The production job finishes Matlab and clean-up is not necessary
-% though doing no harm. 
+% though doing no harm.
 clot = onCleanup(@()(setattr(mis,'is_deployed',false)));
 
-% instantiate worker class. 
+% instantiate worker class.
 je = feval(class_name);
 
-[je,job_arguments,err_mess]=je.init_worker(job_controls_string);
-old_Horace = false;
-try % transient changes to allow worker operating with old and new Horace
-    task_id = je.job_id;
-    old_Horace = true;
-catch
-    task_id = je.task_id;
-end
+[je,job_arguments,job_controls,err_mess]=je.init_worker(job_controls_string);
 
+exit_at_the_end = ~is_tested && job_controls.exit_on_compl;
 if ~isempty(err_mess)
     % clear all existing messages for this job
     je.receive_all_messages();
     
     mess = aMessage('failed');
     mess.payload = sprintf('job N%d failed at init_worker. Reason: %s',...
-        task_id,err_mess);
+        je.task_id,err_mess);
     je.send_message(mess);
-    if ~is_tested
+    ok = false;
+    if exit_at_the_end
         exit;
     else
         error('WORKER:init_worker',mess.payload)
     end
+else
+    ok = true;
 end
 %
 mis.logger = @(step,n_steps,time,add_info)...
     (je.log_progress(step,n_steps,time,add_info));
 
 mis.check_cancelled = @()(f_canc(je));
-if ~old_Horace
-    mis.mpi_framework = je.mess_framework;
-end
+mis.mpi_framework = je.mess_framework;
 %
 % Execute job (run main job executor's do_job method
 try
@@ -71,17 +66,19 @@ try
     else
         je = je.do_job(job_arguments);
     end
+    ok = true;
 catch ME
+    ok = false;
     if ~strcmpi(ME.identifier,'MESSAGE_FRAMEWORK:cancelled')
         % clear all existing messages for this job
         je.receive_all_messages();
         
         mess = aMessage('failed');
-        mess.payload = sprintf('job N%d failed at do_job method. Reason: %s',...
-            task_id,ME.message);
+        mess.payload = {sprintf('job N%d failed at do_job method. Reason: %s',...
+            je.task_id,ME.message),ME};
         je.send_message(mess);
     end
-    if ~is_tested
+    if exit_at_the_end
         exit;
     else
         error('WORKER:do_job',mess.payload)
@@ -89,16 +86,16 @@ catch ME
 end
 %
 je.finish_job();
-
-if ~is_tested
+%pause
+if exit_at_the_end
     exit;
 end
 
 end
 
 function f_canc(job_executor)
-    if job_executor.is_job_cancelled()
-        error('MESSAGE_FRAMEWORK:cancelled',...
-            'Messages framework has been cancelled or not initialized any more')
-    end
+if job_executor.is_job_cancelled()
+    error('MESSAGE_FRAMEWORK:cancelled',...
+        'Messages framework has been cancelled or not initialized any more')
+end
 end

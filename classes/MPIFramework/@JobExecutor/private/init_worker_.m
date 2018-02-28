@@ -1,4 +1,4 @@
-function [obj,argi,mess]=init_worker_(obj,job_control_string)
+function [obj,argi,job_control_struct,mess]=init_worker_(obj,job_control_string)
 % initiate the worker parameters
 % Inputs:
 % job_control_string - the serialized string, contaning information

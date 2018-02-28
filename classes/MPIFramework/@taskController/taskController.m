@@ -24,7 +24,7 @@ classdef taskController
         waiting_count
         % task outputs
         outputs
-        % time to wait until next task progress message appears before failing        
+        % time to wait until next task progress message appears before failing
         time_to_fail;
         % message containing information why class decided that task have
         % failed
@@ -53,7 +53,6 @@ classdef taskController
         
         fail_limit_ = 100;
     end
-    
     
     methods
         function obj=taskController(id,aTaskWrapper)
