@@ -227,10 +227,17 @@ classdef TestPerformance < TestCaseWithSave
             % The addinfo stirng should have form, allowed to use as the
             % name of a field in a structure.
             %
-            if exist('addinfo','var')
-                name = [getComputerName(),'_',addinfo];
+            hpc = hpc_config;
+            framework_name = hpc.parallel_framework;
+            if strcmp(framework_name,'matlab')
+                fn = getComputerName();
             else
-                name  = getComputerName();
+                fn = [getComputerName(),'_',framework_name];
+            end
+            if exist('addinfo','var')
+                name = [fn,'_',addinfo];
+            else
+                name  = fn;
             end
             % remove all . from a computer name to include unix names.
             name   = strrep(name  ,'.','_');
