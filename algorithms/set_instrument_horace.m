@@ -40,7 +40,6 @@ if isa(instrument,'function_handle')
             end
             ldr = sqw_formats_factory.instance().get_loader(filename);
             header = ldr.get_header('-all');
-            ldr.delete();
             nfiles = numel(header);
             if ninst ~= 1 && ninst ~= nfiles
                 error('SQW:invalid_argument',...
