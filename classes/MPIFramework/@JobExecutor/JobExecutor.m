@@ -24,7 +24,6 @@ classdef JobExecutor
     end
     %
     properties(Access=private)
-        task_id_ = 0;
         task_outputs_ = [];
         % handle for the messages framework
         mess_framework_ = [];
@@ -93,9 +92,9 @@ classdef JobExecutor
             log_progress_(this,step,n_steps,time_per_step,add_info);
         end
         %------------------------------------------------------------------
-        function id = get.task_id(this)
+        function id = get.task_id(obj)
             % get number (job id) of current running job
-            id = this.task_id_;
+            id = obj.mess_framework_.labIndex;
         end
         %
         function this = return_results(this,final_results)

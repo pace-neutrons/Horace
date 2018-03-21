@@ -25,9 +25,6 @@ mf = mf.init_framework(job_control_struct);
 obj.mess_framework_  = mf;
 
 try
-    % TODO: HACK! this is filebased worker, which is initated by mpi_info only
-    obj.task_id_        = job_control_struct.mpi_info;
-    %
     [ok,mess,message] = obj.receive_message('starting');
     if ok
         argi = message.payload;

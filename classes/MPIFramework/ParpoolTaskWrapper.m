@@ -10,7 +10,6 @@ classdef ParpoolTaskWrapper < iTaskWrapper
         pool_ = [];
     end
     properties(Constant,Access=private)
-        task_common_str_ = {'-nosplash','-nojvm','-r'};
     end
     methods(Static)
         
@@ -18,6 +17,8 @@ classdef ParpoolTaskWrapper < iTaskWrapper
     
     methods
         function obj = ParpoolTaskWrapper(varargin)
+%             pool = parallel.Pool;
+%             if 
             obj.pool_ = gcp();
             if isempty(obj.pool_)
                 error('PARPOOL_TASK_WRAPPER:runtime_error',...
@@ -72,14 +73,14 @@ classdef ParpoolTaskWrapper < iTaskWrapper
             end
             mess = '';
             state = obj.task_handle_.State;
-            fail_state = obj.task_handle_.Error;       
+            fail_state = obj.task_handle_.Error;
             switch state
                 case 'running'
                     ok = true;
                 case 'finished'
                     ok = false;
                 case 'queued'
-                    ok = true;                    
+                    ok = true;
                 otherwise
                     ok = false;
             end

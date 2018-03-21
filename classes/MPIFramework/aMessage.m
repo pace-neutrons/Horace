@@ -9,10 +9,11 @@ classdef aMessage
         % message name, describing the message category (e.g. starting,
         % running, etc...
         mess_name;
+        tag;
     end
     properties(Access=protected)
-        payload_;
-        mess_name_;
+        payload_ =[];
+        mess_name_ = [];
     end
     
     
@@ -28,6 +29,14 @@ classdef aMessage
         end
         function obj = set.payload(obj,val)
             obj.payload_  = val;
+        end
+        
+        function tag = get.tag(obj)
+            if isempty(obj.mess_name_)
+                tag = -1;
+            else
+                tag = MESS_NAMES.mess_id(obj.mess_name_);
+            end
         end
     end   
 end

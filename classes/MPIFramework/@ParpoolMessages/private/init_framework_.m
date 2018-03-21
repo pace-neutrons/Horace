@@ -13,27 +13,14 @@ function obj = init_framework_(obj,framework_info)
 if exist('framework_info','var')
     if isstruct(framework_info) && isfield(framework_info,'job_id')
         obj.job_id = framework_info.job_id;
-        obj.task_id_ = framework_info.mpi_info;
     elseif(is_string(framework_info))
         obj.job_id = framework_info;
-        obj.task_id_ = 0;
     else
-        error('FILEBASED_MESSAGES:invalid_argument',...
+        error('PARPOOL_MESSAGES:invalid_argument',...
             'inputs for init_framework function does not have correct structure')
     end
 else
-    error('FILEBASED_MESSAGES:invalid_argument',...
+    error('PARPOOL_MESSAGES:invalid_argument',...
         'inputs for init_framework function is missing')
 end
-if ~isempty(obj.job_data_folder)
-    root_cf = fullfile(obj.job_data_folder,FilebasedMessages.exchange_folder_name);
-    make_folder_(root_cf,obj.job_data_folder)
-else
-    root_cf = make_config_folder(FilebasedMessages.exchange_folder_name);
-end
-
-job_folder = fullfile(root_cf,obj.job_id);
-make_folder_(job_folder,root_cf);
-
-obj.mess_exchange_folder_ = job_folder;
 

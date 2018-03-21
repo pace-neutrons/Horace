@@ -1,4 +1,4 @@
-classdef MES_CODES < uint32
+classdef MESS_CODES < uint32
     % Helper class to keep custom MPI framework error messages
     %
     enumeration

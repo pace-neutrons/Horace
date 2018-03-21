@@ -1,4 +1,4 @@
-classdef FilebasedMessages < iMessagesFramework
+classdef ParpoolMessages < iMessagesFramework
     % The class providing file-based message exchange functionality for Herbert
     % distributed jobs framework.
     %
@@ -17,31 +17,21 @@ classdef FilebasedMessages < iMessagesFramework
     %
     %
     properties(Dependent)
-        % Time in seconds a system waits for blocking message intil
-        % returning "not-received"
-        time_to_fail;
     end
     %----------------------------------------------------------------------
     properties(Constant=true)
-        % the name of the folder where the configuration is stored;
-        exchange_folder_name='Herbert_FB_MPI';
     end
     %----------------------------------------------------------------------
     properties(Access=protected)
-        %TODO: time in seconds to waiting in blocking message until
-        %unblocking.
-        time_to_fail_ = 1000;
-        mess_exchange_folder_;
+        data_exchange_folder_;
         % time to wait for a message send from one session can be read from
         % another one.
         time_to_react_ = 0.1
-        
-        task_id_ = 0;
     end
     %----------------------------------------------------------------------
     methods
         %
-        function jd = FilebasedMessages(varargin)
+        function jd = ParpoolMessages(varargin)
             % Initialize Messages framework for particular job
             % If provided with parameters, the first parameter should be
             % the sting-prefix of the job control files, used to
@@ -52,14 +42,11 @@ classdef FilebasedMessages < iMessagesFramework
             %                             prefix
             % jd = MessagesFramework('target_name') -- add prefix
             %      which discribes this job.
-            % Filebased messages frimework creates the exchange folder with
-            % the filename specified as input.
             %
-            % Initialise folder path
+            
             jd = jd@iMessagesFramework();
             if nargin>0
                 jd = jd.init_framework(varargin{1});
-                
             end
             
         end
@@ -76,20 +63,30 @@ classdef FilebasedMessages < iMessagesFramework
         function  obj = init_framework(obj,framework_info)
             % using control structure initialize operational message
             % framework
-            obj = init_framework_(obj,framework_info);            
+            obj = init_framework_(obj,framework_info);
         end
         %------------------------------------------------------------------
         % MPI intefce
         %
         function fn = mess_name(obj,task_id,mess_name)
-            % Fully qualified name of the task status message, which allows
-            % to identify message in the system. For filebased messages this
-            % is the name of the message file
-            fn = obj.job_stat_fname_(task_id,mess_name);
+            % not used in ParpoolMessages
+            fn  = mess_name;
+        end
+        %
+        function [ok,err_mess,message] = receive_message(obj,varargin)
+            % receive message from a task with specified id
+            % Blocking
+            %Usage
+            %>>[ok,err,message] = obj.receive_message();
+            % Receive any message.
+            %>>[ok,err,message] = obj.receive_message(labId);
+            %
+            [ok,err_mess,message] = receive_message_(obj,varargin{:});
         end
         %
         function [ok,err_mess] = send_message(obj,task_id,message)
             % send message to a task with specified id
+            % Blocking
             % Usage:
             % >>mf = MessagesFramework();
             % >>mess = aMessage('mess_name')
@@ -98,24 +95,24 @@ classdef FilebasedMessages < iMessagesFramework
             % >>    task with id==1. (not received)
             % >>    if false, error_mess indicates reason for failure
             %
-            [ok,err_mess] = send_message_(obj,task_id,message);
+            ok = true;
+            err_mess = [];
+            try
+                if isa(message,'aMessage')
+                    tag = message.tag;
+                    labSend(message,task_id,tag);
+                else
+                    labSend(message,task_id);
+                end
+            catch Err
+                ok = false;
+                err_mess = Err;
+            end
         end
         %
-        function [ok,err_mess,message] = receive_message(obj,varargin)
-            % receive message from a task with specified id
-            %Usage
-            % >>[ok,err_mess] = mf.receive_message(1)
-            % >>ok  if true, says that message have been successfully
-            %       received from task with id==1.
-            % >>    if false, error_mess indicates reason for failure
-            % >> on success, message contains an object of class aMessage,
-            %    with message contents
-            %
-            [ok,err_mess,message] = receive_message_(obj,varargin{:});
-        end
         %
         function is = is_job_cancelled(obj)
-            % method verifies if job has been cancelled
+            %2 method verifies if job has been cancelled
             if ~exist(obj.mess_exchange_folder_,'dir')
                 is=true;
             else
@@ -123,36 +120,46 @@ classdef FilebasedMessages < iMessagesFramework
             end
         end
         %
-        function [all_messages_names,task_ids] = probe_all(obj,varargin)
+        function [messages_name,task_id] = probe_all(obj,varargin)
             % list all messages existing in the system for the tasks
-            % with id-s specified as input
+            % with id-s specified as input.
+            % NonBlocking
             %Usage:
-            %>> [mess_names,task_ids] = obj.probe_all([task_ids]);
+            %>> [mess_names,task_id] = obj.probe_all([task_ids]);
             %Where:
-            % task_ids -- array of task id-s to check messages for or all
-            %             messages if this is empty
+            % task_ids    -- the task ids of the labs to verify messages
+            %                from. Query all availible labs if this field
+            %                is empty
+            %
+            %
             %Returns:
-            % mess_names   -- cellarray of strings, containing message names
-            %                 for the requested tasks.
-            % task_ids      -- array of task id-s for the message names
-            %                   in the mess_names
+            % mess_names   -- the  cellarray, containing message names
+            %                 of the message from  any lab in the pool.
+            %                 empty for the
+            % task_id     --  the task id of a first availible message
             %
             % if no messages are present in the system
-            % all_messages_names and task_ids are empty
+            % messages_name and task_id are empty
             %
-            [all_messages_names,task_ids] = list_all_messages_(obj,varargin{:});
+            [messages_name,task_id] = labProbe_messages_(obj,varargin{:});
         end
         %
-        function [all_messages,task_ids] = receive_all_messages(obj,varargin)
+        function [all_messages,task_ids] = receive_all(obj,varargin)
             % retrieve (and remove from system) all messages
             % existing in the system for the tasks with id-s specified as input
+            % non-blocking. 
             %
+            % Usage:
+            %>>[all_messages,task_ids] = pm.receive_all([task_is]);
             %Input:
-            %task_ids -- array of task id-s to check messages for
+            %task_ids -- array of task id-s to check messages for or emtpy
+            %            to check for all messages
             %Return:
             % all_messages -- cellarray of messages for the tasks requested and
-            %                 have messages availible in the system .
-            %task_ids       -- array of task id-s for these messages
+            %                have messages availible in the system with empty cells.
+            %                for missing messages
+            % task_ids    -- array of task id-s for these messages with
+            %                zeros for missing messages
             %
             %
             [all_messages,task_ids] = receive_all_messages_(obj,varargin{:});
@@ -173,7 +180,7 @@ classdef FilebasedMessages < iMessagesFramework
             
         end
         function ind = get_lab_index_(obj)
-            ind = obj.task_id_;
+            ind = labindex();
         end
     end
 end

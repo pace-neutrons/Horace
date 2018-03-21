@@ -17,6 +17,12 @@ classdef iMessagesFramework
         % data exchange between tasks and storing input data.
         % if empty, default Herbert value is used.
         job_data_folder;
+        % returns the index of the worker currently executing the function.
+        % labindex is assigned to each worker when a job begins execution,
+        % and applies only for the duration of that job.
+        % The value of labindex spans from 1 to n, where n is the number of
+        % workers running the current job, defined by numlabs.
+        labIndex;
     end
     properties(Access=private)
         job_id_;
@@ -28,14 +34,15 @@ classdef iMessagesFramework
             % (25 such letters)
             obj.job_id_ = char(floor(25*rand(1,10)) + 65);
         end
-        
+        %
         function id = get.job_id(obj)
             id = obj.job_id_;
         end
+        %
         function folder = get.job_data_folder(obj)
             folder  = obj.job_data_folder_;
         end
-        
+        %
         function obj = set.job_id(obj,val)
             if is_string(val) && ~isempty(val)
                 obj.job_id_ = val;
@@ -44,6 +51,7 @@ classdef iMessagesFramework
                     'MPI job id has to be a string');
             end
         end
+        %
         function obj = set.job_data_folder(obj,val)
             if exist(val,'dir') == 7
                 obj.job_data_folder_ = val;
@@ -52,6 +60,10 @@ classdef iMessagesFramework
                     'Job data exchange folder %s must exist',...
                     val);
             end
+        end
+        %
+        function ind = get.labIndex(obj)
+            ind = get_lab_index_(obj);
         end
         
         function info = worker_job_info(obj,framework_name,mpi_info,varargin)
@@ -66,7 +78,7 @@ classdef iMessagesFramework
             % mpi_info       -- other information necessary to initiate
             %                   the messages framework.
             if nargin>3
-                exit_on_complition = varargin{1};                
+                exit_on_complition = varargin{1};
             else
                 exit_on_complition = true;
             end
@@ -87,7 +99,7 @@ classdef iMessagesFramework
             %
             par_string = strrep(par_string,'-','=');
             y = uint8(strrep(par_string,'_','/'));
-            %import com.mathworks.mlwidgets.io.InterruptibleStreamCopier            
+            %import com.mathworks.mlwidgets.io.InterruptibleStreamCopier
             %a=java.io.ByteArrayInputStream(y);
             %b=java.util.zip.InflaterInputStream(a);
             %isc = InterruptibleStreamCopier.getInterruptibleStreamCopier;
@@ -204,7 +216,7 @@ classdef iMessagesFramework
         % all_messages -- cellarray of messages for the tasks requested and
         %                 have messages availible in the system .
         %task_ids       -- array of task id-s for these messages
-        [all_messages,task_ids] = receive_all_messages(obj,task_ids)
+        [all_messages,task_ids] = receive_all(obj,task_ids)
         %------------------------------------------------------------------
         % delete all messages belonging to this instance of messages
         % framework and shut the framework down.
@@ -212,6 +224,10 @@ classdef iMessagesFramework
         
         % method verifies if job has been cancelled
         is = is_job_cancelled(obj)
+    end
+    methods(Abstract,Access=protected)
+        % return the labindex
+        ind = get_lab_index_(obj);
     end
     
 end
