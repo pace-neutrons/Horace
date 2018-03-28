@@ -8,11 +8,14 @@ function wout = smooth (win, varargin)
 %   win     Input IX_dataset_1d or array of IX_dataset_1d objects
 %   width   Scalar that sets the extent of the smoothing - the interpretation
 %          depends on the shape function below.
-%   shape   Shape of smoothing function:
+%   shape   Shape of smoothing function (can be abbreviated to minimum unambiguous length):
 %               'hat'           Hat function
 %                                   - width gives FWHH along each dimension in pixels
 %                                   - width = 1,3,5,...;  n=0 or 1 => no smoothing
 %               'gaussian'      Gaussian; width gives FWHH along each dimension in pixels
+%                                   - elements where more than 2% of peak intensity
+%                                     are retained
+%               'lorentzian'    Lorentzian; width gives FWHH along each dimension in pixels
 %                                   - elements where more than 2% of peak intensity
 %                                     are retained
 %
@@ -26,7 +29,7 @@ function wout = smooth (win, varargin)
 % whether or not it is distribution or not.
 
 % List available functions and set defaults.
-shapes = {'hat'; 'gaussian'};       % internally available functions for convolution
+shapes = {'hat'; 'gaussian';'lorentzian'};       % internally available functions for convolution
 width_default = 3;
 shape_default = 'hat';
 
@@ -65,7 +68,17 @@ elseif ishape==2    % Gaussian
         f = 0.02;   % convolution matrix will extend to the 2% level of Gaussian
         fac = sqrt(log(1/f)/(4*log(2)));    % magnitude f occurs at multiple fac of FWHH
         n = floor(fac*max(0,width));        % if width < 0, assume width=0
-        c = exp(-(4*log(2))*((-n:n)/width).^2);
+        c = exp(-(4*log(2))*((-n:n)/width).^2)';
+    else
+        c = 1;
+    end
+elseif ishape==3    % Lorentzian
+    if width>0
+        gamma = width/2;
+        f = 0.02;   % convolution matrix will extend to the 2% level of Lorentzian
+        fac = sqrt((1-f)/f);            % magnitude f occurs at multiple fac of gamma
+        n = floor(fac*max(0,width));    % if width < 0, assume width=0
+        c = (gamma/pi)./((-n:n).^2 + gamma.^2)';
     else
         c = 1;
     end
