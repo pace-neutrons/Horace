@@ -14,4 +14,11 @@
          <completed_on>[2018 2 21 18 1 9.765712]</completed_on>
       </test_constructor_operations>
    </ndmlnx02_isis_cclrc_ac_uk_TestPerformance>
+   <ndlt618_TestPerformance>
+      <test_constructor_operations>
+         <time_sec>0.00087127267022531</time_sec>
+         <comment>this is not a performance test itself but the test of performance test operational</comment>
+         <completed_on>[2018 3 28 12 7 35.732]</completed_on>
+      </test_constructor_operations>
+   </ndlt618_TestPerformance>
 </TestPerformance>

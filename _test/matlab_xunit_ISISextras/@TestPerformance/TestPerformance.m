@@ -234,6 +234,8 @@ classdef TestPerformance < TestCaseWithSave
             end
             % remove all . from a computer name to include unix names.
             name   = strrep(name  ,'.','_');
+            % remove all - from a computer name to include DAAS unix names.
+            name   = strrep(name  ,'-','_');
             
         end
     end
