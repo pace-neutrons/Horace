@@ -110,10 +110,10 @@ if ~check_access(outdir,add_files{1})
 end
 if(nFiles==1)
     fname      = strtrim(add_files{1});
-    mex(fname, '-outdir', outdir);
+    mex('-R2017b',fname, '-outdir', outdir);
 else  
     %mex('-g',add_files{:}, '-outdir', outdir);
-    mex(add_files{:}, '-outdir', outdir);    
+    mex('-R2017b','-lut',add_files{:}, '-outdir', outdir);    
 end
 
 function access =check_access(outdir,filename)
