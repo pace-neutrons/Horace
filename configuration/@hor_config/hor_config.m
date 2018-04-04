@@ -19,18 +19,21 @@ classdef hor_config<config_base
     %
     %hor_config methods are:
     % -----------
-    %   mem_chunk_size  -   maximum length of buffer array to accumulate pixels
+    %   mem_chunk_size    - Maximum length of buffer array to accumulate pixels
     %                       from an input file.
-    %   threads         -   how many computational threads to use in mex files
-    %   ignore_nan      -   Ignore NaN data when making cuts
-    %   ignore_inf      -   Ignore Inf data when making cuts.
-    %   horace_info_level -  Set verbosity of informational output.
-    %   log_level         -  The synonym for the horace_info_level
-    %   use_mex           -  Use mex files for time-consuming operation, if available
-    %   force_mex_if_use_mex - fail if mex can not be used.
-    %   delete_tmp        -  automatically delete temporary files after generating sqw files
-    %   working_directory - the folder to write tmp files.
+    %   threads           - How many computational threads to use in mex files
+    %   ignore_nan        - Ignore NaN data when making cuts
+    %   ignore_inf        - Ignore Inf data when making cuts.
+    %   log_level         - Set verbosity of informational output.
+    %   use_mex           - Use mex files for time-consuming operation, if available
+    %   delete_tmp        - Automatically delete temporary files after generating sqw files
+    %   working_directory - The folder to write tmp files.
     %
+    %   force_mex_if_use_mex - Fail if mex can not be used. Used in mex files debugging
+    %--
+    %   hpc_config_info   - an interface, displaying high performance computing settings.
+    %                       Use hpc_config class directly to modify these
+    %                       settings.
     %
     % $Revision$ ($Date$)
     %
@@ -48,7 +51,7 @@ classdef hor_config<config_base
         ignore_nan
         % ignore inf values if pixels have them. %  (default --false)
         ignore_inf
-        % the same as horace_info level
+        % The verbocity of the log messages
         %      The larger the value, the more information is printed, e.g.:
         %  -1  No information messages printed
         %   0  Major information messages printed
@@ -58,10 +61,6 @@ classdef hor_config<config_base
         % use mex-code for time-consuming operations
         % default -- true if mex files are compiled
         use_mex
-        % testing and debugging option -- fail if mex can not be used
-        % By defauld if mex file fails, program tries to use Matlab, but
-        % if this option is set to true, the whole operation may fail.
-        force_mex_if_use_mex
         % automatically delete temporary files after generating sqw files
         % by default its true, but you may set it to false to keep files
         % for later operations.
@@ -75,6 +74,10 @@ classdef hor_config<config_base
         % Assign empty value to restore it to default (system tmp
         % directory)
         working_directory
+        % testing and debugging option -- fail if mex can not be used
+        % By defauld if mex file fails, program tries to use Matlab, but
+        % if this option is set to true, the whole operation may fail.
+        force_mex_if_use_mex
         % the property, related to high performance computing settings.
         % Here it provided for information only while changes to this
         % propery should be made through hpc_config directly.
@@ -100,7 +103,6 @@ classdef hor_config<config_base
         use_mex_ = true;
         force_mex_if_use_mex_ = false;
         delete_tmp_ = true;
-        working_directory_ ='';
     end
     
     properties(Constant,Access=private)
@@ -108,8 +110,7 @@ classdef hor_config<config_base
         % get_storage_field_names function below
         saved_properties_list_={'mem_chunk_size','threads','ignore_nan',...
             'ignore_inf', 'log_level','use_mex',...
-            'force_mex_if_use_mex','delete_tmp',...
-            'working_directory'}
+            'force_mex_if_use_mex','delete_tmp'}
     end
     
     methods
@@ -151,10 +152,11 @@ classdef hor_config<config_base
             delete = get_or_restore_field(this,'delete_tmp');
         end
         function work_dir = get.working_directory(this)
-            work_dir = get_or_restore_field(this,'working_directory');
+            work_dir  = config_store.instance().get_config_field('parallel_config','working_directory');
             if isempty(work_dir)
                 work_dir = tempdir;
             end
+            
         end
         function is = wkdir_is_default(this)
             % return true if working directory has not been set and refers
@@ -162,7 +164,7 @@ classdef hor_config<config_base
             % Usage
             %>>is = hor_config_instance.wkdir_is_default;
             %
-            work_dir = get_or_restore_field(this,'working_directory');
+            work_dir  = config_store.instance().get_config_field('parallel_config','working_directory');
             if isempty(work_dir)
                 is = true;
             else
@@ -267,27 +269,8 @@ classdef hor_config<config_base
             config_store.instance().store_config(this,'delete_tmp',del);
         end
         function this = set.working_directory(this,val)
-            % Check and set working directory
-            if ~is_string(val)
-                error('HOR_CONFIG:invalid_argument',...
-                    'working directory value should be a ')
-            end
-            if ~isempty(val)
-                if strcmp(val,tempdir) % avoid storing tmp dir as working directory as this is default
-                    val = '';
-                else
-                    test_dir = fullfile(val,'horace_test_write_directory');
-                    clob = onCleanup(@()rmdir(test_dir,'s'));
-                    ok = mkdir(test_dir);
-                    if ~ok
-                        warning('HOR_CONFIG:invalid_argument',...
-                            'working directory %s does not have write permissions. Changing it to %s directory',...
-                            val,tempdir);
-                        val = '';
-                    end
-                end
-            end
-            config_store.instance().store_config(this,'working_directory',val);
+            hc = parallel_config;
+            hc.working_directory = val;
         end
         
         %--------------------------------------------------------------------

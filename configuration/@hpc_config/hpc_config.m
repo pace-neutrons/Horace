@@ -66,6 +66,8 @@ classdef hpc_config < config_base
         accum_in_separate_process
         % number of sessions to launch to calculate additional files
         accumulating_process_num
+        %
+        remote_folder;
     end
     properties(Access=protected,Hidden = true)
         %
@@ -120,6 +122,10 @@ classdef hpc_config < config_base
         function framework = get.parallel_framework(obj)
             framework = config_store.instance.get_value('parallel_config','parallel_framework');
         end
+        function rem_f = get.remote_folder(obj)
+            rem_f = config_store.instance.get_value('parallel_config','remote_folder');
+        end
+        
         %----------------------------------------------------------------
         function this = set.use_mex_for_combine(this,val)
             if val>0
@@ -191,6 +197,10 @@ classdef hpc_config < config_base
         function obj = set.parallel_framework(obj,val)
             pf = parallel_config;
             pf.parallel_framework = val;
+        end
+        function obj = set.remote_folder(obj,val)
+            pf = parallel_config;
+            pf.remote_folder = val;
         end
         
         %------------------------------------------------------------------
