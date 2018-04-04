@@ -319,7 +319,7 @@ try
         catch
         end
         
-        display (' ')
+        disp (' ')
         disp('!==================================================================!')
         disp('!  Succesfully created required C mex files   =====================!')
         if set_mex
@@ -327,17 +327,17 @@ try
             disp('!  Setting it to immediate use                     ================!')
         end
         disp('!==================================================================!')
-        display(' ')
+        disp(' ')
         
     end
     
     
 catch ex
-    display (' ')
+    disp (' ')
     disp('!==================================================================!')
     disp('!  C mex-ing failed                                ================!')
     disp('!==================================================================!')
-    display(' ')
+    disp(' ')
     set(herbert_config,'use_mex_C',false);
     rethrow(ex)
 end
