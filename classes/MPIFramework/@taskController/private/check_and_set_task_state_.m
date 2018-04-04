@@ -7,10 +7,10 @@ if ~ok
     obj.is_failed_ = fail;
     if fail
         [ok,err_mess,mess] = mpi.receive_message(obj.task_id,'failed');
-        if ok == MES_CODES.ok
+        if ok == MESS_CODES.ok
             obj = obj.set_failed(mess.payload);
             new_message_name = '';
-        elseif ok == MES_CODES.not_exist
+        elseif ok == MESS_CODES.not_exist
             obj = obj.set_failed(sprintf('Task with id: %d crashed, Error: %s',...
                 obj.task_id,err_job));
             new_message_name = '';
@@ -31,7 +31,7 @@ end
 
 if ~isempty(new_message_name) && strcmpi(new_message_name,'failed')
     [ok,err,mess] = mpi.receive_message(obj.task_id,'failed');
-    if ok ~= MES_CODES.ok
+    if ok ~= MESS_CODES.ok
         error('JOB_DISPATCHER:messages_error',err);
     end
     obj=obj.set_failed(mess.payload);

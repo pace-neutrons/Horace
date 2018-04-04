@@ -29,10 +29,14 @@ classdef iMessagesFramework
         job_data_folder_ = '';
     end
     methods
-        function obj = iMessagesFramework()
+        function obj = iMessagesFramework(varargin)
             % default prefix is random string of 10 capital Latin letters
             % (25 such letters)
-            obj.job_id_ = char(floor(25*rand(1,10)) + 65);
+            if nargin>0
+                obj.job_id = varargin{1};
+            else
+                obj.job_id_ = char(floor(25*rand(1,10)) + 65);
+            end
         end
         %
         function id = get.job_id(obj)
@@ -67,8 +71,10 @@ classdef iMessagesFramework
         end
         
         function info = worker_job_info(obj,framework_name,mpi_info,varargin)
-            % the structure, used to transmit information to worker and
-            % initialize jobExecutor
+            % the structure, used to transmit information to a worker and
+            % initialize jobExecutor on a worker through the system pipe.
+            % due to the system pipe limited size, this information sould
+            % be very restricted.
             % where:
             %
             % framework_name -- the name of the class responsible for
@@ -88,6 +94,54 @@ classdef iMessagesFramework
                 'exit_on_compl',exit_on_complition);
         end
         
+        function send_job_info(obj,info)
+            % store configuration data necessary to initiate Herbert/Horace mpi
+            % job on a remote machine.
+            %
+            % Info -- the data describing the job itself.
+            store_config_info_(obj,info);
+        end
+        
+        function [init_info,config_folder]= receive_job_info(obj,data_path)
+            % restore configuration data necessary to initiate Herbert/Horace mpi
+            % job on a remote machine.
+            %
+            % data_path -- the path to the configuration data and
+            %              configuration files.
+            % Returns:
+            % init_info  -- loaded job configuration data as stored by
+            %               send_job_info operation.
+            % config_folder -- the folder where the configuration
+            %                  information is stored. This folder should be
+            %                  set us config_store folder.
+            [init_info,config_folder] = restore_config_info_(obj,data_path);
+        end
+        
+        function fname = get_config_file_name(obj,varargin)
+            % The fill name (with path) to a file, which stores a remote job
+            % configuration, necessary to intiate a worker. Used by
+            % send/receive job_info methods.
+            %Usage:
+            %>>fname = mpi.get_config_file_name([a_folder]);
+            %
+            % without parameters returns the config file for current config
+            % setting, with the path, returns a file, which would be located
+            % within a configuration wihin the folder path specified.
+            filename = [obj.job_id,'_init_data.mat'];
+            if nargin == 1
+                config_folder = config_store.instance().config_folder;
+                fname  = fullfile(config_folder,filename);
+            else
+                cf_name = config_store.config_folder_name;
+                other_folder = varargin{1};
+                [~,fn] = fileparts(other_folder);
+                if strcmpi(fn,cf_name)
+                    fname  = fullfile(other_folder,filename);
+                else
+                    fname  = fullfile(other_folder,cf_name,filename);
+                end
+            end
+        end
     end
     
     methods(Static)

@@ -9,6 +9,9 @@ classdef test_ParpoolMPI_Framework< TestCase
         ignore_test;
         %
         old_config;
+        % if default current framework is not a parpool framework,
+        % one needs to change the setup
+        change_setup;
     end
     methods
         %
@@ -19,25 +22,35 @@ classdef test_ParpoolMPI_Framework< TestCase
             this = this@TestCase(name);
             this.working_dir = tempdir;
             pc = parallel_config;
-            this.old_config = pc.get_data_to_store;
-            pc.parallel_framework = 'parpool';
-            if ~strcmpi(pc.parallel_framework,'parpool')
-                this.ignore_test = true;
-                hc = herbert_config;
-                if hc.log_level>0
-                    warning('PARPOOL_MPI:not_availible',...
-                        'parpool mpi can not be enabled so not tested')
-                end
+            if strcmp(pc.parallel_framework,'parpool')
+                this.change_setup = false;
             else
-                this.ignore_test = false;
+                this.old_config = pc.get_data_to_store;
+                this.change_setup = true;
+                pc.parallel_framework = 'parpool';
+                if ~strcmpi(pc.parallel_framework,'parpool')
+                    this.ignore_test = true;
+                    this.change_setup = false;
+                    hc = herbert_config;
+                    if hc.log_level>0
+                        warning('PARPOOL_MPI:not_availible',...
+                            'parpool mpi can not be enabled so not tested')
+                    end
+                else
+                    this.ignore_test = false;
+                end
             end
         end
         function setUp(obj)
-            pc = parallel_config;
-            pc.parallel_framework = 'parpool';
+            if obj.change_setup
+                pc = parallel_config;
+                pc.parallel_framework = 'parpool';
+            end
         end
         function teadDown(obj)
-            set(parallel_config,obj.old_config);
+            if obj.change_setup
+                set(parallel_config,obj.old_config);
+            end
         end
         %
         function test_probe_all_receive_all(this)
@@ -54,10 +67,10 @@ classdef test_ParpoolMPI_Framework< TestCase
             
             pl = gcp('nocreate'); % Get the current parallel pool
             if isempty(pl) || pl.NumWorkers ~=num_labs
-                delete(pl)                
+                delete(pl)
                 pl = parpool(cl,num_labs);
             end
-            num_labs = pl.NumWorkers;            
+            num_labs = pl.NumWorkers;
             
             job_param = struct('filepath',this.working_dir,...
                 'filename_template','test_ProbeAllMPI%d_nf%d.txt');
@@ -86,19 +99,19 @@ classdef test_ParpoolMPI_Framework< TestCase
                 assertTrue(exist(fnames{i},'file')==2);
                 if (receivers(i))
                     res_rez=res{i};
-                    mis_mes = arrayfun(@(x)isempty(x.senders),res_rez);                    
+                    mis_mes = arrayfun(@(x)isempty(x.senders),res_rez);
                     assertFalse(any(mis_mes))
                 else
                     assertTrue(res{i});
                 end
                 
                 
-%                 assertTrue(isa(res{i},'aMessage'));
-%                 cii = i-1; % cyclic backward index used by worker to send messages and define their payload.
-%                 if cii<1; cii= cii+num_labs;  end
-%                 mess = res{i};
-%                 assertEqual(mess.mess_name,'started');
-%                 assertEqual(mess.payload,cii*10);
+                %                 assertTrue(isa(res{i},'aMessage'));
+                %                 cii = i-1; % cyclic backward index used by worker to send messages and define their payload.
+                %                 if cii<1; cii= cii+num_labs;  end
+                %                 mess = res{i};
+                %                 assertEqual(mess.mess_name,'started');
+                %                 assertEqual(mess.payload,cii*10);
             end
             
         end
@@ -165,38 +178,38 @@ classdef test_ParpoolMPI_Framework< TestCase
             
         end
         %
-%         function test_labprobe_nonmpi(this)
-%             % The code which runs this is disabled due to the bug in
-%             % parallel parser. 
-%             pm = ParpoolMessages('nonMPIlogic_tester');
-%             function[isAvail,taskID,tag]=labProbeNonMPI0(task_id)
-%                 isAvailAll = [true,true,false];
-%                 taskIDAll  = [1,2,3];
-%                 tagAll     = [2,3,4];
-%                 
-%                 isAvail  = isAvailAll(task_id);
-%                 taskID   = taskIDAll(task_id);
-%                 tag      = tagAll(task_id);
-%                 if ~isAvail
-%                     taskID = [];
-%                     tag     = [];
-%                 end
-%             end
-%             [all_messages,task_ids] = pm.probe_all([1,2,3],@labProbeNonMPI0);
-%             assertEqual(numel(all_messages),3);
-%             assertEqual(numel(task_ids),3);
-%             assertTrue(isempty(all_messages{3}));
-%             assertEqual(task_ids(3),0);
-%             assertEqual(MESS_NAMES.mess_id(all_messages{1}),2);
-%             assertEqual(MESS_NAMES.mess_id(all_messages{2}),3);
-%             assertEqual(task_ids(1),1);
-%             assertEqual(task_ids(2),2);
-%             
-%             [all_messages,task_ids] = pm.probe_all(3,@labProbeNonMPI0);            
-%             assertTrue(isempty(all_messages));            
-%             assertEqual(task_ids,0);            
-%             %
-%         end
+        %         function test_labprobe_nonmpi(this)
+        %             % The code which runs this is disabled due to the bug in
+        %             % parallel parser.
+        %             pm = ParpoolMessages('nonMPIlogic_tester');
+        %             function[isAvail,taskID,tag]=labProbeNonMPI0(task_id)
+        %                 isAvailAll = [true,true,false];
+        %                 taskIDAll  = [1,2,3];
+        %                 tagAll     = [2,3,4];
+        %
+        %                 isAvail  = isAvailAll(task_id);
+        %                 taskID   = taskIDAll(task_id);
+        %                 tag      = tagAll(task_id);
+        %                 if ~isAvail
+        %                     taskID = [];
+        %                     tag     = [];
+        %                 end
+        %             end
+        %             [all_messages,task_ids] = pm.probe_all([1,2,3],@labProbeNonMPI0);
+        %             assertEqual(numel(all_messages),3);
+        %             assertEqual(numel(task_ids),3);
+        %             assertTrue(isempty(all_messages{3}));
+        %             assertEqual(task_ids(3),0);
+        %             assertEqual(MESS_NAMES.mess_id(all_messages{1}),2);
+        %             assertEqual(MESS_NAMES.mess_id(all_messages{2}),3);
+        %             assertEqual(task_ids(1),1);
+        %             assertEqual(task_ids(2),2);
+        %
+        %             [all_messages,task_ids] = pm.probe_all(3,@labProbeNonMPI0);
+        %             assertTrue(isempty(all_messages));
+        %             assertEqual(task_ids,0);
+        %             %
+        %         end
         %
     end
     

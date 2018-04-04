@@ -1,5 +1,5 @@
 function  log_progress_(this,step,n_steps,time_per_step,add_info)
-% log progress of the job exectution and report it to the
+% log progress of the job execution and report it to the
 % calling framework.
 % Inputs:
 % step     --  current step within the loop which doing the job
@@ -15,7 +15,7 @@ function  log_progress_(this,step,n_steps,time_per_step,add_info)
 me = this.mess_framework;
 if me.is_job_cancelled
     error('MESSAGE_FRAMEWORK:runtime_error',...
-        'job with id %s have been canceled or not initialized',...
+        'job with id %s have been cancelled or not initialized',...
         this.job_id);
 end
 % cannibalize 'started' message as this job will send 'running' messages
@@ -28,7 +28,7 @@ end
 % Prepare 'running' log message
 mess = LogMessage(step,n_steps,time_per_step,add_info);
 [ok,err]=me.send_message(this.task_id,mess);
-if ok ~=MES_CODES.ok
+if ok ~=MESS_CODES.ok
     error('JOB_EXECUTOR:runtime_error','Can not send log message, Err: %s',...
         err);
 end

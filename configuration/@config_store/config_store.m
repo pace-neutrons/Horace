@@ -29,9 +29,20 @@ classdef config_store < handle
         % Guard the constructor against external invocation.  We only want
         % to allow a single instance of this class.  See description in
         % Singleton superclass.
-        function newStore = config_store()
-            % Initialise config folder path
-            newStore.config_folder_ = make_config_folder(config_store.config_folder_name);
+        function newStore = config_store(varargin)
+            % i
+            
+            if nargin>0
+                [fp,fn] = fileparts(varargin{1});
+                if strcmpi(fn,config_store.config_folder_name)
+                    newStore.config_folder_ = make_config_folder(config_store.config_folder_name,fp);                    
+                else
+                    newStore.config_folder_ = make_config_folder(config_store.config_folder_name,varargin{1});
+                end
+            else
+                % Initialise config folder path
+                newStore.config_folder_ = make_config_folder(config_store.config_folder_name);
+            end
             % initialize configurations storage.
             newStore.config_storage_ = struct();
             newStore.saveable_ = containers.Map();
@@ -46,10 +57,12 @@ classdef config_store < handle
             if nargin>0
                 unique_store_ = [];
                 obj = [];
-                return;
+                if strcmp(varargin{1},'clear')
+                    return;
+                end
             end
             if isempty(unique_store_)
-                obj = config_store();
+                obj = config_store(varargin{:});
                 unique_store_ = obj;
             else
                 obj = unique_store_;
@@ -88,13 +101,15 @@ classdef config_store < handle
             % Returns:
             % field_val1,field_val2, etc... -- the values of the requested
             %                                  fields
+            %
             if isa(class_to_restore,'config_base')
                 class_name = class_to_restore.class_name;
             elseif ischar(class_to_restore)
                 class_name = class_to_restore;
+                class_to_restore = feval(class_name);
             else
                 error('CONFIG_STORE:invalid_argument',...
-                    'Config class has to be a chield of the config_base class');
+                    'Config class has to be a chield of the config_base class or the name of such class');
             end
             
             if isfield(this.config_storage_,class_name)
@@ -104,11 +119,27 @@ classdef config_store < handle
             end
             
             if numel(varargin) < nargout
-                error('CONFIG_STORE:restore_config',' some output values are not set by this function call');
+                error('CONFIG_STORE:restore_config',...
+                    ' some output values are not set by this function call');
             end
-            val=config_data.(varargin{1});
+            %
+            if isfield(config_data,varargin{1})
+                val=config_data.(varargin{1});
+            else
+                warning('CONFIG_STORE:restore_config',...
+                    'Class %s field %s is not stored in configuration. Returning defaults',...
+                    class_name,varargin{1});
+                val = class_to_restore.get_internal_field(varargin{1});
+            end
             for i=2:nargout
-                varargout{i-1}=config_data.(varargin{i});
+                if isfield(config_data,varargin{i})
+                    varargout{i-1}=config_data.(varargin{i});
+                else
+                    warning('CONFIG_STORE:restore_config',...
+                        'Class %s field %s is not stored in configuration. Returning defaults',...
+                        class_name,varargin{i});
+                    varargout{i-1} = class_to_restore.get_internal_field(varargin{i});
+                end
             end
             
         end
@@ -121,7 +152,7 @@ classdef config_store < handle
             % i.e. changes in configuration are stored on hdd
             % usage:
             %>>is = config_store.instance().get_saveable('class_name')
-            %or 
+            %or
             %>>is = config_store.instance().get_saveable(class_instance)
             %
             % where 'class_name' or class_instance is a configuration class
@@ -144,14 +175,14 @@ classdef config_store < handle
             % the class configuration are stored on hdd
             % usage:
             %>>config_store.instance().set_saveable('class_name',to_save)
-            %or 
+            %or
             %>>config_store.instance().set_saveable(class_instance,to_save)
             %
             % where 'class_name' or class_instance is a configuration class
             % to set and the variable to_save is true if the class shold be
-            % made saveable and false otherwise. 
+            % made saveable and false otherwise.
             %
-
+            
             if is_it > 0
                 is_saveable=true;
             else
@@ -162,7 +193,7 @@ classdef config_store < handle
             else
                 class_name = class_instance.class_name;
             end
-
+            
             this.saveable_(class_name)=is_saveable;
         end
         %------------------------------------------------------------------
@@ -194,7 +225,7 @@ classdef config_store < handle
             %
             % if class_to_restore has option returns_defaults==true,
             % default class configuration is returned
-     
+            
             %Usage:
             %
             % obj = conifg_store.instance().restore_config(herbert_config)
@@ -278,6 +309,14 @@ classdef config_store < handle
         function path=get.config_folder(this)
             path=this.config_folder_;
         end
+        function set_config_path(obj,new_path)
+            % set new config store path. Existing configurations are
+            % unloaded from memory. 
+            % 
+            % Should be used with care and necessary mainly for MPI workers
+            obj.instance(new_path);
+        end
+        
         %
         function storage = get.config_classes(this)
             storage = fieldnames(this.config_storage_);

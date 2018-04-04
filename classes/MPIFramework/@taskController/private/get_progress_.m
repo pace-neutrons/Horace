@@ -4,9 +4,9 @@ function     [obj,is_running] = get_progress_(obj,mpi,is_already_running)
 
 is_running = is_already_running;
 [ok,err,mess] = mpi.receive_message(obj.task_id,'running');
-if ok ~= MES_CODES.ok
+if ok ~= MESS_CODES.ok
     [ok,err,mess] = mpi.receive_message(obj.task_id,'completed');
-    if ok == MES_CODES.ok
+    if ok == MESS_CODES.ok
         obj.outputs = mess.payload;
         obj.is_running = false;
         obj.reports_progress_ = false;

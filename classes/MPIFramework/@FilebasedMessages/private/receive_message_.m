@@ -20,7 +20,7 @@ end
 %
 message=[];
 if ~exist(obj.mess_exchange_folder_,'dir')
-    err_code = MES_CODES.job_canceled;
+    err_code = MESS_CODES.job_canceled;
     err_mess = sprintf('Job with id %s have been canceled',obj.job_id);
     return;
 end
@@ -41,7 +41,7 @@ else
     pause(obj.time_to_react_);
     mess_fname = obj.job_stat_fname_(task_id,mess_name);
     if exist(mess_fname,'file') ~= 2
-        err_code = MES_CODES.not_exist;
+        err_code = MESS_CODES.not_exist;
         err_mess = sprintf('Message "%s" for task with id: %d does not exist',mess_name,task_id);
         message = [];
         return;
@@ -60,7 +60,7 @@ while ~received
     catch err
         ic = ic+1;
         if ic>try_limit
-            err_code  =MES_CODES.runtime_error;
+            err_code  =MESS_CODES.runtime_error;
             err_mess = ...
                 sprintf('Can not retrieve message "%s" for task with id: %d does not exist, reason: s%',...
                 mess_name,task_id,err.message);
@@ -72,7 +72,7 @@ while ~received
 end
 % process received message
 message = mesl.message;
-err_code  =MES_CODES.ok;
+err_code  =MESS_CODES.ok;
 err_mess=[];
 delete(mess_fname);
 

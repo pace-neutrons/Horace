@@ -4,9 +4,9 @@ function     [obj,not_exist] = get_output_(obj,mpi)
 % get job output
 not_exist = false;
 [ok,err,mess] = mpi.receive_message(obj.task_id,'completed');
-if ok == MES_CODES.ok
+if ok == MESS_CODES.ok
     obj.outputs = mess.payload;
-elseif ok == MES_CODES.not_exist
+elseif ok == MESS_CODES.not_exist
     not_exist  = true;
 else
     obj = obj.set_failed(...

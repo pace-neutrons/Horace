@@ -5,6 +5,10 @@ classdef test_FileBaseMPI_Framework< TestCase
     
     properties
         working_dir
+        old_config
+        % if default current framework is not a herbert framework,
+        % one need to change the setup
+        change_setup = false;
     end
     methods
         %
@@ -14,15 +18,28 @@ classdef test_FileBaseMPI_Framework< TestCase
             end
             this = this@TestCase(name);
             this.working_dir = tempdir;
+            pc = parallel_config;
+            if strcp(pc.parallel_framework,'herbert')
+                this.change_setup = false;
+            else
+                this.old_config = pc.get_data_to_store;
+                pc.parallel_framework = 'herbert';
+                this.change_setup = true;
+            end
         end
-        function test_serialize_deserialize(this)
-            mf = MFTester('test_ser_deser');
-            css = mf.worker_job_info('SomeWorker',3);
-            dat = mf.serialize_par(css);
-            
-            csr = mf.deserialize_par(dat);
-            assertEqual(css,csr);
+        %
+        function setUp(obj)
+            if obj.change_setup
+                pc = parallel_config;
+                pc.parallel_framework = 'herbert';
+            end
         end
+        function teadDown(obj)
+            if obj.change_setup
+                set(parallel_config,obj.old_config);
+            end
+        end
+        
         
         %
         function test_finalize_all(this)

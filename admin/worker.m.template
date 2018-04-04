@@ -1,4 +1,4 @@
-function ok=worker(class_name,job_controls_string)
+function ok=worker(job_controls_string)
 % function used as standard worker to do a job in different Matlab
 % session.
 %
@@ -6,13 +6,14 @@ function ok=worker(class_name,job_controls_string)
 % initialized as may need to initialize Herbert and Horace itself
 %
 %Inputs:
-% class_name -- the name of the class, which do the job. The class
-%               should inherit from JobExecutor and overload
-%               do_job method. Other methods used by this worker should remain
-%               untouched (unless you understand what you are doing.)
-%
 % job_controls_string - the structure, containing information, necessary to
-%              initiate job.
+%              initiate the job.
+%              Due to the fact this stging is transferred
+%              thorugh pipes its size is system dependent and limited, so
+%              contains only minimal initialization information, namely the
+%              folder name where the job initialization data are located on
+%              a remote system
+%
 %
 %
 if isempty(which('herbert_init.m'))
@@ -28,9 +29,19 @@ is_tested = mis.is_tested; % set up to tested state within unit tests.
 % other unit tests. The production job finishes Matlab and clean-up is not necessary
 % though doing no harm.
 clot = onCleanup(@()(setattr(mis,'is_deployed',false)));
+% instantiate filebasedMessages framework, used to transfer initial
+% configurations and provide access to some basic messaging functions
+job_control_struct = iMessagesFramework.deserialize_par(job_control_string);
+
+mpi_class_name = job_control_struct.mpi_class_name;
 
 % instantiate worker class.
-je = feval(class_name);
+mpi = feval(mpi_class_name);
+mpi = mpi.init_framework(job_control_struct);
+[init_data,ok,err] = mpi.receive_init();
+if ok ~= MESS_CODES.ok
+    error('WORKER:init_worker',err);
+end
 
 [je,job_arguments,job_controls,err_mess]=je.init_worker(job_controls_string);
 

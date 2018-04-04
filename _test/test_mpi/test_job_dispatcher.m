@@ -5,7 +5,7 @@ classdef test_job_dispatcher< TestCase
     
     properties
         working_dir
-        test_dispatcher = 'matlab';
+        test_dispatcher = 'herbert';
         skip_tests = false;
     end
     properties(Access = private)
