@@ -35,7 +35,7 @@ path = fileparts(which('herbert_init.m'));
 % set up multiusers computer specific settings,
 % namely settings which are common for all new users of the specific computer
 % e.g.:
-hec = herbert_config()
+hec = herbert_config();
 if hec.is_default
 % hec.use_mex_C = true;
     hec.log_level = 1;

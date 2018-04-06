@@ -51,9 +51,9 @@ classdef test_iMPI_methods< TestCase
             
             %now test storing/restoring project configuration from a
             %directory different from default.
-            pc.remote_folder = obj.working_dir;
+            pc.remote_folder_on_local = obj.working_dir;
             mpi.send_job_info(data_struct);
-            info_file = mpi.config_file_name;
+            info_file = mpi.get_config_file_name();
             clob3 = onCleanup(@()delete(info_file));
             assertEqual(exist(info_file,'file'),2);
             

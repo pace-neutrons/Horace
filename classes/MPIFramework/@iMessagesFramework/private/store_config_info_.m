@@ -4,7 +4,7 @@ function store_config_info_(obj,info)
 % Info -- the data describing the job itself.
 
 pc = parallel_config;
-remote_folder = pc.remote_folder;
+remote_folder = pc.remote_folder_on_local;
 
 
 if isempty(remote_folder) % remote folder located and mounted
@@ -12,7 +12,7 @@ if isempty(remote_folder) % remote folder located and mounted
     % Store info and do nothing.
     %if isempty(
     target_file = obj.get_config_file_name();
-    save(target_file,'info');
+
 else
     if ~exist(remote_folder,'dir') == 7
         mkdir(remote_folder);
@@ -22,9 +22,8 @@ else
     local_config_folder = fileparts(obj.get_config_file_name);
     copyfile(local_config_folder,remote_config_folder,'f')
     
-    save(target_file,'info');
     % copy all current configurations into remote config folder
 
 
 end
-
+save(target_file,'info');

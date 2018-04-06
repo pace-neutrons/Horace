@@ -18,15 +18,24 @@ classdef parallel_config<config_base
     %
     % Fields are:
     % -----------
-    %   parallel_framework  - the name of a framework to use. Currently
+    %  parallel_framework   - the name of a framework to use. Currently
     %                         availible are herbert or parpool, where
     %                         parpool works only if parallel computing
-    %                         toolbox is installed.
-    %   remote_folder       - The folder as mounted on a cluste's parallel
-    %                         file system containing input data for the jobs
+    %                         toolbox is installed and uses one while herbert 
+    %                         is custom herbert framework.
+    % remote_folder_on_local- The path to working directory (below) as visible from
+    %                         the control machine and availible to the cluster's machines 
+    %                         If it is empty, the control
+    %                         machine and the remote workers should have
+    %                         the same file system with the same mounting
+    %                         points.
+    % working_directory     - The folder, containing input data for the job
     %                         and tmp and output results should be stored.
-    %                         Must have read/write permissions.
-    
+    %                         Must have read/write permissions. On remote
+    %                         machines should contain data and store
+    %                         output.
+    %
+    %
     % Type:
     %>>parallel_config  to see the list of current configuration option values.
     %

@@ -268,7 +268,7 @@ try
             modules{:});
         
         
-        display (' ')
+        disp (' ')
         disp('!==================================================================!')
         disp('!  Succesfully created required FORTRAN mex files  ================!')
         if set_mex
@@ -277,17 +277,17 @@ try
         end
         
         disp('!==================================================================!')
-        display(' ')
+        disp(' ')
         
         
     end
 catch ex
     set(herbert_config,'use_mex',false);
-    display (' ')
+    disp (' ')
     disp('!==================================================================!')
     disp('!  FORTRAN mex-ing failed                          ================!')
     disp('!==================================================================!')
-    display(' ')
+    disp(' ')
     keep_lib = true;
     if user_choice=='f'
         rethrow(ex);
