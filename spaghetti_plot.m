@@ -323,7 +323,7 @@ function plot_dispersion(wdisp_in,opt)
         hkls = [sscanf(wdisp_in(i).title(bra(1):ket(1)),'(%f %f %f)');
                 sscanf(wdisp_in(i).title(bra(2):ket(2)),'(%f %f %f)')];
         quotes = strfind(wdisp_in(i).title,'"');
-        if i>1 && abs(sum(hkls(1:3)-hkl0(4:6)))>0.01
+        if i>1 && abs(sum(hkls(1:3)-hkl0(1:3)))>0.01
             warning('(hkl) points for segments %d and %d do not match',i-1,i);
             if isempty(quotes)
                 labels{i} = sprintf('[%s]/[%s]',str_compress(num2str(hkl0(4:6)')),str_compress(num2str(hkls(1:3)')));

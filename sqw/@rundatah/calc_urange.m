@@ -40,5 +40,5 @@ end
 if isempty(obj.transform_sqw) % minor optimization not worth deploying ?
     [u_to_rlu, urange] = b_obj.calc_projections_(detdcn,[],0);
 else
-    [~,~,urange] = b_obj.calc_sqw(2,[],varargin{:});
+    [~,~,urange] = b_obj.calc_sqw(3,[],varargin{:});
 end
