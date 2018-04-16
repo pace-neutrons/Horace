@@ -21,14 +21,18 @@ classdef parallel_config<config_base
     %  parallel_framework   - the name of a framework to use. Currently
     %                         availible are herbert or parpool, where
     %                         parpool works only if parallel computing
-    %                         toolbox is installed and uses one while herbert 
+    %                         toolbox is installed and uses one while herbert
     %                         is custom herbert framework.
-    % remote_folder_on_local- The path to working directory (below) as visible from
-    %                         the control machine and availible to the cluster's machines 
-    %                         If it is empty, the control
-    %                         machine and the remote workers should have
-    %                         the same file system with the same mounting
-    %                         points.
+    % shared_folder_on_local- the folder on your working machine containing
+    %                         the job input and output data mounted on
+    %                         local machine and availible from the remote
+    %                         machines.
+    % shared_folder_on_remote- The place where your data should be found on
+    %                         a remote worker.
+    %                         the job input and output data mounted on
+    %                         local machine and availible from the remote
+    %                         machines.
+    
     % working_directory     - The folder, containing input data for the job
     %                         and tmp and output results should be stored.
     %                         Must have read/write permissions. On remote
@@ -47,34 +51,54 @@ classdef parallel_config<config_base
         % a framework to use for message exchange. Currently availible are
         % herbert (herbert file-bases) and parpool (Matlab mpi) frameworks
         parallel_framework;
-        % the folder on a remote machine containing the job input and
-        % output data as mounted on local machine. 
-        % Must have read/write permissions for all machines. If empty, assumed
-        % that local machine filesystem is shared with remote machine
-        % filesystem.
-        remote_folder_on_local;
-        % the folder where tmp files should be stored.
+        %
+        % the folder on your working machine containing the job input and
+        % output data mounted on local machine and availible from the remote
+        % machines.
+        % Must have read/write permissions for all machines. Should be fast
+        % /parlallel file system on a remote machines
+        %
+        % If empty, assumed that the local machine filesystem is shared
+        % with remote machine filesystem and have the same mounting points.
+        shared_folder_on_local;
+        %
+        % The place where a job data should be found on a remote worker.
+        % Must have read/write permissions for all machines.
+        %
+        % On a MPI worker should point to the physical location equal to
+        % the specified by shared_folder_on_local property
+        %
+        % If empty, assumed to be equal to shared_folder_on_local.
+        shared_folder_on_remote;
+        %
+        % Used as  the folder where tmp files should be stored in
+        % parallel and non-parallel configuration.
+        %
         % by default gen_sqw sets this value to place where spe files are
         % located.  If you never did gen_sqw on a given machine,
         % system tmp directory is used.
+        %
         % Change this value to point to a fast&large disk or to a
         % parallel file system.
         % Assign empty value to restore it to default (system tmp
         % directory)
-        % On a MPI worker  this directory will point to the physical
-        % location defined by remote_folder_on_local property.
-        working_directory        
+        %
+        % If parallel horace job is deployed, the value of this directory
+        % evaluated on a remote worker equal to
+        % shared_folder_on_worker value
+        working_directory
     end
     %
     properties(Constant,Access=private)
         saved_properties_list_={'parallel_framework',...
-            'remote_folder_on_local','working_directory'};
+            'shared_folder_on_local','shared_folder_on_remote','working_directory'};
     end
     properties(Access=private)
         % these values provide defaults for the properties above
         parallel_framework_   = 'herbert';
         % default remote folder is unset
-        remote_folder_on_local_ ='';
+        shared_folder_on_local_ ='';
+        shared_folder_on_remote_ = '';
         %
         working_directory_ ='';
     end
@@ -88,11 +112,32 @@ classdef parallel_config<config_base
         function frmw =get.parallel_framework(obj)
             frmw = get_or_restore_field(obj,'parallel_framework');
         end
-        function folder =get.remote_folder_on_local(obj)
-            folder = get_or_restore_field(obj,'remote_folder_on_local');
+        function folder =get.shared_folder_on_local(obj)
+            folder = get_or_restore_field(obj,'shared_folder_on_local');
+            if isempty(folder)
+                is_depl = MPI_State.instance().is_deployed;
+                if is_depl
+                    folder = get_or_restore_field(obj,'working_directory');
+                    if isempty(folder)
+                        folder = tempdir;
+                    end
+                end
+            end
         end
+        function folder =get.shared_folder_on_remote(obj)
+            folder = get_or_restore_field(obj,'shared_folder_on_remote');
+            if isempty(folder)
+                folder = obj.shared_folder_on_local;
+            end
+        end
+        
         function work_dir = get.working_directory(obj)
-            work_dir = get_or_restore_field(obj,'working_directory');
+            is_depl = MPI_State.instance().is_deployed;
+            if is_depl
+                work_dir = obj.shared_folder_on_remote;
+            else
+                work_dir = get_or_restore_field(obj,'working_directory');
+            end
             if isempty(work_dir)
                 work_dir = tempdir;
             end
@@ -100,15 +145,16 @@ classdef parallel_config<config_base
         
         %-----------------------------------------------------------------
         % overloaded setters
-        function obj =set.parallel_framework(obj,val)
+        function obj=set.parallel_framework(obj,val)
             % Set up MPI framework to use. Availible options are:
-            % matlab or parpool.
+            % herbert or parpool.
             %
             opt = {'herbert','parpool'};
             [ok,err,is_matlab,is_partool,rest] = parse_char_options({val},opt);
             if ~isempty(rest)
                 error('PARALLEL_CONFIG:invalid_argument',...
-                    sprinft('Unknown option %s',val));
+                    'Unknown option %s. Only ''herbert'' or ''parpool'' options are currently accepted',...
+                    val);
             end
             if ~ok
                 error('PARALLEL_CONFIG:invalid_argument',err);
@@ -122,16 +168,28 @@ classdef parallel_config<config_base
                 check_and_set_parpool_framework_(obj);
             end
         end
-        function obj =set.remote_folder_on_local(obj,val)
+        function obj=set.shared_folder_on_local(obj,val)
             if ~ischar(val)
                 error('PARALLEL_CONFIG:invalid_argument',...
                     ['The remote folder value should be a text string,',...
                     ' describing the location of the input/output'...
                     ' files on a remote machine'])
             end
-            config_store.instance().store_config(obj,'remote_folder_on_local',val);
+            config_store.instance().store_config(obj,'shared_folder_on_local',val);
         end
-        function obj = set.working_directory(obj,val)
+        %
+        function obj=set.shared_folder_on_remote(obj,val)
+            if ~ischar(val)
+                error('PARALLEL_CONFIG:invalid_argument',...
+                    ['The remote folder value should be a text string,',...
+                    ' describing the location of the input/output'...
+                    ' files on a remote machine'])
+            end
+            config_store.instance().store_config(obj,'shared_folder_on_remote',val);
+        end
+        
+        
+        function obj=set.working_directory(obj,val)
             % Check and set working directory
             if ~is_string(val)
                 error('PARALLEL_CONFIG:invalid_argument',...
@@ -166,7 +224,7 @@ classdef parallel_config<config_base
                     controller = ParpoolTaskWrapper();
                 otherwise
                     error('PARALLEL_CONFIG:runtime_error',...
-                        'Get unknown parallel framework: %s',fram);
+                        'Got unknown parallel framework: %s',fram);
             end
         end
         %------------------------------------------------------------------

@@ -40,7 +40,7 @@ classdef config_store < handle
                     newStore.config_folder_ = make_config_folder(config_store.config_folder_name,varargin{1});
                 end
             else
-                % Initialise config folder path
+                % Initialise default config folder path according to 
                 newStore.config_folder_ = make_config_folder(config_store.config_folder_name);
             end
             % initialize configurations storage.
@@ -51,7 +51,15 @@ classdef config_store < handle
     
     methods(Static)
         function obj = instance(varargin)
-            % Instance function concrete implementation.
+            % Get instance of unique config_store implementation.
+            %
+            % Usage:
+            % con = config_store.instance({[a_config_folder_name],'clear'})'
+            % Where optional parameter does the following:
+            % 'clear' -- removes all configurations from memory.
+            % a_config_folder_name -- if present, sets the location of the
+            %                         current config store in memory to the
+            %                         folder provided
             %
             persistent unique_store_;
             if nargin>0
@@ -68,6 +76,24 @@ classdef config_store < handle
                 obj = unique_store_;
             end
         end
+        function set_config_folder(config_folder_name)
+            % set the location for a folder with configuraton to a location 
+            % provided as input. 
+            %
+            % If the folder does not exist, its created. The cofniguratons 
+            % currently in memory are retained but will be saved to the new
+            % location on requess only.
+            if ~ischar(config_folder_name)
+                error('CONFIG_STORE:invalid_argument',...
+                    'config folder has to be provided as ')
+            end
+            if strcmpi(config_folder_name,'clear')
+                error('CONFIG_STORE:invalid_argument',...
+                    'the config folder name can not be: ''clear''')                
+            end
+            config_store.instance(config_folder_name);
+        end
+        
     end
     methods
         function store_config(this,config_class,varargin)
@@ -82,7 +108,7 @@ classdef config_store < handle
             options={'-forcesave'};
             [ok,mess,force_save,other_options]=parse_char_options(varargin,options);
             if ~ok
-                error('CONFIG_STORE:store_config',mess);
+                error('CONFIG_STORE:invalid_argument',mess);
             end
             store_internal(this,config_class,force_save,other_options{:});
         end
@@ -119,7 +145,7 @@ classdef config_store < handle
             end
             
             if numel(varargin) < nargout
-                error('CONFIG_STORE:restore_config',...
+                error('CONFIG_STORE:runtime_error',...
                     ' some output values are not set by this function call');
             end
             %
@@ -270,7 +296,7 @@ classdef config_store < handle
             options={'-files'};
             [ok,mess,clear_file]=parse_char_options(varargin,options);
             if ~ok
-                error('CONFIG_STORE:clear_config',mess);
+                error('CONFIG_STORE:invalid_argument',mess);
             end
             clear_particular_config(this,class_instance,clear_file);
         end
@@ -283,7 +309,7 @@ classdef config_store < handle
             options={'-files'};
             [ok,mess,clear_files]=parse_char_options(varargin,options);
             if ~ok
-                error('CONFIG_STORE:clear_config',mess);
+                error('CONFIG_STORE:invalid_argument',mess);
             end
             if clear_files
                 this.delete_all_files();
@@ -300,7 +326,7 @@ classdef config_store < handle
             options={'-in_mem'};
             [ok,mess,check_mem_only]=parse_char_options(varargin,options);
             if ~ok
-                error('CONFIG_STORE:is_configured',mess);
+                error('CONFIG_STORE:invalid_argument',mess);
             end
             %
             isit = check_isconfigured(this,class_instance,check_mem_only);

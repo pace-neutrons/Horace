@@ -22,16 +22,11 @@ classdef FilebasedMessages < iMessagesFramework
         time_to_fail;
     end
     %----------------------------------------------------------------------
-    properties(Constant=true)
-        % the name of the folder where the configuration is stored;
-        exchange_folder_name='Herbert_FB_MPI';
-    end
     %----------------------------------------------------------------------
     properties(Access=protected)
         %TODO: time in seconds to waiting in blocking message until
         %unblocking.
         time_to_fail_ = 1000;
-        mess_exchange_folder_;
         % time to wait for a message send from one session can be read from
         % another one.
         time_to_react_ = 0.1
@@ -114,14 +109,6 @@ classdef FilebasedMessages < iMessagesFramework
             [ok,err_mess,message] = receive_message_(obj,varargin{:});
         end
         %
-        function is = is_job_cancelled(obj)
-            % method verifies if job has been cancelled
-            if ~exist(obj.mess_exchange_folder_,'dir')
-                is=true;
-            else
-                is=false;
-            end
-        end
         %
         function [all_messages_names,task_ids] = probe_all(obj,varargin)
             % list all messages existing in the system for the tasks

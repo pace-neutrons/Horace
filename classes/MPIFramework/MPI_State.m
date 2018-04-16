@@ -13,7 +13,7 @@ classdef MPI_State<handle
     % Implemented as classical singleton.
     
     properties(Dependent)
-        % report if the Matlab session is deployed
+        % report if the Matlab session is deployed on a remote worker
         is_deployed
         % logger function to deploy to log activities
         logger
@@ -169,6 +169,25 @@ classdef MPI_State<handle
                 end
                 % log
                 obj.logger_(step,n_steps,ttf,additional_info);
+            end
+        end
+        
+        function set(obj,varargin)
+            % functial assignment of class parameter with list of key-value
+            % pair
+            % Usave:
+            % mis = MPI_State;
+            % set(mis,key,value,[key,value,....])
+            % where mis is the instance of MPI state object and key-value
+            % parits should be a list of valid properties of the class with
+            % their correspondent values to set.
+            %
+            if rem(numel(varargin),2)>0
+                error('MPI_STATE:invalid_argument',...
+                    ' set(MPI_State,key,value,[key,value] should have even number of key-value pairs')
+            end
+            for i=1:2:numel(varargin)
+                obj.(varargin{i}) = varargin{i+1};
             end
         end
         

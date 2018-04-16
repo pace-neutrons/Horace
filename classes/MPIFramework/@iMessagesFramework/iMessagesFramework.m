@@ -23,10 +23,15 @@ classdef iMessagesFramework
         % The value of labindex spans from 1 to n, where n is the number of
         % workers running the current job, defined by numlabs.
         labIndex;
+        
     end
     properties(Access=private)
         job_id_;
         job_data_folder_ = '';
+     end
+    properties(Constant=true)
+        % the name of the sub-folder where the remote jobs information is stored;
+        exchange_folder_name='Herbert_Remote_Job';
     end
     methods
         function obj = iMessagesFramework(varargin)
@@ -117,7 +122,7 @@ classdef iMessagesFramework
             [init_info,config_folder] = restore_config_info_(obj,data_path);
         end
         
-        function fname = get_config_file_name(obj,varargin)
+        function fname = get_par_config_file_name(obj,varargin)
             % The fill name (with path) to a file, which stores a remote job
             % configuration, necessary to intiate a worker. Used by
             % send/receive job_info methods.
@@ -130,18 +135,30 @@ classdef iMessagesFramework
             filename = [obj.job_id,'_init_data.mat'];
             if nargin == 1
                 config_folder = config_store.instance().config_folder;
-                fname  = fullfile(config_folder,filename);
+                fname  = fullfile(config_folder,obj.exchange_folder_name,filename);
             else
                 cf_name = config_store.config_folder_name;
                 other_folder = varargin{1};
                 [~,fn] = fileparts(other_folder);
                 if strcmpi(fn,cf_name)
-                    fname  = fullfile(other_folder,filename);
+                    fname  = fullfile(other_folder,obj.exchange_folder_name,filename);
+                elseif strcmpi(fn,obj.exchange_folder_name)
+                    fname  = fullfile(other_folder,filename);                    
                 else
-                    fname  = fullfile(other_folder,cf_name,filename);
+                    fname  = fullfile(other_folder,cf_name,obj.exchange_folder_name,filename);
                 end
             end
         end
+        %
+        function is = is_job_cancelled(obj)
+            % method verifies if job has been cancelled
+            if ~exist(obj.mess_exchange_folder_,'dir')
+                is=true;
+            else
+                is=false;
+            end
+        end
+        %
     end
     
     methods(Static)
@@ -276,8 +293,6 @@ classdef iMessagesFramework
         % framework and shut the framework down.
         finalize_all(obj)
         
-        % method verifies if job has been cancelled
-        is = is_job_cancelled(obj)
     end
     methods(Abstract,Access=protected)
         % return the labindex
