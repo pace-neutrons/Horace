@@ -28,7 +28,7 @@ classdef iMessagesFramework
     properties(Access=private)
         job_id_;
         job_data_folder_ = '';
-     end
+    end
     properties(Constant=true)
         % the name of the sub-folder where the remote jobs information is stored;
         exchange_folder_name='Herbert_Remote_Job';
@@ -74,79 +74,119 @@ classdef iMessagesFramework
         function ind = get.labIndex(obj)
             ind = get_lab_index_(obj);
         end
+        % HERBERT Job control interface
+        function cs  = build_worker_control(obj,shared_folder_on_remote,varargin)
+            % build worker's control structure, necessary to
+            % initiate message framework and jobExecutor. Must use
+            % iMessagesFramework.worker_job_info to build appropriate framework
+            
+            css = obj.worker_job_info(shared_folder_on_remote,varargin{:});
+            cs  = iMessagesFramework.serialize_par(css);
+        end
         
-        function info = worker_job_info(obj,framework_name,mpi_info,varargin)
+        
+        function info = worker_init_info(obj,shared_folder_on_remote,varargin)
             % the structure, used to transmit information to a worker and
             % initialize jobExecutor on a worker through the system pipe.
             % due to the system pipe limited size, this information sould
             % be very restricted.
             % where:
             %
-            % framework_name -- the name of the class responsible for
-            %                   messages exchange. Should allow empty
-            %                   constructor for feval and initialization
-            %                   string
-            % mpi_info       -- other information necessary to initiate
+            % job_id         -- the name of the parallel job to run
+            % shared_folder_on_remote -- other information necessary to initiate
             %                   the messages framework.
-            if nargin>3
+            
+            if nargin>2
                 exit_on_complition = varargin{1};
             else
                 exit_on_complition = true;
             end
+            % labIndex defines the number of worker. If this is MPI job,
+            % the number is derived from MPI framework, if its Herbert
+            % framework, the number of worker should be asigned.
             info = struct('job_id',obj.job_id,...
-                'job_data_folder',obj.job_data_folder,...
-                'framework_name',framework_name,'mpi_info',mpi_info,...
+                'labIndex',obj.labIndex,...
+                'shared_folder_on_remote',shared_folder_on_remote,...
                 'exit_on_compl',exit_on_complition);
         end
         
-        function send_job_info(obj,info)
+        function send_job_info(obj,info,varargin)
             % store configuration data necessary to initiate Herbert/Horace mpi
             % job on a remote machine.
+            %Usage:
+            %mpi.send_job_info(info,[shared_folder_on_local]);
             %
             % Info -- the data describing the job itself.
-            store_config_info_(obj,info);
+            % shared_folder_on_local -- if present, defines the folder
+            %                           where remote job will exchange its data
+            %               if absent, parallel_config value will be used
+            store_config_info_(obj,info,varargin{:});
         end
         
-        function [init_info,config_folder]= receive_job_info(obj,data_path)
+        function [init_info,config_folder]= receive_job_info(obj,data_path,varargin)
             % restore configuration data necessary to initiate Herbert/Horace mpi
             % job on a remote machine.
+            %Usage:
+            % [job_info,config_folder] = mpi.receive_job_info(data_path,['-keep_info'])
+            %Where:
             %
-            % data_path -- the path to the configuration data and
-            %              configuration files.
+            % data_path       -- the path to the configuration data and
+            %                    configuration files.
+            %'-keep_job_info' -- if this key is present, the message with job info
+            %                    will not be deleted after the data are
+            %                    received, if not, the message would be
+            %                    destroyed
             % Returns:
-            % init_info  -- loaded job configuration data as stored by
-            %               send_job_info operation.
+            % init_info     -- loaded job configuration data as stored by
+            %                  send_job_info operation.
             % config_folder -- the folder where the configuration
             %                  information is stored. This folder should be
             %                  set us config_store folder.
-            [init_info,config_folder] = restore_config_info_(obj,data_path);
+            %
+            if ~exist('data_path','var')
+                data_path = config_store.instance().get_value(...
+                    'parallel_config','shared_folder_on_remote');
+            end
+            [init_info,config_folder] = restore_config_info_(obj,data_path,varargin{:});
         end
         
-        function fname = get_par_config_file_name(obj,varargin)
-            % The fill name (with path) to a file, which stores a remote job
-            % configuration, necessary to intiate a worker. Used by
-            % send/receive job_info methods.
+        function [filename,filepath,equal_fs] = par_config_file(obj,varargin)
+            % Returns the name and remote path to a file, which stores a remote job
+            % configuration, necessary to intiate a worker.
+            % Used by send/receive job_info methods.
             %Usage:
-            %>>fname = mpi.get_config_file_name([a_folder]);
+            %>>[filename,filepath,equal_fs] = mpi.par_config_file();
             %
-            % without parameters returns the config file for current config
-            % setting, with the path, returns a file, which would be located
-            % within a configuration wihin the folder path specified.
-            filename = [obj.job_id,'_init_data.mat'];
-            if nargin == 1
-                config_folder = config_store.instance().config_folder;
-                fname  = fullfile(config_folder,obj.exchange_folder_name,filename);
-            else
-                cf_name = config_store.config_folder_name;
-                other_folder = varargin{1};
-                [~,fn] = fileparts(other_folder);
-                if strcmpi(fn,cf_name)
-                    fname  = fullfile(other_folder,obj.exchange_folder_name,filename);
-                elseif strcmpi(fn,obj.exchange_folder_name)
-                    fname  = fullfile(other_folder,filename);                    
-                else
-                    fname  = fullfile(other_folder,cf_name,obj.exchange_folder_name,filename);
+            % where:
+            % filename -- the name of the file with the information
+            % filepath -- path to this file on remote file system
+            % equal_fs -- true if file systems are shared and look the same
+            %             form local and remote sides.
+            if nargin>1
+                remote_folder  = varargin{1};
+                [f_b,f_s] = fileparts(remote_folder);
+                if strcmpi(f_s,obj.exchange_folder_name)
+                    remote_folder = fileparts(f_b);
+                    [f_b,f_s] = fileparts(remote_folder);
                 end
+                if strcmpi(f_s,config_store.config_folder_name)
+                    remote_folder  = f_b;
+                end
+            else
+                remote_folder = config_store.instance().get_value(...
+                    'parallel_config','shared_folder_on_local');
+            end
+            filename = [obj.job_id,'_init_data.mat'];
+            if isempty(remote_folder)% remote folder located and mounted
+                % on the remote system in the same place as the local folder.
+                % Store info and do nothing.
+                equal_fs = true;
+                config_folder = config_store.instance().config_folder;
+                filepath  = fullfile(config_folder,obj.exchange_folder_name);
+            else
+                equal_fs = false;
+                cf_name = config_store.config_folder_name;
+                filepath  = fullfile(remote_folder,cf_name,obj.exchange_folder_name);
             end
         end
         %
@@ -223,10 +263,6 @@ classdef iMessagesFramework
         % do message exchange.
         obj = init_framework(obj,framework_info)
         
-        % build worker's control structure, necessary to
-        % initiate message framework and jobExecutor. Must use
-        % iMessagesFramework.worker_job_info to build appropriate framework
-        cs  = build_control(obj,task_id,varargin)
         %------------------------------------------------------------------
         % MPI interface
         %

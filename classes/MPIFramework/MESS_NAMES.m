@@ -3,8 +3,8 @@ classdef MESS_NAMES
     % used in Herbert MPI data exchange
     
     properties(Constant,Access=private)
-        mess_names_ = {'failed','starting','started','running','data','canceled','completed'};
-        mess_codes_ = {0,1,2,3,4,5,6};
+        mess_names_ = {'failed','init','starting','started','running','data','canceled','completed'};
+        mess_codes_ = {0,1,2,3,4,5,6,7};
         name2code_map_ = containers.Map(MESS_NAMES.mess_names_,MESS_NAMES.mess_codes_);
         code2name_map_ = containers.Map(MESS_NAMES.mess_codes_,MESS_NAMES.mess_names_);
     end
@@ -41,6 +41,16 @@ classdef MESS_NAMES
             else
                 error('MESS_NAMES:invalid_argument',...
                     'name %s is not recognized as a message name',messname)
+            end
+        end
+        %
+        function is = name_exist(name)
+            % verify if the name provided is valid message name.
+            %
+            if ismember(name,MESS_NAMES.mess_names_)
+                is = true;
+            else
+                is = false;
             end
         end
     end

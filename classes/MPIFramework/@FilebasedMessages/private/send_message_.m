@@ -3,7 +3,7 @@ function [ok,err_mess] = send_message_(obj,task_id,message)
 %
 ok = MESS_CODES.ok;
 err_mess=[];
-if ~exist(obj.mess_exchange_folder_,'dir')
+if ~exist(obj.job_data_folder,'dir')
     ok = MESS_CODES.job_canceled;
     err_mess = sprintf('Job with id %s have been canceled',obj.job_id);
     return;

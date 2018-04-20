@@ -35,7 +35,10 @@ classdef test_iMPI_methods< TestCase
             cs = config_store.instance();
             current_config_folder = cs.config_folder;
             clob2 = onCleanup(@()set_config_path(cs,current_config_folder));
+            % set up basic default configuration
             pc.working_directory = 'some_irrelevant_folder_never_used_here';
+            pc.shared_folder_on_remote = '';
+            pc.shared_folder_on_local = '';            
             %--------------------------------------------------------------
             % check the case when local file system and remote file system
             % coinside
@@ -60,11 +63,12 @@ classdef test_iMPI_methods< TestCase
             assertEqual(pc.shared_folder_on_remote,'some_irrelevant_folder_never_used_here');
             
             % configuraton is retrieved from the local configuration
-            info_file = mpi.get_par_config_file_name();
+            [filename,filepath] = mpi.par_config_file();
+            info_file = fullfile(filepath,filename);
             clob3 = onCleanup(@()delete(info_file));
             assertEqual(exist(info_file,'file'),2);
             
-            [rest_info,config_f] = mpi.receive_job_info(current_config_folder);
+            [rest_info,config_f] = mpi.receive_job_info(current_config_folder,'-keep');
             assertEqual(data_struct,rest_info);
             assertEqual(config_f,fullfile(current_config_folder,mpi.exchange_folder_name))
             %--------------------------------------------------------------
@@ -78,32 +82,84 @@ classdef test_iMPI_methods< TestCase
             
             
             mpi.send_job_info(data_struct);
-            info_file = mpi.get_par_config_file_name(pc.shared_folder_on_local);
-            rfl = fileparts(fileparts(info_file ));
+            [filename,filepath,is_on_shared] = mpi.par_config_file(pc.shared_folder_on_local);
+            info_file = fullfile(filepath,filename);            
+            rfl = fileparts(filepath);
             clob3 = onCleanup(@()rmdir(rfl,'s'));
             assertEqual(exist(info_file,'file'),2);
+            assertFalse(is_on_shared);
             %-------------------------------------------------------------
-            % ensure default configuration location will be restored
+            % ensure default configuration location will be restored after
+            % the test
             clob5 = onCleanup(@()config_store.instance('clear'));
             %
-            remote_config_folder = fullfile(pc.shared_folder_on_remote,mpi.exchange_folder_name);
+            remote_config_folder = fullfile(pc.shared_folder_on_remote,cs.config_folder_name);
             % remove all configurations from memory to ensure they would be
             % read from non-default locations.
-            config_store.instance('clear')
+            config_store.instance('clear');
             
             % these operations would happen on worker
+            mis.is_deployed = true;            
             config_store.set_config_folder(remote_config_folder)
             
-            pc = prallel_config;
+            % on a deployed program woring directory coinsides with shared_folder_on_remote
+            pc = parallel_config;
             assertEqual(pc.working_directory ,pc.shared_folder_on_remote);
+
             
             r_config_folder = config_store.instance().config_folder;
             assertEqual(r_config_folder,remote_config_folder);
-            [rest_info,config_f] = mpi.receive_job_info(r_config_folder);
+            [rest_info,exchange_f] = mpi.receive_job_info(r_config_folder);
             assertEqual(data_struct,rest_info);
-            assertEqual(config_f,fullfile(current_config_folder,mpi.exchange_folder_name))
+            assertEqual(exchange_f,fullfile(r_config_folder,mpi.exchange_folder_name))
             
+            assertFalse(exist(info_file,'file')==2);            
         end
+        function test_mpi_worker_single_thread(obj)
+            pc = parallel_config;
+            cur_config = pc.get_data_to_store;
+            clob1 = onCleanup(@()set(pc,cur_config));
+            cs = config_store.instance();
+            current_config_folder = cs.config_folder;
+            clob2 = onCleanup(@()set_config_path(cs,current_config_folder));
+            
+            mis = MPI_State.instance();
+            mis.is_tested = true;
+            clob3 = onCleanup(@()set(mis,'is_deployed',false,'is_tested',false));
+
+            pc.shared_folder_on_local = obj.working_dir;                                    
+            
+            mpi_comm = FilebasedMessages();
+            jobControl_str = aMessage('init');
+            % JETester specific control parameters
+            job_param = struct('filepath',obj.working_dir,...
+                'filename_template','test_jobDispatcherL%d_nf%d.txt');
+            
+            job_contr = struct('loop_param',job_param,'n_steps',3,...
+                'return_results',false);            
+            jobControl_str.payload = struct('JE_name','JETester',...
+                'Job_Data',job_contr );
+            mpi_comm.send_message(1,jobControl_str);
+            shared_folder_on_remote = obj.working_dir;                        
+            cs  = mpi_comm.build_worker_control(shared_folder_on_remote);
+            
+            worker(cs);
+            
+            
+
+        end
+        function test_mpi_worker_multi_thread(obj)
+            pc = parallel_config;
+            cur_config = pc.get_data_to_store;
+            clob1 = onCleanup(@()set(pc,cur_config));
+            pc.parallel_framework = 'parpool';
+            if ~strcmpi(pc.parallel_framework,'parpool') % no access to parallel computing toolbox -- no testing
+                return;
+            end
+            
+
+        end
+        
     end
 end
 

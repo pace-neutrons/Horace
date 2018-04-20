@@ -59,14 +59,6 @@ classdef FilebasedMessages < iMessagesFramework
             
         end
         %------------------------------------------------------------------
-        % HERBERT Job control interface
-        function cs  = build_control(obj,task_id,varargin)
-            % initialize worker's control structure, necessary to
-            % initiate jobExecutor on a client
-            name = class(obj);
-            css = obj.worker_job_info(name,task_id,varargin{:});
-            cs  = iMessagesFramework.serialize_par(css);
-        end
         %
         function  obj = init_framework(obj,framework_info)
             % using control structure initialize operational message
@@ -130,7 +122,7 @@ classdef FilebasedMessages < iMessagesFramework
             [all_messages_names,task_ids] = list_all_messages_(obj,varargin{:});
         end
         %
-        function [all_messages,task_ids] = receive_all_messages(obj,varargin)
+        function [all_messages,task_ids] = receive_all(obj,varargin)
             % retrieve (and remove from system) all messages
             % existing in the system for the tasks with id-s specified as input
             %

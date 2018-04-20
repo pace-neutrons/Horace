@@ -1,7 +1,7 @@
 classdef aMessage
     % Class used to distribute messages
     % between workers
-    %   
+    %
     properties(Dependent)
         % message contents (arbitrary data distributed from sender to
         % receiver)
@@ -19,7 +19,12 @@ classdef aMessage
     
     methods
         function obj=aMessage(name)
-            obj.mess_name_ = name;
+            if MESS_NAMES.name_exist(name)
+                obj.mess_name_ = name;
+            else
+                error('AMESSAGE:invalid_argument',...
+                    ' message with name %s is not recognized',name);
+            end
         end
         function rez = get.payload(obj)
             rez = obj.payload_;
@@ -38,6 +43,6 @@ classdef aMessage
                 tag = MESS_NAMES.mess_id(obj.mess_name_);
             end
         end
-    end   
+    end
 end
 
