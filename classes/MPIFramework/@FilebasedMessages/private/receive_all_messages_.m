@@ -1,5 +1,6 @@
-function   [all_messages,task_ids] = receive_all_messages_(obj,task_ids)
-% retrieve all messages intended for jobs with id provided
+function   [all_messages,task_ids] = receive_all_messages_(obj,task_ids,mess_name)
+% retrieve all messages sent from jobs with id provided. if ids are empty,
+% all messages, intended for this job.
 %
 if ~exist('task_ids','var')
     task_ids = [];

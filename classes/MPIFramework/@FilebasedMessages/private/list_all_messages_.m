@@ -1,4 +1,4 @@
-function [all_messages,task_ids] = list_all_messages_(obj,task_ids)
+function [all_messages,mid_from,mid_to] = list_all_messages_(obj,task_ids)
 % list all messages belonging to the job and retrieve all their names
 % for the lobs with id, provided as input.
 % if no message is returned for a job, its name cell remains empty.
@@ -7,15 +7,15 @@ if ~exist('task_ids','var')
 end
 
 
-mess_folder = obj.mess_exchange_folder_;
+mess_folder = obj.mess_exchange_folder;
 folder_contents = dir(mess_folder);
 if numel(folder_contents )==0
     all_messages = {};
     return;
 end
-[mess_names,mess_id] = parce_folder_contents_(folder_contents);
+[mess_names,mid_from,mid_to] = parce_folder_contents_(folder_contents);
 if isempty(mess_names)
-    all_messages = mess_names;
+    all_messages = {};
     task_ids     = mess_id;
     return
 end

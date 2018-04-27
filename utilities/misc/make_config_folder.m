@@ -2,6 +2,8 @@ function folder_path=make_config_folder(folder_name,in_folder_path)
 % Return location of a folder to store user configuration files, creating if necessary.
 %
 %   >> folder_path=make_config_folder(folder_name)
+% or:
+%   >> folder_path=make_config_folder(folder_name,in_folder_path)
 %
 % Input:
 % ------

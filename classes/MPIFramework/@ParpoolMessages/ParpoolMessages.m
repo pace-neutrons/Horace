@@ -66,7 +66,7 @@ classdef ParpoolMessages < iMessagesFramework
             obj = init_framework_(obj,framework_info);
         end
         %------------------------------------------------------------------
-        % MPI intefce
+        % MPI interface
         %
         function fn = mess_name(obj,task_id,mess_name)
             % not used in ParpoolMessages
@@ -77,10 +77,10 @@ classdef ParpoolMessages < iMessagesFramework
             % receive message from a task with specified id
             % Blocking
             %Usage
-            %>>[ok,err,message] = obj.receive_message();
-            % Receive any message.
-            %>>[ok,err,message] = obj.receive_message(labId);
-            %
+            %>>[ok,err,message] = obj.receive_message() -- Receive any message.
+            %>>[ok,err,message] = obj.receive_message(labId)  -- Receive
+            %                     message from lab with the idSpecified
+            % Receive ny message.
             [ok,err_mess,message] = receive_message_(obj,varargin{:});
         end
         %
@@ -182,6 +182,10 @@ classdef ParpoolMessages < iMessagesFramework
         function ind = get_lab_index_(obj)
             ind = labindex();
         end
+        function nl = get_num_labs_(obj)
+            nl = numlabs();
+        end
+        
     end
 end
 

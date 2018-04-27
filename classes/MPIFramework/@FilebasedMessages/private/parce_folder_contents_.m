@@ -1,9 +1,11 @@
-function [mess_names,mess_id] = parce_folder_contents_(folder_contents)
+function [mess_names,mid_from,mid_to] = parce_folder_contents_(folder_contents)
 % Extract message names and messages id-s from the folder contents provided
 % as input
-% Return%
+% Message name format: 'mess_%s_FromN%d_ToN%d
+% Returns
 % mess_names the cellarray of messages, present in the system
-% mess_id    array of task_id-s
+% mid_from   array of the task_id-s who sent messages
+% mid_to     array of the task_id-s where messages are intended.
 %
 
 mess_template = 'mess_';
@@ -13,7 +15,8 @@ is_mess = arrayfun(@(x)(~x.isdir && strncmpi(mess_template,x.name,len)),folder_c
 mess_files = folder_contents(is_mess);
 if numel(mess_files) ==0
     mess_names = {};
-    mess_id = [];
+    mid_from = [];
+    mid_to   = [];
     return;
 end
 if verLessThan('matlab','8.12')
@@ -23,4 +26,5 @@ else
 end
 
 mess_names = arrayfun(@(x)(x{1}{2}),mess_fnames,'UniformOutput',false);
-mess_id    = arrayfun(@(x)(sscanf(x{1}{3},'TaskN%d.mat')),mess_fnames,'UniformOutput',true);
+mid_from   = arrayfun(@(x)(sscanf(x{1}{3},'FromN%d')),mess_fnames,'UniformOutput',true);
+mid_to     = arrayfun(@(x)(sscanf(x{1}{4},'ToN%d.mat')),mess_fnames,'UniformOutput',true);

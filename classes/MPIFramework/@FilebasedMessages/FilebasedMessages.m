@@ -24,14 +24,17 @@ classdef FilebasedMessages < iMessagesFramework
     %----------------------------------------------------------------------
     %----------------------------------------------------------------------
     properties(Access=protected)
-        %TODO: time in seconds to waiting in blocking message until
-        %unblocking.
-        time_to_fail_ = 1000;
-        % time to wait for a message send from one session can be read from
-        % another one.
-        time_to_react_ = 0.1
-        
+        % time in seconds to waiting in blocking message until
+        % unblocking or failing
+        time_to_fail_ = 1000; %(sec)
+        % time to watit before checking for next blocking message if 
+        % previous attempt have not find it.
+        time_to_react_ = 1; % (sec)
+        %
+        % equvalent to labNum in MPI
         task_id_ = 0;
+        % 
+        numLabs_ = 1;
     end
     %----------------------------------------------------------------------
     methods
@@ -53,8 +56,7 @@ classdef FilebasedMessages < iMessagesFramework
             % Initialise folder path
             jd = jd@iMessagesFramework();
             if nargin>0
-                jd = jd.init_framework(varargin{1});
-                
+                jd = jd.init_framework(varargin{:});
             end
             
         end
@@ -91,7 +93,7 @@ classdef FilebasedMessages < iMessagesFramework
         function [ok,err_mess,message] = receive_message(obj,varargin)
             % receive message from a task with specified id
             %Usage
-            % >>[ok,err_mess] = mf.receive_message(1)
+            % >>[ok,err_mess,message] = mf.receive_message([from_task_id,mess_name])
             % >>ok  if true, says that message have been successfully
             %       received from task with id==1.
             % >>    if false, error_mess indicates reason for failure
@@ -103,10 +105,11 @@ classdef FilebasedMessages < iMessagesFramework
         %
         %
         function [all_messages_names,task_ids] = probe_all(obj,varargin)
-            % list all messages existing in the system for the tasks
-            % with id-s specified as input
+            % list all messages existing in the system with id-s specified as input 
+            % and intended for this task
+            % 
             %Usage:
-            %>> [mess_names,task_ids] = obj.probe_all([task_ids]);
+            %>> [mess_names,task_ids] = obj.probe_all([task_ids],[mess_name]);
             %Where:
             % task_ids -- array of task id-s to check messages for or all
             %             messages if this is empty
@@ -125,6 +128,8 @@ classdef FilebasedMessages < iMessagesFramework
         function [all_messages,task_ids] = receive_all(obj,varargin)
             % retrieve (and remove from system) all messages
             % existing in the system for the tasks with id-s specified as input
+            % Blocks execution until the messages all messages are receved.
+            % 
             %
             %Input:
             %task_ids -- array of task id-s to check messages for
@@ -145,15 +150,23 @@ classdef FilebasedMessages < iMessagesFramework
     end
     %----------------------------------------------------------------------
     methods (Access=protected)
-        function mess_fname = job_stat_fname_(obj,task_id,mess_name)
+        function mess_fname = job_stat_fname_(obj,lab_to,mess_name,lab_from)
             %build filename for a specific message
-            mess_fname= fullfile(obj.mess_exchange_folder_,...
-                sprintf('mess_%s_TaskN%d.mat',mess_name,task_id));
+            if ~exist('lab_from','var')
+                lab_from = obj.labIndex;
+            end
+            mess_fname= fullfile(obj.mess_exchange_folder,...
+                sprintf('mess_%s_FromN%d_ToN%d.mat',...
+                mess_name,lab_from,lab_to));
             
         end
         function ind = get_lab_index_(obj)
             ind = obj.task_id_;
         end
+        function ind = get_num_labs_(obj)
+            ind = obj.numLabs_;
+        end
+        
     end
 end
 

@@ -29,9 +29,15 @@ classdef JobExecutor
         mess_framework_ = [];
     end
     methods(Abstract)
-        this=do_job(this,control_struct);
-        % abstract method to do particular job.
         % should be overloaded by a particular implementation
+        %
+        % abstract method to do particular job.
+        this=do_job(this,InitMessage);
+        % abstract method to do reduce data, located on different.
+        % workers
+        this=reduce_data(this);
+        % the method, which indicating that the work has been completed.
+        ok = is_completed(this);
     end
     %------------------------------------------------------------------ ---
     methods
@@ -50,23 +56,26 @@ classdef JobExecutor
             %je = je@MessagesFramework(varargin{:});
         end
         %
-        function [this,argi,job_controls,mess]=init_worker(this,job_control_string)
+        function [obj,mess]=init(obj,fbMPI,job_control_struct)
             % initiate worker side.
             %e.g:
             % set up tag, indicating that the job have started
             % and process main job control parameters, present in
             % inputs and files:
             %
-            % job_control_string  -- the serialized structure,
-            %                containing job control  information
+            % fbMPI               -- the instance of file-based messages
+            %                        framework, used to exchange messages
+            %                        between worker and control node.
+            %                        Depending on the used framework, this
+            %                        class can be used as
+            % job_control_struct  -- the structure,
+            %                        containing job control  information
             %
             % returns:
-            % argi         the structure, containing job's arguments,
-            %              used by do_job method
-            % job_controls - decoded job control structure
+            % obj          initialized JobExecutor object
             % mess         if not empty, the reason for failure
             %
-            [this,argi,job_controls,mess]=this.init_worker_(job_control_string);
+            [obj,mess]=init_je_(obj,fbMPI,job_control_struct);
         end
         %
         function [ok,mess] =finish_job(this)
@@ -114,7 +123,7 @@ classdef JobExecutor
         %
         function out = get.mess_framework(obj)
             out = obj.mess_framework_;
-        end        
+        end
         %------------------------------------------------------------------
         % MPI interface
         % overloads to exchange messages with JobDispatcher for particular job Executor
@@ -148,7 +157,7 @@ classdef JobExecutor
             end
             
         end
-        function messages = receive_all_messages(obj)
+        function messages = receive_all_messages(obj,varargin)
             % retrieve (and remove from system) all messages
             % existing in the system for the jobs with id-s specified as input
             %
@@ -156,7 +165,12 @@ classdef JobExecutor
             % all_messages -- cellarray of messages belonging to this job
             %                 have messages available in the system .
             %
-            messages = obj.mess_framework_.receive_all_messages(obj.task_id);
+            if nargin == 2
+                mf = varargin{1};
+                messages = mf.receive_all();
+            else
+                messages = obj.mess_framework_.receive_all();
+            end
         end
         %
         function is = is_job_cancelled(obj)

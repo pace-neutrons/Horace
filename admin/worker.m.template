@@ -1,4 +1,4 @@
-function ok=worker(job_controls_string)
+function ok=worker(worker_controls_string)
 % function used as standard worker to do a job in different Matlab
 % session.
 %
@@ -6,10 +6,10 @@ function ok=worker(job_controls_string)
 % initialized as may need to initialize Herbert and Horace itself
 %
 %Inputs:
-% job_controls_string - the structure, containing information, necessary to
+% worker_controls_string - the structure, containing information, necessary to
 %              initiate the job.
-%              Due to the fact this stging is transferred
-%              thorugh pipes its size is system dependent and limited, so
+%              Due to the fact this string is transferred
+%              through pipes its size is system dependent and limited, so
 %              contains only minimal initialization information, namely the
 %              folder name where the job initialization data are located on
 %              a remote system
@@ -20,7 +20,7 @@ if isempty(which('herbert_init.m'))
     horace_on();
 end
 % Check current state of mpi framework and set up deployment status
-
+% within Matlab code to run
 mis = MPI_State.instance();
 mis.is_deployed = true;
 is_tested = mis.is_tested; % set up to tested state within unit tests.
@@ -29,70 +29,81 @@ is_tested = mis.is_tested; % set up to tested state within unit tests.
 % other unit tests. The production job finishes Matlab and clean-up is not necessary
 % though doing no harm.
 clot = onCleanup(@()(setattr(mis,'is_deployed',false)));
-% instantiate filebasedMessages framework, used to transfer initial
-% configurations and provide access to some basic messaging functions
-job_control_struct = iMessagesFramework.deserialize_par(job_control_string);
 
-mpi_class_name = job_control_struct.mpi_class_name;
 
-% instantiate worker class.
-mpi = feval(mpi_class_name);
-mpi = mpi.init_framework(job_control_struct);
-[init_data,ok,err] = mpi.receive_init();
+
+control_struct = iMessagesFramework.deserialize_par(worker_controls_string);
+% Initalize config files to use on remote session
+%
+% remove configurations, may be loaded in memory while horace was
+% initialized.
+config_store.instance('clear');
+% Where config files are stored:
+config_exchange_folder = fullfile(control_struct.data_path,config_store.config_folder_name);
+% set pas to config sources:
+config_store.set_config_folder(config_exchange_folder);
+% instantiate filebasedMessages framework, used to transfer initial data,
+% exchange messages between head node and workers pool and display log
+% information
+fbMPI = FilebasedMessages(control_struct);
+% initiate file-based framework to exchange messages between head node and
+% the pool of workers
+try
+    worker_init_data = fbMPI.receive_job_info('','-keep');
+catch ME
+    mess = aMessage('failed');
+    mess.payload = sprintf('job N%s failed while receive_job_info Error: %s:',...
+        control_struct.jobID,ME.message);
+    fbMPI.send_message(mess);
+    ok = MESS_CODES.runtime_error;
+    return;
+end
+exit_at_the_end = ~is_tested && worker_init_data.exit_on_compl;
+%
+% receive init message which defines the job parameters
+% should block execution until this message is received.
+[ok,err,init_message] = fbMPI.receive_message(0,'init');
 if ok ~= MESS_CODES.ok
     error('WORKER:init_worker',err);
 end
 
-[je,job_arguments,job_controls,err_mess]=je.init_worker(job_controls_string);
-
-exit_at_the_end = ~is_tested && job_controls.exit_on_compl;
-if ~isempty(err_mess)
-    % clear all existing messages for this job
-    je.receive_all_messages();
-    
-    mess = aMessage('failed');
-    mess.payload = sprintf('job N%d failed at init_worker. Reason: %s',...
-        je.task_id,err_mess);
-    je.send_message(mess);
-    ok = false;
-    if exit_at_the_end
-        exit;
-    else
-        error('WORKER:init_worker',mess.payload)
-    end
-else
-    ok = true;
-end
-%
+% instantiate job executor class.
+je = feval(worker_init_data.JobExecutorClassName);
+% Attach jobExecutor methods to mpi singleton to be availible from any part
+% of the code.
 mis.logger = @(step,n_steps,time,add_info)...
     (je.log_progress(step,n_steps,time,add_info));
 
 mis.check_cancelled = @()(f_canc(je));
-mis.mpi_framework = je.mess_framework;
-%
-% Execute job (run main job executor's do_job method
+%mis.mpi_framework = je.mess_framework;
+
 try
-    if iscell(job_arguments)
-        je = je.do_job(job_arguments{:});
-    else
-        je = je.do_job(job_arguments);
+    je = je.init(fbMPI,control_struct);
+    % Execute job (run main job executor's do_job method
+    while ~je.is_completed()
+        je= je.do_job(init_message);
+        je = je.reduce_data();
     end
-    ok = true;
+    ok = MESS_CODES.ok;
 catch ME
-    ok = false;
+    ok = MESS_CODES.runtime_error;
     if ~strcmpi(ME.identifier,'MESSAGE_FRAMEWORK:cancelled')
-        % clear all existing messages for this job
-        je.receive_all_messages();
         
         mess = aMessage('failed');
         mess.payload = {sprintf('job N%d failed at do_job method. Reason: %s',...
-            je.task_id,ME.message),ME};
-        je.send_message(mess);
+            fbMPI.labIndex,ME.message),ME};
+        fbMPI.send_message(0,mess);
+    else
+        if exit_at_the_end
+            exit;
+        else
+            return
+        end
     end
     if exit_at_the_end
         exit;
     else
-        error('WORKER:do_job',mess.payload)
+        rethrow(ME)
     end
 end
 %
@@ -102,11 +113,9 @@ if exit_at_the_end
     exit;
 end
 
-end
-
 function f_canc(job_executor)
 if job_executor.is_job_cancelled()
     error('MESSAGE_FRAMEWORK:cancelled',...
         'Messages framework has been cancelled or not initialized any more')
 end
-end
+
