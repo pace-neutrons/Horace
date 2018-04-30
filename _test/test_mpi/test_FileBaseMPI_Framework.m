@@ -19,7 +19,7 @@ classdef test_FileBaseMPI_Framework< TestCase
             this = this@TestCase(name);
             this.working_dir = tempdir;
             pc = parallel_config;
-            if strcp(pc.parallel_framework,'herbert')
+            if strcmpi(pc.parallel_framework,'herbert')
                 this.change_setup = false;
             else
                 this.old_config = pc.get_data_to_store;
@@ -175,73 +175,83 @@ classdef test_FileBaseMPI_Framework< TestCase
             
             
             mess = aMessage('starting');
-            [ok,err] = mf.send_message(1,mess);
-            assertEqual(ok,MES_CODES.ok)
+            % send message to itself
+            [ok,err] = mf.send_message(0,mess);
+            assertEqual(ok,MESS_CODES.ok)
             assertTrue(isempty(err));
-            all_mess = mf.probe_all(1);
-            if ~isempty(all_mess)
-                assertTrue(ismember('starting',all_mess))
-                assertFalse(ismember('started',all_mess))
-            end
+            [all_mess,mid_from] = mf.probe_all();
+            assertTrue(ismember('starting',all_mess))
+            assertFalse(ismember('started',all_mess))
+            assertEqual(mid_from,0);
+            
+            
+            [all_mess,mid_from] = mf.probe_all(0);
+            assertTrue(ismember('starting',all_mess))
+            assertEqual(mid_from,0);
+            [all_mess,mid_from] = mf.probe_all(0,'starting');
+            assertTrue(ismember('starting',all_mess))
+            assertEqual(mid_from,0);
             
             
             
-            [ok,err] = mf.send_message(3,'started');
-            assertEqual(ok,MES_CODES.ok)
+            [ok,err] = mf.send_message(0,'started');
+            assertEqual(ok,MESS_CODES.ok)
             assertTrue(isempty(err));
             mess = aMessage('failed');
-            [ok,err] = mf.send_message(4,mess);
-            assertEqual(ok,MES_CODES.ok)
+            [ok,err] = mf.send_message(3,mess);
+            assertEqual(ok,MESS_CODES.ok)
             assertTrue(isempty(err));
             
-            mess = aMessage('blabla');
-            [ok,err] = mf.send_message(5,mess);
-            assertEqual(ok,MES_CODES.ok)
+            mess = aMessage('running');
+            [ok,err] = mf.send_message(3,mess);
+            assertEqual(ok,MESS_CODES.ok)
             assertTrue(isempty(err));
             
-            %-------------------------------------------------------------
-            all_mess = mf.probe_all(3);
-            
-            assertEqual(numel(all_mess),1);
-            assertEqual(all_mess{1},'started');
-            
-            all_mess = mf.probe_all(2);
-            assertEqual(numel(all_mess),1);
-            assertTrue(isempty(all_mess{1}));
-            
-            all_mess = mf.probe_all([1,3,5]);
-            
-            assertEqual(numel(all_mess),3);
-            assertEqual(all_mess{1},'starting');
-            assertEqual(all_mess{2},'started');
-            assertEqual(all_mess{3},'blabla');
-            
-            
-            all_mess = mf.probe_all(1:4);
-            
-            assertEqual(numel(all_mess),4);
-            assertEqual(all_mess{1},'starting');
-            assertTrue(isempty(all_mess{2}));
-            assertEqual(all_mess{3},'started');
-            assertEqual(all_mess{4},'failed');
-            
-            
-            all_mess = mf.probe_all([4,2]);
+            [all_mess,mid_from] = mf.probe_all(0);
             assertEqual(numel(all_mess),2);
-            assertEqual(all_mess{1},'failed');
-            assertTrue(isempty(all_mess{2}));
+            assertEqual(all_mess{1},'started');
+            assertEqual(mid_from(1),0);
+            assertEqual(mid_from(2),0);
+            
+            %
+            %-------------------------------------------------------------
+            % define external receiver, which would run on an MPI worker
+            cs = mf.build_framework_init(mf.mess_exchange_folder,mf.job_id,3,5);
+            
+            init_str = mf.deserialize_par(cs);
+            mf3 = FilebasedMessages(init_str);
+            [all_mess,id_from] = mf3.probe_all();
             
             
-            [all_mess,task_ids] = mf.probe_all();
-            assertEqual(numel(all_mess),4);
-            assertEqual(all_mess{1},'starting');
-            assertEqual(task_ids(1),1);
-            assertEqual(all_mess{2},'started');
-            assertEqual(task_ids(2),3);
-            assertEqual(all_mess{3},'failed');
-            assertEqual(task_ids(3),4);
-            assertEqual(all_mess{4},'blabla');
-            assertEqual(task_ids(4),5);
+            assertEqual(numel(all_mess),2);
+            assertEqual(id_from(1),0);
+            assertEqual(id_from(2),0);
+            
+            mess = aMessage('running');
+            % unlike normal mpi, filebased mpi allows sending message to
+            % itself
+            [ok,err] = mf3.send_message(3,mess);
+            assertEqual(ok,MESS_CODES.ok)
+            assertTrue(isempty(err));
+            
+            
+            [all_mess,id_from] = mf3.probe_all();
+            assertEqual(numel(all_mess),3);
+            assertEqual(id_from(1),0);
+            assertEqual(id_from(2),0);
+            assertEqual(id_from(3),3);
+            
+            
+            [all_mess,id_from] = mf3.probe_all([0,3]);
+            assertEqual(numel(all_mess),3);
+            assertEqual(id_from(1),0);
+            assertEqual(id_from(2),0);
+            assertEqual(id_from(3),3);
+            
+            [all_mess,id_from] = mf3.probe_all('all','running');
+            assertEqual(numel(all_mess),2);
+            assertEqual(id_from(1),0);
+            assertEqual(id_from(2),3);
         end
         function test_shared_folder(this)
             mf = FilebasedMessages();

@@ -109,7 +109,7 @@ classdef FilebasedMessages < iMessagesFramework
             % and intended for this task
             % 
             %Usage:
-            %>> [mess_names,task_ids] = obj.probe_all([task_ids],[mess_name]);
+            %>> [mess_names,task_ids] = obj.probe_all([task_ids],[{mess_name,mess_tag}]);
             %Where:
             % task_ids -- array of task id-s to check messages for or all
             %             messages if this is empty

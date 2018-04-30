@@ -22,7 +22,7 @@ if isstruct(framework_info) && isfield(framework_info,'job_id')
         obj.numLabs_ = framework_info.numLabs;
     end
 elseif(is_string(framework_info))
-    obj.job_id = framework_info;
+    obj.job_id =[framework_info,'_', char(floor(25*rand(1,10)) + 65)];
     obj.task_id_ = 0;
 else
     error('FILEBASED_MESSAGES:invalid_argument',...

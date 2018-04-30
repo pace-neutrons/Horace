@@ -200,10 +200,10 @@ classdef iMessagesFramework
     end
     
     methods(Static)
-        function cs = build_worker_control(path_to_data_exchange_folder,jobID,labID,numLabs)
+        function cs = build_framework_init(path_to_data_exchange_folder,jobID,labID,numLabs)
             % prepare data path, a worker would take its data from
             % Usage:
-            %>> cs =iMessagesFramework.build_worker_control(path_to_data_exchange_folder,labID)
+            %>> cs =iMessagesFramework.build_framework_init(path_to_data_exchange_folder,labID)
             % Where:
             % path_to_data_exchange_folder -- the path on a remote machine
             %                                 where the file-based messages
@@ -363,6 +363,9 @@ classdef iMessagesFramework
             % build the name of the folder used to exchange messages
             % between the base node and the mpi framework and, if
             % necessary, filebased messages
+            if ~exist('top_exchange_folder','var')
+                top_exchange_folder = config_store.instance().config_folder;
+            end
             [top_exchange_folder,mess_subfolder] = constr_exchange_folder_name_(obj,top_exchange_folder);
         end
     end

@@ -1,6 +1,7 @@
 classdef MESS_NAMES
-    % The class to connect between message names and message codes
+    % The class lists all message names and message codes (tags)
     % used in Herbert MPI data exchange
+    % and provides connection between the message names and message codes
     
     properties(Constant,Access=private)
         mess_names_ = {'failed','init','starting','started','running','data','canceled','completed'};
@@ -18,7 +19,8 @@ classdef MESS_NAMES
         end
         
         function id = mess_id(mess_name)
-            % get message id derived from message name
+            % get message id (tag) derived from message name
+            %
             if iscell(mess_name)
                 id = cellfun(@(nm)(MESS_NAMES.name2code_map_(nm)),...
                     mess_name,'UniformOutput',true);
@@ -28,7 +30,8 @@ classdef MESS_NAMES
         end
         %
         function name = mess_name(mess_id)
-            % get message name derived from message code
+            % get message name derived from message code (tag)
+            %
             if isnumeric(mess_id)
                 name = MESS_NAMES.code2name_map_(mess_id);
             elseif ischar(mess_id)
@@ -47,7 +50,15 @@ classdef MESS_NAMES
         function is = name_exist(name)
             % verify if the name provided is valid message name.
             %
-            if ismember(name,MESS_NAMES.mess_names_)
+            if all(ismember(name,MESS_NAMES.mess_names_))
+                is = true;
+            else
+                is = false;
+            end
+        end
+        function is = tag_valid(the_tag)
+            % verify if the tag provided is valid message tag.
+            if all(ismember(the_tag,MESS_NAMES.mess_codes_))
                 is = true;
             else
                 is = false;

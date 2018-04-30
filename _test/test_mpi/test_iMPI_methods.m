@@ -166,7 +166,7 @@ classdef test_iMPI_methods< TestCase
             
             
             shared_folder_on_remote = obj.working_dir;
-            cs  = mpi_comm.build_worker_control(shared_folder_on_remote,mpi_comm.job_id,1,1);
+            cs  = mpi_comm.build_framework_init(shared_folder_on_remote,mpi_comm.job_id,1,1);
             
             worker(cs);
         end
