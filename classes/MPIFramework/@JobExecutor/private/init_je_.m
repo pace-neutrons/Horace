@@ -24,8 +24,7 @@ end
 
 obj.mess_framework_  = mf;
 if fbMPI.labIndex == 1
-    numLabs = mf.numLabs;
-    all_messages = mf.receive_all(obj,2:numLabs,'started');
+    all_messages = mf.receive_all('all','started');
     ok = cellfun(@(x)(x.mess_name == 'started'),all_messages,...
         'UniformOutput',true);
     if all(ok)
@@ -39,6 +38,6 @@ if fbMPI.labIndex == 1
             n_failed);
     end
 else
-    [~,mess] = mf.send_message(0,'started');
+    [~,mess] = mf.send_message(1,'started');
 end
 

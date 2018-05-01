@@ -27,13 +27,13 @@ classdef FilebasedMessages < iMessagesFramework
         % time in seconds to waiting in blocking message until
         % unblocking or failing
         time_to_fail_ = 1000; %(sec)
-        % time to watit before checking for next blocking message if 
+        % time to watit before checking for next blocking message if
         % previous attempt have not find it.
         time_to_react_ = 1; % (sec)
         %
         % equvalent to labNum in MPI
         task_id_ = 0;
-        % 
+        %
         numLabs_ = 1;
     end
     %----------------------------------------------------------------------
@@ -65,7 +65,7 @@ classdef FilebasedMessages < iMessagesFramework
         function  obj = init_framework(obj,framework_info)
             % using control structure initialize operational message
             % framework
-            obj = init_framework_(obj,framework_info);            
+            obj = init_framework_(obj,framework_info);
         end
         %------------------------------------------------------------------
         % MPI intefce
@@ -105,9 +105,9 @@ classdef FilebasedMessages < iMessagesFramework
         %
         %
         function [all_messages_names,task_ids] = probe_all(obj,varargin)
-            % list all messages existing in the system with id-s specified as input 
+            % list all messages existing in the system with id-s specified as input
             % and intended for this task
-            % 
+            %
             %Usage:
             %>> [mess_names,task_ids] = obj.probe_all([task_ids],[{mess_name,mess_tag}]);
             %Where:
@@ -117,7 +117,7 @@ classdef FilebasedMessages < iMessagesFramework
             % mess_names   -- cellarray of strings, containing message names
             %                 for the requested tasks.
             % task_ids      -- array of task id-s for the message names
-            %                   in the mess_names
+            %                  in the mess_names
             %
             % if no messages are present in the system
             % all_messages_names and task_ids are empty
@@ -129,7 +129,7 @@ classdef FilebasedMessages < iMessagesFramework
             % retrieve (and remove from system) all messages
             % existing in the system for the tasks with id-s specified as input
             % Blocks execution until the messages all messages are receved.
-            % 
+            %
             %
             %Input:
             %task_ids -- array of task id-s to check messages for
@@ -147,6 +147,13 @@ classdef FilebasedMessages < iMessagesFramework
             % framework and delete the framework itself
             delete_job_(obj);
         end
+        function obj = set.time_to_fail(obj,val)
+            obj.time_to_fail_ = val;
+        end
+        function val = get.time_to_fail(obj)
+            val = obj.time_to_fail_ ;
+        end
+        
     end
     %----------------------------------------------------------------------
     methods (Access=protected)

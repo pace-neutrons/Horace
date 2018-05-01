@@ -56,7 +56,16 @@ classdef iMessagesFramework
         %
         function obj = set.job_id(obj,val)
             if is_string(val) && ~isempty(val)
+                old_id = obj.job_id_;
                 obj.job_id_ = val;
+                if ~isempty(obj.mess_exchange_folder_)
+                    [fp,fs] = fileparts(obj.mess_exchange_folder_);
+                    if strcmpi(fs,old_id)
+                        obj.mess_exchange_folder_ = fullfile(fp,val);
+                    end
+                    
+                end
+                
             else
                 error('iMESSAGES_FRAMEWORK:invalid_argument',...
                     'MPI job id has to be a string');
@@ -335,7 +344,7 @@ classdef iMessagesFramework
         % its cell remains empty
         % if task_id list is emtpy or missing, returns all existing
         % messages
-        all_messages_names = probe_all(obj,task_ids)
+        [all_messages_names,task_ids] = probe_all(obj,task_ids,mess_names)
         
         % retrieve (and remove from system) all messages
         % existing in the system for the tasks with id-s specified as input
@@ -346,7 +355,7 @@ classdef iMessagesFramework
         % all_messages -- cellarray of messages for the tasks requested and
         %                 have messages availible in the system .
         %task_ids       -- array of task id-s for these messages
-        [all_messages,task_ids] = receive_all(obj,task_ids)
+        [all_messages,task_ids] = receive_all(obj,task_ids,mess_name_or_tag)
         %------------------------------------------------------------------
         % delete all messages belonging to this instance of messages
         % framework and shut the framework down.

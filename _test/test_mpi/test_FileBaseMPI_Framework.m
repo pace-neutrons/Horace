@@ -43,25 +43,24 @@ classdef test_FileBaseMPI_Framework< TestCase
         
         %
         function test_finalize_all(this)
-            % not implemented
             mf = MFTester('test_finalize_all');
-            [ok,err]=mf.send_message(1,'starting');
-            assertEqual(ok,MES_CODES.ok)
+            [ok,err]=mf.send_message(0,'starting');
+            assertEqual(ok,MESS_CODES.ok)
             assertTrue(isempty(err));
-            [ok,err]=mf.send_message(2,'starting');
-            assertEqual(ok,MES_CODES.ok)
+            [ok,err]=mf.send_message(0,'running');
+            assertEqual(ok,MESS_CODES.ok)
             assertTrue(isempty(err));
             %
-            ok=mf.receive_message(1,'starting');
-            assertEqual(ok,MES_CODES.ok)
-            ok = mf.receive_message(2,'starting');
-            assertEqual(ok,MES_CODES.ok)
+            ok=mf.receive_message(0,'starting');
+            assertEqual(ok,MESS_CODES.ok)
+            ok = mf.receive_message(0,'running');
+            assertEqual(ok,MESS_CODES.ok)
             
+            
+            [all_messages_names,task_ids] = mf.probe_all(0,'running');
+            assertTrue(isempty(all_messages_names));
+            assertTrue(isempty(task_ids));
             %
-            ok=mf.receive_message(1,'starting');
-            assertEqual(ok,MES_CODES.not_exist)
-            ok=mf.receive_message(2,'starting');
-            assertEqual(ok,MES_CODES.not_exist)
             
             
             ok = mf.is_job_cancelled();
@@ -72,98 +71,100 @@ classdef test_FileBaseMPI_Framework< TestCase
         end
         %
         function test_message(this)
+            fiis = iMessagesFramework.build_framework_init(this.working_dir,...
+                'test_message',0,3);
+            fii = iMessagesFramework.deserialize_par(fiis);
+            
             %
             job_param = struct('filepath',this.working_dir,...
                 'filename_template','test_jobDispatcher%d_nf%d.txt');
             
             mess = aMessage('starting');
             mess.payload = job_param;
-            mf = MFTester('test_message');
-            clob = onCleanup(@()mf.finalize_all());
-            [ok,err] = mf.send_message(1,mess);
-            assertEqual(ok,MES_CODES.ok)
+            
+            mf0 = MFTester(fii);
+            clob = onCleanup(@()mf0.finalize_all());
+            [ok,err] = mf0.send_message(1,mess);
+            assertEqual(ok,MESS_CODES.ok)
             assertTrue(isempty(err));
             
-            mess_fname = mf.mess_name(1,'starting');
+            mess_fname = mf0.mess_name(1,'starting');
             assertTrue(exist(mess_fname,'file')==2);
             %
-            [ok,err,the_mess]=mf.receive_message(1,'starting');
-            assertEqual(ok,MES_CODES.ok)
+            fii.labID = 1;
+            mf1 = MFTester(fii);
+            [ok,err,the_mess]=mf1.receive_message(0,'starting');
+            assertEqual(ok,MESS_CODES.ok)
             assertTrue(isempty(err));
             assertFalse(exist(mess_fname,'file')==2);% Message received
             
             cont = the_mess.payload;
             assertEqual(job_param,cont);
             
-            
-            [ok,err,the_mess]=mf.receive_message(1,'running');
-            assertEqual(ok,MES_CODES.not_exist)
-            assertFalse(isempty(err));
-            assertTrue(isempty(the_mess));
+            [all_messages_names,task_ids] = mf1.probe_all(0,'running');
+            assertTrue(isempty(all_messages_names));
+            assertTrue(isempty(task_ids));
             
             
             job_exchange_folder = fileparts(mess_fname);
             assertTrue(exist(job_exchange_folder,'dir') == 7)
-            mf.finalize_all();
+            mf0.finalize_all();
             assertFalse(exist(job_exchange_folder,'dir') == 7)
         end
         %
         function test_receive_all_mess(this)
-            mf = FilebasedMessages('MFT_receive_messages');
-            clob = onCleanup(@()(mf.finalize_all()));
+            fiis = iMessagesFramework.build_framework_init(this.working_dir,...
+                'FB_MPI_Test_recevie_all',0,3);
+            fii = iMessagesFramework.deserialize_par(fiis);
+            mf0 = FilebasedMessages(fii);
+            
+            clob = onCleanup(@()(mf0.finalize_all()));
+            fii.labID = 1;
+            mf1 = FilebasedMessages(fii);
+            fii.labID = 2;
+            mf2 = FilebasedMessages(fii);
+            fii.labID = 3;
+            mf3 = FilebasedMessages(fii);
+            
             
             mess = aMessage('starting');
-            [ok,err] = mf.send_message(2,mess);
-            assertEqual(ok,MES_CODES.ok)
+            [ok,err] = mf0.send_message(2,mess);
+            assertEqual(ok,MESS_CODES.ok)
             assertTrue(isempty(err));
-            [messo,task_id] = mf.receive_all_messages(1:2);
+            [messo,task_id] = mf2.receive_all(0);
             
             assertEqual(numel(messo),1);
             assertEqual(numel(task_id),1);
-            assertEqual(task_id(1),2);
+            assertEqual(task_id(1),0);
             assertEqual(messo{1}.mess_name,'starting')
             
-            ok = mf.send_message(3,mess);
-            assertEqual(ok,MES_CODES.ok)
+            ok = mf0.send_message(3,mess);
+            assertEqual(ok,MESS_CODES.ok)
             %
-            [mess,task_id] = mf.receive_all_messages(3);
+            [mess,task_id] = mf3.receive_all(0,'starting');
             assertEqual(numel(mess),1);
             assertEqual(numel(task_id),1);
-            assertEqual(task_id(1),3);
+            assertEqual(task_id(1),0);
             assertEqual(mess{1}.mess_name,'starting')
             %
+            % Send 3 messages from "3 labs" and receive all of them
+            % on the control lab
+            ok = mf1.send_message(0,'started');
+            assertEqual(ok,MESS_CODES.ok)
             
-            ok = mf.send_message(1,'started');
-            assertEqual(ok,MES_CODES.ok)
+            ok = mf2.send_message(0,'started');
+            assertEqual(ok,MESS_CODES.ok)
             
-            ok = mf.send_message(2,'started');
-            assertEqual(ok,MES_CODES.ok)
+            ok = mf3.send_message(0,'started');
+            assertEqual(ok,MESS_CODES.ok)
             
-            [mess,task_id] = mf.receive_all_messages(1:2);
-            assertEqual(numel(mess),2);
-            assertEqual(numel(task_id),2);
+            
+            [mess,task_id] = mf0.receive_all();
+            assertEqual(numel(mess),3);
+            assertEqual(numel(task_id),3);
             assertEqual(task_id(1),1);
             assertEqual(task_id(2),2);
-            
-            
-            ok = mf.send_message(1,'running');
-            assertEqual(ok,MES_CODES.ok)
-            ok = mf.send_message(2,'rubbish');
-            assertEqual(ok,MES_CODES.ok)
-            ok = mf.send_message(2,'blah');
-            assertEqual(ok,MES_CODES.ok)
-            
-            mes_st = warning('off','FILEBASED_MESSAGES:invalid_message');
-            clob1 = onCleanup(@()warning(mes_st));
-            [mess,task_id] = mf.receive_all_messages();
-            assertEqual(numel(mess),2);
-            assertEqual(numel(task_id),2);
-            assertEqual(task_id(1),1);
-            assertEqual(task_id(2),2);
-            
-            [mess,task_id] = mf.receive_all_messages();
-            assertEqual(numel(mess),0);
-            assertEqual(numel(task_id),0);
+            assertEqual(task_id(3),3);
         end
         %
         function test_probe_all(this)
@@ -255,20 +256,21 @@ classdef test_FileBaseMPI_Framework< TestCase
         end
         function test_shared_folder(this)
             mf = FilebasedMessages();
-            mf.job_data_folder = this.working_dir;
+            mf.mess_exchange_folder = this.working_dir;
             mf = mf.init_framework('test_shared_folder');
             clob = onCleanup(@()mf.finalize_all());
             
-            jfn = fullfile(this.working_dir,mf.exchange_folder_name,mf.job_id);
+            jfn = fullfile(this.working_dir,config_store.config_folder_name,mf.exchange_folder_name,mf.job_id);
             assertEqual(exist(jfn,'dir'),7);
             
-            [ok,err] = mf.send_message(1,'starting');
-            assertEqual(ok,MES_CODES.ok)
+            [ok,err] = mf.send_message(0,'starting');
+            assertEqual(ok,MESS_CODES.ok)
             assertTrue(isempty(err));
             
-            [ok,err] = mf.receive_message(1,'starting');
-            assertEqual(ok,MES_CODES.ok)
+            [ok,err,the_mess] = mf.receive_message(0,'starting');
+            assertEqual(ok,MESS_CODES.ok)
             assertTrue(isempty(err));
+            assertEqual(the_mess.mess_name,'starting');
             
             clear clob;
             assertTrue(exist(jfn,'dir')==0);

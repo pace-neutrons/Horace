@@ -6,7 +6,7 @@ classdef InitMessage < aMessage
         %
         n_steps
         common_data
-        cycle_data
+        loop_data
         % if job needs to return results
         return_results
     end
@@ -21,7 +21,13 @@ classdef InitMessage < aMessage
                 'loopData',[]);
             obj.payload.loop_data = loop_data;
             if nargin > 2
-                obj.payload.n_steps = varargin{1};
+                if isempty(varargin{1})
+                    obj.payload.n_steps  = numel(loop_data);
+                else
+                    obj.payload.n_steps = varargin{1};
+                end
+            else
+                obj.payload.n_steps  = numel(loop_data);
             end
             if nargin > 3
                 obj.return_results_  = logical(varargin{2});
@@ -39,8 +45,11 @@ classdef InitMessage < aMessage
         function cd = get.common_data(obj)
             cd = obj.payload.common_data;
         end
-        function cd = get.cycle_data(obj)
-            cd = obj.payload.cycle_data;
+        function cd = get.loop_data(obj)
+            cd = obj.payload.loopData;
+        end
+        function yesno = get.return_results(obj)
+            yesno  = obj.return_results_;
         end
         
     end
