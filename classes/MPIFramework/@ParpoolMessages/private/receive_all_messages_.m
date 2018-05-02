@@ -1,43 +1,52 @@
-function   [all_messages,task_ids] = receive_all_messages_(obj,task_ids)
+function   [all_messages,tid_received_from] = receive_all_messages_(obj,task_ids,mess_name)
 % retrieve all messages intended for jobs with id provided
 %
 if ~exist('task_ids','var')
-    task_ids = [];
+    task_ids = 1:obj.numLabs;
 end
-
-if isempty(task_ids)
-    task_ids = 1:numlabs;
+if ~exist('mess_name','var')
+    mess_name = '';
 end
-
+if isempty(mess_name)
+    mess_name  = '';
+end
+not_this_id = task_ids ~= obj.labIndex;
+task_ids = task_ids(not_this_id);
 
 all_messages = cell(numel(task_ids),1);
-[mess_names,tasks_present] = obj.probe_all(task_ids);
-if isempty(mess_names)
-    all_messages = {};
-    return
-end
-
-
-for i=1:numel(task_ids)
-    tid = tasks_present(i);
-    if tid == 0
-        task_ids(i) = 0;
-        continue;
-    end
-    task_mess_names = mess_names{i};
-    mes_tags = MESS_NAMES.mess_id(task_mess_names);
-    for j =1:numel(mes_tags)
-        try
-            message = labReceive(tasks_present(i),mes_tags(j));
-        catch Err
+tid_received_from = zeros(numel(task_ids),1);
+all_received = false;
+[mess_names,tid_from] = obj.probe_all(task_ids,mess_name);
+tid_exist = ismember(tid_requested,tid_from);
+n_requested = numel(tid_requested);
+n_received = 0;
+t0 = tic;
+while ~all_received
+    for i=1:numel(tid_exist)
+        if ~tid_exist(i); continue; end
+        
+        [ok,err_mess,message]=receive_message_(obj,tid_requested(i),mess_name);
+        if ~ok
             error('PARPOOL_MESSAGES:runtime_error',...
-                'Can not reveive existing message %s from task %d. Error: %s',...
-                task_mess_names{j},tasks_present(i),Err.message);
+                'Can not receive existing message: %s, Err: %s',...
+                mess_names{i},err_mess);
         end
-        if isempty(all_messages{i})
-            all_messages{i} = message;
-        else
-            all_messages{i} = [{message},all_messages{i}];
-        end
+        all_messages{i} = message;
+        tid_received_from(i) = tid_requested(i);
     end
+    n_received  = n_received +numel(tid_from);
+    if n_received >= n_requested
+        all_received = true;
+    else
+        t1 = toc(t0);
+        if t1>obj.time_to_fail_
+            error('PARPOOL_MESSAGES:runtime_error',...
+                'Timeout waiting for receiving all messages')
+        end
+        [mess_names,tid_from] = obj.probe_all(task_ids,mess_name);
+        tid_exist = ismember(tid_requested,tid_from);
+    end
+    
 end
+
+

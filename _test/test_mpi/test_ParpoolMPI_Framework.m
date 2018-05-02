@@ -177,6 +177,7 @@ classdef test_ParpoolMPI_Framework< TestCase
             assertTrue(exist(file,'file')==2);
             
         end
+        
         %
         %         function test_labprobe_nonmpi(this)
         %             % The code which runs this is disabled due to the bug in

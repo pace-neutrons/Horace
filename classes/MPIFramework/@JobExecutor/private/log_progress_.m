@@ -1,4 +1,4 @@
-function  log_progress_(this,step,n_steps,time_per_step,add_info)
+function  log_progress_(obj,step,n_steps,time_per_step,add_info)
 % log progress of the job execution and report it to the
 % calling framework.
 % Inputs:
@@ -12,25 +12,29 @@ function  log_progress_(this,step,n_steps,time_per_step,add_info)
 % Sends message of type LogMessage to the job dispatcher.
 % Throws MESSAGE_FRAMEWORK:cancelled error in case the job has
 %
-me = this.mess_framework;
-if me.is_job_cancelled
-    error('MESSAGE_FRAMEWORK:runtime_error',...
-        'job with id %s have been cancelled or not initialized',...
-        this.job_id);
-end
-% cannibalize 'started' message as this job will send 'running' messages
-all_mess = me.probe_all(this.task_id);
-if ~isempty(all_mess)    
-    if ~isempty(all_mess{1}) && ismember('started',all_mess)
-        me.receive_message(this.task_id,'started');
-    end
-end
-% Prepare 'running' log message
 mess = LogMessage(step,n_steps,time_per_step,add_info);
-[ok,err]=me.send_message(this.task_id,mess);
-if ok ~=MESS_CODES.ok
-    error('JOB_EXECUTOR:runtime_error','Can not send log message, Err: %s',...
-        err);
+[~,~,all_mess] = reduce_messages_(obj,mess);
+if obj.labIndex == 1
+    all_mess = [{mess},all_mess];
+    n_step_min = inf;
+    n_steps_max = -inf;
+    if ~isempty(add_info)
+        add_info = {add_info};
+    end
+    tts = -inf;
+    for i=1:numel(all_mess)
+        n_step_min = min(n_step_min,all_mess{i}.n_steps);
+        n_steps_max = max(n_steps_max,all_mess{i}.n_steps);
+        tts = max(tts,all_mess{i}.time_per_step);
+        if ~isempty(all_mess{i}.add_info)
+            add_info = [add_info,{all_mess{i}.add_info}];
+        end
+    end
+    if numel(add_info) == 1
+        add_info = add_info{1};
+    end
+    mess = LogMessage(n_step_min ,n_steps_max,tts,add_info);
+    obj.control_node_exch.send_message(0,mess);
 end
 
 

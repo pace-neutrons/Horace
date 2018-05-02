@@ -160,15 +160,25 @@ classdef test_iMPI_methods< TestCase
                 'filename_template','test_jobDispatcherL%d_nf%d.txt');
             jobControl = InitMessage(job_param,[],3);
             
-
+            
             
             mpi_comm.send_message(1,jobControl);
             
             
             shared_folder_on_remote = obj.working_dir;
             cs  = mpi_comm.build_framework_init(shared_folder_on_remote,mpi_comm.job_id,1,1);
+            created_files = {'test_jobDispatcherL1_nf1.txt',...
+                'test_jobDispatcherL1_nf2.txt','test_jobDispatcherL1_nf3.txt'};
+            created_files = cellfun(@(x)(fullfile(obj.working_dir,x)),...
+                created_files,...
+                'UniformOutput',false);
+            clob5 = onCleanup(@()delete(created_files{:}));
             
             worker(cs);
+            
+            assertTrue(exist(created_files{1},'file')==2)
+            assertTrue(exist(created_files{2},'file')==2)
+            assertTrue(exist(created_files{3},'file')==2)
         end
         function test_mpi_worker_multi_thread(obj)
             pc = parallel_config;

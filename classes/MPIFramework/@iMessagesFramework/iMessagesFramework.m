@@ -27,9 +27,13 @@ classdef iMessagesFramework
         % Number of independent workers used by the framework
         numLabs;
     end
-    properties(Access=private)
+    properties(Access=protected)
         job_id_;
         mess_exchange_folder_ = '';
+        % time in seconds to waiting in blocking message until
+        % unblocking or failing. Does not work for some operations in some frameworks
+        % (e.g. receive_message in mpi)
+        time_to_fail_ = 1000; %(sec)
     end
     properties(Constant=true)
         % the name of the sub-folder where the remote jobs information is stored;

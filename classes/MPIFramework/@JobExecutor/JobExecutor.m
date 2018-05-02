@@ -21,12 +21,19 @@ classdef JobExecutor
         % Access to messages framework used to exchange messages between
         % executor and controller
         mess_framework;
+        % The framework used to exchange messages between MPI jobs pool and
+        % the control node. For filebased messages its the same as
+        % mess_framework but for proper MPI job or remote host its
+        % different.
+        control_node_exch;
     end
     %
     properties(Access=private)
         task_outputs_ = [];
         % handle for the messages framework
         mess_framework_ = [];
+        % host to
+        control_node_exch_ = [];
     end
     methods(Abstract)
         % should be overloaded by a particular implementation
@@ -82,6 +89,19 @@ classdef JobExecutor
             % Clearly finish job execution
             [ok,mess] = finish_job_(this);
         end
+        function [ok,err] = reduce_send_message(obj,mess,varargin)
+            % collect similar messages send from all nodes and send summed
+            % message to the head node
+            %usage:
+            %[ok,err]=Je_instance.reduce_send_message(message,mess_process_function)
+            % where:
+            % message -- either message to send or the message's to sendname
+            %
+            [ok,err,the_mess] = reduce_messages_(obj,mess,varargin{:});
+            if obj.labIndex == 1
+                [ok,err] = obj.control_node_exch.send_message(0,the_mess);
+            end
+        end
         %
         function log_progress(this,step,n_steps,time_per_step,add_info)
             % log progress of the job execution and report it to the
@@ -121,8 +141,12 @@ classdef JobExecutor
             out = obj.task_outputs_;
         end
         %
-        function out = get.mess_framework(obj)
-            out = obj.mess_framework_;
+        function mf= get.mess_framework(obj)
+            mf = obj.mess_framework_;
+        end
+        %
+        function mf = get.control_node_exch(obj)
+            mf = obj.control_node_exch_;
         end
         %------------------------------------------------------------------
         % MPI interface
@@ -174,7 +198,7 @@ classdef JobExecutor
         end
         %
         function is = is_job_cancelled(obj)
-            is = obj.mess_framework_.is_job_cancelled();
+            is = obj.control_node_exch_.is_job_cancelled();
         end
     end
     

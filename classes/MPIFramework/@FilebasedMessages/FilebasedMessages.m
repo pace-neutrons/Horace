@@ -24,9 +24,6 @@ classdef FilebasedMessages < iMessagesFramework
     %----------------------------------------------------------------------
     %----------------------------------------------------------------------
     properties(Access=protected)
-        % time in seconds to waiting in blocking message until
-        % unblocking or failing
-        time_to_fail_ = 1000; %(sec)
         % time to watit before checking for next blocking message if
         % previous attempt have not find it.
         time_to_react_ = 1; % (sec)
@@ -136,7 +133,9 @@ classdef FilebasedMessages < iMessagesFramework
             %Return:
             % all_messages -- cellarray of messages for the tasks requested and
             %                 have messages availible in the system .
-            %task_ids       -- array of task id-s for these messages
+            % task_ids     -- array of task id-s for these messages
+            % mess_name    -- if present, receive only the messages with
+            %                 the name provided
             %
             %
             [all_messages,task_ids] = receive_all_messages_(obj,varargin{:});

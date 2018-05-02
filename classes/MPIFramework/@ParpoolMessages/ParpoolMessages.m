@@ -160,6 +160,8 @@ classdef ParpoolMessages < iMessagesFramework
             %                for missing messages
             % task_ids    -- array of task id-s for these messages with
             %                zeros for missing messages
+            % mess_name    -- if present, receive only the messages with
+            %                 the name provided            
             %
             %
             [all_messages,task_ids] = receive_all_messages_(obj,varargin{:});
