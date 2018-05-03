@@ -86,7 +86,7 @@ classdef ParpoolMessages < iMessagesFramework
         %
         function [ok,err_mess] = send_message(obj,task_id,message)
             % send message to a task with specified id
-            % Blocking
+            % NonBlocking
             % Usage:
             % >>mf = MessagesFramework();
             % >>mess = aMessage('mess_name')
@@ -100,10 +100,10 @@ classdef ParpoolMessages < iMessagesFramework
             try
                 if isa(message,'aMessage')
                     tag = message.tag;
-                    labSend(message,task_id,tag);
-                else
-                    labSend(message,task_id);
+                elseif ischar(message)
+                    tag = MESS_NAMES.mess_id(message);
                 end
+                labSend(message,task_id,tag);
             catch Err
                 ok = false;
                 err_mess = Err;
@@ -147,7 +147,7 @@ classdef ParpoolMessages < iMessagesFramework
         function [all_messages,task_ids] = receive_all(obj,varargin)
             % retrieve (and remove from system) all messages
             % existing in the system for the tasks with id-s specified as input
-            % non-blocking. 
+            % non-blocking.
             %
             % Usage:
             %>>[all_messages,task_ids] = pm.receive_all([task_is]);
@@ -161,9 +161,13 @@ classdef ParpoolMessages < iMessagesFramework
             % task_ids    -- array of task id-s for these messages with
             %                zeros for missing messages
             % mess_name    -- if present, receive only the messages with
-            %                 the name provided            
+            %                 the name provided
             %
             %
+%             for i=1:numel(varargin)
+%                 fprintf('receive_all: Arg N%d = ',i);
+%                 disp(varargin{i});
+%             end
             [all_messages,task_ids] = receive_all_messages_(obj,varargin{:});
         end
         %
@@ -175,12 +179,6 @@ classdef ParpoolMessages < iMessagesFramework
     end
     %----------------------------------------------------------------------
     methods (Access=protected)
-        function mess_fname = job_stat_fname_(obj,task_id,mess_name)
-            %build filename for a specific message
-            mess_fname= fullfile(obj.mess_exchange_folder_,...
-                sprintf('mess_%s_TaskN%d.mat',mess_name,task_id));
-            
-        end
         function ind = get_lab_index_(obj)
             ind = labindex();
         end

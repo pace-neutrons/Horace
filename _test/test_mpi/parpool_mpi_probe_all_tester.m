@@ -38,28 +38,18 @@ end
 if receiver
     lab_senders = find_lab_senders(li,nl);
     n_senders = numel(lab_senders);
-    res  = cell2struct(cell(4,n_senders),{'srcWkrInd','senders','mess_names','mess'});
-    tids_receved = false(1,n_senders);
-    pause(1);
-    [mess_names,task_ids] = pm.probe_all(lab_senders);
-    res = set_results(li,res,task_ids,mess_names);
-    tids_receved  = tids_receved | task_ids>0;
-    %fprintf(' lab: %d, ndis_present: %d\n',li,sum(tids_receved));
+    res  = cell2struct(cell(5,n_senders),...
+        {'srcWkrInd','senders','mess_names','mess','rec_mess_id'});
     
-    n_attempts = 0;
-    while ~all(tids_receved) && n_attempts <100
-        
-        pause(1);
-        %
-        %lab_senders = lab_senders(~ids_present);
-        [mess_names,task_ids] = pm.probe_all(lab_senders);
-        res = set_results(li,res,task_ids,mess_names);
-        tids_receved  = tids_receved | task_ids>0;
-        n_attempts = n_attempts+1;
-    end
-    [all_messages,task_ids] = pm.receive_all(lab_senders);
+    pause(1);
+    [mess_names,task_ids_from] = pm.probe_all(lab_senders);
+    res = set_results(li,res,task_ids_from,mess_names);
+    
+    
+    [all_messages,task_ids_from] = pm.receive_all(lab_senders);
     for i=1:n_senders
-       res(i).mess = all_messages{i};
+        res(i).mess = all_messages{i};
+        res(i).rec_mess_id =task_ids_from(i);
     end
     
     err = [];

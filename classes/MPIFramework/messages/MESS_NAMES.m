@@ -25,6 +25,10 @@ classdef MESS_NAMES
                 id = cellfun(@(nm)(MESS_NAMES.name2code_map_(nm)),...
                     mess_name,'UniformOutput',true);
             else
+                %disp(['MEss name: ',mess_name])
+                %if isempty(mess_name)
+                %    dbstack
+                %end
                 id = MESS_NAMES.name2code_map_(mess_name);
             end
         end

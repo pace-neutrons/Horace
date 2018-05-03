@@ -65,12 +65,19 @@ classdef test_ParpoolMPI_Framework< TestCase
             num_labs = 3*round(num_labs/3);
             
             
+            
             pl = gcp('nocreate'); % Get the current parallel pool
-            if isempty(pl) || pl.NumWorkers ~=num_labs
-                delete(pl)
-                pl = parpool(cl,num_labs);
+            if ~isempty(pl)
+                delete(pl);
             end
-            num_labs = pl.NumWorkers;
+            cjob = createCommunicatingJob(cl,'Type','SPMD');
+            cjob.AttachedFiles = {'parpool_mpi_probe_all_tester.m'};
+            cjob.NumWorkersRange  = num_labs;
+%             if isempty(pl) || pl.NumWorkers ~=num_labs
+%                 delete(pl)
+%                 pl = parpool(cl,num_labs);
+%             end
+%             num_labs = pl.NumWorkers;
             
             job_param = struct('filepath',this.working_dir,...
                 'filename_template','test_ProbeAllMPI%d_nf%d.txt');
@@ -81,12 +88,15 @@ classdef test_ParpoolMPI_Framework< TestCase
             fnames = arrayfun(@(ii)(fullfile(job_exchange_folder,sprintf(fmt,ii,num_labs))),...
                 ind,'UniformOutput',false);
             clob = onCleanup(@()delete(fnames{:}));
-            
-            
-            
-            spmd
-                [res,err] = parpool_mpi_probe_all_tester(job_param);
-            end
+            task = createTask(cjob,@parpool_mpi_probe_all_tester,2,{job_param});
+            submit(cjob);
+            wait(cjob);
+%             spmd
+%                 [res,err] = parpool_mpi_probe_all_tester(job_param);
+%             end
+            results = fetchOutputs(cjob);
+            res = results(:,1);
+            err = results(:,2);
             assertTrue(isempty([err{:}]));
             
             lab_ids = 1:num_labs;
@@ -99,19 +109,11 @@ classdef test_ParpoolMPI_Framework< TestCase
                 assertTrue(exist(fnames{i},'file')==2);
                 if (receivers(i))
                     res_rez=res{i};
-                    mis_mes = arrayfun(@(x)isempty(x.senders),res_rez);
+                    mis_mes = arrayfun(@(x)isempty(x.mess),res_rez);
                     assertFalse(any(mis_mes))
                 else
                     assertTrue(res{i});
                 end
-                
-                
-                %                 assertTrue(isa(res{i},'aMessage'));
-                %                 cii = i-1; % cyclic backward index used by worker to send messages and define their payload.
-                %                 if cii<1; cii= cii+num_labs;  end
-                %                 mess = res{i};
-                %                 assertEqual(mess.mess_name,'started');
-                %                 assertEqual(mess.payload,cii*10);
             end
             
         end
@@ -148,6 +150,7 @@ classdef test_ParpoolMPI_Framework< TestCase
             spmd
                 [res,err] = parpool_mpi_send_receive_tester(job_param);
             end
+            %
             for i=1:num_labs
                 assertTrue(exist(fnames{i},'file')==2);
                 assertTrue(isempty(err{i}));
@@ -162,7 +165,7 @@ classdef test_ParpoolMPI_Framework< TestCase
         end
         %
         %
-        function test_tester(obj)
+        function test_send_receive_tester(obj)
             job_param = struct('filepath',obj.working_dir,...
                 'filename_template','test_ParpoolMPI%d_nf%d.txt');
             filepath = job_param.filepath;
@@ -177,6 +180,22 @@ classdef test_ParpoolMPI_Framework< TestCase
             assertTrue(exist(file,'file')==2);
             
         end
+        function test_probe_receive_all_tester(obj)
+            job_param = struct('filepath',obj.working_dir,...
+                'filename_template','test_ParpoolMPI%d_nf%d.txt');
+            filepath = job_param.filepath;
+            fnt = job_param.filename_template;
+            fname = sprintf(fnt,1,1);
+            file = fullfile(filepath,fname);
+            clob = onCleanup(@()delete(file));
+            
+            mok = parpool_mpi_probe_all_tester(job_param);
+            assertTrue(isempty(mok));
+            
+            assertTrue(exist(file,'file')==2);
+            
+        end
+        
         
         %
         %         function test_labprobe_nonmpi(this)

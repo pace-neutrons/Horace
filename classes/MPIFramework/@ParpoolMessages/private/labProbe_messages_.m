@@ -17,7 +17,7 @@ if isempty(task_nums)
     task_nums = 1:obj.numLabs;
 end
 %
-if nargin > 2
+if nargin > 2 && ~isempty(varargin{1})
     mess_name = varargin{1};
     if ischar(mess_name)
         mess_tag = MESS_NAMES.mess_id(mess_name);
@@ -48,7 +48,7 @@ task_ids_from   = zeros(1,num_tasks);
 num_present = 0;
 for i=1:num_tasks
     if isempty(mess_tag)
-        [isDataAvail,id,tag] = labProbe(task_nums(i));        
+        [isDataAvail,id,tag] = labProbe(task_nums(i));
     else
         [isDataAvail,id,tag] = labProbe(task_nums(i),mess_tag);
     end

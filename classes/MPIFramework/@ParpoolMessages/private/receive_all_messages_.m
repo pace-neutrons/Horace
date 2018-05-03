@@ -11,12 +11,14 @@ if isempty(mess_name)
     mess_name  = '';
 end
 not_this_id = task_ids ~= obj.labIndex;
-task_ids = task_ids(not_this_id);
+tid_requested = task_ids(not_this_id);
 
-all_messages = cell(numel(task_ids),1);
-tid_received_from = zeros(numel(task_ids),1);
+all_messages = cell(numel(tid_requested),1);
+tid_received_from = zeros(numel(tid_requested),1);
 all_received = false;
-[mess_names,tid_from] = obj.probe_all(task_ids,mess_name);
+%
+[mess_names,tid_from] = labProbe_messages_(obj,tid_requested,mess_name);
+%
 tid_exist = ismember(tid_requested,tid_from);
 n_requested = numel(tid_requested);
 n_received = 0;
@@ -43,7 +45,9 @@ while ~all_received
             error('PARPOOL_MESSAGES:runtime_error',...
                 'Timeout waiting for receiving all messages')
         end
-        [mess_names,tid_from] = obj.probe_all(task_ids,mess_name);
+        %
+        [mess_names,tid_from] = labProbe_messages_(obj,tid_requested,mess_name);
+        %
         tid_exist = ismember(tid_requested,tid_from);
     end
     
