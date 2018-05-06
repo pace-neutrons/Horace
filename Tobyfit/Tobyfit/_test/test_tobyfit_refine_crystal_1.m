@@ -37,7 +37,7 @@ function varargout = test_tobyfit_refine_crystal_1 (option, version)
 %
 % *** Change tests to avoid covariance matrix being Kronecker-delta
 
-nlist = 0;  % set to 1 or 2 for listing during fit
+nlist = 2;  % set to 1 or 2 for listing during fit
 
 % Determine whether or not to save output
 save_data = false;

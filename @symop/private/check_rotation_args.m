@@ -1,14 +1,22 @@
 function [ok,mess,n,theta_deg,uoffset] = check_rotation_args (varargin)
-% Check if a set af input arguments can describe a reflection
+% Check if a set af input arguments describes a rotation
 %
-%   >> [ok,mess,n,theta_deg,uoffset] = check_rotation (n_in,theta_deg_in)
-%   >> [ok,mess,n,theta_deg,uoffset] = check_rotation (n_in,theta_deg_in,uoffset_in)
+%   >> [ok,mess,n,theta_deg,uoffset] = check_rotation_args (n_in,theta_deg_in)
+%   >> [ok,mess,n,theta_deg,uoffset] = check_rotation_args (n_in,theta_deg_in,uoffset_in)
 %
 % Input
 % -----
 %   n_in        Three vector of [h,k,l] (row or column) defining rotation axis
 %   theta_deg   Angle of rotation (deg)
-%   uoffset_in  Three vector of [h,k,l] (row or column)
+%   uoffset_in  [Optional] Three vector of [h,k,l] (row or column)
+%
+% Output:
+% -------
+%   ok          True is all OK, false if not
+%   mess        Error message if not OK, empty string if not
+%   n           Rotation axis as row vector [h,k,l]
+%   theta_deg   Rotation angle in degrees
+%   uoffset     Offset row vector [h,k,l]
 
 
 ok = true;

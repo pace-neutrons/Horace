@@ -1,11 +1,22 @@
 function R = calculate_transform (obj, Minv)
-% Transformation matrix for the symmetry operator in an orthonormal frame
+% Get transformation matrix for the symmetry operator in an orthonormal frame
 %
-%   >> R = calculate_transform (obj, M)
+% The transformation matrix converts the components of a vector which is 
+% related by the symmetry operation into the equivalent vector. The 
+% coordinates of the vector are expressed in an orthonormal frame.
+%
+% For example, if the symmetry operation is a rotation by 90 degrees about
+% [0,0,1] in a cubic lattice with lattice parameter 2*pi, the point [0.3,0.1,2]
+% is transformed into [0.1,-0.3,2].
+%
+% The transformation matrix accounts for reflection or rotation, but not
+% translation associated with the offset in the symmetry operator.
+%
+%   >> R = calculate_transform (obj, Minv)
 %
 % Input:
 % ------
-%   obj     Symmetry operator object
+%   obj     Symmetry operator object (scalar)
 %   Minv    Matrix to convert components of a vector given in rlu to those
 %          in an orthonormal frame
 %
@@ -14,7 +25,8 @@ function R = calculate_transform (obj, Minv)
 %   R       Transformation matrix to be applied to the components of a 
 %          vector given in the orthonormal frame for which Minv is defined
 
-if is_empty(obj)
+
+if is_identity(obj)
     R = eye(3);
     
 elseif is_reflection(obj)

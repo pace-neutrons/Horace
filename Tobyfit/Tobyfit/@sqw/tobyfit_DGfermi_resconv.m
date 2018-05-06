@@ -49,7 +49,7 @@ function [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,
 %              above then pars = {p, c1, c2, ...}
 %
 %   lookup      A structure containing lookup tables and pre-calculated matricies etc.
-%              For details, see the help for function tobyfit_DG_resconv_init
+%              For details, see the help for function tobyfit_DGfermi_resconv_init
 %
 %   mc_contributions    Structure indicating which components contribute to the resolution
 %              function. Each field is the name of a component, and its value is
@@ -99,6 +99,10 @@ function [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,
 %   yvec(11,...):  t_d      deviation in detection time of neutron
 
 
+% Use 3He cylindrical gas tube (ture) or Tobyfit original (false)
+use_tube=false;
+
+
 % Check consistency of caller information, stored internal state, and lookup tables
 % ---------------------------------------------------------------------------------
 ind=caller.ind;                 % indicies into lookup tables
@@ -127,33 +131,24 @@ state_out = cell(size(win));    % create output argument
 store_out = [];
 
 
-% Unpack the components of the lookup argument for convenience
-% ------------------------------------------------------------
+% Create pointers to parts of lookup structure
+% --------------------------------------------
 % Moderator
-mod_ind=lookup.mod_table.ind;
 mod_table=lookup.mod_table.table;
-mod_t_av=lookup.mod_table.t_av;
-
-% Aperture
-wa=lookup.aperture.width;
-ha=lookup.aperture.height;
+mod_t_av=lookup.mod_table.t_av(:);    % ensure is a column vector
 
 % Fermi chopper
-fermi_ind=lookup.fermi_table.ind;
 fermi_table=lookup.fermi_table.table;
 
-% Sample
-sample=lookup.sample;
+% Constants
+k_to_v = lookup.k_to_v;
+k_to_e = lookup.k_to_e;
 
 % Detector
-He3det=IX_He3tube(0.0254,10,6.35e-4);   % 1" tube, 10atms, wall thickness=0.635mm
-dt=lookup.dt;
-
-% Final wavevector
-kf=lookup.kf;
-
-% Coordinate transformation
-dq_mat=lookup.dq_mat;
+% --------
+if use_tube
+    He3det=IX_He3tube(0.0254,10,6.35e-4);   % 1" tube, 10atms, wall thickness=0.635mm
+end
 
 
 % Perform resolution broadening calculation
@@ -162,9 +157,10 @@ if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenien
 
 reset_state=caller.reset_state;
 
-use_tube=false;
 for i=1:numel(ind)
+    % Get index of workspace into lookup tables
     iw=ind(i);
+
     % Set random number generator if necessary, and save if required for later
     if reset_state
         if ~isempty(state_in{i})
@@ -174,21 +170,62 @@ for i=1:numel(ind)
         state_out{i} = rng;     % capture the random number generator state
     end
     
-    % Catch case of refining crystal orientation
+    % Create pointers to parts of lookup structure for the current dataset
+    mod_ind=lookup.mod_table.ind{iw}(:);        % ensure is a column vector
+    fermi_ind=lookup.fermi_table.ind{iw}(:);    % ensure is a column vector
+    x0=lookup.x0{iw};
+    xa=lookup.xa{iw};
+    x1=lookup.x1{iw};
+    thetam=lookup.thetam{iw};
+    angvel=lookup.angvel{iw};
+    wa=lookup.wa{iw};
+    ha=lookup.ha{iw};
+    ki=lookup.ki{iw};
+    kf=lookup.kf{iw};
+    sample=lookup.sample(iw);
+    s_mat=lookup.s_mat{iw};
+    spec_to_rlu=lookup.spec_to_rlu{iw};
+    d_mat=lookup.d_mat{iw};
+    detdcn=lookup.detdcn{iw};
+    x2=lookup.x2{iw};
+    det_width=lookup.det_width{iw};
+    det_height=lookup.det_height{iw};
+    dt=lookup.dt{iw};
+    qw=lookup.qw{iw};
+    dq_mat=lookup.dq_mat{iw};
+    
+    % Run and detector for each pixel
+    irun = win(i).data.pix(5,:)';   % column vector
+    idet = win(i).data.pix(6,:)';   % column vector
+    
+    % Catch case of refining crystal orientation or moderator parameters
     if refine_crystal
-        % Strip out crystal refinement parameters
+        % Strip out crystal refinement parameters and reorientate datasets
         [win(i), pars{1}] = refine_crystal_strip_pars (win(i), xtal, pars{1});
         
+        % Update s_mat and spec_to_rlu because crystal orientation will have changed
+        [ok,mess,~,s_mat,spec_to_rlu]=sample_coords_to_spec_to_rlu(win(i).header);
+        if ~ok, error(mess), end
+
+        % Recompute Q because crystal orientation will have changed (dont need to update qw{4})
+        qw(1:3) = calculate_q (ki(irun), kf, detdcn(:,idet), spec_to_rlu(:,:,irun));
+        
+        % Recompute (Q,w) deviations matrix for same reason
+        dq_mat = dq_matrix_DGfermi (ki(irun), kf,...
+            x0(irun), xa(irun), x1(irun), x2(idet),...
+            thetam(irun), angvel(irun), s_mat(:,:,irun), d_mat(:,:,idet),...
+            spec_to_rlu(:,:,irun), k_to_v, k_to_e);
+    
     elseif refine_moderator
-        % Strip out moderator refinement parameters
+        % Strip out moderator refinement parameters and compute lookup table
+        % Note we assume there is only one moderator to refine
         [mod_table_refine, mod_t_av_refine, ~, ~, store_out, pars{1}] = ...
             refine_moderator_strip_pars (modshape, store_in, pars{1});
     end
     
-    qw = calculate_qw_pixels(win(i));   % get qw *after* changing crystal orientation
+    % Simulate the signal for the data set
+    % ------------------------------------
     npix = size(win(i).data.pix,2);
-    irun = win(i).data.pix(5,:);
-    idet = win(i).data.pix(6,:);
     
     for imc=1:mc_points
         yvec=zeros(11,1,npix);
@@ -196,8 +233,8 @@ for i=1:numel(ind)
         % Fill time deviations for moderator
         if mc_contributions.moderator
             if ~refine_moderator
-                t_red = rand_cumpdf_arr (mod_table, mod_ind{iw}(irun));
-                yvec(1,1,:) = mod_t_av(mod_ind{iw}(irun)) .* (t_red./(1-t_red) - 1);    % must subtract first moment
+                t_red = rand_cumpdf_arr (mod_table, mod_ind(irun));
+                yvec(1,1,:) = mod_t_av(mod_ind(irun)) .* (t_red./(1-t_red) - 1);    % must subtract first moment
             else
                 t_red = rand_cumpdf_arr (mod_table_refine, ones(size(irun)));
                 yvec(1,1,:) = mod_t_av_refine * (t_red./(1-t_red) - 1);    % must subtract first moment
@@ -206,18 +243,18 @@ for i=1:numel(ind)
         
         % Aperture deviations
         if mc_contributions.aperture
-            yvec(2,1,:)=wa{iw}(irun).*(rand(1,npix)-0.5);
-            yvec(3,1,:)=ha{iw}(irun).*(rand(1,npix)-0.5);
+            yvec(2,1,:)=wa(irun)'.*(rand(1,npix)-0.5);
+            yvec(3,1,:)=ha(irun)'.*(rand(1,npix)-0.5);
         end
         
         % Fermi chopper deviations
         if mc_contributions.chopper
-            yvec(4,1,:)=rand_cumpdf_arr(fermi_table,fermi_ind{iw}(irun));
+            yvec(4,1,:)=rand_cumpdf_arr(fermi_table,fermi_ind(irun));
         end
         
         % Sample deviations
         if mc_contributions.sample
-            yvec(5:7,1,:)=random_points(sample(iw),npix);
+            yvec(5:7,1,:)=random_points(sample,npix);
         end
         
         % Detector deviations
@@ -225,15 +262,15 @@ for i=1:numel(ind)
             % Use detecetor object random points method
             if mc_contributions.detector_depth || mc_contributions.detector_area
                 if ~mc_contributions.detector_area
-                    yvec(8,1,:) = random_points (He3det, kf{iw});
+                    yvec(8,1,:) = random_points (He3det, kf);
                 elseif ~mc_contributions.detector_depth
-                    [~,yvec(9,1,:)] = random_points (He3det, kf{iw});
+                    [~,yvec(9,1,:)] = random_points (He3det, kf);
                 else
-                    [yvec(8,1,:),yvec(9,1,:)] = random_points (He3det, kf{iw});
+                    [yvec(8,1,:),yvec(9,1,:)] = random_points (He3det, kf);
                 end
             end
             if mc_contributions.detector_area
-                yvec(10,1,:)=win(i).detpar.height(idet).*(rand(1,npix)-0.5);
+                yvec(10,1,:)=det_height(idet).*(rand(1,npix)-0.5);
             end
         else
             % Use original Tobyfit method
@@ -242,17 +279,18 @@ for i=1:numel(ind)
             end
             
             if mc_contributions.detector_area
-                yvec(9,1,:) =win(i).detpar.width(idet).*(rand(1,npix)-0.5);
-                yvec(10,1,:)=win(i).detpar.height(idet).*(rand(1,npix)-0.5);
+                yvec(9,1,:) =det_width(idet)'.*(rand(1,npix)-0.5);
+                yvec(10,1,:)=det_height(idet)'.*(rand(1,npix)-0.5);
             end
         end
         
         % Energy bin
         if mc_contributions.energy_bin
-            yvec(11,1,:)=dt{iw}.*(rand(1,npix)-0.5);
+            yvec(11,1,:)=dt'.*(rand(1,npix)-0.5);
         end
         
-        dq=squeeze(mtimesx_horace(dq_mat{iw},yvec))';
+        % Calculate the deviations in Q and energy, and then the S(Q,w) intensity
+        dq=squeeze(mtimesx_horace(dq_mat,yvec))';
         if imc==1
             stmp=sqwfunc(qw{1}+dq(:,1),qw{2}+dq(:,2),qw{3}+dq(:,3),qw{4}+dq(:,4),pars{:});
         else

@@ -47,10 +47,10 @@ for i=1:nrun
         h=header;
     end
     % Matrix to convert from laboratory frame to crystal Cartesian coordinates, and to rlu
-    [spec_to_u, u_to_rlu, spec_to_rlu(:,:,i)]=calc_proj_matrix (h.alatt, h.angdeg, h.cu, h.cv, h.psi, h.omega, h.dpsi, h.gl, h.gs); % Vcryst = spec_to_u * Vspec
+    [spec_to_u, ~, spec_to_rlu(:,:,i)]=calc_proj_matrix (h.alatt, h.angdeg, h.cu, h.cv, h.psi, h.omega, h.dpsi, h.gl, h.gs); % Vcryst = spec_to_u * Vspec
     % Matrix to convert from crystal Cartesian coordinates to frame defined by sample geometry (x,y axes in r.l.u.)
     b=bmatrix(h.alatt, h.angdeg);
-    [ub,mess,umat]=ubmatrix(xgeom, ygeom, b);   % Vsamp(i) = umat * Vcryst
+    [~,~,umat]=ubmatrix(xgeom, ygeom, b);   % Vsamp(i) = umat * Vcryst
     % matrix to convert from sample coordinate frame to laboratory frame
     s_mat(:,:,i)=spec_to_u\umat';  % use fact that inverse of umat is the same as transpose of umat
 end

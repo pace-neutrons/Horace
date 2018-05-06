@@ -1,7 +1,10 @@
 function wout = combine_dnd_same_bins (varargin)
 % Combine dnd objects that are assumed to have the same size s,e,npix arrays
 % Only s,e,npix are altered; all the other properties come from the first
-% object in the input argument list
+% object in the input argument list.
+%
+% Correctly weights the signal by the number of pixels, but cannot account
+% for duplicated pixels.
 %
 %   >> wout = combine_dnd_same_bins (w1,w2,w3...)
 

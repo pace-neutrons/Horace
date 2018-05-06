@@ -2,7 +2,7 @@
 % Setup
 % --------------------------------------------------------------------------------------
 
-dir_in='E:\data\aaa_Horace';
+dir_in='T:\data\Tobyfit_test';
 dir_out=tempdir;
 
 % Output files with simulated data to be corrected
@@ -68,7 +68,7 @@ w2 = set_sample (w2, samp);
 % Simulate with vanadium
 wref0 = sqw_eval(w2,@van_sqw,[10,0,0.05]);
 
-kk = tobyfit2 (wref0,'disk');
+kk = tobyfit (wref0,'disk');
 
 kk = kk.set_fun(@van_sqw,[10,0,0.05]);
 kk = kk.set_mc_points(10);
@@ -82,16 +82,25 @@ instru_fermi = maps_instrument(8,50,'S');
 wref_fermi = set_instrument(wref, instru_fermi);
 
 % Simulate
-kk = tobyfit2 (wref,'disk');
+kk = tobyfit (wref,'disk');
 kk = kk.set_fun(@van_sqw,[10,0,0.05]);
 kk = kk.set_mc_points(10);
 wsim = kk.simulate;
 
-kkf = tobyfit2 (wref_fermi,'fermi');
+kkf = tobyfit (wref_fermi,'fermi');
 kkf = kkf.set_fun(@van_sqw,[10,0,0.05]);
 kkf = kkf.set_mc_points(10);
 wsim_fermi = kkf.simulate;
 
+kk = tobyfit (wref,'disk_test');
+kk = kk.set_fun(@van_sqw,[10,0,0.05]);
+kk = kk.set_mc_points(10);
+wsim_test = kk.simulate;
+
+kkft = tobyfit (wref_fermi,'fermi_test');
+kkft = kkft.set_fun(@van_sqw,[10,0,0.05]);
+kkft = kkft.set_mc_points(10);
+wsim_fermi_test = kkft.simulate;
 
 %% ====================================================================================================
 % Test the mod/shape chop pulse width
@@ -250,13 +259,58 @@ wsim_all = kk.simulate;
 [xcent,xpeak,fwhh,xneg,xpos,ypeak,wpeak]=peak_cwhh(IX_dataset_1d(wsim_all));
 
 
+%% ====================================================================================================
+% Test the q-resolution width
+% ---------------------------
+
+% Suitable cut to simulate rods of intensity
+wq2 = cut_sqw (sqw_file_full, proj1, 0.025, 0.025, [-0.2,0.2], [-3,6]);
+wq1 = cut_sqw (sqw_file_full, proj1, [-0.2,0.2], [-0.3,0.02,0.3], [-0.2,0.2], [-3,6]);
+
+instru = let_instrument (efix, 280, 140, 20, 2, 2);
+samp = IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);
+wq1 = set_instrument (wq1, instru);
+wq1 = set_sample (wq1, samp);
+
+% Test the cross-section model
+fwhh = 0.25;
+wq2_nores=sqw_eval(wq2,@sheet_sqw,{[1,fwhh],[5,5,5,90,90,90],[0,0,1]});
+wq1_nores=sqw_eval(wq1,@sheet_sqw,{[1,fwhh],[5,5,5,90,90,90],[0,0,1]});
 
 
+% Now test resolution
+fwhh = 0.02;
+wnores = sqw_eval(wq1,@sheet_sqw,{[1,fwhh],[5,5,5,90,90,90],[0,0,1]});
+
+kk = tobyfit(wq1,'disk');
+kk = kk.set_fun(@sheet_sqw,{[1,fwhh],[5,5,5,90,90,90],[0,0,1]});
+kk = kk.set_mc_points(10);
+kk = kk.set_mc_contributions('horiz');      % horizontal divergence only
+wsim = kk.simulate;
+
+kkt = tobyfit (wq1,'disk_test');
+kkt = kkt.set_fun(@sheet_sqw,{[1,fwhh],[5,5,5,90,90,90],[0,0,1]});
+kkt = kkt.set_mc_points(10);
+kkt = kkt.set_mc_contributions('horiz');    % horizontal divergence only
+wsim_test = kkt.simulate;
 
 
-
-
-
+% % FWHH in Q
+% fwhh = 0.01;
+% wq1_nores=sqw_eval(wq1,@rod_sqw,{[1,fwhh],[5,5,5,90,90,90]});
+% 
+% % Now with resolution
+% kk = tobyfit(wq1,'disk');
+% kk = kk.set_fun(@rod_sqw,{[1,fwhh],[5,5,5,90,90,90]});
+% kk = kk.set_mc_points(10);
+% kk = kk.set_mc_contributions('horiz');      % horizontal divergence only
+% wsim = kk.simulate;
+% 
+% kkt = tobyfit (wq1,'disk_test');
+% kkt = kkt.set_fun(@rod_sqw,{[1,fwhh],[5,5,5,90,90,90]});
+% kkt = kkt.set_mc_points(10);
+% kkt = kkt.set_mc_contributions('horiz');    % horizontal divergence only
+% wsim_test = kkt.simulate;
 
 
 

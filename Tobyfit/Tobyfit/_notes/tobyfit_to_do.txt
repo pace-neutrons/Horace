@@ -13,7 +13,7 @@ Little things to check:
   at the fit or simulate stage. refine_moderator: checks ei in both set_refine_moderator and
   at the fit or simulate stage in pack_parameters.
 
-- Make detpar carry more infpormation (as detector.dat) - needed to get tube orientations
+- Make detpar carry more information (as detector.dat) - needed to get tube orientations
 
 - Check that all tube types are the same
 
@@ -22,12 +22,25 @@ Little things to check:
   
 Bugs
 ====
+qmat in disk chopper. transverse q components of bmat
+
 A single sqw, all points masked (zero errors, for example): causes a crash in 
   Undefined operator './' for input arguments of type 'cell'.
 
 Error in initial_pulse_DGdisk>shaped_mod_pulse (line 108)
     trans = 1 - abs(t_sh)./chop_fwhh;
 	
+
+	
+Improvements
+============	
+tobyfit_DGdisk_resconv_init, and sim. fermi:
+	- detpar can be indexed (usually will have the same detector parameter files);
+	  that goes for x2 as well, mayber other properties
+	  
+Disk chopper has 10atm LET tubes hard-wired
+
+tobyfit should be able to determine the instrument type from the header.instrument
 	
 	
 	
