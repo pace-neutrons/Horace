@@ -46,7 +46,7 @@ function obj = set_mask(obj,varargin)
 %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
 %   doc_set_mask_intro = fullfile(mfclass_doc,'doc_set_mask_intro.m')
 %
-%   func = 'add'
+%   func = 'set'
 %
 % -----------------------------------------------------------------------------
 % <#doc_beg:> multifit

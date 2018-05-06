@@ -1,6 +1,9 @@
 function theta = rotmat_to_rotvec2 (rotmat, algorithm)
 % Convert rotation matricies to rotation vectors
 %
+% The rotation matrix relates the components of a vector expressed in a
+% coordinate frame S to those in a frame S' by v'(i) = R(i,j) v(j).
+%
 %   >> theta = rotmat_to_rotvec2 (rotmat)
 %   >> theta = rotmat_to_rotvec2 (rotmat, algorithm)
 %

@@ -347,9 +347,9 @@ else
             nrm(j)=jac(:,j)'*jac(:,j);
             if nrm(j)>0
                 nrm(j)=1/sqrt(nrm(j));
-            end;
+            end
             jac(:,j)=nrm(j)*jac(:,j);
-        end;
+        end
         [jac,s,v]=svd(jac,0);
         s=diag(s);
         g=jac'*resid;
@@ -382,7 +382,7 @@ else
                     break;
                 end
                 if listing~=0, fit_listing_iteration(listing, iter, c/nnorm, lambda, p); end
-            end;
+            end
             if itable==numel(lambda_table) % Gone to end of table without improving chisqr
                 max_rescale_lambda=true;
                 break;
@@ -432,7 +432,7 @@ else
             f_pass_caller_info,bf_pass_caller_info,p_best,p_info,f_best,dp,S,Store,listing);
         for j=1:npfree
             jac(:,j)=wt.*jac(:,j);
-        end;
+        end
         [~,s,v]=svd(jac,0);
         s=repmat((1./diag(s))',[npfree,1]);
         v=v.*s;

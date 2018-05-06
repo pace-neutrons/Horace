@@ -55,7 +55,7 @@ else
             w.slot_height= 0;
         end
         if nargin-noff>=6
-            w.jitter = varargin{noff+11};
+            w.jitter = varargin{noff+6};
         else
             w.jitter = 0;
         end
