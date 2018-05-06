@@ -1,8 +1,8 @@
 function lookup=moderator_sampling_table(moderator,ei,varargin)
 % Create moderator lookup table and index arrays
 %
-%   >> lookup=moderator_sampling_table(fermi)
-%   >> lookup=moderator_sampling_table(fermi,npnt)
+%   >> lookup=moderator_sampling_table(moderator,ei)
+%   >> lookup=moderator_sampling_table(moderator,ei,npnt)
 %   >> lookup=vmoderator_sampling_table(...,opt1,opt2,..)
 %
 % Input:

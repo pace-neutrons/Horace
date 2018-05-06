@@ -29,7 +29,7 @@ pixind = zeros(npixtot_all,3);
 for i=1:nw
     pixind(nbeg(i):nend(i),:) = varargin{i}.data.pix(5:7,:)';
 end
-[~,ix_all] = unique(pixind,'rows');
+[~,ix_all] = unique(pixind,'rows','first');     % indicies to first occurence
 clear pixind    % clear a large work array
 
 ibin = zeros(npixtot_all,1);

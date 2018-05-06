@@ -1,7 +1,7 @@
 function [deps,eps_lo,eps_hi,ne]=energy_transfer_info(header)
 % Get energy transfer information
 %
-%   >> [deps,eps_lo,eps_hi,ne]=energy_transfer(header)
+%   >> [deps,eps_lo,eps_hi,ne]=energy_transfer_info(header)
 %    
 % Input:
 % ------
@@ -9,12 +9,14 @@ function [deps,eps_lo,eps_hi,ne]=energy_transfer_info(header)
 %
 % Output:
 % -------
+%   The output arrays have length equal to the number of runs:
+%
 %   deps        Size of energy transfer bins (meV) [Column vector]
 %   eps_lo      Centre of lowest energy transfer bins (mev)  [Column vector]
 %   eps_hi      Centre of highest energy transfer bins (mev) [Column vector]
 %   ne          Number of energy transfer bins [Column vector]
 
-% Get array of instruments
+
 if ~iscell(header)
     ne=numel(header.en)-1;
     eps_lo=0.5*(header.en(1)+header.en(2));

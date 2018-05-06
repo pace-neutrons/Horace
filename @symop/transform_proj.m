@@ -39,6 +39,10 @@ function [ok, mess, proj, pbin] = transform_proj (obj, alatt, angdeg, proj_in, p
 ok = true;
 mess = '';
 
+if numel(obj)<1
+    error('Empty symmetry operation object array')
+end
+
 b = bmatrix (alatt, angdeg);
 
 % Transform proj

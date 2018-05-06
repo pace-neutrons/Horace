@@ -69,9 +69,9 @@ ds_mat = mtimesx_horace(d_mat,s_mat);
 b_mat(1,1,:) =  cp_i;
 b_mat(1,4,:) = -cp_i;
 
-b_mat(2,2,:) =  1;
+b_mat(2,2,:) =  wi;
 
-b_mat(3,3,:) =  1;
+b_mat(3,3,:) =  wi;
 
 b_mat(4,1,:) =  cp_f .* (-x1./xa);
 b_mat(4,4,:) =  cp_f .* ((xa+x1)./xa);

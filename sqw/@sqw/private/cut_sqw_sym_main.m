@@ -10,7 +10,7 @@ function [wcombine,wout] = cut_sqw_sym_main (data_source, ndims, varargin)
 %   >> w = cut_sqw_sym_main (data_source, ndims, proj, p1_bin, p2_bin, p3_bin, p4_bin, sym)
 %
 %   >> w = cut_sqw_sym_main (..., '-nopix')     % output cut is dnd structure (i.e. no
-%                                           % pixel information is retained)
+%                                               % pixel information is retained)
 %
 %   >> w = cut_sqw_sym_main (..., '-save')      % save cut to file (prompts for file)
 %   >> w = cut_sqw_sym_main (...,  filename)    % save cut to named file
@@ -125,13 +125,17 @@ else                    % must refer to new projection axes
 end
 
 
-% Checks on symmetry description
+% Checks on symmetry description - check valid, and remove empty descriptions
 if ~iscell(sym), sym = {sym}; end   % make a cell array for convenience
+keep = true(size(sym));
 for i=1:numel(sym)
     if ~isa(sym{i},'symop')
-        error('Symmetry descriptor must be an symop object or array of symop objects, cell of those')
+        error('Symmetry descriptor must be an symop object or array of symop objects, or a cell of those')
+    elseif numel(sym{i})==0
+        keep(i) = false;
     end
 end
+sym = sym(keep);
 
 
 % Get header information from the data source
@@ -190,12 +194,14 @@ else
 end
 
 w = cell(1,numel(sym)+1);
+% Perform the cut without any symmetry operations
 if ~proj_given
     w{1} = cut_sqw_main (data_source, ndims, pbin{:}, nopix{:});
 else
     w{1} = cut_sqw_main (data_source, ndims, proj, pbin{:}, nopix{:});
 end
 
+% Now perform the cut for each array of symmetry operations
 [proj_ref, pbin_ref] = get_proj_and_pbin (w{1});
 for i=1:numel(sym)
     [ok, mess, proj_trans, pbin_trans] = transform_proj (sym{i},...
@@ -211,6 +217,7 @@ end
 % Merge cuts
 % ----------
 % Take account of duplicated pixels if sqw cuts
+% If dnd cuts, then duplicated pixels cannot be accounted for, although the weighting is correct
 if hor_log_level>0
     disp(['Combining cuts...'])
 end

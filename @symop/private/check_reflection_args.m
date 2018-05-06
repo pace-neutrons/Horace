@@ -1,8 +1,8 @@
 function [ok,mess,u,v,uoffset] = check_reflection_args (varargin)
 % Check if a set af input arguments can describe a reflection
 %
-%   >> [ok,mess,u,v,uoffset] = check_reflection (u_in,v_in)
-%   >> [ok,mess,u,v,uoffset] = check_reflection (u_in,v_in,uoffset_in)
+%   >> [ok,mess,u,v,uoffset] = check_reflection_args (u_in,v_in)
+%   >> [ok,mess,u,v,uoffset] = check_reflection_args (u_in,v_in,uoffset_in)
 %
 % Input
 % -----
@@ -10,8 +10,15 @@ function [ok,mess,u,v,uoffset] = check_reflection_args (varargin)
 %   v_in        Three vector of [h,k,l] (row or column)
 %   uoffset_in  Three vector of [h,k,l] (row or column)
 %
-%   u_in, v_in define the mirror plane
-
+%   u_in, v_in are two non-colinear vectors in the mirrow plane
+%
+% Output:
+% -------
+%   ok          True is all OK, false if not
+%   mess        Error message if not OK, empty string if not
+%   u           u_in as a row vector
+%   v           v_in as a row vector
+%   uoffset     Offset row vector [h,k,l]
 
 ok = true;
 mess = '';

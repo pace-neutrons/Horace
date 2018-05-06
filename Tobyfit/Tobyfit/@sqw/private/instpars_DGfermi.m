@@ -9,7 +9,7 @@ function [ok,mess,ei,x0,xa,x1,thetam,angvel,moderator,aperture,chopper]=...
 % ------
 %   header      Header field from sqw object
 %
-% Output: (arrays have length equal to the number of contributing runs)
+% Output: (arrays are column vectors with length equal to the number of contributing runs)
 % -------
 %   ok          Error status: true if OK, false otherwise
 %   mess        Error message: empty if OK, filled otherwise
