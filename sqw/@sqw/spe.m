@@ -5,7 +5,7 @@ function d=spe(w)
 %
 % Conversion is possible only if the sqw object was made from a single spe
 % file and that it contains all the data from the spe file. The second
-% condition means that the sqw object must contain the pixel informationno cut has been performed that contains all the pixelfollowing is true:
+% condition means that the sqw object must contain the pixel informationno cut has been performed that contains all the pixel following is true:
 %               - The sqw object is sqw-type
 %               - Only one spe file contributed
 %               - All energy bins for a given detector are either
