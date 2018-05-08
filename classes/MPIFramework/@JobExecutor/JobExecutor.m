@@ -14,7 +14,7 @@ classdef JobExecutor
         %-------------------------------------
         % Properties of a job runner:
         % the jd of the the job which is running
-        task_id;
+        labIndex;
         % structure, containing output, returned from the job by
         % calling return_results method
         task_outputs;
@@ -121,7 +121,7 @@ classdef JobExecutor
             log_progress_(this,step,n_steps,time_per_step,add_info);
         end
         %------------------------------------------------------------------
-        function id = get.task_id(obj)
+        function id = get.labIndex(obj)
             % get number (job id) of current running job
             id = obj.mess_framework_.labIndex;
         end
@@ -151,21 +151,21 @@ classdef JobExecutor
         %------------------------------------------------------------------
         % MPI interface
         % overloads to exchange messages with JobDispatcher for particular job Executor
-        function [ok,err_mess] = send_message(obj,message)
+        function [ok,err_mess] = send_message(obj,targ_lab,message)
             % send message to job dispatcher
             % input:
             % message -- an instance of the class aMessage to send to job
             %            dispatcher
             %
-            [ok,err_mess] = obj.mess_framework_.send_message(obj.task_id,...
+            [ok,err_mess] = obj.mess_framework_.send_message(targ_lab,...
                 message);
         end
-        function [ok,err_mess,message] = receive_message(obj,mess_name)
+        function [ok,err_mess,message] = receive_message(obj,source_lab,mess_name)
             % receive message from job dispatcher
-            [ok,err_mess,message] = obj.mess_framework_.receive_message(obj.task_id,mess_name);
+            [ok,err_mess,message] = obj.mess_framework_.receive_message(source_lab,mess_name);
         end
         function ok=probe_message(obj,mess_name)
-            all_names = obj.mess_framework_.probe_all(obj.task_id);
+            all_names = obj.mess_framework_.probe_all([],mess_name);
             if exist('mess_name','var')
                 if any(ismember(mess_name,all_names))
                     ok = true;

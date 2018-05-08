@@ -71,7 +71,7 @@ classdef test_ParpoolMPI_Framework< TestCase
                 delete(pl);
             end
             cjob = createCommunicatingJob(cl,'Type','SPMD');
-            cjob.AttachedFiles = {'parpool_mpi_probe_all_tester.m'};
+            %cjob.AttachedFiles = {'parpool_mpi_probe_all_tester.m'};
             cjob.NumWorkersRange  = num_labs;
 %             if isempty(pl) || pl.NumWorkers ~=num_labs
 %                 delete(pl)
@@ -131,26 +131,38 @@ classdef test_ParpoolMPI_Framework< TestCase
             
             cl = parcluster();
             pl = gcp('nocreate'); % Get the current parallel pool
-            if isempty(pl)
-                pl = parpool(cl);
+            if ~isempty(pl)
+                delete(pl);
             end
-            num_labs = pl.NumWorkers;
-            if num_labs == 1
+            num_labs = cl.NumWorkers;
+            if num_labs < 3
                 return;
             end
+            num_labs = 3*round(num_labs/3);            
+
             ind = 1:num_labs;
+            cjob = createCommunicatingJob(cl,'Type','SPMD');
+            %cjob.AttachedFiles = {'parpool_mpi_send_receive_tester.m'};
+            cjob.NumWorkersRange  = num_labs;
+            
             job_exchange_folder = job_param.filepath;
             fmt = job_param.filename_template;
             
             fnames = arrayfun(@(ii)(fullfile(job_exchange_folder,sprintf(fmt,ii,num_labs))),...
                 ind,'UniformOutput',false);
             clob = onCleanup(@()delete(fnames{:}));
+            task = createTask(cjob,@parpool_mpi_send_receive_tester,2,{job_param});
+            submit(cjob);
+            wait(cjob);           
             
-            
-            spmd
-                [res,err] = parpool_mpi_send_receive_tester(job_param);
-            end
+%             spmd
+%                 [res,err] = parpool_mpi_send_receive_tester(job_param);
+%             end
             %
+            results = fetchOutputs(cjob);
+            res = results(:,1);
+            err = results(:,2);
+            
             for i=1:num_labs
                 assertTrue(exist(fnames{i},'file')==2);
                 assertTrue(isempty(err{i}));
