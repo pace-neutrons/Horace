@@ -20,8 +20,10 @@ classdef test_ParpoolMPI_Framework< TestCase
                 name = 'test_ParpoolMPI_Framework';
             end
             this = this@TestCase(name);
-            this.working_dir = tempdir;
-            pc = parallel_config;
+            pc = parallel_config;            
+            
+            this.working_dir = pc.working_directory;
+
             if strcmp(pc.parallel_framework,'parpool')
                 this.change_setup = false;
             else
@@ -53,10 +55,14 @@ classdef test_ParpoolMPI_Framework< TestCase
             end
         end
         %
-        function test_probe_all_receive_all(this)
+        function test_probe_all_receive_all(this,varargin)
             if this.ignore_test
                 return;
             end
+            if nargin>1
+                clob0 = onCleanup(@()tearDown(this));
+            end
+            
             cl = parcluster();
             num_labs = cl.NumWorkers;
             if num_labs < 3
@@ -121,9 +127,12 @@ classdef test_ParpoolMPI_Framework< TestCase
         
         %
         %
-        function test_send_receive_message(this)
+        function test_send_receive_message(this,varargin)
             if this.ignore_test
                 return;
+            end
+            if nargin>1
+                clob0 = onCleanup(@()tearDown(this));
             end
             %
             job_param = struct('filepath',this.working_dir,...
