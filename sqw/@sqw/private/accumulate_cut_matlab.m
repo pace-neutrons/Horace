@@ -42,7 +42,7 @@ function [s, e, npix, urange_step_pix, npix_retain, ok, ix] = accumulate_cut_mat
 %
 %
 % Temporary and ineffective solution to keep pixels double all through the
-% Horace. TODO: redefine piexels as single and propagate it through all Horace
+% Horace. TODO: redefine pixels as single and propagate it through all Horace
 if isa(v,'single')
     v= double(v);
 end

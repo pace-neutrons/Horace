@@ -1,12 +1,12 @@
 function horace_mex
 % Usage:
 % horace_mex;
-% Create mex files for all the Horace fortran and C(++) routines
+% Create mex files for all the Horace Fortran and C(++) routines
 % assuming that proper mex file compilers are configured for Matlab
 %
 % to configure a gcc compiler (version >= 4.3 requested)  to produce omp
 % code one have to edit  ~/.matlab/mexoptions.sh file and add -fopenmp key
-% to the proprer compiler and linker keys
+% to the proper compiler and linker keys
 %
 % $Revision$ ($Date$)
 %
@@ -36,7 +36,7 @@ try % mex C++
     mex_single([cpp_in_rel_dir 'mtimesx_horace'], out_rel_dir,'mtimesx_mex.cpp');    
 
     
-    disp('**********> Succesfully created required mex files from C++')
+    disp('**********> Successfully created required mex files from C++')
     C_compiled=true;
     add_version_foloder(out_rel_dir);
 catch ME
@@ -48,7 +48,7 @@ try
    cof = {'combine_sqw.cpp','exchange_buffer.cpp','fileParameters.cpp',...
        'pix_mem_map.cpp', 'sqw_pix_writer.cpp', 'sqw_reader.cpp', 'nsqw_pix_reader.cpp'};
    mex_single([cpp_in_rel_dir 'combine_sqw'], out_rel_dir,cof{:} );
-   disp('**********> Succesfully created mex file for combining components from C++')   
+   disp('**********> Successfully created mex file for combining components from C++')   
 catch ME
     message=ME.message;
     warning('**********> Can not create C++ combining procedure, reason: %s. combining using C++ is not availile',message);   
@@ -61,7 +61,7 @@ try  % mex FORTRAN
     %    mex_single(fortran_in_rel_dir, out_rel_dir,'get_phx_fortran.f','IIget_phx_fortran.f');
     %    mex_single([fortran_in_rel_dir 'get_spe_fortran' filesep 'get_spe_fortran'], out_rel_dir,'get_spe_fortran.F','IIget_spe_fortran.F');
     %
-    %    disp('**********> Succesfully created all requsted mex files from FORTRAN')
+    %    disp('**********> Successfully created all requested mex files from FORTRAN')
     disp('**********> No FORTRAN functions used at the moment')
     F_compiled=true;
 catch ME
@@ -74,7 +74,7 @@ if C_compiled && F_compiled
 end
 
 function add_version_foloder(out_rel_dir)
-% Add folder with compiled mex files to matlab search path
+% Add folder with compiled mex files to Matlab search path
 %
 hor_folder = fileparts(which('horace_init.m'));
 mex_folder = fullfile(hor_folder,out_rel_dir);
