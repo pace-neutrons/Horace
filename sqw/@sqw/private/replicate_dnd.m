@@ -43,7 +43,7 @@ elseif nd_in==0
     % Catch special case of nd_in==0 (loops for nd_in>0 later on won't work)
     dout=dref;
     dout.s=din.s*ones(size(dref.s));
-    dout.e=din.s*ones(size(dref.s));
+    dout.e=din.e*ones(size(dref.s));
     dout.npix=din.npix*ones(size(dref.s));
     return
 else
