@@ -12,12 +12,9 @@ classdef JobExecutor
     %
     properties(Dependent)
         %-------------------------------------
-        % Properties of a job runner:
-        % the jd of the the job which is running
+        % Properties of a job executor:
+        % the id of the running task
         labIndex;
-        % structure, containing output, returned from the job by
-        % calling return_results method
-        task_outputs;
         % Access to messages framework used to exchange messages between
         % executor and controller
         mess_framework;
@@ -26,24 +23,49 @@ classdef JobExecutor
         % mess_framework but for proper MPI job or remote host its
         % different.
         control_node_exch;
+        % a helper property, containing task outputs if these outputs are
+        % defined
+        task_outputs
     end
     %
-    properties(Access=private)
-        task_outputs_ = [];
+    properties(Access=protected)
         % handle for the messages framework
         mess_framework_ = [];
-        % host to
+        % the holder of the class, responsible for comunicatiob between the
+        % head node and the worker's pool
         control_node_exch_ = [];
+        %------------------------------------------------------------------
+        % Protected data, initiated by init method and used by a child's
+        % overloaded methods as requested
+        %
+        % The data common to all iterations of do_job method
+        common_data_ = [];
+        % number of iterations in the workers's loop (numel(loop_data_) if
+        % the loop data contains an array or number of iterations over the
+        % common_data_ if the loop_data_ are empty
+        n_iterations_ = 0;
+        % cellarray of the data, specific to each loop iteration
+        loop_data_ = {};
+        %
+        % if the task needs to return results on completeon.
+        return_results_ = false;
+        % task results holder used to keep a task's results to return at
+        % finish task stage if return_results is set to true;
+        % do_job and/or reduce_data should populate this property according
+        % to the particular task logic.
+        task_results_holder_ =[];
+        
     end
     methods(Abstract)
         % should be overloaded by a particular implementation
         %
         % abstract method to do particular job.
-        this=do_job(this,InitMessage);
-        % abstract method to do reduce data, located on different.
+        this=do_job(this);
+        % abstract method to collect and reduce data, located on different.
         % workers
         this=reduce_data(this);
-        % the method, which indicating that the work has been completed.
+        % the method to analyze outputs and indicate that the tasks or job
+        % has been completed.
         ok = is_completed(this);
     end
     %------------------------------------------------------------------ ---
@@ -56,14 +78,9 @@ classdef JobExecutor
             %Example
             % jd = JobExecutor() -- use randomly generated job control
             % prefix
-            % jd = JobExecutor('target_file_name') -- add prefix
-            %      which distinguish this job as the job which will produce
-            %      the file with the name provided
-            %
-            %je = je@MessagesFramework(varargin{:});
         end
         %
-        function [obj,mess]=init(obj,fbMPI,job_control_struct)
+        function [obj,mess]=init(obj,fbMPI,job_control_struct,InitMessage)
             % initiate worker side.
             %e.g:
             % set up tag, indicating that the job have started
@@ -76,26 +93,35 @@ classdef JobExecutor
             %                        Depending on the used framework, this
             %                        class can be used as
             % job_control_struct  -- the structure,
-            %                        containing job control  information
+            %                        containing information about
+            %                        the messages framework to use
+            % InitMessage         -- The message with information necessary
+            %                        to run the job itself
             %
             % returns:
             % obj          initialized JobExecutor object
             % mess         if not empty, the reason for failure
             %
-            [obj,mess]=init_je_(obj,fbMPI,job_control_struct);
+            [obj,mess]=init_je_(obj,fbMPI,job_control_struct,InitMessage);
         end
         %
-        function [ok,mess] =finish_job(this)
+        function [ok,mess] =finish_task(this)
             % Clearly finish job execution
             [ok,mess] = finish_job_(this);
         end
         function [ok,err] = reduce_send_message(obj,mess,varargin)
-            % collect similar messages send from all nodes and send summed
+            % collect similar messages send from all nodes and send final
             % message to the head node
             %usage:
             %[ok,err]=Je_instance.reduce_send_message(message,mess_process_function)
             % where:
             % message -- either message to send or the message's to sendname
+            % mess_process_function -- if present, the function used to
+            %                          apply to each message to get common
+            %                          result. if absend, all messages payloads
+            %                          are just combined together into
+            %                          cellarray and send as the sellarray
+            %                          of the particular messages.
             %
             [ok,err,the_mess] = reduce_messages_(obj,mess,varargin{:});
             if obj.labIndex == 1
@@ -126,20 +152,11 @@ classdef JobExecutor
             id = obj.mess_framework_.labIndex;
         end
         %
-        function this = return_results(this,final_results)
-            % function used by do_job method to return outputs from a job.
-            %
-            % input:
-            % final_results -- the structure, which contain the job
-            % output. As output is distributed within log message, it should not
-            % be too heavy.
-            %
-            this.task_outputs_ = final_results;
+        function out = get.task_outputs(obj)
+            out = obj.task_results_holder_;
         end
         %
-        function out = get.task_outputs(obj)
-            out = obj.task_outputs_;
-        end
+        
         %
         function mf= get.mess_framework(obj)
             mf = obj.mess_framework_;

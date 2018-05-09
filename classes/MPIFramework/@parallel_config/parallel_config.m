@@ -150,7 +150,7 @@ classdef parallel_config<config_base
             % herbert or parpool.
             %
             opt = {'herbert','parpool'};
-            [ok,err,is_matlab,is_partool,rest] = parse_char_options({val},opt);
+            [ok,err,is_herbert,is_partool,rest] = parse_char_options({val},opt);
             if ~isempty(rest)
                 error('PARALLEL_CONFIG:invalid_argument',...
                     'Unknown option %s. Only ''herbert'' or ''parpool'' options are currently accepted',...
@@ -159,7 +159,7 @@ classdef parallel_config<config_base
             if ~ok
                 error('PARALLEL_CONFIG:invalid_argument',err);
             end
-            if is_matlab
+            if is_herbert
                 config_store.instance().store_config(...
                     obj,'parallel_framework','herbert');
                 return;

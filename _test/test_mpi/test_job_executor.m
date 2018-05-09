@@ -103,21 +103,41 @@ classdef test_job_executor< TestCase
         function test_do_job(this)
             % Its a self test of the JETester to be sure its do_job is fine
             % not testing anything but JETester
-            job_param = struct('filepath',this.working_dir,...
+            common_job_param = struct('filepath',this.working_dir,...
                 'filename_template','test_jobDispatcher%d_nf%d.txt');
-            control_struct = struct('loop_param',[],'n_steps',1,...
-                'return_results',true);
-            control_struct.loop_param = job_param;
+            initMess = InitMessage(common_job_param,1,true);
+            css = iMessagesFramework.build_framework_init(this.working_dir,'test_do_job',1,1);
+            cs  = iMessagesFramework.deserialize_par(css);
+            %
+            fbMPI = FilebasedMessages();
+            fbMPI = fbMPI.init_framework(cs);
+            clob = onCleanup(@()finalize_all(fbMPI));
             
+            cs.labID = 0;
+            serverfbMPI  = FilebasedMessages(cs);
+            %
             je = JETester();
+            je = je.init(fbMPI,cs,initMess);
             
-            je=je.do_job(control_struct );
-            assertTrue(exist(fullfile(this.working_dir,'test_jobDispatcher0_nf1.txt'),'file')==2);
-            delete(fullfile(this.working_dir,'test_jobDispatcher0_nf1.txt'));
+            [ok,err,mess]=serverfbMPI.receive_message(1,'started');
+            assertEqual(ok,MESS_CODES.ok);
+            assertTrue(isempty(err));
+            assertEqual(mess.mess_name,'started');
+            
+            je=je.do_job();
+            assertTrue(exist(fullfile(this.working_dir,'test_jobDispatcher1_nf1.txt'),'file')==2);
+            delete(fullfile(this.working_dir,'test_jobDispatcher1_nf1.txt'));
             
             assertFalse(isempty(je.task_outputs));
-            assertEqual(je.task_outputs,'Job 0 generated 1 files')
+            assertEqual(je.task_outputs,'Job 1 generated 1 files')
+            [ok,mess] =je.finish_task();
+            assertTrue(ok);
+            assertTrue(isempty(mess));
             
+            [ok,err,mess] = serverfbMPI.receive_message(1,'completed');
+            assertEqual(ok,MESS_CODES.ok);
+            assertTrue(isempty(err));
+            assertEqual(je.task_outputs,mess.payload{1})
         end
         
         

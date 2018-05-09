@@ -1,5 +1,9 @@
 classdef JETester < JobExecutor
     % Class used to test job dispatcher functionality
+    %
+    % $Revision: 713 $ ($Date: 2018-02-23 16:52:46 +0000 (Fri, 23 Feb 2018) $)
+    %
+    %
     
     properties(Access = private)
         is_finished_ = false;
@@ -8,7 +12,7 @@ classdef JETester < JobExecutor
     methods
         function je = JETester()
         end
-        function this=do_job(this,control_struct)
+        function obj=do_job(obj)
             % Test do_job method implementated for testing purposes
             %
             % the particular JobDispatcher should write its own method
@@ -24,12 +28,12 @@ classdef JETester < JobExecutor
             % this particular implementation writes files according to template,
             % provided in test_job_dispatcher.m file
             %aa= input('enter_something')
-            n_jobs = control_struct.n_steps;
-            task_num = this.task_id;
+            n_steps = obj.n_iterations_;
+            task_num = obj.labIndex;
             disp('****************************************************');
-            disp([' n_files: ',num2str(n_jobs)]);
-            job_par = control_struct.common_data;
-            for ji = 1:n_jobs
+            disp([' n_files: ',num2str(n_steps)]);
+            job_par = obj.common_data_;
+            for ji = 1:n_steps
                 filename = sprintf(job_par.filename_template,task_num,ji);
                 file = fullfile(job_par.filepath,filename);
                 f=fopen(file,'w');
@@ -39,12 +43,11 @@ classdef JETester < JobExecutor
                 disp(['finished test job generating test file: ',filename]);
                 disp('****************************************************');
             end
-            if control_struct.return_results
-                out_str = sprintf('Job %d generated %d files',task_num,n_jobs);
-            else
-                out_str = [];
+            if obj.return_results_
+                out_str = sprintf('Job %d generated %d files',task_num,n_steps);
+                obj.task_results_holder_ = out_str;
             end
-            this = this.return_results(out_str);
+            
         end
         function  obj=reduce_data(obj)
             obj.is_finished_ = true;

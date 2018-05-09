@@ -78,10 +78,10 @@ mis.check_cancelled = @()(f_canc(je));
 %mis.mpi_framework = je.mess_framework;
 
 try
-    je = je.init(fbMPI,control_struct);
+    je = je.init(fbMPI,control_struct,init_message);
     % Execute job (run main job executor's do_job method
     while ~je.is_completed()
-        je= je.do_job(init_message);
+        je= je.do_job();
         je = je.reduce_data();
     end
     ok = MESS_CODES.ok;
@@ -107,7 +107,7 @@ catch ME
     end
 end
 %
-je.finish_job();
+je.finish_task();
 %pause
 if exit_at_the_end
     exit;

@@ -62,18 +62,25 @@ classdef JobDispatcher
         end
         %
         function [n_failed,outputs,task_ids,this]=start_tasks(this,...
-                job_class_name,task_param_list,number_of_workers,varargin)
+                job_class_name,common_params,loop_params,number_of_workers,varargin)
             % send range of jobs to execute by external program
             %
             % Usage:
-            % [n_failed,outputs,task_ids] = send_tasks(this,job_class_name,tasl_param_list,[number_of_workers,[job_query_time]])
+            % [n_failed,outputs,task_ids] = ...
+            %     start_tasks(this,job_class_name,common_params,loop_params,...
+            %    [number_of_workers,[job_query_time]])
             %Where:
-            % job_class_name -- name of the class, which has method do_job
-            %                   and will process task on a separate worker
-            % task_param_list -- cellarray of structures containing the
-            %                   parameters of the tasks to run
+            % job_class_name -- name of the class -chile of jobExecutor,  
+            %                   which will process task on a separate worker
+            % common_params  -- a structure, containing the parameters, common 
+            %                   for any loop iteration
+            % loop_params    -- either cellarray of structures, specific
+            %                   with each cell specific to a loop iteration
+            %                   or the number of iterations to do over
+            %                   common_params (which may depend on the
+            %                   iteration number)
             % number_of_workers -- number of Matlab sessions to
-            %                   start to deal with the tasks.
+            %                    process the tasks
             %
             % Optional:
             % task_query_time -- if present -- time interval to check if
@@ -86,10 +93,11 @@ classdef JobDispatcher
             %              Empty if tasks do not return anything
             % task_ids   -- cellarray containing relation between task_id
             %              (task number) and task parameters from
-            %               tasks_param_list, assigned to this tak
+            %               tasks_param_list, assigned to this task
             %
             [n_failed,outputs,task_ids,this]=send_tasks_to_workers_(this,...
-                job_class_name,task_param_list,number_of_workers,varargin{:});
+                job_class_name,common_params,loop_params,...
+                number_of_workers,varargin{:});
         end
         %
         %

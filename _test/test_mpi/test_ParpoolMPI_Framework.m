@@ -1,17 +1,10 @@
-classdef test_ParpoolMPI_Framework< TestCase
+classdef test_ParpoolMPI_Framework< MPI_Test_Common
+    % Class to test basic mpi method like send/receive/probe message(s)
     %
     % $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
     %
     
     properties
-        working_dir
-        % if parallel toolbox is not availible, test should be ignored
-        ignore_test;
-        %
-        old_config;
-        % if default current framework is not a parpool framework,
-        % one needs to change the setup
-        change_setup;
     end
     methods
         %
@@ -19,43 +12,11 @@ classdef test_ParpoolMPI_Framework< TestCase
             if ~exist('name','var')
                 name = 'test_ParpoolMPI_Framework';
             end
-            this = this@TestCase(name);
-            pc = parallel_config;            
-            
-            this.working_dir = pc.working_directory;
-
-            if strcmp(pc.parallel_framework,'parpool')
-                this.change_setup = false;
-            else
-                this.old_config = pc.get_data_to_store;
-                this.change_setup = true;
-                pc.parallel_framework = 'parpool';
-                if ~strcmpi(pc.parallel_framework,'parpool')
-                    this.ignore_test = true;
-                    this.change_setup = false;
-                    hc = herbert_config;
-                    if hc.log_level>0
-                        warning('PARPOOL_MPI:not_availible',...
-                            'parpool mpi can not be enabled so not tested')
-                    end
-                else
-                    this.ignore_test = false;
-                end
-            end
-        end
-        function setUp(obj)
-            if obj.change_setup
-                pc = parallel_config;
-                pc.parallel_framework = 'parpool';
-            end
-        end
-        function teadDown(obj)
-            if obj.change_setup
-                set(parallel_config,obj.old_config);
-            end
+            this = this@MPI_Test_Common(name);
         end
         %
         function test_probe_all_receive_all(this,varargin)
+            % common code -------------------------------------------------
             if this.ignore_test
                 return;
             end
@@ -69,21 +30,23 @@ classdef test_ParpoolMPI_Framework< TestCase
                 return;
             end
             num_labs = 3*round(num_labs/3);
-            
-            
-            
+            if num_labs > 27
+                num_labs = 27;
+            end
             pl = gcp('nocreate'); % Get the current parallel pool
             if ~isempty(pl)
                 delete(pl);
             end
+            % end of    common code ---------------------------------------
+            
             cjob = createCommunicatingJob(cl,'Type','SPMD');
             %cjob.AttachedFiles = {'parpool_mpi_probe_all_tester.m'};
             cjob.NumWorkersRange  = num_labs;
-%             if isempty(pl) || pl.NumWorkers ~=num_labs
-%                 delete(pl)
-%                 pl = parpool(cl,num_labs);
-%             end
-%             num_labs = pl.NumWorkers;
+            %             if isempty(pl) || pl.NumWorkers ~=num_labs
+            %                 delete(pl)
+            %                 pl = parpool(cl,num_labs);
+            %             end
+            %             num_labs = pl.NumWorkers;
             
             job_param = struct('filepath',this.working_dir,...
                 'filename_template','test_ProbeAllMPI%d_nf%d.txt');
@@ -97,9 +60,9 @@ classdef test_ParpoolMPI_Framework< TestCase
             task = createTask(cjob,@parpool_mpi_probe_all_tester,2,{job_param});
             submit(cjob);
             wait(cjob);
-%             spmd
-%                 [res,err] = parpool_mpi_probe_all_tester(job_param);
-%             end
+            %             spmd
+            %                 [res,err] = parpool_mpi_probe_all_tester(job_param);
+            %             end
             results = fetchOutputs(cjob);
             res = results(:,1);
             err = results(:,2);
@@ -123,32 +86,34 @@ classdef test_ParpoolMPI_Framework< TestCase
             end
             
         end
-        
-        
-        %
         %
         function test_send_receive_message(this,varargin)
+            % common code -------------------------------------------------
             if this.ignore_test
                 return;
             end
             if nargin>1
                 clob0 = onCleanup(@()tearDown(this));
             end
-            %
-            job_param = struct('filepath',this.working_dir,...
-                'filename_template','test_ParpoolMPI%d_nf%d.txt');
             
             cl = parcluster();
-            pl = gcp('nocreate'); % Get the current parallel pool
-            if ~isempty(pl)
-                delete(pl);
-            end
             num_labs = cl.NumWorkers;
             if num_labs < 3
                 return;
             end
-            num_labs = 3*round(num_labs/3);            
-
+            num_labs = 3*round(num_labs/3);
+            if num_labs > 27
+                num_labs = 27;
+            end
+            pl = gcp('nocreate'); % Get the current parallel pool
+            if ~isempty(pl)
+                delete(pl);
+            end
+            % end of    common code ---------------------------------------
+            
+            job_param = struct('filepath',this.working_dir,...
+                'filename_template','test_ParpoolMPI%d_nf%d.txt');
+            
             ind = 1:num_labs;
             cjob = createCommunicatingJob(cl,'Type','SPMD');
             %cjob.AttachedFiles = {'parpool_mpi_send_receive_tester.m'};
@@ -162,11 +127,11 @@ classdef test_ParpoolMPI_Framework< TestCase
             clob = onCleanup(@()delete(fnames{:}));
             task = createTask(cjob,@parpool_mpi_send_receive_tester,2,{job_param});
             submit(cjob);
-            wait(cjob);           
+            wait(cjob);
             
-%             spmd
-%                 [res,err] = parpool_mpi_send_receive_tester(job_param);
-%             end
+            %             spmd
+            %                 [res,err] = parpool_mpi_send_receive_tester(job_param);
+            %             end
             %
             results = fetchOutputs(cjob);
             res = results(:,1);

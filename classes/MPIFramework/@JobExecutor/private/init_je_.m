@@ -1,4 +1,4 @@
-function [obj,err]=init_je_(obj,fbMPI,job_control_string)
+function [obj,err]=init_je_(obj,fbMPI,job_control_string,InitMessage)
 % initiate the worker parameters
 % Inputs:
 % job_control_string - the serialized string, contaning information
@@ -23,7 +23,14 @@ else
         mf = ParpoolMessages(job_control_struct);
     end
 end
-
+% Store framework, used to exchange messages between nodes
 obj.mess_framework_  = mf;
+% Store job parameters
+obj.common_data_   = InitMessage.common_data;
+obj.n_iterations_  = InitMessage.n_steps;
+obj.loop_data_     = InitMessage.loop_data;
+obj.return_results_= InitMessage.return_results;
+
+%
 [~,err]=obj.reduce_send_message('started');
 

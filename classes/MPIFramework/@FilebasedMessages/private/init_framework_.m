@@ -21,6 +21,9 @@ if isstruct(framework_info) && isfield(framework_info,'job_id')
     if isfield(framework_info,'labID')
         obj.task_id_ = framework_info.labID;
         obj.numLabs_ = framework_info.numLabs;
+    else %
+        obj.task_id_ = labindex; % slave node with mpi exchange between nodes. 
+        obj.numLabs_ = numlabs;
     end
 elseif(is_string(framework_info))
     obj.job_id =[framework_info,'_', char(floor(25*rand(1,10)) + 65)];
@@ -42,6 +45,7 @@ if obj.task_id_ == 0 % Master node
 else % Slave node. Needs correct framework_info for initalization
     [root_cf,exch_subfolder] = obj.build_exchange_folder_name(framework_info.data_path);
     job_folder = fullfile(root_cf,exch_subfolder);
+    % despite its name, would not create the folder if it already exist
     job_folder  = make_config_folder(obj.job_id,fileparts(job_folder));
 end
 

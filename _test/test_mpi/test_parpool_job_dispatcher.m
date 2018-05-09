@@ -1,10 +1,11 @@
-classdef test_parpool_job_dispatcher< test_job_dispatcher
+classdef test_parpool_job_dispatcher< MPI_Test_Common
     % Test running using the parpool job dispatcher. 
     %
     % $Revision: 696 $ ($Date: 2018-02-06 13:59:38 +0000 (Tue, 06 Feb 2018) $)
     %
     
     properties
+        skip_tests  = false;
     end
     methods
         %
@@ -12,28 +13,21 @@ classdef test_parpool_job_dispatcher< test_job_dispatcher
             if ~exist('name','var')
                 name = 'test_parpool_job_dispatcher';
             end
-            this = this@test_job_dispatcher(name);
-            pc = parallel_config;
-            current_pool = pc.parallel_framework;
-            try
-                pc.parallel_framework = 'parpool';
-            catch
-                this.skip_tests = true;
-            end
-            pc.parallel_framework = current_pool;
-            this.test_dispatcher = 'parpool';
+            this = this@MPI_Test_Common(name);
         end
         %
-        function test_job_with_logs_worker(this)
+        function test_job_with_logs_worker(this,varargin)
+            if this.skip_tests
+                return;
+            end
+            if nargin>1
+                clob0 = onCleanup(@()tearDown(this));
+            end
+            
             % overloaded to empty test -- nothing new for this JD
             % JETester specific control parameters
-            job_param = struct('filepath',this.working_dir,...
-                'filename_template','test_jobDispatcherL%d_nf%d.txt');
-            
-            job_contr = struct('loop_param',[],'n_steps',3,...
-                'return_results',false);
-            job_contr.loop_param =[job_param,job_param,job_param];
-            
+            common_param = struct('filepath',this.working_dir,...
+                'filename_template','test_jobDispatcherL%d_nf%d.txt');                        
             
             file1= fullfile(this.working_dir,'test_jobDispatcherL1_nf1.txt');
             file2= fullfile(this.working_dir,'test_jobDispatcherL1_nf2.txt');
@@ -41,10 +35,9 @@ classdef test_parpool_job_dispatcher< test_job_dispatcher
             files = {file1,file2,file3};
             co = onCleanup(@()(delete(files{:})));
             
-            job_par = job_contr;
             jd = JobDispatcher();
             
-            [n_failed,outputs]=jd.start_tasks('JETester',job_par,1,1);
+            [n_failed,outputs]=jd.start_tasks('JETester',common_param,3,1,1);
             
             assertEqual(n_failed,0);
             assertTrue(isempty(outputs{1}));
