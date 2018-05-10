@@ -146,6 +146,11 @@ classdef FilebasedMessages < iMessagesFramework
             % framework and delete the framework itself
             delete_job_(obj);
         end
+        function ok=labBarrier(obj)
+            ok=wait_at_barrier_(obj);
+        end
+        
+        
         function obj = set.time_to_fail(obj,val)
             obj.time_to_fail_ = val;
         end

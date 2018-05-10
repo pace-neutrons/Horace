@@ -40,6 +40,8 @@ classdef JobExecutor
         %
         % The data common to all iterations of do_job method
         common_data_ = [];
+        % number of first iteration to do over common_data
+        n_first_iteration_ = 1;
         % number of iterations in the workers's loop (numel(loop_data_) if
         % the loop data contains an array or number of iterations over the
         % common_data_ if the loop_data_ are empty
@@ -107,7 +109,7 @@ classdef JobExecutor
         %
         function [ok,mess] =finish_task(this)
             % Clearly finish job execution
-            [ok,mess] = finish_job_(this);
+            [ok,mess] = finish_task_(this);
         end
         function [ok,err] = reduce_send_message(obj,mess,varargin)
             % collect similar messages send from all nodes and send final
@@ -115,13 +117,22 @@ classdef JobExecutor
             %usage:
             %[ok,err]=Je_instance.reduce_send_message(message,mess_process_function)
             % where:
-            % message -- either message to send or the message's to sendname
-            % mess_process_function -- if present, the function used to
-            %                          apply to each message to get common
-            %                          result. if absend, all messages payloads
+            % message -- either message to send or the message's to send
+            %            name (from the list of accepted names)
+            % mess_process_function -- if present, and not empty, the function
+            %                          is used to process the messages from
+            %                          recevied from all except one workers
+            %                          to produce common result. If absend,
+            %                          all messages payloads
             %                          are just combined together into
-            %                          cellarray and send as the sellarray
-            %                          of the particular messages.
+            %                          cellarray and become the payload of
+            %                          the final message, sent to head
+            %                          node.
+            % no_sync  -- if present and true, the command would not wait
+            %             for all messages from workers to arrive and
+            %             processes only existing messages. if absent or
+            %             false, the method would wait until similar
+            %             messages are received from all workers in the pool.
             %
             [ok,err,the_mess] = reduce_messages_(obj,mess,varargin{:});
             if obj.labIndex == 1
@@ -212,6 +223,10 @@ classdef JobExecutor
             else
                 messages = obj.mess_framework_.receive_all();
             end
+        end
+        function labBarrier(obj)
+            % implement labBarrier to synchronize various workers.
+            obj.mess_framework.labBarrier();
         end
         %
         function is = is_job_cancelled(obj)

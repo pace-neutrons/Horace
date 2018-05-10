@@ -77,13 +77,17 @@ classdef iMessagesFramework
         end
         %
         function obj = set.mess_exchange_folder(obj,val)
-            if exist(val,'dir') == 7
-                [config_f_base,config_ext] = obj.build_exchange_folder_name(val);
-                obj.mess_exchange_folder_ = fullfile(config_f_base,config_ext);
-            else
-                error('iMESSAGES_FRAMEWORK:invalid_argument',...
-                    'Job data exchange folder %s must exist',...
-                    val);
+            if strcmp(val,obj.mess_exchange_folder)
+                return;
+            end
+            
+            if exist(obj.mess_exchange_folder,'dir') == 7
+                rmdir(obj.mess_exchange_folder,'s');
+            end
+            [config_f_base,config_ext] = obj.build_exchange_folder_name(val);
+            obj.mess_exchange_folder_ = fullfile(config_f_base,config_ext);
+            if ~(exist(obj.mess_exchange_folder,'dir') ==7)
+                mkdir(obj.mess_exchange_folder);
             end
         end
         %
@@ -95,21 +99,29 @@ classdef iMessagesFramework
         end
         
         % HERBERT Job control interface+
-        function [obj,local_config_folder]= distribute_worker_init(obj,...
+        function [obj,local_config_folder]= distribute_je_init(obj,...
                 shared_folder_on_local,JE_className,varargin)
             % build worker's control structure, necessary to
             % initiate message framework and jobExecutor.
             % and store this information in the location, where a remote
             % worker should pick it up.
             %
+            % shared_folder_on_local -- the folder where the shared with workers
+            %                           data are placed on local machine
+            % JE_className           -- the name of JobExecutor class
+            %                           child, which would perform the
+            %                           job.
+            % if present:
+            %exit_on_complition      -- if true, worker will execute 'exit'
+            %                           command when task is finished (matlab session will close)
             %
-            info = obj.worker_init_info(JE_className,varargin{:});
+            info = obj.je_init_info(JE_className,varargin{:});
             [remote_job_folder,local_config_folder] = obj.send_job_info(info,shared_folder_on_local);
             obj.mess_exchange_folder = remote_job_folder;
         end
         
         
-        function info = worker_init_info(obj,JE_className,varargin)
+        function info = je_init_info(obj,JE_className,varargin)
             % the structure, used to transmit information to a worker and
             % initialize jobExecutor on a worker through the system pipe.
             % due to the system pipe limited size, this information sould
@@ -364,6 +376,8 @@ classdef iMessagesFramework
         % delete all messages belonging to this instance of messages
         % framework and shut the framework down.
         finalize_all(obj)
+        % wait until all worker arive to the part of the code specified
+        ok=labBarrier(obj);
         
     end
     methods(Abstract,Access=protected)

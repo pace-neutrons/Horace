@@ -33,8 +33,12 @@ classdef JETester < JobExecutor
             disp('****************************************************');
             disp([' n_files: ',num2str(n_steps)]);
             job_par = obj.common_data_;
-            for ji = 1:n_steps
-                filename = sprintf(job_par.filename_template,task_num,ji);
+            n0 = obj.n_first_iteration_;
+            n1 = n0+n_steps-1;
+            t0 = tic;
+            for ji = n0:n1
+                n_steps_done =  ji-n0+1;               
+                filename = sprintf(job_par.filename_template,task_num,n_steps_done);
                 file = fullfile(job_par.filepath,filename);
                 f=fopen(file,'w');
                 fwrite(f,['file: ',file],'char');
@@ -42,6 +46,8 @@ classdef JETester < JobExecutor
                 disp('****************************************************');
                 disp(['finished test job generating test file: ',filename]);
                 disp('****************************************************');
+
+                obj.log_progress(n_steps_done,n_steps,toc(t0)/n_steps_done,'');
             end
             if obj.return_results_
                 out_str = sprintf('Job %d generated %d files',task_num,n_steps);

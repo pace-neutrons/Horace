@@ -276,6 +276,61 @@ classdef test_FileBaseMPI_Framework< TestCase
             assertTrue(exist(jfn,'dir')==0);
         end
         
+        function test_barrier(this)
+            mf = FilebasedMessages('test_barrier');
+            mf.mess_exchange_folder = this.working_dir;
+            clob = onCleanup(@()mf.finalize_all());
+            % create three pseudo-independent message exchange classes
+            % presumably to run on independent workers
+            css1 = iMessagesFramework.build_framework_init(this.working_dir,mf.job_id,1,3);
+            cs1  = iMessagesFramework.deserialize_par(css1);
+            css2 = iMessagesFramework.build_framework_init(this.working_dir,mf.job_id,2,3);
+            cs2  = iMessagesFramework.deserialize_par(css2);
+            css3 = iMessagesFramework.build_framework_init(this.working_dir,mf.job_id,3,3);
+            cs3 =  iMessagesFramework.deserialize_par(css3);
+            
+            fbMPI1 = FilebasedMessages(cs1);
+            fbMPI2 = FilebasedMessages(cs2);
+            fbMPI3 = FilebasedMessages(cs3);
+            
+            t0 = fbMPI3.time_to_fail;
+            fbMPI3.time_to_fail = 0.1;
+            % barrier fails at waiting time due to short fime to fail
+            try
+                fbMPI3.labBarrier();
+            catch ME
+                assertEqual(ME.message,...
+                    'Timeout waiting for message "barrier" for task with id: 3');
+            end
+            fbMPI2.time_to_fail = 0.1;
+            try
+                fbMPI2.labBarrier();
+            catch ME
+                assertEqual(ME.message,...
+                    'Timeout waiting for message "barrier" for task with id: 2');
+            end
+   
+            fbMPI3.time_to_fail = t0;
+            fbMPI2.time_to_fail = t0;
+  
+             
+            % will pass without delay as all other worker would reach the
+            % barrier
+            ok = fbMPI1.labBarrier();
+            assertTrue(ok);
+            
+            % and other workers would pass barrier now
+            [ok,err,mess] = fbMPI3.receive_message(1,'barrier');
+            assertEqual(ok,MESS_CODES.ok)
+            assertTrue(isempty(err));
+            assertEqual(mess.mess_name,'barrier');
+            
+            [ok,err,mess] = fbMPI2.receive_message(1,'barrier');
+            assertEqual(ok,MESS_CODES.ok)
+            assertTrue(isempty(err));
+            assertEqual(mess.mess_name,'barrier');
+            
+        end
     end
 end
 

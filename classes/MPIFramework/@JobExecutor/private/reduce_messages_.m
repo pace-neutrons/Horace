@@ -1,4 +1,5 @@
-function [ok,err,fin_mess] = reduce_messages_(obj,mess,mess_process_function)
+function [ok,err,fin_mess] = reduce_messages_(obj,mess,mess_process_function,existing_only)
+% reduce all messages 
 %
 if ischar(mess)
     mess_name = mess;
@@ -11,15 +12,24 @@ else
         'reduce_messages accepts only acceptable message or messages name')
 end
 
-if exist('mess_process_function','var')
+if exist('mess_process_function','var') && ~isempty(mess_process_function)
     mes_proc_f = mess_process_function;
 else
     mes_proc_f = @default_mess_process_function;
 end
+if ~exist('existing_only','var')
+   existing_only = false;
+end
+
 %
 mf = obj.mess_framework;
 if mf.labIndex == 1
-    all_messages = mf.receive_all('all',mess_name);
+    if existing_only
+        [~,task_ids] = mf.probe_all('all',mess_name);
+        all_messages = mf.receive_all(task_ids,mess_name);        
+    else
+        all_messages = mf.receive_all('all',mess_name);
+    end
     all_messages = [{the_mess},all_messages];
     [ok,err,fin_mess] = mes_proc_f(all_messages,mess_name);
 else

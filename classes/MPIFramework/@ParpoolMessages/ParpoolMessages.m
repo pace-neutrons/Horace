@@ -176,6 +176,10 @@ classdef ParpoolMessages < iMessagesFramework
             % framework and delete the framework itself
             delete_job_(obj);
         end
+        function ok=labBarrier(obj)
+            labBarrier;
+            ok = true;
+        end
     end
     %----------------------------------------------------------------------
     methods (Access=protected)

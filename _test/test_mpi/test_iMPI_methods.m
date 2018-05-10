@@ -147,7 +147,7 @@ classdef test_iMPI_methods< TestCase
             pc.shared_folder_on_local = obj.working_dir;
             
             mpi_comm = FilebasedMessages();
-            mpi_comm = mpi_comm.distribute_worker_init(pc.shared_folder_on_local,...
+            mpi_comm = mpi_comm.distribute_je_init(pc.shared_folder_on_local,...
                 'JETester',false);
             
             [~,mess_exchange_folder] = mpi_comm.par_config_file(obj.working_dir);

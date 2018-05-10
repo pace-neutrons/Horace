@@ -1,4 +1,4 @@
-function [ok,err_mess]=finish_job_(obj)
+function [ok,err_mess]=finish_task_(obj)
 % set up tag, indicating that the job have finished and
 % send message with output job results
 %

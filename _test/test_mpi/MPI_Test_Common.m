@@ -17,12 +17,14 @@ classdef MPI_Test_Common < TestCase
 
     end
     properties(Access=private)
-        framework_name 
+        framework_name ;
+        current_config_folder;
     end
     
     methods
         function obj = MPI_Test_Common(name,varargin)
             obj = obj@TestCase(name);
+            
             pc = parallel_config;            
             if nargin > 1
                 obj.framework_name = varargin{1};

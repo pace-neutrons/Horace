@@ -30,7 +30,7 @@ obj.common_data_   = InitMessage.common_data;
 obj.n_iterations_  = InitMessage.n_steps;
 obj.loop_data_     = InitMessage.loop_data;
 obj.return_results_= InitMessage.return_results;
-
+obj.n_first_iteration_= InitMessage.n_first_step;
 %
 [~,err]=obj.reduce_send_message('started');
 

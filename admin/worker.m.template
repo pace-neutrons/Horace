@@ -82,6 +82,7 @@ try
     % Execute job (run main job executor's do_job method
     while ~je.is_completed()
         je= je.do_job();
+        je.labBarrier(); % Wait until all workers finish their job before reducing the data
         je = je.reduce_data();
     end
     ok = MESS_CODES.ok;
