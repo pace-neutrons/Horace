@@ -43,6 +43,26 @@ classdef aMessage
                 tag = MESS_NAMES.mess_id(obj.mess_name_);
             end
         end
+        %
+        function not = ne(obj,b)
+            % implementation of operator ~= for aMessage class
+            if numel(obj) ~=numel(b)
+                not = true;
+                return;
+            end
+            if ~strcmp(class(obj),class(b))
+                not = true;
+                return;
+            end
+            fn1 = properties(obj);
+            for i=1:numel(fn1)
+                if (obj.(fn1{i})~=b.(fn1{i}))
+                    not = true;
+                    return
+                end
+            end
+            not = false;
+        end
     end
 end
 

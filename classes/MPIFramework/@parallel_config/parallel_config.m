@@ -214,14 +214,14 @@ classdef parallel_config<config_base
         end
         
         %-----------------------------------------------------------------
-        function controller = get_controller(obj)
+        function controller = get_cluster_wrapper(obj,n_workers,cluster_to_host_exch_fmwork)
             % return the appropriate job controller
             fram = obj.parallel_framework;
             switch(fram)
                 case('herbert')
-                    controller = JavaTaskWrapper();
+                    controller = ClusterHerbert(n_workers,cluster_to_host_exch_fmwork);
                 case('parpool')
-                    controller = ParpoolTaskWrapper();
+                    controller = ClusterParpoolWrapper(n_workers,cluster_to_host_exch_fmwork);
                 otherwise
                     error('PARALLEL_CONFIG:runtime_error',...
                         'Got unknown parallel framework: %s',fram);

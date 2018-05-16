@@ -125,12 +125,13 @@ classdef ParpoolMessages < iMessagesFramework
             % with id-s specified as input.
             % NonBlocking
             %Usage:
-            %>> [mess_names,task_id] = obj.probe_all([task_ids]);
+            %>> [mess_names,task_id] = obj.probe_all([task_ids],[mess_name|mess_tag]);
             %Where:
             % task_ids    -- the task ids of the labs to verify messages
             %                from. Query all availible labs if this field
             %                is empty
-            %
+            % message_name ! message_tag -- if present, check only for
+            %                the messages of the kind, specified by this 
             %
             %Returns:
             % mess_names   -- the  cellarray, containing message names

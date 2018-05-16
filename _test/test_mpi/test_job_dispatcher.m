@@ -303,70 +303,104 @@ classdef test_job_dispatcher< TestCase
         end
         %
         function test_split_job_list(this)
-            
+            % split job list into batches and preper
             %
-            job_param_list = {'aaa','bbbb','s','aaanana'};
+            common_par = [];
+            loop_par = {'aaa','bbbb','s','aaanana'};
             
-            jd = JDTester();
+            jd = JDTester('test_split_job_list');
             clo = onCleanup(@()(jd.mess_framework.finalize_all()));
             
-            [n_workers,task_par_ind]= jd.split_tasks(job_param_list,1);
+            [n_workers,init_mess]= jd.split_tasks(common_par,loop_par,true,1);
             
             assertEqual(n_workers,1);
-            assertEqual(numel(task_par_ind{1}),numel(job_param_list));
+            assertEqual(numel(init_mess{1}.loop_data),numel(loop_par));
+            assertEqual(init_mess{1}.loop_data,loop_par);
             
+            [n_workers,init_mess]= jd.split_tasks(common_par,4,false,1);
+            
+            assertEqual(n_workers,1);
+            assertEqual(numel(init_mess),1);
+            assertEqual(init_mess{1}.n_first_step,1);
+            assertEqual(init_mess{1}.n_steps,4);
             
             %-------------------------------------------------------------
             
-            job_param_list = {'aaa',[1,2,3,4],'s',10};
-            [n_workers,task_par_ind] = jd.split_tasks(job_param_list,2);
+            loop_par = {'aaa',[1,2,3,4],'s',10};
+            [n_workers,init_mess] = jd.split_tasks(common_par,loop_par,true,2);
             
             assertEqual(n_workers,2);
-            assertEqual(numel(task_par_ind{1}),2)
-            assertEqual(numel(task_par_ind{2}),2)
+            assertEqual(numel(init_mess{1}),1)
+            assertEqual(numel(init_mess{2}),1)
+            assertEqual(init_mess{1}.loop_data,loop_par(1:2))
+            assertEqual(init_mess{2}.loop_data,loop_par(3:4))
             
-            [n_workers,task_par_ind] = jd.split_tasks(job_param_list,3);
+            
+            [n_workers,init_mess] = jd.split_tasks(common_par,4,true,2);
+            
+            assertEqual(n_workers,2);
+            assertEqual(init_mess{1}.n_first_step,1)
+            assertEqual(init_mess{1}.n_steps,2)
+            
+            assertEqual(init_mess{2}.n_first_step,3)
+            assertEqual(init_mess{2}.n_steps,2)
+            %-------------------------------------------------------------
+            
+            [n_workers,init_mess] = jd.split_tasks(common_par,loop_par,true,3);
             
             assertEqual(n_workers,3);
-            assertEqual(numel(task_par_ind{1}),2)
-            assertEqual(numel(task_par_ind{2}),1)
-            assertEqual(numel(task_par_ind{3}),1)
+            assertEqual(init_mess{1}.loop_data,loop_par(1))
+            assertEqual(init_mess{2}.loop_data,loop_par(2))
+            assertEqual(init_mess{3}.loop_data,loop_par(3:4))
+            assertEqual(init_mess{3}.n_first_step,1)
+            assertEqual(init_mess{3}.n_steps,2)
+            
+            
+            [n_workers,init_mess] = jd.split_tasks(common_par,4,false,3);
+            
+            assertEqual(n_workers,3);
+            assertEqual(init_mess{1}.n_first_step,1)
+            assertEqual(init_mess{1}.n_steps,1)
+            
+            assertEqual(init_mess{2}.n_first_step,2)
+            assertEqual(init_mess{2}.n_steps,1)
+            
+            assertEqual(init_mess{3}.n_first_step,3)
+            assertEqual(init_mess{3}.n_steps,2)
             
             %-------------------------------------------------------------
             
-            [n_workers,task_par_ind] = jd.split_tasks(job_param_list,4);
+            [n_workers,init_mess] = jd.split_tasks(common_par,loop_par,true,4);
+            
             assertEqual(n_workers,4);
-            assertEqual(numel(task_par_ind{1}),1)
-            assertEqual(numel(task_par_ind{2}),1)
-            assertEqual(numel(task_par_ind{3}),1)
-            assertEqual(numel(task_par_ind{4}),1)
+            assertEqual(init_mess{1}.loop_data,loop_par(1))
+            assertEqual(init_mess{2}.loop_data,loop_par(2))
+            assertEqual(init_mess{3}.loop_data,loop_par(3))
+            assertEqual(init_mess{4}.loop_data,loop_par(4))
             
+            [n_workers,init_mess] = jd.split_tasks(common_par,4,true,4);
             
-            %-------------------------------------------------------------
-            [n_workers,task_par_ind] = jd.split_tasks(job_param_list,5);
             assertEqual(n_workers,4);
-            assertEqual(numel(task_par_ind{1}),1)
-            assertEqual(numel(task_par_ind{2}),1)
-            assertEqual(numel(task_par_ind{3}),1)
-            assertEqual(numel(task_par_ind{4}),1)
+            assertEqual(init_mess{1}.n_first_step,1)
+            assertEqual(init_mess{1}.n_steps,1)
+            assertEqual(init_mess{2}.n_first_step,2)
+            assertEqual(init_mess{2}.n_steps,1)
+            assertEqual(init_mess{3}.n_first_step,3)
+            assertEqual(init_mess{3}.n_steps,1)
+            assertEqual(init_mess{4}.n_first_step,4)
+            assertEqual(init_mess{4}.n_steps,1)
+            
+            
             %-------------------------------------------------------------
-            %             tf = jd.time_to_fail;
-            %             %jd.jobs_check_time = tf; % DEPRICATED
-            %             % this will set time check counter to 2 and we already have one
-            %             % tick. Two ticks more would exceed job fail counter
-            %             [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
-            %             assertFalse(completed);
-            %             assertEqual(n_failed,0);
-            %             assertFalse(all_changed);
-            %
-            %             [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
-            %             assertTrue(completed);
-            %             assertEqual(n_failed,4);
-            %             assertTrue(all_changed);
-            %
-            %             job_run_info = jd.job_control_structure;
-            %             assertTrue(job_run_info{1}.is_failed)
-            %             assertEqual(job_run_info{1}.fail_reason,'Timeout waiting for job_started message');
+            [n_workers,init_mess] = jd.split_tasks(common_par,loop_par,true,5);
+            assertEqual(n_workers,4);
+            assertEqual(init_mess{1}.loop_data,loop_par(1))
+            assertEqual(init_mess{2}.loop_data,loop_par(2))
+            assertEqual(init_mess{3}.loop_data,loop_par(3))
+            assertEqual(init_mess{4}.loop_data,loop_par(4))
+            assertEqual(init_mess{4}.n_first_step,1)
+            assertEqual(init_mess{4}.n_steps,1)
+            %-------------------------------------------------------------
             
         end
         

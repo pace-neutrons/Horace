@@ -22,9 +22,19 @@ function [ok,mess,varargout]=parse_char_options(args,options)
 % E.G.
 %   >> options = {'-full','-enable','-revert','-parallel'};
 %   >> [ok,mess,ok_f,ok_e,ok_r,ok_p]=parse_char_options({'-rev','-full'},options)
+% where ok_r and ok_f will be true because '-full' and '-revert' options
+% are present among input aruments and ok_e and ok_p are false as these
+% options are absent
+%
 % or:
 %   >>[ok,mess,ok_f,ok_e,ok_r,ok_p,missing]=parse_char_options({'-rev','-full','other'},options)
-% then missing == {'other'}
+%where values of ok_f,ok_e,ok_r,ok_p would be the same as before and
+%the value of missing is equal to {'other'} as key 'other' is not amond the
+% cellarray of existing options.
+%
+% Accepts partial keywords, e.g. the recognized input keyword can be minimally
+% different from other possible options. In the example above, inputs may
+% be defined by one letter (i.e. '-f','-e','-r','-p')
 
 % Author: T.G.Perring 15 Nov 2013
 %

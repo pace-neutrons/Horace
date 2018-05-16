@@ -1,6 +1,6 @@
 function [n_failed,outputs,task_par_id_per_worker,this]=...
     send_tasks_to_workers_(this,...
-    task_class_name,task_param_list,n_workers,varargin)
+    task_class_name,common_params,loop_params,return_results,n_workers,task_query_time)
 % send range of jobs to execute by external program
 %
 % Usage:
@@ -8,12 +8,17 @@ function [n_failed,outputs,task_par_id_per_worker,this]=...
 %>>[n_failed,outputs,task_ids]= jd.send_jobs(task_class_name,task_param_list,...
 %                               [number_of_workers,[task_query_time]])
 %Where:
-% task_param_list -- cellarray of structures containing the
-%                   parameters of the tasks to run
-% number_of_workers -- if present, number of Matlab sessions to
-%                   start to deal with the tasks. By default,
-%                   the number of sessions is equal to number
-%                   of jobs
+% job_class_name -- name of the class - chield of jobExecutor,
+%                   which will process task on a separate worker
+% common_params  -- a structure, containing the parameters, common
+%                   for any loop iteration
+% loop_params    -- either cellarray of structures, specific
+%                   with each cell specific to a loop iteration
+%                   or the number of iterations to do over
+%                   common_params (which may depend on the
+%                   iteration number)
+% number_of_workers -- number of Matlab sessions to
+%                    process the tasks
 % task_query_time    -- if present -- time interval to check if
 %                   jobs are completed. By default, check every
 %                   4 seconds
@@ -40,49 +45,43 @@ function [n_failed,outputs,task_par_id_per_worker,this]=...
 mf = this.mess_framework_;
 clob_mf = onCleanup(@()mf.finalize_all());
 
-[n_workers,task_par_id_per_worker]=this.split_tasks(task_param_list,n_workers);
-
+% initialize cluster
 par_fm = parallel_config();
-DEBUG_REMOTE = false;
-%
+cluster = par_fm.get_cluster_wrapper(n_workers,mf);
+
+% split job
+[n_workers,InitMessages]=...
+    this.split_tasks(common_params,loop_params,return_results,n_workers);
+% and send appropriate parts to workers
 for task_id=1:n_workers
-    task_inputs = task_param_list(task_par_id_per_worker{task_id});
-    
-    th = par_fm.get_controller();
-    %-----------------------------
-    th = th.start_task(mf,task_class_name,task_id,task_inputs,DEBUG_REMOTE);
-    %-----------------------------
-    [ok,fail,err_mess] = th.is_running();
-    if ~ok && fail
-        error('JobDispatcher:starting_workers',[' Can not start worker N %d.',...
-            ' Message returned: %s'],task_id,err_mess);
+    [ok,err]=mf.send_message(task_id,InitMessages{task_id});
+    if ok ~= MESS_CODES.ok
+        error('JOB_DISPATCHER:runtime_error',...
+            ' Error %s sendfing init message to task %d',err,task_id);
     end
-    % wrap task into task controller to take care about it.
-    tc = taskController(task_id,th);
-    this.tasks_list_{task_id} = tc;
 end
-clob_tasks = onCleanup(@()kill_all_tasks(this.tasks_list_));
+%je_init_message = mf.build_je_init(JE_className,exit_on_completion,keep_worker_running);
+je_init_message = mf.build_je_init(task_class_name,true,false);
+cluster = cluster.start_job(je_init_message,@worker,task_init_mess);
+
+if exist('task_query_time','var') && ~isempty(task_query_time)
+    this.task_check_time  = task_query_time;
+end
 waiting_time = this.task_check_time;
 pause(waiting_time );
 
 
-count = 0;
-[completed,n_failed,~,this]=check_tasks_status_(this);
-while(~completed)
-    if count == 0
-        fprintf('**** Waiting for workers to finish their jobs ****\n')
-        this.tasks_list_=print_tasks_progress_log_(this.tasks_list_);
-    end
+
+[completed,cluster]=cluster.check_job_status();
+cluster = cluster.display_progress();
+%
+while(~completed)    
     pause(waiting_time);
-    [completed,n_failed,all_changed,this]=check_tasks_status_(this);
-    count = count+1;
-    fprintf('.')
-    if mod(count,19)==0 || all_changed % 19 is the length of task progress message
-        fprintf('\n')
-        this.tasks_list_=print_tasks_progress_log_(this.tasks_list_);
-    end
+    [completed,cluster]=cluster.check_job_status();    
+    cluster = cluster.display_progress();   
 end
-fprintf('\n')
+[n_failed,outputs,task_par_id_per_worker] = cluster.return_results();
+
 this.tasks_list_=print_tasks_progress_log_(this.tasks_list_);
 %--------------------------------------------------------------------------
 % retrieve outputs (if any)
@@ -95,6 +94,10 @@ for ind = 1:n_workers
         outputs{ind} = task_info{ind}.outputs;
     end
 end
+    if count == 0
+        fprintf('**** Waiting for workers to finish their jobs ****\n')
+        this.tasks_list_=print_tasks_progress_log_(this.tasks_list_);
+    end
 
 function kill_all_tasks(tasks_list)
 

@@ -110,6 +110,8 @@ classdef FilebasedMessages < iMessagesFramework
             %Where:
             % task_ids -- array of task id-s to check messages for or all
             %             messages if this is empty
+            % message_name or message_tag -- if present, check only for
+            %             the messages of specific kind.
             %Returns:
             % mess_names   -- cellarray of strings, containing message names
             %                 for the requested tasks.

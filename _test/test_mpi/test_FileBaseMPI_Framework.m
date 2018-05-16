@@ -309,23 +309,29 @@ classdef test_FileBaseMPI_Framework< TestCase
                 assertEqual(ME.message,...
                     'Timeout waiting for message "barrier" for task with id: 2');
             end
-   
+            
             fbMPI3.time_to_fail = t0;
             fbMPI2.time_to_fail = t0;
-  
-             
+            
+            
             % will pass without delay as all other worker would reach the
             % barrier
             ok = fbMPI1.labBarrier();
             assertTrue(ok);
             
             % and other workers would pass barrier now
-            [ok,err,mess] = fbMPI3.receive_message(1,'barrier');
+            ok = fbMPI3.labBarrier();
+            assertTrue(ok);
+            ok = fbMPI2.labBarrier();
+            assertTrue(ok);
+            
+            % clear up the barrier messages
+            [ok,err,mess] = fbMPI1.receive_message(2,'barrier');
             assertEqual(ok,MESS_CODES.ok)
             assertTrue(isempty(err));
             assertEqual(mess.mess_name,'barrier');
             
-            [ok,err,mess] = fbMPI2.receive_message(1,'barrier');
+            [ok,err,mess] = fbMPI1.receive_message(3,'barrier');
             assertEqual(ok,MESS_CODES.ok)
             assertTrue(isempty(err));
             assertEqual(mess.mess_name,'barrier');

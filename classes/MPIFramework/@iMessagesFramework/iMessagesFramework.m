@@ -97,92 +97,32 @@ classdef iMessagesFramework
         function ind = get.numLabs(obj)
             ind = get_num_labs_(obj);
         end
+        %
+        function cs = gen_worker_init(obj,labID,numLabs)
+            % Generate slave MPI worker init info, using statis build_framework_init
+            % method and information, retrieved from initialized control node
+            % Usage:
+            % cs = obj.gen_worker_init() % -- for real MPI worker
+            % or 
+            % cs = obj.gen_worker_init(labId,numLabs) % for Herbert MPI
+            %                                          worker
+            % where
+            % obj     -- an initiated instance of message exchange framework on a head-node and
+            % labId   -- labindex of Herbert MPI worker to initiate
+            % numLabs -- number of Herbert MPI workers
+            % 
+            %
+            if exist('labID','var') % Herbert MPI worker. Numlabs and labnum are defined by configuration
+                cs = obj.build_framework_init(...
+                    obj.mess_exchange_folder,obj.job_id,labID,numLabs);
+            else  % real MPI worker (numlabs and labnum is defined by MPIexec
+                cs = obj.build_framework_init(...
+                    obj.mess_exchange_folder,obj.job_id);
+            end
+            
+        end
         
         % HERBERT Job control interface+
-        function [obj,local_config_folder]= distribute_je_init(obj,...
-                shared_folder_on_local,JE_className,varargin)
-            % build worker's control structure, necessary to
-            % initiate message framework and jobExecutor.
-            % and store this information in the location, where a remote
-            % worker should pick it up.
-            %
-            % shared_folder_on_local -- the folder where the shared with workers
-            %                           data are placed on local machine
-            % JE_className           -- the name of JobExecutor class
-            %                           child, which would perform the
-            %                           job.
-            % if present:
-            %exit_on_complition      -- if true, worker will execute 'exit'
-            %                           command when task is finished (matlab session will close)
-            %
-            info = obj.je_init_info(JE_className,varargin{:});
-            [remote_job_folder,local_config_folder] = obj.send_job_info(info,shared_folder_on_local);
-            obj.mess_exchange_folder = remote_job_folder;
-        end
-        
-        
-        function info = je_init_info(obj,JE_className,varargin)
-            % the structure, used to transmit information to a worker and
-            % initialize jobExecutor on a worker through the system pipe.
-            % due to the system pipe limited size, this information sould
-            % be very restricted.
-            % where:
-            %
-            % shared_folder_on_remote -- other information necessary to initiate
-            %                   the messages framework.
-            
-            if nargin>2
-                exit_on_complition = varargin{1};
-            else
-                exit_on_complition = true;
-            end
-            % labIndex defines the number of worker. If this is MPI job,
-            % the number is derived from MPI framework, if its Herbert
-            % framework, the number of worker should be asigned.
-            info = struct('JobExecutorClassName',JE_className,...
-                'exit_on_compl',exit_on_complition);
-        end
-        
-        function [remote_job_folder,local_config_folder] = send_job_info(obj,info,varargin)
-            % store configuration data necessary to initiate Herbert/Horace mpi
-            % job on a remote machine.
-            %Usage:
-            %mpi.send_job_info(info,[shared_folder_on_local]);
-            %
-            % Info -- the data describing the job itself.
-            % shared_folder_on_local -- if present, defines the folder
-            %                           where remote job will exchange its data
-            %               if absent, parallel_config value will be used
-            [remote_job_folder,local_config_folder]...
-                = store_config_info_(obj,info,varargin{:});
-        end
-        
-        function [init_info,config_folder]= receive_job_info(obj,data_path,varargin)
-            % restore configuration data necessary to initiate Herbert/Horace mpi
-            % job on a remote machine.
-            %Usage:
-            % [job_info,config_folder] = mpi.receive_job_info(data_path,['-keep_info'])
-            %Where:
-            %
-            % data_path       -- the path to the configuration data and
-            %                    configuration files.
-            %'-keep_job_info' -- if this key is present, the message with job info
-            %                    will not be deleted after the data are
-            %                    received, if not, the message would be
-            %                    destroyed
-            % Returns:
-            % init_info     -- loaded job configuration data as stored by
-            %                  send_job_info operation.
-            % config_folder -- the folder where the configuration
-            %                  information is stored. This folder should be
-            %                  set us config_store folder.
-            %
-            if ~exist('data_path','var') || isempty(data_path)
-                data_path = obj.mess_exchange_folder;
-            end
-            [init_info,config_folder] = restore_config_info_(obj,data_path,varargin{:});
-        end
-        
         function [filename,filepath,equal_fs] = par_config_file(obj,varargin)
             % Returns the name and remote path to a file, which stores a remote job
             % configuration, necessary to intiate a worker.
@@ -225,8 +165,35 @@ classdef iMessagesFramework
     end
     
     methods(Static)
+        function initMessage = build_je_init(JE_className,exit_on_completion,keep_worker_running)
+            % the structure, used to initialize job executor class, to run on
+            % a particular worker
+            %
+            % where:
+            %
+            if ~exist('exit_on_completion','var')
+                exit_on_completion = true;
+            end
+            if ~exist('keep_worker_running','var')
+                keep_worker_running = false;
+            end
+            
+            % labIndex defines the number of worker. If this is MPI job,
+            % the number is derived from MPI framework, if its Herbert
+            % framework, the number of worker should be asigned.
+            info = struct(...
+                'JobExecutorClassName',JE_className,...
+                'exit_on_compl',exit_on_completion ,...
+                'keep_worker_running',keep_worker_running);
+            initMessage  = aMessage('starting');
+            initMessage.payload = info;
+        end
+        
         function cs = build_framework_init(path_to_data_exchange_folder,jobID,labID,numLabs)
-            % prepare data path, a worker would take its data from
+            % prepare data necessary to initialize a MPI worker and
+            % serialize them into the form, acceptable for transfer through
+            % any system's interporcesses pipe
+            %
             % Usage:
             %>> cs =iMessagesFramework.build_framework_init(path_to_data_exchange_folder,labID)
             % Where:

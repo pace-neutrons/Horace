@@ -19,18 +19,24 @@ classdef MESS_NAMES
             names = MESS_NAMES.mess_names_;
         end
         
-        function id = mess_id(mess_name)
+        function id = mess_id(varargin)
             % get message id (tag) derived from message name
+            % usage: 
+            % id = MESS_NAMES.mess_id('completed')
+            % or 
+            % ids = MESS_NAMES.mess_id('completed','running','started')
             %
-            if iscell(mess_name)
+            % where id-s is the array of message id-s (tags)
+            %
+            if numel(varargin) > 1
                 id = cellfun(@(nm)(MESS_NAMES.name2code_map_(nm)),...
-                    mess_name,'UniformOutput',true);
+                    varargin,'UniformOutput',true);
             else
                 %disp(['MEss name: ',mess_name])
                 %if isempty(mess_name)
                 %    dbstack
                 %end
-                id = MESS_NAMES.name2code_map_(mess_name);
+                id = MESS_NAMES.name2code_map_(varargin{1});
             end
         end
         %

@@ -1,6 +1,6 @@
 classdef InitMessage < aMessage
     % Helper class desfines a message, used to transfer initial
-    % information to a single task of a remote job.
+    % information to a single task of a distributed job.
     %
     %
     % $Revision: 713 $ ($Date: 2018-02-23 16:52:46 +0000 (Fri, 23 Feb 2018) $)
@@ -45,8 +45,8 @@ classdef InitMessage < aMessage
             if ~exist('n_first_step','var')
                 n_first_step = 1;
             end
-            if numel(loop_data) > 1
-                obj.payload.loop_data = loop_data;
+            if iscell(loop_data)
+                obj.payload.loopData = loop_data;
                 obj.payload.n_steps   = numel(loop_data);
             else
                 obj.payload.n_steps  = loop_data;

@@ -1,5 +1,8 @@
 classdef LogMessage<aMessage
     % Class describes message, used to report job progress
+    %
+    % $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+    %
     properties(Dependent)
         % current step within the loop which doing the job
         step
@@ -10,7 +13,6 @@ classdef LogMessage<aMessage
         % additional information to print in a log. May be empty
         add_info
     end
-    
     
     methods
         function obj = LogMessage(step,n_steps,step_time,add_info)

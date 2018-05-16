@@ -12,12 +12,7 @@ classdef JobDispatcher
     % $Revision$ ($Date$)
     %
     %
-    properties(Dependent)
-        % method returns a qualified name of a program to run (e.g. Matlab
-        % with all attributes necessary to start it (e.g. path if the program
-        % is not on the path)
-        worker_prog_string;
-        
+    properties(Dependent)       
         % how often (in second) job dispatcher should query the task status
         task_check_time;
         % fail limit -- number of times to try action until deciding the
@@ -26,11 +21,13 @@ classdef JobDispatcher
         % considered failed
         time_to_fail
         %
+        % the framework used to exchange messages with parallel pool
         mess_framework;
+        %  Heler property used to retrieve running job id
+        job_id
     end
     %
     properties(Access=protected)
-        tasks_list_={};
         task_check_time_ = 4;
         fail_limit_ = 100; % number of times to try for changes in job status file until
         % decided the job have failed
@@ -55,14 +52,16 @@ classdef JobDispatcher
             %
             % Initialise messages framework
             mf = FilebasedMessages(varargin{:});
-            if nargin == 0 % initialize framework with default job id.
-                mf = mf.init_framework(mf.job_id);
+            pc = parallel_config;
+            if ~isempty(pc.shared_folder_on_local)
+                mf.mess_exchange_folder = pc.shared_folder_on_local;
             end
             jd.mess_framework_  = mf;
         end
         %
         function [n_failed,outputs,task_ids,this]=start_tasks(this,...
-                job_class_name,common_params,loop_params,number_of_workers,varargin)
+                job_class_name,common_params,loop_params,return_results,...
+                number_of_workers,task_query_time)
             % send range of jobs to execute by external program
             %
             % Usage:
@@ -70,9 +69,9 @@ classdef JobDispatcher
             %     start_tasks(this,job_class_name,common_params,loop_params,...
             %    [number_of_workers,[job_query_time]])
             %Where:
-            % job_class_name -- name of the class -chile of jobExecutor,  
+            % job_class_name -- name of the class - chield of jobExecutor,
             %                   which will process task on a separate worker
-            % common_params  -- a structure, containing the parameters, common 
+            % common_params  -- a structure, containing the parameters, common
             %                   for any loop iteration
             % loop_params    -- either cellarray of structures, specific
             %                   with each cell specific to a loop iteration
@@ -83,9 +82,9 @@ classdef JobDispatcher
             %                    process the tasks
             %
             % Optional:
-            % task_query_time -- if present -- time interval to check if
-            %                    taks are completed. By default, check every
-            %                    4 seconds
+            % task_query_time -- if present -- time interval in seconds to
+            %                    check if taks are completed. By default,
+            %                    check every 4 seconds
             %
             % Returns
             % n_failed  -- number of taks that have failed.
@@ -95,12 +94,30 @@ classdef JobDispatcher
             %              (task number) and task parameters from
             %               tasks_param_list, assigned to this task
             %
+            if ~exist('task_query_time','var')
+                task_query_time = 4;
+            end
             [n_failed,outputs,task_ids,this]=send_tasks_to_workers_(this,...
-                job_class_name,common_params,loop_params,...
-                number_of_workers,varargin{:});
+                job_class_name,common_params,loop_params,return_results,...
+                number_of_workers,task_query_time);
         end
         %
-        %
+        function [n_workers,init_mess]=split_tasks(this,common_par,loop_par,n_workers,return_outputs)
+            % divide list of job parameters among given number of workers
+            % and generate list of init messages for the subtasks
+            %
+            %Inputs:
+            %job_param_list -- cellarray of classes or structures, containing task parameters
+            %                  or number of iterations in the parallel
+            %                  loop.
+            %
+            %n_workers      -- number of workers to split job between workers
+            %
+            % returns: cell array of indexes from job_param_list dedicated to run on a
+            % worker.
+            [n_workers,init_mess]=this.split_tasks_(common_par,loop_par,n_workers,return_outputs);
+        end        
+        %------------------------------------------------------------------
         function limit = get.fail_limit(this)
             limit  = this.fail_limit_;
         end
@@ -131,20 +148,11 @@ classdef JobDispatcher
             this = reset_fail_limit_(this,val/this.task_check_time);
         end
         
-        
         function mf = get.mess_framework(obj)
             mf = obj.mess_framework_;
         end
-        function [n_workers,task_par_ind]=split_tasks(this,task_param_list,n_workers)
-            % divide list of job parameters among given number of workers
-            %
-            %Inputs:
-            %job_param_list -- cellarray of classes or structures, containing task parameters.
-            %n_workers      -- number of workers to split job between workers
-            %
-            % returns: cell array of indexes from job_param_list dedicated to run on a
-            % worker.
-            [n_workers,task_par_ind]=this.split_tasks_(task_param_list,n_workers);
+        function id = get.job_id(obj)
+            id = obj.mess_framework_.job_id;
         end
     end
     methods(Access=protected)

@@ -1,4 +1,4 @@
-classdef test_parpool_job_dispatcher< MPI_Test_Common
+classdef test_job_dispatcher_parpool< MPI_Test_Common
     % Test running using the parpool job dispatcher. 
     %
     % $Revision: 696 $ ($Date: 2018-02-06 13:59:38 +0000 (Tue, 06 Feb 2018) $)
@@ -9,9 +9,9 @@ classdef test_parpool_job_dispatcher< MPI_Test_Common
     end
     methods
         %
-        function this=test_parpool_job_dispatcher(name)
+        function this=test_job_dispatcher_parpool(name)
             if ~exist('name','var')
-                name = 'test_parpool_job_dispatcher';
+                name = 'test_job_dispatcher_parpool';
             end
             this = this@MPI_Test_Common(name);
         end
@@ -35,9 +35,9 @@ classdef test_parpool_job_dispatcher< MPI_Test_Common
             files = {file1,file2,file3};
             co = onCleanup(@()(delete(files{:})));
             
-            jd = JobDispatcher();
+            jd = JobDispatcher('test_parpool_1worker');
             
-            [n_failed,outputs]=jd.start_tasks('JETester',common_param,3,1,1);
+            [n_failed,outputs]=jd.start_tasks('JETester',common_param,3,true,1,1);
             
             assertEqual(n_failed,0);
             assertTrue(isempty(outputs{1}));
@@ -51,10 +51,6 @@ classdef test_parpool_job_dispatcher< MPI_Test_Common
             % overloaded to empty test -- nothing new for this JD
         end
         %
-        function test_split_job_list(this)
-            % overloaded to empty test -- nothing new for this JD
-        end
-   
         
         
     end
