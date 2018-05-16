@@ -15,22 +15,22 @@ classdef test_cluster_wrapper < TestCase
         end
         function test_cluster_init(obj)
             
-            mf = FilebasedMessages('test_cluster_init');
+            mf = MessagesFilebased('test_cluster_init');
             cluster = ClusterWrapper(3,mf);
             clob = onCleanup(@()finalize_all(cluster));
             
             % build message framework to respond instead of a worker
             cs = mf.gen_worker_init(1,3);
             css = mf.deserialize_par(cs);
-            meR1 = FilebasedMessages(css);
+            meR1 = MessagesFilebased(css);
             
             cs = mf.gen_worker_init(2,3);
             css = mf.deserialize_par(cs);
-            meR2 = FilebasedMessages(css);
+            meR2 = MessagesFilebased(css);
             
             cs = mf.gen_worker_init(3,3);
             css = mf.deserialize_par(cs);
-            meR3 = FilebasedMessages(css);
+            meR3 = MessagesFilebased(css);
             % send ready messages do disable cluster locking
             meR1.send_message(0,'started');
             meR2.send_message(0,'started');
@@ -76,7 +76,7 @@ classdef test_cluster_wrapper < TestCase
         
         function test_check_progress_disp_results(obj)
             
-            mf = FilebasedMessages('disp_prgrs');
+            mf = MessagesFilebased('disp_prgrs');
             % test mode -- framework with 0 workers would not start
             % anything
             cluster = ClusterWrapper(0,mf);
@@ -85,7 +85,7 @@ classdef test_cluster_wrapper < TestCase
             
             cs = mf.gen_worker_init(1,10);
             css = mf.deserialize_par(cs);
-            meR = FilebasedMessages(css);
+            meR = MessagesFilebased(css);
             
             meR.send_message(0,'starting');
             

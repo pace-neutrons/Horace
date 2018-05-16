@@ -6,7 +6,7 @@ classdef test_FileBaseMPI_Framework< TestCase
     properties
         working_dir
         old_config
-        % if default current framework is not a herbert framework,
+        % if default current framework is not a Herbert framework,
         % one need to change the setup
         change_setup = false;
     end
@@ -116,15 +116,15 @@ classdef test_FileBaseMPI_Framework< TestCase
             fiis = iMessagesFramework.build_framework_init(this.working_dir,...
                 'FB_MPI_Test_recevie_all',0,3);
             fii = iMessagesFramework.deserialize_par(fiis);
-            mf0 = FilebasedMessages(fii);
+            mf0 = MessagesFilebased(fii);
             
             clob = onCleanup(@()(mf0.finalize_all()));
             fii.labID = 1;
-            mf1 = FilebasedMessages(fii);
+            mf1 = MessagesFilebased(fii);
             fii.labID = 2;
-            mf2 = FilebasedMessages(fii);
+            mf2 = MessagesFilebased(fii);
             fii.labID = 3;
-            mf3 = FilebasedMessages(fii);
+            mf3 = MessagesFilebased(fii);
             
             
             mess = aMessage('starting');
@@ -168,7 +168,7 @@ classdef test_FileBaseMPI_Framework< TestCase
         end
         %
         function test_probe_all(this)
-            mf = FilebasedMessages('MFT_probe_all_messages');
+            mf = MessagesFilebased('MFT_probe_all_messages');
             clob = onCleanup(@()(mf.finalize_all()));
             
             all_mess = mf.probe_all(1);
@@ -220,7 +220,7 @@ classdef test_FileBaseMPI_Framework< TestCase
             cs = mf.build_framework_init(mf.mess_exchange_folder,mf.job_id,3,5);
             
             init_str = mf.deserialize_par(cs);
-            mf3 = FilebasedMessages(init_str);
+            mf3 = MessagesFilebased(init_str);
             [all_mess,id_from] = mf3.probe_all();
             
             
@@ -255,7 +255,7 @@ classdef test_FileBaseMPI_Framework< TestCase
             assertEqual(id_from(2),3);
         end
         function test_shared_folder(this)
-            mf = FilebasedMessages();
+            mf = MessagesFilebased();
             mf.mess_exchange_folder = this.working_dir;
             mf = mf.init_framework('test_shared_folder');
             clob = onCleanup(@()mf.finalize_all());
@@ -277,7 +277,7 @@ classdef test_FileBaseMPI_Framework< TestCase
         end
         
         function test_barrier(this)
-            mf = FilebasedMessages('test_barrier');
+            mf = MessagesFilebased('test_barrier');
             mf.mess_exchange_folder = this.working_dir;
             clob = onCleanup(@()mf.finalize_all());
             % create three pseudo-independent message exchange classes
@@ -289,9 +289,9 @@ classdef test_FileBaseMPI_Framework< TestCase
             css3 = iMessagesFramework.build_framework_init(this.working_dir,mf.job_id,3,3);
             cs3 =  iMessagesFramework.deserialize_par(css3);
             
-            fbMPI1 = FilebasedMessages(cs1);
-            fbMPI2 = FilebasedMessages(cs2);
-            fbMPI3 = FilebasedMessages(cs3);
+            fbMPI1 = MessagesFilebased(cs1);
+            fbMPI2 = MessagesFilebased(cs2);
+            fbMPI3 = MessagesFilebased(cs3);
             
             t0 = fbMPI3.time_to_fail;
             fbMPI3.time_to_fail = 0.1;

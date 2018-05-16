@@ -45,13 +45,13 @@ classdef JobDispatcher
             % this job control files from any other job control files
             %Example
             % jd = JobDispatcher() -- use randomly generated job control
-            % preffix
+            % prefix
             % jd = JobDispatcher('target_file_name') -- add prefix
             %      which distinguish this job as the job which will produce
             %      the file with the name provided
             %
             % Initialise messages framework
-            mf = FilebasedMessages(varargin{:});
+            mf = MessagesFilebased(varargin{:});
             pc = parallel_config;
             if ~isempty(pc.shared_folder_on_local)
                 mf.mess_exchange_folder = pc.shared_folder_on_local;
@@ -69,7 +69,7 @@ classdef JobDispatcher
             %     start_tasks(this,job_class_name,common_params,loop_params,...
             %    [number_of_workers,[job_query_time]])
             %Where:
-            % job_class_name -- name of the class - chield of jobExecutor,
+            % job_class_name -- name of the class - child of jobExecutor,
             %                   which will process task on a separate worker
             % common_params  -- a structure, containing the parameters, common
             %                   for any loop iteration
@@ -83,11 +83,11 @@ classdef JobDispatcher
             %
             % Optional:
             % task_query_time -- if present -- time interval in seconds to
-            %                    check if taks are completed. By default,
+            %                    check if tasks are completed. By default,
             %                    check every 4 seconds
             %
             % Returns
-            % n_failed  -- number of taks that have failed.
+            % n_failed  -- number of tasks that have failed.
             % outputs   -- cellarray of outputs from each task.
             %              Empty if tasks do not return anything
             % task_ids   -- cellarray containing relation between task_id

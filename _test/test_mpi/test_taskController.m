@@ -14,7 +14,7 @@ classdef test_taskController < TestCase
         
         
         function test_task_progress(this)
-            mpi = FilebasedMessages('TJC_test_task_progres');
+            mpi = MessagesFilebased('TJC_test_task_progres');
             clob = onCleanup(@()(mpi.finalize_all()));
             
             % this sets up failing on 3 attempts to verify task status

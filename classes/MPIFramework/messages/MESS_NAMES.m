@@ -28,9 +28,12 @@ classdef MESS_NAMES
             %
             % where id-s is the array of message id-s (tags)
             %
-            if numel(varargin) > 1
+            if iscell(varargin{1})
                 id = cellfun(@(nm)(MESS_NAMES.name2code_map_(nm)),...
-                    varargin,'UniformOutput',true);
+                    varargin{1},'UniformOutput',true);
+            elseif nargin > 1
+                id = cellfun(@(nm)(MESS_NAMES.name2code_map_(nm)),...
+                    varargin,'UniformOutput',true);                
             else
                 %disp(['MEss name: ',mess_name])
                 %if isempty(mess_name)

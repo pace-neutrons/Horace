@@ -1,9 +1,9 @@
-classdef ParpoolMessages < iMessagesFramework
+classdef MessagesParpool < iMessagesFramework
     % The class providing file-based message exchange functionality for Herbert
     % distributed jobs framework.
     %
     % The framework's functionality is similar to parfor
-    % but does not requered parallel toolbox and works by starting
+    % but does not required parallel toolbox and works by starting
     % separate Matlab sessions to do separate tasks.
     % Works in conjunction with worker function from admin folder,
     % The worker has to be placed on Matlab search path
@@ -31,7 +31,7 @@ classdef ParpoolMessages < iMessagesFramework
     %----------------------------------------------------------------------
     methods
         %
-        function jd = ParpoolMessages(varargin)
+        function jd = MessagesParpool(varargin)
             % Initialize Messages framework for particular job
             % If provided with parameters, the first parameter should be
             % the sting-prefix of the job control files, used to
@@ -41,7 +41,7 @@ classdef ParpoolMessages < iMessagesFramework
             % jd = MessagesFramework() -- use randomly generated job control
             %                             prefix
             % jd = MessagesFramework('target_name') -- add prefix
-            %      which discribes this job.
+            %      which describes this job.
             %
             
             jd = jd@iMessagesFramework();
@@ -69,7 +69,7 @@ classdef ParpoolMessages < iMessagesFramework
         % MPI interface
         %
         function fn = mess_name(obj,task_id,mess_name)
-            % not used in ParpoolMessages
+            % not used in MessagesParpool
             fn  = mess_name;
         end
         %
@@ -128,7 +128,7 @@ classdef ParpoolMessages < iMessagesFramework
             %>> [mess_names,task_id] = obj.probe_all([task_ids],[mess_name|mess_tag]);
             %Where:
             % task_ids    -- the task ids of the labs to verify messages
-            %                from. Query all availible labs if this field
+            %                from. Query all available labs if this field
             %                is empty
             % message_name ! message_tag -- if present, check only for
             %                the messages of the kind, specified by this 
@@ -137,7 +137,7 @@ classdef ParpoolMessages < iMessagesFramework
             % mess_names   -- the  cellarray, containing message names
             %                 of the message from  any lab in the pool.
             %                 empty for the
-            % task_id     --  the task id of a first availible message
+            % task_id     --  the task id of a first available message
             %
             % if no messages are present in the system
             % messages_name and task_id are empty
@@ -153,11 +153,11 @@ classdef ParpoolMessages < iMessagesFramework
             % Usage:
             %>>[all_messages,task_ids] = pm.receive_all([task_is]);
             %Input:
-            %task_ids -- array of task id-s to check messages for or emtpy
+            %task_ids -- array of task id-s to check messages for or empty
             %            to check for all messages
             %Return:
             % all_messages -- cellarray of messages for the tasks requested and
-            %                have messages availible in the system with empty cells.
+            %                have messages available in the system with empty cells.
             %                for missing messages
             % task_ids    -- array of task id-s for these messages with
             %                zeros for missing messages

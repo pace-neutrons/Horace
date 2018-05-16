@@ -187,7 +187,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
         %         function test_labprobe_nonmpi(this)
         %             % The code which runs this is disabled due to the bug in
         %             % parallel parser.
-        %             pm = ParpoolMessages('nonMPIlogic_tester');
+        %             pm = MessagesParpool('nonMPIlogic_tester');
         %             function[isAvail,taskID,tag]=labProbeNonMPI0(task_id)
         %                 isAvailAll = [true,true,false];
         %                 taskIDAll  = [1,2,3];

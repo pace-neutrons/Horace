@@ -1,10 +1,10 @@
 function [obj,err]=init_je_(obj,fbMPI,job_control_string,InitMessage)
 % initiate the worker parameters
 % Inputs:
-% job_control_string - the serialized string, contaning information
+% job_control_string - the serialized string, containing information
 %                      necessary to initialize the messages framework.
 %Output:
-% obj    -- Initalized instance of the job executor
+% obj    -- Initialized instance of the job executor
 % err    -- empty on success or information about the reason for failure.
 %
 %
@@ -20,7 +20,7 @@ else
         mf = feval(fr_class_name);
         mf = mf.init_framework(job_control_struct);
     else
-        mf = ParpoolMessages(job_control_struct);
+        mf = MessagesParpool(job_control_struct);
     end
 end
 % Store framework, used to exchange messages between nodes

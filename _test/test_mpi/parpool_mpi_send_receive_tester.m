@@ -8,7 +8,7 @@ if nl > 1
     mis.is_deployed = true;    
 end
 
-pm = ParpoolMessages('parpool_MPI_tester');
+pm = MessagesParpool('parpool_MPI_tester');
 
 
 li = pm.labIndex;

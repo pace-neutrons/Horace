@@ -28,7 +28,7 @@ classdef test_job_executor< TestCase
             
             %cs  = iMessagesFramework.deserialize_par(css1);
             % initiate exchange class which would work on a client(worker's) side
-            serverfbMPI  = FilebasedMessages('test_worker');
+            serverfbMPI  = MessagesFilebased('test_worker');
             serverfbMPI.mess_exchange_folder = this.working_dir;
             %             cs.labID = 0;
             %             serverfbMPI= serverfbMPI.init_framework(cs);
@@ -71,7 +71,7 @@ classdef test_job_executor< TestCase
             
             
             % start two client jobs
-            % second needs to start first as it will report its progess to
+            % second needs to start first as it will report its profess to
             % the lab1
             worker(css2);            
             worker(css1);
@@ -112,13 +112,13 @@ classdef test_job_executor< TestCase
             css = iMessagesFramework.build_framework_init(this.working_dir,'test_do_job',1,1);
             cs  = iMessagesFramework.deserialize_par(css);
             % initiate exchange class which would work on a client(worker's) side
-            fbMPI = FilebasedMessages();
+            fbMPI = MessagesFilebased();
             fbMPI = fbMPI.init_framework(cs);
             clob = onCleanup(@()finalize_all(fbMPI));
             
             % initiate exchange class which would work on the server's side
             cs.labID = 0;
-            serverfbMPI  = FilebasedMessages(cs);
+            serverfbMPI  = MessagesFilebased(cs);
             
             % initate job executor would working on a client side.
             je = JETester();

@@ -1,9 +1,9 @@
-classdef FilebasedMessages < iMessagesFramework
+classdef MessagesFilebased < iMessagesFramework
     % The class providing file-based message exchange functionality for Herbert
     % distributed jobs framework.
     %
     % The framework's functionality is similar to parfor
-    % but does not requered parallel toolbox and works by starting
+    % but does not required parallel toolbox and works by starting
     % separate Matlab sessions to do separate tasks.
     % Works in conjunction with worker function from admin folder,
     % The worker has to be placed on Matlab search path
@@ -17,18 +17,18 @@ classdef FilebasedMessages < iMessagesFramework
     %
     %
     properties(Dependent)
-        % Time in seconds a system waits for blocking message intil
+        % Time in seconds a system waits for blocking message until
         % returning "not-received"
         time_to_fail;
     end
     %----------------------------------------------------------------------
     %----------------------------------------------------------------------
     properties(Access=protected)
-        % time to watit before checking for next blocking message if
+        % time to wait before checking for next blocking message if
         % previous attempt have not find it.
         time_to_react_ = 1; % (sec)
         %
-        % equvalent to labNum in MPI
+        % equivalent to labNum in MPI
         task_id_ = 0;
         %
         numLabs_ = 1;
@@ -36,7 +36,7 @@ classdef FilebasedMessages < iMessagesFramework
     %----------------------------------------------------------------------
     methods
         %
-        function jd = FilebasedMessages(varargin)
+        function jd = MessagesFilebased(varargin)
             % Initialize Messages framework for particular job
             % If provided with parameters, the first parameter should be
             % the sting-prefix of the job control files, used to
@@ -46,8 +46,8 @@ classdef FilebasedMessages < iMessagesFramework
             % jd = MessagesFramework() -- use randomly generated job control
             %                             prefix
             % jd = MessagesFramework('target_name') -- add prefix
-            %      which discribes this job.
-            % Filebased messages frimework creates the exchange folder with
+            %      which describes this job.
+            % File-based messages framework creates the exchange folder with
             % the filename specified as input.
             %
             % Initialise folder path
@@ -65,7 +65,7 @@ classdef FilebasedMessages < iMessagesFramework
             obj = init_framework_(obj,framework_info);
         end
         %------------------------------------------------------------------
-        % MPI intefce
+        % MPI interface
         %
         function fn = mess_name(obj,task_id,mess_name)
             % Fully qualified name of the task status message, which allows
@@ -127,14 +127,14 @@ classdef FilebasedMessages < iMessagesFramework
         function [all_messages,task_ids] = receive_all(obj,varargin)
             % retrieve (and remove from system) all messages
             % existing in the system for the tasks with id-s specified as input
-            % Blocks execution until the messages all messages are receved.
+            % Blocks execution until the messages all messages are received.
             %
             %
             %Input:
             %task_ids -- array of task id-s to check messages for
             %Return:
             % all_messages -- cellarray of messages for the tasks requested and
-            %                 have messages availible in the system .
+            %                 have messages available in the system .
             % task_ids     -- array of task id-s for these messages
             % mess_name    -- if present, receive only the messages with
             %                 the name provided

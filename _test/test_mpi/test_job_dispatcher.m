@@ -252,7 +252,7 @@ classdef test_job_dispatcher< TestCase
             assertTrue(isempty(err_mess))
             assertEqual(job_arguments{1},job_param_list{1});
             
-            test_task = mpi.worker_job_info('FilebasedMessages',1);
+            test_task = mpi.worker_job_info('MessagesFilebased',1);
             assertEqual(test_task,task_par);
             
             %ok = jd.job_state_is(1,'starting');

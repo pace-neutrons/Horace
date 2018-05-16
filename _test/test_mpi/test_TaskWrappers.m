@@ -18,7 +18,7 @@ classdef test_TaskWrappers < TestCase
                 return;
             end
             %
-            mpi = FilebasedMessages('test_ParpoolTaskWrapper');
+            mpi = MessagesFilebased('test_ParpoolTaskWrapper');
             clob = onCleanup(@()(mpi.finalize_all()));
 
             job_param = struct('filepath',this.working_dir,...
@@ -45,7 +45,7 @@ classdef test_TaskWrappers < TestCase
         
         
         function test_JavaTaskWrapper(this)
-            mpi = FilebasedMessages('test_JavaTaskWrapper');
+            mpi = MessagesFilebased('test_JavaTaskWrapper');
             clob = onCleanup(@()(mpi.finalize_all()));
             %contr = mpi.build_control(1);
             job_param = struct('filepath',this.working_dir,...
