@@ -63,11 +63,12 @@ classdef iMessagesFramework
                 old_id = obj.job_id_;
                 obj.job_id_ = val;
                 if ~isempty(obj.mess_exchange_folder_)
+                    old_exchange = obj.mess_exchange_folder_;
                     [fp,fs] = fileparts(obj.mess_exchange_folder_);
                     if strcmpi(fs,old_id)
                         obj.mess_exchange_folder_ = fullfile(fp,val);
+                        rmdir(old_exchange,'s');
                     end
-                    
                 end
                 
             else
@@ -77,6 +78,11 @@ classdef iMessagesFramework
         end
         %
         function obj = set.mess_exchange_folder(obj,val)
+            % set message exchange folder for filebased messages exchange
+            % within Herbert/Horace configuration folder
+            % and copy Herbert/Horace configurations to new configuration
+            % folder if this folder differs from default configuration
+            
             if strcmp(val,obj.mess_exchange_folder)
                 return;
             end
@@ -84,11 +90,17 @@ classdef iMessagesFramework
             if exist(obj.mess_exchange_folder,'dir') == 7
                 rmdir(obj.mess_exchange_folder,'s');
             end
-            [config_f_base,config_ext] = obj.build_exchange_folder_name(val);
-            obj.mess_exchange_folder_ = fullfile(config_f_base,config_ext);
+            [remote_job_base,config_ext] = obj.build_exchange_folder_name(val);
+            obj.mess_exchange_folder_ = fullfile(remote_job_base,config_ext);
             if ~(exist(obj.mess_exchange_folder,'dir') ==7)
                 mkdir(obj.mess_exchange_folder);
             end
+            existing_config_f = config_store.instance().config_folder;
+            remote_config_folder = fullfile(remote_job_base,config_store.config_folder_name);
+            if ~strcmp(remote_config_folder,existing_config_f)
+                copy_existing_config_to_remote_(existing_config_f,remote_config_folder);
+            end
+            
         end
         %
         function ind = get.labIndex(obj)
@@ -99,60 +111,31 @@ classdef iMessagesFramework
         end
         %
         function cs = gen_worker_init(obj,labID,numLabs)
-            % Generate slave MPI worker init info, using statis build_framework_init
+            % Generate slave MPI worker init info, using static build_worker_init
             % method and information, retrieved from initialized control node
             % Usage:
             % cs = obj.gen_worker_init() % -- for real MPI worker
-            % or 
+            % or
             % cs = obj.gen_worker_init(labId,numLabs) % for Herbert MPI
             %                                          worker
             % where
             % obj     -- an initiated instance of message exchange framework on a head-node and
             % labId   -- labindex of Herbert MPI worker to initiate
             % numLabs -- number of Herbert MPI workers
-            % 
             %
+            %
+            datapath = fileparts(fileparts(fileparts(obj.mess_exchange_folder)));
             if exist('labID','var') % Herbert MPI worker. Numlabs and labnum are defined by configuration
-                cs = obj.build_framework_init(...
-                    obj.mess_exchange_folder,obj.job_id,labID,numLabs);
+                cs = obj.build_worker_init(...
+                    datapath,obj.job_id,labID,numLabs);
             else  % real MPI worker (numlabs and labnum is defined by MPIexec
-                cs = obj.build_framework_init(...
-                    obj.mess_exchange_folder,obj.job_id);
+                cs = obj.build_worker_init(...
+                    datapath,obj.job_id);
             end
             
         end
         
         % HERBERT Job control interface+
-        function [filename,filepath,equal_fs] = par_config_file(obj,varargin)
-            % Returns the name and remote path to a file, which stores a remote job
-            % configuration, necessary to intiate a worker.
-            % Used by send/receive job_info methods.
-            %Usage:
-            %>>[filename,filepath,equal_fs] = mpi.par_config_file();
-            %
-            % where:
-            % filename -- the name of the file with the information
-            % filepath -- path to this file on remote file system
-            % equal_fs -- true if file systems are shared and look the same
-            %             form local and remote sides.
-            if nargin>1
-                [top_exchange_folder,mess_subfolder] = obj.build_exchange_folder_name(varargin{1});
-            else
-                top_exchange_folder = config_store.instance().get_value(...
-                    'parallel_config','shared_folder_on_local');
-                [top_exchange_folder,mess_subfolder] =obj.build_exchange_folder_name(top_exchange_folder);
-            end
-            filename = [obj.job_id,'_init_data.mat'];
-            if isempty(top_exchange_folder)% by agreement  the
-                % remote folder located and mounted
-                % on the remote system in the same place as the local folder.
-                equal_fs = true;
-            else
-                equal_fs = false;
-            end
-            filepath  = fullfile(top_exchange_folder,mess_subfolder);
-        end
-        %
         function is = is_job_cancelled(obj)
             % method verifies if job has been cancelled
             if ~exist(obj.mess_exchange_folder_,'dir')
@@ -170,6 +153,14 @@ classdef iMessagesFramework
             % a particular worker
             %
             % where:
+            % JE_className -- the name of the class to do job on a worker
+            %                (needs empty constructor and init method +
+            %                child of the JobExecutor class)
+            % exit_on_completion -- true if worker's Matlab session should
+            %                exit when job is finished.
+            % keep_worker_running -- true if worker's Matlab session should
+            %                run after JE work is completed waiting for
+            %                another starting and init messages.
             %
             if ~exist('exit_on_completion','var')
                 exit_on_completion = true;
@@ -180,7 +171,7 @@ classdef iMessagesFramework
             
             % labIndex defines the number of worker. If this is MPI job,
             % the number is derived from MPI framework, if its Herbert
-            % framework, the number of worker should be asigned.
+            % framework, the number of worker should be assigned.
             info = struct(...
                 'JobExecutorClassName',JE_className,...
                 'exit_on_compl',exit_on_completion ,...
@@ -189,17 +180,17 @@ classdef iMessagesFramework
             initMessage.payload = info;
         end
         
-        function cs = build_framework_init(path_to_data_exchange_folder,jobID,labID,numLabs)
+        function cs = build_worker_init(path_to_data_exchange_folder,jobID,labID,numLabs)
             % prepare data necessary to initialize a MPI worker and
             % serialize them into the form, acceptable for transfer through
-            % any system's interporcesses pipe
+            % any system's interprocess pipe
             %
             % Usage:
-            %>> cs =iMessagesFramework.build_framework_init(path_to_data_exchange_folder,labID)
+            %>> cs =iMessagesFramework.build_worker_init(path_to_data_exchange_folder,labID)
             % Where:
             % path_to_data_exchange_folder -- the path on a remote machine
             %                                 where the file-based messages
-            %                                 and initation information
+            %                                 and initiation information
             %                                 should be distributed
             % jobID         -- the name of the parallel job to run
             % labID         -- the worker id, which would be ignored

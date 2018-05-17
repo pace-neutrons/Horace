@@ -42,7 +42,7 @@ if obj.task_id_ == 0 % Master node
         job_folder = make_config_folder(exch_subfolder,folder_root);                
     end
 
-else % Slave node. Needs correct framework_info for initalization
+else % Slave node. Needs correct framework_info for initialization
     [root_cf,exch_subfolder] = obj.build_exchange_folder_name(framework_info.data_path);
     job_folder = fullfile(root_cf,exch_subfolder);
     % despite its name, would not create the folder if it already exist

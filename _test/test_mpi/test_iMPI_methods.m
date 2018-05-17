@@ -32,15 +32,19 @@ classdef test_iMPI_methods< TestCase
         end
         function test_serialize_deserialize(this)
             mf = MFTester('test_ser_deser');
-            css = mf.worker_job_info('SomeWorker',3);
-            dat = mf.serialize_par(css);
+            clob = onCleanup(@()finalize_all(mf));
+            wk_floder = 'some_folder';
+            job_id = 'some_id';
+            css  = mf.build_worker_init(wk_floder,job_id,1,10);
+            csr = mf.deserialize_par(css);
             
-            csr = mf.deserialize_par(dat);
-            assertEqual(css,csr);
+            sample =  struct('data_path',wk_floder,...
+                'job_id',job_id,'labID',1,'numLabs',10);
+            assertEqual(sample,csr);
         end
         function test_transfer_init_and_config(obj,varargin)
-            
             if nargin>1
+                obj.setUp();
                 clob1 = onCleanup(@()tearDown(obj));
             end
             
@@ -52,59 +56,57 @@ classdef test_iMPI_methods< TestCase
             
             % set up basic default configuration
             pc = parallel_config;
+            % creates working directoryr
+            pc.working_directory = fullfile(obj.working_dir,'some_irrelevant_folder_never_used_here');
+            clobA = onCleanup(@()rmdir(pc.working_directory,'s'));
             
-            pc.working_directory = 'some_irrelevant_folder_never_used_here';
             pc.shared_folder_on_remote = '';
             pc.shared_folder_on_local = '';
             %--------------------------------------------------------------
             % check the case when local file system and remote file system
-            % coinside
+            % coincide
             % test structure to send
-            data_struct = struct('some_field',1,'other_field','bbbb');
             
             
             % store configuration in a local config folder as local and
             % remote jobs have the same file system
-            mpi = iMPITestHelper();
-            mpi.send_job_info(data_struct);
+            mpi = iMPITestHelper('testiMPI_transferInit');
+            mpi.mess_exchange_folder = obj.working_dir;
+            clob0 = onCleanup(@()finalize_all(mpi));
+            % the operation above copies config files to the folder
+            % calculated by assign operation
+            config_exchange = fileparts(fileparts(mpi.mess_exchange_folder));
+            assertTrue(exist(fullfile(config_exchange,'herbert_config.mat'),'file')==2);
+                        
+            initMess = mpi.build_je_init('JETester');
+            assertTrue(isa(initMess,'aMessage'));
+            data = initMess.payload;
+            assertTrue(data.exit_on_compl);
+            assertFalse(data.keep_worker_running);
             
-            % simulate the configuration operations happening on a remote macine side
+            % simulate the configuration operations happening on a remote machine side
             mis = MPI_State.instance();
             mis.is_deployed = true;
             mis.is_tested = true;
             clob4 = onCleanup(@()set(mis,'is_deployed',false,'is_tested',false));
             % the filesystem is share so working_directory is used as
             % shared folder
-            assertEqual(pc.working_directory ,'some_irrelevant_folder_never_used_here');
-            assertEqual(pc.shared_folder_on_local,'some_irrelevant_folder_never_used_here');
-            assertEqual(pc.shared_folder_on_remote,'some_irrelevant_folder_never_used_here');
+            wk_dir = fullfile(obj.working_dir,'some_irrelevant_folder_never_used_here');
+            assertEqual(pc.working_directory ,wk_dir );
+            assertEqual(pc.shared_folder_on_local,wk_dir );
+            assertEqual(pc.shared_folder_on_remote,wk_dir );
             
-            % configuraton is retrieved from the local configuration
-            [filename,filepath] = mpi.par_config_file();
-            info_file = fullfile(filepath,filename);
-            clob3 = onCleanup(@()delete(info_file));
-            assertEqual(exist(info_file,'file'),2);
             
-            [rest_info,config_f] = mpi.receive_job_info(obj.current_config_folder,'-keep');
-            assertEqual(data_struct,rest_info);
-            assertEqual(config_f,fullfile(obj.current_config_folder,mpi.exchange_folder_name))
             %--------------------------------------------------------------
             %now test storing/restoring project configuration from a
             %directory different from default.
             mis.is_deployed = false;
             pc.shared_folder_on_local = obj.working_dir;
-            assertEqual(pc.working_directory ,'some_irrelevant_folder_never_used_here');
+            assertEqual(pc.working_directory ,wk_dir );
             assertEqual(pc.shared_folder_on_local,obj.working_dir);
             assertEqual(pc.shared_folder_on_remote,obj.working_dir);
             
             
-            mpi.send_job_info(data_struct);
-            [filename,filepath,is_on_shared] = mpi.par_config_file(pc.shared_folder_on_local);
-            info_file = fullfile(filepath,filename);
-            rfl = fileparts(filepath);
-            clob3 = onCleanup(@()rmdir(rfl,'s'));
-            assertEqual(exist(info_file,'file'),2);
-            assertFalse(is_on_shared);
             %-------------------------------------------------------------
             % ensure default configuration location will be restored after
             % the test
@@ -127,11 +129,7 @@ classdef test_iMPI_methods< TestCase
             
             r_config_folder = config_store.instance().config_folder;
             assertEqual(r_config_folder,remote_config_folder);
-            [rest_info,exchange_f] = mpi.receive_job_info(r_config_folder);
-            assertEqual(data_struct,rest_info);
-            assertEqual(exchange_f,fullfile(r_config_folder,mpi.exchange_folder_name))
             
-            assertFalse(exist(info_file,'file')==2);
         end
         function test_mpi_worker_single_thread(obj,varargin)
             if nargin>1
@@ -146,50 +144,38 @@ classdef test_iMPI_methods< TestCase
             pc = parallel_config;
             pc.shared_folder_on_local = obj.working_dir;
             
-            mpi_comm = MessagesFilebased();
-            mpi_comm = mpi_comm.distribute_je_init(pc.shared_folder_on_local,...
-                'JETester',false);
+            mpi_comm = MessagesFilebased('test_iMPI_worker');
+            mpi_comm.mess_exchange_folder = pc.shared_folder_on_local;
+            clob4 = onCleanup(@()finalize_all(mpi_comm));
             
-            [~,mess_exchange_folder] = mpi_comm.par_config_file(obj.working_dir);
-            assertTrue(exist(mess_exchange_folder,'dir') == 7)
-            clob4 = onCleanup(@()rmdir(mess_exchange_folder,'s'));
-            
+            worker_init = mpi_comm.gen_worker_init(1,1);
+            je_initMess     = mpi_comm.build_je_init('JETester');
             
             % JETester specific control parameters
             job_param = struct('filepath',obj.working_dir,...
-                'filename_template','test_jobDispatcherL%d_nf%d.txt');
-            jobControl = InitMessage(job_param,[],3);
+                'filename_template','test_iMPIMethodsL%d_nf%d.txt');
+            jobControlMess = InitMessage(job_param,3,false,1);
+            
+            mess_exchange_folder = mpi_comm.mess_exchange_folder;
+            assertTrue(exist(mess_exchange_folder,'dir') == 7)
             
             
+            mpi_comm.send_message(1,je_initMess);
+            mpi_comm.send_message(1,jobControlMess);
             
-            mpi_comm.send_message(1,jobControl);
             
-            
-            shared_folder_on_remote = obj.working_dir;
-            cs  = mpi_comm.build_framework_init(shared_folder_on_remote,mpi_comm.job_id,1,1);
-            created_files = {'test_jobDispatcherL1_nf1.txt',...
-                'test_jobDispatcherL1_nf2.txt','test_jobDispatcherL1_nf3.txt'};
+            created_files = {'test_iMPIMethodsL1_nf1.txt',...
+                'test_iMPIMethodsL1_nf2.txt','test_iMPIMethodsL1_nf3.txt'};
             created_files = cellfun(@(x)(fullfile(obj.working_dir,x)),...
                 created_files,...
                 'UniformOutput',false);
             clob5 = onCleanup(@()delete(created_files{:}));
             
-            worker(cs);
+            worker(worker_init);
             
             assertTrue(exist(created_files{1},'file')==2)
             assertTrue(exist(created_files{2},'file')==2)
             assertTrue(exist(created_files{3},'file')==2)
-        end
-        function test_mpi_worker_multi_thread(obj)
-            pc = parallel_config;
-            cur_config = pc.get_data_to_store;
-            clob1 = onCleanup(@()set(pc,cur_config));
-            pc.parallel_framework = 'parpool';
-            if ~strcmpi(pc.parallel_framework,'parpool') % no access to parallel computing toolbox -- no testing
-                return;
-            end
-            
-            
         end
         
     end

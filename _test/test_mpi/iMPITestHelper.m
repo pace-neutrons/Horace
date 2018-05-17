@@ -23,10 +23,14 @@ classdef iMPITestHelper<iMessagesFramework
         
         function [all_messages,task_ids] = receive_all(obj,task_ids)
         end
+        function ok = labBarrier(obj)
+        end
+        
         %------------------------------------------------------------------
         % delete all messages belonging to this instance of messages
         % framework and shut the framework down.
         function finalize_all(obj)
+            rmdir(obj.mess_exchange_folder,'s');
         end
         
         % method verifies if job has been cancelled
@@ -38,6 +42,10 @@ classdef iMPITestHelper<iMessagesFramework
         function ind = get_lab_index_(obj)
             ind = 0;
         end
+        function nl = get_num_labs_(obj)
+            nl = 0;
+        end
+        
     end
         
 

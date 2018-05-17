@@ -1,5 +1,6 @@
 function [top_folder,mess_subfolder] = constr_exchange_folder_name_(obj,top_folder)
-% extract fopmost folder for the folder, used for filebased messages exchange.
+% extract topmost data folder from the folder, used for filebased messages exchange.
+%
 %
 subfolders_list = {config_store.config_folder_name,obj.exchange_folder_name,obj.job_id};
 mess_subfolder = fullfile(subfolders_list{:});
