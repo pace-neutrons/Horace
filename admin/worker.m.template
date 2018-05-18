@@ -14,8 +14,9 @@ function ok=worker(worker_controls_string)
 %              folder name where the job initialization data are located on
 %              a remote system
 %
+% $Revision$ ($Date$)
 %
-%
+
 if isempty(which('herbert_init.m'))
     horace_on();
 end
@@ -31,9 +32,9 @@ is_tested = mis.is_tested; % set up to tested state within unit tests.
 clot = onCleanup(@()(setattr(mis,'is_deployed',false)));
 
 
-
 control_struct = iMessagesFramework.deserialize_par(worker_controls_string);
-% Initalize config files to use on remote session
+% Initalize config files to use on remote session. Needs to be initialized
+% first as may be used by message framework.
 %
 % remove configurations, may be loaded in memory while horace was
 % initialized.
@@ -45,74 +46,93 @@ config_store.set_config_folder(config_exchange_folder);
 % instantiate filebasedMessages framework, used to transfer initial data,
 % exchange messages between head node and workers pool and display log
 % information
-fbMPI = FilebasedMessages(control_struct);
+fbMPI = MessagesFilebased(control_struct);
 % initiate file-based framework to exchange messages between head node and
 % the pool of workers
-try
-    worker_init_data = fbMPI.receive_job_info('','-keep');
-catch ME
-    mess = aMessage('failed');
-    mess.payload = sprintf('job N%s failed while receive_job_info Error: %s:',...
-        control_struct.jobID,ME.message);
-    fbMPI.send_message(mess);
-    ok = MESS_CODES.runtime_error;
-    return;
-end
-exit_at_the_end = ~is_tested && worker_init_data.exit_on_compl;
-%
-% receive init message which defines the job parameters
-% should block execution until this message is received.
-[ok,err,init_message] = fbMPI.receive_message(0,'init');
-if ok ~= MESS_CODES.ok
-    error('WORKER:init_worker',err);
-end
-
-% instantiate job executor class.
-je = feval(worker_init_data.JobExecutorClassName);
-% Attach jobExecutor methods to mpi singleton to be availible from any part
-% of the code.
-mis.logger = @(step,n_steps,time,add_info)...
-    (je.log_progress(step,n_steps,time,add_info));
-
-mis.check_cancelled = @()(f_canc(je));
-%mis.mpi_framework = je.mess_framework;
-
-try
-    je = je.init(fbMPI,control_struct,init_message);
-    % Execute job (run main job executor's do_job method
-    while ~je.is_completed()
-        je= je.do_job();
-        je.labBarrier(); % Wait until all workers finish their job before reducing the data
-        je = je.reduce_data();
-    end
-    ok = MESS_CODES.ok;
-catch ME
-    ok = MESS_CODES.runtime_error;
-    if ~strcmpi(ME.identifier,'MESSAGE_FRAMEWORK:cancelled')
-        
+keep_worker_running = true;
+while keep_worker_running
+    [ok,err,mess]= fbMPI.receive_message(0,'starting');
+    if ok ~= MESS_CODES.ok
         mess = aMessage('failed');
-        mess.payload = {sprintf('job N%d failed at do_job method. Reason: %s',...
-            fbMPI.labIndex,ME.message),ME};
-        fbMPI.send_message(0,mess);
+        mess.payload = sprintf('job N%s failed while receive_je_info Error: %s:',...
+            control_struct.jobID,err);
+        fbMPI.send_message(mess);
+        ok = MESS_CODES.runtime_error;
+        return;
     else
+        worker_init_data = mess.payload;
+        keep_worker_running = worker_init_data.keep_worker_running;
+    end
+    [ok,err]=fbMPI.send_message(0,'started');
+    if ok ~= MESS_CODES.ok
+        mess = aMessage('failed');
+        mess.payload = sprintf('job N%s failed while sending "started" message Error: %s:',...
+            control_struct.jobID,err);
+        fbMPI.send_message(mess);
+        ok = MESS_CODES.runtime_error;
+        return;
+    end
+    
+    exit_at_the_end = ~is_tested && worker_init_data.exit_on_compl;
+    %
+    % receive init message which defines the job parameters
+    % should block execution until this message is received.
+    [ok,err,init_message] = fbMPI.receive_message(0,'init');
+    if ok ~= MESS_CODES.ok
+        error('WORKER:init_worker',err);
+    end
+    
+    % instantiate job executor class.
+    je = feval(worker_init_data.JobExecutorClassName);
+    % Attach jobExecutor methods to mpi singleton to be availible from any part
+    % of the code.
+    mis.logger = @(step,n_steps,time,add_info)...
+        (je.log_progress(step,n_steps,time,add_info));
+    
+    mis.check_cancelled = @()(f_canc(je));
+    %mis.mpi_framework = je.mess_framework;
+    
+    try
+        [je,mess] = je.init(fbMPI,control_struct,init_message);
+        if ~isempty(mess)
+            err = sprinft(' Error sending ''started'' message from task N%d',...
+                fbMPI.labIndex);
+            error('WORKER:init_worker',err);
+        end
+        % Execute job (run main job executor's do_job method
+        while ~je.is_completed()
+            je= je.do_job();
+            % when its tested, workers are tested in single matlab session so it will hand up on synchronization
+            if ~is_tested
+                % when not tested, the synchronization is mandatory
+                je.labBarrier(); % Wait until all workers finish their job before reducing the data
+            end
+            je = je.reduce_data();
+        end
+        ok = MESS_CODES.ok;
+    catch ME
+        if ~strcmpi(ME.identifier,'MESSAGE_FRAMEWORK:cancelled')
+            mess = aMessage('failed');
+            mess.payload = {sprintf('task N%d failed at jobExecutor %s. Reason: %s',...
+                worker_init_data.JobExecutorClassName,fbMPI.labIndex,ME.message)...
+                ,ME};
+            je.finish_task(mess);
+        end
         if exit_at_the_end
             exit;
         else
-            return
+            rethrow(ME)
         end
     end
-    if exit_at_the_end
-        exit;
-    else
-        rethrow(ME)
-    end
+    %
+    je.finish_task();
+    
 end
-%
-je.finish_task();
 %pause
 if exit_at_the_end
     exit;
 end
+
 
 function f_canc(job_executor)
 if job_executor.is_job_cancelled()

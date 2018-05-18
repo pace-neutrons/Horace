@@ -6,7 +6,6 @@ classdef InitMessage < aMessage
     % $Revision: 713 $ ($Date: 2018-02-23 16:52:46 +0000 (Fri, 23 Feb 2018) $)
     %
     %
-    
     properties(Dependent)
         %
         n_first_step
@@ -24,20 +23,21 @@ classdef InitMessage < aMessage
     methods
         function obj = InitMessage(common_data,loop_data,return_results,n_first_step)
             % Construct the intialization message
-            % Inputs:
-            %common_data -- the structure, contaning data common to any
-            %               loop iteration
-            % loop_data  -- either cellarray of data, with each cell
-            %               specific to a single loop iteration or
-            %               number of iteration (n_steps) to perform over
-            %               common data
             %
+            % Inputs:
+            % common_data -- the structure, contaning data common to any
+            %                loop iteration
+            % loop_data   -- either cellarray of data, with each cell
+            %                specific to a single loop iteration or
+            %                number of iteration (n_steps) to perform over
+            %                common data
             % return_results --if task needs to return its results
             %              if true, task will return its results
-            %              if false or absent, no results expected to be
+            %              if false or empty, no results expected to be
             %              returned
-            % n_first_step -- the number of the first step in the loop to 
-            %                 do n_steps, if absent assumed to be 1
+            % n_first_step -- the number of the first step in the loop to
+            %                 do n_steps, if absent or loop data provided as
+            %                 a cellarray it assumed to be 1
             %
             obj = obj@aMessage('init');
             obj.payload = struct('common_data',common_data,...
@@ -48,6 +48,7 @@ classdef InitMessage < aMessage
             if iscell(loop_data)
                 obj.payload.loopData = loop_data;
                 obj.payload.n_steps   = numel(loop_data);
+                obj.payload.n_first_step  = 1;
             else
                 obj.payload.n_steps  = loop_data;
                 obj.payload.n_first_step  = n_first_step;
@@ -74,7 +75,7 @@ classdef InitMessage < aMessage
         function nfs = get.n_first_step(obj)
             nfs = obj.payload.n_first_step;
         end
-
+        
         
     end
 end

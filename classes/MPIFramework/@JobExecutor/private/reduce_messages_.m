@@ -30,7 +30,7 @@ if mf.labIndex == 1
     else
         all_messages = mf.receive_all('all',mess_name);
     end
-    all_messages = [{the_mess},all_messages];
+    all_messages = [{the_mess};all_messages];
     [ok,err,fin_mess] = mes_proc_f(all_messages,mess_name);
 else
     fin_mess = the_mess;
@@ -47,14 +47,16 @@ function [ok,err,fin_message] = default_mess_process_function(all_messages,mess_
 ok = cellfun(@(x)(strcmpi(x.mess_name,mess_name)),all_messages,'UniformOutput',true);
 ok = all(ok);
 err = [];
+all_payload = cellfun(@(x)(x.payload),all_messages,'UniformOutput',false);    
 if ~ok
-    fin_message = aMessage('failed');
-    fin_message.payload = all_messages;
-    n_failed = sum(~ok);
-    err = sprintf('JobExecutorInit: %d workers falied to start',...
-        n_failed);
+    n_failed = sum(~ok);    
+    err = sprintf('JobExecutorInit: %d workers have falied',...
+        n_failed);    
+    fin_message = FailMessage(err);
+    all_payload(~ok) = all_messages(~ok);
+    fin_message.payload = all_payload;
 else
-    all_payload = cellfun(@(x)(x.payload),all_messages,'UniformOutput',false);    
+
     fin_message = all_messages{1};
     fin_message.payload = all_payload;
 end

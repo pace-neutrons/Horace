@@ -1,4 +1,4 @@
-function [n_workers,init_messages]=split_tasks_(obj,...
+function [worker_par_list,init_messages]=split_tasks_(obj,...
     common_par,loop_par,return_outputs,n_workers)
 % divide list of job parameters among given number of workers
 %
@@ -9,6 +9,8 @@ function [n_workers,init_messages]=split_tasks_(obj,...
 %
 % returns: cell array of indexes from job_param_list dedicated to run on a
 % worker.
+% init_messages -- cellarray of initMessages to send to each worker to
+%                  start the particular part of the job for each worker
 %
 [n_workers,worker_par_list,is_list] = tasks_indexes(loop_par,n_workers);
 

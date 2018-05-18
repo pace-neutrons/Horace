@@ -198,7 +198,7 @@ classdef test_FileBaseMPI_Framework< TestCase
             [ok,err] = mf.send_message(0,'started');
             assertEqual(ok,MESS_CODES.ok)
             assertTrue(isempty(err));
-            mess = aMessage('failed');
+            mess = FailMessage('failed');
             [ok,err] = mf.send_message(3,mess);
             assertEqual(ok,MESS_CODES.ok)
             assertTrue(isempty(err));

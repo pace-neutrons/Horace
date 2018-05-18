@@ -48,7 +48,7 @@ classdef ClusterWrapper
                 numel(mess_exchange_framework.job_id)+numel('Job : ')+numel(' :');
         end
         %
-        function obj = init_cluster(obj,je_init_message,task_init_mess)
+        function obj = init_cluster_job(obj,je_init_message,task_init_mess)
             % send initialization information to each worker in the cluster
             % and receive responce informing that the job has started
             
@@ -91,8 +91,8 @@ classdef ClusterWrapper
             if display_log
                 fprintf(obj.log_value);
             end
-            
         end
+        %
         function obj=finalize_all(obj)
             if ~isempty(obj.mess_exchange_)
                 obj.mess_exchange_.finalize_all();
@@ -115,7 +115,7 @@ classdef ClusterWrapper
         end
         function nw = get.n_workers(obj)
             nw = obj.n_workers_;
-        end        
+        end
         %
         function isit = get.status(obj)
             isit = obj.current_status_;

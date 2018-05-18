@@ -67,7 +67,7 @@ classdef test_job_executor< TestCase
             cs = config_store.instance();
             this.current_config_folder = cs.config_folder;
             clob1 = onCleanup(@()(set_config_path(cs,this.current_config_folder)));
-
+            
             file1= fullfile(this.working_dir,'test_jobDispatcher1_nf1.txt');
             file1a= fullfile(this.working_dir,'test_jobDispatcher1_nf2.txt');
             
@@ -84,11 +84,11 @@ classdef test_job_executor< TestCase
             % control message
             [ok,err_mess,message] = serverfbMPI.receive_message(1,'started');
             assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
-            assertEqual(message.mess_name,'started')            
+            assertEqual(message.mess_name,'started')
             [ok,err_mess,message] = serverfbMPI.receive_message(2,'started');
             assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
-            assertEqual(message.mess_name,'started')            
-
+            assertEqual(message.mess_name,'started')
+            
             
             assertTrue(exist(file1,'file')==2);
             assertTrue(exist(file1a,'file')==2);
@@ -104,6 +104,62 @@ classdef test_job_executor< TestCase
             
             
         end
+        function test_finish_task_reduce_messages(obj)
+            serverfbMPI  = MessagesFilebased('test_finish_task_reduce_mess');
+            serverfbMPI.mess_exchange_folder = obj.working_dir;
+            
+            clob = onCleanup(@()finalize_all(serverfbMPI));
+            % generate 3 controls to have 3 filebased MPI pseudoworkers
+            css1= serverfbMPI.gen_worker_init(1,3);
+            csr1= serverfbMPI.deserialize_par(css1);
+            fbMPI1 = MessagesFilebased(csr1);
+            css2= serverfbMPI.gen_worker_init(2,3);
+            csr2= serverfbMPI.deserialize_par(css2);
+            fbMPI2 = MessagesFilebased(csr2);
+            css3= serverfbMPI.gen_worker_init(3,3);
+            csr3= serverfbMPI.deserialize_par(css3);
+            fbMPI3 = MessagesFilebased(csr3);
+            
+            common_job_param = 'dumy_not_used';
+            % should be 3 different init messages for 3 workers but as we
+            % do not test do_job, 1 message would be ok
+            initMess = InitMessage(common_job_param,3,true,1);
+            
+            % Initialize 3 job executors to simulate 3 workers
+            je = JETester();
+            je3 = je.init(fbMPI3,csr3,initMess);
+            je2 = je.init(fbMPI2,csr2,initMess);
+            je1 = je.init(fbMPI1,csr1,initMess);
+            [ok,err,mess] = serverfbMPI.receive_message(1,'started');
+            assertEqual(ok,MESS_CODES.ok,err);
+            assertEqual(mess.mess_name,'started');
+            
+            je3.task_outputs = {'Successfully completed task3'};
+            je2.task_outputs = {'Successfully completed task2',2};
+            je1.task_outputs = {'Successfully completed task1',1};
+            je3.finish_task();
+            je2.finish_task();
+            je1.finish_task();
+            
+            
+            [ok,err,mess] = serverfbMPI.receive_message(1,'completed');
+            assertEqual(ok,MESS_CODES.ok,err);
+            assertEqual(mess.mess_name,'completed');
+            assertTrue(iscell(mess.payload));
+            assertEqual(numel(mess.payload),3);
+            
+            
+            je3.finish_task();
+            je2.task_outputs = '';
+            je2.finish_task(FailMessage('failed'));
+            je1.finish_task();
+            [ok,err,mess] = serverfbMPI.receive_message(1,'completed');
+            assertEqual(ok,MESS_CODES.ok,err);
+            assertEqual(mess.mess_name,'failed');
+            assertTrue(iscell(mess.payload));
+            assertEqual(numel(mess.payload),3);
+        end
+        
         
         
         function test_do_job(this)

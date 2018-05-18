@@ -21,6 +21,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
                 return;
             end
             if nargin>1
+                this.setUp();
                 clob0 = onCleanup(@()tearDown(this));
             end
             
@@ -34,19 +35,20 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
                 num_labs = 27;
             end
             pl = gcp('nocreate'); % Get the current parallel pool
-            if ~isempty(pl)
-                delete(pl);
-            end
+            %if ~isempty(pl)
+            %    delete(pl); %and delete it as job would not run until it stoped
+            %end
             % end of    common code ---------------------------------------
             
-            cjob = createCommunicatingJob(cl,'Type','SPMD');
+            %cjob = createCommunicatingJob(cl,'Type','SPMD');
             %cjob.AttachedFiles = {'parpool_mpi_probe_all_tester.m'};
-            cjob.NumWorkersRange  = num_labs;
-            %             if isempty(pl) || pl.NumWorkers ~=num_labs
-            %                 delete(pl)
-            %                 pl = parpool(cl,num_labs);
-            %             end
-            %             num_labs = pl.NumWorkers;
+            %cjob.NumWorkersRange  = num_labs;
+            %clob1 = onCleanup(@()delete(cjob));
+            if isempty(pl) || pl.NumWorkers ~=num_labs
+                delete(pl)
+                pl = parpool(cl,num_labs);
+            end
+            num_labs = pl.NumWorkers;
             
             job_param = struct('filepath',this.working_dir,...
                 'filename_template','test_ProbeAllMPI%d_nf%d.txt');
@@ -57,15 +59,16 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             fnames = arrayfun(@(ii)(fullfile(job_exchange_folder,sprintf(fmt,ii,num_labs))),...
                 ind,'UniformOutput',false);
             clob = onCleanup(@()delete(fnames{:}));
-            task = createTask(cjob,@parpool_mpi_probe_all_tester,2,{job_param});
-            submit(cjob);
-            wait(cjob);
-            %             spmd
-            %                 [res,err] = parpool_mpi_probe_all_tester(job_param);
-            %             end
-            results = fetchOutputs(cjob);
-            res = results(:,1);
-            err = results(:,2);
+            %task = createTask(cjob,@parpool_mpi_probe_all_tester,2,{job_param});
+            %submit(cjob);
+            %wait(cjob);
+            
+            spmd
+                [res,err] = parpool_mpi_probe_all_tester(job_param);
+            end
+            %results = fetchOutputs(cjob);
+            %res = results(:,1);
+            %err = results(:,2);
             assertTrue(isempty([err{:}]));
             
             lab_ids = 1:num_labs;
@@ -93,6 +96,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
                 return;
             end
             if nargin>1
+                this.setUp();
                 clob0 = onCleanup(@()tearDown(this));
             end
             
@@ -106,18 +110,24 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
                 num_labs = 27;
             end
             pl = gcp('nocreate'); % Get the current parallel pool
-            if ~isempty(pl)
-                delete(pl);
+            %if ~isempty(pl)
+            %    delete(pl);
+            %end
+            if isempty(pl) || pl.NumWorkers ~=num_labs
+                delete(pl)
+                pl = parpool(cl,num_labs);
             end
+            num_labs = pl.NumWorkers;
+            
             % end of    common code ---------------------------------------
             
             job_param = struct('filepath',this.working_dir,...
                 'filename_template','test_ParpoolMPI%d_nf%d.txt');
             
             ind = 1:num_labs;
-            cjob = createCommunicatingJob(cl,'Type','SPMD');
+            %cjob = createCommunicatingJob(cl,'Type','SPMD');
             %cjob.AttachedFiles = {'parpool_mpi_send_receive_tester.m'};
-            cjob.NumWorkersRange  = num_labs;
+            %cjob.NumWorkersRange  = num_labs;
             
             job_exchange_folder = job_param.filepath;
             fmt = job_param.filename_template;
@@ -125,17 +135,20 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             fnames = arrayfun(@(ii)(fullfile(job_exchange_folder,sprintf(fmt,ii,num_labs))),...
                 ind,'UniformOutput',false);
             clob = onCleanup(@()delete(fnames{:}));
-            task = createTask(cjob,@parpool_mpi_send_receive_tester,2,{job_param});
-            submit(cjob);
-            wait(cjob);
-            
-            %             spmd
-            %                 [res,err] = parpool_mpi_send_receive_tester(job_param);
-            %             end
             %
-            results = fetchOutputs(cjob);
-            res = results(:,1);
-            err = results(:,2);
+            % -- non-interactive working code
+            %task = createTask(cjob,@parpool_mpi_send_receive_tester,2,{job_param});
+            %submit(cjob);
+            %wait(cjob);
+            %clob1 = onCleanup(@()delete(cjob));
+            
+            spmd
+                [res,err] = parpool_mpi_send_receive_tester(job_param);
+            end
+            
+            %results = fetchOutputs(cjob);
+            %res = results(:,1);
+            %err = results(:,2);
             
             for i=1:num_labs
                 assertTrue(exist(fnames{i},'file')==2);

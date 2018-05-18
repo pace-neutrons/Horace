@@ -27,7 +27,7 @@ classdef aMessage
             end
         end
         function rez = get.payload(obj)
-            rez = obj.payload_;
+            rez = obj.get_payload();
         end
         function name = get.mess_name(obj)
             name = obj.mess_name_;
@@ -62,6 +62,11 @@ classdef aMessage
                 end
             end
             not = false;
+        end
+    end
+    methods(Access=protected)
+        function pl = get_payload(obj)
+            pl = obj.payload_;
         end
     end
 end

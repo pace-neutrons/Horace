@@ -40,20 +40,23 @@ classdef ClusterParpoolWrapper < ClusterWrapper
         %
         function obj = start_job(obj,je_init_message,hWorker,task_init_mess)
             %
-            cl = gcp('nostart');
+            % delete interactive parallel cluster if any exist
+            cl = gcp('nocreate');
             if ~isempty(cl)
                 delete(cl);
             end
             
-            obj = obj.init_cluster(je_init_message,task_init_mess);
+
+            % build generic worker init string without lab parameters
+            cs = obj.mess_exchange_.gen_worker_init();            
             % clear up interactive pool if exist as this method will start
             % batch job.
             % actually submit the job
             cjob = obj.current_job_;
-            task = createTask(cjob,hWorker,0);
+            task = createTask(cjob,hWorker,0,{cs});
             obj.task_ = task;
-            obj.report_progress('parallel job submitted');
             submit(cjob);
+            obj = obj.init_cluster_job(je_init_message,task_init_mess);            
         end
         
         function obj=finalize_all(obj)

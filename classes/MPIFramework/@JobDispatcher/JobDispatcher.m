@@ -59,7 +59,7 @@ classdef JobDispatcher
             jd.mess_framework_  = mf;
         end
         %
-        function [n_failed,outputs,task_ids,this]=start_tasks(this,...
+        function [outputs,n_failed,task_ids,this]=start_tasks(this,...
                 job_class_name,common_params,loop_params,return_results,...
                 number_of_workers,task_query_time)
             % send range of jobs to execute by external program
@@ -97,12 +97,16 @@ classdef JobDispatcher
             if ~exist('task_query_time','var')
                 task_query_time = 4;
             end
-            [n_failed,outputs,task_ids,this]=send_tasks_to_workers_(this,...
+            [outputs,n_failed,task_ids,this]=send_tasks_to_workers_(this,...
                 job_class_name,common_params,loop_params,return_results,...
                 number_of_workers,task_query_time);
         end
+        function [outputs,n_failed,obj]=  retrieve_results(obj)
+            % retrieve parallel job results
+            [outputs,n_failed,obj] = get_job_results_(obj);
+        end
         %
-        function [n_workers,init_mess]=split_tasks(this,common_par,loop_par,n_workers,return_outputs)
+        function [task_id_list,init_mess]=split_tasks(this,common_par,loop_par,n_workers,return_outputs)
             % divide list of job parameters among given number of workers
             % and generate list of init messages for the subtasks
             %
@@ -115,7 +119,7 @@ classdef JobDispatcher
             %
             % returns: cell array of indexes from job_param_list dedicated to run on a
             % worker.
-            [n_workers,init_mess]=this.split_tasks_(common_par,loop_par,n_workers,return_outputs);
+            [task_id_list,init_mess]=split_tasks_(this,common_par,loop_par,n_workers,return_outputs);
         end        
         %------------------------------------------------------------------
         function limit = get.fail_limit(this)
@@ -155,13 +159,5 @@ classdef JobDispatcher
             id = obj.mess_framework_.job_id;
         end
     end
-    methods(Access=protected)
-        function [completed,n_failed,all_changed,this]= check_tasks_status(this)
-            % an algorithm tries to identify tasks state on basis of their
-            % outputs and behaviour
-            [completed,n_failed,all_changed,this]= check_tasks_status_(this);
-        end
-    end
-    
 end
 

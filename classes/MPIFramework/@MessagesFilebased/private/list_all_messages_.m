@@ -56,7 +56,8 @@ end
 
 if ~isempty(mess_tag_requested) % we have some particular message tags requested
     mess_tags_present = MESS_NAMES.mess_id(all_messages);
-    is_requested  = ismember(mess_tags_present,mess_tag_requested);
+    % allow to list fail message
+    is_requested  = ismember(mess_tags_present,[mess_tag_requested,0]);
     all_messages = all_messages(is_requested);
     mid_from     = mid_from(is_requested);
 end

@@ -51,12 +51,11 @@ if receiver
         res(i).mess = all_messages{i};
         res(i).rec_mess_id =task_ids_from(i);
     end
-    
     err = [];
-    
 else %sender
     
     lab_receiver = find_lab_receiver(li,nl,receiver_ind);
+    
     if lab_receiver == 0
         res = [];
         err = 1;

@@ -46,7 +46,7 @@ while ~mess_present
         mid_from   = mid_from(from_lab_requested );
         % check if message is as requested
         if ~isempty(mess_name)
-            tid_requested = ismember(mess_names,mess_name);
+            tid_requested = ismember(mess_names,{mess_name,'failed'});
             mess_names  = mess_names(tid_requested);
             mid_from    = mid_from (tid_requested);
         end

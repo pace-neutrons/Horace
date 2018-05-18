@@ -13,7 +13,7 @@ end
 %     end
 % end
 
-if isempty(task_nums)
+if isempty(task_nums) || (ischar(task_nums) && strcmpi(task_nums,'all'))
     task_nums = 1:obj.numLabs;
 end
 %
@@ -38,34 +38,35 @@ if nargin > 2 && ~isempty(varargin{1})
 else
     mess_tag = [];
 end
-%
-not_this = task_nums ~=obj.labIndex;
-task_nums = task_nums(not_this);
+[isDataAvail,task_ids_from,tags] = labProbe();
 
-num_tasks = numel(task_nums);
-messages  = cell(1,num_tasks );
-task_ids_from   = zeros(1,num_tasks);
-num_present = 0;
-for i=1:num_tasks
-    if isempty(mess_tag)
-        [isDataAvail,id,tag] = labProbe(task_nums(i));
-    else
-        [isDataAvail,id,tag] = labProbe(task_nums(i),mess_tag);
-    end
-    if isDataAvail
-        messages{i} = MESS_NAMES.mess_name(tag);
-        task_ids_from(i) = id;
-        num_present = num_present +1;
-    end
-end
-if num_present == 0
+
+if ~isDataAvail
     messages = {};
     task_ids_from = [];
-else
-    present = task_ids_from ~= 0;
-    if any(~present)
-        messages = messages(present);
-        task_ids_from = task_ids_from(present);
-    end
+    return;
 end
+%
+%not_this = task_nums ~=obj.labIndex; % is it necessary possible?
+selected = ismember(task_ids_from,task_nums);
+if ~any(selected)
+    messages = {};
+    task_ids_from = [];
+    return;
+end
+task_ids_from = task_ids_from(selected);
+tags          = tags(selected);
 
+
+if ~isempty(mess_tag)
+    % check if tag is the tag requested or fail tag
+    mess_requested = ((tags == mess_tag) | (tags == 0));
+    if ~any(mess_requested)
+        messages = {};
+        task_ids_from = [];
+        return;
+    end
+    task_ids_from  = task_ids_from(mess_requested);
+    tags  = tags(mess_requested);
+end
+messages = MESS_NAMES.mess_name(tags);

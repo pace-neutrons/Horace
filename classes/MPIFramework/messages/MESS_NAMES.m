@@ -21,9 +21,9 @@ classdef MESS_NAMES
         
         function id = mess_id(varargin)
             % get message id (tag) derived from message name
-            % usage: 
+            % usage:
             % id = MESS_NAMES.mess_id('completed')
-            % or 
+            % or
             % ids = MESS_NAMES.mess_id('completed','running','started')
             %
             % where id-s is the array of message id-s (tags)
@@ -33,7 +33,7 @@ classdef MESS_NAMES
                     varargin{1},'UniformOutput',true);
             elseif nargin > 1
                 id = cellfun(@(nm)(MESS_NAMES.name2code_map_(nm)),...
-                    varargin,'UniformOutput',true);                
+                    varargin,'UniformOutput',true);
             else
                 %disp(['MEss name: ',mess_name])
                 %if isempty(mess_name)
@@ -46,8 +46,14 @@ classdef MESS_NAMES
         function name = mess_name(mess_id)
             % get message name derived from message code (tag)
             %
+            
             if isnumeric(mess_id)
-                name = MESS_NAMES.code2name_map_(mess_id);
+                if numel(mess_id) > 1
+                    name = arrayfun(@(x)(MESS_NAMES.code2name_map_(x)),mess_id,...
+                        'UniformOutput',false);
+                else
+                    name = {MESS_NAMES.code2name_map_(mess_id)};
+                end
             elseif ischar(mess_id)
                 if ismember(mess_name,MESS_NAMES.mess_names_)
                     name = mess_id;

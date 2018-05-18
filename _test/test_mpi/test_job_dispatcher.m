@@ -55,7 +55,7 @@ classdef test_job_dispatcher< TestCase
             job_par = job_contr;
             jd = JobDispatcher();
             
-            [n_failed,outputs]=jd.start_tasks('JETester',job_par,1,1);
+            [outputs,n_failed]=jd.start_tasks('JETester',job_par,1,1);
             
             assertEqual(n_failed,0);
             assertTrue(isempty(outputs{1}));
@@ -91,7 +91,7 @@ classdef test_job_dispatcher< TestCase
             
             jd = JobDispatcher();
             
-            [n_failed,outputs]=jd.start_tasks('JETester',jobs,2,1);
+            [outputs,n_failed]=jd.start_tasks('JETester',jobs,2,1);
             assertEqual(n_failed,0);
             assertFalse(isempty(outputs));
             assertEqual(outputs{1},'Job 1 generated 2 files');
@@ -101,7 +101,7 @@ classdef test_job_dispatcher< TestCase
             assertTrue(exist(file2,'file')==2);
             assertTrue(exist(file3,'file')==2);
         end
-        % tests themself
+        % tests themselves
         function test_jobs(this)
             if this.skip_tests
                 return
@@ -125,7 +125,7 @@ classdef test_job_dispatcher< TestCase
             
             jd = JobDispatcher();
             
-            [n_failed,outputs,job_ids]=jd.start_tasks('JETester',jobs,3,1);
+            [outputs,n_failed,job_ids]=jd.start_tasks('JETester',jobs,3,1);
             assertEqual(numel(outputs),3);
             assertTrue(all(cellfun(@(x)(~isempty(x)),outputs)));
             assertEqual(numel(job_ids),3);
@@ -165,7 +165,7 @@ classdef test_job_dispatcher< TestCase
         %             mis.logger = @(step,n_steps,time,addmess)(je.log_progress(step,n_steps,time,addmess));
         %
         %
-        %             [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
+        %             [n_failed,completed,all_changed,jd] = jd.check_jobs_status_pub();
         %             assertEqual(completed,false);
         %             assertEqual(n_failed,0);
         %             assertTrue(all_changed);
@@ -311,13 +311,15 @@ classdef test_job_dispatcher< TestCase
             jd = JDTester('test_split_job_list');
             clo = onCleanup(@()(jd.mess_framework.finalize_all()));
             
-            [n_workers,init_mess]= jd.split_tasks(common_par,loop_par,true,1);
+            [task_ids,init_mess]= jd.split_tasks(common_par,loop_par,true,1);
+            n_workers = numel(task_ids);
             
             assertEqual(n_workers,1);
             assertEqual(numel(init_mess{1}.loop_data),numel(loop_par));
             assertEqual(init_mess{1}.loop_data,loop_par);
             
-            [n_workers,init_mess]= jd.split_tasks(common_par,4,false,1);
+            [task_ids,init_mess]= jd.split_tasks(common_par,4,false,1);
+            n_workers = numel(task_ids);
             
             assertEqual(n_workers,1);
             assertEqual(numel(init_mess),1);
@@ -327,7 +329,8 @@ classdef test_job_dispatcher< TestCase
             %-------------------------------------------------------------
             
             loop_par = {'aaa',[1,2,3,4],'s',10};
-            [n_workers,init_mess] = jd.split_tasks(common_par,loop_par,true,2);
+            [task_ids,init_mess] = jd.split_tasks(common_par,loop_par,true,2);
+            n_workers = numel(task_ids);
             
             assertEqual(n_workers,2);
             assertEqual(numel(init_mess{1}),1)
@@ -336,7 +339,8 @@ classdef test_job_dispatcher< TestCase
             assertEqual(init_mess{2}.loop_data,loop_par(3:4))
             
             
-            [n_workers,init_mess] = jd.split_tasks(common_par,4,true,2);
+            [task_ids,init_mess] = jd.split_tasks(common_par,4,true,2);
+            n_workers = numel(task_ids);
             
             assertEqual(n_workers,2);
             assertEqual(init_mess{1}.n_first_step,1)
@@ -346,7 +350,8 @@ classdef test_job_dispatcher< TestCase
             assertEqual(init_mess{2}.n_steps,2)
             %-------------------------------------------------------------
             
-            [n_workers,init_mess] = jd.split_tasks(common_par,loop_par,true,3);
+            [task_ids,init_mess] = jd.split_tasks(common_par,loop_par,true,3);
+            n_workers = numel(task_ids);
             
             assertEqual(n_workers,3);
             assertEqual(init_mess{1}.loop_data,loop_par(1))
@@ -356,7 +361,8 @@ classdef test_job_dispatcher< TestCase
             assertEqual(init_mess{3}.n_steps,2)
             
             
-            [n_workers,init_mess] = jd.split_tasks(common_par,4,false,3);
+            [task_ids,init_mess] = jd.split_tasks(common_par,4,false,3);
+            n_workers = numel(task_ids);
             
             assertEqual(n_workers,3);
             assertEqual(init_mess{1}.n_first_step,1)
@@ -370,7 +376,8 @@ classdef test_job_dispatcher< TestCase
             
             %-------------------------------------------------------------
             
-            [n_workers,init_mess] = jd.split_tasks(common_par,loop_par,true,4);
+            [task_ids,init_mess] = jd.split_tasks(common_par,loop_par,true,4);
+            n_workers = numel(task_ids);
             
             assertEqual(n_workers,4);
             assertEqual(init_mess{1}.loop_data,loop_par(1))
@@ -378,7 +385,8 @@ classdef test_job_dispatcher< TestCase
             assertEqual(init_mess{3}.loop_data,loop_par(3))
             assertEqual(init_mess{4}.loop_data,loop_par(4))
             
-            [n_workers,init_mess] = jd.split_tasks(common_par,4,true,4);
+            [task_ids,init_mess] = jd.split_tasks(common_par,4,true,4);
+            n_workers = numel(task_ids);
             
             assertEqual(n_workers,4);
             assertEqual(init_mess{1}.n_first_step,1)
@@ -392,7 +400,8 @@ classdef test_job_dispatcher< TestCase
             
             
             %-------------------------------------------------------------
-            [n_workers,init_mess] = jd.split_tasks(common_par,loop_par,true,5);
+            [task_ids,init_mess] = jd.split_tasks(common_par,loop_par,true,5);
+            n_workers = numel(task_ids);
             assertEqual(n_workers,4);
             assertEqual(init_mess{1}.loop_data,loop_par(1))
             assertEqual(init_mess{2}.loop_data,loop_par(2))

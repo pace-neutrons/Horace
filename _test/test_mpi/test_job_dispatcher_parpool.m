@@ -37,7 +37,7 @@ classdef test_job_dispatcher_parpool< MPI_Test_Common
             
             jd = JobDispatcher('test_parpool_1worker');
             
-            [n_failed,outputs]=jd.start_tasks('JETester',common_param,3,true,1,1);
+            [outputs,n_failed]=jd.start_tasks('JETester',common_param,3,true,1,1);
             
             assertEqual(n_failed,0);
             assertTrue(isempty(outputs{1}));

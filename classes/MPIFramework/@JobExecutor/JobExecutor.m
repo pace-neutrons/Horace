@@ -107,9 +107,11 @@ classdef JobExecutor
             [obj,mess]=init_je_(obj,fbMPI,job_control_struct,InitMessage);
         end
         %
-        function [ok,mess] =finish_task(this)
-            % Clearly finish job execution
-            [ok,mess] = finish_task_(this);
+        function [ok,mess] =finish_task(this,varargin)
+            % Clearly finish job execution amd inform head node about
+            %
+            %Usage:
+            [ok,mess] = finish_task_(this,varargin{:});
         end
         function [ok,err] = reduce_send_message(obj,mess,varargin)
             % collect similar messages send from all nodes and send final
@@ -165,6 +167,9 @@ classdef JobExecutor
         %
         function out = get.task_outputs(obj)
             out = obj.task_results_holder_;
+        end
+        function obj = set.task_outputs(obj,val)
+            obj.task_results_holder_ = val;
         end
         %
         
