@@ -19,7 +19,8 @@ classdef aMessage
     
     methods
         function obj=aMessage(name)
-            if MESS_NAMES.name_exist(name)
+            is = MESS_NAMES.name_exist(name);
+            if is
                 obj.mess_name_ = name;
             else
                 error('AMESSAGE:invalid_argument',...
@@ -33,6 +34,11 @@ classdef aMessage
             name = obj.mess_name_;
         end
         function obj = set.payload(obj,val)
+            if iscell(val)
+                if numel(val)==1 && isempty(val{1})
+                    val = [];
+                end
+            end
             obj.payload_  = val;
         end
         
@@ -56,9 +62,21 @@ classdef aMessage
             end
             fn1 = properties(obj);
             for i=1:numel(fn1)
-                if (obj.(fn1{i})~=b.(fn1{i}))
+                if ~strcmp(class(obj.(fn1{i})),class(b.(fn1{i})))
                     not = true;
                     return
+                end
+                if ischar(obj.(fn1{i}))
+                    if ~strcmp(obj.(fn1{i}),b.(fn1{i}))
+                        not = true;
+                        return
+                    end
+                    
+                else
+                    if (obj.(fn1{i})~=b.(fn1{i}))
+                        not = true;
+                        return
+                    end
                 end
             end
             not = false;

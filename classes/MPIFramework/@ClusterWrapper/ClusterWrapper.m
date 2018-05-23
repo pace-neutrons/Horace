@@ -11,6 +11,8 @@ classdef ClusterWrapper
         status_changed;
         % the current cluster status, usually defined by status message
         status;
+        %
+        status_name;
         % The string which describes the current status
         log_value
         % The accessor for mess_exchange_framework job_id if mess exchange
@@ -45,7 +47,7 @@ classdef ClusterWrapper
             
             
             obj.LOG_MESSAGE_WRAP_LENGTH = ...
-                numel(mess_exchange_framework.job_id)+numel('Job : ')+numel(' :');
+                numel(mess_exchange_framework.job_id)+numel('Job :   state: ')+8;
         end
         %
         function obj = init_cluster_job(obj,je_init_message,task_init_mess)
@@ -99,9 +101,21 @@ classdef ClusterWrapper
                 obj.mess_exchange_ = [];
             end
         end
+        function [outputs,n_failed,obj]=  retrieve_results(obj)
+            % retrieve parallel job results
+            [outputs,n_failed,obj] = get_job_results_(obj);
+        end
+        
         %------------------------------------------------------------------
         function isit = get.status_changed(obj)
             isit = obj.status_changed_;
+        end
+        function name = get.status_name(obj)
+            if isempty(obj.current_status_)
+                name = 'undefined';
+            else
+                name = obj.current_status_.mess_name;
+            end
         end
         function log = get.log_value(obj)
             log = obj.log_value_;
@@ -121,6 +135,19 @@ classdef ClusterWrapper
             isit = obj.current_status_;
         end
         function obj = set.status(obj,mess)
+            obj = obj.set_cluster_status(mess);
+        end
+    end
+    methods(Access=protected)
+        function obj = generate_log(obj,varargin)
+            % set log message from input parameters and the data, retrieved
+            % by check_progress method
+            obj = generate_log_(obj,varargin{:});
+        end
+        
+        function obj = set_cluster_status(obj,mess)
+            % protected set status function, necessary to be able to
+            % overload set.status method.
             if isa(mess,'aMessage')
                 stat_mess = mess;
             elseif ischar(mess)
@@ -134,13 +161,7 @@ classdef ClusterWrapper
             if obj.prev_status_ ~= obj.current_status_
                 obj.status_changed_ = true;
             end
-        end
-    end
-    methods(Access=protected)
-        function obj = generate_log(obj,varargin)
-            % set log message from input parameters and the data, retrieved
-            % by check_progress method
-            obj = generate_log_(obj,varargin{:});
+            
         end
     end
 end

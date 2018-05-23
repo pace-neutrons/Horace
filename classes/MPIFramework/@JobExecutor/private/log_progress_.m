@@ -16,14 +16,15 @@ mess = LogMessage(step,n_steps,time_per_step,add_info);
 [~,~,fin_mess] = reduce_messages_(obj,mess,[],true);
 if obj.labIndex == 1
     all_logs = fin_mess.payload;
-    n_steps_done = inf;
+    n_steps_done = 0;
     n_steps_to_do = -inf;
-    tps = -inf;
+    tps = 0;
     add_info = {};
-    for i=1:numel(all_logs)
-        n_steps_done = min(n_steps_done,all_logs{i}.step);
+    n_tasks = numel(all_logs);
+    for i=1:n_tasks 
+        n_steps_done = n_steps_done+all_logs{i}.step;
         n_steps_to_do = max(n_steps_to_do,all_logs{i}.n_steps);
-        tps = max(tps,all_logs{i}.time);
+        tps = tps + all_logs{i}.time;
         if ~isempty(all_logs{i}.add_info)
             add_info = [add_info,{all_logs{i}.add_info}];
         end
@@ -31,7 +32,11 @@ if obj.labIndex == 1
     if numel(add_info) == 1
         add_info = add_info{1};
     end
+    
+    n_steps_done = n_steps_done/n_tasks;
+    tps = tps/n_tasks;
     mess = LogMessage(n_steps_done ,n_steps_to_do,tps,add_info);
+    mess  = mess.set_local_logs(all_logs);
     obj.control_node_exch.send_message(0,mess);
 end
 

@@ -33,6 +33,13 @@ classdef JETester < JobExecutor
             disp('****************************************************');
             disp([' n_files: ',num2str(n_steps)]);
             job_par = obj.common_data_;
+            if isfield(job_par,'fail_for_labsN')
+                labnums2fail = job_par.fail_for_labsN;
+                if ismember(obj.labIndex,labnums2fail)
+                    error('JETester:runtime_error',...
+                        'simulated failure for lab N %d',obj.labIndex);
+                end
+            end
             n0 = obj.n_first_iteration_;
             n1 = n0+n_steps-1;
             t0 = tic;

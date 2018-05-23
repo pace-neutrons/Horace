@@ -13,6 +13,7 @@ if nargin > 1
     completed = check_completed(tag);
 else
     me = obj.mess_exchange_;
+    % check all messages send from the head node.
     mess_names =me.probe_all(1);
     if isempty(mess_names)
         obj.status_changed_ = false;
@@ -22,13 +23,18 @@ else
             if ok ~= MESS_CODES.ok
                 error('CLUSTER_WRAPPER:runtime_error',...
                     'Error %s receiving existing message: %s from job %s',...
-                    err,mess_names,obj.mess_exchange_.job_id);
+                    err,mess_names,obj.job_id);
             end
             tag = mess.tag;
             completed = check_completed(tag);
             obj.status = mess;
+            if completed
+                me.receive_all(1);
+                break;
+            end
         end
     end
+    
 end
 %
 function completed = check_completed(tag)

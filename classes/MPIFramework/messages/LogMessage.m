@@ -12,6 +12,8 @@ classdef LogMessage<aMessage
         time_per_step
         % additional information to print in a log. May be empty
         add_info
+        % logs from all nodes, availible on the reduced headnode log message
+        local_logs;
     end
     
     methods
@@ -35,6 +37,16 @@ classdef LogMessage<aMessage
         end
         function st=get.add_info(obj)
             st=obj.payload.add_info;
+        end
+        function ll = get.local_logs(obj)
+            if isfield(obj.payload,'local_logs')
+                ll  = obj.payload.local_logs;
+            else
+                ll = {};
+            end
+        end
+        function obj = set_local_logs(obj,logal_logs_cellarray)
+            obj.payload.local_logs = logal_logs_cellarray;
         end
         
     end

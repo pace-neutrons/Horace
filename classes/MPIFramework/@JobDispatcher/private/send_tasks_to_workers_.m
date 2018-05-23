@@ -1,6 +1,7 @@
 function [outputs,n_failed,task_ids,this]=...
     send_tasks_to_workers_(this,...
-    task_class_name,common_params,loop_params,return_results,n_workers,task_query_time)
+    task_class_name,common_params,loop_params,return_results,...    
+    n_workers,keep_workers_running,task_query_time)
 % send range of jobs to execute by external program
 %
 % Usage:
@@ -19,6 +20,9 @@ function [outputs,n_failed,task_ids,this]=...
 %                   iteration number)
 % number_of_workers -- number of Matlab sessions to
 %                    process the tasks
+% keep_workers_running -- if true, workers do not finish when job executors
+%                   complete their jobs and stay active waiting for the next
+%                   task submission. 
 % task_query_time    -- if present -- time interval to check if
 %                   jobs are completed. By default, check every
 %                   4 seconds
@@ -42,36 +46,39 @@ function [outputs,n_failed,task_ids,this]=...
 % delete orphaned messages, which may belong to this framework, previous run
 %
 % clear all messages which may left in case of failure
+if ~exist('keep_workers_running','var')
+    keep_workers_running = false;
+end
+
+if exist('task_query_time','var') && ~isempty(task_query_time)
+    this.task_check_time  = task_query_time;
+end
+
 mf = this.mess_framework_;
 
 % initialize cluster
 par_fm = parallel_config();
-cluster = par_fm.get_cluster_wrapper(n_workers,mf);
-clob_mf = onCleanup(@()finalize_all(cluster));
+[cluster_wrp,exit_worker_when_job_ends] = par_fm.get_cluster_wrapper(n_workers,mf);
+clob_mf = onCleanup(@()finalize_all(cluster_wrp));
 
 
 
 % split job
 [task_ids,taskInitMessages]=...
     this.split_tasks(common_params,loop_params,return_results,n_workers);
-je_init_message = mf.build_je_init(task_class_name,true,false);
+je_init_message = mf.build_je_init(task_class_name,exit_worker_when_job_ends,keep_workers_running);
 
-cluster = cluster.start_job(je_init_message,@worker,taskInitMessages);
+cluster_wrp = cluster_wrp.start_job(je_init_message,@worker,taskInitMessages);
 
-
-
-if exist('task_query_time','var') && ~isempty(task_query_time)
-    this.task_check_time  = task_query_time;
-end
 waiting_time = this.task_check_time;
 pause(waiting_time );
 
-[completed,cluster]=cluster.check_progress();
-cluster = cluster.display_progress();
+[completed,cluster_wrp]=cluster_wrp.check_progress();
+cluster_wrp = cluster_wrp.display_progress();
 %
 while(~completed)    
     pause(waiting_time);
-    [completed,cluster]=cluster.check_progress();    
-    cluster = cluster.display_progress();   
+    [completed,cluster_wrp]=cluster_wrp.check_progress();    
+    cluster_wrp = cluster_wrp.display_progress();   
 end
-[outputs,n_failed,this]=  this.retrieve_results();
+[outputs,n_failed,this]=  cluster_wrp.retrieve_results();

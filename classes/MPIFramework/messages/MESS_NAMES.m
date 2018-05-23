@@ -4,9 +4,9 @@ classdef MESS_NAMES
     % and provides connection between the message names and message codes
     
     properties(Constant,Access=private)
-        mess_names_ = {'failed','init','starting','started','running',...
+        mess_names_ = {'failed','pending','init','starting','started','running',...
             'barrier','data','canceled','completed'};
-        mess_codes_ = {0,1,2,3,4,5,6,7,8};
+        mess_codes_ = {0,1,2,3,4,5,6,7,8,9};
         name2code_map_ = containers.Map(MESS_NAMES.mess_names_,MESS_NAMES.mess_codes_);
         code2name_map_ = containers.Map(MESS_NAMES.mess_codes_,MESS_NAMES.mess_names_);
     end
@@ -45,9 +45,10 @@ classdef MESS_NAMES
         %
         function name = mess_name(mess_id)
             % get message name derived from message code (tag)
-            %
-            
-            if isnumeric(mess_id)
+            %            
+            if isempty(mess_id)
+                name  = {};
+            elseif isnumeric(mess_id)
                 if numel(mess_id) > 1
                     name = arrayfun(@(x)(MESS_NAMES.code2name_map_(x)),mess_id,...
                         'UniformOutput',false);
@@ -67,7 +68,7 @@ classdef MESS_NAMES
             end
         end
         %
-        function is = name_exist(name)
+        function [is] = name_exist(name)
             % verify if the name provided is valid message name.
             %
             if all(ismember(name,MESS_NAMES.mess_names_))

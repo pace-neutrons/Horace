@@ -61,7 +61,7 @@ classdef JobDispatcher
         %
         function [outputs,n_failed,task_ids,this]=start_tasks(this,...
                 job_class_name,common_params,loop_params,return_results,...
-                number_of_workers,task_query_time)
+                number_of_workers,keep_workers_running,task_query_time)
             % send range of jobs to execute by external program
             %
             % Usage:
@@ -99,11 +99,7 @@ classdef JobDispatcher
             end
             [outputs,n_failed,task_ids,this]=send_tasks_to_workers_(this,...
                 job_class_name,common_params,loop_params,return_results,...
-                number_of_workers,task_query_time);
-        end
-        function [outputs,n_failed,obj]=  retrieve_results(obj)
-            % retrieve parallel job results
-            [outputs,n_failed,obj] = get_job_results_(obj);
+                number_of_workers,keep_workers_running,task_query_time);
         end
         %
         function [task_id_list,init_mess]=split_tasks(this,common_par,loop_par,n_workers,return_outputs)

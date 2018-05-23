@@ -113,7 +113,7 @@ folder_path = [location,filesep,folder_name];
 if ~exist(folder_path,'dir')
     [success, mess] = mkdir(folder_path);
 else
-    test_path = fullfile(folder_path,'folder_to_test_write_access');
+    test_path = fullfile(folder_path,['folder_twa_',char(floor(25*rand(1,10)) + 65)]);
     clob = onCleanup(@()rmdir(test_path));
     [success, mess] = mkdir(test_path);
 end

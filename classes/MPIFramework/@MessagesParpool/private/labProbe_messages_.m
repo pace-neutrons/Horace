@@ -12,9 +12,14 @@ end
 %         labProbe = varargin{1};
 %     end
 % end
-
+n_labs = obj.numLabs;
+if n_labs == 1
+    messages = {};
+    task_ids_from = [];
+    return;
+end
 if isempty(task_nums) || (ischar(task_nums) && strcmpi(task_nums,'all'))
-    task_nums = 1:obj.numLabs;
+    task_nums = 1:n_labs;
 end
 %
 if nargin > 2 && ~isempty(varargin{1})
@@ -38,35 +43,33 @@ if nargin > 2 && ~isempty(varargin{1})
 else
     mess_tag = [];
 end
-[isDataAvail,task_ids_from,tags] = labProbe();
-
-
-if ~isDataAvail
-    messages = {};
-    task_ids_from = [];
-    return;
-end
+not_this  = task_nums ~= obj.labIndex;
+task_nums = task_nums(not_this);
+n_senders = numel(task_nums);
 %
-%not_this = task_nums ~=obj.labIndex; % is it necessary possible?
-selected = ismember(task_ids_from,task_nums);
-if ~any(selected)
-    messages = {};
-    task_ids_from = [];
-    return;
-end
-task_ids_from = task_ids_from(selected);
-tags          = tags(selected);
-
-
-if ~isempty(mess_tag)
-    % check if tag is the tag requested or fail tag
-    mess_requested = ((tags == mess_tag) | (tags == 0));
-    if ~any(mess_requested)
-        messages = {};
-        task_ids_from = [];
-        return;
+avail = false(1,n_senders);
+res_tags  = -1*ones(1,n_senders);
+for i=1:n_senders
+    [avail(i),~,avail_tags] = labProbe(task_nums(i));
+    if ~avail(i)
+        continue
     end
-    task_ids_from  = task_ids_from(mess_requested);
-    tags  = tags(mess_requested);
+    
+    if ~isempty(mess_tag) %select the tags requested
+        % fail message is always requested
+        mess_requested = (avail_tags == mess_tag) | (avail_tags == 0);
+        avail_tags = avail_tags(mess_requested);
+        if ~any(avail_tags)
+            avail(i) = false;
+            continue
+        end        
+    end
+    res_tags(i) = avail_tags(1);
+    
 end
-messages = MESS_NAMES.mess_name(tags);
+
+task_ids_from  = task_nums (avail);
+res_tags       = res_tags(avail);
+
+messages       = MESS_NAMES.mess_name(res_tags);
+

@@ -13,12 +13,13 @@ if exist('log_message','var')
     obj.display_results_count_ = 0;
     n_symbols = numel(log_message);
     if n_symbols <=obj.LOG_MESSAGE_LENGHT
-        log =[log,sprintf('**** %-40s ****\n',log_message)];
+        format = ['**** %-',num2str(obj.LOG_MESSAGE_LENGHT),'s ****',CR];
+        log =[log,sprintf(format,log_message)];
     else
         log =[log,sprintf('**** %s\n',log_message)];
     end
 else % report internal state of the JobDispatcher
-
+    
     if obj.status_changed
         info = gen_job_info(obj);
         log = [log,info,CR];
@@ -57,5 +58,12 @@ if isa(stateMess,'LogMessage')
             stateMess.step,stateMess.n_steps,time_left),stateMess.add_info];
     end
 elseif stateMess.tag == MESS_NAMES.mess_id('failed')
-    info = [info,num2str(stateMess.payload)];
+    err = stateMess.payload;
+    if isnumeric(err)
+        info = [info,num2str(err)];
+%     elseif isa(err,'MExeption') || isa(err,'ParallelException')
+%         for i=1:numel(err.stack)
+%             info = [info,err.stack{i}];
+%         end
+    end
 end

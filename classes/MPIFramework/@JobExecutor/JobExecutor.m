@@ -111,6 +111,7 @@ classdef JobExecutor
             % Clearly finish job execution amd inform head node about
             %
             %Usage:
+            %
             [ok,mess] = finish_task_(this,varargin{:});
         end
         function [ok,err] = reduce_send_message(obj,mess,varargin)
@@ -193,10 +194,12 @@ classdef JobExecutor
             [ok,err_mess] = obj.mess_framework_.send_message(targ_lab,...
                 message);
         end
+        %
         function [ok,err_mess,message] = receive_message(obj,source_lab,mess_name)
             % receive message from job dispatcher
             [ok,err_mess,message] = obj.mess_framework_.receive_message(source_lab,mess_name);
         end
+        %
         function ok=probe_message(obj,mess_name)
             all_names = obj.mess_framework_.probe_all([],mess_name);
             if exist('mess_name','var')
@@ -214,6 +217,7 @@ classdef JobExecutor
             end
             
         end
+        %
         function messages = receive_all_messages(obj,varargin)
             % retrieve (and remove from system) all messages
             % existing in the system for the jobs with id-s specified as input

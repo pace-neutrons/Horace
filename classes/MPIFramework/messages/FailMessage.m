@@ -25,7 +25,13 @@ classdef FailMessage < aMessage
             % error_exception -- the class of the Matlab exception type,
             %               which  describes the caught exception
             %
-            obj = obj@aMessage('fail');
+            if ~exist('fail_text','var')
+                fail_text = ' Fail message without parameters';
+            end
+            if ~exist('error_exception','var')
+                error_exception = [];
+            end
+            obj = obj@aMessage('failed');
             obj.fail_text_  = fail_text;
             obj.exception_  = error_exception;
         end

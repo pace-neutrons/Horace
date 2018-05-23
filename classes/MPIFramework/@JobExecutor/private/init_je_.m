@@ -1,4 +1,4 @@
-function [obj,err]=init_je_(obj,fbMPI,job_control_string,InitMessage)
+function [obj,err]=init_je_(obj,fbMPI,job_control_struct,InitMessage)
 % initiate the worker parameters
 % Inputs:
 % job_control_string - the serialized string, containing information
@@ -12,7 +12,7 @@ function [obj,err]=init_je_(obj,fbMPI,job_control_string,InitMessage)
 obj.control_node_exch_ = fbMPI;
 % here we need to know what framework to use to exchange messages between
 % the MPI jobs.
-if isfield(job_control_string,'labID') % filebased framework all around
+if isfield(job_control_struct,'labID') % filebased framework all around
     mf = fbMPI;
 else
     if isfield(job_control_struct,'framework_name') % this is for future. Not tried and tested

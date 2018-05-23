@@ -92,7 +92,7 @@ while keep_worker_running
     mis.check_cancelled = @()(f_canc(je));
     %mis.mpi_framework = je.mess_framework;
     
-    try
+    %try
         [je,mess] = je.init(fbMPI,control_struct,init_message);
         if ~isempty(mess)
             err = sprinft(' Error sending ''started'' message from task N%d',...
@@ -110,21 +110,20 @@ while keep_worker_running
             je = je.reduce_data();
         end
         ok = MESS_CODES.ok;
-    catch ME
-        if ~strcmpi(ME.identifier,'MESSAGE_FRAMEWORK:cancelled')
-            mess = aMessage('failed');
-            mess.payload = {sprintf('task N%d failed at jobExecutor %s. Reason: %s',...
-                worker_init_data.JobExecutorClassName,fbMPI.labIndex,ME.message)...
-                ,ME};
-            je.finish_task(mess);
-        end
-        if exit_at_the_end
-            exit;
-        else
-            rethrow(ME)
-        end
-    end
-    %
+%     %catch ME
+%         if ~strcmpi(ME.identifier,'MESSAGE_FRAMEWORK:cancelled')
+%             err_text = sprintf('task N%d failed at jobExecutor %s. Reason: %s',...
+%                 worker_init_data.JobExecutorClassName,je.labIndex,ME.message);
+%             mess = FailMessage(err_text,ME);
+%             je.finish_task(mess);
+%         end
+%         if exit_at_the_end
+%             exit;
+%         else
+%             rethrow(ME)
+%         end
+%     %end
+    
     je.finish_task();
     
 end
@@ -137,6 +136,6 @@ end
 function f_canc(job_executor)
 if job_executor.is_job_cancelled()
     error('MESSAGE_FRAMEWORK:cancelled',...
-        'Messages framework has been cancelled or not initialized any more')
+        'Messages framework has been cancelled or is not initialized any more')
 end
 

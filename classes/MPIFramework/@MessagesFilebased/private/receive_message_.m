@@ -75,7 +75,7 @@ end
 mess_fname = obj.job_stat_fname_(obj.labIndex,mess_names{1},mid_from(1));
 
 %
-% safeguard against message start beeing written up
+% safeguard against message start being written up
 % but have not finished yet when dispatcher asks for it
 ic = 0;
 try_limit = 2;
