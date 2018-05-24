@@ -2,17 +2,15 @@ function [messages,task_ids_from] = labProbe_messages_(obj,task_nums,varargin)
 % list all messages belonging to the job and retrieve all their names
 % for the lobs with id, provided as input.
 % if no message is returned for a job, its name cell remains empty.
+%
+% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+%
+
 if ~exist('task_nums','var')
     task_nums = [];
 end
-% there is bug in Matlab code parser which fails when this is enabled for
-% parallel toolbox
-% if nargin>2 % tester mode provides non-omp labprobe function
-%     if ~isempty(varargin)
-%         labProbe = varargin{1};
-%     end
-% end
 n_labs = obj.numLabs;
+
 if n_labs == 1
     messages = {};
     task_ids_from = [];
@@ -40,8 +38,13 @@ if nargin > 2 && ~isempty(varargin{1})
         error('PARPOOL_MESSAGES:invalid_argument',...
             'unrecognized message name type');
     end
+    if numel(mess_tag) > 1
+        error('PARPOOL_MESSAGES:invalid_argument',...
+            'labprobe with tag accepts only one message type')
+    end
+    lab_prober = @(nlab)(lab_prober_tag(nlab,mess_tag));
 else
-    mess_tag = [];
+    lab_prober = @(nlab)(lab_prober_all_tags(nlab));
 end
 not_this  = task_nums ~= obj.labIndex;
 task_nums = task_nums(not_this);
@@ -50,26 +53,30 @@ n_senders = numel(task_nums);
 avail = false(1,n_senders);
 res_tags  = -1*ones(1,n_senders);
 for i=1:n_senders
-    [avail(i),~,avail_tags] = labProbe(task_nums(i));
-    if ~avail(i)
-        continue
-    end
-    
-    if ~isempty(mess_tag) %select the tags requested
-        % fail message is always requested
-        mess_requested = (avail_tags == mess_tag) | (avail_tags == 0);
-        avail_tags = avail_tags(mess_requested);
-        if ~any(avail_tags)
-            avail(i) = false;
-            continue
-        end        
-    end
-    res_tags(i) = avail_tags(1);
-    
+    [avail(i),res_tags(i)] = lab_prober(task_nums(i));
 end
-
 task_ids_from  = task_nums (avail);
 res_tags       = res_tags(avail);
 
 messages       = MESS_NAMES.mess_name(res_tags);
+
+function [avail,tag] = lab_prober_all_tags(lab_num)
+
+[avail,~,tag] = labProbe(lab_num);
+
+function [avail,tag] = lab_prober_tag(lab_num,tag)
+
+% check requested message
+[tag_avail,~,tag_req] = labProbe(lab_num,tag);
+% check if fail message has been send from the lab specified
+[fail_avail,~,tag_fail] = labProbe(lab_num,0);
+avail = tag_avail | fail_avail;
+
+if fail_avail
+    tag = tag_fail;
+elseif tag_req
+    tag = tag_req;
+else
+    tag = -1;
+end
 

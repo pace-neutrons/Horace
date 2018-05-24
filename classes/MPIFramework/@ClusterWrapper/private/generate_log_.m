@@ -44,10 +44,10 @@ function info=gen_job_info(obj)
 % given
 stateMess = obj.status;
 if isempty(stateMess)
-    info = sprintf('Job : %s : state: unknown |',obj.job_id);
+    info = sprintf('***Job : %s : state: unknown |',obj.job_id);
     return;
 end
-info = sprintf('Job : %s : state: %8s |',obj.job_id,stateMess.mess_name);
+info = sprintf('***Job : %s : state: %8s |',obj.job_id,stateMess.mess_name);
 if isa(stateMess,'LogMessage')
     if stateMess.time_per_step == 0
         info = [info, sprintf('Step#%d/%d, Estimated time left:  Unknown | ',...

@@ -36,13 +36,13 @@ all_received = false;
 tid_exist = ismember(tid_requested,tid_from);
 n_received = 0;
 t0 = tic;
-fname = sprintf('receive_log_lab%d.txt',labindex);
-fh = fopen(fname,'w');
-clob = onCleanup(@()fclose(fh));
-fprintf(fh,'requested messages from %d %d %d\n',tid_requested);
+%fname = sprintf('receive_log_lab%d.txt',labindex);
+%fh = fopen(fname,'w');
+%clob = onCleanup(@()fclose(fh));
+%fprintf(fh,'requested messages from %d %d %d\n',tid_requested);
 natt = 0;
 while ~all_received
-    fprintf(fh,' Attempt N%d receiving N%d messages\n',natt,numel(mess_names));
+    %fprintf(fh,' Attempt N%d receiving N%d messages\n',natt,numel(mess_names));
     natt = natt+1;
     for i=1:numel(tid_exist)
         if ~tid_exist(i); continue; end
@@ -57,7 +57,7 @@ while ~all_received
         tid_received_from(i) = tid_requested(i);
     end
     n_received  = n_received +numel(tid_from);
-    fprintf(fh,'received: %d\n',n_received);
+    %fprintf(fh,'received: %d\n',n_received);
     if n_received >= n_requested
         all_received = true;
     else
@@ -66,9 +66,7 @@ while ~all_received
             error('PARPOOL_MESSAGES:runtime_error',...
                 'Timeout waiting for receiving all messages')
         end
-%        for i=
-        %
-        fprintf(fh,'requested messages from %d %d %d\n',tid_requested);        
+        %fprintf(fh,'requested messages from %d %d %d\n',tid_requested);
         [mess_names,tid_from] = labProbe_messages_(obj,tid_requested,mess_name);
         %
         tid_exist = ismember(tid_requested,tid_from);

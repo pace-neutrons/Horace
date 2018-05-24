@@ -42,7 +42,7 @@ config_store.set_config_folder(config_exchange_folder);
 fbMPI = MessagesFilebased(control_struct);
 % initiate file-based framework to exchange messages between head node and
 % the pool of workers
-init_message =  InitMessage('dummy_not_user',3,true,1);
+init_message =  InitMessage('dummy_not_used',3,true,1);
 
 je = JETester();
 [je,mess] = je.init(fbMPI,control_struct,init_message);

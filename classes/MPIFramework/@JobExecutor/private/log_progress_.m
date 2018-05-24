@@ -13,31 +13,41 @@ function  log_progress_(obj,step,n_steps,time_per_step,add_info)
 % Throws MESSAGE_FRAMEWORK:cancelled error in case the job has
 %
 mess = LogMessage(step,n_steps,time_per_step,add_info);
-[~,~,fin_mess] = reduce_messages_(obj,mess,[],true);
+[~,~,fin_mess] = reduce_messages_(obj,mess,[],true,'running');
 if obj.labIndex == 1
-    all_logs = fin_mess.payload;
-    n_steps_done = 0;
-    n_steps_to_do = -inf;
-    tps = 0;
-    add_info = {};
-    n_tasks = numel(all_logs);
-    for i=1:n_tasks 
-        n_steps_done = n_steps_done+all_logs{i}.step;
-        n_steps_to_do = max(n_steps_to_do,all_logs{i}.n_steps);
-        tps = tps + all_logs{i}.time;
-        if ~isempty(all_logs{i}.add_info)
-            add_info = [add_info,{all_logs{i}.add_info}];
+    if isa(fin_mess,'LogMessage') % calculate avarage logs
+        all_logs = fin_mess.payload;
+        n_steps_done = 0;
+        n_steps_to_do = -inf;
+        tps = 0;
+        add_info = {};
+        n_tasks = numel(all_logs);
+        for i=1:n_tasks
+            if isempty(all_logs{i}) || ~isstruct(all_logs{i}) % should not happen for log message but....
+                continue;
+            end
+            n_steps_done = n_steps_done+all_logs{i}.step;
+            n_steps_to_do = max(n_steps_to_do,all_logs{i}.n_steps);
+            tps = tps + all_logs{i}.time;
+            if ~isempty(all_logs{i}.add_info)
+                add_info = [add_info,{all_logs{i}.add_info}];
+            end
         end
-    end
-    if numel(add_info) == 1
-        add_info = add_info{1};
+        if numel(add_info) == 1
+            add_info = add_info{1};
+        end
+        
+        n_steps_done = n_steps_done/n_tasks;
+        tps = tps/n_tasks;
+        mess = LogMessage(n_steps_done ,n_steps_to_do,tps,add_info);
+        mess  = mess.set_worker_logs(all_logs);
+        obj.control_node_exch.send_message(0,mess);
+    else % may be fail message if some of the worers were failed.
+        % Will not be fail message if this node have failed, as it will go
+        % in other path
+        obj.control_node_exch.send_message(0,fin_mess);
     end
     
-    n_steps_done = n_steps_done/n_tasks;
-    tps = tps/n_tasks;
-    mess = LogMessage(n_steps_done ,n_steps_to_do,tps,add_info);
-    mess  = mess.set_local_logs(all_logs);
-    obj.control_node_exch.send_message(0,mess);
 end
 
 

@@ -13,7 +13,6 @@ classdef FailMessage < aMessage
     end
     properties(Access = protected)
         fail_text_ = '';
-        exception_ = [];
     end
     
     methods
@@ -25,38 +24,41 @@ classdef FailMessage < aMessage
             % error_exception -- the class of the Matlab exception type,
             %               which  describes the caught exception
             %
-            if ~exist('fail_text','var')
-                fail_text = ' Fail message without parameters';
-            end
             if ~exist('error_exception','var')
-                error_exception = [];
-            end
-            obj = obj@aMessage('failed');
-            obj.fail_text_  = fail_text;
-            obj.exception_  = error_exception;
-        end
-        
-        function n_steps = get.fail_text(obj)
-            n_steps =obj.payload.fail_text;
-        end
-        function cd = get.exception(obj)
-            cd = obj.payload.exception;
-        end
-    end
-    methods(Access=protected)
-        function pl = get_payload(obj)
-            if isempty(obj.payload_)
-                pl = obj.exception_;
-            else
-                if isempty(obj.exception_)
-                    pl = obj.payload_;
-                else
-                    pl  = {obj.exception_,obj.payload_};
+                ex_text = 'automatic exception, generated at FailMessage without arguments: ';
+                if exist('fail_text','var')
+                    ex_text  = [ex_text,fail_text];
                 end
+                error_exception = MException('FAIL_MESSAGE:no_aruments',...
+                    ex_text);
+            end
+            if ~exist('fail_text','var')
+                fail_text = ' Failed message without parameters';
             end
             
+            obj = obj@aMessage('failed');
+            obj.fail_text_  = fail_text;
+            obj.payload     = error_exception;
+        end
+        
+        function text = get.fail_text(obj)
+            text =obj.fail_text_;
         end
     end
+    %    methods(Access=protected)
+    %         function pl = get_payload(obj)
+    %             if isempty(obj.payload_)
+    %                 pl = obj.exception_;
+    %             else
+    %                 if isempty(obj.exception_)
+    %                     pl = obj.payload_;
+    %                 else
+    %                     pl  = {obj.exception_,obj.payload_};
+    %                 end
+    %             end
+    %
+    %         end
+    %    end
     
 end
 

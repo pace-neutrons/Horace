@@ -149,7 +149,82 @@ classdef test_job_executor< TestCase
             assertElementsAlmostEqual(mess.time_per_step,(1+2+1.3)/3);
             assertEqual(mess.n_steps,10);
             
+            assertTrue(isfield(mess.payload,'worker_logs'));
+            assertEqual(numel(mess.payload.worker_logs),3);
+            
         end
+        function test_log_progress_with_fail(obj)
+            serverfbMPI  = MessagesFilebased('test_log_progress');
+            serverfbMPI.mess_exchange_folder = obj.working_dir;
+            
+            clob = onCleanup(@()finalize_all(serverfbMPI));
+            % generate 3 controls to have 3 filebased MPI pseudoworkers
+            css1= serverfbMPI.gen_worker_init(1,3);
+            csr1= serverfbMPI.deserialize_par(css1);
+            fbMPI1 = MessagesFilebased(csr1);
+            css2= serverfbMPI.gen_worker_init(2,3);
+            csr2= serverfbMPI.deserialize_par(css2);
+            fbMPI2 = MessagesFilebased(csr2);
+            css3= serverfbMPI.gen_worker_init(3,3);
+            csr3= serverfbMPI.deserialize_par(css3);
+            fbMPI3 = MessagesFilebased(csr3);
+            
+            common_job_param = 'dumy_not_used';
+            % should be 3 different init messages for 3 workers but as we
+            % do not test do_job, 1 message would be ok
+            initMess = InitMessage(common_job_param,3,true,1);
+            
+            % Initialize 3 job executors to simulate 3 workers
+            je = JETester();
+            je3 = je.init(fbMPI3,csr3,initMess);
+            je2 = je.init(fbMPI2,csr2,initMess);
+            je1 = je.init(fbMPI1,csr1,initMess);
+            [ok,err,mess] = serverfbMPI.receive_message(1,'started');
+            assertEqual(ok,MESS_CODES.ok,err);
+            assertEqual(mess.mess_name,'started');
+            
+            % test log progress
+            je3.log_progress(1,10,1,[]);
+            je2.finish_task(FailMessage('simulated fail'));
+            je1.log_progress(1,9,1.3,[]);
+            
+            [ok,err,mess] = serverfbMPI.receive_message(1,'running');
+            assertEqual(ok,MESS_CODES.ok,err);
+            assertEqual(mess.mess_name,'failed');
+            assertEqual(numel(mess.payload),3)
+            assertTrue(isstruct(mess.payload{1}));
+            assertTrue(isstruct(mess.payload{3}));
+            assertTrue(isa(mess.payload{2},'MException'));
+            
+            
+            je3.log_progress(5,10,1,[]);
+            je1.log_progress(4,9,1.3,[]);
+            [ok,err,mess] = serverfbMPI.receive_message(1,'running');
+            assertEqual(ok,MESS_CODES.ok,err);
+            assertEqual(mess.mess_name,'running');
+            assertEqual(numel(mess.payload),1)
+            assertTrue(isfield(mess.payload,'worker_logs'));
+            wkl = mess.payload.worker_logs;
+            assertEqual(numel(wkl),2)
+            assertTrue(isstruct(wkl{1}));
+            assertTrue(isstruct(wkl {2}));
+            
+            
+            je3.log_progress(10,10,1,[]);
+            je2.finish_task(FailMessage('simulated fail wk2'));
+            je1.finish_task(FailMessage('simulated fail wk1'));
+            
+            [ok,err,mess] = serverfbMPI.receive_message(1,'running');
+            assertEqual(ok,MESS_CODES.ok,err);
+            assertEqual(mess.mess_name,'failed');
+            assertTrue(iscell(mess.payload));
+            assertEqual(numel(mess.payload),2); % one job is presumably in running, though it does not matter any more
+            assertTrue(isa(mess.payload{1},'MException'));
+            assertTrue(isa(mess.payload{2},'MException'));
+            %assertTrue(isstruct(mess.payload{3}));
+            
+        end
+        
         
         %
         function test_finish_task_reduce_messages(obj)
@@ -207,6 +282,8 @@ classdef test_job_executor< TestCase
             assertTrue(iscell(mess.payload));
             assertEqual(numel(mess.payload),3);
         end
+        
+        
         function test_finish_1task_reduce_messages(obj)
             serverfbMPI  = MessagesFilebased('test_finish_1task_reduce_mess');
             serverfbMPI.mess_exchange_folder = obj.working_dir;
@@ -239,46 +316,6 @@ classdef test_job_executor< TestCase
             assertEqual(numel(mess.payload),1);
         end
         %
-        function test_finish_2tasks_reduce_messages(obj)
-            serverfbMPI  = MessagesFilebased('test_finish_2tasks_reduce_mess');
-            serverfbMPI.mess_exchange_folder = obj.working_dir;
-            
-            clob = onCleanup(@()finalize_all(serverfbMPI));
-            % generate 3 controls to have 3 filebased MPI pseudoworkers
-            css1= serverfbMPI.gen_worker_init();
-            
-            cl = parcluster();
-            num_labs = cl.NumWorkers;
-            if num_labs < 4
-                return;
-            end
-            num_labs = 4;
-            pl = gcp('nocreate'); % Get the current parallel pool
-            if isempty(pl) || pl.NumWorkers ~=num_labs
-                delete(pl)
-                pl = parpool(cl,num_labs);
-            end
-
-            spmd
-                ok = finish_task_tester(css1);
-            end
-            
-            
-            assertEqual(numel(ok),num_labs);            
-            all_ok = arrayfun(@(x)(x{1}),ok,'UniformOutput',true);
-            assertTrue(all(all_ok));
-            [ok,err,mess] = serverfbMPI.receive_message(1,'started');
-            assertEqual(ok,MESS_CODES.ok,err);            
-            assertEqual(mess.mess_name,'started');                        
-            [ok,err,mess] = serverfbMPI.receive_message(1,'completed');
-            assertEqual(ok,MESS_CODES.ok,err);            
-            assertEqual(mess.mess_name,'completed');                        
-
-        end
-        
-        
-        
-        
         function test_do_job(this)
             % Its a self test of the JETester to be sure its do_job is fine
             % not testing anything but JETester
@@ -339,7 +376,7 @@ classdef test_job_executor< TestCase
             cf = config_store.instance().config_folder;
             function reset_config(cf)
                 config_store.instance('clear');
-                config_store.set_config_folder(cf);                
+                config_store.set_config_folder(cf);
             end
             clob1 = onCleanup(@()reset_config(cf));
             % generate 3 controls to have 3 filebased MPI pseudoworkers
@@ -347,14 +384,14 @@ classdef test_job_executor< TestCase
             
             
             ok = finish_task_tester(css1);
-            assertTrue(ok);            
+            assertTrue(ok);
             [ok,err,mess] = serverfbMPI.receive_message(1,'started');
-            assertEqual(ok,MESS_CODES.ok,err);            
-            assertEqual(mess.mess_name,'started');                        
+            assertEqual(ok,MESS_CODES.ok,err);
+            assertEqual(mess.mess_name,'started');
             [ok,err,mess] = serverfbMPI.receive_message(1,'completed');
-            assertEqual(ok,MESS_CODES.ok,err);            
-            assertEqual(mess.mess_name,'completed');                        
-
+            assertEqual(ok,MESS_CODES.ok,err);
+            assertEqual(mess.mess_name,'completed');
+            
             
             
         end

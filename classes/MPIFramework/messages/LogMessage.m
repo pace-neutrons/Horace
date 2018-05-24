@@ -13,7 +13,7 @@ classdef LogMessage<aMessage
         % additional information to print in a log. May be empty
         add_info
         % logs from all nodes, availible on the reduced headnode log message
-        local_logs;
+        worker_logs;
     end
     
     methods
@@ -38,15 +38,15 @@ classdef LogMessage<aMessage
         function st=get.add_info(obj)
             st=obj.payload.add_info;
         end
-        function ll = get.local_logs(obj)
-            if isfield(obj.payload,'local_logs')
-                ll  = obj.payload.local_logs;
+        function ll = get.worker_logs(obj)
+            if isfield(obj.payload,'worker_logs')
+                ll  = obj.payload.worker_logs;
             else
                 ll = {};
             end
         end
-        function obj = set_local_logs(obj,logal_logs_cellarray)
-            obj.payload.local_logs = logal_logs_cellarray;
+        function obj = set_worker_logs(obj,logal_logs_cellarray)
+            obj.payload.worker_logs = logal_logs_cellarray;
         end
         
     end

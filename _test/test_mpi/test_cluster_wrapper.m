@@ -102,7 +102,7 @@ classdef test_cluster_wrapper < TestCase
             [completed,cluster] = cluster.check_progress();
             assertFalse(completed);
             cluster = cluster.display_progress();
-            ref_string = ['Job : ',mf.job_id,' : state: starting |',CR];
+            ref_string = ['***Job : ',mf.job_id,' : state: starting |',CR];
             assertEqual(cluster.log_value,ref_string);
             [completed,cluster] = cluster.check_progress();
             assertFalse(completed);
@@ -114,7 +114,7 @@ classdef test_cluster_wrapper < TestCase
             assertFalse(completed);
             cluster = cluster.display_progress();
             assertEqual(cluster.log_value,'.');
-            n_steps = numel(mf.job_id)+numel('Job : ')+numel(' :');
+            n_steps = cluster.log_wrap_length;
             for i=3:n_steps
                 [completed,cluster] = cluster.check_progress();
                 assertFalse(completed);
@@ -137,7 +137,7 @@ classdef test_cluster_wrapper < TestCase
             [completed,cluster] = cluster.check_progress();
             assertFalse(completed);
             cluster = cluster.display_progress();
-            ref_string = [CR,'Job : ',mf.job_id,' : state:  running |Step#1/50, Estimated time left:  Unknown | ',CR];
+            ref_string = [CR,'***Job : ',mf.job_id,' : state:  running |Step#1/50, Estimated time left:  Unknown | ',CR];
             assertEqual(cluster.log_value,ref_string);
             
             %
@@ -146,7 +146,7 @@ classdef test_cluster_wrapper < TestCase
             [completed,cluster] = cluster.check_progress();
             assertFalse(completed);
             cluster = cluster.display_progress();
-            ref_string = ['Job : ',mf.job_id,' : state:  running |Step#2/50, Estimated time left: 0.80(min)| ',CR];
+            ref_string = ['***Job : ',mf.job_id,' : state:  running |Step#2/50, Estimated time left: 0.80(min)| ',CR];
             assertEqual(cluster.log_value,ref_string);
             
         end

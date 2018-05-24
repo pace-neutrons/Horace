@@ -35,7 +35,7 @@ classdef JETester < JobExecutor
             job_par = obj.common_data_;
             if isfield(job_par,'fail_for_labsN')
                 labnums2fail = job_par.fail_for_labsN;
-                if ismember(obj.labIndex,labnums2fail)
+                if any(obj.labIndex==labnums2fail)
                     error('JETester:runtime_error',...
                         'simulated failure for lab N %d',obj.labIndex);
                 end

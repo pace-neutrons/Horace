@@ -33,9 +33,10 @@ classdef ClusterWrapper
         %
         display_results_count_ = 0;
         LOG_MESSAGE_WRAP_LENGTH =10;
+        LOG_MESSAGE_LENGHT=40;        
     end
-    properties(Constant,Access = protected)
-        LOG_MESSAGE_LENGHT=40;
+    properties(Hidden,Dependent)
+        log_wrap_length;
     end
     
     methods
@@ -47,7 +48,9 @@ classdef ClusterWrapper
             
             
             obj.LOG_MESSAGE_WRAP_LENGTH = ...
-                numel(mess_exchange_framework.job_id)+numel('Job :   state: ')+8;
+                numel(mess_exchange_framework.job_id)+numel('***Job :   state: ');
+            obj.LOG_MESSAGE_LENGHT = numel('***Job :  : state:  started |')+...
+                numel(mess_exchange_framework.job_id) -numel('****  ****');
         end
         %
         function obj = init_cluster_job(obj,je_init_message,task_init_mess)
@@ -136,6 +139,10 @@ classdef ClusterWrapper
         end
         function obj = set.status(obj,mess)
             obj = obj.set_cluster_status(mess);
+        end
+        %
+        function len = get.log_wrap_length(obj)
+            len = obj.LOG_MESSAGE_WRAP_LENGTH;
         end
     end
     methods(Access=protected)

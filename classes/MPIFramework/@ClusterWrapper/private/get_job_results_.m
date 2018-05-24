@@ -11,8 +11,8 @@ if isequal(me_out.mess_name,'failed')
     if iscell(me_out.payload)
         is_fail = cellfun(@is_err,me_out.payload,'UniformOutput',true);
         n_failed = sum(is_fail);
-    else
-        n_failed = numel(me_out.payload);
+    else        
+        n_failed = obj.n_workers;
     end
 else
     n_failed = 0;
@@ -22,6 +22,9 @@ outputs = me_out.payload;
 function is = is_err(x)
 if isa(x,'MException') || isa(x,'ParallelException')
     is = true;
+elseif iscell(x)
+    is_fail = cellfun(@is_err,x,'UniformOutput',true);
+    is = any(is_fail);
 else
     is = false;    
 end

@@ -1,4 +1,4 @@
-function ok=worker(worker_controls_string)
+function [ok,err_mess]=worker(worker_controls_string)
 % function used as standard worker to do a job in different Matlab
 % session.
 %
@@ -16,7 +16,7 @@ function ok=worker(worker_controls_string)
 %
 % $Revision$ ($Date$)
 %
-
+err_mess = [];
 if isempty(which('herbert_init.m'))
     horace_on();
 end
@@ -54,8 +54,9 @@ while keep_worker_running
     [ok,err,mess]= fbMPI.receive_message(0,'starting');
     if ok ~= MESS_CODES.ok
         mess = aMessage('failed');
-        mess.payload = sprintf('job N%s failed while receive_je_info Error: %s:',...
+        err_mess = sprintf('job N%s failed while receive_je_info Error: %s:',...
             control_struct.jobID,err);
+        mess.payload = err_mess;
         fbMPI.send_message(mess);
         ok = MESS_CODES.runtime_error;
         return;
@@ -66,8 +67,9 @@ while keep_worker_running
     [ok,err]=fbMPI.send_message(0,'started');
     if ok ~= MESS_CODES.ok
         mess = aMessage('failed');
-        mess.payload = sprintf('job N%s failed while sending "started" message Error: %s:',...
+        err_mess = sprintf('job N%s failed while sending "started" message Error: %s:',...
             control_struct.jobID,err);
+        mess.payload = err_mess;
         fbMPI.send_message(mess);
         ok = MESS_CODES.runtime_error;
         return;
@@ -77,9 +79,14 @@ while keep_worker_running
     %
     % receive init message which defines the job parameters
     % should block execution until this message is received.
-    [ok,err,init_message] = fbMPI.receive_message(0,'init');
+    [ok,err_mess,init_message] = fbMPI.receive_message(0,'init');
     if ok ~= MESS_CODES.ok
-        error('WORKER:init_worker',err);
+        [ok,err_mess]=je.finish_task(FailMessage(err_mess));        
+        if exit_at_the_end
+            exit;
+        else
+            return
+        end
     end
     
     % instantiate job executor class.
@@ -92,7 +99,7 @@ while keep_worker_running
     mis.check_cancelled = @()(f_canc(je));
     %mis.mpi_framework = je.mess_framework;
     
-    %try
+    try
         [je,mess] = je.init(fbMPI,control_struct,init_message);
         if ~isempty(mess)
             err = sprinft(' Error sending ''started'' message from task N%d',...
@@ -109,22 +116,21 @@ while keep_worker_running
             end
             je = je.reduce_data();
         end
-        ok = MESS_CODES.ok;
-%     %catch ME
-%         if ~strcmpi(ME.identifier,'MESSAGE_FRAMEWORK:cancelled')
-%             err_text = sprintf('task N%d failed at jobExecutor %s. Reason: %s',...
-%                 worker_init_data.JobExecutorClassName,je.labIndex,ME.message);
-%             mess = FailMessage(err_text,ME);
-%             je.finish_task(mess);
-%         end
-%         if exit_at_the_end
-%             exit;
-%         else
-%             rethrow(ME)
-%         end
-%     %end
+    catch ME
+        if ~strcmpi(ME.identifier,'MESSAGE_FRAMEWORK:cancelled')
+            err_text = sprintf('task N%d failed at jobExecutor %s. Reason: %s',...
+                worker_init_data.JobExecutorClassName,je.labIndex,ME.message);
+            mess = FailMessage(err_text,ME);
+            [ok,err_mess]=je.finish_task(mess);
+        end
+        if exit_at_the_end
+            exit;
+        else
+            return;
+        end
+    end
     
-    je.finish_task();
+    [ok,err_mess] = je.finish_task();
     
 end
 %pause
