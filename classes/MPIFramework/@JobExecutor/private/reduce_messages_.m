@@ -1,4 +1,4 @@
-function [ok,err,fin_mess] = reduce_messages_(obj,mess,mess_process_function,existing_only,reduction_name)
+function [ok,err,fin_mess,obj] = reduce_messages_(obj,mess,mess_process_function,existing_only,reduction_name)
 % reduce all messages and build final message as the result of all similar
 % messages on the workers
 % Inputs:
@@ -46,9 +46,9 @@ mf = obj.mess_framework;
 if mf.labIndex == 1
     if existing_only
         [~,task_ids] = mf.probe_all('all',reduction_name);
-        all_messages = mf.receive_all(task_ids,reduction_name);       
+        [all_messages,~,mf] = mf.receive_all(task_ids,reduction_name);       
     else        
-        all_messages = mf.receive_all('all',reduction_name);        
+        [all_messages,~,mf] = mf.receive_all('all',reduction_name);        
     end
     all_messages = [{the_mess};all_messages];
     
@@ -67,6 +67,7 @@ else
         ok = false;
     end
 end
+obj.mess_framework_ = mf;
 
 function [all_ok,err,fin_message] = default_mess_process_function(all_messages,mess_name)
 

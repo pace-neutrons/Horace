@@ -128,9 +128,9 @@ classdef ClusterParpoolWrapper < ClusterWrapper
                             obj.current_status_  = fm;
                         end
                     end
-                elseif code == 3
-                    if ~strcmp(obj.status_name,'running')
-                        obj.status = LogMessage(0,0,inf);
+                else
+                    if ~obj.status_changed
+                        obj.status = cljob.State;
                     end
                 end
                 

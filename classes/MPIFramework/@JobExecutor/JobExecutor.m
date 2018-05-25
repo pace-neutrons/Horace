@@ -114,7 +114,7 @@ classdef JobExecutor
             %
             [ok,mess] = finish_task_(this,varargin{:});
         end
-        function [ok,err] = reduce_send_message(obj,mess,varargin)
+        function [ok,err,obj] = reduce_send_message(obj,mess,varargin)
             % collect similar messages send from all nodes and send final
             % message to the head node
             %usage:
@@ -137,7 +137,7 @@ classdef JobExecutor
             %             false, the method would wait until similar
             %             messages are received from all workers in the pool.
             %
-            [ok,err,the_mess] = reduce_messages_(obj,mess,varargin{:});
+            [ok,err,the_mess,obj] = reduce_messages_(obj,mess,varargin{:});
             if obj.labIndex == 1
                 [ok,err] = obj.control_node_exch.send_message(0,the_mess);
             end

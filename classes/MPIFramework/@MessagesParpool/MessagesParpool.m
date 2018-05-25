@@ -27,6 +27,7 @@ classdef MessagesParpool < iMessagesFramework
         % time to wait for a message send from one session can be read from
         % another one.
         time_to_react_ = 0.1
+        mess_stack_ = {};
     end
     %----------------------------------------------------------------------
     methods
@@ -48,7 +49,7 @@ classdef MessagesParpool < iMessagesFramework
             if nargin>0
                 jd = jd.init_framework(varargin{1});
             end
-            
+            jd.mess_stack_ = cell(1,jd.numLabs);
         end
         %------------------------------------------------------------------
         % HERBERT Job control interface
@@ -131,7 +132,7 @@ classdef MessagesParpool < iMessagesFramework
             %                from. Query all available labs if this field
             %                is empty
             % message_name ! message_tag -- if present, check only for
-            %                the messages of the kind, specified by this 
+            %                the messages of the kind, specified by this
             %
             %Returns:
             % mess_names   -- the  cellarray, containing message names
@@ -145,16 +146,24 @@ classdef MessagesParpool < iMessagesFramework
             [messages_name,task_id] = labProbe_messages_(obj,varargin{:});
         end
         %
-        function [all_messages,task_ids] = receive_all(obj,varargin)
+        function [all_messages,task_ids,obj] = receive_all(obj,varargin)
             % retrieve (and remove from system) all messages
             % existing in the system for the tasks with id-s specified as input
-            % non-blocking.
+            % dublicated messages sent from the same task id are discarded
+            % and only the last message retained
+            %
+            % non-blocking if used without message name and blocking if
+            % message name is provided
+            %
             %
             % Usage:
-            %>>[all_messages,task_ids] = pm.receive_all([task_is]);
+            %>>[all_messages,task_ids] = pm.receive_all([task_is],[mess_name]);
             %Input:
-            %task_ids -- array of task id-s to check messages for or empty
-            %            to check for all messages
+            % task_ids -- array of task id-s to check messages for or empty
+            %             or 'all' to check for all messages.
+            % mess_name -- if present, the name (or tag) of the message to
+            %              receive.
+            
             %Return:
             % all_messages -- cellarray of messages for the tasks requested and
             %                have messages available in the system with empty cells.
@@ -162,14 +171,14 @@ classdef MessagesParpool < iMessagesFramework
             % task_ids    -- array of task id-s for these messages with
             %                zeros for missing messages
             % mess_name    -- if present, receive only the messages with
-            %                 the name provided
+            %                 the name provided. The messages sent from the
+            %                 specified workers but with the name different
+            %                 from provided are stored in the messages
+            %                 cash, availible for subsequent requests to
+            %                 the recieve_all method.
             %
             %
-%             for i=1:numel(varargin)
-%                 fprintf('receive_all: Arg N%d = ',i);
-%                 disp(varargin{i});
-%             end
-            [all_messages,task_ids] = receive_all_messages_(obj,varargin{:});
+            [all_messages,task_ids,obj] = receive_all_messages_(obj,varargin{:});
         end
         %
         function finalize_all(obj)

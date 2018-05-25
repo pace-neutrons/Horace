@@ -1,6 +1,6 @@
 function [messages,task_ids_from] = labProbe_messages_(obj,task_nums,varargin)
 % list all messages belonging to the job and retrieve all their names
-% for the lobs with id, provided as input.
+% for the labs with id, provided as input.
 % if no message is returned for a job, its name cell remains empty.
 %
 % $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
@@ -19,7 +19,7 @@ end
 if isempty(task_nums) || (ischar(task_nums) && strcmpi(task_nums,'all'))
     task_nums = 1:n_labs;
 end
-%
+% check if specific message name is requested
 if nargin > 2 && ~isempty(varargin{1})
     mess_name = varargin{1};
     if ischar(mess_name)
@@ -63,8 +63,11 @@ messages       = MESS_NAMES.mess_name(res_tags);
 function [avail,tag] = lab_prober_all_tags(lab_num)
 
 [avail,~,tag] = labProbe(lab_num);
+if ~avail
+    tag = -1;
+end
 
-function [avail,tag] = lab_prober_tag(lab_num,tag)
+function [avail,tag_res] = lab_prober_tag(lab_num,tag)
 
 % check requested message
 [tag_avail,~,tag_req] = labProbe(lab_num,tag);
@@ -72,11 +75,10 @@ function [avail,tag] = lab_prober_tag(lab_num,tag)
 [fail_avail,~,tag_fail] = labProbe(lab_num,0);
 avail = tag_avail | fail_avail;
 
+tag_res = -1;
 if fail_avail
-    tag = tag_fail;
-elseif tag_req
-    tag = tag_req;
-else
-    tag = -1;
+    tag_res = tag_fail;
+elseif tag_avail
+    tag_res = tag_req;
 end
 

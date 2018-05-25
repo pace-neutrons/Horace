@@ -46,7 +46,7 @@ if receiver
     res = set_results(li,res,task_ids_from,mess_names);
     
     
-    [all_messages,task_ids_from] = pm.receive_all(lab_senders);
+    [all_messages,task_ids_from] = pm.receive_all(lab_senders,'started');
     for i=1:n_senders
         res(i).mess = all_messages{i};
         res(i).rec_mess_id =task_ids_from(i);
@@ -63,21 +63,23 @@ else %sender
     end
     if lab_receiver < li
         mess1 = aMessage('starting');
-        %mess2 = aMessage('started');
+        mess2 = aMessage('started');
     else
-        mess1 = aMessage('started');
-        %mess2 = aMessage('running');
+        mess1 = aMessage('running');        
+        mess2 = aMessage('started');
+
     end
-    [ok1,err1] = pm.send_message(lab_receiver,mess1);
+    [ok1,err1] = pm.send_message(lab_receiver,mess1);    
+    [ok2,err2] = pm.send_message(lab_receiver,mess2);
     %[ok2,err2] = pm.send_message(lab_receiver,mess2);
-    %res = (ok1 == MESS_CODES.ok) &&(ok2 == MESS_CODES.ok);
-    %if res
-    %    err = [];
-    %else
-    %    err = {err1,err2};
-    %end
-    res = ok1;
-    err = err1;
+    res = (ok1 == MESS_CODES.ok) &&(ok2 == MESS_CODES.ok);
+    if res
+        err = [];
+    else
+        err = {err1,err2};
+    end
+    %res = ok1;
+    %err = err1;
 end
 
 function ind = cycle_ind(ind0,period)

@@ -153,13 +153,13 @@ classdef test_job_dispatcher_parpool< MPI_Test_Common
             assertTrue(exist(file3,'file')==2);
             
         end
-        function test_finish_2tasks_reduce_messages(obj)
-            if this.skip_tests
+        function test_finish_2tasks_reduce_messages(obj,varargin)
+            if obj.skip_tests
                 return;
             end
             if nargin>1
-                this.setUp();
-                clob0 = onCleanup(@()tearDown(this));
+                obj.setUp();
+                clob0 = onCleanup(@()tearDown(obj));
             end
             
             serverfbMPI  = MessagesFilebased('test_finish_2tasks_reduce_mess');
