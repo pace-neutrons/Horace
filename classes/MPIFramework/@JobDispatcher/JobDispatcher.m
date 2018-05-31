@@ -34,6 +34,8 @@ classdef JobDispatcher
         %
         % The framework to exchange messages with the tasks
         mess_framework_;
+        % holder for initiated cluster allowing to resubmit jobs
+        cluster_ = [];
         time_to_fail_  = 300; %300sec, 5 min
     end
     
@@ -82,6 +84,10 @@ classdef JobDispatcher
             %                    process the tasks
             %
             % Optional:
+            % keep_workers_running -- true if workers should not finish
+            %                    after the task is completed and wait for
+            %                    the task to be resubmitted.
+            %
             % task_query_time -- if present -- time interval in seconds to
             %                    check if tasks are completed. By default,
             %                    check every 4 seconds

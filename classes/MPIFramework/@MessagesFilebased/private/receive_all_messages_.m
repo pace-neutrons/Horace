@@ -10,8 +10,10 @@ if any(this_tid)
     tid_requested = tid_requested(~this_tid);
 end
 
+synchronize = true;
 if ~exist('mess_name','var')
     mess_name = '';
+    synchronize = false;
 end
 all_messages = cell(numel(tid_requested),1);
 tid_received_from = zeros(numel(tid_requested),1);
@@ -45,6 +47,9 @@ while ~all_received
         end
         [message_names,tid_from] = list_all_messages_(obj,tid_requested,mess_name);
         tid_exist = ismember(tid_requested,tid_from);
+    end
+    if ~synchronize
+        all_received = true;
     end
     
 end

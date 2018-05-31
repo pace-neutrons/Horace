@@ -52,34 +52,7 @@ classdef aMessage
         %
         function not = ne(obj,b)
             % implementation of operator ~= for aMessage class
-            if numel(obj) ~=numel(b)
-                not = true;
-                return;
-            end
-            if ~strcmp(class(obj),class(b))
-                not = true;
-                return;
-            end
-            fn1 = properties(obj);
-            for i=1:numel(fn1)
-                if ~strcmp(class(obj.(fn1{i})),class(b.(fn1{i})))
-                    not = true;
-                    return
-                end
-                if ischar(obj.(fn1{i}))
-                    if ~strcmp(obj.(fn1{i}),b.(fn1{i}))
-                        not = true;
-                        return
-                    end
-                    
-                else
-                    if (obj.(fn1{i})~=b.(fn1{i}))
-                        not = true;
-                        return
-                    end
-                end
-            end
-            not = false;
+            not = ~equal_to_tol(obj,b);
         end
     end
     methods(Access=protected)

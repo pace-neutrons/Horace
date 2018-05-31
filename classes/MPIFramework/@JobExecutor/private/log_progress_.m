@@ -13,7 +13,7 @@ function  log_progress_(obj,step,n_steps,time_per_step,add_info)
 % Throws MESSAGE_FRAMEWORK:cancelled error in case the job has
 %
 mess = LogMessage(step,n_steps,time_per_step,add_info);
-[~,~,fin_mess] = reduce_messages_(obj,mess,[],true,'running');
+[~,~,fin_mess] = reduce_messages_(obj,mess,[],false,'running');
 if obj.labIndex == 1
     if isa(fin_mess,'LogMessage') % calculate avarage logs
         all_logs = fin_mess.payload;

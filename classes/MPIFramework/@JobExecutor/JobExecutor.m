@@ -131,11 +131,11 @@ classdef JobExecutor
             %                          cellarray and become the payload of
             %                          the final message, sent to head
             %                          node.
-            % no_sync  -- if present and true, the command would not wait
-            %             for all messages from workers to arrive and
-            %             processes only existing messages. if absent or
-            %             false, the method would wait until similar
-            %             messages are received from all workers in the pool.
+            % syncronyze - if true or absent the the method would wait until
+            %             similar messages are received from all workers in
+            %             the pool. if false, the method will process only
+            %             existing messages.
+            % 
             %
             [ok,err,the_mess,obj] = reduce_messages_(obj,mess,varargin{:});
             if obj.labIndex == 1
@@ -163,7 +163,11 @@ classdef JobExecutor
         %------------------------------------------------------------------
         function id = get.labIndex(obj)
             % get number (job id) of current running job
-            id = obj.mess_framework_.labIndex;
+            if ~isempty(obj.mess_framework_)
+                id = obj.mess_framework_.labIndex;
+            else
+                id  = -1;
+            end
         end
         %
         function out = get.task_outputs(obj)

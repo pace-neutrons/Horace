@@ -32,5 +32,5 @@ obj.loop_data_     = InitMessage.loop_data;
 obj.return_results_= InitMessage.return_results;
 obj.n_first_iteration_= InitMessage.n_first_step;
 %
-[~,err,obj]=obj.reduce_send_message('started',[],false);
+[~,err,obj]=obj.reduce_send_message('started',[],true);
 

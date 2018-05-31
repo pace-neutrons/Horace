@@ -1,5 +1,5 @@
-function [outputs,n_failed,task_ids,this]=...
-    send_tasks_to_workers_(this,...
+function [outputs,n_failed,task_ids,obj]=...
+    send_tasks_to_workers_(obj,...
     task_class_name,common_params,loop_params,return_results,...    
     n_workers,keep_workers_running,task_query_time)
 % send range of jobs to execute by external program
@@ -51,26 +51,29 @@ if ~exist('keep_workers_running','var')
 end
 
 if exist('task_query_time','var') && ~isempty(task_query_time)
-    this.task_check_time  = task_query_time;
+    obj.task_check_time  = task_query_time;
 end
 
-mf = this.mess_framework_;
+mf = obj.mess_framework_;
 
 % initialize cluster
 par_fm = parallel_config();
 [cluster_wrp,exit_worker_when_job_ends] = par_fm.get_cluster_wrapper(n_workers,mf);
 clob_mf = onCleanup(@()finalize_all(cluster_wrp));
 
+if keep_workers_running % store cluster for job resubmittion
+    obj.cluster_ = cluster_wrp;
+end
 
 
 % split job
 [task_ids,taskInitMessages]=...
-    this.split_tasks(common_params,loop_params,return_results,n_workers);
+    obj.split_tasks(common_params,loop_params,return_results,n_workers);
 je_init_message = mf.build_je_init(task_class_name,exit_worker_when_job_ends,keep_workers_running);
 
 cluster_wrp = cluster_wrp.start_job(je_init_message,@worker,taskInitMessages);
 
-waiting_time = this.task_check_time;
+waiting_time = obj.task_check_time;
 pause(waiting_time );
 
 [completed,cluster_wrp]=cluster_wrp.check_progress();
@@ -81,4 +84,4 @@ while(~completed)
     [completed,cluster_wrp]=cluster_wrp.check_progress();    
     cluster_wrp = cluster_wrp.display_progress();   
 end
-[outputs,n_failed,this]=  cluster_wrp.retrieve_results();
+[outputs,n_failed,obj]=  cluster_wrp.retrieve_results();

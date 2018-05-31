@@ -23,7 +23,8 @@ mis.is_deployed = true;
 % other unit tests. The production job finishes Matlab and clean-up is not necessary
 % though doing no harm.
 clot = onCleanup(@()(setattr(mis,'is_deployed',false)));
-
+me = mess_cash.instance();
+clob = onCleanup(@()delete(me));
 
 control_struct = iMessagesFramework.deserialize_par(worker_controls_string);
 % Initalize config files to use on remote session. Needs to be initialized
@@ -46,10 +47,18 @@ init_message =  InitMessage('dummy_not_used',3,true,1);
 
 je = JETester();
 [je,mess] = je.init(fbMPI,control_struct,init_message);
+% if je.labIndex ~= 1
+%     pause(0.5)
+% end
+
 if ~isempty(mess)
     err = sprinft(' Error sending ''started'' message from task N%d',...
         fbMPI.labIndex);
     error('WORKER:init_worker',err);
 end
 je.task_outputs = sprintf(' finished job for lab %d',labindex());
+% if je.labIndex ~= 1
+%     pause(0.5)
+% end
 ok=je.finish_task();
+
