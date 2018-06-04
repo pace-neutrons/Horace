@@ -1,4 +1,4 @@
-function [ok,err,fin_mess,obj] = reduce_messages_(obj,mess,mess_process_function,synchronize,reduction_name)
+function [ok,err,fin_mess,obj] = reduce_messages_(obj,mess,mess_process_function,lock_until_received,reduction_name)
 % reduce all messages and build final message as the result of all similar
 % messages on the workers
 % Inputs:
@@ -33,8 +33,8 @@ if exist('mess_process_function','var') && ~isempty(mess_process_function)
 else
     mes_proc_f = @default_mess_process_function;
 end
-if ~exist('synchronize','var')
-    synchronize = true;
+if ~exist('lock_until_received','var')
+    lock_until_received = true;
 end
 if ~exist('reduction_name','var')
     reduction_name = mess_name;
@@ -51,11 +51,15 @@ if isempty(mf) % something wrong, framework deleted
 end
 
 if mf.labIndex == 1
-    if synchronize
-        [all_messages,~,mf] = mf.receive_all('all',reduction_name);        
+    if lock_until_received
+        [all_messages,~,mf] = mf.receive_all('all',reduction_name);
     else
         [~,task_ids] = mf.probe_all('all',reduction_name);
-        [all_messages,~,mf] = mf.receive_all(task_ids,reduction_name);        
+        if numel(task_ids) > 0
+            [all_messages,~,mf] = mf.receive_all(task_ids,reduction_name);
+        else
+            all_messages = {};
+        end
     end
     all_messages = [{the_mess};all_messages];
     
@@ -87,7 +91,6 @@ if ~all_ok
     %all_payload(~ok) = all_messages(~ok);
     fin_message.payload = all_payload;
 else
-    
     fin_message = all_messages{1};
     fin_message.payload = all_payload;
 end

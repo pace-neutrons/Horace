@@ -108,9 +108,14 @@ classdef JobExecutor
         end
         %
         function [ok,mess] =finish_task(this,varargin)
-            % Clearly finish job execution amd inform head node about
+            % Cleanly finish job execution amd inform head node about it
             %
             %Usage:
+            %>>[ok,mess] = obj.finish_task();
+            %>>[ok,mess] = obj.finish_task(SomeMessage);
+            %Where the first form normally waits untill all workers return
+            %'completed' message to the lab == 1 while the second form
+            % expects return of SomeMessage (usually 'failed' message)
             %
             [ok,mess] = finish_task_(this,varargin{:});
         end
@@ -135,7 +140,7 @@ classdef JobExecutor
             %             similar messages are received from all workers in
             %             the pool. if false, the method will process only
             %             existing messages.
-            % 
+            %
             %
             [ok,err,the_mess,obj] = reduce_messages_(obj,mess,varargin{:});
             if obj.labIndex == 1
@@ -165,7 +170,7 @@ classdef JobExecutor
             % get number (job id) of current running job
             if ~isempty(obj.mess_framework_)
                 id = obj.mess_framework_.labIndex;
-            else
+            else % class has not been initiated properly
                 id  = -1;
             end
         end

@@ -23,7 +23,7 @@ classdef test_mess_cash < TestCase
             tid = [3,4,5,9];
             
             mc = mess_cash.instance(10);
-            mc.clear();            
+            mc.clear();
             assertEqual(mc.cash_capacity,10)
             
             mc.push_messages(tid,mess_list);
@@ -48,7 +48,7 @@ classdef test_mess_cash < TestCase
             assertEqual(numel(tid ),3)
             assertEqual(tid(1),4);
             assertEqual(tid(2),5);
-            assertEqual(tid(3),9);           
+            assertEqual(tid(3),9);
             assertTrue(strcmp(mess_rec{3}.mess_name,'failed'));
             assertEqual(mc.cash_capacity,10)
             %  failed messaged are persistent so should not be
@@ -82,6 +82,31 @@ classdef test_mess_cash < TestCase
             assertTrue(strcmp(mess_rec{1}.mess_name,'failed'));
             
         end
+        function test_cash_single(obj)
+            
+            mc = mess_cash.instance(10);
+            mc.clear();
+            assertEqual(mc.cash_capacity,10)
+            
+            mc.push_messages(3 ,aMessage('running'));
+            mc.push_messages(5 ,aMessage('running'));
+            mc.push_messages(7 ,aMessage('completed'));
+            mc.push_messages(9 ,aMessage('failed'));
+            mc.push_messages(10 ,aMessage('running'));
+            
+            assertEqual(mc.cash_capacity,10)
+            assertEqual(mc.get_n_occupied(),5)
+            
+            [mess_rec,tid ] = mess_cash.instance().pop_messages(6:10,'running');
+            assertEqual(numel(mess_rec),2)
+            assertEqual(numel(tid ),2)
+            assertEqual(tid(1),9);
+            assertEqual(tid(2),10);
+            assertTrue(strcmp(mess_rec{1}.mess_name,'failed'));
+            
+            assertEqual(mc.get_n_occupied(),4)
+        end
+        
     end
     
 end

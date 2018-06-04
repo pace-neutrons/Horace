@@ -37,18 +37,22 @@ while ~all_received
         tid_received_from(i) = tid_requested(i);
     end
     n_received  = n_received +numel(tid_from);
-    if n_received >= n_requested
-        all_received = true;
-    else
-        t1 = toc(t0);
-        if t1>obj.time_to_fail_
-            error('FILEBASED_MESSAGES:runtime_error',...
-                'Timeout waiting for receiving all messages')
+    
+    if synchronize        
+        if n_received >= n_requested
+            all_received = true;
+        else
+            t1 = toc(t0);
+            if t1>obj.time_to_fail_
+                error('FILEBASED_MESSAGES:runtime_error',...
+                    'Timeout waiting for receiving all messages')
+            end
+            [message_names,tid_from] = list_all_messages_(obj,tid_requested,mess_name);
+            tid_exist = ismember(tid_requested,tid_from);
         end
-        [message_names,tid_from] = list_all_messages_(obj,tid_requested,mess_name);
-        tid_exist = ismember(tid_requested,tid_from);
-    end
-    if ~synchronize
+        
+        pause(0.1);
+    else
         all_received = true;
     end
     

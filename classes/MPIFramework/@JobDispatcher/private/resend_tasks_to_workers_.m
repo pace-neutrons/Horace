@@ -1,13 +1,15 @@
 function [outputs,n_failed,task_ids,obj]=...
-    send_tasks_to_workers_(obj,...
+    resend_tasks_to_workers_(obj,...
     task_class_name,common_params,loop_params,return_results,...
-    n_workers,keep_workers_running,task_query_time)
-            % send parallel job to be executed by Matlab cluster
+    keep_workers_running,task_query_time)
+% restart parallel Matlab job started earlier by start_job command,
+% providing it with new data. The cluster must be running
+
 %
 % Usage:
 %>>jd = JobDispatcher();
 %>>[outputs,n_failed,task_ids,jd]= jd.send_jobs(task_class_name,task_param_list,...
-%                               [number_of_workers,[task_query_time]])
+%                               [task_query_time])
 %Where:
 % job_class_name -- name of the class - child of jobExecutor,
 %                   which will process task on a separate worker
@@ -43,24 +45,15 @@ function [outputs,n_failed,task_ids,obj]=...
 if ~exist('keep_workers_running','var')
     keep_workers_running = false;
 end
-
 if exist('task_query_time','var') && ~isempty(task_query_time)
     obj.task_check_time  = task_query_time;
 end
-
-mf = obj.mess_framework_;
-
-% initialize cluster
-par_fm = parallel_config();
-cluster_wrp = par_fm.get_cluster_wrapper(n_workers,mf);
-
-
-if keep_workers_running % store cluster pointer for job resubmittion
-    obj.cluster_       = cluster_wrp;
-    obj.job_destroyer_ = onCleanup(@()finalize_all(cluster_wrp));
-else
-    clob_mf = onCleanup(@()finalize_all(cluster_wrp));
+if isempty(obj.cluster_)
+    error('JOB_DISPATCHER:runtime_error',...
+        'Attempt to restart job when the cluster is not running');
 end
+
+cluster_wrp = obj.cluster_;
 
 [outputs,n_failed,task_ids,obj] = submit_and_run_job_(obj,task_class_name,...
     common_params,loop_params,return_results,...

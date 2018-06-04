@@ -148,6 +148,21 @@ classdef MessagesFilebased < iMessagesFramework
             % framework and delete the framework itself
             delete_job_(obj);
         end
+        function clear_messages(obj)
+            finished = false;
+            while ~finished
+                [all_messages,mid_from] = list_all_messages_(obj);
+                if isempty(all_messages)
+                    finished = true;
+                    continue;
+                end
+                
+                for i=1:numel(mid_from)
+                    mess_fname = obj.job_stat_fname_(obj.labIndex,all_messages{i},mid_from(i));
+                    delete(mess_fname);
+                end
+            end
+        end
         function ok=labBarrier(obj)
             ok=wait_at_barrier_(obj);
         end

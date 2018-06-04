@@ -180,11 +180,18 @@ classdef MessagesParpool < iMessagesFramework
             %
             [all_messages,task_ids,obj] = receive_all_messages_(obj,varargin{:});
         end
-        %
         function finalize_all(obj)
+            obj.clear_messages();
+        end
+        %
+        function clear_messages(obj)
             % delete all messages belonging to this instance of messages
-            % framework and delete the framework itself
-            delete_job_(obj);
+            %
+            [isDataAvail,srcWkrIdx,tag] = labProbe();
+            while isDataAvail
+                labReceive(srcWkrIdx,tag);
+                [isDataAvail,srcWkrIdx,tag] = labProbe();                
+            end
         end
         function ok=labBarrier(obj)
             labBarrier;

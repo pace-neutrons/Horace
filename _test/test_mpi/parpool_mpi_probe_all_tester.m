@@ -81,6 +81,7 @@ else %sender
     %res = ok1;
     %err = err1;
 end
+pm.clear_messages();
 
 function ind = cycle_ind(ind0,period)
 ind = ind0;

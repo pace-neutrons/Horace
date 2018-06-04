@@ -40,5 +40,6 @@ end
 if ~ok
     res = -2;
 end
+pm.clear_messages();
 
 

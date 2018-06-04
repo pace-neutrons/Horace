@@ -39,16 +39,18 @@ if obj.labIndex == 1
         
         n_steps_done = n_steps_done/n_tasks;
         tps = tps/n_tasks;
-        mess = LogMessage(n_steps_done ,n_steps_to_do,tps,add_info);
-        mess  = mess.set_worker_logs(all_logs);
-        obj.control_node_exch.send_message(0,mess);
-    else % may be fail message if some of the worers were failed.
+        fin_mess = LogMessage(n_steps_done ,n_steps_to_do,tps,add_info);
+        fin_mess  = fin_mess.set_worker_logs(all_logs);
+    else % may be fail message if some of the workers were failed.
         % Will not be fail message if this node have failed, as it will go
         % in other path
-        obj.control_node_exch.send_message(0,fin_mess);
     end
-    
+    obj.control_node_exch.send_message(0,fin_mess);
 end
-
+if strcmp(fin_mess.mess_name,'failed')
+    error('JOB_EXECUTOR:runtime_error',...
+        ' interupting worker N%d, at log point as other worker(s) reported failure',...
+        obj.labIndex);
+end
 
 

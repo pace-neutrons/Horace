@@ -29,7 +29,7 @@ else
             completed = check_completed(tag);
             obj.status = mess;
             if completed
-                me.receive_all(1);
+                me.clear_messages();
                 break;
             end
         end

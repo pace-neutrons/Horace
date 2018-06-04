@@ -73,7 +73,11 @@ end
 
 % take only the first message directed to this lab
 mess_fname = obj.job_stat_fname_(obj.labIndex,mess_names{1},mid_from(1));
-
+if strcmp(mess_names{1},'failed')
+    is_failed = true;
+else
+    is_failed = false;
+end
 %
 % safeguard against message start being written up
 % but have not finished yet when dispatcher asks for it
@@ -101,7 +105,9 @@ end
 message = mesl.message;
 err_code  =MESS_CODES.ok;
 err_mess=[];
-delete(mess_fname);
+if ~is_failed  % make failed message persistent
+    delete(mess_fname);
+end
 
 
 function [is,err_code,err_message] = check_job_canceled(obj)

@@ -35,4 +35,5 @@ if obj.labIndex == 1
         ok  = false;
     end
 end
+obj.mess_framework.clear_messages();
 

@@ -214,16 +214,14 @@ classdef parallel_config<config_base
         end
         
         %-----------------------------------------------------------------
-        function [controller,exit_worker_when_job_ends] = get_cluster_wrapper(obj,n_workers,cluster_to_host_exch_fmwork)
+        function [controller] = get_cluster_wrapper(obj,n_workers,cluster_to_host_exch_fmwork)
             % return the appropriate job controller
             fram = obj.parallel_framework;
             switch(fram)
                 case('herbert')
                     controller = ClusterHerbert(n_workers,cluster_to_host_exch_fmwork);
-                    exit_worker_when_job_ends = true;
                 case('parpool')
                     controller = ClusterParpoolWrapper(n_workers,cluster_to_host_exch_fmwork);
-                    exit_worker_when_job_ends = false;                    
                 otherwise
                     error('PARALLEL_CONFIG:runtime_error',...
                         'Got unknown parallel framework: %s',fram);

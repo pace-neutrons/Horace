@@ -68,10 +68,6 @@ classdef ClusterParpoolWrapper < ClusterWrapper
                     'parpool culster for job %s finished before startgin any job. State: %s',...
                     obj.job_id,obj.status_name);
             end
-        end
-        %
-        function obj = start_job(obj,je_init_message,hWorker,task_init_mess)
-            %
             % delete interactive parallel cluster if any exist
             cl = gcp('nocreate');
             if ~isempty(cl)
@@ -85,9 +81,13 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             % batch job.
             % actually submit the job
             cjob = obj.current_job_;
-            task = createTask(cjob,hWorker,0,{cs});
+            task = createTask(cjob,@worker,0,{cs});
             obj.task_ = task;
             submit(cjob);
+        end
+        %
+        function obj = start_job(obj,je_init_message,task_init_mess)
+            %
             obj = obj.init_cluster_job(je_init_message,task_init_mess);
         end
         function [completed,obj] = check_progress(obj,varargin)
@@ -108,15 +108,19 @@ classdef ClusterParpoolWrapper < ClusterWrapper
                         mess_texst = obj.task_.ErrorMessage;
                         err = obj.task_.Error;
                         if ~isa(obj.current_status_,'FailMessage')
-                            obj.current_status_ = FailMessage(...
-                                sprintf('cluster job %s failed returning error:  %s, code: %s',...
-                                obj.job_id,mess_texst,obj.cluster_cur_state_ ),...
-                                err);
+                            pause(1);
+                            [completed, obj] = check_progress@ClusterWrapper(obj,varargin{:});
+                            if ~completed
+                                obj.current_status_ = FailMessage(...
+                                    sprintf('cluster job %s failed returning error:  %s, code: %s',...
+                                    obj.job_id,mess_texst,obj.cluster_cur_state_ ),...
+                                    err);
+                                completed = true;
+                            end
                         end
-                        completed = true;                        
                     else % finished
                         if ~completed
-                            [completed, obj] = check_progress@ClusterWrapper(obj);                        
+                            [completed, obj] = check_progress@ClusterWrapper(obj);
                         end
                         if ~strcmpi(obj.current_status_.mess_name,'completed')
                             if ~completed
@@ -169,6 +173,9 @@ classdef ClusterParpoolWrapper < ClusterWrapper
         %             end
         %             obj = set_cluster_status@ClusterWrapper(obj,mess);
         %         end
+        function ex = exit_worker_when_job_ends_(obj)
+            ex  = false;
+        end
         
     end
 end

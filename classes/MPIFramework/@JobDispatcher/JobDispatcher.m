@@ -12,7 +12,7 @@ classdef JobDispatcher
     % $Revision$ ($Date$)
     %
     %
-    properties(Dependent)       
+    properties(Dependent)
         % how often (in second) job dispatcher should query the task status
         task_check_time;
         % fail limit -- number of times to try action until deciding the
@@ -34,9 +34,12 @@ classdef JobDispatcher
         %
         % The framework to exchange messages with the tasks
         mess_framework_;
+        time_to_fail_  = 300; %300sec, 5 min
+        
         % holder for initiated cluster allowing to resubmit jobs
         cluster_ = [];
-        time_to_fail_  = 300; %300sec, 5 min
+        % the holder for the object performing job clean-up operations
+        job_destroyer_ = [];
     end
     
     methods
@@ -61,15 +64,16 @@ classdef JobDispatcher
             jd.mess_framework_  = mf;
         end
         %
-        function [outputs,n_failed,task_ids,this]=start_tasks(this,...
+        function [outputs,n_failed,task_ids,this]=start_job(this,...
                 job_class_name,common_params,loop_params,return_results,...
                 number_of_workers,keep_workers_running,task_query_time)
-            % send range of jobs to execute by external program
+            % send parallel job to be executed by Matlab cluster
             %
             % Usage:
-            % [n_failed,outputs,task_ids] = ...
-            %     start_tasks(this,job_class_name,common_params,loop_params,...
+            % [n_failed,outputs,task_ids,this] = ...
+            %     this.start_job(job_class_name,common_params,loop_params,...
             %    [number_of_workers,[job_query_time]])
+            %
             %Where:
             % job_class_name -- name of the class - child of jobExecutor,
             %                   which will process task on a separate worker
@@ -103,26 +107,88 @@ classdef JobDispatcher
             if ~exist('task_query_time','var')
                 task_query_time = 4;
             end
+            if ~exist('keep_workers_running','var')
+                keep_workers_running = false;
+            end
             [outputs,n_failed,task_ids,this]=send_tasks_to_workers_(this,...
                 job_class_name,common_params,loop_params,return_results,...
                 number_of_workers,keep_workers_running,task_query_time);
         end
         %
+        function [outputs,n_failed,task_ids,this]=restart_job(this,...
+                job_class_name,common_params,loop_params,return_results,...
+                keep_workers_running,task_query_time)
+            % restart parallel Matlab job started earlier by start_job command,
+            % providing it with new data. The cluster must be running
+            %
+            % Usage:
+            % [n_failed,outputs,task_ids,this] = ...
+            %     this.restart_job(this,job_class_name,common_params,loop_params,...
+            %    ,[job_query_time]])
+            %
+            %Where:
+            % job_class_name -- name of the class - child of jobExecutor,
+            %                   which will process task on a separate worker
+            % common_params  -- a structure, containing the parameters, common
+            %                   for any loop iteration
+            % loop_params    -- either cellarray of structures, specific
+            %                   with each cell specific to a loop iteration
+            %                   or the number of iterations to do over
+            %                   common_params (which may depend on the
+            %                   iteration number)
+            %
+            % Optional:
+            % keep_workers_running -- true if workers should not finish
+            %                    after the task is completed and wait for
+            %                    the task to be resubmitted.
+            %
+            % task_query_time -- if present -- time interval in seconds to
+            %                    check if tasks are completed. By default,
+            %                    check every 4 seconds
+            %
+            % Returns
+            % n_failed  -- number of tasks that have failed.
+            % outputs   -- cellarray of outputs from each task.
+            %              Empty if tasks do not return anything
+            % task_ids   -- cellarray containing relation between task_id
+            %              (task number) and task parameters from
+            %               tasks_param_list, assigned to this task
+            %
+            if ~exist('task_query_time','var')
+                task_query_time = 4;
+            end
+            [outputs,n_failed,task_ids,this]=resend_tasks_to_workers_(this,...
+                job_class_name,common_params,loop_params,return_results,...
+                keep_workers_running,task_query_time);
+        end
+        
+        %
         function [task_id_list,init_mess]=split_tasks(this,common_par,loop_par,n_workers,return_outputs)
-            % divide list of job parameters among given number of workers
+            % Divide list of job parameters among given number of workers
             % and generate list of init messages for the subtasks
             %
             %Inputs:
-            %job_param_list -- cellarray of classes or structures, containing task parameters
+            % common_param  -- the structure, containing the parameters
+            %                  common for all workers and all iterations
+            %
+            % loop_par      -- cellarray of classes or structures, containing task parameters
             %                  or number of iterations in the parallel
             %                  loop.
             %
             %n_workers      -- number of workers to split job between workers
             %
-            % returns: cell array of indexes from job_param_list dedicated to run on a
-            % worker.
+            % return_outputs -- if true, job must return its outputs
+            %
+            %Returns:
+            % task_id_list  -- cell array of indexes from job_param_list dedicated
+            %                  to run on a worker. Cellarray would contain
+            %                  the list of indexes from loop_par if loop_par
+            %                  is a cellarray or cellarray of pairs in the
+            %                  form n_first:n_points if loop_par is the number
+            % init_mess     -- size n_workers cellarray of messages containing
+            %                  initialization information for workers
             [task_id_list,init_mess]=split_tasks_(this,common_par,loop_par,n_workers,return_outputs);
-        end        
+        end
         %------------------------------------------------------------------
         function limit = get.fail_limit(this)
             limit  = this.fail_limit_;
@@ -155,10 +221,19 @@ classdef JobDispatcher
         end
         
         function mf = get.mess_framework(obj)
+            % return class, used to communicate with the cluster
             mf = obj.mess_framework_;
         end
         function id = get.job_id(obj)
+            % return unique string, describing the job
             id = obj.mess_framework_.job_id;
+        end
+        %
+        function obj = delete(obj)
+            % destructor. As this is not a handle class, invalid cluster_
+            % object may remain if delete does not asigned to a new object
+            obj.cluster_ = [];
+            obj.job_destroyer_ = [];
         end
     end
 end

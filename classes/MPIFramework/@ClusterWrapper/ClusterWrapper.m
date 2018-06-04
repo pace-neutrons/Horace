@@ -6,7 +6,7 @@ classdef ClusterWrapper
     %
     %----------------------------------------------------------------------
     properties(Dependent)   %
-        % the property identifies that wrapper received the message that
+         % the property identifies that wrapper received the message that
         % the cluster status have changed
         status_changed;
         % the current cluster status, usually defined by status message
@@ -20,6 +20,10 @@ classdef ClusterWrapper
         job_id
         % number of workers in the cluster
         n_workers;
+        % for parpool worker this should not happen as MPI framework
+        % reports failure, while for java worker this should be expected
+        % behaviour
+        exit_worker_when_job_ends;
     end
     properties(Access = protected)
         n_workers_   = 0;
@@ -73,6 +77,7 @@ classdef ClusterWrapper
             % verifies status message, received by other means
             [completed,obj] = check_progress_(obj,varargin{:});
         end
+        %
         function obj = display_progress(obj,varargin)
             % report job progress using internal state of the cluster
             % derived by executing check_progress method
@@ -144,6 +149,9 @@ classdef ClusterWrapper
         function len = get.log_wrap_length(obj)
             len = obj.LOG_MESSAGE_WRAP_LENGTH;
         end
+        function ex = get.exit_worker_when_job_ends(obj)
+            ex = exit_worker_when_job_ends_(obj);
+        end
     end
     methods(Access=protected)
         function obj = generate_log(obj,varargin)
@@ -170,6 +178,10 @@ classdef ClusterWrapper
             end
             
         end
+        function ex = exit_worker_when_job_ends_(obj)
+            ex  = true;
+        end
+        
     end
 end
 

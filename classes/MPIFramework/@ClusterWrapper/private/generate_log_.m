@@ -50,11 +50,11 @@ end
 info = sprintf('***Job : %s : state: %8s |',obj.job_id,stateMess.mess_name);
 if isa(stateMess,'LogMessage')
     if stateMess.time_per_step == 0
-        info = [info, sprintf('Step#%d/%d, Estimated time left:  Unknown | ',...
+        info = [info, sprintf('Step#%f/%d, Estimated time left:  Unknown | ',...
             stateMess.step,stateMess.n_steps),stateMess.add_info];
     else
         time_left = (stateMess.n_steps-stateMess.step)*stateMess.time_per_step/60;
-        info = [info, sprintf('Step#%d/%d, Estimated time left: %4.2f(min)| ',...
+        info = [info, sprintf('Step#%f/%d, Estimated time left: %4.2f(min)| ',...
             stateMess.step,stateMess.n_steps,time_left),stateMess.add_info];
     end
 elseif stateMess.tag == MESS_NAMES.mess_id('failed')

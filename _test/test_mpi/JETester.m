@@ -32,6 +32,8 @@ classdef JETester < JobExecutor
             task_num = obj.labIndex;
             disp('****************************************************');
             disp([' n_files: ',num2str(n_steps)]);
+            %fh = mess_cash.instance().log_file_h;            
+            %fprintf(fh,'entering do-job loop\n');            
             job_par = obj.common_data_;
             if isfield(job_par,'fail_for_labsN')
                 labnums2fail = job_par.fail_for_labsN;
@@ -54,14 +56,14 @@ classdef JETester < JobExecutor
                 disp('****************************************************');
                 disp(['finished test job generating test file: ',filename]);
                 disp('****************************************************');
-
+                %fprintf(fh,'logging progress for step %d ',ji);            
                 obj.log_progress(n_steps_done,n_steps,toc(t0)/n_steps_done,'');
+                %fprintf(fh,'completed\n');                            
             end
             if obj.return_results_
                 out_str = sprintf('Job %d generated %d files',task_num,n_steps);
                 obj.task_results_holder_ = out_str;
             end
-            
         end
         function  obj=reduce_data(obj)
             obj.is_finished_ = true;
