@@ -146,7 +146,7 @@ classdef MessagesParpool < iMessagesFramework
             [messages_name,task_id] = labProbe_messages_(obj,varargin{:});
         end
         %
-        function [all_messages,task_ids,obj] = receive_all(obj,varargin)
+        function [all_messages,task_ids] = receive_all(obj,varargin)
             % retrieve (and remove from system) all messages
             % existing in the system for the tasks with id-s specified as input
             % dublicated messages sent from the same task id are discarded
@@ -178,7 +178,7 @@ classdef MessagesParpool < iMessagesFramework
             %                 the recieve_all method.
             %
             %
-            [all_messages,task_ids,obj] = receive_all_messages_(obj,varargin{:});
+            [all_messages,task_ids] = receive_all_messages_(obj,varargin{:});
         end
         function finalize_all(obj)
             obj.clear_messages();

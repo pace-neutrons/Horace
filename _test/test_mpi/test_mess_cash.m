@@ -15,6 +15,7 @@ classdef test_mess_cash < TestCase
         end
         
         function test_cash_operations(obj)
+            mess_cash.instance('delete');
             
             mess_list{1} = aMessage('running');
             mess_list{2} = aMessage('running');
@@ -22,9 +23,9 @@ classdef test_mess_cash < TestCase
             mess_list{4} = aMessage('failed');
             tid = [3,4,5,9];
             
-            mc = mess_cash.instance(10);
+            mc = mess_cash.instance(9);
             mc.clear();
-            assertEqual(mc.cash_capacity,10)
+            assertEqual(mc.cash_capacity,9)
             
             mc.push_messages(tid,mess_list);
             
@@ -33,14 +34,14 @@ classdef test_mess_cash < TestCase
             assertEqual(numel(tid ),2)
             assertEqual(tid(1),3);
             assertEqual(tid(2),4);
-            assertEqual(mc.cash_capacity,10)
+            assertEqual(mc.cash_capacity,9)
             
             mess_list1{1} = aMessage('running');
             mess_list1{2} = aMessage('completed');
             tid = [3,4];
             mc.push_messages(tid,mess_list1);
             
-            assertEqual(mc.cash_capacity,10)
+            assertEqual(mc.cash_capacity,9)
             assertEqual(mc.get_n_occupied(),4);
             
             [mess_rec,tid ] = mess_cash.instance().pop_messages([],'completed');
@@ -50,13 +51,15 @@ classdef test_mess_cash < TestCase
             assertEqual(tid(2),5);
             assertEqual(tid(3),9);
             assertTrue(strcmp(mess_rec{3}.mess_name,'failed'));
-            assertEqual(mc.cash_capacity,10)
+            assertEqual(mc.cash_capacity,9)
             %  failed messaged are persistent so should not be
             % removed from the cash while all other should
             assertEqual(mc.get_n_occupied(),2);
             
         end
         function test_cash_boolean(obj)
+            mess_cash.instance('delete');
+            
             mess_list = cell(1,10);
             tid = [3,5,7,9,10];
             mess_list{tid(1)} = aMessage('running');
@@ -83,10 +86,10 @@ classdef test_mess_cash < TestCase
             
         end
         function test_cash_single(obj)
-            
-            mc = mess_cash.instance(10);
+            mess_cash.instance('delete');
+            mc = mess_cash.instance(11);
             mc.clear();
-            assertEqual(mc.cash_capacity,10)
+            assertEqual(mc.cash_capacity,11)
             
             mc.push_messages(3 ,aMessage('running'));
             mc.push_messages(5 ,aMessage('running'));
@@ -94,7 +97,7 @@ classdef test_mess_cash < TestCase
             mc.push_messages(9 ,aMessage('failed'));
             mc.push_messages(10 ,aMessage('running'));
             
-            assertEqual(mc.cash_capacity,10)
+            assertEqual(mc.cash_capacity,11)
             assertEqual(mc.get_n_occupied(),5)
             
             [mess_rec,tid ] = mess_cash.instance().pop_messages(6:10,'running');

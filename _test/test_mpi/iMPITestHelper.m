@@ -25,7 +25,8 @@ classdef iMPITestHelper<iMessagesFramework
         end
         function ok = labBarrier(obj)
         end
-        
+        function clear_messages(obj)
+        end        
         %------------------------------------------------------------------
         % delete all messages belonging to this instance of messages
         % framework and shut the framework down.

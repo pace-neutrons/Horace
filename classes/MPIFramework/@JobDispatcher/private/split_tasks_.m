@@ -1,4 +1,4 @@
-function [worker_par_list,init_messages]=split_tasks_(obj,...
+function [worker_par_list,init_messages]=split_tasks_(...
     common_par,loop_par,return_outputs,n_workers)
 % divide list of job parameters among given number of workers
 %
@@ -30,7 +30,7 @@ end
 
 
 function [n_workers,worker_par_list,is_list] = tasks_indexes(job_param_list,n_workers)
-% get subtasks indexes
+% get subtasks indexes, dividing input parameter list between defined number of workers.
 %
 if iscell(job_param_list) % the tasks are described by cellarray
     n_tasks = numel(job_param_list);

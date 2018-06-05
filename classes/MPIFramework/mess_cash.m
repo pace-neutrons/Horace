@@ -30,8 +30,9 @@ classdef mess_cash < handle
             persistent cash;
             if nargin>0
                 if ischar(varargin{1}) % clear cash holder
+                    clear cash;
                     cash = [];
-                    argi = {};
+                    return;
                 else
                     argi = varargin;
                 end
@@ -120,6 +121,7 @@ classdef mess_cash < handle
             noc = sum(cellfun(@(x)~isempty(x),obj.mess_cash_,'UniformOutput',true));
         end
         function clear(obj)
+            % clear cash contents without changing the cash capacity
             obj.mess_cash_ = cell(1,obj.cash_capacity_);
         end
         function fh = get.log_file_h(obj)
@@ -134,7 +136,7 @@ classdef mess_cash < handle
                 fclose(obj.log_file_h_ );
                 obj.log_file_h_  = [];
             end
-            obj.instance('clear');
+            obj.instance('delete');
         end
     end
     methods(Access = private)

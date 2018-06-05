@@ -1,6 +1,6 @@
 classdef MPI_Test_Common < TestCase
     % The class used as the parent to test various mpi exchange classes.
-    % 
+    %
     % Contains all common settings, necessary to test parpool mpi
     %   Detailed explanation goes here
     
@@ -14,7 +14,7 @@ classdef MPI_Test_Common < TestCase
         % if default current framework is not a parpool framework,
         % one needs to change the setup
         change_setup;
-
+        
     end
     properties(Access=private)
         framework_name ;
@@ -25,15 +25,15 @@ classdef MPI_Test_Common < TestCase
         function obj = MPI_Test_Common(name,varargin)
             obj = obj@TestCase(name);
             
-            pc = parallel_config;            
+            pc = parallel_config;
             if nargin > 1
                 obj.framework_name = varargin{1};
             else
-                obj.framework_name = 'parpool';                
+                obj.framework_name = 'parpool';
             end
             
             obj.working_dir = pc.working_directory;
-
+            
             if strcmp(pc.parallel_framework,obj.framework_name)
                 obj.change_setup = false;
             else
@@ -52,7 +52,7 @@ classdef MPI_Test_Common < TestCase
                 else
                     obj.ignore_test = false;
                 end
-            end            
+            end
         end
         function setUp(obj)
             if obj.change_setup
@@ -64,7 +64,7 @@ classdef MPI_Test_Common < TestCase
             if obj.change_setup
                 set(parallel_config,obj.old_config);
             end
-        end                
+        end
     end
 end
 

@@ -52,11 +52,11 @@ end
 
 if mf.labIndex == 1
     if lock_until_received
-        [all_messages,~,mf] = mf.receive_all('all',reduction_name);
+        [all_messages,~] = mf.receive_all('all',reduction_name);
     else
         [~,task_ids] = mf.probe_all('all',reduction_name);
         if numel(task_ids) > 0
-            [all_messages,~,mf] = mf.receive_all(task_ids,reduction_name);
+            [all_messages,~] = mf.receive_all(task_ids,reduction_name);
         else
             all_messages = {};
         end
@@ -74,7 +74,6 @@ else
         ok = false;
     end
 end
-obj.mess_framework_ = mf;
 
 function [all_ok,err,fin_message] = default_mess_process_function(all_messages,mess_name)
 

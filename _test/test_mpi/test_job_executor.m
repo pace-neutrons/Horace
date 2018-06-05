@@ -1,10 +1,9 @@
-classdef test_job_executor< TestCase
+classdef test_job_executor< MPI_Test_Common
     %
     % $Revision: 702 $ ($Date: 2018-02-12 19:05:22 +0000 (Mon, 12 Feb 2018) $)
     %
     
     properties
-        working_dir;
         current_config_folder;
     end
     methods
@@ -13,7 +12,8 @@ classdef test_job_executor< TestCase
             if ~exist('name','var')
                 name = 'test_job_executor';
             end
-            this = this@TestCase(name);
+            % testing this on file-based framework only
+            this = this@MPI_Test_Common(name,'herbert');
             this.working_dir = tempdir;
         end
         
@@ -186,17 +186,33 @@ classdef test_job_executor< TestCase
             % test log progress
             je3.log_progress(1,10,1,[]);
             je2.finish_task(FailMessage('simulated fail'));
-            je1.log_progress(1,9,1.3,[]);
-            
+            try
+                je1.log_progress(1,9,1.3,[]); %throws as no point to contiunue the execution after
+            catch ME
+                assertEqual(ME.identifier,'JOB_EXECUTOR:runtime_error')
+            end
+            % Server expects  to receive "running" message
             [ok,err,mess] = serverfbMPI.receive_message(1,'running');
             assertEqual(ok,MESS_CODES.ok,err);
+            % but in fact got 'failed'
             assertEqual(mess.mess_name,'failed');
             assertEqual(numel(mess.payload),3)
             assertTrue(isstruct(mess.payload{1}));
             assertTrue(isstruct(mess.payload{3}));
             assertTrue(isa(mess.payload{2},'MException'));
             
+            % Fail message is sticky so will still throw.
+            je3.log_progress(5,10,1,[]);
+            try
+                je1.log_progress(4,9,1.3,[]);
+            catch ME
+                assertEqual(ME.identifier,'JOB_EXECUTOR:runtime_error')
+            end
+            % clear all messages to remove 'fail' message
+            je1.mess_framework.clear_messages()
+            serverfbMPI.clear_messages();
             
+            % calculate run on the basis of partial message
             je3.log_progress(5,10,1,[]);
             je1.log_progress(4,9,1.3,[]);
             [ok,err,mess] = serverfbMPI.receive_message(1,'running');
@@ -379,10 +395,14 @@ classdef test_job_executor< TestCase
                 config_store.set_config_folder(cf);
             end
             clob1 = onCleanup(@()reset_config(cf));
-            % generate 3 controls to have 3 filebased MPI pseudoworkers
-            css1= serverfbMPI.gen_worker_init();
+            % generate 2 control to have 2 filebased MPI pseudoworkers with
+            % headnode 1
+            css1= serverfbMPI.gen_worker_init(1,2);
+            css2= serverfbMPI.gen_worker_init(2,2);
             
-            
+            ok = finish_task_tester(css2);
+            assertTrue(ok);
+            % this will wait until worker 2 completes
             ok = finish_task_tester(css1);
             assertTrue(ok);
             [ok,err,mess] = serverfbMPI.receive_message(1,'started');
@@ -391,8 +411,6 @@ classdef test_job_executor< TestCase
             [ok,err,mess] = serverfbMPI.receive_message(1,'completed');
             assertEqual(ok,MESS_CODES.ok,err);
             assertEqual(mess.mess_name,'completed');
-            
-            
             
         end
     end

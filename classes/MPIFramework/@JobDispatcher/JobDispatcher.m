@@ -163,32 +163,6 @@ classdef JobDispatcher
         end
         
         %
-        function [task_id_list,init_mess]=split_tasks(this,common_par,loop_par,n_workers,return_outputs)
-            % Divide list of job parameters among given number of workers
-            % and generate list of init messages for the subtasks
-            %
-            %Inputs:
-            % common_param  -- the structure, containing the parameters
-            %                  common for all workers and all iterations
-            %
-            % loop_par      -- cellarray of classes or structures, containing task parameters
-            %                  or number of iterations in the parallel
-            %                  loop.
-            %
-            %n_workers      -- number of workers to split job between workers
-            %
-            % return_outputs -- if true, job must return its outputs
-            %
-            %Returns:
-            % task_id_list  -- cell array of indexes from job_param_list dedicated
-            %                  to run on a worker. Cellarray would contain
-            %                  the list of indexes from loop_par if loop_par
-            %                  is a cellarray or cellarray of pairs in the
-            %                  form n_first:n_points if loop_par is the number
-            % init_mess     -- size n_workers cellarray of messages containing
-            %                  initialization information for workers
-            [task_id_list,init_mess]=split_tasks_(this,common_par,loop_par,n_workers,return_outputs);
-        end
         %------------------------------------------------------------------
         function limit = get.fail_limit(this)
             limit  = this.fail_limit_;
@@ -235,6 +209,35 @@ classdef JobDispatcher
             obj.cluster_ = [];
             obj.job_destroyer_ = [];
         end
+    end
+    methods(Static)
+        function [task_id_list,init_mess]=split_tasks(common_par,loop_par,n_workers,return_outputs)
+            % Divide list of job parameters among given number of workers
+            % and generate list of init messages for the subtasks
+            %
+            %Inputs:
+            % common_param  -- the structure, containing the parameters
+            %                  common for all workers and all iterations
+            %
+            % loop_par      -- cellarray of classes or structures, containing task parameters
+            %                  or number of iterations in the parallel
+            %                  loop.
+            %
+            %n_workers      -- number of workers to split job between workers
+            %
+            % return_outputs -- if true, job must return its outputs
+            %
+            %Returns:
+            % task_id_list  -- cell array of indexes from job_param_list dedicated
+            %                  to run on a worker. Cellarray would contain
+            %                  the list of indexes from loop_par if loop_par
+            %                  is a cellarray or cellarray of pairs in the
+            %                  form n_first:n_points if loop_par is the number
+            % init_mess     -- size n_workers cellarray of messages containing
+            %                  initialization information for workers
+            [task_id_list,init_mess]=split_tasks_(common_par,loop_par,n_workers,return_outputs);
+        end
+        
     end
 end
 
