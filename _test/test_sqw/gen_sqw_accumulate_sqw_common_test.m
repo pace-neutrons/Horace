@@ -158,6 +158,7 @@ classdef gen_sqw_accumulate_sqw_common_test < TestCaseWithSave
             hpc = hpc_config;
             this.initial_config = struct('hc',hc.get_data_to_store(),'hpc',hpc.get_data_to_store());
         end
+        %
         function restore_initial_config(obj)
             hc = hor_config;
             hpc = hpc_config;
@@ -204,11 +205,19 @@ classdef gen_sqw_accumulate_sqw_common_test < TestCaseWithSave
             skip= false;
         end
         %
-        function this=build_test_files(this)
-            file_exist = cellfun(@(fn)(exist(fn,'file') == 2),this.spe_file);
+        function obj=build_test_files(obj,spe_files)
+            if ~exist('spe_files','var')
+                spe_files = obj.spe_file;
+            end
+            
+            
+            file_exist = cellfun(@(fn)(exist(fn,'file') == 2),spe_files);
             if all(file_exist)
+                obj=obj.add_to_files_cleanList(spe_files{:});                
                 return;
             end
+            spe_files = spe_files(~file_exist);
+            n_files = numel(spe_files);
             
             % =====================================================================================================================
             % Make instrument and sample
@@ -221,12 +230,12 @@ classdef gen_sqw_accumulate_sqw_common_test < TestCaseWithSave
             instrument_ref.fermi_chopper=wchop;
             sample_ref=IX_sample('PCSMO',true,[1,1,0],[0,0,1],'cuboid',[0.04,0.05,0.02],1.6,300);
             
-            instrument=repmat(instrument_ref,1,this.nfiles_max);
+            instrument=repmat(instrument_ref,1,n_files);
             for i=1:numel(instrument)
                 instrument(i).IX_fermi_chopper.frequency=100*i;
             end
-            this.instrum = instrument;
-            this.sample  = sample_ref;
+            obj.instrum = instrument;
+            obj.sample  = sample_ref;
             
             %sample_1=sample_ref;
             sample_2=sample_ref;
@@ -248,15 +257,15 @@ classdef gen_sqw_accumulate_sqw_common_test < TestCaseWithSave
             clob = onCleanup(@()set(hc,um));
             hc.use_mex = false; % so use Matlab single thread to generate source sqw files
             
-            [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
-            for i=1:this.nfiles_max
-                if ~(exist(this.spe_file{i},'file') == 2)
-                    simulate_spe_testfunc (en{i}, this.par_file,this.spe_file{i}, @sqw_sc_hfm_testfunc, this.pars, this.scale,...
+            [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
+            for i=1:n_files
+                if ~(exist(spe_files{i},'file') == 2)
+                    simulate_spe_testfunc (en{i}, obj.par_file,spe_files{i}, @sqw_sc_hfm_testfunc, obj.pars, obj.scale,...
                         efix(i), emode, alatt, angdeg, u, v, psi(i), omega(i), dpsi(i), gl(i), gs(i));
                 end
             end
             
-            this=add_to_files_cleanList(this,this.spe_file{:});
+            obj=add_to_files_cleanList(obj,spe_files{:});
         end
         
         %
