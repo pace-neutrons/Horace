@@ -119,6 +119,7 @@ classdef JobExecutor
             %
             [ok,mess] = finish_task_(this,varargin{:});
         end
+        %
         function [ok,err,obj] = reduce_send_message(obj,mess,varargin)
             % collect similar messages send from all nodes and send final
             % message to the head node
@@ -178,21 +179,27 @@ classdef JobExecutor
         function out = get.task_outputs(obj)
             out = obj.task_results_holder_;
         end
+        %
         function obj = set.task_outputs(obj,val)
             obj.task_results_holder_ = val;
         end
         %
-        
         %
         function mf= get.mess_framework(obj)
+            % returns referece to MPI framework, used for exchange between
+            % MPI nodes of a cluster
             mf = obj.mess_framework_;
         end
         %
         function mf = get.control_node_exch(obj)
+            % returns reference to MPI framework, used for exchange between
+            % mpi cluster and control node.
             mf = obj.control_node_exch_;
         end
         %------------------------------------------------------------------
-        % MPI interface
+        % MPI interface (Underdeveloped, may be not necessary except
+        % is_job_cancelled)
+        %
         % overloads to exchange messages with JobDispatcher for particular job Executor
         function [ok,err_mess] = send_message(obj,targ_lab,message)
             % send message to job dispatcher
@@ -224,7 +231,6 @@ classdef JobExecutor
                     ok = true;
                 end
             end
-            
         end
         %
         function messages = receive_all_messages(obj,varargin)

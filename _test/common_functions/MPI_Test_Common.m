@@ -14,10 +14,10 @@ classdef MPI_Test_Common < TestCase
         % if default current framework is not a parpool framework,
         % one needs to change the setup
         change_setup;
-        
+        % current name of the framework to test
+        framework_name ;
     end
     properties(Access=private)
-        framework_name ;
         current_config_folder;
     end
     

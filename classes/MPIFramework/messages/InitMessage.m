@@ -49,6 +49,11 @@ classdef InitMessage < aMessage
                 obj.payload.loopData = loop_data;
                 obj.payload.n_steps   = numel(loop_data);
                 obj.payload.n_first_step  = 1;
+            elseif isstruct(loop_data)
+                fn = fieldnames(loop_data);
+                obj.payload.loopData = loop_data;
+                obj.payload.n_steps   = numel(loop_data.(fn{1}));
+                obj.payload.n_first_step  = 1;                
             else
                 obj.payload.n_steps  = loop_data;
                 obj.payload.n_first_step  = n_first_step;
