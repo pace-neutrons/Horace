@@ -14,7 +14,7 @@ function [grid_size, urange] = rundata_write_to_sqw_(run_files, sqw_file, ...
 %   instrument      Array of structures or objects containing instrument information
 %   sample          Array of structures or objects containing sample geometry information
 %   write_banner    =true then write banner; =false then done (no banner will be
-%                   written anyway if the output logging level is not low enough)
+%                   written anyway if the output logging level is not high enough)
 %
 % Output:
 % -------
@@ -41,10 +41,10 @@ end
 
 mpi_obj= MPI_State.instance();
 running_mpi = mpi_obj.is_deployed;
+
 %
 cut_range = arrayfun(@(x,y,z)get_cut_range(x,y,z),...
     urange_in(1,:),urange_in(2,:),grid_size_in,'UniformOutput',false);
-
 for i=1:nfiles
     if hor_log_level>-1 && write_banner
         disp('--------------------------------------------------------------------------------')
