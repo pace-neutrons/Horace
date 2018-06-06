@@ -86,9 +86,9 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             submit(cjob);
         end
         %
-        function obj = start_job(obj,je_init_message,task_init_mess)
+        function [obj,completed] = start_job(obj,je_init_message,task_init_mess)
             %
-            obj = obj.init_cluster_job(je_init_message,task_init_mess);
+            [obj,completed] = obj.init_workers(je_init_message,task_init_mess);
         end
         function [completed,obj] = check_progress(obj,varargin)
             % overload check progress method to account for changes
@@ -158,21 +158,6 @@ classdef ClusterParpoolWrapper < ClusterWrapper
         end
     end
     methods(Access = protected)
-        %         function obj = set_cluster_status(obj,mess)
-        %             if ~isempty(obj.current_job_)
-        %                 obj.cluster_job_prev_status_ = obj.cluster_job_status_;
-        %                 cljb = obj.current_job_;
-        %                 obj.cluster_job_status_ = cljb.State;
-        %                 if ~isempty(cljb.Task_ID_of_Errors)
-        %                     obj.cluster_job_status_  = 'falied';
-        %                     if ~isa(mess,'FailMessage')
-        %                         mess = FailMessage(...
-        %                             sprintf('Job reported %d - failures',numel(cljb.Task_ID_of_Errors)));
-        %                     end
-        %                 end
-        %             end
-        %             obj = set_cluster_status@ClusterWrapper(obj,mess);
-        %         end
         function ex = exit_worker_when_job_ends_(obj)
             ex  = false;
         end

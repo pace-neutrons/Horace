@@ -89,7 +89,7 @@ classdef test_iMPI_methods< TestCase
             mis.is_deployed = true;
             mis.is_tested = true;
             clob4 = onCleanup(@()set(mis,'is_deployed',false,'is_tested',false));
-            % the filesystem is share so working_directory is used as
+            % the filesystem is shared so working_directory is used as
             % shared folder
             wk_dir = fullfile(obj.working_dir,'some_irrelevant_folder_never_used_here');
             assertEqual(pc.working_directory ,wk_dir );

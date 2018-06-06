@@ -113,9 +113,14 @@ classdef JobExecutor
             %Usage:
             %>>[ok,mess] = obj.finish_task();
             %>>[ok,mess] = obj.finish_task(SomeMessage);
-            %Where the first form normally waits untill all workers return
+            %>>[ok,mess] = obj.finish_task(SomeMessage,@mess_reduction_function);            
+            %
+            % Where the first form normally waits untill all workers return
             %'completed' message to the lab == 1 while the second form
             % expects return of SomeMessage (usually 'failed' message)
+            %
+            % when mess_reduction_function is present, the messages from
+            % all labs processed on the lab one using this function
             %
             [ok,mess] = finish_task_(this,varargin{:});
         end

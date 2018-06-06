@@ -26,16 +26,6 @@ classdef JDTester < JobDispatcher
                 ok = false;
             end
         end
-%         function [this,n_workers,task_par_ind]=split_tasks(this,task_param_list,n_workers)
-%             [nw,taks_ind] = split_tasks@JobDispatcher(task_param_list,n_workers);
-%             
-%             mpi = 
-%             worker_info = mpi.build_control(1);
-%             mess = aMessage('starting');
-%             mess.payload = job_param_list;
-%             mpi.send_message(1,mess);
-% 
-%         end
     end
     
 end

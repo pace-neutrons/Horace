@@ -11,8 +11,8 @@ function [outputs,n_failed,task_ids,obj] = submit_and_run_job_(obj,...
 % loop_params     - cellarray of parameters, to spread between workers or
 %                   the number of internal loop iterations
 % cluster_wrp     - the pointer for the class, responsible for
-%                   the job submission and comunications with tasks
-% keep_workers_running - if true, current task completeon does not finish
+%                   the job submission and communications with tasks
+% keep_workers_running - if true, current task completion does not finish
 % parallel job and the job workers remain running and waiting for the next
 %                   portion of the task to run
 %
@@ -37,7 +37,12 @@ mf                        = obj.mess_framework;
 je_init_message = mf.build_je_init(task_class_name,exit_worker_when_job_ends,keep_workers_running);
 
 % submit info to cluster and start job
-cluster_wrp = cluster_wrp.start_job(je_init_message,taskInitMessages);
+[cluster_wrp,completed] = cluster_wrp.start_job(je_init_message,taskInitMessages);
+if completed
+    % retrieve final results
+    [outputs,n_failed]=  cluster_wrp.retrieve_results();
+    return;
+end
 
 % wait until the job finishes
 waiting_time = obj.task_check_time;

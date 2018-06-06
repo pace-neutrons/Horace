@@ -57,11 +57,11 @@ classdef ClusterWrapper
                 numel(mess_exchange_framework.job_id) -numel('****  ****');
         end
         %
-        function obj = init_cluster_job(obj,je_init_message,task_init_mess)
+        function [obj,completed] = init_workers(obj,je_init_message,task_init_mess)
             % send initialization information to each worker in the cluster
             % and receive responce informing that the job has started
             
-            obj = init_cluster_(obj,je_init_message,task_init_mess);
+            [obj,completed] = start_workers_(obj,je_init_message,task_init_mess);
         end
         %
         function [completed, obj] = check_progress(obj,varargin)

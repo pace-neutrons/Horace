@@ -42,7 +42,18 @@ function struct_par = split_struct(cell_data,field_names,array_cur)
 n_fields = numel(field_names);
 struct_par  = cell(n_fields,1);
 for i=1:n_fields
-    struct_par{i} = cell_data{i}(array_cur);
+    celd =  cell_data{i};
+    if size(celd,1)>    size(celd,2)
+        celd = celd';
+    end
+    if iscell(celd)
+        struct_par{i} = celd(array_cur);
+    elseif array_cur == 1
+        struct_par{i} = celd;
+    else
+        error('JOB_DISPATCHER:invalid_argument',...
+            'unsupported combination of cell data and cell indexes');
+    end
 end
 struct_par = cell2struct(struct_par,field_names);
 

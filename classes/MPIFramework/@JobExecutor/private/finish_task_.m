@@ -1,4 +1,4 @@
-function [ok,err_mess]=finish_task_(obj,OtherMessage)
+function [ok,err_mess]=finish_task_(obj,OtherMessage,mess_reduction_function)
 % set up tag, indicating that the job have finished and
 % send message with output job results
 %
@@ -24,8 +24,13 @@ else
         mess.payload = obj.task_results_holder_;
     end
 end
+if ~exist('mess_reduction_function','var')
+    % function used to reduce messages reived from all labs contributing
+    % labs and process final message to send to host
+    mess_reduction_function = [];
+end
 %disp(' before reducing message "completed');
-[ok,err_mess,fin_mess] = reduce_messages_(obj,mess,[],syncronize ,'completed');
+[ok,err_mess,fin_mess] = reduce_messages_(obj,mess,mess_reduction_function,syncronize ,'completed');
 
 if obj.labIndex == 1
     [ok,err_mess] = obj.control_node_exch.send_message(0,fin_mess);

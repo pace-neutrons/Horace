@@ -52,6 +52,7 @@ classdef InitMessage < aMessage
             elseif isstruct(loop_data)
                 fn = fieldnames(loop_data);
                 obj.payload.loopData = loop_data;
+                % would not work correctly if the first field was string
                 obj.payload.n_steps   = numel(loop_data.(fn{1}));
                 obj.payload.n_first_step  = 1;                
             else

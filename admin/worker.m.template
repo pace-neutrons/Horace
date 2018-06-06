@@ -72,18 +72,12 @@ while keep_worker_running
         worker_init_data = mess.payload;
         keep_worker_running = worker_init_data.keep_worker_running;
     end
-    [ok,err]=fbMPI.send_message(0,'started');
-    if ok ~= MESS_CODES.ok
-        mess = aMessage('failed');
-        err_mess = sprintf('job N%s failed while sending "started" message Error: %s:',...
-            control_struct.jobID,err);
-        mess.payload = err_mess;
-        fbMPI.send_message(mess);
-        ok = MESS_CODES.runtime_error;
-        return;
-    end
     %fprintf(fh,'sent "started" message\n');
     exit_at_the_end = ~is_tested && worker_init_data.exit_on_compl;
+    
+    % instantiate job executor class.
+    je = feval(worker_init_data.JobExecutorClassName);
+    %mis.mpi_framework = je.mess_framework;
     %
     % receive init message which defines the job parameters
     % should block execution until this message is received.
@@ -98,15 +92,6 @@ while keep_worker_running
     end
     %fprintf(fh,'got "init" message\n');
     
-    % instantiate job executor class.
-    je = feval(worker_init_data.JobExecutorClassName);
-    % Attach jobExecutor methods to mpi singleton to be availible from any part
-    % of the code.
-    mis.logger = @(step,n_steps,time,add_info)...
-        (je.log_progress(step,n_steps,time,add_info));
-    
-    mis.check_cancelled = @()(f_canc(je));
-    %mis.mpi_framework = je.mess_framework;
     
     try
         [je,mess] = je.init(fbMPI,control_struct,init_message);
@@ -115,6 +100,13 @@ while keep_worker_running
                 fbMPI.labIndex);
             error('WORKER:init_worker',err);
         end
+        % Attach jobExecutor methods to mpi singleton to be availible from any part
+        % of the code.
+        mis.logger = @(step,n_steps,time,add_info)...
+            (je.log_progress(step,n_steps,time,add_info));
+        
+        mis.check_cancelled = @()(f_canc(je));
+        
         % Execute job (run main job executor's do_job method
         %fprintf(fh,'je loop started\n');
         while ~je.is_completed()
@@ -138,7 +130,7 @@ while keep_worker_running
             if ~is_tested
                 % when not tested, the synchronization is mandatory
                 je.labBarrier(); % Wait until all workers finish their job before reducing the data
-            end            
+            end
             [ok,err_mess]=je.finish_task(mess);
         end
         if keep_worker_running

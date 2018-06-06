@@ -211,7 +211,7 @@ classdef JobDispatcher
         end
     end
     methods(Static)
-        function [task_id_list,init_mess]=split_tasks(common_par,loop_par,n_workers,return_outputs)
+        function [task_id_list,init_mess]=split_tasks(common_par,loop_par,return_outputs,n_workers)
             % Divide list of job parameters among given number of workers
             % and generate list of init messages for the subtasks
             %
@@ -223,9 +223,9 @@ classdef JobDispatcher
             %                  or number of iterations in the parallel
             %                  loop.
             %
-            %n_workers      -- number of workers to split job between workers
-            %
             % return_outputs -- if true, job must return its outputs
+            %            
+            % n_workers      -- number of workers to split job between workers
             %
             %Returns:
             % task_id_list  -- cell array of indexes from job_param_list dedicated
@@ -235,7 +235,7 @@ classdef JobDispatcher
             %                  form n_first:n_points if loop_par is the number
             % init_mess     -- size n_workers cellarray of messages containing
             %                  initialization information for workers
-            [task_id_list,init_mess]=split_tasks_(common_par,loop_par,n_workers,return_outputs);
+            [task_id_list,init_mess]=split_tasks_(common_par,loop_par,return_outputs,n_workers);
         end
         
     end

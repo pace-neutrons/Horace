@@ -51,8 +51,11 @@ classdef MPI_State<handle
     end
     %----------------------------------------------------------------------
     methods(Static)
-        function obj = instance()
+        function obj = instance(varargin)
             persistent obj_state;
+            if nargin>0 && ischar(varargin{1}) && strcmpi(varargin{1},'clear')
+                obj_state = [];
+            end
             if isempty(obj_state)
                 obj_state = MPI_State();
             end
