@@ -1,4 +1,4 @@
-classdef test_gen_sqw_accumulate_sqw_nomex < test_gen_sqw_accumulate_sqw_mex
+classdef test_gen_sqw_accumulate_sqw_nomex < gen_sqw_accumulate_sqw_common_test
     % Series of tests of gen_sqw and associated functions
     % when mex code is disabled or not available
     %
@@ -30,10 +30,13 @@ classdef test_gen_sqw_accumulate_sqw_nomex < test_gen_sqw_accumulate_sqw_mex
     
     
     properties
+        set_single_theaded
+        set_matlab_combine
+        set_nomex
     end
     
     methods
-        function this=test_gen_sqw_accumulate_sqw_nomex(varargin)
+        function obj=test_gen_sqw_accumulate_sqw_nomex(varargin)
             % Series of tests of gen_sqw and associated functions
             % Optionally writes results to output file
             %
@@ -49,73 +52,111 @@ classdef test_gen_sqw_accumulate_sqw_nomex < test_gen_sqw_accumulate_sqw_mex
             else
                 name= mfilename('class');
             end
-            this = this@test_gen_sqw_accumulate_sqw_mex(name,'nomex');
+            obj = obj@gen_sqw_accumulate_sqw_common_test(name,'nomex');
+            
+            % this test can not be skipped
+            obj.skip_test = false;
+            
+            hc = obj.initial_config.hc;
+            hpc = obj.initial_config.hpc;
+            if hc.use_mex
+                obj.set_nomex = true;
+            else
+                obj.set_nomex = false;
+            end
+            if hpc.accum_in_separate_process
+                obj.set_single_theaded = true;
+            else
+                obj.set_single_theaded = false;
+            end
+            if hpc.accum_in_separate_process
+                obj.set_single_theaded = true;
+            else
+                obj.set_single_theaded = false;
+            end
+            %
+            if hpc.use_mex_for_combine
+                obj.set_matlab_combine = true;
+            else
+                obj.set_matlab_combine = false;
+            end
+            
             
         end
         
+        function setUp(obj)
+            if obj.set_nomex
+                hc = hor_config;
+                hc.use_mex = false;
+            end
+            if obj.set_single_theaded
+                hpcc = hpc_config;
+                hpcc.accum_in_separate_process = false;
+            end
+            if obj.set_matlab_combine
+                hpcc = hpc_config;
+                hpcc.use_mex_for_combine = false;
+            end
+        end
+        %
+        function tearDown(obj)
+            if obj.set_nomex
+                hc = hor_config;
+                hc.use_mex = true;
+            end
+            if obj.set_single_theaded
+                hpcc = hpc_config;
+                hpcc.accum_in_separate_process = true;
+            end
+            
+            if obj.set_matlab_combine
+                hpcc = hpc_config;
+                hpcc.use_mex_for_combine = true;
+            end
+        end
         
-        function this=test_gen_sqw_threading_mex(this)
-            % check 1 vs 8 threads mex and compare to one cut
-            % shortest code to debug in case of errors
-            %-------------------------------------------------------------
-            [~,n_errors]=check_horace_mex();
-            if n_errors>0
-                return % if no mex enabled, this tests nothing
+        
+        %
+        function obj=test_wrong_params_gen_sqw(obj)
+            % something wrong with this test -- it was with 'replicate'
+            % option and apparemtly failing
+            sqw_file_15456=fullfile(tempdir,['sqw_123456_',obj.test_pref,'.sqw']);  % output sqw file which should never be created
+            
+            [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
+            try
+                gen_sqw (obj.spe_file([1,5,4,5,6]), '', sqw_file_15456, efix([1,5,4,5,6]), ...
+                    emode, alatt, angdeg, u, v, psi([1,5,4,5,6]), omega([1,5,4,5,6]), ...
+                    dpsi([1,5,4,5,6]), gl([1,5,4,5,6]), gs([1,5,4,5,6]));
+                %'replicate'); ?
+                ok=false;
+            catch ME
+                ok=true;
+                assertEqual(ME.identifier,'GEN_SQW:invalid_argument')
+                
             end
-            cleanup_obj=onCleanup(@()this.restore_config());
-            
-            hc = hor_config;
-            hc.use_mex=true;
-            hc.threads = 8;
-
-            hpc = hpc_config;
-            hpc.accum_in_separate_process=false;
-
+            %[fpath,fname]=fileparts(obj.spe_file{5});
+            %delete(fullfile(fpath,[fname,'_2.tmp']));
+            assertTrue(ok,'Should have failed because of repeated spe file name and parameters');
+        end
+        %
+        function obj=test_wrong_params_accum_sqw(obj)
             %-------------------------------------------------------------
-            spe_file_names = cell(1,1);
-            for i=1:1
-                spe_file_names{i}=fullfile(tempdir,['test_gen_sqw_threading_1th',num2str(i),'.nxspe']);
+            %-------------------------------------------------------------
+            sqw_file_accum=fullfile(tempdir,['sqw_accum_',obj.test_pref,'.sqw']);  % output sqw file which should never be created
+            
+            
+            [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
+            
+            % Repeat a file
+            spe_accum={obj.spe_file{1},'',obj.spe_file{5},obj.spe_file{4},obj.spe_file{5},obj.spe_file{6}};
+            try
+                accumulate_sqw (spe_accum, '', sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+                ok=false;
+            catch ME
+                ok=true;
+                assertEqual(ME.identifier,'GEN_SQW:invalid_argument');
             end
-            % build special test files if they have not been build
-            this=build_test_files(this,true,spe_file_names);
-            
-            
-            sqw_file_123_t8=fullfile(tempdir,'sqw_123_mex8_threading.sqw');             % output sqw file
-            sqw_file_123_t1=fullfile(tempdir,'sqw_123_mex1_threading.sqw');        % output sqw file
-            cleanup_obj1=onCleanup(@()this.delete_files(sqw_file_123_t8,sqw_file_123_t1,spe_file_names{:}));
-            % ---------------------------------------
-            % Test gen_sqw
-            % ---------------------------------------
-            [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this,numel(spe_file_names));
-            % Make some cuts:
-            % ---------------
-            this.proj.u=[1,0,0.1]; this.proj.v=[0,0,1];
-            hc.threads = 8;
-            gen_sqw (spe_file_names, '', sqw_file_123_t8, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
-            
-            
-            
-            hc.threads = 1;
-            gen_sqw (spe_file_names, '', sqw_file_123_t1, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
-            %
-            % Test results
-            obj_m8=read_sqw(sqw_file_123_t8);
-            obj_m1=read_sqw(sqw_file_123_t1);
-            %
-            pix = sortrows(obj_m8.data.pix')';
-            pix1 = sortrows(obj_m1.data.pix')';
-            assertEqual(pix,pix1);
-            assertEqual(obj_m8.data.s,obj_m1.data.s);
-            assertEqual(obj_m8.data.e,obj_m1.data.e);
-            assertEqual(obj_m8.data.npix,obj_m1.data.npix);
-            
-            [ok,mess]=is_cut_equal(sqw_file_123_t8,sqw_file_123_t1,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
-            assertTrue(ok,[' MEX threaded and non-threaded versions of gen_sqw are different: ',mess]);
-            
-            w_8 = d4d(sqw_file_123_t8);
-            w_1 = d4d(sqw_file_123_t1);
-            [ok,mess]=equal_to_tol(w_8,w_1,-1.e-8,'ignore_str',true);
-            assertTrue(ok,[' MEX threaded and non-threaded versions of gen_sqw are different: ',mess]);
+            assertTrue(ok,'Should have failed because of repeated spe file name');
             
         end
         
