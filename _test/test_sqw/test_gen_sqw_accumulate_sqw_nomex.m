@@ -1,4 +1,6 @@
-classdef test_gen_sqw_accumulate_sqw_nomex < gen_sqw_accumulate_sqw_common_test
+classdef test_gen_sqw_accumulate_sqw_nomex < ...
+        gen_sqw_accumulate_sqw_common_test & gen_sqw_common_config
+    
     % Series of tests of gen_sqw and associated functions
     % when mex code is disabled or not available
     %
@@ -30,13 +32,10 @@ classdef test_gen_sqw_accumulate_sqw_nomex < gen_sqw_accumulate_sqw_common_test
     
     
     properties
-        set_single_theaded
-        set_matlab_combine
-        set_nomex
     end
     
     methods
-        function obj=test_gen_sqw_accumulate_sqw_nomex(varargin)
+        function obj=test_gen_sqw_accumulate_sqw_nomex(test_name)
             % Series of tests of gen_sqw and associated functions
             % Optionally writes results to output file
             %
@@ -47,74 +46,12 @@ classdef test_gen_sqw_accumulate_sqw_nomex < gen_sqw_accumulate_sqw_common_test
             %
             % Reads previously created test data sets.
             % constructor
-            if nargin > 0
-                name = varargin{1};
-            else
-                name= mfilename('class');
+            if ~exist('test_name','var')
+                test_name = 'test_gen_sqw_accumulate_sqw_nomex';
             end
-            obj = obj@gen_sqw_accumulate_sqw_common_test(name,'nomex');
-            
-            % this test can not be skipped
-            obj.skip_test = false;
-            
-            hc = obj.initial_config.hc;
-            hpc = obj.initial_config.hpc;
-            if hc.use_mex
-                obj.set_nomex = true;
-            else
-                obj.set_nomex = false;
-            end
-            if hpc.accum_in_separate_process
-                obj.set_single_theaded = true;
-            else
-                obj.set_single_theaded = false;
-            end
-            if hpc.accum_in_separate_process
-                obj.set_single_theaded = true;
-            else
-                obj.set_single_theaded = false;
-            end
-            %
-            if hpc.use_mex_for_combine
-                obj.set_matlab_combine = true;
-            else
-                obj.set_matlab_combine = false;
-            end
-            
-            
+            obj = obj@gen_sqw_common_config(0,0,0,-1);            
+            obj = obj@gen_sqw_accumulate_sqw_common_test(test_name,'nomex');
         end
-        
-        function setUp(obj)
-            if obj.set_nomex
-                hc = hor_config;
-                hc.use_mex = false;
-            end
-            if obj.set_single_theaded
-                hpcc = hpc_config;
-                hpcc.accum_in_separate_process = false;
-            end
-            if obj.set_matlab_combine
-                hpcc = hpc_config;
-                hpcc.use_mex_for_combine = false;
-            end
-        end
-        %
-        function tearDown(obj)
-            if obj.set_nomex
-                hc = hor_config;
-                hc.use_mex = true;
-            end
-            if obj.set_single_theaded
-                hpcc = hpc_config;
-                hpcc.accum_in_separate_process = true;
-            end
-            
-            if obj.set_matlab_combine
-                hpcc = hpc_config;
-                hpcc.use_mex_for_combine = true;
-            end
-        end
-        
         
         %
         function obj=test_wrong_params_gen_sqw(obj)

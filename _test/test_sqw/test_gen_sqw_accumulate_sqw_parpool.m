@@ -1,4 +1,5 @@
-classdef test_gen_sqw_accumulate_sqw_parpool < gen_sqw_accumulate_sqw_MPI_common_test
+classdef test_gen_sqw_accumulate_sqw_parpool <  ...
+        gen_sqw_accumulate_sqw_common_test & gen_sqw_common_config
     % Series of tests of gen_sqw and associated functions run on pool of
     % workers, provided by Matlab parallel computing toolbox.
     %
@@ -50,22 +51,9 @@ classdef test_gen_sqw_accumulate_sqw_parpool < gen_sqw_accumulate_sqw_MPI_common
             if ~exist('test_name','var')
                 test_name = mfilename('class');
             end
-            obj = obj@gen_sqw_accumulate_sqw_MPI_common_test(test_name,'parpool');
-            
-        end
-        function setUp(obj)
-            if obj.change_framework
-                pc = parallel_config;
-                pc.parallel_framework = 'parpool';
-            end
-            setUp@gen_sqw_accumulate_sqw_MPI_common_test(obj);
-        end
-        function tearDown(obj)
-            if obj.change_framework
-                pc = parallel_config;
-                pc.parallel_framework = obj.old_framework;
-            end
-            tearDown@gen_sqw_accumulate_sqw_MPI_common_test(obj);            
+            obj = obj@gen_sqw_common_config(-1,1,-1,'parpool');            
+            obj = obj@gen_sqw_accumulate_sqw_common_test(test_name,'parpool');
+
         end
         
     end
