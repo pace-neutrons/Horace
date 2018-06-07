@@ -72,7 +72,6 @@ classdef gen_sqw_accumulate_sqw_common_test < TestCaseWithSave
                 end
             end
         end
-        
     end
     
     methods
@@ -150,7 +149,6 @@ classdef gen_sqw_accumulate_sqw_common_test < TestCaseWithSave
             
         end
         %
-        
         %
         function [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this,varargin)
             if nargin>1
@@ -176,18 +174,6 @@ classdef gen_sqw_accumulate_sqw_common_test < TestCaseWithSave
             dpsi=this.gen_sqw_par{10}(select);
             gl=this.gen_sqw_par{11}(select);
             gs=this.gen_sqw_par{12}(select);
-        end
-        %
-        function skip=setup_multi_mode(this)
-            if this.ignore_tests
-                skip = true;
-                return
-            end
-            hc = hpc_config();
-            hc.accum_in_separate_process = true;
-            hc.use_mex_for_combine = true;
-            %
-            skip= false;
         end
         %
         function obj=build_test_files(obj,spe_files)
@@ -254,7 +240,6 @@ classdef gen_sqw_accumulate_sqw_common_test < TestCaseWithSave
             
             obj=add_to_files_cleanList(obj,spe_files{:});
         end
-        
         %
         function obj=test_gen_sqw(obj,varargin)
             %-------------------------------------------------------------
