@@ -2,7 +2,7 @@ function [outputs,n_failed,task_ids,obj]=...
     send_tasks_to_workers_(obj,...
     task_class_name,common_params,loop_params,return_results,...
     n_workers,keep_workers_running,task_query_time)
-            % send parallel job to be executed by Matlab cluster
+% send parallel job to be executed by Matlab cluster
 %
 % Usage:
 %>>jd = JobDispatcher();
@@ -50,6 +50,10 @@ end
 
 mf = obj.mess_framework_;
 
+% if loop param defines less loop parameters then there are workers, number
+% of workers should be decreased.
+n_workers = check_loop_param(loop_params,n_workers);
+
 % initialize cluster
 par_fm = parallel_config();
 cluster_wrp = par_fm.get_cluster_wrapper(n_workers,mf);
@@ -65,3 +69,26 @@ end
 [outputs,n_failed,task_ids,obj] = submit_and_run_job_(obj,task_class_name,...
     common_params,loop_params,return_results,...
     cluster_wrp,keep_workers_running);
+
+
+function n_wk = check_loop_param(loop_param,n_workers)
+n_wk = n_workers;
+if iscell(loop_param)
+    n_jobs = numel(loop_param);
+elseif isnumeric(loop_param)
+    n_jobs = loop_param;
+elseif isstruct(loop_param)
+    fn = fieldnames(loop_param);
+    par1 = loop_param.(fn{1});
+    if iscell(par1)
+        n_jobs = numel(par1);
+    else
+        n_jobs = 1;
+    end
+else
+    error('JOB_DISPATCHER:invalid_argument',...
+        'Unknown type of loop_param variable');
+end
+if n_wk > n_jobs
+    n_wk  = n_jobs;
+end
