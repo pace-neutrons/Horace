@@ -1,4 +1,4 @@
-classdef test_gen_sqw_accumulate_sqw_sep_session < gen_sqw_accumulate_sqw_MPI_common_test
+classdef test_gen_sqw_accumulate_sqw_herbert < gen_sqw_accumulate_sqw_MPI_common_test
     % Series of tests of gen_sqw and associated functions
     % generated using multiple matlab workers.
     %
@@ -28,9 +28,9 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < gen_sqw_accumulate_sqw_MPI_co
     %>>tc=test_gen_sqw_accumulate_sqw_sep_session('save');
     %>>tc.save():
     properties
-    end   
+    end
     methods
-        function this=test_gen_sqw_accumulate_sqw_sep_session(varargin)
+        function this=test_gen_sqw_accumulate_sqw_herbert(varargin)
             % Series of tests of gen_sqw and associated functions
             % Optionally writes results to output file
             %
@@ -50,32 +50,23 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < gen_sqw_accumulate_sqw_MPI_co
             else
                 name= mfilename('class');
             end
-            this = this@gen_sqw_accumulate_sqw_MPI_common_test('herbert',name);             
+            this = this@gen_sqw_accumulate_sqw_MPI_common_test(name,'herbert');
         end
-        %
-        function this=test_wrong_params_gen_sqw(this)
-            %-------------------------------------------------------------
-            skip=this.setup_multi_mode();
-            co=onCleanup(@()this.restore_config());
-            if skip
-                return
+        function setUp(obj)
+            if obj.change_framework
+                pc = parallel_framework;
+                pc.parallel_framework = 'herbert';
             end
-            %-------------------------------------------------------------
-            
-            sqw_file_15456=fullfile(tempdir,'sqw_123456_multisession.sqw');  % output sqw file which should never be created
-            
-            this=build_test_files(this);
-            [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
-            try
-                gen_sqw (this.spe_file([1,5,4,5,6]), '', sqw_file_15456, efix([1,5,4,5,6]), emode, alatt, angdeg, u, v, psi([1,5,4,5,6]), omega([1,5,4,5,6]), dpsi([1,5,4,5,6]), gl([1,5,4,5,6]), gs([1,5,4,5,6]), 'replicate');
-                ok=false;
-            catch
-                ok=true;
-            end
-            [fpath,fname]=fileparts(this.spe_file{5});
-            delete(fullfile(fpath,[fname,'_2.tmp']));
-            assertTrue(ok,'Should have failed because of repeated spe file name and parameters');
+            setUp@gen_sqw_accumulate_sqw_MPI_common_test(obj);
         end
+        function tearDown(obj)
+            if obj.change_framework
+                pc = parallel_framework;
+                pc.parallel_framework = obj.old_framework;
+            end
+            tearDown@gen_sqw_accumulate_sqw_MPI_common_test(obj);
+        end
+        
         %
         function test_worker(this)
             mis = MPI_State.instance('clear');
@@ -232,12 +223,12 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < gen_sqw_accumulate_sqw_MPI_co
             je = gen_sqw_files_job();
             
             control_struct = iMessagesFramework.deserialize_par(css2);
-            fbMPI = MessagesFilebased(control_struct);            
+            fbMPI = MessagesFilebased(control_struct);
             je2 = je.init(fbMPI,control_struct,init_mess{2});
-
+            
             
             control_struct = iMessagesFramework.deserialize_par(css1);
-            fbMPI = MessagesFilebased(control_struct);            
+            fbMPI = MessagesFilebased(control_struct);
             je1 = je.init(fbMPI,control_struct,init_mess{1});
             
             [ok,err]=serverfbMPI.receive_message(1,'started');

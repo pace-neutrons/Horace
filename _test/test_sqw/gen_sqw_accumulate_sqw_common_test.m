@@ -45,7 +45,7 @@ classdef gen_sqw_accumulate_sqw_common_test < TestCaseWithSave
         instrum
         sample
         %
-        % the field stores initial configuration, was in place when test 
+        % the field stores initial configuration, was in place when test
         % was started to run
         initial_config;
         %
@@ -79,7 +79,7 @@ classdef gen_sqw_accumulate_sqw_common_test < TestCaseWithSave
     end
     
     methods
-        function this=gen_sqw_accumulate_sqw_common_test(test_class_name,prefix)
+        function obj=gen_sqw_accumulate_sqw_common_test(test_class_name,test_prefix)
             % The constructor for class, which is the common part of all
             % MPI-based gen_sqw system tests.
             %
@@ -97,37 +97,38 @@ classdef gen_sqw_accumulate_sqw_common_test < TestCaseWithSave
             % Reads previously created test data sets.
             
             
-            this = this@TestCaseWithSave(test_class_name,fullfile(fileparts(mfilename('fullpath')),'test_gen_sqw_accumulate_sqw_output.mat'));
-            this = store_initial_config(this);
-            this.test_pref = prefix;
+            obj = obj@TestCaseWithSave(test_class_name,fullfile(fileparts(mfilename('fullpath')),'test_gen_sqw_accumulate_sqw_output.mat'));
+            obj = store_initial_config(obj);
+            obj.test_pref = test_prefix;
             
             % do other initialization
-            this.comparison_par={ 'min_denominator', 0.01, 'ignore_str', 1};
-            this.tol = 1.e-5;
-            this.test_functions_path=fullfile(fileparts(which('horace_init.m')),'_test/common_functions');
+            obj.comparison_par={ 'min_denominator', 0.01, 'ignore_str', 1};
+            obj.tol = 1.e-5;
+            obj.test_functions_path=fullfile(fileparts(which('horace_init.m')),'_test/common_functions');
             
-            addpath(this.test_functions_path);
+            addpath(obj.test_functions_path);
             
             % build test file names
-            this.spe_file=cell(1,this.nfiles_max);
-            for i=1:this.nfiles_max
-                this.spe_file{i}=fullfile(tempdir,['gen_sqw_acc_sqw_spe',num2str(i),'.nxspe']);
+            obj.spe_file=cell(1,obj.nfiles_max);
+            for i=1:obj.nfiles_max
+                obj.spe_file{i}=fullfile(tempdir,...
+                    ['gen_sqw_acc_sqw_spe_',test_prefix,num2str(i),'.nxspe']);
             end
             
-            results_path = fileparts(this.test_results_file);
+            results_path = fileparts(obj.test_results_file);
             %this.par_file=fullfile(this.results_path,'96dets.par');
-            this.par_file=fullfile(results_path,'gen_sqw_96dets.nxspe');
+            obj.par_file=fullfile(results_path,'gen_sqw_96dets.nxspe');
             
             
             % initiate test parameters
-            en=cell(1,this.nfiles_max);
-            efix=zeros(1,this.nfiles_max);
-            psi=zeros(1,this.nfiles_max);
-            omega=zeros(1,this.nfiles_max);
-            dpsi=zeros(1,this.nfiles_max);
-            gl=zeros(1,this.nfiles_max);
-            gs=zeros(1,this.nfiles_max);
-            for i=1:this.nfiles_max
+            en=cell(1,obj.nfiles_max);
+            efix=zeros(1,obj.nfiles_max);
+            psi=zeros(1,obj.nfiles_max);
+            omega=zeros(1,obj.nfiles_max);
+            dpsi=zeros(1,obj.nfiles_max);
+            gl=zeros(1,obj.nfiles_max);
+            gs=zeros(1,obj.nfiles_max);
+            for i=1:obj.nfiles_max
                 efix(i)=35+0.5*i;                       % different ei for each file
                 en{i}=0.05*efix(i):0.2+i/50:0.95*efix(i);  % different energy bins for each file
                 psi(i)=90-i+1;
@@ -136,7 +137,7 @@ classdef gen_sqw_accumulate_sqw_common_test < TestCaseWithSave
                 gl(i)=3-i/6;
                 gs(i)=2.4+i/7;
             end
-            psi=90:-1:90-this.nfiles_max+1;
+            psi=90:-1:90-obj.nfiles_max+1;
             
             emode=1;
             alatt=[4.4,5.5,6.6];
@@ -144,12 +145,12 @@ classdef gen_sqw_accumulate_sqw_common_test < TestCaseWithSave
             u=[1.02,0.99,0.02];
             v=[0.025,-0.01,1.04];
             
-            this.gen_sqw_par={en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs};
+            obj.gen_sqw_par={en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs};
             
-            this.pars=[1000,8,2,4,0];  % [Seff,SJ,gap,gamma,bkconst]
-            this.scale=0.3;
+            obj.pars=[1000,8,2,4,0];  % [Seff,SJ,gap,gamma,bkconst]
+            obj.scale=0.3;
             % build test files if they have not been build
-            this=build_test_files(this);
+            obj=build_test_files(obj);
             
         end
         %
@@ -213,7 +214,7 @@ classdef gen_sqw_accumulate_sqw_common_test < TestCaseWithSave
             
             file_exist = cellfun(@(fn)(exist(fn,'file') == 2),spe_files);
             if all(file_exist)
-                obj=obj.add_to_files_cleanList(spe_files{:});                
+                obj=obj.add_to_files_cleanList(spe_files{:});
                 return;
             end
             spe_files = spe_files(~file_exist);
@@ -552,6 +553,10 @@ classdef gen_sqw_accumulate_sqw_common_test < TestCaseWithSave
             accumulate_sqw (spe_accum, '', sqw_file_accum, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, 'replicate');
             [ok,mess]=is_cut_equal(sqw_file_11456,sqw_file_accum,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess]);
+        end
+        %
+        function delete(obj)
+           restore_initial_config(obj); 
         end
         %
     end

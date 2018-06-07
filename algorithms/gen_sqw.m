@@ -687,7 +687,7 @@ nt=bigtic();
 
 if use_separate_matlab
     jd = JobDispatcher('gen_sqw');    
-    [common_par,loop_par]=gen_sqw_files_job.pack_job_pars(runfiles',tmp_file,...
+    [common_par,loop_par]=gen_sqw_files_job.pack_job_pars(run_files',tmp_file,...
         instrument,sample,grid_size_in,urange_in);
     
     %
