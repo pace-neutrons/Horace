@@ -29,7 +29,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < gen_sqw_accumulate_sqw_common_test
     %>>tc.save():
     
     properties
-        set_single_theaded
+        set_single_worker
         set_mex
     end
     
@@ -65,9 +65,9 @@ classdef test_gen_sqw_accumulate_sqw_mex < gen_sqw_accumulate_sqw_common_test
                     obj.set_mex = true;
                 end
                 if hpc.accum_in_separate_process
-                    obj.set_single_theaded = true;
+                    obj.set_single_worker = true;
                 else
-                    obj.set_single_theaded = false;
+                    obj.set_single_worker = false;
                 end
             end
             
@@ -79,7 +79,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < gen_sqw_accumulate_sqw_common_test
                     hc = hor_config;
                     hc.use_mex = true;
                 end
-                if obj.set_single_theaded
+                if obj.set_single_worker
                     hpcc = hpc_config;
                     hpcc.accum_in_separate_process = false;
                 end
@@ -92,13 +92,15 @@ classdef test_gen_sqw_accumulate_sqw_mex < gen_sqw_accumulate_sqw_common_test
                     hc = hor_config;
                     hc.use_mex = false;
                 end
-                if obj.set_single_theaded
+                if obj.set_single_worker
                     hpcc = hpc_config;
                     hpcc.accum_in_separate_process = true;
                 end
                 
             end
         end
+        %------------------------------------------------------------------
+        % the test specific to mex mode
         function obj=test_gen_sqw_threading_mex(obj,varargin)
             % check 1 vs 8 threads mex and compare to one cut
             % shortest code to debug in case of errors

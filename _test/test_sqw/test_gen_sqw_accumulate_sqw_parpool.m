@@ -31,7 +31,7 @@ classdef test_gen_sqw_accumulate_sqw_parpool < gen_sqw_accumulate_sqw_MPI_common
     properties
     end
     methods
-        function this=test_gen_sqw_accumulate_sqw_parpool(varargin)
+        function obj=test_gen_sqw_accumulate_sqw_parpool(test_name,varargin)
             % Series of tests of gen_sqw and associated functions
             % Optionally writes results to output file
             %
@@ -47,14 +47,27 @@ classdef test_gen_sqw_accumulate_sqw_parpool < gen_sqw_accumulate_sqw_MPI_common
             % Reads previously created test data sets.
             
             % constructor
-            if nargin > 0
-                name = varargin{1};
-            else
-                name= mfilename('class');
+            if ~exist('test_name','var')
+                test_name = mfilename('class');
             end
-            this = this@gen_sqw_accumulate_sqw_MPI_common_test('parpool',name);
+            obj = obj@gen_sqw_accumulate_sqw_MPI_common_test(test_name,'parpool');
             
         end
+        function setUp(obj)
+            if obj.change_framework
+                pc = parallel_config;
+                pc.parallel_framework = 'parpool';
+            end
+            setUp@gen_sqw_accumulate_sqw_MPI_common_test(obj);
+        end
+        function tearDown(obj)
+            if obj.change_framework
+                pc = parallel_config;
+                pc.parallel_framework = obj.old_framework;
+            end
+            tearDown@gen_sqw_accumulate_sqw_MPI_common_test(obj);            
+        end
+        
     end
     
 end
