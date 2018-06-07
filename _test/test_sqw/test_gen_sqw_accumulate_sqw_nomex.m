@@ -49,30 +49,36 @@ classdef test_gen_sqw_accumulate_sqw_nomex < ...
             if ~exist('test_name','var')
                 test_name = 'test_gen_sqw_accumulate_sqw_nomex';
             end
-            obj = obj@gen_sqw_common_config(0,0,0,-1);            
+            obj = obj@gen_sqw_common_config(0,0,0,-1);
             obj = obj@gen_sqw_accumulate_sqw_common_test(test_name,'nomex');
         end
         
         %
-        function obj=test_wrong_params_gen_sqw(obj)
+        function obj=test_wrong_params_gen_sqw(obj,varargin)
+            if nargin > 1  % running in single test method mode.
+                obj.setUp();
+                co1 = onCleanup(@()obj.tearDown());
+                
+            end
             % something wrong with this test -- it was with 'replicate'
             % option and apparemtly failing
             sqw_file_15456=fullfile(tempdir,['sqw_123456_',obj.test_pref,'.sqw']);  % output sqw file which should never be created
             
             [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
+            spe_files = obj.spe_file([1,5,4,5,6]);
+            [fpath,fname]=fileparts(spe_files{5});
+            cod = onCleanup(@()delete(fullfile(fpath,[fname,'_2.tmp'])));
+            
             try
-                gen_sqw (obj.spe_file([1,5,4,5,6]), '', sqw_file_15456, efix([1,5,4,5,6]), ...
-                    emode, alatt, angdeg, u, v, psi([1,5,4,5,6]), omega([1,5,4,5,6]), ...
-                    dpsi([1,5,4,5,6]), gl([1,5,4,5,6]), gs([1,5,4,5,6]));
-                %'replicate'); ?
+                gen_sqw (spe_files, '', sqw_file_15456, efix([1,5,4,5,6]),...
+                    emode, alatt, angdeg, u, v, psi([1,5,4,5,6]), omega([1,5,4,5,6]),...
+                    dpsi([1,5,4,5,6]), gl([1,5,4,5,6]), gs([1,5,4,5,6]), 'replicate');
                 ok=false;
             catch ME
                 ok=true;
-                assertEqual(ME.identifier,'GEN_SQW:invalid_argument')
+                assertEqual(ME.identifier,'WRITE_NSQW_TO_SQW:invalid_argument')
                 
             end
-            %[fpath,fname]=fileparts(obj.spe_file{5});
-            %delete(fullfile(fpath,[fname,'_2.tmp']));
             assertTrue(ok,'Should have failed because of repeated spe file name and parameters');
         end
         %
