@@ -1,4 +1,5 @@
-classdef test_gen_sqw_accumulate_sqw_herbert < gen_sqw_accumulate_sqw_MPI_common_test
+classdef test_gen_sqw_accumulate_sqw_herbert <  ...
+        gen_sqw_accumulate_sqw_common_test & gen_sqw_common_config
     % Series of tests of gen_sqw and associated functions
     % generated using multiple matlab workers.
     %
@@ -30,7 +31,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert < gen_sqw_accumulate_sqw_MPI_common
     properties
     end
     methods
-        function this=test_gen_sqw_accumulate_sqw_herbert(varargin)
+        function obj=test_gen_sqw_accumulate_sqw_herbert(test_name)
             % Series of tests of gen_sqw and associated functions
             % Optionally writes results to output file
             %
@@ -45,26 +46,12 @@ classdef test_gen_sqw_accumulate_sqw_herbert < gen_sqw_accumulate_sqw_MPI_common
             %
             % Reads previously created test data sets.
             
-            if nargin > 0
-                name = varargin{1};
-            else
-                name= mfilename('class');
+            
+            if ~exist('test_name','var')
+                test_name = mfilename('class');
             end
-            this = this@gen_sqw_accumulate_sqw_MPI_common_test(name,'herbert');
-        end
-        function setUp(obj)
-            if obj.change_framework
-                pc = parallel_framework;
-                pc.parallel_framework = 'herbert';
-            end
-            setUp@gen_sqw_accumulate_sqw_MPI_common_test(obj);
-        end
-        function tearDown(obj)
-            if obj.change_framework
-                pc = parallel_framework;
-                pc.parallel_framework = obj.old_framework;
-            end
-            tearDown@gen_sqw_accumulate_sqw_MPI_common_test(obj);
+            obj = obj@gen_sqw_common_config(-1,1,-1,'herbert');            
+            obj = obj@gen_sqw_accumulate_sqw_common_test(test_name,'herbert');            
         end
         
         %

@@ -1,4 +1,5 @@
-classdef test_gen_sqw_accumulate_sqw_mex < gen_sqw_accumulate_sqw_common_test
+classdef test_gen_sqw_accumulate_sqw_mex < ...
+        gen_sqw_accumulate_sqw_common_test & gen_sqw_common_config
     % Series of tests of gen_sqw and associated functions generated using
     % mex code.
     %
@@ -29,8 +30,6 @@ classdef test_gen_sqw_accumulate_sqw_mex < gen_sqw_accumulate_sqw_common_test
     %>>tc.save():
     
     properties
-        set_single_worker
-        set_mex
     end
     
     methods
@@ -51,53 +50,9 @@ classdef test_gen_sqw_accumulate_sqw_mex < gen_sqw_accumulate_sqw_common_test
             else
                 name= mfilename('class');
             end
-            obj = obj@gen_sqw_accumulate_sqw_common_test(name,'mex');
-            
-            [~,n_errors]=check_horace_mex();
-            if n_errors>0
-                obj.skip_test = true;
-            else
-                hc = obj.initial_config.hc;
-                hpc = obj.initial_config.hpc;
-                if hc.use_mex
-                    obj.set_mex = false;
-                else
-                    obj.set_mex = true;
-                end
-                if hpc.accum_in_separate_process
-                    obj.set_single_worker = true;
-                else
-                    obj.set_single_worker = false;
-                end
-            end
-            
-            
-        end
-        function setUp(obj)
-            if ~obj.skip_test
-                if obj.set_mex
-                    hc = hor_config;
-                    hc.use_mex = true;
-                end
-                if obj.set_single_worker
-                    hpcc = hpc_config;
-                    hpcc.accum_in_separate_process = false;
-                end
-            end
-        end
-        %
-        function tearDown(obj)
-            if ~obj.skip_test
-                if obj.set_mex
-                    hc = hor_config;
-                    hc.use_mex = false;
-                end
-                if obj.set_single_worker
-                    hpcc = hpc_config;
-                    hpcc.accum_in_separate_process = true;
-                end
-                
-            end
+           
+            obj = obj@gen_sqw_common_config(1,0,-1,-1);            
+            obj = obj@gen_sqw_accumulate_sqw_common_test(name,'mex');            
         end
         %------------------------------------------------------------------
         % the test specific to mex mode
@@ -120,8 +75,8 @@ classdef test_gen_sqw_accumulate_sqw_mex < gen_sqw_accumulate_sqw_common_test
             clob2 = onCleanup(@()set(hc,hc2save));
             hc.use_mex=true;
             hc.threads = 8;
-
- 
+            
+            
             %-------------------------------------------------------------
             spe_file_names = cell(1,1);
             for i=1:1
