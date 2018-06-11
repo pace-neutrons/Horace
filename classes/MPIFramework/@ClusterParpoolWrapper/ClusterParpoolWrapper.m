@@ -1,16 +1,12 @@
 classdef ClusterParpoolWrapper < ClusterWrapper
     % The class-wrapper for parallel computing toolbox cluster and MPI
-    % job submition routinge providing the same interface as Herbert
+    % job submission routine providing the same interface as Herbert
     % custom parallel class
     %
     %
     % $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
     %
     %----------------------------------------------------------------------
-    properties(Dependent)
-        % current job identifier the class controls
-        current_job;
-    end
     properties(Access = protected)
         cluster_ =[];
         current_job_ = [];
@@ -20,7 +16,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
         cluster_cur_state_ = [];
     end
     properties(Constant,Access = private)
-        % list of states availible for parallel computer toolbox cluster
+        % list of states available for parallel computer toolbox cluster
         % class
         par_cluster_state_names_ = {'pending','paused','queued','running',...
             'finished',...
@@ -30,6 +26,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
         cluster_name2code = containers.Map(...
             ClusterParpoolWrapper.par_cluster_state_names_ ,...
             ClusterParpoolWrapper.par_cluster_state_codes_ )
+        % List of states parallel computing toolbox may report
         %Pending     ( 'pending'     , 0  )
         %Paused      ( 'paused'      , 1  )
         %Queued      ( 'queued'      , 2  )
@@ -65,7 +62,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             [completed,obj] = obj.check_progress();
             if completed
                 error('PARPOOL_CLUSTER_WRAPPER:runtime_error',...
-                    'parpool culster for job %s finished before startgin any job. State: %s',...
+                    'parpool cluster for job %s finished before starting any job. State: %s',...
                     obj.job_id,obj.status_name);
             end
             % delete interactive parallel cluster if any exist
@@ -153,9 +150,6 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             
         end
         %------------------------------------------------------------------
-        function cjob = get.current_job(obj)
-            cjob = obj.current_job_;
-        end
     end
     methods(Access = protected)
         function ex = exit_worker_when_job_ends_(obj)

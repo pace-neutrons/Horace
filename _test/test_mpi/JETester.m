@@ -32,12 +32,15 @@ classdef JETester < JobExecutor
             task_num = obj.labIndex;
             disp('****************************************************');
             disp([' n_files: ',num2str(n_steps)]);
-            %fh = mess_cash.instance().log_file_h;            
-            %fprintf(fh,'entering do-job loop\n');            
+            %fh = mess_cash.instance().log_file_h;
+            %fprintf(fh,'entering do-job loop\n');
             job_par = obj.common_data_;
             if isfield(job_par,'fail_for_labsN')
                 labnums2fail = job_par.fail_for_labsN;
                 if any(obj.labIndex==labnums2fail)
+                    disp('****************************************************');
+                    fprintf('simulated failure for lab N %d\n',obj.labIndex);
+                    disp('****************************************************');
                     pause(1);
                     error('JETester:runtime_error',...
                         'simulated failure for lab N %d',obj.labIndex);
@@ -47,7 +50,7 @@ classdef JETester < JobExecutor
             n1 = n0+n_steps-1;
             t0 = tic;
             for ji = n0:n1
-                n_steps_done =  ji-n0+1;               
+                n_steps_done =  ji-n0+1;
                 filename = sprintf(job_par.filename_template,task_num,n_steps_done);
                 file = fullfile(job_par.filepath,filename);
                 f=fopen(file,'w');
@@ -56,9 +59,9 @@ classdef JETester < JobExecutor
                 disp('****************************************************');
                 disp(['finished test job generating test file: ',filename]);
                 disp('****************************************************');
-                %fprintf(fh,'logging progress for step %d ',ji);            
+                %fprintf(fh,'logging progress for step %d ',ji);
                 obj.log_progress(n_steps_done,n_steps,toc(t0)/n_steps_done,'');
-                %fprintf(fh,'completed\n');                            
+                %fprintf(fh,'completed\n');
             end
             if obj.return_results_
                 out_str = sprintf('Job %d generated %d files',task_num,n_steps);

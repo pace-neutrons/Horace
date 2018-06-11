@@ -335,7 +335,7 @@ classdef iMessagesFramework
         % framework and shut the framework down.
         finalize_all(obj)
         % wait until all worker arive to the part of the code specified
-        ok=labBarrier(obj);
+        [ok,err]=labBarrier(obj,nothrow);
         %
         % remove all messages from MPI message cash
         clear_messages(obj);

@@ -15,13 +15,17 @@ if ~exist('mess_name','var')
     mess_name = '';
     synchronize = false;
 end
-all_messages = cell(numel(tid_requested),1);
-tid_received_from = zeros(numel(tid_requested),1);
-all_received = false;
-[message_names,tid_from] = list_all_messages_(obj,tid_requested,mess_name);
-tid_exist = ismember(tid_requested,tid_from);
 n_requested = numel(tid_requested);
-n_received = 0;
+all_messages = cell(n_requested ,1);
+mess_received = false(n_requested ,1);
+tid_received_from = zeros(n_requested ,1);
+
+[message_names,tid_from] = list_all_messages_(obj,tid_requested,mess_name);
+[tid_from,im] = unique(tid_from);
+message_names = message_names(im);
+tid_exist = ismember(tid_requested,tid_from);
+
+all_received = false;
 t0 = tic;
 while ~all_received
     for i=1:numel(tid_exist)
@@ -35,25 +39,36 @@ while ~all_received
         end
         all_messages{i} = message;
         tid_received_from(i) = tid_requested(i);
+        mess_received(i) = true;
     end
-    n_received  = n_received +numel(tid_from);
     
-    if synchronize        
-        if n_received >= n_requested
-            all_received = true;
-        else
+    if synchronize
+        all_received = all(mess_received);
+        if ~all_received
             t1 = toc(t0);
             if t1>obj.time_to_fail_
                 error('FILEBASED_MESSAGES:runtime_error',...
                     'Timeout waiting for receiving all messages')
             end
             [message_names,tid_from] = list_all_messages_(obj,tid_requested,mess_name);
+            [tid_from,im] = unique(tid_from);
+            message_names = message_names(im);
             tid_exist = ismember(tid_requested,tid_from);
+            
+            pause(0.1);
         end
-        
-        pause(0.1);
     else
         all_received = true;
     end
     
+end
+if ~synchronize
+    all_messages = all_messages(mess_received);
+    tid_received_from = tid_received_from(mess_received);
+end
+% sort received messages according to task id to ensure consistent sequence
+% of task messages
+if ~isempty(tid_received_from)
+    [tid_received_from,ic]  = sort(tid_received_from);
+    all_messages  = all_messages(ic);
 end

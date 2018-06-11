@@ -163,8 +163,8 @@ classdef MessagesFilebased < iMessagesFramework
                 end
             end
         end
-        function ok=labBarrier(obj)
-            ok=wait_at_barrier_(obj);
+        function [ok,err]=labBarrier(obj,nothrow)
+            [ok,err]=wait_at_barrier_(obj,nothrow);
         end
         
         

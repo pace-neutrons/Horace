@@ -205,57 +205,9 @@ classdef JobExecutor
         % MPI interface (Underdeveloped, may be not necessary except
         % is_job_cancelled)
         %
-        % overloads to exchange messages with JobDispatcher for particular job Executor
-        function [ok,err_mess] = send_message(obj,targ_lab,message)
-            % send message to job dispatcher
-            % input:
-            % message -- an instance of the class aMessage to send to job
-            %            dispatcher
-            %
-            [ok,err_mess] = obj.mess_framework_.send_message(targ_lab,...
-                message);
-        end
-        %
-        function [ok,err_mess,message] = receive_message(obj,source_lab,mess_name)
-            % receive message from job dispatcher
-            [ok,err_mess,message] = obj.mess_framework_.receive_message(source_lab,mess_name);
-        end
-        %
-        function ok=probe_message(obj,mess_name)
-            all_names = obj.mess_framework_.probe_all([],mess_name);
-            if exist('mess_name','var')
-                if any(ismember(mess_name,all_names))
-                    ok = true;
-                else
-                    ok = false;
-                end
-            else
-                if isempty(all_names)
-                    ok = false;
-                else
-                    ok = true;
-                end
-            end
-        end
-        %
-        function messages = receive_all_messages(obj,varargin)
-            % retrieve (and remove from system) all messages
-            % existing in the system for the jobs with id-s specified as input
-            %
-            %Return:
-            % all_messages -- cellarray of messages belonging to this job
-            %                 have messages available in the system .
-            %
-            if nargin == 2
-                mf = varargin{1};
-                messages = mf.receive_all();
-            else
-                messages = obj.mess_framework_.receive_all();
-            end
-        end
-        function labBarrier(obj)
+        function [ok,err]=labBarrier(obj,nothrow)
             % implement labBarrier to synchronize various workers.
-            obj.mess_framework.labBarrier();
+            [ok,err] = obj.mess_framework.labBarrier(nothrow);
         end
         %
         function is = is_job_cancelled(obj)

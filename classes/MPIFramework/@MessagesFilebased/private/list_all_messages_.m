@@ -33,6 +33,10 @@ folder_contents = dir(mess_folder);
 if numel(folder_contents )<=2 % no messages in the folder
     all_messages = {};
     mid_from  = [];
+    if ~(exist(mess_folder,'dir')==7) % job was canceled
+        error('FILEBASED_MESSAGES:runtime_error',...
+            'job with id %s has been canceled',obj.job_id)        
+    end
     return;
 end
 [mess_names,mid_from,mid_to] = parce_folder_contents_(folder_contents);

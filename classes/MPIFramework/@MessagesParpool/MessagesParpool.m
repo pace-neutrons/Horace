@@ -193,9 +193,10 @@ classdef MessagesParpool < iMessagesFramework
                 [isDataAvail,srcWkrIdx,tag] = labProbe();                
             end
         end
-        function ok=labBarrier(obj)
+        function [ok,err]=labBarrier(obj,nothrow)
             labBarrier;
             ok = true;
+            err = [];
         end
     end
     %----------------------------------------------------------------------

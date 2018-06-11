@@ -16,6 +16,97 @@ classdef test_job_executor< MPI_Test_Common
             this = this@MPI_Test_Common(name,'herbert');
             this.working_dir = tempdir;
         end
+        function test_worker_fails(this)
+            mis = MPI_State.instance();
+            mis.is_tested = true;
+            clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));
+            
+            % build jobs data
+            common_job_param = struct('filepath',this.working_dir,...
+                'filename_template','test_jobDispatcherL%d_nf%d.txt',...
+                'fail_for_labsN',1:2);
+            
+            %cs  = iMessagesFramework.deserialize_par(css1);
+            % initiate exchange class which would work on a client(worker's) side
+            serverfbMPI  = MessagesFilebased('test_worker_some_fail');
+            serverfbMPI.mess_exchange_folder = this.working_dir;
+            %             cs.labID = 0;
+            %             serverfbMPI= serverfbMPI.init_framework(cs);
+            clob = onCleanup(@()finalize_all(serverfbMPI));
+            css1= serverfbMPI.gen_worker_init(1,3);
+            css2= serverfbMPI.gen_worker_init(2,3);
+            css3= serverfbMPI.gen_worker_init(3,3);            
+            
+            
+            je_initMess = serverfbMPI.build_je_init('JETester');
+            job1_initMess = InitMessage(common_job_param,1,true,1);
+            job2_initMess = InitMessage(common_job_param,1,true,2);
+            job3_initMess = InitMessage(common_job_param,2,true,3);            
+            
+            % Prepare control sequences for two jobs:
+            % job 1
+            [ok,err_mess] = serverfbMPI.send_message(1,je_initMess);
+            assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
+            [ok,err_mess] = serverfbMPI.send_message(1,job1_initMess);
+            assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
+            % job 2
+            [ok,err_mess] = serverfbMPI.send_message(2,je_initMess);
+            assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
+            [ok,err_mess] = serverfbMPI.send_message(2,job2_initMess);
+            assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
+
+            % job 3
+            [ok,err_mess] = serverfbMPI.send_message(3,je_initMess);
+            assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
+            [ok,err_mess] = serverfbMPI.send_message(3,job3_initMess);
+            assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
+            
+            if verLessThan('matlab','8.1')
+                if verLessThan('matlab','7.14')
+                    warning('Signleton does not work properly on Maltab 2011a/b. not testing workers');
+                    return
+                elseif strcmpi(computer,'pcwin')
+                    warning('Signleton does not work properly on Maltab 2012/b 32bit version. Not testing workers');
+                    return
+                end
+            end
+            % workers change config folder to its own value so ensure it
+            % will be reverted to the initial value
+            cs = config_store.instance();
+            this.current_config_folder = cs.config_folder;
+            clob1 = onCleanup(@()(set_config_path(cs,this.current_config_folder)));
+            
+            file3= fullfile(this.working_dir,'test_jobDispatcherL3_nf1.txt');
+            file3a= fullfile(this.working_dir,'test_jobDispatcherL3_nf2.txt');
+            
+
+            clob2 = onCleanup(@()delete(file3,file3a));
+            
+            
+            % start three client jobs, two should fail
+            % second needs to start first as it will report its profess to
+            % the lab1
+            worker(css3);            
+            worker(css2);
+            worker(css1);
+            % all workers reply 'started' to node1 as it is cluster
+            % control message
+            [ok,err_mess,message] = serverfbMPI.receive_message(1,'started');
+            assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
+            assertEqual(message.mess_name,'failed')
+            assertEqual(numel(message.payload),3);
+            
+            assertTrue(exist(file3,'file')==2);
+            assertTrue(exist(file3a,'file')==2);
+            
+            
+            assertTrue(isa(message.payload{1},'MException'))
+            assertTrue(isa(message.payload{2},'MException'))            
+            assertEqual(message.payload{3},'Job 3 generated 2 files')
+            
+            
+        end
+        
         
         function test_worker(this)
             mis = MPI_State.instance();
@@ -80,12 +171,9 @@ classdef test_job_executor< MPI_Test_Common
             % the lab1
             worker(css2);
             worker(css1);
-            % all workers reply 'started' to headnode as it is cluster
-            % control message
+            % all workers reply 'started' to node1 and node 1 reduces this 
+            % message to message from node 1 to node 0
             [ok,err_mess,message] = serverfbMPI.receive_message(1,'started');
-            assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
-            assertEqual(message.mess_name,'started')
-            [ok,err_mess,message] = serverfbMPI.receive_message(2,'started');
             assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
             assertEqual(message.mess_name,'started')
             

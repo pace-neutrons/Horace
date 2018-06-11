@@ -7,7 +7,7 @@ classdef taskController
     properties(Dependent)
         % task number assigned by JobDispatcher (lab number)
         task_id
-        % the handle to a class, used to controling the task directly
+        % the handle to a class, used to controlling the task directly
         % (not through messages)
         task_handle
         % task states:
@@ -18,7 +18,7 @@ classdef taskController
         % property indicate that state of the task have changed
         state_changed
         % if task reports it progress. Enabling it allows to expect failure
-        % if reports do not come for a specifc period of time
+        % if reports do not come for a specific period of time
         reports_progress
         % counts failed attempts to obtain something from a task
         waiting_count
