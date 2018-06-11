@@ -2,7 +2,7 @@ function varargout = tobyfit (varargin)
 % Simultaneously fits resolution broadened S(Q,w) models to sqw objects.
 %
 % For a direct geometry Fermi chopper instrument:
-%   >> myobj = tobyfit (w1, w2, ...)      % w1, w2 arrays of objects
+%   >> myobj = tobyfit (w1, w2, ...)      % w1, w2 sqw objects or arrays of objects
 %
 % More generally:
 %   >> myobj = tobyfit (w1, w2, ..., instrument_type)
@@ -14,16 +14,16 @@ function varargout = tobyfit (varargin)
 % This creates a fitting object of class mfclass_Tobyfit with the provided
 % data, which can then be manipulated to add further data, set the fitting
 % functions, initial parameter values etc. and fit or simulate the data.
-% For details <a href="matlab:help('mfclass_Tobyfit');">Click here</a>
+% For details on how to do this <a href="matlab:help('mfclass_Tobyfit');">Click here</a>
 %
-% This method fits model(s) for S(Q,w) as the foreground function(s), and
+% Tobyfit fits model(s) for S(Q,w) as the foreground function(s), and
 % function(s) of the plot axes as the background function(s)
 %
-% For the format of foreground fit functions:
+% For the format of foreground fit functions see the following examples:
 % <a href="matlab:edit('example_sqw_spin_waves');">Damped spin waves</a>
 % <a href="matlab:edit('example_sqw_flat_mode');">Dispersionless excitations</a>
 %
-% The format of the background fit functions depends on the mnumber of plot
+% The format of the background fit functions depends on the number of plot
 % axes for each sqw object. For examples see:
 % <a href="matlab:edit('example_1d_function');">example_1d_function</a>
 % <a href="matlab:edit('example_2d_function');">example_2d_function</a>
