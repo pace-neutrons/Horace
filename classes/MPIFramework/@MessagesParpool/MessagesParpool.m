@@ -76,7 +76,8 @@ classdef MessagesParpool < iMessagesFramework
         %
         function [ok,err_mess,message] = receive_message(obj,varargin)
             % receive message from a task with specified id
-            % Blocking
+            % Blocking until message is received.
+            %
             %Usage
             %>>[ok,err,message] = obj.receive_message() -- Receive any message.
             %>>[ok,err,message] = obj.receive_message(labId)  -- Receive
@@ -103,21 +104,12 @@ classdef MessagesParpool < iMessagesFramework
                     tag = message.tag;
                 elseif ischar(message)
                     tag = MESS_NAMES.mess_id(message);
+                    message = aMessage(message);
                 end
                 labSend(message,task_id,tag);
             catch Err
                 ok = false;
                 err_mess = Err;
-            end
-        end
-        %
-        %
-        function is = is_job_cancelled(obj)
-            %2 method verifies if job has been cancelled
-            if ~exist(obj.mess_exchange_folder_,'dir')
-                is=true;
-            else
-                is=false;
             end
         end
         %
@@ -174,7 +166,7 @@ classdef MessagesParpool < iMessagesFramework
             %                 the name provided. The messages sent from the
             %                 specified workers but with the name different
             %                 from provided are stored in the messages
-            %                 cash, availible for subsequent requests to
+            %                 cash, available for subsequent requests to
             %                 the recieve_all method.
             %
             %

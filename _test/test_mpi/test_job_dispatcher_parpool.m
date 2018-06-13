@@ -15,7 +15,7 @@ classdef test_job_dispatcher_parpool< job_dispatcher_common_tests
             this = this@job_dispatcher_common_tests(name,'parpool');
         end
         %
-        function test_finish_2tasks_reduce_messages(obj,varargin)
+        function test_finish_tasks_reduce_messages(obj,varargin)
             if obj.ignore_test
                 return;
             end
@@ -24,7 +24,7 @@ classdef test_job_dispatcher_parpool< job_dispatcher_common_tests
                 clob0 = onCleanup(@()tearDown(obj));
             end
             
-            serverfbMPI  = MessagesFilebased('test_finish_2tasks_reduce_mess');
+            serverfbMPI  = MessagesFilebased('test_finish_tasks_reduce_mess');
             serverfbMPI.mess_exchange_folder = obj.working_dir;
             
             clob = onCleanup(@()finalize_all(serverfbMPI));

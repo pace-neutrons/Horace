@@ -1,13 +1,13 @@
-function   [all_messages,tid_received_from,obj] = receive_all_messages_(obj,task_ids,mess_name)
+function   [all_messages,tid_received_from] = receive_all_messages_(obj,task_ids,mess_name)
 % retrieve all messages intended for jobs with task id-s  provided as input
 % if message name is also present, return only messages with the name
 % specified and wait until the messages with this name arrive from all labs
 % requested
 %
+all_messages = {};
+tid_received_from = [];
 n_labs = obj.numLabs;
 if n_labs == 1 % nothing to do -- lab can not send message to itself (shame)
-    all_messages = {};
-    tid_received_from = [];
     return;
 end
 %
@@ -59,6 +59,7 @@ all_received = false;
 n_calls = 0;
 mc = mess_cash.instance();
 t0 = tic;
+is_failed = false;
 while ~all_received
     n_cur_mess = 0;
     for i=1:n_requested % receive all existing messages in the messages queue
@@ -69,10 +70,16 @@ while ~all_received
         tid_to_ask = tid_from(n_cur_mess);
         %fprintf(' receiving message %s from task: %d\n',mess_names{n_cur_mess},tid_to_ask)
         [ok,err_exception,message]=receive_message_(obj,tid_to_ask,mess_names{n_cur_mess});
-        if ~ok
-            rethrow(err_exception);
+        if ok ~= MESS_CODES.ok 
+            if ok == MESS_CODES.job_cancelled
+                is_failed = true;
+                message = aMessage('cancelled');
+                message.payload = err_exception;
+            else
+                rethrow(err_exception);
+            end
         end
-        if strcmp(message.mess_name,'failed')
+        if strcmp(message.mess_name,'failed') || is_failed
             % failed message is persistent.
             % Make it ready for the next possible receive request
             mc.push_messages(tid_to_ask,message);

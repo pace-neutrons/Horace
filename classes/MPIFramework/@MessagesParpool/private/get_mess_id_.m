@@ -31,7 +31,7 @@ end
 function id = check_id(input)
 if ~isnumeric(input)
     error('PARPOOL_MESSAGES:invalid_argument',...
-        'labIndex should be numeric')
+        'labIndex should be numeric. It is: %s',class(input))
 end
 id = double(input);
 

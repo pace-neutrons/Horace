@@ -10,12 +10,19 @@ function  log_progress_(obj,step,n_steps,time_per_step,add_info)
 %              job log
 % Outputs:
 % Sends message of type LogMessage to the job dispatcher.
-% Throws MESSAGE_FRAMEWORK:cancelled error in case the job has
+% Throws JOB_EXECUTOR:cancelled error in case the job has
 %
+is_cancelled = obj.is_job_cancelled();
+if is_cancelled
+    error('JOB_EXECUTOR:cancelled',...
+        'Task %d has been cancelled at step %d#%d',obj.labIndex,step,n_steps)
+end
+
 mess = LogMessage(step,n_steps,time_per_step,add_info);
+
 [~,~,fin_mess] = reduce_messages_(obj,mess,[],false,'running');
 if obj.labIndex == 1
-    if isa(fin_mess,'LogMessage') % calculate avarage logs
+    if isa(fin_mess,'LogMessage') % calculate average logs
         all_logs = fin_mess.payload;
         n_steps_done = 0;
         n_steps_to_do = -inf;
@@ -49,8 +56,6 @@ if obj.labIndex == 1
 end
 if strcmp(fin_mess.mess_name,'failed')
     error('JOB_EXECUTOR:runtime_error',...
-        ' interupting worker N%d, at log point as other worker(s) reported failure',...
-        obj.labIndex);
+        'Task N%d has been interrupted at log point at step %d#%d as other worker(s) reported failure',...
+        obj.labIndex,step,n_steps);
 end
-
-

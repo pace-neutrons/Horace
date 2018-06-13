@@ -5,7 +5,7 @@ classdef MESS_NAMES
     
     properties(Constant,Access=private)
         mess_names_ = {'failed','pending','init','starting','started','running',...
-            'barrier','data','canceled','completed'};
+            'barrier','data','cancelled','completed'};
         mess_codes_ = {0,1,2,3,4,5,6,7,8,9};
         name2code_map_ = containers.Map(MESS_NAMES.mess_names_,MESS_NAMES.mess_codes_);
         code2name_map_ = containers.Map(MESS_NAMES.mess_codes_,MESS_NAMES.mess_names_);

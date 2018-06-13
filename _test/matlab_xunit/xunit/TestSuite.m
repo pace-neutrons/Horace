@@ -302,7 +302,7 @@ classdef TestSuite < TestComponent
             mfiles = dir(fullfile('.', '*.m'));
             for k = 1:numel(mfiles)
                 [~, name] = fileparts(mfiles(k).name);
-                if xunit.utils.isTestCaseSubclass(name)
+                if xunit.utils.isTestCaseSubclass(name) && ~isempty(regexp(name,'^test_','ONCE'))
                     test_suite.add(TestSuite.fromTestCaseClassName(name));
                 elseif xunit.utils.isTestString(name)
                     suite_k = TestSuite.fromName(name);

@@ -40,7 +40,7 @@ end
 function completed = check_completed(tag)
 persistent fin_id;
 if isempty(fin_id)
-    fin_id = MESS_NAMES.mess_id('failed','canceled','completed');
+    fin_id = MESS_NAMES.mess_id('failed','cancelled','completed');
 end
 if any(tag==fin_id)
     completed = true;

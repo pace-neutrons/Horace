@@ -13,7 +13,7 @@ classdef JobExecutor
     properties(Dependent)
         %-------------------------------------
         % Properties of a job executor:
-        % the id of the running task
+        % the id(number) of the running task
         labIndex;
         % Access to messages framework used to exchange messages between
         % executor and controller
@@ -31,7 +31,7 @@ classdef JobExecutor
     properties(Access=protected)
         % handle for the messages framework
         mess_framework_ = [];
-        % the holder of the class, responsible for comunicatiob between the
+        % the holder of the class, responsible for communication between the
         % head node and the worker's pool
         control_node_exch_ = [];
         %------------------------------------------------------------------
@@ -49,13 +49,13 @@ classdef JobExecutor
         % cellarray of the data, specific to each loop iteration
         loop_data_ = {};
         %
-        % if the task needs to return results on completeon.
+        % if the task needs to return results on completion.
         return_results_ = false;
         % task results holder used to keep a task's results to return at
         % finish task stage if return_results is set to true;
         % do_job and/or reduce_data should populate this property according
         % to the particular task logic.
-        task_results_holder_ =[];
+        task_results_holder_ ={};
         
     end
     methods(Abstract)
@@ -107,7 +107,7 @@ classdef JobExecutor
             [obj,mess]=init_je_(obj,fbMPI,job_control_struct,InitMessage);
         end
         %
-        function [ok,mess] =finish_task(this,varargin)
+        function [ok,mess,this] =finish_task(this,varargin)
             % Cleanly finish job execution amd inform head node about it
             %
             %Usage:
@@ -122,7 +122,7 @@ classdef JobExecutor
             % when mess_reduction_function is present, the messages from
             % all labs processed on the lab one using this function
             %
-            [ok,mess] = finish_task_(this,varargin{:});
+            [ok,mess,this] = finish_task_(this,varargin{:});
         end
         %
         function [ok,err,obj] = reduce_send_message(obj,mess,varargin)
@@ -167,7 +167,7 @@ classdef JobExecutor
             %             empty.
             % Outputs:
             % Sends message of type LogMessage to the job dispatcher.
-            % Throws MESSAGE_FRAMEWORK:cancelled error in case the job has
+            % Throws JOB_EXECUTOR:cancelled error in case the job has
             %
             log_progress_(this,step,n_steps,time_per_step,add_info);
         end
@@ -191,14 +191,14 @@ classdef JobExecutor
         %
         %
         function mf= get.mess_framework(obj)
-            % returns referece to MPI framework, used for exchange between
+            % returns reference to MPI framework, used for exchange between
             % MPI nodes of a cluster
             mf = obj.mess_framework_;
         end
         %
         function mf = get.control_node_exch(obj)
             % returns reference to MPI framework, used for exchange between
-            % mpi cluster and control node.
+            % MPI cluster and control node.
             mf = obj.control_node_exch_;
         end
         %------------------------------------------------------------------
@@ -212,6 +212,14 @@ classdef JobExecutor
         %
         function is = is_job_cancelled(obj)
             is = obj.control_node_exch_.is_job_cancelled();
+            if ~is
+                [mess,tids] = obj.mess_framework_.probe_all('all','cancelled');
+                if ~isempty(mess)
+                    is = true;
+                    % discard message(s)
+                    obj.mess_framework_.receive_all(tids,'cancelled');
+                end
+            end
         end
     end
     

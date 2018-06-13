@@ -19,7 +19,7 @@ classdef ClusterHerbert < ClusterWrapper
         running_mess_contents_= 'process has not exited';
     end
     properties(Constant,Access = private)
-        task_common_str_ = {'-nosplash','-r'};
+        task_common_str_ = {'-nosplash','-nodesktop','-r'};
         DEBUG_REMOTE = false;
     end
     

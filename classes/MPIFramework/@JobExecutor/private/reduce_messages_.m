@@ -4,7 +4,7 @@ function [ok,err,fin_mess,obj] = reduce_messages_(obj,mess,mess_process_function
 % Inputs:
 % mess                  -- the message(s) to reduce
 % mess_process_function -- the function used to process list of similar messages to
-%                          build final message. If empty, default funcion
+%                          build final message. If empty, default function
 %                          is used
 % synchronize           -- if false, collect only existing messages from all
 %                          workers and do not wait for receiving similar
@@ -52,11 +52,11 @@ end
 
 if mf.labIndex == 1
     if lock_until_received
-        [all_messages,~] = mf.receive_all('all',reduction_name);
+        all_messages = mf.receive_all('all',reduction_name);
     else
         [~,task_ids] = mf.probe_all('all',reduction_name);
         if numel(task_ids) > 0
-            [all_messages,~] = mf.receive_all(task_ids,reduction_name);
+            all_messages = mf.receive_all(task_ids,reduction_name);
         else
             all_messages = {};
         end

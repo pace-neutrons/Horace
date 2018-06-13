@@ -35,13 +35,13 @@ classdef test_job_executor< MPI_Test_Common
             clob = onCleanup(@()finalize_all(serverfbMPI));
             css1= serverfbMPI.gen_worker_init(1,3);
             css2= serverfbMPI.gen_worker_init(2,3);
-            css3= serverfbMPI.gen_worker_init(3,3);            
+            css3= serverfbMPI.gen_worker_init(3,3);
             
             
             je_initMess = serverfbMPI.build_je_init('JETester');
             job1_initMess = InitMessage(common_job_param,1,true,1);
             job2_initMess = InitMessage(common_job_param,1,true,2);
-            job3_initMess = InitMessage(common_job_param,2,true,3);            
+            job3_initMess = InitMessage(common_job_param,2,true,3);
             
             % Prepare control sequences for two jobs:
             % job 1
@@ -54,7 +54,7 @@ classdef test_job_executor< MPI_Test_Common
             assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
             [ok,err_mess] = serverfbMPI.send_message(2,job2_initMess);
             assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
-
+            
             % job 3
             [ok,err_mess] = serverfbMPI.send_message(3,je_initMess);
             assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
@@ -79,14 +79,14 @@ classdef test_job_executor< MPI_Test_Common
             file3= fullfile(this.working_dir,'test_jobDispatcherL3_nf1.txt');
             file3a= fullfile(this.working_dir,'test_jobDispatcherL3_nf2.txt');
             
-
+            
             clob2 = onCleanup(@()delete(file3,file3a));
             
             
             % start three client jobs, two should fail
             % second needs to start first as it will report its profess to
             % the lab1
-            worker(css3);            
+            worker(css3);
             worker(css2);
             worker(css1);
             % all workers reply 'started' to node1 as it is cluster
@@ -101,12 +101,11 @@ classdef test_job_executor< MPI_Test_Common
             
             
             assertTrue(isa(message.payload{1},'MException'))
-            assertTrue(isa(message.payload{2},'MException'))            
+            assertTrue(isa(message.payload{2},'MException'))
             assertEqual(message.payload{3},'Job 3 generated 2 files')
             
             
         end
-        
         
         function test_worker(this)
             mis = MPI_State.instance();
@@ -171,7 +170,7 @@ classdef test_job_executor< MPI_Test_Common
             % the lab1
             worker(css2);
             worker(css1);
-            % all workers reply 'started' to node1 and node 1 reduces this 
+            % all workers reply 'started' to node1 and node 1 reduces this
             % message to message from node 1 to node 0
             [ok,err_mess,message] = serverfbMPI.receive_message(1,'started');
             assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
@@ -192,6 +191,7 @@ classdef test_job_executor< MPI_Test_Common
             
             
         end
+        
         function test_log_messages(obj)
             serverfbMPI  = MessagesFilebased('test_log_messages');
             serverfbMPI.mess_exchange_folder = obj.working_dir;
@@ -241,6 +241,7 @@ classdef test_job_executor< MPI_Test_Common
             assertEqual(numel(mess.payload.worker_logs),3);
             
         end
+        
         function test_log_progress_with_fail(obj)
             serverfbMPI  = MessagesFilebased('test_log_progress');
             serverfbMPI.mess_exchange_folder = obj.working_dir;
@@ -273,34 +274,39 @@ classdef test_job_executor< MPI_Test_Common
             
             % test log progress
             je3.log_progress(1,10,1,[]);
+            % on error, the framework would send canceled messages
+            je2.mess_framework.send_message(1,'cancelled');
+            je2.mess_framework.send_message(3,'cancelled');
+            % and then finish task with failure
             je2.finish_task(FailMessage('simulated fail'));
             try
                 je1.log_progress(1,9,1.3,[]); %throws as no point to contiunue the execution after
             catch ME
-                assertEqual(ME.identifier,'JOB_EXECUTOR:runtime_error')
+                assertEqual(ME.identifier,'JOB_EXECUTOR:cancelled')
             end
+            try
+                je3.log_progress(2,9,1.3,[]); %throws as no point to contiunue the execution after
+            catch ME
+                assertEqual(ME.identifier,'JOB_EXECUTOR:cancelled')
+            end
+            je3.finish_task(FailMessage('job cancelled'));
+            
+            je1.finish_task(FailMessage('job canceled',ME));
+            %
             % Server expects  to receive "running" message
             [ok,err,mess] = serverfbMPI.receive_message(1,'running');
             assertEqual(ok,MESS_CODES.ok,err);
             % but in fact got 'failed'
             assertEqual(mess.mess_name,'failed');
             assertEqual(numel(mess.payload),3)
-            assertTrue(isstruct(mess.payload{1}));
-            assertTrue(isstruct(mess.payload{3}));
-            assertTrue(isa(mess.payload{2},'MException'));
+            assertTrue(isa(mess.payload{1},'MException'));
+            assertTrue(isa(mess.payload{2},'MException'));            
+            assertTrue(isa(mess.payload{3},'MException'));
             
-            % Fail message is sticky so will still throw.
-            je3.log_progress(5,10,1,[]);
-            try
-                je1.log_progress(4,9,1.3,[]);
-            catch ME
-                assertEqual(ME.identifier,'JOB_EXECUTOR:runtime_error')
-            end
-            % clear all messages to remove 'fail' message
-            je1.mess_framework.clear_messages()
+           
             serverfbMPI.clear_messages();
             
-            % calculate run on the basis of partial message
+            % calculate run on the basis of partial log  messages
             je3.log_progress(5,10,1,[]);
             je1.log_progress(4,9,1.3,[]);
             [ok,err,mess] = serverfbMPI.receive_message(1,'running');
@@ -312,19 +318,31 @@ classdef test_job_executor< MPI_Test_Common
             assertEqual(numel(wkl),2)
             assertTrue(isstruct(wkl{1}));
             assertTrue(isstruct(wkl {2}));
+            %-------------------------------------------------------------
+	        je1.mess_framework.clear_messages();
+	        je2.mess_framework.clear_messages();
+	        je3.mess_framework.clear_messages();            
             
-            
-            je3.log_progress(10,10,1,[]);
+            je3.log_progress(9,10,1,[]);
             je2.finish_task(FailMessage('simulated fail wk2'));
+            je2.mess_framework.send_message(3,'cancelled');  
+            try
+                je3.log_progress(10,10,1.3,[]); %throws as no point to contiunue the execution after
+            catch ME
+                assertEqual(ME.identifier,'JOB_EXECUTOR:cancelled')
+            end
+            je3.finish_task(FailMessage('Job Canceled',ME));            
+            
             je1.finish_task(FailMessage('simulated fail wk1'));
             
             [ok,err,mess] = serverfbMPI.receive_message(1,'running');
             assertEqual(ok,MESS_CODES.ok,err);
             assertEqual(mess.mess_name,'failed');
             assertTrue(iscell(mess.payload));
-            assertEqual(numel(mess.payload),2); % one job is presumably in running, though it does not matter any more
+            assertEqual(numel(mess.payload),3); % one job is presumably in running, though it does not matter any more
             assertTrue(isa(mess.payload{1},'MException'));
             assertTrue(isa(mess.payload{2},'MException'));
+            assertTrue(isa(mess.payload{3},'MException'));            
             %assertTrue(isstruct(mess.payload{3}));
             
         end

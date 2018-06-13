@@ -23,7 +23,7 @@ elseif isnumeric(mess_name_or_tag)
         mess_tag_requested = mess_name_or_tag;
     else
         error('FILEBASED_MESSAGES:invalid_argument',...
-            'one all of the tags among the tags requested to list is not recoginzed')
+            'one all of the tags among the tags provided in tags list is not recognized')
     end
 else
 end
@@ -33,9 +33,9 @@ folder_contents = dir(mess_folder);
 if numel(folder_contents )<=2 % no messages in the folder
     all_messages = {};
     mid_from  = [];
-    if ~(exist(mess_folder,'dir')==7) % job was canceled
+    if ~(exist(mess_folder,'dir')==7) % job was cancelled
         error('FILEBASED_MESSAGES:runtime_error',...
-            'job with id %s has been canceled',obj.job_id)        
+            'Job with id %s has been cancelled. No messages folder exist',obj.job_id)        
     end
     return;
 end

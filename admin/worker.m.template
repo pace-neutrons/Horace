@@ -52,22 +52,19 @@ fbMPI = MessagesFilebased(control_struct);
 
 keep_worker_running = true;
 while keep_worker_running
-    % clear all previus messages may be left in the message cash
-    % (especially 'failed' message which is never popped in normal way)
-    mess_cash.instance().delete();
     %
-    %fh = mess_cash.instance().log_file_h;
-    %fprintf(fh,'waiting for "starting" message\n');
     [ok,err,mess]= fbMPI.receive_message(0,'starting');
     %fprintf(fh,'got "starting" message\n');
     if ok ~= MESS_CODES.ok
         mess = aMessage('failed');
         err_mess = sprintf('job N%s failed while receive_je_info Error: %s:',...
-            control_struct.jobID,err);
+            control_struct.job_id,err);
         mess.payload = err_mess;
-        fbMPI.send_message(mess);
+        fbMPI.send_message(0,mess);
         ok = MESS_CODES.runtime_error;
-        return;
+        if exit_at_the_end;     exit;
+        else;                   return;
+        end
     else
         worker_init_data = mess.payload;
         keep_worker_running = worker_init_data.keep_worker_running;
@@ -100,6 +97,9 @@ while keep_worker_running
                 fbMPI.labIndex);
             error('WORKER:init_worker',err);
         end
+        if ~is_tested
+            je.labBarrier(false); % Start workers all together
+        end
         % Attach jobExecutor methods to mpi singleton to be availible from any part
         % of the code.
         mis.logger = @(step,n_steps,time,add_info)...
@@ -114,7 +114,7 @@ while keep_worker_running
             % when its tested, workers are tested in single matlab session so it will hand up on synchronization
             if ~is_tested
                 % when not tested, the synchronization is mandatory
-                je.labBarrier(); % Wait until all workers finish their job before reducing the data
+                je.labBarrier(false); % Wait until all workers finish their job before reducing the data
             end
             je = je.reduce_data();
             
@@ -122,28 +122,48 @@ while keep_worker_running
         %fprintf(fh,'je loop completed\n');
     catch ME
         %fprintf(fh,'je exception caught\n');
-        if ~strcmpi(ME.identifier,'MESSAGE_FRAMEWORK:cancelled')
-            err_text = sprintf('task N%d failed at jobExecutor %s. Reason: %s',...
-                worker_init_data.JobExecutorClassName,je.labIndex,ME.message);
+        try
+            if strcmpi(ME.identifier,'JOB_EXECUTOR:cancelled') || strcmpi(ME.identifier,'MESSAGE_FRAMEWORK:cancelled')
+                is_cancelled = true;
+                err_text = sprintf('Task N%d cancelled',...
+                    je.labIndex);
+            else                
+                is_cancelled = false;
+                err_text = sprintf('Task N%d failed at jobExecutor: %s. Reason: %s',...
+                    je.labIndex,worker_init_data.JobExecutorClassName,ME.message);
+            end
             mess = FailMessage(err_text,ME);
-            %save('error_mess','mess');
+            % send cancelled message to all other workers to finish their
+            % current job at log point.
+            if ~is_cancelled
+                mf = je.mess_framework;
+                n_labs = mf.numLabs;
+                this_lid = je.labIndex;     
+                for lid=1:n_labs
+                    if lid ~=this_lid
+                        je.mess_framework.send_message(lid,'cancelled');
+                    end
+                end
+            end
+            
             if ~is_tested
-                % when not tested, the synchronization is mandatory
-                je.labBarrier(); % Wait until all workers finish their job before reducing the data
+                je.labBarrier(true); % Wait until all workers come to their barrier before finishing the job
             end
             [ok,err_mess]=je.finish_task(mess);
-        end
-        if keep_worker_running
-            continue;
-        else
+            if keep_worker_running
+                continue;
+            else
+                break;
+            end
+        catch ME % the only exception should happen here is "job cancelled"
             if exit_at_the_end
                 exit;
             else
-                return;
+                rethrow(ME);
             end
+            
         end
-    end
-    
+    end %Exception
     [ok,err_mess] = je.finish_task();
 end
 %pause

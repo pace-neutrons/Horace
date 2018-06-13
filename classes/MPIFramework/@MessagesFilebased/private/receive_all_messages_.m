@@ -32,10 +32,14 @@ while ~all_received
         if ~tid_exist(i); continue; end
         
         [ok,err_mess,message]=receive_message_(obj,tid_requested(i),mess_name);
-        if ~ok
-            error('FILEBASED_MESSAGES:runtime_error',...
-                'Can not receive existing message: %s, Err: %s',...
-                message_names{i},err_mess);
+        if ok ~= MESS_CODES.ok
+            if ok == MESS_CODES.job_cancelled
+                error('MESSAGE_FRAMEWORK:cancelled',err_mess);
+            else
+                error('FILEBASED_MESSAGES:runtime_error',...
+                    'Can not receive existing message: %s, Err: %s',...
+                    message_names{i},err_mess);
+            end
         end
         all_messages{i} = message;
         tid_received_from(i) = tid_requested(i);

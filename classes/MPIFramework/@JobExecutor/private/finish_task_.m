@@ -1,4 +1,4 @@
-function [ok,err_mess]=finish_task_(obj,OtherMessage,mess_reduction_function)
+function [ok,err_mess,obj]=finish_task_(obj,OtherMessage,mess_reduction_function)
 % set up tag, indicating that the job have finished and
 % send message with output job results
 %
@@ -12,12 +12,12 @@ if exist('OtherMessage','var') && ~isempty(OtherMessage)
         if isempty(mess.payload)
             mess.payload = obj.task_results_holder_;
         else
-            mess.payload = {mess.payload,obj.task_results_holder_};
+            mess.payload = [{mess.payload},obj.task_results_holder_];
         end
     end
-    if isa(mess,'FailMessage')
-        syncronize  = false;
-    end
+    %     if isa(mess,'FailMessage')
+    %         synchronize  = false;
+    %     end
 else
     mess = aMessage('completed');
     if obj.return_results_
@@ -25,7 +25,7 @@ else
     end
 end
 if ~exist('mess_reduction_function','var')
-    % function used to reduce messages reived from all labs contributing
+    % function used to reduce messages received from all labs contributing
     % labs and process final message to send to host
     mess_reduction_function = [];
 end
@@ -40,5 +40,8 @@ if obj.labIndex == 1
         ok  = false;
     end
 end
+% clear all previous messages may be left in the message cash
+% (especially 'failed' message which is never popped in normal way)
+mess_cash.instance().delete();
 obj.mess_framework.clear_messages();
-
+obj.task_results_holder_ = {};

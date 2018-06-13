@@ -21,9 +21,6 @@ function [outputs,n_failed,task_ids,obj] = submit_and_run_job_(obj,...
 % $Revision: 699 $ ($Date: 2018-02-08 17:40:52 +0000 (Thu, 08 Feb 2018) $)
 %
 
-if ~keep_workers_running
-    clob = onCleanup(@()delete(obj));
-end
 
 exit_worker_when_job_ends = cluster_wrp.exit_worker_when_job_ends;
 n_workers                 = cluster_wrp.n_workers;
@@ -58,3 +55,5 @@ while(~completed)
 end
 % retrieve final results
 [outputs,n_failed]=  cluster_wrp.retrieve_results();
+% retrieve all possible 
+obj.mess_framework.clear_messages();

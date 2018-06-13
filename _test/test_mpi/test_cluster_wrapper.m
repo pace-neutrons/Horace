@@ -44,7 +44,7 @@ classdef test_cluster_wrapper < TestCase
             worker_init_mess{3}.payload = 'c';
             
             %--------------------------------------------------------------
-            cluster = cluster.init_cluster_job(jeInit,worker_init_mess);
+            cluster = cluster.init_workers(jeInit,worker_init_mess);
             assertEqual(cluster.status.mess_name,'started');
             %--------------------------------------------------------------
             % receive "starting" messages used to provide jeInit info to

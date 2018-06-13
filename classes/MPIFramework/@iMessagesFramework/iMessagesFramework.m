@@ -143,6 +143,12 @@ classdef iMessagesFramework
             else
                 is=false;
             end
+            if ~is
+                mess = obj.probe_all('all','cancelled');
+                if ~isempty(mess)
+                    is = true;
+                end
+            end
         end
         %
     end
@@ -186,20 +192,25 @@ classdef iMessagesFramework
             % any system's interprocess pipe
             %
             % Usage:
-            %>> cs =iMessagesFramework.build_worker_init(path_to_data_exchange_folder,labID)
+            %>> cs =iMessagesFramework.build_worker_init(path_to_data_exchange_folder,[labID,numLabs])
             % Where:
             % path_to_data_exchange_folder -- the path on a remote machine
             %                                 where the file-based messages
             %                                 and initiation information
             %                                 should be distributed
             % jobID         -- the name of the parallel job to run
-            % labID         -- the worker id, which would be ignored
-            %                  (redefined by MPI framework) for proper MPI job
-            %                   or used  as MPI labId for filebased
-            %                   messages.
-            % numLabs       -- number of independent workers, used by MPI
-            %                  job. If labID is defined, numLabs has to
-            %                  be defined too.
+            %
+            % Optional:
+            % if interworker communication framework is filebased
+            % framework, these two parameters define addresses of the
+            % workers in this framework. For proper MPI framework these
+            % values should not be provided
+            %
+            % labID     -- the worker id, used  as MPI labId for filebased
+            %              messages.
+            % numLabs   -- number of independent workers, used by filebased
+            %              MPI job. If labID is defined, numLabs has to
+            %              be defined too.
             cs = struct('data_path',path_to_data_exchange_folder,...
                 'job_id',jobID);
             if exist('labID','var')
@@ -287,21 +298,19 @@ classdef iMessagesFramework
         %       information for the failure
         %
         [ok,err_mess] = send_message(obj,task_id,message)
-        
-        % receive message from a task with specified id
+        % receive message from a task with specified id.
+        % Blocking until message is received.
+        %
         % Usage:
         % >>mf = MessagesFramework();
-        % >>mess = aMessage(1,'mess_name')
-        % >>[ok,err_mess] = mf.receive_message(1,mess)
+        % >>[ok,err_mess,message] = mf.receive_message(id,mess_name)
+        %
         % >>ok  if MPI_err.ok, message have been successfully
-        %       received from task with id==1.
+        %       received from task with the specified id.
         % >>    if not, error_mess and error code indicates reasons for
         %       failure.
         % >> on success, message contains an object of class aMessage,
-        %    with message contents
-        %>>NOT_YET_IMPLEMENTED: if no message name is provided at input, the command becomes
-        %   blocking  but if the message name exist, and the message is not
-        %   arrived, it returns immidiately
+        %        with message contents
         %
         [is_ok,err_mess,message] = receive_message(obj,task_id,mess_name)
         

@@ -18,7 +18,7 @@ end
 
 %
 message=[];
-[is,err_code,err_mess] = check_job_canceled(obj);
+[is,err_code,err_mess] = check_job_cancelled(obj);
 if is ; return; end
 %
 mess_folder = obj.mess_exchange_folder;
@@ -64,7 +64,7 @@ while ~mess_present
             return;
         else
             pause(obj.time_to_react_);
-            [is,err_code,err_mess] = check_job_canceled(obj);
+            [is,err_code,err_mess] = check_job_cancelled(obj);
             if is ; return; end
             continue;
         end
@@ -110,12 +110,12 @@ if ~is_failed  % make failed message persistent
 end
 
 
-function [is,err_code,err_message] = check_job_canceled(obj)
+function [is,err_code,err_message] = check_job_cancelled(obj)
 
 mess_folder = obj.mess_exchange_folder;
 if ~exist(mess_folder,'dir')
-    err_code    = MESS_CODES.job_canceled;
-    err_message = sprintf('Job with id %s have been canceled',obj.job_id);
+    err_code    = MESS_CODES.job_cancelled;
+    err_message = sprintf('Job with id %s have been cancelled',obj.job_id);
     is          = true;
 else
     err_code     = [];

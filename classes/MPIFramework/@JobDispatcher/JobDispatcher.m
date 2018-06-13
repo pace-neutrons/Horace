@@ -203,7 +203,7 @@ classdef JobDispatcher
             id = obj.mess_framework_.job_id;
         end
         %
-        function obj = delete(obj)
+        function obj = finalize_all(obj)
             % destructor. As this is not a handle class, invalid cluster_
             % object may remain if delete does not asigned to a new object
             obj.cluster_ = [];

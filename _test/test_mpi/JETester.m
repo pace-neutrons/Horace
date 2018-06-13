@@ -41,7 +41,7 @@ classdef JETester < JobExecutor
                     disp('****************************************************');
                     fprintf('simulated failure for lab N %d\n',obj.labIndex);
                     disp('****************************************************');
-                    pause(1);
+                    pause(0.1)
                     error('JETester:runtime_error',...
                         'simulated failure for lab N %d',obj.labIndex);
                 end
@@ -56,6 +56,7 @@ classdef JETester < JobExecutor
                 f=fopen(file,'w');
                 fwrite(f,['file: ',file],'char');
                 fclose(f);
+                pause(0.1)                
                 disp('****************************************************');
                 disp(['finished test job generating test file: ',filename]);
                 disp('****************************************************');

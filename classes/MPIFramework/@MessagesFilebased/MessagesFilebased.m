@@ -76,6 +76,7 @@ classdef MessagesFilebased < iMessagesFramework
         %
         function [ok,err_mess] = send_message(obj,task_id,message)
             % send message to a task with specified id
+            %
             % Usage:
             % >>mf = MessagesFramework();
             % >>mess = aMessage('mess_name')
@@ -88,14 +89,16 @@ classdef MessagesFilebased < iMessagesFramework
         end
         %
         function [ok,err_mess,message] = receive_message(obj,varargin)
-            % receive message from a task with specified id
+            % receive message from a task with specified task_id
+            % Blocking until the message is received.
+            %
             %Usage
             % >>[ok,err_mess,message] = mf.receive_message([from_task_id,mess_name])
             % >>ok  if true, says that message have been successfully
-            %       received from task with id==1.
-            % >>    if false, error_mess indicates reason for failure
-            % >> on success, message contains an object of class aMessage,
-            %    with message contents
+            %       received from task with from_task_id.
+            % >>   if false, error_mess indicates reason for failure
+            % >>   on success, message contains an object of class aMessage,
+            %      with message contents
             %
             [ok,err_mess,message] = receive_message_(obj,varargin{:});
         end
@@ -150,8 +153,17 @@ classdef MessagesFilebased < iMessagesFramework
         end
         function clear_messages(obj)
             finished = false;
+            pause(1);
             while ~finished
-                [all_messages,mid_from] = list_all_messages_(obj);
+                try
+                    [all_messages,mid_from] = list_all_messages_(obj);
+                catch ME
+                    if strcmp(ME.identifier,'MESSAGE_FRAMEWORK:cancelled')
+                        return;
+                    else
+                        rethrow(ME);
+                    end
+                end
                 if isempty(all_messages)
                     finished = true;
                     continue;
@@ -164,6 +176,9 @@ classdef MessagesFilebased < iMessagesFramework
             end
         end
         function [ok,err]=labBarrier(obj,nothrow)
+            if ~exist('nothrow','var')
+                nothrow = false;
+            end
             [ok,err]=wait_at_barrier_(obj,nothrow);
         end
         
