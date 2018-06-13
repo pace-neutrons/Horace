@@ -1,5 +1,5 @@
 classdef test_gen_sqw_accumulate_sqw_herbert <  ...
-        gen_sqw_accumulate_sqw_common_test & gen_sqw_common_config
+        gen_sqw_accumulate_sqw_tests_common & gen_sqw_common_config
     % Series of tests of gen_sqw and associated functions
     % generated using multiple matlab workers.
     %
@@ -51,7 +51,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
                 test_name = mfilename('class');
             end
             obj = obj@gen_sqw_common_config(-1,1,-1,'herbert');            
-            obj = obj@gen_sqw_accumulate_sqw_common_test(test_name,'herbert');            
+            obj = obj@gen_sqw_accumulate_sqw_tests_common(test_name,'herbert');            
         end
         
         %
@@ -98,7 +98,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             [task_id_list,init_mess]=JobDispatcher.split_tasks(common_par,loop_par,true,1);
             
             serverfbMPI  = MessagesFilebased('test_gen_sqw_worker');
-            serverfbMPI.mess_exchange_folder = this.working_dir;
+            serverfbMPI.mess_exchange_folder = tempdir;
             clobm = onCleanup(@()finalize_all(serverfbMPI));
             
             starting_mess = serverfbMPI.build_je_init('gen_sqw_files_job',false,false);
@@ -166,7 +166,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
                 [50,50,50,50],[-1.5,-2.1,-0.5,0;0,0,0.5,35]);
             
             serverfbMPI  = MessagesFilebased('test_do_job');
-            serverfbMPI.mess_exchange_folder = this.working_dir;
+            serverfbMPI.mess_exchange_folder = tempdir();
             clob1 = onCleanup(@()finalize_all(serverfbMPI));
             
             
@@ -197,7 +197,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             
             
             serverfbMPI  = MessagesFilebased('test_finish_task');
-            serverfbMPI.mess_exchange_folder = this.working_dir;
+            serverfbMPI.mess_exchange_folder = tmpdir;
             clob1 = onCleanup(@()finalize_all(serverfbMPI));
             
             

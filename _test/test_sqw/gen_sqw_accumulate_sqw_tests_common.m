@@ -1,4 +1,4 @@
-classdef gen_sqw_accumulate_sqw_common_test < TestCaseWithSave
+classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
     % Series of tests of gen_sqw and associated functions
     % generated using multiple Matlab workers.
     %
@@ -75,7 +75,7 @@ classdef gen_sqw_accumulate_sqw_common_test < TestCaseWithSave
     end
     
     methods
-        function obj=gen_sqw_accumulate_sqw_common_test(test_class_name,test_prefix)
+        function obj=gen_sqw_accumulate_sqw_tests_common(test_class_name,test_prefix)
             % The constructor for class, which is the common part of all
             % MPI-based gen_sqw system tests.
             %
@@ -386,8 +386,8 @@ classdef gen_sqw_accumulate_sqw_common_test < TestCaseWithSave
                 end
             end
             
-            new_names = gen_sqw_accumulate_sqw_common_test.rename_file_list(spe_names(3:4),'.tnxs');
-            co3 = onCleanup(@()gen_sqw_accumulate_sqw_common_test.rename_file_list(new_names,'.nxspe'));
+            new_names = gen_sqw_accumulate_sqw_tests_common.rename_file_list(spe_names(3:4),'.tnxs');
+            co3 = onCleanup(@()gen_sqw_accumulate_sqw_tests_common.rename_file_list(new_names,'.nxspe'));
             
             % --------------------------------------- Test accumulate_sqw
             % ---------------------------------------
@@ -401,14 +401,14 @@ classdef gen_sqw_accumulate_sqw_common_test < TestCaseWithSave
             [~,~,urange]=accumulate_sqw(spe_names, '', sqw_file_accum, ...
                 efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             
-            gen_sqw_accumulate_sqw_common_test.rename_file_list(new_names{1},'.nxspe');
+            gen_sqw_accumulate_sqw_tests_common.rename_file_list(new_names{1},'.nxspe');
             
             [~,~,urange_all]=accumulate_sqw(spe_names, '', sqw_file_accum, ...
                 efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             
             assertElementsAlmostEqual(urange,urange_all,'relative',1.e-4)
             
-            gen_sqw_accumulate_sqw_common_test.rename_file_list(new_names{2},'.nxspe');
+            gen_sqw_accumulate_sqw_tests_common.rename_file_list(new_names{2},'.nxspe');
             [~,~,urange_all]=accumulate_sqw(spe_names, '', sqw_file_accum, ...
                 efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             assertElementsAlmostEqual(urange,urange_all,'relative',1.e-4)

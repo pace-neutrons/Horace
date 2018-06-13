@@ -1,5 +1,5 @@
 classdef test_gen_sqw_accumulate_sqw_nomex < ...
-        gen_sqw_accumulate_sqw_common_test & gen_sqw_common_config
+        gen_sqw_accumulate_sqw_tests_common & gen_sqw_common_config
     
     % Series of tests of gen_sqw and associated functions
     % when mex code is disabled or not available
@@ -50,7 +50,7 @@ classdef test_gen_sqw_accumulate_sqw_nomex < ...
                 test_name = 'test_gen_sqw_accumulate_sqw_nomex';
             end
             obj = obj@gen_sqw_common_config(0,0,0,-1);
-            obj = obj@gen_sqw_accumulate_sqw_common_test(test_name,'nomex');
+            obj = obj@gen_sqw_accumulate_sqw_tests_common(test_name,'nomex');
         end
         
         %
