@@ -1,5 +1,5 @@
 classdef test_gen_sqw_accumulate_sqw_parpool <  ...
-        gen_sqw_accumulate_sqw_common_test & gen_sqw_common_config
+        gen_sqw_accumulate_sqw_tests_common & gen_sqw_common_config
     % Series of tests of gen_sqw and associated functions run on pool of
     % workers, provided by Matlab parallel computing toolbox.
     %
@@ -52,7 +52,7 @@ classdef test_gen_sqw_accumulate_sqw_parpool <  ...
                 test_name = mfilename('class');
             end
             obj = obj@gen_sqw_common_config(-1,1,-1,'parpool');            
-            obj = obj@gen_sqw_accumulate_sqw_common_test(test_name,'parpool');
+            obj = obj@gen_sqw_accumulate_sqw_tests_common(test_name,'parpool');
 
         end
         

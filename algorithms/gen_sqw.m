@@ -686,7 +686,7 @@ nt=bigtic();
 
 
 if use_separate_matlab
-    jd = JobDispatcher('gen_sqw');    
+    jd = JobDispatcher('gen_sqw');
     [common_par,loop_par]=gen_sqw_files_job.pack_job_pars(run_files',tmp_file,...
         instrument,sample,grid_size_in,urange_in);
     
@@ -704,6 +704,20 @@ if use_separate_matlab
         grid_size = outputs.grid_size;
         urange    = outputs.urange;
     else
+        if iscell(outputs)
+            for i=1:numel(outputs)
+                if isa(outputs{i},'MException')
+                    fprintf('Task N%d failed. Error %s; Message %s\n',...
+                        i,outputs{i}.identifier,outputs{i}.message);
+                else
+                    fprintf('Task N%d failed. Output: ',i);
+                    disp(outputs{i});
+                end
+            end
+        else
+            fprintf('Job %s failed. Output: \n',jd.job_id);
+            disp(outputs);
+        end
         error('GEN_SQW:runtime_error',...
             ' Number: %d parallel tasks out of total: %d tasks have failed',...
             n_failed,num_matlab_sessions)

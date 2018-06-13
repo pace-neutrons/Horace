@@ -125,9 +125,15 @@ classdef gen_sqw_files_job < JobExecutor
             % simplify -- no instrument, no sample
             if ~isempty(instr) && (isstruct(instr(1)) && ~isempty(fieldnames(instr(1))))
                 if numel(instr) == numel(sample) && (numel(sample) ==numel(runfiles ))
+                    n_files = numel(runfiles);
                     for i=1:n_files
-                        runfiles{i}.sample     = sample(i);
-                        runfiles{i}.instrument = instr(i);
+                        if iscell(runfiles)
+                            runfiles{i}.sample     = sample(i);
+                            runfiles{i}.instrument = instr(i);
+                        else
+                            runfiles(i).sample     = sample(i);
+                            runfiles(i).instrument = instr(i);
+                        end
                     end
                     
                 else

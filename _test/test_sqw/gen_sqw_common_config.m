@@ -1,14 +1,12 @@
 classdef gen_sqw_common_config < TestCase
     % Class-parent for gen_sqw tests, containing the logic, responsible for
-    % changing these tests configuration to requested one
+    % changing these tests configuration to the tested one
     %
-    
     properties
         % common property for number of child classes, where some tests
-        % should not run due to the configuraton not allowing them to run
-        % and  the classes can not be tested
+        % should not run due to the system not satisfies the conditions for
+        % them to run and  the classes can not be tested
         skip_test = false;
-        
         
     end
     properties(Access=protected)
@@ -32,17 +30,17 @@ classdef gen_sqw_common_config < TestCase
         function obj = gen_sqw_common_config(use_mex,use_MPI,use_mex4combine,parallel_framework)
             % class constructor, which defines necessary test configuration
             % options. The option can be defined by one of three numbers:
-            % -1 -- ignore this option for test, leave it as before.
+            % -1 -- ignore this option for test, leave it as in current configuration.
             %  0 -- disable this options
-            %  1 -- enable this options 
+            %  1 -- enable this options
             % namely:
             % use_mex  -- if the test should use mex files for calculations
             % use_MPI  -- if the test should deploy parallel framework
             %use_mex4combine -- if the test should combine tmp files using
             %             mex code
-            %parallel_framework -- which parallel framework to deploy
-            %           the possible options here are -1, 'herbert' or
-            %           'parpool'
+            %parallel_framework -- which parallel framework to deploy.
+            %           Unlike all other options the possible values here are:
+            %           -1, 'herbert' or 'parpool'
             obj = obj@TestCase('nop');
             obj.store_initial_config();
             hc = hor_config;
@@ -163,6 +161,8 @@ classdef gen_sqw_common_config < TestCase
     end
     methods(Static)
         function [change,new_value] = check_change(field_name,to_use,old_config)
+            % helper function to convert input constructor option into the
+            % internal values, used by the class.
             old_value = old_config.(field_name);
             new_value = old_value;
             switch(to_use)
