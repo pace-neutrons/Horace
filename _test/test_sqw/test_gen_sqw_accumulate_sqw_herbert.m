@@ -50,10 +50,9 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             if ~exist('test_name','var')
                 test_name = mfilename('class');
             end
-            obj = obj@gen_sqw_common_config(-1,1,-1,'herbert');            
-            obj = obj@gen_sqw_accumulate_sqw_tests_common(test_name,'herbert');            
+            obj = obj@gen_sqw_common_config(-1,1,-1,'herbert');
+            obj = obj@gen_sqw_accumulate_sqw_tests_common(test_name,'herbert');
         end
-        
         %
         function test_worker(this)
             mis = MPI_State.instance('clear');
@@ -130,7 +129,6 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
                 [-1.5000 -2.1000 -0.5000 0;0 0 0.5000 35.0000]);
             %
         end
-        
         %
         function test_do_job(this)
             
@@ -193,11 +191,12 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             [ok,err]=serverfbMPI.receive_message(1,'running');
             assertEqual(ok,MESS_CODES.ok,err);
         end
+        %
         function test_finish_task(this)
             
             
             serverfbMPI  = MessagesFilebased('test_finish_task');
-            serverfbMPI.mess_exchange_folder = tmpdir;
+            serverfbMPI.mess_exchange_folder = tempdir;
             clob1 = onCleanup(@()finalize_all(serverfbMPI));
             
             
