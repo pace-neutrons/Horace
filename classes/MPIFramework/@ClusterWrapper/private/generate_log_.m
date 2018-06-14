@@ -2,7 +2,11 @@ function   obj = generate_log_(obj,log_message)
 % Display JobDispatcher log message
 %
 count = obj.display_results_count_;
-CR = newline; %sprintf('\n');
+if verLessThan('matlab','R2016b')
+    CR = sprintf('\n');
+else
+    CR = newline; %sprintf('\n');
+end
 if count > 0
     log = CR;
 else
@@ -61,9 +65,9 @@ elseif stateMess.tag == MESS_NAMES.mess_id('failed')
     err = stateMess.payload;
     if isnumeric(err)
         info = [info,num2str(err)];
-%     elseif isa(err,'MExeption') || isa(err,'ParallelException')
-%         for i=1:numel(err.stack)
-%             info = [info,err.stack{i}];
-%         end
+        %     elseif isa(err,'MExeption') || isa(err,'ParallelException')
+        %         for i=1:numel(err.stack)
+        %             info = [info,err.stack{i}];
+        %         end
     end
 end

@@ -227,7 +227,7 @@ classdef TestPerformance < TestCaseWithSave
             % The addinfo string should have form, allowed to use as the
             % name of a field in a structure.
             %
-            hpc = hpc_config;
+            hpc = parallel_config;
             framework_name = hpc.parallel_framework;
             if strcmp(framework_name,'matlab')
                 fn = getComputerName();

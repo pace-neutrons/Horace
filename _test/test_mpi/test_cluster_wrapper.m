@@ -97,8 +97,11 @@ classdef test_cluster_wrapper < TestCase
             cluster = cluster.display_progress('unknown state');
             ref_string = sprintf('\n%s\n','**** unknown state                            ****');
             assertEqual(cluster.log_value,ref_string);
-            
-            CR =newline; % sprintf('\n');
+            if verLessThan('matlab','R2016b')
+                CR =sprintf('\n');
+            else
+                CR =newline; % sprintf('\n');
+            end
             [completed,cluster] = cluster.check_progress();
             assertFalse(completed);
             cluster = cluster.display_progress();

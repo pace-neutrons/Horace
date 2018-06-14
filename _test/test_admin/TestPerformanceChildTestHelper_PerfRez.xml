@@ -16,9 +16,9 @@
    </ndmlnx01_isis_cclrc_ac_uk_TestPerformanceChildTestHelper>
    <ndmlnx02_isis_cclrc_ac_uk_TestPerformanceChildTestHelper>
       <fake_test_operations>
-         <time_sec>0.002404</time_sec>
+         <time_sec>0.003874</time_sec>
          <comment>this is not a performance test itself but the test of performance test inheritance operational</comment>
-         <completed_on>[2018 2 21 18 1 9.2618]</completed_on>
+         <completed_on>[2018 3 29 18 26 52.090996]</completed_on>
       </fake_test_operations>
    </ndmlnx02_isis_cclrc_ac_uk_TestPerformanceChildTestHelper>
 </TestPerformanceChildTestHelper>
