@@ -408,7 +408,7 @@ function [wout, fitdata, ok, mess] = fit_legacy_sqw_sqw(win, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 1524 $ ($Date: 2017-09-27 15:48:11 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 
 
 % Catch case of a single dataset input
