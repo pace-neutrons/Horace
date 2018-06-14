@@ -20,8 +20,6 @@ classdef test_symm_equivalent_zones< TestCase
             
             %w3d_d3d=read_dnd(fullfile(testdir,'w3d_d3d.sqw'));
             
-            
-            
         end
         function test_worker(this)
             mis = MPI_State.instance();
