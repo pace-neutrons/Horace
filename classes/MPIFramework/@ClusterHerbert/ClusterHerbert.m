@@ -1,5 +1,5 @@
 classdef ClusterHerbert < ClusterWrapper
-    % The class to upport cluster of Matlab workers, controlled by Java
+    % The class to support cluster of Matlab workers, controlled by Java
     % runtime
     %
     %
@@ -21,6 +21,9 @@ classdef ClusterHerbert < ClusterWrapper
     properties(Constant,Access = private)
         task_common_str_ = {'-nosplash','-nodesktop','-r'};
         DEBUG_REMOTE = false;
+        % the name of the function to run a remote job. The function must be 
+        % on the Matlab data search path before Horace is initialized.
+        worker_name_ = 'worker_v1';
     end
     
     methods
@@ -47,7 +50,7 @@ classdef ClusterHerbert < ClusterWrapper
             
             for i=1:n_workers
                 cs = obj.mess_exchange_.gen_worker_init(i,n_workers);
-                worker_init = sprintf('worker(''%s'');exit;',cs);
+                worker_init = sprintf('%s(''%s'');exit;',obj.worker_name_,cs);
                 if obj.DEBUG_REMOTE
                     % if debugging client
                     log_file = sprintf('output_jobN%d.log',task_id);

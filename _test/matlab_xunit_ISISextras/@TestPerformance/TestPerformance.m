@@ -28,8 +28,8 @@ classdef TestPerformance < TestCaseWithSave
     % where test_name is the name, provided as input of assertPerformance
     % method
     %
-    % The host_name is the variable combined from the preffix containign the
-    % output of Hergbert getHostName function
+    % The host_name is the variable combined from the prefix containing the
+    % output of Herbert getHostName function
     %
     % $Revision: 1524 $ ($Date: 2017-09-27 15:48:11 +0100 (Wed, 27 Sep 2017) $)
     %
@@ -100,19 +100,19 @@ classdef TestPerformance < TestCaseWithSave
         end
         function pfd = get.perf_data(obj)
             % returns the structure, containing all performance data,
-            % availible for tests. Can be equivalent to loading the whole
+            % available for tests. Can be equivalent to loading the whole
             % perf_test_res_file in memory
             pfd = obj.perf_data_;
         end
         %------------------------------------------------------------------
         function obj = TestPerformance(varargin)
-            % create test suite and load existing perfomance data.
+            % create test suite and load existing performance data.
             %
             %Usage:
             %>>tob = TestPerformance([name,[perf_test_res_file]]);
             % Possible inputs:
             % name -- the name of the test, used by test suite to identify
-            %         cuttent test. The most derived child class name is used by defaul
+            %         current test. The most derived child class name is used by default
             % perf_test_res_file
             %      -- full path and the name of the file to
             %         store performance results. TestPerformance class
@@ -222,9 +222,9 @@ classdef TestPerformance < TestCaseWithSave
             % attaches to this name any additional information,
             % contained in addinfo string.
             % A child class should/may overload this method to provide
-            % additinal information for the test suite
+            % additional information for the test suite
             %
-            % The addinfo stirng should have form, allowed to use as the
+            % The addinfo string should have form, allowed to use as the
             % name of a field in a structure.
             %
             hpc = hpc_config;
@@ -256,7 +256,7 @@ classdef TestPerformance < TestCaseWithSave
             % In save mode it verifies existence of the reference file, and
             % if the reference file exist, changes the target save file
             % location into tmp directory to keep existing file. If it does
-            % not exist and the class folder is writtable, sets the default
+            % not exist and the class folder is writeable, sets the default
             % target file path to class folder.
             
             %

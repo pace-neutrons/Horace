@@ -1,6 +1,6 @@
 classdef mess_cash < handle
     %class provides persistent storage for messages, received
-    % assynchroneously and may be requested in the subsequent read operations
+    % asynchronously and may be requested in the subsequent read operations
     %
     % Assumed only one message of any kind per lab and any subsequent
     % message from a lab overwrites all previous messages, received from this
@@ -13,7 +13,7 @@ classdef mess_cash < handle
         % workers in the pool.
         cash_capacity
         % a handle for worker-specific text log file used for debugging
-        % purporses. When the property is accessed first time, the file is
+        % purposes. When the property is accessed first time, the file is
         % opened and is closed when the class is destroyed in the worker.
         log_file_h
     end
@@ -62,7 +62,7 @@ classdef mess_cash < handle
             elseif isa(mess,'aMessage') %single message
                 if task_ids>obj.cash_capacity_
                     error('MESS_CASH:invalid_argument',...
-                        'messages cash initialized for %d workers, but atteming to store message from the worker N%d',...
+                        'messages cash initialized for %d workers, but attempting to store message from the worker N%d',...
                         obj.cash_capacity_,task_ids);
                 end
                 obj.mess_cash_{task_ids} = mess;

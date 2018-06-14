@@ -66,7 +66,7 @@ classdef JobExecutor
         % abstract method to collect and reduce data, located on different.
         % workers
         this=reduce_data(this);
-        % the method to analyze outputs and indicate that the tasks or job
+        % the method to analyse outputs and indicate that the tasks or job
         % has been completed.
         ok = is_completed(this);
     end
@@ -115,7 +115,7 @@ classdef JobExecutor
             %>>[ok,mess] = obj.finish_task(SomeMessage);
             %>>[ok,mess] = obj.finish_task(SomeMessage,@mess_reduction_function);            
             %
-            % Where the first form normally waits untill all workers return
+            % Where the first form normally waits until all workers return
             %'completed' message to the lab == 1 while the second form
             % expects return of SomeMessage (usually 'failed' message)
             %
@@ -135,17 +135,17 @@ classdef JobExecutor
             %            name (from the list of accepted names)
             % mess_process_function -- if present, and not empty, the function
             %                          is used to process the messages from
-            %                          recevied from all except one workers
-            %                          to produce common result. If absend,
+            %                          received from all except one workers
+            %                          to produce common result. If absent,
             %                          all messages payloads
             %                          are just combined together into
             %                          cellarray and become the payload of
-            %                          the final message, sent to head
+            %                          the final message, sent to the head
             %                          node.
-            % syncronyze - if true or absent the the method would wait until
-            %             similar messages are received from all workers in
-            %             the pool. if false, the method will process only
-            %             existing messages.
+            % synchronize - if true or absent the the method would wait until
+            %               similar messages are received from all workers in
+            %               the pool. if false, the method will process only
+            %               existing messages.
             %
             %
             [ok,err,the_mess,obj] = reduce_messages_(obj,mess,varargin{:});

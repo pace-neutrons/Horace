@@ -37,6 +37,10 @@ classdef ClusterParpoolWrapper < ClusterWrapper
         %Failed      ( 'failed'      , 101 )
         %Unavailable ( 'unavailable' , 102 )
         %Destroyed   ( 'deleted'     , 103 )
+        %------------------------------------------------------------------------
+        % the handle for the function to run a remote job. The function must be 
+        % on the Matlab data search path before Horace is initialized.
+        h_worker_ = @worker_v1;
     end
     
     methods
@@ -78,7 +82,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             % batch job.
             % actually submit the job
             cjob = obj.current_job_;
-            task = createTask(cjob,@worker,0,{cs});
+            task = createTask(cjob,obj.h_worker_,0,{cs});
             obj.task_ = task;
             submit(cjob);
         end

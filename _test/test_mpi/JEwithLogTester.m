@@ -9,7 +9,7 @@ classdef JEwithLogTester < JobExecutor
             je = je@JobExecutor(varargin{:});
         end
         function this=do_job(this,control_struct)
-            % Test do_job method implementated for testing purposes
+            % Test do_job method implemented for testing purposes
             %
             % the particular JobDispatcher should write its own method
             % keeping the same meaning for the interface

@@ -8,7 +8,7 @@ classdef MPI_State<handle
     % 'MPI-deployed' state is set up in worker.m (.template file is provided in
     % admin folder, to rename to the file with .m extension and
     % place to Matlab search path). The state should be checked by the client,
-    % inheriting from JobExecutor within the loop excecuted within do_job method.
+    % inheriting from JobExecutor within the loop executed within do_job method.
     %
     % Implemented as classical singleton.
     
@@ -132,7 +132,7 @@ classdef MPI_State<handle
         %-----------------------------------------------------------------
         
         function do_logging(obj,step,n_steps,ttf,additional_info)
-            % do logging if appropriate loging function has been setup
+            % do logging if appropriate logging function has been set-up
             % Inputs:
             % step    -- current step job is doing
             % n_steps -- total number of steps to do
@@ -176,13 +176,13 @@ classdef MPI_State<handle
         end
         
         function set(obj,varargin)
-            % functial assignment of class parameter with list of key-value
-            % pair
-            % Usave:
+            % functional assignment of class parameter with list of key-value
+            % pairs
+            % Usage:
             % mis = MPI_State;
             % set(mis,key,value,[key,value,....])
-            % where mis is the instance of MPI state object and key-value
-            % parits should be a list of valid properties of the class with
+            % where mis is the instance of MPI state object and the key-value
+            % pairs should be a list of valid properties of the class with
             % their correspondent values to set.
             %
             if rem(numel(varargin),2)>0

@@ -12,7 +12,7 @@ classdef LogMessage<aMessage
         time_per_step
         % additional information to print in a log. May be empty
         add_info
-        % logs from all nodes, availible on the reduced headnode log message
+        % logs from all nodes, available on the reduced head-node log message
         worker_logs;
     end
     

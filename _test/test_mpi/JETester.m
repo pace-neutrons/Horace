@@ -13,7 +13,7 @@ classdef JETester < JobExecutor
         function je = JETester()
         end
         function obj=do_job(obj)
-            % Test do_job method implementated for testing purposes
+            % Test do_job method implementation for testing purposes
             %
             % the particular JobDispatcher should write its own method
             % keeping the same meaning for the interface

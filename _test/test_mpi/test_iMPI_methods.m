@@ -7,6 +7,8 @@ classdef test_iMPI_methods< TestCase
         working_dir
         current_config_folder
         current_config
+        % handle to the function responsible to run a remote job
+        worker_h = @worker_v1;
     end
     methods
         %
@@ -56,7 +58,7 @@ classdef test_iMPI_methods< TestCase
             
             % set up basic default configuration
             pc = parallel_config;
-            % creates working directoryr
+            % creates working directory
             pc.working_directory = fullfile(obj.working_dir,'some_irrelevant_folder_never_used_here');
             clobA = onCleanup(@()rmdir(pc.working_directory,'s'));
             
@@ -122,7 +124,7 @@ classdef test_iMPI_methods< TestCase
             mis.is_deployed = true;
             config_store.set_config_folder(remote_config_folder)
             
-            % on a deployed program woring directory coinsides with shared_folder_on_remote
+            % on a deployed program working directory coincides with shared_folder_on_remote
             pc = parallel_config;
             assertEqual(pc.working_directory ,pc.shared_folder_on_remote);
             
@@ -171,7 +173,7 @@ classdef test_iMPI_methods< TestCase
                 'UniformOutput',false);
             clob5 = onCleanup(@()delete(created_files{:}));
             
-            worker(worker_init);
+            obj.worker_h(worker_init);
             
             assertTrue(exist(created_files{1},'file')==2)
             assertTrue(exist(created_files{2},'file')==2)

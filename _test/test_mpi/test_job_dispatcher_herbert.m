@@ -64,7 +64,7 @@ classdef test_job_dispatcher_herbert < job_dispatcher_common_tests
         end
         %
         function test_split_job_list(this)
-            % split job list into batches and preper
+            % split job list into batches and prepare init messages
             %
             common_par = [];
             loop_par = {'aaa','bbbb','s','aaanana'};

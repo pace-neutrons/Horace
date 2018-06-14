@@ -19,9 +19,9 @@ classdef iMessagesFramework
         % message exchange between tasks if job uses  filebased messages.
         mess_exchange_folder;
         % returns the index of the worker currently executing the function.
-        % labindex is assigned to each worker when a job begins execution,
+        % labIndex is assigned to each worker when a job begins execution,
         % and applies only for the duration of that job.
-        % The value of labindex spans from 1 to n, where n is the number of
+        % The value of labIndex spans from 1 to n, where n is the number of
         % workers running the current job, defined by numlabs.
         labIndex;
         % Number of independent workers used by the framework
@@ -120,7 +120,7 @@ classdef iMessagesFramework
             %                                          worker
             % where
             % obj     -- an initiated instance of message exchange framework on a head-node and
-            % labId   -- labindex of Herbert MPI worker to initiate
+            % labId   -- labIndex of Herbert MPI worker to initiate
             % numLabs -- number of Herbert MPI workers
             %
             %
@@ -201,7 +201,7 @@ classdef iMessagesFramework
             % jobID         -- the name of the parallel job to run
             %
             % Optional:
-            % if interworker communication framework is filebased
+            % if inter-worker communication framework is filebased
             % framework, these two parameters define addresses of the
             % workers in this framework. For proper MPI framework these
             % values should not be provided
@@ -323,9 +323,9 @@ classdef iMessagesFramework
         %Return:
         % cellarray of strings, containing message names for the requested
         % tasks.
-        % if no message for a task is present in the systen,
+        % if no message for a task is present in the system,
         % its cell remains empty
-        % if task_id list is emtpy or missing, returns all existing
+        % if task_id list is empty or missing, returns all existing
         % messages
         [all_messages_names,task_ids] = probe_all(obj,task_ids,mess_names)
         
@@ -336,14 +336,14 @@ classdef iMessagesFramework
         %task_ids -- array of task id-s to check messages for
         %Return:
         % all_messages -- cellarray of messages for the tasks requested and
-        %                 have messages availible in the system .
+        %                 have messages available in the system .
         %task_ids       -- array of task id-s for these messages
         [all_messages,task_ids] = receive_all(obj,task_ids,mess_name_or_tag)
         %------------------------------------------------------------------
         % delete all messages belonging to this instance of messages
         % framework and shut the framework down.
         finalize_all(obj)
-        % wait until all worker arive to the part of the code specified
+        % wait until all worker arrive to the part of the code specified
         [ok,err]=labBarrier(obj,nothrow);
         %
         % remove all messages from MPI message cash
@@ -351,14 +351,14 @@ classdef iMessagesFramework
         
     end
     methods(Abstract,Access=protected)
-        % return the labindex
+        % return the labIndex
         ind = get_lab_index_(obj);
         n_labs = get_num_labs_(obj);
     end
     methods(Access = protected)
         function [top_exchange_folder,mess_subfolder] = build_exchange_folder_name(obj,top_exchange_folder )
             % build the name of the folder used to exchange messages
-            % between the base node and the mpi framework and, if
+            % between the base node and the MPI framework and, if
             % necessary, filebased messages
             if ~exist('top_exchange_folder','var')
                 top_exchange_folder = config_store.instance().config_folder;

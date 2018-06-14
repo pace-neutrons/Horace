@@ -28,7 +28,7 @@ classdef test_job_dispatcher_parpool< job_dispatcher_common_tests
             serverfbMPI.mess_exchange_folder = obj.working_dir;
             
             clob = onCleanup(@()finalize_all(serverfbMPI));
-            % generate 3 controls to have 3 filebased MPI pseudoworkers
+            % generate 3 controls to have 3 filebased MPI pseudo-workers
             css1= serverfbMPI.gen_worker_init();
             
             cl = parcluster();

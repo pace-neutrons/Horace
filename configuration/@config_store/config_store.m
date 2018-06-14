@@ -11,7 +11,7 @@ classdef config_store < handle
     properties(Dependent)
         % the full path to the folder where the configuration is stored
         config_folder;
-        % property to observe config classes currently initated in
+        % property to observe config classes currently initiated in
         % the singleton (mainly for testing and debug purposes)
         config_classes;
     end
@@ -77,15 +77,15 @@ classdef config_store < handle
             end
         end
         function set_config_folder(config_folder_name)
-            % set the location for a folder with configuraton to a location 
+            % set the location for a folder with configuration to a location 
             % provided as input. 
             %
-            % If the folder does not exist, its created. The cofniguratons 
+            % If the folder does not exist, its created. The configurations 
             % currently in memory are retained but will be saved to the new
-            % location on requess only.
+            % location on request only.
             if ~ischar(config_folder_name)
                 error('CONFIG_STORE:invalid_argument',...
-                    'config folder has to be provided as ')
+                    'config folder value has to be provided as a char string')
             end
             if strcmpi(config_folder_name,'clear')
                 error('CONFIG_STORE:invalid_argument',...
@@ -135,7 +135,7 @@ classdef config_store < handle
                 class_to_restore = feval(class_name);
             else
                 error('CONFIG_STORE:invalid_argument',...
-                    'Config class has to be a chield of the config_base class or the name of such class');
+                    'Config class has to be a child of the config_base class or the name of such class');
             end
             
             if isfield(this.config_storage_,class_name)
@@ -170,11 +170,11 @@ classdef config_store < handle
             
         end
         %------------------------------------------------------------------
-        % Two methods responsible for the class to be configured saveable
-        % saveble property is not stored to HDD and is the property
-        % of the object persistent untill objects configuration is in memory
+        % Two methods responsible for the class to be configured savable
+        % savable property is not stored to HDD and is the property
+        % of the object persistent until objects configuration is in memory
         function is = get_saveable(this,class_to_check)
-            % returns true if a configuration class requested as input is saveable
+            % returns true if a configuration class requested as input is savable
             % i.e. changes in configuration are stored on hdd
             % usage:
             %>>is = config_store.instance().get_saveable('class_name')
@@ -205,8 +205,8 @@ classdef config_store < handle
             %>>config_store.instance().set_saveable(class_instance,to_save)
             %
             % where 'class_name' or class_instance is a configuration class
-            % to set and the variable to_save is true if the class shold be
-            % made saveable and false otherwise.
+            % to set and the variable to_save is true if the class should be
+            % made savable and false otherwise.
             %
             
             if is_it > 0
@@ -255,12 +255,12 @@ classdef config_store < handle
             %Usage:
             %
             % obj = conifg_store.instance().restore_config(herbert_config)
-            %       unusual instance of herbert config, with modified
-            %       detaults. Should not be used
+            %       unusual instance of Herbert config, with modified
+            %       defaults. Should not be used
             %
             % [use_mex,use_mex_C]=conifg_store.instance().restore_config(herbert_config,...
             %                     'use_mex','use_mex_C')
-            %                     returns current herbert config settings for fields
+            %                     returns current Herbert config settings for fields
             %                      'use_mex' and 'use_mex_C'
             
             config_data=this.get_config_(class_to_restore);
@@ -270,7 +270,7 @@ classdef config_store < handle
             % Despite we are not returning the resulting configuration,
             % executing this allows to set up global dependent fields (e.g.
             % set up unit test directories. But this can not set up
-            % internal privated dependent fields so a configuration can not
+            % internal private dependent fields so a configuration can not
             % have such fields! (the setting got lost)
             class_to_restore.set_stored_data(config_data);
         end

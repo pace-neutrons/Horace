@@ -5,6 +5,7 @@ classdef test_job_executor< MPI_Test_Common
     
     properties
         current_config_folder;
+        worker_h = @worker_v1;
     end
     methods
         %
@@ -16,20 +17,20 @@ classdef test_job_executor< MPI_Test_Common
             this = this@MPI_Test_Common(name,'herbert');
             this.working_dir = tempdir;
         end
-        function test_worker_fails(this)
+        function test_worker_fails(obj)
             mis = MPI_State.instance();
             mis.is_tested = true;
             clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));
             
             % build jobs data
-            common_job_param = struct('filepath',this.working_dir,...
+            common_job_param = struct('filepath',obj.working_dir,...
                 'filename_template','test_jobDispatcherL%d_nf%d.txt',...
                 'fail_for_labsN',1:2);
             
             %cs  = iMessagesFramework.deserialize_par(css1);
             % initiate exchange class which would work on a client(worker's) side
             serverfbMPI  = MessagesFilebased('test_worker_some_fail');
-            serverfbMPI.mess_exchange_folder = this.working_dir;
+            serverfbMPI.mess_exchange_folder = obj.working_dir;
             %             cs.labID = 0;
             %             serverfbMPI= serverfbMPI.init_framework(cs);
             clob = onCleanup(@()finalize_all(serverfbMPI));
@@ -63,21 +64,21 @@ classdef test_job_executor< MPI_Test_Common
             
             if verLessThan('matlab','8.1')
                 if verLessThan('matlab','7.14')
-                    warning('Signleton does not work properly on Maltab 2011a/b. not testing workers');
+                    warning('Singleton does not work properly on Matlab 2011a/b. not testing workers');
                     return
                 elseif strcmpi(computer,'pcwin')
-                    warning('Signleton does not work properly on Maltab 2012/b 32bit version. Not testing workers');
+                    warning('Singleton does not work properly on Matlab 2012/b 32bit version. Not testing workers');
                     return
                 end
             end
             % workers change config folder to its own value so ensure it
             % will be reverted to the initial value
             cs = config_store.instance();
-            this.current_config_folder = cs.config_folder;
-            clob1 = onCleanup(@()(set_config_path(cs,this.current_config_folder)));
+            obj.current_config_folder = cs.config_folder;
+            clob1 = onCleanup(@()(set_config_path(cs,obj.current_config_folder)));
             
-            file3= fullfile(this.working_dir,'test_jobDispatcherL3_nf1.txt');
-            file3a= fullfile(this.working_dir,'test_jobDispatcherL3_nf2.txt');
+            file3= fullfile(obj.working_dir,'test_jobDispatcherL3_nf1.txt');
+            file3a= fullfile(obj.working_dir,'test_jobDispatcherL3_nf2.txt');
             
             
             clob2 = onCleanup(@()delete(file3,file3a));
@@ -86,9 +87,9 @@ classdef test_job_executor< MPI_Test_Common
             % start three client jobs, two should fail
             % second needs to start first as it will report its profess to
             % the lab1
-            worker(css3);
-            worker(css2);
-            worker(css1);
+            obj.worker_h(css3);
+            obj.worker_h(css2);
+            obj.worker_h(css1);
             % all workers reply 'started' to node1 as it is cluster
             % control message
             [ok,err_mess,message] = serverfbMPI.receive_message(1,'started');
@@ -107,19 +108,19 @@ classdef test_job_executor< MPI_Test_Common
             
         end
         
-        function test_worker(this)
+        function test_worker(obj)
             mis = MPI_State.instance();
             mis.is_tested = true;
             clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));
             
             % build jobs data
-            common_job_param = struct('filepath',this.working_dir,...
+            common_job_param = struct('filepath',obj.working_dir,...
                 'filename_template','test_jobDispatcher%d_nf%d.txt');
             
             %cs  = iMessagesFramework.deserialize_par(css1);
             % initiate exchange class which would work on a client(worker's) side
             serverfbMPI  = MessagesFilebased('test_worker');
-            serverfbMPI.mess_exchange_folder = this.working_dir;
+            serverfbMPI.mess_exchange_folder = obj.working_dir;
             %             cs.labID = 0;
             %             serverfbMPI= serverfbMPI.init_framework(cs);
             clob = onCleanup(@()finalize_all(serverfbMPI));
@@ -145,32 +146,32 @@ classdef test_job_executor< MPI_Test_Common
             
             if verLessThan('matlab','8.1')
                 if verLessThan('matlab','7.14')
-                    warning('Signleton does not work properly on Maltab 2011a/b. not testing workers');
+                    warning('Singleton does not work properly on Matlab 2011a/b. not testing workers');
                     return
                 elseif strcmpi(computer,'pcwin')
-                    warning('Signleton does not work properly on Maltab 2012/b 32bit version. Not testing workers');
+                    warning('Singleton does not work properly on Matlab 2012/b 32bit version. Not testing workers');
                     return
                 end
             end
             % workers change config folder to its own value so ensure it
             % will be reverted to the initial value
             cs = config_store.instance();
-            this.current_config_folder = cs.config_folder;
-            clob1 = onCleanup(@()(set_config_path(cs,this.current_config_folder)));
+            obj.current_config_folder = cs.config_folder;
+            clob1 = onCleanup(@()(set_config_path(cs,obj.current_config_folder)));
             
-            file1= fullfile(this.working_dir,'test_jobDispatcher1_nf1.txt');
-            file1a= fullfile(this.working_dir,'test_jobDispatcher1_nf2.txt');
+            file1= fullfile(obj.working_dir,'test_jobDispatcher1_nf1.txt');
+            file1a= fullfile(obj.working_dir,'test_jobDispatcher1_nf2.txt');
             
-            file2= fullfile(this.working_dir,'test_jobDispatcher2_nf1.txt');
+            file2= fullfile(obj.working_dir,'test_jobDispatcher2_nf1.txt');
             clob2 = onCleanup(@()delete(file1,file1a,file2));
             
             
             % start two client jobs
             % second needs to start first as it will report its profess to
             % the lab1
-            worker(css2);
-            worker(css1);
-            % all workers reply 'started' to node1 and node 1 reduces this
+            obj.worker_h(css2);
+            obj.worker_h(css1);
+            % all worker_v1s reply 'started' to node1 and node 1 reduces this
             % message to message from node 1 to node 0
             [ok,err_mess,message] = serverfbMPI.receive_message(1,'started');
             assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
@@ -200,7 +201,7 @@ classdef test_job_executor< MPI_Test_Common
             % various errors
             serverfbMPI.time_to_fail = 1;
             
-            % generate 3 controls to have 3 filebased MPI pseudoworkers
+            % generate 3 controls to have 3 filebased MPI pseudo-workers
             css1= serverfbMPI.gen_worker_init(1,3);
             csr1= serverfbMPI.deserialize_par(css1);
             fbMPI1 = MessagesFilebased(csr1);
@@ -247,7 +248,7 @@ classdef test_job_executor< MPI_Test_Common
             serverfbMPI.mess_exchange_folder = obj.working_dir;
             
             clob = onCleanup(@()finalize_all(serverfbMPI));
-            % generate 3 controls to have 3 filebased MPI pseudoworkers
+            % generate 3 controls to have 3 filebased MPI pseudo-workers
             css1= serverfbMPI.gen_worker_init(1,3);
             csr1= serverfbMPI.deserialize_par(css1);
             fbMPI1 = MessagesFilebased(csr1);
@@ -274,18 +275,18 @@ classdef test_job_executor< MPI_Test_Common
             
             % test log progress
             je3.log_progress(1,10,1,[]);
-            % on error, the framework would send canceled messages
+            % on error, the framework would send cancelled messages
             je2.mess_framework.send_message(1,'cancelled');
             je2.mess_framework.send_message(3,'cancelled');
             % and then finish task with failure
             je2.finish_task(FailMessage('simulated fail'));
             try
-                je1.log_progress(1,9,1.3,[]); %throws as no point to contiunue the execution after
+                je1.log_progress(1,9,1.3,[]); %throws as no point to continue the execution after
             catch ME
                 assertEqual(ME.identifier,'JOB_EXECUTOR:cancelled')
             end
             try
-                je3.log_progress(2,9,1.3,[]); %throws as no point to contiunue the execution after
+                je3.log_progress(2,9,1.3,[]); %throws as no point to continue the execution after
             catch ME
                 assertEqual(ME.identifier,'JOB_EXECUTOR:cancelled')
             end
@@ -319,9 +320,9 @@ classdef test_job_executor< MPI_Test_Common
             assertTrue(isstruct(wkl{1}));
             assertTrue(isstruct(wkl {2}));
             %-------------------------------------------------------------
-	        je1.mess_framework.clear_messages();
-	        je2.mess_framework.clear_messages();
-	        je3.mess_framework.clear_messages();            
+            je1.mess_framework.clear_messages();
+            je2.mess_framework.clear_messages();
+            je3.mess_framework.clear_messages();            
             
             je3.log_progress(9,10,1,[]);
             je2.finish_task(FailMessage('simulated fail wk2'));
@@ -354,7 +355,7 @@ classdef test_job_executor< MPI_Test_Common
             serverfbMPI.mess_exchange_folder = obj.working_dir;
             
             clob = onCleanup(@()finalize_all(serverfbMPI));
-            % generate 3 controls to have 3 filebased MPI pseudoworkers
+            % generate 3 controls to have 3 filebased MPI pseudo-workers
             css1= serverfbMPI.gen_worker_init(1,3);
             csr1= serverfbMPI.deserialize_par(css1);
             fbMPI1 = MessagesFilebased(csr1);
@@ -411,7 +412,7 @@ classdef test_job_executor< MPI_Test_Common
             serverfbMPI.mess_exchange_folder = obj.working_dir;
             
             clob = onCleanup(@()finalize_all(serverfbMPI));
-            % generate 3 controls to have 3 filebased MPI pseudoworkers
+            % generate 3 controls to have 3 filebased MPI pseudo-workers
             css1= serverfbMPI.gen_worker_init(1,1);
             csr1= serverfbMPI.deserialize_par(css1);
             fbMPI1 = MessagesFilebased(csr1);
@@ -455,7 +456,7 @@ classdef test_job_executor< MPI_Test_Common
             cs.labID = 0;
             serverfbMPI  = MessagesFilebased(cs);
             
-            % initate job executor would working on a client side.
+            % initiate job executor would working on a client side.
             je = JETester();
             je = je.init(fbMPI,cs,initMess);
             
@@ -501,7 +502,7 @@ classdef test_job_executor< MPI_Test_Common
                 config_store.set_config_folder(cf);
             end
             clob1 = onCleanup(@()reset_config(cf));
-            % generate 2 control to have 2 filebased MPI pseudoworkers with
+            % generate 2 control to have 2 filebased MPI pseudo-workers with
             % headnode 1
             css1= serverfbMPI.gen_worker_init(1,2);
             css2= serverfbMPI.gen_worker_init(2,2);

@@ -1,12 +1,11 @@
 classdef JobDispatcher
-    % Simple multiple Matlab sessions spawner, spawning worker jobs.
+    % The class to run and control Herbert MPI jobs.
     %
-    % Similar to parfor bud does not need parallel toolbox and starts
-    % separate Matlab sessions to do the job
+    % Allow user to run multisession or MPI jobs, defined by the classes-children of 
+    % JobExecutor class.
     %
-    % Works in conjunction with worker function from admin folder,
-    % The worker has to be placed on Matlab search path
-    % defined before Herbert is initiated
+    % In case of Parallel computer toolbox available, runs Matlab MPI communicating jobs 
+    % and if it is not, uses multiple Matlab, communicating through filebased messages.
     %
     %
     % $Revision$ ($Date$)
@@ -23,7 +22,7 @@ classdef JobDispatcher
         %
         % the framework used to exchange messages with parallel pool
         mess_framework;
-        %  Heler property used to retrieve running job id
+        %  Helper property used to retrieve a running job id
         job_id
     end
     %
@@ -205,7 +204,7 @@ classdef JobDispatcher
         %
         function obj = finalize_all(obj)
             % destructor. As this is not a handle class, invalid cluster_
-            % object may remain if delete does not asigned to a new object
+            % object may remain if delete does not assigned to a new object
             obj.cluster_ = [];
             obj.job_destroyer_ = [];
         end

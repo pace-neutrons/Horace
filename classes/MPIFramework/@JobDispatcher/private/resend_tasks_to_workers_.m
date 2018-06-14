@@ -62,7 +62,7 @@ cluster_wrp = obj.cluster_;
 [outputs,n_failed,task_ids,obj] = submit_and_run_job_(obj,task_class_name,...
     common_params,loop_params,return_results,...
     cluster_wrp,keep_workers_running);
-% repeat finalize_all in case of dead cleanup objects stuck in class
+% repeat finalize_all in case of dead clean-up objects stuck in class
 % properties (issue with value class)
 if ~keep_workers_running
     obj = obj.finalize_all();

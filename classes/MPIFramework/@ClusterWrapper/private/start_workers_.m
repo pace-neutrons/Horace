@@ -1,6 +1,6 @@
 function [obj,completed] = start_workers_(obj,je_init_message,task_init_mess)
 % send initialization information to each worker in the cluster and receive
-% responce informing that the job has started
+% response informing that the job has started
 %
 %
 % $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)

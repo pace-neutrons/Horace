@@ -1,5 +1,5 @@
 classdef parallel_config<config_base
-    % The class to configure Herbert parlallel framework
+    % The class to configure Herbert parallel framework
     %
     % To see the list of current configuration option values:
     %   >> parallel_config
@@ -19,18 +19,18 @@ classdef parallel_config<config_base
     % Fields are:
     % -----------
     %  parallel_framework   - the name of a framework to use. Currently
-    %                         availible are herbert or parpool, where
+    %                         available are Herbert or parpool, where
     %                         parpool works only if parallel computing
-    %                         toolbox is installed and uses one while herbert
-    %                         is custom herbert framework.
+    %                         toolbox is installed and uses one while Herbert
+    %                         is custom Herbert framework.
     % shared_folder_on_local- the folder on your working machine containing
     %                         the job input and output data mounted on
-    %                         local machine and availible from the remote
+    %                         local machine and available from the remote
     %                         machines.
     % shared_folder_on_remote- The place where your data should be found on
     %                         a remote worker.
     %                         the job input and output data mounted on
-    %                         local machine and availible from the remote
+    %                         local machine and available from the remote
     %                         machines.
     
     % working_directory     - The folder, containing input data for the job
@@ -48,15 +48,15 @@ classdef parallel_config<config_base
     %
     
     properties(Dependent)
-        % a framework to use for message exchange. Currently availible are
-        % herbert (herbert file-bases) and parpool (Matlab mpi) frameworks
+        % a framework to use for message exchange. Currently available are
+        % Herbert (Herbert file-bases) and parpool (Matlab MPI) frameworks
         parallel_framework;
         %
         % the folder on your working machine containing the job input and
-        % output data mounted on local machine and availible from the remote
+        % output data mounted on local machine and available from the remote
         % machines.
         % Must have read/write permissions for all machines. Should be fast
-        % /parlallel file system on a remote machines
+        % /parallel file system on a remote machines
         %
         % If empty, assumed that the local machine filesystem is shared
         % with remote machine filesystem and have the same mounting points.
@@ -83,7 +83,7 @@ classdef parallel_config<config_base
         % Assign empty value to restore it to default (system tmp
         % directory)
         %
-        % If parallel horace job is deployed, the value of this directory
+        % If parallel Horace job is deployed, the value of this directory
         % evaluated on a remote worker equal to
         % shared_folder_on_worker value
         working_directory
@@ -146,8 +146,8 @@ classdef parallel_config<config_base
         %-----------------------------------------------------------------
         % overloaded setters
         function obj=set.parallel_framework(obj,val)
-            % Set up MPI framework to use. Availible options are:
-            % herbert or parpool.
+            % Set up MPI framework to use. Available options are:
+            % Herbert or parpool.
             %
             opt = {'herbert','parpool'};
             [ok,err,is_herbert,is_partool,rest] = parse_char_options({val},opt);

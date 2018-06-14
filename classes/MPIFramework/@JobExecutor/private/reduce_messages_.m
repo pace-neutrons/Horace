@@ -6,10 +6,10 @@ function [ok,err,fin_mess,obj] = reduce_messages_(obj,mess,mess_process_function
 % mess_process_function -- the function used to process list of similar messages to
 %                          build final message. If empty, default function
 %                          is used
-% synchronize           -- if false, collect only existing messages from all
+% lock_until_received   -- if false, collects only existing messages from all
 %                          workers and do not wait for receiving similar
 %                          messages from other workers. Useful in case of
-%                          reducing logging, in which case headnode should
+%                          reducing logging, in which case head-node should
 %                          not wait for other nodes to produce log messages
 %                          if absent, assumed to be true
 % other_name            -- alternative name of the message. Should be used

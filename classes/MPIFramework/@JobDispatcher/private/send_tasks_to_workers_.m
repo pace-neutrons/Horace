@@ -50,7 +50,7 @@ end
 
 mf = obj.mess_framework_;
 
-% if loop param defines less loop parameters then there are workers, number
+% if loop param defines less loop parameters then there are workers requested, number
 % of workers should be decreased.
 n_workers = check_loop_param(loop_params,n_workers);
 
@@ -59,7 +59,7 @@ par_fm = parallel_config();
 cluster_wrp = par_fm.get_cluster_wrapper(n_workers,mf);
 
 
-if keep_workers_running % store cluster pointer for job resubmittion
+if keep_workers_running % store cluster pointer for job resubmission
     obj.cluster_       = cluster_wrp;
     obj.job_destroyer_ = onCleanup(@()finalize_all(cluster_wrp));
 else

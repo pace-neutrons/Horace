@@ -27,10 +27,10 @@ me = mess_cash.instance();
 clob = onCleanup(@()delete(me));
 
 control_struct = iMessagesFramework.deserialize_par(worker_controls_string);
-% Initalize config files to use on remote session. Needs to be initialized
+% Initialize config files to use on remote session. Needs to be initialized
 % first as may be used by message framework.
 %
-% remove configurations, may be loaded in memory while horace was
+% remove configurations, may be loaded in memory while Horace was
 % initialized.
 config_store.instance('clear');
 % Where config files are stored:
