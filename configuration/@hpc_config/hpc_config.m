@@ -79,6 +79,7 @@ classdef hpc_config < config_base
         parallel_framework_;
         accum_in_separate_process_ = false;
         accumulating_process_num_ = 2;
+        current_worker_to_use_ = 'worker_v1.m'
     end
     properties(Constant,Access=private)
         % change this list if saveable fields have changed or redefine
@@ -174,7 +175,7 @@ classdef hpc_config < config_base
                 accum = false;
             end
             if accum
-                [ok,mess] = check_worker_configured();
+                [ok,mess] = check_worker_configured(this);
                 if ~ok
                     warning('HOR_CONFIG:set_accum_in_separate_process',...
                         ' Can not start accumulating in separate process as: %s',...

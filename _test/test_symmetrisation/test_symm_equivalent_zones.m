@@ -6,6 +6,7 @@ classdef test_symm_equivalent_zones< TestCase
     % Copied from template in test_multifit_horace_1
     properties
         testdir;
+        worker_h = @worker_v1
     end
     
     
@@ -69,7 +70,7 @@ classdef test_symm_equivalent_zones< TestCase
             [ok,err] = mpi.send_message(1,mess);
             assertEqual(ok,MES_CODES.ok,sprintf('Error sending message %s',err));
             
-            worker('combine_equivalent_zones_job',wk_control);
+            this.worker_h('combine_equivalent_zones_job',wk_control);
             %--------------------------
             % receive results of the work
             [ok,err,mes] = mpi.receive_message(1,'completed');
