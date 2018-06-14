@@ -29,6 +29,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
     %>>tc=test_gen_sqw_accumulate_sqw_sep_session('save');
     %>>tc.save():
     properties
+        worker_h = @worker_v1
     end
     methods
         function obj=test_gen_sqw_accumulate_sqw_herbert(test_name)
@@ -108,7 +109,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             assertEqual(ok,MESS_CODES.ok,err);
             
             wk_init= serverfbMPI.gen_worker_init(1,1);
-            [ok,error_mess]=worker(wk_init);
+            [ok,error_mess]=this.worker_h(wk_init);
             assertTrue(ok,error_mess)
             [ok,err] = serverfbMPI.receive_message(1,'started');
             assertTrue(ok==MESS_CODES.ok,err);
