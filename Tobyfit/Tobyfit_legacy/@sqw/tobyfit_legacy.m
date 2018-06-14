@@ -616,7 +616,7 @@ function [wout, fitdata, ok, mess, varargout] = tobyfit_legacy(win, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 1524 $ ($Date: 2017-09-27 15:48:11 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 
 
 % Clean up any persistent or global storage in case Tobyfit was left in a strange state

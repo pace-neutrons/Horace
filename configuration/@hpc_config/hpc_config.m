@@ -36,7 +36,7 @@ classdef hpc_config < config_base
     % Type >> hpc_config  to see the list of current configuration option values.
     %
     %
-    % $Revision: 1575 $ ($Date: 2018-02-02 18:06:13 +0000 (Fri, 02 Feb 2018) $)
+    % $Revision$ ($Date$)
     %
     properties(Dependent)
         % use multi-threaded mex code to combine various sqw/tmp files together
