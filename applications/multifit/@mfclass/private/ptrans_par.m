@@ -19,7 +19,7 @@ function [p,bp]=ptrans_par(pf,p_info)
 
 % Original author: T.G.Perring
 %
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 
 
 % Update list of parameter values

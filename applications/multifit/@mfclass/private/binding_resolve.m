@@ -24,7 +24,7 @@ function [bound_to_res,ratio_res,ok] = binding_resolve (bound_to,ratio)
 
 % Original author: T.G.Perring
 %
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 
 
 n=numel(bound_to);

@@ -3,7 +3,7 @@ classdef InitMessage < aMessage
     % information to a single task of a distributed job.
     %
     %
-    % $Revision: 713 $ ($Date: 2018-02-23 16:52:46 +0000 (Fri, 23 Feb 2018) $)
+    % $Revision$ ($Date$)
     %
     %
     properties(Dependent)

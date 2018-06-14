@@ -3,7 +3,7 @@ function [completed,obj] = check_progress_(obj,varargin)
 % worker N1
 %
 %
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 %
 completed = false;
 if nargin > 1

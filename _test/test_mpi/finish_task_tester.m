@@ -8,7 +8,7 @@ function ok=finish_task_tester(worker_controls_string)
 %              folder name where the job initialization data are located on
 %              a remote system
 %
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 %
 
 if isempty(which('herbert_init.m'))

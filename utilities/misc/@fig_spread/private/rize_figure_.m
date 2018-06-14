@@ -4,7 +4,7 @@ function rize_figure_(fig_h)
 % as old way does not work for new Matlab graphics.
 %
 %
-% $Revision: 1524 $ ($Date: 2017-09-27 15:48:11 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 %
 if verLessThan('matlab','8.4')
     figure(fig_h);

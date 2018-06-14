@@ -22,7 +22,7 @@ function ind = parfun2ind (ip, ifun, np, nbp)
 
 % Original author: T.G.Perring
 %
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 
 
 % Elementary check on size of parameters

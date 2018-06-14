@@ -1,7 +1,7 @@
 classdef JETester < JobExecutor
     % Class used to test job dispatcher functionality
     %
-    % $Revision: 713 $ ($Date: 2018-02-23 16:52:46 +0000 (Fri, 23 Feb 2018) $)
+    % $Revision$ ($Date$)
     %
     %
     

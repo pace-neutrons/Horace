@@ -13,7 +13,7 @@ function obj = set_scope_private_(obj, isfore, set_local)
 
 % Original author: T.G.Perring
 %
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 
 
 % If no change of status, then do nothing

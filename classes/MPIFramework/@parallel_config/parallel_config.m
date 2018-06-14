@@ -44,7 +44,7 @@ classdef parallel_config<config_base
     %>>parallel_config  to see the list of current configuration option values.
     %
     %
-    % $Revision: 630 $ ($Date: 2017-10-06 18:43:58 +0100 (Fri, 06 Oct 2017) $)
+    % $Revision$ ($Date$)
     %
     
     properties(Dependent)

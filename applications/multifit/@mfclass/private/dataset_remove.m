@@ -19,7 +19,7 @@ function [ok, mess, data_out] = dataset_remove (data_in, idata)
 
 % Original author: T.G.Perring
 %
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 
 
 % Initialise output (accounts also for trivial case of no data to replace)

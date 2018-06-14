@@ -3,7 +3,7 @@ function [obj,completed] = start_workers_(obj,je_init_message,task_init_mess)
 % response informing that the job has started
 %
 %
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 %
 
 me = obj.mess_exchange_;

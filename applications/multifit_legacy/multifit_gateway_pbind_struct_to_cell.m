@@ -42,7 +42,7 @@ function pbind_cell=multifit_gateway_pbind_struct_to_cell (pbind_struct)
  
 % Original author: T.G.Perring 
 % 
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $) 
+% $Revision$ ($Date$) 
 
 
 pbind_cell=cell(size(pbind_struct.ipbound));

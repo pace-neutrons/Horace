@@ -3,7 +3,7 @@ function [messages,task_ids_from] = labProbe_messages_(obj,task_nums,varargin)
 % for the labs with id, provided as input.
 % if no message is returned for a job, its name cell remains empty.
 %
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 %
 
 if ~exist('task_nums','var')

@@ -35,7 +35,7 @@ function [ok,mess,ifun,fun,present,pin,free,bind] = args_parse_set_fun (varargin
 
 % Original author: T.G.Perring
 %
-% $Revision: 627 $ ($Date: 2017-10-02 09:13:05 +0100 (Mon, 02 Oct 2017) $)
+% $Revision$ ($Date$)
 
 
 % Parse input

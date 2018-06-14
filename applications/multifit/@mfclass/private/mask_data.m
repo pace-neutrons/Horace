@@ -45,7 +45,7 @@ function [msk_out,ok,mess] = mask_data (w,msk_in,xkeep,xremove,mask)
 
 % Original author: T.G.Perring
 %
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 
 
 if isempty(msk_in), msk_in=cell(size(w)); end

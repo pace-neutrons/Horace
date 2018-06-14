@@ -1,6 +1,6 @@
 classdef test_mess_cash < TestCase
     %
-    % $Revision: 702 $ ($Date: 2018-02-12 19:05:22 +0000 (Mon, 12 Feb 2018) $)
+    % $Revision$ ($Date$)
     %
     
     properties

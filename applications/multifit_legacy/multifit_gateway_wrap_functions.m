@@ -44,7 +44,7 @@ function args_out=multifit_gateway_wrap_functions (args,pos,func,plist,bpos,bfun
  
 % Original author: T.G.Perring 
 % 
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $) 
+% $Revision$ ($Date$) 
 
 
 % Create new foreground parameter list(s)

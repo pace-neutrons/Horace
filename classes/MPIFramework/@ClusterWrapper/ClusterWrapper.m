@@ -2,7 +2,7 @@ classdef ClusterWrapper
     % The class-wrapper containing common code for any Matlab cluster,
     % and job progress logging operations supported by Herbert
     %
-    % $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+    % $Revision$ ($Date$)
     %
     %----------------------------------------------------------------------
     properties(Dependent)   %

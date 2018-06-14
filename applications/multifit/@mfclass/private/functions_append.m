@@ -26,7 +26,7 @@ function Sfun = functions_append (Sfun_in, isfore, n_append)
 
 % Original author: T.G.Perring
 %
-% $Revision: 627 $ ($Date: 2017-10-02 09:13:05 +0100 (Mon, 02 Oct 2017) $)
+% $Revision$ ($Date$)
 
 
 % Fill output with default structure

@@ -39,7 +39,7 @@ function [outputs,n_failed,task_ids,obj]=...
 %              task_param_list, assigned to this job
 %
 %
-% $Revision: 699 $ ($Date: 2018-02-08 17:40:52 +0000 (Thu, 08 Feb 2018) $)
+% $Revision$ ($Date$)
 %
 %
 if ~exist('keep_workers_running','var')

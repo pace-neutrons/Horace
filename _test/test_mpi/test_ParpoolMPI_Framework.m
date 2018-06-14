@@ -1,7 +1,7 @@
 classdef test_ParpoolMPI_Framework< MPI_Test_Common
     % Class to test basic mpi method like send/receive/probe message(s)
     %
-    % $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+    % $Revision$ ($Date$)
     %
     
     properties

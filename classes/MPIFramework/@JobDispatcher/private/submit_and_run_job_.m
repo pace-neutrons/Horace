@@ -18,7 +18,7 @@ function [outputs,n_failed,task_ids,obj] = submit_and_run_job_(obj,...
 %
 %
 %
-% $Revision: 699 $ ($Date: 2018-02-08 17:40:52 +0000 (Thu, 08 Feb 2018) $)
+% $Revision$ ($Date$)
 %
 
 
