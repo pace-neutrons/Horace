@@ -1,8 +1,8 @@
-function [ok,err_mess]=worker(worker_controls_string)
-% function used as standard worker to do a job in different matlab
+function [ok,err_mess]=worker_v1(worker_controls_string)
+% function used as standard worker to do a job in different Matlab
 % session
 %
-% To work, should be present on a data searh path, before Herbert is
+% To work, should be present on a data search path, before Herbert is
 % initialized as may need to initialize Herbert and Horace itself
 %
 %Inputs:
@@ -14,7 +14,7 @@ function [ok,err_mess]=worker(worker_controls_string)
 %              folder name where the job initialization data are located on
 %              a remote system
 %
-% $Revision$ ($Date$)
+% $Revision: 765 $ ($Date: 2018-06-15 17:01:32 +0100 (Fri, 15 Jun 2018) $)
 %
 err_mess = [];
 if isempty(which('herbert_init.m'))
@@ -33,10 +33,10 @@ clot = onCleanup(@()(setattr(mis,'is_deployed',false)));
 
 
 control_struct = iMessagesFramework.deserialize_par(worker_controls_string);
-% Initalize config files to use on remote session. Needs to be initialized
+% Initialize config files to use on remote session. Needs to be initialized
 % first as may be used by message framework.
 %
-% remove configurations, may be loaded in memory while horace was
+% remove configurations, may be loaded in memory while Horace was
 % initialized.
 config_store.instance('clear');
 % Where config files are stored:
@@ -100,7 +100,7 @@ while keep_worker_running
         if ~is_tested
             je.labBarrier(false); % Start workers all together
         end
-        % Attach jobExecutor methods to mpi singleton to be availible from any part
+        % Attach jobExecutor methods to mpi singleton to be available from any part
         % of the code.
         mis.logger = @(step,n_steps,time,add_info)...
             (je.log_progress(step,n_steps,time,add_info));
@@ -111,7 +111,7 @@ while keep_worker_running
         %fprintf(fh,'je loop started\n');
         while ~je.is_completed()
             je= je.do_job();
-            % when its tested, workers are tested in single matlab session so it will hand up on synchronization
+            % when its tested, workers are tested in single Matlab session so it will hand up on synchronization
             if ~is_tested
                 % when not tested, the synchronization is mandatory
                 je.labBarrier(false); % Wait until all workers finish their job before reducing the data
