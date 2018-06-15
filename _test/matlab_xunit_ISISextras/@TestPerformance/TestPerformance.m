@@ -130,7 +130,7 @@ classdef TestPerformance < TestCaseWithSave
                 name = get_class_name_(dbstack);
                 file = TestPerformance.default_PerfTest_fname(mfilename('fullpath'));
             end
-            obj = obj@TestCaseWithSave('-save',name,file);
+            obj = obj@TestCaseWithSave('-save',file,name);
             obj.root_name_ = name;
             
             %
@@ -212,7 +212,7 @@ classdef TestPerformance < TestCaseWithSave
             
         end
         %-------------------------------------------------------------
-        function name = build_test_suite_name(obj,addinfo)
+        function test_name = build_test_suite_name(obj,addinfo)
             % function used to generate test suite name. The name should
             % include name of the computer the test is run on + some additional
             % information to identify this pc performance settings,e.g.
@@ -229,19 +229,52 @@ classdef TestPerformance < TestCaseWithSave
             %
             hpc = parallel_config;
             framework_name = hpc.parallel_framework;
-            if strcmp(framework_name,'matlab')
-                fn = getComputerName();
+            comp_name = getComputerName();
+            p_pos = strfind(comp_name,'.');
+            if ~isempty(p_pos)
+                comp_name = comp_name(1:p_pos-1);
+            end
+            if strcmp(framework_name,'herbert')
+                test_name = comp_name;
             else
-                fn = [getComputerName(),'_',framework_name];
+                test_name = [comp_name,'_',framework_name];
             end
             if exist('addinfo','var')
-                name = [fn,'_',addinfo];
-            else
-                name  = fn;
+                test_name = [test_name,'_',addinfo];
             end
             % remove all . from a computer name to include unix names.
-            name   = strrep(name  ,'.','_');
+            %name   = strrep(name  ,'.','_');
             
+        end
+        
+        function save_to_csv(obj,varargin)
+            % save performance data into csv file for further analysis.
+            %
+            % Usage:
+            % pt.save_to_csv([filename],['-short']);
+            %
+            %where the form without the arguments saves the performance data
+            %into default csv file
+            %
+            % filename -- the name of the csv file to save performance data
+            % '-short' -- the form saves performance data in the short form
+            %             i.e. only the test name and the execution time
+            %             are exported.
+            [ok,mess,short,argi] = parse_char_options(varargin,{'-short'});
+            if ~ok
+                error('TEST_PERFORMANCE:invalid_arguments',mess);
+            end
+            if isempty(argi) % build default csv file name
+                [tdir,fn]= fileparts(obj.test_results_file);
+                filename = fullfile(tdir,[fn,'.csv']);
+            else
+                [tdir,fn]= fileparts(argi{1});
+                if isempty(tdir)
+                    tdir= fileparts(obj.test_results_file);
+                end
+                filename = fullfile(tdir,[fn,'.csv']);
+            end
+            export_perf_to_csv_(obj.perf_data,filename,short);
         end
     end
     methods(Access=protected)
