@@ -1,4 +1,6 @@
-classdef test_gen_sqw_accumulate_sqw_nomex < test_gen_sqw_accumulate_sqw_mex
+classdef test_gen_sqw_accumulate_sqw_nomex < ...
+        gen_sqw_accumulate_sqw_tests_common & gen_sqw_common_config
+    
     % Series of tests of gen_sqw and associated functions
     % when mex code is disabled or not available
     %
@@ -33,7 +35,7 @@ classdef test_gen_sqw_accumulate_sqw_nomex < test_gen_sqw_accumulate_sqw_mex
     end
     
     methods
-        function this=test_gen_sqw_accumulate_sqw_nomex(varargin)
+        function obj=test_gen_sqw_accumulate_sqw_nomex(test_name)
             % Series of tests of gen_sqw and associated functions
             % Optionally writes results to output file
             %
@@ -44,78 +46,60 @@ classdef test_gen_sqw_accumulate_sqw_nomex < test_gen_sqw_accumulate_sqw_mex
             %
             % Reads previously created test data sets.
             % constructor
-            if nargin > 0
-                name = varargin{1};
-            else
-                name= mfilename('class');
+            if ~exist('test_name','var')
+                test_name = 'test_gen_sqw_accumulate_sqw_nomex';
             end
-            this = this@test_gen_sqw_accumulate_sqw_mex(name,'nomex');
-            
+            obj = obj@gen_sqw_common_config(0,0,0,-1);
+            obj = obj@gen_sqw_accumulate_sqw_tests_common(test_name,'nomex');
         end
         
-        
-        function this=test_gen_sqw_threading_mex(this)
-            % check 1 vs 8 threads mex and compare to one cut
-            % shortest code to debug in case of errors
-            %-------------------------------------------------------------
-            [~,n_errors]=check_horace_mex();
-            if n_errors>0
-                return % if no mex enabled, this tests nothing
+        %
+        function obj=test_wrong_params_gen_sqw(obj,varargin)
+            if nargin > 1  % running in single test method mode.
+                obj.setUp();
+                co1 = onCleanup(@()obj.tearDown());
+                
             end
-            cleanup_obj=onCleanup(@()this.restore_config());
+            % something wrong with this test -- it was with 'replicate'
+            % option and apparemtly failing
+            sqw_file_15456=fullfile(tempdir,['sqw_123456_',obj.test_pref,'.sqw']);  % output sqw file which should never be created
             
-            hc = hor_config;
-            hc.use_mex=true;
-            hc.threads = 8;
-
-            hpc = hpc_config;
-            hpc.accum_in_separate_process=false;
-
-            %-------------------------------------------------------------
-            spe_file_names = cell(1,1);
-            for i=1:1
-                spe_file_names{i}=fullfile(tempdir,['test_gen_sqw_threading_1th',num2str(i),'.nxspe']);
+            [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
+            spe_files = obj.spe_file([1,5,4,5,6]);
+            [fpath,fname]=fileparts(spe_files{5});
+            cod = onCleanup(@()delete(fullfile(fpath,[fname,'_2.tmp'])));
+            
+            try
+                gen_sqw (spe_files, '', sqw_file_15456, efix([1,5,4,5,6]),...
+                    emode, alatt, angdeg, u, v, psi([1,5,4,5,6]), omega([1,5,4,5,6]),...
+                    dpsi([1,5,4,5,6]), gl([1,5,4,5,6]), gs([1,5,4,5,6]), 'replicate');
+                ok=false;
+            catch ME
+                ok=true;
+                assertEqual(ME.identifier,'WRITE_NSQW_TO_SQW:invalid_argument')
+                
             end
-            % build special test files if they have not been build
-            this=build_test_files(this,true,spe_file_names);
+            assertTrue(ok,'Should have failed because of repeated spe file name and parameters');
+        end
+        %
+        function obj=test_wrong_params_accum_sqw(obj)
+            %-------------------------------------------------------------
+            %-------------------------------------------------------------
+            sqw_file_accum=fullfile(tempdir,['sqw_accum_',obj.test_pref,'.sqw']);  % output sqw file which should never be created
             
             
-            sqw_file_123_t8=fullfile(tempdir,'sqw_123_mex8_threading.sqw');             % output sqw file
-            sqw_file_123_t1=fullfile(tempdir,'sqw_123_mex1_threading.sqw');        % output sqw file
-            cleanup_obj1=onCleanup(@()this.delete_files(sqw_file_123_t8,sqw_file_123_t1,spe_file_names{:}));
-            % ---------------------------------------
-            % Test gen_sqw
-            % ---------------------------------------
-            [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this,numel(spe_file_names));
-            % Make some cuts:
-            % ---------------
-            this.proj.u=[1,0,0.1]; this.proj.v=[0,0,1];
-            hc.threads = 8;
-            gen_sqw (spe_file_names, '', sqw_file_123_t8, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+            [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
             
-            
-            
-            hc.threads = 1;
-            gen_sqw (spe_file_names, '', sqw_file_123_t1, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
-            %
-            % Test results
-            obj_m8=read_sqw(sqw_file_123_t8);
-            obj_m1=read_sqw(sqw_file_123_t1);
-            %
-            pix = sortrows(obj_m8.data.pix')';
-            pix1 = sortrows(obj_m1.data.pix')';
-            assertEqual(pix,pix1);
-            assertEqual(obj_m8.data.s,obj_m1.data.s);
-            assertEqual(obj_m8.data.e,obj_m1.data.e);
-            assertEqual(obj_m8.data.npix,obj_m1.data.npix);
-            
-            [ok,mess]=is_cut_equal(sqw_file_123_t8,sqw_file_123_t1,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
-            assertTrue(ok,[' MEX threaded and non-threaded versions of gen_sqw are different: ',mess]);
-            
-            w_8 = d4d(sqw_file_123_t8);
-            w_1 = d4d(sqw_file_123_t1);
-            [ok,mess]=equal_to_tol(w_8,w_1,-1.e-8,'ignore_str',true);
-            assertTrue(ok,[' MEX threaded and non-threaded versions of gen_sqw are different: ',mess]);
+            % Repeat a file
+            spe_accum={obj.spe_file{1},'',obj.spe_file{5},obj.spe_file{4},obj.spe_file{5},obj.spe_file{6}};
+            try
+                accumulate_sqw (spe_accum, '', sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+                ok=false;
+            catch ME
+                ok=true;
+                assertEqual(ME.identifier,'GEN_SQW:invalid_argument');
+            end
+            assertTrue(ok,'Should have failed because of repeated spe file name');
             
         end
         

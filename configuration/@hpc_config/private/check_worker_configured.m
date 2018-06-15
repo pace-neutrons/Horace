@@ -1,9 +1,9 @@
-function [ok,mess] = check_worker_configured()
+function [ok,mess] = check_worker_configured(obj)
 % Check if worker configured properly to allow it Horace multisession
 % processing
 %
 
-wrker_path = fileparts(which('worker'));
+wrker_path = fileparts(which(obj.current_worker_to_use_));
 if isempty(wrker_path)
     ok=false;
     mess=['Can not find worker on a data search path;\n',...

@@ -57,7 +57,8 @@ end
 nfiles=length(infiles);
 for i=1:nfiles
     if exist(infiles{i},'file')~=2
-        error(['File ',infiles{i},' not found'])
+        error('WRITE_NSQW_TO_SQW:invalid_argument',...
+            ['File ',infiles{i},' not found'])
     end
 end
 
@@ -91,7 +92,8 @@ end
 ldrs = sqw_formats_factory.instance().get_loader(infiles);
 for i=1:nfiles
     data_type = ldrs{i}.data_type;
-    if ~strcmpi(data_type,'a'); error(['No pixel information in ',infiles{i}]); end
+    if ~strcmpi(data_type,'a'); error('WRITE_NSQW_TO_SQW:invalid_argument',...
+            ['No pixel information in ',infiles{i}]); end
     main_header{i} = ldrs{i}.get_main_header();
     header{i}      = ldrs{i}.get_header('-all');
     datahdr{i}     = ldrs{i}.get_data('-head');
@@ -99,7 +101,8 @@ for i=1:nfiles
     if i==1
         det=det_tmp;    % store the detector information for the first file
     end
-    if ~isequal_par(det,det_tmp); error('Detector parameter data is not the same in all files'); end
+    if ~isequal_par(det,det_tmp); error('WRITE_NSQW_TO_SQW:invalid_argument',...
+            'Detector parameter data is not the same in all files'); end
     clear det_tmp       % save memory on what could be a large variable
     
     pos_datastart(i)=ldrs{i}.data_position;  % start of data block
@@ -120,7 +123,7 @@ mess_completion
 % This guarantees that the pixels are independent (the data may be the same if an spe file name is repeated, but
 % it is assigned a different Q, and is in the spirit of independence)
 [header_combined,nspe,ok,mess] = header_combine(header,varargin{:});
-if ~ok, error(mess), end
+if ~ok, error('WRITE_NSQW_TO_SQW:invalid_argument',mess), end
 
 % We must have same data information for alatt, angdeg, uoffset, u_to_rlu, ulen, pax, iint, p
 
