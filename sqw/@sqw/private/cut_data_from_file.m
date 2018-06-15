@@ -423,7 +423,7 @@ end
 function pci = init_pix_combine_info(nfiles)
 % define fmp files to store in working directory.
 
-wk_dir = config_store.instance().get_value('hor_config','working_directory');
+wk_dir = config_store.instance().get_value('parallel_config','working_directory');
 
 tmpfiles = cell(1,nfiles);
 tmpfiles = cellfun(@(x)fullfile(wk_dir,['horace',rand_digit_string(16),'.tmp']),tmpfiles,'UniformOutput',false);
