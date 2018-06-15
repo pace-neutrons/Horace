@@ -165,6 +165,10 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
         %
         %
         function test_send_receive_tester(obj)
+            if obj.ignore_test
+                return;
+            end
+            
             job_param = struct('filepath',obj.working_dir,...
                 'filename_template','test_ParpoolMPI%d_nf%d.txt');
             filepath = job_param.filepath;
@@ -180,6 +184,10 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             
         end
         function test_probe_receive_all_tester(obj)
+            if obj.ignore_test
+                return;
+            end
+            
             job_param = struct('filepath',obj.working_dir,...
                 'filename_template','test_ParpoolMPI%d_nf%d.txt');
             filepath = job_param.filepath;

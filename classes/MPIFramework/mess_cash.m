@@ -142,7 +142,12 @@ classdef mess_cash < handle
     methods(Access = private)
         function obj = mess_cash(num_labs)
             if ~exist('num_labs','var')
-                num_labs = numlabs; % MPI numlabs
+                nmp = which('numlabs');
+                if isempty(nmp)
+                    num_labs = 1;
+                else
+                    num_labs = numlabs; % MPI numlabs
+                end
             end
             obj.mess_cash_ = cell(1,num_labs);
             obj.cash_capacity_ = num_labs;

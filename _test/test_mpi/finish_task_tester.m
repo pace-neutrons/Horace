@@ -56,7 +56,7 @@ if ~isempty(mess)
         fbMPI.labIndex);
     error('WORKER:init_worker',err);
 end
-je.task_outputs = sprintf(' finished job for lab %d',labindex());
+je.task_outputs = sprintf(' finished job for lab %d',je.labIndex);
 % if je.labIndex ~= 1
 %     pause(0.5)
 % end

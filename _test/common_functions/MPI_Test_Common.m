@@ -39,8 +39,17 @@ classdef MPI_Test_Common < TestCase
             else
                 obj.old_config = pc.get_data_to_store;
                 obj.change_setup = true;
-                pc.parallel_framework = obj.framework_name;
-                if ~strcmpi(pc.parallel_framework,obj.framework_name)
+                try
+                    pc.parallel_framework = obj.framework_name;
+                    set_framework = true;
+                catch ME
+                    if strcmp(ME.identifier,'PARALLEL_CONFIG:unsupported_configuration')
+                        set_framework = false;
+                    else
+                        rethrow(ME);
+                    end
+                end
+                if ~set_framework
                     obj.ignore_test = true;
                     obj.change_setup = false;
                     hc = herbert_config;

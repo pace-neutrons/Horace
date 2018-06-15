@@ -2,7 +2,7 @@ function   obj = generate_log_(obj,log_message)
 % Display JobDispatcher log message
 %
 count = obj.display_results_count_;
-if verLessThan('matlab','R2016b')
+if verLessThan('matlab','9.1')
     CR = sprintf('\n');
 else
     CR = newline; %sprintf('\n');
