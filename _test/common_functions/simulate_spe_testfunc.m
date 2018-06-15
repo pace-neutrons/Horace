@@ -30,6 +30,9 @@ end
 %-----------------------------------------------------------------
 %----- store/restore seed for random signal function
 [~,seed_key] = fileparts(spe_file);
+sk = regexp(seed_key,'(\d+)','tokens');
+sk = [sk{:}];
+seed_key =['key_', [sk{:}]];
 if seed_defined
     if isfield(seeds_store,seed_key)
         seed = seeds_store.(seed_key);

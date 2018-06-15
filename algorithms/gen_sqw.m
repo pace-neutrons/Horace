@@ -173,7 +173,7 @@ require_sqw_exist=false;
 
 [ok, mess, spe_file, par_file, sqw_file, spe_exist, spe_unique, sqw_exist] = gen_sqw_check_files...
     (spe_file, par_file, sqw_file, require_spe_exist, require_spe_unique, require_sqw_exist);
-if ~ok, error(mess), end
+if ~ok, error('GEN_SQW:invalid_argument',mess), end
 n_all_spe_files=numel(spe_file);
 
 
@@ -188,7 +188,7 @@ use_partial_tmp = false;    % true to generate a combined sqw file during accumu
     config_store.instance().get_value('hor_config','log_level','delete_tmp');
 use_mex_for_combine=...
     config_store.instance().get_value('hpc_config','use_mex_for_combine');
-    
+
 if opt.accumulate
     if sqw_exist && ~opt.clean  % accumulate onto an existing sqw file
         accumulate_old_sqw=true;
@@ -205,7 +205,7 @@ end
 % Check numeric parameters (array lengths and sizes, simple requirements on validity)
 [ok,mess,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=gen_sqw_check_params...
     (n_all_spe_files,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
-if ~ok, error(mess), end
+if ~ok, error('GEN_SQW:invalid_argument',mess), end
 
 
 % Check optional arguments (grid, urange, instument, sample) for size, type and validity
@@ -214,7 +214,7 @@ instrument_default=struct;  % default 1x1 struct
 sample_default=struct;      % default 1x1 struct
 [ok,mess,present,grid_size_in,urange_in,instrument,sample]=gen_sqw_check_optional_args(...
     n_all_spe_files,grid_default,instrument_default,sample_default,args{:});
-if ~ok, error(mess), end
+if ~ok, error('GEN_SQW:invalid_argument',mess), end
 if accumulate_old_sqw && (present.grid||present.urange)
     error('If data is being accumulated to an existing sqw file, then you cannot specify the grid or urange.')
 end
@@ -283,7 +283,7 @@ if accumulate_old_sqw    % combine with existing sqw file
 else
     [ok, mess] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
         u, v, psi, omega, dpsi, gl, gs, instrument, sample, opt.replicate);
-    if ~ok, error(mess), end
+    if ~ok, error('GEN_SQW:invalid_argument',mess), end
     % Have already checked that all the spe files exist for the case of generate_new_sqw is true
     if accumulate_new_sqw && ~any(spe_exist)
         error('None of the spe data files exist, so cannot create new sqw file.')
@@ -465,65 +465,6 @@ for i=1:numel(file_list)
 end
 
 
-
-function  [grid_size,urange]= check_and_combine_parallel_outputs(n_failed,n_workers,outputs,job_ids,job_par)
-% verify parallel outputs and reprocess
-if n_failed == n_workers
-    error('GEN_SQW:separate_process_sqw_generation',...
-        [' All parallel jobs have failed.\n',...
-        ' Disable parallel sqw generation by setting\n',...
-        ' set(hpc_config,''accum_in_separate_process'',0)']);
-end
-if n_failed>0
-    warning('GEN_SQW:separate_process_sqw_generation',' %d out of %d jobs to generate tmp files reported failure',...
-        n_failed,n_workers);
-    for ii=1:numel(outputs)
-        if isstruct(outputs)
-            continue;
-        end
-        job_list = job_ids{ii};
-        grid_size_g = [];
-        urange_g = [];
-        for np = 1:numel(job_list)
-            par_num = job_list(np);
-            if ~(exist(job_par(par_num).sqw_file_name,'file')==2)
-                warning('GEN_SQW:separate_process_sqw_generation',...
-                    ' The target file %s have not been created. Proceeding serially: ',...
-                    job_par(par_num).sqw_file_name);
-                [grid_size,urange]=gen_sqw_files_job.runfiles_to_sqw(job_par(par_num));
-                if isempty(urange_g)
-                    urange_g     = urange;
-                    grid_size_g  = grid_size;
-                else
-                    urange_g = [min(urange(1,:));max(urange(2,:))];
-                    
-                end                
-            end
-            n_failed=n_failed-1;
-        end
-        outputs{ii} = struct('grid_size',grid_size_g,...
-            'urange',urange_g );
-        
-    end
-end
-%
-% check output boundaries produced by all jobs are consistent
-grid_size = outputs{1}.grid_size;
-urange    = outputs{1}.urange;
-for i=2:numel(outputs)
-    if ~all(grid_size==outputs{i}.grid_size) || ~all(urange(:)==outputs{i}.urange(:))
-        disp('*** Incorrect tmp file ranges ***');
-        disp(['Job number: ',num2str(i)]);
-        disp(['grid_size: ',num2str(grid_size)])
-        disp(['Job grid_size: ',num2str(outputs{i}.grid_size)])
-        disp(['urange     min: ',num2str(urange(1,:))])
-        disp(['Job urange min: ',num2str(outputs{i}.urange(1,:))])
-        disp(['urange     max: ',num2str(urange(2,:))])
-        disp(['Job urange max: ',num2str(outputs{i}.urange(2,:))])
-        
-        error('Logic error in calc_sqw - probably sort_pixels auto-changing grid. Contact T.G.Perring')
-    end
-end
 
 function  [ok,mess]=check_transf_input(input)
 if ~isa(input,'function_handle')
@@ -742,33 +683,45 @@ tmp_file=gen_tmp_filenames(spe_file,sqw_file);
 nt=bigtic();
 %write_banner=true;
 
-if numel(run_files) < numel(instrument)
-    instrument = instrument(1:numel(run_files));
-    sample = sample(1:numel(run_files));
-end
 
-job_par_fun = @(run,fname,instr,samp,transf)(gen_sqw_files_job.pack_job_pars(...
-    run,fname,instr,samp,...
-    grid_size_in,urange_in));
-job_par = cellfun(job_par_fun,...
-    run_files',tmp_file,num2cell(instrument),num2cell(sample),...
-    'UniformOutput', true);
 
 if use_separate_matlab
+    jd = JobDispatcher('gen_sqw');
+    [common_par,loop_par]=gen_sqw_files_job.pack_job_pars(run_files',tmp_file,...
+        instrument,sample,grid_size_in,urange_in);
+    
     %
     % aggregate the conversion parameters into array of structures,
     % suitable for splitting jobs between workers
     %
-    % start parallel framework
-    [~,par_job_name] = fileparts(sqw_file);
     % name parallel job by sqw file name
-    jd = JobDispatcher(upper(par_job_name));
+    
     %
-    [n_failed,outputs,job_ids] = jd.start_tasks('gen_sqw_files_job',...
-        job_par,num_matlab_sessions);
+    [outputs,n_failed] = jd.start_job('gen_sqw_files_job',...
+        common_par,loop_par,true,num_matlab_sessions,false);
     %
-    [grid_size,urange]= check_and_combine_parallel_outputs(n_failed,...
-        num_matlab_sessions,outputs,job_ids,job_par);
+    if n_failed == 0
+        grid_size = outputs.grid_size;
+        urange    = outputs.urange;
+    else
+        if iscell(outputs)
+            for i=1:numel(outputs)
+                if isa(outputs{i},'MException')
+                    fprintf('Task N%d failed. Error %s; Message %s\n',...
+                        i,outputs{i}.identifier,outputs{i}.message);
+                else
+                    fprintf('Task N%d failed. Output: ',i);
+                    disp(outputs{i});
+                end
+            end
+        else
+            fprintf('Job %s failed. Output: \n',jd.job_id);
+            disp(outputs);
+        end
+        error('GEN_SQW:runtime_error',...
+            ' Number: %d parallel tasks out of total: %d tasks have failed',...
+            n_failed,num_matlab_sessions)
+    end
 else
     %---------------------------------------------------------------------
     % serial rundata to sqw transformation
@@ -779,14 +732,9 @@ else
     % make it look like a parallel transformation. A bit less
     % effective but much easier to identify problem with
     % failing parallel job
-    jex = gen_sqw_files_job();
-    % run conversion
-    jex = jex.do_job(job_par);
-    % retrieve outputs
-    result = jex.task_outputs;
-    %
-    grid_size= result.grid_size;
-    urange = result.urange;
+    
+    [grid_size,urange]=gen_sqw_files_job.runfiles_to_sqw(run_files,tmp_file,...
+        grid_size_in,urange_in,true);
     %---------------------------------------------------------------------
 end
 if log_level>-1

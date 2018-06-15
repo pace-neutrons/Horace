@@ -78,7 +78,7 @@ if use_mex
     end
     if ~can_use_mex_for_combine
         % it will check the mode and set up "can not user mex" internally
-        hpc = hpc_config;
+        hpc = hpc_config();
         hpc.mex_combine_thread_mode = 0;
     end
 end

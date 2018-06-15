@@ -18,7 +18,7 @@ perf_res = struct('small_ds_perf',[],'medium_ds_perf',[],'large_ds_perf',[]);
 
 
 hor_tes = test_SQW_GENCUT_perf();
-% if hpc extensions are availible and enabled try to run the test in parallel
+% if hpc extensions are available and enabled try to run the test in parallel
 hc = hpc_config;
 if nargin == 0
     if hc.accum_in_separate_process
@@ -30,10 +30,11 @@ else
     n_workers = varargin{1};
 end
 
-
+%--------------------------------------------------------------------------
 % run performance tests for small sqw file (default file)
 small_perf = hor_tes.test_gensqw_performance(n_workers);
 perf_res.small_ds_perf = small_perf;
+%--------------------------------------------------------------------------
 
 % prepare performance tests for medium dataset
 hor_tes.n_files_to_use = 50;
@@ -44,13 +45,18 @@ hc = hor_config;
 hcd = hc.get_data_to_store;
 clob_tmp = onCleanup(@()set(hc,hcd));
 hc.delete_tmp = 0;
+%--------------------------------------------------------------------------
 % run performance tests for medium size file
 medium_perf = hor_tes.test_gensqw_performance(n_workers);
 perf_res.medium_ds_perf = medium_perf;
+%--------------------------------------------------------------------------
 %
-%run performance for combining tmp files only.
+%--------------------------------------------------------------------------
+%run performance for combining tmp files only (depends on previous test
+%completed successfully and left tmp files to combine during this test)
 medium_perf = hor_tes.combine_performance_test(n_workers);
 perf_res.medium_ds_perf = medium_perf;
+%--------------------------------------------------------------------------
 clear clob_tmp; % reset configuration not to keep tmp files any more
 
 %
