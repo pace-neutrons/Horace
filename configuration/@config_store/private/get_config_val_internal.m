@@ -4,7 +4,7 @@ function [prop_value,out] =get_config_val_internal(this,class_name,prop_name,var
 %input:
 % class_name -- name of the class to restore value from HDD or memory if
 %               already loaded or the instance of such class
-% 
+%
 % prop_name  -- the name of the property to get stored value
 %
 %Returns:
@@ -15,15 +15,19 @@ function [prop_value,out] =get_config_val_internal(this,class_name,prop_name,var
 % $Revision$ ($Date$)
 %
 
-
-% if class exist in memory, return it from memory;
-if ~ischar(class_name) % should be class instance; fail otherwise. 
+if isa(class_name,'config_base') % should be class instance;
     class_to_restore  = class_name;
     class_name = class_to_restore.class_name;
+elseif is_string(class_name)%  
+    if ~isfield(this.config_storage_,class_name)
+        % get class instance to work with recovery/defaults
+        class_to_restore = feval(class_name);
+    end
 else
-    class_to_restore = feval(class_name);    
+    error('CONFIG_STORE:invalid_argument',...
+        'invalid data type to restore values for');
 end
-%
+% if class exist in memory, return it from memory;
 if isfield(this.config_storage_,class_name)
     config_data = this.config_storage_.(class_name);
 else

@@ -11,7 +11,7 @@ function path=herbert_on(non_default_path)
 %>>path=herbert_on(); 
 %       enables Herbert and initiates Herbert default search path
 %>>path=herbert_on('where'); 
-%       reports current location of herbert or empty if not found
+%       reports current location of Herbert or empty if not found
 %
 %>>path=herbert_on('a path'); 
 %       initiates Herbert on non-default search path
@@ -35,7 +35,7 @@ path = fileparts(which('herbert_init.m'));
 % set up multiusers computer specific settings,
 % namely settings which are common for all new users of the specific computer
 % e.g.:
-hec = herbert_config()
+hec = herbert_config();
 if hec.is_default
 % hec.use_mex_C = true;
     hec.log_level = 1;

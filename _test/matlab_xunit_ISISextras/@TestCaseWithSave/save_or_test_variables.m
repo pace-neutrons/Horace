@@ -66,7 +66,7 @@ for i=1:numel(ws_list)
         %
         ref_dataset = this.get_ref_dataset_(ws_names{i},test_name);
         [ok,mess]=equal_to_tol(ws_list{i}, ref_dataset,toll,keyval{:});
-        assertTrue(ok,[this.errmessage_prefix,': [',inputname(i+1),'] :',mess])
+        assertTrue(ok,[this.errmessage_prefix,': [',ws_names{i},'] :',mess])
     else
         this = this.set_ref_dataset_(ws_list{i},ws_names{i},test_name);
     end

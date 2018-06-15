@@ -22,7 +22,7 @@ function [ok,mess]=equal_to_tol(a,b,varargin)
 %           It has the form: [abs_tol, rel_tol] where
 %               abs_tol     absolute tolerance (>=0; if =0 equality required)
 %               rel_tol     relative tolerance (>=0; if =0 equality required)
-%           If either criterion is satified then equality within tolerance
+%           If either criterion is satisfied then equality within tolerance
 %           is accepted.
 %             Examples:
 %               [1e-4, 1e-6]    absolute 1e-4 or relative 1e-6 required
@@ -67,7 +67,7 @@ function [ok,mess]=equal_to_tol(a,b,varargin)
 %                   Usually not required, as the name of a variable will
 %                  be discovered. However, if the input argument is an array
 %                  element e.g. my_variable{3}  then the name is not
-%                  discoverable in matlab, and default 'input_1' will be
+%                  discoverable in Matlab, and default 'input_1' will be
 %                  used unless a different value is given with the keyword
 %                  'name_a'.
 %
@@ -107,7 +107,7 @@ function [ok,mess]=equal_to_tol(a,b,varargin)
 % $Revision$ ($Date$)
 
 
-% The following code is pretty commplex as it has to handle legacy input as
+% The following code is pretty complex as it has to handle legacy input as
 % well. Touch at your peril!
 warn = warning('off','MATLAB:structOnObject');
 cleanup_obj = onCleanup(@()warning(warn));
@@ -155,7 +155,7 @@ else
         'name_a',name_a,...
         'name_b',name_b,...
         'min_denominator',0);
-    cntl.keys_once=false;   % so name_a and name_b can be overidden by input arguments
+    cntl.keys_once=false;   % so name_a and name_b can be overridden by input arguments
     cntl.keys_at_end=false; % as may have name_a or name_b appear first in some cases
     [par, opt, present, ~, ok, mess] = parse_arguments(varargin, opt, cntl);
     if ~ok, error(mess), end

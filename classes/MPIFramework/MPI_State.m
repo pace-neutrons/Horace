@@ -8,12 +8,12 @@ classdef MPI_State<handle
     % 'MPI-deployed' state is set up in worker.m (.template file is provided in
     % admin folder, to rename to the file with .m extension and
     % place to Matlab search path). The state should be checked by the client,
-    % inheriting from JobExecutor within the loop excecuted within do_job method.
+    % inheriting from JobExecutor within the loop executed within do_job method.
     %
     % Implemented as classical singleton.
     
     properties(Dependent)
-        % report if the Matlab session is deployed
+        % report if the Matlab session is deployed on a remote worker
         is_deployed
         % logger function to deploy to log activities
         logger
@@ -51,8 +51,11 @@ classdef MPI_State<handle
     end
     %----------------------------------------------------------------------
     methods(Static)
-        function obj = instance()
+        function obj = instance(varargin)
             persistent obj_state;
+            if nargin>0 && ischar(varargin{1}) && strcmpi(varargin{1},'clear')
+                obj_state = [];
+            end
             if isempty(obj_state)
                 obj_state = MPI_State();
             end
@@ -129,7 +132,7 @@ classdef MPI_State<handle
         %-----------------------------------------------------------------
         
         function do_logging(obj,step,n_steps,ttf,additional_info)
-            % do logging if appropriate loging function has been setup
+            % do logging if appropriate logging function has been set-up
             % Inputs:
             % step    -- current step job is doing
             % n_steps -- total number of steps to do
@@ -169,6 +172,25 @@ classdef MPI_State<handle
                 end
                 % log
                 obj.logger_(step,n_steps,ttf,additional_info);
+            end
+        end
+        
+        function set(obj,varargin)
+            % functional assignment of class parameter with list of key-value
+            % pairs
+            % Usage:
+            % mis = MPI_State;
+            % set(mis,key,value,[key,value,....])
+            % where mis is the instance of MPI state object and the key-value
+            % pairs should be a list of valid properties of the class with
+            % their correspondent values to set.
+            %
+            if rem(numel(varargin),2)>0
+                error('MPI_STATE:invalid_argument',...
+                    ' set(MPI_State,key,value,[key,value] should have even number of key-value pairs')
+            end
+            for i=1:2:numel(varargin)
+                obj.(varargin{i}) = varargin{i+1};
             end
         end
         

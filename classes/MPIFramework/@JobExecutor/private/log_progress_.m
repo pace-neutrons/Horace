@@ -1,5 +1,5 @@
-function  log_progress_(this,step,n_steps,time_per_step,add_info)
-% log progress of the job exectution and report it to the
+function  log_progress_(obj,step,n_steps,time_per_step,add_info)
+% log progress of the job execution and report it to the
 % calling framework.
 % Inputs:
 % step     --  current step within the loop which doing the job
@@ -10,28 +10,52 @@ function  log_progress_(this,step,n_steps,time_per_step,add_info)
 %              job log
 % Outputs:
 % Sends message of type LogMessage to the job dispatcher.
-% Throws MESSAGE_FRAMEWORK:cancelled error in case the job has
+% Throws JOB_EXECUTOR:cancelled error in case the job has
 %
-me = this.mess_framework;
-if me.is_job_cancelled
-    error('MESSAGE_FRAMEWORK:runtime_error',...
-        'job with id %s have been canceled or not initialized',...
-        this.job_id);
+is_cancelled = obj.is_job_cancelled();
+if is_cancelled
+    error('JOB_EXECUTOR:cancelled',...
+        'Task %d has been cancelled at step %d#%d',obj.labIndex,step,n_steps)
 end
-% cannibalize 'started' message as this job will send 'running' messages
-all_mess = me.probe_all(this.task_id);
-if ~isempty(all_mess)    
-    if ~isempty(all_mess{1}) && ismember('started',all_mess)
-        me.receive_message(this.task_id,'started');
-    end
-end
-% Prepare 'running' log message
+
 mess = LogMessage(step,n_steps,time_per_step,add_info);
-[ok,err]=me.send_message(this.task_id,mess);
-if ok ~=MES_CODES.ok
-    error('JOB_EXECUTOR:runtime_error','Can not send log message, Err: %s',...
-        err);
+
+[~,~,fin_mess] = reduce_messages_(obj,mess,[],false,'running');
+if obj.labIndex == 1
+    if isa(fin_mess,'LogMessage') % calculate average logs
+        all_logs = fin_mess.payload;
+        n_steps_done = 0;
+        n_steps_to_do = -inf;
+        tps = 0;
+        add_info = {};
+        n_tasks = numel(all_logs);
+        for i=1:n_tasks
+            if isempty(all_logs{i}) || ~isstruct(all_logs{i}) % should not happen for log message but....
+                continue;
+            end
+            n_steps_done = n_steps_done+all_logs{i}.step;
+            n_steps_to_do = max(n_steps_to_do,all_logs{i}.n_steps);
+            tps = tps + all_logs{i}.time;
+            if ~isempty(all_logs{i}.add_info)
+                add_info = [add_info,{all_logs{i}.add_info}];
+            end
+        end
+        if numel(add_info) == 1
+            add_info = add_info{1};
+        end
+        
+        n_steps_done = n_steps_done/n_tasks;
+        tps = tps/n_tasks;
+        fin_mess = LogMessage(n_steps_done ,n_steps_to_do,tps,add_info);
+        fin_mess  = fin_mess.set_worker_logs(all_logs);
+    else % may be fail message if some of the workers were failed.
+        % Will not be fail message if this node have failed, as it will go
+        % in other path
+    end
+    obj.control_node_exch.send_message(0,fin_mess);
 end
-
-
-
+if strcmp(fin_mess.mess_name,'failed')
+    error('JOB_EXECUTOR:runtime_error',...
+        'Task N%d has been interrupted at log point at step %d#%d as other worker(s) reported failure',...
+        obj.labIndex,step,n_steps);
+end

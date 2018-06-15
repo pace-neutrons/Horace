@@ -37,4 +37,3 @@ else
     new_list = initial_list;
 end
 
-end

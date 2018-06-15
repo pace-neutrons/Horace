@@ -1,22 +1,22 @@
 function herbert_mex(varargin)
-% Create mex files for all the herbert fortran and C++ routines
+% Create mex files for all the Herbert Fortran and C++ routines
 %
 %>> herbert_mex       -- this should automatically produce the mex files
-%                        for herbert
-%>> herbert_mex options -- modify build options for herbert (convenience)
+%                        for Herbert
+%>> herbert_mex options -- modify build options for Herbert (convenience)
 %
-% Availible options:
+% Available options:
 % -noprompt  -- do not ask to configure FORTRAN and C compiler, default ask
 %               if provided, assume that compiler is configured and we are
-%               building both fortran and C parts of code
+%               building both Fortran and C parts of code
 % -setmex    -- by default, successfully mexed  files are not set to be
 %               used. when prompt is on, you are asked to set or not set
 %               them up. use -setmex to use mex
-%               files after successfull compilation.
+%               files after successful compilation.
 %
 % -CPP    -- assume compiler configured to build C -part of code, build C;
 % -FOR    -- assume compiler configured to build FORTRAN -part of code, build FORTRAN;
-% -keep_lib  -- keep the intermediate fortran library
+% -keep_lib  -- keep the intermediate Fortran library
 % -use_lib   -- use the previously build library when building the mex-code (missing
 %              library components will be added, will also invoke -keep_lib
 % -missing   -- build only missing mex files, if not present, script
@@ -26,7 +26,7 @@ function herbert_mex(varargin)
 %
 % root directory is assumed to be that in which mslice_init resides
 
-% list of keys the sctip accepts
+% list of keys the script accepts
 keys={'-noprompt','-setmex','-CPP','-FOR','-use_lib','-keep_lib','-missing'};
 %defaults:
 prompt4compiler=true;
@@ -41,7 +41,7 @@ if nargin >0
     if ~all(ikeys)
         noKeys = varargin(~ikeys);
         for i=1:numel(noKeys)
-            disp(['HERBERT_MEX: unrecognized key: ',noKeys{i},' ignored']);
+            disp(['HERBERT_MEX: unrecognised key: ',noKeys{i},' ignored']);
         end
     end
     theKeys = varargin(ikeys);
@@ -74,7 +74,7 @@ end
 
 rootpath = fileparts(which('herbert_init'));
 % Source code directories, and output directories:
-%  - herbert target directrory:
+%  - Herbert target directory:
 herbert_mex_target_dir=fullfile(rootpath,'DLL',['_',computer],matlab_version_folder());
 if ~exist(herbert_mex_target_dir,'dir')
     mkdir(herbert_mex_target_dir);
@@ -268,7 +268,7 @@ try
             modules{:});
         
         
-        display (' ')
+        disp (' ')
         disp('!==================================================================!')
         disp('!  Succesfully created required FORTRAN mex files  ================!')
         if set_mex
@@ -277,17 +277,17 @@ try
         end
         
         disp('!==================================================================!')
-        display(' ')
+        disp(' ')
         
         
     end
 catch ex
     set(herbert_config,'use_mex',false);
-    display (' ')
+    disp (' ')
     disp('!==================================================================!')
     disp('!  FORTRAN mex-ing failed                          ================!')
     disp('!==================================================================!')
-    display(' ')
+    disp(' ')
     keep_lib = true;
     if user_choice=='f'
         rethrow(ex);
@@ -319,7 +319,7 @@ try
         catch
         end
         
-        display (' ')
+        disp (' ')
         disp('!==================================================================!')
         disp('!  Succesfully created required C mex files   =====================!')
         if set_mex
@@ -327,17 +327,17 @@ try
             disp('!  Setting it to immediate use                     ================!')
         end
         disp('!==================================================================!')
-        display(' ')
+        disp(' ')
         
     end
     
     
 catch ex
-    display (' ')
+    disp (' ')
     disp('!==================================================================!')
     disp('!  C mex-ing failed                                ================!')
     disp('!==================================================================!')
-    display(' ')
+    disp(' ')
     set(herbert_config,'use_mex_C',false);
     rethrow(ex)
 end

@@ -72,7 +72,7 @@ end
 
 fprintf('%s',['===>Mex file creation from: ',f_name,' ...'])
 %mex('-v','-outdir',outdir,files{:});
-mex(['-I',lib_dir],'-outdir',outdir,'-output',target_fname,files{:});
+mex('-R2017',['-I',lib_dir],'-outdir',outdir,'-output',target_fname,files{:});
 disp(' <=== completed');
 
 

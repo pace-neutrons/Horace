@@ -97,6 +97,7 @@ classdef herbert_config<config_base
         function doinit=get.init_tests(this)
             doinit = get_or_restore_field(this,'init_tests');
         end
+
         %-----------------------------------------------------------------
         % overloaded setters
         function this = set.use_mex(this,val)
@@ -148,7 +149,8 @@ classdef herbert_config<config_base
             else
                 folder =[];
             end
-        end
+        end        
+        
         %------------------------------------------------------------------
         function obj = set_unit_test_path(obj)
             % add Herbert unit test path to Matlab search path 

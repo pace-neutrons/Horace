@@ -1,28 +1,37 @@
-function [n_failed,outputs,task_par_id_per_worker,this]=...
-    send_tasks_to_workers_(this,...
-    task_class_name,task_param_list,n_workers,varargin)
-% send range of jobs to execute by external program
+function [outputs,n_failed,task_ids,obj]=...
+    send_tasks_to_workers_(obj,...
+    task_class_name,common_params,loop_params,return_results,...
+    n_workers,keep_workers_running,task_query_time)
+% send parallel job to be executed by Matlab cluster
 %
 % Usage:
 %>>jd = JobDispatcher();
-%>>[n_failed,outputs,task_ids]= jd.send_jobs(task_class_name,task_param_list,...
+%>>[outputs,n_failed,task_ids,jd]= jd.send_jobs(task_class_name,task_param_list,...
 %                               [number_of_workers,[task_query_time]])
 %Where:
-% task_param_list -- cellarray of structures containing the
-%                   parameters of the tasks to run
-% number_of_workers -- if present, number of Matlab sessions to
-%                   start to deal with the tasks. By default,
-%                   the number of sessions is equal to number
-%                   of jobs
+% job_class_name -- name of the class - child of jobExecutor,
+%                   which will process task on a separate worker
+% common_params  -- a structure, containing the parameters, common
+%                   for any loop iteration
+% loop_params    -- either cellarray of structures, specific
+%                   with each cell specific to a loop iteration
+%                   or the number of iterations to do over
+%                   common_params (which may depend on the
+%                   iteration number)
+% number_of_workers -- number of Matlab sessions to
+%                    process the tasks
+% keep_workers_running -- if true, workers do not finish when job executors
+%                   complete their jobs and stay active waiting for the next
+%                   task submission.
 % task_query_time    -- if present -- time interval to check if
 %                   jobs are completed. By default, check every
 %                   4 seconds
 %
 % Returns
+% outputs   -- cellarray of outputs from each job.
+%              empty if job does not return anything or Failed message for failed tasks
 % n_failed  -- number of jobs that have failed.
 %
-% outputs   -- cellarray of outputs from each job.
-%              Empty if jobs do not return anything
 % task_ids   -- list containing relation between task_id (task
 %              number) and task parameters from
 %              task_param_list, assigned to this job
@@ -31,95 +40,55 @@ function [n_failed,outputs,task_par_id_per_worker,this]=...
 % $Revision$ ($Date$)
 %
 %
-% identify number of jobs on the basis of number of parameters
-% provided by input structure
-%
-% delete orphaned messages, which may belong to this framework, previous run
-%
-% clear all messages which may left in case of failure
-mf = this.mess_framework_;
-clob_mf = onCleanup(@()mf.finalize_all());
+if ~exist('keep_workers_running','var')
+    keep_workers_running = false;
+end
 
-[n_workers,task_par_id_per_worker]=this.split_tasks(task_param_list,n_workers);
+if exist('task_query_time','var') && ~isempty(task_query_time)
+    obj.task_check_time  = task_query_time;
+end
+
+mf = obj.mess_framework_;
+
+% if loop param defines less loop parameters then there are workers requested, number
+% of workers should be decreased.
+n_workers = check_loop_param(loop_params,n_workers);
+
+% initialize cluster
+par_fm = parallel_config();
+cluster_wrp = par_fm.get_cluster_wrapper(n_workers,mf);
 
 
-prog_start_str = this.worker_prog_string;
-task_common_str = {prog_start_str,'-nosplash','-nojvm','-r'};
-DEBUG_REMOTE = false;
-%
-for task_id=1:n_workers
-    
-    task_inputs = task_param_list(task_par_id_per_worker{task_id});
-    mess = aMessage('starting');
-    mess.payload = task_inputs;
-    
-    
-    worker_init_info = mf.build_control(task_id);
-    worker_str = sprintf('worker(''%s'',''%s'');exit;',task_class_name,worker_init_info);
-    if DEBUG_REMOTE
-        log_file = sprintf('output_jobN%d.log',task_id);
-        task_info = [task_common_str(1:end-1),{'-logfile'},{log_file },{'-r'},{worker_str}];
+if keep_workers_running % store cluster pointer for job resubmission
+    obj.cluster_       = cluster_wrp;
+    obj.job_destroyer_ = onCleanup(@()finalize_all(cluster_wrp));
+else
+    clob_mf = onCleanup(@()finalize_all(cluster_wrp));
+end
+
+[outputs,n_failed,task_ids,obj] = submit_and_run_job_(obj,task_class_name,...
+    common_params,loop_params,return_results,...
+    cluster_wrp,keep_workers_running);
+
+
+function n_wk = check_loop_param(loop_param,n_workers)
+n_wk = n_workers;
+if iscell(loop_param)
+    n_jobs = numel(loop_param);
+elseif isnumeric(loop_param)
+    n_jobs = loop_param;
+elseif isstruct(loop_param)
+    fn = fieldnames(loop_param);
+    par1 = loop_param.(fn{1});
+    if iscell(par1)
+        n_jobs = numel(par1);
     else
-        task_info = [task_common_str,{worker_str}];
+        n_jobs = 1;
     end
-    
-    % if debugging client
-    
-    
-    
-    th = JavaTaskWrapper();
-    %-----------------------------
-    % --- the sequence of these two events may need to be different for different
-    % frameworks? TODO: fixIf
-    mf.send_message(task_id,mess);
-    th = th.start_task(task_info);
-    %-----------------------------
-    [ok,fail,err_mess] = th.is_running();
-    if ~ok && fail
-        error('JobDispatcher:starting_workers',[' Can not start worker N %d.',...
-            ' Message returned: %s'],task_id,err_mess);
-    end
-    % wrap task into task controller to take care about it.
-    tc = taskController(task_id,th);
-    this.tasks_list_{task_id} = tc;
+else
+    error('JOB_DISPATCHER:invalid_argument',...
+        'Unknown type of loop_param variable');
 end
-clob_tasks = onCleanup(@()kill_all_tasks(this.tasks_list_));
-waiting_time = this.task_check_time;
-pause(waiting_time );
-
-
-count = 0;
-[completed,n_failed,~,this]=check_tasks_status_(this);
-while(~completed)
-    if count == 0
-        fprintf('**** Waiting for workers to finish their jobs ****\n')
-        this.tasks_list_=print_tasks_progress_log_(this.tasks_list_);
-    end
-    pause(waiting_time);
-    [completed,n_failed,all_changed,this]=check_tasks_status_(this);
-    count = count+1;
-    fprintf('.')
-    if mod(count,19)==0 || all_changed % 19 is the length of task progress message
-        fprintf('\n')
-        this.tasks_list_=print_tasks_progress_log_(this.tasks_list_);
-    end
-end
-fprintf('\n')
-this.tasks_list_=print_tasks_progress_log_(this.tasks_list_);
-%--------------------------------------------------------------------------
-% retrieve outputs (if any)
-outputs = cell(n_workers,1);
-task_info=this.tasks_list_;
-for ind = 1:n_workers
-    if task_info{ind}.is_failed
-        outputs{ind} = ['Failed, Reason: ',task_info{ind}.fail_reason];
-    else
-        outputs{ind} = task_info{ind}.outputs;
-    end
-end
-
-function kill_all_tasks(tasks_list)
-
-for i=1:numel(tasks_list)
-    tasks_list{i}.task_handle.stop_task();
+if n_wk > n_jobs
+    n_wk  = n_jobs;
 end
