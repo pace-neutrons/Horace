@@ -80,8 +80,19 @@ classdef gen_sqw_common_config < TestCase
                 else
                     obj.change_framework_ = true;
                     parc = parallel_config;
-                    parc.parallel_framework = parallel_framework;
-                    if ~strcmpi(parc.parallel_framework,parallel_framework)
+                    try
+                        parc.parallel_framework = parallel_framework;
+                        
+                        set_framework = true;
+                    catch ME
+                        if strcmp(ME.identifier,'PARALLEL_CONFIG:unsupported_configuration')
+                            set_framework = false;
+                        else
+                            rethrow(ME);
+                        end
+                    end
+                    
+                    if ~set_framework
                         obj.skip_test = true;
                         obj.change_framework_ = false;
                         if log_level>0
