@@ -64,5 +64,7 @@ clear clob_tmp; % reset configuration not to keep tmp files any more
 hor_tes.n_files_to_use = 250;
 large_perf = hor_tes.test_gensqw_performance(n_workers);
 perf_res.large_ds_perf = large_perf;
+%
+hor_tes.save_to_csv();
 
 
