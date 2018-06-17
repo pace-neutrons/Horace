@@ -1,4 +1,4 @@
-classdef TestCaseWithSave2 < TestCaseWithSave
+classdef TestCaseWithSave2_Alex < TestCaseWithSave
     % Class to enable an xUnit-style unit test framework with tests against stored values
     %
     % This class extends the TestCase class with additional methods that enable
@@ -164,7 +164,7 @@ classdef TestCaseWithSave2 < TestCaseWithSave
     % $Revision$ ($Date$)
     
     methods
-        function this = TestCaseWithSave2 (name,varargin)
+        function this = TestCaseWithSave2_Alex (name,varargin)
             % Construct your test class by inheriting this constructor:
             %
             %   function self = TestSomeStuff (name)
@@ -294,7 +294,7 @@ if isempty(class_meta)
     return;
 end
 
-if strcmp(class_meta.Name, 'TestCaseWithSave2')
+if strcmp(class_meta.Name, 'TestCaseWithSave2_Alex')
     tf = true;
 else
     tf = isMetaTestCaseSubclass(class_meta);
@@ -306,7 +306,7 @@ function tf = isMetaTestCaseSubclass(class_meta)
 
 tf = false;
 
-if strcmp(class_meta.Name, 'TestCaseWithSave2')
+if strcmp(class_meta.Name, 'TestCaseWithSave2_Alex')
     tf = true;
 else
     % Invoke function recursively on parent classes.
