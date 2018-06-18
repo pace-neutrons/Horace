@@ -38,7 +38,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
         %Unavailable ( 'unavailable' , 102 )
         %Destroyed   ( 'deleted'     , 103 )
         %------------------------------------------------------------------------
-        % the handle for the function to run a remote job. The function must be 
+        % the handle for the function to run a remote job. The function must be
         % on the Matlab data search path before Horace is initialized.
         h_worker_ = @worker_v1;
     end
@@ -159,6 +159,33 @@ classdef ClusterParpoolWrapper < ClusterWrapper
         function ex = exit_worker_when_job_ends_(obj)
             ex  = false;
         end
+        function obj = set_cluster_status(obj,mess)
+            % protected set status function, necessary to be able to
+            % overload set.status method.
+            if isa(mess,'aMessage')
+                stat_mess = mess;
+            elseif ischar(mess)
+                if strcmp(mess,'running')
+                    if strcmp(obj.current_status_.mess_name,'running')
+                        stat_mess = obj.current_status_;
+                    else
+                        stat_mess = aMessage(mess);
+                    end
+                else
+                    stat_mess = aMessage(mess);
+                end
+            else
+                error('CLUSTER_WRAPPER:invalid_argument',...
+                    'status is defined by aMessage class only or a message name')
+            end
+            obj.prev_status_ = obj.current_status_;
+            obj.current_status_ = stat_mess;
+            if obj.prev_status_ ~= obj.current_status_
+                obj.status_changed_ = true;
+            end
+            
+        end
+        
         
     end
 end
