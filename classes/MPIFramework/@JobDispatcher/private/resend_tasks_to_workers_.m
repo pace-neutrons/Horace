@@ -55,7 +55,8 @@ end
 if ~keep_workers_running
     clob = onCleanup(@()finalize_all(obj));
 end
-
+% clear all messages may remain from the previous job
+obj.mess_framework.clear_messages();
 
 cluster_wrp = obj.cluster_;
 
@@ -65,5 +66,5 @@ cluster_wrp = obj.cluster_;
 % repeat finalize_all in case of dead clean-up objects stuck in class
 % properties (issue with value class)
 if ~keep_workers_running
-    obj = obj.finalize_all();
+    clear clob;
 end

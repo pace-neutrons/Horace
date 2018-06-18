@@ -13,8 +13,8 @@ function [outputs,n_failed,task_ids,obj]=...
 %                   which will process task on a separate worker
 % common_params  -- a structure, containing the parameters, common
 %                   for any loop iteration
-% loop_params    -- either cellarray of structures, specific
-%                   with each cell specific to a loop iteration
+% loop_params    -- either cellarray of structures, with
+%                   each cell specific to a single loop iteration
 %                   or the number of iterations to do over
 %                   common_params (which may depend on the
 %                   iteration number)
@@ -50,11 +50,11 @@ end
 
 mf = obj.mess_framework_;
 
-% if loop param defines less loop parameters then there are workers requested, number
-% of workers should be decreased.
+% if loop param defines less loop parameters then there are workers requested, 
+% the number of workers will be decreased.
 n_workers = check_loop_param(loop_params,n_workers);
 
-% initialize cluster
+% initialize cluster, defined by current configuration
 par_fm = parallel_config();
 cluster_wrp = par_fm.get_cluster_wrapper(n_workers,mf);
 
@@ -62,7 +62,7 @@ cluster_wrp = par_fm.get_cluster_wrapper(n_workers,mf);
 if keep_workers_running % store cluster pointer for job resubmission
     obj.cluster_       = cluster_wrp;
     obj.job_destroyer_ = onCleanup(@()finalize_all(cluster_wrp));
-else
+else % clear cluster on exit
     clob_mf = onCleanup(@()finalize_all(cluster_wrp));
 end
 

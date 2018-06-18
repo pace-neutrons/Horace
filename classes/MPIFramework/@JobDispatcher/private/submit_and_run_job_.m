@@ -27,10 +27,11 @@ n_workers                 = cluster_wrp.n_workers;
 % access to class responsible for communications between head node
 % and the pool of workers
 mf                        = obj.mess_framework;
-% split job
+% determine the way of spliting job among workers.
 [task_ids,taskInitMessages]=...
     obj.split_tasks(common_params,loop_params,return_results,n_workers);
-% build jobExecutor initialization message
+%
+% build jobExecutor initialization message used by each worker
 je_init_message = mf.build_je_init(task_class_name,exit_worker_when_job_ends,keep_workers_running);
 
 % submit info to cluster and start job
@@ -55,5 +56,6 @@ while(~completed)
 end
 % retrieve final results
 [outputs,n_failed]=  cluster_wrp.retrieve_results();
-% retrieve all possible 
+% retrieve and reject all messages may left after the job was completed
+%  (e.g. if some tasks of the job have failed);
 obj.mess_framework.clear_messages();

@@ -153,7 +153,7 @@ classdef MessagesFilebased < iMessagesFramework
         end
         function clear_messages(obj)
             finished = false;
-            pause(1);
+            pause(0.5); % give time to complete possible IO operations
             while ~finished
                 try
                     [all_messages,mid_from] = list_all_messages_(obj);
@@ -169,7 +169,7 @@ classdef MessagesFilebased < iMessagesFramework
                     continue;
                 end
                 
-                for i=1:numel(mid_from)
+                for i=1:numel(mid_from) % delete mesages files
                     mess_fname = obj.job_stat_fname_(obj.labIndex,all_messages{i},mid_from(i));
                     delete(mess_fname);
                 end

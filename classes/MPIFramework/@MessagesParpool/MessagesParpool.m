@@ -178,6 +178,7 @@ classdef MessagesParpool < iMessagesFramework
         %
         function clear_messages(obj)
             % delete all messages belonging to this instance of messages
+            % framework.
             %
             [isDataAvail,srcWkrIdx,tag] = labProbe();
             while isDataAvail
