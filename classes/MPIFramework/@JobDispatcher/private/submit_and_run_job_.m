@@ -35,12 +35,7 @@ mf                        = obj.mess_framework;
 je_init_message = mf.build_je_init(task_class_name,exit_worker_when_job_ends,keep_workers_running);
 
 % submit info to cluster and start job
-[cluster_wrp,completed] = cluster_wrp.start_job(je_init_message,taskInitMessages);
-if completed
-    % retrieve final results
-    [outputs,n_failed]=  cluster_wrp.retrieve_results();
-    return;
-end
+cluster_wrp = cluster_wrp.start_job(je_init_message,taskInitMessages);
 
 % wait until the job finishes
 waiting_time = obj.task_check_time;
