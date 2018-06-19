@@ -4,9 +4,9 @@ classdef MESS_NAMES
     % and provides connection between the message names and message codes
     
     properties(Constant,Access=private)
-        mess_names_ = {'failed','pending','init','starting','started','running',...
+        mess_names_ = {'failed','pending','queued','init','starting','started','running',...
             'barrier','data','cancelled','completed'};
-        mess_codes_ = {0,1,2,3,4,5,6,7,8,9};
+        mess_codes_ = {0,1,2,3,4,5,6,7,8,9,10};
         name2code_map_ = containers.Map(MESS_NAMES.mess_names_,MESS_NAMES.mess_codes_);
         code2name_map_ = containers.Map(MESS_NAMES.mess_codes_,MESS_NAMES.mess_names_);
     end

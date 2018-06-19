@@ -123,7 +123,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
                         if ~completed
                             [completed, obj] = check_progress@ClusterWrapper(obj);
                         end
-                        if ~strcmpi(obj.current_status_.mess_name,'completed')
+                        if isempty(obj.current_status_) || ~strcmpi(obj.current_status_.mess_name,'completed')
                             if ~completed
                                 completed = true;
                                 fm = FailMessage('Cluster reports job completed but results have not been returned to host');

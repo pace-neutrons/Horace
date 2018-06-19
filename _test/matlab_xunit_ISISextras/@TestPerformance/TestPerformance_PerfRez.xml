@@ -21,4 +21,11 @@
          <completed_on>[2018 3 29 18 54 1.044]</completed_on>
       </test_constructor_operations>
    </ndlt618_TestPerformance>
+   <scarf_TestPerformance>
+      <test_constructor_operations>
+         <time_sec>0.000823</time_sec>
+         <comment>this is not a performance test itself but the test of performance test operational</comment>
+         <completed_on>[2018 6 18 16 18 35.470803]</completed_on>
+      </test_constructor_operations>
+   </scarf_TestPerformance>
 </TestPerformance>
