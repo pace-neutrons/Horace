@@ -64,7 +64,7 @@ perf_res.medium_ds_perf = medium_perf;
 %--------------------------------------------------------------------------
 %run performance for combining tmp files only (depends on previous test
 %completed successfully and left tmp files to combine during this test)
-medium_perf = hor_tes.combine_performance_test(n_workers,selected_tests);
+medium_perf = hor_tes.combine_performance_test(n_workers);
 perf_res.medium_ds_perf = medium_perf;
 %--------------------------------------------------------------------------
 clear clob_tmp; % reset configuration not to keep tmp files any more
