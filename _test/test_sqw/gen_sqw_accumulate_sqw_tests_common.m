@@ -54,6 +54,8 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
         % of test
         test_pref = 'nomex';
         
+        working_dir
+        
     end
     methods(Static)
         function new_names = rename_file_list(input_list,new_ext)
@@ -103,10 +105,14 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             
             addpath(obj.test_functions_path);
             
+            hc = hor_config;
+            obj.working_dir = hc.working_directory;
+            
             % build test file names
             obj.spe_file=cell(1,obj.nfiles_max);
+            wkd = obj.working_dir;
             for i=1:obj.nfiles_max
-                obj.spe_file{i}=fullfile(tempdir,...
+                obj.spe_file{i}=fullfile(wkd ,...
                     ['gen_sqw_acc_sqw_spe_',test_prefix,num2str(i),'.nxspe']);
             end
             
@@ -262,12 +268,13 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             
             sqw_file=cell(1,obj.nfiles_max);
             file_pref = obj.test_pref;
+            wkdir = obj.working_dir;
             for i=1:obj.nfiles_max
-                sqw_file{i}=fullfile(tempdir,['test_gen_sqw_',file_pref ,num2str(i),'.sqw']);    % output sqw file
+                sqw_file{i}=fullfile(wkdir ,['test_gen_sqw_',file_pref ,num2str(i),'.sqw']);    % output sqw file
             end
             
-            sqw_file_123456=fullfile(tempdir,['sqw_123456_',file_pref,'.sqw']);             % output sqw file
-            sqw_file_145623=fullfile(tempdir,['sqw_145623_',file_pref,'.sqw']);            % output sqw file
+            sqw_file_123456=fullfile(wkdir ,['sqw_123456_',file_pref,'.sqw']);             % output sqw file
+            sqw_file_145623=fullfile(wkdir ,['sqw_145623_',file_pref,'.sqw']);            % output sqw file
             if ~obj.save_output
                 cleanup_obj1=onCleanup(@()obj.delete_files(sqw_file_123456,sqw_file_145623,sqw_file{:}));
             end
@@ -312,9 +319,10 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             end
             %-------------------------------------------------------------
             file_pref = obj.test_pref;
+            wk_dir = obj.working_dir;
             
-            sqw_file_accum=fullfile(tempdir,['test_sqw_accum_sqw14_',file_pref,'.sqw']);
-            sqw_file_14=fullfile(tempdir,['test_sqw_14_',file_pref,'.sqw']);
+            sqw_file_accum=fullfile(wk_dir ,['test_sqw_accum_sqw14_',file_pref,'.sqw']);
+            sqw_file_14=fullfile(wk_dir ,['test_sqw_14_',file_pref,'.sqw']);
             clobR=onCleanup(@()obj.delete_files(sqw_file_14,sqw_file_accum));
             
             % --------------------------------------- Test accumulate_sqw
@@ -373,7 +381,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % build test files if they have not been build
             obj=build_test_files(obj);
             file_pref = obj.test_pref;
-            sqw_file_accum=fullfile(tempdir,['test_accum_and_comb14',file_pref,'.sqw']); % output sqw file
+            sqw_file_accum=fullfile(obj.working_dir,['test_accum_and_comb14',file_pref,'.sqw']); % output sqw file
             if ~obj.save_output
                 co2=onCleanup(@()obj.delete_files(sqw_file_accum));
             end
@@ -439,8 +447,8 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % build test files if they have not been build
             obj=build_test_files(obj);
             file_pref = obj.test_pref;
-            sqw_file_accum=fullfile(tempdir,['test_sqw_accum_sqw1456_',file_pref, '.sqw']);
-            sqw_file_1456=fullfile(tempdir,['test_sqw_1456_',file_pref, '.sqw']);
+            sqw_file_accum=fullfile(obj.working_dir,['test_sqw_accum_sqw1456_',file_pref, '.sqw']);
+            sqw_file_1456=fullfile(obj.working_dir,['test_sqw_1456_',file_pref, '.sqw']);
             
             if ~obj.save_output
                 cleanup_obj1=onCleanup(@()obj.delete_files(sqw_file_1456,sqw_file_accum));
@@ -492,8 +500,8 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % build test files if they have not been build
             obj=build_test_files(obj);
             file_pref = obj.test_pref;
-            sqw_file_accum=fullfile(tempdir,['test_sqw_acc_sqw11456_',file_pref, '.sqw']);
-            sqw_file_11456=fullfile(tempdir,['test_sqw_11456_',file_pref, '.sqw']);
+            sqw_file_accum=fullfile(obj.working_dir,['test_sqw_acc_sqw11456_',file_pref, '.sqw']);
+            sqw_file_11456=fullfile(obj.working_dir,['test_sqw_11456_',file_pref, '.sqw']);
             cleanup_obj1=onCleanup(@()obj.delete_files(sqw_file_11456,sqw_file_accum));
             
             % --------------------------------------- Test accumulate_sqw
