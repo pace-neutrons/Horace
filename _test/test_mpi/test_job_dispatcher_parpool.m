@@ -59,6 +59,42 @@ classdef test_job_dispatcher_parpool< job_dispatcher_common_tests
             assertEqual(mess.mess_name,'completed');
             
         end
+        function xest_job_submittion(obj)
+            if obj.ignore_test
+                return;
+            end
+            % delete interactive parallel cluster if any exist
+            cl = gcp('nocreate');
+            if ~isempty(cl)
+                delete(cl);
+            end
+            
+            cl  = parcluster();
+            cjob = createCommunicatingJob(cl,'Type','SPMD');
+            cjob.NumWorkersRange = 3;
+            cjob.AutoAttachFiles = false;
+            file1= 'test_file_Process1.txt';
+            file2= 'test_file_Process2.txt';
+            file3= 'test_file_Process3.txt';
+            clob1 = onCleanup(@()delete(file1,file2,file3));
+            
+            function create_test_file(name)
+                ind = labindex();
+                fName = sprintf('test_file_Process%d.txt',ind);
+                fh = fopen(fName,'w');
+                clob = onCleanup(@()fclose(fh));
+                fprintf(fh,'file created from process %d, Input: %s',ind,name);
+            end
+            task = createTask(cjob,@create_test_file,0,{'bla_bla'});
+            submit(cjob);
+            
+            
+            wait(cjob)
+            assertTrue(exist(file1,'file') == 2);
+            assertTrue(exist(file2,'file') == 2);
+            assertTrue(exist(file3,'file') == 2);
+            delete(cjob)
+        end
         
         
     end

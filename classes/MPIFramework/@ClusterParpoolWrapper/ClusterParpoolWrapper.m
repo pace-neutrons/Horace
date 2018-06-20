@@ -49,42 +49,52 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             %
             obj = obj@ClusterWrapper(n_workers,mess_exchange_framework);
             
-            obj.cluster_  = parcluster();
-            cl = obj.cluster_;
+            % delete interactive parallel cluster if any exist
+            cl = gcp('nocreate');
+            if ~isempty(cl)
+                delete(cl);
+            end
+            % build generic worker init string without lab parameters
+            cs = obj.mess_exchange_.gen_worker_init();
+            
+            
+            cl  = parcluster();
+            
             num_labs = cl.NumWorkers;
             if num_labs < obj.n_workers
                 error('PARPOOL_CLUSTER_WRAPPER:runtime_error',...
-                    'job %s requested more workers (%d) then the cluster allows (%d)',...
+                    'job %s requested %d workers while the cluster allows only %d',...
                     obj.job_id,obj.n_workers,num_labs);
             end
             cjob = createCommunicatingJob(cl,'Type','SPMD');
+            
             if n_workers > 0
                 cjob.NumWorkersRange  = obj.n_workers;
             end
             cjob.AutoAttachFiles = false;
+            
+            
+            task = createTask(cjob,obj.h_worker_,0,{cs});
+            
+            obj.cluster_ = cl;
             obj.current_job_  = cjob;
+            obj.task_ = task;
+            
             [completed,obj] = obj.check_progress();
             if completed
                 error('PARPOOL_CLUSTER_WRAPPER:runtime_error',...
                     'parpool cluster for job %s finished before starting any job. State: %s',...
                     obj.job_id,obj.status_name);
             end
-            % delete interactive parallel cluster if any exist
-            cl = gcp('nocreate');
-            if ~isempty(cl)
-                delete(cl);
-            end
             
             
-            % build generic worker init string without lab parameters
-            cs = obj.mess_exchange_.gen_worker_init();
-            % clear up interactive pool if exist as this method will start
-            % batch job.
-            % actually submit the job
-            cjob = obj.current_job_;
-            task = createTask(cjob,obj.h_worker_,0,{cs});
-            obj.task_ = task;
+            
+            %clear up interactive pool if exist as this method will start
+            %batch job.
+            %actually submit the job
+            
             submit(cjob);
+            %wait(cjob);
         end
         %
         function obj = start_job(obj,je_init_message,task_init_mess)
@@ -171,6 +181,8 @@ classdef ClusterParpoolWrapper < ClusterWrapper
                     else
                         stat_mess = aMessage(mess);
                     end
+                elseif strcmp(mess,'finished')
+                    stat_mess = aMessage('completed');
                 else
                     stat_mess = aMessage(mess);
                 end
