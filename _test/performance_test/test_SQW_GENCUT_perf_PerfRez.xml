@@ -1004,4 +1004,52 @@
          <completed_on>[2018 6 19 3 37 19.92]</completed_on>
       </cutE_AllInt_filebased_nwk0>
    </ndw1676_parpool_nf250>
+   <scarf_parpool_SQW_GENCUT_perf/>
+   <scarf_parpool_nf10>
+      <gen_sqw_nwk2>
+         <time_sec>352.827548</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2018 6 21 10 27 1.208812]</completed_on>
+      </gen_sqw_nwk2>
+      <gen_sqw_nwk4>
+         <time_sec>283.547536</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2018 6 21 11 25 55.072464]</completed_on>
+      </gen_sqw_nwk4>
+      <gen_sqw_nwk8>
+         <time_sec>254.934048</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2018 6 21 12 11 6.301359]</completed_on>
+      </gen_sqw_nwk8>
+      <gen_sqw_nwk10>
+         <time_sec>260.923057</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2018 6 21 13 5 39.799325]</completed_on>
+      </gen_sqw_nwk10>
+      <gen_sqw_nwk12>
+         <time_sec>266.170116</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2018 6 21 14 2 6.101395]</completed_on>
+      </gen_sqw_nwk12>
+      <gen_sqw_nwk16>
+         <time_sec>265.239976</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2018 6 21 15 52 24.178905]</completed_on>
+      </gen_sqw_nwk16>
+      <gen_sqw_nwk24>
+         <time_sec>440.452671</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2018 6 21 16 30 22.787302]</completed_on>
+      </gen_sqw_nwk24>
+      <gen_sqw_nwk32>
+         <time_sec>245.213099</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2018 6 21 17 50 21.724114]</completed_on>
+      </gen_sqw_nwk32>
+      <gen_sqw_nwk50>
+         <time_sec>228.247387</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2018 6 21 18 3 27.390375]</completed_on>
+      </gen_sqw_nwk50>
+   </scarf_parpool_nf10>
 </SQW_GENCUT_perf>

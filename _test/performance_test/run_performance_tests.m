@@ -1,4 +1,4 @@
-function perf_res = run_performance_tests(varargin)
+function [perf_res,hor_tes] = run_performance_tests(varargin)
 % function to run performance test on a given pc or cluster
 %
 % Usage:
@@ -44,6 +44,7 @@ end
 % run performance tests for small sqw file (default file)
 small_perf = hor_tes.test_gensqw_performance(n_workers,selected_tests);
 perf_res.small_ds_perf = small_perf;
+hor_tes.save_performance();
 %--------------------------------------------------------------------------
 
 % prepare performance tests for medium dataset
@@ -59,6 +60,7 @@ hc.delete_tmp = 0;
 % run performance tests for medium size file
 medium_perf = hor_tes.test_gensqw_performance(n_workers,selected_tests);
 perf_res.medium_ds_perf = medium_perf;
+hor_tes.save_performance();
 %--------------------------------------------------------------------------
 %
 %--------------------------------------------------------------------------
@@ -75,6 +77,7 @@ hor_tes.n_files_to_use = 250;
 large_perf = hor_tes.test_gensqw_performance(n_workers,selected_tests);
 perf_res.large_ds_perf = large_perf;
 %
+hor_tes.save_performance();
 hor_tes.save_to_csv();
 
 

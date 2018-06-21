@@ -233,7 +233,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
                 ts = tic();
                 gen_sqw (obj.test_source_files_list_,'',obj.sqw_file, efix, emode, alatt, angdeg,u, v, psi, omega, dpsi, gl, gs,'replicate');
                 
-                obj.assertPerformance(ts,['gen_sqw_nwk',nwk],...
+                perf_res=obj.assertPerformance(ts,['gen_sqw_nwk',nwk],...
                     'whole sqw file generation');
             end
             
@@ -257,7 +257,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
                 
                 ts = tic();
                 sqw1 = cut_sqw(obj.sqw_file,proj1,[-0.1,0.1],[-0.1,0.1],[-0.1,0.1],0.2);
-                obj.assertPerformance(ts,['cutE_Small_nwk',nwk],...
+                perf_res=obj.assertPerformance(ts,['cutE_Small_nwk',nwk],...
                     'small memory based 1D cut along energy direction (q are not axis aligned)');
             end
             % check nopix performance -- read and integrate the whole file from the HDD
@@ -283,7 +283,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
                 ts = tic();
                 sqw1=cut_sqw(obj.sqw_file,proj1,urng(1,:),urng(2,:),urng(3,:),0.2,'-nopix');
                 
-                obj.assertPerformance(ts,['cutE_AllInt_nopix_nwk',nwk],...
+                perf_res=obj.assertPerformance(ts,['cutE_AllInt_nopix_nwk',nwk],...
                     'large 1D cut along energy direction with whole dataset integration along 3 other directions. -nopix mode');
             end
             
