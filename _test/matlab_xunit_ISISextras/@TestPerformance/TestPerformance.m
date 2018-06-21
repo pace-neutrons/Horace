@@ -145,6 +145,7 @@ classdef TestPerformance < TestCaseWithSave
             obj.perf_suite_name = obj.build_test_suite_name(name);
         end
         %
+        %
         function this_pc_perf_data = assertPerformance(obj,start_time,...
                 test_method_name,comments,force_save)
             % save performance data if the previous version for current pc
@@ -244,7 +245,12 @@ classdef TestPerformance < TestCaseWithSave
             end
             % remove all . from a computer name to include unix names.
             %name   = strrep(name  ,'.','_');
-             
+            
+        end
+        
+        function  save_performance(obj)
+            % save performance results into a performance results file
+            save_performance_data_(obj);
         end
         
         function save_to_csv(obj,varargin)
