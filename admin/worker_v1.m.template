@@ -16,10 +16,11 @@ function [ok,err_mess]=worker_v1(worker_controls_string)
 %
 % $Revision: 765 $ ($Date: 2018-06-15 17:01:32 +0100 (Fri, 15 Jun 2018) $)
 %
-err_mess = [];
 if isempty(which('herbert_init.m'))
     horace_on();
 end
+
+
 % Check current state of mpi framework and set up deployment status
 % within Matlab code to run
 mis = MPI_State.instance();
@@ -52,6 +53,7 @@ fbMPI = MessagesFilebased(control_struct);
 
 keep_worker_running = true;
 while keep_worker_running
+    mess_cash.instance().clear()    
     %
     [ok,err,mess]= fbMPI.receive_message(0,'starting');
     %fprintf(fh,'got "starting" message\n');
