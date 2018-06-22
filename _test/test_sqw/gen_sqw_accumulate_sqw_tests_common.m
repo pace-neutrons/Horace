@@ -190,7 +190,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             
             file_exist = cellfun(@(fn)(exist(fn,'file') == 2),spe_files);
             if all(file_exist)
-                obj=obj.add_to_files_cleanList(spe_files{:});
+                obj.add_to_files_cleanList(spe_files{:});
                 return;
             end
             spe_files = spe_files(~file_exist);
@@ -244,7 +244,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 end
             end
             
-            obj=add_to_files_cleanList(obj,spe_files{:});
+            obj.add_to_files_cleanList(spe_files{:});
         end
         %
         function obj=test_gen_sqw(obj,varargin)
