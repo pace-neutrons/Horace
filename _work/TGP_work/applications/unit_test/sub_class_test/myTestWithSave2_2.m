@@ -1,4 +1,4 @@
-classdef myTestWithSave2_2 < TestCaseWithSave2
+classdef myTestWithSave2_2 < TestCaseWithSave
 
     properties
         fh
@@ -6,8 +6,8 @@ classdef myTestWithSave2_2 < TestCaseWithSave2
 
     methods
        function self = myTestWithSave2_2(name)
-            self@TestCaseWithSave2(name);
-            %self = self@TestCaseWithSave2;
+            self@TestCaseWithSave(name);
+            %self = self@TestCaseWithSave;
             disp('---------------------------')
             disp('Constructor call')
             disp('---------------------------')

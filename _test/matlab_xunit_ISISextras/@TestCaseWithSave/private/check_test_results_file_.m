@@ -1,4 +1,4 @@
-function filename = check_test_results_fname_(obj,filename)
+function filename = check_test_results_file_(obj,filename)
 % The method to check test results file name used in
 % set.test_results_file method.
 %

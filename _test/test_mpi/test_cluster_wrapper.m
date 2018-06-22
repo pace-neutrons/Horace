@@ -45,7 +45,9 @@ classdef test_cluster_wrapper < TestCase
             
             %--------------------------------------------------------------
             cluster = cluster.init_workers(jeInit,worker_init_mess);
+            [completed,cluster] = cluster.check_progress();
             assertEqual(cluster.status.mess_name,'started');
+            assertFalse(completed)
             %--------------------------------------------------------------
             % receive "starting" messages used to provide jeInit info to
             % each worker

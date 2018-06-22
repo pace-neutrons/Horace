@@ -1,4 +1,4 @@
-classdef test_with_structures < TestCaseWithSave2
+classdef test_with_structures < TestCaseWithSave
     properties
         data
     end
@@ -10,7 +10,7 @@ classdef test_with_structures < TestCaseWithSave2
         function self = myTestWithSave2(name)
             % Create test class instance (note that as it is a handle object
             % we dont need to return the class instance on the LHS)
-            self@TestCaseWithSave2 (name);
+            self@TestCaseWithSave(name);
             
             % Read input data for testing
             test_dir = fileparts(mfilename('fullpath'));

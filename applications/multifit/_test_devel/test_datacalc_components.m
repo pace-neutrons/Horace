@@ -1,4 +1,4 @@
-classdef test_datacalc_components < TestCaseWithSave2
+classdef test_datacalc_components < TestCaseWithSave
     % Test multifit and legacy version
     properties
         data    % input data for the test suite
@@ -7,7 +7,7 @@ classdef test_datacalc_components < TestCaseWithSave2
     methods
         %--------------------------------------------------------------------------
         function self = test_datacalc_components (name)
-            self@TestCaseWithSave2(name);
+            self@TestCaseWithSave(name);
             
             datafile = fullfile(fileparts(mfilename('fullpath')),'testdata_multifit_1.mat');
             self.data = load(datafile);

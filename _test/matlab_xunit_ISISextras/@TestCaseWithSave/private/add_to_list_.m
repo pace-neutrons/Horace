@@ -4,12 +4,12 @@ function new_list = add_to_list_(initial_list, varargin)
 %
 %   >> new_list = add_to_list (initial_list, str1, str2, ...)
 %
-% Only the first occurence of new strings is appended, and then only if
+% Only the first occurrence of new strings is appended, and then only if
 % it doesn't appear in the initial list.
 %
 % Input:
 % ------
-%   initial_list    Row cell arrayof character strings
+%   initial_list    Row cellarray of character strings
 %   str1, str2,...  Can be strings or cell arrays of strings
 %
 % Output:

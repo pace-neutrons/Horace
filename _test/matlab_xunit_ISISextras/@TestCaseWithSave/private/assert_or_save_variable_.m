@@ -9,7 +9,7 @@ function  assert_or_save_variable_(this,var_name,var,funcHandle,varargin)
 %   var     Variable to test or save
 %
 %   funcHandle  Handle to assertion function
-%   varargin{:} Arguments to pass to asserion function, which has
+%   varargin{:} Arguments to pass to assertion function, which has
 %               the form e.g. assertVectorsAlmostEqual(A,B,varargin{:})
 
 % Get the name of the test method. Determine this as the highest

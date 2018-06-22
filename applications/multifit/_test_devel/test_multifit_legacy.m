@@ -1,4 +1,4 @@
-classdef test_multifit_legacy < TestCaseWithSave2
+classdef test_multifit_legacy < TestCaseWithSave
     % Test multifit and legacy version
     properties
         data    % input data for the test suite
@@ -7,7 +7,7 @@ classdef test_multifit_legacy < TestCaseWithSave2
     methods
         %--------------------------------------------------------------------------
         function self = test_multifit_legacy (name)
-            self@TestCaseWithSave2(name);
+            self@TestCaseWithSave(name);
             
             datafile = fullfile(fileparts(mfilename('fullpath')),'testdata_multifit_1.mat');
             self.data = load(datafile);
@@ -24,7 +24,7 @@ classdef test_multifit_legacy < TestCaseWithSave2
             % Ensure fit control parameters are the same for old and new multifit
             fcp = [0.0001 30 0.0001];
             
-            % An exanple fit with old multifit
+            % An example fit with old multifit
             nlist = 0;  % set to 0,1 or 2 for increasing verbosity
             [fit_legacy.warr,fit_legacy.par] = multifit (Sarr,...
                 @mftest_gauss, [100,45,10], @mftest_bkgd, {[10,0],[20,0],[30,0]},...
@@ -57,7 +57,7 @@ classdef test_multifit_legacy < TestCaseWithSave2
             % Ensure fit control parameters are the same for old and new multifit
             fcp = [0.0001 30 0.0001];
             
-            % An exanple fit with old multifit
+            % An example fit with old multifit
             nlist = 0;  % set to 0,1 or 2 for increasing verbosity
             [fit_legacy.warr,fit_legacy.par] = multifit (warr,...
                 @mftest_gauss, [100,45,10], @mftest_bkgd, {[10,0],[20,0],[30,0]},...

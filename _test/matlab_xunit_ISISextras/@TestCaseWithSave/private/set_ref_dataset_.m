@@ -11,7 +11,7 @@ function this = set_ref_dataset_(this, var, var_name, test_name)
 % The variable will be saved in
 %   this.ref_data_.(test_name).(var_name)
 
-% Get store area of named test, or create if doesnt exist
+% Get store area of named test, or create if doesn't exist
 if isfield(this.ref_data_,test_name)
     S = this.ref_data_.(test_name);
 else

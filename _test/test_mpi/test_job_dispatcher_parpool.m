@@ -60,6 +60,9 @@ classdef test_job_dispatcher_parpool< job_dispatcher_common_tests
             
         end
         function xest_job_submittion(obj)
+            % test to debug job submission on cluster. It's not usually run
+            % as all logic is tested elsewhere but kept to help identifying
+            % the issues with job submission on a cluster.
             if obj.ignore_test
                 return;
             end

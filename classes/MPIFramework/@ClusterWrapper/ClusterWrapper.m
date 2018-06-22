@@ -86,21 +86,7 @@ classdef ClusterWrapper
             % job dispatched node where the second form accepts and
             % verifies status message, received by other means
             [completed,obj] = check_progress_(obj,varargin{:});
-        end
-        function [state_changed, obj] = check_cluster_state(obj,varargin)
-            % Check the job progress verifying and receiving all messages,
-            % sent from worker N1
-            %
-            % usage:
-            %>> [completed, obj] = check_progress(obj)
-            %>> [completed, obj] = check_progress(obj,status_message)
-            %
-            % The first form checks and receives all messages addressed to
-            % job dispatched node where the second form accepts and
-            % verifies status message, received by other means
-            true;
-        end
-        
+        end        
         %
         function obj = display_progress(obj,varargin)
             % report job progress using internal state of the cluster
