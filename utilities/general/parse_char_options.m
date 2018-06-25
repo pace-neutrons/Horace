@@ -5,8 +5,9 @@ function [ok,mess,varargout]=parse_char_options(args,options)
 %
 % Input:
 % ------
-%   args        Cell array of inputs to analyze (all must be non-empty character strings)
-%   options     Cell array of aceptable options which may or may not be present within
+%   args        Cell array of inputs to analyse, containing all or distinctive
+%               parts of acceptable options.
+%   options     Cell array of acceptable options which may or may not be present within
 %               args.
 %
 % Output:
@@ -15,7 +16,7 @@ function [ok,mess,varargout]=parse_char_options(args,options)
 %   mess        If ok==true: empty; if ok==false: error message
 %   varargout   List of arguments, one per valid option, that will be filled
 %               with true or false according to the presence or absence of the
-%               corresponding memebr of the valid options list.
+%               corresponding member of the valid options list.
 %   arg_left    if such variable is present, it contains cellarray of the
 %               arguments which are not found among the options.
 %
@@ -23,13 +24,13 @@ function [ok,mess,varargout]=parse_char_options(args,options)
 %   >> options = {'-full','-enable','-revert','-parallel'};
 %   >> [ok,mess,ok_f,ok_e,ok_r,ok_p]=parse_char_options({'-rev','-full'},options)
 % where ok_r and ok_f will be true because '-full' and '-revert' options
-% are present among input aruments and ok_e and ok_p are false as these
+% are present among input arguments and ok_e and ok_p are false as these
 % options are absent
 %
 % or:
 %   >>[ok,mess,ok_f,ok_e,ok_r,ok_p,missing]=parse_char_options({'-rev','-full','other'},options)
 %where values of ok_f,ok_e,ok_r,ok_p would be the same as before and
-%the value of missing is equal to {'other'} as key 'other' is not amond the
+%the value of missing is equal to {'other'} as key 'other' is not among the
 % cellarray of existing options.
 %
 % Accepts partial keywords, e.g. the recognized input keyword can be minimally

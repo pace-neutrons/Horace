@@ -522,19 +522,26 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
     
     methods(Static)
         %------------------------------------------------------------------
-        function delete_files (files)
+        function delete_files (varargin)
             % Delete file or files
             %
             %   testCaseWithSave.delete_files (files)
             %
             % files is a file name or cell array of file names
-            
-            % Turn warnings off to prevent distracting messages
-            warn = warning('off','all');
-            % Delete files
-            if ischar(files)
-                files={files};
+            %
+
+            if nargin== 1
+                if ischar(varargin{1})
+                    files={varargin{1}};
+                elseif iscell(varargin{1})
+                    files = varargin{1};
+                end
+            else
+                files = varargin;
             end
+            % Turn warnings off to prevent distracting messages            
+            warn = warning('off','all');
+            % Delete files            
             for i=1:numel(files)
                 if exist(files{i},'file')
                     try
@@ -548,19 +555,26 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
         end
         
         %------------------------------------------------------------------
-        function remove_paths (paths)
+        function remove_paths (varargin)
             % Remove path or paths
             %
             %   testCaseWithSave.remove_paths (paths)
             %
             % paths is a path name or cell array of path names
+            %
+            if nargin== 1
+                if ischar(varargin{1})
+                    paths={varargin{1}};
+                elseif iscell(varargin{1})
+                    paths = varargin{1};
+                end
+            else
+                paths = varargin;
+            end
             
             % Turn warnings off to prevent distracting messages
             warn = warning('off','all');
             % Delete paths
-            if ischar(paths)
-                paths={paths};
-            end
             for i=1:numel(paths)
                 rmpath(paths{i});
             end

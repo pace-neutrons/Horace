@@ -1,10 +1,10 @@
 classdef JobDispatcher
     % The class to run and control Herbert MPI jobs.
     %
-    % Allow user to run multisession or MPI jobs, defined by the classes-children of 
+    % Allow user to run multisession or MPI jobs, defined by the classes-children of
     % JobExecutor class.
     %
-    % In case of Parallel computer toolbox available, runs Matlab MPI communicating jobs 
+    % In case of Parallel computer toolbox available, runs Matlab MPI communicating jobs
     % and if it is not, uses multiple Matlab, communicating through filebased messages.
     %
     %
@@ -24,6 +24,9 @@ classdef JobDispatcher
         mess_framework;
         %  Helper property used to retrieve a running job id
         job_id
+        % Helper property to report if jobDispatcher already controls a
+        % cluster so next job should be executed on existing cluster.
+        is_initialized
     end
     %
     properties(Access=protected)
@@ -201,6 +204,9 @@ classdef JobDispatcher
             % return unique string, describing the job
             id = obj.mess_framework_.job_id;
         end
+        function is = get.is_initialized(obj)
+            is = isempty(obj.cluster_);
+        end
         %
         function obj = finalize_all(obj)
             % destructor. As this is not a handle class, invalid cluster_
@@ -223,7 +229,7 @@ classdef JobDispatcher
             %                  loop.
             %
             % return_outputs -- if true, job must return its outputs
-            %            
+            %
             % n_workers      -- number of workers to split job between workers
             %
             %Returns:
