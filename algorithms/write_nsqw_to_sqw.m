@@ -1,22 +1,32 @@
 function write_nsqw_to_sqw (infiles, outfile,varargin)
 % Read a collection of sqw files with a common grid and write to a single sqw file.
 %
-%   >> write_nsqw_to_sqw (dummy, infiles, outfile)
+%   >> write_nsqw_to_sqw (infiles, outfiles,varargin)
 %
 % Input:
 % ------
 %   infiles         Cell array or character array of sqw file name(s) of input file(s)
 %   outfile         Full name of output sqw file
-%   varargin        If present can be the keyword one or all of the keywods:
-%
+%   varargin        If present can be the keyword one or all of the keywords
+%                   or the instance of initialized JobDispatcher, running
+%                   parallel framework or non-initialized JobDispatcher to
+%                   combine sqw tiles in parallel
+%Optional inputs:
 % allow_equal_headers -- disables checking input files for absolutely
 %                       equal headers. Two file having equal headers is an error
 %                       in normal operations so this option  used in
 %                       tests or when equal zones are combined.
 % drop_subzones_headers -- in combine_equivalent_zones all subfiles are cut from
-%                           single sqw file and may be divided into subzones.
-%                           this option used to avoid duplicating headers
-%                           from the same zone
+%                       single sqw file and may be divided into subzones.
+%                       this option used to avoid duplicating headers
+%                       from the same zone
+% parallel           -- combine files using Herbert parallel framework.
+%                       this is duplicate for hpc_config option (currently
+%                       missing) so either this keyword or hpc_config
+%                       option or the instance of the JobDispatcher has to
+%                       be present to combine sqw files in  parallel.
+% aJobDispatcherInstance-- the instance of JobDispatcher, to use in
+%                       combining sqw files in parallel
 %
 % Output:
 % -------
@@ -27,23 +37,49 @@ function write_nsqw_to_sqw (infiles, outfile,varargin)
 % T.G.Perring   22 March 2013  Modified to enable sqw files with more than one spe file to be combined.
 %
 % $Revision$ ($Date$)
+accepted_options = {'allow_equal_headers','drop_subzones_headers','parallel'};
+
 persistent old_matlab;
 if isempty(old_matlab)
     old_matlab = verLessThan('matlab', '8.1');
 end
+if nargin<2
+    error('WRITE_NSQW_TO_SQW:invalid_argument',...
+        'function should have at least 2 input arguments')
+end
+
+[ok,mess,drop_subzone_headers,allow_equal_headers,combine_in_parallel,argi]...
+    = parse_char_options(varargin,accepted_options);
+if ~ok
+    error('WRITE_NSQW_TO_SQW:invalid_argument',mess);
+end
+if ~isempty(argi)
+    is_jd = cellfun(@(x)(isa(x,'JobDispatcher')),argi,'UniformOutput',true);
+    if any(is_jd)
+        job_disp = argi(is_jd);
+        if numel(job_disp) >1
+            error('WRITE_NSQW_TO_SQW:invalid_argument',...
+                'only one instance of JobDispatcher can be provided as input');
+        else
+            job_disp  = job_disp{1};
+        end
+        argi = argi(~is_jd);
+        if ~job_disp.is_initialized
+            error('WRITE_NSQW_TO_SQW:invalid_argument',...
+                'Only initialized JobDispatcher is currently supported as input for write_nsqw_to_sqw');
+        end
+    else
+        job_disp = [];
+    end
+else
+    job_disp = [];
+end
 
 
 hor_log_level=config_store.instance().get_value('hor_config','log_level');
-drop_subzone_headers = false;
-if ismember('drop_subzones_headers',varargin)
-    drop_subzone_headers = true;
-end
 
 % Check number of input arguments (necessary to get more useful error message because this is just a gateway routine)
 % --------------------------------------------------------------------------------------------------------------------
-if nargin<2
-    error('Check number of input arguments')
-end
 
 
 % Check that the input files all exist and give warning if the output files overwrite the input files.
@@ -76,100 +112,24 @@ if hor_log_level>-1
     disp('Reading header(s) of input file(s) and checking consistency...')
 end
 
-% Read header information:
-main_header=cell(nfiles,1);
-header=cell(nfiles,1);
-datahdr=cell(nfiles,1);
-pos_datastart=zeros(nfiles,1);
-pos_npixstart=zeros(nfiles,1);
-pos_pixstart=zeros(nfiles,1);
-npixtot=zeros(nfiles,1);
 
-mess_completion(nfiles,5,0.1);   % initialise completion message reporting
-if ~iscell(infiles)
-    infiles = {infiles};
-end
-ldrs = sqw_formats_factory.instance().get_loader(infiles);
-for i=1:nfiles
-    data_type = ldrs{i}.data_type;
-    if ~strcmpi(data_type,'a'); error('WRITE_NSQW_TO_SQW:invalid_argument',...
-            ['No pixel information in ',infiles{i}]); end
-    main_header{i} = ldrs{i}.get_main_header();
-    header{i}      = ldrs{i}.get_header('-all');
-    datahdr{i}     = ldrs{i}.get_data('-head');
-    det_tmp        = ldrs{i}.get_detpar();
-    if i==1
-        det=det_tmp;    % store the detector information for the first file
-    end
-    if ~isequal_par(det,det_tmp); error('WRITE_NSQW_TO_SQW:invalid_argument',...
-            'Detector parameter data is not the same in all files'); end
-    clear det_tmp       % save memory on what could be a large variable
-    
-    pos_datastart(i)=ldrs{i}.data_position;  % start of data block
-    pos_npixstart(i)=ldrs{i}.npix_position;  % start of npix field
-    pos_pixstart(i) =ldrs{i}.pix_position;   % start of pix field
-    npixtot(i)      =ldrs{i}.npixels;
-    mess_completion(i)
-end
-mess_completion
-
-
-
+[main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
+    read_input_headers(infiles);
 
 % Check consistency:
 % At present, we insist that the contributing spe data are distinct in that:
 %   - filename, efix, psi, omega, dpsi, gl, gs cannot all be equal for two spe data input
 %   - emode, lattice parameters, u, v, sample must be the same for all spe data input
+% We must have same data information for alatt, angdeg, uoffset, u_to_rlu, ulen, pax, iint, p
 % This guarantees that the pixels are independent (the data may be the same if an spe file name is repeated, but
 % it is assigned a different Q, and is in the spirit of independence)
-[header_combined,nspe,ok,mess] = header_combine(header,varargin{:});
-if ~ok, error('WRITE_NSQW_TO_SQW:invalid_argument',mess), end
+[header_combined,nspe] = sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers);
 
-% We must have same data information for alatt, angdeg, uoffset, u_to_rlu, ulen, pax, iint, p
 
-npax=length(datahdr{1}.pax);
-tol = 4*eps(single(1)); % test number to define equality allowing for rounding
-for i=2:nfiles  % only need to check if more than one file
-    ok = equal_to_relerr(datahdr{i}.uoffset, datahdr{1}.uoffset, tol, 1);
-    ok = ok & equal_to_relerr(datahdr{i}.u_to_rlu(:), datahdr{1}.u_to_rlu(:), tol, 1);
-    if ~ok
-        error('Input files must all have the same projection axes and projection axes offsets in the data blocks')
-    end
-    
-    if length(datahdr{i}.pax)~=npax
-        error('Input files must all have the same number of projection axes')
-    end
-    if npax<4   % one or more integration axes
-        ok = all(datahdr{i}.iax==datahdr{1}.iax);
-        ok = ok & equal_to_relerr(datahdr{i}.iint, datahdr{1}.iint, tol, 1);
-        if ~ok
-            error('Not all integration axes and integration limits are identical')
-        end
-    end
-    if npax>0   % one or more projection axes
-        ok = all(datahdr{i}.pax==datahdr{1}.pax);
-        if ~ok
-            error('WRITE_NSQW_TO_SQW:invalid_data',...
-                'proj axis indexes for header N%d not equal to first header indexes',i)
-        end
-        for ipax=1:npax
-            % Absolute tolerance of maximum bin boundary value written to file in single precision
-            % This sets the absolute tolerance for all bin boundaries
-            abs_tolaxis=4*eps(single(max(abs([datahdr{i}.p{ipax}(1),datahdr{i}.p{ipax}(end)]))));
-            ok = ok & (numel(datahdr{i}.p{ipax})==numel(datahdr{i}.p{ipax}) &...
-                max(abs(datahdr{i}.p{ipax}-datahdr{1}.p{ipax}))<abs_tolaxis);
-            if ~ok
-                warning('WRITE_NSQW_TO_SQW:invalid_data',...
-                    'proj axis for header N%d not equal first header pax',i)
-                
-            end
-        end
-        if ~ok
-            error('WRITE_NSQW_TO_SQW:invalid_data',...
-                'Not all projection axes for header %d and bin boundaries are identical to first header',i)
-        end
-    end
+if numel(datahdr) > 1
+    sqw_header.check_headers_equal(datahdr{1},datahdr(2:end));
 end
+
 %  Build combined header
 if drop_subzone_headers
     nfiles_2keep = nspe>0;
@@ -261,7 +221,7 @@ else
     run_label=cumsum([0;nspe(1:end-1)]);
 end
 if old_matlab
-    npix_cumsum = cumsum(double(sqw_data.npix(:)));    
+    npix_cumsum = cumsum(double(sqw_data.npix(:)));
 else
     npix_cumsum = cumsum(sqw_data.npix(:));
 end
@@ -270,6 +230,7 @@ sqw_data.pix = pix_combine_info(infiles,pos_npixstart,pos_pixstart,npix_cumsum,n
 [fp,fn,fe] = fileparts(outfile);
 main_header_combined.filename = [fn,fe];
 main_header_combined.filepath = [fp,filesep];
+%
 data_sum= struct('main_header',main_header_combined,...
     'header',[],'detpar',det,'data',sqw_data);
 data_sum.header = header_combined;
@@ -283,3 +244,49 @@ end
 wrtr = wrtr.init(ds,outfile);
 wrtr = wrtr.put_sqw();
 wrtr.delete();
+
+%
+%
+function [main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
+    read_input_headers(infiles)
+
+
+% Read header information:
+if ~iscell(infiles)
+    infiles = {infiles};
+end
+nfiles = numel(infiles);
+
+main_header=cell(nfiles,1);
+header=cell(nfiles,1);
+datahdr=cell(nfiles,1);
+%pos_datastart=zeros(nfiles,1);
+pos_npixstart=zeros(nfiles,1);
+pos_pixstart=zeros(nfiles,1);
+npixtot=zeros(nfiles,1);
+
+mess_completion(nfiles,5,0.1);   % initialise completion message reporting
+
+ldrs = sqw_formats_factory.instance().get_loader(infiles);
+for i=1:nfiles
+    data_type = ldrs{i}.data_type;
+    if ~strcmpi(data_type,'a'); error('WRITE_NSQW_TO_SQW:invalid_argument',...
+            ['No pixel information in ',infiles{i}]); end
+    main_header{i} = ldrs{i}.get_main_header();
+    header{i}      = ldrs{i}.get_header('-all');
+    datahdr{i}     = ldrs{i}.get_data('-head');
+    det_tmp        = ldrs{i}.get_detpar();
+    if i==1
+        det=det_tmp;    % store the detector information for the first file
+    end
+    if ~isequal_par(det,det_tmp); error('WRITE_NSQW_TO_SQW:invalid_argument',...
+            'Detector parameter data is not the same in all files'); end
+    clear det_tmp       % save memory on what could be a large variable
+    
+    %pos_datastart(i)=ldrs{i}.data_position;  % start of data block
+    pos_npixstart(i)=ldrs{i}.npix_position;  % start of npix field
+    pos_pixstart(i) =ldrs{i}.pix_position;   % start of pix field
+    npixtot(i)      =ldrs{i}.npixels;
+    mess_completion(i)
+end
+mess_completion

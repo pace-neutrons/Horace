@@ -24,7 +24,7 @@ function mess_completion (varargin)
 
 persistent  initialised itimer ntot t_thresh n_ratio_thresh t_start t_prev_msg n_ratio_prev_msg
 
-hor_log_level=get(hor_config,'log_level');
+hor_log_level=config_store.instance().get_value('hor_config','log_level');
 % Initialise
 if nargin==3
     ntot = varargin{1};
