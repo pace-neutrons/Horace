@@ -388,8 +388,8 @@ else
     end
     
     % Generate unique temporary sqw files, one for each of the spe files
-    [grid_size,urange,tmp_file]=convert_to_tmp_files(run_files,sqw_file,...
-        instrument,sample,urange_in,grid_size_in);
+    [grid_size,urange,tmp_file,parallel_job_dispatcher]=convert_to_tmp_files(run_files,sqw_file,...
+        instrument,sample,urange_in,grid_size_in,opt.tmp_only);
     
     if use_partial_tmp
         keep_tmp_files = true;
@@ -412,13 +412,13 @@ else
             if log_level>-1
                 disp('Creating output sqw file:')
             end
-            write_nsqw_to_sqw (tmp_file, sqw_file);
+            write_nsqw_to_sqw (tmp_file, sqw_file,parallel_job_dispatcher);
         else
             if log_level>-1
                 disp('Accumulating in temporary output sqw file:')
             end
             sqw_file_tmp = [sqw_file,'.tmp'];
-            write_nsqw_to_sqw ([sqw_file;tmp_file], sqw_file_tmp);
+            write_nsqw_to_sqw ([sqw_file;tmp_file], sqw_file_tmp,parallel_job_dispatcher);
             if log_level>-1
                 disp(' ')
                 disp(['Renaming sqw file to ',sqw_file])
@@ -665,7 +665,8 @@ else
 end
 disp('--------------------------------------------------------------------------------')
 %---------------------------------------------------------------------------------------
-function  [grid_size,urange,tmp_file]=convert_to_tmp_files(run_files,sqw_file,instrument,sample,urange_in,grid_size_in)
+function  [grid_size,urange,tmp_file,jd]=convert_to_tmp_files(run_files,sqw_file,...
+    instrument,sample,urange_in,grid_size_in,gen_tmp_files_only)
 %
 log_level = ...
     config_store.instance().get_value('hor_config','log_level');
@@ -686,19 +687,23 @@ nt=bigtic();
 
 
 if use_separate_matlab
+        %
+    % name parallel job by sqw file name    
     jd = JobDispatcher('gen_sqw');
-    [common_par,loop_par]=gen_sqw_files_job.pack_job_pars(run_files',tmp_file,...
-        instrument,sample,grid_size_in,urange_in);
+    if gen_tmp_files_only
+        keep_parallel_pool_running = false;
+    else % if further operations are necessary fo perform with generated tmp files,
+        % keep parallel pool running to save time on restarting it
+        keep_parallel_pool_running = true;
+    end
     
-    %
     % aggregate the conversion parameters into array of structures,
-    % suitable for splitting jobs between workers
-    %
-    % name parallel job by sqw file name
-    
-    %
-    [outputs,n_failed] = jd.start_job('gen_sqw_files_job',...
-        common_par,loop_par,true,num_matlab_sessions,false);
+    % suitable for splitting jobs between workers    
+    [common_par,loop_par]=gen_sqw_files_job.pack_job_pars(run_files',tmp_file,...
+        instrument,sample,grid_size_in,urange_in);    
+    % 
+    [outputs,n_failed,~,jd] = jd.start_job('gen_sqw_files_job',...
+        common_par,loop_par,true,num_matlab_sessions,keep_parallel_pool_running);
     %
     if n_failed == 0
         grid_size = outputs.grid_size;
@@ -722,7 +727,11 @@ if use_separate_matlab
             ' Number: %d parallel tasks out of total: %d tasks have failed',...
             n_failed,num_matlab_sessions)
     end
+    if ~keep_parallel_pool_running % clear job dispatcher
+        jd = [];
+    end
 else
+    jd = [];
     %---------------------------------------------------------------------
     % serial rundata to sqw transformation
     % equivalent of:

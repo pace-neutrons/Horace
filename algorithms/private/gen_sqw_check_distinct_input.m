@@ -23,7 +23,7 @@ function [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_fil
 %   dpsi            Correction to psi (deg)            [column vector length nfile]
 %   gl              Large goniometer arc angle (deg)   [column vector length nfile]
 %   gs              Small goniometer arc angle (deg)   [column vector length nfile]
-%   instrument      Instrument descriptors (strucure or object) [column vector length nfile]
+%   instrument      Instrument descriptors (structure or object) [column vector length nfile]
 %   sample          Sample descriptors (structure or object)    [column vector length nfile]
 %   replicate       If ==true: allow non-distinct input; still perform the required equality checks
 %
@@ -32,7 +32,7 @@ function [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_fil
 %                  the header are from distinct data sets.
 %                  [structure for single spe file, or cell array of structures for more than one]
 %
-% 
+%
 % Output:
 % -------
 %   ok              True if all are distinct; false otherwise.
@@ -43,7 +43,7 @@ function [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_fil
 %   head_only       Logical array: true for entries into the header that do
 %                  not correspond to spe data parameters
 %                   - If no header is provided, then head_only=false(0,1)
-%                  
+%
 %
 % Notes:
 % (1)  A set of valid parameters requires:
@@ -67,7 +67,7 @@ function [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_fil
 % Convert angles to radians for comparison with header
 d2r=pi/180;
 pstruct=struct('filename',spe_file,'efix',num2cell(efix),...
-        'psi',num2cell(psi*d2r),'omega',num2cell(omega*d2r),'dpsi',num2cell(dpsi*d2r),'gl',num2cell(gl*d2r),'gs',num2cell(gs*d2r));
+    'psi',num2cell(psi*d2r),'omega',num2cell(omega*d2r),'dpsi',num2cell(dpsi*d2r),'gl',num2cell(gl*d2r),'gs',num2cell(gs*d2r));
 
 names=fieldnames(pstruct)';     % row vector
 
@@ -110,11 +110,19 @@ if ~exist('header','var') || isempty(header)
     
 else
     % Use header_combine to check the header and create a structure with the same fields as pstruct
-    [header_out,nspe,ok,mess,hstruct_sort,indh]=header_combine(header);
+    try
+        [header_out,~,hstruct_sort,indh]=sqw_header.header_combine(header);
+    catch ME
+        if strcmp(ME.identifier,'SQW_HEADER:invalid_header')
+            spe_only=[]; head_only=[];
+            mess=['Error in sqw file header: ',ME.message];
+            return
+        else
+            rethrow(ME);
+        end
+    end
     if ~ok
-        spe_only=[]; head_only=[];
-        mess=['Error in sqw file header: ',mess];
-        return
+        
     end
     if isstruct(header_out)
         header_out={header_out};    % make a cell array for convenience later on
@@ -209,5 +217,7 @@ elseif isstruct(xin) || isobject(xin)
             xout(i).(names{j})=dsd(xin(i).(names{j}));
         end
     end
-        
+    
 end
+
+
