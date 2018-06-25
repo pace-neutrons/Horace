@@ -64,10 +64,10 @@ if ~isempty(argi)
             job_disp  = job_disp{1};
         end
         argi = argi(~is_jd);
-        if ~job_disp.is_initialized
-            error('WRITE_NSQW_TO_SQW:invalid_argument',...
-                'Only initialized JobDispatcher is currently supported as input for write_nsqw_to_sqw');
-        end
+%         if ~job_disp.is_initialized
+%             error('WRITE_NSQW_TO_SQW:invalid_argument',...
+%                 'Only initialized JobDispatcher is currently supported as input for write_nsqw_to_sqw');
+%         end
     else
         job_disp = [];
     end
