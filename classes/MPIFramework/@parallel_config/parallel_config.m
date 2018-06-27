@@ -153,7 +153,7 @@ classdef parallel_config<config_base
             [ok,err,is_herbert,is_partool,rest] = parse_char_options({val},opt);
             if ~isempty(rest)
                 error('PARALLEL_CONFIG:invalid_argument',...
-                    'Unknown option %s. Only ''herbert'' or ''parpool'' options are currently accepted',...
+                    'Unknown option: %s. Only ''herbert'' or ''parpool'' options are currently accepted',...
                     val);
             end
             if ~ok
@@ -165,7 +165,13 @@ classdef parallel_config<config_base
                 return;
             end
             if is_partool
-                check_and_set_parpool_framework_(obj);
+                [ok,err]=check_parpool_can_be_enabled(obj);
+                if ok
+                    config_store.instance().store_config(...
+                        obj,'parallel_framework','parpool');
+                else
+                    errror('PARALLEL_CONFIG:invalid_argument',err);
+                end
             end
         end
         function obj=set.shared_folder_on_local(obj,val)
@@ -226,6 +232,12 @@ classdef parallel_config<config_base
                     error('PARALLEL_CONFIG:runtime_error',...
                         'Got unknown parallel framework: %s',fram);
             end
+        end
+        
+        function [ok,err]=check_parpool_can_be_enabled(obj)
+            % check if parallel computing toolbox is availible and can be
+            % used
+            [ok,err]=check_parpool_can_be_enabled_(obj);
         end
         %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED

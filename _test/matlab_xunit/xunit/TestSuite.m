@@ -229,9 +229,9 @@ classdef TestSuite < TestComponent
             %   directory, a TestCase subclass, or an M-file containing a simple
             %   test or containing subfunction-based tests.
             %
-            %   Optionally, name can contain a colon (':') followed by filter
-            %   string.  The filter string is used to select a particular named
-            %   test case.  For example, TestSuite.fromName('MyTests:testA')
+            %   Optionally, name can contain a colon (':')  or '::' followed 
+            %   by filter string.  The filter string is used to select a 
+            %   particular named test case.  For example, TestSuite.fromName('MyTests:testA')
             %   constructs a TestSuite object containing only the test case
             %   named 'testA' found in the TestCase subclass MyTests.
             
@@ -243,7 +243,7 @@ classdef TestSuite < TestComponent
             
             [name, filter_string] = strtok(name, ':');
             if ~isempty(filter_string)
-                filter_string = filter_string(2:end);
+                filter_string = strrep(filter_string,':','');
             end
             
             if xunit.utils.isTestCaseSubclass(name)

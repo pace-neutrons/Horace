@@ -20,12 +20,15 @@ classdef JobDispatcher
         % considered failed
         time_to_fail
         %
-        % the framework used to exchange messages with parallel pool
-        mess_framework;
         %  Helper property used to retrieve a running job id
         job_id
+        % the framework used to exchange messages with parallel cluster
+        mess_framework;
+        % helper property exposing access to parallel cluster used to run
+        % parallel job
+        cluster
         % Helper property to report if jobDispatcher already controls a
-        % cluster so next job should be executed on existing cluster.
+        % cluster so next job can be executed on existing cluster.
         is_initialized
     end
     %
@@ -205,15 +208,43 @@ classdef JobDispatcher
             id = obj.mess_framework_.job_id;
         end
         function is = get.is_initialized(obj)
-            is = isempty(obj.cluster_);
+            % return true if job dispatcher is initialized i.e. holds
+            % control over a parallel cluster
+            is = ~isempty(obj.cluster_);
+        end
+        function cl = get.cluster(obj)
+            % get access to the cluster, used to run parallel job by this
+            % class
+            cl = obj.cluster_;
         end
         %
         function obj = finalize_all(obj)
             % destructor. As this is not a handle class, invalid cluster_
-            % object may remain if delete does not assigned to a new object
+            % object may stay if delete does not assigned to a new object
             obj.cluster_ = [];
             obj.job_destroyer_ = [];
         end
+        function display_fail_job_results(obj,outputs)
+            % Auxiliary method to display job results if the job have
+            % failed
+            if iscell(outputs)
+                fprintf('Job %s have failed. Outputs: \n',obj.job_id);
+                for i=1:numel(outputs)
+                    if isa(outputs{i},'MException')
+                        fprintf('Task N%d failed. Error %s; Message %s\n',...
+                            i,outputs{i}.identifier,outputs{i}.message);
+                    else
+                        fprintf('Task N%d failed. Output: ',i);
+                        disp(outputs{i});
+                    end
+                end
+            else
+                fprintf('Job %s have failed. Output: \n',obj.job_id);
+                disp(outputs);
+            end
+            
+        end
+        
     end
     methods(Static)
         function [task_id_list,init_mess]=split_tasks(common_par,loop_par,return_outputs,n_workers)
