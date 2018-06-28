@@ -49,7 +49,7 @@ classdef test_gen_sqw_accumulate_sqw_nomex < ...
             if ~exist('test_name','var')
                 test_name = 'test_gen_sqw_accumulate_sqw_nomex';
             end
-            obj = obj@gen_sqw_common_config(0,0,0,-1);
+            obj = obj@gen_sqw_common_config(0,0,'matlab',-1);
             obj = obj@gen_sqw_accumulate_sqw_tests_common(test_name,'nomex');
         end
         
@@ -76,7 +76,7 @@ classdef test_gen_sqw_accumulate_sqw_nomex < ...
                 ok=false;
             catch ME
                 ok=true;
-                assertEqual(ME.identifier,'WRITE_NSQW_TO_SQW:invalid_argument')
+                assertEqual(ME.identifier,'SQW_HEADER:invalid_header')
                 
             end
             assertTrue(ok,'Should have failed because of repeated spe file name and parameters');

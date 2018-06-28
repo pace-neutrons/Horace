@@ -23,14 +23,16 @@ obj.check_obj_initated_properly();
 if ~isempty(argi)
     sqw_pos = cellfun(@(x)(isa(x,'sqw')||isstruct(x)),argi);
     numeric_pos = cellfun(@isnumeric,argi);
-    unknown  = ~(sqw_pos||numeric_pos);
+    parallel_Fw = cellfun(@(x)isa(x,'JobDispatcher'),argi);
+    unknown  = ~(sqw_pos|numeric_pos|parallel_Fw);
     if any(unknown)
         disp('unknown input: ',argi{unknown});
         error('SQW_BINFILE_COMMON:invalid_argument',...
             'put_pixel: the routine accepts only sqw object and/or low and high numbers for pixels to save');
     end
-    input_obj = argi{sqw_pos};
-    input_num = argi{numeric_pos};
+    jobDispatcher = argi(parallel_Fw);
+    input_obj = argi(sqw_pos);
+    input_num = argi(numeric_pos);
     if ~isempty(input_obj)
         if isa(input_obj,'sqw')
             input_obj = input_obj.data;
@@ -42,6 +44,7 @@ if ~isempty(argi)
 else
     input_obj = obj.sqw_holder_.data;
     input_num = [];
+    jobDispatcher = [];
 end
 
 
@@ -106,7 +109,7 @@ end
 if isa(input_obj.pix,'pix_combine_info') % pix field contains info to read &
     %combine pixels from sequence of files. There is special sub-algorithm
     %to do that.
-    obj =put_sqw_data_pix_from_file_(obj,input_obj.pix);
+    obj =put_sqw_data_pix_from_file_(obj,input_obj.pix,jobDispatcher);
 else % write pixels directly
     
     % Try writing large array of pixel information a block at a time - seems to speed up the write slightly

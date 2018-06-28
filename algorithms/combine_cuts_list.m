@@ -91,7 +91,7 @@ outfile = fullfile(outdir,[outfile,'.sqw']);
 % serialization
 
 [use_separate_matlab,num_matlab_sessions]=config_store.instance().get_value(hpc_config,...
-    'accum_in_separate_process','accumulating_process_num');
+    'build_sqw_in_parallel','parallel_workers_number');
 % define function to combine job parameters into list of structures,
 % suitable for serialization
 n_zones = numel(transf_list);

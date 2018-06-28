@@ -1,4 +1,4 @@
-function obj = put_sqw_data_pix_from_file_(obj, pix_comb_info)
+function obj = put_sqw_data_pix_from_file_(obj, pix_comb_info,jobDispatcher)
 % Write pixel information to file, reading that pixel information from a collection of other files
 %
 %   >> obj = put_sqw_data_pix_from_file (fid, infiles, npixstart, pixstart)
@@ -7,8 +7,8 @@ function obj = put_sqw_data_pix_from_file_(obj, pix_comb_info)
 % ------
 % where
 %   obj is initialized sqw_binfile_common object
-% and
-%  pix_comb_info   is parameter class with fields:
+%
+%   pix_comb_info   is parameter class with fields:
 %
 %   infiles         Cell array of file names, or array of file identifiers of open files, from
 %                   which to accumulate the pixel information
@@ -26,7 +26,8 @@ function obj = put_sqw_data_pix_from_file_(obj, pix_comb_info)
 %                       index e.g. as in the creating of the master sqw file
 %                    (3) The files correspond to several runs in general, which need to
 %                       be offset to give the run indices into the collective list of run parameters
-%
+% jobDispatcher     if present and not empty contains initialized version of parallel framework
+%                   used to write pixels in file using MPI-based algorithm. 
 %
 % Notes:
 % ------
@@ -55,10 +56,10 @@ change_fileno  = pix_comb_info.change_fileno;
 % build the result
 
 [pmax,log_level] = config_store.instance().get_value('hor_config','mem_chunk_size','log_level');
-use_mex = config_store.instance().get_value('hpc_config','use_mex_for_combine');
+use_mex = config_store.instance().get_value('hpc_config','combine_sqw_using');
 
 pix_out_position = obj.pix_pos_;
-if use_mex
+if strcmp(use_mex,'mex_code')
     fout_name = fullfile(obj.filepath,obj.filename);
     pix_out_pos = obj.pix_position;
     obj = obj.fclose();

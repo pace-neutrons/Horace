@@ -72,6 +72,7 @@ classdef sqw_header
             end
             
         end
+        %
         function headers_array = create_header_array(headers)
             % Copy the contents of the headers cellarray into the
             % appropriate part of the sqw headers array
@@ -86,6 +87,7 @@ classdef sqw_header
             end
             
         end
+        %
         function [header_out,nspe,hstruct_sort,ind] = header_combine(headers,allow_equal_headers,drop_subzones_headers)
             % Combine header blocks to form a single block
             %
@@ -227,19 +229,16 @@ classdef sqw_header
             
             
             if ~allow_equal_headers
-                ref_struc = hstruct_sort(1);
                 for i=2:nfiles_tot
-                    if isequal(ref_struc,hstruct_sort(i))
+                    if isequal(hstruct_sort(i-1),hstruct_sort(i))
                         mess='At least two headers have the all the same filename, efix, psi, omega, dpsi, gl and gs';
-                        error('SQW_HEADER:invali_header',mess);
+                        error('SQW_HEADER:invalid_header',mess);
                     end
                 end
             end
             
             sqw_header.check_headers_equal(header_out{1},header_out(2:end));
         end
-        
     end
-    
 end
 

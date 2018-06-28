@@ -26,8 +26,8 @@ hor_tes = test_SQW_GENCUT_perf();
 % if hpc extensions are available and enabled try to run the test in parallel
 hc = hpc_config;
 if nargin == 0
-    if hc.accum_in_separate_process
-        n_workers = hc.accumulating_process_num;
+    if hc.build_sqw_in_parallel
+        n_workers = hc.parallel_workers_number;
     else
         n_workers = 0;
     end

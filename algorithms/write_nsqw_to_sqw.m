@@ -25,8 +25,8 @@ function write_nsqw_to_sqw (infiles, outfile,varargin)
 %                       missing) so either this keyword or hpc_config
 %                       option or the instance of the JobDispatcher has to
 %                       be present to combine sqw files in  parallel.
-% aJobDispatcherInstance-- the instance of JobDispatcher, to use in
-%                       combining sqw files in parallel
+% JobDispatcherInstance-- the initalized instance of JobDispatcher,
+%                       to use in combining sqw files in parallel
 %
 % Output:
 % -------
@@ -39,20 +39,22 @@ function write_nsqw_to_sqw (infiles, outfile,varargin)
 % $Revision$ ($Date$)
 accepted_options = {'allow_equal_headers','drop_subzones_headers','parallel'};
 
-persistent old_matlab;
-if isempty(old_matlab)
-    old_matlab = verLessThan('matlab', '8.1');
-end
 if nargin<2
     error('WRITE_NSQW_TO_SQW:invalid_argument',...
         'function should have at least 2 input arguments')
 end
-
 [ok,mess,drop_subzone_headers,allow_equal_headers,combine_in_parallel,argi]...
     = parse_char_options(varargin,accepted_options);
 if ~ok
     error('WRITE_NSQW_TO_SQW:invalid_argument',mess);
 end
+
+persistent old_matlab;
+if isempty(old_matlab)
+    old_matlab = verLessThan('matlab', '8.1');
+end
+
+
 if ~isempty(argi)
     is_jd = cellfun(@(x)(isa(x,'JobDispatcher')),argi,'UniformOutput',true);
     if any(is_jd)
@@ -63,16 +65,39 @@ if ~isempty(argi)
         else
             job_disp  = job_disp{1};
         end
-        argi = argi(~is_jd);
-%         if ~job_disp.is_initialized
-%             error('WRITE_NSQW_TO_SQW:invalid_argument',...
-%                 'Only initialized JobDispatcher is currently supported as input for write_nsqw_to_sqw');
-%         end
+        %argi = argi(~is_jd);
+        if ~job_disp.is_initialized
+            error('WRITE_NSQW_TO_SQW:invalid_argument',...
+                'Only initialized JobDispatcher is currently supported as input for write_nsqw_to_sqw. Use "parallel" option to combine files in parallel');
+        end
+        jd_initialized = true;
     else
         job_disp = [];
+        jd_initialized = false;
     end
 else
     job_disp = [];
+    jd_initialized = false;
+end
+combine_mode = config_store.instance().get_value('hpc_config','combine_sqw_using');
+if isempty(job_disp)
+    if strcmp(combine_mode,'mpi_code') || combine_in_parallel
+        combine_in_parallel = true;
+    else
+        combine_in_parallel = false;
+    end
+else
+    combine_in_parallel = true;
+end
+
+if combine_in_parallel && isempty(job_disp) % define name of new parallel job and initiate it.
+    [~,fn] = fileparts(outfile);
+    if numel(fn) > 8
+        fn = fn(1:8);
+    end
+    job_name = ['N_sqw_to_sqw_',fn];
+    %
+    job_disp = JobDispatcher(job_name);
 end
 
 
@@ -129,6 +154,12 @@ end
 if numel(datahdr) > 1
     sqw_header.check_headers_equal(datahdr{1},datahdr(2:end));
 end
+urange=datahdr{1}.urange;
+for i=2:nfiles
+    urange=[min(urange(1,:),datahdr{i}.urange(1,:));max(urange(2,:),datahdr{i}.urange(2,:))];
+end
+
+
 
 %  Build combined header
 if drop_subzone_headers
@@ -158,12 +189,8 @@ sqw_data.iint=datahdr{1}.iint;
 sqw_data.pax=datahdr{1}.pax;
 sqw_data.p=datahdr{1}.p;
 sqw_data.dax=datahdr{1}.dax;    % take the display axes from first file, for sake of choosing something
-
-sqw_data.urange=datahdr{1}.urange;
-for i=2:nfiles
-    sqw_data.urange=[min(sqw_data.urange(1,:),datahdr{i}.urange(1,:));max(sqw_data.urange(2,:),datahdr{i}.urange(2,:))];
-end
-
+% store urange
+sqw_data.urange=urange;
 
 % Now read in binning information
 % ---------------------------------
@@ -177,22 +204,32 @@ if hor_log_level>-1
     disp('Reading and accumulating binning information of input file(s)...')
 end
 
-% Read data:
-mess_completion(nfiles,5,0.1);   % initialise completion message reporting
-for i=1:nfiles
-    % get signal error and npix information
-    bindata = ldrs{i}.get_se_npix();
-    if i==1
-        s_accum = (bindata.s).*(bindata.npix);
-        e_accum = (bindata.e).*(bindata.npix).^2;
-        npix_accum = bindata.npix;
+if combine_in_parallel
+    % until combine in parallel compltedte shut down the parallel pool
+    % after combining headers
+    keep_workers_running = false;
+    [common_par,loop_par] = accumulate_headers_job.pack_job_pars(ldrs);
+    if jd_initialized
+        [outputs,n_failed,~,job_disp]=job_disp.restart_job(...
+            'accumulate_headers_job',common_par,loop_par,true,keep_workers_running );
     else
-        s_accum = s_accum + (bindata.s).*(bindata.npix);
-        e_accum = e_accum + (bindata.e).*(bindata.npix).^2;
-        npix_accum = npix_accum + bindata.npix;
+        n_workers = config_store.instance().get_value('hpc_config','parallel_workers_number');
+        [outputs,n_failed,~,job_disp]=job_disp.start_job(...
+            'accumulate_headers_job',common_par,loop_par,true,n_workers,keep_workers_running );
     end
-    clear bindata
-    mess_completion(i)
+    %
+    if n_failed == 0
+        s_accum = outputs{1}.s;
+        e_accum = outputs{1}.e;
+        npix_accum = outputs{1}.npix;
+    else
+        job_disp.display_fail_job_results(outputs,n_failed,'WRITE_NSQW_TO_SQW:runtime_error');
+    end
+    
+    
+else
+    % read arrays and accumulate headers directly
+    [s_accum,e_accum,npix_accum] = accumulate_headers_job.accumulate_headers(ldrs);
 end
 
 s_accum = s_accum ./ npix_accum;
@@ -206,7 +243,7 @@ sqw_data.e=e_accum;
 sqw_data.npix=uint64(npix_accum);
 
 clear nopix
-mess_completion
+
 
 
 % Write to output file
@@ -242,7 +279,11 @@ if exist(outfile,'file') == 2 % init may want to upgrade the file and this
     delete(outfile);  %  is not the option we want to do here
 end
 wrtr = wrtr.init(ds,outfile);
-wrtr = wrtr.put_sqw();
+if combine_in_parallel
+    wrtr = wrtr.put_sqw(job_disp);
+else
+    wrtr = wrtr.put_sqw();
+end
 wrtr.delete();
 
 %

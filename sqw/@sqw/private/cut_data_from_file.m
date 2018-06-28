@@ -61,7 +61,7 @@ ndatpix = 9;        % number of pieces of information the pixel info array (see 
 
 
 % Output arrays for accumulated data
-% Note: matlab sillyness when one dimensional: MUST add an outer dimension of unity. For 2D and higher,
+% Note: Matlab silliness when one dimensional: MUST add an outer dimension of unity. For 2D and higher,
 % outer dimensions can always be assumed. The problem with 1D is that e.g. zeros([5]) is not the same as zeros([5,1])
 % whereas zeros([5,3]) is the same as zeros([5,3,1]).
 if isempty(nbin); nbin_as_size=[1,1]; elseif length(nbin)==1; nbin_as_size=[nbin,1]; else nbin_as_size=nbin; end;  % usual Matlab sillyness
@@ -82,7 +82,7 @@ npix_2read = sum(range(:));              % number of pixels that will be read fr
 %
 % number of blocks to be read from hdd -- used in the progress indicator.
 nsteps=numel(block_ind_from);
-if nsteps == 1 % one block should be wrtitten to target file directrly
+if nsteps == 1 % one block should be written to target file directly
     pix_tmpfile_ok = false;
 end
 %
@@ -267,7 +267,7 @@ for i=1:n_blocks
     
 end
 % seems much faster then copying sub-blocks into preallocated storage.
-% Certainy faster if blocks are big
+% Certainly faster if blocks are big
 v = [tmp_stor{:}];
 
 end
@@ -277,7 +277,7 @@ end
 function pix_comb_info =accumulate_pix_to_file(pix_comb_info,finish_accum,v,ok,ix_add,npix,max_buf_size,del_npix_retain)
 % Function to handle case of keep_pixels. Nested so that variables are shared with main function to optimise memory use
 
-persistent n_writ_files; % writeen files counter
+persistent n_writ_files; % written files counter
 % npix buffer
 persistent npix_prev;      % npix at previous flush info
 persistent npix_now;       % npix at current cut into
