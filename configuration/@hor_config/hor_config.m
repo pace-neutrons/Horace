@@ -248,7 +248,7 @@ classdef hor_config<config_base
                         ' mex files can not be initiated, Use mex set to false');
                 end
                 if ~can_combine_with_mex
-                    config_store.instance().store_config(this,'use_mex_for_combine',false);
+                    config_store.instance().store_config(this,'combine_sqw_using','matlab');
                 end
                 
             end

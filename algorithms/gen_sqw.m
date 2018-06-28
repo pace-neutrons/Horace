@@ -186,8 +186,8 @@ use_partial_tmp = false;    % true to generate a combined sqw file during accumu
 
 [log_level,delete_tmp]=...
     config_store.instance().get_value('hor_config','log_level','delete_tmp');
-use_mex_for_combine=...
-    config_store.instance().get_value('hpc_config','use_mex_for_combine');
+combine_algorithm =...
+    config_store.instance().get_value('hpc_config','combine_sqw_using');
 
 if opt.accumulate
     if sqw_exist && ~opt.clean  % accumulate onto an existing sqw file
@@ -195,8 +195,8 @@ if opt.accumulate
     else
         accumulate_new_sqw=true;
     end
-    if use_mex_for_combine % use tmp rather than sqw file as source of
-        opt.clean = true;
+    if ~strcmpi(combine_algorithm,'matlab') % use tmp rather than sqw file as source of
+        opt.clean = true;                   % input data (works faster as parallel jobs are better balanced)
         use_partial_tmp = true;
     end
 end
@@ -216,7 +216,8 @@ sample_default=struct;      % default 1x1 struct
     n_all_spe_files,grid_default,instrument_default,sample_default,args{:});
 if ~ok, error('GEN_SQW:invalid_argument',mess), end
 if accumulate_old_sqw && (present.grid||present.urange)
-    error('If data is being accumulated to an existing sqw file, then you cannot specify the grid or urange.')
+    error('GEN_SQW:invalid_argument',...
+        'If data is being accumulated to an existing sqw file, then you cannot specify the grid or urange.')
 end
 
 
@@ -392,17 +393,15 @@ else
         instrument,sample,urange_in,grid_size_in,opt.tmp_only);
     
     if use_partial_tmp
-        keep_tmp_files = true;
-    else
-        keep_tmp_files = ~delete_tmp;
+        delete_tmp = false;
     end
     
     if use_partial_tmp && accumulate_old_sqw  % if necessary, add already generated and present tmp files
         tmp_file = {all_tmp_files{ind_tmp_files_present},tmp_file{:}}';
         if numel(tmp_file) == n_all_spe_files % final step in combining tmp files, all tmp files will be generated
-            keep_tmp_files = false;
+            delete_tmp = true;
         else
-            keep_tmp_files = true;
+            delete_tmp = false;
         end
     end
     
@@ -429,15 +428,16 @@ else
         if log_level>-1
             disp('--------------------------------------------------------------------------------')
         end
-        % Delete temporary files at the end, if necessary
-        if delete_tmp && ~keep_tmp_files %if requested
-            tmpf_clob = onCleanup(@()delete_tmp_files(tmp_file,log_level));
-        end
         
         
     end
     
 end
+% Delete temporary files at the end, if necessary
+if delete_tmp  %if requested
+    delete_tmp_files(tmp_file,log_level);
+end
+
 
 % Clear output arguments if nargout==0 to have a silent return
 % ------------------------------------------------------------
@@ -673,7 +673,7 @@ log_level = ...
 
 [use_separate_matlab,num_matlab_sessions] = ...
     config_store.instance().get_value('hpc_config',...
-    'accum_in_separate_process','accumulating_process_num');
+    'build_sqw_in_parallel','parallel_workers_number');
 
 % build names for tmp files to generate
 spe_file = cellfun(@(x)(x.loader.file_name),run_files,...
@@ -687,9 +687,16 @@ nt=bigtic();
 
 
 if use_separate_matlab
-        %
-    % name parallel job by sqw file name    
-    jd = JobDispatcher('gen_sqw');
+    %
+    % name parallel job by sqw file name
+    [~,fn] = fileparts(sqw_file);
+    if numel(fn) > 8
+        fn = fn(1:8);
+    end
+    %
+    job_name = ['gen_sqw_',fn];
+    %
+    jd = JobDispatcher(job_name);
     if gen_tmp_files_only
         keep_parallel_pool_running = false;
     else % if further operations are necessary fo perform with generated tmp files,
@@ -698,10 +705,10 @@ if use_separate_matlab
     end
     
     % aggregate the conversion parameters into array of structures,
-    % suitable for splitting jobs between workers    
+    % suitable for splitting jobs between workers
     [common_par,loop_par]=gen_sqw_files_job.pack_job_pars(run_files',tmp_file,...
-        instrument,sample,grid_size_in,urange_in);    
-    % 
+        instrument,sample,grid_size_in,urange_in);
+    %
     [outputs,n_failed,~,jd] = jd.start_job('gen_sqw_files_job',...
         common_par,loop_par,true,num_matlab_sessions,keep_parallel_pool_running);
     %
@@ -709,23 +716,7 @@ if use_separate_matlab
         grid_size = outputs.grid_size;
         urange    = outputs.urange;
     else
-        if iscell(outputs)
-            for i=1:numel(outputs)
-                if isa(outputs{i},'MException')
-                    fprintf('Task N%d failed. Error %s; Message %s\n',...
-                        i,outputs{i}.identifier,outputs{i}.message);
-                else
-                    fprintf('Task N%d failed. Output: ',i);
-                    disp(outputs{i});
-                end
-            end
-        else
-            fprintf('Job %s failed. Output: \n',jd.job_id);
-            disp(outputs);
-        end
-        error('GEN_SQW:runtime_error',...
-            ' Number: %d parallel tasks out of total: %d tasks have failed',...
-            n_failed,num_matlab_sessions)
+        job_disp.display_fail_job_results(outputs,n_failed,'GEN_SQW:runtime_error');
     end
     if ~keep_parallel_pool_running % clear job dispatcher
         jd = [];

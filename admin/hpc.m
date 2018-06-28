@@ -17,7 +17,7 @@ function hpc(varargin)
 %               recommended by this function (very crude estimate)
 %
 % The meaning of hpc properties this function sets can be described as below:
-%   use_mex_for_combine: true/false -- should mex extension be used to
+%   combine_sqw_using: true/false -- should mex extension be used to
 %                                      combine tmp files, if such extension
 %                                      is availible
 %   mex_combine_thread_mode:          0  use mex file for combining and run 
@@ -29,8 +29,8 @@ function hpc(varargin)
 %                                     3  debugging option related to option 1
 %  mex_combine_buffer_size: 65536 -- file buffer used for each input file in mex-file combining
 % 
-%  accum_in_separate_process: 0     -- use separate Matlab sessions when processing input spe or nxspe files
-%   accumulating_process_num: 4     -- how many sessions to use.
+%  build_sqw_in_parallel: 0     -- use separate Matlab sessions when processing input spe or nxspe files
+%   parallel_workers_number: 4     -- how many sessions to use.
 
 
 
@@ -39,79 +39,79 @@ if nargin>0
     if strcmpi(val,'on')
         [use_mex_fcr,mex_comb_tmr,mex_comb_bsr,acspr,acp_numr]=find_hpc_options();
         if use_mex_fcr ~= 1
-            warning('HPC:using_mex_for_combine',['Setting: ''use_mex_for_combine=true'' on this system may decrease ',...
+            warning('HPC:using_mex_for_combine',['Setting: ''combine_sqw_using=mex_code'' on this system may decrease ',...
                     'the Horace performance.\nCheck system performance and hpc_config for optimal hpc options']);
         end
         if acspr ~= 1
-            warning('HPC:accum_in_separate_process',['Setting ''accum_in_separate_process=true'' on this system may decrease ',...
+            warning('HPC:build_sqw_in_parallel',['Setting ''build_sqw_in_parallel=true'' on this system may decrease ',...
                 'the Horace performance.\nCheck system performance and hpc_config to select optimal hpc options']);
         end
         
         set(hpc_config,...
-        'use_mex_for_combine',1,'mex_combine_thread_mode',mex_comb_tmr,...
+        'combine_sqw_using','mex_code','mex_combine_thread_mode',mex_comb_tmr,...
         'mex_combine_buffer_size',mex_comb_bsr,...
-        'accum_in_separate_process',1,'accumulating_process_num',acp_numr);        
+        'build_sqw_in_parallel',1,'parallel_workers_number',acp_numr);        
     elseif strcmpi(val,'off')
-        hc = hpc_config;
-        hc.use_mex_for_combine = 0;
-        hc.accum_in_separate_process = 0;
+        hpc = hpc_config;
+        hpc.combine_sqw_using = 'matlab';
+        hpc.build_sqw_in_parallel = 0;
     else
         fprintf('Unknown hpc option ''%s'', Use ''on'' or ''off'' only\n',varargin{1});
     end
 else
     [use_mex_fcr,mex_comb_tmr,mex_comb_bsr,acspr,acp_numr]=find_hpc_options();
     [use_mex_fcc,mex_comb_tmc,mex_comb_bsc,acspc,acp_numc]=get(hpc_config,...
-        'use_mex_for_combine','mex_combine_thread_mode','mex_combine_buffer_size',...
-        'accum_in_separate_process','accumulating_process_num');
+        'combine_sqw_using','mex_combine_thread_mode','mex_combine_buffer_size',...
+        'build_sqw_in_parallel','parallel_workers_number');
     
     disp('| computer hpc options    | current val    | recommended val|');
     disp('|-------------------------|----------------|----------------|');
-    fprintf('| use_mex_for_combine:    | %14d | %14d |\n',use_mex_fcc,use_mex_fcr);
+    fprintf('| combine_sqw_using:      | %14s | %14d |\n',use_mex_fcc,use_mex_fcr);
     fprintf('| mex_combine_thread_mode:| %14d | %14d |\n',mex_comb_tmc,mex_comb_tmr);
     fprintf('| mex_combine_buffer_size:| %14d | %14d |\n',mex_comb_bsc,mex_comb_bsr);
     disp('|-------------------------|----------------|----------------|');
-    fprintf('| accum_in_sep_process:   | %14d | %14d |\n',acspc,acspr);
-    fprintf('| accum_process_num:      | %14d | %14d |\n',acp_numc,acp_numr);
+    fprintf('| build_sqw_in_parallel:  | %14d | %14d |\n',acspc,acspr);
+    fprintf('| parallel_wrkrs_number:  | %14d | %14d |\n',acp_numc,acp_numr);
     disp('-------------------------------------------------------------');
 end
 
-function [use_mex_for_combine,mex_combine_thread_mode,mex_combine_buffer_size,...
-    accum_in_separate_process,accumulating_process_num]=find_hpc_options()
+function [combine_sqw_using,mex_combine_thread_mode,mex_combine_buffer_size,...
+    build_sqw_in_parallel,parallel_workers_number]=find_hpc_options()
 if ispc
-    use_mex_for_combine = 1;
+    combine_sqw_using = 'mex_code';
     mex_combine_thread_mode=0;
     mex_combine_buffer_size=128*1024;
     [~,sys] = memory();
     if sys.PhysicalMemory.Total <  31*1024*1024*1024
-        accum_in_separate_process = 0;
-        accumulating_process_num  = 1;
+        build_sqw_in_parallel = 0;
+        parallel_workers_number  = 1;
     elseif sys.PhysicalMemory.Total  >= 31*1024*1024*1024
         if sys.PhysicalMemory.Available >= 0.5*sys.PhysicalMemory.Total
             nproc = idivide(int64(sys.PhysicalMemory.Total),int64(32*1024*1024*1024),'floor');
             if nproc >1
-                accum_in_separate_process = 1;
-                accumulating_process_num  = nproc;
+                build_sqw_in_parallel = 1;
+                parallel_workers_number  = nproc;
             else
-                accum_in_separate_process = 0;
-                accumulating_process_num  = 2;
+                build_sqw_in_parallel = 0;
+                parallel_workers_number  = 2;
             end
         else
-            accum_in_separate_process = 0;
-            accumulating_process_num  = 2;
+            build_sqw_in_parallel = 0;
+            parallel_workers_number  = 2;
         end
     end
 else
     [nok,mess] = system('lscpu');
     if nok
-        %MAC? normal mac does not benifit from hpc
-        use_mex_for_combine = 0;
+        %MAC? normal mac does not benefit from hpc
+        combine_sqw_using = 'matlab';
         mex_combine_thread_mode =0;
-        accum_in_separate_process=0;
-        accumulating_process_num=2;
+        build_sqw_in_parallel=0;
+        parallel_workers_number=2;
         mex_combine_buffer_size = 64*1024;
         return;
     end
-    use_mex_for_combine = 1;
+    combine_sqw_using = 1;
     rez=strfind(mess,'NUMA node');
     if numel(rez)>2
         hpc_computer = true;
@@ -122,15 +122,15 @@ else
         mex_combine_thread_mode = 1;
         mex_combine_buffer_size=2048;
         % assume memory not an issue
-        accum_in_separate_process = 1;
-        accumulating_process_num  = 8;
+        build_sqw_in_parallel = 1;
+        parallel_workers_number  = 8;
     else
         mex_combine_thread_mode = 0;
         mex_combine_buffer_size=128*1024;
         
-        accum_in_separate_process = 1;     
+        build_sqw_in_parallel = 1;     
         % Lasy! need to do better then this, works only on ISIS pc-s
-        accumulating_process_num  = 4;
+        parallel_workers_number  = 4;
     end
     
 end

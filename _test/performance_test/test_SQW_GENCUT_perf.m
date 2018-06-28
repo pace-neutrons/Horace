@@ -337,16 +337,16 @@ classdef test_SQW_GENCUT_perf < TestPerformance
                 clob = onCleanup(@()(0));
                 return;
             end
-            as = hc.accum_in_separate_process;
-            an = hc.accumulating_process_num;
+            as = hc.build_sqw_in_parallel;
+            an = hc.parallel_workers_number;
             if as && an > 1
-                clob = onCleanup(@()set(hc,'accum_in_separate_process',as,'accumulating_process_num',an));
+                clob = onCleanup(@()set(hc,'build_sqw_in_parallel',as,'parallel_workers_number',an));
             else
                 clob = onCleanup(@()(an));
             end
             if (n_workers>0 && ~as)
-                hc.accum_in_separate_process = true;
-                hc.accumulating_process_num = n_workers;
+                hc.build_sqw_in_parallel = true;
+                hc.parallel_workers_number = n_workers;
             end
             
         end

@@ -13,21 +13,21 @@ classdef gen_sqw_common_config < TestCase
         old_configuration_=[];
         
         change_mex_=false;
-        set_mex_  = false;
+        new_mex_  = false;
         
         change_mpi_=false;
-        set_mpi_ = false;
+        new_mpi_ = false;
         
         change_combine_=false;
-        set_combine_ = false;
+        new_combine_ = 'mex_code'
         
         change_framework_ = false;
-        framework_to_set_ = 'herbert';
+        new_framework_ = 'herbert';
     end
     
     methods
         
-        function obj = gen_sqw_common_config(use_mex,use_MPI,use_mex4combine,parallel_framework)
+        function obj = gen_sqw_common_config(use_mex,use_MPI,combine_sqw_using,parallel_framework)
             % class constructor, which defines necessary test configuration
             % options. The option can be defined by one of three numbers:
             % -1 -- ignore this option for test, leave it as in current configuration.
@@ -36,10 +36,13 @@ classdef gen_sqw_common_config < TestCase
             % namely:
             % use_mex  -- if the test should use mex files for calculations
             % use_MPI  -- if the test should deploy parallel framework
-            %use_mex4combine -- if the test should combine tmp files using
-            %             mex code
+            %
+            %combine_sqw_using-- if the test should combine tmp files using
+            %             mex code, matlab code or mpi code/
+            %             the possible options here are:
+            %             -1,'matlab','mex_code','mpi_code'
             %parallel_framework -- which parallel framework to deploy.
-            %           Unlike all other options the possible values here are:
+            %           the possible values here are:
             %           -1, 'herbert' or 'parpool'
             obj = obj@TestCase('nop');
             obj.store_initial_config();
@@ -47,9 +50,9 @@ classdef gen_sqw_common_config < TestCase
             log_level = hc.log_level;
             
             
-            [obj.change_mex_,obj.set_mex_ ] = gen_sqw_common_config.check_change...
+            [obj.change_mex_,obj.new_mex_ ] = gen_sqw_common_config.check_change...
                 ('use_mex',use_mex,obj.old_configuration_.hc);
-            if obj.change_mex_ && obj.set_mex_
+            if obj.change_mex_ && obj.new_mex_ % check mex can be enabled
                 [~,n_errors]=check_horace_mex();
                 if n_errors>0
                     use_mex = 1;
@@ -61,82 +64,68 @@ classdef gen_sqw_common_config < TestCase
                     if log_level>0
                         warning('GEN_SQW_TEST_CONFIG:not_available',...
                             ['Can not initiate mex mode: '
-                            ' This mode will not be tested'])
+                            ' This mex mode will not be tested'])
                     end
                 end
             end
             
-            [obj.change_mpi_,obj.set_mpi_ ] = gen_sqw_common_config.check_change...
-                ('accum_in_separate_process',use_MPI,obj.old_configuration_.hpc);
-            [obj.change_combine_,obj.set_combine_ ] = gen_sqw_common_config.check_change...
-                ('use_mex_for_combine',use_mex4combine,obj.old_configuration_.hpc);
+            [obj.change_mpi_,obj.new_mpi_ ] = gen_sqw_common_config.check_change...
+                ('build_sqw_in_parallel',use_MPI,obj.old_configuration_.hpc);
             
-            if isnumeric(parallel_framework)
-                obj.change_framework_  = false;
-            elseif ischar(parallel_framework)
-                cur_fmw = obj.old_configuration_.parc.parallel_framework;
-                if strcmp(cur_fmw,parallel_framework)
+            [obj.change_combine_,obj.new_combine_ ] = gen_sqw_common_config.check_change...
+                ('combine_sqw_using',combine_sqw_using,obj.old_configuration_.hpc);
+            
+            [obj.change_framework_,obj.new_framework_ ] = gen_sqw_common_config.check_change...
+                ('parallel_framework',parallel_framework,obj.old_configuration_.parc);
+            
+            if obj.change_framework_ && strcmp(parallel_framework,'parpool') % check parpool can be enabled
+                parc = parallel_config;
+                [ok,mess] = parc.check_parpool_can_be_enabled();
+                if ~ok
+                    obj.skip_test = true;
                     obj.change_framework_ = false;
+                    if log_level>0
+                        warning('GEN_SQW_TEST_CONFIG:not_available',...
+                            'Can not initiate framework: %s because %s. This mode will not be tested',...
+                            parallel_framework,mess)
+                    end
                 else
-                    obj.change_framework_ = true;
-                    parc = parallel_config;
-                    try
-                        parc.parallel_framework = parallel_framework;
-                        
-                        set_framework = true;
-                    catch ME
-                        if strcmp(ME.identifier,'PARALLEL_CONFIG:unsupported_configuration')
-                            set_framework = false;
-                        else
-                            rethrow(ME);
-                        end
-                    end
-                    
-                    if ~set_framework
-                        obj.skip_test = true;
-                        obj.change_framework_ = false;
-                        if log_level>0
-                            warning('GEN_SQW_TEST_CONFIG:not_available',...
-                                ['Can not initiate framework: ',parallel_framework, ...
-                                ' This mode will not be tested'])
-                        end
-                    else
-                        obj.skip_test = false;
-                    end
+                    obj.skip_test = false;
                 end
+                
             end
         end
         function setUp(obj)
             if obj.change_mex_
                 hc = hor_config;
-                hc.use_mex = obj.set_mex_;
+                hc.use_mex = obj.new_mex_;
             end
             if obj.change_mpi_
                 hpc = hpc_config;
-                hpc.accum_in_separate_process = obj.set_mpi_;
+                hpc.build_sqw_in_parallel = obj.new_mpi_;
             end
             if obj.change_combine_
                 hpc = hpc_config;
-                hpc.use_mex_for_combine = obj.set_mpi_;
+                hpc.combine_sqw_using = obj.new_combine_;
             end
             if obj.change_framework_
                 parc = parallel_config;
-                parc.parallel_framework = obj.framework_to_set_;
+                parc.parallel_framework = obj.new_framework_;
             end
             
         end
         function tearDown(obj)
             if obj.change_mex_
                 hc = hor_config;
-                hc.use_mex = ~obj.set_mex_;
+                hc.use_mex = ~obj.new_mex_;
             end
             if obj.change_mpi_
                 hpc = hpc_config;
-                hpc.accum_in_separate_process = ~obj.set_mpi_;
+                hpc.build_sqw_in_parallel = ~obj.new_mpi_;
             end
             if obj.change_combine_
                 hpc = hpc_config;
-                hpc.use_mex_for_combine = ~obj.set_combine_;
+                hpc.combine_sqw_using = obj.old_configuration_.hpc.combine_sqw_using;
             end
             if obj.change_framework_
                 parc = parallel_config;
@@ -171,32 +160,27 @@ classdef gen_sqw_common_config < TestCase
         end
     end
     methods(Static)
-        function [change,new_value] = check_change(field_name,to_use,old_config)
+        function [change,new_value] = check_change(field_name,new_value,old_config)
             % helper function to convert input constructor option into the
             % internal values, used by the class.
             old_value = old_config.(field_name);
-            new_value = old_value;
-            switch(to_use)
-                case(-1) % ignore
+            %new_value = old_value;
+            if ischar(new_value)
+                if strcmpi(old_value,new_value)
                     change = false;
-                case(0) % not use
-                    if old_value == 1
-                        change = true;
-                        new_value = 0;
-                    else
+                else
+                    change = true;
+                end
+            else
+                if new_value == -1
+                    change = false;
+                else
+                    if new_value == old_value
                         change = false;
-                    end
-                case(1) % use
-                    if old_value == 1
-                        change = false;
                     else
-                        new_value = 1;
                         change = true;
                     end
-                otherwise
-                    error('GEN_SQW_TESTS_CONFIG:invalid_argument',...
-                        'the possible values to set field %s can be [-1,0,1]',...
-                        field_name);
+                end
             end
         end
     end

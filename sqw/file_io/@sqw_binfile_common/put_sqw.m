@@ -12,19 +12,23 @@ if ~ok
         ['DND_BINFILE_COMMON::put_sqw Error: ',mess]);
 end
 %
+jobDispatcher = [];
+%
 if ~isempty(argi)
-    input = argi{1};
-    if isa(input,'sqw')
-        obj.sqw_holder_ = input;
-    else
-        type = class(input);
-        error('SQW_FILE_IO:invalid_artgument',...
-            'put_sqw: this function can accept only sqw-type object, but got: %s type',type)
-    end
-    if numel(argi) > 1
-        argi = argi{2:end};
-    else
-        argi = {};
+    is_sqw = cellfun(@(x)isa(x,'sqw'),argi,'UniformOutput',true); 
+    if any(is_sqw)
+        if sum(is_sqw) > 1
+            error('SQW_FILE_IO:invalid_artgument','only one sqw object can be provided as input for put_sqw');
+        end
+        obj.sqw_holder_ = argi{is_sqw};        
+        argi = argi(~is_sqw);
+    end 
+    if ~isempty(argi)        
+        is_jd = cellfun(@(x)isa(x,'JobDispatcher'),argi,'UniformOutput',true);     
+        if any(is_jd)
+            jobDispatcher = argi{is_jd};
+        end
+        argi = argi(~is_jd);        
     end
 end
 %
@@ -55,6 +59,9 @@ obj=obj.put_dnd_metadata(argi{:});
 % write dnd image data
 obj=obj.put_dnd_data(argi{:});
 %
+if ~isempty(jobDispatcher)
+    argi = [{jobDispatcher},argi];
+end
 obj=obj.put_pix(argi{:});
 
 %
