@@ -180,10 +180,13 @@ classdef MessagesParpool < iMessagesFramework
             % delete all messages belonging to this instance of messages
             % framework.
             %
+            if obj.numLabs == 1
+                return
+            end
             [isDataAvail,srcWkrIdx,tag] = labProbe();
             while isDataAvail
                 labReceive(srcWkrIdx,tag);
-                [isDataAvail,srcWkrIdx,tag] = labProbe();                
+                [isDataAvail,srcWkrIdx,tag] = labProbe();
             end
         end
         function [ok,err]=labBarrier(obj,nothrow)

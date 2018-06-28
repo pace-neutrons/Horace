@@ -57,7 +57,9 @@ if ~keep_workers_running
 end
 % clear all messages may remain from the previous job
 obj.mess_framework.clear_messages();
-
+% indicate old cluster reused
+obj.job_is_starting_ = false;
+% take the old cluster
 cluster_wrp = obj.cluster_;
 
 [outputs,n_failed,task_ids,obj] = submit_and_run_job_(obj,task_class_name,...

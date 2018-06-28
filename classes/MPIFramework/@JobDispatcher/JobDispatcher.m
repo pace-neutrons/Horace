@@ -19,16 +19,18 @@ classdef JobDispatcher
         % time interval to wait until job which do not send any messages
         % considered failed
         time_to_fail
-        %
-        %  Helper property used to retrieve a running job id
+        % -----------------------------------------------------------------
+        % The convinience interface to internal classes, used by
+        % JobDispatcher
+        % Returns the string with running job id
         job_id
         % the framework used to exchange messages with parallel cluster
         mess_framework;
-        % helper property exposing access to parallel cluster used to run
-        % parallel job
+        % exposing read access to parallel cluster to run a parallel job
         cluster
-        % Helper property to report if jobDispatcher already controls a
-        % cluster so next job can be executed on existing cluster.
+        % true if jobDispatcher already controls a
+        % cluster so the next job can be executed on existing cluster
+        % rather then after starting a new one.
         is_initialized
     end
     %
@@ -45,6 +47,9 @@ classdef JobDispatcher
         cluster_ = [];
         % the holder for the object performing job clean-up operations
         job_destroyer_ = [];
+        % The auxiliary property, which tells if a cluster is started for
+        % the first time or is reused.
+        job_is_starting_ = true;
     end
     
     methods
@@ -224,24 +229,58 @@ classdef JobDispatcher
             obj.cluster_ = [];
             obj.job_destroyer_ = [];
         end
-        function display_fail_job_results(obj,outputs)
+        function display_fail_job_results(obj,outputs,n_failed,Err_code)
             % Auxiliary method to display job results if the job have
             % failed
+            % Input:
+            % Outputs -- usually cellarray of the results, returned by a
+            %            parallel job
+            % n_failed -- number of tasks failed as the result of parallel
+            %             job
+            % Err_code -- the text string in the form
+            %             ERROR_CLASS:error_reason to form identifier of
+            %             the exception to throw
+            % Throws:
+            % First exception returned from the cluster if such exceptions
+            % are present or excepion with Err_code as MExeption.identifier
+            % if no errors returned
+            %
+            mEXceptions_outputs = false(size(outputs));
             if iscell(outputs)
                 fprintf('Job %s have failed. Outputs: \n',obj.job_id);
                 for i=1:numel(outputs)
                     if isa(outputs{i},'MException')
+                        mEXceptions_outputs(i) = true;
                         fprintf('Task N%d failed. Error %s; Message %s\n',...
                             i,outputs{i}.identifier,outputs{i}.message);
                     else
+                        mEXceptions_outputs(i) = false;
                         fprintf('Task N%d failed. Output: ',i);
                         disp(outputs{i});
                     end
                 end
             else
+                mEXceptions_outputs(1) = isa(outputs,'MException');
                 fprintf('Job %s have failed. Output: \n',obj.job_id);
                 disp(outputs);
             end
+            n_workers = obj.cluster.n_workers;
+            if any(mEXceptions_outputs)
+                warning(Err_code,...
+                    ' Number: %d parallel tasks out of total: %d tasks have failed',...
+                    n_failed,n_workers)
+                errOutputs = outputs(isMExeptions);
+                if iscell(errOutputs)
+                    throw(errOutputs{1});
+                else
+                    throw(errOutputs);
+                end
+            else
+                error(Err_code,...
+                    ' Number: %d parallel tasks out of total: %d tasks have failed',...
+                    n_failed,n_workers)
+            end
+            
             
         end
         

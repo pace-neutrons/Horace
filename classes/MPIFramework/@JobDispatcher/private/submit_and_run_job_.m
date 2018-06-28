@@ -34,8 +34,14 @@ mf                        = obj.mess_framework;
 % build jobExecutor initialization message used by each worker
 je_init_message = mf.build_je_init(task_class_name,exit_worker_when_job_ends,keep_workers_running);
 
+if obj.job_is_starting_
+    log_message_prefix = 'starting';
+else
+    log_message_prefix = 'continuing';
+end
+
 % submit info to cluster and start job
-cluster_wrp = cluster_wrp.start_job(je_init_message,taskInitMessages);
+cluster_wrp = cluster_wrp.start_job(je_init_message,taskInitMessages,log_message_prefix);
 
 % wait until the job finishes
 waiting_time = obj.task_check_time;

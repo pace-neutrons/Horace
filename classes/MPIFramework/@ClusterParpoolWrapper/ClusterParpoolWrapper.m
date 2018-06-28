@@ -97,9 +97,9 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             %wait(cjob);
         end
         %
-        function obj = start_job(obj,je_init_message,task_init_mess)
+        function obj = start_job(obj,je_init_message,task_init_mess,log_message_prefix)
             %
-            obj = obj.init_workers(je_init_message,task_init_mess);
+            obj = obj.init_workers(je_init_message,task_init_mess,log_message_prefix);
         end
         function [completed,obj] = check_progress(obj,varargin)
             % overload check progress method to account for changes
