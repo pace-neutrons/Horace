@@ -478,7 +478,15 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess])
             
             % Test against saved or store to save later
-            obj=save_or_test_variables(obj,w2_1456);
+            try
+                [obj,ref_ds]=save_or_test_variables(obj,w2_1456);
+            catch Err
+                acolor('g');
+                plot(w2_1456);
+                acolor('r');
+                pd(ref_ds);
+                rethrow(Err);
+            end
             
         end
         %
@@ -508,17 +516,17 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % Create some sqw files against which to compare the output of
             % accumulate_sqw
             % ---------------------------------------------------------------------------
-            [dummy,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
+            [~,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
             spe_selected = obj.spe_file([1,1,4,5,6]);
             
             
             
-            [dummy,dummy,urange]=gen_sqw (spe_selected,...
+            [tmp_files,grid_size1,urange1]=gen_sqw (spe_selected,...
                 '', sqw_file_11456, efix([1,3,4,5,6]), ...
                 emode, alatt, angdeg, u, v, psi([1,3,4,5,6]),...
                 omega([1,3,4,5,6]), dpsi([1,3,4,5,6]), gl([1,3,4,5,6]), gs([1,3,4,5,6]),...
                 'replicate');
-            
+            clobT = onCleanup(@()obj.delete_files(tmp_files));
             
             % Now use accumulate sqw ----------------------
             obj.proj.u=u;
@@ -526,10 +534,22 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             
             % Repeat a file with 'replicate'
             spe_accum={obj.spe_file{1},'',obj.spe_file{1},obj.spe_file{4},obj.spe_file{5},obj.spe_file{6}};
-            [tmp_fls]=accumulate_sqw (spe_accum, '', sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, 'replicate');
+            clear clobT;
+            [tmp_fls,~,urange2]=accumulate_sqw (spe_accum, '',...
+                sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs,...
+                'replicate'); %grid_size1,urange1,
             clobT = onCleanup(@()obj.delete_files(tmp_fls));
+            % ranges are equal only if urange1 is provided
+            %assertElementsAlmostEqual(urange1,urange2);
             
-            [ok,mess,w2_11456]=is_cut_equal(sqw_file_11456,sqw_file_accum,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
+            [ok,mess,w2_11456,w2_11456acc]=is_cut_equal(sqw_file_11456,sqw_file_accum,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
+            if ~ok
+                acolor('b');
+                plot(w2_11456);
+                acolor('r');
+                pd(w2_11456acc);
+                keep_figure;
+            end
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same',mess]);
             % Test against saved or store to save later
             obj=save_or_test_variables(obj,w2_11456);

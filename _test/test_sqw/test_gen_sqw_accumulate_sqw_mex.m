@@ -51,7 +51,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < ...
                 name= mfilename('class');
             end
            
-            obj = obj@gen_sqw_common_config(1,0,-1,-1);            
+            obj = obj@gen_sqw_common_config(1,0,'mex_code',-1);            
             obj = obj@gen_sqw_accumulate_sqw_tests_common(name,'mex');            
         end
         %------------------------------------------------------------------
