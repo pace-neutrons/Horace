@@ -29,13 +29,13 @@ classdef hor_config<config_base
     %   delete_tmp        - Automatically delete temporary files after generating sqw files
     %   working_directory - The folder to write tmp files.
     %   --
-    %   hpc_config_info   - helper/compartibility property to access high performance
+    %   high_perf_config_info - helper/compartibility property to access high performance
     %                       computing settings. Use hpc_config to modify hpc
     %                       settings intself.
     %
     %   force_mex_if_use_mex - Fail if mex can not be used. Used in mex files debugging
     %--
-    %   hpc_config_info   - an interface, displaying high performance computing settings.
+    %   high_perf_config_info  - an interface, displaying high performance computing settings.
     %                       Use hpc_config class directly to modify these
     %                       settings.
     %
@@ -84,8 +84,8 @@ classdef hor_config<config_base
         force_mex_if_use_mex
         % the property, related to high performance computing settings.
         % Here it provided for information only while changes to this
-        % propery should be made through hpc_config class settings directly.
-        hpc_config_info
+        % propery should be made through hpc_config class settiers directly.
+        high_perf_config_info
     end
     properties(Dependent,Hidden)
         % old implementation of log_level property
@@ -175,7 +175,7 @@ classdef hor_config<config_base
                 is = false;
             end
         end
-        function hpcc = get.hpc_config_info(obj)
+        function hpcc = get.high_perf_config_info(obj)
             hpcc = hpc_config;
         end
         %-----------------------------------------------------------------

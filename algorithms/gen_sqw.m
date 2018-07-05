@@ -336,9 +336,11 @@ elseif accumulate_old_sqw
 end
 
 % If no input data range provided, calculate it from the files
-if ~accumulate_old_sqw && isempty(urange_in)
-    urange_in = find_urange(run_files,efix,emode,ix,indx);
-    run_files = run_files(ix); % select only existing runfiles
+if ~accumulate_old_sqw 
+    if isempty(urange_in)
+        urange_in = find_urange(run_files,efix,emode,ix,indx); %calculate urange from all runfiles
+    end
+    run_files = run_files(ix); % select only existing runfiles for further processing
 elseif accumulate_old_sqw
     urange_in=urange_sqw;
 end
@@ -641,8 +643,6 @@ if ~all(ief)
     
     urange_est = rundata_find_urange(missing_rf,cash_det{:});
     
-    %urange_est=calc_urange(efix(~ix),emode(~ix),eps_lo(~ix),eps_hi(~ix),det,alatt(~ix,:),angdeg(~ix,:),...
-    %    u(~ix,:),v(~ix,:),psi(~ix)*d2r,omega(~ix)*d2r,dpsi(~ix)*d2r,gl(~ix)*d2r,gs(~ix)*d2r);
     % Expand range to include urange_est, if necessary
     urange_in=[min(urange_in(1,:),urange_est(1,:)); max(urange_in(2,:),urange_est(2,:))];
 end

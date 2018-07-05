@@ -1,4 +1,4 @@
-function write_nsqw_to_sqw (infiles, outfile,varargin)
+function urange=write_nsqw_to_sqw (infiles, outfile,varargin)
 % Read a collection of sqw files with a common grid and write to a single sqw file.
 %
 %   >> write_nsqw_to_sqw (infiles, outfiles,varargin)
@@ -30,7 +30,8 @@ function write_nsqw_to_sqw (infiles, outfile,varargin)
 %
 % Output:
 % -------
-%   <no output arguments>
+%  urange           -- the limits of the internal coordinates contained in
+%                      the combined fil
 
 
 % T.G.Perring   27 June 2007
@@ -262,6 +263,8 @@ if old_matlab
 else
     npix_cumsum = cumsum(sqw_data.npix(:));
 end
+% instead of pixel information on target sqw file, place in pix field the
+% information about the contributing pixels
 sqw_data.pix = pix_combine_info(infiles,pos_npixstart,pos_pixstart,npix_cumsum,npixtot,run_label);
 
 [fp,fn,fe] = fileparts(outfile);
@@ -278,6 +281,9 @@ wrtr = sqw_formats_factory.instance().get_pref_access('sqw');
 if exist(outfile,'file') == 2 % init may want to upgrade the file and this
     delete(outfile);  %  is not the option we want to do here
 end
+% initialize sqw writer algorithm with sqw file to write, containing a normal sqw
+% object with pix field containing information about the way to accemble
+% pixels
 wrtr = wrtr.init(ds,outfile);
 if combine_in_parallel
     wrtr = wrtr.put_sqw(job_disp);
