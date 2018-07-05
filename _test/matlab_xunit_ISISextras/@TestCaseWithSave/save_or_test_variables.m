@@ -1,4 +1,4 @@
-function this=save_or_test_variables(this,varargin)
+function [this,ref_dataset]=save_or_test_variables(this,varargin)
 % method to test input variable in varargin against saved
 % values or store these variables to the structure to save it
 % later (or deal with them any other way)

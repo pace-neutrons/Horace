@@ -1,5 +1,5 @@
 function [par,this] = load_nxspe_par(this,return_array,varargin)
-% method loads detector parametes using properly initiated nxspe class
+% method loads detector parameters using properly initiated nxspe class
 %
 % usage:
 %>>[par_data,nxspe_loader_instance]=nxspe_loader_instance.load_nxspe_par(return_array,[keep_existing]);
@@ -40,9 +40,9 @@ d_azim  = hdf5read(file_name,[root_folder,'/data/azimuthal_width']);
 
 
 par(4,:) = 2*dist.*tand(0.5*d_pol); % get detector's height according to Toby's definition
-par(5,:) = 2*dist.*sind(polar).*tand(0.5*d_azim); % get detecor's width according to Toby's definition
+par(5,:) = 2*dist.*sind(polar).*tand(0.5*d_azim); % get detector's width according to Toby's definition
 
-if get(herbert_config,'log_level')>0
+if get(herbert_config,'log_level')>1
     disp(['LOADER_NXSPE:load_par::loaded ' num2str(n_det) ' detector(s)']);
 end
 
