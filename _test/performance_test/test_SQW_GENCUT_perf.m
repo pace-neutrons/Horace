@@ -113,6 +113,11 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             % files has different impact on performance
             perf_test = obj.build_test_suite_name(['nf',num2str(obj.n_files_to_use_)]);
             obj.perf_suite_name = perf_test;
+            %
+            pc = parallel_config;
+            if pc.wkdir_is_default
+                pc.working_directory = obj.source_data_dir;
+            end            
             
             %
             filelist = source_nxspe_files_generator(obj.n_files_to_use,...

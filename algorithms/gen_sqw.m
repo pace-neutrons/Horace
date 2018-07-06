@@ -342,7 +342,7 @@ elseif accumulate_old_sqw
 end
 
 % If no input data range provided, calculate it from the files
-if ~accumulate_old_sqw 
+if ~accumulate_old_sqw
     if isempty(urange_in)
         urange_in = find_urange(run_files,efix,emode,ix,indx); %calculate urange from all runfiles
     end
@@ -436,8 +436,8 @@ else
         if log_level>-1
             disp('--------------------------------------------------------------------------------')
         end
-        
-        
+    else
+        delete_tmp = false;
     end
     
 end

@@ -93,7 +93,7 @@ classdef gen_sqw_files_job < JobExecutor
         function [common_par,loop_par] = pack_job_pars(runfiles,tmp_files,...
                 instr,sample, grid_size_in,urange_in)
             % helper function packs gen_sqw  input data into the form, suitable
-            % for jobDispatcher to split berween workers and to prepare
+            % for jobDispatcher to split between workers and to prepare
             % to transmit to this class instance on a separated Matlab
             % worker, where unpacked, these data become the input for
             % do_job method.
@@ -153,7 +153,7 @@ classdef gen_sqw_files_job < JobExecutor
             % which do actually converts all input runfiles into list of
             % sqw (tmp) files.
             %
-            % Used to run a conversion job on a separate matlab session, spawn from
+            % Used to run a conversion job on a separate Matlab session, spawn from
             % gen_sqw so no checks on parameters validity are performed.
             %
             % Input:
