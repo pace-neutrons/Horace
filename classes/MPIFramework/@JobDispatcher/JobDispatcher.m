@@ -20,7 +20,7 @@ classdef JobDispatcher
         % considered failed
         time_to_fail
         % -----------------------------------------------------------------
-        % The convinience interface to internal classes, used by
+        % The convenience interface to internal classes, used by
         % JobDispatcher
         % Returns the string with running job id
         job_id

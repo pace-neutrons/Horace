@@ -142,7 +142,22 @@ classdef parallel_config<config_base
                 work_dir = tempdir;
             end
         end
+        function is = wkdir_is_default(obj)
+        % returns true if working directory has not been set (points to
+        % tmpdir)
+            is_depl = MPI_State.instance().is_deployed;
+            if is_depl
+                work_dir = obj.shared_folder_on_remote;
+            else
+                work_dir = get_or_restore_field(obj,'working_directory');
+            end
+            if isempty(work_dir)
+                is = true;
+            else
+                is = false;            
+            end
         
+        end
         %-----------------------------------------------------------------
         % overloaded setters
         function obj=set.parallel_framework(obj,val)
@@ -235,7 +250,7 @@ classdef parallel_config<config_base
         end
         
         function [ok,err]=check_parpool_can_be_enabled(obj)
-            % check if parallel computing toolbox is availible and can be
+            % check if parallel computing toolbox is available and can be
             % used
             [ok,err]=check_parpool_can_be_enabled_(obj);
         end

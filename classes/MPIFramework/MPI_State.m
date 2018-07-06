@@ -170,6 +170,9 @@ classdef MPI_State<handle
                 else
                     obj.prev_time_interval_ = ttf;
                 end
+                if step > 0
+                    ttf = ttf/step;
+                end
                 % log
                 obj.logger_(step,n_steps,ttf,additional_info);
             end
