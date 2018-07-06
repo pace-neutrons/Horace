@@ -51,7 +51,7 @@ classdef hpc_config < config_base
         % matlab   : this mode uses initial Matlab code to combine multiple
         %            tmp files. Slowest but most reliable method, enabled by
         %            default
-        % mex_code : uses multithreaded compiled C++ mex code to combine
+        % mex_code : uses multi-threaded compiled C++ mex code to combine
         %            multiple files. The mex code needs to be compiled with
         %            appropriate C++11 compiler. In case of parallel file
         %            system can be 10 times faster than Matlab mode.

@@ -62,6 +62,12 @@ function [tmp_file,grid_size,urange] = gen_sqw (spe_file, par_file, sqw_file, ef
 %
 %   'clean'         [Only valid if 'accumulate' is also present]. Delete the sqw file if
 %                  it exists.
+%   'tmp_only'     Debugging option. If selected, gen_sqw only generates
+%                  tmp files but does not combine it together into final
+%                  sqw file. These files can be then combined together into
+%                  sqw file using write_nsqw_to_sqw algorithm. The
+%                  hor_config.remove_tmp_files option's value is ignored
+%                  when this parameter is selected.
 %
 %  'transform_sqw' Keyword, followed by the function handle to transform
 %                  sqw object. The function should have the form:
