@@ -48,13 +48,13 @@ classdef ClusterHerbert < ClusterWrapper
                 obj.matlab_starter_= fullfile(prog_path,'matlab');
             end
             
-            for i=1:n_workers
-                cs = obj.mess_exchange_.gen_worker_init(i,n_workers);
+            for task_id=1:n_workers
+                cs = obj.mess_exchange_.gen_worker_init(task_id,n_workers);
                 worker_init = sprintf('%s(''%s'');exit;',obj.worker_name_,cs);
                 if obj.DEBUG_REMOTE
                     % if debugging client
                     log_file = sprintf('output_jobN%d.log',task_id);
-                    task_info = [{obj.matlab_starter_ },obj.task_common_str_(1:end),...
+                    task_info = [{obj.matlab_starter_ },obj.task_common_str_(1:end-1),...
                         {'-logfile'},{log_file },{'-r'},{worker_init}];
                 else
                     task_info = [{obj.matlab_starter_},obj.task_common_str_(1:end),...
@@ -62,12 +62,12 @@ classdef ClusterHerbert < ClusterWrapper
                 end
                 
                 runtime = java.lang.ProcessBuilder(task_info);
-                obj.tasks_handles_{i} = runtime.start();
-                [ok,failed,mess] = obj.is_running(obj.tasks_handles_{i});
+                obj.tasks_handles_{task_id} = runtime.start();
+                [ok,failed,mess] = obj.is_running(obj.tasks_handles_{task_id});
                 if ~ok && failed
                     error('CLUSTER_HERBERT:runtime_error',...
                         ' Can not start worker N%d#%d, Error: %s',...
-                        i,n_workers,mess);
+                        task_id,n_workers,mess);
                 end
                 
             end
