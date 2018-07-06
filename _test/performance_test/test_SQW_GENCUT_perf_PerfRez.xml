@@ -199,11 +199,11 @@
          <comment>large file-based 1D cut. Energy direction; Whole dataset integration along 3 other directions</comment>
          <completed_on>[2018 6 15 17 19 42.646]</completed_on>
       </cutE_AllInt_filebased_nwk2>
-      <combine_tmp_using_MEX_mode0>
+      <combine_tmp_using_matlab>
          <time_sec>151.154215113103</time_sec>
          <comment>performance of the tmp-files combine procedure</comment>
          <completed_on>[2018 6 16 23 16 46.342]</completed_on>
-      </combine_tmp_using_MEX_mode0>
+      </combine_tmp_using_matlab>
       <gen_sqw_nwk4>
          <time_sec>630.50756469623</time_sec>
          <comment>whole sqw file generation</comment>
