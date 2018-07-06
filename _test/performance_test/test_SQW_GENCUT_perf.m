@@ -196,7 +196,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
                 combine_method = sprintf('%s',method);
             end
             
-            
+            obj.add_to_files_cleanList(obj.sqw_file)
             ts = tic();
             write_nsqw_to_sqw(tmp_files,obj.sqw_file);
             %
@@ -254,6 +254,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             psi= 0.5*(1:nfiles);
             %psi=round(psi);
             
+            obj.add_to_files_cleanList(obj.sqw_file)
             if tests_to_run(1)
                 ts = tic();
                 gen_sqw (obj.test_source_files_list_,'',obj.sqw_file, efix, emode, alatt, angdeg,u, v, psi, omega, dpsi, gl, gs,'replicate');
