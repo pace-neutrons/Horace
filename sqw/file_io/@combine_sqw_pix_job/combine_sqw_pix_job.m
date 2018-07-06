@@ -2,6 +2,8 @@ classdef combine_sqw_pix_job < JobExecutor
     % combine pixels located in multiple sqw files into continuous pixels block
     % located in a single sqw file
     %
+    %
+    %
     % $Revision: 780 $ ($Date: 2018-06-28 12:23:05 +0100 (Thu, 28 Jun 2018) $)
     %
     
@@ -13,6 +15,50 @@ classdef combine_sqw_pix_job < JobExecutor
         function obj = combine_sqw_pix_job()
             obj = obj@JobExecutor();
         end
+        function obj=do_job(obj)
+        end
+        function obj=reduce_data(obj)
+            obj.is_finished_  = true;
+        end
+        function ok = is_completed(obj)
+            ok = obj.is_finished_;
+        end
+        
+        % submethods necessary for main workflow
+        %------------------------------------------------------------------
+        function write_npix_to_pix_blocks(obj,fout,pix_out_position,pix_comb_info)
+            % take pixels from the contributing files and place them into final sqw
+            % file pixels block
+            %
+            % Inputs:
+            % fout             -- filehandle or filename of target sqw file
+            % pix_out_position -- the position where pixels should be located in the
+            %                     target binary file
+            % pix_comb_info    -- the class containing the information about the input
+            %                     files to combine, namely the fields:
+            %
+            %   infiles         Cell array of file names, or array of file identifiers of open files, from
+            %                   which to accumulate the pixel information
+            %   pos_npixstart   Position (in bytes) from start of file of the start of the field npix
+            %   pos_pixstart    Position (in bytes) from start of file of the start of the field pix
+            %   npix_cumsum     Accumulated sum of number of pixels per bin across all the files
+            %   run_label       Indicates how to re-label the run index (pix(5,...)
+            %                       'fileno'        relabel run index as the index of the file in the list infiles
+            %                       'nochange'      use the run index as in the input file
+            %                        numeric array  offset run numbers for ith file by ith element of the array
+            %                   This option exists to deal with three limiting cases:
+            %                    (1) The run index is already written to the files correctly indexed into the header
+            %                       e.g. as when temporary files have been written during cut_sqw
+            %                    (2) There is one file per run, and the run index in the header block is the file
+            %                       index e.g. as in the creating of the master sqw file
+            %                    (3) The files correspond to several runs in general, which need to
+            %                       be offset to give the run indices into the collective list of run parameters
+            %
+            % As the result -- writes combined pixels block to the ouput sqw file.
+            
+            write_npix_to_pix_blocks_(obj,fout,pix_out_position,pix_comb_info);
+        end
+        
         function [pix_section,pos_pixstart]=...
                 read_pix_for_nbins_block(obj,fid,pos_pixstart,npix_per_bin,...
                 run_label,change_fileno,relabel_with_fnum)
@@ -22,61 +68,29 @@ classdef combine_sqw_pix_job < JobExecutor
             % Inputs:
             % fid -- array of open file identifiers.
             % pos_pixstart -- binary positions of the start of the pixels
-            %                 block
-            % npix_per_bin -- number of pixels within selected bin block
-            % run_label    -- array of numbers which distinguish one input
-            %                 file from another
+            %                 block to process
+            % npix_per_bin -- 2D array of numbers of pixels per bin per file
+            %                 within selected bin block
+            % run_label    -- array of numbers to distinguish one input
+            %                 file from another. Added to current
             % change_fileno-- boolean specifies if pixel info should be
-            %                 relabeled according to runlabel or filenum
+            %                 relabelled according to runlabel or filenum
             % relabel_with_fnum -- boolean specifies if pixel info should
-            %                 be relabeled by runlabel or filenum depending
+            %                 be relabelled by runlabel or filenum depending
             %                 on this switch.
             %
-            npix_per_file = sum(npix_per_bin,2);
-            n_bin2_process= size(npix_per_bin,2);
-            nfiles        = size(npix_per_bin,1);
-            
-            % Read pixels from input files
-            pix_tb=cell(nfiles,n_bin2_process);  % buffer for pixel information
-            npixels = 0;
-            %
-            bin_filled = false(n_bin2_process,1);
-            for i=1:nfiles
-                if npix_per_file(i)>0
-                    [pix_buf,pos_pixstart(i)] = ...
-                        obj.read_pixels(fid(i),pos_pixstart(i),npix_per_file(i));
-                    [bin_cell,nonempty_bin] = split_pix_per_bin_(pix_buf,npix_per_bin(i,:),...
-                        i,run_label(i),change_fileno,relabel_with_fnum);
-                    pix_tb(i,nonempty_bin) = bin_cell(:);
-                    npixels = npixels +numel(pix_tb{i});
-                    bin_filled(nonempty_bin) = true;
-                end
-            end
-            %
-            % combine pix from all files according to the bin
-            pix_tb = pix_tb(:,bin_filled); % accelerate combiniong by removing empty cells
-            pix_section = cat(2,pix_tb{:});
-            
+            [pix_section,pos_pixstart]=...
+                read_pix_for_nbins_block_(obj,fid,pos_pixstart,npix_per_bin,...
+                run_label,change_fileno,relabel_with_fnum);
             
         end
         function n_pix_written=write_pixels(obj,fout,pix_section,n_pix_written)
-            % Write to the output file
+            % Write properly formed pixels block to the output file
             
             %pix_buff = [pix_section{:}];
             %pix_buff  = reshape(pix_buff,numel(pix_buff),1);
-            
-
             fwrite(fout,pix_section,'float32');    % write to output file
-            n_pix_written = n_pix_written+size(pix_section,2);            
-        end
-        
-        function obj=do_job(obj)
-        end
-        function obj=reduce_data(obj)
-            obj.is_finished_  = true;
-        end
-        function ok = is_completed(obj)
-            ok = obj.is_finished_;
+            n_pix_written = n_pix_written+size(pix_section,2);
         end
         
     end
@@ -110,13 +124,13 @@ classdef combine_sqw_pix_job < JobExecutor
         function [npix_2_read,npix_processed,npix_per_bins_left,npix_in_bins_left] = ...
                 nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,pix_buf_size)
             % calculate number of bins to read enough pixels to fill pixels
-            % buffer and recalculate the number of pixes to read from every
+            % buffer and recalculate the number of pixels to read from every
             % contributing file.
             % Inputs:
             % npix_per_bins -- 2D array containing the section of numbers of
             %                  pixels per bin per file
             % npix_in_bins  -- cumulative sum of pixels in bins of all files
-            % bin_start     -- first bin to analyze from the npix_section
+            % bin_start     -- first bin to analyse from the npix_section
             %                 and npix_in_bins
             % pix_buf_size -- the size of pixels buffer intended for
             %                 writing
@@ -124,7 +138,7 @@ classdef combine_sqw_pix_job < JobExecutor
             % npix_2_read  --  2D array, containing the number of pixels
             %                  in bins to read per file.
             % npix_processed --total number of pixels to process during
-            %                  folowing read operation. Usually equal to
+            %                  flowing read operation. Usually equal to
             %                  pix_buf_size if there are enough pixels
             %                  left.
             % npix_per_bins_left -- reduced 2D array containing the section of
@@ -142,6 +156,13 @@ classdef combine_sqw_pix_job < JobExecutor
         end
         %
         function [pix_buffer,pos_pixstart] = read_pixels(fid,pos_pixstart,npix2read)
+            % read pixel block of the appropriate size and move read
+            % pointer to the next position
+            %Inputs:
+            % fid          -- the file identified of an opened file
+            % pos_pixstart -- the initial position of the pix block to read
+            % npix2read    -- number of pixels to read
+            %
             fseek(fid,pos_pixstart,'bof');
             [pix_buffer,count_out] = fread(fid,[9,npix2read],'*float32');
             if count_out ~=9*npix2read
@@ -154,7 +175,7 @@ classdef combine_sqw_pix_job < JobExecutor
                 error('SQW_FILE_IO:runtime_error',...
                     'Error N%d during IO operation: %s',f_errnum,f_message);
             end
-            pos_pixstart = ftell(fid); %pos_pixstart+npix2read;
+            pos_pixstart = ftell(fid); %set up next read position
         end
         %
     end

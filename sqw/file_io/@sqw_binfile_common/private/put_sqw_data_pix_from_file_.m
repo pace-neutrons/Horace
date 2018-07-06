@@ -45,25 +45,23 @@ function obj = put_sqw_data_pix_from_file_(obj, pix_comb_info,jobDispatcher)
 % $Revision$ ($Date$)
 
 
-% Get number of files
-nfiles = pix_comb_info.nfiles;
 
-% Check run_label:
-relabel_with_fnum=pix_comb_info.relabel_with_fnum;
-change_fileno  = pix_comb_info.change_fileno;
 
 % size of buffer to hold pixel information, the log level and if use mex to
 % build the result
 
-[pmax,log_level] = config_store.instance().get_value('hor_config','mem_chunk_size','log_level');
-use_mex = config_store.instance().get_value('hpc_config','combine_sqw_using');
+combine_algorithm = config_store.instance().get_value('hpc_config','combine_sqw_using');
 
 pix_out_position = obj.pix_pos_;
-if strcmp(use_mex,'mex_code')
+if strcmp(combine_algorithm,'mex_code')
     fout_name = fullfile(obj.filepath,obj.filename);
     pix_out_pos = obj.pix_position;
     obj = obj.fclose();
     n_bins = numel(pix_comb_info.npix_cumsum);
+    % Check run_label:
+    relabel_with_fnum=pix_comb_info.relabel_with_fnum;
+    change_fileno  = pix_comb_info.change_fileno;
+    
     [mess,infiles] = combine_files_using_mex(fout_name,n_bins,pix_out_pos,...
         pix_comb_info.infiles,pix_comb_info.pos_npixstart, pix_comb_info.pos_pixstart,pix_comb_info.run_label,...
         change_fileno,relabel_with_fnum);
@@ -80,133 +78,10 @@ if strcmp(use_mex,'mex_code')
     end
 else
     fout = obj.file_id_;
-    fseek(fout,pix_out_position,'bof');
-    check_error_report_fail_(obj,...
-        ['Unable to move to the start of the pixel record in target file ',...
-        obj.filename,' after mex-combine failed']);
+    je =combine_sqw_pix_job();
+    je.write_npix_to_pix_blocks(fout,pix_out_position,pix_comb_info);
 end
 
-
-% Open all input files and move to the start of the pixel information
-% [Currently opens all the input files simultaneously.  (TGP desktop PC on 1 July 2007 machine will open up to 509 files when tested)
-% Opening all files may cause problems as I don't know what the reasonable default is, but I assume is faster than constantly opening
-% and closing a hundred or more files]
-
-if isnumeric(pix_comb_info.infiles)
-    fid = pix_comb_info.infiles;   % copy fid
-    for i=1:nfiles
-        if isempty(fopen(fid(i)))
-            error('SQW_FILE_IO:runtime_error',...
-                'No open file N %d with file identifier %d',i,fid(i));
-        end
-    end
-else
-    fid=zeros(nfiles,1);
-    for i=1:nfiles
-        [fid(i),mess]=fopen(pix_comb_info.infiles{i},'r');
-        if fid(i)<0
-            for j=1:i-1; fclose(fid(j)); end    % close all the open input files
-            error('SQW_FILE_IO:runtime_error',...
-                'Unable to open all input files concurrently: %s',mess);
-        end
-    end
-    clob = onCleanup(@()fcloser(fid));  % I hope this routine has full function visibility
-    for i = 1:nfiles
-        fseek(fid(i),pix_comb_info.pos_pixstart(i),'bof'); % Move directly to location of start of pixel data 
-        check_error_report_fail_(obj,...                   % to ensure this is possible
-            sprintf('Unable to move to the start of the pixel record for the  input file N%d after mex-combine failed',...
-            i));
-    end
-end
-
-
-
-% Write the pixel information to the file
-%  The algorithm works as follows:
-%       - Outer loop: deals with each of the bins in the grid for the output file in turn
-%       - Inner loop: for each input file in turn, read the corresponding pixel information for that bin and then
-%                     write to the output file
-%  This is done because in general there is simply insufficient memory to hold the whole contents of all the files
-%
-%  We cannot read the number of pixels in each bin from all the individual input files, as we do not have enough
-%  memory even for that, in general. We need to read these in, a section at a time, into a buffer.
-% (For example, if 50^4 grid, 300 files then array size of npix= 8*300*50^4 = 15GB).
-%profile on
-
-t_io_total  = 0;
-t_all_total=0;
-
-nbin = numel(pix_comb_info.npix_cumsum);     % total number of bins
-
-n_pix_written = 0;
-ibin_end = 0;
-je =combine_sqw_pix_job();
-mess_completion(pix_comb_info.npix_cumsum(end),5,1);   % initialise completion message reporting - only if exceeds time threshold
-
-pix_buf_size=pmax;
-pos_pixstart = pix_comb_info.pos_pixstart;
-while ibin_end<nbin
-    
-    % Refill buffer with next section of npix arrays from the input files
-    ibin_start = ibin_end+1;
-    [npix_per_bins,npix_in_bins,ibin_end]=combine_sqw_pix_job.get_npix_section(fid,pix_comb_info.pos_npixstart,ibin_start,nbin);
-    npix_per_bins = npix_per_bins';
-    
-    % Get the largest bin index such that the pixel information can be put in buffer
-    % (We hold data for many bins in a buffer, as there is an overhead from reading each bin from each file separately;
-    % only read when the bin index fills as much of the buffer as possible, or if reaches the end of the array of buffered npix)
-    n_pix_2process = npix_in_bins(end);
-    npix_processed = 0;  % last pixel index for which data has been written to output file
-    while npix_processed < n_pix_2process
-        if (log_level>1)
-            t_all=tic;
-        end
-        
-        [npix_per_bin2_read,npix_processed,npix_per_bins,npix_in_bins] = ...
-            combine_sqw_pix_job.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,pix_buf_size);
-        
-        if (log_level>1)
-            tr = tic;
-        end
-        [pix_section,pos_pixstart]=...
-            je.read_pix_for_nbins_block(fid,pos_pixstart,npix_per_bin2_read,...
-            pix_comb_info.run_label,change_fileno,relabel_with_fnum);
-        if (log_level>1)
-            t_read=toc(tr);
-            disp(['   ***time to read subcells from files: ',num2str(t_read),' speed: ',num2str(npix_processed*4*9/t_read/(1024*1024)),'MB/sec'])
-        end
-        
-        %
-        if (log_level>1)
-            t_w = tic;
-        end
-        n_pix_written =je.write_pixels(fout,pix_section,n_pix_written);
-        
-        if (log_level>1)
-            t_write = toc(t_w);
-            t_total=toc(t_all);
-            t_io   = t_write+t_read;
-            t_io_total = t_io_total+t_io;
-            t_all_total = t_all_total+t_total;
-            disp(['   ***time to write pixels: ',num2str(t_write),' speed: ',num2str(npix_processed*4*9/t_write/(1024*1024)),'MB/sec'])
-            disp(['   ***IO time to total time ratio: ',num2str(100*t_io/t_total),'%'])
-        end
-        
-        mess_completion(n_pix_written)
-    end
-end
-
-%profile off
-%profile viewer
-clear clob;
-mess_completion
-if (log_level>1)
-    file_size = n_pix_written*9*4/(1024*1024);
-    disp(['***   IO time to total time ratio: ',num2str(100*t_io_total/t_all_total),'%'])
-    disp(['*** Size of the generated file is: ',num2str(file_size),'MB'])
-end
-% disp([' single bin write operations: ',num2str(nsinglebin_write)])
-% disp(['     buffer write operations: ',num2str(nbuff_write)])
 
 
 %
@@ -284,8 +159,3 @@ if log_level>1
     fprintf(' At the time  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));
 end
 
-function fcloser(fid)
-nfiles = numel(fid);
-for j=1:nfiles
-    fclose(fid(j));
-end

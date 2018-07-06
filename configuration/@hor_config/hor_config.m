@@ -29,9 +29,9 @@ classdef hor_config<config_base
     %   delete_tmp        - Automatically delete temporary files after generating sqw files
     %   working_directory - The folder to write tmp files.
     %   --
-    %   high_perf_config_info - helper/compartibility property to access high performance
+    %   high_perf_config_info - helper/compatibility property to access high performance
     %                       computing settings. Use hpc_config to modify hpc
-    %                       settings intself.
+    %                       settings itself.
     %
     %   force_mex_if_use_mex - Fail if mex can not be used. Used in mex files debugging
     %--
@@ -55,7 +55,7 @@ classdef hor_config<config_base
         ignore_nan
         % ignore inf values if pixels have them. %  (default --false)
         ignore_inf
-        % The verbocity of the log messages
+        % The verbosity of the log messages
         %      The larger the value, the more information is printed, e.g.:
         %  -1  No information messages printed
         %   0  Major information messages printed
@@ -79,12 +79,12 @@ classdef hor_config<config_base
         % directory)
         working_directory
         % testing and debugging option -- fail if mex can not be used
-        % By defauld if mex file fails, program tries to use Matlab, but
+        % By default if mex file fails, program tries to use Matlab, but
         % if this option is set to true, the whole operation may fail.
         force_mex_if_use_mex
         % the property, related to high performance computing settings.
         % Here it provided for information only while changes to this
-        % propery should be made through hpc_config class settiers directly.
+        % property should be made through hpc_config class setters directly.
         high_perf_config_info
     end
     properties(Dependent,Hidden)

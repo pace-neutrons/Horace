@@ -10,15 +10,16 @@ if change_fileno
         end
     end
 end
-
-
+%pix_ind_end   = cumsum(pix_per_bin);
+%pix_ind_start = pix_end-pix_per_bin+1;
 
 nonempty_bin_ind = find(pix_per_bin);
 n_nonempty_cells = numel(nonempty_bin_ind);
 pix_cellarray = cell(n_nonempty_cells ,1);
-pix_start = cumsum(pix_per_bin)-pix_per_bin;
+pix_ind_end   = cumsum(pix_per_bin);
+pix_ind_start = pix_ind_end-pix_per_bin+1;
 for i=1:n_nonempty_cells 
-    nid = nonempty_bin_ind(i);
-    pix_cellarray{i} = pix_buf(:,pix_start(nid)+1:pix_start(nid)+pix_per_bin(nid ));
+    nid = nonempty_bin_ind(i); % 80% of time spent on the following row.
+    pix_cellarray{i} = pix_buf(:,pix_ind_start(nid):pix_ind_end(nid));
 end
 

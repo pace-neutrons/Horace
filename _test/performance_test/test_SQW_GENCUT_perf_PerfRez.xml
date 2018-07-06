@@ -1052,4 +1052,20 @@
          <completed_on>[2018 6 21 18 3 27.390375]</completed_on>
       </gen_sqw_nwk50>
    </scarf_parpool_nf10>
+   <ndmlnx02_SQW_GENCUT_perf/>
+   <ndmlnx02_nf50>
+      <combine_tmp_using_matlab>
+         <time_sec>312.839443</time_sec>
+         <comment>performance of the tmp-files combine procedure</comment>
+         <completed_on>[2018 7 6 11 8 12.610498]</completed_on>
+      </combine_tmp_using_matlab>
+   </ndmlnx02_nf50>
+   <ndmlnx02_isis_cclrc_ac_uk_SQW_GENCUT_perf/>
+   <ndmlnx02_isis_cclrc_ac_uk_nf50>
+      <combine_tmp_using_MATLAB_old>
+         <time_sec>247.076682</time_sec>
+         <comment>performance of the tmp-files combine procedure</comment>
+         <completed_on>[2018 7 6 12 2 3.24651]</completed_on>
+      </combine_tmp_using_MATLAB_old>
+   </ndmlnx02_isis_cclrc_ac_uk_nf50>
 </SQW_GENCUT_perf>
