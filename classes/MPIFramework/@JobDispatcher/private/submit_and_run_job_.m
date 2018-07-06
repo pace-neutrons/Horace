@@ -22,7 +22,7 @@ function [outputs,n_failed,task_ids,obj] = submit_and_run_job_(obj,...
 %
 
 
-exit_worker_when_job_ends = cluster_wrp.exit_worker_when_job_ends;cd 
+exit_worker_when_job_ends = cluster_wrp.exit_worker_when_job_ends;
 n_workers                 = cluster_wrp.n_workers;
 % access to class responsible for communications between head node
 % and the pool of workers

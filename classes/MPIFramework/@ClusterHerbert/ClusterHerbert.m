@@ -21,7 +21,7 @@ classdef ClusterHerbert < ClusterWrapper
     properties(Constant,Access = private)
         task_common_str_ = {'-nosplash','-nodesktop','-r'};
         DEBUG_REMOTE = false;
-        % the name of the function to run a remote job. The function must be 
+        % the name of the function to run a remote job. The function must be
         % on the Matlab data search path before Horace is initialized.
         worker_name_ = 'worker_v1';
     end
