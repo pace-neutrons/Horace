@@ -57,7 +57,7 @@ try
         ld = {ld};
     end
 catch ME
-    mess = ME.msgtext;
+    mess = ME.message;
     return;
 end
 for i=1:numel(filename)

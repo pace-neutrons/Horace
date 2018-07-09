@@ -104,15 +104,69 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             run_label = 2*(1:n_files);
             pos_pixstart = zeros(n_files,1);
             npix_per_bin = randi(10,n_files,5)-1;
+            filenums = 1:10;
             
             rd =combine_sqw_job_tester();
             [pix_section,pos_pixstart]=rd.read_pix_for_nbins_block(...
-                fid,pos_pixstart,npix_per_bin,run_label,true,false);
+                fid,pos_pixstart,npix_per_bin,filenums,run_label,true,false);
             
             assertEqual( pos_pixstart,sum(npix_per_bin,2));
             assertEqual(size(pix_section),[9,sum(sum(npix_per_bin))]);
             %assertEqual(size(pix_section{2}),[9,sum(npix_per_bin(:,2))]);            
             %assertEqual(size(pix_section{3}),[9,sum(npix_per_bin(:,3))]);                        
         end
+        function   xest_do_combine_sqw_pix_job(obj)
+            mis = MPI_State.instance('clear');
+            mis.is_tested = true;
+            mis.is_deployed = true;
+            clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));
+            
+            obj= build_test_files(obj);
+            
+            
+            [~,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
+            efix=efix(1:2);
+            psi=psi(1:2);
+            omega=omega(1);
+            dpsi = dpsi(1);
+            gl = gl(1);
+            gs = gs(1);
+            
+            tmp_files=gen_sqw (obj.spe_file(1:2), '', 'dummy', efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs,'tmp_only');
+            clof = onCleanup(@()(obj.delete_files(tmp_files)));
+
+            
+            serverfbMPI  = MessagesFilebased('combine_sqw_pix_job');
+            serverfbMPI.mess_exchange_folder = tempdir();
+            clob1 = onCleanup(@()finalize_all(serverfbMPI));
+            
+            
+            css1= serverfbMPI.gen_worker_init(1,2);
+            css2= serverfbMPI.gen_worker_init(2,2);            
+            % create response filebased framework as would on worker
+            control_struct = iMessagesFramework.deserialize_par(css1);
+            fbMPI1 = MessagesFilebased(control_struct);
+            control_struct = iMessagesFramework.deserialize_par(css2);            
+            fbMPI2 = MessagesFilebased(control_struct);            
+            
+            [task_id_list,init_mess]=JobDispatcher.split_tasks(common_par,loop_par,true,1);
+            je = gen_sqw_files_job();
+            je = je.init(fbMPI,control_struct,init_mess{1});
+            
+            mis.logger = @(step,n_steps,time,add_info)...
+                (je.log_progress(step,n_steps,time,add_info));
+            
+            
+            [ok,err]=serverfbMPI.receive_message(1,'started');
+            assertEqual(ok,MESS_CODES.ok,err);
+            
+            je.do_job();
+            
+            assertTrue(exist(tmp_file,'file')==2);
+            [ok,err]=serverfbMPI.receive_message(1,'running');
+            assertEqual(ok,MESS_CODES.ok,err);
+            
+        end        
+        
     end
 end

@@ -33,7 +33,8 @@ function write_npix_to_pix_blocks_(obj,fout,pix_out_position,pix_comb_info)
 
 
 [pmax,log_level] = config_store.instance().get_value('hor_config','mem_chunk_size','log_level');
-% Get number of files
+
+
 if isnumeric(fout)
     filename = fopen(fout);
 else
@@ -45,6 +46,9 @@ check_error_report_fail_(fout,...
     ['Unable to move to the start of the pixel record in THE target file ',...
     filename ,' starting matlab-combine']);
 
+
+
+% Get number of files
 fid = verify_and_reopen_input_files_(pix_comb_info);
 % Always close opened files on the procedure completion
 clob = onCleanup(@()fcloser_(fid));  %
@@ -67,17 +71,18 @@ clob = onCleanup(@()fcloser_(fid));  %
 relabel_with_fnum= pix_comb_info.relabel_with_fnum;
 change_fileno    = pix_comb_info.change_fileno;
 run_label        = pix_comb_info.run_label;
+filenum          = pix_comb_info.filenum;
 
 % time counters
 t_io_total  = 0;
 t_all_total=0;
 
-nbin = numel(pix_comb_info.npix_cumsum);     % total number of bins
+nbin = pix_comb_info.nbins;     % total number of bins
 
 n_pix_written = 0;
 ibin_end = 0;
 
-mess_completion(pix_comb_info.npix_cumsum(end),5,1);   % initialise completion message reporting - only if exceeds time threshold
+mess_completion(pix_comb_info.npixels,5,1);   % initialise completion message reporting - only if exceeds time threshold
 
 pix_buf_size=pmax;
 pos_pixstart = pix_comb_info.pos_pixstart;
@@ -106,7 +111,7 @@ while ibin_end<nbin
         end
         [pix_section,pos_pixstart]=...
             obj.read_pix_for_nbins_block(fid,pos_pixstart,npix_per_bin2_read,...
-            run_label,change_fileno,relabel_with_fnum);
+            filenum,run_label,change_fileno,relabel_with_fnum);
         if (log_level>1)
             t_read=toc(tr);
             disp(['   ***time to read subcells from files: ',num2str(t_read),' speed: ',num2str(npix_processed*4*9/t_read/(1024*1024)),'MB/sec'])

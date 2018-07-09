@@ -7,6 +7,7 @@ classdef pix_combine_info
     %
     properties(Access = protected)
         n_pixels_ = 'undefined';
+        filenum_ = [];
     end
     
     properties(Access=public)
@@ -18,10 +19,9 @@ classdef pix_combine_info
         % array of starting positions of the pix information in each
         % contributing file
         pos_pixstart;
-        % Cumulative sum of numbers of all pixels, contributing into sqw
-        % file as function of bin number. Defines positions of each cell's
-        % pixels block in 1D array of pixels
-        npix_cumsum;
+        % number of bins in the contributing sqw(tmp) files. Should be the
+        % same for all  files to be combined together.
+        nbins;
         % array of numbers of pixels stored in each contributing file
         npix_file_tot;
         %   run_label   Indicates how to re-label the run index (pix(5,...)
@@ -49,32 +49,34 @@ classdef pix_combine_info
         relabel_with_fnum;
         % true if pixel id for each pixel from contributing files should be changed.
         change_fileno
+        % numbers of files used as runlabel for pixels if relabel_with_fnum
+        % and change_fileno are set to true
+        filenum
     end
     
     
     methods
         %
-        function obj = pix_combine_info(infiles,pos_npixstart,pos_pixstart,npix_cumsum,npixtot,run_label)
+        function obj = pix_combine_info(infiles,nbins,pos_npixstart,pos_pixstart,npixtot,run_label,filenums)
             obj.infiles = infiles;
             if ~exist('pos_npixstart','var') % pre-initialization for file-based combining of the cuts.
                 nfiles = obj.nfiles;
                 obj.pos_npixstart = zeros(1,nfiles);
                 obj.pos_pixstart  = zeros(1,nfiles);
                 obj.npix_file_tot       = zeros(1,nfiles);
-                obj.npix_cumsum   = [];
+                obj.nbins   = 0;
                 obj.run_label     = 'nochange';
                 return;
             end
             obj.pos_npixstart= pos_npixstart;
             obj.pos_pixstart = pos_pixstart;
             obj.run_label    = run_label;
-            obj.npix_cumsum  = npix_cumsum;
+            obj.nbins        = nbins;
             obj.npix_file_tot    = npixtot;
             obj.n_pixels_ = uint64(sum(npixtot));
-            if obj.npixels ~= npix_cumsum(end)
-                error('SQW_FILE_IO:runtime_error',...
-                    'Wrong input for combine multiple files: Number of pixels in all files %d is not equal to number of pixels in their combination %d',...
-                    obj.n_pixels_,npix_cumsum(end));
+
+            if exist('filenums','var')
+                obj.filenum_ = filenums;
             end
         end
         %
@@ -125,6 +127,47 @@ classdef pix_combine_info
             end
             
         end
+        function fn = get.filenum(obj)
+            if isempty(obj.filenum_)
+                fn = 1:obj.nfiles;
+            else
+                fn = obj.filenum_;
+            end
+        end
+        function parts_carr= split_into_parts(obj,n_workers)
+            % function divided pix_combine_info into the specified number
+            % of parts to
+            n_tasks = obj.n_files;
+            if n_workers> n_tasks
+                n_workers = n_tasks;
+            end
+            % caclulate the indexes of an array to divide job array among
+            % all workers
+            split_ind= calc_job_indexes_(n_tasks,n_workers);
+            files   = obj.infiles;
+            if isnumeric(files) % its opened files
+                files = cell(1,n_tasks);
+                for i=1:n_tasks
+                    files{i} = fopen(obj.infiles(i));
+                    fclose(obj.infiles(i));
+                end
+            end
+            
+            parts_carr = cell(1,n_workers);
+            pnbins = obj.nbins;
+            filenums = 1:n_tasks;
+            for i=1:n_workers
+                part_files    = files(split_ind(1,i):split_ind(2,i));
+                ppos_npixstart = obj.pos_npixstart(split_ind(1,i):split_ind(2,i));
+                ppos_pixstart  = obj.pos_pixstart (split_ind(1,i):split_ind(2,i));
+                prun_label     = obj.run_label(split_ind(1,i):split_ind(2,i));
+                pnpixtot       = obj.npix_file_tot(split_ind(1,i):split_ind(2,i));
+                pfilenums    = filenums(split_ind(1,i):split_ind(2,i));
+                %
+                parts_carr{i} = pix_combine_info(pnbins,part_files,ppos_npixstart,ppos_pixstart,pnpixtot,prun_label,pfilenums);
+            end
+            
+        end
         %
         function obj=trim_nfiles(obj,nfiles_to_leave)
             % Constrain the number of files and the file information,
@@ -150,13 +193,8 @@ classdef pix_combine_info
             obj.npix_file_tot= obj.npix_file_tot(1:nfiles_to_leave);
             
             obj.n_pixels_ = uint64(sum(obj.npix_file_tot));
-            if obj.npixels ~= obj.npix_cumsum(end)
-                error('SQW_FILE_IO:runtime_error',...
-                    ['Wrong input for combine multiple files:',...
-                    ' Number of pixels in all files: %d',...
-                    ' is not equal to number of pixels',...
-                    ' in their combination %d'],...
-                    obj.n_pixels_,obj.npix_cumsum(end));
+            if ~isempty(obj.filenum_)
+                obj.filenum_ = obj.filenum_(1:nfiles_to_leave);
             end
             
         end
