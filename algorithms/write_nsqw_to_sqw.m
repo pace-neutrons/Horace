@@ -25,7 +25,7 @@ function urange=write_nsqw_to_sqw (infiles, outfile,varargin)
 %                       missing) so either this keyword or hpc_config
 %                       option or the instance of the JobDispatcher has to
 %                       be present to combine sqw files in  parallel.
-% JobDispatcherInstance-- the initalized instance of JobDispatcher,
+% JobDispatcherInstance-- the initialized instance of JobDispatcher,
 %                       to use in combining sqw files in parallel
 %
 % Output:
@@ -206,7 +206,7 @@ if hor_log_level>-1
 end
 
 if combine_in_parallel
-    % until combine in parallel compltedte shut down the parallel pool
+    % until combine in parallel is completed, shut down the parallel pool
     % after combining headers
     keep_workers_running = false;
     [common_par,loop_par] = accumulate_headers_job.pack_job_pars(ldrs);
@@ -263,9 +263,9 @@ if old_matlab
 else
     npix_cumsum = cumsum(sqw_data.npix(:));
 end
-% instead of pixel information on target sqw file, place in pix field the
-% information about the contributing pixels
-sqw_data.pix = pix_combine_info(infiles,pos_npixstart,pos_pixstart,npix_cumsum,npixtot,run_label);
+% instead of the real pixels to place in target sqw file, place in pix field the
+% information about the way to get the contributing pixels
+sqw_data.pix = pix_combine_info(infiles,numel(sqw_data.npix),pos_npixstart,pos_pixstart,npixtot,run_label);
 
 [fp,fn,fe] = fileparts(outfile);
 main_header_combined.filename = [fn,fe];
@@ -282,7 +282,7 @@ if exist(outfile,'file') == 2 % init may want to upgrade the file and this
     delete(outfile);  %  is not the option we want to do here
 end
 % initialize sqw writer algorithm with sqw file to write, containing a normal sqw
-% object with pix field containing information about the way to accemble
+% object with pix field containing information about the way to assemble the
 % pixels
 wrtr = wrtr.init(ds,outfile);
 if combine_in_parallel
