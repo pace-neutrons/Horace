@@ -36,7 +36,7 @@ function [tmp_file,sqw_file_tmp] = gen_tmp_filenames (spe_file, sqw_file,ind)
 %                  output to, and then rename as sqw_file.
 %
 %
-% Note: the functions that call this routine should already have checke that none
+% Note: the functions that call this routine should already have checked that none
 %       of the spe file input has extension '.tmp' or '.sqw'. This should avoid any
 %       possibility of overwriting an spe file when the tmp files are created.
 
@@ -76,24 +76,33 @@ end
 
 %
 hc = hor_config;
-%
 wk_dir_is_default = hc.wkdir_is_default;
-if wk_dir_is_default % if working directory has not been explicitly set,
-    % set is to the folder where sqw files are located
-    if isempty(tmp_path)
+
+if isempty(tmp_path) % always write tmp files where sqw file located
+    if wk_dir_is_default % if working directory has not been explicitly set,
         if isempty(spe_path)
             tmp_path = pwd;
         else
             hc.working_directory = spe_path;
             tmp_path = spe_path;
-            
         end
     else
-        hc.working_directory = tmp_path;
+        tmp_path= hc.working_directory;
     end
-else % use explicitly defined working directory to store tmp files
-    tmp_path= hc.working_directory;
+else
+    if wk_dir_is_default
+        hc.working_directory = tmp_path;
+    else
+        pc = parallel_config;
+        rem_dir = pc.shared_folder_on_remote;
+        loc_dir = pc.shared_folder_on_local;
+        if strcmpi(rem_dir,loc_dir) %TODO: This needs further analysis of the logic
+            hc.working_directory = tmp_path;
+        end
+    end
 end
+%
+
 
 
 % Must account for the possibility that the spe file is repeated, or that
