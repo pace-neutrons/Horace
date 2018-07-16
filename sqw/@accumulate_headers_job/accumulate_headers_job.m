@@ -115,6 +115,35 @@ classdef accumulate_headers_job < JobExecutor
                 mess_completion
             end
         end
+        function [main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
+                read_input_headers(infiles)
+            % function prepares input headers data for write_nswq_to_sqw
+            % procedure.
+            % Inputs:
+            % infiles -- list of input tmp files to combine using
+            %             write_nswq_to_sqw 
+            % Outputs:  
+            %                 (see sqw file format for the details of the
+            %                 fields);
+            % main_header  -- cellarray of main headers for all contributed
+            %                 infiles
+            % header       -- cellarray of headers for all contributed
+            %                 infiles
+            % datahdr      -- cellarray of data headers for all contributed
+            %                 infiles
+            % pos_npixstart -- for binary sqw files, array of locations of
+            %                  npix information in contributed infiles
+            % pos_pixstart  -- for binary sqw files, array of locations of
+            %                  pix information in contributed infiles
+            % npixtot       -- array of number of pixels per each infile
+            % det           -- detectors information (must be the same for
+            %                  all contributed infiles)
+            % ldrs          -- cellarray of correspondent loaders, to read data from
+            %                  each infile. The loaders are initalized i.e.
+            %                  associated with correspondedn infile
+            [main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
+                read_input_headers_(infiles);
+        end
         
         function [common_par,loop_par] = pack_job_pars(sqw_loaders)
             % Pack the accumulating job parameters into the form, suitable
