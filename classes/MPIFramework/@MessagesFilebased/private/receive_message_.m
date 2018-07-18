@@ -47,8 +47,8 @@ while ~mess_present
         % check if message is as requested
         if ~isempty(mess_name)
             tid_requested = ismember(mess_names,{mess_name,'failed'});
-            mess_names  = mess_names(tid_requested);
             mid_from    = mid_from (tid_requested);
+            mess_names  = mess_names(tid_requested);
         end
         if ~isempty(mid_from)
             mess_present = true;
@@ -70,6 +70,7 @@ while ~mess_present
         end
     end
 end
+
 
 % take only the first message directed to this lab
 mess_fname = obj.job_stat_fname_(obj.labIndex,mess_names{1},mid_from(1));
@@ -101,12 +102,27 @@ while ~received
         pause(obj.time_to_react_)
     end
 end
+% check if a message is from the data queue and we need to progress the data
+% queue
+from_data_queue = MESS_NAMES.is_queuing(mess_names{1});
+progress_queue = false;
+if from_data_queue
+    first_queue_num = list_these_messages_(obj,mess_names{1},from_task_id,obj.labIndex);
+    if first_queue_num >0
+        progress_queue = true;
+    end
+end
 % process received message
 message = mesl.message;
 err_code  =MESS_CODES.ok;
 err_mess=[];
 if ~is_failed  % make failed message persistent
     delete(mess_fname);
+    if progress_queue
+        [fp,fn] = fileparts(mess_fname);
+        next_mess_fname = fullfile(fp,[fn,'.',num2str(first_queue_num)]);
+        rename_file(next_mess_fname,mess_fname);
+    end
 end
 
 

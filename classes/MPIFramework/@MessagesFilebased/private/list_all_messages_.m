@@ -5,7 +5,7 @@ function [all_messages,mid_from] = list_all_messages_(obj,mess_ids_requested,mes
 % if no message is returned for a job, its name cell remains empty.
 %
 if ~exist('mess_ids_requested','var')
-    mess_ids_requested = []; % list all availible task_ids
+    mess_ids_requested = []; % list all available task_ids
 elseif ischar(mess_ids_requested) && strcmpi(mess_ids_requested,'all')
     mess_ids_requested = [];
 end

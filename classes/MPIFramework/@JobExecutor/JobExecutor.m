@@ -104,6 +104,11 @@ classdef JobExecutor
             % obj          initialized JobExecutor object
             % mess         if not empty, the reason for failure
             %
+            % On success, also:
+            % ReduceSend 'started' message to a control node (its node 1 over MPI
+            % framework for workers with labID > 1 and node 0 over
+            % FileBased for worker with labID ==  1)
+            %
             [obj,mess]=init_je_(obj,fbMPI,job_control_struct,InitMessage);
         end
         %
@@ -113,7 +118,7 @@ classdef JobExecutor
             %Usage:
             %>>[ok,mess] = obj.finish_task();
             %>>[ok,mess] = obj.finish_task(SomeMessage);
-            %>>[ok,mess] = obj.finish_task(SomeMessage,@mess_reduction_function);            
+            %>>[ok,mess] = obj.finish_task(SomeMessage,@mess_reduction_function);
             %
             % Where the first form normally waits until all workers return
             %'completed' message to the lab == 1 while the second form

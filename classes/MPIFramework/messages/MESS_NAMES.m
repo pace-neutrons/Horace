@@ -7,8 +7,13 @@ classdef MESS_NAMES
         mess_names_ = {'failed','pending','queued','init','starting','started','running',...
             'barrier','data','cancelled','completed'};
         mess_codes_ = {0,1,2,3,4,5,6,7,8,9,10};
+        % indicates if a following message overwrites the same type previous message
+        % sent by the same worker or not. Relevant to filebased messages
+        % only
+        mess_can_queue_ = {false,false,false,false,false,false,false,false,true,false,false};
         name2code_map_ = containers.Map(MESS_NAMES.mess_names_,MESS_NAMES.mess_codes_);
         code2name_map_ = containers.Map(MESS_NAMES.mess_codes_,MESS_NAMES.mess_names_);
+        mess_queuing_map_ = containers.Map(MESS_NAMES.mess_names_,MESS_NAMES.mess_can_queue_);
     end
     
     methods(Static)
@@ -45,7 +50,7 @@ classdef MESS_NAMES
         %
         function name = mess_name(mess_id)
             % get message name derived from message code (tag)
-            %            
+            %
             if isempty(mess_id)
                 name  = {};
             elseif isnumeric(mess_id)
@@ -83,6 +88,14 @@ classdef MESS_NAMES
                 is = true;
             else
                 is = false;
+            end
+        end
+        function is = is_queuing(name)
+            if iscell(name)
+                is = cellfun(@(x)(MESS_NAMES.mess_queuing_map_(x)),name,...
+                    'UniformOutput',true);
+            else
+                is = MESS_NAMES.mess_queuing_map_(name);
             end
         end
     end

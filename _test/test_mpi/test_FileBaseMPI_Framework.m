@@ -253,7 +253,7 @@ classdef test_FileBaseMPI_Framework< TestCase
             assertEqual(numel(all_mess),3);
             assertEqual(id_from(1),0);
             assertEqual(id_from(2),0);
-            assertEqual(id_from(3),3);            
+            assertEqual(id_from(3),3);
         end
         function test_shared_folder(this)
             mf = MessagesFilebased();
@@ -366,8 +366,8 @@ classdef test_FileBaseMPI_Framework< TestCase
             end
             fbMPI2.time_to_fail = 0.1;
             [ok,err]=fbMPI2.send_message(1,'failed');
-            assertEqual(ok,MESS_CODES.ok,err)            
-                                    
+            assertEqual(ok,MESS_CODES.ok,err)
+            
             
             % will pass without delay as all other worker would reach the
             % barrier
@@ -389,7 +389,63 @@ classdef test_FileBaseMPI_Framework< TestCase
             assertEqual(ok,MESS_CODES.ok,err)
             assertEqual(mess.mess_name,'barrier');
             
-        end        
+        end
+        function test_data_queue(obj)
+            css1 = iMessagesFramework.build_worker_init(obj.working_dir,'test_data_queue',1,3);
+            cs1  = iMessagesFramework.deserialize_par(css1);
+            
+            sender = MessagesFilebased(cs1);
+            clob = onCleanup(@()sender.finalize_all());
+            
+            css2 = iMessagesFramework.build_worker_init(obj.working_dir,'test_data_queue',2,3);
+            cs2  = iMessagesFramework.deserialize_par(css2);
+            receiver = MessagesFilebased(cs2);
+            
+            mess = aMessage('data');
+            mess.payload  = 1;
+            [ok,err] = sender.send_message(2,mess);
+            assertEqual(ok,MESS_CODES.ok,err);
+            mess.payload  = 2;
+            [ok,err] = sender.send_message(2,mess);
+            assertEqual(ok,MESS_CODES.ok,err);
+            
+            mess.payload  = 3;
+            [ok,err] = sender.send_message(2,mess);
+            assertEqual(ok,MESS_CODES.ok,err);
+            
+            [all_mess,mid_from] = receiver.probe_all([],'data');
+            assertEqual(numel(all_mess),3)
+            assertEqual(mid_from,ones(3,1))
+            
+            [ok,err,mess] = receiver.receive_message(1,'data');
+            assertEqual(ok,MESS_CODES.ok,err);
+            assertEqual(mess.payload,1);
+            
+            [all_mess,mid_from] = receiver.probe_all([],'data');
+            assertEqual(numel(all_mess),2)
+            assertEqual(mid_from,ones(2,1))
+            
+            
+            mess.payload  = 4;
+            [ok,err] = sender.send_message(2,mess);
+            assertEqual(ok,MESS_CODES.ok,err);
+            
+            [ok,err,mess] = receiver.receive_message(1,'data');
+            assertEqual(ok,MESS_CODES.ok,err);
+            assertEqual(mess.payload,2);
+            
+            [ok,err,mess] = receiver.receive_message(1,'data');
+            assertEqual(ok,MESS_CODES.ok,err);
+            assertEqual(mess.payload,3);
+            
+            [ok,err,mess] = receiver.receive_message(1,'data');
+            assertEqual(ok,MESS_CODES.ok,err);
+            assertEqual(mess.payload,4);
+            
+            [all_mess,mid_from] = receiver.probe_all([],'data');
+            assertTrue(isempty(all_mess))
+            assertTrue(isempty(mid_from))
+        end
     end
 end
 

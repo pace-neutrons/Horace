@@ -18,8 +18,19 @@ if ~isa(message,'aMessage')
         class(message));
 end
 mess_name = message.mess_name;
+needs_queue = MESS_NAMES.is_queuing(mess_name);
+
 mess_fname = obj.job_stat_fname_(task_id,mess_name);
-save(mess_fname,'message');
+if needs_queue
+    if exist(mess_fname,'file') == 2
+        [~,free_queue_num] = list_these_messages_(obj,mess_name,obj.labIndex,task_id);
+        [fp,fn] = fileparts(mess_fname);
+        mess_fname = fullfile(fp,[fn,'.',num2str(free_queue_num)]);
+    end
+    save(mess_fname,'message');
+else
+    save(mess_fname,'message');
+end
 % Allow save operation to complete. On Windows some messages remain blocked
 pause(0.1);
 

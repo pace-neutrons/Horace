@@ -5,7 +5,9 @@ classdef fig_spread
     % Usage:
     %
     % >>ps=fig_spread(['-tight'])       -- create class to hold matlab figures
-    % >>ps =ps.place_fig(figure_handle) -- place a figtuire in a subsequent
+    % >>ps =ps.place_fig(figure_handle) -- place a figtuire on a subsequent
+    %                                      plot, located in the next
+    %                                      available screen position.
     %
     %Other useful
     %fig_spread Methods:
@@ -200,7 +202,7 @@ classdef fig_spread
             save_figs_(self,filename);
         end
         function self = load_figs(self,filename)
-            % load previously saved figs to memory, add then to 
+            % load previously saved figs to memory, add then to
             % fig controlled list and replot all
             self = load_figs_(self,filename);
         end
