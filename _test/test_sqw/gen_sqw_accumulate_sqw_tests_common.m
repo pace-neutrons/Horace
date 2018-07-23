@@ -375,6 +375,13 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 co1 = onCleanup(@()obj.tearDown());
             end
             %-------------------------------------------------------------
+            % this test works with 1 tmp file so should not be run in
+            % parpool mode.
+            hpc = hpc_config;
+            comb_code = hpc.combine_sqw_using;
+            if strcmpi(comb_code,'mpi_code')
+                return;
+            end
             
             % build test files if they have not been build
             obj=build_test_files(obj);

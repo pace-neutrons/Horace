@@ -29,6 +29,9 @@ for i=1:nfiles
     det_tmp        = ldrs{i}.get_detpar();
     if i==1
         det=det_tmp;    % store the detector information for the first file
+    else
+        det_tmp.filename = det.filename;
+        det_tmp.filepath = det.filepath;        
     end
     if ~isequal(det,det_tmp); error('WRITE_NSQW_TO_SQW:invalid_argument',...
             'Detector parameter data is not the same in all files'); end

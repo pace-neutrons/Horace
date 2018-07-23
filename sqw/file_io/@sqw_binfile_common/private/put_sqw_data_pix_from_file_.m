@@ -76,37 +76,38 @@ if strcmp(combine_algorithm,'mex_code')
             ['Unable to move to the start of the pixel record in target file ',...
             obj.filename,' after mex-combine failed']);
     end
-% elseif strcmp(combine_algorithm,'mpi_code')
-%     %
-%     pool_exist = false;
-%     if exist('jobDispatcher','var') && ~isempty(jobDispatcher)
-%         % reuse existing parallel pool
-%         jd = jobDispatcher;
-%         n_workers = jd.cluster.n_workers;
-%         pool_exist  = true;
-%     else
-%         fn = obj.filename;
-%         if numel(fn) > 8; fn = fn(1:8); end
-%         job_name = ['combine_sqw_',fn];
-%         jd = JobDispatcher(job_name);
-%         n_workers  = config_store.instance().get_value('hpc_config','parallel_workers_number');
-%     end
-%     fout_name = fullfile(obj.filepath,obj.filename);
-%     pix_out_pos = obj.pix_position;
-%     obj = obj.fclose();
-%     [common_par,loop_par] = combime_sqw_pix_job.pack_job_pars(pix_comb_info,fout_name,pix_out_pos,n_workers);
-%     if pool_exist
-%         [outputs,n_failed,~,jd] = jd.restart_job('combine_sqw_pix_job',...
-%             common_par,loop_par,false,false);
-%     else
-%         [outputs,n_failed,~,jd] = jd.start_job('combine_sqw_pix_job',...
-%             common_par,loop_par,false,n_workers,false);
-%     end
-%     if n_failed > 0
-%         jd.display_fail_job_results(outputs,n_failed,'WRITE_NSQW_TO_SQW:runtime_error');
-%     else
-%         obj = obj.reopen_to_write();
-%     end
+elseif strcmp(combine_algorithm,'mpi_code')
+    %
+    pool_exist = false;
+    if exist('jobDispatcher','var') && ~isempty(jobDispatcher)
+        % reuse existing parallel pool
+        jd = jobDispatcher;
+        n_workers = jd.cluster.n_workers;
+        pool_exist  = true;
+    else
+        fn = obj.filename;
+        if numel(fn) > 8; fn = fn(1:8); end
+        job_name = ['combine_sqw_',fn];
+        jd = JobDispatcher(job_name);
+        n_workers  = config_store.instance().get_value('hpc_config','parallel_workers_number');
+    end
+    fout_name = fullfile(obj.filepath,obj.filename);
+    pix_out_pos = obj.pix_position;
+    obj = obj.fclose();
+    [common_par,loop_par] = ...
+        combine_sqw_pix_job.pack_job_pars(pix_comb_info,fout_name,pix_out_pos,n_workers);
+    if pool_exist
+        [outputs,n_failed,~,jd] = jd.restart_job('combine_sqw_pix_job',...
+            common_par,loop_par,false,false);
+    else
+        [outputs,n_failed,~,jd] = jd.start_job('combine_sqw_pix_job',...
+            common_par,loop_par,false,n_workers,false);
+    end
+    if n_failed > 0
+        jd.display_fail_job_results(outputs,n_failed,'WRITE_NSQW_TO_SQW:runtime_error');
+    else
+        obj = obj.reopen_to_write();
+    end
 else % MATLAB
     fout = obj.file_id_;
     je =combine_sqw_pix_job();
