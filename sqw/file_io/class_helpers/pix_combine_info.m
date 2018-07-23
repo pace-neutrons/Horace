@@ -136,8 +136,8 @@ classdef pix_combine_info
         end
         function parts_carr= split_into_parts(obj,n_workers)
             % function divided pix_combine_info into the specified number
-            % of parts to
-            n_tasks = obj.n_files;
+            % of parts to send it for processing on parallel system
+            n_tasks = obj.nfiles;
             if n_workers> n_tasks
                 n_workers = n_tasks;
             end
@@ -164,7 +164,7 @@ classdef pix_combine_info
                 pnpixtot       = obj.npix_file_tot(split_ind(1,i):split_ind(2,i));
                 pfilenums    = filenums(split_ind(1,i):split_ind(2,i));
                 %
-                parts_carr{i} = pix_combine_info(pnbins,part_files,ppos_npixstart,ppos_pixstart,pnpixtot,prun_label,pfilenums);
+                parts_carr{i} = pix_combine_info(part_files,pnbins,ppos_npixstart,ppos_pixstart,pnpixtot,prun_label,pfilenums);
             end
             
         end

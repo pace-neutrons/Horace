@@ -6,7 +6,7 @@ function    obj = put_sqw(obj,varargin)
 %
 %
 %
-[ok,mess,update,nopix,argi]=parse_char_options(varargin,{'-update','-nopix'});
+[ok,mess,update,argi]=parse_char_options(varargin,{'-update'});
 if ~ok
     error('SQW_FILE_IO:invalid_artgument',...
         ['DND_BINFILE_COMMON::put_sqw Error: ',mess]);
@@ -39,10 +39,6 @@ if update
     %return update option to argument list
     argi{end+1} = '-update';
 end
-if nopix
-    argi{end+1} = '-nopix';    
-end
-
 
 
 % store header, which describes file as sqw file
@@ -54,7 +50,7 @@ obj=obj.put_headers(argi{:});
 %
 obj=obj.put_det_info(argi{:});
 %
-% write dnd image methadata
+% write dnd image metadata
 obj=obj.put_dnd_metadata(argi{:});
 % write dnd image data
 obj=obj.put_dnd_data(argi{:});

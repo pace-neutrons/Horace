@@ -3,5 +3,5 @@ function check_error_report_fail_(file_id_,pos_mess)
 [mess,res] = ferror(file_id_);
 if res ~= 0
     error('COMBINE_SQW_PIX_JOB:io_error',...
-        ['put_sqw: ',pos_mess,' reason: ',mess]);
+        'put_sqw: %s\n  reason: %s',pos_mess,mess);
 end

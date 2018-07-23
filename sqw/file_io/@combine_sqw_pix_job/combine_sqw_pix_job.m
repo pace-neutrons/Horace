@@ -9,12 +9,63 @@ classdef combine_sqw_pix_job < JobExecutor
     
     properties(Access = private)
         is_finished_  = false;
+        finalizer_ =[];
+        open_files_id_ = [];
+        
+        last_bins_processed_ = 0;
+        max_bins_num_cash_   = [];
+        num_bin_in_tail_   = [];
+        filled_bin_ind_ =[];
+        read_pix_cash_       = [];
+        
     end
     
     methods
         function obj = combine_sqw_pix_job()
             obj = obj@JobExecutor();
         end
+        function [obj,mess]=init(obj,fbMPI,job_control_struct,InitMessage)
+            % Overloads parent's init by adding the initialization
+            % routines, specific for combibe_sqw_pix_job
+            %
+            % All inputs are inhereted from parent init
+            %
+            % inputs and files:
+            % fbMPI               -- the instance of file-based messages
+            %                        framework, used to exchange messages
+            %                        between worker and control node.
+            %                        Depending on the used framework, this
+            %                        class can be used as
+            % job_control_struct  -- the structure,
+            %                        containing information about
+            %                        the messages framework to use
+            % InitMessage         -- The message with information necessary
+            %                        to run the job itself
+            %
+            % returns:
+            % obj          initialized combibe_sqw_pix_job object
+            % mess         if not empty, the reason for failure
+            %
+            % On success, also:
+            % ReduceSend 'started' message to a control node (its node 1 over MPI
+            % framework for workers with labID > 1 and node 0 over
+            % FileBased for worker with labID ==  1)
+            %
+            [obj,mess]=init@JobExecutor(obj,fbMPI,job_control_struct,InitMessage);
+            if isempty(mess)
+                if obj.labIndex == 1
+                    n_workers = obj.mess_framework.numLabs;
+                    obj.last_bins_processed_ = 0;
+                    obj.num_bin_in_tail_   =   zeros(1,n_workers-1);
+                    obj.max_bins_num_cash_  =  zeros(1,n_workers-1);
+                    obj.filled_bin_ind_=       cell(n_workers-1,1);
+                    obj.read_pix_cash_      =  cell(n_workers-1,1);
+                end
+            end
+            
+        end
+        
+        
         function obj=do_job(obj)
             
             mpis = MPI_State.instance();
@@ -23,96 +74,108 @@ classdef combine_sqw_pix_job < JobExecutor
             common_par      = obj.common_data_;
             pix_comb_info   = obj.loop_data_{1};
             
-            pmax = config_store.instance().get_value('hor_config','mem_chunk_size');
             
-            if job.labIndex <= 1
-                filename = common_par.filename;
-                fout = fopen(filename,'wb+');
-                pix_out_position = common_par.pix_out_position;
+            if obj.labIndex == 1 % writer lab
+                filename = pix_comb_info.fout_name;
+                fout = fopen(filename,'rb+');
+                if fout<=0
+                    error('COMBINE_PIX_JOB:runtime_error',...
+                        'Can not open target file %s for writing',filename);
+                end
+                clob = onCleanup(@()fcloser_(fout));  %
+                
+                pix_out_position = pix_comb_info.pix_out_pos;
                 fseek(fout,pix_out_position,'bof');
                 check_error_report_fail_(fout,...
-                    ['Unable to move to the start of the pixel record in THE target file ',...
-                    filename ,' starting matlab-combine']);
+                    sprintf(['Unable to move to the start of the pixel'...
+                    ' record to write the target file %s '...
+                    'to start writing combined pixels'],...
+                    filename));
+                % all other labs will send the pixel data to the writer
+                data_providers = 2:obj.mess_framework.numLabs;
+                data_remain    = true(size(data_providers ));
             else
                 % Get number of files
                 fid = verify_and_reopen_input_files_(pix_comb_info);
                 % Always close opened files on the procedure completion
                 clob = onCleanup(@()fcloser_(fid));  %
+                % Unpack input structures
+                pos_pixstart     = pix_comb_info.pos_pixstart;
+                relabel_with_fnum= pix_comb_info.relabel_with_fnum;
+                change_fileno    = pix_comb_info.change_fileno;
+                run_label        = pix_comb_info.run_label;
+                filenum          = pix_comb_info.filenum;
+                
             end
             
-            
-            
-            % Write the pixel information to the file
-            %  The algorithm works as follows:
-            %       - Outer loop: deals with each of the bins in the grid for the output file in turn
-            %       - Inner loop: for each input file in turn, read the corresponding pixel information for that bin and then
-            %                     write to the output file
-            %  This is done because in general there is simply insufficient memory to hold the whole contents of all the files
-            %
-            %  We cannot read the number of pixels in each bin from all the individual input files, as we do not have enough
-            %  memory even for that, in general. We need to read these in, a section at a time, into a buffer.
-            % (For example, if 50^4 grid, 300 files then array size of npix= 8*300*50^4 = 15GB).
-            
-            
-            % Unpack input structures
-            relabel_with_fnum= pix_comb_info.relabel_with_fnum;
-            change_fileno    = pix_comb_info.change_fileno;
-            run_label        = pix_comb_info.run_label;
-            filenum          = pix_comb_info.filenum;
-            
-            
             nbin = common_par.nbin;     % total number of bins
-            npix = common_par.npixels;
+            npix = common_par.npixels;  % total number of pixels
             
             n_pix_written = 0;
             ibin_end = 0;
             
-            pix_buf_size=pmax;
-            pos_pixstart = pix_comb_info.pos_pixstart;
+            pix_buf_size=common_par.pix_buf_size;
+            
             mess_exch = obj.mess_framework;
             while ibin_end<nbin
-                
-                % Refill buffer with next section of npix arrays from the input files
-                ibin_start = ibin_end+1;
-                [npix_per_bins,npix_in_bins,ibin_end]=obj.get_npix_section(fid,pix_comb_info.pos_npixstart,ibin_start,nbin);
-                npix_per_bins = npix_per_bins';
-                
-                % Get the largest bin index such that the pixel information can be put in buffer
-                % (We hold data for many bins in a buffer, as there is an overhead from reading each bin from each file separately;
-                % only read when the bin index fills as much of the buffer as possible, or if reaches the end of the array of buffered npix)
-                n_pix_2process = npix_in_bins(end);
-                npix_processed = 0;  % last pixel index for which data has been written to output file
-                while npix_processed < n_pix_2process
-                    if job.labIndex > 1
-                        
+                if obj.labIndex > 1
+                    % Refill buffer with next section of npix arrays from the input files
+                    ibin_start = ibin_end+1;
+                    [npix_per_bins,npix_in_bins,ibin_end]=...
+                        obj.get_npix_section(fid,pix_comb_info.pos_npixstart,ibin_start,nbin,pix_buf_size);
+                    npix_per_bins = npix_per_bins';
+                    
+                    
+                    % Get the largest bin index such that the pixel information can be put in buffer
+                    % (We hold data for many bins in a buffer, as there is an overhead from reading each bin from each file separately;
+                    % only read when the bin index fills as much of the buffer as possible, or if reaches the end of the array of buffered npix)
+                    n_pix_2process = npix_in_bins(end);
+                    npix_processed = 0;  % last pixel index for which data has been written to output file
+                    while npix_processed < n_pix_2process
                         [npix_per_bin2_read,npix_processed,npix_per_bins,npix_in_bins] = ...
                             obj.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,pix_buf_size);
                         
-                        [pix_section,pos_pixstart]=...
+                        [pix_section_mess,pos_pixstart]=...
                             obj.read_pix_for_nbins_block(fid,pos_pixstart,npix_per_bin2_read,...
                             filenum,run_label,change_fileno,relabel_with_fnum);
-                        
+                        pix_section_mess.payload.bin_range = [ibin_start,ibin_end];
                         %
-                        [ok,err_mess]=mess_exch.send_message(1,pix_section);
+                        [ok,err_mess]=mess_exch.send_message(1,pix_section_mess);
                         if ok ~= MESS_CODES.ok
                             error('COMBINE_SQW_PIX_JOB:runtime_error',err_mess);
                         end
-                    else
-                        messages = mess_exch.receive_all('all','data');
-                        n_pix_written =obj.write_pixels(fout,pix_section,n_pix_written);
-                        if is_deployed
-                            mpis.do_logging(npix ,n_pix_written,[],[]);
-                        end
-                        
                     end
+                else
+                    messages = mess_exch.receive_all(data_providers,'data');
+                    if ~all(data_remain) % add empty providers to the list of messages
+                        exp_messages = cell(numel(data_remain),1);
+                        ic = 1;
+                        for i=1:numel(exp_messages)
+                            if data_remain(i)
+                                exp_messages(i) = messages(ic);
+                                ic = ic+1;
+                            end
+                        end
+                        messages= exp_messages;
+                    end
+                    [obj,pix_section] = process_messages_fill_cash_(obj,messages);
+                    n_pix_written =obj.write_pixels(fout,pix_section,n_pix_written);
                     
+                    ibin_end = obj.last_bins_processed_;
+                    
+                    mpis.do_logging(npix ,n_pix_written,[],[]);
+                    
+                    % Analyze what readers have not yet sent the whole
+                    % pixel data to the writer.
+                    data_remain = obj.max_bins_num_cash_ < nbin;
+                    data_providers = find(data_remain)+1;
                 end
                 
             end
             
             clear clob;
             if is_deployed
-                mpis.do_logging(npix,npix);
+                mpis.do_logging(npix,npix,[],[]);
             end
             
         end
@@ -199,7 +262,7 @@ classdef combine_sqw_pix_job < JobExecutor
     end
     
     methods(Static)
-        function [npix_section,npix_in_bins,ibin_end]=get_npix_section(fid,pos_npixstart,ibin_start,ibin_max)
+        function [npix_section,npix_in_bins,ibin_end]=get_npix_section(fid,pos_npixstart,ibin_start,ibin_max,varargin)
             % Fill a structure with sections of the npix arrays for all the input files. The positions of the
             % pointers in the input files is left at the positions on entry (the algorithm requires them to be moved, but returns
             % them at the end of the operation)
@@ -211,6 +274,9 @@ classdef combine_sqw_pix_job < JobExecutor
             %   fid             Array of file identifiers for the input sqw files
             %   ibin_start      Get section starting with this bin number
             %   ibin_max        Maximum number of bins
+            %   [ibin_buffer_max_size] -- the size of the buffer to read
+            %                   pixels. Selected to allow multiple buffers
+            %                   to be combined
             %
             % Output:
             % -------
@@ -220,7 +286,7 @@ classdef combine_sqw_pix_job < JobExecutor
             %                  files (as given by ibin_max), or by the largest permitted size of the buffer
             %   Throws SQW_BINFILE_IO:runtime_error with brief problem description
             %                  in case of problem with read operations.
-            [npix_section,ibin_end]=get_npix_section_(fid,pos_npixstart,ibin_start,ibin_max);
+            [npix_section,ibin_end]=get_npix_section_(fid,pos_npixstart,ibin_start,ibin_max,varargin{:});
             npix_in_bins = cumsum(sum(npix_section,2));
         end
         %
@@ -283,16 +349,27 @@ classdef combine_sqw_pix_job < JobExecutor
         %
         function [common_par,loop_par ] = pack_job_pars(pix_comb_info,fout_name,pix_out_pos,n_workers)
             % prepare job parameter in the form, suitable for
+            if n_workers < 2
+                error('COMBINE_SQW_PIX_JOB:invalid_argument',...
+                    'this parallel job needs at least 2 MPI workers, while provided with %d',...
+                    n_workers);
+            end
+            first_job_par = struct();
+            first_job_par.fout_name   = fout_name;
+            first_job_par.pix_out_pos = pix_out_pos;
+            
             common_par = struct();
-            common_par.nbin    = pix_comb_info.nbins;
-            common_par.npixels = pix_comb_info.npixels;
-            common_par.fout_name= fout_name;
-            common_par.pix_out_pos = pix_out_pos;
+            common_par.nbin     = pix_comb_info.nbins;
+            common_par.npixels  = pix_comb_info.npixels;
+            
+            whole_buffer = config_store.instance().get_value('hor_config','mem_chunk_size');
+            % the reader buffers together should be equal to the write buffer
+            common_par.pix_buf_size = ceil(whole_buffer/(n_workers-1));
             % less workers as one workes will hold the write job
             loop_par = pix_comb_info.split_into_parts(n_workers-1);
             % add empty loop par for the first worker as the first worker
             % will write rather than read
-            loop_par = [{[]},loop_par];
+            loop_par = [{first_job_par},loop_par];
         end
     end
 end
