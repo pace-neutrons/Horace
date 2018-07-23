@@ -240,9 +240,13 @@ classdef parallel_config<config_base
             fram = obj.parallel_framework;
             switch(fram)
                 case('herbert')
+                    fprintf('*** Starting Herbert (poor-man-MPI) cluster with %d workers ***\n',n_workers);
                     controller = ClusterHerbert(n_workers,cluster_to_host_exch_fmwork);
+                    fprintf('*** Herbert cluster started                                 ***\n');                    
                 case('parpool')
+                    fprintf('*** Starting Matlab MPI job with %d workers ***\n',n_workers);                    
                     controller = ClusterParpoolWrapper(n_workers,cluster_to_host_exch_fmwork);
+                    fprintf('*** Matlab MPI job started                    ***\n');                                        
                 otherwise
                     error('PARALLEL_CONFIG:runtime_error',...
                         'Got unknown parallel framework: %s',fram);
