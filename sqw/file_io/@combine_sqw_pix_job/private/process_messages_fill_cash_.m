@@ -11,11 +11,14 @@ for i=1:n_files
         continue;
     end
     pl = messages{i}.payload;
+    if obj.h_log_file
+        fprintf(obj.h_log_file,' Message %d with range [%d , %d], filled in %d bins\n;',i,pl.bin_range,numel(pl.filled_bin_ind));
+    end
     if obj.num_bin_in_tail_(i) <= 0
-        obj.filled_bin_ind_{i}   = pl.filled_bin_ind;        
+        obj.filled_bin_ind_{i}   = pl.filled_bin_ind;
         obj.read_pix_cash_{i}    = pl.pix_tb;
     else
-        obj.filled_bin_ind_{i} = [obj.filled_bin_ind_{i},(pl.filled_bin_ind+obj.num_bin_in_tail_(i))];        
+        obj.filled_bin_ind_{i} = [obj.filled_bin_ind_{i},(pl.filled_bin_ind+obj.num_bin_in_tail_(i))];
         obj.read_pix_cash_{i}  =   [obj.read_pix_cash_{i},pl.pix_tb{:}];
     end
     obj.max_bins_num_cash_(i)   = pl.bin_range(2);
@@ -26,6 +29,7 @@ for i=1:n_files
 end
 % number of bins in cash, received pixels information
 n_bins = last_bin_to_process  - obj.last_bins_processed_;
+
 % number of bins left for processing at next steps as some workers
 % processed more bins then others
 obj.num_bin_in_tail_    = obj.max_bins_num_cash_-last_bin_to_process;
@@ -56,9 +60,16 @@ for i=1:n_files
     
     bin_filled(filled_bin_ind) = true;
 end
+if obj.h_log_file
+    fprintf(obj.h_log_file,' will save bins: [%d , %d];',obj.last_bins_processed_,last_bin_to_process);
+end
 obj.last_bins_processed_ = last_bin_to_process;
+
 
 pix_tb = pix_tb(:,bin_filled); % accelerate combining by removing empty cells
 % combine pix from all files according to the bin
 pix_section = cat(2,pix_tb{:});
+if obj.h_log_file
+    fprintf(obj.h_log_file,'  n_pixels: %d\n',size(pix_section,2));
+end
 

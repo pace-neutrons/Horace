@@ -1,4 +1,4 @@
-function [npix_2_read,npix_processed,npix_per_bins,npix_in_bins] = ...
+function [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] = ...
     nbin_for_pixels_(npix_per_bins,npix_in_bins,npix_processed,pix_buf_size)
 % calculate number of bins to read enough pixels to fill pixels
 % buffer and recalculate the number of pixes to read from every
@@ -24,6 +24,8 @@ function [npix_2_read,npix_processed,npix_per_bins,npix_in_bins] = ...
 % npix_in_bins  --  reduced cumulative sum of pixels in bins
 %                   of all files left to process in following
 %                   IO operations.
+% last_fit_bin  -- the last bin number to process for  the pixels
+%                  to fit pix buffer
 %
 % See: test_sqw/test_nsqw2sqw_internal_methods for the details
 % of the method functionality
@@ -34,15 +36,16 @@ function [npix_2_read,npix_processed,npix_per_bins,npix_in_bins] = ...
 
 % Calculate number of pixels to be read from all the files
 n_files = size(npix_per_bins,1);
-fit_the_buffer = npix_in_bins-npix_processed <= pix_buf_size;
+fit_the_buffer = npix_in_bins <= pix_buf_size;
 if ~fit_the_buffer(1) % a single cell is bigger then pix_buffer
     % we are not constrained strongly by the pix buffer size.
     % Would double buffer sort the problem?
-    if npix_in_bins(1)-npix_processed <= 2*pix_buf_size
+    if npix_in_bins(1) <= 2*pix_buf_size
         npix_2_read = npix_per_bins(:,1);
         npix_per_bins= npix_per_bins(:,2:end);
-        npix_processed = npix_in_bins(1);
-        npix_in_bins   = npix_in_bins(2:end);
+        npix_processed = npix_in_bins(1)+npix_processed;
+        npix_in_bins   = npix_in_bins(2:end)-npix_processed;
+        last_fit_bin = 1;        
     else %let's read parts of the pixels for single bin.
         npix_2_read = npix_per_bins(:,1);
         not_fit_the_buffer = npix_2_read > pix_buf_size;
@@ -63,20 +66,23 @@ if ~fit_the_buffer(1) % a single cell is bigger then pix_buffer
         npix_per_bins(:,1)= npix_per_bins(:,1)-npix_2_read;
         npix_processed = npix_processed + this_npix2_read;
         npix_in_bins(1)= npix_in_bins(1)- this_npix2_read;
-        
+        last_fit_bin  = 0;
     end
-    % everything fits the buffer
+
 elseif fit_the_buffer(end)
+    % everything fits the buffer
+    last_fit_bin = numel(npix_in_bins);
     npix_2_read = npix_per_bins;
-    npix_processed = npix_in_bins(end);
+    npix_processed = npix_in_bins(end)+npix_processed;
     npix_in_bins= [];
     npix_per_bins=zeros(n_files,0);
 else % partial buffer fit. Constrain number of bins to fill the buffer
     % ignore extra buffer capacity.
     npix_2_read = npix_per_bins(:,fit_the_buffer);
     npix_per_bins= npix_per_bins(:,~fit_the_buffer);
-    last_fit_ind = find(~fit_the_buffer,1)-1;
-    npix_processed = npix_in_bins(last_fit_ind);
-    npix_in_bins   = npix_in_bins(~fit_the_buffer);
+    last_fit_bin = find(~fit_the_buffer,1)-1;
+    npix_processed_now = npix_in_bins(last_fit_bin);
+    npix_in_bins   = npix_in_bins(~fit_the_buffer)-npix_processed_now;
+    npix_processed = npix_processed+npix_processed_now;
 end
 
