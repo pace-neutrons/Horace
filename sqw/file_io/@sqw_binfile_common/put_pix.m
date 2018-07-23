@@ -4,13 +4,19 @@ function   obj = put_pix(obj,varargin)
 %Usage:
 %>>obj = obj.put_pix();
 %>>obj = obj.put_pix(npix_lo,npix_hi);
-
+% Availible options:
+% '-update' -- update eixsting data rather then (over)writing new file
+% '-nopix'  -- do not write pixels
+% '-reserve' -- if applied together with nopix, pixel information is not
+%               written but the space dedicated for pixels is filled in with zeros.
+%                If -nopix is not used, the option is ignored.
+%
 % If update options is selected, file header have to exist. This option keeps
 % exisitng file information untouched;
 %
 % $Revision$ ($Date$)
 %
-[ok,mess,update,nopix,argi] = parse_char_options(varargin,{'-update','-nopix'});
+[ok,mess,update,nopix,reserve,argi] = parse_char_options(varargin,{'-update','-nopix','-reserve'});
 if ~ok
     error('SQW_FILE_IO:invalid_argument',...
         'SQW_BINFILE_COMMON::put_pix: %s',mess);
@@ -96,9 +102,32 @@ end
 fwrite(obj.file_id_,npix,'uint64');
 %
 obj.eof_pix_pos_ = obj.pix_pos_ + npix * 9*4;
-if nopix %TODO: Copied from prototype. Does this make any sense?
-    fseek(obj.file_id_,obj.eof_pix_pos_ ,'bof');
-    ferror(obj.file_id_, 'clear'); % clear error in case if pixels have never been written
+if nopix
+    if reserve
+        block_size= config_store.instance().get_value('hor_config','mem_chunk_size'); % size of buffer to hold pixel information
+        
+        fseek(obj.file_id_,obj.pix_pos_ ,'bof');
+        if block_size >= npix
+            res_data = single(zeros(9,npix));
+            fwrite(obj.file_id_,res_data,'float32');
+        else
+            written = 0;
+            res_data = single(zeros(9,block_size));
+            while written < npix
+                fwrite(obj.file_id_,res_data,'float32');
+                written = written+block_size;
+                if written+block_size > npix
+                    block_size = npix-written;
+                    res_data = single(zeros(9,block_size));
+                end
+            end
+        end
+        clear res_data;
+        
+    else %TODO: Copied from prototype. Does this make any sense?
+        fseek(obj.file_id_,obj.eof_pix_pos_ ,'bof');
+        ferror(obj.file_id_, 'clear'); % clear error in case if pixels have never been written
+    end
     return;
 end
 

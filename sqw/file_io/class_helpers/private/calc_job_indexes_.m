@@ -27,5 +27,5 @@ n_alloc_tasks =[0;cumsum(each_task_npar)];
 
 worker_par_list = zeros(2,n_workers);
 for task_id=1:n_workers
-    worker_par_list(:,task_id) = [(n_alloc_tasks(task_id)+1);each_task_npar(task_id)];
+    worker_par_list(:,task_id) = [(n_alloc_tasks(task_id)+1);n_alloc_tasks(task_id)+each_task_npar(task_id)];
 end

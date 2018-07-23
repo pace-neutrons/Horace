@@ -140,7 +140,7 @@ end
 
 
 [main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
-    accoumulate_headers_job.read_input_headers(infiles);
+    accumulate_headers_job.read_input_headers(infiles);
 
 % Check consistency:
 % At present, we insist that the contributing spe data are distinct in that:

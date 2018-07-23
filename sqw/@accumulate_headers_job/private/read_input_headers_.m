@@ -30,7 +30,7 @@ for i=1:nfiles
     if i==1
         det=det_tmp;    % store the detector information for the first file
     end
-    if ~isequal_par(det,det_tmp); error('WRITE_NSQW_TO_SQW:invalid_argument',...
+    if ~isequal(det,det_tmp); error('WRITE_NSQW_TO_SQW:invalid_argument',...
             'Detector parameter data is not the same in all files'); end
     clear det_tmp       % save memory on what could be a large variable
     

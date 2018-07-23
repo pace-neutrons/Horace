@@ -38,11 +38,11 @@ for i=1:nfiles
     if npix_per_file(i)>0
         [pix_buf,pos_pixstart(i)] = ...
             obj.read_pixels(fid(i),pos_pixstart(i),npix_per_file(i));
-        [bin_cell,nonempty_bin] = split_pix_per_bin_(pix_buf,npix_per_bin(i,:),...
+        [bin_cell,filled_bin_ind] = split_pix_per_bin_(pix_buf,npix_per_bin(i,:),...
             filenum(i),run_label(i),change_fileno,relabel_with_fnum);
-        pix_tb(i,nonempty_bin) = bin_cell(:);
+        pix_tb(i,filled_bin_ind) = bin_cell(:);
         %npixels = npixels +numel(pix_tb{i});
-        bin_filled(nonempty_bin) = true;
+        bin_filled(filled_bin_ind) = true;
     end
 end
 
@@ -50,10 +50,24 @@ end
 
 
 if is_deployed
+    
     pix_section  = aMessage('data');
-    pix_section.payload = struct('pix_tb',pix_tb,'bin_filled',bin_filled);
+    payload = struct('bin_range',[],'pix_tb',[],'filled_bin_ind',[]);
+    pix_tb = pix_tb(:,bin_filled); % accelerate combining by removing empty cells    
+    if nfiles > 1
+        % combine pix from all files according to the bin
+        pix_buf = cat(2,pix_tb{:});
+        % split pixels over bins like it would be a single combined file
+        npix_per_bin = sum(npix_per_bin,1);
+        [pix_tb,filled_bin_ind] = split_pix_per_bin_(pix_buf,npix_per_bin);
+    end
+    payload.pix_tb = pix_tb;
+    payload.filled_bin_ind = filled_bin_ind;
+    
+    pix_section.payload = payload;
 else
     pix_tb = pix_tb(:,bin_filled); % accelerate combining by removing empty cells
     % combine pix from all files according to the bin
     pix_section = cat(2,pix_tb{:});
+    
 end

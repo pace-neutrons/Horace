@@ -1,4 +1,4 @@
-function [npix_section,ibin_end]=get_npix_section_(fid,pos_npixstart,ibin_start,ibin_max)
+function [npix_section,ibin_end]=get_npix_section_(fid,pos_npixstart,ibin_start,ibin_max,ibin_buffer_max_size)
 % Fill a structure with sections of the npix arrays for all the input files. The positions of the
 % pointers in the input files is left at the positions on entry (the algorithm requires them to be moved, but returns
 % them at the end of the operation)
@@ -19,7 +19,10 @@ function [npix_section,ibin_end]=get_npix_section_(fid,pos_npixstart,ibin_start,
 %   mess            Error message: if all OK will be empty, if not OK will contain a message
 
 % buffer size (in bytes) for holding section of npix arrays
-ibin_buffer_max_size_bytes = config_store.instance().get_value('hor_config','mem_chunk_size')*8; 
+if ~exist('ibin_buffer_max_size','var')
+    ibin_buffer_max_size= config_store.instance().get_value('hor_config','mem_chunk_size');
+end
+ibin_buffer_max_size_bytes = ibin_buffer_max_size*8;
 
 nfiles = numel(fid);
 ibin_buffer_max_size = floor(ibin_buffer_max_size_bytes/(8*nfiles));    % max. no. of entries in buffer
@@ -32,14 +35,14 @@ for i=1:nfiles
     status=fseek(fid(i),pos_npixstart(i)+8*(ibin_start-1),'bof');    % location of npix for bin number ibin_start (recall written as int64)
     if status<0
         filename = fopen(fid);
-        mess = ['Unable to find location of npix data in ',filename];        
+        mess = ['Unable to find location of npix data in ',filename];
         error('SQW_BINFILE_IO:runtime_error',mess);
     end
     npix_section(:,i) = fread(fid(i),ibin_buffer_fill,'*int64');
     %
     [f_message,f_errnum] = ferror(fid(i));
     if f_errnum ~=0
-        error('SQW_BINFILE_IO:runtime_error',f_message);                
+        error('SQW_BINFILE_IO:runtime_error',f_message);
     end
     
 end
