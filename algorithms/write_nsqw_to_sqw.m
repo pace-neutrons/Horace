@@ -206,9 +206,14 @@ if hor_log_level>-1
 end
 
 if combine_in_parallel
-    % until combine in parallel is completed, shut down the parallel pool
-    % after combining headers
-    keep_workers_running = false;
+    %TODO:  check config for appropriate ways of combining the tmp and what
+    %to do with cluster
+    comb_using = config_store.instance().get_value('hpc_config','combine_sqw_using');
+    if strcmp(comb_using,'mpi_code') % keep cluster running for combining procedure
+        keep_workers_running = true;
+    else
+        keep_workers_running = false;
+    end
     [common_par,loop_par] = accumulate_headers_job.pack_job_pars(ldrs);
     if jd_initialized
         [outputs,n_failed,~,job_disp]=job_disp.restart_job(...
