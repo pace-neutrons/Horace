@@ -23,8 +23,8 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             source_test_dir = fullfile(her_dir,'_test','common_data');
             source_file = fullfile(source_test_dir,'MAP11014.nxspe');
             
-            psi = [0,2,20]; %-- test settings; 
-            %psi = 0:2:40;  %-- evaluate_performance settings;
+            %psi = [0,2,20]; %-- test settings;
+            psi = 0:1:200;  %-- evaluate_performance settings;
             source_test_file  = cell(1,numel(psi));
             for i=1:numel(psi)
                 source_test_file{i}  = source_file;
@@ -41,9 +41,10 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             hc.delete_tmp = false;
             clob1 = onCleanup(@()set(hc,'delete_tmp',del_tmp_state));
             hpc = hpc_config;
-            comb_state = hpc.build_sqw_in_parallel;
+            [comb_state,combine_sqw_using] = get(hpc,'build_sqw_in_parallel','combine_sqw_using');
             hpc.build_sqw_in_parallel = false;
-            clob2 = onCleanup(@()set(hpc,'build_sqw_in_parallel',comb_state));
+            hpc.combine_sqw_using  = 'matlab';
+            clob2 = onCleanup(@()set(hpc,'build_sqw_in_parallel',comb_state,'combine_sqw_using',combine_sqw_using));
             
             
             temp_files=gen_sqw(source_test_file,'',targ_file,...
@@ -208,76 +209,90 @@ classdef test_nsqw2sqw_internal_methods < TestCase
         
         %
         function test_nbin_for_pixels(obj)
+            
+            rd =combine_sqw_job_tester();
+            
             n_files = 10;
             n_bins = 41;
             npix_processed = 0;
             npix_per_bins = ones(n_files,n_bins);
             npix_in_bins = cumsum(sum(npix_per_bins,1));
-            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins] = combine_sqw_pix_job.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,100);
+            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] = rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,100);
             assertEqual(npix_processed,100);
             assertEqual(size(npix_2_read),[10,10]);
             assertEqual(size(npix_per_bins),[10,31]);
             assertEqual(numel(npix_in_bins),31);
+            assertEqual(last_fit_bin,10);
             %
             
-            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins] = combine_sqw_pix_job.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,100);
+            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] = rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,100);
             assertEqual(npix_processed,200);
             assertEqual(size(npix_2_read),[10,10]);
             assertEqual(size(npix_per_bins),[10,21]);
             assertEqual(numel(npix_in_bins),21);
+            assertEqual(last_fit_bin,10);
             
             
-            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins] = combine_sqw_pix_job.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,200);
+            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] = rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,200);
             assertEqual(npix_processed,400);
             assertEqual(size(npix_2_read),[10,20]);
             assertEqual(size(npix_per_bins),[10,1]);
             assertEqual(numel(npix_in_bins),1);
+            assertEqual(last_fit_bin,20);
             
-            
-            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins] = combine_sqw_pix_job.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,200);
+            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] = rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,200);
             assertEqual(npix_processed,410);
             assertEqual(size(npix_2_read),[10,1]);
             assertEqual(size(npix_per_bins),[10,0]);
             assertTrue(isempty(npix_in_bins));
+            assertEqual(last_fit_bin,1);
             %--------------------------------------------------------------
             
             npix_per_bins = 10*ones(n_files,n_bins);
             npix_in_bins = cumsum(sum(npix_per_bins,1));
             npix_processed = 0;
-            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins] = combine_sqw_pix_job.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,100);
+            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] = rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,100);
             assertEqual(npix_processed,100);
             assertEqual(size(npix_2_read),[10,1]);
             assertEqual(size(npix_per_bins),[10,40]);
             assertEqual(numel(npix_in_bins),40);
+            assertEqual(last_fit_bin,1);
             
             
             
-            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins] = combine_sqw_pix_job.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,100);
+            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] = ...
+                rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,100);
             assertEqual(npix_processed,200);
             assertEqual(size(npix_2_read),[10,1]);
             assertEqual(size(npix_per_bins),[10,39]);
             assertEqual(numel(npix_in_bins),39);
+            assertEqual(last_fit_bin,1);
             
             npix_per_bins = 11*npix_per_bins;
             npix_in_bins = cumsum(sum(npix_per_bins,1));
-            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins] = combine_sqw_pix_job.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,100);
+            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] = ...
+                rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,100);
             assertEqual(npix_processed,300);
             assertEqual(size(npix_2_read),[10,1]);
             assertEqual(size(npix_per_bins),[10,39]);
             assertEqual(numel(npix_in_bins),39);
             assertEqual(npix_2_read(1),100);
             assertEqual(npix_2_read(2),0);
+            assertEqual(last_fit_bin,0);
             
-            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins] = combine_sqw_pix_job.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,100);
+            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] =...
+                rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,100);
             assertEqual(npix_processed,400);
             assertEqual(size(npix_2_read),[10,1]);
             assertEqual(size(npix_per_bins),[10,39]);
             assertEqual(numel(npix_in_bins),39);
             assertEqual(npix_2_read(1),10);
             assertEqual(npix_2_read(2),90);
+            assertEqual(last_fit_bin,0);
             
             
-            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins] = combine_sqw_pix_job.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,100);
+            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] =...
+                rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,100);
             assertEqual(npix_processed,500);
             assertEqual(size(npix_2_read),[10,1]);
             assertEqual(size(npix_per_bins),[10,39]);
@@ -286,6 +301,33 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             assertEqual(npix_2_read(2),20);
             assertEqual(npix_2_read(3),80);
             assertEqual(npix_2_read(4),0);
+            assertEqual(last_fit_bin,0);  
+            
+            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] = ...
+                rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,700);
+            assertEqual(npix_processed,1300);
+            assertEqual(size(npix_2_read),[10,1]);
+            assertEqual(size(npix_per_bins),[10,38]);
+            assertEqual(numel(npix_in_bins),38);
+            assertEqual(npix_2_read(1),0);
+            assertEqual(npix_2_read(2),0);
+            assertEqual(npix_2_read(3),30);
+            assertEqual(npix_2_read(4),110);
+            assertEqual(last_fit_bin,1);  
+
+            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] = ...
+                rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,1200);
+            assertEqual(npix_processed,2200);
+            assertEqual(size(npix_2_read),[10,1]);
+            assertEqual(size(npix_per_bins),[10,37]);
+            assertEqual(numel(npix_in_bins),37);
+            assertEqual(npix_2_read(1),110);
+            assertEqual(npix_2_read(2),110);
+            assertEqual(npix_2_read(3),110);
+            assertEqual(npix_2_read(4),110);
+            assertEqual(last_fit_bin,1);  
+
+            
         end
         
         function test_read_pix(obj)

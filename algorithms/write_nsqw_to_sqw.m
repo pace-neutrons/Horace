@@ -120,7 +120,7 @@ nfiles=length(infiles);
 for i=1:nfiles
     if exist(infiles{i},'file')~=2
         error('WRITE_NSQW_TO_SQW:invalid_argument',...
-            ['File ',infiles{i},' not found'])
+            'Can not find file: %s',infiles{i})
     end
 end
 

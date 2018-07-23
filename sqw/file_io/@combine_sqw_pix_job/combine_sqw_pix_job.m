@@ -18,6 +18,8 @@ classdef combine_sqw_pix_job < JobExecutor
         filled_bin_ind_ =[];
         read_pix_cash_       = [];
         
+        h_log_file;
+        h_log_file_closer;
     end
     
     methods
@@ -62,7 +64,30 @@ classdef combine_sqw_pix_job < JobExecutor
                     obj.read_pix_cash_      =  cell(n_workers-1,1);
                 end
             end
-            
+            fname = sprintf('comb_sqw_N%d_log.log',obj.labIndex);
+            obj.h_log_file = fopen(fname,'w');
+            obj.h_log_file_closer = onCleanup(@()fclose(obj.h_log_file));
+        end
+        function log_progress(this,step,n_steps,time_per_step,add_info)
+            % log progress of the job execution and report it to the
+            % calling framework.
+            % Inputs:
+            % step     --  current step within the loop which doing the job
+            % n_steps  --  number of steps this job will make
+            % time_per_step -- approximate time spend to make one step of
+            %                  the job
+            % add_info -- some additional information provided by the
+            %             client. Not processed but printed in a log if not
+            %             empty.
+            % Outputs:
+            % Sends message of type LogMessage to the job dispatcher.
+            % Throws JOB_EXECUTOR:cancelled error in case the job has
+            %
+            if n_steps > 100
+                step = 100*step/n_steps;
+                n_steps = 100;
+            end
+            log_progress@JobExecutor(this,step,n_steps,time_per_step,add_info);
         end
         
         
@@ -124,6 +149,9 @@ classdef combine_sqw_pix_job < JobExecutor
                     [npix_per_bins,npix_in_bins,ibin_end]=...
                         obj.get_npix_section(fid,pix_comb_info.pos_npixstart,ibin_start,nbin,pix_buf_size);
                     npix_per_bins = npix_per_bins';
+                    if obj.h_log_file
+                        fprintf(obj.h_log_file,' npix_per_bins %d\n',numel(npix_per_bins ));
+                    end
                     
                     
                     % Get the largest bin index such that the pixel information can be put in buffer
@@ -131,19 +159,25 @@ classdef combine_sqw_pix_job < JobExecutor
                     % only read when the bin index fills as much of the buffer as possible, or if reaches the end of the array of buffered npix)
                     n_pix_2process = npix_in_bins(end);
                     npix_processed = 0;  % last pixel index for which data has been written to output file
+                    nbins_start = ibin_start;
                     while npix_processed < n_pix_2process
-                        [npix_per_bin2_read,npix_processed,npix_per_bins,npix_in_bins] = ...
+                        [npix_per_bin2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] = ...
                             obj.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,pix_buf_size);
                         
                         [pix_section_mess,pos_pixstart]=...
                             obj.read_pix_for_nbins_block(fid,pos_pixstart,npix_per_bin2_read,...
                             filenum,run_label,change_fileno,relabel_with_fnum);
-                        pix_section_mess.payload.bin_range = [ibin_start,ibin_end];
+                        nbins_end = nbins_start+last_fit_bin;
+                        pix_section_mess.payload.bin_range = [nbins_start,nbins_end];
+                        if obj.h_log_file
+                            fprintf(obj.h_log_file,' procecced ranges : [%d , %d], npix_%d#%d\n',ibin_start,ibin_end,npix_processed,n_pix_2process);
+                        end
                         %
                         [ok,err_mess]=mess_exch.send_message(1,pix_section_mess);
                         if ok ~= MESS_CODES.ok
                             error('COMBINE_SQW_PIX_JOB:runtime_error',err_mess);
                         end
+                        nbins_start = nbins_end;
                     end
                 else
                     messages = mess_exch.receive_all(data_providers,'data');
@@ -163,12 +197,19 @@ classdef combine_sqw_pix_job < JobExecutor
                     
                     ibin_end = obj.last_bins_processed_;
                     
-                    mpis.do_logging(npix ,n_pix_written,[],[]);
+                    mpis.do_logging(n_pix_written,npix ,[],[]);
                     
                     % Analyze what readers have not yet sent the whole
                     % pixel data to the writer.
                     data_remain = obj.max_bins_num_cash_ < nbin;
                     data_providers = find(data_remain)+1;
+                    if obj.h_log_file
+                        fprintf(obj.h_log_file,' data providers:');
+                        for i=1:numel(data_providers)
+                            fprintf(obj.h_log_file,' %d',data_providers(i));
+                        end
+                        fprintf(obj.h_log_file,'\n');
+                    end
                 end
                 
             end
@@ -290,7 +331,7 @@ classdef combine_sqw_pix_job < JobExecutor
             npix_in_bins = cumsum(sum(npix_section,2));
         end
         %
-        function [npix_2_read,npix_processed,npix_per_bins_left,npix_in_bins_left] = ...
+        function [npix_2_read,npix_processed,npix_per_bins_left,npix_in_bins_left,last_fit_bin] = ...
                 nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,pix_buf_size)
             % calculate number of bins to read enough pixels to fill pixels
             % buffer and recalculate the number of pixels to read from every
@@ -316,11 +357,14 @@ classdef combine_sqw_pix_job < JobExecutor
             % npix_in_bins_left  --  reduced cumulative sum of pixels in bins
             %                   of all files left to process in following
             %                   IO operations.
+            % last_fit_bin  -- the last bin number to process for  the pixels
+            %                  to fit pix buffer
+            
             %
             % See: test_sqw/test_nsqw2sqw_internal_methods for the details
             % of the method functionality
             %
-            [npix_2_read,npix_processed,npix_per_bins_left,npix_in_bins_left] = ...
+            [npix_2_read,npix_processed,npix_per_bins_left,npix_in_bins_left,last_fit_bin] = ...
                 nbin_for_pixels_(npix_per_bins,npix_in_bins,npix_processed,pix_buf_size);
         end
         %
