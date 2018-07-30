@@ -47,18 +47,23 @@ init_message =  InitMessage('dummy_not_used',3,true,1);
 
 je = JETester();
 [je,mess] = je.init(fbMPI,control_struct,init_message);
+labind = labindex();
+disp([' je initialized for lab ',num2str(labind)])
 % if je.labIndex ~= 1
 %     pause(0.5)
 % end
 
 if ~isempty(mess)
+    disp([' non-empty message for lab ',num2str(labind)])    
     err = sprinft(' Error sending ''started'' message from task N%d',...
         fbMPI.labIndex);
     error('WORKER:init_worker',err);
 end
+disp([' before assigning task outputs for lab ',num2str(labind)])
 je.task_outputs = sprintf(' finished job for lab %d',je.labIndex);
 % if je.labIndex ~= 1
 %     pause(0.5)
 % end
+disp([' before finish task for lab ',num2str(labind)])
 ok=je.finish_task();
 

@@ -109,11 +109,12 @@ classdef JobExecutor
             % framework for workers with labID > 1 and node 0 over
             % FileBased for worker with labID ==  1)
             %
+            mess_cash.instance('delete');
             [obj,mess]=init_je_(obj,fbMPI,job_control_struct,InitMessage);
         end
         %
-        function [ok,mess,this] =finish_task(this,varargin)
-            % Cleanly finish job execution amd inform head node about it
+        function [ok,mess,obj] =finish_task(obj,varargin)
+            % Cleanly finish job execution and inform head node about it
             %
             %Usage:
             %>>[ok,mess] = obj.finish_task();
@@ -127,7 +128,8 @@ classdef JobExecutor
             % when mess_reduction_function is present, the messages from
             % all labs processed on the lab one using this function
             %
-            [ok,mess,this] = finish_task_(this,varargin{:});
+            [ok,mess,obj] = finish_task_(obj,varargin{:});
+            mess_cash.instance('delete');
         end
         %
         function [ok,err,obj] = reduce_send_message(obj,mess,varargin)
