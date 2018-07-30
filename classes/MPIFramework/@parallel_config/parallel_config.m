@@ -246,7 +246,7 @@ classdef parallel_config<config_base
                 case('parpool')
                     fprintf('*** Starting Matlab MPI job with %d workers ***\n',n_workers);                    
                     controller = ClusterParpoolWrapper(n_workers,cluster_to_host_exch_fmwork);
-                    fprintf('*** Matlab MPI job started                    ***\n');                                        
+                    fprintf('*** Matlab MPI job started                 ***\n');                                        
                 otherwise
                     error('PARALLEL_CONFIG:runtime_error',...
                         'Got unknown parallel framework: %s',fram);

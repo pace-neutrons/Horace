@@ -269,7 +269,7 @@ classdef JobDispatcher
                 warning(Err_code,...
                     ' Number: %d parallel tasks out of total: %d tasks have failed',...
                     n_failed,n_workers)
-                errOutputs = outputs(isMExeptions);
+                errOutputs = outputs(mEXceptions_outputs);
                 if iscell(errOutputs)
                     throw(errOutputs{1});
                 else

@@ -109,6 +109,88 @@ classdef test_mess_cash < TestCase
             
             assertEqual(mc.get_n_occupied(),4)
         end
+        function test_single_queue(obj)
+            mc = single_tid_mess_queue;
+            mess = mc.pop();
+            assertTrue(isempty(mess));
+            
+            mc.push(struct('num',1));
+            mc.push(struct('num',2));
+            mc.push(struct('num',3));
+            assertEqual(mc.length,uint64(3));
+            mess = mc.pop();
+            assertEqual(mc.length,uint64(2));
+            assertEqual(mess.num,1);
+            
+            mc.push(struct('num',4));
+            assertEqual(mc.length,uint64(3));
+            
+            mess = mc.pop();
+            assertEqual(mc.length,uint64(2));
+            assertEqual(mess.num,2);
+            
+            mess = mc.pop();
+            assertEqual(mc.length,uint64(1));
+            assertEqual(mess.num,3);
+            
+            mess = mc.pop();
+            assertEqual(mc.length,uint64(0));
+            assertEqual(mess.num,4);
+            
+            mess = mc.pop();
+            assertEqual(mc.length,uint64(0));
+            assertTrue(isempty(mess));
+            
+            mc.push(struct('num',3));
+            assertEqual(mc.length,uint64(1));
+            
+            mess = mc.pop();
+            assertEqual(mc.length,uint64(0));
+            assertEqual(mess.num,3);
+            
+            mc.push(struct('num',1,'mess_name','a'));
+            mc.push(struct('num',2,'mess_name','b'));
+            mc.push(struct('num',3,'mess_name','a'));
+            mc.push(struct('num',4,'mess_name','c'));
+            assertEqual(mc.length,uint64(4));
+            
+            [present,queue_key] = mc.check('a');
+            assertTrue(present)
+            assertEqual(queue_key,1);
+            
+            mess = mc.pop('a',queue_key);
+            assertEqual(mess.num,1);
+            assertEqual(mc.length,uint64(3));
+            
+            [present,queue_key] = mc.check('a');
+            assertTrue(present)
+            assertEqual(queue_key,3);
+            
+            mess = mc.pop('a',queue_key);
+            assertEqual(mess.num,3);
+            assertEqual(mc.length,uint64(2));
+            
+            mess = mc.pop();
+            assertEqual(mess.num,2);
+            assertEqual(mess.mess_name,'b');
+            assertEqual(mc.length,uint64(1));
+            
+            mc.push(struct('num',5,'mess_name','a'));
+            assertEqual(mc.length,uint64(2));
+            
+            mess = mc.pop();
+            assertEqual(mess.num,4);
+            assertEqual(mess.mess_name,'c');
+            assertEqual(mc.length,uint64(1));
+            
+            mess = mc.pop();
+            assertEqual(mess.num,5);
+            assertEqual(mess.mess_name,'a');
+            assertEqual(mc.length,uint64(0));
+            
+            mc.push(struct('num',1,'mess_name','a'));
+            assertEqual(mc.length,uint64(1));            
+        end
         
     end
     

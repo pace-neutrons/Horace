@@ -70,7 +70,7 @@ while ~all_received
         tid_to_ask = tid_from(n_cur_mess);
         %fprintf(' receiving message %s from task: %d\n',mess_names{n_cur_mess},tid_to_ask)
         [ok,err_exception,message]=receive_message_(obj,tid_to_ask,mess_names{n_cur_mess});
-        if ok ~= MESS_CODES.ok 
+        if ok ~= MESS_CODES.ok
             if ok == MESS_CODES.job_cancelled
                 is_failed = true;
                 message = aMessage('cancelled');
@@ -92,7 +92,17 @@ while ~all_received
         if lock_until_received
             if is_failed || strcmp(mess_names{n_cur_mess},mess_name)
                 %store resulting message
-                all_messages{i}  = message;
+                % Data messages should be retained until received, anything
+                % else would be overwritten
+                if isempty(all_messages{i})
+                    all_messages{i}  = message;
+                else
+                    if strcmpi(all_messages{i}.mess_name,'data')
+                        mc.push_messages(tid_to_ask,message);
+                    else
+                        all_messages{i}  = message;
+                    end
+                end
                 mess_present(i)  = true;
             else
                 % wrong message, receive and store it for the future
