@@ -28,28 +28,16 @@ end
 
 not_this_id = task_ids ~= obj.labIndex;
 tid_requested = task_ids(not_this_id);
-% prepare outputs
-n_requested = numel(tid_requested);
-all_messages = cell(n_requested ,1);
-
 tid_received_from = tid_requested;
 
-% retrieve all messages received earlier and copy them into output array
-if lock_until_received
-    [old_mess,old_tids]= mess_cash.instance().pop_messages(tid_requested,mess_name);
-else
-    [old_mess,old_tids]= mess_cash.instance().pop_messages(tid_requested);
-end
-mess_present = ismember(tid_requested,old_tids);
-if any(mess_present)
-    n_message = 0;
-    for i=1:n_requested
-        if mess_present(i)
-            n_message = n_message+1;
-            all_messages{i} = old_mess{n_message};
-        end
-    end
-end
+mc = mess_cash.instance();
+%log_file_h = mc.log_file_h;
+
+[all_messages,mess_present] = mc.get_cash_messages(tid_requested,mess_name,lock_until_received);
+n_requested = numel(all_messages);
+% if any(mess_present)
+%     fprintf(log_file_h,' Old messages present\n');
+% end
 
 % check new messages received from other labs
 [mess_names,tid_from] = labProbe_messages_(obj,tid_requested);
@@ -57,7 +45,7 @@ present_now = ismember(tid_requested,tid_from);
 
 all_received = false;
 n_calls = 0;
-mc = mess_cash.instance();
+
 t0 = tic;
 is_failed = false;
 while ~all_received
@@ -68,7 +56,9 @@ while ~all_received
         end
         n_cur_mess = n_cur_mess+1;
         tid_to_ask = tid_from(n_cur_mess);
-        %fprintf(' receiving message %s from task: %d\n',mess_names{n_cur_mess},tid_to_ask)
+        %fprintf(log_file_h,'New message %s N %d fron TID %d present\n',...
+        %    mess_names{n_cur_mess},i,tid_to_ask);
+        
         [ok,err_exception,message]=receive_message_(obj,tid_to_ask,mess_names{n_cur_mess});
         if ok ~= MESS_CODES.ok
             if ok == MESS_CODES.job_cancelled
@@ -79,6 +69,8 @@ while ~all_received
                 rethrow(err_exception);
             end
         end
+        %fprintf(log_file_h,'Received new message %s N %d fron TID %d present\n',...
+        %    message.mess_name,i,tid_to_ask);
         if strcmp(message.mess_name,'failed') || is_failed
             % failed message is persistent.
             % Make it ready for the next possible receive request
@@ -97,7 +89,7 @@ while ~all_received
                 if isempty(all_messages{i})
                     all_messages{i}  = message;
                 else
-                    if strcmpi(all_messages{i}.mess_name,'data')
+                    if strcmp(all_messages{i}.mess_name,'data')
                         mc.push_messages(tid_to_ask,message);
                     else
                         all_messages{i}  = message;
@@ -113,10 +105,17 @@ while ~all_received
             mess_present(i)  = true;
         end
     end
+%     fprintf(log_file_h,'mess present: ');
+%     for j=1:numel(mess_present)
+%         fprintf(log_file_h,' %d ',mess_present(j));
+%     end
+%     fprintf(log_file_h,'\n');
+%     
     % check if we want to wait for more messages to arrive
     if lock_until_received
         if all(mess_present)
             all_received = true;
+            %fprintf(log_file_h,'all received\n');
         else
             t1 = toc(t0);
             if t1>obj.time_to_fail_
@@ -125,6 +124,12 @@ while ~all_received
             end
             
             [mess_names,tid_from] = labProbe_messages_(obj,tid_requested);
+%             if numel(tid_from) > 0
+%                 fprintf(log_file_h,'more exist\n');
+%                 for j=1:numel(tid_from)
+%                     fprintf(log_file_h,'Mess %s from %d\n',mess_names{j},tid_from(j));
+%                 end
+%             end
             present_now = ismember(tid_requested,tid_from);
             n_calls = n_calls +1;
         end

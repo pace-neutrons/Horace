@@ -46,7 +46,7 @@ classdef mess_cash < handle
         end
     end
     methods
-        function obj = push_messages(obj,task_ids,mess)
+        function push_messages(obj,task_ids,mess)
             if iscell(mess) %list of messages
                 if numel(task_ids) ~= numel(mess)
                     error('MESS_CASH:invalid_argument',...
@@ -59,9 +59,7 @@ classdef mess_cash < handle
                     task_ids = find(task_ids);
                 end
                 for i=1:numel(task_ids)
-                    mc = obj.mess_cash_(task_ids(i));
-                    mc.push(mess{i});
-                    obj.mess_cash_(task_ids(i)) = mc;
+                    obj.push_messages(task_ids(i),mess{i});
                 end
             elseif isa(mess,'aMessage') %single message
                 if task_ids>obj.cash_capacity_
@@ -69,9 +67,9 @@ classdef mess_cash < handle
                         'messages cash initialized for %d workers, but attempting to store message from the worker N%d',...
                         obj.cash_capacity_,task_ids);
                 end
-                mc = obj.mess_cash_(task_ids);
+                mc = obj.mess_cash_{task_ids};
                 mc.push(mess);
-                obj.mess_cash_(task_ids) = mc;
+                obj.mess_cash_{task_ids} = mc;
             else
                 error('MESS_CASH:invalid_argument',...
                     'input for push messages must be either cellarray of messages or single message')
@@ -85,7 +83,7 @@ classdef mess_cash < handle
             if ~exist('tid_requested','var') || isempty(tid_requested)
                 task_ids = 1:numel(obj.mess_cash_);
             else
-                mess_exist = arrayfun(@(x)(x.length ~=0),obj.mess_cash_,'UniformOutput',true);
+                mess_exist = cellfun(@(x)(x.length ~=0),obj.mess_cash_,'UniformOutput',true);
                 ind_exist = find(mess_exist);
                 is_requested = ismember(tid_requested,ind_exist);
                 task_ids  = tid_requested(is_requested);
@@ -102,13 +100,13 @@ classdef mess_cash < handle
             mess_exist = false(n_mess_max,1);
             for i=1:n_mess_max
                 if select_by_name
-                    [present,key] = obj.mess_cash_(task_ids(i)).check(mess_name);
+                    [present,key] = obj.mess_cash_{task_ids(i)}.check(mess_name);
                     if present
                         mess_exist(i) = true;
-                        mess_list{i}  = obj.mess_cash_(task_ids(i)).pop(mess_name,key);
+                        mess_list{i}  = obj.mess_cash_{task_ids(i)}.pop(mess_name,key);
                     end
                 else
-                    mess_list{i} = obj.mess_cash_(task_ids(i)).pop();
+                    mess_list{i} = obj.mess_cash_{task_ids(i)}.pop();
                     if ~isempty(mess_list{i})
                         mess_exist(i) = true;
                     end
@@ -117,20 +115,47 @@ classdef mess_cash < handle
             mess_list = mess_list(mess_exist);
             task_ids  = task_ids(mess_exist);
         end
-        
         %
+        function [all_messages,mess_present] = get_cash_messages(obj,tid_requested,mess_name,lock_until_received)
+            % Restore old messages, previously stored in the cash in the
+            % order, spefified by tid_requested
+            %
+            % prepare outputs            
+            n_requested = numel(tid_requested);            
+            all_messages = cell(n_requested ,1);
+            if lock_until_received
+                [old_mess,old_tids]= obj.pop_messages(tid_requested,mess_name);
+            else
+                [old_mess,old_tids]= obj.pop_messages(tid_requested);
+            end
+            mess_present = ismember(tid_requested,old_tids);
+            if any(mess_present)
+                
+                n_message = 0;
+                for i=1:n_requested
+                    if mess_present(i)
+                        n_message = n_message+1;
+                        all_messages{i} = old_mess{n_message};
+                    end
+                end
+            end
+            
+            
+        end
         function sz = get.cash_capacity(obj)
             sz = obj.cash_capacity_;
         end
         function noc = get_n_occupied(obj)
-            noc = sum(arrayfun(@(x)(x.length~=0),obj.mess_cash_,'UniformOutput',true));
+            noc = sum(cellfun(@(x)(x.length~=0),obj.mess_cash_,'UniformOutput',true));
         end
         function clear(obj)
             % clear cash contents without changing the cash capacity
             num_labs= obj.cash_capacity_;
+            obj.mess_cash_ = cell(1,num_labs);
             for i=1:num_labs
-                obj.mess_cash_(i) = copy(single_tid_mess_queue);                
+                obj.mess_cash_{i} = copy(single_tid_mess_queue);
             end
+
         end
         function fh = get.log_file_h(obj)
             if isempty(obj.log_file_h_)
@@ -157,11 +182,12 @@ classdef mess_cash < handle
                     num_labs = numlabs; % MPI numlabs
                 end
             end
-            obj.mess_cash_ = repmat(single_tid_mess_queue,1,num_labs);
-            for i=1:numel(num_labs)
-                obj.mess_cash_(i) = copy(single_tid_mess_queue);
+            obj.mess_cash_ = cell(1,num_labs);
+            obj.cash_capacity_ = num_labs;            
+            for i=1:num_labs
+                obj.mess_cash_{i} = copy(single_tid_mess_queue);
             end
-            obj.cash_capacity_ = num_labs;
+
         end
         
     end

@@ -13,6 +13,49 @@ classdef test_mess_cash < TestCase
             end
             this = this@TestCase(name);
         end
+        function test_get_cash_messages(obj)
+            mess_cash.instance('delete');
+            mc = mess_cash.instance(11);
+            assertEqual(mc.get_n_occupied(),0);
+            
+            mc.push_messages(3 ,aMessage('running'));
+            mc.push_messages(5 ,aMessage('running'));
+            mc.push_messages(7 ,aMessage('completed'));
+            mc.push_messages(9 ,aMessage('failed'));
+            mc.push_messages(10 ,aMessage('running'));
+            
+            assertEqual(mc.get_n_occupied(),5);
+            
+            tid_requested = [1,2,4,6,8,11];
+            [mess,mess_present] = ...
+                mess_cash.instance().get_cash_messages(tid_requested,'',false);
+            assertEqual(numel(mess),numel(tid_requested));
+            assertEqual(numel(mess),numel(mess_present));
+            assertTrue(~any(mess_present));
+            
+            
+            mess_name = 'running';
+            tid_requested = 5:9;
+            
+            [mess,mess_present] = ...
+                mess_cash.instance().get_cash_messages(tid_requested,mess_name,true);
+            assertEqual(numel(mess),numel(tid_requested));
+            assertEqual(numel(mess),numel(mess_present));
+            
+            %1 2 3 4 5
+            %5 6 7 8 9
+            %x - x - x
+            %r - - - f
+            assertTrue(mess_present(1));
+            assertFalse(mess_present(2));
+            assertFalse(mess_present(3));
+            assertFalse(mess_present(4));
+            assertTrue(mess_present(5));
+            
+            assertEqual(mc.get_n_occupied(),4);
+            assertEqual(mess_cash.instance().get_n_occupied(),4);
+        end
+        
         
         function test_cash_operations(obj)
             mess_cash.instance('delete');
@@ -35,6 +78,7 @@ classdef test_mess_cash < TestCase
             assertEqual(tid(1),3);
             assertEqual(tid(2),4);
             assertEqual(mc.cash_capacity,9)
+            assertEqual(mc.get_n_occupied,2)
             
             mess_list1{1} = aMessage('running');
             mess_list1{2} = aMessage('completed');
@@ -52,6 +96,7 @@ classdef test_mess_cash < TestCase
             assertEqual(tid(3),9);
             assertTrue(strcmp(mess_rec{3}.mess_name,'failed'));
             assertEqual(mc.cash_capacity,9)
+            
             %  failed messaged are persistent so should not be
             % removed from the cash while all other should
             assertEqual(mc.get_n_occupied(),2);
@@ -189,7 +234,7 @@ classdef test_mess_cash < TestCase
             assertEqual(mc.length,uint64(0));
             
             mc.push(struct('num',1,'mess_name','a'));
-            assertEqual(mc.length,uint64(1));            
+            assertEqual(mc.length,uint64(1));
         end
         
     end
