@@ -22,15 +22,29 @@ needs_queue = MESS_NAMES.is_queuing(mess_name);
 
 mess_fname = obj.job_stat_fname_(task_id,mess_name);
 if needs_queue
-    if exist(mess_fname,'file') == 2
-        [~,free_queue_num] = list_these_messages_(obj,mess_name,obj.labIndex,task_id);
-        [fp,fn] = fileparts(mess_fname);
+    [fp,fn] = fileparts(mess_fname);
+    [start_queue_num,free_queue_num] = ...
+        list_these_messages_(obj.mess_exchange_folder,obj.job_id,mess_name,obj.labIndex,task_id);
+    if start_queue_num(1) >= 0
         mess_fname = fullfile(fp,[fn,'.',num2str(free_queue_num)]);
     end
-    save(mess_fname,'message');
-else
-    save(mess_fname,'message');
 end
-% Allow save operation to complete. On Windows some messages remain blocked
-pause(0.1);
+lock_file  = build_lock_fname_(mess_fname);
+fh = fopen(lock_file,'wb');
 
+% Allow save operation to complete. On Windows some messages remain blocked
+clob = onCleanup(@()unlock(fh,lock_file));
+%
+save(mess_fname,'message','-v7.3');
+
+
+
+
+function unlock(fh,filename)
+fclose(fh);
+while exist(filename,'file')==2
+    delete(filename);
+    % Allow save operation to complete. On Windows some messages remain
+    % blocked for some time after save completed
+    pause(0.1);
+end

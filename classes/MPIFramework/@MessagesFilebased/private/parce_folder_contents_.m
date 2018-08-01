@@ -11,7 +11,24 @@ function [mess_names,mid_from,mid_to,varargout] = parce_folder_contents_(folder_
 mess_template = 'mess_';
 len = numel(mess_template);
 
-is_mess = arrayfun(@(x)(~x.isdir && strncmpi(mess_template,x.name,len)),folder_contents);
+    function is = is_message(file_struc)
+        % the functon verifies if the file structure produced by dir
+        % and received as input is actually the file, with filebased
+        % message
+        if file_struc.isdir
+            is = false;
+            return;
+        end
+        [~,fn,fext] = fileparts(file_struc.name);
+        if strcmpi(fext,'.lock')
+            is = false;
+            return;
+        end
+        is = strncmpi(mess_template,fn,len);
+    end
+
+% extract only messages
+is_mess = arrayfun(@is_message,folder_contents);
 mess_files = folder_contents(is_mess);
 if numel(mess_files) ==0
     mess_names = {};
@@ -19,6 +36,7 @@ if numel(mess_files) ==0
     mid_to   = [];
     return;
 end
+% identify messages sources and destinations
 if verLessThan('matlab','8.12')
     mess_fnames = arrayfun(@(x)(regexp(x.name,'_','split')),mess_files,'UniformOutput',false);
 else
@@ -31,7 +49,11 @@ mid_to     = arrayfun(@(x)(sscanf(x{1}{4},'ToN%d')),mess_fnames,'UniformOutput',
 if nargout > 3
     varargout{1} = arrayfun(@get_fext,mess_files,'UniformOutput',false);
 end
-    
+end
+
 function fext = get_fext(file_struct)
-    [~,~,fext] = fileparts(file_struct.name);
+[~,~,fext] = fileparts(file_struct.name);
+end
+
+
 

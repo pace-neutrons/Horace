@@ -1,7 +1,7 @@
 classdef JobDispatcher
     % The class to run and control Herbert MPI jobs.
     %
-    % Allow user to run multisession or MPI jobs, defined by the classes-children of
+    % Allow user to run multi-session or MPI jobs, defined by the classes-children of
     % JobExecutor class.
     %
     % In case of Parallel computer toolbox available, runs Matlab MPI communicating jobs
@@ -244,7 +244,7 @@ classdef JobDispatcher
             %             the exception to throw
             % Throws:
             % First exception returned from the cluster if such exceptions
-            % are present or excepion with Err_code as MExeption.identifier
+            % are present or exception with Err_code as MExeption.identifier
             % if no errors returned
             %
             mEXceptions_outputs = false(size(outputs));
@@ -257,8 +257,12 @@ classdef JobDispatcher
                             i,outputs{i}.identifier,outputs{i}.message);
                     else
                         mEXceptions_outputs(i) = false;
-                        fprintf('Task N%d failed. Output: ',i);
-                        disp(outputs{i});
+                        fprintf('Task N%d failed. Outputs: \n',i);
+                        if isempty(outputs{i})
+                            fprintf('[]\n');
+                        else
+                            disp(outputs{i});
+                        end
                     end
                 end
             else
@@ -273,8 +277,10 @@ classdef JobDispatcher
                     n_failed,n_workers)
                 errOutputs = outputs(mEXceptions_outputs);
                 if iscell(errOutputs)
+                    disp(getReport(errOutputs{1}))
                     throw(errOutputs{1});
                 else
+                    disp(getReport(errOutputs))
                     throw(errOutputs);
                 end
             else

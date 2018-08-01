@@ -54,7 +54,7 @@ while ~mess_present
             mess_present = true;
         end
     end
-    if ~mess_present % no message intender for this lab is present in system.
+    if ~mess_present % no message intended for this lab is present in system.
         % do waiting for it
         t_passed = toc(t0);
         if t_passed > obj.time_to_fail_
@@ -82,22 +82,23 @@ end
 %
 % safeguard against message start being written up
 % but have not finished yet when dispatcher asks for it
-ic = 0;
-try_limit = 2;
+n_attempts = 0;
+try_limit = 10;
 received = false;
 while ~received
+    
+    lock_file = build_lock_fname_(mess_fname);
+    if exist(lock_file,'file') == 2
+        pause(obj.time_to_react_)
+        continue;
+    end
     try
         mesl = load(mess_fname);
         received = true;
     catch err
-        ic = ic+1;
-        if ic>try_limit
-            err_code  =MESS_CODES.runtime_error;
-            err_mess = ...
-                sprintf('Can not retrieve message "%s" for task with id: %d does not exist, reason: %s',...
-                mess_name,from_task_id,err.message);
-            message = [];
-            return;
+        n_attempts = n_attempts+1;
+        if n_attempts>try_limit
+            rethrow(err);
         end
         pause(obj.time_to_react_)
     end
@@ -107,8 +108,9 @@ end
 from_data_queue = MESS_NAMES.is_queuing(mess_names{1});
 progress_queue = false;
 if from_data_queue
-    first_queue_num = list_these_messages_(obj,mess_names{1},from_task_id,obj.labIndex);
-    if first_queue_num >0
+    first_queue_num = list_these_messages_(obj.mess_exchange_folder,obj.job_id,...
+        mess_names{1},from_task_id,obj.labIndex);
+    if first_queue_num(1) >0
         progress_queue = true;
     end
 end
@@ -116,14 +118,39 @@ end
 message = mesl.message;
 err_code  =MESS_CODES.ok;
 err_mess=[];
-if ~is_failed  % make failed message persistent
-    delete(mess_fname);
-    if progress_queue
-        [fp,fn] = fileparts(mess_fname);
-        next_mess_fname = fullfile(fp,[fn,'.',num2str(first_queue_num)]);
-        rename_file(next_mess_fname,mess_fname);
+
+if is_failed  % make failed message persistent
+    return;
+end
+
+delete(mess_fname);
+pause(0.1);
+if progress_queue % prepare the next message to read -- the oldest message
+    % written earlier
+    
+    [fp,fn] = fileparts(mess_fname);
+    next_mess_fname = fullfile(fp,[fn,'.',num2str(first_queue_num(1))]);
+    
+    lock_file = build_lock_fname_(mess_fname);
+    success = false;
+    n_attempts = 0;
+    while ~success
+        if exist(lock_file,'file') == 2
+            pause(obj.time_to_react_)
+            continue;
+        end
+        
+        [success,mess,mess_id]=movefile(next_mess_fname,mess_fname,'f');
+        if ~success
+            pause(obj.time_to_react_);
+            n_attempts = n_attempts+1;
+            if n_attempts > try_limit
+                error(mess_id,mess);
+            end
+        end
     end
 end
+
 
 
 function [is,err_code,err_message] = check_job_cancelled(obj)

@@ -1,6 +1,6 @@
 function [ok,err_mess]=worker_v1(worker_controls_string)
-% function used as standard worker to do a job in different Matlab
-% session
+% function used as standard worker to do a job in a separate Matlab
+% session.
 %
 % To work, should be present on a data search path, before Herbert is
 % initialized as may need to initialize Herbert and Horace itself
@@ -16,6 +16,8 @@ function [ok,err_mess]=worker_v1(worker_controls_string)
 %
 % $Revision: 765 $ ($Date: 2018-06-15 17:01:32 +0100 (Fri, 15 Jun 2018) $)
 %
+err_mess = [];
+exit_at_the_end = true;
 if isempty(which('herbert_init.m'))
     horace_on();
 end

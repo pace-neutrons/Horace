@@ -169,12 +169,13 @@ classdef MessagesFilebased < iMessagesFramework
                     continue;
                 end
                 
-                for i=1:numel(mid_from) % delete mesages files
+                for i=1:numel(mid_from) % delete messages files
                     mess_fname = obj.job_stat_fname_(obj.labIndex,all_messages{i},mid_from(i));
                     delete(mess_fname);
                 end
             end
         end
+        %
         function [ok,err]=labBarrier(obj,nothrow)
             if ~exist('nothrow','var')
                 nothrow = false;

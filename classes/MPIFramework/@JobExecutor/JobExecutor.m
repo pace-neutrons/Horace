@@ -129,7 +129,6 @@ classdef JobExecutor
             % all labs processed on the lab one using this function
             %
             [ok,mess,obj] = finish_task_(obj,varargin{:});
-            mess_cash.instance('delete');
         end
         %
         function [ok,err,obj] = reduce_send_message(obj,mess,varargin)

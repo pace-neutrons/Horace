@@ -8,7 +8,7 @@ if ~exist(mess_folder,'dir')
 end
 [ok, message] = rmdir(mess_folder,'s');
 % may be jobs are writing to the folder and one can not remove them
-% immidiately
+% immediately
 itry = 0;
 while ~ok &&itry<10
     pause(1);

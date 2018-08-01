@@ -51,8 +51,7 @@ is_failed = false;
 while ~all_received
     n_cur_mess = 0;
     for i=1:n_requested % receive all existing messages in the messages queue
-        if ~present_now(i)
-            continue;
+        if ~present_now(i); continue;
         end
         n_cur_mess = n_cur_mess+1;
         tid_to_ask = tid_from(n_cur_mess);
@@ -89,7 +88,7 @@ while ~all_received
                 if isempty(all_messages{i})
                     all_messages{i}  = message;
                 else
-                    if strcmp(all_messages{i}.mess_name,'data')
+                    if MESS_NAMES.is_queuing(all_messages{i}.mess_name)
                         mc.push_messages(tid_to_ask,message);
                     else
                         all_messages{i}  = message;

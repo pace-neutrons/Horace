@@ -1,16 +1,15 @@
-function [start_queue_num,free_queue_num]=list_these_messages_(obj,mess_name,send_from,sent_to)
+function [start_queue_num,free_queue_num]=list_these_messages_(mess_folder,job_id,mess_name,send_from,sent_to)
 % process list of the messages already sent from this routine
 % and return the numbers of the first message in the queue and the number of the
 % first free place in the queue
 
-mess_folder = obj.mess_exchange_folder;
 folder_contents = dir(mess_folder);
 if numel(folder_contents )<=2 % no messages in the folder
     start_queue_num = -1;
     free_queue_num   = 0;
     if ~(exist(mess_folder,'dir')==7) % job was cancelled
         error('FILEBASED_MESSAGES:runtime_error',...
-            'Job with id %s has been cancelled. No messages folder exist',obj.job_id)
+            'Job with id %s has been cancelled. No messages folder exist',job_id)
     end
     return;
 end
@@ -36,7 +35,7 @@ if numel(queue_nums) == 1
     return
 end
 queue_nums = queue_nums(queue_nums>0);
-start_queue_num = min(queue_nums);
+start_queue_num = sort(queue_nums);
 free_queue_num  = max(queue_nums)+1;
 
 function num = convert2num(fext)
