@@ -485,16 +485,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess])
             
             % Test against saved or store to save later
-            try
-                [obj,ref_ds]=save_or_test_variables(obj,w2_1456);
-            catch Err
-                acolor('g');
-                plot(w2_1456);
-                acolor('r');
-                pd(ref_ds);
-                rethrow(Err);
-            end
-            
+            save_or_test_variables(obj,w2_1456)
         end
         %
         function obj=test_accumulate_sqw11456(obj,varargin)
@@ -533,6 +524,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 emode, alatt, angdeg, u, v, psi([1,3,4,5,6]),...
                 omega([1,3,4,5,6]), dpsi([1,3,4,5,6]), gl([1,3,4,5,6]), gs([1,3,4,5,6]),...
                 'replicate');
+            assertEqual(exist(sqw_file_11456,'file'),2)
             clobT = onCleanup(@()obj.delete_files(tmp_files));
             
             % Now use accumulate sqw ----------------------
