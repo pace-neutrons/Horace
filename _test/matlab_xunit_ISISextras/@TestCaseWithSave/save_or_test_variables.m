@@ -66,6 +66,13 @@ for i=1:numel(ws_list)
         %
         ref_dataset = this.get_ref_dataset_(ws_names{i},test_name);
         [ok,mess]=equal_to_tol(ws_list{i}, ref_dataset,toll,keyval{:});
+        if ~ok
+            acolor('g');
+            plot(ref_dataset);
+            acolor('r');
+            pd(ws_list{i});
+            keep_figure;
+        end
         assertTrue(ok,[this.errmessage_prefix,': [',ws_names{i},'] :',mess])
     else
         this = this.set_ref_dataset_(ws_list{i},ws_names{i},test_name);
