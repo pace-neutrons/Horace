@@ -33,7 +33,7 @@ for i=1:nfiles
         det_tmp.filename = det.filename;
         det_tmp.filepath = det.filepath;        
     end
-    if ~isequal(det,det_tmp); error('WRITE_NSQW_TO_SQW:invalid_argument',...
+    if ~equal_to_tol(det,det_tmp,1.e-11); error('WRITE_NSQW_TO_SQW:invalid_argument',...
             'Detector parameter data is not the same in all files'); end
     clear det_tmp       % save memory on what could be a large variable
     

@@ -23,8 +23,8 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             source_test_dir = fullfile(her_dir,'_test','common_data');
             source_file = fullfile(source_test_dir,'MAP11014.nxspe');
             
-            %psi = [0,2,20]; %-- test settings;
-            psi = 0:1:200;  %-- evaluate_performance settings;
+            psi = [0,2,20]; %-- test settings;
+            %psi = 0:1:200;  %-- evaluate_performance settings;
             source_test_file  = cell(1,numel(psi));
             for i=1:numel(psi)
                 source_test_file{i}  = source_file;
@@ -206,6 +206,48 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             assertTrue(ok,mess);
             
         end
+        function test_pix_cash(obj)
+            n_files  = 10;
+            n_pixels = 4023;
+            n_bins   = 100;
+            test_pix_block =  build_pix_block_for_testing(n_pixels,n_bins,n_files);
+            nbin_start = 1;
+            nbin_end   = 10;
+            [mess_list,npix1,npix2] = split_to_messages_for_testing(test_pix_block,nbin_start,nbin_end,n_files);
+            
+            pc = pix_cash(n_files+1);
+            pc =pc.push_messages(mess_list);
+            [pc,pix_block] = pc.pop_pixels();
+            
+            
+            assertEqual(sort(test_pix_block(:,npix1:npix2)'),sort(pix_block'))
+            
+            n_bins   = 1000;
+            test_pix_block =  build_pix_block_for_testing(n_pixels,n_bins,n_files);
+            nbin_start = 1;
+            nbin_end   = 10;
+            [mess_list,npix1,npix2] = split_to_messages_for_testing(test_pix_block,nbin_start,nbin_end,n_files);
+            
+            pc =pc.push_messages(mess_list);
+            [pc,pix_block] = pc.pop_pixels();
+            assertEqual(sort(test_pix_block(:,npix1:npix2)'),sort(pix_block'))            
+            
+%             [mess_list1,npix_l1,npix_r1] = split_to_messages_for_testing(test_pix_block,10,20,5,1:5);            
+%             [mess_list2,npix_l2,npix_r2] = split_to_messages_for_testing(test_pix_block,10,15,5,6:10);                        
+%             
+%              mess_list = {mess_list1{:},mess_list2{:}};
+%              pc =pc.push_messages(mess_list);
+%              [pc,pix_block] = pc.pop_pixels();
+%              assertEqual(sort(test_pix_block(:,npix_l2:npix_r2)'),sort(pix_block'))                         
+%              
+%              [mess_list2,npix_l2,npix_r2] = split_to_messages_for_testing(test_pix_block,16,20,5,6:10);                                     
+%              mess_list1 = cell(5,1);
+%              mess_list = {mess_list1{:},mess_list2{:}};
+%               pc =pc.push_messages(mess_list);
+%              [pc,pix_block] = pc.pop_pixels();
+%              assertEqual(sort(test_pix_block(:,npix_l2:npix_r2)'),sort(pix_block'))                                       
+
+        end
         
         %
         function test_nbin_for_pixels(obj)
@@ -301,7 +343,7 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             assertEqual(npix_2_read(2),20);
             assertEqual(npix_2_read(3),80);
             assertEqual(npix_2_read(4),0);
-            assertEqual(last_fit_bin,0);  
+            assertEqual(last_fit_bin,0);
             
             [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] = ...
                 rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,700);
@@ -313,8 +355,8 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             assertEqual(npix_2_read(2),0);
             assertEqual(npix_2_read(3),30);
             assertEqual(npix_2_read(4),110);
-            assertEqual(last_fit_bin,1);  
-
+            assertEqual(last_fit_bin,1);
+            
             [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] = ...
                 rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,1200);
             assertEqual(npix_processed,2200);
@@ -325,8 +367,8 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             assertEqual(npix_2_read(2),110);
             assertEqual(npix_2_read(3),110);
             assertEqual(npix_2_read(4),110);
-            assertEqual(last_fit_bin,1);  
-
+            assertEqual(last_fit_bin,1);
+            
             
         end
         

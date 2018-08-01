@@ -12,12 +12,11 @@ classdef combine_sqw_pix_job < JobExecutor
         finalizer_ =[];
         open_files_id_ = [];
         
-        last_bins_processed_ = 0;
-        max_bins_num_cash_   = [];
-        num_bin_in_tail_   = [];
-        filled_bin_ind_ =[];
-        read_pix_cash_       = [];
+        % property to store pixels, which have not yet received information
+        % from all contributed bins (files)
+        pix_cash_ ;
         
+        % Print debugging information if necessary
         h_log_file;
         h_log_file_closer;
     end
@@ -56,38 +55,32 @@ classdef combine_sqw_pix_job < JobExecutor
             [obj,mess]=init@JobExecutor(obj,fbMPI,job_control_struct,InitMessage);
             if isempty(mess)
                 if obj.labIndex == 1
-                    n_workers = obj.mess_framework.numLabs;
-                    obj.last_bins_processed_ = 0;
-                    obj.num_bin_in_tail_   =   zeros(1,n_workers-1);
-                    obj.max_bins_num_cash_  =  zeros(1,n_workers-1);
-                    obj.filled_bin_ind_=       cell(n_workers-1,1);
-                    obj.read_pix_cash_      =  cell(n_workers-1,1);
+                    obj.pix_cash_ = pix_cash(obj.mess_framework.numLabs);
                 end
             end
             fname = sprintf('comb_sqw_N%d_log.log',obj.labIndex);
             obj.h_log_file = fopen(fname,'w');
             obj.h_log_file_closer = onCleanup(@()fclose(obj.h_log_file));
         end
-        function log_progress(this,step,n_steps,time_per_step,add_info)
+        function log_progress(obj,step,n_steps,time_per_step,addinfo)
             % log progress of the job execution and report it to the
             % calling framework.
             % Inputs:
             % step     --  current step within the loop which doing the job
             % n_steps  --  number of steps this job will make
-            % time_per_step -- approximate time spend to make one step of
-            %                  the job
-            % add_info -- some additional information provided by the
-            %             client. Not processed but printed in a log if not
-            %             empty.
             % Outputs:
             % Sends message of type LogMessage to the job dispatcher.
             % Throws JOB_EXECUTOR:cancelled error in case the job has
-            %
+            % been canceled
             if n_steps > 100
+                if ~isempty(time_per_step)
+                    time_per_step = time_per_step*n_steps/100;
+                end
                 step = 100*step/n_steps;
                 n_steps = 100;
+                
             end
-            log_progress@JobExecutor(this,step,n_steps,time_per_step,add_info);
+            log_progress@JobExecutor(obj,step,n_steps,time_per_step,addinfo);
         end
         
         
@@ -140,8 +133,10 @@ classdef combine_sqw_pix_job < JobExecutor
             ibin_end = 0;
             
             pix_buf_size=common_par.pix_buf_size;
-            
+            t0 = tic;
             mess_exch = obj.mess_framework;
+            npix_tot =0;
+            niter = 0;
             while ibin_end<nbin
                 if obj.labIndex > 1
                     % Refill buffer with next section of npix arrays from the input files
@@ -150,7 +145,7 @@ classdef combine_sqw_pix_job < JobExecutor
                         obj.get_npix_section(fid,pix_comb_info.pos_npixstart,ibin_start,nbin,pix_buf_size);
                     npix_per_bins = npix_per_bins';
                     if obj.h_log_file
-                        fprintf(obj.h_log_file,' npix_per_bins %d\n',numel(npix_per_bins ));
+                        fprintf(obj.h_log_file,' npix_per_bins %d, bin_range: [%d, %d]\n',numel(npix_per_bins ),ibin_start,ibin_end);
                     end
                     
                     
@@ -160,27 +155,50 @@ classdef combine_sqw_pix_job < JobExecutor
                     n_pix_2process = npix_in_bins(end);
                     npix_processed = 0;  % last pixel index for which data has been written to output file
                     nbins_start = ibin_start;
+                    
+                    
                     while npix_processed < n_pix_2process
-                        [npix_per_bin2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] = ...
+                        [npix_per_bin2_read,npix_processed,npix_per_bins,npix_in_bins,n_last_fit_bin] = ...
                             obj.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,pix_buf_size);
                         
                         [pix_section_mess,pos_pixstart]=...
                             obj.read_pix_for_nbins_block(fid,pos_pixstart,npix_per_bin2_read,...
                             filenum,run_label,change_fileno,relabel_with_fnum);
-                        nbins_end = nbins_start+last_fit_bin;
+                        nbins_end = nbins_start+n_last_fit_bin-1;
                         pix_section_mess.payload.bin_range = [nbins_start,nbins_end];
                         if obj.h_log_file
-                            fprintf(obj.h_log_file,' procecced ranges : [%d , %d], npix_%d#%d\n',ibin_start,ibin_end,npix_processed,n_pix_2process);
+                            niter = niter+1;
+                            pix_section_mess.payload.messN = niter;
+                            npix_tot = npix_tot+pix_section_mess.payload.npix;
+                            fprintf(obj.h_log_file,' processed ranges : [%d , %d], npix: %d#of%d\n',...
+                                nbins_start,nbins_end,npix_processed,n_pix_2process);
+                            fprintf(obj.h_log_file,'Step %d Sending pixels: %d; Total Sent: ************* %d\n',...
+                                niter,pix_section_mess.payload.npix,npix_tot);
                         end
                         %
                         [ok,err_mess]=mess_exch.send_message(1,pix_section_mess);
                         if ok ~= MESS_CODES.ok
                             error('COMBINE_SQW_PIX_JOB:runtime_error',err_mess);
                         end
-                        nbins_start = nbins_end;
+                        nbins_start = nbins_end+1;
                     end
                 else
                     messages = mess_exch.receive_all(data_providers,'data');
+                    if obj.h_log_file
+                        niter = niter+1;
+                        npix_received = 0;
+                        fprintf(obj.h_log_file,'receiving:\n');
+                        for i=1:numel(messages)
+                            pl =  messages{i}.payload;
+                            fprintf(obj.h_log_file,' lab %d mess N %d, npixels: %d\n',...
+                                pl.lab,pl.messN,pl.npix);
+                            npix_received = npix_received +pl.npix;
+                        end
+                        npix_tot = npix_tot+npix_received;
+                        
+                        fprintf(obj.h_log_file,'************* Step %d Npix received: %d. Total received: %d\n',niter,npix_received,npix_tot);
+                    end
+                    
                     if ~all(data_remain) % add empty providers to the list of messages
                         exp_messages = cell(numel(data_remain),1);
                         ic = 1;
@@ -195,29 +213,27 @@ classdef combine_sqw_pix_job < JobExecutor
                     [obj,pix_section] = process_messages_fill_cash_(obj,messages);
                     n_pix_written =obj.write_pixels(fout,pix_section,n_pix_written);
                     
-                    ibin_end = obj.last_bins_processed_;
-                    
-                    mpis.do_logging(n_pix_written,npix ,[],[]);
+                    ibin_end = obj.pix_cash_.last_bin_in_cash;
+                    te = toc(t0);
+                    mpis.do_logging(n_pix_written,npix,te/n_pix_written,[]);
                     
                     % Analyze what readers have not yet sent the whole
                     % pixel data to the writer.
-                    data_remain = obj.max_bins_num_cash_ < nbin;
+                    data_remain = obj.pix_cash_.data_remain(nbin);
                     data_providers = find(data_remain)+1;
                     if obj.h_log_file
-                        fprintf(obj.h_log_file,' data providers:');
-                        for i=1:numel(data_providers)
-                            fprintf(obj.h_log_file,' %d',data_providers(i));
-                        end
-                        fprintf(obj.h_log_file,'\n');
+                        fprintf(obj.h_log_file,' Total npix written %d; ibinend:%d#out of %d\n',...
+                            n_pix_written,ibin_end,nbin);
                     end
+                    
+                    
                 end
                 
             end
-            
-            clear clob;
-            if is_deployed
+            if obj.labIndex == 1 && is_deployed
                 mpis.do_logging(npix,npix,[],[]);
             end
+            clear clob;
             
         end
         function obj=reduce_data(obj)
