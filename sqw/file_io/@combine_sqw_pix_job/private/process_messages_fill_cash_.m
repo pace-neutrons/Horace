@@ -7,7 +7,7 @@ h_log = false;
 obj.pix_cash_ = obj.pix_cash_.push_messages(messages,h_log);
 [obj.pix_cash_,pix_section] = obj.pix_cash_.pop_pixels(h_log);
 
-if obj.h_log_file
-    fprintf(obj.h_log_file,' Saving n_pixels: %d\n',size(pix_section,2));
+if h_log
+    fprintf(h_log,' Saving n_pixels: %d\n',size(pix_section,2));
 end
 

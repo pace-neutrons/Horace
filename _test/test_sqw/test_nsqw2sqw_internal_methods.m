@@ -206,6 +206,7 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             assertTrue(ok,mess);
             
         end
+        %
         function test_pix_cash(obj)
             n_files  = 10;
             n_pixels = 4023;
@@ -248,7 +249,6 @@ classdef test_nsqw2sqw_internal_methods < TestCase
 %              assertEqual(sort(test_pix_block(:,npix_l2:npix_r2)'),sort(pix_block'))                                       
 
         end
-        
         %
         function test_nbin_for_pixels(obj)
             
