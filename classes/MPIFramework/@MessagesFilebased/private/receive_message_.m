@@ -131,7 +131,7 @@ if progress_queue % prepare the next message to read -- the oldest message
     [fp,fn] = fileparts(mess_fname);
     next_mess_fname = fullfile(fp,[fn,'.',num2str(first_queue_num(1))]);
     
-    lock_file = build_lock_fname_(mess_fname);
+    lock_file = build_lock_fname_(next_mess_fname);
     success = false;
     n_attempts = 0;
     while ~success
