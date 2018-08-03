@@ -19,6 +19,7 @@ classdef combine_sqw_pix_job < JobExecutor
         % Print debugging information if necessary
         h_log_file;
         h_log_file_closer;
+        DEBUG = false;
     end
     
     methods
@@ -58,181 +59,41 @@ classdef combine_sqw_pix_job < JobExecutor
                     obj.pix_cash_ = pix_cash(obj.mess_framework.numLabs);
                 end
             end
-            fname = sprintf('comb_sqw_N%d_log.log',obj.labIndex);
-            obj.h_log_file = fopen(fname,'w');
-            obj.h_log_file_closer = onCleanup(@()fclose(obj.h_log_file));
-        end
-        function log_progress(obj,step,n_steps,time_per_step,addinfo)
-            % log progress of the job execution and report it to the
-            % calling framework.
-            % Inputs:
-            % step     --  current step within the loop which doing the job
-            % n_steps  --  number of steps this job will make
-            % Outputs:
-            % Sends message of type LogMessage to the job dispatcher.
-            % Throws JOB_EXECUTOR:cancelled error in case the job has
-            % been canceled
-            if n_steps > 100
-                if ~isempty(time_per_step)
-                    time_per_step = time_per_step*n_steps/100;
-                end
-                step = 100*step/n_steps;
-                n_steps = 100;
-                
+            if obj.DEBUG
+                fname = sprintf('comb_sqw_N%d_log.log',obj.labIndex);
+                obj.h_log_file = fopen(fname,'w');
+                obj.h_log_file_closer = onCleanup(@()fclose(obj.h_log_file));
+            else
+                obj.h_log_file = false;
             end
-            log_progress@JobExecutor(obj,step,n_steps,time_per_step,addinfo);
         end
-        
         
         function obj=do_job(obj)
-            
-            mpis = MPI_State.instance();
-            is_deployed = mpis.is_deployed;
+            % main executable code
             
             common_par      = obj.common_data_;
             pix_comb_info   = obj.loop_data_{1};
             
+            if obj.DEBUG
+                h_log_fl = obj.h_log_file;
+            else
+                h_log_fl = false;
+            end
             
             if obj.labIndex == 1 % writer lab
-                filename = pix_comb_info.fout_name;
-                fout = fopen(filename,'rb+');
-                if fout<=0
-                    error('COMBINE_PIX_JOB:runtime_error',...
-                        'Can not open target file %s for writing',filename);
-                end
-                clob = onCleanup(@()fcloser_(fout));  %
+                [fout,data_providers,data_remain,clob] = init_writer_job_(obj,pix_comb_info);
                 
-                pix_out_position = pix_comb_info.pix_out_pos;
-                fseek(fout,pix_out_position,'bof');
-                check_error_report_fail_(fout,...
-                    sprintf(['Unable to move to the start of the pixel'...
-                    ' record to write the target file %s '...
-                    'to start writing combined pixels'],...
-                    filename));
-                % all other labs will send the pixel data to the writer
-                data_providers = 2:obj.mess_framework.numLabs;
-                data_remain    = true(size(data_providers ));
-            else
+                receive_data_write_output_(obj,common_par,fout,data_providers,data_remain,h_log_fl);
+                
+            else  % reader labs
                 % Get number of files
                 fid = verify_and_reopen_input_files_(pix_comb_info);
                 % Always close opened files on the procedure completion
                 clob = onCleanup(@()fcloser_(fid));  %
-                % Unpack input structures
-                pos_pixstart     = pix_comb_info.pos_pixstart;
-                relabel_with_fnum= pix_comb_info.relabel_with_fnum;
-                change_fileno    = pix_comb_info.change_fileno;
-                run_label        = pix_comb_info.run_label;
-                filenum          = pix_comb_info.filenum;
                 
+                read_inputs_send_to_writer_(obj,common_par,pix_comb_info,fid,h_log_fl)
             end
             
-            nbin = common_par.nbin;     % total number of bins
-            npix = common_par.npixels;  % total number of pixels
-            
-            n_pix_written = 0;
-            ibin_end = 0;
-            
-            pix_buf_size=common_par.pix_buf_size;
-            t0 = tic;
-            mess_exch = obj.mess_framework;
-            npix_tot =0;
-            niter = 0;
-            while ibin_end<nbin
-                if obj.labIndex > 1
-                    % Refill buffer with next section of npix arrays from the input files
-                    ibin_start = ibin_end+1;
-                    [npix_per_bins,npix_in_bins,ibin_end]=...
-                        obj.get_npix_section(fid,pix_comb_info.pos_npixstart,ibin_start,nbin,pix_buf_size);
-                    npix_per_bins = npix_per_bins';
-                    if obj.h_log_file
-                        fprintf(obj.h_log_file,' npix_per_bins %d, bin_range: [%d, %d]\n',numel(npix_per_bins ),ibin_start,ibin_end);
-                    end
-                    
-                    
-                    % Get the largest bin index such that the pixel information can be put in buffer
-                    % (We hold data for many bins in a buffer, as there is an overhead from reading each bin from each file separately;
-                    % only read when the bin index fills as much of the buffer as possible, or if reaches the end of the array of buffered npix)
-                    n_pix_2process = npix_in_bins(end);
-                    npix_processed = 0;  % last pixel index for which data has been written to output file
-                    nbins_start = ibin_start;
-                    
-                    
-                    while npix_processed < n_pix_2process
-                        [npix_per_bin2_read,npix_processed,npix_per_bins,npix_in_bins,n_last_fit_bin] = ...
-                            obj.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,pix_buf_size);
-                        
-                        [pix_section_mess,pos_pixstart]=...
-                            obj.read_pix_for_nbins_block(fid,pos_pixstart,npix_per_bin2_read,...
-                            filenum,run_label,change_fileno,relabel_with_fnum);
-                        nbins_end = nbins_start+n_last_fit_bin-1;
-                        pix_section_mess.payload.bin_range = [nbins_start,nbins_end];
-                        if obj.h_log_file
-                            niter = niter+1;
-                            pix_section_mess.payload.messN = niter;
-                            npix_tot = npix_tot+pix_section_mess.payload.npix;
-                            fprintf(obj.h_log_file,' processed ranges : [%d , %d], npix: %d#of%d\n',...
-                                nbins_start,nbins_end,npix_processed,n_pix_2process);
-                            fprintf(obj.h_log_file,'Step %d Sending pixels: %d; Total Sent: ************* %d\n',...
-                                niter,pix_section_mess.payload.npix,npix_tot);
-                        end
-                        %
-                        [ok,err_mess]=mess_exch.send_message(1,pix_section_mess);
-                        if ok ~= MESS_CODES.ok
-                            error('COMBINE_SQW_PIX_JOB:runtime_error',err_mess);
-                        end
-                        nbins_start = nbins_end+1;
-                    end
-                else
-                    messages = mess_exch.receive_all(data_providers,'data');
-                    if obj.h_log_file
-                        niter = niter+1;
-                        npix_received = 0;
-                        fprintf(obj.h_log_file,'receiving:\n');
-                        for i=1:numel(messages)
-                            pl =  messages{i}.payload;
-                            fprintf(obj.h_log_file,' lab %d mess N %d, npixels: %d\n',...
-                                pl.lab,pl.messN,pl.npix);
-                            npix_received = npix_received +pl.npix;
-                        end
-                        npix_tot = npix_tot+npix_received;
-                        
-                        fprintf(obj.h_log_file,'************* Step %d Npix received: %d. Total received: %d\n',niter,npix_received,npix_tot);
-                    end
-                    
-                    if ~all(data_remain) % add empty providers to the list of messages
-                        exp_messages = cell(numel(data_remain),1);
-                        ic = 1;
-                        for i=1:numel(exp_messages)
-                            if data_remain(i)
-                                exp_messages(i) = messages(ic);
-                                ic = ic+1;
-                            end
-                        end
-                        messages= exp_messages;
-                    end
-                    [obj,pix_section] = process_messages_fill_cash_(obj,messages);
-                    n_pix_written =obj.write_pixels(fout,pix_section,n_pix_written);
-                    
-                    ibin_end = obj.pix_cash_.last_bin_in_cash;
-                    te = toc(t0);
-                    mpis.do_logging(n_pix_written,npix,te/n_pix_written,[]);
-                    
-                    % Analyze what readers have not yet sent the whole
-                    % pixel data to the writer.
-                    data_remain = obj.pix_cash_.data_remain(nbin);
-                    data_providers = find(data_remain)+1;
-                    if obj.h_log_file
-                        fprintf(obj.h_log_file,' Total npix written %d; ibinend:%d#out of %d\n',...
-                            n_pix_written,ibin_end,nbin);
-                    end
-                    
-                    
-                end
-                
-            end
-            if obj.labIndex == 1 && is_deployed
-                mpis.do_logging(npix,npix,[],[]);
-            end
             clear clob;
             
         end
