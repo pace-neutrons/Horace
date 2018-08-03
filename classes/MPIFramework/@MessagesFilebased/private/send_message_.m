@@ -30,21 +30,15 @@ if needs_queue
     end
 end
 lock_file  = build_lock_fname_(mess_fname);
+while exist(lock_file,'file') == 2
+    pause(obj.time_to_react_)
+end
+
 fh = fopen(lock_file,'wb');
 
 % Allow save operation to complete. On Windows some messages remain blocked
-clob = onCleanup(@()unlock(fh,lock_file));
+clob = onCleanup(@()unlock_(fh,lock_file));
 %
 save(mess_fname,'message','-v7.3');
 
 
-
-
-function unlock(fh,filename)
-fclose(fh);
-while exist(filename,'file')==2
-    delete(filename);
-    % Allow save operation to complete. On Windows some messages remain
-    % blocked for some time after save completed
-    pause(0.1);
-end

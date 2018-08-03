@@ -93,6 +93,8 @@ while ~received
         continue;
     end
     try
+        fh = fopen(lock_file,'wb');
+        file_unlocker = onCleanup(@()unlock_(fh,lock_file));
         mesl = load(mess_fname);
         received = true;
     catch err
@@ -123,8 +125,6 @@ if is_failed  % make failed message persistent
     return;
 end
 
-delete(mess_fname);
-pause(0.1);
 if progress_queue % prepare the next message to read -- the oldest message
     % written earlier
     
@@ -149,7 +149,12 @@ if progress_queue % prepare the next message to read -- the oldest message
             end
         end
     end
+else
+    delete(mess_fname);
+    pause(0.1);
 end
+clear file_unlocker
+
 
 
 
