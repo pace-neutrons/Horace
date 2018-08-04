@@ -29,16 +29,17 @@ if needs_queue
         mess_fname = fullfile(fp,[fn,'.',num2str(free_queue_num)]);
     end
 end
+
 lock_file  = build_lock_fname_(mess_fname);
 while exist(lock_file,'file') == 2
     pause(obj.time_to_react_)
 end
 
 fh = fopen(lock_file,'wb');
-
-% Allow save operation to complete. On Windows some messages remain blocked
+%prepare lock removal after the routine completeon
 clob = onCleanup(@()unlock_(fh,lock_file));
 %
 save(mess_fname,'message','-v7.3');
-
+%
+clear clob;
 

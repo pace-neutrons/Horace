@@ -1,8 +1,17 @@
 function unlock_(fh,filename)
 fclose(fh);
-while exist(filename,'file')==2
+ws=warning('off','MATLAB:DELETE:Permission');
+permission_denied = false;
+while exist(filename,'file')==2 || permission_denied
     delete(filename);
-    % Allow save operation to complete. On Windows some messages remain
-    % blocked for some time after save completed
-    pause(0.1);
+    [~,warn_id] = lastwarn;
+    if strcmpi(warn_id,'MATLAB:DELETE:Permission')
+        permission_denied=true;
+        lastwarn('');
+    else
+        permission_denied=false;
+    end
+    
 end
+warning(ws);
+

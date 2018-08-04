@@ -47,6 +47,7 @@ rootpath = fileparts(which('herbert_init'));
 test_path=fullfile(rootpath,'_test');   % path to folder with all unit tests folders:
 test_folders_full = cellfun(@(x)fullfile(test_path,x),test_folders,'UniformOutput',false);
 
+clear config_store;
 
 % On exit always revert to initial Herbert configuration
 % ------------------------------------------------------
@@ -57,7 +58,8 @@ test_folders_full = cellfun(@(x)fullfile(test_path,x),test_folders,'UniformOutpu
 %  appropriate action when deployed, but we do not want this to be done
 %  during validation)
 
-current_conf =herbert_config();
+hc =herbert_config();
+current_conf=hc.get_data_to_store();
 cleanup_obj=onCleanup(@()validate_herbert_cleanup(current_conf,test_folders_full));
 
 
