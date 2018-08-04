@@ -38,6 +38,9 @@ classdef pix_combine_info
         %      (3) The files correspond to several runs in general, which need to
         %          be offset to give the run indices into the collective list of run parameters
         run_label;
+        
+        % auxiliary propery used by cut_sqw
+        npix_cumsum;
     end
     
     properties(Dependent)
@@ -74,7 +77,7 @@ classdef pix_combine_info
             obj.nbins        = nbins;
             obj.npix_file_tot    = npixtot;
             obj.n_pixels_ = uint64(sum(npixtot));
-
+            
             if exist('filenums','var')
                 obj.filenum_ = filenums;
             end

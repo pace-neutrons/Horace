@@ -95,8 +95,13 @@ test_folders_full = cellfun(@(x)fullfile(test_path,x),test_folders,'UniformOutpu
 
 % On exit always revert to initial Horace and Herbert configurations
 % ------------------------------------------------------------------
+% remove configurations from memory. Ensure only stored configurations are
+% stored
+clear config_store;
+clear all;
 % (Validation must always return Horace and Herbert to their initial states, regardless
 %  of any changes made in the test routines)
+
 hoc = hor_config();
 hpc = hpc_config();
 hec = herbert_config();
