@@ -120,7 +120,7 @@ function wout = cut_sqw_main (data_source, ndims, varargin)
 
 % *** Currently only works if uoffset(4)=0 for input, output datasets
 
-hor_log_level = config_store.instance().get_value('hor_config','log_level');
+hor_log_level = config_store.instance().get_value('herbert_config','log_level');
 
 if hor_log_level>=1
     bigtic

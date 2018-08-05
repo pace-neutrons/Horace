@@ -20,7 +20,7 @@ classdef hpc_config < config_base
     % build_sqw_in_parallel - if true, use parallel framework to generate tmp files
     %                             and do other computational-expensive
     %                             tasks, benefiting from parallelization.
-    % parallel_workers_number  - number of Matlab sessions to launch to calculate tmp files
+    % parallel_workers_number  - number of Matlab sessions (MPI workers) to launch to run parallel code
     %
     %
     % combine_sqw_using        - what type of sub-algorithm to use for combining sqw/tmp files

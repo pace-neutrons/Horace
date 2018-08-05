@@ -97,7 +97,7 @@ save(d1c_2,d1c_2_file);
 d2c_arr=[d2c_1,d2c_2];
 d1c_arr=[d1c_1,d1c_2];
 
-log_level = get(hor_config,'log_level');
+log_level = get(herbert_config,'log_level');
 % Perform tests
 % -------------
 if(log_level>-1); disp('Testing...'); end

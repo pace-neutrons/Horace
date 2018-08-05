@@ -149,8 +149,10 @@ if isempty(grid_size)
     npix=ne*ndet;
     grid_size=ceil(sqrt(sqrt(npix/av_npix_per_bin)));
 end
-[use_mex,hor_log_level] = ...
-    config_store.instance().get_value('hor_config','use_mex','log_level');
+hor_log_level = ...
+    config_store.instance().get_value('herbert_config','log_level');
+use_mex = ...
+    config_store.instance().get_value('hor_config','use_mex');
 if use_mex
     cash_opt = {};
 else

@@ -189,9 +189,10 @@ accumulate_old_sqw=false;   % true if want to accumulate spe data to an existing
 accumulate_new_sqw=false;   % true if want to accumulate spe data to a new sqw file (not all spe data files need exist)
 use_partial_tmp = false;    % true to generate a combined sqw file during accumulate sqw using tmp files calculated at
 % previous accumulation steps
-
-[log_level,delete_tmp]=...
-    config_store.instance().get_value('hor_config','log_level','delete_tmp');
+log_level=...
+    config_store.instance().get_value('herbert_config','log_level');
+delete_tmp=...
+    config_store.instance().get_value('hor_config','delete_tmp');
 combine_algorithm =...
     config_store.instance().get_value('hpc_config','combine_sqw_using');
 
@@ -344,7 +345,7 @@ end
 % If no input data range provided, calculate it from the files
 if ~accumulate_old_sqw
     if isempty(urange_in)
-        urange_in = find_urange(run_files,efix,emode,ix,indx); %calculate urange from all runfiles
+        urange_in = find_urange(run_files,efix,emode,ix,indx,log_level); %calculate urange from all runfiles
     end
     run_files = run_files(ix); % select only existing runfiles for further processing
 elseif accumulate_old_sqw
@@ -597,7 +598,7 @@ for i=1:numel(files_to_check)
     
 end
 %-------------------------------------------------------------------------
-function  urange_in = find_urange(run_files,efix,emode,ief,indx)
+function  urange_in = find_urange(run_files,efix,emode,ief,indx,log_level)
 % Calculate ranges of all runfiles provided including missing files
 % where only parameters are provided
 % inputs:
@@ -610,8 +611,8 @@ function  urange_in = find_urange(run_files,efix,emode,ief,indx)
 %Output:
 % urange_in -- q-dE range of all input data
 %
-[use_mex,log_level] = ...
-    config_store.instance().get_value('hor_config','use_mex','log_level');
+use_mex = ...
+    config_store.instance().get_value('hor_config','use_mex');
 nindx = numel(indx);
 n_all_spe_files = numel(run_files);
 
@@ -675,8 +676,7 @@ function  [grid_size,urange,tmp_file,jd]=convert_to_tmp_files(run_files,sqw_file
     instrument,sample,urange_in,grid_size_in,gen_tmp_files_only)
 %
 log_level = ...
-    config_store.instance().get_value('hor_config','log_level');
-
+    config_store.instance().get_value('herbert_config','log_level');
 [use_separate_matlab,num_matlab_sessions] = ...
     config_store.instance().get_value('hpc_config',...
     'build_sqw_in_parallel','parallel_workers_number');
@@ -722,7 +722,7 @@ if use_separate_matlab
         grid_size = outputs.grid_size;
         urange    = outputs.urange;
     else
-        job_disp.display_fail_job_results(outputs,n_failed,'GEN_SQW:runtime_error');
+        jd.display_fail_job_results(outputs,n_failed,'GEN_SQW:runtime_error');
     end
     if ~keep_parallel_pool_running % clear job dispatcher
         jd = [];

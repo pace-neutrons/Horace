@@ -102,7 +102,7 @@ if combine_in_parallel && isempty(job_disp) % define name of new parallel job an
 end
 
 
-hor_log_level=config_store.instance().get_value('hor_config','log_level');
+hor_log_level=config_store.instance().get_value('herbert_config','log_level');
 
 % Check number of input arguments (necessary to get more useful error message because this is just a gateway routine)
 % --------------------------------------------------------------------------------------------------------------------

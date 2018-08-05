@@ -153,7 +153,7 @@ classdef test_main_mex < TestCase
             assertElementsAlmostEqual(pix_m,pix_c,'absolute',1.e-8);
         end
         function test_recompute_bin_data(this)
-            
+ 
             [cur_mex,log_level,n_threads] = get(hor_config,'use_mex','log_level','threads');
             cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex,'log_level',log_level,'threads',n_threads));
             

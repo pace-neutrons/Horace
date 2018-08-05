@@ -71,7 +71,7 @@ if ~isempty(obj.detdcn_cash)
 else
     detdcn = [];
 end
-hor_log_level=config_store.instance().get_value('hor_config','log_level');
+hor_log_level=config_store.instance().get_value('herbert_config','log_level');
 
 bigtic
 % Read spe file and detector parameters
