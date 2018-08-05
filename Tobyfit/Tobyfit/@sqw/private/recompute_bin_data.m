@@ -11,9 +11,10 @@ function wout=recompute_bin_data(w)
 % $Revision$ ($Date$)
 
 wout=w;
-
-[use_mex,log_level,n_threads] = ...
-    config_store.instance().get_value('hor_config','use_mex','log_level','threads');
+log_level = ...
+    config_store.instance().get_value('herbert_config','log_level');
+[use_mex,n_threads] = ...
+    config_store.instance().get_value('hor_config','use_mex','threads');
 if use_mex
     try
         [wout.data.s,wout.data.e]=recompute_bin_data_c(w.data.npix,w.data.pix,n_threads);

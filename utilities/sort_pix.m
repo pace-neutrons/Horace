@@ -3,7 +3,7 @@ function   pix = sort_pix(pix_retained,pix_ix_retained,npix,varargin)
 %
 %input:
 % pix_retained   9xNpix array of pixels, which have to be sorted or sell array
-%       containing arrys of such pixels
+%       containing arrays of such pixels
 %
 % ix    indexes of these pixels in n-D array or cell array of such indexes
 % npix  auxiliary array, containing numbers of pixels in each cell of

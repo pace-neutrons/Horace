@@ -27,7 +27,7 @@ function [w, grid_size, urange] = calc_sqw_(obj,detdcn, det0, grid_size_in, uran
 %                  or the range of the data if not.
 
 
-hor_log_level=config_store.instance().get_value('hor_config','log_level');
+hor_log_level=config_store.instance().get_value('herbert_config','log_level');
 
 % Fill output main header block
 % -----------------------------

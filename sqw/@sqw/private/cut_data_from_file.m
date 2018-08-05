@@ -57,7 +57,8 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_2read] = cut_data_
 % Buffer sizes
 ndatpix = 9;        % number of pieces of information the pixel info array (see put_sqw_data for more details)
 %vmax is maximum length of buffer array in which to accumulate points from the input file
-[hor_log_level,buf_size]=config_store.instance().get_value('hor_config','log_level','mem_chunk_size');
+hor_log_level=config_store.instance().get_value('herbert_config','log_level');
+buf_size=config_store.instance().get_value('hor_config','mem_chunk_size');
 
 
 % Output arrays for accumulated data

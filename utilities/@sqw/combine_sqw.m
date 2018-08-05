@@ -125,7 +125,7 @@ wout.data.pix=pixfull';
 
 %We need to fiddle the integration ranges so that all of the data for the
 %combined dataset is included. Can do this by looking at the minima and
-%maxima of the coresponding values in the pix array.
+%maxima of the corresponding values in the pix array.
 nints=4-ndims1;
 if nints>=1
     for i=1:nints
@@ -158,9 +158,10 @@ end
 %pixfull;
 
 % Turn off horace_info output, but save for automatic cleanup on exit or cntl-C (TGP 30/11/13)
-info_level = config_store.instance().get_value('hor_config','log_level');
+hc=hor_config;
+info_level = hc.log_level;
 cleanup_obj=onCleanup(@()set(hor_config,'log_level',info_level));
-set(hor_config,'log_level',-1);
+hc.log_level = -1;
 
 if ndims1==1
     wout.data.s=zeros(length(wout.data.p{1})-1,1);

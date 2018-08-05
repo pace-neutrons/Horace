@@ -98,13 +98,12 @@ test_folders_full = cellfun(@(x)fullfile(test_path,x),test_folders,'UniformOutpu
 % remove configurations from memory. Ensure only stored configurations are
 % stored
 clear config_store;
-clear all;
 % (Validation must always return Horace and Herbert to their initial states, regardless
 %  of any changes made in the test routines)
 
+hec = herbert_config();
 hoc = hor_config();
 hpc = hpc_config();
-hec = herbert_config();
 
 cur_herbert_conf=hec.get_data_to_store();
 cur_horace_config=hoc.get_data_to_store();   % only get the public i.e. not sealed, fields
@@ -130,7 +129,6 @@ hoc.use_mex = ~nomex;
 hoc.force_mex_if_use_mex=forcemex;
 if ~talkative
     set(hec,'log_level',-1);    % turn off informational output
-    set(hoc,'log_level',-1);       % minimise any diagnostic output
 end
 
 
@@ -171,8 +169,8 @@ close all
 %=================================================================================================================
 function validate_horace_cleanup(cur_herbert_config,cur_horace_config,cur_hpc_config,test_folders)
 % Reset the configurations, and remove unit test folders from the path
-set(hor_config,cur_horace_config);
 set(herbert_config,cur_herbert_config);
+set(hor_config,cur_horace_config);
 set(hpc_config,cur_hpc_config);
 
 % Clear up the test folders, previously placed on the path

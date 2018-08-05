@@ -45,7 +45,7 @@ if numel(file_internal)~=numel(w)
 end
 
 hor_log_level = ...
-    config_store.instance().get_value('hor_config','log_level');
+    config_store.instance().get_value('herbert_config','log_level');
 if isempty(w.main_header) %TODO:  OOP violation -- save dnd should be associated with dnd class
     sqw_type = false;
     ldw = sqw_formats_factory.instance().get_pref_access('dnd');

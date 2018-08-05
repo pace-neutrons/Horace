@@ -39,7 +39,7 @@ function wout = cut_dnd_main (data_source, ndims, varargin)
 % $Revision$ ($Date$)
 %
 
-hor_log_level = config_store.instance.get_value('hor_config','log_level');
+hor_log_level = config_store.instance.get_value('herbert_config','log_level');
 
 % Parse input arguments
 % ---------------------

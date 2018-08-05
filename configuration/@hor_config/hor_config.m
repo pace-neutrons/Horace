@@ -102,10 +102,8 @@ classdef hor_config<config_base
         
         ignore_nan_ = true;
         ignore_inf_ = false;
-        log_level_ = 1;
         
         use_mex_ = true;
-        force_mex_if_use_mex_ = false;
         delete_tmp_ = true;
     end
     
@@ -113,8 +111,8 @@ classdef hor_config<config_base
         % change this list if saveable fields have changed or redefine
         % get_storage_field_names function below
         saved_properties_list_={'mem_chunk_size','threads','ignore_nan',...
-            'ignore_inf', 'log_level','use_mex',...
-            'force_mex_if_use_mex','delete_tmp'}
+            'ignore_inf', 'use_mex',...
+            'delete_tmp'}
     end
     
     methods
@@ -140,17 +138,17 @@ classdef hor_config<config_base
             use = get_or_restore_field(this,'ignore_inf');
         end
         function level = get.log_level(this)
-            level = get_or_restore_field(this,'log_level');
+            level = config_store.instance().get_value('herbert_config','log_level');
         end
         function level = get.horace_info_level(this)
             % overloaded to use the same log_level real property
-            level = get_or_restore_field(this,'log_level');
+            level = this.log_level;
         end
         function use = get.use_mex(this)
             use = get_or_restore_field(this,'use_mex');
         end
-        function force = get.force_mex_if_use_mex(this)
-            force = get_or_restore_field(this,'force_mex_if_use_mex');
+        function force = get.force_mex_if_use_mex(this)            
+            force = config_store.instance().get_value('herbert_config','force_mex_if_use_mex');
         end
         function delete = get.delete_tmp(this)
             delete = get_or_restore_field(this,'delete_tmp');
@@ -218,18 +216,12 @@ classdef hor_config<config_base
         end
         %
         function this = set.log_level(this,val)
-            if isnumeric(val)
-                config_store.instance().store_config(this,'log_level',val);
-            else
-                error('HOR_CONFIG:set_log_level',' log level has to be numeric');
-            end
+            hc = herbert_config;
+            hc.log_level = val;
         end
         function this = set.horace_info_level(this,val)
-            if isnumeric(val)
-                config_store.instance().store_config(this,'log_level',val);
-            else
-                error('HOR_CONFIG:set_horace_info_level',' horace_info_level has to be numeric');
-            end
+            hc = herbert_config;
+            hc.log_level = val;
         end
         %
         function this = set.use_mex(this,val)
@@ -262,7 +254,7 @@ classdef hor_config<config_base
             else
                 use = false;
             end
-            config_store.instance().store_config(this,'force_mex_if_use_mex',use);
+            config_store.instance().store_config('herbert_config','force_mex_if_use_mex',use);
         end
         function this = set.delete_tmp(this,val)
             if val>0
