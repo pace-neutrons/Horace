@@ -316,6 +316,7 @@ classdef config_store < handle
             end
             config_store.instance('clear');
         end
+        %
         function isit=is_configured(this,class_instance,varargin)
             % method checks if the class class_instance is
             % stored within the config_store
@@ -335,6 +336,7 @@ classdef config_store < handle
         function path=get.config_folder(this)
             path=this.config_folder_;
         end
+        %
         function set_config_path(obj,new_path)
             % set new config store path. Existing configurations are
             % unloaded from memory. 

@@ -18,7 +18,7 @@ function [prop_value,out] =get_config_val_internal(this,class_name,prop_name,var
 if isa(class_name,'config_base') % should be class instance;
     class_to_restore  = class_name;
     class_name = class_to_restore.class_name;
-elseif is_string(class_name)%  
+elseif ischar(class_name)%  
     if ~isfield(this.config_storage_,class_name)
         % get class instance to work with recovery/defaults
         class_to_restore = feval(class_name);
