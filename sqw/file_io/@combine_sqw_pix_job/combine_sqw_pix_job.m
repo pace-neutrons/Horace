@@ -70,7 +70,6 @@ classdef combine_sqw_pix_job < JobExecutor
         
         function obj=do_job(obj)
             % main executable code
-            
             common_par      = obj.common_data_;
             pix_comb_info   = obj.loop_data_{1};
             
@@ -93,17 +92,17 @@ classdef combine_sqw_pix_job < JobExecutor
                 
                 read_inputs_send_to_writer_(obj,common_par,pix_comb_info,fid,h_log_fl)
             end
-            
             clear clob;
-            
+            obj.is_finished_ = true;
         end
+        %
         function obj=reduce_data(obj)
             obj.is_finished_  = true;
         end
+        %
         function ok = is_completed(obj)
             ok = obj.is_finished_;
-        end
-        
+        end        
         % submethods necessary for main workflow
         %------------------------------------------------------------------
         function write_npix_to_pix_blocks(obj,fout,pix_out_position,pix_comb_info)
@@ -138,7 +137,7 @@ classdef combine_sqw_pix_job < JobExecutor
             
             write_npix_to_pix_blocks_(obj,fout,pix_out_position,pix_comb_info);
         end
-        
+        %
         function [pix_section,pos_pixstart]=...
                 read_pix_for_nbins_block(obj,fid,pos_pixstart,npix_per_bin,...
                 filenum,run_label,change_fileno,relabel_with_fnum)
@@ -168,6 +167,7 @@ classdef combine_sqw_pix_job < JobExecutor
                 filenum,run_label,change_fileno,relabel_with_fnum);
             
         end
+        %
         function n_pix_written=write_pixels(obj,fout,pix_section,n_pix_written)
             % Write properly formed pixels block to the output file
             

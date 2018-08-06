@@ -117,7 +117,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             pc = parallel_config;
             if pc.wkdir_is_default
                 pc.working_directory = obj.source_data_dir;
-            end            
+            end
             
             %
             filelist = source_nxspe_files_generator(obj.n_files_to_use,...
@@ -127,6 +127,22 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             obj.test_source_files_list_ = filelist;
             fb = 'GenSQW_perfTest';
             obj.sqw_file = sprintf('%s_%dFiles.sqw',fb,obj.n_files_to_use_);
+        end
+        function method = combine_method(obj)
+            % method returns name and parameters of a combine method used
+            % during sqw file generation.
+            hpc = hpc_config;
+            method = hpc.combine_sqw_using;
+            if strcmp(method,'mex_code')
+                trm = hpc.mex_combine_thread_mode;
+                method = sprintf('%s_MODE%d',method,trm);
+            elseif strcmp(method,'mpi_code')
+                pwn = hpc.parallel_workers_number;
+                method = sprintf('%s_nwk%d',method,pwn);
+            else
+                method = sprintf('%s',method);
+            end
+            
         end
         %--------------------------------------------------------------------------
         function perf_val=combine_performance_test(obj,varargin)
@@ -165,7 +181,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             
             % check all tmp files were generated
             f_exist = cellfun(@(fn)(exist(fn,'file')==2),tmp_files,'UniformOutput',true);
-            if ~f_exist
+            if ~all(f_exist)
                 warning('Some tmp files necessary to run the test do not exist. Generating these files which will take some time');
                 % set up the exactly the same parameters as defined below
                 % in test_gensqw_performance method.
@@ -182,24 +198,12 @@ classdef test_SQW_GENCUT_perf < TestPerformance
                 
                 nfiles=numel(obj.test_source_files_list_);
                 psi= 0.5*(1:nfiles);
-                spe_files = spe_files(~f_exist);
-                psi = psi(~f_exist);
                 gen_sqw (spe_files,'','dummy_sqw', efix, emode, ...
                     alatt, angdeg,u, v, psi, omega, dpsi, gl, gs,...
                     'replicate','tmp_only');
             end
             
-            
-            method = hpc.combine_sqw_using;
-            if strcmp(method,'mex_code')
-                trm = hpc.mex_combine_thread_mode;
-                combine_method = sprintf('%s_MODE%d',method,trm);
-            elseif strcmp(method,'mpi_code')
-                pwn = hpc.parallel_workers_number;
-                combine_method = sprintf('%s_nwk%d',method,pwn);
-            else
-                combine_method = sprintf('%s',method);
-            end
+            combine_method = obj.combine_method();
             
             obj.add_to_files_cleanList(obj.sqw_file)
             ts = tic();
@@ -258,13 +262,14 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             nfiles=numel(obj.test_source_files_list_);
             psi= 0.5*(1:nfiles);
             %psi=round(psi);
+            comb_metnod = obj.combine_method();
             
             obj.add_to_files_cleanList(obj.sqw_file)
             if tests_to_run(1)
                 ts = tic();
                 gen_sqw (obj.test_source_files_list_,'',obj.sqw_file, efix, emode, alatt, angdeg,u, v, psi, omega, dpsi, gl, gs,'replicate');
                 
-                perf_res=obj.assertPerformance(ts,['gen_sqw_nwk',nwk],...
+                perf_res=obj.assertPerformance(ts,sprintf('gen_sqw_nwk%d_comb_%s',nwk,comb_metnod),...
                     'whole sqw file generation');
             end
             
@@ -273,22 +278,22 @@ classdef test_SQW_GENCUT_perf < TestPerformance
                 ts = tic();
                 proj1 = struct('u',[1,0,0],'v',[0,1,1]);
                 sqw1 = cut_sqw(obj.sqw_file,proj1,0.01,[-0.1,0.1],[-0.1,0.1],[-5,5]);
-                obj.assertPerformance(ts,['cutH1D_Small_nwk',nwk],...
+                obj.assertPerformance(ts,sprintf('cutH1D_Small_nwk%d_comb_%s',nwk,comb_metnod),...
                     'small memory based 1D cut in non-axis aligned direction 1');
                 
                 ts = tic();
                 sqw1 = cut_sqw(obj.sqw_file,proj1,[-0.1,0.1],0.01,[-0.1,0.1],[-5,5]);
-                obj.assertPerformance(ts,['cutK1D_Small_nwk',nwk],...
+                obj.assertPerformance(ts,sprintf('cutK1D_Small_nwk%d_comb_%s',nwk,comb_metnod),...
                     'small memory based 1D cut in non-axis aligned direction 2');
                 
                 ts = tic();
                 sqw1 = cut_sqw(obj.sqw_file,proj1,[-0.1,0.1],[-0.1,0.1],0.01,[-5,5]);
-                obj.assertPerformance(ts,['cutL1D_Small_nwk',nwk],...
+                obj.assertPerformance(ts,sprintf('cutL1D_Small_nwk%d_comb_%s',nwk,comb_metnod),...
                     'small memory based 1D cut in non-axis aligned direction 3');
                 
                 ts = tic();
                 sqw1 = cut_sqw(obj.sqw_file,proj1,[-0.1,0.1],[-0.1,0.1],[-0.1,0.1],0.2);
-                perf_res=obj.assertPerformance(ts,['cutE_Small_nwk',nwk],...
+                perf_res=obj.assertPerformance(ts,sprintf('cutE_Small_nwk%d_comb_%s',nwk,comb_metnod),...
                     'small memory based 1D cut along energy direction (q are not axis aligned)');
             end
             % check nopix performance -- read and integrate the whole file from the HDD

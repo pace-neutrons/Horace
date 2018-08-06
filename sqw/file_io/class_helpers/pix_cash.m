@@ -3,7 +3,7 @@ classdef pix_cash
     % for combine_sqw_pix_job
     %
     properties(Dependent)
-        last_bin_in_cash
+        last_bin_processed
         all_bin_range
     end
     
@@ -12,7 +12,7 @@ classdef pix_cash
         
         filled_bin_ind_ =[];
         read_pix_cash_       = [];
-        last_bin_to_process_ = 1;
+        first_bin_to_process_ = 1;
     end
     
     methods
@@ -25,8 +25,8 @@ classdef pix_cash
         function dr = data_remain(obj,n_bins)
             dr = obj.bin_range_(2,:)<n_bins;
         end
-        function lbp=get.last_bin_in_cash(obj)
-            lbp = obj.last_bin_to_process_ -1;
+        function lbp=get.last_bin_processed(obj)
+            lbp = obj.first_bin_to_process_ -1;
         end
         function ran = get.all_bin_range(obj)
             ran = obj.bin_range_ ;
@@ -64,16 +64,22 @@ classdef pix_cash
                     end
                     
                 end
-                if obj.bin_range_(2,i) <= obj.bin_range_(1,i)
-                    obj.filled_bin_ind_{i}   = pl.filled_bin_ind;
-                    obj.read_pix_cash_{i}    = pl.pix_tb;
-                    obj.bin_range_(:,i)      = pl.bin_range;
+                if pl.npix == 0
+                    obj.bin_range_(2,i)    =   pl.bin_range(2);
                 else
-                    num_existing_bins = obj.bin_range_(2,i)-obj.bin_range_(1,i)+1;
-                    npix_stored = npix_stored + sum(cellfun(@(x)numel(x),obj.read_pix_cash_{i}));
-                    obj.filled_bin_ind_{i} =   [obj.filled_bin_ind_{i},(pl.filled_bin_ind+num_existing_bins)];
-                    obj.read_pix_cash_{i}  =   [obj.read_pix_cash_{i},pl.pix_tb{:}];
-                    obj.bin_range_(2,i)    = pl.bin_range(2);
+                    if obj.bin_range_(2,i) <= obj.bin_range_(1,i)
+                        obj.filled_bin_ind_{i}   = pl.filled_bin_ind;
+                        obj.read_pix_cash_{i}    = pl.pix_tb;
+                        obj.bin_range_(:,i)      = pl.bin_range;
+                    else
+                        num_existing_bins = obj.bin_range_(2,i)-obj.bin_range_(1,i)+1;
+                        if h_log_file
+                            npix_stored = npix_stored + sum(cellfun(@(x)numel(x),obj.read_pix_cash_{i}));
+                        end
+                        obj.filled_bin_ind_{i} =   [obj.filled_bin_ind_{i},(pl.filled_bin_ind+num_existing_bins)];
+                        obj.read_pix_cash_{i}  =   [obj.read_pix_cash_{i},pl.pix_tb{:}];
+                        obj.bin_range_(2,i)    =   pl.bin_range(2);
+                    end
                 end
                 npix_received = npix_received+pl.npix;
             end
@@ -144,7 +150,7 @@ classdef pix_cash
             pix_tb = pix_tb(:,bin_filled); % accelerate combining by removing empty cells
             % combine pix from all files according to the bin
             pix_section = cat(2,pix_tb{:});
-            obj.last_bin_to_process_ = last_bin_to_process+1;
+            obj.first_bin_to_process_ = last_bin_to_process+1;
             
             if h_log_file
                 fprintf(h_log_file,' will save bins: [%d , %d]; ****** saing pixels: %d, pix left: %d\n',...

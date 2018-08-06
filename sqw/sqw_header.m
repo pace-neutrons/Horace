@@ -64,7 +64,7 @@ classdef sqw_header
                     if npax>0   % one or more projection axes
                         check_equal(headers_list{i}.pax,ref_header.pax,'pax');
                         for ipax=1:npax
-                            check_equal(headers_list{i}.p{ipax},ref_header.p{ipax});
+                            check_equal(headers_list{i}.p{ipax},ref_header.p{ipax},'p');
                         end
                     end
                     

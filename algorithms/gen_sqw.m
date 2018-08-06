@@ -75,7 +75,7 @@ function [tmp_file,grid_size,urange] = gen_sqw (spe_file, par_file, sqw_file, ef
 %                  the transformed one. For example f can symmetrize sqw file:
 % i.e:
 %   >> gen_sqw(...,...,...,'transform_sqw',@(x)(symmetrise_sqw(x,[0,1,0],[0,0,1],[0,0,0])))
-%                  would symmeterize pixels of the generated sqw file by
+%                  would symmetrize pixels of the generated sqw file by
 %                  reflecting them in the plane specified by vectors
 %                  [0,1,0], and [0,0,1] (see symmeterise_sqw for details)
 
@@ -215,7 +215,7 @@ end
 if ~ok, error('GEN_SQW:invalid_argument',mess), end
 
 
-% Check optional arguments (grid, urange, instument, sample) for size, type and validity
+% Check optional arguments (grid, urange, instrument, sample) for size, type and validity
 grid_default=[];
 instrument_default=struct;  % default 1x1 struct
 sample_default=struct;      % default 1x1 struct
@@ -234,7 +234,7 @@ if accumulate_old_sqw    % combine with existing sqw file
         all_tmp_files=gen_tmp_filenames(spe_file,sqw_file);
         % get pseudo-combined header from list of tmp files
         if log_level>0
-            disp(' Analyzing headers of existing tmp files:')
+            disp(' Analysing headers of existing tmp files:')
         end
         [header_sqw,grid_size_sqw,urange_sqw,ind_tmp_files_present] = get_tmp_file_headers(all_tmp_files);
         if sum(ind_tmp_files_present) == 0
@@ -604,7 +604,7 @@ function  urange_in = find_urange(run_files,efix,emode,ief,indx,log_level)
 % inputs:
 % runfiles -- list of all runfiles to process. Some may not exist
 % efix     -- array of all incident energies
-% emode    -- array of data processing modes (direct/indeirect elastic)
+% emode    -- array of data processing modes (direct/indirect elastic)
 % ief      -- array of logical indexes where true indicates than runfile
 %             exist and false -- not
 % indx     -- indexes of existing runfiles in array of all runfiles
@@ -685,7 +685,18 @@ log_level = ...
 spe_file = cellfun(@(x)(x.loader.file_name),run_files,...
     'UniformOutput',false);
 tmp_file=gen_tmp_filenames(spe_file,sqw_file);
-
+if gen_tmp_files_only
+    f_exist = cellfun(@(fn)(exist(fn,'file')==2),tmp_file,'UniformOutput',true);
+    if any(f_exist)
+        if log_level >0
+            warning([' some tmp files exist while generating tmp files only.'...
+                ' Generating only new tmp files.'...
+                ' Delete all existing tmp files to avoid this'])
+        end
+        run_files  = run_files(~f_exist);
+        tmp_file  = tmp_file(~f_exist);        
+    end
+end
 
 nt=bigtic();
 %write_banner=true;
@@ -705,7 +716,7 @@ if use_separate_matlab
     jd = JobDispatcher(job_name);
     if gen_tmp_files_only
         keep_parallel_pool_running = false;
-    else % if further operations are necessary fo perform with generated tmp files,
+    else % if further operations are necessary to perform with generated tmp files,
         % keep parallel pool running to save time on restarting it
         keep_parallel_pool_running = true;
     end
