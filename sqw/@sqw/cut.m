@@ -17,7 +17,7 @@ function varargout = cut (varargin)
 % Write directly to file without creating an output object (useful if the
 % output is a large dataset in order to avoid out-of-memory errors)
 %
-%   >> cut(...)
+%   >> cut (...)
 % 
 % Input:
 % ------
@@ -106,9 +106,11 @@ function varargout = cut (varargin)
 %
 % Output:
 % -------
-%   w              Output data object:
+%   w               Output data object:
 %                     - sqw-type object with full pixel information
 %                     - dnd-type object if option '-nopix' given
+%                   If an array of input data sources was given, then w
+%                  is an array
 
 
 % Original author: T.G.Perring

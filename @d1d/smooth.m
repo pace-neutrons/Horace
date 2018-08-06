@@ -1,5 +1,5 @@
 function wout = smooth (win,varargin)
-% Smooths a one dimensional dataset
+% Smooths a one dimensional dataset given smoothing parameters in number of pixels
 %
 % Syntax:
 %   >> wout = smooth (win, width, shape)
@@ -7,10 +7,9 @@ function wout = smooth (win,varargin)
 % Input:
 % ------
 %   win     Input dataset structure
-%   width   Vector that sets the extent of the smoothing along each dimension.
+%   width   Sets the extent of the smoothing along each dimension.
 %          The interpretation of width depends on the argument 'shape' described
 %          below.
-%           If width is scalar, then the value is applied to all dimensions
 %
 %   shape   [Optional] Shape of smoothing function [Default: 'hat']
 %               'hat'           hat function

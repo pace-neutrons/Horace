@@ -111,16 +111,21 @@ classdef symop
                 disp('Sequence of symmetry operations:')
                 disp(' ')
             end
+            
+            indstr='';
             for i=1:numel(obj)
+                if numel(obj)>1
+                    indstr = ['[',num2str(i),'] '];
+                end
                 if is_identity(obj(i))
-                    disp('Identity operator (no symmetrisation')
+                    disp([indstr,'Identity operator (no symmetrisation)'])
                 elseif is_rotation(obj(i))
-                    disp('Rotation operator:')
+                    disp([indstr,'Rotation operator:'])
                     disp(['       axis (rlu): ',vec2str(obj(i).n_)])
                     disp(['      angle (deg): ',num2str(obj(i).theta_deg_)])
                     disp(['     offset (rlu): ',vec2str(obj(i).uoffset_)])
                 elseif is_reflection(obj(i))
-                    disp('Reflection operator:')
+                    disp([indstr,'Reflection operator:'])
                     disp([' In-plane u (rlu): ',vec2str(obj(i).u_)])
                     disp([' In-plane v (rlu): ',vec2str(obj(i).v_)])
                     disp(['     offset (rlu): ',vec2str(obj(i).uoffset_)])
@@ -140,7 +145,10 @@ classdef symop
             if isscalar(obj)
                 status = isempty(obj.uoffset_);
             else
-                error('This method only works for a scalar symmetry operation object')
+                status = false(size(obj));
+                for i=1:numel(obj)
+                    status(i) = isempty(obj(i).uoffset_);
+                end
             end
         end
         
@@ -151,7 +159,10 @@ classdef symop
             if isscalar(obj)
                 status = ~isempty(obj.n_);
             else
-                error('This method only works for a scalar symmetry operation object')
+                status = false(size(obj));
+                for i=1:numel(obj)
+                    status(i) = ~isempty(obj(i).n_);
+                end
             end
         end
         
@@ -162,7 +173,10 @@ classdef symop
             if isscalar(obj)
                 status = ~isempty(obj.u_);
             else
-                error('This method only works for a scalar symmetry operation object')
+                status = false(size(obj));
+                for i=1:numel(obj)
+                    status(i) = ~isempty(obj(i).u_);
+                end
             end
         end
         
