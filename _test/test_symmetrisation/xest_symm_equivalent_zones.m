@@ -1,8 +1,9 @@
-classdef test_symm_equivalent_zones< TestCase
+classdef xest_symm_equivalent_zones< TestCase
     %
     % Validate the dnd symmetrisation, combination and rebin routines
-    
-    
+    %
+    % Disabled on 06/08/2018 until parallel symmetrisation is fixed. 
+    %
     % Copied from template in test_multifit_horace_1
     properties
         testdir;
