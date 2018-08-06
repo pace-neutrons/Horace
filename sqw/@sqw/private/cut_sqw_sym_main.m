@@ -1,4 +1,4 @@
-function [wcombine,wout] = cut_sqw_sym_main (data_source, ndims, varargin)
+function [wout,wsym] = cut_sqw_sym_main (data_source, ndims, varargin)
 % Take a cut from an sqw object by integrating over one or more axes.
 %
 % Cut using existing projection axes:
@@ -15,10 +15,121 @@ function [wcombine,wout] = cut_sqw_sym_main (data_source, ndims, varargin)
 %   >> w = cut_sqw_sym_main (..., '-save')      % save cut to file (prompts for file)
 %   >> w = cut_sqw_sym_main (...,  filename)    % save cut to named file
 %
+% For both the above: return the cuts for each symmetry related cut as well
+%   >> [w, wsym] = cut_sym (...)
+%
 % Write directly to file without creating an output object (useful if the
 % output is a large dataset in order to avoid out-of-memory errors)
 %
-%   >> cut(...)
+%   >> cut_sqw_sym_main (...)
+%
+%
+% Input:
+% ------
+%   data_source     Data source: sqw object or filename of a file with sqw-type data
+%                  (character string or cellarray with one character string)
+%
+%   ndims           Number of dimensions of the sqw data
+%
+%   proj            Data structure containing details of projection axes,
+%                  with fields described below. Alternatively, a projaxes
+%                  object created from those fields (type >> help projaxes
+%                  for details).
+%     ---------------------------------------------------------------------
+%     Required fields:
+%       u           [1x3] Vector of first axis (r.l.u.) defining projection axes
+%       v           [1x3] Vector of second axis (r.l.u.) defining projection axes
+%
+%     Optional fields:
+%       w           [1x3] Vector of third axis (r.l.u.) - only needed if the third
+%                   character of argument 'type' is 'p'. Will otherwise be ignored.
+%
+%       nonorthogonal Indicate if non-orthogonal axes are permitted
+%                   If false (default): construct orthogonal axes u1,u2,u3 from u,v
+%                   by defining: u1 || u; u2 in plane of u and v but perpendicular
+%                   to u with positive component along v; u3 || u x v
+%
+%                   If true: use u,v (and w, if given) as non-orthogonal projection
+%                   axes: u1 || u, u2 || v, u3 || w if given, or u3 || u x v if not.
+%
+%       type        [1x3] Character string defining normalisation. Each character
+%                   indicates how u1, u2, u3 are normalised, as follows:
+%                   - if 'a': projection axis unit length is one inverse Angstrom
+%                   - if 'r': then if ui=(h,k,l) in r.l.u., is normalised so
+%                             max(abs(h,k,l))=1
+%                   - if 'p': if orthogonal projection axes:
+%                                   |u1|=|u|, (u x u2)=(u x v), (u x u3)=(u x w)
+%                               i.e. the projections of u,v,w along u1,u2,u3 match
+%                               the lengths of u1,u2,u3
+%
+%                             if non-orthogonal axes:
+%                                   u1=u;  u2=v;  u3=w
+%                   Default:
+%                         'ppr'  if w not given
+%                         'ppp'  if w is given
+%
+%         uoffset   Row or column vector of offset of origin of projection axes (rlu)
+%
+%       lab         Short labels for u1,u2,u3,u4 as cell array
+%                   e.g. {'Q_h', 'Q_k', 'Q_l', 'En'})
+%                       *OR*
+%       lab1        Short label for u1 axis (e.g. 'Q_h' or 'Q_{kk}')
+%       lab2        Short label for u2 axis
+%       lab3        Short label for u3 axis
+%       lab4        Short label for u4 axis (e.g. 'E' or 'En')
+%     ---------------------------------------------------------------------
+%
+%   p1_bin          Binning along first Q axis
+%   p2_bin          Binning along second Q axis
+%   p3_bin          Binning along third Q axis
+%           - [] or ''          Plot axis: use bin boundaries of input data
+%           - [pstep]           Plot axis: sets step size; plot limits
+%                              taken from the extent of the data
+%           - [plo, phi]        Integration axis: range of integration
+%           - [plo, pstep, phi] Plot axis: minimum and maximum bin centres
+%                              and step size
+%
+%   p4_bin          Binning along the energy axis:
+%           - [] or ''          Plot axis: use bin boundaries of input data
+%           - [pstep]           Plot axis: sets step size; plot limits
+%                              taken from the extent of the data.
+%                               If pstep=0 then use bin size of the first
+%                              spe file and synchronise the output bin
+%                              boundaries with those boundaries. The overall
+%                              range is chosen to ensure that the energy
+%                              range of the input data is contained within
+%                              the bin boundaries.
+%           - [plo, phi]        Integration axis: range of integration
+%           - [plo, pstep, phi] Plot axis: minimum and maximum bin centres
+%                              and step size.
+%                               If pstep=0 then use bin size of the first
+%                              spe file and synchronise the output bin
+%                              boundaries with the reference boundaries.
+%                              The overall range is chosen to ensure that
+%                              the energy range plo to phi is contained
+%                              within the bin boundaries.
+%
+%   sym             Symmetry operator (or an array of symmetry operators
+%                  to be applied in the order sym(1), sym(2),...)
+%                  by which a symmetry related cut is to be accumulated.
+%                   Must have class symop.
+%
+%                   For several symmetry related cuts, provide a cell array
+%                  of symmetry operators and/or arrays of symmetry operators
+%           EXAMPLES
+%                   s1 = symop ([1,0,0],[0,1,0],[1,1,1]);
+%                   s2 = symop ([1,0,0],[0,0,1],[1,1,1]);
+%                   % For all four symmetry related cuts:
+%                   sym = {s1,s2,[s1,s2]};
+%
+%
+% Output:
+% -------
+%   w               Output data object:
+%                     - sqw-type object with full pixel information
+%                     - dnd-type object if option '-nopix' given
+%
+%   wsym            Array of data objects, one for each symmetry related cut
 
 
 hor_log_level = config_store.instance().get_value('herbert_config','log_level');
@@ -49,9 +160,14 @@ if length(varargin)>=2 && ischar(varargin{end-1}) && size(varargin{end-1},1)==1
 end
 
 % Get proj structure, if present, and binning information
-if numel(varargin)>=2 && (isstruct(varargin{1}) || isa(varargin{1},'projaxes'))
+if numel(varargin)>=2 && (isstruct(varargin{1}) ||...
+        isa(varargin{1},'aProjection') || isa(varargin{1},'projaxes'))
     proj_given=true;
-    proj=varargin{1};
+    if isa(varargin{1},'aProjection')
+        proj=varargin{1};
+    else
+        proj=projection(varargin{1});
+    end
     pbin=varargin(2:end-length(opt)-1);
     sym=varargin{end-length(opt)};
 elseif numel(varargin)>=1
@@ -59,7 +175,7 @@ elseif numel(varargin)>=1
     pbin=varargin(1:end-length(opt)-1);
     sym=varargin{end-length(opt)};
 else
-    error('Check the number opf arguments')
+    error('Check the number and type of input arguments')
 end
 
 
@@ -73,26 +189,49 @@ outfile='';
 if length(opt)==1
     if strncmpi(opt{1},'-nopix',max(length(opt{1}),2))
         keep_pix=false;
+        save_to_file=false;
+    elseif strncmpi(opt{1},'-pix',max(length(opt{1}),2))
+        keep_pix=true;
+        save_to_file=false;
     elseif strncmpi(opt{1},'-save',max(length(opt{1}),2))
+        keep_pix=true;
         save_to_file=true;
-    else
+    elseif numel(opt{1})>0 && opt{1}(1)~='-'
+        keep_pix=true;
         save_to_file=true;
         outfile=opt{1};
+    else
+        error('Check optional argument ''%s''',opt{1})
     end
 elseif length(opt)==2
     if (strncmpi(opt{1},'-nopix',max(length(opt{1}),2)) && strncmpi(opt{2},'-save',max(length(opt{2}),2))) ||...
             (strncmpi(opt{1},'-save',max(length(opt{1}),2)) && strncmpi(opt{2},'-nopix',max(length(opt{2}),2)))
         keep_pix=false;
         save_to_file=true;
+    elseif (strncmpi(opt{1},'-pix',max(length(opt{1}),2)) && strncmpi(opt{2},'-save',max(length(opt{2}),2))) ||...
+            (strncmpi(opt{1},'-save',max(length(opt{1}),2)) && strncmpi(opt{2},'-pix',max(length(opt{2}),2)))
+        keep_pix=true;
+        save_to_file=true;
     elseif strncmpi(opt{1},'-nopix',max(length(opt{1}),2))
         keep_pix=false;
+        save_to_file=true;
+        outfile=opt{2};
+    elseif strncmpi(opt{1},'-pix',max(length(opt{1}),2))
+        keep_pix=true;
         save_to_file=true;
         outfile=opt{2};
     elseif strncmpi(opt{2},'-nopix',max(length(opt{2}),2))
         keep_pix=false;
         save_to_file=true;
         outfile=opt{1};
+    elseif strncmpi(opt{2},'-pix',max(length(opt{2}),2))
+        keep_pix=true;
+        save_to_file=true;
+        outfile=opt{1};
     else
+        error('Check optional arguments: ''%s'' and ''%s''',opt{1},opt{2})
+    end
+    if ~isempty(outfile) && outfile(1)=='-'     % catch case of given outfile beginning with '-'
         error('Check optional arguments: ''%s'' and ''%s''',opt{1},opt{2})
     end
 end
@@ -126,16 +265,79 @@ end
 
 
 % Checks on symmetry description - check valid, and remove empty descriptions
+% Symmetry description can be
+%  - scalar symop object, or array of symop objects (multiple symops to be performed in sequence),
+%    or empty argument (ignore)
+%  - cell array of the above: a cut is performed for each symmetry description
+
 if ~iscell(sym), sym = {sym}; end   % make a cell array for convenience
 keep = true(size(sym));
 for i=1:numel(sym)
-    if ~isa(sym{i},'symop')
-        error('Symmetry descriptor must be an symop object or array of symop objects, or a cell of those')
-    elseif numel(sym{i})==0
+    sym{i} = sym{i}(:)';    % make row vector
+    if isempty(sym{i}) || (isa(sym{i},'symop') && all(is_identity(sym{i})))
         keep(i) = false;
+    elseif ~isa(sym{i},'symop')
+        error('Symmetry descriptor must be an symop object or array of symop objects, or a cell of those')
     end
 end
 sym = sym(keep);
+
+
+% =============================================================================================
+% Catch case of empty symmetry operation
+% =============================================================================================
+% In this case, there is only one cut to do, so use cut_sqw_main
+
+if isempty(sym)
+    if nargout==0
+        if ~proj_given
+            cut_sqw_main (data_source, ndims, pbin{:}, opt{:});
+        else
+            cut_sqw_main (data_source, ndims, proj, pbin{:}, opt{:});
+        end
+    else
+        if ~proj_given
+            wout = cut_sqw_main (data_source, ndims, pbin{:}, opt{:});
+        else
+            wout = cut_sqw_main (data_source, ndims, proj, pbin{:}, opt{:});
+        end
+        if nargout==2
+            wsym = wout;
+        end
+    end
+    return
+end
+
+
+% =============================================================================================
+% Case of at least one symmetry operation
+% =============================================================================================
+
+% Open output file if required
+% ----------------------------
+if save_to_file
+    if isempty(outfile)
+        if keep_pix
+            outfile = putfile('*.sqw');
+        else
+            outfile = putfile('*.d0d;*.d1d;*.d2d;*.d3d;*.d4d');
+        end
+        if (isempty(outfile))
+            error ('No output file name given')
+        end
+    end
+    
+    % Open output file now - don't want to discover there are problems after 30 seconds of calculation
+    %    Not yet fully supported with sqw_formats_factory but can be. Now just test creation of new file
+    %    is possible  and delete it.
+    fout = fopen (outfile, 'wb'); % no upgrade possible -- this command also clears contents of existing file
+    if (fout < 0)
+        error (['Cannot open output file ' outfile])
+    end
+    fclose(fout);
+    delete(outfile);
+    %     clob = onCleanup(@()clof(fout));
+end
 
 
 % Get header information from the data source
@@ -214,26 +416,41 @@ for i=1:numel(sym)
     end
 end
 
+
 % Merge cuts
 % ----------
 % Take account of duplicated pixels if sqw cuts
-% If dnd cuts, then duplicated pixels cannot be accounted for, although the weighting is correct
+% If dnd cuts, then duplicated pixels cannot be accounted for, although the weighting by number
+% of pixels is correct
 if hor_log_level>0
     disp(['Combining cuts...'])
 end
 if isa(w{1},'sqw')
-    wcombine = combine_sqw_same_bins (w{:});
+    wout = combine_sqw_same_bins (w{:});
 else
-    wcombine = combine_dnd_same_bins (w{:});
+    wout = combine_dnd_same_bins (w{:});
 end
-wout = repmat(w{1},size(w));
-for i=1:numel(w)
-    wout(i)=w{i};
+
+if nargout==2
+    wsym = repmat(w{1},size(w));
+    for i=1:numel(w)
+        wsym(i)=w{i};
+    end
 end
 
 if hor_log_level>0
     disp('--------------------------------------------------------------------------------')
 end
+
+
+% Save to file if requested
+% ---------------------------
+if save_to_file
+    save (wout, outfile);
+end
+
+
+
 
 %------------------------------------------------------------------------------
 function [proj, pbin] = get_proj_and_pbin (w)
