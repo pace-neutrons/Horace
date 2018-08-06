@@ -18,7 +18,8 @@ function wout = cut_sqw_main (data_source, ndims, varargin)
 % Write directly to file without creating an output object (useful if the
 % output is a large dataset in order to avoid out-of-memory errors)
 %
-%   >> cut(...)
+%   >> cut_sqw_main (...)
+%
 %
 % Input:
 % ------
@@ -108,7 +109,7 @@ function wout = cut_sqw_main (data_source, ndims, varargin)
 %
 % Output:
 % -------
-%   w              Output data object:
+%   w               Output data object:
 %                     - sqw-type object with full pixel information
 %                     - dnd-type object if option '-nopix' given
 
@@ -177,26 +178,49 @@ outfile='';
 if length(opt)==1
     if strncmpi(opt{1},'-nopix',max(length(opt{1}),2))
         keep_pix=false;
+        save_to_file=false;
+    elseif strncmpi(opt{1},'-pix',max(length(opt{1}),2))
+        keep_pix=true;
+        save_to_file=false;
     elseif strncmpi(opt{1},'-save',max(length(opt{1}),2))
+        keep_pix=true;
         save_to_file=true;
-    else
+    elseif numel(opt{1})>0 && opt{1}(1)~='-'
+        keep_pix=true;
         save_to_file=true;
         outfile=opt{1};
+    else
+        error('Check optional argument ''%s''',opt{1})
     end
 elseif length(opt)==2
     if (strncmpi(opt{1},'-nopix',max(length(opt{1}),2)) && strncmpi(opt{2},'-save',max(length(opt{2}),2))) ||...
             (strncmpi(opt{1},'-save',max(length(opt{1}),2)) && strncmpi(opt{2},'-nopix',max(length(opt{2}),2)))
         keep_pix=false;
         save_to_file=true;
+    elseif (strncmpi(opt{1},'-pix',max(length(opt{1}),2)) && strncmpi(opt{2},'-save',max(length(opt{2}),2))) ||...
+            (strncmpi(opt{1},'-save',max(length(opt{1}),2)) && strncmpi(opt{2},'-pix',max(length(opt{2}),2)))
+        keep_pix=true;
+        save_to_file=true;
     elseif strncmpi(opt{1},'-nopix',max(length(opt{1}),2))
         keep_pix=false;
+        save_to_file=true;
+        outfile=opt{2};
+    elseif strncmpi(opt{1},'-pix',max(length(opt{1}),2))
+        keep_pix=true;
         save_to_file=true;
         outfile=opt{2};
     elseif strncmpi(opt{2},'-nopix',max(length(opt{2}),2))
         keep_pix=false;
         save_to_file=true;
         outfile=opt{1};
+    elseif strncmpi(opt{2},'-pix',max(length(opt{2}),2))
+        keep_pix=true;
+        save_to_file=true;
+        outfile=opt{1};
     else
+        error('Check optional arguments: ''%s'' and ''%s''',opt{1},opt{2})
+    end
+    if ~isempty(outfile) && outfile(1)=='-'     % catch case of given outfile beginning with '-'
         error('Check optional arguments: ''%s'' and ''%s''',opt{1},opt{2})
     end
 end
@@ -230,6 +254,7 @@ end
 
 
 % Open output file if required
+% ----------------------------
 if save_to_file
     if isempty(outfile)
         if keep_pix
@@ -242,7 +267,7 @@ if save_to_file
         end
     end
     
-    %     % Open output file now - don't want to discover there are problems after 30 seconds of calculation
+    % Open output file now - don't want to discover there are problems after 30 seconds of calculation
     %    Not yet fully supported with sqw_formats_factory but can be. Now just test creation of new file
     %    is possible  and delete it.
     fout = fopen (outfile, 'wb'); % no upgrade possible -- this command also clears contents of existing file
@@ -513,4 +538,3 @@ function delete_tmp_pix_files(pix_info)
 for ifile=1:pix_info.nfiles   % delete the temporary files
     delete(pix_info.infiles{ifile});
 end
-
