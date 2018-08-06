@@ -1,8 +1,8 @@
-function [y, name, pnames, pin] = expon_bkgd(x, p, flag)
+function [y, name, pnames, pin] = expon_bkgd (x, p, flag)
 % Exponential function on a linear background
 % 
-%   >> y = expon(x,p)
-%   >> [y, name, pnames, pin] = expon(x,p,flag)
+%   >> y = expon_bkgd (x,p)
+%   >> [y, name, pnames, pin] = expon_bkgd (x,p,flag)
 %
 % Input:
 % =======
