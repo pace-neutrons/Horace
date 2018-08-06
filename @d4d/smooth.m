@@ -1,5 +1,5 @@
 function wout = smooth (win,varargin)
-% Smooths a four dimensional dataset
+% Smooths a four dimensional dataset given smoothing parameters in number of pixels
 %
 % Syntax:
 %   >> wout = smooth (win, width, shape)

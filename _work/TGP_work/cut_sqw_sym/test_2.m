@@ -1,8 +1,8 @@
-%% Set up locations of data sources
-data200='E:\data\Fe\sqw_Alex\Fe_ei200.sqw';
-data400='E:\data\Fe\sqw_Alex\Fe_ei401.sqw';
-data800='E:\data\Fe\sqw_Alex\Fe_ei787.sqw';
-data1400='E:\data\Fe\sqw_Alex\Fe_ei1371_base.sqw';
+%% -----------------------------------------------------------------------------
+% Set up locations of data sources
+% -----------------------------------------------------------------------------
+data800='D:\data\Fe\sqw_Alex\Fe_ei787.sqw';
+
 
 %% -----------------------------------------------------------------------------
 %  Reference const-E cut to see accesible phase space

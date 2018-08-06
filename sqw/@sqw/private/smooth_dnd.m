@@ -1,12 +1,14 @@
-function d = smooth_dnd (din, varargin)
+function dout = smooth_dnd (din, xunit, varargin)
 % Smooths a 1,2,3 or 4 dimensional dataset
 %
 %Syntax:
-%   >> d = smooth_dnd (din, width, shape)
+%   >> dout = smooth_dnd (din, xunit, width, shape)
 %
 % Input:
 % ------
 %   din     Input dataset structure
+%   xunit   If true, unit of measure is length of a unit along each axis
+%           If false, unit of measure is pixels
 %   width   Vector that sets the extent of the smoothing along each dimension.
 %          The interpretation of width depends on the argument 'shape' described
 %          below.
@@ -20,7 +22,7 @@ function d = smooth_dnd (din, varargin)
 %
 %   shape   Shape of smoothing function
 %               'hat'           Hat function
-%                                   - width gives FWHH along each dimension in pixels
+%                                   - width gives FWHH along each dimension
 %                                   - width = 1,3,5,...;  n=0 or 1 => no smoothing
 %               'gaussian'      Gaussian; width gives FWHH along each dimension in pixels
 %                                   - elements where more than 2% of peak intensity
@@ -32,11 +34,13 @@ function d = smooth_dnd (din, varargin)
 % -------
 %   dout    Smoothed data structure
 
+
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
+
 
 % List available functions and set defaults. If more functions are to be
 % added as smoothing options, then place in the Horace private directory
@@ -46,18 +50,22 @@ width_default = 3;
 shape_default = 'hat';
 ishape_default = 1;
 
+
 % Check input parameters
+% ----------------------
 ndim = length(din.pax);   % no. dimensions of the data
 
-width = width_default*ones(1,ndim);
-shape = shape_default;
-ishape= ishape_default;
-
-if nargin>=2
+% Get width(s)
+if nargin>=3
     width = varargin{1};
+elseif ~xunit
+    width = width_default*ones(1,ndim);
+else
+    error('Must give smoothing parameter(s) if smoothing units')
 end
 
-if nargin>=3
+% Get smoothing shape
+if nargin>=4
     shape = varargin{2};
     if ~isempty(shape) && is_string(shape)
         ishape = stringmatchi (shape,shapes);
@@ -66,9 +74,13 @@ if nargin>=3
         elseif isempty(ishape)
             error (['Function ''',shape,''' is not recognised as an available option'])
         end
+        shape = shapes(ishape);     % resolve to full name
     else
         error ('Argument ''shape'' must be a character string')
     end
+else
+    shape = shape_default;
+    ishape= ishape_default;
 end
 
 % Check width parameters against the shape function
@@ -79,17 +91,37 @@ elseif ~(isa_size(width,[1,ndim],'double') || isa_size(width,[1,1],'double'))
 elseif isa_size(width,[1,1],'double')
     width = width*ones(1,ndim); % if input is scalar, expand to dimension of dataset
 end
-    
+
 % Catch trivial case of zero dimensional dataset
 if ndim==0
-    d = din;
+    dout = din;
     return
 end
 
+% Get the lengths along each plot axis and convert widths to number of pixels
+if xunit
+    xlen = zeros(1,ndim);
+    for i=1:ndim
+        xlen(i) = (din.p{i}(end)-din.p{i}(1)) / (numel(din.p{i})-1);
+    end
+    if ~strcmp(shape,'resolution')
+        width = width./xlen;
+    else
+        % Need to convert from Ang^-1 and meV to pixels and pixel gradient
+        width(1) = width(1)/xlen(1);
+        width(2) = width(2)*(xlen(1)/xlen(3));
+        width(3) = width(3)/xlen(3);
+    end
+end
+
+
 % Create convolution array
+% --------------------------
 c = shape_handle{ishape}(width);    % use function handles to create matrix - can add further functions above wihout altering remaining code
 
+
 % Smooth data structure
+% ---------------------
 m=warning('off','MATLAB:divideByZero');     % turn off divide by zero messages, saving present state
 
 index = din.npix~=0;                        % elements with non-zero counts
@@ -107,7 +139,9 @@ signal(~index) = 0;     % restore zero signal to those bins with no data
 err(~index) = 0;
 clear weight            % save memory (may be critical for 4D datasets)
 
+
 % Create output structure (NOTE: leave d.npix unaltered from input)
-d = din;
-d.s = signal;
-d.e = err;
+% -----------------------------------------------------------------
+dout = din;
+dout.s = signal;
+dout.e = err;
