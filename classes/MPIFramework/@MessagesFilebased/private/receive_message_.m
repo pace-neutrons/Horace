@@ -46,7 +46,7 @@ while ~mess_present
         mid_from   = mid_from(from_lab_requested );
         % check if message is as requested
         if ~isempty(mess_name)
-            tid_requested = ismember(mess_names,{mess_name,'failed'});
+            tid_requested = ismember(mess_names,{mess_name,'failed','cancelled'});
             mid_from    = mid_from (tid_requested);
             mess_names  = mess_names(tid_requested);
         end
@@ -92,9 +92,14 @@ while ~received
         pause(obj.time_to_react_)
         continue;
     end
+    fh = fopen(lock_file,'wb');
+    if fh > 0
+        source_unlocker = onCleanup(@()unlock_(fh,lock_file));
+    else
+        continue;
+    end
+    
     try
-        fh = fopen(lock_file,'wb');
-        file_unlocker = onCleanup(@()unlock_(fh,lock_file));
         mesl = load(mess_fname);
         received = true;
     catch err
@@ -102,6 +107,7 @@ while ~received
         if n_attempts>try_limit
             rethrow(err);
         end
+        clear source_unlocker; % avoid self-locking
         pause(obj.time_to_react_)
     end
 end
@@ -131,14 +137,21 @@ if progress_queue % prepare the next message to read -- the oldest message
     [fp,fn] = fileparts(mess_fname);
     next_mess_fname = fullfile(fp,[fn,'.',num2str(first_queue_num(1))]);
     
-    lock_file = build_lock_fname_(next_mess_fname);
+    lock_source = build_lock_fname_(next_mess_fname);
     success = false;
     n_attempts = 0;
     while ~success
-        if exist(lock_file,'file') == 2
+        if exist(lock_source,'file') == 2
             pause(obj.time_to_react_)
             continue;
         end
+%         fh = fopen(lock_source,'wb');
+%         if fh > 0
+%             target_unlocker = onCleanup(@()unlock_(fh,lock_source));
+%         else
+%             continue;
+%         end
+%         
         
         [success,mess,mess_id]=movefile(next_mess_fname,mess_fname,'f');
         if ~success
@@ -147,13 +160,16 @@ if progress_queue % prepare the next message to read -- the oldest message
             if n_attempts > try_limit
                 error(mess_id,mess);
             end
+            %clear target_unlocker;
         end
     end
 else
     delete(mess_fname);
     pause(0.1);
 end
-clear file_unlocker
+clear source_unlocker
+%clear target_unlocker;
+
 
 
 

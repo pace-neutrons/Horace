@@ -143,8 +143,8 @@ classdef parallel_config<config_base
             end
         end
         function is = wkdir_is_default(obj)
-        % returns true if working directory has not been set (points to
-        % tmpdir)
+            % returns true if working directory has not been set (points to
+            % tmpdir)
             is_depl = MPI_State.instance().is_deployed;
             if is_depl
                 work_dir = obj.shared_folder_on_remote;
@@ -154,9 +154,9 @@ classdef parallel_config<config_base
             if isempty(work_dir)
                 is = true;
             else
-                is = false;            
+                is = false;
             end
-        
+            
         end
         %-----------------------------------------------------------------
         % overloaded setters
@@ -237,16 +237,25 @@ classdef parallel_config<config_base
         %-----------------------------------------------------------------
         function [controller] = get_cluster_wrapper(obj,n_workers,cluster_to_host_exch_fmwork)
             % return the appropriate job controller
+            log_level = config_store.instance.get_value('herbert_config','log_level');
             fram = obj.parallel_framework;
             switch(fram)
                 case('herbert')
-                    fprintf('*** Starting Herbert (poor-man-MPI) cluster with %d workers ***\n',n_workers);
+                    if log_level > -1
+                        fprintf(':herbert configured: *** Starting Herbert (poor-man-MPI) cluster with %d workers ***\n',n_workers);
+                    end
                     controller = ClusterHerbert(n_workers,cluster_to_host_exch_fmwork);
-                    fprintf('*** Herbert cluster started                                 ***\n');                    
+                    if log_level > -1
+                        fprintf('*** Herbert cluster started                                 ***\n');
+                    end
                 case('parpool')
-                    fprintf('*** Starting Matlab MPI job with %d workers ***\n',n_workers);                    
+                    if log_level > -1
+                        fprintf(':parpool configured: *** Starting Matlab MPI job  with %d workers ***\n',n_workers);
+                    end
                     controller = ClusterParpoolWrapper(n_workers,cluster_to_host_exch_fmwork);
-                    fprintf('*** Matlab MPI job started                 ***\n');                                        
+                    if log_level > -1
+                        fprintf('*** Matlab MPI job started                 ***\n');
+                    end
                 otherwise
                     error('PARALLEL_CONFIG:runtime_error',...
                         'Got unknown parallel framework: %s',fram);

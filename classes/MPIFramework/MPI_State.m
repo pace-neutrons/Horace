@@ -153,12 +153,15 @@ classdef MPI_State<handle
                     if isempty(obj.start_time_)
                         obj.start_time_ = tic;
                         ttf = 0; % 0 interval means infinite waiting time between calls
+                        obj.prev_time_interval_ = 0;
                     else
                         ttf = toc(obj.start_time_);
-                        obj.start_time_ = tic;
+                        if step > 0
+                            ttf = ttf/step;
+                        end
                     end
                 end
-                if ttf < obj.prev_time_interval_
+                if ttf ~= obj.prev_time_interval_
                     if ttf == 0
                         % 0 time resets timing preferences
                     else
@@ -169,9 +172,6 @@ classdef MPI_State<handle
                     end
                 else
                     obj.prev_time_interval_ = ttf;
-                end
-                if step > 0
-                    ttf = ttf/step;
                 end
                 % log
                 obj.logger_(step,n_steps,ttf,additional_info);

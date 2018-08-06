@@ -277,12 +277,14 @@ classdef JobDispatcher
                     n_failed,n_workers)
                 errOutputs = outputs(mEXceptions_outputs);
                 if iscell(errOutputs)
-                    disp(getReport(errOutputs{1}))
-                    throw(errOutputs{1});
+                    for i=1:numel(errOutputs)
+                        disp(['***** Error output N ',num2str(i)]);
+                        disp(getReport(errOutputs{i}))
+                    end
                 else
                     disp(getReport(errOutputs))
-                    throw(errOutputs);
                 end
+                error(Err_code,'Parallel job have failed, producing errors above.');                
             else
                 error(Err_code,...
                     ' Number: %d parallel tasks out of total: %d tasks have failed',...
