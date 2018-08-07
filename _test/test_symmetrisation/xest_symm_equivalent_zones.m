@@ -15,7 +15,7 @@ classdef xest_symm_equivalent_zones< TestCase
     methods
         
         %The above can now be read into the test routine directly.
-        function this=test_symm_equivalent_zones(name)
+        function this=xest_symm_equivalent_zones(name)
             
             this=this@TestCase(name);
             this.testdir = fileparts(mfilename('fullpath'));
