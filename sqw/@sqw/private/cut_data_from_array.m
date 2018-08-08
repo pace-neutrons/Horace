@@ -75,7 +75,8 @@ end
 % Accumulate pixels
 if hor_log_level>=1, bigtic(2), end
 if hor_log_level>=0, disp(['Have data from ',num2str(npix_read),' pixels - now processing data...']), end
-[s, e, npix, urange_step_pix, npix_retain, ok, ix] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
+[s, e, npix, urange_step_pix, npix_retain, ok, ix] = ...
+    cut_data_from_file_job.accumulate_cut(s, e, npix, urange_step_pix, keep_pix, ...
     v, proj, pax);
 if hor_log_level>=1, t_accum = bigtoc(2); end
 

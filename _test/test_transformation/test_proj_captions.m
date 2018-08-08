@@ -45,7 +45,7 @@ classdef test_proj_captions<TestCase
         end
         
         
-        function test_spher_caption(this)
+        function xest_spher_caption(this)
             capt = spher_proj_caption();
             assertFalse(capt.changes_aspect_ratio);
             this.wk_data.ulabel={'\rho'  '\theta'  '\phi'  'E'};
@@ -71,7 +71,7 @@ classdef test_proj_captions<TestCase
             assertEqual(energy_axis,4);
             
         end
-        function test_spher_caption2D(this)
+        function xest_spher_caption2D(this)
             capt = spher_proj_caption();
             assertFalse(capt.changes_aspect_ratio);
             this.wk_data.ulabel={ '\rho','\theta','\phi','E'};

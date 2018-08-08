@@ -1,4 +1,4 @@
-function [s, e, npix, urange_step_pix, npix_retain,ok, ix] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix,...
+function [s, e, npix, urange_step_pix, npix_retain,ok, ix] = accumulate_cut_(s, e, npix, urange_step_pix, keep_pix,...
     v, proj,pax)
 %function [s, e, npix, urange_step_pix, npix_retain,ok, ix] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix,...
 %    v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax)
@@ -41,7 +41,7 @@ function [s, e, npix, urange_step_pix, npix_retain,ok, ix] = accumulate_cut (s, 
 
 % T.G.Perring   19 July 2007
 
-% $Revision$ ($Date$)
+% $Revision: 1524 $ ($Date: 2017-09-27 15:48:11 +0100 (Wed, 27 Sep 2017) $)
 
 [ignore_nan,ignore_inf,use_mex,n_threads] =...
     config_store.instance().get_value('hor_config','ignore_nan','ignore_inf','use_mex','threads');
@@ -68,6 +68,6 @@ else
 end
 
 if ~use_mex
-    [s, e, npix, urange_step_pix, npix_retain, ok, ix] = accumulate_cut_matlab (s, e, npix, urange_step_pix, keep_pix,...
+    [s, e, npix, urange_step_pix, npix_retain, ok, ix] = accumulate_cut_matlab_(s, e, npix, urange_step_pix, keep_pix,...
         v, proj, pax);
 end
