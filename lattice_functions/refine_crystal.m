@@ -51,6 +51,12 @@ function [rlu_corr,alatt,angdeg,rotmat,distance,rotangle] = refine_crystal(rlu0,
 %                  e.g. ...,'free_alatt',[1,0,1],... allows only lattice parameter b to vary
 %   free_angdeg     Array length 3 of zeros or ones, 1=free, 0=fixed
 %                  e.g. ...,'free_lattice',[1,1,0],... fixes lattice angle gam buts allows alf and bet to vary
+%   bind_alatt      Cell array of cell arrays following multifit convention of fixing the ratio of one lattice 
+%                   parameter to another, e.g. fix the ratio of a and b to be 1, but have c independent: {{2,1}}
+%                   IMPORTANT - YOU MUST USE THIS ARGUMENT IN CONJUNCTION
+%                   WITH free_alatt option - if you fix the ratio of a and
+%                   b and allow the value to vary, but fix c then you would
+%                   use free_alatt=[1,1,0]
 %
 %
 % Output:
@@ -87,7 +93,8 @@ function [rlu_corr,alatt,angdeg,rotmat,distance,rotangle] = refine_crystal(rlu0,
 
 small=1e-10;
 
-arglist=struct('fix_lattice',0,'fix_alatt',0,'fix_alatt_ratio',0,'fix_angdeg',0,'fix_orientation',0,'free_alatt',[1,1,1],'free_angdeg',[1,1,1]);
+arglist=struct('fix_lattice',0,'fix_alatt',0,'fix_alatt_ratio',0,'fix_angdeg',0,'fix_orientation',0,'free_alatt',[1,1,1],'free_angdeg',[1,1,1],...
+    'bind_alatt',0);
 flags={'fix_lattice','fix_alatt','fix_alatt_ratio','fix_angdeg','fix_orientation'};
 [args,opt,present] = parse_arguments(varargin,arglist,flags);
 
@@ -136,6 +143,30 @@ if present.free_alatt
         end
     else
         error('Check value of ''free_alatt'' option')
+    end
+end
+
+if present.bind_alatt
+    if ~present.free_alatt
+        error('Must use bind_alatt in conjunction with free_alatt option - type "help refine_crystal" for details');
+    end
+    if ~iscell(opt.bind_alatt)
+        error('bind_alatt input must be a cell array - type "help refine_crystal" for details');
+    end
+    for i=1:numel(opt.bind_alatt)
+        if ~iscell(opt.bind_alatt{i})
+            error('bind_alatt must be a cell array of cell array(s)');
+        elseif numel(opt.bind_alatt{i})~=2
+            error('bind_alatt must be a cell array of cell array(s). The inner cell arrays must have only 2 (integer) elements in range 1 to 3');
+        elseif opt.bind_alatt{i}{1}>3 || opt.bind_alatt{i}{1}<1 || opt.bind_alatt{i}{2}>3 || opt.bind_alatt{i}{2}<1
+            error('bind_alatt must be a cell array of cell array(s). The inner cell arrays must have only 2 (integer) elements in range 1 to 3');
+        else
+            for j=1:2
+                if opt.free_alatt(opt.bind_alatt{i}{j})==0
+                    error('If one lattice parameter is bound to another then free_alatt must be =1 for both of them');
+                end
+            end
+        end
     end
 end
 
@@ -194,6 +225,10 @@ elseif opt.fix_alatt_ratio
     pbind={{2,1},{3,1}};
 elseif present.free_alatt
     pfree(1:3)=opt.free_alatt;
+end
+
+if present.bind_alatt
+    pbind=opt.bind_alatt;
 end
 
 if opt.fix_angdeg || opt.fix_lattice
