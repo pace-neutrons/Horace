@@ -231,7 +231,7 @@ classdef JobDispatcher
             obj.cluster_ = [];
             obj.job_destroyer_ = [];
         end
-        function display_fail_job_results(obj,outputs,n_failed,Err_code)
+        function display_fail_job_results(obj,outputs,n_failed,n_workers,Err_code)
             % Auxiliary method to display job results if the job have
             % failed
             % Input:
@@ -239,6 +239,8 @@ classdef JobDispatcher
             %            parallel job
             % n_failed -- number of tasks failed as the result of parallel
             %             job
+            % n_workers-- number of labs used by parallel job initially
+            %
             % Err_code -- the text string in the form
             %             ERROR_CLASS:error_reason to form identifier of
             %             the exception to throw
@@ -270,7 +272,6 @@ classdef JobDispatcher
                 fprintf('Job %s have failed. Output: \n',obj.job_id);
                 disp(outputs);
             end
-            n_workers = obj.cluster.n_workers;
             if any(mEXceptions_outputs)
                 warning(Err_code,...
                     ' Number: %d parallel tasks out of total: %d tasks have failed',...

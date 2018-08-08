@@ -85,9 +85,11 @@ end
 n_attempts = 0;
 try_limit = 10;
 received = false;
+lock_file = build_lock_fname_(mess_fname);
+deadlock_tries = 100;
+
 while ~received
     
-    lock_file = build_lock_fname_(mess_fname);
     if exist(lock_file,'file') == 2
         pause(obj.time_to_react_)
         continue;
@@ -96,7 +98,15 @@ while ~received
     if fh > 0
         source_unlocker = onCleanup(@()unlock_(fh,lock_file));
     else
-        continue;
+        n_attempts = n_attempts+1;
+        pause(0.1);
+        if n_attempts < deadlock_tries 
+            continue;
+        else
+            warning('RECEIVE_MESSAGE:runtime_error',...
+                ' problem with obtaining lock %s. Proceeding regardless',lock_file)
+            unlock_(fh,lock_file);
+        end
     end
     
     try
