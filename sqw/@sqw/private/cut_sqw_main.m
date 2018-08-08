@@ -14,6 +14,7 @@ function wout = cut_sqw_main (data_source, ndims, varargin)
 %
 %   >> w = cut_sqw_main (..., '-save')      % save cut to file (prompts for file)
 %   >> w = cut_sqw_main (...,  filename)    % save cut to named file
+%   >> w = cut_sqw_main (..., '-parallel')  % do cut in parallel
 %
 % Write directly to file without creating an output object (useful if the
 % output is a large dataset in order to avoid out-of-memory errors)
@@ -139,116 +140,81 @@ elseif ischar(data_source)
 elseif isa(data_source,'sqw')
     source_is_file=false;
 else
-    error('Logic problem in chain of cut methods. See T.G.Perring')
+    error('CUT_SQW:runtime_error',...
+        'Logic problem in chain of cut methods. See T.G.Perring')
 end
 
 % Strip off final arguments that are character strings, and parcel the rest as binning arguments
 % (the functions that use binning arguments are clever enough to handle incorrect number of arguments and types)
-opt=cell(1,0);
-if length(varargin)>=1 && ischar(varargin{end}) && size(varargin{end},1)==1
-    opt{1}=varargin{end};
+opt = {'-nopix','-pix','-save','-parallel'};
+[ok,mess,nopix,pix,save_to_file,cut_in_parallel,argi] = parse_char_options(varargin,opt);
+if ~ok
+    error('CUT_SQW:invalid_arguments',mess);
 end
-if length(varargin)>=2 && ischar(varargin{end-1}) && size(varargin{end-1},1)==1
-    opt{2}=varargin{end-1};
+if nopix && pix
+    error('CUT_SQW:invalid_arguments','only one option -nopix or -pix can be provided');
+else
+    keep_pix = ~nopix || pix;
 end
-
+char_string = cellfun(@ischar,argi);
+if any(char_string)
+    outfile = argi{char_string};
+    save_to_file = true;
+    argi = argi(~char_string);
+else
+    outfile = '';
+end
+if save_to_file
+    keep_pix  = true;
+end
 % Get proj structure, if present, and binning information
-if numel(varargin)>=1 && (isstruct(varargin{1}) ||...
-        isa(varargin{1},'aProjection') || isa(varargin{1},'projaxes'))
+if numel(argi)>=1 && (isstruct(argi{1}) ||...
+        isa(argi{1},'aProjection') || isa(argi{1},'projaxes'))
     proj_given=true;
-    if isa(varargin{1},'aProjection')
-        proj=varargin{1};
+    if isa(argi{1},'aProjection')
+        proj=argi{1};
     else
-        proj=projection(varargin{1});
+        proj=projection(argi{1});
     end
-    pbin=varargin(2:end-length(opt));
+    pbin=argi(2:end);
 else
     proj_given=false;
-    pbin=varargin(1:end-length(opt));
+    pbin=argi;
 end
-
 
 % Do checks on input arguments
 % ----------------------------
 % Check consistency of optional arguments.
 % (Do some checks for which there is reasonable default behaviour, but as cuts can take a long time, be cautious instead)
-keep_pix=true;
-save_to_file=false;
-outfile='';
-if length(opt)==1
-    if strncmpi(opt{1},'-nopix',max(length(opt{1}),2))
-        keep_pix=false;
-        save_to_file=false;
-    elseif strncmpi(opt{1},'-pix',max(length(opt{1}),2))
-        keep_pix=true;
-        save_to_file=false;
-    elseif strncmpi(opt{1},'-save',max(length(opt{1}),2))
-        keep_pix=true;
-        save_to_file=true;
-    elseif numel(opt{1})>0 && opt{1}(1)~='-'
-        keep_pix=true;
-        save_to_file=true;
-        outfile=opt{1};
-    else
-        error('Check optional argument ''%s''',opt{1})
-    end
-elseif length(opt)==2
-    if (strncmpi(opt{1},'-nopix',max(length(opt{1}),2)) && strncmpi(opt{2},'-save',max(length(opt{2}),2))) ||...
-            (strncmpi(opt{1},'-save',max(length(opt{1}),2)) && strncmpi(opt{2},'-nopix',max(length(opt{2}),2)))
-        keep_pix=false;
-        save_to_file=true;
-    elseif (strncmpi(opt{1},'-pix',max(length(opt{1}),2)) && strncmpi(opt{2},'-save',max(length(opt{2}),2))) ||...
-            (strncmpi(opt{1},'-save',max(length(opt{1}),2)) && strncmpi(opt{2},'-pix',max(length(opt{2}),2)))
-        keep_pix=true;
-        save_to_file=true;
-    elseif strncmpi(opt{1},'-nopix',max(length(opt{1}),2))
-        keep_pix=false;
-        save_to_file=true;
-        outfile=opt{2};
-    elseif strncmpi(opt{1},'-pix',max(length(opt{1}),2))
-        keep_pix=true;
-        save_to_file=true;
-        outfile=opt{2};
-    elseif strncmpi(opt{2},'-nopix',max(length(opt{2}),2))
-        keep_pix=false;
-        save_to_file=true;
-        outfile=opt{1};
-    elseif strncmpi(opt{2},'-pix',max(length(opt{2}),2))
-        keep_pix=true;
-        save_to_file=true;
-        outfile=opt{1};
-    else
-        error('Check optional arguments: ''%s'' and ''%s''',opt{1},opt{2})
-    end
-    if ~isempty(outfile) && outfile(1)=='-'     % catch case of given outfile beginning with '-'
-        error('Check optional arguments: ''%s'' and ''%s''',opt{1},opt{2})
-    end
-end
 if nargout==0 && ~save_to_file  % Check work needs to be done (*** might want to make this case prompt to save to file)
-    error ('Neither output cut object nor output file requested - routine is not being asked to do anything')
+    error ('CUT_SQW:invalid_arguments',...
+        'Neither output cut object nor output file requested - routine is not being asked to do anything')
 end
-
 if save_to_file && ~isempty(outfile)    % check file name makes reasonable sense if one has been supplied
     [~,~,out_ext]=fileparts(outfile);
     if length(out_ext)<=1    % no extension or just a dot
-        error('Output filename ''%s'' has no extension - check optional arguments',outfile)
+        error('CUT_SQW:invalid_arguments',...
+            'Output filename ''%s'' has no extension - check optional arguments',outfile)
     end
 end
 
-
 % Checks on binning arguments
-for i=1:numel(pbin)
-    if ~(isempty(pbin{i}) || isnumeric(pbin{i}))
-        error('Binning arguments must all be numeric')
-    end
+bins_valid = cellfun(@(x)(isempty(x) || isnumeric(x)),pbin);
+if ~all(bins_valid)
+    disp('wrong binning arguments are the arguments:')
+    disp(~bins_valid)
+    error('CUT_SQW:invalid_arguments',...
+        'Binning arguments must all be numeric')
 end
 if ~proj_given          % must refer to plot axes (in the order of the display list)
     if numel(pbin)~=ndims
-        error('Number of binning arguments must match the number of dimensions of the sqw data being cut')
+        error('CUT_SQW:invalid_arguments',...
+            'Number of binning arguments must match the number of dimensions of the sqw data being cut')
     end
 else                    % must refer to new projection axes
     if numel(pbin)~=4
-        error('Must give binning arguments for all four dimensions if new projection axes')
+        error('CUT_SQW:invalid_arguments',...
+            'Must give binning arguments for all four dimensions if new projection axes')
     end
 end
 
@@ -263,7 +229,8 @@ if save_to_file
             outfile = putfile('*.d0d;*.d1d;*.d2d;*.d3d;*.d4d');
         end
         if (isempty(outfile))
-            error ('No output file name given')
+            error ('CUT_SQW:invalid_arguments',...
+                'No output file name given')
         end
     end
     
@@ -272,7 +239,7 @@ if save_to_file
     %    is possible  and delete it.
     fout = fopen (outfile, 'wb'); % no upgrade possible -- this command also clears contents of existing file
     if (fout < 0)
-        error (['Cannot open output file ' outfile])
+        error ('CUT_SQW:runtime_error','Cannot open output file %s',outfile)
     end
     fclose(fout);
     delete(outfile);
@@ -289,7 +256,9 @@ if source_is_file  % data_source is a file
     data_type = ld.data_type;
     %[mess,main_header,header,detpar,data,position,npixtot,data_type]=get_sqw (data_source,'-nopix');
     if ~strcmpi(data_type,'a')
-        error('Data file is not sqw file with pixel information - cannot take cut')
+        error('CUT_SQW:invalid_arguments',...
+            'Data file %s is not sqw file with pixel information - cannot take cut',...
+            data_source)
     end
     npixtot = ld.npixels;
     pix_position = ld.pix_position;
@@ -363,7 +332,7 @@ end
 % has
 [iax, iint, pax, p, urange, mess] = cut_sqw_calc_ubins (data.urange, proj, pbin, pin, en);
 if ~isempty(mess)   % problem getting limits from the input
-    error(mess)
+    error('CUT_SQW:runtime_error',mess)
 end
 
 % Set matrix and translation vector to express plot axes with two or more bins
@@ -373,7 +342,7 @@ proj = proj.set_proj_binning(urange,pax,iax,p);
 % get indexes of pixels contributing into projection
 [nstart,nend]=proj.get_nbin_range(data.npix);
 if isempty(nstart) || isempty(nend)
-    error('SQW:cut_sqw','no pixels found within the range of the cut');
+    error('CUT_SQW:invalid_arguments','no pixels found within the range of the cut');
 end
 
 if nargout==0   % can buffer only if no output cut object
@@ -389,22 +358,63 @@ end
 % read data and accumulate signal and error
 targ_pax = proj.target_pax;
 targ_nbin = proj.target_nbin;
+keep_workers_running = false;
+
 if source_is_file
-    
-    fid=fopen(data_source,'r');
-    if fid<0
-        error(['Unable to open file ',data_source])
+    if cut_in_parallel
+        error('CUT_SQW:not_implemented',...
+            ' Parallel cut is not yet implemented. Do not use it');
+        [~,fn] = fileparts(outfile);
+        if numel(fn) > 8
+            fn = fn(1:8);
+        end
+        job_name = ['cut_sqw_to_',fn];
+        %
+        job_disp = JobDispatcher(job_name);
+        
+        [comb_using,n_workers] = config_store.instance().get_value('hpc_config','combine_sqw_using','parallel_workers_number');
+        if strcmp(comb_using,'mpi_code') && keep_pix % keep cluster running for combining procedure
+            keep_workers_running = true;
+        else
+            keep_workers_running = false;
+        end
+        
+        [common_par,loop_par] = cut_data_from_file_job.pack_job_pars(data_source,keep_pix,pix_tmpfile_ok,...
+            proj,nstart,nend);
+        
+        [outputs,n_failed,~,job_disp]=job_disp.start_job(...
+            'accumulate_headers_job',common_par,loop_par,true,n_workers,keep_workers_running );
+        
+        %
+        if n_failed == 0
+            s    = outputs{1}.s;
+            e    = outputs{1}.e;
+            npix = outputs{1}.npix;
+            urange_step_pix = outputs{1}.urange_step_pix;
+            pix = outputs{1}.pix;
+            npix_retain = outputs{1}.npix_retain;
+        else
+            job_disp.display_fail_job_results(outputs,n_failed,n_workers,'CUT_SQW:runtime_error');
+        end
+        
+    else
+        
+        
+        fid=fopen(data_source,'r');
+        if fid<0
+            error('CUT_SQW:runtime_error',...
+                'Unable to open source file: %s',data_source)
+        end
+        clobInput = onCleanup(@()fclose(fid));
+        
+        status=fseek(fid,pix_position,'bof');    % Move directly to location of start of pixel data block
+        if status<0;  fclose(fid);
+            error(['Error finding location of pixel data in file ',data_source]);
+        end
+        [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file_job.cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
+            proj, targ_pax, targ_nbin);
+        clear clobInput;
     end
-    clobInput = onCleanup(@()fclose(fid));
-    
-    status=fseek(fid,pix_position,'bof');    % Move directly to location of start of pixel data block
-    if status<0;  fclose(fid);
-        error(['Error finding location of pixel data in file ',data_source]);
-    end
-    [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
-        proj, targ_pax, targ_nbin);
-    clear clobInput;
-    
 else
     [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_array (data.pix, nstart, nend, keep_pix, ...
         proj, targ_pax, targ_nbin);
@@ -492,7 +502,11 @@ if save_to_file
     try
         ls = sqw_formats_factory.instance().get_pref_access();
         ls = ls.init(w,outfile);
-        ls = ls.put_sqw();
+        if keep_workers_running && cut_in_parallel % save time on starting parallel pool and use the existing one
+            ls = ls.put_sqw(job_disp);
+        else
+            ls = ls.put_sqw();
+        end
         ls.delete();
         
         if pix_tmpfile_ok
@@ -508,7 +522,7 @@ if save_to_file
     if hor_log_level>=0, disp(' '), end
 end
 
-if exist('tmpFilesClob','var') && ~isempty(tmpFilesClob) %to satisfy Matlab code analyzer who complain about 
+if exist('tmpFilesClob','var') && ~isempty(tmpFilesClob) %to satisfy Matlab code analyzer who complain about
     clear tmpFilesClob    % tmpFilesClob missing
 end
 

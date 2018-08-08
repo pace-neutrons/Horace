@@ -1,4 +1,4 @@
-function [mess, position, npixtot] = put_sqw_data_npix_and_pix_to_file (outfile, npix, pix)
+function [mess, position, npixtot] = put_sqw_data_npix_and_pix_to_file_(outfile, npix, pix)
 % Write npix and pix to a file with same format as put_sqw_data
 %
 %   >> [mess, position] = put_sqw_data_npix_and_pix_to_file (outfile, npix, pix)
