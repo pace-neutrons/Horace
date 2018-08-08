@@ -54,7 +54,7 @@ classdef test_gen_sqw_accumulate_sqw_nomex < ...
         end
         
         %
-        function obj=test_wrong_params_gen_sqw(obj,varargin)
+        function test_wrong_params_gen_sqw(obj,varargin)
             if nargin > 1  % running in single test method mode.
                 obj.setUp();
                 co1 = onCleanup(@()obj.tearDown());
@@ -82,7 +82,7 @@ classdef test_gen_sqw_accumulate_sqw_nomex < ...
             assertTrue(ok,'Should have failed because of repeated spe file name and parameters');
         end
         %
-        function obj=test_wrong_params_accum_sqw(obj)
+        function test_wrong_params_accum_sqw(obj)
             %-------------------------------------------------------------
             %-------------------------------------------------------------
             sqw_file_accum=fullfile(tempdir,['sqw_accum_',obj.test_pref,'.sqw']);  % output sqw file which should never be created

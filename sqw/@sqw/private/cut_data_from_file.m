@@ -92,7 +92,7 @@ end
 if keep_pix
     if pix_tmpfile_ok
         % pix is pix_combine info class
-        pix = init_pix_combine_info(nsteps);
+        pix = init_pix_combine_info(nsteps,numel(s));
     else
         pix = zeros(ndatpix,0);   % changed 17/11/08 from pix = [];
     end
@@ -421,14 +421,14 @@ end
 
 
 end
-function pci = init_pix_combine_info(nfiles)
+function pci = init_pix_combine_info(nfiles,nbins)
 % define fmp files to store in working directory.
 
 wk_dir = config_store.instance().get_value('parallel_config','working_directory');
 
 tmpfiles = cell(1,nfiles);
-tmpfiles = cellfun(@(x)fullfile(wk_dir,['horace',rand_digit_string(16),'.tmp']),tmpfiles,'UniformOutput',false);
-pci = pix_combine_info(tmpfiles);
+tmpfiles = cellfun(@(x)fullfile(wk_dir,['horace_subcut_',rand_digit_string(16),'.tmp']),tmpfiles,'UniformOutput',false);
+pci = pix_combine_info(tmpfiles,nbins);
 end
 
 

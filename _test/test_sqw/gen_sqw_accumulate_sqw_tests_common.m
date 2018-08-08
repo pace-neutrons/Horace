@@ -247,7 +247,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             obj.add_to_files_cleanList(spe_files{:});
         end
         %
-        function obj=test_gen_sqw(obj,varargin)
+        function test_gen_sqw(obj,varargin)
             %-------------------------------------------------------------
             if obj.skip_test
                 return
@@ -301,11 +301,11 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             
             w1a=cut_sqw(sqw_file_123456,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             % Test against saved or store to save later
-            obj=save_or_test_variables(obj,w1a,w1b);
+            obj.save_or_test_variables(w1a,w1b);
             
         end
         %
-        function obj=test_accumulate_sqw14(obj,varargin)
+        function test_accumulate_sqw14(obj,varargin)
             %-------------------------------------------------------------
             if obj.skip_test
                 return
@@ -360,12 +360,12 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same',mess]);
             
             % Test against saved or store to save later
-            obj=obj.save_or_test_variables(w2_14);
+            obj.save_or_test_variables(w2_14);
             
             
         end
         %
-        function obj=test_accumulate_and_combine1to4(obj,varargin)
+        function test_accumulate_and_combine1to4(obj,varargin)
             if obj.skip_test
                 return
             end
@@ -432,11 +432,11 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             w2_1456=cut_sqw(sqw_file_accum,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             
             % Test against saved or store to save later
-            obj=save_or_test_variables(obj,w2_1456);
+            obj.save_or_test_variables(w2_1456);
             
         end
         
-        function obj=test_accumulate_sqw1456(obj,varargin)
+        function test_accumulate_sqw1456(obj,varargin)
             %-------------------------------------------------------------
             if obj.skip_test
                 return
@@ -485,10 +485,10 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess])
             
             % Test against saved or store to save later
-            save_or_test_variables(obj,w2_1456)
+            obj.save_or_test_variables(w2_1456);
         end
         %
-        function obj=test_accumulate_sqw11456(obj,varargin)
+        function test_accumulate_sqw11456(obj,varargin)
             %-------------------------------------------------------------
             if obj.skip_test
                 return
@@ -551,7 +551,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             end
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same',mess]);
             % Test against saved or store to save later
-            obj=save_or_test_variables(obj,w2_11456);
+            obj.save_or_test_variables(w2_11456);
             
             
             if obj.save_output

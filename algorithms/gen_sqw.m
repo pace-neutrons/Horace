@@ -733,7 +733,7 @@ if use_separate_matlab
         grid_size = outputs.grid_size;
         urange    = outputs.urange;
     else
-        jd.display_fail_job_results(outputs,n_failed,'GEN_SQW:runtime_error');
+        jd.display_fail_job_results(outputs,n_failed,num_matlab_sessions,'GEN_SQW:runtime_error');
     end
     if ~keep_parallel_pool_running % clear job dispatcher
         jd = [];
