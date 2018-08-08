@@ -233,7 +233,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             % n_workers>1 sets up parallel file combining.
             % if n_workers==0 or absent the class does not change the
             % number of workers defined by current Horace configuration.
-            if nargin == 2
+            if nargin <= 2
                 n_workers = 0;
             else
                 n_workers = varargin{1};
@@ -380,7 +380,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             else
                 clob = onCleanup(@()(an));
             end
-            if (n_workers>0 && ~as)
+            if (n_workers>0 )
                 hc.build_sqw_in_parallel = true;
                 hc.parallel_workers_number = n_workers;
             end

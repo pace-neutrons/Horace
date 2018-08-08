@@ -203,17 +203,9 @@ sqw_data.urange=urange;
 if hor_log_level>-1
     disp(' ')
     disp('Reading and accumulating binning information of input file(s)...')
-    
 end
 
 if combine_in_parallel
-    if hor_log_level>-1
-        itimer = bigtic;
-        if hor_log_level>1
-            fprintf(' Accumulate headers in parallel task started on  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));
-        end
-    end
-    
     %TODO:  check config for appropriate ways of combining the tmp and what
     %to do with cluster
     comb_using = config_store.instance().get_value('hpc_config','combine_sqw_using');
@@ -226,6 +218,7 @@ if combine_in_parallel
     if jd_initialized
         [outputs,n_failed,~,job_disp]=job_disp.restart_job(...
             'accumulate_headers_job',common_par,loop_par,true,keep_workers_running );
+        n_workers = job_disp.cluster.n_workers;
     else
         n_workers = config_store.instance().get_value('hpc_config','parallel_workers_number');
         [outputs,n_failed,~,job_disp]=job_disp.start_job(...
@@ -237,15 +230,7 @@ if combine_in_parallel
         e_accum = outputs{1}.e;
         npix_accum = outputs{1}.npix;
     else
-        job_disp.display_fail_job_results(outputs,n_failed,'WRITE_NSQW_TO_SQW:runtime_error');
-    end
-    
-    if hor_log_level>-1
-        t = bigtoc(itimer);
-        disp(['Task completed in ',num2str(t(1)),' seconds'])        
-        if hor_log_level>1
-            fprintf('  At the time %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));
-        end
+        job_disp.display_fail_job_results(outputs,n_failed,n_workers,'WRITE_NSQW_TO_SQW:runtime_error');
     end
     
     
@@ -308,23 +293,7 @@ end
 % pixels
 wrtr = wrtr.init(ds,outfile);
 if combine_in_parallel
-    if hor_log_level>-1
-        itimer = bigtic;
-        if hor_log_level>1
-            fprintf(' Combine pixels in parallel task started on  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));
-        end
-    end
-    
     wrtr = wrtr.put_sqw(job_disp);
-    
-    if hor_log_level>-1
-        t = bigtoc(itimer);
-        disp(['Task completed in ',num2str(t(1)),' seconds'])        
-        if hor_log_level>1
-            fprintf(' At the time %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));
-        end
-    end
-    
 else
     wrtr = wrtr.put_sqw();
 end

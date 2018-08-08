@@ -67,7 +67,11 @@ classdef pix_combine_info
                 obj.pos_npixstart = zeros(1,nfiles);
                 obj.pos_pixstart  = zeros(1,nfiles);
                 obj.npix_file_tot       = zeros(1,nfiles);
-                obj.nbins   = 0;
+                if exist('nbins','var')
+                    obj.nbins   = nbins;
+                else
+                    obj.nbins   = 0;
+                end
                 obj.run_label     = 'nochange';
                 return;
             end
@@ -121,7 +125,8 @@ classdef pix_combine_info
                     is = true;
                 else
                     error('SQW_FILE_IO:invalid_argument',...
-                        'change_fileno: Invalid string value for run_label. Can be only "nochange" or "fileno"')
+                        'change_fileno: Invalid string value "%s" for run_label. Can be only "nochange" or "fileno"',...
+                        obj.run_label)
                 end
             elseif (isnumeric(obj.run_label) && numel(obj.run_label)==obj.nfiles)
                 is=true;
@@ -163,7 +168,11 @@ classdef pix_combine_info
                 part_files    = files(split_ind(1,i):split_ind(2,i));
                 ppos_npixstart = obj.pos_npixstart(split_ind(1,i):split_ind(2,i));
                 ppos_pixstart  = obj.pos_pixstart (split_ind(1,i):split_ind(2,i));
-                prun_label     = obj.run_label(split_ind(1,i):split_ind(2,i));
+                if ischar(obj.run_label)
+                    prun_label  = obj.run_label;
+                else
+                    prun_label     = obj.run_label(split_ind(1,i):split_ind(2,i));
+                end
                 pnpixtot       = obj.npix_file_tot(split_ind(1,i):split_ind(2,i));
                 pfilenums    = filenums(split_ind(1,i):split_ind(2,i));
                 %

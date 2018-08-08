@@ -104,7 +104,7 @@ elseif strcmp(combine_algorithm,'mpi_code')
             common_par,loop_par,false,n_workers,false);
     end
     if n_failed > 0
-        jd.display_fail_job_results(outputs,n_failed,'WRITE_NSQW_TO_SQW:runtime_error');
+        jd.display_fail_job_results(outputs,n_failed,n_workers,'WRITE_NSQW_TO_SQW:runtime_error');
     else
         obj = obj.reopen_to_write();
     end
