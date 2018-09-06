@@ -235,7 +235,7 @@ for i=1:nw
     chop_mono_fwhh{i}=1e-6*pulse_width_mono;    % convert to seconds
     
     % Determine if the moderator pulse is dominant contributor
-    shape_mod{i} = ((x0{i}./xa{i}).*chop_shape_fwhh{i} < mod_table.fwhh(mod_table.ind{i}));
+    shape_mod{i} = ((x0{i}./xa{i}).*chop_shape_fwhh{i} < mod_table.fwhh(mod_table.ind{i})');%RAE added ' to ensure out-of-memory issue on Matlab 2018a avoided
 end
 
 
