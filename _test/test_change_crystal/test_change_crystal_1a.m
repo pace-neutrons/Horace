@@ -203,6 +203,13 @@ classdef test_change_crystal_1a < TestCase
         function  obj=build_misaligned_source_file(obj,sim_sqw_file)
             % generate sqw file misaligned according to wrong gl, gs,dpsi.
             %
+            
+            hpc = hpc_config;
+            hpc_ds = hpc.get_data_to_store;
+            clob2 = onCleanup(@()set(hpc_config,hpc_ds));
+            hpc.combine_sqw_using = 'matlab';
+            hpc.build_sqw_in_parallel = 0;            
+            
             qfwhh=0.1;                % Spread of Bragg peaks
             efwhh=1;                  % Energy width of Bragg peaks
             rotvec=[0,0,0]*(pi/180);  % orientation of the true lattice w.r.t reference lattice
