@@ -10,13 +10,14 @@ while exist(filename,'file')==2 || permission_denied
     if strcmpi(warn_id,'MATLAB:DELETE:Permission')
         permission_denied=true;
         lastwarn('');
-        pause(0.1)
+        pause(0.1);
         tried = tried+1;
         if tried > n_attempts_allowed
             warning('UNLOCK:runtime_error',...
                 ' Can not remove lock %s. It looks like threads got dead-locked. Breaking lock forcibly',...
                 filename);
-            break
+            clob = onCleanup(@()lock_bg_deleter(filename,ws));
+            return;
         end
     else
         permission_denied=false;
@@ -25,3 +26,10 @@ while exist(filename,'file')==2 || permission_denied
 end
 warning(ws);
 
+function lock_bg_deleter(filename,ws)
+
+while exist(filename,'file')==2
+    pause(0.1);
+    delete(filename);
+end
+warning(ws);

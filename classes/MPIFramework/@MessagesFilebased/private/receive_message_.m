@@ -104,7 +104,7 @@ while ~received
             continue;
         else
             warning('RECEIVE_MESSAGE:runtime_error',...
-                ' problem with obtaining lock %s. Proceeding regardless',lock_file)
+                ' problem with obtaining lock %s at receiving. Proceeding regardless',lock_file)
             unlock_(fh,lock_file);
         end
     end
