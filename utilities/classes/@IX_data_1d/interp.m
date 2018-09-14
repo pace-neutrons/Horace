@@ -74,12 +74,13 @@ end
 % Interpolate data
 wout=win;
 for iw=1:numel(win)
-    wout(iw).x=xnew;
     if hist_data
         x=0.5*(win(iw).x(1:end-1)+win(iw).x(2:end));
-        wout(iw).signal=interp1(x,win(iw).signal,xi,varargin{2:end})';
+        signalnew=interp1(x,win(iw).signal,xi,varargin{2:end})';
     else
-        wout(iw).signal=interp1(win(iw).x,win(iw).signal,xi,varargin{2:end})';
+        signalnew=interp1(win(iw).x,win(iw).signal,xi,varargin{2:end})';
     end
-    wout(iw).error=zeros(size(wout(iw).signal));    % don't try to estimate any errors
+    errornew=zeros(size(signalnew));    % don't try to estimate any errors
+    wout(iw)=IX_dataset_1d(win(iw).title, signalnew, errornew,...
+        win(iw).s_axis, xnew, win(iw).x_axis, win(iw).x_distribution);
 end
