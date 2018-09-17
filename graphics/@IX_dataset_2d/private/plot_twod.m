@@ -232,8 +232,10 @@ if newplot
     if zlims, lc(zlo,zhi), end
 end
 
-% Add colorslider
-colorslider
+% Add colorslider if a new plot
+if newplot
+    colorslider
+end
 
 % Get fig, axes and plot handles
 [fig_, axes_, plot_] = genie_figure_all_handles;

@@ -16,11 +16,16 @@ function y=maps_flux_gain(ei)
 
 lam=sqrt(81.804201263673718./ei);
 
-% Parameters fitted to Rob Bewley McStas simulation to lambda=4. Good for lambda<=4.5
-% and use linear approx for larger lambda
-p=[2.278264717102751  18.892330866761206  -9.676733037636289...
-    4.277079967209179  -0.873716983354024   0.091339606316616];
+% % Parameters fitted to Russell Ewings McStas simulation to lambda=5. Good for lambda<=4.5
+% % and use linear approx for larger lambda
+% p=[2.278264717102751  18.892330866761206  -9.676733037636289...
+%     4.277079967209179  -0.873716983354024   0.091339606316616];
   
+% Parameters fitted to Duc Le McStas simulation. Good for lambda<=4.5
+% and use linear approx for larger lambda
+p = [2.31186757913804 23.2965476737752 -15.1289612048092...
+    6.11185114079924 -0.863318992430536 0.0439354263500835];
+
 y=guide_gain_func(lam,p);
 
 lam_max = 4.5;
