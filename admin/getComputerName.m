@@ -23,5 +23,5 @@ if ret ~= 0
     end
 end
 name = strtrim(lower(name));
-name = sttrep(name,'-','_');
+name = strrep(name,'-','_');
 
