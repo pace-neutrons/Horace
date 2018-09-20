@@ -2,6 +2,8 @@ function name = getComputerName()
 % GETCOMPUTERNAME returns the name of the computer (hostname)
 % name = getComputerName()
 %
+% The name is transformed to the form to be used as a structure field
+%
 % WARN: output string is converted to lower case
 %
 %
@@ -21,3 +23,5 @@ if ret ~= 0
     end
 end
 name = strtrim(lower(name));
+name = sttrep(name,'-','_');
+
