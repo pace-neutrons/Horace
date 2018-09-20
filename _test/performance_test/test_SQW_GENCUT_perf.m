@@ -166,8 +166,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             else
                 n_workers = varargin{1};
             end
-            [clob_wk,hpc] = check_and_set_workers_(obj,n_workers);
-            
+            [clob_wk,hpc] = check_and_set_workers_(obj,n_workers);            
             
             
             function fn = replace_fext(fp,fn)
@@ -238,7 +237,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             else
                 n_workers = varargin{1};
             end
-            clob_wk = check_and_set_workers_(obj,n_workers);
+            [clob_wk,~,nwk] = check_and_set_workers_(obj,n_workers);
             if nargin == 3 && ~isempty(varargin{2})
                 test_names_to_run = varargin{2};
                 tests_to_run  = ismember(obj.tests_availible,test_names_to_run);
@@ -246,7 +245,6 @@ classdef test_SQW_GENCUT_perf < TestPerformance
                 tests_to_run = true(1,numel(obj.tests_availible));
             end
             
-            nwk = num2str(n_workers);
             efix= 22.8;%incident energy in meV
             
             emode=1;%direct geometry
@@ -269,7 +267,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
                 ts = tic();
                 gen_sqw (obj.test_source_files_list_,'',obj.sqw_file, efix, emode, alatt, angdeg,u, v, psi, omega, dpsi, gl, gs,'replicate');
                 
-                perf_res=obj.assertPerformance(ts,sprintf('gen_sqw_nwk%d_comb_%s',nwk,comb_metnod),...
+                perf_res=obj.assertPerformance(ts,sprintf('gen_sqw_nwk%s_comb_%s',nwk,comb_metnod),...
                     'whole sqw file generation');
             end
             
@@ -360,7 +358,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
         end
     end
     methods(Access=private)
-        function [clob,hc] = check_and_set_workers_(obj,n_workers)
+        function [clob,hc,nwkc] = check_and_set_workers_(obj,n_workers)
             % function verifies and sets new number of MPI workers
             %
             % returns cleanup object which returns the number of temporary
@@ -371,7 +369,10 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             hc = hpc_config;
             if n_workers == 0 % keep existing number of workers unchanged
                 clob = onCleanup(@()(0));
+                nwkc = num2str(hc.parallel_workers_number);
                 return;
+            else
+                nwkc = num2str(n_workers);
             end
             as = hc.build_sqw_in_parallel;
             an = hc.parallel_workers_number;
