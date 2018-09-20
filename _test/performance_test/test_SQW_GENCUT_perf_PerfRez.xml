@@ -1068,4 +1068,32 @@
          <completed_on>[2018 7 6 12 2 3.24651]</completed_on>
       </combine_tmp_using_MATLAB_old>
    </ndmlnx02_isis_cclrc_ac_uk_nf50>
+   <host_172_16_114_125_SQW_GENCUT_perf/>
+   <host_172_16_114_125_nf50>
+      <gen_sqw_nwk0_comb_matlab>
+         <time_sec>1939.337711</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2018 9 20 15 39 13.210396]</completed_on>
+      </gen_sqw_nwk0_comb_matlab>
+      <gen_sqw_nwk2_comb_mex_code_MODE1>
+         <time_sec>557.848706</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2018 9 20 15 50 36.905163]</completed_on>
+      </gen_sqw_nwk2_comb_mex_code_MODE1>
+      <gen_sqw_nwk4_comb_mex_code_MODE1>
+         <time_sec>288.076396</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2018 9 20 16 6 49.459222]</completed_on>
+      </gen_sqw_nwk4_comb_mex_code_MODE1>
+      <gen_sqw_nwk8_comb_mex_code_MODE1>
+         <time_sec>268.338491</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2018 9 20 16 12 2.721499]</completed_on>
+      </gen_sqw_nwk8_comb_mex_code_MODE1>
+      <gen_sqw_nwk12_comb_mex_code_MODE1>
+         <time_sec>306.781138</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2018 9 20 16 17 59.608481]</completed_on>
+      </gen_sqw_nwk12_comb_mex_code_MODE1>
+   </host_172_16_114_125_nf50>
 </SQW_GENCUT_perf>
