@@ -1,10 +1,10 @@
-function [fig_handle, axes_handle, plot_handle] = paoc(w)
-% Overplot an area plot of an IX_dataset_2d or array of IX_dataset_2d on the current plot
+function [fig_handle, axes_handle, plot_handle] = psoc(w)
+% Overplot a surface plot of an IX_dataset_2d or array of IX_dataset_2d on the current plot
 %
-%   >> paoc(w)
+%   >> ps(w)
 %
 % Return figure, axes and plot handles:
-%   >> [fig_handle, axes_handle, plot_handle] = paoc(w) 
+%   >> [fig_handle, axes_handle, plot_handle] = ps(w) 
 
 
 % Check input arguments
@@ -13,7 +13,7 @@ opt=struct('newplot',false,'over_curr',true);
 if ~ok, error(mess), end
 
 % Perform plot
-type='area';
+type='surface';
 [fig_,axes_,plot_,ok,mess]=plot_twod (w,opt.newplot,type,fig);
 if ~ok, error(mess), end
 

@@ -8,7 +8,7 @@ function [args,ok,mess,nw,lims,fig_out]=genie_figure_parse_plot_args2(opt,vararg
 % ------
 %   opt         Structure with fields giving options
 %                   newplot     true or false
-%                   over_curr        true or false
+%                   over_curr   true or false
 %                                   only applies when newplot==false
 %                default_name   Default plot window name if none given
 %                                   only applies if 'draw' or 'plot'
