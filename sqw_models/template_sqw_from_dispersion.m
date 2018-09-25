@@ -31,9 +31,10 @@ gamma = par(2);
 
 [wdisp,idisp] = my_dispersion_relation (qh,qk,ql,par(3:end));
 
-if icell(wdisp)     % cell array of output for one or more dispersion relations
+if iscell(wdisp)     % cell array of output for one or more dispersion relations
+    weight = zeros(size(wdisp{1}));
     for i=1:numel(wdisp)
-        weight = idisp{i} .* (dsho_over_eps (en, wdisp{i}, gamma) .* bose_times_eps(en,T));
+        weight = weight + idisp{i} .* (dsho_over_eps (en, wdisp{i}, gamma) .* bose_times_eps(en,T));
     end
 else    % must be numeric array for a valid, single, dispersion relation
     weight = idisp .* (dsho_over_eps (en, wdisp, gamma) .* bose_times_eps(en,T));

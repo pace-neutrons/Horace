@@ -1,5 +1,5 @@
 function [figureHandle, axesHandle, plotHandle] = plot(w,varargin)
-% Draw an area plot fof a d2d dataset or array of datasets
+% Draw an area plot of a d2d dataset or array of datasets
 %
 %   >> plot(w)
 %

@@ -55,6 +55,16 @@ e = zeros(nbin_as_size);
 npix = zeros(nbin_as_size);
 urange_step_pix = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
 
+% *** T.G.Perring 5 Sep 2018:
+% Catch case of nstart and nend being empty - this corresponds to no data in the boxes that
+% interect with the cut
+if isempty(nstart)
+    pix = zeros(9,1);
+    npix_retain = 0;
+    npix_read = 0;
+    return
+end
+
 range = nend-nstart+1;                  % length of the block to be read
 npix_read = sum(range(:));              % number of pixels that will be read from file
 

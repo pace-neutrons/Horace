@@ -1,11 +1,10 @@
 function wout=bose(win,T)
-%
 % Correct a dataset for the bose population factor
 % 
-% wout = (1 - exp(-11.6044*en / T)) * win
-%
+%   >> wout = (1 - exp(-en/kB*T)) * win
+
+
 % RAE 7/12/09
-%
 
 %We can cheat here by making a dummy sqw function that returns the bose
 %factor for all of the points:
