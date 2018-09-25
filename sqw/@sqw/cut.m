@@ -129,6 +129,7 @@ nout=w.nargout_req;
 nw=numel(w.data);
 
 if all(w.sqw_type(:))
+    % sqw type data
     if numel(args)>=1 && ~isstruct(args{1}) % proj structure not given, so all sqw objects must have same dimensionality
         if ~all(w.ndims==w.ndims(1))
             error('All sqw objects must have same dimensionality if not using new projection axes')
@@ -136,17 +137,48 @@ if all(w.sqw_type(:))
     end
     for i=1:nw
         if nout>0
-            if i==2, wout=repmat(wout,size(w.data)); end
-            wout(i)=cut_sqw_main(w.data(i),w.ndims(i),args{:});   % private method - cuts just scalar data_source
+            if i==1
+                wout=cut_sqw_main(w.data(i),w.ndims(i),args{:});
+                if nw>1
+                    cut_array = (numel(wout)>1);
+                    if ~cut_array
+                        wout=repmat(wout,size(w.data));     % make array
+        else
+                        wout=repmat({wout},size(w.data));   % make cell array
+                    end
+                end
+            else
+                if ~cut_array
+                    wout(i)=cut_sqw_main(w.data(i),w.ndims(i),args{:});
+                else
+                    wout{i}=cut_sqw_main(w.data(i),w.ndims(i),args{:});
+                end
+            end
         else
             cut_sqw_main(w.data(i),w.ndims(i),args{:});
         end
     end
 elseif ~any(w.sqw_type(:)) && all(w.ndims==w.ndims(1))
+    % dnd type data
     for i=1:nw
         if nout>0
-            if i==2, wout=repmat(wout,size(w.data)); end
-            wout(i)=cut_dnd_main(w.data(i),w.ndims(i),args{:});   % private method - cuts just scalar data_source
+            if i==1
+                wout=cut_dnd_main(w.data(i),w.ndims(i),args{:});
+                if nw>1
+                    cut_array = (numel(wout)>1);
+                    if ~cut_array
+                        wout=repmat(wout,size(w.data));     % make array
+                    else
+                        wout=repmat({wout},size(w.data));   % make cell array
+                    end
+                end
+            else
+                if ~cut_array
+                    wout(i)=cut_dnd_main(w.data(i),w.ndims(i),args{:});
+                else
+                    wout{i}=cut_dnd_main(w.data(i),w.ndims(i),args{:});
+                end
+            end
         else
             cut_dnd_main(w.data(i),w.ndims(i),args{:});
         end

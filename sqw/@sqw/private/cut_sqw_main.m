@@ -1,20 +1,19 @@
-function wout = cut_sqw_main (data_source, ndims, varargin)
+function wout = cut_sqw_main (data_source, ndims_source, varargin)
 % Take a cut from an sqw object by integrating over one or more axes.
 %
 % Cut using existing projection axes:
-%   >> w = cut_sqw_main (data_source, ndims, p1_bin, p2_bin...)
+%   >> w = cut_sqw_main (data_source, ndims_source, p1_bin, p2_bin...)
 %                                           %(as many binning arguments
 %                                           % as there are plot axes)
 %
 % Cut with new projection axes:
-%   >> w = cut_sqw_main (data_source, ndims, proj, p1_bin, p2_bin, p3_bin, p4_bin)
+%   >> w = cut_sqw_main (data_source, ndims_source, proj, p1_bin, p2_bin, p3_bin, p4_bin)
 %
 %   >> w = cut_sqw_main (..., '-nopix')     % output cut is dnd structure (i.e. no
 %                                           % pixel information is retained)
 %
 %   >> w = cut_sqw_main (..., '-save')      % save cut to file (prompts for file)
 %   >> w = cut_sqw_main (...,  filename)    % save cut to named file
-%   >> w = cut_sqw_main (..., '-parallel')  % do cut in parallel
 %
 % Write directly to file without creating an output object (useful if the
 % output is a large dataset in order to avoid out-of-memory errors)
@@ -124,431 +123,73 @@ function wout = cut_sqw_main (data_source, ndims, varargin)
 
 hor_log_level = config_store.instance().get_value('herbert_config','log_level');
 
-if hor_log_level>=1
-    bigtic
-end
-
 
 % Parse input arguments
 % ---------------------
-% Determine if data source is sqw object or file
-if iscellstr(data_source)
-    data_source=data_source{1};
-    source_is_file=true;
-elseif ischar(data_source)
-    source_is_file=true;
-elseif isa(data_source,'sqw')
-    source_is_file=false;
-else
-    error('CUT_SQW:runtime_error',...
-        'Logic problem in chain of cut methods. See T.G.Perring')
-end
+return_cut = (nargout>0);
 
-% Strip off final arguments that are character strings, and parcel the rest as binning arguments
-% (the functions that use binning arguments are clever enough to handle incorrect number of arguments and types)
-opt = {'-nopix','-pix','-save','-parallel'};
-[ok,mess,nopix,pix,save_to_file,cut_in_parallel,argi] = parse_char_options(varargin,opt);
+[ok, mess, data_source, proj, pbin, args, opt] = ...
+    cut_sqw_check_input_args (data_source, ndims_source, return_cut, varargin{:});
 if ~ok
-    error('CUT_SQW:invalid_arguments',mess);
+    error ('CUT_SQW:invalid_arguments', mess)
 end
-if nopix && pix
-    error('CUT_SQW:invalid_arguments','only one option -nopix or -pix can be provided');
-else
-    keep_pix = ~nopix || pix;
+
+% Ensure there are no excess input arguments
+if numel(args)~=0
+    error ('CUT_SQW:invalid_arguments', 'Check the number and type of input arguments')
 end
-char_string = cellfun(@ischar,argi);
-if any(char_string)
-    outfile = argi{char_string};
-    save_to_file = true;
-    argi = argi(~char_string);
-else
-    outfile = '';
+
+
+% Read the header information (or if data source is an object, unpack the major fields)
+% -------------------------------------------------------------------------------------
+[ok, mess, main_header, header, detpar, data, npixtot, pix_position] = ...
+    cut_sqw_read_data (data_source, hor_log_level);
+if ~ok
+    error ('CUT_SQW:invalid_arguments', mess)
 end
-if save_to_file
-    keep_pix  = true;
+
+
+% Update projection by current projection, and reorder binning descriptors
+% ------------------------------------------------------------------------
+% Properties of proj are updated to hold projection information for the
+% input projection axes, and if proj is not given pbin is reordered from the
+% display axes to the input projectin axes. Multiple integration axes are
+% determined and the corresponding elements of pbin are turned into two
+% dimensional arrays.
+[ok, mess, proj, pbin, ndims, pin, en] = cut_sqw_check_pbins (header, data, proj, pbin);
+if ~ok
+    error ('CUT_SQW:invalid_arguments', mess)
 end
-% Get proj structure, if present, and binning information
-if numel(argi)>=1 && (isstruct(argi{1}) ||...
-        isa(argi{1},'aProjection') || isa(argi{1},'projaxes'))
-    proj_given=true;
-    if isa(argi{1},'aProjection')
-        proj=argi{1};
+
+
+% Perform cuts
+% ------------
+sz = cellfun(@(x)max(size(x,1),1),pbin);     % size of array of cuts (note: numel(wsize)==4)
+if return_cut
+    sz_squeeze = [sz(sz>1),ones(1,max(2-sum(sz>1),0))];
+    if opt.keep_pix
+        wout = repmat(sqw,sz_squeeze);
     else
-        proj=projection(argi{1});
-    end
-    pbin=argi(2:end);
-else
-    proj_given=false;
-    pbin=argi;
-end
-
-% Do checks on input arguments
-% ----------------------------
-% Check consistency of optional arguments.
-% (Do some checks for which there is reasonable default behaviour, but as cuts can take a long time, be cautious instead)
-if nargout==0 && ~save_to_file  % Check work needs to be done (*** might want to make this case prompt to save to file)
-    error ('CUT_SQW:invalid_arguments',...
-        'Neither output cut object nor output file requested - routine is not being asked to do anything')
-end
-if save_to_file && ~isempty(outfile)    % check file name makes reasonable sense if one has been supplied
-    [~,~,out_ext]=fileparts(outfile);
-    if length(out_ext)<=1    % no extension or just a dot
-        error('CUT_SQW:invalid_arguments',...
-            'Output filename ''%s'' has no extension - check optional arguments',outfile)
+        wout = eval(['repmat(d',num2str(ndims),'d,sz_squeeze)']);
     end
 end
-
-% Checks on binning arguments
-bins_valid = cellfun(@(x)(isempty(x) || isnumeric(x)),pbin);
-if ~all(bins_valid)
-    disp('wrong binning arguments are the arguments:')
-    disp(~bins_valid)
-    error('CUT_SQW:invalid_arguments',...
-        'Binning arguments must all be numeric')
-end
-if ~proj_given          % must refer to plot axes (in the order of the display list)
-    if numel(pbin)~=ndims
-        error('CUT_SQW:invalid_arguments',...
-            'Number of binning arguments must match the number of dimensions of the sqw data being cut')
-    end
-else                    % must refer to new projection axes
-    if numel(pbin)~=4
-        error('CUT_SQW:invalid_arguments',...
-            'Must give binning arguments for all four dimensions if new projection axes')
-    end
-end
-
-
-% Open output file if required
-% ----------------------------
-if save_to_file
-    if isempty(outfile)
-        if keep_pix
-            outfile = putfile('*.sqw');
-        else
-            outfile = putfile('*.d0d;*.d1d;*.d2d;*.d3d;*.d4d');
-        end
-        if (isempty(outfile))
-            error ('CUT_SQW:invalid_arguments',...
-                'No output file name given')
-        end
-    end
+for i=1:prod(sz)
+    % Get pbin for each cut (allow for a bin descriptor being empty)
+    [i1,i2,i3,i4] = ind2sub(sz,i);
+    pbin_tmp = cell(1,4);
+    if ~isempty(pbin{1}), pbin_tmp{1}=pbin{1}(i1,:); else, pbin_tmp{1}=pbin{1}; end
+    if ~isempty(pbin{2}), pbin_tmp{2}=pbin{2}(i2,:); else, pbin_tmp{2}=pbin{2}; end
+    if ~isempty(pbin{3}), pbin_tmp{3}=pbin{3}(i3,:); else, pbin_tmp{3}=pbin{3}; end
+    if ~isempty(pbin{4}), pbin_tmp{4}=pbin{4}(i4,:); else, pbin_tmp{4}=pbin{4}; end
     
-    % Open output file now - don't want to discover there are problems after 30 seconds of calculation
-    %    Not yet fully supported with sqw_formats_factory but can be. Now just test creation of new file
-    %    is possible  and delete it.
-    fout = fopen (outfile, 'wb'); % no upgrade possible -- this command also clears contents of existing file
-    if (fout < 0)
-        error ('CUT_SQW:runtime_error','Cannot open output file %s',outfile)
-    end
-    fclose(fout);
-    delete(outfile);
-    %     clob = onCleanup(@()clof(fout));
-end
-
-
-% Get header information from the data source
-% --------------------------------------------
-if hor_log_level>0, disp('--------------------------------------------------------------------------------'), end
-if source_is_file  % data_source is a file
-    if hor_log_level>=0, disp(['Taking cut from data in file ',data_source,'...']), end
-    ld = sqw_formats_factory.instance().get_loader(data_source);
-    data_type = ld.data_type;
-    %[mess,main_header,header,detpar,data,position,npixtot,data_type]=get_sqw (data_source,'-nopix');
-    if ~strcmpi(data_type,'a')
-        error('CUT_SQW:invalid_arguments',...
-            'Data file %s is not sqw file with pixel information - cannot take cut',...
-            data_source)
-    end
-    npixtot = ld.npixels;
-    pix_position = ld.pix_position;
-    %
-    main_header = ld.get_main_header();
-    header = ld.get_header('-all');
-    detpar = ld.get_detpar();
-    data = ld.get_data('-nopix');
-    ld.delete();
-else
-    if hor_log_level>=0, disp('Taking cut from sqw object...'), end
-    % for convenience, unpack the fields that themselves are major data structures
-    %(no memory penalty as matlab just passes pointers)
-    main_header = data_source.main_header;
-    header = data_source.header;
-    detpar = data_source.detpar;
-    data   = data_source.data;
-    npixtot= size(data.pix,2);
-end
-
-
-% Get some 'average' quantities for use in calculating transformations and bin boundaries
-% -----------------------------------------------------------------------------------------
-% *** assumes that all the contributing spe files had the same lattice parameters and projection axes
-% This could be generalised later - but with repercussions in many routines
-header_ave=header_average(header);
-alatt = header_ave.alatt;
-angdeg = header_ave.angdeg;
-en = header_ave.en;  % energy bins for synchronisation with when constructing defaults
-upix_to_rlu = header_ave.u_to_rlu(1:3,1:3);
-upix_offset = header_ave.uoffset;
-%
-data.alatt=alatt;
-data.angdeg=angdeg;
-%
-% Get plot and integration axis information, and which blocks of data to read from file/structure
-% ------------------------------------------------------------------------------------------------
-% Construct bin boundaries cellarray for input data set, including integration axes as a single bin
-% These will be the default bin inputs when computing the output bin boundary and integration ranges
-% If proj is not empty, then the input pbin will be dy correctly ordered as the projection axes, but if proj
-pin=cell(1,4);
-pin(data.pax)=data.p;   % works even if zero elements
-if ~isempty(data.iax)
-    pin(data.iax)=mat2cell(data.iint,2,ones(1,numel(data.iax)));
-end
-
-% Get matrix to convert from projection axes of input data to required output projection axes
-% ---------------------------------------------------------------------------------------------
-% The conversion here is that for the projection axes in which the plot and integration axes of the data section
-% are expressed. Recall that this is not necessarily the same as that in which the individual pixel information is
-% expressed.
-if proj_given
-    proj = proj.retrieve_existing_tranf(data,upix_to_rlu,upix_offset);
-else
-    proj = projection();  % empty instance of the projaxes class
-    proj = proj.retrieve_existing_tranf(data,upix_to_rlu,upix_offset);
-    
-    % is empty, then the order is as the axes displayed in a plot
-    ptmp=pbin;          % input refers to display axes
-    pbin=cell(1,4);     % Will reorder and insert integration ranges as required from input data
-    % Get binning array from input display axes rebinning
-    for i=1:numel(data.pax)
-        j=data.dax(i);   % plot axis corresponding to ith binning argument
-        pbin(data.pax(j))=ptmp(i);
-    end
-    
-end
-
-% retrieve data coordinate frame that encloses the output data volume in
-% projected coordinate system ang generate full set of axis new projection
-% has
-[iax, iint, pax, p, urange, mess] = cut_sqw_calc_ubins (data.urange, proj, pbin, pin, en);
-if ~isempty(mess)   % problem getting limits from the input
-    error('CUT_SQW:runtime_error',mess)
-end
-
-% Set matrix and translation vector to express plot axes with two or more bins
-% as multiples of step size from lower limits
-proj = proj.set_proj_binning(urange,pax,iax,p);
-
-% get indexes of pixels contributing into projection
-[nstart,nend]=proj.get_nbin_range(data.npix);
-if isempty(nstart) || isempty(nend)
-    error('CUT_SQW:invalid_arguments','no pixels found within the range of the cut');
-end
-
-if nargout==0   % can buffer only if no output cut object
-    pix_tmpfile_ok = true;
-else
-    pix_tmpfile_ok = false;
-end
-
-
-%
-% Get accumulated signal
-% -----------------------
-% read data and accumulate signal and error
-targ_pax = proj.target_pax;
-targ_nbin = proj.target_nbin;
-keep_workers_running = false;
-
-if source_is_file
-    if cut_in_parallel
-        error('CUT_SQW:not_implemented',...
-            ' Parallel cut is not yet implemented. Do not use it');
-        [~,fn] = fileparts(outfile);
-        if numel(fn) > 8
-            fn = fn(1:8);
-        end
-        job_name = ['cut_sqw_to_',fn];
-        %
-        job_disp = JobDispatcher(job_name);
-        
-        [comb_using,n_workers] = config_store.instance().get_value('hpc_config','combine_sqw_using','parallel_workers_number');
-        if strcmp(comb_using,'mpi_code') && keep_pix % keep cluster running for combining procedure
-            keep_workers_running = true;
-        else
-            keep_workers_running = false;
-        end
-        
-        [common_par,loop_par] = cut_data_from_file_job.pack_job_pars(data_source,keep_pix,pix_tmpfile_ok,...
-            proj,nstart,nend);
-        
-        [outputs,n_failed,~,job_disp]=job_disp.start_job(...
-            'accumulate_headers_job',common_par,loop_par,true,n_workers,keep_workers_running );
-        
-        %
-        if n_failed == 0
-            s    = outputs{1}.s;
-            e    = outputs{1}.e;
-            npix = outputs{1}.npix;
-            urange_step_pix = outputs{1}.urange_step_pix;
-            pix = outputs{1}.pix;
-            npix_retain = outputs{1}.npix_retain;
-        else
-            job_disp.display_fail_job_results(outputs,n_failed,n_workers,'CUT_SQW:runtime_error');
-        end
-        
+    % Make cut
+    if return_cut
+        wout(i) = cut_sqw_main_single (data_source,...
+            main_header, header, detpar, data, npixtot, pix_position,...
+            proj, pbin_tmp, pin, en, opt, hor_log_level);
     else
-        
-        
-        fid=fopen(data_source,'r');
-        if fid<0
-            error('CUT_SQW:runtime_error',...
-                'Unable to open source file: %s',data_source)
-        end
-        clobInput = onCleanup(@()fclose(fid));
-        
-        status=fseek(fid,pix_position,'bof');    % Move directly to location of start of pixel data block
-        if status<0;  fclose(fid);
-            error(['Error finding location of pixel data in file ',data_source]);
-        end
-        [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file_job.cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
-            proj, targ_pax, targ_nbin);
-        clear clobInput;
+        cut_sqw_main_single (data_source,...
+            main_header, header, detpar, data, npixtot, pix_position,...
+            proj, pbin_tmp, pin, en, opt, hor_log_level);
     end
-else
-    [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_array (data.pix, nstart, nend, keep_pix, ...
-        proj, targ_pax, targ_nbin);
-end
-% For convenience later on, set a flag that indicates if pixel info buffered in files
-if isa(pix,'pix_combine_info')
-    pix_tmpfile_ok=true;
-    tmpFilesClob = onCleanup(@()delete_tmp_pix_files(pix));
-else
-    pix_tmpfile_ok=false;
-    tmpFilesClob = [];
-end
-
-% Convert range from steps to actual range with respect to output uoffset:
-urange_pix = urange_step_pix.*repmat(proj.usteps,[2,1]) + repmat(proj.urange_offset,[2,1]);
-
-
-%nbin=[];
-%for i=1:length(pax)
-%    nbin(i)=length(p{i})-1;
-%end
-%if isempty(nbin); nbin_as_size=[1,1]; elseif length(nbin)==1; nbin_as_size=[nbin,1]; else nbin_as_size=nbin; end;  % usual Matlab sillyness
-ppax = p(1:length(pax));
-% Account for singleton dimensions i.e. plot axes with just one bin (and look after case of zero or one dimension)
-if isempty(ppax)
-    nbin_as_size = [1,1];
-elseif length(ppax)==1
-    nbin_as_size = [length(ppax{1})-1,1];
-else
-    nbin_as_size = cellfun(@(nd)(length(nd)-1),ppax);
-end
-
-
-% prepare ouput data
-data_out = data;
-
-s = reshape(s,nbin_as_size);
-e = reshape(e,nbin_as_size);
-npix = reshape(npix,nbin_as_size);
-
-
-% Parcel up data as the output sqw data structure
-% -------------------------------------------------
-% Store output parameters relevant for future cuts and correct displaying
-% of sqw object
-
-[data_out.uoffset,data_out.ulabel,data_out.dax,data_out.u_to_rlu,...
-    data_out.ulen,axis_caption] = proj.get_proj_param(data,pax);
-%HACK! Any projections is converted into standard projection at this point
-data_out.axis_caption = axis_caption;
-%
-data_out.iax = iax;
-data_out.iint = iint;
-data_out.pax = pax;
-data_out.p = p;
-
-data_out.s = s./npix;
-data_out.e = e./(npix.^2);
-data_out.npix = npix;
-no_pix = (npix==0);     % true where there are no pixels contributing to the bin
-data_out.s(no_pix)=0;   % want signal to be NaN where there are no contributing pixels, not +/- Inf
-data_out.e(no_pix)=0;
-
-if keep_pix
-    data_out.urange = urange_pix;
-    data_out.pix = pix;
-end
-
-% Collect fields to make those for a valid sqw object
-if keep_pix
-    w.main_header=main_header;
-    w.header=header;
-    w.detpar=detpar;
-    w.data=data_out; % will be missing the field 'pix' if pix_tmpfile_ok=true
-else
-    [w,mess]=make_sqw(true,data_out);   % make dnd-type sqw structure
-    if ~isempty(mess), error(mess), end
-end
-
-
-% Save to file if requested
-% ---------------------------
-if save_to_file
-    if hor_log_level>=0, disp(['Writing cut to output file ',outfile,'...']), end
-    try
-        ls = sqw_formats_factory.instance().get_pref_access();
-        ls = ls.init(w,outfile);
-        if keep_workers_running && cut_in_parallel % save time on starting parallel pool and use the existing one
-            ls = ls.put_sqw(job_disp);
-        else
-            ls = ls.put_sqw();
-        end
-        ls.delete();
-        
-        if pix_tmpfile_ok
-            % mess = put_sqw (fout,w.main_header,w.header,w.detpar,w.data,'-pix',pix.tmpfiles,pix.pos_npixstart,pix.pos_pixstart,'nochange');
-            clear tmpFilesClob;
-        end
-        if ~isempty(mess)
-            warning('CUT_SQW_MAIN:io_error','Error saving pixels to file: %s',mess)
-        end
-    catch Err  % catch just in case there is an error writing that is not caught - don't want to waste all the cutting output
-        warning('CUT_SQW_MAIN:io_error','Error writing to file:ID %s, Message  %s',Err.identifier,Err.message);
-    end
-    if hor_log_level>=0, disp(' '), end
-end
-
-if exist('tmpFilesClob','var') && ~isempty(tmpFilesClob) %to satisfy Matlab code analyzer who complain about
-    clear tmpFilesClob    % tmpFilesClob missing
-end
-
-% Create output argument if requested
-% -----------------------------------
-if nargout~=0
-    wout=sqw(w);
-    if ~keep_pix
-        wout=dnd(sqw(w));
-    end
-end
-
-% ------------------------
-
-if hor_log_level>=1
-    disp(['Number of points in input file: ',num2str(npixtot)])
-    disp(['         Fraction of file read: ',num2str(100*npix_read/double(npixtot),'%8.4f'),' %   (=',num2str(npix_read),' points)'])
-    disp(['     Fraction of file retained: ',num2str(100*npix_retain/double(npixtot),'%8.4f'),' %   (=',num2str(npix_retain),' points)'])
-    disp(' ')
-    bigtoc('Total time in cut_sqw:',hor_log_level)
-    disp('--------------------------------------------------------------------------------')
-end
-
-
-function delete_tmp_pix_files(pix_info)
-% delete temporary pix info files, created by file-based cut;
-for ifile=1:pix_info.nfiles   % delete the temporary files
-    delete(pix_info.infiles{ifile});
 end

@@ -151,6 +151,7 @@ nout=w.nargout_req;
 nw=numel(w.data);
 
 if all(w.sqw_type(:))
+    % sqw type data
     if numel(args)>=1 && ~isstruct(args{1}) % proj structure not given, so all sqw objects must have same dimensionality
         if ~all(w.ndims==w.ndims(1))
             error('All sqw objects must have same dimensionality if not using new projection axes')
@@ -177,6 +178,7 @@ if all(w.sqw_type(:))
         end
     end
 elseif ~any(w.sqw_type(:)) && all(w.ndims==w.ndims(1))
+    % dnd type data
     for i=1:nw
         if nout>0
             if nout==1

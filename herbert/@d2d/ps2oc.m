@@ -1,8 +1,9 @@
-function [figureHandle, axesHandle, plotHandle] = ps2(w,varargin)
-% Overplot a surface plot of a d2d object or array of d2d objects, with colour scale from a second source
+function [figureHandle, axesHandle, plotHandle] = ps2oc(w,varargin)
+% Overplot a surface plot of a d2d object or array of d2d objects on the current figure
+% The colour scale comes from a second source
 %
-%   >> ps2(w)       % Use error bars to set colour scale
-%   >> ps2(w,wc)    % Signal in wc sets colour scale
+%   >> ps2oc(w)     % Use error bars to set colour scale
+%   >> ps2oc(w,wc)  % Signal in wc sets colour scale
 %                   %   wc can be any object with a signal array with same
 %                   %  size as w, e.g. sqw object, IX_dataset_2d object, or
 %                   %  a numeric array.
@@ -16,18 +17,14 @@ function [figureHandle, axesHandle, plotHandle] = ps2(w,varargin)
 % (e.g. dispersion relation where the 'signal' array hold the energy
 % and the error array hold the spectral weight).
 %
-% Advanced use:
-%   >> ps(w,'name',fig_name)        % overplot on figure with name = fig_name
-%                                   % or figure with given figure number or handle
-%
 % Return figure, axes and plot handles:
-%   >> [fig_handle, axes_handle, plot_handle] = ps2(w,...) 
+%   >> [fig_handle, axes_handle, plot_handle] = ps2oc(w) 
 
 if ~isa(w,'d2d')
     error('Object to plot must be a d2d object or array of objects')
 end
 
-[figureHandle_, axesHandle_, plotHandle_] = ps2(sqw(w),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = ps2oc(sqw(w),varargin{:});
 
 % Output only if requested
 if nargout>=1, figureHandle=figureHandle_; end

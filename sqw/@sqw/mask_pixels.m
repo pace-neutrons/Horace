@@ -11,7 +11,7 @@ function wout = mask_pixels (win, mask_array)
 %
 %   mask_array          Array of 1 or 0 (or true or false) that indicate
 %                      which pixels to retain (true to retain, false to ignore)
-%                       Numeric or logical array of same number of bins
+%                       Numeric or logical array of same number of pixels
 %                      as the data.
 %                       Note: mask will be applied to the stored data array
 %                      according as the projection axes, not the display axes.
@@ -37,7 +37,7 @@ function wout = mask_pixels (win, mask_array)
 
 
 % Check object to be masked is an sqw-type object
-if ~is_sqw_type(win);
+if ~is_sqw_type(win)
     error('Can mask pixels only in an sqw-type object')
 end
 
