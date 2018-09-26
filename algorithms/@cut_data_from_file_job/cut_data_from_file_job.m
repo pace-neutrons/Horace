@@ -76,7 +76,7 @@ classdef cut_data_from_file_job < JobExecutor
         end
     end
     methods(Static)
-        function [s, e, npix, urange_step_pix, pix, npix_retain, npix_2read] = cut_data_from_file(fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
+        function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file(fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
                 proj,pax, nbin)
             % Accumulates pixels retrieved from sqw file into bins defined by cut parameters
             %
@@ -129,7 +129,7 @@ classdef cut_data_from_file_job < JobExecutor
             % T.G.Perring   19 July 2007 (based on earlier prototype TGP code)
             % $Revision: 1646 $ ($Date: 2018-08-08 13:19:17 +0100 (Wed, 08 Aug 2018) $)
             %
-            [s, e, npix, urange_step_pix, pix, npix_retain, npix_2read] = cut_data_from_file_(fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
+            [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file_(fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
                 proj,pax, nbin);
             
         end

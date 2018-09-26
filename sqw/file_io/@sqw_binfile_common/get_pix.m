@@ -54,16 +54,15 @@ if res ~= 0
         'get_pix: Can not move to the beginning of the pixel block requested, Reason: %s',mess);
 end
 
-% *** T.G.Perring 5 Sep 2018: allow for size=0
 if size>0
-
-pix = fread(obj.file_id_,[9,size],'float32');
-[mess,res] = ferror(obj.file_id_);
-if res ~= 0
-    error('SQW_BINFILE_COMMON:io_error',...
-        'get_pix: Error reading the pixel block requested: %s',mess);
+    pix = fread(obj.file_id_,[9,size],'float32');
+    [mess,res] = ferror(obj.file_id_);
+    if res ~= 0
+        error('SQW_BINFILE_COMMON:io_error',...
+            'get_pix: Error reading the pixel block requested: %s',mess);
     end
 else
-    pix = zeros(9,1);
+    % *** T.G.Perring 5 Sep 2018: allow for size=0
+    pix = zeros(9,0);
 end
 

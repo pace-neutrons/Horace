@@ -29,9 +29,13 @@ proj = proj.set_proj_binning(urange,pax,iax,p);
 
 % Get indexes of pixels contributing into projection
 [nstart,nend] = proj.get_nbin_range(data.npix);
-if isempty(nstart) || isempty(nend)
-    error('CUT_SQW:invalid_arguments','no pixels found within the range of the cut');
-end
+
+% *** T.G.Perring 5 Sep 2018:*********************
+% Eliminate the following check as the algorithms now made valid for no retained pixels
+% if isempty(nstart) || isempty(nend)
+%     error('CUT_SQW:invalid_arguments','no pixels found within the range of the cut');
+% end
+% ************************************************
 
 if ~return_cut  % can buffer only if no output cut object
     pix_tmpfile_ok = true;
@@ -51,8 +55,8 @@ if ischar(data_source)
     % Pixel information to be read from a file
     if opt.parallel
         % Parallel cut algorithm
-        error('CUT_SQW:not_implemented',...
-            ' Parallel cut is not yet implemented. Do not use it');
+%         error('CUT_SQW:not_implemented',...
+%             ' Parallel cut is not yet implemented. Do not use it');
         [~,fn] = fileparts(outfile);
         if numel(fn) > 8
             fn = fn(1:8);

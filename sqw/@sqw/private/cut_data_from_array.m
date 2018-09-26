@@ -43,7 +43,7 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 %
 
 ndatpix = 9;        % number of pieces of information the pixel info array (see put_sqw_data for more details)
-hor_log_level=get(hor_config,'log_level');
+hor_log_level=config_store.instance().get_value('herbert_config','log_level');
 
 % Output arrays for accumulated data
 % Note: Matlab silliness when one dimensional: MUST add an outer dimension of unity. For 2D and higher,
@@ -55,15 +55,17 @@ e = zeros(nbin_as_size);
 npix = zeros(nbin_as_size);
 urange_step_pix = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
 
-% *** T.G.Perring 5 Sep 2018:
+% *** T.G.Perring 5 Sep 2018:*********************
 % Catch case of nstart and nend being empty - this corresponds to no data in the boxes that
-% interect with the cut
+% interect with the cut. As of 26 Sep 2018 the rest of the code works even if nstart is empty
+% but catching this case here avoids a lot of unecessary working later on
 if isempty(nstart)
-    pix = zeros(9,1);
+    pix = zeros(ndatpix,0);
     npix_retain = 0;
     npix_read = 0;
     return
 end
+% ***********************************************
 
 range = nend-nstart+1;                  % length of the block to be read
 npix_read = sum(range(:));              % number of pixels that will be read from file

@@ -1,4 +1,4 @@
-function [s, e, npix, urange_step_pix, pix, npix_retain, npix_2read] = cut_data_from_file_(fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
+function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file_(fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
     proj,pax, nbin)
 %function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
 %    urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, nbin)
@@ -70,13 +70,26 @@ s = zeros(nbin_as_size);
 e = zeros(nbin_as_size);
 npix = zeros(nbin_as_size);
 urange_step_pix = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
+
+% *** T.G.Perring 26 Sep 2018:*********************
+% Catch case of nstart and nend being empty - this corresponds to no data in the boxes that
+% interect with the cut. As of 26 Sep 2018 the rest of the code does not work if nstart is empty
+% but even if it did, catching this case here avoids a lot of unecessary working later on
+if isempty(nstart)
+    pix = zeros(ndatpix,0);
+    npix_retain = 0;
+    npix_read = 0;
+    return
+end
+% ***********************************************
+
 npix_retain = 0;
 %------------------------------------------------
 pmax = 2*buf_size;                       % maximum length of array in which to buffer retained pixels (pmax>=vmax)
 
 noffset = nstart-[0;nend(1:end-1)]-1;   % offset from end of one block to the start of the next
 range = nend-nstart+1;                  % length of the block to be read
-npix_2read = sum(range(:));              % number of pixels that will be read from file
+npix_read = sum(range(:));              % number of pixels that will be read from file
 %
 % find the data blocks to fit buffer size
 [noffset,range,block_ind_from,block_ind_to] = find_blocks(noffset,range,buf_size);
