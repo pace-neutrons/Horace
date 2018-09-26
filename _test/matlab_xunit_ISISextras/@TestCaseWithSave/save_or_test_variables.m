@@ -66,7 +66,7 @@ for i=1:numel(ws_list)
         %
         ref_dataset = this.get_ref_dataset_(ws_names{i},test_name);
         [ok,mess]=equal_to_tol(ws_list{i}, ref_dataset,toll,keyval{:});
-        if ~ok
+        if ~ok && isa(ref_dataset,'IX_dataset')
             acolor('g');
             plot(ref_dataset);
             acolor('r');
