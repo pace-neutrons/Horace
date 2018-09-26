@@ -227,7 +227,8 @@ for i=1:niax
     if urange(1,iiax)>urange(2,iiax)
         iax=[]; iint=[]; pax=[]; p=[]; urange=[];
         ok = false;
-        mess = sprintf('Integration range outside extent of data for integration axis N %d, axis num among four axes: %d',i,iiax);
+        mess = sprintf('Integration range outside extent of data for projection axis %d (integration axis %d)',iiax,i);
+%        mess = sprintf('Integration range outside extent of data for integration axis N %d, axis num among four axes: %d',i,iiax);
         return
     end
     pbin_out{iiax} = vlims(iiax,:)';
