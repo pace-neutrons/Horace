@@ -1,6 +1,17 @@
 function pix_comb_info =accumulate_pix_to_file_(pix_comb_info,finish_accum,v,ok,ix_add,npix,max_buf_size,del_npix_retain)
 % Function to handle case of keep_pixels. Nested so that variables are shared with main function to optimise memory use
 
+if isempty(pix_comb_info)  % clean-up call
+    clear n_writ_files;
+    clear npix_prev;
+    clear npix_now;
+    clear n_mem_blocks;
+    clear n_pix_in_memory;
+    clear pix_mem_retained;
+    clear pix_mem_ix_retained;
+    return 
+end
+
 persistent n_writ_files; % written files counter
 % npix buffer
 persistent npix_prev;      % npix at previous flush info
