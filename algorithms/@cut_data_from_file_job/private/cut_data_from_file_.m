@@ -180,11 +180,8 @@ try
             mpi_obj.check_cancellation();
         end
     end
-    if keep_pix % cheanup call
-        accumulate_pix_to_file_([],false,[],[],[],[],[],[]);
-    end
 catch ME
-    accumulate_pix_to_file_([],false,[],[],[],[],[],[]);    
+    accumulate_pix_to_file_(pix,true,v,ok,ix_add,npix,pmax,del_npix_retain)
     if pix_tmpfile_ok
         for j=1:pix.nfiles
             if exist(pix.infiles{j},'file')==2
