@@ -167,6 +167,7 @@ end
 pax = pax(1:npax);
 iax = iax(1:niax);
 
+
 % Compute plot bin boundaries and integration ranges
 % ------------------------------------------------------------------------
 % Get range in output projection axes from the 8 points defined in momentum space by urange_in:
@@ -174,13 +175,12 @@ iax = iax(1:niax);
 % third coodinate is not used.
 urange_out = proj.find_max_data_range(urange_in);
 
-
+% Compute plot bin boundaries and range that fully encloses the requested output plot axes
 iint=zeros(2,niax);
 p   =cell(1,npax);
 urange=zeros(2,4);
 pbin_out = cell(1,4);
 
-% Compute plot bin boundaries and range that fully encloses the requested output plot axes
 for i=1:npax
     ipax = pax(i);
     if pbin_from_pin(ipax)
@@ -225,11 +225,13 @@ for i=1:niax
     urange(1,iiax)=max(vlims(iiax,1),urange_out(1,iiax));
     urange(2,iiax)=min(vlims(iiax,2),urange_out(2,iiax));
     if urange(1,iiax)>urange(2,iiax)
-        iax=[]; iint=[]; pax=[]; p=[]; urange=[];
-        ok = false;
-        mess = sprintf('Integration range outside extent of data for projection axis %d (integration axis %d)',iiax,i);
-%        mess = sprintf('Integration range outside extent of data for integration axis N %d, axis num among four axes: %d',i,iiax);
-        return
+% *** T.G.Perring 28 Sep 2018:********************
+        urange(2,iiax) = urange(1,iiax);    % do not want to stop the cutting - just want to ensure no unnecessary read from input object or cut
+%         iax=[]; iint=[]; pax=[]; p=[]; urange=[];
+%         ok = false;
+%         mess = sprintf('Integration range outside extent of data for projection axis %d (integration axis %d)',iiax,i);
+%         return
+% ************************************************
     end
     pbin_out{iiax} = vlims(iiax,:)';
 end

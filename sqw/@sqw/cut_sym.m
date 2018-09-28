@@ -160,17 +160,41 @@ if all(w.sqw_type(:))
     for i=1:nw
         if nout>0
             if nout==1
-                if i==2, wout=repmat(wout,size(w.data)); end
-                wout(i)=cut_sqw_sym_main(w.data(i),w.ndims(i),args{:});   % private method - cuts just scalar data_source
-            else
                 if i==1
-                    [wout,wsym]=cut_sqw_sym_main(w.data(i),w.ndims(i),args{:});   % private method - cuts just scalar data_source
+                    wout=cut_sqw_sym_main(w.data(i),w.ndims(i),args{:});
                     if nw>1
-                        wout=repmat(wout,size(w.data));     % array of objects
-                        wsym=repmat({wsym},size(w.data));   % array of objects
+                        cut_array = (numel(wout)>1);
+                        if ~cut_array
+                            wout=repmat(wout,size(w.data));     % make array
+                        else
+                            wout=repmat({wout},size(w.data));   % make cell array
+                        end
                     end
                 else
-                    [wout(i),wsym{i}]=cut_sqw_sym_main(w.data(i),w.ndims(i),args{:});   % private method - cuts just scalar data_source
+                    if ~cut_array
+                        wout(i)=cut_sqw_sym_main(w.data(i),w.ndims(i),args{:});
+                    else
+                        wout{i}=cut_sqw_sym_main(w.data(i),w.ndims(i),args{:});
+                    end
+                end
+            else
+                if i==1
+                    [wout,wsym]=cut_sqw_sym_main(w.data(i),w.ndims(i),args{:});
+                    if nw>1
+                        cut_array = (numel(wout)>1);
+                        if ~cut_array
+                            wout=repmat(wout,size(w.data));     % make array
+                        else
+                            wout=repmat({wout},size(w.data));   % make cell array
+                        end
+                        wsym=repmat({wsym},size(w.data));   % make cell array
+                    end
+                else
+                    if ~cut_array
+                        [wout(i),wsym{i}]=cut_sqw_sym_main(w.data(i),w.ndims(i),args{:});
+                    else
+                        [wout{i},wsym{i}]=cut_sqw_sym_main(w.data(i),w.ndims(i),args{:});
+                    end
                 end
             end
         else
@@ -182,17 +206,41 @@ elseif ~any(w.sqw_type(:)) && all(w.ndims==w.ndims(1))
     for i=1:nw
         if nout>0
             if nout==1
-                if i==2, wout=repmat(wout,size(w.data)); end
-                wout(i)=cut_dnd_sym_main(w.data(i),w.ndims(i),args{:});   % private method - cuts just scalar data_source
-            else
                 if i==1
-                    [wout,wsym]=cut_dnd_sym_main(w.data(i),w.ndims(i),args{:});   % private method - cuts just scalar data_source
+                    wout=cut_dnd_sym_main(w.data(i),w.ndims(i),args{:});
                     if nw>1
-                        wout=repmat(wout,size(w.data));     % array of objects
-                        wsym=repmat({wsym},size(w.data));   % array of objects
+                        cut_array = (numel(wout)>1);
+                        if ~cut_array
+                            wout=repmat(wout,size(w.data));     % make array
+                        else
+                            wout=repmat({wout},size(w.data));   % make cell array
+                        end
                     end
                 else
-                    [wout(i),wsym{i}]=cut_dnd_sym_main(w.data(i),w.ndims(i),args{:});   % private method - cuts just scalar data_source
+                    if ~cut_array
+                        wout(i)=cut_dnd_sym_main(w.data(i),w.ndims(i),args{:});
+                    else
+                        wout{i}=cut_dnd_sym_main(w.data(i),w.ndims(i),args{:});
+                    end
+                end
+            else
+                if i==1
+                    [wout,wsym]=cut_dnd_sym_main(w.data(i),w.ndims(i),args{:});
+                    if nw>1
+                        cut_array = (numel(wout)>1);
+                        if ~cut_array
+                            wout=repmat(wout,size(w.data));     % make array
+                        else
+                            wout=repmat({wout},size(w.data));   % make cell array
+                        end
+                        wsym=repmat({wsym},size(w.data));   % make cell array
+                    end
+                else
+                    if ~cut_array
+                        [wout(i),wsym{i}]=cut_dnd_sym_main(w.data(i),w.ndims(i),args{:});
+                    else
+                        [wout{i},wsym{i}]=cut_dnd_sym_main(w.data(i),w.ndims(i),args{:});
+                    end
                 end
             end
         else

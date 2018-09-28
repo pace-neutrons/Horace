@@ -58,11 +58,9 @@ end
 
 if exist('range','var') && ~isempty(range)
     range_exist=true;
-    if ~isnumeric(range) || ~isfinite(range(1)) || ~isfinite(range(end))
-        error('Argument ''range'' must be finite numeric array of length at least 1 if present')
+    if ~isnumeric(range) || isempty(range)
+        error('Argument ''range'' must be a numeric array if present')
     end
-    range_lo=range(1);
-    range_hi=range(end);
 else
     range_exist=false;
 end
@@ -106,20 +104,20 @@ if pstep>0
         p0=plo-pstep/2;
         xmin=p0;
         xmax=phi;
-    elseif isfinite(plo) && ~isfinite(phi) && range_exist
+    elseif isfinite(plo) && ~isfinite(phi) && range_exist && isfinite(range(end))
         p0=plo-pstep/2;
         xmin=p0;
-        xmax=range_hi;
-    elseif ~isfinite(plo) && isfinite(phi) && range_exist
+        xmax=range(end);
+    elseif ~isfinite(plo) && isfinite(phi) && range_exist && isfinite(range(1))
         p0=phi+pstep/2;
-        xmin=range_lo;
+        xmin=range(1);
         xmax=p0;
-    elseif range_exist
+    elseif range_exist && isfinite(range(1)) && isfinite(range(end))
         p0=pstep/2;
-        xmin=range_lo;
-        xmax=range_hi;
+        xmin=range(1);
+        xmax=range(end);
     else
-        error('One or more of bin centre positions in ''pbin'' are infinite, but no default range given')
+        error('One or more of bin centre positions in ''pbin'' are infinite, but no finite default value given')
     end
 else
     pstep_from_pbin=false;
@@ -129,19 +127,21 @@ else
     else
         error('Bin size = 0 but no default bin boundary data provided from which to take a default')
     end
-    xmin=plo;
-    xmax=phi;
-    if range_exist
-        if ~isfinite(phi) 
-            xmax=range_hi;      
-        end
-        if ~isfinite(plo)
-            xmin=range_lo;            
-        end
+    
+    if isfinite(plo) && isfinite(phi)
+        xmin=plo;
+        xmax=phi;
+    elseif isfinite(plo) && ~isfinite(phi) && range_exist && isfinite(range(end))
+        xmin=plo;
+        xmax=range(end);
+    elseif ~isfinite(plo) && isfinite(phi) && range_exist && isfinite(range(1))
+        xmin=range(1);
+        xmax=phi;
+    elseif range_exist && isfinite(range(1)) && isfinite(range(end))
+        xmin=range(1);
+        xmax=range(end);
     else
-        if ~isfinite(plo)||~isfinite(phi)
-            error('One or more of data limits in ''pbin'' are infinite, but no default range given')            
-        end
+        error('One or more of data limits in ''pbin'' are infinite, but no finite default value given')
     end
 end
 
