@@ -73,7 +73,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
         function obj = test_SQW_GENCUT_perf(varargin)
             % create test suite, generate source files and load existing
             % performance data.
-            % 
+            %
             % usage:
             % tester = test_SQW_GENCUT_perf(['previous test results file name'])
             %
@@ -169,7 +169,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             else
                 n_workers = varargin{1};
             end
-            [clob_wk,hpc] = check_and_set_workers_(obj,n_workers);            
+            [clob_wk,hpc] = check_and_set_workers_(obj,n_workers);
             
             
             function fn = replace_fext(fp,fn)
@@ -235,6 +235,11 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             % n_workers>1 sets up parallel file combining.
             % if n_workers==0 or absent the class does not change the
             % number of workers defined by current Horace configuration.
+            pc = parallel_config;
+            ds = pc.get_data_to_store();
+            clob_par_config = onCleanup(@()set(pc,ds));
+            pc.working_directory=pwd;
+            
             if nargin <= 2
                 n_workers = 0;
             else
