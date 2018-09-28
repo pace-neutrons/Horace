@@ -24,7 +24,9 @@ if obj.save_output
     if exist(filename,'file')
         class_path = fileparts(which(class_name));
         if strcmpi(class_path,fp)
-            filename = fullfile (tempdir(), [fn,fext]);
+            targ_filename = fullfile (tempdir(), [fn,fext]);
+            copyfile(filename,targ_filename,'f');
+            filename = targ_filename;
         end
     else
         test_dir =  fullfile(fp,'write_access_test_dir');

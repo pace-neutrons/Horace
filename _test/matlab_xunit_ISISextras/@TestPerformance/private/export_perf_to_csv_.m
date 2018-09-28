@@ -32,11 +32,10 @@ for i=1:numel(comp_names)
     test_struc = perf_data_struc.(computer_name);
     if isempty(test_struc)
         write_empty_row(fh,computer_name,test_names_map);
-        write_header = true;
         continue
     end
     
-    [descr,exec_time,date,start_time,n_workers_list] = build_test_info(test_names_map,test_struc);
+    [descr,exec_time,date,start_time,n_workers_list,info] = build_test_info(test_names_map,test_struc);
     
     if short_form
         write_exec_time(fh,computer_name,n_workers_list,exec_time);
@@ -54,7 +53,7 @@ for i=1:numel(comp_names)
 end
 function write_start_date_time(fh,computer_name,date_or_time,date_time)
 
-fprintf(fh,'%s , %s : ',computer_name,date_or_time);
+fprintf(fh,'%s ,,, %s : ',computer_name,date_or_time);
 for i=1:size(date_time,3)
     if isnan(date_time(1,i))
         fprintf(fh,',  : : : ');
@@ -66,7 +65,7 @@ fprintf(fh,'\n');
 
 function  write_empty_row(fh,computer_name,test_names_map)
 
-fprintf(fh,' %s : ',computer_name);
+fprintf(fh,' %s :,, N_workers:, info: ',computer_name);
 n_columns = test_names_map.length();
 for i=1:n_columns 
     fprintf(fh,', ');
@@ -79,7 +78,7 @@ function write_exec_time(fh,computer_name,n_workers_list,time_list)
 n_work_cases = numel(n_workers_list);
 
 for j=1:n_work_cases
-    fprintf(fh,'%s, %s : ',computer_name,n_workers_list{j});
+    fprintf(fh,'%s,, %s :, ',computer_name,n_workers_list{j});
     for i=1:size(time_list,2)
         if isnan(time_list(j,i))
             fprintf(fh,' , ');
@@ -93,7 +92,7 @@ end
 
 function write_comment(fh,computer_name,description)
 
-fprintf(fh,'%s , Description: ',computer_name);
+fprintf(fh,'%s , Description:,,',computer_name);
 for i=1:numel(description)
     fprintf(fh,',%s ',description{i});
 end
@@ -109,17 +108,17 @@ for i=1:numel(position)
     headers{hp} = test_names{i};
 end
 
-fprintf(fh,'Computer Name:, N_workers:');
+fprintf(fh,'Computer Name:,, N_workers:, info:');
 for i=1:numel(headers)
-    fprintf(fh,', %s',headers{i});
+    fprintf(fh,', %s:',headers{i});
 end
 fprintf(fh,'\n');
 
 
-function [descr,exec_time,date,start_time,n_workers_list] = build_test_info(test_names_map,test_struc)
+function [descr,exec_time,date,start_time,n_workers_list,info] = build_test_info(test_names_map,test_struc)
 % extract test info from the test structure
-all_this_tests = fieldnames(test_struc);
-[this_test_names,c_workers] = cellfun(@parse_test_name,all_this_tests,'UniformOutput',false);
+all_these_tests = fieldnames(test_struc);
+[this_test_names,c_workers,info] = cellfun(@parse_test_name,all_these_tests,'UniformOutput',false);
 
 n_workers_map = build_key_map([],c_workers,true);
 
@@ -127,7 +126,7 @@ n_workers = n_workers_map.length();
 
 %test  = test_names_map.keys();
 n_tests_total = test_names_map.length();
-n_this_tests = numel(this_test_names);
+n_these_tests = numel(this_test_names);
 
 % define results
 descr = cell(n_tests_total,1);
@@ -138,8 +137,8 @@ start_time   = nan(3,n_workers,n_tests_total);
 
 n_workers_list = cell(1,n_workers);
 % -- fill in results
-for i=1:n_this_tests
-    full_test_name = all_this_tests{i};    
+for i=1:n_these_tests
+    full_test_name = all_these_tests{i};    
     [tn,c_wk] = parse_test_name(full_test_name);
     i_test = test_names_map(tn);
     j_wkr  = n_workers_map(c_wk);
@@ -159,13 +158,20 @@ end
 
 
 
-function [test_name,c_workers]  = parse_test_name(test_name)
+function [test_name,c_workers,descr]  = parse_test_name(test_name)
 names_cell = strsplit(test_name,'_nwk');
 test_name = names_cell{1};
 if numel(names_cell) == 1
-    c_workers = 'NA';
+    c_workers = test_name;
+    descr = '';
 else
-    c_workers = names_cell{2};
+    descr_cell = strsplit(names_cell{2},'_');
+    c_workers = descr_cell{1};
+    if numel(descr_cell) == 1
+        descr = '-';
+    else
+        descr = descr_cell{end};
+    end
 end
 
 function the_map = build_key_map(the_map,keywords,do_sort)
