@@ -73,9 +73,12 @@ classdef test_SQW_GENCUT_perf < TestPerformance
         function obj = test_SQW_GENCUT_perf(varargin)
             % create test suite, generate source files and load existing
             % performance data.
+            % 
+            % usage:
+            % tester = test_SQW_GENCUT_perf(['previous test results file name'])
             %
             if nargin > 0
-                argi = varargin;
+                argi = {'SQW_GENCUT_perf',varargin{1}};
             else
                 argi = {'SQW_GENCUT_perf',...
                     TestPerformance.default_PerfTest_fname(mfilename('fullpath'))};
@@ -276,22 +279,22 @@ classdef test_SQW_GENCUT_perf < TestPerformance
                 ts = tic();
                 proj1 = struct('u',[1,0,0],'v',[0,1,1]);
                 sqw1 = cut_sqw(obj.sqw_file,proj1,0.01,[-0.1,0.1],[-0.1,0.1],[-5,5]);
-                obj.assertPerformance(ts,sprintf('cutH1D_Small_nwk%d_comb_%s',nwk,comb_metnod),...
+                obj.assertPerformance(ts,['cutH1D_Small_nwk',nwk,'_comb_',comb_metnod],...
                     'small memory based 1D cut in non-axis aligned direction 1');
                 
                 ts = tic();
                 sqw1 = cut_sqw(obj.sqw_file,proj1,[-0.1,0.1],0.01,[-0.1,0.1],[-5,5]);
-                obj.assertPerformance(ts,sprintf('cutK1D_Small_nwk%d_comb_%s',nwk,comb_metnod),...
+                obj.assertPerformance(ts,['cutK1D_Small_nwk',nwk,'_comb_',comb_metnod],...
                     'small memory based 1D cut in non-axis aligned direction 2');
                 
                 ts = tic();
                 sqw1 = cut_sqw(obj.sqw_file,proj1,[-0.1,0.1],[-0.1,0.1],0.01,[-5,5]);
-                obj.assertPerformance(ts,sprintf('cutL1D_Small_nwk%d_comb_%s',nwk,comb_metnod),...
+                obj.assertPerformance(ts,['cutL1D_Small_nwk',nwk,'_comb_',comb_metnod],...
                     'small memory based 1D cut in non-axis aligned direction 3');
                 
                 ts = tic();
                 sqw1 = cut_sqw(obj.sqw_file,proj1,[-0.1,0.1],[-0.1,0.1],[-0.1,0.1],0.2);
-                perf_res=obj.assertPerformance(ts,sprintf('cutE_Small_nwk%d_comb_%s',nwk,comb_metnod),...
+                perf_res=obj.assertPerformance(ts,['cutE_Small_nwk',nwk,'_comb_',comb_metnod],...
                     'small memory based 1D cut along energy direction (q are not axis aligned)');
             end
             % check nopix performance -- read and integrate the whole file from the HDD
@@ -344,7 +347,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
                 ts = tic();
                 cut_sqw(obj.sqw_file,proj1,urng(1,:),urng(2,:),0.01,urng(4,:),'cutL1D_AllInt.sqw');
                 obj.assertPerformance(ts,['cutL1D_AllInt_filebased_nwk',nwk],...
-                    'large file-based 1D cut. Direction 1; Whole dataset integration along 3 other directions');
+                    'large file-based 1D cut. Direction 3; Whole dataset integration along 3 other directions');
                 
                 ts = tic();
                 cut_sqw(obj.sqw_file,proj1,urng(1,:),urng(2,:),urng(3,:),0.2,'cutE_AllInt.sqw');
