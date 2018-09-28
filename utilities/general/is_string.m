@@ -3,7 +3,7 @@ function [ok,n]=is_string(varargin)
 %
 %   >> ok = is_string (var)             % true or false
 %   >> ok = is_string (var1, var2,...)  % logical row vector
-%   >> [ok,n] = is_string (...)         % n is number of caharvers (NaN if not a string)
+%   >> [ok,n] = is_string (...)         % n is number of characters (NaN if not a string)
 %
 % Note: if var is empty but has size 1x0 then will return true
 %       Also, if empty, will return true

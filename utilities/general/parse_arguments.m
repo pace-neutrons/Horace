@@ -77,7 +77,6 @@ function [par,keyval,present,filled,ok,mess]=parse_arguments(args,varargin)
 %   npar_req    The number of required positional parameters. It can be 
 %              0,1,2,...  [Default: =[] which is equivalent to 0]
 %
-%               Cell array with the names of required positional parameters%
 %   npar_opt    The number of optional positional parameters. It
 %              can be 0,1,2,... Inf . [Default: =[] which is equivalent to 0]
 %
@@ -98,7 +97,7 @@ function [par,keyval,present,filled,ok,mess]=parse_arguments(args,varargin)
 %
 %               
 %   keyval_def  Structure with field names giving the parameter names, and
-%              default values. Note that some keywrods may not be permitted
+%              default values. Note that some keywords may not be permitted
 %              if negation of logical flags is permitted (which is the
 %              default behaviour)  e.g. if 'mask' is a logical flag then
 %              'nomask' is implicity also a name, and this is not permiitted
@@ -139,7 +138,7 @@ function [par,keyval,present,filled,ok,mess]=parse_arguments(args,varargin)
 %                          [Default: false]
 %
 %               keys_at_end True if keywords must appear at the end of the
-%                          argument list; otherwise keywrods and un-named
+%                          argument list; otherwise keywords and un-named
 %                          parameters can be mixed. [Default: true]
 %
 %               keys_once   True if keywords are only allowed to appear once
