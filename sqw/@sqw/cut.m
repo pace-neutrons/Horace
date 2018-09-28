@@ -18,7 +18,7 @@ function varargout = cut (varargin)
 % output is a large dataset in order to avoid out-of-memory errors)
 %
 %   >> cut (...)
-% 
+%
 % Input:
 % ------
 %   data_source     Data source: sqw file name or sqw-type object
@@ -33,38 +33,38 @@ function varargout = cut (varargin)
 %     Required fields:
 %       u           [1x3] Vector of first axis (r.l.u.) defining projection axes
 %       v           [1x3] Vector of second axis (r.l.u.) defining projection axes
-% 
+%
 %     Optional fields:
 %       w           [1x3] Vector of third axis (r.l.u.) - only needed if the third
 %                   character of argument 'type' is 'p'. Will otherwise be ignored.
-% 
+%
 %       nonorthogonal Indicate if non-orthogonal axes are permitted
 %                   If false (default): construct orthogonal axes u1,u2,u3 from u,v
 %                   by defining: u1 || u; u2 in plane of u and v but perpendicular
 %                   to u with positive component along v; u3 || u x v
-% 
+%
 %                   If true: use u,v (and w, if given) as non-orthogonal projection
 %                   axes: u1 || u, u2 || v, u3 || w if given, or u3 || u x v if not.
-% 
+%
 %       type        [1x3] Character string defining normalisation. Each character
 %                   indicates how u1, u2, u3 are normalised, as follows:
 %                   - if 'a': projection axis unit length is one inverse Angstrom
-%                   - if 'r': then if ui=(h,k,l) in r.l.u., is normalised so 
+%                   - if 'r': then if ui=(h,k,l) in r.l.u., is normalised so
 %                             max(abs(h,k,l))=1
 %                   - if 'p': if orthogonal projection axes:
 %                                   |u1|=|u|, (u x u2)=(u x v), (u x u3)=(u x w)
 %                               i.e. the projections of u,v,w along u1,u2,u3 match
 %                               the lengths of u1,u2,u3
-% 
+%
 %                             if non-orthogonal axes:
 %                                   u1=u;  u2=v;  u3=w
 %                   Default:
 %                         'ppr'  if w not given
 %                         'ppp'  if w is given
-% 
+%
 %         uoffset   Row or column vector of offset of origin of projection axes (rlu)
-% 
-%       lab         Short labels for u1,u2,u3,u4 as cell array 
+%
+%       lab         Short labels for u1,u2,u3,u4 as cell array
 %                   e.g. {'Q_h', 'Q_k', 'Q_l', 'En'})
 %                       *OR*
 %       lab1        Short label for u1 axis (e.g. 'Q_h' or 'Q_{kk}')
@@ -85,24 +85,24 @@ function varargout = cut (varargin)
 %
 %   p4_bin          Binning along the energy axis:
 %           - [] or ''          Plot axis: use bin boundaries of input data
-%           - [pstep]           Plot axis: sets step size; plot limits 
+%           - [pstep]           Plot axis: sets step size; plot limits
 %                              taken from the extent of the data.
 %                               If pstep=0 then use bin size of the first
-%                              spe file and synchronise the output bin 
+%                              spe file and synchronise the output bin
 %                              boundaries with those boundaries. The overall
 %                              range is chosen to ensure that the energy
 %                              range of the input data is contained within
 %                              the bin boundaries.
 %           - [plo, phi]        Integration axis: range of integration
-%           - [plo, pstep, phi] Plot axis: minimum and maximum bin centres 
+%           - [plo, pstep, phi] Plot axis: minimum and maximum bin centres
 %                              and step size.
 %                               If pstep=0 then use bin size of the first
-%                              spe file and synchronise the output bin 
+%                              spe file and synchronise the output bin
 %                              boundaries with the reference boundaries.
 %                              The overall range is chosen to ensure that
-%                              the energy range plo to phi is contained 
+%                              the energy range plo to phi is contained
 %                              within the bin boundaries.
-%           
+%
 %
 % Output:
 % -------
@@ -143,7 +143,7 @@ if all(w.sqw_type(:))
                     cut_array = (numel(wout)>1);
                     if ~cut_array
                         wout=repmat(wout,size(w.data));     % make array
-        else
+                    else
                         wout=repmat({wout},size(w.data));   % make cell array
                     end
                 end

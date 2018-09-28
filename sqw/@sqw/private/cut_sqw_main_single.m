@@ -228,9 +228,15 @@ end
 % Output cut information to screen
 % --------------------------------
 if hor_log_level>=1
-    disp(['Number of points in input file: ',num2str(npixtot)])
-    disp(['         Fraction of file read: ',num2str(100*npix_read/double(npixtot),'%8.4f'),' %   (=',num2str(npix_read),' points)'])
-    disp(['     Fraction of file retained: ',num2str(100*npix_retain/double(npixtot),'%8.4f'),' %   (=',num2str(npix_retain),' points)'])
+    if ischar(data_source)
+        disp(['Number of points in input file: ',num2str(npixtot)])
+        disp(['         Fraction of file read: ',num2str(100*npix_read/double(npixtot),'%8.4f'),' %   (=',num2str(npix_read),' points)'])
+        disp(['     Fraction of file retained: ',num2str(100*npix_retain/double(npixtot),'%8.4f'),' %   (=',num2str(npix_retain),' points)'])
+    else
+        disp(['    Number of points in object: ',num2str(npixtot)])
+        disp(['  Fraction of object processed: ',num2str(100*npix_read/double(npixtot),'%8.4f'),' %   (=',num2str(npix_read),' points)'])
+        disp(['   Fraction of object retained: ',num2str(100*npix_retain/double(npixtot),'%8.4f'),' %   (=',num2str(npix_retain),' points)'])
+    end
     disp(' ')
     bigtoc('Total time in cut_sqw:',hor_log_level)
     disp('--------------------------------------------------------------------------------')

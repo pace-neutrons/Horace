@@ -17,7 +17,7 @@ function sqw_type = is_sqw_type(w)
 
 sqw_type=false(size(w));
 for i=1:numel(w)
-    if ~isempty(w(i).data.pix)
+    if size(w(i).data.pix,1)>0
         sqw_type(i) = true;
     else
         sqw_type(i) = false;
