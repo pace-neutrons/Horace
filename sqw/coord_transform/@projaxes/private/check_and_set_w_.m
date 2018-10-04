@@ -11,7 +11,7 @@ if  isnum &&numel(val)==3
 elseif isempty(val) || (isnum && norm(val)<obj.tol_)
     obj.w_ = [];
 else
-    error('PROJAXEX:invalid_argument',...
+    error('PROJAXES:invalid_argument',...
         'w should be non-zero length numeric 3-vector or emtpy value')
 end
 

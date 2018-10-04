@@ -5,7 +5,7 @@ function public_struct = struct(this)
 
 % Generic method
 
-names ={'u';'v';'w';'uoffset';'type';'orthogonal';'lab'}; % fieldnames(this);  % tailored version returns public names
+names ={'u';'v';'w';'uoffset';'type';'nonorthogonal';'lab'}; % fieldnames(this);  % tailored version returns public names
 
 values = cell(length(names), length(this(:)));  % preallocate
 for k = 1:length(names)

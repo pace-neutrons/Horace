@@ -14,9 +14,9 @@ classdef projaxes
     %   >> proj = projaxes(...,'type',type,...)
     %   >> proj = projaxes(...,'uoffset',uoffset,...)
     %   >> proj = projaxes(...,'lab',labelcellstr,...)
-    %   >> proj = projaxes(...,'lab1',labelst,...)
+    %   >> proj = projaxes(...,'lab1',labelstr,...)
     %                   :
-    %   >> proj = projaxes(...,'lab4',labelst,...)
+    %   >> proj = projaxes(...,'lab4',labelstr,...)
     %
     % Input:
     % ------
@@ -33,12 +33,12 @@ classdef projaxes
     %   w           [1x3] Vector of third axis (r.l.u.) - only needed if the third
     %               character of argument 'type' is 'p'. Will otherwise be ignored.
     %
-    %   orthogonal  Indicates if non-orthogonal axes are permitted
-    %               If true (default): construct orthogonal axes u1,u2,u3 from u,v
+    %   nonorthogonal  Indicates if non-orthogonal axes are permitted
+    %               If false (default): construct orthogonal axes u1,u2,u3 from u,v
     %               by defining: u1 || u; u2 in plane of u and v but perpendicular
     %               to u with positive component along v; u3 || u x v
     %
-    %               If false: use u,v (and w, if given) as non-orthogonal projection
+    %               If true: use u,v (and w, if given) as non-orthogonal projection
     %               axes: u1 || u, u2 || v, u3 || w if given, or u3 || u x v if not.
     %
     %   type        [1x3] Character string defining normalisation. Each character
@@ -66,39 +66,39 @@ classdef projaxes
     %   lab2        Short label for u2 axis
     %   lab3        Short label for u3 axis
     %   lab4        Short label for u4 axis (e.g. 'E' or 'En')
-    %
-    %
+    
+    
     % Original author: T.G.Perring
     %
     % $Revision$ ($Date$)
+    
+    
     properties(Dependent)
-        % the axis along beam direction
+        % Row vector of first axis (r.l.u.) defining projection axes
         u
-        %Vector of second axis (r.l.u.)
+        % Row vector of second axis (r.l.u.) defining projection axes
         v
-        %Vector of third axis (r.l.u.) (set to [] if not given in proj_in)
+        % Row ector of third axis (r.l.u.) (set to [] if not given in proj_in)
         w
-        % [4x1] column vector of offset of origin of  projection axes (r.l.u. and en)
+        % Column vector (length 4) of offset of origin of  projection axes (r.l.u. and en)
         uoffset
-        % Char. string defining normalisation? each character being 'a','r' or 'p' e.g. 'rrp'
+        % Character string length 3 defining normalisation. each character being 'a','r' or 'p' e.g. 'rrp'
         type
-        % false if nonorthohonal axis are
-        orthogonal
+        % Indicates if non-orthogonal axes are permitted (if true)
+        nonorthogonal
         % [1x4] cell array of projection axis labels
         lab
         % The property reports if the object is valid. It can become
         % invalid if some fields have been set up incorrectly after
         % creation (e.g. u set up parallel to v)
         valid
-        % property whish is opposite to orthogonal and used to support
-        % old-style set interface. Does not have direct getter.
-        nonorthogonal
     end
+    
     properties(Access=private)
         u_ = [1,0,0]
         v_ = [0,1,0]
         w_ = []
-        orthogonal_=true
+        nonorthogonal_=false
         type_='ppr'
         uoffset_ = [0;0;0;0]
         labels_={'Q_h', 'Q_k', 'Q_l', 'En'}
@@ -124,10 +124,9 @@ classdef projaxes
             end
             
         end
-        % Interface to public file methods -------------------------------
-        [rlu_to_ustep, u_to_rlu, ulen, mess] = projaxes_to_rlu (proj, alatt, angdeg, ustep);
-        % getters/setters-------------------------------------------------
-        %----------------------------------------------------------
+        
+        % ----------------------------------------------------------------
+        % getters/setters
         function u=get.u(obj)
             if obj.valid_
                 u = obj.u_;
@@ -140,11 +139,12 @@ classdef projaxes
                 end
             end
         end
-        %
+        
         function obj = set.u(obj,val)
             obj = check_and_set_u_(obj,val);
             [~,~,obj] = check_combo_arg_(obj);
         end
+        
         %----------------------------------------------------------
         function v=get.v(obj)
             if obj.valid_
@@ -158,11 +158,12 @@ classdef projaxes
                 end
             end
         end
-        %
+        
         function obj = set.v(obj,val)
             obj = check_and_set_v_(obj,val);
             [~,~,obj] = check_combo_arg_(obj);
         end
+        
         %----------------------------------------------------------
         function w=get.w(obj)
             if obj.valid_
@@ -176,19 +177,21 @@ classdef projaxes
                 end
             end
         end
-        %
+        
         function obj = set.w(obj,val)
             obj = check_and_set_w_(obj,val);
             [~,~,obj] = check_combo_arg_(obj);
         end
+        
         %----------------------------------------------------------
         function uof=get.uoffset(obj)
             uof = obj.uoffset_;
         end
-        %
+        
         function obj = set.uoffset(obj,val)
             obj = check_and_set_uoffset_(obj,val);
         end
+        
         %----------------------------------------------------------
         function typ=get.type(obj)
             if obj.valid_
@@ -202,45 +205,44 @@ classdef projaxes
                 end
             end
         end
-        %
+        
         function obj=set.type(obj,type)
             obj = check_and_set_type_(obj,type);
             [~,~,obj] = check_combo_arg_(obj);
         end
+        
         %----------------------------------------------------------
-        function no=get.orthogonal(obj)
-            no = obj.orthogonal_;
+        function no=get.nonorthogonal(obj)
+            no = obj.nonorthogonal_;
         end
-        %
-        function obj=set.orthogonal(obj,val)
-            if numel(val)>1
-                error('PROJAXEX:invalid_argument',...
-                    ['orhtogonal property value should be single value, '...
-                    'convertable to logical'])
-            end
-            obj.orthogonal_ = logical(val);
-        end
-        %
+        
         function obj=set.nonorthogonal(obj,val)
             if numel(val)>1
-                error('PROJAXEX:invalid_argument',...
-                    ['nonorhtogonal property value should be single value,'...
+                error('PROJAXES:invalid_argument',...
+                    ['nonorthogonal property value should be single value,'...
                     ' convertable to logical'])
             end
-            obj.orthogonal_ = ~logical(val);
+            obj.nonorthogonal_ = logical(val);
         end
+        
         %----------------------------------------------------------
         function lab=get.lab(obj)
             lab = obj.labels_;
         end
-        %
+        
         function obj=set.lab(obj,val)
             obj = check_and_set_labels_(obj,val);
         end
+        
         %----------------------------------------------------------
         function is = get.valid(obj)
             is = obj.valid_;
         end
-        % ------- --------------------------------------------------------
+        
+        % ----------------------------------------------------------------
+        % Interfaces to public file methods
+        [rlu_to_ustep, u_to_rlu, ulen, mess] = projaxes_to_rlu (proj, alatt, angdeg, ustep);
+        
+        
     end
 end
