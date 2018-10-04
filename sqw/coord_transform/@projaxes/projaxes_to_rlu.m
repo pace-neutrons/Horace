@@ -74,7 +74,7 @@ ulen = zeros(1,3);
 ustep_to_rlu = zeros(3,3);
 
 type=proj.type;
-if proj.orthogonal
+if ~proj.nonorthogonal
     % Get orthogonal Q vectors in r.l.u., u1||u, u2 perp. u1 in plane of u and v, u3 forms rh set with u1,u2:
     % (Note ui is parallel to ubinv(:,i) in r.l.u.; length of this vector is presently 1 Ang^-1;
     %  normalise these vectors according to argument 'type', get step, and finally get inverse)

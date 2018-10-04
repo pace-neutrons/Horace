@@ -45,8 +45,6 @@ end
 % -------------------
 if isfield(p,'nonorthogonal')
     obj.nonorthogonal = p.nonorthogonal;
-elseif isfield(p,'orthogonal')
-    obj.orthogonal = p.orthogonal;
 end
 
 

@@ -9,7 +9,7 @@ if isnumeric(val) && numel(val)==3 && norm(val)>obj.tol_
         obj.u_ = val';
     end
 else
-    error('PROJAXEX:invalid_argument',...
+    error('PROJAXES:invalid_argument',...
         'u should be non-zero length numeric vector with 3 components')
 end
 

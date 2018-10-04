@@ -58,7 +58,7 @@ pbin = pbin_in;
 if sgntot<0     % odd number of reflections
     % Does not work for non-orthogonal axes. The problem is that reflections
     % do not have a simple relationship
-    if isfield(proj,'nonorthogonal') && proj.nonorthogonal
+    if proj.nonorthogonal
         ok = false;
         mess = 'Symmetry transformed non-orthogonal projections not supported';
         return
@@ -80,9 +80,7 @@ if sgntot<0     % odd number of reflections
                 return
             end
         end
-        if isfield(proj,'w')
-            proj.w = -proj.w;
-        end
+        proj.w = -proj.w;
     elseif numel(pbin{2})==2
         pbin{2} = -[pbin{2}(2),pbin{2}(1)];
         proj.v = -proj.v;
@@ -99,10 +97,16 @@ function [proj,sgn] = transform_proj_single (obj, Minv, proj_in)
 proj = proj_in;
 R = calculate_transform (obj, Minv);
 sgn = round(det(R));    % will be +1 for rotation, -1 for reflection
-proj.uoffset(1:3) = (Minv \ R * Minv * (proj.uoffset(1:3)'-obj.uoffset_') + obj.uoffset_')';
+proj.uoffset(1:3) = (Minv \ R * Minv * (proj.uoffset(1:3)-obj.uoffset_') + obj.uoffset_')';
 
-proj.u = (Minv \ R * Minv * proj.u(:))';
-proj.v = (Minv \ R * Minv * proj.v(:))';
-if isfield(proj,'w')
+u_new = (Minv \ R * Minv * proj.u(:))';
+v_new = (Minv \ R * Minv * proj.v(:))';
+proj.u = u_new;
+proj.v = v_new;
+
+% proj.u = (Minv \ R * Minv * proj.u(:))';
+% proj.v = (Minv \ R * Minv * proj.v(:))';
+
+if ~isempty(proj.w)
     proj.w = (Minv \ R * Minv * proj.w(:))';
 end

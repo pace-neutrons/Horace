@@ -30,7 +30,7 @@ else
 end
 
 if ~ok
-    error('PROJAXEX:invalid_argument',mess)
+    error('PROJAXES:invalid_argument',mess)
 end
 obj.type_ = type;
 

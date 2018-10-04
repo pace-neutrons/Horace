@@ -1,5 +1,5 @@
 function [ ok,mess,obj] = check_combo_arg_(obj)
-% Validate projaxis parameters, which depend on each other.
+% Validate projaxes parameters that depend on each other.
 %
 %
 %

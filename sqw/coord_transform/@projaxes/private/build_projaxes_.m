@@ -14,9 +14,9 @@ function [obj,mess] = build_projaxes_(obj,varargin)
 %   >> proj = projaxes(...,'type',type,...)
 %   >> proj = projaxes(...,'uoffset',uoffset,...)
 %   >> proj = projaxes(...,'lab',labelcellstr,...)
-%   >> proj = projaxes(...,'lab1',labelst,...)
+%   >> proj = projaxes(...,'lab1',labelstr,...)
 %                   :
-%   >> proj = projaxes(...,'lab4',labelst,...)
+%   >> proj = projaxes(...,'lab4',labelstr,...)
 %
 % Input:
 % ------
@@ -80,7 +80,7 @@ function [obj,mess] = build_projaxes_(obj,varargin)
 %                               each character being 'a','r' or 'p' e.g. 'rrp'
 %           proj.uoffset        [4x1] column vector of offset of origin of
 %                               projection axes (r.l.u. and en)
-%           proj.lab            [1x4] cell array of projection axis labels
+%           proj.labels         [1x4] cell array of projection axis labels
 
 
 % Original author: T.G.Perring
@@ -103,7 +103,7 @@ elseif narg==2 && isstruct(varargin{1})
         return
     end
 else % parse positional and keyword-defined variables provided in sequence
-    arglist = struct('orthogonal', [],'nonorthogonal', [], 'type', [],...
+    arglist = struct('nonorthogonal', [], 'type', [],...
         'uoffset', [], 'lab', [], 'lab1', [], 'lab2', [], 'lab3', [], 'lab4', []);
     [par,argout,present,~,ok,mess] = parse_arguments(varargin,arglist);
     if ok
@@ -138,6 +138,3 @@ end
 if isempty(mess)
     [~,mess,obj] = check_combo_arg_(obj);
 end
-
-
-

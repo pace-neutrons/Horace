@@ -7,9 +7,6 @@ function obj = check_and_set_uoffset_(obj,uoffset)
 
 
 if isnumeric(uoffset)
-    if size(uoffset,2) > 1
-        uoffset = uoffset';
-    end
     if (numel(uoffset)==3 || (numel(uoffset)==4 && uoffset(4)==0))
         if numel(uoffset)==3
             obj.uoffset_=[uoffset(:);0];
