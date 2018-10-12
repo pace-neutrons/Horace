@@ -114,7 +114,7 @@ classdef projection<aProjection
         end
         
         function [istart,iend,irange,inside,outside] =get_irange_proj(this,urange,varargin)
-            % Get ranges of bins that partially or wholly lie inside an n-dimensional rectange,
+            % Get ranges of bins that partially or wholly lie inside an n-dimensional rectangle,
             % where the first three dimensions can be rotated and translated w.r.t. the
             % cuboid that is split into bins.
             [istart,iend,irange,inside,outside] = get_irange_rot(this,urange,varargin{:});
@@ -134,7 +134,7 @@ classdef projection<aProjection
         function [urange_step_pix_recent, ok, ix, s, e, npix, npix_retain,success]=...
                 accumulate_cut(this,v,s,e,npix,pax,ignore_nan,ignore_inf,keep_pix,n_threads)
             %Method, used to both project data and allocate memory used by
-            %sqw&dnd objects. Has to be written in close cunjunction with
+            %sqw&dnd objects. Has to be written in close conjunction with
             %cut_sqw using deep understanding of the ways memory is allocated
             % within sqw objects
             [urange_step_pix_recent, ok, ix, s, e, npix, npix_retain,success]=...
