@@ -58,7 +58,7 @@ qspec_provided = false;
 if cash_q_vectors  % clear qspecs_cash if qspec data were not provided
     obj.detdcn_cash = [];
     if ~isempty(obj.qpsecs_cash)
-        cash_detectors = false; % do not cash dectectors posiotions if q-values are already provided        
+        cash_detectors = false; % do not cash detectors positions if q-values are already provided
         qspec_provided = true;
     end
 else
@@ -122,7 +122,7 @@ if ~(detdcn_provided || cash_q_vectors)
 end
 %
 % if transformation is provided, it will recalculate urange, and probably
-% into something different from non-transfromed object urange, so here we
+% into something different from non-transformed object urange, so here we
 % use native sqw object urange and account for input urange later.
 if ~isempty(obj.transform_sqw)
     urange_sqw = [];

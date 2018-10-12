@@ -67,9 +67,11 @@ classdef gen_sqw_files_job < JobExecutor
                 'urange',urange);
             
         end
+        %
         function  obj=reduce_data(obj)
             obj.is_finished_ = true;
         end
+        %
         function ok = is_completed(obj)
             ok = obj.is_finished_;
         end

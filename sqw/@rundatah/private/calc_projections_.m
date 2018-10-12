@@ -69,7 +69,7 @@ if proj_mode<0 || proj_mode >2
 end
 
 
-% Create matrix to convert from spectrometer axes to coords along projection axes
+% Create matrix to convert from spectrometer axes to coordinates along projection axes
 [spec_to_u, u_to_rlu] = obj.lattice.calc_proj_matrix();
 
 % Calculate Q in spectrometer coordinates for each pixel
@@ -88,7 +88,7 @@ if use_mex
             emode = obj.emode;
             %nThreads = 8;
             [urange,pix] =calc_projections_c(spec_to_u, data, det, efix, k_to_e, emode, nThreads,proj_mode);
-        catch  ERR % use matlab routine
+        catch  ERR % use Matlab routine
             warning('HORACE:using_mex','Problem with C-code: %s, using Matlab',ERR.message);
             use_mex=false;
         end

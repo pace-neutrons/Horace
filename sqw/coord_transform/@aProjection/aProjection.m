@@ -1,5 +1,5 @@
 classdef aProjection
-    %  Abstract class, defining interface using by cut_sqw
+    %  Abstract class, defining interface used by cut_sqw
     %  when transforming pixels from original to the cut's coordinate
     %  system
     %

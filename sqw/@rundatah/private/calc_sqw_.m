@@ -15,7 +15,7 @@ function [w, grid_size, urange] = calc_sqw_(obj,detdcn, det0, grid_size_in, uran
 %   grid_size_in    Scalar or [1x4] vector of grid dimensions
 %   urange_in       Range of data grid for output as a [2x4] matrix:
 %                     [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
-%                   If [] then uses the smallest hypercuboid that encloses the whole data range.
+%                   If [] then uses the smallest hyper-cuboid that encloses the whole data range.
 %
 %
 % Output:

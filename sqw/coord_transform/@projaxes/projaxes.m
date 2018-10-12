@@ -54,10 +54,10 @@ classdef projaxes
     %                         if non-orthogonal axes:
     %                               u1=u;  u2=v;  u3=w
     %               Default:
-    %                 	'ppr'  if w not given
-    %                 	'ppp'  if w is given
+    %                   'ppr'  if w not given
+    %                   'ppp'  if w is given
     %
-    %	uoffset     Row or column vector of offset of origin of projection axes (rlu)
+    %   uoffset     Row or column vector of offset of origin of projection axes (rlu)
     %
     %   lab         Short labels for u1,u2,u3,u4 as cell array
     %               e.g. {'Q_h', 'Q_k', 'Q_l', 'En'})
@@ -78,7 +78,7 @@ classdef projaxes
         u
         % Row vector of second axis (r.l.u.) defining projection axes
         v
-        % Row ector of third axis (r.l.u.) (set to [] if not given in proj_in)
+        % Row vector of third axis (r.l.u.) (set to [] if not given in proj_in)
         w
         % Column vector (length 4) of offset of origin of  projection axes (r.l.u. and en)
         uoffset
