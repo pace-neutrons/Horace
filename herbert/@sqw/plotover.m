@@ -22,9 +22,9 @@ if nd<1 || nd>2
 end
 
 if nd==1
-    [figureHandle_, axesHandle_, plotHandle_] = dp(w,varargin{:});
+    [figureHandle_, axesHandle_, plotHandle_] = pp(w,varargin{:});
 else
-    [figureHandle_, axesHandle_, plotHandle_] = da(w,varargin{:});
+    [figureHandle_, axesHandle_, plotHandle_] = pa(w,varargin{:});
 end
 
 % Output only if requested

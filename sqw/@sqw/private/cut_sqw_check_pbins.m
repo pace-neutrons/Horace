@@ -1,5 +1,5 @@
 function [ok,mess,proj_update,pbin_update,ndims,pin,en] = cut_sqw_check_pbins (header, data, proj, pbin)
-% Check that the binning arguments are valid, and update the projetion with the current projection
+% Check that the binning arguments are valid, and update the projection with the current projection
 %
 %   >> [ok,mess,proj_update,pbin_update,ndims,pin,en] = cut_sqw_check_pbins (header, data, proj, pbin)
 %
@@ -34,16 +34,14 @@ end
 % The conversion here is that for the projection axes in which the plot and integration axes of the data section
 % are expressed. Recall that this is not necessarily the same as that in which the individual pixel information is
 % expressed.
-proj_update = proj;
-if ~isempty(proj_update)
+if ~isempty(proj)
     % New projection provided
-    proj_update = proj_update.retrieve_existing_tranf(data,upix_to_rlu,upix_offset);
+    proj_update = proj;
     pbin_update = pbin;
     
 else
     % Recover initial projection
     proj_update = projection();  % empty instance of the projaxes class
-    proj_update = proj_update.retrieve_existing_tranf(data,upix_to_rlu,upix_offset);
     
     % Reorder pbin to correspond to the input plotting axes (currently refer to display axes)
     % The current display axis limits will be inserted later from the variable pin
@@ -54,6 +52,8 @@ else
     end
     
 end
+
+proj_update = proj_update.retrieve_existing_tranf(data,upix_to_rlu,upix_offset);
 
 % Resolve multiple integration axes
 [ok, mess, pbin_update, ndims] = cut_sqw_calc_pbins (data.urange, proj_update, pbin_update, pin, en);

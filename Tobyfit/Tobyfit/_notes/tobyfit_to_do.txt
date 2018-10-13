@@ -1,6 +1,16 @@
 ===============================================================================================
              Tobyfit
 ===============================================================================================
+Urgent:
+- check RAE's correction to DGdisk (either the init routine, or the main routine)
+- RAE's bind_lattice in refine_crystal
+	- check
+	- propagate to Tobyfit
+- Remove '-ave' option from sqw_eval for all dnd methods (does not apply!)
+- Index detpar in Tobyift init routines: very time consuming to calculate each time,
+  and takes a lot of memory.
+
+===============================================================================================
 Little things to check:
 
 - refine crystal and moderator: at the fit or simulate stage as well as set stage, check that

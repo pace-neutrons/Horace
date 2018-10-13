@@ -1,7 +1,7 @@
 function q = calculate_q (ki, kf, detdcn, spec_to_rlu)
 % Calculate qh,qk,ql
 %
-%   >> qw = calculate_q (ki, kf, detdcn, spec_to_rlu)
+%   >> q = calculate_q (ki, kf, detdcn, spec_to_rlu)
 %
 % Input:
 % ------
