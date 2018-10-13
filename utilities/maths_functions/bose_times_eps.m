@@ -17,7 +17,7 @@ kB=8.6173324e-2;
 if T~=0
     y=(kB*T)*einstein(eps/(kB*T));
 else
-    if all(eps(:))>0
+    if all(eps(:)>0)
         y=eps;
     else
         y=zeros(size(eps));
