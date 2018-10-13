@@ -169,7 +169,7 @@ end
 % ------------------------------------------------------------------------
 % Properties of proj are updated to hold projection information for the
 % input projection axes, and if proj is not given pbin is reordered from the
-% display axes to the input projectin axes. Multiple integration axes are
+% display axes to the input projection axes. Multiple integration axes are
 % determined and the corresponding elements of pbin are turned into two
 % dimensional arrays.
 [ok, mess, proj, pbin, ndims, pin, en] = cut_sqw_check_pbins (header, data, proj, pbin);

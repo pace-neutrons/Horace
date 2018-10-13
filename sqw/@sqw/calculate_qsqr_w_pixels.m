@@ -27,7 +27,7 @@ end
 B = bmatrix(win.data.alatt, win.data.angdeg);
  
 % Get the bin centres in hkl
-qhkl_w = calculate_qw_pixels (win);
+qhkl_w = calculate_qw_pixels2 (win);
 
 % Convert to crystal Cartesian coordinates and sum the squares
 qcryst = [qhkl_w{1}, qhkl_w{2}, qhkl_w{3}] * B';
