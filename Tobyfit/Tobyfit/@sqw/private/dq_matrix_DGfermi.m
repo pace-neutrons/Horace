@@ -24,9 +24,8 @@ function dq_mat =  dq_matrix_DGfermi (wi, wf, x0, xa, x1, x2, thetam, angvel, s_
 %   
 % Output:
 % -------
-%   dq_mat		Matrix to convert deviations in tm, tch etc. into deviations in Q in
-%              the spectrometer frame (dQ||,dQperp,dQvert,deps)
-%              Size is [4,11,npix]
+%   dq_mat		Matrix to convert deviations in tm, tch etc. into deviations in Q in h,k,l,en
+%               Size is [4,11,npix]
 %
 % The order of deviations corresponding to the second row of dq_mat is:
 %

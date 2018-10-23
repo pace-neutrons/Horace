@@ -7,8 +7,12 @@ Urgent:
 	- check
 	- propagate to Tobyfit
 - Remove '-ave' option from sqw_eval for all dnd methods (does not apply!)
+- spec_coords_to_det returns detdcn as a 3x1xN array, not 3xN. Correct this, but
+  check the unit tests work. Update the unit tests.
 - Index detpar in Tobyift init routines: very time consuming to calculate each time,
   and takes a lot of memory.
+- detectors do not have sintheta for out-of-plane
+- test routine to confirm equivalence with resolution function covariance
 
 ===============================================================================================
 Little things to check:
