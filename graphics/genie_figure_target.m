@@ -23,8 +23,8 @@ function [fig_out,ok,mess]=genie_figure_target(fig,newplot,default_fig_name)
 % action will be (later on) to find the current genie figure with the given
 % name, creating a new figure window if necessary.
 %
-% The exception is if we want to overplot, but there is a non-genie window
-% and no genie windows (active or kept) with the given name. It is assumed
+% The exception is if we want to overplot, and there is a non-genie window
+% but no genie windows (active or kept) with the given name. It is assumed
 % that it was explicitly requested to plot on that named figure, genie
 % figure or not.
 %

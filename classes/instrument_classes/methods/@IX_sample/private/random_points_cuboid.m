@@ -1,7 +1,7 @@
 function x=random_points_cuboid(ps,np)
 % Return an array of random points uniformly distributed in a cuboidal sample
 %
-%   >> [dt,tav]=pulse_shape_ikcarp(pp,ei,t)
+%   >> x=random_points_cuboid(ps,np)
 %
 % Input:
 % -------
