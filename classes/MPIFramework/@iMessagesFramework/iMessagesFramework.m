@@ -346,7 +346,7 @@ classdef iMessagesFramework
         % wait until all worker arrive to the part of the code specified
         [ok,err]=labBarrier(obj,nothrow);
         %
-        % remove all messages from MPI message cash
+        % remove all messages from MPI message cache
         clear_messages(obj);
         
     end

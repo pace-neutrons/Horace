@@ -66,7 +66,7 @@ classdef JobDispatcher
             %      the file with the name provided
             %
             % Initialise messages framework
-            mess_cash.instance('delete');
+            mess_cache.instance('delete');
             mf = MessagesFilebased(varargin{:});
             pc = parallel_config;
             if ~isempty(pc.shared_folder_on_local)
@@ -227,7 +227,7 @@ classdef JobDispatcher
         function obj = finalize_all(obj)
             % destructor. As this is not a handle class, invalid cluster_
             % object may stay if delete does not assigned to a new object
-            mess_cash.instance('delete');
+            mess_cache.instance('delete');
             obj.cluster_ = [];
             obj.job_destroyer_ = [];
         end

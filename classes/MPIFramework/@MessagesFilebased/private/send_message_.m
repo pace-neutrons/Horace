@@ -30,14 +30,14 @@ if needs_queue
     end
 end
 
-lock_file  = build_lock_fname_(mess_fname);
-while exist(lock_file,'file') == 2
+[rlock_file,wlock_file]  = build_lock_fname_(mess_fname);
+while exist(rlock_file,'file') == 2 % previous message is reading, wait unitl read process completes
     pause(obj.time_to_react_)
 end
 
-fh = fopen(lock_file,'wb');
+fh = fopen(wlock_file,'wb');
 %prepare lock removal after the routine completeon
-clob = onCleanup(@()unlock_(fh,lock_file));
+clob = onCleanup(@()unlock_(fh,wlock_file));
 %
 save(mess_fname,'message','-v7.3');
 %

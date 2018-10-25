@@ -109,7 +109,7 @@ classdef JobExecutor
             % framework for workers with labID > 1 and node 0 over
             % FileBased for worker with labID ==  1)
             %
-            mess_cash.instance('delete');
+            mess_cache.instance('delete');
             [obj,mess]=init_je_(obj,fbMPI,job_control_struct,InitMessage);
         end
         %

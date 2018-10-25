@@ -166,7 +166,7 @@ classdef MessagesParpool < iMessagesFramework
             %                 the name provided. The messages sent from the
             %                 specified workers but with the name different
             %                 from provided are stored in the messages
-            %                 cash, available for subsequent requests to
+            %                 cache, available for subsequent requests to
             %                 the recieve_all method.
             %
             %

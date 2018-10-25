@@ -23,7 +23,7 @@ mis.is_deployed = true;
 % other unit tests. The production job finishes Matlab and clean-up is not necessary
 % though doing no harm.
 clot = onCleanup(@()(setattr(mis,'is_deployed',false)));
-me = mess_cash.instance();
+me = mess_cache.instance();
 clob = onCleanup(@()delete(me));
 
 control_struct = iMessagesFramework.deserialize_par(worker_controls_string);

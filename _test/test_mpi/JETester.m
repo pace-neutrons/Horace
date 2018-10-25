@@ -32,7 +32,7 @@ classdef JETester < JobExecutor
             task_num = obj.labIndex;
             disp('****************************************************');
             disp([' n_files: ',num2str(n_steps)]);
-            %fh = mess_cash.instance().log_file_h;
+            %fh = mess_cache.instance().log_file_h;
             %fprintf(fh,'entering do-job loop\n');
             job_par = obj.common_data_;
             if isfield(job_par,'fail_for_labsN')

@@ -85,18 +85,18 @@ end
 n_attempts = 0;
 try_limit = 10;
 received = false;
-lock_file = build_lock_fname_(mess_fname);
+[rlock_file,wlock_file] = build_lock_fname_(mess_fname);
 deadlock_tries = 100;
 
 while ~received
     
-    if exist(lock_file,'file') == 2
+    if exist(wlock_file,'file') == 2
         pause(obj.time_to_react_)
         continue;
     end
-    fh = fopen(lock_file,'wb');
+    fh = fopen(rlock_file,'wb');
     if fh > 0
-        source_unlocker = onCleanup(@()unlock_(fh,lock_file));
+        source_unlocker = onCleanup(@()unlock_(fh,rlock_file));
     else
         n_attempts = n_attempts+1;
         pause(0.1);
@@ -104,8 +104,8 @@ while ~received
             continue;
         else
             warning('RECEIVE_MESSAGE:runtime_error',...
-                ' problem with obtaining lock %s at receiving. Proceeding regardless',lock_file)
-            unlock_(fh,lock_file);
+                ' problem with obtaining lock %s at receiving. Proceeding regardless',rlock_file)
+            unlock_(fh,rlock_file);
         end
     end
     

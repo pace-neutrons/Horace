@@ -40,8 +40,8 @@ if obj.labIndex == 1
         ok  = false;
     end
 end
-% clear all previous messages may be left in the message cash
+% clear all previous messages may be left in the message cache
 % (especially 'failed' message which is never popped in normal way)
-mess_cash.instance().delete();
+mess_cache.instance().delete();
 obj.mess_framework.clear_messages();
 obj.task_results_holder_ = {};

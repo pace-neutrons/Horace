@@ -30,10 +30,10 @@ not_this_id = task_ids ~= obj.labIndex;
 tid_requested = task_ids(not_this_id);
 tid_received_from = tid_requested;
 
-mc = mess_cash.instance();
+mc = mess_cache.instance();
 %log_file_h = mc.log_file_h;
 
-[all_messages,mess_present] = mc.get_cash_messages(tid_requested,mess_name,lock_until_received);
+[all_messages,mess_present] = mc.get_cache_messages(tid_requested,mess_name,lock_until_received);
 n_requested = numel(all_messages);
 % if any(mess_present)
 %     fprintf(log_file_h,' Old messages present\n');

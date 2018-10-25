@@ -20,7 +20,7 @@ len = numel(mess_template);
             return;
         end
         [~,fn,fext] = fileparts(file_struc.name);
-        if strcmpi(fext,'.lock')
+        if strncmpi(fext,'.lock',5)
             is = false;
             return;
         end
