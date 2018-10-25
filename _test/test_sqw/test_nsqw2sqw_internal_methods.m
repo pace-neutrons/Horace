@@ -207,7 +207,7 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             
         end
         %
-        function test_pix_cash(obj)
+        function test_pix_cache(obj)
             n_files  = 10;
             n_pixels = 4023;
             n_bins   = 100;
@@ -216,7 +216,7 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             nbin_end   = 10;
             [mess_list,npix1,npix2] = split_to_messages_for_testing(test_pix_block,nbin_start,nbin_end,n_files);
             
-            pc = pix_cash(n_files+1);
+            pc = pix_cache(n_files+1);
             pc =pc.push_messages(mess_list);
             [pc,pix_block] = pc.pop_pixels();
             

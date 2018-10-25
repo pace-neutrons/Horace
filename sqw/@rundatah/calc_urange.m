@@ -4,7 +4,7 @@ function [urange,u_to_rlu]=calc_urange(obj,varargin)
 %Usage:
 %>>[urange,u_to_rlu]=obj.calc_urange()  Calculate urange for fully defined
 %                                      rundatah object
-%>>[urange,u_to_rlu]=obj.calc_urange('-cash_detectors')
+%>>[urange,u_to_rlu]=obj.calc_urange('-cache_detectors')
 %                           Calculate urange for fully defined
 %                           rundatah object, using precacluated
 %                           vectors, pointing detectors positons
@@ -16,11 +16,11 @@ function [urange,u_to_rlu]=calc_urange(obj,varargin)
 %                  if object is defined, energy range is calculated from
 %                  min(emin,obj.en) to max(emax,obj.en)
 %
-%>>[urange,u_to_rlu,detdcn]=obj.calc_urange(emin,emax,'-cash_detectors')
+%>>[urange,u_to_rlu,detdcn]=obj.calc_urange(emin,emax,'-cache_detectors')
 %                  the combination of the previous two options
 %
-keys_recognized = {'-cash_detectors'};
-[ok,mess,cash_detectors,params] = parse_char_options(varargin,keys_recognized);
+keys_recognized = {'-cache_detectors'};
+[ok,mess,cache_detectors,params] = parse_char_options(varargin,keys_recognized);
 if ~ok
     error('RUNDATAH:invalid_arguments','calc_urange: %s',mess)
 end
@@ -32,7 +32,7 @@ det = b_obj.get_par();
 %---------------------------------------------------------------------------
 %
 
-if cash_detectors
+if cache_detectors
     detdcn = calc_or_restore_detdcn_(det);
 else
     detdcn = [];

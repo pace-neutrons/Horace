@@ -161,7 +161,7 @@ function [header,sqw_data] = calc_sqw_data_and_header (obj,detdcn)
 [ne,ndet]=size(obj.S);
 
 % Calculate projections
-[u_to_rlu,urange,pix] = obj.calc_projections_(detdcn,obj.qpsecs_cash);
+[u_to_rlu,urange,pix] = obj.calc_projections_(detdcn,obj.qpsecs_cache);
 
 p=cell(1,4);
 for id=1:4

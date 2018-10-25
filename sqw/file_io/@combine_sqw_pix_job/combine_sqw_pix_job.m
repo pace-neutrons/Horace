@@ -14,7 +14,7 @@ classdef combine_sqw_pix_job < JobExecutor
         
         % property to store pixels, which have not yet received information
         % from all contributed bins (files)
-        pix_cash_ ;
+        pix_cache_ ;
         
         % Print debugging information if necessary
         h_log_file;
@@ -56,7 +56,7 @@ classdef combine_sqw_pix_job < JobExecutor
             [obj,mess]=init@JobExecutor(obj,fbMPI,job_control_struct,InitMessage);
             if isempty(mess)
                 if obj.labIndex == 1
-                    obj.pix_cash_ = pix_cash(obj.mess_framework.numLabs);
+                    obj.pix_cache_ = pix_cache(obj.mess_framework.numLabs);
                 end
             end
             if obj.DEBUG

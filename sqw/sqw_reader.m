@@ -3,7 +3,7 @@ classdef sqw_reader<handle
     %
     % Created to read bin and pixel information from a cell stored on hdd,
     % but optimized for subsequent data access, so subsequent cells are
-    % cashed in a buffer and provided from the buffer if available
+    % cached in a buffer and provided from the buffer if available
     %
     %
     % $Revision$ ($Date$)
@@ -130,7 +130,7 @@ classdef sqw_reader<handle
             if n_buf_bin > self.num_buf_bins_
                 self.read_all_bin_info(bin_number);
                 n_buf_bin  = bin_number - self.num_first_bin_+1;
-            elseif n_buf_bin<1 % cash miss
+            elseif n_buf_bin<1 % cache miss
                 self.num_buf_bins_   = 0;
                 self.read_all_bin_info(bin_number);
                 n_buf_bin  = bin_number - self.num_first_bin_+1;
@@ -223,19 +223,19 @@ classdef sqw_reader<handle
             %
             
             % pix info in bin buffer
-            cash_bin_num = bin_number-self.num_first_bin_+1; % already guaranteed to be in bin buffer
-            npix_start   = self.nbin_sum_buffer_(cash_bin_num)+1;
+            cache_bin_num = bin_number-self.num_first_bin_+1; % already guaranteed to be in bin buffer
+            npix_start   = self.nbin_sum_buffer_(cache_bin_num)+1;
             npix_end     = self.nbin_sum_buffer_(end)+self.nbin_buffer_(end);
             num_pix_to_read = npix_end-npix_start+1;
             if num_pix_to_read > self.pix_buf_size_
                 last_loc_pix_number = find(self.nbin_sum_buffer_ < self.buf_size_+npix_start-1,1,'last');
                 if isempty(last_loc_pix_number)% so many pixels in a cell, that the first exceeds the buffer
-                    num_pix_to_read = self.nbin_buffer_(cash_bin_num);
+                    num_pix_to_read = self.nbin_buffer_(cache_bin_num);
                 else
                     num_pix_to_read = self.nbin_sum_buffer_(last_loc_pix_number)+self.nbin_buffer_(last_loc_pix_number)-npix_start+1;                    
                 end
 
-                % let's do nothing otherwise for the time beeing
+                % let's do nothing otherwise for the time being
                 %else % npix buffer should be extended
                 %    last_loc_pix_number = self.nbin_sum_buffer_(end-1);
                 %    while(num_pix_to_read < self.pix_buf_size_+pix_buf_position && last_loc_pix_number<self.num_bins_)
@@ -251,7 +251,7 @@ classdef sqw_reader<handle
         end
         function read_all_bin_info(self,nbin2read)
             %
-            if nbin2read <self.num_processed_bins_ % cash missed, start reading again
+            if nbin2read <self.num_processed_bins_ % cache missed, start reading again
                 self.num_processed_bins_ = 0;
                 self.num_processed_pix_  = 0;
                 self.num_first_bin_      = 0;

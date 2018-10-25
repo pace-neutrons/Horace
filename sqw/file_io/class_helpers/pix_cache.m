@@ -1,6 +1,12 @@
-classdef pix_cash
-    % Implements cash for the pixels, transmitted through MPI messages
-    % for combine_sqw_pix_job
+classdef pix_cache
+    % Implements cache for the pixels, transmitted through MPI messages
+    % for combine_sqw_pix_job.
+    %
+    % Each read job sends read pixels independently, when write job
+    % should receive and combine pixels, corresponding to bins to write.
+    % As messages from jobs contain pixels for different number of bins the
+    % cache is implemented to keep for future combining the pixels
+    % for the bins which have not yet received all pixels.
     %
     properties(Dependent)
         last_bin_processed
@@ -11,15 +17,15 @@ classdef pix_cash
         bin_range_   = [];
         
         filled_bin_ind_ =[];
-        read_pix_cash_       = [];
+        read_pix_cache_       = [];
         first_bin_to_process_ = 1;
     end
     
     methods
-        function obj = pix_cash(n_workers)
+        function obj = pix_cache(n_workers)
             obj.bin_range_       =  zeros(2,n_workers-1);
             obj.filled_bin_ind_  =  cell(n_workers-1,1);
-            obj.read_pix_cash_   =  cell(n_workers-1,1);
+            obj.read_pix_cache_   =  cell(n_workers-1,1);
             
         end
         function dr = data_remain(obj,n_bins)
@@ -34,11 +40,11 @@ classdef pix_cash
         %
         function[obj] = push_messages(obj,mess_list,h_log_file)
             % retrieve pixel and bin information from messages and store
-            % this information in message cash, together with information
+            % this information in message cache, together with information
             % from the previous messages
             %
             % Returns:
-            % obj         -- with filled bin and pixels cash
+            % obj         -- with filled bin and pixels cache
             % last_bin_to_process -- the number of the last bin gathered
             %                        full information about contributing
             %                        pixels
@@ -69,15 +75,15 @@ classdef pix_cash
                 else
                     if obj.bin_range_(2,i) <= obj.bin_range_(1,i)
                         obj.filled_bin_ind_{i}   = pl.filled_bin_ind;
-                        obj.read_pix_cash_{i}    = pl.pix_tb;
+                        obj.read_pix_cache_{i}   = pl.pix_tb;
                         obj.bin_range_(:,i)      = pl.bin_range;
                     else
                         num_existing_bins = obj.bin_range_(2,i)-obj.bin_range_(1,i)+1;
                         if h_log_file
-                            npix_stored = npix_stored + sum(cellfun(@(x)numel(x),obj.read_pix_cash_{i}));
+                            npix_stored = npix_stored + sum(cellfun(@(x)numel(x),obj.read_pix_cache_{i}));
                         end
                         obj.filled_bin_ind_{i} =   [obj.filled_bin_ind_{i},(pl.filled_bin_ind+num_existing_bins)];
-                        obj.read_pix_cash_{i}  =   [obj.read_pix_cash_{i},pl.pix_tb{:}];
+                        obj.read_pix_cache_{i} =   [obj.read_pix_cache_{i},pl.pix_tb{:}];
                         obj.bin_range_(2,i)    =   pl.bin_range(2);
                     end
                 end
@@ -86,7 +92,7 @@ classdef pix_cash
             
             % debug and verification
             if h_log_file
-                fprintf(h_log_file,' Npix in cash: %d, npix received %d, total %d\n',...
+                fprintf(h_log_file,' Npix in cache: %d, npix received %d, total %d\n',...
                     npix_stored,npix_received,npix_received+npix_stored);
                 if any(obj.bin_range_(1,:) ~=obj.bin_range_(1,1))
                     error('PIX_CASH:runtime_error',...
@@ -100,7 +106,7 @@ classdef pix_cash
             % return the pixels block containing pixels for the bins
             % which have full information about pixels.
             %
-            % clear cash from this information and keep only the
+            % clear cache from this information and keep only the
             % pixels for bin without full pixel information.
             
             if ~exist('h_log_file','var')
@@ -110,7 +116,7 @@ classdef pix_cash
             first_bin_to_proc = obj.bin_range_(1,1); % they must be all equal;
             last_bin_to_process = min(obj.bin_range_(2,:));
             
-            % number of bins in cash, containing full pixels information
+            % number of bins in cache, containing full pixels information
             n_bins = last_bin_to_process  - first_bin_to_proc +1;
             
             
@@ -127,20 +133,20 @@ classdef pix_cash
                 if isempty(n_bin_proc)
                     n_bin_proc = numel(bic);
                 end
-                pic = obj.read_pix_cash_{i};
+                pic = obj.read_pix_cache_{i};
                 
                 
                 filled_bin_ind = bic(1:n_bin_proc);
                 pix_tb(i,filled_bin_ind) = pic(1:n_bin_proc);
                 if obj.bin_range_(2,i) > last_bin_to_process % store remaining bin and pixel info for future analysis
                     obj.filled_bin_ind_{i} = bic(n_bin_proc+1:end)-n_bins;
-                    obj.read_pix_cash_{i}  = pic(n_bin_proc+1:end);
+                    obj.read_pix_cache_{i}  = pic(n_bin_proc+1:end);
                     if h_log_file
-                        npix_left = npix_left + sum(cellfun(@(x)numel(x),obj.read_pix_cash_{i}));
+                        npix_left = npix_left + sum(cellfun(@(x)numel(x),obj.read_pix_cache_{i}));
                     end
                 else
                     obj.filled_bin_ind_{i} = [];
-                    obj.read_pix_cash_{i}  = {};
+                    obj.read_pix_cache_{i}  = {};
                 end
                 obj.bin_range_(1,i)    = last_bin_to_process+1;
                 
@@ -153,9 +159,9 @@ classdef pix_cash
             obj.first_bin_to_process_ = last_bin_to_process+1;
             
             if h_log_file
-                fprintf(h_log_file,' will save bins: [%d , %d]; ****** saing pixels: %d, pix left: %d\n',...
+                fprintf(h_log_file,' will save bins: [%d , %d]; ****** saving pixels: %d, pix left: %d\n',...
                     first_bin_to_proc,last_bin_to_process,size(pix_section,2),npix_left);
-                fprintf(h_log_file,' cash contains: \n');
+                fprintf(h_log_file,' cache contains: \n');
                 for j=1:n_files
                     fprintf(h_log_file,'file %d; bin-range: [%d, %d] n full bins: %d\n',...
                         j,obj.bin_range_(1,j),obj.bin_range_(2,j),numel(obj.filled_bin_ind_{j}));

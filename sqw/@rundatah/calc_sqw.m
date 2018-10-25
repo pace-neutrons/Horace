@@ -22,7 +22,7 @@ function [w,grid_size,urange,detchn] = calc_sqw(obj,grid_size_in,urange_in,varar
 %
 % Optional inputs:
 %
-% '-cash_detectors' -- sting requesting to store calculated directions to
+% '-cache_detectors' -- sting requesting to store calculated directions to
 %                  each detector, defined for the instrument and use
 %                  calculated values for each subsequent call to this
 %                  method.
@@ -31,11 +31,11 @@ function [w,grid_size,urange,detchn] = calc_sqw(obj,grid_size_in,urange_in,varar
 %                  has different detectors.
 %                  Should be used only when running number of subsequent
 %                  calculations for rang of runfiles and if mex files are
-%                  disabled. (mex files do not use cashed detectors
+%                  disabled. (mex files do not use cached detectors
 %                  positions)
 % -qspec           if this option is provided, calculate q-dE vectors positions
-%                  and store it in qspec_cash array or use contents of
-%                  qspec_cash array provided instead of calculating
+%                  and store it in qspec_cache array or use contents of
+%                  qspec_cache array provided instead of calculating
 %                  q-dE vector values from detectors positions
 %
 % Outputs:
@@ -48,25 +48,25 @@ function [w,grid_size,urange,detchn] = calc_sqw(obj,grid_size_in,urange_in,varar
 %
 % $Revision$ ($Date$)
 %
-keys_recognized = {'-cash_detectors','-qspec'};
-[ok,mess,cash_detectors,cash_q_vectors] = parse_char_options(varargin,keys_recognized);
+keys_recognized = {'-cache_detectors','-qspec'};
+[ok,mess,cache_detectors,cache_q_vectors] = parse_char_options(varargin,keys_recognized);
 if ~ok
     error('RUNDATAH:invalid_arguments',['calc_urange: ',mess])
 end
 detdcn_provided  = false;
 qspec_provided = false;
-if cash_q_vectors  % clear qspecs_cash if qspec data were not provided
-    obj.detdcn_cash = [];
-    if ~isempty(obj.qpsecs_cash)
-        cash_detectors = false; % do not cash detectors positions if q-values are already provided
+if cache_q_vectors  % clear qspecs_cache if qspec data were not provided
+    obj.detdcn_cache = [];
+    if ~isempty(obj.qpsecs_cache)
+        cache_detectors = false; % do not cache detectors positions if q-values are already provided
         qspec_provided = true;
     end
 else
-    obj.qpsecs_cash = [];
+    obj.qpsecs_cache = [];
 end
 
-if ~isempty(obj.detdcn_cash)
-    detdcn = obj.detdcn_cash;
+if ~isempty(obj.detdcn_cache)
+    detdcn = obj.detdcn_cache;
     detdcn_provided   = true;
 else
     detdcn = [];
@@ -113,8 +113,8 @@ end
 % Create sqw object
 % -----------------
 bigtic
-if ~(detdcn_provided || cash_q_vectors)
-    if cash_detectors
+if ~(detdcn_provided || cache_q_vectors)
+    if cache_detectors
         detdcn = calc_or_restore_detdcn_(obj.det_par);
     else
         detdcn = [];

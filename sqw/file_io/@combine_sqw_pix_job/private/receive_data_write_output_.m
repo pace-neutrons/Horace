@@ -45,10 +45,10 @@ while ibin_end<nbin
         end
         messages= exp_messages;
     end
-    [obj,pix_section] = process_messages_fill_cash_(obj,messages);
+    [obj,pix_section] = process_messages_fill_cache_(obj,messages);
     n_pix_written =obj.write_pixels(fout,pix_section,n_pix_written);
     
-    ibin_end = obj.pix_cash_.last_bin_processed;
+    ibin_end = obj.pix_cache_.last_bin_processed;
     if is_deployed
         step = 100*n_pix_written/npix;
         if floor(step)> prev_step            
@@ -59,15 +59,15 @@ while ibin_end<nbin
     
     % Analyze what readers have not yet sent the whole
     % pixel data to the writer.
-    data_remain = obj.pix_cash_.data_remain(nbin);
+    data_remain = obj.pix_cache_.data_remain(nbin);
     data_providers = find(data_remain)+1;
     %
     if h_log_file
         fprintf(h_log_file,' Total npix written %d; ibinend:%d#out of %d\n',...
             n_pix_written,ibin_end,nbin);
-        br = obj.pix_cash_.all_bin_range;
+        br = obj.pix_cache_.all_bin_range;
         
-        fprintf(h_log_file,' bin ranges in cash:\n');
+        fprintf(h_log_file,' bin ranges in cache:\n');
         for j=1:numel(data_remain)
             fprintf(h_log_file,' %d %d\n',br(1,j),br(2,j));
         end

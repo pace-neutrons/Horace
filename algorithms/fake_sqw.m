@@ -154,9 +154,9 @@ hor_log_level = ...
 use_mex = ...
     config_store.instance().get_value('hor_config','use_mex');
 if use_mex
-    cash_opt = {};
+    cache_opt = {};
 else
-    cash_opt = {'-cash_detectors'};
+    cache_opt = {'-cache_detectors'};
 end
 
 
@@ -164,7 +164,7 @@ end
 if isempty(urange)
     urange = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
     for i=1:numel(run_files)
-        urange_l = run_files{i}.calc_urange(en_lo(i),en_hi(i),cash_opt{:});
+        urange_l = run_files{i}.calc_urange(en_lo(i),en_hi(i),cache_opt{:});
         urange = [min(urange_l(1,:),urange(1,:));max(urange_l(2,:),urange(2,:))];
     end
     %urange=calc_urange(efix,emode,en_lo,en_hi,det,alatt,angdeg,...
@@ -206,7 +206,7 @@ for i=1:nfiles
     run_files{i}.ERR = data.ERR;
     run_files{i}.en = en{i};
     %
-    w = run_files{i}.calc_sqw(grid_size, urange,cash_opt{:});
+    w = run_files{i}.calc_sqw(grid_size, urange,cache_opt{:});
 
     if return_sqw_obj
         tmp_sqw{i} = w;

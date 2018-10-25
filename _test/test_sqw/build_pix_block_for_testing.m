@@ -1,5 +1,5 @@
 function pix_block = build_pix_block_for_testing(n_pixels,n_bins,n_files)
-% build pixels block for testing pixels cash
+% build pixels block for testing pixels cache
 
 pix_block = zeros(9,n_pixels);
 pix_block(1,:) = floor(rand(n_pixels,1)*n_bins)+1;
