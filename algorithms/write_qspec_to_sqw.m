@@ -89,11 +89,11 @@ rd.lattice = oriented_lattice(alatt,angdeg,psi,u,v,omega,dpsi,gl,gs);
 %
 if isfield(data,'qspec') && numel(det.group) ==1
     args = {'-qspec'};
-    rd.qpsecs_cash = data.qspec;
+    rd.qpsecs_cache = data.qspec;
     rd.det_par = det; 
 else
     rd.det_par  = det;
-    args = {'-cash_detectors'};
+    args = {'-cache_detectors'};
 end
 %
 rd.S = data.S;

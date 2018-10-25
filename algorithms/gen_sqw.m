@@ -453,8 +453,8 @@ end
 if nargout==0
     clear tmp_file grid_size urange
 end
-% clear cashed detectors information and detectors directions
-rundatah.clear_det_cash();
+% clear cached detectors information and detectors directions
+rundatah.clear_det_cache();
 
 function delete_tmp_files(file_list,hor_log_level)
 delete_error=false;
@@ -622,13 +622,13 @@ if log_level>-1
 end
 
 if use_mex
-    cash_det = {};
+    cache_det = {};
 else
-    cash_det  = {'-cash_detectors'};
+    cache_det  = {'-cache_detectors'};
 end
 
 bigtic
-urange_in = rundata_find_urange(run_files(ief),cash_det{:});
+urange_in = rundata_find_urange(run_files(ief),cache_det{:});
 
 % process missing files
 if ~all(ief)
@@ -648,7 +648,7 @@ if ~all(ief)
         missing_rf{i}.en = [eps_lo(i);eps_hi(i)];
     end
     
-    urange_est = rundata_find_urange(missing_rf,cash_det{:});
+    urange_est = rundata_find_urange(missing_rf,cache_det{:});
     
     % Expand range to include urange_est, if necessary
     urange_in=[min(urange_in(1,:),urange_est(1,:)); max(urange_in(2,:),urange_est(2,:))];

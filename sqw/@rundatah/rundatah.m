@@ -10,18 +10,18 @@ classdef rundatah < rundata
     end
     properties
         % optional handle to precaluclated detectors directions array
-        detdcn_cash = []
+        detdcn_cache = []
         % optional handle to list of q-vectors, used instead of detectors
         % positions
-        qpsecs_cash = []
+        qpsecs_cache = []
     end
     
     properties(Access=private)
         transform_sqw_f_=[];
     end
     methods(Static)
-        function clear_det_cash()
-            % clear cashed detectors information and detectors directions
+        function clear_det_cache()
+            % clear cached detectors information and detectors directions
             calc_or_restore_detdcn_([]);
         end
         function [runfiles_list,defined]=gen_runfiles(spe_files,varargin)
@@ -117,7 +117,7 @@ classdef rundatah < rundata
         
         function [urange,u_to_rlu,pix,obj] = calc_projections(obj)
             % main function to transform rundatah information into
-            % crystal cartezian coordinate system
+            % crystal Cartesian coordinate system
             %
             % Works only for crystal (powder needs to have crystal lattice
             %                         set up too)
@@ -126,12 +126,12 @@ classdef rundatah < rundata
             %>> [urange,u_to_rlu,pix,obj] = rh.calc_projections()
             %                           where rh is fully defined rundata object
             % Returns:
-            %urange --  q-dE range of pixels in crystan cartesian coordinate
+            %urange --  q-dE range of pixels in crystal Cartesian coordinate
             %           system
-            % u_to_rlu -- martix to use when converting crystal cartezian
-            %             coordinate systen into rlu coodidinate system
+            % u_to_rlu -- martix to use when converting crystal Cartesian
+            %             coordinate systen into rlu coordinate system
             % pix      -- [9 x npix] array of sqw pixel's information
-            %             in crystal cartezian
+            %             in crystal Cartesian
             %             coordinate system (see sqw pixels information on
             %             the details of the pixels format)
             % obj      -- rundatah object with all data loaded in memory
@@ -153,7 +153,7 @@ classdef rundatah < rundata
                 proj_mode = 2;
             end
             % Calculate projections            
-            [u_to_rlu,urange,pix] = obj.calc_projections_(obj.detdcn_cash,[],proj_mode);
+            [u_to_rlu,urange,pix] = obj.calc_projections_(obj.detdcn_cache,[],proj_mode);
         end
     end
     

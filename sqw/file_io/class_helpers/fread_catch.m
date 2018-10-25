@@ -35,7 +35,7 @@ function [data, count_out, status_ok, message] = fread_catch (fid, count_in, pre
 ntry_retry=6;   % maximum number of attempts to read before trying to reopen
 ntry_reopen=6;  % further attempts with reopening
 
-% cash value for old Matlab
+% cache value for old Matlab
 persistent old_matlab;
 if isempty(old_matlab)
     old_matlab  = verLessThan('matlab','8.1');

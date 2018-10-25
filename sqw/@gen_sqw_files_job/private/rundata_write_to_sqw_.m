@@ -33,9 +33,9 @@ nfiles = numel(run_files);
 [hor_log_level,use_mex]=get(hor_config,'log_level','use_mex');
 %
 if use_mex % buffer or not the detector's information
-    cash_det = {};
+    cache_det = {};
 else
-    cash_det = {'-cash_detectors'};
+    cache_det = {'-cache_detectors'};
 end
 
 
@@ -52,7 +52,7 @@ for i=1:nfiles
         disp(' ')
     end
     %
-    [w,grid_size_tmp,urange_tmp] = run_files{i}.calc_sqw(grid_size_in, urange_in,cash_det{:});
+    [w,grid_size_tmp,urange_tmp] = run_files{i}.calc_sqw(grid_size_in, urange_in,cache_det{:});
     if ~isempty(run_files{i}.transform_sqw) && ~isempty(urange_in)
         w = cut(w,cut_range{:});
         urange_tmp = urange_in;
