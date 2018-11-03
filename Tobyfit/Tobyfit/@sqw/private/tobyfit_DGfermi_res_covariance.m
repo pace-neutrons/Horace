@@ -6,7 +6,7 @@ function [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_res_covariance...
 %                                           (header,detpar,u_to_rlu,use_tube)
 % Input:
 % ------
-%   header      Header structure for a single spe file
+%   header      Header structure for a single spe file with a single energy bin
 %   detpar      Detector structure for a single detector
 %   u_to_rlu    The projection axis vectors u1, u2, u3 in reciprocal
 %              lattice vectors. The ith column is ui in r.l.u. i.e.
@@ -113,7 +113,7 @@ cov_spec = spec_to_rlu4 \ cov_hkle / spec_to_rlu4';   % (B^-1)A(B^-1)' = (B^-1)A
 
 
 
-test_covariance(cov_x,dq_mat)
+%test_covariance(cov_x,dq_mat)
 %===================================================
 function test_covariance (cov, dq_mat)
 contr = zeros(11,1);

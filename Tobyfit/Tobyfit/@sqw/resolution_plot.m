@@ -21,6 +21,8 @@ function varargout = resolution_plot (w, varargin)
 %   x0      Coordinates along display axes at which to compute resolution
 %          function (row vector).
 %           Computed for the pixel closest to this point
+%           In general, can be an n x 2 array, one row per point, for
+%          plotting the resolution function at a number of points
 %
 %           Default: Center of the plot
 %
@@ -104,7 +106,6 @@ end
 
 % - Calculation point(s)
 if numel(par)==0
-    xd = [xp_cent(2), xp_cent(1)];
     xp = xp_cent;
 elseif numel(par)==1 && npixtot>0
     xd = par{1};
@@ -181,9 +182,25 @@ if npixtot==0
     % Special case of no data, one header, one detector
     covariance_matrix = tobyfit_DGfermi_res_covariance (w.header, w.detpar,...
         w.data.u_to_rlu, use_tube);
-    resolution_plot_private ([0,0], covariance_matrix, iax_plot, fig, newplot)
+    resolution_plot_private ([0,0], covariance_matrix, iax_plot, false, fig, newplot)
 else
-    error('Not yet implemented')
+    [xp_ok, ipix] = get_nearest_pixels (w, xp);
+    header = w.header;
+    detpar = w.detpar;
+    if ~iscell(header), header={header}; end    % case of a single spe file
+    covariance_matrix = zeros(4,4,numel(ipix));
+    for i=1:numel(ipix)
+        irun = w.data.pix(5,ipix(i));
+        idet = w.data.pix(6,ipix(i));
+        ien = w.data.pix(7,ipix(i));
+        header_tmp = header{irun};
+        header_tmp.en = header_tmp.en(ien:ien+1);
+        detpar_tmp = detpar_extract (detpar, idet);
+        covariance_matrix(:,:,i) = tobyfit_DGfermi_res_covariance (...
+            header_tmp, detpar_tmp, w.data.u_to_rlu, use_tube);
+        resolution_plot_private (xp_ok(i,:), covariance_matrix(:,:,i),...
+            iax_plot, flip, fig, newplot)
+    end
 end
 
 
@@ -192,3 +209,16 @@ end
 if nargout==1
     varargout{1} = covariance_matrix;
 end
+
+
+%===============================================================================
+function detpar_new = detpar_extract (detpar, ind)
+% Make a detpar structure for a subset of detectors
+detpar_new.filename = detpar.filename;
+detpar_new.filepath = detpar.filepath;
+detpar_new.group = detpar.group(ind);
+detpar_new.x2 = detpar.x2(ind);
+detpar_new.phi = detpar.phi(ind);
+detpar_new.azim = detpar.azim(ind);
+detpar_new.width = detpar.width(ind);
+detpar_new.height = detpar.height(ind);
