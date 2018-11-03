@@ -1,7 +1,7 @@
-function resfun_plot (x0,C,iax,fig,newplot)
+function resolution_plot_private (x0,C,iax,flip,fig,newplot)
 % Plot resolution function on 2D axes
 %
-%   >> resfun_plot (C,iax)
+%   >> resolution_plot_private (x0,C,iax,flip,fig,newplot)
 %
 % Input:
 % ------
@@ -13,6 +13,9 @@ function resfun_plot (x0,C,iax,fig,newplot)
 %           If length 2, these give the axes of the plot plane into C
 %           If length 3, then the third axis is one for which an
 %          ellipse section is drawn at a positive value along that axis
+%
+%   flip    If true, flip the plot axes; if false, not
+%           For plotting if display axes are reversed from plot axes.
 %
 %   fig     Figure name or number on which to plot or overplot
 %
@@ -56,7 +59,7 @@ m = M(iax(1:2),iax(1:2));
 
 % - Intersection with x1-x2 plane for x3>0
 if numel(iax)==3
-    x3max = val*sqrt(C(iax(3),iax(3)));
+    x3max = sqrt(val*C(iax(3),iax(3)));
     x3 = round_mantissa(0.667*x3max);
     % Offset of ellipse centre
     m = M(iax,iax);
@@ -93,11 +96,20 @@ end
 % Get genie line and colour characteristics, and plot
 lwidth = aline;
 lcol = acolor;
-plot(x1e+x0(1),x2e+x0(2),'Color',lcol,'LineStyle','-','LineWidth',lwidth);
-hold on
-plot(x1c+x0(1),x2c+x0(2),'Color',lcol,'LineStyle','--','LineWidth',lwidth);
-if numel(iax)==3
-    plot(x1ch+x0(1)+dx1,x2ch+x0(2)+dx2,'Color',lcol,'LineStyle','--','LineWidth',lwidth);
+if ~flip
+    plot(x1e+x0(1),x2e+x0(2),'Color',lcol,'LineStyle','-','LineWidth',lwidth);
+    hold on
+    plot(x1c+x0(1),x2c+x0(2),'Color',lcol,'LineStyle','--','LineWidth',lwidth);
+    if numel(iax)==3
+        plot(x1ch+x0(1)+dx1,x2ch+x0(2)+dx2,'Color',lcol,'LineStyle','--','LineWidth',lwidth);
+    end
+else
+    plot(x2e+x0(2),x1e+x0(1),'Color',lcol,'LineStyle','-','LineWidth',lwidth);
+    hold on
+    plot(x2c+x0(2),x1c+x0(1),'Color',lcol,'LineStyle','--','LineWidth',lwidth);
+    if numel(iax)==3
+        plot(x2ch+x0(2)+dx2,x1ch+x0(1)+dx1,'Color',lcol,'LineStyle','--','LineWidth',lwidth);
+    end
 end
 
 hold off
