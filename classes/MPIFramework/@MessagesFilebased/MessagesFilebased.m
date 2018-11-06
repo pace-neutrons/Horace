@@ -71,6 +71,13 @@ classdef MessagesFilebased < iMessagesFramework
             % Fully qualified name of the task status message, which allows
             % to identify message in the system. For filebased messages this
             % is the name of the message file
+            % task_id -- is the id (number) of the task this message should
+            % be send
+            %
+            if ~isnumeric(task_id)
+                error('MESSAGES_FILEBASED:invalid_argument',...
+                    'first message_name argument should be the target task number');
+            end
             fn = obj.job_stat_fname_(task_id,mess_name);
         end
         %

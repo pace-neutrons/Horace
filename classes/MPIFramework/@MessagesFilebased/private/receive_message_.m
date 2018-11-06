@@ -6,7 +6,7 @@ if ~exist('from_task_id','var') %receive message from any task
 end
 if ~isnumeric(from_task_id)
     error('MESSAGES_FRAMEWORK:invalid_argument',...
-        'Task_id to recive message should be a number');
+        'Task_id to receive message should be a number');
 end
 if ~exist('mess_name','var') %receive any message for this task
     mess_name = '';
@@ -27,7 +27,7 @@ t0 = tic;
 while ~mess_present
     
     folder_contents = dir(mess_folder);
-    [mess_names,mid_from,mid_to] = parce_folder_contents_(folder_contents);
+    [mess_names,mid_from,mid_to] = parse_folder_contents_(folder_contents,'nolocked');
     if isempty(mess_names)
         for_this_lab  = false;
     else
@@ -100,7 +100,7 @@ while ~received
     else
         n_attempts = n_attempts+1;
         pause(0.1);
-        if n_attempts < deadlock_tries 
+        if n_attempts < deadlock_tries
             continue;
         else
             warning('RECEIVE_MESSAGE:runtime_error',...
@@ -126,7 +126,7 @@ end
 from_data_queue = MESS_NAMES.is_queuing(mess_names{1});
 progress_queue = false;
 if from_data_queue
-    first_queue_num = list_these_messages_(obj.mess_exchange_folder,obj.job_id,...
+    first_queue_num = list_queue_messages_(obj.mess_exchange_folder,obj.job_id,...
         mess_names{1},from_task_id,obj.labIndex);
     if first_queue_num(1) >0
         progress_queue = true;
@@ -147,22 +147,22 @@ if progress_queue % prepare the next message to read -- the oldest message
     [fp,fn] = fileparts(mess_fname);
     next_mess_fname = fullfile(fp,[fn,'.',num2str(first_queue_num(1))]);
     
-    lock_source = build_lock_fname_(next_mess_fname);
+    %[rlock_file,wlock_file] = build_lock_fname_(next_mess_fname);
+    [~,wlock_file] = build_lock_fname_(next_mess_fname);
     success = false;
     n_attempts = 0;
     while ~success
-        if exist(lock_source,'file') == 2
+        if exist(wlock_file,'file') == 2
             pause(obj.time_to_react_)
             continue;
         end
-%         fh = fopen(lock_source,'wb');
+%         fh = fopen(rlock_file,'wb');
 %         if fh > 0
-%             target_unlocker = onCleanup(@()unlock_(fh,lock_source));
+%             target_unlocker = onCleanup(@()unlock_(fh,rlock_file));
 %         else
 %             continue;
 %         end
-%         
-        
+%         %
         [success,mess,mess_id]=movefile(next_mess_fname,mess_fname,'f');
         if ~success
             pause(obj.time_to_react_);

@@ -1,6 +1,12 @@
 function unlock_(fh,filename)
 n_attempts_allowed = 100;
 tried = 0;
+if ~exist('filename','var')
+    filename = fopen(fh);
+end
+if isempty(filename)
+    return
+end
 fclose(fh);
 ws=warning('off','MATLAB:DELETE:Permission');
 permission_denied = false;

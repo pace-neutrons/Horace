@@ -39,7 +39,7 @@ if numel(folder_contents )<=2 % no messages in the folder
     end
     return;
 end
-[mess_names,mid_from,mid_to] = parce_folder_contents_(folder_contents);
+[mess_names,mid_from,mid_to] = parse_folder_contents_(folder_contents,'nolock');
 if isempty(mess_names) % no messages
     all_messages = {};
     mid_from     = [];

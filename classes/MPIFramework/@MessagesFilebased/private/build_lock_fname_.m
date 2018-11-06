@@ -16,8 +16,8 @@ if strcmpi(fext,'.mat')
         rLock_name = fullfile(fp,[fn,'.lock']);
     end
 else
-    fnum = sscanf(fext,'.%d');
-    fn = [fn,'_',num2str(fnum),'.lock'];
+    %fnum = sscanf(fext,'.%d');
+    fn = [fn,fext];
     if rw_lock
         rLock_name = fullfile(fp,[fn,'.lockr']);        
         wLock_name = fullfile(fp,[fn,'.lockw']);                

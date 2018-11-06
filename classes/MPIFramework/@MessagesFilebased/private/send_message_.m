@@ -24,7 +24,7 @@ mess_fname = obj.job_stat_fname_(task_id,mess_name);
 if needs_queue
     [fp,fn] = fileparts(mess_fname);
     [start_queue_num,free_queue_num] = ...
-        list_these_messages_(obj.mess_exchange_folder,obj.job_id,mess_name,obj.labIndex,task_id);
+        list_queue_messages_(obj.mess_exchange_folder,obj.job_id,mess_name,obj.labIndex,task_id);
     if start_queue_num(1) >= 0
         mess_fname = fullfile(fp,[fn,'.',num2str(free_queue_num)]);
     end

@@ -796,7 +796,10 @@ classdef mfclass
             try
                 [varargout{1:nargout}] = mf_handle (varargin{:});
             catch ME
-                throwAsCaller(MException('legacy_call:failure', '%s', ME.message));
+                rethrow(ME);
+%                 ex = MException('legacy_call:failure', '%s', ME.message);
+%                 ex = ex.addCause(ME);
+%                 throw(ex);
             end
         end
     end

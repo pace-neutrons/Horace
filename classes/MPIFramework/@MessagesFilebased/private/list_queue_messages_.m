@@ -1,4 +1,4 @@
-function [start_queue_num,free_queue_num]=list_these_messages_(mess_folder,job_id,mess_name,send_from,sent_to)
+function [start_queue_num,free_queue_num]=list_queue_messages_(mess_folder,job_id,mess_name,send_from,sent_to)
 % process list of the messages already sent from this routine
 % and return the numbers of the first message in the queue and the number of the
 % first free place in the queue
@@ -13,7 +13,7 @@ if numel(folder_contents )<=2 % no messages in the folder
     end
     return;
 end
-[mess_names,mid_from,mid_to,fext] = parce_folder_contents_(folder_contents);
+[mess_names,mid_from,mid_to,fext] = parse_folder_contents_(folder_contents);
 if isempty(mess_names) % no messages
     start_queue_num = -1;
     free_queue_num   = 0;
@@ -29,7 +29,7 @@ if isempty(mess_names) % no messages
 end
 queue_list    = fext(these_mess);
 queue_nums = cellfun(@convert2num,queue_list);
-if numel(queue_nums) == 1
+if numel(queue_nums) == 1 % the only queue file is .mat file. Reset queue counter to 0
     start_queue_num  = 0;
     free_queue_num   = 1;
     return

@@ -255,6 +255,98 @@ classdef test_FileBaseMPI_Framework< TestCase
             assertEqual(id_from(2),0);
             assertEqual(id_from(3),3);
         end
+        
+        function lock_file=build_fake_lock(this,mf,mess_name)
+            mess_file = mf.mess_name(0,mess_name);
+            [fp,fn] = fileparts(mess_file);
+            lock_file = fullfile(fp,[fn,'.lockw']);
+            fh = fopen(lock_file,'w');
+            fclose(fh);
+        end
+        
+        function test_ignore_locked(this)
+            % test verifies that filebased messages which have lock are not
+            % observed by the system until unlocked.
+            function del_file(fname)
+                if exist(fname,'file') == 2
+                    delete(fname);
+                end
+            end
+            mf = MessagesFilebased('MFT_ignore_locked_messages');
+            clob = onCleanup(@()(mf.finalize_all()));
+            
+            all_mess = mf.probe_all(1);
+            assertTrue(isempty(all_mess));
+            
+            
+            mess = aMessage('starting');
+            % send message to itself
+            [ok,err] = mf.send_message(0,mess);
+            assertEqual(ok,MESS_CODES.ok)
+            assertTrue(isempty(err));
+            [all_mess,mid_from] = mf.probe_all();
+            assertTrue(ismember('starting',all_mess))
+            assertFalse(ismember('started',all_mess))
+            assertEqual(mid_from,0);
+            lock_starting = this.build_fake_lock(mf,'starting');
+            clob_lock1 = onCleanup(@()del_file(lock_starting));
+            
+            all_mess = mf.probe_all();
+            assertTrue(isempty(all_mess));
+            
+            
+            % send another message to itself
+            [ok,err] = mf.send_message(0,'started');
+            assertEqual(ok,MESS_CODES.ok)
+            assertTrue(isempty(err));
+            
+            [all_mess,mid_from] = mf.probe_all();
+            assertTrue(ismember('started',all_mess))
+            assertEqual(mid_from,0);
+            
+            % create fake lock:
+            lock_started = this.build_fake_lock(mf,'started');
+            clob_lock2 = onCleanup(@()del_file(lock_started));
+            all_mess = mf.probe_all();
+            assertTrue(isempty(all_mess));
+            
+            % create just lock (no file yet)
+            lock_running = this.build_fake_lock(mf,'running');
+            clob_lock3 = onCleanup(@()del_file(lock_running ));
+            
+            all_mess = mf.probe_all();
+            assertTrue(isempty(all_mess));
+            
+            
+            delete(lock_starting);
+
+            all_mess = mf.probe_all();            
+            assertTrue(ismember('starting',all_mess))
+            assertEqual(mid_from,0);
+            
+            delete(lock_started);
+            
+            all_mess = mf.probe_all();
+            assertEqual(numel(all_mess),2);
+            
+            [ok,err]=mf.receive_message(0,'starting');
+            assertEqual(ok,MESS_CODES.ok)
+            assertTrue(isempty(err));
+            
+            all_mess = mf.probe_all();
+            assertEqual(numel(all_mess),1);
+            
+            [ok,err]=mf.receive_message(0,'started');
+            assertEqual(ok,MESS_CODES.ok)
+            assertTrue(isempty(err));
+            
+            all_mess = mf.probe_all();
+            assertTrue(isempty(all_mess));
+           
+            
+        end
+        
+        %
         function test_shared_folder(this)
             mf = MessagesFilebased();
             mf.mess_exchange_folder = this.working_dir;
@@ -276,7 +368,7 @@ classdef test_FileBaseMPI_Framework< TestCase
             clear clob;
             assertTrue(exist(jfn,'dir')==0);
         end
-        
+        %
         function test_barrier(this)
             mf = MessagesFilebased('test_barrier');
             mf.mess_exchange_folder = this.working_dir;
@@ -338,6 +430,7 @@ classdef test_FileBaseMPI_Framework< TestCase
             assertEqual(mess.mess_name,'barrier');
             
         end
+        %
         function test_barrier_fail(this)
             mf = MessagesFilebased('test_barrier_fail');
             mf.mess_exchange_folder = this.working_dir;
@@ -390,6 +483,7 @@ classdef test_FileBaseMPI_Framework< TestCase
             assertEqual(mess.mess_name,'barrier');
             
         end
+        %
         function test_data_queue(obj)
             css1 = iMessagesFramework.build_worker_init(obj.working_dir,'test_data_queue',1,3);
             cs1  = iMessagesFramework.deserialize_par(css1);
