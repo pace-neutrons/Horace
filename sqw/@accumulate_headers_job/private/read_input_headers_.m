@@ -33,8 +33,11 @@ for i=1:nfiles
         det_tmp.filename = det.filename;
         det_tmp.filepath = det.filepath;        
     end
-    if ~equal_to_tol(det,det_tmp,1.e-11); error('WRITE_NSQW_TO_SQW:invalid_argument',...
-            'Detector parameter data is not the same in all files'); end
+    if ~equal_to_tol(det,det_tmp,[1.e-9,1.e-9])
+        error('WRITE_NSQW_TO_SQW:invalid_argument',...
+        ' Detector parameters are not the same in first and %d file %s',...
+            i,infiles{i}); 
+    end
     clear det_tmp       % save memory on what could be a large variable
     
     %pos_datastart(i)=ldrs{i}.data_position;  % start of data block
