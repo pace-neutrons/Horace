@@ -6,7 +6,7 @@ function varargout = expand_args (varargin)
 % Input:
 % ------
 %   A1,A2,...   Input arguments: scalar or array, where arrays must all
-%               have the same nuimber of elements.
+%               have the same number of elements.
 %
 % Output:
 % -------

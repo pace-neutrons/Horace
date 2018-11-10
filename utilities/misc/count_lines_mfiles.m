@@ -32,6 +32,9 @@ if narg>=2
 else
     report.nfile=0;
     report.nline=0;
+    report.ncodeline=0;
+    report.ncommline=0;
+    report.nblankline=0;
     report.nchar=0;
     report.bytes=0;
 end
@@ -60,8 +63,11 @@ end
 files=dir(fullfile(directory,'*.m'));
 disp(directory)
 for ifile=1:length(files)
-    i = 1;
-    nc= 0;
+    nline = 0;
+    ncodeline = 0;
+    ncommline = 0;
+    nblankline = 0;
+    nchar= 0;
     finish = 0;
     fname=fullfile(directory,files(ifile).name);
     fid = fopen(fname,'rt');
@@ -71,17 +77,29 @@ for ifile=1:length(files)
         while (~finish)
             tline = fgetl(fid);
             if (~isa(tline,'numeric'))
-                i = i + 1;
-                nc= nc + length(strtrim(tline));
+                nline = nline + 1;
+                strline = strtrim(tline);
+                if ~isempty(strline)
+                    if strline(1:1)~='%'
+                        ncodeline = ncodeline + 1;
+                    else
+                        ncommline = ncommline + 1;
+                    end
+                else
+                    nblankline = nblankline + 1;
+                end
+                nchar = nchar + numel(strline);
             else
-                n = i - 1;  % no. lines read from file
                 finish = 1;
             end
         end
         fclose(fid);
         report.nfile = report.nfile + 1;
-        report.nline = report.nline + n;
-        report.nchar = report.nchar + nc;
+        report.nline = report.nline + nline;
+        report.ncodeline = report.ncodeline + ncodeline;
+        report.ncommline = report.ncommline + ncommline;
+        report.nblankline = report.nblankline + nblankline;
+        report.nchar = report.nchar + nchar;
         report.bytes = report.bytes + files(ifile).bytes;
     end
 end

@@ -297,7 +297,7 @@ function [ok,mess]=write_store(filename,moderator,ei,table,t_av,fwhh,profile,...
 % Write moderator lookup table up to a maximum number of entries
 % Always write the first entry; then add as many of the second as possible
 
-if nargin==6
+if nargin==7
     moderator_store=moderator;
     ei_store=ei;
     table_store=table;
