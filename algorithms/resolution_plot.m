@@ -5,6 +5,7 @@ function varargout = resolution_plot (en, instrument, sample, detpar, efix, emod
 % New resolution plot:
 %   >> resolution_plot (en, instrument, sample, detpar, efix, emode,...
 %                           alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
+%
 %   >> resolution_plot (..., proj)
 %   >> resolution_plot (..., iax)
 %   >> resolution_plot (..., proj, iax)
@@ -19,10 +20,11 @@ function varargout = resolution_plot (en, instrument, sample, detpar, efix, emod
 %
 % Input:
 % ------
-%   en              Energy bin boundaries (must be monotonically increasing and equally spaced)
+%   en              Energy bin boundaries for a single energy bin
 %   instrument      Structure containing instrument description
 %   sample          IX_sample object
-%   detpar          Structure with detector parameters: fields must include:
+%   detpar          Structure with detector parameters for a single detector
+%                   Fields must include:
 %                       x2      sample-detector distance (m)
 %                       phi     scattering angle (deg)
 %                       axim    azimuthal scattering angle (deg)
@@ -52,6 +54,7 @@ function varargout = resolution_plot (en, instrument, sample, detpar, efix, emod
 %
 %                   Default: if not given or empty, assume first two projection axes
 %                  and draw intersection with non-zero positive energy transfer deviation
+%                  i.e. default is [1,2,4]
 %
 % Plot options:
 %   'over'          If present, then overplot on an existing resolution function plot
@@ -62,6 +65,12 @@ function varargout = resolution_plot (en, instrument, sample, detpar, efix, emod
 %   'name', name    Overplot on the named figure or figure number of an existing plot
 
 
+% *** Really should be using fake_sqw to create an sqw object, but as of 10 Nov 2018
+%     it requires a par file, and will not accept a detpar structure. A fully 
+%     object oriented sqw object construction would deal with this, but fot the
+%     mean time, create an sqw object here.
+
+
 % Check parameters
 % ----------------
 % Energies and sample orientation
@@ -69,7 +78,19 @@ nfiles_in = 1;
 [ok,mess,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=gen_sqw_check_params...
     (nfiles_in,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
 if ~ok, error(mess), end
-if efix(1)==0, error('Must have emode=1 (director geometry) or =2 (indirect geometry)'), end
+if ~(isnumeric(en) && numel(en)==2 && en(2)>=en(1))
+    error('Energy bin argument must give lower and upper limits of a single energy bin')
+end
+hbarw = 0.5*(en(2)+en(1));
+if emode==1 || emode==2
+    if emode==1 && hbarw>=efix
+        error('Energy loss cannot be larger than the incident energy')
+    elseif emode==2 && hbarw<=-efix
+        error('Energy gain cannot be larger than the final energy')
+    end
+else
+    error('Must have emode=1 (direct geometry) or =2 (indirect geometry)')
+end
 
 % Optional arguments
 key = struct ('over',false,'current',false,'name',[]);
@@ -122,8 +143,12 @@ else
 end
 
 
+
+% Construct sqw object
+% --------------------
+% Create a two-dimensional sqw object with one pixel
+
 % Make main_header
-% ----------------
 main_header.filename = '';
 main_header.filepath = '';
 main_header.title = '';
@@ -133,7 +158,6 @@ wres.main_header = main_header;
 
 
 % Make header
-% --------------
 header.filename = '';
 header.filepath = '';
 header.efix = efix;
@@ -174,11 +198,6 @@ wres.header = header;
 
 
 % Check detector
-% --------------
-% if ~(isstruct(detpar) && isfield(detpar,'x2') && isfield(detpar,'phi') && isfield(detpar,'azim') &&...
-%         isfield(detpar,'width') && isfield(detpar,'height'))
-%     error('Detector parameters must be a structure (see help to this function)')
-% end
 if ~isstruct(detpar)
     error('Detector parameters must form a structure')
 end
@@ -192,8 +211,6 @@ wres.detpar = detpar;
 
 
 % Make data structure
-% -------------------
-% Create an sqw object that has two plot axes
 data.filename = '';
 data.filepath = '';
 data.title = '';
@@ -219,19 +236,17 @@ ok=true(1,4); ok(iax(1:2))=false;
 data.iax = find(ok);
 data.iint = [-Inf,-Inf; Inf,Inf];
 data.pax = iax(1:2);
-data.p = {[-1;0;1], [-1;0;1]};
+data.p = {(-3:2:3)'/3, (-3:2:3)'/3};
 data.dax = [1,2];
-data.s = zeros(2,2);
-data.e = zeros(2,2);
-data.npix = zeros(2,2);
-data.urange = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
-data.pix = zeros(9,0);
+data.s = zeros(3,3);
+data.e = zeros(3,3);
+data.npix = zeros(3,3);
+data.urange = [data.uoffset;data.uoffset];
+data.pix = [zeros(4,1);1;1;1;0;0];  % wrong (Q,w) - but will be filled in a later function
 
 wres.data = data;
 
-
-% Construct sqw object
-% --------------------
+% Make the sqw object
 wres = sqw(wres);
 
 

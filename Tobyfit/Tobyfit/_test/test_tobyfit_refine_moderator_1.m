@@ -72,8 +72,6 @@ end
 
 if legacy
     disp('Legacy Tobyfit...')
-else
-    disp('New Tobyfit...')
 end
 
 
@@ -180,7 +178,8 @@ else
 end
 
 if test_output
-    if ~determine_if_same_fit (pfit,   tmp.pfit,   fac, [1,0,1,1,1,1])  % dont compare shift, as so small
+    disp('Comparing with stored fit')
+    if ~is_same_fit (pfit,   tmp.pfit,   fac, [1,0,1,1,1,1])  % dont compare shift, as so small
         warning('fit parameters not same as those stored. Press <cr> to continue')
         pause
         error('fit parameters not same as those stored')

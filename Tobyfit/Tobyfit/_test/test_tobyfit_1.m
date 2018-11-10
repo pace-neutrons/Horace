@@ -68,8 +68,6 @@ end
 
 if legacy
     disp('Legacy Tobyfit...')
-else
-    disp('New Tobyfit...')
 end
 
 
@@ -134,7 +132,7 @@ w110arr(3) = set_sample_and_inst(w110arr(3),sample,@maps_instrument_for_tests,'-
 % --------------------------------------------------------------------------------------
 if test_output
     tmp=load(savefile);
-    fac=1;  %used by comparison function
+    fac=[0.25,1,0.1];    % used by comparison function
 end
 
 
@@ -223,7 +221,8 @@ acolor r; pl(w110a1_tf); ly 0 0.4
 pause(2)
 
 if test_output
-    if ~determine_if_same_fit (fp110a1,   tmp.fp110a1,   fac, [1,0,0,0,0])
+    disp('Comparing with stored fit')
+    if ~is_same_fit (fp110a1,   tmp.fp110a1,   fac, [1,0,0,0,0])
         warning('fp110a1 not same. Press <cr> to continue')
         pause
         error('fp110a1 not same')
@@ -259,7 +258,8 @@ acolor r; pl(w110a2_tf); ly 0 0.4
 pause(2)
 
 if test_output
-    if ~determine_if_same_fit (fp110a2,   tmp.fp110a2,   fac, [1,0,0,0,0])
+    disp('Comparing with stored fit')
+    if ~is_same_fit (fp110a2,   tmp.fp110a2,   fac, [1,0,0,0,0])
         warning('fp110a2 not same. Press <cr> to continue')
         pause
         error('fp110a2 not same')
@@ -299,7 +299,8 @@ acolor r; pl(w110a3_tf); ly 0 0.4
 pause(2)
 
 if test_output
-    if ~determine_if_same_fit (fp110a3,   tmp.fp110a3,   fac, [1,0,0], [0,0])
+    disp('Comparing with stored fit')
+    if ~is_same_fit (fp110a3,   tmp.fp110a3,   fac, [1,0,0], [0,0])
         warning('fp110a3 not same. Press <cr> to continue')
         pause
         error('fp110a3 not same')
@@ -337,7 +338,8 @@ acolor r; pl(w110a4_tf); ly 0 0.4
 pause(2)
 
 if test_output
-    if ~determine_if_same_fit (fp110a4,   tmp.fp110a4,   fac)
+    disp('Comparing with stored fit')
+    if ~is_same_fit (fp110a4,   tmp.fp110a4,   fac)
         warning('fp110a4 not same. Press <cr> to continue')
         pause
         error('fp110a4 not same')
@@ -383,7 +385,8 @@ acolor k b r; pl(w110arr1_tf); ly 0 0.4
 pause(2)
 
 if test_output
-    if ~determine_if_same_fit (fp110arr1,   tmp.fp110arr1,   fac)
+    disp('Comparing with stored fit')
+    if ~is_same_fit (fp110arr1,   tmp.fp110arr1,   fac)
         warning('fp110arr1 not same. Press <cr> to continue')
         pause
         error('fp110arr1 not same')
@@ -429,7 +432,8 @@ end
 pause(2)
 
 if test_output
-    if ~determine_if_same_fit (fp110arr2,   tmp.fp110arr2,   fac)
+    disp('Comparing with stored fit')
+    if ~is_same_fit (fp110arr2,   tmp.fp110arr2,   fac)
         warning('fp110arr2 not same. Press <cr> to continue')
         pause
         error('fp110arr2 not same')

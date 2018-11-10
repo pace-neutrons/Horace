@@ -32,7 +32,16 @@ Little things to check:
 - Check that all tube types are the same
 
 - Probably need to make instruments a class, rather than arbitrary structures
-  
+
+- Refinements to viewing the fit:
+	- Way of displaying large covariance matrix elements at a glance
+	- Plot results at each iteration?
+	- display parameters with nlist=2 that make sense: i.e. unpack
+	  as for final listing rather than just show the free parameters
+	- Function to print to screen the output parameters of a fit
+	  just like the screen printout at the end of a fit
+
+- Allow stored tables to be ignored, so system tests are reliable?
   
 Bugs
 ====
@@ -56,7 +65,7 @@ Disk chopper has 10atm LET tubes hard-wired
 
 tobyfit should be able to determine the instrument type from the header.instrument
 	
-	
+There are touines that are copied in sqw/private and tobyfit - bring together in one place
 	
 Interface
 ==========	
