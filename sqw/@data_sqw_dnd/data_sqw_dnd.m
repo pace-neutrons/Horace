@@ -40,7 +40,7 @@ classdef data_sqw_dnd
         %             [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
         urange=[Inf,Inf,Inf,Inf;... %True range of the data along each axis [urange(2,4)]
             -Inf,-Inf,-Inf,-Inf] % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf] -- convention if no pixels
-        pix=[]     %Array containing data for each pixel:
+        pix=zeros(9,0)              % Array containing data for each pixel - convention for no pixels
         % If npixtot=sum(npix), then pix(9,npixtot) contains:
         % u1      -|
         % u2       |  Coordinates of pixel in the projection axes

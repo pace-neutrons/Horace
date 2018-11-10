@@ -96,6 +96,7 @@ end
 % Get genie line and colour characteristics, and plot
 lwidth = aline;
 lcol = acolor;
+if iscell(lcol), lcol=lcol{1}; end    % may have more than one color set
 if ~flip
     plot(x1e+x0(1),x2e+x0(2),'Color',lcol,'LineStyle','-','LineWidth',lwidth);
     hold on

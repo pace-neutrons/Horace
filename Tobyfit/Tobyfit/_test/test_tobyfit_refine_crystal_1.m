@@ -71,8 +71,6 @@ end
 
 if legacy
     disp('Legacy Tobyfit...')
-else
-    disp('New Tobyfit...')
 end
 
 
@@ -221,6 +219,7 @@ opt='Gaussian';
     refine_crystal(rlu0,alatt,angdeg,rlu,'fix_angdeg','fix_alatt_ratio');
 
 if test_output
+    disp('Comparing with stored fit')
     if any(abs(rlu_corr(:)-tmp.rlu_corr(:))>0.004)
         error('refine_crystal orientation refinement and stored results are not the same')
     end
@@ -290,6 +289,7 @@ if any(abs(rlu_corr_tf_a(:)-rlu_corr(:))>0.004)
 end
 
 if test_output
+    disp('Comparing with stored fit')
     if any(abs(rlu_corr_tf_a(:)-tmp.rlu_corr_tf_a(:))>0.004)
         error('  1 of 2: Tobyfit crystal refinement and stored results are not the same')
     end
@@ -321,6 +321,7 @@ if any(abs(rlu_corr_tf_b(:)-rlu_corr(:))>0.004)
 end
 
 if test_output
+    disp('Comparing with stored fit')
     if any(abs(rlu_corr_tf_b(:)-tmp.rlu_corr_tf_b(:))>0.004)
         error('  2 of 2: Tobyfit crystal refinement and stored results are not the same')
     end
