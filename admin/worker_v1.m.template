@@ -55,7 +55,7 @@ fbMPI = MessagesFilebased(control_struct);
 
 keep_worker_running = true;
 while keep_worker_running
-    mess_cash.instance().clear()    
+    mess_cache.instance().clear()    
     %
     [ok,err,mess]= fbMPI.receive_message(0,'starting');
     %fprintf(fh,'got "starting" message\n');
