@@ -289,7 +289,7 @@ classdef test_rundata< TestCase
             
             assertEqual(ld.efix,run.efix);
             assertEqual(ld.S,run.S);
-            assertEqual(ld.psi,10);            
+            assertEqual(ld.psi,10);
             det1=ld.det_par;
             det2=run.det_par;
             assertEqual(det1.x2,det2.x2);
@@ -406,7 +406,7 @@ classdef test_rundata< TestCase
         end
         %
         function test_saveNXSPE_unbound(this)
-            test_file = fullfile(tempdir,'test_saveNXSPE_unbound.nxspe');            
+            test_file = fullfile(tempdir,'test_saveNXSPE_unbound.nxspe');
             clob = onCleanup(@()delete(test_file));
             if exist(test_file,'file')==2
                 delete(test_file);
@@ -417,12 +417,12 @@ classdef test_rundata< TestCase
             saveNXSPE(test_file,td);
             assertEqual(exist(test_file,'file'),2);
             
-            ldr = loader_nxspe(test_file);            
+            ldr = loader_nxspe(test_file);
             par = ldr.load_par();
-            assertEqual(par.group',td.det_group);
-            assertEqual(par.phi',td.det_theta);            
-            assertEqual(par.det_psi',td.azim);                        
-            assertEqual(par.x2,ones(1,numel(par.x2)));                                    
+            %assertEqual(par.group',td.det_group);
+            assertEqual(par.phi',td.det_theta*(180/pi));
+            assertEqual(par.azim',td.det_psi*(180/pi));
+            assertEqual(par.x2,ones(1,numel(par.x2)));
         end
         
     end
