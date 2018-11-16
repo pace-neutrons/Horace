@@ -14,6 +14,9 @@ classdef test_rundata< TestCase
         
         %
         function this=test_rundata(name)
+            if ~exist('name','var')
+                name = 'test_rundata';
+            end
             this = this@TestCase(name);
             rootpath=fileparts(which('herbert_init.m'));
             this.test_data_path = fullfile(rootpath,'_test/common_data');
@@ -400,8 +403,26 @@ classdef test_rundata< TestCase
             assertTrue(ok);
             assertTrue(isempty(mess));
             assertTrue(isempty(undef_list));
+        end
+        %
+        function test_saveNXSPE_unbound(this)
+            test_file = fullfile(tempdir,'test_saveNXSPE_unbound.nxspe');            
+            clob = onCleanup(@()delete(test_file));
+            if exist(test_file,'file')==2
+                delete(test_file);
+            end
             
+            ts = load('fromwindow_data4test.mat');
+            td = ts.df;
+            saveNXSPE(test_file,td);
+            assertEqual(exist(test_file,'file'),2);
             
+            ldr = loader_nxspe(test_file);            
+            par = ldr.load_par();
+            assertEqual(par.group',td.det_group);
+            assertEqual(par.phi',td.det_theta);            
+            assertEqual(par.det_psi',td.azim);                        
+            assertEqual(par.x2,ones(1,numel(par.x2)));                                    
         end
         
     end

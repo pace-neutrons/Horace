@@ -1,4 +1,4 @@
-classdef a_loader < asciipar_loader;
+classdef a_loader < asciipar_loader
     % Base class for all data loaders used by the rundata class and
     % loaders_factory
     %

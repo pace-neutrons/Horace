@@ -44,7 +44,7 @@ if nargout==1
     varargout{1}=this;
 else
     min_val = nargout;
-    if min_val>3;
+    if min_val>3
         min_val=3;
         varargout{4}=this;
     end
