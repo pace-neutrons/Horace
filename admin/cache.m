@@ -33,4 +33,4 @@ disp('*** Its recommended to execute the "cache.py" script directly in a termina
 disp('*** to observe the progress of the caching.                                           ***');
 disp('*****************************************************************************************');
 
-system(sprintf('python %s %s &',fullfile(script_location,'cache.py'),filename),'-echo')
+system(sprintf('python %s %s &',fullfile(script_location,'cache.py'),filename),'-echo');
