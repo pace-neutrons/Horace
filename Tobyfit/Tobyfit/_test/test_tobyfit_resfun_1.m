@@ -1,25 +1,25 @@
-function varargout = test_resfun_1 (option)
+function varargout = test_tobyfit_resfun_1 (option)
 % Test plotting of resolution function
 %
 % Setup (should only have to do in extremis):
-%   >> test_resfun_1 ('-setup')     % Create the cuts that will be fitted and save in
-%                                   % test_resfun_1_data.mat in the temporary folder
+%   >> test_test_tobyfit_resfun_1 ('-setup')     % Create the cuts that will be fitted and save in
+%                                   % test_tobyfit_resfun_1_data.mat in the temporary folder
 %                                   % given by tempdir. Copy this file to the same folder
 %                                   % that holds this .m file to use it in the following
 %                                   % tests
 %   >> status = test_resfun_1 ('-setup')
 %
 % Perform tests:
-%   >> test_resfun_1                % Run the tests for a visual check of output only
+%   >> test_test_tobyfit_resfun_1                % Run the tests for a visual check of output only
 %
-%   >> test_resfun_1 ('-save')      % Run the Tobyfit tests and save fit parameters
-%                                   % to file test_resfun_1_out.mat
+%   >> test_test_tobyfit_resfun_1 ('-save')      % Run the Tobyfit tests and save fit parameters
+%                                   % to file test_tobyfit_resfun_1_out.mat
 %                                   % in the temporary folder (given by tempdir)
 %                                   % Copy to the same folder as this file to use in
 %                                   % tests.
 %
-%   >> test_resfun_1 ('-test')      % Run the Tobyfit tests and test against stored fit
-%                                   % parameters in test_resfun_1_out.mat in the same
+%   >> test_test_tobyfit_resfun_1 ('-test')      % Run the Tobyfit tests and test against stored fit
+%                                   % parameters in test_tobyfit_resfun_1_out.mat in the same
 %                                   % folder as this file
 %
 % In all of the above, get the full output of the fits as a structure:
@@ -50,8 +50,8 @@ end
 % Setup
 data_source = 'T:\data\RbMnF3\sqw\rbmnf3_ref_newformat.sqw';
 
-datafile='test_resfun_1_data.mat';      % filename where saved results are written
-savefile='test_resfun_1_out.mat';       % filename where saved results are written
+datafile='test_tobyfit_resfun_1_data.mat';      % filename where saved results are written
+savefile='test_tobyfit_resfun_1_out.mat';       % filename where saved results are written
 
 
 %% --------------------------------------------------------------------------------------

@@ -106,7 +106,7 @@ wsim_fermi_test = kkft.simulate;
 % Test the mod/shape chop pulse width
 % -----------------------------------
 % To access the distribution of sampling times from the joint moderator/chopper 1 
-% deviate, need to use the debugger and inside the functin tobyfit_DGdisk_resconv
+% deviate, need to use the debugger and inside the function tobyfit_DGdisk_resconv
 % pause and use the saver script to save y(1,1,:)
 
 % mod FWHH=99.37us, shape_chop FWHH=66.48us

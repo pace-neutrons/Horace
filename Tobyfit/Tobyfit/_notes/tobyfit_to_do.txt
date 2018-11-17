@@ -14,6 +14,9 @@ Urgent:
 - detectors do not have sintheta for out-of-plane
 - test routine to confirm equivalence with resolution function covariance
 
+
+- Make Tobyfit test instrument type (so dont need to do 'disk' or 'fermi')
+
 ===============================================================================================
 Little things to check:
 

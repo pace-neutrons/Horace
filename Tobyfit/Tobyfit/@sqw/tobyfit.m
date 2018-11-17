@@ -48,7 +48,7 @@ if ~mfclass.legacy(varargin{:})
     % ----------------------------
     % Get resolution function model type
     if numel(varargin)>1 && ischar(varargin{end})
-        valid_models = {'fermi','disk','fermi_old','disk_old'};
+        valid_models = {'fermi','disk'};
         ind = strncmpi(varargin{end},valid_models,length(varargin{end}));
         if ~isempty(ind)
             model=valid_models{ind};
@@ -68,12 +68,6 @@ if ~mfclass.legacy(varargin{:})
     elseif strcmp(model,'disk')
         mf_init = mfclass_wrapfun (@tobyfit_DGdisk_resconv, [], @func_eval, [],...
             true, false, @tobyfit_DGdisk_resconv_init, []);
-    elseif strcmp(model,'fermi_old')
-        mf_init = mfclass_wrapfun (@tobyfit_DGfermi_resconv_old, [], @func_eval, [],...
-            true, false, @tobyfit_DGfermi_resconv_old_init, []);
-    elseif strcmp(model,'disk_old')
-        mf_init = mfclass_wrapfun (@tobyfit_DGdisk_resconv_old, [], @func_eval, [],...
-            true, false, @tobyfit_DGdisk_resconv_old_init, []);
     else
         error('Logic error. See Toby Perring.')
     end
