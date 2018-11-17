@@ -14,7 +14,6 @@ function cache(filename)
 %
 % $Revision: 347 $ ($Date: 2018-10-30 17:52:52 +0000 (Tue, 30 Oct 2018) $)
 %
-
 if ~isunix
     warning('CACHE:invalid_os',...
         'This function should be only used on an appropriate Unix system. Exiting')
@@ -29,9 +28,9 @@ disp('**************************************************************************
 disp(['*** Launching caching script "cache.py" located in the folder: ',script_location]);
 disp('*** To benifit from the acceleratiom, wait for 1-5 minutes until the caching finishes.***');
 disp('*** Run top command in a terminal to observe python processes, caching the file.      ***');
-disp('*** Wait for these processes to exit to know about the caching process completion.    ***');
+disp('*** Wait for these processes to exit to know that the caching process is completed.   ***');
 disp('*** Its recommended to execute the "cache.py" script directly in a terminal,          ***');
-disp('*** to observe progress of caching.                                                   ***');
+disp('*** to observe the progress of the caching.                                           ***');
 disp('*****************************************************************************************');
 
 system(sprintf('python %s %s &',fullfile(script_location,'cache.py'),filename),'-echo')
