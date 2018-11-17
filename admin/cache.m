@@ -26,7 +26,7 @@ end
 script_location = fileparts(mfilename('fullpath'));
 disp('*****************************************************************************************');
 disp(['*** Launching caching script "cache.py" located in the folder: ',script_location]);
-disp('*** To benifit from the acceleratiom, wait for 1-5 minutes until the caching finishes.***');
+disp('*** To benefit from the acceleration, wait for 1-5 minutes until the caching finishes.***');
 disp('*** Run top command in a terminal to observe python processes, caching the file.      ***');
 disp('*** Wait for these processes to exit to know that the caching process is completed.   ***');
 disp('*** Its recommended to execute the "cache.py" script directly in a terminal,          ***');
