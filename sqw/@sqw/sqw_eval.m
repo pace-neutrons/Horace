@@ -69,7 +69,7 @@ if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenien
 for i=1:numel(win)
     if is_sqw_type(win(i))   % determine if sqw or dnd type
         if ~ave_pix
-            %qw = calculate_qw_pixels(win(i));
+            %qw = calculate_qw_pixels2(win(i));
             qw = calculate_qw_pixels(win(i));
             stmp=sqwfunc(qw{:},pars{:});
             wout(i).data.pix(8:9,:)=[stmp(:)';zeros(1,numel(stmp))];
