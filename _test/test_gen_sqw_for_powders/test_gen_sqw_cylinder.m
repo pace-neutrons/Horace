@@ -53,6 +53,7 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
             scale=0.1;
             
             if ~exist(this.spe_file,'file')
+                warning('TEST_GEN_SQW_CYLINDER:runtime_error','re-generating input nxspe files for tests');
                 simulate_spe_testfunc (en, this.par_file, this.spe_file, @sqw_sc_hfm_testfunc, [ampl,SJ,gap,gamma,bkconst], scale,...
                     this.efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
                 
