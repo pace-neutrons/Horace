@@ -12,7 +12,7 @@ ranges_to_read = range(block_ind_from:block_ind_to);
 shift_pos = offsets_to_read>0;
 if ~shift_pos(1)
     cum_index = cumsum(shift_pos)+1;
-    offsets_to_read  =[0;offsets_to_read(shift_pos)];
+    offsets_to_read  =[0,offsets_to_read(shift_pos)];
 else
     cum_index = cumsum(shift_pos);
     offsets_to_read  = offsets_to_read(shift_pos);
