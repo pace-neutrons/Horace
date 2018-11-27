@@ -136,11 +136,9 @@ elseif nargin==3 && isnumeric(varargin{1})
     
     % Determine if legacy input; it must be if tol is scalar
     if isscalar(varargin{1})
-        [opt.tol,ok,mess]=check_tol(varargin{1},0);
-        if ~ok, error(mess), end
+        opt.tol=check_tol(varargin{1},0);
     else
-        [opt.tol,ok,mess]=check_tol(varargin{1});
-        if ~ok, error(mess), end
+        opt.tol=check_tol(varargin{1});
     end
     
 else
@@ -166,14 +164,12 @@ else
         % There is a single parameter that is numeric, so must be tol
         if isscalar(par{1})
             % Legacy format
-            [tol,ok,mess]=check_tol(par{1},opt.min_denominator);
-            if ~ok, error(mess), end
+            tol=check_tol(par{1},opt.min_denominator);
         else
             % New format
-            [tol,ok,mess]=check_tol(par{1});
-            if ~ok, error(mess), end
+            tol=check_tol(par{1});
             % Invalid keyword 'min_denominator' cannot present with new format
-            if present.min_denominator  
+            if present.min_denominator
                 error('''min_denominator'' is only valid for legacy scalar tolerance')
             end
         end
@@ -191,16 +187,15 @@ else
             % difference to the test. Just need to check it is valid if given
             if present.min_denominator
                 % Treat as legacy
-                [tol,ok,mess] = check_tol(0,opt.min_denominator);
-                if ~ok, error(mess), end
+                tol = check_tol(0,opt.min_denominator);
             else
                 % Treat as new format
                 tol = [0,0];
             end
             
         else
-            % Tolerance keyword(s) present; usage is therefore non-legacy.            
-
+            % Tolerance keyword(s) present; usage is therefore non-legacy.
+            
             % Check that invalid keyword 'min_denominator' is not present
             if present.min_denominator
                 error('''min_denominator'' is only valid for legacy argument format')
@@ -209,8 +204,7 @@ else
             % Determine tolerance
             if present.tolerance && ~(present.abstolerance || present.reltolerance)
                 if isnumeric(opt.tolerance)
-                    [tol,ok,mess] = check_tol(opt.tolerance);
-                    if ~ok, error(mess), end
+                    tol = check_tol(opt.tolerance);
                 else
                     error('''tol'' must be numeric')
                 end
@@ -272,16 +266,13 @@ end
 
 
 %--------------------------------------------------------------------------------------------------
-function [tol_out, ok, mess] = check_tol (tol, min_denominator)
+function tol_out = check_tol (tol, min_denominator)
 % Convert all the possible inputs into [abs_tol, rel_tol]
 % Assumes tol_in is numeric
 %
-%   >> [tol, ok, mess] = check_tol (tol_in)
-%   >> [tol, ok, mess] = check_tol (tol_in, min_denominator]
+%   >> tol = check_tol (tol_in)
+%   >> tol = check_tol (tol_in, min_denominator]
 
-ok = true;
-mess = '';
-tol_out = [];
 
 ok_positive_scalar = @(x)(isnumeric(x) && isscalar(x) && ~isnan(x) && x>=0);
 
@@ -296,24 +287,25 @@ elseif isscalar(tol)
             if ok_positive_scalar(min_denominator)
                 tol_out = [min_denominator*abs(tol),abs(tol)];
             else
-                ok = false;
-                mess = 'Check value of ''min_denominator'' is greater or equal to zero';
+                error('CHECK_TOLL:invalid_argument',...
+                    'Check value of ''min_denominator'' is greater or equal to zero');
             end
         end
     else
-        ok = false;
-        mess = 'Tolerance cannot be NaN';
+        error('CHECK_TOLL:invalid_argument',...
+            'Tolerance cannot be NaN');
     end
     
 elseif numel(tol)==2
     if all(tol>=0)
         tol_out = tol;
     else
-        mess = 'Check tolerance has form [abs_tol, rel_tol] where both are >=0';
+        error('CHECK_TOLL:invalid_argument',...
+            'Check tolerance has form [abs_tol, rel_tol] where both are >=0');
     end
 else
-    ok = false;
-    mess = 'Check the size and type of the tolerance';
+    error('CHECK_TOLL:invalid_argument',...
+        'The tolerance is not a positive numeric scalar');
 end
 
 

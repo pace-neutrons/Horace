@@ -622,7 +622,7 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             end
             
             % Perform the test, or save
-            assert_or_save_variable_(this,var_name,var,funcHandle,varargin{:})
+            assert_or_save_variable_(this,test_name,var_name,var,funcHandle,varargin{:})
         end
         
     end

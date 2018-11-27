@@ -1,7 +1,25 @@
 function [start_queue_num,free_queue_num]=list_queue_messages_(mess_folder,job_id,mess_name,send_from,sent_to)
-% process list of the messages already sent from this routine
-% and return the numbers of the first message in the queue and the number of the
-% first free place in the queue
+% process list of the messages already sent from this routine and placed in
+% a queue and return the numbers of the first message in the queue and
+% the number of the  first free place in the queue
+%
+% Inputs:
+% mess_folder -- full path to to the folder, containing messages.
+% job_id      -- the string, defining the running job and used in error
+%                reporting
+% mess_name   -- the name of the messages in the queue
+% send_from   -- the number of job (lab) the messages should be send
+% sent_to     -- the number of job (lab) the messages should be directed.
+% Outputs:
+% start_queue_num -- the number of the first message to pop from the queue.
+% free_queue_num  -- the number of the free space in the queue, i.e. the
+%                    next message to pop in the queue.
+%
+%
+% $Revision: 813 $ ($Date: 2018-11-06 11:48:11 +0000 (Tue, 06 Nov 2018) $)
+%
+%
+
 
 folder_contents = dir(mess_folder);
 if numel(folder_contents )<=2 % no messages in the folder
@@ -20,6 +38,7 @@ if isempty(mess_names) % no messages
     return
 end
 this_name = cellfun(@(x)(strcmpi(x,mess_name)),mess_names,'UniformOutput',true);
+% select the messages, which satisfy the request
 these_mess = (mid_from == send_from) & (mid_to == sent_to) & (this_name);
 mess_names = mess_names(these_mess);
 if isempty(mess_names) % no messages

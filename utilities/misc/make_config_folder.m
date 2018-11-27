@@ -110,10 +110,23 @@ end
 function [success,folder_path,mess]=try_to_create_folder(location,folder_name)
 folder_path = [location,filesep,folder_name];
 
+ic = 0;
 if ~exist(folder_path,'dir')
     [success, mess] = mkdir(folder_path);
+    while ~(exist(folder_path,'dir') || ic<3)
+        [success, mess] = mkdir(folder_path);
+        ic = ic + 1;
+        pause(0.1);
+    end
 else
-    test_path = fullfile(folder_path,['folder_twa_',char(floor(25*rand(1,10)) + 65)]);
-    clob = onCleanup(@()rmdir(test_path));
+    test_path = fullfile(folder_path,['folder_twa_',char(randi(25,1,10) + 64)]);
+    %clob = onCleanup(@()rmdir(test_path));
     [success, mess] = mkdir(test_path);
+    if success
+        [statrm,msg] = rmdir(test_path);
+        if ~statrm
+            warning('MAKE_CONFIG_FOLDER:runtime_error',...
+                ' Can not remove test folder %s; message: %s',test_path,msg);
+        end
+    end
 end

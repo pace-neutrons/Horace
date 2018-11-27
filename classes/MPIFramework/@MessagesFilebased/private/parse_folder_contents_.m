@@ -2,14 +2,32 @@ function [mess_names,mid_from,mid_to,varargout] = parse_folder_contents_(folder_
 % Extract message names and messages id-s from the folder contents provided
 % as input
 %
-% if nolocked option is provided do not return files which are locked
+% if nolocked option is provided do not return names of messages which are locked
+% if nothing is provided, locked messages names and id-s are also returned.
 %
-% Message name format: 'mess_%s_FromN%d_ToN%d
-% Returns
+% Routine defineds:
+% Message name format : 'mess_%s_FromN%d_ToN%d.ext
+%
+% where ext is either '.mat', '.lock[r|w]] or number or a message in a queue.
+% messages with extension .lock are treated as locks to the message names,
+%      never returned as output and, on request may suppress correspondent 
+%      message names.
+% 
+%
+% Returns:
+%
 % mess_names the cellarray of messages, present in the system
 % mid_from   array of the task_id-s who sent messages
 % mid_to     array of the task_id-s where messages are intended.
+%Optional:
+% ext       -- message extensions (except locks), used to organize the messages
+%              queue.
 %
+%
+% $Revision: 813 $ ($Date: 2018-11-06 11:48:11 +0000 (Tue, 06 Nov 2018) $)
+%
+%
+
 if nargin > 1
     nolocked = true;
 else

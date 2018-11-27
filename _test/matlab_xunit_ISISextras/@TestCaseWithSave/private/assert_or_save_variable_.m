@@ -1,4 +1,4 @@
-function  assert_or_save_variable_(this,var_name,var,funcHandle,varargin)
+function  assert_or_save_variable_(this,test_name,var_name,var,funcHandle,varargin)
 % Wrapper to assertion methods to enable test or save functionality
 %
 %   >> assertMethodWithSave (this,var_name, var,  funcHandle, varargin)
