@@ -20,7 +20,9 @@ classdef test_rebin< TestCase
         
         %The above can now be read into the test routine directly.
         function this=test_rebin(name)
-            
+            if ~exist('name','var')
+                name = 'test_rebin';
+            end
             this=this@TestCase(name);
             this.testdir = fileparts(mfilename('fullpath'));
             this.this_folder = this.testdir;

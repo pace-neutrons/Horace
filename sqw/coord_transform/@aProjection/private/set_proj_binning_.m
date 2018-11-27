@@ -11,7 +11,7 @@ this.urange_ = urange;
 %  In the cutting algorithm, plot axes with one bin only will be treated exactly as integration axes; we can always reshape the output
 % to insert singleton dimensions as required.
 %  (*** Implicitly assumes that there is no energy offset in uoffset, either in the input data or the requested output proj axes
-%   *** Will need to modify get_nrange_rot_section, cut_sqw_calc_ubins and routines they call to handle this.)
+%   *** Will need to modify get_nrange_rot_section, calc_ubins and routines they call to handle this.)
 
 % Get plot axes with two or more bins, and the number of bins along those axes
 j=1;

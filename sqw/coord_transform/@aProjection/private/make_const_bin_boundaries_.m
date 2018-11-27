@@ -1,4 +1,4 @@
-function p=make_const_bin_boundaries(pbin,range,pref,inside)
+function p=make_const_bin_boundaries_(pbin,range,pref,inside)
 % Make constant interval bin boundaries
 %
 % Required input:

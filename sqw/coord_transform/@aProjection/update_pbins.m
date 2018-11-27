@@ -1,16 +1,12 @@
-function [ok,mess,proj_update,pbin_update,ndims,pin,en] = cut_sqw_check_pbins (header, data, proj, pbin)
-% Check that the binning arguments are valid, and update the projection with the current projection
+function [proj_update,pbin_update,ndims,pin,en] = update_pbins (proj, header_ave, data, pbin)
+% Check that the binning arguments are valid, and update the projection
+% with the current bin values
 %
-%   >> [ok,mess,proj_update,pbin_update,ndims,pin,en] = cut_sqw_check_pbins (header, data, proj, pbin)
+%   >> [proj_update,pbin_update,ndims,pin,en] = proj.update_pbins(header, data, pbin)
 %
 % Input:
 % ------
 
-% Get some 'average' quantities for use in calculating transformations and bin boundaries
-% -----------------------------------------------------------------------------------------
-% *** assumes that all the contributing spe files had the same lattice parameters and projection axes
-% This could be generalised later - but with repercussions in many routines
-header_ave=header_average(header);
 
 en = header_ave.en;  % energy bins for synchronisation with when constructing defaults
 upix_to_rlu = header_ave.u_to_rlu(1:3,1:3);
@@ -29,20 +25,23 @@ if ~isempty(data.iax)
     pin(data.iax)=mat2cell(data.iint,2,ones(1,numel(data.iax)));
 end
 
+
 % Get matrix to convert from projection axes of input data to required output projection axes
 % -------------------------------------------------------------------------------------------
 % The conversion here is that for the projection axes in which the plot and integration axes of the data section
 % are expressed. Recall that this is not necessarily the same as that in which the individual pixel information is
 % expressed.
-if ~isempty(proj)
-    % New projection provided
-    proj_update = proj;
+proj_update = proj;
+
+% define existing projection from data field as data field does not
+% currently contains projection. TODO: modify data_field to contain
+% projection
+proj_update = proj_update.retrieve_existing_tranf(data,upix_to_rlu,upix_offset);
+
+% Resolve multiple integration axes
+if numel(pbin) == 4    % New projection provided
     pbin_update = pbin;
-    
-else
-    % Recover initial projection
-    proj_update = projection();  % empty instance of the projaxes class
-    
+else        
     % Reorder pbin to correspond to the input plotting axes (currently refer to display axes)
     % The current display axis limits will be inserted later from the variable pin
     pbin_update=cell(1,4);
@@ -53,7 +52,4 @@ else
     
 end
 
-proj_update = proj_update.retrieve_existing_tranf(data,upix_to_rlu,upix_offset);
-
-% Resolve multiple integration axes
-[ok, mess, pbin_update, ndims] = cut_sqw_calc_pbins (data.urange, proj_update, pbin_update, pin, en);
+[pbin_update, ndims] = proj_update.calc_pbins (data.urange, pbin_update, pin, en);

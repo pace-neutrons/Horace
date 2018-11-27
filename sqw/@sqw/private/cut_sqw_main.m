@@ -147,6 +147,11 @@ end
 if ~ok
     error ('CUT_SQW:invalid_arguments', mess)
 end
+% Get some 'average' quantities for use in calculating transformations and bin boundaries
+% -----------------------------------------------------------------------------------------
+% *** assumes that all the contributing spe files had the same lattice parameters and projection axes
+% This could be generalised later - but with repercussions in many routines
+header_ave=header_average(header);
 
 
 % Update projection by current projection, and reorder binning descriptors
@@ -156,11 +161,7 @@ end
 % display axes to the input projection axes. Multiple integration axes are
 % determined and the corresponding elements of pbin are turned into two
 % dimensional arrays.
-[ok, mess, proj, pbin, ndims, pin, en] = cut_sqw_check_pbins (header, data, proj, pbin);
-if ~ok
-    error ('CUT_SQW:invalid_arguments', mess)
-end
-
+[proj, pbin, ndims, pin, en] = proj.update_pbins(header_ave, data,pbin);
 
 % Perform cuts
 % ------------

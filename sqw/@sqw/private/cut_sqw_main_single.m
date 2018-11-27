@@ -18,10 +18,7 @@ if hor_log_level>=1
 end
 
 % Get bin boundaries for plot axes and integration ranges
-[ok, mess, iax, iint, pax, p, urange] = cut_sqw_calc_ubins (data.urange, proj, pbin, pin, en);
-if ~ok
-    error('CUT_SQW:invalid_arguments',mess)
-end
+[iax, iint, pax, p, urange] = proj.calc_ubins (data.urange, pbin, pin, en);
 
 % Set matrix and translation vector to express plot axes with two or more bins
 % as multiples of step size from lower limits

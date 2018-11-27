@@ -1,7 +1,7 @@
-function pbin = make_const_bin_boundaries_descr(p)
+function pbin = make_const_bin_boundaries_descr_(p)
 % Make a constant bin boundaries descriptor from the bin boundaries
 %
-%   >> pbin = make_const_bin_boundaries_descr(p)
+%   >> pbin = make_const_bin_boundaries_descr_(p)
 %
 % Input:
 % ------
@@ -9,7 +9,7 @@ function pbin = make_const_bin_boundaries_descr(p)
 %
 % Output:
 % -------
-%   pbin    Din boundary descriptor [pbeg, pstep, pend] where
+%   pbin    Bin boundary descriptor [pbeg, pstep, pend] where
 %          pbeg in the forst bin centre, pstep is the bin width, and
 %          pend is the last bin centre.
 %

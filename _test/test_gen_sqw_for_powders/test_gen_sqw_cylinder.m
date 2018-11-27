@@ -84,11 +84,8 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
             
             % dd(w1)
             %--------------------------------------------------------------------------------------------------
-            this=save_or_test_variables(this,w2,w1,'tol',-1.e-5,...
-                'ignore_str',1);
-            
-            
-            
+            this.assertEqualToTolWithSave(w2,'ignore_str',true,'reltol',1.e-5)
+            this.assertEqualToTolWithSave(w1,'ignore_str',true,'reltol',1.e-5)
         end
     end
 end

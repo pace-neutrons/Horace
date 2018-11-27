@@ -1,9 +1,12 @@
-function [ok, mess, iax, iint, pax, p, urange, pbin_out] = cut_sqw_calc_ubins (urange_in, proj, pbin, pin, en)
+function [iax, iint, pax, p, urange, pbin_out] = calc_ubins (proj,urange_in,pbin, pin, en)
 % Create bin boundaries for integration and plot axes from requested limits and step sizes
 % Uses knowledge of the range of the data and energy bins of the data to set values for those
 % not provided.
 %
-%   >> [ok, mess, iax, iint, pax, p, urange, pbin_out] = cut_sqw_calc_ubins (urange_in, proj, pbin, pin, en)
+%   >> [iax, iint, pax, p, urange, pbin_out] =  proj.calc_ubins(urange_in, pbin, pin, en)
+%
+%      Throws aPROJECTION:invalid_arguments if input parameters are
+%      inconsistent or incorrect
 %
 % Input:
 % ------
@@ -35,7 +38,7 @@ function [ok, mess, iax, iint, pax, p, urange, pbin_out] = cut_sqw_calc_ubins (u
 %                                  chosen to ensure that the energy range plo to phi is contained within
 %                                  the bin boundaries.
 %   pin         Cell array, length 4, of default bin boundaries for each axis. Boundaries assumed equally spaced
-%              assumed to be column vectors. 
+%              assumed to be column vectors.
 %               If length(pin{i})==2, will be interpreted as integration range.
 %
 %   en          Energy bin information used if energy step is zero (see above)
@@ -43,8 +46,6 @@ function [ok, mess, iax, iint, pax, p, urange, pbin_out] = cut_sqw_calc_ubins (u
 %
 % Output:
 % -------
-%   ok          True if all OK, false otherwise
-%   mess        Error message; empty if all was OK; non-empty otherwise,
 %              in which case all other output are empty
 %   iax         Index of integration axes into the projection axes  [row vector]
 %                   e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
@@ -63,34 +64,26 @@ function [ok, mess, iax, iint, pax, p, urange, pbin_out] = cut_sqw_calc_ubins (u
 % T.G.Perring   15/07/2007
 
 
-ok = true;
-mess = '';
-
 % Check number and format of integration range / plotting description
 % ------------------------------------------------------------------------
 n=length(pbin);
 if n<3 || n>4
-    iax=[]; iint=[]; pax=[]; p=[]; urange=[];
-    ok = false;
-    mess = 'Must provide binning descriptor for all three momentum axes and (optionally) the energy axis';
-    return
+    error('aPROJECTION:invalid_arguments',...
+        'Have not provided binning descriptor for all three momentum axes and (optionally) the energy axis');
 end
 
 if ~(isempty(pbin{1})||(isa_size(pbin{1},'row','double') && length(pbin{1})>=1 && length(pbin{1})<=3)) || ...
-   ~(isempty(pbin{2})||(isa_size(pbin{2},'row','double') && length(pbin{2})>=1 && length(pbin{2})<=3)) || ...
-   ~(isempty(pbin{3})||(isa_size(pbin{3},'row','double') && length(pbin{3})>=1 && length(pbin{3})<=3))
-    iax=[]; iint=[]; pax=[]; p=[]; urange=[];
-    ok = false;
-    mess = 'Check format of integration range / plotting description for momentum axes';
-    return
+        ~(isempty(pbin{2})||(isa_size(pbin{2},'row','double') && length(pbin{2})>=1 && length(pbin{2})<=3)) || ...
+        ~(isempty(pbin{3})||(isa_size(pbin{3},'row','double') && length(pbin{3})>=1 && length(pbin{3})<=3))
+    
+    error('aPROJECTION:invalid_arguments',...
+        'Check format of integration range / plotting description for momentum axes');
 end
 
 if n==4
     if ~(isempty(pbin{4})||(isa_size(pbin{4},'row','double') && length(pbin{4})>=1 && length(pbin{4})<=3))
-        iax=[]; iint=[]; pax=[]; p=[]; urange=[];
-        ok = false;
-        mess = 'Check format of integration range / plotting description for energy axis';
-        return
+        error('aPROJECTION:invalid_arguments',...
+            'Check format of integration range / plotting description for energy axis');
     end
 end
 
@@ -98,7 +91,7 @@ end
 % Check values are acceptable, and make ranges 1x3 (for plot) or 1x2 for integration axes
 % ---------------------------------------------------------------------------------------
 % At this point, we are just filling in the values for the missing elements according to
-% the convention 
+% the convention
 % (1) absent binning description: use default bin information in pin
 % (2) missing plot ranges are +inf, -inf (upper, lower) and missing bin width for energy is 0.
 % Will combine with the limits of the data in the block of code that follows the this block
@@ -144,23 +137,18 @@ for idim=1:4
         end
         % Check validity of step sizes
         if idim==4 && vstep(idim)<0 % recall that step of zero is valid for energy axis
-            iax=[]; iint=[]; pax=[]; p=[]; urange=[];
-            ok = false;
-            mess = 'Cannot have negative energy step size';
-            return
+            error('aPROJECTION:invalid_arguments',...
+                'Cannot have negative energy step size');
         elseif idim~=4 && vstep(idim)<=0
-            iax=[]; iint=[]; pax=[]; p=[]; urange=[];
-            ok = false;
-            mess = ['Cannot have zero step size for plotting - check axis ',num2str(idim)];
-            return
+            error('aPROJECTION:invalid_arguments',...
+                'Cannot have zero step size for plotting - check axis  N: %d',num2str(idim));
+            
         end
     end
     % check validity of data ranges
     if vlims(idim,2)<vlims(idim,1)
-        iax=[]; iint=[]; pax=[]; p=[]; urange=[];
-        ok = false;
-        mess = ['Check upper limit greater or equal to the lower limit - check axis ',num2str(idim)];
-        return
+        error('aPROJECTION:invalid_arguments',...
+            'Check upper limit greater or equal to the lower limit - check axis N: %d',idim);
     end
 end
 % Compact down iax and pax
@@ -171,8 +159,8 @@ iax = iax(1:niax);
 % Compute plot bin boundaries and integration ranges
 % ------------------------------------------------------------------------
 % Get range in output projection axes from the 8 points defined in momentum space by urange_in:
-% This gives the maximum extent of the data pixels that can possibly contribute to the output data. 
-% third coodinate is not used.
+% This gives the maximum extent of the data pixels that can possibly contribute to the output data.
+% third coordinate is not used.
 urange_out = proj.find_max_data_range(urange_in);
 
 % Compute plot bin boundaries and range that fully encloses the requested output plot axes
@@ -186,31 +174,27 @@ for i=1:npax
     if pbin_from_pin(ipax)
         % Use default input bins
         p{i}=pin{ipax};
-        pbin_out{ipax} = make_const_bin_boundaries_descr(p{i});
+        pbin_out{ipax} = make_const_bin_boundaries_descr_(p{i});
     else
         pbin_tmp=[vlims(ipax,1),vstep(ipax),vlims(ipax,2)];
         if ipax<4 || (ipax==4 && vstep(ipax)>0)
             % Q axes, and also treat energy axis like other axes if provided with energy bin greater than zero
-            p{i}=make_const_bin_boundaries(pbin_tmp,urange_out(:,ipax));
+            p{i}=make_const_bin_boundaries_(pbin_tmp,urange_out(:,ipax));
         else
             % Only reaches here if energy axis and requested energy bin width is explicity or implicitly zero
             % Handle this case differently to above, because we ensure bin boundaries synchronised to boundaries in array en
-            p{i}=make_const_bin_boundaries(pbin_tmp,urange_out(:,ipax),en,true);
+            p{i}=make_const_bin_boundaries_(pbin_tmp,urange_out(:,ipax),en,true);
         end
         % No bins
         if isempty(p{i})
-            iax=[]; iint=[]; pax=[]; p=[]; urange=[];
-            ok = false;
-            mess = 'Plot range outside extent of data for at least one plot axis';
-            return
+            error('aPROJECTION:invalid_arguments',...
+                'Plot range outside extent of data for at least one plot axis (axis N%d)',i);
         end
         % For a plot axis we have declared that we need at least two bins
         if numel(p{i})<=2
-            iax=[]; iint=[]; pax=[]; p=[]; urange=[];
-            ok = false;
             str=str_compress(num2str(pbin_tmp));
             mess=['Only one bin in range [',str,'] - cannot make this a plot axis'];
-            return
+            error('aPROJECTION:invalid_arguments',mess)
         end
         pbin_out{ipax} = pbin_tmp;
     end
@@ -225,13 +209,13 @@ for i=1:niax
     urange(1,iiax)=max(vlims(iiax,1),urange_out(1,iiax));
     urange(2,iiax)=min(vlims(iiax,2),urange_out(2,iiax));
     if urange(1,iiax)>urange(2,iiax)
-% *** T.G.Perring 28 Sep 2018:********************
+        % *** T.G.Perring 28 Sep 2018:********************
         urange(2,iiax) = urange(1,iiax);    % do not want to stop the cutting - just want to ensure no unnecessary read from input object or cut
-%         iax=[]; iint=[]; pax=[]; p=[]; urange=[];
-%         ok = false;
-%         mess = sprintf('Integration range outside extent of data for projection axis %d (integration axis %d)',iiax,i);
-%         return
-% ************************************************
+        %         iax=[]; iint=[]; pax=[]; p=[]; urange=[];
+        %         ok = false;
+        %         mess = sprintf('Integration range outside extent of data for projection axis %d (integration axis %d)',iiax,i);
+        %         return
+        % ************************************************
     end
     pbin_out{iiax} = vlims(iiax,:)';
 end

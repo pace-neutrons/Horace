@@ -101,6 +101,19 @@ classdef aProjection
             %
             this = this.set_proj_binning_(urange,prj_ax_ind,int_ax_ind,prj_ax_bins);
         end
+        
+        % Create bin boundaries for integration and plot axes from requested limits and step sizes
+        % Uses knowledge of the range of the data and energy bins of the data to set values for those
+        % not provided.
+        [iax, iint, pax, p, urange, pbin_out] = calc_ubins(proj,urange_in,pbin, pin, en)
+        
+        % Check that the binning arguments are valid, and update the projection
+        % with the current bin values
+        [proj_update,pbin_update,ndims,pin,en] = update_pbins (proj, header_ave, data, pbin)
+        % Check binning descriptors are valid, and resolve multiple integration axes
+        % using limits and bin widths from the input data.
+        
+        [ pbin_out, ndims] = calc_pbins(proj, urange_in, pbin, pin, en)
         %------------------------------------------------------------------
         % accessors
         %------------------------------------------------------------------
@@ -133,6 +146,7 @@ classdef aProjection
     end
     %
     methods(Access = protected)
+        %
         function isit= can_mex_cut_(self)
             isit = false;
         end
