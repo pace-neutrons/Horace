@@ -117,10 +117,9 @@ classdef test_combine_cyl < TestCaseWithSave
             
             w1_2=cut_sqw(sqw_file_2,[0,0.1,3],[2.2,2.5],[40,50],'-nopix');
             
-            tol = this.tol;
-            %this.tol = -1.e-3;
-            this=save_or_test_variables(this,w2_2,w1_2,'ignore_str',1);
-            this.tol = tol;
+
+            this.assertEqualToTolWithSave(w2_2,'ignore_str',true,'tol',1.e-7)
+            this.assertEqualToTolWithSave(w1_2,'ignore_str',true,'tol',1.e-7)            
             
             %--------------------------------------------------------------------------------------------------
             % Visually inspect

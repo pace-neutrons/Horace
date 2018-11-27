@@ -1,4 +1,4 @@
-function [ok, mess, pbin_out, ndims] = cut_sqw_calc_pbins (urange_in, proj, pbin, pin, en)
+function [ pbin_out, ndims] = calc_pbins(proj, urange_in, pbin, pin, en)
 % Check binning descriptors are valid, and resolve multiple integration axes
 % using limits and bin widths from the input data.
 %
@@ -43,7 +43,7 @@ function [ok, mess, pbin_out, ndims] = cut_sqw_calc_pbins (urange_in, proj, pbin
 %                                   If width=0, it is taken to be equal to pstep.
 %
 %   pin         Cell array, length 4, of default bin boundaries for each axis. Boundaries assumed equally spaced
-%              assumed to be column vectors. 
+%              assumed to be column vectors.
 %               If length(pin{i})==2, will be interpreted as integration range.
 %
 %   en          Energy bin information used if energy step is zero (see above)
@@ -55,8 +55,8 @@ function [ok, mess, pbin_out, ndims] = cut_sqw_calc_pbins (urange_in, proj, pbin
 %   mess        Error message; empty if all was OK; non-empty otherwise,
 %              in which case all other output are empty)
 %
-%   pbin_out    Cell array of limits and binning descriptors for integration and plot axes. Where 
-%               an axis is to be split into multiple integration ranges the corresponding 
+%   pbin_out    Cell array of limits and binning descriptors for integration and plot axes. Where
+%               an axis is to be split into multiple integration ranges the corresponding
 %               descriptor is an array size [n,2] where n is the number integration ranges for
 %               that axis.
 %
@@ -76,24 +76,21 @@ ndims = numel(pin);
 % ------------------------------------------------------------------------
 n=length(pbin);
 if n<3 || n>4
-    ok = false;
-    mess = 'Must provide binning descriptor for all three momentum axes and (optionally) the energy axis';
-    return
+    error('aPROJECTION:invalid_arguments',...
+        'Must provide binning descriptor for all three momentum axes and (optionally) the energy axis');
 end
 
 if ~(isempty(pbin{1})||(isa_size(pbin{1},'row','double') && length(pbin{1})>=1 && length(pbin{1})<=4)) || ...
-   ~(isempty(pbin{2})||(isa_size(pbin{2},'row','double') && length(pbin{2})>=1 && length(pbin{2})<=4)) || ...
-   ~(isempty(pbin{3})||(isa_size(pbin{3},'row','double') && length(pbin{3})>=1 && length(pbin{3})<=4))
-    ok = false;
-    mess = 'Check format of integration range / plotting description for momentum axes';
-    return
+        ~(isempty(pbin{2})||(isa_size(pbin{2},'row','double') && length(pbin{2})>=1 && length(pbin{2})<=4)) || ...
+        ~(isempty(pbin{3})||(isa_size(pbin{3},'row','double') && length(pbin{3})>=1 && length(pbin{3})<=4))
+    error('aPROJECTION:invalid_arguments',...
+        'Check format of integration range / plotting description for momentum axes');
 end
 
 if n==4
     if ~(isempty(pbin{4})||(isa_size(pbin{4},'row','double') && length(pbin{4})>=1 && length(pbin{4})<=4))
-        ok = false;
-        mess = 'Check format of integration range / plotting description for energy axis';
-        return
+        error('aPROJECTION:invalid_arguments',...
+            'Check format of integration range / plotting description for energy axis');
     end
 end
 
@@ -106,24 +103,20 @@ for i=1:n
     n_pbin(i) = numel(pbin{i});
     if n_pbin(i)>3
         if pbin{i}(4)<0 || ~isfinite(pbin{i}(4))
-            ok = false;
-            mess = ['Integration width must be greater of equal to zero - check axis ',num2str(i)];
-            return
+            error('aPROJECTION:invalid_arguments',...
+                'Integration width must be greater of equal to zero - check axis N %d ',(i));
         end
         pbin_tmp{i} = pbin_tmp{i}(1:3);
     end
 end
 
 % Get integration and plot axes
-[ok, mess, ~, ~, pax, p] = cut_sqw_calc_ubins (urange_in, proj, pbin_tmp, pin, en);
+[~, ~, pax, p] = proj.calc_ubins (urange_in,pbin_tmp, pin, en);
 ndims = numel(p);
 multi = (n_pbin==4);
 if any(multi)
-    % Case of at least one axis where the plot axes are to be interpreted as 
+    % Case of at least one axis where the plot axes are to be interpreted as
     % multiple integration axes
-    if ~ok
-        return
-    end
     for i=1:numel(pax)
         idim = pax(i);
         if multi(idim)

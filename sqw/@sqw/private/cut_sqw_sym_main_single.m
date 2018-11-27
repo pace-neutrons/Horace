@@ -52,6 +52,12 @@ else
             [ok, mess, proj_trans, pbin_trans] = transform_proj (sym{i-1},...
                 alatt, angdeg, proj_ref, pbin_ref);
             if ~ok, error(mess), end
+            % Get some 'average' quantities for use in calculating transformations and bin boundaries
+            % -----------------------------------------------------------------------------------------
+            % *** assumes that all the contributing spe files had the same lattice parameters and projection axes
+            % This could be generalised later - but with repercussions in many routines
+            header_ave=header_average(header);
+       
             
             % Because Alex's aProjection class (of which proj is an instance)
             % is a rather odd hybrid object with projection and cut information
@@ -59,7 +65,7 @@ else
             % with the information for input cut projection information in the
             % same way that was done by cut_sqw_check_pbins in cut_sqw_sym_main
             proj_trans=projection(proj_trans);
-            [ok,mess,proj_trans] = cut_sqw_check_pbins (header, data,...
+            [ok,mess,proj_trans] = cut_sqw_check_pbins (header_ave, data,...
                 proj_trans, pbin_trans);
             if ~ok, error(mess), end
             

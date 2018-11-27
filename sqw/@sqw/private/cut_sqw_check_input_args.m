@@ -41,7 +41,7 @@ function [ok, mess, data_source, proj, pbin, args, opt] = ...
 
 
 % Default output of correct classes
-proj = projection(struct());
+proj = projection();
 pbin = cell(1,0);
 args = cell(1,0);
 opt = struct();
@@ -95,7 +95,6 @@ if numel(par)>=1 && (isstruct(par{1}) ||...
     par = par(2:end);
 else
     proj_given=false;
-    proj = [];
 end
 
 
