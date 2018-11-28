@@ -47,7 +47,8 @@ classdef test_main_mex < TestCase
         end
         function this=test_accum_cut_mex_multithread(this)
             if ~this.use_mex
-                warning('TEST:skipped','test_accum_cut_mex skipped as mex is disabled')
+                warning('TEST_MAIN_MEX:test_disabled','test_accum_cut_mex skipped as mex is disabled')
+                return;
             end
             [data,proj]=gen_fake_accum_cut_data(this,[1,0,0],[0,1,0]);
             pax = [1,2,3,4];
@@ -71,7 +72,12 @@ classdef test_main_mex < TestCase
         
         function this=test_accum_cut(this)
             mex_present=fileparts(which('accumulate_cut_c'));
-            assertTrue(~isempty(mex_present),'Mex file accumulate_cut_c is not availible on this computer')
+            if ~isempty(mex_present)
+                warning('TEST_MAIN_MEX:test_disabled',...
+                    'Mex file accumulate_cut_c is not availible on this computer')
+                return;
+            end
+
             
             
             [data,proj]=gen_fake_accum_cut_data(this,[1,0,0],[0,1,0]);
@@ -105,8 +111,11 @@ classdef test_main_mex < TestCase
         
         function this=test_calc_proj(this)
             mex_present=fileparts(which('calc_projections_c'));
-            assertTrue(~isempty(mex_present),'Mex file calc_projections_c is not availible on this computer')
-            %
+            if ~isempty(mex_present)
+                warning('TEST_MAIN_MEX:test_disabled',...
+                    'Mex file calc_projections_c is not availible on this computer')
+                return;
+            end                        %
             rd =calc_fake_data(this);
             %
             set(hor_config,'use_mex',0,'-buffer');
