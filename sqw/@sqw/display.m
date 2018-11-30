@@ -19,7 +19,7 @@ else
     else
         sz = size(w);
         str = '[';
-        for i=1:length(sz),
+        for i=1:length(sz)
             str = [str,num2str(sz(i)),'x'];   % size along each of the display axes
         end
         str(end)=']';

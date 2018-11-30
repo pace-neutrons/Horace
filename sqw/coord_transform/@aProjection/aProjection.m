@@ -198,7 +198,7 @@ classdef aProjection
             %          the bin boundaries, then contained==true. Otherwise,
             %          inside==false.
             %   outside If the range defined by urange is fully outside the bin
-            %          boundaries i.e. there is no interstcion of the two volumes,
+            %          boundaries i.e. there is no intersection of the two volumes,
             %          then outside=true;
             [irange,inside,outside] = get_irange_(urange,varargin{:});
         end
