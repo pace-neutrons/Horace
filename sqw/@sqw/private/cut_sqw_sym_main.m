@@ -177,10 +177,8 @@ header_ave=header_average(header);
 % display axes to the input projection axes. Multiple integration axes are
 % determined and the corresponding elements of pbin are turned into two
 % dimensional arrays.
-[ok, mess, proj, pbin, ndims, pin, en] = cut_sqw_check_pbins (header_ave, data, proj, pbin);
-if ~ok
-    error ('CUT_SQW:invalid_arguments', mess)
-end
+[proj, pbin, ndims, pin, en] = proj.update_pbins(header_ave, data,pbin);
+%[ok, mess, proj, pbin, ndims, pin, en] = cut_sqw_check_pbins (header_ave, data, proj, pbin);
 
 
 % Perform cuts
