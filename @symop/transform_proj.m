@@ -101,12 +101,12 @@ proj.uoffset(1:3) = (Minv \ R * Minv * (proj.uoffset(1:3)-obj.uoffset_') + obj.u
 
 u_new = (Minv \ R * Minv * proj.u(:))';
 v_new = (Minv \ R * Minv * proj.v(:))';
+w_old = proj.w;
 proj.u = u_new;
 proj.v = v_new;
 
 % proj.u = (Minv \ R * Minv * proj.u(:))';
 % proj.v = (Minv \ R * Minv * proj.v(:))';
-
 if ~isempty(proj.w)
-    proj.w = (Minv \ R * Minv * proj.w(:))';
+    proj.w = (Minv \ R * Minv * w_old(:))';
 end
