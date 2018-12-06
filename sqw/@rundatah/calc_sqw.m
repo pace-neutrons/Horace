@@ -145,6 +145,6 @@ if ~isempty(obj.transform_sqw_f_)
     urange = w.data.urange;
     grid_size = size(w.data.s);
     if ~isempty(urange_in) % expand ranges to include urange_in
-        urange = [min([urange_in(1,:),urange(1,:)]);max([urange_in(2,:),urange(2,:)])];
+        urange = [min([urange_in(1,:);urange(1,:)]);max([urange_in(2,:);urange(2,:)])];
     end
 end
