@@ -58,8 +58,7 @@ for i=1:nfiles
         urange_tmp = urange_in;
         grid_size_tmp = size(w.data.s);
     end
-    if i==1
-        
+    if i==1        
         grid_size = grid_size_tmp;
         urange = urange_tmp;
     else
