@@ -12,6 +12,8 @@ function varargout = resolution_plot (w, varargin)
 % On current plot, or named or numbered existing plot (e.g. previous plot of w itself)
 %   >> resolution_plot (..., 'curr')
 %   >> resolution_plot (..., 'name', name)
+%   >> resolution_plot (..., 'fig', fh)  -- where fh is the handle of an
+%                                          existing figure to use for plotting
 %
 %
 % Input:
@@ -95,7 +97,7 @@ else
 end
 
 % Check x0 and axis option
-key = struct ('axis','','over',false,'current',false,'name',[]);
+key = struct ('axis','','over',false,'current',false,'name',[],'fig',[]);
 flags = {'over','current'};
 opts.flags_noneg = true;
 opts.flags_noval = true;
@@ -151,19 +153,28 @@ else
 end
 
 % - Plot target
+newplot = false;
 if present.over
-    newplot = false;
     fig = [];
 elseif present.current
-    newplot = false;
     if ~isempty(findobj(0,'Type','figure'))
         fig = gcf;
     else
         error('No current figure exists - cannot overplot')
     end
 elseif present.name
-    newplot = false;
     fig = key.name;
+elseif present.fig
+    fig = key.fig;
+    if ~verLessThan('matlab','8.4') % check its a figure.
+        % Do not remeber how to do it in older versions. Should be done if
+        % important
+        if ~isa(fig,'matlab.ui.Figure')
+            error('RESOLUTION_PLOT:invalid_argument',...
+                ' The input parameter for "fig" keyword should be a figure handle but it is %s',...
+                class(fig));
+        end
+    end
 else
     newplot = true;
     fig = [];
