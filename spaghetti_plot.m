@@ -72,20 +72,20 @@ function varargout=spaghetti_plot(varargin)
 %                     (default: [NaN NaN] - use limits of data)
 %
 %   'cuts_plot_size' under normal operation, the width of every part of
-%                   spagetti plot is proportional to the physical distance (A^-1)
-%                   between various points in recipocal space (the rlp
+%                   spaghetti plot is proportional to the physical distance (A^-1)
+%                   between various points in reciprocal space (the rlp
 %                   parameter)
 %                   This parameter should be followed by the list of the
-%                   relative plot widths, every pannel of the spaghetti
+%                   relative plot widths, every panel of the spaghetti
 %                   plot would occupy. E.g. If your rlp are
 %                   [0,0,0;1,0,0;1/2,1/2,0], the X-sizes of the plot
 %                   [0,0,0]->[1,0,0] and [1,0,0]->[1/2,1/2,0] would be
 %                   related as 1 to 1/sqrt(2) (in Cubic lattice). If you provide
 %                   cuts_plot_size array equal [1,1], the length of X-axis
-%                   on the each q-pannel plot would be equal.
+%                   on the each q-panel plot would be equal.
 %
-%                   TODO: big changes in the width of the sublots will
-%                   cause big difference in the subplot resolution. The
+%                   TODO: big changes in the width of the sub-plots will
+%                   cause big difference in the sub-plot resolution. The
 %                   changes in the plot width should cause changes in qbin too.
 %
 % Output:
@@ -121,16 +121,6 @@ flags = {'noplot','logscale'};
 % --------------------
 [args,opt,present] = parse_arguments(varargin,arglist,flags);
 
-if numel(args)~=2
-    if length(args{1})>1 && isa((args{1}(1)),'d2d')
-        plot_dispersion(args{1},opt);
-        return
-    else
-        error('SPAGHETTI_PLOT:invalid_arguments',...
-            'Invalid number of arguments')
-    end
-end
-
 if size(args{1},2)~=3 || size(args{1},1)<2
     error('SPAGHETTI_PLOT:invalid_arguments',...
         'It should be at least 2 rlp arranged in array [Nx3] (N>=2) but size of the rlp array is: [%d,%d];',...
@@ -146,11 +136,23 @@ if present.cuts_plot_size
         if any(opt.cuts_plot_size<=0)
             invalid = opt.cuts_plot_size<=0;
             error('SPAGHETTI_PLOT:invalid_arguments',...
-                'the plot sizes shoule be positive numbers but some of them are: %g; %g; %g; %g; %g',...
+                'the plot sizes should be positive numbers but some of them are: %g; %g; %g; %g; %g',...
                 opt.cuts_plot_size(invalid));
         end
     end
 end
+
+
+if numel(args)~=2
+    if length(args{1})>1 && isa((args{1}(1)),'d2d')
+        plot_dispersion(args{1},opt);
+        return
+    else
+        error('SPAGHETTI_PLOT:invalid_arguments',...
+            'Invalid number of arguments')
+    end
+end
+
 
 try
     sqwfile = exist(args{2},'file');
@@ -204,7 +206,7 @@ if nseg>1
     u2rlp = rlp(2,:)-rlp(3,:);
     u2crt = (b*u2rlp')';
     u2crt0 = cross(u1crt,u2crt);
-    % Checks if rlp's are colinear.
+    % Checks if rlp's are collinear.
     j=3;
     while abs(sum(u2crt0))<min(opt.qbin)/100 && j<=nseg
         u2rlp = rlp(j,:)-rlp(j+1,:);
@@ -345,7 +347,7 @@ for i=1:length(wdisp_in)
     else
         wdisp(i) = IX_dataset_2d(wdisp_in(i));
     end
-    % For plotting, change bin edges to bin centers
+    % For plotting, change bin edges to bin centres
     bin_centers = 0.5*(wdisp(i).x(1:end-1)+wdisp(i).x(2:end));
     if scale_x_axis
         % scale plot axis according to the scales provided
