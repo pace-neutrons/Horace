@@ -145,7 +145,7 @@ if present.cuts_plot_size
     else
         if any(opt.cuts_plot_size<=0)
             invalid = opt.cuts_plot_size<=0;
-            error('SPAGHETTI_PLOT:invalid_arguments',...            
+            error('SPAGHETTI_PLOT:invalid_arguments',...
                 'the plot sizes shoule be positive numbers but some of them are: %g; %g; %g; %g; %g',...
                 opt.cuts_plot_size(invalid));
         end
@@ -184,7 +184,8 @@ end
 % Make labels
 % ------------
 if present.labels && (isempty(opt.labels) || ~iscellstr(opt.labels) || numel(opt.labels)~=size(rlp,1))
-    error('Check number of user-supplied labels and that they form a cell array of strings');
+    error('SPAGHETTI_PLOT:invalid_arguments',...
+        'Check number of user-supplied labels and that they form a cell array of strings');
 end
 
 
@@ -351,12 +352,12 @@ for i=1:length(wdisp_in)
         min_bc = min(bin_centers);
         size  = max(bin_centers)-min_bc;
         scale = opt.cuts_plot_size(i);
-        wdisp(i).x = qinc + (bin_centers-min_bc)*(scale/size);        
+        wdisp(i).x = qinc + (bin_centers-min_bc)*(scale/size);
     else
         % Converts the x-axis from r.l.u. along the segment q-direction to incremental |q| in 1/Ang
         wdisp(i).x = qinc + (bin_centers-bin_centers(1))*ulen(1);
     end
-   qinc = wdisp(i).x(end);    
+    qinc = wdisp(i).x(end);
     % Update current segment length for labelling position.
     wdisp(i).x_axis = IX_axis('Momentum',[char(197),'^{-1}']);
     wdisp(i).y_axis = IX_axis('Energy','meV');
@@ -372,7 +373,7 @@ for i=1:length(wdisp_in)
         sscanf(wdisp_in(i).title(bra(2):ket(2)),'(%f %f %f)')];
     quotes = strfind(wdisp_in(i).title,'"');
     if i>1 && abs(sum(hkls(1:3)-hkl0(1:3)))>0.01
-        warning('(hkl) points for segments %d and %d do not match',i-1,i);
+        %warning('(hkl) points for segments %d and %d do not match',i-1,i);
         if isempty(quotes)
             labels{i} = sprintf('[%s]/[%s]',str_compress(num2str(hkl0(4:6)')),str_compress(num2str(hkls(1:3)')));
         else
