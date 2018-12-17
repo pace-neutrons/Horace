@@ -76,18 +76,18 @@ classdef fig_spread
     
     methods
         function obj=fig_spread(varargin)
-            % constructor initates the class and defines the figure size and
+            % constructor initiates the class and defines the figure size and
             % initial figure position on the screen according to the
             % settings and screen parameters
             %
             % Usage:
             % >>obj=fig_spread(['-tight']) % -- prepares to put default image spread of 4x3
-            %                                   figure per creen
+            %                                   figure per screen
             % >>obj=fig_spread([3,2],['-tight']) % -- prepares to put 6 figures on the screen as
             %                                       in the table of 3x2 cells
             %
             % if '-tight' parameter is present, then figure placed on the
-            % screen tight, namely overalling figure borders and resizing
+            % screen tight, namely overlapping figure borders and resizing
             % them to fit on the screen requested number.
             
             warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
@@ -184,7 +184,7 @@ classdef fig_spread
             % class settings
             %
             % if '-rise' option is specified, after adding the last figures
-            %  method also rizes all previous figures
+            %  method also rises all previous figures
             %
             self = self.calc_pos_place_fig_(fig_handle,varargin{:});
         end
@@ -198,7 +198,7 @@ classdef fig_spread
             self = replot_figs_(self,varargin{:});
         end
         function save_figs(self,filename)
-            % save all controlled valid figures into Maltab figures file.
+            % save all controlled valid figures into Matlab figures file.
             save_figs_(self,filename);
         end
         function self = load_figs(self,filename)

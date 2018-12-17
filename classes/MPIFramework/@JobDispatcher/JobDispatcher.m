@@ -267,6 +267,10 @@ classdef JobDispatcher
                         end
                     end
                 end
+            elseif isempty(mEXceptions_outputs) 
+                ext_type = class(outputs);
+                fprintf('Job %s have failed sending unhandled exception: %s\n',obj.job_id,ext_type);
+                error(Err_code,'Parallel job have failed throwing unhandled exception: %s',ext_type);                                
             else
                 mEXceptions_outputs(1) = isa(outputs,'MException');
                 fprintf('Job %s have failed. Output: \n',obj.job_id);
