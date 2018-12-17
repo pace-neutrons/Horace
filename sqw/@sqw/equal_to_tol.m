@@ -136,18 +136,13 @@ else
     nend=cumsum(npix);  % we already know that w1.data.npix and w2.data.npix are equal
     nbeg=nend-npix+1;
     
-    if opt.fraction>0 && any(npix==0)
+    if opt.fraction>0 && any(npix~=0)
         % Testing of bins requested and there is least one bin with more than one pixel
         % Get indices of bins to test
-        ix=find(npix>0);
-        if opt.fraction==1
-            % All bins to be tested
-            ibin=1:numel(npix);
-        else
-            % Test only a fraction of the non-empty bins
-            ind=randperm(numel(ix));
-            ind=ind(1:ceil(opt.fraction*numel(ix)));
-            ibin=sort(ix(ind))';
+        ibin=find(npix>0);
+        if opt.fraction<1
+            ind=round(1:1/opt.fraction:numel(ibin))';   % Test only a fraction of the non-empty bins
+            ibin=ibin(ind);
         end
         if horace_info_level>=1
             disp(['                       Number of bins = ',num2str(numel(npix))])
@@ -155,21 +150,26 @@ else
             disp(['Number of bins that will be reordered = ',num2str(numel(ibin))])
             disp(' ')
         end
+        % Get the pixel indicies
+        ipix = replicate_iarray(nbeg(ibin),npix(ibin)) + sawtooth_iarray(npix(ibin)) - 1;
+        ibinarr = replicate_iarray(ibin,npix(ibin));    % bin index for each retained pixel
         % Now test contents for equality
         pix1=w1.data.pix;
         pix2=w2.data.pix;
         if opt.reorder
-            for i=ibin
-                s1=sortrows(pix1(:,nbeg(i):nend(i))')';
-                s2=sortrows(pix2(:,nbeg(i):nend(i))')';
-                [ok,mess]=equal_to_tol(s1,s2,args{:},'name_a',name_a,'name_b',name_b);
-            end
+            % Sort retained pixels by bin and then run,det,energy bin indicies
+            [~,ix]=sortrows([ibinarr,pix1(5:7,ipix)']);
+            s1=pix1(:,ipix)';
+            s1=s1(ix,:);
+            [~,ix]=sortrows([ibinarr,pix2(5:7,ipix)']);
+            s2=pix2(:,ipix)';
+            s2=s2(ix,:);
+            % Now compare retained pixels
+            [ok,mess]=equal_to_tol(s1,s2,args{:},'name_a',name_a,'name_b',name_b);
         else
-            for i=ibin
-                s1=pix1(:,nbeg(i):nend(i));
-                s2=pix2(:,nbeg(i):nend(i));
-                [ok,mess]=equal_to_tol(s1,s2,args{:},'name_a',name_a,'name_b',name_b);
-            end
+            s1=pix1(:,ipix);
+            s2=pix2(:,ipix);
+            [ok,mess]=equal_to_tol(s1,s2,args{:},'name_a',name_a,'name_b',name_b);
         end
     end
     
