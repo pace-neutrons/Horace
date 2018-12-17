@@ -1,5 +1,4 @@
-%--------------------------------------------------------------------------
-function new_list = add_to_list_(initial_list, varargin)
+function new_list = add_to_list (initial_list, varargin)
 % Append character strings to a cell array of strings
 %
 %   >> new_list = add_to_list (initial_list, str1, str2, ...)
@@ -15,6 +14,7 @@ function new_list = add_to_list_(initial_list, varargin)
 % Output:
 % -------
 %   new_list        Row cell array with unique instances
+
 
 for i=1:numel(varargin)
     str = varargin{i};
@@ -36,4 +36,3 @@ if ~isempty(add_list)
 else
     new_list = initial_list;
 end
-

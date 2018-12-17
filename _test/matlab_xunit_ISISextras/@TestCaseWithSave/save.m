@@ -1,8 +1,10 @@
 function save (this)
-% Save output of the tests to file to test against later, if requested.
+% Save output of the tests to a file against which to test later.
 %
 %   >> save (this)
 
+
+% Catch case of not being in save mode - do nothing
 if ~this.save_output
     return
 end
@@ -11,14 +13,15 @@ hc = herbert_config;
 
 % Find unit test methods (begin 'test' or 'Test', excluding the constructor)
 if isempty(this.test_method_to_save_)
-    test_methods = getTestMethods(this);
+    test_methods = getTestMethods_(this);
     save_all = true;
-    msg = ['Save output from test class: ',class(this)];
+    msg = ['Save output from test suite: ',class(this)];
 else
     test_methods = this.test_method_to_save_;
     save_all = false;
     msg = ['Save output from test method: ',class(this),':',test_methods{1}];
 end
+
 if hc.log_level>-1
     disp(msg)
 end
@@ -46,10 +49,15 @@ if ~isempty(fieldnames(this.ref_data_))
     else
         % Saving only selected test method output; append or replace
         % existing test method output
-        if ~exist(this.test_results_file_,'file')
-            save (this.test_results_file_, '-struct','ref_data')
-        else
+        % The file to which to append or replace the test method output
+        % must already exist: if it doesn't, create using '-save'
+        % or manually copy the existing test output file that is used in test
+        % operation
+        if exist(this.test_results_file_,'file')
             save (this.test_results_file_, '-struct','ref_data','-append')
+        else
+            error('TEST_CASE_WITH_SAVE:runtime_error',...
+                ' Can only add or replace test data in a pre-existing test results file')
         end
     end
     
@@ -67,5 +75,3 @@ else
         disp(' ')
     end
 end
-
-

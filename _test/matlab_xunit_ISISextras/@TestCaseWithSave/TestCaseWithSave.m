@@ -47,6 +47,14 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
     %               self.save()     % always the last line
     %               end
     %
+    % If you want to read stored reference results against which to test the
+    % results of the test suite from a file other than the default file, then
+    % give the name of the file in the second line:
+    %
+    % e.g.          function self = TestSomeStuff(name)
+    %               self@TestCaseWithSave(name, filename);
+    %                   :
+    %
     % The setUp and tearDown methods can follow; these should setup any
     % properties that you want to re-create for each test method, and to clear
     % them afterwards. In this case, we want to recreate the property fig_handle
@@ -73,13 +81,18 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
     % value:
     %
     % e.g.          function testColormap(self)
-    %                   sz1 = size(get(self.fh, 'Colormap'), 2);
-    %                   assertEqualToTolWithSave(self,sz1)
+    %                   sz = size(get(self.fh, 'Colormap'), 2);
+    %                   assertEqualToTolWithSave(self,sz)
     %               end
     %
     %
     % Running a test suite
     % --------------------
+    % The purpose of TestCaseWithSave is to allow easy saving and future testing
+    % against of reference test results. The first thing you have to do is run
+    % the test suite in 'save' mode to save the results of tests. Afterwards, you
+    % can run the test suite in 'test' mode using the runtests function.
+    % 
     % - To save values run the test suite with the option '-save':
     %   ----------------------------------------------------------
     %       >> TestSomeStuff ('-save')                 % saves to default file name
@@ -135,17 +148,27 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
     %   assertElementsAlmostEqualWithSave   - test floating array elements near-equality
     %   assertVectorsAlmostEqualWithSave    - test vector near-equality in L2 norm sense
     %
-    % Utilities:
-    %   add_to_files_cleanList  - add file or files to list to be deleted at end of test
-    %   add_to_path_cleanList   - add path or paths to list to be removed at end of test
+    % Utility methods:
+    %   add_to_files_cleanList  - Add file or files to list to be deleted at end of test
+    %   add_to_path_cleanList   - Add path or paths to list to be removed at end of test
     %
-    %   delete_files            - delete file or files
-    %   remove_paths            - remove path or paths
+    %   delete_files            - Delete file or files that have been accumulated
+    %                             with calls to add_to_files_cleanList
+    %   remove_paths            - Remove path or paths that have been accumulated
+    %                             with calls to add_to_path_cleanList
+    %
+    %   delete                  - Equivalent to performing delete_files and
+    %                             remove_paths in succesion
     %
     %
     % TestCaseWithSave Properties:
     % -----------------------------
-    %   save_output             - if the test suite output is being saved or not
+    %   ref_data                - Structure holding the reference test
+    %                             results (test mode)
+    %   test_results_file       - Name of the test results file that holds
+    %                             the reference test results (test mode) or into
+    %                             which test results will be saved (save mode)
+    %   save_output             - If the test suite output is being saved or not
     %
     % It can be useful to know in a test method if the data is being saved for example
     % if new output is being generated that would wotherwise cause tests to fail. A
@@ -162,40 +185,46 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
     % Original author A. Buts, rewritten T.G.Perring
     %
     % $Revision$ ($Date$)
-    %
+    
     properties(Dependent)
-        % Filename for reading or writing test output for saving/comparing
-        test_results_file;
-        % structure, containing the data to store or reference in tests
-        ref_data;
+        % Filename from which to read previously stored test results
+        test_results_file
+        
+        % Structure containing the data to reference in tests or to store
+        ref_data
     end
     
-    
     properties (SetAccess=protected)
-        % True if calculated data is to be saved
+        % True if calculated data is to be saved in a temporary file
         save_output = false;
     end
     
     properties(Access=protected)
-        
-        % List of the reference data against which to compare, or save
+        % Structure containing test results
+        % - If save_outptu is false (i.e. in test mode) the structure contains
+        %   the contents of the file in test_results_file_, if it exists
+        % - If save_output is true, it contains tests results to save in
+        %   a temporary file whose name is constructed from test_results_file_
         ref_data_=struct();
         
-        % Filename for reading or writing test output
+        % Filename from which to read previously stored test results
+        % This file name will also be used to construct the output file name
+        % for saving results in save mode
         test_results_file_ = '';
         
         % Name of test method to be saved if save_output==true ({} means all methods)
+        % If save_output is false, then this property is ignored
         test_method_to_save_ = {};
         
-        % List of files to delete after test case is completed
-        files_to_delete_={};
+        % List of any files to delete after test suite is completed
+        files_to_delete_= {};
         
-        % List of paths to remove after test case is completed
-        paths_to_remove_={};
+        % List of any paths to remove after test suite is completed
+        paths_to_remove_= {};
     end
     
     methods
-        function obj = TestCaseWithSave (name, filename,varargin)
+        function this = TestCaseWithSave (opt, filename)
             % Construct your test class by inheriting this constructor:
             %
             %   function self = TestSomeStuff (name)
@@ -212,20 +241,41 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             %       self.save()
             %   end
             %
+            % When directly calling a test suite that has inherited TestCaseWithSave,
+            % as opposed to using in the constructor for a test suite as above, then the
+            % arguments are: (with myTestSuite as the name of an example test suite)
+            %       myTestSuite('-save')
+            %       myTestSuite('-save:testMethodName')  % to save output only for
+            %                                            % a particular method
+            %       myTestSuite('-save', filename)
+            %       myTestSuite('-save:testMethodName', filename)
+            %
+            % Note: In a method of a test suite you can also cause the test results
+            % to be saved rather than tested by calling
+            %               :
+            %       self@TestCaseWithSave('-save',filename);
+            %               :
+            % but this is not recommended.
+            % 
+            % 
+            % In full:
+            % ========
+            %   >> obj = TestCaseWithSave (mode, filename)
+            %
             % Input:
             % ------
+            %  name_or_save In the constructor of a test suite that inherits
+            %              TestCaseWithSave, then must be the name of the test suite
+            %               If output is requested to be saved:
+            %                   - '-save' if called from a test suite
+            %                   - '-save:<testMethodName>' where testMethodName
+            %                     is the name of one of the test methods in the
+            %                    test suite
+            %
+            %               If TestCaseWithSave is being called directly, then 
+            %              no options can be given
+            %
             % Optional:
-            %   name        One of:
-            %               - name of the calling test suite.
-            %               - '-save' if called from a test suite
-            %               - '-save:<testMethodName>' where testMethodName
-            %                   is the name of one of the test methods in the
-            %                   test suite
-            %
-            %              Actually, you do not need to worry about this argument,
-            %              as it is passed from the xUnit test suite. Just use it
-            %              blindly!
-            %
             %   filename    Name of file that contains saved output against which
             %              values created in the test methods can be tested. Only
             %              needed if the file is different from the default value
@@ -233,92 +283,66 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             %              <myTestSuite>. In this example the default file is
             %              'TestSomeStuff_output.mat'
             
-            % - If the call is made from a test suite, then name will be the name of the
-            %   test suite (that is how Alex Buts' modification of TestCase works)
-            % -
+            % This class constructor will be called by a sub-class constructor
+            % - If that sub-class is used directly by the user, then the first argument
+            %   can either be the name of the test suite, or a save option.
+            % - The sub-class is also called from the xunit unit test suite. The way
+            %   Alex Buts modified xunit and TestCase is such that the test suite name
+            %   is what is passed.
             
-            % Get the default name: the calling TestCase subclass, if one, or else this class
-            name_default = mfilename('class');
-            %caller_is_test_suite = false;
-            call_struct = dbstack(1);
+            
+            % Get the class name - we have no object yet, so must construct the name
+            % (This will be the calling name of the test suite that has inherited
+            % TestCaseWithSave, or will be TestCaseWithSave itself because it has been
+            % directly invoked from the command line or within another function)
+            class_name = mfilename('class');
+            caller_is_test_suite = false;
+            call_struct = dbstack(1);   % call stack starting from the caller function
             if numel(call_struct)>0
                 cont=regexp(call_struct(1).name,'\.','split');
                 if isTestCaseWithSaveSubclass_(cont{1})
-                    name_default = cont{1};
-                    %caller_is_test_suite = true;
+                    class_name = cont{1};
+                    caller_is_test_suite = true;
                 end
             end
-            if ~exist('name','var') % if the name exist it still can be '-save'
-                % option
-                name = name_default;
-            end
             
-            % has option '-save' been provided and if not, what particular
-            % test to run
-            [save_output,test_name,test_method_to_save] = ...
-                parse_save_option_(name,name_default);
+            % Create class with defaults
+            this = this@TestCase(class_name);
             
-            
-            obj = obj@TestCase(test_name);
-            obj.save_output = save_output;
-            
-            % Check if method to save is defined properly and set up
-            % proper methods to run and save results
-            obj = check_and_set_methods2save_(obj,test_method_to_save,save_output);
-            
-            % has filename with test data been provided?
-            test_class_name = class(obj);
-            if exist('filename','var')
-                fname  = build_default_test_results_filename_(test_class_name,filename);
-            else
-                fname = build_default_test_results_filename_(test_class_name);
-            end
-            % check if generated filename acceptable and possibly modify it
-            % according to -save operational modes. Warn if modification
-            % is required
-            obj.test_results_file=fname;
-            
-            
-            % load old data if necessary
-            % Load old data
-            if ~obj.save_output
-                if exist(obj.test_results_file,'file')
-                    try
-                        obj.ref_data_ = load(obj.test_results_file);
-                    catch
-                        error('TEST_CASE_WITH_SAVE:runtime_error',...
-                            'Unable to read saved data from file: %s',obj.test_results_file)
-                    end
+            % Alter properties according to whether or not the class is a test suite
+            if caller_is_test_suite
+                % Update save_output and test methods to save, if necessary
+                if nargin>=1    % option given
+                    this = this.instantiate_methods_to_save_ (opt);
                 end
-            end                                    
-        end
-        %------------------------------------------------------------------
-        function trf = get.test_results_file(obj)
-            % retrieve the name of the file, where the test results will be
-            % stored
-            trf = obj.test_results_file_;
-        end
-        function ref_d = get.ref_data(obj)
-            % retrieve the data to compare tests against
-            ref_d = obj.ref_data_;
-        end
-        function set.test_results_file(obj,name)
-            % verify if the test results file name is acceptable and refers
-            % to allowed location and set this file and location as target
-            % for the test results
-            obj.test_results_file_ = check_test_results_file_(obj,name);
-        end
-        function set.ref_data(obj,val)
-            % retrieve the name of the file, where the test results will be
-            % stored
-            if isstruct(val)
-                obj.ref_data_ = val;
+                
+                % Update test results file name and data structure
+                if exist('filename','var')
+                    this = this.instantiate_ref_data_ (filename);
+                else
+                    this = this.instantiate_ref_data_ ();
+                end
+                
             else
-                error('TEST_CASE_WITH_SAVE:invalid_argument',...
-                    'Reference data has to be a structure with the fields, containing the tests names')
+                % TestCaseWithSave called directly - no options allowed
+                if nargin~=0
+                    error('TEST_CASE_WITH_SAVE:invalid_argument',...
+                        'Constructor called with invalid argument list')
+                end
             end
         end
         
+        %------------------------------------------------------------------
+        function val = get.test_results_file(this)
+            % Retrieve the name of the file, where the test results will be
+            % stored
+            val = this.test_results_file_;
+        end
+        
+        function val = get.ref_data(this)
+            % Retrieve the data to compare tests against
+            val = this.ref_data_;
+        end
         
         %------------------------------------------------------------------
         function this=add_to_files_cleanList (this, varargin)
@@ -332,7 +356,7 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             % (Note that because the test class is a handle object, no
             % return argument is needed)
             
-            this.files_to_delete_ = add_to_list_(this.files_to_delete_, varargin{:});
+            this.files_to_delete_ = add_to_list (this.files_to_delete_, varargin{:});
         end
         
         %------------------------------------------------------------------
@@ -347,7 +371,7 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             % (Note that because the test class is a handle object, no
             % return argument is needed)
             
-            this.paths_to_remove_ = add_to_list_(this.paths_to_remove_, varargin{:});
+            this.paths_to_remove_ = add_to_list (this.paths_to_remove_, varargin{:});
         end
         
         %------------------------------------------------------------------
@@ -490,21 +514,11 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
                 throwAsCaller (ME)
             end
         end
-        
-        %------------------------------------------------------------------
-        % Save output of the tests to file to test against later, if requested.
-        %
-        %   >> save (this)
-        save (this)
-        % return the list of unit tests methods (begin 'test' or 'Test', excluding the constructor)
-        test_methods = getTestMethods(this)
-        %------------------------------------------------------------------
+
         function delete (this)
             % Function that will be called on destruction by virtue of the
             % class being a handle class
-            
-            ws = warning('off');
-            clob = onCleanup(@()warning(ws));
+
             % Use static utility methods
             this.delete_files (this.files_to_delete_)
             this.remove_paths (this.paths_to_remove_)
@@ -515,7 +529,7 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
     %----------------------------------------------------------------------
     % Static methods
     %----------------------------------------------------------------------
-    % These methods are used to delte files and paths in the destructor of
+    % These methods are used to delete files and paths in the destructor of
     % the class.
     % However, they have been made static methods so that they are also
     % available for general use in test suites
@@ -528,8 +542,7 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             %   testCaseWithSave.delete_files (files)
             %
             % files is a file name or cell array of file names
-            %
-
+            
             if nargin== 1
                 if ischar(varargin{1})
                     files={varargin{1}};
@@ -539,9 +552,9 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             else
                 files = varargin;
             end
-            % Turn warnings off to prevent distracting messages            
+            % Turn warnings off to prevent distracting messages
             warn = warning('off','all');
-            % Delete files            
+            % Delete files
             for i=1:numel(files)
                 if exist(files{i},'file')
                     try
@@ -561,7 +574,7 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             %   testCaseWithSave.remove_paths (paths)
             %
             % paths is a path name or cell array of path names
-            %
+            
             if nargin== 1
                 if ischar(varargin{1})
                     paths={varargin{1}};
@@ -571,7 +584,6 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             else
                 paths = varargin;
             end
-            
             % Turn warnings off to prevent distracting messages
             warn = warning('off','all');
             % Delete paths
@@ -596,15 +608,18 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             %
             % Input:
             % ------
-            %   var     Variable to test or save
-            %   var_name    Name of variable under which it will be saved
+            %   var         Variable to test or save
+            %   var_name    Name under which the variable will be saved
             %   funcHandle  Handle to assertion function
-            %   varargin{:} Arguments to pass to assertion function, which has
+            %   varargin{:} Arguments to pass to assertion function, which must have
             %               the form e.g. assertVectorsAlmostEqual(A,B,varargin{:})
             
             % Get the name of the test method. Determine this as the highest
             % method of the class in the call stack that begins with 'test'
-            % ignoring case
+            % ignoring character case
+            % (The test method may itself call functions in which the assertion
+            % test is performed, which is why we need to search the stack to get
+            % the test name)
             class_name = class(this);
             call_struct = dbstack(1);
             for i=numel(call_struct):-1:2
@@ -616,13 +631,23 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
                 end
             end
             
-            % Give default name if arg_name is empty
+            % Give default name for the variable if var_name is empty
+            % (*** TGP 09/12/2018: this always enforces the default same name
+            %  no matter how many other variables might have been previously saved.
+            %  On the otherhand, this utlity routine always appears to be called 
+            %  with an explicit value for var_name, so thhis code block is not
+            %  going to be called...)
             if isempty(var_name)
                 var_name = [test_name,'_1'];
             end
             
             % Perform the test, or save
-            assert_or_save_variable_(this,test_name,var_name,var,funcHandle,varargin{:})
+            if ~this.save_output
+                stored_reference = this.get_ref_dataset_(var_name, test_name);
+                funcHandle(var, stored_reference, varargin{:})
+            else
+                this.set_ref_dataset_ (var, var_name, test_name);
+            end
         end
         
     end

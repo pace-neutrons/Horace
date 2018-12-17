@@ -130,7 +130,7 @@ classdef TestPerformance < TestCaseWithSave
                 name = get_class_name_(dbstack);
                 file = TestPerformance.default_PerfTest_fname(mfilename('fullpath'));
             end
-            obj = obj@TestCaseWithSave('-save',file,name);
+            obj = obj@TestCaseWithSave('-save',file);
             obj.root_name_ = name;
             
             %

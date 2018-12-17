@@ -102,30 +102,24 @@ classdef test_config_classes< TestCase
         end
         
         function this=test_set_herbert_tests(this)
-            % disp(herbert_config)
-            %hc = herbert_config;
-            %conf = hc.init_tests;
-            found=which('add_data_to_list.m');
-            assertFalse(isempty(found));
+            % Use presence or otherwise of TestCaseWithSave as a proxy for xunit tests on
             
+            % Tests should be found as we are currently in a test suite
+            found_on_entry = ~isempty(which('TestCaseWithSave.m'));
+            assertTrue(found_on_entry);
+            
+            % Turn off tests
             set(herbert_config,'init_tests',0);
-            notfound=which('add_data_to_list.m');
+            found_when_init_tests_off = ~isempty(which('TestCaseWithSave.m'));
             
-            
+            % Turn tests back on
             set(herbert_config,'init_tests',1);
-            found=which('add_data_to_list.m');
+            found_when_init_tests_on = ~isempty(which('TestCaseWithSave.m'));
             
-            assertFalse(isempty(found));
-            % note it tested out of init_tests==0 as assertTrue is not
-            % availible there
-            assertTrue(isempty(notfound),' folder was not removed from search path properly');
-            
-            % as we are in unit tests, this we certainly want conf=1 its more robust
-            % but setting it to conf together with -buffer option in config
-            % allows to find unwanted memory clearence bugs;
-            %hc.init_tests= conf;
-            
+            % Can only use assertTrue, assertFalse etc when tests are on
+            assertFalse(found_when_init_tests_off,' folder was not removed from search path properly');
+            assertTrue(found_when_init_tests_on);
         end
-        %
+        
     end
 end

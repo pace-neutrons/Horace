@@ -1,16 +1,13 @@
-%--------------------------------------------------------------------------
-% Utility functions for internal use
-%--------------------------------------------------------------------------
 function tf = isTestCaseWithSaveSubclass_(name)
-%isTestCaseWithSaveSubclass True for name of a TestCaseWithSave subclass
-%   tf = isTestCaseWithSave2Subclass(name) returns true if the string name is the name of
-%   a TestCase subclass on the MATLAB path.
+% True for name of a TestCaseWithSave subclass
+%   >> tf = isTestCaseWithSaveSubclass_ (name)
 %
 % Code is a copy of isTestCaseSubclass from the Matlab xUnit test suite by
 % Steven L. Eddins, (see below), with the name of the superclass changed
 %
 %   Steven L. Eddins
 %   Copyright 2008-2009 The MathWorks, Inc.
+
 
 tf = false;
 
@@ -26,7 +23,7 @@ else
     tf = isMetaTestCaseSubclass(class_meta);
 end
 
-
+%------------------------------------------------------------------------------
 function tf = isMetaTestCaseSubclass(class_meta)
 
 tf = false;

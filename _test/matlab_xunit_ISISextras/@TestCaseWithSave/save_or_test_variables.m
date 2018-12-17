@@ -1,4 +1,13 @@
 function [this,ref_dataset]=save_or_test_variables(this,varargin)
+% *************************************************************************
+% Deprecated TestCaseWithSave method
+%
+% === DO NOT USE THIS METHOD IN NEW TEST SUITES ===
+%
+% This method should be replaced in units tests with the appropriate use of 
+% assertEqualToTol and associated assert-with-save methods
+%
+% *************************************************************************
 % method to test input variable in varargin against saved
 % values or store these variables to the structure to save it
 % later (or deal with them any other way)
@@ -30,6 +39,8 @@ function [this,ref_dataset]=save_or_test_variables(this,varargin)
 % reference file as variables.
 %
 %
+
+
 keys = {'ignore_str','nan_equal','min_denominator','tol'};
 % process input arguments, extract workspaces and set up
 % default class values for arguments which are not provided
@@ -79,3 +90,43 @@ for i=1:numel(ws_list)
     end
 end
 
+
+%--------------------------------------------------------------------------
+function [keyval,ws_list,toll]=process_inputs_(this,keys_array,varargin)
+% provess input arguments, separate control keys from workspaces
+% and set up default values for keys, which are not present
+%
+% *************************************************************************
+% Deprecated TestCaseWithSave method
+% Only used by save_or_test_variables
+%
+% *************************************************************************
+
+[keyval,ws_list] = extract_keyvalues(varargin,keys_array);
+if numel(ws_list) == 0
+    return;
+end
+
+% function decides if the variable equal to tol
+f_tol_present = @(var)(is_string(var)&&strcmp(var,'tol'));
+% check if var 'tol' among the input arguments
+tol_provided = cellfun(f_tol_present,keyval);
+if any(tol_provided)
+    itol = find(tol_provided);
+    toll = keyval{itol+1};
+    tol_provided(itol+1)=true;
+    keyval = keyval(~tol_provided);
+else
+    toll = this.tol;
+end
+
+f_mind_present = @(var)(is_string(var)&&strcmp(var,'min_denominator'));
+mind_provided = cellfun(f_mind_present,keyval);
+
+if ~any(mind_provided)
+    if numel(keyval)>0
+        keyval = [keyval(:);this.comparison_par(:)];
+    else
+        keyval = this.comparison_par;
+    end
+end
