@@ -231,7 +231,7 @@ else
     u2crt0 = [];
 end
 if ~isempty(u2crt0)
-    fprintf('spaghetti_plot: rlp found to lie in the plane perpendicular to (%g %g %g)',inv(b)*u2crt0');
+    fprintf('spaghetti_plot: rlp found to lie in the plane perpendicular to (%g %g %g)\n',inv(b)*u2crt0');
 end
 
 
