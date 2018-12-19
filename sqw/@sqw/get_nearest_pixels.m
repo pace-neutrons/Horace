@@ -1,7 +1,7 @@
-function [xp, ipix] = get_nearest_pixels (win, xp_in)
+function [xp, ipix, ok] = get_nearest_pixels (win, xp_in)
 % Get the the indicies of the nearest pixels to an array of points along the plot axes
 %
-%   >> xp, ipix] = get_nearest_pixels (win, xp_in)
+%   >> [xp, ipix, ok] = get_nearest_pixels (win, xp_in)
 %
 % Input:
 % ------
@@ -20,7 +20,8 @@ function [xp, ipix] = get_nearest_pixels (win, xp_in)
 %          in terms of step size along each axis from the point defined by
 %          xp along the plot axes and median coordinate of the pixels along
 %          the integration axes.
-
+%   ok      Column vector of length n, which acts as a flag for retained
+%           points. xp = xp_in(ok,:);
 
 nd = numel(win.data.pax);
 sz = size(win.data.npix);
