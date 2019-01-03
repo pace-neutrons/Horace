@@ -25,7 +25,7 @@ function [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=herbert_version(varar
 % the best and most portable for any OS I can think of). 
 %
 %
-% $COMMIT_COUNTER:: 3 $
+% $COMMIT_COUNTER:: 4 $
 %
 % No variable below this one should resemble COMMIT_COUNTER, as their values will 
 % be modified and probably corrupted at commit
@@ -40,19 +40,18 @@ application.version=1;
 Matlab_SVN='$Revision::      $ ($Date::                                              $)';
 
 % % Information about name and version of application
-% mexMinVer     = [];
-% mexMaxVer     = [];
-% date          = [];
-% if get(hor_config,'use_mex')
-%     [mex_messages,n_errors,mexMinVer,mexMaxVer,date]=check_horace_mex();
-%     if n_errors~= 0
-%         set(hor_config,'use_mex',0);
-%     end
-% end
+mexMinVer     = 'disabled';
+mexMaxVer     = 'disabled';
+date          = '01/01/0000';
+if get(herbert_config,'use_mex')
+     [mex_messages,n_errors,mexMinVer,mexMaxVer,date]=check_herbert_mex();
+     if n_errors~= 0
+         display(mex_messages);
+         set(hor_config,'use_mex',0);
+     end
+end
 hd     =str2double(Matlab_SVN(12:17));
-mexMinVer ='xxx';
-mexMaxVer ='yyy';
-date ='01/01/0000';
+
 
 application.svn_version=hd;
 application.mex_min_version = mexMinVer;
@@ -61,3 +60,4 @@ application.mex_last_compilation_date=date;
 if nargin>0    
     Matlab_SVN =sprintf('%d.%d',application.version,application.svn_version);
 end
+

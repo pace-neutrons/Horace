@@ -24,7 +24,7 @@ function [mess_names,mid_from,mid_to,varargout] = parse_folder_contents_(folder_
 %              queue.
 %
 %
-% $Revision: 813 $ ($Date: 2018-11-06 11:48:11 +0000 (Tue, 06 Nov 2018) $)
+% $Revision$ ($Date$)
 %
 %
 

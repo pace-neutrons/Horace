@@ -14,7 +14,7 @@ function [ok,err_mess]=worker_v1(worker_controls_string)
 %              folder name where the job initialization data are located on
 %              a remote system
 %
-% $Revision: 765 $ ($Date: 2018-06-15 17:01:32 +0100 (Fri, 15 Jun 2018) $)
+% $Revision$ ($Date$)
 %
 err_mess = [];
 exit_at_the_end = true;

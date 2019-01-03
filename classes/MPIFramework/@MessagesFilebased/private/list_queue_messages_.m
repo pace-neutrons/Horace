@@ -16,7 +16,7 @@ function [start_queue_num,free_queue_num]=list_queue_messages_(mess_folder,job_i
 %                    next message to pop in the queue.
 %
 %
-% $Revision: 813 $ ($Date: 2018-11-06 11:48:11 +0000 (Tue, 06 Nov 2018) $)
+% $Revision$ ($Date$)
 %
 %
 

@@ -2,7 +2,7 @@ function unlock_(fh,filename)
 % Routine used to remove lock file in background
 %
 %
-% $Revision: 813 $ ($Date: 2018-11-06 11:48:11 +0000 (Tue, 06 Nov 2018) $)
+% $Revision$ ($Date$)
 %
 
 n_attempts_allowed = 100;
