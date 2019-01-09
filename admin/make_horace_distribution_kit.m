@@ -7,11 +7,11 @@ function make_horace_distribution_kit(varargin)
 %
 %where optional arguments are:
 %'-reveal_code'  -- if present, do not request p-code Horace; default pCode
-%                    the private horace folders
+%                    the private Horace folders
 %'-compact'      -- if present, request dropping the demo and test files
-%                   with test folders, default -- comress demo and tests
+%                   with test folders, default -- compress demo and tests
 %                   together with main code.
-%'-noherbert'    -- do not pack herbert tohether with horace
+%'-noherbert'    -- do not pack Herbert together with Horace
 %
 % excludes (not copies to distribution) all files and subfolders of a folder where 
 % _exclude_all.txt file is found
@@ -21,9 +21,9 @@ function make_horace_distribution_kit(varargin)
 % processes the files of the subfolder.
 %
 % To use Horace  one has to unpack the resulting zip file and add the folder
-% where the function Horace_init.m resides to the matlab search path.
-% alternatively, you can edit the file Horace_on.mt, file and
-% replace the variable $libisis_path$ and $Horathe_path$ by the actual
+% where the function Horace_init.m resides to the Matlab search path.
+% alternatively, you can edit the file Horace_on.template, file and
+% replace the variable $herbert_path$ and $Horathe_path$ by the actual
 % folders  where the files Horace_init.m and libisis_init.m or herbert_init reside
 % (Horace needs Libisis or Herbert to work)
 % and add to the search path the file Horace_on.m,
@@ -65,13 +65,13 @@ end
 rootpath = fileparts(which('horace_init')); % MUST have rootpath so that horace_init, horace_off are included
 %
 disp('!===================================================================!')
-disp('!==> Preparing HORACE distributon kit  =============================!')
+disp('!==> Preparing HORACE distribution kit  ============================!')
 disp('!    Start collecting the Horace program files =====================!')
 %
 dir_to_return_to='';
 current_dir  = pwd;
 root_dir     = current_dir;
-% if inside horace package dir, go avay from there:
+% if inside Horace package dir, go avay from there:
 if strncmpi(rootpath,current_dir,numel(rootpath))
     dir_to_return_to = current_dir;
     cd(rootpath);
@@ -130,12 +130,12 @@ copyfile(install_script,fullfile(target_Dir,'horace_on.m.template'),'f');
 %
 disp('!    The HORACE program files collected successfully ==============!')
 if(~reveal_code)
-    disp('!    p-coding private Horace parts and deleting unnecessary fiders=!')
+    disp('!    p-coding private Horace parts and deleting unnecessary folders=!')
     pCode_Horace_kit(horace_dir);
     disp('!    Horace p-coding completed =====================================!')
 end
 
-% if herbert used, add herbert distribution kit to the distribution
+% if Herbert used, add Herbert distribution kit to the distribution
 if ~no_herbert
     argi{1}='-run_by_horace';
     if no_demo
