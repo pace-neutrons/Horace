@@ -2,9 +2,9 @@
 <TestPerformanceChildTestHelper>
    <ndw1676_TestPerformanceChildTestHelper>
       <fake_test_operations>
-         <time_sec>0.000658533823608289</time_sec>
+         <time_sec>0.00127336151547899</time_sec>
          <comment>this is not a performance test itself but the test of performance test inheritance operational</comment>
-         <completed_on>[2018 6 17 14 12 19.429]</completed_on>
+         <completed_on>[2018 12 17 13 18 58.054]</completed_on>
       </fake_test_operations>
    </ndw1676_TestPerformanceChildTestHelper>
    <ndmlnx01_isis_cclrc_ac_uk_TestPerformanceChildTestHelper>
