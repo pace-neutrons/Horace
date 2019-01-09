@@ -140,13 +140,14 @@ else
         % Testing of bins requested and there is least one bin with more than one pixel
         % Get indices of bins to test
         ibin=find(npix>0);
+        num_non_empty = numel(ibin);
         if opt.fraction<1
             ind=round(1:1/opt.fraction:numel(ibin))';   % Test only a fraction of the non-empty bins
             ibin=ibin(ind);
         end
         if horace_info_level>=1
             disp(['                       Number of bins = ',num2str(numel(npix))])
-            disp(['             Number of non-empty bins = ',num2str(numel(ix))])
+            disp(['             Number of non-empty bins = ',num2str(num_non_empty)])
             disp(['Number of bins that will be reordered = ',num2str(numel(ibin))])
             disp(' ')
         end
