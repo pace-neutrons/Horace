@@ -25,7 +25,7 @@ function run_inspector(w,varargin)
 %
 % run_inspector(w,'ax',[x_lo,x_hi,y_lo,y_hi]) - for both 1d and 2d cases,
 %       allows you to specify the limits of the x and y axes of the plot. The
-%       default behaviour is to use the axes of the original (unsplit) object
+%       default behavior is to use the axes of the original (unsplit) object
 
 %RAE 30/1/15
 
