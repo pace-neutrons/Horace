@@ -131,7 +131,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ]){
         }
   }
 
-//----------> INPUT PARAMETERS: Analyse, which file type is requested
+//----------> INPUT PARAMETERS: Analyze, which file type is requested
   currentFileType=iNumFileTypes; // set the current file type to the value, which it can never have for a valid file type;
   if(nrhs==iNumInputs){          // second parameter is present and we should analyse it
       if(!mxIsChar(prhs[iFileType])||(mxGetM(prhs[iFileType]))!=1){  // not a file type
@@ -165,7 +165,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ]){
     }catch(const char *Error){
         buf<<Error<<std::endl;  goto error;
     }
-    if(currentFileType!=iNumFileTypes){  // then a file type reqiested is specified and we have to check if the real file type corresponds to the requested
+    if(currentFileType!=iNumFileTypes){  // then a file type requested is specified and we have to check if the real file type corresponds to the requested
         if(FILE_TYPE.Type!=currentFileType){
             buf<<" it is requested to open a <"<<inputFileType<<"> file, but the internal file format identified as <"<<fileTypesAccepted[FILE_TYPE.Type]<<"> file\n";
             goto error;

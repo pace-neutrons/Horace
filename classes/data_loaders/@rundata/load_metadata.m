@@ -78,7 +78,8 @@ if ~isempty(undef_list) && ~isempty(this.loader)
 end
 if ~isempty(undef_list)
     ok = false;
-    mess = 'some metadata fields can not be defined';
+    ndf = cellfun(@(x)([x,'; ']),undef_list,'UniformOutput',false);    
+    mess = ['Found undefined fields: ',ndf{:}];
 end
 
 function is = isemptyfield(this,fln)
