@@ -52,8 +52,8 @@ end
 data_source_fe='D:\data\Fe\sqw_Toby\Fe_ei787.sqw';  % sqw file from which to take cuts for setup
 data_source_rb = 'T:\data\RbMnF3\sqw\rbmnf3_ref_newformat.sqw';
 
-datafile='test_tobyfit_2_data.mat';   % filename where saved results are written
-savefile='test_tobyfit_2_out.mat';   % filename where saved results are written
+datafile='test_tobyfit_2_data.mat';     % filename where saved data are written
+savefile='test_tobyfit_2_out.mat';      % filename where saved results are written
 
 
 
