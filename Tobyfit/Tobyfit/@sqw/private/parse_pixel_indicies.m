@@ -14,23 +14,29 @@ function [ok,mess,varargout] = parse_pixel_indicies (win,indx,iw)
 % Checking validity:
 %   win         Array of sqw objects, or cell array of scalar sqw objects
 %
-%   indx        Pixel indicies:
+%   indx        Pixel indicies to be extracted fromt he sqw object(s)
+%
 %               Single sqw object:
+%               ------------------
 %                 - ipix            Column vector of pixels indicies
 %            *OR* - irun_idet_ien   Array of run, detector and energy bin index
 %                                  (array size nx3 where n is the number of pixels)
-%               Multiple sqw object:
-%                 - As above, assumed to apply to all sqw objects,
+%
+%               Multiple sqw objects:
+%               ---------------------
+%                 - As above: assumed to apply to all sqw objects,
 %            *OR* - Cell array of the above, one cell array per sqw object
 %                  e.g. if two sqw objects:
 %                       {ipix1, ipix2}
 %                       {irun_idet_ien_1, irun_idet_ien_2}
 %
-% Case of returning indicies for aspecific sqw object:
-%   iw          Index of th particular sqw object from indx
-%   indx        As above
-%   w           If indx contains ipix: specific sqw object
-%
+% [Optional]
+%   iw          Indicies of the sqw objects in win into the indexing arrays
+%              given by indx, one index for each for the sqw objects in win.
+%               This can be used to fine tune the use of indx for a specific
+%              sqw object or set of sqw objects without having to divide
+%              up indx. If indx has only one entry, then it is assumed to
+%              apply for any value of iw.
 %
 % Output:
 % -------
@@ -38,9 +44,14 @@ function [ok,mess,varargout] = parse_pixel_indicies (win,indx,iw)
 %
 %   mess        Error message: empty if ok, contains error message if not ok
 %
-%   irun        Run indicies for each pixel (column vector)
-%   idet        Detector indicies for each pixel (column vector)
-%   ien         Energy bin indicies for each pixel (column vector)
+%   irun        Single sqw object: Run indicies for each pixel (column vector)
+%               Multiple sqw objects: Array of column vectors, one per object
+%
+%   idet        Single sqw object: Detector indicies for each pixel (column vector)
+%               Multiple sqw objects: Array of column vectors, one per object
+%
+%   ien         Single sqw object: Energy bin indicies for each pixel (column vector)
+%               Multiple sqw objects: Array of column vectors, one per object
 
 
 nw = numel(win);
@@ -82,17 +93,18 @@ end
 
 % Case when given index array(s)
 % ------------------------------
+% Default return
 ok = false;
 mess = '';
 if nout>0
     if nw==1
-        varargout{1} = zeros(0,1);
-        varargout{2} = zeros(0,1);
-        varargout{3} = zeros(0,1);
+        if nout>=1, varargout{1} = zeros(0,1); end
+        if nout>=2, varargout{2} = zeros(0,1); end
+        if nout>=3, varargout{3} = zeros(0,1); end
     else
-        varargout{1} = repmat({zeros(0,1)},size(win));
-        varargout{2} = repmat({zeros(0,1)},size(win));
-        varargout{3} = repmat({zeros(0,1)},size(win));
+        if nout>=1, varargout{1} = repmat({zeros(0,1)},size(win)); end
+        if nout>=2, varargout{2} = repmat({zeros(0,1)},size(win)); end
+        if nout>=3, varargout{3} = repmat({zeros(0,1)},size(win)); end
     end
 end
 
@@ -120,7 +132,7 @@ elseif iscell(indx)
     nind = numel(indx);
     for i=1:nind
         if ~(isnumeric(indx{i}) && (size(indx(i),2)==1 || size(indx(i),2)==3))
-            mess = 'Every indexing array must be a numeric column vector or an nx3 array of run-detector-energy bin indicies';
+            mess = 'Each indexing array must be a numeric column vector or an nx3 array of run-detector-energy bin indicies';
             return
         end
     end
@@ -133,7 +145,7 @@ elseif iscell(indx)
             if all(iw)<=nind
                 iw_internal = iw;
             else
-                mess = ['Value(s) in the index argument ''iw'' can only take the values 1 - ',num2str(nind)];
+                mess = ['Value(s) in the index argument ''iw'' must lie in the range 1 - ',num2str(nind)];
                 return
             end
         else

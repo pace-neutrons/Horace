@@ -1,13 +1,14 @@
-function resolution_plot_private (x0,C,iax,flip,fig,newplot)
+function resolution_plot_private (x0,C,iax,flip)
 % Plot resolution function on 2D axes
 %
 %   >> resolution_plot_private (x0,C,iax,flip,fig,newplot)
 %
 % Input:
 % ------
-%   x0      Origin of resolution function, [x1,x2]
+%   x0      Origin of resolution function, [x1,x2] for axes iax(1) and iax(2)
 %
-%   C       Covariance matrix (4x4) in qx,qy,qz,en
+%   C       Covariance matrix (4x4) in qx,qy,qz,en (units can be Angstrom^-1
+%          or whatever the projection axes units are)
 %
 %   iax     Indicies of axes to plot (all unique, in range 1 to 4)
 %           If length 2, these give the axes of the plot plane into C
@@ -16,10 +17,6 @@ function resolution_plot_private (x0,C,iax,flip,fig,newplot)
 %
 %   flip    If true, flip the plot axes; if false, not
 %           For plotting if display axes are reversed from plot axes.
-%
-%   fig     Figure name or number on which to plot or overplot
-%
-%   newplot If true, create new plot; If false overplot
 
 
 % Original author: T.G.Perring
@@ -48,72 +45,49 @@ val = 2*log(1/frac);
 
 % Get envelope and intersection(s)
 % - Envelope
-Cplane = C(iax(1:2),iax(1:2));    % pick out the covariance elements for the plot axes
-m = inv(Cplane);
-[x1e,x2e] = ellipse (m(1,1), m(1,2), m(2,2), val);  % envelope
+C2 = C(iax(1:2),iax(1:2));    % pick out the covariance elements for the plot axes
+[x1e,x2e] = ellipse (C2(1,1), C2(1,2), C2(2,2), val);  % envelope
 
-% - Intersection with x1-x2 plane for x3=0
-M = inv(C);
-m = M(iax(1:2),iax(1:2));
-[x1c,x2c] = ellipse (m(1,1), m(1,2), m(2,2), val);  % intersection with the plane
-
-% - Intersection with x1-x2 plane for x3>0
+% - Intersection with x1-x2 plane for x3=0 and x3>0
 if numel(iax)==3
-    x3max = sqrt(val*C(iax(3),iax(3)));
+    C3 = C(iax,iax);
+    m = inv(C3);
+    c = inv(m(1:2,1:2));
+    % Intersection with x3=0
+    [x1c_0,x2c_0] = ellipse (c(1,1), c(1,2), c(2,2), val);
+    % Intersection with x3>0
+    x3max = sqrt(val*C3(3,3));   % maximum value of x3
     x3 = round_mantissa(0.667*x3max);
-    % Offset of ellipse centre
-    m = M(iax,iax);
-    dx1 = x3 * (-m(2,2)*m(1,3)+m(1,2)*m(2,3)) / (m(1,1)*m(2,2)-m(1,2)*m(1,2));
-    dx2 = x3 * (-m(1,1)*m(2,3)+m(1,2)*m(1,3)) / (m(1,1)*m(2,2)-m(1,2)*m(1,2));
-    E = m(1,1)*dx1^2 + 2*m(1,2)*dx1*dx2 + m(2,2)*dx2^2 ...
-        + 2*m(1,3)*dx1*x3 + 2*m(2,3)*dx2*x3 + m(3,3)*x3^2;
-    [x1ch,x2ch] = ellipse (m(1,1), m(1,2), m(2,2), val-E);    % intersection with the plane at x3
+    dx1 = x3*C3(1,3)/C3(3,3);
+    dx2 = x3*C3(2,3)/C3(3,3);
+    [x1c_pos,x2c_pos] = ellipse (c(1,1), c(1,2), c(2,2), val-x3^2/C3(3,3));
 end
 
 % Perform plot
 % ------------
-default_fig_name = 'Resolution function';
-[fig_out,ok,mess]=genie_figure_target(fig,newplot,default_fig_name);
-if ~ok, error(mess), end
+hold on
 
-% Create new graphics window if required
-if is_string(fig_out)
-    new_figure = genie_figure_create (fig_out);
-    if new_figure
-        newplot=true;   % if had to create a new figure window
-    end
-else
-    figure(fig_out); % overplotting on existing plot; make the current figure
-end
-
-% If newplot, delete any axes
-if newplot
-    delete(gca)     % not necessary if new_figure, but doesn't do any harm
-else
-    hold on;        % hold plot for overplotting
-end
-
-% Get genie line and colour characteristics, and plot
 lwidth = aline;
 lcol = acolor;
 if iscell(lcol), lcol=lcol{1}; end    % may have more than one color set
 if ~flip
     plot(x1e+x0(1),x2e+x0(2),'Color',lcol,'LineStyle','-','LineWidth',lwidth);
     hold on
-    plot(x1c+x0(1),x2c+x0(2),'Color',lcol,'LineStyle','--','LineWidth',lwidth);
     if numel(iax)==3
-        plot(x1ch+x0(1)+dx1,x2ch+x0(2)+dx2,'Color',lcol,'LineStyle','--','LineWidth',lwidth);
+        plot(x1c_0+x0(1),x2c_0+x0(2),'Color',lcol,'LineStyle','--','LineWidth',lwidth);
+        plot(x1c_pos+x0(1)+dx1,x2c_pos+x0(2)+dx2,'Color',lcol,'LineStyle','--','LineWidth',lwidth);
     end
 else
     plot(x2e+x0(2),x1e+x0(1),'Color',lcol,'LineStyle','-','LineWidth',lwidth);
     hold on
-    plot(x2c+x0(2),x1c+x0(1),'Color',lcol,'LineStyle','--','LineWidth',lwidth);
     if numel(iax)==3
-        plot(x2ch+x0(2)+dx2,x1ch+x0(1)+dx1,'Color',lcol,'LineStyle','--','LineWidth',lwidth);
+        plot(x2c_0+x0(2),x1c_0+x0(1),'Color',lcol,'LineStyle','--','LineWidth',lwidth);
+        plot(x2c_pos+x0(2)+dx2,x1c_pos+x0(1)+dx1,'Color',lcol,'LineStyle','--','LineWidth',lwidth);
     end
 end
 
 hold off
+
 
 %========================================================================================
 function r=round_mantissa(x)
@@ -123,24 +97,26 @@ r = round(10^mod(xlog,1))*10^floor(xlog);
 
 
 %========================================================================================
-function [x1,x2] = ellipse (m11,m12,m22,A)
-% Get a set of points that lie on the ellipse m11*x1^2 + 2*m12*x1*x2 + m22*x2^2 = A
+function [x1,x2] = ellipse (c11,c12,c22,A)
+% Get a set of points that lie on the ellipse
+%   [x1 x2]*Inv([c11 c12; c12 c22])*[x1; x2] = A  (A>0)
 
 npnt = 500;     % number of points on the ellipse
 
-% Get the orientation of the ellipsoid: angle theta to a principal axis x1'
-theta = 0.5*atan2(2*m12, m11-m22);
+% Get the orientation of the ellipsoid: angle theta to a minor axis x1'
+theta = 0.5*atan2(-2*c12, c22-c11);
 c = cos(theta);
 s = sin(theta);
 
 % Get the lengths of the principal axes along x1', x2'
-a1 = sqrt(A/(m11*c^2 + 2*m12*c*s + m22*s^2));
-a2 = sqrt(A/(m11*s^2 - 2*m12*c*s + m22*c^2));
+cc = sqrt((c22-c11)^2+4*c12^2);
+c1 = sqrt(A*((c22+c11)-cc)/2);
+c2 = sqrt(A*((c22+c11)+cc)/2);
 
 % Coordinate of points in x1',x2'
 ang=linspace(0,2*pi,npnt);
-x1prime = a1*cos(ang);
-x2prime = a2*sin(ang);
+x1prime = c1*cos(ang);
+x2prime = c2*sin(ang);
 
 % Transform to input coordinate frame
 x1 = c*x1prime - s*x2prime;

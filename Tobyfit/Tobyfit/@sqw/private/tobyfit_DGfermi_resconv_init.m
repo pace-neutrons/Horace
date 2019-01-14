@@ -26,13 +26,17 @@ function [ok,mess,lookup,npix] = tobyfit_DGfermi_resconv_init (win, varargin)
 %
 %  [Optional]
 %   indx        Pixel indicies:
+%
 %               Single sqw object:
+%               ------------------
 %                 - ipix            Array of pixels indicies
 %            *OR* - {irun,idet,ien} Arrays of run, detector and energy bin index
 %                                   Dimension expansion is performed on scalar
 %                                  quantities i.e. each must be a scalar or array
 %                                  with arrays having the same length
-%               Multiple sqw object:
+%
+%               Multiple sqw objects:
+%               ---------------------
 %                 - As above, assumed to apply to all sqw objects,
 %            *OR* - Cell array of the above, one cell array per sqw object
 %                  e.g. if two sqw objects:
@@ -59,7 +63,7 @@ function [ok,mess,lookup,npix] = tobyfit_DGfermi_resconv_init (win, varargin)
 %               For details of contents of lookup, see below.
 %
 %   npix        Array of number of pixels for each workspace after selecting
-%               with the indexing argumnet indx. (rray has same size as win)
+%               with the indexing argument indx. (Array has same size as win)
 %
 %
 % Contents of output argument: lookup

@@ -236,7 +236,7 @@ ok=true(1,4); ok(iax(1:2))=false;
 data.iax = find(ok);
 data.iint = [-Inf,-Inf; Inf,Inf];
 data.pax = iax(1:2);
-data.p = {(-3:2:3)'/3, (-3:2:3)'/3};
+data.p = {1e-10*(-3:2:3)'/3, 1e-10*(-3:2:3)'/3};    % something tiny
 data.dax = [1,2];
 data.s = zeros(3,3);
 data.e = zeros(3,3);

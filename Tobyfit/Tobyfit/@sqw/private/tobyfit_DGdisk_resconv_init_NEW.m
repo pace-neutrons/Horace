@@ -26,13 +26,17 @@ function [ok,mess,lookup,npix] = tobyfit_DGdisk_resconv_init (win, varargin)
 %
 %  [Optional]
 %   indx        Pixel indicies:
+%
 %               Single sqw object:
+%               ------------------
 %                 - ipix            Array of pixels indicies
 %            *OR* - {irun,idet,ien} Arrays of run, detector and energy bin index
 %                                   Dimension expansion is performed on scalar
 %                                  quantities i.e. each must be a scalar or array
 %                                  with arrays having the same length
-%               Multiple sqw object:
+%
+%               Multiple sqw objects:
+%               ---------------------
 %                 - As above, assumed to apply to all sqw objects,
 %            *OR* - Cell array of the above, one cell array per sqw object
 %                  e.g. if two sqw objects:
@@ -58,7 +62,7 @@ function [ok,mess,lookup,npix] = tobyfit_DGdisk_resconv_init (win, varargin)
 %               For details of contents of lookup, see below.
 %
 %   npix        Array of number of pixels for each workspace after selecting
-%               with the indexing argumnet indx. (rray has same size as win)
+%               with the indexing argument indx. (Array has same size as win)
 %
 %
 % Contents of output argument: lookup
@@ -76,7 +80,7 @@ function [ok,mess,lookup,npix] = tobyfit_DGdisk_resconv_init (win, varargin)
 %                      fwhh     Full width half height of distribution (row vector)
 %                              Time here is in seconds (NOT microseconds)
 %                      profile  Lookup table size(npnt,nmod), where nmod is
-%                              the number of unique tables. 
+%                              the number of unique tables.
 %                               Use the look-up table to get the pulse profile
 %                              at reduced time deviation 0 <= t_red <= 1. Convert
 %                              to true time using the equation
@@ -91,7 +95,7 @@ function [ok,mess,lookup,npix] = tobyfit_DGdisk_resconv_init (win, varargin)
 %                      table    Lookup table size(npnt,nhdiv), where nhdiv is
 %                              the number of unique tables. Note that the angle
 %                              is in radians, NOT degrees.
-%                      
+%
 %           vert_div_table Structure with fields:
 %                      ind      Cell array of indicies into table, where
 %                              ind{i} is a row vector of indicies for ith
@@ -100,28 +104,19 @@ function [ok,mess,lookup,npix] = tobyfit_DGdisk_resconv_init (win, varargin)
 %                              the number of unique tables. Note that the angle
 %                              is in radians, NOT degrees.
 %
-%       Cell arrays of arrays of chopper information, one array per dataset, each
-%      array with length equal to the number of runs in that dataset
-%       
-%           chop_shape_fwhh Full width half heights of the pulse shaping chopper.
-%                          Note that the time is in seconds, NOT microseconds.
-%                          [Column vector]
-%
-%           chop_mono_fwhh  Full width half heights of the monochromating chopper.
-%                          Note that the time is in seconds, NOT microseconds.
-%                          [Column vector]
-%
-%           shape_mod       Logical vectors where true indicates that the
-%                          initial pulse is largely determined by the shaping
-%                          chopper i.e. fwhh due to the chopper is smaller than
-%                          that of the moderator pulse (after geometric scaling)
-%
 %       Cell array of arrays, one array per dataset, each array with length equal to
 %      the number of runs in each dataset:
 %           ei          Incident energies (mev)     [Column vector]
 %           x0          Moderator - monochromating chopper distance (m)     [Column vector]
 %           xa          Shaping chopper - monochromating chopper distance (m)   [Column vector]
-%           x1          Monochromating chopper - sample distance (m)    [Column vector]
+%           x1          Monochromating chopper - sample distance (m)        [Column vector]
+%           shape_mod   Logical vectors where true indicates that the       [Column vector]
+%                       initial pulse is largely determined by the shaping  [Column vector]
+%                       chopper i.e. fwhh due to the chopper is smaller than
+%                       that of the moderator pulse (after geometric scaling)
+%           moderator   Moderator object            [Column vector]
+%           chop_shape  Aperture object             [Column vector]
+%           chop_mono   Fermi chopper object        [Column vector]
 %
 %       Cell arrays of incident and final wavevectors, one array per datasets
 %           ki          Incident wavevectors [Column vector, length nruns]
@@ -161,7 +156,7 @@ function [ok,mess,lookup,npix] = tobyfit_DGdisk_resconv_init (win, varargin)
 %       Constants:
 %           k_to_e      Constant in E(mev)=k_to_e*(k(Ang^-1))^2
 %           k_to_v      Constant in v(m/s)=k_to_v*k(Ang^-1)
-%           
+%
 %
 % *OR*
 %   mc_contr        Cell array of character strings with the names of the
@@ -264,7 +259,7 @@ for iw=1:nw
     end
     if ~ok, return, end
     npix(iw) = numel(irun);
-
+    
     % Get energy transfer and bin sizes
     % (Could get eps directly from wtmp.data.pix(:,4), but this does not work if the
     %  pixels have been shifted, so recalculate)
@@ -274,7 +269,7 @@ for iw=1:nw
     else
         eps=eps_lo;     % only one bin, so ne=1 eps_lo=eps_hi, and the above line fails
     end
-
+    
     % Get instrument data
     [ok,mess,ei{iw},x0{iw},xa{iw},x1{iw},moderator{iw},chop_shape{iw},chop_mono{iw},...
         horiz_div{iw},vert_div{iw}] = instpars_DGdisk(win{iw}.header);
@@ -293,7 +288,7 @@ for iw=1:nw
     x2{iw}=win{iw}.detpar.x2(:);              % make column vector
     det_width{iw}=win{iw}.detpar.width(:);    % make column vector
     det_height{iw}=win{iw}.detpar.height(:);  % make column vector
-
+    
     
     % Time width corresponding to energy bins for each pixel
     dt{iw} = deps_to_dt*(x2{iw}(idet).*deps(irun)./kf{iw}.^3);
@@ -309,6 +304,21 @@ for iw=1:nw
     
 end
 
+% Get shaping chopper width and determine if the moderator pulse is dominant contributor
+shape_mod=cell(nw,1);
+for iw=1:nw
+    nrun=numel(chop_shape{iw});
+    fwhh_moderator=zeros(nrun,1);
+    fwhh_shape=zeros(nrun,1);
+    % Loop over runs as arrayfun doesn't work on the chopper objects (because old style matlab objects?)
+    for j=1:nrun
+        [~,~,fwhh_moderator(j)]=pulse_width(moderator{iw}(j));  % microseconds
+        [~,fwhh_shape(j)]=pulse_width(chop_shape{iw}(j));       % microseconds
+    end
+    % Determine if the moderator pulse is dominant contributor
+    shape_mod{iw} = ((x0{iw}./xa{iw}).*fwhh_shape < fwhh_moderator);
+end
+
 % Lookup tables for moderator and divergence - repackages in such a way that repetitions
 % of moderators for runs within an sqw and across sqw objects are squeezed to
 % unique tables with index arrays to the tables
@@ -318,42 +328,24 @@ if keywrd.tables
     vert_div_table=divergence_sampling_table(vert_div,'nocheck');
 end
 
-% Get chopper widths and determine if the moderator pulse is dominant contributor
-shape_mod=cell(nw,1);
-chop_shape_fwhh=cell(nw,1);
-chop_mono_fwhh=cell(nw,1);
-
-for iw=1:nw
-    nrun=numel(chop_shape{iw});
-    pulse_width_shape=zeros(nrun,1);
-    pulse_width_mono=zeros(nrun,1);
-    % Loop over runs as arrayfun doesn't work on the chopper objects (because old style matlab objects?)
-    for j=1:nrun
-        [~,pulse_width_shape(j)]=pulse_width(chop_shape{iw}(j));
-        [~,pulse_width_mono(j)]=pulse_width(chop_mono{iw}(j));
-    end
-    chop_shape_fwhh{iw}=1e-6*pulse_width_shape;  % convert to seconds
-    chop_mono_fwhh{iw}=1e-6*pulse_width_mono;    % convert to seconds
-    
-    % Determine if the moderator pulse is dominant contributor
-    shape_mod{iw} = ((x0{iw}./xa{iw}).*chop_shape_fwhh{iw} < mod_table.fwhh(mod_table.ind{iw})');%RAE added ' to ensure out-of-memory issue on Matlab 2018a avoided
-end
-
-
 % Package output
 ok=true;
 mess='';
+lookup = struct();    % reinitialise
 
-lookup.mod_table=mod_table;
-lookup.horiz_div_table=horiz_div_table;
-lookup.vert_div_table=vert_div_table;
-lookup.chop_shape_fwhh=chop_shape_fwhh;
-lookup.chop_mono_fwhh=chop_mono_fwhh;
-lookup.shape_mod=shape_mod;
+if keywrd.tables
+    lookup.mod_table=mod_table;
+    lookup.horiz_div_table=horiz_div_table;
+    lookup.vert_div_table=vert_div_table;
+end
 lookup.ei=ei;
 lookup.x0=x0;
 lookup.xa=xa;
 lookup.x1=x1;
+lookup.shape_mod=shape_mod;
+lookup.moderator=moderator;
+lookup.chop_shape=chop_shape;
+lookup.chop_mono=chop_mono;
 lookup.ki=ki;
 lookup.kf=kf;
 lookup.sample=sample;
@@ -370,4 +362,6 @@ lookup.dq_mat=dq_mat;
 lookup.k_to_v=k_to_v;
 lookup.k_to_e=k_to_e;
 
-lookup = {lookup};
+if iscell(win)
+    lookup = {lookup};
+end

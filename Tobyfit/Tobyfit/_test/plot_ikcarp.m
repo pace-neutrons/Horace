@@ -21,17 +21,18 @@ w(1)=IX_dataset_1d(x,yfast);
 w(2)=IX_dataset_1d(x,yslow);
 w(3)=IX_dataset_1d(x,y);
 
-acolor r b k
-dl(w)
+% acolor r b k
+% dl(w)
 
 % Plot equal spaced t_red
-nred=500;
+nred = npnt;
+%nred=500;
 t_red=linspace(0,1,nred);
 t_red=t_red(1:end-1);   % knock off the last point
 t_av=3*tauf+R*taus;
 t_m = (t_red./(1-t_red))*t_av;
 yr=ikcarp(t_m,tauf,taus,R);
-wr=IX_dataset_1d(t_m,yr);
+wr=IX_dataset_1d(t_red,yr);
 acolor m
-pl(wr)
-lx(0,max(x))
+dl(wr)
+%lx(0,max(x))

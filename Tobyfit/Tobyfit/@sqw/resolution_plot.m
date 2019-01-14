@@ -176,6 +176,9 @@ elseif present.fig
         end
     end
 else
+    plot(w) % plot the empty sqw object - sets the correct axes annotations
+    colorslider('delete')       % delete the meaningless colorslider
+    delete(get(gca,'title'))    % delete unwanted title
     newplot = true;
     fig = [];
 end
@@ -187,14 +190,20 @@ iax_plot = [w.data.pax, iax];
 if npixtot==0
     % Special case of no data, one header, one detector
     covariance_matrix = tobyfit_DGfermi_resfun_covariance (w);
-    resolution_plot_private ([0,0], covariance_matrix, iax_plot, false, fig, newplot)
+    resolution_plot_private ([0,0], covariance_matrix, iax_plot, false)
 else
     [xp_ok, ipix] = get_nearest_pixels (w, xp);
     covariance_matrix = tobyfit_DGfermi_resfun_covariance(w, ipix);
     for i=1:numel(ipix)
         resolution_plot_private (xp_ok(i,:), covariance_matrix(:,:,i),...
-            iax_plot, flip, fig, newplot)
+            iax_plot, flip)
     end
+end
+
+% If newplot, then rescale limits
+if newplot
+    lx('round')
+    ly('round')
 end
 
 
