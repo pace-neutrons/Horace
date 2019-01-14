@@ -6,7 +6,10 @@ function varargout = ly (varargin)
 % or
 %   >> ly  ylo  yhi
 % or
-%   >> ly       % set y limits to include all data
+%   >> ly           % set y limits to include all data
+% or
+%   >> ly ('round') % set y limits to rounded limits that encompass data
+%   >> ly  round 
 %
 % Return current limits (without changing range):
 %   >> [ylo, yhi] = ly
@@ -24,15 +27,25 @@ if isempty(findall(0,'Type','figure'))
 end
 
 % Get y range
-if nargin==0
+if nargin==0  || (nargin==1 && ischar(varargin{1}))
     if nargout==0
         % Get y axis limits in the current range of y:
-        [range, subrange] = graph_range(gcf,'evaluate');
+        [~, subrange] = graph_range(gcf,'evaluate');
         
         yrange=subrange.y;
         if yrange(1)==yrange(2)
             error('The upper and lower limits of the data are equal')
         end
+        
+        % Read 'round' from either function syntax or command syntax
+        if nargin==1
+            if strcmpi(varargin{1},'round')
+                yrange = round_range (yrange);
+            else
+                error('Unrecognised option')
+            end
+        end
+        
         yrange={yrange};
     else
         % Return current y-axis limits

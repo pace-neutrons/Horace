@@ -3,8 +3,9 @@ function w=IX_doubledisk_chopper(varargin)
 %
 %   >> doubledisk_chopper = IX_doubledisk_chopper (distance,frequency,radius,slot_width)
 %
-%   >> doubledisk_chopper = IX_doubledisk_chopper (...,slot_height);
-%   >> doubledisk_chopper = IX_doubledisk_chopper (...,slot_height,jitter);
+%   >> doubledisk_chopper = IX_doubledisk_chopper (...,aperture_width);
+%   >> doubledisk_chopper = IX_doubledisk_chopper (...,aperture_width,aperture_height);
+%   >> doubledisk_chopper = IX_doubledisk_chopper (...,aperture_width,aperture_height,jitter);
 %
 %   >> doubledisk_chopper = IX_doubledisk_chopper (name,...)
 %
@@ -13,7 +14,8 @@ function w=IX_doubledisk_chopper(varargin)
 %   frequency       Frequency of rotation of each disk (Hz)
 %   radius          Radius of chopper body (m)
 %   slot_width      Slit width (m)
-%   slot_height     Slit height (m)
+%   aperture_width  Aperture width (m)
+%   aperture_height Aperture height (m)
 %   jitter          Timing uncertainty on chopper (FWHH) (microseconds)
 
 % Original author: T.G.Perring
@@ -24,10 +26,11 @@ if nargin==0    % default constructor
     w.frequency = 0;
     w.radius = 0;
     w.slot_width = 0;
-    w.slot_height = 0;
+    w.aperture_width = 0;
+    w.aperture_height = 0;
     w.jitter = 0;
     
-elseif nargin==1 && isa(varargin{1},'IX_doubledisk_chopper')   % is a fermi chopper object already
+elseif nargin==1 && isa(varargin{1},'IX_doubledisk_chopper')   % already is a double disk chopper
     w = varargin{1};
     return
     
@@ -44,18 +47,23 @@ else
         w.name = '';
         noff=0;
     end
-    if any(nargin-noff==[4,5,6])
+    if any(nargin-noff==[4,5,6,7])
         w.distance  = varargin{noff+1};
         w.frequency = varargin{noff+2};
         w.radius    = varargin{noff+3};
         w.slot_width= varargin{noff+4};
         if nargin-noff>=5
-            w.slot_height= varargin{noff+5};
+            w.aperture_width = varargin{noff+5};
         else
-            w.slot_height= 0;
+            w.aperture_width = w.slot_width;
         end
         if nargin-noff>=6
-            w.jitter = varargin{noff+6};
+            w.aperture_height = varargin{noff+6};
+        else
+            w.aperture_height = 0;
+        end
+        if nargin-noff>=7
+            w.jitter = varargin{noff+7};
         else
             w.jitter = 0;
         end

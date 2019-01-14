@@ -7,7 +7,7 @@ function [table,ind]=buffered_sampling_table(div_in,varargin)
 %
 % Input:
 % ------
-%   div       Array of IX_divergence_profile objects (need not be unique)
+%   div         Array of IX_divergence_profile objects (need not be unique)
 %
 %   npnt        Number of sampling points for the table. Uses default if not given.
 %              The default is that in the lookup table if it is read, otherwise it is
@@ -34,8 +34,8 @@ function [table,ind]=buffered_sampling_table(div_in,varargin)
 %
 % Output:
 % -------
-%   table       Lookup table of unique chopper entries, size=[npnt,nchop]
-%              where npnt=number of points in lookup table, nchop=number of
+%   table       Lookup table of unique divergence entries, size=[npnt,ndiv]
+%              where npnt=number of points in lookup table, ndiv=number of
 %              unique chopper entries. Use the look-up table to convert a
 %              random number from uniform distribution in the range 0 to 1
 %              into a time deviation in microseconds.
@@ -43,11 +43,11 @@ function [table,ind]=buffered_sampling_table(div_in,varargin)
 %              ind is a row vector.
 %
 % Note:
-% - If the number of chopper objects is less than a critical value, they
+% - If the number of divergence objects is less than a critical value, they
 %   will be computed rather checked to see if they are in the stored table
 %   in order to save the overheads of checking.
 % - The size of the lookup table is restricted to a certain maximum size.
-%   Earlier entries will be deleted if new ones have to be added. THe lookup
+%   Earlier entries will be deleted if new ones have to be added. The lookup
 %   table will always have the length of the number of unique entries in the
 %   most recent call, as it is assumed that this is the mostlikely next occasion
 %   the function will be called for again.

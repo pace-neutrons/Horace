@@ -40,6 +40,7 @@ if ~strcmp(class_name, opt)
             test_method_to_save = opt_parts{2};
             idx = find(strcmpi(test_method_to_save,test_methods));
             if ~isempty(idx)
+                this.save_output = true;
                 this.test_method_to_save_ = test_methods(idx);
             else
                 error('TEST_CASE_WITH_SAVE:invalid_argument',...

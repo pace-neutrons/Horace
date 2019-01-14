@@ -6,7 +6,10 @@ function varargout = lx (varargin)
 % or
 %   >> lx  xlo  xhi
 % or
-%   >> lx       % set x limits to include all data
+%   >> lx           % set x limits to include all data
+% or
+%   >> lx ('round') % set x limits to rounded limits that encompass data
+%   >> lx  round 
 %
 % Return current limits (without changing range):
 %   >> [xlo, xhi] = lx
@@ -24,7 +27,7 @@ if isempty(findall(0,'Type','figure'))
 end
 
 % Get x range
-if nargin==0
+if nargin==0  || (nargin==1 && ischar(varargin{1}))
     if nargout==0
         % Get x axis limits for entire data range
         range = graph_range(gcf,'evaluate');
@@ -33,6 +36,16 @@ if nargin==0
         if xrange(1)==xrange(2)
             error('The upper and lower limits of the data are equal')
         end
+        
+        % Read 'round' from either function syntax or command syntax
+        if nargin==1
+            if strcmpi(varargin{1},'round')
+                xrange = round_range (xrange);
+            else
+                error('Unrecognised option')
+            end
+        end
+        
         xrange={xrange};
     else
         % Return current x-axis limits

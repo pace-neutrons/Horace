@@ -23,10 +23,8 @@ if nargin==1
     f=1;
 elseif nargin==2
     t=varargin{1};     % time in microseconds
-    fwhh = 1e6*disk.slot_width/(4*pi*disk.radius*disk.frequency); % FWHH of triangular profile
-    f=zeros(size(t));
-    ok=(abs(t)<fwhh);
-    f(ok)=(t(ok)+fwhh)/(2*fwhh);
+    [T1,T2] = hat_times(disk);
+    f = area_conv_hh (t, T1, T2);
 else
     error('Check number of input argumnets')
 end

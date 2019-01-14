@@ -1,8 +1,8 @@
-function [dt,fwhh]=pulse_width(disk,varargin)
-% Calculate st. dev. of chopper pulse width distribution (microseconds)
+function [tlo,thi]=pulse_range (disk,varargin)
+% Return lower an upper limits of range of double disk chopper (microseconds)
 %
-%   >> [dt,fwhh]=pulse_width(disk)
-%   >> [dt,fwhh]=pulse_width(disk,ei)
+%   >> [tlo,thi]=pulse_range (disk)
+%   >> [tlo,thi]=pulse_range (disk,ei)
 %
 % In fact, for a disk chopper the pulse width is trivially independent of the
 % energy
@@ -14,18 +14,18 @@ function [dt,fwhh]=pulse_width(disk,varargin)
 %
 % Output:
 % -------
-%   dt      Standard deviation of pulse width (microseconds)
-%   fwhh    FWHH (microseconds)
+%   tlo     Opening time of chopper (microseconds)
+%   thi     Closing time of chopper (microseconds)
 
 if ~isscalar(disk), error('Function only takes a scalar object'), end
 
 [T1,T2] = hat_times(disk);
-dt = sqrt((T1^2 + T2^2)/12);
-fwhh = T2;
+tlo = -0.5*(T1+T2);
+thi = 0.5*(T1+T2);
 
 if nargin==2
-    dt=dt*ones(size(varargin{1}));
-    fwhh=fwhh*ones(size(varargin{1}));
+    tlo=tlo*ones(size(varargin{1}));
+    thi=thi*ones(size(varargin{1}));
 elseif nargin>2
     error('Check number of input arguments')
 end

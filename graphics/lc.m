@@ -21,13 +21,22 @@ if ~present.c
 end
 
 % Get intensity range
-if nargin==0
+if nargin==0 || (nargin==1 && ischar(clo))
     % Get intensity axis limits for entire data range
     [range,subrange] = graph_range(gcf,'evaluate');
     crange=range.c;
     
     if crange(1)==crange(2)
         error('The upper and lower limits of the data are equal')
+    end
+    
+    % Read 'round' from either function syntax or command syntax
+    if nargin==1
+        if strcmpi(clo,'round')
+            crange = round_range (crange);
+        else
+            error('Unrecognised option')
+        end
     end
     
 elseif nargin==2
@@ -44,7 +53,7 @@ elseif nargin==2
     else
         error('Check input arguments');
     end
-
+    
     if isnumeric(chi) && isscalar(chi)
         crange(2)=chi;
     elseif ~isempty(chi) && is_string(chi)
@@ -60,7 +69,7 @@ elseif nargin==2
     if crange(1)>=crange(2)
         error('Check clo < chi')
     end
-
+    
 else
     error 'Check number of input parameters'
 end

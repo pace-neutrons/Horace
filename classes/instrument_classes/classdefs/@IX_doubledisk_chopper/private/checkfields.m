@@ -24,8 +24,8 @@ function [ok, message, wout] = checkfields (w)
     
 % Original author: T.G.Perring
     
-fields = {'name';'distance';'frequency';'radius';'slot_width';...
-          'slot_height';'jitter'};  % column vector of expected fields in class structure
+fields = {'name';'distance';'frequency';'radius';'slot_width';'aperture_width';...
+          'aperture_height';'jitter'};  % column vector of expected fields in class structure
 
 ok=false;
 message='';
@@ -36,7 +36,7 @@ if isequal(fieldnames(w),fields)
         message='Double disk chopper name must be a character string';
         return
     end
-    for i=2:7
+    for i=2:8
         if ~isnumeric(w.(fields{i})) || ~isscalar(w.(fields{i})) || w.(fields{i})<0
             message=['Parameter ''',fields{i},''' must be greater of equal to zero'];
             return

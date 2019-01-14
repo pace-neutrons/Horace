@@ -70,7 +70,11 @@ else
     ok=isfinite(y(:));
 end
 if ~all(ok)
-    x=x(ok); y=y(ok); e=e(ok);
+    x=x(ok);
+    y=y(ok);
+    if ne>0
+        e=e(ok);
+    end
     np=numel(x);
 end
 

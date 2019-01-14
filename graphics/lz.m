@@ -5,7 +5,10 @@ function varargout = lz (zlo, zhi)
 % or
 %   >> lz  zlo  zhi
 % or
-%   >> lz       % set z limits to include all data
+%   >> lz           % set z limits to include all data
+% or
+%   >> lz ('round') % set z limits to rounded limits that encompass data
+%   >> lz  round 
 %
 % Return current limits (without changing range):
 %   >> [zlo, zhi] = lz
@@ -24,7 +27,7 @@ if ~(present.z || present.c)
 end
 
 % Get z range
-if nargin==0
+if nargin==0  || (nargin==1 && ischar(zlo))
     if nargout==0
         % Get z axis limits in the current limits of x and y (or full range if c data)
         [range,subrange] = graph_range(gcf,'evaluate');
@@ -37,13 +40,22 @@ if nargin==0
         if zrange(1)==zrange(2)
             error('The upper and lower limits of the data are equal')
         end
+        
+        % Read 'round' from either function syntax or command syntax
+        if nargin==1
+            if strcmpi(zlo,'round')
+                zrange = round_range (zrange);
+            else
+                error('Unrecognised option')
+            end
+        end
     else
         % Return current z-axis limits
         range = get(gca,'Zlim');
         if nargout>=1, varargout{1} = range(1); end
         if nargout>=2, varargout{2} = range(2); end
         return
-    end
+    end   
     
 elseif nargin==2
     % Read parameters from either function syntax or command syntax

@@ -1,5 +1,5 @@
 function X = rand_cumpdf_arr(xtab,ind)
-% Generate random numbers from a loopkup table of probability distributions
+% Generate random numbers from a lookup table of probability distributions
 %
 %   >> X = rand_cumpdf_arr (xtab, ind)
 %
