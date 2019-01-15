@@ -66,7 +66,7 @@ else
     
     disp('| computer hpc options    | current val    | recommended val|');
     disp('|-------------------------|----------------|----------------|');
-    fprintf('| combine_sqw_using:      | %14s | %14d |\n',use_mex_fcc,use_mex_fcr);
+    fprintf('| combine_sqw_using:      | %14s | %14s |\n',use_mex_fcc,use_mex_fcr);
     fprintf('| mex_combine_thread_mode:| %14d | %14d |\n',mex_comb_tmc,mex_comb_tmr);
     fprintf('| mex_combine_buffer_size:| %14d | %14d |\n',mex_comb_bsc,mex_comb_bsr);
     disp('|-------------------------|----------------|----------------|');
