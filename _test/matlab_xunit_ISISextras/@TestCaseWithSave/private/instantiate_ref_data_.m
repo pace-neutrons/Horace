@@ -35,7 +35,8 @@ if ~this.save_output
     end
 
     % Check that the output folder is not write protected
-    if ~isOkToWriteTo (fileparts(filename))
+    folder = fileparts(filename);
+    if ~isOkToWriteTo (folder )
         error('TEST_CASE_WITH_SAVE:runtime_error',...
             'Unable to write to folder: %s',folder)
     end
