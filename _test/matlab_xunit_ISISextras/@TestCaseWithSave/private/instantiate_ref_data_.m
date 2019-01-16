@@ -33,8 +33,8 @@ if ~this.save_output
     else
         filename = default_test_file_name;
     end
-
-
+    
+    
     % Store the test file name which will contain stored tests, even if it
     % doesn't exist.
     this.test_results_file_ = filename;
@@ -67,10 +67,13 @@ else
     end
     
     % Check that the output folder is not write protected
-    [folder,fn,fe] = fileparts(filename);    
-    if ~isOkToWriteTo (folder)        
+    [folder,fn,fe] = fileparts(filename);
+    if ~isOkToWriteTo (folder)
         warning('TEST_CASE_WITH_SAVE:runtime_error',...
-            ' Write protected test folder: %s, Will save test results to tempdir folder',folder)
+            ' Write protected test folder: %s; using tempdir folder',folder)
+        if exist(filename,'file') == 2
+            copyfile(filename,tempdir,'f');
+        end
         filename = fullfile(tempdir,[fn,fe]);
     end
     
