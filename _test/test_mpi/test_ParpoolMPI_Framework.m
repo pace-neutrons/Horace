@@ -105,7 +105,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             if num_labs < 3
                 return;
             end
-            num_labs = 3*round(num_labs/3);
+            num_labs = 3*floor(num_labs/3);
             if num_labs > 27
                 num_labs = 27;
             end
