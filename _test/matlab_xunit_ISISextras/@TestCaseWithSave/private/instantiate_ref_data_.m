@@ -34,12 +34,12 @@ if ~this.save_output
         filename = default_test_file_name;
     end
 
-    % Check that the output folder is not write protected
-    folder = fileparts(filename);
-    if ~isOkToWriteTo (folder )
-        error('TEST_CASE_WITH_SAVE:runtime_error',...
-            'Unable to write to folder: %s',folder)
-    end
+%     % Check that the output folder is not write protected
+
+%     if ~isOkToWriteTo (folder )
+%         error('TEST_CASE_WITH_SAVE:runtime_error',...
+%             'Unable to write to folder: %s',folder)
+%     end
 
     % Store the test file name which will contain stored tests, even if it
     % doesn't exist.
@@ -73,7 +73,8 @@ else
     end
     
     % Check that the output folder is not write protected
-    if ~isOkToWriteTo (fileparts(filename))
+    folder = fileparts(filename);    
+    if ~isOkToWriteTo (folder)
         error('TEST_CASE_WITH_SAVE:runtime_error',...
             ' Unable to write to folder: %s',folder)
     end
