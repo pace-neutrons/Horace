@@ -44,9 +44,9 @@
    </ndlt874_TestPerformanceChildTestHelper>
    <ndlt1121_TestPerformanceChildTestHelper>
       <fake_test_operations>
-         <time_sec>0.000590632879880082</time_sec>
+         <time_sec>0.000471448453969952</time_sec>
          <comment>this is not a performance test itself but the test of performance test inheritance operational</comment>
-         <completed_on>[2019 1 16 16 34 41.608]</completed_on>
+         <completed_on>[2019 1 16 17 0 13.018]</completed_on>
       </fake_test_operations>
    </ndlt1121_TestPerformanceChildTestHelper>
 </TestPerformanceChildTestHelper>

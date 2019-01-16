@@ -27,7 +27,7 @@ end
 
 class_name = class(this);
 if ~strcmp(class_name, opt)
-    opt_parts = regexp(opt,':','split');
+    opt_parts = regexp(opt,':+','split');
     % Determine if '-save' option, with or without a specified method
     if numel(opt_parts{1})>=2 && opt_parts{1}(1:1)=='-' &&...
             strncmpi(opt_parts{1},'-save',numel(opt_parts{1})) &&...

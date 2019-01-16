@@ -22,7 +22,7 @@ if ~ischar(nxspe_filename)
         for i=1:numel(nxspe_filename)
             if ~ischar(nxspe_filename)
                 error('saveNXSPE:invalid_argument',...
-                ' If first input is a cellarray, each element of cellarray must me a filename.'
+                ' If first input is a cellarray, each element of cellarray must me a filename.')
             end
         end
     else
