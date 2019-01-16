@@ -412,7 +412,8 @@ classdef test_rundata< TestCase
                 delete(test_file);
             end
             
-            ts = load('fromwindow_data4test.mat');
+            test_path = fileparts(mfilename('fullpath'));            
+            ts = load(fullfile(test_path,'fromwindow_data4test.mat'));
             td = ts.df;
             saveNXSPE(test_file,td);
             assertEqual(exist(test_file,'file'),2);
