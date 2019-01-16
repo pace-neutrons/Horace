@@ -16,7 +16,7 @@ function this = instantiate_methods_to_save_ (this, opt)
 % Output:
 % -------
 %   obj     Updated instance of the class (unchanged if the option was the
-%           class name itself). Can update properties 'save_output' and 
+%           class name itself). Can update properties 'save_output' and
 %           'test_methods_to_save'
 
 

@@ -6,18 +6,29 @@ function  saveNXSPE(nxspe_filename,data2save,varargin)
 %                  If the file with this name exists, it will be
 %                  overwritten.
 %
-% data2save      - the structure, containing the whole nxpse file
+% data2save      - is one of:
+%          1)      the structure, containing the whole nxpse file
 %                  information.
 %                  This information can be obtained from e.g. mslice
-%                  fromwindow command or to be a fully formed rundata or runfatah
+%                  fromwindow command
+%           2)     a fully formed rundata or runfatah
 %                  class from Horace.
 %
-%                  If the information is incomplete, additional fields heed
+%                  If the information is incomplete, additional fields need
 %                  to be provided.
 %
 if ~ischar(nxspe_filename)
-    error('saveNXSPE:invalid_argument',...
-        'first input should be a filename to save nxspe to');
+    if iscell(nxspe_filename)
+        for i=1:numel(nxspe_filename)
+            if ~ischar(nxspe_filename)
+                error('saveNXSPE:invalid_argument',...
+                ' If first input is a cellarray, each element of cellarray must me a filename.'
+            end
+        end
+    else
+        error('saveNXSPE:invalid_argument',...
+            'first input should be a filename to save nxspe to');
+    end
 end
 if isa(data2save,'rundata') % just use existing
     data2save.saveNXSPE(nxspe_filename,'w');
@@ -34,6 +45,7 @@ if isfield(data2save,'efixed') && isfield(data2save,'det_theta') ...
     rd.saveNXSPE(nxspe_filename,'w');
     return
 end
+
 error('saveNXSPE:not_implemented',...
     ' Advanced options on saveNXSPE are not yet implemented');
 

@@ -25,15 +25,15 @@ function varargout = gen_nxspe(S,ERR,en,par_file,nxspe_file,efix, varargin)
 %       alatt, angdeg, u, v, omega, dpsi, gl, gs);
 %  --  build and return cellarray of fully defined crystal rundata classes
 %      for further usage but do not save information into a nxspe file.
-%      Saving can be perfomed later using rd.saveNXSPE('filename') method.
+%      Saving can be performed later using rd.saveNXSPE('filename') method.
 %      (see rundata constructor or rundata.gen_runfiles method for similar
-%      functionality but different implementatin emphasis)
+%      functionality but different implementation emphasis)
 %
 %      When nxspe data are saved, number of nxspe files is defined by
 %      number of elements in nxspefile_name cellarray and all other inputs
 %      dimensions must be consistent with this number.
 %      When nxspefile_name
-%      is empty, number of generated rundata instances is determened by
+%      is empty, number of generated rundata instances is determined by
 %      third dimension of S array size(S) == [nen,npix,n_rundata_files] if
 %      S is array or number or elements in cellarray if S is cellarray
 %
@@ -49,7 +49,7 @@ function varargout = gen_nxspe(S,ERR,en,par_file,nxspe_file,efix, varargin)
 %          for these formats description)
 %     or   path to nxspe file containing detectors information.
 %     or   6 column array (size == [6,n_det]) with detector information
-%          convertable to Horace Detpar structure.
+%          convertible to Horace Detpar structure.
 %     or   Horace Detpar structure with detectors information.
 %
 % nxspe_file -- the full name and path to the file to save resulting nxspe
@@ -76,7 +76,7 @@ function varargout = gen_nxspe(S,ERR,en,par_file,nxspe_file,efix, varargin)
 %
 
 %
-% briefly check main inputs consistency (detailed constistency will be
+% briefly check main inputs consistency (detailed consistency will be
 % verified during gen_runfiles operation.
 [ok,mess,S,ERR,en,nxspe_file,n_files, inputs_are_cellarrays,save_nxspe,params] = ...
     check_and_preprocess_inputs(S,ERR,en,nxspe_file,efix,varargin{:});
@@ -92,14 +92,14 @@ end
 if return_runfiles
     if isempty(which('horace_init'))
         gen_rudatah = false;
-    else % generage extended horace rundatah files
+    else % generate extended Horace rundatah files
         gen_rudatah = true;
     end
 else
     gen_rudatah = false;
 end
 
-if gen_rudatah %HACK -- assumes the knowlege about the derived class BAD!
+if gen_rudatah %HACK -- assumes the knowledge about the derived class BAD!
     % But do we really care? proper oop assumes overloading gen_nxpse for
     % Horace but this solution looks much better to use.
     runfiles = rundatah.gen_runfiles(cell(1,n_files),par_file,params{:},'-allow_missing');
@@ -215,7 +215,7 @@ else
             cen = cell(1,n_files);
             en = cellfun(@(x)(en),cen,'UniformOutput',false);
         else
-            mess = 'second dimension of the array of energies has to be 1 or equal to number nxspe fiels or rundata classes to build';
+            mess = 'second dimension of the array of energies has to be 1 or equal to number nxspe files or rundata classes to build';
         end
     end
 end

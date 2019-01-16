@@ -42,4 +42,11 @@
          <completed_on>[2018 12 17 13 19 39.782]</completed_on>
       </fake_test_operations>
    </ndlt874_TestPerformanceChildTestHelper>
+   <ndlt1121_TestPerformanceChildTestHelper>
+      <fake_test_operations>
+         <time_sec>0.000590632879880082</time_sec>
+         <comment>this is not a performance test itself but the test of performance test inheritance operational</comment>
+         <completed_on>[2019 1 16 16 34 41.608]</completed_on>
+      </fake_test_operations>
+   </ndlt1121_TestPerformanceChildTestHelper>
 </TestPerformanceChildTestHelper>

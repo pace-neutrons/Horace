@@ -92,7 +92,7 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
     % against of reference test results. The first thing you have to do is run
     % the test suite in 'save' mode to save the results of tests. Afterwards, you
     % can run the test suite in 'test' mode using the runtests function.
-    % 
+    %
     % - To save values run the test suite with the option '-save':
     %   ----------------------------------------------------------
     %       >> TestSomeStuff ('-save')                 % saves to default file name
@@ -256,8 +256,8 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             %       self@TestCaseWithSave('-save',filename);
             %               :
             % but this is not recommended.
-            % 
-            % 
+            %
+            %
             % In full:
             % ========
             %   >> obj = TestCaseWithSave (mode, filename)
@@ -272,7 +272,7 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             %                     is the name of one of the test methods in the
             %                    test suite
             %
-            %               If TestCaseWithSave is being called directly, then 
+            %               If TestCaseWithSave is being called directly, then
             %              no options can be given
             %
             % Optional:
@@ -514,11 +514,11 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
                 throwAsCaller (ME)
             end
         end
-
+        
         function delete (this)
             % Function that will be called on destruction by virtue of the
             % class being a handle class
-
+            
             % Use static utility methods
             this.delete_files (this.files_to_delete_)
             this.remove_paths (this.paths_to_remove_)
@@ -634,7 +634,7 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             % Give default name for the variable if var_name is empty
             % (*** TGP 09/12/2018: this always enforces the default same name
             %  no matter how many other variables might have been previously saved.
-            %  On the otherhand, this utlity routine always appears to be called 
+            %  On the otherhand, this utlity routine always appears to be called
             %  with an explicit value for var_name, so thhis code block is not
             %  going to be called...)
             if isempty(var_name)

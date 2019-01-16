@@ -67,10 +67,11 @@ else
     end
     
     % Check that the output folder is not write protected
-    folder = fileparts(filename);    
-    if ~isOkToWriteTo (folder)
-        error('TEST_CASE_WITH_SAVE:runtime_error',...
-            ' Unable to write to folder: %s',folder)
+    [folder,fn,fe] = fileparts(filename);    
+    if ~isOkToWriteTo (folder)        
+        warning('TEST_CASE_WITH_SAVE:runtime_error',...
+            ' Write protected test folder: %s, Will save test results to tempdir folder',folder)
+        filename = fullfile(tempdir,[fn,fe]);
     end
     
     % Store the file name into which to save tests, even if it
