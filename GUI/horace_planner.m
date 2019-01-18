@@ -780,7 +780,7 @@ try
     set(gca,'XAxisLocation','top');%ensure x-labels don't interfere with slider
     set(gca,'YAxisLocation','right');
     %note that label is automatically put at the top as well if we do this
-    xlab=xlabel('Q // perp u [uv-plane] (Angstrom^-^1)');
+    xlab=xlabel('Q perp u [uv-plane] (Angstrom^-^1)');
     %set(xlab,'Interpreter','latex');
     ylab=ylabel('Q out of plane (Angstrom^-^1)');
     %set(ylab,'Interpreter','latex');
