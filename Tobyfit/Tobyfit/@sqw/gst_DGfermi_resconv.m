@@ -98,85 +98,114 @@ elseif max(ind(:))>numel(lookup.sample)
     error('Inconsistency between dataset indicies passed from control routine and the lookup tables')
 end
 
+use_parallel_worker = ~isempty(license('inuse','distrib_computing_toolbox')) && ~isempty(gcp('nocreate'));
 
-% Initialise output arguments
-% ---------------------------
-wout = win;
 
 % Perform resolution broadening calculation
 % -----------------------------------------
 if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
 
-% Generate the full list of (Q,E) points which we will simulate
+% Get neighbourhood cell array information from the lookup:
+minQE = lookup.minQE;
+maxQE = lookup.maxQE;
+dQE = lookup.dQE;
+cell_span = lookup.cell_span;
+cell_N = lookup.cell_N;
+
+% % Every cell either has pixels in it or is a neighbour to a cell with
+% % pixels. That's the whole reason behind this method
+% cells_with_pixels = gst_cells_with_pixels(win,minQE,maxQE,dQE,cell_span,cell_N);
+% neighbours_with_pixels = cll_cell_neighbours(cells_with_pixels,cell_N,cell_span,prod(cell_N),1);
+% fprintf('\n\tFor %d cells with pixels, there are %d neighbours of %d total cells.\n',numel(cells_with_pixels),numel(neighbours_with_pixels),prod(cell_N));
+
+% Generate the full list of (Q,E) points at which we will calculate S(Q,E)
+
 % -------------------------------------------------------------
-% TODO: Is this the only part which is instrument-specific?
-[allQE,widx,state_out,store_out] = gst_DGfermi_genpoints(win,caller,state_in,store_in,pars,lookup,mc_contributions,mc_points,xtal,modshape);
+% To avoid re-generating points when, e.g., determing the derivatives of a
+% goodness of fit criteria, allow for the points to be passed to us in the
+% store_in structure
+if isfield(store_in,'recycleQE') &&  store_in.recycleQE
+    allQE = store_in.allQE;
+    
+    % If we have already determined the relationship between the (Q,E)
+    % points and pixels, we don't need the linked list any longer
+%     allQE_head = store_in.allQE_head; 
+%     allQE_list = store_in.allQE_list;
+    
+    % Vectors relating pixel indicies to between 0 and npt point indicies
+    % [i.e., allQE(:,j)].
+    iW  = store_in.iW;  % The index into win for the pixel
+    iPx = store_in.iPx; % the index into win(iW).pix(:,i) for the pixel
+    nPt = store_in.nPt; % The number of points within resolution for the pixel
+    fst = store_in.fst; % The first index into iPt for the pixel
+    lst = store_in.lst; % The last  index into iPt for the pixel
+    iPt = store_in.iPt; % The indicies into allQE(:,i). For a pixel iPx(i), the indicies are iPt( Pt1(i)+(0:nPt(i)-1) )
+    VxR = store_in.VxR; % The resolution volume times the resolution probability.
+                        % For a pixel iPx(i), VxR(Pt1(i)+(0:nPt(i)-1))
+                        % gives the volume of the resolution volume of
+                        % pixel iPx(i) times the value of the resolution
+                        % function evaluated at allQE(:, iPt(Pt1(i)+(0:nPt(i)-1)) )
+    
+    % Make sure we return the same information that we were passed:
+    store_out = store_in;
 
-% Calculate S(Q,E) for each point in allQE
-% ----------------------------------------
-% TODO: Shunt this into its own thread somehow? Allow for Sij(Q,E)
-allSQE = sqwfunc( allQE(:,1), allQE(:,2), allQE(:,3), allQE(:,4), pars{:});
+    % Calculate S(Q,E) for each point in allQE
+    % ----------------------------------------
+    fprintf('Calculating S(Q,E) for a total of %d (Q,E) points\n',size(allQE,2));
+    % TODO: Shunt this into its own thread somehow? Allow for Sij(Q,E)
+    allSQE = sqwfunc( allQE(1,:), allQE(2,:), allQE(3,:), allQE(4,:), pars{:});
+else
+    % [npt,allQE,state_out] = cll_generate_points_mc(caller,state_in,mc_points,minQE,dQE,cell_N,cell_span);
+%     [allQE,state_out,store_out] = gst_DGfermi_genpoints_same(win,caller,lookup);
+    [allQE,state_out,store_out] = gst_DGfermi_genpoints(win,caller,state_in,store_in,pars,lookup,mc_contributions,mc_points,xtal,modshape);
+    % [npt,allQE,state_out,store_out] = gst_DGfermi_gencornerpoints(win,caller,state_in,store_in,pars,lookup,mc_contributions,mc_points,xtal,modshape);
+    
+    if use_parallel_worker
+        % Calculate S(Q,E) for each point in allQE, using a parallel worker
+        % ----------------------------------------
+        fprintf('Calculating S(Q,E) for a total of %d (Q,E) points on a parallel worker\n',size(allQE,2));
+        f = parfeval(sqwfunc,1,allQE(1,:),allQE(2,:),allQE(3,:),allQE(4,:),pars{:});
+    end
 
-% Determine which (Q,E) points are within the resolution of each pixel
-% --------------------------------------------------------------------
-% TODO: Also push this to its own thread. It could be time consuming and is
-% independent of calculating S(Q,E).
-% At the very least this should go into its own function definition, since
-% indx_in_res and prob_in_res are constant while determining the
-% derivatives for a refinement step.
-nwin = numel(win);
-npix = arrayfun(@(x)(size(x.data.pix,2)), win);
-indx_in_res = cell(nwin,1);
-prob_in_res = cell(nwin,1);
-for i=1:nwin 
-    % The resolution ellipsoids are constant for every pixel (as long as
-    % the resolution parameters are fixed, of course). These could be
-    % pre-calculated and stored in the lookup-tables.
-    [eM,eQE0] = resolution_ellipsoids(win(i),'frac',0.2);
-    indx_in_res{i} = point_in_ellipsoid_as_cells(allQE,eM,eQE0);
-    [rM,rQE0] = resolution_mats(win(i));
-    prob_in_res{i} = cell(npix(i),1);
-    for j=1:npix(i)
-        prob_in_res{i}{j} = probability_of_point( allQE(indx_in_res{i}{j},:), rM(:,:,j), rQE0(j,:) );
+    % Determine the linked list for generated point neighbourhoods
+    [allQE_head,allQE_list]= cll_make_linked_list(allQE,minQE,maxQE,dQE,cell_span,cell_N);
+    
+    % Determine the vectors describing the points within resolution for
+    % each pixel
+    [iW,iPx,nPt,fst,lst,iPt,VxR] = gst_points_in_pixels_res(win,lookup,allQE,allQE_head,allQE_list);
+    
+    % Block execution until allSQE is calculated and returned
+    if use_parallel_worker
+        allSQE = fetchOutputs(f);
+    else
+        % Calculate S(Q,E) for each point in allQE
+        % ----------------------------------------
+        fprintf('Calculating S(Q,E) for a total of %d (Q,E) points\n',size(allQE,2));
+        allSQE = sqwfunc( allQE(1,:), allQE(2,:), allQE(3,:), allQE(4,:), pars{:});
     end
 end
 
-% Finally pull it all together to simulate the intensity for each pixel
-for i=1:nwin
-%     zzz = cellfun(@numel,indx_in_res{i});
-%     fprintf('SQW object %d: %d (%d,%d) (Q,E) points per pixel\n',i,round(median(zzz)),min(zzz),max(zzz));
-    for j=1:npix(i)
-%         s = volume_of_ellipsoid(eM{i}(:,:,j)) * prob_in_res{i}{j} .* allSQE(indx_in_res{i}{j});
-        s = prob_in_res{i}{j} .* allSQE(indx_in_res{i}{j});
-        
-        % If there was any per-SQW and per-point  
-        % 'slow' function/prefactor/background to deal with, we should 
-        % do so here:
-        %   s = prefunc( win{i}, allQE(:,indx_in_res{i}{j}), ...) .* s;
-        wout(i).data.pix(8,j) = sum(s)/numel(s);
-        
-        % We *could* calculate the error in our Monte Carlo estimate if we
-        % know the variance of sqwfunc 
-%         wout(i).data.pix(9,j) = [variance]/numel(s);
-        % Or we could just assume it's Gaussian to get some measure of the error. 
-        wout(i).data.pix(9,j) = abs(sum(s.^2)-sum(s)^2)/numel(s)^2;
-        % Or claim that this method is perfect.
-%         wout(i).data.pix(9,j) = 0; 
-    end
-    % with the ith SQW object handled, fix the bin data
-    wout(i) = recompute_bin_data(wout(i));
-end
+% make sure S(Q,E) is a column vector
+allSQE = allSQE(:);
 
-% % Don't bother trying to figure out which points contribute. Just calculate
-% % for all points present:
-% for i=1:numel(win)
-%     [M,QE] = resolution_mats(win(i));
-%     for j=1:size(win(i).data.pix,2)
-%         prob = probability_of_point(allQE,M(:,:,j),QE(j,:));
-%         s = prob .* allSQE;
-%         s = s(prob>0);
-%         wout(i).data.pix(8,j) = sum(s)/numel(s);
-%         wout(i).data.pix(9,j) = abs(sum(s.^2)-sum(s)^2)/numel(s)^2;
-%     end
-%     wout(i) = recompute_bin_data(wout(i));
-% end
+
+fprintf('%30s\n','Points within R(Q,E) per pixel');
+fprintf('  %4s  %3s  %6s  %4s  %3s\n','mean','min','median','mode','max');
+fprintf('  %s\n',repmat('-',1,28));
+fprintf('  %4d  %3d  %6d  %4d  %3d\n',round(mean(nPt)),min(nPt),round(median(nPt)),mode(nPt),max(nPt));
+wout = gst_collect_points_into_pixels(win,iW,iPx,nPt,fst,lst,iPt,allSQE,VxR);
+
+
+if isfield(store_in,'keepQE') && store_in.keepQE
+    store_out.allQE = allQE;
+    store_out.allQE_head = allQE_head;
+    store_out.allQE_list = allQE_list;
+    store_out.iW  = iW;
+    store_out.iPx = iPx;
+    store_out.nPt = nPt;
+    store_out.fst = fst;
+    store_out.lst = lst;
+    store_out.iPt = iPt;
+    store_out.VxR = VxR;
+    store_out.recycleQE = true; % FIXME. This is probably not good.
+end

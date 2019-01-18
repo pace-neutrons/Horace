@@ -1,4 +1,4 @@
-function [allQE,widx,state_out,store_out]=gst_DGfermi_genpoints(win,caller,state_in,store_in,...
+function [allQE,state_out,store_out]=gst_DGfermi_genpoints(win,caller,state_in,store_in,...
     pars,lookup,mc_contributions,mc_points,xtal,modshape)
 % Calculate resolution broadened sqw object(s) for a model scattering function.
 %
@@ -76,7 +76,7 @@ function [allQE,widx,state_out,store_out]=gst_DGfermi_genpoints(win,caller,state
 %
 % Output:
 % -------
-%   wout        Output dataset or array of datasets with computed signal
+%   allQE       The generated (Q,E) points as a (4,N) array
 %
 %   state_out   Cell array of internal state of this function for future evaluation.
 %               The number of elements must match numel(win); state_in must be a cell
@@ -130,8 +130,8 @@ end
 total_pixels = sum( arrayfun(@(x)(size(x.data.pix,2)),win) );
 noutput = mc_points * total_pixels;
 % So that we can pre-allocate output arrays
-allQE = zeros(noutput,4); % the generated (Q,E) points
-widx  = zeros(noutput,1); % the index into win for each (Q,E) point
+allQE = zeros(4,noutput); % the generated (Q,E) points
+% widx  = zeros(1,noutput); % the index into win for each (Q,E) point
 % objidx = zeros(noutput,1);% the index into the pixels for each (Q,E) points, e.g., win(widx(i)).data.pix(:,objidx(i))) %%%%% MAYBE USELESS
 % Setup state and store output as well
 state_out = cell(size(win));    % create output argument
@@ -222,12 +222,13 @@ for i=1:numel(ind)
         % Recompute Q because crystal orientation will have changed (dont need to update qw{4})
         qw(1:3) = calculate_q (ki(irun), kf, detdcn(:,idet), spec_to_rlu(:,:,irun));
         
-        % Recompute (Q,w) deviations matrix for same reason
-        dq_mat = dq_matrix_DGfermi (ki(irun), kf,...
-            x0(irun), xa(irun), x1(irun), x2(idet),...
-            thetam(irun), angvel(irun), s_mat(:,:,irun), d_mat(:,:,idet),...
-            spec_to_rlu(:,:,irun), k_to_v, k_to_e);
-    
+        % Recompute (ki,kf) deviations since s_mat has changed
+        b_mat = b_matrix_DGfermi (ki(irun), kf, x0(irun), xa(irun),...
+                     x1(irun), x2(idet),thetam(irun), angvel(irun),...
+                     s_mat(:,:,irun), d_mat(:,:,idet), k_to_v);
+        % Which forces us to recompute dq_mat too
+        dq_mat = mtimesx_horace( lookup.qk_mat{iw}, b_mat);
+        
     elseif refine_moderator
         % Strip out moderator refinement parameters and compute lookup table
         % Note we assume there is only one moderator to refine
@@ -302,12 +303,13 @@ for i=1:numel(ind)
         % Calculate the deviations in Q and energy
         dq=squeeze(mtimesx_horace(dq_mat,yvec))';
         % And stash the full (Q,E) points away for output
-        for j=1:4; allQE(offset+(1:npix),j) = qw{j} + dq(:,j); end
-        % Also keep track of which win object these points came from
-        widx(offset+(1:npix)) = i;
+        for j=1:4; allQE(j,offset+(1:npix)) = qw{j} + dq(:,j); end
+%         % Also keep track of which win object these points came from
+%         widx(offset+(1:npix)) = i;
 %         % And the index into win(i).data.pix for each point
 %         objidx(offset+(1:npix)) = 1:npix;
         % Finally, increment the offset in preparation for the next points
         offset = offset + npix;
+        
     end
 end
