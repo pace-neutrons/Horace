@@ -16,7 +16,18 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             end
             %obj = obj@TestCaseWithSave(name,sample_file);
             obj = obj@TestCase(name);
+            
             obj.test_folder=fileparts(mfilename('fullpath'));
+        end
+        function ok=check_write_enabled(obj,folder)
+            fn = tempname(folder);
+            fh = fopen(fn);
+            if fh<=0
+                ok = false;
+            else
+                ok = true;
+                fclose(fh);
+            end
         end
         %-----------------------------------------------------------------
         function obj = test_get_version(obj)
@@ -110,9 +121,16 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
         %
         function obj = test_change_file_to_write(obj)
             tob = dnd_binfile_common();
-            
+            ok=obj.check_write_enabled(obj.test_folder);
             samp = fullfile(fileparts(obj.test_folder),...
                 'test_symmetrisation','w1d_sqw.sqw');
+            clob_source = [];
+            if ~ok
+                samp1 = fullfile(tempdir,'w1d_sqw.sqw');
+                copyfile(samp,samp1);
+                clob_source = onCleanup(@()delete(samp1));
+                samp = samp1;
+            end
             f=@()(tob.set_file_to_update(samp));
             assertExceptionThrown(f,'SQW_FILE_IO:invalid_argument');
             
@@ -184,8 +202,17 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             
             samp = fullfile(fileparts(obj.test_folder),...
                 'test_symmetrisation','w1d_d1d.sqw');
+            ok=obj.check_write_enabled(obj.test_folder);
+            clob_source = [];
+            if ~ok
+                samp1 = fullfile(tempdir,'w1d_d1d.sqw');
+                copyfile(samp,samp1);
+                clob_source = onCleanup(@()delete(samp1));
+                samp = samp1;
+            end
+            
             ttob = dnd_binfile_common_tester(samp);
-            % important! -verbatim is critical here! without it we should 
+            % important! -verbatim is critical here! without it we should
             % reinitialize object to write!
             sq_obj = ttob.get_sqw('-verbatim');
             assertTrue(isa(sq_obj,'d1d'));
