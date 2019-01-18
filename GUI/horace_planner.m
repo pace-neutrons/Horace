@@ -613,7 +613,7 @@ try
 
     %Add labels
     for i=1:numel(ff)
-        text(pts2(ff(i),1)+0.1,pts2(ff(i),2)+0.1,ptlabs2{ff(i)});
+        text(pts2(ff(i),1)+0.1,pts2(ff(i),2)+0.1,ptlabs2{ff(i),'Clipping','on'});
     end
 
     set(gca,'XAxisLocation','top');%ensure x-labels don't interfere with slider
@@ -634,7 +634,7 @@ try
 catch
     %catch case when no data to be plotted because of choice of offset
     axis([-1 1 -1 1]);
-    text(0,0,'No data to be plotted');
+    text(0,0,'No data to be plotted','Clipping','on');
     warning('on');
 end
 
@@ -694,7 +694,7 @@ try
 
     %Add labels
     for i=1:numel(ff)
-        text(pts2(ff(i),1)+0.1,pts2(ff(i),3)+0.1,ptlabs2{ff(i)});
+        text(pts2(ff(i),1)+0.1,pts2(ff(i),3)+0.1,ptlabs2{ff(i)},'Clipping','on');
     end
 
     set(gca,'XAxisLocation','top');%ensure x-labels don't interfere with slider
@@ -715,7 +715,7 @@ try
 catch
     %catch case when no data to be plotted because of choice of offset
     axis([-1 1 -1 1]);
-    text(0,0,'No data to be plotted');
+    text(0,0,'No data to be plotted','Clipping','on');
     warning('on');
 end
 
@@ -774,7 +774,7 @@ try
 
     %Add labels
     for i=1:numel(ff)
-        text(pts2(ff(i),2)+0.1,pts2(ff(i),3)+0.1,ptlabs2{ff(i)});
+        text(pts2(ff(i),2)+0.1,pts2(ff(i),3)+0.1,ptlabs2{ff(i)},'Clipping','on');
     end
 
     set(gca,'XAxisLocation','top');%ensure x-labels don't interfere with slider
