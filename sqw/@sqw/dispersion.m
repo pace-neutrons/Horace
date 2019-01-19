@@ -25,28 +25,30 @@ function [wout_disp,wout_weight]=dispersion(win,dispreln,pars)
 %
 % Input:
 % ======
-%   win          Dataset that provides the axes and points for the calculation
-%                If one of the plot axes is energy transfer, then the output dataset
-%               will have dimensionality one less than the input dataset
+%   win         Dataset that provides the axes and points for the calculation
+%               If one of the plot axes is energy transfer, then the output dataset
+%              will have dimensionality one less than the input dataset
 %
-%   dispreln     Handle to function that calculates the dispersion relation w(Q)
-%               Must have form:
-%                   w = dispreln (qh,qk,ql,p)
-%                where
+%   dispreln    Handle to function that calculates the dispersion relation w(Q)
+%              Must have form:
+%                   [w,s] = dispreln (qh,qk,ql,p)
+%               where
 %                   qh,qk,ql    Arrays containing the coordinates of a set of points
 %                              in reciprocal lattice units
 %                   p           Vector of parameters needed by dispersion function 
 %                              e.g. [A,js,gam] as intensity, exchange, lifetime
 %                   w           Array of corresponding energies, or, if more than
 %                              one dispersion relation, a cell array of arrays.
+%                   s           Array of spectral weights, or, if more than
+%                              one dispersion relation, a cell array of arrays.
 %
-%               More general form is:
-%                   w = dispreln (qh,qk,ql,p,c1,c2,..)
+%              More general form is:
+%                   [w,s] = dispreln (qh,qk,ql,p,c1,c2,..)
 %                 where
 %                   p           Typically a vector of parameters that we might want 
 %                              to fit in a least-squares algorithm
 %                   c1,c2,...   Other constant parameters e.g. file name for look-up
-%                              table
+%                              table.
 %
 %   p           Arguments needed by the function. Most commonly, a vector of parameter
 %              values e.g. [A,js,gam] as intensity, exchange, lifetime. If a more general
