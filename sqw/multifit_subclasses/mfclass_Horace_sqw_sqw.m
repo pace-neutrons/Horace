@@ -726,7 +726,7 @@ classdef mfclass_Horace_sqw_sqw < mfclass
             [data_out, calcdata, ok, mess] = simulate@mfclass (obj_tmp, varargin{:});
         end
 
-        function [data_out, calcdata, ok, mess] = fit (obj)
+        function [data_out, calcdata, ok, mess] = fit (obj, varargin)
             % Perform a fit of the data using the current functions and parameter values
             %
             % Return calculated fitted datasets and parameters:
@@ -819,7 +819,7 @@ classdef mfclass_Horace_sqw_sqw < mfclass
                 wrapfun.bp_wrap = append_args (wrapfun.bp_wrap, 'ave');
                 obj_tmp.wrapfun = wrapfun;
             end
-            [data_out, calcdata, ok, mess] = fit@mfclass (obj_tmp);
+            [data_out, calcdata, ok, mess] = fit@mfclass (obj_tmp, varargin{:});
         end
     end
 end
