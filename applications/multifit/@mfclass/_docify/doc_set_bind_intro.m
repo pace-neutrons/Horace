@@ -21,8 +21,8 @@
 %   >> obj = obj.<func>_<pre>bind (b1, b2, b3...)
 %
 % Set one or more bindings for one or more specific <type>ground function(s)
-%   >> obj = obj.<func>_<pre>free (ifun, bind)
-%   >> obj = obj.<func>_<pre>free (ifun, b1, b2, b3...)
+%   >> obj = obj.<func>_<pre>bind (ifun, bind)
+%   >> obj = obj.<func>_<pre>bind (ifun, b1, b2, b3...)
 %
 % Input:
 % ------

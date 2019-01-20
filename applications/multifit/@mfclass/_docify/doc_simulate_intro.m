@@ -43,7 +43,9 @@
 %               data_out.back       Background calculation
 %           If there was a problem i.e. ok==false, then each field is =[].
 %
-%  calcdata Structure with result of the fit for each dataset. The fields are:
+%  calcdata Structure with the same format as that which would contain the result
+%           of a fit, but populated with the initial parameter values and
+%           all standard deviateions and covariances set to zero. The fields are:
 %           p      - Foreground parameter values (if foreground function(s) present)
 %                      If only one function, a row vector
 %                      If more than one function: a row cell array of row vectors

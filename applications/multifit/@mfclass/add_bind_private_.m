@@ -5,11 +5,16 @@ function [ok, mess, obj] = add_bind_private_ (obj, isfore, args)
 %
 % Set for all functions
 %   args = {}           % Do nothing
-%   args = {bind}       % Row vector (applies to all functions) or cell array (one per function)
+%   args = {bind}       % bind is a cell array of binding descriptors i.e.
+%                       % i.e. bind = {b1,b2,...} as below
+%                       % (bind can also be a numerical array size [n,5])
+%   args = {b1, b2,...} % b1,b2... is each a binding descriptor (a cell array
+%                         that contains numeric scalars or arrays)
 %
 % Set for one or more specific function(s)
-%   args = {ifun}
+%   args = {ifun}               % ifun is a numeric scalar or row vector
 %   args = {ifun, bind}
+%   args = {ifun, b1, b2,...}
 
 
 % Original author: T.G.Perring
@@ -25,10 +30,7 @@ end
 
 % Parse input arguments
 % ---------------------
-if numel(args)>=2 && isnumeric(args{1}) && iscell(args{2})
-    ifun = args{1};
-    bind = args(2:end);
-elseif numel(args)==1 && isnumeric(args{1})     % Case of single, numeric argument
+if numel(args)>=1 && isnumeric(args{1})
     ifun = args{1};
     bind = args(2:end);
 else

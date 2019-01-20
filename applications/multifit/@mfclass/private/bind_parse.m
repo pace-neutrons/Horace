@@ -20,6 +20,7 @@ function [ok,mess,ipb,ifunb,ipf,ifunf,R] = bind_parse(np,nbp,isfore,ifunb_def,bn
 %
 %   bnd         One of two forms:
 %               (1) Cell array of binding descriptors {b1, b2,...}
+%                   (or a scalar cell array containing this i.e. {{b1, b2,...}}
 %               Valid forms for b1, b2,... are:
 %                 If ifunb_def is given:
 %                   {ipb,  ipf}
@@ -39,6 +40,7 @@ function [ok,mess,ipb,ifunb,ipf,ifunf,R] = bind_parse(np,nbp,isfore,ifunb_def,bn
 %               of a single binding descriptor with one of the forms above.
 %
 %               (2) Numeric array size [n,5] where n is the number of bindings
+%                   (or a scalar cell array containing this)
 %               Each row of the array contains:
 %                   ipb         Parameter index within the functions for
 %                              the bound parameters
@@ -74,31 +76,63 @@ function [ok,mess,ipb,ifunb,ipf,ifunf,R] = bind_parse(np,nbp,isfore,ifunb_def,bn
 %               If to be set by values of initial parameter values, then is NaN;
 %              otherwise is finite.
 
+
+% Need to distinguish within a set of cases:
+% -Called directly with binding arguments:
+%   <empty>
+%    numeric        numeric size [n,5]
+%    b1             scalar cell array, nothing in it a cell array
+%   {b1,b2,...}     cell array of cell arrays
+%
+% -Called from a function that provides a cell array of the passed arguments:
+%   {}
+%   {numeric}       scalar cell array with a numeric size [n,5]
+%   {b1}            scalar cell array containing a cell array
+%  {{b1}}           scalar cell array containing a scalar cell array
+%  {{b1,b2,...}}    scalar cell array containing a cell array of cell arrays
+
 if isempty(bnd)
-    % Case of no input
+    % Case of empty input, including {}
     ok=true;
     mess='';
     [ipb,ifunb,ipf,ifunf,R]=empty_return;   % just use to fill with suitable values
     return
-end
-
-% Catch case of n x 5 numeric array input (which is valid) - turn into a cell array
-if ~iscell(bnd)
-    bnd = {bnd};
-end
-
-% Cell array binding descriptors
-if all(cellfun(@iscell,bnd))
-    % All binding descriptors are cell arrays
+    
+elseif isnumeric(bnd) || (iscell(bnd) && numel(bnd)==1 && isnumeric(bnd{1}))
+    % Case of numeric or {numeric} - so expecting a numeric array of binding descriptors
+    if isnumeric(bnd)
+        [ok,mess,ipb,ifunb,ipf,ifunf,R,self_rem] = bind_parse_array (np,nbp,isfore,bnd);
+    else
+        [ok,mess,ipb,ifunb,ipf,ifunf,R,self_rem] = bind_parse_array (np,nbp,isfore,bnd{1});
+    end
+    if ok && numel(ipf)==0 && self_rem
+        mess = 'No bindings left once instances of binding-to-self have been removed';
+    end
+    
+elseif iscell(bnd)
+    if isscalar(bnd) && iscell(bnd{1}) && all(cellfun(@iscell,bnd{1}(:)))
+        % Could be one of {{b1}} or {{b1,b2,...}} (but not b1, {b1} or {b1,b2,...}),
+        % so strip off outer {...}
+        bnd_tmp = bnd{1};
+    elseif ~all(cellfun(@iscell,bnd(:)))
+        % Not everything is in the cell array is a cell array (including the case
+        % that nothing is a cell array i.e. is b1), so treat as a single binding
+        % descriptor
+        bnd_tmp = {bnd};
+    else
+        % Just transfer a pointer
+        bnd_tmp = bnd;
+    end
+    % At this point, we have a cell array of cell arrays
     % Parse first descriptor
     [ok,mess,ipb,ifunb,ipf,ifunf,R,self_rem] = bind_parse_single...
-        (np,nbp,isfore,ifunb_def,bnd{1});
+        (np,nbp,isfore,ifunb_def,bnd_tmp{1});
     % Parse following descriptors
-    if ok && numel(bnd)>1
+    if ok && numel(bnd_tmp)>1
         nel = numel(ipf);
-        for i=2:numel(bnd)
+        for i=2:numel(bnd_tmp)
             [ok,mess,ipb_add,ifunb_add,ipf_add,ifunf_add,R_add,self_rem_add] = bind_parse_single...
-                (np,nbp,isfore,ifunb_def,bnd{i});
+                (np,nbp,isfore,ifunb_def,bnd_tmp{i});
             if ok
                 [ipb,ifunb,ipf,ifunf,R,nel] = accumulate_arrays (ipb,ifunb,ipf,ifunf,R,nel,...
                     ipb_add,ifunb_add,ipf_add,ifunf_add,R_add);
@@ -114,18 +148,11 @@ if all(cellfun(@iscell,bnd))
         ifunf = ifunf(1:nel);
         R = R(1:nel);
     end
-    
-elseif numel(bnd)==1 && isnumeric(bnd{1})
-    % Numeric array of binding descriptors
-    [ok,mess,ipb,ifunb,ipf,ifunf,R,self_rem] = bind_parse_array (np,nbp,isfore,bnd{1});
-    if ok && numel(ipf)==0 && self_rem
-        mess = 'No bindings left once instances of binding-to-self have been removed';
-    end
-    
 else
-    % Binding descriptors are not all cell arrays, so interpret as elements of one descriptor
-    [ok,mess,ipb,ifunb,ipf,ifunf,R,self_rem] = bind_parse_single...
-        (np,nbp,isfore,ifunb_def,bnd);
+    % Cannot be a valid format
+    ok=false;
+    mess='Invalid format for binding descriptor(s)';
+    [ipb,ifunb,ipf,ifunf,R]=empty_return;   % just use to fill with suitable values
 end
 
 % Warning message if all bindings are trivial self-bindings
@@ -349,7 +376,7 @@ elseif n==1
         return
     end
 else
-    mess='Invalid format';
+    mess='Invalid format of a binding descriptor';
     ok=false; ip = 0; ifun = 0;
     return
 end
@@ -453,7 +480,7 @@ function [ok,mess,ipb,ifunb,ipf,ifunf,R,self_rem] = bind_parse_array (np,nbp,isf
 self_rem = false;
 
 if ~isnumeric(bnd) || numel(size(bnd))~=2 || size(bnd,2)~=5
-    mess = 'binding array must be an n x 5 array';
+    mess = 'Numeric binding array must be an n x 5 array';
     ok = false; [ipb,ifunb,ipf,ifunf,R]=empty_return; return
     
 elseif size(bnd,1)==0
