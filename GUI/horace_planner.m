@@ -613,7 +613,7 @@ try
 
     %Add labels
     for i=1:numel(ff)
-        text(pts2(ff(i),1)+0.1,pts2(ff(i),2)+0.1,ptlabs2{ff(i),'Clipping','on'});
+        text(pts2(ff(i),1)+0.1,pts2(ff(i),2)+0.1,ptlabs2{ff(i)},'Clipping','on');
     end
 
     set(gca,'XAxisLocation','top');%ensure x-labels don't interfere with slider
