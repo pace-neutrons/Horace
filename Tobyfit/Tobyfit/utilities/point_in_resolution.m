@@ -71,22 +71,28 @@ if numel(Xlist) ~= Npx
     error('Xlist must have %d entries for X of size (%d,%d)',Npx,d,Npx)
 end
 
+cellHasPx = Xhead > 0;
+% fprintf('Now checking %d of %d cells for resolution inclusion\n',sum(hasPx),Ntot);
+cellHasPx = find(cellHasPx,Ntot); % A vector of indicies is easier to use
+
 pinr_Xidx = zeros(1,Npx);
 pinr_Xlen = zeros(1,Npx);
 pinr_frst = zeros(1,Npx);
 pinr_last = zeros(1,Npx);
-% If every point is within resolution for every pixel, we need to keep
-% track of Npx*Npt indicies:
-pinr_list = zeros(1,Npx*Npt);
+% % If every point is within resolution for every pixel, we need to keep
+% % track of Npx*Npt indicies:
+% pinr_list = zeros(1,Npx*Npt);
+% But doing so might take more memory than we have for a large volume of
+% (Q,E) [where we certainly don't need so many points due to the relatively
+% small overlap of R(Q,E)]
+pinr = cell(numel(cellHasPx),1);
+
 ninr = 0; % So we'll need to keep track of how much of the list is used
 iPx = 0; % the number of pixels accumulated thus far
 
 % Yhead == 0 are neighbourhoods without Y points
 % Xhead == 0 are neighbourhoods without X pixels
 
-cellHasPx = Xhead > 0;
-% fprintf('Now checking %d of %d cells for resolution inclusion\n',sum(hasPx),Ntot);
-cellHasPx = find(cellHasPx,Ntot); % A vector of indicies is easier to use
 
 for i=1:numel(cellHasPx)
     % get indicies in to X for pixels in cell cellHasPx(i)
@@ -99,6 +105,7 @@ for i=1:numel(cellHasPx)
     % the corresponding iXidx
     idx = point_in_ellipsoid_as_cells_new(Y(:,iYidx),M(:,:,iXidx),X(:,iXidx));
     
+    in_cell = cell(length(idx),1);
     for j=1:length(idx)
         iPx = iPx + 1; % Increment how many pixels we've accumulated
         iY = idx{j};
@@ -111,11 +118,17 @@ for i=1:numel(cellHasPx)
         % finally store the point indicies
         %   iY are indicies into iYidx, but we want the indicies into Y,
         %   which are iYidx(iY).
-        pinr_list( pinr_frst(iPx) : pinr_last(iPx) ) = iYidx(iY);  
+        %pinr_list( pinr_frst(iPx) : pinr_last(iPx) ) = iYidx(iY);  
+        in_cell{j} = iYidx(iY);
     end
+    pinr{i} = cat(2,in_cell{:});
 end
-% make sure we only return the part of pinr_list which has been populated
-pinr_list = pinr_list(1:ninr);
+% % make sure we only return the part of pinr_list which has been populated
+% pinr_list = pinr_list(1:ninr);
 
+pinr_list = cat(2,pinr{:});
+if numel(pinr_list)~= ninr
+    error('Something has gone wrong creating pinr_list')
+end
 end
 

@@ -45,15 +45,20 @@ function [iW,iPx,nPt,fst,lst,iPt,VxR] = gst_points_in_pixels_res(win,lookup,pnt,
 
 nwin = numel(win);
 nPx = arrayfun( @(x)(size( x.data.pix, 2)), win);
-this_nPt = numel(pnt_list); % or size(pntQE,2)
+nPt = numel(pnt_list); % or size(pntQE,2)
 
 iW  = zeros(1,sum(nPx));
 iPx = zeros(1,sum(nPx));
 nPt = zeros(1,sum(nPx));
 fst = zeros(1,sum(nPx));
 lst = zeros(1,sum(nPx));
-iPt = zeros(1,sum(nPx)*this_nPt);
-VxR = zeros(1,sum(nPx)*this_nPt);
+% If we had infinite RAM, we could always prealocate iPt and VxR, but in
+% some cases sum(nPx)*nPt might be huge and we do not have enough memory to
+% hold such an array.
+% iPt = zeros(1,sum(nPx)*nPt);
+% VxR = zeros(1,sum(nPx)*nPt);
+iPt_cell = cell(nwin,1);
+VxR_cell = cell(nwin,1);
 offsetPt = 0; % offset for iPt, VxR
 offsetPx = 0; % offset for iW, iPx, nPt, Pt1
 
@@ -106,14 +111,25 @@ for i=1:nwin
     fst( k ) = this_fst + offsetPt; % must offset the first-point index into iPt, VxR;
     lst( k ) = this_lst + offsetPt; % and the last-point index
     
-    f = offsetPt+(1:numel(this_iPt));
-    iPt( f ) = this_iPt;
-    VxR( f ) = this_VxR;
-    
+%     f = offsetPt+(1:numel(this_iPt));
+%     iPt( f ) = this_iPt;
+%     VxR( f ) = this_VxR;
+    iPt_cell{i} = this_iPt;
+    VxR_cell{i} = this_VxR;
+
     offsetPx = offsetPx+nPx(i);
     offsetPt = offsetPt+numel(this_iPt);
 end
 % And finally truncate the variable-sized outputs
-iPt = iPt(1:offsetPt);
-VxR = VxR(1:offsetPt);
+% iPt = iPt(1:offsetPt);
+% VxR = VxR(1:offsetPt);
+
+iPt = cat(2,iPt_cell{:});
+VxR = cat(2,VxR_cell{:});
+if numel(iPt) ~= offsetPt || numel(VxR) ~= offsetPt
+    error('Something has gone wrong with creation of iPt or VxR')
+end
+
+
+
 end
