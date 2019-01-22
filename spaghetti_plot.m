@@ -115,11 +115,19 @@ arglist = struct('qbin',0.05,'qwidth',0.1,'ebin',[],'labels','','noplot',false,.
     'cuts_plot_size',[]);
 flags = {'noplot','logscale'};
 
-
-
 % Parse the arguments:
 % --------------------
 [args,opt,present] = parse_arguments(varargin,arglist,flags);
+
+if numel(args)~=2
+    if length(args{1})>1 && isa((args{1}(1)),'d2d')
+        plot_dispersion(args{1},opt);
+        return
+    else
+        error('SPAGHETTI_PLOT:invalid_arguments',...
+            'Invalid number of arguments')
+    end
+end
 
 if size(args{1},2)~=3 || size(args{1},1)<2
     error('SPAGHETTI_PLOT:invalid_arguments',...
@@ -141,18 +149,6 @@ if present.cuts_plot_size
         end
     end
 end
-
-
-if numel(args)~=2
-    if length(args{1})>1 && isa((args{1}(1)),'d2d')
-        plot_dispersion(args{1},opt);
-        return
-    else
-        error('SPAGHETTI_PLOT:invalid_arguments',...
-            'Invalid number of arguments')
-    end
-end
-
 
 try
     sqwfile = exist(args{2},'file');
