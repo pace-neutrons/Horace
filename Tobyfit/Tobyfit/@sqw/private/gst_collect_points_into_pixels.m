@@ -28,6 +28,9 @@ if size(SQE,2) ~= nSQE
         SQE = permute(SQE(:),[2,1]);
     end
 end
+if isempty(iPt)
+    error('No points?!')
+end
 if max(iPt) > nSQE || min(iPt) < 1
     error('All iPt must be valid indicies into S(Q,E)')
 end

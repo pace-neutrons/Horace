@@ -411,6 +411,8 @@ QE_head = cell(nw,1);
 QE_list = cell(nw,1);
 mat_hkle = cell(nw,1);
 ell_hkle = cell(nw,1);
+ell_hkle_vecs = cell(nw,1);
+ell_hkle_eigs = cell(nw,1);
 for i=1:nw
     pix = calculate_qw_pixels(tmpw(i)); % {4,1} of (npix,1)
     QE{i} = cat(2, pix{:} )'; % (4,npix) matrix
@@ -425,14 +427,16 @@ for i=1:nw
     % We need the constant-probabilty (half-width, fractional-height)
     % ellipsoid for each pixel in order to decide which points will be
     % included in the per-pixel resolution integration.
-    ell_hkle{i} = resolution_ellipsoid_from_matrix( mat_hkle{i}, keywrd.frac );
+    [ell_hkle{i},ell_hkle_vecs{i},ell_hkle_eigs{i}] = resolution_ellipsoid_from_matrix( mat_hkle{i}, keywrd.frac );
 end
 lookup.QE = QE;
 lookup.QE_head = QE_head;
 lookup.QE_list = QE_list;
 lookup.mat_hkle = mat_hkle;
 lookup.ell_hkle = ell_hkle;
-    
+lookup.ell_hkle_vecs = ell_hkle_vecs;
+lookup.ell_hkle_eigs = ell_hkle_eigs;
+lookup.frac = keywrd.frac;
 
 
 if iscell(win)

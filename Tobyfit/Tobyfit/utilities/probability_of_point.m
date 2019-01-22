@@ -66,7 +66,7 @@ norm = ones(m,1);
 if norm_flag
     pid2 = (2*pi)^(d/2);
     for i=1:m
-        norm(i) = 1/( pid2* sqrt(det(M(:,:,i))) );
+        norm(i) = 1/( pid2* sqrt(det(inv(M(:,:,i)))) );
     end    
 end
 % scale-up M from (d,d,m) to (d,d,m,n) for mtimesx

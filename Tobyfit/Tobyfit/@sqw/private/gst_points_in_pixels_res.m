@@ -71,9 +71,10 @@ for i=1:nwin
     pix_head = lookup.QE_head{i};
     pix_list = lookup.QE_list{i};
     % Pixel (Gaussian width) resolution matrix
+    pixC = lookup.cov_hkle{i};
     pixM = lookup.mat_hkle{i};
-    % Pixel constant-probability (half-width, fractional-height) ellipsoid
-    pixL = lookup.ell_hkle{i};
+%     % Pixel constant-probability (half-width, fractional-height) ellipsoid
+%     pixL = lookup.ell_hkle{i};
     
     % For each pixel with (Q,E) 'pix' determine which points with 
     % (Q,E) 'pnt' are within the pixel resolution ellipsoid pixL.
@@ -91,19 +92,20 @@ for i=1:nwin
     %       iPt         a list of point indicies (up to) npt*npix in
     %                   length, but likely less, containing all point
     %                   indicies for each pixel
-    [this_iPx,this_nPt,this_fst,this_lst,this_iPt] = point_in_resolution(spanCell,nCell,pnt,pnt_head,pnt_list,pix,pixL,pix_head,pix_list);
-%     fprintf('%d ',this_nPt'); fprintf('\n');
-    this_VxR = zeros(size(this_iPt));
-    for j=1:nPx(i)
-        % the vector of indicies into iPt to determine *which* (Q,E) points
-        % are included in the convolution for the iPx(j)th pixel.
-        pt1n = this_fst(j):this_lst(j);
-        % Calculate the probability of each included (Q,E) point being
-        % measured within the resolution of pixel iPx(j). The final 'false'
-        % ensures that the probability is *not* normalized by the
-        % resolution volume - and therefore we get V(R(Q0,E0))*R(Q-Q0,E-E0)
-        this_VxR(pt1n) = probability_of_point( pnt(:, this_iPt(pt1n)), pixM(:,:,this_iPx(j)), pix(:,this_iPx(j)), false);
-    end
+% % % % %     [this_iPx,this_nPt,this_fst,this_lst,this_iPt] = point_in_resolution(spanCell,nCell,pnt,pnt_head,pnt_list,pix,pixL,pix_head,pix_list);
+% % % % % %     fprintf('%d ',this_nPt'); fprintf('\n');
+% % % % %     this_VxR = zeros(size(this_iPt));
+% % % % %     for j=1:nPx(i)
+% % % % %         % the vector of indicies into iPt to determine *which* (Q,E) points
+% % % % %         % are included in the convolution for the iPx(j)th pixel.
+% % % % %         pt1n = this_fst(j):this_lst(j);
+% % % % %         % Calculate the probability of each included (Q,E) point being
+% % % % %         % measured within the resolution of pixel iPx(j). The final 'false'
+% % % % %         % ensures that the probability is *not* normalized by the
+% % % % %         % resolution volume - and therefore we get V(R(Q0,E0))*R(Q-Q0,E-E0)
+% % % % %         this_VxR(pt1n) = probability_of_point( pnt(:, this_iPt(pt1n)), pixM(:,:,this_iPx(j)), pix(:,this_iPx(j)), false);
+% % % % %     end
+        [this_iPx,this_nPt,this_fst,this_lst,this_iPt,this_VxR] = point_in_resolution_with_prob(spanCell,nCell,pnt,pnt_head,pnt_list,pix,pixM,pixC,pix_head,pix_list,lookup.frac);
     k = offsetPx+(1:nPx(i)); 
     iW ( k ) = i;
     iPx( k ) = this_iPx;
