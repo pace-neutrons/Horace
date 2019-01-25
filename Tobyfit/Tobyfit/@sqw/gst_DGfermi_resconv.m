@@ -157,9 +157,10 @@ if isfield(store_in,'recycleQE') &&  store_in.recycleQE
 else
     % [npt,allQE,state_out] = cll_generate_points_mc(caller,state_in,mc_points,minQE,dQE,cell_N,cell_span);
 %     [allQE,state_out,store_out] = gst_DGfermi_genpoints_same(win,caller,lookup);
-    [allQE,state_out,store_out] = gst_DGfermi_genpoints(win,caller,state_in,store_in,pars,lookup,mc_contributions,mc_points,xtal,modshape);
     % [npt,allQE,state_out,store_out] = gst_DGfermi_gencornerpoints(win,caller,state_in,store_in,pars,lookup,mc_contributions,mc_points,xtal,modshape);
-%     [allQE,state_out,store_out] = gst_DGfermi_genpoints_gaussian(win,caller,state_in,store_in,pars,lookup,mc_contributions,mc_points,xtal,modshape);
+    [allQE,state_out,store_out] = gst_DGfermi_genpoints_gaussian(win,caller,state_in,lookup,mc_points);
+%     [allQE,state_out,store_out] = gst_DGfermi_genpoints(win,caller,state_in,store_in,pars,lookup,mc_contributions,mc_points,xtal,modshape);
+    
 
     if use_parallel_worker
         % Calculate S(Q,E) for each point in allQE, using a parallel worker

@@ -123,11 +123,15 @@ if refine_crystal && refine_moderator
     error('Cannot refine both crystal and moderator parameters. Error in logic flow - this should have been caught')
 end
 
+mc_points_in = mc_points;
+mc_points = ceil(mc_points);
+
 
 % Initialise output arguments
 % ---------------------------
 % Determine just how many QE points we will output:
-total_pixels = sum( arrayfun(@(x)(size(x.data.pix,2)),win) );
+all_npix = arrayfun(@(x)(size(x.data.pix,2)),win);
+total_pixels = sum( all_npix );
 noutput = mc_points * total_pixels;
 % So that we can pre-allocate output arrays
 allQE = zeros(4,noutput); % the generated (Q,E) points
@@ -207,7 +211,7 @@ for i=1:numel(ind)
     irun = win(i).data.pix(5,:)';   % column vector
     idet = win(i).data.pix(6,:)';   % column vector
     
-    npix = size(win(i).data.pix,2); % or numel(irun), numel(idet)
+    npix = all_npix(i);
     
     
     % Catch case of refining crystal orientation or moderator parameters
@@ -313,3 +317,18 @@ for i=1:numel(ind)
         
     end
 end
+
+% If passed-in mc_points was non-integer, now cut-down the total number of output points
+extra = mc_points-mc_points_in;
+if extra > 0
+    keep = round((1-extra)*total_pixels);
+    keepidx = randperm(total_pixels,keep);
+    allidx = cat(2,1:(noutput-total_pixels),sort(keepidx)+(noutput-total_pixels));
+    allQE = allQE(:,allidx);
+end
+% keep_ratio = mc_points_in-/mc_points;
+% if keep_ration < 1
+%     keep_no = round( keep_ratio * noutput);
+%     keep_idx = randperm( noutput, keep_no);
+%     allQE = allQE(:,keep_idx);
+% end

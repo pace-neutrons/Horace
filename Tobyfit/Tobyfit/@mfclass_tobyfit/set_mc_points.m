@@ -6,7 +6,8 @@ function obj = set_mc_points (obj, val)
 
 if nargin==1 || isempty(val)
     obj.mc_points_ = 10;
-elseif isnumeric(val) && isfinite(val) && val>0 && rem(val,1)==0
+elseif isnumeric(val) && isfinite(val) && val>0 && ... 
+        (rem(val,1)==0 || isequal(obj.wrapfun.fun_wrap, @gst_DGfermi_resconv) )
     obj.mc_points_ = val;
 else
     error ('Number of Monte Carlo points per pixel must be a positive integer')
