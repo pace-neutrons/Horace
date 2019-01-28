@@ -1,7 +1,7 @@
 % function [pinr_Xidx,pinr_Xlen,pinr_frst,pinr_last,pinr_list,pinr_VxR] = ...
 %     point_in_resolution_with_prob(span,N,Y,Yhead,Ylist,X,M,C,Xhead,Xlist,frac)
 function [pinr_Xidx,pinr_Xlen,pinr_frst,pinr_last,pinr_list,pinr_VxR] = ...
-    point_in_resolution_with_prob(span,N,Y,Yhead,Ylist,X,M,vol,Xhead,Xlist,frac)
+    point_in_run_resolution_with_prob(span,N,Y,Yrun,Yhead,Ylist,X,M,vol,Xrun,Xhead,Xlist,frac)
 
 % Determine if a point (or points) Y is inside of the resolution defined by
 % Xcov centered at X.
@@ -123,7 +123,7 @@ for i=1:numel(cellHasPx)
     % get a cell array where each element are the indicies into iYidx for
     % the corresponding iXidx
 %     [idx,prob] = point_in_ellipsoid_with_prob(Y(:,iYidx),M(:,:,iXidx),C(:,:,iXidx),X(:,iXidx),frac);
-    [idx,prob] = point_in_ellipsoid_with_prob(Y(:,iYidx),M(:,:,iXidx),vol(iXidx),X(:,iXidx),frac);
+    [idx,prob] = point_in_run_ellipsoid_with_prob(Y(:,iYidx),Yrun(iYidx),M(:,:,iXidx),vol(iXidx),X(:,iXidx),Xrun(iXidx),frac);
     
     in_cell = cell(length(idx),1);
     for j=1:length(idx)

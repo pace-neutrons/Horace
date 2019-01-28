@@ -58,7 +58,7 @@ c_sub = cll_lin2sub(centre,N,span,Ntot,from); % this is (d,n)
 % Generate/lookup the diagonals. corners.m includes zeros(d), which is
 % fine here since we should include the centre cell within the list of
 % neighbours.
-ad = permute( corners(d), [2,3,1] ); % (d,1,3^d)
+ad = permute( fastcorners(d), [2,3,1] ); % (d,1,3^d)
 % The neighbour subscripted indicies are just c_sub plus the diagonals
 n_sub = reshape( bsxfun(@plus,c_sub,ad), d, n*3^d ); % (d,n,3^d) -> (d,n*3^d)
 
@@ -79,4 +79,121 @@ nC = sum(bsxfun(@times,span,n_sub-from),1)+from; % (d,1) * (d,d^3) -> (1,d^3)
 
 % Finally, make sure we're only keeping unique neighbour cell indicies
 nC = unique(nC);
+end
+
+function fc = fastcorners(D)
+switch D
+    case 3
+        fc = [  -1    -1    -1
+                -1    -1     0
+                -1    -1     1
+                -1     0    -1
+                -1     0     0
+                -1     0     1
+                -1     1    -1
+                -1     1     0
+                -1     1     1
+                 0    -1    -1
+                 0    -1     0
+                 0    -1     1
+                 0     0    -1
+                 0     0     0
+                 0     0     1
+                 0     1    -1
+                 0     1     0
+                 0     1     1
+                 1    -1    -1
+                 1    -1     0
+                 1    -1     1
+                 1     0    -1
+                 1     0     0
+                 1     0     1
+                 1     1    -1
+                 1     1     0
+                 1     1     1];
+    case 4
+        fc = [  -1    -1    -1    -1
+                -1    -1    -1     0
+                -1    -1    -1     1
+                -1    -1     0    -1
+                -1    -1     0     0
+                -1    -1     0     1
+                -1    -1     1    -1
+                -1    -1     1     0
+                -1    -1     1     1
+                -1     0    -1    -1
+                -1     0    -1     0
+                -1     0    -1     1
+                -1     0     0    -1
+                -1     0     0     0
+                -1     0     0     1
+                -1     0     1    -1
+                -1     0     1     0
+                -1     0     1     1
+                -1     1    -1    -1
+                -1     1    -1     0
+                -1     1    -1     1
+                -1     1     0    -1
+                -1     1     0     0
+                -1     1     0     1
+                -1     1     1    -1
+                -1     1     1     0
+                -1     1     1     1
+                 0    -1    -1    -1
+                 0    -1    -1     0
+                 0    -1    -1     1
+                 0    -1     0    -1
+                 0    -1     0     0
+                 0    -1     0     1
+                 0    -1     1    -1
+                 0    -1     1     0
+                 0    -1     1     1
+                 0     0    -1    -1
+                 0     0    -1     0
+                 0     0    -1     1
+                 0     0     0    -1
+                 0     0     0     0
+                 0     0     0     1
+                 0     0     1    -1
+                 0     0     1     0
+                 0     0     1     1
+                 0     1    -1    -1
+                 0     1    -1     0
+                 0     1    -1     1
+                 0     1     0    -1
+                 0     1     0     0
+                 0     1     0     1
+                 0     1     1    -1
+                 0     1     1     0
+                 0     1     1     1
+                 1    -1    -1    -1
+                 1    -1    -1     0
+                 1    -1    -1     1
+                 1    -1     0    -1
+                 1    -1     0     0
+                 1    -1     0     1
+                 1    -1     1    -1
+                 1    -1     1     0
+                 1    -1     1     1
+                 1     0    -1    -1
+                 1     0    -1     0
+                 1     0    -1     1
+                 1     0     0    -1
+                 1     0     0     0
+                 1     0     0     1
+                 1     0     1    -1
+                 1     0     1     0
+                 1     0     1     1
+                 1     1    -1    -1
+                 1     1    -1     0
+                 1     1    -1     1
+                 1     1     0    -1
+                 1     1     0     0
+                 1     1     0     1
+                 1     1     1    -1
+                 1     1     1     0
+                 1     1     1     1];
+    otherwise
+        fc = corners(N);
+end
 end

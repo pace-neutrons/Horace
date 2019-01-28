@@ -1,4 +1,4 @@
-function [iW,iPx,nPt,fst,lst,iPt,VxR] = gst_points_in_pixels_res(win,lookup,pnt,pnt_head,pnt_list)
+function [iW,iPx,nPt,fst,lst,iPt,VxR] = gst_kf_points_in_pixels_res(win,lookup,pnt,pntrun,pnt_head,pnt_list)
 % For all pixels in all SQW objects, determine which points of pntQE are
 % within resolution, and what the value of the pixel resolution-volume 
 % times the value of the pixel resolution-function is at the point 
@@ -67,17 +67,16 @@ nCell = lookup.cell_N;
 for i=1:nwin 
     % Pull predetermined values from the lookup
     % Pixel QE points and linked list arranging pixels by neighbourhood cell
-    pix = lookup.QE{i};
+    %pixX = lookup.QE{i};
+    % Here we're only considering kf for resolution overlap
+    pixX = lookup.vkf{i};
+    pixrun = lookup.irun{i};
     pix_head = lookup.QE_head{i};
     pix_list = lookup.QE_list{i};
-    % Pixel resolution covariance matrix
-%     pixC = lookup.cov_hkle{i};
     % Pixel (Gaussian width) resolution matrix and its volume
-    pixM = lookup.mat_hkle{i};
-    pixV = lookup.vol_hkle{i};
-%     % Pixel constant-probability (half-width, fractional-height) ellipsoid
-%     pixL = lookup.ell_hkle{i};
-    
+    pixM = lookup.mat_kf{i};
+    pixV = lookup.vol_kf{i};
+
     % For each pixel with (Q,E) 'pix' determine which points with 
     % (Q,E) 'pnt' are within the pixel resolution ellipsoid pixL.
     % To make things as complex as possible: 
@@ -99,7 +98,7 @@ for i=1:nwin
     %                   resolution volume times the probability of being
     %                   within-resolution. [or, the value of
     %                   R{(Q,E)pix-(Q,E)pnt} if R is *not* normalized]
-    [this_iPx,this_nPt,this_fst,this_lst,this_iPt,this_VxR] = point_in_resolution_with_prob(spanCell,nCell,pnt,pnt_head,pnt_list,pix,pixM,pixV,pix_head,pix_list,lookup.frac);
+    [this_iPx,this_nPt,this_fst,this_lst,this_iPt,this_VxR] = point_in_run_resolution_with_prob(spanCell,nCell,pnt,pntrun,pnt_head,pnt_list,pixX,pixM,pixV,pixrun,pix_head,pix_list,lookup.frac);
     k = offsetPx+(1:nPx(i)); 
     iW ( k ) = i;
     iPx( k ) = this_iPx;

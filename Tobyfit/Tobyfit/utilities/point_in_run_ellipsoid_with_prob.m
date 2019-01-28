@@ -1,4 +1,4 @@
-function [m_in_n, allVxR] = point_in_ellipsoid_with_prob(x,M,vol,x0,frac)
+function [m_in_n, allVxR] = point_in_run_ellipsoid_with_prob(x,x_run,M,vol,x0,x0_run,frac)
 % Determine if a point (or points) x is inside of the ellipsoid defined by
 % M centered at x0.
 
@@ -49,24 +49,22 @@ if any(size(x0)~=[d,m])
     error('x0 must be (%d,%d) for %d ellipsoid(s) and %d-dimensional point input',d,m,d,m)
 end
 
-% A normalized d-dimensional Gaussian is:
-%       exp( - (x-x0)'*M*(x-x0)/2 )     exp( - (x-x0)'*M*(x-x0)/2 )
-%    ------------------------------- == ---------------------------
-%      (2pi)^(d/2)*sqrt(det(inv(M)))      (2pi)^(d/2)*sqrt(det(C))
-% 
-% pid2 = (2*pi)^(d/2);
-
 m_in_n = cell(m,1);
 allVxR = cell(m,1);
 % Faster than any other tested method:
 for j=1:m
-    v = bsxfun(@minus,x,x0(:,j)); % (d,n)
-    vMv = sum( v .* mtimesx_horace( M(:,:,j), v), 1); % (d,n).*( (d,d)*(d,n) ) => (d,n); sum( (d,n), 1) => (1,n)
-    VxR = exp(-vMv/2);
-%     p = VxR / (pid2*sqrt(det(C(:,:,j))));
-    m_in_n{j} = find( VxR >= frac*vol(j), n);
-    if numel(m_in_n{j})>0
-        allVxR{j} = VxR(m_in_n{j});
+    same_run = x_run == x0_run(j); %(1,n)
+    if any(same_run)
+%         fprintf('\t%4d points with same run index as pixel %4d\n',sum(same_run),j)
+        v = bsxfun(@minus,x(:,same_run),x0(:,j)); % (d,sr<=n)
+        vMv = sum( v .* mtimesx_horace( M(:,:,j), v), 1); % (d,sr).*( (d,d)*(d,sr) ) => (d,sr); sum( (d,sr), 1) => (1,sr)
+        VxR = exp(-vMv/2);
+        in_res = VxR >= frac*vol(j); %(1,sr)
+        same_run_idx = find( same_run, n); % (1,sr);
+        m_in_n{j} = same_run_idx(in_res);
+        if numel(m_in_n{j})>0
+            allVxR{j} = VxR(in_res);
+        end
     end
 end
 end

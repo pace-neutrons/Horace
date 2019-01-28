@@ -1,4 +1,4 @@
-function [ok,mess,lookup,npix] = gst_DGfermi_resconv_init (win, varargin)
+function [ok,mess,lookup,npix] = gst_kf_DGfermi_resconv_init (win, varargin)
 % Fill various lookup tables and matrix transformations for resolution calculations
 %
 % For all pixels in the input sqw object(s):
@@ -227,7 +227,10 @@ chopper=cell(nw,1);     %       "
 wa=cell(nw,1);          %       "
 ha=cell(nw,1);          %       "
 ki=cell(nw,1);          %       "
+vki=cell(nw,1);         % element size [3,npix]
 kf=cell(nw,1);          % element size [npix,1]
+vkf=cell(nw,1);         % element size [3,npix]
+stash_irun=cell(nw,1);
 sample=repmat(IX_sample,nw,1);
 s_mat=cell(nw,1);       % element size [3,3,nrun]
 spec_to_rlu=cell(nw,1); % element size [3,3,nrun]
@@ -308,6 +311,11 @@ for iw=1:nw
     qk_mat{iw} = qk_matrix_DGfermi( ki{iw}(irun), kf{iw}, d_mat{iw}(:,:,idet), spec_to_rlu{iw}(:,:,irun), k_to_e);
      % Matrix that gives deviation in Q (in rlu) from deviations in tm, tch etc. for each pixel
     dq_mat{iw} = mtimesx_horace(qk_mat{iw},b_mat{iw});
+    
+    % Compute the ki and kf vector (to be stored in lookup)
+    vki{iw} = cat(1,ki{iw}(irun)',zeros(2,npix(iw)));
+    vkf{iw} = bsxfun(@times,kf{iw}',detdcn{iw}(:,idet));
+    stash_irun{iw} = irun;
 
 end
 
@@ -340,7 +348,10 @@ lookup.chopper=chopper;
 lookup.wa=wa;
 lookup.ha=ha;
 lookup.ki=ki;
+lookup.vki=vki;
 lookup.kf=kf;
+lookup.vkf=vkf;
+lookup.irun = stash_irun;
 lookup.sample=sample;
 lookup.s_mat=s_mat;
 lookup.spec_to_rlu=spec_to_rlu;
@@ -375,6 +386,10 @@ end
 lookup.cov_hkle = cov_hkle;
 lookup.cov_kikf = cov_kikf;
 
+% For this method of resolution comparison, it will be usefull to keep
+% track of ki and kf vectors for all pixels:
+
+
 % The following functions are private Tobyfit/@sqw functions and therefore
 % their first input MUST be discernable as one or more sqw objects.
 % A cell of sqw objects is identified as type cell and then MATLAB doesn't
@@ -390,16 +405,16 @@ end
 %               frac*R(Q0,E0) ]
 %   maxQE       the maximum (Qx,Qy,Qz,E)
 %   dQE         the maximum resolution halfwidth along each (Qx,Qy,Qz,E)
-[minQE,maxQE,dQE] = gst_resolution_limits(tmpw,lookup,keywrd.frac);
+[minkf,maxkf,dkf] = gst_kf_resolution_limits(tmpw,lookup,keywrd.frac);
 %   cell_span   the ith element gives the difference in linear indicies
 %               into the total cell array for the ith dimension (and is the
 %               product of the 1st to (i-1)th sizes of the array)
 %   cell_N      the sizes of the neighbourhood cell array in (Qx,Qy,Qz,E)
-[cell_span,cell_N] = cll_cell_span(minQE,maxQE,dQE);
+[cell_span,cell_N] = cll_cell_span(minkf,maxkf,dkf);
 
-lookup.minQE = minQE;
-lookup.maxQE = maxQE;
-lookup.dQE   = dQE;
+lookup.minkf = minkf;
+lookup.maxkf = maxkf;
+lookup.dkf   = dkf;
 lookup.cell_span = cell_span;
 lookup.cell_N = cell_N;
 
@@ -409,35 +424,55 @@ lookup.cell_N = cell_N;
 QE = cell(nw,1);
 QE_head = cell(nw,1);
 QE_list = cell(nw,1);
-mat_hkle = cell(nw,1);
-vol_hkle = cell(nw,1);
-ell_hkle = cell(nw,1);
-ell_hkle_vecs = cell(nw,1);
-ell_hkle_eigs = cell(nw,1);
+% mat_kikf = cell(nw,1);
+% vol_kikf = cell(nw,1);
+% ell_kikf = cell(nw,1);
+% ell_kikf_vecs = cell(nw,1);
+% ell_kikf_eigs = cell(nw,1);
+mat_kf = cell(nw,1);
+vol_kf = cell(nw,1);
+ell_kf = cell(nw,1);
+ell_kf_vecs = cell(nw,1);
+ell_kf_eigs = cell(nw,1);
 for i=1:nw
     pix = calculate_qw_pixels(tmpw(i)); % {4,1} of (npix,1)
     QE{i} = cat(2, pix{:} )'; % (4,npix) matrix
     % Determine the linked list for pixels:
-    [QE_head{i},QE_list{i}]=cll_make_linked_list(QE{i},minQE,maxQE,dQE,cell_span,cell_N);
+    [QE_head{i},QE_list{i}]=cll_make_linked_list(lookup.vkf{i},minkf,maxkf,dkf,cell_span,cell_N);
     
-    pixC = lookup.cov_hkle{i}; % the covariance matrix for each pixel
+%     pixC = lookup.cov_kikf{i}; % the covariance matrix for each pixel
+%     % We need the (Gaussian width) resolution matrix for each pixel in
+%     % order to determine the resolution volume for each pixel and the
+%     % probability of measuring a neutron with (ki_j,kf_j)
+%     [mat_kikf{i},vol_kikf{i}] = resolution_matrix_from_covariance( pixC );
+%     % We need the constant-probabilty (half-width, fractional-height)
+%     % ellipsoid for each pixel in order to decide which points will be
+%     % included in the per-pixel resolution integration.
+%     [ell_kikf{i},ell_kikf_vecs{i},ell_kikf_eigs{i}] = resolution_ellipsoid_from_matrix( mat_kikf{i}, keywrd.frac );
+%     
+    pixC = lookup.cov_kikf{i}(4:6,4:6,:); % the covariance matrix for each pixel
     % We need the (Gaussian width) resolution matrix for each pixel in
     % order to determine the resolution volume for each pixel and the
-    % probability of measuring a neutron with (Q_j,E_j)
-    [mat_hkle{i},vol_hkle{i}] = resolution_matrix_from_covariance( pixC );
+    % probability of measuring a neutron with (kf_j)
+    [mat_kf{i},vol_kf{i}] = resolution_matrix_from_covariance( pixC );
     % We need the constant-probabilty (half-width, fractional-height)
     % ellipsoid for each pixel in order to decide which points will be
     % included in the per-pixel resolution integration.
-    [ell_hkle{i},ell_hkle_vecs{i},ell_hkle_eigs{i}] = resolution_ellipsoid_from_matrix( mat_hkle{i}, keywrd.frac );
+    [ell_kf{i},ell_kf_vecs{i},ell_kf_eigs{i}] = resolution_ellipsoid_from_matrix( mat_kf{i}, keywrd.frac );
 end
 lookup.QE = QE;
 lookup.QE_head = QE_head;
 lookup.QE_list = QE_list;
-lookup.mat_hkle = mat_hkle;
-lookup.vol_hkle = vol_hkle;
-lookup.ell_hkle = ell_hkle;
-lookup.ell_hkle_vecs = ell_hkle_vecs;
-lookup.ell_hkle_eigs = ell_hkle_eigs;
+% lookup.mat_kikf = mat_kikf;
+% lookup.vol_kikf = vol_kikf;
+% lookup.ell_kikf = ell_kikf;
+% lookup.ell_kikf_vecs = ell_kikf_vecs;
+% lookup.ell_kikf_eigs = ell_kikf_eigs;
+lookup.mat_kf = mat_kf;
+lookup.vol_kf = vol_kf;
+lookup.ell_kf = ell_kf;
+lookup.ell_kf_vecs = ell_kf_vecs;
+lookup.ell_kf_eigs = ell_kf_eigs;
 lookup.frac = keywrd.frac;
 
 
