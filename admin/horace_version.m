@@ -62,7 +62,6 @@ application.name='horace';
 
 application.version=3;
 
-
 Matlab_SVN='$Revision::      $ ($Date::                                              $)';
 
 % Information about name and version of application
