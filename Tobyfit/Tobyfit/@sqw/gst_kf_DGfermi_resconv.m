@@ -112,20 +112,17 @@ dkf   = lookup.dkf;
 cell_span = lookup.cell_span;
 cell_N    = lookup.cell_N;
 
-% Generate the full list of (Q,E) points at which we will calculate S(Q,E)
-
 % -------------------------------------------------------------
 % To avoid re-generating points when, e.g., determing the derivatives of a
 % goodness of fit criteria, allow for the points to be passed to us in the
 % store_in structure
-if isfield(store_in,'recycleQE') &&  store_in.recycleQE
+% if isfield(store_in,'recycleQE') &&  store_in.recycleQE
+if isfield(caller,'reset_state') && caller.reset_state ...
+        && isfield(store_in,'allQE') && isfield(store_in,'iW') ...
+        && isfield(store_in,'iPx')   && isfield(store_in,'nPt') ...
+        && isfield(store_in,'fst') && isfield(store_in,'lst') ...
+        && isfield(store_in,'iPt') && isfield(store_in,'VxR') 
     allQE = store_in.allQE;
-    
-    % If we have already determined the relationship between the (Q,E)
-    % points and pixels, we don't need the linked list any longer
-%     allQE_head = store_in.allQE_head; 
-%     allQE_list = store_in.allQE_list;
-    
     % Vectors relating pixel indicies to between 0 and npt point indicies
     % [i.e., allQE(:,j)].
     iW  = store_in.iW;  % The index into win for the pixel
@@ -139,17 +136,17 @@ if isfield(store_in,'recycleQE') &&  store_in.recycleQE
                         % gives the volume of the resolution volume of
                         % pixel iPx(i) times the value of the resolution
                         % function evaluated at allQE(:, iPt(Pt1(i)+(0:nPt(i)-1)) )
-    
-    % Make sure we return the same information that we were passed:
-    store_out = store_in;
-
+    % We don't use state_in, but if we're fitting we need to make sure we
+    % define state_out, and it might as well be a copy of state_in
+    state_out = state_in;
     % Calculate S(Q,E) for each point in allQE
     % ----------------------------------------
     fprintf('Calculating S(Q,E) for a total of %d (Q,E) points\n',size(allQE,2));
     % TODO: Shunt this into its own thread somehow? Allow for Sij(Q,E)
     allSQE = sqwfunc( allQE(1,:), allQE(2,:), allQE(3,:), allQE(4,:), pars{:});
 else
-    [allQE,pntki,pntkf,pntrun,state_out,store_out] = gst_kf_DGfermi_genpoints(win,caller,state_in,store_in,pars,lookup,mc_contributions,mc_points,xtal,modshape);
+%     [allQE,pntki,pntkf,pntrun,state_out,store_out] = gst_kf_DGfermi_genpoints(win,caller,state_in,store_in,pars,lookup,mc_contributions,mc_points,xtal,modshape);
+    [allQE,pntki,pntkf,pntrun,state_out] = gst_kf_DGfermi_genpoints(win,caller,state_in,store_in,pars,lookup,mc_contributions,mc_points,xtal,modshape);
 
     if use_parallel_worker
         % Calculate S(Q,E) for each point in allQE, using a parallel worker
@@ -164,7 +161,9 @@ else
     
     % Determine the vectors describing the points within resolution for
     % each pixel
-    [iW,iPx,nPt,fst,lst,iPt,VxR] = gst_kf_points_in_pixels_res(win,lookup,pntkf,pntrun,pnt_head,pnt_list);
+    fprintf('\t%30s\t','Points within R(Q,E) per pixel');
+    [iW,iPx,nPt,fst,lst,iPt,VxR] = gst_kf_points_in_pixels_res(win,lookup,pntkf,pntrun,pnt_head,pnt_list);    
+    fprintf(' %d %d %d %d %d\n',round(mean(nPt)),min(nPt),round(median(nPt)),mode(nPt),max(nPt));
     
     % Block execution until allSQE is calculated and returned
     if use_parallel_worker
@@ -181,21 +180,6 @@ end
 allSQE = allSQE(:);
 
 
-fprintf('%30s\n','Points within R(Q,E) per pixel');
-fprintf('  %4s  %3s  %6s  %4s  %3s\n','mean','min','median','mode','max');
-fprintf('  %s\n',repmat('-',1,28));
-fprintf('  %4d  %3d  %6d  %4d  %3d\n',round(mean(nPt)),min(nPt),round(median(nPt)),mode(nPt),max(nPt));
 wout = gst_collect_points_into_pixels(win,iW,iPx,nPt,fst,lst,iPt,allSQE,VxR);
 
-
-if isfield(store_in,'keepQE') && store_in.keepQE
-    store_out.allQE = allQE;
-    store_out.iW  = iW;
-    store_out.iPx = iPx;
-    store_out.nPt = nPt;
-    store_out.fst = fst;
-    store_out.lst = lst;
-    store_out.iPt = iPt;
-    store_out.VxR = VxR;
-    store_out.recycleQE = true; % FIXME. This is probably not good.
-end
+store_out = struct('allQE',allQE,'iW',iW,'iPx',iPx,'nPt',nPt,'fst',fst,'lst',lst,'iPt',iPt,'VxR',VxR);

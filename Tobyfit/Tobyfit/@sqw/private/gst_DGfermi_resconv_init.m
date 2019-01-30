@@ -367,13 +367,20 @@ lookup.k_to_e=k_to_e;
 %   cov_spec    the spectrometer axes
 % normally we only care about cov_hkle, but if we try to compare generated
 % points to instrument pixels based on kf we would also need cov_kikf.
+%
+% if exist('indx','var')
+%     [cov_hkle,cov_kikf] = gst_DGfermi_resfun_covariance( win, indx, lookup);
+% else
+%     [cov_hkle,cov_kikf] = gst_DGfermi_resfun_covariance( win, [], lookup);
+% end
+% lookup.cov_hkle = cov_hkle;
+% lookup.cov_kikf = cov_kikf;
 if exist('indx','var')
-    [cov_hkle,cov_kikf] = gst_DGfermi_resfun_covariance( win, indx, lookup);
+    lookup.cov_hkle = gst_DGfermi_resfun_covariance( win, indx, lookup);
 else
-    [cov_hkle,cov_kikf] = gst_DGfermi_resfun_covariance( win, [], lookup);
+    lookup.cov_hkle = gst_DGfermi_resfun_covariance( win, [], lookup);
 end
-lookup.cov_hkle = cov_hkle;
-lookup.cov_kikf = cov_kikf;
+
 
 % The following functions are private Tobyfit/@sqw functions and therefore
 % their first input MUST be discernable as one or more sqw objects.
@@ -403,7 +410,7 @@ lookup.dQE   = dQE;
 lookup.cell_span = cell_span;
 lookup.cell_N = cell_N;
 
-% And we can pre-determien the linked list array for the pixel locations in
+% And we can pre-determine the linked list array for the pixel locations in
 % the neighbourhood cell array, plus the HWFH resolution matricies and
 % constant-probability resolution ellipsoids for each pixel.
 QE = cell(nw,1);
@@ -411,9 +418,9 @@ QE_head = cell(nw,1);
 QE_list = cell(nw,1);
 mat_hkle = cell(nw,1);
 vol_hkle = cell(nw,1);
-ell_hkle = cell(nw,1);
-ell_hkle_vecs = cell(nw,1);
-ell_hkle_eigs = cell(nw,1);
+% ell_hkle = cell(nw,1);
+% ell_hkle_vecs = cell(nw,1);
+% ell_hkle_eigs = cell(nw,1);
 for i=1:nw
     pix = calculate_qw_pixels(tmpw(i)); % {4,1} of (npix,1)
     QE{i} = cat(2, pix{:} )'; % (4,npix) matrix
@@ -428,16 +435,16 @@ for i=1:nw
     % We need the constant-probabilty (half-width, fractional-height)
     % ellipsoid for each pixel in order to decide which points will be
     % included in the per-pixel resolution integration.
-    [ell_hkle{i},ell_hkle_vecs{i},ell_hkle_eigs{i}] = resolution_ellipsoid_from_matrix( mat_hkle{i}, keywrd.frac );
+%     [ell_hkle{i},ell_hkle_vecs{i},ell_hkle_eigs{i}] = resolution_ellipsoid_from_matrix( mat_hkle{i}, keywrd.frac );
 end
 lookup.QE = QE;
 lookup.QE_head = QE_head;
 lookup.QE_list = QE_list;
 lookup.mat_hkle = mat_hkle;
 lookup.vol_hkle = vol_hkle;
-lookup.ell_hkle = ell_hkle;
-lookup.ell_hkle_vecs = ell_hkle_vecs;
-lookup.ell_hkle_eigs = ell_hkle_eigs;
+% lookup.ell_hkle = ell_hkle;
+% lookup.ell_hkle_vecs = ell_hkle_vecs;
+% lookup.ell_hkle_eigs = ell_hkle_eigs;
 lookup.frac = keywrd.frac;
 
 

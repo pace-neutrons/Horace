@@ -48,7 +48,7 @@ if ~mfclass.legacy(varargin{:})
     % ----------------------------
     % Get resolution function model type
     if numel(varargin)>1 && ischar(varargin{end})
-        valid_models = {'fermi','disk','gst','gst_kf'};
+        valid_models = {'fermi','fermi_1shot','disk','gst','gst_kf'};
         ind = strncmpi(varargin{end},valid_models,length(varargin{end}));
         if ~isempty(ind)
             model=valid_models{ind};
@@ -64,6 +64,9 @@ if ~mfclass.legacy(varargin{:})
     % Initialise
     if strcmp(model,'fermi')
         mf_init = mfclass_wrapfun (@tobyfit_DGfermi_resconv, [], @func_eval, [],...
+            true, false, @tobyfit_DGfermi_resconv_init, []);
+    elseif strcmp(model,'fermi_1shot')
+        mf_init = mfclass_wrapfun (@tobyfit_DGfermi_1shot_resconv, [], @func_eval, [],...
             true, false, @tobyfit_DGfermi_resconv_init, []);
     elseif strcmp(model,'gst')
         mf_init = mfclass_wrapfun (@gst_DGfermi_resconv, [], @func_eval, [],...

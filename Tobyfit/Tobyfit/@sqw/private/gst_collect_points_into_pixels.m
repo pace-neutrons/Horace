@@ -41,18 +41,22 @@ for i=1:nwin
         if iW(j)~=i
             error('Something has gone horribly wrong') % DEBUG
         end
-        % The signal for pixel iPx(j) is the V(R(Q0,E0)) times the integral of S(Q,E)*R(Q-Q0,E-E0)
-        s = VxR(fst(j):lst(j)).*SQE(iPt(fst(j):lst(j)));
-        % Which we're approximating as the sum over
-        % V(R(Q0,E0))*R(Q-Q0,E-E0)*S(Q,E), all divided by the number of
-        % points included in the sum.
-        wout(i).data.pix(8,iPx(j)) = sum(s)/nPt(j);
-        % If we assume the variance of S(Q,E) is Gaussian-like, we can
-        % calculate the variance in our estimate to V(R(Q0,E0))*Int[S(Q,E)*R(Q-Q0,E-E0)]
-        wout(i).data.pix(9,iPx(j)) = abs(sum(s.^2)-sum(s)^2)/nPt(j)^2;
-        % Or we could use the real [variance]/nPt, if we know it. Or just
-        % claim there is no error in our integration
-        %   wout(i).data.pix(9,iPx(j)) = 0;
+        if nPt(j)>0
+            % The signal for pixel iPx(j) is the V(R(Q0,E0)) times the integral of S(Q,E)*R(Q-Q0,E-E0)
+            s = VxR(fst(j):lst(j)).*SQE(iPt(fst(j):lst(j)));
+            % Which we're approximating as the sum over
+            % V(R(Q0,E0))*R(Q-Q0,E-E0)*S(Q,E), all divided by the number of
+            % points included in the sum.
+            wout(i).data.pix(8,iPx(j)) = sum(s)/nPt(j);
+            % If we assume the variance of S(Q,E) is Gaussian-like, we can
+            % calculate the variance in our estimate to V(R(Q0,E0))*Int[S(Q,E)*R(Q-Q0,E-E0)]
+            wout(i).data.pix(9,iPx(j)) = abs(sum(s.^2)-sum(s)^2)/nPt(j)^2;
+            % Or we could use the real [variance]/nPt, if we know it. Or just
+            % claim there is no error in our integration
+            %   wout(i).data.pix(9,iPx(j)) = 0;
+        else
+            wout(i).data.pix(8:9,iPx(j))=0;
+        end
     end
     wout(i) = recompute_bin_data(wout(i));
 end

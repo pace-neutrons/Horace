@@ -168,6 +168,7 @@ if nargin==0
     return
 end
 
+fprintf('\n%s\n\n','Running initialization function gst_kf_DGfermi_resconv_init')
 
 % Initialise output lookup
 % ------------------------
@@ -406,6 +407,7 @@ end
 %   maxQE       the maximum (Qx,Qy,Qz,E)
 %   dQE         the maximum resolution halfwidth along each (Qx,Qy,Qz,E)
 [minkf,maxkf,dkf] = gst_kf_resolution_limits(tmpw,lookup,keywrd.frac);
+dkf = dkf/2; % go from half-width to quarter-width
 %   cell_span   the ith element gives the difference in linear indicies
 %               into the total cell array for the ith dimension (and is the
 %               product of the 1st to (i-1)th sizes of the array)

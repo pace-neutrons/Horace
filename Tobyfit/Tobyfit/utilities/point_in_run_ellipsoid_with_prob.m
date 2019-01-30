@@ -57,7 +57,10 @@ for j=1:m
     if any(same_run)
 %         fprintf('\t%4d points with same run index as pixel %4d\n',sum(same_run),j)
         v = bsxfun(@minus,x(:,same_run),x0(:,j)); % (d,sr<=n)
-        vMv = sum( v .* mtimesx_horace( M(:,:,j), v), 1); % (d,sr).*( (d,d)*(d,sr) ) => (d,sr); sum( (d,sr), 1) => (1,sr)
+        
+        Mv = mtimesx_horace( M(:,:,j), v); % (d,d)*(d,sr) => (d,sr)
+        
+        vMv = sum( v .* Mv, 1); % (d,sr).*(d,sr) => (d,sr); sum( (d,sr), 1) => (1,sr)
         VxR = exp(-vMv/2);
         in_res = VxR >= frac*vol(j); %(1,sr)
         same_run_idx = find( same_run, n); % (1,sr);
@@ -68,3 +71,14 @@ for j=1:m
     end
 end
 end
+
+% function Mv=M_times_v(M,v,d,n)
+% Mv=zeros(d,n);
+% for k=1:n
+%     for j=1:d
+%         % This should be M(j,:)' but M is symmetric
+%         Mv(j,k) = sum( M(:,j) .* v(:,k) );
+% %         Mv(j,k) = sum( M(j,:)' .* v(:,k), 1);
+%     end
+% end
+% end
