@@ -1,4 +1,4 @@
-function [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=horace_version()
+function [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=horace_version(varargin)
 % the function returns the version of Horace, which should correspond to
 % the distinctive tag version from the SVN server.
 %
@@ -62,12 +62,19 @@ application.name='horace';
 
 application.version=3;
 
+
 Matlab_SVN='$Revision::      $ ($Date::                                              $)';
 
 % Information about name and version of application
 mexMinVer     = [];
 mexMaxVer     = [];
 date          = [];
+hd     =str2double(Matlab_SVN(12:17));
+application.svn_version=hd;
+if nargin>0
+    Matlab_SVN =sprintf('%d.%d',application.version,application.svn_version);
+    return;
+end
 
 hc = hor_config;
 use_mex = hc.use_mex;
@@ -82,7 +89,6 @@ if use_mex
         hpc.mex_combine_thread_mode = 0;
     end
 end
-hd     =str2double(Matlab_SVN(12:17));
 
 application.svn_version=hd;
 application.mex_min_version = mexMinVer;

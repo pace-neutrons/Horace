@@ -115,11 +115,19 @@ arglist = struct('qbin',0.05,'qwidth',0.1,'ebin',[],'labels','','noplot',false,.
     'cuts_plot_size',[]);
 flags = {'noplot','logscale'};
 
-
-
 % Parse the arguments:
 % --------------------
 [args,opt,present] = parse_arguments(varargin,arglist,flags);
+
+if numel(args)~=2
+    if length(args{1})>1 && isa((args{1}(1)),'d2d')
+        plot_dispersion(args{1},opt);
+        return
+    else
+        error('SPAGHETTI_PLOT:invalid_arguments',...
+            'Invalid number of arguments')
+    end
+end
 
 if size(args{1},2)~=3 || size(args{1},1)<2
     error('SPAGHETTI_PLOT:invalid_arguments',...
@@ -141,18 +149,6 @@ if present.cuts_plot_size
         end
     end
 end
-
-
-if numel(args)~=2
-    if length(args{1})>1 && isa((args{1}(1)),'d2d')
-        plot_dispersion(args{1},opt);
-        return
-    else
-        error('SPAGHETTI_PLOT:invalid_arguments',...
-            'Invalid number of arguments')
-    end
-end
-
 
 try
     sqwfile = exist(args{2},'file');
@@ -231,7 +227,7 @@ else
     u2crt0 = [];
 end
 if ~isempty(u2crt0)
-    fprintf('spaghetti_plot: rlp found to lie in the plane perpendicular to (%g %g %g)',inv(b)*u2crt0');
+    fprintf('spaghetti_plot: rlp found to lie in the plane perpendicular to (%g %g %g)\n',inv(b)*u2crt0');
 end
 
 
@@ -369,29 +365,38 @@ for i=1:length(wdisp_in)
         brk = brk(end);
         wdisp_in(i).title = title(brk+1:end);
     end
-    bra = strfind(wdisp_in(i).title,'(');
-    ket = strfind(wdisp_in(i).title,')');
-    hkls = [sscanf(wdisp_in(i).title(bra(1):ket(1)),'(%f %f %f)');
-        sscanf(wdisp_in(i).title(bra(2):ket(2)),'(%f %f %f)')];
-    quotes = strfind(wdisp_in(i).title,'"');
-    if i>1 && abs(sum(hkls(1:3)-hkl0(1:3)))>0.01
-        %warning('(hkl) points for segments %d and %d do not match',i-1,i);
-        if isempty(quotes)
-            labels{i} = sprintf('[%s]/[%s]',str_compress(num2str(hkl0(4:6)')),str_compress(num2str(hkls(1:3)')));
+    try
+        bra = strfind(wdisp_in(i).title,'(');
+        ket = strfind(wdisp_in(i).title,')');
+        hkls = [sscanf(wdisp_in(i).title(bra(1):ket(1)),'(%f %f %f)');
+            sscanf(wdisp_in(i).title(bra(2):ket(2)),'(%f %f %f)')];
+        quotes = strfind(wdisp_in(i).title,'"');
+        if i>1 && abs(sum(hkls(1:3)-hkl0(1:3)))>0.01
+            %warning('(hkl) points for segments %d and %d do not match',i-1,i);
+            if isempty(quotes)
+                labels{i} = sprintf('[%s]/[%s]',str_compress(num2str(hkl0(4:6)')),str_compress(num2str(hkls(1:3)')));
+            else
+                labels{i} = sprintf('%s/%s',labels{i},wdisp_in(i).title(quotes(1)+1:quotes(2)-1));
+            end
         else
-            labels{i} = sprintf('%s/%s',labels{i},wdisp_in(i).title(quotes(1)+1:quotes(2)-1));
+            if isempty(quotes)
+                labels{i} = ['[',str_compress(num2str(hkls(1:3)'),','),']'];
+            else
+                labels{i} = wdisp_in(i).title(quotes(1)+1:quotes(2)-1);
+            end
         end
-    else
         if isempty(quotes)
-            labels{i} = ['[',str_compress(num2str(hkls(1:3)'),','),']'];
+            labels{i+1} = ['[',str_compress(num2str(hkls(4:6)'),','),']'];
         else
-            labels{i} = wdisp_in(i).title(quotes(1)+1:quotes(2)-1);
+            labels{i+1} = wdisp_in(i).title(quotes(3)+1:quotes(4)-1);
         end
-    end
-    if isempty(quotes)
+    catch
+        hkldir = wdisp_in(i).u_to_rlu(1:3, 1);
+        inthkl = kron(wdisp_in(i).iint', wdisp_in(i).u_to_rlu(:, wdisp_in(i).iax)); 
+        hklcen = sum([mean(inthkl(1:3, [1 3]), 2) mean(inthkl(5:7, [2 4]), 2)], 2);
+        hkls = [wdisp_in(i).p{1}(1) * hkldir + hklcen; wdisp_in(i).p{1}(end) * hkldir + hklcen];
+        labels{i} = ['[',str_compress(num2str(hkls(1:3)'),','),']'];
         labels{i+1} = ['[',str_compress(num2str(hkls(4:6)'),','),']'];
-    else
-        labels{i+1} = wdisp_in(i).title(quotes(3)+1:quotes(4)-1);
     end
     hkl0 = hkls;
 end

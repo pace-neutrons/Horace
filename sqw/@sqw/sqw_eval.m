@@ -15,8 +15,7 @@ function wout=sqw_eval(win,sqwfunc,pars,opt)
 %                   qh,qk,ql,en Arrays containing the coordinates of a set of points
 %                   p           Vector of parameters needed by dispersion function 
 %                              e.g. [A,js,gam] as intensity, exchange, lifetime
-%                   weight      Array containing calculated energies; if more than
-%                              one dispersion relation, then a cell array of arrays
+%                   weight      Array containing calculated spectral weight
 %
 %               More general form is:
 %                   weight = sqwfunc (qh,qk,ql,en,p,c1,c2,..)

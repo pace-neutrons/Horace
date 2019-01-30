@@ -108,7 +108,7 @@ classdef projection<aProjection
         function urange_out = find_max_data_range(this,urange_in)
             % find the whole range of input data which may contribute
             % into the result.
-            % urange_in -- the range of the data in initial coordinate
+            % urange_in -- the range of the data in the initial coordinate
             % system.
             urange_out  = find_ranges_(this,urange_in);
         end

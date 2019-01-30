@@ -9,6 +9,9 @@ function path=horace_on(non_default_path)
 %
 default_horace_path ='/usr/local/mprogs/Horace';
 default_herbert_path='/usr/local/mprogs/Herbert';
+% To use spinW together with Horace, modify the row below pointing to correct 
+% spinW location. Also need to modify spinw_on template and place it together
+% with horace_on.m script. 
 default_spinw_path = '/usr/local/mprogs/spinW';
 %
 if exist('non_default_path','var') && (strcmpi(non_default_path,'where') || strcmpi(non_default_path,'which'))
@@ -51,6 +54,9 @@ else
 end
 path = fileparts(which('horace_init.m'));
 
+% This is the place to configure a multi-user Unix server. 
+% Modify these parameters to optimal for the particular sever values
+% and make them available to all users of the server as the defaults.
 hc = hor_config();
 if hc.is_default
 %% make server-specific settings

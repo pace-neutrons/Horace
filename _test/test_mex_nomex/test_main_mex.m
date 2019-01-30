@@ -72,7 +72,7 @@ classdef test_main_mex < TestCase
         
         function this=test_accum_cut(this)
             mex_present=fileparts(which('accumulate_cut_c'));
-            if ~isempty(mex_present)
+            if isempty(mex_present)
                 warning('TEST_MAIN_MEX:test_disabled',...
                     'Mex file accumulate_cut_c is not availible on this computer')
                 return;
@@ -111,7 +111,7 @@ classdef test_main_mex < TestCase
         
         function this=test_calc_proj(this)
             mex_present=fileparts(which('calc_projections_c'));
-            if ~isempty(mex_present)
+            if isempty(mex_present)
                 warning('TEST_MAIN_MEX:test_disabled',...
                     'Mex file calc_projections_c is not availible on this computer')
                 return;

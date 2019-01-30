@@ -9,4 +9,4 @@ function [s,var,mask_null] = sigvar_get (w)
 
 s = w.data.s;
 var = w.data.e;
-mask_null = logical(w.data.npix);
+mask_null = logical(w.data.npix); 

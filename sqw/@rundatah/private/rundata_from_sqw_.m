@@ -17,6 +17,11 @@ header = sqw_obj.header;
 detpar = sqw_obj.detpar;
 [dummy,filename] = fileparts(sqw_obj.main_header.filename);
 %
+if iscell(header) && numel(header) > 1
+    error('RUNDATAH:invalid_argument',...
+        ['a rundatah class can be constructed from an sqw, build from single data file only.'...
+        ' Use sqw.split to divide sqw into array of single dataset sqw objects']);
+end
 en     = header.en;
 ne=numel(en)-1;    % number of energy bins
 ndet0=numel(detpar.group);% number of detectors

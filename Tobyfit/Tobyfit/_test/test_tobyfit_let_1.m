@@ -5,13 +5,13 @@ function varargout=test_tobyfit_let_1 (option)
 %   >> test_tobyfit_let_1           % Run the tests for a visual check of output only
 %
 %   >> test_tobyfit_let_1 ('-save') % Run the Tobyfit tests and save fit parameters
-%                                   % to file test_tobyfit_2_out.mat
+%                                   % to file test_tobyfit_let_1_out.mat
 %                                   % in the temporary folder (given by tempdir)
 %                                   % Copy to the same folder as this file to use in
 %                                   % tests.
 %
 %   >> test_tobyfit_let_1 ('-test') % Run the Tobyfit tests and test against stored fit
-%                                   % parameters in test_tobyfit_2_out.mat in the same
+%                                   % parameters in test_tobyfit_let_1_out.mat in the same
 %                                   % folder as this file
 %
 % In all of the above, get the full output of the fits as a structure:
@@ -50,7 +50,7 @@ savefile='test_tobyfit_let_1_out.mat';   % filename where saved results are writ
 load(datafile);
 
 efix = 8.04;
-instru = let_instrument (efix, 280, 140, 20, 2, 2);
+instru = let_instrument_for_tests (efix, 280, 140, 20, 2, 2);
 sample = IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.012,0.012,0.04]);
 
 w1a = set_instrument (w1a, instru);
@@ -71,7 +71,7 @@ end
 
 
 %% --------------------------------------------------------------------------------------
-% Fit multiple datasets for Fe
+% Fit multiple datasets for Nb
 % ---------------------------------------------------------------------------------------
 % Local foreground; constrain gamma as global but allow amplitude to vary locally
 amp=6000;    fwhh=0.2;
