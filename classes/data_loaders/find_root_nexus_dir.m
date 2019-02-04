@@ -1,4 +1,4 @@
-function [root_nxspe_path,data_version,data_structure] = find_root_nexus_dir(hdf_fileName,nexus_application_name)
+function [root_nx_path,data_version,data_structure] = find_root_nexus_dir(hdf_fileName,nexus_application_name)
 % function identifies the path to the root folder in the input NeXus data file
 % This folder can be later used as hdf path to the data, accessed using hdf5read/hdf5write functions
 %
@@ -32,11 +32,11 @@ function [root_nxspe_path,data_version,data_structure] = find_root_nexus_dir(hdf
 %
 %
 data_structure =  hdf5info(hdf_fileName,'ReadAttributes',true);
-groups         = data_structure.GroupHierarchy.Groups(:);
+groups         =  data_structure.GroupHierarchy.Groups(:);
 
-n_nxspe_entries=0;
-nxspe_folders=cell(1,1);
-nxspe_version=cell(1,1);
+n_nx_entries=0;
+nx_folders=cell(1,1);
+nx_version=cell(1,1);
 for i=1:numel(groups)
     % obtain the short name (the name of the last folder in a hdf hirackhy) of the attribute
     [fp,shortName] = fileparts(groups(i).Attributes.Name);
@@ -47,24 +47,24 @@ for i=1:numel(groups)
             if strcmp([nexus_folder.Name,'/definition'],nexus_folder.Datasets(j).Name)
                 definition = hdf5read(hdf_fileName,nexus_folder.Datasets(j).Name);
                 if strcmp(definition.Data,nexus_application_name)
-                    n_nxspe_entries=n_nxspe_entries+1;
-                    nxspe_folders{n_nxspe_entries}= nexus_folder.Name;
-                    nxspe_version{n_nxspe_entries}= read_nxspe_version(hdf_fileName,nexus_folder.Datasets(j));
+                    n_nx_entries=n_nx_entries+1;
+                    nx_folders{n_nx_entries}= nexus_folder.Name;
+                    nx_version{n_nx_entries}= read_nxspe_version(hdf_fileName,nexus_folder.Datasets(j));
                 end
             end
         end
     end
 end
 
-if(n_nxspe_entries==0)
-    root_nxspe_path='';
+if(n_nx_entries==0)
+    root_nx_path='';
     return;
 end
-if(n_nxspe_entries>1)
+if(n_nx_entries>1)
     error('ISIS_UTILITES:invalid_argument',' found multiple nxspe folders in file %s but this function does not currently support multiple nxspe folders',hdf_fileName)
 end
-root_nxspe_path = nxspe_folders{1};
-data_version    = nxspe_version{1};
+root_nx_path = nx_folders{1};
+data_version    = nx_version{1};
 
 
 function ver=read_nxspe_version(hdf_fileName,DS)
