@@ -414,8 +414,9 @@ lookup.cell_N = cell_N;
 % the neighbourhood cell array, plus the HWFH resolution matricies and
 % constant-probability resolution ellipsoids for each pixel.
 QE = cell(nw,1);
-QE_head = cell(nw,1);
-QE_list = cell(nw,1);
+QE_cell = cell(nw,1);
+% QE_head = cell(nw,1);
+% QE_list = cell(nw,1);
 mat_hkle = cell(nw,1);
 vol_hkle = cell(nw,1);
 % ell_hkle = cell(nw,1);
@@ -425,7 +426,8 @@ for i=1:nw
     pix = calculate_qw_pixels(tmpw(i)); % {4,1} of (npix,1)
     QE{i} = cat(2, pix{:} )'; % (4,npix) matrix
     % Determine the linked list for pixels:
-    [QE_head{i},QE_list{i}]=cll_make_linked_list(QE{i},minQE,maxQE,dQE,cell_span,cell_N);
+    QE_cell{i} = cll_cell_idx(QE{i},minQE,maxQE,dQE,cell_span,cell_N);
+%     [QE_head{i},QE_list{i}]=cll_make_linked_list(QE{i},minQE,maxQE,dQE,cell_span,cell_N);
     
     pixC = lookup.cov_hkle{i}; % the covariance matrix for each pixel
     % We need the (Gaussian width) resolution matrix for each pixel in
@@ -438,8 +440,9 @@ for i=1:nw
 %     [ell_hkle{i},ell_hkle_vecs{i},ell_hkle_eigs{i}] = resolution_ellipsoid_from_matrix( mat_hkle{i}, keywrd.frac );
 end
 lookup.QE = QE;
-lookup.QE_head = QE_head;
-lookup.QE_list = QE_list;
+lookup.QE_cell = QE_cell;
+% lookup.QE_head = QE_head;
+% lookup.QE_list = QE_list;
 lookup.mat_hkle = mat_hkle;
 lookup.vol_hkle = vol_hkle;
 % lookup.ell_hkle = ell_hkle;

@@ -26,7 +26,7 @@ end
 sub = s - from; % C-like subindexing
 % The linear index is the sum of the subindex along each dimension times 
 % the span of that dimension (but only for C-like indexing)
-lin = (sub .* span);
+lin = sum(sub .* span);
 % If we're using MATLAB-like indexing, convert back
 l = lin + from;
 

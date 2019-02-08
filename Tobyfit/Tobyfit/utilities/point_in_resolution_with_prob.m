@@ -123,26 +123,41 @@ for i=1:numel(cellHasPx)
     % get a cell array where each element are the indicies into iYidx for
     % the corresponding iXidx
 %     [idx,prob] = point_in_ellipsoid_with_prob(Y(:,iYidx),M(:,:,iXidx),C(:,:,iXidx),X(:,iXidx),frac);
-    [idx,prob] = point_in_ellipsoid_with_prob(Y(:,iYidx),M(:,:,iXidx),vol(iXidx),X(:,iXidx),frac);
-    
-    in_cell = cell(length(idx),1);
-    for j=1:length(idx)
-        iPx = iPx + 1; % Increment how many pixels we've accumulated
-        iY = idx{j};
-        % Store for output
-        pinr_Xidx(iPx) = iXidx(j);  % this pixel number
-        pinr_Xlen(iPx) = numel(iY); % how many points are within resolution for this pixel
-        pinr_frst(iPx) = 1+ninr;    % the first entry in the list or point indicies for this pixel
-        pinr_last(iPx) = ninr+numel(iY);
-        ninr = ninr + numel(iY); % increment how many points are in resolution
-        % finally store the point indicies
-        %   iY are indicies into iYidx, but we want the indicies into Y,
-        %   which are iYidx(iY).
-        %pinr_list( pinr_frst(iPx) : pinr_last(iPx) ) = iYidx(iY);  
-        in_cell{j} = iYidx(iY);
-    end
-    pinr{i} = cat(2,in_cell{:});
-    tmp_VxR{i} = cat(2,prob{:});
+
+%     try
+%         [nYinX,iYinX,rYinX]=cpp_point_in_ellipsoid_with_prob(Y(:,iYidx),M(:,:,iXidx),vol(iXidx),X(:,iXidx),frac);
+%         for j=1:numel(nYinX)
+%             iPx = iPx + 1; % Increment how many pixels we've accumulated
+%             pinr_Xidx(iPx) = iXidx(j); % this pixel number
+%             pinr_Xlen(iPx) = nYinX(j); % how many points are within resolution for this pixel
+%             pinr_frst(iPx) = 1+ninr; % the first etry in the list of point indicies for this pixel
+%             pinr_last(iPx) = ninr+nYinX(j);
+%             ninr = ninr+nYinX(j);
+%         end
+%         pinr{i} = iYidx(iYinX);
+%         tmp_VxR{i} = rYinX;
+%     catch
+        [idx,prob] = point_in_ellipsoid_with_prob(Y(:,iYidx),M(:,:,iXidx),vol(iXidx),X(:,iXidx),frac);
+
+        in_cell = cell(length(idx),1);
+        for j=1:length(idx)
+            iPx = iPx + 1; % Increment how many pixels we've accumulated
+            iY = idx{j};
+            % Store for output
+            pinr_Xidx(iPx) = iXidx(j);  % this pixel number
+            pinr_Xlen(iPx) = numel(iY); % how many points are within resolution for this pixel
+            pinr_frst(iPx) = 1+ninr;    % the first entry in the list or point indicies for this pixel
+            pinr_last(iPx) = ninr+numel(iY);
+            ninr = ninr + numel(iY); % increment how many points are in resolution
+            % finally store the point indicies
+            %   iY are indicies into iYidx, but we want the indicies into Y,
+            %   which are iYidx(iY).
+            %pinr_list( pinr_frst(iPx) : pinr_last(iPx) ) = iYidx(iY);  
+            in_cell{j} = iYidx(iY);
+        end
+        pinr{i} = cat(2,in_cell{:});
+        tmp_VxR{i} = cat(2,prob{:});
+%     end
 end
 % % make sure we only return the part of pinr_list which has been populated
 % pinr_list = pinr_list(1:ninr);

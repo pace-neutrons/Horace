@@ -161,9 +161,9 @@ else
     
     % Determine the vectors describing the points within resolution for
     % each pixel
-    fprintf('\t%30s\t','Points within R(Q,E) per pixel');
+    fprintf('%s\t','Points within R(kf) per pixel');
     [iW,iPx,nPt,fst,lst,iPt,VxR] = gst_kf_points_in_pixels_res(win,lookup,pntkf,pntrun,pnt_head,pnt_list);    
-    fprintf(' %d %d %d %d %d\n',round(mean(nPt)),min(nPt),round(median(nPt)),mode(nPt),max(nPt));
+    fprintf('<n>=%d min(n)=%d median(n)=%d mode(n)=%d max(n)=%d\n',round(mean(nPt)),min(nPt),round(median(nPt)),mode(nPt),max(nPt));
     
     % Block execution until allSQE is calculated and returned
     if use_parallel_worker

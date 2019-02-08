@@ -43,7 +43,7 @@ for i=1:nwin
         end
         if nPt(j)>0
             % The signal for pixel iPx(j) is the V(R(Q0,E0)) times the integral of S(Q,E)*R(Q-Q0,E-E0)
-            s = VxR(fst(j):lst(j)).*SQE(iPt(fst(j):lst(j)));
+            s = VxR(fst(j):lst(j)).*SQE(iPt(fst(j):lst(j)))+eps();
             % Which we're approximating as the sum over
             % V(R(Q0,E0))*R(Q-Q0,E-E0)*S(Q,E), all divided by the number of
             % points included in the sum.
@@ -55,6 +55,7 @@ for i=1:nwin
             % claim there is no error in our integration
             %   wout(i).data.pix(9,iPx(j)) = 0;
         else
+            %fprintf('SQW %d Pixel %d has no contributing points\n',i,iPx(j));
             wout(i).data.pix(8:9,iPx(j))=0;
         end
     end

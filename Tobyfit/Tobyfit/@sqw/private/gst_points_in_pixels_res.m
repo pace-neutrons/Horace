@@ -45,18 +45,13 @@ function [iW,iPx,nPt,fst,lst,iPt,VxR] = gst_points_in_pixels_res(win,lookup,pnt,
 
 nwin = numel(win);
 nPx = arrayfun( @(x)(size( x.data.pix, 2)), win);
-nPt = numel(pnt_list); % or size(pntQE,2)
 
 iW  = zeros(1,sum(nPx));
 iPx = zeros(1,sum(nPx));
 nPt = zeros(1,sum(nPx));
 fst = zeros(1,sum(nPx));
 lst = zeros(1,sum(nPx));
-% If we had infinite RAM, we could always prealocate iPt and VxR, but in
-% some cases sum(nPx)*nPt might be huge and we do not have enough memory to
-% hold such an array.
-% iPt = zeros(1,sum(nPx)*nPt);
-% VxR = zeros(1,sum(nPx)*nPt);
+
 iPt_cell = cell(nwin,1);
 VxR_cell = cell(nwin,1);
 offsetPt = 0; % offset for iPt, VxR
@@ -68,16 +63,11 @@ for i=1:nwin
     % Pull predetermined values from the lookup
     % Pixel QE points and linked list arranging pixels by neighbourhood cell
     pix = lookup.QE{i};
-    pix_head = lookup.QE_head{i};
-    pix_list = lookup.QE_list{i};
-    % Pixel resolution covariance matrix
-%     pixC = lookup.cov_hkle{i};
+    pix_cell = lookup.QE_cell{i};
     % Pixel (Gaussian width) resolution matrix and its volume
     pixM = lookup.mat_hkle{i};
     pixV = lookup.vol_hkle{i};
-%     % Pixel constant-probability (half-width, fractional-height) ellipsoid
-%     pixL = lookup.ell_hkle{i};
-    
+	
     % For each pixel with (Q,E) 'pix' determine which points with 
     % (Q,E) 'pnt' are within the pixel resolution ellipsoid pixL.
     % To make things as complex as possible: 
@@ -99,7 +89,14 @@ for i=1:nwin
     %                   resolution volume times the probability of being
     %                   within-resolution. [or, the value of
     %                   R{(Q,E)pix-(Q,E)pnt} if R is *not* normalized]
-    [this_iPx,this_nPt,this_fst,this_lst,this_iPt,this_VxR] = point_in_resolution_with_prob(spanCell,nCell,pnt,pnt_head,pnt_list,pix,pixM,pixV,pix_head,pix_list,lookup.frac);
+    
+    % Pure MATLAB code (which needs to be modified to use pixCell instead
+    % of pix_head and pix_list)
+    %[this_iPx,this_nPt,this_fst,this_lst,this_iPt,this_VxR] = point_in_resolution_with_prob(spanCell,nCell,pnt,pnt_head,pnt_list,pix,pixM,pixV,pix_head,pix_list,lookup.frac);
+    
+    % MATLAB wrapper around C++ code
+    [this_iPx,this_nPt,this_fst,this_lst,this_iPt,this_VxR] = pointsInResPix(nCell,spanCell,pnt,pnt_head,pnt_list,pix,pixM,pixV,pix_cell,lookup.frac);
+    
     k = offsetPx+(1:nPx(i)); 
     iW ( k ) = i;
     iPx( k ) = this_iPx;
@@ -107,18 +104,12 @@ for i=1:nwin
     fst( k ) = this_fst + offsetPt; % must offset the first-point index into iPt, VxR;
     lst( k ) = this_lst + offsetPt; % and the last-point index
     
-%     f = offsetPt+(1:numel(this_iPt));
-%     iPt( f ) = this_iPt;
-%     VxR( f ) = this_VxR;
     iPt_cell{i} = this_iPt;
     VxR_cell{i} = this_VxR;
 
     offsetPx = offsetPx+nPx(i);
     offsetPt = offsetPt+numel(this_iPt);
 end
-% And finally truncate the variable-sized outputs
-% iPt = iPt(1:offsetPt);
-% VxR = VxR(1:offsetPt);
 
 iPt = cat(2,iPt_cell{:});
 VxR = cat(2,VxR_cell{:});
