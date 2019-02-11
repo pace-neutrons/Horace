@@ -223,7 +223,7 @@ classdef sqw_header
             hstruct = sqw_header.create_header_array(header_out);
             names=fieldnames(hstruct(1));
             % Sort structure array
-            [hstruct_sort,ind]=nestedSortStruct(hstruct,names');
+            [hstruct_sort,ind]=sortStruct(hstruct,names');
             
             
             if ~allow_equal_headers

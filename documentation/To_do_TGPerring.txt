@@ -1,0 +1,29 @@
+Update documentation - multi cut for sqw; case of no proj for sqw
+
+write dimsplit
+
+Handling of errors in cut_sqw_main_single; mustn't crash cut_sqw_main
+
+move output sqw file open check; write for multi output
+
+refine timing output if necessary
+
+
+=================================================================================
+Detpar, proj should be classes in their own right in sqw objects
+
+dnd should have 4 components of Q
+
+pix array should hold unsymmetrised q coordinates
+
+Need a flag to say if symmetrised
+
+Need a flag to say if energy shifted or not
+
+'ave' option is problematic if have symmetrised cut
+
+symmetrisation work for non-orthogonal lattices
+
+instrument needs to be a class
+
+

@@ -72,7 +72,7 @@ pstruct=struct('filename',spe_file,'efix',num2cell(efix),...
 names=fieldnames(pstruct)';     % row vector
 
 % Sort structure array
-[pstruct_sort,indp]=nestedSortStruct(pstruct,names);
+[pstruct_sort,indp]=sortStruct(pstruct,names);
 %pstruct_sort = pstruct;
 %indp = 1:numel(spe_file);
 %
@@ -143,7 +143,7 @@ else
             i=i+1;
             j=j+1;
         else
-            [tmp,tmpind]=nestedSortStruct([pstruct_sort(i),hstruct_sort(j)],names);
+            [tmp,tmpind]=sortStruct([pstruct_sort(i),hstruct_sort(j)],names);
             if tmpind(1)==1
                 i=i+1;
             else

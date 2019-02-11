@@ -29,8 +29,8 @@ classdef mfclass_Horace_sqw < mfclass
     %   set_pin      - Set foreground fit function parameters
     %   clear_pin    - Clear parameters for one or more foreground fit functions
     %
-    %   set_pin      - Set background fit function parameters
-    %   clear_pin    - Clear parameters for one or more background fit functions
+    %   set_bpin     - Set background fit function parameters
+    %   clear_bpin   - Clear parameters for one or more background fit functions
     %
     % To set which parameters are fixed or free:
     %   set_free     - Set free or fix foreground function parameters
@@ -283,7 +283,7 @@ classdef mfclass_Horace_sqw < mfclass
             %                   Parameter index and function index of the
             %                   foreground parameter to be bound
             %
-            %               [par, fun]
+            %               [ipar_free, ifun_free]
             %                   Parameter index and function index of the
             %                   parameter to which the bound parameter is tied.
             %                   The function index is positive for foreground
@@ -518,7 +518,7 @@ classdef mfclass_Horace_sqw < mfclass
             %                   Parameter index and function index of the
             %                   background parameter to be bound
             %
-            %               [par, fun]
+            %               [ipar_free, ifun_free]
             %                   Parameter index and function index of the
             %                   parameter to which the bound parameter is tied.
             %                   The function index is positive for background
@@ -668,7 +668,9 @@ classdef mfclass_Horace_sqw < mfclass
             %               data_out.back       Background calculation
             %           If there was a problem i.e. ok==false, then each field is =[].
             %
-            %  calcdata Structure with result of the fit for each dataset. The fields are:
+            %  calcdata Structure with the same format as that which would contain the result
+            %           of a fit, but populated with the initial parameter values and
+            %           all standard deviateions and covariances set to zero. The fields are:
             %           p      - Foreground parameter values (if foreground function(s) present)
             %                      If only one function, a row vector
             %                      If more than one function: a row cell array of row vectors
