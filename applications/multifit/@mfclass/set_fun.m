@@ -125,7 +125,7 @@ function obj = set_fun(obj,varargin)
 %                   Parameter index and function index of the
 %                   foreground parameter to be bound
 %
-%               [par, fun]
+%               [ipar_free, ifun_free]
 %                   Parameter index and function index of the
 %                   parameter to which the bound parameter is tied.
 %                   The function index is positive for foreground
@@ -255,7 +255,7 @@ function obj = set_fun(obj,varargin)
 % See also set_bfun
 % <#doc_end:>
 % -----------------------------------------------------------------------------
- 
+
 
 % Note for developers:
 %   >> obj = obj.set_fun ()             % Inert operation: does nothing

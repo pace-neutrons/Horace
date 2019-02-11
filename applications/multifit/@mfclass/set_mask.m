@@ -4,10 +4,10 @@ function obj = set_mask(obj,varargin)
 % Mask all currently input data sets: one or more of the keyword-value pairs:
 % (keyword-value pairs can appear in any order):
 %
-%   >> obj = obj.add_mask ('keep', xkeep, 'remove', xremove, 'mask', mask)
+%   >> obj = obj.set_mask ('keep', xkeep, 'remove', xremove, 'mask', mask)
 %
 % Select for one or more particular datasets (ind an integer or integer array):
-%   >> obj = obj.add_mask (ind, 'keep', xkeep,...)
+%   >> obj = obj.set_mask (ind, 'keep', xkeep,...)
 %
 % Input:
 % ------

@@ -16,7 +16,8 @@ function f=transmission(fermi,varargin)
 %
 % Output:
 % -------
-%   f       Relative transmission (unit transmission at peak)
+%   f       Relative transmission (unity at the energy of peak transmission)
+%           For other energies the transmission is a number smaller than unity
 
 if ~isscalar(fermi), error('Function only takes a scalar object'), end
 

@@ -3,6 +3,5 @@ function [bObj,ix]=sort(aObj)
 %
 %   >> [bObj, ix] = sort(aObj)   % arguments as per intrinsic Matlab
 
-aStruct=struct_special(aObj);
-[~,ix] = nestedSortStruct(aStruct, fieldnames(aStruct)');
+[~,ix] = sortStruct(struct(aObj(:)), fieldnames(aObj)');
 bObj=aObj(ix);

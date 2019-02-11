@@ -125,7 +125,7 @@ function obj = set_bfun(obj,varargin)
 %                   Parameter index and function index of the
 %                   background parameter to be bound
 %
-%               [par, fun]
+%               [ipar_free, ifun_free]
 %                   Parameter index and function index of the
 %                   parameter to which the bound parameter is tied.
 %                   The function index is positive for background

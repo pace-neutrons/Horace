@@ -10,7 +10,7 @@ classdef test_He3tube_3
     %
     %   class_name = 'Wotsit'
     %
-    % <#doc_beg:> multifit
+    % <#doc_beg:> test_docify_multifit
     %   narg it
     %
     % <class_name> Methods:

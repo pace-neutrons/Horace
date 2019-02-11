@@ -6,11 +6,14 @@ function [bObj, m, n] = unique(aObj, varargin)
 %
 % Input:
 % ------
-%   aObj        Array of input objects
+%   aObj        Array of input objects (row or column vector)
 %
 %   occurence   Character string 'last' [default] or 'first'; indicates if the index
 %              element in output array m points to first or last occurence of
 %              a non-unique element in aObj
+%
+%  'legacy'     If present, then the output array m (below) follows the 
+%              legacy behaviour (i.e. Matlab 2012b and earlier)
 %
 % Output:
 % -------
@@ -21,5 +24,6 @@ function [bObj, m, n] = unique(aObj, varargin)
 %   n           Index array such that aObj=bObj(n)
 
 
-[~,m,n] = uniqueStruct(struct(aObj(:)), varargin{:});
+if ~isvector(aObj), error('Object array must be row or column vector'), end
+[~,m,n] = uniqueStruct(obj2struct(aObj), varargin{:});
 bObj=aObj(m);

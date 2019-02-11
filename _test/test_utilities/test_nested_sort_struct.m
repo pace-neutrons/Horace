@@ -20,7 +20,7 @@ names=fieldnames(pstruct)';     % row vector
 
 ERR = struct('message','');
 try
-    [pstruct_sort,indp]=nestedSortStruct(pstruct,names);
+    [pstruct_sort,indp]=sortStruct(pstruct,names);
     pass = true;
 catch ERR
     pass = false;

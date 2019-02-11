@@ -10,7 +10,10 @@ function y=pulse_shape(disk,t)
 %
 % Output:
 % -------
-%   y       Array of values of pulse shape. Normalised so pulse has unit area
+%   y       Array of values of pulse shape.
+%           Normalised so pulse area is transmission(disk)
+%           Note that transmission(disk) is in fact unity independent of energy
+
 
 if ~isscalar(disk), error('Function only takes a scalar object'), end
 

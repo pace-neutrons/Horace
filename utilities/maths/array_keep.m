@@ -6,8 +6,9 @@ function ind=array_keep(arr,vals)
 % Input:
 % ------
 %   arr     Numerical array, cell array of strings, or array of structures
-%          (where each field is numeric or logical scalar, or string).
+%          (where each field is numeric or logical array, or string).
 %           Need not contain unique elements.
+%
 %   vals    List of test values of the same type (need not be unique)
 %
 % Output:

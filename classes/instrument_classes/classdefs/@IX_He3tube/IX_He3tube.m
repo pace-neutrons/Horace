@@ -81,7 +81,7 @@ classdef IX_He3tube
             if thick<=obj.dia_/2
                 obj.thick_=thick;
             else
-                error('Tube wall thickness must be less than or equal to the diameter')
+                error('Tube wall thickness must be less than or equal to the radius')
             end
         end
         

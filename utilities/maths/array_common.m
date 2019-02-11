@@ -12,7 +12,7 @@ function [c1joint,c1unique,c2unique]=array_common(c1,c2,opt)
 % Input:
 % ------
 %   c1          Numerical array, cell array of strings, or array of structures
-%              (where each field is numeric or logical scalar, or string).
+%              (where each field is numeric or logical array, or a string).
 %               Need not contain unique elements.
 %
 %   c2          Second array of same type; need not contain unique elements.
@@ -123,7 +123,7 @@ else
             i=i+1;
             j=j+1;
         else
-            [tmp,ind]=nestedSortStruct([csort1(i);csort2(j)],nam1);
+            [tmp,ind]=sortStruct([csort1(i);csort2(j)],nam1);
             if ind(1)==1
                 i=i+1;
             else

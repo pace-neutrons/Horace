@@ -15,6 +15,7 @@
 % This creates a fitting object of class <mfclass_name> with the provided data,
 % which can then be manipulated to add further data, set the fitting
 % functions, initial parameter values etc. and fit or simulate the data.
+% For details about how to do this  <a href="matlab:help('<mfclass_name>');">Click here</a>
 %
 % For example:
 %
@@ -26,5 +27,3 @@
 %   >> myobj = myobj.set_free (pfree);      % set which parameters are floating
 %   >> myobj = myobj.set_bfree (bpfree);    % set which parameters are floating
 %   >> [wfit,fitpars] = myobj.fit;          % perform fit
-%
-% For details <a href="matlab:help('<mfclass_name>');">Click here</a>

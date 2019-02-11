@@ -6,8 +6,8 @@ function obj = set_bind (obj,varargin)
 %   >> obj = obj.set_bind (b1, b2, b3...)
 %
 % Set one or more bindings for one or more specific foreground function(s)
-%   >> obj = obj.set_free (ifun, bind)
-%   >> obj = obj.set_free (ifun, b1, b2, b3...)
+%   >> obj = obj.set_bind (ifun, bind)
+%   >> obj = obj.set_bind (ifun, b1, b2, b3...)
 %
 % Input:
 % ------
@@ -25,7 +25,7 @@ function obj = set_bind (obj,varargin)
 %                   Parameter index and function index of the
 %                   foreground parameter to be bound
 %
-%               [par, fun]
+%               [ipar_free, ifun_free]
 %                   Parameter index and function index of the
 %                   parameter to which the bound parameter is tied.
 %                   The function index is positive for foreground

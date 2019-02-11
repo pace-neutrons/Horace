@@ -6,8 +6,8 @@ function obj = add_bbind (obj,varargin)
 %   >> obj = obj.add_bbind (b1, b2, b3...)
 %
 % Set one or more bindings for one or more specific background function(s)
-%   >> obj = obj.add_bfree (ifun, bind)
-%   >> obj = obj.add_bfree (ifun, b1, b2, b3...)
+%   >> obj = obj.add_bbind (ifun, bind)
+%   >> obj = obj.add_bbind (ifun, b1, b2, b3...)
 %
 % Input:
 % ------
@@ -25,7 +25,7 @@ function obj = add_bbind (obj,varargin)
 %                   Parameter index and function index of the
 %                   background parameter to be bound
 %
-%               [par, fun]
+%               [ipar_free, ifun_free]
 %                   Parameter index and function index of the
 %                   parameter to which the bound parameter is tied.
 %                   The function index is positive for background

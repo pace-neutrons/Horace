@@ -7,9 +7,11 @@ function [ind,indv]=array_filter(arr,vals,opt)
 % Input:
 % ------
 %   arr     Numerical array, cell array of strings, or array of structures
-%          (where each field is numeric or logical scalar, or string).
+%          (where each field is numeric or logical array, or string).
 %           Need not contain unique elements.
+%
 %   vals    List of test values of the same type (need not be unique)
+%
 %   opt     {optional] 'first' (default) or 'last':
 %          Indicies in indv will be to first or last occurences in vals
 %          (These two options will give same result if vals is a unique array)
@@ -103,7 +105,7 @@ else
             indv(i)=j;  % non-zero elements are indices into vsort of elements that match asort
             i=i+1;
         else
-            [tmp,ind]=nestedSortStruct([asort(i);vsort(j)],nam);
+            [tmp,ind]=sortStruct([asort(i);vsort(j)],nam);
             if ind(1)==1
                 i=i+1;
             else

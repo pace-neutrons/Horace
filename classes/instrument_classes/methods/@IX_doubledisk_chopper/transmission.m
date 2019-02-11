@@ -15,7 +15,7 @@ function f=transmission(disk,varargin)
 %
 % Output:
 % -------
-%   f       Relative transmission (in fact unit transmission in all cases)
+%   f       Relative transmission (in fact unity for all energies)
 
 if ~isscalar(disk), error('Function only takes a scalar object'), end
 

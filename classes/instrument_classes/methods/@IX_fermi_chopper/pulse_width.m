@@ -1,10 +1,10 @@
-function [dt,pk_fwhh]=pulse_width(fermi,varargin)
+function [dt,pk_fwhh,fwhh]=pulse_width(fermi,varargin)
 % Calculate st. dev. of chopper pulse width distribution (microseconds)
 %
-%   >> [dt,pk_fwhh]=pulse_width(fermi)        % pulse width for ei and phase in Fermi chopper object
-%   >> [dt,pk_fwhh]=pulse_width(fermi,phase)  % for specified phase: in-phase (true) or pi-rotated (false)
-%   >> [dt,pk_fwhh]=pulse_width(fermi,ei)     % for an array of specified ei with the phase in fermi
-%   >> [dt,pk_fwhh]=pulse_width(fermi,ei,phase) % for specified ei and phase
+%   >> [dt,pk_fwhh,fwhh]=pulse_width(fermi)        % pulse width for ei and phase in Fermi chopper object
+%   >> [dt,pk_fwhh,fwhh]=pulse_width(fermi,phase)  % for specified phase: in-phase (true) or pi-rotated (false)
+%   >> [dt,pk_fwhh,fwhh]=pulse_width(fermi,ei)     % for an array of specified ei with the phase in fermi
+%   >> [dt,pk_fwhh,fwhh]=pulse_width(fermi,ei,phase) % for specified ei and phase
 %
 % Input:
 % -------
@@ -17,7 +17,9 @@ function [dt,pk_fwhh]=pulse_width(fermi,varargin)
 % Output:
 % -------
 %   dt      Standard deviation of pulse width (microseconds)
-%   pk_fwhh FWHH at energy corresponding to maximum transmission (microseconds)
+%   pk_fwhh FWHH at energy and phase corresponding to maximum
+%           transmission (microseconds)
+%   fwhh    FWHH (microseconds)
 
 if ~isscalar(fermi), error('Function only takes a scalar object'), end
 
@@ -51,6 +53,7 @@ else
     gam=(2*fermi.radius/pk_fwhh)*abs(1/s+1./vi);
 end
 
+% Variance
 var=zeros(size(ei));
 i1=gam<1;
 var(i1)=(pk_fwhh^2/6)*((1-gam(i1).^4/10)./(1-gam(i1).^2/6));
@@ -58,5 +61,13 @@ i2=gam>=1&gam<4;
 rtgam=sqrt(gam(i2));
 var(i2)=(pk_fwhh^2/6)*(0.6*gam(i2).*((rtgam-2).^2).*(rtgam+8)./(rtgam+4));
 
+% FWHH of chopper in optimal configuration
 dt=1e6*sqrt(var);
 pk_fwhh=1e6*pk_fwhh;
+
+% Actual FWHH
+fwhh=zeros(size(ei));
+i0=(gam<4/7);
+fwhh(i0)=pk_fwhh*(1+gam(i0)/4);
+fwhh(~i0)=pk_fwhh*(2*gam(~i0).*(4-gam(~i0)))./...
+    (2*gam(~i0) + sqrt(2*gam(~i0).*(4+gam(~i0))));

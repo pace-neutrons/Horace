@@ -5,7 +5,6 @@ function f=partial_transmission(disk,varargin)
 %                                               % independent of energy (cf. Fermi chopper)
 %   >> f=partial_transmission(disk,t)           % partial transmission for an array of times
 %
-% If t=Inf, then returns same result as: transmission(disk)
 %
 % Input:
 % -------
@@ -15,7 +14,8 @@ function f=partial_transmission(disk,varargin)
 %
 % Output:
 % -------
-%   f       Partial transmission (unit transmission at t=Inf)
+%   f       Partial transmission. If t=Inf, f = transmission(disk)
+%           Note that transmission(disk) is in fact unity independent of energy
 
 if ~isscalar(disk), error('Function only takes a scalar object'), end
 

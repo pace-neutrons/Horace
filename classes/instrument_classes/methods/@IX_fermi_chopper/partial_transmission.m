@@ -6,7 +6,6 @@ function f=partial_transmission(fermi,varargin)
 %   >> f=partial_transmission(fermi,t)          % partial transmission for an array of times with phase in fermi
 %   >> f=partial_transmission(fermi,t,phase)    % partial transmission for an array of times with the specified phase
 %
-% If t=Inf, then returns same result as: transmission(fermi)
 %
 % Input:
 % -------
@@ -18,7 +17,10 @@ function f=partial_transmission(fermi,varargin)
 %
 % Output:
 % -------
-%   f       Partial transmission (unit transmission at t=Inf)
+%   f       Partial transmission. If t=Inf, f = transmission(fermi[,phase])
+%           Note that transmission(fermi[,phase]) is only unity at the energy
+%          and phase corresponding to peak transmission.
+
 
 if ~isscalar(fermi), error('Function only takes a scalar object'), end
 

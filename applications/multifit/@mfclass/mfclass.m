@@ -29,8 +29,8 @@ classdef mfclass
     %   set_pin      - Set foreground fit function parameters
     %   clear_pin    - Clear parameters for one or more foreground fit functions
     %
-    %   set_pin      - Set background fit function parameters
-    %   clear_pin    - Clear parameters for one or more background fit functions
+    %   set_bpin     - Set background fit function parameters
+    %   clear_bpin   - Clear parameters for one or more background fit functions
     %
     % To set which parameters are fixed or free:
     %   set_free     - Set free or fix foreground function parameters

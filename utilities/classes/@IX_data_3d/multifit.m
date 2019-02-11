@@ -1,12 +1,23 @@
 function varargout = multifit (varargin)
 % Simultaneously fit function(s) to one or more IX_dataset_3d objects
 %
-%   >> myobj = multifit (w1, w2, ...)       % w1, w2 objects or arrays of objects
+%   >> myobj = multifit (w1, w2, ...)      % w1, w2 objects or arrays of objects
 %
 % This creates a fitting object of class mfclass_IX_dataset_3d with the provided data,
 % which can then be manipulated to add further data, set the fitting
 % functions, initial parameter values etc. and fit or simulate the data.
-% For details <a href="matlab:help('mfclass_IX_dataset_3d');">Click here</a>
+% For details about how to do this  <a href="matlab:help('mfclass_IX_dataset_3d');">Click here</a>
+%
+% For example:
+%
+%   >> myobj = multifit (w1, w2, ...); % set the data
+%       :
+%   >> myobj = myobj.set_fun (@function_name, pars);  % set forgraound function(s)
+%   >> myobj = myobj.set_bfun (@function_name, pars); % set background function(s)
+%       :
+%   >> myobj = myobj.set_free (pfree);      % set which parameters are floating
+%   >> myobj = myobj.set_bfree (bpfree);    % set which parameters are floating
+%   >> [wfit,fitpars] = myobj.fit;          % perform fit
 %
 % For the format of fit functions (foreground or background), see the example:
 % <a href="matlab:edit('example_3d_function');">example_3d_function</a>
