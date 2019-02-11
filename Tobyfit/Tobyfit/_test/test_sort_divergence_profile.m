@@ -26,7 +26,7 @@ prarr1=[pr1,pr2,pr3,pr4,pr5];
 [psort1,ix]=sort(prarr1);
 
 if ~isequal(ix',[3,2,1,4,5]) || ~isequal(prarr1(ix),psort1)
-    error('Fermi chopper sort not working')
+    error('Divergence profile sort not working')
 end
 
 
@@ -38,7 +38,7 @@ if ~isequal(ix',[3     5     6     7     8]) ||...
         ~isequal(ib',[3     2     1     3     2     3     4     5]) ||...
         ~isequal(prarr2(ix),psort2) ||...
         ~isequal(prarr2,psort2(ib))
-    error('Fermi chopper unique not working')
+    error('Divergence profile unique not working')
 end
 
 

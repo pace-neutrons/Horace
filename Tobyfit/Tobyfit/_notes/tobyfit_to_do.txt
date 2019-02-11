@@ -15,7 +15,7 @@ Urgent:
 - test routine to confirm equivalence with resolution function covariance
 
 
-- Make Tobyfit test instrument type (so dont need to do 'disk' or 'fermi')
+- Make Tobyfit test instrument type (so don't need to do 'disk' or 'fermi')
 
 ===============================================================================================
 Little things to check:

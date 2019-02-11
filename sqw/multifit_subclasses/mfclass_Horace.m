@@ -29,8 +29,8 @@ classdef mfclass_Horace < mfclass
     %   set_pin      - Set foreground fit function parameters
     %   clear_pin    - Clear parameters for one or more foreground fit functions
     %
-    %   set_pin      - Set background fit function parameters
-    %   clear_pin    - Clear parameters for one or more background fit functions
+    %   set_bpin     - Set background fit function parameters
+    %   clear_bpin   - Clear parameters for one or more background fit functions
     %
     % To set which parameters are fixed or free:
     %   set_free     - Set free or fix foreground function parameters
@@ -255,7 +255,7 @@ classdef mfclass_Horace < mfclass
             %                   Parameter index and function index of the
             %                   foreground parameter to be bound
             %
-            %               [par, fun]
+            %               [ipar_free, ifun_free]
             %                   Parameter index and function index of the
             %                   parameter to which the bound parameter is tied.
             %                   The function index is positive for foreground
@@ -490,7 +490,7 @@ classdef mfclass_Horace < mfclass
             %                   Parameter index and function index of the
             %                   background parameter to be bound
             %
-            %               [par, fun]
+            %               [ipar_free, ifun_free]
             %                   Parameter index and function index of the
             %                   parameter to which the bound parameter is tied.
             %                   The function index is positive for background

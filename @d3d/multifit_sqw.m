@@ -1,12 +1,23 @@
 function varargout = multifit_sqw (varargin)
 % Simultaneously fit function(s) of S(Q,w)to one or more d3d objects
 %
-%   >> myobj = multifit_sqw (w1, w2, ...)       % w1, w2 objects or arrays of objects
+%   >> myobj = multifit_sqw (w1, w2, ...)      % w1, w2 objects or arrays of objects
 %
 % This creates a fitting object of class mfclass_Horace_sqw with the provided data,
 % which can then be manipulated to add further data, set the fitting
 % functions, initial parameter values etc. and fit or simulate the data.
-% For details <a href="matlab:help('mfclass_Horace_sqw');">Click here</a>
+% For details about how to do this  <a href="matlab:help('mfclass_Horace_sqw');">Click here</a>
+%
+% For example:
+%
+%   >> myobj = multifit_sqw (w1, w2, ...); % set the data
+%       :
+%   >> myobj = myobj.set_fun (@function_name, pars);  % set forgraound function(s)
+%   >> myobj = myobj.set_bfun (@function_name, pars); % set background function(s)
+%       :
+%   >> myobj = myobj.set_free (pfree);      % set which parameters are floating
+%   >> myobj = myobj.set_bfree (bpfree);    % set which parameters are floating
+%   >> [wfit,fitpars] = myobj.fit;          % perform fit
 %
 % This method fits model(s) for S(Q,w) as the foreground function(s), and
 % function(s) of the plot axes for the background function(s)
