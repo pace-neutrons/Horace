@@ -13,11 +13,14 @@ function [M,vol] = resolution_matrix_from_covariance(C)
 % The resolution matrix is the inverse of the covariancem matrix, and
 % describes the Gaussian widths of the resolution function
 if ismatrix(C)
+    assert(issymtol(C,size(C,1)*eps()),'The covariance matrix is not symmetric?!');
     M = inv(C);
 else
     s = size(C);
     M = zeros(s);
+    tol=s(1)*eps();
     for i=1:prod(s(3:end))
+        assert(issymtol(C(:,:,i),tol),'The covariance matrix is not symmetric?!');
         M(:,:,i) = inv( C(:,:,i) );
     end
 end
@@ -41,4 +44,8 @@ if nargout > 1
     end
 end
 
+end
+
+function sym = issymtol(A,tol)
+    sym = sum(sum(abs(A-A'))) < tol;
 end

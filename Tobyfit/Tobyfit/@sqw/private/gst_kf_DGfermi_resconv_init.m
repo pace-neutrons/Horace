@@ -401,17 +401,17 @@ else
     tmpw = win;
 end
 % We can also pre-calculate and store the neighbourhood cell specifications
-%   minQE       the minimum (Qx,Qy,Qz,E) of all (Q0,E0) pixel locations
+%   minkf       the minimum (kfx,kfy,kfz) of all (kf) pixel locations
 %               minus their resolution halfwidths [evaluated at
-%               frac*R(Q0,E0) ]
-%   maxQE       the maximum (Qx,Qy,Qz,E)
-%   dQE         the maximum resolution halfwidth along each (Qx,Qy,Qz,E)
+%               frac*R(kf0) ]
+%   maxkf       the maximum (kfx,kfy,kfz)
+%   dkf         the maximum resolution halfwidth along each (kfx,kfy,kfz)
 [minkf,maxkf,dkf] = gst_kf_resolution_limits(tmpw,lookup,keywrd.frac);
-dkf = dkf/2; % go from half-width to quarter-width
+% dkf = dkf/2; % go from half-width to quarter-width
 %   cell_span   the ith element gives the difference in linear indicies
 %               into the total cell array for the ith dimension (and is the
 %               product of the 1st to (i-1)th sizes of the array)
-%   cell_N      the sizes of the neighbourhood cell array in (Qx,Qy,Qz,E)
+%   cell_N      the sizes of the neighbourhood cell array in (kfx,kfy,kfz)
 [cell_span,cell_N] = cll_cell_span(minkf,maxkf,dkf);
 
 lookup.minkf = minkf;
@@ -424,25 +424,17 @@ lookup.cell_N = cell_N;
 % the neighbourhood cell array, plus the HWFH resolution matricies and
 % constant-probability resolution ellipsoids for each pixel.
 QE = cell(nw,1);
-QE_cell = cell(nw,1);
-% QE_head = cell(nw,1);
-% QE_list = cell(nw,1);
-% mat_kikf = cell(nw,1);
-% vol_kikf = cell(nw,1);
-% ell_kikf = cell(nw,1);
-% ell_kikf_vecs = cell(nw,1);
-% ell_kikf_eigs = cell(nw,1);
+kf_cell = cell(nw,1);
 mat_kf = cell(nw,1);
 vol_kf = cell(nw,1);
-ell_kf = cell(nw,1);
-ell_kf_vecs = cell(nw,1);
-ell_kf_eigs = cell(nw,1);
+% ell_kf = cell(nw,1);
+% ell_kf_vecs = cell(nw,1);
+% ell_kf_eigs = cell(nw,1);
 for i=1:nw
     pix = calculate_qw_pixels(tmpw(i)); % {4,1} of (npix,1)
     QE{i} = cat(2, pix{:} )'; % (4,npix) matrix
-    % Determine the linked list for pixels:
-    QE_cell{i} = cll_cell_idx(lookup.vkf{i},minkf,maxkf,dkf,cell_span,cell_N);
-%     [QE_head{i},QE_list{i}]=cll_make_linked_list(lookup.vkf{i},minkf,maxkf,dkf,cell_span,cell_N);
+    % Determine the cell index for pixels:
+    kf_cell{i} = cll_cell_idx(lookup.vkf{i},minkf,maxkf,dkf,cell_span,cell_N);
     
 %     pixC = lookup.cov_kikf{i}; % the covariance matrix for each pixel
 %     % We need the (Gaussian width) resolution matrix for each pixel in
@@ -458,26 +450,19 @@ for i=1:nw
     % We need the (Gaussian width) resolution matrix for each pixel in
     % order to determine the resolution volume for each pixel and the
     % probability of measuring a neutron with (kf_j)
-    [mat_kf{i},vol_kf{i}] = resolution_matrix_from_covariance( pixC );
+    [mat_kf{i},vol_kf{i}] = cov2resmat(pixC);
     % We need the constant-probabilty (half-width, fractional-height)
     % ellipsoid for each pixel in order to decide which points will be
     % included in the per-pixel resolution integration.
-    [ell_kf{i},ell_kf_vecs{i},ell_kf_eigs{i}] = resolution_ellipsoid_from_matrix( mat_kf{i}, keywrd.frac );
+%     [ell_kf{i},ell_kf_vecs{i},ell_kf_eigs{i}] = resolution_ellipsoid_from_matrix( mat_kf{i}, keywrd.frac );
 end
 lookup.QE = QE;
-lookup.QE_cell=QE_cell;
-% lookup.QE_head = QE_head;
-% lookup.QE_list = QE_list;
-% lookup.mat_kikf = mat_kikf;
-% lookup.vol_kikf = vol_kikf;
-% lookup.ell_kikf = ell_kikf;
-% lookup.ell_kikf_vecs = ell_kikf_vecs;
-% lookup.ell_kikf_eigs = ell_kikf_eigs;
+lookup.kf_cell=kf_cell;
 lookup.mat_kf = mat_kf;
 lookup.vol_kf = vol_kf;
-lookup.ell_kf = ell_kf;
-lookup.ell_kf_vecs = ell_kf_vecs;
-lookup.ell_kf_eigs = ell_kf_eigs;
+% lookup.ell_kf = ell_kf;
+% lookup.ell_kf_vecs = ell_kf_vecs;
+% lookup.ell_kf_eigs = ell_kf_eigs;
 lookup.frac = keywrd.frac;
 
 

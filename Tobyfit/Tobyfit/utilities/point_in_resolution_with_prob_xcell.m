@@ -1,5 +1,5 @@
 function [pinr_Xidx,pinr_Xlen,pinr_frst,pinr_last,pinr_list,pinr_VxR] = ...
-    point_in_run_resolution_with_prob(span,N,Y,Yrun,Yhead,Ylist,X,M,vol,Xrun,Xhead,Xlist,frac)
+    point_in_resolution_with_prob_xcell(span,N,Y,Yhead,Ylist,X,M,vol,Xcell,frac)
 
 % Determine if a point (or points) Y is inside of the resolution defined by
 % Xcov centered at X.
@@ -33,7 +33,7 @@ function [pinr_Xidx,pinr_Xlen,pinr_frst,pinr_last,pinr_list,pinr_VxR] = ...
 %           Either a (d,d) matrix for a single ellipsoid or a (d,d,m) array
 %           for m ellipsoids.
 %
-%   Xhead   Like Yhead, but gives the first index into Xlist
+%   Xcell   A vector of cell indicies for each pixel
 %
 %   frac    The fractional probability above which a point is *in*
 %           resolution for a pixel
@@ -80,16 +80,9 @@ end
 if numel(vol)~=Npx
     error('vol must have %d elements to match M',Npx)
 end
-if numel(Xhead)~=Ntot
-    error('Xhead must have %d elements for the neighbourhood array passed',Ntot)
+if numel(Xcell)~=Npx
+    error('Xcell must have %d elements to match M',Npx)
 end
-if numel(Xlist) ~= Npx
-    error('Xlist must have %d entries for X of size (%d,%d)',Npx,d,Npx)
-end
-
-cellHasPx = Xhead > 0;
-% fprintf('Now checking %d of %d cells for resolution inclusion\n',sum(hasPx),Ntot);
-cellHasPx = find(cellHasPx,Ntot); % A vector of indicies is easier to use
 
 pinr_Xidx = zeros(1,Npx);
 pinr_Xlen = zeros(1,Npx);
@@ -107,22 +100,23 @@ tmp_VxR = cell(numel(cellHasPx,1));
 ninr = 0; % So we'll need to keep track of how much of the list is used
 iPx = 0; % the number of pixels accumulated thus far
 
-% Yhead == 0 are neighbourhoods without Y points
-% Xhead == 0 are neighbourhoods without X pixels
+% We should have multiple pixels in each cell (otherwise this isn't a
+% useful method).
+uniqueXcell = unique(Xcell);
 
-
-for i=1:numel(cellHasPx)
-    % get indicies in to X for pixels in cell cellHasPx(i)
-    iXidx = cll_collect_idx( cellHasPx(i), Xhead, Xlist);
-    % determine the neighbouring cells to cellHasPx(i) 
-    nCell = cll_cell_neighbours( cellHasPx(i), N, span, Ntot, 1);
+for i=1:numel(uniqueXcell)
+    thisCell=uniqueXcell(i);
+    % get indicies in to X for pixels in thisCell
+    iXidx = find( Xcell == thisCell, Npx); % up to Npx could be in one cell
+    % determine the neighbouring cells to thisCell
+    nCell = cll_cell_neighbours( thisCell, N, span, Ntot, 1);
     % get indicies in to Y for pixels in any of the neighbouring cells
     iYidx = cll_collect_idx( nCell, Yhead, Ylist); 
     % get a cell array where each element are the indicies into iYidx for
     % the corresponding iXidx
-%     [idx,prob] = point_in_ellipsoid_with_prob(Y(:,iYidx),M(:,:,iXidx),C(:,:,iXidx),X(:,iXidx),frac);
-    [idx,prob] = point_in_run_ellipsoid_with_prob(Y(:,iYidx),Yrun(iYidx),M(:,:,iXidx),vol(iXidx),X(:,iXidx),Xrun(iXidx),frac);
-    
+
+    [idx,prob] = point_in_ellipsoid_with_prob(Y(:,iYidx),M(:,:,iXidx),vol(iXidx),X(:,iXidx),frac);
+
     in_cell = cell(length(idx),1);
     for j=1:length(idx)
         iPx = iPx + 1; % Increment how many pixels we've accumulated
@@ -142,8 +136,6 @@ for i=1:numel(cellHasPx)
     pinr{i} = cat(2,in_cell{:});
     tmp_VxR{i} = cat(2,prob{:});
 end
-% % make sure we only return the part of pinr_list which has been populated
-% pinr_list = pinr_list(1:ninr);
 
 pinr_list = cat(2,pinr{:});
 pinr_VxR = cat(2,tmp_VxR{:});

@@ -145,7 +145,6 @@ if isfield(caller,'reset_state') && caller.reset_state ...
     % TODO: Shunt this into its own thread somehow? Allow for Sij(Q,E)
     allSQE = sqwfunc( allQE(1,:), allQE(2,:), allQE(3,:), allQE(4,:), pars{:});
 else
-%     [allQE,pntki,pntkf,pntrun,state_out,store_out] = gst_kf_DGfermi_genpoints(win,caller,state_in,store_in,pars,lookup,mc_contributions,mc_points,xtal,modshape);
     [allQE,pntki,pntkf,pntrun,state_out] = gst_kf_DGfermi_genpoints(win,caller,state_in,store_in,pars,lookup,mc_contributions,mc_points,xtal,modshape);
 
     if use_parallel_worker

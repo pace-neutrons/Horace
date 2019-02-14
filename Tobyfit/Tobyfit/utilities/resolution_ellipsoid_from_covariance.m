@@ -1,6 +1,6 @@
 function M = resolution_ellipsoid_from_covariance(C,frac,M)
 if nargin < 3 || isempty(M)
-    M = resolution_matrix_from_covariance(C);
+    M = cov2resmat(C);
 end
 if nargin < 2 || ~isnumeric(frac)
     frac=0.5; % half-height probability by default

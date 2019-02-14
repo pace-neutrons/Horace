@@ -26,16 +26,7 @@
 % 	VxR		the value of V(i)*R(i)[Y-X(i)] for eaxh point in iPt: same sized as iPt
 
 function [iPx,nPt,fst,lst,iPt,VxR]=pointsInResRunPix(nCell,span,Y,Yrun,Yhead,Ylist,X,M,V,Xrun,Xcell,frac)
-
-% checkAgainst = max(prod(nCell),numel(Ylist)*numel(Xlist));
-% if checkAgainst > 2^32-1
-%     castto = 'UInt64';
-% else
-%     castto = 'UInt32';
-% end
 castto = 'UInt64';
-% castto = promote_type(nCell,span,Yhead,Ylist,Xcell);
-
 t =     cast(prod(nCell),castto);
 cells = cast(nCell,castto);
 spans = cast(span,castto);
@@ -45,15 +36,26 @@ ylist = cast(Ylist,castto);
 xrun  = cast(Xrun,castto);
 xcell = cast(Xcell,castto);
 
-% castdbl = promote_type(Y,X,M,V,frac);
 castdbl ='double';
 y = cast(Y,castdbl);
 x = cast(X,castdbl);
 m = cast(M,castdbl);
 v = cast(V,castdbl);
 f = cast(frac,castdbl);
-
-[iPx,nPt,fst,lst,iPt,VxR]=cppPointsInResRunPix(t,cells,spans,y,yrun,yhead,ylist,x,m,v,xrun,xcell,f);
+    
+config = hor_config();
+if config.use_mex
+    try
+    [iPx,nPt,fst,lst,iPt,VxR]=cppPointsInResRunPix(t,cells,spans,y,yrun,yhead,ylist,x,m,v,xrun,xcell,f);
+    catch
+        warning('Executing mex file failed.')
+        config.use_mex=false;
+    end
+end
+if ~config.use_mex
+    [iPx,nPt,fst,lst,iPt,VxR]=point_in_run_resolution_with_prob_xcell(span,cells,y,yead,ylist,x,m,v,xcell,f);
+end
+        
 end
 
 % function ids = identify_types(types,objs)

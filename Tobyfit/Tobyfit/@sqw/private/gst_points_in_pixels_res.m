@@ -69,13 +69,15 @@ for i=1:nwin
     pixV = lookup.vol_hkle{i};
 	
     % For each pixel with (Q,E) 'pix' determine which points with 
-    % (Q,E) 'pnt' are within the pixel resolution ellipsoid pixL.
+    % (Q,E) 'pnt' are within the pixel resolution pixM.
     % To make things as complex as possible: 
-    %   The total (Q,E) space is divided up into cells, described by
-    %   spanCell and nCell, and the points and pixels are grouped into
-    %   the cells using linked lists (*_head,*_list). For a given cell,
+    %   The total (Q,E)  space is divided up into cells, described by
+    %   spanCell and nCell, and the points are grouped into
+    %   the cells using linked list (pnt_head,pnt_list). For a given cell,
     %   only the points in that or neighbouring cells are considered for
     %   resolution-inclusion. 
+    %   The pixels are located into cells by pix_cell which gives the cell
+    %   index for each pixel.
     %   The output is a special set of vectors designed to avoid using
     %   MATLAB cell-arrays. (Wouldn't it be great to have Arrays of Arrays?)
     %       iPx         the pixel indicies, some permutation of 1:npix
@@ -90,11 +92,8 @@ for i=1:nwin
     %                   within-resolution. [or, the value of
     %                   R{(Q,E)pix-(Q,E)pnt} if R is *not* normalized]
     
-    % Pure MATLAB code (which needs to be modified to use pixCell instead
-    % of pix_head and pix_list)
-    %[this_iPx,this_nPt,this_fst,this_lst,this_iPt,this_VxR] = point_in_resolution_with_prob(spanCell,nCell,pnt,pnt_head,pnt_list,pix,pixM,pixV,pix_head,pix_list,lookup.frac);
     
-    % MATLAB wrapper around C++ code
+    % MATLAB wrapper around C++ code with pure-MATLAB fallback
     [this_iPx,this_nPt,this_fst,this_lst,this_iPt,this_VxR] = pointsInResPix(nCell,spanCell,pnt,pnt_head,pnt_list,pix,pixM,pixV,pix_cell,lookup.frac);
     
     k = offsetPx+(1:nPx(i)); 

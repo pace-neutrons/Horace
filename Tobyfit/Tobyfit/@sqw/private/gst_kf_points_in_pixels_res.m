@@ -64,19 +64,21 @@ for i=1:nwin
     % Here we're only considering kf for resolution overlap
     pixX = lookup.vkf{i};
     pixrun = lookup.irun{i};
-    pixCell=lookup.QE_cell{i};
+    pixCell=lookup.kf_cell{i};
     % Pixel (Gaussian width) resolution matrix and its volume
     pixM = lookup.mat_kf{i};
     pixV = lookup.vol_kf{i};
 
-    % For each pixel with (Q,E) 'pix' determine which points with 
-    % (Q,E) 'pnt' are within the pixel resolution ellipsoid pixL.
+    % For each pixel with kf 'pixX' determine which points with 
+    % kf 'pnt' are within the pixel resolution pixM.
     % To make things as complex as possible: 
-    %   The total (Q,E) space is divided up into cells, described by
-    %   spanCell and nCell, and the points and pixels are grouped into
-    %   the cells using linked lists (*_head,*_list). For a given cell,
+    %   The total kf space is divided up into cells, described by
+    %   spanCell and nCell, and the points are grouped into
+    %   the cells using linked list (pnt_head,pnt_list). For a given cell,
     %   only the points in that or neighbouring cells are considered for
     %   resolution-inclusion. 
+    %   The pixels are located into cells by pixCell which gives the cell
+    %   index for each pixel.
     %   The output is a special set of vectors designed to avoid using
     %   MATLAB cell-arrays. (Wouldn't it be great to have Arrays of Arrays?)
     %       iPx         the pixel indicies, some permutation of 1:npix
@@ -89,14 +91,11 @@ for i=1:nwin
     %       VxR         for each point-within-resolution, the pixel
     %                   resolution volume times the probability of being
     %                   within-resolution. [or, the value of
-    %                   R{(Q,E)pix-(Q,E)pnt} if R is *not* normalized]
+    %                   R{(kf)pix-(kf)pnt} if R is *not* normalized]
     
-    % Pure MATLAB code (which needs to be modified to use pixCell instead
-    % of pix_head and pix_list)
-    %[this_iPx,this_nPt,this_fst,this_lst,this_iPt,this_VxR] = point_in_run_resolution_with_prob(spanCell,nCell,pnt,pntrun,pnt_head,pnt_list,pixX,pixM,pixV,pixrun,pix_head,pix_list,lookup.frac);
-
-    % MATLAB wrapper around C++ code
+    % MATLAB wrapper around C++ code with pure-MATLAB fallback
     [this_iPx,this_nPt,this_fst,this_lst,this_iPt,this_VxR] = pointsInResRunPix(nCell,spanCell,pnt,pntrun,pnt_head,pnt_list,pixX,pixM,pixV,pixrun,pixCell,lookup.frac);
+    
     k = offsetPx+(1:nPx(i)); 
     iW ( k ) = i;
     iPx( k ) = this_iPx;
@@ -115,7 +114,5 @@ VxR = cat(2,VxR_cell{:});
 if numel(iPt) ~= offsetPt || numel(VxR) ~= offsetPt
     error('Something has gone wrong with creation of iPt or VxR')
 end
-
-
 
 end
