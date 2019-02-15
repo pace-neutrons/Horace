@@ -269,6 +269,7 @@ for i=1:nseg
     u20= dot(b*rlp(i,:)',u2crt./norm(u2crt))/ulen(2);
     u30= dot(b*rlp(i,:)',u3crt./norm(u3crt))/ulen(3);
     u1 = [dot(b*rlp(i,:)',u1crt)/ulen(1), u1bin, dot(b*rlp(i+1,:)',u1crt)/ulen(1)];
+    u1(2)=(u1(3)-u1(1))/floor((u1(3)-u1(1))/u1(2)); % Radu Coldea on 19/12/2018: adjust qbin size to have an exact integer number of bins between the start and end points 
     u2 = [u20-u2bin,u20+u2bin];
     u3 = [u30-u3bin,u30+u3bin];
     % Make cut, and save to array of d2d
