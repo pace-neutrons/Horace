@@ -488,17 +488,17 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	intType *matlab_YiX = (intType *)mxGetData(plhs[4]);
 	double *matlab_VxR = (double *)mxGetData(plhs[5]);
 
-		for (intType i=0; i<m; i++){
+	for (intType i=0; i<m; i++){
 		if (nYiX[i]>n){
 			char *buf = new char[100]();
 			sprintf(buf,"Pixel %d has more contributing points than possible! (%d vs %d)",i,nYiX[i],n);
 			mexErrMsgIdAndTxt("HORACE:cPointsInResolution:overflow",buf);
 		}
 	}
-
+	
 	intType k = 0;
 	for (intType i = 0; i < m; i++) {
-		// This pixel's index (I can probably get rid of this)
+		// This pixel's index (kept for consistency with MATLAB routine)
 		iX[i] = i + 1; // MATLAB-indexing
 		// This pixel's first entry in YiX, VxR
 		fst[i] = k + 1; // MATLAB-indexing

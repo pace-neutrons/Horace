@@ -15,6 +15,77 @@ template <typename R, typename T> R * safealloc(const T d){
 	return out;
 }
 
+template <typename T, typename R> void cofactor(const T n, const R *M, const T p, const T q, R *C){
+	T k=0;
+	for (T j=0; j<n; j++){
+		for (T i=0; i<n; i++){
+			if (i!=p && j!=q){
+				C[k++]=M[i+j*n];
+			}
+		}
+	}
+}
+template <typename T, typename R> R determinant(const T n, const R *M){
+	if (1==n) return M[0];
+	// the determinant:
+	R d = 0.0;
+	// temporary cofactor storage
+	R *cof = safealloc<R>( (n-1)*(n-1) );
+
+	// loop over one row/column (let's go with row, for fun)
+	R pm = 1; // +/-1 for alternating elements
+	for (T i=0; i<n; i++){
+		cofactor(n,M,T(0),i,cof);
+		d += pm * M[i*n] * determinant(n-1,cof);
+		pm *= -1;
+	}
+	delete[] cof;
+	return d;
+}
+template <typename T, typename R> void adjoint(const T n, const R *M, R *A){
+	if (1==n){
+		A[0]=R(1);
+		return;
+	}
+	R pm=1, *cof = safealloc<R>((n-1)*(n-1));
+	for (T i=0; i<n; i++){
+		for (T j=0; j<n; j++){
+			// the cofactor matrix for M[i,j]
+			cofactor(n,M,i,j,cof);
+			// if i+j is even, multiply the determinant by +1, otherwise -1
+			pm = ( (i+j)%2==0 ) ? R(1) : R(-1);
+			// We want to save the transpose, so A[j+i*n]
+			A[j+i*n] = pm * determinant(n-1,cof);
+		}
+	}
+	delete[] cof;
+}
+template <typename T, typename R> bool inverse(const T n, const R *M, R *invM){
+	R d = determinant(n,M);
+	if (0==d) return false; // the matrix is singular!
+	
+	adjoint(n,M,invM); // at this point invM is the Adjoint(M)
+	// The inv(M) = adjoint(M)/det(M)
+	T nn = n*n;
+	for (T i=0; i<nn; i++) invM[i] /= d;
+	// now invM is inv(M)!
+	return true;
+}
+
+template <typename T, typename R> R det_and_inv(const T n, const R *M, R *invM){
+	R d = determinant(n,M);
+	if (0==d) return d; // the matrix is singular!
+	
+	adjoint(n,M,invM); // at this point invM is the Adjoint(M)
+	// The inv(M) = adjoint(M)/det(M)
+	T nn = n*n;
+	for (T i=0; i<nn; i++) invM[i] /= d;
+	// now invM is inv(M)!
+	return d;
+}
+
+
+/*
 template <typename T, typename R> R det_and_inv(const T d, const R *A, R *M){
 	// Calculate the characteristic polynomial of the square matrix A
 	// using the Faddeev-LeVerrier algorithm, and use these to determine
@@ -27,11 +98,11 @@ template <typename T, typename R> R det_and_inv(const T d, const R *A, R *M){
 	// to start M=M0 (it's been initialized to zero)
 	// and AMk is correct for calculating M_1
 	for (T k=0; k<d; k++){
-/*
-	printf("coef = %s\n", sprint_vector(d+1,coef) );
-      	printf("M_{%d}:\n%s\n",k,sprint_matrix(d,M));
-      	printf("A*M_{%d}:\n%s\n",k,sprint_matrix(d,AMk));
-*/
+//
+//      printf("coef = %s\n", sprint_vector(d+1,coef) );
+//    	printf("M_{%d}:\n%s\n",k,sprint_matrix(d,M));
+//    	printf("A*M_{%d}:\n%s\n",k,sprint_matrix(d,AMk));
+//
 		// Calculate M_{k+1} = A*M_{k} + c_{n-k}*I
 		for (T i=0;i<d;i++) for (T j=0;j<d;j++) M[i+j*d]=AMk[i+j*d]; //here AMk is still A*M_{k-1}
 		for (T i=0;i<d;i++) M[i+i*d]+=coef[d-k];
@@ -59,6 +130,7 @@ template <typename T, typename R> R det_and_inv(const T d, const R *A, R *M){
 		return R(-1)*determinant;
 		
 }
+*/
 
 template <typename T, typename R> R resmat_from_cov_one(const R pid, const T d, const R *C, R *M){
 	R det = det_and_inv(d,C,M); // sets M to inv(C);

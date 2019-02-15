@@ -44,15 +44,16 @@ v = cast(V,castdbl);
 f = cast(frac,castdbl);
     
 config = hor_config();
-if config.use_mex
+usemex=config.use_mex;
+if usemex
     try
     [iPx,nPt,fst,lst,iPt,VxR]=cppPointsInResRunPix(t,cells,spans,y,yrun,yhead,ylist,x,m,v,xrun,xcell,f);
     catch
         warning('Executing mex file failed.')
-        config.use_mex=false;
+        usemex=false;
     end
 end
-if ~config.use_mex
+if ~usemex
     [iPx,nPt,fst,lst,iPt,VxR]=point_in_run_resolution_with_prob_xcell(span,cells,y,yead,ylist,x,m,v,xcell,f);
 end
         

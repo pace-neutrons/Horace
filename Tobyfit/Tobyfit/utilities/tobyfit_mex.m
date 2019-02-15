@@ -71,8 +71,11 @@ if inputs.compile
         fprintf('\n');
         try
             mex(cpp_mex{i},mexopt{:});
-        catch
+        catch prob
             warning('Compiling mex file %s failed.',cpp_mex{i});
+            if strcmp(prob.identifier,'MATLAB:mex:Error')
+                disp(prob.message);
+            end
         end
         fprintf('\n');
     end
@@ -113,5 +116,5 @@ assert(ischar(x),'x should be a character array');
 
 matches = strncmpi(known,x,numel(x));
 tf = sum(matches)==1;
-b = find(tf,1,'last');
+b = find(matches,1,'last');
 end

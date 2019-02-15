@@ -21,7 +21,8 @@
 
 function [M,vol]=cov2resmat(C)
 config = hor_config(); % Move to a tobyfit_config()?
-if config.use_mex
+usemex=config.use_mex;
+if usemex
     d = size(C,1);
     assert(size(C,2)==d,'C should be one or more square matricies.');
     m = size(C,3); % might be one, which should be OK
@@ -46,10 +47,10 @@ if config.use_mex
     end
     catch
         warning('Executing mex file failed.')
-        config.use_mex=false;
+        usemex=false;
     end
 end
-if ~config.use_mex
+if ~usemex
     [M,vol]=resolution_matrix_from_covariance(C);
 end
 end

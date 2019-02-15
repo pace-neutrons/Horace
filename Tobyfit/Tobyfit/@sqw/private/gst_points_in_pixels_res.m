@@ -96,6 +96,10 @@ for i=1:nwin
     % MATLAB wrapper around C++ code with pure-MATLAB fallback
     [this_iPx,this_nPt,this_fst,this_lst,this_iPt,this_VxR] = pointsInResPix(nCell,spanCell,pnt,pnt_head,pnt_list,pix,pixM,pixV,pix_cell,lookup.frac);
     
+    if any(this_VxR>10^5)
+        warning('Huge volume times resolution matrix?!');
+    end
+    
     k = offsetPx+(1:nPx(i)); 
     iW ( k ) = i;
     iPx( k ) = this_iPx;

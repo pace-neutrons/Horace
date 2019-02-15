@@ -88,14 +88,7 @@ pinr_Xidx = zeros(1,Npx);
 pinr_Xlen = zeros(1,Npx);
 pinr_frst = zeros(1,Npx);
 pinr_last = zeros(1,Npx);
-% % If every point is within resolution for every pixel, we need to keep
-% % track of Npx*Npt indicies:
-% pinr_list = zeros(1,Npx*Npt);
-% But doing so might take more memory than we have for a large volume of
-% (Q,E) [where we certainly don't need so many points due to the relatively
-% small overlap of R(Q,E)]
-pinr = cell(numel(cellHasPx),1);
-tmp_VxR = cell(numel(cellHasPx,1));
+
 
 ninr = 0; % So we'll need to keep track of how much of the list is used
 iPx = 0; % the number of pixels accumulated thus far
@@ -103,6 +96,15 @@ iPx = 0; % the number of pixels accumulated thus far
 % We should have multiple pixels in each cell (otherwise this isn't a
 % useful method).
 uniqueXcell = unique(Xcell);
+
+% % If every point is within resolution for every pixel, we need to keep
+% % track of Npx*Npt indicies:
+% pinr_list = zeros(1,Npx*Npt);
+% But doing so might take more memory than we have for a large volume of
+% (Q,E) [where we certainly don't need so many points due to the relatively
+% small overlap of R(Q,E)]
+pinr = cell(numel(uniqueXcell),1);
+tmp_VxR = cell(numel(uniqueXcell),1);
 
 for i=1:numel(uniqueXcell)
     thisCell=uniqueXcell(i);

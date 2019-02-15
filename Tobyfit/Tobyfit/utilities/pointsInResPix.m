@@ -42,16 +42,17 @@ v = cast(V,castdbl);
 f = cast(frac,castdbl);
 
 config = hor_config(); % Move to a tobyfit_config()?
-if config.use_mex
+usemex=config.use_mex;
+if usemex
     try
     [iPx,nPt,fst,lst,iPt,VxR]=cppPointsInResPix(t,cells,spans,y,yhead,ylist,x,m,v,xcell,f);
     catch
         warning('Executing mex file failed.')
-        config.use_mex=false;
+        usemex=false;
     end
 end
-if ~config.use_mex
-    [iPx,nPt,fst,lst,iPt,VxR]=point_in_resolution_with_prob_xcell(span,cells,y,yead,ylist,x,m,v,xcell,f);
+if ~usemex
+    [iPx,nPt,fst,lst,iPt,VxR]=point_in_resolution_with_prob_xcell(span,nCell,Y,Yhead,Ylist,X,M,V,Xcell,frac);
 end
 
 end
