@@ -1,4 +1,4 @@
-function [iW,iPx,nPt,fst,lst,iPt,VxR] = gst_kf_points_in_pixels_res(win,lookup,pnt,pntrun,pnt_head,pnt_list)
+function [iW,iPx,nPt,fst,lst,iPt,VxR] = resolution_points_in_pixels_QE(win,lookup,pnt,pnt_head,pnt_list)
 % For all pixels in all SQW objects, determine which points of pntQE are
 % within resolution, and what the value of the pixel resolution-volume 
 % times the value of the pixel resolution-function is at the point 
@@ -61,23 +61,22 @@ spanCell = lookup.cell_span;
 nCell = lookup.cell_N;
 for i=1:nwin 
     % Pull predetermined values from the lookup
-    % Here we're only considering kf for resolution overlap
-    pixX = lookup.vkf{i};
-    pixrun = lookup.irun{i};
-    pixCell=lookup.kf_cell{i};
+    % Pixel QE points and linked list arranging pixels by neighbourhood cell
+    pix = lookup.QE{i};
+    pix_cell = lookup.QE_cell{i};
     % Pixel (Gaussian width) resolution matrix and its volume
-    pixM = lookup.mat_kf{i};
-    pixV = lookup.vol_kf{i};
-
-    % For each pixel with kf 'pixX' determine which points with 
-    % kf 'pnt' are within the pixel resolution pixM.
+    pixM = lookup.mat_hkle{i};
+    pixV = lookup.vol_hkle{i};
+	
+    % For each pixel with (Q,E) 'pix' determine which points with 
+    % (Q,E) 'pnt' are within the pixel resolution pixM.
     % To make things as complex as possible: 
-    %   The total kf space is divided up into cells, described by
+    %   The total (Q,E)  space is divided up into cells, described by
     %   spanCell and nCell, and the points are grouped into
     %   the cells using linked list (pnt_head,pnt_list). For a given cell,
     %   only the points in that or neighbouring cells are considered for
     %   resolution-inclusion. 
-    %   The pixels are located into cells by pixCell which gives the cell
+    %   The pixels are located into cells by pix_cell which gives the cell
     %   index for each pixel.
     %   The output is a special set of vectors designed to avoid using
     %   MATLAB cell-arrays. (Wouldn't it be great to have Arrays of Arrays?)
@@ -91,10 +90,15 @@ for i=1:nwin
     %       VxR         for each point-within-resolution, the pixel
     %                   resolution volume times the probability of being
     %                   within-resolution. [or, the value of
-    %                   R{(kf)pix-(kf)pnt} if R is *not* normalized]
+    %                   R{(Q,E)pix-(Q,E)pnt} if R is *not* normalized]
+    
     
     % MATLAB wrapper around C++ code with pure-MATLAB fallback
-    [this_iPx,this_nPt,this_fst,this_lst,this_iPt,this_VxR] = pointsInResRunPix(nCell,spanCell,pnt,pntrun,pnt_head,pnt_list,pixX,pixM,pixV,pixrun,pixCell,lookup.frac);
+    [this_iPx,this_nPt,this_fst,this_lst,this_iPt,this_VxR] = pointsInResPix(nCell,spanCell,pnt,pnt_head,pnt_list,pix,pixM,pixV,pix_cell,lookup.frac);
+    
+    if any(this_VxR>10^5)
+        warning('Huge volume times resolution matrix?!');
+    end
     
     k = offsetPx+(1:nPx(i)); 
     iW ( k ) = i;
@@ -102,17 +106,20 @@ for i=1:nwin
     nPt( k ) = this_nPt;
     fst( k ) = this_fst + offsetPt; % must offset the first-point index into iPt, VxR;
     lst( k ) = this_lst + offsetPt; % and the last-point index
-
+    
     iPt_cell{i} = this_iPt;
     VxR_cell{i} = this_VxR;
 
     offsetPx = offsetPx+nPx(i);
     offsetPt = offsetPt+numel(this_iPt);
 end
+
 iPt = cat(2,iPt_cell{:});
 VxR = cat(2,VxR_cell{:});
 if numel(iPt) ~= offsetPt || numel(VxR) ~= offsetPt
     error('Something has gone wrong with creation of iPt or VxR')
 end
+
+
 
 end

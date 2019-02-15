@@ -1,27 +1,27 @@
-function [ok,mess,lookup,npix] = gst_DGfermi_resconv_init (win, varargin)
+function [ok,mess,lookup,npix] = resolution_DGfermi_QE_init (win, varargin)
 % Fill various lookup tables and matrix transformations for resolution calculations
 %
 % For all pixels in the input sqw object(s):
-%   >> [ok,mess,lookup]=gst_DGfermi_resconv_init(win)
+%   >> [ok,mess,lookup]=resolution_DGfermi_QE_init(win)
 %
 % For specific pixels:
-%   >> [ok,mess,lookup]=gst_DGfermi_resconv_init(win,indx)
+%   >> [ok,mess,lookup]=resolution_DGfermi_QE_init(win,indx)
 %
 % No lookup tables:
-%   >> [ok,mess,lookup]=gst_DGfermi_resconv_init(...,'notables')
+%   >> [ok,mess,lookup]=resolution_DGfermi_QE_init(...,'notables')
 %
 % Modifying the constant-probability resolution ellipsoid evalulation
 % surface (by default, frac = 0.02):
-%   >> [ok,mess,lookup]=gst_DGfermi_resconv_init(...,'frac',[fractional-probability-value])
+%   >> [ok,mess,lookup]=resolution_DGfermi_QE_init(...,'frac',[fractional-probability-value])
 %
 % Special case of recovering the Monte Carlo contribution options:
-%   >> [ok,mess,mc_contr]=tobyfit_DGfermi_resconv_init
+%   >> [ok,mess,mc_contr]=resolution_DGfermi_QE_init
 %
 %
 % This routine is used in Tobyfit resolution convolution, and by other methods
 % that need to know about resolution functions. Note that for Tobyfit the
 % constraints of the mfclass_class object for initialisation function have a very
-% specific function call: [ok,mess,lookup]=tobyfit_DGfermi_resconv_init(win) i.e
+% specific function call: [ok,mess,lookup]=resolution_DGfermi_QE_init(win) i.e
 % no other optional paratmeters.
 %
 % Input:
@@ -168,6 +168,7 @@ if nargin==0
     return
 end
 
+fprintf('\n%s\n','Initialization function resolution_DGfermi_QE_init')
 
 % Initialise output lookup
 % ------------------------
@@ -367,14 +368,6 @@ lookup.k_to_e=k_to_e;
 %   cov_spec    the spectrometer axes
 % normally we only care about cov_hkle, but if we try to compare generated
 % points to instrument pixels based on kf we would also need cov_kikf.
-%
-% if exist('indx','var')
-%     [cov_hkle,cov_kikf] = gst_DGfermi_resfun_covariance( win, indx, lookup);
-% else
-%     [cov_hkle,cov_kikf] = gst_DGfermi_resfun_covariance( win, [], lookup);
-% end
-% lookup.cov_hkle = cov_hkle;
-% lookup.cov_kikf = cov_kikf;
 if exist('indx','var')
     lookup.cov_hkle = gst_DGfermi_resfun_covariance( win, indx, lookup);
 else
@@ -391,13 +384,20 @@ if iscell(win)
 else
     tmpw = win;
 end
+
+QE = cell(nw,1);
+for i=1:nw
+    pix = calculate_qw_pixels(tmpw(i)); % {4,1} of (npix,1)
+    QE{i} = cat(2, pix{:} )'; % (4,npix) matrix
+end
+lookup.QE=QE;
 % We can also pre-calculate and store the neighbourhood cell specifications
 %   minQE       the minimum (Qx,Qy,Qz,E) of all (Q0,E0) pixel locations
 %               minus their resolution halfwidths [evaluated at
 %               frac*R(Q0,E0) ]
 %   maxQE       the maximum (Qx,Qy,Qz,E)
 %   dQE         the maximum resolution halfwidth along each (Qx,Qy,Qz,E)
-[minQE,maxQE,dQE] = gst_resolution_limits(tmpw,lookup,keywrd.frac);
+[minQE,maxQE,dQE] = resolution_limits_QE(tmpw,lookup,keywrd.frac);
 %   cell_span   the ith element gives the difference in linear indicies
 %               into the total cell array for the ith dimension (and is the
 %               product of the 1st to (i-1)th sizes of the array)
@@ -413,16 +413,11 @@ lookup.cell_N = cell_N;
 % And we can pre-determine the linked list array for the pixel locations in
 % the neighbourhood cell array, plus the HWFH resolution matricies and
 % constant-probability resolution ellipsoids for each pixel.
-QE = cell(nw,1);
 QE_cell = cell(nw,1);
 mat_hkle = cell(nw,1);
 vol_hkle = cell(nw,1);
-% ell_hkle = cell(nw,1);
-% ell_hkle_vecs = cell(nw,1);
-% ell_hkle_eigs = cell(nw,1);
 for i=1:nw
-    pix = calculate_qw_pixels(tmpw(i)); % {4,1} of (npix,1)
-    QE{i} = cat(2, pix{:} )'; % (4,npix) matrix
+    
     % Determine the linked list for pixels:
     QE_cell{i} = cll_cell_idx(QE{i},minQE,maxQE,dQE,cell_span,cell_N);
     
@@ -431,18 +426,10 @@ for i=1:nw
     % order to determine the resolution volume for each pixel and the
     % probability of measuring a neutron with (Q_j,E_j)
     [mat_hkle{i},vol_hkle{i}] = cov2resmat( pixC );
-    % We need the constant-probabilty (half-width, fractional-height)
-    % ellipsoid for each pixel in order to decide which points will be
-    % included in the per-pixel resolution integration.
-%     [ell_hkle{i},ell_hkle_vecs{i},ell_hkle_eigs{i}] = resolution_ellipsoid_from_matrix( mat_hkle{i}, keywrd.frac );
 end
-lookup.QE = QE;
 lookup.QE_cell = QE_cell;
 lookup.mat_hkle = mat_hkle;
 lookup.vol_hkle = vol_hkle;
-% lookup.ell_hkle = ell_hkle;
-% lookup.ell_hkle_vecs = ell_hkle_vecs;
-% lookup.ell_hkle_eigs = ell_hkle_eigs;
 lookup.frac = keywrd.frac;
 
 if iscell(win)

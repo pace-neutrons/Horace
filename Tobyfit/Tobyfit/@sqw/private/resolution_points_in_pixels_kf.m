@@ -1,24 +1,23 @@
-function [iW,iPx,nPt,fst,lst,iPt,VxR] = gst_points_in_pixels_res(win,lookup,pnt,pnt_head,pnt_list)
-% For all pixels in all SQW objects, determine which points of pntQE are
+function [iW,iPx,nPt,fst,lst,iPt,VxR] = resolution_points_in_pixels_kf(win,lookup,pnt,pntrun,pnt_head,pnt_list)
+% For all pixels in all SQW objects, determine which points of pnt are
 % within resolution, and what the value of the pixel resolution-volume 
 % times the value of the pixel resolution-function is at the point 
-% locations, returning the information in six vectors.
+% locations, returning the information in seven vectors.
 % A number of important pieces of information must be precalculated by the
 % initialization function and placed in the lookup.
 
 % Inputs:
-%        win     a vector of SQW objects, needed to pull out nominal (Q,E)
+%        win     a vector of SQW objects, needed to pull out nominal kf
 %                for all pixels
 %
-%     lookup     the associated lookup table(s) for win, required for
-%                cell_span, cell_N, QE, QE_head, QE_list, mat_hkle, and
-%                ell_hkle
+%     lookup     the associated lookup table(s) for win, of which we use
+%                .vkf, .irun, .kf_cell, .mat_kf, and .vol_kf
 %
-%        pnt     The full (Q,E) points to be considered, (4,[total points])
+%        pnt     The full kf points to be considered, (3,[total points])
 %
-%   pnt_head     The head of a linked list for all (Q,E) points, (1,nCell)
+%   pnt_head     The head of a linked list for all kf points, (1,nCell)
 %
-%   pnt_list     The list of a linked list for all (Q,E) points, (1,[total points])
+%   pnt_list     The list of a linked list for all kf points, (1,[total points])
 %
 % Outputs:
 %       iW      the elements of iW are the indicies of the SQW object that
@@ -27,15 +26,18 @@ function [iW,iPx,nPt,fst,lst,iPt,VxR] = gst_points_in_pixels_res(win,lookup,pnt,
 %       iPx     the pixel indicies (within each SQW object) which give the
 %               associated detector pixel. Within each constant-iW block,
 %               these indicies will always be a permutation of 
-%               1:[# SQW pixels] but are almost guaranteed to *not* in
-%               order.
+%               1:[# SQW pixels] -- if using the external C++ code, they
+%               should be in order, otherwise they likely are not.
 %
 %       nPt     the number of points within resolution of the associated
 %               detector pixel
 %
-%       Pt1     the first element of the output point index vector and
+%       fst     the first element of the output point index vector and
 %               resolution probability vector associated with the 
 %               associated detector pixel
+%
+%       lst     like fst, but the last element (redundant but saves on
+%               arithmetic later)
 %
 %       iPt     A list of all points associated with all pixels in all SQW
 %
@@ -61,22 +63,22 @@ spanCell = lookup.cell_span;
 nCell = lookup.cell_N;
 for i=1:nwin 
     % Pull predetermined values from the lookup
-    % Pixel QE points and linked list arranging pixels by neighbourhood cell
-    pix = lookup.QE{i};
-    pix_cell = lookup.QE_cell{i};
+    pixX = lookup.vkf{i};
+    pixrun = lookup.irun{i};
+    pixCell=lookup.kf_cell{i};
     % Pixel (Gaussian width) resolution matrix and its volume
-    pixM = lookup.mat_hkle{i};
-    pixV = lookup.vol_hkle{i};
-	
-    % For each pixel with (Q,E) 'pix' determine which points with 
-    % (Q,E) 'pnt' are within the pixel resolution pixM.
+    pixM = lookup.mat_kf{i};
+    pixV = lookup.vol_kf{i};
+
+    % For each pixel with kf 'pixX' determine which points with 
+    % kf 'pnt' are within the pixel resolution pixM.
     % To make things as complex as possible: 
-    %   The total (Q,E)  space is divided up into cells, described by
+    %   The total kf space is divided up into cells, described by
     %   spanCell and nCell, and the points are grouped into
     %   the cells using linked list (pnt_head,pnt_list). For a given cell,
     %   only the points in that or neighbouring cells are considered for
     %   resolution-inclusion. 
-    %   The pixels are located into cells by pix_cell which gives the cell
+    %   The pixels are located into cells by pixCell which gives the cell
     %   index for each pixel.
     %   The output is a special set of vectors designed to avoid using
     %   MATLAB cell-arrays. (Wouldn't it be great to have Arrays of Arrays?)
@@ -90,15 +92,10 @@ for i=1:nwin
     %       VxR         for each point-within-resolution, the pixel
     %                   resolution volume times the probability of being
     %                   within-resolution. [or, the value of
-    %                   R{(Q,E)pix-(Q,E)pnt} if R is *not* normalized]
-    
+    %                   R{(kf)pix-(kf)pnt} if R is *not* normalized]
     
     % MATLAB wrapper around C++ code with pure-MATLAB fallback
-    [this_iPx,this_nPt,this_fst,this_lst,this_iPt,this_VxR] = pointsInResPix(nCell,spanCell,pnt,pnt_head,pnt_list,pix,pixM,pixV,pix_cell,lookup.frac);
-    
-    if any(this_VxR>10^5)
-        warning('Huge volume times resolution matrix?!');
-    end
+    [this_iPx,this_nPt,this_fst,this_lst,this_iPt,this_VxR] = pointsInResRunPix(nCell,spanCell,pnt,pntrun,pnt_head,pnt_list,pixX,pixM,pixV,pixrun,pixCell,lookup.frac);
     
     k = offsetPx+(1:nPx(i)); 
     iW ( k ) = i;
@@ -106,20 +103,17 @@ for i=1:nwin
     nPt( k ) = this_nPt;
     fst( k ) = this_fst + offsetPt; % must offset the first-point index into iPt, VxR;
     lst( k ) = this_lst + offsetPt; % and the last-point index
-    
+
     iPt_cell{i} = this_iPt;
     VxR_cell{i} = this_VxR;
 
     offsetPx = offsetPx+nPx(i);
     offsetPt = offsetPt+numel(this_iPt);
 end
-
 iPt = cat(2,iPt_cell{:});
 VxR = cat(2,VxR_cell{:});
 if numel(iPt) ~= offsetPt || numel(VxR) ~= offsetPt
     error('Something has gone wrong with creation of iPt or VxR')
 end
-
-
 
 end

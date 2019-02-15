@@ -1,4 +1,4 @@
-function [widx,objidx,allQE,state_out,store_out]=tobyfit_DGfermi_1shot_genpoints(win,caller,state_in,store_in,...
+function [allQE,allki,allkf,allrun,state_out,store_out]=resolution_DGfermi_kf_genpoints(win,caller,state_in,store_in,...
     pars,lookup,mc_contributions,mc_points,xtal,modshape)
 % Calculate resolution broadened sqw object(s) for a model scattering function.
 %
@@ -123,6 +123,8 @@ if refine_crystal && refine_moderator
     error('Cannot refine both crystal and moderator parameters. Error in logic flow - this should have been caught')
 end
 
+mc_points_in = mc_points;
+mc_points = ceil(mc_points);
 
 % Initialise output arguments
 % ---------------------------
@@ -132,8 +134,11 @@ total_pixels = sum( all_npix );
 noutput = mc_points * total_pixels;
 % So that we can pre-allocate output arrays
 allQE = zeros(4,noutput); % the generated (Q,E) points
-widx  = zeros(1,noutput); % the index into win for each (Q,E) point
-objidx = zeros(1,noutput);% the index into the pixels for each (Q,E) points, e.g., win(widx(i)).data.pix(:,objidx(i)))
+allki=zeros(3,noutput); % the *detector pixel* ki values for generated points
+allkf=zeros(3,noutput); % the gererated (kf) points
+allrun=zeros(1,noutput); % the run number for each generated point
+% widx  = zeros(1,noutput); % the index into win for each (Q,E) point
+% objidx = zeros(noutput,1);% the index into the pixels for each (Q,E) points, e.g., win(widx(i)).data.pix(:,objidx(i))) %%%%% MAYBE USELESS
 % Setup state and store output as well
 state_out = cell(size(win));    % create output argument
 store_out = [];
@@ -165,6 +170,7 @@ if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenien
 
 reset_state=caller.reset_state;
 
+% Generate the 'noutput' (Q,E) points for output 
 offset = 0;
 for i=1:numel(ind)
     % Get index of workspace into lookup tables
@@ -191,21 +197,31 @@ for i=1:numel(ind)
     ha=lookup.ha{iw};
     ki=lookup.ki{iw};
     kf=lookup.kf{iw};
+    irun = lookup.irun{iw};
     sample=lookup.sample(iw);
     s_mat=lookup.s_mat{iw};
     spec_to_rlu=lookup.spec_to_rlu{iw};
     d_mat=lookup.d_mat{iw};
-    detdcn=lookup.detdcn{iw};
+    detdcn=lookup.detdcn{iw}; % this is the direction from the sample to each detector index, i.e., kf-hat.? 
     x2=lookup.x2{iw};
     det_width=lookup.det_width{iw};
     det_height=lookup.det_height{iw};
     dt=lookup.dt{iw};
     qw=lookup.qw{iw};
     dq_mat=lookup.dq_mat{iw};
+    b_mat=lookup.b_mat{iw};
+    qk_mat=lookup.qk_mat{iw};
     
     % Run and detector for each pixel
     irun = win(i).data.pix(5,:)';   % column vector
     idet = win(i).data.pix(6,:)';   % column vector
+    
+    npix = size(win(i).data.pix,2); % or numel(irun), numel(idet)
+    
+    vkf = bsxfun(@times,kf',detdcn(:,idet)); % vector kf in spectrometer axes; (3,npix)
+    vki = cat(1, ki(irun)', zeros(2,npix) );
+    vkikf = cat(1,vki,vkf);
+    
     
     % Catch case of refining crystal orientation or moderator parameters
     if refine_crystal
@@ -219,11 +235,12 @@ for i=1:numel(ind)
         % Recompute Q because crystal orientation will have changed (dont need to update qw{4})
         qw(1:3) = calculate_q (ki(irun), kf, detdcn(:,idet), spec_to_rlu(:,:,irun));
         
-        % Recompute (Q,w) deviations matrix for same reason
-        dq_mat = dq_matrix_DGfermi (ki(irun), kf,...
-            x0(irun), xa(irun), x1(irun), x2(idet),...
-            thetam(irun), angvel(irun), s_mat(:,:,irun), d_mat(:,:,idet),...
-            spec_to_rlu(:,:,irun), k_to_v, k_to_e);
+        % Recompute (ki,kf) deviations since s_mat has changed
+        b_mat = b_matrix_DGfermi (ki(irun), kf, x0(irun), xa(irun),...
+                     x1(irun), x2(idet),thetam(irun), angvel(irun),...
+                     s_mat(:,:,irun), d_mat(:,:,idet), k_to_v);
+        % Which forces us to recompute dq_mat too
+        dq_mat = mtimesx_horace( qk_mat, b_mat);
     
     elseif refine_moderator
         % Strip out moderator refinement parameters and compute lookup table
@@ -232,10 +249,8 @@ for i=1:numel(ind)
             refine_moderator_strip_pars (modshape, store_in, pars{1});
     end
     
-    % Simulate the signal for the data set
+    % Generate (Q,E) points for the data set
     % ------------------------------------
-    npix = size(win(i).data.pix,2);
-    
     for imc=1:mc_points
         yvec=zeros(11,1,npix);
         
@@ -298,15 +313,39 @@ for i=1:numel(ind)
             yvec(11,1,:)=dt'.*(rand(1,npix)-0.5);
         end
         
-         % Calculate the deviations in Q and energy
+        % Calculate the deviations in Q and energy
         dq=squeeze(mtimesx_horace(dq_mat,yvec))';
         % And stash the full (Q,E) points away for output
         for j=1:4; allQE(j,offset+(1:npix)) = qw{j} + dq(:,j); end
-        % Also keep track of which win object these points came from
-        widx(offset+(1:npix)) = i;
-        % And the index into win(i).data.pix for each point
-        objidx(offset+(1:npix)) = 1:npix;
+        
+        % Calculate the deviations in (ki,kf) 
+        dkikf=squeeze(mtimesx_horace(b_mat,yvec));
+        % and stash the full (ki,kf) points for output
+%         allki(:,offset+(1:npix)) = vkikf(1:3,:);  % <--- ignore uncertainties in ki
+        allki(:,offset+(1:npix)) = vkikf(1:3,:) + dkikf(1:3,:);
+        allkf(:,offset+(1:npix)) = vkikf(4:6,:) + dkikf(4:6,:);
+        
+        % Store the run number for each pixel that generated a point
+        allrun(offset+(1:npix)) = irun;
+        
+%         % Also keep track of which win object these points came from
+%         widx(offset+(1:npix)) = i;
+%         % And the index into win(i).data.pix for each point
+%         objidx(offset+(1:npix)) = 1:npix;
         % Finally, increment the offset in preparation for the next points
         offset = offset + npix;
     end
 end
+
+% If passed-in mc_points was non-integer, now cut-down the total number of output points
+extra = mc_points-mc_points_in;
+if extra > 0
+    keep = round((1-extra)*total_pixels);
+    keepidx = randperm(total_pixels,keep);
+    allidx = cat(2,1:(noutput-total_pixels),sort(keepidx)+(noutput-total_pixels));
+    allQE = allQE(:,allidx);
+    allki = allki(:,allidx);
+    allkf = allkf(:,allidx);
+    allrun= allrun(allidx);
+end
+

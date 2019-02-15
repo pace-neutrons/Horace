@@ -1,4 +1,4 @@
-function wout = gst_collect_points_from_pixels(win,ppp,pnt_win,pnt_pix,SQE)
+function wout = collect_points_from_pixels(win,ppp,pnt_win,pnt_pix,SQE)
 % All points that belong to a single sqw object pixel, say
 % win(i).data.pix(:,j), can be accessed via:
 %   npix = arrayfun(@(x)(size(x.data.pix,2)),win);

@@ -1,27 +1,27 @@
-function [ok,mess,lookup,npix] = gst_kf_DGfermi_resconv_init (win, varargin)
+function [ok,mess,lookup,npix] = resolution_DGfermi_kf_init (win, varargin)
 % Fill various lookup tables and matrix transformations for resolution calculations
 %
 % For all pixels in the input sqw object(s):
-%   >> [ok,mess,lookup]=gst_DGfermi_resconv_init(win)
+%   >> [ok,mess,lookup]=resolution_DGfermi_kf_init(win)
 %
 % For specific pixels:
-%   >> [ok,mess,lookup]=gst_DGfermi_resconv_init(win,indx)
+%   >> [ok,mess,lookup]=resolution_DGfermi_kf_init(win,indx)
 %
 % No lookup tables:
-%   >> [ok,mess,lookup]=gst_DGfermi_resconv_init(...,'notables')
+%   >> [ok,mess,lookup]=resolution_DGfermi_kf_init(...,'notables')
 %
 % Modifying the constant-probability resolution ellipsoid evalulation
 % surface (by default, frac = 0.02):
-%   >> [ok,mess,lookup]=gst_DGfermi_resconv_init(...,'frac',[fractional-probability-value])
+%   >> [ok,mess,lookup]=resolution_DGfermi_kf_init(...,'frac',[fractional-probability-value])
 %
 % Special case of recovering the Monte Carlo contribution options:
-%   >> [ok,mess,mc_contr]=tobyfit_DGfermi_resconv_init
+%   >> [ok,mess,mc_contr]=resolution_DGfermi_kf_init
 %
 %
 % This routine is used in Tobyfit resolution convolution, and by other methods
 % that need to know about resolution functions. Note that for Tobyfit the
 % constraints of the mfclass_class object for initialisation function have a very
-% specific function call: [ok,mess,lookup]=tobyfit_DGfermi_resconv_init(win) i.e
+% specific function call: [ok,mess,lookup]=resolution_DGfermi_kf_init(win) i.e
 % no other optional paratmeters.
 %
 % Input:
@@ -168,7 +168,7 @@ if nargin==0
     return
 end
 
-fprintf('\n%s\n\n','Running initialization function gst_kf_DGfermi_resconv_init')
+fprintf('\n%s\n','Initialization function resolution_DGfermi_kf_init')
 
 % Initialise output lookup
 % ------------------------
@@ -406,7 +406,7 @@ end
 %               frac*R(kf0) ]
 %   maxkf       the maximum (kfx,kfy,kfz)
 %   dkf         the maximum resolution halfwidth along each (kfx,kfy,kfz)
-[minkf,maxkf,dkf] = gst_kf_resolution_limits(tmpw,lookup,keywrd.frac);
+[minkf,maxkf,dkf] = resolution_limits_kf(tmpw,lookup,keywrd.frac);
 % dkf = dkf/2; % go from half-width to quarter-width
 %   cell_span   the ith element gives the difference in linear indicies
 %               into the total cell array for the ith dimension (and is the
@@ -427,42 +427,22 @@ QE = cell(nw,1);
 kf_cell = cell(nw,1);
 mat_kf = cell(nw,1);
 vol_kf = cell(nw,1);
-% ell_kf = cell(nw,1);
-% ell_kf_vecs = cell(nw,1);
-% ell_kf_eigs = cell(nw,1);
 for i=1:nw
     pix = calculate_qw_pixels(tmpw(i)); % {4,1} of (npix,1)
     QE{i} = cat(2, pix{:} )'; % (4,npix) matrix
     % Determine the cell index for pixels:
     kf_cell{i} = cll_cell_idx(lookup.vkf{i},minkf,maxkf,dkf,cell_span,cell_N);
-    
-%     pixC = lookup.cov_kikf{i}; % the covariance matrix for each pixel
-%     % We need the (Gaussian width) resolution matrix for each pixel in
-%     % order to determine the resolution volume for each pixel and the
-%     % probability of measuring a neutron with (ki_j,kf_j)
-%     [mat_kikf{i},vol_kikf{i}] = resolution_matrix_from_covariance( pixC );
-%     % We need the constant-probabilty (half-width, fractional-height)
-%     % ellipsoid for each pixel in order to decide which points will be
-%     % included in the per-pixel resolution integration.
-%     [ell_kikf{i},ell_kikf_vecs{i},ell_kikf_eigs{i}] = resolution_ellipsoid_from_matrix( mat_kikf{i}, keywrd.frac );
-%     
+       
     pixC = lookup.cov_kikf{i}(4:6,4:6,:); % the covariance matrix for each pixel
     % We need the (Gaussian width) resolution matrix for each pixel in
     % order to determine the resolution volume for each pixel and the
     % probability of measuring a neutron with (kf_j)
     [mat_kf{i},vol_kf{i}] = cov2resmat(pixC);
-    % We need the constant-probabilty (half-width, fractional-height)
-    % ellipsoid for each pixel in order to decide which points will be
-    % included in the per-pixel resolution integration.
-%     [ell_kf{i},ell_kf_vecs{i},ell_kf_eigs{i}] = resolution_ellipsoid_from_matrix( mat_kf{i}, keywrd.frac );
 end
 lookup.QE = QE;
 lookup.kf_cell=kf_cell;
 lookup.mat_kf = mat_kf;
 lookup.vol_kf = vol_kf;
-% lookup.ell_kf = ell_kf;
-% lookup.ell_kf_vecs = ell_kf_vecs;
-% lookup.ell_kf_eigs = ell_kf_eigs;
 lookup.frac = keywrd.frac;
 
 

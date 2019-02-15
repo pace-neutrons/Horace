@@ -59,16 +59,16 @@ if nargin < 2 || isempty(indx)
 else
     all_pixels = false;
 end
-if nargin < 3 || isempty(lookup)
-    % Get lookup arrays
-    % -----------------
-    if all_pixels
-        [ok,~,lookup] = gst_DGfermi_resconv_init( win, 'notables' );
-    else
-        [ok,~,lookup] = gst_DGfermi_resconv_init( win, indx, 'notables' );
-    end
-    if ~ok; return; end
-end
+% if nargin < 3 || isempty(lookup)
+%     % Get lookup arrays
+%     % -----------------
+%     if all_pixels
+%         [ok,~,lookup] = gst_DGfermi_resconv_init( win, 'notables' );
+%     else
+%         [ok,~,lookup] = gst_DGfermi_resconv_init( win, indx, 'notables' );
+%     end
+%     if ~ok; return; end
+% end
 
 
 % Get variances

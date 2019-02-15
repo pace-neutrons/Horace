@@ -1,8 +1,8 @@
-function [wout,state_out,store_out]=gst_DGfermi_resconv(win,caller,state_in,store_in,...
+function [wout,state_out,store_out]=resolution_DGfermi_kf(win,caller,state_in,store_in,...
     sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape)
 % Calculate resolution broadened sqw object(s) for a model scattering function.
 %
-%   >> [wout,state_out,store_out]=gst_DGfermi_resconv(win,caller,state_in,store_in,...
+%   >> [wout,state_out,store_out]=resolution_DGfermi_kf(win,caller,state_in,store_in,...
 %                                 sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape)
 %
 % Input:
@@ -98,32 +98,25 @@ elseif max(ind(:))>numel(lookup.sample)
     error('Inconsistency between dataset indicies passed from control routine and the lookup tables')
 end
 
-use_parallel_worker = ~isempty(license('inuse','distrib_computing_toolbox')) && ~isempty(gcp('nocreate'));
 
+% use_parallel_worker = ~isempty(license('inuse','distrib_computing_toolbox')) && ~isempty(gcp('nocreate'));
 
 % Perform resolution broadening calculation
 % -----------------------------------------
 if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
 
 % Get neighbourhood cell array information from the lookup:
-minQE = lookup.minQE;
-maxQE = lookup.maxQE;
-dQE = lookup.dQE;
+minkf = lookup.minkf;
+maxkf = lookup.maxkf;
+dkf   = lookup.dkf;
 cell_span = lookup.cell_span;
-cell_N = lookup.cell_N;
-
-% % Every cell either has pixels in it or is a neighbour to a cell with
-% % pixels. That's the whole reason behind this method
-% cells_with_pixels = gst_cells_with_pixels(win,minQE,maxQE,dQE,cell_span,cell_N);
-% neighbours_with_pixels = cll_cell_neighbours(cells_with_pixels,cell_N,cell_span,prod(cell_N),1);
-% fprintf('\n\tFor %d cells with pixels, there are %d neighbours of %d total cells.\n',numel(cells_with_pixels),numel(neighbours_with_pixels),prod(cell_N));
-
-% Generate the full list of (Q,E) points at which we will calculate S(Q,E)
+cell_N    = lookup.cell_N;
 
 % -------------------------------------------------------------
 % To avoid re-generating points when, e.g., determing the derivatives of a
 % goodness of fit criteria, allow for the points to be passed to us in the
 % store_in structure
+% if isfield(store_in,'recycleQE') &&  store_in.recycleQE
 if isfield(caller,'reset_state') && caller.reset_state ...
         && isfield(store_in,'allQE') && isfield(store_in,'iW') ...
         && isfield(store_in,'iPx')   && isfield(store_in,'nPt') ...
@@ -152,42 +145,27 @@ if isfield(caller,'reset_state') && caller.reset_state ...
     % TODO: Shunt this into its own thread somehow? Allow for Sij(Q,E)
     allSQE = sqwfunc( allQE(1,:), allQE(2,:), allQE(3,:), allQE(4,:), pars{:});
 else
-    % [npt,allQE,state_out] = cll_generate_points_mc(caller,state_in,mc_points,minQE,dQE,cell_N,cell_span);
-    % [allQE,state_out] = gst_DGfermi_genpoints_same(win,caller,lookup);
-    % [npt,allQE,state_out] = gst_DGfermi_gencornerpoints(win,caller,state_in,store_in,pars,lookup,mc_contributions,mc_points,xtal,modshape);
-    % [allQE,state_out] = gst_DGfermi_genpoints_gaussian(win,caller,state_in,lookup,mc_points);
-    [allQE,state_out] = gst_DGfermi_genpoints(win,caller,state_in,store_in,pars,lookup,mc_contributions,mc_points,xtal,modshape);
-
-    if use_parallel_worker
-        % Calculate S(Q,E) for each point in allQE, using a parallel worker
-        % ----------------------------------------
-        fprintf('Calculating S(Q,E) for a total of %d (Q,E) points on a parallel worker\n',size(allQE,2));
-        f = parfeval(sqwfunc,1,allQE(1,:),allQE(2,:),allQE(3,:),allQE(4,:),pars{:});
-    end
+    [allQE,pntki,pntkf,pntrun,state_out] = resolution_DGfermi_kf_genpoints(win,caller,state_in,store_in,pars,lookup,mc_contributions,mc_points,xtal,modshape);
 
     % Determine the linked list for generated point neighbourhoods
-    [allQE_head,allQE_list]= cll_make_linked_list(allQE,minQE,maxQE,dQE,cell_span,cell_N);
+    [pnt_head,pnt_list]=cll_make_linked_list(pntkf,minkf,maxkf,dkf,cell_span,cell_N);
     
     % Determine the vectors describing the points within resolution for
     % each pixel
-    fprintf('\t%30s\t','Points within R(Q,E) per pixel');
-    [iW,iPx,nPt,fst,lst,iPt,VxR] = gst_points_in_pixels_res(win,lookup,allQE,allQE_head,allQE_list);
+    fprintf('%s\t','Points within R(kf) per pixel');
+    [iW,iPx,nPt,fst,lst,iPt,VxR] = resolution_points_in_pixels_kf(win,lookup,pntkf,pntrun,pnt_head,pnt_list);    
     fprintf('<n>=%d min(n)=%d median(n)=%d mode(n)=%d max(n)=%d\n',round(mean(nPt)),min(nPt),round(median(nPt)),mode(nPt),max(nPt));
-    
-    % Block execution until allSQE is calculated and returned
-    if use_parallel_worker
-        allSQE = fetchOutputs(f);
-    else
-        % Calculate S(Q,E) for each point in allQE
-        % ----------------------------------------
-        fprintf('Calculating S(Q,E) for a total of %d (Q,E) points\n',size(allQE,2));
-        allSQE = sqwfunc( allQE(1,:), allQE(2,:), allQE(3,:), allQE(4,:), pars{:});
-    end
+
+    % Calculate S(Q,E) for each point in allQE
+    % ----------------------------------------
+    fprintf('Calculating S(Q,E) for a total of %d (Q,E) points\n',size(allQE,2));
+    allSQE = sqwfunc( allQE(1,:), allQE(2,:), allQE(3,:), allQE(4,:), pars{:});
 end
 
 % make sure S(Q,E) is a column vector
 allSQE = allSQE(:);
 
-wout = gst_collect_points_into_pixels(win,iW,iPx,nPt,fst,lst,iPt,allSQE,VxR);
+
+wout = collect_points_into_pixels(win,iW,iPx,nPt,fst,lst,iPt,allSQE,VxR);
 
 store_out = struct('allQE',allQE,'iW',iW,'iPx',iPx,'nPt',nPt,'fst',fst,'lst',lst,'iPt',iPt,'VxR',VxR);

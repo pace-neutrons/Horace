@@ -1,4 +1,4 @@
-function wout = gst_collect_points_into_pixels(win,iW,iPx,nPt,fst,lst,iPt,SQE,VxR)
+function wout = collect_points_into_pixels(win,iW,iPx,nPt,fst,lst,iPt,SQE,VxR)
 % Initialise output arguments
 % ---------------------------
 wout = win;

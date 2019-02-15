@@ -48,7 +48,7 @@ if ~mfclass.legacy(varargin{:})
     % ----------------------------
     % Get resolution function model type
     if numel(varargin)>1 && ischar(varargin{end})
-        valid_models = {'fermi','fermi_1shot','disk','gst','gst_kf'};
+        valid_models = {'fermi','disk','R(Q,E) fermi','R(kf) fermi'};
         ind = strncmpi(varargin{end},valid_models,length(varargin{end}));
         if ~isempty(ind)
             model=valid_models{ind};
@@ -65,15 +65,12 @@ if ~mfclass.legacy(varargin{:})
     if strcmp(model,'fermi')
         mf_init = mfclass_wrapfun (@tobyfit_DGfermi_resconv, [], @func_eval, [],...
             true, false, @tobyfit_DGfermi_resconv_init, []);
-    elseif strcmp(model,'fermi_1shot')
-        mf_init = mfclass_wrapfun (@tobyfit_DGfermi_1shot_resconv, [], @func_eval, [],...
-            true, false, @tobyfit_DGfermi_resconv_init, []);
-    elseif strcmp(model,'gst')
-        mf_init = mfclass_wrapfun (@gst_DGfermi_resconv, [], @func_eval, [],...
-            true, false, @gst_DGfermi_resconv_init, []);
-    elseif strcmp(model,'gst_kf')
-        mf_init = mfclass_wrapfun (@gst_kf_DGfermi_resconv, [], @func_eval, [],...
-            true, false, @gst_kf_DGfermi_resconv_init, []);
+    elseif strcmp(model,'R(Q,E) fermi')
+        mf_init = mfclass_wrapfun (@resolution_DGfermi_QE, [], @func_eval, [],...
+            true, false, @resolution_DGfermi_QE_init, []);
+    elseif strcmp(model,'R(kf) fermi')
+        mf_init = mfclass_wrapfun (@resolution_DGfermi_kf, [], @func_eval, [],...
+            true, false, @resolution_DGfermi_kf_init, []);
     elseif strcmp(model,'disk')
         mf_init = mfclass_wrapfun (@tobyfit_DGdisk_resconv, [], @func_eval, [],...
             true, false, @tobyfit_DGdisk_resconv_init, []);
