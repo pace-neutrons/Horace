@@ -57,8 +57,8 @@ urange_step_pix = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
 
 % *** T.G.Perring 5 Sep 2018:*********************
 % Catch case of nstart and nend being empty - this corresponds to no data in the boxes that
-% interect with the cut. As of 26 Sep 2018 the rest of the code works even if nstart is empty
-% but catching this case here avoids a lot of unecessary working later on
+% intersect with the cut. As of 26 Sep 2018 the rest of the code works even if nstart is empty
+% but catching this case here avoids a lot of unnecessary working later on
 if isempty(nstart)
     pix = zeros(ndatpix,0);
     npix_retain = 0;
