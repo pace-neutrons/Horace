@@ -10,8 +10,10 @@ function f = partial_transmission(self,varargin)
 % Input:
 % -------
 %   fermi   IX_fermi_chopper object
+%
 %   t       time (microseconds) (array or scalar)
 %           If omitted, default is t=Inf
+%
 %   phase   if true, correctly phased; if false, 180 degrees out of phase
 %           If omitted, uses phase in the IX_fermi_chopper object
 %
@@ -23,13 +25,13 @@ function f = partial_transmission(self,varargin)
 
 
 % Check inputs
-if ~isscalar(self), error('Function only takes a scalar object'), end
+if ~isscalar(self), error('Method only takes a scalar Fermi chopper object'), end
 
 [ok, mess, t, phase] = parse_t_and_phase_ (self, varargin{:});
 if ~ok, error(mess), end
 
 % Calculated partial transmission relative to optimum for the Fermi chopper frequency
-[pk_fwhh, gam] = get_pulse_props_ (self, self.energy, phase);
+[pk_fwhh, gam] = get_pulse_props_ (self, self.energy_, phase);
 
 f=zeros(size(t));
 pos_t=t>0;      % negative times

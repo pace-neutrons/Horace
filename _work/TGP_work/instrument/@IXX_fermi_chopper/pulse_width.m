@@ -9,21 +9,25 @@ function [dt, pk_fwhh, fwhh] = pulse_width(self, varargin)
 % Input:
 % -------
 %   fermi   IX_fermi_chopper object
+%
 %   ei      Incident energy (meV) (array or scalar)
 %           If omitted or empty, uses the ei value in the IX_fermi_chopper object
+%
 %   phase   if true, correctly phased; if false, 180 degrees out of phase
 %           If omitted, uses phase in the IX_fermi_chopper object
 %
 % Output:
 % -------
 %   dt      Standard deviation of pulse width (microseconds)
+%
 %   pk_fwhh FWHH at energy and phase corresponding to maximum
 %           transmission (microseconds)
+%
 %   fwhh    FWHH for ei and phase (microseconds)
 
 
 % Check inputs
-if ~isscalar(self), error('Method only takes a scalar object'), end
+if ~isscalar(self), error('Method only takes a scalar Fermi chopper object'), end
 
 [ok, mess, ei, phase] = parse_ei_and_phase_ (self, varargin{:});
 if ~ok, error(mess), end

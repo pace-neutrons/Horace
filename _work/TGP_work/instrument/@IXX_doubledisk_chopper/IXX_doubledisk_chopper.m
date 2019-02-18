@@ -1,9 +1,5 @@
-classdef IXX_fermi_chopper
-    % Fermi chopper class definition
-    properties (Constant, Access=private)
-        % Conversion constant. Should replace by a class that gives constants
-        c_e_to_t_ = 2.286271439537201e+03;
-    end
+classdef IXX_doubledisk_chopper
+    % Double disk chopper class definition
     
     properties (Access=private)
         % Stored properties - but kept private and accessible only through
@@ -26,13 +22,9 @@ classdef IXX_fermi_chopper
         distance_ = 0;
         frequency_ = 0;
         radius_ = 0;
-        curvature_ = 0;
-        slit_width_ = 0;
-        slit_spacing_ = 0;
-        width_ = 0;
-        height_ = 0;
-        energy_ = 0;
-        phase_ = true;
+        slot_width_ = 0;
+        aperture_width_ = 0;
+        aperture_height_ = 0;
         jitter_ = 0;
         pdf_ = pdf_table();     % This is effectively a cached dependent variable
     end
@@ -43,13 +35,9 @@ classdef IXX_fermi_chopper
         distance
         frequency
         radius
-        curvature
-        slit_width
-        slit_spacing
-        width
-        height
-        energy
-        phase
+        slot_width
+        aperture_width
+        aperture_height
         jitter
     end
     
@@ -57,32 +45,26 @@ classdef IXX_fermi_chopper
         %------------------------------------------------------------------
         % Constructor
         %------------------------------------------------------------------
-        function obj = IXX_fermi_chopper (varargin)
-            % Create fermi chopper object
+        function obj = IXX_doubledisk_chopper (varargin)
+            % Create double-disk chopper object
             %
-            %   >> fermi_chopper = IX_fermi_chopper (distance,frequency,radius,curvature,slit_width)
+            %   >> doubledisk_chopper = IX_doubledisk_chopper (distance,frequency,radius,slot_width)
             %
-            %   >> fermi_chopper = IX_fermi_chopper (...,slit_spacing)
-            %   >> fermi_chopper = IX_fermi_chopper (...,slit_spacing,width,height);
-            %   >> fermi_chopper = IX_fermi_chopper (...,slit_spacing,width,height,energy);
-            %   >> fermi_chopper = IX_fermi_chopper (...,slit_spacing,width,height,energy,phase);
-            %   >> fermi_chopper = IX_fermi_chopper (...,slit_spacing,width,height,energy,phase,jitter);
+            %   >> doubledisk_chopper = IX_doubledisk_chopper (...,aperture_width);
+            %   >> doubledisk_chopper = IX_doubledisk_chopper (...,aperture_width,aperture_height);
+            %   >> doubledisk_chopper = IX_doubledisk_chopper (...,aperture_width,aperture_height,jitter);
             %
-            %   >> fermi_chopper = IX_fermi_chopper (name,...)
+            %   >> doubledisk_chopper = IX_doubledisk_chopper (name,...)
             %
-            %   name            Name of the slit package (e.g. 'sloppy')
+            %   name            Name of the chopper (e.g. 'chopper_5')
             %   distance        Distance from sample (m) (+ve if upstream of sample, against the usual convention)
-            %   frequency       Frequency of rotation (Hz)
+            %   frequency       Frequency of rotation of each disk (Hz)
             %   radius          Radius of chopper body (m)
-            %   curvature       Radius of curvature of slits (m)
-            %   slit_width      Slit width (m)  (Fermi)
-            %   slit_spacing    Spacing between slit centres (m)
-            %   width           Width of aperture (m)
-            %   height          Height of aperture (m)
-            %   energy          Energy of neutrons transmitted by chopper (mev)
-            %   phase           Phase = true if correctly phased, =false if 180 degree rotated
+            %   slot_width      Slit width (m)
+            %   aperture_width  Aperture width (m)
+            %   aperture_height Aperture height (m)
             %   jitter          Timing uncertainty on chopper (FWHH) (microseconds)
-            
+
             % Original author: T.G.Perring
             
             % Use the non-dependent property set functions to force a check of type,
@@ -93,32 +75,21 @@ classdef IXX_fermi_chopper
                     obj.name_ = varargin{1};
                     noff=noff+1;
                 end
-                if any(nargin-noff==[5,6,8,9,10,11])
+                if any(nargin-noff==[4,5,6,7])
                     obj.distance_  = varargin{noff+1};
                     obj.frequency_ = varargin{noff+2};
                     obj.radius_    = varargin{noff+3};
-                    obj.curvature_ = varargin{noff+4};
-                    obj.slit_width_= varargin{noff+5};
-                    if nargin-noff>=6
-                        obj.slit_spacing_ = varargin{noff+6};
-                        if obj.slit_width_>obj.slit_spacing_
-                            error('slit_spacing must be greater or equal to slit_width')
-                        end
+                    obj.slot_width_= varargin{noff+4};
+                    if nargin-noff>=5
+                        obj.aperture_width_ = varargin{noff+5};
                     else
-                        obj.slit_spacing_ = obj.slit_width_;
+                        obj.aperture_width_ = obj.slot_width_;
                     end
-                    if nargin-noff>=8
-                        obj.width_ = varargin{noff+7};
-                        obj.height_= varargin{noff+8};
+                    if nargin-noff>=6
+                        obj.aperture_height_ = varargin{noff+6};
                     end
-                    if nargin-noff>=9
-                        obj.energy_ = varargin{noff+9};
-                    end
-                    if nargin-noff>=10
-                        obj.phase_ = varargin{noff+10};
-                    end
-                    if nargin-noff>=11
-                        obj.jitter_ = varargin{noff+11};
+                    if nargin-noff>=7
+                        obj.jitter_ = varargin{noff+7};
                     end
                 else
                     error('Check number of input arguments')
@@ -143,7 +114,7 @@ classdef IXX_fermi_chopper
             if is_string(val)
                 obj.name_=val;
             else
-                error('Fermi chopper name must be a character string (or empty string)')
+                error('Disk chopper name must be a character string (or empty string)')
             end
         end
         
@@ -167,63 +138,31 @@ classdef IXX_fermi_chopper
             if isscalar(val) && isnumeric(val) && val>=0
                 obj.radius_=val;
             else
-                error('Fermi chopper radius must be a numeric scalar greater or equal to zero')
+                error('Disk chopper radius must be a numeric scalar greater or equal to zero')
             end
         end
         
-        function obj=set.curvature_(obj,val)
+        function obj=set.slot_width_(obj,val)
             if isscalar(val) && isnumeric(val) && val>=0
-                obj.curvature_=val;
+                obj.slot_width_=val;
             else
-                error('Slit radius of curvature must be a numeric scalar greater or equal to zero')
+                error('Slot width must be a numeric scalar greater or equal to zero')
             end
         end
         
-        function obj=set.slit_width_(obj,val)
-            if isscalar(val) && isnumeric(val) && val>=0
-                obj.slit_width_=val;
-            else
-                error('Slit width must be a numeric scalar greater or equal to zero')
-            end
-        end
-        
-        function obj=set.slit_spacing_(obj,val)
+        function obj=set.aperture_width_(obj,val)
             if isscalar(val) && isnumeric(val)
-                obj.slit_spacing_=val;
+                obj.aperture_width_=val;
             else
-                error('Slit spacing must be a numeric scalar greater or equal to the slit width')
+                error('Chopper aperture width must be a numeric scalar greater or equal to the slit width')
             end
         end
         
-        function obj=set.width_(obj,val)
+        function obj=set.aperture_height_(obj,val)
             if isscalar(val) && isnumeric(val) && val>=0
-                obj.width_=val;
-            else
-                error('Chopper aperture width must be a numeric scalar greater or equal to zero')
-            end
-        end
-        
-        function obj=set.height_(obj,val)
-            if isscalar(val) && isnumeric(val) && val>=0
-                obj.height_=val;
+                obj.aperture_height_=val;
             else
                 error('Chopper aperture height must be a numeric scalar greater or equal to zero')
-            end
-        end
-        
-        function obj=set.energy_(obj,val)
-            if isscalar(val) && isnumeric(val) && val>=0
-                obj.energy_=val;
-            else
-                error('Energy must be a numeric scalar greater or equal to zero')
-            end
-        end
-        
-        function obj=set.phase_(obj,val)
-            if islognumscalar(val)
-                obj.phase_=logical(val);
-            else
-                error('Chopper phase type must be true or false (or 1 or 0)')
             end
         end
         
@@ -265,56 +204,24 @@ classdef IXX_fermi_chopper
             end
         end
         
-        function obj=set.curvature(obj,val)
-            val_old = obj.curvature_;
-            obj.curvature_=val;
-            if obj.curvature_~=val_old
+        function obj=set.slot_width(obj,val)
+            val_old = obj.slot_width_;            
+            obj.slot_width_=val;
+            if obj.slot_width_~=val_old
                 obj.pdf_ = recompute_pdf_(obj);     % recompute the lookup table
             end
         end
         
-        function obj=set.slit_width(obj,val)
-            val_old = obj.slit_width_;
-            
-            obj.slit_width_=val;
-            if obj.slit_width_>obj.slit_spacing_
-                error('Slit width must be less than or equal to the slit spacing')
-            end
-            
-            if obj.slit_width_~=val_old
+        function obj=set.aperture_width(obj,val)
+            val_old = obj.aperture_width_;  
+            obj.aperture_width_=val;
+            if obj.aperture_width_~=val_old
                 obj.pdf_ = recompute_pdf_(obj);     % recompute the lookup table
             end
         end
         
-        function obj=set.slit_spacing(obj,val)
-            obj.slit_spacing_=val;
-            if obj.slit_spacing_<obj.slit_width_
-                error('Slit spacing must be greater or equal to the slit width')
-            end
-        end
-        
-        function obj=set.width(obj,val)
-            obj.width_=val;
-        end
-        
-        function obj=set.height(obj,val)
-            obj.height_=val;
-        end
-        
-        function obj=set.energy(obj,val)
-            val_old = obj.energy_;
-            obj.energy_=val;
-            if obj.energy_~=val_old
-                obj.pdf_ = recompute_pdf_(obj);     % recompute the lookup table
-            end
-        end
-        
-        function obj=set.phase(obj,val)
-            val_old = obj.phase_;
-            obj.phase_=val;
-            if obj.phase_~=val_old
-                obj.pdf_ = recompute_pdf_(obj);     % recompute the lookup table
-            end
+        function obj=set.aperture_height(obj,val)
+            obj.aperture_height_=val;
         end
         
         function obj=set.jitter(obj,val)
@@ -343,32 +250,16 @@ classdef IXX_fermi_chopper
             val=obj.radius_;
         end
         
-        function val=get.curvature(obj)
-            val=obj.curvature_;
+        function val=get.slot_width(obj)
+            val=obj.slot_width_;
         end
         
-        function val=get.slit_width(obj)
-            val=obj.slit_width_;
+        function val=get.aperture_width(obj)
+            val=obj.aperture_width_;
         end
         
-        function val=get.slit_spacing(obj)
-            val=obj.slit_spacing_;
-        end
-        
-        function val=get.width(obj)
-            val=obj.width_;
-        end
-        
-        function val=get.height(obj)
-            val=obj.height_;
-        end
-        
-        function val=get.energy(obj)
-            val=obj.energy_;
-        end
-        
-        function val=get.phase(obj)
-            val=obj.phase_;
+        function val=get.aperture_height(obj)
+            val=obj.aperture_height_;
         end
         
         function val=get.jitter(obj)

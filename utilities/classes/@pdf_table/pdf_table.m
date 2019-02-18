@@ -2,20 +2,21 @@ classdef pdf_table
     % Probability distribution function table
     properties (Access=private)
         % x values
-        x_
+        x_ = [];
         % Normalised values of pdf
-        f_
+        f_ = [];
         % Normalised cumulative distribution function:
         % A(i) is the cdf up to x(i); A(1)=0 and A(end)=1
-        A_
+        A_ = [];
         % Gradient m(i) = (f(i+1)-f(i))/(x(i+1)-x(i))
-        m_
+        m_ = [];
     end
     
     properties (Dependent)
-        x   % x values
-        f   % Values of probability distribution function (pdf) at x values
-        A   % Cumulative distribution function at x values (A(1)=0, A(end)=1))
+        x       % x values
+        f       % Values of probability distribution function (pdf) at x values
+        A       % Cumulative distribution function at x values (A(1)=0, A(end)=1))
+        valid   % is a valid pdf or not
     end
     
     methods
@@ -48,45 +49,48 @@ classdef pdf_table
             %        EXAMPLE:
             %           pdf = gauss (x, p);     p=[height, centre, st_dev]
             
-            % Check x values
-            if ~isnumeric(x) || ~isvector(x) || numel(x)<2 || any(diff(x)<0)
-                error('x values must be a vector length at last two and monotonic increasing')
-            else
-                x = x(:);   % ensure column array
-            end
             
-            % Check pdf
-            if isnumeric(pdf)
-                if numel(varargin)==0
-                    f = pdf;
+            if nargin>0
+                % Check x values
+                if ~isnumeric(x) || ~isvector(x) || numel(x)<2 || any(diff(x)<0)
+                    error('x values must be a vector length at least two and monotonic increasing')
                 else
-                    error('Check the number and type of input arguments')
+                    x = x(:);   % ensure column array
                 end
-            elseif isa(pdf,'function_handle')
-                f = pdf (x, varargin{:});
-            else
-                error('The pdf must be a numeric vector or function handle and arguments')
+                
+                % Check pdf
+                if isnumeric(pdf)
+                    if numel(varargin)==0
+                        f = pdf;
+                    else
+                        error('Check the number and type of input arguments')
+                    end
+                elseif isa(pdf,'function_handle')
+                    f = pdf (x, varargin{:});
+                else
+                    error('The pdf must be a numeric vector or function handle and arguments')
+                end
+                
+                if numel(f)~=numel(x)
+                    error('The number of values of the pdf must equal the number of x values.')
+                elseif ~isvector(f) || ~all(isfinite(f)) || any(f)<0
+                    error('The pdf values must all be finite and greater or equal to zero')
+                else
+                    f = f(:);   % ensure column array
+                end
+                
+                % Derived quantities to speed up random sampling
+                dA = 0.5*diff(x).*(f(2:end)+f(1:end-1));
+                if all(dA==0)
+                    error('The pdf has zero integrated area. The area must be non zero.')
+                end
+                A = cumsum(dA);
+                Atot = A(end);
+                obj.x_ = x;
+                obj.f_ = f/Atot;                % to give normalised area
+                obj.A_ = [0;A(1:end-1)/Atot;1]; % normalise the area
+                obj.m_ = diff(obj.f_)./diff(obj.x_);
             end
-            
-            if numel(f)~=numel(x)
-                error('The number of values of the pdf must equal the number of x values.')
-            elseif ~isvector(f) || ~all(isfinite(f)) || any(f)<0
-                error('The pdf values must all be finite, greater or equal to zero')
-            else
-                f = f(:);   % ensure column array
-            end
-            
-            % Derived quantities to speed up random sampling
-            dA = 0.5*diff(x).*(f(2:end)+f(1:end-1));
-            if all(dA==0)
-                error('The pdf has zero integrated area. The area must be non zero.')
-            end
-            A = cumsum(dA);
-            Atot = A(end);
-            obj.x_ = x;
-            obj.f_ = f/Atot;                % to give normalised area
-            obj.A_ = [0;A(1:end-1)/Atot;1]; % normalise the area
-            obj.m_ = diff(obj.f_)./diff(obj.x_);
         end
         
         %------------------------------------------------------------------
@@ -101,6 +105,10 @@ classdef pdf_table
         
         function val=get.A(obj)
             val=obj.A_;
+        end
+        
+        function val=get.valid(obj)
+            val=~isempty(obj.x_);
         end
         
         %------------------------------------------------------------------
@@ -123,6 +131,10 @@ classdef pdf_table
             % Output:
             % -------
             %   X           Array of random numbers
+            
+            if ~obj.valid
+                error('The probability distribution function is not initialised')
+            end
             
             Asamp = rand(varargin{:});
             

@@ -8,12 +8,12 @@ function [pk_fwhh, gam] = get_pulse_props_ (self, ei, phase)
 
 vi=1e6*sqrt(ei)/self.c_e_to_t_;           % incident velocity (m/s)
 
-omega=2*pi*self.frequency;
-s=2*omega*self.curvature;
-pk_fwhh=self.slit_width/(2*self.radius*omega);
+omega=2*pi*self.frequency_;
+s=2*omega*self.curvature_;
+pk_fwhh=self.slit_width_/(2*self.radius_*omega);
 
 if phase
-    gam=(2*self.radius/pk_fwhh)*abs(1/s-1./vi);
+    gam=(2*self.radius_/pk_fwhh)*abs(1/s-1./vi);
 else
-    gam=(2*self.radius/pk_fwhh)*abs(1/s+1./vi);
+    gam=(2*self.radius_/pk_fwhh)*abs(1/s+1./vi);
 end

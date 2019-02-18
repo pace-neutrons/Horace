@@ -9,8 +9,10 @@ function f = transmission(self, varargin)
 % Input:
 % -------
 %   fermi   IX_fermi_chopper object
+%
 %   ei      Incident energy (meV) (array or scalar)
 %           If omitted or empty, uses the ei value in the IX_fermi_chopper object
+%
 %   phase   If true, correctly phased; if false, 180 degrees out of phase
 %           If omitted, uses phase in the IX_fermi_chopper object
 %
@@ -21,7 +23,7 @@ function f = transmission(self, varargin)
 
 
 % Check inputs
-if ~isscalar(self), error('Method only takes a scalar object'), end
+if ~isscalar(self), error('Method only takes a scalar Fermi chopper object'), end
 
 [ok, mess, ei, phase] = parse_ei_and_phase_ (self, varargin{:});
 if ~ok, error(mess), end

@@ -5,18 +5,22 @@ function [ok,mess,ei,phase] = parse_ei_and_phase_ (self, varargin)
 
 ok = true;
 mess = '';
-ei = self.energy;
-phase = self.phase;
+ei = self.energy_;
+phase = self.phase_;
 
 if nargin>1
     if nargin==2
         if isnumeric(varargin{1})
-            [ok, mess, ei] = check_ei (varargin{1});
+            if ~isempty(varargin{1})
+                [ok, mess, ei] = check_ei (varargin{1});
+            end
         else
             [ok, mess, phase] = check_phase (varargin{1});
         end
     elseif nargin==3
-        [ok, mess, ei] = check_ei (varargin{1});
+        if ~isempty(varargin{1})
+            [ok, mess, ei] = check_ei (varargin{1});
+        end
         if ~ok, return, end
         [ok, mess, phase] = check_phase (varargin{2});
     else

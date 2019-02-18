@@ -13,7 +13,8 @@ function X = rand_conv_hh (w1, w2, varargin)
 %           /     |    |\
 % _________/______|____|_\___________ x
 %                 0    |  (w2+w1)/2
-%                      (w2-w1)/2%
+%                      (w2-w1)/2
+%
 % Input:
 % ------
 %   w1, w2      Full width of two hat functions. Absolute value used

@@ -1,17 +1,19 @@
-function y = pulse_shape(self, varargin)
+function [y,t] = pulse_shape(self, varargin)
 % Return the pulse height at an array of times
 %
-%   >> y = pulse_shape(fermi)
+%   >> [y,t] = pulse_shape(fermi)
 %   >> y = pulse_shape(fermi, phase)    % for specified phase
-%   >> y = pulse_shape(fermi, t)        % for an array of times 
+%   >> y = pulse_shape(fermi, t)        % for an array of times
 %   >> y = pulse_shape(fermi, t, phase) % for specified time(s) and phase
 %
 %
 % Input:
 % -------
 %   fermi   IX_fermi_chopper object
+%
 %   t       time (microseconds) (array or scalar)
-%           If omitted, default is t=Inf
+%           If omitted, a default suitable set of points for a plot is used
+%
 %   phase   if true, correctly phased; if false, 180 degrees out of phase
 %           If omitted, uses phase in the IX_fermi_chopper object
 %
@@ -24,13 +26,20 @@ function y = pulse_shape(self, varargin)
 
 
 % Check inputs
-if ~isscalar(self), error('Function only takes a scalar object'), end
+if ~isscalar(self), error('Method only takes a scalar Fermi chopper object'), end
 
-[ok, mess, t, phase] = parse_t_and_phase_ (self, varargin{:});
+[ok, mess, t, phase, t_given] = parse_t_and_phase_ (self, varargin{:});
 if ~ok, error(mess), end
 
 % Calculate pulse shape
-[pk_fwhh, gam] = get_pulse_props_ (self, self.energy, phase);
+[pk_fwhh, gam] = get_pulse_props_ (self, self.energy_, phase);
+
+% Get suitable range of times for plotting
+if ~t_given
+    npnt = 500;
+    [tlo, thi] = pulse_range(self);
+    t = linspace(tlo,thi,npnt);
+end
 
 y=zeros(size(t));
 tau=abs(t)/(10^6*pk_fwhh);

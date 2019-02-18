@@ -1,8 +1,8 @@
-function [bObj, m, n] = unique(aObj, varargin)
+function [bObj, m, n] = uniqueObj(aObj, varargin)
 % Equivalent to intrinsic Matlab unique but here for objects
 %
-%   >> [bObj, m, n] = unique(aObj)
-%   >> [bObj, m, n] = unique(aObj, occurence)
+%   >> [bObj, m, n] = uniqueObj(aObj)
+%   >> [bObj, m, n] = uniqueObj(aObj, occurence)
 %
 % Input:
 % ------
