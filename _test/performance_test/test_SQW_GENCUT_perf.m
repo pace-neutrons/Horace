@@ -176,8 +176,8 @@ classdef test_SQW_GENCUT_perf < TestPerformance
                 [~,fn] = fileparts(fn);
                 fn = fullfile(fp,[fn,'.tmp']);
             end
-            hc = hor_config;
-            wk_dir = hc.working_directory;
+
+            wk_dir = obj.working_dir;
             spe_files = obj.test_source_files_list_;
             tmp_files = cellfun(@(fn)(replace_fext(wk_dir,fn)),spe_files,'UniformOutput',false);
             
