@@ -200,9 +200,6 @@ if ~isempty(opt.outfile)
         if pix_tmpfile_ok
             clear tmpFilesClob;
         end
-        if ~isempty(mess)
-            warning('CUT_SQW_MAIN:io_error','Error saving pixels to file: %s',mess)
-        end
     catch Err  % catch just in case there is an error writing that is not caught - don't want to waste all the cutting output
         warning('CUT_SQW_MAIN:io_error','Error writing to file:ID %s, Message  %s',Err.identifier,Err.message);
     end
