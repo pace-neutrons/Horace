@@ -26,6 +26,10 @@ if ~isscalar(self), error('Method only takes a scalar double disk chopper object
 [T1,T2] = hat_times(self);
 
 if ~exist('t','var')
-    t = 0.5*[-(T1+T2),-(T2-T1),(T2-T1),(T1+T2)];
+    if T1==T2
+        t = 0.5*[-(T1+T2), 0,(T1+T2)];
+    else
+        t = 0.5*[-(T1+T2),-(T2-T1),(T2-T1),(T1+T2)];
+    end
 end
 y = conv_hh (t,T1,T2);

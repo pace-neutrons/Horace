@@ -100,6 +100,9 @@ classdef IXX_sample
                 end
                 [ok,mess] = check_xygeom (obj.xgeom_,obj.ygeom_);
                 if ~ok, error(mess), end
+                if numel(obj.ps_)~=obj.n_ps_(obj.shape_)
+                    error('The number of shape parameters is not correct for the sample type')
+                end
             end
         end
         
@@ -288,5 +291,3 @@ if ~(isempty(x) || isempty(y))
     end
 end
 end
-
-%function [ok,mess] = check_sample (shape, )

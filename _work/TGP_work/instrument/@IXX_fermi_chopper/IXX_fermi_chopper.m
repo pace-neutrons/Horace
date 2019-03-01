@@ -390,6 +390,13 @@ classdef IXX_fermi_chopper
         end
         
         %------------------------------------------------------------------
+        % Recover pdf not as a property but via method
+        function pdf = pdf_table(self)
+            if ~isscalar(self), error('Method only takes a scalar Fermi chopper object'), end
+            pdf = self.pdf_;
+        end
+        
+        %------------------------------------------------------------------
         
     end
 end

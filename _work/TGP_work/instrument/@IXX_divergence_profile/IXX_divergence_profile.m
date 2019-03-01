@@ -83,6 +83,12 @@ classdef IXX_divergence_profile
         end
         
         %------------------------------------------------------------------
+        % Set methods for dependent properties
+        
+        % Currently do not permit any - it only makes sense to change the
+        % profile as a whole, which is best done with the constructor
+
+        %------------------------------------------------------------------
         % Get methods for dependent properties
         function val=get.name(obj)
             val=obj.name_;
@@ -97,5 +103,13 @@ classdef IXX_divergence_profile
         end
         
         %------------------------------------------------------------------
+        % Recover pdf not as a property but via method
+        function pdf = pdf_table(self)
+            if ~isscalar(self), error('Method only takes a scalar divergence object'), end
+            pdf = self.pdf_;
+        end
+        
+        %------------------------------------------------------------------
+        
     end
 end

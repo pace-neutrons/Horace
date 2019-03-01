@@ -24,7 +24,8 @@ sz = cellfun(@size,varargin,'UniformOutput',false);
 n = cellfun(@prod,sz);
 nmax=max(n);
 if ~all(n==1 | n==nmax)
-    error('Arguments must all be scalar or arrays with the same number of elements')
+    throwAsCaller(MException('expand_arg:invalid_arguments',...
+        'Arguments must all be scalar or arrays with the same number of elements'))
 end
 
 % Get number of output arguments

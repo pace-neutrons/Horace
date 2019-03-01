@@ -1,5 +1,6 @@
 classdef pdf_table
     % Probability distribution function table
+    
     properties (Access=private)
         % x values
         x_ = [];
@@ -14,9 +15,10 @@ classdef pdf_table
     
     properties (Dependent)
         x       % x values
-        f       % Values of probability distribution function (pdf) at x values
+        f       % Values of the probability distribution function (pdf) at the x values
         A       % Cumulative distribution function at x values (A(1)=0, A(end)=1))
-        valid   % is a valid pdf or not
+        m       % Gradient m(i) is gradient betwee x(i) anbd x(i+1)
+        valid   % True or false according as the object being a valid pdf or not
     end
     
     methods
@@ -24,7 +26,7 @@ classdef pdf_table
         % Constructor
         %------------------------------------------------------------------
         function obj = pdf_table (x,pdf,varargin)
-            % Create a probability distribution function
+            % Create a probability distribution function table
             %
             %   >> pdf_table (x, pdf_values)
             %
@@ -33,21 +35,30 @@ classdef pdf_table
             %
             % Input:
             % ------
-            %   x       Absicissae. Must be monotonically increasing
-            %   pdf     Array of values or a function handle that returns the
-            %          probability distribution function at the values of x. All
-            %          values must be greater or equal to zero. The values need
-            %          not be normalised to unit area as normalisation will be
-            %          performed inside the object.
-            %           If a function handle is given, the function must have the
-            %          form:
-            %           pdf = my_funchandle (x)
-            %          or:
-            %           pdf = my_funchandle (x, p1, p2,...)
-            %          where p1, p2, ... are parameters as needed by the function
-            %          to compute the probability distribution function
-            %        EXAMPLE:
-            %           pdf = gauss (x, p);     p=[height, centre, st_dev]
+            %   x           Absicissae. Must be monotonically increasing
+            %
+            %   pdf_values  Array of values of theprobability distribution function
+            %               at the values of x
+            %     *OR*
+            %   pdf_handle  Function handle that returns the probability distribution
+            %              function at the values of x. 
+            %           	The function must have the form:
+            %                   pdf = my_funchandle (x)
+            %               or:
+            %                   pdf = my_funchandle (x, p1, p2,...)
+            %               where p1, p2, ... are parameters as needed by the function
+            %              to compute the probability distribution function
+            %
+            %               EXAMPLE:
+            %                   pdf = gauss (x, p);     p=[height, centre, st_dev]
+            %
+            %   p1, p2,...  Arguments needed by the function
+            %
+            %
+            % In either case of the pdf being provided as a numerical array or computed
+            % by a function, all values of the pdf must be greater or equal to zero.
+            % The pdf need not be normalised to unit area, as normalisation will be
+            % performed by this constructor.
             
             
             if nargin>0
@@ -107,13 +118,17 @@ classdef pdf_table
             val=obj.A_;
         end
         
+        function val=get.m(obj)
+            val=obj.m_;
+        end
+        
         function val=get.valid(obj)
             val=~isempty(obj.x_);
         end
         
         %------------------------------------------------------------------
         function X = rand (obj, varargin)
-            % Generate random numbers from the pdf
+            % Generate random numbers from the probability distribution function
             %
             %   >> X = rand (obj)                % generate a single random number
             %   >> X = rand (obj, n)             % n x n matrix of random numbers
@@ -140,9 +155,9 @@ classdef pdf_table
             
             xx = obj.x_; ff = obj.f_; AA = obj.A_; mm = obj.m_;
             ix = upper_index (AA, Asamp(:));
-            xsamp = xx(ix) + 2*(Asamp(:) - AA(ix))./...
+            X = xx(ix) + 2*(Asamp(:) - AA(ix))./...
                 (ff(ix) + sqrt(ff(ix).^2 + 2*mm(ix).*(Asamp(:)-AA(ix))));
-            X = reshape(xsamp,size(Asamp));
+            X = reshape(X,size(Asamp));
             
         end
         %------------------------------------------------------------------

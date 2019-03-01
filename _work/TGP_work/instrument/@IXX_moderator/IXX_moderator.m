@@ -383,6 +383,19 @@ classdef IXX_moderator
         function val=get.energy(obj)
             val=obj.energy_;
         end
+        
         %------------------------------------------------------------------
+        % Recover pdf not as a property but via method
+        function pdf = pdf_table(self)
+            if ~isscalar(self), error('Method only takes a scalar moderator object'), end
+            if self.valid_
+                pdf = self.pdf_;
+            else
+                error('Internal state of the object is invalid so no df can be returned.')
+            end
+        end
+        
+        %------------------------------------------------------------------
+        
     end
 end
