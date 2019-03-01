@@ -68,6 +68,12 @@ if ~mfclass.legacy(varargin{:})
     elseif strcmp(model,'disk')
         mf_init = mfclass_wrapfun (@tobyfit_DGdisk_resconv, [], @func_eval, [],...
             true, false, @tobyfit_DGdisk_resconv_init, []);
+    elseif strcmp(model,'fermi_NEW')
+        mf_init = mfclass_wrapfun (@tobyfit_DGfermi_resconv_NEW, [], @func_eval, [],...
+            true, false, @tobyfit_DGfermi_resconv_init_NEW, []);
+    elseif strcmp(model,'disk_NEW')
+        mf_init = mfclass_wrapfun (@tobyfit_DGdisk_resconv_NEW, [], @func_eval, [],...
+            true, false, @tobyfit_DGdisk_resconv_init_NEW, []);
     else
         error('Logic error. See Toby Perring.')
     end
