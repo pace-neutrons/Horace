@@ -46,8 +46,7 @@ classdef object_lookup
             % Input:
             % ------
             %   objects     Object array, or cell array of object arrays
-            %               There must be a method call rand which
-            %              returns random points for the object.
+
             
             % Make a cell array for convenience, if not already
             if ~iscell(objects)

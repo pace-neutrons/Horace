@@ -1,23 +1,29 @@
 function X = rand_ind (this, varargin)
-% Generate random numbers from the pdf
+% Generate random points for indexed occurences in an object lookup
 %
 %   >> X = rand_ind (this, iarray, ind)
 %   >> X = rand_ind (this, ind)
+%
+% The purpose is to return random points from a function of the form:
+%       X = rand (object)
+%
+% for a set of objects defined by index arguments iarray and ind.
+% 
 %
 % Input:
 % ------
 %   this        object_lookup object
 %
 %   iarray      Scalar index of the original object array from the
-%              cell array of object arrays from which the sampling_table
+%              cell array of object arrays from which the object lookup
 %              was created.
-%               If there was only one object array, then this is not
+%               If there was only one object array, then iarray is not
 %              necessary (as it assumed iarray=1)
 %
-%   ind         Array containing the probability distribution function
-%              indicies from which a random number is to be taken.
-%              min(ind(:))>=1, max(ind(:))<=number of objects in the
-%              object array selected by iarray
+%   ind         Array containing indicies of objects in the original
+%              object array referred to by iarray, from which a random point
+%              is to be taken. min(ind(:))>=1, max(ind(:))<=number of objects
+%              in the object array selected by iarray
 %
 % Output:
 % -------
