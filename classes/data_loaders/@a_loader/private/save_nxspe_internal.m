@@ -282,55 +282,5 @@ H5S.close(space_id);
 H5G.close(group_id);
 end
 %
-function write_attr_group(group_id,data)
-% write group of string attributes
-attr_names = fieldnames(data);
-for i=1:numel(attr_names)
-    
-    an = attr_names{i};
-    val = data.(an);
-    
-    if ischar(val)
-        type_id = H5T.copy('H5T_C_S1');
-        H5T.set_size(type_id, numel(val));
-        %type_id = H5T.create('H5T_STRING',numel(val));
-        space_id = H5S.create('H5S_SCALAR');
-        %loc_id, name, type_id, space_id, acpl_id        
-        attr_id = H5A.create(group_id,an,type_id,space_id,'H5P_DEFAULT');
-        %attr_id = H5A.create(loc_id, name, type_id, space_id, create_plist)         
-        H5A.write(attr_id,'H5ML_DEFAULT',val);
-        
-        H5A.close(attr_id);
-        H5S.close(space_id);
-        H5T.close(type_id);
-    end
-end
 end
 %
-function write_string_sign(group_id,ds_name,name,attr_name,attr_cont)
-% write string dataset with possible attribute
-% Such structure is used in NeXus e.g. to indicate that this file is nxspe file
-% and on number of other occasions
-%
-% type_id = H5T.copy('H5T_C_S1');
-% space_id = H5S.create_simple(1,numel(name),numel(name));
-% dataset_id = H5D.create(group_id,ds_name,type_id,space_id,'H5P_DEFAULT');
-% %space_id = H5S.create('H5S_SCALAR');
-% %dataset_id = H5D.create(group_id,definition,type_id,space_id,'H5P_DEFAULT');
-% H5D.write(dataset_id,'H5ML_DEFAULT','H5S_ALL','H5S_ALL','H5P_DEFAULT',name);
-
-filetype = H5T.copy ('H5T_FORTRAN_S1');
-H5T.set_size (filetype, numel(name));
-memtype = H5T.copy ('H5T_C_S1');
-H5T.set_size (memtype, numel(name));
-
-space = H5S.create_simple (1,1, 1);
-dataset_id = H5D.create (group_id, ds_name, filetype, space, 'H5P_DEFAULT');
-H5D.write (dataset_id, memtype, 'H5S_ALL', 'H5S_ALL', 'H5P_DEFAULT', name);
-
-write_attr_group(dataset_id,struct(attr_name,attr_cont));
-H5D.close(dataset_id);
-H5S.close(space);
-H5T.close(filetype);
-H5T.close(memtype);
-end
