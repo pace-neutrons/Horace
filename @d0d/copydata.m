@@ -39,7 +39,7 @@ function wout = copydata (win,varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 1524 $ ($Date: 2017-09-27 15:48:11 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 
 
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------

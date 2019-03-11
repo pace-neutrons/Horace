@@ -13,7 +13,7 @@ function cache(filename)
 % to have full information and control over the caching process.
 %
 %
-% $Revision: 347 $ ($Date: 2018-10-30 17:52:52 +0000 (Tue, 30 Oct 2018) $)
+% $Revision$ ($Date$)
 %
 if ~isunix
     warning('CACHE:invalid_os',...

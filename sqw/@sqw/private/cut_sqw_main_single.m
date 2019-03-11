@@ -6,7 +6,7 @@ function wout = cut_sqw_main_single (data_source,...
 
 % Original author: T.G.Perring
 %
-% $Revision: 1643 $ ($Date: 2018-08-06 09:10:19 +0100 (Mon, 06 Aug 2018) $)
+% $Revision$ ($Date$)
 
 
 % Initialise output

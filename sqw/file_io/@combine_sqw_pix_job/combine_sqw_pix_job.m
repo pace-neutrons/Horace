@@ -4,7 +4,7 @@ classdef combine_sqw_pix_job < JobExecutor
     %
     %
     %
-    % $Revision: 780 $ ($Date: 2018-06-28 12:23:05 +0100 (Thu, 28 Jun 2018) $)
+    % $Revision$ ($Date$)
     %
     
     properties(Access = private)

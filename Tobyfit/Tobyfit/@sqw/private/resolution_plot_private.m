@@ -21,7 +21,7 @@ function resolution_plot_private (x0,C,iax,flip)
 
 % Original author: T.G.Perring
 %
-% $Revision: 1524 $ ($Date: 2017-09-27 15:48:11 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 
 
 % Check input arguments

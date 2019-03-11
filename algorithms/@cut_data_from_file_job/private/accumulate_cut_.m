@@ -41,7 +41,7 @@ function [s, e, npix, urange_step_pix, npix_retain,ok, ix] = accumulate_cut_(s, 
 
 % T.G.Perring   19 July 2007
 
-% $Revision: 1524 $ ($Date: 2017-09-27 15:48:11 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 
 [ignore_nan,ignore_inf,use_mex,n_threads] =...
     config_store.instance().get_value('hor_config','ignore_nan','ignore_inf','use_mex','threads');

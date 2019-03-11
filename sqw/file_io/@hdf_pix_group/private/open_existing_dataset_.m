@@ -2,7 +2,7 @@ function open_existing_dataset_(obj,fid,pix_size_defined,n_pixels,chunk_size,gro
 % opens existing pixels dataset within opened hdf file and selected group
 %
 %
-% $Revision: 685 $ ($Date: 2018-01-16 14:14:09 +0000 (Tue, 16 Jan 2018) $)
+% $Revision$ ($Date$)
 %
 %
 obj.pix_group_id_ = H5G.open(fid,group_name);

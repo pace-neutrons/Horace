@@ -20,7 +20,7 @@ function qw=calculate_qw_pixels2(win)
 
 % Original author: T.G.Perring
 %
-% $Revision: 1524 $ ($Date: 2017-09-27 15:48:11 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 
 
 % Get some 'average' quantities for use in calculating transformations and bin boundaries

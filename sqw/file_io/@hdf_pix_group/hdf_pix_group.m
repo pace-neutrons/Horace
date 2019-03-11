@@ -2,7 +2,7 @@ classdef hdf_pix_group < handle
     % Helper class to control I/O operations over pixels stored in hdf sqw
     % file.
     %
-    % $Revision: 685 $ ($Date: 2018-01-16 14:14:09 +0000 (Tue, 16 Jan 2018) $)
+    % $Revision$ ($Date$)
     %
     
     properties(Dependent)
