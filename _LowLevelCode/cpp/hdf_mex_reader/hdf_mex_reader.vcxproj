@@ -161,13 +161,13 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="hdf_mex_accessor.h" />
+    <ClInclude Include="hdf_mex_reader.h" />
     <ClInclude Include="hdf_pix_accessor.h" />
     <ClInclude Include="input_parser.h" />
     <ClInclude Include="pix_block_processor.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="hdf_mex_accessor.cpp" />
+    <ClCompile Include="hdf_mex_reader.cpp" />
     <ClCompile Include="hdf_pix_accessor.cpp" />
     <ClCompile Include="input_parser.cpp" />
     <ClCompile Include="pix_block_processor.cpp" />

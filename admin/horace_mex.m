@@ -11,8 +11,12 @@ function horace_mex
 % $Revision$ ($Date$)
 %
 
+
 start_dir=pwd;
 C_compiled=false;
+root_dir = fileparts(which('horace_init.m'));
+hdf_root_dir = fullfile(root_dir,'_LowLevelCode','build_all','HDF5_1.8.12');
+hdf_include_dir = fullfile(hdf_root_dir,'include');
 try % mex C++
     disp('**********> Creating mex files from C++ code')
     % root directory is assumed to be that in which this function resides
@@ -34,6 +38,9 @@ try % mex C++
     mex_single([cpp_in_rel_dir 'sort_pixels_by_bins/sort_pixels_by_bins'], out_rel_dir,'sort_pixels_by_bins.cpp');
     mex_single([cpp_in_rel_dir 'recompute_bin_data'], out_rel_dir,'recompute_bin_data_c.cpp');
     mex_single([cpp_in_rel_dir 'mtimesx_horace'], out_rel_dir,'mtimesx_mex.cpp');    
+    cof = {'hdf_mex_reader.cpp','hdf_pix_accessor.cpp','input_parser.cpp',...
+       'pix_block_processor.cpp'};
+   mex_hdf([cpp_in_rel_dir 'hdf_mex_reader'], out_rel_dir,hdf_include_dir,cof{:} );
 
     
     disp('**********> Successfully created required mex files from C++')
@@ -80,6 +87,37 @@ hor_folder = fileparts(which('horace_init.m'));
 mex_folder = fullfile(hor_folder,out_rel_dir);
 addpath(mex_folder);
 
+function mex_hdf (in_rel_dir, out_rel_dir,hdf_include, varargin)
+% Usage:
+% mex_single (in_rel_dir, out_rel_dir, varargin)
+%
+% mex a set of files to produce a single mex file, the file with the mex
+% function has to be first in the  list of the files to compile
+%
+
+curr_dir = pwd;
+if(nargin<1)
+    error('MEX_SINGLE:invalid_arg',' request at leas one file name to process');
+end
+fnames = varargin(:);
+nFiles   = numel(fnames);% files go in varargin
+add_fNames = cellfun(@(x)[x,' '],fnames,'UniformOutput',false);
+add_files  = cellfun(@(x)(fullfile(curr_dir,in_rel_dir,x)),fnames,'UniformOutput',false);
+outdir = fullfile(curr_dir,out_rel_dir);
+
+short_fname = cell2str(add_fNames{1});
+disp(['Mex file creation from ',short_fname,' ...'])
+
+if ~check_access(outdir,add_files{1})
+    error('MEX_SINGLE:invalid_arg',' can not get write access to new mex file: %s',fullfile(outdir,add_files{1}));
+end
+if(nFiles==1)
+    fname      = strtrim(add_files{1});
+    mex(fname, '-outdir', outdir);
+else  
+    %mex('-g',add_files{:}, '-outdir', outdir);
+    mex(['-I',hdf_include],'-lut',add_files{:}, '-outdir', outdir);    
+end
 
 
 
