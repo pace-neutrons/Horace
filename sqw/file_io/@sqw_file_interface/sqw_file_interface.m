@@ -47,7 +47,7 @@ classdef sqw_file_interface < dnd_binfile_common
     end
     %
     properties(Dependent)
-        % number of files, the sqw file was constructred from
+        % number of files, the sqw file was constructed from
         num_contrib_files;
         %
         % number of pixels, contributing into this file.
