@@ -186,7 +186,7 @@ classdef dnd_file_interface
         [ok,objinit,mess]=should_load(obj,filename);
         %
         % verifies if the class should load the file, determined by opened
-        % file identifier, by analysing the block of information (stream)
+        % file identifier, by analyzing the block of information (stream)
         % obtained from the open file by get_file_header static method of
         % this class.
         [should,objinit,mess]= should_load_stream(obj,stream,fid)
