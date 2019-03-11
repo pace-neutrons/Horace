@@ -5,7 +5,7 @@ function [fid,group_id,file_h,sqw_version] = open_or_create_nxsqw_head(f_name)
 % closing
 %
 %
-% $Revision: 685 $ ($Date: 2018-01-16 14:14:09 +0000 (Tue, 16 Jan 2018) $)
+% $Revision$ ($Date$)
 %
 
 

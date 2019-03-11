@@ -25,7 +25,7 @@ function fid = verify_and_reopen_input_files_(pix_comb_info)
 % fid            array of handles of files open for read operations.
 
 %
-% $Revision: 780 $ ($Date: 2018-06-28 12:23:05 +0100 (Thu, 28 Jun 2018) $)
+% $Revision$ ($Date$)
 %
 
 

@@ -31,7 +31,7 @@ function [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] = 
 % of the method functionality
 %
 %
-% $Revision: 780 $ ($Date: 2018-06-28 12:23:05 +0100 (Thu, 28 Jun 2018) $)
+% $Revision$ ($Date$)
 %
 
 % Calculate number of pixels to be read from all the files

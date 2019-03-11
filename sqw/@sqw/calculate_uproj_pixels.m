@@ -21,7 +21,7 @@ function uproj=calculate_uproj_pixels(win,opt)
 
 % Original author: T.G.Perring
 %
-% $Revision: 1524 $ ($Date: 2017-09-27 15:48:11 +0100 (Wed, 27 Sep 2017) $)
+% $Revision$ ($Date$)
 
 
 if numel(win)~=1

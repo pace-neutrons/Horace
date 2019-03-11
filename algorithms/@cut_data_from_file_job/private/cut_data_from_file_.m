@@ -51,7 +51,7 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 % - Aim to take advantage of in-place working within accumulate_cut
 
 % T.G.Perring   19 July 2007 (based on earlier prototype TGP code)
-% $Revision: 1646 $ ($Date: 2018-08-08 13:19:17 +0100 (Wed, 08 Aug 2018) $)
+% $Revision$ ($Date$)
 
 
 % Buffer sizes
