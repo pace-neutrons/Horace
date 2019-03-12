@@ -16,7 +16,7 @@ start_dir=pwd;
 C_compiled=false;
 root_dir = fileparts(which('horace_init.m'));
 if ispc
-    hdf_ext = '_windows';
+    hdf_ext = '_win';
 elseif isunix
     hdf_ext = '_unix';    
 elseif ismac
