@@ -14,14 +14,15 @@
 #include "pix_block_processor.h"
 #include <memory>
 
-#ifndef _OPENMP
-void omp_set_num_threads(int nThreads) {};
-#define omp_get_num_threads() 1
-#define omp_get_max_threads() 1
-#define omp_get_thread_num()  0
-#else
-#include <omp.h>
-#endif
+// OMP does not work with hdf5 unless protected by mutexes
+//#ifndef _OPENMP
+//void omp_set_num_threads(int nThreads) {};
+//#define omp_get_num_threads() 1
+//#define omp_get_max_threads() 1
+//#define omp_get_thread_num()  0
+//#else
+//#include <omp.h>
+//#endif
 
 
 class hdf_pix_accessor
