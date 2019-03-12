@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <cmath>
 #include <hdf5.h>
 /* The class which describes a block of information necessary to process block of pixels */
 class pix_block_processor {

@@ -15,7 +15,25 @@ function horace_mex
 start_dir=pwd;
 C_compiled=false;
 root_dir = fileparts(which('horace_init.m'));
-hdf_root_dir = fullfile(root_dir,'_LowLevelCode','build_all','HDF5_1.8.12');
+if ispc
+    hdf_ext = '_windows';
+elseif isunix
+    hdf_ext = '_unix';    
+elseif ismac
+    hdf_ext = '_unix';        
+    warning('HORACE_MEX:not_implemented',...
+        'MAC compilation is not implemented. Trying with Unix settings which probably would not work');
+end
+[ma,me,mi]=H5.get_libversion();
+hdf_version = ma+0.1*me+0.001*mi;
+if hdf_version == 1.812
+    hdf_root_dir = fullfile(root_dir,'_LowLevelCode','build_all',['HDF5_1.8.12',hdf_ext]);
+else
+    error('HORACE_MEX:not_implemented',...
+        ['Matlab uses %d.%d.%d version of HDF library. ',...
+        'HDF mex code is provided for HDF 1.8.12 version only.',...
+        ' You need to download appropriate hdf headers yourseld and modify horace_mex to use your version']);
+end
 hdf_include_dir = fullfile(hdf_root_dir,'include');
 try % mex C++
     disp('**********> Creating mex files from C++ code')
