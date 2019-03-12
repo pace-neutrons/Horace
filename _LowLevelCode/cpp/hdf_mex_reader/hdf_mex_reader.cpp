@@ -8,7 +8,7 @@ std::vector<std::unique_ptr<hdf_pix_accessor> > file_readers;
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
 
-    const char REVISION[] = "$Revision:: 1732 $ ($Date:: 2019-03-11 16:11:58 +0000 (Mon, 11 Mar 2019) $)";
+    const char REVISION[] = "$Revision::      $ ($Date::                                              $)";
     if (nrhs == 0 && nlhs == 1) {
         plhs[0] = mxCreateString(REVISION);
         return;
