@@ -14,6 +14,8 @@
         OptimizationFlags="$CXXOPTIMFLAGS"
         DebugFlags="$CXXDEBUGFLAGS"
         IncludeFlags="$INCLUDE"
+        LinkerExecutable="$LDXX"
+        LinkerFlags="$LDFLAGS $LDTYPE"
         LinkerLibraries="$LINKLIBS"
         LinkerOptimizationFlags="$LDOPTIMFLAGS"
         LinkerDebugFlags="$LDDEBUGFLAGS"
@@ -23,49 +25,69 @@
         LinkerPathFormatter="-L%s"
     />
     <vars
-          CMDLINE1="$CXX -c $DEFINES $INCLUDE $CXXFLAGS $OPTIM $SRC -o $OBJ"
-          CMDLINE2="$LDXX $LDFLAGS $LDTYPE $LINKOPTIM $LINKEXPORT $OBJS $CXXLIBS $LINKLIBS -o $EXE"
-          CMDLINE3="rm -f $OBJ"
+        CMDLINE1="$CXX -c $DEFINES $INCLUDE $CXXFLAGS $OPTIM $SRC -o $OBJ"
+        CMDLINE2="$LDXX $LDFLAGS $LDTYPE $LINKOPTIM $LINKEXPORTVER $OBJS $CXXLIBS $LINKLIBS -o $EXE"
+        CMDLINE3="rm -f $OBJ"
+
+         
+        CXX="$GCC"
+        DEFINES="-D_GNU_SOURCE $MATLABMEX"
+        MATLABMEX="-DMATLAB_MEX_FILE "
+        CFLAGS="-fexceptions -fPIC -fno-omit-frame-pointer -pthread"
+        CXXFLAGS="$CFLAGS -fopenmp  -std=c++11"
+        INCLUDE="-I&quot;$MATLABROOT/extern/include&quot; -I&quot;$MATLABROOT/simulink/include&quot;"
+        CXXOPTIMFLAGS="-O -DNDEBUG"
+        CXXDEBUGFLAGS="-g"
           
-          CXX="$GCC"
-          DEFINES="-D_GNU_SOURCE $MATLABMEX"
-          MATLABMEX="-DMATLAB_MEX_FILE "
-          CXXFLAGS="-ansi -fexceptions -fPIC -fno-omit-frame-pointer -pthread -fopenmp -std=c++11"
-          INCLUDE="-I&quot;$MATLABROOT/extern/include&quot; -I&quot;$MATLABROOT/simulink/include&quot;"
-          CXXOPTIMFLAGS="-O -DNDEBUG"
-          CXXDEBUGFLAGS="-g"
+        LDXX="$CXX"
+        LDFLAGS="-fopenmp -pthread -Wl,--no-undefined "
+        LDTYPE="-shared"
+        LINKEXPORT="-Wl,--version-script,&quot;$MATLABROOT/extern/lib/$ARCH/mexFunction.map&quot;"
+        LINKEXPORTVER="-Wl,--version-script,&quot;$MATLABROOT/extern/lib/$ARCH/c_exportsmexfileversion.map&quot;"
+        LINKLIBS="-Wl,-rpath-link,$MATLABROOT/bin/$ARCH -L&quot;$MATLABROOT/bin/$ARCH&quot; -lmx -lmex -lmat -lm -lut -lhdf5 -lhdf5_hl -lstdc++"
+        LDOPTIMFLAGS="-O"
+        LDDEBUGFLAGS="-g"
+        MWCPPLIB="&quot;$MATLABROOT/sys/os/$ARCH/libstdc++.so.6&quot;"
           
-          LDXX="$CXX"
-          LDFLAGS="-fopenmp -pthread -Wl,--no-undefined "
-          LDTYPE="-shared"
-          LINKEXPORT="-Wl,--version-script,&quot;$MATLABROOT/extern/lib/$ARCH/mexFunction.map&quot;"
-          LINKLIBS="-Wl,-rpath-link,$MATLABROOT/bin/$ARCH -L&quot;$MATLABROOT/bin/$ARCH&quot; -lmx -lmex -lmat -lm -lut -lhdf5 -lhdf5_hl -lstdc++"
-          LDOPTIMFLAGS="-O"
-          LDDEBUGFLAGS="-g"
-          
-          OBJEXT=".o"
-          LDEXT=".mexa64">
+        OBJEXT=".o"
+        LDEXT=".mexa64">
+        SETENV="CC=&quot;gcc&quot;
+                CXX=&quot;$CXX&quot;
+                CFLAGS=&quot;$CFLAGS $DEFINES&quot;
+                CXXFLAGS=&quot;$CXXFLAGS $DEFINES&quot;
+                COPTIMFLAGS=&quot;$CXXOPTIMFLAGS&quot;
+                CXXOPTIMFLAGS=&quot;$CXXOPTIMFLAGS&quot;
+                CDEBUGFLAGS=&quot;$CXXDEBUGFLAGS&quot;
+                CXXDEBUGFLAGS=&quot;$CXXDEBUGFLAGS&quot;
+                LD=&quot;gcc&quot;
+                LDXX=&quot;$LDXX&quot;
+                LDFLAGS=&quot;$LDFLAGS $LDTYPE $LINKLIBS $LINKEXPORT&quot;
+                LDDEBUGFLAGS=&quot;$LDDEBUGFLAGS&quot;">
+
+
     </vars>
     <client>
         <engine
-          LINKLIBS="$LINKLIBS -leng"
-          LINKEXPORT=""
-          LDEXT=""
-		  LDTYPE=""
+            LINKLIBS="$MWCPPLIB -Wl,--as-needed -Wl,-rpath-link,$MATLABROOT/extern/bin/$ARCH -L&quot;$MATLABROOT/extern/bin/$ARCH&quot; -leng -lMatlabEngine -lMatlabDataArray $LINKLIBS"
+            LINKEXPORT=""
+            LINKEXPORTVER=""
+            LDEXT=""
+            LDTYPE=""
         />
         
         <mbuild
-          DEFINES="-D_GNU_SOURCE $MATLABMEX -DUNIX -DX11 -DGLNXA64 -DGCC"
-          CXXFLAGS="-ansi -pthread -std=c++11"
-          INCLUDE="$INCLUDE -I&quot;$MATLABROOT/extern/include/cpp&quot;"
-          LDFLAGS="-fopenmp -pthread -Wl,-rpath-link,$MATLABROOT/bin/$ARCH"
-          LINKEXPORT=""
-          LINKLIBS="-L&quot;$MATLABROOT/runtime/$ARCH&quot; -lm -lmwmclmcrrt"
-          LDEXT="" 
-	      MATLABMEX=""
-		  LDTYPE=""
-        /> 
-        
+            DEFINES="-D_GNU_SOURCE $MATLABMEX -DUNIX -DX11 -DGLNXA64 -DGCC -UMX_COMPAT_SC"
+            CXXFLAGS="-ansi -pthread -std=c++11"
+            INCLUDE="$INCLUDE -I&quot;$MATLABROOT/extern/include/cpp&quot;"
+            LDFLAGS="-fopenmp -pthread -Wl,-rpath-link,$MATLABROOT/bin/$ARCH"
+            LINKEXPORT=""
+            LINKEXPORTVER=""
+            LINKLIBS="$MWCPPLIB -L&quot;$MATLABROOT/runtime/$ARCH&quot; -lm -lmwmclmcrrt"
+            LDEXT=""
+            MATLABMEX=""
+            LDTYPE=""
+        />
+
     </client>
     <locationFinder>
         <GCC>
