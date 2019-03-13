@@ -17,6 +17,8 @@ classdef hdf_pix_group < handle
         %
         cache_nslots;
         cache_size; % in pixels
+        %
+        use_mex_code;
     end
     properties(Access=private)
         chunk_size_   =  1024*32;   % decent io speed starts from 16*1024
@@ -35,20 +37,47 @@ classdef hdf_pix_group < handle
         %
         pix_range_ = [inf,-inf;inf,-inf;inf,-inf;inf,-inf];
         
-        use_mex_to_read_ = false;
+        % placeholder for file_id, used in partial io, accessing pixel
+        % group only. May remain empty if the file is not controlled by 
+        %hdf_pix_group 
+        fid_ = [];
+        % for hdf5 1.6, this is actual file id and fid above becomes the
+        % accessor  to hdf file
+        old_style_fid_ = [];
+        % The handler for mex IO file acess.
+        mex_read_handler_ = [];
     end
     
     methods
-        function obj = hdf_pix_group(fid,n_pixels,chunk_size)
+        function obj = hdf_pix_group(varargin)
             % Open existing or create new pixels group in existing hdf file.
+            % Usage:
+            %>>obj = hdf_pix_group(); -- create uninitialized version of the
+            %                           class for further initialization
+            %                           and operations
             %
+            
+            %>>obj = hdf_pixel_group(fid); open existing pixels group
+            %                              for IO operations. Throws if
+            %                              the group does not exist.
+            %          a writing (if any) occurs into the existing group
+            %          allowing to modify the contents of the pixel array.
+            %
+            %>>obj = hdf_pixel_group(fid,n_pixels,[chunk_size]);
+            %          creates pixel group to store specified number of
+            %          pixels.
             % If the group does not exist, additional parameters describing
             % the pixel array size have to be specified. If it does exist,
             % all input parameters except fid will be ignored
-            %Usage:
-            % pix_wr = hdf_pixel_group(fid,n_pixels,[chunk_size]);
-            %          creates pixel group to store specified number of
-            %          pixels.
+            %
+            % Inputs:
+            % fid -- nxnspe file name or initialized nexus file group_id (NXDataset) to store
+            %        nxsqw information
+            %
+            % n_pixels -- number of pixels to be stored in the pix dataset.
+            %
+            %
+            %
             % chunk_size -- if present, specifies the chunk size of the
             %               chunked hdf dataset to create. If not, default
             %               class value is used
@@ -57,57 +86,31 @@ classdef hdf_pix_group < handle
             %          command, the dataset will be recreated with new
             %          parameters. Old dataset contents will be destroyed.
             %
-            % pix_wr = hdf_pixel_group(fid); open existing pixels group
-            %                                for IO operations. Throws if
-            %                                the group does not exist.
-            %          a writing (if any) occurs into an existing group
-            %          allowing to modify the contents of the pixel array.
             %
-            if exist('n_pixels','var')|| exist('chunk_size','var')
-                pix_size_defined = true;
-            else
-                pix_size_defined = false;
-                n_pixels = [];
+            if nargin == 0
+                return;
             end
-            if exist('chunk_size','var')
-                obj.chunk_size_ = chunk_size;
-            else
-                chunk_size = obj.chunk_size_;
-            end
+            init_(obj,varargin{:});
+        end
+        function init(obj,varargin)
+            % initialize existing class with new settings.
+            % if a pixel group was already assosiated with the class,
+            % all initialization will be reset.
             
-            group_name = 'pixels';
-            
-            obj.pix_data_id_ = H5T.copy('H5T_NATIVE_FLOAT');
-            if H5L.exists(fid,group_name,'H5P_DEFAULT')
-                open_existing_dataset_(obj,fid,pix_size_defined,n_pixels,chunk_size,group_name);
-            else
-                if nargin<1
-                    error('HDF_PIX_GROUP:invalid_argument',...
-                        'the pixels group does not exist but the size of the pixel dataset is not specified')
-                end
-                if ~pix_size_defined
-                    error('HDF_PIX_GROUP:invalid_argument',...
-                        'Attempting to create new pixels group but the pixel number is not defined');
-                end
-                create_pix_dataset_(obj,fid,group_name,n_pixels,chunk_size);
-            end
-            block_dims = [obj.chunk_size_,9];
-            obj.io_mem_space_ = H5S.create_simple(2,block_dims,block_dims);
-            obj.io_chunk_size_ = obj.chunk_size_;
-            %H5P.close(dcpl_id);
-            %H5P.close(pix_dapl_id );
-            
+            % all other class parameters are equal to the one, specified in
+            % the constructor.
+            init_(obj,varargin{:});
         end
         %
         function write_pixels(obj,start_pos,pixels)
-            % write block of pixels into the selected postion of 
+            % write block of pixels into the selected postion of
             % hdf5 pixels array.
             %
             % Inputs:
             % start_pos -- the location of the block of pixels within
             %              file-based pixel array. (Matlab/Fortran
-            %              convension first pixel number is 1)            
-            write_pixels_matlab_(obj,start_pos,pixels)            
+            %              convension first pixel number is 1)
+            write_pixels_matlab_(obj,start_pos,pixels)
         end
         %
         function [pixels,blocks_pos,pix_block_size]= read_pixels(obj,blocks_pos,pix_block_size)
@@ -148,6 +151,21 @@ classdef hdf_pix_group < handle
         function sz = get.cache_nslots(obj)
             sz = obj.cache_nslots_;
         end
+        function use = get.use_mex_code(obj)
+            use = isempty(obj.mex_io_handler_);
+        end
+        function set.use_mex_code(obj,use)
+            use = logical(use);
+            if obj.use_mex_code && ~use
+            elseif ~obj.use_mex_code && use
+                if isempty(obj.fid_)
+                    error('HDF_PIX_GROUP:invalid_argument',...
+                        'can not change to use mex code when hdf_pix_group is not controlling the file')
+                end
+                %filename = 
+                obj.mex_read_handler_ = hdf_mex_reader('init',filename,groupname);
+            end                
+        end
         
         %------------------------------------------------------------------
         function delete(obj)
@@ -164,8 +182,18 @@ classdef hdf_pix_group < handle
             if obj.pix_group_id_ ~= -1
                 H5G.close(obj.pix_group_id_);
             end
-        end
-        
+            if obj.use_mex_code
+                hdf_mex_reader('close',obj.mex_io_handler_);
+            end
+            if isempty(obj.old_style_fid_)
+                if ~isempty(obj.fid_)
+                    H5F.close(obj.fid_)
+                end
+            else
+                H5G.colse(obj.fid_);
+                H5F.close(obj.old_style_fid_)
+            end
+        end        
     end
     methods(Access = private)
         %

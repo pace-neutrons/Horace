@@ -1,41 +1,5 @@
 #include "hdf_pix_accessor.h"
 
-void hdf_pix_accessor::process_data(const input_file &new_input_file, input_types work_type,
-    std::vector<std::unique_ptr<hdf_pix_accessor> > &readers,
-    const std::vector<pix_block_processor> &pix_split_info, float *const pix_buffer, size_t buf_size) {
-    int n_threads = static_cast<int>(readers.size());
-
-
-    switch (work_type)
-    {
-    case close_file:
-        for (int i = 0; i < n_threads; i++) {
-            readers[i].reset(nullptr);
-        }
-        break;
-    case open_and_read_data:
-//        omp_set_num_threads(n_threads);
-//#pragma omp parallel for
-        for (int i = 0; i < n_threads; i++) {
-            readers[i].reset(new hdf_pix_accessor());
-            readers[i]->init(new_input_file.filename, new_input_file.groupname);
-            readers[i]->read_pixels(pix_split_info[i], pix_buffer, buf_size);
-        }
-        break;
-    case read_initiated_data:
-//        omp_set_num_threads(n_threads);
-//#pragma omp parallel for
-        for (int i = 0; i < n_threads; i++) {
-            readers[i]->read_pixels(pix_split_info[i], pix_buffer, buf_size);
-        }
-        break;
-    default:
-        mexErrMsgIdAndTxt("HDF_MEX_ACCESSOR:runtime_error", "Unknown operation mode");
-        break;
-    }
-}
-
-
 /* Simple initializer providing access to pixel data
  Assumes that all files and all groups are present.
 

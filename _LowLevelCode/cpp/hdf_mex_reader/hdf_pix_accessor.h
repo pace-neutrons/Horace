@@ -34,9 +34,6 @@ public:
     hdf_pix_accessor();
     ~hdf_pix_accessor();
 
-    static void process_data(const input_file &new_input_file, input_types work_type,
-        std::vector<std::unique_ptr<hdf_pix_accessor> > &readers,
-        const std::vector<pix_block_processor> &pix_split_info, float *const pix_buffer, size_t buf_size);
 private:
     std::string filename;
     std::string pix_group_name;
