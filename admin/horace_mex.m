@@ -58,7 +58,7 @@ try % mex C++
     mex_single([cpp_in_rel_dir 'mtimesx_horace'], out_rel_dir,'mtimesx_mex.cpp');    
     cof = {'hdf_mex_reader.cpp','hdf_pix_accessor.cpp','input_parser.cpp',...
        'pix_block_processor.cpp'};
-   mex_hdf([cpp_in_rel_dir 'hdf_mex_reader'], out_rel_dir,hdf_include_dir,cof{:} );
+    mex_hdf([cpp_in_rel_dir 'hdf_mex_reader'], out_rel_dir,hdf_include_dir,cof{:} );
 
     
     disp('**********> Successfully created required mex files from C++')

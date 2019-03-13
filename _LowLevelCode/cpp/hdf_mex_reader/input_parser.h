@@ -3,66 +3,126 @@
 #include <mex.h>
 #include <string>
 #include <sstream>
+#include <typeinfo>
 #include "pix_block_processor.h"
 
 
 enum input_types {
-    close_file,
-    open_and_read_data,
-    read_initiated_data
+	init_access,
+	close_access,
+	read_data,
+	get_filename,
 };
-enum InputArguments { // all input arguments
-    filename,
-    pixel_group_name,
+enum class initInputs : int{ // all input for init procedure
+	mode_name,
+	filename,
+	pixel_group_name,
 
-    block_positions,
-    block_sizes,
-    n_first_block,
-    pos_in_first_block,
-
-    pix_buf_size,
-    num_threads,
-    N_INPUT_Arguments
+	num_threads,  // not currently supported but left for the future
+	N_INPUT_Arguments
 };
+enum class readInputs : int { // all input arguments for read procedure
+	mode_name,
+	io_class_ptr,
 
-enum OutputArguments { // unique output arguments,
-    pix_array,
-    n_first_block_left,
-    pos_in_first_block_left,
-    N_OUTPUT_Arguments
+	block_positions,
+	block_sizes,
+
+	pix_buf_size,
+
+	N_INPUT_Arguments
 };
+enum class closeOrGetFnInputs : int { // all input arguments for close IO procedure
+	mode_name,
+	io_class_ptr,
 
-
-/* The structure defines the position of the pixel dataset in an nxsqw hdf file and consist of
-   the name of the file and the full name of the group, containing pixels dataset*/
-struct input_file {
-    /* the name of hdf file to access pixels */
-    std::string filename;
-    /*the name of the group, containing pixels information */
-    std::string groupname;
-
-    /* check if the name and group name of other input file are equal to the current file*/
-    bool equal(input_file &other_file) {
-        if (other_file.filename == this->filename && other_file.groupname == this->groupname)
-            return true;
-        else return false;
-    }
-    bool do_destructor() {
-        if ((this->filename.compare("close") == 0) || (this->groupname.compare("close") == 0))return true;
-        else return false;
-    }
-    input_file& operator=(const input_file& other) {
-        if (this != &other) {
-            this->filename = other.filename;
-            this->groupname = other.groupname;
-        }
-        return *this;
-    }
-
+	N_INPUT_Arguments
 };
 
 
-input_types parse_inputs(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[],
-    input_file &new_file,
-    double *&block_pos, double *&block_size, size_t &n_blocks, int &n_bytes,
-    std::vector<pix_block_processor> &block_split_info, size_t &npix_to_read);
+
+enum class Init_Outputs: int { // output arguments for init procedure
+	mex_reader_handle,
+	N_OUTPUT_Arguments
+};
+enum class read_Outputs :int { // output arguments for read procedure
+	pix_array,
+	is_io_completed,
+	mex_reader_handle,
+
+	N_OUTPUT_Arguments
+};
+enum class get_filename_out :int{ // output arguments for read procedure
+	filename,
+	groupname,
+	mex_reader_handle,
+
+	N_OUTPUT_Arguments
+};
+
+
+/*The class holding the specified class and providing the exchange mechanism with Matlab*/
+#define CLASS_HANDLE_SIGNATURE 0x7D58FAB9
+template<class T> class class_handle
+{
+public:
+	class_handle(T *ptr) : _signature(CLASS_HANDLE_SIGNATURE), _name(typeid(T).name()), class_ptr(ptr),
+		n_first_block(0), pos_in_first_block(0), n_threads(1){}
+	class_handle() : _signature(CLASS_HANDLE_SIGNATURE), _name(typeid(T).name()), class_ptr(new T()),
+		n_first_block(0), pos_in_first_block(0), n_threads(1) {}
+
+	~class_handle() {
+		_signature = 0;
+		delete class_ptr;
+	}
+	bool isValid() { return ((_signature == CLASS_HANDLE_SIGNATURE) && !strcmp(_name.c_str(), typeid(T).name())); }
+
+	size_t n_first_block;
+	size_t pos_in_first_block;
+	size_t n_threads;
+	//
+	std::string filename;
+	std::string groupname;
+
+
+	T* const class_ptr;
+	mxArray * export_hanlder_toMatlab();
+private:
+	uint32_t _signature;
+	const std::string _name;
+
+};
+template<class T>
+mxArray * class_handle<T>::export_hanlder_toMatlab()
+{
+	mexLock();
+	mxArray *out = mxCreateNumericMatrix(1, 1, mxUINT64_CLASS, mxREAL);
+	*((uint64_t *)mxGetData(out)) = reinterpret_cast<uint64_t>(this);
+	return out;
+}
+
+template<class T> inline class_handle<T> *get_handler_fromMatlab(const mxArray *in)
+{
+	if (mxGetNumberOfElements(in) != 1 || mxGetClassID(in) != mxUINT64_CLASS || mxIsComplex(in))
+		mexErrMsgIdAndTxt("HDF_MEX_ACCESS:invalid_argument", "Handle input must be a real uint64 scalar.");
+	class_handle<T> *ptr = reinterpret_cast<class_handle<T> *>(*((uint64_t *)mxGetData(in)));
+	if (!ptr->isValid())
+		mexErrMsgIdAndTxt("HDF_MEX_ACCESS:invalid_argument", "Retrieved handle does not point to correct class");
+	return ptr;
+}
+
+
+template<class T> inline void destroyObject(const mxArray *in)
+{
+	delete get_pClass_fromMatlab<T>(in);
+	mexUnlock();
+}
+
+
+
+
+template<class T>
+class_handle<T>* parse_inputs(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[],
+	input_types &type_provided,
+	double *&block_pos, double *&block_size, size_t &n_blocks, int &n_bytes,
+	std::vector<pix_block_processor> &block_split_info, size_t &npix_to_read);
