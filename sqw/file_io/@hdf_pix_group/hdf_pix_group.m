@@ -17,16 +17,21 @@ classdef hdf_pix_group < handle
         %
         cache_nslots;
         cache_size; % in pixels
+        % version of nxsqw dataset
+        nxsqw_version;
         %
-        use_mex_code;
+        use_mex_to_read;
     end
     properties(Access=private)
         chunk_size_   =  1024*32;   % decent io speed starts from 16*1024
         cache_nslots_   =  521 ; % in block sizes
         cache_size_     =  -1 ; % in bytes
-        max_num_pixels_  = -1;
-        num_pixels_      = 0;
+        max_num_pixels_  = -1; % unlimited dataset allocated, though class
+        %does not have methods to extend it. Equal to max allocated pixels
+        %spece 
+        num_pixels_      = 0; % unreliable number. 
         %
+        % HDF5 pointers handles used in file access. 
         pix_group_id_     = -1;
         file_space_id_    = -1;
         pix_data_id_      = -1;
@@ -37,15 +42,22 @@ classdef hdf_pix_group < handle
         %
         pix_range_ = [inf,-inf;inf,-inf;inf,-inf;inf,-inf];
         
+        % The full name of nxspe file, used for IO operations.
+        filename_ = ''
+        nexus_group_name_ = '';
+        % if one should use mex code to read pixels. Assigned during
+        % initialization to true if mex code is availible and enabled.
+        use_mex_to_read_ = [];
         % placeholder for file_id, used in partial io, accessing pixel
-        % group only. May remain empty if the file is not controlled by 
-        %hdf_pix_group 
+        % group only.
         fid_ = [];
         % for hdf5 1.6, this is actual file id and fid above becomes the
-        % accessor  to hdf file
+        % accessor  to the root hdf group
         old_style_fid_ = [];
-        % The handler for mex IO file acess.
+        % The handler for initialized mex reader.
         mex_read_handler_ = [];
+        
+        nxsqw_version_ = 0; 
     end
     
     methods
@@ -57,13 +69,13 @@ classdef hdf_pix_group < handle
             %                           and operations
             %
             
-            %>>obj = hdf_pixel_group(fid); open existing pixels group
+            %>>obj = hdf_pixel_group(filename); open existing pixels group
             %                              for IO operations. Throws if
             %                              the group does not exist.
             %          a writing (if any) occurs into the existing group
             %          allowing to modify the contents of the pixel array.
             %
-            %>>obj = hdf_pixel_group(fid,n_pixels,[chunk_size]);
+            %>>obj = hdf_pixel_group(filename,n_pixels,[chunk_size]);
             %          creates pixel group to store specified number of
             %          pixels.
             % If the group does not exist, additional parameters describing
@@ -71,11 +83,9 @@ classdef hdf_pix_group < handle
             % all input parameters except fid will be ignored
             %
             % Inputs:
-            % fid -- nxnspe file name or initialized nexus file group_id (NXDataset) to store
-            %        nxsqw information
+            % filename -- nxnspe file name with nxsqw information
             %
             % n_pixels -- number of pixels to be stored in the pix dataset.
-            %
             %
             %
             % chunk_size -- if present, specifies the chunk size of the
@@ -92,6 +102,7 @@ classdef hdf_pix_group < handle
             end
             init_(obj,varargin{:});
         end
+        %
         function init(obj,varargin)
             % initialize existing class with new settings.
             % if a pixel group was already assosiated with the class,
@@ -134,6 +145,17 @@ classdef hdf_pix_group < handle
             % for algorithm to be correct
             [pixels,blocks_pos,pix_block_size] = read_pixels_matlab_(obj,blocks_pos,pix_block_size);
         end
+        function is = is_initialized(obj)
+            if isempty(obj.use_mex_to_read_)
+                is = false;
+            else
+                if obj.use_mex_to_read_
+                    is = isempty(obj.pix_dataset_);
+                else
+                    is = isempty(obj.mex_read_handler_);
+                end
+            end
+        end
         
         %------------------------------------------------------------------
         function sz = get.chunk_size(obj)
@@ -151,20 +173,29 @@ classdef hdf_pix_group < handle
         function sz = get.cache_nslots(obj)
             sz = obj.cache_nslots_;
         end
-        function use = get.use_mex_code(obj)
-            use = isempty(obj.mex_io_handler_);
+        function ver= get.nxsqw_version(obj)
+            ver = obj.nxsqw_version_;
         end
-        function set.use_mex_code(obj,use)
+        function use = get.use_mex_to_read(obj)
+            use = obj.use_mex_to_read_ ;
+        end
+        %
+        function set.use_mex_to_read(obj,use)
             use = logical(use);
-            if obj.use_mex_code && ~use
+            if obj.use_mex_to_read && ~use
+                obj.mex_read_handler_ = hdf_mex_reader('close',obj.mex_read_handler_);
+                obj.use_mex_to_read = false;
+                init_(obj.filename_,obj.max_num_pixels,obj.chunk_size,'-use_matlab_to_read');
             elseif ~obj.use_mex_code && use
                 if isempty(obj.fid_)
                     error('HDF_PIX_GROUP:invalid_argument',...
                         'can not change to use mex code when hdf_pix_group is not controlling the file')
                 end
-                %filename = 
-                obj.mex_read_handler_ = hdf_mex_reader('init',filename,groupname);
-            end                
+                root_nx_path  = find_root_nexus_dir(obj.filename_,"NXSQW");
+                groupname = [root_nx_path,'/pixels'];
+                obj.mex_read_handler_ = hdf_mex_reader('init',obj.filename_,groupname);
+                obj.use_mex_to_read_ = true;
+            end
         end
         
         %------------------------------------------------------------------
@@ -182,8 +213,8 @@ classdef hdf_pix_group < handle
             if obj.pix_group_id_ ~= -1
                 H5G.close(obj.pix_group_id_);
             end
-            if obj.use_mex_code
-                hdf_mex_reader('close',obj.mex_io_handler_);
+            if obj.use_mex_to_read
+                obj.mex_read_handler_ = hdf_mex_reader('close',obj.mex_read_handler_);
             end
             if isempty(obj.old_style_fid_)
                 if ~isempty(obj.fid_)
@@ -193,7 +224,9 @@ classdef hdf_pix_group < handle
                 H5G.colse(obj.fid_);
                 H5F.close(obj.old_style_fid_)
             end
-        end        
+            obj.use_mex_to_read_ = [];
+            obj.pix_range_  = [inf,-inf;inf,-inf;inf,-inf;inf,-inf];
+        end
     end
     methods(Access = private)
         %

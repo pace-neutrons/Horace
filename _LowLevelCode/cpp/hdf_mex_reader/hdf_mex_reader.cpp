@@ -24,7 +24,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 	std::vector<pix_block_processor> block_split_info;
 
-	class_handle<hdf_pix_accessor>* pReaderHolder = parse_inputs<hdf_pix_accessor>(nlhs, plhs, nrhs, prhs,
+	class_handle<hdf_pix_accessor>* pReaderHolder = parse_inputs(nlhs, plhs, nrhs, prhs,
 		work_type,
 		pBlock_pos, pBlock_sizes, n_blocks, n_bytes,
 		block_split_info, npix_to_read);

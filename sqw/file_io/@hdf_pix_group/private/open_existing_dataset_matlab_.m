@@ -1,10 +1,11 @@
-function open_existing_dataset_(obj,fid,pix_size_defined,n_pixels,chunk_size,group_name)
+function open_existing_dataset_matlab_(obj,fid,pix_size_defined,n_pixels,chunk_size,group_name)
 % opens existing pixels dataset within opened hdf file and selected group
 %
 %
-% $Revision$ ($Date$)
+% $Revision: 1732 $ ($Date: 2019-03-11 16:11:58 +0000 (Mon, 11 Mar 2019) $)
 %
 %
+    
 obj.pix_group_id_ = H5G.open(fid,group_name);
 if obj.pix_group_id_<0
     error('HDF_PIX_GROUP:runtime_error',...
