@@ -6,6 +6,7 @@
 #include <typeinfo>
 #include "pix_block_processor.h"
 
+class hdf_pix_accessor;
 
 enum input_types {
 	init_access,
@@ -121,8 +122,8 @@ template<class T> inline void destroyObject(const mxArray *in)
 
 
 
-template<class T>
-class_handle<T>* parse_inputs(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[],
+
+class_handle<hdf_pix_accessor>* parse_inputs(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[],
 	input_types &type_provided,
 	double *&block_pos, double *&block_size, size_t &n_blocks, int &n_bytes,
 	std::vector<pix_block_processor> &block_split_info, size_t &npix_to_read);

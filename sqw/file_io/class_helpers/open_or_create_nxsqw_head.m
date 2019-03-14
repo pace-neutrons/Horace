@@ -1,17 +1,40 @@
-function [fid,group_id,file_h,sqw_version] = open_or_create_nxsqw_head(f_name)
-% function creates hdf5 file containing nxsqw file header
+function [fid,group_name,group_id,file_h,sqw_version] = open_or_create_nxsqw_head(f_name)
+% function creates hdf5 file containing nxsqw file header or opens such
+% file if the file exist
 %
 % returns hdf file identifier and hdf group for data access and later
 % closing
+%Usage: 
+%>>[fid,group_name,group_id,file_h,sqw_version] =open_or_create_nxsqw_head(f_name);
+%
+%Where: 
+% f_name -- the name of a nxsqw file
+%
+%Returns:
+% fid    -- hdf5 id for opened hdf5 file. Should be closed by H5F.close
+%           when the file is done with. (Matlab invokes destructor so needs
+%           to be kept if file is used
+% group_name-- the name of main nxsqw group with all nxsqw data location. 
+% group_id -- hdf5 id for access to opened nxsqw group. 
+%           Should be colsed by H5G.close when dealt with. 
+%
+% file_h  -- hdf5 file id for old hdf5 version. (some early versions of 
+%            hdf5 1.6) The mounting point of all data in such files is / 
+%            and this is assigned to fid in old data formats. The fid 
+%            in this case should be closed by H5G.close and the fild_h
+%            itself closed by H5F.close.
+%
+% sqw_version -- the version of nxsqw file. 
 %
 %
 % $Revision$ ($Date$)
 %
-
-
+%
+%
 % nxsqw format version. First nxsqw version is 4.0, previous versions are
 % binary sqw versions.
-sqw_version = '4.0';
+sqw_version = '4.0'; % Current nxsqw version. Existing file would redefine 
+                     % this to have its creation version.
 data_format = 'NXSQW';
 
 [~,short_fn] = fileparts(f_name);
@@ -25,7 +48,8 @@ if exist(f_name,'file') == 2
             'Can not open nxsqw file %s with RW access',...
             f_name);
     end
-    file_h = [];
+    group_name = root_nx_path(2:end);
+    file_h = []; % stub -- we do not use old Matlab abyway. 
     if H5L.exists(fid,group_name,'H5P_DEFAULT')
         group_id = H5G.open(fid,root_nx_path);
     else

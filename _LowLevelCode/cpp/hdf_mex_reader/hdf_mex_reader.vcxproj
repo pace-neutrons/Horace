@@ -117,7 +117,7 @@
       <OutputFile>$(OutDir)$(TargetName).mexw64</OutputFile>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)*.mexw64 $(OutDir)..\..\..\..\DLL\_pcwin64\*</Command>
+      <Command>copy $(OutDir)*.mexw64 $(OutDir)..\..\..\..\..\DLL\_PCWIN64\*</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
