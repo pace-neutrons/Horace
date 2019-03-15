@@ -117,7 +117,8 @@
       <OutputFile>$(OutDir)$(TargetName).mexw64</OutputFile>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)*.mexw64 $(OutDir)..\..\..\..\..\DLL\_PCWIN64\*</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -159,6 +160,9 @@
       <AdditionalOptions>/EXPORT:mexFunction %(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)$(TargetName).mexw64</OutputFile>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)*.mexw64 $(OutDir)..\..\..\..\..\DLL\_PCWIN64\*</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />

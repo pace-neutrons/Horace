@@ -45,13 +45,35 @@ if use_mex_to_read && use_matlab_to_read
     error('HDF_PIX_GROUP:invalid_argument',...
         '"-use_mex_to_read" and "-use_matlab_to_read" are confliction options not to be used together');
 end
-if ~(use_mex_to_read || use_matlab_to_read) % use configuration to verify what to do with mex
-    hc = hor_config;
-    use_mex_to_read  = hc.use_mex;
+%
+if numel(argi) > 0 %exist('n_pixels','var')|| exist('chunk_size','var')
+    pix_size_defined = true;
+    n_pixels = argi{1};
+else
+    pix_size_defined = false;
+    n_pixels = [];
 end
+if numel(argi)> 1%exist('chunk_size','var')
+    chunk_size = argi{2};
+    obj.chunk_size_ = chunk_size;
+else
+    chunk_size = obj.chunk_size_;
+end
+
 if ~ischar(filename)
     error('HDF_PIX_GROUP:invalid_argument',...
         ' First input of the hdf_pix_group init method should be the name of the nxspe file, containing this group');
+end
+if ~exist(filename,'file')==2 && ~pix_size_defined
+    error('HDF_PIX_GROUP:invalid_argument',...
+        ' If new nxsqw file is created, its necessary to specify the number of pixels to be stored in it');
+end
+
+
+
+if ~(use_mex_to_read || use_matlab_to_read) % use configuration to verify what to do with mex
+    hc = hor_config;
+    use_mex_to_read  = hc.use_mex;
 end
 if use_mex_to_read
     if ~(exist(filename,'file')==2)
@@ -59,7 +81,7 @@ if use_mex_to_read
         obj.use_mex_to_read_ = false;
     end
 else
-  obj.use_mex_to_read_ = false;    
+    obj.use_mex_to_read_ = false;
 end
 
 obj.filename_ = filename;
@@ -86,41 +108,31 @@ else
     end
 end
 
-%
-if numel(argi) > 0 %exist('n_pixels','var')|| exist('chunk_size','var')
-    pix_size_defined = true;
-    n_pixels = argi{1};
-else
-    pix_size_defined = false;
-    n_pixels = [];
-end
-if numel(argi)> 1%exist('chunk_size','var')
-    chunk_size = argi{2};
-    obj.chunk_size_ = chunk_size;
-else
-    chunk_size = obj.chunk_size_;
-end
 
 group_name = 'pixels';
 
-obj.pix_data_id_ = H5T.copy('H5T_NATIVE_FLOAT');
-if H5L.exists(fid,group_name,'H5P_DEFAULT')
-    if use_mex_to_read
-    else
-        open_existing_dataset_matlab_(obj,fid,pix_size_defined,n_pixels,chunk_size,group_name);
-    end
+
+if use_mex_to_read
+    [~,~,obj.max_num_pixels_ ,obj.chunk_size_ ,obj.cache_nslots_,obj.cache_size_] =...
+        hdf_mex_reader('get_info',obj.mex_read_handler_);
 else
-    if nargin<1
-        error('HDF_PIX_GROUP:invalid_argument',...
-            'the pixels group does not exist but the size of the pixel dataset is not specified')
+    obj.pix_data_id_ = H5T.copy('H5T_NATIVE_FLOAT');
+    if H5L.exists(fid,group_name,'H5P_DEFAULT')
+        open_existing_dataset_matlab_(obj,fid,pix_size_defined,n_pixels,chunk_size,group_name);
+        
+    else
+        if nargin<1
+            error('HDF_PIX_GROUP:invalid_argument',...
+                'the pixels group does not exist but the size of the pixel dataset is not specified')
+        end
+        if ~pix_size_defined
+            error('HDF_PIX_GROUP:invalid_argument',...
+                'New new pixels group beeing created within existing nxsqw file, but the pixel number in this group is not defined');
+        end
+        create_pix_dataset_(obj,fid,group_name,n_pixels,chunk_size);
     end
-    if ~pix_size_defined
-        error('HDF_PIX_GROUP:invalid_argument',...
-            'Attempting to create new pixels group but the pixel number is not defined');
-    end
-    create_pix_dataset_(obj,fid,group_name,n_pixels,chunk_size);
+    block_dims = [obj.chunk_size_,9];
+    obj.io_mem_space_ = H5S.create_simple(2,block_dims,block_dims);
+    obj.io_chunk_size_ = obj.chunk_size_;
 end
-block_dims = [obj.chunk_size_,9];
-obj.io_mem_space_ = H5S.create_simple(2,block_dims,block_dims);
-obj.io_chunk_size_ = obj.chunk_size_;
 
