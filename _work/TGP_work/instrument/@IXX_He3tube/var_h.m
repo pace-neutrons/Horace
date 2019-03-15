@@ -1,10 +1,10 @@
-function val = var_d (obj, varargin)
-% Variance of depth of absorption in a cylindrical tube along the neutron path
+function val = var_h (obj, varargin)
+% Variance of height of absorption in a 3He cylindrical tube along the neutron path
 %
-%   >> val = var_d (obj, wvec)
-%   >> val = var_d (obj, ind, wvec)
+%   >> val = var_h (obj, wvec)
+%   >> val = var_h (obj, ind, wvec)
 %
-% Note: the neutron path is assumed to be perpendicular to the tube axis
+% Note: this is along the neutron path, not perpendicular to the tube axis
 %
 % Input:
 % ------
@@ -28,11 +28,12 @@ function val = var_d (obj, varargin)
 % $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
 
 
-[ind, sz] = parse_ind_and_wvec_ (obj, varargin{:});
+[ind, wvec] = parse_ind_and_wvec_ (obj, varargin{:});
+alf = macro_xs_dia (obj, ind, wvec);
 
-% Take full width of 0.6 of diameter
 if ~isscalar(ind)
-    val = reshape(0.6*obj.dia_(ind),sz) / sqrt(12);
+    scale = reshape((obj.inner_rad(ind)./obj.sintheta_(ind)).^2, size(alf));
 else
-    val = 0.6*obj.dia_(ind)*ones(sz) / sqrt(12);
+    scale = (obj.inner_rad(ind)/obj.sintheta_(ind))^2;
 end
+val = scale .* var_d_alf(alf);

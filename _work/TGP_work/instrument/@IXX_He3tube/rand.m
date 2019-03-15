@@ -1,9 +1,9 @@
-function X = rand_ind (obj, varargin)
+function X = rand (obj, varargin)
 % Return an array of random points in a 3He cylindrical detector
 %
 % Scalar wvec and sintheta:
-%   >> X = rand_ind (obj, wvec)
-%   >> X = rand_ind (obj, ind, wvec)
+%   >> X = rand (obj, wvec)
+%   >> X = rand (obj, ind, wvec)
 %
 % Input:
 % ------

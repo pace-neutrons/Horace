@@ -1,5 +1,5 @@
 function val = var_d (obj, varargin)
-% Variance of depth of absorbtion in a 3He cylindrical tube along the neutron path
+% Variance of depth of absorption in a 3He cylindrical tube along the neutron path
 %
 %   >> val = var_d (obj, wvec)
 %   >> val = var_d (obj, ind, wvec)

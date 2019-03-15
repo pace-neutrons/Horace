@@ -5,7 +5,7 @@ function X = rand_ind (this, varargin)
 %   >> X = rand_ind (this, ind)
 %
 % The purpose is to return random points from a function of the form:
-%       X = rand (object)
+%       X = rand (object, sz)
 %
 % for a set of objects defined by index arguments iarray and ind.
 % 

@@ -1,5 +1,5 @@
 function val = var_w (obj, varargin)
-% Variance of width of absorbtion in a cylindrical tube
+% Variance of width of absorption in a cylindrical tube
 %
 %   >> val = var_w (obj, wvec)
 %   >> val = var_w (obj, ind, wvec)
