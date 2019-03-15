@@ -2,6 +2,8 @@
              Tobyfit
 ===============================================================================================
 Urgent:
+- New classes: get moderator refinement working again (need to go back to mfclass_tobyfit/fit to alter how moderator
+ information is stored)
 - check RAE's correction to DGdisk (either the init routine, or the main routine)
 - RAE's bind_lattice in refine_crystal
 	- check

@@ -157,6 +157,9 @@ function [ok,mess,lookup,npix] = tobyfit_DGfermi_resconv_init (win, varargin)
 %              possible contributions e.g. {'chopper','moderator'}
 
 
+% Use 3He cylindrical gas tube (ture) or Tobyfit original (false)
+use_tube=false;
+
 % Catch case of inquiry about mc_contributions
 % --------------------------------------------
 if nargin==0
@@ -224,14 +227,17 @@ aperture=cell(nw,1);    %       "
 chopper=cell(nw,1);     %       "
 ki=cell(nw,1);          %       "
 kf=cell(nw,1);          % element size [npix,1]
-sample=repmat(IX_sample,nw,1);
+sample=repmat(IXX_sample,nw,1);
 s_mat=cell(nw,1);       % element size [3,3,nrun]
 spec_to_rlu=cell(nw,1); % element size [3,3,nrun]
+if use_tubes
+    detectors=repmat(IXX_He3tube,nw,1);
+else
+    detectors=repmat(IXX_DetectorTobyfitClassic,nw,1);
+end
 d_mat=cell(nw,1);       % element size [3,3,ndet]
 detdcn=cell(nw,1);      % element size [3,ndet]
 x2=cell(nw,1);          % element size [ndet,1]
-det_width=cell(nw,1);   % element size [ndet,1]
-det_height=cell(nw,1);  % element size [ndet,1]
 dt=cell(nw,1);          % element size [npix,1]
 qw=cell(nw,1);          % element is cell array size [1,4], each element size [npix,1]
 dq_mat=cell(nw,1);      % element size [4,11,npix]
@@ -277,10 +283,15 @@ for iw=1:nw
     if ~ok, return, end
     
     % Get detector information
+    % Currently does not check if different cuts have the same detector information
+    % Also, detpar only has minimal information, so hardwire in the detector type here
     [d_mat{iw}, detdcn{iw}] = spec_coords_to_det (wtmp.detpar); % d_mat has size [3,3,ndet]; detdcn size [3,ndet]
     x2{iw}=wtmp.detpar.x2(:);              % make column vector
-    det_width{iw}=wtmp.detpar.width(:);    % make column vector
-    det_height{iw}=wtmp.detpar.height(:);  % make column vector
+    if use_tube
+        detectors(iw) = IXX_He3tube (wtmp.detpar.width, wtmp.detpar.height, 6.35e-4, 10);   % 10atms, wall thickness=0.635mm
+    else
+        detectors(iw) = IXX_DetectorTobyfitClassic (wtmp.detpar.width, wtmp.detpar.height);
+    end
     
     % Time width corresponding to energy bins for each pixel
     dt{iw} = deps_to_dt*(x2{iw}(idet).*deps(irun)./kf{iw}.^3);
@@ -304,8 +315,9 @@ end
 if keywrd.tables
     moderator_table = object_lookup(moderator);
     aperture_table = object_lookup(aperture);
-    chopper_table = object_lookup(chopper);
+    fermi_table = object_lookup(chopper);
     sample_table = object_lookup(sample);
+    detector_table = object_lookup(detectors);
 end
 
 % Package output as a structure, in cell array length unity if win was a cell array
@@ -316,8 +328,9 @@ lookup = struct();    % reinitialise
 if keywrd.tables
     lookup.moderator_table = moderator_table;
     lookup.aperture_table = aperture_table;
-    lookup.chopper_table = chopper_table;
+    lookup.fermi_table = fermi_table;
     lookup.sample_table = sample_table;
+    lookup.detector_table = detector_table;
 end
 lookup.ei=ei;
 lookup.x0=x0;
@@ -332,8 +345,6 @@ lookup.spec_to_rlu=spec_to_rlu;
 lookup.d_mat=d_mat;
 lookup.detdcn=detdcn;
 lookup.x2=x2;
-lookup.det_width=det_width;
-lookup.det_height=det_height;
 lookup.dt=dt;
 lookup.qw=qw;
 lookup.dq_mat=dq_mat;
