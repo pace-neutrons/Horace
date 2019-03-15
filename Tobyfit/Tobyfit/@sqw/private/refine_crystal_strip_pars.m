@@ -10,7 +10,7 @@ function [wout, pars_out] = refine_crystal_strip_pars (win, xtal, pars_in)
 %   xtal        Crystal refinement constants. Structure with fields:
 %                   urot        x-axis for rotation (r.l.u.)
 %                   vrot        Defines y-axis for rotation (r.l.u.): y-axis in plane
-%                              of urot and vrot, perpendicualr to urot with positive
+%                              of urot and vrot, perpendicular to urot with positive
 %                              component along vrot
 %                   ub0         ub matrix for lattice parameters in the input sqw objects
 %

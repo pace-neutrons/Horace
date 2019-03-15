@@ -99,10 +99,6 @@ function [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,
 %   yvec(11,...):  t_d      deviation in detection time of neutron
 
 
-% Use 3He cylindrical gas tube (ture) or Tobyfit original (false)
-use_tube=false;
-
-
 % Check consistency of caller information, stored internal state, and lookup tables
 % ---------------------------------------------------------------------------------
 ind=caller.ind;                 % indicies into lookup tables
@@ -135,26 +131,26 @@ store_out = [];
 % --------------------------------------------
 moderator_table = lookup.moderator_table;
 aperture_table = lookup.aperture_table;
-chopper_table = lookup.chopper_table;
+fermi_table = lookup.fermi_table;
 sample_table = lookup.sample_table;
+detector_table = lookup.detector_table;
 
 % Constants
 k_to_v = lookup.k_to_v;
 k_to_e = lookup.k_to_e;
 
-% Detector
-% --------
-if use_tube
-    He3det=IX_He3tube(0.0254,10,6.35e-4);   % 1" tube, 10atms, wall thickness=0.635mm
-end
-
 
 % Perform resolution broadening calculation
 % -----------------------------------------
+% Catch case of refining moderator parameters
+if refine_moderator
+    % Strip out moderator refinement parameters and compute lookup table
+    % Note we assume there is only one moderator to refine
+    error('*** CANNOT REFINE MODERATOR AT PRESENT')
+end
+
 if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
-
 reset_state=caller.reset_state;
-
 for i=1:numel(ind)
     % Get index of workspace into lookup tables
     iw=ind(i);
@@ -169,25 +165,16 @@ for i=1:numel(ind)
     end
     
     % Create pointers to parts of lookup structure for the current dataset
-    mod_ind=lookup.mod_table.ind{iw}(:);        % ensure is a column vector
-    fermi_ind=lookup.fermi_table.ind{iw}(:);    % ensure is a column vector
     x0=lookup.x0{iw};
     xa=lookup.xa{iw};
     x1=lookup.x1{iw};
     thetam=lookup.thetam{iw};
     angvel=lookup.angvel{iw};
-    wa=lookup.wa{iw};
-    ha=lookup.ha{iw};
     ki=lookup.ki{iw};
     kf=lookup.kf{iw};
-    sample=lookup.sample(iw);
-    s_mat=lookup.s_mat{iw};
-    spec_to_rlu=lookup.spec_to_rlu{iw};
     d_mat=lookup.d_mat{iw};
     detdcn=lookup.detdcn{iw};
     x2=lookup.x2{iw};
-    det_width=lookup.det_width{iw};
-    det_height=lookup.det_height{iw};
     dt=lookup.dt{iw};
     qw=lookup.qw{iw};
     dq_mat=lookup.dq_mat{iw};
@@ -195,8 +182,9 @@ for i=1:numel(ind)
     % Run and detector for each pixel
     irun = win(i).data.pix(5,:)';   % column vector
     idet = win(i).data.pix(6,:)';   % column vector
+    npix = size(win(i).data.pix,2);
     
-    % Catch case of refining crystal orientation or moderator parameters
+    % Catch case of refining crystal orientation
     if refine_crystal
         % Strip out crystal refinement parameters and reorientate datasets
         [win(i), pars{1}] = refine_crystal_strip_pars (win(i), xtal, pars{1});
@@ -213,18 +201,10 @@ for i=1:numel(ind)
             x0(irun), xa(irun), x1(irun), x2(idet),...
             thetam(irun), angvel(irun), s_mat(:,:,irun), d_mat(:,:,idet),...
             spec_to_rlu(:,:,irun), k_to_v, k_to_e);
-    
-    elseif refine_moderator
-        % Strip out moderator refinement parameters and compute lookup table
-        % Note we assume there is only one moderator to refine
-        [mod_table_refine, mod_t_av_refine, ~, ~, store_out, pars{1}] = ...
-            refine_moderator_strip_pars (modshape, store_in, pars{1});
     end
     
     % Simulate the signal for the data set
     % ------------------------------------
-    npix = size(win(i).data.pix,2);
-    
     for imc=1:mc_points
         yvec=zeros(11,1,npix);
         
@@ -234,10 +214,7 @@ for i=1:numel(ind)
                 [~,mod_t_av] = moderator_table.func_eval(iw,irun,@pulse_width);
                 yvec(1,1,:) = moderator_table.rand_ind(iw,irun) - mod_t_av;
             else
-                [~,mod_t_av] = moderator_table.func_eval(iw,irun,@pulse_width);
-                yvec(1,1,:) = moderator_table.rand_ind(iw,irun) - mod_t_av;
-                t_red = rand_cumpdf_arr (mod_table_refine, ones(size(irun)));
-                yvec(1,1,:) = mod_t_av_refine * (t_red./(1-t_red) - 1);    % must subtract first moment
+                error('*** CANNOT REFINE MODERATOR AT PRESENT')
             end
         end
         
@@ -253,12 +230,12 @@ for i=1:numel(ind)
         
         % Sample deviations
         if mc_contributions.sample
-            yvec(5:7,1,:) = sample_table.rand_ind(iw,ones(1,npix));
+            yvec(5:7,1,:) = sample_table.func_eval(iw,@rand,[1,npix]);
         end
         
         % Detector deviations
         if mc_contributions.detector_depth || mc_contributions.detector_area
-            det_points = detector_table.rand_ind (idet,kf);
+            det_points = detector_table.func_eval (iw,@rand,idet,kf);
             if ~mc_contributions.detector_area
                 yvec(8,1,:) = det_points(1,:);
             elseif ~mc_contributions.detector_depth
