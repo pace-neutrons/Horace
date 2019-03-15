@@ -111,14 +111,14 @@ block_positions   -- pointer to the array of the posisions of the blocks to read
 block_sizes       -- pointer to the array of the posisions of the blocks to read
 n_blocks_provided -- the size of the block positions and block sizes array
 n_bytes           -- the size of the pointer of block_positions and block_size array
-block_split_info  -- 
+block_split_info  --
 
 
 returns:
 pointer to Matlab hdf_pix_accessor class handler to share with Matlab
 */
 
-class_handle<hdf_pix_accessor>* parse_inputs(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[],
+class_handle<hdf_pix_accessor>* parse_inputs(int nlhs, int nrhs, const mxArray *prhs[],
 	input_types &work_mode,
 	double *&block_pos, double *&block_size, size_t &n_blocks_provided, int &n_bytes,
 	std::vector<pix_block_processor> &block_split_info, size_t &npix_to_read) {
@@ -137,51 +137,44 @@ class_handle<hdf_pix_accessor>* parse_inputs(int nlhs, mxArray *plhs[], int nrhs
 	else if (mex_mode.compare("close") == 0) {
 		work_mode = close_access;
 	}
-	else if (mex_mode.compare("get_filename") == 0) {
-		work_mode = get_filename;
+	else if (mex_mode.compare("get_info") == 0) {
+		work_mode = get_info;
 	}
 	else {
 		std::stringstream err;
 		err << " Unknow operation mode: " << mex_mode;
-		mexErrMsgIdAndTxt("HDF_MEX_ACCESS:invalid_argument", err.str().c_str());
+		throw_error("HDF_MEX_ACCESS:invalid_argument", err.str().c_str());
 	}
 
 	class_handle<hdf_pix_accessor> *reader(nullptr);
 	size_t num_first_block(0), pos_in_the_first_block(0), buf_size(0);
+	npix_to_read = 0;
+	n_blocks_provided = 0;
+	n_bytes = 0;
 
 	switch (work_mode)
 	{
 	case(init_access): {
-		if (nrhs !=(int)initInputs::N_INPUT_Arguments || nrhs != (int)initInputs::N_INPUT_Arguments - 1 || nlhs != (int)Init_Outputs::N_OUTPUT_Arguments) {
+		if (!(nrhs == (int)initInputs::N_INPUT_Arguments || nrhs == (int)initInputs::N_INPUT_Arguments - 1 || nlhs == (int)Init_Outputs::N_OUTPUT_Arguments)) {
 			std::stringstream err;
 			err << " mex in init mode needs " << (short)initInputs::N_INPUT_Arguments
 				<< " or " << (short)initInputs::N_INPUT_Arguments - 1
 				<< " inputs and 1 output but got " << (short)nrhs
 				<< " input(s) and " << (short)nlhs << " output(s)\n";
-			mexErrMsgIdAndTxt("HDF_MEX_ACCESS:invalid_argument",
-				err.str().c_str());
+			throw_error("HDF_MEX_ACCESS:invalid_argument", err.str().c_str());
 		}
 
 		std::string filename, groupname;
-		retrieve_string(prhs[(int)initInputs::filename], filename,  "describing filename");
+		retrieve_string(prhs[(int)initInputs::filename], filename, "describing filename");
 		retrieve_string(prhs[(int)initInputs::pixel_group_name], groupname, "describing pixel dataset group_name");
 
 		reader = new class_handle<hdf_pix_accessor>();
-		reader->class_ptr->init(filename, groupname);
 		reader->filename = filename;
 		reader->groupname = groupname;
 
 		if (nrhs == (int)initInputs::N_INPUT_Arguments) {
 			reader->n_threads = retrieve_value<size_t>("number_of_threads", prhs[(int)initInputs::num_threads]);
 		}
-
-		block_pos = nullptr;
-		block_size = nullptr;
-		npix_to_read = 0;
-		n_blocks_provided = 0;
-		n_bytes = 0;
-		//n_blocks_2_read = 0;
-		block_split_info.resize(1);
 
 		return reader;
 	}case(read_data): {
@@ -190,10 +183,9 @@ class_handle<hdf_pix_accessor>* parse_inputs(int nlhs, mxArray *plhs[], int nrhs
 			err << " mex in read mode needs " << (short)readInputs::N_INPUT_Arguments
 				<< " inputs and 1-3 outputs but got " << (short)nrhs
 				<< " input(s) and " << (short)nlhs << " output(s)\n";
-			mexErrMsgIdAndTxt("HDF_MEX_ACCESS:invalid_argument",
-				err.str().c_str());
+			throw_error("HDF_MEX_ACCESS:invalid_argument", err.str().c_str());
 		}
-		reader = get_handler_fromMatlab<hdf_pix_accessor>(plhs[(int)readInputs::io_class_ptr]);
+		reader = get_handler_fromMatlab<hdf_pix_accessor>(prhs[(int)readInputs::io_class_ptr]);
 		num_first_block = reader->n_first_block;
 		pos_in_the_first_block = reader->pos_in_first_block;
 
@@ -201,31 +193,34 @@ class_handle<hdf_pix_accessor>* parse_inputs(int nlhs, mxArray *plhs[], int nrhs
 		block_pos = retrieve_vector<double>("block_positions", prhs[(int)readInputs::block_positions], n_blocks, n_bytes);
 		block_size = retrieve_vector<double>("block_sizes", prhs[(int)readInputs::block_sizes], n_blocks_provided, n_bytes);
 		if (n_blocks != n_blocks_provided) {
-			mexErrMsgIdAndTxt("HDF_MEX_ACCESS:invalid_argument",
+			throw_error("HDF_MEX_ACCESS:invalid_argument",
 				" sizes of pix positions array and block sizes array should be equal but they are not");
 		}
 		size_t buf_size = retrieve_value<size_t>("pixel_buffer_size", prhs[(int)readInputs::pix_buf_size]);
 
 		if (n_blocks_provided == 0 || buf_size == 0 || num_first_block >= n_blocks) { // nothing to do. 
+			size_t n_threads = reader->n_threads;
+			block_split_info.resize(n_threads);
+			block_split_info[n_threads].n_blocks = num_first_block;
+			block_split_info[n_threads].pos_in_first_block = pos_in_the_first_block;
 			return reader;
 		}
 		break;
-	}case(close_access): case(get_filename): {
-		if (nrhs != (int)closeOrGetFnInputs::N_INPUT_Arguments) {
+	}case(close_access): case(get_info): {
+		if (nrhs != (int)closeOrGetInfInputs::N_INPUT_Arguments) {
 			std::stringstream err;
-			err << " mex in " << mex_mode << " mode needs " << (short)closeOrGetFnInputs::N_INPUT_Arguments
+			err << " mex in " << mex_mode << " mode needs " << (short)closeOrGetInfInputs::N_INPUT_Arguments
 				<< " inputs but got " << (short)nrhs
 				<< " input(s)\n";
-			mexErrMsgIdAndTxt("HDF_MEX_ACCESS:invalid_argument",
-				err.str().c_str());
+			throw_error("HDF_MEX_ACCESS:invalid_argument", err.str().c_str());
 		}
-		reader = get_handler_fromMatlab<hdf_pix_accessor>(plhs[(int)readInputs::io_class_ptr]);
+		reader = get_handler_fromMatlab<hdf_pix_accessor>(prhs[(int)closeOrGetInfInputs::io_class_ptr]);
 		return reader;
 	}
 	default:
 		break;
 	}
-	// here we are processing the pixel read option now
+	// here we are processing the pixel read options now
 
 	// calculate number of pixels defined to read and compare it with the size of the buffer dedicated to read data
 	npix_to_read = static_cast<uint64_t>(block_size[num_first_block]) - pos_in_the_first_block;
@@ -260,3 +255,7 @@ class_handle<hdf_pix_accessor>* parse_inputs(int nlhs, mxArray *plhs[], int nrhs
 	return reader;
 }
 
+void throw_error(char const * const MESS_ID, char const * const error_message) {
+	mexUnlock();
+	mexErrMsgIdAndTxt(MESS_ID, error_message);
+};

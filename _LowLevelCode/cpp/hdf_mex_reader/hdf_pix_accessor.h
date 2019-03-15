@@ -31,14 +31,18 @@ public:
     void init(const std::string &filename, const std::string &pix_group_name);
     size_t read_pixels(const pix_block_processor&pix_split_info, float *const pix_buffer,size_t buf_size);
 
+	void get_info(size_t &n_pixels,size_t &max_num_pixels,size_t &chunk_size,size_t &cache_nslots, size_t &cache_size);
+
     hdf_pix_accessor();
     ~hdf_pix_accessor();
 
 private:
     std::string filename;
+	std::string nexus_group_name;
     std::string pix_group_name;
 
     hid_t  file_handle;
+	hid_t  nexus_group_id;
     hid_t  file_space_id;
     hid_t  pix_dataset;
     hid_t  pix_data_id;

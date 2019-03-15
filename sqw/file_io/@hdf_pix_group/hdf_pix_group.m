@@ -213,7 +213,7 @@ classdef hdf_pix_group < handle
             if obj.pix_group_id_ ~= -1
                 H5G.close(obj.pix_group_id_);
             end
-            if obj.use_mex_to_read
+            if ~isempty(obj.mex_read_handler_)
                 obj.mex_read_handler_ = hdf_mex_reader('close',obj.mex_read_handler_);
             end
             if isempty(obj.old_style_fid_)
