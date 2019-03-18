@@ -114,7 +114,7 @@ group_name = 'pixels';
 
 if use_mex_to_read
     [~,~,obj.max_num_pixels_ ,obj.chunk_size_ ,obj.cache_nslots_,obj.cache_size_] =...
-        hdf_mex_reader('get_info',obj.mex_read_handler_);
+        hdf_mex_reader('get_file_info',obj.mex_read_handler_);
 else
     obj.pix_data_id_ = H5T.copy('H5T_NATIVE_FLOAT');
     if H5L.exists(fid,group_name,'H5P_DEFAULT')
