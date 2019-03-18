@@ -94,6 +94,9 @@ if use_mex_to_read
     obj.nxsqw_version_ = nxsqw_version;
     obj.use_mex_to_read_ = true;
     obj.nexus_group_name_ = root_nx_path(2:end);
+    if ~isempty(obj.mex_read_handler_ )
+        obj.mex_read_handler_ = hdf_mex_reader('close',obj.mex_read_handler_);
+    end
     obj.mex_read_handler_ = hdf_mex_reader('init',filename,obj.nexus_group_name_);
 else
     [file_id,nexus_group_name,fid,file_h,nxsqw_version] = open_or_create_nxsqw_head(filename);

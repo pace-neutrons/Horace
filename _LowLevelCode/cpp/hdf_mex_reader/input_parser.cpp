@@ -123,10 +123,11 @@ class_handle<hdf_pix_accessor>* parse_inputs(int nlhs, int nrhs, const mxArray *
 	double *&block_pos, double *&block_size, size_t &n_blocks_provided, int &n_bytes,
 	std::vector<pix_block_processor> &block_split_info, size_t &npix_to_read) {
 
+	class_handle<hdf_pix_accessor> *reader(nullptr);
 
 	// get correct file name and the group name
 	std::string mex_mode;
-	retrieve_string(prhs[(int)initInputs::mode_name], mex_mode, "describing mex_mode");
+	retrieve_string(prhs[(int)initInputs::mode_name], mex_mode, "mex_mode description");
 
 	if (mex_mode.compare("init") == 0) {
 		work_mode = init_access;
@@ -150,7 +151,7 @@ class_handle<hdf_pix_accessor>* parse_inputs(int nlhs, int nrhs, const mxArray *
 		throw_error("HDF_MEX_ACCESS:invalid_argument", err.str().c_str());
 	}
 
-	class_handle<hdf_pix_accessor> *reader(nullptr);
+
 	size_t num_first_block(0), pos_in_the_first_block(0), buf_size(0);
 	npix_to_read = 0;
 	n_blocks_provided = 0;
@@ -200,8 +201,6 @@ class_handle<hdf_pix_accessor>* parse_inputs(int nlhs, int nrhs, const mxArray *
 			throw_error("HDF_MEX_ACCESS:invalid_argument", err.str().c_str());
 		}
 		reader = get_handler_fromMatlab<hdf_pix_accessor>(prhs[(int)readInputs::io_class_ptr]);
-		num_first_block = reader->n_first_block;
-		pos_in_the_first_block = reader->pos_in_first_block;
 
 		size_t n_blocks;
 		block_pos = retrieve_vector<double>("block_positions", prhs[(int)readInputs::block_positions], n_blocks, n_bytes);
@@ -215,6 +214,14 @@ class_handle<hdf_pix_accessor>* parse_inputs(int nlhs, int nrhs, const mxArray *
 			read_from_start = retrieve_value<size_t>("read from the start", prhs[(int)readInputs::restart_reading]);
 		else
 			read_from_start = 0;
+		//
+		if (read_from_start) {
+			reader->n_first_block = 0;
+			reader->pos_in_first_block = 0;
+		}
+		num_first_block = reader->n_first_block;
+		pos_in_the_first_block = reader->pos_in_first_block;
+
 
 		if (n_blocks_provided == 0 || buf_size == 0 || num_first_block >= n_blocks) { // nothing to do. 
 			// reader will retrive this information after the read operation. The read operation would be idle in this case 
@@ -242,10 +249,6 @@ class_handle<hdf_pix_accessor>* parse_inputs(int nlhs, int nrhs, const mxArray *
 	// here we are processing the pixel read options now
 
 	// calculate number of pixels defined to read and compare it with the size of the buffer dedicated to read data
-	if (read_from_start) {
-		pos_in_the_first_block = 0;
-		num_first_block = 0;
-	}
 	if (pos_in_the_first_block >= block_size[num_first_block]) { // possibiliy of invalid cache
 		std::stringstream err;
 		err << " Incorrect information on the position of previous read operation completeon. It looks like npix/pix_pos cache is invalid:"

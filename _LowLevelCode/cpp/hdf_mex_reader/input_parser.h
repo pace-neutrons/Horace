@@ -79,9 +79,9 @@ template<class T> class class_handle
 {
 public:
 	class_handle(T *ptr) : _signature(CLASS_HANDLE_SIGNATURE), _name(typeid(T).name()), class_ptr(ptr),
-		n_first_block(0), pos_in_first_block(0), n_threads(1) {}
+		n_first_block(0), pos_in_first_block(0), n_threads(1), num_locks(0) {}
 	class_handle() : _signature(CLASS_HANDLE_SIGNATURE), _name(typeid(T).name()), class_ptr(new T()),
-		n_first_block(0), pos_in_first_block(0), n_threads(1) {}
+		n_first_block(0), pos_in_first_block(0), n_threads(1),num_locks(0) {}
 
 	~class_handle() {
 		_signature = 0;
@@ -98,7 +98,10 @@ public:
 
 
 	T* const class_ptr;
+	int num_locks;
+	//-----------------------------------------------------------
 	mxArray * export_hanlder_toMatlab();
+	void clear_mex_locks();
 private:
 	uint32_t _signature;
 	const std::string _name;
@@ -107,11 +110,23 @@ private:
 template<class T>
 mxArray * class_handle<T>::export_hanlder_toMatlab()
 {
-	mexLock();
+	if (this->num_locks == 0) {
+		this->num_locks++;
+		mexLock();
+	}
 	mxArray *out = mxCreateNumericMatrix(1, 1, mxUINT64_CLASS, mxREAL);
 	uint64_t *pData = (uint64_t *)mxGetData(out);
 	*pData = reinterpret_cast<uint64_t>(this);
 	return out;
+}
+
+template<class T>
+void class_handle<T>::clear_mex_locks()
+{
+	while(this->num_locks>0){
+		this->num_locks--;
+		mexUnlock();
+	}
 }
 
 template<class T> inline class_handle<T> *get_handler_fromMatlab(const mxArray *in)
