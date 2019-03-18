@@ -259,7 +259,7 @@ classdef test_hdf_pix_group < TestCase
             %-------------------------------------------------------------
             pos = [10,2000, 5000];
             npix =[1024,1024,1000];
-            % new read operation starts from the beginning
+            % new read operation forcefully starts from the beginning
             [pix_array,finished]=pix_read.read_pixels(pos,npix,2048,true);
             
             

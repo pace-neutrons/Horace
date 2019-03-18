@@ -190,7 +190,7 @@ classdef hdf_pix_group < handle
                 read_op_completed = obj.read_op_completed_;
             end
             if obj.use_mex_to_read
-                read_op = double(read_op_completed);
+                read_op = double(read_op_completed); % some version of Matlab do not accept logical pointer as input!!!
                 [pixels,read_op_completed,obj.mex_read_handler_] = hdf_mex_reader('read',obj.mex_read_handler_,...
                     blocks_pos,pix_block_size,buf_size,read_op);
                 obj.read_op_completed_ = read_op_completed;

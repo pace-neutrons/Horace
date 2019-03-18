@@ -81,8 +81,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 		return;
 	}
 	case(close_access):{
+		pReaderHolder->clear_mex_locks();
 		delete pReaderHolder;
-		mexUnlock();
+
 
 		for (int i = 0; i < nlhs; ++i) {
 			plhs[i] = mxCreateNumericMatrix(0, 0, mxUINT64_CLASS, mxREAL);
