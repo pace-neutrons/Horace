@@ -28,10 +28,10 @@ classdef hdf_pix_group < handle
         cache_size_     =  -1 ; % in bytes
         max_num_pixels_  = -1; % unlimited dataset allocated, though class
         %does not have methods to extend it. Equal to max allocated pixels
-        %spece 
-        num_pixels_      = 0; % unreliable number. 
+        %spece
+        num_pixels_      = 0; % unreliable number.
         %
-        % HDF5 pointers handles used in file access. 
+        % HDF5 pointers handles used in file access.
         pix_group_id_     = -1;
         file_space_id_    = -1;
         pix_data_id_      = -1;
@@ -46,8 +46,15 @@ classdef hdf_pix_group < handle
         filename_ = ''
         nexus_group_name_ = '';
         % if one should use mex code to read pixels. Assigned during
-        % initialization to true if mex code is availible and enabled.
+        % initialization to true if mex code is available and enabled.
         use_mex_to_read_ = [];
+        % internal operation facilitating subsequent read of sequence of
+        % N-pixels. If true, the previous read operation is completed and
+        % the new operation starts from the beginning of the input info
+        % array. If false, the internal cach information is used to
+        % continue read operation from the place, the previous read
+        % operation was finished
+        read_op_completed_ = true;
         % placeholder for file_id, used in partial io, accessing pixel
         % group only.
         fid_ = [];
@@ -57,7 +64,9 @@ classdef hdf_pix_group < handle
         % The handler for initialized mex reader.
         mex_read_handler_ = [];
         
-        nxsqw_version_ = 0; 
+        nxsqw_version_ = 0;
+        
+        matlab_read_info_cache_ = {};
     end
     
     methods
@@ -69,13 +78,14 @@ classdef hdf_pix_group < handle
             %                           and operations
             %
             
-            %>>obj = hdf_pixel_group(filename); open existing pixels group
-            %                              for IO operations. Throws if
-            %                              the group does not exist.
+            %>>obj = hdf_pixel_group(filename,['-use_mex_to_read'|'-use_matlab_to_read']);
+            %          open existing pixels group for IO operations.
+            %          Throws if the group does not exist.
             %          a writing (if any) occurs into the existing group
             %          allowing to modify the contents of the pixel array.
             %
-            %>>obj = hdf_pixel_group(filename,n_pixels,[chunk_size]);
+            %>>obj = hdf_pixel_group(filename,n_pixels,[chunk_size],...
+            %                       ['-use_mex_to_read'|'-use_matlab_to_read']);
             %          creates pixel group to store specified number of
             %          pixels.
             % If the group does not exist, additional parameters describing
@@ -83,7 +93,7 @@ classdef hdf_pix_group < handle
             % all input parameters except fid will be ignored
             %
             % Inputs:
-            % filename -- nxnspe file name with nxsqw information
+            % filename -- nxnsqw file name containing sqw object information
             %
             % n_pixels -- number of pixels to be stored in the pix dataset.
             %
@@ -95,7 +105,11 @@ classdef hdf_pix_group < handle
             %          different from the values, provided with this
             %          command, the dataset will be recreated with new
             %          parameters. Old dataset contents will be destroyed.
-            %
+            %,'-use_mex_to_read'|'-use_matlab_to_read' -- redefine the
+            %          Horace configuration setting and force using mex code/matlab code
+            %          to read pixels information. If absent,
+            %          hor_config.use_mex option is used to establish
+            %          operation mode.
             %
             if nargin == 0
                 return;
@@ -114,37 +128,91 @@ classdef hdf_pix_group < handle
         end
         %
         function write_pixels(obj,start_pos,pixels)
-            % write block of pixels into the selected postion of
+            % write block of pixels into the selected position of
             % hdf5 pixels array.
             %
             % Inputs:
             % start_pos -- the location of the block of pixels within
-            %              file-based pixel array. (Matlab/Fortran
-            %              convension first pixel number is 1)
+            %              file-based pixel array. (Matlab/FORTRAN
+            %              convention first pixel number is 1)
             write_pixels_matlab_(obj,start_pos,pixels)
         end
         %
-        function [pixels,blocks_pos,pix_block_size]= read_pixels(obj,blocks_pos,pix_block_size)
+        function [pixels,read_op_completed]= read_pixels(obj,blocks_pos,pix_block_size,buf_size,varargin)
             % read pixel information specified by pixels starting position
             % and the sizes of the pixels blocks
             %
+            % Usage:
+            %>>[pixels,reading_completed]= read_pixels(obj,blocks_pos,pix_block_size,buf_size,[reading_completed],["-use_mex|-use_matlab"])
+            %
             %Inputs:
-            %blocks_pos     -- array of pixel blocks positions to read
-            %pix_block_size -- array of block sizes to read
+            % blocks_pos     -- array of pixel blocks positions to read
+            % pix_block_size -- array of block sizes to read
+            % buf_size       -- the max size of the buffer defining the number
+            %                  of pixels to return from single read operation
+            % read_op_completed -- if false, the read operation should be
+            %                  continued from the place where the previous
+            %                  read operation completed.
+            %                  if absent or true, the read operation begins
+            %                  from the start of blocks_pos and
+            %                  pix_block_size arrays. (see output value)
+            % -use_mex_to_read/-use_matlab_to_read -- can be present only if
+            %                  all previous options are present. Implicitly
+            %                  overrides operation mode (mex or Matlab),
+            %                  selected during class construction.
             %
             %Outputs:
             %pixels     [9 x npix] array of pixels information
-            %blocks_pos            array of pixel blocks positions which
-            %                      have not been read in current read
-            %                      operation. Empty if all pixels defined
-            %                      by the input arrays have been read.
-            %pix_block_size        array of pixel block sizes, have not
-            %                      been read by current read operation
             %
-            % n_pix always > 0 and numel(start_pos)== numel(n_pix) (or n_pix == 1)
-            % for algorithm to be correct
-            [pixels,blocks_pos,pix_block_size] = read_pixels_matlab_(obj,blocks_pos,pix_block_size);
+            %read_op_completed     true if all pixels defined by blocks_pos
+            %                      and pix_block_size arrays have been
+            %                      returned. If false, the number of the
+            %                      pixels defined by these array is larger
+            %                      than the buffer size provided and the
+            %                      following read operations, called with
+            %                      read_continues true are necessary to
+            %                      read all pixels.
+            %
+            %
+            % WARNING! unexpected behavior. If the previous read operation
+            % is not completed (more data specified in npix array than buffer provided)
+            % and the next operation started with new
+            % data, cache will be setup to the previous read operation and
+            % the behavior is undefined. 
+            %
+            if ~exist('buf_size','var')
+                buf_size = sum(pix_block_size); % read all
+            end
+            if nargin > 4
+                read_op_completed = varargin{1};
+                obj.read_op_completed_ = read_op_completed;
+            else
+                read_op_completed = obj.read_op_completed_;
+            end
+            if obj.use_mex_to_read
+                read_op = double(read_op_completed);
+                [pixels,read_op_completed,obj.mex_read_handler_] = hdf_mex_reader('read',obj.mex_read_handler_,...
+                    blocks_pos,pix_block_size,buf_size,read_op);
+                obj.read_op_completed_ = read_op_completed;
+            else
+                if read_op_completed % if previous reading was completed, new one begins from the start
+                    [pixels,blocks_pos,pix_block_size] = read_pixels_matlab_(obj,blocks_pos,pix_block_size,buf_size);
+                else
+                    blocks_pos = obj.matlab_read_info_cache_{1};
+                    pix_block_size = obj.matlab_read_info_cache_{2};
+                    [pixels,blocks_pos,pix_block_size] = read_pixels_matlab_(obj,blocks_pos,pix_block_size,buf_size);
+                end
+                if isempty(blocks_pos)
+                    read_op_completed = true;
+                    obj.matlab_read_info_cache_ = {};
+                else
+                    read_op_completed = false;
+                    obj.matlab_read_info_cache_ = {blocks_pos,pix_block_size};
+                end
+                obj.read_op_completed_ = read_op_completed;
+            end
         end
+        %
         function is = is_initialized(obj)
             if isempty(obj.use_mex_to_read_)
                 is = false;
@@ -154,6 +222,15 @@ classdef hdf_pix_group < handle
                 else
                     is = isempty(obj.mex_read_handler_);
                 end
+            end
+        end
+        function [npix_read,pos_in_first_block] = get_read_info(obj)
+            % return the information about current state of pixels read operations
+            %
+            if obj.use_mex_to_read
+                [npix_read,pos_in_first_block] = hdf_mex_reader('get_read_info',obj.mex_read_handler_);
+            else
+                error('HDF_PIX_GROUP:not_implemented','The operation is not yet implemented');
             end
         end
         
@@ -181,65 +258,14 @@ classdef hdf_pix_group < handle
         end
         %
         function set.use_mex_to_read(obj,use)
-            use = logical(use);
-            if obj.use_mex_to_read && ~use
-                obj.mex_read_handler_ = hdf_mex_reader('close',obj.mex_read_handler_);
-                obj.use_mex_to_read = false;
-                init_(obj.filename_,obj.max_num_pixels,obj.chunk_size,'-use_matlab_to_read');
-            elseif ~obj.use_mex_code && use
-                if isempty(obj.fid_)
-                    error('HDF_PIX_GROUP:invalid_argument',...
-                        'can not change to use mex code when hdf_pix_group is not controlling the file')
-                end
-                root_nx_path  = find_root_nexus_dir(obj.filename_,"NXSQW");
-                groupname = [root_nx_path,'/pixels'];
-                obj.mex_read_handler_ = hdf_mex_reader('init',obj.filename_,groupname);
-                obj.use_mex_to_read_ = true;
-            end
+            set_use_mex_(obj,use);
         end
         
         %------------------------------------------------------------------
         function delete(obj)
             % close pixel related intormation
-            if obj.io_mem_space_ ~= -1
-                H5S.close(obj.io_mem_space_);
-            end
-            if obj.pix_data_id_ ~= -1
-                H5T.close(obj.pix_data_id_);
-                obj.pix_data_id_ = -1;
-            end
-            close_pix_dataset_(obj);
-            %
-            if obj.pix_group_id_ ~= -1
-                H5G.close(obj.pix_group_id_);
-            end
-            if ~isempty(obj.mex_read_handler_)
-                obj.mex_read_handler_ = hdf_mex_reader('close',obj.mex_read_handler_);
-            end
-            if isempty(obj.old_style_fid_)
-                if ~isempty(obj.fid_)
-                    H5F.close(obj.fid_)
-                end
-            else
-                H5G.colse(obj.fid_);
-                H5F.close(obj.old_style_fid_)
-            end
-            obj.use_mex_to_read_ = [];
-            obj.pix_range_  = [inf,-inf;inf,-inf;inf,-inf;inf,-inf];
+            delete_hdf_objects(obj);
         end
-    end
-    methods(Access = private)
-        %
-        function mem_space_id = get_cached_mem_space_(obj,block_dims)
-            % function extracts memory space object from a data buffer
-            if obj.io_chunk_size_ ~= block_dims(1)
-                H5S.set_extent_simple(obj.io_mem_space_,2,block_dims,block_dims);
-                obj.io_chunk_size_ = block_dims(1);
-            end
-            mem_space_id = obj.io_mem_space_;
-        end
-        %
-        %
     end
 end
 

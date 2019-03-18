@@ -12,7 +12,8 @@ enum input_types {
 	init_access,
 	close_access,
 	read_data,
-	get_info,
+	get_file_info,
+	get_read_info
 };
 enum class initInputs : int { // all input for init procedure
 	mode_name,
@@ -30,10 +31,11 @@ enum class readInputs : int { // all input arguments for read procedure
 	block_sizes,
 
 	pix_buf_size,
+	restart_reading,
 
 	N_INPUT_Arguments
 };
-enum class closeOrGetInfInputs : int { // all input arguments for close IO procedure
+enum class closeOrGetInfoInputs : int { // all input arguments for close IO procedure
 	mode_name,
 	io_class_ptr,
 
@@ -53,13 +55,19 @@ enum class read_Outputs :int { // output arguments for read procedure
 
 	N_OUTPUT_Arguments
 };
-enum class get_info_out :int { // output arguments for read procedure
+enum class file_info_out :int { // output arguments for read procedure
 	filename,
 	groupname,
 	n_pixels,
 	chunk_size,
 	cache_nslots,
 	cache_size,
+	N_OUTPUT_Arguments
+};
+enum class read_info_out :int { // output arguments for read procedure
+	n_blocks_read, // number of blocks already processed by previous read operations (from npix and pix_pos arrays)
+	pos_in_first_block,  // number of pixels left to read in the first unprocessed block equal to n_pix_in_block-pos_in_first_block;
+
 	N_OUTPUT_Arguments
 };
 
