@@ -143,7 +143,7 @@ classdef hdf_pix_group < handle
             % and the sizes of the pixels blocks
             %
             % Usage:
-            %>>[pixels,reading_completed]= read_pixels(obj,blocks_pos,pix_block_size,buf_size,[reading_completed],["-use_mex|-use_matlab"])
+            %>>[pixels,reading_completed]= read_pixels(obj,blocks_pos,pix_block_size,[buf_size,[reading_completed],["-use_mex|-use_matlab"]])
             %
             %Inputs:
             % blocks_pos     -- array of pixel blocks positions to read
@@ -174,15 +174,31 @@ classdef hdf_pix_group < handle
             %                      read all pixels.
             %
             %
-            % WARNING! unexpected behavior. If the previous read operation
-            % is not completed (more data specified in npix array than buffer provided)
-            % and the next operation started with new
-            % data, cache will be setup to the previous read operation and
-            % the behavior is undefined. 
+            % WARNING! unexpected behavior due to optimization.
+            % In the mex mode, if the previous read operation
+            % is not completed (more data specified in npix array than
+            % the buffer requested) and the next operation starts with new
+            % pix/npix data, cache stil refers to the rest of the previous
+            % read operation and the behavior is undefined.
+            % In Matlab access mode, new data will be ignored until cache
+            % is exausted.
             %
+            % ALWYS USE read_op_completed = true when providing new
+            % pix/npix data to read, which will reset the cache.
+            %
+            if numel(pix_block_size) ~= numel(blocks_pos)
+                if numel(pix_block_size) == 1
+                    pix_block_size = ones(size(blocks_pos))*pix_block_size;
+                else
+                    error('HDF_PIX_GROUP:invalid_argument',...
+                        'number of pix blocks (%d) has to be equal to the number of pix positions (%d) or be equal to 1',...
+                        numel(pix_block_size),numel(blocks_pos));
+                end
+            end
             if ~exist('buf_size','var')
                 buf_size = sum(pix_block_size); % read all
             end
+            
             if nargin > 4
                 read_op_completed = varargin{1};
                 obj.read_op_completed_ = read_op_completed;
@@ -190,24 +206,28 @@ classdef hdf_pix_group < handle
                 read_op_completed = obj.read_op_completed_;
             end
             if obj.use_mex_to_read
-                read_op = double(read_op_completed); % some version of Matlab do not accept logical pointer as input!!!
+                % some version of Matlab do not accept logical pointer as input!!!
+                read_op = double(read_op_completed);
                 [pixels,read_op_completed,obj.mex_read_handler_] = hdf_mex_reader('read',obj.mex_read_handler_,...
                     blocks_pos,pix_block_size,buf_size,read_op);
                 obj.read_op_completed_ = read_op_completed;
             else
                 if read_op_completed % if previous reading was completed, new one begins from the start
-                    [pixels,blocks_pos,pix_block_size] = read_pixels_matlab_(obj,blocks_pos,pix_block_size,buf_size);
+                    [pos,npix,pos_remain,npix_remain] = ...
+                        split_npix_pos(blocks_pos,pix_block_size,buf_size,1);
                 else
-                    blocks_pos = obj.matlab_read_info_cache_{1};
-                    pix_block_size = obj.matlab_read_info_cache_{2};
-                    [pixels,blocks_pos,pix_block_size] = read_pixels_matlab_(obj,blocks_pos,pix_block_size,buf_size);
+                    [pos,npix,pos_remain,npix_remain] = ...
+                        split_npix_pos(obj.matlab_read_info_cache_{1},...
+                        obj.matlab_read_info_cache_{2},buf_size,1);
                 end
-                if isempty(blocks_pos)
+                pixels = read_pixels_matlab_(obj,pos,npix);
+                
+                if isempty(pos_remain)
                     read_op_completed = true;
                     obj.matlab_read_info_cache_ = {};
                 else
                     read_op_completed = false;
-                    obj.matlab_read_info_cache_ = {blocks_pos,pix_block_size};
+                    obj.matlab_read_info_cache_ = {pos_remain,npix_remain};
                 end
                 obj.read_op_completed_ = read_op_completed;
             end
@@ -224,13 +244,30 @@ classdef hdf_pix_group < handle
                 end
             end
         end
-        function [npix_read,pos_in_first_block] = get_read_info(obj)
+        function [npix_read,pos_in_block] = get_read_info(obj)
             % return the information about current state of pixels read operations
             %
+            % The method is mainly used for testing so information in mex
+            % and Matlab modes is different
+            % in mex mode it returns
+            % npix_read -- number of last block where a subsequent read operation
+            %              should start
+            % pos_in_block -- the initial position in the first pixel
+            %                  block where read should start
+            %In matlab mode:
+            % npix_read  -- sizes of blocks of pixlels left to read
+            % pos_in_block -- the initial positions of the blocks to read
+            %                 in the pixels array
             if obj.use_mex_to_read
-                [npix_read,pos_in_first_block] = hdf_mex_reader('get_read_info',obj.mex_read_handler_);
+                [npix_read,pos_in_block] = hdf_mex_reader('get_read_info',obj.mex_read_handler_);
             else
-                error('HDF_PIX_GROUP:not_implemented','The operation is not yet implemented');
+                if isempty(obj.matlab_read_info_cache_)
+                    npix_read=[];
+                    pos_in_block=[];
+                else
+                    npix_read = obj.matlab_read_info_cache_{2};
+                    pos_in_block = obj.matlab_read_info_cache_{1};
+                end
             end
         end
         
@@ -263,7 +300,8 @@ classdef hdf_pix_group < handle
         
         %------------------------------------------------------------------
         function delete(obj)
-            % close pixel related intormation
+            % close pixel related intormation on files and delete it
+            % from memory
             delete_hdf_objects(obj);
         end
     end
