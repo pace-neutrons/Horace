@@ -490,6 +490,29 @@ classdef test_hdf_pix_group < TestCase
             
         end
         
+        function test_pix_ranges(obj)
+            f_name = [tempname,'.nxsqw'];
+            
+            clob2 = onCleanup(@()delete(f_name));
+            
+            arr_size = 1000;
+            pix_acc = hdf_pix_group(f_name,arr_size,1024);
+            assertTrue(exist(f_name,'file')==2);
+            
+            assertEqual(pix_acc.pix_range,[inf(9,1),-inf(9,1)]);
+            
+            data = repmat(1:arr_size,9,1);
+            pix_acc.write_pixels(1,data);
+            assertEqual(pix_acc.pix_range,[ones(9,1),1000*ones(9,1)]);
+            
+            delete(pix_acc);
+            
+            pix_read = hdf_pix_group(f_name);
+            assertEqual(pix_read.pix_range,[ones(9,1),1000*ones(9,1)]);
+            delete(pix_read);
+            
+            clear clob2;
+        end
     end
     
 end

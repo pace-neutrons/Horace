@@ -76,8 +76,8 @@ if ~(use_mex_to_read || use_matlab_to_read) % use configuration to verify what t
     use_mex_to_read  = hc.use_mex;
 end
 if use_mex_to_read
-    if ~(exist(filename,'file')==2)
-        use_mex_to_read = false;
+    if ~(exist(filename,'file')==2) % Let's assume for now that if a file exist, it allways contain full information.
+        use_mex_to_read = false;    % if it created, mex is unappropriate for reading.
         obj.use_mex_to_read_ = false;
     end
 else
@@ -118,11 +118,19 @@ group_name = 'pixels';
 if use_mex_to_read
     [~,~,obj.max_num_pixels_ ,obj.chunk_size_ ,obj.cache_nslots_,obj.cache_size_] =...
         hdf_mex_reader('get_file_info',obj.mex_read_handler_);
+    % pixels range:
+    obj.fid_ = H5F.open(filename);
+    obj.pix_group_id_ = H5G.open(obj.fid_,[obj.nexus_group_name_,'/',group_name]);
+    if obj.pix_group_id_<0
+        error('HDF_PIX_GROUP:runtime_error',...
+            'can not open pixels group');
+    end    
+    read_pix_range_(obj);
 else
     obj.pix_data_id_ = H5T.copy('H5T_NATIVE_FLOAT');
     if H5L.exists(fid,group_name,'H5P_DEFAULT')
         open_existing_dataset_matlab_(obj,fid,pix_size_defined,n_pixels,chunk_size,group_name);
-        
+        read_pix_range_(obj);
     else
         if nargin<1
             error('HDF_PIX_GROUP:invalid_argument',...
@@ -133,6 +141,7 @@ else
                 'New new pixels group beeing created within existing nxsqw file, but the pixel number in this group is not defined');
         end
         create_pix_dataset_(obj,fid,group_name,n_pixels,chunk_size);
+        write_pix_range_(obj);
     end
     block_dims = [obj.chunk_size_,9];
     obj.io_mem_space_ = H5S.create_simple(2,block_dims,block_dims);
