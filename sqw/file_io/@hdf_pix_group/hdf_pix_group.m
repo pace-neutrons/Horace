@@ -2,6 +2,47 @@ classdef hdf_pix_group < handle
     % Helper class to control I/O operations over pixels stored in hdf sqw
     % file.
     %
+    % Usage:
+    %>>obj = hdf_pix_group(); -- create uninitialized version of the
+    %                            class for further initialization
+    %                            and operations
+    %
+    
+    %>>obj = hdf_pixel_group(filename,['-use_mex_to_read'|'-use_matlab_to_read']);
+    %          open existing pixels group for IO operations.
+    %          Throws if the group does not exist.
+    %          a writing (if any) occurs into the existing group
+    %          allowing to modify the contents of the pixel array.
+    %
+    %>>obj = hdf_pixel_group(filename,n_pixels,[chunk_size],...
+    %                       ['-use_mex_to_read'|'-use_matlab_to_read']);
+    %          creates pixel group to store specified number of
+    %          pixels.
+    % If the group does not exist, additional parameters describing
+    % the pixel array size have to be specified. If it does exist,
+    % all input parameters except fid will be ignored
+    %
+    % Inputs:
+    % filename -- nxnsqw file name containing sqw object information
+    %
+    % n_pixels -- number of pixels to be stored in the pix dataset.
+    %
+    %
+    % chunk_size -- if present, specifies the chunk size of the
+    %               chunked hdf dataset to create. If not, default
+    %               class value is used
+    %          If the pixel dataset exists, and  its sizes are
+    %          different from the values, provided with this
+    %          command, the dataset will be recreated with new
+    %          parameters. Old dataset contents will be destroyed.
+    %,'-use_mex_to_read'|'-use_matlab_to_read' -- redefine the
+    %          Horace configuration setting and force using mex code/matlab code
+    %          to read pixels information. If absent,
+    %          hor_config.use_mex option is used to establish
+    %          operation mode.
+    %
+    
+    %
     % $Revision$ ($Date$)
     %
     
@@ -40,7 +81,8 @@ classdef hdf_pix_group < handle
         io_chunk_size_    = 0;
         
         %
-        pix_range_ = [inf,-inf;inf,-inf;inf,-inf;inf,-inf];
+        pix_min_ =  inf(9,1)
+        pix_max_ = -inf(9,1);
         
         % The full name of nxspe file, used for IO operations.
         filename_ = ''
@@ -71,46 +113,8 @@ classdef hdf_pix_group < handle
     
     methods
         function obj = hdf_pix_group(varargin)
-            % Open existing or create new pixels group in existing hdf file.
-            % Usage:
-            %>>obj = hdf_pix_group(); -- create uninitialized version of the
-            %                           class for further initialization
-            %                           and operations
-            %
-            
-            %>>obj = hdf_pixel_group(filename,['-use_mex_to_read'|'-use_matlab_to_read']);
-            %          open existing pixels group for IO operations.
-            %          Throws if the group does not exist.
-            %          a writing (if any) occurs into the existing group
-            %          allowing to modify the contents of the pixel array.
-            %
-            %>>obj = hdf_pixel_group(filename,n_pixels,[chunk_size],...
-            %                       ['-use_mex_to_read'|'-use_matlab_to_read']);
-            %          creates pixel group to store specified number of
-            %          pixels.
-            % If the group does not exist, additional parameters describing
-            % the pixel array size have to be specified. If it does exist,
-            % all input parameters except fid will be ignored
-            %
-            % Inputs:
-            % filename -- nxnsqw file name containing sqw object information
-            %
-            % n_pixels -- number of pixels to be stored in the pix dataset.
-            %
-            %
-            % chunk_size -- if present, specifies the chunk size of the
-            %               chunked hdf dataset to create. If not, default
-            %               class value is used
-            %          If the pixel dataset exists, and  its sizes are
-            %          different from the values, provided with this
-            %          command, the dataset will be recreated with new
-            %          parameters. Old dataset contents will be destroyed.
-            %,'-use_mex_to_read'|'-use_matlab_to_read' -- redefine the
-            %          Horace configuration setting and force using mex code/matlab code
-            %          to read pixels information. If absent,
-            %          hor_config.use_mex option is used to establish
-            %          operation mode.
-            %
+            % instansiate hdf_pix group and open existing or create new
+            % pixels group located in hdf file.
             if nargin == 0
                 return;
             end
@@ -127,15 +131,46 @@ classdef hdf_pix_group < handle
             init_(obj,varargin{:});
         end
         %
-        function write_pixels(obj,start_pos,pixels)
+        function write_pixels(obj,start_pos,pixels,varargin)
             % write block of pixels into the selected position of
             % hdf5 pixels array.
             %
+            % usage:
+            % pix_writer.write_pixels(start_pos,pixels,[urange_in])
             % Inputs:
             % start_pos -- the location of the block of pixels within
             %              file-based pixel array. (Matlab/FORTRAN
             %              convention first pixel number is 1)
-            write_pixels_matlab_(obj,start_pos,pixels)
+            % pixels    -- 9xNpix array of pixels to write
+            %Optinal:
+            % urange_in -- if present, array of size 9x2 or 4x2. If it
+            %              present,
+            %              do not calculate pixels range but use the one,
+            %              provided as input
+            %
+            if nargin>3
+                urange = varargin{1};
+                if size(urange,1) ~=9
+                    if size(urange,1)==4
+                        umin = [urange(:,1);inf(5,1)];
+                        umax = [urange(:,2);-inf(5,1)];                        
+                        [umin,umax] = calc_urange_(obj,pixels,[umin,umax]);
+                    else
+                        error('HDF_PIX_GROUP:invalid_argument',...
+                            'pixels range, if present, should be array of size [9x2], but is [%dx%d]',...
+                            size(urange));
+                    end
+                end
+                
+            else
+                [umin,umax] = calc_urange_(obj,pixels);
+            end
+            write_pixels_matlab_(obj,start_pos,pixels);
+            if any(umin < obj.pix_min_ | umax>obj.pix_max_)
+                obj.pix_min_ = umin;                
+                obj.pix_max_ = umax;                                
+                write_pix_range_(obj);
+            end
         end
         %
         function [pixels,read_op_completed]= read_pixels(obj,blocks_pos,pix_block_size,buf_size,varargin)
@@ -178,10 +213,10 @@ classdef hdf_pix_group < handle
             % In the mex mode, if the previous read operation
             % is not completed (more data specified in npix array than
             % the buffer requested) and the next operation starts with new
-            % pix/npix data, cache stil refers to the rest of the previous
+            % pix/npix data, cache still refers to the rest of the previous
             % read operation and the behavior is undefined.
             % In Matlab access mode, new data will be ignored until cache
-            % is exausted.
+            % is exhausted.
             %
             % ALWYS USE read_op_completed = true when providing new
             % pix/npix data to read, which will reset the cache.
@@ -255,7 +290,7 @@ classdef hdf_pix_group < handle
             % pos_in_block -- the initial position in the first pixel
             %                  block where read should start
             %In matlab mode:
-            % npix_read  -- sizes of blocks of pixlels left to read
+            % npix_read  -- sizes of blocks of pixels left to read
             % pos_in_block -- the initial positions of the blocks to read
             %                 in the pixels array
             if obj.use_mex_to_read
@@ -279,7 +314,7 @@ classdef hdf_pix_group < handle
             np  = obj.max_num_pixels_;
         end
         function range = get.pix_range(obj)
-            range  = obj.pix_range_;
+            range  = [obj.pix_min_,obj.pix_max_];
         end
         function sz = get.cache_size(obj)
             sz = uint32(obj.cache_size_/(36));
@@ -300,7 +335,7 @@ classdef hdf_pix_group < handle
         
         %------------------------------------------------------------------
         function delete(obj)
-            % close pixel related intormation on files and delete it
+            % close pixel related information on files and delete it
             % from memory
             delete_hdf_objects(obj);
         end

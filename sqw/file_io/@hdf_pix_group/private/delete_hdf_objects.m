@@ -19,12 +19,16 @@ end
 if isempty(obj.old_style_fid_)
     if ~isempty(obj.fid_)
         H5F.close(obj.fid_)
+        obj.fid_ = [];
     end
 else
     H5G.colse(obj.fid_);
     H5F.close(obj.old_style_fid_)
+    obj.fid_ = [];
+    obj.old_style_fid_=[];
 end
 obj.use_mex_to_read_ = [];
 obj.matlab_read_info_cache_ ={};
-obj.pix_range_  = [inf,-inf;inf,-inf;inf,-inf;inf,-inf];
+obj.pix_min_  =  inf(9,1);
+obj.pix_max_  = -inf(9,1);
 
