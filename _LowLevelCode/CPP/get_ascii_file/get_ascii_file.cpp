@@ -133,7 +133,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ]){
 
 //----------> INPUT PARAMETERS: Analyze, which file type is requested
   currentFileType=iNumFileTypes; // set the current file type to the value, which it can never have for a valid file type;
-  if(nrhs==iNumInputs){          // second parameter is present and we should analyse it
+  if(nrhs==iNumInputs){          // second parameter is present and we should analyze it
       if(!mxIsChar(prhs[iFileType])||(mxGetM(prhs[iFileType]))!=1){  // not a file type
             buf<<"second parameter, if present has to be a scalar string, which specify a file type\n";      goto error;
       }else{                                                         // get file type
