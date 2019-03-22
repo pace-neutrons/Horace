@@ -66,7 +66,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
     double efix,k_to_e;
     urangeModes uRange_mode;
 
-    const char REVISION[]="$Revision::      $ ($Date::                                              $)";
+    const char REVISION[]="$Revision:: 1524 $ ($Date:: 2017-09-27 15:48:11 +0100 (Wed, 27 Sep 2017) $)";
     if(nrhs==0&&nlhs==1){
         plhs[0]=mxCreateString(REVISION); 
         return;
