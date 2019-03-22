@@ -101,7 +101,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ]){
   fileTypesAccepted[iNumFileTypes]="undefined";
 
 //--------->  ANALYSE INPUT PARAMETERS;
-  const char REVISION[]="$Revision::      $ ($Date::                                              $)";
+  const char REVISION[]="$Revision$ ($Date$)";
   if(nrhs==0&&nlhs==1){
         plhs[0]=mxCreateString(REVISION); 
         return;
@@ -159,7 +159,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ]){
       }
   }  // second parameter is present and have been identified;
 
-//----------> INPUT PARAMETERS: open file and analyse,  it its type is the same as the type requested plus get other service information;
+//----------> INPUT PARAMETERS: open file and analyze,  it its type is the same as the type requested plus get other service information;
     try{
         FILE_TYPE=get_ASCII_header(inputFileName,data_stream);
     }catch(const char *Error){
