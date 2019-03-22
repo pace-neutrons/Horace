@@ -6,7 +6,7 @@
 
 #define iRound(x)  (int)floor((x)+0.5)
 //
-// $Revision::      $ ($Date::                                              $)" 
+// $Revision:: 1524 $ ($Date:: 2017-09-27 15:48:11 +0100 (Wed, 27 Sep 2017) $)" 
 //
 enum program_settings {
     Ignore_Nan,

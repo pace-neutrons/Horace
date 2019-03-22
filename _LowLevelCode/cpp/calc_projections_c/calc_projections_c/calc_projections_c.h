@@ -1,7 +1,7 @@
 // stdafx.h : include file for standard system include files,
 // or project specific include files that are used frequently, but
 // are changed infrequently
-// $Revision$ $Date$
+// $Revision: 1524 $ $Date: 2017-09-27 15:48:11 +0100 (Wed, 27 Sep 2017) $
 
 #ifndef H_CALC_PROJECTIONS_C
 #define H_CALC_PROJECTIONS_C
@@ -10,7 +10,7 @@
 #include "../../../build_all/CommonCode.h"
 
 
-// $Revision$ $Date$
+// $Revision: 1524 $ $Date: 2017-09-27 15:48:11 +0100 (Wed, 27 Sep 2017) $
 enum eMode
 {
   Elastic,
