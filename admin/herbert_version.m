@@ -37,7 +37,7 @@ application.name='herbert';
 
 application.version=1;
 
-Matlab_SVN='$Revision::      $ ($Date::                                              $)';
+Matlab_SVN='$Revision:: 822  $ ($Date:: 2019-01-03 11:23:07 +0000 (Thu, 03 Jan 2019) $)';
 
 % % Information about name and version of application
 mexMinVer     = 'disabled';
