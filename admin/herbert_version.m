@@ -7,7 +7,7 @@ function [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=herbert_version(varar
 % [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=horace_version('brief')
 % 
 % where application is a structure containing the fields with program name
-% (horace)and horace release version. 
+% (Horace)and Horace release version. 
 %
 % if horace_version is called with parameter, the function
 % returns revision data (Matlab_SVN) as number rather then string
@@ -15,7 +15,7 @@ function [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=herbert_version(varar
 %
 %
 % An pre-commit hook script provided as part of the package 
-% has to be enabled on svn and svn file properies 
+% has to be enabled on svn and svn file properties 
 % (Keywords) Date and Revision should be set on this file 
 % to support valid Matlab versioning.
 %
@@ -37,7 +37,7 @@ application.name='herbert';
 
 application.version=1;
 
-Matlab_SVN='$Revision:: 822  $ ($Date:: 2019-01-03 11:23:07 +0000 (Thu, 03 Jan 2019) $)';
+Matlab_SVN='$Revision$ ($Date$)';
 
 % % Information about name and version of application
 mexMinVer     = 'disabled';

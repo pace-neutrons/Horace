@@ -9,7 +9,7 @@ function make_herbert_distribution_kit(varargin)
 %
 %where optional arguments are:
 %'-compact'      -- if present, request dropping the demo and test files
-%                   with test folders, default -- comress demo and tests
+%                   with test folders, default -- compress demo and tests
 %                   together with main code. 
 %
 % the second form is used when script is run within
@@ -17,14 +17,14 @@ function make_herbert_distribution_kit(varargin)
 %
 % 
 % To use Herbert  one has to unpack the resulting zip file and add the folder
-% where the function herbert_init.m resides to the matlab search path. 
+% where the function herbert_init.m resides to the Matlab search path. 
 % alternatively, you can edit the file herbert_init.m.template, file and 
 % replace the variable $libisis_path$ and $Horathe_path$ by the actual
 % folders  where the files herbert_init.m  and add to the search path the file
 % herbert_on.m, 
 % after renaming the file herbert_on.m.template to file herbert_on.
 % 
-% if called withoug parameters, this function p-codes Horace private
+% if called without parameters, this function p-codes Horace private
 % folders, and removes C source code folders and if with parameter 
 % -- compress everything as it is which makes code suitable for further 
 % development. 
@@ -70,14 +70,14 @@ if nargin>0
         horace_target_path = varargin{1};
         if ~exist(horace_target_path,'dir')
             error('MAKE_HERBERT_DISTRIBUTION_KIT:invalid_argument',...
-                'Herbert distribuiton is run by Horace but Horace target folder: %s does not exist',horace_target_path);
+                'Herbert distribution is run by Horace but Horace target folder: %s does not exist',horace_target_path);
         end
     end
 end
 %
 disp('!===================================================================!')
-disp('!==> Preparing HERBERT distributon kit  ============================!')
-disp('!    Start collecting the Herebert program files ===================!')
+disp('!==> Preparing HERBERT distribution kit  ===========================!')
+disp('!    Start collecting the Herbert program files ====================!')
 %
 current_dir  = pwd;
 build_dir   =  current_dir; 
@@ -85,7 +85,7 @@ if run_by_horace
     build_dir = horace_target_path;
 end
 
-% if inside herbert package dir, go avay from there:
+% if inside Herbert package dir, go away from there:
 if strncmpi(build_dir,rootpath,numel(rootpath))
 	cd(rootpath);
 	cd('../');
