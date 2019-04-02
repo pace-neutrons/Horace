@@ -1,12 +1,12 @@
 function [rev_n,datetm] = parse_rev_file(in_file_name)
 % Parse revision file and increase the revision number by one
-% and revision data -- to current date.
+% and revision date -- to the current date.
 % 
-% Return new revision numeber. 
+% Return new revision numeber and revision date. 
 %
-
-%keywords = {'$Revision$Date:'};
-
+%
+%keywords = {'$Revision:','$Date:'};
+%
 fh = fopen(in_file_name,'rb+');
 if fh<0
     error('PARCE_REVISION:runtime_error',...
@@ -19,13 +19,13 @@ if isempty(cont)
     error('PARCE_REVISION:runtime_error',...
         ' Empty revision file %s',in_file_name);
 end
-[startIndex,endIndex] = regexp(cont','(?<=\$Revision$)');
+[startIndex,endIndex] = regexp(cont','(?<=\$Revision::).*?(?=\$)');
 
 [rev_n,cont] = replace_revision(cont,startIndex,endIndex);
 
 datetm = char(datetime('now','timezone','local','Format',...
     'yyyy-MM-dd HH:mm:ss Z (eee, d MMM yyy)'));
-cont = regexprep(cont','(?<=\$Date$)',datetm);
+cont = regexprep(cont','(?<=\$Date::).*?(?= \$)',datetm);
 
 
 fseek(fh,0,'bof');
