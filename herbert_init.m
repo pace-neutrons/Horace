@@ -1,4 +1,4 @@
-function herbert_init
+function herbert_init   
 % Adds the paths needed by Herbert.
 %
 % In your startup.m, add the Herbert root path and call herbert_init, e.g.
