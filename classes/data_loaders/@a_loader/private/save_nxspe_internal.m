@@ -3,7 +3,7 @@ function save_nxspe_internal(this,filename,efix,psi,varargin)
 % inputs:
 % filename -- the name of the file to write data to. Should not exist
 % efix     -- incident energy for direct or indirect instrument. Only
-%             direct is currently supported through NEXUS instrument as 
+%             direct is currently supported through NEXUS instrument as
 %             I've newer seen indirect nxspe (though it can work)
 % Optional variables:
 % psi      -- the rotation angle of crystal. will write NaN into file if
@@ -12,11 +12,11 @@ function save_nxspe_internal(this,filename,efix,psi,varargin)
 % file_access -- w, a options define readwrite or write access to the
 %                file. (see Matlab manual for details of these options)
 %                Adding to existing nxspe file is not currently supported,
-%                so the only difference between the options is that method 
+%                so the only difference between the options is that method
 %                will thow  if the file, opened in read-write mode exist.
 %
-%                Existing file in write mode will be silently 
-%                overwritten. 
+%                Existing file in write mode will be silently
+%                overwritten.
 %
 % $Author: Alex Buts; 05/01/2014
 %
@@ -33,15 +33,15 @@ end
 filename = fullfile(filepath,[fname,'.nxspe']);
 
 readwrite_access = true;
-if ap  
+if ap
     readwrite_access = true;
 end
 if write_access
-   readwrite_access =false;
+    readwrite_access =false;
 end
 
 % check inputs and set defaults.
-if exist(filename,'file') 
+if exist(filename,'file')
     if readwrite_access
         error('A_LOADER:saveNXSPE','File %s already exist',filename);
     else
@@ -115,9 +115,9 @@ fid = H5F.create(filename,'H5F_ACC_TRUNC',fcpl,fapl);
 %
 % make this file look like real nexus
 if matlab_version_num()<=7.07
-    %pNew->iVID=H5Gopen(pNew->iFID,"/");    
+    %pNew->iVID=H5Gopen(pNew->iFID,"/");
     file = fid;
-    fid = H5G.open(fid,'/');    
+    fid = H5G.open(fid,'/');
 end
 write_attr_group(fid,file_attr);
 
@@ -154,8 +154,8 @@ H5P.close(fapl);
 if exist('file','var')
     H5G.close(fid);
     H5F.close(file);
-else    
-    H5F.close(fid);    
+else
+    H5F.close(fid);
 end
 end
 
@@ -280,7 +280,5 @@ H5T.close(int_id);
 H5T.close(double_id);
 H5S.close(space_id);
 H5G.close(group_id);
-end
-%
 end
 %
