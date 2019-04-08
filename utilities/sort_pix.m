@@ -26,7 +26,7 @@ function   pix = sort_pix(pix_retained,pix_ix_retained,npix,varargin)
 %pix  array of pixels sorted into 1D array according to indexes provided
 %
 %
-% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
+% $Revision:: 1750 ($Date:: 2019-04-08 17:55:21 +0100 (Mon, 8 Apr 2019) $)
 %
 
 %  Process inputs
