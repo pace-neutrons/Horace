@@ -27,7 +27,7 @@ function plist_new = multifit_gateway_parameter_set (plist, pnew)
  
 % Original author: T.G.Perring 
 % 
-% $Revision$ ($Date$) 
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $) 
 
 
 plist_new = parameter_set (plist, pnew);

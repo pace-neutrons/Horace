@@ -19,7 +19,7 @@ function config_data=get_config_(this,class_to_restore)
 % and stays there for further usage. 
 %
 %
-% $Revision$ ($Date$)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 %
 if ischar(class_to_restore)
     class_name = class_to_restore;

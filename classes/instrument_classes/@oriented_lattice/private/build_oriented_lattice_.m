@@ -1,7 +1,7 @@
 function lattice = build_oriented_lattice_(lattice,varargin)
 % build oriented lattice from any form of constructor input
 %
-% $Revision$ ($Date$)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 %
 
 if isa(varargin{1},'oriented_lattice') % copy constructor

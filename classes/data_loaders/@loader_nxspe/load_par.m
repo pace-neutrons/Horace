@@ -46,11 +46,11 @@ function [det,this]=load_par(this,varargin)
 %           Note the reversed sign convention wrt the .par files. For details, see: SavePAR v
 % 5th (4) 	angular width e.g. delta scattered angle (deg)
 % 6th (5)	angular height e.g. delta azimuthal angle (deg)
-% 7th (6)	 detector ID   – this is Mantid specific value, which may not hold similar meaning in files written by different applications.
+% 7th (6)	 detector ID   - this is Mantid specific value, which may not hold similar meaning in files written by different applications.
 %
 % In standard phx file only the columns 3,4,5 and 6 contain useful information.
 % You can expect to find column 1 to be the secondary flightpath and the column
-% 7 – the detector ID in Mantid-generated phx files only or in
+% 7 - the detector ID in Mantid-generated phx files only or in
 % the files read from nxspe source
 %
 % reader ignores column 2, so -getphx option returns array of
@@ -59,7 +59,7 @@ function [det,this]=load_par(this,varargin)
 %
 
 %
-% $Revision$ ($Date$)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 %
 options = {'-nohorace','-array','-horace','-forcereload','-getphx'}; % if options changes, parse_par_file_arg should also change
 [return_array,reload,file_provided,getphx,new_file_name,lext]=parse_par_file_arg(this,options,varargin{:});

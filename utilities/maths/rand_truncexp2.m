@@ -20,7 +20,7 @@ function X = rand_truncexp2 (x0,varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 
 
 isx0inf=isinf(x0);

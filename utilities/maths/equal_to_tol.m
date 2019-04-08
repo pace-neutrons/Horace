@@ -104,7 +104,7 @@ function [ok,mess]=equal_to_tol(a,b,varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 
 
 % The following code is pretty complex as it has to handle legacy input as

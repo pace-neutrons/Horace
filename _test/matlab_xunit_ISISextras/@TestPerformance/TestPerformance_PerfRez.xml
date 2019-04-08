@@ -30,9 +30,9 @@
    </scarf_TestPerformance>
    <ndlt1121_TestPerformance>
       <test_constructor_operations>
-         <time_sec>0.000648462695587844</time_sec>
+         <time_sec>0.000450291931628971</time_sec>
          <comment>this is not a performance test itself but the test of performance test operational</comment>
-         <completed_on>[2019 4 2 17 6 7.912]</completed_on>
+         <completed_on>[2019 4 8 16 26 13.776]</completed_on>
       </test_constructor_operations>
    </ndlt1121_TestPerformance>
 </TestPerformance>

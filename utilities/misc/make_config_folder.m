@@ -33,7 +33,7 @@ function folder_path=make_config_folder(folder_name,in_folder_path)
 % usually the same for a given machine, so the path to the configurations
 % will be the same next next time the function is called.
 
-% $Revision$ ($Date$)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 
 if exist('in_folder_path','var')
     [success,folder_path,err_mess] = try_to_create_folder(in_folder_path,folder_name);

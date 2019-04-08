@@ -17,7 +17,7 @@ classdef IX_axis
     %                               positions    tick positions (numeric array)
     %                               labels       cell array of tick labels
     %
-    % $Revision$ ($Date$)
+    % $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
     %
     properties(Dependent)
         caption

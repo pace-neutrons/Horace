@@ -73,7 +73,7 @@ function fitdata = repackage_output_parameters (p_best, sig, cor, chisqr_red, co
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 
 
 [p_tmp,bp_tmp]=ptrans_par(p_best,p_info);

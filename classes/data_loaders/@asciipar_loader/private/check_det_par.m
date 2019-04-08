@@ -2,7 +2,7 @@ function [det_par,n_det,file_name] = check_det_par(value)
 % method checks if value can represent par file and detectors coordinates
 % and converts this value into format, used in det_par field
 %
-% $Revision$ ($Date$)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 %
 file_name='';
 if isempty(value)

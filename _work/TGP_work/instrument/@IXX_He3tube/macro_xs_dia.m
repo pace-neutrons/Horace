@@ -45,7 +45,7 @@ function alf = macro_xs_dia (obj, ind, wvec)
 
 % Original author: T.G.Perring
 %
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 
 
 % Define constant so that alf=const*atms*inner_rad(m)/(wvec*sintheta)
@@ -65,3 +65,4 @@ else    % both non-scalar
         reshape(obj.inner_rad(ind).*obj.atms(ind)./obj.sintheta_(ind), size(wvec))) ./ wvec;
     
 end
+

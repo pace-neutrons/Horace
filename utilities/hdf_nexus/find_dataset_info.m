@@ -36,7 +36,7 @@ function [dataset_info,ds_group_path] = find_dataset_info(Groups,the_group_name,
 %
 % $Author: Alex Buts; 20/10/2011
 %
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 %
 %
 %--> clear search request
@@ -158,3 +158,4 @@ for i=1:numel(dataset_info.Datasets)
 end
 ds_full_name ='';
    
+

@@ -18,7 +18,7 @@ function this=select_loader(this,varargin)
 %
 % $Author: Alex Buts 20/10/2011
 %
-% $Revision$ ($Date$)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 %
 
 if nargin==1; return; end

@@ -375,7 +375,7 @@ function [wout, fitdata, ok, mess] = fit_legacy(win, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 
 
 % *** This function is identical for IX_dataset_1d, _2d, _3d, ...

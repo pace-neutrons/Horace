@@ -4,7 +4,7 @@ function str=arraystr(sz,i)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 
 
 if numel(sz)==2 && (sz(1)==1 ||sz(2)==1)

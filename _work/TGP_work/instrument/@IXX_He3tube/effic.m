@@ -24,10 +24,11 @@ function val = effic (obj, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 
 
 [ind, wvec] = parse_ind_and_wvec_ (obj, varargin{:});
 alf = macro_xs_dia (obj, ind, wvec);
 
 val = effic_alf (alf);
+

@@ -45,7 +45,7 @@ function data_out = repackage_output_datasets(data, w, msk, keep_only_unmasked)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 
 
 if numel(w)==1 && numel(data)==3

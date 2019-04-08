@@ -3,7 +3,7 @@ function obj = start_workers_(obj,je_init_message,task_init_mess,log_prefix)
 % response informing that the job has started
 %
 %
-% $Revision$ ($Date$)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 %
 
 

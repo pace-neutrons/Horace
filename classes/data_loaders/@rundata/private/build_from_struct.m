@@ -2,7 +2,7 @@ function this=build_from_struct(this,a_struct,varargin)
 % function to fill the rundata class from data, defined in the input
 % structure,class or their combinations
 %
-% $Revision$ ($Date$)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 %
 
 if isempty(a_struct)
@@ -54,7 +54,6 @@ function this= parse_arg(this,varargin)
 %                source.a==10 and source.b=='something'
 %
 %
-% $Revision$ ($Date$)
 %
 
 % Parse arguments;

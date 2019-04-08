@@ -23,7 +23,7 @@ function S=get_all(this,opt)
 %
 
 
-% $Revision$ ($Date$)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 
 if nargin==1
     S=config_store(false);

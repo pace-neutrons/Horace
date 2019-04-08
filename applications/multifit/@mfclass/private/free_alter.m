@@ -35,7 +35,7 @@ function Sfun = free_alter (Sfun_in, isfore, indfun, free)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 
 
 % Fill output with default structure

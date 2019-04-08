@@ -1,7 +1,7 @@
 classdef job_dispatcher_common_tests< MPI_Test_Common
     % The tests used by any parallel job dispatchers
     %
-    % $Revision$ ($Date$)
+    % $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
     %
     
     properties

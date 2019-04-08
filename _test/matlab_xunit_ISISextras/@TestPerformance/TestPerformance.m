@@ -31,7 +31,7 @@ classdef TestPerformance < TestCaseWithSave
     % The host_name is the variable combined from the prefix containing the
     % output of Herbert getHostName function
     %
-    % $Revision$ ($Date$)
+    % $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
     %
     properties(Dependent)
         % current performance suite name to run.

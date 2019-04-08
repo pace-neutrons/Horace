@@ -15,7 +15,7 @@ function ok=equal_to_relerr(x1,x2,tol,min_denominator)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 
 if all(x1(:)==x2(:))
     ok=true;

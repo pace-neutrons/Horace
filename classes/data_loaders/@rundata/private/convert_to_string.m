@@ -3,7 +3,7 @@ function str= convert_to_string(run)
 % allowing later conversion back into the run
 %
 %
-% $Revision$ ($Date$)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 %
 v = serialize_(run);
 str_arr =num2str(v);

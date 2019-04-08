@@ -73,7 +73,7 @@ function [ok, mess, wout] = is_valid_data (class_name, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 
 
 narg=numel(varargin);

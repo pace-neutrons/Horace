@@ -3,7 +3,7 @@ function self = replot_figs_(self,varargin)
 % placing subsequent figures one after another,
 % (possibly using new pictures sizes)
 %
-% $Revision$ ($Date$)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 %
 size = self.fig_size;
 if verLessThan('matlab','8.4')

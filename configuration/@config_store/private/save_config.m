@@ -13,7 +13,7 @@ function [ok,mess] = save_config (file_name, config_data)
 %   ok              true if saved ok; false otherwise
 %   mess            message if not ok (empty otherwise)
 
-% $Revision$ ($Date$)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 
 
 % Delete existing configuration file, if there is one

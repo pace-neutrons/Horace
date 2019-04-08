@@ -8,7 +8,7 @@ classdef IXX_He3tube
     
     % Original author: T.G.Perring
     %
-    % $Revision: 841 $ ($Date: 2019-02-11 14:13:46 +0000 (Mon, 11 Feb 2019) $)
+    % $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
     
     properties (Access=private)
         % Stored properties - but kept private and accessible only through
@@ -223,3 +223,4 @@ function [s,c] = sincos (val)
 s = sin(val);
 c = cos(val);
 end
+

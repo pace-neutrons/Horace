@@ -12,7 +12,7 @@ function [prop_value,out] =get_config_val_internal(this,class_name,prop_name,var
 % the value of the requested property.
 %
 %
-% $Revision$ ($Date$)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 %
 
 if isa(class_name,'config_base') % should be class instance;

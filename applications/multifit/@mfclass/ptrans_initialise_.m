@@ -68,7 +68,7 @@ function [ok_sim, ok_fit, mess, pf, p_info] = ptrans_initialise_ (obj)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 
 
 % Return values if error

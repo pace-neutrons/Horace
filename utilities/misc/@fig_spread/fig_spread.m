@@ -19,7 +19,7 @@ classdef fig_spread
     %close_all   - delete all controlled figures
     %
     %
-    % $Revision$ ($Date$)
+    % $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
     %
     properties(Dependent)
         % current number of fig handles the class contains (including deleted figures)

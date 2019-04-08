@@ -19,7 +19,7 @@ function p = genpath_special (d)
 %   See also PATH, ADDPATH, RMPATH, SAVEPATH.
 
 %   Copyright 1984-2006 The MathWorks, Inc.
-%   $Revision$ $Date$
+%   $Revision:: 830 ($Date:: 2019-04-08 14:20:59 +0100 (Mon, 8 Apr 2019) $
 %------------------------------------------------------------------------------
 
 if nargin==0,

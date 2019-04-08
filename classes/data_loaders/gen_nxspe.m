@@ -72,7 +72,7 @@ function varargout = gen_nxspe(S,ERR,en,par_file,nxspe_file,efix, varargin)
 %         or gen_sqw for detailed description of these parameters
 %
 %
-% $Revision$ ($Date$)
+% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
 %
 
 %

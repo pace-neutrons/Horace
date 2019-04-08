@@ -41,7 +41,7 @@ classdef oriented_lattice
     % All angular units set in degrees but can be retrieved in degrees
     % or radians.
     %
-    % $Revision$ ($Date$)
+    % $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
     %
     %
     % On 2017/03 it is far from completion and have many of its methods
