@@ -13,7 +13,7 @@ class sqw_reader
     cashed in a buffer and provided from the buffer if available
 
     %
-    % $Revision: 1524 $($Date : 2015 - 12 - 07 21 : 20 : 34 + 0000 (Mon, 07 Dec 2015) $)
+    % $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
     %
     */
 public:
@@ -80,5 +80,7 @@ private:
 
 };
 
+
+#endif
 
 #endif

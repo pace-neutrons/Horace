@@ -7,7 +7,7 @@
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
 
-	const char REVISION[] = "$Revision:: 1745 $ ($Date:: 2019-03-18 22:13:41 +0000 (Mon, 18 Mar 2019) $)";
+	const char REVISION[] = "$Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)";
 	if (nrhs == 0 && nlhs == 1) {
 		plhs[0] = mxCreateString(REVISION);
 		return;

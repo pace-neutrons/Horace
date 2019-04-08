@@ -43,7 +43,7 @@ function varargout=set_instrument_horace(filename,instrument,varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
 if isa(instrument,'function_handle')
     instfunc=instrument; % single function handle
     % Check instrument definition function arguments are OK and consistent

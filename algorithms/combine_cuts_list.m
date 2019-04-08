@@ -37,7 +37,7 @@ function transf_list = combine_cuts_list(data_source,proj,pos,...
 % RAE 30/3/2010
 %
 %
-% $Revision$ ($Date$)
+% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
 %
 %
 %

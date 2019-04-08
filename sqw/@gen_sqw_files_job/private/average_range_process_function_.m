@@ -19,7 +19,7 @@ function [all_ok,err,fin_message] = average_range_process_function_(all_messages
 %                  the function operations. This message will be send to
 %                  the server
 %
-% $Revision$ ($Date$)
+% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
 %
 
 ok = cellfun(@(x)(strcmpi(x.mess_name,mess_name)),all_messages,'UniformOutput',true);

@@ -116,7 +116,7 @@ function wout = cut_sqw_main (data_source, ndims_source, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
 
 
 % *** Currently only works if uoffset(4)=0 for input, output datasets

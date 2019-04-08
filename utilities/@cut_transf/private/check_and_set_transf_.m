@@ -2,7 +2,7 @@ function obj = check_and_set_transf_(obj,new_transf)
 % Function checks if symmetry transformation is well defined and sets this
 % transformation as new symmetry transformation.
 %
-% $Revision$ ($Date$)
+% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
 %
 
 

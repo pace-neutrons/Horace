@@ -20,7 +20,7 @@ function validate_horace(varargin)
 %                                       % default otherwise for Horace to revert to
 %                                       % using matlab code.
 
-% $Revision$ ($Date$)
+% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
 
 %==============================================================================
 % Place list of test folders here (relative to the master _test folder)

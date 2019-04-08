@@ -39,14 +39,14 @@ function weight = spinw_sqw(varargin)
 % Example:
 % --------
 %
-% tri = sw_model(’triAF’,[5 1]);                         % J1=5, J2=1 (AFM)
-% tri = spinw_setpar(tri,’mapping’,{’J1’,’J2’});
-% tri = spinw_setpar(tri,’convolvfn’,@spinw_sho_sqw);
+% tri = sw_model('triAF',[5 1]);                         % J1=5, J2=1 (AFM)
+% tri = spinw_setpar(tri,'mapping',{'J1','J2'});
+% tri = spinw_setpar(tri,'convolvfn',@spinw_sho_sqw);
 % [wf,fp] = fit_sqw(w1,@spinw_sqw,{[J1 J2 gam T ampli] tri});
 
 % Original author: Duc Le
 %
-% $Revision$ ($Date$)
+% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
 
 % Parse input arguments
 if nargin==6

@@ -5,7 +5,7 @@ classdef accumulate_headers_job < JobExecutor
     % range of runfiles
     %
     %
-    % $Revision$ ($Date$)
+    % $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
     %
     
     properties

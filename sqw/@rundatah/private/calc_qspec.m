@@ -22,7 +22,7 @@ function [qspec,en]=calc_qspec (obj,detdcn)
 
 % *** Only emode=1 has been translated to c++ as of 04/09/2009
 %
-% $Revision$ ($Date$)
+% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
 
     
 % Get components of Q in spectrometer frame (x || ki, z vertical)

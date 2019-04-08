@@ -2,7 +2,7 @@ function  obj= get_sqw_footer_(obj)
 % Read sqw object v3 structure to initialize sqw-v3 file reader
 %
 %
-% $Revision$ ($Date$)
+% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
 %
 %
 obj = get_sqw_file_footer(obj);

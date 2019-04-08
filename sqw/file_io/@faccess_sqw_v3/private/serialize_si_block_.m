@@ -2,7 +2,7 @@ function [bytes,data_sz] = serialize_si_block_(obj,data,type)
 % serialize an instrument or sample data block
 %
 %
-% $Revision$ ($Date$)
+% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
 %
 
 %type = class(data); % not yet a class or not always a class!

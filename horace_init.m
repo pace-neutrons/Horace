@@ -8,7 +8,6 @@ function horace_init
 
 % T.G.Perring
 %
-% $Revision$ ($Date$)
 %
 % -----------------------------------------------------------------------------
 % Check if supporting Herbert package is available

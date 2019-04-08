@@ -3,7 +3,7 @@ classdef field_p_size < field_const_array_dependent & iVirt_field
     %
     %
     %
-    % $Revision$ ($Date$)
+    % $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
     %
     methods
         function obj=field_p_size(varargin)

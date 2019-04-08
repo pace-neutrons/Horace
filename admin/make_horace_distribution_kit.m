@@ -30,7 +30,7 @@ function make_horace_distribution_kit(varargin)
 % after renaming the file Horace_on.m.template to horace_on.m.
 %
 %
-% $Revision$ ($Date$)
+% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
 %
 %
 % known keys

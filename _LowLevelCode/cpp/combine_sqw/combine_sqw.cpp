@@ -146,7 +146,7 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
 
-  const char REVISION[] = "$Revision:: 1575 $ ($Date:: 2018-02-02 18:06:13 +0000 (Fri, 02 Feb 2018) $)";
+  const char REVISION[] = "$Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)";
   if (nrhs == 0 && nlhs == 1) {
     plhs[0] = mxCreateString(REVISION);
     return;
@@ -312,4 +312,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   }
   fileReader.clear();
 }
+
+
 
