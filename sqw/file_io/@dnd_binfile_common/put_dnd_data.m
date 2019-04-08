@@ -12,7 +12,7 @@ function obj=put_dnd_data(obj,varargin)
 % if only -update key is specified, the class has to be initialized by appropriate dnd object.
 
 %
-% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
+% $Revision:: 1750 ($Date:: 2019-04-08 17:55:21 +0100 (Mon, 8 Apr 2019) $)
 %
 
 % ignore nopix if it come as input

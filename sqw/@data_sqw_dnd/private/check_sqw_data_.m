@@ -26,7 +26,7 @@ function [ok, type, mess,data] = check_sqw_data_(data, type_in)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
+% $Revision:: 1750 ($Date:: 2019-04-08 17:55:21 +0100 (Mon, 8 Apr 2019) $)
 
 %fields_a = {'filename';'filepath';'title';'alatt';'angdeg';'uoffset';'u_to_rlu';'ulen';'ulabel';'iax';'iint';...
 %    'pax';'p';'dax';'s';'e';'npix';'urange';'pix';'axis_caption'}; % column

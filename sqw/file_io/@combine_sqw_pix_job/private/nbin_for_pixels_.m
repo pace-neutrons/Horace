@@ -31,7 +31,7 @@ function [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] = 
 % of the method functionality
 %
 %
-% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
+% $Revision:: 1750 ($Date:: 2019-04-08 17:55:21 +0100 (Mon, 8 Apr 2019) $)
 %
 
 % Calculate number of pixels to be read from all the files
