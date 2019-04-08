@@ -12,9 +12,6 @@ function varargout = read_horace(files,varargin)
 %
 % Original author: T.G.Perring
 %
-%
-% $Revision:: 1750 ($Date:: 2019-04-08 17:55:21 +0100 (Mon, 8 Apr 2019) $)
-%
 % Read sqw/dnd object from a file or array of sqw/dnd objects from a set of files
 %
 %   >> w=read_horace(file)
@@ -26,8 +23,9 @@ function varargout = read_horace(files,varargin)
 
 % Original author: T.G.Perring
 %
+%
 % $Revision:: 1750 ($Date:: 2019-04-08 17:55:21 +0100 (Mon, 8 Apr 2019) $)
-
+%
 
 % Perform operations
 % ------------------

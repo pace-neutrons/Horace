@@ -4,6 +4,10 @@ function wtot=combine_cuts(w)
 %   >> wtot=combine_cuts(w)
 %
 % Assumes that combining is valid - no checks performed.
+%
+% $Revision:: 1750 ($Date:: 2019-04-08 17:55:21 +0100 (Mon, 8 Apr 2019) $)
+%
+
 
 nw=numel(w);
 if nw==1    % catch case of single cut
@@ -79,9 +83,6 @@ function vout = replicate_array (v, npix)
 %               vout=[v(1)*ones(1:n(1)), v(2)*ones(1:n(2), ...)]'
 
 % Original author: T.G.Perring
-%
-% $Revision:: 1750 ($Date:: 2019-04-08 17:55:21 +0100 (Mon, 8 Apr 2019) $)
-
 if numel(npix)==numel(v)
     % Get the bin index for each pixel
     nend=cumsum(npix(:));
@@ -107,8 +108,6 @@ function wout=recompute_bin_data(w)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1750 ($Date:: 2019-04-08 17:55:21 +0100 (Mon, 8 Apr 2019) $)
-
 wout=w;
 
 % Get the bin index for each pixel
