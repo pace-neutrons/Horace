@@ -31,7 +31,7 @@ function obj = common_init_logic_(obj,varargin)
 %                 additional arguments from above.
 %
 %
-% $Revision$ ($Date$)
+% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
 %
 if nargin<1
     error('SQW_FILE_IO:invalid_argument',...

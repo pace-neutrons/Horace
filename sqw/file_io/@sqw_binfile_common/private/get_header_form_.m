@@ -30,7 +30,7 @@ function header = get_header_form_(varargin)
 %   header.ulabel       Labels of the projection axes [1x4 cell array of character strings]
 %
 %
-% $Revision$ ($Date$)
+% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
 %
 persistent var_part;
 persistent const_part;

@@ -46,7 +46,7 @@ function dout = copydata_dnd (din, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
 
 % numeric scalar
 % numeric array with singleton dimenions

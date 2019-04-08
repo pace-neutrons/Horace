@@ -154,7 +154,7 @@ function ortho_set = build_ortho(vectors,v_sizes,ind1,ind2)
 e1 = vectors(:,ind1)/v_sizes(ind1);
 v2 = vectors(:,ind2);
 
-v2p = v2 - (v2'*e1)*e1; % The Gram–Schmidt orthonormalization
+v2p = v2 - (v2'*e1)*e1; % The GramÿSchmidt orthonormalization
 %sz = sqrt(sum(v2p.*v2p));
 sz = sqrt(v2p'*v2p);
 if sz<1.e-3

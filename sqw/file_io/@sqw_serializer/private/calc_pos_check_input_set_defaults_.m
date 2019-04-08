@@ -22,7 +22,7 @@ function  [obj,pos] = calc_pos_check_input_set_defaults_(obj,input,varargin)
 %
 %
 %
-% $Revision$ ($Date$)
+% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
 %
 
 if isstruct(input)

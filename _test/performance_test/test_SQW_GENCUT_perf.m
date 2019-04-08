@@ -27,7 +27,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
     % files available to user In a future, such file should be auto-generated.
     %
     %
-    % $Revision$ ($Date$)
+    % $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
     %
     properties(Dependent)
         %  Number of input files to use. Depending on this number the test

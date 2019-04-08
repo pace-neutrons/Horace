@@ -42,7 +42,7 @@ classdef dnd_binfile_common < dnd_file_interface
     % methods, and allowing to save/restore any part of binary sqw file
     % ----------------------------------------------------------------
     %
-    % $Revision$ ($Date$)
+    % $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
     %
     properties(Access=protected,Hidden=true)
         file_id_=-1 % the open file handle (if any)

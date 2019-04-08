@@ -37,7 +37,7 @@ function gen_sqw_powder_test (spe_file, par_file, sqw_file, efix, emode)
 
 % Original author: T.G.Perring  2 August 2013: quick fix for LET
 %
-% $Revision$ ($Date$)
+% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
 
 
 alatt=[2*pi,2*pi,2*pi];

@@ -2,7 +2,7 @@ function open_existing_dataset_matlab_(obj,fid,pix_size_defined,n_pixels,chunk_s
 % opens existing pixels dataset within opened hdf file and selected group
 %
 %
-% $Revision: 1732 $ ($Date: 2019-03-11 16:11:58 +0000 (Mon, 11 Mar 2019) $)
+% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
 %
 %
     
@@ -46,3 +46,4 @@ end
 pix_dapl_id = H5D.get_access_plist(obj.pix_dataset_);
 [obj.cache_nslots_,obj.cache_size_]=H5P.get_chunk_cache(pix_dapl_id);
 %chunk_size = obj.chunk_size_;
+

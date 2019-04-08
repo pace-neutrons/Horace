@@ -20,7 +20,7 @@ function [sqw_type, ndims, nfiles, filename, mess,ld] = is_sqw_type_file(w,infil
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
 
 
 % Default return values if there is an error
@@ -85,8 +85,6 @@ function [sqw_type, ndims, nfiles] = get_sqw_type_from_ld(ld)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
-
 
 sqw_type = ld.sqw_type;
 ndims = ld.num_dim;

@@ -6,7 +6,7 @@ classdef field_generic_class_hv3 < field_simple_class_hv3
     %  so its format is fully self-consistent
     %
     %
-    % $Revision$ ($Date$)
+    % $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
     %
     
     properties(Access=private)

@@ -13,7 +13,7 @@ function sqw_type = is_sqw_type(w)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
 
 sqw_type=false(size(w));
 for i=1:numel(w)

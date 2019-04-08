@@ -6,7 +6,7 @@ classdef sqw_reader<handle
     % cached in a buffer and provided from the buffer if available
     %
     %
-    % $Revision$ ($Date$)
+    % $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
     %
     properties(Dependent)
         filename % short name of the file, this reader reads

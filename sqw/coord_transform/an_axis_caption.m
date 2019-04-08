@@ -4,7 +4,7 @@ classdef an_axis_caption
     % By default implements sqw recangular cut captions
     %
     %
-    % $Revision$ ($Date$)
+    % $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
     %
     properties(Dependent)
         % property specifies if 2D or 3D picture, this class captions

@@ -14,7 +14,7 @@ function obj = reopen_to_write(obj,filename)
 % If file with filename exist, it will be overwritten
 %
 %
-% $Revision$ ($Date$)
+% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
 %
 %
 if ~exist('filename','var')

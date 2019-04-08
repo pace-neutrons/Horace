@@ -27,7 +27,7 @@ function [elo_out,ehi_out]=estimate_erange(efix,emode,elo,ehi)
 %              fraction for those runs where ehi was actually given, or if
 %              none given default fraction 0.99 (emode=1 and emode=2).
 %
-% $Revision$ ($Date$)
+% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
 %
 
 

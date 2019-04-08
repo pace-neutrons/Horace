@@ -20,7 +20,7 @@ function [targ_str,pos] = deserialize_bytes_(obj,bytes,template_str,varargin)
 %                   according to the rules described by sqw_field_format_interface
 %                   classes.
 %
-% $Revision$ ($Date$)
+% $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
 %
 
 if nargin==3

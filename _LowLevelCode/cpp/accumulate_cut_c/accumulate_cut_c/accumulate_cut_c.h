@@ -6,7 +6,7 @@
 
 #define iRound(x)  (int)floor((x)+0.5)
 //
-// $Revision:: 1524 $ ($Date:: 2017-09-27 15:48:11 +0100 (Wed, 27 Sep 2017) $)" 
+// $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)" 
 //
 enum program_settings {
     Ignore_Nan,
@@ -304,3 +304,4 @@ mwSize accumulate_cut(double *s, double *e, double *npix,
 
 
 #endif
+

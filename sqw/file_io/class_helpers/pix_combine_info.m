@@ -3,7 +3,7 @@ classdef pix_combine_info
     % necessary for pixel combining using write_nsqw_to_sqw algorithm.
     %
     %
-    % $Revision$ ($Date$)
+    % $Revision:: 1720 ($Date:: 2019-04-08 16:49:36 +0100 (Mon, 8 Apr 2019) $)
     %
     properties(Access = protected)
         n_pixels_ = 'undefined';
