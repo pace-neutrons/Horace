@@ -1,7 +1,7 @@
 classdef test_Class_TestPerformance< TestCase
     % The test verifies TestPerformance class operations.
     %
-    % $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
+    % $Revision:: 830 ($Date:: 2019-04-08 17:54:30 +0100 (Mon, 8 Apr 2019) $)
     %
     properties
     end

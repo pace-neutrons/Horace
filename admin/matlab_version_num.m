@@ -16,7 +16,7 @@ function numver=matlab_version_num
 %   ans =
 %       7.0400  (i.e. not 7.4)
 %
-% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
+% $Revision:: 830 ($Date:: 2019-04-08 17:54:30 +0100 (Mon, 8 Apr 2019) $)
 %
 
 

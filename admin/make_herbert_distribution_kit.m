@@ -29,7 +29,7 @@ function make_herbert_distribution_kit(varargin)
 % -- compress everything as it is which makes code suitable for further 
 % development. 
 %
-% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
+% $Revision:: 830 ($Date:: 2019-04-08 17:54:30 +0100 (Mon, 8 Apr 2019) $)
 %
 %
 keys = {'-compact','-run_by_horace'};
@@ -103,7 +103,7 @@ copy_files_list(rootpath,her_dir);
 % copy source code files from system directory
 copy_files_list(fullfile(rootpath,'_LowLevelCode'),fullfile(her_dir,'_LowLevelCode'),'+_',...
                        'h','cpp','c','f','f90','FOR','sln','vcproj','vfproj','txt','m'); 
-copy_files_list(fullfile(rootpath,'_notes'),fullfile(her_dir,'_notes'),'+_'); 
+%copy_files_list(fullfile(rootpath,'_notes'),fullfile(her_dir,'_notes'),'+_'); 
 
 % copy unit tests and unit test suite if necessary
 if ~no_tests   

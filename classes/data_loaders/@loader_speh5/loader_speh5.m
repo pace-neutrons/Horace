@@ -3,7 +3,7 @@ classdef loader_speh5 < a_loader
     % ASCII par file and all necessary additional parameters
     %   Detailed explanation goes here
     %
-    % $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
+    % $Revision:: 830 ($Date:: 2019-04-08 17:54:30 +0100 (Mon, 8 Apr 2019) $)
     %
     
     properties

@@ -6,7 +6,7 @@ function [n_detectors,en,full_file_name,nexus_dir,ei,psi,nxspe_version]= check_f
 %
 % $Author: Alex Buts; 20/10/2011
 %
-% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
+% $Revision:: 830 ($Date:: 2019-04-08 17:54:30 +0100 (Mon, 8 Apr 2019) $)
 %
 
 

@@ -57,7 +57,7 @@ global include_service_directory;
 
 
 % initialise variables
-CVS         = '.svn'; % qualifier for subversion folder
+CVS         = '.git'; % qualifier for subversion folder
 serviceDir  = '_';    % qualifier for service directory which should not be copyed unless
 % it is special OS-version dependant directory
 if(include_service_directory)
@@ -106,29 +106,29 @@ dirs = localFiles_list(isdir); % select only directory entries from the current 
 
 for i=1:length(dirs)
     dirname = dirs(i).name;
-    if    ~strcmp( dirname,'.')           && ...
-            ~strcmp( dirname,'..')          && ...
-            ~strcmp( dirname,CVS)
-        if(~strncmp(dirname,serviceDir,1))
-            [ll,target0_directory]=copy_files_list_recursively(fullfile(source_dir,dirname));% recursive calling of this function.
+    if dirname(1) == '.'
+        continue;
+    end
+    if(~strncmp(dirname,serviceDir,1))
+        [ll,target0_directory]=copy_files_list_recursively(fullfile(source_dir,dirname));% recursive calling of this function.
+        local_list=[local_list,ll];
+        % remove target directory if nothing was copyied into it
+        if isempty(ll)
+            rmdir(target0_directory);
+        end
+        
+    else
+        if(strncmpi(['_',computer],dirname,6)||strncmpi('_R200',dirname,5))  % this is system OS directory which is needed and has to be copyed
+            [ll,target0_directory]=copy_files_list_recursively(fullfile(source_dir,dirname)); % recursive calling of this function.
             local_list=[local_list,ll];
             % remove target directory if nothing was copyied into it
             if isempty(ll)
                 rmdir(target0_directory);
             end
             
-        else
-            if(strncmpi(['_',computer],dirname,6)||strncmpi('_R200',dirname,5))  % this is system OS directory which is needed and has to be copyed
-                [ll,target0_directory]=copy_files_list_recursively(fullfile(source_dir,dirname)); % recursive calling of this function.
-                local_list=[local_list,ll];
-                % remove target directory if nothing was copyied into it
-                if isempty(ll)
-                    rmdir(target0_directory);
-                end
-                
-            end
         end
     end
+    
 end
 
 
@@ -143,14 +143,14 @@ if exist(fullfile(sourcePath,'_exclude_all.txt'),'file')
     % distribution
     excludes_all = true;
     local_list = {};
-
+    
     return;
 end
 if exist(fullfile(sourcePath,'_exclude_files.txt'),'file')
     % exclude all files in current folder from copying into
     % distribution but keep everything in the subfolders
     local_list = {};
-    return;    
+    return;
 end
 isfile = ~logical(cat(1,filelist.isdir));
 fileList = filelist(isfile); % select only files from the current listing

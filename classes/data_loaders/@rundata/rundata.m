@@ -18,7 +18,7 @@ classdef rundata
     % do not have default, the method get_rundata will fail
     %
     %
-    % $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
+    % $Revision:: 830 ($Date:: 2019-04-08 17:54:30 +0100 (Mon, 8 Apr 2019) $)
     %
     properties(Dependent)
         n_detectors = [];   % Number of detectors, used when dealing with masked detectors  -- will be derived

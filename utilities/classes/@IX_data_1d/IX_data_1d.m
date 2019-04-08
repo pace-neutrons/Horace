@@ -29,7 +29,7 @@ classdef IX_data_1d < IX_dataset
     
     % Default class - empty point dataset
     %
-    % $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
+    % $Revision:: 830 ($Date:: 2019-04-08 17:54:30 +0100 (Mon, 8 Apr 2019) $)
     %
     properties(Dependent)
         % x - vector of bin boundaries for histogram data or bin centers

@@ -7,7 +7,7 @@ function [varargout]=load_data(this,new_file_name)
 % as all loaders are accessed through common interface.
 %
 %
-% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
+% $Revision:: 830 ($Date:: 2019-04-08 17:54:30 +0100 (Mon, 8 Apr 2019) $)
 %
 if exist('new_file_name','var')
     this.file_name =new_file_name ;

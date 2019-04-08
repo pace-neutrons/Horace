@@ -30,7 +30,7 @@ function Sfun = functions_replace (Sfun_in, isfore, ind)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 830 ($Date:: 2019-04-08 16:16:02 +0100 (Mon, 8 Apr 2019) $)
+% $Revision:: 830 ($Date:: 2019-04-08 17:54:30 +0100 (Mon, 8 Apr 2019) $)
 
 
 % Fill output with default structure
