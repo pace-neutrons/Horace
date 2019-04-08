@@ -80,8 +80,7 @@ clob = onCleanup(@()fclose(fh));
 
 cont = fread(fh,'*char');
 try
-    cont = regexprep(cont','(?<=\$Revision)(.*?)(?=\$)',rev_num);
-    cont = regexprep(cont,'(?<=\$Date)(.*?)(?=\$)',rev_date);    
+    cont = regexprep(cont','(?<=\$Revisio).*?(?=\$\))',['n',rev_num,'($Date',rev_date]);
     fseek(fh,0,'bof');
     fwrite(fh,cont);    
 catch
