@@ -1,4 +1,4 @@
-function [rev_n,datetm] = parse_rev_file(in_file_name)
+function [rev_str,datetm] = parse_rev_file(rev_file_name)
 % Parse revision file and increase the revision number by one
 % and revision date -- to the current date.
 % 
@@ -7,32 +7,33 @@ function [rev_n,datetm] = parse_rev_file(in_file_name)
 %
 %keywords = {'$Revision:','$Date:'};
 %
-fh = fopen(in_file_name,'rb+');
+fh = fopen(rev_file_name,'rb+');
 if fh<0
     error('PARCE_REVISION:runtime_error',...
-        ' Can not open file %s',in_file_name);
+        ' Can not open file %s',rev_file_name);
 end
 clob = onCleanup(@()fclose(fh));
 
 cont = fread(fh,'*char');
 if isempty(cont)
     error('PARCE_REVISION:runtime_error',...
-        ' Empty revision file %s',in_file_name);
+        ' Empty revision file %s',rev_file_name);
 end
 [startIndex,endIndex] = regexp(cont','(?<=\$Revision::).*?(?=\$)');
 
-[rev_n,cont] = replace_revision(cont,startIndex,endIndex);
+[rev_str,cont] = replace_revision(cont,startIndex,endIndex);
 
 datetm = char(datetime('now','timezone','local','Format',...
     'yyyy-MM-dd HH:mm:ss Z (eee, d MMM yyy)'));
 cont = regexprep(cont','(?<=\$Date::).*?(?= \$)',datetm);
-
+datetm = [':: ',datetm,' '];
+rev_str = ['::',rev_str];
 
 fseek(fh,0,'bof');
 fwrite(fh,cont);
 clear clob;
 
-function [rev_n ,cont]= replace_revision(cont,startIndex,endIndex)
+function [rev_str ,cont]= replace_revision(cont,startIndex,endIndex)
 
 rev_place = cont(startIndex:endIndex);
 rev_n = str2double(rev_place);
@@ -46,7 +47,7 @@ if ns<=n_places-1
 elseif ns==n_places
     format_ = sprintf('%dd',n_places);    
     rev_str = sprintf(['%-',format_],rev_n+1); 
-    cont(startIndex,endIndex) = rev_str';
+    cont(startIndex:endIndex) = rev_str';
 else
     rev_str = sprintf(' %d ',rev_n+1);
     cont = [cont(1:startIndex-1);rev_str';cont(1:endIndex+1)];    
