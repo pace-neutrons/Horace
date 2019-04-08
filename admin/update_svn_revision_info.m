@@ -10,8 +10,9 @@ function update_svn_revision_info(pack_name)
 %
 %
 
-init_file_name = [lower(pack_name),'_init.m'];
+init_file_name = [lower(pack_name),'_init'];
 pack_dir = fileparts(which(init_file_name));
+skip_files = {'update_svn_revision_info','parse_rev_file',init_file_name};
 
 if ~(exist(pack_dir,'dir')==7)
     error('UPDATE_SVN_REVISION_INFO:invalid_argument',...
@@ -34,9 +35,9 @@ if isempty(rev_str) || ~strcmpi(pack_name_stor,pack_name)
 
 end
 
-parse_files_update_revision(pack_dir,rev_str,rev_date);
+parse_files_update_revision(pack_dir,rev_str,rev_date,skip_files);
 
-function parse_files_update_revision(input_dir,rev_num,rev_date)
+function parse_files_update_revision(input_dir,rev_num,rev_date,skip_files)
 % function lists all files and folders within the input directory,
 % updates svn revision info of the files, found within the directory
 % and runs recursively for all directories, found withinb the input
@@ -46,7 +47,7 @@ files_list = dir(input_dir);
 if isempty(files_list)
     return
 end
-skip_files = {'update_svn_revision_info','parse_rev_file'};
+
 use_extensions = {'.m','.h','.c','.cpp','.template'};
 
 for i=1:numel(files_list)
@@ -55,7 +56,7 @@ for i=1:numel(files_list)
     end
     if files_list(i).isdir
         sub_dir = fullfile(files_list(i).folder,files_list(i).name);
-        parse_files_update_revision(sub_dir,rev_num,rev_date)
+        parse_files_update_revision(sub_dir,rev_num,rev_date,skip_files)
     else
         [~,fn,fext] = fileparts(files_list(i).name);
         if ismember(fn,skip_files) || ~ismember(fext,use_extensions)
