@@ -389,7 +389,7 @@ function [wout, fitdata, ok, mess] = fit_legacy_func(win, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1750 ($Date:: 2019-04-08 17:55:21 +0100 (Mon, 8 Apr 2019) $)
+% $Revision:: 1750 ($Date:: 2019-04-09 10:04:04 +0100 (Tue, 9 Apr 2019) $)
 
 
 % Note: we could rely on the generic fit function in Herbert, but this would
