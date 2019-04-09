@@ -50,7 +50,7 @@ function [tmp_sqw, grid_size, urange] = fake_sqw (en, par_file, sqw_file, efix, 
 
 % T.G.Perring  18 May 2009
 %
-% $Revision:: 1750 ($Date:: 2019-04-08 17:55:21 +0100 (Mon, 8 Apr 2019) $)
+% $Revision:: 1750 ($Date:: 2019-04-09 10:04:04 +0100 (Tue, 9 Apr 2019) $)
 
 small_bin=1e-12;
 %d2r=pi/180;

@@ -78,7 +78,7 @@ function [wout_disp,wout_weight]=dispersion(win,dispreln,pars)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1750 ($Date:: 2019-04-08 17:55:21 +0100 (Mon, 8 Apr 2019) $)
+% $Revision:: 1750 ($Date:: 2019-04-09 10:04:04 +0100 (Tue, 9 Apr 2019) $)
 
 wout_disp = win;
 if ~iscell(pars), pars={pars}; end      % package parameters as a cell for convenience

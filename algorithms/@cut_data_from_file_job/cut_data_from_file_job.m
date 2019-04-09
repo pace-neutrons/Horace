@@ -6,7 +6,7 @@ classdef cut_data_from_file_job < JobExecutor
     % fashion.
     %
     %
-    % $Revision:: 1750 ($Date:: 2019-04-08 17:55:21 +0100 (Mon, 8 Apr 2019) $)
+    % $Revision:: 1750 ($Date:: 2019-04-09 10:04:04 +0100 (Tue, 9 Apr 2019) $)
     %
     
     properties
@@ -127,7 +127,6 @@ classdef cut_data_from_file_job < JobExecutor
             % - Aim to take advantage of in-place working within accumulate_cut
             
             % T.G.Perring   19 July 2007 (based on earlier prototype TGP code)
-            % $Revision:: 1750 ($Date:: 2019-04-08 17:55:21 +0100 (Mon, 8 Apr 2019) $)
             %
             [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file_(fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
                 proj,pax, nbin);
