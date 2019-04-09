@@ -20,7 +20,7 @@ function [ok,mess,file_name,lext] = check_file_exist(file_name,supported_file_ex
 
 % $Author: Alex Buts; 20/10/2011
 %
-% $Revision:: 830 ($Date:: 2019-04-08 17:54:30 +0100 (Mon, 8 Apr 2019) $)
+% $Revision:: 830 ($Date:: 2019-04-09 10:03:50 +0100 (Tue, 9 Apr 2019) $)
 
 if ~isa(file_name,'char')
     ok=false;

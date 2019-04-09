@@ -2,7 +2,7 @@ function this=set_param_recursively(this,a_struct,varargin)
 % function to fill the rundata class from data, defined in the input
 % structure,class or their combinations
 %
-% $Revision:: 830 ($Date:: 2019-04-08 17:54:30 +0100 (Mon, 8 Apr 2019) $)
+% $Revision:: 830 ($Date:: 2019-04-09 10:03:50 +0100 (Tue, 9 Apr 2019) $)
 %
 if isempty(a_struct)
     return;

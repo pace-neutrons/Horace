@@ -22,7 +22,7 @@ function herbert_mex(varargin)
 % -missing   -- build only missing mex files, if not present, script
 %               rebuilds all existing files
 %
-%   $Revision:: 830 ($Date:: 2019-04-08 17:54:30 +0100 (Mon, 8 Apr 2019) $)
+%   $Revision:: 830 ($Date:: 2019-04-09 10:03:50 +0100 (Tue, 9 Apr 2019) $)
 %
 % root directory is assumed to be that in which mslice_init resides
 
