@@ -19,7 +19,7 @@ function hpc(varargin)
 % The meaning of hpc properties this function sets can be described as below:
 %   combine_sqw_using: true/false -- should mex extension be used to
 %                                      combine tmp files, if such extension
-%                                      is availible
+%                                      is available
 %   mex_combine_thread_mode:          0  use mex file for combining and run 
 %                                        separate input and output thread
 %                                     1  use mex file for combining and in 
@@ -30,7 +30,7 @@ function hpc(varargin)
 %  mex_combine_buffer_size: 65536 -- file buffer used for each input file in mex-file combining
 % 
 %  build_sqw_in_parallel: 0     -- use separate Matlab sessions when processing input spe or nxspe files
-%   parallel_workers_number: 4     -- how many sessions to use.
+%  parallel_workers_number: 4     -- how many sessions to use.
 
 
 
@@ -129,7 +129,7 @@ else
         mex_combine_buffer_size=128*1024;
         
         build_sqw_in_parallel = 1;     
-        % Lasy! need to do better then this, works only on ISIS pc-s
+        % Lazy! need to do better then this, works only on ISIS pc-s
         parallel_workers_number  = 4;
     end
     

@@ -18,7 +18,7 @@ function [rez,n_errors,minVer,maxVer,compilation_date,can_use_mex_4_combine]=che
 % version
 %
 %
-% $Revision$    $Date$
+% $Revision: 1738 $    $Date: 2019-03-12 14:31:09 +0000 (Tue, 12 Mar 2019) $
 %
 
 compilation_date  =[];
