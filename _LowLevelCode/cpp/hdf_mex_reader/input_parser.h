@@ -1,7 +1,7 @@
 #pragma once
 
 #include <mex.h>
-#include <string>
+#include <cstring>
 #include <sstream>
 #include <typeinfo>
 #include "pix_block_processor.h"
@@ -87,7 +87,7 @@ public:
 		_signature = 0;
 		delete class_ptr;
 	}
-	bool isValid() { return ((_signature == CLASS_HANDLE_SIGNATURE) && strcmp(_name.c_str(), typeid(T).name()) == 0); }
+	bool isValid() { return ((_signature == CLASS_HANDLE_SIGNATURE) && std::strcmp(_name.c_str(), typeid(T).name()) == 0); }
 
 	size_t n_first_block;
 	size_t pos_in_first_block;
