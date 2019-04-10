@@ -74,6 +74,11 @@ if hc.is_default
 %    % to avoid repetitive messages about default configuration
 %    config_store.instance().store_config(hc,'-forcesave');
 end
+hec = herbert_config;
+if hec.init_tests % install githooks for users who may run unit tests 
+    % (and push to git repository)
+    copy_git_hooks('horace');
+end
 
 
 
