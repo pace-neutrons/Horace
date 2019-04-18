@@ -120,7 +120,7 @@ flags = {'noplot','logscale'};
 [args,opt,present] = parse_arguments(varargin,arglist,flags);
 
 if numel(args)~=2
-    if length(args{1})>1 && isa((args{1}(1)),'d2d')
+    if length(args{1})>1 && (isa((args{1}(1)),'d2d') || isa((args{1}(1)),'IX_dataset_2d'))
         plot_dispersion(args{1},opt);
         return
     else
@@ -269,7 +269,7 @@ for i=1:nseg
     u20= dot(b*rlp(i,:)',u2crt./norm(u2crt))/ulen(2);
     u30= dot(b*rlp(i,:)',u3crt./norm(u3crt))/ulen(3);
     u1 = [dot(b*rlp(i,:)',u1crt)/ulen(1), u1bin, dot(b*rlp(i+1,:)',u1crt)/ulen(1)];
-    u1(2)=(u1(3)-u1(1))/floor((u1(3)-u1(1))/u1(2)); % Radu Coldea on 19/12/2018: adjust qbin size to have an exact integer number of bins between the start and end points 
+    u1(2)=(u1(3)-u1(1))/floor((u1(3)-u1(1))/u1(2)); % Radu Coldea on 19/12/2018: adjust qbin size to have an exact integer number of bins between the start and end points
     u2 = [u20-u2bin,u20+u2bin];
     u3 = [u30-u3bin,u30+u3bin];
     % Make cut, and save to array of d2d
@@ -328,76 +328,105 @@ end
 
 
 qinc = 0;
-title = wdisp_in(1).title;
-lnbrk = strfind(title,sprintf('\n'));
+title1 = wdisp_in(1).title;
+if iscell(title1)
+    title1 = title1{1};
+end
+lnbrk = strfind(title1,sprintf('\n'));
 if ~isempty(lnbrk)
     lnbrk = lnbrk(end);
+    wdisp_in(1).title = title1(lnbrk+1:end);
 end
-wdisp_in(1).title = title(lnbrk+1:end);
+
 %
-wdisp = repmat(IX_dataset_2d,1,length(wdisp_in));
+
+if isa(wdisp_in,'IX_dataset_2d')
+    is_ix_dataset = true;
+    wdisp = wdisp_in;
+else
+    wdisp = repmat(IX_dataset_2d,1,length(wdisp_in));
+    is_ix_dataset = false;
+end
 for i=1:length(wdisp_in)
-    ulen = wdisp_in(i).ulen;
-    % Internally use IX_dataset_2d to manipulate the x-axis (flip and adjust bin boundaries)
-    if opt.smooth>0
-        wdisp(i) = IX_dataset_2d(smooth(wdisp_in(i),opt.smooth,opt.smooth_shape));
-    else
-        wdisp(i) = IX_dataset_2d(wdisp_in(i));
+    if ~is_ix_dataset % smooth does not work.
+        % Internally use IX_dataset_2d to manipulate the x-axis (flip and adjust bin boundaries)
+        if opt.smooth>0
+            wdisp(i) = IX_dataset_2d(smooth(wdisp_in(i),opt.smooth,opt.smooth_shape));
+        else
+            wdisp(i) = IX_dataset_2d(wdisp_in(i));
+        end
     end
-    % For plotting, change bin edges to bin centres
-    bin_centers = 0.5*(wdisp(i).x(1:end-1)+wdisp(i).x(2:end));
+    if numel(wdisp(i).x) == size(wdisp(i).signal,1)+1
+        % For plotting, change bin edges to bin centres
+        bin_centers = 0.5*(wdisp(i).x(1:end-1)+wdisp(i).x(2:end));
+    else
+        % Already bin centres
+        bin_centers  = wdisp(i).x;
+    end
     if scale_x_axis
         % scale plot axis according to the scales provided
         min_bc = min(bin_centers);
-        size  = max(bin_centers)-min_bc;
+        scale_size  = max(bin_centers)-min_bc;
         scale = opt.cuts_plot_size(i);
-        wdisp(i).x = qinc + (bin_centers-min_bc)*(scale/size);
+        wdisp(i).x = qinc + (bin_centers-min_bc)*(scale/scale_size);
     else
-        % Converts the x-axis from r.l.u. along the segment q-direction to incremental |q| in 1/Ang
-        wdisp(i).x = qinc + (bin_centers-bin_centers(1))*ulen(1);
+        if is_ix_dataset
+            wdisp(i).x = qinc + (bin_centers-bin_centers(1));
+        else
+            ulen = wdisp_in(i).ulen;
+            % Converts the x-axis from r.l.u. along the segment q-direction to incremental |q| in 1/Ang
+            wdisp(i).x = qinc + (bin_centers-bin_centers(1))*ulen(1);
+        end
     end
     qinc = wdisp(i).x(end);
     % Update current segment length for labelling position.
     wdisp(i).x_axis = IX_axis('Momentum',[char(197),'^{-1}']);
     wdisp(i).y_axis = IX_axis('Energy','meV');
+    if is_ix_dataset
+        labels{i} = wdisp(i).title{1};
+        continue;
+    end
+    
     % Finds labels in segment title
-    brk = strfind(wdisp_in(i).title,sprintf('\n'));
+    title = wdisp_in(i).title;
+    brk = strfind(title,sprintf('\n'));
     if ~isempty(brk)
         brk = brk(end);
         wdisp_in(i).title = title(brk+1:end);
     end
     try
-        bra = strfind(wdisp_in(i).title,'(');
-        ket = strfind(wdisp_in(i).title,')');
-        hkls = [sscanf(wdisp_in(i).title(bra(1):ket(1)),'(%f %f %f)');
-            sscanf(wdisp_in(i).title(bra(2):ket(2)),'(%f %f %f)')];
-        quotes = strfind(wdisp_in(i).title,'"');
+        bra = strfind(title,'(');
+        ket = strfind(title,')');
+        hkls = [sscanf(title(bra(1):ket(1)),'(%f %f %f)');
+            sscanf(title(bra(2):ket(2)),'(%f %f %f)')];
+        quotes = strfind(title,'"');
         if i>1 && abs(sum(hkls(1:3)-hkl0(1:3)))>0.01
             %warning('(hkl) points for segments %d and %d do not match',i-1,i);
             if isempty(quotes)
                 labels{i} = sprintf('[%s]/[%s]',str_compress(num2str(hkl0(4:6)')),str_compress(num2str(hkls(1:3)')));
             else
-                labels{i} = sprintf('%s/%s',labels{i},wdisp_in(i).title(quotes(1)+1:quotes(2)-1));
+                labels{i} = sprintf('%s/%s',labels{i},title(quotes(1)+1:quotes(2)-1));
             end
         else
             if isempty(quotes)
                 labels{i} = ['[',str_compress(num2str(hkls(1:3)'),','),']'];
             else
-                labels{i} = wdisp_in(i).title(quotes(1)+1:quotes(2)-1);
+                labels{i} = title(quotes(1)+1:quotes(2)-1);
             end
         end
         if isempty(quotes)
             labels{i+1} = ['[',str_compress(num2str(hkls(4:6)'),','),']'];
         else
-            labels{i+1} = wdisp_in(i).title(quotes(3)+1:quotes(4)-1);
+            labels{i+1} = title(quotes(3)+1:quotes(4)-1);
         end
     catch
         hkldir = wdisp_in(i).u_to_rlu(1:3, 1);
-        inthkl = kron(wdisp_in(i).iint', wdisp_in(i).u_to_rlu(:, wdisp_in(i).iax)); 
+        inthkl = kron(wdisp_in(i).iint', wdisp_in(i).u_to_rlu(:, wdisp_in(i).iax));
         hklcen = sum([mean(inthkl(1:3, [1 3]), 2) mean(inthkl(5:7, [2 4]), 2)], 2);
         hkls = [wdisp_in(i).p{1}(1) * hkldir + hklcen; wdisp_in(i).p{1}(end) * hkldir + hklcen];
         labels{i} = ['[',str_compress(num2str(hkls(1:3)'),','),']'];
         labels{i+1} = ['[',str_compress(num2str(hkls(4:6)'),','),']'];
+        
     end
     hkl0 = hkls;
 end
@@ -408,7 +437,7 @@ if opt.logscale
         wdisp(i).signal = log10(wdisp(i).signal);
     end
 end
-wdisp(1).title = title(1:lnbrk);
+wdisp(1).title = title1(1:lnbrk);
 plot(wdisp);
 hold on;
 xrlp = zeros(length(wdisp)+1,1);
