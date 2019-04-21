@@ -28,7 +28,8 @@ compilation_date  =[];
 functions_name_list={'accumulate_cut_c  : ','bin_pixels_c      : ',...
     'calc_projections  : ','sort_pixels_by_bin: ','recompute_bin_data: ',...                                                   
     'combine_sqw       : ','mtimesx_mex       : ','hdf_mex_reader    : '};
-combine_num = numel(functions_name_list)-1; % provide special treatment for combine_sqw function
+combine_num = numel(functions_name_list)-2; % provide special treatment for combine_sqw function
+hdf_reader_num  = numel(functions_name_list);  % provide special treatment for hdf_mex_reader
 % its expected to be last function of the pack
 
 % list of the mex files handles used by Horace and verified by this script.
@@ -39,6 +40,7 @@ rez = cell(numel(functions_name_list),1);
 
 n_errors=0;
 can_use_mex_4_combine = true;
+can_use_mex_4_hdf = true;
 for i=1:numel(functions_name_list)
     try
         rez{i}=[functions_name_list{i},functions_handle_list{i}()];
@@ -46,6 +48,8 @@ for i=1:numel(functions_name_list)
         rez{i}=[' Error in ',functions_name_list{i},Err.message];
         if strcmpi(functions_name_list{combine_num},functions_name_list{i})
             can_use_mex_4_combine=false;
+        elseif strcmpi(functions_name_list{hdf_reader_num},functions_name_list{i})
+             can_use_mex_4_hdf = false;
         else
             n_errors=n_errors+1;
         end
@@ -53,8 +57,12 @@ for i=1:numel(functions_name_list)
 end
 % calculate minumal and maximal versions of mex files; if there are errors
 % in deploying mex-files, the versions become undefined;
-if ~can_use_mex_4_combine
-    ver_rez = rez(1:combine_num-1);
+if ~(can_use_mex_4_combine && can_use_mex_4_hdf)
+    select_rez = true(1,numel(functions_handle_list));
+    if ~can_use_mex_4_combine; select_rez(combine_num) = false; end
+    if ~can_use_mex_4_hdf; select_rez(hdf_reader_num) = false; end
+    
+    ver_rez = rez(select_rez);
 else    
     ver_rez = rez;
 end
