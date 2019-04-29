@@ -13,7 +13,7 @@ function [x,nroot]=cubicfcn(a, b, c, d)
 % Instructor: Nam Sun Wang
 %
 % ----------------------------------------------------------------------
-% TGP was who found this solution at:
+% TGP it was that found this solution at:
 %
 % Solution found at:http://terpconnect.umd.edu/~nsw/ench250/cubiceq.htm
 % ----------------------------------------------------------------------
