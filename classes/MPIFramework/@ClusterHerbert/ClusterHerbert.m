@@ -18,8 +18,9 @@ classdef ClusterHerbert < ClusterWrapper
         % running process Java exception message contents
         running_mess_contents_= 'process has not exited';
     end
-    properties(Constant,Access = private)
-        task_common_str_ = {'-nosplash','-nodesktop','-r'};
+    properties(Access = private)
+        task_common_str_ = {'-nosplash','-nodesktop','-r'};            
+        %
         DEBUG_REMOTE = false;
         % the name of the function to run a remote job. The function must be
         % on the Matlab data search path before Horace is initialized.
@@ -46,6 +47,7 @@ classdef ClusterHerbert < ClusterWrapper
             else
                 obj.running_mess_contents_= 'process hasn''t exited';
                 obj.matlab_starter_= fullfile(prog_path,'matlab');
+                obj.task_common_str_ = {'-softwareopengl',obj.task_common_str_{:}};
             end
             
             for task_id=1:n_workers
