@@ -45,6 +45,9 @@ classdef MPI_Test_Common < TestCase
                 catch ME
                     if strcmp(ME.identifier,'PARALLEL_CONFIG:unsupported_configuration')
                         set_framework = false;
+                    elseif strcmp(ME.identifier,'PARALLEL_CONFIG:toolbox_licensing')
+                        set_framework = false;
+                        warning(ME.identifier,'%s',ME.message);
                     else
                         rethrow(ME);
                     end

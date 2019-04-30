@@ -185,7 +185,7 @@ classdef parallel_config<config_base
                     config_store.instance().store_config(...
                         obj,'parallel_framework','parpool');
                 else
-                    error('PARALLEL_CONFIG:invalid_argument',err);
+                    error('PARALLEL_CONFIG:toolbox_licensing',err);
                 end
             end
         end
