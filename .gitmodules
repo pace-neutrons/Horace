@@ -1,0 +1,3 @@
+[submodule "herbert"]
+	path = herbert
+	url = https://github.com/pace-neutrons/herbert
