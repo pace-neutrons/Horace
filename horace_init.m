@@ -8,6 +8,17 @@ function horace_init
 
 % T.G.Perring
 %
+% Root directory is assumed to be that in which this function resides
+rootpath = fileparts(which('horace_init'));
+addpath(rootpath)  % MUST have rootpath so that horace_init, horace_off included
+
+% Adds Herbert if it exists in the rootpath (Herbert is a submodule)
+if exist([rootpath filesep 'herbert'], 'dir')
+    addpath([rootpath filesep 'herbert']);
+    if exist('herbert_init', 'file')
+        herbert_init;
+    end
+end
 %
 % -----------------------------------------------------------------------------
 % Check if supporting Herbert package is available
@@ -16,10 +27,6 @@ if isempty(which('herbert_init'))
 end
 warning('off','MATLAB:subscripting:noSubscriptsSpecified');
 % -----------------------------------------------------------------------------
-% Root directory is assumed to be that in which this function resides
-rootpath = fileparts(which('horace_init'));
-addpath(rootpath)  % MUST have rootpath so that horace_init, horace_off included
-
 
 % Add admin functions to the path first
 addpath(fullfile(rootpath,'admin'));
@@ -28,7 +35,7 @@ addpath_message (1,rootpath,'sqw');
 addpath_message (1,rootpath,'algorithms');
 
 % Add support package
-addpath_message (1,rootpath,'herbert');
+addpath_message (1,rootpath,'herbert_dnd_functions');
 
 % DLL and configuration setup
 addpath_message (2,rootpath,'DLL');
