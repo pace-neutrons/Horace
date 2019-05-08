@@ -42,7 +42,7 @@ spe_file_out=[]; par_file_out=[]; sqw_file_out=[]; spe_exist=[]; spe_unique=[]; 
 
 %RAE - is_string fails in Matlab versions earlier than 2015b
 %this is a nasty fix for this one example - are there others???
-%try 
+%try
 tf=is_string(spe_file);
 %catch
 %    tf=isstring(spe_file);
@@ -102,19 +102,30 @@ end
 if ~isempty(par_file)
     if is_string(par_file) && ~isempty(strtrim(par_file))
         par_file_out=strtrim(par_file);
+        det_par_file = true;
+    elseif isstruct(par_file)
+        det_par_file = false;
     else
         ok=false; mess='If given, par filename  must be a non-empty string'; return
     end
-    % Check par file exists
-    [path,name,ext]=fileparts(par_file_out);
-    if any(strcmpi(ext,[ext_horace,'.spe']))
-        ok=false; 
-        mess=['Detector parameter files must not have the reserved extension ''',ext,...
-            '''. Check the file is .par type and rename.'];
-        return
-    end
-    if ~exist(par_file_out,'file')
-        ok=false; mess=['Detector parameter file ',par_file_out,' not found']; return
+    if det_par_file        
+        % Check par file exists
+        [~,~,ext]=fileparts(par_file_out);
+        if any(strcmpi(ext,[ext_horace,'.spe']))
+            ok=false;
+            mess=['Detector parameter files must not have the reserved extension ''',ext,...
+                '''. Check the file is .par type and rename.'];
+            return
+        end
+        if ~exist(par_file_out,'file')
+            ok=false; mess=['Detector parameter file ',par_file_out,' not found']; return
+        end
+    else
+        pf = {'filename','filepath','group','x2','phi','azim','width','height'};
+        if ~all(isfield(par_file,pf))
+            ok=false; mess='Detector parameter information should be in Horace par_file format'; return            
+        end
+        par_file_out = par_file.filename;
     end
 else
     par_file_out='';
@@ -125,7 +136,7 @@ end
 % ---------------
 
 %See above (RAE)
-%try 
+%try
 tf=is_string(sqw_file);
 %catch
 %    tf=isstring(sqw_file);
@@ -171,3 +182,6 @@ end
 % ----------------
 ok=true;
 mess='';
+if ~det_par_file
+    par_file_out = par_file;
+end

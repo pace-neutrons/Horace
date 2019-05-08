@@ -15,8 +15,19 @@ function [tmp_sqw, grid_size, urange] = fake_sqw (en, par_file, sqw_file, efix, 
 %   en              Energy bin boundaries (must be monotonically increasing and equally spaced)
 %               or  cell array of arrays of energy bin boundaries, one array per spe file
 %   par_file        Full file name of detector parameter file (Tobyfit format)
+%                   or
+%                   3xNdet array of [h,k,l] values corresponding to the
+%                   detectors positions
+%                   or
+%                   3x3 matrix in the format [qh_min,qh_step,qh_max;
+%                   qk_min,qk_step,qk_max;ql_min,q_step,q;_max] providing
+%                   q-range
+%                   The fake detectors positions used in sqw object caclulations
+%                   would be calculated from the q-range provided assuming
+%                   elastic scattering (0-energy transfer)
+%
 %   sqw_file        Full file name of output sqw file, or empty string if
-%                  one wants to return a fake sqw object.
+%                   one wants to return a fake sqw object.
 %
 %   efix            Fixed energy (meV)                 [scalar or vector length nfile]
 %   emode           Direct geometry=1, indirect geometry=2    [scalar]
@@ -92,6 +103,29 @@ else
     return_sqw_obj = false;
 end
 
+% Check emode, alatt, angdeg, u, v etc. and determine number of spe files
+if numel(en)>1
+    nfiles_in=numel(en); % no. datasets determined by number of energy arrays
+else
+    nfiles_in=[];        % no. datasets determine from length of arrays of other parameters
+end
+[ok,mess,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=gen_sqw_check_params...
+    (nfiles_in,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
+if ~ok, error(mess), end
+if efix(1)==0, error('Must have emode=1 (director geometry) or =2 (indirect geometry)'), end
+
+
+
+% A q-range at zero energy transfer is provided
+if ~ischar(par_file) && (isnumeric(par_file) )
+    if ~isempty(nfiles_in) && nfiles_in>1
+        error('FAKE_SQW:invalid_argument',...
+            'Fake sqw with q-range input can not generate mutliple sqw files');
+    end
+    % now the par file is the 
+    par_file = build_det_from_q_range(par_file,efix,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
+end
+
 
 [ok, mess, spe_file, par_file, sqw_file] = gen_sqw_check_files...
     (spe_file, par_file, sqw_file, require_spe_exist, require_spe_unique, require_sqw_exist);
@@ -101,16 +135,6 @@ if return_sqw_obj
 end
 
 
-% Check emode, alatt, angdeg, u, v etc. and determine number of spe files
-if numel(en)>1
-    nfiles_in=numel(en); % no. datasets determined by number of energy arrays
-else
-    nfiles_in=[];        % no. datasets determine from length of arrays of other parmaeters
-end
-[ok,mess,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=gen_sqw_check_params...
-    (nfiles_in,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
-if ~ok, error(mess), end
-if efix(1)==0, error('Must have emode=1 (director geometry) or =2 (indirect geometry)'), end
 
 nfiles=numel(efix);
 if nfiles>1 && numel(en)==1
@@ -207,7 +231,7 @@ for i=1:nfiles
     run_files{i}.en = en{i};
     %
     w = run_files{i}.calc_sqw(grid_size, urange,cache_opt{:});
-
+    
     if return_sqw_obj
         tmp_sqw{i} = w;
     else
@@ -242,5 +266,5 @@ end
 
 % Clear output arguments if nargout==0 to have a silent return
 if nargout==0
-    clear tmp_file grid_size urange    
+    clear tmp_file grid_size urange
 end
