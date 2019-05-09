@@ -1,5 +1,5 @@
 function  [det_pos,par_file_name] = build_det_from_q_range(q_range,efix,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs,filename)
-% create fake detector file which would cover the q-range provided as input
+% Create fake detector file which would cover the q-range provided as input
 %
 % Inputs:
 % q_range --  3xNdet array of [h,k,l] momentums corresponding to the
@@ -10,6 +10,9 @@ function  [det_pos,par_file_name] = build_det_from_q_range(q_range,efix,alatt,an
 %             q-range (at zero energy transfer) to evaluate sqw file.
 %             The fake detectors positions would be calculated from the
 %             q-range provided.]
+%             or 1x3 vector [q_min,q_step,q_max] providing the same
+%             range in all 3 hkl directions.
+%
 %
 % Goniometer and sample position, defining q-transformation:
 %   efix            Fixed energy (meV)                 [scalar or vector length nfile]
@@ -58,8 +61,8 @@ if size(q_range,2) ~=3
 end
 if all(size(q_range) == [3,3])
     [q1,q2,q3] = ndgrid(q_range(1,1):q_range(1,2):q_range(1,3),...
-        q_range(2,1):q_range(2,2):q_range(2,1),...
-        q_range(3,1):q_range(3,2):q_range(3,1));
+        q_range(2,1):q_range(2,2):q_range(2,3),...
+        q_range(3,1):q_range(3,2):q_range(3,3));
     nq = numel(q1);
     q_range = [reshape(q1,nq,1),reshape(q2,nq,1),reshape(q3,nq,1)];
 elseif all(size(q_range) == [1,3])
@@ -75,7 +78,7 @@ lat = oriented_lattice(alatt,angdeg,psi,u,v,omega,dpsi,gl,gs);
 
 %
 c=neutron_constants;
-k_to_e = c.c_k_to_emev;  
+k_to_e = c.c_k_to_emev;
 ki = sqrt(efix/k_to_e);
 %
 detdcn  = ([1;0;0]- spec_to_rlu\q_range'/ki)' ;
