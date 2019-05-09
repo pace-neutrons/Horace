@@ -78,7 +78,7 @@ c=neutron_constants;
 k_to_e = c.c_k_to_emev;  
 ki = sqrt(efix/k_to_e);
 %
-detdcn  = [1,0,0]- q_range/(spec_to_rlu*ki) ;
+detdcn  = ([1;0;0]- spec_to_rlu\q_range'/ki)' ;
 [azim,el,r] = cart2sph(detdcn(:,2),detdcn(:,3),detdcn(:,1));
 
 det_pos = convert_to_det_pos(azim,pi/2-el,r);
