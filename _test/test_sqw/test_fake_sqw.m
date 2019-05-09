@@ -32,10 +32,10 @@ classdef test_fake_sqw < TestCase
         par_file
         % the random parameters for the transformation
         %   {      emode efix,   alatt,     angdeg,         u,               v,            psi,
-        gen_sqw_par = {1,35,[4.4,5.5,6.6],[100,105,110],[1.02,0.99,0.02],[0.025,-0.01,1.04],80,...
-            10,0.1,3,2.4}; %omega, dpsi, gl, gs};
-        %gen_sqw_par = {1,35,[2,2,2],[90,90,90],[1,0,0],[0,0,1],80,...
-        %    0,0,0,0}; %omega, dpsi, gl, gs};
+%         gen_sqw_par = {1,35,[4.4,5.5,6.6],[100,105,110],[1.02,0.99,0.02],[0.025,-0.01,1.04],80,...
+%             10,0.1,3,2.4}; %omega, dpsi, gl, gs};
+        gen_sqw_par = {1,35,[2,2,2],[90,90,90],[1,0,0],[0,0,1],80,...
+           0,0,0,0}; %omega, dpsi, gl, gs};
         
     end
     
@@ -85,8 +85,9 @@ classdef test_fake_sqw < TestCase
             de0 = pix(4,:)==0;
             assertEqual(sum(de0),96);
             
-            q_range = pix(1:3,de0)';
-
+            q_range = pix(1:3,de0)'; % this is q-range in crystal catresizan
+            u_to_rlu = tsqw.data.u_to_rlu(1:3,1:3);
+            q_range = q_range*u_to_rlu ; % convert q into hkl
             % verify the fact that the detector positions, processed from
             % the pixel information provide the same result as normal
             % detector positions
