@@ -12,13 +12,14 @@ function urange=range_add_border(urange_in, tol)
 %               tol=0   No border
 %               tol>0   Absolute value of thickness of border
 %               tol<0   Relative size as a proportion of the range along
-%                       each axis.
+%                       each axis. If the range is zero, absolute tol value
+%                       is used.
 %
 % Output:
 % -------
 %   urange      Expanded range
 
-ndim=size(urange_in,1);
+ndim=size(urange_in,2);
 if tol==0
     urange=urange_in;
     return
@@ -30,4 +31,6 @@ elseif tol<0
     border=[-border;border];
     urange=urange_in;
     urange(:,~no_range)=urange(:,~no_range)+border(:,~no_range);
+    abs_tol = abs(tol)*([-ones(1,ndim);ones(1,ndim)]);
+    urange(:,no_range)  = urange(:,no_range)+abs_tol(:,no_range);   
 end

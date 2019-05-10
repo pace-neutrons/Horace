@@ -222,3 +222,4 @@ sqw_data.e=sum(pix(9,:));   % take advantage of the squaring that has already be
 sqw_data.npix=ne*ndet;
 sqw_data.urange=urange;
 sqw_data.pix=pix;
+
