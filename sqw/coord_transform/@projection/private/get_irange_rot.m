@@ -146,7 +146,7 @@ function [istart,iend,inside,outside] = get_irange3D_rot(this,urange,p1,p2,p3)
 %          boundaries.
 
 [rot,trans] = this.get_box_transf_();
-
+% the coordinates of the new grid
 psize=[numel(p1),numel(p2),numel(p3)];
 
 % Grid of bin verticies:

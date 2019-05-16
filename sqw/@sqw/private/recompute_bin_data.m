@@ -5,6 +5,9 @@ function wout=recompute_bin_data(w)
 
 % See also average_bin_data, which uses en essentially the same algorithm. Any changes
 % to the one routine must be propagated to the other.
+%
+% the routine uses npix array which should be comparable with pix array (calculated for given pix array).
+% 
 
 % Original author: T.G.Perring
 %
