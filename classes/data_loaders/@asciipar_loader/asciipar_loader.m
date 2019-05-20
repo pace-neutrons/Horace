@@ -235,7 +235,7 @@ classdef asciipar_loader
             % get number of detectors described in ASCII par or phx file
             
             fid=fopen(par_file_name,'rt');
-            if fid==-1,
+            if fid==-1
                 error('ASCIIPAR_LOADER:get_par_info','Error opening file %s\n',par_file_name);
             end
             
