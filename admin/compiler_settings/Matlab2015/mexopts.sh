@@ -26,9 +26,9 @@
     TMW_ROOT="$MATLAB"
     MFLAGS=''
     if [ "$ENTRYPOINT" = "mexLibrary" ]; then
-        MLIBS="-L$TMW_ROOT/bin/$Arch -lmx -lmex -lmat -lmwservices -lut -lblas  -lhdf5 -lhdf5_hl"
+        MLIBS="-L$TMW_ROOT/bin/$Arch -lmx -lmex -lmat -lmwservices -lut -lhdf5 -lhdf5_hl"
     else  
-        MLIBS="-L$TMW_ROOT/bin/$Arch -lmx -lmex -lmat -lut -lblas  -lhdf5 -lhdf5_hl"
+        MLIBS="-L$TMW_ROOT/bin/$Arch -lmx -lmex -lmat -lut -lhdf5 -lhdf5_hl"
     fi
     case "$Arch" in
         Undetermined)
@@ -71,7 +71,7 @@ echo "Error: Did not imbed 'options.sh' code"; exit 1 #imbed options.sh glnx86 1
             # C++keyVersion:
             # C++keyLinkerName: GNU ld
             # C++keyLinkerVersion:  
-            CXX='g++'
+            CXX='g++-4.8'
             CXXFLAGS='-ansi -D_GNU_SOURCE -g'
             CXXFLAGS="$CXXFLAGS -fPIC -fno-omit-frame-pointer -pthread -fopenmp -std=c++11"
             CXXLIBS="$RPATH $MLIBS -lm"
