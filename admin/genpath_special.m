@@ -31,7 +31,7 @@ end
 % initialise variables
 classsep = '@';  % qualifier for overloaded class directories
 packagesep = '+';  % qualifier for overloaded package directories
-svn        = '.svn'; % subversion folder
+svn        = '.git'; % subversion folder
 service_dir = '_'; % qualifier for service folders
 p = '';           % path to be returned
 

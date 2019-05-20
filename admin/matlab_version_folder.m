@@ -23,7 +23,7 @@ function [matlab_dirname,dll_extention,os_dirname]=matlab_version_folder(varargi
 
 
 % Construct the current Matlab version folder name e.g. '_R2009a'
-matlab_dirname=['_',matlab_release()];
+%matlab_dirname=['_',matlab_release()];
 
 % Get the OS folder name.
 if(nargin==0)
@@ -34,46 +34,19 @@ end
 version_number = matlab_version_num();
 
 % Get default matlab directory name from which to use mex file dlls
-if version_number<7.04      % i.e. matlab version 7.4 i.e. R2007a
-    % Alex has a query on 7.3 (R2006b)
-    warning(['This version of mex-files has not been tested with Matlab version %s \n',...
-        'Trying to use the files tested with Matlab 7.4 (2007a) but they may not work'],...
-        version());
-    matlab_dirname='_R2007a';
-    
-elseif(version_number>9.1) % tested up to R2016b
+if version_number<8.05      % i.e. matlab version 8.4 i.e. R20014b
+    matlab_dirname='_R2014b';    
+elseif(version_number>9.06) % tested up to R2019a
     warning(['This subversion of mex-files has not been tested with Matlab version %s \n',...
-        'Trying to use the files tested with Matlab 9.1 (2016b) but they may not work'],...
+        'Trying to use the files tested with Matlab 9.06 (2019a) but they may not work'],...
         version());
-    matlab_dirname='_R2009a';
+    matlab_dirname='_R2015a';
+else
+    matlab_dirname='_R2015a';    
 end
 
-% Return the matlab directory name from which to use mex file dlls
-if strcmp(os_dirname,'_PCWIN') || strcmp(os_dirname,'_PCWIN64')
-    % 32 and 64 bit windows; the following changes and dependencies have been identified;
-%    if(strcmp('_R2007b',matlab_dirname)||strcmp('_R2007a',matlab_dirname))
-%        matlab_dirname='_R2007a';
-%    else
-        matlab_dirname='_R2009a';
-%    end
-    
-elseif strcmp(os_dirname,'_GLNX86')
-    % linux 32 bit
-    matlab_dirname='_R2009a';   % only this one has been tested at the moment
-    
-elseif strcmp(os_dirname,'_GLNXA64')
-    % linux 64 bit
-    if(strcmp('_R2007b',matlab_dirname)||strcmp('_R2007a',matlab_dirname))
-        matlab_dirname='_R2007a';
-    else
-        matlab_dirname='_R2009a';
-    end
-elseif strcmp(os_dirname,'_MACI64')
-         matlab_dirname='_R2009a';
-else
-    % OS which is not currently supported by this script
-    matlab_dirname = '';
-    
+if strcmp(os_dirname,'_MACI64')
+     matlab_dirname='_R2015a';
 end
 
 
