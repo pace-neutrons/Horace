@@ -30,6 +30,7 @@
     <ProjectGuid>{2F2ECEEF-3129-4E36-AB1F-005C19F06512}</ProjectGuid>
     <RootNamespace>sort_pixels_by_bins</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">

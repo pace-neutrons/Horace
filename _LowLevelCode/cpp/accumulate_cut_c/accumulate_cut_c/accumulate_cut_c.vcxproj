@@ -30,6 +30,7 @@
     <ProjectGuid>{FFD6E603-ED85-4A3A-A35E-6D847CE2AB19}</ProjectGuid>
     <RootNamespace>accumulate_cut_c</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
