@@ -30,7 +30,7 @@
     <ProjectGuid>{D283F07C-8003-4356-B434-74CE7E42E31B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>recompute_bin_data</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
     <ProjectName>recompute_bin_data_c</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />

@@ -30,7 +30,7 @@
     <ProjectGuid>{874CB72F-251B-455E-8024-35C9710C18EB}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>combine_sqw</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
     <ProjectName>combine_sqw</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
