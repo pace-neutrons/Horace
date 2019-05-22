@@ -117,7 +117,7 @@ end
 % Check if all requested par files exist:
 if ~parfile_is_det
     for i=1:numel(par_files)
-        file=check_file_exist(par_files{i},'.par');
+        file=check_file_exist(par_files{i},{'.par','.nxspe'});
         if isempty(file)
             error('GEN_RUNFILES:invalid_argument',' par file %s specified but can not be found',file);
         end
