@@ -56,7 +56,7 @@ echo "Error: Did not imbed 'options.sh' code"; exit 1 #imbed options.sh glnx86 1
             # CkeyVersion:
             # CkeyLinkerName: GNU ld
             # CkeyLinkerVersion:
-            CC='gcc'
+            CC='gcc-4.8'
             CFLAGS='-ansi -D_GNU_SOURCE'
             CFLAGS="$CFLAGS  -fexceptions -fopenmp"
             CFLAGS="$CFLAGS -fPIC -fno-omit-frame-pointer -pthread"
@@ -85,8 +85,8 @@ echo "Error: Did not imbed 'options.sh' code"; exit 1 #imbed options.sh glnx86 1
             # FortrankeyLinkerName: GNU ld
             # FortrankeyLinkerVersion:  
 #
-            FC='gfortran'
-            FFLAGS="-fexceptions -fbackslash -fopenmp -cpp -I$TMW_ROOT/extern/include/"
+            FC='gfortran-4.8'
+            FFLAGS="-ffixed-line-length-132 -fexceptions -fbackslash -fopenmp -cpp -I$TMW_ROOT/extern/include/"
             FFLAGS="$FFLAGS -fPIC -fno-omit-frame-pointer"
             FLIBS="$RPATH $MLIBS -lm"
             FOPTIMFLAGS='-O'

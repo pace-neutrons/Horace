@@ -15,27 +15,36 @@ function horace_mex
 start_dir=pwd;
 C_compiled=false;
 root_dir = fileparts(which('horace_init.m'));
+
+% check OS for hdf compilation puirposes
 if ispc
     hdf_ext = '_win';
 elseif isunix
-    hdf_ext = '_unix';    
+    hdf_ext = '_unix';
 elseif ismac
-    hdf_ext = '_unix';        
+    hdf_ext = '_unix';
     warning('HORACE_MEX:not_implemented',...
         'MAC compilation is not implemented. Trying with Unix settings which probably would not work');
 end
+% settings for compiling hdf routines
 [ma,me,mi]=H5.get_libversion();
 hdf_version = ma+0.1*me+0.001*mi;
 if hdf_version == 1.812
     hdf_root_dir = fullfile(root_dir,'_LowLevelCode','build_all',['HDF5_1.8.12',hdf_ext]);
+elseif hdf_version == 1.806
+    hdf_root_dir = fullfile(root_dir,'_LowLevelCode','build_all',['HDF5_1.8.6',hdf_ext]);
 else
     error('HORACE_MEX:not_implemented',...
         ['Matlab uses %d.%d.%d version of HDF library. ',...
-        'HDF mex code is provided for HDF 1.8.12 version only.',...
+        'HDF mex code is provided for HDF 1.8.12 and 1.8.6 versions only.',...
         ' You need to download appropriate hdf headers yourseld and modify horace_mex to use your version'],...
         ma,me,mi);
 end
 hdf_include_dir = fullfile(hdf_root_dir,'include');
+% lib directirues:
+%arc = computer('arch');
+%lib_dir = fullfile(matlabroot,'bin',arc);
+
 try % mex C++
     disp('**********> Creating mex files from C++ code')
     % root directory is assumed to be that in which this function resides
@@ -46,21 +55,30 @@ try % mex C++
     cpp_in_rel_dir = ['_LowLevelCode',filesep,'cpp',filesep];
     % get folder names corresponding to the current Matlab version and OS
     [VerFolderName,versionDLLextention,OSdirname]=matlab_version_folder();
-    out_rel_dir = ['DLL',filesep,OSdirname,filesep,VerFolderName];
+    if ispc
+        out_rel_dir = fullfile('DLL',OSdirname);
+        out_hdf_dir = fullfile('DLL',OSdirname,VerFolderName);
+    else %Unix
+        out_rel_dir = fullfile('DLL',OSdirname,VerFolderName);
+        out_hdf_dir = out_rel_dir;
+    end
+    
     if(~exist(out_rel_dir,'dir'))
         mkdir(out_rel_dir);
     end
-    
+    % simple OMP routines
     mex_single([cpp_in_rel_dir 'accumulate_cut_c/accumulate_cut_c'], out_rel_dir,'accumulate_cut_c.cpp');
     mex_single([cpp_in_rel_dir 'bin_pixels_c/bin_pixels_c'], out_rel_dir,'bin_pixels_c.cpp');
     mex_single([cpp_in_rel_dir 'calc_projections_c/calc_projections_c'], out_rel_dir,'calc_projections_c.cpp');
     mex_single([cpp_in_rel_dir 'sort_pixels_by_bins/sort_pixels_by_bins'], out_rel_dir,'sort_pixels_by_bins.cpp');
     mex_single([cpp_in_rel_dir 'recompute_bin_data'], out_rel_dir,'recompute_bin_data_c.cpp');
-    mex_single([cpp_in_rel_dir 'mtimesx_horace'], out_rel_dir,'mtimesx_mex.cpp');    
+    mex_single([cpp_in_rel_dir 'mtimesx_horace'], out_rel_dir,'mtimesx_mex.cpp');
+    
+    % create the procedured to access hdf files
     cof = {'hdf_mex_reader.cpp','hdf_pix_accessor.cpp','input_parser.cpp',...
-       'pix_block_processor.cpp'};
-    mex_hdf([cpp_in_rel_dir 'hdf_mex_reader'], out_rel_dir,hdf_include_dir,cof{:} );
-
+        'pix_block_processor.cpp'};
+    mex_hdf([cpp_in_rel_dir 'hdf_mex_reader'], out_hdf_dir,hdf_include_dir,cof{:} );
+    
     
     disp('**********> Successfully created required mex files from C++')
     C_compiled=true;
@@ -71,13 +89,13 @@ catch ME
     
 end
 try
-   cof = {'combine_sqw.cpp','exchange_buffer.cpp','fileParameters.cpp',...
-       'pix_mem_map.cpp', 'sqw_pix_writer.cpp', 'sqw_reader.cpp', 'nsqw_pix_reader.cpp'};
-   mex_single([cpp_in_rel_dir 'combine_sqw'], out_rel_dir,cof{:} );
-   disp('**********> Successfully created mex file for combining components from C++')   
+    cof = {'combine_sqw.cpp','exchange_buffer.cpp','fileParameters.cpp',...
+        'pix_mem_map.cpp', 'sqw_pix_writer.cpp', 'sqw_reader.cpp', 'nsqw_pix_reader.cpp'};
+    mex_single([cpp_in_rel_dir 'combine_sqw'], out_rel_dir,cof{:} );
+    disp('**********> Successfully created mex file for combining components from C++')
 catch ME
     message=ME.message;
-    warning('**********> Can not create C++ combining procedure, reason: %s. combining using C++ is not availile',message);   
+    warning('**********> Can not create C++ combining procedure, reason: %s. combining using C++ is not availile',message);
 end
 %
 F_compiled=false;
@@ -130,13 +148,7 @@ disp(['Mex file creation from ',short_fname,' ...'])
 if ~check_access(outdir,add_files{1})
     error('MEX_SINGLE:invalid_arg',' can not get write access to new mex file: %s',fullfile(outdir,add_files{1}));
 end
-if(nFiles==1)
-    fname      = strtrim(add_files{1});
-    mex(fname, '-outdir', outdir);
-else  
-    %mex('-g',add_files{:}, '-outdir', outdir);
-    mex(['-I',hdf_include],'-lut',add_files{:}, '-outdir', outdir);    
-end
+mex(['-I',hdf_include],'-lhdf5','-lhdf5_hl',add_files{:}, '-outdir', outdir);
 
 
 
@@ -167,10 +179,11 @@ if ~check_access(outdir,add_files{1})
 end
 if(nFiles==1)
     fname      = strtrim(add_files{1});
-    mex(fname, '-outdir', outdir);
-else  
+    %cxx_flags = "
+    mex('CXXFLAGS= $CFLAGS  -fopenmp -std=c++11','LDFLAGS= -pthread -Wl,--no-undefined  -fopenmp',fname, '-outdir', outdir);
+else
     %mex('-g',add_files{:}, '-outdir', outdir);
-    mex('-lut',add_files{:}, '-outdir', outdir);    
+    mex('-lut','CXXFLAGS=$CFLAGS -fopenmp -std=c++11','LDFLAGS= -pthread -Wl,--no-undefined  -fopenmp',add_files{:}, '-outdir', outdir);
 end
 
 function access =check_access(outdir,filename)

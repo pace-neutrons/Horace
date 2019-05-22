@@ -128,6 +128,7 @@ if ~isempty(par_file)
         par_file_out = par_file.filename;
     end
 else
+    det_par_file = false;
     par_file_out='';
 end
 
