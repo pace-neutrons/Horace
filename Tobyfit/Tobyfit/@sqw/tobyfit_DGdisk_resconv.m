@@ -256,7 +256,7 @@ for i=1:numel(ind)
                     chop_shape_fwhh(irun)');
             end
             % Debug output - ifnored if debugtools are 'off'
-            debugtools(@debug_histogram_array, (10^6)*yvec(1,1,:), 't_shape', 'microseconds')
+            %debugtools(@debug_histogram_array, (10^6)*yvec(1,1,:), 't_shape', 'microseconds')
         end
         
         % Divergence
