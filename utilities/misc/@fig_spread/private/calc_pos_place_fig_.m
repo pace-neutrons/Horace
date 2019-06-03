@@ -4,7 +4,7 @@ function self = calc_pos_place_fig_(self,fig_handle,varargin)
 %
 %
 %
-% $Revision:: 830 ($Date:: 2019-04-09 10:03:50 +0100 (Tue, 9 Apr 2019) $)
+% $Revision:: 831 ($Date:: 2019-06-03 09:47:08 +0100 (Mon, 3 Jun 2019) $)
 %
 keywords={'-rise'};
 [ok,mess,rise_fig]=parse_char_options(varargin,keywords);

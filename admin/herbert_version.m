@@ -37,7 +37,7 @@ application.name='herbert';
 
 application.version=1;
 
-Matlab_SVN='$Revision:: 830 ($Date:: 2019-04-09 10:03:50 +0100 (Tue, 9 Apr 2019) $)';
+Matlab_SVN='$Revision:: 831 ($Date:: 2019-06-03 09:47:08 +0100 (Mon, 3 Jun 2019) $)';
 
 % % Information about name and version of application
 mexMinVer     = 'disabled';
@@ -60,4 +60,5 @@ application.mex_last_compilation_date=date;
 if nargin>0    
     Matlab_SVN =sprintf('%d.%d',application.version,application.svn_version);
 end
+
 

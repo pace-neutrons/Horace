@@ -3,7 +3,7 @@ classdef FailMessage < aMessage
     % information to a single task of a distributed job.
     %
     %
-    % $Revision:: 830 ($Date:: 2019-04-09 10:03:50 +0100 (Tue, 9 Apr 2019) $)
+    % $Revision:: 831 ($Date:: 2019-06-03 09:47:08 +0100 (Mon, 3 Jun 2019) $)
     %
     %
     properties(Dependent)

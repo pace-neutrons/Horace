@@ -11,7 +11,7 @@ function  [this,ok,mess,undef_list] = load_metadata(this,varargin)
 % if '-for_pwder'  option is specified, lattice or lattice fields do not
 % need to be defined
 %
-% $Revision:: 830 ($Date:: 2019-04-09 10:03:50 +0100 (Tue, 9 Apr 2019) $)
+% $Revision:: 831 ($Date:: 2019-06-03 09:47:08 +0100 (Mon, 3 Jun 2019) $)
 %
 keys = {'-for_powder'};
 [ok,mess,for_powder] = parse_char_options(varargin,keys);

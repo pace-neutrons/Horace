@@ -29,7 +29,7 @@ classdef IX_dataset_1d < IX_data_1d
     %                                      cell array or a character array)
     %   x_distribution  logical         Distribution data flag (true is a distribution; false otherwise)
     %
-    % $Revision:: 830 ($Date:: 2019-04-09 10:03:50 +0100 (Tue, 9 Apr 2019) $)
+    % $Revision:: 831 ($Date:: 2019-06-03 09:47:08 +0100 (Mon, 3 Jun 2019) $)
     %        
     methods(Static)
         function obj = loadobj(data)

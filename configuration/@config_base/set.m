@@ -34,7 +34,7 @@ function this=set(this,varargin)
 %   Note: a subsequent change that does explicitly accumulate in the buffer will
 %   save all changes in the buffer as well.
 
-% $Revision:: 830 ($Date:: 2019-04-09 10:03:50 +0100 (Tue, 9 Apr 2019) $)
+% $Revision:: 831 ($Date:: 2019-06-03 09:47:08 +0100 (Mon, 3 Jun 2019) $)
 
 options = {'defaults','saved','-buffer','-save'};
 [ok,mess,set_defaults,set_saved,save_to_buffer,save_to_file,other_options]=parse_char_options(varargin,options);

@@ -2,7 +2,7 @@ classdef memfile<a_loader
     % class which resembles data file stored to memory and loaded from
     % memory
     %
-    % $Revision:: 830 ($Date:: 2019-04-09 10:03:50 +0100 (Tue, 9 Apr 2019) $)
+    % $Revision:: 831 ($Date:: 2019-06-03 09:47:08 +0100 (Mon, 3 Jun 2019) $)
     %
     % the properties common for all data loaders.
     properties(Dependent)
