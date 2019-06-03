@@ -3,7 +3,7 @@ function wout = smooth_units (win,varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1750 ($Date:: 2019-04-09 10:04:04 +0100 (Tue, 9 Apr 2019) $)
+% $Revision:: 1751 ($Date:: 2019-06-03 09:47:49 +0100 (Mon, 3 Jun 2019) $)
 
 % Only applies to dnd datasets at the moment. Check all elements before smoothing (avoids possibly costly wasted computation if error)
 for i=1:numel(win)

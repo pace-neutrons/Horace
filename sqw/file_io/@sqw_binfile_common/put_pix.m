@@ -14,7 +14,7 @@ function   obj = put_pix(obj,varargin)
 % If update options is selected, file header have to exist. This option keeps
 % exisitng file information untouched;
 %
-% $Revision:: 1750 ($Date:: 2019-04-09 10:04:04 +0100 (Tue, 9 Apr 2019) $)
+% $Revision:: 1751 ($Date:: 2019-06-03 09:47:49 +0100 (Mon, 3 Jun 2019) $)
 %
 [ok,mess,update,nopix,reserve,argi] = parse_char_options(varargin,{'-update','-nopix','-reserve'});
 if ~ok
