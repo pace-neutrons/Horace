@@ -15,7 +15,7 @@ function [ok,mess] = check_equal_sizes(obj,other_obj)
 % if upgrade map for other_obj is shorter than obj, its assumed that sizes are equal, if
 % longer, then not.
 %
-% $Revision:: 1750 ($Date:: 2019-04-09 10:04:04 +0100 (Tue, 9 Apr 2019) $)
+% $Revision:: 1751 ($Date:: 2019-06-03 09:47:49 +0100 (Mon, 3 Jun 2019) $)
 %
 
 bs1 = obj.get_must_fit();

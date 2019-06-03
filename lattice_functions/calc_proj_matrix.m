@@ -38,7 +38,7 @@ function [spec_to_u, u_to_rlu, spec_to_rlu] = calc_proj_matrix (alatt, angdeg, u
 
 % T.G.Perring 15/6/07
 %
-% $Revision:: 1750 ($Date:: 2019-04-09 10:04:04 +0100 (Tue, 9 Apr 2019) $)
+% $Revision:: 1751 ($Date:: 2019-06-03 09:47:49 +0100 (Mon, 3 Jun 2019) $)
 
 
 % Get matrix to convert from rlu to orthonormal frame defined by u,v; and 

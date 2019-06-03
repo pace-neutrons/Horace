@@ -24,7 +24,7 @@ function wout=correct_mag_ff(self,win)
 %   initial dataset (within the round-off errors caused by division and then
 %   multiplication by the same (often large or small) numbers.
 %
-% $Revision:: 1750 ($Date:: 2019-04-09 10:04:04 +0100 (Tue, 9 Apr 2019) $)
+% $Revision:: 1751 ($Date:: 2019-06-03 09:47:49 +0100 (Mon, 3 Jun 2019) $)
 %
 
 
