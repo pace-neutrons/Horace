@@ -1,24 +1,36 @@
 classdef pdf_table
     % Probability distribution function table
+    % Given a set of x-values and associated function values, a normalised
+    % probability distribution lookup table is created. The method named rand
+    % will return random samples from the probability distribution function (pdf)
+    % if called on the resulting object. The random numbers are drawn from the
+    % function defined by linear interpolation between the supplied x-values
+    % and function values.
+    %
+    % See also pdf_table_array pdf_table_lookup
+    
     
     properties (Access=private)
         % x values
-        x_ = [];
+        x_ = zeros(0,1)
         % Normalised values of pdf
-        f_ = [];
+        f_ = zeros(0,1)
+        % Maximum value of the noramlised values of pdf
+        fmax_ = []
         % Normalised cumulative distribution function:
         % A(i) is the cdf up to x(i); A(1)=0 and A(end)=1
-        A_ = [];
+        A_ = zeros(0,1)
         % Gradient m(i) = (f(i+1)-f(i))/(x(i+1)-x(i))
-        m_ = [];
+        m_ = zeros(0,1)
     end
     
     properties (Dependent)
-        x       % x values
-        f       % Values of the probability distribution function (pdf) at the x values
-        A       % Cumulative distribution function at x values (A(1)=0, A(end)=1))
-        m       % Gradient m(i) is gradient betwee x(i) anbd x(i+1)
-        valid   % True or false according as the object being a valid pdf or not
+        x       % x values (column vector)
+        f       % Values of the probability distribution function (pdf) at the x values (column vector)
+        fmax    % Maximum value of the values of the probability distribution function (pdf) (column vector)
+        A       % Cumulative distribution function at x values (A(1)=0, A(end)=1)) (column vector)
+        m       % Gradient m(i) is gradient betwee x(i) and x(i+1) (column vector)
+        filled  % True or false according as the object containing a pdf or not
     end
     
     methods
@@ -28,10 +40,10 @@ classdef pdf_table
         function obj = pdf_table (x,pdf,varargin)
             % Create a probability distribution function table
             %
-            %   >> pdf_table (x, pdf_values)
+            %   >> obj = pdf_table (x, pdf_values)
             %
-            %   >> pdf_table (x, pdf_handle)
-            %   >> pdf_table (x, pdf_handle, p1, p2,...)
+            %   >> obj = pdf_table (x, pdf_handle)
+            %   >> obj = pdf_table (x, pdf_handle, p1, p2,...)
             %
             % Input:
             % ------
@@ -41,24 +53,33 @@ classdef pdf_table
             %               at the values of x
             %     *OR*
             %   pdf_handle  Function handle that returns the probability distribution
-            %              function at the values of x. 
+            %              function at the values of x.
             %           	The function must have the form:
-            %                   pdf = my_funchandle (x)
+            %                   pdf = my_function (x)
             %               or:
-            %                   pdf = my_funchandle (x, p1, p2,...)
+            %                   pdf = my_function (x, p1, p2,...)
             %               where p1, p2, ... are parameters as needed by the function
             %              to compute the probability distribution function
             %
             %               EXAMPLE:
             %                   pdf = gauss (x, p);     p=[height, centre, st_dev]
             %
-            %   p1, p2,...  Arguments needed by the function
+            %   p1, p2,...  Any arguments needed by the function. In the example
+            %              function gauss above, p1 = [height, centre, st_dev]
+            %
+            % Output:
+            % -------
+            %   obj         pdf_table object
             %
             %
             % In either case of the pdf being provided as a numerical array or computed
             % by a function, all values of the pdf must be greater or equal to zero.
             % The pdf need not be normalised to unit area, as normalisation will be
-            % performed by this constructor.
+            % performed internally by this constructor.
+            %
+            % The suppied function values do not need to be continuous. FOr example,
+            % to define the function x=[0,1,1,2]; pdf_values = [1,1,2,2] defines
+            % a step at x=0 that jumps at x=1 to twice the height.
             
             
             if nargin>0
@@ -99,6 +120,7 @@ classdef pdf_table
                 Atot = A(end);
                 obj.x_ = x;
                 obj.f_ = f/Atot;                % to give normalised area
+                obj.fmax_ = max(obj.f_);        % handy to save time elsewhere
                 obj.A_ = [0;A(1:end-1)/Atot;1]; % normalise the area
                 obj.m_ = diff(obj.f_)./diff(obj.x_);
             end
@@ -114,6 +136,10 @@ classdef pdf_table
             val=obj.f_;
         end
         
+        function val=get.fmax(obj)
+            val=obj.fmax_;
+        end
+        
         function val=get.A(obj)
             val=obj.A_;
         end
@@ -122,44 +148,10 @@ classdef pdf_table
             val=obj.m_;
         end
         
-        function val=get.valid(obj)
+        function val=get.filled(obj)
             val=~isempty(obj.x_);
         end
         
-        %------------------------------------------------------------------
-        function X = rand (obj, varargin)
-            % Generate random numbers from the probability distribution function
-            %
-            %   >> X = rand (obj)                % generate a single random number
-            %   >> X = rand (obj, n)             % n x n matrix of random numbers
-            %   >> X = rand (obj, sz)            % array od size sz
-            %   >> X = rand (obj, sz1, sz2,...)  % array of size [sz1,sz2,...]
-            %
-            % Input:
-            % ------
-            %   n           Return square array of random numbers with size n x n
-            %      *OR*
-            %   sz          Size of array of output array of random numbers
-            %      *OR*
-            %   sz1,sz2...  Extent along each dimension of random number array
-            %
-            % Output:
-            % -------
-            %   X           Array of random numbers
-            
-            if ~obj.valid
-                error('The probability distribution function is not initialised')
-            end
-            
-            Asamp = rand(varargin{:});
-            
-            xx = obj.x_; ff = obj.f_; AA = obj.A_; mm = obj.m_;
-            ix = upper_index (AA, Asamp(:));
-            X = xx(ix) + 2*(Asamp(:) - AA(ix))./...
-                (ff(ix) + sqrt(ff(ix).^2 + 2*mm(ix).*(Asamp(:)-AA(ix))));
-            X = reshape(X,size(Asamp));
-            
-        end
         %------------------------------------------------------------------
     end
 end

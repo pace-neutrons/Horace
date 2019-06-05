@@ -1,52 +1,76 @@
 classdef object_lookup
-    % Create an object sampling table for a set of arrays of objects. The purpose of this
-    % class is to optimise the speed of selection of random points from a method of the
-    % object with name rand. The optimisation is achieved by creating a lookup table of
-    % unique instances of the objects with associated indexing from the input arrays of
-    % objects. The optimisation arises from the fact that in typical use many of the objects
-    % will be repeated.
+    % Create an object lookup table for a set of arrays of objects.
+    % The purpose of this class is twofold:
     %
-    % For an instance of this class to be created, there must be a method of the input
-    % object call rand that returns random points from the object.
+    %   (1) to minimise memory requirements by retaining only unique instances
+    %       of the objects in the set of arrays, and
+    %   (2) to optimise the speed of selection of random points, or the speed
+    %       of function evaluations, for an array of indices into one of the
+    %       original object arrays. The optimisation arises when the array 
+    %       contains large numbers of repeated indices.
     %
-    % This class is similar to <a href="matlab:help('pdf_table_lookup');">pdf_table_lookup</a>
-    % That class provides random sampling from a one-dimensional probability distribution
-    % function. This class in more general because random sampling that results in a vector or
-    % arrays is supported e.g. when the object method rand suplies a set of points in 3D volume
+    % For the indexed random number generation capability of this class to be
+    % useable, there must be a method of the input object call rand that returns
+    % random points from the object.
+    %
+    % This class has similarities to <a href="matlab:help('pdf_table_lookup');">pdf_table_lookup</a>
+    % for random number generation. That class provides random sampling from a
+    % one-dimensional probability distribution function. This class in more
+    % general because random sampling that results in a vector or array is 
+    % supported e.g. when the object method rand suplies a set of points in a 3D
+    % volume.
+    %
+    % The reason for using this class rather than pdf_lookup is when one or more 
+    % of the following apply:
+    %   (1) the pdf is multi-dimensional
+    %   (2) the main purpose is to compress the memory to keep only unique
+    %       objects with lookup arrays
+    %   (3) indexed object evaluation of general functions is needed 
+    %
+    % See also pdf_table_array
     
     properties (Access=private)
         % Object array (column vector)
-        object_array_
+        object_array_ = []
         % Index array (column vector)
-        % Cell array of indicies into the object_array_, where
-        % ind{i} is a column vector of indicies for the ith object array.
+        % Cell array of indices into the object_array_, where
+        % ind{i} is a column vector of indices for the ith object array.
         % The length of ind{i} = number of objects in the ith object array
-        indx_
+        indx_ = cell(0,1)
     end
     
     properties (Dependent)
         % Object array of unique instance of objects in the input array or cell array
         object_array
         
-        % Cell array of indicies into object_array.
-        % ind{i} is a column vector of indicies for the ith object array.
+        % Cell array of indices into object_array.
+        % ind{i} is a column vector of indices for the ith object array.
         % The length of ind{i} = number of objects in the ith object array
         indx
+        
+        % True or false according as the object containing one or more pdfs or not
+        filled
+        
     end
     
     methods
         %------------------------------------------------------------------
         % Constructor
         %------------------------------------------------------------------
-        function this = object_lookup (objects)
+        function obj = object_lookup (objects)
             % Create object lookup from an array of objects
             %
-            %   >> this = object_lookup (objects)
+            %   >> obj = object_lookup (objects)
             %
             % Input:
             % ------
             %   objects     Object array, or cell array of object arrays
 
+            
+            % Case of no input arguments
+            if nargin==0
+                return
+            end
             
             % Make a cell array for convenience, if not already
             if ~iscell(objects)
@@ -62,7 +86,7 @@ classdef object_lookup
                 end
             end
             
-            % Assemble the objects in one array and get unique entries
+            % Assemble the objects in one array
             nw = numel(objects);
             nel = cellfun(@numel,objects(:));
             if any(nel==0)
@@ -76,10 +100,52 @@ classdef object_lookup
             for i=1:nw
                 obj_all(nbeg(i):nend(i))=objects{i}(:);
             end
-            [obj_unique,~,ind] = uniqueObj(obj_all);
-            this.object_array_ = obj_unique;
-            this.indx_ = mat2cell(ind,nel,1);
             
+            % Get unique entries
+            if fieldsNumLogChar (obj_all, 'indep')
+                [obj_unique,~,ind] = uniqueObj(obj_all);    % simple object
+            else
+                [obj_unique,~,ind] = genunique(obj_all,'resolve','indep');
+            end
+            
+            % Fill lookup properties
+            obj.object_array_ = obj_unique;
+            obj.indx_ = mat2cell(ind,nel,1);
+            
+        end
+        
+        %------------------------------------------------------------------
+        % Set methods for dependent properties
+        
+        function obj=set.object_array(obj,val)
+            % Replace the object lookup table with another set of objects
+            %
+            %   >> obj.object_array = new_object_array
+            %
+            % The number of objects in new array must be scalar or match the
+            % number in the current value of the property object_array.
+            % - If scalar, then it is assumed that every object in the current
+            %   array is to be replaced by a copy of the new object
+            % - If array of same size as current object rray, no check is
+            %   made that the objects are unique. This will not cause an error,
+            %   but calls to function evaluations or random point generation
+            %   will not be as efficient as they could be.
+            
+            if numel(val)==numel(obj.object_array_) || isscalar(val)
+                if numel(obj.object_array_)>0
+                    if numel(val)==numel(obj.object_array_)
+                        obj.object_array_ = val(:);
+                    else
+                        obj.object_array_ = repmat(val(:),size(obj.object_array_));
+                    end
+                else
+                    % Force default null object_array if currently unassigned
+                    null = object_lookup;
+                    obj.object_array = null.object_array_;
+                end
+            else
+                error('Replacement for property ''object_array'' must be scalar or have the same number of objects')
+            end
         end
         
         %------------------------------------------------------------------
@@ -91,6 +157,10 @@ classdef object_lookup
         
         function val=get.object_array(obj)
             val=obj.object_array_;
+        end
+        
+        function val=get.filled(obj)
+            val=(numel(obj.object_array_)>0);
         end
         
         %------------------------------------------------------------------

@@ -1,8 +1,8 @@
-function X = rand_ind (this, varargin)
-% Generate random points for indexed occurences in an object lookup
+function X = rand_ind (obj, varargin)
+% Generate random points for indexed occurences in an object lookup table
 %
-%   >> X = rand_ind (this, iarray, ind)
-%   >> X = rand_ind (this, ind)
+%   >> X = rand_ind (obj, iarray, ind)
+%   >> X = rand_ind (obj, ind)
 %
 % The purpose is to return random points from a function of the form:
 %       X = rand (object, sz)
@@ -12,7 +12,7 @@ function X = rand_ind (this, varargin)
 %
 % Input:
 % ------
-%   this        object_lookup object
+%   obj         object_lookup object
 %
 %   iarray      Scalar index of the original object array from the
 %              cell array of object arrays from which the object lookup
@@ -20,7 +20,7 @@ function X = rand_ind (this, varargin)
 %               If there was only one object array, then iarray is not
 %              necessary (as it assumed iarray=1)
 %
-%   ind         Array containing indicies of objects in the original
+%   ind         Array containing indices of objects in the original
 %              object array referred to by iarray, from which a random point
 %              is to be taken. min(ind(:))>=1, max(ind(:))<=number of objects
 %              in the object array selected by iarray
@@ -48,13 +48,22 @@ function X = rand_ind (this, varargin)
 %           *OR*
 %       sz1,sz2...  Extent along each dimension of random number array
 %
-% Output:
-% -------
+%       Output:
+%       -------
 %       X           Array of random points. If the size of X for a single
-%                   point is sz1, then the size of X is [sz1,sz] with any
+%                   point is sz0, then the size of X is [sz0,sz] with any
 %                   singleton dimensions in the size squeezed away.
 
 
+% Check validity
+if ~isscalar(obj)
+    error('Only operates on a single object_lookup (i.e. object must be scalar');
+end
+if ~obj.filled
+    error('The object_lookup is not initialised')
+end
+
+% Check input arguments
 if numel(varargin)==2
     iarray = varargin{1};
     if ~isscalar(iarray)
@@ -62,7 +71,7 @@ if numel(varargin)==2
     end
     ind = varargin{2};
 elseif numel(varargin)==1
-    if numel(this.indx_)==1
+    if numel(obj.indx_)==1
         iarray = 1;
         ind = varargin{1};
     else
@@ -72,13 +81,13 @@ else
     error('Insufficient number of input arguments')
 end
 
-X = rand_ind_private (this.object_array_, this.indx_{iarray}(ind));
+X = rand_ind_private (obj.object_array_, obj.indx_{iarray}(ind));
 
 
 
 %------------------------------------------------------------------
 function X = rand_ind_private (obj, ind)
-% Given a list of indicies, find location and number of unique occurences
+% Given a list of indices, find location and number of unique occurences
 %
 %   >> X = rand_ind_private (obj, ind)
 %
@@ -100,8 +109,8 @@ function X = rand_ind_private (obj, ind)
 %           *OR*
 %       sz1,sz2...  Extent along each dimension of random number array
 %
-% Output:
-% -------
+%       Output:
+%       -------
 %       X           Array of random points.If the size of X for a single
 %                   point is sz1, then the size of X is [sz1,sz] with any
 %                   singleton dimensions in the size squeezed away.
