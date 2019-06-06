@@ -59,6 +59,7 @@ sqw_file='tobyfit_let_test.sqw';
 % Filename to which saved results are written
 savefile='test_tobyfit_let_2_out.mat';      
 
+error_on_failure = false;
 
 %% --------------------------------------------------------------------------------------
 % Read or create sqw file for refinement test
@@ -146,10 +147,10 @@ whist_1 = get_tshape_histogram (wtmp);
 if test_output
     disp('Comparing with stored whist_1')
     if ~is_histogram_equivalent(whist_1,tmp.whist_1,1.2)
-        error('Histograms not equivalent')
+        error_test (error_on_failure, 'Histograms not equivalent')
     end
     if ~equal_to_tol(fwhh_1, tmp.fwhh_1, [0,0.03])
-        error('fwhh not equivalent')
+        error_test (error_on_failure, 'fwhh not equivalent')
     end
 end
 
@@ -164,10 +165,10 @@ whist_2 = get_tshape_histogram (wtmp);
 if test_output
     disp('Comparing with stored whist_2')
     if ~is_histogram_equivalent(whist_2,tmp.whist_2,1.2)
-        error('Histograms not equivalent')
+        error_test (error_on_failure, 'Histograms not equivalent')
     end
     if ~equal_to_tol(fwhh_2, tmp.fwhh_2, [0,0.03])
-        error('fwhh not equivalent')
+        error_test (error_on_failure, 'fwhh not equivalent')
     end
 end
 
@@ -181,10 +182,10 @@ whist_3 = get_tshape_histogram (wtmp);
 if test_output
     disp('Comparing with stored whist_3')
     if ~is_histogram_equivalent(whist_3,tmp.whist_3,1.2)
-        error('Histograms not equivalent')
+        error_test (error_on_failure, 'Histograms not equivalent')
     end
     if ~equal_to_tol(fwhh_3, tmp.fwhh_3, [0,0.03])
-        error('fwhh not equivalent')
+        error_test (error_on_failure, 'fwhh not equivalent')
     end
 end
 
@@ -199,10 +200,10 @@ whist_4 = get_tshape_histogram (wtmp);
 if test_output
     disp('Comparing with stored whist_4')
     if ~is_histogram_equivalent(whist_4,tmp.whist_4,1.2)
-        error('Histograms not equivalent')
+        error_test (error_on_failure, 'Histograms not equivalent')
     end
     if ~equal_to_tol(fwhh_4, tmp.fwhh_4, [0,0.03])
-        error('fwhh not equivalent')
+        error_test (error_on_failure, 'fwhh not equivalent')
     end
 end
 
@@ -225,7 +226,7 @@ wsim_all = kk.simulate;
 if test_output
     disp('Comparing with stored fwhh_all')
     if ~equal_to_tol(fwhh_all, tmp.fwhh_all, [0,0.03])
-        error('fwhh_all not equivalent')
+        error_test (error_on_failure, 'fwhh_all not equivalent')
     end
 end
 
@@ -239,7 +240,7 @@ wsim_none = kk.simulate;
 if test_output
     disp('Comparing with stored fwhh_none')
     if ~equal_to_tol(fwhh_none, tmp.fwhh_none, [0,0.03])
-        error('fwhh_none not equivalent')
+        error_test (error_on_failure, 'fwhh_none not equivalent')
     end
 end
 
@@ -251,7 +252,7 @@ wsim_shape = kk.simulate;
 if test_output
     disp('Comparing with stored fwhh_mod_and_shape')
     if ~equal_to_tol(fwhh_mod_and_shape, tmp.fwhh_mod_and_shape, [0,0.03])
-        error('fwhh_mod_and_shape not equivalent')
+        error_test (error_on_failure, 'fwhh_mod_and_shape not equivalent')
     end
 end
 
@@ -263,7 +264,7 @@ wsim_mono = kk.simulate;
 if test_output
     disp('Comparing with stored fwhh_mono')
     if ~equal_to_tol(fwhh_mono, tmp.fwhh_mono, [0,0.03])
-        error('fwhh_mono not equivalent')
+        error_test (error_on_failure, 'fwhh_mono not equivalent')
     end
 end
 
@@ -275,7 +276,7 @@ wsim_chops = kk.simulate;
 if test_output
     disp('Comparing with stored fwhh_mod_and_chops')
     if ~equal_to_tol(fwhh_mod_and_chops, tmp.fwhh_mod_and_chops, [0,0.03])
-        error('fwhh_mod_and_chops not equivalent')
+        error_test (error_on_failure, 'fwhh_mod_and_chops not equivalent')
     end
 end
 
@@ -287,7 +288,7 @@ wsim_div = kk.simulate;
 if test_output
     disp('Comparing with stored fwhh_div')
     if ~equal_to_tol(fwhh_div, tmp.fwhh_div, [0,0.03])
-        error('fwhh_div not equivalent')
+        error_test (error_on_failure, 'fwhh_div not equivalent')
     end
 end
 
@@ -299,7 +300,7 @@ wsim_sam = kk.simulate;
 if test_output
     disp('Comparing with stored fwhh_samp')
     if ~equal_to_tol(fwhh_samp, tmp.fwhh_samp, [0,0.03])
-        error('fwhh_samp not equivalent')
+        error_test (error_on_failure, 'fwhh_samp not equivalent')
     end
 end
 
@@ -311,7 +312,7 @@ wsim_dd = kk.simulate;
 if test_output
     disp('Comparing with stored fwhh_detdepth')
     if ~equal_to_tol(fwhh_detdepth, tmp.fwhh_detdepth, [0,0.03])
-        error('fwhh_detdepth not equivalent')
+        error_test (error_on_failure, 'fwhh_detdepth not equivalent')
     end
 end
 
@@ -323,7 +324,7 @@ wsim_da = kk.simulate;
 if test_output
     disp('Comparing with stored fwhh_detarea')
     if ~equal_to_tol(fwhh_detarea, tmp.fwhh_detarea, [0,0.03])
-        error('fwhh_detarea not equivalent')
+        error_test (error_on_failure, 'fwhh_detarea not equivalent')
     end
 end
 
@@ -335,7 +336,7 @@ wsim_ebin = kk.simulate;
 if test_output
     disp('Comparing with stored fwhh_ebin')
     if ~equal_to_tol(fwhh_ebin, tmp.fwhh_ebin, [0,0.03])
-        error('fwhh_ebin not equivalent')
+        error_test (error_on_failure, 'fwhh_ebin not equivalent')
     end
 end
 
@@ -354,7 +355,7 @@ wsim_all = kk.simulate;
 if test_output
     disp('Comparing with stored fwhh_noshape')
     if ~equal_to_tol(fwhh_noshape, tmp.fwhh_noshape, [0,0.03])
-        error('fwhh_noshape not equivalent')
+        error_test (error_on_failure, 'fwhh_noshape not equivalent')
     end
 end
 
@@ -367,7 +368,7 @@ wsim_all = kk.simulate;
 if test_output
     disp('Comparing with stored fwhh_nomod')
     if ~equal_to_tol(fwhh_nomod, tmp.fwhh_nomod, [0,0.03])
-        error('fwhh_nomod not equivalent')
+        error_test (error_on_failure, 'fwhh_nomod not equivalent')
     end
 end
 
@@ -434,6 +435,18 @@ if save_output
 end
 
 end
+
+
+%% -----------------------------------------------------------------------------------------
+function error_test (error_on_failure, mess)
+if error_on_failure
+    error(mess)
+else
+    disp(mess)
+end
+
+end
+
 
 %% -----------------------------------------------------------------------------------------
 function [whist, wsim] = get_tshape_histogram (wtmp)

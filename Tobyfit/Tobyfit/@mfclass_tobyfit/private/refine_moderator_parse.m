@@ -157,8 +157,8 @@ try
     dummy_mod=IX_moderator;
     dummy_mod.pulse_model=mod_opts.pulse_model;
     dummy_mod.pp=mod_opts.pin;
-    dummy_ei=10;
-    dummy_val=pulse_shape(dummy_mod,dummy_ei,0);    % evaluate at t=0
+    dummy_mod.energy=10;    % because energy = 0 may be invalid, choose some reasonable value
+    dummy_val=pulse_shape(dummy_mod,0);    % evaluate at t=0 to test all is OK
 catch
     mod_opts=empty_struct(names);
     ok=false; mess='The moderator pulse shape model for refinement is not recognised or the initial parameter value array is not valid'; return

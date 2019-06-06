@@ -51,7 +51,7 @@ for i=1:nrun
     % Matrix to convert from crystal Cartesian coordinates to frame defined by sample geometry (x,y axes in r.l.u.)
     b=bmatrix(h.alatt, h.angdeg);
     [~,~,umat]=ubmatrix(xgeom, ygeom, b);   % Vsamp(i) = umat * Vcryst
-    % matrix to convert from sample coordinate frame to laboratory frame
+    % Matrix to convert from sample coordinate frame to laboratory frame
     s_mat(:,:,i)=spec_to_u\umat';  % use fact that inverse of umat is the same as transpose of umat
 end
 

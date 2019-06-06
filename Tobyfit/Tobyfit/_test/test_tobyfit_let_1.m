@@ -122,6 +122,11 @@ end
 % Save fit parameter output if requested
 % ---------------------------------------------------------------------------------------
 if save_output
+    % Strip away the instrument and sample info (we keep the sqw files clean)
+    wdata_1 = set_instrument(wdata_1,struct());
+    wdata_1 = set_sample(wdata_1,struct());
+    wfit_1 = set_instrument(wfit_1,struct());
+    wfit_1 = set_sample(wfit_1,struct());
     save(fullfile(tempdir,savefile),...
         'wdata_1','wfit_1','fitpar_1');
 end

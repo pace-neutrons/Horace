@@ -39,7 +39,7 @@ function varargout = tobyfit (varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1751 ($Date:: 2019-06-03 09:47:49 +0100 (Mon, 3 Jun 2019) $)
+% $Revision: 1730 $ ($Date: 2019-03-01 13:32:50 +0000 (Fri, 01 Mar 2019) $)
 
 
 if ~mfclass.legacy(varargin{:})
@@ -49,9 +49,11 @@ if ~mfclass.legacy(varargin{:})
     % Get resolution function model type
     if numel(varargin)>1 && ischar(varargin{end})
         valid_models = {'fermi','disk'};
-        ind = strncmpi(varargin{end},valid_models,length(varargin{end}));
-        if ~isempty(ind)
+        ind = stringmatchi(varargin{end},valid_models);
+        if numel(ind)==1
             model=valid_models{ind};
+        elseif numel(ind)==2
+            error('Ambiguous resolution function model type')
         else
             error('Invalid resolution function model type')
         end
@@ -68,12 +70,6 @@ if ~mfclass.legacy(varargin{:})
     elseif strcmp(model,'disk')
         mf_init = mfclass_wrapfun (@tobyfit_DGdisk_resconv, [], @func_eval, [],...
             true, false, @tobyfit_DGdisk_resconv_init, []);
-    elseif strcmp(model,'fermi_NEW')
-        mf_init = mfclass_wrapfun (@tobyfit_DGfermi_resconv_NEW, [], @func_eval, [],...
-            true, false, @tobyfit_DGfermi_resconv_init_NEW, []);
-    elseif strcmp(model,'disk_NEW')
-        mf_init = mfclass_wrapfun (@tobyfit_DGdisk_resconv_NEW, [], @func_eval, [],...
-            true, false, @tobyfit_DGdisk_resconv_init_NEW, []);
     else
         error('Logic error. See Toby Perring.')
     end
@@ -84,7 +80,7 @@ if ~mfclass.legacy(varargin{:})
     % ------------------------------------------------------------------------------
     
 else
-    % Legacy Tobyfit (until 31 Dec 2017)
-    % ----------------------------------
+    % Legacy Tobyfit (the standard version until 31 Dec 2017)
+    % -------------------------------------------------------
     [varargout{1:nargout}] = mfclass.legacy_call (@tobyfit_legacy, varargin{:});
 end

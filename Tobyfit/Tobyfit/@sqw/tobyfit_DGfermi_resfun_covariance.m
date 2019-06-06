@@ -29,7 +29,7 @@ function [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win,
 %
 % Output:
 % -------
-% [The format of the following trhee arguments depends on the format of win:
+% [The format of the following three arguments depends on the format of win:
 %   - win is a scalar sqw object:       Array size [4,4,npix]
 %   - win is an array of sqw objects:   Cell array of arrays size [4,4,npix(i)]
 %   - win is a cell array:               "     "    "    "     "       "         ]
@@ -58,12 +58,11 @@ if ~ok, return, end
 % -------------
 % This block of code effectively does the equivalent of tobyfit_DGfermi_resconv
 
-use_tube=false; % use 3He cylindrical gas tube (true) or Tobyfit original (false)
-
 cov_proj = cell(size(win));
 cov_spec = cell(size(win));
 cov_hkle = cell(size(win));
 
+detector_table = lookup.detector_table;
 for iw = 1:numel(win)
     if iscell(win), wtmp = win{iw}; else, wtmp = win(iw); end
     if all_pixels
@@ -81,8 +80,6 @@ for iw = 1:numel(win)
     ha = lookup.ha{iw};
     sample = lookup.sample(iw);
     kf = lookup.kf{iw};
-    det_width = lookup.det_width{iw};
-    det_height = lookup.det_height{iw};
     dt = lookup.dt{iw};
     
     % Compute variances
@@ -91,16 +88,11 @@ for iw = 1:numel(win)
     var_ha = ha(irun).^2 / 12;
     var_chop = (10^-6 * arrayfun_special(@pulse_width,chopper(irun),ei(irun))).^2;
     cov_sam = covariance(sample);
-    if use_tube
-        He3det=IX_He3tube(0.0254,10,6.35e-4);   % 1" tube, 10atms, wall thickness=0.635mm
-        var_det_depth = var_d (He3det, kf);
-        var_det_width = var_w (He3det, kf);
-        var_det_height = det_height(idet).^2 / 12;
-    else
-        var_det_depth = repmat(0.015^2 / 12, npix, 1);  % approx dets as 25mm diameter, and FWHH=0.6 diameter
-        var_det_width = det_width(idet).^2 / 12;
-        var_det_height = det_height(idet).^2 / 12;
-    end
+    
+    var_det_depth  = detector_table.var_d (idet, kf);
+    var_det_width  = detector_table.var_w (idet, kf);
+    var_det_height = detector_table.var_h (idet, kf);
+
     var_tdet = dt.^2 / 12;
     
     % Compute covariance matrix

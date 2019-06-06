@@ -119,6 +119,7 @@ amp=2;
 qfwhh=0.1;                  % Spread of Bragg peaks
 efwhh=1;                    % Energy width of Bragg peaks
 
+sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.04,0.03,0.02]);
 
 if save_data
     % Create sqw file for refinement testing
@@ -141,25 +142,26 @@ if save_data
         
         wtmp = fake_sqw (en, par_file,'', efix, emode, alatt, angdeg,...
             u, v, psi(i), omega, dpsi, gl, gs, [10,10,10,10], urange);
-        sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.04,0.03,0.02]);
-        wtmp{1}=set_sample_and_inst(wtmp{1},sample,@maps_instrument_for_tests,'-efix',300,'S');
         
         % Simulate Bragg blobs
         wsim = sqw_eval(wtmp{1},@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg],...
             [alatt_true,angdeg_true],rotvec});
-        wsim=noisify(wsim,0.01);
-        
+        wsim = noisify(wsim,0.01);
+         
         sqw_file_nores_tmp{i}=fullfile(dir_out,['dummy_tobyfit_refine_crystal_1_nores_',num2str(i),'.sqw']);
         save(wsim,sqw_file_nores_tmp{i});
         
         % Tobyfit simulation to account for resolution
+        wtmp{1}=set_sample_and_inst(wtmp{1},sample,@maps_instrument_for_tests,'-efix',300,'S');
+
         kk = tobyfit(wtmp{1});
         kk = kk.set_fun(@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg],...
             [alatt_true,angdeg_true],rotvec});
         kk = kk.set_mc_points(10);
         wsim = kk.simulate;
-        wsim=noisify(wsim,0.01);
+        wsim = noisify(wsim,0.01);
         
+        wsim=set_sample_and_inst(wsim,struct(),struct());   % get rid of sample information again
         sqw_file_res_tmp{i}=fullfile(dir_out,['dummy_tobyfit_refine_crystal_1_res_',num2str(i),'.sqw']);
         save(wsim,sqw_file_res_tmp{i});
     end
@@ -260,6 +262,14 @@ w110_v=cut_sqw(sqw_file_res_full,proj,[0.85,1.15],[-0.2,0.2],[-0.15,0.01,0.2],[-
 w00m1_r=cut_sqw(sqw_file_res_full,proj,[-0.15,0.15],   [-1.3,0.01,-0.7],[-0.15,0.15],   [-Inf,Inf]);
 w00m1_t=cut_sqw(sqw_file_res_full,proj,[-0.2,0.01,0.2],[-1.2,-0.8],     [-0.15,0.15],   [-Inf,Inf]);
 w00m1_v=cut_sqw(sqw_file_res_full,proj,[-0.15,0.15],   [-1.2,-0.8],     [-0.2,0.01,0.2],[-Inf,Inf]);
+
+w110_r=set_sample_and_inst(w110_r,sample,@maps_instrument_for_tests,'-efix',300,'S');
+w110_t=set_sample_and_inst(w110_t,sample,@maps_instrument_for_tests,'-efix',300,'S');
+w110_v=set_sample_and_inst(w110_v,sample,@maps_instrument_for_tests,'-efix',300,'S');
+
+w00m1_r=set_sample_and_inst(w00m1_r,sample,@maps_instrument_for_tests,'-efix',300,'S');
+w00m1_t=set_sample_and_inst(w00m1_t,sample,@maps_instrument_for_tests,'-efix',300,'S');
+w00m1_v=set_sample_and_inst(w00m1_v,sample,@maps_instrument_for_tests,'-efix',300,'S');
 
 w=[w110_r,w110_t,w110_v;w00m1_r,w00m1_t,w00m1_v];
 

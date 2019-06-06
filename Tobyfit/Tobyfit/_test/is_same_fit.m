@@ -21,7 +21,7 @@ function ok = is_same_fit (fp1, fp2, tol, mask, bmask)
 %   mask        Logical mask of which parameters to compare
 %                   e.g. [1,1,0,0,1] compare only parameters 1,2,and 5
 %
-%   bmask       Logical mask of which background p[arameters to compare
+%   bmask       Logical mask of which background parameters to compare
 %
 % Output:
 % -------

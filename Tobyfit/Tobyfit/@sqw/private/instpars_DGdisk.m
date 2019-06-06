@@ -1,9 +1,9 @@
-function [ok,mess,ei,x0,xa,x1,moderator,chop_shape,chop_mono,horiz_div,vert_div]=...
-    instpars_DGdisk(header)
+function [ok,mess,ei,x0,xa,x1,moderator,shaping_chopper,mono_chopper,...
+    horiz_div,vert_div] = instpars_DGdisk(header)
 % Get parameters needed for chopper spectrometer resolution function calculation
 %
-%   >> [ok,mess,ei,x0,xa,x1,moderator,chop_shape,chop_mono,horiz_div,vert_div]=...
-%                                                       instpars_DGdisk (header)
+%   >> [ok,mess,ei,x0,xa,x1,moderator,shaping_chopper,mono_chopper,...
+%                           horiz_div,vert_div] = instpars_DGdisk (header)
 % Input:
 % ------
 %   header      Header field from sqw object
@@ -16,11 +16,11 @@ function [ok,mess,ei,x0,xa,x1,moderator,chop_shape,chop_mono,horiz_div,vert_div]
 %   x0          Moderator-monochromating chopper distance (m) 	 [column vector]
 %   xa          Shaping-monochromating chopper distance (m)      [column vector]
 %   x1          Monochromating chopper-sample distance  (m)      [column vector]
-%   moderator   Array of moderator objects  [Column vector]
-%   chop_shape  Array of shaping chopper objects    [Column vector]
-%   chop_mono   Array of monochromating chopper objects    [Column vector]
-%   horiz_div   Array of horizontal divergence profile objects [Column vector]
-%   vert_div    Array of horizontal divergence profile objects [Column vector]
+%   moderator       Array of moderator objects  [Column vector]
+%   shaping_chopper Array of shaping chopper objects    [Column vector]
+%   mono_chopper    Array of monochromating chopper objects    [Column vector]
+%   horiz_div       Array of horizontal divergence profile objects [Column vector]
+%   vert_div        Array of horizontal divergence profile objects [Column vector]
 
 
 % Get array of instruments
@@ -42,8 +42,8 @@ x0=zeros(nrun,1);
 xa=zeros(nrun,1);
 x1=zeros(nrun,1);
 moderator=repmat(IX_moderator,[nrun,1]);
-chop_shape=repmat(IX_doubledisk_chopper,[nrun,1]);
-chop_mono=repmat(IX_doubledisk_chopper,[nrun,1]);
+shaping_chopper=repmat(IX_doubledisk_chopper,[nrun,1]);
+mono_chopper=repmat(IX_doubledisk_chopper,[nrun,1]);
 horiz_div=repmat(IX_divergence_profile,[nrun,1]);
 vert_div=repmat(IX_divergence_profile,[nrun,1]);
 for i=1:nrun
@@ -52,8 +52,8 @@ for i=1:nrun
     x0(i)=abs(inst(i).moderator.distance) - x1(i);      % distance from mono chopper to moderator face
     xa(i)=abs(inst(i).chop_shape.distance) - x1(i);     % distance from shaping chopper to mono chopper
     moderator(i)=inst(i).moderator;
-    chop_shape(i)=inst(i).chop_shape;
-    chop_mono(i)=inst(i).chop_mono;
+    shaping_chopper(i)=inst(i).chop_shape;
+    mono_chopper(i)=inst(i).chop_mono;
     horiz_div(i)=inst(i).horiz_div;
     vert_div(i)=inst(i).vert_div;
 end

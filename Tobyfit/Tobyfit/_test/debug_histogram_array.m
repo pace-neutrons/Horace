@@ -9,5 +9,8 @@ function debug_histogram_array (vals,title,xunits)
 
 nbins = 250;
 [N, edges] = histcounts(vals,nbins);
-w = IX_dataset_1d(edges, N, sqrt(N), title, xunits, 'events');
+dx = diff(edges);
+signal = N./dx;
+error = sqrt(N)./dx;
+w = IX_dataset_1d(edges, signal, error, title, xunits, 'events');
 save(fullfile(tempdir,'histogram.mat'),'w')
