@@ -1,12 +1,12 @@
-function dq_mat =  dq_matrix_DGdisk (wi, wf, xa, x1, x2, s_mat, d_mat,...
+function dq_mat =  dq_matrix_DGdisk (wi, wf, xa, x1, x2, s_mat, f_mat, d_mat,...
     spec_to_rlu, k_to_v, k_to_e)
 % Compute matrix for computing deviations in Q (in rlu) from deviations in tm, tch, x, y, z etc.
 %
-%   dq_mat =  dq_matrix_DGdisk (wi, wf, xa, x1, x2, s_mat, d_mat,...
+%   dq_mat =  dq_matrix_DGdisk (wi, wf, xa, x1, x2, s_mat, f_mat, d_mat,...
 %                                               spec_to_rlu, k_to_v, k_to_e)
 %
 % This function is for a direct geometry double disk chopper spectrometer
-% following the design of LET at ISIS as it was for ~2010 - present (2017)
+% following the design of LET at ISIS as it was for ~2010 - present (2019)
 %
 % Input: for each pixel:
 % ------
@@ -17,7 +17,10 @@ function dq_mat =  dq_matrix_DGdisk (wi, wf, xa, x1, x2, s_mat, d_mat,...
 %   x2          Sample-detector distance                (m)      [column vector length npix]
 %   s_mat       Matrix for re-expressing a sample coordinate in the laboratory frame
 %              Size is [3,3,npix]
-%   d_mat       Matrix for expressing a laboratory coordinate in the detector frame
+%   f_mat       matrix for expressing a laboratory coordinate in the secondary
+%              spectrometer frame.
+%   d_mat       Matrix for expressing a detector coordinate in the secondary
+%              spectrometer frame.
 %              Size is [3,3,npix]
 %   spec_to_rlu Matrix to convert momentum in spectrometer coordinates to components in r.l.u.
 %              Size is [3,3,npix]
@@ -63,7 +66,7 @@ ct_f = wf./x2;
 % -------------------------------
 b_mat = zeros(6,11,npix);
 
-ds_mat = mtimesx_horace(d_mat,s_mat);
+fs_mat = mtimesx_horace(f_mat,s_mat);
 
 b_mat(1,1,:) =  cp_i;
 b_mat(1,4,:) = -cp_i;
@@ -74,28 +77,34 @@ b_mat(3,3,:) =  wi;
 
 b_mat(4,1,:) =  cp_f .* (-x1./xa);
 b_mat(4,4,:) =  cp_f .* ((xa+x1)./xa);
-b_mat(4,5,:) =  cp_f .* ( squeeze(s_mat(1,1,:))./veli - squeeze(ds_mat(1,1,:))./velf );
-b_mat(4,6,:) =  cp_f .* ( squeeze(s_mat(1,2,:))./veli - squeeze(ds_mat(1,2,:))./velf );
-b_mat(4,7,:) =  cp_f .* ( squeeze(s_mat(1,3,:))./veli - squeeze(ds_mat(1,3,:))./velf );
-b_mat(4,8,:) =  cp_f./velf;
+b_mat(4,5,:) =  cp_f .* ( squeeze(s_mat(1,1,:))./veli - squeeze(fs_mat(1,1,:))./velf );
+b_mat(4,6,:) =  cp_f .* ( squeeze(s_mat(1,2,:))./veli - squeeze(fs_mat(1,2,:))./velf );
+b_mat(4,7,:) =  cp_f .* ( squeeze(s_mat(1,3,:))./veli - squeeze(fs_mat(1,3,:))./velf );
+b_mat(4,8,:) =  cp_f .* ( squeeze(d_mat(1,1,:))./velf );
+b_mat(4,9,:) =  cp_f .* ( squeeze(d_mat(1,2,:))./velf );
+b_mat(4,10,:)=  cp_f .* ( squeeze(d_mat(1,3,:))./velf );
 b_mat(4,11,:)= -cp_f;
 
-b_mat(5,5,:) = -ct_f .* squeeze(ds_mat(2,1,:));
-b_mat(5,6,:) = -ct_f .* squeeze(ds_mat(2,2,:));
-b_mat(5,7,:) = -ct_f .* squeeze(ds_mat(2,3,:));
-b_mat(5,9,:) =  ct_f;
+b_mat(5,5,:) = -ct_f .* squeeze(fs_mat(2,1,:));
+b_mat(5,6,:) = -ct_f .* squeeze(fs_mat(2,2,:));
+b_mat(5,7,:) = -ct_f .* squeeze(fs_mat(2,3,:));
+b_mat(5,8,:) =  ct_f .* squeeze(d_mat(2,1,:));
+b_mat(5,9,:) =  ct_f .* squeeze(d_mat(2,2,:));
+b_mat(5,10,:)=  ct_f .* squeeze(d_mat(2,3,:));
 
-b_mat(6,5,:) = -ct_f .* squeeze(ds_mat(3,1,:));
-b_mat(6,6,:) = -ct_f .* squeeze(ds_mat(3,2,:));
-b_mat(6,7,:) = -ct_f .* squeeze(ds_mat(3,3,:));
-b_mat(6,10,:)=  ct_f;
+b_mat(6,5,:) = -ct_f .* squeeze(fs_mat(3,1,:));
+b_mat(6,6,:) = -ct_f .* squeeze(fs_mat(3,2,:));
+b_mat(6,7,:) = -ct_f .* squeeze(fs_mat(3,3,:));
+b_mat(6,8,:) =  ct_f .* squeeze(d_mat(3,1,:));
+b_mat(6,9,:) =  ct_f .* squeeze(d_mat(3,2,:));
+b_mat(6,10,:)=  ct_f .* squeeze(d_mat(3,3,:));
 
 
 % Matrix to convert deviations in ki and kf into deviations in Q and eps
 % ----------------------------------------------------------------------
 qk_mat = zeros(4,6,npix);
 qk_mat(1:3,1:3,:) = spec_to_rlu;
-qk_mat(1:3,4:6,:) = -mtimesx_horace(spec_to_rlu,permute(d_mat,[2,1,3]));  % inverse of d_mat(:,:,i) is transpose of same
+qk_mat(1:3,4:6,:) = -mtimesx_horace(spec_to_rlu,permute(f_mat,[2,1,3]));  % inverse of f_mat(:,:,i) is transpose of same
 qk_mat(4,1,:) = (2*k_to_e)*wi;
 qk_mat(4,4,:) =-(2*k_to_e)*wf;
 

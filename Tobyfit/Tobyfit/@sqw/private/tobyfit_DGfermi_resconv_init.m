@@ -68,35 +68,12 @@ function [ok,mess,lookup,npix] = tobyfit_DGfermi_resconv_init (win, varargin)
 %
 % Contents of output argument: lookup
 % -----------------------------------
-%       Indexed lookup tables:
-%           mod_table   Structure with fields:
-%                      ind      Cell array of indicies into table, where
-%                              ind{i} is a row vector of indicies for ith
-%                              sqw object; length(ind{i})=no. runs in sqw object
-%                      table    Lookup table size(npnt,nmod), where nmod is
-%                              the number of unique tables. Convert to time from
-%                              reduced time using t = t_av * (t_red/(1-t_red))
-%                      t_av     First moment of time distribution (row vector length nmod)
-%                              Time here is in seconds (NOT microseconds)
-%                 	   fwhh     Full width half height of distribution (row vector)
-%                              Time here is in seconds (NOT microseconds)
-%                      profile  Lookup table size(npnt,nmod), where nmod is
-%                              the number of unique tables.
-%                               Use the look-up table to get the pulse profile
-%                              at reduced time deviation 0 <= t_red <= 1. Convert
-%                              to true time using the equation
-%                                   t = t_av * (t_red/(1-t_red))
-%                               The pulse profile is normalised so that the peak
-%                              value is unity.
-%
-%           fermi_table Structure with fields:
-%                      ind      Cell array of indicies into table, where
-%                              ind{i} is a row vector of indicies for ith
-%                              sqw object; length(ind{i})=no. runs in sqw object
-%                      table    Lookup table size(npnt,nchop), where nchop is
-%                              the number of unique tables. Note that the time
-%                              is in seconds, NOT microseconds.
-%
+%       Indexed lookup tables: object_lookup objects
+%           moderator_table     Index: [isqw, irun] (note: times in microseconds)
+%           aperture_table      Index: [isqw, irun]
+%           fermi_table         Index: [isqw, irun] (note: times in microseconds)
+%           sample_table        Index: [1, isqw]
+%           detector_table      Index: [1, isqw]
 %
 %       Cell array of arrays, one array per dataset, each array with length equal to
 %      the number of runs in each dataset:
@@ -106,18 +83,10 @@ function [ok,mess,lookup,npix] = tobyfit_DGfermi_resconv_init (win, varargin)
 %           x1          Chopper - sample distance (m)       [Column vector]
 %           thetam      Angle of moderator normal to incident beam (rad)    [Column vector]
 %           angvel      Chopper angular velocity (rad/s)    [Column vector]
-%           moderator   Moderator object                    [Column vector]
-%           aperture    Aperture object                     [Column vector]
-%           chopper     Fermi chopper object                [Column vector]
-%           wa          Aperture full width (m)             [Column vector]
-%           ha          Aperture full height (m)            [Column vector]
 %
-%       Cell arrays of incident and final wavevectors, one array per datasets
+%       Cell arrays of incident and final wavevectors, one array per dataset
 %           ki          Incident wavevectors [Column vector, length nruns]
 %           kf          Final wavevectors [Column vector, length npix]
-%
-%       Sample:
-%           sample      Array of sample objects, one per dataset
 %
 %       Cell arrays of arrays of transformation matricies, one array per dataset:
 %           s_mat       Matrix to convert coords in sample frame to spectrometer frame.
@@ -127,15 +96,16 @@ function [ok,mess,lookup,npix] = tobyfit_DGfermi_resconv_init (win, varargin)
 %                           v_rlu = spec_to_rlu * v_spec
 %                      Size is [3,3,nrun], where nrun is the number of runs
 %
-%       Cell arrays of arrays of detector information, one array per datasets
-%           d_mat       Matrix size [3,3,ndet] to take coordinates in spectrometer
-%                      frame and convert in detector frame.
+%       Cell arrays of arrays of detector information, one array per dataset:
+%           f_mat       Array size [3,3,ndet] to take coordinates in spectrometer
+%                      frame and convert into secondary spectrometer frame.
+%
+%           d_mat       Array size [3,3,ndet] to take coordinates in detector
+%                      frame and convert into secondary spectrometer frame.
 %
 %           detdcn      Direction of detector in spectrometer coordinates ([3 x ndet] array)
 %
 %           x2          Sample-detector distances (m) (size [ndet,1])
-%           det_width   Detector width (m) (size [ndet,1])
-%           det_height  Detector height (m) (size [ndet,1])
 %
 %       Cell array of widths of energy bins, one array per dataset
 %           dt          Time widths for each pixel (s), size [npix,1]
@@ -156,6 +126,9 @@ function [ok,mess,lookup,npix] = tobyfit_DGfermi_resconv_init (win, varargin)
 %   mc_contr    Cell array of character strings with the names of the
 %              possible contributions e.g. {'chopper','moderator'}
 
+
+% Use 3He cylindrical gas tube (ture) or Tobyfit original (false)
+use_tubes=false;
 
 % Catch case of inquiry about mc_contributions
 % --------------------------------------------
@@ -222,18 +195,16 @@ angvel=cell(nw,1);      %       "
 moderator=cell(nw,1);   %       "
 aperture=cell(nw,1);    %       "
 chopper=cell(nw,1);     %       "
-wa=cell(nw,1);          %       "
-ha=cell(nw,1);          %       "
 ki=cell(nw,1);          %       "
 kf=cell(nw,1);          % element size [npix,1]
 sample=repmat(IX_sample,nw,1);
 s_mat=cell(nw,1);       % element size [3,3,nrun]
 spec_to_rlu=cell(nw,1); % element size [3,3,nrun]
+detectors=repmat(IX_detector_array,nw,1);
+f_mat=cell(nw,1);       % element size [3,3,ndet]
 d_mat=cell(nw,1);       % element size [3,3,ndet]
 detdcn=cell(nw,1);      % element size [3,ndet]
 x2=cell(nw,1);          % element size [ndet,1]
-det_width=cell(nw,1);   % element size [ndet,1]
-det_height=cell(nw,1);  % element size [ndet,1]
 dt=cell(nw,1);          % element size [npix,1]
 qw=cell(nw,1);          % element is cell array size [1,4], each element size [npix,1]
 dq_mat=cell(nw,1);      % element size [4,11,npix]
@@ -266,24 +237,32 @@ for iw=1:nw
     end
     
     % Get instrument information
-    [ok,mess,ei{iw},x0{iw},xa{iw},x1{iw},thetam{iw},angvel{iw},moderator{iw},aperture{iw},chopper{iw}]=...
-        instpars_DGfermi(wtmp.header);
+    [ok,mess,ei{iw},x0{iw},xa{iw},x1{iw},thetam{iw},angvel{iw},...
+        moderator{iw},aperture{iw},chopper{iw}] = instpars_DGfermi(wtmp.header);
     if ~ok, return, end
-    [wa{iw}, ha{iw}] = aperture_width_height (aperture{iw});
     
     % Compute ki and kf
     ki{iw}=sqrt(ei{iw}/k_to_e);
     kf{iw}=sqrt((ei{iw}(irun)-eps)/k_to_e);
     
     % Get sample, and both s_mat and spec_to_rlu; each has size [3,3,nrun]
-    [ok,mess,sample(iw),s_mat{iw},spec_to_rlu{iw}]=sample_coords_to_spec_to_rlu(wtmp.header);
+    [ok,mess,sample(iw),s_mat{iw},spec_to_rlu{iw}] = sample_coords_to_spec_to_rlu(wtmp.header);
     if ~ok, return, end
     
     % Get detector information
-    [d_mat{iw}, detdcn{iw}] = spec_coords_to_det (wtmp.detpar); % d_mat has size [3,3,ndet]; detdcn size [3,ndet]
-    x2{iw}=wtmp.detpar.x2(:);              % make column vector
-    det_width{iw}=wtmp.detpar.width(:);    % make column vector
-    det_height{iw}=wtmp.detpar.height(:);  % make column vector
+    % Because detpar only contains minimal information, hardwire in the detector type here
+    detpar = wtmp.detpar;   % just get a pointer
+    if use_tubes
+        detectors(iw) = IX_detector_array (detpar.group, detpar.x2(:), detpar.phi(:), detpar.azim(:),...
+            IX_det_He3tube (detpar.width, detpar.height, 6.35e-4, 10));   % 10atms, wall thickness=0.635mm
+    else
+        detectors(iw) = IX_detector_array (detpar.group, detpar.x2(:), detpar.phi(:), detpar.azim(:),...
+            IX_det_TobyfitClassic (detpar.width, detpar.height));
+    end
+    x2{iw} = detectors(iw).x2;
+    d_mat{iw} = detectors(iw).dmat;
+    f_mat{iw} = spec_to_secondary(detectors(iw));
+    detdcn{iw} = det_direction(detectors(iw));
     
     % Time width corresponding to energy bins for each pixel
     dt{iw} = deps_to_dt*(x2{iw}(idet).*deps(irun)./kf{iw}.^3);
@@ -295,18 +274,10 @@ for iw=1:nw
     
     % Matrix that gives deviation in Q (in rlu) from deviations in tm, tch etc. for each pixel
     dq_mat{iw} = dq_matrix_DGfermi (ki{iw}(irun), kf{iw},...
-        x0{iw}(irun), xa{iw}(irun), x1{iw}(irun), x2{iw}(idet),...
-        thetam{iw}(irun), angvel{iw}(irun), s_mat{iw}(:,:,irun), d_mat{iw}(:,:,idet),...
+        x0{iw}(irun), xa{iw}(irun), x1{iw}(irun), x2{iw}(idet), thetam{iw}(irun), angvel{iw}(irun),...
+        s_mat{iw}(:,:,irun), f_mat{iw}(:,:,idet), d_mat{iw}(:,:,idet),...
         spec_to_rlu{iw}(:,:,irun), k_to_v, k_to_e);
     
-end
-
-% Lookup tables for moderator and chopper - repackages in such a way that repetitions
-% of moderators for runs within an sqw and across sqw objects are squeezed to
-% unique tables with index arrays to the tables
-if keywrd.tables
-    mod_table=moderator_sampling_table(moderator,ei,'fast');
-    fermi_table=fermi_sampling_table(chopper,'fast','nocheck');
 end
 
 % Package output as a structure, in cell array length unity if win was a cell array
@@ -314,9 +285,12 @@ ok=true;
 mess='';
 lookup = struct();    % reinitialise
 
-if keywrd.tables
-    lookup.mod_table=mod_table;
-    lookup.fermi_table=fermi_table;
+if keywrd.tables    % lookup tables to minimise memory and optimiose speed of random sampling
+    lookup.moderator_table = object_lookup(moderator);
+    lookup.aperture_table = object_lookup(aperture);
+    lookup.fermi_table = object_lookup(chopper);
+    lookup.sample_table = object_lookup(sample);
+    lookup.detector_table = object_lookup(detectors);
 end
 lookup.ei=ei;
 lookup.x0=x0;
@@ -324,21 +298,14 @@ lookup.xa=xa;
 lookup.x1=x1;
 lookup.thetam=thetam;
 lookup.angvel=angvel;
-lookup.moderator=moderator;
-lookup.aperture=aperture;
-lookup.chopper=chopper;
-lookup.wa=wa;
-lookup.ha=ha;
 lookup.ki=ki;
 lookup.kf=kf;
-lookup.sample=sample;
 lookup.s_mat=s_mat;
 lookup.spec_to_rlu=spec_to_rlu;
+lookup.f_mat=f_mat;
 lookup.d_mat=d_mat;
 lookup.detdcn=detdcn;
 lookup.x2=x2;
-lookup.det_width=det_width;
-lookup.det_height=det_height;
 lookup.dt=dt;
 lookup.qw=qw;
 lookup.dq_mat=dq_mat;

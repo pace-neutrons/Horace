@@ -1,3 +1,23 @@
+Tobyfit NEW  (22/5/19)
+-----------------
+Replace squeeze(reshape... with size_array_stack
+
+Remove moderator_sampling table and sim. fermi, disk, divergence (any others?)
+Also remove buffered_sampling_table  for all of these (maybe gone alread)
+is_valid - not needed in object_lookup?
+
+General clear out of redundant functions
+
+indicies => indices everywhere (hundred of files)
+
+=================================================================================
+@sqw/private/proj_fill_fields  not used
+@projection/private/proj_fill_fields not used
+
+@projaxes/projaxes_to_rlu     and    @projection/private/rlu_to_ustep_matrix almost the same
+
+
+
 Update documentation - multi cut for sqw; case of no proj for sqw
 
 write dimsplit
