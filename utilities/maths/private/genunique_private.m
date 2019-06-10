@@ -1,4 +1,4 @@
-function [C, m, n] = genunique_private(Asorted, ix, first, legacy)
+function [C, m, n] = genunique_private(Asorted, ix, first, legacy_output)
 % Given a sorted array and index to the original, return the output for 'unique'
 %
 %   >> [bStruct m, n] = uniqueStruct(Asorted)
@@ -17,8 +17,8 @@ function [C, m, n] = genunique_private(Asorted, ix, first, legacy)
 %   first       If true, the index element in output array m will point to
 %              the first occurence of a non-unique element in A
 %
-%  'legacy'     If present, then the output array m (below) follows the
-%              legacy behaviour (i.e. Matlab 2012b and earlier)
+%   legacy_output   If present, then the output array m (below) follows the
+%                  legacy behaviour (i.e. Matlab 2012b and earlier)
 %
 % Output:
 % -------
@@ -32,7 +32,7 @@ function [C, m, n] = genunique_private(Asorted, ix, first, legacy)
 % Case of empty array - return after setting correct output
 if numel(Asorted)==0
     % Note: we exclude size(A)=[0,0] because we allow only vectors
-    if legacy
+    if legacy_output
         % Legacy orientation is different for empty vector cf non-empty!
         C = reshape(Asorted,0,1);
         m = zeros(0,1);
@@ -53,7 +53,7 @@ end
 if isempty(ix) || numel(ix)==1     % if the input is consistent this must be ix==1
     C = Asorted(1);
     m = 1;
-    if legacy
+    if legacy_output
         n = ones(size(Asorted));    % vector with the same orientation as A
     else
         n = ones(numel(Asorted),1);
@@ -108,7 +108,7 @@ else
     C = C(:);
 end
 
-if legacy
+if legacy_output
     if isrow(Asorted)
         m = m(:)';
         n = n(:)';

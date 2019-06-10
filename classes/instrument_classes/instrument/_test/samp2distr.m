@@ -2,12 +2,11 @@ function varargout = samp2distr(xsamp,varargin)
 % Create an IX_dataset_1d of a pdf from an array of sampled values
 %
 %   >> samp2distr(xsamp)        % plot distribution
+%   >> samp2distr(xsamp,nbins)  % with specified number of bins
+%   >> samp2distr(xsamp,edges)  % with particular bin boundaries
+%
 %   >> w = samp2distr(xsamp)    % return distribution without plotting
 
-% % Parse arguments
-% opt = {'plot'};
-% flags = {'plot'};
-% [par,opt] = parse_arguments (varargin, opt, flags);
 
 [N,edges] = histcounts(xsamp(:),varargin{:});
 w = IX_dataset_1d(edges,N,sqrt(N));

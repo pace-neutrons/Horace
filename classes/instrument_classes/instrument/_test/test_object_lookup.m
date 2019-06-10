@@ -51,7 +51,7 @@ w1samp(6) = samp2distr(xsamp1(ind1==6));
 
 disp('-----------------')
 for i=1:numel(w1samp)
-    [ok,chisqr,wresid] = IX_dataset_1d_same (w1_ref(i),w1samp(i),10);
+    [ok,mess,wdiff,chisqr] = IX_dataset_1d_same (w1_ref(i),w1samp(i),10,'rebin','chi');
     if ~ok
         disp(['Dataset ',num2str(i),' BAD (chisqr = ',num2str(chisqr),') **********'])
     else

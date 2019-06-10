@@ -4,7 +4,7 @@ function status = greater_than (A,B)
 %   >> status = greater_than (A,B)
 %
 % For an equivalent routine that compares the indpendent properties
-% (hidden, protected and public), use <a href="matlab:help('greater_thanIndep');"greater_thanIndep</a>
+% (hidden, protected and public), use <a href="matlab:help('greater_thanIndep');">greater_thanIndep</a>
 %
 % An entity is deemed 'greater' if one of the following applies, in
 % order:

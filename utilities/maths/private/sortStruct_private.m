@@ -13,7 +13,7 @@ function [sortedStruct, index] = sortStruct_private(aStruct, varargin)
 % Similar to the intrinsic Matlab sort but here for a struct array
 %
 % For a more general sorting algorithm that recursively resolves any objects
-% into its properties and which can sort variable types of dissimilar 
+% into its properties and which can sort variable types of dissimilar
 % types and sizes, use <a href="matlab:help('gensort');">gensort</a>
 %
 % Input
@@ -62,41 +62,34 @@ if sum(size(aStruct)>1)>1 % if more than one non-singleton dimension
     error('I don''t want to sort your multidimensional struct array.')
 end
 
-% Parse optional arguments - just check number and assign
+% Parse optional arguments - just check number and assign accordingly
 if numel(varargin)==0
     fieldNams = fieldnames(aStruct)';
     directions = 1;
 elseif numel(varargin)==1
     if ~isnumeric(varargin{1})
-        fieldNams = varargin{1};
+        [ok,mess,fieldNams] = validate_fieldNams (varargin{1});
+        if ~ok, error(mess), end
         directions = 1;
     else
         fieldNams = fieldnames(aStruct)';
         directions = varargin{1};
     end
 elseif numel(varargin)==2
-    fieldNams = varargin{1};
+    [ok,mess,fieldNams] = validate_fieldNams (varargin{1});
+    if ~ok, error(mess), end
     directions = varargin{2};
 else
     error('Too many input arguments')
 end
 
-if isempty(fieldNams)
-    error('No fields/properties in the structure/object array to be sorted')
-end
-
-% Case of empty input array (matches Matlab intrinsic sort)
-if numel(aStruct)==0
-    sortedStruct = aStruct;
-    index = zeros(size(aStruct));
-    return
-end
-
 % Check fieldnames
-if ~iscell(fieldNams)
-    [ok, mess, sortedStruct, index] = singleSortStruct(aStruct, fieldNams, directions);
-else
+if numel(fieldNams)==1
+    [ok, mess, sortedStruct, index] = singleSortStruct(aStruct, fieldNams{1}, directions);
+elseif numel(fieldNams)>1
     [ok, mess, sortedStruct, index] = nestsedSortStruct(aStruct, fieldNams, directions);
+else
+    ok = false; mess = 'Logic error. Contact developers';
 end
 if ~ok, error(mess), end
 
@@ -108,6 +101,24 @@ if size(index,1)~=size(aStruct,1)
     index = reshape(index,size(aStruct));
 end
 
+% ------------------------------------------------------------------------
+function [ok,mess,fieldNams] = validate_fieldNams (arg)
+% Fieldnames must be a non-empty character string, or a cell vector of the same
+
+ok = true; mess = '';
+
+string = @(x)(ischar(x) && ~isempty(x) && isrow(x));
+if string(arg)
+    fieldNams = {arg};  % turn into cell array
+elseif iscell(arg) && ~isempty(arg) && all(cellfun(string,arg(:)))
+    fieldNams = arg(:)';
+else
+    ok = false;
+    mess = 'Field name(s) by which to sort must be a non-empty character string, or a cell array of strings';
+    fieldNams = {};
+end
+
+
 % ========================================================================
 function [ok, mess, sortedStruct, index] = nestsedSortStruct(aStruct, fieldNams, directions)
 % Sort a struct array according to nested sorts on the named fields
@@ -117,8 +128,16 @@ ok=false; mess=''; sortedStruct=[]; index=[];
 if ~all(isfield(aStruct, fieldNams))
     for ii=find(~isfield(aStruct, fieldNams))
         fprintf('%s is not a fieldname in the struct.\n', fieldNams{ii})
-    end 
+    end
     mess = 'at least one entry in fieldNams is not a fieldname in the struct.';
+    return
+end
+
+% Case of empty input array (matches Matlab intrinsic sort)
+if numel(aStruct)==0
+    ok = true;
+    sortedStruct = aStruct;
+    index = zeros(size(aStruct));
     return
 end
 
@@ -173,9 +192,17 @@ if ~isfield(aStruct, fieldName)
     mess = 'fieldName is not a fieldname in the struct.';
     return
 end
-    
+
 if ~isnumeric(direction) || numel(direction)>1 || ~ismember(direction, [-1 1])
     mess = 'direction, if given, must equal 1 for ascending order or -1 for descending order.';
+    return
+end
+
+% Case of empty input array (matches Matlab intrinsic sort)
+if numel(aStruct)==0
+    ok = true;
+    sortedStruct = aStruct;
+    index = zeros(size(aStruct));
     return
 end
 
@@ -209,10 +236,34 @@ ok = true;
 function icCell = unique_index (aCell)
 % Replace entries in a cell array with unique index into ascending
 % unique sorted array.
+% The sorting is done on:
+%   [<pad with -Inf>, size(x), <pad with -Inf>, x(:)']
+% where the padding ensures that the shorter array always appears before
+% a longer array.
+
+sz = cellfun(@size,aCell,'uniformoutput',false);
+ndim = cellfun(@numel,sz);
+max_ndim = max(ndim(:));
+
 nel = cellfun(@numel,aCell);
-A = -Inf(numel(aCell),max(nel(:)));
+max_nel = max(nel(:));
+
+A = -Inf(numel(aCell),max_ndim+max_nel);
 for i=1:numel(nel)
-    A(i,1:nel(i)) = aCell{i}(:)';
+    A(i,max_ndim-ndim(i)+1:max_ndim) = sz{i}(:)';
+    A(i,end-nel(i)+1:end) = aCell{i}(:)';
 end
 [~,~,ic] = unique(A,'rows');
 icCell = num2cell(ic);
+
+
+% function icCell = unique_index (aCell)
+% % Replace entries in a cell array with unique index into ascending
+% % unique sorted array.
+% nel = cellfun(@numel,aCell);
+% A = -Inf(numel(aCell),max(nel(:)));
+% for i=1:numel(nel)
+%     A(i,1:nel(i)) = aCell{i}(:)';
+% end
+% [~,~,ic] = unique(A,'rows');
+% icCell = num2cell(ic);

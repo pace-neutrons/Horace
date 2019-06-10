@@ -39,7 +39,7 @@ function [ok,mess]=equal_to_tol(a,b,varargin)
 %               1e-4            absolute tolerance, equivalent to [1e-4, 0]
 %               -1e-6           relative tolerance, equivalent to [0, 1e-6]
 %
-%           [Lagacy compatibility: to apply an absolute as well as a relative
+%           [Legacy compatibility: to apply an absolute as well as a relative
 %            tolerance with a scalar negative value, set the value of the
 %            legacy keyword 'min_denominator' (see below)]
 %

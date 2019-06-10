@@ -1,3 +1,6 @@
+function test_fermi_choppers
+% Test basic properties of the Fermi chopper object
+
 ff=IX_fermi_chopper(10,600,0.049,1.3,0.0028);
 
 ff500 = ff; ff500.energy = 500; % gamma = eps

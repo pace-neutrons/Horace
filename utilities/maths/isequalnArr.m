@@ -3,7 +3,7 @@ function tf = isequalnArr(A)
 %
 %   >> tf = isequalnArr(A)
 %
-% Essentailly performs the function as the Matlab instrinsic isequaln
+% Performs the function as the Matlab intrinsic isequaln but for an array
 %
 % Input:
 % ------

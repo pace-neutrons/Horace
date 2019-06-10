@@ -1,5 +1,5 @@
-function test_sort_mod_and_chopper
-% Test that sorting of moderator and chopper objects is working properly
+function test_fermi_choppers_sort
+% Test that sorting of Fermi chopper objects is working properly
 
 % Check Fermi chopper sorting
 % -------------------------------

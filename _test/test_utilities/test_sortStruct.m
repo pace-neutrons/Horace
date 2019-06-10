@@ -12,7 +12,7 @@ classdef test_sortStruct < TestCaseWithSave
             self@TestCaseWithSave(name);
             
             % Cell arrays with elements in increasing order
-            self.anum = {[11;9;4], [11;9;4;6;1], [33,99;44,55], [33,44;99,55]};
+            self.anum = {[33,99;44,55], [33,44;99,55], [11;9;4], [11;9;4;6;1]};
             self.blog = {true(0,0), [true, false], [true, false, false, true], [true;true]};
             self.cchr= {'Man','hell','hello','Mister'};
             

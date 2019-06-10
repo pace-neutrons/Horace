@@ -31,9 +31,10 @@ function [C, m, n] = genunique(A,varargin)
 %   A       Struct or object array to be sorted (row or column vector)
 %
 % Optional sorting keywords:
-%   occurence   Character string 'last' [default] or 'first'; indicates if the index
+%   occurence   Character string: 'last' or 'first'; indicates if the index
 %              element in output array m points to first or last occurence of
-%              a non-unique element in aStruct
+%              a non-unique element in A
+%               Default: 'first' ('last' if specify 'legacy')
 %
 %  'legacy'     If present, then the output array m (below) follows the
 %              legacy behaviour (i.e. Matlab 2012b and earlier)
@@ -79,10 +80,14 @@ elseif ~keyval.independent
     keyval.public = true;
 end
 
-if keyval.last && keyval.first
+if ~(keyval.last || keyval.first)
+    if keyval.legacy
+        keyval.last = true;
+    else
+        keyval.first = true;
+    end
+elseif keyval.last && keyval.first
     error('Only one of ''first'' and ''last'' can be present')
-elseif ~keyval.first
-    keyval.last = true;
 end
 
 % Perform unique sort

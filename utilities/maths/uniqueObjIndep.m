@@ -17,9 +17,10 @@ function [cObj, m, n] = uniqueObjIndep(aObj, varargin)
 % ------
 %   aObj        Array of input objects (row or column vector)
 %
-%   occurence   Character string 'last' [default] or 'first'; indicates if the index
+%   occurence   Character string: 'last' or 'first'; indicates if the index
 %              element in output array m points to first or last occurence of
 %              a non-unique element in aObj
+%               Default: 'first' ('last' if specify 'legacy')
 %
 %  'legacy'     If present, then the output array m (below) follows the 
 %              legacy behaviour (i.e. Matlab 2012b and earlier)
@@ -46,10 +47,14 @@ opt.flags_noneg = true;
 if ~ok, error(mess), end
 if ~isempty(par), error('Check the optional arguments'), end
 
-if keyval.last && keyval.first
+if ~(keyval.last || keyval.first)
+    if keyval.legacy
+        keyval.last = true;
+    else
+        keyval.first = true;
+    end
+elseif keyval.last && keyval.first
     error('Only one of ''first'' and ''last'' can be present')
-elseif ~keyval.first
-    keyval.last = true;
 end
 
 % Perform unique sort
