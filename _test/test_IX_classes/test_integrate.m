@@ -52,15 +52,16 @@ load(fullfile(rootpath,data_filename));
 
 clear('ih1_mex','ih1b_mex','ip1_mex','ip1b_mex','ihpa_mex','ihpb_mex','ihpc_mex',...
     'ih1',    'ih1b',    'ip1',    'ip1b',    'ihpa',    'ihpb',    'ihpc')
+if log_level>0
+    disp('===========================')
+    disp('    1D: Test integrate')
+    disp('===========================')
+end
+
 
 tol=-1e-13;
 if test_mex
     
-    if log_level>0
-        disp('===========================')
-        disp('    1D: Test integrate')
-        disp('===========================')
-    end
     
     hc.use_mex = true;
     
@@ -112,13 +113,24 @@ if test_mex
     hc.use_mex = false;
     ihpc    =integrate(hp_1d_big,-20,620);
     delta_IX_dataset_nd(ihpc_mex,ihpc,tol);
-    if log_level>0
-        disp(' ')
-        disp('Done')
-        disp(' ')
-    end
+else
+    ih1    =integrate(h1,5,10);
+    ih1b    =integrate(h1,0,20);
+    ip1    =integrate(p1,5,10);
+    ip1b    =integrate(p1,0,20);
     
+    % Big array
+    % ----------
+    ihpa    =integrate(hp_1d_big,105,110);
+    ihpb    =integrate(hp_1d_big,-10,550);
+    ihpc    =integrate(hp_1d_big,-20,620);
 end
+if log_level>0
+    disp(' ')
+    disp('Done')
+    disp(' ')
+end
+
 
 
 
