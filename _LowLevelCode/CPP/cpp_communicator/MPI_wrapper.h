@@ -15,7 +15,8 @@ public:
 		this->close();
 	}
 
-	int myid, numprocs;
+	int labIndex;  // index of the current MPI lab (worker)
+	int numProcs; // total  number of MPI labs (workers)
 private:
 
 

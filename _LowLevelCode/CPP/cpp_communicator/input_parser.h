@@ -51,29 +51,19 @@ enum class closeOrGetInfoInputs : int { // all input arguments for close IO proc
 
 //--------------   Outputs;
 
-enum class Init_Outputs : int { // output arguments for init procedure
-	mex_reader_handle,
-	N_OUTPUT_Arguments
-};
-enum class read_Outputs :int { // output arguments for read procedure
+
+enum class read_Out :int { // output arguments for read procedure
 	pix_array,
 	is_io_completed,
 	mex_reader_handle,
 
 	N_OUTPUT_Arguments
 };
-enum class file_info_out :int { // output arguments for read procedure
-	filename,
-	groupname,
-	n_pixels,
-	chunk_size,
-	cache_nslots,
-	cache_size,
-	N_OUTPUT_Arguments
-};
-enum class read_info_out :int { // output arguments for read procedure
-	n_blocks_read, // number of blocks already processed by previous read operations (from npix and pix_pos arrays)
-	pos_in_first_block,  // number of pixels left to read in the first unprocessed block equal to n_pix_in_block-pos_in_first_block;
+
+enum class labIndex_Out :int { // output arguments for labIndex procedure
+	comm_ptr,   // the pointer to MPI pointer
+	numLab,     // number current worker
+	n_workers,  // number of workers in the pull/
 
 	N_OUTPUT_Arguments
 };
@@ -132,17 +122,20 @@ void class_handle<T>::clear_mex_locks()
 	}
 }
 
-template<class T> inline class_handle<T> *get_handler_fromMatlab(const mxArray *in)
+template<class T> inline class_handle<T> *get_handler_fromMatlab(const mxArray *in,bool throw_on_invalid = true)
 {
 	if (!in)
-		throw_error("MPI_MEX_COMMUNICATOR:runtime_error", "hdf_reader received from Matlab evaluated to null pointer");
+		throw_error("MPI_MEX_COMMUNICATOR:runtime_error", "cpp_communicator received from Matlab evaluated to null pointer");
 
 	if (mxGetNumberOfElements(in) != 1 || mxGetClassID(in) != mxUINT64_CLASS || mxIsComplex(in))
 		throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", "Handle input must be a real uint64 scalar.");
 
 	class_handle<T> *ptr = reinterpret_cast<class_handle<T> *>(*((uint64_t *)mxGetData(in)));
 	if (!ptr->isValid())
-		throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", "Retrieved handle does not point to correct class");
+		if (throw_on_invalid)
+			throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", "Retrieved handle does not point to correct class");
+		else
+			ptr = nullptr;
 	return ptr;
 }
 

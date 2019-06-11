@@ -11,11 +11,11 @@ int MPI_wrapper::init() {
 			"Can not initialize MPI framework");
 	}
 
-	MPI_Comm_size(MPI_COMM_WORLD, &this->numprocs);
-	MPI_Comm_rank(MPI_COMM_WORLD, &this->myid);
+	MPI_Comm_size(MPI_COMM_WORLD, &this->numProcs);
+	MPI_Comm_rank(MPI_COMM_WORLD, &this->labIndex);
 
 	return 0;
 }
 void MPI_wrapper::close() {
-
+	MPI_Finalize();
 }

@@ -342,7 +342,7 @@ classdef iMessagesFramework
         %------------------------------------------------------------------
         % delete all messages belonging to this instance of messages
         % framework and shut the framework down.
-        finalize_all(obj)
+        obj=finalize_all(obj)
         % wait until all worker arrive to the part of the code specified
         [ok,err]=labBarrier(obj,nothrow);
         %

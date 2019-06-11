@@ -121,13 +121,20 @@ class_handle<MPI_wrapper> *parse_inputs(int nlhs, int nrhs, const mxArray *prhs[
 		work_mode = labProbe;
 	}
 	else if (mex_mode.compare("init") == 0) {
+		if (nrhs != 1 ) {
+			std::stringstream err;
+			err << " Init mode needs only 1 but got : " << nrhs << " input parameters";
+			throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", err.str().c_str());
+		}
 		class_handle<MPI_wrapper> *pCommunicator = new class_handle<MPI_wrapper>();
 		work_mode = init_mpi;
 		return pCommunicator;
 	}
 	else if (mex_mode.compare("finalize") == 0) {
 		work_mode = close_mpi;
-		class_handle<MPI_wrapper> *pCommunicator = get_handler_fromMatlab<MPI_wrapper>(prhs[(int)labIndexInputs::comm_ptr]);
+		/* do not throw on finalize second time if the framework had been already finalized*/
+		class_handle<MPI_wrapper> *pCommunicator = get_handler_fromMatlab<MPI_wrapper>(prhs[(int)labIndexInputs::comm_ptr], false);
+
 		return pCommunicator;
 	}
 	else {
@@ -135,6 +142,10 @@ class_handle<MPI_wrapper> *parse_inputs(int nlhs, int nrhs, const mxArray *prhs[
 		err << " Unknow operation mode: " << mex_mode;
 		throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", err.str().c_str());
 	}
+	if (work_mode != close_mpi && nrhs < 1) {
+		throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", "MPI communicator needs at least one argument to return the instance of the communicatir");
+	}
+
 	// get handlder from 
 	class_handle<MPI_wrapper> *pCommunicator = get_handler_fromMatlab<MPI_wrapper>(prhs[(int)labIndexInputs::comm_ptr]);
 	return pCommunicator;
