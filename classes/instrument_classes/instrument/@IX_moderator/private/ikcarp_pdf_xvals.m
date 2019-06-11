@@ -1,5 +1,5 @@
 function t = ikcarp_pdf_xvals (npnt, tauf, taus)
-% Return suitable reduces times for a pdf lookup table
+% Return suitable reduced times for a pdf lookup table
 %
 % Input:
 % ------

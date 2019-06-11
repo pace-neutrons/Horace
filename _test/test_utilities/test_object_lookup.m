@@ -1,3 +1,11 @@
+function test_object_lookup
+% Test object_lookup
+
+hc = herbert_config;
+log_level = hc.log_level;
+
+% Create a bunch of objects
+% -------------------------
 c1=IX_fermi_chopper(10,150,0.049,1.3,0.003,Inf, 0, 0,50);
 c2a=IX_fermi_chopper(10,250,0.049,1.3,0.003,Inf, 0, 0,100);
 c2b=IX_fermi_chopper(10,250,0.049,1.3,0.003,Inf, 0, 0,120);
@@ -11,7 +19,7 @@ c5=IX_fermi_chopper(10,550,0.049,1.3,0.003,Inf, 0, 0,350);
 [y,t] = pulse_shape(c4);  ww4=IX_dataset_1d(t,y);
 [y,t] = pulse_shape(c5);  ww5=IX_dataset_1d(t,y);
 
-ww1norm = ww1/c1.transmission();
+ww1norm = ww1/c1.transmission();    % normalised to unit integral
 ww2norm = ww2/c2a.transmission();
 ww3norm = ww3/c3.transmission();
 ww4norm = ww4/c4.transmission();
@@ -49,14 +57,17 @@ w1samp(4) = samp2distr(xsamp1(ind1==4));
 w1samp(5) = samp2distr(xsamp1(ind1==5));
 w1samp(6) = samp2distr(xsamp1(ind1==6));
 
-disp('-----------------')
+if log_level>0, disp('-----------------'), end
 for i=1:numel(w1samp)
-    [ok,mess,wdiff,chisqr] = IX_dataset_1d_same (w1_ref(i),w1samp(i),10,'rebin','chi');
-    if ~ok
-        disp(['Dataset ',num2str(i),' BAD (chisqr = ',num2str(chisqr),') **********'])
-    else
-        disp(['Dataset ',num2str(i),' chisqr = ',num2str(chisqr)])
+    [ok,mess,wdiff,chisqr] = IX_dataset_1d_same (w1_ref(i),w1samp(i),3,'rebin','chi');
+    if log_level>0
+        if ~ok
+            disp(['Dataset ',num2str(i),' BAD (chisqr = ',num2str(chisqr),') **********'])
+        else
+            disp(['Dataset ',num2str(i),' chisqr = ',num2str(chisqr)])
+        end
     end
+    if ~ok, error(['Dataset ',num2str(i),' BAD (chisqr = ',num2str(chisqr),') **********']), end
 end
 
 %----------
@@ -71,14 +82,17 @@ w2samp(4) = samp2distr(xsamp2(ind2==4));
 w2samp(5) = samp2distr(xsamp2(ind2==5));
 w2samp(6) = samp2distr(xsamp2(ind2==6));
 
-disp('-----------------')
+if log_level>0, disp('-----------------'), end
 for i=1:numel(w2samp)
-    [ok,chisqr,wresid] = IX_dataset_1d_same (w2_ref(i),w2samp(i),10);
-    if ~ok
-        disp(['Dataset ',num2str(i),' BAD (chisqr = ',num2str(chisqr),') **********'])
-    else
-        disp(['Dataset ',num2str(i),' chisqr = ',num2str(chisqr)])
+    [ok,mess,wdiff,chisqr] = IX_dataset_1d_same (w2_ref(i),w2samp(i),3,'rebin','chi');
+    if log_level>0
+        if ~ok
+            disp(['Dataset ',num2str(i),' BAD (chisqr = ',num2str(chisqr),') **********'])
+        else
+            disp(['Dataset ',num2str(i),' chisqr = ',num2str(chisqr)])
+        end
     end
+    if ~ok, error(['Dataset ',num2str(i),' BAD (chisqr = ',num2str(chisqr),') **********']), end
 end
 
 %----------
@@ -89,14 +103,17 @@ xsamp3 = rand_ind(objlookup2,3,ind3);
 w3samp(1) = samp2distr(xsamp3(ind3==1));
 w3samp(2) = samp2distr(xsamp3(ind3==2));
 
-disp('-----------------')
+if log_level>0, disp('-----------------'), end
 for i=1:numel(w3samp)
-    [ok,chisqr,wresid] = IX_dataset_1d_same (w3_ref(i),w3samp(i),20);
-    if ~ok
-        disp(['Dataset ',num2str(i),' BAD (chisqr = ',num2str(chisqr),') **********'])
-    else
-        disp(['Dataset ',num2str(i),' chisqr = ',num2str(chisqr)])
+    [ok,mess,wdiff,chisqr] = IX_dataset_1d_same (w3_ref(i),w3samp(i),3,'rebin','chi');
+    if log_level>0
+        if ~ok
+            disp(['Dataset ',num2str(i),' BAD (chisqr = ',num2str(chisqr),') **********'])
+        else
+            disp(['Dataset ',num2str(i),' chisqr = ',num2str(chisqr)])
+        end
     end
+    if ~ok, error(['Dataset ',num2str(i),' BAD (chisqr = ',num2str(chisqr),') **********']), end
 end
 
 %--------------------------------
@@ -116,14 +133,17 @@ wsamp(2) = samp2distr(xsamp(ind==2));
 wsamp(4) = samp2distr(xsamp(ind==4));
 wsamp(5) = samp2distr(xsamp(ind==5));
 
-disp('-----------------')
+if log_level>0, disp('-----------------'), end
 for i=[2,4,5]
-    [ok,chisqr,wresid] = IX_dataset_1d_same (w1_ref(i),wsamp(i),10);
-    if ~ok
-        disp(['Dataset ',num2str(i),' BAD (chisqr = ',num2str(chisqr),') **********'])
-    else
-        disp(['Dataset ',num2str(i),' chisqr = ',num2str(chisqr)])
+    [ok,mess,wdiff,chisqr] = IX_dataset_1d_same (w1_ref(i),wsamp(i),3,'rebin','chi');
+    if log_level>0
+        if ~ok
+            disp(['Dataset ',num2str(i),' BAD (chisqr = ',num2str(chisqr),') **********'])
+        else
+            disp(['Dataset ',num2str(i),' chisqr = ',num2str(chisqr)])
+        end
     end
+    if ~ok, error(['Dataset ',num2str(i),' BAD (chisqr = ',num2str(chisqr),') **********']), end
 end
 
 % Now a case where just happens to pick out objects that are increasing index in the internal
@@ -138,14 +158,17 @@ wsamp = repmat(IX_dataset_1d,size(w1_ref));
 wsamp(2) = samp2distr(xsamp(ind==2));
 wsamp(3) = samp2distr(xsamp(ind==3));
 
-disp('-----------------')
+if log_level>0, disp('-----------------'), end
 for i=[2,3]
-    [ok,chisqr,wresid] = IX_dataset_1d_same (w1_ref(i),wsamp(i),15);
-    if ~ok
-        disp(['Dataset ',num2str(i),' BAD (chisqr = ',num2str(chisqr),') **********'])
-    else
-        disp(['Dataset ',num2str(i),' chisqr = ',num2str(chisqr)])
+    [ok,mess,wdiff,chisqr] = IX_dataset_1d_same (w1_ref(i),wsamp(i),3,'rebin','chi');
+    if log_level>0
+        if ~ok
+            disp(['Dataset ',num2str(i),' BAD (chisqr = ',num2str(chisqr),') **********'])
+        else
+            disp(['Dataset ',num2str(i),' chisqr = ',num2str(chisqr)])
+        end
     end
+    if ~ok, error(['Dataset ',num2str(i),' BAD (chisqr = ',num2str(chisqr),') **********']), end
 end
 
 
@@ -206,7 +229,3 @@ thi_ref = repmat(thi_ref,numel(ind2),1);
 if ~isequal(tlo_ref(:),tlo) || ~isequal(thi_ref(:),thi)
     error('Algorithmic failure in func_eval for single object')
 end
-
-
-% Non-scalar output arguments
-% ----------------------------

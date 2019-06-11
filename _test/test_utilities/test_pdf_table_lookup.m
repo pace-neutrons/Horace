@@ -1,9 +1,15 @@
+function test_pdf_table_lookup
+% Test pdf_table_lookup works as expected
+
+hc = herbert_config;
+log_level = hc.log_level;
+
 %--------------------------------------------------------------------------
-% Check Fermi chopper sorting
-% -------------------------------
+% Create some Fermi chopper objects
+% ---------------------------------
 c1=IX_fermi_chopper(10,150,0.049,1.3,0.003,Inf, 0, 0,50);
 c2a=IX_fermi_chopper(10,250,0.049,1.3,0.003,Inf, 0, 0,100);
-c2b=IX_fermi_chopper(10,250,0.049,1.3,0.003,Inf, 0, 0,120);
+c2b=IX_fermi_chopper(10,250,0.049,1.3,0.003,Inf, 0, 0,120);     % differs in column index >1 from c2a
 c3=IX_fermi_chopper(10,350,0.049,1.3,0.003,Inf, 0, 0,300);
 c4=IX_fermi_chopper(10,450,0.049,1.3,0.003,Inf, 0, 0,400);
 c5=IX_fermi_chopper(10,550,0.049,1.3,0.003,Inf, 0, 0,350);
@@ -14,10 +20,17 @@ c5=IX_fermi_chopper(10,550,0.049,1.3,0.003,Inf, 0, 0,350);
 [y,t] = pulse_shape(c4);  ww4=IX_dataset_1d(t,y);
 [y,t] = pulse_shape(c5);  ww5=IX_dataset_1d(t,y);
 
-acolor('r','b','k','m','g')
-dl([ww1,ww2,ww3,ww4,ww5])
+ww1 = ww1/c1.transmission();    % normalised to unit integral
+ww2 = ww2/c2a.transmission();
+ww3 = ww3/c3.transmission();
+ww4 = ww4/c4.transmission();
+ww5 = ww5/c5.transmission();
 
-
+%--------------------------------------------------------------------------
+% Check Fermi chopper sorting
+% -------------------------------
+% Do this here as the operation of pdf_lookup_table depends on sorting working
+% so check this part is bug free
 
 % Check sort
 carr1=[c5,c3,c2b,c1,c2a,c4];
@@ -61,8 +74,7 @@ arr2 = [...
     c2a,c1, c3];
 arr3 = [c3,c1];
 
-look1 = pdf_table_lookup(arr1);
-look2 = pdf_table_lookup({arr1,arr2,arr3});
+lookup = pdf_table_lookup({arr1,arr2,arr3});
 
 %----------
 % Test:
@@ -75,7 +87,7 @@ w3_ref = [ww3,ww1];
 %----------
 nsamp = 1e7;
 ind1 = floor(numel(arr1)*rand(ceil(nsamp/10),10)) + 1;
-xsamp1 = rand_ind(look2,1,ind1);
+xsamp1 = rand_ind(lookup,1,ind1);
 
 w1samp(1) = samp2distr(xsamp1(ind1==1));
 w1samp(2) = samp2distr(xsamp1(ind1==2));
@@ -84,21 +96,23 @@ w1samp(4) = samp2distr(xsamp1(ind1==4));
 w1samp(5) = samp2distr(xsamp1(ind1==5));
 w1samp(6) = samp2distr(xsamp1(ind1==6));
 
-disp('-----------------')
+if log_level>0, disp('-----------------'), end
 for i=1:numel(w1samp)
-    [ok,chisqr,wresid] = IX_dataset_1d_same (w1_ref(i),w1samp(i),10);
-    if ~ok
-        disp([i,chisqr])
-        disp(['Dataset ',num2str(i),' BAD (chisqr = ',num2str(chisqr),') **********'])
-    else
-        disp(['Dataset ',num2str(i)])
+    if log_level>0
+        [ok,mess,wdiff,chisqr] = IX_dataset_1d_same (w1_ref(i),w1samp(i),3,'rebin','chi');
+        if ~ok
+            disp([i,chisqr])
+            disp(['Dataset ',num2str(i),' BAD (chisqr = ',num2str(chisqr),') **********'])
+        else
+            disp(['Dataset ',num2str(i),' chisqr = ',num2str(chisqr)])
+        end
     end
 end
 
 %----------
 nsamp = 1e7;
 ind2 = floor(numel(arr2)*rand(ceil(nsamp/10),10)) + 1;
-xsamp2 = rand_ind(look2,2,ind2);
+xsamp2 = rand_ind(lookup,2,ind2);
 
 w2samp(1) = samp2distr(xsamp2(ind2==1));
 w2samp(2) = samp2distr(xsamp2(ind2==2));
@@ -107,30 +121,34 @@ w2samp(4) = samp2distr(xsamp2(ind2==4));
 w2samp(5) = samp2distr(xsamp2(ind2==5));
 w2samp(6) = samp2distr(xsamp2(ind2==6));
 
-disp('-----------------')
+if log_level>0, disp('-----------------'), end
 for i=1:numel(w2samp)
-    [ok,chisqr,wresid] = IX_dataset_1d_same (w2_ref(i),w2samp(i),10);
-    if ~ok
-        disp(['Dataset ',num2str(i),' BAD (chisqr = ',num2str(chisqr),') **********'])
-    else
-        disp(['Dataset ',num2str(i)])
+    if log_level>0
+        [ok,mess,wdiff,chisqr] = IX_dataset_1d_same (w2_ref(i),w2samp(i),3,'rebin','chi');
+        if ~ok
+            disp(['Dataset ',num2str(i),' BAD (chisqr = ',num2str(chisqr),') **********'])
+        else
+            disp(['Dataset ',num2str(i),' chisqr = ',num2str(chisqr)])
+        end
     end
 end
 
 %----------
 nsamp = 1e7;
 ind3 = floor(numel(arr3)*rand(ceil(nsamp/10),10)) + 1;
-xsamp3 = rand_ind(look2,3,ind3);
+xsamp3 = rand_ind(lookup,3,ind3);
 
 w3samp(1) = samp2distr(xsamp3(ind3==1));
 w3samp(2) = samp2distr(xsamp3(ind3==2));
 
-disp('-----------------')
+if log_level>0, disp('-----------------'), end
 for i=1:numel(w3samp)
-    [ok,chisqr,wresid] = IX_dataset_1d_same (w3_ref(i),w3samp(i),20);
-    if ~ok
-        disp(['Dataset ',num2str(i),' BAD (chisqr = ',num2str(chisqr),') **********'])
-    else
-        disp(['Dataset ',num2str(i)])
+    if log_level>0
+        [ok,mess,wdiff,chisqr] = IX_dataset_1d_same (w3_ref(i),w3samp(i),3,'rebin','chi');
+        if ~ok
+            disp(['Dataset ',num2str(i),' BAD (chisqr = ',num2str(chisqr),') **********'])
+        else
+            disp(['Dataset ',num2str(i),' chisqr = ',num2str(chisqr)])
+        end
     end
 end

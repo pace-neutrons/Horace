@@ -134,6 +134,10 @@ classdef pdf_table_lookup
             val=obj.indx_;
         end
         
+        function val=get.filled(obj)
+            val = obj.pdf_table_array_.filled;
+        end
+
         %------------------------------------------------------------------
     end
 end
