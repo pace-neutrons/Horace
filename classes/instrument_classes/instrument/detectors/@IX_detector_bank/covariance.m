@@ -1,12 +1,12 @@
-function val = covar (obj, varargin)
-% Covariance of points of absorption in detector(s) in a detector array
+function val = covariance (obj, varargin)
+% Covariance of points of absorption in detector(s) in a detector bank
 %
-%   >> val = covar (obj, wvec)
-%   >> val = covar (obj, ind, wvec)
+%   >> val = covariance (obj, wvec)
+%   >> val = covariance (obj, ind, wvec)
 %
 % Input:
 % ------
-%   obj         IX_detector_array object
+%   obj         IX_detector_bank object
 %
 %   ind         Indices of detectors for which to calculate. Scalar or array.
 %               Default: all detectors (i.e. ind = 1:ndet)
@@ -29,8 +29,5 @@ function val = covar (obj, varargin)
 % $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
 
 
-if ~isscalar(obj)
-    error('Only operates on a single detector array object (i.e. object must be scalar');
-end
-
-val = func_eval (obj.det_bank_, @covar, {'wvec'}, varargin{:});
+[~, ind] = parse_ind_wvec_ (obj.det, varargin{:});
+val = covariance (obj.det, squeeze(obj.dmat(1,:,ind(:))), varargin{:});

@@ -1,12 +1,12 @@
-function val = covar (obj, npath_in, varargin)
-% Covariance of points of absorption in a slab detector
+function val = covariance (obj, npath_in, varargin)
+% Covariance of points of absorption in a old Tobyfit approx to a 3He cylindrical tube
 %
-%   >> val = covar (obj, npath, wvec)
-%   >> val = covar (obj, npath, ind, wvec)
+%   >> val = covariance (obj, npath, wvec)
+%   >> val = covariance (obj, npath, ind, wvec)
 %
 % Input:
 % ------
-%   obj         IX_det_slab object
+%   obj         IX_det_TobyfitClassic object
 %
 %   npath       Unit vectors along the neutron path in the detector coordinate
 %               frame for each detector. Vector length 3 or an array size [3,n]
@@ -23,7 +23,7 @@ function val = covar (obj, npath_in, varargin)
 %
 % Output:
 % -------
-%   val         Covariance of points of absorption (m^2)
+%   val         Covariance of point of absorption in the detector frame (m^2)
 %               The size is [3,3,sz] where sz is the shape of whichever of ind
 %               or wvec is an array, and then the array is squeezed.
 %               If both ind and wvec are arrays, the shape is that of wvec

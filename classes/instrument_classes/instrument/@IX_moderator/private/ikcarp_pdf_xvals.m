@@ -10,7 +10,8 @@ function t = ikcarp_pdf_xvals (npnt, tauf, taus)
 
 % Parameters to determine point density for the fast and convolution terms
 Rmax = 15;     % Range of t: maximum multiple of tauf (or taus)
-m = 2;      % Point of cross-over from equal t_red steps to constant fractin of tauf (or taus)
+m = 2;      % Point of cross-over from equal t_red steps to constant
+            % fraction of tauf (or taus)
 
 % Get times
 t_fast = ikcarp_pdf_xvals_private (npnt/2, tauf, 3*tauf, m, Rmax);

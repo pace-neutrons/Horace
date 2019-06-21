@@ -53,7 +53,7 @@ classdef (Abstract) IX_det_abstractType
         val = var_x (obj, varargin)
         val = var_y (obj, varargin)
         val = var_z (obj, varargin)
-        val = covar (obj, varargin)     % 3 x 3 matrix for single point
+        val = covariance (obj, varargin)     % 3 x 3 matrix for single point
         
         % Array of random points
         X = rand (obj, varargin)

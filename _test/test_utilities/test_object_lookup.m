@@ -50,12 +50,12 @@ nsamp = 1e7;
 ind1 = randselection(1:numel(arr1),[ceil(nsamp/10),10]);
 xsamp1 = rand_ind(objlookup2,1,ind1);
 
-w1samp(1) = samp2distr(xsamp1(ind1==1));
-w1samp(2) = samp2distr(xsamp1(ind1==2));
-w1samp(3) = samp2distr(xsamp1(ind1==3));
-w1samp(4) = samp2distr(xsamp1(ind1==4));
-w1samp(5) = samp2distr(xsamp1(ind1==5));
-w1samp(6) = samp2distr(xsamp1(ind1==6));
+w1samp(1) = vals2distr(xsamp1(ind1==1),'norm','poisson');
+w1samp(2) = vals2distr(xsamp1(ind1==2),'norm','poisson');
+w1samp(3) = vals2distr(xsamp1(ind1==3),'norm','poisson');
+w1samp(4) = vals2distr(xsamp1(ind1==4),'norm','poisson');
+w1samp(5) = vals2distr(xsamp1(ind1==5),'norm','poisson');
+w1samp(6) = vals2distr(xsamp1(ind1==6),'norm','poisson');
 
 if log_level>0, disp('-----------------'), end
 for i=1:numel(w1samp)
@@ -75,12 +75,12 @@ nsamp = 1e7;
 ind2 = randselection(1:numel(arr2),[ceil(nsamp/10),10]);
 xsamp2 = rand_ind(objlookup2,2,ind2);
 
-w2samp(1) = samp2distr(xsamp2(ind2==1));
-w2samp(2) = samp2distr(xsamp2(ind2==2));
-w2samp(3) = samp2distr(xsamp2(ind2==3));
-w2samp(4) = samp2distr(xsamp2(ind2==4));
-w2samp(5) = samp2distr(xsamp2(ind2==5));
-w2samp(6) = samp2distr(xsamp2(ind2==6));
+w2samp(1) = vals2distr(xsamp2(ind2==1),'norm','poisson');
+w2samp(2) = vals2distr(xsamp2(ind2==2),'norm','poisson');
+w2samp(3) = vals2distr(xsamp2(ind2==3),'norm','poisson');
+w2samp(4) = vals2distr(xsamp2(ind2==4),'norm','poisson');
+w2samp(5) = vals2distr(xsamp2(ind2==5),'norm','poisson');
+w2samp(6) = vals2distr(xsamp2(ind2==6),'norm','poisson');
 
 if log_level>0, disp('-----------------'), end
 for i=1:numel(w2samp)
@@ -100,8 +100,8 @@ nsamp = 1e7;
 ind3 = randselection(1:numel(arr3),[ceil(nsamp/10),10]);
 xsamp3 = rand_ind(objlookup2,3,ind3);
 
-w3samp(1) = samp2distr(xsamp3(ind3==1));
-w3samp(2) = samp2distr(xsamp3(ind3==2));
+w3samp(1) = vals2distr(xsamp3(ind3==1),'norm','poisson');
+w3samp(2) = vals2distr(xsamp3(ind3==2),'norm','poisson');
 
 if log_level>0, disp('-----------------'), end
 for i=1:numel(w3samp)
@@ -129,9 +129,9 @@ ind = reshape(ind,[nsamp/10,10]);
 xsamp = rand_ind(objlookup2,1,ind);
 
 wsamp = repmat(IX_dataset_1d,size(w1_ref));
-wsamp(2) = samp2distr(xsamp(ind==2));
-wsamp(4) = samp2distr(xsamp(ind==4));
-wsamp(5) = samp2distr(xsamp(ind==5));
+wsamp(2) = vals2distr(xsamp(ind==2),'norm','poisson');
+wsamp(4) = vals2distr(xsamp(ind==4),'norm','poisson');
+wsamp(5) = vals2distr(xsamp(ind==5),'norm','poisson');
 
 if log_level>0, disp('-----------------'), end
 for i=[2,4,5]
@@ -155,8 +155,8 @@ ind = reshape(ind,[nsamp/10,10]);
 xsamp = rand_ind(objlookup2,1,ind);
 
 wsamp = repmat(IX_dataset_1d,size(w1_ref));
-wsamp(2) = samp2distr(xsamp(ind==2));
-wsamp(3) = samp2distr(xsamp(ind==3));
+wsamp(2) = vals2distr(xsamp(ind==2),'norm','poisson');
+wsamp(3) = vals2distr(xsamp(ind==3),'norm','poisson');
 
 if log_level>0, disp('-----------------'), end
 for i=[2,3]

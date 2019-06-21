@@ -1,5 +1,5 @@
 function [dt, t_av, fwhh] = pulse_width (self, varargin)
-% Return covariance matrix for the sample shape
+% Calculate the standard deviation of the moderator pulse shape
 %
 %   >> [dt, t_av, fwhh] = pulse_width (moderator)
 %   >> [dt, t_av, fwhh] = pulse_width (moderator, ei)

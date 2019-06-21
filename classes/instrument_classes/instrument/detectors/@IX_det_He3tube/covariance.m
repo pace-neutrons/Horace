@@ -1,8 +1,8 @@
-function val = covar (obj, npath_in, varargin)
+function val = covariance (obj, npath_in, varargin)
 % Covariance of points of absorption in a 3He cylindrical tube
 %
-%   >> val = covar (obj, npath, wvec)
-%   >> val = covar (obj, npath, ind, wvec)
+%   >> val = covariance (obj, npath, wvec)
+%   >> val = covariance (obj, npath, ind, wvec)
 %
 % Input:
 % ------

@@ -55,10 +55,10 @@ nsamp = 1e7;
 ind = floor(numel(pdf_arr)*rand(ceil(nsamp/10),10)) + 1;
 xsamp = rand_ind(pdf,ind);
 
-wdist_gauss = samp2distr(xsamp(ind==1),x_gauss_bin);
-wdist_hat = samp2distr(xsamp(ind==2),x_hat_bin);
-wdist_tri = samp2distr(xsamp(ind==3),x_tri_bin);
-wdist_hh = samp2distr(xsamp(ind==4),x_hh_bin);
+wdist_gauss = vals2distr(xsamp(ind==1),x_gauss_bin,'norm','poisson');
+wdist_hat = vals2distr(xsamp(ind==2),x_hat_bin,'norm','poisson');
+wdist_tri = vals2distr(xsamp(ind==3),x_tri_bin,'norm','poisson');
+wdist_hh = vals2distr(xsamp(ind==4),x_hh_bin,'norm','poisson');
 
 % Compare random sampling from pdf_table_array
 % --------------------------------------------
@@ -93,7 +93,7 @@ end
 
 pdf_single = pdf_table_array(pdf_hh);
 xsamp = rand_ind(pdf_single, ones(1,nsamp));
-w_single = samp2distr(xsamp,x_hh_bin);
+w_single = vals2distr(xsamp,x_hh_bin,'norm','poisson');
 
 [ok,mess,wdiff,chisqr] = IX_dataset_1d_same (w_single,w_hh,10,'rebin','chi');
 if ~ok

@@ -128,6 +128,6 @@ if numel(indu)>1
         X, sz, 'UniformOutput', false);
     
 else
-    varargout = cellfun (@(x,y)(repmat(x,size_array_stack(ones(size(y)),size(ind)))),...
-        Xtmp, sz, 'UniformOutput', false);
+    varargout = cellfun (@(x,y)(reshape(repmat(x(:),[1,numel(ind)]),...
+        size_array_stack(y,size(ind)))), Xtmp, sz, 'UniformOutput', false);
 end
