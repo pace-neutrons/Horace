@@ -54,12 +54,12 @@ tic
 toc
 disp(t_cov(1:3)); disp(t_av)
 
-disp('----------------------')
-disp('tm-t_ch method:')
-tic
-[t_cov, t_av] = moments_2D_DEVEL (obj); 
-toc
-disp(t_cov(1:3)); disp(t_av)
+% disp('----------------------')
+% disp('tm-t_ch method:')
+% tic
+% [t_cov, t_av] = moments_2D_DEVEL (obj); 
+% toc
+% disp(t_cov(1:3)); disp(t_av)
 
 disp('----------------------')
 disp('Moments from random sampling')

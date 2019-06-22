@@ -69,7 +69,7 @@ t_cov = zeros(2);
 t_av = zeros(1,2);
 if mc_m && mc_sh% moderator and shaping chopper both present
     if mc_ch    % 2D integral needs to be performed
-        [t_cov,t_av] = moments_2D (moderator, shaping_chopper, mono_chopper, alf);
+        [t_cov,t_av] = moments_2D (self, alf);
     else        % 1D integral needs to be performed
         [t_cov(1,1),t_av(1)] = moments_1D (moderator, shaping_chopper, alf);
     end
@@ -96,7 +96,7 @@ end
 % =================================================================================================
 function [t_var,t_av] = moments_1D (moderator, shaping_chopper, alf)
 % Return average and variance at shaping chopper position if delta-function
-% monochromating chopper
+% monochromating chopper. In this case the integrals reduce to 1D.
 
 [~,t_m_av] = pulse_width(moderator);
 [tlo_shape,thi_shape] = pulse_range(shaping_chopper);
@@ -163,7 +163,21 @@ end
 
 
 % =================================================================================================
-function [t_cov,t_av] = moments_2D (moderator, shaping_chopper, mono_chopper, alf)
+function [t_cov,t_av] = moments_2D (obj, alf)
+% General case of finite no-zero widths of moderator, shaping and 
+% monochromating choppers. Have a two-dimensional integral to perform, which 
+% can be pathologicla in the case of markedly different widths for the
+% different components.
+% For this reason, there are different regimes which use different methods
+% A particularly tricky case is when the shaping chopper is much broader than
+% the moderator. By experiment, caluclating the moments from Monte Carlo
+% sampling appears to be accurate and robust. This is because we sample
+% the distributions correctly without weighting of events. So use this
+% approach.
+
+moderator = obj.moderator_;
+shaping_chopper = obj.shaping_chopper_;
+mono_chopper = obj.mono_chopper_;
 
 [~,t_m_av] = pulse_width(moderator);
 [tlo_shape,thi_shape] = pulse_range(shaping_chopper);
@@ -171,7 +185,7 @@ function [t_cov,t_av] = moments_2D (moderator, shaping_chopper, mono_chopper, al
 
 % From characteristic width of moderator in relation to the shaping chopper, determine
 % the integration variables
-fac = 0;    % change to non-zero value when implement narrow moderator code
+fac = 0.33;    % change to non-zero value when implement narrow moderator code
 if (alf*t_m_av) > fac*thi_shape
     % Work in t_sh-t_ch space
     % Zeroth moment
@@ -197,16 +211,27 @@ if (alf*t_m_av) > fac*thi_shape
     t_cov(2,2) = integral2 (@(x,y)(fun_shaped(x, y, moderator, shaping_chopper, mono_chopper,...
         alf, t_m_av, [0,2])), tlo_shape, thi_shape, tlo_mono, thi_mono) / area;
         
+    % Correct covariance matrix for non-zero first moments
+    t_cov(1,1) = t_cov(1,1) - t_av(1)^2;
+    t_cov(1,2) = t_cov(1,2) - t_av(1)*t_av(2);
+    t_cov(2,2) = t_cov(2,2) - t_av(2)^2;
+    t_cov(2,1) = t_cov(1,2);
+    
 else
-    % Work in tm-t_ch space as very narrow moderator w.r.t shaping chopper
-    % Zeroth moment
+    % Random sampling with 10^6 points eems to get the covariance to about 0.5%
+    % and seems to be very robust, unlike using the Matlab functions integral
+    % or integral2, which are time-consuming and can be thrown by the pathological
+    % cases of widely different widths.
+    % For reproducibility, reset the seed for random number generation, but
+    % reset to incoming state afterwards.
+    npnt = 1e6;     
+    state = rng;        % get current state of erandom number generators
+    rng(0,'twister');   % set particular state
+    X = obj.rand([npnt,1]);
+    rng(state);         % return to original state
+    t_cov = cov(X');
+    t_av = mean(X,2)';
 end
-
-% Correct covariance matrix for non-zero first moments
-t_cov(1,1) = t_cov(1,1) - t_av(1)^2;
-t_cov(1,2) = t_cov(1,2) - t_av(1)*t_av(2);
-t_cov(2,2) = t_cov(2,2) - t_av(2)^2;
-t_cov(2,1) = t_cov(1,2);
 
 
 %----------------------------------------------------------
