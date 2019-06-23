@@ -1,6 +1,16 @@
 function [ok,mess,par,ind,val]=parse_args_simple_ok_syntax (keywords,varargin)
 % Simple verification that argument list has form: par1, par2, par3, ..., key1, val1, key2, val2, ...
 %
+%**************************************************************************
+%************************* DEPRECATED FUNCTION ****************************
+%
+%   Only used inside herbert by deprecated function parse_arguments_simple
+%
+%   This function may be declared obsolete at any time - please remove
+%   from any function that uses it.
+%
+%**************************************************************************
+%
 %   >> [ok,mess,par,ind,val]= ...
 %         parse_args_simple_ok_syntax (keywords, par1, par2, ..., key1, val1, key2, val2, ...)
 %

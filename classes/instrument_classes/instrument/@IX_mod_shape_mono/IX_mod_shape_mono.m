@@ -38,7 +38,7 @@ classdef IX_mod_shape_mono
         % Constructor
         %------------------------------------------------------------------
         function obj = IX_mod_shape_mono (moderator, shaping_chopper, mono_chopper, energy)
-            % Create fermi chopper object
+            % Create moderator-shaping chopper-monochromating chopper object
             %
             %   >> obj = IX_mod_shape_mono (moderator, shaping_chopper, mono_chopper)
             %   >> obj = IX_mod_shape_mono (moderator, shaping_chopper, mono_chopper, energy)

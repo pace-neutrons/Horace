@@ -1,6 +1,12 @@
 function [ok,mess,ind,val]=parse_keywords(keywords,varargin)
 % Simple verification that argument list has form: key1, val1, key2, val2, ...
 %
+%**************************************************************************
+%
+% This function is marked for deprecation. Please do not use
+%
+%**************************************************************************
+%
 %   >> [ok,mess,ind,val]= parse_keywords (keywords, key1, val1, key2, val2, ...)
 %
 % Input:
