@@ -27,20 +27,30 @@ end
 
 
 arg1 = args{1};
-if iscell(arg1)
-    nfun = numel(arg1);
-elseif isa(arg1,'function_handle')
-    nfun = 1;
+if isfore
+    %fun_type = 'fore';
+    nfun = numel(obj.fun_);
 else
-    error('SET_FUN:invalid_argument',...
-        'first parameter of the set_fun or set_bfun method should be function handle or cellarray of function handles');
+    %fun_type = 'back';
+    nfun = numel(obj.bfun_);
 end
-if isfore   %fun_type = 'fore';   
+
+if nfun == 0
+    if iscell(arg1)
+        nfun = numel(arg1);
+    elseif isa(arg1,'function_handle')
+        nfun = 1;
+    else
+        error('SET_FUN:invalid_argument',...
+            'first parameter of the set_fun or set_bfun method should be function handle or cellarray of function handles');
+    end
+end
+if isfore   %fun_type = 'fore';
     if nfun>1
         obj.foreground_is_local_ = true;
     end
-% else        %fun_type = 'back';
-%      nfun = numel(obj.bfun_);
+    % else        %fun_type = 'back';
+    %      nfun = numel(obj.bfun_);
 end
 
 
