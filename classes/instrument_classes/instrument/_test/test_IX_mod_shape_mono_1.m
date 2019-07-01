@@ -57,32 +57,3 @@ bigtic
 bigtoc
 disp(tmean), disp([tcov(1,1), tcov(2,2), tcov(1,2)])
 
-
-
-% ------------------------------------------------------
-% Will have pulse determined by moderator in 1e-5 covariance calculation
-instru_mod = let_instrument_for_tests (efix, 280, 140, 20, 2, 2);
-instru_mod.chop_shape.frequency=32.543;
-msm_mod = make_msm(instru_mod);
-msm_mod.energy = efix;
-
-bigtic
-[tcov,tmean] = msm_mod.covariance;
-bigtoc
-disp(tmean), disp([tcov(1,1), tcov(2,2), tcov(1,2)])
-
-
-% Will have pulse determined by shaping chopper in 1e-5 covariance calculation
-instru_mod = let_instrument_for_tests (efix, 280, 140, 20, 2, 2);
-instru_mod.chop_shape.frequency=32.544;
-msm_mod = make_msm(instru_mod);
-msm_mod.energy = efix;
-
-bigtic
-[tcov,tmean] = msm_mod.covariance;
-bigtoc
-disp(tmean), disp([tcov(1,1), tcov(2,2), tcov(1,2)])
-
-
-
-

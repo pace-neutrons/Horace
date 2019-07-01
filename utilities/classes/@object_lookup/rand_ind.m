@@ -4,6 +4,8 @@ function X = rand_ind (obj, varargin)
 %   >> X = rand_ind (obj, iarray, ind)
 %   >> X = rand_ind (obj, ind)
 %
+%   >> X = rand_ind (...,'options', p1, p2,...)
+%
 % The purpose is to return random points from a function of the form:
 %       X = rand (object, sz)
 %
@@ -40,6 +42,8 @@ function X = rand_ind (obj, varargin)
 %       >> X = rand (object, sz)            % array of size sz
 %       >> X = rand (object, sz1, sz2,...)  % array of size [sz1,sz2,...]
 %
+%       >> X = rand (..., p1, p2, ...)      % with further optional arguments
+%
 %       Input:
 %       ------
 %       n           Return square array of random numbers with size n x n
@@ -64,29 +68,51 @@ if ~obj.filled
 end
 
 % Check input arguments
-if numel(varargin)==2
+options = @(x)(is_string(x) && ~isempty(x) && strncmpi(x,'options',numel(x)));
+
+if numel(varargin)>=3 && options(varargin{3})
     iarray = varargin{1};
-    if ~isscalar(iarray)
-        error('Index to original object array, ''iarray'', must be a scalar')
-    end
     ind = varargin{2};
-elseif numel(varargin)==1
-    if numel(obj.indx_)==1
-        iarray = 1;
+    args = varargin(4:end);
+elseif numel(varargin)>=2 && options(varargin{2})
+    ind = varargin{1};
+    args = varargin(3:end);
+elseif numel(varargin)<=2
+    if numel(varargin)==1
         ind = varargin{1};
     else
-        error('Must give index to the object array from which samples are to be drawn')
+        iarray = varargin{1};
+        ind = varargin{2};
     end
+    args = cell(1,0);   % assumes the input is ind, or iarray and ind
 else
-    error('Insufficient number of input arguments')
+    error('Check the number and type of input options')
 end
 
-X = rand_ind_private (obj.object_array_, obj.indx_{iarray}(ind));
+
+% if numel(varargin)==2
+%     iarray = varargin{1};
+%     if ~isscalar(iarray)
+%         error('Index to original object array, ''iarray'', must be a scalar')
+%     end
+%     ind = varargin{2};
+% elseif numel(varargin)==1
+%     if numel(obj.indx_)==1
+%         iarray = 1;
+%         ind = varargin{1};
+%     else
+%         error('Must give index to the object array from which samples are to be drawn')
+%     end
+% else
+%     error('Insufficient number of input arguments')
+% end
+
+X = rand_ind_private (obj.object_array_, obj.indx_{iarray}(ind), args{:});
 
 
 
 %------------------------------------------------------------------
-function X = rand_ind_private (obj, ind)
+function X = rand_ind_private (obj, ind, varargin)
 % Given a list of indices, find location and number of unique occurences
 %
 %   >> X = rand_ind_private (obj, ind)
@@ -101,6 +127,8 @@ function X = rand_ind_private (obj, ind)
 %       >> X = rand (object, sz)            % array of size sz
 %       >> X = rand (object, sz1, sz2,...)  % array of size [sz1,sz2,...]
 %
+%       >> X = rand (..., p1, p2, ...)      % further optional arguments
+%
 %       Input:
 %       ------
 %       n           Return square array of random numbers with size n x n
@@ -108,6 +136,9 @@ function X = rand_ind_private (obj, ind)
 %       sz          Size of array of output array of random numbers
 %           *OR*
 %       sz1,sz2...  Extent along each dimension of random number array
+%
+%       p1, p2,...  Optional arguments. It is assumed that the function
+%                   can resolve any ambiguities between p1 and n, sz or szn
 %
 %       Output:
 %       -------
@@ -121,7 +152,7 @@ if issorted(ind(:))
         B = ind(:);
         ix = [];    % empty will indicate that no reordering is needed later
     else
-        X = obj(ind(1)).rand(size(ind));    % all ind(:) are the same
+        X = obj(ind(1)).rand(size(ind),varargin{:});    % all ind(:) are the same
         return
     end
 else
@@ -132,11 +163,11 @@ nbeg = 1+[0;nend(1:end-1)];
 nelmt = nend-nbeg+1;
 
 indu = B(nbeg);     % unique index numbers
-sz = size(obj(indu(1)).rand(1));    % size of random array returned by object rand method
+sz = size(obj(indu(1)).rand(1),varargin{:});    % size of random array returned by object rand method
 
 X = NaN(prod(sz),nend(end));
 for i=1:numel(indu)
-    X(:,nbeg(i):nend(i)) = obj(indu(i)).rand(nelmt(i),1);
+    X(:,nbeg(i):nend(i)) = obj(indu(i)).rand(nelmt(i),1,varargin{:});
 end
 if ~isempty(ix)
     X(:,ix) = X;

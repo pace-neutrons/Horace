@@ -7,62 +7,56 @@ function X = rand (self, varargin)
 %   >> X = rand (obj, sz1, sz2,...) % array of size [sz1,sz2,...]
 %
 % Optionally:
-%   >> X = rand (obj, mc, ...)      % exclude one or more components
+%   >> X = rand (...,'mc',mc_val)   % exclude one or more components
 %
 % Input:
 % ------
-%   mc          Structure with which components contribute to the pulse
-%               shape. Each field is true or false:
-%                   - mc.moderator
-%                   - mc.shape_chopper
-%                   - mc.mono_chopper
-%               If only one of mc_moderator and mc_shape_chopper is true,
-%              then the other is treated as having no effect i.e. it is
-%              infinitely wide. Only if both are turned off then do we
-%              have a delta function in time.
+%   self        IX_mod_shape_mono object
 %
+% Optionally:
 %   n           Return square array of random numbers with size n x n
 %      *OR*
 %   sz          Size of array of output array of random numbers
 %      *OR*
 %   sz1,sz2...  Extent along each dimension of random number array
 %
+%   mc_val      Logical row vector [moderator, shape_chopper, mono_chopper]
+%              which shows which components contribute to the pulse shape.
+%               - If only one of moderator and shape_chopper is true,
+%                 then the other is treated as having no effect i.e. it is
+%                 infinitely wide.
+%               - If both are turned off means a delta function in time.
+%
 % Output:
 % -------
-%   X           Array of random time deviations at shaping chopper (microseconds)
+%   X           Array of random time deviations at the shaping chopper and
+%              the Fermi chopper (microseconds).
+%               The array has size [2, sz], with a leading singleton in sz
+%              squeezed away. e.g. if sz=[1,5] then size(X)=[2,5], and if
+%              sz=[1,1,5] then size(X)=[2,1,5]
 %
-%   t_ch        Array of random time deviations at monochromating chopper (microseconds)
-%
-% Note that t_sh and t_ch are correlated; it is as pairs that they 
+% Note that in general the deviations in times at thee shaping and
+% monochromating choppers are correlated.
 
 
 if ~isscalar(self), error('Method only takes a scalar moderator-shaping-monochromatic chopper object'), end
 
-if nargin>=2 && islognum(varargin{1}) && numel(varargin{1})==3
-    mc = logical(varargin{1}(:)');
-    mc_moderator = mc(1);
-    mc_shape_chopper = mc(2);
-    mc_mono_chopper = mc(3);
-    args = varargin(2:end);
+if numel(varargin)>=2 && is_string(varargin{end-1})
+    if strncmpi(varargin{end-1},'mc',numel(varargin{end-1}))
+        mc = logical(varargin{end}(:)');
+        mc_moderator = mc(1);
+        mc_shape_chopper = mc(2);
+        mc_mono_chopper = mc(3);
+        args = varargin(1:end-2);
+    else
+        error('Check optional input arguments')
+    end
 else
     mc_moderator = true;
     mc_shape_chopper = true;
     mc_mono_chopper = true;
     args = varargin;
 end
-
-% if nargin>=2 && isstruct(varargin{1})
-%     mc = varargin{1};
-%     mc_moderator = mc.moderator;
-%     mc_shape_chopper = mc.shape_chopper;
-%     mc_mono_chopper = mc.mono_chopper;
-%     args = varargin(2:end);
-% else
-%     mc_moderator = true;
-%     mc_shape_chopper = true;
-%     mc_mono_chopper = true;
-%     args = varargin;
-% end
 
 % Pick out constituent instrument components and quantities
 moderator = self.moderator_;

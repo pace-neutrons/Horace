@@ -117,8 +117,12 @@ classdef IX_mod_shape_mono
         function obj=set.moderator(obj,val)
             obj.moderator_ = val;
             en = obj.moderator_.energy;
-            obj.shaping_chopper_.energy = en;
-            obj.mono_chopper_.energy = en;
+            if isprop(obj.shaping_chopper_,'energy')
+                obj.shaping_chopper_.energy = en;
+            end
+            if isprop(obj.mono_chopper_,'energy')
+                obj.mono_chopper_.energy = en;
+            end
             obj.shaped_mod_ = obj.recompute_shaped_mod_();
         end
         

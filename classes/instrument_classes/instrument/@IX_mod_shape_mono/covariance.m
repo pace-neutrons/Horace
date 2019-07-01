@@ -5,8 +5,7 @@ function [t_cov, t_av] = covariance (self, varargin)
 %   >> [t_cov, t_av] = covariance_mod_shape_mono (self, energy)
 %
 % Controlling contributions of instrument components
-%   >> [t_cov, t_av] = covariance_mod_shape_mono (self, mc)
-%   >> [t_cov, t_av] = covariance_mod_shape_mono (self, mc, energy)
+%   >> [t_cov, t_av] = covariance_mod_shape_mono (...,'mc',mc_val)
 %
 % The average time of the pulse at the shaping chopper position and the fermi
 % chopper will in general be non zero, as will the covariance matrix.
@@ -16,16 +15,16 @@ function [t_cov, t_av] = covariance (self, varargin)
 %   self        IX_mod_shape_mono object
 %
 % Optionally:
-%   mc          Logical row vector [moderator, shape_chopper, mono_chopper]
+%   energy      Neutron energy (meV) (array or scalar)
+%               If omitted or empty, use the ei value in the moderator
+%              object in IX_mod_shape_mono
+%
+%   mc_val      Logical row vector [moderator, shape_chopper, mono_chopper]
 %              which shows which components contribute to the pulse shape.
 %               - If only one of moderator and shape_chopper is true,
 %                 then the other is treated as having no effect i.e. it is
 %                 infinitely wide.
 %               - If both are turned off means a delta function in time.
-%
-%   energy      Neutron energy (meV) (array or scalar)
-%               If omitted or empty, use the ei value in the moderator
-%              object in IX_mod_shape_mono
 %
 % Output:
 % -------
@@ -38,21 +37,30 @@ function [t_cov, t_av] = covariance (self, varargin)
 
 
 % Parse optional parameters
-nopt = numel(varargin);
-if nopt==0
-    mc = [true, true, true];
-elseif nopt==1 && isscalar(varargin{1})
-    self.energy = varargin{1};
-    mc = [true, true, true];
-elseif nopt==1 && numel(varargin{1})==3
-    mc = logical(varargin{1}(:)');
-elseif nopt==2 && isscalar(varargin{1}) && numel(varargin{2})==3
-    mc = logical(varargin{1}(:)');
-    self.energy = varargin{2};
+% - get mc
+if numel(varargin)>=2 && is_string(varargin{end-1})
+    if strncmpi(varargin{end-1},'mc',numel(varargin{end-1}))
+        mc = logical(varargin{end}(:)');
+        mc_moderator = mc(1);
+        mc_shape_chopper = mc(2);
+        mc_mono_chopper = mc(3);
+        args = varargin(1:end-2);
+    else
+        error('Check optional input arguments')
+    end
 else
-    error('Check the optional arguments')
+    mc_moderator = true;
+    mc_shape_chopper = true;
+    mc_mono_chopper = true;
+    args = varargin;
 end
-mc_m=mc(1); mc_sh=mc(2); mc_ch=mc(3);
+% - get energy
+if numel(args)==1
+    self.energy = args{1};
+elseif numel(args)~=0
+    error('Check optional input arguments')
+end
+
 
 % Pick out constituent instrument components and quantities
 moderator = self.moderator_;
@@ -67,24 +75,24 @@ bet = (x0-xa)/x0;
 
 t_cov = zeros(2);
 t_av = zeros(1,2);
-if mc_m && mc_sh% moderator and shaping chopper both present
-    if mc_ch    % 2D integral needs to be performed
+if mc_moderator && mc_shape_chopper% moderator and shaping chopper both present
+    if mc_mono_chopper    % 2D integral needs to be performed
         [t_cov,t_av] = moments_2D (self, alf);
     else        % 1D integral needs to be performed
         [t_cov(1,1),t_av(1)] = moments_1D (moderator, shaping_chopper, alf);
     end
-elseif mc_m     % shaping chopper is treated as absent
+elseif mc_moderator     % shaping chopper is treated as absent
     sig_m = pulse_width(moderator);
-    if mc_ch
+    if mc_mono_chopper
         sig_ch = pulse_width(mono_chopper);
         t_cov = [(alf*sig_m)^2 + (bet*sig_ch)^2, bet*sig_ch^2;...
             bet*sig_ch^2, sig_ch^2];
     else
         t_cov = [(alf*sig_m)^2, 0; 0, 0];
     end
-elseif mc_sh    % moderator is treated as infinitely wide
+elseif mc_shape_chopper    % moderator is treated as infinitely wide
     sig_sh = pulse_width(shaping_chopper);
-    if mc_ch
+    if mc_mono_chopper
         sig_ch = pulse_width(mono_chopper);
         t_cov = [sig_sh^2, 0; 0, sig_ch^2];
     else
