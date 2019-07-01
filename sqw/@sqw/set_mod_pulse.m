@@ -73,7 +73,7 @@ end
 
 % Change moderator pulse for each data source in a loop
 mod_def=IX_moderator;
-mod_def.pulse_model=pulse_model;
+mod_def.pulse_model=pulse_model;    % just to check is a valid model
 for i=1:nobj
     % Read the header part of the data
     if source_is_file
@@ -86,7 +86,6 @@ for i=1:nobj
         tmp=h.header;   % to keep referencing to sub-fields to a minimum
     end
     % Change the header
-
     if nfiles>1
         for ifile=1:nfiles
             if npp==1
@@ -126,18 +125,14 @@ if ~isempty(mess), error(mess), end
 
 %========================================================================================
 function inst=set_mod_pulse_single_inst(inst_in,pulse_model,pp)
-% Change the moderator pulse model name and parameters, creating IX_moderator if required
+% Change the moderator pulse model name and parameters
 inst=inst_in;
-if isfield(inst,'moderator') && isa(inst.moderator,'IX_moderator')
+try
     % Change existing moderator fields
     mod=inst.moderator;
     mod.pulse_model=pulse_model;
     mod.pp=pp;
     inst.moderator=mod;
-else
-    % Overwrite moderator if it exists, or create if doesn't
-    mod=IX_moderator;   % default moderator
-    mod.pulse_model=pulse_model;
-    mod.pp=pp;
-    inst.moderator=mod;
+catch
+    error('IX_moderator object not found in all instrument descriptions')
 end

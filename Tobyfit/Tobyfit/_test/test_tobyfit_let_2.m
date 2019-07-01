@@ -49,12 +49,11 @@ end
 %% --------------------------------------------------------------------------------------
 % Setup
 % --------------------------------------------------------------------------------------
+% Filename for temporary creation of simulated sqw data
+sqw_file='test_tobyfit_let_2.sqw';
 
-dir_in='T:\data\Tobyfit_test';
-dir_out=tempdir;
-
-% Output files with simulated data to be corrected
-sqw_file='tobyfit_let_test.sqw';
+% Output file with simulated data to be corrected
+datafile='test_tobyfit_let_2_data.mat';      
 
 % Filename to which saved results are written
 savefile='test_tobyfit_let_2_out.mat';      
@@ -68,7 +67,7 @@ error_on_failure = false;
 efix=8;
 emode=1;
 en0=-3:0.02:7;
-en=-2:0.02:2;
+%en=-2:0.02:2;
 par_file=fullfile(pwd,'LET_one2one_153.par');
 
 % Parameters for reference lattice (i.e. what we think we have)
@@ -84,22 +83,27 @@ if save_data
     % Create sqw file for refinement testing
     % ---------------------------------------
     % Full output file names
-    sqw_file_full = fullfile(dir_out,sqw_file);
+    sqw_file_full = fullfile(tempdir,sqw_file);
     
     % Create sqw file for single spe file
     fake_sqw (en0, par_file, sqw_file_full, efix, emode, alatt, angdeg, u, v, psi0, omega, dpsi, gl, gs);
     
+    % Create cut
+    proj = projaxes([1,1,0],[0,0,1]);
+    w1 = cut_sqw (sqw_file_full, proj, [-0.5,0], [0.5,1], [-0.2,0.2], [-3.01,0.02,7.01]);
+    
+    % Save cut for future use
+    datafile_full = fullfile(tempdir,datafile);
+    save(datafile_full,'w1');
+    disp(['Saved data for future use in',datafile_full])
     if nargout>0
         varargout{1}=true;
     end
     return
     
 else
-    sqw_file_full = fullfile(dir_in,sqw_file);
-    
-    if ~exist(sqw_file_full,'file')
-        error('Input sqw file for tests does not exist')
-    end
+    % Read in data
+    load(datafile);
 end
 
 
@@ -108,7 +112,6 @@ end
 % --------------------------------------------------------------------------------------
 if test_output
     tmp=load(savefile);
-    fac=[0.25,1,0.1];    % used by comparison function
 end
 
 
@@ -116,11 +119,9 @@ end
 % Read or create sqw file for refinement test
 % --------------------------------------------------------------------------------------
 % mod FWHH=99.37us, shape_chop FWHH=162.4us
-instru = let_instrument_for_tests (efix, 280, 140, 20, 2, 2);
+instru = let_instrument_obj_for_tests (efix, 280, 140, 20, 2, 2);
 samp = IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);
 
-proj = projaxes([1,1,0],[0,0,1]);
-w1 = cut_sqw (sqw_file_full, proj, [-0.5,0], [0.5,1], [-0.2,0.2], [-3.01,0.02,7.01]);
 w1 = set_instrument (w1, instru);
 w1 = set_sample (w1, samp);
 
@@ -138,15 +139,15 @@ wref = noisify(wref,1);     % add error bars
 
 % mod FWHH=99.37us, shape_chop FWHH=66.48us
 % Will have pulse determined by moderator
-instru_mod = let_instrument_for_tests (efix, 280, 140, 20, 2, 2);
-instru_mod.chop_shape.frequency=171;
+instru_mod = let_instrument_obj_for_tests (efix, 280, 140, 20, 2, 2);
+instru_mod.shaping_chopper.frequency=171;
 wtmp=set_instrument(wref, instru_mod);
 
 whist_1 = get_tshape_histogram (wtmp);
 [~,~,fwhh_1] = peak_cwhh(whist_1);
 if test_output
     disp('Comparing with stored whist_1')
-    if ~is_histogram_equivalent(whist_1,tmp.whist_1,1.2)
+    if ~IX_dataset_1d_same(whist_1,tmp.whist_1,1.2,'chisqr','rebin')
         error_test (error_on_failure, 'Histograms not equivalent')
     end
     if ~equal_to_tol(fwhh_1, tmp.fwhh_1, [0,0.03])
@@ -156,15 +157,15 @@ end
 
 % mod FWHH=99.37us, shape_chop FWHH=66.09us
 % Will have pulse determined by shaping chopper
-instru_shape = let_instrument_for_tests (efix, 280, 140, 20, 2, 2);
-instru_shape.chop_shape.frequency=172;
+instru_shape = let_instrument_obj_for_tests (efix, 280, 140, 20, 2, 2);
+instru_shape.shaping_chopper.frequency=172;
 wtmp=set_instrument(wref, instru_shape);
 
 whist_2 = get_tshape_histogram (wtmp);
 [~,~,fwhh_2] = peak_cwhh(whist_2);
 if test_output
     disp('Comparing with stored whist_2')
-    if ~is_histogram_equivalent(whist_2,tmp.whist_2,1.2)
+    if ~IX_dataset_1d_same(whist_2,tmp.whist_2,1.2,'chisqr','rebin')
         error_test (error_on_failure, 'Histograms not equivalent')
     end
     if ~equal_to_tol(fwhh_2, tmp.fwhh_2, [0,0.03])
@@ -173,15 +174,15 @@ if test_output
 end
 
 % mod FWHH=99.37us, shape_chop FWHH=11368us
-instru_mod_only = let_instrument_for_tests (efix, 280, 140, 20, 2, 2);
-instru_mod_only.chop_shape.frequency=1;
+instru_mod_only = let_instrument_obj_for_tests (efix, 280, 140, 20, 2, 2);
+instru_mod_only.shaping_chopper.frequency=1;
 wtmp=set_instrument(wref, instru_mod_only);
 
 whist_3 = get_tshape_histogram (wtmp);
 [~,~,fwhh_3] = peak_cwhh(whist_3);
 if test_output
     disp('Comparing with stored whist_3')
-    if ~is_histogram_equivalent(whist_3,tmp.whist_3,1.2)
+    if ~IX_dataset_1d_same(whist_3,tmp.whist_3,1.2,'chisqr','rebin')
         error_test (error_on_failure, 'Histograms not equivalent')
     end
     if ~equal_to_tol(fwhh_3, tmp.fwhh_3, [0,0.03])
@@ -190,16 +191,16 @@ if test_output
 end
 
 % mod FWHH=33947us, shape_chop FWHH=66.48us
-instru_shape_only = let_instrument_for_tests (efix, 280, 140, 20, 2, 2);
+instru_shape_only = let_instrument_obj_for_tests (efix, 280, 140, 20, 2, 2);
 instru_shape_only.moderator.pp(1)=10000;
-instru_shape_only.chop_shape.frequency=171;
+instru_shape_only.shaping_chopper.frequency=171;
 wtmp=set_instrument(wref, instru_shape_only);
 
 whist_4 = get_tshape_histogram (wtmp);
 [~,~,fwhh_4] = peak_cwhh(whist_4);
 if test_output
     disp('Comparing with stored whist_4')
-    if ~is_histogram_equivalent(whist_4,tmp.whist_4,1.2)
+    if ~IX_dataset_1d_same(whist_4,tmp.whist_4,1.2,'chisqr','rebin')
         error_test (error_on_failure, 'Histograms not equivalent')
     end
     if ~equal_to_tol(fwhh_4, tmp.fwhh_4, [0,0.03])
@@ -212,7 +213,7 @@ end
 % Test the contributions
 % ----------------------
 
-kk = tobyfit (wref,'disk');
+kk = tobyfit (wref);
 kk = kk.set_fun(@van_sqw,[10,0,0.05]);
 kk = kk.set_mc_points(10);
 
@@ -397,7 +398,7 @@ end
 % fwhh = 0.02;
 % wnores = sqw_eval(wq1,@sheet_sqw,{[1,fwhh],[5,5,5,90,90,90],[0,0,1]});
 % 
-% kk = tobyfit(wq1,'disk');
+% kk = tobyfit(wq1);
 % kk = kk.set_fun(@sheet_sqw,{[1,fwhh],[5,5,5,90,90,90],[0,0,1]});
 % kk = kk.set_mc_points(10);
 % kk = kk.set_mc_contributions('horiz');      % horizontal divergence only
@@ -409,7 +410,7 @@ end
 % wq1_nores=sqw_eval(wq1,@rod_sqw,{[1,fwhh],[5,5,5,90,90,90]});
 % 
 % % Now with resolution
-% kk = tobyfit(wq1,'disk');
+% kk = tobyfit(wq1);
 % kk = kk.set_fun(@rod_sqw,{[1,fwhh],[5,5,5,90,90,90]});
 % kk = kk.set_mc_points(10);
 % kk = kk.set_mc_contributions('horiz');      % horizontal divergence only
@@ -454,7 +455,7 @@ function [whist, wsim] = get_tshape_histogram (wtmp)
 
 debugtools('on')
 
-kk = tobyfit (wtmp,'disk');
+kk = tobyfit (wtmp);
 kk = kk.set_fun(@van_sqw,[10,0,0.05]);
 kk = kk.set_mc_points(1);
 wsim = kk.simulate;

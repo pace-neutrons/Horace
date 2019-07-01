@@ -145,11 +145,17 @@ if ~iscell(pars), pars={pars}; end
 
 % Catch case of refining moderator parameters
 if refine_moderator
-    % Strip out moderator refinement parameters and compute lookup table
-    % Note we assume there is only one moderator to refine
-    [pars{1}, moderator, store_out] = refine_moderator_strip_pars...
-        (pars{1}, modshape, store_in);
-    % Replace moderator(s) in object lookup with the latest value
+    % Get the (single) moderator to be refined. Assume that any checks
+    % on moderator models in the sqw objects being fitted have been performed
+    % searlier on so that here all moderators are replaced by a single one
+    % derived from the first object in the lookup table.
+    moderator = moderator_table.object_array(1);
+    
+    % Strip out moderator refinement parameters and update moderator
+    [moderator, pars{1}] = refine_moderator_strip_pars...
+        (moderator, modshape, pars{1});
+    
+    % Replace moderator(s) in object lookup with updated moderator
     moderator_table.object_array = moderator;
 end
 

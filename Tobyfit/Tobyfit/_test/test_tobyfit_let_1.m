@@ -50,7 +50,7 @@ savefile='test_tobyfit_let_1_out.mat';   % filename where saved results are writ
 load(datafile);
 
 efix = 8.04;
-instru = let_instrument_for_tests (efix, 280, 140, 20, 2, 2);
+instru = let_instrument_obj_for_tests (efix, 280, 140, 20, 2, 2);
 sample = IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.012,0.012,0.04]);
 
 w1a = set_instrument (w1a, instru);
@@ -78,7 +78,7 @@ amp=6000;    fwhh=0.2;
 
 disp(' ')
 disp('Fitting Nb data...')
-kk = tobyfit(wdata_1,'disk');
+kk = tobyfit(wdata_1);
 kk = kk.set_local_foreground;
 kk = kk.set_fun(@testfunc_nb_sqw,[amp,fwhh]);
 kk = kk.set_bind({2,[2,1]});

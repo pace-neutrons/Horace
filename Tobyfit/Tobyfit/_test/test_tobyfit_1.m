@@ -120,11 +120,11 @@ end
 
 % Add instrumnet and sample information to cuts
 sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.04,0.03,0.02]);
-w110a=set_sample_and_inst(w110a,sample,@maps_instrument_for_tests,'-efix',600,'S');
-w110b=set_sample_and_inst(w110b,sample,@maps_instrument_for_tests,'-efix',600,'S');
-w110arr(1) = set_sample_and_inst(w110arr(1),sample,@maps_instrument_for_tests,'-efix',600,'S');
-w110arr(2) = set_sample_and_inst(w110arr(2),sample,@maps_instrument_for_tests,'-efix',600,'S');
-w110arr(3) = set_sample_and_inst(w110arr(3),sample,@maps_instrument_for_tests,'-efix',600,'S');
+w110a=set_sample_and_inst(w110a,sample,@maps_instrument_obj_for_tests,'-efix',600,'S');
+w110b=set_sample_and_inst(w110b,sample,@maps_instrument_obj_for_tests,'-efix',600,'S');
+w110arr(1) = set_sample_and_inst(w110arr(1),sample,@maps_instrument_obj_for_tests,'-efix',600,'S');
+w110arr(2) = set_sample_and_inst(w110arr(2),sample,@maps_instrument_obj_for_tests,'-efix',600,'S');
+w110arr(3) = set_sample_and_inst(w110arr(3),sample,@maps_instrument_obj_for_tests,'-efix',600,'S');
 
 
 %% --------------------------------------------------------------------------------------

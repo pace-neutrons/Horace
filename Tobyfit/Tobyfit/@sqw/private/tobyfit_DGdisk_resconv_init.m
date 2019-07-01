@@ -68,9 +68,7 @@ function [ok,mess,lookup,npix] = tobyfit_DGdisk_resconv_init (win, varargin)
 % Contents of output argument: lookup
 % -----------------------------------
 %       Indexed lookup tables: object_lookup objects
-%           moderator_table         Index: [isqw, irun] (note: times in microseconds)
-%           shaping_chopper_table   Index: [isqw, irun]
-%           mono_chopper_table      Index: [isqw, irun] (note: times in microseconds)
+%           mod_shape_mono_table    Index: [isqw, irun] (note: times in microseconds)
 %           horiz_div_table         Index: [isqw, irun] (note: angle in radians)
 %           vert_div_table          Index: [isqw, irun] (note: angle in radians)
 %           sample_table            Index: [1, isqw]
@@ -193,12 +191,9 @@ ei=cell(nw,1);          % element size [nrun,1]
 x0=cell(nw,1);          %       "
 xa=cell(nw,1);          %       "
 x1=cell(nw,1);          %       "
-moderator=cell(nw,1);   %       "
-shaping_chopper=cell(nw,1); %   "
-mono_chopper=cell(nw,1);%       "
+mod_shape_mono=cell(nw,1);  %   "
 horiz_div=cell(nw,1);   %       "
 vert_div=cell(nw,1);    %       "
-shaped_mod=cell(nw,1);  %       "
 ki=cell(nw,1);          %       "
 kf=cell(nw,1);          % element size [npix,1]
 sample=repmat(IX_sample,nw,1);
@@ -242,14 +237,9 @@ for iw=1:nw
     end
     
     % Get instrument data
-    [ok,mess,ei{iw},x0{iw},xa{iw},x1{iw},moderator{iw},shaping_chopper{iw},mono_chopper{iw},...
+    [ok,mess,ei{iw},x0{iw},xa{iw},x1{iw},mod_shape_mono{iw},...
         horiz_div{iw},vert_div{iw}] = instpars_DGdisk(wtmp.header);
     if ~ok, return, end
-
-    % Determine if the moderator pulse is dominant contributor
-    [~,~,fwhh_moderator] = arrayfun(@pulse_width, moderator{iw});
-    [~,fwhh_shaping_chopper] = arrayfun(@pulse_width, shaping_chopper{iw});
-    shaped_mod{iw} = ((x0{iw}./xa{iw}).*fwhh_shaping_chopper < fwhh_moderator);
     
     % Compute ki and kf
     ki{iw}=sqrt(ei{iw}/k_to_e);
@@ -296,9 +286,7 @@ mess='';
 lookup = struct();    % reinitialise
 
 if keywrd.tables    % lookup tables to minimise memory and optimiose speed of random sampling
-    lookup.moderator_table = object_lookup(moderator);
-    lookup.shaping_chopper_table = object_lookup(shaping_chopper);
-    lookup.mono_chopper_table = object_lookup(mono_chopper);
+    lookup.mod_shape_mono_table = object_lookup(mod_shape_mono);
     lookup.horiz_div_table = object_lookup(horiz_div);
     lookup.vert_div_table = object_lookup(vert_div);
     lookup.sample_table = object_lookup(sample);
@@ -308,7 +296,6 @@ lookup.ei=ei;
 lookup.x0=x0;
 lookup.xa=xa;
 lookup.x1=x1;
-lookup.shaped_mod=shaped_mod;
 lookup.ki=ki;
 lookup.kf=kf;
 lookup.s_mat=s_mat;

@@ -80,22 +80,27 @@ else
     load(datafile);
 end
 
+% Add instrument and sample information to cuts
+sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.02,0.02,0.02]);
+w2a=set_sample_and_inst(w2a,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
+wce=set_sample_and_inst(wce,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
+w2b=set_sample_and_inst(w2b,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
+
 
 %% --------------------------------------------------------------------------------------
 % Read test results if necessary
 % --------------------------------------------------------------------------------------
 if test_output
     tmp=load(savefile);
-    fac=[0.25,1,0.1];    % used by comparison function
 end
 
 
 %% --------------------------------------------------------------------------------------
 % Standalone plots
 % ---------------------------------------------------------------------------------------
-pause_time = 2;
+pause_time = 0;
 
-inst = maps_instrument_for_tests(90,250,'s');
+inst = maps_instrument_obj_for_tests(90,250,'s');
 samp = IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.02,0.02,0.02]);
 
 det.x2=6;

@@ -127,9 +127,7 @@ store_out = [];
 
 % Create pointers to parts of lookup structure
 % --------------------------------------------
-moderator_table = lookup.moderator_table;
-shaping_chopper_table = lookup.shaping_chopper_table;
-mono_chopper_table = lookup.mono_chopper_table;
+mod_shape_mono_table = lookup.mod_shape_mono_table;
 horiz_div_table = lookup.horiz_div_table;
 vert_div_table = lookup.vert_div_table;
 sample_table = lookup.sample_table;
@@ -139,6 +137,8 @@ detector_table = lookup.detector_table;
 k_to_v = lookup.k_to_v;
 k_to_e = lookup.k_to_e;
 
+mc_mod_shape_mono = [mc_contributions.moderator,...
+    mc_contributions.shape_chopper, mc_contributions.mono_chopper];
 
 % Perform resolution broadening calculation
 % -----------------------------------------
@@ -147,12 +147,22 @@ if ~iscell(pars), pars={pars}; end
 
 % Catch case of refining moderator parameters
 if refine_moderator
-    % Strip out moderator refinement parameters and compute lookup table
-    % Note we assume there is only one moderator to refine
-    [pars{1}, moderator, store_out] = refine_moderator_strip_pars...
-        (pars{1}, modshape, store_in);
-    % Replace moderator(s) in object lookup with the latest value
-    moderator_table.object_array = moderator;
+    % Get the (single) moderator to be refined. Assume that any checks
+    % on moderator models in the sqw objects being fitted have been performed
+    % searlier on so that here all moderators are replaced by a single one
+    % derived from the first object in the lookup table.
+    moderator = mod_shape_mono_table.object_array(1).moderator;
+    
+    % Strip out moderator refinement parameters and update moderator
+    [moderator, pars{1}] = refine_moderator_strip_pars...
+        (moderator, modshape, pars{1});
+    
+    % Replace moderator(s) in object lookup with updated moderator
+    mod_shape_mono = mod_shape_mono_table.object_array;
+    for i=1:numel(mod_shape_mono)
+        mod_shape_mono.moderator = moderator;
+    end
+    mod_shape_mono_table.object_array = mod_shape_mono;
 end
 
 reset_state=caller.reset_state;
@@ -170,10 +180,8 @@ for i=1:numel(ind)
     end
     
     % Create pointers to parts of lookup structure for the current dataset
-    x0=lookup.x0{iw};
     xa=lookup.xa{iw};
     x1=lookup.x1{iw};
-    shaped_mod=lookup.shaped_mod{iw};
     ki=lookup.ki{iw};
     kf=lookup.kf{iw};
     f_mat=lookup.f_mat{iw};
@@ -210,36 +218,13 @@ for i=1:numel(ind)
     
     % Simulate the signal for the data set
     % ------------------------------------
-    if ~mc_contributions.mono_chopper
-        t_ch = zeros(npix,1);   % initialise as need for moderator calculation
-    end
-    
     for imc=1:mc_points
         yvec=zeros(11,1,npix);
         
-        % Monochromating chopper deviations
-        % (Need to get these first, as needed to sample the shaped moderator pulse)
-        if mc_contributions.mono_chopper
-            t_ch = mono_chopper_table.rand_ind(iw,irun);
-            yvec(4,1,:) = (1e-6)*t_ch;
-        end
-        
-        % Fill time deviations at position of pulse shaping chopper.
-        % We use shape_mod to determine which of the moderator pulse and the pulse
-        % shaping chopper is the dominant determinant of the initial pulse. If
-        % the moderator parameters are being refined then we still use the
-        % values of shape_mod as determined by the initial moderator parameters
-        % on the grounds that we should have started with a reasonable initial
-        % set of parameters.
-        if mc_contributions.moderator || mc_contributions.shape_chopper
-            yvec(1,1,:) = (1e-6)*initial_pulse_DGdisk (iw, irun,...
-                x0(irun), xa(irun), t_ch, moderator_table, shaping_chopper_table,...
-                mc_contributions.moderator, mc_contributions.shape_chopper,...
-                shaped_mod(irun));
-            % Debug output - ignored if debugtools are 'off'
-            debugtools(@debug_histogram_array, (10^6)*yvec(1,1,:), 't_shape', 'microseconds')
-        end
-        
+        % Deviations at the shaping and monochromating choppers
+        yvec([1,4],1,:) = 1e-6 * mod_shape_mono_table.rand_ind(iw,irun,'options','mc',mc_mod_shape_mono);
+        debugtools(@debug_histogram_array, (10^6)*yvec(1,1,:), 't_shape', 'microseconds')
+     
         % Divergence
         if mc_contributions.horiz_divergence
             yvec(2,1,:) = horiz_div_table.rand_ind(iw,irun);
