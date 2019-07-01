@@ -46,12 +46,12 @@ function [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win,
 % -----------------
 if exist('indx','var')
     all_pixels = false;
-    [ok,mess,lookup,npix_arr] = tobyfit_DGfermi_resconv_init (win, indx, 'notables');
+    [ok,mess,lookup,npix_arr] = tobyfit_DGfermi_resconv_init (win, indx);
 else
     all_pixels = true;
-    [ok,mess,lookup,npix_arr] = tobyfit_DGfermi_resconv_init (win, 'notables');
+    [ok,mess,lookup,npix_arr] = tobyfit_DGfermi_resconv_init (win);
 end
-if ~ok, return, end
+if ~ok, error(mess), end
 
 
 % Get variances
@@ -62,53 +62,51 @@ cov_proj = cell(size(win));
 cov_spec = cell(size(win));
 cov_hkle = cell(size(win));
 
+
+% Create pointers to parts of lookup structure
+% --------------------------------------------
+moderator_table = lookup.moderator_table;
+aperture_table = lookup.aperture_table;
+fermi_table = lookup.fermi_table;
+sample_table = lookup.sample_table;
 detector_table = lookup.detector_table;
+
+
+% Get covariance matricies
+% ------------------------
 for iw = 1:numel(win)
     if iscell(win), wtmp = win{iw}; else, wtmp = win(iw); end
     if all_pixels
-        [~,~,irun,idet,ien] = parse_pixel_indicies (wtmp);
+        [~,~,irun,idet] = parse_pixel_indicies (wtmp);
     else
-        [~,~,irun,idet,ien] = parse_pixel_indicies (wtmp,indx,iw);
+        [~,~,irun,idet] = parse_pixel_indicies (wtmp,indx,iw);
     end
     npix = npix_arr(iw);
     
     % Simple pointers to items in lookup
-    ei = lookup.ei{iw};
-    moderator = lookup.moderator{iw};
-    chopper = lookup.chopper{iw};
-    wa = lookup.wa{iw};
-    ha = lookup.ha{iw};
-    sample = lookup.sample(iw);
     kf = lookup.kf{iw};
     dt = lookup.dt{iw};
     
     % Compute variances
-    var_mod = (10^-6 * arrayfun_special(@pulse_width,moderator(irun),ei(irun))).^2;
-    var_wa = wa(irun).^2 / 12;
-    var_ha = ha(irun).^2 / 12;
-    var_chop = (10^-6 * arrayfun_special(@pulse_width,chopper(irun),ei(irun))).^2;
-    cov_sam = covariance(sample);
+    var_mod = (10^-6 * moderator_table.func_eval(iw, irun, @pulse_width)).^2;
+    cov_aperture = aperture_table.func_eval(iw, irun, @covariance);
+    cov_sample = sample_table.func_eval(iw, @covariance);
+    var_chop = (10^-6 * fermi_table.func_eval(iw, irun, @pulse_width)).^2;
+    cov_detector = detector_table.func_eval(iw, @covariance, idet, kf);
+    var_tbin = dt.^2 / 12;
     
-    var_det_depth  = detector_table.var_d (idet, kf);
-    var_det_width  = detector_table.var_w (idet, kf);
-    var_det_height = detector_table.var_h (idet, kf);
-
-    var_tdet = dt.^2 / 12;
-    
-    % Compute covariance matrix
-    dq_mat = lookup.dq_mat{iw};
-    spec_to_rlu = lookup.spec_to_rlu{iw};
-    
+    % Fill covariance matrix
     cov_x = zeros(11,11,npix);
     cov_x(1,1,:) = var_mod;
-    cov_x(2,2,:) = var_wa;
-    cov_x(3,3,:) = var_ha;
+    cov_x(2:3,2:3,:) = cov_aperture;
     cov_x(4,4,:) = var_chop;
-    cov_x(5:7,5:7,:) = repmat(cov_sam,1,1,npix);
-    cov_x(8,8,:) = var_det_depth;
-    cov_x(9,9,:) = var_det_width;
-    cov_x(10,10,:) = var_det_height;
-    cov_x(11,11,:) = var_tdet;
+    cov_x(5:7,5:7,:) = repmat(cov_sample,[1,1,npix]);
+    cov_x(8:10,8:10,:) = cov_detector;
+    cov_x(11,11,:) = var_tbin;
+    
+    % Compute wavevector-energy covariance matrix in different dimensions
+    dq_mat = lookup.dq_mat{iw};
+    spec_to_rlu = lookup.spec_to_rlu{iw};
     
     cov_hkle{iw} = transform_matrix (cov_x, dq_mat);
     cov_proj{iw} = transform_matrix (cov_hkle{iw}, inv(wtmp.data.u_to_rlu));
@@ -167,13 +165,16 @@ end
 
 %===================================================
 function test_covariance (cov, dq_mat)
-% COntributins to energy width
+% Contributions to energy width
+% Ignores correlations
+
 contr = zeros(11,1);
 for i=1:11
     contr(i) = log(256)*cov(i,i)*dq_mat(4,i)^2;
 end
 total = sum(contr);
 disp('-------------------------------')
+disp('FWHH (assumeing Gaussian)')
 disp(sqrt(total))
 disp(sqrt(contr))
 disp('-------------------------------')

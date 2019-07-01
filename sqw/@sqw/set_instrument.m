@@ -14,18 +14,18 @@ function varargout = set_instrument (varargin)
 % -----
 %   w               Input sqw object or array of objects
 %
-%   instrument      Instrument object or structure, or array of objects or
-%                  structures, with number of elements equal to the number of
-%                  runs contributing to the sqw object(s).
+%   instrument      Instrument object, or array of instrument objects with
+%                  number of elements equal to the number of runs contributing
+%                  to the sqw object(s).
 %                   If the instrument is any empty object, then the instrument
-%                  is set to the default empty structure.
+%                  is set to the default empty instrument.
 %
 % *OR*
-%   inst_func       Function handle to generate instrument object or structure
-%                  Must be of the form
+%   inst_func       Function handle to generate instrument object.
+%                   The function must be of the form:
 %                       inst = my_func (p1, p2, ...)
 %                  where p1,p2, ... are parameters to be passed to the
-%                  instrument definition function, in this case called my_func,
+%                  instrument definition function (in this case called my_func),
 %                  which in this example will be passed as @my_func.
 %
 %   arg1, arg2,...  Arguments to be provided to the instrument function.
@@ -75,14 +75,16 @@ elseif narg==1 || isa(args{1},'function_handle')
     % Perform checks on input
     % -----------------------
     % Check instrument parameter arguments are valid
-    if isstruct(args{1}) || isobject(args{1})
+    if isa(args{1},'IX_inst')
         is_instfunc=false;
-        instrument=args{1}; % single structure or object
+        instrument=args{1};
         ninst=numel(instrument);
+        
     elseif isempty(args{1})
         is_instfunc=false;
-        instrument=struct;  % empty item indicates no instrument; set to default 1x1 empty structure
+        instrument=IX_inst();
         ninst=numel(instrument);
+        
     elseif isscalar(args{1}) && isa(args{1},'function_handle')
         instfunc=args{1}; % single function handle
         % Check instrument definition function arguments are OK and consistent
@@ -94,9 +96,13 @@ elseif narg==1 || isa(args{1},'function_handle')
         if size(instfunc_args,1)==0
             is_instfunc=false;
             instrument=instfunc();  % call with no arguments
+            if ~isa(instrument,'IX_inst')
+                error('The instrument definition function does not return an object of class IX_inst')
+            end
             ninst=1;
         else
-            % If none of the arguments match substitution arguments we can evaluate the instrument definition function now
+            % If none of the arguments match substitution arguments we can
+            % evaluate the instrument definition function now
             subst_args=substitute_arguments();
             ninst=size(instfunc_args,1);
             if substitution_arguments_present(subst_args,instfunc_args)
@@ -104,6 +110,9 @@ elseif narg==1 || isa(args{1},'function_handle')
             else
                 is_instfunc=false;
                 instrument=instfunc(instfunc_args{1,:});
+                if ~isa(instrument,'IX_inst')
+                    error('The instrument definition function does not return an object of class IX_inst')
+                end
                 if ninst>1
                     instrument=repmat(instrument,ninst,1);
                     for i=2:ninst
@@ -113,7 +122,7 @@ elseif narg==1 || isa(args{1},'function_handle')
             end
         end
     else
-        error('Instrument must be a structure, object or function handle (or an empty argument to indicate ''no instrument'')')
+        error('Instrument must be an object of class IX_inst or function handle (or an empty argument to indicate ''no instrument'')')
     end
     
     % Check that the data has the correct type
@@ -156,14 +165,22 @@ elseif narg==1 || isa(args{1},'function_handle')
                 if ninst==1
                     if is_instfunc
                         args=substitute_arguments(h,ifile,instfunc_args(1,:));
-                        tmp{ifile}.instrument=instfunc(args{:});
+                        instrument=instfunc(args{:});
+                        if ~isa(instrument,'IX_inst')
+                            error('The instrument definition function does not return an object of class IX_inst')
+                        end
+                        tmp{ifile}.instrument=instrument;
                     else
                         tmp{ifile}.instrument=instrument;
                     end
                 else
                     if is_instfunc
                         args=substitute_arguments(h,ifile,instfunc_args(ifile,:));
-                        tmp{ifile}.instrument=instfunc(args{:});
+                        instrument=instfunc(args{:});
+                        if ~isa(instrument,'IX_inst')
+                            error('The instrument definition function does not return an object of class IX_inst')
+                        end
+                        tmp{ifile}.instrument=instrument;
                     else
                         tmp{ifile}.instrument=instrument(ifile);
                     end
@@ -172,7 +189,11 @@ elseif narg==1 || isa(args{1},'function_handle')
         else
             if is_instfunc
                 args=substitute_arguments(h,1,instfunc_args(1,:));
-                tmp.instrument=instfunc(args{:});
+                instrument=instfunc(args{:});
+                if ~isa(instrument,'IX_inst')
+                    error('The instrument definition function does not return an object of class IX_inst')
+                end
+                tmp.instrument=instrument;
             else
                 tmp.instrument=instrument;
             end

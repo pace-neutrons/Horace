@@ -153,35 +153,36 @@ function [pulse_model,pp,ok,mess,present]=get_mod_pulse_single(header)
 %   mess        Error message; empty if OK, non-empty otherwise
 %   present     True if a moderator is present; false otherwise
 
+    
 % Get array of moderator objects from the header
-[moderator,ok]=get_instrument_field(header,'moderator');
-if ~ok || ~isa(moderator,'IX_moderator')
-    pulse_model='';
-    pp=[];
-    ok=false;
-    mess='IX_moderator object not found in all instrument descriptions';
-    present=false;
-    return
-else
-    present=true;
+if ~iscell(header), header = {header}; end  % for convenience
+nrun=numel(header);
+moderator = repmat(IX_moderator,nrun,1);
+present = false;
+for i=1:nrun
+    try
+        moderator(i) = header{i}.instrument.moderator;
+    catch
+        pulse_model=''; pp=[]; ok=false;
+        mess='IX_moderator object not found in all instrument descriptions';
+        return
+    end
 end
+present = true;
 
 % Fill output
 if numel(moderator)==1
     pulse_model=moderator.pulse_model;
     pp=moderator.pp;
 else
-    nrun=numel(header);
     pulse_model=moderator(1).pulse_model;
     pp=repmat(moderator(1).pp(:)',nrun,1);  % ensure one row per spe data set
     np=size(pp,2);
     for i=2:nrun
         if strcmp(moderator(i).pulse_model,pulse_model) && numel(moderator(i).pp)==np
-            pp(i,:)=moderator(i).pp;
+            pp(i,:)=moderator(i).pp(:)';
         else
-            pulse_model='';
-            pp=[];
-            ok=false;
+            pulse_model=''; pp=[]; ok=false;
             mess='Moderator pulse names and/or number of pulse parameters are not the same for all contributing data sets';
             return
         end

@@ -29,7 +29,8 @@ function [ok, mess, obj, modshape] = refine_moderator_pack_parameters_ (obj)
 
 mod_opts = obj.refine_moderator;
 
-% Check that the incident energies are all the same (might have been changed since set_refine_moderator called)
+% Check that the incident energies are all the same (might have been changed
+% since set_refine_moderator was called)
 if iscell(obj.data)     % might be a single sqw object
     wsqw = cell2mat_obj(cellfun(@(x)x(:),obj.data,'UniformOutput',false));
 else

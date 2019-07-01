@@ -47,35 +47,52 @@ if ~mfclass.legacy(varargin{:})
     % Tobyfit (1 Jan 2018 onwards)
     % ----------------------------
     % Get resolution function model type
+    
+    % Determine the instrument model
+    % The input could be any number of sqw object arrays, followed by other arguments
+    % hence the slightly involved procedure
+    is_sqw_object = cellfun(@(x)isa(x,'sqw'), varargin);
+    ind = find(~is_sqw_object,1);
+    if isempty(ind)
+        nsqw = numel(varargin);
+    else
+        nsqw = ind-1;
+    end
+    [inst, all_inst] = get_inst_class (varargin{1:nsqw});
+    if isempty(inst)
+        if all_inst
+            error('The instrument type must be the same for all datasets')
+        else
+            error('All sqw objects must now have the instrument type set as an instrument object')
+        end
+    end
+    
+    % For not actually failing with old syntax where the insturmnet type was set
+    % by a character string
     if numel(varargin)>1 && ischar(varargin{end})
         valid_models = {'fermi','disk'};
         ind = stringmatchi(varargin{end},valid_models);
         if numel(ind)==1
             model=valid_models{ind};
-        elseif numel(ind)==2
-            error('Ambiguous resolution function model type')
         else
-            error('Invalid resolution function model type')
+            warning(['The instrumnet is determined from the sqw object. Redundant option ''',...
+                varargin{end},''' ignored'])
         end
-        narg=numel(varargin)-1;
-    else
-        model='fermi';
-        narg=numel(varargin);
     end
     
     % Initialise
-    if strcmp(model,'fermi')
+    if strcmp(inst,'IX_inst_DGfermi')
         mf_init = mfclass_wrapfun (@tobyfit_DGfermi_resconv, [], @func_eval, [],...
             true, false, @tobyfit_DGfermi_resconv_init, []);
-    elseif strcmp(model,'disk')
+    elseif strcmp(inst,'IX_inst_DGdisk')
         mf_init = mfclass_wrapfun (@tobyfit_DGdisk_resconv, [], @func_eval, [],...
             true, false, @tobyfit_DGdisk_resconv_init, []);
     else
-        error('Logic error. See Toby Perring.')
+        error('No resolution fuinction model implemented for this instrument')
     end
     
     % Construct
-    varargout{1} = mfclass_tobyfit (varargin{1:narg}, 'sqw', mf_init);
+    varargout{1} = mfclass_tobyfit (varargin{1:nsqw}, 'sqw', mf_init);
     
     % ------------------------------------------------------------------------------
     

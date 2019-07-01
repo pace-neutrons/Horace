@@ -77,7 +77,7 @@ end
 %% --------------------------------------------------------------------------------------
 % Setup
 % --------------------------------------------------------------------------------------
-dir_in=tempdir;
+dir_in='';
 dir_out=tempdir;
 
 % Output files with simulated data to be corrected
@@ -152,7 +152,7 @@ if save_data
         save(wsim,sqw_file_nores_tmp{i});
         
         % Tobyfit simulation to account for resolution
-        wtmp{1}=set_sample_and_inst(wtmp{1},sample,@maps_instrument_for_tests,'-efix',300,'S');
+        wtmp{1}=set_sample_and_inst(wtmp{1},sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
 
         kk = tobyfit(wtmp{1});
         kk = kk.set_fun(@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg],...
@@ -229,7 +229,7 @@ end
 
 % Test that the rotation vector is good, and the lattice parameters too:
 rotvec_fit=rotmat_to_rotvec2(rotmat_fit);
-if ~equal_to_relerr(alatt_fit,alatt_true,0.001) || ~equal_to_relerr(rotvec_fit,rotvec,0.05)
+if ~equal_to_relerr(alatt_fit,alatt_true,0.001) || ~equal_to_relerr(rotvec_fit,rotvec,0.10)
     error('Problem in refinement of crystal orientation and lattice parameters')
 end
 
@@ -263,13 +263,13 @@ w00m1_r=cut_sqw(sqw_file_res_full,proj,[-0.15,0.15],   [-1.3,0.01,-0.7],[-0.15,0
 w00m1_t=cut_sqw(sqw_file_res_full,proj,[-0.2,0.01,0.2],[-1.2,-0.8],     [-0.15,0.15],   [-Inf,Inf]);
 w00m1_v=cut_sqw(sqw_file_res_full,proj,[-0.15,0.15],   [-1.2,-0.8],     [-0.2,0.01,0.2],[-Inf,Inf]);
 
-w110_r=set_sample_and_inst(w110_r,sample,@maps_instrument_for_tests,'-efix',300,'S');
-w110_t=set_sample_and_inst(w110_t,sample,@maps_instrument_for_tests,'-efix',300,'S');
-w110_v=set_sample_and_inst(w110_v,sample,@maps_instrument_for_tests,'-efix',300,'S');
+w110_r=set_sample_and_inst(w110_r,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
+w110_t=set_sample_and_inst(w110_t,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
+w110_v=set_sample_and_inst(w110_v,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
 
-w00m1_r=set_sample_and_inst(w00m1_r,sample,@maps_instrument_for_tests,'-efix',300,'S');
-w00m1_t=set_sample_and_inst(w00m1_t,sample,@maps_instrument_for_tests,'-efix',300,'S');
-w00m1_v=set_sample_and_inst(w00m1_v,sample,@maps_instrument_for_tests,'-efix',300,'S');
+w00m1_r=set_sample_and_inst(w00m1_r,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
+w00m1_t=set_sample_and_inst(w00m1_t,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
+w00m1_v=set_sample_and_inst(w00m1_v,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
 
 w=[w110_r,w110_t,w110_v;w00m1_r,w00m1_t,w00m1_v];
 

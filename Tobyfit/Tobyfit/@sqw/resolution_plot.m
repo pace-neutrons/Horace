@@ -186,14 +186,31 @@ end
 
 % Plot resolution function
 % ------------------------
+% Determine the instrument
+[inst, all_inst] = get_inst_class(w);
+if isempty(inst)
+    if all_inst
+        error('The instrument type is not the same for all contributing raw data files')
+    else
+        error('The instrument has not been defined for all contributing raw data files')
+    end
+end
+if strcmp(inst,'IX_inst_DGfermi')
+    resfun_model = @tobyfit_DGfermi_resfun_covariance;
+elseif strcmp(inst,'IX_inst_DGdisk')
+    resfun_model = @tobyfit_DGdisk_resfun_covariance;
+else
+    error('No resolution fuinction model implemented for this instrument')
+end
+
 iax_plot = [w.data.pax, iax];
 if npixtot==0
     % Special case of no data, one header, one detector
-    covariance_matrix = tobyfit_DGfermi_resfun_covariance (w);
+    covariance_matrix = resfun_model(w);
     resolution_plot_private ([0,0], covariance_matrix, iax_plot, false)
 else
     [xp_ok, ipix] = get_nearest_pixels (w, xp);
-    covariance_matrix = tobyfit_DGfermi_resfun_covariance(w, ipix);
+    covariance_matrix = resfun_model(w, ipix);
     for i=1:numel(ipix)
         resolution_plot_private (xp_ok(i,:), covariance_matrix(:,:,i),...
             iax_plot, flip)

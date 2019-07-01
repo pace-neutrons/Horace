@@ -12,7 +12,7 @@ function varargout = get_efix(varargin)
 %
 % Output:
 % -------
-%   efix        Fixed neutron energy (meV) (=NaN if not all data sets have the same emode)
+%   efix        Mean fixed neutron energy (meV) (=NaN if not all data sets have the same emode)
 %   emode       Value of emode (1,2 for direct, indirect inelastic; =0 elastic)
 %              All efix must have the same emode. (emode returned as NaN if not the case)
 %   ok          Logical flag: =true if within tolerance, otherwise =false;
