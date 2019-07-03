@@ -43,9 +43,9 @@ if narg==0
     end
 elseif narg==1
     if isscalar(args{1}) && (isstruct(args{1}) || isa(args{1},'IX_sample'))
-        sample=args{1}; % single structure or IX_sample
+        sample=args{1};     % single structure or IX_sample
     elseif isempty(args{1})
-        sample=struct;  % empty item indicates no sample; set to default 1x1 empty structure
+        sample=struct();    % empty item indicates no sample; set to default 1x1 empty structure
     else
         error('Sample must be a scalar structure or IX_sample object (or an empty argument to indicate ''no sample'')')
     end
