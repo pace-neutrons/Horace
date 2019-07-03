@@ -23,8 +23,6 @@ profile = self.profile_;
 area = sum(profile);
 angle_av = sum(angle.*profile)/area;
 sigma = sqrt(sum(((angle-angle_av).*(angle-angle_av)).*profile)/area);
-disp(angle_av)
-disp(sigma)
 
 [angle_var, angle_av] = var (self.pdf_);
 angle_sig = sqrt(angle_var);

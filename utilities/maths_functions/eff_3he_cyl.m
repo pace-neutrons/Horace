@@ -50,8 +50,8 @@ function eff=eff_3he_cyl(wvec,rad,atms,t2rad,sintheta)
 %  Shall use  1.4323 cm-1 @ 3.49416 A-1 with sigma prop. 1/v
 %
 %  This corresponds to a reference energy of 25.299meV, NOT 25.415.
-% This accounts for a difference of typically 1 pt in 1000 for
-% energies around a few hundred meV.
+%  This accounts for a difference of typically 1 pt in 1000 for
+%  energies around a few hundred meV.
 
 sigref=143.23; wref=3.49416; atmref=10;
 const=2*sigref*wref/atmref;
