@@ -93,7 +93,7 @@ if isa(w1,'sqw') && isa(w2,'sqw')
             if ~isempty(keyval_list)
                 ic = 1;
                 for j=1:2:numel(keyval_list)-1
-                    in_name{ic} = keyval_list{j+1};
+                    in_name{ic} = variable_name(keyval_list{j+1},false,sz,i);
                     ic = ic+1;
                 end
             end
