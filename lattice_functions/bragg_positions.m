@@ -95,35 +95,18 @@ function [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu,...
 % $Revision:: 1751 ($Date:: 2019-06-03 09:47:49 +0100 (Mon, 3 Jun 2019) $)
 
 
-% Banner - catch case of old format
-if nargin<8
-    disp('--------------------------------------------------------------------------------')
-    disp('    The original function prototype has been updated and this function')
-    disp('   requires new arguments. Type >> help bragg_positions  for details. ')
-    disp(' ')
-    disp('    Alternatively: use the function bragg_positions_prototype which has')
-    disp('   the old functionality. WARNING: there was a reason it was updated!')
-    disp('--------------------------------------------------------------------------------')
-    rlu0=[]; width=[]; wcut=[]; wpeak=[];
-    return
-end
-
 % Check input arguments
 if ischar(w)    % assume a file name
     file_type_ok=is_sqw_type_file(sqw,w);
     if ~isscalar(file_type_ok) || ~file_type_ok
         error('File must be sqw type')
     end
-    h=head_sqw(w);  % get header information
+    hdr=head_sqw(w);    % get header information as extracted from the 'data' field
 elseif isa(w,'sqw') && is_sqw_type(w(1))
     if numel(w)~=1
         error('Data must be a single sqw object, not an array (or empty)')
     end
-    if iscell(w.header)     % *** Really ought to have header_ave as a method. Use same algorithm here.
-        h=w.header{1};
-    else
-        h=w.header;
-    end
+    hdr=w.data;
 else
     error('Object must be sqw type')
 end
@@ -214,24 +197,32 @@ width=zeros(size(rlu));
 wcut=repmat(IX_dataset_1d,npeaks,3);
 wpeak=repmat(IX_dataset_1d,npeaks,3);
 
-% Get matrix to convert rlu to input projection axes
-u2rlu=h.u_to_rlu(1:3,1:3);
-u1=u2rlu(:,1);
-u2=u2rlu(:,2);
+% Get matrix to convert rlu to projection axes
+u_to_rlu = hdr.u_to_rlu(1:3,1:3);
+u1_rlu = u_to_rlu(:,1)';    % first projection axis in rlu
+u2_rlu = u_to_rlu(:,2)';    % second projection axis in rlu
+
+% Get the matrix to convert rlu to crystal Cartesian coordinates
+B = bmatrix (hdr.alatt, hdr.angdeg);
 
 peak_problem=false(size(rlu));
 for i=1:size(rlu,1)
-    uq=u2rlu\rlu(i,:)';     % Q vector expressed in projection axes
-    modQ=norm(uq);
+    % Extract Q point through which to get three orthogonal cuts
+    Qrlu = rlu(i,:);
+    modQ=norm(B*Qrlu(:));   % length of Q vector in Ang^-1
     
-    proj.uoffset=rlu(i,:);  % centre of cut is the nominal Bragg peak position
-    % x axis is along Q, to get maximum resolution in d-spacing
-    proj.u=rlu(i,:);
-    % y axis is defined by whichever of u1, u2 projection axes is closer to perpendicular to Q (to avoid collinearity)
-    if abs(dot(uq,u1))<=abs(dot(uq,u2))
-        proj.v=u1';
+    % Create proj for taking three orthogonal cuts
+    %   - proj.u along Q, to get maximum resolution in d-spacing
+    %   - proj.v defined by whichever of u1, u2 projection axes is closer
+    %     to perpendicular to Q (to avoid collinearity)
+    proj.uoffset=Qrlu;  % centre of cut is the nominal Bragg peak position
+    proj.u=Qrlu;
+    c1 = cosangle(B,u1_rlu,Qrlu);
+    c2 = cosangle(B,u2_rlu,Qrlu);
+    if abs(c1)<=abs(c2)
+        proj.v=u1_rlu;
     else
-        proj.v=u2';
+        proj.v=u2_rlu;
     end
     proj.type='aaa';        % force unit length of projection axes to be 1 Ang^-1
     
@@ -255,21 +246,21 @@ for i=1:size(rlu,1)
     
     % Make three orthogonal cuts through nominal Bragg peak positions
     disp('--------------------------------------------------------------------------------')
-    disp(['Peak ',num2str(i),':  [',num2str(rlu(i,:)),']','    scan: 1 (radial scan)'])
+    disp(['Peak ',num2str(i),':  [',num2str(Qrlu),']','    scan: 1 (radial scan)'])
     w1a_1=cut_sqw(w, proj, [-len_r/2,bin_r,+len_r/2] ,[-thick_t/2,+thick_t/2]   ,[-thick_t/2,+thick_t/2],   eint, '-nopix');
     
-    disp(['Peak ',num2str(i),':  [',num2str(rlu(i,:)),']','    scan: 2 (transverse scan)'])
+    disp(['Peak ',num2str(i),':  [',num2str(Qrlu),']','    scan: 2 (transverse scan)'])
     w1a_2=cut_sqw(w, proj, [-thick_r/2,+thick_r/2]   ,[-len_t/2,bin_t,+len_t/2] ,[-thick_t/2,+thick_t/2],   eint, '-nopix');
     
-    disp(['Peak ',num2str(i),':  [',num2str(rlu(i,:)),']','    scan: 3 (transverse scan)'])
+    disp(['Peak ',num2str(i),':  [',num2str(Qrlu),']','    scan: 3 (transverse scan)'])
     w1a_3=cut_sqw(w, proj, [-thick_r/2,+thick_r/2]   ,[-thick_t/2,+thick_t/2]   ,[-len_t/2,bin_t,+len_t/2], eint, '-nopix');
     
     % Get peak positions
     upos0=zeros(3,1);
     if ~gau
-        [upos0(1),dum1,width(i,1),dum2,dum3,dum4,w1a_1_pk]=peak_cwhh(IX_dataset_1d(w1a_1),opt);
-        [upos0(2),dum1,width(i,2),dum2,dum3,dum4,w1a_2_pk]=peak_cwhh(IX_dataset_1d(w1a_2),opt);
-        [upos0(3),dum1,width(i,3),dum2,dum3,dum4,w1a_3_pk]=peak_cwhh(IX_dataset_1d(w1a_3),opt);
+        [upos0(1),~,width(i,1),~,~,~,w1a_1_pk]=peak_cwhh(IX_dataset_1d(w1a_1),opt);
+        [upos0(2),~,width(i,2),~,~,~,w1a_2_pk]=peak_cwhh(IX_dataset_1d(w1a_2),opt);
+        [upos0(3),~,width(i,3),~,~,~,w1a_3_pk]=peak_cwhh(IX_dataset_1d(w1a_3),opt);
     else
         [upos0(1),width(i,1),w1a_1_pk]=peak_gaussian(IX_dataset_1d(w1a_1));
         [upos0(2),width(i,2),w1a_2_pk]=peak_gaussian(IX_dataset_1d(w1a_2));
@@ -289,7 +280,7 @@ for i=1:size(rlu,1)
     
     % Convert peak position into r.l.u.
     if all(isfinite(upos0))
-        rlu0(i,:)=(upos2rlu*upos0)' + rlu(i,:);
+        rlu0(i,:)=(upos2rlu*upos0)' + Qrlu;
     else
         peak_problem(i,:)=~isfinite(upos0);
         rlu0(i,:)=NaN;
@@ -301,7 +292,7 @@ if any(peak_problem(:))
     disp('Problems determining peak position for:')
     for i=1:size(rlu,1)
         if any(peak_problem(i,:))
-            disp(['Peak ',num2str(i),':  [',num2str(rlu(i,:)),']','    scan(s): ',num2str(find(peak_problem(i,:)))])
+            disp(['Peak ',num2str(i),':  [',num2str(Qrlu),']','    scan(s): ',num2str(find(peak_problem(i,:)))])
         end
     end
     disp(' ')
@@ -309,12 +300,13 @@ if any(peak_problem(:))
     disp('--------------------------------------------------------------------------------')
 end
 
+
 %-----------------------------------------------------------------------------------------------------------
 function [xcent,width,wfit]=peak_gaussian(w)
 % Fit Gaussian to Bragg peak, trying to be robust
 
 % Common case is too many bins if azimuthal scan from a single Laue diffraction shot. Assume only a single peak in the cut
-[xcent,dum1,width,dum2,dum3,ypeak]=peak_cwhh(w,'outer');
+[xcent,~,width,~,~,ypeak]=peak_cwhh(w,'outer');
 if ~isfinite(xcent) % unable to find a peak
     xcent=NaN;
     width=NaN;
@@ -323,7 +315,7 @@ if ~isfinite(xcent) % unable to find a peak
 end
 
 % Now fit Gaussian
-[wfit_tmp,fitdata]=fit(w,@gauss_bkgd,[ypeak,xcent,width/2.3548,0,0]);
+[~,fitdata]=fit(w,@gauss_bkgd,[ypeak,xcent,width/2.3548,0,0]);
 if all(isfinite(fitdata.sig)) && all(fitdata.sig>0)
     xcent=fitdata.p(2);
     width=2.3548*fitdata.p(3);
@@ -333,3 +325,11 @@ else
     width=NaN;
     wfit=w; wfit.signal=NaN(size(wfit.signal)); wfit.error=zeros(size(wfit.error));
 end
+
+
+%-----------------------------------------------------------------------------------------------------------
+function c = cosangle (B, u, v)
+% Cosine of the angle between two reciprocal lattice vectors
+uxtal = B*u(:);
+vxtal = B*v(:);
+c = dot(uxtal,vxtal)/(norm(uxtal)*norm(vxtal));

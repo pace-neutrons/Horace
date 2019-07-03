@@ -1,12 +1,41 @@
 Tobyfit NEW  (22/5/19)
 -----------------
-Replace squeeze(reshape... with size_array_stack
+That problem with LET resfun plotting if q=[0.3,1.20]
 
-Remove moderator_sampling table and sim. fermi, disk, divergence (any others?)
-Also remove buffered_sampling_table  for all of these (maybe gone alread)
-is_valid - not needed in object_lookup?
+For backwards compatibility:
+	- If set_instrument given a structure (or array of structures), attempt to construct an instrument (will be LET or MAPS)
+	- Instrument components should attempt to construct the corresponding new format object
 
-General clear out of redundant functions
+
+File operation for use with changing instrument properties
+The low level reading/writing routines need to be changed in addition
+	get_mod_pulse_horace 				***DONE*** (as all the work is done in sqw/get_mod_pulse, now changed)
+	set_mod_pulse_horace 				***DONE*** (as all the work is done in sqw/set_mod_pulse, now changed)
+	get_efix_horace								***DONE*** (as all the work is done in sqw/get_efix, which needs no change)
+	set_efix_horace								***DONE*** (as all the work is done in sqw/set_efix, which needs no change)
+  [get_instrument_horace                does not exist; not needed]
+	set_instrument_horace 				need to edit to check input is IX_inst (also calls set_instr_or_sample_horace_)
+	set_inst_or_sample_horace_ 		might not need any changes
+	
+	get_mod_pulse 		*** DONE ***
+	set_mod_pulse		*** DONE ***
+	get_efix 					- do not need to touch (not affected by instrument class changes)
+	set_efix 					- do not need to touch (same reason)
+  [get_instrument   		- does not exist; not needed]
+	set_instrument 		*** DONE ***
+
+
+	
+Make IX_inst an abstract class, so that we can force the requirement of moderator as a set-able and get-able public property 
+
+mc_contributions to be passed to tobyfit_DG*_resfun_covariance
+
+set ei for moderator in instrument files (and all choppers)
+
+Sort out the array sizes using size_array_stack and size_array_split (allover the place, rand, covariance etc)
+and replace squeeze(reshape... 
+
+General clear out of redundant functions - check if any more to do
 
 indicies => indices everywhere (hundred of files)
 

@@ -21,13 +21,14 @@ function varargout = resolution_plot (en, instrument, sample, detpar, efix, emod
 % Input:
 % ------
 %   en              Energy bin boundaries for a single energy bin
-%   instrument      Structure containing instrument description
+%   instrument      Instrument description. Must be an objet whose class is
+%                   derived from IX_inst e.g. IX_inst_DGfermi or IX_inst_DGdisk
 %   sample          IX_sample object
 %   detpar          Structure with detector parameters for a single detector
 %                   Fields must include:
 %                       x2      sample-detector distance (m)
 %                       phi     scattering angle (deg)
-%                       axim    azimuthal scattering angle (deg)
+%                       azim    azimuthal scattering angle (deg)
 %                               (West bank=0 deg, North bank=90 deg etc.)
 %                       width   detector width (m)
 %                       height  detector height (m)
@@ -67,7 +68,7 @@ function varargout = resolution_plot (en, instrument, sample, detpar, efix, emod
 
 % *** Really should be using fake_sqw to create an sqw object, but as of 10 Nov 2018
 %     it requires a par file, and will not accept a detpar structure. A fully 
-%     object oriented sqw object construction would deal with this, but fot the
+%     object oriented sqw object construction would deal with this, but for the
 %     mean time, create an sqw object here.
 
 
@@ -179,13 +180,11 @@ header.u_to_rlu = zeros(4,4);
 header.u_to_rlu(4,4) = 1;
 header.ulen = [1,1,1,1];
 header.ulabel = {'Q_\zeta'  'Q_\xi'  'Q_\eta'  'E'};
-header.instrument = instrument;
-header.sample = sample;
 
-if isstruct(instrument) && isscalar(instrument)
+if isa(instrument,'IX_inst') && isscalar(instrument)
     header.instrument = instrument;
 else
-    error('Instrument must be a scale structure')
+    error('Instrument must be a scalar instrument object')
 end
 
 if isa(sample,'IX_sample')

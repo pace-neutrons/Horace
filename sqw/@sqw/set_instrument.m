@@ -18,7 +18,7 @@ function varargout = set_instrument (varargin)
 %                  number of elements equal to the number of runs contributing
 %                  to the sqw object(s).
 %                   If the instrument is any empty object, then the instrument
-%                  is set to the default empty instrument.
+%                  is set to the empty structure struct().
 %
 % *OR*
 %   inst_func       Function handle to generate instrument object.
@@ -80,9 +80,9 @@ elseif narg==1 || isa(args{1},'function_handle')
         instrument=args{1};
         ninst=numel(instrument);
         
-    elseif isempty(args{1})
+    elseif isempty(args{1}) || isequal(args{1},struct())
         is_instfunc=false;
-        instrument=IX_inst();
+        instrument=struct();
         ninst=numel(instrument);
         
     elseif isscalar(args{1}) && isa(args{1},'function_handle')

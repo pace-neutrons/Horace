@@ -1,4 +1,4 @@
-function varargout = test_tobyfit_refine_crystal_1 (option, version)
+function varargout = test_tobyfit_refine_crystal_1 (option)
 % Test Tobyfit versions refining moderator parameter for a single sqw dataset
 %
 % Setup (should only have to do in extremis):
@@ -24,26 +24,18 @@ function varargout = test_tobyfit_refine_crystal_1 (option, version)
 %                                   % parameters in test_tobyfit_refine_crystal_1_out.mat in the same
 %                                   % folder as this file
 %
-%
-% Do any of the above, run with the legacy version of Tobyfit:
-%   >> test_tobyfit_1 (...,'-legacy')
-%
 % In all of the above, get the full output of the fits as a structure:%   In all of the above, get the full output of the fits as a structure:
 %
 %   >> res = test_tobyfit_refine_crystal_1 (...)
 
 
 %% --------------------------------------------------------------------------------------
-%
-% *** Change tests to avoid covariance matrix being Kronecker-delta
-
 nlist = 2;  % set to 1 or 2 for listing during fit
 
 % Determine whether or not to save output
 save_data = false;
 save_output = false;
 test_output = false;
-legacy = false;
 
 if exist('option','var')
     if ischar(option) && isequal(lower(option),'-setup')
@@ -53,42 +45,26 @@ if exist('option','var')
     elseif ischar(option) && isequal(lower(option),'-test')
         test_output = true;
     else
-        if ~exist('version','var')
-            version = option;
-        else
-            error('Invalid option')
-        end
+        error('Invalid option')
     end
-end
-
-if exist('version','var')
-    if ischar(version) && isequal(lower(version),'-legacy')
-        legacy = true;
-    else
-        error('Invalid option(s)')
-    end
-end
-
-if legacy
-    disp('Legacy Tobyfit...')
 end
 
 
 %% --------------------------------------------------------------------------------------
 % Setup
 % --------------------------------------------------------------------------------------
-dir_in='';
-dir_out=tempdir;
+dir_out=tempdir;    % folder for temporary file creation
 
-% Output files with simulated data to be corrected
-sqw_file_nores='tobyfit_refine_crystal_nores.sqw';    % output file for simulation in reference lattice
-sqw_file_res='tobyfit_refine_crystal_res.sqw';            % output file for simulation in reference lattice
+% Temporary file with simulated data to be corrected
+sqw_file_res=fullfile(dir_out,'tobyfit_refine_crystal_res.sqw');            % output file for simulation in reference lattice
 
-% Output files for result of correction
-sqw_file_nores_corr=fullfile(dir_out,'tobyfit_refine_crystal_nores_corr.sqw');  % output file for correction
-sqw_file_res_corr=fullfile(dir_out,'tobyfit_refine_crystal_res_corr.sqw');          % output file for correction
+% Temporary file for result of correction
+sqw_file_res_corr=fullfile(dir_out,'tobyfit_refine_crystal_res_corr.sqw');  % output file for correction
 
-% File to which to save results
+% Save file with simulated data to be corrected
+datafile='test_tobyfit_refine_crystal_1_data.mat';      
+
+% File to which to save results of refinement
 savefile='test_tobyfit_refine_crystal_1_out.mat';   % filename where saved results are written
 
 
@@ -125,31 +101,19 @@ if save_data
     % Create sqw file for refinement testing
     % ---------------------------------------
     % Full output file names
-    sqw_file_nores_full = fullfile(dir_out,sqw_file_nores);
-    sqw_file_res_full = fullfile(dir_out,sqw_file_res);
-    
     urange = calc_sqw_urange (efix, emode, en(1), en(end), par_file,...
         alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
     
     % Create simulations for individual spe files
-    sqw_file_nores_tmp=cell(size(psi));
     sqw_file_res_tmp=cell(size(psi));
     disp('--------------------------------------------------------------------------')
     disp('Simulating temporary sqw files with Bragg blobs, one per psi value')
     for i=1:numel(psi)
         disp(' ')
-        disp(['Creating files for orientation ',num2str(i),' of ',num2str(numel(psi))])
+        disp(['Creating file for orientation ',num2str(i),' of ',num2str(numel(psi))])
         
         wtmp = fake_sqw (en, par_file,'', efix, emode, alatt, angdeg,...
             u, v, psi(i), omega, dpsi, gl, gs, [10,10,10,10], urange);
-        
-        % Simulate Bragg blobs
-        wsim = sqw_eval(wtmp{1},@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg],...
-            [alatt_true,angdeg_true],rotvec});
-        wsim = noisify(wsim,0.01);
-         
-        sqw_file_nores_tmp{i}=fullfile(dir_out,['dummy_tobyfit_refine_crystal_1_nores_',num2str(i),'.sqw']);
-        save(wsim,sqw_file_nores_tmp{i});
         
         % Tobyfit simulation to account for resolution
         wtmp{1}=set_sample_and_inst(wtmp{1},sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
@@ -168,25 +132,27 @@ if save_data
     
     % Combine simulations
     disp('--------------------------------------------------------------------------')
-    write_nsqw_to_sqw(sqw_file_nores_tmp,sqw_file_nores_full);
-    disp('--------------------------------------------------------------------------')
-    write_nsqw_to_sqw(sqw_file_res_tmp,sqw_file_res_full);
-    
-    delete_temp_file (sqw_file_nores_tmp)
+    write_nsqw_to_sqw(sqw_file_res_tmp,sqw_file_res);
     delete_temp_file (sqw_file_res_tmp)
     
+    % Now take a cut that gets the .mat file under 100MB but still contains the Bragg peaks we'll fit
+    wsim=cut_sqw(sqw_file_res,projaxes([1,1,0],[0,0,1]),[-0.5,0.02,2.5],[-1.5,0.02,1.5],...
+        [-0.25,0.25],[-Inf,Inf]);
+    delete_temp_file (sqw_file_res)
+    
+    % Save cut for future use
+    datafile_full = fullfile(dir_out,datafile);
+    save(datafile_full,'wsim');
+    disp(['Saved data for future use in',datafile_full])
     if nargout>0
         varargout{1}=true;
     end
     return
     
 else
-    sqw_file_nores_full = fullfile(dir_in,sqw_file_nores);
-    sqw_file_res_full = fullfile(dir_in,sqw_file_res);
-    
-    if ~exist(sqw_file_res_full,'file')||~exist(sqw_file_nores_full,'file')
-        error('Input sqw files for tests does not exist')
-    end
+    % Read in data
+    data = load(datafile);          % load from .mat file
+    save(data.wsim,sqw_file_res);   % save as an sqw file (se want to perform tests on sqw files, no objects
 end
 
 
@@ -211,7 +177,7 @@ radial_cut_length=0.4; radial_bin_width=0.005; radial_thickness=0.15;
 trans_cut_length=15; trans_bin_width=0.5; trans_thickness=5;
 opt='Gaussian';
 
-[rlu0,width,wcut,wpeak]=bragg_positions(read_sqw(sqw_file_res_full), rlu,...
+[rlu0,width,wcut,wpeak]=bragg_positions(sqw_file_res, rlu,...
     radial_cut_length, radial_bin_width, radial_thickness,...
     trans_cut_length, trans_bin_width, trans_thickness, opt, 'bin_relative');
 % bragg_positions_view(wcut,wpeak)  % for manual checking
@@ -233,8 +199,8 @@ if ~equal_to_relerr(alatt_fit,alatt_true,0.001) || ~equal_to_relerr(rotvec_fit,r
     error('Problem in refinement of crystal orientation and lattice parameters')
 end
 
-% Reorient the lattice in a copy of the file, and test that the  new sqw file is correct
-copyfile(sqw_file_res_full,sqw_file_res_corr)
+% Reorient the lattice in a copy of the file, and test that the new sqw file is correct
+copyfile(sqw_file_res,sqw_file_res_corr)
 change_crystal_sqw(sqw_file_res_corr,rlu_corr)
 [rlu0,width,wcut,wpeak]=bragg_positions(read_sqw(sqw_file_res_corr), rlu,...
     radial_cut_length, radial_bin_width, radial_thickness,...
@@ -255,13 +221,13 @@ end
 proj.u=[1,1,0];
 proj.v=[0,0,1];
 
-w110_r=cut_sqw(sqw_file_res_full,proj,[0.8,0.01,1.2],[-0.2,0.2],[-0.15,0.15],[-Inf,Inf]);
-w110_t=cut_sqw(sqw_file_res_full,proj,[0.85,1.15],[-0.2,0.01,0.2],[-0.15,0.15],[-Inf,Inf]);
-w110_v=cut_sqw(sqw_file_res_full,proj,[0.85,1.15],[-0.2,0.2],[-0.15,0.01,0.2],[-Inf,Inf]);
+w110_r=cut_sqw(sqw_file_res,proj,[0.8,0.01,1.2],[-0.2,0.2],[-0.15,0.15],[-Inf,Inf]);
+w110_t=cut_sqw(sqw_file_res,proj,[0.85,1.15],[-0.2,0.01,0.2],[-0.15,0.15],[-Inf,Inf]);
+w110_v=cut_sqw(sqw_file_res,proj,[0.85,1.15],[-0.2,0.2],[-0.15,0.01,0.2],[-Inf,Inf]);
 
-w00m1_r=cut_sqw(sqw_file_res_full,proj,[-0.15,0.15],   [-1.3,0.01,-0.7],[-0.15,0.15],   [-Inf,Inf]);
-w00m1_t=cut_sqw(sqw_file_res_full,proj,[-0.2,0.01,0.2],[-1.2,-0.8],     [-0.15,0.15],   [-Inf,Inf]);
-w00m1_v=cut_sqw(sqw_file_res_full,proj,[-0.15,0.15],   [-1.2,-0.8],     [-0.2,0.01,0.2],[-Inf,Inf]);
+w00m1_r=cut_sqw(sqw_file_res,proj,[-0.15,0.15],   [-1.3,0.01,-0.7],[-0.15,0.15],   [-Inf,Inf]);
+w00m1_t=cut_sqw(sqw_file_res,proj,[-0.2,0.01,0.2],[-1.2,-0.8],     [-0.15,0.15],   [-Inf,Inf]);
+w00m1_v=cut_sqw(sqw_file_res,proj,[-0.15,0.15],   [-1.2,-0.8],     [-0.2,0.01,0.2],[-Inf,Inf]);
 
 w110_r=set_sample_and_inst(w110_r,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
 w110_t=set_sample_and_inst(w110_t,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
@@ -277,25 +243,18 @@ mc = 2;
 
 % Fit a global function
 % ---------------------
-if legacy
-    xtal_opts = tobyfit_refine_crystal_options('fix_angdeg','fix_alatt_ratio');
-    [w_tf_a,fitpar_tf_a,ok,mess,rlu_corr_tf_a]=tobyfit(w,...
-        @make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]},[1,1,0],...
-        'refine_crystal',xtal_opts,'list',nlist,'mc_npoints',mc);
-else
-    kk = tobyfit (w);
-    kk = kk.set_refine_crystal ('fix_angdeg','fix_alatt_ratio');
-    kk = kk.set_mc_points (mc);
-    kk = kk.set_fun (@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]},[1,1,0]);
-    kk = kk.set_options('list',nlist);
-    [w_tf_a,fitpar_tf_a,ok,mess,rlu_corr_tf_a] = kk.fit;
-end
+kk = tobyfit (w);
+kk = kk.set_refine_crystal ('fix_angdeg','fix_alatt_ratio');
+kk = kk.set_mc_points (mc);
+kk = kk.set_fun (@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]},[1,1,0]);
+kk = kk.set_options('list',nlist);
+[w_tf_a,fitpar_tf_a,ok,mess,rlu_corr_tf_a] = kk.fit;
 
 if ~ok
     disp(mess)
 end
 if any(abs(rlu_corr_tf_a(:)-rlu_corr(:))>0.004)
-    error('  1 or 2: Bragg peak crystal refinement and Tobyfit crystal refinement are not the same')
+    error('  1 of 2: Bragg peak crystal refinement and Tobyfit crystal refinement are not the same')
 end
 
 if test_output
@@ -308,20 +267,13 @@ end
 
 % Fit local foreground functions (independent widths)
 % ---------------------------------------------------
-if legacy
-    xtal_opts = tobyfit_refine_crystal_options('fix_angdeg','fix_alatt_ratio');
-    [w_tf_b,fitpar_tf_b,ok,mess,rlu_corr_tf_b]=tobyfit(w,...
-        @make_bragg_blobs,{{[amp,qfwhh,efwhh],[alatt,angdeg]}},[1,1,0],...
-        'refine_crystal',xtal_opts,'list',nlist,'local_fore','mc_npoints',mc);
-else
-    kk = tobyfit (w);
-    kk = kk.set_refine_crystal ('fix_angdeg','fix_alatt_ratio');
-    kk = kk.set_mc_points (mc);
-    kk = kk.set_local_foreground(true);
-    kk = kk.set_fun (@make_bragg_blobs,{{[amp,qfwhh,efwhh],[alatt,angdeg]}},[1,1,0]);
-    kk = kk.set_options('list',nlist);
-    [w_tf_b,fitpar_tf_b,ok,mess,rlu_corr_tf_b] = kk.fit;
-end
+kk = tobyfit (w);
+kk = kk.set_refine_crystal ('fix_angdeg','fix_alatt_ratio');
+kk = kk.set_mc_points (mc);
+kk = kk.set_local_foreground(true);
+kk = kk.set_fun (@make_bragg_blobs,{{[amp,qfwhh,efwhh],[alatt,angdeg]}},[1,1,0]);
+kk = kk.set_options('list',nlist);
+[w_tf_b,fitpar_tf_b,ok,mess,rlu_corr_tf_b] = kk.fit;
 
 if ~ok
     disp(mess)
