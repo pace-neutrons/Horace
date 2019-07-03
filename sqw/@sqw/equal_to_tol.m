@@ -84,9 +84,23 @@ if isa(w1,'sqw') && isa(w2,'sqw')
     % Perform comparison
     sz = size(w1);
     for i=1:numel(w1)
-        name_a = variable_name (inputname(1),false,sz,i,'input_1');
-        name_b = variable_name (inputname(2),false,sz,i,'input_2');
-        [ok,mess]=equal_to_tol_internal(w1(i),w2(i),name_a,name_b,varargin{:});
+        in_name = cell(1,2);
+        in_name{1} = variable_name (inputname(1),false,sz,i,'input_1');
+        in_name{2} = variable_name (inputname(2),false,sz,i,'input_2');
+        if nargin > 2
+            opt = {'name_a','name_b'};
+            [keyval_list,other]=extract_keyvalues(varargin,opt);
+            if ~isempty(keyval_list)
+                ic = 1;
+                for j=1:2:numel(keyval_list)-1
+                    in_name{ic} = keyval_list{j+1};
+                    ic = ic+1;
+                end
+            end
+        else
+            other = varargin;
+        end
+        [ok,mess]=equal_to_tol_internal(w1(i),w2(i),in_name{1},in_name{2},other{:});
         if ~ok, return, end
     end
 else
