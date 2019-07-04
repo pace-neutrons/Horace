@@ -20,17 +20,14 @@ classdef test_cut_sqw_sym < TestCaseWithSave
                 name = 'test_cut_sqw_sym';
             end
             this@TestCaseWithSave(name)
-            persistent data;
             
             % Get Horace log level
             this.log_level = get(hor_config,'log_level');
             
             % Read in data
-            this.data_source = 'test_cut_sqw_sym.sqw';
-            if isempty(data)
-                data = read_horace(this.data_source);
-            end
-            this.data = data;
+            this_path = fileparts(mfilename('fullpath'));
+            this.data_source = fullfile(this_path,'test_cut_sqw_sym.sqw');
+            this.data = read_horace(this.data_source);
             
             % Cut projection and ranges etc
             s100 = symop([1,0,0],[0,0,1],[1,1,0]);

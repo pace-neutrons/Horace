@@ -171,6 +171,8 @@ else
         % Now test contents for equality
         pix1=w1.data.pix;
         pix2=w2.data.pix;
+        name_a = [name_a,'.pix'];
+        name_b = [name_b,'.pix'];
         if opt.reorder
             % Sort retained pixels by bin and then run,det,energy bin indicies
             [~,ix]=sortrows([ibinarr,pix1(5:7,ipix)']);
@@ -180,7 +182,7 @@ else
             s2=pix2(:,ipix)';
             s2=s2(ix,:);
             % Now compare retained pixels
-            [ok,mess]=equal_to_tol(s1,s2,args{:},'name_a',name_a,'name_b',name_b);
+            [ok,mess]=equal_to_tol(s1,s2,args{:},'name_a',name_a,'name_b',name_b );
         else
             s1=pix1(:,ipix);
             s2=pix2(:,ipix);
