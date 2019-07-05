@@ -10,7 +10,20 @@ function test_rebin (varargin)
 %
 % Author: T.G.Perring
 
+hc = herbert_config;
+old_config = hc.get_data_to_store();
+clobConfig = onCleanup(@()set(hc,old_config));
+
+hc.saveable = false;
+
+
 banner_to_screen(mfilename)
+if isempty(which('bin_boundaries_from_descriptor_mex'))
+    test_mex = false;
+else
+    test_mex = true;
+end
+
 
 data_filename='testdata_IX_datasets_ref.mat';
 results_filename='test_rebin_output.mat';
@@ -37,8 +50,9 @@ clob = onCleanup(@()warning('on','MATLAB:unknownObjectNowStruct'));
 
 load(fullfile(rootpath,data_filename));
 
-
-set(herbert_config,'force_mex_if_use_mex',true,'-buffer');
+if test_mex
+    hc.force_mex_if_use_mex = true;
+end
 
 
 %% =====================================================================================================================
@@ -61,6 +75,7 @@ p1_reb_mex       =repmat(IX_dataset_1d,1,numel(xdescr_1));
 p1_reb_int_mex   =repmat(IX_dataset_1d,1,numel(xdescr_1));
 h1_reb_mex       =repmat(IX_dataset_1d,1,numel(xdescr_1));
 h1_reb_nodist_mex=repmat(IX_dataset_1d,1,numel(xdescr_1));
+%
 p1_reb           =repmat(IX_dataset_1d,1,numel(xdescr_1));
 p1_reb_int       =repmat(IX_dataset_1d,1,numel(xdescr_1));
 h1_reb           =repmat(IX_dataset_1d,1,numel(xdescr_1));
@@ -73,18 +88,20 @@ disp('===========================')
 for i=1:numel(xdescr_1)
     disp(['=== ',num2str(i),' ==='])
     % - mex
-    set(herbert_config,'use_mex',true,'-buffer');
-    
-    p1_reb_mex(i)=rebin(p1,xdescr_1{i});
-    p1_reb_int_mex(i)=rebin(p1,xdescr_1{i},'int');
-    if ~batch, acolor k; dd(p1); acolor r; pd(p1_reb_mex(i)); acolor g; pd(p1_reb_int_mex(i)); keep_figure; end
-    
-    h1_reb_mex(i)=rebin(h1,xdescr_1{i});
-    h1_reb_nodist_mex(i)=rebin(dist2cnt(h1),xdescr_1{i},'int');
-    if ~batch, acolor k; dd(h1); acolor r; pd(h1_reb_mex(i)); acolor g; pd(h1_reb_nodist_mex(i)); keep_figure; end
-    
+    if test_mex
+        hc.use_mex = true;
+        
+        
+        p1_reb_mex(i)=rebin(p1,xdescr_1{i});
+        p1_reb_int_mex(i)=rebin(p1,xdescr_1{i},'int');
+        if ~batch, acolor k; dd(p1); acolor r; pd(p1_reb_mex(i)); acolor g; pd(p1_reb_int_mex(i)); keep_figure; end
+        
+        h1_reb_mex(i)=rebin(h1,xdescr_1{i});
+        h1_reb_nodist_mex(i)=rebin(dist2cnt(h1),xdescr_1{i},'int');
+        if ~batch, acolor k; dd(h1); acolor r; pd(h1_reb_mex(i)); acolor g; pd(h1_reb_nodist_mex(i)); keep_figure; end
+    end
     % - matlab
-    set(herbert_config,'use_mex',false,'-buffer');
+    hc.use_mex = false;
     
     p1_reb(i)=rebin(p1,xdescr_1{i});
     p1_reb_int(i)=rebin(p1,xdescr_1{i},'int');
@@ -93,7 +110,7 @@ for i=1:numel(xdescr_1)
     h1_reb(i)=rebin(h1,xdescr_1{i});
     h1_reb_nodist(i)=rebin(dist2cnt(h1),xdescr_1{i},'int');
     if ~batch, acolor k; dd(h1); acolor r; pd(h1_reb(i)); acolor g; pd(h1_reb_nodist(i)); keep_figure; end
-    if batch
+    if batch && test_mex
         disp('= 1')
         delta_IX_dataset_nd(p1_reb_mex(i),p1_reb(i),tol)
         disp('= 2')
@@ -118,19 +135,22 @@ disp('===========================')
 disp('    1D: Test rebin - part 2')
 disp('===========================')
 
-set(herbert_config,'use_mex',true,'-buffer');
-p1_reb1_mex=rebin(p1,xdescr_21);
-p1_reb2_mex=rebin(p1,xdescr_22{:});
-p1_reb3_mex=rebin(p1,xdescr_23{:});
-if ~batch, acolor k; dd(p1_reb1_mex); acolor r; pd(p1_reb2_mex); acolor g; pd(p1_reb3_mex+0.02); keep_figure; end
+if test_mex
+    hc.use_mex = true;
+    
+    p1_reb1_mex=rebin(p1,xdescr_21);
+    p1_reb2_mex=rebin(p1,xdescr_22{:});
+    p1_reb3_mex=rebin(p1,xdescr_23{:});
+    if ~batch, acolor k; dd(p1_reb1_mex); acolor r; pd(p1_reb2_mex); acolor g; pd(p1_reb3_mex+0.02); keep_figure; end
+end
 
-set(herbert_config,'use_mex',false,'-buffer');
+hc.use_mex = false;
 p1_reb1=rebin(p1,xdescr_21);
 p1_reb2=rebin(p1,xdescr_22{:});
 p1_reb3=rebin(p1,xdescr_23{:});
 if ~batch, acolor k; dd(p1_reb1); acolor r; pd(p1_reb2); acolor g; pd(p1_reb3+0.02); keep_figure; end
 
-if batch
+if batch && test_mex
     disp('= 1')
     delta_IX_dataset_nd(p1_reb1_mex,p1_reb1,tol)
     disp('= 2')
@@ -197,15 +217,17 @@ disp('===========================')
 for j=1:numel(xint_arg)
     disp(['=== ',num2str(j),' ==='])
     for i=1:numel(w2ref)
+        hc.use_mex = false;
         disp(['= ',num2str(i)])
-        set(herbert_config,'use_mex',false,'-buffer');
         w2x_sim(i,j)=simple_rebin_x(w2ref(i),xint_arg{j}{:});
-        set(herbert_config,'use_mex',true,'-buffer');
-        w2x_mex(i,j)=rebin_x(w2ref(i),xint_arg{j}{:});
-        set(herbert_config,'use_mex',false,'-buffer');
         w2x(i,j)=rebin_x(w2ref(i),xint_arg{j}{:});
         w2binx(i,j)=rebin2_x(w2ref(i),xintbin_arg{j}{:});
-        delta_IX_dataset_nd(w2x_sim(i,j),w2x_mex(i,j),tol)
+        if test_mex
+            hc.use_mex = true;
+            w2x_mex(i,j)=rebin_x(w2ref(i),xint_arg{j}{:});
+            delta_IX_dataset_nd(w2x_sim(i,j),w2x_mex(i,j),tol)
+        end
+        
         delta_IX_dataset_nd(w2x_sim(i,j),w2x(i,j),tol)
         delta_IX_dataset_nd(w2x_sim(i,j),w2binx(i,j),tol)
     end
@@ -220,17 +242,19 @@ disp('===========================')
 for j=1:numel(yint_arg)
     disp(['=== ',num2str(j),' ==='])
     for i=1:numel(w2ref)
+        hc.use_mex = false;
         disp(['= ',num2str(i)])
-        set(herbert_config,'use_mex',false,'-buffer');
         w2y_sim(i,j)=simple_rebin_y(w2ref(i),yint_arg{j}{:});
-        set(herbert_config,'use_mex',true,'-buffer');
-        w2y_mex(i,j)=rebin_y(w2ref(i),yint_arg{j}{:});
-        set(herbert_config,'use_mex',false,'-buffer');
         w2y(i,j)=rebin_y(w2ref(i),yint_arg{j}{:});
         w2biny(i,j)=rebin2_y(w2ref(i),yintbin_arg{j}{:});
-        delta_IX_dataset_nd(w2y_sim(i,j),w2y_mex(i,j),tol)
         delta_IX_dataset_nd(w2y_sim(i,j),w2y(i,j),tol)
         delta_IX_dataset_nd(w2y_sim(i,j),w2biny(i,j),tol)
+        if test_mex
+            hc.use_mex = true;
+            
+            w2y_mex(i,j)=rebin_y(w2ref(i),yint_arg{j}{:});
+            delta_IX_dataset_nd(w2y_sim(i,j),w2y_mex(i,j),tol)
+        end
     end
 end
 
@@ -243,17 +267,21 @@ disp('===========================')
 for j=1:numel(xyint_arg)
     disp(['=== ',num2str(j),' ==='])
     for i=1:numel(w2ref)
+        hc.use_mex = false;
         disp(['= ',num2str(i)])
-        set(herbert_config,'use_mex',false,'-buffer');
         w2xy_sim(i,j)=simple_rebin(w2ref(i),xyint_arg{j}{:});
-        set(herbert_config,'use_mex',true,'-buffer');
-        w2xy_mex(i,j)=rebin(w2ref(i),xyint_arg{j}{:});
-        set(herbert_config,'use_mex',false,'-buffer');
         w2xy(i,j)=rebin(w2ref(i),xyint_arg{j}{:});
         w2binxy(i,j)=rebin2(w2ref(i),xyintbin_arg{j}{:});
-        delta_IX_dataset_nd(w2xy_sim(i,j),w2xy_mex(i,j),tol)
         delta_IX_dataset_nd(w2xy_sim(i,j),w2xy(i,j),tol)
         delta_IX_dataset_nd(w2xy_sim(i,j),w2binxy(i,j),tol)
+        
+        if test_mex
+            hc.use_mex = true;
+            
+            w2xy_mex(i,j)=rebin(w2ref(i),xyint_arg{j}{:});
+            delta_IX_dataset_nd(w2xy_sim(i,j),w2xy_mex(i,j),tol)
+        end
+        
     end
 end
 
@@ -274,23 +302,27 @@ disp('===========================')
 
 tol=-1e-13;
 
-set(herbert_config,'use_mex',false,'-buffer');
+hc.use_mex = false;
 w3x_sim=simple_rebin_x(ppp1,[5,0.5,10]);
 w3y_sim=simple_rebin_y(ppp1,[5,0.5,10]);
 w3z_sim=simple_rebin_z(ppp1,[5,0.5,10]);
 w3xyz_sim=simple_rebin(ppp1,[9,0.6,15],[6,0.25,11],[3,0.5,5]);
 
-set(herbert_config,'use_mex',true,'-buffer');
-w3x_mex=rebin_x(ppp1,[5,0.5,10]);
-w3y_mex=rebin_y(ppp1,[5,0.5,10]);
-w3z_mex=rebin_z(ppp1,[5,0.5,10]);
-w3xyz_mex=rebin(ppp1,[9,0.6,15],[6,0.25,11],[3,0.5,5]);
-delta_IX_dataset_nd(w3x_sim,w3x_mex,tol)
-delta_IX_dataset_nd(w3y_sim,w3y_mex,tol)
-delta_IX_dataset_nd(w3z_sim,w3z_mex,tol)
-delta_IX_dataset_nd(w3xyz_sim,w3xyz_mex,tol)
+if test_mex
+    hc.use_mex = true;
+    
+    w3x_mex=rebin_x(ppp1,[5,0.5,10]);
+    w3y_mex=rebin_y(ppp1,[5,0.5,10]);
+    w3z_mex=rebin_z(ppp1,[5,0.5,10]);
+    w3xyz_mex=rebin(ppp1,[9,0.6,15],[6,0.25,11],[3,0.5,5]);
+    delta_IX_dataset_nd(w3x_sim,w3x_mex,tol)
+    delta_IX_dataset_nd(w3y_sim,w3y_mex,tol)
+    delta_IX_dataset_nd(w3z_sim,w3z_mex,tol)
+    delta_IX_dataset_nd(w3xyz_sim,w3xyz_mex,tol)
+end
 
-set(herbert_config,'use_mex',false,'-buffer');
+hc.use_mex = false;
+
 w3x=rebin_x(ppp1,[5,0.5,10]);
 w3y=rebin_y(ppp1,[5,0.5,10]);
 w3z=rebin_z(ppp1,[5,0.5,10]);
@@ -306,6 +338,7 @@ disp('Done')
 disp(' ')
 
 
+
 %% =====================================================================================================================
 % Compare with saved output
 % ======================================================================================================================
@@ -319,7 +352,11 @@ if ~save_output
     tol=-1.0e-13;
     for i=1:numel(nam)
         fld = nam{i};
-        if isstruct(old.(fld)) && isa(eval(fld),'IX_dataset_1d')
+        if ~test_mex && ~isempty(regexp(fld,'mex','ONCE'))
+            continue;
+        end
+        
+        if isstruct(old.(fld)) && isa(eval(fld),'IX_dataset_1d')            
             old.(fld) = IX_dataset_1d(old.(fld));
         end
         [ok,mess]=equal_to_tol(eval(fld),  old.(fld), tol);
