@@ -2,17 +2,20 @@ function varargout = test_tobyfit_let_resfun_1 (option)
 % Test plotting of resolution function
 %
 % Perform tests:
-%   >> test_test_tobyfit_resfun_1                % Run the tests for a visual check of output only
+%   >> test_test_tobyfit_let_resfun_1
+%               % Run the Tobyfit tests and test against stored fit
+%               % parameters in test_tobyfit_let_resfun_1_out.mat in the same
+%               % folder as this file
 %
-%   >> test_test_tobyfit_resfun_1 ('-save')      % Run the Tobyfit tests and save fit parameters
-%                                   % to file test_tobyfit_resfun_1_out.mat
-%                                   % in the temporary folder (given by tempdir)
-%                                   % Copy to the same folder as this file to use in
-%                                   % tests.
+%   >> test_test_tobyfit_let_resfun_1 ('-save')      
+%               % Run the Tobyfit tests and save fit parameters
+%               % to file test_tobyfit_resfun_1_out.mat
+%               % in the temporary folder (given by tempdir)
+%               % Copy to the same folder as this file to use in tests
 %
-%   >> test_test_tobyfit_resfun_1 ('-test')      % Run the Tobyfit tests and test against stored fit
-%                                   % parameters in test_tobyfit_resfun_1_out.mat in the same
-%                                   % folder as this file
+%   >> test_test_tobyfit_let_resfun_1 ('-notest')   
+%               % Run without testing against previously stored results.
+%               % For performing visual checks or debugging the tests!
 %
 % In all of the above, get the full output of the fits as a structure:
 %
@@ -22,13 +25,13 @@ function varargout = test_tobyfit_let_resfun_1 (option)
 %% --------------------------------------------------------------------------------------
 % Determine whether or not to save output
 save_output = false;
-test_output = false;
+test_output = true;
 
 if exist('option','var')
     if ischar(option) && isequal(lower(option),'-save')
         save_output = true;
-    elseif ischar(option) && isequal(lower(option),'-test')
-        test_output = true;
+    elseif ischar(option) && isequal(lower(option),'-notest')
+        test_output = false;
     else
         error('Invalid option')
     end
