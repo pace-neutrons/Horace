@@ -56,8 +56,18 @@ function [C, m, n] = genunique(A,varargin)
 %
 % Output:
 % -------
-%   C       Sorted struct or object array. Same shape as A
-%   ix      Index array C = A(ix)
+%   C           Sorted array of unique elements in Asorted
+%               If Asorted is a vector, C has the same orientation; if any
+%              other shape, then a column vector
+%
+%   m           Index array (column vector) such that
+%               - C=A(m)
+%               If legacy_output, m is a row vector if A is a row vector
+%
+%   n           Index array (column vector) such that
+%               - if A is a vector, A=C(n)
+%               - Other shape (including scalar, it seems), A(:)=C(n)
+%               If legacy_output, n is a row vector if A is a row vector
 
 
 if ~(isobject(A) || isstruct(A)), error('Function only sorts struct or object arrays'), end

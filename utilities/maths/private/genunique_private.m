@@ -1,9 +1,7 @@
 function [C, m, n] = genunique_private(Asorted, ix, first, legacy_output)
 % Given a sorted array and index to the original, return the output for 'unique'
 %
-%   >> [bStruct m, n] = uniqueStruct(Asorted)
-%   >> [bStruct m, n] = uniqueStruct(Asorted, occurence)
-%   >> [bStruct m, n] = uniqueStruct(...,'legacy')
+%   >> [C, m, n] = genunique_private(Asorted, ix, first, legacy_output)
 %
 % Input:
 % ------
@@ -23,10 +21,17 @@ function [C, m, n] = genunique_private(Asorted, ix, first, legacy_output)
 % Output:
 % -------
 %   C           Sorted array of unique elements in Asorted
+%               If Asorted is a vector, C has the same orientation; if any
+%              other shape, then a column vector
 %
-%   m           Index array such that C=A(m)
+%   m           Index array (column vector) such that
+%               - C=A(m)
+%               If legacy_output, m is a row vector if A is a row vector
 %
-%   n           Index array such that A=C(n)
+%   n           Index array (column vector) such that
+%               - if A is a vector, A=C(n)
+%               - Other shape (including scalar, it seems), A(:)=C(n)
+%               If legacy_output, n is a row vector if A is a row vector
 
 
 % Case of empty array - return after setting correct output

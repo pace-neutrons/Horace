@@ -1,7 +1,7 @@
-function instrument = maps_instrument_for_tests(ei,hz,chopper)
+function instrument = maps_instrument_struct_for_tests(ei,hz,chopper)
 % Return instrument description for MAPS
 %
-%   >> instrument = maps_instrument_for_tests(ei,hz,chopper)
+%   >> instrument = maps_instrument_struct_for_tests(ei,hz,chopper)
 %
 % Input:
 % ------

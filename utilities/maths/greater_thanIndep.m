@@ -1,5 +1,5 @@
 function status = greater_thanIndep (A,B)
-% Generic routine to determine if one entity is greater than another
+% Determine if one entity is greater than another comparing independent properties
 %
 %   >> status = greater_thanIndep (A,B)
 %

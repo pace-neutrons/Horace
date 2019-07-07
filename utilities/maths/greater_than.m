@@ -1,5 +1,5 @@
 function status = greater_than (A,B)
-% Generic routine to determine if one entity is greater than another
+% Determine if one entity is greater than another comparing public properties
 %
 %   >> status = greater_than (A,B)
 %
