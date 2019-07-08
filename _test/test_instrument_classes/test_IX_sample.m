@@ -31,6 +31,7 @@ classdef test_IX_sample < TestCaseWithSave
         
         %--------------------------------------------------------------------------
         function test_covariance (self)
+            s = self.slookup;
             cov = s.func_eval(2,[2,2,1,4,3],@covariance);
             assertEqualWithSave (self,cov);            
         end
@@ -49,9 +50,11 @@ classdef test_IX_sample < TestCaseWithSave
             std2 = std(samp2,1,2);
             std3 = std(samp3,1,2);
             
-            assertEqualToTol(mean2, [0;0;0], 'tol', 0.001);
-            assertEqualToTol(mean3, [0;0;0], 'tol', 0.001);
+            assertEqualToTol(mean2, [0;0;0], 'tol', 0.003);
+            assertEqualToTol(mean3, [0;0;0], 'tol', 0.01);
                         
+            assertEqualToTol(std2, self.sam1.ps'/sqrt(12), 'reltol', 0.001);
+            assertEqualToTol(std3, self.sam2.ps'/sqrt(12), 'tol', 0.01);
         end
         
         %--------------------------------------------------------------------------
