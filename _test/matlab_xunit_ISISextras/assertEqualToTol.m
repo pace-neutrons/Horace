@@ -20,9 +20,26 @@ function assertEqualToTol(A, B, varargin)
 %              see <a href="matlab:help('equal_to_tol');">equal_to_tol</a>
 
 
+in_name = cell(1,2);
+in_name{1} = inputname(1);
+in_name{2} = inputname(2);
+
+if nargin>2
+    opt = {'name_a','name_b'};
+    [keyval_list,other]=extract_keyvalues(varargin,opt);
+    if ~isempty(keyval_list)
+        ic = 1;
+        for i=1:2:numel(keyval_list)-1
+            in_name{ic} = keyval_list{i+1};
+            ic = ic+1;
+        end
+    end
+else
+    other = {};
+end
 % Perform comparison
 [ok, message] = equal_to_tol (A, B,...
-    'name_a', inputname(1), 'name_b', inputname(2), varargin{:});
+    'name_a', in_name{1}, 'name_b', in_name{2}, other{:});
 if ~ok
     throwAsCaller(MException('assertEqualToTol:tolExceeded', ...
         '%s', message));

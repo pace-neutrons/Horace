@@ -4,6 +4,9 @@ EXTERN_C mxArray* mxSerialize(mxArray const *);
 EXTERN_C mxArray* mxDeserialize(const void *, size_t);
 
 /** function provides access to internal serialize-deserialize routines 
+* Based on non-documented Matlab API function mxSerialize/mxDeserialize not available in latest Matlab 
+* versions so not compiler-able and probably fails in recent Matlab versions, which do not expose this
+* functions.
 * Usage: 
 *array = byte_stream(object,'S'); -- convert an object into byte stream array
 *obj   = byte_stream(array,'D');  -- do the opposite and convert previously obtained byte stream array into the originating object

@@ -64,7 +64,11 @@ end
 % Replace functions, clearing the parameters and free/fixed status
 % parameters where the function handle is empty
 if isfore
-    clear = ~cellfun(@(x,y)isequal(x,y),fun,Sfun.fun_(indfun));
+    if isempty(Sfun.fun_{:})
+        clear = true(size(indfun));
+    else
+        clear = ~cellfun(@(x,y)isequal(x,y),fun,Sfun.fun_(indfun));
+    end
     Sfun.fun_(indfun) = fun;
     Sfun.pin_(indfun(clear)) = mfclass_plist();
     Sfun.np_(indfun(clear)) = 0;

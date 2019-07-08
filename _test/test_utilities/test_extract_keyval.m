@@ -18,6 +18,11 @@ classdef test_extract_keyval< TestCase
             
             assertEqual({'-key1',10,'key3','bbb'},keyval_list);
             assertEqual({'-key2','xxx','aaa',100,this},other);            
+            
+            data = {'aaa','bbb'};
+            [keyval_list,other]=extract_keyvalues(data,opt);            
+            assertTrue(isempty(keyval_list));
+            assertEqual(other,data);
         end
         function test_wrong_options(this)
             data = {'-key1',10,'-key2','xxx','aaa',100,this,'key3','bbb'};
