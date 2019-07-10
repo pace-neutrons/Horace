@@ -18,32 +18,21 @@ function [ok, mess, obj] = set_fun_private_ (obj, isfore, args)
 %
 % $Revision:: 831 ($Date:: 2019-06-03 09:47:08 +0100 (Mon, 3 Jun 2019) $)
 
+
+if isfore
+    fun_type = 'fore';
+    nfun = numel(obj.fun_);
+else
+    fun_type = 'back';
+    nfun = numel(obj.bfun_);
+end
+
 % Trivial case of no input arguments; just return without doing anything
 if numel(args)==0
     ok = true;
     mess = '';
     return
 end
-
-
-arg1 = args{1};
-if iscell(arg1)
-    nfun = numel(arg1);
-elseif isa(arg1,'function_handle')
-    nfun = 1;
-else
-    error('SET_FUN:invalid_argument',...
-        'first parameter of the set_fun or set_bfun method should be function handle or cellarray of function handles');
-end
-if isfore   %fun_type = 'fore';   
-    if nfun>1
-        obj.foreground_is_local_ = true;
-    end
-% else        %fun_type = 'back';
-%      nfun = numel(obj.bfun_);
-end
-
-
 
 % % Check there is data
 % % -------------------
