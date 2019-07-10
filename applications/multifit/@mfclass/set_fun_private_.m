@@ -29,18 +29,10 @@ end
 arg1 = args{1};
 if isfore
     %fun_type = 'fore';
-    nfun = numel(obj.fun_);
-    if nfun == 1
-        if isempty(obj.fun_{1}); nfun = 0; end
-    end
-    
+    nfun = numel(obj.fun_{:});
 else
     %fun_type = 'back';
-    nfun = numel(obj.bfun_);
-    if nfun == 1
-        if isempty(obj.fun_{1}); nfun = 0; end
-    end
-    
+    nfun = numel(obj.bfun_{:});
 end
 
 if nfun == 0
