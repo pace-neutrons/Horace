@@ -17,6 +17,7 @@ classdef test_mfit_settings < TestCase
             funs = {@(x,p)(1+p*x),@(x,p)(p+x.^2)};
             par = {1,1};
             free = {1,1};            
+            mfc = mfc.set_local_foreground;
             mfc = mfc.set_fun(funs,par,free);
             assertTrue(mfc.local_foreground);
         end
