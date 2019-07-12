@@ -1,4 +1,4 @@
-classdef IX_fermi_chopper
+classdef IX_fermi_chopper_test
     % Fermi chopper class definition
     properties (Constant, Access=private)
         % Conversion constant. Should replace by a class that gives constants
@@ -57,7 +57,7 @@ classdef IX_fermi_chopper
         %------------------------------------------------------------------
         % Constructor
         %------------------------------------------------------------------
-        function obj = IX_fermi_chopper (varargin)
+        function obj = IX_fermi_chopper_test (varargin)
             % Create fermi chopper object
             %
             %   >> fermi_chopper = IX_fermi_chopper (distance,frequency,radius,curvature,slit_width)
