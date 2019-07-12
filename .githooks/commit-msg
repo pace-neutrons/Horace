@@ -71,7 +71,7 @@ msg_first() {
 	elif echo "$line" | grep "^[	 ]\|[	 ]$" >/dev/null 2>&1; then
 		die 'The first line may not have leading or trailing space:
 ['"$line"']'
-	else
+	elif test ! msg_is_merge && ! msg_is_revert; then
 		# first line okay. Check trac
 		grep -i '\(\(re\|refs\|qa\) #[0-9]\+\)\|\(no ticket\)' "$commit_msg" > /dev/null
 

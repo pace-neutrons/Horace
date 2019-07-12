@@ -40,6 +40,10 @@ classdef test_change_crystal_1a < TestCase
             else
                 test_change_crystal_1a_n_calls= test_change_crystal_1a_n_calls+1;
             end
+            hpc = hpc_config;
+            dat2recover = hpc.get_data_to_store;
+            hpc_restore = onCleanup(@()set(hpc,dat2recover));
+            hpc.build_sqw_in_parallel=0;
             % -----------------------------------------------------------------------------
             % Add common functions folder to path, and get location of common data
             cof_path= fullfile(fileparts(which('horace_init')),'_test','common_functions');
@@ -63,7 +67,7 @@ classdef test_change_crystal_1a < TestCase
             clearner = @(files,sqw_file,cl_path)(...
                 test_change_crystal_1a.change_crystal_1a_cleanup(...
                 files ,sqw_file,cl_path));
-            obj.clob = onCleanup(@()clearner(nxs_file_s,sim_sqw_file,cof_path));
+            obj.clob = {onCleanup(@()clearner(nxs_file_s,sim_sqw_file,cof_path)),hpc_restore};
             
         end
         function test_u_alighnment_tf_way(obj)
