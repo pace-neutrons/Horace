@@ -115,9 +115,6 @@ bkeep(indb)=false;
 
 % Function indicies after removal
 ifunlook = zeros(nf+nbf,1);
-if size(keep,2)> size(keep,1)
-    keep = keep';
-end
 ifunlook([keep;bkeep]) = (1:nf+nbf-numel(ind)-numel(indb))';
 ifun_new = ifunlook(ifun);
 
