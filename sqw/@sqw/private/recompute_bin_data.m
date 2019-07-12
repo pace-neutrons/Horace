@@ -5,23 +5,21 @@ function wout=recompute_bin_data(w)
 
 % See also average_bin_data, which uses en essentially the same algorithm. Any changes
 % to the one routine must be propagated to the other.
-%
-% the routine uses npix array which should be comparable with pix array (calculated for given pix array).
-% 
 
 % Original author: T.G.Perring
 %
 % $Revision:: 1751 ($Date:: 2019-06-03 09:47:49 +0100 (Mon, 3 Jun 2019) $)
 
 wout=w;
-
-
 log_level = ...
     config_store.instance().get_value('herbert_config','log_level');
 [use_mex,n_threads] = ...
     config_store.instance().get_value('hor_config','use_mex','threads');
 if use_mex
     try
+        if isempty(w.data.pix)
+            return;
+        end
         [wout.data.s,wout.data.e]=recompute_bin_data_c(w.data.npix,w.data.pix,n_threads);
     catch ME
         use_mex = false;
@@ -42,10 +40,13 @@ if ~use_mex
         npix = reshape(w.data.npix,numel(w.data.npix),1);
         allocatabable = npix(i)~=0;
         i = i(allocatabable);
-        ti = arrayfun(@(ind)({int64(ones(npix(ind),1))*ind}),i);
-        ind = cat(1,ti{:});
-        
-        clear i ti allocatable;
+        if isempty(i)
+            ind = [];
+        else
+            ti = arrayfun(@(ind)({int64(ones(npix(ind),1))*ind}),i);
+            ind = cat(1,ti{:});
+            clear i ti allocatable;
+        end
     catch ME
         switch ME.identifier
             case 'MATLAB:nomem'
@@ -73,17 +74,17 @@ if ~use_mex
     end
     %t=toc(t1)
     
-    
-    wout.data.s=accumarray(ind,w.data.pix(8,:),[nbin,1])./w.data.npix(:);
-    wout.data.s=reshape(wout.data.s,size(w.data.npix));
-    % separate into two steps to save memory
-    npix2 = (w.data.npix(:).^2);
-    wout.data.e=accumarray(ind,w.data.pix(9,:),[nbin,1])./npix2;
-    clear npix2;
-    %
-    wout.data.e=reshape(wout.data.e,size(w.data.npix));
-    nopix=(w.data.npix(:)==0);
-    wout.data.s(nopix)=0;
-    wout.data.e(nopix)=0;
-    
+    if ~isempty(ind)        
+        wout.data.s=accumarray(ind,w.data.pix(8,:),[nbin,1])./w.data.npix(:);
+        wout.data.s=reshape(wout.data.s,size(w.data.npix));
+        % separate into two steps to save memory
+        npix2 = (w.data.npix(:).^2);
+        wout.data.e=accumarray(ind,w.data.pix(9,:),[nbin,1])./npix2;
+        clear npix2;
+        %
+        wout.data.e=reshape(wout.data.e,size(w.data.npix));
+        nopix=(w.data.npix(:)==0);
+        wout.data.s(nopix)=0;
+        wout.data.e(nopix)=0;
+    end
 end
