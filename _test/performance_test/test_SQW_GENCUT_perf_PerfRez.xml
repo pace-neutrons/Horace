@@ -2007,4 +2007,23 @@
          <completed_on>[2019 7 16 12 58 0.739055]</completed_on>
       </gen_sqw_nwk16_comb_mex_code_MODE0>
    </lnxt7500_nf5>
+   <host_192_168_243_156_SQW_GENCUT_perf/>
+   <host_192_168_243_156_nf10/>
+   <host_192_168_243_156_nf50>
+      <gen_sqw_nwk0_comb_matlab>
+         <time_sec>501.751482</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2019 7 16 13 19 13.081771]</completed_on>
+      </gen_sqw_nwk0_comb_matlab>
+      <gen_sqw_nwk1_comb_matlab>
+         <time_sec>509.179147</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2019 7 16 13 27 45.616389]</completed_on>
+      </gen_sqw_nwk1_comb_matlab>
+      <gen_sqw_nwk2_comb_matlab>
+         <time_sec>469.014134</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2019 7 16 13 35 37.316824]</completed_on>
+      </gen_sqw_nwk2_comb_matlab>
+   </host_192_168_243_156_nf50>
 </SQW_GENCUT_perf>
