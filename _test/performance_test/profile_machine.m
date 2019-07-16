@@ -1,4 +1,14 @@
-function perf_graph=profile_machine
+function perf_graph=profile_machine(force_perf_recalculation)
+% measures a machine performance as function of number of parallel workers
+% or returns the performance stored for this machine earlier. 
+% if force_perf_recalculation is present, the previous perofmance results
+% are ignored and the performance is measured afresh. 
+%
+if nargin>0
+    force_perf = true;
+else
+    force_perf = false;    
+end
 
 hor_tes = test_SQW_GENCUT_perf();
 hc = hpc_config;
@@ -6,28 +16,32 @@ conf_2store = hc.get_data_to_store;
 clob = onCleanup(@()set(hc,conf_2store));
 hc.build_sqw_in_parallel = 0;
 
+% get the method used to combine partial sqw files together. Used in
+% calculating test performance name
+comb_method = hor_tes.combine_method();
+
 hor_tes.n_files_to_use=50;
 
 n_workers = [0,1,2,4,6,8,10,12,14,16];
 perf_graph = zeros(numel(n_workers),2);
-fields = {};
+
 for i=1:numel(n_workers)
-    try
-        perf_rez = hor_tes.test_gensqw_performance(n_workers(i),'gen_sqw');
-    catch
-        perf_graph = perf_graph(1:i-1,:);
-        plot(perf_graph(:,1),perf_graph(:,2));        
-        return
+    nwk = num2str(n_workers(i));
+    test_name = sprintf('gen_sqw_nwk%s_comb_%s',nwk,comb_method);
+    per = hor_tes.knownPerformance(test_name);
+    if isempty(per) || force_perf
+        try
+            perf_rez = hor_tes.test_gensqw_performance(n_workers(i),'gen_sqw');
+        catch
+            perf_graph = perf_graph(1:i-1,:);
+            plot(perf_graph(:,1),perf_graph(:,2));
+            return
+        end
+        per = perf_rez.(test_name);        
     end
-    fn = fieldnames(perf_rez);
-    new = ~ismember(fn,fields);
+    
     perf_graph(i,1) = n_workers(i);
-    new_res = find(new,1);
-    if isempty(new_res)
-        new_res = numel(fn);
-    end
-    per = perf_rez.(fn{new_res});
     perf_graph(i,2) = per.time_sec;
-    fields = fn;
+
 end
 plot(perf_graph(:,1),perf_graph(:,2));
