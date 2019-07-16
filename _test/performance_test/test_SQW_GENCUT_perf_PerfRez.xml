@@ -1887,6 +1887,11 @@
          <comment>performance of the tmp-files combine procedure</comment>
          <completed_on>[2019 5 22 14 3 44.446144]</completed_on>
       </combine_tmp_using_mex_code_MODE0>
+      <gen_sqw_nwk0_comb_mex_code_MODE0>
+         <time_sec>803.73952</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2019 7 16 14 25 8.794333]</completed_on>
+      </gen_sqw_nwk0_comb_mex_code_MODE0>
    </lnxt7500_nf50>
    <lnxt7500_nf250>
       <gen_sqw_nwk2_comb_mex_code_MODE0>
