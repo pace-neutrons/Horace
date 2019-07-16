@@ -375,17 +375,22 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             % workers remains unchanged
             %
             hc = hpc_config;
+            bsp = hc.build_sqw_in_parallel;            
             if n_workers == 0 % keep existing number of workers unchanged
-                clob = onCleanup(@()(0));
-                nwkc = num2str(hc.parallel_workers_number);
+                clob = onCleanup(@()(0));                
+                if bsp
+                    nwkc = num2str(hc.parallel_workers_number);
+                else
+                    nwkc = '0';
+                end
                 return;
             else
                 nwkc = num2str(n_workers);
             end
-            as = hc.build_sqw_in_parallel;
+
             an = hc.parallel_workers_number;
-            if as && an > 1
-                clob = onCleanup(@()set(hc,'build_sqw_in_parallel',as,'parallel_workers_number',an));
+            if bsp && an > 1
+                clob = onCleanup(@()set(hc,'build_sqw_in_parallel',bsp,'parallel_workers_number',an));
             else
                 clob = onCleanup(@()(an));
             end
