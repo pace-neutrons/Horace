@@ -208,7 +208,7 @@ classdef test_multifit_1< TestCaseWithSave
             [ww_fobjcellarr_f,pp_fobjcellarr,ok,mess] = mftest_mf_and_f_multiple_datasets(ww_objcellarr, @mftest_gauss_bkgd, this.pin);
             if ~ok, assertTrue(false,['Unexpected failure ',mess]), end
             % Test against saved or store to save later
-            %this.ref_data.ww_fobjcellarr_f = cellfun(@IX_dataset_1d,this.ref_data.ww_fobjcellarr_f,'UniformOutput',false);
+            this.ref_data.ww_fobjcellarr_f = cellfun(@IX_dataset_1d,this.ref_data.ww_fobjcellarr_f,'UniformOutput',false);
             this=save_or_test_variables(this,ww_fobjcellarr_f,pp_fobjcellarr);
             
             

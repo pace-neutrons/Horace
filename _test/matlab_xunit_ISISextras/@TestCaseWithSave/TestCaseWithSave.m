@@ -507,12 +507,8 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             %              see <a href="matlab:help('equal_to_tol');">equal_to_tol</a>
             
             var_name = inputname(2);
-            try
-                assertMethodWithSave (this, var, var_name, @assertEqualToTol, varargin{:},...
-                    'name_a',var_name);
-            catch ME
-                throwAsCaller (ME)
-            end
+            assertMethodWithSave (this, var, var_name, @assertEqualToTol, varargin{:},...
+                'name_a',var_name,'name_b',[var_name,'_stored']);
         end
         
         function delete (this)
