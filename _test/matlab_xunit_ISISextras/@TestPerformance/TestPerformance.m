@@ -145,6 +145,36 @@ classdef TestPerformance < TestCaseWithSave
             obj.perf_suite_name = obj.build_test_suite_name(name);
         end
         %
+        function perf = knownPerformance(obj,pert_test_name,varargin)
+            % method return the known performance structure for given test name if
+            % such performance is known, or empty string if the performance has not
+            % been measured;
+            % Inputs:
+            % pert_test_name -- the name of the test to check results for
+            % Optional:
+            % suite_name     -- the name of the machine to check the
+            %                   results for
+            % Returns:
+            % per            -- structure, describing performance results
+            %                   if such result exist or empty array if they
+            %                   are not.
+            %
+            if nargin > 2
+                suite_name = varargin{1};
+            else
+                suite_name        = obj.perf_suite_name;
+            end
+            if isfield(obj.perf_data_,suite_name)
+                this_pc_perf_data = obj.perf_data_.(suite_name);
+                if isfield(this_pc_perf_data,pert_test_name)
+                    perf = this_pc_perf_data.(pert_test_name);
+                else
+                    perf = [];
+                end
+            else
+                perf = [];
+            end
+        end
         %
         function this_pc_perf_data = assertPerformance(obj,start_time,...
                 test_method_name,comments,force_save)
