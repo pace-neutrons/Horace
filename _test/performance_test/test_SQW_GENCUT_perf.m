@@ -159,21 +159,28 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             % method may test combine operations only.
             %
             % Usage:
-            % tob.combine_performance_test([n_workers])
-            % where n_workers, if present, specify the number of parallel
-            % workers to run the test routines with.
+            % tob.combine_performance_test([n_workers],[addinfo],['-keep_tmp'])
+            % where:
+            % n_workers, if present, specify the number of parallel
+            %            workers to run the test routines with.
+            % addinfo   if prsent n_workers have to be present too. (set it
+            %            to 0
             %
             % As this test method violates unit test agreement, demanding
             % test method independence on each other, it does not start
             % from the name test to avoid running it by automated test
             % suites.
-            if nargin == 1
+            [ok,mess,keep_tmp,argi] = parse_char_options(varargin,{'-keep_tmp'});
+            if ~ok
+                error('test_SQW_GENCUT:invalid_argument',mess);
+            end
+            if numel(argi) >= 0
                 n_workers = 0;
             else
-                n_workers = varargin{1};
+                n_workers = argi{1};
             end
-            if nargin==3
-                addinfo = varargin{2};
+            if numel(argi)>1
+                addinfo = argi{2};
             else
                 addinfo = '';
             end
@@ -230,7 +237,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             % before the end of the test
             assertTrue(isa(clob_wk,'onCleanup'))
             
-            if ~isempty(addinfo)
+            if ~keep_tmp
                 obj.delete_files(tmp_files);
             end
             
