@@ -131,7 +131,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             fb = 'GenSQW_perfTest';
             obj.sqw_file = sprintf('%s_%dFiles.sqw',fb,obj.n_files_to_use_);
         end
-        function method = combine_method(obj)
+        function method = combine_method(obj,add_info)
             % method returns name and parameters of a combine method used
             % during sqw file generation.
             hpc = hpc_config;
@@ -144,6 +144,9 @@ classdef test_SQW_GENCUT_perf < TestPerformance
                 method = sprintf('%s_nwk%d',method,pwn);
             else
                 method = sprintf('%s',method);
+            end
+            if exist('add_info','var')
+                method  = [method,add_info];
             end
             
         end
@@ -168,6 +171,11 @@ classdef test_SQW_GENCUT_perf < TestPerformance
                 n_workers = 0;
             else
                 n_workers = varargin{1};
+            end
+            if nargin==3
+                addinfo = varargin{2};
+            else
+                addinfo = '';
             end
             [clob_wk,hpc] = check_and_set_workers_(obj,n_workers);
             
@@ -205,21 +213,26 @@ classdef test_SQW_GENCUT_perf < TestPerformance
                     'replicate','tmp_only');
             end
             
-            combine_method = obj.combine_method();
+            combine_method = obj.combine_method(addinfo);
             
             obj.add_to_files_cleanList(obj.sqw_file)
+            test_name = ['combine_tmp_using_',combine_method];            
+            
             ts = tic();
             write_nsqw_to_sqw(tmp_files,obj.sqw_file);
             %
+
             perf_val=obj.assertPerformance(ts,...
-                ['combine_tmp_using_',combine_method],...
+                test_name,...
                 'performance of the tmp-files combine procedure');
             
             % spurious check to ensure the cleanup object is not deleted
             % before the end of the test
             assertTrue(isa(clob_wk,'onCleanup'))
             
-            obj.delete_files(tmp_files);
+            if ~isempty(addinfo)
+                obj.delete_files(tmp_files);
+            end
             
         end
         %------------------------------------------------------------------
