@@ -2298,7 +2298,7 @@
          <completed_on>[2019 7 17 16 4 47.558328]</completed_on>
       </combine_tmp_using_mex_code_MODE1_buf65536>
    </ndmlnx01_nf50>
-  <host_192_168_243_156_SQW_GENCUT_perf/>
+   <host_192_168_243_156_SQW_GENCUT_perf/>
    <host_192_168_243_156_nf10/>
    <host_192_168_243_156_nf50>
       <gen_sqw_nwk0_comb_matlab>
@@ -2387,7 +2387,7 @@
          <completed_on>[2019 7 17 14 39 37.96956]</completed_on>
       </combine_tmp_using_mex_code_MODE1_buf65536>
    </host_192_168_243_156_nf50>
-  <ndw1676_parpool_nf5>
+   <ndw1676_parpool_nf5>
       <gen_sqw_nwk0_comb_mpi_code_nwk2>
          <time_sec>183.042053073319</time_sec>
          <comment>whole sqw file generation</comment>
@@ -2574,5 +2574,10 @@
          <comment>performance of the tmp-files combine procedure</comment>
          <completed_on>[2019 7 17 17 24 44.871803]</completed_on>
       </combine_tmp_using_mex_code_MODE1_buf65536>
+      <combine_tmp_using_mex_code_MODE0_buf65536>
+         <time_sec>491.367185</time_sec>
+         <comment>performance of the tmp-files combine procedure</comment>
+         <completed_on>[2019 7 17 17 53 51.144917]</completed_on>
+      </combine_tmp_using_mex_code_MODE0_buf65536>
    </host_192_168_243_32_nf50>
 </SQW_GENCUT_perf>
