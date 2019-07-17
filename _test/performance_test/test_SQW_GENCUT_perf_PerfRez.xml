@@ -2471,4 +2471,108 @@
          <completed_on>[2019 7 17 13 41 53.906]</completed_on>
       </gen_sqw_nwk16_comb_mex_code_MODE0>
    </ndw1676_nf5>
+   <host_192_168_243_32_SQW_GENCUT_perf/>
+   <host_192_168_243_32_nf10/>
+   <host_192_168_243_32_nf50>
+      <gen_sqw_nwk0_comb_mex_code_MODE1>
+         <time_sec>397.839884</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2019 7 17 15 1 3.536435]</completed_on>
+      </gen_sqw_nwk0_comb_mex_code_MODE1>
+      <gen_sqw_nwk1_comb_mex_code_MODE1>
+         <time_sec>642.27853</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2019 7 17 15 12 5.353401]</completed_on>
+      </gen_sqw_nwk1_comb_mex_code_MODE1>
+      <gen_sqw_nwk2_comb_mex_code_MODE1>
+         <time_sec>551.121593</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2019 7 17 15 21 31.242327]</completed_on>
+      </gen_sqw_nwk2_comb_mex_code_MODE1>
+      <gen_sqw_nwk3_comb_mex_code_MODE1>
+         <time_sec>753.080147</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2019 7 17 15 34 9.188083]</completed_on>
+      </gen_sqw_nwk3_comb_mex_code_MODE1>
+      <gen_sqw_nwk4_comb_mex_code_MODE1>
+         <time_sec>519.272428</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2019 7 17 15 42 53.501367]</completed_on>
+      </gen_sqw_nwk4_comb_mex_code_MODE1>
+      <gen_sqw_nwk6_comb_mex_code_MODE1>
+         <time_sec>430.692</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2019 7 17 15 50 10.423635]</completed_on>
+      </gen_sqw_nwk6_comb_mex_code_MODE1>
+      <gen_sqw_nwk8_comb_mex_code_MODE1>
+         <time_sec>454.114802</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2019 7 17 15 57 50.255915]</completed_on>
+      </gen_sqw_nwk8_comb_mex_code_MODE1>
+      <gen_sqw_nwk10_comb_mex_code_MODE1>
+         <time_sec>643.156681</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2019 7 17 16 8 39.759653]</completed_on>
+      </gen_sqw_nwk10_comb_mex_code_MODE1>
+      <gen_sqw_nwk12_comb_mex_code_MODE1>
+         <time_sec>529.363347</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2019 7 17 16 17 34.752542]</completed_on>
+      </gen_sqw_nwk12_comb_mex_code_MODE1>
+      <gen_sqw_nwk14_comb_mex_code_MODE1>
+         <time_sec>928.19213</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2019 7 17 16 33 24.45706]</completed_on>
+      </gen_sqw_nwk14_comb_mex_code_MODE1>
+      <gen_sqw_nwk16_comb_mex_code_MODE1>
+         <time_sec>658.869942</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2019 7 17 16 44 54.551266]</completed_on>
+      </gen_sqw_nwk16_comb_mex_code_MODE1>
+      <combine_tmp_using_matlab>
+         <time_sec>294.377405</time_sec>
+         <comment>performance of the tmp-files combine procedure</comment>
+         <completed_on>[2019 7 17 16 50 12.258303]</completed_on>
+      </combine_tmp_using_matlab>
+      <combine_tmp_using_mex_code_MODE0_buf0>
+         <time_sec>95.707908</time_sec>
+         <comment>performance of the tmp-files combine procedure</comment>
+         <completed_on>[2019 7 17 16 51 50.666766]</completed_on>
+      </combine_tmp_using_mex_code_MODE0_buf0>
+      <combine_tmp_using_mex_code_MODE1_buf1024>
+         <time_sec>257.895869</time_sec>
+         <comment>performance of the tmp-files combine procedure</comment>
+         <completed_on>[2019 7 17 16 56 11.088262]</completed_on>
+      </combine_tmp_using_mex_code_MODE1_buf1024>
+      <combine_tmp_using_mex_code_MODE1_buf2048>
+         <time_sec>199.941027</time_sec>
+         <comment>performance of the tmp-files combine procedure</comment>
+         <completed_on>[2019 7 17 16 59 33.509749]</completed_on>
+      </combine_tmp_using_mex_code_MODE1_buf2048>
+      <combine_tmp_using_mex_code_MODE1_buf4096>
+         <time_sec>143.617905</time_sec>
+         <comment>performance of the tmp-files combine procedure</comment>
+         <completed_on>[2019 7 17 17 1 59.710466]</completed_on>
+      </combine_tmp_using_mex_code_MODE1_buf4096>
+      <combine_tmp_using_mex_code_MODE1_buf8192>
+         <time_sec>370.344874</time_sec>
+         <comment>performance of the tmp-files combine procedure</comment>
+         <completed_on>[2019 7 17 17 8 16.892882]</completed_on>
+      </combine_tmp_using_mex_code_MODE1_buf8192>
+      <combine_tmp_using_mex_code_MODE1_buf16384>
+         <time_sec>296.807564</time_sec>
+         <comment>performance of the tmp-files combine procedure</comment>
+         <completed_on>[2019 7 17 17 13 17.669436]</completed_on>
+      </combine_tmp_using_mex_code_MODE1_buf16384>
+      <combine_tmp_using_mex_code_MODE1_buf32768>
+         <time_sec>177.122027</time_sec>
+         <comment>performance of the tmp-files combine procedure</comment>
+         <completed_on>[2019 7 17 17 16 16.442419]</completed_on>
+      </combine_tmp_using_mex_code_MODE1_buf32768>
+      <combine_tmp_using_mex_code_MODE1_buf65536>
+         <time_sec>504.278019</time_sec>
+         <comment>performance of the tmp-files combine procedure</comment>
+         <completed_on>[2019 7 17 17 24 44.871803]</completed_on>
+      </combine_tmp_using_mex_code_MODE1_buf65536>
+   </host_192_168_243_32_nf50>
 </SQW_GENCUT_perf>
