@@ -52,26 +52,37 @@ for i=1:numel(n_workers)
 end
 plot(perf_graph(:,1),perf_graph(:,2));
 
-buf_val = [-1,1024,2048,4*1024,8*1024,16*1024,32*1024,64*1024];
+buf_val = [-1,0,1024,2048,4*1024,8*1024,16*1024,32*1024,64*1024];
 comb_perf = zeros(numel(buf_val),2);
 hpcc.mex_combine_thread_mode = 0;
-for i=1:numel(buf_val)
+keep_tmp = '-keep';
+n_buf = numel(buf_val);
+for i=1:n_buf
     buf = buf_val(i);
     if buf <0
         hpcc.mex_combine_thread_mode = 0;
         hpcc.combine_sqw_using = 'matlab';
         addinfo = '';
+    elseif buf == 0
+        hpcc.mex_combine_thread_mode = 0;
+        hpcc.combine_sqw_using = 'mex_code';
+        hpcc.mex_combine_buffer_size = 64*1024;
+        addinfo = sprintf('_buf%d',buf);
     else
-        hpcc.mex_combine_thread_mode = 1;        
+        hpcc.mex_combine_thread_mode = 1;
         hpcc.mex_combine_buffer_size = buf;
-        addinfo = sprinft('_buf%d',buf);
+        addinfo = sprintf('_buf%d',buf);
     end
-    combine_method = hor_test.combine_method(addinfo);
-    test_name = ['combine_tmp_using_',combine_method];                
+    if i== n_buf
+        keep_tmp = '';
+    end
+    
+    combine_method = hor_tes.combine_method(addinfo);
+    test_name = ['combine_tmp_using_',combine_method];
     per = hor_tes.knownPerformance(test_name);
     if isempty(per) || force_perf
         try
-            perf_rez = hor_tes.combine_performance_test(0,addinfo);
+            perf_rez = hor_tes.combine_performance_test(0,addinfo,keep_tmp);
         catch
             comb_perf = comb_perf(1:i-1,:);
             plot(comb_perf(:,1),comb_perf(:,2));
@@ -79,10 +90,12 @@ for i=1:numel(buf_val)
         end
         
         per = perf_rez.(test_name);
-        comb_perf(i,1) = buf;
-        comb_perf(i,2) = per.time_sec;
+    end
+    comb_perf(i,1) = buf;
+    comb_perf(i,2) = per.time_sec;
         
-    end   
 end
+figure
+plot(comb_perf(:,1),comb_perf(:,2),'o');
 
 

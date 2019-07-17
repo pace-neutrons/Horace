@@ -2051,5 +2051,55 @@
          <comment>whole sqw file generation</comment>
          <completed_on>[2019 7 16 12 58 0.739055]</completed_on>
       </gen_sqw_nwk16_comb_mex_code_MODE0>
+      <combine_tmp_using_matlab>
+         <time_sec>29.143289</time_sec>
+         <comment>performance of the tmp-files combine procedure</comment>
+         <completed_on>[2019 7 17 13 41 39.937883]</completed_on>
+      </combine_tmp_using_matlab>
+      <combine_tmp_using_mex_code_MODE0>
+         <time_sec>7.901716</time_sec>
+         <comment>performance of the tmp-files combine procedure</comment>
+         <completed_on>[2019 7 17 13 43 29.21725]</completed_on>
+      </combine_tmp_using_mex_code_MODE0>
+      <combine_tmp_using_mex_code_MODE0_buf0>
+         <time_sec>5.287909</time_sec>
+         <comment>performance of the tmp-files combine procedure</comment>
+         <completed_on>[2019 7 17 13 44 34.657423]</completed_on>
+      </combine_tmp_using_mex_code_MODE0_buf0>
+      <combine_tmp_using_mex_code_MODE1_buf1024>
+         <time_sec>10.951501</time_sec>
+         <comment>performance of the tmp-files combine procedure</comment>
+         <completed_on>[2019 7 17 13 45 5.772702]</completed_on>
+      </combine_tmp_using_mex_code_MODE1_buf1024>
+      <combine_tmp_using_mex_code_MODE1_buf2048>
+         <time_sec>5.626505</time_sec>
+         <comment>performance of the tmp-files combine procedure</comment>
+         <completed_on>[2019 7 17 13 45 16.487014]</completed_on>
+      </combine_tmp_using_mex_code_MODE1_buf2048>
+      <combine_tmp_using_mex_code_MODE1_buf4096>
+         <time_sec>5.584067</time_sec>
+         <comment>performance of the tmp-files combine procedure</comment>
+         <completed_on>[2019 7 17 13 45 22.938375]</completed_on>
+      </combine_tmp_using_mex_code_MODE1_buf4096>
+      <combine_tmp_using_mex_code_MODE1_buf8192>
+         <time_sec>5.579993</time_sec>
+         <comment>performance of the tmp-files combine procedure</comment>
+         <completed_on>[2019 7 17 13 45 29.35584]</completed_on>
+      </combine_tmp_using_mex_code_MODE1_buf8192>
+      <combine_tmp_using_mex_code_MODE1_buf16384>
+         <time_sec>5.618698</time_sec>
+         <comment>performance of the tmp-files combine procedure</comment>
+         <completed_on>[2019 7 17 13 45 35.803233]</completed_on>
+      </combine_tmp_using_mex_code_MODE1_buf16384>
+      <combine_tmp_using_mex_code_MODE1_buf32768>
+         <time_sec>5.631005</time_sec>
+         <comment>performance of the tmp-files combine procedure</comment>
+         <completed_on>[2019 7 17 13 45 42.264742]</completed_on>
+      </combine_tmp_using_mex_code_MODE1_buf32768>
+      <combine_tmp_using_mex_code_MODE1_buf65536>
+         <time_sec>5.672947</time_sec>
+         <comment>performance of the tmp-files combine procedure</comment>
+         <completed_on>[2019 7 17 13 45 48.772495]</completed_on>
+      </combine_tmp_using_mex_code_MODE1_buf65536>
    </lnxt7500_nf5>
 </SQW_GENCUT_perf>
