@@ -1,20 +1,26 @@
 function perf_graph=profile_machine(force_perf_recalculation)
 % measures a machine performance as function of number of parallel workers
-% or returns the performance stored for this machine earlier. 
+% or returns the performance stored for this machine earlier.
 % if force_perf_recalculation is present, the previous perofmance results
-% are ignored and the performance is measured afresh. 
+% are ignored and the performance is measured afresh.
 %
 if nargin>0
     force_perf = true;
 else
-    force_perf = false;    
+    force_perf = false;
 end
 
 hor_tes = test_SQW_GENCUT_perf();
 hc = hpc_config;
 conf_2store = hc.get_data_to_store;
 clob = onCleanup(@()set(hc,conf_2store));
+hc.saveable = false;
 hc.build_sqw_in_parallel = 0;
+
+hrc = hor_config;
+hrc.saveable = false;
+hrc.delete_tmp = false;
+clob1 = onCleanup(@()set(hrc,'delete_tmp',true));
 
 % get the method used to combine partial sqw files together. Used in
 % calculating test performance name
@@ -37,11 +43,11 @@ for i=1:numel(n_workers)
             plot(perf_graph(:,1),perf_graph(:,2));
             return
         end
-        per = perf_rez.(test_name);        
+        per = perf_rez.(test_name);
     end
     
     perf_graph(i,1) = n_workers(i);
     perf_graph(i,2) = per.time_sec;
-
+    
 end
 plot(perf_graph(:,1),perf_graph(:,2));
