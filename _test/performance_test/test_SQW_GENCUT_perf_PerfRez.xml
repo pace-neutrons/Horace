@@ -2030,5 +2030,30 @@
          <comment>whole sqw file generation</comment>
          <completed_on>[2019 7 16 13 35 37.316824]</completed_on>
       </gen_sqw_nwk2_comb_matlab>
+      <gen_sqw_nwk0_comb_mex_code_MODE1>
+         <time_sec>474.485073</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2019 7 17 10 44 48.483544]</completed_on>
+      </gen_sqw_nwk0_comb_mex_code_MODE1>
+      <gen_sqw_nwk1_comb_mex_code_MODE1>
+         <time_sec>507.305083</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2019 7 17 11 56 55.070455]</completed_on>
+      </gen_sqw_nwk1_comb_mex_code_MODE1>
+      <gen_sqw_nwk2_comb_mex_code_MODE1>
+         <time_sec>416.322954</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2019 7 17 12 3 56.543698]</completed_on>
+      </gen_sqw_nwk2_comb_mex_code_MODE1>
+      <gen_sqw_nwk4_comb_mex_code_MODE1>
+         <time_sec>386.817107</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2019 7 16 15 35 23.180427]</completed_on>
+      </gen_sqw_nwk4_comb_mex_code_MODE1>
+      <gen_sqw_nwk3_comb_mex_code_MODE1>
+         <time_sec>420.714787</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2019 7 17 12 10 58.215468]</completed_on>
+      </gen_sqw_nwk3_comb_mex_code_MODE1>
    </host_192_168_243_156_nf50>
 </SQW_GENCUT_perf>
