@@ -26,7 +26,7 @@ clob1 = onCleanup(@()set(hrc,'delete_tmp',true));
 % calculating test performance name
 comb_method = hor_tes.combine_method();
 
-hor_tes.n_files_to_use=5;
+hor_tes.n_files_to_use=50;
 
 n_workers = [0,1,2,4,6,8,10,12,14,16];
 perf_graph = zeros(numel(n_workers),2);
@@ -40,7 +40,7 @@ for i=1:numel(n_workers)
             perf_rez = hor_tes.test_gensqw_performance(n_workers(i),'gen_sqw');
         catch
             perf_graph = perf_graph(1:i-1,:);
-            plot(perf_graph(:,1),perf_graph(:,2));
+            plot(perf_graph(:,1),perf_graph(:,2),'o-');
             return
         end
         per = perf_rez.(test_name);
@@ -50,7 +50,8 @@ for i=1:numel(n_workers)
     perf_graph(i,2) = per.time_sec;
     
 end
-plot(perf_graph(:,1),perf_graph(:,2));
+figure;
+plot(perf_graph(:,1),perf_graph(:,2),'o-');
 
 buf_val = [-1,0,1024,2048,4*1024,8*1024,16*1024,32*1024,64*1024];
 comb_perf = zeros(numel(buf_val),2);
@@ -85,7 +86,7 @@ for i=1:n_buf
             perf_rez = hor_tes.combine_performance_test(0,addinfo,keep_tmp);
         catch
             comb_perf = comb_perf(1:i-1,:);
-            plot(comb_perf(:,1),comb_perf(:,2));
+            plot(comb_perf(:,1),comb_perf(:,2),'o-');
             return
         end
         
@@ -96,6 +97,6 @@ for i=1:n_buf
         
 end
 figure
-plot(comb_perf(:,1),comb_perf(:,2),'o');
+plot(comb_perf(:,1),comb_perf(:,2),'o-');
 
 
