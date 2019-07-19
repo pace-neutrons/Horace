@@ -51,18 +51,7 @@ addgenpath_message (rootpath,'applications')
 % Put mex files on path
 addgenpath_message (rootpath,'DLL')
 
-% set up path to unit tests if necessary (TODO -- investigate why
-% herbert_config constructor does not do it implicitly)
-hc = herbert_config;
-if hc.is_default % force saving default configuration if it has never been saved to hdd
-    instance = config_store.instance();
-    instance.store_config(hc,'-forcesave');
-end
-phc = parallel_config;
-if phc.is_default
-    instance = config_store.instance();
-    instance.store_config(phc,'-forcesave');
-end
+%
 if hc.init_tests
     % set unit tests to the Matlab search path, to overwrite the unit tests
     % routines, added to Matlab after Matlab 2017b, as new routines have
