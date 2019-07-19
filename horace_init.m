@@ -63,17 +63,29 @@ set_global_var('horace_plot',horace_plot);
 [~,Matlab_code,mexMinVer,mexMaxVer,date] = horace_version();
 mc = [Matlab_code(1:48),'$)'];
 hc = hor_config;
-
+check_mex = false;
 if hc.is_default
+	check_mex = true;
+end
+hpcc = hpc_config;
+parc = parallel_config;
+if hc.is_default ||hpcc.is_default || parc.is_default
+    % load and apply configuration, assumed to be optimal for this kind of the machine.
+	warning('Found Herbert and Horace are not fully configured. Setting up the configuration, assumed to be optimal for this type of the machine. Please, check to ensure this configuration is correct.')
+	conf_c = opt_config_manager();
+	conf_c.load_configuration('-set_config','-change_only_default');
+end
+
+if check_mex
     if isempty(mexMaxVer)
         hc.use_mex = false;
     else
         hc.use_mex = true;
-    end
-%    % force saving default configuration if it has never been saved to hdd
-%    % to avoid repetitive messages about default configuration
-%    config_store.instance().store_config(hc,'-forcesave');
+    end	
 end
+
+
+
 hec = herbert_config;
 if hec.init_tests % install githooks for users who may run unit tests 
     % (and push to git repository)
