@@ -149,8 +149,8 @@ classdef TestSuite < TestComponent
                 if strcmp(self.TestComponents{k}.Name, name)
                     idx = k;
                     break;
-                % ==========================================================
-                % *** Added T.G.Perring 24/11/2017 *************************
+                    % ==========================================================
+                    % *** Added T.G.Perring 24/11/2017 *************************
                 else
                     % Need to filter testCase_child::Name if xunit class style
                     % at least in R2014a to R2016a
@@ -159,8 +159,8 @@ classdef TestSuite < TestComponent
                         idx = k;
                         break;
                     end
-                % *** Added T.G.Perring 24/11/2017 *************************
-                % ==========================================================
+                    % *** Added T.G.Perring 24/11/2017 *************************
+                    % ==========================================================
                 end
             end
             if isempty(idx)
@@ -169,7 +169,7 @@ classdef TestSuite < TestComponent
                 self.TestComponents = self.TestComponents(idx);
             end
         end
-       
+        
         function delete(self)
             if ~self.TestCaseClasses.isempty()
                 keys = self.TestCaseClasses.keys();
@@ -229,8 +229,8 @@ classdef TestSuite < TestComponent
             %   directory, a TestCase subclass, or an M-file containing a simple
             %   test or containing subfunction-based tests.
             %
-            %   Optionally, name can contain a colon (':')  or '::' followed 
-            %   by filter string.  The filter string is used to select a 
+            %   Optionally, name can contain a colon (':')  or '::' followed
+            %   by filter string.  The filter string is used to select a
             %   particular named test case.  For example, TestSuite.fromName('MyTests:testA')
             %   constructs a TestSuite object containing only the test case
             %   named 'testA' found in the TestCase subclass MyTests.
