@@ -12,12 +12,17 @@ else
     data_struct = struct();
 end
 
+this_pc_type = obj.this_pc_type;
 % create structure describing this pc configuration and set-up info field
 % as the first field in the structure.
 if exist('info','var')
     this_pc_config = struct('info',info);
 else
     this_pc_config = struct('info','');
+    if isfield(data_struct,this_pc_type)
+        source = data_struct.(this_pc_type);
+        this_pc_config.info = source.info;
+    end
 end
 % Retrieve all known configurations and fill-in structure, containing this
 % configurations with the name of the configuration files as the fieldnames
@@ -28,7 +33,7 @@ for i=1:n_configs
     cfg = feval(config_name());
     this_pc_config.(config_name) = cfg.get_data_to_store();
 end
-this_pc_type = obj.this_pc_type;
+
 
 % set up the configuration for this pc as the field of the whole
 % configuration structure.

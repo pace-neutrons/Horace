@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data_struct>
+   <win_small>
+      <info>Typical configuration for Winows small machine assumes no MPI settings and use OMP if possible</info>
+      <herbert_config>
+         <use_mex>[true]</use_mex>
+         <use_mex_C>[true]</use_mex_C>
+         <force_mex_if_use_mex>[false]</force_mex_if_use_mex>
+         <log_level>1</log_level>
+         <init_tests>[false]</init_tests>
+      </herbert_config>
+      <hor_config>
+         <mem_chunk_size>5000000</mem_chunk_size>
+         <threads>8</threads>
+         <ignore_nan>[true]</ignore_nan>
+         <ignore_inf>[false]</ignore_inf>
+         <use_mex>[true]</use_mex>
+         <delete_tmp>[true]</delete_tmp>
+      </hor_config>
+      <hpc_config>
+         <build_sqw_in_parallel>[false]</build_sqw_in_parallel>
+         <parallel_workers_number>2</parallel_workers_number>
+         <combine_sqw_using>mex_code</combine_sqw_using>
+         <mex_combine_thread_mode>0</mex_combine_thread_mode>
+         <mex_combine_buffer_size>65536</mex_combine_buffer_size>
+      </hpc_config>
+      <parallel_config>
+         <parallel_framework>herbert</parallel_framework>
+         <shared_folder_on_local/>
+         <shared_folder_on_remote/>
+         <working_directory/>
+      </parallel_config>
+   </win_small>
+</data_struct>

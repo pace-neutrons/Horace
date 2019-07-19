@@ -69,6 +69,7 @@ classdef opt_config_manager
         function pc_type = get.this_pc_type(obj)
             pc_type = obj.this_pc_type_;
         end
+        %
         function obj = set.this_pc_type(obj,val)
             % explisitly setting pc type for testing purposes.
             % the type can be set by name (from the list of the names
@@ -99,6 +100,7 @@ classdef opt_config_manager
             end
             obj.this_pc_type_ = pc_type;
         end
+        %
         function num = get.pc_config_num(obj)
             % return the number of the
             cur_type = obj.this_pc_type;
