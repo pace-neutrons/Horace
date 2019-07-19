@@ -14,6 +14,9 @@ classdef opt_config_manager
         config_info_folder;
         % the name of the file, containing the configuration
         config_filename;
+        % The convenience method, defining the number of the current pc
+        % configuration in the list of all configurations
+        pc_config_num
     end
     
     
@@ -21,7 +24,7 @@ classdef opt_config_manager
         test_mode_ = false;
         config_info_folder_;
         this_pc_type_;
-        config_filename_  = 'OptimalConfig.xml'
+        config_filename_  = 'OptimalConfigInfo.xml'
         current_config_ = [];
     end
     properties(Constant,Access=private)
@@ -29,29 +32,48 @@ classdef opt_config_manager
         % should be stored
         known_configs_ = {'herbert_config','hor_config','hpc_config','parallel_config'}
         % different pc types, one may optimize Horace/Herbert for. The
-        % order of the types is harwritten in the find_pc_type_ function,
-        % so should not be changed without changning find_pc_type_.
+        % order of the types is harwritten in the find_comp_type function,
+        % so should not be changed without changning find_comp_type.
         known_pc_types_ = {'win_small','win_large','a_mac',...
             'unix_small','unix_large',...
             'idaaas_small','idaaas_large'};
-        
+        % amount of memory (in Gb) pesumed to be necessary for a single
+        % parallel worker.
+        mem_size_per_worker_ = 16;
     end
     
     methods
         function obj = opt_config_manager()
             %
             obj.config_info_folder_ = fileparts(mfilename('fullpath'));
-            obj.this_pc_type_ = find_pc_type(obj);
+            obj.this_pc_type_ = opt_config_manager.find_comp_type();
             
         end
         function types = get_known_pc_types(obj)
             types = obj.known_pc_types_;
         end
+        function fn = get.config_filename(obj)
+            fn = obj.config_filename_;
+        end
+        %
+        function fldr=get.config_info_folder(obj)
+            fldr = obj.config_info_folder_;
+        end
+        function obj=set.config_info_folder(obj,val)
+            % set folder containign config information.
+            %
+            % should be used for testing purposes only.
+            obj.config_info_folder_ = val;
+        end
+        %
         function pc_type = get.this_pc_type(obj)
             pc_type = obj.this_pc_type_;
         end
         function obj = set.this_pc_type(obj,val)
             % explisitly setting pc type for testing purposes.
+            % the type can be set by name (from the list of the names
+            % specified in the list definition) or by the number of the pc
+            % type in the same list
             if isnumeric(val)
                 n_types = numel(obj.known_pc_types_);
                 if val>0 && val<=n_types
@@ -64,7 +86,7 @@ classdef opt_config_manager
             elseif ischar(val)
                 is_it = ismember(obj.known_pc_types_,val);
                 if sum(is_it) == 1
-                    pc_type  = obj.known_pc_types_(is_it);
+                    pc_type  = obj.known_pc_types_{is_it};
                 else
                     print_help(obj);
                     error('OPT_CONFIG_MANAGER:invalid_argument',...
@@ -77,29 +99,51 @@ classdef opt_config_manager
             end
             obj.this_pc_type_ = pc_type;
         end
-        
-        function save_configurations(obj)
+        function num = get.pc_config_num(obj)
+            % return the number of the
+            cur_type = obj.this_pc_type;
+            num = find(ismember(obj.known_pc_types_,cur_type),1);
+        end
+        %------------------------------------------------------------------
+        function save_configurations(obj,varargin)
             % assuming the current configuration is the optimal one, save
             % it in configuration file for further usage.
-            save_configurations_(obj);
+            % Usage:
+            % obj.save_configurations([info]);
+            % where:
+            % info -- optional information, providing additional
+            %         information about the configuration of the given type
+            %         of the computer;
+            save_configurations_(obj,varargin{:});
+        end
+        function conf = load_configuration(obj)
+            % method loads the previous configuration, which
+            % stored as optimal for this computer and configures
+            % Horace and Herbert using loaded configurations
+            %
+            % Returns the structure, containing used configurations info.
+            conf = load_configuration_(obj);
         end
         
     end
     methods(Access=private)
         function print_help(obj)
-            types = obj.known_pc_types_;
-            fprintf('**** Known pc types are:\n');
-            for i=1:numel(types)
-                fprintf('    :%d  : %s\n',i,types{i});
+            ll = get(herbert_config,'log_level');
+            if ll>0
+                types = obj.known_pc_types_;
+                fprintf('**** Known pc types are:\n');
+                for i=1:numel(types)
+                    fprintf('    :%d  : %s\n',i,types{i});
+                end
             end
             
         end
     end
     methods(Static)
-        function pc_type = find_pc_type()
+        function pc_type = find_comp_type()
             % analyze pc parameters and return pc type which describes
             % these parameters
-            pc_type = find_pc_type_();
+            pc_type = find_comp_type_();
         end
         
     end

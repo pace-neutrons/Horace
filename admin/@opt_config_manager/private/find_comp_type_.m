@@ -1,15 +1,16 @@
-function [pc_type,nproc] = find_pc_type_(obj)
+function [pc_type,nproc,mem_size] = find_comp_type_()
 % find pc type as option of the pc properties.
-types = obj.known_pc_types_;
+types = opt_config_manager.known_pc_types_;
 Gb = 1024*1024*1024;
-nproc = 0;
+nproc = 1;
 if ispc
     [~,sys] = memory();
-    if sys.PhysicalMemory.Total <  32*Gb
+    mem_size = sys.PhysicalMemory.Total;
+    if mem_size <  32*Gb
         pc_type = types{1}; %windows small
-    elseif sys.PhysicalMemory.Total  >= 32*Gb
+    else
         if sys.PhysicalMemory.Available >= 0.5*sys.PhysicalMemory.Total
-            nproc = idivide(int64(sys.PhysicalMemory.Total),int64(32*Gb),'floor');
+            nproc = idivide(int64(mem_size),int64(obj.mem_size_per_worker_*Gb),'floor');
             if nproc >1
                 pc_type = types{2}; %windows large
             else
@@ -21,12 +22,18 @@ if ispc
     end
     
 elseif isunix
+    [ok,mem_string] = system('free | grep Mem');
+    if ~ok
+        mem_size = 16*Gb;
+    else
+        mem_size = parse_mem_string(mem_string);
+    end
     if ismac %MAC
         pc_type = types{3};
         return;
     end
     [nok,mess] = system('lscpu');
-    if nok  %still MAC or strange unix without lscpu
+    if nok  %still MAC or strange unix without lscpu. Assuming mac.
         pc_type = types{3};
         return;
     end
@@ -49,3 +56,6 @@ elseif isunix
 
 end
 
+function mem_size = parse_mem_string(mem_string)
+cont = regexp(mem_string,'\s+','split');
+mem_size =  sscanf(cont{2},'%d');
