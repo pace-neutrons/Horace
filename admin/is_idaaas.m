@@ -1,4 +1,4 @@
-function is_daas = is_idaaas(comp_name)
+function [is_daas,size_suffix] = is_idaaas(comp_name)
 % Function to verify if the computer is iDaaaS virtual machine.
 %
 % normaly works without the arguments, and returns true if the computer is
@@ -8,6 +8,7 @@ function is_daas = is_idaaas(comp_name)
 % identifies if the computer is iDaaaS computer by parsing the input.
 %
 %
+size_suffix = '';
 test_mode = false;
 if exist('comp_name','var')
     test_mode = true;
@@ -25,4 +26,16 @@ if strncmpi(comp_name,name_template,numel(name_template))
     is_daas = true;
 else
     is_daas = false;
+end
+if nargout>1 && is_daas
+    [nok,mess] = system('lscpu');
+    if nok  %still MAC or strange unix without lscpu
+        size_suffix = '';
+        return;
+    end
+    
+    rez=strfind(mess,'NUMA node');
+    if numel(rez)>2; size_suffix = 'idaas_large';
+    else;            size_suffix = 'idaas_small';
+    end        
 end

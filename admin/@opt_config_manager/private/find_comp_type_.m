@@ -53,7 +53,6 @@ elseif isunix
         n_profile=n_profile+1;
     end
     pc_type = types{n_profile};
-
 end
 
 function mem_size = parse_mem_string(mem_string)

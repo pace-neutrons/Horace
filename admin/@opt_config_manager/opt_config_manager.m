@@ -116,13 +116,25 @@ classdef opt_config_manager
             %         of the computer;
             save_configurations_(obj,varargin{:});
         end
-        function conf = load_configuration(obj)
+        function conf = load_configuration(obj,varargin)
             % method loads the previous configuration, which
-            % stored as optimal for this computer and configures
-            % Horace and Herbert using loaded configurations
+            % stored as optimal for this computer.
             %
-            % Returns the structure, containing used configurations info.
-            conf = load_configuration_(obj);
+            % '-set_config' if option is present, method also configures
+            %               Horace and Herbert using the configuration,
+            %               stored as optimal for this computer.
+            % '-change_only_default' if this option is present, the method
+            %       configured only the configurations, which values are
+            %       currently set to default not overwritng existign user
+            %       settings
+            %
+            % Returns the structure, containing loaded configurations.
+            %
+            [ok,mess,set_config,set_def_only] = parse_char_options(varargin,...
+                {'-set_config','-change_only_default'});
+            if ~ok; error('OPT_CONFIG_MANAGER:invalid_argument',mess);
+            end
+            conf = load_configuration_(obj,set_config,set_def_only);
         end
         
     end

@@ -1,7 +1,7 @@
-function conf = load_configuration_(obj)
+function conf = load_configuration_(obj,set_config,set_def_only)
 % method loads the previous configuration, which
-% stored as optimal for this computer and configures
-% Horace and Herbert using loaded configurations
+% stored as optimal for this computer and, if set_config option is true,
+% configures Horace and Herbert using loaded configurations
 %
 % Returns the structure, containing used configurations info.
 %
@@ -21,12 +21,20 @@ if ~isfield(config_data,current_pc)
     return;
 end
 conf =config_data.(current_pc);
+if ~set_config
+    return
+end
 flds = fieldnames(conf);
 for i=1:numel(flds)
     if strcmpi(flds{i},'info') % skip info string
         continue;
     end
     conf_cl = feval(flds{i});
+    if set_def_only
+        if ~conf_cl.is_default
+            continue
+        end
+    end
     settings = conf.(flds{i});
     conf_cl.set_stored_data(settings);
 end

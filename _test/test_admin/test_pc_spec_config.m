@@ -36,7 +36,7 @@ classdef test_pc_spec_config< TestCase
             hc.threads = n_threads+1;
             assertEqual(hc.threads,n_threads+1);
             
-            cm.load_configuration();
+            cm.load_configuration('-set_config');
             % the previous number of threads have been restored
             assertEqual(hc.threads,n_threads);
             
@@ -47,7 +47,7 @@ classdef test_pc_spec_config< TestCase
             assertTrue(exist(conf_file,'file')==2);
             hc.threads=n_threads;
             cm.this_pc_type = 'a_mac';
-            cm.load_configuration();
+            cm.load_configuration('-set_config');
             assertEqual(hc.threads,n_threads);
         end
         
