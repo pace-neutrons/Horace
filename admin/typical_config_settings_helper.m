@@ -45,7 +45,7 @@ horc.force_mex_if_use_mex = false;
 set_windows_small(parc,herc,horc,hpcc);
 % Assume this is windows small and save configuration
 cm.this_pc_type = 1;
-cm.save_configurations('Typical configuration for Winows small machine assumes no MPI settings and use OMP if possible');
+cm.save_configurations('Typical configuration for Windows small machine assumes no MPI settings and use OMP if possible');
 
 % ouf MAC configuration is very similar to winwos small except it does not
 % support mex
@@ -57,22 +57,22 @@ cm.save_configurations('Typical configuration for MAC machine assumes no MPI set
 % let's configure Windows large.
 set_windows_large(parc,herc,horc,hpcc)
 cm.this_pc_type = 2;
-cm.save_configurations('Typical configuration for Winows large machine assumes use some MPI use OMP');
+cm.save_configurations('Typical configuration for Windows large machine assumes use some MPI use OMP');
 
 % let's configure iDaaaS small
 set_idaaas_small(parc,herc,horc,hpcc)
 cm.this_pc_type = 'idaaas_small';
-cm.save_configurations('iDaaaS small machine should have mex code but would not benifit from MPI');
+cm.save_configurations('iDaaaS small machine should have mex code but would not benefit from MPI');
 
 % iDaaaS large
 set_idaaas_large(parc,herc,horc,hpcc)
-cm.this_pc_type = 'idaaas_lagre';
-cm.save_configurations('iDaaaS large machine benfit from mex code and can run some MPI');
+cm.this_pc_type = 'idaaas_large';
+cm.save_configurations('iDaaaS large machine benefit from mex code and can run some MPI');
 
 % Unix small does not have mex code and would not benitif from mpi
 set_unix_small(parc,herc,horc,hpcc)
 cm.this_pc_type = 'unix_small';
-cm.save_configurations('General Unix pc would not have mex code so, user should not set it up.');
+cm.save_configurations('General Unix pc would not have mex code so, user should set it up after compiling it himself');
 
 % Unix large is our isiscompute machine
 set_unix_large(parc,herc,horc,hpcc)
