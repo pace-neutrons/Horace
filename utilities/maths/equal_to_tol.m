@@ -585,14 +585,18 @@ if isequal(size(a),size(b))
         elseif any((delta_abs>abs_tol)&(delta_rel>rel_tol))
             % Absolute or relative tolerance must be satisfied
             ok= false;
-            [max_delta_abs,ind_abs] = max(delta_abs);
-            [max_delta_rel,ind_rel] = max(delta_rel);
-            if max_delta_rel>max_delta_abs
-                mess=sprintf('%s and %s: Relative tolerance failure; max. error = %s at element %s',...
-                    name_a,name_b,num2str(max_delta_rel),['(',arraystr(sz,ind_rel),')']);
+            bad = (delta_abs>abs_tol)&(delta_rel>rel_tol);
+            ind_bad = find(bad);
+            [max_delta_abs,ind_abs] = max(delta_abs(bad));
+            [max_delta_rel,ind_rel] = max(delta_rel(bad));
+            if max_delta_rel/rel_tol>max_delta_abs/abs_tol
+                ind_bad = ind_bad(ind_rel);
+                mess=sprintf('%s and %s: Relative and absolute tolerance failure; max. error = %s (relative) at element %s',...
+                    name_a,name_b,num2str(max_delta_rel),['(',arraystr(sz,ind_bad),')']);
             else
-                mess=sprintf('%s and %s: Absolute tolerance failure; max. error = %s at element %s',...
-                    name_a,name_b,num2str(max_delta_abs),['(',arraystr(sz,ind_abs),')']);
+                ind_bad = ind_bad(ind_abs);
+                mess=sprintf('%s and %s: Relative and absolute tolerance failure; max. error = %s (absolute) at element %s',...
+                    name_a,name_b,num2str(max_delta_abs),['(',arraystr(sz,ind_bad),')']);
             end
             return
         end

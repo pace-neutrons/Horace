@@ -10,13 +10,14 @@ classdef IX_sample
         % Stored properties - but kept private and accessible only through
         % public dependent properties because validity checks of setters
         % require checks against the other properties
+        class_version_ = 1;
         name_ = '';
-        single_crystal_ = false;
+        single_crystal_ = true;
         xgeom_ = [1,0,0];
         ygeom_ = [0,1,0];
         shape_ = 'point';
         ps_ = [];
-        eta_ = [];
+        eta_ = 0;
         temperature_ = 0;
         
         valid_ = true;
@@ -42,17 +43,13 @@ classdef IX_sample
             % Create sample object
             %
             %   >> sample = IX_sample (xgeom,ygeom,shape,ps)
-            %   >> sample = IX_sample (single_crystal,xgeom,ygeom,shape,ps)
             %   >> sample = IX_sample (...,eta)
             %   >> sample = IX_sample (...,eta,temperature)
             %
             %   >> sample = IX_sample (name,...)
+            %   >> sample = IX_sample (name,single_crystal,...)
             %
-            %   name            Name of the sample (e.g. 'YBCO 6.6')
-            %
-            %   single_crystal  true if single crystal, false otherwise
-            %                  Default: true (i.e. single crystal)
-            %
+            % Required:
             %   xgeom           Direction of x-axis of geometric description
             %                   If single crystal: a vector in reciprocal lattice units
             %                   If powder: a vector in spectrometer coodinates
@@ -66,38 +63,58 @@ classdef IX_sample
             %
             %   ps              Parameters for the sample shape description
             %                   Numeric row vector; length depends on shape
+            %                   cuboid: full widths in m
             %
+            % Optional:
             %   eta             Mosaic spread (FWHH) (deg)
             %                   Ignored if not single crystal
             %
-            %   temperature     Temperature of moderator (K)
+            %   temperature     Temperature of sample (K)
+            %
+            %   name            Name of the sample (e.g. 'YBCO 6.6')
+            %
+            %   single_crystal  true if single crystal, false otherwise
+            %                   Default: true (i.e. single crystal)
+            %
+            % Note: any number of the arguments can given in arbitrary order
+            % after leading positional arguments if they are preceded by the 
+            % argument name (including abbrevioations) with a preceding hyphen e.g.
+            %
+            %   sample = IX_sample (xgeom,ygeom,shape,ps,'-name','FeSi','-temp',273.16)
+
             
             % Use the non-dependent property set functions to force a check of type,
             % size etc.
-            if nargin>=1
-                noff=0;
-                if is_string(varargin{1})
-                    obj.name_ = varargin{1};
-                    noff=noff+1;
+            if nargin==1 && isstruct(varargin{1})
+                % Assume trying to initialise from a structure array of properties
+                obj = IX_sample.loadobj(varargin{1});
+                
+            elseif nargin>0
+                namelist = {'name','single_crystal','xgeom','ygeom','shape',...
+                    'ps','eta','temperature'};
+                [S, present] = parse_args_namelist ({namelist,{'char','logical'}}, varargin{:});
+                
+                if present.name
+                    obj.name_ = S.name;
                 end
-                if islognumscalar(varargin{noff+1})
-                    obj.single_crystal_ = varargin{noff+1};
-                    noff=noff+1;
+                if present.single_crystal
+                    obj.single_crystal_ = S.single_crystal;
                 end
-                if any(nargin-noff==[4,5,6])
-                    obj.xgeom_ = varargin{noff+1};
-                    obj.ygeom_ = varargin{noff+2};
-                    obj.shape_ = varargin{noff+3};
-                    obj.ps_    = varargin{noff+4};
-                    if nargin-noff>=5
-                        obj.eta_ = varargin{noff+5};
-                    end
-                    if nargin-noff>=6
-                        obj.temperature_ = varargin{noff+6};
-                    end
+                if present.xgeom && present.ygeom && present.shape && present.ps
+                    obj.xgeom_ = S.xgeom;
+                    obj.ygeom_ = S.ygeom;
+                    obj.shape_ = S.shape;
+                    obj.ps_ = S.ps;
                 else
-                    error('Check number of input arguments')
+                    error('Must give all argument that define geometry and sample shape')
                 end
+                if present.eta
+                    obj.eta_ = S.eta;
+                end
+                if present.temperature
+                    obj.temperature_ = S.temperature;
+                end
+                
                 [ok,mess] = check_xygeom (obj.xgeom_,obj.ygeom_);
                 if ~ok, error(mess), end
                 if numel(obj.ps_)~=obj.n_ps_(obj.shape_)
@@ -240,6 +257,10 @@ classdef IX_sample
             obj.eta_=val;
         end
         
+        function obj=set.temperature(obj,val)
+            obj.temperature_=val;
+        end
+        
         %------------------------------------------------------------------
         % Get methods for dependent properties
         function val=get.name(obj)
@@ -276,6 +297,69 @@ classdef IX_sample
         %------------------------------------------------------------------
     end
 
+    %======================================================================
+    % Custom loadobj and saveobj
+    % - to enable custom saving to .mat files and bytestreams
+    % - to enable older class definition compatibility
+
+    methods
+        %------------------------------------------------------------------
+        function S = saveobj(obj)
+            % Method used my Matlab save function to support custom
+            % conversion to structure prior to saving.
+            %
+            %   >> S = saveobj(obj)
+            %
+            % Input:
+            % ------
+            %   obj     Scalar instance of the object class
+            %
+            % Output:
+            % -------
+            %   S       Structure created from obj that is to be saved
+            
+            % The following is boilerplate code; it calls a class-specific function
+            % called init_from_structure_ that takes a scalar structure and returns
+            % a scalar instance of the class
+            
+            S = structIndep(obj);
+        end
+    end
+    
+    %------------------------------------------------------------------
+    methods (Static)
+        function obj = loadobj(S)
+            % Static method used my Matlab load function to support custom
+            % loading.
+            %
+            %   >> obj = loadobj(S)
+            %
+            % Input:
+            % ------
+            %   S       Either (1) an object of the class, or (2) a structure
+            %           or structure array
+            %
+            % Output:
+            % -------
+            %   obj     Either (1) the object passed without change, or (2) an
+            %           object (or object array) created from the input structure
+            %       	or structure array)
+            
+            % The following is boilerplate code; it calls a class-specific function
+            % called iniSt_from_structure_ that takes a scalar structure and returns
+            % a scalar instance of the class
+            
+            if isobject(S)
+                obj = S;
+            else
+                obj = arrayfun(@(x)loadobj_private_(x), S);
+            end
+        end
+        %------------------------------------------------------------------
+        
+    end
+    %======================================================================
+    
 end
 
 %------------------------------------------------------------------

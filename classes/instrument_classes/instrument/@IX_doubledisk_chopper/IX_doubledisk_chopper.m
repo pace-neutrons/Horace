@@ -18,6 +18,7 @@ classdef IX_doubledisk_chopper
         %             Only change the public properties, as this will force
         %             a recalculation.
         % ***************************************************************
+        class_version_ = 1;
         name_ = '';
         distance_ = 0;
         frequency_ = 0;
@@ -48,52 +49,77 @@ classdef IX_doubledisk_chopper
         function obj = IX_doubledisk_chopper (varargin)
             % Create double-disk chopper object
             %
-            %   >> doubledisk_chopper = IX_doubledisk_chopper (distance,frequency,radius,slot_width)
+            %   >> chop = IX_doubledisk_chopper (distance,frequency,radius,slot_width)
             %
-            %   >> doubledisk_chopper = IX_doubledisk_chopper (...,aperture_width);
-            %   >> doubledisk_chopper = IX_doubledisk_chopper (...,aperture_width,aperture_height);
-            %   >> doubledisk_chopper = IX_doubledisk_chopper (...,aperture_width,aperture_height,jitter);
+            %   >> chop = IX_doubledisk_chopper (...,aperture_width);
+            %   >> chop = IX_doubledisk_chopper (...,aperture_width,aperture_height);
+            %   >> chop = IX_doubledisk_chopper (...,aperture_width,aperture_height,jitter);
             %
-            %   >> doubledisk_chopper = IX_doubledisk_chopper (name,...)
+            %   >> chop = IX_doubledisk_chopper (name,...)
             %
-            %   name            Name of the chopper (e.g. 'chopper_5')
+            % Required:
             %   distance        Distance from sample (m) (+ve if upstream of sample, against the usual convention)
             %   frequency       Frequency of rotation of each disk (Hz)
             %   radius          Radius of chopper body (m)
-            %   slot_width      Slit width (m)
-            %   aperture_width  Aperture width (m)
+            %   slot_width      Slot width (m)
+            %
+            % Optional:
+            %   aperture_width  Aperture width (m) (Default: same as slot_width)
             %   aperture_height Aperture height (m)
             %   jitter          Timing uncertainty on chopper (FWHH) (microseconds)
-
+            %
+            %   name            Name of the chopper (e.g. 'chopper_5')
+            %
+            %
+            % Note: any number of the arguments can given in arbitrary order
+            % after leading positional arguments if they are preceded by the
+            % argument name (including abbrevioations) with a preceding hyphen e.g.
+            %
+            %   >> chop = IX_doubledisk_chopper (distance,frequency,radius,slot_width,...
+            %               '-jitter',3.5,'-name','Chopper_1')
+            
+            
             % Original author: T.G.Perring
+            
             
             % Use the non-dependent property set functions to force a check of type,
             % size etc.
-            if nargin>=1
-                noff=0;
-                if is_string(varargin{1})
-                    obj.name_ = varargin{1};
-                    noff=noff+1;
+            if nargin==1 && isstruct(varargin{1})
+                % Assume trying to initialise from a structure array of properties
+                obj = IX_doubledisk_chopper.loadobj(varargin{1});
+                
+            elseif nargin>0
+                namelist = {'name','distance','frequency',...
+                    'radius','slot_width','aperture_width','aperture_height','jitter'};
+                [S, present] = parse_args_namelist ({namelist,{'char'}}, varargin{:});
+                
+                if present.name
+                    obj.name_ = S.name;
                 end
-                if any(nargin-noff==[4,5,6,7])
-                    obj.distance_  = varargin{noff+1};
-                    obj.frequency_ = varargin{noff+2};
-                    obj.radius_    = varargin{noff+3};
-                    obj.slot_width_= varargin{noff+4};
-                    if nargin-noff>=5
-                        obj.aperture_width_ = varargin{noff+5};
-                    else
-                        obj.aperture_width_ = obj.slot_width_;
-                    end
-                    if nargin-noff>=6
-                        obj.aperture_height_ = varargin{noff+6};
-                    end
-                    if nargin-noff>=7
-                        obj.jitter_ = varargin{noff+7};
-                    end
+                
+                if present.distance && present.frequency && present.radius && present.slot_width
+                    obj.distance_  = S.distance;
+                    obj.frequency_ = S.frequency;
+                    obj.radius_    = S.radius;
+                    obj.slot_width_= S.slot_width;
                 else
-                    error('Check number of input arguments')
+                    error('Must give all of distance, frequency, radius and slot_width')
                 end
+                
+                if present.aperture_width
+                    obj.aperture_width_ = S.aperture_width;
+                else
+                    obj.aperture_width_ = obj.slot_width_;
+                end
+                
+                if present.aperture_height
+                    obj.aperture_height_ = S.aperture_height;
+                end
+                
+                if present.jitter
+                    obj.jitter_ = S.jitter;
+                end
+                
                 % Compute the pdf
                 obj.pdf_ = recompute_pdf_(obj);
             end
@@ -205,7 +231,7 @@ classdef IX_doubledisk_chopper
         end
         
         function obj=set.slot_width(obj,val)
-            val_old = obj.slot_width_;            
+            val_old = obj.slot_width_;
             obj.slot_width_=val;
             if obj.slot_width_~=val_old
                 obj.pdf_ = recompute_pdf_(obj);     % recompute the lookup table
@@ -213,7 +239,7 @@ classdef IX_doubledisk_chopper
         end
         
         function obj=set.aperture_width(obj,val)
-            val_old = obj.aperture_width_;  
+            val_old = obj.aperture_width_;
             obj.aperture_width_=val;
             if obj.aperture_width_~=val_old
                 obj.pdf_ = recompute_pdf_(obj);     % recompute the lookup table
@@ -268,4 +294,67 @@ classdef IX_doubledisk_chopper
         
         %------------------------------------------------------------------
     end
+    
+    %======================================================================
+    % Custom loadobj and saveobj
+    % - to enable custom saving to .mat files and bytestreams
+    % - to enable older class definition compatibility
+    
+    methods
+        %------------------------------------------------------------------
+        function S = saveobj(obj)
+            % Method used my Matlab save function to support custom
+            % conversion to structure prior to saving.
+            %
+            %   >> S = saveobj(obj)
+            %
+            % Input:
+            % ------
+            %   obj     Scalar instance of the object class
+            %
+            % Output:
+            % -------
+            %   S       Structure created from obj that is to be saved
+            
+            % The following is boilerplate code; it calls a class-specific function
+            % called init_from_structure_ that takes a scalar structure and returns
+            % a scalar instance of the class
+            
+            S = structIndep(obj);
+        end
+    end
+    
+    %------------------------------------------------------------------
+    methods (Static)
+        function obj = loadobj(S)
+            % Static method used my Matlab load function to support custom
+            % loading.
+            %
+            %   >> obj = loadobj(S)
+            %
+            % Input:
+            % ------
+            %   S       Either (1) an object of the class, or (2) a structure
+            %           or structure array
+            %
+            % Output:
+            % -------
+            %   obj     Either (1) the object passed without change, or (2) an
+            %           object (or object array) created from the input structure
+            %       	or structure array)
+            
+            % The following is boilerplate code; it calls a class-specific function
+            % called iniSt_from_structure_ that takes a scalar structure and returns
+            % a scalar instance of the class
+            
+            if isobject(S)
+                obj = S;
+            else
+                obj = arrayfun(@(x)loadobj_private_(x), S);
+            end
+        end
+        %------------------------------------------------------------------
+        
+    end
+    %======================================================================
 end

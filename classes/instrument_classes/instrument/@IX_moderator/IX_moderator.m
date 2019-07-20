@@ -26,6 +26,7 @@ classdef IX_moderator
         %             Only change the public properties, as this will force
         %             a recalculation.
         % ***************************************************************
+        class_version_ = 1;
         name_ = '';
         distance_ = 0;
         angle_ = 0;
@@ -74,12 +75,14 @@ classdef IX_moderator
             %
             %   >> moderator = IX_moderator (name,...)
             %
-            %   name            Name of the moderator (e.g. 'CH4')
+            % Required:
             %   distance        Distance from sample (m) (+ve, against the usual convention)
             %   angle           Angle of normal to incident beam (deg)
             %                  (positive if normal is anticlockwise from incident beam)
             %   pulse_model     Model for pulse shape (e.g. 'ikcarp')
             %   pp              Parameters for the pulse shape model (array; length depends on pulse_model)
+            %
+            % Optional:
             %   flux_model      Model for flux profile (e.g. 'isis')
             %   pf              Parameters for the flux model (array; length depends on flux_model)
             %   width           Width of moderator (m)
@@ -87,40 +90,69 @@ classdef IX_moderator
             %   thickness       Thickness of moderator (m)
             %   temperature     Temperature of moderator (K)
             %   energy          Energy of neutrons (meV)
+            %
+            %   name            Name of the moderator (e.g. 'CH4')
+            % 
+            % Note: any number of the arguments can given in arbitrary order
+            % after leading positional arguments if they are preceded by the 
+            % argument name (including abbrevioations) with a preceding hyphen e.g.
+            %
+            %   >> moderator = IX_moderator (distance,angle,pulse_model,pp,...
+            %               '-energy',120,'-temp',100)
+
             
             % Original author: T.G.Perring
             
+            
             % Use the non-dependent property set functions to force a check of type, size etc.
-            if nargin>=1
-                noff=0;
-                if is_string(varargin{1})
-                    obj.name_ = varargin{1};
-                    noff=noff+1;
+            if nargin==1 && isstruct(varargin{1})
+                % Assume trying to initialise from a structure array of properties
+                obj = IX_moderator.loadobj(varargin{1});
+                
+            elseif nargin>0
+                namelist = {'name','distance','angle','pulse_model','pp',...
+                    'flux_model','pf','width','height','thickness',...
+                    'temperature','energy'};
+                [S, present] = parse_args_namelist ({namelist,{'char'}}, varargin{:});
+                if present.name
+                    obj.name_ = S.name;
                 end
-                if any(nargin-noff==[4,6,8,9,10,11])
-                    obj.distance_  = varargin{noff+1};
-                    obj.angle_ = varargin{noff+2};
-                    obj.pulse_model_    = varargin{noff+3};
-                    obj.pp_= varargin{noff+4};
-                    if nargin-noff>=6
-                        obj.flux_model_    = varargin{noff+5};
-                        obj.pf_= varargin{noff+6};
+                if present.distance
+                    obj.distance_ = S.distance;
+                end
+                if present.angle
+                    obj.angle_ = S.angle;
+                end
+                if present.pulse_model
+                    if present.pp
+                        obj.pulse_model_ = S.pulse_model;
+                        obj.pp_ = S.pp;
+                    else
+                        error('Must give pulse model and pulse model parameters together')
                     end
-                    if nargin-noff>=8
-                        obj.width_ = varargin{noff+7};
-                        obj.height_= varargin{noff+8};
+                end
+                if present.flux_model
+                    if present.pp
+                        obj.flux_model_ = S.flux_model;
+                        obj.pf_ = S.pf;
+                    else
+                        error('Must give flux model and flux model parameters together')
                     end
-                    if nargin-noff>=9
-                        obj.thickness_ = varargin{noff+9};
-                    end
-                    if nargin-noff>=10
-                        obj.temperature_ = varargin{noff+10};
-                    end
-                    if nargin-noff>=11
-                        obj.energy_ = varargin{noff+11};
-                    end
-                else
-                    error('Check number of input arguments')
+                end
+                if present.width
+                    obj.width_ = S.width;
+                end
+                if present.height
+                    obj.height_ = S.height;
+                end
+                if present.thickness
+                    obj.thickness_ = S.thickness;
+                end
+                if present.temperature
+                    obj.temperature_ = S.temperature;
+                end
+                if present.energy
+                    obj.energy_ = S.energy;
                 end
                 % Compute the pdf
                 obj.pdf_ = recompute_pdf_(obj);
@@ -386,4 +418,68 @@ classdef IX_moderator
         end
         
     end
+
+    %======================================================================
+    % Custom loadobj and saveobj
+    % - to enable custom saving to .mat files and bytestreams
+    % - to enable older class definition compatibility
+
+    methods
+        %------------------------------------------------------------------
+        function S = saveobj(obj)
+            % Method used my Matlab save function to support custom
+            % conversion to structure prior to saving.
+            %
+            %   >> S = saveobj(obj)
+            %
+            % Input:
+            % ------
+            %   obj     Scalar instance of the object class
+            %
+            % Output:
+            % -------
+            %   S       Structure created from obj that is to be saved
+            
+            % The following is boilerplate code; it calls a class-specific function
+            % called init_from_structure_ that takes a scalar structure and returns
+            % a scalar instance of the class
+            
+            S = structIndep(obj);
+        end
+    end
+    
+    %------------------------------------------------------------------
+    methods (Static)
+        function obj = loadobj(S)
+            % Static method used my Matlab load function to support custom
+            % loading.
+            %
+            %   >> obj = loadobj(S)
+            %
+            % Input:
+            % ------
+            %   S       Either (1) an object of the class, or (2) a structure
+            %           or structure array
+            %
+            % Output:
+            % -------
+            %   obj     Either (1) the object passed without change, or (2) an
+            %           object (or object array) created from the input structure
+            %       	or structure array)
+            
+            % The following is boilerplate code; it calls a class-specific function
+            % called iniSt_from_structure_ that takes a scalar structure and returns
+            % a scalar instance of the class
+            
+            if isobject(S)
+                obj = S;
+            else
+                obj = arrayfun(@(x)loadobj_private_(x), S);
+            end
+        end
+        %------------------------------------------------------------------
+        
+    end
+    %======================================================================
+    
 end

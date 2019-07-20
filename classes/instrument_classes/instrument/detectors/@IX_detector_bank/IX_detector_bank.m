@@ -1,9 +1,11 @@
 classdef IX_detector_bank
-    % Detector bank
-    % Contains detector positional information and the detector information for
-    % a detector bank of a single detector type
+    % Defines a detector bank for detectors of one type, for example, helium
+    % tubes, or slab detectors. The object contains detector positional
+    % information and the detector information for a detector bank of a single
+    % detector type. 
     
     properties (Access=private)
+        class_version_ = 1; % Class version number
         id_  = 1        % Detector identificers, integers greater than 0 (column vector, in ascending order)
         x2_  = 0        % Sample-detector distance (m) (column vector)
         phi_ = 0        % Scattering angle (degrees, in range 0 to 180) (column vector)
@@ -43,10 +45,14 @@ classdef IX_detector_bank
             % Construct a detector bank
             %
             %   >> obj = IX_detector_bank (id, x2, phi, azim, detector_type)
-            %   >> obj = IX_detector_bank (..., name1, val1, name2, val2,...)
+            %
+            %   >> obj = IX_detector_bank (..., 'rotvec', V)
+            % *OR*
+            %   >> obj = IX_detector_bank (..., 'dmat, D)
             %
             % Input:
             % ------
+            % Required:
             %   id          Array of detector identifiers (integer values)
             %   x2          Sample - detector distances
             %   phi         Scattering angles (degrees) (in range 0 - 180 degrees)
@@ -55,6 +61,7 @@ classdef IX_detector_bank
             %              class that inherits IX_det_abstractType e.g. IX_det_He3tube
             %
             % Optional arguments defining detector orientations:
+            %
             %   One and only one of the follow can be given. The default if none is
             %   The default if none is given is that the detector coordinate frame is
             %  the same as the secondary spectrometer coordinate frame i.e. the default
@@ -288,5 +295,68 @@ classdef IX_detector_bank
         %------------------------------------------------------------------
         
     end
+    
+    %======================================================================
+    % Custom loadobj and saveobj
+    % - to enable custom saving to .mat files and bytestreams
+    % - to enable older class definition compatibility
+    
+    methods
+        %------------------------------------------------------------------
+        function S = saveobj(obj)
+            % Method used my Matlab save function to support custom
+            % conversion to structure prior to saving.
+            %
+            %   >> S = saveobj(obj)
+            %
+            % Input:
+            % ------
+            %   obj     Scalar instance of the object class
+            %
+            % Output:
+            % -------
+            %   S       Structure created from obj that is to be saved
+            
+            % The following is boilerplate code; it calls a class-specific function
+            % called init_from_structure_ that takes a scalar structure and returns
+            % a scalar instance of the class
+            
+            S = structIndep(obj);
+        end
+    end
+    
+    %------------------------------------------------------------------
+    methods (Static)
+        function obj = loadobj(S)
+            % Static method used my Matlab load function to support custom
+            % loading.
+            %
+            %   >> obj = loadobj(S)
+            %
+            % Input:
+            % ------
+            %   S       Either (1) an object of the class, or (2) a structure
+            %           or structure array
+            %
+            % Output:
+            % -------
+            %   obj     Either (1) the object passed without change, or (2) an
+            %           object (or object array) created from the input structure
+            %       	or structure array)
+            
+            % The following is boilerplate code; it calls a class-specific function
+            % called iniSt_from_structure_ that takes a scalar structure and returns
+            % a scalar instance of the class
+            
+            if isobject(S)
+                obj = S;
+            else
+                obj = arrayfun(@(x)loadobj_private_(x), S);
+            end
+        end
+        %------------------------------------------------------------------
+        
+    end
+    %======================================================================
     
 end

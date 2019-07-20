@@ -1,4 +1,4 @@
-function [S,present] = parse_args_namelist (namelist, varargin)
+function [S,present] = parse_args_namelist (namelist_in, varargin)
 % Parses input arguments into a list
 %
 %   >> [S, present] = parse_args_namelist (namelist, p1, p2, ...
@@ -17,6 +17,20 @@ function [S,present] = parse_args_namelist (namelist, varargin)
 %   namelist        Cell array of argument names. Assumed to be unique and
 %                   non-empty character strings
 %
+%                   Positional argument assignment to leading argument names
+%                   can be skipped if the positional arguments do not have
+%                   the correct type. Provide a list of the required types
+%                   by giving namelist and the types as two cell arrays 
+%                   making namelist e.g.
+%
+%               namelist = {{'name','distance','is_big'},{'char','numeric'}}
+%
+%                   Valid types are Matlab types, class names, and
+%                   - 'lognum'          array of exclusively 0 or 1, true or false
+%                   - 'lognumscalar'    0 or 1, true or false
+%
+%                   This feature is primarily provided for legacy parsing
+%
 %   p1,p2,...       One or more values of arguments in the oder that they
 %                   appear in namelist
 %
@@ -33,19 +47,34 @@ function [S,present] = parse_args_namelist (namelist, varargin)
 %                   the corresponding name was assigned a value
 
 
+% Parse namelist_in
+if numel(namelist_in)==2 && iscell(namelist_in{1}) && iscell(namelist_in{2})
+    types = namelist_in{2};
+    if numel(namelist_in{1})<=numel(types)
+        ME = MException('parse_args_namelist:inputError',...
+            ['Cannot have optional argument skipping unless ',...
+            'there is at least one more argument than optional arguments in the namelist']);
+        throwAsCaller(ME)
+    end
+    namelist = namelist_in{1};
+else
+    types = {};
+    namelist = namelist_in;
+end
+
 nnames = numel(namelist);
 nchars = cellfun(@numel,namelist);
 
-% Find first occurence of a name
+% Case of no input
 narg = numel(varargin);
-if narg==0  % case of no input
-    % names = cell(1,0);
-    % vals = cell(1,0);
+if narg==0
     S = struct();
     present = cell2struct(num2cell(false(1,nnames)),namelist,2);
     return
 end
 
+% Find first occurence of a name
+% (npositional will contain the number of positional arguments)
 npositional = narg;
 for i=1:narg
     ix = isname(varargin{i}, namelist, nchars);
@@ -62,11 +91,17 @@ for i=1:narg
 end
 
 % Assign
-if npositional<=nnames
-    if npositional<narg    % at least one name
+if npositional>nnames   % More positional arguments than named arguments
+    ME = MException('parse_args_namelist:inputError',...
+        'Too many positional arguments');
+    throwAsCaller(ME)
+    
+else
+    if npositional<narg    % at least one name-value pair
         if rem(narg-npositional,2)==0
-            nset = [ones(1,npositional),zeros(1,nnames-npositional)];
-            ind = [1:npositional,zeros(1,nnames-npositional)];
+            nskip = skip_names(varargin{1},types);
+            nset = [zeros(1,nskip),ones(1,npositional),zeros(1,nnames-npositional-nskip)];
+            ind = [zeros(1,nskip),1:npositional,zeros(1,nnames-npositional-nskip)];
             for i=npositional+1:2:narg
                 if i>npositional+1    % already checked first name is valid
                     ix = isname(varargin{i}, namelist, nchars);
@@ -98,14 +133,11 @@ if npositional<=nnames
             throwAsCaller(ME)
         end
     else
-        set = [true(1,narg),false(1,nnames-narg)];
-        names = namelist(1:narg);
+        nskip = skip_names(varargin{1},types);
+        set = [false(1,nskip),true(1,narg),false(1,nnames-narg-nskip)];
+        names = namelist(1+nskip:narg+nskip);
         vals = varargin(1:narg);
     end
-else
-    ME = MException('parse_args_namelist:inputError',...
-        'Too many positional arguments');
-    throwAsCaller(ME)
 end
 
 S = cell2struct(vals, names, 2);
@@ -125,7 +157,7 @@ if ischar(val) && numel(size(val))==2 && size(val,1)==1 &&...
     n = numel(val)-1;
     ix = find(strncmpi(val(2:end),namelist,n));
     if numel(ix)>1
-        ix = ix(n==nchars);
+        ix = ix(n==nchars(ix));
         if ~isscalar(ix)
             ix = 0;
         end
@@ -135,18 +167,15 @@ else
 end
 
 %--------------------------------------------------------------------------
-function S = make_structure (names, vals)
-% Make a scalar structure from the names and values. Looks after the case
-% cell array values - turns them into scalar cell arrays
+function nskip = skip_names (arg, types)
+% Find the first occurence of the match of argument type in a list of types
 
-S = cell2struct(vals, names, 2);
-
-% vals_tmp = cellfun(@(x)cellify(x), vals, 'uniformoutput', false);
-% S = cell2struct(vals_tmp, names, 2);
-% 
-% function xout = cellify(x)
-% if iscell(x)
-%     xout = {x};
-% else
-%     xout = x;
-% end
+for i=1:numel(types)
+    if isa(arg,types{i}) ||...
+            (strcmp(types(i),'lognum') && islognum(arg)) ||...
+            (strcmp(types(i),'lognumscalar') && islognumscalar(arg))
+        nskip = i-1;
+        return
+    end
+end
+nskip = numel(types);

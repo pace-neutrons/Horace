@@ -1,7 +1,8 @@
 classdef IX_inst_DGfermi < IX_inst
-    % Instrument with double disk shaping and monochromating choppers
+    % Instrument with Fermi monochromating chopper
     
     properties (Access=private)
+        class_version_ = 1;
         moderator_ = IX_moderator
         aperture_ = IX_aperture
         fermi_chopper_ = IX_fermi_chopper
@@ -27,10 +28,9 @@ classdef IX_inst_DGfermi < IX_inst
             %   obj = IX_inst_DGfermi (..., energy)
             %
             %  one or both of:
-            %   obj = IX_inst_DGdisk (..., '-name', name)
-            %   obj = IX_inst_DGdisk (..., '-source', source)
+            %   obj = IX_inst_DGfermi (..., '-name', name)
+            %   obj = IX_inst_DGfermi (..., '-source', source)
             %
-            % Input:
             %   moderator       Moderator (IX_moderator object)
             %   aperture        Aperture defining moderator area (IX_aperture object)
             %   fermi_chopper   Fermi chopper (IX_fermi_chopper object)
@@ -39,41 +39,44 @@ classdef IX_inst_DGfermi < IX_inst
             %   source          Source: name (e.g. 'ISIS') or IX_source object
             
             % General case
-            namelist = {'moderator','aperture','fermi_chopper','energy',...
-                'name','source'};
-            [S, present] = parse_args_namelist (namelist, varargin{:});
-            
-            % Set instrument base
-            if present.name && present.source
-                args = {S.name,S.source};
-            elseif present.name
-                args = {S.name};
-            elseif present.source
-                args = {'-source',S.source};
-            else
-                args = {};
-            end
-            obj@IX_inst(args{:});
-            
-            % Set monochromating components
-            if present.moderator && present.fermi_chopper
-                obj.moderator_ = S.moderator;
-                obj.fermi_chopper_ = S.fermi_chopper;
-                if present.energy
-                    obj.moderator_.energy = S.energy;
-                    obj.fermi_chopper_.energy = S.energy;
+            if nargin==1 && isstruct(varargin{1})
+                % Assume trying to initialise from a structure array of properties
+                obj = IX_inst.loadobj(varargin{1});
+                
+            elseif nargin>0
+                namelist = {'moderator','aperture','fermi_chopper','energy',...
+                    'name','source'};
+                [S, present] = parse_args_namelist (namelist, varargin{:});
+                
+                % Superclass properties
+                if present.name
+                    obj.name_ = S.name;
                 end
-            else
-                error('Must give both moderator and fermi chopper')
+                
+                if present.source
+                    obj.source_ = S.source;
+                end
+                
+                % Set monochromating components
+                if present.moderator && present.fermi_chopper
+                    obj.moderator_ = S.moderator;
+                    obj.fermi_chopper_ = S.fermi_chopper;
+                    if present.energy
+                        obj.moderator_.energy = S.energy;
+                        obj.fermi_chopper_.energy = S.energy;
+                    end
+                else
+                    error('Must give both moderator and fermi chopper')
+                end
+                
+                % Set aperture
+                if present.aperture
+                    obj.aperture_ = S.aperture;
+                else
+                    error('Must give the beam defining aperture after the moderator')
+                end
+                
             end
-            
-            % Set aperture
-            if present.aperture
-                obj.aperture_ = S.aperture;
-            else
-                error('Must give the beam defining aperture after the moderator')
-            end
-            
         end
         
         %------------------------------------------------------------------
@@ -149,4 +152,68 @@ classdef IX_inst_DGfermi < IX_inst
         
         %------------------------------------------------------------------
     end
+
+    %======================================================================
+    % Custom loadobj and saveobj
+    % - to enable custom saving to .mat files and bytestreams
+    % - to enable older class definition compatibility
+
+    methods
+        %------------------------------------------------------------------
+        function S = saveobj(obj)
+            % Method used my Matlab save function to support custom
+            % conversion to structure prior to saving.
+            %
+            %   >> S = saveobj(obj)
+            %
+            % Input:
+            % ------
+            %   obj     Scalar instance of the object class
+            %
+            % Output:
+            % -------
+            %   S       Structure created from obj that is to be saved
+            
+            % The following is boilerplate code; it calls a class-specific function
+            % called init_from_structure_ that takes a scalar structure and returns
+            % a scalar instance of the class
+            
+            S = structIndep(obj);
+        end
+    end
+    
+    %------------------------------------------------------------------
+    methods (Static)
+        function obj = loadobj(S)
+            % Static method used my Matlab load function to support custom
+            % loading.
+            %
+            %   >> obj = loadobj(S)
+            %
+            % Input:
+            % ------
+            %   S       Either (1) an object of the class, or (2) a structure
+            %           or structure array
+            %
+            % Output:
+            % -------
+            %   obj     Either (1) the object passed without change, or (2) an
+            %           object (or object array) created from the input structure
+            %       	or structure array)
+            
+            % The following is boilerplate code; it calls a class-specific function
+            % called iniSt_from_structure_ that takes a scalar structure and returns
+            % a scalar instance of the class
+            
+            if isobject(S)
+                obj = S;
+            else
+                obj = arrayfun(@(x)loadobj_private_(x), S);
+            end
+        end
+        %------------------------------------------------------------------
+        
+    end
+    %======================================================================
+    
 end

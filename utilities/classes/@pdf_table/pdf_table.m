@@ -11,6 +11,8 @@ classdef pdf_table
     
     
     properties (Access=private)
+        % Class version number
+        class_version_ = 1;
         % x values
         x_ = zeros(0,1)
         % Normalised values of pdf
@@ -82,7 +84,11 @@ classdef pdf_table
             % a step at x=0 that jumps at x=1 to twice the height.
             
             
-            if nargin>0
+            if nargin==1 && isstruct(x)
+                % Assume trying to initialise from a structure array of properties
+                obj = pdf_table.loadobj(x);
+                
+            elseif nargin>0
                 % Check x values
                 if ~isnumeric(x) || ~isvector(x) || numel(x)<2 || any(diff(x)<0)
                     error('x values must be a vector length at least two and monotonic increasing')
@@ -105,7 +111,7 @@ classdef pdf_table
                 
                 if numel(f)~=numel(x)
                     error('The number of values of the pdf must equal the number of x values.')
-                elseif ~isvector(f) || ~all(isfinite(f)) || any(f)<0
+                elseif ~isvector(f) || ~all(isfinite(f)) || any(f<0)
                     error('The pdf values must all be finite and greater or equal to zero')
                 else
                     f = f(:);   % ensure column array
@@ -154,4 +160,68 @@ classdef pdf_table
         
         %------------------------------------------------------------------
     end
+    
+    %======================================================================
+    % Custom loadobj and saveobj
+    % - to enable custom saving to .mat files and bytestreams
+    % - to enable older class definition compatibility
+
+    methods
+        %------------------------------------------------------------------
+        function S = saveobj(obj)
+            % Method used my Matlab save function to support custom
+            % conversion to structure prior to saving.
+            %
+            %   >> S = saveobj(obj)
+            %
+            % Input:
+            % ------
+            %   obj     Scalar instance of the object class
+            %
+            % Output:
+            % -------
+            %   S       Structure created from obj that is to be saved
+            
+            % The following is boilerplate code; it calls a class-specific function
+            % called init_from_structure_ that takes a scalar structure and returns
+            % a scalar instance of the class
+            
+            S = structIndep(obj);
+        end
+    end
+    
+    %------------------------------------------------------------------
+    methods (Static)
+        function obj = loadobj(S)
+            % Static method used my Matlab load function to support custom
+            % loading.
+            %
+            %   >> obj = loadobj(S)
+            %
+            % Input:
+            % ------
+            %   S       Either (1) an object of the class, or (2) a structure
+            %           or structure array
+            %
+            % Output:
+            % -------
+            %   obj     Either (1) the object passed without change, or (2) an
+            %           object (or object array) created from the input structure
+            %       	or structure array)
+            
+            % The following is boilerplate code; it calls a class-specific function
+            % called iniSt_from_structure_ that takes a scalar structure and returns
+            % a scalar instance of the class
+            
+            if isobject(S)
+                obj = S;
+            else
+                obj = arrayfun(@(x)loadobj_private_(x), S);
+            end
+        end
+        %------------------------------------------------------------------
+        
+    end
+    %======================================================================
+    
 end

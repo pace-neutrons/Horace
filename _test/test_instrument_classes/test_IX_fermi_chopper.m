@@ -1,5 +1,5 @@
 classdef test_IX_fermi_chopper < TestCaseWithSave
-    % Test of obj2struct
+    % Test of IX_fermi_chopper
     properties
         f500
         f200

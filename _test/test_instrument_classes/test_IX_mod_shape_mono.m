@@ -77,7 +77,7 @@ classdef test_IX_mod_shape_mono < TestCaseWithSave
 
             npnt = 5e6;
             [tcovR,tmeanR] = rand_covariance (msm, npnt);
-            assertEqualToTol(tcov, tcovR, 'tol', [0.5,2e-2])
+            assertEqualToTol(tcov, tcovR, 'tol', [0.5,4e-2])
             assertEqualToTol(tmean, tmeanR, 'tol', [0.5,2e-2])
         end
         

@@ -22,6 +22,7 @@ classdef IX_fermi_chopper
         %             Only change the public properties, as this will force
         %             a recalculation.
         % ***************************************************************
+        class_version_ = 1;
         name_ = '';
         distance_ = 0;
         frequency_ = 0;
@@ -60,69 +61,100 @@ classdef IX_fermi_chopper
         function obj = IX_fermi_chopper (varargin)
             % Create fermi chopper object
             %
-            %   >> fermi_chopper = IX_fermi_chopper (distance,frequency,radius,curvature,slit_width)
+            %   >> chop = IX_fermi_chopper (distance,frequency,radius,curvature,slit_width)
             %
-            %   >> fermi_chopper = IX_fermi_chopper (...,slit_spacing)
-            %   >> fermi_chopper = IX_fermi_chopper (...,slit_spacing,width,height);
-            %   >> fermi_chopper = IX_fermi_chopper (...,slit_spacing,width,height,energy);
-            %   >> fermi_chopper = IX_fermi_chopper (...,slit_spacing,width,height,energy,phase);
-            %   >> fermi_chopper = IX_fermi_chopper (...,slit_spacing,width,height,energy,phase,jitter);
+            %   >> chop = IX_fermi_chopper (...,slit_spacing)
+            %   >> chop = IX_fermi_chopper (...,slit_spacing,width,height);
+            %   >> chop = IX_fermi_chopper (...,slit_spacing,width,height,energy);
+            %   >> chop = IX_fermi_chopper (...,slit_spacing,width,height,energy,phase);
+            %   >> chop = IX_fermi_chopper (...,slit_spacing,width,height,energy,phase,jitter);
             %
-            %   >> fermi_chopper = IX_fermi_chopper (name,...)
+            %   >> chop = IX_fermi_chopper (name,...)
             %
-            %   name            Name of the slit package (e.g. 'sloppy')
+            % Required:
             %   distance        Distance from sample (m) (+ve if upstream of sample, against the usual convention)
             %   frequency       Frequency of rotation (Hz)
             %   radius          Radius of chopper body (m)
             %   curvature       Radius of curvature of slits (m)
-            %   slit_width      Slit width (m)  (Fermi)
+            %   slit_width      Slit width (m)
+            %
+            % Optional:
             %   slit_spacing    Spacing between slit centres (m)
             %   width           Width of aperture (m)
             %   height          Height of aperture (m)
             %   energy          Energy of neutrons transmitted by chopper (mev)
             %   phase           Phase = true if correctly phased, =false if 180 degree rotated
             %   jitter          Timing uncertainty on chopper (FWHH) (microseconds)
+            %
+            %   name            Name of the slit package (e.g. 'sloppy')
+            %
+            %
+            % Note: any number of the arguments can given in arbitrary order
+            % after leading positional arguments if they are preceded by the
+            % argument name (including abbrevioations) with a preceding hyphen e.g.
+            %
+            %   >> chop = IX_fermi_chopper (distance,frequency,radius,curvatue,...
+            %               slit_width,'-energy',120,'-name','Chopper_1')
+            
             
             % Original author: T.G.Perring
             
+            
             % Use the non-dependent property set functions to force a check of type,
             % size etc.
-            if nargin>=1
-                noff=0;
-                if is_string(varargin{1})
-                    obj.name_ = varargin{1};
-                    noff=noff+1;
+            if nargin==1 && isstruct(varargin{1})
+                % Assume trying to initialise from a structure array of properties
+                obj = IX_fermi_chopper.loadobj(varargin{1});
+                
+            elseif nargin>0
+                namelist = {'name','distance','frequency','radius','curvature',...
+                    'slit_width','slit_spacing','width','height','energy','phase','jitter'};
+                [S, present] = parse_args_namelist ({namelist,{'char'}}, varargin{:});
+                
+                if present.name
+                    obj.name_ = S.name;
                 end
-                if any(nargin-noff==[5,6,8,9,10,11])
-                    obj.distance_  = varargin{noff+1};
-                    obj.frequency_ = varargin{noff+2};
-                    obj.radius_    = varargin{noff+3};
-                    obj.curvature_ = varargin{noff+4};
-                    obj.slit_width_= varargin{noff+5};
-                    if nargin-noff>=6
-                        obj.slit_spacing_ = varargin{noff+6};
-                        if obj.slit_width_>obj.slit_spacing_
-                            error('slit_spacing must be greater or equal to slit_width')
-                        end
-                    else
-                        obj.slit_spacing_ = obj.slit_width_;
-                    end
-                    if nargin-noff>=8
-                        obj.width_ = varargin{noff+7};
-                        obj.height_= varargin{noff+8};
-                    end
-                    if nargin-noff>=9
-                        obj.energy_ = varargin{noff+9};
-                    end
-                    if nargin-noff>=10
-                        obj.phase_ = varargin{noff+10};
-                    end
-                    if nargin-noff>=11
-                        obj.jitter_ = varargin{noff+11};
+                
+                if present.distance && present.frequency && present.radius &&...
+                        present.curvature && present.slit_width
+                    obj.distance_  = S.distance;
+                    obj.frequency_ = S.frequency;
+                    obj.radius_    = S.radius;
+                    obj.curvature_ = S.curvature;
+                    obj.slit_width_= S.slit_width;
+                else
+                    error ('Must give all of distance, frequency, radius, curvature and slit_width')
+                end
+                
+                if present.slit_spacing
+                    obj.slit_spacing_ = S.slit_spacing;
+                    if obj.slit_spacing_ < obj.slit_width_
+                        error('slit_spacing must be greater or equal to slit_width')
                     end
                 else
-                    error('Check number of input arguments')
+                    obj.slit_spacing_ = obj.slit_width_;
                 end
+                % 'width','height','energy','phase','jitter'};
+                if present.width
+                    obj.width_ = S.width;
+                end
+                
+                if present.height
+                    obj.height_ = S.height;
+                end
+                
+                if present.energy
+                    obj.energy_ = S.energy;
+                end
+                
+                if present.phase
+                    obj.phase_ = S.phase;
+                end
+                
+                if present.jitter
+                    obj.jitter_ = S.jitter;
+                end
+                
                 % Compute the pdf
                 obj.pdf_ = recompute_pdf_(obj);
             end
@@ -401,26 +433,65 @@ classdef IX_fermi_chopper
     end
     
     %======================================================================
-    methods (Static)
+    % Custom loadobj and saveobj
+    % - to enable custom saving to .mat files and bytestreams
+    % - to enable older class definition compatibility
+
+    methods
         %------------------------------------------------------------------
-        % loadobj (and maybe saveobj) for older class definition compatibility
-        %------------------------------------------------------------------
-        function obj = loadobj(S)
-            % Static method used my Matlab load function to support loading
-            % from older class versions written to .mat files
+        function S = saveobj(obj)
+            % Method used my Matlab save function to support custom
+            % conversion to structure prior to saving.
             %
+            %   >> S = saveobj(obj)
+            %
+            % Input:
+            % ------
+            %   obj     Scalar instance of the object class
+            %
+            % Output:
+            % -------
+            %   S       Structure created from obj that is to be saved
+            
             % The following is boilerplate code; it calls a class-specific function
             % called init_from_structure_ that takes a scalar structure and returns
+            % a scalar instance of the class
+            
+            S = structIndep(obj);
+        end
+    end
+    
+    %------------------------------------------------------------------
+    methods (Static)
+        function obj = loadobj(S)
+            % Static method used my Matlab load function to support custom
+            % loading.
+            %
+            %   >> obj = loadobj(S)
+            %
+            % Input:
+            % ------
+            %   S       Either (1) an object of the class, or (2) a structure
+            %           or structure array
+            %
+            % Output:
+            % -------
+            %   obj     Either (1) the object passed without change, or (2) an
+            %           object (or object array) created from the input structure
+            %       	or structure array)
+            
+            % The following is boilerplate code; it calls a class-specific function
+            % called iniSt_from_structure_ that takes a scalar structure and returns
             % a scalar instance of the class
             
             if isobject(S)
                 obj = S;
             else
-                obj = arrayfun(@(x)init_object_from_structure_(x), S);
+                obj = arrayfun(@(x)loadobj_private_(x), S);
             end
         end
+        %------------------------------------------------------------------
+        
     end
-    
     %======================================================================
-    
 end

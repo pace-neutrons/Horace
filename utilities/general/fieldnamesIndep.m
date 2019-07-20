@@ -1,19 +1,17 @@
 function names = fieldnamesIndep(obj)
-% Get the names of the independent properties of an object
+% Get the names of the independent properties of an object i.e. those that
+% are not dependent, transient or constant (this is what the Matlab
+% function 'save' does, according to the documentation of release 2019a)
+%
 % Use metaclass data to disocver the property names
 
 if isobject(obj)
     mc = metaclass(obj);
     if ~isempty(mc)
         props = mc.PropertyList;   % to get pointer
-        nprops = numel(props);
-        names = cell(nprops,1);
-        dependent = false(nprops,1);
-        for i=1:nprops
-            names{i} = props(i).Name;
-            dependent(i) = props(i).Dependent;
-        end
-        names = names(~dependent);
+        names = arrayfun(@(x)(x.Name),props,'UniformOutput',false);
+        independent = ~arrayfun(@(x)(x.Dependent||x.Transient||x.Constant),props);
+        names = names(independent);
     else    % old-stype matlab object (pre-R2008a)
         names = fieldnames(struct(obj));
     end

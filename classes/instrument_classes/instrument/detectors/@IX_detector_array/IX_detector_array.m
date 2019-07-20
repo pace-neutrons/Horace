@@ -1,12 +1,19 @@
 classdef IX_detector_array
     % Set of detector banks. Allows for banks with different detector types e.g.
-    % one can be of type IX_det_He3tube and another can be IX_det_slab
-    % This is not the same as an array of IX_detector_bank objects, for the
-    % following reasons:
-    %   (1) Detector array ensures that the detector indicies are unique
-    %   (2) The methods for a detector bank do not work on arrays.
+    % one detector bank can contain detectors exclusively of type IX_det_He3tube
+    % and another can contain detectors exclusively of type IX_det_slab.
+    %
+    % An IX_detector_array object is different to an array of IX_detector_bank
+    % objects, for the following reasons:
+    %   (1) IX_detector_array ensures that the detector indicies are unique
+    %       across all of the detector banks
+    %   (2) Methods such as calculation of detector efficieny will operate
+    %       on the entire array, calling the correct functions for each of
+    %       the different detector types in the differnt banks.
     
     properties (Access=private)
+        % Class version number
+        class_version_ = 1;
         % Array of IX_detector_bank objects (column vector)
         det_bank_ = IX_detector_bank
     end
@@ -53,8 +60,8 @@ classdef IX_detector_array
             % *OR*
             %
             %   id, x2, ...         Arguments as needed to create a single
-            %                       detector bank.
-            %                       See <a href="matlab:help('IX_detector_bank');">IX_detector_bank</a>
+            %                       detector bank object. For more details
+            %                       see <a href="matlab:help('IX_detector_bank');">IX_detector_bank</a>
             
             
             if nargin>0
@@ -126,7 +133,7 @@ classdef IX_detector_array
         end
         
         function val = get.det_bank(obj)
-             val = obj.det_bank_;
+            val = obj.det_bank_;
         end
         
         function val = get.ndet(obj)
@@ -140,5 +147,68 @@ classdef IX_detector_array
         
         %------------------------------------------------------------------
     end
+    
+    %======================================================================
+    % Custom loadobj and saveobj
+    % - to enable custom saving to .mat files and bytestreams
+    % - to enable older class definition compatibility
+    
+    methods
+        %------------------------------------------------------------------
+        function S = saveobj(obj)
+            % Method used my Matlab save function to support custom
+            % conversion to structure prior to saving.
+            %
+            %   >> S = saveobj(obj)
+            %
+            % Input:
+            % ------
+            %   obj     Scalar instance of the object class
+            %
+            % Output:
+            % -------
+            %   S       Structure created from obj that is to be saved
+            
+            % The following is boilerplate code; it calls a class-specific function
+            % called init_from_structure_ that takes a scalar structure and returns
+            % a scalar instance of the class
+            
+            S = structIndep(obj);
+        end
+    end
+    
+    %------------------------------------------------------------------
+    methods (Static)
+        function obj = loadobj(S)
+            % Static method used my Matlab load function to support custom
+            % loading.
+            %
+            %   >> obj = loadobj(S)
+            %
+            % Input:
+            % ------
+            %   S       Either (1) an object of the class, or (2) a structure
+            %           or structure array
+            %
+            % Output:
+            % -------
+            %   obj     Either (1) the object passed without change, or (2) an
+            %           object (or object array) created from the input structure
+            %       	or structure array)
+            
+            % The following is boilerplate code; it calls a class-specific function
+            % called iniSt_from_structure_ that takes a scalar structure and returns
+            % a scalar instance of the class
+            
+            if isobject(S)
+                obj = S;
+            else
+                obj = arrayfun(@(x)loadobj_private_(x), S);
+            end
+        end
+        %------------------------------------------------------------------
+        
+    end
+    %======================================================================
     
 end

@@ -5,16 +5,17 @@ classdef IX_det_slab < IX_det_abstractType
     % The class does not define the position or orientation, which is done
     % elsewhere.
     
-
+    
     % Original author: T.G.Perring
     %
     % $Revision: 841 $ ($Date: 2019-02-11 14:13:46 +0000 (Mon, 11 Feb 2019) $)
-
-
+    
+    
     properties (Access=private)
         % Stored properties - but kept private and accessible only through
         % public dependent properties because validity checks of setters
         % may require checks against the other properties
+        class_version_ = 1;
         depth_  = 0;    % Column vector
         width_  = 0;    % Column vector
         height_ = 0;    % Column vector
@@ -43,7 +44,7 @@ classdef IX_det_slab < IX_det_abstractType
             %   >> obj = IX_det_slab (depth, width, height, atten)
             %
             % The origin of the detector coordinate frame the the centre of the detector
-            % and has x perpendicular to the detector face but into the detector. The 
+            % and has x perpendicular to the detector face but into the detector. The
             % fron face of the detector is therefore at negative x.
             %
             % Input:
@@ -143,4 +144,67 @@ classdef IX_det_slab < IX_det_abstractType
         %------------------------------------------------------------------
         
     end
+    %======================================================================
+    % Custom loadobj and saveobj
+    % - to enable custom saving to .mat files and bytestreams
+    % - to enable older class definition compatibility
+    
+    methods
+        %------------------------------------------------------------------
+        function S = saveobj(obj)
+            % Method used my Matlab save function to support custom
+            % conversion to structure prior to saving.
+            %
+            %   >> S = saveobj(obj)
+            %
+            % Input:
+            % ------
+            %   obj     Scalar instance of the object class
+            %
+            % Output:
+            % -------
+            %   S       Structure created from obj that is to be saved
+            
+            % The following is boilerplate code; it calls a class-specific function
+            % called init_from_structure_ that takes a scalar structure and returns
+            % a scalar instance of the class
+            
+            S = structIndep(obj);
+        end
+    end
+    
+    %------------------------------------------------------------------
+    methods (Static)
+        function obj = loadobj(S)
+            % Static method used my Matlab load function to support custom
+            % loading.
+            %
+            %   >> obj = loadobj(S)
+            %
+            % Input:
+            % ------
+            %   S       Either (1) an object of the class, or (2) a structure
+            %           or structure array
+            %
+            % Output:
+            % -------
+            %   obj     Either (1) the object passed without change, or (2) an
+            %           object (or object array) created from the input structure
+            %       	or structure array)
+            
+            % The following is boilerplate code; it calls a class-specific function
+            % called iniSt_from_structure_ that takes a scalar structure and returns
+            % a scalar instance of the class
+            
+            if isobject(S)
+                obj = S;
+            else
+                obj = arrayfun(@(x)loadobj_private_(x), S);
+            end
+        end
+        %------------------------------------------------------------------
+        
+    end
+    %======================================================================
+    
 end

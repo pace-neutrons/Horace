@@ -18,6 +18,7 @@ classdef IX_mod_shape_mono
         %             Only change the public properties, as this will force
         %             a recalculation.
         % ***************************************************************
+        class_version_ = 1;
         moderator_ = IX_moderator();
         shaping_chopper_ = IX_doubledisk_chopper();
         mono_chopper_ = IX_doubledisk_chopper();
@@ -37,33 +38,38 @@ classdef IX_mod_shape_mono
         %------------------------------------------------------------------
         % Constructor
         %------------------------------------------------------------------
-        function obj = IX_mod_shape_mono (moderator, shaping_chopper, mono_chopper, energy)
+        function obj = IX_mod_shape_mono (varargin)
             % Create moderator-shaping chopper-monochromating chopper object
             %
             %   >> obj = IX_mod_shape_mono (moderator, shaping_chopper, mono_chopper)
             %   >> obj = IX_mod_shape_mono (moderator, shaping_chopper, mono_chopper, energy)
             %
-            % Input:
-            % ------
+            % Reuired:
             %   moderator       IX_moderator object
             %   shaping_chopper IX_doubledisk_chopper object
             %   mono_chopper    IX_doubledisk_chopper object
             %
-            % Optional argument:
+            % Optional:
             %   energy          Neutron energy.
             %                   Default: taken from tne IX_moderator object
             
+            
             % Original author: T.G.Perring
+            
             
             % Use the non-dependent property set functions to force a check of type,
             % size etc.
-            if nargin==3 || nargin==4
-                obj.moderator_ = moderator;
-                obj.shaping_chopper_ = shaping_chopper;
-                obj.mono_chopper_ = mono_chopper;
+            if nargin==1 && isstruct(varargin{1})
+                % Assume trying to initialise from a structure array of properties
+                obj = IX_mod_shape_mono.loadobj(varargin{1});
+                
+            elseif nargin==3 || nargin==4
+                obj.moderator_ = varargin{1};
+                obj.shaping_chopper_ = varargin{2};
+                obj.mono_chopper_ = varargin{3};
                 if nargin==4
-                    if valid_energy(energy)
-                        obj.energy = energy;
+                    if valid_energy(varargin{4})
+                        obj.energy = varargin{4};
                     else
                         error('Energy must be a scalar value greater than or equal to zero')
                     end
@@ -71,6 +77,7 @@ classdef IX_mod_shape_mono
                     obj.energy = obj.moderator_.energy;
                 end
                 obj.shaped_mod_ = obj.recompute_shaped_mod_();
+                
             elseif nargin~=0
                 error('Check the number of input arguments')
             end
@@ -199,7 +206,70 @@ classdef IX_mod_shape_mono
             status = ((x0/xa)*fwhh_shaping_chopper < fwhh_moderator);
         end
     end
+
+    %======================================================================
+    % Custom loadobj and saveobj
+    % - to enable custom saving to .mat files and bytestreams
+    % - to enable older class definition compatibility
+
+    methods
+        %------------------------------------------------------------------
+        function S = saveobj(obj)
+            % Method used my Matlab save function to support custom
+            % conversion to structure prior to saving.
+            %
+            %   >> S = saveobj(obj)
+            %
+            % Input:
+            % ------
+            %   obj     Scalar instance of the object class
+            %
+            % Output:
+            % -------
+            %   S       Structure created from obj that is to be saved
+            
+            % The following is boilerplate code; it calls a class-specific function
+            % called init_from_structure_ that takes a scalar structure and returns
+            % a scalar instance of the class
+            
+            S = structIndep(obj);
+        end
+    end
     
+    %------------------------------------------------------------------
+    methods (Static)
+        function obj = loadobj(S)
+            % Static method used my Matlab load function to support custom
+            % loading.
+            %
+            %   >> obj = loadobj(S)
+            %
+            % Input:
+            % ------
+            %   S       Either (1) an object of the class, or (2) a structure
+            %           or structure array
+            %
+            % Output:
+            % -------
+            %   obj     Either (1) the object passed without change, or (2) an
+            %           object (or object array) created from the input structure
+            %       	or structure array)
+            
+            % The following is boilerplate code; it calls a class-specific function
+            % called iniSt_from_structure_ that takes a scalar structure and returns
+            % a scalar instance of the class
+            
+            if isobject(S)
+                obj = S;
+            else
+                obj = arrayfun(@(x)loadobj_private_(x), S);
+            end
+        end
+        %------------------------------------------------------------------
+        
+    end
+    %======================================================================
+        
 end
 
 %------------------------------------------------------------------

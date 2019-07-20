@@ -4,7 +4,7 @@ classdef IX_aperture
         % Stored properties - but kept private and accessible only through
         % public dependent properties because validity checks of setters
         % require checks against the other properties
-        
+        class_version_ = 1;
         name_ = '';
         distance_ = 0;
         width_ = 0;
@@ -29,25 +29,44 @@ classdef IX_aperture
             %   >> aperture = IX_aperture (distance, width, height)
             %   >> aperture = IX_aperture (name, distance, width, height)
             %
-            %   name            Name of the aperture (e.g. 'in-pile')
+            % Required:
             %   distance        Distance from sample (-ve if upstream, +ve if downstream)
             %   width           Full width of aperture (m)
             %   height          Full height of aperture (m)
+            %
+            % Optional:
+            %   name            Name of the aperture (e.g. 'in-pile')
+            %
+            %
+            % Note: any number of the arguments can given in arbitrary order
+            % after leading positional arguments if they are preceded by the 
+            % argument name (including abbreviations) with a preceding hyphen e.g.
+            %
+            %   ap = IX_aperture (distance, width, height,'-name','in-pile')
+            
+            
+            % Original author: T.G.Perring
+
             
             % Use the non-dependent property set functions to force a check of type,
             % size etc.
-            if nargin>=1
-                noff=0;
-                if is_string(varargin{1})
-                    obj.name_ = varargin{1};
-                    noff=noff+1;
+            if nargin==1 && isstruct(varargin{1})
+                % Assume trying to initialise from a structure array of properties
+                obj = IX_aperture.loadobj(varargin{1});
+                
+            elseif nargin>0
+                namelist = {'name','distance','width','height'};
+                [S, present] = parse_args_namelist ({namelist,{'char'}}, varargin{:});
+                
+                if present.name
+                    obj.name_ = S.name;
                 end
-                if nargin-noff==3
-                    obj.distance_ = varargin{noff+1};
-                    obj.width_    = varargin{noff+2};
-                    obj.height_   = varargin{noff+3};
+                if present.distance && present.width && present.height
+                    obj.distance_ = S.distance;
+                    obj.width_ = S.width;
+                    obj.height_ = S.height;
                 else
-                    error('Check number of input arguments')
+                    error('Must give distance, width and height')
                 end
             end
         end
@@ -137,5 +156,69 @@ classdef IX_aperture
         
         %------------------------------------------------------------------
     end
-
+    
+    
+    %======================================================================
+    % Custom loadobj and saveobj
+    % - to enable custom saving to .mat files and bytestreams
+    % - to enable older class definition compatibility
+    
+    methods
+        %------------------------------------------------------------------
+        function S = saveobj(obj)
+            % Method used my Matlab save function to support custom
+            % conversion to structure prior to saving.
+            %
+            %   >> S = saveobj(obj)
+            %
+            % Input:
+            % ------
+            %   obj     Scalar instance of the object class
+            %
+            % Output:
+            % -------
+            %   S       Structure created from obj that is to be saved
+            
+            % The following is boilerplate code; it calls a class-specific function
+            % called init_from_structure_ that takes a scalar structure and returns
+            % a scalar instance of the class
+            
+            S = structIndep(obj);
+        end
+    end
+    
+    %------------------------------------------------------------------
+    methods (Static)
+        function obj = loadobj(S)
+            % Static method used my Matlab load function to support custom
+            % loading.
+            %
+            %   >> obj = loadobj(S)
+            %
+            % Input:
+            % ------
+            %   S       Either (1) an object of the class, or (2) a structure
+            %           or structure array
+            %
+            % Output:
+            % -------
+            %   obj     Either (1) the object passed without change, or (2) an
+            %           object (or object array) created from the input structure
+            %       	or structure array)
+            
+            % The following is boilerplate code; it calls a class-specific function
+            % called iniSt_from_structure_ that takes a scalar structure and returns
+            % a scalar instance of the class
+            
+            if isobject(S)
+                obj = S;
+            else
+                obj = arrayfun(@(x)loadobj_private_(x), S);
+            end
+        end
+        %------------------------------------------------------------------
+        
+    end
+    %======================================================================
+    
 end
