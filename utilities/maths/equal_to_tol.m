@@ -366,8 +366,13 @@ elseif isobject(a) && isobject(b)
             name_a_ind = name_a;
             name_b_ind = name_b;
         end
-        Sa = struct(a(i));
-        Sb = struct(b(i));
+        if i==1     % to dealwith containers.Map objects
+            Sa = struct(a);
+            Sb = struct(b);
+        else
+            Sa = struct(a(i));
+            Sb = struct(b(i));
+        end
         for j=1:numel(fields)
             [ok,mess] = equal_to_tol_private(Sa.(fields{j}), Sb.(fields{j}), opt,...
                 [name_a_ind,'.',fields{j}], [name_b_ind,'.',fields{j}]);
