@@ -1,4 +1,4 @@
-function varargout=test_tobyfit_1 (option, version)
+function test_tobyfit_1 (option, version)
 % Test basic aspects of Tobyfit
 %
 % Perform tests:
@@ -18,10 +18,7 @@ function varargout=test_tobyfit_1 (option, version)
 %
 % Do any of the above, run with the legacy version of Tobyfit:
 %   >> test_tobyfit_1 (...,'-legacy')
-%
-% In all of the above, get the full output of the fits as a structure:
-%
-%   >> res = test_tobyfit_1 (...)
+
 
 % ----------------------------------------------------------------------------
 % Setup (should only have to do in extremis - assumes data on Toby Perring's computer
@@ -108,9 +105,6 @@ if save_data
     datafile_full = fullfile(tempdir,datafile);
     save(datafile_full,'w110a','w110b','w110arr');
     disp(['Saved data for future use in',datafile_full])
-    if nargout>0
-        varargout{1}=true;
-    end
     return
     
 else
@@ -223,8 +217,6 @@ pause(2)
 if test_output
     disp('Comparing with stored fit')
     if ~is_same_fit (fp110a1,   tmp.fp110a1,   fac, [1,0,0,0,0])
-        warning('fp110a1 not same. Press <cr> to continue')
-        pause
         error('fp110a1 not same')
     end
 end
@@ -260,8 +252,6 @@ pause(2)
 if test_output
     disp('Comparing with stored fit')
     if ~is_same_fit (fp110a2,   tmp.fp110a2,   fac, [1,0,0,0,0])
-        warning('fp110a2 not same. Press <cr> to continue')
-        pause
         error('fp110a2 not same')
     end
 end
@@ -301,8 +291,6 @@ pause(2)
 if test_output
     disp('Comparing with stored fit')
     if ~is_same_fit (fp110a3,   tmp.fp110a3,   fac, [1,0,0], [0,0])
-        warning('fp110a3 not same. Press <cr> to continue')
-        pause
         error('fp110a3 not same')
     end
 end
@@ -340,8 +328,6 @@ pause(2)
 if test_output
     disp('Comparing with stored fit')
     if ~is_same_fit (fp110a4,   tmp.fp110a4,   fac)
-        warning('fp110a4 not same. Press <cr> to continue')
-        pause
         error('fp110a4 not same')
     end
 end
@@ -387,8 +373,6 @@ pause(2)
 if test_output
     disp('Comparing with stored fit')
     if ~is_same_fit (fp110arr1,   tmp.fp110arr1,   fac)
-        warning('fp110arr1 not same. Press <cr> to continue')
-        pause
         error('fp110arr1 not same')
     end
 end
@@ -434,57 +418,52 @@ pause(2)
 if test_output
     disp('Comparing with stored fit')
     if ~is_same_fit (fp110arr2,   tmp.fp110arr2,   fac)
-        warning('fp110arr2 not same. Press <cr> to continue')
-        pause
         error('fp110arr2 not same')
     end
 end
 
-%% --------------------------------------------------------------------------------------
-% Collect results together as a structure
-% ---------------------------------------------------------------------------------------
+% %% --------------------------------------------------------------------------------------
+% % Collect results together as a structure
+% % ---------------------------------------------------------------------------------------
+% 
+% % Cuts
+% res.w110a=w110a;
+% res.w110b=w110b;
+% res.w110arr=w110arr;
+% 
+% % First simulations
+% res.w110a_eval=w110a_eval;
+% res.w110a_sim=w110a_sim;
+% 
+% res.w110b_eval=w110b_eval;
+% res.w110b_sim=w110b_sim;
+% 
+% % Fits to single cuts
+% res.w110a1_sim=w110a1_sim;
+% res.w110a1_tf=w110a1_tf;
+% res.fp110a1=fp110a1;
+% 
+% res.w110a2_sim=w110a2_sim;
+% res.w110a2_tf=w110a2_tf;
+% res.fp110a2=fp110a2;
+% 
+% res.w110a3_sim=w110a3_sim;
+% res.w110a3_tf=w110a3_tf;
+% res.fp110a3=fp110a3;
+% 
+% res.w110a4_sim=w110a4_sim;
+% res.w110a4_tf=w110a4_tf;
+% res.fp110a4=fp110a4;
+% 
+% % Fits to multiple cuts
+% res.w110arr1_sim=w110arr1_sim;
+% res.w110arr1_tf=w110arr1_tf;
+% res.fp110arr1=fp110arr1;
+% 
+% res.w110arr2_sim=w110arr2_sim;
+% res.w110arr2_tf=w110arr2_tf;
+% res.fp110arr2=fp110arr2;
 
-% Cuts
-res.w110a=w110a;
-res.w110b=w110b;
-res.w110arr=w110arr;
-
-% First simulations
-res.w110a_eval=w110a_eval;
-res.w110a_sim=w110a_sim;
-
-res.w110b_eval=w110b_eval;
-res.w110b_sim=w110b_sim;
-
-% Fits to single cuts
-res.w110a1_sim=w110a1_sim;
-res.w110a1_tf=w110a1_tf;
-res.fp110a1=fp110a1;
-
-res.w110a2_sim=w110a2_sim;
-res.w110a2_tf=w110a2_tf;
-res.fp110a2=fp110a2;
-
-res.w110a3_sim=w110a3_sim;
-res.w110a3_tf=w110a3_tf;
-res.fp110a3=fp110a3;
-
-res.w110a4_sim=w110a4_sim;
-res.w110a4_tf=w110a4_tf;
-res.fp110a4=fp110a4;
-
-% Fits to multiple cuts
-res.w110arr1_sim=w110arr1_sim;
-res.w110arr1_tf=w110arr1_tf;
-res.fp110arr1=fp110arr1;
-
-res.w110arr2_sim=w110arr2_sim;
-res.w110arr2_tf=w110arr2_tf;
-res.fp110arr2=fp110arr2;
-
-if nargout>0
-    varargout{1}=res;
-end
 
 
 %% --------------------------------------------------------------------------------------

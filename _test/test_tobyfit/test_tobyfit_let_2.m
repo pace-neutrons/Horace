@@ -1,4 +1,4 @@
-function varargout=test_tobyfit_let_2 (option)
+function test_tobyfit_let_2 (option)
 % Test basic aspects of Tobyfit
 %
 % Setup (should only have to do in extremis):
@@ -16,10 +16,7 @@ function varargout=test_tobyfit_let_2 (option)
 %
 %   >> test_tobyfit_let_2 ('-notest')   % Run without testing against previously stored results.
 %                                       % For performing visual checks or debugging the tests!
-%
-% In all of the above, get the full output of the fits as a structure:
-%
-%   >> res = test_tobyfit_2 (...)
+
 
 % ----------------------------------------------------------------------------
 % Setup (should only have to do in extremis - assumes data on Toby Perring's computer
@@ -100,9 +97,6 @@ if save_data
     datafile_full = fullfile(tempdir,datafile);
     save(datafile_full,'w1');
     disp(['Saved data for future use in',datafile_full])
-    if nargout>0
-        varargout{1}=true;
-    end
     return
     
 else

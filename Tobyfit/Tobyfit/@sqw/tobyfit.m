@@ -49,6 +49,9 @@ if ~mfclass.legacy(varargin{:})
     % Get resolution function model type
     
     % Determine the instrument model
+    % There must be at least one sqw object in the argument list or this method
+    % would not have been called. However, it may not be the leading argument.
+    % We demand that the leading argument is an sqw object.
     % The input could be any number of sqw object arrays, followed by other arguments
     % hence the slightly involved procedure
     is_sqw_object = cellfun(@(x)isa(x,'sqw'), varargin);
@@ -58,16 +61,24 @@ if ~mfclass.legacy(varargin{:})
     else
         nsqw = ind-1;
     end
-    [inst, all_inst] = get_inst_class (varargin{1:nsqw});
-    if isempty(inst)
-        if all_inst
-            error('The instrument type must be the same for all datasets')
-        else
-            error('All sqw objects must now have the instrument type set as an instrument object')
+    if nsqw>0
+        try
+            [inst, all_inst] = get_inst_class (varargin{1:nsqw});
+        catch ME
+            error(ME.message)
         end
+        if isempty(inst)
+            if all_inst
+                error('The instrument type must be the same for all datasets')
+            else
+                error('All sqw objects must now have the instrument type set as an instrument object')
+            end
+        end
+    else
+        error('There must be at least one leading sqw object in the input argument list to Tobyfit')
     end
     
-    % For not actually failing with old syntax where the insturmnet type was set
+    % For not actually failing with old syntax where the instrument type was set
     % by a character string
     if numel(varargin)>1 && ischar(varargin{end})
         valid_models = {'fermi','disk'};
@@ -75,7 +86,7 @@ if ~mfclass.legacy(varargin{:})
         if numel(ind)==1
             model=valid_models{ind};
         else
-            warning(['The instrumnet is determined from the sqw object. Redundant option ''',...
+            warning(['The instrument is determined from the sqw object. Redundant option ''',...
                 varargin{end},''' ignored'])
         end
     end

@@ -1,4 +1,4 @@
-function varargout = test_tobyfit_refine_crystal_1 (option)
+function test_tobyfit_refine_crystal_1 (option)
 % Test Tobyfit versions refining moderator parameter for a single sqw dataset
 %
 % Perform tests:
@@ -14,11 +14,8 @@ function varargout = test_tobyfit_refine_crystal_1 (option)
 %
 %   >> test_tobyfit_refine_crystal_1 ('-notest')% Run without testing against previously stored results.
 %                                               % For performing visual checks or debugging the tests!
-%
-% In all of the above, get the full output of the fits as a structure:
-%
-%   >> res = test_tobyfit_refine_crystal_1 (...)
-%
+
+
 % ----------------------------------------------------------------------------
 % Setup (should only have to do in extremis - assumes data on Toby Perring's computer
 %   >> test_tobyfit_refine_crystal_1 ('-setup')
@@ -146,9 +143,6 @@ if save_data
     datafile_full = fullfile(dir_out,datafile);
     save(datafile_full,'wsim');
     disp(['Saved data for future use in',datafile_full])
-    if nargout>0
-        varargout{1}=true;
-    end
     return
     
 else
@@ -294,26 +288,23 @@ if test_output
 end
 
 
-%% --------------------------------------------------------------------------------------
-% Collect results together as a structure
-% ---------------------------------------------------------------------------------------
+% %% --------------------------------------------------------------------------------------
+% % Collect results together as a structure
+% % ---------------------------------------------------------------------------------------
+% 
+% res.rlu_corr = rlu_corr;
+% res.rotmat_fit = rotmat_fit;
+% 
+% res.w = w;
+% 
+% res.w_tf_a = w_tf_a;
+% res.fitpar_tf_a = fitpar_tf_a;
+% res.rlu_corr_tf_a = rlu_corr_tf_a;
+% 
+% res.w_tf_b = w_tf_b;
+% res.fitpar_tf_b = fitpar_tf_b;
+% res.rlu_corr_tf_b = rlu_corr_tf_b;
 
-res.rlu_corr = rlu_corr;
-res.rotmat_fit = rotmat_fit;
-
-res.w = w;
-
-res.w_tf_a = w_tf_a;
-res.fitpar_tf_a = fitpar_tf_a;
-res.rlu_corr_tf_a = rlu_corr_tf_a;
-
-res.w_tf_b = w_tf_b;
-res.fitpar_tf_b = fitpar_tf_b;
-res.rlu_corr_tf_b = rlu_corr_tf_b;
-
-if nargout>0
-    varargout{1}=res;
-end
 
 
 %% --------------------------------------------------------------------------------------

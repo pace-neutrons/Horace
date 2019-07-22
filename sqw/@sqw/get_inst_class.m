@@ -14,7 +14,7 @@ function [inst, all_inst] = get_inst_class (varargin)
 %              all sqw objects
 %               If there is not a common instrument class, then is returned as []
 %
-%   all_inst    True if instrumnets were set for all headers in all sqw objects
+%   all_inst    True if instruments were set for all headers in all sqw objects
 
 
 % Check data

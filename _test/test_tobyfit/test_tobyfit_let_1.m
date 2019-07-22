@@ -1,4 +1,4 @@
-function varargout=test_tobyfit_let_1 (option)
+function test_tobyfit_let_1 (option)
 % Test basic aspects of Tobyfit
 %
 % Perform tests:
@@ -14,11 +14,7 @@ function varargout=test_tobyfit_let_1 (option)
 %
 %   >> test_tobyfit_let_1 ('-notest')   % Run without testing against previously stored results.
 %                                       % For performing visual checks or debugging the tests!
-%
-%
-% In all of the above, get the full output of the fits as a structure:
-%
-%   >> res = test_tobyfit_let_1 (...)
+
 
 %% --------------------------------------------------------------------------------------
 nlist = 0;  % set to 1 or 2 for listing during fit
@@ -97,27 +93,21 @@ if test_output
     disp('Comparing with stored fit')
     fac=[0.25,0,0.02];
     if ~is_same_fit (fitpar_1,   tmp.fitpar_1,   fac)
-        warning('fitpar_1 not same. Press <cr> to continue')
-        pause
         error('par_fe_tf_1 not same')
     end
 end
 
 
 
-%% --------------------------------------------------------------------------------------
-% Collect results together as a structure
-% ---------------------------------------------------------------------------------------
+% %% --------------------------------------------------------------------------------------
+% % Collect results together as a structure
+% % ---------------------------------------------------------------------------------------
+% 
+% % Cuts
+% res.wdata_1 = wdata_1;
+% res.wfit_1 = wfit_1;
+% res.fitpar_1 = fitpar_1;
 
-% Cuts
-res.wdata_1 = wdata_1;
-res.wfit_1 = wfit_1;
-res.fitpar_1 = fitpar_1;
-
-
-if nargout>0
-    varargout{1}=res;
-end
 
 
 %% --------------------------------------------------------------------------------------

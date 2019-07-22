@@ -1,4 +1,4 @@
-function varargout = test_tobyfit_let_resfun_1 (option)
+function test_tobyfit_let_resfun_1 (option)
 % Test plotting of resolution function
 %
 % Perform tests:
@@ -16,10 +16,6 @@ function varargout = test_tobyfit_let_resfun_1 (option)
 %   >> test_test_tobyfit_let_resfun_1 ('-notest')   
 %               % Run without testing against previously stored results.
 %               % For performing visual checks or debugging the tests!
-%
-% In all of the above, get the full output of the fits as a structure:
-%
-%   >> res = test_resfun_1 (...)
 
 
 %% --------------------------------------------------------------------------------------
@@ -86,8 +82,6 @@ ww1=resolution_plot([2-0.01,2+0.01],instru,sample,det,efix,emode,alatt,angdeg,u,
 if test_output
     if ~equal_to_tol(ww1,tmp.ww1,[1e-8,1e-8])
         mess = 'ww1 not the same';
-        warning ([mess,'. Press <cr> to continue'])
-        pause
         error(mess)
     end
 end
@@ -98,8 +92,6 @@ ww2=resolution_plot([2-0.01,2+0.01],instru,sample,det,efix,emode,alatt,angdeg,u,
 if test_output
     if ~equal_to_tol(ww2,tmp.ww2,[1e-8,1e-8])
         mess = 'ww2 not the same';
-        warning ([mess,'. Press <cr> to continue'])
-        pause
         error(mess)
     end
 end
@@ -122,27 +114,22 @@ cov1 = resolution_plot (w_nb_qe, [0.05,1.20; 0.15,2.80], 'curr');
 if test_output
     if ~equal_to_tol(cov1,tmp.cov1,[1e-8,1e-8])
         mess = 'cov1 not the same';
-        warning ([mess,'. Press <cr> to continue'])
-        pause
         error(mess)
     end
 end
 pause(pause_time)
 
 
-%% --------------------------------------------------------------------------------------
-% Collect results together as a structure
-% ---------------------------------------------------------------------------------------
+% %% --------------------------------------------------------------------------------------
+% % Collect results together as a structure
+% % ---------------------------------------------------------------------------------------
+% 
+% % Cuts
+% res.w_nb_qe = w_nb_qe;
+% res.ww1 = ww1;
+% res.ww2 = ww2;
+% res.cov1 = cov1;
 
-% Cuts
-res.w_nb_qe = w_nb_qe;
-res.ww1 = ww1;
-res.ww2 = ww2;
-res.cov1 = cov1;
-
-if nargout>0
-    varargout{1}=res;
-end
 
 
 %% --------------------------------------------------------------------------------------
