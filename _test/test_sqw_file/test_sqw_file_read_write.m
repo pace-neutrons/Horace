@@ -23,11 +23,13 @@ end
 
 % Create three different samples
 sam1=IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);
-%assertEqual(put_variable_to_binfile(-1,sam1),518);
-sam2=IX_sample(true,[1,1,1],[0,2,1],'cylinder_long_name',rand(1,5));
-%assertEqual(put_variable_to_binfile(-1,sam2),546);
-sam3=IX_sample(true,[1,1,0],[0,0,1],'hypercube_really_long_name',rand(1,6));
-%assertEqual(put_variable_to_binfile(-1,sam3),546+16);
+sam2=IX_sample(true,[1,1,1],[5,0,1],'cuboid',[0.10,0.33,0.22]);
+sam3=IX_sample(true,[1,1,0],[0,0,1],'point',[]);
+
+% T.G.Perring 22/7/19: These do not currently exist, so replaced
+% sam2=IX_sample(true,[1,1,1],[0,2,1],'cylinder_long_name',rand(1,5));
+% sam3=IX_sample(true,[1,1,0],[0,0,1],'hypercube_really_long_name',rand(1,6));
+
 
 
 % Create three different instruments
