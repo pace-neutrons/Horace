@@ -1,4 +1,4 @@
-function herbert_init   
+function herbert_init
 % Adds the paths needed by Herbert.
 %
 % In your startup.m, add the Herbert root path and call herbert_init, e.g.
@@ -113,9 +113,9 @@ string=fullfile(varargin{:},'');    % '' needed to circumvent bug in fullfile if
 if exist(string,'dir')==7
     try
         addpath (genpath_special(string));
-    catch
+    catch ME
         herbert_off
-        error(lasterr);
+        error(ME);
     end
 else
     herbert_off
@@ -138,8 +138,8 @@ for i=1:numel(application_init_old)
         if exist(fullfile(pwd,[app_name,'_off.m']),'file') % check that 'off' routine exists in the particular rootpath
             try
                 feval([app_name,'_off'])    % call the 'off' routine
-            catch
-                message=lasterr;
+            catch ME
+                message=ME.message;
                 disp(['Unable to run function ',fullfile(pwd,[app_name,'_off.m']),'. Reason: ',message]);
             end
         else
@@ -151,9 +151,9 @@ for i=1:numel(application_init_old)
         rmpath(paths);
         warning(warn_state);    % return warnings to initial state
         cd(start_dir)           % return to starting directory
-    catch
+    catch ME
         cd(start_dir)           % return to starting directory
-        message=lasterr;
+        message=ME.message;
         disp(['Problems removing ',rootpath,' and any sub-directories from matlab path. Reason: ',message]);
     end
 end

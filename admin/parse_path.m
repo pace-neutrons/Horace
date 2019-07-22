@@ -31,7 +31,7 @@ function my_path=parse_path(in_path)
 
 dirs = regexp(in_path,'[\/\\]','split');
 
-if( size(dirs)==0);
+if( size(dirs)==0)
     my_path='';
     return;
 end

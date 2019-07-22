@@ -8,6 +8,7 @@ if ~exist(obj.mess_exchange_folder,'dir')
     err_mess = sprintf('Job with id %s have been cancelled. No message exchange folder exist',obj.job_id);
     return;
 end
+
 %
 if is_string(message) && ~isempty(message)
     message = aMessage(message);

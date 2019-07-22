@@ -1,5 +1,5 @@
 function p = genpath_special (d)
-% Generate recursive toolbox path excluding .svn and service folders, which start from 
+% Generate recursive toolbox path excluding .svn or .git and service folders, which start from 
 % symbol _
 %
 % Slightly modified version of Matlab intrinsic genpath.
@@ -22,7 +22,7 @@ function p = genpath_special (d)
 %   $Revision:: 830 ($Date:: 2019-04-08 14:20:59 +0100 (Mon, 8 Apr 2019) $
 %------------------------------------------------------------------------------
 
-if nargin==0,
+if nargin==0
     p = genpath(fullfile(matlabroot,'toolbox'));
     if length(p) > 1, p(end) = []; end % Remove trailing pathsep
     return
@@ -31,9 +31,12 @@ end
 % initialise variables
 classsep = '@';  % qualifier for overloaded class directories
 packagesep = '+';  % qualifier for overloaded package directories
-svn        = '.git'; % subversion folder
+svn        = '.svn'; % subversion folder
 service_dir = '_'; % qualifier for service folders
+
+exclude_list  = {'.','..',classsep,packagesep,svn,'.git'};
 p = '';           % path to be returned
+
 
 % Generate path based on given root directory
 files = dir(d);
@@ -54,12 +57,7 @@ dirs = files(isdir); % select only directory entries from the current listing
 
 for i=1:length(dirs)
     dirname = dirs(i).name;
-    if      ~strcmp( dirname,'.')           && ...
-            ~strcmp( dirname,'..')          && ...
-            ~strncmp( dirname,classsep,1)   && ...
-            ~strncmp( dirname,packagesep,1) && ...
-            ~strcmp( dirname,'private')     && ...
-            ~strcmp( dirname,svn)
+    if  ~any(ismember(exclude_list,dirname))
         if ~strncmp( dirname,service_dir,1)
             p = [p genpath_special(fullfile(d,dirname))]; % recursive calling of this function.
         else
@@ -67,12 +65,11 @@ for i=1:length(dirs)
                 % if folder has form _PCWIN64 or underscore followed by another operating system,
                 % put this and the relevant matlab mex file directory on the path
                 p = [p fullfile(d,dirname) pathsep];
-%addpath([dirname])
                 matlab_dir_name=matlab_version_folder(dirname);
                 if ~isempty(matlab_dir_name)
                     p = [p fullfile(d,dirname,matlab_dir_name) pathsep];
                 end
-%addpath(fullfile(d,dirname,matlab_dir_name))
+
             end
         end
         
