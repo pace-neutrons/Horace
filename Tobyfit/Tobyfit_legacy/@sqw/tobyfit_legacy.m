@@ -2,6 +2,12 @@ function [wout, fitdata, ok, mess, varargout] = tobyfit_legacy(win, varargin)
 % Simultaneously fits a resolution broadened model for S(Q,w) to an array of sqw
 % objects, with optional background functions.
 %
+% ********************************************************************************
+%    DEPRECATED FUNCTION: tobyfit_legacy
+%       Please replace this call to tobyfit_legacy with one to tobyfit which is
+%       much more flexible. Note that the argument list is a bit different.
+% ********************************************************************************
+%
 % Allows background functions (one per dataset) whose parameters
 % vary independently for each dataset to be added to the fit function.
 %
@@ -581,6 +587,16 @@ function [wout, fitdata, ok, mess, varargout] = tobyfit_legacy(win, varargin)
 %                 of data points
 %
 %   mess    Error message if ok==false; Empty string if ok==true.
+
+persistent first_time_call
+
+if isempty(first_time_call)
+    disp('% ********************************************************************************')
+    disp('%    DEPRECATED FUNCTION: tobyfit_legacy')
+    disp('%       Please replace this call to tobyfit_legacy with one to tobyfit which is')
+    disp('%       much more flexible. Note that the argument list is a bit different.')
+    disp('% ********************************************************************************')
+end
 
 %-------------------------------------------------------------------------------
 % <#doc_def:>
