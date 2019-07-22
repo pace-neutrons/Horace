@@ -1,4 +1,4 @@
-function varargout = test_tobyfit_resfun_1 (option)
+function test_tobyfit_resfun_1 (option)
 % Test plotting of resolution function
 %
 % Perform tests:
@@ -16,10 +16,7 @@ function varargout = test_tobyfit_resfun_1 (option)
 %   >> test_test_tobyfit_resfun_1 ('-notest')
 %               % Run without testing against previously stored results.
 %               % For performing visual checks or debugging the tests!
-%
-% In all of the above, get the full output of the fits as a structure:
-%
-%   >> test_test_tobyfit_resfun_1
+
 
 % ----------------------------------------------------------------------------
 % Setup (should only have to do in extremis - assumes data on Toby Perring's computer
@@ -74,9 +71,6 @@ if save_data
     datafile_full = fullfile(tempdir,datafile);
     save(datafile_full,'w2a','wce','w2b');
     disp(['Saved data for future use in',datafile_full])
-    if nargout>0
-        varargout{1}=true;
-    end
     return
     
 else
@@ -117,8 +111,6 @@ ww1=resolution_plot([12.5,13.5],inst,samp,det,100,1,[3,4,5],[90,90,90],[1,1,0],[
 if test_output
     if ~equal_to_tol(ww1,tmp.ww1,[1e-8,1e-8])
         mess = 'ww1 not the same';
-        warning ([mess,'. Press <cr> to continue'])
-        pause
         error(mess)
     end
 end
@@ -129,8 +121,6 @@ ww2=resolution_plot([-0.5,0.5],inst,samp,det,100,1,[3,4,5],[90,90,90],[1,1,0],[0
 if test_output
     if ~equal_to_tol(ww2,tmp.ww2,[1e-8,1e-8])
         mess = 'ww2 not the same';
-        warning ([mess,'. Press <cr> to continue'])
-        pause
         error(mess)
     end
 end
@@ -141,8 +131,6 @@ ww3=resolution_plot([39.5,40.5],inst,samp,det,100,1,[3,4,5],[90,90,90],[1,1,0],[
 if test_output
     if ~equal_to_tol(ww3,tmp.ww3,[1e-8,1e-8])
         mess = 'ww3 not the same';
-        warning ([mess,'. Press <cr> to continue'])
-        pause
         error(mess)
     end
 end
@@ -165,8 +153,6 @@ cov1 = resolution_plot (w2a, [0.3,6; 0.7,6], 'curr');
 if test_output
     if ~equal_to_tol(cov1,tmp.cov1,[1e-8,1e-8])
         mess = 'cov1 not the same';
-        warning ([mess,'. Press <cr> to continue'])
-        pause
         error(mess)
     end
 end
@@ -187,14 +173,10 @@ cov3 = resolution_plot (wce, [0.64,0.5; 0.36,0.5], 'curr');
 if test_output
     if ~equal_to_tol(cov2,tmp.cov2,[1e-8,1e-8])
         mess = 'cov2 not the same';
-        warning ([mess,'. Press <cr> to continue'])
-        pause
         error(mess)
     end
     if ~equal_to_tol(cov3,tmp.cov3,[1e-8,1e-8])
         mess = 'cov3 not the same';
-        warning ([mess,'. Press <cr> to continue'])
-        pause
         error(mess)
     end
 end
@@ -212,35 +194,29 @@ cov4 = resolution_plot (w2b, [0.36,6; 0.64,6], 'curr');
 if test_output
     if ~equal_to_tol(cov4,tmp.cov4,[1e-8,1e-8])
         mess = 'cov4 not the same';
-        warning ([mess,'. Press <cr> to continue'])
-        pause
         error(mess)
     end
 end
 pause(pause_time)
 
 
-%% --------------------------------------------------------------------------------------
-% Collect results together as a structure
-% ---------------------------------------------------------------------------------------
-
-% Cuts
-res.w2a = w2a;
-res.wce = wce;
-res.w2b = w2b;
-
-res.ww1 = ww1;
-res.ww2 = ww2;
-res.ww3 = ww3;
-
-res.cov1 = cov1;
-res.cov2 = cov2;
-res.cov3 = cov3;
-res.cov4 = cov4;
-
-if nargout>0
-    varargout{1}=res;
-end
+% %% --------------------------------------------------------------------------------------
+% % Collect results together as a structure
+% % ---------------------------------------------------------------------------------------
+% 
+% % Cuts
+% res.w2a = w2a;
+% res.wce = wce;
+% res.w2b = w2b;
+% 
+% res.ww1 = ww1;
+% res.ww2 = ww2;
+% res.ww3 = ww3;
+% 
+% res.cov1 = cov1;
+% res.cov2 = cov2;
+% res.cov3 = cov3;
+% res.cov4 = cov4;
 
 
 %% --------------------------------------------------------------------------------------

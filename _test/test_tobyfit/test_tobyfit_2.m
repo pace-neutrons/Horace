@@ -1,4 +1,4 @@
-function varargout=test_tobyfit_2 (option)
+function test_tobyfit_2 (option)
 % Test basic aspects of Tobyfit
 %
 % Perform tests:
@@ -14,11 +14,7 @@ function varargout=test_tobyfit_2 (option)
 %
 %   >> test_tobyfit_2 ('-notest')   % Run without testing against previously stored results.
 %                                   % For performing visual checks or debugging the tests!
-%
-%
-% In all of the above, get the full output of the fits as a structure:
-%
-%   >> res = test_tobyfit_2 (...)
+
 
 % ----------------------------------------------------------------------------
 % Setup (should only have to do in extremis - assumes data on Toby Perring's computer
@@ -97,9 +93,6 @@ if save_data
     datafile_full = fullfile(tempdir,datafile);
     save(datafile_full,'fe_1','fe_2','fe_arr','rb_1','rb_arr');
     disp(['Saved data for future use in',datafile_full])
-    if nargout>0
-        varargout{1}=true;
-    end
     return
     
 else
@@ -159,8 +152,6 @@ pl(fback)
 if test_output
     disp('Comparing with stored fit')
     if ~is_same_fit (par_fe_tf_1,   tmp.par_fe_tf_1,   fac)
-        warning('par_fe_tf_1 not same. Press <cr> to continue')
-        pause
         error('par_fe_tf_1 not same')
     end
 end
@@ -174,7 +165,7 @@ end
 Seff = 6000; SJ = 8.8; gap = 0.01; gam=0.04;   const=0;  grad=0;
 
 disp(' ')
-disp('Fitting RRbMnF3 data...')
+disp('Fitting RbMnF3 data...')
 kk = tobyfit(rb);
 kk = kk.set_local_foreground;
 kk = kk.set_fun(@testfunc_rbmnf3_sqw,[Seff, SJ, gap, gam],[1,1,0,0]);
@@ -192,9 +183,7 @@ pl(fback)
 if test_output
     disp('Comparing with stored fit')
     if ~is_same_fit (par_rb_tf_1,   tmp.par_rb_tf_1,   fac)
-        warning('par_rb_tf_1 not same. Press <cr> to continue')
-        pause
-        error('par_fe_tf_1 not same')
+        error('par_rb_tf_1 not same')
     end
 end
 
@@ -236,37 +225,32 @@ pl(fback(rb_datasets))
 if test_output
     disp('Comparing with stored fit')
     if ~is_same_fit (par_ferb_tf_1,   tmp.par_ferb_tf_1,   fac)
-        warning('par_ferb_tf_1 not same. Press <cr> to continue')
-        pause
         error('par_ferb_tf_1 not same')
     end
 end
 
 
-%% --------------------------------------------------------------------------------------
-% Collect results together as a structure
-% ---------------------------------------------------------------------------------------
+% %% --------------------------------------------------------------------------------------
+% % Collect results together as a structure
+% % ---------------------------------------------------------------------------------------
+% 
+% % Cuts
+% res.fe = fe;
+% res.rb = rb;
+% res.ferb = ferb;
+% 
+% % Fe only fit
+% res.fe_tf_1 = fe_tf_1;
+% res.par_fe_tf_1 = par_fe_tf_1;
+% 
+% % Rb only fit
+% res.rb_tf_1 = rb_tf_1;
+% res.par_rb_tf_1 = par_rb_tf_1;
+% 
+% % Fe and Rb simultaneous fit
+% res.ferb_tf_1 = ferb_tf_1;
+% res.par_ferb_tf_1 = par_ferb_tf_1;
 
-% Cuts
-res.fe = fe;
-res.rb = rb;
-res.ferb = ferb;
-
-% Fe only fit
-res.fe_tf_1 = fe_tf_1;
-res.par_fe_tf_1 = par_fe_tf_1;
-
-% Rb only fit
-res.rb_tf_1 = rb_tf_1;
-res.par_rb_tf_1 = par_rb_tf_1;
-
-% Fe and Rb simultaneous fit
-res.ferb_tf_1 = ferb_tf_1;
-res.par_ferb_tf_1 = par_ferb_tf_1;
-
-if nargout>0
-    varargout{1}=res;
-end
 
 
 %% --------------------------------------------------------------------------------------

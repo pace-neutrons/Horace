@@ -1,4 +1,4 @@
-function varargout = test_tobyfit_refine_moderator_1 (option, version)
+function test_tobyfit_refine_moderator_1 (option, version)
 % Test Tobyfit versions refining moderator parameter for a single sqw dataset
 %
 % Perform tests:
@@ -18,10 +18,7 @@ function varargout = test_tobyfit_refine_moderator_1 (option, version)
 %
 % Do any of the above, run with the legacy version of Tobyfit:
 %   >> test_tobyfit_1 (...,'-legacy')
-%
-% In all of the above, get the full output of the fits as a structure:
-%
-%   >> res = test_tobyfit_refine_moderator_1 (...)
+
 
 % ----------------------------------------------------------------------------
 % Setup (should only have to do in extremis - assumes data on Toby Perring's computer
@@ -95,9 +92,6 @@ if save_data
     datafile_full = fullfile(tempdir,datafile);
     save(datafile_full,'w1inc');
     disp(['Saved data for future use in',datafile_full])
-    if nargout>0
-        varargout{1}=true;
-    end
     return
     
 else
@@ -178,24 +172,19 @@ end
 if test_output
     disp('Comparing with stored fit')
     if ~is_same_fit (pfit,   tmp.pfit,   fac, [1,0,1,1,1,1])  % dont compare shift, as so small
-        warning('fit parameters not same as those stored. Press <cr> to continue')
-        pause
         error('fit parameters not same as those stored')
     end
 end
 
 
-%% ================================================================================================
-% Collect results together as a structure
-% ---------------------------------------------------------------------------------------
-res.w1fit=w1fit;
-res.pfit=pfit;
-res.pmodel=pmodel;
-res.ppfit=ppfit;
+% %% ================================================================================================
+% % Collect results together as a structure
+% % ---------------------------------------------------------------------------------------
+% res.w1fit=w1fit;
+% res.pfit=pfit;
+% res.pmodel=pmodel;
+% res.ppfit=ppfit;
 
-if nargout>0
-    varargout{1}=res;
-end
 
 
 %% ================================================================================================
