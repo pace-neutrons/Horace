@@ -1,6 +1,6 @@
 function hpc(varargin)
 % function tries to identify if current system is a high performance
-% computer and sets up hpc options optimal for current system
+% computer and sets up hpc options which assumed to be optimal for current system
 %
 % based on very limited experience of comparing different systems in ISIS
 % recorded on Horace Download and setup web page:
@@ -32,25 +32,13 @@ function hpc(varargin)
 %  build_sqw_in_parallel: 0     -- use separate Matlab sessions when processing input spe or nxspe files
 %  parallel_workers_number: 4     -- how many sessions to use.
 
-
+hpc_options_names = {'combine_sqw_using','mex_combine_thread_mode','mex_combine_buffer_size',...
+        'build_sqw_in_parallel','parallel_workers_number'};
 
 if nargin>0
     val = varargin{1};
     if strcmpi(val,'on')
-        [use_mex_fcr,mex_comb_tmr,mex_comb_bsr,acspr,acp_numr]=find_hpc_options();
-        if use_mex_fcr ~= 1
-            warning('HPC:using_mex_for_combine',['Setting: ''combine_sqw_using=mex_code'' on this system may decrease ',...
-                    'the Horace performance.\nCheck system performance and hpc_config for optimal hpc options']);
-        end
-        if acspr ~= 1
-            warning('HPC:build_sqw_in_parallel',['Setting ''build_sqw_in_parallel=true'' on this system may decrease ',...
-                'the Horace performance.\nCheck system performance and hpc_config to select optimal hpc options']);
-        end
-        
-        set(hpc_config,...
-        'combine_sqw_using','mex_code','mex_combine_thread_mode',mex_comb_tmr,...
-        'mex_combine_buffer_size',mex_comb_bsr,...
-        'build_sqw_in_parallel',1,'parallel_workers_number',acp_numr);        
+        find_hpc_options(hpc_options_names,'-set_config');        
     elseif strcmpi(val,'off')
         hpc = hpc_config;
         hpc.combine_sqw_using = 'matlab';
@@ -59,10 +47,10 @@ if nargin>0
         fprintf('Unknown hpc option ''%s'', Use ''on'' or ''off'' only\n',varargin{1});
     end
 else
-    [use_mex_fcr,mex_comb_tmr,mex_comb_bsr,acspr,acp_numr]=find_hpc_options();
+    
+    [use_mex_fcr,mex_comb_tmr,mex_comb_bsr,acspr,acp_numr]=find_hpc_options(hpc_options_names);
     [use_mex_fcc,mex_comb_tmc,mex_comb_bsc,acspc,acp_numc]=get(hpc_config,...
-        'combine_sqw_using','mex_combine_thread_mode','mex_combine_buffer_size',...
-        'build_sqw_in_parallel','parallel_workers_number');
+        hpc_options_names{:});
     
     disp('| computer hpc options    | current val    | recommended val|');
     disp('|-------------------------|----------------|----------------|');
