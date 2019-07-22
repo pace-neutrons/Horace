@@ -41,7 +41,7 @@ classdef IX_inst_DGfermi < IX_inst
             % General case
             if nargin==1 && isstruct(varargin{1})
                 % Assume trying to initialise from a structure array of properties
-                obj = IX_inst.loadobj(varargin{1});
+                obj = IX_inst_DGfermi.loadobj(varargin{1});
                 
             elseif nargin>0
                 namelist = {'moderator','aperture','fermi_chopper','energy',...

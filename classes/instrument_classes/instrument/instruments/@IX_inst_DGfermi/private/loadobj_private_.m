@@ -31,14 +31,24 @@ obj = IX_inst_DGfermi();  % default instance of the object
 
 nams = fieldnames(S);
 
-ver = S.class_version_;
-if ver==1
-    % Assume the structure is of independent properties
-    for i=1:numel(nams)
-        nam = nams{i};
-        obj.(nam) = S.(nam);
+if isfield(S,'class_version_')
+    ver = S.class_version_;
+    if ver==1
+        % Assume the structure is of independent properties
+        for i=1:numel(nams)
+            nam = nams{i};
+            obj.(nam) = S.(nam);
+        end
+    else
+        error('init_object_from_structure_:unrecognisedVersion',...
+            'Unrecognised class version number')
     end
 else
-    error('init_object_from_structure_:unrecognisedVersion',...
-        'Unrecognised class version number')
+    % Legacy instrument structure
+    if all(isfield(S,{'moderator','aperture','fermi_chopper'}))
+        obj = IX_inst_DGfermi (S.moderator,S.aperture,S.fermi_chopper);
+    else
+        error('init_object_from_structure_:unrecognisedStructure',...
+            'Unrecognised fields for unversioned instrument structure')
+    end
 end

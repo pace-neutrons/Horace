@@ -1,16 +1,44 @@
-function instrument = merlin_instrument(ei,hz,chopper)
+function inst = merlin_instrument(ei, hz, chopper, varargin)
 % Return instrument description for MERLIN
 %
-%   >> instrument = merlin_instrument(ei,hz,chopper)
+%   >> inst = merlin_instrument(ei, hz, chopper, '-version', inst_ver)
 %
 % Input:
 % ------
 %   ei          Incident energy (meV)
-%   hz          Chopper frequency
+%
+%   hz          Chopper frequency (Hz)
+%
 %   chopper     Fermi chopper package name ('S','A','B','G')
+%
+%   inst_ver    Instrument version:
+%                   inst_ver = 1    Original configuration
+%
+% Output:
+% -------
+%   inst        Instrument description: object of class IX_inst_DGfermi
+%               This class is recognised by Tobyfit and other resolution 
+%               function utilities
+
 
 % 11/6/15: Monitor2 1504mm before sample; M3 4247mm after sample (accounts
-% for being V monitrs)
+% for being V monitors)
+
+
+% Parse arguments
+% ---------------
+keyval_def =  struct('version',[]);  
+opt.prefix = '-';
+[par,keyval,present] = parse_arguments (varargin, keyval_def, opt);
+if numel(par)==0
+    if present.version
+        inst_ver = keyval.version;
+    else
+        error('Must give the instrument version')
+    end
+else
+    error('Check the number and type of input arguments')
+end
 
 
 % Check input arguments are valid
@@ -32,6 +60,10 @@ if is_string(chopper) && ~isempty(chopper)
     end
 else
     error('Check chopper argument is a character string')
+end
+
+if ~(isnumeric(inst_ver) && isscalar(inst_ver) && inst_ver==1)
+    error('Instrument version must be 1')
 end
 
 
@@ -67,7 +99,6 @@ fac=sqrt(merlin_flux_gain(ei));   % Compute effective aperture size from flux ga
 aperture=IX_aperture(distance,fac*width,fac*height);
 
 
-
 % -----------------------------------------------------------------------------
 % Fermi chopper
 % -----------------------------------------------------------------------------
@@ -88,12 +119,11 @@ chopper_array(2)=IX_fermi_chopper('a',     distance,hz,radius,1.300,0.00076);
 chopper_array(3)=IX_fermi_chopper('b',     distance,hz,radius,0.920,0.00129);
 chopper_array(4)=IX_fermi_chopper('g',     distance,hz,radius_gd,99999,0.0002);
 
+fermi_chopper=chopper_array(ind);
 
 % -----------------------------------------------------------------------------
 % Build instrument
 % -----------------------------------------------------------------------------
-instrument.moderator=moderator;
-instrument.aperture=aperture;
-fermi_chopper=chopper_array(ind);
-fermi_chopper.energy=ei;
-instrument.fermi_chopper=fermi_chopper;
+source = IX_source('ISIS','',50);
+inst = IX_inst_DGfermi (moderator, aperture, fermi_chopper, ei,...
+    '-name', 'MERLIN', '-source', source);

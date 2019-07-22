@@ -37,9 +37,9 @@
    </scarf_TestPerformanceChildTestHelper>
    <ndlt874_TestPerformanceChildTestHelper>
       <fake_test_operations>
-         <time_sec>0.000837653490794199</time_sec>
+         <time_sec>0.000655680792126579</time_sec>
          <comment>this is not a performance test itself but the test of performance test inheritance operational</comment>
-         <completed_on>[2019 6 6 17 5 36.145]</completed_on>
+         <completed_on>[2019 7 21 18 21 28.274]</completed_on>
       </fake_test_operations>
    </ndlt874_TestPerformanceChildTestHelper>
    <ndlt1121_TestPerformanceChildTestHelper>

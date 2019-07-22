@@ -37,9 +37,9 @@
    </ndlt1121_TestPerformance>
    <ndlt874_TestPerformance>
       <test_constructor_operations>
-         <time_sec>0.00116877642054654</time_sec>
+         <time_sec>0.000598427241312412</time_sec>
          <comment>this is not a performance test itself but the test of performance test operational</comment>
-         <completed_on>[2019 6 6 17 5 36.792]</completed_on>
+         <completed_on>[2019 7 21 18 21 28.835]</completed_on>
       </test_constructor_operations>
    </ndlt874_TestPerformance>
 </TestPerformance>

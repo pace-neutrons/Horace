@@ -136,7 +136,7 @@ classdef test_parse_args_namelist < TestCaseWithSave
         %--------------------------------------------------------------------------
         function test_10 (self)
             namelist = {'name','sx','targ','frequency'};
-            namelist_with_opt = {namelist,{'char','logical'}};
+            namelist_with_opt = {namelist,{'char','lognumscalar'}};
             [S, present] = parse_args_namelist (namelist_with_opt, '-targ',37);
             
             Sref.targ = 37;
@@ -149,7 +149,7 @@ classdef test_parse_args_namelist < TestCaseWithSave
         %--------------------------------------------------------------------------
         function test_11 (self)
             namelist = {'name','sx','targ','frequency'};
-            namelist_with_opt = {namelist,{'char','logical'}};
+            namelist_with_opt = {namelist,{'char','lognumscalar'}};
             [S, present] = parse_args_namelist (namelist_with_opt, 1, '-targ',37);
             
             Sref.sx = 1;
@@ -163,7 +163,7 @@ classdef test_parse_args_namelist < TestCaseWithSave
         %--------------------------------------------------------------------------
         function test_12 (self)
             namelist = {'name','sx','targ','frequency'};
-            namelist_with_opt = {namelist,{'char','logical'}};
+            namelist_with_opt = {namelist,{'char','lognumscalar'}};
             [S, present] = parse_args_namelist (namelist_with_opt, 'thing', '-targ',37);
             
             Sref.name = 'thing';

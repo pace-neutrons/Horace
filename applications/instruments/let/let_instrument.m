@@ -1,7 +1,10 @@
-function instrument = let_instrument(ei, hz5, hz3, slot5_mm, mode, inst_ver)
+function inst = let_instrument(ei, hz5, hz3, slot5_mm, mode, varargin)
 % Return instrument description for LET
 %
-%   >> instrument = let_instrument(ei, hz5, hz3, slot_mm, mode, inst_ver)
+%   >> inst = let_instrument(ei, hz5, hz3, slot_mm, mode, '-version', inst_ver)
+%
+% [NOTE: The older syntax still works if the version number is given:
+%   >> inst = let_instrument(ei, hz5, hz3, slot_mm, mode, inst_ver)
 %
 % Input parameters can be scalar or arrays. Array argument(s) result in an
 % array of isntrument descriptions, where any scalar arguments are the
@@ -11,9 +14,9 @@ function instrument = let_instrument(ei, hz5, hz3, slot5_mm, mode, inst_ver)
 % ------
 %   ei          Incident energy (meV)
 %
-%   hz5         Chopper 5  frequency
+%   hz5         Chopper 5 frequency (Hz)
 %
-%   hz3         Chopper 3 frequency
+%   hz3         Chopper 3 frequency (Hz)
 %
 %   slot5_mm    Full width of the chopper 5 slot (in mm)
 %               Permissible values depend on the instrument version (see below)
@@ -29,6 +32,17 @@ function instrument = let_instrument(ei, hz5, hz3, slot5_mm, mode, inst_ver)
 %                                   Covers period up to Autumn 2016
 %                   inst_ver = 2    LET with single focussing final guide
 %                                   section. Cover the period from Autumn 2017
+%
+%               Default: the latest version. Please ensure you specify 
+%               explicity the instrument version to ensure you get the
+%               same results from using this function even if the instrument
+%               is modified
+%
+% Output:
+% -------
+%   inst        Instrument description: object of class IX_inst_DGdisk
+%               This class is recognised by Tobyfit and other resolution 
+%               function utilities
 
 
 % Created by T.G.Perring
@@ -36,6 +50,24 @@ function instrument = let_instrument(ei, hz5, hz3, slot5_mm, mode, inst_ver)
 % TGP by RIB on 20 Dec 2016.
 %  Divergence data from McStas simulations performed by RIB and sent to TGP 
 % on 20 DEc 2016.
+
+
+% Parse input
+% -----------
+latest_version = 2;
+
+keyval_def =  struct('version',latest_version);
+opt.prefix = '-';
+[par,keyval,present] = parse_arguments (varargin, keyval_def, opt);
+
+% Parse to handle older syntax of 4th argument being inst_ver:
+if numel(par)==0
+    inst_ver = keyval.version;
+elseif numel(par)==1 && ~present.version
+    inst_ver = par{1};
+else
+    error('Check the number and type of input arguments')
+end
 
 
 % Check input arguments are valid
@@ -90,11 +122,11 @@ div.ver2_h = load(fullfile(data_dir,'LET_ver2_horiz_div.mat'));
 div.ver2_v = load(fullfile(data_dir,'LET_ver2_vert_div.mat'));
 
 % Construct instrument(s)
-instrument = LET_instrument_single (ei(1), hz5(1), hz3(1), slot5_mm(1), mode(1), inst_ver(1), div);
+inst = LET_instrument_single (ei(1), hz5(1), hz3(1), slot5_mm(1), mode(1), inst_ver(1), div);
 if n_inst>1
-    instrument = repmat(instrument,size(ei));
+    inst = repmat(inst,size(ei));
     for i=2:n_inst
-        instrument(i) = LET_instrument_single (ei(i), hz5(i), hz3(i), slot5_mm(i), mode(i), inst_ver(i), div);
+        inst(i) = LET_instrument_single (ei(i), hz5(i), hz3(i), slot5_mm(i), mode(i), inst_ver(i), div);
     end
 end
 
@@ -150,7 +182,6 @@ else
 end
 
 
-
 % -----------------------------------------------------------------------------
 % Disk choppers
 % -----------------------------------------------------------------------------
@@ -182,8 +213,6 @@ chop5=IX_doubledisk_chopper('chopper_5', xCh5toS, hz5, radius5_mm/1000, slot5_mm
 % -----------------------------------------------------------------------------
 % Build instrument
 % -----------------------------------------------------------------------------
-instrument.moderator = moderator;
-instrument.chop_shape = chop1;
-instrument.chop_mono = chop5;
-instrument.horiz_div = horiz_div;
-instrument.vert_div  = vert_div;
+source = IX_source('ISIS','',10);
+instrument = IX_inst_DGdisk (moderator, chop1, chop5,...
+    horiz_div, vert_div, ei, '-name', 'LET', '-source', source);

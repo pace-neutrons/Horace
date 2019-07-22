@@ -220,8 +220,12 @@ classdef IX_moderator
         end
         
         function obj=set.flux_model_(obj,val)
-            if is_string(val) && ~isempty(val)
-                [ok,mess,fullname] = obj.flux_models_.valid(val);
+            if is_string(val)
+                if ~isempty(val)
+                    [ok,mess,fullname] = obj.flux_models_.valid(val);
+                else
+                    [ok,mess,fullname] = obj.flux_models_.valid('uniform');     % For backwards compatibility
+                end
                 if ok
                     obj.flux_model_=fullname;
                 else
