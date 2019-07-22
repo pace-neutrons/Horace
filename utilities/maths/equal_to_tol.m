@@ -366,7 +366,7 @@ elseif isobject(a) && isobject(b)
             name_a_ind = name_a;
             name_b_ind = name_b;
         end
-        if i==1     % to dealwith containers.Map objects
+        if numel(a)==1     % to deal with containers.Map objects - will be scalar, a(1) fails!
             Sa = struct(a);
             Sb = struct(b);
         else
