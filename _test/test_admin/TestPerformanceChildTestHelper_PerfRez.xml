@@ -49,4 +49,18 @@
          <completed_on>[2019 4 8 16 26 13.192]</completed_on>
       </fake_test_operations>
    </ndlt1121_TestPerformanceChildTestHelper>
+   <host_192_168_243_37_TestPerformanceChildTestHelper>
+      <fake_test_operations>
+         <time_sec>0.000646</time_sec>
+         <comment>this is not a performance test itself but the test of performance test inheritance operational</comment>
+         <completed_on>[2019 7 5 10 2 57.009304]</completed_on>
+      </fake_test_operations>
+   </host_192_168_243_37_TestPerformanceChildTestHelper>
+   <host_192_168_243_156_TestPerformanceChildTestHelper>
+      <fake_test_operations>
+         <time_sec>0.000759</time_sec>
+         <comment>this is not a performance test itself but the test of performance test inheritance operational</comment>
+         <completed_on>[2019 7 19 18 2 35.764122]</completed_on>
+      </fake_test_operations>
+   </host_192_168_243_156_TestPerformanceChildTestHelper>
 </TestPerformanceChildTestHelper>
