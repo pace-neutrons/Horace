@@ -37,10 +37,11 @@ classdef config_store < handle
             
             if nargin>0
                 [fp,fn] = fileparts(varargin{1});
-                if strcmpi(fn,config_store.config_folder_name)
-                    newStore.config_folder_ = make_config_folder(config_store.config_folder_name,fp);
+                cfn = config_store.instance().config_folder_name;
+                if strcmpi(fn,cfn)
+                    newStore.config_folder_ = make_config_folder(cfn,fp);
                 else
-                    newStore.config_folder_ = make_config_folder(config_store.config_folder_name,varargin{1});
+                    newStore.config_folder_ = make_config_folder(cfn,varargin{1});
                 end
             else
                 % Initialise default config folder path according to

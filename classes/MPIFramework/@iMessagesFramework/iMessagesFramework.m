@@ -96,7 +96,8 @@ classdef iMessagesFramework
                 mkdir(obj.mess_exchange_folder);
             end
             existing_config_f = config_store.instance().config_folder;
-            remote_config_folder = fullfile(remote_job_base,config_store.config_folder_name);
+            config_f_name = config_store.instance().config_folder_name;
+            remote_config_folder = fullfile(remote_job_base,config_f_name);
             if ~strcmp(remote_config_folder,existing_config_f)
                 copy_existing_config_to_remote_(existing_config_f,remote_config_folder);
             end
