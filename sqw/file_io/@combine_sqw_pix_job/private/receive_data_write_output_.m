@@ -1,4 +1,13 @@
 function receive_data_write_output_(obj,common_par,fout,data_providers,data_remain,h_log_file)
+% common_par     -- the job info common for all parallel processes.
+% fout           -- initialized handle for opened binary file to write data
+% data_providers -- list of the lab nums will be sending data to the writer
+%                   job
+% data_remain    -- array of logical, indicating if a correspondent data
+%                   provider is active (all true at the beginning)
+% h_log_file     -- if > 0 - open handle to a log file opened on a head node
+%                   to keep the information about the job progress. 
+
 
 mpis = MPI_State.instance();
 is_deployed = mpis.is_deployed;
