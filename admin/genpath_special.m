@@ -60,6 +60,8 @@ for i=1:length(dirs)
     if  ~any(ismember(exclude_list,dirname))
         dirname = dirs(i).name;
         if ~strncmp( dirname,service_dir,1)
+            if strcmp(dirname,'private'); continue; end
+            
             p = [p genpath_special(fullfile(d,dirname))]; % recursive calling of this function.
         else
             if strcmpi(['_',computer],dirname)

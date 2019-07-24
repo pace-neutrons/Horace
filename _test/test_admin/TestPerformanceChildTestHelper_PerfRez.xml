@@ -65,9 +65,9 @@
    </host_192_168_243_156_TestPerformanceChildTestHelper>
    <host_192_168_243_21_TestPerformanceChildTestHelper>
       <fake_test_operations>
-         <time_sec>0.00052</time_sec>
+         <time_sec>0.000629</time_sec>
          <comment>this is not a performance test itself but the test of performance test inheritance operational</comment>
-         <completed_on>[2019 7 24 15 28 43.912573]</completed_on>
+         <completed_on>[2019 7 24 17 20 39.028424]</completed_on>
       </fake_test_operations>
    </host_192_168_243_21_TestPerformanceChildTestHelper>
 </TestPerformanceChildTestHelper>

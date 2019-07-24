@@ -105,7 +105,7 @@ if exist(string,'dir')==7
         addpath (genpath_special(string));
     catch ME
         herbert_off
-        error(ME);
+        rethrow(ME);
     end
 else
     herbert_off
