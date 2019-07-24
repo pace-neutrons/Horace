@@ -6,6 +6,8 @@ cfn = config_store.instance().config_folder_name;
 subfolders_list={obj.exchange_folder_name,obj.job_id};
 
 f_s = regexp(top_folder,filesep,'split');
+if isempty(f_s{1});  f_s{1} = filesep;
+end
 coinside = ismember(f_s,cfn);
 if any(coinside)
     cind = find(coinside,1)-1;

@@ -353,7 +353,8 @@ classdef test_FileBaseMPI_Framework< TestCase
             mf = mf.init_framework('test_shared_folder');
             clob = onCleanup(@()mf.finalize_all());
             
-            jfn = fullfile(this.working_dir,config_store.config_folder_name,mf.exchange_folder_name,mf.job_id);
+            cfn = config_store.instance().config_folder_name;
+            jfn = fullfile(this.working_dir,cfn,mf.exchange_folder_name,mf.job_id);
             assertEqual(exist(jfn,'dir'),7);
             
             [ok,err] = mf.send_message(0,'starting');

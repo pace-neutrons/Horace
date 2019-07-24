@@ -51,9 +51,9 @@
    </host_192_168_243_156_TestPerformance>
    <host_192_168_243_21_TestPerformance>
       <test_constructor_operations>
-         <time_sec>0.001237</time_sec>
+         <time_sec>0.000545</time_sec>
          <comment>this is not a performance test itself but the test of performance test operational</comment>
-         <completed_on>[2019 7 22 20 14 1.480141]</completed_on>
+         <completed_on>[2019 7 24 15 17 37.472113]</completed_on>
       </test_constructor_operations>
    </host_192_168_243_21_TestPerformance>
 </TestPerformance>
