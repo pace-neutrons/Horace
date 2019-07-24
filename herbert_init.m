@@ -51,8 +51,8 @@ addgenpath_message (rootpath,'applications')
 % Put mex files on path
 addgenpath_message (rootpath,'DLL')
 
-hc = herbert_config;
 %
+hc = herbert_config;
 if hc.init_tests
     % set unit tests to the Matlab search path, to overwrite the unit tests
     % routines, added to Matlab after Matlab 2017b, as new routines have

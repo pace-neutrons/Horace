@@ -35,8 +35,8 @@ end
 if obj.task_id_ == 0 % Master node
     % create or define the job exchange folder within the configuration folder
     if isempty(obj.mess_exchange_folder)
-        [~,exch_subfolder] = obj.build_exchange_folder_name();
-        job_folder = make_config_folder(exch_subfolder);        
+        [top_folder,exch_subfolder] = obj.build_exchange_folder_name();
+        job_folder = make_config_folder(exch_subfolder,top_folder);        
     else
         [folder_root,exch_subfolder] = obj.build_exchange_folder_name(obj.mess_exchange_folder);        
         job_folder = make_config_folder(exch_subfolder,folder_root);                

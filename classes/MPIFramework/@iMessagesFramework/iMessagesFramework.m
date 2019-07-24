@@ -11,18 +11,21 @@ classdef iMessagesFramework
     %
     %----------------------------------------------------------------------
     properties(Dependent)
-        % job ID  used to identify job control
-        % messages intended for a particular MPI job.
+        % job ID  used to identify job control messages
+        % intended for a particular MPI job. The folder with this
+        % name is created in shared location to keep initial job settings
+        % and transfer progress messages from cluster to the user's node.
         job_id;
         % The folder located on a parallel file system and used for storing
-        % initial job info and
-        % message exchange between tasks if job uses  filebased messages.
+        % initial job info and message exchange between tasks if job uses
+        % filebased messages.
         mess_exchange_folder;
         % returns the index of the worker currently executing the function.
         % labIndex is assigned to each worker when a job begins execution,
         % and applies only for the duration of that job.
         % The value of labIndex spans from 1 to n, where n is the number of
-        % workers running the current job, defined by numlabs.
+        % workers running the current job, defined by numlabs. Index 0
+        % reserved for interactive user's node.
         labIndex;
         % Number of independent workers used by the framework
         numLabs;
@@ -81,26 +84,26 @@ classdef iMessagesFramework
             % set message exchange folder for filebased messages exchange
             % within Herbert/Horace configuration folder
             % and copy Herbert/Horace configurations to new configuration
-            % folder if this folder differs from default configuration
+            % folder if this folder location differs from the default configuration
+            % location (for using on remote machines)
+            if ~ischar(val)
+                error('iMessagesFramework:invalid_argument',...
+                    'message exchange folder should be a string');
+            end
             
-            if strcmp(val,obj.mess_exchange_folder)
+            if isempty(obj.mess_exchange_folder)
+                obj=construct_me_folder_(obj,val);
                 return;
             end
             
+            if strcmp(val,obj.mess_exchange_folder) % the same folder have been already set-up nothing to do
+                return;
+            end
+            % We are setting new folder so should delete old message exchange folder if one exist
             if exist(obj.mess_exchange_folder,'dir') == 7
                 rmdir(obj.mess_exchange_folder,'s');
             end
-            [remote_job_base,config_ext] = obj.build_exchange_folder_name(val);
-            obj.mess_exchange_folder_ = fullfile(remote_job_base,config_ext);
-            if ~(exist(obj.mess_exchange_folder,'dir') ==7)
-                mkdir(obj.mess_exchange_folder);
-            end
-            existing_config_f = config_store.instance().config_folder;
-            config_f_name = config_store.instance().config_folder_name;
-            remote_config_folder = fullfile(remote_job_base,config_f_name);
-            if ~strcmp(remote_config_folder,existing_config_f)
-                copy_existing_config_to_remote_(existing_config_f,remote_config_folder);
-            end
+            obj=construct_me_folder_(obj,val);
             
         end
         %

@@ -14,7 +14,7 @@ function [ok,err_mess]=worker_v1(worker_controls_string)
 %              folder name where the job initialization data are located on
 %              a remote system
 %
-% $Revision:: 831 ($Date:: 2019-06-03 09:47:08 +0100 (Mon, 3 Jun 2019) $)
+% $Revision: 822 $ ($Date: 2019-01-03 11:23:07 +0000 (Thu, 03 Jan 2019) $)
 %
 err_mess = [];
 exit_at_the_end = true;
@@ -41,9 +41,12 @@ control_struct = iMessagesFramework.deserialize_par(worker_controls_string);
 %
 % remove configurations, may be loaded in memory while Horace was
 % initialized.
+
 config_store.instance('clear');
-% Where config files are stored:
-config_exchange_folder = fullfile(control_struct.data_path,config_store.config_folder_name);
+% Place where config files are stored:
+cfn = config_store.instance().config_folder_name;
+config_exchange_folder = fullfile(control_struct.data_path,cfn);
+
 % set pas to config sources:
 config_store.set_config_folder(config_exchange_folder);
 % instantiate filebasedMessages framework, used to transfer initial data,

@@ -2,17 +2,14 @@ function [top_folder,mess_subfolder] = constr_exchange_folder_name_(obj,top_fold
 % extract topmost data folder from the folder, used for filebased messages exchange.
 %
 %
-subfolders_list={top_folder,obj.exchange_folder_name,obj.job_id};
-mess_subfolder = fullfile(subfolders_list{:});
-nf = numel(subfolders_list)+1;
+cfn = config_store.instance().config_folder_name;
+subfolders_list={obj.exchange_folder_name,obj.job_id};
 
-[f_b,f_s] = fileparts(top_folder);
-for i=1:numel(subfolders_list)
-    if strcmpi(f_s,subfolders_list{nf-i})
-        top_folder = f_b;
-        [f_b,f_s]  = fileparts(top_folder);
-    else
-        break
-    end
+f_s = regexp(top_folder,filesep,'split');
+coinside = ismember(f_s,cfn);
+if any(coinside)
+    cind = find(coinside,1)-1;
+    top_folder = fullfile(f_s{1:cind});
 end
-
+top_folder = fullfile(top_folder,cfn);
+mess_subfolder = fullfile(subfolders_list{:});

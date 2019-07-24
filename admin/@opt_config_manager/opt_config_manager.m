@@ -71,7 +71,8 @@ classdef opt_config_manager
         end
         %
         function obj = set.this_pc_type(obj,val)
-            % explisitly setting pc type for testing purposes.
+            % explisitly setting pc type for testing or debugging purposes.
+            %
             % the type can be set by name (from the list of the names
             % specified in the list definition) or by the number of the pc
             % type in the same list
@@ -154,10 +155,24 @@ classdef opt_config_manager
         end
     end
     methods(Static)
-        function pc_type = find_comp_type()
-            % analyze pc parameters and return pc type which describes
-            % these parameters
-            pc_type = find_comp_type_();
+        function [pc_type,nproc,mem_size] = find_comp_type()
+            % analyze pc parameters (memory, number of processors etc.) 
+            % and return pc type.
+            %
+            % A pc type is a string, describing the computer from point of
+            % view of using it for high performance communications. 
+            %
+            % Returns:
+            % pc_type -- the sting containing the type of the pc. The type
+            %            is selected from the list of known types and
+            %            used as the key to the list of configurations, 
+            %            find to be optimal for each pc type. 
+            % nproc   -- number of parallel processes (matlab workers) can
+            %            be used in parallel (MPI) computations.
+            % mem_size-- 
+            %
+            % The pc type is 
+            [pc_type,nproc,mem_size] = find_comp_type_();
         end
         
     end

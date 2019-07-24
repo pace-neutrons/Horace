@@ -87,6 +87,8 @@ classdef parallel_config<config_base
         % evaluated on a remote worker equal to
         % shared_folder_on_worker value
         working_directory
+        % true, if working directory have not ever been set
+        wkdir_is_default
     end
     %
     properties(Constant,Access=private)
@@ -144,7 +146,7 @@ classdef parallel_config<config_base
                 work_dir = tempdir;
             end
         end
-        function is = wkdir_is_default(obj)
+        function is = get.wkdir_is_default(obj)
             % returns true if working directory has not been set (points to
             % tmpdir)
             is_depl = MPI_State.instance().is_deployed;
@@ -254,7 +256,6 @@ classdef parallel_config<config_base
             end
             config_store.instance().store_config(obj,'working_directory',val);
         end
-        
         %-----------------------------------------------------------------
         function [controller] = get_cluster_wrapper(obj,n_workers,cluster_to_host_exch_fmwork)
             % return the appropriate job controller

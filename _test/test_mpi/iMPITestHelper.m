@@ -1,4 +1,6 @@
 classdef iMPITestHelper<iMessagesFramework
+    % helper class to test iMessagesFramework methods,
+    % defining empty abstract methos.
     methods
         function obj=iMPITestHelper(varargin)
             obj= obj@iMessagesFramework(varargin{:});

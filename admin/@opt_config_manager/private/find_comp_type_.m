@@ -1,5 +1,8 @@
 function [pc_type,nproc,mem_size] = find_comp_type_()
-% find pc type as option of the pc properties.
+% find pc type as function of the pc properties, like memory size number of
+% processors, etc.
+%
+%
 types = opt_config_manager.known_pc_types_;
 Gb = 1024*1024*1024;
 nproc = 1;
@@ -39,14 +42,18 @@ elseif isunix
     end
     
     rez=strfind(mess,'NUMA node');
+    % if lscpu returns more then one numa node strigs, first string defines
+    % the number of numa nodes and all subsequent strings describe each
+    % node. So, if there are more then 2 string, its more then one numa
+    % node and we consider this computer to be an hpc system.
     if numel(rez)>2; hpc_computer = true;
     else;          hpc_computer = false;
     end
     is_virtual = is_idaaas();
     if is_virtual
-        n_profile = 6;
+        n_profile = 6; %verid iDaaaS machine
     else
-        n_profile = 4;
+        n_profile = 4; % normal unix machine
     end
     
     if hpc_computer

@@ -58,18 +58,22 @@ classdef test_iMPI_methods< TestCase
             
             % set up basic default configuration
             pc = parallel_config;
+            pc.saveable = false;
+            cur_data = pc.get_data_to_store();
+            clobC = onCleanup(@()set(pc,cur_data));
             % creates working directory
             pc.working_directory = fullfile(obj.working_dir,'some_irrelevant_folder_never_used_here');
-            clobA = onCleanup(@()rmdir(pc.working_directory,'s'));
+            wkdir0 = pc.working_directory;
+            clobW = onCleanup(@()rmdir(wkdir0,'s'));
             
-            pc.shared_folder_on_remote = '';
-            pc.shared_folder_on_local = '';
             %--------------------------------------------------------------
             % check the case when local file system and remote file system
             % coincide
+            
+            pc.shared_folder_on_remote = '';
+            pc.shared_folder_on_local = '';
+            
             % test structure to send
-            
-            
             % store configuration in a local config folder as local and
             % remote jobs have the same file system
             mpi = iMPITestHelper('testiMPI_transferInit');
@@ -79,7 +83,7 @@ classdef test_iMPI_methods< TestCase
             % calculated by assign operation
             config_exchange = fileparts(fileparts(mpi.mess_exchange_folder));
             assertTrue(exist(fullfile(config_exchange,'herbert_config.mat'),'file')==2);
-                        
+            
             initMess = mpi.build_je_init('JETester');
             assertTrue(isa(initMess,'aMessage'));
             data = initMess.payload;
@@ -114,8 +118,10 @@ classdef test_iMPI_methods< TestCase
             % the test
             clob5 = onCleanup(@()config_store.instance('clear'));
             %
+            cfn = config_store.instance().config_folder_name;
             remote_config_folder = fullfile(pc.shared_folder_on_remote,...
-                config_store.config_folder_name);
+                cfn);
+            clob6 = onCleanup(@()rmdir(remote_config_folder,'s'));
             % remove all configurations from memory to ensure they would be
             % read from non-default locations.
             config_store.instance('clear');
@@ -144,6 +150,10 @@ classdef test_iMPI_methods< TestCase
             clob3 = onCleanup(@()set(mis,'is_deployed',false,'is_tested',false));
             
             pc = parallel_config;
+            pc.saveable = false;
+            cur_data = pc.get_data_to_store();
+            clobC = onCleanup(@()set(pc,cur_data));
+             
             pc.shared_folder_on_local = obj.working_dir;
             
             mpi_comm = MessagesFilebased('test_iMPI_worker');
@@ -172,7 +182,7 @@ classdef test_iMPI_methods< TestCase
                 created_files,...
                 'UniformOutput',false);
             clob5 = onCleanup(@()delete(created_files{:}));
-            
+            % initialize worker as if is running on a remote system
             obj.worker_h(worker_init);
             
             assertTrue(exist(created_files{1},'file')==2)
