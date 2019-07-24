@@ -34,7 +34,7 @@ packagesep = '+';  % qualifier for overloaded package directories
 svn        = '.svn'; % subversion folder
 service_dir = '_'; % qualifier for service folders
 
-exclude_list  = {'.','..',classsep,packagesep,svn,'.git'};
+exclude_list  = {'.','@','+','.'};
 p = '';           % path to be returned
 
 
@@ -56,8 +56,9 @@ isdir = logical(cat(1,files.isdir));
 dirs = files(isdir); % select only directory entries from the current listing
 
 for i=1:length(dirs)
-    dirname = dirs(i).name;
+    dirname = dirs(i).name(1);
     if  ~any(ismember(exclude_list,dirname))
+        dirname = dirs(i).name;
         if ~strncmp( dirname,service_dir,1)
             p = [p genpath_special(fullfile(d,dirname))]; % recursive calling of this function.
         else
