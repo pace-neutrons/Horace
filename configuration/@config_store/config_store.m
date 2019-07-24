@@ -14,15 +14,14 @@ classdef config_store < handle
         % property to observe config classes currently initiated in
         % the singleton (mainly for testing and debug purposes)
         config_classes;
-    end
-    properties(Constant=true)
         % the name of the folder where the configuration is stored;
-        config_folder_name='mprogs_config';
+        config_folder_name
     end
     properties(Access=private)
         config_folder_;
         config_storage_;
         saveable_;
+        config_folder_name_ = 'mprogs_config';
     end
     
     methods(Access=private)
@@ -30,18 +29,23 @@ classdef config_store < handle
         % to allow a single instance of this class.  See description in
         % Singleton superclass.
         function newStore = config_store(varargin)
-            % i
+            % create and initialize config_store;
+            [is_virtual,type]=is_idaaas();
+            if is_virtual
+                newStore.config_folder_name_ = ['mprogs_config_',type];
+            end
             
             if nargin>0
                 [fp,fn] = fileparts(varargin{1});
-                if strcmpi(fn,config_store.config_folder_name)
-                    newStore.config_folder_ = make_config_folder(config_store.config_folder_name,fp);                    
+                cfn = config_store.instance().config_folder_name;
+                if strcmpi(fn,cfn)
+                    newStore.config_folder_ = make_config_folder(cfn,fp);
                 else
-                    newStore.config_folder_ = make_config_folder(config_store.config_folder_name,varargin{1});
+                    newStore.config_folder_ = make_config_folder(cfn,varargin{1});
                 end
             else
-                % Initialise default config folder path according to 
-                newStore.config_folder_ = make_config_folder(config_store.config_folder_name);
+                % Initialise default config folder path according to
+                newStore.config_folder_ = make_config_folder(newStore.config_folder_name);
             end
             % initialize configurations storage.
             newStore.config_storage_ = struct();
@@ -77,10 +81,10 @@ classdef config_store < handle
             end
         end
         function set_config_folder(config_folder_name)
-            % set the location for a folder with configuration to a location 
-            % provided as input. 
+            % set the location for a folder with configuration to a location
+            % provided as input.
             %
-            % If the folder does not exist, its created. The configurations 
+            % If the folder does not exist, its created. The configurations
             % currently in memory are retained but will be saved to the new
             % location on request only.
             if ~ischar(config_folder_name)
@@ -89,7 +93,7 @@ classdef config_store < handle
             end
             if strcmpi(config_folder_name,'clear')
                 error('CONFIG_STORE:invalid_argument',...
-                    'the config folder name can not be: ''clear''')                
+                    'the config folder name can not be: ''clear''')
             end
             config_store.instance(config_folder_name);
         end
@@ -333,14 +337,18 @@ classdef config_store < handle
             isit = check_isconfigured(this,class_instance,check_mem_only);
         end
         %------------------------------------------------------------------
-        function path=get.config_folder(this)
-            path=this.config_folder_;
+        function path=get.config_folder(obj)
+            path=obj.config_folder_;
+        end
+        %
+        function fn=get.config_folder_name(obj)
+            fn = obj.config_folder_name_;
         end
         %
         function set_config_path(obj,new_path)
             % set new config store path. Existing configurations are
-            % unloaded from memory. 
-            % 
+            % unloaded from memory.
+            %
             % Should be used with care and necessary mainly for MPI workers
             obj.instance(new_path);
         end
