@@ -66,7 +66,7 @@ mc = [Matlab_code(1:48),'$)'];
 hc = hor_config;
 check_mex = false;
 if hc.is_default
-	check_mex = true;
+    check_mex = true;
 end
 %
 herc = herbert_config;
@@ -78,8 +78,8 @@ if hc.is_default ||hpcc.is_default || parc.is_default || herc.is_default
              ' Please, check configurations (typing hor_config, herbert_config etc.)',...
              ' to ensure this configuration is correct.'])
     % load and apply configuration, assumed to be optimal for this kind of the machine.
-	conf_c = opt_config_manager();
-	conf_c.load_configuration('-set_config');         
+    conf_c = opt_config_manager();
+    conf_c.load_configuration('-set_config');
 end
 
 if check_mex
