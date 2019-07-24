@@ -123,7 +123,7 @@ if verbose
 else
     monitor = TestRunDisplay(logfile_handle);
 end
-edid_pass = suite.run(monitor);
+did_pass = suite.run(monitor);
 
 if nargout > 0
     out = did_pass;
