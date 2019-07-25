@@ -51,13 +51,13 @@ if numel(v1)~=3 || numel(v2)~=3 || numel(v3)~=3
     error('Symmetrise error: the vectors v1, v2 and v3 must all have 3 elements');
 end
 
-if size(v1)==[3,1]
+if all(size(v1)==[3,1])
     v1=v1';
 end
-if size(v2)==[3,1]
+if all(size(v2)==[3,1])
     v2=v2';
 end
-if size(v3)==[3,1]
+if all(size(v3)==[3,1])
     v3=v3';
 end
 
@@ -124,7 +124,7 @@ num_pixels=size(win.data.pix, 2); % MP, num_pixels=numel(coords)/3
 %reflection plane. This is specified in rlu.
 vec3=uconv\(v3'-header.uoffset(1:3));
 %Ensure v3 is a column vector:
-if size(vec3)==[1,3]
+if all(size(vec3)==[1,3])
     vec3=vec3';
 end
 

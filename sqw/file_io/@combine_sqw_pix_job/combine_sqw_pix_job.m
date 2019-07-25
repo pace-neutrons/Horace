@@ -3,6 +3,8 @@ classdef combine_sqw_pix_job < JobExecutor
     % located in a single sqw file
     %
     %
+    % Given range of tmp files with pixels distributed in bins
+    %
     %
     % $Revision:: 1751 ($Date:: 2019-06-03 09:47:49 +0100 (Mon, 3 Jun 2019) $)
     %
@@ -35,14 +37,13 @@ classdef combine_sqw_pix_job < JobExecutor
             % inputs and files:
             % fbMPI               -- the instance of file-based messages
             %                        framework, used to exchange messages
-            %                        between worker and control node.
-            %                        Depending on the used framework, this
-            %                        class can be used as
+            %                        between worker and the control node.
             % job_control_struct  -- the structure,
             %                        containing information about
-            %                        the messages framework to use
+            %                        the messages framework to use for
+            %                        communications between workers.
             % InitMessage         -- The message with information necessary
-            %                        to run the job itself
+            %                        to ititiate the job itself
             %
             % returns:
             % obj          initialized combibe_sqw_pix_job object
@@ -69,8 +70,11 @@ classdef combine_sqw_pix_job < JobExecutor
         end
         
         function obj=do_job(obj)
-            % main executable code
+            % main executable code, running on each parallel worker.
+            % 
+            % get the information, common for all parallel workers.
             common_par      = obj.common_data_;
+            % receive block of the, cpecific for the given workers
             pix_comb_info   = obj.loop_data_{1};
             
             if obj.DEBUG
@@ -269,15 +273,16 @@ classdef combine_sqw_pix_job < JobExecutor
         end
         %
         function [common_par,loop_par ] = pack_job_pars(pix_comb_info,fout_name,pix_out_pos,n_workers)
-            % prepare job parameter in the form, suitable for
+            % prepare job parameter in the form, suitable for sploitting them between jobs and sending them
+            % to parallel workers.
             if n_workers < 2
                 error('COMBINE_SQW_PIX_JOB:invalid_argument',...
                     'this parallel job needs at least 2 MPI workers, while provided with %d',...
                     n_workers);
             end
-            first_job_par = struct();
-            first_job_par.fout_name   = fout_name;
-            first_job_par.pix_out_pos = pix_out_pos;
+            writer_job_par = struct();
+            writer_job_par.fout_name   = fout_name;
+            writer_job_par.pix_out_pos = pix_out_pos;
             
             common_par = struct();
             common_par.nbin     = pix_comb_info.nbins;
@@ -288,9 +293,9 @@ classdef combine_sqw_pix_job < JobExecutor
             common_par.pix_buf_size = ceil(whole_buffer/(n_workers-1));
             % less workers as one workes will hold the write job
             loop_par = pix_comb_info.split_into_parts(n_workers-1);
-            % add empty loop par for the first worker as the first worker
+            % add special loop par for the first worker as the first worker
             % will write rather than read
-            loop_par = [{first_job_par},loop_par];
+            loop_par = [{writer_job_par},loop_par];
         end
     end
 end
