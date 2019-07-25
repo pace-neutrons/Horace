@@ -10,6 +10,7 @@ if isempty(data)
     bytes = [];
     data_sz = 0;
 else
+    % get format used to convert data into bytes
     form = obj.get_si_head_form(type);
     data_block = build_block_descriptor_(obj,data,type);
     bytes = obj.sqw_serializer_.serialize(data_block,form);
