@@ -34,10 +34,10 @@ sam3=IX_sample(true,[1,1,0],[0,0,1],'point',[]);
 
 % Create three different instruments
 inst1=create_test_instrument(95,250,'s');
-inst2=create_test_instrument(56,300,'s');
-inst2.flipper=true;
-inst3=create_test_instrument(195,600,'a');
-inst3.filter=[3,4,5];
+%inst2=create_test_instrument(56,300,'s');
+%inst2.flipper=true;
+%inst3=create_test_instrument(195,600,'a');
+%inst3.filter=[3,4,5];
 
 tmpsqwfile=fullfile(tempdir,'test_sqw_file_read_write_tmp.sqw');
 clob1 = onCleanup(@()delete(tmpsqwfile));

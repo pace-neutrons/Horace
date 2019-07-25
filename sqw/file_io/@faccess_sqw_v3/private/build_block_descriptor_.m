@@ -30,7 +30,7 @@ else
         
     end
 end
-if all_same; nf_2process = 1; end;
+if all_same; nf_2process = 1; end
 
 
 block_descriptor = obj.get_si_head_form(type);
