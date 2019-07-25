@@ -1,8 +1,13 @@
 function [obj,err]=init_je_(obj,fbMPI,job_control_struct,InitMessage)
 % initiate the worker parameters
 % Inputs:
-% job_control_string - the serialized string, containing information
-%                      necessary to initialize the messages framework.
+% fbMPI              - file-based message exchange framework, used for
+%                      exchange intofmation between control machine and the
+%                      main worker (and distributing initialization
+%                      information among workers)
+% job_control_struct - the structure containing information
+%                      necessary to initialize the messages framework used
+%                      for interaction between workers.
 %Output:
 % obj    -- Initialized instance of the job executor
 % err    -- empty on success or information about the reason for failure.
@@ -19,7 +24,7 @@ else
         fr_class_name = job_control_struct.framework_name;
         mf = feval(fr_class_name);
         mf = mf.init_framework(job_control_struct);
-    else
+    else % Matlab's parallel-compting toolbox based exchange framework.
         mf = MessagesParpool(job_control_struct);
     end
 end

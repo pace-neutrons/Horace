@@ -26,6 +26,10 @@ if exist(file_name,'file')
         return
     end
 end
+config_folder = fileparts(file_name);
+if ~(exist(config_folder,'dir')==7)
+    mkdir(config_folder,'s');
+end
 
 % Save structure
 try

@@ -34,7 +34,8 @@ control_struct = iMessagesFramework.deserialize_par(worker_controls_string);
 % initialized.
 config_store.instance('clear');
 % Where config files are stored:
-config_exchange_folder = fullfile(control_struct.data_path,config_store.config_folder_name);
+cfn = config_store.instance().config_folder_name;
+config_exchange_folder = fullfile(control_struct.data_path,cfn);
 % set pas to config sources:
 config_store.set_config_folder(config_exchange_folder);
 % instantiate filebasedMessages framework, used to transfer initial data,

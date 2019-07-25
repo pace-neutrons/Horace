@@ -87,6 +87,8 @@ classdef parallel_config<config_base
         % evaluated on a remote worker equal to
         % shared_folder_on_worker value
         working_directory
+        % true, if working directory have not ever been set
+        wkdir_is_default
     end
     %
     properties(Constant,Access=private)
@@ -112,6 +114,7 @@ classdef parallel_config<config_base
         function frmw =get.parallel_framework(obj)
             frmw = get_or_restore_field(obj,'parallel_framework');
         end
+        %
         function folder =get.shared_folder_on_local(obj)
             folder = get_or_restore_field(obj,'shared_folder_on_local');
             if isempty(folder)
@@ -124,6 +127,7 @@ classdef parallel_config<config_base
                 end
             end
         end
+        %
         function folder =get.shared_folder_on_remote(obj)
             folder = get_or_restore_field(obj,'shared_folder_on_remote');
             if isempty(folder)
@@ -142,7 +146,7 @@ classdef parallel_config<config_base
                 work_dir = tempdir;
             end
         end
-        function is = wkdir_is_default(obj)
+        function is = get.wkdir_is_default(obj)
             % returns true if working directory has not been set (points to
             % tmpdir)
             is_depl = MPI_State.instance().is_deployed;
@@ -189,7 +193,11 @@ classdef parallel_config<config_base
                 end
             end
         end
+        %
         function obj=set.shared_folder_on_local(obj,val)
+            if isempty(val)
+                val = '';
+            end
             if ~ischar(val)
                 error('PARALLEL_CONFIG:invalid_argument',...
                     ['The remote folder value should be a text string,',...
@@ -200,6 +208,10 @@ classdef parallel_config<config_base
         end
         %
         function obj=set.shared_folder_on_remote(obj,val)
+            if isempty(val)
+                val = '';
+            end
+            
             if ~ischar(val)
                 error('PARALLEL_CONFIG:invalid_argument',...
                     ['The remote folder value should be a text string,',...
@@ -208,10 +220,21 @@ classdef parallel_config<config_base
             end
             config_store.instance().store_config(obj,'shared_folder_on_remote',val);
         end
-        
+        function data=get_data_to_store(obj)
+            data = get_data_to_store@config_base(obj);
+            % temp working directory should not be stored
+            working_dir = data.working_directory;
+            tdr = tempdir;
+            if strncmpi(working_dir,tdr,numel(working_dir))
+                data.working_directory = '';
+            end
+        end
         
         function obj=set.working_directory(obj,val)
             % Check and set working directory
+            if isempty(val)
+                val = '';
+            end
             if ~is_string(val)
                 error('PARALLEL_CONFIG:invalid_argument',...
                     'working directory value should be a string')
@@ -233,7 +256,6 @@ classdef parallel_config<config_base
             end
             config_store.instance().store_config(obj,'working_directory',val);
         end
-        
         %-----------------------------------------------------------------
         function [controller] = get_cluster_wrapper(obj,n_workers,cluster_to_host_exch_fmwork)
             % return the appropriate job controller

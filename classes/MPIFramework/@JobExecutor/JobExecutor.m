@@ -92,11 +92,13 @@ classdef JobExecutor
             % fbMPI               -- the instance of file-based messages
             %                        framework, used to exchange messages
             %                        between worker and control node.
-            %                        Depending on the used framework, this
-            %                        class can be used as
+            %                        Depending on the used framework and job,
+            %                        this class can be used for communications
+            %                        between workers too.
             % job_control_struct  -- the structure,
             %                        containing information about
-            %                        the messages framework to use
+            %                        the messages framework to use for
+            %                        communications between workers.
             % InitMessage         -- The message with information necessary
             %                        to run the job itself
             %
@@ -109,7 +111,11 @@ classdef JobExecutor
             % framework for workers with labID > 1 and node 0 over
             % FileBased for worker with labID ==  1)
             %
+            % clear all possible messages stored in message cache. Should
+            % be irrelevant but may be usefil for reinitializing a job
+            % executor to run different task on the same parallel worker.
             mess_cache.instance('delete');
+            %
             [obj,mess]=init_je_(obj,fbMPI,job_control_struct,InitMessage);
         end
         %
