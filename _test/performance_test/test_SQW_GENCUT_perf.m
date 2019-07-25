@@ -131,7 +131,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             fb = 'GenSQW_perfTest';
             obj.sqw_file = sprintf('%s_%dFiles.sqw',fb,obj.n_files_to_use_);
         end
-        function method = combine_method(obj)
+        function method = combine_method(obj,add_info)
             % method returns name and parameters of a combine method used
             % during sqw file generation.
             hpc = hpc_config;
@@ -145,6 +145,9 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             else
                 method = sprintf('%s',method);
             end
+            if exist('add_info','var')
+                method  = [method,add_info];
+            end
             
         end
         %--------------------------------------------------------------------------
@@ -156,18 +159,30 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             % method may test combine operations only.
             %
             % Usage:
-            % tob.combine_performance_test([n_workers])
-            % where n_workers, if present, specify the number of parallel
-            % workers to run the test routines with.
+            % tob.combine_performance_test([n_workers],[addinfo],['-keep_tmp'])
+            % where:
+            % n_workers, if present, specify the number of parallel
+            %            workers to run the test routines with.
+            % addinfo   if prsent n_workers have to be present too. (set it
+            %            to 0
             %
             % As this test method violates unit test agreement, demanding
             % test method independence on each other, it does not start
             % from the name test to avoid running it by automated test
             % suites.
-            if nargin == 1
+            [ok,mess,keep_tmp,argi] = parse_char_options(varargin,{'-keep_tmp'});
+            if ~ok
+                error('test_SQW_GENCUT:invalid_argument',mess);
+            end
+            if numel(argi) >= 0
                 n_workers = 0;
             else
-                n_workers = varargin{1};
+                n_workers = argi{1};
+            end
+            if numel(argi)>1
+                addinfo = argi{2};
+            else
+                addinfo = '';
             end
             [clob_wk,hpc] = check_and_set_workers_(obj,n_workers);
             
@@ -205,21 +220,26 @@ classdef test_SQW_GENCUT_perf < TestPerformance
                     'replicate','tmp_only');
             end
             
-            combine_method = obj.combine_method();
+            combine_method = obj.combine_method(addinfo);
             
             obj.add_to_files_cleanList(obj.sqw_file)
+            test_name = ['combine_tmp_using_',combine_method];            
+            
             ts = tic();
             write_nsqw_to_sqw(tmp_files,obj.sqw_file);
             %
+
             perf_val=obj.assertPerformance(ts,...
-                ['combine_tmp_using_',combine_method],...
+                test_name,...
                 'performance of the tmp-files combine procedure');
             
             % spurious check to ensure the cleanup object is not deleted
             % before the end of the test
             assertTrue(isa(clob_wk,'onCleanup'))
             
-            obj.delete_files(tmp_files);
+            if ~keep_tmp
+                obj.delete_files(tmp_files);
+            end
             
         end
         %------------------------------------------------------------------
@@ -375,17 +395,22 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             % workers remains unchanged
             %
             hc = hpc_config;
+            bsp = hc.build_sqw_in_parallel;            
             if n_workers == 0 % keep existing number of workers unchanged
-                clob = onCleanup(@()(0));
-                nwkc = num2str(hc.parallel_workers_number);
+                clob = onCleanup(@()(0));                
+                if bsp
+                    nwkc = num2str(hc.parallel_workers_number);
+                else
+                    nwkc = '0';
+                end
                 return;
             else
                 nwkc = num2str(n_workers);
             end
-            as = hc.build_sqw_in_parallel;
+
             an = hc.parallel_workers_number;
-            if as && an > 1
-                clob = onCleanup(@()set(hc,'build_sqw_in_parallel',as,'parallel_workers_number',an));
+            if bsp && an > 1
+                clob = onCleanup(@()set(hc,'build_sqw_in_parallel',bsp,'parallel_workers_number',an));
             else
                 clob = onCleanup(@()(an));
             end
