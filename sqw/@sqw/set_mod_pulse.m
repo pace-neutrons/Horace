@@ -127,6 +127,10 @@ if ~isempty(mess), error(mess), end
 function inst=set_mod_pulse_single_inst(inst_in,pulse_model,pp)
 % Change the moderator pulse model name and parameters
 inst=inst_in;
+if isstruct(inst)
+    inst = IX_inst(inst_in);
+end
+
 try
     % Change existing moderator fields
     mod=inst.moderator;
