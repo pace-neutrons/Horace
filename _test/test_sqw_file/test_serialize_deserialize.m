@@ -313,6 +313,61 @@ classdef test_serialize_deserialize< TestCase
                     ['unequal values for field: ',fn{i}])
             end
         end
+        function test_instrument_sample_conversion(obj)
+            test_format = field_generic_class_hv3();
+            ser = sqw_serializer();            
+            
+            %---  Instrument            
+            inst = maps_instrument(300,700,'S');
+            [struc_pos,pos] = ser.calculate_positions(test_format,inst);
+            assertEqual(pos-1,9798);
+            
+            bytes = ser.serialize(inst,test_format);
+            assertEqual(numel(bytes),pos-1);
+            
+            [test_pos,pos1] =  ser.calculate_positions(test_format,bytes);
+            assertEqual(pos,pos1);
+            assertEqual(struc_pos,test_pos);
+            
+            [recov,pos] = ser.deserialize_bytes(bytes,test_format);
+            assertEqual(pos-1,numel(bytes));
+            assertEqual(recov,inst)
+            % 2 instruments
+            inst_s = [inst,maps_instrument(200,300,'A')];
+            [struc_pos,pos] = ser.calculate_positions(test_format,inst_s);
+            assertEqual(pos-1,19638);
+            
+            bytes = ser.serialize(inst_s,test_format);
+            assertEqual(numel(bytes),pos-1);
+            
+            [test_pos,pos1] =  ser.calculate_positions(test_format,bytes);
+            assertEqual(pos,pos1);
+            assertEqual(struc_pos,test_pos);
+            
+            [recov,pos] = ser.deserialize_bytes(bytes,test_format);
+            assertEqual(pos-1,numel(bytes));
+            assertEqual(recov,inst_s)
+            
+            
+            %---  Sample
+            samp = IX_sample ([1,0,0],[0,1,0],'cuboid',[2,3,4]);
+            [struc_pos,pos] = ser.calculate_positions(test_format,samp);            
+
+            assertEqual(pos-1,688);
+            
+            bytes = ser.serialize(samp,test_format);
+            assertEqual(numel(bytes),pos-1);
+            
+            [test_pos,pos1] =  ser.calculate_positions(test_format,bytes);
+            assertEqual(pos,pos1);
+            assertEqual(struc_pos,test_pos);
+            
+            [recov,pos] = ser.deserialize_bytes(bytes,test_format);
+            assertEqual(pos-1,numel(bytes));
+            assertEqual(recov,samp)
+            
+            
+        end
         %
         function obj = test_serialize_general_v3_with_file(obj)
             test_data = struct('double_v',9,...
@@ -394,7 +449,7 @@ classdef test_serialize_deserialize< TestCase
             
             [recov,pos] = ser.deserialize_bytes(bytes,test_format);
             assertEqual(pos-1,numel(bytes));
-                       
+            
             %
             fn = fieldnames(recov);
             for i=1:numel(fn)
@@ -403,7 +458,7 @@ classdef test_serialize_deserialize< TestCase
                 assertEqual(recov.(fn{i}),test_data.(fn{i}),...
                     ['unequal values for field: ',fn{i}])
             end
-            assertEqual(recov,test_data)                        
+            assertEqual(recov,test_data)
         end
         %
         function obj = test_serialize_cells2(obj)
@@ -433,8 +488,8 @@ classdef test_serialize_deserialize< TestCase
             
             [recov,pos] = ser.deserialize_bytes(bytes,test_format);
             assertEqual(pos-1,numel(bytes));
-                       
-              assertEqual(recov,test_data)
+            
+            assertEqual(recov,test_data)
             
             
         end

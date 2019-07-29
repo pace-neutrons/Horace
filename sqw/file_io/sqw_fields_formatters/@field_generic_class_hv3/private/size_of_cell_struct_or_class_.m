@@ -7,19 +7,32 @@ if iscell(val)
         sz =sz+ obj.size_of_field(val{i});
     end
 else % structure or custom class
-    names=fieldnames(val);
-    nn = numel(names);
-    sz  = obj.head_size(type,shape)+8;
-    if ~isempty(names)
-        fsz = cellfun(@(nm)(8+numel(nm)),names,...
-            'UniformOutput',true);
-        sz = sz+sum(fsz);
-        for j=1:nel
-            for i=1:nn
-                sz = sz+obj.size_of_field(val(j).(names{i}));
+    if nel>1
+        szs = arrayfun(@(x)size_of_field(obj,x),val,'UniformOutput',true);
+        sz =sz+ sum(szs);
+    else
+        try
+            val = structIndep(val);
+        catch ME
+            if ~strcmpi(ME.identifier,'MATLAB:UndefinedFunction')
+                throw(ME);
             end
         end
-    else    % no field names
+        
+        names=fieldnames(val);
+        nn = numel(names);
+        sz  = obj.head_size(type,shape)+8;
+        if ~isempty(names)
+            fsz = cellfun(@(nm)(8+numel(nm)),names,...
+                'UniformOutput',true);
+            sz = sz+sum(fsz);
+            for j=1:nel
+                for i=1:nn
+                    sz = sz+obj.size_of_field(val(j).(names{i}));
+                end
+            end
+        else    % no field names
+        end
     end
 end
 

@@ -56,9 +56,9 @@ classdef  test_file_input < TestCase
             obj.clob_obj_ = onCleanup(@()clearer());
             %
             function clearer()
-                if exist('test_file_input','file')==2;
+                if exist('test_file_input','file')==2
                     tearDown(obj);
-                end;
+                end
             end
             
         end

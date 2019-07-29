@@ -34,7 +34,7 @@ for i=1:numel(fn)
             end
             bytes{i} = [tBytes{:}];
             
-        else
+        else % convert according to known exisiting format definitions
             type  = class(val);
             ftype = class(fmt);
             if ~strcmp(type,ftype)
@@ -43,7 +43,9 @@ for i=1:numel(fn)
             end
             is = obj.class_map_.isKey(type);
             if is
+                % number of elements in the converted value
                 nel = numel(val);
+                % number of elements format expects
                 fnel = prod(double(fmt));
                 if nel ~= fnel
                     error('STRUCT_SERIALIZER:invalid_argument',...
