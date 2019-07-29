@@ -58,6 +58,8 @@ classdef field_generic_class_hv3 < field_simple_class_hv3
             if size(bytes,1) == 1
                 bytes = bytes';
             end
+            % get the information, describing common structure of the data,
+            % i.e. class name, shape and size of the data
             [type,shape,sz] = obj.head_from_bytes(bytes,pos);
             if obj.sclass_map_.isKey(type)
                 [var,sz] = field_from_bytes@field_simple_class_hv3(obj,bytes,pos);
@@ -67,6 +69,9 @@ classdef field_generic_class_hv3 < field_simple_class_hv3
             if strcmp(type,'cell')
                 [var,sz] = restore_cellarray_(obj,bytes,pos,shape,sz);
                 return;
+            elseif prod(shape)>1
+                [var,sz] = restore_array_(obj,bytes,pos,shape,sz);
+                return;                
             end
             % structure or custom class
             % get field names and array shape
@@ -93,7 +98,7 @@ classdef field_generic_class_hv3 < field_simple_class_hv3
             obj.precision_ = type;
             pos = pos + sz;
             
-            if strcmp(type,'cell')
+            if strcmp(type,'cell') || prod(shape)>1
                 sz = proces_cellarray_size_(obj,bytes,pos,shape,sz);
                 obj.n_prec_ = sz;
                 return

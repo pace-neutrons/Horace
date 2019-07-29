@@ -10,14 +10,14 @@ function varargout=set_instrument_horace(filename,instrument,varargin)
 %   file        File name, or cell array of file names. In latter case, the
 %              change is performed on each file
 %
-%   instrument  Instrument object or structure, or array of objects or
-%              structures, with number of elements equal to the number of
+%   instrument  Instrument object, or array of objects with number of elements 
+%              equal to the number of
 %              runs contributing to the sqw object(s).
-%               If the instrument is any empty object, then the instrument
+%              If the instrument is any empty object, then the instrument
 %              is set to the default empty structure.
 %
 % *OR*
-%   inst_func       Function handle to generate instrument object or structure
+%   inst_func      Function handle to generate instrument object or structure
 %                  Must be of the form
 %                       inst = my_func (p1, p2, ...)
 %                  where p1,p2, ... are parameters to be passed to the
@@ -196,7 +196,7 @@ end
 
 %==============================================================================
 function status = substitution_arguments_present(subst_args,args)
-% Check if any argumnent are to be substituted
+% Check if any argument are to be substituted
 
 narg=numel(args);
 isstr=false(narg,1);
@@ -215,7 +215,7 @@ end
 
 %==============================================================================
 function argout = substitute_arguments(headers,ifile,argin)
-% Substitue arguments with values from cellarray of headers
+% Substitute arguments with values from cellarray of headers
 %
 % Return cellstr with list of all substitution arguments:
 %   >> subst_args = substitute_arguments

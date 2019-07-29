@@ -9,7 +9,7 @@ function varargout=set_instr_or_sample_horace_(filename,kind,obj_to_set,varargin
 % -----
 %   filename     File name, or cell array of file names. In latter case, the
 %                 change is performed on each file
-%   kind        is it sample or instrument is beeing set
+%   kind        is it sample or instrument is being set
 %
 %   obj_to_set Sample object (IX_sample object) or structure or
 %              Instrument object, or sqw_object containing both sample and instrument
@@ -18,6 +18,7 @@ function varargout=set_instr_or_sample_horace_(filename,kind,obj_to_set,varargin
 %              there is a single sample or instrument for the entire sqw data set
 %              If the sample is any empty object, then the sample is set
 %              to the default empty structure.
+%  varargin    if present, the arguments of the instrument definition function
 
 
 % Original author: T.G.Perring

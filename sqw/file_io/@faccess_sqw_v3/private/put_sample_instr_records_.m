@@ -52,7 +52,7 @@ if setting_instr
     % serialize instrument(s)
     [bytes,instr_size] = serialize_si_block_(obj,instr,'instrument');
     %
-    % recaclualate instrument positions (just in case)
+    % recalculate instrument positions (just in case)
     instr_head_size = numel(bytes)-instr_size;
     obj.instrument_pos_  = obj.instrument_head_pos_ + instr_head_size;
     obj.sample_head_pos_ = obj.instrument_pos_+ instr_size;
