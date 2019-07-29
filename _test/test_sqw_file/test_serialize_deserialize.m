@@ -335,7 +335,7 @@ classdef test_serialize_deserialize< TestCase
             % 2 instruments
             inst_s = [inst,maps_instrument(200,300,'A')];
             [struc_pos,pos] = ser.calculate_positions(test_format,inst_s);
-            assertEqual(pos-1,19638);
+            assertEqual(pos-1,19429);
             
             bytes = ser.serialize(inst_s,test_format);
             assertEqual(numel(bytes),pos-1);
@@ -438,7 +438,7 @@ classdef test_serialize_deserialize< TestCase
             
             ser = sqw_serializer();
             [struc_pos,pos] = ser.calculate_positions(test_format,test_data);
-            assertEqual(pos-1,4961);
+            assertEqual(pos-1,4497);
             
             bytes = ser.serialize(test_data,test_format);
             assertEqual(numel(bytes),pos-1);
