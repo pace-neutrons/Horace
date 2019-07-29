@@ -438,7 +438,7 @@ classdef test_serialize_deserialize< TestCase
             
             ser = sqw_serializer();
             [struc_pos,pos] = ser.calculate_positions(test_format,test_data);
-            assertEqual(pos-1,4497);
+            assertEqual(pos-1,4961);
             
             bytes = ser.serialize(test_data,test_format);
             assertEqual(numel(bytes),pos-1);
