@@ -1,5 +1,5 @@
 function [block_descriptor,nf_2process] = build_block_descriptor_(obj,input,type)
-% Build block descriptor for the information, present in the instrument or
+% Build block descriptor describing the information, present in the instrument or
 % sample block
 %
 %type = class(input);
