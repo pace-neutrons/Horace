@@ -36,20 +36,20 @@ end
 % -----------------------------------------------------------------------------
 test_folders={...
     'test_data_loaders',...
-    'test_config',...    
+    'test_config',...
     'test_IX_classes',...
     'test_map_mask',...
     'test_mslice_objects',...
     'test_multifit',...
-    'test_multifit_legacy',...    
+    'test_multifit_legacy',...
     'test_utilities',...
-    'test_mpi',...    
     'test_docify'...
-    'test_admin',...    
+    'test_admin',...
+    'test_mpi',...
     };
 
 %=============================================================================
-warn_state_init = warning('off','MATLAB:class:DestructorError');
+initial_warn_state = warning('off','MATLAB:class:DestructorError');
 % Generate full test paths to unit tests:
 rootpath = fileparts(which('herbert_init'));
 test_path=fullfile(rootpath,'_test');   % path to folder with all unit tests folders:
@@ -66,23 +66,23 @@ clear config_store;
 %  appropriate action when deployed, but we do not want this to be done
 %  during validation)
 
+% Set Herbert configuration to the default (but don't save)
+% (The validation should be done starting with the defaults, otherwise an error
+%  may be due to a poor choice by the user of configuration parameters)
+
 hc =herbert_config();
 current_conf=hc.get_data_to_store();
-cleanup_obj=onCleanup(@()validate_herbert_cleanup(current_conf,test_folders_full));
+cleanup_obj=onCleanup(@()herbert_test_cleanup(current_conf,test_folders_full,initial_warn_state));
+hc.saveable = false; % equivalent to older '-buffer' option for all setters below
+hc.init_tests = 1;    % initialise unit tests
 
 
 % Run unit tests
 % --------------
-% Set Herbert configuration to the default (but don't save)
-% (The validation should be done starting with the defaults, otherwise an error
-%  may be due to a poor choice by the user of configuration parameters)
-hconfig =herbert_config();
-hconfig.saveable = false; % equivalent to older '-buffer' option for all setters below
 
-hconfig=set(hconfig,'defaults','-buffer');
-hconfig.init_tests = 1;    % initialise unit tests
+
 if ~talkative
-    set(hconfig,'log_level',-1);   % turn off herbert informational output
+    hc.log_level = -1;% turn off herbert informational output
 end
 
 if parallel && license('checkout','Distrib_Computing_Toolbox')
@@ -109,18 +109,18 @@ else
     bigtoc(time,'===COMPLETED UNIT TESTS RUN ');
     
 end
-warning(warn_state_init);
+
 if tests_ok
     err = 0;
 end
 
 %=================================================================================================================
-function validate_herbert_cleanup(cur_config,test_folders)
+function herbert_test_cleanup(cur_config,test_folders,initial_warn_state)
 % Reset the configuration
 set(herbert_config,cur_config);
 % clear up the test folders, previously placed on the path
-warn = warning('off','all'); % avoid varnings on deleting non-existent path
+warning('off','all'); % avoid varnings on deleting non-existent path
 for i=1:numel(test_folders)
     rmpath(test_folders{i});
 end
-warning(warn);
+warning(initial_warn_state);

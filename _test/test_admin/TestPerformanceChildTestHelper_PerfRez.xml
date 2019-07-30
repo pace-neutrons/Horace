@@ -70,4 +70,11 @@
          <completed_on>[2019 7 24 17 20 39.028424]</completed_on>
       </fake_test_operations>
    </host_192_168_243_21_TestPerformanceChildTestHelper>
+   <lnxt7500_TestPerformanceChildTestHelper>
+      <fake_test_operations>
+         <time_sec>0.001021</time_sec>
+         <comment>this is not a performance test itself but the test of performance test inheritance operational</comment>
+         <completed_on>[2019 7 30 18 42 53.090475]</completed_on>
+      </fake_test_operations>
+   </lnxt7500_TestPerformanceChildTestHelper>
 </TestPerformanceChildTestHelper>

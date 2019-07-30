@@ -27,7 +27,7 @@ classdef opt_config_manager
         config_filename_  = 'OptimalConfigInfo.xml'
         current_config_ = [];
     end
-    properties(Constant,Access=private)
+    properties(Access=private)
         % the configurations, which may be optimized for a particular pc so
         % should be stored
         known_configs_ = {'herbert_config','hor_config','hpc_config','parallel_config'}
@@ -47,6 +47,9 @@ classdef opt_config_manager
             %
             obj.config_info_folder_ = fileparts(mfilename('fullpath'));
             obj.this_pc_type_ = opt_config_manager.find_comp_type();
+            if isempty(which('horace_init'))
+                obj.known_configs_ = {'herbert_config','parallel_config'};
+            end
             
         end
         function types = get_known_pc_types(obj)

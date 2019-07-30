@@ -29,26 +29,26 @@ classdef test_pc_spec_config< TestCase
             cm.save_configurations();
             assertTrue(exist(conf_file,'file')==2);
             
-            hc = hor_config;
-            n_threads = hc.threads;
+            hc = herbert_config;
+            ll  = hc.log_level;
             hc.saveable = false;
             % set up different numer of threads
-            hc.threads = n_threads+1;
-            assertEqual(hc.threads,n_threads+1);
+            hc.log_level= ll+1;
+            assertEqual(hc.log_level,ll+1);
             
             cm.load_configuration('-set_config');
             % the previous number of threads have been restored
-            assertEqual(hc.threads,n_threads);
+            assertEqual(hc.log_level,ll);
             
             % check that the configuration is stored/restored for second time
             cm.this_pc_type = 1;
-            hc.threads = n_threads+10;
+            hc.log_level = ll+10;
             cm.save_configurations();
             assertTrue(exist(conf_file,'file')==2);
-            hc.threads=n_threads;
+            hc.log_level=ll;
             cm.this_pc_type = 'a_mac';
             cm.load_configuration('-set_config');
-            assertEqual(hc.threads,n_threads);
+            assertEqual(hc.log_level,ll);
         end
         
         function test_is_current_idaaas(obj)
