@@ -1,6 +1,6 @@
 function [bytes,data_sz] = serialize_si_block_(obj,data,type)
 % serialize an instrument or sample data block
-%
+% 
 %
 % $Revision:: 1751 ($Date:: 2019-06-03 09:47:49 +0100 (Mon, 3 Jun 2019) $)
 %

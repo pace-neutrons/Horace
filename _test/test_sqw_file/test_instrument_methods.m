@@ -120,12 +120,20 @@ classdef test_instrument_methods <  TestCase %WithSave
             
             
             wtmp=read_sqw(obj.test_file_);
+            f = @()set_mod_pulse(wtmp,pulse_model,pp);
+            assertExceptionThrown(f,'SQW:invalid_instrument');
+            % set up proper instrument:
+            inst = maps_instrument(100,400,'S');
+            wtmp= set_instrument(wtmp,inst);
+            
             wtmp_new = set_mod_pulse(wtmp,pulse_model,pp);
             
             assertEqual(wtmp_new.header{10}.instrument.moderator.pp(1),100/sqrt(ei(10)))
             
             % Set the incident energies in the file - produces an error
-            set_mod_pulse_horace(obj.test_file_,pulse_model,pp);
+            f = @()set_mod_pulse_horace(obj.test_file_,pulse_model,pp);
+            assertExceptionThrown(f,'SQW:invalid_instrument');
+            
             
             
             ldr1 = sqw_formats_factory.instance().get_loader(obj.test_file_);
