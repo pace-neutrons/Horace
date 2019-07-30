@@ -30,6 +30,9 @@ obj = IX_inst();  % default instance of the object
 %   1           Class defined by classdef construct.
 
 nams = fieldnames(S);
+if isempty(nams)
+    return;
+end
 
 ver = S.class_version_;
 if ver==1

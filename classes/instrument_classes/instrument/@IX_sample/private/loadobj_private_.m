@@ -50,7 +50,7 @@ if isfield(S,'class_version_')
         error('init_object_from_structure_:unrecognisedVersion',...
             'Unrecognised class version number')
     end
-else
+else % A 0 version of the sample class encountered.
     % Assume the structure contains public properties of the old version object
     % Catch case of empty xgeom or ygeom - this can happen if not single crystal
     % Catch the case of empty shape so we keep the new default

@@ -6,6 +6,7 @@ classdef IX_inst
     properties (Access=protected)
         name_ = '';             % Name of instrument (e.g. 'LET')
         source_ = IX_source;    % Source (name, or class of type IX_source)
+        
     end
     
     properties (Dependent)
