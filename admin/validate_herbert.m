@@ -1,4 +1,4 @@
-function validate_herbert(varargin)
+function err=validate_herbert(varargin)
 % Run unit tests on Herbert installation
 %
 %   >> validate_herbert                 % Run full Herbert validation
@@ -7,11 +7,18 @@ function validate_herbert(varargin)
 %                                       % if the parallel computer toolbox is available
 %   >> validate_herbert ('-talkative')  % prints output of the tests and
 %                                       %  horace commands   (log_level is set to default, not quiet)
+% Returns:
+% err -- 0 if tests are successful and  -1 if some test s fail
 
 
 % Parse optional arguments
 % ------------------------
 options = {'-parallel','-talkative'};
+% For running from shell script:
+err = -1;
+if isempty(which('herbert_init'))
+    herbert_on();
+end
 
 if nargin==0
     talkative=false;
@@ -87,20 +94,25 @@ if parallel && license('checkout','Distrib_Computing_Toolbox')
         matlabpool(cores);
     end
     
+    test_ok = false(1,numel(test_folders_full));
     time=bigtic();
     parfor i=1:numel(test_folders_full)
         addpath(test_folders_full{i})
-        runtests(test_folders_full{i})
+        test_ok(i) = runtests(test_folders_full{i})
         rmpath(test_folders_full{i})
     end
     bigtoc(time,'===COMPLETED UNIT TESTS IN PARALLEL');
+    tests_ok = all(test_ok);
 else
     time=bigtic();
-    runtests(test_folders_full{:});
+    tests_ok=runtests(test_folders_full{:});
     bigtoc(time,'===COMPLETED UNIT TESTS RUN ');
     
 end
 warning(warn_state_init);
+if tests_ok
+    err = 0;
+end
 
 %=================================================================================================================
 function validate_herbert_cleanup(cur_config,test_folders)
