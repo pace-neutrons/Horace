@@ -138,5 +138,5 @@ try
     mod.pp=pp;
     inst.moderator=mod;
 catch
-    error('IX_moderator object not found in all instrument descriptions')
+    error('SQW:invalid_instrument','IX_moderator object not found in all instrument descriptions')
 end

@@ -65,6 +65,7 @@ if isempty(old_matlab)
     old_matlab = verLessThan('matlab','8.3');
 end
 
+convert_old_classes = false;
 
 if ischar(obj.num_contrib_files_)
     error('FACCESS_SQW_V3:runtime_error',...
@@ -73,8 +74,29 @@ if ischar(obj.num_contrib_files_)
 end
 
 if strcmp(field_name,'instrument')
+    ihead_pos = obj.instrument_head_pos_;
     pos = obj.instrument_pos_;
     sz = obj.sample_head_pos_-obj.instrument_pos_;
+    % read instrument version:
+    descriptor_sz = pos - ihead_pos;
+    if  old_matlab % some MATLAB problems with moving to correct eof
+        fseek(obj.file_id_,double(ihead_pos),'bof');
+    else
+        fseek(obj.file_id_,ihead_pos,'bof');
+    end
+    [mess,res] = ferror(obj.file_id_);
+    if res ~=0; error('SQW_FILE_IO:io_error',...
+            'Error moving to the instrument descriptor position. Reason: %s',mess); end
+    bytes = fread(obj.file_id_,descriptor_sz,'*uint8');
+    [mess,res] = ferror(obj.file_id_);
+    if res ~=0; error('SQW_FILE_IO:io_error',...
+            'Error readiong the data for instrument descriptor. Reason: %s',mess); end
+    form = obj.get_si_head_form('instrument');
+    
+    instr_descriptor  = obj.sqw_serializer_.deserialize_bytes(bytes,form);
+    if instr_descriptor.version == 1
+        convert_old_classes = true;
+    end
 elseif strcmp(field_name,'sample')
     pos = obj.sample_pos_;
     sz  = obj.instr_sample_end_pos_ - obj.sample_pos_;
@@ -101,3 +123,14 @@ if res ~=0; error('SQW_FILE_IO:io_error',...
 form = obj.get_si_form(field_name);
 res  = form.field_from_bytes(bytes,1);
 
+% only old instrument stored in the file needs conversion and this instrument can be MAPS only
+if convert_old_classes 
+    warning('SQW_FILE:old_version',...
+        'Old instrument is stored within the file. The  instrument was updated automatically but you should replace it to proper modern instrument using set_instrument_horace command'); 
+    chop = res.fermi_chopper;
+    en = chop.energy;
+    freq = chop.frequency;
+    ch_name = chop.name;
+    res = maps_instrument(en,freq,ch_name);
+
+end

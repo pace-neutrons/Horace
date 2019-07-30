@@ -460,7 +460,6 @@ classdef dnd_binfile_common < dnd_file_interface
             end
             obj.file_closer_ = onCleanup(@()obj.fclose());            
         end
-        
     end
     %
     methods(Static)
