@@ -125,6 +125,9 @@ res  = form.field_from_bytes(bytes,1);
 
 % only old instrument stored in the file needs conversion and this instrument can be MAPS only
 if convert_old_classes 
+    if isempty(fieldnames(res)) % actually, there are no instrument present.
+        return;
+    end
     warning('SQW_FILE:old_version',...
         'Old instrument is stored within the file. The  instrument was updated automatically but you should replace it to proper modern instrument using set_instrument_horace command'); 
     chop = res.fermi_chopper;

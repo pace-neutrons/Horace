@@ -111,14 +111,14 @@ classdef test_instrument_methods <  TestCase %WithSave
             
         end
         %
-        function test_set_pulse(obj)
+        function test_update_instrument_set_pulse(obj)
             %TODO decide on and return instrument either as array or
             %cellarray
             ei=1000+(1:186);
             pulse_model = 'ikcarp';
             pp=[100./sqrt(ei(:)),zeros(186,2)];  % one row per moderator
             
-            
+            % file contains empty instrument and sample.
             wtmp=read_sqw(obj.test_file_);
             f = @()set_mod_pulse(wtmp,pulse_model,pp);
             assertExceptionThrown(f,'SQW:invalid_instrument');
@@ -130,21 +130,26 @@ classdef test_instrument_methods <  TestCase %WithSave
             
             assertEqual(wtmp_new.header{10}.instrument.moderator.pp(1),100/sqrt(ei(10)))
             
-            % Set the incident energies in the file - produces an error
+            % Set the incident energies in the file - produces an error as
+            % the instrument is empty
             f = @()set_mod_pulse_horace(obj.test_file_,pulse_model,pp);
             assertExceptionThrown(f,'SQW:invalid_instrument');
-            
-            
-            
+            n_files = wtmp.main_header.nfiles;
+            inst_arr = repmat(inst,n_files,1);
+            % set up multiple instrument on file
+            set_instrument_horace(obj.test_file_,inst_arr);
+            % as we have proper instrument, setting moderator pulse should work
+            set_mod_pulse_horace(obj.test_file_,pulse_model,pp);            
+
             ldr1 = sqw_formats_factory.instance().get_loader(obj.test_file_);
             
             inst = ldr1.get_instrument('-all');
             ldr1.delete(); % clear existing loader not to hold test file in case of further modifications
             
             assertEqual(numel(inst),186) % all instruments for this file are the same
-            assertEqual(wtmp_new.header{186}.instrument,inst{186});
-            assertEqual(wtmp_new.header{10}.instrument,inst{10});
-            assertEqual(wtmp_new.header{1}.instrument,inst{1});
+            assertEqual(wtmp_new.header{186}.instrument,inst(186));
+            assertEqual(wtmp_new.header{10}.instrument,inst(10));
+            assertEqual(wtmp_new.header{1}.instrument,inst(1));
             
             
         end
