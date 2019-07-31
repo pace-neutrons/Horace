@@ -46,7 +46,7 @@ classdef opt_config_manager
         function obj = opt_config_manager()
             %
             obj.config_info_folder_ = fileparts(mfilename('fullpath'));
-            obj.this_pc_type_ = opt_config_manager.find_comp_type();
+            obj.this_pc_type_ = find_comp_type_(obj);
             if isempty(which('horace_init'))
                 obj.known_configs_ = {'herbert_config','parallel_config'};
             end
@@ -142,6 +142,26 @@ classdef opt_config_manager
             end
             conf = load_configuration_(obj,set_config,set_def_only);
         end
+        function [pc_type,nproc,mem_size] = find_comp_type(obj)
+            % analyze pc parameters (memory, number of processors etc.)
+            % and return pc type.
+            %
+            % A pc type is a string, describing the computer from point of
+            % view of using it for high performance communications.
+            %
+            % Returns:
+            % pc_type -- the sting containing the type of the pc. The type
+            %            is selected from the list of known types and
+            %            used as the key to the list of configurations,
+            %            find to be optimal for each pc type.
+            % nproc   -- number of parallel processes (matlab workers) can
+            %            be used in parallel (MPI) computations.
+            % mem_size-- The size of the physical memory in bytes,
+            %
+
+            [pc_type,nproc,mem_size] = find_comp_type_(obj);
+        end
+        
         
     end
     methods(Access=private)
@@ -156,28 +176,6 @@ classdef opt_config_manager
             end
             
         end
-    end
-    methods(Static)
-        function [pc_type,nproc,mem_size] = find_comp_type()
-            % analyze pc parameters (memory, number of processors etc.) 
-            % and return pc type.
-            %
-            % A pc type is a string, describing the computer from point of
-            % view of using it for high performance communications. 
-            %
-            % Returns:
-            % pc_type -- the sting containing the type of the pc. The type
-            %            is selected from the list of known types and
-            %            used as the key to the list of configurations, 
-            %            find to be optimal for each pc type. 
-            % nproc   -- number of parallel processes (matlab workers) can
-            %            be used in parallel (MPI) computations.
-            % mem_size-- 
-            %
-            % The pc type is 
-            [pc_type,nproc,mem_size] = find_comp_type_();
-        end
-        
     end
 end
 

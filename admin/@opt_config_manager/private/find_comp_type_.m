@@ -1,9 +1,9 @@
-function [pc_type,nproc,mem_size] = find_comp_type_()
+function [pc_type,nproc,mem_size] = find_comp_type_(obj)
 % find pc type as function of the pc properties, like memory size number of
 % processors, etc.
 %
 %
-types = opt_config_manager.known_pc_types_;
+types = obj.known_pc_types_;
 Gb = 1024*1024*1024;
 nproc = 1;
 if ispc
