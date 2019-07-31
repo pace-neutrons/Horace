@@ -32,7 +32,7 @@ else
         if iscell(data)
             bytes2 = obj.sqw_serializer_.serialize(data{1},data_form);
         else
-            bytes2 = obj.sqw_serializer_.serialize(data(1),data_form);
+            bytes2 = obj.sqw_serializer_.serialize(data,data_form);
         end
     else
         bytes2 = obj.sqw_serializer_.serialize(data,data_form);

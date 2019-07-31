@@ -50,6 +50,9 @@ end
 if setting_instr
     %
     % serialize instrument(s)
+    if iscell(instr)
+        instr  = [instr{:}];
+    end
     [bytes,instr_size] = serialize_si_block_(obj,instr,'instrument');
     %
     % recalculate instrument positions (just in case)
@@ -78,6 +81,9 @@ end
 
 if setting_sample
     % serialize sample(s)
+    if iscell(sampl) % allow only one sample! TODO: very bad. Change with class resesighn
+        sampl = sampl{1};
+    end
     [bytes,sample_size] = serialize_si_block_(obj,sampl,'sample');
     %clc_size = obj.instr_sample_end_pos_ - obj.sample_pos_;
     % recalculate sample positions (just in case)
