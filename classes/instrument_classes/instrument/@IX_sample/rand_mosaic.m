@@ -10,10 +10,14 @@ UBinv = inv(UB);
 
 % Get random rotation vectors in the xaxis-yaxis frame
 func = mosaic.mosaic_pdf;
-X = func(sz, mosaic.parameters{:});
+if ~iscell(mosaic.parameters)
+    X = func(sz, mosaic.parameters);
+else
+    X = func(sz, mosaic.parameters{:});
+end
 
 % Get matrix to turn nominal h,k,l into values for mosaic crystallites
 tmp = rotvec_to_rotmat (reshape(-X,[3,prod(sz)]));
 tmp = mtimesx_horace (tmp, UB);
 Rrlu = mtimesx_horace (UBinv, tmp);
-Rrlu = reshape(Rrlu,[3,sz]);
+Rrlu = reshape(Rrlu,[3,size(X)]);
