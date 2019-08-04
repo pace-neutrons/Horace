@@ -66,7 +66,12 @@ classdef IX_sample
             %                   cuboid: full widths in m
             %
             % Optional:
-            %   eta             Mosaic spread (FWHH) (deg)
+            %   eta             Mosaic spread: one of
+            %                   - Single number: mosaic spread FWHH (deg) for an
+            %                     isotropic Gaussian mosaic distrubution
+            %
+            %                   - IX_mosaic object: more general form
+            %
             %                   Ignored if not single crystal
             %
             %   temperature     Temperature of sample (K)
@@ -106,7 +111,7 @@ classdef IX_sample
                     obj.shape_ = S.shape;
                     obj.ps_ = S.ps;
                 else
-                    error('Must give all argument that define geometry and sample shape')
+                    error('Must give all arguments that define geometry and sample shape')
                 end
                 if present.eta
                     obj.eta_ = S.eta;
@@ -192,10 +197,12 @@ classdef IX_sample
         end
         
         function obj=set.eta_(obj,val)
-            if isnumeric(val) && isscalar(val) && val>=0
+            if isa(val,'IX_mosaic') && isscalar(val)
                 obj.eta_=val;
+            elseif isnumeric(val) && isscalar(val) && val>=0
+                obj.eta_=IX_mosaic(val);
             else
-                error('Mosiac spread must be numeric scalar greater than or equal to zero')
+                error('Mosaic spread must be numeric scalar greater than or equal to zero, or an IX_mosaic object')
             end
         end
         

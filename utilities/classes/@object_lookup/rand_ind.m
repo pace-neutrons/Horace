@@ -6,8 +6,9 @@ function X = rand_ind (obj, varargin)
 %
 %   >> X = rand_ind (...,'options', p1, p2,...)
 %
-% The purpose is to return random points from a function of the form:
+% The purpose is to return random points from a method of the form:
 %       X = rand (object, sz)
+%       X = rand (object, sz, p1, p2,...)
 %
 % for a set of objects defined by index arguments iarray and ind.
 % 
@@ -26,6 +27,11 @@ function X = rand_ind (obj, varargin)
 %              object array referred to by iarray, from which a random point
 %              is to be taken. min(ind(:))>=1, max(ind(:))<=number of objects
 %              in the object array selected by iarray
+%
+% Optionally:
+%   'options', p1, p2...    Optional parameters to be passed to the rand
+%                           function
+%
 %
 % Output:
 % -------
@@ -51,6 +57,9 @@ function X = rand_ind (obj, varargin)
 %       sz          Size of array of output array of random numbers
 %           *OR*
 %       sz1,sz2...  Extent along each dimension of random number array
+%
+%       p1, p2,...  Optional arguments. It is assumed that the method
+%                   can resolve any ambiguities between p1 and n, sz or szn
 %
 %       Output:
 %       -------
@@ -137,7 +146,7 @@ function X = rand_ind_private (obj, ind, varargin)
 %           *OR*
 %       sz1,sz2...  Extent along each dimension of random number array
 %
-%       p1, p2,...  Optional arguments. It is assumed that the function
+%       p1, p2,...  Optional arguments. It is assumed that the method
 %                   can resolve any ambiguities between p1 and n, sz or szn
 %
 %       Output:
