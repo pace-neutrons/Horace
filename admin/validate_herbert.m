@@ -1,19 +1,30 @@
 function err=validate_herbert(varargin)
 % Run unit tests on Herbert installation
 %
-%   >> validate_herbert                 % Run full Herbert validation
+%   >> validate_herbert([mode_key1,mode_key2...])   % Run all Herbert unit
+%                                                     and system tests.
 %
-%   >> validate_herbert ('-parallel')   % Enables parallel execution of unit tests
-%                                       % if the parallel computer toolbox is available
-%   >> validate_herbert ('-talkative')  % prints output of the tests and
-%                                       %  horace commands   (log_level is set to default, not quiet)
+%
+% possible keys provided as input for validate_herbert script are:
+%
+% '-parallel'   Enables parallel execution of unit tests if the parallel
+%              computer toolbox is available. Needs large memory as some
+%              tests satart its own version of parallel computing toolbox.
+%
+% '-talkative' prints output of the tests and
+%              varioud herbert log messages (log_level  in configurations
+%              is set to default, not quiet as default)
+%
+% '-exit_on_completeon'  exit Matlab when the tests are completed.
+%               This option is useful when running tests from
+%               a script or continuous integration tools.
 % Returns:
-% err -- 0 if tests are successful and  -1 if some test s fail
+% err -- 0 if tests are successful and  -1 if some tests have failed
 
 
 % Parse optional arguments
 % ------------------------
-options = {'-parallel','-talkative'};
+options = {'-parallel','-talkative','-exit_on_completeon'};
 % For running from shell script:
 err = -1;
 if isempty(which('herbert_init'))
@@ -23,8 +34,9 @@ end
 if nargin==0
     talkative=false;
     parallel=false;
+    exit_on_completeon= false;
 else
-    [ok,mess,parallel,talkative]=parse_char_options(varargin,options);
+    [ok,mess,parallel,talkative,exit_on_completeon]=parse_char_options(varargin,options);
     if ~ok
         error('VALIDATE_HERBERT:invalid_argument',mess)
     end
@@ -112,6 +124,9 @@ end
 
 if tests_ok
     err = 0;
+end
+if exit_on_completeon
+    exit;
 end
 
 %=================================================================================================================
