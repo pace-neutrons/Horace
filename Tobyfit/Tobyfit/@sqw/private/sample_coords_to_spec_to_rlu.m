@@ -1,7 +1,9 @@
-function [ok, mess, sample, s_mat, spec_to_rlu] = sample_coords_to_spec_to_rlu (header)
+function [ok, mess, sample, s_mat, spec_to_rlu, alatt, angdeg] =...
+    sample_coords_to_spec_to_rlu (header)
 % Get the matrix to convert a coordinate in the sample coordinate frame to laboratory frame
 %
-%   >> [sample, s_mat] = sample_coords_to_spec_to_rlu (header)
+%   >> [ok, mess, sample, s_mat, spec_to_rlu, alatt, angdeg] =...
+%                                     sample_coords_to_spec_to_rlu (header)
 %
 % Input:
 % ------
@@ -11,25 +13,35 @@ function [ok, mess, sample, s_mat, spec_to_rlu] = sample_coords_to_spec_to_rlu (
 % -------
 %   ok          Status: = true if all OK, =false otherwise
 %   mess        Error message: empty if OK, filled otherwise
-%   sample      Sample structure or object (must be the same for every contributing run)
+%   sample      Sample object (must be the same for every contributing run)
 %   s_mat       Matrix to convert coords in sample frame to spectrometer frame.
 %               Size is [3,3,nrun], where nrun is the number of runs that contribute to the sqw object.
 %   spec_to_rlu Matrix to convert momentum in spectrometer coordinates to components in r.l.u.:
 %                   v_rlu = spec_to_rlu * v_spec
 %               Size is [3,3,nrun], where nrun is the number of runs that contribute to the sqw object.
-
+%   alatt       Lattice parameters (row vector length 3)
+%   angdeg      Lattice angles in degrees (row vector length 3)
 
 % Check sample descrption the same for all spe files in the sqw object
 if ~iscell(header)
     nrun=1;
     sample=header.sample;
+    alatt=header.alatt;
+    angdeg=header.angdeg;
 else
     nrun=numel(header);
     sample=header{1}.sample;
+    alatt=header{1}.alatt;
+    angdeg=header{2}.angdeg;
     for i=2:numel(header)
         if ~isequal(sample,header{i}.sample)
             ok=false;
             mess='Sample description must be identical for all contributing spe files';
+            return
+        end
+        if ~all(alatt==header{i}.alatt) && ~all(angdeg==header{i}.angdeg)
+            ok=false;
+            mess='Lattice parameters must be identical for all contributing spe files';
             return
         end
     end

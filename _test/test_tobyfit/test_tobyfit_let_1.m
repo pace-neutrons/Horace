@@ -91,7 +91,7 @@ acolor r b; plot(wdata_1); pl(wfit_1);
 
 if test_output
     disp('Comparing with stored fit')
-    fac=[0.25,0,0.02];
+    fac=[0.5,0,0.02,0.02];
     if ~is_same_fit (fitpar_1,   tmp.fitpar_1,   fac)
         error('par_fe_tf_1 not same')
     end
