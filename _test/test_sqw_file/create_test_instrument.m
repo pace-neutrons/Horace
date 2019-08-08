@@ -1,4 +1,4 @@
-function instrument = maps_instrument(ei,hz,chopper)
+function instrument = create_test_instrument(ei,hz,chopper)
 % Return instrument description for MAPS
 %
 %   >> instrument = maps_instrument(ei,hz,chopper)
