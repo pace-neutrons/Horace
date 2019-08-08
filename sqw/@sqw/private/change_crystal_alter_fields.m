@@ -21,7 +21,7 @@ narg=numel(varargin);
 if narg==0
     return
     
-elseif narg==1 && isnumeric(varargin{1}) && numel(size(varargin{1})==2) && all(size(varargin{1})==[3,3])     % rlu_corr
+elseif narg==1 && isnumeric(varargin{1}) && numel(size(varargin{1}))==2 && all(size(varargin{1})==[3,3])     % rlu_corr
     rlu_corr=varargin{1};
     [alatt,angdeg,ok,mess]=rlu_corr_to_lattice(rlu_corr,alatt0,angdeg0);
     if ~ok, return, end

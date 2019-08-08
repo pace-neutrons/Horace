@@ -95,6 +95,8 @@ function [ok,mess,lookup,npix] = tobyfit_DGfermi_resconv_init (win, varargin)
 %                      components in r.l.u.:
 %                           v_rlu = spec_to_rlu * v_spec
 %                      Size is [3,3,nrun], where nrun is the number of runs
+%           alatt       Lattice parameters (Angstroms), vector size[1,3]
+%           angdeg      Lattice angles in degrees (Angstroms), vector size[1,3]
 %
 %       Cell arrays of arrays of detector information, one array per dataset:
 %           f_mat       Array size [3,3,ndet] to take coordinates in spectrometer
@@ -136,7 +138,7 @@ if nargin==0
     ok=true;
     mess='';
     lookup={'moderator','aperture','chopper','sample',...
-        'detector_depth','detector_area','energy_bin'};
+        'detector_depth','detector_area','energy_bin','mosaic'};
     npix = [];
     return
 end
@@ -200,6 +202,8 @@ kf=cell(nw,1);          % element size [npix,1]
 sample=repmat(IX_sample,nw,1);
 s_mat=cell(nw,1);       % element size [3,3,nrun]
 spec_to_rlu=cell(nw,1); % element size [3,3,nrun]
+alatt=cell(nw,1);       % element size [1,3]
+angdeg=cell(nw,1);      % element size [1,3]
 detectors=repmat(IX_detector_array,nw,1);
 f_mat=cell(nw,1);       % element size [3,3,ndet]
 d_mat=cell(nw,1);       % element size [3,3,ndet]
@@ -246,7 +250,8 @@ for iw=1:nw
     kf{iw}=sqrt((ei{iw}(irun)-eps)/k_to_e);
     
     % Get sample, and both s_mat and spec_to_rlu; each has size [3,3,nrun]
-    [ok,mess,sample(iw),s_mat{iw},spec_to_rlu{iw}] = sample_coords_to_spec_to_rlu(wtmp.header);
+    [ok,mess,sample(iw),s_mat{iw},spec_to_rlu{iw},alatt{iw},angdeg{iw}] =...
+        sample_coords_to_spec_to_rlu(wtmp.header);
     if ~ok, return, end
     
     % Get detector information
@@ -302,6 +307,8 @@ lookup.ki=ki;
 lookup.kf=kf;
 lookup.s_mat=s_mat;
 lookup.spec_to_rlu=spec_to_rlu;
+lookup.alatt=alatt;
+lookup.angdeg=angdeg;
 lookup.f_mat=f_mat;
 lookup.d_mat=d_mat;
 lookup.detdcn=detdcn;

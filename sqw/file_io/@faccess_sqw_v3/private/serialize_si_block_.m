@@ -1,5 +1,6 @@
 function [bytes,data_sz] = serialize_si_block_(obj,data,type)
 % Serialize an instrument or sample data block.
+% 
 %
 % The block contains theheader, describing the class name
 % (instrument or sample) together with classes version  and
@@ -37,7 +38,7 @@ else
         if iscell(data)
             bytes2 = obj.sqw_serializer_.serialize(data{1},data_form);
         else
-            bytes2 = obj.sqw_serializer_.serialize(data(1),data_form);
+            bytes2 = obj.sqw_serializer_.serialize(data,data_form);
         end
     else
         bytes2 = obj.sqw_serializer_.serialize(data,data_form);

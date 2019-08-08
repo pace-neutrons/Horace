@@ -2,9 +2,11 @@ function test_set_instrument_data_2()
 
 % Set up names of data files
 data_dir = fileparts(which(mfilename));
-
+wars = warning('off','SQW_FILE:old_version');
+clob0 = onCleanup(@()(warning(wars)));
 
 % Data file with 85 spe files, incident energies 100.1,100.2,...108.5 meV:
+% its the file containing old instrument and old sample
 data_inst_ref = fullfile(data_dir,'w1_inst_ref.sqw');
 data_inst = fullfile(tempdir,'test_setup_inst_data_w1_inst.sqw');    % for copying to later
 
@@ -13,8 +15,13 @@ clob = onCleanup(@()delete(data_inst));
 % Read as an object too:
 w1 = read_sqw(data_inst_ref);
 
-
-
+% check the conversion of the old sample and instrument stored in file
+sam = w1.header{1}.sample;
+assertTrue(isa(sam,'IX_sample'));
+assertEqual(sam.shape,'cuboid');
+inst = w1.header{1}.instrument;
+assertTrue(isa(inst,'IX_inst'));
+assertEqual(inst.name,'MAPS');
 %% --------------------------------------------------------------------------------------------------
 % Header:
 % ---------
@@ -80,13 +87,13 @@ set_efix_horace(data_inst,ei)  % file
 % New moderator parameters
 % ---------------------------
 
-% Get moderator parameters - errors
+% Get moderator parameters - No errors with new insturment
 
 [pulse_model_obj,ppmod,ok,mess,p,present]=get_mod_pulse(w1);
-assertFalse(ok)
+assertTrue(ok)
 
 [pulse_model_file,ppmod_f,ok,mess_f,p_f,pres_f]=get_mod_pulse_horace(data_inst);
-assertFalse(ok)
+assertTrue(ok)
 
 assertEqual(ppmod,ppmod_f)
 assertEqual(mess,mess_f)

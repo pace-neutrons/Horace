@@ -151,18 +151,18 @@ if refine_moderator
     % on moderator models in the sqw objects being fitted have been performed
     % searlier on so that here all moderators are replaced by a single one
     % derived from the first object in the lookup table.
-    moderator = mod_shape_mono_table.object_array(1).moderator;
+    moderator = mod_shape_mono_table.object_store(1).moderator;
     
     % Strip out moderator refinement parameters and update moderator
     [moderator, pars{1}] = refine_moderator_strip_pars...
         (moderator, modshape, pars{1});
     
     % Replace moderator(s) in object lookup with updated moderator
-    mod_shape_mono = mod_shape_mono_table.object_array;
+    mod_shape_mono = mod_shape_mono_table.object_store;
     for i=1:numel(mod_shape_mono)
         mod_shape_mono.moderator = moderator;
     end
-    mod_shape_mono_table.object_array = mod_shape_mono;
+    mod_shape_mono_table.object_store = mod_shape_mono;
 end
 
 reset_state=caller.reset_state;
@@ -184,6 +184,8 @@ for i=1:numel(ind)
     x1=lookup.x1{iw};
     ki=lookup.ki{iw};
     kf=lookup.kf{iw};
+    alatt=lookup.alatt{iw};
+    angdeg=lookup.angdeg{iw};
     f_mat=lookup.f_mat{iw};
     d_mat=lookup.d_mat{iw};
     detdcn=lookup.detdcn{iw};
@@ -203,7 +205,7 @@ for i=1:numel(ind)
         [win(i), pars{1}] = refine_crystal_strip_pars (win(i), xtal, pars{1});
 
         % Update s_mat and spec_to_rlu because crystal orientation will have changed
-        [ok,mess,~,s_mat,spec_to_rlu]=sample_coords_to_spec_to_rlu(win(i).header);
+        [ok,mess,~,s_mat,spec_to_rlu,alatt,angdeg]=sample_coords_to_spec_to_rlu(win(i).header);
         if ~ok, error(mess), end
 
         % Recompute Q because crystal orientation will have changed (dont need to update qw{4})
@@ -215,6 +217,10 @@ for i=1:numel(ind)
             s_mat(:,:,irun), f_mat(:,:,idet), d_mat(:,:,idet),...
             spec_to_rlu(:,:,irun), k_to_v, k_to_e);
     end
+    
+    % Find out if the crystal has a mosaic spread
+    % -------------------------------------------
+    mosaic_spread = mosaic_crystal(sample_table.object_elements(iw).eta);
     
     % Simulate the signal for the data set
     % ------------------------------------
@@ -257,7 +263,16 @@ for i=1:numel(ind)
         end
         
         % Calculate the deviations in Q and energy, and then the S(Q,w) intensity
-        dq=squeeze(mtimesx_horace(dq_mat,yvec))';
+        % -----------------------------------------------------------------------
+        dq = mtimesx_horace(dq_mat,yvec);
+
+        % Mosaic spread
+        if mosaic_spread && mc_contributions.mosaic
+            Rrlu = sample_table.func_eval(iw,@rand_mosaic,[1,npix],alatt,angdeg);
+            dq = mtimesx_horace(Rrlu,dq);
+        end
+        dq = squeeze(dq)';      % 4 x 1 x npix ==> npix x 4
+
         if imc==1
             stmp=sqwfunc(qw{1}+dq(:,1),qw{2}+dq(:,2),qw{3}+dq(:,3),qw{4}+dq(:,4),pars{:});
         else
