@@ -37,6 +37,38 @@ arr3 = [c3,c1];
 
 objlookup2 = object_lookup({arr1,arr2,arr3});
 
+
+%--------------------------------
+% Test recovery of input
+%--------------------------------
+arr1_recover = objlookup2.object_array(1);
+arr2_recover = objlookup2.object_array(2);
+arr3_recover = objlookup2.object_array(3);
+
+if ~isequal(arr1,arr1_recover)
+    error('Unable to recover arr1')
+end
+if ~isequal(arr2,arr2_recover)
+    error('Unable to recover arr2')
+end
+if ~isequal(arr3,arr3_recover)
+    error('Unable to recover arr3')
+end
+
+
+test_ref = arr1([2,5,3]);
+test = objlookup2.object_elements(1,[2,5,3]);
+if ~isequal(test,test_ref)
+    error('Unable to recover elements of arr1')
+end
+
+test_ref = arr2([3,5]);
+test = objlookup2.object_elements(2,[3,5]);
+if ~isequal(test,test_ref)
+    error('Unable to recover elements of arr1')
+end
+
+
 %--------------------------------
 % Test general case
 %--------------------------------

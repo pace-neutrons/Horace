@@ -135,7 +135,7 @@ else
     error('Insufficient number of input arguments')
 end
 
-[varargout{1:nargout}] = func_eval_ind_private (obj.object_array_,...
+[varargout{1:nargout}] = func_eval_ind_private (obj.object_store_,...
     obj.indx_{iarray}(ind), funchandle, arg, split);
 
 

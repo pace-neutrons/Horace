@@ -1,11 +1,6 @@
 classdef IX_mosaic
     % Mosaic spread object
     
-    properties (Constant, Access=private)
-        shapes_ = fixedNameList({'point','cuboid'})   % valid sample types
-        n_ps_ = containers.Map({'point','cuboid'},[0,3]) % number of parameters for sample description
-    end
-    
     properties (Access=private)
         % Stored properties - but kept private and accessible only through
         % public dependent properties because validity checks of setters
@@ -13,9 +8,15 @@ classdef IX_mosaic
         class_version_ = 1;
         xaxis_ = [1,0,0];
         yaxis_ = [0,1,0];
+        % The mosaic function handle must be a private function of IX_mosaic
+        % This is because of a stitch-up that enables a socoped function handle
+        % to be returned by hlp_serialize as a character string and then
+        % read back by hlp_deserialize as a character string. We then have a
+        % custom catch in IX_mosaic/loadobj_private_ that catches mosaic_pdf_
+        % if it is a character string and uses str2func to convert to the
+        % scoped handle again.
         mosaic_pdf_ = @rand_mosaic_gaussian;
         parameters_ = 0;
-        valid_ = true;
     end
     
     properties (Dependent)

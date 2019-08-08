@@ -84,10 +84,12 @@ if numel(varargin)>=3 && options(varargin{3})
     ind = varargin{2};
     args = varargin(4:end);
 elseif numel(varargin)>=2 && options(varargin{2})
+    iarray = 1;
     ind = varargin{1};
     args = varargin(3:end);
 elseif numel(varargin)<=2
     if numel(varargin)==1
+        iarray = 1;
         ind = varargin{1};
     else
         iarray = varargin{1};
@@ -98,25 +100,7 @@ else
     error('Check the number and type of input options')
 end
 
-
-% if numel(varargin)==2
-%     iarray = varargin{1};
-%     if ~isscalar(iarray)
-%         error('Index to original object array, ''iarray'', must be a scalar')
-%     end
-%     ind = varargin{2};
-% elseif numel(varargin)==1
-%     if numel(obj.indx_)==1
-%         iarray = 1;
-%         ind = varargin{1};
-%     else
-%         error('Must give index to the object array from which samples are to be drawn')
-%     end
-% else
-%     error('Insufficient number of input arguments')
-% end
-
-X = rand_ind_private (obj.object_array_, obj.indx_{iarray}(ind), args{:});
+X = rand_ind_private (obj.object_store_, obj.indx_{iarray}(ind), args{:});
 
 
 

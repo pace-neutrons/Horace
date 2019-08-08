@@ -27,7 +27,7 @@ classdef pdf_table_lookup
     %   (3) access to the originating class properties is not going to be
     %       required
     %
-    % See also pdf_table object_array
+    % See also pdf_table pdf_table_array object_lookup
     
     properties (Access=private)
         % Class version number

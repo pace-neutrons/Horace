@@ -51,7 +51,7 @@ classdef test_IX_sample < TestCaseWithSave
             std3 = std(samp3,1,2);
             
             assertEqualToTol(mean2, [0;0;0], 'tol', 0.003);
-            assertEqualToTol(mean3, [0;0;0], 'tol', 0.01);
+            assertEqualToTol(mean3, [0;0;0], 'tol', 0.02);
                         
             assertEqualToTol(std2, self.sam1.ps'/sqrt(12), 'reltol', 0.001);
             assertEqualToTol(std3, self.sam2.ps'/sqrt(12), 'tol', 0.01);

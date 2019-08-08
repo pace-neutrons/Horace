@@ -16,7 +16,7 @@ function status = greater_than_private (A,B,public)
 % that is, a method with name 'gt'.
 %
 % If such a method does not exist for a particular object, then that object
-% is resolved into a structure of the properties using structPublic or 
+% is resolved into a structure of the properties using structPublic or
 % structIndep according to the value of the logical flag 'public', and
 % comparison done on the contents of the fields. The process is continued
 % until all nested structures and objects have been resolved.
@@ -29,12 +29,12 @@ function status = greater_than_private (A,B,public)
 %
 %   public  Logical flag:
 %            true:  keep public properties (independent and dependent)
-%                   More specifically, it calls an object method called 
+%                   More specifically, it calls an object method called
 %                  structPublic if it exists; otherwise it calls the
 %                  generic function structPublic.
 %            false: keep independent properties only (hidden, protected and
 %                   public)
-%                   More specifically, it calls an object method called 
+%                   More specifically, it calls an object method called
 %                  structIndep if it exists; otherwise it calls the
 %                  generic function structIndep.
 
@@ -48,34 +48,39 @@ szA = size(A);
 szB = size(B);
 
 if isequal(classA,classB) && isequal(szA,szB)
-    if iscell(A)
-        Agreater = cellfun(@(x,y)(greater_than_private(x,y,public)),A,B);
-        ABequal  = cellfun(@(x,y)(isequaln(x,y)),A,B);
-    elseif isobject(A)
-        if ismethod(A,'gt')
-            Agreater = arrayfun(@(x,y)(gt(x,y)),A,B);
-        else
-            Agreater = arrayfun(@(x,y)(greater_than_obj(x,y,public)),A,B);
-        end
-        ABequal  = arrayfun(@(x,y)(isequaln(x,y)),A,B);
-    elseif isstruct(A)
-        fieldsA = fieldnames(A);
-        fieldsB = fieldnames(B);
-        if isequal(fieldsA,fieldsB)
-            Agreater = arrayfun(@(x,y)(greater_than_struct(x,y,public)),A,B);
+    if ~isa(A,'function_handle')
+        if iscell(A)
+            Agreater = cellfun(@(x,y)(greater_than_private(x,y,public)),A,B);
+            ABequal  = cellfun(@(x,y)(isequaln(x,y)),A,B);
+        elseif isobject(A)
+            if ismethod(A,'gt')
+                Agreater = arrayfun(@(x,y)(gt(x,y)),A,B);
+            else
+                Agreater = arrayfun(@(x,y)(greater_than_obj(x,y,public)),A,B);
+            end
             ABequal  = arrayfun(@(x,y)(isequaln(x,y)),A,B);
+        elseif isstruct(A)
+            fieldsA = fieldnames(A);
+            fieldsB = fieldnames(B);
+            if isequal(fieldsA,fieldsB)
+                Agreater = arrayfun(@(x,y)(greater_than_struct(x,y,public)),A,B);
+                ABequal  = arrayfun(@(x,y)(isequaln(x,y)),A,B);
+            else
+                status = greater_than_private(fieldsA,fieldsB,public);
+                return
+            end
         else
-            status = greater_than_private(fieldsA,fieldsB,public);
-            return
+            Agreater = (A>B);
+            ABequal = (A==B);
         end
+        Bgreater = ~(Agreater|ABequal);
+        iA = find(Agreater(:),1);
+        iB = find(Bgreater(:),1);
+        status = (isscalar(iA) && (~isscalar(iB) || iA<iB));
     else
-        Agreater = (A>B);
-        ABequal = (A==B);
+        % A function handle object can only be scalar
+        status = greater_than_private(func2str(A),func2str(B),public);
     end
-    Bgreater = ~(Agreater|ABequal);
-    iA = find(Agreater(:),1);
-    iB = find(Bgreater(:),1);
-    status = (isscalar(iA) && (~isscalar(iB) || iA<iB));
     
 else
     status = (greater_than_private(classA,classB,public) ||...

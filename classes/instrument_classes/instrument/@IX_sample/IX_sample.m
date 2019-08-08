@@ -17,7 +17,7 @@ classdef IX_sample
         ygeom_ = [0,1,0];
         shape_ = 'point';
         ps_ = [];
-        eta_ = 0;
+        eta_ = IX_mosaic();
         temperature_ = 0;
         
         valid_ = true;
@@ -70,7 +70,8 @@ classdef IX_sample
             %                   - Single number: mosaic spread FWHH (deg) for an
             %                     isotropic Gaussian mosaic distrubution
             %
-            %                   - IX_mosaic object: more general form
+            %                   - IX_mosaic object: more general description of
+            %                     mosaic spread. See the help for  <a href="matlab:help('IX_mosaic');">IX_mosaic</a>]
             %
             %                   Ignored if not single crystal
             %

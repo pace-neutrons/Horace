@@ -27,17 +27,20 @@ classdef object_lookup
     %       objects with lookup arrays
     %   (3) indexed object evaluation of general functions is needed
     %
-    % See also pdf_table_array
+    % See also pdf_table_lookup
     
     properties (Access=private)
         % Class version number
         class_version_ = 1;
         
         % Object array (column vector)
-        object_array_ = []
+        object_store_ = []
+        
+        % Cell array of sizes of original object arrays
+        sz_ = cell(0,1)
         
         % Index array (column vector)
-        % Cell array of indices into the object_array_, where
+        % Cell array of indices into the object_store_, where
         % ind{i} is a column vector of indices for the ith object array.
         % The length of ind{i} = number of objects in the ith object array
         indx_ = cell(0,1)
@@ -45,9 +48,9 @@ classdef object_lookup
     
     properties (Dependent)
         % Object array of unique instance of objects in the input array or cell array
-        object_array
+        object_store
         
-        % Cell array of indices into object_array.
+        % Cell array of indices into object_store.
         % ind{i} is a column vector of indices for the ith object array.
         % The length of ind{i} = number of objects in the ith object array
         indx
@@ -94,6 +97,7 @@ classdef object_lookup
                 % Assemble the objects in one array
                 nw = numel(objects);
                 nel = cellfun(@numel,objects(:));
+                sz = cellfun(@size,objects(:),'uniformoutput',false);
                 if any(nel==0)
                     error('Cannot have any empty object arrays')
                 end
@@ -114,8 +118,9 @@ classdef object_lookup
                 end
                 
                 % Fill lookup properties
-                obj.object_array_ = obj_unique;
+                obj.object_store_ = obj_unique;
                 obj.indx_ = mat2cell(ind,nel,1);
+                obj.sz_ = sz;
             end
             
         end
@@ -123,13 +128,13 @@ classdef object_lookup
         %------------------------------------------------------------------
         % Set methods for dependent properties
         
-        function obj=set.object_array(obj,val)
+        function obj=set.object_store(obj,val)
             % Replace the object lookup table with another set of objects
             %
-            %   >> obj.object_array = new_object_array
+            %   >> obj.object_store = new_object_store
             %
             % The number of objects in new array must be scalar or match the
-            % number in the current value of the property object_array.
+            % number in the current value of the property object_store.
             % - If scalar, then it is assumed that every object in the current
             %   array is to be replaced by a copy of the new object
             % - If array of same size as current object rray, no check is
@@ -137,20 +142,20 @@ classdef object_lookup
             %   but calls to function evaluations or random point generation
             %   will not be as efficient as they could be.
             
-            if numel(val)==numel(obj.object_array_) || isscalar(val)
-                if numel(obj.object_array_)>0
-                    if numel(val)==numel(obj.object_array_)
-                        obj.object_array_ = val(:);
+            if numel(val)==numel(obj.object_store_) || isscalar(val)
+                if numel(obj.object_store_)>0
+                    if numel(val)==numel(obj.object_store_)
+                        obj.object_store_ = val(:);
                     else
-                        obj.object_array_ = repmat(val(:),size(obj.object_array_));
+                        obj.object_store_ = repmat(val(:),size(obj.object_store_));
                     end
                 else
-                    % Force default null object_array if currently unassigned
+                    % Force default null object_store if currently unassigned
                     null = object_lookup;
-                    obj.object_array = null.object_array_;
+                    obj.object_store = null.object_store_;
                 end
             else
-                error('Replacement for property ''object_array'' must be scalar or have the same number of objects')
+                error('Replacement for property ''object_store'' must be scalar or have the same number of objects')
             end
         end
         
@@ -161,12 +166,12 @@ classdef object_lookup
             val=obj.indx_;
         end
         
-        function val=get.object_array(obj)
-            val=obj.object_array_;
+        function val=get.object_store(obj)
+            val=obj.object_store_;
         end
         
         function val=get.filled(obj)
-            val=(numel(obj.object_array_)>0);
+            val=(numel(obj.object_store_)>0);
         end
         
         %------------------------------------------------------------------

@@ -85,7 +85,7 @@ else
 end
 
 
-[varargout{1:nargout}] = func_eval_private (obj.object_array_, obj.indx_{iarray}(ind), funchandle, arg);
+[varargout{1:nargout}] = func_eval_private (obj.object_store_, obj.indx_{iarray}(ind), funchandle, arg);
 
 
 %------------------------------------------------------------------

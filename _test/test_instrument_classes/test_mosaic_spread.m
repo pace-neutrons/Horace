@@ -1,3 +1,6 @@
+function test_mosaic_spread
+% Test random rotation matricies created by mosaic spread 
+
 % Set up lattice and reflection we want to study
 alatt = [4,4,4];
 angdeg = [90,90,90];
@@ -20,27 +23,33 @@ eta =[...
     0,4,5;...
     0,5,9 ...
     ];
-mos = IX_mosaic (xmos,ymos,eta);
 
+% Create sample
+mos = IX_mosaic (xmos,ymos,eta);
 sample = IX_sample(xgeom,ygeom,shape,pshape,mos);
 
+% Random mosaic spread
 R = sample.rand_mosaic([1,npnt],alatt,angdeg);
 
-%
+% Get actual hkl after mosaic broadening, convert to intensity map perpendicular
+% to the Bragg peak bragg1
 ub = ubmatrix (bragg1, bragg2, bmatrix (alatt, angdeg));
-
-% Create a
-hkl = mtimesx_horace(R,bragg1(:));    % the hkl for the mosaic distribution
+hkl = mtimesx_horace(R,bragg1(:));      % the hkl for the mosaic distribution
 xyz = mtimesx_horace(ub,hkl);           % now in orthonormal frame
 xyz = squeeze(xyz);
 
 modQ = norm(ub*bragg1(:));    % length of bragg1 in Ang^-1
-
 xyz = ((180/pi)/modQ)*xyz;  % convert to degrees
-
-
-
 [N,Xedges,Yedges] = histcounts2(xyz(2,:),xyz(3,:));
-w = IX_dataset_2d(Xedges,Yedges,N);
-da(w)
-aspect(1,1)
+
+% Test covariance
+fwhh_cov_rand = cov(xyz(2:3,:)')*log(256);
+fwhh_cov_expect = [9,-5; -5,4];
+assertEqualToTol (fwhh_cov_rand,fwhh_cov_expect,'reltol',0.01)
+
+%-----------------------------------------------------
+% % Plot - handcraft test
+% w = IX_dataset_2d(Xedges,Yedges,N);
+% da(w)
+% aspect(1,1)
+%-----------------------------------------------------
