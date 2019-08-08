@@ -21,11 +21,12 @@ else % structure or custom class
     nn = numel(names);
     tBytes = cell(nn*nel+1,1);
     tBytes{1} = [head,typecast(nn,'uint8')];
+    base = 1;
     if ~isempty(names)
         tbn = cellfun(@(nm)[typecast(numel(nm),'uint8'),uint8(nm)],names,...
             'UniformOutput',false);
         tBytes{1} = [tBytes{1},[tbn{:}]];
-        [tBytes,base] = process_single(obj,val1,names,tBytes,1,nn);
+        [tBytes,base] = process_single(obj,val1,names,tBytes,base,nn);
     end
     for i=2:nel
         try
