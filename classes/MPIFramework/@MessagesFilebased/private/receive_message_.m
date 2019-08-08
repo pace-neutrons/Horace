@@ -15,7 +15,14 @@ if ~ischar(mess_name)
     error('MESSAGES_FRAMEWORK:invalid_argument',...
         'mess_name in recive_message command should be a message name (e.g. "starting")');
 end
-
+% code to build debugging log file 
+task_id = obj.task_id_;
+n_labs  = obj.numLabs_;
+f_name = sprintf('messaga_%s_receive_log%d#%d',mess_name,task_id,n_labs);
+fh = fopen(fname,'w');
+if fh<1
+    error('LOGGING:error','Can not open file %s',f_name);
+end
 %
 message=[];
 [is,err_code,err_mess] = check_job_cancelled(obj);

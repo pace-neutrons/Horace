@@ -37,10 +37,11 @@ while exist(rlock_file,'file') == 2 % previous message is reading, wait unitl re
 end
 
 fh = fopen(wlock_file,'wb');
-%prepare lock removal after the routine completeon
-clob = onCleanup(@()unlock_(fh,wlock_file));
+% %prepare lock removal after the routine completeon
+% clob = onCleanup(@()unlock_(fh,wlock_file));
 %
 save(mess_fname,'message','-v7.3');
 %
+unlock_(fh,wlock_file);
 clear clob;
 
