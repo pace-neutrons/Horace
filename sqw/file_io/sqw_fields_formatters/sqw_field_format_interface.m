@@ -2,13 +2,20 @@ classdef sqw_field_format_interface
     % Interface to specific non-standard i/o conversions used in sqw file format
     %
     % The format provides the interface for conversion of
-    % various sqw file data fields into binary format and vice versa
+    % various sqw file data fields into binary format and vice versa. 
+    %
+    % A loader contains the list of the various sqw file fields it responsible for
+    % and the formats, the fields are stored in. A method of loader/reader
+    % reads the fields and transform them accordingly to the appropriate
+    % formatters or vice versa, using the interface, specified below. 
     %
     % Various overloads for this format provide interface, allowing to
     % interpet various binary sqw formats.
+    %
     % The new additions to the sqw obect format (i.e.
     % instrument and sample) are processed using functionality similar to
-    % the one provided by hlp_serialize/deserialize functions.
+    % the one provided by hlp_serialize/deserialize functions but accessed
+    % according to the interface, specified below. 
     %
     properties(Constant,Access=protected)
         base_classes_ = {'double','single','int8','uint8','int16','uint16',...
