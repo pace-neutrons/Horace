@@ -97,7 +97,9 @@ if hec.init_tests % install githooks for users who may run unit tests
     % (and push to git repository)
     copy_git_hooks('horace');
 end
-
+% Beta version: Suppress warning occuring when old instrument is stored in
+% an sqw file and is automatically converted into MAPS
+warning('off','SQW_FILE:old_version')
 
 
 disp('!==================================================================!')

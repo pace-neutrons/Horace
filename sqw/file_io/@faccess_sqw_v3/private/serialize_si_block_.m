@@ -1,6 +1,12 @@
 function [bytes,data_sz] = serialize_si_block_(obj,data,type)
-% serialize an instrument or sample data block
+% Serialize an instrument or sample data block.
 % 
+%
+% The block contains theheader, describing the class name
+% (instrument or sample) together with classes version  and
+% the sample/instrument  information, serialized according to the
+% algorithm, enspired by hlp_serialize/hlp_deserialize.
+%
 %
 % $Revision:: 1751 ($Date:: 2019-06-03 09:47:49 +0100 (Mon, 3 Jun 2019) $)
 %
