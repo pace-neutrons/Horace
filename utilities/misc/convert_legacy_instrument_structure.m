@@ -3,7 +3,7 @@ function inst = convert_legacy_instrument_structure (S)
 %
 %   >> inst = convert_legacy_instrument_structure (S)
 %
-% If the structure is not recognised as an instrumentm the class is
+% If the structure is not recognized as an instrument the class is
 % returned unchanged
 %
 % Input:
