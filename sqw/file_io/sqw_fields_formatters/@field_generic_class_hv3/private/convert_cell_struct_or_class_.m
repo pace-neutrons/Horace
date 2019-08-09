@@ -9,6 +9,10 @@ if iscell(val)
     for i=1:nel
         tBytes{i+1}=obj.bytes_from_field(val{i});
     end
+elseif isa(val,'function_handle')
+    f_str = func2str(val);
+    bytes = [head,typecast(numel(f_str),'uint8'),uint8(f_str)];    
+    return;
 else % structure or custom class
     try
         val1 = structIndep(val(1));

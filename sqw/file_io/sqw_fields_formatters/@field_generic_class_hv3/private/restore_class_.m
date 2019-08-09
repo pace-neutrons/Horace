@@ -20,38 +20,42 @@ else
         for j=1:numel(names)
             [var(i).(names{j}),szi]=obj.field_from_bytes(bytes,pos);
             sz = sz + szi;
-            pos = pos + szi;            
+            pos = pos + szi;
         end
     end
 end
 
-function this=make_object_(classname,arg)
+function the_class=make_object_(classname,arg)
 % Create an instance of the object with provided name.
 %
-%   >> this=make_object(classname)          % default object (scalar)
-%   >> this=make_object(classname,sz)       % array of default objects with given size
-%   >> this=make_object(classname,struct)   % single instance filled from a structure
+%   >> the_class=make_object(classname)          % default object (scalar)
+%   >> the_class=make_object(classname,sz)       % array of default objects with given size
+%   >> the_class=make_object(classname,struct)   % single instance filled from a structure
 %
 % Assumes
 %   - the constructor returns a valid object if given no input arguments,
 %   - the constructor can create a single instance from a structure
-fh=str2func(classname);
+fh=feval(classname);
 if nargin==2 && isstruct(arg)
-    this=fh(arg);
+    try
+        the_class = fh.loadobj(arg);
+    catch
+        the_class=fh(arg);
+    end
 else
     try
-        this=fh();
+        the_class=fh();
     catch
-        this=[];
+        the_class=[];
         return
     end
     if nargin==2
         try
-            this=repmat(this,arg');
+            the_class=repmat(the_class,arg');
         catch
             % Generic way of making an array of objects - I think
             % (works with libisis objects, for which repmat doesn't work)
-            this(arg)=this;
+            the_class(arg)=the_class;
         end
     end
 end

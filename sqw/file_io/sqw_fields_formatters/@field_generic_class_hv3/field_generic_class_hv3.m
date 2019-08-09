@@ -69,6 +69,12 @@ classdef field_generic_class_hv3 < field_simple_class_hv3
             if strcmp(type,'cell')
                 [var,sz] = restore_cellarray_(obj,bytes,pos,shape,sz);
                 return;
+            elseif strcmp(type,'function_handle')
+                fhl = typecast(bytes(pos:pos+8-1),'double');
+                f_name = char(bytes(pos+8:pos+8+fhl-1))';
+                var = str2func(f_name);
+                sz = sz+8+fhl;
+                return;
             end
             % structure or custom class
             % get field names and array shape
@@ -98,6 +104,10 @@ classdef field_generic_class_hv3 < field_simple_class_hv3
             if strcmp(type,'cell')
                 sz = proces_cellarray_size_(obj,bytes,pos,shape,sz);
                 obj.n_prec_ = sz;
+                return
+            elseif strcmp(type,'function_handle')
+                fn_len=typecast(bytes(pos:pos+8-1),'double');
+                sz = sz + 8 + fn_len;                
                 return
             end
             % structure or custom class
