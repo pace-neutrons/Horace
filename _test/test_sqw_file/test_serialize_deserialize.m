@@ -315,9 +315,9 @@ classdef test_serialize_deserialize< TestCase
         end
         function test_instrument_sample_conversion(obj)
             test_format = field_generic_class_hv3();
-            ser = sqw_serializer();            
+            ser = sqw_serializer();
             
-            %---  Instrument            
+            %---  Instrument
             inst = maps_instrument(300,700,'S');
             [struc_pos,pos] = ser.calculate_positions(test_format,inst);
             assertEqual(pos-1,9798);
@@ -351,8 +351,8 @@ classdef test_serialize_deserialize< TestCase
             
             %---  Sample
             samp = IX_sample ([1,0,0],[0,1,0],'cuboid',[2,3,4]);
-            [struc_pos,pos] = ser.calculate_positions(test_format,samp);            
-
+            [struc_pos,pos] = ser.calculate_positions(test_format,samp);
+            
             assertEqual(pos-1,1070);
             
             bytes = ser.serialize(samp,test_format);
@@ -366,6 +366,29 @@ classdef test_serialize_deserialize< TestCase
             assertEqual(pos-1,numel(bytes));
             assertEqual(recov,samp)
             
+            
+        end
+        function test_serialize_handle(obj)
+            test_format = field_generic_class_hv3();
+            ser = sqw_serializer();
+            
+     
+            f = @fh_serialize_sample;
+            
+            [struc_pos,pos] = ser.calculate_positions(test_format,f);
+            
+            assertEqual(pos-1,74);
+            
+            bytes = ser.serialize(f,test_format);
+            assertEqual(numel(bytes),pos-1);
+            
+            [test_pos,pos1] =  ser.calculate_positions(test_format,bytes);
+            assertEqual(pos,pos1);
+            assertEqual(struc_pos,test_pos);
+            
+            [recov,pos] = ser.deserialize_bytes(bytes,test_format);
+            assertEqual(pos-1,numel(bytes));
+            assertEqual(recov,f);
             
         end
         %
