@@ -265,18 +265,19 @@ for i=1:numel(ind)
         % Calculate the deviations in Q and energy, and then the S(Q,w) intensity
         % -----------------------------------------------------------------------
         dq = mtimesx_horace(dq_mat,yvec);
+        q = dq + reshape([qw{1}';qw{2}';qw{3}';qw{4}'], size(dq));
 
         % Mosaic spread
         if mosaic_spread && mc_contributions.mosaic
             Rrlu = sample_table.func_eval(iw,@rand_mosaic,[1,npix],alatt,angdeg);
-            dq = mtimesx_horace(Rrlu,dq);
+            q(1:3,:,:) = mtimesx_horace(Rrlu, q(1:3,:,:));
         end
-        dq = squeeze(dq)';      % 4 x 1 x npix ==> npix x 4
-
+        q = squeeze(q);    % 4 x 1 x npix ==> 4 x npix
+        
         if imc==1
-            stmp=sqwfunc(qw{1}+dq(:,1),qw{2}+dq(:,2),qw{3}+dq(:,3),qw{4}+dq(:,4),pars{:});
+            stmp=sqwfunc(q(1,:)',q(2,:)',q(3,:)',q(4,:)',pars{:});
         else
-            stmp=stmp+sqwfunc(qw{1}+dq(:,1),qw{2}+dq(:,2),qw{3}+dq(:,3),qw{4}+dq(:,4),pars{:});
+            stmp=stmp+sqwfunc(q(1,:)',q(2,:)',q(3,:)',q(4,:)',pars{:});
         end
     end
     wout(i).data.pix(8:9,:)=[stmp(:)'/mc_points;zeros(1,numel(stmp))];

@@ -71,7 +71,7 @@ end
 %% --------------------------------------------------------------------------------------
 % Setup
 %data_source='E:\data\aaa_Horace\Fe_ei787.sqw';  % sqw file from which to take cuts for setup
-data_source='d:\users\abuts\SVN\Fe\Data\sqw\Fe_ei787.sqw';  % sqw file from which to take cuts for setup
+data_source='D:\data\Fe\sqw_Toby\Fe_ei787.sqw';  % sqw file from which to take cuts for setup
 
 datafile='test_tobyfit_1_data.mat';   % filename where saved results are written
 savefile='test_tobyfit_1_out.mat';   % filename where saved results are written
