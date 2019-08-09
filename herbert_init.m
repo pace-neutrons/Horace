@@ -102,7 +102,7 @@ function addgenpath_message (varargin)
 string=fullfile(varargin{:},'');    % '' needed to circumvent bug in fullfile if only on argument, Matlab 2008b (& maybe earlier)
 if exist(string,'dir')==7
     try
-        addpath (genpath_special(string));
+        addpath (genpath_special(string),'-frozen');
     catch ME
         herbert_off
         rethrow(ME);

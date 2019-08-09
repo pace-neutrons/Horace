@@ -34,7 +34,7 @@ packagesep = '+';  % qualifier for overloaded package directories
 svn        = '.svn'; % subversion folder
 service_dir = '_'; % qualifier for service folders
 
-exclude_list  = {'.','@','+','.'};
+exclude_list  = {'.','@','+'};
 p = '';           % path to be returned
 
 
