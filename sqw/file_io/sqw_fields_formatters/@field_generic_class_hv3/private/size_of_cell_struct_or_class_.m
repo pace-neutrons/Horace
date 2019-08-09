@@ -6,6 +6,8 @@ if iscell(val)
     for i=1:nel
         sz =sz+ obj.size_of_field(val{i});
     end
+elseif isa(val,'function_handle')
+    sz = sz+8+numel(func2str(val));
 else % structure or custom class
     try % obtain the structure, which contains all independent class field
         val1 = structIndep(val(1));
