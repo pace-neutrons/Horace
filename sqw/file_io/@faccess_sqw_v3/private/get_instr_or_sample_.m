@@ -129,7 +129,9 @@ if convert_old_classes
         return;
     end
     warning('SQW_FILE:old_version',...
-        'Old instrument is stored within the file. The  instrument was updated automatically but you should replace it to proper modern instrument using set_instrument_horace command'); 
+        ['Old instrument is stored within the file.',...
+    ' The  instrument was updated automatically into MAPS with default settings ',...
+    ' but you should replace it to proper modern instrument using set_instrument_horace command']); 
     chop = res.fermi_chopper;
     en = chop.energy;
     freq = chop.frequency;
