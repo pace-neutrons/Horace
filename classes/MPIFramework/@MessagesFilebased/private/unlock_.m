@@ -1,10 +1,10 @@
-function unlock_(fh,filename)
+function wlock_obj=unlock_(fh,filename)
 % Routine used to remove lock file in background
 %
 %
 % $Revision:: 831 ($Date:: 2019-06-03 09:47:08 +0100 (Mon, 3 Jun 2019) $)
 %
-
+wlock_obj = [];
 n_attempts_allowed = 100;
 tried = 0;
 % close opened file defined through filehandle
@@ -32,7 +32,7 @@ while exist(filename,'file')==2 || permission_denied
             warning('UNLOCK:runtime_error',...
                 ' Can not remove lock %s. It looks like threads got dead-locked. Progressing after Leaving lock removal job in background',...
                 filename);
-            clob = onCleanup(@()lock_bg_deleter(filename,ws));
+            wlock_obj  = @()lock_bg_deleter(filename,ws);
             return;
         end
     else

@@ -12,14 +12,26 @@ n_workers = obj.n_workers;
 % clear up interactive pool if exist as this method will start
 % batch job.
 %
-
+n_locked = 0;
+wlock_obj_arr = cell(1,n_workers);
 obj=obj.display_progress([log_prefix,' parallel job: ',obj.job_id]);
 for tid=1:n_workers
-    [ok,err] = me.send_message(tid,je_init_message);
+    [ok,err,wlock] = me.send_message(tid,je_init_message);
     if ok ~= MESS_CODES.ok
+        if ~isempty(wlock)
+            n_locked = n_locked+1;
+            wlock_obj_arr{n_locked}= wlock;
+        else
         error('CLUSTER_WRAPPER:runtime_error',...
             ' Can not send starting message for job %s, worker %d; Error: %s',...
             me.job_id,tid,err);
+        end
+    end
+end
+if n_locked > 0
+    for i=1:n_locked
+        wlock_clerner = wlock_obj_arr{i};
+        wlock_clerner();
     end
 end
 
