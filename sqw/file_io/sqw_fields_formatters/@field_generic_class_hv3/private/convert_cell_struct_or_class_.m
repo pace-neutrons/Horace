@@ -11,7 +11,7 @@ if iscell(val)
     end
 elseif isa(val,'function_handle')
     f_str = func2str(val);
-    bytes = [head,typecast(numel(f_str),'uint8'),uint8(f_str)];    
+    bytes = [head,typecast(numel(f_str),'uint8'),uint8(f_str)];
     return;
 else % structure or custom class
     try
@@ -20,6 +20,7 @@ else % structure or custom class
         if ~strcmpi(ME.identifier,'MATLAB:UndefinedFunction')
             throw(ME);
         end
+        val1=val(1);
     end
     names=fieldnames(val1);
     nn = numel(names);

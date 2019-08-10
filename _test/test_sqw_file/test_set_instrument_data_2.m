@@ -21,7 +21,7 @@ assertTrue(isa(sam,'IX_sample'));
 assertEqual(sam.shape,'cuboid');
 inst = w1.header{1}.instrument;
 assertTrue(isa(inst,'IX_inst'));
-assertEqual(inst.name,'MAPS');
+assertEqual(inst.name,'');
 %% --------------------------------------------------------------------------------------------------
 % Header:
 % ---------
