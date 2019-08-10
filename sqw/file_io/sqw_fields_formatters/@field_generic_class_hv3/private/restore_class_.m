@@ -35,14 +35,15 @@ function the_class=make_object_(classname,arg)
 % Assumes
 %   - the constructor returns a valid object if given no input arguments,
 %   - the constructor can create a single instance from a structure
-fh=feval(classname);
 if nargin==2 && isstruct(arg)
     try
+        fh=feval(classname);
         the_class = fh.loadobj(arg);
     catch
-        the_class=fh(arg);
+        the_class=eval([classname '(arg)']);
     end
 else
+    fh=feval(classname);
     try
         the_class=fh();
     catch

@@ -15,6 +15,7 @@ else % structure or custom class
         if ~strcmpi(ME.identifier,'MATLAB:UndefinedFunction')
             throw(ME);
         end
+        val1=val(1);
     end
     names=fieldnames(val1);
     nn = numel(names);

@@ -239,6 +239,7 @@ classdef test_serialize_deserialize< TestCase
             
             
         end
+        %
         function obj = test_serialize_classes_v3(obj)
             test_data = struct('double_v',9,...
                 'int_a1',int32([1,2,3]),...
@@ -279,6 +280,7 @@ classdef test_serialize_deserialize< TestCase
             
             
         end
+        %
         function obj = test_serialize_general_v3(obj)
             test_data = struct('double_v',9,...
                 'int_a1',int32([1,2,3]),...
@@ -313,6 +315,7 @@ classdef test_serialize_deserialize< TestCase
                     ['unequal values for field: ',fn{i}])
             end
         end
+        %
         function test_instrument_sample_conversion(obj)
             test_format = field_generic_class_hv3();
             ser = sqw_serializer();
@@ -368,11 +371,12 @@ classdef test_serialize_deserialize< TestCase
             
             
         end
+        %
         function test_serialize_handle(obj)
             test_format = field_generic_class_hv3();
             ser = sqw_serializer();
             
-     
+            
             f = @fh_serialize_sample;
             
             [struc_pos,pos] = ser.calculate_positions(test_format,f);
@@ -389,6 +393,28 @@ classdef test_serialize_deserialize< TestCase
             [recov,pos] = ser.deserialize_bytes(bytes,test_format);
             assertEqual(pos-1,numel(bytes));
             assertEqual(recov,f);
+            %------------------------------------------------
+            ob = serialize_private_helper();
+            ob.a_property = 1;
+            ob.b_property = 10;
+            ob = ob.switch_fun(2);
+            [struc_pos,pos] = ser.calculate_positions(test_format,ob);
+            assertEqual(pos-1,283);
+            
+            bytes = ser.serialize(ob,test_format);
+            assertEqual(numel(bytes),pos-1);
+            
+            [test_pos,pos1] =  ser.calculate_positions(test_format,bytes);
+            assertEqual(pos,pos1);
+            assertEqual(struc_pos,test_pos);
+            
+            [recov,pos] = ser.deserialize_bytes(bytes,test_format);
+            assertEqual(pos-1,numel(bytes));
+            %             assertEqual(recov,ob);
+            %             by = hlp_serialize(ob);
+            %             rec = hlp_deserialize(by);
+            %             assertEqual(rec,ob);
+            
             
         end
         %
