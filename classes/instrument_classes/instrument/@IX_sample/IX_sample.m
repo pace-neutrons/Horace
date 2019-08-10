@@ -200,10 +200,10 @@ classdef IX_sample
         function obj=set.eta_(obj,val)
             if isa(val,'IX_mosaic') && isscalar(val)
                 obj.eta_=val;
-            elseif isnumeric(val) && isscalar(val) && val>=0
+            elseif isnumeric(val)
                 obj.eta_=IX_mosaic(val);
             else
-                error('Mosaic spread must be numeric scalar greater than or equal to zero, or an IX_mosaic object')
+                error('Mosaic spread must be numeric or an IX_mosaic object')
             end
         end
         
