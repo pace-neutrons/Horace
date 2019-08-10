@@ -44,7 +44,10 @@ if isfield(S,'class_version_')
         % Assume the structure is of independent properties
         for i=1:numel(nams)
             nam = nams{i};
-            if strcmp(nam,'mosaic_pdf_') && ischar(S.(nam))
+            if strcmp(nam,'mosaic_pdf_') && (ischar(S.(nam)) || isa(S.(nam),'function_handle'))
+                if isa(S.(nam),'function_handle')
+                    S.(nam) = func2str(S.(nam));
+                end
                 % The mosaic function handle must be a private function of IX_mosaic
                 % This is because of a stitch-up that enables a socoped function handle
                 % to be returned by hlp_serialize as a character string and then
