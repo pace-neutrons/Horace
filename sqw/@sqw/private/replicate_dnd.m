@@ -27,7 +27,7 @@ function dout = replicate_dnd (din, dref)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1751 ($Date:: 2019-06-03 09:47:49 +0100 (Mon, 3 Jun 2019) $)
+% $Revision:: 1752 ($Date:: 2019-08-11 23:26:06 +0100 (Sun, 11 Aug 2019) $)
 
 
 % Check that plot axes are common, and that the dref has greater or equal dimensionality
