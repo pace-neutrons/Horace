@@ -39,7 +39,7 @@ function [ok,mess,varargout]=parse_char_options(args,options)
 
 % Author: T.G.Perring 15 Nov 2013
 %
-% $Revision:: 831 ($Date:: 2019-06-03 09:47:08 +0100 (Mon, 3 Jun 2019) $)
+% $Revision:: 832 ($Date:: 2019-08-11 23:25:59 +0100 (Sun, 11 Aug 2019) $)
 %
 if iscell(args)
     narg=numel(args);

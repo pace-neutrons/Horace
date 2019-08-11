@@ -2,7 +2,7 @@ function this=loadData(this)
 % the function loads the data from a file, initially binded to the class
 % in the class constructor
 %
-%% $Revision:: 831 ($Date:: 2019-06-03 09:47:08 +0100 (Mon, 3 Jun 2019) $)
+%% $Revision:: 832 ($Date:: 2019-08-11 23:25:59 +0100 (Sun, 11 Aug 2019) $)
 %
 if(isempty(this.fileName))
   disp(' spe object is not bound to a file, can not load the data');

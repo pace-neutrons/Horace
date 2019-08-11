@@ -6,7 +6,7 @@ classdef config_store < handle
     %
     %
     %
-    % $Revision:: 831 ($Date:: 2019-06-03 09:47:08 +0100 (Mon, 3 Jun 2019) $)
+    % $Revision:: 832 ($Date:: 2019-08-11 23:25:59 +0100 (Sun, 11 Aug 2019) $)
     %
     properties(Dependent)
         % the full path to the folder where the configuration is stored

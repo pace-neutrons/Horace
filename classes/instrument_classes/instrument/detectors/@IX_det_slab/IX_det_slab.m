@@ -8,7 +8,7 @@ classdef IX_det_slab < IX_det_abstractType
     
     % Original author: T.G.Perring
     %
-    % $Revision: 841 $ ($Date: 2019-02-11 14:13:46 +0000 (Mon, 11 Feb 2019) $)
+    % $Revision:: 832 ($Date:: 2019-08-11 23:25:59 +0100 (Sun, 11 Aug 2019) $)
     
     
     properties (Access=private)

@@ -2,7 +2,7 @@ function fields = check_par_defined(this)
 % method checks what fields in the structure are defined from the fields
 % the par file should define.
 %
-% $Revision:: 831 ($Date:: 2019-06-03 09:47:08 +0100 (Mon, 3 Jun 2019) $)
+% $Revision:: 832 ($Date:: 2019-08-11 23:25:59 +0100 (Sun, 11 Aug 2019) $)
 %
 
 df = this.par_can_define();

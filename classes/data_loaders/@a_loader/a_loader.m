@@ -21,7 +21,7 @@ classdef a_loader < asciipar_loader
     % $Author: Alex Buts; 05/01/2014
     %
     %
-    % $Revision:: 831 ($Date:: 2019-06-03 09:47:08 +0100 (Mon, 3 Jun 2019) $)
+    % $Revision:: 832 ($Date:: 2019-08-11 23:25:59 +0100 (Sun, 11 Aug 2019) $)
     %
     % the properties common for all data loaders.
     properties(Dependent)

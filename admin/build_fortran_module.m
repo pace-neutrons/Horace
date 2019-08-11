@@ -14,7 +14,7 @@ function obj_name=build_fortran_module(source_dir,target_dir,file_name,include_d
 %               removed, and if true -- retained. Then compilation will mot
 %               proceed assuming that it has already been performed.
 %
-%   $Revision:: 831 ($Date:: 2019-06-03 09:47:08 +0100 (Mon, 3 Jun 2019) $)
+%   $Revision:: 832 ($Date:: 2019-08-11 23:25:59 +0100 (Sun, 11 Aug 2019) $)
 %
 %
 [ps,base_name]=fileparts(file_name);

@@ -42,7 +42,7 @@ function Scon = constraints_remove (Scon_in, np_, nbp_, ind, indb)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 831 ($Date:: 2019-06-03 09:47:08 +0100 (Mon, 3 Jun 2019) $)
+% $Revision:: 832 ($Date:: 2019-08-11 23:25:59 +0100 (Sun, 11 Aug 2019) $)
 
 
 % Fill output with default structure

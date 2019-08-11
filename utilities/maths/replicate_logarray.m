@@ -15,7 +15,7 @@ function vout = replicate_logarray (v, n)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 831 ($Date:: 2019-06-03 09:47:08 +0100 (Mon, 3 Jun 2019) $)
+% $Revision:: 832 ($Date:: 2019-08-11 23:25:59 +0100 (Sun, 11 Aug 2019) $)
 
 if numel(n)==numel(v)
     vout = logical(replicate_iarray(double(v),n));

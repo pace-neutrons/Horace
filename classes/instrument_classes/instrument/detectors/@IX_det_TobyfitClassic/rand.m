@@ -38,7 +38,7 @@ function X = rand (obj, npath_in, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+% $Revision:: 832 ($Date:: 2019-08-11 23:25:59 +0100 (Sun, 11 Aug 2019) $)
 
 
 [sz, ~, ind] = parse_npath_ind_wvec_ (obj, npath_in, varargin{:});
