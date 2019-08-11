@@ -29,9 +29,7 @@ if nargin==0
 end
 
 % initialise variables
-classsep = '@';  % qualifier for overloaded class directories
-packagesep = '+';  % qualifier for overloaded package directories
-svn        = '.svn'; % subversion folder
+
 service_dir = '_'; % qualifier for service folders
 
 exclude_list  = {'.','@','+'};
