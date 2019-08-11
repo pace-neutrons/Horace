@@ -1,13 +1,47 @@
-function instrument = maps_instrument(ei,hz,chopper)
+function inst = maps_instrument(ei, hz, chopper, varargin)
 % Return instrument description for MAPS
 %
-%   >> instrument = maps_instrument(ei,hz,chopper)
+% Preferable syntax is to give the instrument version as a keyword:
+%   >> inst = maps_instrument(ei, hz, chopper, '-version', inst_ver)
+%
+% [NOTE: for historical reasons, if you don't give the instrument version
+% it will be set to that for the pre-2017 MAPS i.e. no guide]
+%
 %
 % Input:
 % ------
 %   ei          Incident energy (meV)
-%   hz          Chopper frequency
+%   hz          Chopper frequency (Hz)
 %   chopper     Fermi chopper package name ('S','A', or 'B')
+%   inst_ver    Instrument version:
+%                   inst_ver = 1    MAPS from 2000 to 2017 (no guide)
+%                   inst_ver = 2    MAPS from 2017 onwards (i.e. with guide)
+%
+%               Default: the original instrument configuration i.e. pre-2017
+%               This is for historical backwards compatibility reasons.
+%               Please ensure you specify explicity the instrument version
+%               to ensure you get the same results from using this function
+%               even if the instrument is modified in the future.
+%
+% Output:
+% -------
+%   inst        Instrument description: object of class IX_inst_DGfermi
+%               This class is recognised by Tobyfit and other resolution 
+%               function utilities
+
+
+% Parse arguments
+% ---------------
+first_version = 1;
+
+keyval_def =  struct('version',first_version);  
+opt.prefix = '-';
+[par,keyval] = parse_arguments (varargin, keyval_def, opt);
+if numel(par)==0
+    inst_ver = keyval.version;
+else
+    error('Check the number and type of input arguments')
+end
 
 
 % Check input arguments are valid
@@ -29,6 +63,10 @@ if is_string(chopper) && ~isempty(chopper)
     end
 else
     error('Check chopper argument is a character string')
+end
+
+if ~(isnumeric(inst_ver) && isscalar(inst_ver) && (inst_ver==1 || inst_ver==2))
+    error('Instrument version must be 1 or 2')
 end
 
 
@@ -55,11 +93,18 @@ moderator=IX_moderator(distance,angle,pulse_model,pp);
 %   width           Width of aperture (m)
 %   height          Height of aperture (m)
 
-distance=-10.01;
-width =0.07013;
-height=0.07013;
-
-aperture=IX_aperture(distance,width,height);
+if inst_ver==1
+    distance=-10.01;
+    width =0.07013;
+    height=0.07013;
+    aperture=IX_aperture(distance,width,height);
+else
+    distance=-(12.0-1.671);
+    width =0.094;
+    height=0.094;
+    fac=sqrt(maps_flux_gain(ei));   % Compute effective aperture size from flux gain
+    aperture=IX_aperture(distance,fac*width,fac*height);
+end
 
 % -----------------------------------------------------------------------------
 % Fermi chopper
@@ -71,19 +116,23 @@ aperture=IX_aperture(distance,width,height);
 %   curvature       Radius of curvature of slits (m)
 %   slit_width      Slit width (m)  (Fermi)
 
-distance=1.9;
+if inst_ver==1
+    distance=1.9;
+else
+    distance=1.857;
+end
 radius=0.049;
 
 chopper_array(1)=IX_fermi_chopper('sloppy',distance,hz,radius,1.300,0.002899);
 chopper_array(2)=IX_fermi_chopper('a',     distance,hz,radius,1.300,0.001087);
 chopper_array(3)=IX_fermi_chopper('b',     distance,hz,radius,0.920,0.001812);
 
+fermi_chopper=chopper_array(ind);
+
 
 % -----------------------------------------------------------------------------
 % Build instrument
 % -----------------------------------------------------------------------------
-instrument.moderator=moderator;
-instrument.aperture=aperture;
-fermi_chopper=chopper_array(ind);
-fermi_chopper.energy=ei;
-instrument.fermi_chopper=fermi_chopper;
+source = IX_source('ISIS','',50);
+inst = IX_inst_DGfermi (moderator, aperture, fermi_chopper, ei,...
+    '-name', 'MAPS', '-source', source);

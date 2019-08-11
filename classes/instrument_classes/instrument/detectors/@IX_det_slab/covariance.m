@@ -1,0 +1,47 @@
+function val = covariance (obj, npath_in, varargin)
+% Covariance of points of absorption in a slab detector
+%
+%   >> val = covariance (obj, npath, wvec)
+%   >> val = covariance (obj, npath, ind, wvec)
+%
+% Input:
+% ------
+%   obj         IX_det_slab object
+%
+%   npath       Unit vectors along the neutron path in the detector coordinate
+%               frame for each detector. Vector length 3 or an array size [3,n]
+%               where n is the number of indices (see ind below). If a vector
+%               then npath is expanded internally to [3,n] array
+%
+%   ind         Indices of detectors for which to calculate. Scalar or array.
+%               Default: all detectors (i.e. ind = 1:ndet)
+%
+%   wvec        Wavevector of absorbed neutrons (Ang^-1). Scalar or array.
+%
+% If both ind and wvec are arrays, then they must have the same number of elements
+%
+%
+% Output:
+% -------
+%   val         Covariance of points of absorption (m^2)
+%               The size is [3,3,sz] where sz is the shape of whichever of ind
+%               or wvec is an array, and then the array is squeezed.
+%               If both ind and wvec are arrays, the shape is that of wvec
+
+
+% Original author: T.G.Perring
+%
+% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
+
+
+cxx = var_x (obj, npath_in, varargin{:});
+cyy = var_y (obj, npath_in, varargin{:});
+czz = var_z (obj, npath_in, varargin{:});
+
+val = zeros(3,3,numel(cxx));
+val(1,1,:) = cxx(:);
+val(2,2,:) = cyy(:);
+val(3,3,:) = czz(:);
+
+val = reshape(val, [3,3,size(cxx)]);
+val = squeeze(val);

@@ -48,7 +48,7 @@ classdef test_get_revert_bytestream< TestCase
             
             bs = get_bytestream_from_obj(t);
             assertTrue(isa(bs(1),'uint8'));
-            assertEqual(numel(bs),1016);
+            assertEqual(numel(bs),5128);
             
 %            tc = get_obj_from_bytestream(bs);
             

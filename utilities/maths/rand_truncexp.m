@@ -9,6 +9,8 @@ function X = rand_truncexp (x0,varargin)
 % ------
 %   x0          Truncation: random numbers are chosen in the range (0,x0) for
 %              the normalised distribution A*exp(-x)  where A=1/(1-exp(-x0))
+%               x0 >= 0 (including Inf)
+%
 %   n           Return square array of random numbers with size n x n
 %      *OR*
 %   sz          Size of array of output array of random numbers
@@ -25,7 +27,7 @@ function X = rand_truncexp (x0,varargin)
 
 % Original author: T.G.Perring 
 % 
-% $Revision:: 831 ($Date:: 2019-06-03 09:47:08 +0100 (Mon, 3 Jun 2019) $)
+% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
 
 
 if x0==Inf
@@ -43,6 +45,8 @@ elseif x0>0
     if n>0
         X(reject)=rand_truncexp(x0,[n,1]); % recursively replace rejected points
     end
+elseif x0==0
+    X = zeros(varargin{:});
 else
-    error('x0 must be greater than zero')
+    error('The limit of the truncated exponential must be in range 0 to +Inf')
 end

@@ -1,5 +1,5 @@
 function p = genpath_special (d)
-% Generate recursive toolbox path excluding .svn or .git and service folders, which start from 
+% Generate recursive toolbox path excluding .svn or .git and service folders, which start from
 % symbol _
 %
 % Slightly modified version of Matlab intrinsic genpath.
@@ -37,6 +37,10 @@ service_dir = '_'; % qualifier for service folders
 exclude_list  = {'.','@','+'};
 p = '';           % path to be returned
 
+% Qualifier for service folders.
+% - Folders which have the form '_<computer>' e.g. '_PCWIN64' will be put on the path
+% - Other folders e.g. '_developer_only' will not, no these have to be handled separately
+service_dir = '_';
 
 % Generate path based on given root directory
 files = dir(d);
@@ -44,15 +48,15 @@ if isempty(files)
     return
 end
 
-% Add d to the path even if it is empty.
+% Add d to the path even if it is empty
 p = [p d pathsep];
 
-% set logical vector for subdirectory entries in d
+% Set logical vector for subdirectory entries in d
 isdir = logical(cat(1,files.isdir));
-%
+
 % Recursively descend through directories which are neither
 % private nor "class" directories.
-%
+
 dirs = files(isdir); % select only directory entries from the current listing
 
 for i=1:length(dirs)
@@ -62,6 +66,7 @@ for i=1:length(dirs)
         if ~strncmp( dirname,service_dir,1)
             if strcmp(dirname,'private'); continue; end
             
+ 
             p = [p genpath_special(fullfile(d,dirname))]; % recursive calling of this function.
         else
             if strcmpi(['_',computer],dirname)
@@ -72,9 +77,7 @@ for i=1:length(dirs)
                 if ~isempty(matlab_dir_name)
                     p = [p fullfile(d,dirname,matlab_dir_name) pathsep];
                 end
-
             end
         end
-        
     end
 end

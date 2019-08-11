@@ -9,6 +9,11 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
     % help pages for xUnit test framework <a href="matlab:web('Readme_xUnit.html');">here</a> and look at the "Advanced Usage"
     % section "How to Write xUnit-style Tests by Subclassing TestCase"
     %
+    % Examples of test suites written using TestCaseWithSave will be opened in
+    % your Matlab editor if you click on the following examples:
+    %       <a href="matlab:edit('test_TestCaseWithSave_example_1');">test_TestCaseWithSave_example_1</a>
+    %       <a href="matlab:edit('test_TestCaseWithSave_example_2');">test_TestCaseWithSave_example_2</a>
+    %
     %
     % Creating a test suite
     % ---------------------
@@ -140,13 +145,26 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
     %
     % TestCaseWithSave Methods:
     % --------------------------
-    % The following methods are ones that will be used in a test suite
+    % The following methods are ones that can be used in a test suite
     %
-    % To perform tests:
-    %   assertEqualToTolWithSave            - assert near-equality with saved variable
+    % Logical assertions:
+    %   <a href="matlab:help('assertTrue');">assertTrue</a>                          - Assert that input condition is true
+    %   <a href="matlab:help('assertFalse');">assertFalse</a>                         - Assert that input condition is false
+    %   <a href="matlab:help('assertExceptionThrown');">assertExceptionThrown</a>               - Assert that specified exception is thrown
+    %
+    % Comparing two values:
+    %   <a href="matlab:help('assertEqual');">assertEqual</a>                         - Assert that inputs are equal
+    %   <a href="matlab:help('assertEqualToTol');">assertEqualToTol</a>                    - Assert that inputs are equal with a tolerance
+    %   <a href="matlab:help('assertElementsAlmostEqual');">assertElementsAlmostEqual</a>           - Assert floating-point array elements almost equal
+    %   <a href="matlab:help('assertVectorsAlmostEqual');">assertVectorsAlmostEqual</a>            - Assert floating-point vectors almost equal in norm sense
+    %   <a href="matlab:help('assertFilesEqual');">assertFilesEqual</a>                    - Assert that files contain the same contents
+    %
+    % Comparing against a saved value:
     %   assertEqualWithSave                 - assert equality with saved variable
+    %   assertEqualToTolWithSave            - assert near-equality with saved variable
     %   assertElementsAlmostEqualWithSave   - test floating array elements near-equality
     %   assertVectorsAlmostEqualWithSave    - test vector near-equality in L2 norm sense
+    %   
     %
     % Utility methods:
     %   add_to_files_cleanList  - Add file or files to list to be deleted at end of test
@@ -170,16 +188,10 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
     %                             which test results will be saved (save mode)
     %   save_output             - If the test suite output is being saved or not
     %
-    % It can be useful to know in a test method if the data is being saved for example
-    % if new output is being generated that would wotherwise cause tests to fail. A
-    % common case is with the assertion-witout-save functions e.g. assertEqualToTol or
-    % assertEqual. In this case, an error will be thrown and execution will cease.
-    %
-    %
-    %
-    % See also assertEqualToTol assertEqual assertElementsAlmostEqual assertVectorsAlmostEqual
-    % assertFilesEqual
-    % assertTrue assertFalse assertExceptionThrown
+    % It can be useful to know in a test method if the data is being saved, for example
+    % if new output is being generated that would otherwise cause tests to fail. A
+    % common case is with the assertion-without-save functions e.g. assertEqualToTol or
+    % assertEqual. In this case, an error will be thrown and execution will cease. 
     
     
     % Original author A. Buts, rewritten T.G.Perring

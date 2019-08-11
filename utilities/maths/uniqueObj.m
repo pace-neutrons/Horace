@@ -1,29 +1,68 @@
-function [bObj, m, n] = uniqueObj(aObj, varargin)
-% Equivalent to intrinsic Matlab unique but here for objects
+function [cObj, m, n] = uniqueObj(aObj, varargin)
+% Sorts unique values of an object array according to public properties
 %
-%   >> [bObj, m, n] = uniqueObj(aObj)
-%   >> [bObj, m, n] = uniqueObj(aObj, occurence)
+%   >> [cObj, m, n] = uniqueObj(aObj)
+%   >> [cObj, m, n] = uniqueObj(aObj, occurence)
+%   >> [cObj, m, n] = uniqueObj(...,'legacy')
+%
+% Very similar to the intrinsic Matlab unique but here for an object array
+%
+% The sort is performed on the public properties of the object.
+% For an equivalent method on the independent properties (hidden and public)
+% use <a href="matlab:help('uniqueObjIndep');">uniqueObjIndep</a>.
+%
+% The properties must be must be numeric arrays, logical arrays, or character
+% arrays.
 %
 % Input:
 % ------
 %   aObj        Array of input objects (row or column vector)
 %
-%   occurence   Character string 'last' [default] or 'first'; indicates if the index
+%   occurence   Character string: 'last' or 'first'; indicates if the index
 %              element in output array m points to first or last occurence of
 %              a non-unique element in aObj
+%               Default: 'first' ('last' if specify 'legacy')
 %
-%  'legacy'     If present, then the output array m (below) follows the 
+%  'legacy'     If present, then the output array m (below) follows the
 %              legacy behaviour (i.e. Matlab 2012b and earlier)
 %
 % Output:
 % -------
-%   bObj        Sorted array of unique elements in aObj
+%   cObj        Sorted array of unique elements in aObj
 %
-%   m           Index array such that bObj=aObj(m)
+%   m           Index array such that cObj=aObj(m)
 %
-%   n           Index array such that aObj=bObj(n)
+%   n           Index array such that aObj=cObj(n)
 
 
+if ~isobject(aObj), error('Function only sorts object arrays'), end
 if ~isvector(aObj), error('Object array must be row or column vector'), end
-[~,m,n] = uniqueStruct(obj2struct(aObj), varargin{:});
-bObj=aObj(m);
+
+% Parse options
+keyval_def = struct('last', false, 'first', false, 'legacy', false);
+flags = {'last','first','legacy'};
+opt.flags_noneg = true;
+
+[par,keyval,~,~,ok,mess] = parse_arguments (varargin,keyval_def,flags,opt);
+
+if ~ok, error(mess), end
+if ~isempty(par), error('Check the optional arguments'), end
+
+if ~(keyval.last || keyval.first)
+    if keyval.legacy
+        keyval.last = true;
+    else
+        keyval.first = true;
+    end
+elseif keyval.last && keyval.first
+    error('Only one of ''first'' and ''last'' can be present')
+end
+
+% Perform unique sort
+if ~isequalnArr(aObj)
+    [cStruct, ix] = sortStruct_private(structArrPublic(aObj));
+    [~, m, n] = genunique_private(cStruct, ix, keyval.first, keyval.legacy);
+    cObj = aObj(m);
+else
+    [cObj,m,n] = genunique_private(aObj, [], keyval.first, keyval.legacy);
+end

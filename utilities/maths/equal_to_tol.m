@@ -39,7 +39,7 @@ function [ok,mess]=equal_to_tol(a,b,varargin)
 %               1e-4            absolute tolerance, equivalent to [1e-4, 0]
 %               -1e-6           relative tolerance, equivalent to [0, 1e-6]
 %
-%           [Lagacy compatibility: to apply an absolute as well as a relative
+%           [Legacy compatibility: to apply an absolute as well as a relative
 %            tolerance with a scalar negative value, set the value of the
 %            legacy keyword 'min_denominator' (see below)]
 %
@@ -366,8 +366,13 @@ elseif isobject(a) && isobject(b)
             name_a_ind = name_a;
             name_b_ind = name_b;
         end
-        Sa = struct(a(i));
-        Sb = struct(b(i));
+        if numel(a)==1     % to deal with containers.Map objects - will be scalar, a(1) fails!
+            Sa = struct(a);
+            Sb = struct(b);
+        else
+            Sa = struct(a(i));
+            Sb = struct(b(i));
+        end
         for j=1:numel(fields)
             [ok,mess] = equal_to_tol_private(Sa.(fields{j}), Sb.(fields{j}), opt,...
                 [name_a_ind,'.',fields{j}], [name_b_ind,'.',fields{j}]);
@@ -585,14 +590,18 @@ if isequal(size(a),size(b))
         elseif any((delta_abs>abs_tol)&(delta_rel>rel_tol))
             % Absolute or relative tolerance must be satisfied
             ok= false;
-            [max_delta_abs,ind_abs] = max(delta_abs);
-            [max_delta_rel,ind_rel] = max(delta_rel);
-            if max_delta_rel>max_delta_abs
-                mess=sprintf('%s and %s: Relative tolerance failure; max. error = %s at element %s',...
-                    name_a,name_b,num2str(max_delta_rel),['(',arraystr(sz,ind_rel),')']);
+            bad = (delta_abs>abs_tol)&(delta_rel>rel_tol);
+            ind_bad = find(bad);
+            [max_delta_abs,ind_abs] = max(delta_abs(bad));
+            [max_delta_rel,ind_rel] = max(delta_rel(bad));
+            if max_delta_rel/rel_tol>max_delta_abs/abs_tol
+                ind_bad = ind_bad(ind_rel);
+                mess=sprintf('%s and %s: Relative and absolute tolerance failure; max. error = %s (relative) at element %s',...
+                    name_a,name_b,num2str(max_delta_rel),['(',arraystr(sz,ind_bad),')']);
             else
-                mess=sprintf('%s and %s: Absolute tolerance failure; max. error = %s at element %s',...
-                    name_a,name_b,num2str(max_delta_abs),['(',arraystr(sz,ind_abs),')']);
+                ind_bad = ind_bad(ind_abs);
+                mess=sprintf('%s and %s: Relative and absolute tolerance failure; max. error = %s (absolute) at element %s',...
+                    name_a,name_b,num2str(max_delta_abs),['(',arraystr(sz,ind_bad),')']);
             end
             return
         end

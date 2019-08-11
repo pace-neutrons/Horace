@@ -1,6 +1,17 @@
 function [par,argout,present,filled,ok,mess]=parse_args_simple(parargin,arglist)
 % Utility to parse varargin to find values of named parameters passed to a function.
 %
+%**************************************************************************
+%************************* DEPRECATED FUNCTION ****************************
+%
+%   Use parse_arguments instead - it is just as fast, and more flexible
+%
+%   This function may be declared obsolete at any time - please remove
+%   from any function that uses it.
+%
+%**************************************************************************
+%
+%
 % This is a simple version of parse_arguments that assumes that the keywords must always
 % take values (i.e. the concept of logical flags is not implemented.
 %

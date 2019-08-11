@@ -1,4 +1,4 @@
-function X = rand_truncexp2 (x0,varargin)
+function X = rand_truncexp2 (x0)
 % Generate random number from a truncated exponential distribution
 %
 %   >> X = rand_truncexp (x0)
@@ -8,7 +8,7 @@ function X = rand_truncexp2 (x0,varargin)
 %   x0          Truncation array: random numbers are chosen in the range (0,x0) for
 %              the normalised distribution A*exp(-x)  where A=1/(1-exp(-x0))
 %               The size of x0 defines the size of the returned random array
-%               It is assmued that all(x0(:)>=0)
+%               Must have all(x0(:)>=0) (Inf is allowed)
 %
 % Output:
 % -------
@@ -20,8 +20,12 @@ function X = rand_truncexp2 (x0,varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 831 ($Date:: 2019-06-03 09:47:08 +0100 (Mon, 3 Jun 2019) $)
+% $Revision: 624 $ ($Date: 2017-09-27 15:46:51 +0100 (Wed, 27 Sep 2017) $)
 
+
+if any(x0(:))<0 || any(isnan(x0(:)))
+    error('The limit(s) of the truncated exponential(s) must be in range 0 to +Inf')
+end
 
 isx0inf=isinf(x0);
 isx0small=(x0<0.01);
