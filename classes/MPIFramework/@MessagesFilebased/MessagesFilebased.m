@@ -81,7 +81,7 @@ classdef MessagesFilebased < iMessagesFramework
             fn = obj.job_stat_fname_(task_id,mess_name);
         end
         %
-        function [ok,err_mess] = send_message(obj,task_id,message)
+        function [ok,err_mess,wlock_obj] = send_message(obj,task_id,message)
             % send message to a task with specified id
             %
             % Usage:
@@ -92,7 +92,7 @@ classdef MessagesFilebased < iMessagesFramework
             % >>    task with id==1. (not received)
             % >>    if false, error_mess indicates reason for failure
             %
-            [ok,err_mess] = send_message_(obj,task_id,message);
+            [ok,err_mess,wlock_obj] = send_message_(obj,task_id,message);
         end
         %
         function [ok,err_mess,message] = receive_message(obj,varargin)

@@ -15,7 +15,15 @@ if ~ischar(mess_name)
     error('MESSAGES_FRAMEWORK:invalid_argument',...
         'mess_name in recive_message command should be a message name (e.g. "starting")');
 end
-
+% code to build debugging log file
+% task_id = obj.task_id_;
+% n_labs  = obj.numLabs_;
+% f_name = sprintf('message_%s_receive_log%d#%d',mess_name,task_id,n_labs);
+% f_hl = fopen(f_name,'w');
+% if f_hl<1
+%     error('LOGGING:error','Can not open file %s',f_name);
+% end
+% cl_log = onCleanup(@()fclose(f_hl));
 %
 message=[];
 [is,err_code,err_mess] = check_job_cancelled(obj);
@@ -23,11 +31,12 @@ if is ; return; end
 %
 mess_folder = obj.mess_exchange_folder;
 mess_present= false;
+mess_receive_option = 'nolocked';
 t0 = tic;
 while ~mess_present
     
     folder_contents = dir(mess_folder);
-    [mess_names,mid_from,mid_to] = parse_folder_contents_(folder_contents,'nolocked');
+    [mess_names,mid_from,mid_to] = parse_folder_contents_(folder_contents,mess_receive_option);
     if isempty(mess_names)
         for_this_lab  = false;
     else
@@ -55,6 +64,13 @@ while ~mess_present
         end
     end
     if ~mess_present % no message intended for this lab is present in system.
+%         of = fopen('all');
+%         fprintf(f_hl,'****MESS: %s NOT present: %d open files in worker\n',mess_name,numel(of));
+%         for i=1:numel(of)
+%             fname = fopen(of(i));
+%             fprintf(f_hl,'  opened file: %s\n',fname);
+%         end
+        
         % do waiting for it
         t_passed = toc(t0);
         if t_passed > obj.time_to_fail_
@@ -92,6 +108,7 @@ while ~received
     
     if exist(wlock_file,'file') == 2
         pause(obj.time_to_react_)
+        %fprintf(f_hl,'****MESS Receiving: Write lock file %s present\n',wlock_file);
         continue;
     end
     fh = fopen(rlock_file,'wb');
@@ -156,13 +173,13 @@ if progress_queue % prepare the next message to read -- the oldest message
             pause(obj.time_to_react_)
             continue;
         end
-%         fh = fopen(rlock_file,'wb');
-%         if fh > 0
-%             target_unlocker = onCleanup(@()unlock_(fh,rlock_file));
-%         else
-%             continue;
-%         end
-%         %
+        %         fh = fopen(rlock_file,'wb');
+        %         if fh > 0
+        %             target_unlocker = onCleanup(@()unlock_(fh,rlock_file));
+        %         else
+        %             continue;
+        %         end
+        %         %
         [success,mess,mess_id]=movefile(next_mess_fname,mess_fname,'f');
         if ~success
             pause(obj.time_to_react_);
@@ -177,6 +194,7 @@ else
     delete(mess_fname);
     pause(0.1);
 end
+
 clear source_unlocker
 %clear target_unlocker;
 

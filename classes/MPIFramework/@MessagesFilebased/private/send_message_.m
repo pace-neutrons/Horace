@@ -1,8 +1,9 @@
-function [ok,err_mess] = send_message_(obj,task_id,message)
+function [ok,err_mess,wlock_obj] = send_message_(obj,task_id,message)
 % Send message to a job with specified ID
 %
 ok = MESS_CODES.ok;
 err_mess=[];
+wlock_obj =[];
 if ~exist(obj.mess_exchange_folder,'dir')
     ok = MESS_CODES.job_cancelled;
     err_mess = sprintf('Job with id %s have been cancelled. No message exchange folder exist',obj.job_id);
@@ -37,10 +38,14 @@ while exist(rlock_file,'file') == 2 % previous message is reading, wait unitl re
 end
 
 fh = fopen(wlock_file,'wb');
-%prepare lock removal after the routine completeon
-clob = onCleanup(@()unlock_(fh,wlock_file));
+% %prepare lock removal after the routine completeon
+% clob = onCleanup(@()unlock_(fh,wlock_file));
 %
 save(mess_fname,'message','-v7.3');
 %
-clear clob;
+wlock_obj = unlock_(fh,wlock_file);
+if ~isempty(wlock_obj)
+    ok = MESS_CODES.write_lock_persists;
+end
+
 

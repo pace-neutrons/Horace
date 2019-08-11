@@ -9,5 +9,6 @@ classdef MESS_CODES < uint32
         a_send_error    (4)
         runtime_error   (5) % should it just throw in this case?
         timeout_exceeded (6) % exceeded timeout for waiting for blocking message
+        write_lock_persists (7) % writer can not delete write lock
     end
 end
