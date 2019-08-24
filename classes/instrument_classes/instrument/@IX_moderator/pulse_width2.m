@@ -40,6 +40,9 @@ if models.match('ikcarp',model)
 elseif models.match('ikcarp_param',model)
     [width, tlo, thi] = ikcarp_param_pulse_width2 (self.pp_, frac, energy);
     
+elseif models.match('table',model)
+    [width, tlo, thi] = table_pulse_width2 (self.pdf_, frac, energy);
+    
 else
     error('Unrecognised moderator pulse model for computing pulse width')
 end

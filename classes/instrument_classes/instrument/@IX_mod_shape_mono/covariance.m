@@ -1,11 +1,11 @@
 function [t_cov, t_av] = covariance (self, varargin)
 % Calculate the time correlations for moderator, shaping and mono choppers
 %
-%   >> [t_cov, t_av] = covariance_mod_shape_mono (self)
-%   >> [t_cov, t_av] = covariance_mod_shape_mono (self, energy)
+%   >> [t_cov, t_av] = covariance (self)
+%   >> [t_cov, t_av] = covariance (self, energy)
 %
 % Controlling contributions of instrument components
-%   >> [t_cov, t_av] = covariance_mod_shape_mono (...,'mc',mc_val)
+%   >> [t_cov, t_av] = covariance (...,'mc',mc_val)
 %
 % The average time of the pulse at the shaping chopper position and the fermi
 % chopper will in general be non zero, as will the covariance matrix.

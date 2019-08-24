@@ -3,6 +3,8 @@ function inst = merlin_instrument(ei, hz, chopper, varargin)
 %
 %   >> inst = merlin_instrument(ei, hz, chopper, '-version', inst_ver)
 %
+%   >> inst = merlin_instrument(...,'-moderator', mod_value)
+%
 % Input:
 % ------
 %   ei          Incident energy (meV)
@@ -13,6 +15,21 @@ function inst = merlin_instrument(ei, hz, chopper, varargin)
 %
 %   inst_ver    Instrument version:
 %                   inst_ver = 1    Original configuration
+%
+%               Default: the latest version. Please ensure you specify 
+%               explicity the instrument version to ensure you get the
+%               same results from using this function even if the instrument
+%               is modified
+%
+%   mod_value   Origin of moderator width data
+%                   mod_value = 'empirical'     [default]
+%                       Empirical model: chi-squared t^2 exp(-t/tau) with
+%                      tau_microseconds = 70/sqrt(Ei_in_meV). A good
+%                      starting value for refinement.
+%
+%                   mod_value = 'base2016'
+%                       Baseline moderator simulation from the ISIS
+%                      simulation group for ISIS before the 2020/2021 upgrade
 %
 % Output:
 % -------
@@ -27,15 +44,14 @@ function inst = merlin_instrument(ei, hz, chopper, varargin)
 
 % Parse arguments
 % ---------------
-keyval_def =  struct('version',[]);  
+default_version = 1;
+
+keyval_def =  struct('version',default_version,'moderator','empirical');
 opt.prefix = '-';
-[par,keyval,present] = parse_arguments (varargin, keyval_def, opt);
+[par,keyval] = parse_arguments (varargin, keyval_def, opt);
 if numel(par)==0
-    if present.version
-        inst_ver = keyval.version;
-    else
-        error('Must give the instrument version')
-    end
+    inst_ver = keyval.version;
+    moderator_model = keyval.moderator;
 else
     error('Check the number and type of input arguments')
 end
@@ -66,6 +82,17 @@ if ~(isnumeric(inst_ver) && isscalar(inst_ver) && inst_ver==1)
     error('Instrument version must be 1')
 end
 
+if ischar(moderator_model)
+    if strncmpi(moderator_model,'empirical',numel(moderator_model))
+        moderator_model = 'empirical';
+    elseif strncmpi(moderator_model,'base2016',numel(moderator_model))
+        moderator_model = 'base2016';
+    else
+        error('Check that the moderator model has one of the valid values')
+    end
+else
+    error('Check that the moderator model has one of the valid values')
+end
 
 % -----------------------------------------------------------------------------
 % Moderator
@@ -78,8 +105,18 @@ end
 
 distance=11.837;        % From engineering drawing of Tatiana's, 11/6/15
 angle=0.0;              % *** Needs to be set properly
-pulse_model='ikcarp';
-pp=[70/sqrt(ei),0,0];   
+
+if strcmpi(moderator_model,'empirical')
+    pulse_model='ikcarp';
+    pp=[70/sqrt(ei),0,0];
+elseif strcmpi(moderator_model,'base2016')
+    pulse_model = 'table';
+    mod_file = 'TS1verBase2016_LH8020_newVM-var_South04_Merlin.mat';
+    [t, y] = ISIS_Baseline2016_moderator_time_profile (mod_file, ei);
+    pp = {t, y};
+else
+    error('Check moderator model')
+end
     
 moderator=IX_moderator(distance,angle,pulse_model,pp);
 

@@ -79,7 +79,7 @@ classdef pdf_table
             % The pdf need not be normalised to unit area, as normalisation will be
             % performed internally by this constructor.
             %
-            % The suppied function values do not need to be continuous. FOr example,
+            % The suppied function values do not need to be continuous. For example,
             % to define the function x=[0,1,1,2]; pdf_values = [1,1,2,2] defines
             % a step at x=0 that jumps at x=1 to twice the height.
             

@@ -13,8 +13,8 @@ function [width, tlo, thi] = ikcarp_pulse_width2 (pp, frac, ei)
 % Output:
 % -------
 %   width       Width across the peak (microseconds)
-%   tlo         Short time fractinal height (microseconds)
-%   thi         High time fractinal height (microseconds)
+%   tlo         Short time fractional height (microseconds)
+%   thi         High time fractional height (microseconds)
 
 
 [width,~,tlo,thi]=ikcarp_fwhh (pp(1), pp(2), pp(3), frac);

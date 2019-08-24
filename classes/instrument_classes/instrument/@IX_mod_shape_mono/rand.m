@@ -1,5 +1,5 @@
 function X = rand (self, varargin)
-% Generate random numbers from the Fermi chopper pulse shape
+% Generate random times at the shaping and monochromating choppers
 %
 %   >> X = rand (obj)               % generate a single random number
 %   >> X = rand (obj, n)            % n x n matrix of random numbers

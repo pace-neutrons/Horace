@@ -1,8 +1,9 @@
 function inst = maps_instrument(ei, hz, chopper, varargin)
 % Return instrument description for MAPS
 %
-% Preferable syntax is to give the instrument version as a keyword:
 %   >> inst = maps_instrument(ei, hz, chopper, '-version', inst_ver)
+%
+%   >> inst = maps_instrument(...,'-moderator', mod_value)
 %
 % [NOTE: for historical reasons, if you don't give the instrument version
 % it will be set to that for the pre-2017 MAPS i.e. no guide]
@@ -11,8 +12,11 @@ function inst = maps_instrument(ei, hz, chopper, varargin)
 % Input:
 % ------
 %   ei          Incident energy (meV)
+%
 %   hz          Chopper frequency (Hz)
+%
 %   chopper     Fermi chopper package name ('S','A', or 'B')
+%
 %   inst_ver    Instrument version:
 %                   inst_ver = 1    MAPS from 2000 to 2017 (no guide)
 %                   inst_ver = 2    MAPS from 2017 onwards (i.e. with guide)
@@ -23,6 +27,16 @@ function inst = maps_instrument(ei, hz, chopper, varargin)
 %               to ensure you get the same results from using this function
 %               even if the instrument is modified in the future.
 %
+%   mod_value   Origin of moderator width data
+%                   mod_value = 'empirical'     [default]
+%                       Empirical model: chi-squared t^2 exp(-t/tau) with
+%                      tau_microseconds = 70/sqrt(Ei_in_meV). A good
+%                      starting value for refinement.
+%
+%                   mod_value = 'base2016'
+%                       Baseline moderator simulation from the ISIS
+%                      simulation group for ISIS before the 2020/2021 upgrade
+%
 % Output:
 % -------
 %   inst        Instrument description: object of class IX_inst_DGfermi
@@ -32,13 +46,14 @@ function inst = maps_instrument(ei, hz, chopper, varargin)
 
 % Parse arguments
 % ---------------
-first_version = 1;
+default_version = 1;
 
-keyval_def =  struct('version',first_version);  
+keyval_def =  struct('version',default_version,'moderator','empirical');  
 opt.prefix = '-';
 [par,keyval] = parse_arguments (varargin, keyval_def, opt);
 if numel(par)==0
     inst_ver = keyval.version;
+    moderator_model = keyval.moderator;
 else
     error('Check the number and type of input arguments')
 end
@@ -69,6 +84,17 @@ if ~(isnumeric(inst_ver) && isscalar(inst_ver) && (inst_ver==1 || inst_ver==2))
     error('Instrument version must be 1 or 2')
 end
 
+if ischar(moderator_model)
+    if strncmpi(moderator_model,'empirical',numel(moderator_model))
+        moderator_model = 'empirical';
+    elseif strncmpi(moderator_model,'base2016',numel(moderator_model))
+        moderator_model = 'base2016';
+    else
+        error('Check that the moderator model has one of the valid values')
+    end
+else
+    error('Check that the moderator model has one of the valid values')
+end
 
 % -----------------------------------------------------------------------------
 % Moderator
@@ -81,8 +107,18 @@ end
 
 distance=12.0;
 angle=32.0;
-pulse_model='ikcarp';
-pp=[70/sqrt(ei),0,0];
+
+if strcmpi(moderator_model,'empirical')
+    pulse_model='ikcarp';
+    pp=[70/sqrt(ei),0,0];
+elseif strcmpi(moderator_model,'base2016')
+    pulse_model = 'table';
+    mod_file = 'TS1verBase2016_LH8020_newVM-var_South01_Maps.mat';
+    [t, y] = ISIS_Baseline2016_moderator_time_profile (mod_file, ei);
+    pp = {t, y};
+else
+    error('Check moderator model')
+end
 
 moderator=IX_moderator(distance,angle,pulse_model,pp);
 

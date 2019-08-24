@@ -1,7 +1,7 @@
 function obj = get_divergence (div,lam0)
 % Get the divergence profile from interpolating a lookup table.
 %
-%   >> 
+%   >> obj = get_divergence (div, lam0)
 %
 % Input:
 % ------

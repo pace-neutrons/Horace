@@ -2,11 +2,15 @@ classdef IX_moderator
     % Moderator class definition
     
     properties (Constant, Access=private)
-        pulse_models_ = fixedNameList({'delta_function','ikcarp','ikcarp_param'})    % valid moderator pulse shape
-        n_pp_ = containers.Map({'delta_function','ikcarp','ikcarp_param'},[0,3,3])     % number of parameters for pulse shape
+        % Number of parameters:
+        %   - Inf means any number of parameters (including none), but which must all be numeric
+        %   - NaN means any number of parameters (including none), which can be of any type
         
-        flux_models_ = fixedNameList('uniform')
-        n_pf_ = containers.Map({'uniform'},0)
+        pulse_models_ = fixedNameList({'delta_function','ikcarp','ikcarp_param','table'})    % valid moderator pulse shape
+        n_pp_ = containers.Map({'delta_function','ikcarp','ikcarp_param','table'},[0,3,3,NaN])     % number of parameters for pulse shape
+        
+        flux_models_ = fixedNameList('uniform','table')
+        n_pf_ = containers.Map({'uniform','table'},[0,NaN])
     end
     
     properties (Access=private)
@@ -215,7 +219,7 @@ classdef IX_moderator
                     obj.pp_=val(:)';    % make a row vector
                 end
             else
-                error('Moderator pulse shape parameters must be a numeric vector')
+                obj.pp_=val;
             end
         end
         
@@ -244,7 +248,7 @@ classdef IX_moderator
                     obj.pf_=val(:)';    % make a row vector
                 end
             else
-                error('Moderator flux model parameters must be a numeric vector')
+                obj.pf_=val;
             end
         end
         
@@ -311,7 +315,7 @@ classdef IX_moderator
             val_old = obj.pulse_model_;
             obj.pulse_model_=val;
             if ~strcmp(obj.pulse_model,val_old)
-                obj.pp_ = NaN;
+                obj.pp_ = [];
                 obj.pdf_ = pdf_table();     % re-initialise
                 obj.valid_ = false;
             end
@@ -321,13 +325,23 @@ classdef IX_moderator
             % Must check the number of parameters is consistent with the pulse model
             val_old = obj.pp_;
             obj.pp_=val;
-            if numel(obj.pp_)==obj.n_pp_(obj.pulse_model_)
+            if isnumeric(obj.pp_) && numel(obj.pp_)==obj.n_pp_(obj.pulse_model_)
                 obj.valid_=true;
-                if ~all(obj.pp_==val_old)
+                if ~(numel(obj.pp_)==numel(val_old) && all(obj.pp_==val_old))
+                    obj.pdf_ = recompute_pdf_(obj);     % recompute the lookup table
+                end
+            elseif isnumeric(obj.pp_) && isinf(obj.n_pp_(obj.pulse_model_))
+                obj.valid_=true;
+                if ~(numel(obj.pp_)==numel(val_old) && isequal(obj.pp_,val_old))
+                    obj.pdf_ = recompute_pdf_(obj);     % recompute the lookup table
+                end
+            elseif isnan(obj.n_pp_(obj.pulse_model_))
+                obj.valid_=true;
+                if ~isequal(obj.pp_,val_old)
                     obj.pdf_ = recompute_pdf_(obj);     % recompute the lookup table
                 end
             else
-                error('The number of pulse parameters is inconsistent with the pulse model')
+                error('The number or type of pulse parameters is inconsistent with the pulse model')
             end
         end
         
@@ -336,7 +350,7 @@ classdef IX_moderator
             val_old = obj.flux_model_;
             obj.flux_model_=val;
             if ~strcmp(obj.flux_model,val_old)
-                obj.pf_ = NaN;
+                obj.pf_ = [];
                 obj.valid_ = false;
             end
         end

@@ -35,12 +35,12 @@ R = sample.rand_mosaic([1,npnt],alatt,angdeg);
 % to the Bragg peak bragg1
 ub = ubmatrix (bragg1, bragg2, bmatrix (alatt, angdeg));
 hkl = mtimesx_horace(R,bragg1(:));      % the hkl for the mosaic distribution
-xyz = mtimesx_horace(ub,hkl);           % now in orthonormal frame
+xyz = mtimesx_horace(repmat(ub,1,1,size(hkl,3)),hkl);           % now in orthonormal frame
 xyz = squeeze(xyz);
 
 modQ = norm(ub*bragg1(:));    % length of bragg1 in Ang^-1
 xyz = ((180/pi)/modQ)*xyz;  % convert to degrees
-[N,Xedges,Yedges] = histcounts2(xyz(2,:),xyz(3,:));
+% [N,Xedges,Yedges] = histcounts2(xyz(2,:),xyz(3,:));     % can make a plot of distribution from this
 
 % Test covariance
 fwhh_cov_rand = cov(xyz(2:3,:)')*log(256);

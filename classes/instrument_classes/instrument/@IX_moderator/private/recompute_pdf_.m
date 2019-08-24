@@ -26,6 +26,9 @@ if models.match('ikcarp',model)
 elseif models.match('ikcarp_param',model)
     pdf = ikcarp_param_recompute_pdf (obj.pp_, obj.energy_);
     
+elseif models.match('table',model)
+    pdf = table_recompute_pdf (obj.pp_);
+    
 else
     error('Unrecognised moderator pulse model for computing pdf_table')
 end
