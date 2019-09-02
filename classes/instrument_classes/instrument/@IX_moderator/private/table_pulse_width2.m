@@ -1,4 +1,4 @@
-function [w, tlo, thi] = table_pulse_width2 (pdf, frac, ei)
+function [w, tmax, tlo, thi] = table_pulse_width2 (pdf, frac, ei)
 % Calculate pulse width quantities (microseconds)
 %
 %   >> [w, tlo, thi] = table_pulse_width2 (pdf, frac, ei)
@@ -16,11 +16,10 @@ function [w, tlo, thi] = table_pulse_width2 (pdf, frac, ei)
 %   thi         High time fractional height (microseconds)
 
 
-w = width(pdf, frac);
-tlo = pdf.x(1);
-thi = pdf.x(end);
+[w,tmax,tlo,thi] = width(pdf, frac);
 if numel(ei)~=1
     w=w*ones(size(ei));
+    tmax=tmax*ones(size(ei));
     tlo=tlo*ones(size(ei));
     thi=thi*ones(size(ei));
 end

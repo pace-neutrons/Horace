@@ -1,7 +1,7 @@
 function [fwhh,xmax,xlo,xhi] = skew_gauss_fwhh (sig, alf)
 % Find the FWHH of askew Gaussian
 %
-%   >> [fwhh,xlo,xhi] = ikcarp_fwhh (tauf, taus, R)
+%   >> [fwhh,xmax,xlo,xhi] = skew_gauss_fwhh (sig, alf)
 %
 % Input:
 % ------

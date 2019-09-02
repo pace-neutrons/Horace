@@ -29,8 +29,4 @@ function [y,t] = ikcarp_param_pulse_shape (pp, ei, t)
 
 
 [tauf, taus, R] = ikcarp_param_convert (pp, ei);
-if isempty(t)
-    npnt = 500;
-    t = ikcarp_pdf_xvals (npnt, tauf, taus);
-end
-y = ikcarp (t, tauf, taus, R);
+[y,t] = ikcarp_pulse_shape ([tauf, taus, R], t);

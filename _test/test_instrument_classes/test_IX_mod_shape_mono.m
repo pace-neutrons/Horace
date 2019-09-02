@@ -34,7 +34,8 @@ classdef test_IX_mod_shape_mono < TestCaseWithSave
             shaped_mod = msm.shaped_mod;        % should be false - but only just
             assertEqualWithSave(self,shaped_mod);
             
-            [tcov,tmean] = msm.covariance;
+            tcov = msm.covariance();
+            tmean = msm.mean();
             assertEqualToTolWithSave(self, tcov, 'tol', [1e-4,1e-4])
 
             npnt = 5e6;
@@ -53,7 +54,8 @@ classdef test_IX_mod_shape_mono < TestCaseWithSave
             shaped_mod = msm.shaped_mod;        % should be true - but only just
             assertEqualWithSave(self,shaped_mod);
             
-            [tcov,tmean] = msm.covariance;
+            tcov = msm.covariance();
+            tmean = msm.mean();
             assertEqualToTolWithSave(self, tcov, 'tol', [1e-4,1e-4])
 
             npnt = 5e6;
@@ -72,7 +74,8 @@ classdef test_IX_mod_shape_mono < TestCaseWithSave
             shaped_mod = msm.shaped_mod;        % should be true - extreme case
             assertEqualWithSave(self,shaped_mod);
             
-            [tcov,tmean] = msm.covariance;
+            tcov = msm.covariance();
+            tmean = msm.mean();
             assertEqualToTolWithSave(self, tcov, 'tol', [1e-4,1e-4])
 
             npnt = 5e6;
@@ -92,7 +95,8 @@ classdef test_IX_mod_shape_mono < TestCaseWithSave
             shaped_mod = msm.shaped_mod;        % should be true - extreme case
             assertEqualWithSave(self,shaped_mod);
             
-            [tcov,tmean] = msm.covariance;
+            tcov = msm.covariance();
+            tmean = msm.mean();
             assertEqualToTolWithSave(self, tcov, 'tol', [1e-4,1e-4])
 
             npnt = 5e6;
@@ -109,5 +113,5 @@ end
 function [tcov,tmean] = rand_covariance (obj, npnt)
 X = obj.rand([npnt,1]);
 tcov = cov(X');
-tmean = mean(X,2)';
+tmean = mean(X,2);
 end

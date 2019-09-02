@@ -1,4 +1,4 @@
-function [width, tlo, thi] = ikcarp_pulse_width2 (pp, frac, ei)
+function [width, tmax, tlo, thi] = ikcarp_pulse_width2 (pp, frac, ei)
 % Calculate pulse width quantities (microseconds)
 %
 %   >> [width, tlo, thi] = ikcarp_pulse_width2 (pp, frac, ei)
@@ -13,13 +13,15 @@ function [width, tlo, thi] = ikcarp_pulse_width2 (pp, frac, ei)
 % Output:
 % -------
 %   width       Width across the peak (microseconds)
+%   tmax        Position of peak maximum (microseconds)
 %   tlo         Short time fractional height (microseconds)
 %   thi         High time fractional height (microseconds)
 
 
-[width,~,tlo,thi]=ikcarp_fwhh (pp(1), pp(2), pp(3), frac);
+[width,tmax,tlo,thi]=ikcarp_fwhh (pp(1), pp(2), pp(3), frac);
 if numel(ei)~=1
     width=width*ones(size(ei));
+    tmax=tmax*ones(size(ei));
     tlo=tlo*ones(size(ei));
     thi=thi*ones(size(ei));
 end

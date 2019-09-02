@@ -4,30 +4,37 @@ function [xcent,xpeak,fwhh,xneg,xpos,ypeak,imax,irange]=peaks_cwhh_xye(x,y,e,fac
 %   >> [xcent,xpeak,fwhh,xneg,xpos,ypeak]=peaks_cwhh_xy(x,y,fac)
 %   >> [...]=peaks_cwhh_xye(...,'opt1',arg1,'opt2',arg2,...)
 %
-% Input data where the y or e are infinite or NaN are eliminated before the peak search
+% Data where the y or e are infinite or NaN are eliminated before peak search
 %
 % Input:
 % ------
 %   x       x values
 %   y       signal
 %   e       standard deviations on signal (set to empty to ignore)
-%   fac     Factor of peak height at which to determine the centre-height position
-%           (default=0.5 i.e. centre-fwhh)
+%   fac     Factor of peak height at which to determine the centre-height 
+%           position (default=0.5 i.e. centre-fwhh)
 %
 % Peak search options:
-%         'area', amin      Keep only those peaks whose area is at least the given value
-%     'rel_area', rel_amin  Keep only those peaks whose area is at least a fraction
-%                          rel_amin of the largest peak
-%       'height', hmin      Keep only those peaks whose height is at least the given value
-%   'rel_height', rel_hmin  Keep only those peaks whose height is at least a fraction
-%                          rel_hmin of the tallest peak
-%   'err_height', herr_fac  Keep only those peaks whose height above the defining boundaries
-%                          determined by input argument fac is at least a factor
-%                          herr_fac larger than the error bar on the height difference
+%         'area', [amin,amax]   Keep only those peaks whose area is
+%                               in the given range
+%     'rel_area', [rel_amin,rel_amax]   Keep only those peaks whose area as
+%                                       a fraction of the largest paek area
+%                                       is in the given range
+%       'height', [hmin,hmax]   Keep only those peaks whose height is in
+%                               the given range
+%   'rel_height', [rel_hmin,rel_hmax]  Keep only those peaks whose height
+%                                      as a fraction of the greatest peak
+%                                      height is in the given range
+%   'err_height', herr_fac  Keep only those peaks whose height above the
+%                           defining boundaries determined by input argument
+%                           fac is at least a factor herr_fac larger than 
+%                           the error bar on the height difference
 %
 % In addition with the above, or on their own:
-%           'na', nmax      Keep nmax peaks with largest areas (cannot use with 'nh')
-%           'nh', nmax      Keep nmax tallest peaks (cannot use with 'na')
+%           'na', nmax      Keep nmax peaks with largest areas (cannot use
+%                           this option with 'nh')
+%           'nh', nmax      Keep nmax tallest peaks (cannot use this option
+%                           with 'na')
 %   
 %   
 % Output:

@@ -1,17 +1,17 @@
-function val = covariance (obj, varargin)
-% Calculate the covariance of shaping and monochromating chopper pulses
+function val = mean (obj, varargin)
+% Calculate the mean of shaping and monochromating chopper pulses
 %
-%   >> val = covariance (obj)
+%   >> val = mean (obj)
 %
 % Controlling contributions of instrument components
-%   >> val = covariance (obj,'mc',mc_val)
+%   >> val = mean (obj,'mc',mc_val)
 %
 % The average time of the pulse at the shaping chopper position and the Fermi
 % chopper will in general be non-zero, as will the covariance matrix.
 %
 % Input:
 % ------
-%   obj         IX_mod_shape_mono object
+%   obj        IX_mod_shape_mono object
 %
 % Optionally:
 %   mc_val      Logical row vector [moderator, shape_chopper, mono_chopper]
@@ -24,9 +24,8 @@ function val = covariance (obj, varargin)
 %
 % Output:
 % -------
-%   val         Covariance matrix of times at shaping and monochromating
-%              choppers [var_sh_sh, var_sh_mo; var_sh_mo, var_mo_mo]
-%              (microseconds^2)
+%   val         Mean times of pulses at shaping and monochromating
+%              chopper positions (microseconds) [column vector]
 
 
 % Parse input
@@ -42,4 +41,4 @@ end
 
 % Retrive covariance
 ind = sum([4,2,1].*mc) +1;
-val = obj.t_chop_cov_(:,:,ind);
+val = obj.t_chop_av_(:,ind);

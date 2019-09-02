@@ -1,4 +1,4 @@
-function [width, tlo, thi] = ikcarp_param_pulse_width2 (pp, ei)
+function [width, tmax, tlo, thi] = ikcarp_param_pulse_width2 (pp, ei)
 % Calculate st. dev. of moderator pulse width distribution (microseconds)
 %
 %   >> [width, tlo, thi] = ikcarp_param_pulse_width2 (pp,frac,ei)
@@ -20,6 +20,7 @@ function [width, tlo, thi] = ikcarp_param_pulse_width2 (pp, ei)
 % Output:
 % -------
 %   width       Width across the peak (microseconds)
+%   tmax        Position of peak maximum (microseconds)
 %   tlo         Short time fractinal height (microseconds)
 %   thi         High time fractinal height (microseconds)
 
@@ -27,8 +28,9 @@ function [width, tlo, thi] = ikcarp_param_pulse_width2 (pp, ei)
 [tauf, taus, R] = ikcarp_param_convert (pp, ei);
 
 width=zeros(size(ei));
+tmax=zeros(size(ei));
 tlo=zeros(size(ei));
 thi=zeros(size(ei));
 for i=1:numel(ei)
-    [width(i), ~, tlo(i), thi(i)] = pulse_width_ikcarp ([tauf(i),taus(i),R(i)], ei(i));
+    [width(i), tmax(i), tlo(i), thi(i)] = ikcarp_pulse_width ([tauf(i),taus(i),R(i)], ei(i));
 end

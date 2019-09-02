@@ -1,5 +1,5 @@
 classdef IX_mod_shape_mono
-    % Moderator - shaping chopper - monochromating chopper triple
+    % Moderator - shaping chopper - monochromating chopper as a single object
     
     properties (Access=private)
         % Stored properties - but kept private and accessible only through
@@ -22,7 +22,11 @@ classdef IX_mod_shape_mono
         moderator_ = IX_moderator();
         shaping_chopper_ = IX_doubledisk_chopper();
         mono_chopper_ = IX_doubledisk_chopper();
-        shaped_mod_ = false;    % This is effectively a cached dependent variable
+        % The following are effectively cached dependent properties
+        shaped_mod_ = false;    
+        t_m_offset_ = zeros(1,8);
+        t_chop_av_ = zeros(2,8);
+        t_chop_cov_ = zeros(2,2,8);
     end
     
     properties (Dependent)
@@ -69,14 +73,14 @@ classdef IX_mod_shape_mono
                 obj.mono_chopper_ = varargin{3};
                 if nargin==4
                     if valid_energy(varargin{4})
-                        obj.energy = varargin{4};
+                        obj.moderator_.energy = varargin{4};
                     else
                         error('Energy must be a scalar value greater than or equal to zero')
                     end
-                else
-                    obj.energy = obj.moderator_.energy;
                 end
                 obj.shaped_mod_ = obj.recompute_shaped_mod_();
+                obj.t_m_offset_ = obj.t_m_offset_calibrate_();
+                [obj.t_chop_cov_, obj.t_chop_av_] = obj.moments_ ();
                 
             elseif nargin~=0
                 error('Check the number of input arguments')
@@ -123,42 +127,33 @@ classdef IX_mod_shape_mono
         % other properties must be checked here.
         function obj=set.moderator(obj,val)
             obj.moderator_ = val;
-            en = obj.moderator_.energy;
-            if isprop(obj.shaping_chopper_,'energy')
-                obj.shaping_chopper_.energy = en;
-            end
-            if isprop(obj.mono_chopper_,'energy')
-                obj.mono_chopper_.energy = en;
-            end
             obj.shaped_mod_ = obj.recompute_shaped_mod_();
+            obj.t_m_offset_ = obj.t_m_offset_calibrate_();
+            [obj.t_chop_cov_, obj.t_chop_av_] = obj.moments_ ();
         end
         
         function obj=set.shaping_chopper(obj,val)
             obj.shaping_chopper_ = val;
-            if isprop(obj.shaping_chopper_,'energy')
-                obj.shaping_chopper_.energy = obj.moderator_.energy;
-            end
             obj.shaped_mod_ = obj.recompute_shaped_mod_();
+            obj.t_m_offset_ = obj.t_m_offset_calibrate_();
+            [obj.t_chop_cov_, obj.t_chop_av_] = obj.moments_ ();
         end
         
         function obj=set.mono_chopper(obj,val)
             obj.mono_chopper_ = val;
-            if isprop(obj.mono_chopper_,'energy')
-                obj.mono_chopper_.energy = obj.moderator_.energy;
-            end
             obj.shaped_mod_ = obj.recompute_shaped_mod_();
+            obj.t_m_offset_ = obj.t_m_offset_calibrate_();
+            [obj.t_chop_cov_, obj.t_chop_av_] = obj.moments_ ();
         end
         
         function obj=set.energy(obj,val)
             if valid_energy(val)
-                obj.moderator_.energy = val;
-                if isprop(obj.shaping_chopper_,'energy')
-                    obj.shaping_chopper_.energy = val;
+                if val~=obj.moderator_.energy
+                    obj.moderator_.energy = val;
+                    obj.shaped_mod_ = obj.recompute_shaped_mod_();
+                    obj.t_m_offset_ = obj.t_m_offset_calibrate_();
+                    [obj.t_chop_cov_, obj.t_chop_av_] = obj.moments_ ();
                 end
-                if isprop(obj.mono_chopper_,'energy')
-                    obj.mono_chopper_.energy = val;
-                end
-                obj.shaped_mod_ = obj.recompute_shaped_mod_();
             else
                 error('Energy must be a scalar value greater than or equal to zero')
             end
@@ -206,12 +201,12 @@ classdef IX_mod_shape_mono
             status = ((x0/xa)*fwhh_shaping_chopper < fwhh_moderator);
         end
     end
-
+    
     %======================================================================
     % Custom loadobj and saveobj
     % - to enable custom saving to .mat files and bytestreams
     % - to enable older class definition compatibility
-
+    
     methods
         %------------------------------------------------------------------
         function S = saveobj(obj)
@@ -228,9 +223,7 @@ classdef IX_mod_shape_mono
             % -------
             %   S       Structure created from obj that is to be saved
             
-            % The following is boilerplate code; it calls a class-specific function
-            % called init_from_structure_ that takes a scalar structure and returns
-            % a scalar instance of the class
+            % The following is boilerplate code
             
             S = structIndep(obj);
         end
@@ -256,7 +249,7 @@ classdef IX_mod_shape_mono
             %       	or structure array)
             
             % The following is boilerplate code; it calls a class-specific function
-            % called iniSt_from_structure_ that takes a scalar structure and returns
+            % called loadobj_private_ that takes a scalar structure and returns
             % a scalar instance of the class
             
             if isobject(S)
@@ -269,7 +262,7 @@ classdef IX_mod_shape_mono
         
     end
     %======================================================================
-        
+    
 end
 
 %------------------------------------------------------------------

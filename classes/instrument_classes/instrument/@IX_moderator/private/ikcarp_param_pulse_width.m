@@ -30,11 +30,11 @@ t_av = zeros(size(ei));
 
 if nargout==2
     for i=1:numel(ei)
-        [dt(i), t_av(i)] = pulse_width_ikcarp ([tauf(i),taus(i),R(i)], ei(i));
+        [dt(i), t_av(i)] = ikcarp_pulse_width ([tauf(i),taus(i),R(i)], ei(i));
     end
 else
     fwhh=zeros(size(ei));
     for i=1:numel(ei)
-        [dt(i), t_av(i), fwhh(i)] = pulse_width_ikcarp ([tauf(i),taus(i),R(i)], ei(i));
+        [dt(i), t_av(i), fwhh(i)] = ikcarp_pulse_width ([tauf(i),taus(i),R(i)], ei(i));
     end
 end

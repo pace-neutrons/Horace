@@ -1,8 +1,8 @@
-function [width, tlo, thi] = pulse_width2 (self, frac, varargin)
+function [width, tmax, tlo, thi] = pulse_width2 (self, frac, varargin)
 % Calculate the standard deviation of the moderator pulse shape
 %
-%   >> [width, tlo, thi] = pulse_width2 (moderator, frac)
-%   >> [width, tlo, thi] = pulse_width2 (moderator, frac, ei)
+%   >> [width, tmax, tlo, thi] = pulse_width2 (moderator, frac)
+%   >> [width, tmax, tlo, thi] = pulse_width2 (moderator, frac, ei)
 %
 % Input:
 % ------
@@ -14,8 +14,9 @@ function [width, tlo, thi] = pulse_width2 (self, frac, varargin)
 % Output:
 % -------
 %   width       Width across the peak (microseconds)
-%   tlo         Short time fractinal height (microseconds)
-%   thi         High time fractinal height (microseconds)
+%   tmax        Position of peak maximum (microseconds)
+%   tlo         Short time fractional height (microseconds)
+%   thi         High time fractional height (microseconds)
 
 
 if ~isscalar(self), error('Function only takes a scalar moderator object'), end
@@ -35,13 +36,13 @@ models= self.pulse_models_;
 model = self.pulse_model_;
 
 if models.match('ikcarp',model)
-    [width, tlo, thi] = ikcarp_pulse_width2 (self.pp_, frac, energy);
+    [width, tmax, tlo, thi] = ikcarp_pulse_width2 (self.pp_, frac, energy);
     
 elseif models.match('ikcarp_param',model)
-    [width, tlo, thi] = ikcarp_param_pulse_width2 (self.pp_, frac, energy);
+    [width, tmax, tlo, thi] = ikcarp_param_pulse_width2 (self.pp_, frac, energy);
     
 elseif models.match('table',model)
-    [width, tlo, thi] = table_pulse_width2 (self.pdf_, frac, energy);
+    [width, tmax, tlo, thi] = table_pulse_width2 (self.pdf_, frac, energy);
     
 else
     error('Unrecognised moderator pulse model for computing pulse width')
