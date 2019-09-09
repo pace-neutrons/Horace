@@ -76,7 +76,7 @@ classdef test_gen_sqw_accumulate_sqw_nomex < ...
                 ok=false;
             catch ME
                 ok=true;
-                assertEqual(ME.identifier,'SQW_HEADER:invalid_header')
+                assertEqual(ME.identifier,'GEN_SQW:invalid_argument')
                 
             end
             assertTrue(ok,'Should have failed because of repeated spe file name and parameters');
