@@ -228,7 +228,9 @@ for i=1:numel(ind)
         yvec=zeros(11,1,npix);
         
         % Deviations at the shaping and monochromating choppers
-        yvec([1,4],1,:) = 1e-6 * mod_shape_mono_table.rand_ind(iw,irun,'options','mc',mc_mod_shape_mono);
+        tchop_av = mod_shape_mono_table.func_eval(iw,irun,@mean,mc_mod_shape_mono);
+        yvec([1,4],1,:) = 1e-6 * ...
+            (mod_shape_mono_table.rand_ind(iw,irun,'options','mc',mc_mod_shape_mono) - tchop_av);
         debugtools(@debug_histogram_array, (10^6)*yvec(1,1,:), 't_shape', 'microseconds')
      
         % Divergence

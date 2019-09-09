@@ -200,7 +200,7 @@ if strcmp(inst,'IX_inst_DGfermi')
 elseif strcmp(inst,'IX_inst_DGdisk')
     resfun_model = @tobyfit_DGdisk_resfun_covariance;
 else
-    error('No resolution fuinction model implemented for this instrument')
+    error('No resolution function model implemented for this instrument')
 end
 
 iax_plot = [w.data.pax, iax];

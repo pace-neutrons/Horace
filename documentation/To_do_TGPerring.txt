@@ -1,5 +1,10 @@
 Tobyfit NEW  (22/5/19)
 -----------------
+*MUST* merge IX_data_1d and IX_datset_1d - the problem is (1) it is simply the wrong way to do things,
+and (2) you cannot access help in the usual way e.g. >> help IX_datset_1d/shift
+
+IX_dataset_1d as a method of IX_Dataset_2d disappeared (and possibly other permutations)
+
 multifit:
 - Alex changs of may 2019 - jul 2019 (set_fun_private_, sontraints_remove, fun_alter)
 - SOme hcanges that RAE made for crystal refinement options

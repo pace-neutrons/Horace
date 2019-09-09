@@ -37,8 +37,10 @@ test_output = true;
 if exist('option','var')
     if ischar(option) && isequal(lower(option),'-setup')
         save_data = true;
+        test_output = false;
     elseif ischar(option) && isequal(lower(option),'-save')
         save_output = true;
+        test_output = false;
     elseif ischar(option) && isequal(lower(option),'-notest')
         test_output = false;
     else
@@ -59,7 +61,7 @@ datafile='test_tobyfit_let_2_data.mat';
 % Filename to which saved results are written
 savefile='test_tobyfit_let_2_out.mat';      
 
-error_on_failure = false;
+error_on_failure = true;
 
 %% --------------------------------------------------------------------------------------
 % Read or create sqw file for refinement test
