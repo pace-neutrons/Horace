@@ -28,22 +28,26 @@ function t_m_offset = t_m_offset_calibrate_ (obj)
 %                        0     0     1             2
 %                        0     0     0             1
 
+moderator = obj.moderator_;
+shaping_chopper = obj.shaping_chopper_;
+mono_chopper = obj.mono_chopper_;
+energy = obj.energy;
 
-[~,t_av] = pulse_width (obj.moderator);
+[~,t_m_av] = pulse_width (moderator);
 
 t_m_offset = zeros(1,8);
 
 % mod-shape-chop = [1,1,1]
-t_m_offset(8) = t_m_offset_msm (obj);
+t_m_offset(8) = t_m_offset_msm (moderator, shaping_chopper, mono_chopper, energy);
 
 % mod-shape-chop = [1,1,0]
-t_m_offset(7) = t_m_offset_ms (obj);
+t_m_offset(7) = t_m_offset_ms (moderator, shaping_chopper, mono_chopper, energy);
 
 % mod-shape-chop = [1,0,1]
-t_m_offset(6) = t_av;
+t_m_offset(6) = t_m_av;
 
 % mod-shape-chop = [1,0,0]
-t_m_offset(5) = t_av;
+t_m_offset(5) = t_m_av;
 
 % mod-shape-chop = [0,1,1]
 t_m_offset(4) = 0;  % not relevant, as the moderator is infinite
@@ -59,7 +63,7 @@ t_m_offset(1) = 0;  % not relevant, as the moderator is infinite
 
 
 %=============================================================================================
-function t_m_offset = t_m_offset_msm (obj)
+function t_m_offset = t_m_offset_msm (moderator, shaping_chopper, mono_chopper, energy)
 % Calibrate the offset time from which to sample the moderator
 %
 %   >> t_m_offset = t_m_offset_msm (obj)
@@ -75,19 +79,16 @@ function t_m_offset = t_m_offset_msm (obj)
 %
 % Input:
 % ------
-%   obj             IX_mod_shape_mono object
+%   moderator       IX_moderator object
+%   shaping_chopper IX_doubledisk_chopper object
+%   mono_chopper    IX_doubledisk_chopper object
 %
 % Output:
 % -------
 %   t_m_offset_msm  Offset_time
 
 
-% Pick out constituent instrument components and quantities
-moderator = obj.moderator_;
-shaping_chopper = obj.shaping_chopper_;
-mono_chopper = obj.mono_chopper_;
-energy = obj.energy;
-
+% Pick out instrument component quantities
 x1 = mono_chopper.distance;
 x0 = moderator.distance - x1;       % distance from mono chopper to moderator face
 xa = shaping_chopper.distance - x1; % distance from shaping chopper to mono chopper
@@ -137,10 +138,10 @@ t_m_offset = Tlo + dt*(imax-1);
 
 
 %=============================================================================================
-function t_m_offset = t_m_offset_ms (obj)
+function t_m_offset = t_m_offset_ms (moderator, shaping_chopper, mono_chopper, energy)
 % Calibrate the offset time from which to sample the moderator
 %
-%   >> t_m_offset = t_m_offset_ms (obj)
+%   >> t_m_offset = t_m_offset_ms (moderator, shaping_chopper, mono_chopper, energy)
 %
 % This function is for the case of moderator and shaping chopper
 % having finite non-zero widths, but the monochromating chopper is a
@@ -154,20 +155,16 @@ function t_m_offset = t_m_offset_ms (obj)
 %
 % Input:
 % ------
-%   obj             IX_mod_shape_mono object
+%   moderator       IX_moderator object
+%   shaping_chopper IX_doubledisk_chopper object
+%   mono_chopper    IX_doubledisk_chopper object
 %
 % Output:
 % -------
-%   t_m_offset_msm  Offset_time
+%   t_m_offset_ms   Offset_time
 
 
-
-% Pick out constituent instrument components and quantities
-moderator = obj.moderator_;
-shaping_chopper = obj.shaping_chopper_;
-mono_chopper = obj.mono_chopper_;
-energy = obj.energy;
-
+% Pick out instrument component quantities
 x1 = mono_chopper.distance;
 x0 = moderator.distance - x1;       % distance from mono chopper to moderator face
 xa = shaping_chopper.distance - x1; % distance from shaping chopper to mono chopper

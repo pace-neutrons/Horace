@@ -4,7 +4,7 @@ function val = mean (obj, varargin)
 %   >> val = mean (obj)
 %
 % Controlling contributions of instrument components
-%   >> val = mean (obj,'mc',mc_val)
+%   >> val = mean (obj,mc_val)
 %
 % The average time of the pulse at the shaping chopper position and the Fermi
 % chopper will in general be non-zero, as will the covariance matrix.
@@ -31,10 +31,8 @@ function val = mean (obj, varargin)
 % Parse input
 if numel(varargin)==0
     mc = [1,1,1];
-elseif numel(varargin)==2 && is_string(varargin{1}) &&...
-        strncmpi(varargin{1},'mc',numel(varargin{1})) &&...
-        numel(varargin{2})==3 && islognum(varargin{2})
-    mc = logical(varargin{2}(:)');
+elseif numel(varargin)==1 && numel(varargin{1})==3 && islognum(varargin{1})
+    mc = logical(varargin{1}(:)');
 else
     error('Check input')
 end
