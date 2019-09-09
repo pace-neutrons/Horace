@@ -1,4 +1,4 @@
-function weight = example_sqw_flat_mode (qh,qk,ql,en,pars)
+function lor = example_sqw_flat_mode (qh,qk,ql,en,pars)
 % Example model for S(Q,w)
 % -------------------------------------------------------------------------
 % A model for S(Q,w) must have the form:
@@ -31,8 +31,23 @@ function weight = example_sqw_flat_mode (qh,qk,ql,en,pars)
 % -------
 %   weight          Spectral weight
 
-ampl=pars(1);
-en0=pars(2);
-sig=pars(3)/sqrt(log(256));
+HE=pars(1);
+CE=pars(2);
+GE=pars(3)/sqrt(log(256));
+H1=pars(4);
+G1=pars(5);
+T=pars(6);
 
-weight=(ampl/(sig*sqrt(2*pi)))*exp(-(en-en0).^2/(2*sig^2));
+kb=1/11.606;
+Eb = en/(kB * T);
+if (w ~= 0)
+    dbal=w/(1-exp(-wb));
+else
+	dbal=kB*T;
+end
+
+elastic=(HE/(GE * sqrt(2*pi))) * exp(-(en - CE)^2 / (2*GE^2));
+inelastic = dbal * H1 / ((en - CE)^2 + G1^2);
+lor = elastic + inelastic;
+
+
