@@ -26,6 +26,7 @@ test_output = true;
 if exist('option','var')
     if ischar(option) && isequal(lower(option),'-save')
         save_output = true;
+        test_output = false;
     elseif ischar(option) && isequal(lower(option),'-notest')
         test_output = false;
     else
