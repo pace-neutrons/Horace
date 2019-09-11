@@ -71,9 +71,5 @@ for i = 1:length(properties)
     val = output.(properties{i});
     if isstruct(val) || isobject(val) || iscell(val)
         output.(properties{i}) = obj2struct_private(val,public);
-%         temp = obj2struct_private(val);
-%         if ~isempty(temp)
-%             output.(properties{i}) = temp;
-%         end
     end
 end

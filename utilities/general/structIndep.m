@@ -27,7 +27,7 @@ if isobject(obj)
         names = fieldnamesIndep(obj);
         if isempty(obj)
             % Empty object, so build empty structure with correect size
-            args = [names';repmat(cell(size(obj)),1,numel(names))];
+            args = [names';repmat({cell(size(obj))},1,numel(names))];
             s = struct(args{:});
         else
             % Get full structure

@@ -134,10 +134,68 @@ classdef pdf_table_array
     end
     
     %======================================================================
+    % Methods for fast construction of structure with independent properties
+    methods (Static, Access = private)
+        function names = propNamesIndep_
+            % Determine the independent property names and cache the result.
+            % Code is boilerplate
+            persistent names_store
+            if isempty(names_store)
+                names_store = fieldnamesIndep(eval(mfilename('class')));
+            end
+            names = names_store;
+        end
+        
+        function struc = scalarEmptyStrucIndep_
+            % Create a scalar structure with empty fields, and cache the result
+            % Code is boilerplate
+            persistent struc_store
+            if isempty(struc_store)
+                names = eval([mfilename('class'),'.propNamesIndep_''']);
+                arg = [names; repmat({[]},size(names))];
+                struc_store = struct(arg{:});
+            end
+            struc = struc_store;
+        end
+    end
+    
+    methods
+        function S = structIndep(obj)
+            % Return the independent properties of an object as a structure
+            %
+            %   >> s = structIndep(obj)
+            %
+            % Use <a href="matlab:help('structArrIndep');">structArrIndep</a> to convert an object array to a structure array
+            %
+            % Has the same behaviour as the Matlab instrinsic struct in that:
+            % - Any structure array is returned unchanged
+            % - If an object is empty, an empty structure is returned with fieldnames
+            %   but the same size as the object
+            % - If the object is non-empty array, returns a scalar structure corresponding
+            %   to the the first element in the array of objects
+            %
+            %
+            % See also structPublic, structArrIndep, structArrPublic
+            
+            names = obj.propNamesIndep_';
+            if ~isempty(obj)
+                tmp = obj(1);
+                S = obj.scalarEmptyStrucIndep_;
+                for i=1:numel(names)
+                    S.(names{i}) = tmp.(names{i});
+                end
+            else
+                args = [names; repmat({cell(size(obj))},size(names))];
+                S = struct(args{:});
+            end
+        end
+    end
+    
+    %======================================================================
     % Custom loadobj and saveobj
     % - to enable custom saving to .mat files and bytestreams
     % - to enable older class definition compatibility
-    
+
     methods
         %------------------------------------------------------------------
         function S = saveobj(obj)
@@ -154,9 +212,7 @@ classdef pdf_table_array
             % -------
             %   S       Structure created from obj that is to be saved
             
-            % The following is boilerplate code; it calls a class-specific function
-            % called init_from_structure_ that takes a scalar structure and returns
-            % a scalar instance of the class
+            % The following is boilerplate code
             
             S = structIndep(obj);
         end
@@ -182,7 +238,7 @@ classdef pdf_table_array
             %       	or structure array)
             
             % The following is boilerplate code; it calls a class-specific function
-            % called iniSt_from_structure_ that takes a scalar structure and returns
+            % called loadobj_private_ that takes a scalar structure and returns
             % a scalar instance of the class
             
             if isobject(S)
@@ -195,5 +251,5 @@ classdef pdf_table_array
         
     end
     %======================================================================
-
+    
 end
