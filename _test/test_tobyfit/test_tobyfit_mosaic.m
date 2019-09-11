@@ -31,6 +31,15 @@ function test_tobyfit_mosaic (option, version)
 
 
 %% --------------------------------------------------------------------------------------
+
+% ***************************************
+%    Need to complete this test
+% ***************************************
+% Temporary dummy test
+return
+% ***************************************
+% ***************************************
+
 nlist = 0;  % set to 1 or 2 for listing during fit
 
 % Determine whether or not to save output
@@ -110,7 +119,7 @@ end
 %% --------------------------------------------------------------------------------------
 % Evaluate sqw and Tobyfit simulation for single cut
 % --------------------------------------------------------------------------------------
-% Add instrumnet and sample information to cuts
+% Add instrument and sample information to cuts
 sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.04,0.03,0.02],[6,0,4]);
 
 w2_200=set_sample_and_inst(w2_200,sample,@maps_instrument_obj_for_tests,'-efix',600,'S');
