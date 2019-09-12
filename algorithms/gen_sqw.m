@@ -416,17 +416,22 @@ else
     
     % Accumulate sqw files; if creating only tmp files only, then exit (ignoring the delete_tmp option)
     if ~opt.tmp_only
+        if require_spe_unique
+            wsqw_arg = {parallel_job_dispatcher};
+        else
+            wsqw_arg = {'allow_equal_headers',parallel_job_dispatcher};
+        end
         if ~accumulate_old_sqw || use_partial_tmp
             if log_level>-1
                 disp('Creating output sqw file:')
             end
-            write_nsqw_to_sqw (tmp_file, sqw_file,parallel_job_dispatcher);
+            write_nsqw_to_sqw (tmp_file, sqw_file,wsqw_arg{:});
         else
             if log_level>-1
                 disp('Accumulating in temporary output sqw file:')
             end
             sqw_file_tmp = [sqw_file,'.tmp'];
-            write_nsqw_to_sqw ([sqw_file;tmp_file], sqw_file_tmp,parallel_job_dispatcher);
+            write_nsqw_to_sqw ([sqw_file;tmp_file], sqw_file_tmp,wsqw_arg{:});
             if log_level>-1
                 disp(' ')
                 disp(['Renaming sqw file to ',sqw_file])
@@ -694,7 +699,7 @@ if gen_tmp_files_only
                 ' Delete all existing tmp files to avoid this'])
         end
         run_files  = run_files(~f_exist);
-        tmp_file  = tmp_file(~f_exist);        
+        tmp_file  = tmp_file(~f_exist);
     end
 end
 
