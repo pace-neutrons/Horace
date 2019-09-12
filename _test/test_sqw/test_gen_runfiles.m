@@ -67,8 +67,16 @@ classdef test_gen_runfiles< TestCase
             % The line that failed before: the problem was efix the same for two files, but number of energy bins different
             % =====================================================================================================================
             
-            gen_sqw (spe_file, par_file, sqw_file_12, efix(1), emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, 'replicate');
+            try
+                gen_sqw (spe_file, par_file, sqw_file_12, efix(1), emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, 'replicate');
+            catch Err               
+                rethrow(Err);
+            end
             
+            assertEqual(exist(spe_file{1},'file'),2)
+            assertEqual(exist(spe_file{2},'file'),2)
+            
+            assertEqual(exist(sqw_file_12,'file'),2)            
             %banner_to_screen([mfilename,': Test(s) passed'],'bot')
         end
         
