@@ -35,9 +35,16 @@ if ~strcmp(class(A), class(B))
     throwAsCaller(MException('assertEqual:classNotEqual', '%s', message));
 end
 
-if ~isequalwithequalnans(A, B)
+[ok,mess] = equal_to_tol(A,B);
+if ~ok
+    if verLessThan('Matlab','R2016a')        
+        nl = sprintf('\n');
+    else
+        nl = newline;
+    end
     message = xunit.utils.comparisonMessage(custom_message, ...
         'Inputs are not equal.', A, B);
+    message = [message,nl,mess];
     throwAsCaller(MException('assertEqual:nonEqual', '%s', message));
 end
 
