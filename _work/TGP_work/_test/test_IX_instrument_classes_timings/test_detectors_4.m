@@ -23,6 +23,8 @@ bigtoc
  
 % Time to compare every detector array with a reference detector array
 % ----------------------------------------------------------------------
+disp(' ')
+disp('-----------------------------------------')
 bigtic;
 ok = false(1,narr);
 for i=1:narr
@@ -33,6 +35,8 @@ bigtoc('Timing equality testing:')
 
 % Comparison timing
 % ------------------
+disp(' ')
+disp('-----------------------------------------')
 bigtic;
 ok = false(1,narr);
 for i=1:narr
@@ -41,10 +45,14 @@ end
 bigtoc('Timing greater_than (objects):')
 
 
+disp(' ')
+disp('-----------------------------------------')
 bigtic;
 SDD = obj2structIndep(DD);
 bigtoc
 
+disp(' ')
+disp('-----------------------------------------')
 bigtic
 ok = false(1,narr);
 for i=1:narr
@@ -55,9 +63,11 @@ bigtoc('Timing greater_than (resolve as structures first):')
 
 % Sorting
 % ---------
+disp(' ')
+disp('-----------------------------------------')
 bigtic
 [DDsortb,ix] = gensort(DD,'resolve','indep');
-bigtoc
+bigtoc('Timing gensort')
 
 
 % Make an array of lots of repeats to test unique
@@ -73,9 +83,11 @@ ind = randperm(numel(DD2big));
 DD2big = DD2big(ind);
 
 
+disp(' ')
+disp('-----------------------------------------')
 bigtic
 [DD2big_unique,m4,n4]=genunique(DD2big,'resolve','indep');
-bigtoc
+bigtoc('Timing genunique')
 if ~isequal(DD2(1:4),DD2big_unique)
     error('Detarray unique sort not working')
 end
@@ -86,22 +98,25 @@ end
 % Create detector arrays. Call like this so that no shared pointers that
 % happens if use repmat
 DDsame = repmat(IX_detector_array,1,narr);
-bigtic
 for i=1:numel(DDsame)
     DDsame(i)=create_test_IX_detector_array(nbank,ndet,'norand');
 end
 
 % Test equality
+disp(' ')
+disp('-----------------------------------------')
 bigtic
 ok = isequalnArr(DDsame);
-bigtoc
+bigtoc('Timing isequalnArr')
 if ~ok
     error('isequalnArr failure')
 end
 
+disp(' ')
+disp('-----------------------------------------')
 bigtic
 [DDu,m4,n4]=genunique(DDsame,'resolve','indep');
-bigtoc
+bigtoc('Timing genunique')
 if ~isequal(DDsame(1),DDu)
     error('Detarray unique sort not working')
 end

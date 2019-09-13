@@ -215,12 +215,34 @@ classdef IX_mod_shape_mono
             names = names_store;
         end
         
-        function struc = scalarEmptyStrucIndep_
+        function names = propNamesPublic_
+            % Determine the visible public property names and cache the result.
+            % Code is boilerplate
+            persistent names_store
+            if isempty(names_store)
+                names_store = properties(eval(mfilename('class')));
+            end
+            names = names_store;
+        end
+        
+        function struc = scalarEmptyStructIndep_
             % Create a scalar structure with empty fields, and cache the result
             % Code is boilerplate
             persistent struc_store
             if isempty(struc_store)
                 names = eval([mfilename('class'),'.propNamesIndep_''']);
+                arg = [names; repmat({[]},size(names))];
+                struc_store = struct(arg{:});
+            end
+            struc = struc_store;
+        end
+        
+        function struc = scalarEmptyStructPublic_
+            % Create a scalar structure with empty fields, and cache the result
+            % Code is boilerplate
+            persistent struc_store
+            if isempty(struc_store)
+                names = eval([mfilename('class'),'.propNamesPublic_''']);
                 arg = [names; repmat({[]},size(names))];
                 struc_store = struct(arg{:});
             end
@@ -249,7 +271,7 @@ classdef IX_mod_shape_mono
             names = obj.propNamesIndep_';
             if ~isempty(obj)
                 tmp = obj(1);
-                S = obj.scalarEmptyStrucIndep_;
+                S = obj.scalarEmptyStructIndep_;
                 for i=1:numel(names)
                     S.(names{i}) = tmp.(names{i});
                 end
@@ -257,6 +279,110 @@ classdef IX_mod_shape_mono
                 args = [names; repmat({cell(size(obj))},size(names))];
                 S = struct(args{:});
             end
+        end
+        
+        function S = structArrIndep(obj)
+            % Return the independent properties of an object array as a structure array
+            %
+            %   >> s = structArrIndep(obj)
+            %
+            % Use <a href="matlab:help('structIndep');">structIndep</a> for behaviour that more closely matches the Matlab
+            % intrinsic function struct.
+            %
+            % Has the same behaviour as the Matlab instrinsic struct in that:
+            % - Any structure array is returned unchanged
+            % - If an object is empty, an empty structure is returned with fieldnames
+            %   but the same size as the object
+            %
+            % However, differs in the behaviour if an object array:
+            % - If the object is non-empty array, returns a structure array of the same
+            %   size. This is different to the instrinsic Matlab, which returns a scalar
+            %   structure from the first element in the array of objects
+            %
+            %
+            % See also structIndep, structPublic, structArrPublic
+            
+            if numel(obj)>1
+                S = arrayfun(@fill_it, obj);
+            else
+                S = structIndep(obj);
+            end
+            
+            function S = fill_it (obj)
+                names = obj.propNamesIndep_';
+                S = obj.scalarEmptyStructIndep_;
+                for i=1:numel(names)
+                    S.(names{i}) = obj.(names{i});
+                end
+            end
+
+        end
+        
+        function S = structPublic(obj)
+            % Return the public properties of an object as a structure
+            %
+            %   >> s = structPublic(obj)
+            %
+            % Use <a href="matlab:help('structArrPublic');">structArrPublic</a> to convert an object array to a structure array
+            %
+            % Has the same behaviour as struct in that
+            % - Any structure array is returned unchanged
+            % - If an object is empty, an empty structure is returned with fieldnames
+            %   but the same size as the object
+            % - If the object is non-empty array, returns a scalar structure corresponding
+            %   to the the first element in the array of objects
+            %
+            %
+            % See also structIndep, structArrPublic, structArrIndep
+            
+            names = obj.propNamesPublic_';
+            if ~isempty(obj)
+                tmp = obj(1);
+                S = obj.scalarEmptyStructPublic_;
+                for i=1:numel(names)
+                    S.(names{i}) = tmp.(names{i});
+                end
+            else
+                args = [names; repmat({cell(size(obj))},size(names))];
+                S = struct(args{:});
+            end
+        end
+        
+        function S = structArrPublic(obj)
+            % Return the public properties of an object array as a structure array
+            %
+            %   >> s = structArrPublic(obj)
+            %
+            % Use <a href="matlab:help('structPublic');">structPublic</a> for behaviour that more closely matches the Matlab
+            % intrinsic function struct.
+            %
+            % Has the same behaviour as the Matlab instrinsic struct in that:
+            % - Any structure array is returned unchanged
+            % - If an object is empty, an empty structure is returned with fieldnames
+            %   but the same size as the object
+            %
+            % However, differs in the behaviour if an object array:
+            % - If the object is non-empty array, returns a structure array of the same
+            %   size. This is different to the instrinsic Matlab, which returns a scalar
+            %   structure from the first element in the array of objects
+            %
+            %
+            % See also structPublic, structIndep, structArrIndep
+            
+            if numel(obj)>1
+                S = arrayfun(@fill_it, obj);
+            else
+                S = structPublic(obj);
+            end
+            
+            function S = fill_it (obj)
+                names = obj.propNamesPublic_';
+                S = obj.scalarEmptyStructPublic_;
+                for i=1:numel(names)
+                    S.(names{i}) = obj.(names{i});
+                end
+            end
+
         end
     end
     
