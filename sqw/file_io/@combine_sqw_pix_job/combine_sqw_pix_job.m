@@ -262,7 +262,7 @@ classdef combine_sqw_pix_job < JobExecutor
             if count_out ~=9*npix2read
                 error('SQW_FILE_IO:runtime_error',...
                     ' Number of pixels read %d is smaller then the number requested: %d',...
-                    count_ouf/9,npix2read);
+                    count_out/9,npix2read);
             end
             [f_message,f_errnum] = ferror(fid);
             if f_errnum ~=0
