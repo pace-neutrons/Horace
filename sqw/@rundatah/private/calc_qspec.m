@@ -15,7 +15,7 @@ function [qspec,en]=calc_qspec (obj,detdcn)
 %           (x-axis along ki, z-axis vertically upwards) ([3,ne*ndet] array)
 %   en      Energy transfer for all pixels ([1,ne*ndet] array)
 %
-%  Note: We sometimes use this routine with the energy bin boundaries replaced with 
+%  Note: We sometimes use this routine with the energy bin boundaries replaced with
 %        bin centres i.e. have fudged the array data.en
 
 % T.G.Perring 15/6/07
@@ -24,7 +24,7 @@ function [qspec,en]=calc_qspec (obj,detdcn)
 %
 % $Revision:: 1752 ($Date:: 2019-08-11 23:26:06 +0100 (Sun, 11 Aug 2019) $)
 
-    
+
 % Get components of Q in spectrometer frame (x || ki, z vertical)
 [ne,ndet]=size(obj.S);
 c=neutron_constants;
@@ -49,11 +49,22 @@ elseif obj.emode==2
     else
         eps=obj.en;        % just pass the energy values as bin centres
     end
-    ki=sqrt((obj.efix+eps)/k_to_e); % [ne x 1]
-    qspec = repmat([ki';zeros(1,ne);zeros(1,ne)],[1,ndet]) - ...
-        repmat(kf,[3,ne*ndet]).*reshape(repmat(reshape(detdcn,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);
+    ki=sqrt((obj.efix'+eps)/k_to_e); % [ne x n_efix]
+    if size(ki,2) == 1
+        qspec = repmat([ki';zeros(1,ne);zeros(1,ne)],[1,ndet]) - ...
+            repmat(kf,[3,ne*ndet]).*reshape(repmat(reshape(detdcn,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);
+    else
+        if size(ki,2) ~=ndet
+            error('RUNDATAH:invalid_argument',...
+                'Number of detector''s energies in indirect mode(%d) must be equal to the number of detectors %d',...
+                size(ki,2),ndet);
+        end
+        qspec = [ki';zeros(1,ne);zeros(1,ne)] - ...
+            repmat(kf,[3,ne*ndet]).*reshape(repmat(reshape(detdcn,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);
+        
+    end
     en=repmat(eps',1,ndet);
-
+    
 elseif obj.emode==0
     % The data is assumed to have bin boundaries as the logarithm of wavelength
     if length(obj.en)==ne+1
@@ -67,5 +78,5 @@ elseif obj.emode==0
     en=zeros(1,ne*ndet);
     
 else
-    error('RUNDATAJ:invalid_argument','EMODE must =1 (direct geometry), =2 (indirect geometry), or =0 (elastic)')
+    error('RUNDATAH:invalid_argument','EMODE must =1 (direct geometry), =2 (indirect geometry), or =0 (elastic)')
 end
