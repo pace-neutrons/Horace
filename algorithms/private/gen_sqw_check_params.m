@@ -1,6 +1,6 @@
 function [ok, mess, efix_out, emode_out, alatt_out, angdeg_out, u_out, v_out,...
-            psi_out, omega_out, dpsi_out, gl_out, gs_out] = gen_sqw_check_params...
-            (nfile, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
+    psi_out, omega_out, dpsi_out, gl_out, gs_out] = gen_sqw_check_params...
+    (nfile, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
 % Check numeric input arguments to gen_sqw are valid, and return as arrays
 %
 %   >> [ok, mess, efix_out, emode_out, alatt_out, angdeg_out, u_out, v_out,...
@@ -71,10 +71,13 @@ else
 end
 
 % Expand the input variables to vectors where values can be different for each spe file
-
-[efix_out,mess]=check_parameter_values_ok(efix,nfile,1,'efix',...
-    'the number of spe files',[0,Inf],[false,true]);
-if ~isempty(mess), return; end
+if emode == 1
+    [efix_out,mess]=check_parameter_values_ok(efix,nfile,1,'efix',...
+        'the number of spe files',[0,Inf],[false,true]);
+    if ~isempty(mess), return; end
+else % Todo data check
+    efix_out = efix;
+end
 
 [emode_out,mess]=check_parameter_values_ok(round(emode),nfile,1,'emode',...
     'the number of spe files',[0,2]);
