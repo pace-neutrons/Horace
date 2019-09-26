@@ -59,8 +59,9 @@ elseif obj.emode==2
                 'Number of detector''s energies in indirect mode(%d) must be equal to the number of detectors %d',...
                 size(ki,2),ndet);
         end
-        qspec = [ki';zeros(1,ne);zeros(1,ne)] - ...
-            repmat(kf,[3,ne*ndet]).*reshape(repmat(reshape(detdcn,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);
+        nde = ndet*ne;
+        qspec = [reshape(ki,1,nde);zeros(2,nde)]  - ...
+            repmat(kf,[ne,3])'.*reshape(permute(repmat(reshape(detdcn,[3,1,ndet]),[1,ne,1]),[1,3,2]),[3,nde]);
         
     end
     en=repmat(eps',1,ndet);
