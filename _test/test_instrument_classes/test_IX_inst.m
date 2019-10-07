@@ -94,7 +94,7 @@ classdef test_IX_inst < TestCaseWithSave
             % Test creation of disk chopper instrument
             instru = IX_inst_DGdisk (self.mod_DGdisk, self.shape_DGdisk, self.mono_DGdisk,...
                 self.hdiv_DGdisk, self.vdiv_DGdisk);
-            assertEqualWithSave (self,instru);
+            assertEqualWithSave(self,instru);
         end
         
         %--------------------------------------------------------------------------

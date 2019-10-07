@@ -1,4 +1,4 @@
-function conf = load_configuration_(obj,set_config,set_def_only)
+function conf = load_configuration_(obj,set_config,set_def_only,force_save)
 % method loads the previous configuration, which
 % stored as optimal for this computer and, if set_config option is true,
 % configures Horace and Herbert using loaded configurations
@@ -37,4 +37,8 @@ for i=1:numel(flds)
     end
     settings = conf.(flds{i});
     conf_cl.set_stored_data(settings);
+    if force_save
+        config_store.instance().store_config(conf_cl,'-forcesave');
+    end
+
 end

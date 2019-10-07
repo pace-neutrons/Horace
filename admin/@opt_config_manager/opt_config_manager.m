@@ -133,14 +133,19 @@ classdef opt_config_manager
             %       configured only the configurations, which values are
             %       currently set to default not overwritng existign user
             %       settings
+            % '-force_save' if this option is present, the
+            %       configuration, loaded from the defaults is stored in
+            %       configuration file for future use on this computer
+            %       regardless of the fact if this configuration is
+            %       different from a default configuration or not.
             %
             % Returns the structure, containing loaded configurations.
             %
-            [ok,mess,set_config,set_def_only] = parse_char_options(varargin,...
-                {'-set_config','-change_only_default'});
+            [ok,mess,set_config,set_def_only,force_save] = parse_char_options(varargin,...
+                {'-set_config','-change_only_default','-force_save'});
             if ~ok; error('OPT_CONFIG_MANAGER:invalid_argument',mess);
             end
-            conf = load_configuration_(obj,set_config,set_def_only);
+            conf = load_configuration_(obj,set_config,set_def_only,force_save);
         end
         function [pc_type,nproc,mem_size] = find_comp_type(obj)
             % analyze pc parameters (memory, number of processors etc.)
