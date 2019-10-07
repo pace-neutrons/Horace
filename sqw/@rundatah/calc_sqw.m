@@ -83,6 +83,9 @@ det0 = obj.det_par;
 if ~(detdcn_provided || qspec_provided)
     % Masked detectors (i.e. containing NaN signal) are removed from data and detectors
     [obj.S,obj.ERR,obj.det_par]  = obj.rm_masked();
+    if isempty(obj.S) || isempty(obj.ERR)
+        error('File %s contains only masked detectors', obj.data_file_name);
+    end
 end
 if ~exist('grid_size_in','var')
     grid_size_in = [50,50,50,50];
