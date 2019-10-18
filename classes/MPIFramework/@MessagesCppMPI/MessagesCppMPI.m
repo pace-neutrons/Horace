@@ -29,9 +29,9 @@ classdef MessagesCppMPI < iMessagesFramework
         time_to_react_ = 1; % (sec)
         %
         % equivalent to labNum in MPI
-        task_id_ = 0;
+        task_id_ = -1;
         %
-        numLabs_ = 1;
+        numLabs_ = 0;
         %
         %
         mpi_framework_holder_ = [];
@@ -163,6 +163,8 @@ classdef MessagesCppMPI < iMessagesFramework
                 obj.mpi_framework_holder_ = ...
                     cpp_communicator('finalize',obj.mpi_framework_holder_);
             end
+            obj.task_id_ = -1;
+            obj.numLabs_ = 0;
         end
         function clear_messages(obj)
             % implementation unclear
@@ -187,16 +189,6 @@ classdef MessagesCppMPI < iMessagesFramework
     end
     %----------------------------------------------------------------------
     methods (Access=protected)
-        function mess_fname = job_stat_fname_(obj,lab_to,mess_name,lab_from)
-            %build filename for a specific message
-            if ~exist('lab_from','var')
-                lab_from = obj.labIndex;
-            end
-            mess_fname= fullfile(obj.mess_exchange_folder,...
-                sprintf('mess_%s_FromN%d_ToN%d.mat',...
-                mess_name,lab_from,lab_to));
-            
-        end
         function ind = get_lab_index_(obj)
             ind = obj.task_id_;
         end
@@ -206,10 +198,9 @@ classdef MessagesCppMPI < iMessagesFramework
         function [obj,labNum,nLabs]=lab_index_tester(obj)
             % get labindex and number of MPI lab quering messaging
             % framework directrly
-            [obj.mpi_framework_holder_,labNum,obj.numLabs_]= ...
+            [obj.mpi_framework_holder_,obj.task_id_,obj.numLabs_]= ...
                 cpp_communicator('labIndex',obj.mpi_framework_holder_);
-            labNum = labNum+1;
-            obj.task_id_ = labNum;
+            labNum = obj.task_id_;
             nLabs  = obj.numLabs_;
         end
         

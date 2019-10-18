@@ -7,7 +7,8 @@
 class MPI_wrapper {
 public:
 
-	MPI_wrapper() {}
+	MPI_wrapper():
+        labIndex(-1), numProcs(0){}
 	int init();
 	void close();
 

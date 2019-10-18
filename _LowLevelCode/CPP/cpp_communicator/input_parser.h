@@ -53,6 +53,7 @@ enum class closeOrGetInfoInputs : int { // all input arguments for close IO proc
 
 
 enum class read_Out :int { // output arguments for read procedure
+    comm_ptr,   // the pointer to class responsible for MPI communications
 	pix_array,
 	is_io_completed,
 	mex_reader_handle,
@@ -61,7 +62,7 @@ enum class read_Out :int { // output arguments for read procedure
 };
 
 enum class labIndex_Out :int { // output arguments for labIndex procedure
-	comm_ptr,   // the pointer to MPI pointer
+	comm_ptr,   // the pointer to class responsible for MPI communications
 	numLab,     // number current worker
 	n_workers,  // number of workers in the pull/
 

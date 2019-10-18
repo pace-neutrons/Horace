@@ -44,9 +44,8 @@ end
 if ~isempty(obj.mpi_framework_holder_)
     cpp_communicator('finalize',obj.mpi_framework_holder_);
 end
-[obj.mpi_framework_holder_,labNum,obj.numLabs_]= cpp_communicator('init');
-% Matlab labNumber starts from 1 and not from 0 as in C++
-obj.task_id_ = labNum+1;
+[obj.mpi_framework_holder_,obj.task_id_,obj.numLabs_]= cpp_communicator('init');
+
 
 
 
