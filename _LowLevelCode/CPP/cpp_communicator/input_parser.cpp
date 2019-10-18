@@ -25,6 +25,29 @@ T retrieve_value(const char*err_id, const mxArray *prhs) {
 	return static_cast<T>(pVector[0]);
 }
 
+size_t   get_byte_length(const char*err_id, const mxArray *prhs) {
+
+
+    mxClassID category = mxGetClassID(prhs);
+    switch (category) {
+    case mxINT8_CLASS:   return 1;
+    case mxUINT8_CLASS:  return 1;
+    case mxINT16_CLASS:  return 2;
+    case mxUINT16_CLASS: return 2;
+    case mxINT32_CLASS:  return 4;
+    case mxUINT32_CLASS: return 4;
+    case mxINT64_CLASS:  return 8;
+    case mxUINT64_CLASS: return 8;
+    case mxSINGLE_CLASS: return 4;
+    case mxDOUBLE_CLASS: return 8;
+    default: {
+        std::stringstream buf;
+        buf << " The input for " << err_id << "contains unknown vector type\n";
+        mexErrMsgIdAndTxt("MPI_MEX_COMMUNICATOR:invalid_argument", buf.str().c_str());
+    };
+    }
+}
+
 template<class T>
 T* retrieve_vector(const char*err_id, const mxArray *prhs, size_t &vec_size, int &vec_bytes) {
 
