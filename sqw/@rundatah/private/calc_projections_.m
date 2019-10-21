@@ -86,7 +86,8 @@ if use_mex
             det  = obj.det_par;
             efix  = obj.efix;
             emode = obj.emode;
-            %nThreads = 8;
+            %proj_mode = 2;
+            %nThreads = 1;
             [urange,pix] =calc_projections_c(spec_to_u, data, det, efix, k_to_e, emode, nThreads,proj_mode);
         catch  ERR % use Matlab routine
             warning('HORACE:using_mex','Problem with C-code: %s, using Matlab',ERR.message);
