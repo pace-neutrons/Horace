@@ -14,12 +14,23 @@ end
 if isempty(filename) % file is already closed
     return
 end
-err=fclose(fh);
+try
+    err=fclose(fh);
+catch
+    err = -1000;
+end
 ws=warning('off','MATLAB:DELETE:Permission');
 permission_denied = false;
 while exist(filename,'file')==2 || permission_denied
     if err ~=0
-        err= fclose(fh);
+        try
+            err= fclose(fh);
+        catch
+            err = -1000;
+            permission_denied=true;            
+            pause(0.1)
+            continue;
+        end
     end
     delete(filename);
     [~,warn_id] = lastwarn;
