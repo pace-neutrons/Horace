@@ -62,14 +62,11 @@ end
 if isempty(en_max) || en_min==en_max
     en = [en_min-1,en_min+1];
 else
-    %bin_size = 0.5*(en_max-en_min);
-    %en = [en_min-bin_size;en_min+bin_size;en_max+bin_size];
     en = [en_min*(1-sign(enps(1))*eps);en_max*(1+sign(enps(1))*eps)];
     
 end
 
 nen  = numel(en);
-%
 ndet = numel(det.x2);
 
 %
