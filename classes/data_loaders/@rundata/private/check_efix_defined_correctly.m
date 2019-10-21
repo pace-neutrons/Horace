@@ -30,9 +30,13 @@ if this.emode == 1
         efix = sprintf('Emode=1 and efix incompartible with max energy transfer, efix: %f max(dE): %f',efix,bin_bndry);
     end
 elseif this.emode == 2
+    efix_min = min(efix);
     bin_bndry = this.en(1);
-    if efix+bin_bndry<0
-        efix = sprintf('Emode=2 and efix is incompartible with min energy transfer, efix: %f min(dE): %f',efix,bin_bndry);
+    if efix_min+bin_bndry<0
+        bin_centers = 0.5*(this.en(1:end-1)+this.en(2:end));
+        if efix_min+bin_centers(1)<0
+            efix = sprintf('Emode=2 and efix is incompartible with min energy transfer, efix: %f min(dE): %f',efix,bin_bndry);
+        end
     end
 else
     efix = 'no efix for elastic mode';

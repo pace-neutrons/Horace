@@ -152,14 +152,23 @@ for i=1:n_dfnd_params
         elseif numel(val)==3
             args{i}=num2cell(repmat(val(:)',[n_files,1]),2)';   % 1 x nfiles cell array
         else
-            error('GEN_RUNFILES:invalid_argument','parameter %s must be a 3-element vector or a [%d x 3] array of doubles',parameter_nams{i},n_files);
+            error('GEN_RUNFILES:invalid_argument',...
+                'parameter %s must be a 3-element vector or a [%d x 3] array of doubles',...
+                parameter_nams{i},n_files);
         end
     elseif strcmpi(name,'efix') && params{2}==2 % emode == 2
         if size(val,2) ~= n_files
             if size(val,2) ~=1
-                error('GEN_RUNFILES:invalid_argument','size of Efix in indirect mode can be a single value, row of values  1x%d size or matrix of [ndet x %d] size',n_files,n_files);
+                if size(val,1) == 1
+                    val = val';
+                else
+                    error('GEN_RUNFILES:invalid_argument',...
+                        ['size of Efix in indirect mode can be a single value,'...
+                        ' row of values  1x%d size or matrix of [ndet x %d] size'],...
+                        n_files,n_files);
+                end
             end
-            args{i} =num2cell(repmat(val,1,n_files),1);
+            args{i} =num2cell(val,1);
         else
             args{i} = num2cell(val,1);
         end
