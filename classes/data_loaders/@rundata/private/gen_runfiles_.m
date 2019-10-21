@@ -141,6 +141,8 @@ end
 
 n_dfnd_params = numel(params);
 args=cell(1,n_dfnd_params);
+emode = params{2};
+emode = emode(1);
 
 % Transform all arrays with one dimension of n_files into cell arrays
 for i=1:n_dfnd_params
@@ -156,7 +158,7 @@ for i=1:n_dfnd_params
                 'parameter %s must be a 3-element vector or a [%d x 3] array of doubles',...
                 parameter_nams{i},n_files);
         end
-    elseif strcmpi(name,'efix') && params{2}==2 % emode == 2
+    elseif emode == 2 && strcmpi(name,'efix') % emode == 2
         if size(val,2) ~= n_files
             if size(val,2) ~=1
                 if size(val,1) == 1
