@@ -61,9 +61,9 @@ end
 %
 if isempty(en_max) || en_min==en_max
     en = [en_min-1,en_min+1];
-else
-    bin_size = 0.5*(en_max-en_min);
-    en = [en_min-bin_size;en_min+bin_size;en_max+bin_size];
+else    
+   bin_size = 0.5*(en_max-en_min);        
+   en = [en_min-bin_size;en_min+bin_size;en_max+bin_size];    
 end
 
 if rdl.emode == 1
@@ -82,14 +82,15 @@ if rdl.emode == 1
         end
     end
 elseif rdl.emode == 2
-    if rdl.efix+en(1)<0
-        enps = (en(2:end)+en(1:end-1))/2;
-        if rdl.efix+enps(1)<0
-            en = [-rdl.efix;-rdl.efix+eps;enps(end)-eps;enps(end)+eps];
+    e_fix_min = min(rdl.efix);
+    if e_fix_min+en(1)<0
+        enps = (rdl.en(2:end)+rdl.en(1:end-1))/2;
+        if e_fix_min+enps(1)<0
+            en = [-e_fix_min;-e_fix_min+eps;enps(end)-eps;enps(end)+eps];
         else
-            bin_size = (rdl.efix-en(1))*(1-eps);
-            en = [enps-bin_size;enps-bin_size];
-            en = reshape(en',numel(en),1);
+            bin_hsize=0.5*(rdl.en(2)-rdl.en(1));
+            base = [enps(1)*(1-sign(enps(1))*eps);enps(end)*(1+sign(enps(1))*eps)];
+            en = [base(1)-bin_hsize;base(1)+bin_hsize;base(2)-bin_hsize;base(2)+bin_hsize];
         end
     end
 end
