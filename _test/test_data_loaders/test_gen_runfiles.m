@@ -26,6 +26,9 @@ classdef test_gen_runfiles< TestCase
     end
     methods
         function this=test_gen_runfiles(name)
+            if nargin<1
+                name = 'test_gen_runfiles';
+            end
             this = this@TestCase(name);
             
             rootpath=fileparts(which('herbert_init.m'));
@@ -87,7 +90,44 @@ classdef test_gen_runfiles< TestCase
                 mf.save(this.test_files{i});
             end
         end
-        
+        %
+        function test_genrunfiles_indirect(this)
+            emode2 = 2*ones(size(this.emode));
+            
+            run_files = rundata.gen_runfiles(this.test_files,this.par_file,this.efix,emode2,this.alatt,this.angdeg,...
+                this.u,this.v,this.psi,this.omega,this.dpsi,this.gl,this.gs);
+            for i=1:this.nfiles_max
+                assertTrue(isempty(run_files{i}.S));
+                assertTrue(isempty(run_files{i}.ERR));
+                [efixl,enl,emodel,ndetl]=get_rundata(run_files{i},...
+                    'efix','en','emode','n_detectors',...
+                    '-rad');
+                assertEqual(efixl,this.efix(i));
+                assertEqual(enl,this.en{i}');
+                assertEqual(emodel,2);
+                assertEqual(ndetl,28160);
+            end
+            efix_dif = repmat(this.efix',1,ndetl);
+            dE = 0.01*(1:ndetl);
+            dE_var = repmat(dE,this.nfiles_max,1);
+            efix_dif  = efix_dif +dE_var;
+            
+            run_files = rundata.gen_runfiles(this.test_files,this.par_file,efix_dif,emode2,this.alatt,this.angdeg,...
+                this.u,this.v,this.psi,this.omega,this.dpsi,this.gl,this.gs);
+            for i=1:this.nfiles_max
+                assertTrue(isempty(run_files{i}.S));
+                assertTrue(isempty(run_files{i}.ERR));
+                [efixl,enl,emodel,ndetl]=get_rundata(run_files{i},...
+                    'efix','en','emode','n_detectors',...
+                    '-rad');
+                assertEqual(efixl,efix_dif(i,:));
+                assertEqual(enl,this.en{i}');
+                assertEqual(emodel,2);
+                assertEqual(ndetl,28160);
+            end
+            
+                    
+        end
         
         function test_genrunfiles(this)
             
