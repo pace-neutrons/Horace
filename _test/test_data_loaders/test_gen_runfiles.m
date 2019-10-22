@@ -111,7 +111,7 @@ classdef test_gen_runfiles< TestCase
             dE = 0.01*(1:ndetl);
             dE_var = repmat(dE,this.nfiles_max,1);
             efix_dif  = efix_dif +dE_var;
-            
+            % check array
             run_files = rundata.gen_runfiles(this.test_files,this.par_file,efix_dif,emode2,this.alatt,this.angdeg,...
                 this.u,this.v,this.psi,this.omega,this.dpsi,this.gl,this.gs);
             for i=1:this.nfiles_max
@@ -125,8 +125,30 @@ classdef test_gen_runfiles< TestCase
                 assertEqual(emodel,2);
                 assertEqual(ndetl,28160);
             end
+            % check vector:
+            run_files = rundata.gen_runfiles(this.test_files,this.par_file,efix_dif(1,:),emode2,this.alatt,this.angdeg,...
+                this.u,this.v,this.psi,this.omega,this.dpsi,this.gl,this.gs);
+            for i=1:this.nfiles_max
+                assertTrue(isempty(run_files{i}.S));
+                assertTrue(isempty(run_files{i}.ERR));
+                [efixl,enl,emodel,ndetl]=get_rundata(run_files{i},...
+                    'efix','en','emode','n_detectors',...
+                    '-rad');
+                assertEqual(efixl,efix_dif(1,:));
+                assertEqual(enl,this.en{i}');
+                assertEqual(emodel,2);
+                assertEqual(ndetl,28160);
+            end
             
-                    
+            % check wrong number of detectors
+            efix_wrong = efix_dif(1:2,1:10);
+            run_files = rundata.gen_runfiles(this.test_files(1:2),this.par_file,...
+                efix_wrong,2,this.alatt,this.angdeg,...
+                 this.u,this.v,this.psi(1:2),...
+                 this.omega(1:2),this.dpsi(1:2),this.gl(1:2),this.gs(1:2));            
+              e_fix = run_files{1}.efix;
+              assertTrue(ischar(e_fix))
+              assertTrue(strncmp(e_fix,'Emode=2',7));
         end
         
         function test_genrunfiles(this)

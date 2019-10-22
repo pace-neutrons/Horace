@@ -334,8 +334,8 @@ end
 function res = spread_vector(val,n_files,n_components,name)
 if numel(size(val))==2 && all(size(val)==[n_files,n_components])
     res=num2cell(val,2)';   % 1 x nfiles cell array
-elseif numel(val)==3
-    res=num2cell(repmat(val(:)',[n_files,1]),2)';   % 1 x nfiles cell array
+elseif numel(val)==n_components
+    res=num2cell(repmat(val(:)',[n_files,1]),2)';   % 1 x nfiles cell array containing n_components vectors
 else
     error('GEN_RUNFILES:invalid_argument',...
         'parameter %s must be a %d-element vector or a [%d x %d] array of doubles',...

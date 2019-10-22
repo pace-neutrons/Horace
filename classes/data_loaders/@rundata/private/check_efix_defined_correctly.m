@@ -46,7 +46,25 @@ elseif this.emode == 2
     else
         bin_bndry = this.en(1);
     end
-    
+    n_efix = numel(efix);
+    % check that if n_efix is array, its size is equal to the size of the
+    % detectors array
+    if n_efix>1
+        if isempty(this.S)
+            ldr = this.loader__;
+            if isempty(ldr)
+                return;
+            end
+            n_det = ldr.n_detectors;
+        else
+            n_det = size(this.S,2);
+        end
+        if n_det ~= n_efix
+            efix = sprintf(['Emode=2. If efix is a vector,'...
+                ' its size has to be equal to number of detectors. In fact: n_efix: %d, n_detectors: %d'],...
+                n_efix,n_det);
+        end
+    end
     
     if efix_min+bin_bndry<0
         efix = sprintf('Emode=2 and efix is incompartible with min energy transfer, efix: %f min(dE): %f',efix,bin_bndry);
