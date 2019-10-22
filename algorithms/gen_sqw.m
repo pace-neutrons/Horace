@@ -346,7 +346,7 @@ end
 
 % If no input data range provided, calculate it from the files
 if ~accumulate_old_sqw
-    if isempty(urange_in)
+    if isempty(urange_in) %&& all(grid_size_in == [1,1,1,1])
         urange_in = find_urange(run_files,efix,emode,ix,indx,log_level); %calculate urange from all runfiles
     end
     run_files = run_files(ix); % select only existing runfiles for further processing
