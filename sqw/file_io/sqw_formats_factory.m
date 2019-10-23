@@ -185,7 +185,7 @@ classdef sqw_formats_factory < handle
                     end
                     emode = header.emode;                    
                     if emode == 2
-                        nefix = numel(header.efixed);
+                        nefix = numel(header.efix);
                         if nefix>1
                             the_type = 'sqw2';
                         end

@@ -52,13 +52,9 @@ for i=1:numel(w)
     if isempty(w(i).main_header) %TODO:  OOP violation -- save dnd should be associated with dnd class
         sqw_type = false;
         ldw = sqw_formats_factory.instance().get_pref_access('dnd');
-    else        
+    else
         sqw_type = true;
-        if w(i).header.emode == 2 && numel(w(i).header.efix)>1
-            ldw = sqw_formats_factory.instance().get_pref_access('sqw2');            
-        else
-            ldw = sqw_formats_factory.instance().get_pref_access('sqw');
-        end
+        ldw = sqw_formats_factory.instance().get_pref_access(w(i));
     end
     
     % Write data to file   x
