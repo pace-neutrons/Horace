@@ -100,20 +100,22 @@ if header.emode == 1
         return;
     end
 elseif header.emode == 2
-    if ~isa_size(header.efix,'scalar','double') 
+    if ~isa_size(header.efix,'scalar','double')
         ndet = size(header.efix);
         if ~isa_size(header.efix,ndet,'double')
             mess='ERROR: Field ''efix'' in Indirect mode must be a numeric scalar or array of size equal to number of detectors';
-            return;            
+            return;
         end
     end
     
 else
-    if ~strncmpi(header.efix,'no efix for elastic',19) % elastic mode
+    if (isnumeric(header.efix) && header.efix==0) ||...
+            (ischar(header.efix) && strncmpi(header.efix,'no efix for elastic',19)) % elastic mode
+        header.efix = 0;
+    else
         mess='ERROR: Field ''efix'' must be a numeric scalar';
         return;
-    else
-        header.efix = 0;
+        
     end
 end
 
