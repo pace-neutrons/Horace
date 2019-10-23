@@ -54,6 +54,23 @@ double getMatlabScalar(const mxArray *pPar, const char * const fieldName) {
     }
     return (double)*mxGetPr(pPar);
 };
+void getMatlabVector(const mxArray *pPar, double *&pValue, size_t &NComponents, const char * const fieldName) {
+    if (pPar == NULL) {
+        std::stringstream buf;
+        buf << "The parameter: " << *fieldName << " has to be defined\n";
+        mexErrMsgTxt(buf.str().c_str());
+    }
+    auto NRows = mxGetM(pPar);
+    auto NCols = mxGetN(pPar);
+    if (!(NRows == 1 || NCols == 1)) {
+        std::stringstream buf;
+        buf << "The variable " << *fieldName << " should be 1-dimensional array\n";
+        mexErrMsgTxt(buf.str().c_str());
+    }
+    NComponents = size_t(NRows*NCols);
+    pValue = mxGetPr(pPar);
+};
+
 
 
 //
@@ -61,9 +78,9 @@ double getMatlabScalar(const mxArray *pPar, const char * const fieldName) {
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
     unsigned int nThreads(1), i;
-    size_t nDataPoints, nEnShed;
+    size_t nDataPoints(0), nEnShed(0), nEfixed(0);
     mwSize nDetectors, nEnergies;
-    double efix, k_to_e;
+    double *pEfix(nullptr), k_to_e;
     urangeModes uRange_mode;
 
     const char REVISION[] = "$Revision:: 1752 ($Date:: 2019-08-11 23:26:06 +0100 (Sun, 11 Aug 2019) $)";
@@ -115,7 +132,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     double *pDetPhi = (double *)mxGetPr(mxGetField(prhs[Detectors], 0, "phi"));
     double *pDetPsi = (double *)mxGetPr(mxGetField(prhs[Detectors], 0, "azim"));
 
-    efix = getMatlabScalar(prhs[nEfix], "variable efix");
+
+    getMatlabVector(prhs[nEfix], pEfix, nEfixed, "efix");
     k_to_e = getMatlabScalar(prhs[nK_to_e], "variable k_to_e");
     int ieMode = (int)getMatlabScalar(prhs[nEmode], "variable eMode");
     if (ieMode < 0 || ieMode > 2) {
@@ -168,6 +186,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     if (nDataPoints != nDetectors) {
         mexErrMsgTxt("spectrum data are not consistent with the detectors data");
+    }
+    if (!(nEfixed == nDetectors || nEfixed == 1)) {
+        mexErrMsgTxt("Efixed should be either single value or vector of nDetector's length");
     }
 
     mxArray *mapDet = mxGetField(prhs[Detectors], 0, "group");
@@ -270,7 +291,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     double *pTransfDet = (double *)mxGetPr(plhs[1]);
     try {
         calc_projections_emode(pMinMax, pTransfDet, mode, uRange_mode, pSignal, pError, pDetGroup,
-            pProj_matrix, pEnPoints, nEnPoints, pDetPhi, pDetPsi, nDetectors, efix, k_to_e, nThreads);
+            pProj_matrix, pEnPoints, nEnPoints, pDetPhi, pDetPsi, nDetectors, pEfix, nEfixed, k_to_e, nThreads);
         mxFree(pEnPoints);
     }
     catch (char const *err) {
@@ -292,7 +313,7 @@ void calc_projections_emode(double * const pMinMax,
     double const * const pSignal, double const * const pError, double const * const pDetGroup,
     double const * const pMatrix, double const * const pEnergies, mwSize nEnergies,
     double const * const pDetPhi, double const * const pDetPsi, mwSize nDetectors,
-    double efix, double k_to_e, int nThreads)
+    double const * const pEfix, size_t nEfixed, double k_to_e, int nThreads)
 {
     /********************************************************************************************************************
     * Calculate projections in direct mode;
@@ -310,34 +331,41 @@ void calc_projections_emode(double * const pMinMax,
     */
 
 
-    double ki, *pKf;
-    ki = sqrt(efix / k_to_e);
-    //    kf=sqrt((efix-eps)/k_to_e); % [nEnergies x 1]
+    double ki, *pKf(nullptr);
+    bool singleEfixed(true);
+    if (nEfixed == 1) {
+        double efix = *pEfix;
+        ki = sqrt(efix / k_to_e);
+        //    kf=sqrt((efix-eps)/k_to_e); % [nEnergies x 1]
 
-    pKf = (double *)mxCalloc(nEnergies, sizeof(double));
-    if (!pKf) { throw(" Can not allocate temporary memory for array of wave vectors"); }
-    // 
-    for (mwSize i = 0; i < nEnergies; i++)
-    {
-        switch (emode)
+        pKf = (double *)mxCalloc(nEnergies, sizeof(double));
+        if (!pKf) { throw(" Can not allocate temporary memory for array of wave vectors"); }
+        // 
+        for (mwSize i = 0; i < nEnergies; i++)
         {
-        case Direct:
-        {
-            pKf[i] = sqrt((efix - pEnergies[i]) / k_to_e);
-            break;
+            switch (emode)
+            {
+            case Direct:
+            {
+                pKf[i] = sqrt((efix - pEnergies[i]) / k_to_e);
+                break;
+            }
+            case Indirect:
+            {
+                pKf[i] = sqrt((efix + pEnergies[i]) / k_to_e);
+                break;
+            }
+            case Elastic:
+            {
+                // in this case, energies array should contain wavelength
+                pKf[i] = 2 * Pi / (pEnergies[i]);
+                break;
+            }
+            }
         }
-        case Indirect:
-        {
-            pKf[i] = sqrt((efix + pEnergies[i]) / k_to_e);
-            break;
-        }
-        case Elastic:
-        {
-            // in this case, energies array should contain wavelength
-            pKf[i] = 2 * Pi / (pEnergies[i]);
-            break;
-        }
-        }
+    }
+    else {
+        singleEfixed = false;
     }
 
     omp_set_num_threads(nThreads);
@@ -346,7 +374,7 @@ void calc_projections_emode(double * const pMinMax,
     std::vector<double> qe_max(4 * nThreads, -FLT_MAX);
 #pragma omp parallel default(none)  \
     shared(pKf,qe_min,qe_max) \
-    firstprivate(nDetectors,nEnergies,ki,urange_mode,emode) //\
+    firstprivate(nDetectors,nEnergies,ki,urange_mode,emode,singleEfixed,pEfix,pEnergies) //\
     //reduction(min: q1_min,q2_min,q3_min,e_min; max: q1_max,q2_max,q3_max,e_max)
     {
 #pragma omp for 
@@ -359,6 +387,11 @@ void calc_projections_emode(double * const pMinMax,
             double ex = cos(phi);
             double ey = sPhi * cos(psi);
             double ez = sPhi * sin(psi);
+            double k_f;
+            if (singleEfixed)
+                k_f = ki; // Used in indirect mode only
+            else
+                k_f = sqrt(pEfix[ii] / k_to_e);
 
             //    q(1:3,:) = repmat([ki;0;0],[1,ne*ndet]) - ...
             //        repmat(kf',[3,ndet]).*reshape(repmat(reshape(detdcn,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);
@@ -376,9 +409,14 @@ void calc_projections_emode(double * const pMinMax,
                 }
                 case Indirect:
                 {
-                    q1 = pKf[j] - ex * ki;
-                    q2 = -ey * ki;
-                    q3 = -ez * ki;
+                    if (singleEfixed)
+                        q1 = pKf[j] - ex * k_f;
+                    else {
+                        double k_i = sqrt((pEfix[ii] + pEnergies[j]) / k_to_e);
+                        q1 = k_i - ex * k_f;
+                    }
+                    q2 = -ey * k_f;
+                    q3 = -ez * k_f;
                     break;
 
                 }
@@ -457,8 +495,7 @@ void calc_projections_emode(double * const pMinMax,
         } // end omp for
 
     }  // end parallel block 
-
-    mxFree(pKf);
+    if (pKf)mxFree(pKf);
     // mvs do not support reduction min/max Shame! Calculate single threaded here
     for (int i = 0; i < 4; i++) {
         pMinMax[2 * i + 0] = 1.e+38;
