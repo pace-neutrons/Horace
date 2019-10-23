@@ -173,6 +173,10 @@ classdef sqw_formats_factory < handle
             %            Throws 'SQW_FILE_IO:invalid_argument' if the type
             %            is not among the types specified above.
             %
+            if nargin <2
+                loader = obj.supported_accessors_{1};
+                return
+            end
             if ischar(varargin{1})
                 the_type = varargin{1};
             else
@@ -182,8 +186,11 @@ classdef sqw_formats_factory < handle
                     header =sobj.header;
                     if iscell(header)
                         header = header{1};
+                    elseif isempty(header)
+                        loader = obj.supported_accessors_{1};
+                        return;
                     end
-                    emode = header.emode;                    
+                    emode = header.emode;
                     if emode == 2
                         nefix = numel(header.efix);
                         if nefix>1
@@ -217,8 +224,8 @@ classdef sqw_formats_factory < handle
             % currently returns true either for the same type of
             % accessors (class(obj1)==class(obj2)) or when
             % class(obj1) == 'faccess_sqw_v2' and class(obj2) == 'faccess_sqw_v3'.
-            % 
-            %NOTE: 
+            %
+            %NOTE:
             % faccess_sqw_v3 is not compartible with faccess_sqw_v3_2 as
             % contains different information about detectors.
             if isa(obj2,class(obj1))
