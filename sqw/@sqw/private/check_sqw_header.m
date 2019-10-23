@@ -90,7 +90,25 @@ mess='';
 % Not exhaustive, as doesn't check numerical values
 if ~is_string_or_empty_string(header.filename), mess='ERROR: Field ''filename'' must be a character string'; return; end
 if ~is_string_or_empty_string(header.filepath), mess='ERROR: Field ''filepath'' must be a character string'; return; end
-if ~isa_size(header.efix,'scalar','double')  %HACK !
+
+if ~isa_size(header.emode,'scalar','double') || ~(header.emode==1 || header.emode==2 || header.emode==0)
+    mess='ERROR: Field ''emode'' must be a number equal to either 1 or 2'; return; end
+
+if header.emode == 1
+    if ~isa_size(header.efix,'scalar','double')
+        mess='ERROR: Field ''efix'' must be a numeric scalar';
+        return;
+    end
+elseif header.emode == 2
+    if ~isa_size(header.efix,'scalar','double') 
+        ndet = size(header.efix);
+        if ~isa_size(header.efix,ndet,'double')
+            mess='ERROR: Field ''efix'' in Indirect mode must be a numeric scalar or array of size equal to number of detectors';
+            return;            
+        end
+    end
+    
+else
     if ~strncmpi(header.efix,'no efix for elastic',19) % elastic mode
         mess='ERROR: Field ''efix'' must be a numeric scalar';
         return;
@@ -98,8 +116,7 @@ if ~isa_size(header.efix,'scalar','double')  %HACK !
         header.efix = 0;
     end
 end
-if ~isa_size(header.emode,'scalar','double') || ~(header.emode==1 || header.emode==2 || header.emode==0)
-    mess='ERROR: Field ''emode'' must be a number equal to either 1 or 2'; return; end
+
 if ~isa_size(header.alatt,'vector','double'), mess='ERROR: Field ''alatt'' must be a numeric vector length 3'; return; end
 if ~isa_size(header.angdeg,'vector','double'), mess='ERROR: Field ''andeg'' must be a numeric vector length 3'; return; end
 if ~isa_size(header.cu,'vector','double'), mess='ERROR: Field ''cu'' must be a numeric vector length 3'; return; end

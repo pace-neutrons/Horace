@@ -43,17 +43,15 @@ if obj.emode==1
     en=repmat(eps',1,ndet);
     
 elseif obj.emode==2
+    %kf=sqrt(obj.efix(:)'/k_to_e);
     kf=sqrt(obj.efix/k_to_e);
     if length(obj.en)==ne+1
         eps=(obj.en(2:end)+obj.en(1:end-1))/2;    % get bin centres
     else
         eps=obj.en;        % just pass the energy values as bin centres
     end
-    ki=sqrt((obj.efix'+eps)/k_to_e); % [ne x n_efix]
-    if size(ki,2) == 1
-        qspec = repmat([ki';zeros(1,ne);zeros(1,ne)],[1,ndet]) - ...
-            repmat(kf,[3,ne*ndet]).*reshape(repmat(reshape(detdcn,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);
-    else
+    if numel(obj.efix) > 1
+        ki = sqrt(bsxfun(@plus,obj.efix(:)',eps(:))/k_to_e); % [ne x n_det]
         if size(ki,2) ~=ndet
             error('RUNDATAH:invalid_argument',...
                 'Number of detector''s energies in indirect mode(%d) must be equal to the number of detectors %d',...
@@ -61,8 +59,14 @@ elseif obj.emode==2
         end
         nde = ndet*ne;
         qspec = [reshape(ki,1,nde);zeros(2,nde)]  - ...
-            repmat(kf,[ne,3])'.*reshape(permute(repmat(reshape(detdcn,[3,1,ndet]),[1,ne,1]),[1,3,2]),[3,nde]);
-        
+            reshape(repmat(kf,[ne,1,3]),[nde,3])'.*...
+            reshape(repmat(reshape(detdcn,[3,1,ndet]),[1,ne,1]),[3,nde]);
+    else
+        ki=sqrt((obj.efix+eps(:))/k_to_e); % [ne x 1]
+        % building sequence Det1{dE1,dE2,...dEN},Det2{dE1,dE2,...dEN}... DetN{dE1,dE2,...dEN}
+        % note [3,_1_,ndet] vs [1,_ne_,1]
+        qspec = repmat([ki';zeros(2,ne)],[1,ndet]) - ...
+            kf*reshape(repmat(reshape(detdcn,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);
     end
     en=repmat(eps',1,ndet);
     
