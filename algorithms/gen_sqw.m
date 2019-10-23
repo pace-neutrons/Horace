@@ -335,17 +335,17 @@ end
 % check runfiles correctness
 if emode ~= 0
     for i=1:numel(run_files)
-        en = run_files{i}.en;
-        if ischar(en)
+        en_tst = run_files{i}.en;
+        if ischar(en_tst)
             [~,dfn,dfe] = fileparts(run_files{i}.data_file_name);
             error('GEN_SQW:invalid_argument',...
-                'file: %s, N%d, has incorrect energy bins: %s',[dfn,dfe],i,en);
+                'file: %s, N%d, has incorrect energy bins: %s',[dfn,dfe],i,en_tst);
         end
-        efix = run_files{i}.efix;
-        if ischar(efix)
+        efix_tst = run_files{i}.efix;
+        if ischar(efix_tst)
             [~,dfn,dfe] = fileparts(run_files{i}.data_file_name);
             error('GEN_SQW:invalid_argument',...
-                'file: %s, N%d, has incorrect efixed: %s',[dfn,dfe],i,efix);
+                'file: %s, N%d, has incorrect efixed: %s',[dfn,dfe],i,efix_tst);
         end
         
     end
