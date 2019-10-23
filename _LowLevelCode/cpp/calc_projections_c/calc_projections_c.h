@@ -33,5 +33,6 @@ void calc_projections_emode(double * const /*pMinMax */,
                double const * const pSignal, double const * const pError,double const * const pDetGroup,
                              double const * const pMatrix,double const * const pEnergies, mwSize nEnergies,
                              double const * const pDetPhi,double const * const pDetPsi, mwSize nDetectors,
-                 double efix, double k_to_e,int nThreads);
+                             double const * const pEfix, size_t nEfixed,
+               double k_to_e,int nThreads);
 #endif

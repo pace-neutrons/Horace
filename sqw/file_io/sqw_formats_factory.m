@@ -179,9 +179,13 @@ classdef sqw_formats_factory < handle
                 the_type = class(varargin{1});
                 if isa(varargin{1},'sqw')
                     sobj = varargin{1};
-                    emode = sobj.header.emode;
+                    header =sobj.header;
+                    if iscell(header)
+                        header = header{1};
+                    end
+                    emode = header.emode;                    
                     if emode == 2
-                        nefix = numel(sobj.header.efixed);
+                        nefix = numel(header.efixed);
                         if nefix>1
                             the_type = 'sqw2';
                         end

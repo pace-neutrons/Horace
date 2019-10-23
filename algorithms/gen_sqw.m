@@ -333,20 +333,22 @@ else % build all runfiles, including missing runfiles. TODO: Lost generality
         u,v,psi,omega,dpsi,gl,gs,'-allow_missing',rundata_par{:});
 end
 % check runfiles correctness
-for i=1:numel(run_files)
-    en = run_files{i}.en;
-    if ischar(en)
-        [~,dfn,dfe] = fileparts(run_files{i}.data_file_name);
-        error('GEN_SQW:invalid_argument',...
-            'file: %s, N%d, has incorrect energy bins: %s',[dfn,dfe],i,en);
+if emode ~= 0
+    for i=1:numel(run_files)
+        en = run_files{i}.en;
+        if ischar(en)
+            [~,dfn,dfe] = fileparts(run_files{i}.data_file_name);
+            error('GEN_SQW:invalid_argument',...
+                'file: %s, N%d, has incorrect energy bins: %s',[dfn,dfe],i,en);
+        end
+        efix = run_files{i}.efix;
+        if ischar(efix)
+            [~,dfn,dfe] = fileparts(run_files{i}.data_file_name);
+            error('GEN_SQW:invalid_argument',...
+                'file: %s, N%d, has incorrect efixed: %s',[dfn,dfe],i,efix);
+        end
+        
     end
-    efix = run_files{i}.efix;
-    if ischar(efix)
-       [~,dfn,dfe] = fileparts(run_files{i}.data_file_name);
-        error('GEN_SQW:invalid_argument',...
-            'file: %s, N%d, has incorrect efixed: %s',[dfn,dfe],i,efix);
-    end
-    
 end
 % If grid not given, make default size
 if ~accumulate_old_sqw && isempty(grid_size_in)
@@ -361,8 +363,10 @@ end
 
 % If no input data range provided, calculate it from the files
 if ~accumulate_old_sqw
-    if isempty(urange_in) %&& all(grid_size_in == [1,1,1,1])
+    if isempty(urange_in) && numel(run_files)>1
         urange_in = find_urange(run_files,efix,emode,ix,indx,log_level); %calculate urange from all runfiles
+    else
+        urange_in =[];
     end
     run_files = run_files(ix); % select only existing runfiles for further processing
 elseif accumulate_old_sqw

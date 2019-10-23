@@ -283,7 +283,7 @@ data_sum= struct('main_header',main_header_combined,...
 data_sum.header = header_combined;
 
 ds = sqw(data_sum);
-wrtr = sqw_formats_factory.instance().get_pref_access('sqw');
+wrtr = sqw_formats_factory.instance().get_pref_access(ds);
 
 if exist(outfile,'file') == 2 % init may want to upgrade the file and this
     delete(outfile);  %  is not the option we want to do here
