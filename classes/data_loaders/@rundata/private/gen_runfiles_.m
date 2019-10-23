@@ -148,7 +148,7 @@ if emode == 2
     n_det_efix_guess = 1;
     e_fix = params{1};
     if numel(e_fix) > 1
-        if size(e_fix,2) == n_files
+        if size(e_fix,2) == n_files && size(e_fix,1) ~= n_files
             e_fix = e_fix';
             params{1} = e_fix;
         end
