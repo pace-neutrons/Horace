@@ -66,9 +66,22 @@ function [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_fil
 % Make a stucture array of the fields that define uniqueness
 % Convert angles to radians for comparison with header
 d2r=pi/180;
-pstruct=struct('filename',spe_file,'efix',num2cell(efix),...
-    'psi',num2cell(psi*d2r),'omega',num2cell(omega*d2r),'dpsi',num2cell(dpsi*d2r),'gl',num2cell(gl*d2r),'gs',num2cell(gs*d2r));
-
+emode_c = emode(1);
+efix_is_array = false;
+if emode_c == 2
+    if size(efix,2)>1
+        efix_is_array = true;
+    end
+end
+if efix_is_array
+    pstruct=struct('filename',spe_file,...
+        'psi',num2cell(psi*d2r),'omega',num2cell(omega*d2r),...
+        'dpsi',num2cell(dpsi*d2r),'gl',num2cell(gl*d2r),'gs',num2cell(gs*d2r));
+else
+    pstruct=struct('filename',spe_file,'efix',num2cell(efix),...
+        'psi',num2cell(psi*d2r),'omega',num2cell(omega*d2r),...
+        'dpsi',num2cell(dpsi*d2r),'gl',num2cell(gl*d2r),'gs',num2cell(gs*d2r));
+end
 names=fieldnames(pstruct)';     % row vector
 
 % Sort structure array

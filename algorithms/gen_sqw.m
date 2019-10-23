@@ -289,12 +289,11 @@ if accumulate_old_sqw    % combine with existing sqw file
     end
     ix=(spe_exist & spe_only);    % the spe data that needs to be processed
 else
-    if emode == 1
-        [ok, mess] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
-            u, v, psi, omega, dpsi, gl, gs, instrument, sample, opt.replicate);
-        if ~ok, error('GEN_SQW:invalid_argument',mess), end
-        % Have already checked that all the spe files exist for the case of generate_new_sqw is true
-    end
+    [ok, mess] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
+        u, v, psi, omega, dpsi, gl, gs, instrument, sample, opt.replicate);
+    if ~ok, error('GEN_SQW:invalid_argument',mess), end
+    % Have already checked that all the spe files exist for the case of generate_new_sqw is true
+    
     if accumulate_new_sqw && ~any(spe_exist)
         error('None of the spe data files exist, so cannot create new sqw file.')
     end
@@ -332,6 +331,22 @@ else % build all runfiles, including missing runfiles. TODO: Lost generality
     % build all runfiles, including missing runfiles
     run_files = rundatah.gen_runfiles(spe_file,par_file,efix,emode,alatt,angdeg,...
         u,v,psi,omega,dpsi,gl,gs,'-allow_missing',rundata_par{:});
+end
+% check runfiles correctness
+for i=1:numel(run_files)
+    en = run_files{i}.en;
+    if ischar(en)
+        [~,dfn,dfe] = fileparts(run_files{i}.data_file_name);
+        error('GEN_SQW:invalid_argument',...
+            'file: %s, N%d, has incorrect energy bins: %s',[dfn,dfe],i,en);
+    end
+    efix = run_files{i}.efix;
+    if ischar(efix)
+       [~,dfn,dfe] = fileparts(run_files{i}.data_file_name);
+        error('GEN_SQW:invalid_argument',...
+            'file: %s, N%d, has incorrect efixed: %s',[dfn,dfe],i,efix);
+    end
+    
 end
 % If grid not given, make default size
 if ~accumulate_old_sqw && isempty(grid_size_in)

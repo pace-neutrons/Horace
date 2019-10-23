@@ -71,13 +71,27 @@ else
 end
 
 % Expand the input variables to vectors where values can be different for each spe file
-if emode == 1
+if emode ~= 2
     [efix_out,mess]=check_parameter_values_ok(efix,nfile,1,'efix',...
         'the number of spe files',[0,Inf],[false,true]);
-    if ~isempty(mess), return; end
-else % Todo data check
-    efix_out = efix;
+else
+    if numel(efix) == 1
+        [efix_out,mess]=check_parameter_values_ok(efix,nfile,1,'efix',...
+            'the number of spe files',[0,Inf],[false,true]);
+    else
+        if size(efix,2) == 1 % should be row
+            efix = efix';
+        end
+        n_det_loc = size(efix,2);
+        % size(efix,2) should be == n_detectors, but we can not make this
+        % check here
+        [efix_out,mess]=check_parameter_values_ok(efix,nfile,n_det_loc,...
+            'efix','the number of spe files',...
+            repmat([0;Inf],1,n_det_loc),false(2,n_det_loc));
+
+    end
 end
+if ~isempty(mess), return; end
 
 [emode_out,mess]=check_parameter_values_ok(round(emode),nfile,1,'emode',...
     'the number of spe files',[0,2]);

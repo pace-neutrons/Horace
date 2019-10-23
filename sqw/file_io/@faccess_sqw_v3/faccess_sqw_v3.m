@@ -127,7 +127,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         
     end
     %
-    properties(Constant,Access=private,Hidden=true)
+    properties(Constant,Access=protected,Hidden=true)
         % list of fileldnames to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file
         data_fields_to_save_ = {'instrument_head_pos_','instrument_pos_',...

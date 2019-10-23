@@ -46,16 +46,21 @@ end
 
 hor_log_level = ...
     config_store.instance().get_value('herbert_config','log_level');
-if isempty(w.main_header) %TODO:  OOP violation -- save dnd should be associated with dnd class
-    sqw_type = false;
-    ldw = sqw_formats_factory.instance().get_pref_access('dnd');
-else
-    sqw_type = true;
-    ldw = sqw_formats_factory.instance().get_pref_access('sqw');
-end
 
 
 for i=1:numel(w)
+    if isempty(w(i).main_header) %TODO:  OOP violation -- save dnd should be associated with dnd class
+        sqw_type = false;
+        ldw = sqw_formats_factory.instance().get_pref_access('dnd');
+    else        
+        sqw_type = true;
+        if w(i).header.emode == 2 && numel(w(i).header.efix)>1
+            ldw = sqw_formats_factory.instance().get_pref_access('sqw2');            
+        else
+            ldw = sqw_formats_factory.instance().get_pref_access('sqw');
+        end
+    end
+    
     % Write data to file   x
     if hor_log_level>0
         disp(['*** Writing to ',file_internal{i},'...'])

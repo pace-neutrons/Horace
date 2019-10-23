@@ -11,7 +11,7 @@ classdef sqw_formats_factory < handle
     % Get appropriate accessor to read sqw/dnd data from disk
     % or:
     %>> accessor = sqw_formats_factory.instance().get_pref_access(sqw/dnd object)
-    % Get appropriate accessor to write sqw/dnd data to hdd. 
+    % Get appropriate accessor to write sqw/dnd data to hdd.
     % The accessor has to be initialized later (see details in the method description
     % and accessors init method.)
     %
@@ -36,13 +36,15 @@ classdef sqw_formats_factory < handle
         % List of registered file accessors:
         % Add all new file readers which inherit from sqw_file_interface and dnd_file_interface
         % to this list in the order of expected frequency of their appearance.
-        supported_accessors_ = {faccess_sqw_v3(),faccess_sqw_v2(),faccess_dnd_v2(),faccess_sqw_prototype()};
+        supported_accessors_ = {faccess_sqw_v3(),faccess_sqw_v3_2(),...
+            faccess_sqw_v2(),faccess_dnd_v2(),faccess_sqw_prototype()};
         %
         % Old class interface:
         % classes to load/save
-        written_types_ = {'sqw','dnd','d0d','d1d','d2d','d3d','d4d'};
+        % sqw2 corrseponds to sqw file in indirect mode with varying efixed
+        written_types_ = {'sqw','sqw2','dnd','d0d','d1d','d2d','d3d','d4d'};
         % number of loader in the list of loaders to use with correspondent class
-        access_to_type_ind_ = {1,3,3,3,3,3,3};
+        access_to_type_ind_ = {1,2,4,4,4,4,4,4};
         types_map_ ;
     end
     
@@ -171,40 +173,28 @@ classdef sqw_formats_factory < handle
             %            Throws 'SQW_FILE_IO:invalid_argument' if the type
             %            is not among the types specified above.
             %
-            [ok,mess,is_dnd,is_sqw,argi] =parse_char_options(varargin,{'dnd','sqw'});
-            if ~ok
-                error('SQW_FILE_IO:invalid_argument',mess);
+            if ischar(varargin{1})
+                the_type = varargin{1};
             else
-                if is_dnd && is_sqw
-                    error('SQW_FILE_IO:invalid_argument',...
-                        'get_pref_access: only "dnd" or "sqw" option can be provided but got both');
-                end
-                if ~is_dnd && ~is_sqw
-                    is_sqw = true;
+                the_type = class(varargin{1});
+                if isa(varargin{1},'sqw')
+                    sobj = varargin{1};
+                    emode = sobj.header.emode;
+                    if emode == 2
+                        nefix = numel(sobj.header.efixed);
+                        if nefix>1
+                            the_type = 'sqw2';
+                        end
+                    end
                 end
             end
-            if isempty(argi)
-                if is_sqw
-                    loader = obj.supported_accessors_{1};
-                else
-                    ld_num = obj.types_map_('dnd');
-                    loader = obj.supported_accessors_{ld_num};
-                end
+            if obj.types_map_.isKey(the_type)
+                ld_num = obj.types_map_(the_type);
+                loader = obj.supported_accessors_{ld_num};
             else
-                if isa(argi{1},'sqw')
-                    loader = obj.supported_accessors_{1};
-                else
-                    type = class(varargin{1});
-                    if obj.types_map_.isKey(type)
-                        ld_num = obj.types_map_(type);
-                        loader = obj.supported_accessors_{ld_num};
-                    else
-                        error('SQW_FILE_IO:invalid_argument',...
-                            'get_pref_access: input class %s does not have registered accessor',...
-                            type)
-                    end
-                    
-                end
+                error('SQW_FILE_IO:invalid_argument',...
+                    'get_pref_access: input class %s does not have registered accessor',...
+                    the_type)
             end
         end
         %
@@ -223,13 +213,14 @@ classdef sqw_formats_factory < handle
             % currently returns true either for the same type of
             % accessors (class(obj1)==class(obj2)) or when
             % class(obj1) == 'faccess_sqw_v2' and class(obj2) == 'faccess_sqw_v3'.
-            %
+            % 
+            %NOTE: 
+            % faccess_sqw_v3 is not compartible with faccess_sqw_v3_2 as
+            % contains different information about detectors.
             if isa(obj2,class(obj1))
                 is_compartible = true;
                 return
             end
-            %type1 = class(obj1);
-            %type2 = class(obj2);
             if isa(obj1,'faccess_sqw_v2') && isa(obj2,'faccess_sqw_v3')
                 is_compartible = true;
             else
