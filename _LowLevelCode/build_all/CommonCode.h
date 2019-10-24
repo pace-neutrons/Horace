@@ -40,16 +40,16 @@ extern bool ioFlush(void);
 // something strange is happening with parallel pixels copying. Let's
 // disable if for the time being
 //#define SINGLE_PATH
-# if __GNUC__ > 4 || (__GNUC__ == 4)&&(__GNUC_MINOR__ > 4)
-    #define  OMP_VERSION_3
-    //#define C_MUTEXES
+# if __GNUC__ > 4 || (__GNUC__ == 4)&&(__GNUC_MINOR__ > 8)
+#define  OMP_VERSION_3
+//#define C_MUTEXES
 #else
-    #define C_MUTEXES
+#define C_MUTEXES
 #endif
 //
 #ifdef SINGLE_PATH
-    #undef OMP_VERSION_3
-    #undef C_MUTEXES
+#undef OMP_VERSION_3
+#undef C_MUTEXES
 #endif
 enum pix_fields
 {
@@ -67,10 +67,10 @@ enum pix_fields
 // modify this to support INTEL compiler (what OMP version(s) it has?
 
 // Copy pixels from source to target array
-inline void copy_pixels(double *pixel_data,long j,double *pPixelSorted, size_t j0) {
+inline void copy_pixels(double* pixel_data, long j, double* pPixelSorted, size_t j0) {
     //
     j0 *= pix_fields::PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
-    size_t i0 = j*pix_fields::PIX_WIDTH;
+    size_t i0 = j * pix_fields::PIX_WIDTH;
 
     for (size_t i = 0; i < pix_fields::PIX_WIDTH; i++) {
         pPixelSorted[j0 + i] = pixel_data[i0 + i];
@@ -92,12 +92,12 @@ public:
     /* pointers to the places, where thread data are stored
     depending on condition, this are either final destination or
     place on heap or on stack */
-    double *pSignal, *pError, *pNpix;
+    double* pSignal, * pError, * pNpix;
 
-    omp_storage(int num_OMP_Threads, size_t distribution_size, double *s, double *e, double *npix) :
-        distr_size(distribution_size), data_size(0), num_threads(num_OMP_Threads),largeMemory(NULL)
+    omp_storage(int num_OMP_Threads, size_t distribution_size, double* s, double* e, double* npix) :
+        distr_size(distribution_size), data_size(0), num_threads(num_OMP_Threads), largeMemory(NULL)
     {
-        this->init_storage(num_OMP_Threads, distribution_size,s,e,npix);
+        this->init_storage(num_OMP_Threads, distribution_size, s, e, npix);
     };
     /* Initialize OMP storage
       *@param num_OMP_Threads   -- number of OMP threads to use
@@ -106,12 +106,12 @@ public:
       *@param e     -- array of pixels errors (size of distribution_size)
       *@param npix  -- array of number of pixels in each cell (size of distribution_size)
     */
-    void init_storage(int num_OMP_Threads, size_t distribution_size, double *s, double *e, double *npix) {
+    void init_storage(int num_OMP_Threads, size_t distribution_size, double* s, double* e, double* npix) {
         num_threads = num_OMP_Threads;
-        size_t new_data_size = 3 * num_threads *distribution_size;
+        size_t new_data_size = 3 * num_threads * distribution_size;
         distr_size = distribution_size;
 
-        if (num_threads  > 1) {
+        if (num_threads > 1) {
             is_mutlithreaded = true;
             bool allocate_memory = true;
             if (largeMemory) {
@@ -123,7 +123,8 @@ public:
                     if (se_vec_stor.size() == 0) {
                         mxFree(largeMemory);
                         largeMemory = NULL;
-                    } else {
+                    }
+                    else {
                         se_vec_stor.resize(0);
                     }
                 }
@@ -136,21 +137,22 @@ public:
                 }
                 catch (...) // no space on stack try heap, 
                 {
-                    largeMemory = (double *)mxCalloc(new_data_size, sizeof(double));
+                    largeMemory = (double*)mxCalloc(new_data_size, sizeof(double));
                     if (!largeMemory)throw("Can not allocate memory for processing data on threads. Decrease number of threads");
                     for (size_t i = 0; i < new_data_size; i++) {
                         largeMemory[i] = 0;
                     }
 
                 }
-            } else { // Nullify existing memory
+            }
+            else { // Nullify existing memory
                 for (size_t i = 0; i < new_data_size; i++) {
                     largeMemory[i] = 0;
                 }
             }
             pSignal = largeMemory;
-            pError = largeMemory + num_threads*distribution_size;
-            pNpix = largeMemory + 2 * num_threads*distribution_size;
+            pError = largeMemory + num_threads * distribution_size;
+            pNpix = pError + num_threads * distribution_size;
 
         }
         else {
@@ -165,20 +167,20 @@ public:
 
 
     }
-    void add_signal(const double &signal, const double &error, int n_thread, size_t index)
+    void add_signal(const double& signal, const double& error, int n_thread, size_t index)
     {
         /*  signal_stor[n_thread][il] += ;
         stor.error_stor[n_thread][il] += ;
         stor.ind_stor[n_thread][il]++; */
 
-        size_t ind = n_thread*distr_size + index;
+        size_t ind = n_thread * distr_size + index;
         pSignal[ind] += signal;
-        pError[ind]  += error;
-        pNpix[ind]   +=1;
+        pError[ind] += error;
+        pNpix[ind] += 1;
     }
-    void combibe_storage(double *s,double *e, double *npix, long i) {
+    void combibe_storage(double* s, double* e, double* npix, long i) {
         for (int ns = 0; ns < num_threads; ns++) {
-            size_t ind = ns*distr_size + i;
+            size_t ind = ns * distr_size + i;
             s[i] += pSignal[ind];
             e[i] += pError[ind];
             npix[i] += pNpix[ind];
@@ -198,7 +200,7 @@ private:
     int    num_threads;
 
     std::vector<double > se_vec_stor;
-    double * largeMemory;
+    double* largeMemory;
 
 };
 
