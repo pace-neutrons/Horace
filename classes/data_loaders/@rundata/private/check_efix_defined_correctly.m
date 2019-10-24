@@ -70,5 +70,5 @@ elseif this.emode == 2
         efix = sprintf('Emode=2 and efix is incompartible with min energy transfer, efix: %f min(dE): %f',efix,bin_bndry);
     end
 else
-    efix = 'no efix for elastic mode';
+    efix = 0; %'no efix for elastic mode';
 end
