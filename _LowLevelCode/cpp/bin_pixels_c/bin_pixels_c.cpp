@@ -63,8 +63,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 //
 {
     mwSize  iGridSizes[4],     // array of grid sizes
-        totalGridSize(1),  // number of cells in the whole grid;
-        nGridDimensions,    // number of dimension in the whole grid (usually 4 according to the pixel data but can be modified in a future
+        nGridDimensions,    // number of dimensions in the whole grid (usually 4 according to the pixel data but can be modified in a future
         i;
     double *pS, *pErr, *pNpix;   // arrays for the signal, error and number of pixels in a cell (density);
     mxArray *PixelSorted;
@@ -116,6 +115,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     nGridDimensions = mxGetN(mxGetCell(prhs[Sqw_parameters], Grid_size));
     if (nGridDimensions > 4)mexErrMsgTxt(" we do not currently work with the grids which have more then 4 dimensions");
 
+    mwSize    totalGridSize(1);  // number of cells in the whole grid;
     for (i = 0; i < nGridDimensions; i++) {
         iGridSizes[i] = (mwSize)(pGrid_sizes[i]);
         totalGridSize *= iGridSizes[i];
@@ -145,7 +145,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     pS = (double *)mxGetPr(mxGetCell(plhs[0], Signal));
     pErr = (double *)mxGetPr(mxGetCell(plhs[0], Error));
     pNpix = (double *)mxGetPr(mxGetCell(plhs[0], N_pix));
-
+    // Clear accumulation cells.
     for (i = 0; i < totalGridSize; i++) {
         *(pS + i) = 0;
         *(pErr + i) = 0;
@@ -299,6 +299,9 @@ bool bin_pixels(double *s, double *e, double *npix,
             mwSize ie = (mwSize)floor((Et - cut_range[6])*eBinR);
 
             mwSize il = ix*nDimX + iy*nDimY + iz*nDimZ + ie*nDimE;
+            //Avoid strange situation, when the indexes point behind the grid.
+            //Should never happen but still can on some architectures
+            if (il >= distribution_size)il = distribution_size - 1;
 
             ok[i] = true;
             nGridCell[i] = il;
