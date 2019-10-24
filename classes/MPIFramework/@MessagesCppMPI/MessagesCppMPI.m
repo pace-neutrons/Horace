@@ -13,7 +13,7 @@ classdef MessagesCppMPI < iMessagesFramework
     % This class provides physical mechanism to exchange messages between tasks
     % using MPICH on Unix or MS MPI on Windows.
     %
-    % $Revision:: 832 ($Date:: 2019-08-11 23:25:59 +0100 (Sun, 11 Aug 2019) $)
+    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
     %
     %
     properties(Dependent)

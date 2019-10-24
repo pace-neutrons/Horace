@@ -28,7 +28,7 @@ function [isfitting,index,foreground,store_calcs]=multifit_gateway_get_state
  
 % Original author: T.G.Perring 
 % 
-% $Revision:: 832 ($Date:: 2019-08-11 23:25:59 +0100 (Sun, 11 Aug 2019) $) 
+% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $) 
 
 
 % Simply an interface to a hidden function in the multifit /private folder
