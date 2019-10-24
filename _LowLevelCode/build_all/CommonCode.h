@@ -40,7 +40,7 @@ extern bool ioFlush(void);
 // something strange is happening with parallel pixels copying. Let's
 // disable if for the time being
 //#define SINGLE_PATH
-# if __GNUC__ > 4 || (__GNUC__ == 4)&&(__GNUC_MINOR__ > 9)
+# if __GNUC__ > 4 || (__GNUC__ == 4)&&(__GNUC_MINOR__ > 4)
 #define  OMP_VERSION_3
 //#define C_MUTEXES
 #else
