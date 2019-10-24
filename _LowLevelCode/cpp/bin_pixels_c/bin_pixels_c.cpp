@@ -118,6 +118,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     mwSize    totalGridSize(1);  // number of cells in the whole grid;
     for (i = 0; i < nGridDimensions; i++) {
         iGridSizes[i] = (mwSize)(pGrid_sizes[i]);
+        if (iGridSizes[i] < 1)iGridSizes[i] = 1;
         totalGridSize *= iGridSizes[i];
     }
     //**************************************************************
@@ -228,10 +229,10 @@ bool bin_pixels(double *s, double *e, double *npix,
     nDimZ = nDimLength;    nDimLength *= grid_size[2];
     nDimE = nDimLength;
     //
-    xBinR = grid_size[0] / (cut_range[1] - cut_range[0]);
-    yBinR = grid_size[1] / (cut_range[3] - cut_range[2]);
-    zBinR = grid_size[2] / (cut_range[5] - cut_range[4]);
-    eBinR = grid_size[3] / (cut_range[7] - cut_range[6]);
+    xBinR = double(grid_size[0]) / (cut_range[1] - cut_range[0]);
+    yBinR = double(grid_size[1]) / (cut_range[3] - cut_range[2]);
+    zBinR = double(grid_size[2]) / (cut_range[5] - cut_range[4]);
+    eBinR = double(grid_size[3]) / (cut_range[7] - cut_range[6]);
 
     std::unique_ptr<omp_storage> pStorHolder(new omp_storage(num_threads, distribution_size, s, e, npix));
     //if (!pStorHolder){
@@ -282,13 +283,13 @@ bool bin_pixels(double *s, double *e, double *npix,
             //       indx(:,3)>=cut_range(1,3) & indx(:,3)<=cut_range(2,3) & indx(:,4)>=cut_range(1,4) & indx(:,4)<=cut_range(2,4);
             ok[i] = false;
             if (xt<cut_range[0] || xt>cut_range[1])continue;
-            if (xt == cut_range[1])xt *= (1 - FLT_EPSILON);
+            if (xt == cut_range[1])xt *= (1. - FLT_EPSILON);
             if (yt<cut_range[2] || yt>cut_range[3])continue;
-            if (yt == cut_range[3])yt *= (1 - FLT_EPSILON);
+            if (yt == cut_range[3])yt *= (1. - FLT_EPSILON);
             if (zt<cut_range[4] || zt>cut_range[5])continue;
-            if (zt == cut_range[5])zt *= (1 - FLT_EPSILON);
+            if (zt == cut_range[5])zt *= (1. - FLT_EPSILON);
             if (Et<cut_range[6] || Et>cut_range[7])continue;
-            if (Et == cut_range[7])Et *= (1 - FLT_EPSILON);
+            if (Et == cut_range[7])Et *= (1. - FLT_EPSILON);
 
 
             //ibin(ok) = ibin(ok) + nel(id)*max(0,min((grid_size(id)-1),floor(grid_size(id)*((u(id,ok)-urange(1,id))/(urange(2,id)-urange(1,id))))));
@@ -300,7 +301,7 @@ bool bin_pixels(double *s, double *e, double *npix,
 
             mwSize il = ix*nDimX + iy*nDimY + iz*nDimZ + ie*nDimE;
             //Avoid strange situation, when the indexes point behind the grid.
-            //Should never happen but still can on some architectures
+            //Should never happen but causes suspishions on some architectures
             if (il >= distribution_size)il = distribution_size - 1;
 
             ok[i] = true;
