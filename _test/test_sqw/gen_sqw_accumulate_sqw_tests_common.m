@@ -187,15 +187,6 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 spe_files = obj.spe_file;
             end
             
-            
-            file_exist = cellfun(@(fn)(exist(fn,'file') == 2),spe_files);
-            if all(file_exist)
-                obj.add_to_files_cleanList(spe_files{:});
-                return;
-            end
-            spe_files = spe_files(~file_exist);
-            n_files = numel(spe_files);
-            
             % =====================================================================================================================
             % Make instrument and sample
             % =====================================================================================================================
@@ -207,16 +198,27 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             instrument_ref.fermi_chopper=wchop;
             sample_ref=IX_sample('PCSMO',true,[1,1,0],[0,0,1],'cuboid',[0.04,0.05,0.02],1.6,300);
             
-            instrument=repmat(instrument_ref,1,n_files);
+            instrument=repmat(instrument_ref,1,numel(spe_files));
             for i=1:numel(instrument)
                 instrument(i).IX_fermi_chopper.frequency=100*i;
             end
             obj.instrum = instrument;
             obj.sample  = sample_ref;
             
+            
+            
+            file_exist = cellfun(@(fn)(exist(fn,'file') == 2),spe_files);
+            if all(file_exist)
+                obj.add_to_files_cleanList(spe_files{:});
+                return;
+            end
+            spe_files = spe_files(~file_exist);
+            n_files = numel(spe_files);
+            
+            
             %sample_1=sample_ref;
-            sample_2=sample_ref;
-            sample_2.temperature=350;
+            %sample_2=sample_ref;
+            %sample_2.temperature=350;
             
             
             % =====================================================================================================================

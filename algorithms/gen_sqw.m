@@ -363,6 +363,8 @@ end
 
 % If no input data range provided, calculate it from the files
 if ~accumulate_old_sqw
+    %NOTE: because of && numel(run_files)>1, Masked detectors would be removed 
+    % from the range of a single converted run file.
     if isempty(urange_in) && numel(run_files)>1
         urange_in = find_urange(run_files,efix,emode,ix,indx,log_level); %calculate urange from all runfiles
     else
