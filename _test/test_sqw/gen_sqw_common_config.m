@@ -23,6 +23,11 @@ classdef gen_sqw_common_config < TestCase
         
         change_framework_ = false;
         new_framework_ = 'herbert';
+        
+        worker = 'worker_4tests'
+        % Store the name of the worker, currently used by Horace parallel
+        % framework, to recover after the tests are completed.
+        current_worker_cache_ = [];
     end
     
     methods
@@ -95,6 +100,7 @@ classdef gen_sqw_common_config < TestCase
                 
             end
         end
+        
         function setUp(obj)
             if obj.change_mex_
                 hc = hor_config;
@@ -108,10 +114,12 @@ classdef gen_sqw_common_config < TestCase
                 hpc = hpc_config;
                 hpc.combine_sqw_using = obj.new_combine_;
             end
+            parc = parallel_config;
             if obj.change_framework_
-                parc = parallel_config;
                 parc.parallel_framework = obj.new_framework_;
             end
+            obj.current_worker_cache_ = parc.worker;
+            parc.worker = obj.worker;
             
         end
         function tearDown(obj)
@@ -127,10 +135,12 @@ classdef gen_sqw_common_config < TestCase
                 hpc = hpc_config;
                 hpc.combine_sqw_using = obj.old_configuration_.hpc.combine_sqw_using;
             end
+            parc = parallel_config;
             if obj.change_framework_
-                parc = parallel_config;
                 parc.parallel_framework = obj.old_configuration_.parc.parallel_framework;
             end
+            parc.worker = obj.current_worker_cache_;
+            
             
         end
         function delete(obj)
