@@ -17,7 +17,7 @@ function FF = form_factor(self,h,k,l,varargin)
 % for the selected ion.
 %
 %
-% $Revision:: 1752 ($Date:: 2019-08-11 23:26:06 +0100 (Sun, 11 Aug 2019) $)
+% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
 %
 if numel(varargin) > 1 && nargin > 5 && ~isempty(varargin{2})
     u_2_rlu = inv(varargin{2});

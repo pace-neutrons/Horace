@@ -3,7 +3,7 @@ function  obj = set_upgrade_mode_(obj,mode)
 % and prepare the file info for upgrade or disable such mode
 %
 %
-% $Revision:: 1752 ($Date:: 2019-08-11 23:26:06 +0100 (Sun, 11 Aug 2019) $)
+% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
 %
 
 mode = logical(mode);
