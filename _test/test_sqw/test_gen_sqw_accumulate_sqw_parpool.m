@@ -53,7 +53,6 @@ classdef test_gen_sqw_accumulate_sqw_parpool <  ...
             end
             obj = obj@gen_sqw_common_config(-1,1,'mpi_code','parpool');            
             obj = obj@gen_sqw_accumulate_sqw_tests_common(test_name,'parpool');
-
         end
         
     end
