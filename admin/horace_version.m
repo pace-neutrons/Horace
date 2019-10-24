@@ -62,7 +62,7 @@ application.name='horace';
 
 application.version=3;
 
-Matlab_SVN='$Revision:: 1752 ($Date:: 2019-08-11 23:26:06 +0100 (Sun, 11 Aug 2019) $)';
+Matlab_SVN='$Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)';
 
 % Information about name and version of application
 mexMinVer     = [];
@@ -96,4 +96,5 @@ application.mex_last_compilation_date=date;
 if nargin>0
     Matlab_SVN =application.svn_version;
 end
+
 

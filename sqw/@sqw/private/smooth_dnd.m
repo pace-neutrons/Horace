@@ -37,7 +37,7 @@ function dout = smooth_dnd (din, xunit, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1752 ($Date:: 2019-08-11 23:26:06 +0100 (Sun, 11 Aug 2019) $)
+% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 

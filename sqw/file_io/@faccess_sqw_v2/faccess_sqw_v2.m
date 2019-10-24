@@ -53,7 +53,7 @@ classdef faccess_sqw_v2 < sqw_binfile_common
     % are treated as v2 format files. sqw_formats_factory returns this loader to access such files.
     %
     %
-    % $Revision:: 1752 ($Date:: 2019-08-11 23:26:06 +0100 (Sun, 11 Aug 2019) $)
+    % $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
     %
     %
     properties(Access = protected)

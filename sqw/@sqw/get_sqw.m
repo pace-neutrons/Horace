@@ -120,7 +120,7 @@ function [mess,main_header,header,detpar,data,position,npixtot,data_type,file_fo
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1752 ($Date:: 2019-08-11 23:26:06 +0100 (Sun, 11 Aug 2019) $)
+% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
 
 
 [mess,main_header,header,detpar,data,position,npixtot,data_type,file_format,current_format] = get_sqw (infile,varargin{:});

@@ -5,7 +5,7 @@ function  [obj,missing_fields] = copy_contents_(obj,other_obj,keep_internals)
 % exactly the same routine  has to be present in dnd_binfile_common\private
 % folder.
 %
-% $Revision:: 1752 ($Date:: 2019-08-11 23:26:06 +0100 (Sun, 11 Aug 2019) $)
+% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
 %
 %
 this_pos = obj.get_pos_info();

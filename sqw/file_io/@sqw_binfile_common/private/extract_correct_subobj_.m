@@ -2,7 +2,7 @@ function [subobj,subobj_is_new] = extract_correct_subobj_(obj,obj_name,varargin)
 % Extract a subobject, requested for save, calculate positions or upgrade operations
 % using various parts of sqw object, or the requested part provided directly
 %
-% $Revision:: 1752 ($Date:: 2019-08-11 23:26:06 +0100 (Sun, 11 Aug 2019) $)
+% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
 %
 char_keys = cellfun(@is_char_key,varargin);
 argi = varargin(~char_keys);

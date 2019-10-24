@@ -6,7 +6,7 @@ classdef iVirt_field< sqw_field_format_interface
     %  As the value of this type of field is used by other fields, these 
     %  fields have method to store their value
     %
-    % $Revision:: 1752 ($Date:: 2019-08-11 23:26:06 +0100 (Sun, 11 Aug 2019) $)
+    % $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
     %
     
     properties(Access=protected)

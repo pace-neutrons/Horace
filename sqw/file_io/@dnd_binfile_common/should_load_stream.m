@@ -33,7 +33,7 @@ function [should,objinit,mess]= should_load_stream(obj,head_struc,fid)
 % as common dnd_file_interface.get_file_header method which opens file and
 % reads the file header is slow so is deployed by sqw_format_factory only once.
 %
-% $Revision:: 1752 ($Date:: 2019-08-11 23:26:06 +0100 (Sun, 11 Aug 2019) $)
+% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
 %
 mess = '';
 if isstruct(head_struc) && all(isfield(head_struc,{'sqw_type','version'}))
