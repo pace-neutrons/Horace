@@ -25,8 +25,8 @@ enum output_arguments {  // not used at the moment
 };
 
 
-bool bin_pixels(double *s, double *e, double *npix,
-    mxArray*  pPixel_data, mxArray* &PixelSorted,
+bool bin_pixels(double* s, double* e, double* npix,
+    mxArray* pPixel_data, mxArray*& PixelSorted,
     double const* const cut_range,
     mwSize grid_size[4], int num_threads);
 
@@ -34,7 +34,7 @@ bool bin_pixels(double *s, double *e, double *npix,
 //
 //static std::unique_ptr<omp_storage> pStorHolder;
 //
-void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 //*************************************************************************************************
 // the function (bin_pixels_c) distributes pixels according to the 4D-grid specified and
 // calculates signal and error within grid cells
@@ -65,8 +65,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     mwSize  iGridSizes[4],     // array of grid sizes
         nGridDimensions,    // number of dimensions in the whole grid (usually 4 according to the pixel data but can be modified in a future
         i;
-    double *pS, *pErr, *pNpix;   // arrays for the signal, error and number of pixels in a cell (density);
-    mxArray *PixelSorted;
+    double* pS, * pErr, * pNpix;   // arrays for the signal, error and number of pixels in a cell (density);
+    mxArray* PixelSorted;
     //
     const char REVISION[] = "$Revision:: 1752 ($Date:: 2019-08-11 23:26:06 +0100 (Sun, 11 Aug 2019) $)";
     if (nrhs == 0 && nlhs == 1) {
@@ -99,7 +99,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 
     int num_threads;
-    mxArray *pThreads = mxGetCell(prhs[Sqw_parameters], Threads);
+    mxArray* pThreads = mxGetCell(prhs[Sqw_parameters], Threads);
     if (pThreads) {
         num_threads = (int)*mxGetPr(pThreads);
     }
@@ -110,8 +110,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     if (num_threads < 1)num_threads = 1;
     if (num_threads > 64)num_threads = 64;
 
-    double const *const pGrid_sizes = (double *)mxGetPr(mxGetCell(prhs[Sqw_parameters], Grid_size));
-    double const *const pUranges = (double *)mxGetPr(mxGetCell(prhs[Sqw_parameters], Urange));
+    double const* const pGrid_sizes = (double*)mxGetPr(mxGetCell(prhs[Sqw_parameters], Grid_size));
+    double const* const pUranges = (double*)mxGetPr(mxGetCell(prhs[Sqw_parameters], Urange));
     nGridDimensions = mxGetN(mxGetCell(prhs[Sqw_parameters], Grid_size));
     if (nGridDimensions > 4)mexErrMsgTxt(" we do not currently work with the grids which have more then 4 dimensions");
 
@@ -143,9 +143,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         mxSetCell(plhs[0], i, tt);
     }
 
-    pS = (double *)mxGetPr(mxGetCell(plhs[0], Signal));
-    pErr = (double *)mxGetPr(mxGetCell(plhs[0], Error));
-    pNpix = (double *)mxGetPr(mxGetCell(plhs[0], N_pix));
+    pS = (double*)mxGetPr(mxGetCell(plhs[0], Signal));
+    pErr = (double*)mxGetPr(mxGetCell(plhs[0], Error));
+    pNpix = (double*)mxGetPr(mxGetCell(plhs[0], N_pix));
     // Clear accumulation cells.
     for (i = 0; i < totalGridSize; i++) {
         *(pS + i) = 0;
@@ -157,7 +157,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     try {
         place_pixels_in_old_array = bin_pixels(pS, pErr, pNpix, pPixData, PixelSorted, pUranges, iGridSizes, num_threads);
     }
-    catch (const char *err) {
+    catch (const char* err) {
         mexErrMsgTxt(err);
     }
     //if(!place_pixels_in_old_array){
@@ -170,8 +170,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 
 }
-bool bin_pixels(double *s, double *e, double *npix,
-    mxArray*  pPixel_data, mxArray* &PixelSorted,
+bool bin_pixels(double* s, double* e, double* npix,
+    mxArray* pPixel_data, mxArray*& PixelSorted,
     double const* const cut_range,
     mwSize grid_size[4], int num_threads)
 {
@@ -180,7 +180,7 @@ bool bin_pixels(double *s, double *e, double *npix,
     distribution_size = grid_size[0] * grid_size[1] * grid_size[2] * grid_size[3];
     comb_size = distribution_size;
     // input pixel data and their shapes
-    double *pixel_data = mxGetPr(pPixel_data);
+    double* pixel_data = mxGetPr(pPixel_data);
     mwSize data_size = mxGetN(pPixel_data);
     mwSize nPixelDatas = mxGetM(pPixel_data);
 
@@ -201,7 +201,7 @@ bool bin_pixels(double *s, double *e, double *npix,
     bool place_pixels_in_old_array(false); // true does not works properly
 
     // temporary area for all sorted pixels
-    mxArray *tPixelSorted;
+    mxArray* tPixelSorted;
     try
     {
         tPixelSorted = mxCreateDoubleMatrix(pix_fields::PIX_WIDTH, data_size, mxREAL);
@@ -211,8 +211,8 @@ bool bin_pixels(double *s, double *e, double *npix,
         tPixelSorted = NULL;
         throw("  Can not allocate memory for sorted pixels");
     }
-    double *pPixelSorted = mxGetPr(tPixelSorted);
-    double *pPixels(NULL);
+    double* pPixelSorted = mxGetPr(tPixelSorted);
+    double* pPixels(NULL);
     std::vector<size_t> pix_retained(num_threads, 0);
 
 
@@ -272,7 +272,7 @@ bool bin_pixels(double *s, double *e, double *npix,
 #pragma omp for
         for (long i = 0; i < data_size; i++)
         {
-            size_t i0 = i*PIX_WIDTH;
+            size_t i0 = i * PIX_WIDTH;
 
             double xt = pixel_data[i0 + u1];
             double yt = pixel_data[i0 + u2];
@@ -294,12 +294,12 @@ bool bin_pixels(double *s, double *e, double *npix,
 
             //ibin(ok) = ibin(ok) + nel(id)*max(0,min((grid_size(id)-1),floor(grid_size(id)*((u(id,ok)-urange(1,id))/(urange(2,id)-urange(1,id))))));
 
-            mwSize ix = (mwSize)floor((xt - cut_range[0])*xBinR);
-            mwSize iy = (mwSize)floor((yt - cut_range[2])*yBinR);
-            mwSize iz = (mwSize)floor((zt - cut_range[4])*zBinR);
-            mwSize ie = (mwSize)floor((Et - cut_range[6])*eBinR);
+            mwSize ix = (mwSize)floor((xt - cut_range[0]) * xBinR);
+            mwSize iy = (mwSize)floor((yt - cut_range[2]) * yBinR);
+            mwSize iz = (mwSize)floor((zt - cut_range[4]) * zBinR);
+            mwSize ie = (mwSize)floor((Et - cut_range[6]) * eBinR);
 
-            mwSize il = ix*nDimX + iy*nDimY + iz*nDimZ + ie*nDimE;
+            mwSize il = ix * nDimX + iy * nDimY + iz * nDimZ + ie * nDimE;
             //Avoid strange situation, when the indexes point behind the grid.
             //Should never happen but causes suspishions on some architectures
             if (il >= distribution_size)il = distribution_size - 1;
@@ -323,9 +323,11 @@ bool bin_pixels(double *s, double *e, double *npix,
         }
 
 #pragma omp barrier
-#pragma omp for
-        for (long i = 0; i < comb_size; i++) {
-            pStor->combibe_storage(s, e, npix, i);
+#pragma omp single
+        {
+            for (long i = 0; i < comb_size; i++) {
+                pStor->combibe_storage(s, e, npix, i);
+            }
         }
         //    sqw_data.s=sqw_data.s./sqw_data.npix;       % normalize data
         //    sqw_data.e=sqw_data.e./(sqw_data.npix).^2;  % normalize variance
@@ -389,39 +391,44 @@ bool bin_pixels(double *s, double *e, double *npix,
 #endif
             copy_pixels(pixel_data, j, pPixelSorted, j0);
         }
-
+    }//end parallel
+    {
         //----------------------------------------------------------------------------------
-#pragma omp barrier
-#pragma omp flush (nPixel_retained)
-// where to place new pixels
-#pragma omp single
-        pPixels = NULL;
+//#pragma omp barrier
+//#pragma omp flush (nPixel_retained)
 
+// where to place new pixels
         if (data_size == nPixel_retained) {
-#pragma omp single
+//#pragma omp single
             PixelSorted = tPixelSorted;
         }
         else {
-#pragma omp single // barrier exist, no other threads will enter region
-        {
-            try {
-                PixelSorted = mxCreateDoubleMatrix(pix_fields::PIX_WIDTH, nPixel_retained, mxREAL);
+//#pragma omp single // barrier exist, no other threads will enter region
+            {
+                try {
+                    PixelSorted = mxCreateDoubleMatrix(pix_fields::PIX_WIDTH, nPixel_retained, mxREAL);
+                }
+                catch (...) {
+                    PixelSorted = NULL;
+                    throw("  Can not allocate memory for sorted pixels");
+                }
+                pPixels = mxGetPr(PixelSorted);
             }
-            catch (...) {
-                PixelSorted = NULL;
-                throw("  Can not allocate memory for sorted pixels");
+            // copy pixels info from heap to Matlab controlled memory;
+//#pragma omp barrier
+//#pragma omp for
+            for (long i = 0; i < nPixel_retained * pix_fields::PIX_WIDTH; i++) {
+                pPixels[i] = pPixelSorted[i];
             }
-            pPixels = mxGetPr(PixelSorted);
-        }
-        // copy pixels info from heap to Matlab controlled memory;
-#pragma omp barrier
-#pragma omp for
-        for (long i = 0; i < nPixel_retained*pix_fields::PIX_WIDTH; i++) {
-            pPixels[i] = pPixelSorted[i];
-        }
-#pragma omp single
-        mxDestroyArray(tPixelSorted);
-        }
+//#pragma omp barrier
+//#pragma omp single
+            {
+                if (tPixelSorted){
+                    mxDestroyArray(tPixelSorted);
+                    tPixelSorted = nullptr;
+                }
+            }
+        }//Else
 
     } // end parallel region
 
