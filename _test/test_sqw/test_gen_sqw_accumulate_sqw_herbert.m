@@ -29,7 +29,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
     %>>tc=test_gen_sqw_accumulate_sqw_sep_session('save');
     %>>tc.save():
     properties
-        worker_h = @worker_v1
+        worker_h = @worker_4tests
     end
     methods
         function obj=test_gen_sqw_accumulate_sqw_herbert(test_name)
