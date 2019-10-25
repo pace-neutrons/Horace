@@ -29,47 +29,15 @@ function herbert_mex(varargin)
 % list of keys the script accepts
 keys={'-noprompt','-setmex','-CPP','-FOR','-use_lib','-keep_lib','-missing'};
 %defaults:
-prompt4compiler=true;
-keep_lib       =false;
-use_lib        =false;
-set_mex        =false;
-missing        ='';
+[ok,mess,no_prompt,keep_lib,use_lib,set_mex,use_missing] = parse_char_options(keys,varargin);
+if ~ok
+    error(mess)
+end
 
 
-if nargin >0
-    ikeys  = ismember(varargin,keys);
-    if ~all(ikeys)
-        noKeys = varargin(~ikeys);
-        for i=1:numel(noKeys)
-            disp(['HERBERT_MEX: unrecognised key: ',noKeys{i},' ignored']);
-        end
-    end
-    theKeys = varargin(ikeys);
-    if ismember('-noprompt',theKeys)
-        prompt4compiler=false;
-        user_choice='n';
-    end
-    if ismember('-CPP',theKeys)
-        prompt4compiler=false;
-        user_choice    = 'c';
-    end
-    if ismember('-FOR',theKeys)
-        prompt4compiler=false;
-        user_choice    = 'f';
-    end
-    if ismember('-keep_lib',theKeys)
-        keep_lib    = true;
-    end
-    if ismember('-use_lib',theKeys)
-        use_lib     = true;
-        keep_lib    =true;
-    end
-    if ismember('-missing',theKeys)
-        missing = '-missing';
-    end
-    if ismember('-sefmex',theKeys)
-        set_mex = true;
-    end
+prompt4compiler=~no_prompt;
+if use_missing
+    missing = '-missing';
 end
 
 rootpath = fileparts(which('herbert_init'));
