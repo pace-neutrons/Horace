@@ -1,16 +1,33 @@
 classdef job_dispatcher_common_tests< MPI_Test_Common
     % The tests used by any parallel job dispatchers
     %
-    % $Revision:: 832 ($Date:: 2019-08-11 23:25:59 +0100 (Sun, 11 Aug 2019) $)
+    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
     %
     
     properties
+        worker='worker_4tests'
+        current_worker_cache_=[];
     end
     methods
         %
         function this=job_dispatcher_common_tests(test_name,framework_name)
             this = this@MPI_Test_Common(test_name,framework_name);
         end
+        function setUp(obj)
+            parc = parallel_config;
+            parc.saveable= false;
+            obj.current_worker_cache_ = parc.worker;
+            parc.worker = obj.worker;
+            
+        end
+        function tearDown(obj)
+           parc = parallel_config;
+           parc.worker = obj.current_worker_cache_;
+           parc.saveable = true;
+            
+            
+        end
+
         function test_job_fail_restart(obj,varargin)
             if obj.ignore_test
                 return;

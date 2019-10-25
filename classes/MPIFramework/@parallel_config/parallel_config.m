@@ -44,10 +44,13 @@ classdef parallel_config<config_base
     %>>parallel_config  to see the list of current configuration option values.
     %
     %
-    % $Revision:: 832 ($Date:: 2019-08-11 23:25:59 +0100 (Sun, 11 Aug 2019) $)
+    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
     %
     
     properties(Dependent)
+        % The name of the script or program to run on cluster in parallel 
+        % using parallel workers
+        worker;
         % a framework to use for message exchange. Currently available are
         % Herbert (Herbert file-bases) and parpool (Matlab MPI) frameworks
         parallel_framework;
@@ -96,6 +99,7 @@ classdef parallel_config<config_base
             'shared_folder_on_local','shared_folder_on_remote','working_directory'};
     end
     properties(Access=private)
+        worker_ = 'worker_v1'
         % these values provide defaults for the properties above
         parallel_framework_   = 'herbert';
         % default remote folder is unset
@@ -161,6 +165,22 @@ classdef parallel_config<config_base
                 is = false;
             end
             
+        end
+        function wrkr = get.worker(obj)
+            wrkr  = obj.worker_;
+        end
+        function obj = set.worker(obj,val)
+            if ~ischar(val)
+                error('PARALLEL_CONFIG:invalid_argument',...
+                    'The worker property needs the executable script name')
+            end
+            scr_path = which(val);
+            if isempty(scr_path)
+                error('PARALLEL_CONFIG:invalid_argument',...                
+                    ['The script to run in parallel should be available ',...
+                    'to all running Matlab sessions but parallel config can not find it'])
+            end
+            obj.worker_ = val;
         end
         %-----------------------------------------------------------------
         % overloaded setters
