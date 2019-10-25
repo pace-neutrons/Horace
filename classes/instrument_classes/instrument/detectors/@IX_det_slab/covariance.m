@@ -31,7 +31,7 @@ function val = covariance (obj, npath_in, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 832 ($Date:: 2019-08-11 23:25:59 +0100 (Sun, 11 Aug 2019) $)
+% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
 
 
 cxx = var_x (obj, npath_in, varargin{:});

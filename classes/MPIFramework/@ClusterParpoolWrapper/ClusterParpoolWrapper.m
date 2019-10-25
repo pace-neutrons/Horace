@@ -4,7 +4,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
     % custom parallel class
     %
     %
-    % $Revision:: 832 ($Date:: 2019-08-11 23:25:59 +0100 (Sun, 11 Aug 2019) $)
+    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
     %
     %----------------------------------------------------------------------
     properties(Access = protected)
@@ -14,6 +14,11 @@ classdef ClusterParpoolWrapper < ClusterWrapper
         
         cluster_prev_state_ =[];
         cluster_cur_state_ = [];
+        %------------------------------------------------------------------------
+        % the handle for the function to run a remote job. The function must be
+        % on the Matlab data search path before Horace is initialized.
+        %h_worker_ = @worker_4tests;
+        h_worker_ = @worker_v1;
     end
     properties(Constant,Access = private)
         % list of states available for parallel computer toolbox cluster
@@ -37,10 +42,6 @@ classdef ClusterParpoolWrapper < ClusterWrapper
         %Failed      ( 'failed'      , 101 )
         %Unavailable ( 'unavailable' , 102 )
         %Destroyed   ( 'deleted'     , 103 )
-        %------------------------------------------------------------------------
-        % the handle for the function to run a remote job. The function must be
-        % on the Matlab data search path before Horace is initialized.
-        h_worker_ = @worker_v1;
     end
     
     methods
@@ -48,6 +49,9 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             % Constructor, which initiates wrapper
             %
             obj = obj@ClusterWrapper(n_workers,mess_exchange_framework);
+            pc = parallel_config();
+            obj.h_worker_ = str2func(pc.worker);
+            
             
             % delete interactive parallel cluster if any exist
             cl = gcp('nocreate');

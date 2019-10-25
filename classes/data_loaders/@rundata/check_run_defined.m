@@ -25,7 +25,7 @@ function [undefined,fields_from_loader,fields_undef] = check_run_defined(run,fie
 
 % $Author: Alex Buts; 20/10/2011
 %
-% $Revision:: 832 ($Date:: 2019-08-11 23:25:59 +0100 (Sun, 11 Aug 2019) $)
+% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
 
 %
 % What fields have to be defined (as function of crystal/powder parameter)?

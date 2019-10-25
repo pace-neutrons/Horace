@@ -3,7 +3,7 @@ function isit = check_isconfigured(this,class_instance,check_mem_only)
 % memory or still on HDD
 %
 
-% $Revision:: 832 ($Date:: 2019-08-11 23:25:59 +0100 (Sun, 11 Aug 2019) $)
+% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
 
 
 class_name = class_instance.class_name;

@@ -55,7 +55,7 @@ function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,varargin)
 %       is used instead;
 
 %
-% $Revision:: 832 ($Date:: 2019-08-11 23:25:59 +0100 (Sun, 11 Aug 2019) $)
+% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
 %
 %
 %
@@ -141,36 +141,35 @@ end
 
 n_dfnd_params = numel(params);
 args=cell(1,n_dfnd_params);
+emode = params{2};
+emode = emode(1);
+% let's try to establish if efix range is provided for indirect instrument
+if emode == 2
+    n_det_efix_guess = 1;
+    e_fix = params{1};
+    if numel(e_fix) > 1
+        if size(e_fix,2) == n_files && size(e_fix,1) ~= n_files
+            e_fix = e_fix';
+            params{1} = e_fix;
+        end
+        n_det_efix_guess = size(e_fix,2);
+    end
+end
 
 % Transform all arrays with one dimension of n_files into cell arrays
 for i=1:n_dfnd_params
     val = params{i};
     name= parameter_nams{i};
     if ismember(name,{'alatt','angdeg','u','v'})
-        if numel(size(val))==2 && all(size(val)==[n_files,3])
-            args{i}=num2cell(val,2)';   % 1 x nfiles cell array
-        elseif numel(val)==3
-            args{i}=num2cell(repmat(val(:)',[n_files,1]),2)';   % 1 x nfiles cell array
+        args{i} = spread_vector(val,n_files,3,parameter_nams{i});
+    elseif emode == 2 && strcmpi(name,'efix')
+        if n_det_efix_guess >1
+            args{i} = spread_vector(val,n_files,n_det_efix_guess,parameter_nams{i});
         else
-            error('GEN_RUNFILES:invalid_argument','parameter %s must be a 3-element vector or a [%d x 3] array of doubles',parameter_nams{i},n_files);
-        end
-    elseif strcmpi(name,'efix') && params{2}==2 % emode == 2
-        if size(val,2) ~= n_files
-            if size(val,2) ~=1
-                error('GEN_RUNFILES:invalid_argument','size of Efix in indirect mode can be a single value, row of values  1x%d size or matrix of [ndet x %d] size',n_files,n_files);
-            end
-            args{i} =num2cell(repmat(val,1,n_files),1);
-        else
-            args{i} = num2cell(val,1);
+            args{i} = spread_scalar(val,n_files,parameter_nams{i});
         end
     else
-        if numel(val)==n_files
-            args{i}=num2cell(val(:)');  % 1 x nfiles cell array
-        elseif numel(val)==1
-            args{i}=num2cell(val*ones(1,n_files));  % 1 x nfiles cell array
-        else
-            error('GEN_RUNFILES:invalid_argument','parameter %s must be a single value or a vector of %d values',parameter_nams{i},n_files);
-        end
+        args{i} = spread_scalar(val,n_files,parameter_nams{i});
     end
 end
 if numel(args) < numel(parameter_nams)
@@ -191,6 +190,8 @@ end
 %runfiles = cellfun(@()(feval(name_of_class)),runfiles,'UniformOutput',false);
 
 file_exist = true(n_files,1);
+
+
 
 % Do we build runfiles from one, multiple or no par files?
 if isempty(par_files)
@@ -319,4 +320,24 @@ if all(ismember(detpar_fields,fields))
     is = true;
 else
     is = false;
+end
+
+function res = spread_scalar(val,n_files,name)
+if numel(val)==n_files
+    res=num2cell(val(:)');  % 1 x nfiles cell array
+elseif numel(val)==1
+    res=num2cell(val*ones(1,n_files));  % 1 x nfiles cell array
+else
+    error('GEN_RUNFILES:invalid_argument','parameter %s must be a single value or a vector of %d values',name,n_files);
+end
+
+function res = spread_vector(val,n_files,n_components,name)
+if numel(size(val))==2 && all(size(val)==[n_files,n_components])
+    res=num2cell(val,2)';   % 1 x nfiles cell array
+elseif numel(val)==n_components
+    res=num2cell(repmat(val(:)',[n_files,1]),2)';   % 1 x nfiles cell array containing n_components vectors
+else
+    error('GEN_RUNFILES:invalid_argument',...
+        'parameter %s must be a %d-element vector or a [%d x %d] array of doubles',...
+        name,n_components,n_files,n_components);
 end

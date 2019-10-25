@@ -3,7 +3,7 @@ classdef ClusterHerbert < ClusterWrapper
     % runtime
     %
     %
-    % $Revision:: 832 ($Date:: 2019-08-11 23:25:59 +0100 (Sun, 11 Aug 2019) $)
+    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
     %
     %----------------------------------------------------------------------
     properties(Access = protected)
@@ -25,6 +25,7 @@ classdef ClusterHerbert < ClusterWrapper
         % the name of the function to run a remote job. The function must be
         % on the Matlab data search path before Horace is initialized.
         worker_name_ = 'worker_v1';
+        %worker_name_ = 'worker_v4tests';
     end
     
     methods
@@ -32,6 +33,8 @@ classdef ClusterHerbert < ClusterWrapper
             % Constructor, which initiates wrapper
             %
             obj = obj@ClusterWrapper(n_workers,mess_exchange_framework);
+            pc = parallel_config();
+            obj.worker_name_ = pc.worker;
             
             %
             obj.tasks_handles_  = cell(1,n_workers);

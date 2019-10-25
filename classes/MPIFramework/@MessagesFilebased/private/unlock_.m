@@ -2,7 +2,7 @@ function wlock_obj=unlock_(fh,filename)
 % Routine used to remove lock file in background
 %
 %
-% $Revision:: 832 ($Date:: 2019-08-11 23:25:59 +0100 (Sun, 11 Aug 2019) $)
+% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
 %
 wlock_obj = [];
 n_attempts_allowed = 100;
@@ -14,12 +14,23 @@ end
 if isempty(filename) % file is already closed
     return
 end
-err=fclose(fh);
+try
+    err=fclose(fh);
+catch
+    err = -1000;
+end
 ws=warning('off','MATLAB:DELETE:Permission');
 permission_denied = false;
 while exist(filename,'file')==2 || permission_denied
     if err ~=0
-        err= fclose(fh);
+        try
+            err= fclose(fh);
+        catch
+            err = -1000;
+            permission_denied=true;            
+            pause(0.1)
+            continue;
+        end
     end
     delete(filename);
     [~,warn_id] = lastwarn;
