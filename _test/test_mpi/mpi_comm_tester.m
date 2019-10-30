@@ -6,7 +6,6 @@ ok = true;
 if isempty(which('herbert_init.m'))
     horace_on();
 end
-%[comm,labInd,numLabs]=cpp_communicator('init');
 me =MessagesCppMPI('test_MPI_job');
 
 labInd = me.labIndex;

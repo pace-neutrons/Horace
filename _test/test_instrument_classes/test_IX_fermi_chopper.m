@@ -46,13 +46,13 @@ classdef test_IX_fermi_chopper < TestCaseWithSave
             y = pulse_shape (self.f50,t);  w50=IX_dataset_1d(t,y);
             
             warr = [w500,w200,w163,w162,w100,w50];
-            assertEqualWithSave (self,warr);            
+            assertEqualWithSave (self,warr);
         end
         
         %--------------------------------------------------------------------------
         function test_auto_pulse_shape (self)
             [y,t] = pulse_shape (self.f163); w163=IX_dataset_1d(t,y);
-            assertEqualWithSave (self,w163);            
+            assertEqualWithSave (self,w163,'',[0,1.e-9]);
         end
         
         %--------------------------------------------------------------------------
@@ -71,7 +71,7 @@ classdef test_IX_fermi_chopper < TestCaseWithSave
             
             [ok,mess,wdiff,chisqr] = IX_dataset_1d_same (wsamp,w200,3,'rebin','chi');
             
-            assert(ok);            
+            assert(ok);
         end
         
         %--------------------------------------------------------------------------

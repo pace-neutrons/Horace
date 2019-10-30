@@ -88,7 +88,7 @@ classdef test_obj2struct < TestCaseWithSave
             
             Sres = obj2structIndep(S);
             
-            assertEqualWithSave (self,Sres);
+            assertElementsAlmostEqualWithSave (self,Sres);
             
         end
         

@@ -376,7 +376,9 @@ elseif isobject(a) && isobject(b)
         for j=1:numel(fields)
             [ok,mess] = equal_to_tol_private(Sa.(fields{j}), Sb.(fields{j}), opt,...
                 [name_a_ind,'.',fields{j}], [name_b_ind,'.',fields{j}]);
-            if ~ok, return, end
+            if ~ok
+                return, 
+            end
         end
     end
     

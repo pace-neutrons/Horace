@@ -12,7 +12,7 @@ classdef test_IX_doubledisk_chopper < TestCaseWithSave
         %--------------------------------------------------------------------------
         function test_1 (self)
             chop = IX_doubledisk_chopper (12,120,0.7,0.02);
-            assertEqualWithSave (self,chop);            
+            assertEqualWithSave (self,chop,'',[0,1.e-9]);
         end
         
         %--------------------------------------------------------------------------
@@ -23,26 +23,26 @@ classdef test_IX_doubledisk_chopper < TestCaseWithSave
             catch
                 failed = true;
             end
-            assertTrue(failed);            
+            assertTrue(failed);
         end
         
         %--------------------------------------------------------------------------
         function test_2 (self)
             chop = IX_doubledisk_chopper (12,120,0.7,0.02,0.05);
-            assertEqualWithSave (self,chop);            
+            assertEqualWithSave (self,chop,'',[0,1.e-9]);
         end
         
         %--------------------------------------------------------------------------
         function test_3 (self)
             chop = IX_doubledisk_chopper ('Chopper_1',12,120,0.7,0.02,0.05);
-            assertEqualWithSave (self,chop);            
+            assertEqualWithSave (self,chop,'',[0,1.e-9]);
         end
         
         %--------------------------------------------------------------------------
         function test_4 (self)
             chop = IX_doubledisk_chopper (12,120,0.7,0.02,0.05,...
                 '-name','Chopper_1','-aperture_h',0.2);
-            assertEqualWithSave (self,chop);            
+            assertEqualWithSave (self,chop,'',[0,1.e-9]);
         end
         
         %--------------------------------------------------------------------------
