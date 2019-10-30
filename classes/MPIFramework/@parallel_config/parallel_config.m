@@ -150,6 +150,7 @@ classdef parallel_config<config_base
                 work_dir = tempdir;
             end
         end
+        %
         function is = get.wkdir_is_default(obj)
             % returns true if working directory has not been set (points to
             % tmpdir)
@@ -186,13 +187,14 @@ classdef parallel_config<config_base
         % overloaded setters
         function obj=set.parallel_framework(obj,val)
             % Set up MPI framework to use. Available options are:
-            % Herbert or parpool.
+            % Herbert or parpool (can be defined by single symbol) 
+            % or 
             %
             opt = {'herbert','parpool'};
             [ok,err,is_herbert,is_partool,rest] = parse_char_options({val},opt);
             if ~isempty(rest)
                 error('PARALLEL_CONFIG:invalid_argument',...
-                    'Unknown option: %s. Only ''herbert'' or ''parpool'' options are currently accepted',...
+                    'Unknown option: %s. Only ''h[erbert]'' or ''p[arpool]'' options are currently accepted',...
                     val);
             end
             if ~ok

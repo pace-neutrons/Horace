@@ -163,7 +163,6 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             
         end
         %
-        %
         function test_send_receive_tester(obj)
             if obj.ignore_test
                 return;
@@ -183,6 +182,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             assertTrue(exist(file,'file')==2);
             
         end
+        %
         function test_probe_receive_all_tester(obj)
             if obj.ignore_test
                 return;

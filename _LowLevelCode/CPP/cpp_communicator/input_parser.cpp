@@ -1,5 +1,4 @@
 #include "input_parser.h"
-
 #include "MPI_wrapper.h"
 
 

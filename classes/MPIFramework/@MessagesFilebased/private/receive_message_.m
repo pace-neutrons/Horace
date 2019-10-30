@@ -34,15 +34,18 @@ mess_present= false;
 mess_receive_option = 'nolocked';
 t0 = tic;
 while ~mess_present
-    
-    folder_contents = dir(mess_folder);
+    if obj.task_id_ > 0 && ispc()
+        folder_contents = get_folder_contents_(mess_folder);
+    else
+        folder_contents = dir(mess_folder);
+    end
     [mess_names,mid_from,mid_to] = parse_folder_contents_(folder_contents,mess_receive_option);
     if isempty(mess_names)
         for_this_lab  = false;
     else
         for_this_lab = obj.labIndex == mid_to;
     end
-    if any(for_this_lab) % no message intender for this lab received.
+    if any(for_this_lab) % a message intended for this lab received.
         mess_names = mess_names(for_this_lab);
         mid_from   = mid_from(for_this_lab);
         % check if message is from the lab requested
@@ -55,6 +58,7 @@ while ~mess_present
         mid_from   = mid_from(from_lab_requested );
         % check if message is as requested
         if ~isempty(mess_name)
+            % failed accepted even if not requested
             tid_requested = ismember(mess_names,{mess_name,'failed'});
             mid_from    = mid_from (tid_requested);
             mess_names  = mess_names(tid_requested);
@@ -64,12 +68,12 @@ while ~mess_present
         end
     end
     if ~mess_present % no message intended for this lab is present in system.
-%         of = fopen('all');
-%         fprintf(f_hl,'****MESS: %s NOT present: %d open files in worker\n',mess_name,numel(of));
-%         for i=1:numel(of)
-%             fname = fopen(of(i));
-%             fprintf(f_hl,'  opened file: %s\n',fname);
-%         end
+        %         of = fopen('all');
+        %         fprintf(f_hl,'****MESS: %s NOT present: %d open files in worker\n',mess_name,numel(of));
+        %         for i=1:numel(of)
+        %             fname = fopen(of(i));
+        %             fprintf(f_hl,'  opened file: %s\n',fname);
+        %         end
         
         % do waiting for it
         t_passed = toc(t0);

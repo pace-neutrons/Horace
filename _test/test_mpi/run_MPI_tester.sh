@@ -2,15 +2,16 @@
 # script for execution of deployed applications
 #
 # Sets up the MATLAB Runtime environment for the current $ARCH and executes 
-# the specified command.
+# the command defined in row 32 providing it with the arguments requested.
 #
 exe_name=$0
 exe_dir=`dirname "$0"`
+# important variable on a cluster as it does not have proper access rights otherwise
 export MCR_CACHE_ROOT=/tmp ;
 echo "------------------------------------------"
 if [ "x$1" = "x" ]; then
   echo Usage:
-  echo    $0 \<deployedMCRroot\> args
+  echo    $0 \<deployedMCRrootPath\> application_args
 else
   echo Setting up environment variables
   MCRROOT="$1"
