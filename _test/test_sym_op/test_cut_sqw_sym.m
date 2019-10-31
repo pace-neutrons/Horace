@@ -42,7 +42,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             this.ebins = [105,0,115];
             
             % Tolerance
-            this.tol_sp = [2e-7,2e-7];
+            this.tol_sp = [1e-6,1e-6];
             
             % Save line - must be the last line
             this.save()
