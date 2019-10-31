@@ -29,6 +29,11 @@ else
 end
 
 mess_folder = obj.mess_exchange_folder;
+if ~(exist(mess_folder,'dir')==7) % job was cancelled
+    error('FILEBASED_MESSAGES:runtime_error',...
+        'Job with id %s has been cancelled. No messages folder exist',obj.job_id)
+end
+
 if obj.task_id_ > 0 && ispc()
     folder_contents = get_folder_contents_(mess_folder);
 else
@@ -36,15 +41,6 @@ else
 end
 
 
-if numel(folder_contents )<=2 % no messages in the folder
-    all_messages = {};
-    mid_from  = [];
-    if ~(exist(mess_folder,'dir')==7) % job was cancelled
-        error('FILEBASED_MESSAGES:runtime_error',...
-            'Job with id %s has been cancelled. No messages folder exist',obj.job_id)
-    end
-    return;
-end
 [mess_names,mid_from,mid_to] = parse_folder_contents_(folder_contents,'nolock');
 if isempty(mess_names) % no messages
     all_messages = {};
