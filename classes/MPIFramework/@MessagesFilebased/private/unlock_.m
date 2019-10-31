@@ -34,6 +34,8 @@ while exist(filename,'file')==2 || permission_denied
                 return;
             end
         else
+            warning(ws);
+            rethrow(ME);
             permission_denied=false;
         end
     end
