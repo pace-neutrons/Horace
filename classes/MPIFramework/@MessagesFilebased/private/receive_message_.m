@@ -38,7 +38,8 @@ while ~mess_present
         folder_contents = get_folder_contents_(mess_folder);
     else
         folder_contents = dir(mess_folder);
-    end
+    end    
+
     [mess_names,mid_from,mid_to] = parse_folder_contents_(folder_contents,mess_receive_option);
     if isempty(mess_names)
         for_this_lab  = false;
@@ -68,12 +69,12 @@ while ~mess_present
         end
     end
     if ~mess_present % no message intended for this lab is present in system.
-        %         of = fopen('all');
-        %         fprintf(f_hl,'****MESS: %s NOT present: %d open files in worker\n',mess_name,numel(of));
-        %         for i=1:numel(of)
-        %             fname = fopen(of(i));
-        %             fprintf(f_hl,'  opened file: %s\n',fname);
-        %         end
+%         of = fopen('all');
+%         fprintf(f_hl,'****MESS: %s NOT present: %d open files in worker\n',mess_name,numel(of));
+%         for i=1:numel(of)
+%             fname = fopen(of(i));
+%             fprintf(f_hl,'  opened file: %s\n',fname);
+%         end
         
         % do waiting for it
         t_passed = toc(t0);
@@ -106,7 +107,8 @@ n_attempts = 0;
 try_limit = 10;
 received = false;
 [rlock_file,wlock_file] = build_lock_fname_(mess_fname);
-deadlock_tries = 100;
+lock_(rlock_file);
+%deadlock_tries = 100;
 
 while ~received
     
@@ -115,21 +117,8 @@ while ~received
         %fprintf(f_hl,'****MESS Receiving: Write lock file %s present\n',wlock_file);
         continue;
     end
-    fh = fopen(rlock_file,'wb');
-    if fh > 0
-        source_unlocker = onCleanup(@()unlock_(fh,rlock_file));
-    else
-        n_attempts = n_attempts+1;
-        pause(0.1);
-        if n_attempts < deadlock_tries
-            continue;
-        else
-            warning('RECEIVE_MESSAGE:runtime_error',...
-                ' problem with obtaining lock %s at receiving. Proceeding regardless',rlock_file)
-            unlock_(fh,rlock_file);
-        end
-    end
-    
+    lock_(rlock_file);    
+    source_unlocker = onCleanup(@()unlock_(rlock_file));    
     try
         mesl = load(mess_fname);
         received = true;
@@ -142,6 +131,7 @@ while ~received
         pause(obj.time_to_react_)
     end
 end
+clear source_unlocker;
 % check if a message is from the data queue and we need to progress the data
 % queue
 from_data_queue = MESS_NAMES.is_queuing(mess_names{1});

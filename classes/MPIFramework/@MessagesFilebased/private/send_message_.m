@@ -37,13 +37,12 @@ while exist(rlock_file,'file') == 2 % previous message is reading, wait unitl re
     pause(obj.time_to_react_)
 end
 
-fh = fopen(wlock_file,'wb');
-% %prepare lock removal after the routine completeon
-% clob = onCleanup(@()unlock_(fh,wlock_file));
+lock_(wlock_file);
+
 %
 save(mess_fname,'message','-v7.3');
 %
-wlock_obj = unlock_(fh,wlock_file);
+wlock_obj = unlock_(wlock_file);
 if ~isempty(wlock_obj)
     ok = MESS_CODES.write_lock_persists;
 end

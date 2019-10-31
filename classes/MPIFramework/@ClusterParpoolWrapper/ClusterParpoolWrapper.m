@@ -49,6 +49,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             % Constructor, which initiates wrapper
             %
             obj = obj@ClusterWrapper(n_workers,mess_exchange_framework);
+            % get worker defined in parallel config
             pc = parallel_config();
             obj.h_worker_ = str2func(pc.worker);
             
