@@ -38,8 +38,8 @@ while ~mess_present
         folder_contents = get_folder_contents_(mess_folder);
     else
         folder_contents = dir(mess_folder);
-    end    
-
+    end
+    
     [mess_names,mid_from,mid_to] = parse_folder_contents_(folder_contents,mess_receive_option);
     if isempty(mess_names)
         for_this_lab  = false;
@@ -69,12 +69,12 @@ while ~mess_present
         end
     end
     if ~mess_present % no message intended for this lab is present in system.
-%         of = fopen('all');
-%         fprintf(f_hl,'****MESS: %s NOT present: %d open files in worker\n',mess_name,numel(of));
-%         for i=1:numel(of)
-%             fname = fopen(of(i));
-%             fprintf(f_hl,'  opened file: %s\n',fname);
-%         end
+        %         of = fopen('all');
+        %         fprintf(f_hl,'****MESS: %s NOT present: %d open files in worker\n',mess_name,numel(of));
+        %         for i=1:numel(of)
+        %             fname = fopen(of(i));
+        %             fprintf(f_hl,'  opened file: %s\n',fname);
+        %         end
         
         % do waiting for it
         t_passed = toc(t0);
@@ -104,21 +104,21 @@ end
 % safeguard against message start being written up
 % but have not finished yet when dispatcher asks for it
 n_attempts = 0;
-try_limit = 10;
+try_limit = 100;
 received = false;
 [rlock_file,wlock_file] = build_lock_fname_(mess_fname);
-lock_(rlock_file);
-%deadlock_tries = 100;
 
+%deadlock_tries = 100;
+lock_(rlock_file);
 while ~received
     
-    if exist(wlock_file,'file') == 2
-        pause(obj.time_to_react_)
-        %fprintf(f_hl,'****MESS Receiving: Write lock file %s present\n',wlock_file);
-        continue;
-    end
-    lock_(rlock_file);    
-    source_unlocker = onCleanup(@()unlock_(rlock_file));    
+    % the message can not be in process of writing as it should be locked
+    % in this case
+    %     if exist(wlock_file,'file') == 2
+    %         pause(obj.time_to_react_)
+    %         %fprintf(f_hl,'****MESS Receiving: Write lock file %s present\n',wlock_file);
+    %         continue;
+    %     end
     try
         mesl = load(mess_fname);
         received = true;
@@ -127,11 +127,20 @@ while ~received
         if n_attempts>try_limit
             rethrow(err);
         end
-        clear source_unlocker; % avoid self-locking
         pause(obj.time_to_react_)
     end
 end
-clear source_unlocker;
+% process received message
+message = mesl.message;
+err_code  =MESS_CODES.ok;
+err_mess=[];
+
+if is_failed  % make failed message persistent
+    plo = unlock_(rlock_file);
+    return;
+end
+
+%clear source_unlocker;
 % check if a message is from the data queue and we need to progress the data
 % queue
 from_data_queue = MESS_NAMES.is_queuing(mess_names{1});
@@ -143,14 +152,6 @@ if from_data_queue
         progress_queue = true;
     end
 end
-% process received message
-message = mesl.message;
-err_code  =MESS_CODES.ok;
-err_mess=[];
-
-if is_failed  % make failed message persistent
-    return;
-end
 
 if progress_queue % prepare the next message to read -- the oldest message
     % written earlier
@@ -158,22 +159,17 @@ if progress_queue % prepare the next message to read -- the oldest message
     [fp,fn] = fileparts(mess_fname);
     next_mess_fname = fullfile(fp,[fn,'.',num2str(first_queue_num(1))]);
     
-    %[rlock_file,wlock_file] = build_lock_fname_(next_mess_fname);
-    [~,wlock_file] = build_lock_fname_(next_mess_fname);
+    [rlock_fileQ,wlock_fileQ] = build_lock_fname_(next_mess_fname);
     success = false;
     n_attempts = 0;
     while ~success
-        if exist(wlock_file,'file') == 2
+        % next queue file may be in process of writing to.
+        if exist(wlock_fileQ,'file') == 2
             pause(obj.time_to_react_)
             continue;
         end
-        %         fh = fopen(rlock_file,'wb');
-        %         if fh > 0
-        %             target_unlocker = onCleanup(@()unlock_(fh,rlock_file));
-        %         else
-        %             continue;
-        %         end
-        %         %
+        lock_(rlock_fileQ);
+        %
         [success,mess,mess_id]=movefile(next_mess_fname,mess_fname,'f');
         if ~success
             pause(obj.time_to_react_);
@@ -183,13 +179,16 @@ if progress_queue % prepare the next message to read -- the oldest message
             end
             %clear target_unlocker;
         end
+        unlock_(rlock_fileQ);
     end
+    unlock_(rlock_file);
 else
-    delete(mess_fname);
-    pause(0.1);
+    unlock_(mess_fname);
+    unlock_(rlock_file);
+    %pause(0.1);
 end
 
-clear source_unlocker
+%clear source_unlocker
 %clear target_unlocker;
 
 

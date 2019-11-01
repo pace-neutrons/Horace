@@ -18,6 +18,8 @@ classdef parallel_config<config_base
     %
     % Fields are:
     % -----------
+    %  worker               - The name of the script or program to run
+    %                         on cluster in parallel using parallel workers
     %  parallel_framework   - the name of a framework to use. Currently
     %                         available are Herbert or parpool, where
     %                         parpool works only if parallel computing
@@ -188,8 +190,7 @@ classdef parallel_config<config_base
         % overloaded setters
         function obj=set.parallel_framework(obj,val)
             % Set up MPI framework to use. Available options are:
-            % Herbert or parpool (can be defined by single symbol) 
-            % or 
+            % h[erbert] or p[arpool] (can be defined by single symbol)
             %
             opt = {'herbert','parpool'};
             [ok,err,is_herbert,is_partool,rest] = parse_char_options({val},opt);

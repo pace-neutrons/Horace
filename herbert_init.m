@@ -81,9 +81,9 @@ string=fullfile(varargin{:},'');    % '' needed to circumvent bug in fullfile if
 if exist(string,'dir')==7
     try
         addpath (string);
-    catch
+    catch Err
         herbert_off
-        error(lasterr);
+        rethrow(Err);
     end
 else
     herbert_off

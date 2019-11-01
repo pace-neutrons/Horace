@@ -15,7 +15,7 @@ n_workers = obj.n_workers;
 n_locked = 0;
 wlock_obj_arr = cell(1,n_workers);
 obj=obj.display_progress([log_prefix,' parallel job: ',obj.job_id]);
-for tid=1:n_workers
+for tid=n_workers:-1:1
     [ok,err,wlock] = me.send_message(tid,je_init_message);
     if ok ~= MESS_CODES.ok
         if ~isempty(wlock)
@@ -35,7 +35,7 @@ if n_locked > 0
     end
 end
 
-for tid=1:n_workers
+for tid=n_workers:-1:1
     [ok,err] = me.send_message(tid,task_init_mess{tid});
     if ok ~= MESS_CODES.ok
         error('CLUSTER_WRAPPER:runtime_error',...

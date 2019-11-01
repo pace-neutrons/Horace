@@ -2,7 +2,6 @@ classdef test_iMPI_methods< TestCase
     %
     % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
     %
-    
     properties
         working_dir
         current_config_folder
@@ -153,7 +152,7 @@ classdef test_iMPI_methods< TestCase
             pc.saveable = false;
             cur_data = pc.get_data_to_store();
             clobC = onCleanup(@()set(pc,cur_data));
-             
+            
             pc.shared_folder_on_local = obj.working_dir;
             
             mpi_comm = MessagesFilebased('test_iMPI_worker');

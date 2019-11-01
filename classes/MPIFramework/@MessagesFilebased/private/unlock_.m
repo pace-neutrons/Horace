@@ -8,7 +8,7 @@ wlock_obj = [];
 n_attempts_allowed = 100;
 tried = 0;
 if isempty(filename) % file is already closed
-    return
+    return;
 end
 %s = warning('error', 'MATLAB:DELETE:Permission');
 
@@ -18,6 +18,7 @@ permission_denied = false;
 while exist(filename,'file')==2 || permission_denied
     try
         delete(filename);
+        permission_denied=false;
     catch ME
         %     [~,warn_id] = lastwarn;
         warn_id = ME.identifier;
@@ -36,7 +37,7 @@ while exist(filename,'file')==2 || permission_denied
         else
             warning(ws);
             rethrow(ME);
-            permission_denied=false;
+            %permission_denied=false;
         end
     end
 end
