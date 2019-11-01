@@ -48,7 +48,7 @@ classdef parallel_config<config_base
     %
     
     properties(Dependent)
-        % The name of the script or program to run on cluster in parallel 
+        % The name of the script or program to run on cluster in parallel
         % using parallel workers
         worker;
         % a framework to use for message exchange. Currently available are
@@ -95,7 +95,7 @@ classdef parallel_config<config_base
     end
     %
     properties(Constant,Access=private)
-        saved_properties_list_={'parallel_framework',...
+        saved_properties_list_={'worker','parallel_framework',...
             'shared_folder_on_local','shared_folder_on_remote','working_directory'};
     end
     properties(Access=private)
@@ -168,7 +168,7 @@ classdef parallel_config<config_base
             
         end
         function wrkr = get.worker(obj)
-            wrkr  = obj.worker_;
+            wrkr= get_or_restore_field(obj,'worker');
         end
         function obj = set.worker(obj,val)
             if ~ischar(val)
@@ -177,12 +177,12 @@ classdef parallel_config<config_base
             end
             scr_path = which(val);
             if isempty(scr_path)
-                error('PARALLEL_CONFIG:invalid_argument',...                
+                error('PARALLEL_CONFIG:invalid_argument',...
                     ['The script to run in parallel (%s) should be available ',...
                     'to all running Matlab sessions but parallel config can not find it'],...
                     val)
             end
-            obj.worker_ = val;
+            config_store.instance().store_config(obj,'worker',val);
         end
         %-----------------------------------------------------------------
         % overloaded setters
