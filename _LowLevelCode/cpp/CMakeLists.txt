@@ -1,6 +1,7 @@
 set(
     MEX_FUNCTIONS
     "accumulate_cut_c"
+    "bin_pixels_c"
     "combine_sqw"
 )
 
