@@ -2,6 +2,7 @@ set(
     MEX_FUNCTIONS
     "accumulate_cut_c"
     "bin_pixels_c"
+    "calc_projections_c"
     "combine_sqw"
 )
 
