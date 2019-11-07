@@ -1,8 +1,9 @@
 set(
     MEX_FUNCTIONS
+    "accumulate_cut_c"
     "combine_sqw"
 )
 
-foreach(func "${MEX_FUNCTIONS}")
-    add_subdirectory("${func}")
-endforeach(func MEX_FUNCTIONS)
+foreach(_mex_func ${MEX_FUNCTIONS})
+    add_subdirectory("${_mex_func}")
+endforeach(_mex_func)
