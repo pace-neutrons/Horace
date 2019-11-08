@@ -26,3 +26,4 @@ matlab_add_mex(
     NAME "${MEX_NAME}"
     SRC "${SRC_FILES}" "${HDR_FILES}"
 )
+target_link_libraries("${MEX_NAME}" "${Matlab_UT_LIBRARY}")
