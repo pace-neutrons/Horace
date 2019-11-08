@@ -5,6 +5,7 @@ set(
     "calc_projections_c"
     "combine_sqw"
     "hdf_mex_reader"
+    "mtimesx_horace"
 )
 
 foreach(_mex_func ${MEX_FUNCTIONS})
