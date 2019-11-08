@@ -12,8 +12,8 @@ endif()
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 # Look for packages early so we can exit if they're not found
-find_package(Matlab REQUIRED COMPONENTS MAIN_PROGRAM)
 find_package(OpenMP)
+include(horace_FindMatlab)
 include(horace_FindHDF5)
 
 # Set the destination of our build artifacts
