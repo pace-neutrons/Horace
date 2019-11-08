@@ -6,6 +6,7 @@ set(
     "combine_sqw"
     "hdf_mex_reader"
     "mtimesx_horace"
+    "recompute_bin_data"
 )
 
 foreach(_mex_func ${MEX_FUNCTIONS})
