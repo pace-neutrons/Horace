@@ -4,6 +4,7 @@ set(
     "bin_pixels_c"
     "calc_projections_c"
     "combine_sqw"
+    "hdf_mex_reader"
 )
 
 foreach(_mex_func ${MEX_FUNCTIONS})

@@ -2,9 +2,19 @@ cmake_minimum_required(VERSION 3.10)
 
 project("Horace")
 
-# Look for packages early so we can exit early
+# Set CMake policies
+if(POLICY CMP0074)
+    # Ignore warnings when setting <MODULE>_ROOT variables
+    cmake_policy(SET CMP0074 NEW)
+endif()
+
+# Add cmake directory to CMake's path
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+
+# Look for packages early so we can exit if they're not found
 find_package(Matlab REQUIRED COMPONENTS MAIN_PROGRAM)
 find_package(OpenMP)
+include(horace_FindHDF5)
 
 # Set the destination of our build artifacts
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
