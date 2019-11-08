@@ -6,7 +6,9 @@ ok = true;
 if isempty(which('herbert_init.m'))
     horace_on();
 end
+disp(' horace initiated')
 me =MessagesCppMPI('test_MPI_job');
+disp('MPI interface initiated')
 
 labInd = me.labIndex;
 numLabs = me.numLabs;
@@ -19,6 +21,6 @@ fprintf(fh,'Lab N %d out of %d received control string: %s',...
 disp('file written, entering pause')
 pause(10)
 %comm=cpp_communicator('finalize',comm);
-me.finalize_all()
+me.finalize_all();
 end
 

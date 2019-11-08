@@ -120,6 +120,12 @@ classdef test_config_classes< TestCase
             assertFalse(found_when_init_tests_off,' folder was not removed from search path properly');
             assertTrue(found_when_init_tests_on);
         end
+        function test_parallel_config(obj)
+            pc = parallel_config;
+            % define current config data to return it after testing
+            cur_config = pc.get_data_to_store();
+            
+        end
         
     end
 end

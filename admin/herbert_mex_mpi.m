@@ -1,4 +1,4 @@
-function [ok,mess] = mex_cpp_communicator(varargin)
+function [ok,mess] = herbert_mex_mpi(varargin)
 
 input_files = {'cpp_communicator.cpp', 'input_parser.cpp', 'MPI_wrapper.cpp'};
 mpich_folder = '/usr/local/mpich/';

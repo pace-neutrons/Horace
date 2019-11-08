@@ -1,8 +1,6 @@
-classdef ClusterHerbert < ClusterWrapper
-    % The class to support Herbert Poor man MPI i.e. the cluster
-    %
-    % of Matlab workers, controlled by Java
-    % runtime, and exchanging filebased messages.
+classdef ClusterMPI < ClusterWrapper
+    % The class to support cluster of Matlab workers, communicating over
+    % MPI interface started by by mpiexec.
     %
     %
     % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
@@ -15,24 +13,23 @@ classdef ClusterHerbert < ClusterWrapper
         
         
         matlab_starter_  = [];
-        tasks_handles_ = {};
+        mpiexec_handle_ = [];
         %
         % running process Java exception message contents
         running_mess_contents_= 'process has not exited';
     end
     properties(Access = private)
-        task_common_str_ = {'-nosplash','-nodesktop','-r'};
+        task_common_str_ = {'-n','x','-batch'};
         %
         DEBUG_REMOTE = false;
     end
     
     methods
-        function obj = ClusterHerbert(n_workers,mess_exchange_framework,log_level)
-            % Constructor, which initiates wrapper around Herbert Poor man
-            % MPI framework.
+        function obj = ClusterMPI(n_workers,mess_exchange_framework)
+            % Constructor, which initiates MPI wrapper
             %
             % The wrapper provides common interface to run various kind of
-            % Herbert parallel jobs.
+            % Herbert parallel jobs, communication over mpi (mpich)
             %
             % Empty constructor generates wrapper, which has to be
             % initiated by init method.
@@ -42,24 +39,27 @@ classdef ClusterHerbert < ClusterWrapper
             % Inputs:
             % n_workers -- number of independent Matlab workers to execute
             %              a job
+            %
             % mess_exchange_framework -- a class-child of
             %              iMessagesFramework, used  for communications
             %              between cluster and the host Matlab session,
             %              which started and controls the job.
-            % log_level    if present, defines the verbosity of the            
+            %
+            % log_level    if present, defines the verbosity of the
             %              operations over the framework
             obj.starting_info_message_ = ...
-                ':herbert configured: *** Starting Herbert (poor-man-MPI) cluster with %d workers ***\n';
+                ':mpi job configured: *** Starting MPI job  with %d workers ***\n';
             obj.started_info_message_  = ...
-                '*** Herbert cluster started                                ***\n';            
+                '*** mpiexec MPI job started                                ***\n';
             if nargin < 2
                 return;
             end
             if ~exist('log_level','var')
                 log_level = -1;
             end
-            obj = init(obj,n_workers,mess_exchange_framework,log_level);
+            obj = obj.init(n_workers,mess_exchange_framework,log_level);
         end
+        %
         function obj = init(obj,n_workers,mess_exchange_framework,log_level)
             % The method to initate the cluster wrapper
             %
@@ -75,14 +75,14 @@ classdef ClusterHerbert < ClusterWrapper
             if ~exist('log_level','var')
                 log_level = -1;
             end
-               
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
-            %
+            
             pc = parallel_config();
-            obj.worker_name_ = pc.worker;
+            obj.h_worker_ = str2func(pc.worker);
             obj.is_compiled_script_ = pc.is_compiled;
+            
             %
-            obj.tasks_handles_  = cell(1,n_workers);
+
             %
             prog_path  = find_matlab_path();
             if isempty(prog_path)
@@ -97,6 +97,10 @@ classdef ClusterHerbert < ClusterWrapper
                 obj.matlab_starter_= fullfile(prog_path,'matlab');
                 obj.task_common_str_ = {'-softwareopengl',obj.task_common_str_{:}};
             end
+            
+            % build generic worker init string without lab parameters
+            cs = obj.mess_exchange_.gen_worker_init();
+            
             
             for task_id=1:n_workers
                 cs = obj.mess_exchange_.gen_worker_init(task_id,n_workers);
@@ -119,18 +123,19 @@ classdef ClusterHerbert < ClusterWrapper
                         ' Can not start worker N%d#%d, Error: %s',...
                         task_id,n_workers,mess);
                 end
+                
             end
+            %
             if log_level > -1
                 fprintf(obj.started_info_message_);
             end
-            
         end
         %
         function obj = start_job(obj,je_init_message,task_init_mess,log_message_prefix)
             %
             obj = obj.init_workers(je_init_message,task_init_mess,log_message_prefix);
         end
-        
+        %
         function obj=finalize_all(obj)
             obj = finalize_all@ClusterWrapper(obj);
             if ~isempty(obj.tasks_handles_)
@@ -142,7 +147,31 @@ classdef ClusterHerbert < ClusterWrapper
             end
             
         end
+        %
+        function check_availability(obj)
+            % verify the availability of the compiled Herbert MPI
+            % communicaton library and the possibility to use the MPI cluster 
+            % to run parallel jobs.
+            %
+            % Should throw PARALLEL_CONFIG:not_avalable exception
+            % if the particular framework is not avalable.
+            %
+            check_mpi_mpiexec_can_be_enabled_(obj);
+        end
+
         %------------------------------------------------------------------
+    end
+    methods(Static)
+        function mpi_exec=get_mpiexec()
+            if ispc()
+                rootpath = fileparts(which('herbert_init'));
+                % only one version of mpiexec is used now. May change in a
+                % future.
+                mpi_exec = fullfile(rootpath,'DLL','_PCWIN64','MS_MPI_R2019b','mpiexec.exe');
+            else
+                [~,mpi_exec] = system('which mpiexec');
+            end
+        end
     end
     methods(Access = protected)
         function [ok,failed,mess] = is_running(obj,task_handle)

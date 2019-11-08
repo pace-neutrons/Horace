@@ -18,13 +18,38 @@ classdef parallel_config<config_base
     %
     % Fields are:
     % -----------
-    %  worker               - The name of the script or program to run
+    %  worker              -- The name of the script or program to run
     %                         on cluster in parallel using parallel workers
-    %  parallel_framework   - the name of a framework to use. Currently
-    %                         available are Herbert or parpool, where
-    %                         parpool works only if parallel computing
-    %                         toolbox is installed and uses one while Herbert
-    %                         is custom Herbert framework.
+    %  is_compiled         -- false if the worker is a matlab sctipt and
+    %                         true if this script is compiled using Matlab
+    %                         applications compiler. The nodes need to have
+    %                         appropriate Matlab redistributable installed
+    %                         to run this application.
+    %
+    %  parallel_framework  -- the name of a framework to use. Currently
+    %                         available are h[erbert], p[arpool] and [m]pi_cluster,
+    %                         where
+    %    [h]erbert -stands for Poor man MPI framework, which runs on a single
+    %              node only and is actually not uses MPI, but launches
+    %              separate Matlab sessions using Java Launcher.
+    %              The sessions exchane information betweeneach other using
+    %              file-based messages (.mat files), so this framework is
+    %              not suitable for any tasks, demanding heavy interprocess
+    %              communications.
+    %    [p]arpool -Uses Matlab parallel computing toolbox and it parallel
+    %              cluster configured as default to run parallel jobs.
+    %              Refer to the parallel toolbox user's manual for the
+    %              description of such clusters.
+    %    [m]pi_cluster- Deploys MPI libraries to run parallel jobs.
+    %              On Windows these libraries are provided with Herbert and
+    %              configured for running the parallel jobs on a working node,
+    %              but a linux machine needs these libraries installed and
+    %              the framework compiled using herbert_mex_mpi script
+    %              If the jobs are expected to run on more then
+    %              one node, the nodes should be configured for MPI
+    %              comminications (running mpiexec).
+    %              Curren framework is build and tested using MPICH v3.
+    %
     % shared_folder_on_local- the folder on your working machine containing
     %                         the job input and output data mounted on
     %                         local machine and available from the remote
@@ -53,6 +78,13 @@ classdef parallel_config<config_base
         % The name of the script or program to run on cluster in parallel
         % using parallel workers
         worker;
+        %
+        % False if the worker is a matlab sctipt and true if this script is compiled using Matlab
+        % applications compiler. The nodes need to have
+        % appropriate Matlab redistributable installed
+        % to run this application.
+        is_compiled;
+        
         % a framework to use for message exchange. Currently available are
         % Herbert (Herbert file-bases) and parpool (Matlab MPI) frameworks
         parallel_framework;
@@ -94,14 +126,29 @@ classdef parallel_config<config_base
         working_directory
         % true, if working directory have not ever been set
         wkdir_is_default
+        % Helper method returni the list of the parallel frameworks, 
+        % known to Herbert. You can not set up a framework, it has to be
+        % subscribed via the algorithm factory. 
+        known_frameworks
     end
     %
     properties(Constant,Access=private)
-        saved_properties_list_={'worker','parallel_framework',...
+        saved_properties_list_={'worker','is_compiled','parallel_framework',...
             'shared_folder_on_local','shared_folder_on_remote','working_directory'};
+        %-------------------------------------------------------------------
+        % Subscription factory:
+        % the list of the known framework names.
+        known_frmwks_names_ = {'herbert','parpool','mpiexec_mpi'};
+        % The map to exisiting parallel frameworks clusters
+        known_frameworks_ = containers.Map(parallel_config.known_frmwks_names_,...
+            {ClusterHerbert(),ClusterParpoolWrapper(),ClusterMPI()});
+        % the map of the framework indexes
+        frmwk_ids_ = containers.Map(parallel_config.known_frmwks_names_,...
+            {1,2,3});
     end
     properties(Access=private)
         worker_ = 'worker_v1'
+        is_compiled_ = false;
         % these values provide defaults for the properties above
         parallel_framework_   = 'herbert';
         % default remote folder is unset
@@ -117,6 +164,13 @@ classdef parallel_config<config_base
         end
         %-----------------------------------------------------------------
         % overloaded getters
+        function wrkr = get.worker(obj)
+            wrkr= get_or_restore_field(obj,'worker');
+        end
+        function wrkr = get.is_compiled(obj)
+            wrkr= get_or_restore_field(obj,'is_compiled');
+        end
+        
         function frmw =get.parallel_framework(obj)
             frmw = get_or_restore_field(obj,'parallel_framework');
         end
@@ -169,9 +223,13 @@ classdef parallel_config<config_base
             end
             
         end
-        function wrkr = get.worker(obj)
-            wrkr= get_or_restore_field(obj,'worker');
+        %
+        function frmw = get.known_frameworks(obj)
+            frmw = obj.known_frmwks_names_;
         end
+        %
+        %-----------------------------------------------------------------
+        % overloaded setters
         function obj = set.worker(obj,val)
             if ~ischar(val)
                 error('PARALLEL_CONFIG:invalid_argument',...
@@ -186,36 +244,29 @@ classdef parallel_config<config_base
             end
             config_store.instance().store_config(obj,'worker',val);
         end
-        %-----------------------------------------------------------------
-        % overloaded setters
+        %
+        function obj = set.is_compiled(obj,val)
+            val = logical(val);
+            config_store.instance().store_config(obj,'is_compiled',val);
+        end
+        %
         function obj=set.parallel_framework(obj,val)
             % Set up MPI framework to use. Available options are:
-            % h[erbert] or p[arpool] (can be defined by single symbol)
+            % h[erbert], p[arpool] or m[pi_cluster]
+            % (can be defined by single symbol) or by a framework numner
+            % in the list of frameworks
             %
-            opt = {'herbert','parpool'};
-            [ok,err,is_herbert,is_partool,rest] = parse_char_options({val},opt);
-            if ~isempty(rest)
-                error('PARALLEL_CONFIG:invalid_argument',...
-                    'Unknown option: %s. Only ''h[erbert]'' or ''p[arpool]'' options are currently accepted',...
-                    val);
-            end
-            if ~ok
-                error('PARALLEL_CONFIG:invalid_argument',err);
-            end
-            if is_herbert
-                config_store.instance().store_config(...
-                    obj,'parallel_framework','herbert');
-                return;
-            end
-            if is_partool
-                [ok,err]=check_parpool_can_be_enabled(obj);
-                if ok
-                    config_store.instance().store_config(...
-                        obj,'parallel_framework','parpool');
-                else
-                    error('PARALLEL_CONFIG:toolbox_licensing',err);
-                end
-            end
+            opt = obj.known_frmwks_names_;
+            the_name = select_option_(opt,val);
+            theCluster = obj.known_frameworks_(the_name);
+            % will throw PARALLEL_CONFIG:invalid_configuration if the
+            % particular cluster is not available
+            theCluster.check_availability();
+            
+            config_store.instance().store_config(...
+                obj,'parallel_framework',the_name);
+            
+
         end
         %
         function obj=set.shared_folder_on_local(obj,val)
@@ -281,37 +332,13 @@ classdef parallel_config<config_base
             config_store.instance().store_config(obj,'working_directory',val);
         end
         %-----------------------------------------------------------------
-        function [controller] = get_cluster_wrapper(obj,n_workers,cluster_to_host_exch_fmwork)
+        function controller = get_cluster_wrapper(obj,n_workers,cluster_to_host_exch_fmwork)
             % return the appropriate job controller
             log_level = config_store.instance.get_value('herbert_config','log_level');
             fram = obj.parallel_framework;
-            switch(fram)
-                case('herbert')
-                    if log_level > -1
-                        fprintf(':herbert configured: *** Starting Herbert (poor-man-MPI) cluster with %d workers ***\n',n_workers);
-                    end
-                    controller = ClusterHerbert(n_workers,cluster_to_host_exch_fmwork);
-                    if log_level > -1
-                        fprintf('*** Herbert cluster started                                 ***\n');
-                    end
-                case('parpool')
-                    if log_level > -1
-                        fprintf(':parpool configured: *** Starting Matlab MPI job  with %d workers ***\n',n_workers);
-                    end
-                    controller = ClusterParpoolWrapper(n_workers,cluster_to_host_exch_fmwork);
-                    if log_level > -1
-                        fprintf('*** Matlab MPI job started                 ***\n');
-                    end
-                otherwise
-                    error('PARALLEL_CONFIG:runtime_error',...
-                        'Got unknown parallel framework: %s',fram);
-            end
-        end
-        
-        function [ok,err]=check_parpool_can_be_enabled(obj)
-            % check if parallel computing toolbox is available and can be
-            % used
-            [ok,err]=check_parpool_can_be_enabled_(obj);
+            controller = obj.known_frameworks_(fram);
+            %
+            controller = controller.init(n_workers,cluster_to_host_exch_fmwork,log_level);
         end
         %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED
