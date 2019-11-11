@@ -17,3 +17,4 @@ We will use [CMake](https://cmake.org/) to provide a platform agnostic build def
 ## Consequences
 
 Exactly one definition of the build will exist.
+The generated makefiles and vcproj files will need to be bundled into the releases to enable users to rebuild locally without CMake
