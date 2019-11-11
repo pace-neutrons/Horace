@@ -26,6 +26,14 @@ classdef ClusterWrapper
         % reports failure, while for Java worker this should be true, as
         % Matlab workers should finish when parallel job ends.
         exit_worker_when_job_ends;
+        % Cluster configuration contains the information about the cluster
+        % one needs to provide to run mpi job on the appropriate
+        % MPI cluster.  If the mpi job is run on a single node, the cluster
+        % configuration is not necessary so this field contains 'local'
+        % info. If one wants to run e.g. mpi job using mpiexec, the cluster
+        % configuration should refer to the appropriate hosts file
+        %
+        cluster_config
     end
     properties(Access = protected)
         % the name of the function or function handle of the function
@@ -49,6 +57,8 @@ classdef ClusterWrapper
         % the holder for the string, which describes the current pool
         % status.
         log_value_ = '';
+        %
+        cluster_config_ = 'local'
         %------------------------------------------------------------------
         % Auxiliary properties, defining the output of the log messages
         % about the cluster status.
@@ -197,7 +207,7 @@ classdef ClusterWrapper
         %
         function obj=finalize_all(obj)
             % Close parallel framework, delete filebased exchange folders
-            % and complete parallel job 
+            % and complete parallel job
             if ~isempty(obj.mess_exchange_)
                 obj.mess_exchange_.finalize_all();
                 obj.mess_exchange_ = [];
@@ -258,6 +268,19 @@ classdef ClusterWrapper
         function ex = get.exit_worker_when_job_ends(obj)
             ex = exit_worker_when_job_ends_(obj);
         end
+        function conf = get.cluster_config(obj)
+            conf = obj.cluster_config_;
+        end
+        function obj = set.cluster_config(obj,val)
+            % sets up configuration class, suitable for appropriate MPI
+            % cluster.
+            % overload set_cluster_config_ to check and accept such
+            % configuration, used by the particular cluster.
+            
+            % only 'local' (or missing) configuration is used by default.
+            obj = set_cluster_config_(obj,val);
+        end
+        
     end
     
     methods(Access=protected)
@@ -265,6 +288,13 @@ classdef ClusterWrapper
             % prepare log message from input parameters and the data, retrieved
             % by check_progress method
             obj = generate_log_(obj,varargin{:});
+        end
+        function obj = set_cluster_config_(obj,val)
+            if ~strcmpi(val,'local')
+                warning('CLUSTER_WRAPPER:invalid_argument',...
+                    'Generic cluster wrapper accepts only local configuration. Changed to local')
+            end
+            
         end
         
         function obj = set_cluster_status(obj,mess)

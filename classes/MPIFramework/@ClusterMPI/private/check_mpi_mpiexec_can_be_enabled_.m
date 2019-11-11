@@ -14,5 +14,5 @@ if ~exist(mpiexec,'file')==2
 end
 
 if ~ok
-    error('PARALLEL_CONFIG:not_avalable',mess);
+    error('PARALLEL_CONFIG:not_available',mess);
 end

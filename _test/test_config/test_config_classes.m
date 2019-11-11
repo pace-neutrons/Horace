@@ -124,7 +124,52 @@ classdef test_config_classes< TestCase
             pc = parallel_config;
             % define current config data to return it after testing
             cur_config = pc.get_data_to_store();
+            clob1 = onCleanup(@()set(pc,cur_config));
+            pc.saveable = false;
+            clob2 = onCleanup(@()set(pc,'saveable',true));
             
+            pc.parallel_framework='her';
+            assertEqual(pc.parallel_framework,'herbert');
+            try
+                pc.parallel_framework='parp';
+                assertEqual(pc.parallel_framework,'parpool');
+            catch Err
+                if ~strcmp(Err.identifier,'PARALLEL_CONFIG:not_available')
+                    rethrow(Err);
+                end
+            end
+            
+            try
+                pc.parallel_framework='m';
+                assertEqual(pc.parallel_framework,'mpiexec_mpi');
+            catch Err
+                if ~strcmp(Err.identifier,'PARALLEL_CONFIG:not_available')
+                    rethrow(Err);
+                end
+            end
+            pc.parallel_framework=0;
+            assertEqual(pc.parallel_framework,'herbert');
+            
+            try
+                pc.parallel_framework=3;
+                assertEqual(pc.parallel_framework,'mpiexec_mpi');
+            catch Err
+                if ~strcmp(Err.identifier,'PARALLEL_CONFIG:not_available')
+                    rethrow(Err);
+                end
+            end
+            
+            try
+                pc.parallel_framework=2;
+                assertEqual(pc.parallel_framework,'parpool');
+            catch Err
+                if ~strcmp(Err.identifier,'PARALLEL_CONFIG:not_avalable')
+                    rethrow(Err);
+                end
+            end
+            
+            pc.parallel_framework=1;
+            assertEqual(pc.parallel_framework,'herbert');
         end
         
     end
