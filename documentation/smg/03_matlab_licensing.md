@@ -12,7 +12,7 @@ The Matlab compiler (required to convert Matlab into an executable or library) i
 ### Desktop
 
 | Environment | Licence Required |
-| --- | --- |
+| ---  | :---: |
 | Matlab API |    Y     |
 | Python API |    N*    |
 
@@ -21,7 +21,7 @@ The Matlab compiler (required to convert Matlab into an executable or library) i
 ### Server
 
 | Task | Licence Required (per node) |
-| ---  | --- |
+| ---  | :---: |
 | Matlab  |  Y  |
 | Python  |  N*  |
 
@@ -32,6 +32,7 @@ The Matlab compiler (required to convert Matlab into an executable or library) i
 ### MATLAB Source
 
 | Target Architecture | Licence Required |
+| ---  | :---: |
 | Windows | Y+ |
 | Linux   | Y+ |
 | MacOS   | Y+ |
@@ -42,6 +43,7 @@ The Matlab compiler (required to convert Matlab into an executable or library) i
 ### C++ Source to Matlab function
 
 | Target Architecture | Licence Required |
+| ---  | :---: |
 | Windows | N |
 | Linux   | N |
 | MacOS   | N |
