@@ -50,3 +50,16 @@ The Matlab compiler (required to convert Matlab into an executable or library) i
 | SCARF   | N |
 
 The Matlab compiler used here is a wrapper around GCC with linked libraries.
+
+## Parallel Toolbox
+
+Currently we have Matlab–based parallel framework, covering full `gen_sqw` user task (3 parallel algorithms).
+
+The parallelization is framework-agnostic, but performance depends on the underlying framework.
+
+To run/test/compare performance of existing Matlab-based parallel framework:
+
+- on a single node one needs a parallel computing toolbox licence for this node.
+- on a cluster one needs a a parallel computing toolbox licence and the Matlab Distributed computing licence (a licence per participating cluster node)
+
+Currently we have sufficient number of licenses to support the operations, but as our custom MPI based parallel framework is established, the need in these licenses will disappear.
