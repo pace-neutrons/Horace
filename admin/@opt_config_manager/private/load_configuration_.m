@@ -29,6 +29,10 @@ for i=1:numel(flds)
     if strcmpi(flds{i},'info') % skip info string
         continue;
     end
+    % A configuration is stored in the configuration list but to be put on Matlab path later
+    if ~any(ismember(obj.known_configs_,flds{i}))
+        continue;
+    end
     conf_cl = feval(flds{i});
     if set_def_only
         if ~conf_cl.is_default

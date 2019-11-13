@@ -26,21 +26,13 @@ if exist('non_default_path','var') && (strcmpi(non_default_path,'where') || strc
     return;
 end
 if nargin==1 
-    start_herbert(non_default_path);    
+    start_herbert(non_default_path);
 else
-    start_herbert(her_default_path);    
+    start_herbert(her_default_path);
 end
 path = fileparts(which('herbert_init.m'));
-
-% set up multiusers computer specific settings,
-% namely settings which are common for all new users of the specific computer
-% e.g.:
-hec = herbert_config();
-if hec.is_default
-% hec.use_mex_C = true;
-    hec.log_level = 1;
-end
-
+%
+%
 
 function start_herbert(path)
 

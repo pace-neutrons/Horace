@@ -17,6 +17,9 @@ classdef opt_config_manager
         % The convenience method, defining the number of the current pc
         % configuration in the list of all configurations
         pc_config_num
+        % The helper, method providing the list of the configurations,
+        % known to the class.
+        known_configurations;
     end
     
     
@@ -110,6 +113,10 @@ classdef opt_config_manager
             cur_type = obj.this_pc_type;
             num = find(ismember(obj.known_pc_types_,cur_type),1);
         end
+        function conf = get.known_configurations(obj)
+            % return the list of the configurations, defined to the class
+            conf  = obj.known_configs_;
+        end
         %------------------------------------------------------------------
         function save_configurations(obj,varargin)
             % assuming the current configuration is the optimal one, save
@@ -163,7 +170,7 @@ classdef opt_config_manager
             %            be used in parallel (MPI) computations.
             % mem_size-- The size of the physical memory in bytes,
             %
-
+            
             [pc_type,nproc,mem_size] = find_comp_type_(obj);
         end
         
