@@ -3,7 +3,7 @@ function typical_config_settings_helper
 % known machine types.
 %
 
-% store all existing configurations to not to distroy it due to variations
+% store all existing configurations to not to destroy it due to variations.
 parc = parallel_config;
 parc.saveable = false;
 parc_c = parc.get_data_to_store();
@@ -47,7 +47,7 @@ set_windows_small(parc,herc,horc,hpcc);
 cm.this_pc_type = 1;
 cm.save_configurations('Typical configuration for Windows small machine assumes no MPI settings and use OMP if possible');
 
-% ouf MAC configuration is very similar to winwos small except it does not
+% ouf MAC configuration is very similar to Windows small except it does not
 % support mex
 %
 set_mac_small(parc,herc,horc,hpcc);
@@ -147,7 +147,7 @@ herc.use_mex = true;
 herc.use_mex_C = true;
 %
 horc.mem_chunk_size =  20000000;
-horc.threads = 8;
+horc.threads = 4;
 horc.use_mex = true;
 %
 hpcc.build_sqw_in_parallel = 1;

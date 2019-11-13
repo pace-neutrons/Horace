@@ -25,7 +25,10 @@
          <mex_combine_buffer_size>65536</mex_combine_buffer_size>
       </hpc_config>
       <parallel_config>
+         <worker>worker_v1</worker>
+         <is_compiled>[false]</is_compiled>
          <parallel_framework>herbert</parallel_framework>
+         <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
@@ -56,7 +59,10 @@
          <mex_combine_buffer_size>65536</mex_combine_buffer_size>
       </hpc_config>
       <parallel_config>
+         <worker>worker_v1</worker>
+         <is_compiled>[false]</is_compiled>
          <parallel_framework>herbert</parallel_framework>
+         <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
@@ -87,7 +93,10 @@
          <mex_combine_buffer_size>131072</mex_combine_buffer_size>
       </hpc_config>
       <parallel_config>
+         <worker>worker_v1</worker>
+         <is_compiled>[false]</is_compiled>
          <parallel_framework>herbert</parallel_framework>
+         <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
@@ -100,10 +109,10 @@
          <use_mex_C>[true]</use_mex_C>
          <force_mex_if_use_mex>[false]</force_mex_if_use_mex>
          <log_level>1</log_level>
-         <init_tests>[true]</init_tests>
+         <init_tests>[false]</init_tests>
       </herbert_config>
       <hor_config>
-         <mem_chunk_size>10000000</mem_chunk_size>
+         <mem_chunk_size>5000000</mem_chunk_size>
          <threads>8</threads>
          <ignore_nan>[true]</ignore_nan>
          <ignore_inf>[false]</ignore_inf>
@@ -118,10 +127,13 @@
          <mex_combine_buffer_size>8192</mex_combine_buffer_size>
       </hpc_config>
       <parallel_config>
+         <worker>worker_v1</worker>
+         <is_compiled>[false]</is_compiled>
          <parallel_framework>herbert</parallel_framework>
+         <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
-         <working_directory>/tmp/some_irrelevant_folder_never_used_here</working_directory>
+         <working_directory/>
       </parallel_config>
    </idaaas_small>
    <idaaas_large>
@@ -135,7 +147,7 @@
       </herbert_config>
       <hor_config>
          <mem_chunk_size>20000000</mem_chunk_size>
-         <threads>8</threads>
+         <threads>4</threads>
          <ignore_nan>[true]</ignore_nan>
          <ignore_inf>[false]</ignore_inf>
          <use_mex>[true]</use_mex>
@@ -149,7 +161,10 @@
          <mex_combine_buffer_size>8192</mex_combine_buffer_size>
       </hpc_config>
       <parallel_config>
+         <worker>worker_v1</worker>
+         <is_compiled>[false]</is_compiled>
          <parallel_framework>herbert</parallel_framework>
+         <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
@@ -180,7 +195,10 @@
          <mex_combine_buffer_size>131072</mex_combine_buffer_size>
       </hpc_config>
       <parallel_config>
+         <worker>worker_v1</worker>
+         <is_compiled>[false]</is_compiled>
          <parallel_framework>herbert</parallel_framework>
+         <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
@@ -211,7 +229,10 @@
          <mex_combine_buffer_size>4096</mex_combine_buffer_size>
       </hpc_config>
       <parallel_config>
+         <worker>worker_v1</worker>
+         <is_compiled>[false]</is_compiled>
          <parallel_framework>herbert</parallel_framework>
+         <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>

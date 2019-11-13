@@ -32,12 +32,12 @@ classdef opt_config_manager
         % should be stored
         known_configs_ = {'herbert_config','hor_config','hpc_config','parallel_config'}
         % different pc types, one may optimize Horace/Herbert for. The
-        % order of the types is harwritten in the find_comp_type function,
-        % so should not be changed without changning find_comp_type.
+        % order of the types is hard-written in the find_comp_type function,
+        % so should not be changed without changing find_comp_type.
         known_pc_types_ = {'win_small','win_large','a_mac',...
             'unix_small','unix_large',...
             'idaaas_small','idaaas_large'};
-        % amount of memory (in Gb) pesumed to be necessary for a single
+        % amount of memory (in Gb) presumed to be necessary for a single
         % parallel worker.
         mem_size_per_worker_ = 16;
     end
@@ -63,7 +63,7 @@ classdef opt_config_manager
             fldr = obj.config_info_folder_;
         end
         function obj=set.config_info_folder(obj,val)
-            % set folder containign config information.
+            % set folder containing config information.
             %
             % should be used for testing purposes only.
             obj.config_info_folder_ = val;
@@ -74,7 +74,7 @@ classdef opt_config_manager
         end
         %
         function obj = set.this_pc_type(obj,val)
-            % explisitly setting pc type for testing or debugging purposes.
+            % explicitly setting pc type for testing or debugging purposes.
             %
             % the type can be set by name (from the list of the names
             % specified in the list definition) or by the number of the pc
@@ -131,7 +131,7 @@ classdef opt_config_manager
             %               stored as optimal for this computer.
             % '-change_only_default' if this option is present, the method
             %       configured only the configurations, which values are
-            %       currently set to default not overwritng existign user
+            %       currently set to default not overwriting existing user
             %       settings
             % '-force_save' if this option is present, the
             %       configuration, loaded from the defaults is stored in

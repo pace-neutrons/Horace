@@ -22,13 +22,15 @@ classdef ClusterMPI < ClusterWrapper
         task_common_str_ = {'-n','x','-batch'};
         %
         DEBUG_REMOTE = false;
+        % the folder, containng mpiexec cluster configurations (host files)
+        config_folder_ 
     end
     
     methods
         function obj = ClusterMPI(n_workers,mess_exchange_framework)
             % Constructor, which initiates MPI wrapper
             %
-            % The wrapper provides common interface to run various kind of
+            % The wrapper provides common interface to run various kinds of
             % Herbert parallel jobs, communication over mpi (mpich)
             %
             % Empty constructor generates wrapper, which has to be
@@ -51,6 +53,9 @@ classdef ClusterMPI < ClusterWrapper
                 ':mpi job configured: *** Starting MPI job  with %d workers ***\n';
             obj.started_info_message_  = ...
                 '*** mpiexec MPI job started                                ***\n';
+            % define config folder containing cluster configurations
+            root = fileparts(which('herbert_init'));
+            obj.config_folder_ = fullfile(root,'admin','mpi_cluster_configs');
             if nargin < 2
                 return;
             end
@@ -138,15 +143,23 @@ classdef ClusterMPI < ClusterWrapper
         %
         function obj=finalize_all(obj)
             obj = finalize_all@ClusterWrapper(obj);
-            if ~isempty(obj.tasks_handles_)
-                for i=1:obj.n_workers
-                    obj.tasks_handles_{i}.destroy()
-                    obj.tasks_handles_{i} = [];
-                end
-                obj.tasks_handles_ = {};
+            if ~isempty(obj.mpiexec_handle_)
+                obj.mpiexec_handle_.destroy();
+                obj.mpiexec_handle_ = [];
             end
-            
         end
+        function config = get_cluster_configs_available(obj)
+            % The function returns the list of the availible clusters
+            % to run using correspondent parallel framework.
+            %
+            % The clusters defined by the list of the available host files.
+            %
+            % The first configuration in the available clusters list would
+            % be the default configuration.
+            %
+            config = find_and_return_host_files_(obj);
+        end
+        
         %
         function check_availability(obj)
             % verify the availability of the compiled Herbert MPI

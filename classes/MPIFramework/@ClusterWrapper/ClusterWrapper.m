@@ -32,7 +32,6 @@ classdef ClusterWrapper
         % configuration is not necessary so this field contains 'local'
         % info. If one wants to run e.g. mpi job using mpiexec, the cluster
         % configuration should refer to the appropriate hosts file
-        %
         cluster_config
     end
     properties(Access = protected)
@@ -226,8 +225,22 @@ classdef ClusterWrapper
             % if the particular framework is not available.
             %
             % This function is empty as the generic cluster wrapper and
-            % ClusterHerbert are always available.
+            % its full implementation ClusterHerbert are always available.
+            % 
+            % unavailable cluster throws PARALLEL_CONFIG:not_available
+            % exception.
         end
+        % The property returns the list of the configurations, avalible for
+        % usage by the
+        function config = get_cluster_configs_available(obj)
+            % The function returns the list of the available clusters
+            % to run using correspondent parallel framework.
+            %
+            % The first configuration in the clusters list would be the
+            % default configuration.
+            config = {obj.cluster_config_};
+        end
+        
         %------------------------------------------------------------------
         % SETTERS, GETTERS:
         %------------------------------------------------------------------
@@ -290,9 +303,10 @@ classdef ClusterWrapper
             obj = generate_log_(obj,varargin{:});
         end
         function obj = set_cluster_config_(obj,val)
-            if ~strcmpi(val,'local')
+            if ~strcmpi(val,obj.cluster_config_)
                 warning('CLUSTER_WRAPPER:invalid_argument',...
-                    'Generic cluster wrapper accepts only local configuration. Changed to local')
+                    'This type of cluster wrapper accepts only %s configuration. Changed to %s',...
+                    obj.cluster_config_,obj.cluster_config_)
             end
             
         end

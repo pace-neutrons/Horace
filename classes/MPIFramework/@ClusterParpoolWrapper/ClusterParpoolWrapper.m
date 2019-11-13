@@ -66,6 +66,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
                 ':parpool configured: *** Starting Matlab MPI job  with %d workers ***\n';
             obj.started_info_message_  = ...
                 '*** Matlab MPI job started                                 ***\n';
+            obj.cluster_config_ = 'default';
             if nargin < 2
                 return;
             end

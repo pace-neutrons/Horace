@@ -130,9 +130,22 @@ classdef test_config_classes< TestCase
             
             pc.parallel_framework='her';
             assertEqual(pc.parallel_framework,'herbert');
+            all_clust = pc.known_clusters;
+            clust = pc.cluster_config;
+            assertEqual(numel(all_clust),1);
+            assertEqual(all_clust{1},clust);
+            assertEqual(clust,'local');
             try
                 pc.parallel_framework='parp';
                 assertEqual(pc.parallel_framework,'parpool');
+                
+                all_clust = pc.known_clusters;
+                clust = pc.cluster_config;
+                % parpool framewok uses only one cluster, defined as default
+                % in parallel computing toolbox settings.
+                assertEqual(numel(all_clust ),1);
+                assertEqual(all_clust{1},clust);
+                assertEqual(clust,'default');
             catch Err
                 if ~strcmp(Err.identifier,'PARALLEL_CONFIG:not_available')
                     rethrow(Err);
@@ -142,6 +155,26 @@ classdef test_config_classes< TestCase
             try
                 pc.parallel_framework='m';
                 assertEqual(pc.parallel_framework,'mpiexec_mpi');
+                
+                all_clust = pc.known_clusters;
+                assertTrue(numel(all_clust)>1);
+                
+                clust = pc.cluster_config;
+                % first cluster after changing from paropool to mpiexec_mpi would be 'local'
+                assertEqual(clust,'local');
+                if ispc()
+                    assertTrue(any(ismember(all_clust,'test_win_cluster.win')));
+                    pc.cluster_config = 'test_win';
+                    clust = pc.cluster_config;
+                    assertEqual(clust,'test_win_cluster.win');
+                else
+                    assertTrue(any(ismember(all_clust,'test_lnx_cluster.lnx')));
+                    pc.cluster_config = 'test_lnx';
+                    clust = pc.cluster_config;
+                    assertEqual(clust,'test_lnx_cluster.lnx');
+                    
+                end
+                
             catch Err
                 if ~strcmp(Err.identifier,'PARALLEL_CONFIG:not_available')
                     rethrow(Err);
@@ -170,6 +203,8 @@ classdef test_config_classes< TestCase
             
             pc.parallel_framework=1;
             assertEqual(pc.parallel_framework,'herbert');
+            clust = pc.cluster_config;
+            assertEqual(clust,'local');
         end
         
     end

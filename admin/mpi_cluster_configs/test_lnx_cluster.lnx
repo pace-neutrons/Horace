@@ -1,0 +1,2 @@
+# This is the host file describing ClusterMPI for testing mpiexec cluster running on Linux, single node with 6 processors.
+localhost:6
