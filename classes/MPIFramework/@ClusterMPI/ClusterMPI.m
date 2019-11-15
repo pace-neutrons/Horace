@@ -8,9 +8,6 @@ classdef ClusterMPI < ClusterWrapper
     %----------------------------------------------------------------------
     properties(Access = protected)
         
-        cluster_prev_state_ =[];
-        cluster_cur_state_ = [];
-        
         
         matlab_starter_  = [];
         mpiexec_handle_ = [];
@@ -19,11 +16,10 @@ classdef ClusterMPI < ClusterWrapper
         running_mess_contents_= 'process has not exited';
     end
     properties(Access = private)
-        task_common_str_ = {'-n','x','-batch'};
         %
         DEBUG_REMOTE = false;
         % the folder, containng mpiexec cluster configurations (host files)
-        config_folder_ 
+        config_folder_
     end
     
     methods
@@ -50,7 +46,7 @@ classdef ClusterMPI < ClusterWrapper
             % log_level    if present, defines the verbosity of the
             %              operations over the framework
             obj.starting_info_message_ = ...
-                ':mpi job configured: *** Starting MPI job  with %d workers ***\n';
+                ':mpiexec MPI job configured: *** Starting MPI job  with %d workers ***\n';
             obj.started_info_message_  = ...
                 '*** mpiexec MPI job started                                ***\n';
             % define config folder containing cluster configurations
@@ -66,7 +62,8 @@ classdef ClusterMPI < ClusterWrapper
         end
         %
         function obj = init(obj,n_workers,mess_exchange_framework,log_level)
-            % The method to initate the cluster wrapper
+            % The method to initate the cluster wrapper and start running
+            % the cluster job.
             %
             % Inputs:
             % n_workers -- number of independent Matlab workers to execute
@@ -83,53 +80,42 @@ classdef ClusterMPI < ClusterWrapper
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
             
             pc = parallel_config();
-            obj.h_worker_ = str2func(pc.worker);
+            obj.worker_name_        = pc.worker;
             obj.is_compiled_script_ = pc.is_compiled;
             
             %
-
+            
             %
             prog_path  = find_matlab_path();
             if isempty(prog_path)
                 error('CLUSTER_HERBERT:runtime_error','Can not find Matlab');
             end
             
+            mpiexec = obj.get_mpiexec();
             if ispc()
                 obj.running_mess_contents_= 'process has not exited';
                 obj.matlab_starter_ = fullfile(prog_path,'matlab.exe');
             else
                 obj.running_mess_contents_= 'process hasn''t exited';
                 obj.matlab_starter_= fullfile(prog_path,'matlab');
-                obj.task_common_str_ = {'-softwareopengl',obj.task_common_str_{:}};
             end
+            mpiexec_str = {mpiexec,'-n',num2str(n_workers)};
             
             % build generic worker init string without lab parameters
             cs = obj.mess_exchange_.gen_worker_init();
+            worker_init = sprintf('%s(''%s'');exit;',obj.worker_name_,cs);
+            task_info = [mpiexec_str(:)',{obj.matlab_starter_},...
+                {'-batch'},{worker_init}];
             
-            
-            for task_id=1:n_workers
-                cs = obj.mess_exchange_.gen_worker_init(task_id,n_workers);
-                worker_init = sprintf('%s(''%s'');exit;',obj.worker_name_,cs);
-                if obj.DEBUG_REMOTE
-                    % if debugging client
-                    log_file = sprintf('output_jobN%d.log',task_id);
-                    task_info = [{obj.matlab_starter_ },obj.task_common_str_(1:end-1),...
-                        {'-logfile'},{log_file },{'-r'},{worker_init}];
-                else
-                    task_info = [{obj.matlab_starter_},obj.task_common_str_(1:end),...
-                        {worker_init}];
-                end
-                
-                runtime = java.lang.ProcessBuilder(task_info);
-                obj.tasks_handles_{task_id} = runtime.start();
-                [ok,failed,mess] = obj.is_running(obj.tasks_handles_{task_id});
-                if ~ok && failed
-                    error('CLUSTER_HERBERT:runtime_error',...
-                        ' Can not start worker N%d#%d, Error: %s',...
-                        task_id,n_workers,mess);
-                end
-                
+            runtime = java.lang.ProcessBuilder(task_info);
+            obj.mpiexec_handle_ = runtime.start();
+            [ok,failed,mess] = obj.is_running(obj.mpiexec_handle_);
+            if ~ok && failed
+                error('CLUSTER_MPI:runtime_error',...
+                    ' Can not start mpiexec with %d workers, Error: %s',...
+                    mess);
             end
+            
             %
             if log_level > -1
                 fprintf(obj.started_info_message_);
@@ -163,7 +149,7 @@ classdef ClusterMPI < ClusterWrapper
         %
         function check_availability(obj)
             % verify the availability of the compiled Herbert MPI
-            % communicaton library and the possibility to use the MPI cluster 
+            % communicaton library and the possibility to use the MPI cluster
             % to run parallel jobs.
             %
             % Should throw PARALLEL_CONFIG:not_avalable exception
@@ -171,7 +157,7 @@ classdef ClusterMPI < ClusterWrapper
             %
             check_mpi_mpiexec_can_be_enabled_(obj);
         end
-
+        
         %------------------------------------------------------------------
     end
     methods(Static)
@@ -199,33 +185,38 @@ classdef ClusterMPI < ClusterWrapper
             end
             
             mess = '';
-            try
-                term = task_handle.exitValue();
-                if ispc() % windows does not hold correct process for Matlab
-                    ok = true;
-                else
-                    ok = false; % unix does
-                end
-                if term == 0
-                    failed = false;
-                    ok = true;
-                else
-                    failed = true;
-                    mess = fprintf('Startup error with ID: %d',term);
-                end
-            catch Err
-                if strcmp(Err.identifier,'MATLAB:Java:GenericException')
-                    part = strfind(Err.message, obj.running_mess_contents_);
-                    if isempty(part)
-                        mess = Err.message;
-                        failed = true;
-                        ok   = false;
-                    else
+            if task_handle.isAlive
+                ok      = true;
+                failed  = false;
+            else
+                try
+                    term = task_handle.exitValue();
+                    if ispc() % windows does not hold correct process for Matlab
                         ok = true;
-                        failed = false;
+                    else
+                        ok = false; % unix does
                     end
-                else
-                    rethrow(Err);
+                    if term == 0
+                        failed = false;
+                        ok = true;
+                    else
+                        failed = true;
+                        mess = fprintf('Startup error with ID: %d',term);
+                    end
+                catch Err
+                    if strcmp(Err.identifier,'MATLAB:Java:GenericException')
+                        part = strfind(Err.message, obj.running_mess_contents_);
+                        if isempty(part)
+                            mess = Err.message;
+                            failed = true;
+                            ok   = false;
+                        else
+                            ok = true;
+                            failed = false;
+                        end
+                    else
+                        rethrow(Err);
+                    end
                 end
             end
         end

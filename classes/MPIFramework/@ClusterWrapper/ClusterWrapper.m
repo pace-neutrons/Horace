@@ -45,8 +45,11 @@ classdef ClusterWrapper
         
         % number of workers in the pool
         n_workers_   = 0;
-        % the holder for class, responsible for communications with pool
+        % the holder for class, responsible for the communications with pool
         mess_exchange_ =[];
+        % The name of the class, responsible for message exchange
+        % between the workers within the pool (cluster)
+        mess_exchange_inpool_ = [];
         % property, indicating changes in the pool status
         status_changed_ = false;
         %  property, containing the message, describing the current status

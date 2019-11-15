@@ -158,7 +158,8 @@ classdef iMessagesFramework
     end
     
     methods(Static)
-        function initMessage = build_je_init(JE_className,exit_on_completion,keep_worker_running)
+        function initMessage = build_je_init(JE_className,exit_on_completion,...
+                keep_worker_running,mess_exch_framework_name)
             % the structure, used to initialize job executor class, to run on
             % a particular worker
             %
@@ -171,12 +172,17 @@ classdef iMessagesFramework
             % keep_worker_running -- true if worker's Matlab session should
             %                run after JE work is completed waiting for
             %                another starting and init messages.
+            % mess_exch_framework_name -- the name of the framework, used
+            %                to exchange messages between workes
             %
             if ~exist('exit_on_completion','var')
                 exit_on_completion = true;
             end
             if ~exist('keep_worker_running','var')
                 keep_worker_running = false;
+            end
+            if ~exist('mess_exch_framework_name','var')
+                mess_exch_framework_name = [];
             end
             
             % labIndex defines the number of worker. If this is MPI job,
@@ -186,6 +192,9 @@ classdef iMessagesFramework
                 'JobExecutorClassName',JE_className,...
                 'exit_on_compl',exit_on_completion ,...
                 'keep_worker_running',keep_worker_running);
+            if ~isempty(mess_exch_framework_name)
+                info.framework_name = mess_exch_framework_name;
+            end
             initMessage  = aMessage('starting');
             initMessage.payload = info;
         end

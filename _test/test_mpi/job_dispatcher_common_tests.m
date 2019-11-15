@@ -5,29 +5,13 @@ classdef job_dispatcher_common_tests< MPI_Test_Common
     %
     
     properties
-        worker='worker_4tests'
-        current_worker_cache_=[];
     end
     methods
         %
         function this=job_dispatcher_common_tests(test_name,framework_name)
             this = this@MPI_Test_Common(test_name,framework_name);
         end
-        function setUp(obj)
-            parc = parallel_config;
-            parc.saveable= false;
-            obj.current_worker_cache_ = parc.worker;
-            parc.worker = obj.worker;
-            
-        end
-        function tearDown(obj)
-           parc = parallel_config;
-           parc.worker = obj.current_worker_cache_;
-           parc.saveable = true;
-            
-            
-        end
-
+        
         function test_job_fail_restart(obj,varargin)
             if obj.ignore_test
                 return;
@@ -69,7 +53,7 @@ classdef job_dispatcher_common_tests< MPI_Test_Common
             %assertTrue(exist(file3a,'file')==2);
             
             
-            co = onCleanup(@()(delete(file3)));           
+            co = onCleanup(@()(delete(file3)));
             common_param.fail_for_labsN  =1:2;
             [outputs,n_failed,~,jd]=jd.restart_job('JETester',common_param,4,true,true,1);
             
@@ -149,7 +133,7 @@ classdef job_dispatcher_common_tests< MPI_Test_Common
             assertTrue(exist(file1,'file')==2);
             assertTrue(exist(file2,'file')==2);
             assertTrue(exist(file3,'file')==2);
-            assertTrue(exist(file3a,'file')==2);            
+            assertTrue(exist(file3a,'file')==2);
             
         end
         

@@ -1,6 +1,6 @@
 classdef parallel_config<config_base
     %The config class contains the information about the parallel cluster
-    %and the parallel framework to available to run parallel Horace/Herbert
+    %and the parallel framework available to run parallel Horace/Herbert
     %jobs
     %
     % To see the list of current configuration option values type:
@@ -58,7 +58,8 @@ classdef parallel_config<config_base
     %
     properties(Dependent)
         % The name of the script or program to run on cluster in parallel
-        % using parallel workers
+        % using parallel workers. The script has to be on the Matlab search
+        % path for all 
         worker;
         
         % False if the worker above is a matlab sctipt. The nodes need to

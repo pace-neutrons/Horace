@@ -170,11 +170,11 @@ classdef MessagesCppMPI < iMessagesFramework
             % implementation unclear
         end
         %
-        function [ok,err]=labBarrier(obj,nothrow)
-            if ~exist('nothrow','var')
-                nothrow = false;
-            end
-            [ok,err]=wait_at_barrier_(obj,nothrow);
+        function [ok,err]=labBarrier(obj,varargin)
+            % this barrier never throws and never returns errors
+             cpp_communicator('barrier',obj.mpi_framework_holder_);
+             ok = true;
+             err = [];
         end
         
         
