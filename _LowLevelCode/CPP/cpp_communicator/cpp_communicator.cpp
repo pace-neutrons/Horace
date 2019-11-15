@@ -76,6 +76,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         set_numlab_and_nlabs(pCommunicatorHolder, nlhs, plhs, nrhs, prhs);
         break;
     }
+    case(labBarrier): { // wait at barrier. Should not return anything
+        pCommunicatorHolder->class_ptr->barrier();
+        return;
+    }
     case(labSend): {
         break;
     }

@@ -11,6 +11,7 @@ public:
         labIndex(-1), numProcs(0){}
 	int init();
 	void close();
+    void barrier();
 
 	~MPI_wrapper() {
 		this->close();

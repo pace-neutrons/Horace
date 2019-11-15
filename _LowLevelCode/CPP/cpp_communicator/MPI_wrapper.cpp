@@ -10,7 +10,7 @@ int MPI_wrapper::init() {
     }catch(...){}
 
     if (err != MPI_SUCCESS) {
-        throw_error("MPI_MEX_COMMUNICATOR:runtime_error", 
+        throw_error("MPI_MEX_COMMUNICATOR:runtime_error",
             "Can not initialize MPI framework");
     }
 
@@ -21,4 +21,7 @@ int MPI_wrapper::init() {
 }
 void MPI_wrapper::close() {
     MPI_Finalize();
+}
+void MPI_wrapper::barrier() {
+    MPI_Barrier(MPI_COMM_WORLD);
 }

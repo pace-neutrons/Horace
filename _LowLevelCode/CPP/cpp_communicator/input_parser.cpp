@@ -142,6 +142,9 @@ class_handle<MPI_wrapper> *parse_inputs(int nlhs, int nrhs, const mxArray *prhs[
     else if (mex_mode.compare("labProbe") == 0) {
         work_mode = labProbe;
     }
+    else if (mex_mode.compare("barrier") == 0) {
+        work_mode = labBarrier;
+    }
     else if (mex_mode.compare("init") == 0) {
         if (nrhs != 1 ) {
             std::stringstream err;
