@@ -34,7 +34,7 @@ In addition:
 All (new) code will be tested at UNIT level
 
 - Where code is parallelized tests must be extended to cover execution on 1 and N (>1) threads to verify behaviour is unchanged
-- C++ code will be unit tested with CXX
+- C++ code will be unit tested with WHICH-TEST-FRAMEWORK
 - Matlab will be tested with Matlab class-based unittest Framework
 - Unit tests will be executed as part of the CI build
 
