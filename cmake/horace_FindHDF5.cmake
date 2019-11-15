@@ -12,8 +12,8 @@ module. You'll find the file bundled with your CMake isntallation.
 
 #]=======================================================================]
 if(UNIX)
-    set(HDF5_ROOT "${CMAKE_SOURCE_DIR}/_LowLevelCode/build_all/HDF5_1.8.12_unix/")
+    set(HDF5_ROOT "${CMAKE_SOURCE_DIR}/_LowLevelCode/external/HDF5_1.8.12_unix/")
 elseif(WIN32)
-    set(HDF5_ROOT "${CMAKE_SOURCE_DIR}/_LowLevelCode/build_all/HDF5_1.8.12_win/")
+    set(HDF5_ROOT "${CMAKE_SOURCE_DIR}/_LowLevelCode/external/HDF5_1.8.12_win/")
 endif()
 find_package(HDF5)
