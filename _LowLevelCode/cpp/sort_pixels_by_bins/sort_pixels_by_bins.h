@@ -2,7 +2,7 @@
 #define H_SORT_PIXELS_BY_BINS
 
 
-#include "../../build_all/CommonCode.h"
+#include "../CommonCode.h"
 
 
 #define iRound(x)  (int)floor((x)+0.5)

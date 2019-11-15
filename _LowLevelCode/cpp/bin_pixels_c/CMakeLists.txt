@@ -5,7 +5,7 @@ set(
 
 set(
     HDR_FILES
-    "../../build_all/CommonCode.h"
+    "../CommonCode.h"
 )
 
 set(MEX_NAME "bin_pixels_c")

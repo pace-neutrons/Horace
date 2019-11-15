@@ -5,7 +5,7 @@ set(
 
 set(
     HDR_FILES
-    "../../build_all/CommonCode.h"
+    "../CommonCode.h"
     "accumulate_cut_c.h"
 )
 
