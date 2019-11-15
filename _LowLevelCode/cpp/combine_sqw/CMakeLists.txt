@@ -11,7 +11,7 @@ set(
 
 set(
     HDR_FILES
-    "../../build_all/CommonCode.h"
+    "../CommonCode.h"
     "combine_sqw.h"
     "exchange_buffer.h"
     "fileParameters.h"

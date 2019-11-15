@@ -5,7 +5,7 @@ set(
 
 set(
     HDR_FILES
-    "../../build_all/CommonCode.h"
+    "../CommonCode.h"
     "recompute_bin_data.h"
 )
 
