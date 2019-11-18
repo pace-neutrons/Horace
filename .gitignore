@@ -1,16 +1,2 @@
-/_LowLevelCode/build_all/HDF5_1.8.6_win/Uninstall.exe
-/_LowLevelCode/build_all/HDF5_1.8.6_win/bin/*.dll
-/_LowLevelCode/build_all/HDF5_1.8.6_win/bin/tools/*.dll
-/_LowLevelCode/build_all/.vs/
-/_LowLevelCode/build_all/x64/
-/_LowLevelCode/cpp/accumulate_cut_c/accumulate_cut_c/x64/
-/_LowLevelCode/cpp/bin_pixels_c/bin_pixels_c/x64/
-/_LowLevelCode/cpp/calc_projections_c/calc_projections_c/x64/
-/_LowLevelCode/cpp/combine_sqw/x64/
-/_LowLevelCode/cpp/hdf_mex_reader/x64/
-/_LowLevelCode/cpp/mtimesx_horace/x64/
-/_LowLevelCode/cpp/recompute_bin_data/x64/
-/_LowLevelCode/cpp/sort_pixels_by_bins/sort_pixels_by_bins/x64/
 *.user
-
-
+DLL/*
