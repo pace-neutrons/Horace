@@ -1,4 +1,4 @@
-#include "../../build_all/CommonCode.h"
+#include "../CommonCode.h"
 //
 enum input_arguments {
     Sqw_parameters,
