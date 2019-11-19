@@ -121,7 +121,7 @@
          <parallel_framework>herbert</parallel_framework>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
-         <working_directory>/tmp/some_irrelevant_folder_never_used_here</working_directory>
+         <working_directory/>
       </parallel_config>
    </idaaas_small>
    <idaaas_large>
