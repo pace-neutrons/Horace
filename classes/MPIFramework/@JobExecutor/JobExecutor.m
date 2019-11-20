@@ -82,7 +82,7 @@ classdef JobExecutor
             % prefix
         end
         %
-        function [obj,mess]=init(obj,fbMPI,job_control_struct,InitMessage)
+        function [obj,mess]=init(obj,fbMPI,intercom_class,InitMessage)
             % initiate worker side.
             %e.g:
             % set up tag, indicating that the job have started
@@ -95,10 +95,9 @@ classdef JobExecutor
             %                        Depending on the used framework and job,
             %                        this class can be used for communications
             %                        between workers too.
-            % job_control_struct  -- the structure,
-            %                        containing information about
-            %                        the messages framework to use for
-            %                        communications between workers.
+            % intercom_class     --  the structure, used for message exchange 
+            %                        between different workers
+            %
             % InitMessage         -- The message with information necessary
             %                        to run the job itself
             %
@@ -116,7 +115,7 @@ classdef JobExecutor
             % executor to run different task on the same parallel worker.
             mess_cache.instance('delete');
             %
-            [obj,mess]=init_je_(obj,fbMPI,job_control_struct,InitMessage);
+            [obj,mess]=init_je_(obj,fbMPI,intercom_class,InitMessage);
         end
         %
         function [ok,mess,obj] =finish_task(obj,varargin)
@@ -233,6 +232,70 @@ classdef JobExecutor
                 end
             end
         end
+    end
+    methods(Static)       
+        function initMessage = build_je_init(JE_className,exit_on_completion,...
+                keep_worker_running)
+            % Builds the structure, used to initialize job executor class, 
+            % to run on a particular worker
+            %
+            % where:
+            % JE_className -- the name of the class to do job on a worker
+            %                (needs empty constructor and init method +
+            %                child of the JobExecutor class)
+            % exit_on_completion -- true if worker's Matlab session should
+            %                exit when job is finished.
+            % keep_worker_running -- true if worker's Matlab session should
+            %                run after JE work is completed waiting for
+            %                another starting and init messages.
+            %
+            if ~exist('exit_on_completion','var')
+                exit_on_completion = true;
+            end
+            if ~exist('keep_worker_running','var')
+                keep_worker_running = false;
+            end
+            
+            % labIndex defines the number of worker. If this is MPI job,
+            % the number is derived from MPI framework, if its Herbert
+            % framework, the number of worker should be assigned.
+            info = struct(...
+                'JobExecutorClassName',JE_className,...
+                'exit_on_compl',exit_on_completion ,...
+                'keep_worker_running',keep_worker_running);
+            initMessage  = aMessage('starting');
+            initMessage.payload = info;
+        end
+        %
+        function [cntrl_node_exchange,internode_exchange]=init_frameworks(control_structure)
+            % Take control structure and initialize the frameworks for
+            % communications between the nodes of cluster and the cluster
+            % and the headnode.
+            %
+            % The control structure is defined on iMessageFramework class
+            % as it actually defines the particular frameworks to use by
+            % job.
+            %
+            % here we need to know what framework to use to exchange messages between
+            % the MPI jobs.
+            fbMPI = MessagesFilebased();
+            cntrl_node_exchange = fbMPI.init_framework(control_structure);
+            if strcmpi(class(fbMPI),control_structure.intercomm_name)
+                % filebased messages all around:
+                if isfield(control_structure,'labID') && isfield(control_structure,'numLabs')
+                    internode_exchange = cntrl_node_exchange;
+                else % the filebased messages frameowork has not been initialized properly
+                    error('JOB_EXECUTOR:invalid_argument',...
+                        'filebased messages framework have not been initialized properly');
+                end
+            else % the framework is defined by the appropriate framework name
+                mf = feval(control_structure.intercomm_name);
+                mf = mf.init_framework(control_structure);
+                cntrl_node_exchange = cntrl_node_exchange.set_framework_range(mf.labIndex,mf.numLabs);
+                internode_exchange  = mf;
+            end
+        end
+        
     end
     
 end

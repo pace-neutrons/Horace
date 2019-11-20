@@ -46,12 +46,15 @@ classdef ClusterHerbert < ClusterWrapper
             %              iMessagesFramework, used  for communications
             %              between cluster and the host Matlab session,
             %              which started and controls the job.
-            % log_level    if present, defines the verbosity of the            
+            % log_level    if present, defines the verbosity of the
             %              operations over the framework
+            obj = obj@ClusterWrapper();
             obj.starting_info_message_ = ...
                 ':herbert configured: *** Starting Herbert (poor-man-MPI) cluster with %d workers ***\n';
             obj.started_info_message_  = ...
-                '*** Herbert cluster started                                ***\n';            
+                '*** Herbert cluster started                                ***\n';
+            %
+            obj.pool_exchange_frmwk_name_ ='MessagesFilebased';
             if nargin < 2
                 return;
             end
@@ -75,7 +78,7 @@ classdef ClusterHerbert < ClusterWrapper
             if ~exist('log_level','var')
                 log_level = -1;
             end
-               
+            
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
             %
             pc = parallel_config();
@@ -98,8 +101,9 @@ classdef ClusterHerbert < ClusterWrapper
                 obj.task_common_str_ = {'-softwareopengl',obj.task_common_str_{:}};
             end
             
+            intecomm_name = obj.pool_exchange_frmwk_name_;
             for task_id=1:n_workers
-                cs = obj.mess_exchange_.gen_worker_init(task_id,n_workers);
+                cs = obj.mess_exchange_.gen_worker_init(intecomm_name ,task_id,n_workers);
                 worker_init = sprintf('%s(''%s'');exit;',obj.worker_name_,cs);
                 if obj.DEBUG_REMOTE
                     % if debugging client

@@ -33,12 +33,15 @@ classdef ClusterWrapper
         % info. If one wants to run e.g. mpi job using mpiexec, the cluster
         % configuration should refer to the appropriate hosts file
         cluster_config
+        % The name of the framework, used for message exchange within the
+        % cluster
+        pool_exchange_frmwk_name
     end
     properties(Access = protected)
         % the name of the function or function handle of the function
         % to run a remote job. The function must be
         % on the Matlab data search path before Horace is initialized.
-        worker_name_ = 'worker_v1';
+        worker_name_ = 'worker_v2';
         % if the worker is compiled Matlab application or Matlab script
         is_compiled_script_ = false;
         %------------------------------------------------------------------
@@ -49,7 +52,7 @@ classdef ClusterWrapper
         mess_exchange_ =[];
         % The name of the class, responsible for message exchange
         % between the workers within the pool (cluster)
-        mess_exchange_inpool_ = [];
+        pool_exchange_frmwk_name_ = '';
         % property, indicating changes in the pool status
         status_changed_ = false;
         %  property, containing the message, describing the current status
@@ -104,6 +107,7 @@ classdef ClusterWrapper
             if nargin < 2
                 return;
             end
+            obj.pool_exchange_frmwk_name_ = 'ClusterMPI';
             if ~exist('log_level','var')
                 log_level = -1;
             end
@@ -296,7 +300,10 @@ classdef ClusterWrapper
             % only 'local' (or missing) configuration is used by default.
             obj = set_cluster_config_(obj,val);
         end
-        
+        %
+        function name = get.pool_exchange_frmwk_name(obj)
+            name = obj.pool_exchange_frmwk_name_;
+        end
     end
     
     methods(Access=protected)

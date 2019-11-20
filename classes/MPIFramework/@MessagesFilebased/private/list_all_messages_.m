@@ -12,7 +12,7 @@ end
 if ~exist('mess_name_or_tag','var')
     mess_tag_requested = [];
 elseif ischar(mess_name_or_tag)
-    if isempty(mess_name_or_tag)
+    if isempty(mess_name_or_tag) || strcmpi(mess_name_or_tag,'all')
         mess_tag_requested = [];
     else
         mess_tag_requested = MESS_NAMES.mess_id(mess_name_or_tag);

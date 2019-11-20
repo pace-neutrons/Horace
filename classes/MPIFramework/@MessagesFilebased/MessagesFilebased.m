@@ -57,12 +57,23 @@ classdef MessagesFilebased < iMessagesFramework
             end
             
         end
+
         %------------------------------------------------------------------
         %
         function  obj = init_framework(obj,framework_info)
             % using control structure initialize operational message
             % framework
             obj = init_framework_(obj,framework_info);
+        end
+        function obj=set_framework_range(obj,labNum,NumLabs)
+            % The function to set numLab and labId describing framework
+            % extend during initialization procedure. 
+            %
+            % Also used independently to set up slave file-based framework,
+            % in the case when main data exchange framework between nodes
+            % is an MPI-based framework
+            obj.task_id_ = labNum;
+            obj.numLabs_ = NumLabs;
         end
         %------------------------------------------------------------------
         % MPI interface

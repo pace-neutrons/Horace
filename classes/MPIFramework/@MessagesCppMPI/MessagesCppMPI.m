@@ -78,7 +78,7 @@ classdef MessagesCppMPI < iMessagesFramework
             % be send
             %
             if ~isnumeric(task_id)
-                error('MESSAGES_FILEBASED:invalid_argument',...
+                error('MESSAGES_MPI:invalid_argument',...
                     'first message_name argument should be the target task number');
             end
             fn = obj.job_stat_fname_(task_id,mess_name);
@@ -167,14 +167,21 @@ classdef MessagesCppMPI < iMessagesFramework
             obj.numLabs_ = 0;
         end
         function clear_messages(obj)
-            % implementation unclear
+            % just run finalize -- all MPI messages will be invalidated
+            try
+                cpp_communicator('finalize',obj.mpi_framework_holder_);
+            catch ME
+                if ~strcmpi(ME.identifier,'MPI_MEX_COMMUNICATOR:runtime_error') % already finalized
+                    rethrow(ME);
+                end
+            end
         end
         %
         function [ok,err]=labBarrier(obj,varargin)
             % this barrier never throws and never returns errors
-             cpp_communicator('barrier',obj.mpi_framework_holder_);
-             ok = true;
-             err = [];
+            cpp_communicator('barrier',obj.mpi_framework_holder_);
+            ok = true;
+            err = [];
         end
         
         

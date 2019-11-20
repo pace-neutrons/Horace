@@ -24,15 +24,17 @@ function [outputs,n_failed,task_ids,obj] = submit_and_run_job_(obj,...
 
 exit_worker_when_job_ends = cluster_wrp.exit_worker_when_job_ends;
 n_workers                 = cluster_wrp.n_workers;
-% access to class responsible for communications between head node
-% and the pool of workers
-mf                        = obj.mess_framework;
-% determine the way of spliting job among workers.
+
+% build jobExecutor initialization message used by each worker
+je_init_message = JobExecutor.build_je_init(task_class_name,...
+    exit_worker_when_job_ends,keep_workers_running);
+
+
+% determine the way of spliting job among workers and construct the
+% messages to initialize each worker's job
 [task_ids,taskInitMessages]=...
     obj.split_tasks(common_params,loop_params,return_results,n_workers);
 %
-% build jobExecutor initialization message used by each worker
-je_init_message = mf.build_je_init(task_class_name,exit_worker_when_job_ends,keep_workers_running);
 
 if obj.job_is_starting_
     log_message_prefix = 'starting';

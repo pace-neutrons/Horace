@@ -130,12 +130,12 @@ template<class T> inline class_handle<T> *get_handler_fromMatlab(const mxArray *
         throw_error("MPI_MEX_COMMUNICATOR:runtime_error", "cpp_communicator received from Matlab evaluated to null pointer");
 
     if (mxGetNumberOfElements(in) != 1 || mxGetClassID(in) != mxUINT64_CLASS || mxIsComplex(in))
-        throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", "Handle input must be a real uint64 scalar.");
+        throw_error("MPI_MEX_COMMUNICATOR:runtime_error", "Handle input must be a real uint64 scalar.");
 
     class_handle<T> *ptr = reinterpret_cast<class_handle<T> *>(*((uint64_t *)mxGetData(in)));
     if (!ptr->isValid())
         if (throw_on_invalid)
-            throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", "Retrieved handle does not point to correct class");
+            throw_error("MPI_MEX_COMMUNICATOR:runtime_error", "Retrieved handle does not point to correct class");
         else
             ptr = nullptr;
     return ptr;

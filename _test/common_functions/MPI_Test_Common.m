@@ -18,7 +18,7 @@ classdef MPI_Test_Common < TestCase
     end
     properties(Access=private)
         current_config_folder;
-        parellel_config_;
+        parallel_config_;
     end
     
     methods
@@ -32,7 +32,7 @@ classdef MPI_Test_Common < TestCase
             end
             
             pc = parallel_config;
-            obj.parellel_config_ = pc;
+            obj.parallel_config_ = pc;
             %pc.saveable = false;
             obj.working_dir = pc.working_directory;
             obj.old_config  = pc.get_data_to_store();
@@ -62,7 +62,7 @@ classdef MPI_Test_Common < TestCase
             
         end
         function setUp(obj)
-            pc = obj.parellel_config_;
+            pc = obj.parallel_config_;
             pc.saveable = false;
             pc.parallel_framework = obj.framework_name;
             pc.worker = obj.worker;

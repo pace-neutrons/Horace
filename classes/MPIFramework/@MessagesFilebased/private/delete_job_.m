@@ -6,6 +6,7 @@ mess_folder = obj.mess_exchange_folder;
 if ~exist(mess_folder,'dir')
     return;
 end
+%
 [ok, message] = rmdir(mess_folder,'s');
 % may be jobs are writing to the folder and one can not remove them
 % immediately

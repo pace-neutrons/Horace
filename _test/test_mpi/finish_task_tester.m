@@ -41,27 +41,32 @@ config_store.set_config_folder(config_exchange_folder);
 % instantiate filebasedMessages framework, used to transfer initial data,
 % exchange messages between head node and workers pool and display log
 % information
-fbMPI = MessagesFilebased(control_struct);
-% initiate file-based framework to exchange messages between head node and
-% the pool of workers
-init_message =  InitMessage('dummy_not_used',3,true,1);
-
-je = JETester();
-[je,mess] = je.init(fbMPI,control_struct,init_message);
-labind = labindex();
-% if je.labIndex ~= 1
-%     pause(0.5)
-% end
-
-if ~isempty(mess)
-    disp([' non-empty message for lab ',num2str(labind)])    
-    err = sprinft(' Error sending ''started'' message from task N%d',...
-        fbMPI.labIndex);
-    error('WORKER:init_worker',err);
+[fbMPI,intercomm] = JobExecutor.init_frameworks(control_struct);
+try
+    % initiate file-based framework to exchange messages between head node and
+    % the pool of workers
+    init_message =  InitMessage('dummy_not_used',3,true,1);
+    
+    je = JETester();
+    [je,mess] = je.init(fbMPI,intercomm,init_message);
+    labind = intercomm.labIndex();
+    % if je.labIndex ~= 1
+    %     pause(0.5)
+    % end
+    
+    if ~isempty(mess)
+        disp([' non-empty message for lab ',num2str(labind)])
+        err = sprinft(' Error sending ''started'' message from task N%d',...
+            fbMPI.labIndex);
+        error('WORKER:init_worker',err);
+    end
+    je.task_outputs = sprintf(' finished job for lab %d',je.labIndex);
+    % if je.labIndex ~= 1
+    %     pause(0.5)
+    % end
+    ok=je.finish_task();
+catch ME
+    intercomm.clear_messages();
+    rethrow(ME);
 end
-je.task_outputs = sprintf(' finished job for lab %d',je.labIndex);
-% if je.labIndex ~= 1
-%     pause(0.5)
-% end
-ok=je.finish_task();
 

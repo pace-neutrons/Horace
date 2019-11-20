@@ -1,35 +1,25 @@
-function [obj,err]=init_je_(obj,fbMPI,job_control_struct,InitMessage)
+function [obj,err]=init_je_(obj,fbMPI,intercomm,InitMessage)
 % initiate the worker parameters
 % Inputs:
 % fbMPI              - file-based message exchange framework, used for
-%                      exchange intofmation between control machine and the
+%                      exchange information between control machine and the
 %                      main worker (and distributing initialization
 %                      information among workers)
 % job_control_struct - the structure containing information
 %                      necessary to initialize the messages framework used
 %                      for interaction between workers.
+% InitMessage        - the framework initialization message, containing the
+%                      particular job initialization information. 
 %Output:
 % obj    -- Initialized instance of the job executor
 % err    -- empty on success or information about the reason for failure.
 %
 %
-
+% Store framework, used for message exchange between the headnode and the 
+% workers of the cluster.
 obj.control_node_exch_ = fbMPI;
-% here we need to know what framework to use to exchange messages between
-% the MPI jobs.
-if isfield(job_control_struct,'labID') % filebased framework all around
-    mf = fbMPI;
-else
-    if isfield(job_control_struct,'framework_name') % this is for future. Not tried and tested
-        fr_class_name = job_control_struct.framework_name;
-        mf = feval(fr_class_name);
-        mf = mf.init_framework(job_control_struct);
-    else % Matlab's parallel-compting toolbox based exchange framework.
-        mf = MessagesParpool(job_control_struct);
-    end
-end
 % Store framework, used to exchange messages between nodes
-obj.mess_framework_  = mf;
+obj.mess_framework_   = intercomm;
 % Store job parameters
 obj.common_data_   = InitMessage.common_data;
 obj.n_iterations_  = InitMessage.n_steps;

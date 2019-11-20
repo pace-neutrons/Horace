@@ -5,7 +5,7 @@ classdef test_job_executor< MPI_Test_Common
     
     properties
         current_config_folder;
-        worker_h = @worker_v1;
+        worker_h = @worker_v2;
     end
     methods
         %
@@ -34,12 +34,12 @@ classdef test_job_executor< MPI_Test_Common
             %             cs.labID = 0;
             %             serverfbMPI= serverfbMPI.init_framework(cs);
             clob = onCleanup(@()finalize_all(serverfbMPI));
-            css1= serverfbMPI.gen_worker_init(1,3);
-            css2= serverfbMPI.gen_worker_init(2,3);
-            css3= serverfbMPI.gen_worker_init(3,3);
+            css1= serverfbMPI.gen_worker_init('MessagesFilebased',1,3);
+            css2= serverfbMPI.gen_worker_init('MessagesFilebased',2,3);
+            css3= serverfbMPI.gen_worker_init('MessagesFilebased',3,3);
             
             
-            je_initMess = serverfbMPI.build_je_init('JETester');
+            je_initMess = JobExecutor.build_je_init('JETester');
             job1_initMess = InitMessage(common_job_param,1,true,1);
             job2_initMess = InitMessage(common_job_param,1,true,2);
             job3_initMess = InitMessage(common_job_param,2,true,3);
@@ -124,11 +124,11 @@ classdef test_job_executor< MPI_Test_Common
             %             cs.labID = 0;
             %             serverfbMPI= serverfbMPI.init_framework(cs);
             clob = onCleanup(@()finalize_all(serverfbMPI));
-            css1= serverfbMPI.gen_worker_init(1,2);
-            css2= serverfbMPI.gen_worker_init(2,2);
+            css1= serverfbMPI.gen_worker_init('MessagesFilebased',1,2);
+            css2= serverfbMPI.gen_worker_init('MessagesFilebased',2,2);
             
             
-            je_initMess = serverfbMPI.build_je_init('JETester');
+            je_initMess = JobExecutor.build_je_init('JETester');
             job1_initMess = InitMessage(common_job_param,2,true,1);
             job2_initMess = InitMessage(common_job_param,1,true,3);
             
@@ -202,13 +202,13 @@ classdef test_job_executor< MPI_Test_Common
             serverfbMPI.time_to_fail = 1;
             
             % generate 3 controls to have 3 filebased MPI pseudo-workers
-            css1= serverfbMPI.gen_worker_init(1,3);
+            css1= serverfbMPI.gen_worker_init('MessagesFilebased',1,3);
             csr1= serverfbMPI.deserialize_par(css1);
             fbMPI1 = MessagesFilebased(csr1);
-            css2= serverfbMPI.gen_worker_init(2,3);
+            css2= serverfbMPI.gen_worker_init('MessagesFilebased',2,3);
             csr2= serverfbMPI.deserialize_par(css2);
             fbMPI2 = MessagesFilebased(csr2);
-            css3= serverfbMPI.gen_worker_init(3,3);
+            css3= serverfbMPI.gen_worker_init('MessagesFilebased',3,3);
             csr3= serverfbMPI.deserialize_par(css3);
             fbMPI3 = MessagesFilebased(csr3);
             
@@ -219,9 +219,9 @@ classdef test_job_executor< MPI_Test_Common
             
             % Initialize 3 job executors to simulate 3 workers
             je = JETester();
-            je3 = je.init(fbMPI3,csr3,initMess);
-            je2 = je.init(fbMPI2,csr2,initMess);
-            je1 = je.init(fbMPI1,csr1,initMess);
+            je3 = je.init(fbMPI3,fbMPI3,initMess);
+            je2 = je.init(fbMPI2,fbMPI2,initMess);
+            je1 = je.init(fbMPI1,fbMPI1,initMess);
             [ok,err,mess] = serverfbMPI.receive_message(1,'started');
             assertEqual(ok,MESS_CODES.ok,err);
             assertEqual(mess.mess_name,'started');
@@ -249,13 +249,13 @@ classdef test_job_executor< MPI_Test_Common
             
             clob = onCleanup(@()finalize_all(serverfbMPI));
             % generate 3 controls to have 3 filebased MPI pseudo-workers
-            css1= serverfbMPI.gen_worker_init(1,3);
+            css1= serverfbMPI.gen_worker_init('MessagesFilebased',1,3);
             csr1= serverfbMPI.deserialize_par(css1);
             fbMPI1 = MessagesFilebased(csr1);
-            css2= serverfbMPI.gen_worker_init(2,3);
+            css2= serverfbMPI.gen_worker_init('MessagesFilebased',2,3);
             csr2= serverfbMPI.deserialize_par(css2);
             fbMPI2 = MessagesFilebased(csr2);
-            css3= serverfbMPI.gen_worker_init(3,3);
+            css3= serverfbMPI.gen_worker_init('MessagesFilebased',3,3);
             csr3= serverfbMPI.deserialize_par(css3);
             fbMPI3 = MessagesFilebased(csr3);
             
@@ -266,9 +266,9 @@ classdef test_job_executor< MPI_Test_Common
             
             % Initialize 3 job executors to simulate 3 workers
             je = JETester();
-            je3 = je.init(fbMPI3,csr3,initMess);
-            je2 = je.init(fbMPI2,csr2,initMess);
-            je1 = je.init(fbMPI1,csr1,initMess);
+            je3 = je.init(fbMPI3,fbMPI3,initMess);
+            je2 = je.init(fbMPI2,fbMPI2,initMess);
+            je1 = je.init(fbMPI1,fbMPI1,initMess);
             [ok,err,mess] = serverfbMPI.receive_message(1,'started');
             assertEqual(ok,MESS_CODES.ok,err);
             assertEqual(mess.mess_name,'started');
@@ -356,13 +356,13 @@ classdef test_job_executor< MPI_Test_Common
             
             clob = onCleanup(@()finalize_all(serverfbMPI));
             % generate 3 controls to have 3 filebased MPI pseudo-workers
-            css1= serverfbMPI.gen_worker_init(1,3);
+            css1= serverfbMPI.gen_worker_init('MessagesFilebased',1,3);
             csr1= serverfbMPI.deserialize_par(css1);
             fbMPI1 = MessagesFilebased(csr1);
-            css2= serverfbMPI.gen_worker_init(2,3);
+            css2= serverfbMPI.gen_worker_init('MessagesFilebased',2,3);
             csr2= serverfbMPI.deserialize_par(css2);
             fbMPI2 = MessagesFilebased(csr2);
-            css3= serverfbMPI.gen_worker_init(3,3);
+            css3= serverfbMPI.gen_worker_init('MessagesFilebased',3,3);
             csr3= serverfbMPI.deserialize_par(css3);
             fbMPI3 = MessagesFilebased(csr3);
             
@@ -373,9 +373,9 @@ classdef test_job_executor< MPI_Test_Common
             
             % Initialize 3 job executors to simulate 3 workers
             je = JETester();
-            je3 = je.init(fbMPI3,csr3,initMess);
-            je2 = je.init(fbMPI2,csr2,initMess);
-            je1 = je.init(fbMPI1,csr1,initMess);
+            je3 = je.init(fbMPI3,fbMPI3,initMess);
+            je2 = je.init(fbMPI2,fbMPI2,initMess);
+            je1 = je.init(fbMPI1,fbMPI1,initMess);
             [ok,err,mess] = serverfbMPI.receive_message(1,'started');
             assertEqual(ok,MESS_CODES.ok,err);
             assertEqual(mess.mess_name,'started');
@@ -413,7 +413,7 @@ classdef test_job_executor< MPI_Test_Common
             
             clob = onCleanup(@()finalize_all(serverfbMPI));
             % generate 3 controls to have 3 filebased MPI pseudo-workers
-            css1= serverfbMPI.gen_worker_init(1,1);
+            css1= serverfbMPI.gen_worker_init('MessagesFilebased',1,1);
             csr1= serverfbMPI.deserialize_par(css1);
             fbMPI1 = MessagesFilebased(csr1);
             
@@ -424,7 +424,7 @@ classdef test_job_executor< MPI_Test_Common
             
             % Initialize 3 job executors to simulate 3 workers
             je = JETester();
-            je1 = je.init(fbMPI1,csr1,initMess);
+            je1 = je.init(fbMPI1,fbMPI1,initMess);
             [ok,err,mess] = serverfbMPI.receive_message(1,'started');
             assertEqual(ok,MESS_CODES.ok,err);
             assertEqual(mess.mess_name,'started');
@@ -445,7 +445,8 @@ classdef test_job_executor< MPI_Test_Common
             common_job_param = struct('filepath',this.working_dir,...
                 'filename_template','test_jobDispatcher%d_nf%d.txt');
             initMess = InitMessage(common_job_param,1,true);
-            css = iMessagesFramework.build_worker_init(this.working_dir,'test_do_job',1,1);
+            css = iMessagesFramework.build_worker_init(this.working_dir,...
+                'test_do_job','MessagesFilebased',1,1);
             cs  = iMessagesFramework.deserialize_par(css);
             % initiate exchange class which would work on a client(worker's) side
             fbMPI = MessagesFilebased();
@@ -458,7 +459,7 @@ classdef test_job_executor< MPI_Test_Common
             
             % initiate job executor would working on a client side.
             je = JETester();
-            je = je.init(fbMPI,cs,initMess);
+            je = je.init(fbMPI,fbMPI,initMess);
             
             % got reply from the client
             [ok,err,mess]=serverfbMPI.receive_message(1,'started');
@@ -504,8 +505,8 @@ classdef test_job_executor< MPI_Test_Common
             clob1 = onCleanup(@()reset_config(cf));
             % generate 2 control to have 2 filebased MPI pseudo-workers with
             % headnode 1
-            css1= serverfbMPI.gen_worker_init(1,2);
-            css2= serverfbMPI.gen_worker_init(2,2);
+            css1= serverfbMPI.gen_worker_init('MessagesFilebased',1,2);
+            css2= serverfbMPI.gen_worker_init('MessagesFilebased',2,2);
             
             ok = finish_task_tester(css2);
             assertTrue(ok);
@@ -520,6 +521,71 @@ classdef test_job_executor< MPI_Test_Common
             assertEqual(mess.mess_name,'completed');
             
         end
+        function xest_init_mpiexec_mpi_fw(obj)
+            % this test runs (if no changes are done) but as MPI framework 
+            % can be initialized only once in a thread (at least MS MPI), 
+            % and any subsequend initializations ignore previous finalize and 
+            % kills Matlab, this test is disabled for the time being
+            % run it manually only
+            if isempty(which('cpp_communicator'))
+                warning('TEST_JOB_EXECUTOR:not_available',...
+                    'MPI framework executable is not available. Not testing it')
+                return
+            end
+            serverfbMPI  = MessagesFilebased('test_init_mpiexec_fw');
+            serverfbMPI.mess_exchange_folder = obj.working_dir;
+            
+            clob = onCleanup(@()finalize_all(serverfbMPI));
+            cf = config_store.instance().config_folder;
+            function reset_config(cf)
+                config_store.instance('clear');
+                config_store.set_config_folder(cf);
+            end
+            clob1 = onCleanup(@()reset_config(cf));
+            % generate control with different types of frameoworks.
+            css1= serverfbMPI.gen_worker_init('MessagesCppMPI');
+            
+            ok = finish_task_tester(css1);
+            assertTrue(ok);
+
+            [ok,err,mess] = serverfbMPI.receive_message(1,'started');
+            assertEqual(ok,MESS_CODES.ok,err);
+            assertEqual(mess.mess_name,'started');
+            [ok,err,mess] = serverfbMPI.receive_message(1,'completed');
+            assertEqual(ok,MESS_CODES.ok,err);
+            assertEqual(mess.mess_name,'completed');            
+        end
+        function test_init_parpool_fw(obj)
+%             if isempty(which('cpp_communicator'))
+%                 warning('TEST_JOB_EXECUTOR:not_available',...
+%                     'MPI framework executable is not available. Not testing it')
+%                 return
+%             end
+            serverfbMPI  = MessagesFilebased('test_init_parpool_fw');
+            serverfbMPI.mess_exchange_folder = obj.working_dir;
+            
+            clob = onCleanup(@()finalize_all(serverfbMPI));
+            cf = config_store.instance().config_folder;
+            function reset_config(cf)
+                config_store.instance('clear');
+                config_store.set_config_folder(cf);
+            end
+            clob1 = onCleanup(@()reset_config(cf));
+            % generate control with different types of frameoworks.
+            css1= serverfbMPI.gen_worker_init('MessagesParpool');
+            
+            ok = finish_task_tester(css1);
+            assertTrue(ok);
+
+            [ok,err,mess] = serverfbMPI.receive_message(1,'started');
+            assertEqual(ok,MESS_CODES.ok,err);
+            assertEqual(mess.mess_name,'started');
+            [ok,err,mess] = serverfbMPI.receive_message(1,'completed');
+            assertEqual(ok,MESS_CODES.ok,err);
+            assertEqual(mess.mess_name,'completed');            
+        end
+        
+        
     end
     
 end

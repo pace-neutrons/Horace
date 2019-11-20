@@ -45,10 +45,13 @@ classdef ClusterMPI < ClusterWrapper
             %
             % log_level    if present, defines the verbosity of the
             %              operations over the framework
+            obj = obj@ClusterWrapper();
             obj.starting_info_message_ = ...
                 ':mpiexec MPI job configured: *** Starting MPI job  with %d workers ***\n';
             obj.started_info_message_  = ...
                 '*** mpiexec MPI job started                                ***\n';
+            %
+            obj.pool_exchange_frmwk_name_ ='MessagesCppMPI';
             % define config folder containing cluster configurations
             root = fileparts(which('herbert_init'));
             obj.config_folder_ = fullfile(root,'admin','mpi_cluster_configs');
@@ -102,7 +105,7 @@ classdef ClusterMPI < ClusterWrapper
             mpiexec_str = {mpiexec,'-n',num2str(n_workers)};
             
             % build generic worker init string without lab parameters
-            cs = obj.mess_exchange_.gen_worker_init();
+            cs = obj.mess_exchange_.gen_worker_init(obj.pool_exchange_frmwk_name);
             worker_init = sprintf('%s(''%s'');exit;',obj.worker_name_,cs);
             task_info = [mpiexec_str(:)',{obj.matlab_starter_},...
                 {'-batch'},{worker_init}];

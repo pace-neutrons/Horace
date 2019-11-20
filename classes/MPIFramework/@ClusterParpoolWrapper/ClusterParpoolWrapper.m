@@ -62,11 +62,13 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             %
             % log_level    if present, defines the verbosity of the
             %              operations over the framework
+            obj = obj@ClusterWrapper();
             obj.starting_info_message_ = ...
                 ':parpool configured: *** Starting Matlab MPI job  with %d workers ***\n';
             obj.started_info_message_  = ...
                 '*** Matlab MPI job started                                 ***\n';
             obj.cluster_config_ = 'default';
+            obj.pool_exchange_frmwk_name_ = 'MessagesParpool';
             if nargin < 2
                 return;
             end
@@ -76,7 +78,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             obj = obj.init(n_workers,mess_exchange_framework,log_level);
         end
         %
-        function obj = init(obj,n_workers,mess_exchange_framework)
+        function obj = init(obj,n_workers,mess_exchange_framework,log_level)
             % Method to initiate/reinitiate empty Parpool class wrapper.
             % The method to initate the cluster wrapper
             %
@@ -107,7 +109,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
                 delete(cl);
             end
             % build generic worker init string without lab parameters
-            cs = obj.mess_exchange_.gen_worker_init();
+            cs = obj.mess_exchange_.gen_worker_init(obj.pool_exchange_frmwk_name);
             
             
             cl  = parcluster();

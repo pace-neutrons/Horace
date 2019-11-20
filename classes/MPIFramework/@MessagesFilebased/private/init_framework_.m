@@ -19,11 +19,14 @@ if isstruct(framework_info) && isfield(framework_info,'job_id')
     obj.job_id = framework_info.job_id;
     obj.mess_exchange_folder = framework_info.data_path;
     if isfield(framework_info,'labID')
-        obj.task_id_ = framework_info.labID;
-        obj.numLabs_ = framework_info.numLabs;
+        obj = obj.set_framework_range(framework_info.labID,framework_info.numLabs);
     else %
-        obj.task_id_ = labindex; % slave node with mpi exchange between nodes. 
-        obj.numLabs_ = numlabs;
+        % slave node with Matlab mpi exchange between nodes. Any other
+        % frameworks will not be initialized by these functions correctly,
+        % labindex and numlabs there are always 1 
+        % so the filebased frameowk needs additional intialization in this
+        % case
+        obj = obj.set_framework_range(labindex,numlabs);
     end
 elseif(is_string(framework_info))
     obj.job_id =[framework_info,'_', char(floor(25*rand(1,10)) + 65)];
@@ -36,12 +39,12 @@ if obj.task_id_ == 0 % Master node
     % create or define the job exchange folder within the configuration folder
     if isempty(obj.mess_exchange_folder)
         [top_folder,exch_subfolder] = obj.build_exchange_folder_name();
-        job_folder = make_config_folder(exch_subfolder,top_folder);        
+        job_folder = make_config_folder(exch_subfolder,top_folder);
     else
-        [folder_root,exch_subfolder] = obj.build_exchange_folder_name(obj.mess_exchange_folder);        
-        job_folder = make_config_folder(exch_subfolder,folder_root);                
+        [folder_root,exch_subfolder] = obj.build_exchange_folder_name(obj.mess_exchange_folder);
+        job_folder = make_config_folder(exch_subfolder,folder_root);
     end
-
+    
 else % Slave node. Needs correct framework_info for initialization
     [root_cf,exch_subfolder] = obj.build_exchange_folder_name(framework_info.data_path);
     job_folder = fullfile(root_cf,exch_subfolder);

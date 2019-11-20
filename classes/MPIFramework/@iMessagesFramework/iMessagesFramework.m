@@ -114,27 +114,31 @@ classdef iMessagesFramework
             ind = get_num_labs_(obj);
         end
         %
-        function cs = gen_worker_init(obj,labID,numLabs)
+        function cs = gen_worker_init(obj,intercom_name,labID,numLabs)
             % Generate slave MPI worker init info, using static build_worker_init
             % method and information, retrieved from initialized control node
             % Usage:
-            % cs = obj.gen_worker_init() % -- for real MPI worker
+            % cs = obj.gen_worker_init(intercom_name) % -- for real MPI worker
             % or
-            % cs = obj.gen_worker_init(labId,numLabs) % for Herbert MPI
+            % cs = obj.gen_worker_init(intercom_name,labId,numLabs) % for Herbert MPI
             %                                          worker
             % where
-            % obj     -- an initiated instance of message exchange framework on a head-node and
-            % labId   -- labIndex of Herbert MPI worker to initiate
-            % numLabs -- number of Herbert MPI workers
+            % obj          --  an initiated instance of message exchange
+            %                  framework on a head-node and
+            % intercom_name -- the name of the framework, used
+            %                  to exchange messages between workes
+            % labId         -- labIndex if, present the number of Herbert
+            %                  MPI worker to initiate
+            % numLabs       -- if present, number of Herbert MPI workers
             %
             %
             datapath = fileparts(fileparts(fileparts(obj.mess_exchange_folder)));
             if exist('labID','var') % Herbert MPI worker. Numlabs and labnum are defined by configuration
                 cs = obj.build_worker_init(...
-                    datapath,obj.job_id,labID,numLabs);
+                    datapath,obj.job_id,intercom_name,labID,numLabs);
             else  % real MPI worker (numlabs and labnum is defined by MPIexec
                 cs = obj.build_worker_init(...
-                    datapath,obj.job_id);
+                    datapath,obj.job_id,intercom_name);
             end
             
         end
@@ -158,48 +162,8 @@ classdef iMessagesFramework
     end
     
     methods(Static)
-        function initMessage = build_je_init(JE_className,exit_on_completion,...
-                keep_worker_running,mess_exch_framework_name)
-            % the structure, used to initialize job executor class, to run on
-            % a particular worker
-            %
-            % where:
-            % JE_className -- the name of the class to do job on a worker
-            %                (needs empty constructor and init method +
-            %                child of the JobExecutor class)
-            % exit_on_completion -- true if worker's Matlab session should
-            %                exit when job is finished.
-            % keep_worker_running -- true if worker's Matlab session should
-            %                run after JE work is completed waiting for
-            %                another starting and init messages.
-            % mess_exch_framework_name -- the name of the framework, used
-            %                to exchange messages between workes
-            %
-            if ~exist('exit_on_completion','var')
-                exit_on_completion = true;
-            end
-            if ~exist('keep_worker_running','var')
-                keep_worker_running = false;
-            end
-            if ~exist('mess_exch_framework_name','var')
-                mess_exch_framework_name = [];
-            end
-            
-            % labIndex defines the number of worker. If this is MPI job,
-            % the number is derived from MPI framework, if its Herbert
-            % framework, the number of worker should be assigned.
-            info = struct(...
-                'JobExecutorClassName',JE_className,...
-                'exit_on_compl',exit_on_completion ,...
-                'keep_worker_running',keep_worker_running);
-            if ~isempty(mess_exch_framework_name)
-                info.framework_name = mess_exch_framework_name;
-            end
-            initMessage  = aMessage('starting');
-            initMessage.payload = info;
-        end
-        
-        function cs = build_worker_init(path_to_data_exchange_folder,jobID,labID,numLabs)
+        function cs = build_worker_init(path_to_data_exchange_folder,jobID,...
+                intercom_name,labID,numLabs)
             % prepare data necessary to initialize a MPI worker and
             % serialize them into the form, acceptable for transfer through
             % any system's interprocess pipe
@@ -211,8 +175,10 @@ classdef iMessagesFramework
             %                                 where the file-based messages
             %                                 and initiation information
             %                                 should be distributed
-            % jobID         -- the name of the parallel job to run
+            % jobID          - the name of the parallel job to run
             %
+            % intercomm_name - the name of the parallel framework, used to
+            %                  exchange messages between the workers.
             % Optional:
             % if inter-worker communication framework is filebased
             % framework, these two parameters define addresses of the
@@ -225,7 +191,8 @@ classdef iMessagesFramework
             %              MPI job. If labID is defined, numLabs has to
             %              be defined too.
             cs = struct('data_path',path_to_data_exchange_folder,...
-                'job_id',jobID);
+                'job_id',jobID,...
+                'intercomm_name',intercom_name);
             if exist('labID','var')
                 cs.labID   = labID;
                 cs.numLabs = numLabs;
