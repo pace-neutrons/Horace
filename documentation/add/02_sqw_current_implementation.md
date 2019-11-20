@@ -1,4 +1,4 @@
-# SQW and DND implementations
+# v3 SQW and DND implementations
 
 
 
@@ -35,13 +35,13 @@
 |`mask_runs.m`| y | ||
 |`noisify.m`| y | y ||
 |`permute.m`| y | y ||
-|`pop.m| y` | n |||
+|`pop.m` | y |n||
 |`rebunch.m`| y | y ||
 |`refine_crystal.m`| y | n ||
 |`replicate.m`| y | | Extend dimension of dataset |
 |`section.m`| y | y | Extract an n-dimensional rectangle bounded by axis limits from dataset as a SQW/DND object. Same effect as `cut` with no projection argument |
 |`shift_pixels.m`| y | n||
-|`signal.m` y | n ||
+|`signal.m` | y |n||
 |`slim.m`| y | n | Remove random pixels (wrapper around `mask_*` functions)|
 |`smooth.m`| y | y | Smooth DND data in pixel units|
 |`smooth_units.m`| y |y  | Smooth DND data in axis units|

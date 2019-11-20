@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Horace is a suite of programs for the visualisation and analysis of large datasets from time-of-flight neutron inelastic scattering spectrometers
+Horace is a suite of programs for the visualization and analysis of large datasets from time-of-flight neutron inelastic scattering spectrometers
 
 The code is split into two projects: 
 
@@ -49,9 +49,11 @@ The public methods overloading the basic MATLAB operations are required so canno
 
 Work on Vertical Slices of key project functions:
 
+- sqw : rewrite the SQW and DND objects to use new-style classes
+
 - gen-sqw : Read one or more spe files and a detector parameter file, and create an output sqw file
-- symmetrize : Symmetriese sqw dataset in a plane specified by the a vector triple.
-- cut-sqw : Take a cut from an sqw object by integrating over one or more axes.
+- symmetrize : Symmetrieze a SQW dataset in a plane specified by the a vector triple.
+- cut-sqw : Take a cut from an SQW object by integrating over one or more axes.
 - projections : 
 
  These slices are all dependent on the `sqw` object for which the updated API must be designed.
