@@ -13,3 +13,7 @@ set(
 foreach(_mex_func ${MEX_FUNCTIONS})
     add_subdirectory("${_mex_func}")
 endforeach(_mex_func)
+
+if(${BUILD_TESTS})
+    add_subdirectory(test)
+endif()
