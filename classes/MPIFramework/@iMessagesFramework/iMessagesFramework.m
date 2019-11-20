@@ -190,6 +190,11 @@ classdef iMessagesFramework
             % numLabs   -- number of independent workers, used by filebased
             %              MPI job. If labID is defined, numLabs has to
             %              be defined too.
+            % Returns:
+            % base64-coded and mappped to ASCII 128 symbols linear
+            % representaion of the information, necessary to initialize
+            % MPI worker operating with any Herbert cluster
+            %
             cs = struct('data_path',path_to_data_exchange_folder,...
                 'job_id',jobID,...
                 'intercomm_name',intercom_name);

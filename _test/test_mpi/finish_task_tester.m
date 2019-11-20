@@ -38,9 +38,8 @@ cfn = config_store.instance().config_folder_name;
 config_exchange_folder = fullfile(control_struct.data_path,cfn);
 % set pas to config sources:
 config_store.set_config_folder(config_exchange_folder);
-% instantiate filebasedMessages framework, used to transfer initial data,
-% exchange messages between head node and workers pool and display log
-% information
+% Initialize the frameworks, responsible for communitcations within the
+% cluster and between the cluster and the headnode.
 [fbMPI,intercomm] = JobExecutor.init_frameworks(control_struct);
 try
     % initiate file-based framework to exchange messages between head node and

@@ -5,7 +5,7 @@ classdef test_job_executor< MPI_Test_Common
     
     properties
         current_config_folder;
-        worker_h = @worker_v2;
+        worker_h = @worker_4tests;
     end
     methods
         %
@@ -404,9 +404,8 @@ classdef test_job_executor< MPI_Test_Common
             assertEqual(mess.mess_name,'failed');
             assertTrue(iscell(mess.payload));
             assertEqual(numel(mess.payload),3);
-        end
-        
-        
+        end        
+        %
         function test_finish_1task_reduce_messages(obj)
             serverfbMPI  = MessagesFilebased('test_finish_1task_reduce_mess');
             serverfbMPI.mess_exchange_folder = obj.working_dir;
@@ -521,7 +520,8 @@ classdef test_job_executor< MPI_Test_Common
             assertEqual(mess.mess_name,'completed');
             
         end
-        function xest_init_mpiexec_mpi_fw(obj)
+        %
+        function test_init_mpiexec_mpi_fw(obj)
             % this test runs (if no changes are done) but as MPI framework 
             % can be initialized only once in a thread (at least MS MPI), 
             % and any subsequend initializations ignore previous finalize and 

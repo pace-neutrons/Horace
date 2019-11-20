@@ -46,7 +46,7 @@ classdef parallel_config<config_base
     % ---------------------------------------------------------------------
     % known_frameworks     - Information method returning the list of
     %                        the parallel frameworks, known to Herbert.
-    % known_clusters      -  Information method returning the list of
+    % known_clust_configs  -  Information method returning the list of
     %                        the clusters, available to run the selected
     %                        framework.
     % ---------------------------------------------------------------------
@@ -59,7 +59,7 @@ classdef parallel_config<config_base
     properties(Dependent)
         % The name of the script or program to run on cluster in parallel
         % using parallel workers. The script has to be on the Matlab search
-        % path for all 
+        % path for all
         worker;
         
         % False if the worker above is a matlab sctipt. The nodes need to
@@ -164,7 +164,7 @@ classdef parallel_config<config_base
         % herbert framework runs only on a local cluster.
         % The cluster used by parpool framework is the default cluster,
         % selected in parallel computing toolbox GUI
-        known_clusters
+        known_clust_configs
     end
     %
     properties(Constant,Access=private)
@@ -269,7 +269,7 @@ classdef parallel_config<config_base
             % Return list of frameworks, known to Herbert
             frmw = obj.known_frmwks_names_;
         end
-        function clust = get.known_clusters(obj)
+        function clust = get.known_clust_configs(obj)
             % information about cluster configurations, available for the
             % selected framework
             fram = obj.parallel_framework;
@@ -323,14 +323,14 @@ classdef parallel_config<config_base
             end
             % The default cluster configuration may be different for different
             % frameworks, so change default cluster configuration to the
-            % one, suitable for the selected framework. 
-            obj.cluster_config_ =all_configs{1};             
+            % one, suitable for the selected framework.
+            obj.cluster_config_ =all_configs{1};
             
         end
         %
         function obj = set.cluster_config(obj,val)
             % select one of the clusters which configuration is available
-            opt = obj.known_clusters;
+            opt = obj.known_clust_configs;
             the_config = select_option_(opt,val);
             
             config_store.instance().store_config(obj,'cluster_config',the_config);

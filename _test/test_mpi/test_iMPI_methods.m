@@ -7,7 +7,7 @@ classdef test_iMPI_methods< TestCase
         current_config_folder
         current_config
         % handle to the function responsible to run a remote job
-        worker_h = @worker_v1;
+        worker_h = @worker_4tests;
     end
     methods
         %
@@ -36,11 +36,13 @@ classdef test_iMPI_methods< TestCase
             clob = onCleanup(@()finalize_all(mf));
             wk_floder = 'some_folder';
             job_id = 'some_id';
-            css  = mf.build_worker_init(wk_floder,job_id,1,10);
+            css  = mf.build_worker_init(wk_floder,job_id,'BlaBlaBla',1,10);
             csr = mf.deserialize_par(css);
             
             sample =  struct('data_path',wk_floder,...
-                'job_id',job_id,'labID',1,'numLabs',10);
+                'job_id',job_id,...
+                'intercomm_name','BlaBlaBla',...
+                'labID',1,'numLabs',10);
             assertEqual(sample,csr);
         end
         function test_transfer_init_and_config(obj,varargin)
@@ -83,7 +85,7 @@ classdef test_iMPI_methods< TestCase
             config_exchange = fileparts(fileparts(mpi.mess_exchange_folder));
             assertTrue(exist(fullfile(config_exchange,'herbert_config.mat'),'file')==2);
             
-            initMess = mpi.build_je_init('JETester');
+            initMess = JobExecutor.build_je_init('JETester');
             assertTrue(isa(initMess,'aMessage'));
             data = initMess.payload;
             assertTrue(data.exit_on_compl);
@@ -159,8 +161,8 @@ classdef test_iMPI_methods< TestCase
             mpi_comm.mess_exchange_folder = pc.shared_folder_on_local;
             clob4 = onCleanup(@()finalize_all(mpi_comm));
             
-            worker_init = mpi_comm.gen_worker_init(1,1);
-            je_initMess     = mpi_comm.build_je_init('JETester');
+            worker_init = mpi_comm.gen_worker_init('MessagesFilebased',1,1);
+            je_initMess     = JobExecutor.build_je_init('JETester');
             
             % JETester specific control parameters
             job_param = struct('filepath',obj.working_dir,...

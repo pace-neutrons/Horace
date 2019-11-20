@@ -72,7 +72,7 @@ classdef test_FileBaseMPI_Framework< TestCase
         %
         function test_message(this)
             fiis = iMessagesFramework.build_worker_init(this.working_dir,...
-                'test_message',0,3);
+                'test_message','MessagesFilebased',0,3);
             fii = iMessagesFramework.deserialize_par(fiis);
             
             %
@@ -114,7 +114,7 @@ classdef test_FileBaseMPI_Framework< TestCase
         %
         function test_receive_all_mess(this)
             fiis = iMessagesFramework.build_worker_init(this.working_dir,...
-                'FB_MPI_Test_recevie_all',0,3);
+                'FB_MPI_Test_recevie_all','MessagesFilebased',0,3);
             fii = iMessagesFramework.deserialize_par(fiis);
             mf0 = MessagesFilebased(fii);
             
@@ -217,7 +217,8 @@ classdef test_FileBaseMPI_Framework< TestCase
             %
             %-------------------------------------------------------------
             % define external receiver, which would run on an MPI worker
-            cs = mf.build_worker_init(mf.mess_exchange_folder,mf.job_id,3,5);
+            cs = mf.build_worker_init(mf.mess_exchange_folder,...
+                mf.job_id,'MessagesFilebased',3,5);
             
             init_str = mf.deserialize_par(cs);
             mf3 = MessagesFilebased(init_str);
@@ -376,11 +377,14 @@ classdef test_FileBaseMPI_Framework< TestCase
             clob = onCleanup(@()mf.finalize_all());
             % create three pseudo-independent message exchange classes
             % presumably to run on independent workers
-            css1 = iMessagesFramework.build_worker_init(this.working_dir,mf.job_id,1,3);
+            css1 = iMessagesFramework.build_worker_init(...
+                this.working_dir,mf.job_id,'MessagesFilebased',1,3);
             cs1  = iMessagesFramework.deserialize_par(css1);
-            css2 = iMessagesFramework.build_worker_init(this.working_dir,mf.job_id,2,3);
+            css2 = iMessagesFramework.build_worker_init(...
+                this.working_dir,mf.job_id,'MessagesFilebased',2,3);
             cs2  = iMessagesFramework.deserialize_par(css2);
-            css3 = iMessagesFramework.build_worker_init(this.working_dir,mf.job_id,3,3);
+            css3 = iMessagesFramework.build_worker_init(...
+                this.working_dir,mf.job_id,'MessagesFilebased',3,3);
             cs3 =  iMessagesFramework.deserialize_par(css3);
             
             fbMPI1 = MessagesFilebased(cs1);
@@ -438,11 +442,14 @@ classdef test_FileBaseMPI_Framework< TestCase
             clob = onCleanup(@()mf.finalize_all());
             % create three pseudo-independent message exchange classes
             % presumably to run on independent workers
-            css1 = iMessagesFramework.build_worker_init(this.working_dir,mf.job_id,1,3);
+            css1 = iMessagesFramework.build_worker_init(...
+                this.working_dir,mf.job_id,'MessagesFilebased',1,3);
             cs1  = iMessagesFramework.deserialize_par(css1);
-            css2 = iMessagesFramework.build_worker_init(this.working_dir,mf.job_id,2,3);
+            css2 = iMessagesFramework.build_worker_init(...
+                this.working_dir,mf.job_id,'MessagesFilebased',2,3);
             cs2  = iMessagesFramework.deserialize_par(css2);
-            css3 = iMessagesFramework.build_worker_init(this.working_dir,mf.job_id,3,3);
+            css3 = iMessagesFramework.build_worker_init(...
+                this.working_dir,mf.job_id,'MessagesFilebased',3,3);
             cs3 =  iMessagesFramework.deserialize_par(css3);
             
             fbMPI1 = MessagesFilebased(cs1);
@@ -486,13 +493,15 @@ classdef test_FileBaseMPI_Framework< TestCase
         end
         %
         function test_data_queue(obj)
-            css1 = iMessagesFramework.build_worker_init(obj.working_dir,'test_data_queue',1,3);
+            css1 = iMessagesFramework.build_worker_init(obj.working_dir,...
+                'test_data_queue','MessagesFilebased',1,3);
             cs1  = iMessagesFramework.deserialize_par(css1);
             
             sender = MessagesFilebased(cs1);
             clob = onCleanup(@()sender.finalize_all());
             
-            css2 = iMessagesFramework.build_worker_init(obj.working_dir,'test_data_queue',2,3);
+            css2 = iMessagesFramework.build_worker_init(obj.working_dir,...
+                'test_data_queue','MessagesFilebased',2,3);
             cs2  = iMessagesFramework.deserialize_par(css2);
             receiver = MessagesFilebased(cs2);
             

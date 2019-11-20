@@ -35,6 +35,8 @@ classdef MessagesCppMPI < iMessagesFramework
         %
         %
         mpi_framework_holder_ = [];
+        
+        DEBUG = false;
     end
     %----------------------------------------------------------------------
     methods

@@ -67,12 +67,12 @@ classdef MPI_Test_Common < TestCase
             pc.parallel_framework = obj.framework_name;
             pc.worker = obj.worker;
         end
-        function teadDown(obj)
+        function tearDown(obj)
             set(parallel_config,obj.old_config);
             obj.parallel_config_.saveable = true;
         end
         function delete(obj)
-            obj.teadDown();
+            obj.tearDown();
         end
     end
 end

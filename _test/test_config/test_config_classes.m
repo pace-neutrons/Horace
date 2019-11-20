@@ -130,21 +130,27 @@ classdef test_config_classes< TestCase
             
             pc.parallel_framework='her';
             assertEqual(pc.parallel_framework,'herbert');
-            all_clust = pc.known_clusters;
+            all_clcfg = pc.known_clust_configs;
             clust = pc.cluster_config;
-            assertEqual(numel(all_clust),1);
-            assertEqual(all_clust{1},clust);
+            assertEqual(numel(all_clcfg),1);
+            assertEqual(all_clcfg{1},clust);
             assertEqual(clust,'local');
+            try % current herbert cluster can not have 'Default' configuration
+                pc.cluster_config = 'default';
+            catch Err
+                assertTrue(strcmp(Err.identifier,'PARALLEL_CONFIG:invalid_argument'));
+                assertTrue(strcmp(pc.cluster_config,'local'));
+            end
             try
                 pc.parallel_framework='parp';
                 assertEqual(pc.parallel_framework,'parpool');
                 
-                all_clust = pc.known_clusters;
+                all_clcfg = pc.known_clust_configs;
                 clust = pc.cluster_config;
                 % parpool framewok uses only one cluster, defined as default
                 % in parallel computing toolbox settings.
-                assertEqual(numel(all_clust ),1);
-                assertEqual(all_clust{1},clust);
+                assertEqual(numel(all_clcfg ),1);
+                assertEqual(all_clcfg{1},clust);
                 assertEqual(clust,'default');
             catch Err
                 if ~strcmp(Err.identifier,'PARALLEL_CONFIG:not_available')
@@ -156,19 +162,19 @@ classdef test_config_classes< TestCase
                 pc.parallel_framework='m';
                 assertEqual(pc.parallel_framework,'mpiexec_mpi');
                 
-                all_clust = pc.known_clusters;
-                assertTrue(numel(all_clust)>1);
+                all_clcfg = pc.known_clust_configs;
+                assertTrue(numel(all_clcfg)>1);
                 
                 clust = pc.cluster_config;
                 % first cluster after changing from paropool to mpiexec_mpi would be 'local'
                 assertEqual(clust,'local');
                 if ispc()
-                    assertTrue(any(ismember(all_clust,'test_win_cluster.win')));
+                    assertTrue(any(ismember(all_clcfg,'test_win_cluster.win')));
                     pc.cluster_config = 'test_win';
                     clust = pc.cluster_config;
                     assertEqual(clust,'test_win_cluster.win');
                 else
-                    assertTrue(any(ismember(all_clust,'test_lnx_cluster.lnx')));
+                    assertTrue(any(ismember(all_clcfg,'test_lnx_cluster.lnx')));
                     pc.cluster_config = 'test_lnx';
                     clust = pc.cluster_config;
                     assertEqual(clust,'test_lnx_cluster.lnx');
