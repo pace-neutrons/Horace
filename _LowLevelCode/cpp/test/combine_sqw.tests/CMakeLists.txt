@@ -6,23 +6,23 @@ set(TEST_SRC_FILES
 
 set(SRC_FILES
     "combine_sqw.test.cpp"
-    "../../combine_sqw/combine_sqw.cpp"
-    "../../combine_sqw/exchange_buffer.cpp"
-    "../../combine_sqw/fileParameters.cpp"
-    "../../combine_sqw/nsqw_pix_reader.cpp"
-    "../../combine_sqw/pix_mem_map.cpp"
-    "../../combine_sqw/sqw_pix_writer.cpp"
-    "../../combine_sqw/sqw_reader.cpp"
+    "${CXX_SOURCE_DIR}/combine_sqw/combine_sqw.cpp"
+    "${CXX_SOURCE_DIR}/combine_sqw/exchange_buffer.cpp"
+    "${CXX_SOURCE_DIR}/combine_sqw/fileParameters.cpp"
+    "${CXX_SOURCE_DIR}/combine_sqw/nsqw_pix_reader.cpp"
+    "${CXX_SOURCE_DIR}/combine_sqw/pix_mem_map.cpp"
+    "${CXX_SOURCE_DIR}/combine_sqw/sqw_pix_writer.cpp"
+    "${CXX_SOURCE_DIR}/combine_sqw/sqw_reader.cpp"
 )
 
 set(HDR_FILES
-    "../../combine_sqw/combine_sqw.h"
-    "../../combine_sqw/exchange_buffer.h"
-    "../../combine_sqw/fileParameters.h"
-    "../../combine_sqw/nsqw_pix_reader.h"
-    "../../combine_sqw/pix_mem_map.h"
-    "../../combine_sqw/sqw_pix_writer.h"
-    "../../combine_sqw/sqw_reader.h"
+    "${CXX_SOURCE_DIR}/combine_sqw/combine_sqw.h"
+    "${CXX_SOURCE_DIR}/combine_sqw/exchange_buffer.h"
+    "${CXX_SOURCE_DIR}/combine_sqw/fileParameters.h"
+    "${CXX_SOURCE_DIR}/combine_sqw/nsqw_pix_reader.h"
+    "${CXX_SOURCE_DIR}/combine_sqw/pix_mem_map.h"
+    "${CXX_SOURCE_DIR}/combine_sqw/sqw_pix_writer.h"
+    "${CXX_SOURCE_DIR}/combine_sqw/sqw_reader.h"
 )
 
 set(LIBS

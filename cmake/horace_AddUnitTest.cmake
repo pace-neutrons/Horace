@@ -60,8 +60,7 @@ function(horace_add_unit_test)
 
     # Create the test executable
     add_executable("${TEST_NAME}" "${TEST_SOURCES}")
-    target_include_directories(
-        "${TEST_NAME}" PRIVATE "${CMAKE_SOURCE_DIR}/_LowLevelCode/cpp")
+    target_include_directories("${TEST_NAME}" PRIVATE "${CXX_SOURCE_DIR}")
     target_link_libraries("${TEST_NAME}" gtest_main "${TEST_LIBRARIES}")
     set_target_properties("${TEST_NAME}" PROPERTIES
         FOLDER "Tests"
