@@ -1,5 +1,3 @@
-set(TESTS_BIN_DIR "${CMAKE_BINARY_DIR}/tests/bin")
-
 #[=======================================================================[.rst:
 horace_add_unit_test
 --------------------
@@ -78,9 +76,15 @@ function(horace_add_unit_test)
 
     # Add the test to CTest
     add_test(
-        NAME "${TESTS_BIN_DIR}/${TEST_NAME}"
+        NAME "${TEST_NAME}"
         COMMAND "${TEST_NAME}"
         WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     )
+    # Add Matlab dll directory to the CTest path
+    if(WIN32 AND "${TEST_MEX_TEST}")
+        set_tests_properties("${TEST_NAME}" PROPERTIES
+            ENVIRONMENT "PATH=${TEST_ENV_PATH}"
+        )
+    endif()
 
 endfunction()
