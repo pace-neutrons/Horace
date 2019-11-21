@@ -15,7 +15,10 @@ if(POLICY CMP0074)
 endif()
 
 # Add cmake directory to CMake's path
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+if(NOT CMAKE_MODULE_PATH)
+  set(CMAKE_MODULE_PATH)
+endif()
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 # Set our options
 option(BUILD_TESTS ON)
