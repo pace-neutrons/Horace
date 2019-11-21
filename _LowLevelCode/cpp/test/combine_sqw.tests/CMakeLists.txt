@@ -29,27 +29,9 @@ set(LIBS
     "${Matlab_UT_LIBRARY}"
 )
 
-add_executable("${TEST_NAME}"
-    ${TEST_SRC_FILES}
-    ${TEST_HDR_FILES}
-    ${SRC_FILES}
-    ${HDR_FILES}
-)
-target_include_directories("${TEST_NAME}" PRIVATE
-    "${CMAKE_SOURCE_DIR}/_LowLevelCode/cpp"
-    "${Matlab_INCLUDE_DIRS}"
-)
-target_link_libraries("${TEST_NAME}"
-    gtest_main
-    "${Matlab_MEX_LIBRARY}"
-    "${Matlab_MX_LIBRARY}"
-    "${LIBS}"
-)
-set_target_properties("${TEST_NAME}" PROPERTIES
-    FOLDER "Tests"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests/bin"
-)
-add_test(
-    NAME "${CMAKE_BINARY_DIR}/tests/bin/${TEST_NAME}"
-    COMMAND "${TEST_NAME}"
+horace_add_unit_test(
+    NAME "${TEST_NAME}"
+    SOURCES "${SRC_FILES}" "${HDR_FILES}" "${TEST_SRC_FILES}"
+    LIBRARIES "${LIBS}"
+    MEX_TEST
 )

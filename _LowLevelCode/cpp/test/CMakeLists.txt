@@ -1,3 +1,5 @@
+include(horace_AddUnitTest)
+
 set(TEST_DIRECTORIES
     "combine_sqw.tests"
 )
