@@ -7,7 +7,6 @@
 
 #include <vector>
 
-namespace {
 class pix_map_tester : public pix_mem_map {
 public:
   void read_bins(std::size_t num_bin,
@@ -36,10 +35,10 @@ public:
     pix_mem_map::_thread_request_to_read(start_bin);
   }
 };
-} // namespace
 
 class TestCombineSQW : public ::testing::Test {
-public:
+
+protected:
   static std::vector<uint64_t> sample_npix;
   static std::vector<uint64_t> sample_pix_pos;
   static std::vector<float> pixels;
@@ -73,6 +72,12 @@ public:
     data_file_bin.close();
   }
 };
+
+std::vector<uint64_t> TestCombineSQW::sample_npix;
+std::vector<uint64_t> TestCombineSQW::sample_pix_pos;
+std::vector<float> TestCombineSQW::pixels;
+std::string TestCombineSQW::test_file_name;
+std::size_t TestCombineSQW::num_bin_in_file, TestCombineSQW::bin_pos_in_file, TestCombineSQW::pix_pos_in_file;
 
 TEST_F(TestCombineSQW, Read_NBins) {
   pix_map_tester pix_map;
