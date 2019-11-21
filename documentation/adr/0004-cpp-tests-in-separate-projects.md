@@ -42,8 +42,10 @@ service\
 
 The test projects will include the associated function project as an explicit reference e.g.
 
-```
-target_link_libraries(functionOne.Tests functionOne ...)
+```cmake
+add_executable("functionOne.test" ${TEST_SRC_FILES} ${TEST_HDR_FILES} ${SRC_FILES} ${HDR_FILES})
+target_include_directories("functionOne.test" PRIVATE ${CMAKE_SOURCE_DIR}/_LowLevelCode/cpp")
+target_link_libraries("functionOne.test" gtest_main)
 ```
 
 This enables the test artifacts and dependencies to be simply excluded from system components that  will be deployed. The separation will also provide a clear cognitive separation between `function` and `function.Test` and support further extension to `function.IntegrationTest`.
@@ -51,5 +53,14 @@ This enables the test artifacts and dependencies to be simply excluded from syst
 ## Consequences
 
 * Consistent code layout across project
+
 * Test code simply excluded from release builds
+
 * Additional C++ project overhead
+
+* For C++ projects including a mex wrapper, the MATLAB mex libraries must be added explicitly, i.e.
+
+  ```cmake
+   target_include_directories("functionOne.test" PRIVATE "${CMAKE_SOURCE_DIR}/_LowLevelCode/cpp" "${Matlab_INCLUDE_DIRS}")
+   target_link_libraries("functionOne.test" gtest_main "${Matlab_MEX_LIBRARY}" "${Matlab_MX_LIBRARY}" "${Matlab_UT_LIBRARY}")
+  ```
