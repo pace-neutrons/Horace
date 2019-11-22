@@ -19,15 +19,25 @@ module. You'll find the file bundled with your CMake isntallation.
 
 #]=======================================================================]
 find_package(Matlab REQUIRED COMPONENTS MAIN_PROGRAM)
+get_filename_component(Matlab_LIBRARY_DIR "${Matlab_MEX_LIBRARY}" DIRECTORY)
 
 # Find the libut library
-get_filename_component(Matlab_LIBRARY_DIR "${Matlab_MEX_LIBRARY}" DIRECTORY)
 find_library(Matlab_UT_LIBRARY
     NAMES "ut" "libut"
     HINTS "${Matlab_LIBRARY_DIR}"
     NO_DEFAULT_PATH
 )
 mark_as_advanced(FORCE Matlab_UT_LIBRARY)
+
+# The MX library doesn't seem to get found on UNIX, so make sure we have it
+if("${Matlab_MX_LIBRARY}" STREQUAL "")
+    find_library(Matlab_MX_LIBRARY
+        NAMES "mx" "libmx"
+        HINTS "${Matlab_LIBRARY_DIR}"
+        NO_DEFAULT_PATH
+    )
+    mark_as_advanced(FORCE Matlab_MX_LIBRARY)
+endif()
 
 # Get the directory containing Matlab's dlls
 get_filename_component(_Matlab_BIN_DIR_ "${Matlab_MAIN_PROGRAM}" DIRECTORY)
