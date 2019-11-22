@@ -45,8 +45,6 @@ Other Fortran is no longer needed, for example that which reads the old Mslice s
 TBI - this will replicate the MATLAB API to support users with Python rather than MATLAB skills.
 
 
-
-
 ## MPI Framework
 
 A generic framework for parallelization has been created in MATLAB. The framework presents a common interface to users and supports parallelization through the MATLAB parallel toolbox and using MPI. A switch argument is used to configure 'the amount of parallelism'
@@ -125,3 +123,16 @@ Work on Vertical Slices of key project functions:
 - create Python API bindings for C++
 - move all code out of MATLAB into Python or C++
 
+## Architecture References
+
+A number of documents exist describing the existing architecture; these are referenced here for record:
+
+In Horace:
+
+- [Horace_fields_summary](../Horace_fields_summary.doc)
+- [Matlab Horace redesign](../design_forV4/Matlab%20Horace%20redesign.docx)
+- [Parallel Horace](../design_forV4/Parallel%20Horace.pptx)
+
+In Herbert
+
+- [Parallel Framework Design](../../../Herbert/documentation/ParallelFrameworkDesign.docx).
