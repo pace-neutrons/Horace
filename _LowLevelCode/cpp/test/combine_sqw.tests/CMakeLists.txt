@@ -5,7 +5,6 @@ set(TEST_SRC_FILES
 )
 
 set(SRC_FILES
-    "combine_sqw.test.cpp"
     "${CXX_SOURCE_DIR}/combine_sqw/combine_sqw.cpp"
     "${CXX_SOURCE_DIR}/combine_sqw/exchange_buffer.cpp"
     "${CXX_SOURCE_DIR}/combine_sqw/fileParameters.cpp"
