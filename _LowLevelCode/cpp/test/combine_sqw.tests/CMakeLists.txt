@@ -5,6 +5,7 @@ set(TEST_SRC_FILES
 )
 
 set(SRC_FILES
+    "${CXX_TEST_DIR}/utility/environment_helpers.cpp"
     "${CXX_SOURCE_DIR}/combine_sqw/combine_sqw.cpp"
     "${CXX_SOURCE_DIR}/combine_sqw/exchange_buffer.cpp"
     "${CXX_SOURCE_DIR}/combine_sqw/fileParameters.cpp"
@@ -15,6 +16,7 @@ set(SRC_FILES
 )
 
 set(HDR_FILES
+    "${CXX_TEST_DIR}/utility/environment_helpers.h"
     "${CXX_SOURCE_DIR}/combine_sqw/combine_sqw.h"
     "${CXX_SOURCE_DIR}/combine_sqw/exchange_buffer.h"
     "${CXX_SOURCE_DIR}/combine_sqw/fileParameters.h"
