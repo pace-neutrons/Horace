@@ -90,5 +90,6 @@ the tests with CTest, this is automatically added to your path for the duration
 of the tests).
 
 2) Since all data file paths are written relative to the `HORACE_ROOT`
-environment variable, this variable should be defined. Or you can run the test
-from within the top-level directory of Horace.
+environment variable, this variable should be defined. If the variable is not
+defined, your current working directory will need to be the top-level Horace
+directory.
