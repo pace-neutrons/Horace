@@ -2,42 +2,11 @@
 #include "combine_sqw/nsqw_pix_reader.h"
 #include "combine_sqw/pix_mem_map.h"
 #include "combine_sqw/sqw_pix_writer.h"
+#include "test/utility/environment_helpers.h"
 
 #include <gtest/gtest.h>
 
 #include <vector>
-
-/*
- * Retrieve an environment variable from the system.
- * This function is necessary as `std::getenv` raises security warnings on
- * Windows.
- *
- * @param key :: The key of the environment variable
- */
-std::string get_enviornment_var(const std::string &key) {
-#ifdef _WIN32
-  // Get the required size of the variable
-  std::size_t requiredSize;
-  getenv_s(&requiredSize, NULL, 0, key.data());
-  if (requiredSize == 0) // No env variable called 'key' exists
-    return "";
-
-  // Extract the environment variable
-  char *env_var = new char[requiredSize];
-  getenv_s(&requiredSize, env_var, requiredSize, key.data());
-
-  // Convert to std::string
-  std::string env_var_string(env_var);
-  delete[] env_var;
-  return env_var_string;
-
-#else
-  char *env_var = std::getenv(key.data());
-  if (!env_var)
-    return "";
-  return env_var;
-#endif
-}
 
 class pix_map_tester : public pix_mem_map {
 public:
@@ -79,7 +48,7 @@ protected:
 
   // Called once, before the first test is executed.
   static void SetUpTestSuite() {
-    const auto HORACE_ROOT_DIR = get_enviornment_var("HORACE_ROOT");
+    const auto HORACE_ROOT_DIR = get_env_variable("HORACE_ROOT");
     if (HORACE_ROOT_DIR.empty())
       test_file_name = "_test/test_symmetrisation/w3d_sqw.sqw";
     else

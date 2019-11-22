@@ -1,3 +1,4 @@
+set(CXX_TEST_DIR "${CMAKE_CURRENT_LIST_DIR}")
 set(TESTS_BIN_DIR "${CMAKE_BINARY_DIR}/tests/bin")
 
 # On Windows we need to point the tests to the Matlab dlls. Define a
