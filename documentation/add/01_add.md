@@ -13,13 +13,15 @@ Both projects include a small number of C++ and Fortran implementations of perfo
 
 The Horace code base includes a fallback implementation of each of the C++ routines for use in the compiled source has not been loaded.
 
-
-
 ## Overview
+
+![Overview](../diagrams/high-level-architecture.png)
 
 ### MATLAB
 
 The core system is implemented in MATLAB. This functionality is based around the creation and processing of `sqw` objects with encapsulated `dnd` data.
+
+MATLAB provides the API to all routines.
 
 ### C++
 
@@ -29,7 +31,6 @@ These operations include:
 
 - read ASCII Tobyfit `.par` files, `.spe` or `.phx` data files
 - combine_sqw
-- 
 
 ### Fortran
 
@@ -39,13 +40,35 @@ There are some utility routines that are called by the rebinning and integration
 
 Other Fortran is no longer needed, for example that which reads the old Mslice slices and cuts (Mslice is a MATLAB program that is still use a bit to look at neutron data at ISIS and elsewhere), but there are MATLAB routines which do the same job and they can be retained as a fallback. 
 
+### Python
+
+TBI - this will replicate the MATLAB API to support users with Python rather than MATLAB skills.
+
+
+
+
+## MPI Framework
+
+A generic framework for parallelization has been created in MATLAB. The framework presents a common interface to users and supports parallelization through the MATLAB parallel toolbox and using MPI. A switch argument is used to configure 'the amount of parallelism'
+
+Jobs are compiled operations (e.g. C++, compiled MATLAB) or MATLAB scripts (*)
+
+Communication between nodes and the dispatcher is via a Messaging Framework which can be file- or MPI- based.
+
+The chunking of jobs into "pieces"is done in the MATLAB layer. The framework has been written with the assumption that *chunks may be processed independently*, however the framework supports limited inter-process-communication.
+
+![MPI Framework](../diagrams/mpi-framework.png)
+
+(*: one MATLAB license is required for each execution node)
 
 
 ## Data objects
 
-### SQW
+The MATLAB source for Horace  defines two core data objects that represent experiment data.
 
-The SQW is the core data object for Horace. The object contains the raw pixel data (file-backed), methods to transform, combine. slice and process it and metadata describing the instrument and experiment.
+- SQW is the core data object for Horace. The object contains the raw pixel data (file-backed), methods to transform, combine. slice and process it and metadata describing the instrument and experiment.
+- DND objects share common structure with SQW but exclude the raw pixel data, detector information and other headers
+
 
 #### V3 Implementation
 
@@ -53,7 +76,9 @@ The Horace v3 [implementation](./02_sqw_current_implementation.md)
 
 - uses "classic" MATLAB classes
 - implements over 150 public methods in the API
-- includes massive code duplication between the SQW and DND objects
+- includes significant code duplication between the SQW and DND objects
+
+
 
 
 #### V4 redesign
@@ -71,38 +96,32 @@ The public methods overloading the basic MATLAB operations are required so canno
 
 ## Update strategy
 
+#### Immediate
+
 Work on Vertical Slices of key project functions:
 
 - sqw : rewrite the SQW and DND objects to use new-style classes
-
+  - initially preserve the current API
+  - remove duplication between DND and SQW objects
+  - 
 - gen-sqw : Read one or more `.spe` files and a detector parameter file, and create an output `.sqw` file
+  - load files
+  - combine file data into new SQW file
+  - return SQW data object
 - symmetrize : Symmetrize a SQW dataset in a plane specified by the a vector triple.
 - cut-sqw : Take a cut from an SQW object by integrating over one or more axes.
 - projections : 
 
  These slices are all dependent on the `sqw` object for which the updated API must be designed.
 
-- restructure C++ libraries to separate the MATLAB wrapper from the core functionality; this will enable simpler testing and the future addition of Python bindings for the functions:
+#### Mid term
 
+- restructure C++ libraries to separate the MATLAB wrapper from the core functionality; this will enable simpler testing and the future addition of Python bindings for the functions:
 
   ![Cpp code restructure](../diagrams/cpp-code-structure.png)
 
+#### Long term
 
-## Questions
+- create Python API bindings for C++
+- move all code out of MATLAB into Python or C++
 
-1) is it necessary that the V4 API be 100% compatibly with the V3? That would require multiple function wrappers to be implemented in the class masking push of functionality down into helper functions.
-
-2) ~~Do we need to support the legacy `fit*` and `multifit_legacy*` APIs in the new SQW objects?~~ 
-		*No: confirmed by Toby 19-Nov*
-
-2) The SQW and DND class interfaces define a full arithmetic (plus, divide etc) overloading the MATLAB operators. These manipulations are done in-memory for the full dataset. There is a requirement to implement file-backed operations, where the data for the arguments are specified by file-name not passed as a preloaded data object.
-
-This needs to be clarified -- what is the purpose of this change:
-
-1. remove lines of code for users, so there is no need to load data from file and then manipulate, simply manipulate
-2. support operations on larger file sizes i.e. data sets that are too big to load in to memory
-
-Target API for these file backed operations: 
-     - `plus(a, filename)`, `plus(filename1, filename2)`?
-     - does this return a new SQW object with the file headers from the loaded file appropriately modified data or create a new file containing the updated data and return that name?
-     
