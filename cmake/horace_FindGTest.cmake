@@ -30,6 +30,9 @@ The gmock library.
 ``gmock_main``
 The gmock_main library.
 
+This script is based on the script given in the CMake guide on GoogleTest's
+GitHub https://github.com/google/googletest/blob/master/googletest/README.md.
+
 #]=======================================================================]
 set(GTEST_DOWNLOAD_DIR "${CMAKE_BINARY_DIR}/googletest-download")
 # Copy the CMakeLists file that imports the external project
