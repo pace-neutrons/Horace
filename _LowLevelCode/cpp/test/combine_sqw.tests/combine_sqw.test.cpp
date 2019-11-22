@@ -7,6 +7,38 @@
 
 #include <vector>
 
+/*
+ * Retrieve an environment variable from the system.
+ * This function is necessary as `std::getenv` raises security warnings on
+ * Windows.
+ *
+ * @param key :: The key of the environment variable
+ */
+std::string get_enviornment_var(const std::string &key) {
+#ifdef _WIN32
+  // Get the required size of the variable
+  std::size_t requiredSize;
+  getenv_s(&requiredSize, NULL, 0, key.data());
+  if (requiredSize == 0) // No env variable called 'key' exists
+    return "";
+
+  // Extract the environment variable
+  char *env_var = new char[requiredSize];
+  getenv_s(&requiredSize, env_var, requiredSize, key.data());
+
+  // Convert to std::string
+  std::string env_var_string(env_var);
+  delete[] env_var;
+  return env_var_string;
+
+#else
+  char *env_var = std::getenv(key.data());
+  if (!env_var)
+    return "";
+  return env_var;
+#endif
+}
+
 class pix_map_tester : public pix_mem_map {
 public:
   void read_bins(std::size_t num_bin,
@@ -47,7 +79,12 @@ protected:
 
   // Called once, before the first test is executed.
   static void SetUpTestSuite() {
-    test_file_name = "_test/test_symmetrisation/w3d_sqw.sqw";
+    const auto HORACE_ROOT_DIR = get_enviornment_var("HORACE_ROOT");
+    if (HORACE_ROOT_DIR.empty())
+      test_file_name = "_test/test_symmetrisation/w3d_sqw.sqw";
+    else
+      test_file_name =
+          HORACE_ROOT_DIR + "/_test/test_symmetrisation/w3d_sqw.sqw";
     num_bin_in_file = 472392;
     bin_pos_in_file = 5194471;
     pix_pos_in_file = 8973651;
@@ -77,7 +114,8 @@ std::vector<uint64_t> TestCombineSQW::sample_npix;
 std::vector<uint64_t> TestCombineSQW::sample_pix_pos;
 std::vector<float> TestCombineSQW::pixels;
 std::string TestCombineSQW::test_file_name;
-std::size_t TestCombineSQW::num_bin_in_file, TestCombineSQW::bin_pos_in_file, TestCombineSQW::pix_pos_in_file;
+std::size_t TestCombineSQW::num_bin_in_file, TestCombineSQW::bin_pos_in_file,
+    TestCombineSQW::pix_pos_in_file;
 
 TEST_F(TestCombineSQW, Read_NBins) {
   pix_map_tester pix_map;
