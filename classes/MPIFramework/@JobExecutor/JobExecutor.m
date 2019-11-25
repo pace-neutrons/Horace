@@ -95,7 +95,7 @@ classdef JobExecutor
             %                        Depending on the used framework and job,
             %                        this class can be used for communications
             %                        between workers too.
-            % intercom_class     --  the structure, used for message exchange 
+            % intercom_class     --  the structure, used for message exchange
             %                        between different workers
             %
             % InitMessage         -- The message with information necessary
@@ -119,19 +119,30 @@ classdef JobExecutor
         end
         %
         function [ok,mess,obj] =finish_task(obj,varargin)
-            % Cleanly finish job execution and inform head node about it
+            % Safely finish job execution and inform head node about it.
             %
             %Usage:
             %>>[ok,mess] = obj.finish_task();
             %>>[ok,mess] = obj.finish_task(SomeMessage);
             %>>[ok,mess] = obj.finish_task(SomeMessage,@mess_reduction_function);
+            %>>[ok,mess] = obj.finish_task(SomeMessage,...
+            %              @mess_reduction_function,...
+            %              ['-synchroneous'|'-asynchroneous']);
             %
-            % Where the first form normally waits until all workers return
-            %'completed' message to the lab == 1 while the second form
-            % expects return of SomeMessage (usually 'failed' message)
+            % Where the first form waits until all workers return
+            %'completed' message to the lab == 1,
+            % The second form if message is not empty,
+            % return of SomeMessage (usually 'failed' message)
+            % assynchroneously.
             %
             % when mess_reduction_function is present, the messages from
-            % all labs processed on the lab one using this function
+            % all labs processed on the lab one using this function. If
+            % assynchroneoys execution is needed, the in this case, the
+            % message should be defined by empty placeholder,i.e.:
+            % obj = obj.finish_task([],@custom_reduction)
+            %
+            % the last option, if present, forces synchroneous or
+            % assynchroneous execution explicitly.
             %
             [ok,mess,obj] = finish_task_(obj,varargin{:});
         end
@@ -143,7 +154,7 @@ classdef JobExecutor
             %[ok,err]=Je_instance.reduce_send_message(message,mess_process_function)
             % where:
             % message -- either message to send or the message's to send
-            %            name (from the list of accepted names)
+            %            name (from the list of acceptable names)
             % mess_process_function -- if present, and not empty, the function
             %                          is used to process the messages from
             %                          received from all except one workers
@@ -218,7 +229,7 @@ classdef JobExecutor
         %
         function [ok,err]=labBarrier(obj,nothrow)
             % implement labBarrier to synchronize various workers.
-            [ok,err] = obj.mess_framework.labBarrier(nothrow);
+            [ok,err] = obj.mess_framework_.labBarrier(nothrow);
         end
         %
         function is = is_job_cancelled(obj)
@@ -232,12 +243,57 @@ classdef JobExecutor
                 end
             end
         end
-    end
-    methods(Static)       
-        function initMessage = build_je_init(JE_className,exit_on_completion,...
+        function initMessage = get_worker_init(obj,exit_on_completion,...
                 keep_worker_running)
-            % Builds the structure, used to initialize job executor class, 
-            % to run on a particular worker
+            % Builds the structure, used by a worker to initialize this
+            % particular job executor class and its mode of operation
+            % (Stage 2 of worker initialization) to run on a worker.
+            % Needs to be called from the instance of the jobExectutor to
+            % run on the nodes
+            %
+            % where:
+            % exit_on_completion -- true if worker's Matlab session should
+            %                exit when job is finished.
+            % keep_worker_running -- true if worker's Matlab session should
+            %                run after JE work is completed waiting for
+            %                another starting and init messages.
+            %
+            % Returns initialized 'starting' message class, to be accepted
+            % by a worker and used to initialize the job exectuton on the
+            % second step of the worker initilization.
+            %
+            if ~exist('exit_on_completion','var')
+                exit_on_completion = true;
+            end
+            if ~exist('keep_worker_running','var')
+                keep_worker_running = false;
+            end
+            JE_className = class(obj);
+            initMessage = JobExecutor.build_worker_init(JE_className,...
+                exit_on_completion,keep_worker_running);
+        end
+        %
+        function [ok,err_message]=process_fail_state(obj,ME,is_tested)
+            % Process and gracefully complete an exception, thrown by the
+            % user code running on the worker.
+            % Inputs:
+            % ME        -- excecption class, thrown by the user code
+            % is_tested -- the boolean, indicating if the code is run on a
+            %              mpi worker or tested within the main Matlab
+            %              session.
+            % Returns:
+            % results of the finish_task operation
+            %
+            % Should run on non-initialized object
+            [ok,err_message] = process_fail_state_(obj,ME,is_tested);
+        end
+    end
+    methods(Static)
+        function initMessage = build_worker_init(JE_className,exit_on_completion,...
+                keep_worker_running)
+            % Builds the structure, used by a worker to initialize a
+            % particular job executor class and its mode of operation
+            % (Stage 2 of worker initialization) to run on a worker.
             %
             % where:
             % JE_className -- the name of the class to do job on a worker
@@ -256,9 +312,6 @@ classdef JobExecutor
                 keep_worker_running = false;
             end
             
-            % labIndex defines the number of worker. If this is MPI job,
-            % the number is derived from MPI framework, if its Herbert
-            % framework, the number of worker should be assigned.
             info = struct(...
                 'JobExecutorClassName',JE_className,...
                 'exit_on_compl',exit_on_completion ,...

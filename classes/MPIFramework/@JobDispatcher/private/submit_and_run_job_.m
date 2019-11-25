@@ -26,7 +26,7 @@ exit_worker_when_job_ends = cluster_wrp.exit_worker_when_job_ends;
 n_workers                 = cluster_wrp.n_workers;
 
 % build jobExecutor initialization message used by each worker
-je_init_message = JobExecutor.build_je_init(task_class_name,...
+je_init_message = JobExecutor.build_worker_init(task_class_name,...
     exit_worker_when_job_ends,keep_workers_running);
 
 

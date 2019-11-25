@@ -1,4 +1,4 @@
-function obj = start_workers_(obj,je_init_message,task_init_mess,log_prefix)
+function obj = init_workers_(obj,je_init_message,task_init_mess,log_prefix)
 % send initialization information to each worker in the cluster and receive
 % response informing that the job has started
 %

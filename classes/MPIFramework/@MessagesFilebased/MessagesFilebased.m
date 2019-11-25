@@ -32,6 +32,8 @@ classdef MessagesFilebased < iMessagesFramework
         task_id_ = 0;
         %
         numLabs_ = 1;
+        % if true, enable debug printout
+        DEBUG_ = false;
     end
     %----------------------------------------------------------------------
     methods

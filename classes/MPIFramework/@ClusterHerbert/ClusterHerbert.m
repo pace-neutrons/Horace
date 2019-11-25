@@ -103,7 +103,7 @@ classdef ClusterHerbert < ClusterWrapper
             
             intecomm_name = obj.pool_exchange_frmwk_name_;
             for task_id=1:n_workers
-                cs = obj.mess_exchange_.gen_worker_init(intecomm_name ,task_id,n_workers);
+                cs = obj.mess_exchange_.get_worker_init(intecomm_name ,task_id,n_workers);
                 worker_init = sprintf('%s(''%s'');exit;',obj.worker_name_,cs);
                 if obj.DEBUG_REMOTE
                     % if debugging client
@@ -129,12 +129,7 @@ classdef ClusterHerbert < ClusterWrapper
             end
             
         end
-        %
-        function obj = start_job(obj,je_init_message,task_init_mess,log_message_prefix)
-            %
-            obj = obj.init_workers(je_init_message,task_init_mess,log_message_prefix);
-        end
-        
+        %        
         function obj=finalize_all(obj)
             obj = finalize_all@ClusterWrapper(obj);
             if ~isempty(obj.tasks_handles_)

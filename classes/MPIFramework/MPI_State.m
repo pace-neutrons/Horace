@@ -35,7 +35,7 @@ classdef MPI_State<handle
         % variables, used to identify time intervals between subsequent
         % calls to logging function
         start_time_=[];
-        prev_time_interval_ = 0;
+        time_per_step_= 0;
         mpi_framework_ = [];
     end
     properties(Constant, Access=protected)
@@ -131,16 +131,14 @@ classdef MPI_State<handle
         end
         %-----------------------------------------------------------------
         
-        function do_logging(obj,step,n_steps,ttf,additional_info)
+        function do_logging(obj,step,n_steps,tps,additional_info)
             % do logging if appropriate logging function has been set-up
             % Inputs:
             % step    -- current step job is doing
             % n_steps -- total number of steps to do
-            % ttf     -- time interval between subsequent calls to logging
-            %            function used as basis to estimate time for MPI job
-            %            to fail according to time-out.
-            %            If empty, the function will try to estimate this
-            %            'time to fail' interval itself.
+            % tps     -- time interval between subsequent calls to logging
+            %            function used as basis to estimate time, the job
+            %            will be running.
             % additional_info -- some string to display in logging
             %            framework
             %
@@ -149,32 +147,21 @@ classdef MPI_State<handle
             % identify time interval between subsequent calls to this
             % function if such interval have not been provided
             if ~isempty(obj.logger_)
-                if isempty(ttf)
+                if isempty(tps)
                     if isempty(obj.start_time_)
                         obj.start_time_ = tic;
-                        ttf = 0; % 0 interval means infinite waiting time between calls
-                        obj.prev_time_interval_ = 0;
+                        tps = 0; % 0 interval means infinite waiting time between calls
+                        obj.time_per_step_ = 0;
                     else
-                        ttf = toc(obj.start_time_);
+                        tps = toc(obj.start_time_);
                         if step > 0
-                            ttf = ttf/step;
+                            tps = tps/step;
                         end
                     end
                 end
-                if ttf ~= obj.prev_time_interval_
-                    if ttf == 0
-                        % 0 time resets timing preferences
-                    else
-                        % let's decrease time gradually to deal with
-                        % blips in performance
-                        ttf = 0.5*(ttf+obj.prev_time_interval_);
-                        obj.prev_time_interval_ = ttf;
-                    end
-                else
-                    obj.prev_time_interval_ = ttf;
-                end
-                % log
-                obj.logger_(step,n_steps,ttf,additional_info);
+                obj.time_per_step_ = tps;
+                %
+                obj.logger_(step,n_steps,tps,additional_info);
             end
         end
         

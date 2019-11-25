@@ -168,7 +168,7 @@ classdef parallel_config<config_base
     end
     %
     properties(Constant,Access=private)
-        saved_properties_list_={'worker','is_compiled',...
+        saved_properties_list_={'worker',...
             'parallel_framework','cluster_config',...
             'shared_folder_on_local','shared_folder_on_remote','working_directory'};
         %-------------------------------------------------------------------
@@ -183,7 +183,7 @@ classdef parallel_config<config_base
             {1,2,3});
     end
     properties(Access=private)
-        worker_ = 'worker_v1'
+        worker_ = 'worker_v2'
         is_compiled_ = false;
         % these values provide defaults for the properties above
         parallel_framework_   = 'herbert';
@@ -206,7 +206,8 @@ classdef parallel_config<config_base
             wrkr= get_or_restore_field(obj,'worker');
         end
         function wrkr = get.is_compiled(obj)
-            wrkr= get_or_restore_field(obj,'is_compiled');
+            % incomplete! Should be derived from worker
+            wrkr= obj.is_compiled_;
         end
         
         function frmw =get.parallel_framework(obj)
@@ -294,11 +295,6 @@ classdef parallel_config<config_base
             config_store.instance().store_config(obj,'worker',val);
         end
         %
-        function obj = set.is_compiled(obj,val)
-            val = logical(val);
-            config_store.instance().store_config(obj,'is_compiled',val);
-        end
-        %
         function obj=set.parallel_framework(obj,val)
             % Set up MPI framework to use. Available options are:
             % h[erbert], p[arpool] or m[pi_cluster]
@@ -318,7 +314,7 @@ classdef parallel_config<config_base
             % if the config file is not among all existing configurations,
             % change current framework configuration to the default one for
             % the current framework.
-            if ~ismember(all_configs,obj.cluster_config_)
+            if ~ismember(all_configs,obj.cluster_config)
                 obj.cluster_config = all_configs{1};
             end
             % The default cluster configuration may be different for different

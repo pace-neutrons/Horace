@@ -105,14 +105,15 @@ classdef ClusterMPI < ClusterWrapper
             mpiexec_str = {mpiexec,'-n',num2str(n_workers)};
             
             % build generic worker init string without lab parameters
-            cs = obj.mess_exchange_.gen_worker_init(obj.pool_exchange_frmwk_name);
+            cs = obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
             worker_init = sprintf('%s(''%s'');exit;',obj.worker_name_,cs);
             task_info = [mpiexec_str(:)',{obj.matlab_starter_},...
                 {'-batch'},{worker_init}];
-            
+            pause(0.1);
             runtime = java.lang.ProcessBuilder(task_info);
+            pause(0.1);
             obj.mpiexec_handle_ = runtime.start();
-            [ok,failed,mess] = obj.is_running(obj.mpiexec_handle_);
+            [ok,failed,mess] = obj.is_running();
             if ~ok && failed
                 error('CLUSTER_MPI:runtime_error',...
                     ' Can not start mpiexec with %d workers, Error: %s',...
@@ -125,11 +126,6 @@ classdef ClusterMPI < ClusterWrapper
             end
         end
         %
-        function obj = start_job(obj,je_init_message,task_init_mess,log_message_prefix)
-            %
-            obj = obj.init_workers(je_init_message,task_init_mess,log_message_prefix);
-        end
-        %
         function obj=finalize_all(obj)
             obj = finalize_all@ClusterWrapper(obj);
             if ~isempty(obj.mpiexec_handle_)
@@ -137,6 +133,40 @@ classdef ClusterMPI < ClusterWrapper
                 obj.mpiexec_handle_ = [];
             end
         end
+        %
+        function [completed, obj] = check_progress(obj,varargin)
+            % Check the job progress verifying and receiving all messages,
+            % sent from worker N1
+            %
+            % usage:
+            %>> [completed, obj] = check_progress(obj)
+            %>> [completed, obj] = check_progress(obj,status_message)
+            %
+            % The first form checks and receives all messages addressed to
+            % job dispatched node where the second form accepts and
+            % verifies status message, received by other means
+            [ok,failed,mess] = obj.is_running();
+            [completed,obj] = check_progress@ClusterWrapper(obj,varargin{:});
+            if ~ok
+                if ~completed % the java framework reports job finished but
+                    % the head node have not received the final messages.
+                    completed = true;
+                    mess_body = sprintf(...
+                        'Framework launcher reports job finished without returning final messages. Reason: %s',...
+                        mess);
+                    if failed
+                        obj.status = FailMessage(mess_body);
+                    else
+                        c_mess = aMessage('completed');
+                        c_mess.payload = mess_body;
+                        obj.status = c_mess ;
+                    end
+                    me = obj.mess_exchange_;
+                    me.clear_messages()
+                end
+            end
+        end
+        %
         function config = get_cluster_configs_available(obj)
             % The function returns the list of the availible clusters
             % to run using correspondent parallel framework.
@@ -176,10 +206,11 @@ classdef ClusterMPI < ClusterWrapper
         end
     end
     methods(Access = protected)
-        function [ok,failed,mess] = is_running(obj,task_handle)
+        function [ok,failed,mess] = is_running(obj)
             % check if java process is still running or has been completed
             %
             % inputs:
+            task_handle = obj.mpiexec_handle_;
             if isempty(task_handle)
                 ok      = false;
                 failed  = true;

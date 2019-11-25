@@ -85,7 +85,8 @@ classdef test_iMPI_methods< TestCase
             config_exchange = fileparts(fileparts(mpi.mess_exchange_folder));
             assertTrue(exist(fullfile(config_exchange,'herbert_config.mat'),'file')==2);
             
-            initMess = JobExecutor.build_je_init('JETester');
+            jt = JETester();
+            initMess = jt.get_worker_init();
             assertTrue(isa(initMess,'aMessage'));
             data = initMess.payload;
             assertTrue(data.exit_on_compl);
@@ -161,8 +162,9 @@ classdef test_iMPI_methods< TestCase
             mpi_comm.mess_exchange_folder = pc.shared_folder_on_local;
             clob4 = onCleanup(@()finalize_all(mpi_comm));
             
-            worker_init = mpi_comm.gen_worker_init('MessagesFilebased',1,1);
-            je_initMess     = JobExecutor.build_je_init('JETester');
+            worker_init = mpi_comm.get_worker_init('MessagesFilebased',1,1);
+            jt = JETester();
+            je_initMess     = jt.get_worker_init();
             
             % JETester specific control parameters
             job_param = struct('filepath',obj.working_dir,...

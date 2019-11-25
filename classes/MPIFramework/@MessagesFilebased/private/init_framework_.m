@@ -20,13 +20,6 @@ if isstruct(framework_info) && isfield(framework_info,'job_id')
     obj.mess_exchange_folder = framework_info.data_path;
     if isfield(framework_info,'labID')
         obj = obj.set_framework_range(framework_info.labID,framework_info.numLabs);
-    else %
-        % slave node with Matlab mpi exchange between nodes. Any other
-        % frameworks will not be initialized by these functions correctly,
-        % labindex and numlabs there are always 1 
-        % so the filebased frameowk needs additional intialization in this
-        % case
-        obj = obj.set_framework_range(labindex,numlabs);
     end
 elseif(is_string(framework_info))
     obj.job_id =[framework_info,'_', char(floor(25*rand(1,10)) + 65)];

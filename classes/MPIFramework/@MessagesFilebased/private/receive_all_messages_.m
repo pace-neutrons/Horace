@@ -9,7 +9,7 @@ this_tid = task_ids == obj.labIndex;
 if any(this_tid)
     task_ids = task_ids(~this_tid);
 end
-DEBUG = false;
+
 
 
 lock_until_received = true;
@@ -19,7 +19,7 @@ end
 if isempty(mess_name) || strcmp(mess_name,'all')
     lock_until_received = false;
 else
-    if DEBUG
+    if obj.DEBUG_
         disp(['**********  waiting for message: ',mess_name,' to arrive from tasks: ']);
         disp(task_ids')
     end
@@ -35,7 +35,7 @@ tid_received_from = zeros(n_requested ,1);
 %[tid_from,im] = unique(tid_from);
 %message_names = message_names(im);
 present_now = ismember(task_ids,tid_from);
-if DEBUG
+if obj.DEBUG_
     disp(' Messages present initially:');
     disp(present_now');
 end
@@ -61,7 +61,7 @@ while ~all_received
         tid_received_from(i) = task_ids(i);
         mess_received(i) = true;
     end
-    if DEBUG
+    if obj.DEBUG_
         disp(' Messages received:');
         disp(mess_received');
         for i=1:numel(all_messages)
@@ -90,7 +90,7 @@ while ~all_received
             % existing received data messages
             is_old_data_mess = cellfun(@is_data_message,all_messages,...
                 'UniformOutput',true);
-            if DEBUG
+            if obj.DEBUG_
                 nsteps  = nsteps +1;
                 disp([' Messages arrived at step ',num2str(nsteps), 'vs old data mess']);
                 disp(present_now);

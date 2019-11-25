@@ -114,13 +114,20 @@ classdef iMessagesFramework
             ind = get_num_labs_(obj);
         end
         %
-        function cs = gen_worker_init(obj,intercom_name,labID,numLabs)
-            % Generate slave MPI worker init info, using static build_worker_init
-            % method and information, retrieved from initialized control node
+        function cs = get_worker_init(obj,intercom_name,labID,numLabs)
+            % Generate slave MPI worker init info, using static 
+            % build_worker_init method and information, retrieved from 
+            % the initialized control node.
+            %
+            % The information used on the stage 1 of the worker
+            % initialization procedure, when the communication channels
+            % between workers and the worker and the control node are
+            % established.
+            %
             % Usage:
-            % cs = obj.gen_worker_init(intercom_name) % -- for real MPI worker
+            % cs = obj.get_worker_init1(intercom_name) % -- for real MPI worker
             % or
-            % cs = obj.gen_worker_init(intercom_name,labId,numLabs) % for Herbert MPI
+            % cs = obj.get_worker_init1(intercom_name,labId,numLabs) % for Herbert MPI
             %                                          worker
             % where
             % obj          --  an initiated instance of message exchange

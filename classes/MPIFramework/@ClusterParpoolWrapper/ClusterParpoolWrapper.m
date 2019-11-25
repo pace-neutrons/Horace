@@ -109,7 +109,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
                 delete(cl);
             end
             % build generic worker init string without lab parameters
-            cs = obj.mess_exchange_.gen_worker_init(obj.pool_exchange_frmwk_name);
+            cs = obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
             
             
             cl  = parcluster();
@@ -146,11 +146,6 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             if log_level > -1
                 fprintf(obj.started_info_message_);
             end
-        end
-        %
-        function obj = start_job(obj,je_init_message,task_init_mess,log_message_prefix)
-            %
-            obj = obj.init_workers(je_init_message,task_init_mess,log_message_prefix);
         end
         %
         function [completed,obj] = check_progress(obj,varargin)

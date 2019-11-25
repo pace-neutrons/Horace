@@ -29,7 +29,7 @@ classdef test_job_dispatcher_parpool< job_dispatcher_common_tests
             
             clob = onCleanup(@()finalize_all(serverfbMPI));
             % generate 3 controls to have 3 filebased MPI pseudo-workers
-            css1= serverfbMPI.gen_worker_init('MessagesParpool');
+            css1= serverfbMPI.get_worker_init('MessagesParpool');
             
             cl = parcluster();
             num_labs = cl.NumWorkers;

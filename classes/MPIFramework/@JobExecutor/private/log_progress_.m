@@ -28,8 +28,8 @@ if obj.labIndex == 1
         n_steps_to_do = -inf;
         tps = 0;
         add_info = {};
-        n_tasks = numel(all_logs);
-        for i=1:n_tasks
+        n_tasks_replied = numel(all_logs);
+        for i=1:n_tasks_replied
             if isempty(all_logs{i}) || ~isstruct(all_logs{i}) % should not happen for log message but....
                 continue;
             end
@@ -44,8 +44,8 @@ if obj.labIndex == 1
             add_info = add_info{1};
         end
         
-        n_steps_done = n_steps_done/n_tasks;
-        tps = tps/n_tasks;
+        n_steps_done = n_steps_done/n_tasks_replied;
+        tps = tps/n_tasks_replied;
         fin_mess = LogMessage(n_steps_done ,n_steps_to_do,tps,add_info);
         fin_mess  = fin_mess.set_worker_logs(all_logs);
     else % may be fail message if some of the workers were failed.
