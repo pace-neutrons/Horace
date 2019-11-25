@@ -1,3 +1,5 @@
+<-previous | [next->](0002-use-githib-for-documentation.md)
+
 # 1. Record architecture decisions
 
 Date: 2019-11-04
@@ -17,3 +19,4 @@ We will use Architecture Decision Records, as described by Michael Nygard in thi
 ## Consequences
 
 See Michael Nygard's article, linked above. For a lightweight ADR toolset, see Nat Pryce's _adr-tools_ at https://github.com/npryce/adr-tools.
+
