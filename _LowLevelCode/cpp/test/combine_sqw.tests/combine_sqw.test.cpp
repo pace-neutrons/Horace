@@ -8,7 +8,7 @@
 
 #include <vector>
 
-using namespace Horace;
+using namespace Horace::Utility;
 
 class pix_map_tester : public pix_mem_map {
 public:
@@ -50,12 +50,9 @@ protected:
 
   // Called once, before the first test is executed.
   static void SetUpTestSuite() {
-    if (Utility::Environment::HORACE_ROOT.empty()) {
-      test_file_name = "_test/test_symmetrisation/w3d_sqw.sqw";
-    } else  {
-      test_file_name =
-          Utility::Environment::HORACE_ROOT + "/_test/test_symmetrisation/w3d_sqw.sqw";
-    }
+    auto HORACE_ROOT{
+        Environment::get_env_variable(Environment::HORACE_ROOT, ".")};
+    test_file_name = HORACE_ROOT + "/_test/test_symmetrisation/w3d_sqw.sqw";
     num_bin_in_file = 472392;
     bin_pos_in_file = 5194471;
     pix_pos_in_file = 8973651;
