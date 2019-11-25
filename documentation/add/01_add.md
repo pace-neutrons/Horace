@@ -47,17 +47,7 @@ TBI - this will replicate the MATLAB API to support users with Python rather tha
 
 ## MPI Framework
 
-A generic framework for parallelization has been created in MATLAB. The framework presents a common interface to users and supports parallelization through the MATLAB parallel toolbox and using MPI. A switch argument is used to configure 'the amount of parallelism'
-
-Jobs are compiled operations (e.g. C++, compiled MATLAB) or MATLAB scripts (*)
-
-Communication between nodes and the dispatcher is via a Messaging Framework which can be file- or MPI- based.
-
-The chunking of jobs into "pieces"is done in the MATLAB layer. The framework has been written with the assumption that *chunks may be processed independently*, however the framework supports limited inter-process-communication.
-
-![MPI Framework](../diagrams/mpi-framework.png)
-
-(*: one MATLAB license is required for each execution node)
+See [MPI Framework](./04_mpi_framework.md)
 
 
 ## Data objects
@@ -77,8 +67,6 @@ The Horace v3 [implementation](./02_sqw_current_implementation.md)
 - includes significant code duplication between the SQW and DND objects
 
 
-
-
 #### V4 redesign
 
 An [initial redesign](../design_forV4/Matlab&#32;Horace&#32;redesign.docx) of the SQW object has been performed by Alex Buts.
@@ -86,6 +74,7 @@ An [initial redesign](../design_forV4/Matlab&#32;Horace&#32;redesign.docx) of th
 Starting with this, a new design has been created to:
 
 - use "new style" classes
+- use handle classes to simplify Python wrapper (note this will require users of the copy assignment to update their code)
 - use a projection manager to separate the existing projections and support the simple inclusion of addition ones, eg. spherical
 - extract duplicate code from DND and SQW objects
 - add function-level unit testing
@@ -98,10 +87,9 @@ The public methods overloading the basic MATLAB operations are required so canno
 
 Work on Vertical Slices of key project functions:
 
-- sqw : rewrite the SQW and DND objects to use new-style classes
+- sqw : rewrite the SQW and DND objects to use new-style, handle classes
   - initially preserve the current API
   - remove duplication between DND and SQW objects
-  - 
 - gen-sqw : Read one or more `.spe` files and a detector parameter file, and create an output `.sqw` file
   - load files
   - combine file data into new SQW file
