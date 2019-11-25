@@ -2,11 +2,13 @@
 #include "combine_sqw/nsqw_pix_reader.h"
 #include "combine_sqw/pix_mem_map.h"
 #include "combine_sqw/sqw_pix_writer.h"
-#include "test/utility/environment_helpers.h"
+#include "utility/environment.h"
 
 #include <gtest/gtest.h>
 
 #include <vector>
+
+using namespace Horace;
 
 class pix_map_tester : public pix_mem_map {
 public:
@@ -48,12 +50,12 @@ protected:
 
   // Called once, before the first test is executed.
   static void SetUpTestSuite() {
-    const auto HORACE_ROOT_DIR = get_env_variable("HORACE_ROOT");
-    if (HORACE_ROOT_DIR.empty())
+    if (Utility::Environment::HORACE_ROOT.empty()) {
       test_file_name = "_test/test_symmetrisation/w3d_sqw.sqw";
-    else
+    } else  {
       test_file_name =
-          HORACE_ROOT_DIR + "/_test/test_symmetrisation/w3d_sqw.sqw";
+          Utility::Environment::HORACE_ROOT + "/_test/test_symmetrisation/w3d_sqw.sqw";
+    }
     num_bin_in_file = 472392;
     bin_pos_in_file = 5194471;
     pix_pos_in_file = 8973651;

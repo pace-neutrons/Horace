@@ -5,7 +5,6 @@ set(TEST_SRC_FILES
 )
 
 set(SRC_FILES
-    "${CXX_TEST_DIR}/utility/environment_helpers.cpp"
     "${CXX_SOURCE_DIR}/combine_sqw/combine_sqw.cpp"
     "${CXX_SOURCE_DIR}/combine_sqw/exchange_buffer.cpp"
     "${CXX_SOURCE_DIR}/combine_sqw/fileParameters.cpp"
@@ -13,10 +12,10 @@ set(SRC_FILES
     "${CXX_SOURCE_DIR}/combine_sqw/pix_mem_map.cpp"
     "${CXX_SOURCE_DIR}/combine_sqw/sqw_pix_writer.cpp"
     "${CXX_SOURCE_DIR}/combine_sqw/sqw_reader.cpp"
+    "${CXX_SOURCE_DIR}/utility/environment.cpp"
 )
 
 set(HDR_FILES
-    "${CXX_TEST_DIR}/utility/environment_helpers.h"
     "${CXX_SOURCE_DIR}/combine_sqw/combine_sqw.h"
     "${CXX_SOURCE_DIR}/combine_sqw/exchange_buffer.h"
     "${CXX_SOURCE_DIR}/combine_sqw/fileParameters.h"
@@ -24,6 +23,7 @@ set(HDR_FILES
     "${CXX_SOURCE_DIR}/combine_sqw/pix_mem_map.h"
     "${CXX_SOURCE_DIR}/combine_sqw/sqw_pix_writer.h"
     "${CXX_SOURCE_DIR}/combine_sqw/sqw_reader.h"
+    "${CXX_SOURCE_DIR}/utility/environment.h"
 )
 
 set(LIBS
