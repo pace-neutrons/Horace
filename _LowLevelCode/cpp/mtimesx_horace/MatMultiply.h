@@ -1,5 +1,5 @@
 #pragma once
-#include "../../build_all/CommonCode.h"
+#include "../CommonCode.h"
 
 enum MatrixTypes
 {
