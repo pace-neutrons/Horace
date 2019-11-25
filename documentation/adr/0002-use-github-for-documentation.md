@@ -1,3 +1,5 @@
+[<-previous](0001-record-architecture-decisions.md) | [next->](0003-use-cmake-for-build.md)
+
 # 2. Use GitHub for Project Documentation
 
 Date: 2019-11-06
