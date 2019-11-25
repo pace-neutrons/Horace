@@ -7,7 +7,7 @@
 #define H_CALC_PROJECTIONS_C
 
 
-#include "../../build_all/CommonCode.h"
+#include "../CommonCode.h"
 
 
 // $Revision: 1524 $ $Date: 2017-09-27 15:48:11 +0100 (Wed, 27 Sep 2017) $
