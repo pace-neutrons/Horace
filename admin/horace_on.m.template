@@ -53,27 +53,7 @@ else
     start_app(default_horace_path);
 end
 path = fileparts(which('horace_init.m'));
-
-% This is the place to configure a multi-user Unix server. 
-% Modify these parameters to optimal for the particular sever values
-% and make them available to all users of the server as the defaults.
-hc = hor_config();
-if hc.is_default
-%% make server-specific settings
-%  hc.mem_chunk_size = 10000000;
-%  hc.threads = 8;
-%  hc.use_mex = 1;
-   hc.force_mex_if_use_mex = 0;
-%  hc.delete_tmp = 1;
-end
-hpc = hpc_config
-if hpc.is_default
-   hpc.use_mex_for_combine = 1;
-%  hpc.mex_combine_thread_mode = 1;
-%  hpc.mex_combine_buffer_size = 2048;
-%  hpc.accum_in_separate_process = 1;
-%  hpc.accumulating_process_num = 8;
-end
+%
 
 warning('off','MATLAB:subscripting:noSubscriptsSpecified');
 
