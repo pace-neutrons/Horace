@@ -138,7 +138,6 @@ classdef job_dispatcher_common_tests< MPI_Test_Common
             assertTrue(exist(file3a,'file')==2);
             
         end
-        
         %
         %
         function test_job_with_logs_2workers(obj,varargin)

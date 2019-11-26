@@ -34,11 +34,8 @@ if ~(exist(mess_folder,'dir')==7) % job was canceled
         'Job with id %s has been canceled. No messages folder exist',obj.job_id)
 end
 
-%if obj.task_id_ > 0 && ispc()
-%    folder_contents = get_folder_contents_(mess_folder);
-%else
-folder_contents = dir(mess_folder);
-%end
+folder_contents = get_folder_contents_(obj,mess_folder);
+
 
 
 [mess_names,mid_from,mid_to] = parse_folder_contents_(folder_contents,'nolock');

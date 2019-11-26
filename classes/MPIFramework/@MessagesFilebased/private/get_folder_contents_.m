@@ -1,7 +1,16 @@
-function fc = get_folder_contents_(mess_folder)
+function fc = get_folder_contents_(obj,mess_folder)
 % Utitlity function to retrieve folder contents under Windows
-% trying not to open and block message files
+% trying not to open and block message files.
 %
+if obj.task_id_ > 0 && ispc()
+    fc = get_folder_contents_DOS_(mess_folder);
+else
+    fc = dir(mess_folder);
+end
+
+
+function fc = get_folder_contents_DOS_(mess_folder)
+% Actually 
 command = ['Dir ',mess_folder];
 [status,cont] = system(command);
 if status ~=0

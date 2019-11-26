@@ -23,11 +23,7 @@ if ~(exist(mess_folder,'dir')==7) % job was canceled
     error('FILEBASED_MESSAGES:runtime_error',...
         'Job with id %s has been canceled. No messages folder exist',job_id)
 end
-%if ispc()
-%    folder_contents = get_folder_contents_(mess_folder);
-%else
-folder_contents = dir(mess_folder);
-%end
+folder_contents = get_folder_contents_(struct('task_id_',1),mess_folder);
 
 [mess_names,mid_from,mid_to,fext] = parse_folder_contents_(folder_contents);
 if isempty(mess_names) % no messages
