@@ -31,7 +31,8 @@ addpath_message (1,rootpath,'algorithms');
 addpath_message (1,rootpath,'herbert');
 
 % DLL and configuration setup
-addpath_message (1,rootpath,'DLL/bin');
+addpath_message (2,rootpath,'DLL');
+%addpath_message (1,rootpath,'DLL/bin');
 addpath_message (1,rootpath,'configuration');
 
 % Other directories
