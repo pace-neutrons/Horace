@@ -12,6 +12,10 @@ end
 function fc = get_folder_contents_DOS_(mess_folder)
 % Actually 
 command = ['Dir ',mess_folder];
+if exist(mess_folder,'dir') ~= 7
+    fc = [];
+    return
+end
 [status,cont] = system(command);
 if status ~=0
     error('RECEIVE_MESSAGE:runtime_error',...
