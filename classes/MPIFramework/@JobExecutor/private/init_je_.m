@@ -1,4 +1,4 @@
-function [obj,err]=init_je_(obj,fbMPI,intercomm,InitMessage)
+function [obj,err]=init_je_(obj,fbMPI,intercomm,InitMessage,synchronize)
 % initiate the worker parameters
 % Inputs:
 % fbMPI              - file-based message exchange framework, used for
@@ -10,9 +10,13 @@ function [obj,err]=init_je_(obj,fbMPI,intercomm,InitMessage)
 %                      for interaction between workers.
 % InitMessage        - the framework initialization message, containing the
 %                      particular job initialization information. 
+% synchronize        - if true, use synchroneous communications for all
+%                      messages, if false, ignore missing messages from
+%                      other labs
 %Output:
 % obj    -- Initialized instance of the job executor
 % err    -- empty on success or information about the reason for failure.
+
 %
 %
 % Store framework, used for message exchange between the headnode and the 
@@ -27,5 +31,5 @@ obj.loop_data_     = InitMessage.loop_data;
 obj.return_results_= InitMessage.return_results;
 obj.n_first_iteration_= InitMessage.n_first_step;
 %
-[~,err,obj]=obj.reduce_send_message('started',[],true);
+[~,err,obj]=obj.reduce_send_message('started',[],synchronize);
 

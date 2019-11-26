@@ -5,7 +5,7 @@ classdef MESS_NAMES
     
     properties(Constant,Access=private)
         mess_names_ = {'failed','pending','queued','init','starting','started','running',...
-            'barrier','data','cancelled','completed'};
+            'barrier','data','canceled','completed'};
         mess_codes_ = {0,1,2,3,4,5,6,7,8,9,10};
         % indicates if a following message overwrites the same type previous message
         % sent by the same worker or not. Relevant to filebased messages

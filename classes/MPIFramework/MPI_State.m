@@ -17,8 +17,8 @@ classdef MPI_State<handle
         is_deployed
         % logger function to deploy to log activities
         logger
-        % the function to run verifying if job has been cancelled
-        check_cancelled;
+        % the function to run verifying if job has been canceled
+        check_canceled;
         % method helps to identify that the framework is tested and to
         % disable some framework capability, which should be used in this
         % situation
@@ -26,11 +26,12 @@ classdef MPI_State<handle
         % current active message exchange framework for advanced messages
         % exchange.
         mpi_framework;
+        %        
     end
     properties(Access=protected)
         is_deployed_=false;
         logger_ = [];
-        check_cancelled_=[];
+        check_canceled_=[];
         is_tested_ = false;
         % variables, used to identify time intervals between subsequent
         % calls to logging function
@@ -41,7 +42,7 @@ classdef MPI_State<handle
     properties(Constant, Access=protected)
         % methods to set using setattr method
         field_names_ = {'is_deployed','is_tested',...
-            'logger','check_cancelled',...
+            'logger','check_canceled',...
             'mpi_framework'}
     end
     %----------------------------------------------------------------------
@@ -87,20 +88,22 @@ classdef MPI_State<handle
                     ' value assigned to a logger function has to be a function handle')
             end
             obj.logger_=fun;
+            %clear start time as setting this to empty resets timers
+            obj.start_time_ = [];
         end
         %-------------------------------------------------------
-        function set.check_cancelled(obj,fun)
+        function set.check_canceled(obj,fun)
             if ~isa(fun, 'function_handle')
                 error('MPI_STATE:invalid_argument',...
-                    ' value assigned to a check_cancelled function has to be a function handle')
+                    ' value assigned to a check_canceled function has to be a function handle')
             end
-            obj.check_cancelled_=fun;
+            obj.check_canceled_=fun;
         end
         function check_cancellation(obj)
-            % method runs check_cancelled function to verify if MPI
-            % calculations were cancelled.
-            if ~isempty(obj.check_cancelled_)
-                obj.check_cancelled_();
+            % method runs check_canceled function to verify if MPI
+            % calculations were canceled.
+            if ~isempty(obj.check_canceled_)
+                obj.check_canceled_();
             end
         end
         function fw = get.mpi_framework(obj)
@@ -147,6 +150,9 @@ classdef MPI_State<handle
             % identify time interval between subsequent calls to this
             % function if such interval have not been provided
             if ~isempty(obj.logger_)
+                if ~exist('tps','var')
+                    tps = [];
+                end
                 if isempty(tps)
                     if isempty(obj.start_time_)
                         obj.start_time_ = tic;
@@ -160,6 +166,9 @@ classdef MPI_State<handle
                     end
                 end
                 obj.time_per_step_ = tps;
+                if ~exist('additional_info','var')
+                    additional_info = [];
+                end
                 %
                 obj.logger_(step,n_steps,tps,additional_info);
             end

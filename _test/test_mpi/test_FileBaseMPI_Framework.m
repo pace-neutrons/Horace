@@ -63,10 +63,10 @@ classdef test_FileBaseMPI_Framework< TestCase
             %
             
             
-            ok = mf.is_job_cancelled();
+            ok = mf.is_job_canceled();
             assertFalse(ok);
             mf.finalize_all();
-            ok = mf.is_job_cancelled();
+            ok = mf.is_job_canceled();
             assertTrue(ok);
         end
         %

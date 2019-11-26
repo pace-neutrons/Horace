@@ -172,13 +172,14 @@ classdef MessagesFilebased < iMessagesFramework
             delete_job_(obj);
         end
         function clear_messages(obj)
+            % Clear all messages directed to this lab.
             finished = false;
             pause(0.5); % give time to complete possible IO operations
             while ~finished
                 try
                     [all_messages,mid_from] = list_all_messages_(obj);
                 catch ME
-                    if strcmp(ME.identifier,'MESSAGE_FRAMEWORK:cancelled')
+                    if strcmp(ME.identifier,'MESSAGE_FRAMEWORK:canceled')
                         return;
                     else
                         rethrow(ME);

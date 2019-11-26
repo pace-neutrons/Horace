@@ -60,15 +60,15 @@ while ~all_received
         
         [ok,err_exception,message]=receive_message_(obj,tid_to_ask,mess_names{n_cur_mess});
         if ok ~= MESS_CODES.ok
-            if ok == MESS_CODES.job_cancelled
+            if ok == MESS_CODES.job_canceled
                 is_failed = true;
-                message = aMessage('cancelled');
+                message = aMessage('canceled');
                 message.payload = err_exception;
             else
                 rethrow(err_exception);
             end
         end
-        %fprintf(log_file_h,'Received new message %s N %d fron TID %d present\n',...
+        %fprintf(log_file_h,'Received new message %s N %d from TID %d present\n',...
         %    message.mess_name,i,tid_to_ask);
         if strcmp(message.mess_name,'failed') || is_failed
             % failed message is persistent.

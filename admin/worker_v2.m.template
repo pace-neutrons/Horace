@@ -1,4 +1,4 @@
-function [ok,err_mess]=worker_v1(worker_controls_string)
+function [ok,err_mess,je]=worker_v2(worker_controls_string)
 % function used as standard worker to do a job in a separate Matlab
 % session.
 %
@@ -14,7 +14,7 @@ function [ok,err_mess]=worker_v1(worker_controls_string)
 %              folder name where the job initialization data are located on
 %              a remote system
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision: 822 $ ($Date: 2019-01-03 11:23:07 +0000 (Thu, 03 Jan 2019) $)
 %
 err_mess = [];
 exit_at_the_end = true;
@@ -33,15 +33,16 @@ is_tested = mis.is_tested; % set up to tested state within unit tests.
 % other unit tests. The production job finishes Matlab and clean-up is not necessary
 % though doing no harm.
 clot = onCleanup(@()(setattr(mis,'is_deployed',false)));
-
-
+%--------------------------------------------------------------------------
+% 1) step 1 of the worker initialization.
+%--------------------------------------------------------------------------
 control_struct = iMessagesFramework.deserialize_par(worker_controls_string);
 % Initialize config files to use on remote session. Needs to be initialized
 % first as may be used by message framework.
 %
+%
 % remove configurations, may be loaded in memory while Horace was
 % initialized.
-
 config_store.instance('clear');
 % Place where config files are stored:
 cfn = config_store.instance().config_folder_name;
@@ -49,17 +50,26 @@ config_exchange_folder = fullfile(control_struct.data_path,cfn);
 
 % set pas to config sources:
 config_store.set_config_folder(config_exchange_folder);
-% instantiate filebasedMessages framework, used to transfer initial data,
-% exchange messages between head node and workers pool and display log
-% information
-fbMPI = MessagesFilebased(control_struct);
+% Initialize the frameworks, responsible for communications within the
+% cluster and between the cluster and the headnode.
+[fbMPI,intercomm] = JobExecutor.init_frameworks(control_struct);
 % initiate file-based framework to exchange messages between head node and
 % the pool of workers
+%--------------------------------------------------------------------------
+% step 1 the initialization has been completed providing the
+% communicator for exchange between control node and the cluster and
+% between the clusters nodes. The control node communicator knows the
+% folder for communications
+%--------------------------------------------------------------------------
+
 
 keep_worker_running = true;
 while keep_worker_running
-    mess_cache.instance().clear()    
+    mess_cache.instance().clear()
     %
+    %----------------------------------------------------------------------
+    % 2) step 2 of the worker initialization.
+    %----------------------------------------------------------------------
     [ok,err,mess]= fbMPI.receive_message(0,'starting');
     %fprintf(fh,'got "starting" message\n');
     if ok ~= MESS_CODES.ok
@@ -76,15 +86,23 @@ while keep_worker_running
         worker_init_data = mess.payload;
         keep_worker_running = worker_init_data.keep_worker_running;
     end
-    %fprintf(fh,'sent "started" message\n');
+    %
     exit_at_the_end = ~is_tested && worker_init_data.exit_on_compl;
-    
     % instantiate job executor class.
     je = feval(worker_init_data.JobExecutorClassName);
-    %mis.mpi_framework = je.mess_framework;
-    %
+
+    %----------------------------------------------------------------------
+    % step 2 of the worker initialization completed. a jobExecutor is
+    % initialized and worker knows what to do when it finishes or
+    % fails.
+    %----------------------------------------------------------------------
+    %----------------------------------------------------------------------
+    % 3) step 3 of the worker initialization. Initializing the particular
+    % job executor
+    %----------------------------------------------------------------------
     % receive init message which defines the job parameters
-    % should block execution until this message is received.
+    % implicit barrier exists which should block execution until
+    % this message is received.
     [ok,err_mess,init_message] = fbMPI.receive_message(0,'init');
     if ok ~= MESS_CODES.ok
         [ok,err_mess]=je.finish_task(FailMessage(err_mess));
@@ -94,79 +112,58 @@ while keep_worker_running
             return
         end
     end
-    %fprintf(fh,'got "init" message\n');
-    
     
     try
-        [je,mess] = je.init(fbMPI,control_struct,init_message);
+        [je,mess] = je.init(fbMPI,intercomm,init_message,is_tested);
+        %je.labBarrier(false); The je initialization procedure contains
+        %implicit barrier when the first node is waiting for all other nodes
+        % report started state to it.
         if ~isempty(mess)
             err = sprinft(' Error sending ''started'' message from task N%d',...
                 fbMPI.labIndex);
             error('WORKER:init_worker',err);
         end
-        if ~is_tested
-            je.labBarrier(false); % Start workers all together
-        end
+        % Successful je.init should return "started" message, initiating
+        % blocking receive from all other workers.
+        %
         % Attach jobExecutor methods to mpi singleton to be available from any part
         % of the code.
         mis.logger = @(step,n_steps,time,add_info)...
             (je.log_progress(step,n_steps,time,add_info));
         
-        mis.check_cancelled = @()(f_canc(je));
+        mis.check_canceled = @()(f_canc(je));
         
         % Execute job (run main job executor's do_job method
         %fprintf(fh,'je loop started\n');
+ 		% send first "running" log message and set-up starting time.
+        n_steps = je.n_steps;
+        mis.do_logging(0,n_steps)
         while ~je.is_completed()
             je= je.do_job();
-            % when its tested, workers are tested in single Matlab session so it will hand up on synchronization
+            % when its tested, workers are tested in single Matlab
+            % session so it will hand up on synchronization
             if ~is_tested
                 % when not tested, the synchronization is mandatory
-                je.labBarrier(false); % Wait until all workers finish their job before reducing the data
+                je.labBarrier(false); % Wait until all workers finish their
+                %                       job before reducing the data
             end
             je = je.reduce_data();
-            
         end
         %fprintf(fh,'je loop completed\n');
-    catch ME
+    catch ME % Catch error in users code and finish task gracefully.
         %fprintf(fh,'je exception caught\n');
         try
-            if strcmpi(ME.identifier,'JOB_EXECUTOR:cancelled') || strcmpi(ME.identifier,'MESSAGE_FRAMEWORK:cancelled')
-                is_cancelled = true;
-                err_text = sprintf('Task N%d cancelled',...
-                    je.labIndex);
-            else                
-                is_cancelled = false;
-                err_text = sprintf('Task N%d failed at jobExecutor: %s. Reason: %s',...
-                    je.labIndex,worker_init_data.JobExecutorClassName,ME.message);
-            end
-            mess = FailMessage(err_text,ME);
-            % send cancelled message to all other workers to finish their
-            % current job at log point.
-            if ~is_cancelled
-                mf = je.mess_framework;
-                n_labs = mf.numLabs;
-                this_lid = je.labIndex;     
-                for lid=1:n_labs
-                    if lid ~=this_lid
-                        je.mess_framework.send_message(lid,'cancelled');
-                    end
-                end
-            end
-            
-            if ~is_tested
-                je.labBarrier(true); % Wait until all workers come to their barrier before finishing the job
-            end
-            [ok,err_mess]=je.finish_task(mess);
+            [ok,err_mess] = je.process_fail_state(ME,is_tested);
             if keep_worker_running
                 continue;
             else
                 break;
             end
-        catch ME % the only exception should happen here is "job cancelled"
+        catch ME1 % the only exception should happen here is "job canceled"
             if exit_at_the_end
                 exit;
             else
-                rethrow(ME);
+                rethrow(ME1);
             end
             
         end
@@ -180,8 +177,8 @@ end
 
 
 function f_canc(job_executor)
-if job_executor.is_job_cancelled()
-    error('MESSAGE_FRAMEWORK:cancelled',...
-        'Messages framework has been cancelled or is not initialized any more')
+if job_executor.is_job_canceled()
+    error('MESSAGE_FRAMEWORK:canceled',...
+        'Messages framework has been canceled or is not initialized any more')
 end
 

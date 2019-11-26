@@ -15,6 +15,9 @@ classdef JobExecutor
         % Properties of a job executor:
         % the id(number) of the running task
         labIndex;
+        % Number of steps to loop over job data. Public interface to
+        % n_iterations_. Read-only
+        n_steps
         % Access to messages framework used to exchange messages between
         % executor and controller
         mess_framework;
@@ -82,7 +85,7 @@ classdef JobExecutor
             % prefix
         end
         %
-        function [obj,mess]=init(obj,fbMPI,intercom_class,InitMessage)
+        function [obj,mess]=init(obj,fbMPI,intercom_class,InitMessage,is_tested)
             % initiate worker side.
             %e.g:
             % set up tag, indicating that the job have started
@@ -100,7 +103,9 @@ classdef JobExecutor
             %
             % InitMessage         -- The message with information necessary
             %                        to run the job itself
-            %
+            % is_tested           -- if present and true, the method would
+            %                        run in test mode to avoid blocking
+            %                        communications
             % returns:
             % obj          initialized JobExecutor object
             % mess         if not empty, the reason for failure
@@ -114,8 +119,13 @@ classdef JobExecutor
             % be irrelevant but may be usefil for reinitializing a job
             % executor to run different task on the same parallel worker.
             mess_cache.instance('delete');
+            if ~exist('is_tested','var')
+                synchronize = true;
+            else
+                synchronize = ~is_tested;
+            end
             %
-            [obj,mess]=init_je_(obj,fbMPI,intercom_class,InitMessage);
+            [obj,mess]=init_je_(obj,fbMPI,intercom_class,InitMessage,synchronize);
         end
         %
         function [ok,mess,obj] =finish_task(obj,varargin)
@@ -127,22 +137,22 @@ classdef JobExecutor
             %>>[ok,mess] = obj.finish_task(SomeMessage,@mess_reduction_function);
             %>>[ok,mess] = obj.finish_task(SomeMessage,...
             %              @mess_reduction_function,...
-            %              ['-synchroneous'|'-asynchroneous']);
+            %              ['-synchronous'|'-asynchronous']);
             %
             % Where the first form waits until all workers return
             %'completed' message to the lab == 1,
             % The second form if message is not empty,
             % return of SomeMessage (usually 'failed' message)
-            % assynchroneously.
+            % asynchronous.
             %
             % when mess_reduction_function is present, the messages from
             % all labs processed on the lab one using this function. If
-            % assynchroneoys execution is needed, the in this case, the
+            % asynchronous execution is needed, the in this case, the
             % message should be defined by empty placeholder,i.e.:
             % obj = obj.finish_task([],@custom_reduction)
             %
-            % the last option, if present, forces synchroneous or
-            % assynchroneous execution explicitly.
+            % the last option, if present, forces synchronous or
+            % asynchronous execution explicitly.
             %
             [ok,mess,obj] = finish_task_(obj,varargin{:});
         end
@@ -151,7 +161,7 @@ classdef JobExecutor
             % collect similar messages send from all nodes and send final
             % message to the head node
             %usage:
-            %[ok,err]=Je_instance.reduce_send_message(message,mess_process_function)
+            %[ok,err]=Je_instance.reduce_send_message(message,mess_process_function,[synchronize])
             % where:
             % message -- either message to send or the message's to send
             %            name (from the list of acceptable names)
@@ -189,7 +199,7 @@ classdef JobExecutor
             %             empty.
             % Outputs:
             % Sends message of type LogMessage to the job dispatcher.
-            % Throws JOB_EXECUTOR:cancelled error in case the job has
+            % Throws JOB_EXECUTOR:canceled error in case the job has
             %
             log_progress_(this,step,n_steps,time_per_step,add_info);
         end
@@ -211,6 +221,9 @@ classdef JobExecutor
             obj.task_results_holder_ = val;
         end
         %
+        function n_steps = get.n_steps(obj)
+            n_steps = obj.n_iterations_;
+        end
         %
         function mf= get.mess_framework(obj)
             % returns reference to MPI framework, used for exchange between
@@ -225,21 +238,21 @@ classdef JobExecutor
         end
         %------------------------------------------------------------------
         % MPI interface (Underdeveloped, may be not necessary except
-        % is_job_cancelled)
+        % is_job_canceled)
         %
         function [ok,err]=labBarrier(obj,nothrow)
             % implement labBarrier to synchronize various workers.
             [ok,err] = obj.mess_framework_.labBarrier(nothrow);
         end
         %
-        function is = is_job_cancelled(obj)
-            is = obj.control_node_exch_.is_job_cancelled();
+        function is = is_job_canceled(obj)
+            is = obj.control_node_exch_.is_job_canceled();
             if ~is
-                [mess,tids] = obj.mess_framework_.probe_all('all','cancelled');
+                [mess,tids] = obj.mess_framework_.probe_all('all','canceled');
                 if ~isempty(mess)
                     is = true;
                     % discard message(s)
-                    obj.mess_framework_.receive_all(tids,'cancelled');
+                    obj.mess_framework_.receive_all(tids,'canceled');
                 end
             end
         end
@@ -259,8 +272,8 @@ classdef JobExecutor
             %                another starting and init messages.
             %
             % Returns initialized 'starting' message class, to be accepted
-            % by a worker and used to initialize the job exectuton on the
-            % second step of the worker initilization.
+            % by a worker and used to initialize the job execution on the
+            % second step of the worker initialization.
             %
             if ~exist('exit_on_completion','var')
                 exit_on_completion = true;
@@ -277,10 +290,11 @@ classdef JobExecutor
             % Process and gracefully complete an exception, thrown by the
             % user code running on the worker.
             % Inputs:
-            % ME        -- excecption class, thrown by the user code
-            % is_tested -- the boolean, indicating if the code is run on a
-            %              mpi worker or tested within the main Matlab
-            %              session.
+            % ME        -- exception class, thrown by the user code
+            % is_tested -- if false, indicates that the  code is run on a
+            %              mpi worker or if true, is tested within a
+            %               main Matlab session so blocking operations
+            %               should be disabled
             % Returns:
             % results of the finish_task operation
             %
@@ -337,7 +351,7 @@ classdef JobExecutor
                 % filebased messages all around:
                 if isfield(control_structure,'labID') && isfield(control_structure,'numLabs')
                     internode_exchange = cntrl_node_exchange;
-                else % the filebased messages frameowork has not been initialized properly
+                else % the filebased messages framework has not been initialized properly
                     error('JOB_EXECUTOR:invalid_argument',...
                         'filebased messages framework have not been initialized properly');
                 end

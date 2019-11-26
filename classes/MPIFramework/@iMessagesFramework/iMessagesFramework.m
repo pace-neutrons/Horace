@@ -151,15 +151,15 @@ classdef iMessagesFramework
         end
         
         % HERBERT Job control interface+
-        function is = is_job_cancelled(obj)
-            % method verifies if job has been cancelled
+        function is = is_job_canceled(obj)
+            % method verifies if job has been canceled
             if ~exist(obj.mess_exchange_folder_,'dir')
                 is=true;
             else
                 is=false;
             end
             if ~is
-                mess = obj.probe_all('all','cancelled');
+                mess = obj.probe_all('all','canceled');
                 if ~isempty(mess)
                     is = true;
                 end
@@ -338,7 +338,7 @@ classdef iMessagesFramework
         % wait until all worker arrive to the part of the code specified
         [ok,err]=labBarrier(obj,nothrow);
         %
-        % remove all messages from MPI message cache
+        % remove all messages directed to the given lab from MPI message cache
         clear_messages(obj);
         
     end

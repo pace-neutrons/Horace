@@ -44,12 +44,14 @@ classdef job_dispatcher_common_tests< MPI_Test_Common
             assertTrue(isa(outputs{1},'MException'));
             assertTrue(isa(outputs{2},'MException'));
             assertTrue(isa(outputs{3},'MException'));
-            assertEqual(outputs{1}.identifier,'JOB_EXECUTOR:cancelled');
+            assertEqual(outputs{1}.identifier,'JOB_EXECUTOR:canceled');
             assertEqual(outputs{2}.message,'simulated failure for lab N 2');
-            assertEqual(outputs{3}.identifier,'JOB_EXECUTOR:cancelled');
-            assertTrue(exist(file1,'file')==2);
+            assertEqual(outputs{3}.identifier,'JOB_EXECUTOR:canceled');
+            % file may exist or may not -- depending on relation between
+            % speed of workers
+            %assertFalse(exist(file1,'file')==2);
             assertFalse(exist(file2,'file')==2);
-            assertTrue(exist(file3,'file')==2);
+            %assertTrue(exist(file3,'file')==2);
             %assertTrue(exist(file3a,'file')==2);
             
             
@@ -62,15 +64,15 @@ classdef job_dispatcher_common_tests< MPI_Test_Common
             assertTrue(isa(outputs{1},'MException'));
             assertTrue(isa(outputs{2},'MException'));
             assertTrue(isa(outputs{3},'MException'));
-            assertEqual(outputs{3}.identifier,'JOB_EXECUTOR:cancelled');
+            assertEqual(outputs{3}.identifier,'JOB_EXECUTOR:canceled');
             %assertEqual(outputs{3},'Job 3 generated 1 files');
             assertFalse(exist(file1,'file')==2);
             assertFalse(exist(file2,'file')==2);
-            assertTrue(exist(file3,'file')==2);
+            %assertTrue(exist(file3,'file')==2);
             
             
             clear co;
-            % check long job cancelled due to part of the job failed
+            % check long job canceled due to part of the job failed
             [outputs,n_failed,~,jd]=jd.restart_job('JETester',common_param,99,true,true,1);
             
             assertTrue(n_failed==3);

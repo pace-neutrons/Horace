@@ -48,8 +48,8 @@ while ~all_received
         
         [ok,err_mess,message]=receive_message_(obj,task_ids(i),mess_name);
         if ok ~= MESS_CODES.ok
-            if ok == MESS_CODES.job_cancelled
-                error('MESSAGE_FRAMEWORK:cancelled',err_mess);
+            if ok == MESS_CODES.job_canceled
+                error('MESSAGE_FRAMEWORK:canceled',err_mess);
             else
                 error('FILEBASED_MESSAGES:runtime_error',...
                     'Can not receive existing message: %s, Err: %s',...

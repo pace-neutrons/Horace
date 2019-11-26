@@ -26,7 +26,7 @@ end
 % cl_log = onCleanup(@()fclose(f_hl));
 %
 message=[];
-[is,err_code,err_mess] = check_job_cancelled(obj);
+[is,err_code,err_mess] = check_job_canceled(obj);
 if is ; return; end
 %
 mess_folder = obj.mess_exchange_folder;
@@ -34,11 +34,11 @@ mess_present= false;
 mess_receive_option = 'nolocked';
 t0 = tic;
 while ~mess_present
-    if obj.task_id_ > 0 && ispc()
-        folder_contents = get_folder_contents_(mess_folder);
-    else
-        folder_contents = dir(mess_folder);
-    end
+    %if obj.task_id_ > 0 && ispc()
+    %    folder_contents = get_folder_contents_(mess_folder);
+    %else
+    folder_contents = dir(mess_folder);
+    %end
     
     [mess_names,mid_from,mid_to] = parse_folder_contents_(folder_contents,mess_receive_option);
     if isempty(mess_names)
@@ -85,7 +85,7 @@ while ~mess_present
             return;
         else
             pause(obj.time_to_react_);
-            [is,err_code,err_mess] = check_job_cancelled(obj);
+            [is,err_code,err_mess] = check_job_canceled(obj);
             if is ; return; end
             continue;
         end
@@ -195,12 +195,12 @@ end
 
 
 
-function [is,err_code,err_message] = check_job_cancelled(obj)
+function [is,err_code,err_message] = check_job_canceled(obj)
 
 mess_folder = obj.mess_exchange_folder;
 if ~exist(mess_folder,'dir')
-    err_code    = MESS_CODES.job_cancelled;
-    err_message = sprintf('Job with id %s have been cancelled',obj.job_id);
+    err_code    = MESS_CODES.job_canceled;
+    err_message = sprintf('Job with id %s have been canceled',obj.job_id);
     is          = true;
 else
     err_code     = [];

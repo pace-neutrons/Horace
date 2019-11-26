@@ -31,7 +31,7 @@ classdef JETester < JobExecutor
             n_steps = obj.n_iterations_;
             task_num = obj.labIndex;
             disp('****************************************************');
-            disp([' n_files: ',num2str(n_steps)]);
+            disp(['labN: ',num2str(task_num),' genrating n_files: ',num2str(n_steps)]);
             %fh = mess_cache.instance().log_file_h;
             %fprintf(fh,'entering do-job loop\n');
             job_par = obj.common_data_;
@@ -56,14 +56,17 @@ classdef JETester < JobExecutor
                 f=fopen(file,'w');
                 fwrite(f,['file: ',file],'char');
                 fclose(f);
-                pause(0.1)                
+                pause(0.1)
                 disp('****************************************************');
                 disp(['finished test job generating test file: ',filename]);
                 disp('****************************************************');
                 %fprintf(fh,'logging progress for step %d ',ji);
                 obj.log_progress(n_steps_done,n_steps,toc(t0)/n_steps_done,'');
+                disp(['log message about file',filename,' sent *']);                
                 %fprintf(fh,'completed\n');
             end
+            disp(['labN: ',num2str(task_num),' do_job completed successfully']);
+            disp('****************************************************');
             if obj.return_results_
                 out_str = sprintf('Job %d generated %d files',task_num,n_steps);
                 obj.task_results_holder_ = out_str;

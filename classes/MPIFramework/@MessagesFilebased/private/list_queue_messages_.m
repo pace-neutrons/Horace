@@ -19,15 +19,15 @@ function [start_queue_num,free_queue_num]=list_queue_messages_(mess_folder,job_i
 % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
 %
 %
-if ~(exist(mess_folder,'dir')==7) % job was cancelled
+if ~(exist(mess_folder,'dir')==7) % job was canceled
     error('FILEBASED_MESSAGES:runtime_error',...
-        'Job with id %s has been cancelled. No messages folder exist',job_id)
+        'Job with id %s has been canceled. No messages folder exist',job_id)
 end
-if ispc()
-    folder_contents = get_folder_contents_(mess_folder);
-else
-    folder_contents = dir(mess_folder);
-end
+%if ispc()
+%    folder_contents = get_folder_contents_(mess_folder);
+%else
+folder_contents = dir(mess_folder);
+%end
 
 [mess_names,mid_from,mid_to,fext] = parse_folder_contents_(folder_contents);
 if isempty(mess_names) % no messages

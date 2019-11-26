@@ -5,8 +5,8 @@ ok = MESS_CODES.ok;
 err_mess=[];
 wlock_obj =[];
 if ~exist(obj.mess_exchange_folder,'dir')
-    ok = MESS_CODES.job_cancelled;
-    err_mess = sprintf('Job with id %s have been cancelled. No message exchange folder exist',obj.job_id);
+    ok = MESS_CODES.job_canceled;
+    err_mess = sprintf('Job with id %s have been canceled. No message exchange folder exist',obj.job_id);
     return;
 end
 

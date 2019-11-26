@@ -1,6 +1,6 @@
 classdef iMPITestHelper<iMessagesFramework
     % helper class to test iMessagesFramework methods,
-    % defining empty abstract methos.
+    % defining empty abstract methods.
     methods
         function obj=iMPITestHelper(varargin)
             obj= obj@iMessagesFramework(varargin{:});
@@ -36,8 +36,8 @@ classdef iMPITestHelper<iMessagesFramework
             rmdir(obj.mess_exchange_folder,'s');
         end
         
-        % method verifies if job has been cancelled
-        function is = is_job_cancelled(obj)
+        % method verifies if job has been canceled
+        function is = is_job_canceled(obj)
         end
     end
     methods(Access=protected)

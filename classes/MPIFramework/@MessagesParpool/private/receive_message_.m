@@ -1,7 +1,7 @@
 function [err_code,err_mess,message] = receive_message_(obj,varargin)
 % receive specific MPI message
 
-% [is,err_code,err_mess] = check_job_cancelled(obj);
+% [is,err_code,err_mess] = check_job_canceled(obj);
 % if is  
 %     message = [];
 %     return;
@@ -29,15 +29,15 @@ catch Err
     message = [];
 end
 
-% function [is,err_code,err_mess]=check_job_cancelled(obj)
+% function [is,err_code,err_mess]=check_job_canceled(obj)
 % err_code = MESS_CODES.ok;
 % err_mess = [];
 % is = false;
-% t_cancel = MESS_NAMES.mess_id('cancelled');
+% t_cancel = MESS_NAMES.mess_id('canceled');
 % isDataAvail = labProbe('any',t_cancel );
 % if isDataAvail
 %     is = true;
-%     err_code = MESS_CODES.job_cancelled;
-%     err_mess = MException('MESSAGE_FRAMEWORK:cancelled',...
-%         sprintf('Job with ID: %s has been cancelled. Cancel message received',obj.job_id));
+%     err_code = MESS_CODES.job_canceled;
+%     err_mess = MException('MESSAGE_FRAMEWORK:canceled',...
+%         sprintf('Job with ID: %s has been canceled. Cancel message received',obj.job_id));
 % end
