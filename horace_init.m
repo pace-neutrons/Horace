@@ -31,7 +31,8 @@ addpath_message (1,rootpath,'algorithms');
 addpath_message (1,rootpath,'herbert');
 
 % DLL and configuration setup
-addpath_message (1,rootpath,'DLL/bin');
+addpath_message (2,rootpath,'DLL');
+%addpath_message (1,rootpath,'DLL/bin');
 addpath_message (1,rootpath,'configuration');
 
 % Other directories
@@ -69,18 +70,16 @@ if hc.is_default
     check_mex = true;
 end
 %
-herc = herbert_config;
 hpcc = hpc_config;
-parc = parallel_config;
-if hc.is_default ||hpcc.is_default || parc.is_default || herc.is_default
-    warning(['Found Herbert and/or Horace are not configured. ',...
+if hc.is_default ||hpcc.is_default
+    warning([' Found Horace is not configured. ',...
              ' Setting up the configuration, identified as optimal for this type of the machine.',...
              ' Please, check configurations (typing:',...
-             ' hor_config, herbert_config, hpc_config and parallel_config',...
-             ' to ensure this configuration is correct.'])
+             ' >>hor_config and >>hpc_config)',...
+             ' to ensure these configurations are correct.'])
     % load and apply configuration, assumed to be optimal for this kind of the machine.
     conf_c = opt_config_manager();
-    conf_c.load_configuration('-set_config','-force_save');
+    conf_c.load_configuration('-set_config','-change_only_default','-force_save');
 end
 
 if check_mex
