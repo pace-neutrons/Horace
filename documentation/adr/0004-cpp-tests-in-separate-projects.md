@@ -1,4 +1,4 @@
-[<-previous](0003-use-cmake-for-build.md) | next->
+[<-previous](0003-use-cmake-for-build.md) | [next->](0005-use-gtest-in-cpp-tests.md)
 
 # 4 - CPP tests in separate projects
 
@@ -44,7 +44,7 @@ The test projects will include the associated function project as an explicit re
 
 ```cmake
 add_executable("functionOne.test" ${TEST_SRC_FILES} ${TEST_HDR_FILES} ${SRC_FILES} ${HDR_FILES})
-target_include_directories("functionOne.test" PRIVATE ${CMAKE_SOURCE_DIR}/_LowLevelCode/cpp")
+target_include_directories("functionOne.test" PRIVATE "${CMAKE_SOURCE_DIR}/_LowLevelCode/cpp")
 target_link_libraries("functionOne.test" gtest_main)
 ```
 
