@@ -49,6 +49,9 @@ TBI - this will replicate the MATLAB API to support users with Python rather tha
 
 See [MPI Framework](./04_mpi_framework.md)
 
+## File Formats
+
+See [File Formats](./05_file_formats.md)
 
 ## Data objects
 
