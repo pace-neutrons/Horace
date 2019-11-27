@@ -1,3 +1,5 @@
+[<-previous](0002-record-architecture-decisions.md) | [next->](0004-cpp-tests-in-separate-projects.md)
+
 # 3. Use CMake for build tool
 
 Date: 2019-11-06
