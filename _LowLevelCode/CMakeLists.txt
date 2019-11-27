@@ -1,2 +1,4 @@
 add_subdirectory("CPP")
-add_subdirectory("Fortran")
+if(${BUILD_FORTRAN})
+    add_subdirectory("Fortran")
+endif()
