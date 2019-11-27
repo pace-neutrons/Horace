@@ -90,19 +90,22 @@ while keep_worker_running
     exit_at_the_end = ~is_tested && worker_init_data.exit_on_compl;
     % instantiate job executor class.
     je = feval(worker_init_data.JobExecutorClassName);
-
     %----------------------------------------------------------------------
     % step 2 of the worker initialization completed. a jobExecutor is
     % initialized and worker knows what to do when it finishes or
     % fails.
     %----------------------------------------------------------------------
+    %
     %----------------------------------------------------------------------
     % 3) step 3 of the worker initialization. Initializing the particular
     % job executor
     %----------------------------------------------------------------------
+    
+    
     % receive init message which defines the job parameters
     % implicit barrier exists which should block execution until
     % this message is received.
+    
     [ok,err_mess,init_message] = fbMPI.receive_message(0,'init');
     if ok ~= MESS_CODES.ok
         [ok,err_mess]=je.finish_task(FailMessage(err_mess));
@@ -115,9 +118,6 @@ while keep_worker_running
     
     try
         [je,mess] = je.init(fbMPI,intercomm,init_message,is_tested);
-        %je.labBarrier(false); The je initialization procedure contains
-        %implicit barrier when the first node is waiting for all other nodes
-        % report started state to it.
         if ~isempty(mess)
             err = sprinft(' Error sending ''started'' message from task N%d',...
                 fbMPI.labIndex);
@@ -134,26 +134,38 @@ while keep_worker_running
         mis.check_canceled = @()(f_canc(je));
         
         % Execute job (run main job executor's do_job method
-        %fprintf(fh,'je loop started\n');
- 		% send first "running" log message and set-up starting time.
+
+        % send first "running" log message and set-up starting time.
         n_steps = je.n_steps;
-        mis.do_logging(0,n_steps)
+        mis.do_logging(0,n_steps);
+        %
         while ~je.is_completed()
             je= je.do_job();
             % when its tested, workers are tested in single Matlab
             % session so it will hand up on synchronization
+            je.do_job_completed = true;
             if ~is_tested
+                
                 % when not tested, the synchronization is mandatory
                 je.labBarrier(false); % Wait until all workers finish their
                 %                       job before reducing the data
             end
             je = je.reduce_data();
         end
+        % Sent final running message. The node 1 waits for other nodes to
+        % send these this kind of messages
+        mis.do_logging(n_steps,n_steps);
+        if ~is_tested
+            % stop other nodes until the node 1 finishes to produce the
+            % final message
+            je.labBarrier(false);
+        end
         %fprintf(fh,'je loop completed\n');
     catch ME % Catch error in users code and finish task gracefully.
-        %fprintf(fh,'je exception caught\n');
+
         try
             [ok,err_mess] = je.process_fail_state(ME,is_tested);
+            %
             if keep_worker_running
                 continue;
             else
@@ -168,6 +180,7 @@ while keep_worker_running
             
         end
     end %Exception
+    
     [ok,err_mess] = je.finish_task();
 end
 %pause
@@ -181,4 +194,3 @@ if job_executor.is_job_canceled()
     error('MESSAGE_FRAMEWORK:canceled',...
         'Messages framework has been canceled or is not initialized any more')
 end
-

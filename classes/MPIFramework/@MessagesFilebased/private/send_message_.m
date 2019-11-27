@@ -38,7 +38,7 @@ while exist(rlock_file,'file') == 2 % previous message is reading, wait unitl re
 end
 
 lock_(wlock_file);
-
+%disp(['saving message : ',mess_fname])
 %
 save(mess_fname,'message','-v7.3');
 %

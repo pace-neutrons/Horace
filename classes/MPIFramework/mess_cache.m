@@ -51,7 +51,6 @@ classdef mess_cache < handle
                 if numel(task_ids) ~= numel(mess)
                     error('MESS_cache:invalid_argument',...
                         'size of messages array has to be equal to the size of index array')
-                    
                 end
                 
                 if islogical(task_ids)
@@ -120,8 +119,8 @@ classdef mess_cache < handle
             % Restore old messages, previously stored in the cache in the
             % order, spefified by tid_requested
             %
-            % prepare outputs            
-            n_requested = numel(tid_requested);            
+            % prepare outputs
+            n_requested = numel(tid_requested);
             all_messages = cell(n_requested ,1);
             if lock_until_received
                 [old_mess,old_tids]= obj.pop_messages(tid_requested,mess_name);
@@ -155,7 +154,7 @@ classdef mess_cache < handle
             for i=1:num_labs
                 obj.mess_cache_{i} = copy(single_tid_mess_queue);
             end
-
+            
         end
         function fh = get.log_file_h(obj)
             if isempty(obj.log_file_h_)
@@ -183,11 +182,11 @@ classdef mess_cache < handle
                 end
             end
             obj.mess_cache_ = cell(1,num_labs);
-            obj.cache_capacity_ = num_labs;            
+            obj.cache_capacity_ = num_labs;
             for i=1:num_labs
                 obj.mess_cache_{i} = copy(single_tid_mess_queue);
             end
-
+            
         end
         
     end

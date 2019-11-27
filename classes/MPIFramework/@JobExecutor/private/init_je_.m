@@ -18,7 +18,8 @@ function [obj,err]=init_je_(obj,fbMPI,intercomm,InitMessage,synchronize)
 % err    -- empty on success or information about the reason for failure.
 
 %
-%
+% just in case of je is reinitialized
+obj.do_job_completed = false;
 % Store framework, used for message exchange between the headnode and the 
 % workers of the cluster.
 obj.control_node_exch_ = fbMPI;

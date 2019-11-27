@@ -1,5 +1,5 @@
 function fc = get_folder_contents_(obj,mess_folder)
-% Utitlity function to retrieve folder contents under Windows
+% Utility function to retrieve folder contents under Windows
 % trying not to open and block message files.
 %
 if obj.task_id_ > 0 && ispc()
@@ -18,9 +18,11 @@ if exist(mess_folder,'dir') ~= 7
 end
 [status,cont] = system(command);
 if status ~=0
-    error('RECEIVE_MESSAGE:runtime_error',...
+    warning('RECEIVE_MESSAGE:runtime_error',...
         'Error %d executing Windows Dir command on folder %s',...
         mess_folder);
+    fc = [];
+    return;
 end
 
 %fc = regexp(cont,'\z','split');

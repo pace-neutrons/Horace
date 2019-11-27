@@ -23,10 +23,21 @@ if ~is_canceled
         end
     end
 end
-disp(['processing fail state: finish task is tested: ',num2str(is_tested)]);
+%disp(['processing fail state: finish task is tested: ',num2str(is_tested)]);
+
+
+% finish task, in particular, removes all messages, directed to this
+% lab
 if is_tested
     [ok,err_mess]=obj.finish_task(mess,'-asynchronous');
 else
+    % stop until other nodes fail due to cancelation and come
+    % here    
+    if ~obj.do_job_completed
+        % job has been interupted before the barrier in the job
+        % loop has been reached, so been interupted
+        obj.labBarrier(false);
+    end
     [ok,err_mess]=obj.finish_task(mess);
 end
 

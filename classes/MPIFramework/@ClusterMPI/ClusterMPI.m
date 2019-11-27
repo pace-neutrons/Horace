@@ -8,12 +8,11 @@ classdef ClusterMPI < ClusterWrapper
     %----------------------------------------------------------------------
     properties(Access = protected)
         
-        
+        % the string user to launch Matlab
         matlab_starter_  = [];
+        % the string containgin Java handle to running mpiexec process
         mpiexec_handle_ = [];
         %
-        % running process Java exception message contents
-        running_mess_contents_= 'process has not exited';
     end
     properties(Access = private)
         %
@@ -211,48 +210,7 @@ classdef ClusterMPI < ClusterWrapper
             %
             % inputs:
             task_handle = obj.mpiexec_handle_;
-            if isempty(task_handle)
-                ok      = false;
-                failed  = true;
-                mess = 'process has not been started';
-                return;
-            end
-            
-            mess = '';
-            if task_handle.isAlive
-                ok      = true;
-                failed  = false;
-            else
-                try
-                    term = task_handle.exitValue();
-                    if ispc() % windows does not hold correct process for Matlab
-                        ok = true;
-                    else
-                        ok = false; % unix does
-                    end
-                    if term == 0
-                        failed = false;
-                        ok = true;
-                    else
-                        failed = true;
-                        mess = fprintf('Startup error with ID: %d',term);
-                    end
-                catch Err
-                    if strcmp(Err.identifier,'MATLAB:Java:GenericException')
-                        part = strfind(Err.message, obj.running_mess_contents_);
-                        if isempty(part)
-                            mess = Err.message;
-                            failed = true;
-                            ok   = false;
-                        else
-                            ok = true;
-                            failed = false;
-                        end
-                    else
-                        rethrow(Err);
-                    end
-                end
-            end
+            [ok,failed,mess] = obj.is_java_process_running(task_handle);
         end
         
     end

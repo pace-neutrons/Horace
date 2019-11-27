@@ -29,6 +29,10 @@ classdef JobExecutor
         % a helper property, containing task outputs if these outputs are
         % defined
         task_outputs
+        % Helper method used for synchronization with worker
+        % needed to verify barrier in case of some worker failed
+        % while some finished do_job but some failed before that.
+        do_job_completed
     end
     %
     properties(Access=protected)
@@ -59,7 +63,8 @@ classdef JobExecutor
         % do_job and/or reduce_data should populate this property according
         % to the particular task logic.
         task_results_holder_ ={};
-        
+        % holder for do_job_completed value
+        do_job_completed_  = false;
     end
     methods(Abstract)
         % should be overloaded by a particular implementation
@@ -236,6 +241,13 @@ classdef JobExecutor
             % MPI cluster and control node.
             mf = obj.control_node_exch_;
         end
+        function is = get.do_job_completed(obj)
+            is = obj.do_job_completed_;
+        end
+        function obj = set.do_job_completed(obj,val)
+            obj.do_job_completed_ = logical(val);
+        end
+        
         %------------------------------------------------------------------
         % MPI interface (Underdeveloped, may be not necessary except
         % is_job_canceled)

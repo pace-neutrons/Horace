@@ -9,13 +9,14 @@ if obj.labIndex == 1
     tasks = 2:obj.numLabs;
     [~,task_present] = obj.probe_all(tasks,'barrier');
     all_present = all(ismember(tasks,task_present));
-    
+    %fprintf(' Starting lab barier for lab N%d\n',obj.labIndex)
     t0 = tic;
     while ~all_present
         pause(obj.time_to_react_);
         [~,task_present] = obj.probe_all(tasks,'barrier');
         
         all_present = all(ismember(tasks,task_present));
+        %fprintf(' barriers set : %d\n',sum(all_present))
         if ~all_present
             ttl = toc(t0);
             if ttl> obj.time_to_fail
@@ -40,7 +41,9 @@ if obj.labIndex == 1
         %end
     end
 else
+    %fprintf(' sending barrier message\n')
     obj.send_message(1,'barrier');
+    %fprintf(' waiting for barrier message\n')
     [ok,err]=obj.receive_message(1,'barrier');
     if ok ~= MESS_CODES.ok
         if nothrow

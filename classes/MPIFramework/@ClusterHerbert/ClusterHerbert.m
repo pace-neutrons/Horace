@@ -16,9 +16,6 @@ classdef ClusterHerbert < ClusterWrapper
         
         matlab_starter_  = [];
         tasks_handles_ = {};
-        %
-        % running process Java exception message contents
-        running_mess_contents_= 'process has not exited';
     end
     properties(Access = private)
         task_common_str_ = {'-nosplash','-nodesktop','-r'};
@@ -93,10 +90,8 @@ classdef ClusterHerbert < ClusterWrapper
             end
             
             if ispc()
-                obj.running_mess_contents_= 'process has not exited';
                 obj.matlab_starter_ = fullfile(prog_path,'matlab.exe');
             else
-                obj.running_mess_contents_= 'process hasn''t exited';
                 obj.matlab_starter_= fullfile(prog_path,'matlab');
                 obj.task_common_str_ = {'-softwareopengl',obj.task_common_str_{:}};
             end
@@ -117,7 +112,7 @@ classdef ClusterHerbert < ClusterWrapper
                 
                 runtime = java.lang.ProcessBuilder(task_info);
                 obj.tasks_handles_{task_id} = runtime.start();
-                [ok,failed,mess] = obj.is_running(obj.tasks_handles_{task_id});
+                [ok,failed,mess] = obj.is_java_process_running(obj.tasks_handles_{task_id});
                 if ~ok && failed
                     error('CLUSTER_HERBERT:runtime_error',...
                         ' Can not start worker N%d#%d, Error: %s',...
@@ -129,7 +124,7 @@ classdef ClusterHerbert < ClusterWrapper
             end
             
         end
-        %        
+        %
         function obj=finalize_all(obj)
             obj = finalize_all@ClusterWrapper(obj);
             if ~isempty(obj.tasks_handles_)
@@ -141,51 +136,55 @@ classdef ClusterHerbert < ClusterWrapper
             end
             
         end
-        %------------------------------------------------------------------
-    end
-    methods(Access = protected)
-        function [ok,failed,mess] = is_running(obj,task_handle)
-            % check if java process is still running or has been completed
+        function [completed, obj] = check_progress(obj,varargin)
+            % Check the job progress verifying and receiving all messages,
+            % sent from worker N1
             %
-            % inputs:
-            if isempty(task_handle)
-                ok      = false;
-                failed  = true;
-                mess = 'process has not been started';
-                return;
-            end
-            
-            mess = '';
-            try
-                term = task_handle.exitValue();
-                if ispc() % windows does not hold correct process for Matlab
-                    ok = true;
-                else
-                    ok = false; % unix does
-                end
-                if term == 0
-                    failed = false;
-                    ok = true;
-                else
-                    failed = true;
-                    mess = fprintf('Startup error with ID: %d',term);
-                end
-            catch Err
-                if strcmp(Err.identifier,'MATLAB:Java:GenericException')
-                    part = strfind(Err.message, obj.running_mess_contents_);
-                    if isempty(part)
-                        mess = Err.message;
-                        failed = true;
-                        ok   = false;
+            % usage:
+            %>> [completed, obj] = check_progress(obj)
+            %>> [completed, obj] = check_progress(obj,status_message)
+            %
+            % The first form checks and receives all messages addressed to
+            % job dispatched node where the second form accepts and
+            % verifies status message, received by other means
+            [ok,failed,mess] = obj.is_running();
+            [completed,obj] = check_progress@ClusterWrapper(obj,varargin{:});
+            if ~ok
+                if ~completed % the java framework reports job finished but
+                    % the head node have not received the final messages.
+                    completed = true;
+                    mess_body = sprintf(...
+                        'Framework launcher reports job finished without returning final messages. Reason: %s',...
+                        mess);
+                    if failed
+                        obj.status = FailMessage(mess_body);
                     else
-                        ok = true;
-                        failed = false;
+                        c_mess = aMessage('completed');
+                        c_mess.payload = mess_body;
+                        obj.status = c_mess ;
                     end
-                else
-                    rethrow(Err);
+                    me = obj.mess_exchange_;
+                    me.clear_messages()
                 end
             end
         end
+        
+        %------------------------------------------------------------------
+    end
+    methods(Access = protected)
+        function [ok,failed,mess] = is_running(obj)
+            % Method checks if java framework is running
+            
+            for i=1:numel(obj.tasks_handles_)
+                [ok,failed,mess] = is_java_process_running(obj,obj.tasks_handles_{i});
+                if ~ok
+                    mess = ['Process: ',num2str(i),' ',mess];
+                    return;
+                end
+            end
+            
+        end
+        %
         
     end
 end

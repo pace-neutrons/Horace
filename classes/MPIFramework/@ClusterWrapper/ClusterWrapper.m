@@ -81,6 +81,11 @@ classdef ClusterWrapper
         % messages to display if corresponding cluster is starting.
         starting_info_message_ ='';
         started_info_message_ ='';
+        
+        %
+        % running process Java exception message contents, used to identify
+        % if java process report it has been completed
+        running_mess_contents_= 'process has not exited';
     end
     properties(Hidden,Dependent)
         % helper property to print nicely aligned log messages
@@ -114,6 +119,12 @@ classdef ClusterWrapper
             if ~exist('log_level','var')
                 log_level = -1;
             end
+            if ispc()
+                obj.running_mess_contents_= 'process has not exited';
+            else
+                obj.running_mess_contents_= 'process hasn''t exited';
+            end
+            
             obj = obj.init(n_workers,mess_exchange_framework,log_level);
         end
         function obj = init(obj,n_workers,mess_exchange_framework,log_level)
@@ -374,6 +385,67 @@ classdef ClusterWrapper
             % computing toolbox controlled one.
             ex  = true;
         end
+        %
+        function [ok,failed,mess] = is_java_process_running(obj,task_handle)
+            % check if java process is still running or has been completed
+            %
+            % inputs:
+            % task_handle -- handle for jave process
+            % obj.running_mess_contents_ -- the scting, containing the
+            %                               part of the java message,
+            %                               indicating that the process is
+            %                               still running
+            if isempty(task_handle)
+                ok      = false;
+                failed  = true;
+                mess = 'process has not been started';
+                return;
+            end
+            
+            mess = '';
+            is_alive = task_handle.isAlive;
+            %             if is_alive
+            %                 ok      = true;
+            %                 failed  = false;
+            %             else
+            try
+                term = task_handle.exitValue();
+                if ispc() % windows does not hold correct process for Matlab
+                    ok = true;
+                else
+                    ok = false; % unix does
+                end
+                if term == 0
+                    %                         if is_alive
+                    failed = false;
+                    ok = true;
+                    %                         else
+                    %                            failed = true;
+                    %                            ok = false;
+                    %                            mess = fprintf('Java process have died without any output');
+                    %                        end
+                else
+                    failed = true;
+                    mess = fprintf('Java run error with ID: %d',term);
+                end
+            catch Err
+                if strcmp(Err.identifier,'MATLAB:Java:GenericException')
+                    part = strfind(Err.message, obj.running_mess_contents_);
+                    if isempty(part)
+                        mess = Err.message;
+                        failed = true;
+                        ok   = false;
+                    else
+                        ok = true;
+                        failed = false;
+                    end
+                else
+                    rethrow(Err);
+                end
+            end
+            %            end
+        end
+        
         
     end
 end
