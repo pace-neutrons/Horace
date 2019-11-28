@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD 11)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Set our options
+option(BUILD_TESTS "Build the C++ tests" ON)
 option(BUILD_FORTRAN "Build the Fortran Mex libraries" OFF)
 
 # Add cmake directory to CMake's path
@@ -19,6 +20,9 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 # Look for packages early so we can exit if they're not found
 find_package(MPI REQUIRED)
 include(herbert_FindMatlab)
+if(${BUILD_TESTS})
+  include(herbert_FindGTest)
+endif()
 
 # Set the destination of our build artifacts
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")

@@ -7,3 +7,7 @@ set(
 foreach(_module ${MODULES})
     add_subdirectory("${_module}")
 endforeach()
+
+if(${BUILD_TESTS})
+    add_subdirectory("test")
+endif()
