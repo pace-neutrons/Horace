@@ -1,3 +1,4 @@
+set(CXX_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}")
 set(
     MEX_FUNCTIONS
     "accumulate_cut_c"
@@ -13,3 +14,7 @@ set(
 foreach(_mex_func ${MEX_FUNCTIONS})
     add_subdirectory("${_mex_func}")
 endforeach(_mex_func)
+
+if(${BUILD_TESTS})
+    add_subdirectory(test)
+endif()
