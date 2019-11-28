@@ -1,3 +1,4 @@
+set(CXX_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}")
 set(
     MODULES
     "cpp_communicator"

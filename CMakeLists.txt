@@ -22,6 +22,7 @@ find_package(MPI REQUIRED)
 include(herbert_FindMatlab)
 if(${BUILD_TESTS})
   include(herbert_FindGTest)
+  enable_testing()
 endif()
 
 # Set the destination of our build artifacts
