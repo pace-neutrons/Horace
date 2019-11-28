@@ -28,7 +28,7 @@ classdef combine_sqw_pix_job < JobExecutor
         function obj = combine_sqw_pix_job()
             obj = obj@JobExecutor();
         end
-        function [obj,mess]=init(obj,fbMPI,intercom_class,InitMessage)
+        function [obj,mess]=init(obj,fbMPI,intercom_class,InitMessage,varargin)
             % Overloads parent's init by adding the initialization
             % routines, specific for combibe_sqw_pix_job
             %
@@ -45,6 +45,10 @@ classdef combine_sqw_pix_job < JobExecutor
             %                         communications between workers
             % InitMessage         -- The message with information necessary
             %                        to ititiate the job itself
+            % Optional:
+            % is_tested           -- if there, indicates, that the
+            %                        framework is tested. Not used for
+            %                        combine_sqw_pix job.
             %
             % returns:
             % obj          initialized combibe_sqw_pix_job object

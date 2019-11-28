@@ -51,8 +51,8 @@ classdef test_gen_sqw_accumulate_sqw_parpool <  ...
             if ~exist('test_name','var')
                 test_name = mfilename('class');
             end
-            obj = obj@gen_sqw_common_config(-1,1,'mpi_code','herbert');            
-            obj = obj@gen_sqw_accumulate_sqw_tests_common(test_name,'herbert');
+            obj = obj@gen_sqw_common_config(-1,1,'mpi_code','parpool');            
+            obj = obj@gen_sqw_accumulate_sqw_tests_common(test_name,'parpool');
         end
         
     end
