@@ -47,52 +47,59 @@ classdef job_dispatcher_common_tests< MPI_Test_Common
             
             [outputs,n_failed,~,jd]=jd.start_job('JETester',common_param,36,true,3,true,1);
             
-            assertEqual(n_failed,3);
-            assertEqual(numel(outputs),3);
-            assertTrue(isa(outputs{1},'MException'));
+            assertTrue(n_failed>=2);
+            assertEqual(numel(outputs),3);            
+            if iscell(outputs{1}) % task reported progress and canceled. 
+                fin = cellfun(@(x)(isa(x,'MException')),outputs{1}); %cancelation message
+                assertTrue(any(fin))
+                com = cellfun(@(x)(ischar(x)),outputs{1}); % completeon message
+                assertTrue(any(com ))
+            elseif isstruct(outputs{1}) %  % reported progress
+                assertTrue(isfield(outputs{1},'time'));
+            else  % task canceled 
+                assertTrue(isa(outputs{1},'MException'));
+            end
             assertTrue(isa(outputs{2},'MException'));
-            assertTrue(isa(outputs{3},'MException'));
-            assertEqual(outputs{1}.identifier,'JOB_EXECUTOR:canceled');
+            assertTrue(isa(outputs{3},'MException')||...
+                (isstruct(outputs{3})&&isfield(outputs{3},'time')));
+            if isa(outputs{1},'MException')
+                assertEqual(outputs{1}.identifier,'JOB_EXECUTOR:canceled');
+            end
             assertEqual(outputs{2}.message,'simulated failure for lab N 2');
-            assertEqual(outputs{3}.identifier,'JOB_EXECUTOR:canceled');
+            if isa(outputs{3},'MException')
+                assertEqual(outputs{3}.identifier,'JOB_EXECUTOR:canceled');
+            end
             % file may exist or may not -- depending on relation between
             % speed of workers
-            %assertFalse(exist(file1,'file')==2);
-            assertFalse(exist(file2,'file')==2);
-            %assertTrue(exist(file3,'file')==2);
-            %assertTrue(exist(file3a,'file')==2);
             
             
             co = onCleanup(@()(my_delete(file3,file3a)));
             common_param.fail_for_labsN  =1:2;
             [outputs,n_failed,~,jd]=jd.restart_job('JETester',common_param,4,true,true,1);
             
-            assertTrue(n_failed==3);
+            assertTrue(n_failed>=2);
             assertEqual(numel(outputs),3);
             assertTrue(isa(outputs{1},'MException'));
             assertTrue(isa(outputs{2},'MException'));
-            assertTrue(isa(outputs{3},'MException'));
-            assertEqual(outputs{3}.identifier,'JOB_EXECUTOR:canceled');
-            %assertEqual(outputs{3},'Job 3 generated 1 files');
-            assertFalse(exist(file1,'file')==2);
-            assertFalse(exist(file2,'file')==2);
-            %assertTrue(exist(file3,'file')==2);
+            assertTrue(isa(outputs{3},'MException')||...
+                (isstruct(outputs{3})&&isfield(outputs{3},'time')));
+            if isa(outputs{3},'MException')
+                assertEqual(outputs{3}.identifier,'JOB_EXECUTOR:canceled');
+            end
             
             
             clear co;
             % check long job canceled due to part of the job failed
             [outputs,n_failed,~,jd]=jd.restart_job('JETester',common_param,99,true,true,1);
             
-            assertTrue(n_failed==3);
+            assertTrue(n_failed>=2);
             assertEqual(numel(outputs),3);
             assertTrue(isa(outputs{1},'MException'));
             assertTrue(isa(outputs{2},'MException'));
-            assertTrue(isa(outputs{3},'MException'));
-            assertFalse(exist(file1,'file')==2);
-            assertFalse(exist(file2,'file')==2);
-            %assertTrue(exist(file3,'file')==2);
+            assertTrue(isa(outputs{3},'MException')||...
+                (isstruct(outputs{3})&&isfield(outputs{3},'time')));
             for i=1:33
-                fileN = fullfile(obj.working_dir,sprintf('test_JD_%sL3_nf%d.txt',obj.framework_name,i));                
+                fileN = fullfile(obj.working_dir,sprintf('test_JD_%sL3_nf%d.txt',obj.framework_name,i));
                 if exist(fileN,'file') == 2
                     delete(fileN);
                 else
@@ -101,14 +108,16 @@ classdef job_dispatcher_common_tests< MPI_Test_Common
             end
             common_param.fail_for_labsN  =3;
             [outputs,n_failed,~,jd]=jd.restart_job('JETester',common_param,99,true,true,1);
-            assertTrue(n_failed==3);
+            assertTrue(n_failed>=1);
             assertEqual(numel(outputs),3);
-            assertTrue(isa(outputs{1},'MException'));
-            assertTrue(isa(outputs{2},'MException'));
+            assertTrue(isa(outputs{1},'MException')||...
+                (isstruct(outputs{1})&&isfield(outputs{1},'time')));
+            
+            assertTrue(isa(outputs{2},'MException')||...
+                (isstruct(outputs{2})&&isfield(outputs{2},'time')));
+            
             assertTrue(isa(outputs{3},'MException'));
-            %assertTrue(exist(file1,'file')==2);
-            %assertTrue(exist(file2,'file')==2);
-            %assertFalse(exist(file3,'file')==2);
+ 
             for i=1:33
                 fileN1 = fullfile(obj.working_dir,sprintf('test_JD_%sL1_nf%d.txt',obj.framework_name,i));
                 if exist(fileN1,'file') == 2

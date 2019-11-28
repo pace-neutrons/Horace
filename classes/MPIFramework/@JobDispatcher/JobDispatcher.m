@@ -94,7 +94,7 @@ classdef JobDispatcher
             %                   with each cell specific to a loop iteration
             %                   or the number of iterations to do over
             %                   common_params (which may depend on the
-            %                   iteration number)
+            %                   iteration number defined in jobExecutor)
             % number_of_workers -- number of Matlab sessions to
             %                    process the tasks
             %
