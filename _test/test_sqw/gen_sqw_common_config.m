@@ -84,20 +84,23 @@ classdef gen_sqw_common_config < TestCase
                 ('parallel_framework',parallel_framework,obj.old_configuration_.parc);
             
             if obj.change_framework_ && strcmp(parallel_framework,'parpool') % check parpool can be enabled
-                parc = parallel_config;
-                [ok,mess] = parc.check_parpool_can_be_enabled();
-                if ~ok
-                    obj.skip_test = true;
-                    obj.change_framework_ = false;
-                    if log_level>0
-                        warning('GEN_SQW_TEST_CONFIG:not_available',...
-                            'Can not initiate framework: %s because %s. This mode will not be tested',...
-                            parallel_framework,mess)
-                    end
-                else
+                cl = ClusterParpoolWrapper();
+                try
+                    cl.check_availability()
                     obj.skip_test = false;
+                catch ME
+                    if strcmpi(ME.identifier,'PARALLEL_CONFIG:not_avalable')
+                        obj.skip_test = true;
+                        obj.change_framework_ = false;
+                        if log_level>0
+                            warning('GEN_SQW_TEST_CONFIG:not_available',...
+                                'Can not initiate framework: %s because %s. This mode will not be tested',...
+                                parallel_framework,mess)
+                        end
+                    else
+                        rethrow(ME);
+                    end
                 end
-                
             end
         end
         
