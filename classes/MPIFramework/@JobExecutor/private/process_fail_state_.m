@@ -9,6 +9,8 @@ else
     err_text = sprintf('Task N%d failed at jobExecutor: %s. Reason: %s',...
         obj.labIndex,class(obj),ME.message);
 end
+%disp('error message')
+%disp(ME)
 %disp(['processing fail state, forming message: ',ME.identifier]);
 mess = FailMessage(err_text,ME);
 % send canceled message to all other workers to finish their

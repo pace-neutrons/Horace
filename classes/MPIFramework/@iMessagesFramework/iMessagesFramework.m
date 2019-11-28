@@ -115,8 +115,8 @@ classdef iMessagesFramework
         end
         %
         function cs = get_worker_init(obj,intercom_name,labID,numLabs)
-            % Generate slave MPI worker init info, using static 
-            % build_worker_init method and information, retrieved from 
+            % Generate slave MPI worker init info, using static
+            % build_worker_init method and information, retrieved from
             % the initialized control node.
             %
             % The information used on the stage 1 of the worker
@@ -134,9 +134,10 @@ classdef iMessagesFramework
             %                  framework on a head-node and
             % intercom_name -- the name of the framework, used
             %                  to exchange messages between workes
-            % labId         -- labIndex if, present the number of Herbert
-            %                  MPI worker to initiate
-            % numLabs       -- if present, number of Herbert MPI workers
+            % labId         -- labIndex if present, defines the number of
+            %                  Herbert pseudo MPI worker to initiate
+            % numLabs       -- if present, total  number of Herbert pseudo MPI
+            %                  workers in the pool.
             %
             %
             datapath = fileparts(fileparts(fileparts(obj.mess_exchange_folder)));

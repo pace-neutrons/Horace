@@ -97,14 +97,14 @@ classdef JobExecutor
             % and process main job control parameters, present in
             % inputs and files:
             %
-            % fbMPI               -- the instance of file-based messages
-            %                        framework, used to exchange messages
-            %                        between worker and control node.
+            % fbMPI               -- the initialized instance of file-based 
+            %                        messages framework, used for messages 
+            %                        exchange between worker and the control node.
             %                        Depending on the used framework and job,
             %                        this class can be used for communications
             %                        between workers too.
-            % intercom_class     --  the structure, used for message exchange
-            %                        between different workers
+            % intercom_class     --  the class, providing MPI or pseudo MPI
+            %                         communications between workers
             %
             % InitMessage         -- The message with information necessary
             %                        to run the job itself

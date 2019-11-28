@@ -5,12 +5,11 @@ function [obj,err]=init_je_(obj,fbMPI,intercomm,InitMessage,synchronize)
 %                      exchange information between control machine and the
 %                      main worker (and distributing initialization
 %                      information among workers)
-% job_control_struct - the structure containing information
-%                      necessary to initialize the messages framework used
-%                      for interaction between workers.
+% intercomm          - the class, providing MPI or pseudo MPI communications 
+%                      between workers
 % InitMessage        - the framework initialization message, containing the
 %                      particular job initialization information. 
-% synchronize        - if true, use synchroneous communications for all
+% synchronize        - if true, use synchronous communications for all
 %                      messages, if false, ignore missing messages from
 %                      other labs
 %Output:
@@ -20,7 +19,7 @@ function [obj,err]=init_je_(obj,fbMPI,intercomm,InitMessage,synchronize)
 %
 % just in case of je is reinitialized
 obj.do_job_completed = false;
-% Store framework, used for message exchange between the headnode and the 
+% Store framework, used for message exchange between the head-node and the 
 % workers of the cluster.
 obj.control_node_exch_ = fbMPI;
 % Store framework, used to exchange messages between nodes
