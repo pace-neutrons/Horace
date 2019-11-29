@@ -7,6 +7,9 @@ function path=herbert_on(non_default_path)
 % The function has to be present in Matlab search path 
 % and modified for each machine to know default Herbert location
 %
+% The default Herbert location is the place where Herbert_init script
+% can be found.
+%
 %Usage:
 %>>path=herbert_on(); 
 %       enables Herbert and initiates Herbert default search path
@@ -36,10 +39,6 @@ path = fileparts(which('herbert_init.m'));
 
 function start_herbert(path)
 
-try
-    herbert_off;
-catch
-end
 addpath(path);
 herbert_init;
 

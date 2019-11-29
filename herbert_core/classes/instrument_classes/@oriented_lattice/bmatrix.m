@@ -33,4 +33,4 @@ function [b, arlu, angrlu] = bmatrix(obj)
 
 angdeg = obj.angdeg;
 alatt  = obj.alatt;
-[b,arly,angrlu] = bmatrix(angder,alatt)
+[b,arly,angrlu] = bmatrix(angder,alatt);

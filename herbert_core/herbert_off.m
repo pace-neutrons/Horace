@@ -1,7 +1,7 @@
 function herbert_off
-% Remove paths to herbert root directory and all sub-directories.
+% Remove paths to Herbert root directory and all sub-directories.
 %
-% To remove herbert from the matlab path, type
+% To remove Herbert from the Matlab path, type
 %   >> herbert_off
 
 % T.G.Perring

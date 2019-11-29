@@ -18,10 +18,7 @@ rootpath = fileparts(which('herbert_init'));
 % Remove all instances of Herbert
 % -------------------------------
 % (This might include this version of Herbert)
-try
-    herbert_off()
-catch % if not initialized, nothing to remove
-end
+application_off('herbert');
 warning('off','MATLAB:subscripting:noSubscriptsSpecified');
 % if ~verLessThan('matlab','9.1')
 %     warning('off','MATLAB:subscripting:noSubscriptsSpecified');
@@ -115,3 +112,37 @@ else
     error([string, ' is not a directory - not added to path']);
 end
 
+function application_off(app_name)
+% Remove paths to all instances of the application.
+
+start_dir=pwd;
+
+% Determine the rootpaths of any instances of the application by looking for app_name on the matlab path
+application_init_old = which([app_name,'_init'],'-all');
+
+for i=1:numel(application_init_old)
+    try
+        rootpath=fileparts(application_init_old{i});
+        cd(rootpath)
+        if exist(fullfile(pwd,[app_name,'_off.m']),'file') % check that 'off' routine exists in the particular rootpath
+            try
+                feval([app_name,'_off'])    % call the 'off' routine
+            catch ME
+                message=ME.message;
+                disp(['Unable to run function ',fullfile(pwd,[app_name,'_off.m']),'. Reason: ',message]);
+            end
+        else
+            disp(['Function ',app_name,'_off.m not found in ',rootpath])
+            disp('Clearing rootpath and subdirectories from Matlab path in any case')
+        end
+        paths = genpath(rootpath);
+        warn_state=warning('off','all');    % turn of warnings (so don't get errors if remove non-existent paths)
+        rmpath(paths);
+        warning(warn_state);    % return warnings to initial state
+        cd(start_dir)           % return to starting directory
+    catch ME
+        cd(start_dir)           % return to starting directory
+        message=ME.message;
+        disp(['Problems removing ',rootpath,' and any sub-directories from matlab path. Reason: ',message]);
+    end
+end
