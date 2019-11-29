@@ -8,8 +8,7 @@ classdef test_loader_nxspe< TestCase
         %
         function this=test_loader_nxspe(name)
             this = this@TestCase(name);
-            rootpath=fileparts(which('herbert_init.m'));
-            this.test_data_path = fullfile(rootpath,'_test/common_data');
+            this.test_data_path = herbert_test_data_path();
         end
         
         function this=setUp(this)

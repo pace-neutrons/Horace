@@ -23,9 +23,9 @@ classdef test_parse_revision< TestCase
             clob = onCleanup(@()delete(targ_file));
             
             rev_srt1 = parse_rev_file(targ_file);
-            rev_str2 = parse_rev_file(targ_file);      
+            rev_str2 = parse_rev_file(targ_file);
             rev_n = sscanf(rev_srt1,':: %d');
-            rev_n1 = sscanf(rev_str2,':: %d');            
+            rev_n1 = sscanf(rev_str2,':: %d');
             assertEqual(rev_n+1,rev_n1);
         end
     end

@@ -11,8 +11,7 @@ classdef test_loader_utilites< TestCase
         
         function this=test_loader_utilites(name)
             this = this@TestCase(name);
-            rootpath=fileparts(which('herbert_init.m'));
-            this.test_data_path = fullfile(rootpath,'_test/common_data');                                            
+            this.test_data_path = herbert_test_data_path();
         end
         function this=setUp(this)
             this.log_level = get(herbert_config,'log_level');

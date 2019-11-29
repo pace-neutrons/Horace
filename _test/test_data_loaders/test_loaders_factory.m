@@ -6,8 +6,7 @@ classdef test_loaders_factory< TestCase
         %
         function this=test_loaders_factory(name)
             this = this@TestCase(name);
-            rootpath=fileparts(which('herbert_init.m'));
-            this.test_data_path = fullfile(rootpath,'_test/common_data');
+            this.test_data_path = herbert_test_data_path();
         end
         
         function test_select_loader_throws(this)

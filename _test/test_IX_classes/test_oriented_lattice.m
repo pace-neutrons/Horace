@@ -15,8 +15,7 @@ classdef test_oriented_lattice< TestCase
                 name = varargin{1};
             end
             this = this@TestCase(name);
-            rootpath=fileparts(which('herbert_init.m'));
-            this.test_data_path = fullfile(rootpath,'_test/common_data');
+            this.test_data_path = herbert_test_data_path();
         end
         
         function test_constructor_defaults(this)

@@ -31,8 +31,7 @@ classdef test_gen_runfiles< TestCase
             end
             this = this@TestCase(name);
             
-            rootpath=fileparts(which('herbert_init.m'));
-            this.test_data_path = fullfile(rootpath,'_test/common_data');
+            this.test_data_path = herbert_test_data_path();
             this.wk_dir = tempdir;
             
             this.par_file = fullfile(this.test_data_path,'demo_par.par');

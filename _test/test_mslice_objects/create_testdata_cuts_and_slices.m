@@ -12,7 +12,7 @@ function create_testdata_cuts_and_slices
 % Author: T.G.Perring
 
 % Get location of common data
-common_data_dir=fullfile(fileparts(which('herbert_init')),'_test','common_data');
+common_data_dir=herbert_test_data_path();
 
 work_dir=tempdir;
 output_file=fullfile(work_dir,'testdata_cut_slice_files.zip');

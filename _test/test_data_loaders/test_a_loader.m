@@ -10,8 +10,7 @@ classdef test_a_loader< TestCase
         %
         function this=test_a_loader(name)
             this = this@TestCase(name);
-            rootpath=fileparts(which('herbert_init.m'));
-            this.test_data_path = fullfile(rootpath,'_test/common_data');
+            this.test_data_path =herbert_test_data_path();
         end
         
         function test_abstract_methods(this)

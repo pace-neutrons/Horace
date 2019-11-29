@@ -2,8 +2,7 @@ function  test_rundataOldMatlab()
 %The test written in a way, it can run by old matlab and the new one (using
 %xUnittests to verify brifely old matlab consistency. 
 %run=rundata();
-rootpath=fileparts(which('herbert_init.m'));
-path = fullfile(rootpath,'_test/common_data');
+path = herbert_test_data_path();
 
 
 log_level = get(herbert_config,'log_level');

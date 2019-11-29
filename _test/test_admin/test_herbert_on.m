@@ -21,11 +21,11 @@ classdef test_herbert_on< TestCase
                 assertEqual(1,1);    % dummy assignment to ensure test is passed
             end
         end               
-        function test_herLocations(this)                           
+        function test_herLocations(this)
             if ~isempty(which('herbert_on'))
                 path=herbert_on('where');
                 pc =fileparts(which('herbert_init.m'));   
-                assertEqual(path,pc);            
+                assertEqual(path,pc);
             else
                 disp('herbert_on not installed. No test to be performed')
                 assertEqual(1,1);    % dummy assignment to ensure test is passed
