@@ -18,7 +18,7 @@ the path to the directory containing Matlab's dynamically linked libraries
 the path to the Matlab UT library
 
 See the FindMatlab.cmake documentation for other variables defined by this
-module. You'll find the file bundled with your CMake isntallation.
+module. You'll find the file bundled with your CMake installation.
 
 #]=======================================================================]
 find_package(Matlab REQUIRED COMPONENTS MAIN_PROGRAM)
@@ -36,7 +36,7 @@ mark_as_advanced(FORCE Matlab_UT_LIBRARY)
 # The MX library doesn't seem to get found on UNIX, so make sure we have it
 if("${Matlab_MX_LIBRARY}" STREQUAL "")
     find_library(Matlab_MX_LIBRARY
-        NAMES "mx" "libmx"
+        NAMES "mex" "libmex" "mat" "libmat" "mx" "libmx"
         HINTS "${Matlab_LIBRARY_DIR}"
         NO_DEFAULT_PATH
     )
