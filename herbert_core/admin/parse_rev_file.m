@@ -2,7 +2,7 @@ function [rev_str,datetm] = parse_rev_file(rev_file_name)
 % Parse revision file and increase the revision number by one
 % and revision date -- to the current date.
 % 
-% Return new revision numeber and revision date. 
+% Return new revision number and revision date.
 %
 %
 %keywords = {'$Revision:','$Date:'};

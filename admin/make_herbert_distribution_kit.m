@@ -3,14 +3,13 @@ function make_herbert_distribution_kit(varargin)
 % Herbert to work into single zip file
 %
 %Usage:
-%>>make_herbert_distribution_kit(['-compact'])
+%>>make_herbert_distribution_kit(['-full'])
 % or
-%>>make_herbert_distribution_kit([target_dir,'-run_by_horace',['-compact']])
+%>>make_herbert_distribution_kit([target_dir,'-run_by_horace',['-full']])
 %
 %where optional arguments are:
-%'-compact'      -- if present, request dropping the demo and test files
-%                   with test folders, default -- compress demo and tests
-%                   together with main code. 
+%'-full'      -- if present, request the demo and test files
+%                to be included with the distribution
 %
 % the second form is used when script is run within
 % make_horace_distribution_kit script
@@ -32,48 +31,20 @@ function make_herbert_distribution_kit(varargin)
 % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
 %
 %
-keys = {'-compact','-run_by_horace'};
-rootpath = fileparts(which('herbert_init')); % MUST have rootpath so that herbert_init, libisis_off included
-if isempty(rootpath)
+options = {'-full','-run_by_horace'};
+her_code_dir = fileparts(which('herbert_init')); % MUST have rootpath so that herbert_init, libisis_off included
+her_root_dir = fileparts(her_code_dir );
+if isempty(her_code_dir)
     error('MAKE_HERBERT_DISTRIBUTION_KIT:invalid_argument',' Herbert package have to be initiated to build herbert distribution kit');
 end
-
-no_tests    = false;
-run_by_horace=false;
-horace_target_path='';
-if nargin>0
-    ic=1;
-    in_keys={};
-    for i=1:nargin
-        if strncmp(varargin{i},'-',1)
-            in_keys{ic} = varargin{i};
-            ic=ic+1;
-        end
-    end
-    if ic>1
-        if ~all(ismember(in_keys,keys))
-            non_member=~ismember(in_keys,keys);
-            for i=1:sum(non_member)
-                if non_member(i)
-                    disp(['Unrecognized key: ',in_keys{i}]);
-                end
-            end
-            error('MAKE_HERBERT_DISTRIBUTION_KIT:invalid_argument',' unknown or unsupported key %s',in_keys{i});
-        end
-    end
-   % interpret existing keys    
-    if ismember('-compact',in_keys)
-        no_tests=true;
-    end 
-    if ismember('-run_by_horace',in_keys)
-        run_by_horace      = true;
-        horace_target_path = varargin{1};
-        if ~exist(horace_target_path,'dir')
-            error('MAKE_HERBERT_DISTRIBUTION_KIT:invalid_argument',...
-                'Herbert distribution is run by Horace but Horace target folder: %s does not exist',horace_target_path);
-        end
-    end
+[ok,err_mess,include_tests,run_by_horace,argi] = parse_char_options(varargin,options);
+if ~ok
+    error('MAKE_HERBERT_DISTRIBUTION_KIT:invalid_argument',err_mess);    
 end
+if run_by_horace
+   horace_target_path = argi{1};
+end
+
 %
 disp('!===================================================================!')
 disp('!==> Preparing HERBERT distribution kit  ===========================!')
@@ -84,10 +55,11 @@ build_dir   =  current_dir;
 if run_by_horace
     build_dir = horace_target_path;
 end
-
+[inside,common_root] = is_inside(current_dir,build_dir);
+if 
 % if inside Herbert package dir, go away from there:
-if strncmpi(build_dir,rootpath,numel(rootpath))
-	cd(rootpath);
+if strncmpi(build_dir,her_code_dir,numel(her_code_dir))
+	cd(her_code_dir);
 	cd('../');
     build_dir = pwd;
 end
@@ -98,16 +70,16 @@ else
     target_Dir=[build_dir,'/ISIS'];
 end
 her_dir = [target_Dir,'/Herbert'];
-copy_files_list(rootpath,her_dir); 
+copy_files_list(her_code_dir,her_dir); 
 
 % copy source code files from system directory
-copy_files_list(fullfile(rootpath,'_LowLevelCode'),fullfile(her_dir,'_LowLevelCode'),'+_',...
+copy_files_list(fullfile(her_code_dir,'_LowLevelCode'),fullfile(her_dir,'_LowLevelCode'),'+_',...
                        'h','cpp','c','f','f90','FOR','sln','vcproj','vfproj','txt','m'); 
 %copy_files_list(fullfile(rootpath,'_notes'),fullfile(her_dir,'_notes'),'+_'); 
 
 % copy unit tests and unit test suite if necessary
 if ~no_tests   
-    copy_files_list(fullfile(rootpath,'_test'),fullfile(her_dir,'_test'),'+_'); 
+    copy_files_list(fullfile(her_code_dir,'_test'),fullfile(her_dir,'_test'),'+_'); 
 end
 
 %
@@ -137,7 +109,7 @@ else
 %
     disp('!    Files compressed. Deleting the auxiliary files and directories=!')
 
-    if ~strncmp(target_Dir,rootpath,numel(rootpath))
+    if ~strncmp(target_Dir,her_code_dir,numel(her_code_dir))
         rmdir(target_Dir,'s');
     end
     disp('!    All done folks ================================================!')

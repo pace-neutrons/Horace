@@ -1,10 +1,10 @@
 function [is_daas,size_suffix] = is_idaaas(comp_name)
 % Function to verify if the computer is iDaaaS virtual machine.
 %
-% normaly works without the arguments, and returns true if the computer is
+% normally works without the arguments, and returns true if the computer is
 % iDaaaS virtual machine.
 
-% if input string is present, the routie works in test mode and
+% if input string is present, the route works in test mode and
 % identifies if the computer is iDaaaS computer by parsing the input.
 %
 %
@@ -29,7 +29,8 @@ else
 end
 if nargout>1 && is_daas
     [nok,mess] = system('lscpu');
-    if nok  %still MAC or strange unix without lscpu
+    if nok  % MAC or strange unix without lscpu
+        is_daas = false;
         size_suffix = '';
         return;
     end
