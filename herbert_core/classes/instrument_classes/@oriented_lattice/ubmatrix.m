@@ -46,13 +46,4 @@ end
 
 u=obj.u';    % convert to column vector
 v=obj.v';    % convert to column vector
-
-uc = b*u;   % Get u, v in crystal Cartesian coordinates
-vc = b*v;
-
-e1 = uc/norm(uc);
-e3 = cross(uc,vc)/norm(cross(uc,vc));
-e2 = cross(e3,e1);
-
-umat = [e1';e2';e3']/det([e1';e2';e3']);    % renormalise to ensure determinant = 1
-ub = umat*b;
+[ub, mess, umat] = ubmatrix (u, v, b)
