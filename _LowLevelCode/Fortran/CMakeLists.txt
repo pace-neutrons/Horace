@@ -1,0 +1,70 @@
+enable_language(Fortran)
+
+set(HERBERT_FORTRAN_LIB "herbert_fortran")
+set(FILE_IO_SRC
+    "source/file_io/cut_footer_info.f90"
+    "source/file_io/cut_fortran_routines.f90"
+    "source/file_io/cut_pixel_info.f90"
+    "source/file_io/slice_footer_info.f90"
+    "source/file_io/slice_fortran_routines.f90"
+    "source/file_io/slice_pixel_info.f90"
+)
+set(MATHS_SRC
+    "source/maths/bin_boundaries_get_xarr.f90"
+    "source/maths/I_Index.f90"
+    "source/maths/integrate_1d_points.f90"
+    "source/maths/integrate_2d_x_points.f90"
+    "source/maths/integrate_2d_y_points.f90"
+    "source/maths/integrate_3d_x_points.f90"
+    "source/maths/integrate_3d_y_points.f90"
+    "source/maths/integrate_3d_z_points.f90"
+    "source/maths/lower_index.f90"
+    "source/maths/I_maths.f90"
+    "source/maths/rebin_1d_hist.f90"
+    "source/maths/rebin_2d_x_hist.f90"
+    "source/maths/rebin_2d_y_hist.f90"
+    "source/maths/rebin_3d_x_hist.f90"
+    "source/maths/rebin_3d_y_hist.f90"
+    "source/maths/rebin_3d_z_hist.f90"
+    "source/maths/single_integrate_1d_points.f90"
+    "source/maths/single_integrate_2d_x_points.f90"
+    "source/maths/single_integrate_2d_y_points.f90"
+    "source/maths/single_integrate_3d_x_points.f90"
+    "source/maths/single_integrate_3d_y_points.f90"
+    "source/maths/single_integrate_3d_z_points.f90"
+    "source/maths/upper_index.f90"
+)
+set(TOOLS_SRC
+    "source/tools/remark.f90"
+    "source/tools/tools.f90"
+    "source/tools/tools_parameters.f90"
+)
+set(MEX_INTERFACE_SRC
+    "source_mex_interface/IFL_bin_boundaries_get_marr.f90"
+    "source_mex_interface/IFL_bin_boundaries_get_xarr.f90"
+    "source_mex_interface/IFL_integrate_1d_points.f90"
+    "source_mex_interface/IFL_integrate_2d_x_points.f90"
+    "source_mex_interface/IFL_integrate_2d_y_points.f90"
+    "source_mex_interface/IFL_integrate_3d_x_points.f90"
+    "source_mex_interface/IFL_integrate_3d_y_points.f90"
+    "source_mex_interface/IFL_integrate_3d_z_points.f90"
+    "source_mex_interface/IFL_rebin_1d_hist.f90"
+    "source_mex_interface/IFL_rebin_2d_x_hist.f90"
+    "source_mex_interface/IFL_rebin_2d_y_hist.f90"
+    "source_mex_interface/IFL_rebin_3d_x_hist.f90"
+    "source_mex_interface/IFL_rebin_3d_y_hist.f90"
+    "source_mex_interface/IFL_rebin_3d_z_hist.f90"
+)
+add_library("${HERBERT_FORTRAN_LIB}"
+    "source/type_definitions.f90"
+    "${FILE_IO_SRC}"
+    "${MATHS_SRC}"
+    "${TOOLS_SRC}"
+    "${MEX_INTERFACE_SRC}"
+)
+target_compile_options("${HERBERT_FORTRAN_LIB}"
+    PUBLIC "-fPIC"
+    PUBLIC "-ffixed-line-length-none"
+)
+
+add_subdirectory("source_mex")
