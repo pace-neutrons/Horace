@@ -32,10 +32,10 @@ function make_herbert_distribution_kit(varargin)
 %
 %
 options = {'-full','-run_by_horace'};
-her_code_dir = fileparts(which('herbert_init')); % MUST have rootpath so that herbert_init, libisis_off included
-her_root_dir = fileparts(her_code_dir );
-if isempty(her_code_dir)
-    error('MAKE_HERBERT_DISTRIBUTION_KIT:invalid_argument',' Herbert package have to be initiated to build herbert distribution kit');
+her_root_dir = fileparts(fileparts(which('herbert_init')));  % MUST have rootpath so that herbert_init, libisis_off included
+if isempty(her_root_dir)
+    error('MAKE_HERBERT_DISTRIBUTION_KIT:invalid_argument',...
+        ' Herbert package have to be initiated to build herbert distribution kit');
 end
 [ok,err_mess,full_distribution,run_by_horace,argi] = parse_char_options(varargin,options);
 if ~ok
@@ -43,6 +43,10 @@ if ~ok
 end
 if run_by_horace
     horace_target_path = argi{1};
+end
+common_files_to_distribute = {'LICENSE','README.md'};
+if full_distribution
+    common_files_to_distribute{end+1} = 'CMakeLists.txt';
 end
 
 %
@@ -55,49 +59,69 @@ build_dir   =  current_dir;
 if run_by_horace
     build_dir = horace_target_path;
 end
-[inside,common_root] = is_dir_inside(current_dir,build_dir);
+[inside,common_root] = is_dir_inside(build_dir,her_root_dir);
 % if inside Herbert package dir, go away from there:
-if inside
+while inside
+    %current_dir = build_dir;
     build_dir = fileparts(common_root);
+    [inside,common_root] = is_dir_inside(build_dir,her_root_dir);
 end
 
 if run_by_horace
     target_Dir = build_dir;
 else
-    target_Dir=fullfile(build_dir,'ISIS');
+    target_Dir  = fullfile(build_dir,'ISIS');
 end
-her_root_dir = fullfile(target_Dir,'Herbert');
-her_dir =fullfile(her_root_dir ,'herbert_core');
-copy_files_list(her_code_dir,her_dir);
+targ_her_dir = fullfile(target_Dir,'Herbert');
+if strcmp(targ_her_dir ,build_dir)
+    error('MAKE_HERBERT_DISTRIBUTION_KIT:invalid_argument',...
+        ' Can not build in existing Herbert directory');
+end
+
+copy_files_list(fullfile(her_root_dir,'herbert_core'),fullfile(targ_her_dir,'herbert_core'));
+copy_files_list(fullfile(her_root_dir,'documentation'),fullfile(targ_her_dir ,'documentation'));
+common_files_to_distribute = cellfun(@(x)(fullfile(her_root_dir,x)),common_files_to_distribute,...
+    'UniformOutput',false);
+for i=1:numel(common_files_to_distribute)
+    [ok,msg]=copyfile(common_files_to_distribute{i},targ_her_dir,'f');
+    if ~ok
+        error('MAKE_HERBERT_DISTRIBUTION_KIT:runtime_error',...
+            'Error copying file %s to destination %s, Message: %s',...
+            common_files_to_distribute{i},targ_her_dir,msg);
+    end
+end
+% copy foder, containing the code   to manage herbert package
+copy_files_list(fullfile(her_root_dir,'admin'),fullfile(targ_her_dir,'admin'));
+
+% copy source code files from system directory
+copy_files_list(fullfile(her_root_dir,'_LowLevelCode'),fullfile(targ_her_dir,'_LowLevelCode'),'+_',...
+    'h','cpp','c','f','f90','FOR','sln','vcproj','vfproj','txt','m');
+
 % the file which should be modified to install Herbert
 install_script=which('herbert_on.m.template');
 mpi_worker    =which('worker_v2.m.template');
 copyfile(mpi_worker,fullfile(target_Dir,'worker_v2.m.template'),'f');
+
+
+
 if run_by_horace
     hor_install_script = fullfile(horace_target_path,'horace_on.m.template');
+    % merge herbert install script into horace_on.m template within the
+    % target installation directory.
     merge_files(hor_install_script,install_script);
 else
     copyfile(install_script,fullfile(target_Dir,'herbert_on.m.template'),'f');
 end
-
-
-
-
-% copy source code files from system directory
-copy_files_list(fullfile(her_code_dir,'_LowLevelCode'),fullfile(her_dir,'_LowLevelCode'),'+_',...
-    'h','cpp','c','f','f90','FOR','sln','vcproj','vfproj','txt','m');
-%copy_files_list(fullfile(rootpath,'_notes'),fullfile(her_dir,'_notes'),'+_');
-
-% copy unit tests and unit test suite if necessary
-if ~no_tests
-    copy_files_list(fullfile(her_code_dir,'_test'),fullfile(her_dir,'_test'),'+_');
+if full_distribution
+    %copy_files_list(fullfile(rootpath,'_notes'),fullfile(her_dir,'_notes'),'+_');
+    
+    % copy unit tests and unit test suite if necessary
+    copy_files_list(fullfile(her_root_dir,'_test'),fullfile(targ_her_dir,'_test'),'+_');
 end
-
 %
 disp('!    The HERBERT program files collected successfully ==============!')
 %
-if run_by_horace
-else
+if ~run_by_horace
     %
     disp('!    Start compressing all necessary files together ================!')
     %
@@ -116,7 +140,8 @@ else
     %
     disp('!    Files compressed. Deleting the auxiliary files and directories=!')
     
-    if ~strncmp(target_Dir,her_code_dir,numel(her_code_dir))
+    inside = is_dir_inside(build_dir,target_Dir);
+    if ~inside
         rmdir(target_Dir,'s');
     end
     disp('!    All done folks ================================================!')
