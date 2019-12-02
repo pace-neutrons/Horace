@@ -112,17 +112,18 @@ classdef ClusterWrapper
             %              which started and controls the job.
             % log_level    if present, defines the verbosity of the
             %              operations over the framework
-            if nargin < 2
-                return;
-            end
             obj.pool_exchange_frmwk_name_ = 'ClusterMPI';
-            if ~exist('log_level','var')
-                log_level = -1;
-            end
             if ispc()
                 obj.running_mess_contents_= 'process has not exited';
             else
                 obj.running_mess_contents_= 'process hasn''t exited';
+            end
+            
+            if nargin < 2
+                return;
+            end
+            if ~exist('log_level','var')
+                log_level = -1;
             end
             
             obj = obj.init(n_workers,mess_exchange_framework,log_level);
