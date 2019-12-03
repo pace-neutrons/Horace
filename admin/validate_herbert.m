@@ -131,9 +131,9 @@ if exit_on_completeon
 end
 
 %=================================================================================================================
-function herbert_test_cleanup(cur_config,test_folders,initial_warn_state)
+function herbert_test_cleanup(old_config,test_folders,initial_warn_state)
 % Reset the configuration
-set(herbert_config,cur_config);
+set(herbert_config,old_config);
 % clear up the test folders, previously placed on the path
 warning('off','all'); % avoid varnings on deleting non-existent path
 for i=1:numel(test_folders)

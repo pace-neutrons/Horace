@@ -15,16 +15,16 @@ classdef test_if_inside< TestCase
             
         end
         function test_is_inside(obj)
-            folder1 = 'c:\users\horace\';
-            folder2 = 'c:\users\herbert\';
+            folder1 = ['c:',filesep,'users',filesep,'horace', filesep];
+            folder2 = ['c:',filesep,'users',filesep,'herbert'];
             [is,com_root] = is_dir_inside(folder1,folder2);
             assertFalse(is);
-            assertEqual(com_root,'c:\users');
-            folder1 = 'c:\users\horace';
-            folder2 = 'c:\users\horace';
+            assertEqual(com_root,['c:',filesep,'users']);
+            folder1 = ['c:',filesep,'users',filesep,'horace', filesep];
+            folder2 = ['c:',filesep,'users',filesep,'horace', filesep];
             [is,com_root] = is_dir_inside(folder1,folder2);
             assertTrue(is);
-            assertEqual(com_root,'c:\users\horace');
+            assertEqual(com_root,['c:',filesep,'users',filesep,'horace']);
             
             folder1 = '/home/users/horace/dir';
             folder2 = '/home/users/herbert/';
@@ -36,20 +36,20 @@ classdef test_if_inside< TestCase
             folder2 = '/home/users/herbert';
             [is,com_root] = is_dir_inside(folder1,folder2);
             assertTrue(is);
-            assertEqual(com_root,'/home/users/herbert');
+            assertEqual(com_root,fullfile(filesep,'home','users','herbert'));
             
             folder1 = '/home/users/herbert/dir';
             folder2 = '/home/local/herbert';
             [is,com_root] = is_dir_inside(folder1,folder2);
             assertFalse(is);
-            assertEqual(com_root,'/home');
+            assertEqual(com_root,[filesep,'home']);
             
 
             folder1 = '/home/users/herbert/dir';
             folder2 = '/usr/local/herbert';
             [is,com_root] = is_dir_inside(folder1,folder2);
             assertFalse(is);
-            assertEqual(com_root,'/');
+            assertEqual(com_root,filesep);
 
             folder1 = 'c:/users/herbert/dir/';
             folder2 = 'd:/usr/local/herbert/';

@@ -6,7 +6,7 @@ function herbert_mex(varargin)
 %>> herbert_mex options -- modify build options for Herbert (convenience)
 %
 % Available options:
-% -noprompt  -- do not ask to configure FORTRAN and C compiler, default ask
+% -prompt  --   ask to configure FORTRAN and C compiler, default not to ask
 %               if provided, assume that compiler is configured and we are
 %               building both Fortran and C parts of code
 % -setmex    -- by default, successfully mexed  files are not set to be
@@ -14,8 +14,8 @@ function herbert_mex(varargin)
 %               them up. use -setmex to use mex
 %               files after successful compilation.
 %
-% -CPP    -- assume compiler configured to build C -part of code, build C;
-% -FOR    -- assume compiler configured to build FORTRAN -part of code, build FORTRAN;
+% -CPP_config  --configure C++ compiler to C++ -part of code, build C;
+% -FOR_config -- configure Fortran compiler to build FORTRAN -part of code, build FORTRAN;
 % -keep_lib  -- keep the intermediate Fortran library
 % -use_lib   -- use the previously build library when building the mex-code (missing
 %              library components will be added, will also invoke -keep_lib
@@ -27,23 +27,28 @@ function herbert_mex(varargin)
 % root directory is assumed to be that in which mslice_init resides
 
 % list of keys the script accepts
-keys={'-noprompt','-setmex','-CPP','-FOR','-use_lib','-keep_lib','-missing'};
+options={'-prompt','-setmex','-CPP','-FOR','-keep_lib','-use_lib','-missing'};
 %defaults:
-[ok,mess,no_prompt,keep_lib,use_lib,set_mex,use_missing] = parse_char_options(keys,varargin);
+[ok,mess,prompt4compiler,set_mex,configure_cpp,configure_fortran,keep_lib,use_lib,use_missing] = parse_char_options(varargin,options);
 if ~ok
     error(mess)
 end
-
-
-prompt4compiler=~no_prompt;
 if use_missing
     missing = '-missing';
+else
+    missing ={};
+end
+if ~configure_cpp
+    build_c = true;    
+end
+if ~configure_fortran
+    build_fortran = true;
 end
 
-rootpath = fileparts(which('herbert_init'));
+rootpath = fileparts(fileparts(which('herbert_init')));
 % Source code directories, and output directories:
 %  - Herbert target directory:
-herbert_mex_target_dir=fullfile(rootpath,'DLL',['_',computer],matlab_version_folder());
+herbert_mex_target_dir=fullfile(rootpath,'herbert_core','DLL',['_',computer],matlab_version_folder());
 if ~exist(herbert_mex_target_dir,'dir')
     mkdir(herbert_mex_target_dir);
 else
@@ -51,7 +56,6 @@ else
     if ~ok
         error('HERBERT_MEX:invalid_permissions','can not get write permissions to target folder %s',herbert_mex_target_dir)
     end
-    
 end
 %  - mslice extras directory:
 herbert_C_code_dir  =fullfile(rootpath,'_LowLevelCode','CPP');
@@ -66,35 +70,17 @@ end
 
 % -----------------------------------------------------
 if prompt4compiler
-    user_choice = ask4Compiler();
+    [build_c,build_fortran] = ask4Compiler(configure_cpp,configure_fortran);
     if user_choice=='e'
         return;
     end
     set_mex = ask2SetMex();
 end
-if ispc
-    
-    if user_choice=='y'
-        % Prompt for fortran compiler
-        disp('!==================================================================!')
-        disp('! please, select your FORTRAN compiler  ===========================!')
-        mex -setup
-    end
-else
-    if user_choice=='y'
-        disp('!==================================================================!')
-        disp('! please, select your compilers    ================================!')
-        mex -setup
-    end
-end
+
 
 try
-    if user_choice ~= 'c'
-        if set_mex
-            set(herbert_config,'use_mex',false);
-        end
-        
-        if ~exist(lib_dir,'dir')
+    if build_fortran
+        if ~(exist(lib_dir,'dir') == 7)
             mkdir(lib_dir);
         end
         % --> BUILD FORTRAN MEX FILES LIBRARY:
@@ -234,8 +220,7 @@ try
             'source_mex/rebin_3d_z_hist.F',...
             'source_mex_interface/IFL_rebin_3d_z_hist.f90',...
             modules{:});
-        
-        
+                
         disp (' ')
         disp('!==================================================================!')
         disp('!  Succesfully created required FORTRAN mex files  ================!')
@@ -257,7 +242,7 @@ catch ex
     disp('!==================================================================!')
     disp(' ')
     keep_lib = true;
-    if user_choice=='f'
+    if build_fortran
         rethrow(ex);
     else
         disp(ex);
@@ -266,16 +251,7 @@ end
 
 
 try
-    if user_choice=='y'
-        % Prompt for C compiler, and compile all C code
-        disp('!==================================================================!')
-        disp('! please, select your C compiler ==================================!')
-        mex -setup
-    end
-    if user_choice ~= 'f'
-        if set_mex
-            set(herbert_config,'use_mex_C',false);
-        end
+    if build_c
         % build C++ files
         mex_single_c(fullfile(herbert_C_code_dir,'get_ascii_file'), herbert_mex_target_dir,...
             'get_ascii_file.cpp','IIget_ascii_file.cpp')
@@ -357,30 +333,52 @@ disp(' <=== completed');
 
 
 
-function user_choice = ask4Compiler()
-disp('!==================================================================!')
-disp('! Would you like to select your compilers (win) or have configured !')
-disp('! your compiler yourself?:  y/n/c/f/e                              !')
-disp('! y-select and configure;  n - already configured                  !')
-disp('! c or f allow you to build C or FORTRAN part of the program       !')
-disp('!        having configured proper compiler yourself                !')
-disp('! e (end)-- cancel script execution                                !')
-disp('!------------------------------------------------------------------!')
-disp('!------------------------------------------------------------------!')
-disp('! e -- cancel (end)                                                !')
-user_entry=input('! y/n/c/f/e :','s');
-user_entry=strtrim(lower(user_entry));
-user_choice = user_entry(1);
-disp(['!===> ' user_choice,' choosen                                                    !']);
-disp('!==================================================================!')
-if ~(user_choice=='y'||user_choice=='n'||user_choice=='c'||user_choice=='f')
-    user_choice='e';
+function [build_c, build_fortran] = ask4Compiler(configure_cpp,configure_fortran)
+build_c = true;
+build_fortran = true;
+if ~(configure_cpp|| configure_fortran)
+    disp('!==================================================================!')
+    disp('! Would you like to select your compilers (win) or have configured !')
+    disp('! your compiler yourself?:  y/n/c/f/e                              !')
+    disp('! y-select and configure;  n - already configured                  !')
+    disp('! c or f allow you to build C or FORTRAN part of the program       !')
+    disp('!        having configured proper compiler yourself                !')
+    disp('! e (end)-- cancel script execution                                !')
+    disp('!------------------------------------------------------------------!')
+    disp('!------------------------------------------------------------------!')
+    disp('! e -- cancel (end)                                                !')
+    user_entry=input('! y/n/c/f/e :','s');
+    user_entry=strtrim(lower(user_entry));
+    user_choice = user_entry(1);
+    disp(['!===> ' user_choice,' choosen                                                    !']);
+    disp('!==================================================================!')
+    if ~(user_choice=='y'||user_choice=='n'||user_choice=='c'||user_choice=='f')
+        user_choice='e';
+    end
+    
 end
 if user_choice=='e'
     disp('!  canceled                                                        !')
     disp('!==================================================================!')
+    build_c = false;
+    build_fortran=false;
     return;
 end
+if configure_fortran
+    % Prompt for fortran compiler
+    disp('!==================================================================!')
+    disp('! please, select your FORTRAN compiler  ===========================!')
+    mex -setup
+    build_c=false; 
+end
+
+if configure_cpp
+    disp('!==================================================================!')
+    disp('! please, select your compilers    ================================!')
+    mex -setup
+    build_fortran = false;    
+end
+
 
 function set_mex = ask2SetMex()
 disp('!==================================================================!')

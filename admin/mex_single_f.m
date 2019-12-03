@@ -16,15 +16,14 @@ if nargin<4
     error('MEX_SINGLE:invalid_argument','needs at least four arguments, but got %d',nargin)
 end
 outdir = fullfile(out_dir,'');
-% remove empty fields
-argi = varargin(~ismember(varargin,''));
-% PROCESSING INPUT KEYS
-% do we want build all mex files or just the missing one.
-rebuild_mex=true;
-if ismember('-missing',argi)
-    rebuild_mex=false;
-    argi = argi(~ismember(argi,'-missing'));
+opt = {'-missing'};
+[ok,mess,keep_existing_mex,argi]=parse_char_options(varargin,opt);
+if ~ok
+    error('MEX_SINGLE_F:invalid_argument',mess);
 end
+rebuild_mex = ~keep_existing_mex;
+valid = cellfun(@(x)(~isempty(x)),argi);
+argi = argi(valid);
 
 % if target file name is different from the mex file name, choose the file name requested;
 if ismember('-o',argi )
@@ -33,14 +32,14 @@ if ismember('-o',argi )
     if numel(ind) > 1
         error('MEX_SINGLE:invalid_argument',' more then 1 -o option find in input arguments');
     end
-    [f_path,f_name]=fileparts(argi{ind+1});   
+    [~,f_name]=fileparts(argi{ind+1});
     % this is not a source file but the target file name
     nofile(ind+1) = true;
-    target_fname = [f_name,'.',mexext];    
-    files  = argi (~nofile);        
+    target_fname = [f_name,'.',mexext];
+    files  = argi (~nofile);
 else
     files  = argi;
-    [f_path,f_name]=fileparts(files{1});
+    [~,f_name]=fileparts(files{1});
     % identify target file name
     target_fname = [f_name,'.',mexext];
 end
@@ -49,21 +48,21 @@ end
 ic=0;
 for i=1:numel(files)
     if ~isempty(files{i})
-        ic=ic+1;        
+        ic=ic+1;
         files{ic} = make_filename(in_dir,files{i});
     end
 end
 files=files(1:ic);
 
 
-targ_file=fullfile(outdir,target_fname);    
+targ_file=fullfile(outdir,target_fname);
 if exist(targ_file,'file')
     if rebuild_mex
         try
             delete(targ_file)
-        catch
+        catch Err
             cd(old_path);
-            error([' file: ',f_name,mexext,' locked. deleteon error: ',lasterr()]);
+            rethrow(Err);
         end
     else
         return;
