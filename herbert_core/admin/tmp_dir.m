@@ -11,7 +11,14 @@ function the_dir= tmp_dir()
 %
 
 if is_idaaas()
-    the_dir = fullfile(userpath,'tmp');
+    location = userpath();
+    if isempty(location)
+        location = fileparts(which('startup.m'));
+    end
+    if isempty(location)
+        location = getenv('HOME');        
+    end
+    the_dir = fullfile(location,'tmp');
     if ~(exist(the_dir,'dir') == 7)
         mkdir(the_dir);
     end
