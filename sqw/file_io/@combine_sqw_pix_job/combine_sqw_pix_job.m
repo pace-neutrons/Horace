@@ -28,22 +28,27 @@ classdef combine_sqw_pix_job < JobExecutor
         function obj = combine_sqw_pix_job()
             obj = obj@JobExecutor();
         end
-        function [obj,mess]=init(obj,fbMPI,job_control_struct,InitMessage)
+        function [obj,mess]=init(obj,fbMPI,intercom_class,InitMessage,varargin)
             % Overloads parent's init by adding the initialization
             % routines, specific for combibe_sqw_pix_job
             %
             % All inputs are inhereted from parent init
             %
             % inputs and files:
-            % fbMPI               -- the instance of file-based messages
-            %                        framework, used to exchange messages
-            %                        between worker and the control node.
-            % job_control_struct  -- the structure,
-            %                        containing information about
-            %                        the messages framework to use for
-            %                        communications between workers.
+            % fbMPI               -- the initialized instance of file-based 
+            %                        messages framework, used for messages 
+            %                        exchange between worker and the control node.
+            %                        Depending on the used framework and job,
+            %                        this class can be used for communications
+            %                        between workers too.
+            % intercom_class     --  the class, providing MPI or pseudo MPI
+            %                         communications between workers
             % InitMessage         -- The message with information necessary
             %                        to ititiate the job itself
+            % Optional:
+            % is_tested           -- if there, indicates, that the
+            %                        framework is tested. Not used for
+            %                        combine_sqw_pix job.
             %
             % returns:
             % obj          initialized combibe_sqw_pix_job object
@@ -54,7 +59,7 @@ classdef combine_sqw_pix_job < JobExecutor
             % framework for workers with labID > 1 and node 0 over
             % FileBased for worker with labID ==  1)
             %
-            [obj,mess]=init@JobExecutor(obj,fbMPI,job_control_struct,InitMessage);
+            [obj,mess]=init@JobExecutor(obj,fbMPI,intercom_class,InitMessage);
             if isempty(mess)
                 if obj.labIndex == 1
                     obj.pix_cache_ = pix_cache(obj.mess_framework.numLabs);

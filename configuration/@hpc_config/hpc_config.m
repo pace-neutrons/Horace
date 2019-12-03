@@ -23,8 +23,13 @@ classdef hpc_config < config_base
     % parallel_workers_number  - number of Matlab sessions (MPI workers) to launch to run parallel code
     %
     %
-    % combine_sqw_using        - what type of sub-algorithm to use for combining sqw/tmp files
-    %                            together. Options are 'matlab', 'mex_code' and 'mpi_code'
+    % combine_sqw_using        - what type of sub-algorithm to use for c
+    %                            ombining sqw/tmp files together.
+    % combine_sqw_options        the helper property providing options,
+    %                            available to provide for
+    %                            'combine_sqw_using' property.
+    %                            Currently these options are 'matlab', 'mex_code' and 'mpi_code'
+    %---
     % mex_combine_thread_mode   - various thread modes deployed when
     %                             combining sqw files using mex code.
     %---
@@ -46,8 +51,10 @@ classdef hpc_config < config_base
         % number of workers to deploy in parallel jobs
         parallel_workers_number;
         %
-        % property describes the algorithm, used to combine multiple
-        % sqw(tmp) files, namely:
+        % set-up algorithm, to use for combining multiple sqw(tmp) filesL
+        combine_sqw_using
+        % helper read-only property, displaying possible codes to use to
+        % combines sqw (combine_sqw_using) available options, namely:
         % matlab   : this mode uses initial Matlab code to combine multiple
         %            tmp files. Slowest but most reliable method, enabled by
         %            default
@@ -55,12 +62,12 @@ classdef hpc_config < config_base
         %            multiple files. The mex code needs to be compiled with
         %            appropriate C++11 compiler. In case of parallel file
         %            system can be 10 times faster than Matlab mode.
-        % mpi_code : can be enabled if parallel computing toolbox is present
+        % mpi_code:  can be enabled if parallel computing toolbox is present
         %            and system supports MPI (). Performance depends on number
         %            of MPI workers and the speed of parallel file system.
         % To select one of the options above, one can provide only first
         % distinctive input for any option. (e.g. ma, me or mp)
-        combine_sqw_using
+        combine_sqw_options
         % If mex code is used for combining tmp files various thread
         % modes can be deployed for this operation:
         % namely:
@@ -83,7 +90,7 @@ classdef hpc_config < config_base
         %
         remote_folder;
         % what parallel framework to use for parallel  tasks. Available
-        % options are: matlab, partool. Actually defined in parqallel_config and 
+        % options are: matlab, partool. Actually defined in parqallel_config and
         % exposed here for clarity.
         parallel_framework;
         % immutable reference to the class, which describes the parallel
@@ -111,8 +118,6 @@ classdef hpc_config < config_base
         %
         mex_combine_thread_mode_   = 0;
         mex_combine_buffer_size_ = 1024*64;
-        
-        current_worker_to_use_ = 'worker_v1.m'
     end
     properties(Constant,Access=private)
         % change this list if savable fields have changed or redefine
@@ -122,6 +127,7 @@ classdef hpc_config < config_base
             'combine_sqw_using',...
             'mex_combine_thread_mode','mex_combine_buffer_size',...
             }
+        combine_sqw_options_ = {'matlab','mex_code','mpi_code'};
     end
     
     methods
@@ -180,8 +186,8 @@ classdef hpc_config < config_base
         end
         %----------------------------------------------------------------
         function this = set.combine_sqw_using(this,val)
-            options = {'matlab','mex_code','mpi_code'};
-            [ok,mess,use_matlab,use_mex,use_mpi,argi] = parse_char_options({val},options);
+            opt = this.combine_sqw_options_;
+            [ok,mess,use_matlab,use_mex,use_mpi,argi] = parse_char_options({val},opt );
             if ~isempty(argi)
                 error('HPC_CONFIG:invalid_argument',...
                     'Unrecognized option: %s. Only ''matlab'',''mex_code'' or ''mpi_code'' can be used',...
@@ -205,18 +211,27 @@ classdef hpc_config < config_base
                 end
             end
             if use_mpi
-                [valid,errmsg] = license('checkout','Distrib_Computing_Toolbox');
-                if ~valid
+                pc = parallel_config;
+                try % only MATLAB MPI can be enabled now.
+                    % TODO: check what should be used when C++ mpi is
+                    % ready.
+                    pc.parallel_framework = 'parpool';
+                catch ME
                     warning('HPC_CONFIG:invalid_argument',...
                         'can not enable Parallel Computing Toolbox. Error: %s. Ho changes in hpc_config',...
                         errmsg)
-                else
-                    config_store.instance().store_config(this,'combine_sqw_using','mpi_code');
+                    return
                 end
+                config_store.instance().store_config(this,'combine_sqw_using','mpi_code');
             end
         end
-        
+        function opt = get.combine_sqw_options(obj)
+            %
+            opt = obj.combine_sqw_options_;
+        end
+        %---------
         function this = set.use_mex_for_combine(this,val)
+            % Hidden, old option
             if val>0
                 try
                     % try to run combime_sqw mex code to be sure it runs

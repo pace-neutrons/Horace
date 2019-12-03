@@ -100,14 +100,14 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             serverfbMPI.mess_exchange_folder = tempdir;
             clobm = onCleanup(@()finalize_all(serverfbMPI));
             
-            starting_mess = serverfbMPI.build_je_init('gen_sqw_files_job',false,false);
+            starting_mess = JobExecutor.build_worker_init('gen_sqw_files_job',false,false);
             [ok,err]=serverfbMPI.send_message(1,starting_mess);
             assertEqual(ok,MESS_CODES.ok,err);
             
             [ok,err]=serverfbMPI.send_message(1,init_mess{1});
             assertEqual(ok,MESS_CODES.ok,err);
             
-            wk_init= serverfbMPI.gen_worker_init(1,1);
+            wk_init= serverfbMPI.get_worker_init('MessagesFilebased',1,1);
             parc = parallel_config;
             worker_h = str2func(parc.worker);
             [ok,error_mess]=worker_h(wk_init);
@@ -170,15 +170,15 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             clob1 = onCleanup(@()finalize_all(serverfbMPI));
             
             
-            css1= serverfbMPI.gen_worker_init(1,1);
-            % create response filebased framework as would on worker
+            css1= serverfbMPI.get_worker_init('MessagesFilebased',1,1);
+            % create response filebased framework as would on a worker
             control_struct = iMessagesFramework.deserialize_par(css1);
             fbMPI = MessagesFilebased(control_struct);
             
             
             [task_id_list,init_mess]=JobDispatcher.split_tasks(common_par,loop_par,true,1);
             je = gen_sqw_files_job();
-            je = je.init(fbMPI,control_struct,init_mess{1});
+            je = je.init(fbMPI,fbMPI,init_mess{1});
             
             mis.logger = @(step,n_steps,time,add_info)...
                 (je.log_progress(step,n_steps,time,add_info));
@@ -202,8 +202,8 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             clob1 = onCleanup(@()finalize_all(serverfbMPI));
             
             
-            css1= serverfbMPI.gen_worker_init(1,2);
-            css2= serverfbMPI.gen_worker_init(2,2);
+            css1= serverfbMPI.get_worker_init('MessagesFilebases',1,2);
+            css2= serverfbMPI.get_worker_init('MessagesFilebases',2,2);
             % create response filebased framework as would on worker
             
             
@@ -212,12 +212,12 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             
             control_struct = iMessagesFramework.deserialize_par(css2);
             fbMPI = MessagesFilebased(control_struct);
-            je2 = je.init(fbMPI,control_struct,init_mess{2});
+            je2 = je.init(fbMPI,fbMPI,init_mess{2});
             
             
             control_struct = iMessagesFramework.deserialize_par(css1);
             fbMPI = MessagesFilebased(control_struct);
-            je1 = je.init(fbMPI,control_struct,init_mess{1});
+            je1 = je.init(fbMPI,fbMPI,init_mess{1});
             
             [ok,err]=serverfbMPI.receive_message(1,'started');
             assertEqual(ok,MESS_CODES.ok,err);
