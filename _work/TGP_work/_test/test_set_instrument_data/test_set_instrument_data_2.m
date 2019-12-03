@@ -3,7 +3,7 @@ data_dir = pwd;
 
 % Data file with 85 spe files, incident energies 100.1,100.2,...108.5 meV:
 data_inst_ref = fullfile(data_dir,'w1_inst_ref.sqw');
-data_inst = fullfile(tempdir,'w1_inst.sqw');    % for copying to later
+data_inst = fullfile(tmp_dir,'w1_inst.sqw');    % for copying to later
 
 % Read as an object too:
 w1 = read_sqw(data_inst_ref);

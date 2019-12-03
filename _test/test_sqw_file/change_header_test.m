@@ -7,7 +7,7 @@ function wnew=change_header_test(w,inst,samp)
 
 no_inst=true;
 no_samp=true;
-tmpsqwfile=fullfile(tempdir,'change_header_test.sqw');
+tmpsqwfile=fullfile(tmp_dir,'change_header_test.sqw');
 
 % Make an sqw object with a sample
 wnew=w;

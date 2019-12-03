@@ -3,8 +3,8 @@ classdef test_gen_sqw_powder < TestCaseWithSave
     % Test powder sqw file
     %>> runtests test_gen_sqw_powder      % Compare with previously saved results in test_gen_sqw_powder_output.mat
     %                                     % in the same folder as this function
-    %>> tc = test_gen_sqw_powder ('save') % Save to test_gen_sqw_powder_output.mat in tempdir (type >> help tempdir
-    %>> tc.save()                         % for information about the system specific location returned by tempdir)
+    %>> tc = test_gen_sqw_powder ('save') % Save to test_gen_sqw_powder_output.mat in tmp_dir (type >> help tmp_dir
+    %>> tc.save()                         % for information about the system specific location returned by tmp_dir)
     %
     % Author: T.G.Perring
     properties
@@ -73,11 +73,12 @@ classdef test_gen_sqw_powder < TestCaseWithSave
                     efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
             end
             % clean up
-            this.sqw_pow_file=fullfile(tempdir,'test_pow_4to1.sqw');
-            spe_pow_file=fullfile(tempdir,'test_pow_rings.spe');
-            pow_par_file=fullfile(tempdir,'test_pow_rings.par');
-            pow_phx_file=fullfile(tempdir,'test_pow_rings.phx');
-            this.sqw_pow_rings_file=fullfile(tempdir,'test_pow_rings.sqw');
+            tmp = tmp_dir;
+            this.sqw_pow_file=fullfile(tmp,'test_pow_4to1.sqw');
+            spe_pow_file=fullfile(tmp,'test_pow_rings.spe');
+            pow_par_file=fullfile(tmp,'test_pow_rings.par');
+            pow_phx_file=fullfile(tmp,'test_pow_rings.phx');
+            this.sqw_pow_rings_file=fullfile(tmp,'test_pow_rings.sqw');
             %
             cleanup_obj=onCleanup(@()this.rm_files(spe_pow_file,pow_par_file,pow_phx_file));
             

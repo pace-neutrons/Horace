@@ -8,7 +8,7 @@ function test_tobyfit_1 (option, version)
 %
 %   >> test_tobyfit_1 ('-save')     % Run the Tobyfit tests and save fit parameters
 %                                   % to file test_tobyfit_1_out.mat
-%                                   % in the temporary folder (given by tempdir)
+%                                   % in the temporary folder (given by tmp_dir)
 %                                   % Copy to the same folder as this file to use in
 %                                   % tests.
 %
@@ -24,7 +24,7 @@ function test_tobyfit_1 (option, version)
 % Setup (should only have to do in extremis - assumes data on Toby Perring's computer
 %   >> test_tobyfit_1 ('-setup')    % Create the cuts that will be fitted and save in
 %                                   % test_tobyfit_1_data.mat in the temporary folder
-%                                   % given by tempdir. Copy this file to the same folder
+%                                   % given by tmp_dir. Copy this file to the same folder
 %                                   % that holds this .m file to use it in the following
 %                                   % tests
 %   >> status = test_tobyfit_1 ('-setup')
@@ -104,7 +104,7 @@ if save_data
     w110arr=[w110_1,w110_2,w110_3];
     
     % Now save to file for future use
-    datafile_full = fullfile(tempdir,datafile);
+    datafile_full = fullfile(tmp_dir,datafile);
     save(datafile_full,'w110a','w110b','w110arr');
     disp(['Saved data for future use in',datafile_full])
     return
@@ -472,7 +472,7 @@ end
 % Save fit parameter output if requested
 % ---------------------------------------------------------------------------------------
 if save_output
-    save(fullfile(tempdir,savefile),...
+    save(fullfile(tmp_dir,savefile),...
         'fp110a1','fp110a2','fp110a3','fp110a4','fp110arr1','fp110arr2');
 end
 

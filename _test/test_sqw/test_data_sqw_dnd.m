@@ -2,7 +2,7 @@ classdef test_data_sqw_dnd < TestCase
     % Series of tests to check work of mex files against Matlab files
     
     properties
-        out_dir=tempdir();
+        out_dir=tmp_dir();
         
     end
     

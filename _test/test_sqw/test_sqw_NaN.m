@@ -7,10 +7,10 @@ function test_sqw_NaN
 banner_to_screen(mfilename)
 
 % Data
-spe_file=fullfile(tempdir,'test_sqw_NaN.spe');
+spe_file=fullfile(tmp_dir,'test_sqw_NaN.spe');
 ndet=32;
 par_file='2m_w.par';
-sqw_file=fullfile(tempdir,'test_sqw_NaN.sqw');
+sqw_file=fullfile(tmp_dir,'test_sqw_NaN.sqw');
 
 efix=35;
 ebins=5:0.5:10;
