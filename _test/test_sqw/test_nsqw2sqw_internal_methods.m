@@ -157,9 +157,9 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             [common_par,loop_par ] = ...
                 combine_sqw_pix_job.pack_job_pars(pix_comb_info,fout_name,pix_out_pos,3);
             
-            css1= serverfbMPI.gen_worker_init(1,3);
-            css2= serverfbMPI.gen_worker_init(2,3);
-            css3= serverfbMPI.gen_worker_init(3,3);
+            css1= serverfbMPI.get_worker_init('MessagesFilebased',1,3);
+            css2= serverfbMPI.get_worker_init('MessagesFilebased',2,3);
+            css3= serverfbMPI.get_worker_init('MessagesFilebased',3,3);
             % create response filebased framework as would on worker
             control_struct = iMessagesFramework.deserialize_par(css1);
             fbMPI1 = MessagesFilebased(control_struct);
@@ -171,9 +171,9 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             [task_id_list,init_mess]=JobDispatcher.split_tasks(common_par,loop_par,true,3);
             
             je1 = combine_sqw_pix_job();
-            je3 = je1.init(fbMPI3,control_struct,init_mess{3});
-            je2 = je1.init(fbMPI2,control_struct,init_mess{2});
-            je1 = je1.init(fbMPI1,control_struct,init_mess{1});
+            je3 = je1.init(fbMPI3,fbMPI3,init_mess{3});
+            je2 = je1.init(fbMPI2,fbMPI2,init_mess{2});
+            je1 = je1.init(fbMPI1,fbMPI1,init_mess{1});
             
             mis.logger = @(step,n_steps,time,add_info)...
                 (je1.log_progress(step,n_steps,time,add_info));
