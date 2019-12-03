@@ -30,9 +30,9 @@ end
 [ma,me,mi]=H5.get_libversion();
 hdf_version = ma+0.1*me+0.001*mi;
 if hdf_version == 1.812
-    hdf_root_dir = fullfile(root_dir,'_LowLevelCode','build_all',['HDF5_1.8.12',hdf_ext]);
+    hdf_root_dir = fullfile(root_dir,'_LowLevelCode','external',['HDF5_1.8.12',hdf_ext]);
 elseif hdf_version == 1.806
-    hdf_root_dir = fullfile(root_dir,'_LowLevelCode','build_all',['HDF5_1.8.6',hdf_ext]);
+    hdf_root_dir = fullfile(root_dir,'_LowLevelCode','external',['HDF5_1.8.6',hdf_ext]);
 else
     error('HORACE_MEX:not_implemented',...
         ['Matlab uses %d.%d.%d version of HDF library. ',...
@@ -67,10 +67,10 @@ try % mex C++
         mkdir(out_rel_dir);
     end
     % simple OMP routines
-    mex_single([cpp_in_rel_dir 'accumulate_cut_c/accumulate_cut_c'], out_rel_dir,'accumulate_cut_c.cpp');
+    mex_single([cpp_in_rel_dir 'accumulate_cut_c'], out_rel_dir,'accumulate_cut_c.cpp');
     mex_single([cpp_in_rel_dir 'bin_pixels_c'], out_rel_dir,'bin_pixels_c.cpp');
     mex_single([cpp_in_rel_dir 'calc_projections_c'], out_rel_dir,'calc_projections_c.cpp');
-    mex_single([cpp_in_rel_dir 'sort_pixels_by_bins/sort_pixels_by_bins'], out_rel_dir,'sort_pixels_by_bins.cpp');
+    mex_single([cpp_in_rel_dir 'sort_pixels_by_bins'], out_rel_dir,'sort_pixels_by_bins.cpp');
     mex_single([cpp_in_rel_dir 'recompute_bin_data'], out_rel_dir,'recompute_bin_data_c.cpp');
     mex_single([cpp_in_rel_dir 'mtimesx_horace'], out_rel_dir,'mtimesx_mex.cpp');
     
