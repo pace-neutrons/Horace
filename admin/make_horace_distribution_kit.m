@@ -138,8 +138,8 @@ end
 % if Herbert used, add Herbert distribution kit to the distribution
 if ~no_herbert
     argi{1}='-run_by_horace';
-    if no_demo
-        argi{2} = '-compact';
+    if ~no_demo
+        argi{2} = '-full';
     end
     make_herbert_distribution_kit(target_Dir,argi{:});
     pref='';
