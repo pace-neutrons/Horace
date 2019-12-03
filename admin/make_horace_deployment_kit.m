@@ -1,9 +1,9 @@
-% script prepares and packs all flavours of recent Horace distributives 
+% script prepares and packs all flavors of recent Horace distributive 
 % for further placement on Horace distribution server.
 %
-% Update herbert code version:
+% Update Herbert code version:
 update_svn_revision_info('herbert') 
-% Update horace code version:
+% Update Horace code version:
 update_svn_revision_info('horace') 
 
 % create Horace distribution
