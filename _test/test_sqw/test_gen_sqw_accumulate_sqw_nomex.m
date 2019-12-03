@@ -61,8 +61,8 @@ classdef test_gen_sqw_accumulate_sqw_nomex < ...
                 
             end
             % something wrong with this test -- it was with 'replicate'
-            % option and apparemtly failing
-            sqw_file_15456=fullfile(tempdir,['sqw_123456_',obj.test_pref,'.sqw']);  % output sqw file which should never be created
+            % option and apparently failing
+            sqw_file_15456=fullfile(tmp_dir,['sqw_123456_',obj.test_pref,'.sqw']);  % output sqw file which should never be created
             
             [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
             spe_files = obj.spe_file([1,5,4,5,6]);
@@ -85,7 +85,7 @@ classdef test_gen_sqw_accumulate_sqw_nomex < ...
         function test_wrong_params_accum_sqw(obj)
             %-------------------------------------------------------------
             %-------------------------------------------------------------
-            sqw_file_accum=fullfile(tempdir,['sqw_accum_',obj.test_pref,'.sqw']);  % output sqw file which should never be created
+            sqw_file_accum=fullfile(tmp_dir,['sqw_accum_',obj.test_pref,'.sqw']);  % output sqw file which should never be created
             
             
             [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);

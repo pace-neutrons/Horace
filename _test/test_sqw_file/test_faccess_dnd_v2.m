@@ -170,7 +170,7 @@ classdef test_faccess_dnd_v2< TestCase
             tt = faccess_dnd_v2();
             tt = tt.init(tob_dnd);
             
-            tf = fullfile(tempdir,'test_save_dnd_v2.sqw');
+            tf = fullfile(tmp_dir,'test_save_dnd_v2.sqw');
             clob = onCleanup(@()delete(tf));
             tt = tt.set_file_to_update(tf);
             
@@ -205,7 +205,7 @@ classdef test_faccess_dnd_v2< TestCase
 %             td1d = tob.get_sqw();
 % 
 %             td1d.alatt = td1d.alatt*1.1;
-%             test_file = fullfile(tempdir,'test_block_sizes_dnd.sqw');
+%             test_file = fullfile(tmp_dir,'test_block_sizes_dnd.sqw');
 %             clob = onCleanup(@()delete(test_file));
 %             
 %             whl = faccess_dnd_v2(td1d,test_file);

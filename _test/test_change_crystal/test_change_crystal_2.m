@@ -16,7 +16,7 @@ wref_file='wref.sqw';
 
 % Create file names
 % -----------------
-tmpdir=tempdir;
+tmpdir=tmp_dir;
 
 w2_1_file=fullfile(tmpdir,'w2_1.sqw');
 w2_2_file=fullfile(tmpdir,'w2_2.sqw');
@@ -184,7 +184,7 @@ banner_to_screen([mfilename,': Test(s) passed (matches are within requested tole
 function change_crystal_test(rlu_corr, input, type, expect_ok, ref_ans)
 % Test if get expected result (which may also be a failure)
 
-tmpdir=tempdir;
+tmpdir=tmp_dir;
 fatal_error=false;
 
 % Check if can convert data

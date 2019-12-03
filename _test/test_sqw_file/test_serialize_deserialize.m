@@ -28,7 +28,7 @@ classdef test_serialize_deserialize< TestCase
             end
             this=this@TestCase(name);
             
-            this.working_dir = tempdir;
+            this.working_dir = tmp_dir;
             
         end
         % tests
@@ -436,7 +436,7 @@ classdef test_serialize_deserialize< TestCase
             bytes = ser.serialize(test_data,test_format);
             assertEqual(numel(bytes),pos-1);
             
-            tf = fullfile(tempdir,'serialize_test_serialize_general_v3_with_file.bin');
+            tf = fullfile(tmp_dir,'serialize_test_serialize_general_v3_with_file.bin');
             fid = fopen(tf,'w+');
             assertTrue(fid>0);
             clob = onCleanup(@()obj.clean_file(fid));

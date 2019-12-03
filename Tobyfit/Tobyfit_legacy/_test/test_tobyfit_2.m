@@ -8,7 +8,7 @@ if nargin==1
     if ischar(varargin{1}) && size(varargin{1},1)==1 && isequal(lower(varargin{1}),'save')
         save_output=true;
     else
-        error('Unrecognised option')
+        error('Unrecognized option')
     end
 elseif nargin==0
     save_output=false;
@@ -20,7 +20,7 @@ end
 % Setup
 % --------------------------------------------------------------------------------------
 dir_in=fileparts(which(mfilename));
-dir_out=tempdir;
+dir_out=tmp_dir;
 
 efix=45;
 emode=1;

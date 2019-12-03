@@ -165,7 +165,7 @@ classdef test_faccess_sqw_v3< TestCase
             tob = faccess_sqw_v3();
             tob = tob.init(sqw_ob);
             
-            tf = fullfile(tempdir,'test_save_load_sqwV31.sqw');
+            tf = fullfile(tmp_dir,'test_save_load_sqwV31.sqw');
             clob = onCleanup(@()delete(tf));
             
             tob = tob.set_file_to_update(tf);
@@ -188,7 +188,7 @@ classdef test_faccess_sqw_v3< TestCase
             inst1=create_test_instrument(95,250,'s');
             sqw_ob.header(1).instrument = inst1;
             
-            tf = fullfile(tempdir,'test_save_load_sqwV31.sqw');
+            tf = fullfile(tmp_dir,'test_save_load_sqwV31.sqw');
             clob = onCleanup(@()delete(tf));
             
             tob = faccess_sqw_v3();
@@ -222,7 +222,7 @@ classdef test_faccess_sqw_v3< TestCase
             inst1=create_test_instrument(95,250,'s');
             sqw_ob.header(1).instrument = inst1;
             
-            tf = fullfile(tempdir,'test_save_load_sqwV31.sqw');
+            tf = fullfile(tmp_dir,'test_save_load_sqwV31.sqw');
             clob = onCleanup(@()delete(tf));
             
             tob = faccess_sqw_v3();
@@ -248,7 +248,7 @@ classdef test_faccess_sqw_v3< TestCase
             
             assertTrue(isa(sqw_ob,'sqw'));
             
-            tf = fullfile(tempdir,'test_save_sqwV3toV2.sqw');
+            tf = fullfile(tmp_dir,'test_save_sqwV3toV2.sqw');
             clob = onCleanup(@()delete(tf));
             
             tob = faccess_sqw_v3(sqw_ob);

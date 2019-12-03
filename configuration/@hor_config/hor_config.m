@@ -147,7 +147,7 @@ classdef hor_config<config_base
         function use = get.use_mex(this)
             use = get_or_restore_field(this,'use_mex');
         end
-        function force = get.force_mex_if_use_mex(this)            
+        function force = get.force_mex_if_use_mex(this)
             force = config_store.instance().get_value('herbert_config','force_mex_if_use_mex');
         end
         function delete = get.delete_tmp(this)
@@ -156,7 +156,7 @@ classdef hor_config<config_base
         function work_dir = get.working_directory(this)
             work_dir  = config_store.instance().get_config_field('parallel_config','working_directory');
             if isempty(work_dir)
-                work_dir = tempdir;
+                work_dir = tmp_dir;
             end
             
         end

@@ -35,7 +35,7 @@ classdef test_fake_sqw < TestCase
             end
             
             obj = obj@TestCase(test_class_name);
-            obj.working_dir = tempdir;
+            obj.working_dir = tmp_dir;
             
             data_path = fileparts(mfilename('fullpath'));
             %this.par_file=fullfile(this.results_path,'96dets.par');

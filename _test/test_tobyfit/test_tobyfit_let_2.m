@@ -10,7 +10,7 @@ function test_tobyfit_let_2 (option)
 %
 %   >> test_tobyfit_let_2 ('-save') % Run the Tobyfit tests and save fit parameters
 %                                   % to file test_tobyfit_let_2_out.mat
-%                                   % in the temporary folder (given by tempdir)
+%                                   % in the temporary folder (given by tmp_dir)
 %                                   % Copy to the same folder as this file to use in
 %                                   % tests.
 %
@@ -22,7 +22,7 @@ function test_tobyfit_let_2 (option)
 % Setup (should only have to do in extremis - assumes data on Toby Perring's computer
 %   >> test_tobyfit_let_2 ('-setup')% Create the cuts that will be fitted and save in
 %                                   % test_tobyfit_let_2_data.mat in the temporary folder
-%                                   % given by tempdir. Copy this file to the same folder
+%                                   % given by tmp_dir. Copy this file to the same folder
 %                                   % that holds this .m file to use it in the following
 %                                   % tests
 %   >> status = test_tobyfit_let_2 ('-setup')
@@ -86,7 +86,7 @@ if save_data
     % Create sqw file for refinement testing
     % ---------------------------------------
     % Full output file names
-    sqw_file_full = fullfile(tempdir,sqw_file);
+    sqw_file_full = fullfile(tmp_dir,sqw_file);
     
     % Create sqw file for single spe file
     fake_sqw (en0, par_file, sqw_file_full, efix, emode, alatt, angdeg, u, v, psi0, omega, dpsi, gl, gs);
@@ -96,7 +96,7 @@ if save_data
     w1 = cut_sqw (sqw_file_full, proj, [-0.5,0], [0.5,1], [-0.2,0.2], [-3.01,0.02,7.01]);
     
     % Save cut for future use
-    datafile_full = fullfile(tempdir,datafile);
+    datafile_full = fullfile(tmp_dir,datafile);
     save(datafile_full,'w1');
     disp(['Saved data for future use in',datafile_full])
     return
@@ -428,7 +428,7 @@ end
 % Save fit parameter output if requested
 % ---------------------------------------------------------------------------------------
 if save_output
-    save(fullfile(tempdir,savefile),...
+    save(fullfile(tmp_dir,savefile),...
         'whist_1','fwhh_1','whist_2','fwhh_2','whist_3','fwhh_3','whist_4','fwhh_4',...
         'fwhh_all', 'fwhh_none', 'fwhh_mod_and_shape', 'fwhh_mono',...
         'fwhh_mod_and_chops', 'fwhh_div', 'fwhh_samp',...
@@ -460,7 +460,7 @@ kk = kk.set_fun(@van_sqw,[10,0,0.05]);
 kk = kk.set_mc_points(1);
 wsim = kk.simulate;
 
-tmp = load(fullfile(tempdir,'histogram.mat'));
+tmp = load(fullfile(tmp_dir,'histogram.mat'));
 whist = tmp.w;
 
 debugtools('off')
