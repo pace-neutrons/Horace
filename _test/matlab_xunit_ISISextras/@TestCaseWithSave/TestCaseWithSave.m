@@ -104,8 +104,8 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
     %   or: >> TestSomeStuff ('-save','my_file.mat')   % saves to the named file
     %
     %   The default file is <TestClassName>_output.mat in the temporary folder given
-    %   by the Matlab function tempdir(). In this instance, our test suite is
-    %   TestSomeStuff so the default is fullfile(tempdir,'TestSomeStuff_output.mat')
+    %   by the Matlab function tmp_dir(). In this instance, our test suite is
+    %   TestSomeStuff so the default is fullfile(tmp_dir,'TestSomeStuff_output.mat')
     %
     %   TIP: if you want to replace the test results for just one test, append
     %   the test name to the '-save' option. In this case:
@@ -128,7 +128,7 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
     % ------------------
     % It may be that in the constructor there are temporary files that are created
     % or paths that are added which are only for use only in the tests. The names
-    % of the files or paths can be aaccumulated in any method of the class TestSomeStuff
+    % of the files or paths can be accumulated in any method of the class TestSomeStuff
     % (be that the constructor, utility methods you have written, or test methods -
     % but in this last case use cautiously):
     %

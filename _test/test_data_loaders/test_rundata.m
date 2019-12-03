@@ -252,7 +252,7 @@ classdef test_rundata< TestCase
         end
         
         function test_save_rundata_nxspe(this)
-            test_file = fullfile(tempdir,'test_save_rundata_nxspe.nxspe');
+            test_file = fullfile(tmp_dir,'test_save_rundata_nxspe.nxspe');
             if exist(test_file,'file')
                 delete(test_file);
             end
@@ -405,13 +405,13 @@ classdef test_rundata< TestCase
         end
         %
         function test_saveNXSPE_unbound(this)
-            test_file = fullfile(tempdir,'test_saveNXSPE_unbound.nxspe');
+            test_file = fullfile(tmp_dir,'test_saveNXSPE_unbound.nxspe');
             clob = onCleanup(@()delete(test_file));
             if exist(test_file,'file')==2
                 delete(test_file);
             end
             
-            test_path = fileparts(mfilename('fullpath'));            
+            test_path = fileparts(mfilename('fullpath'));
             ts = load(fullfile(test_path,'fromwindow_data4test.mat'));
             td = ts.df;
             saveNXSPE(test_file,td);

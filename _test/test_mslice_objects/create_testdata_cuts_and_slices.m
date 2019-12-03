@@ -7,14 +7,14 @@ function create_testdata_cuts_and_slices
 % Make sure that the common test data files have been unzipped and the common
 % test functions have been placed on the path.
 % Saves a number of cuts and slices to another zip file in the location
-% returned by the Matlab function tempdir.
+% returned by the Matlab function tmp_dir.
 %
 % Author: T.G.Perring
 
 % Get location of common data
 common_data_dir=herbert_test_data_path();
 
-work_dir=tempdir;
+work_dir=tmp_dir;
 output_file=fullfile(work_dir,'testdata_cut_slice_files.zip');
 
 % Add folders to path

@@ -30,13 +30,13 @@ if ~ok, assertTrue(false,'Did not catch expected error reading det_4.par'), end
 
 % Save files, and read back in
 % -------------------------------
-save(det1_par,fullfile(tempdir,'det_1.par'));
-save(det2_par,fullfile(tempdir,'det_2.par'));
-save(det3_par,fullfile(tempdir,'det_3.par'));
+save(det1_par,fullfile(tmp_dir,'det_1.par'));
+save(det2_par,fullfile(tmp_dir,'det_2.par'));
+save(det3_par,fullfile(tmp_dir,'det_3.par'));
 
-det1_par_tmp=read(parObject,fullfile(tempdir,'det_1.par'));
-det2_par_tmp=read(parObject,fullfile(tempdir,'det_2.par'));
-det3_par_tmp=read(parObject,fullfile(tempdir,'det_3.par'));
+det1_par_tmp=read(parObject,fullfile(tmp_dir,'det_1.par'));
+det2_par_tmp=read(parObject,fullfile(tmp_dir,'det_2.par'));
+det3_par_tmp=read(parObject,fullfile(tmp_dir,'det_3.par'));
 
 if ~equal_to_tol(det1_par,det1_par_tmp,'ignore_str',1), assertTrue(false,'Problem saving then reading par files'), end
 if ~equal_to_tol(det2_par,det2_par_tmp,'ignore_str',1), assertTrue(false,'Problem saving then reading par files'), end
@@ -65,13 +65,13 @@ if ~ok, assertTrue(false,'Did not catch expected error reading det_4.phx'), end
 
 % Save files, and read back in
 % -------------------------------
-save(det1_phx,fullfile(tempdir,'det_1.phx'));
-save(det2_phx,fullfile(tempdir,'det_2.phx'));
-save(det3_phx,fullfile(tempdir,'det_3.phx'));
+save(det1_phx,fullfile(tmp_dir,'det_1.phx'));
+save(det2_phx,fullfile(tmp_dir,'det_2.phx'));
+save(det3_phx,fullfile(tmp_dir,'det_3.phx'));
 
-det1_phx_tmp=read(phxObject,fullfile(tempdir,'det_1.phx'));
-det2_phx_tmp=read(phxObject,fullfile(tempdir,'det_2.phx'));
-det3_phx_tmp=read(phxObject,fullfile(tempdir,'det_3.phx'));
+det1_phx_tmp=read(phxObject,fullfile(tmp_dir,'det_1.phx'));
+det2_phx_tmp=read(phxObject,fullfile(tmp_dir,'det_2.phx'));
+det3_phx_tmp=read(phxObject,fullfile(tmp_dir,'det_3.phx'));
 
 if ~equal_to_tol(det1_phx,det1_phx_tmp,'ignore_str',1), assertTrue(false,'Problem saving then reading phx files'), end
 if ~equal_to_tol(det2_phx,det2_phx_tmp,'ignore_str',1), assertTrue(false,'Problem saving then reading phx files'), end
@@ -93,12 +93,12 @@ if ~equal_to_tol(det2_par,tmp,-2e-5,'ignore_str',1), assertTrue(false,'phx=>par 
 % Success announcement
 % --------------------
 try
-    delete(fullfile(tempdir,'det_1.par'))
-    delete(fullfile(tempdir,'det_2.par'))
-    delete(fullfile(tempdir,'det_3.par'))
-    delete(fullfile(tempdir,'det_1.phx'))
-    delete(fullfile(tempdir,'det_2.phx'))
-    delete(fullfile(tempdir,'det_3.phx'))
+    delete(fullfile(tmp_dir,'det_1.par'))
+    delete(fullfile(tmp_dir,'det_2.par'))
+    delete(fullfile(tmp_dir,'det_3.par'))
+    delete(fullfile(tmp_dir,'det_1.phx'))
+    delete(fullfile(tmp_dir,'det_2.phx'))
+    delete(fullfile(tmp_dir,'det_3.phx'))
 catch
     disp('Unable to delete temporary file(s)')
 end

@@ -5,7 +5,7 @@ function test_docify_system_1 (manual)
 %   >> test_docify (manual)
 %
 %   manual = true   pauses to allow use of text comparison file at key points
-%          = false  skips this test (for use as part of uatomated testing procedure)
+%          = false  skips this test (for use as part of un-automated testing procedure)
 %                   In this case, only catastrophic failure causes an error.
 %
 % At the moment, do not have automatic comparison of input and output files, but
@@ -22,7 +22,7 @@ else
     manual = logical(manual);
 end
 
-% Initialise
+% Initialize
 rootpath = fileparts(mfilename('fullpath'));
 mkgpath('meta_docs',fullfile(rootpath,'test_docify_system_1_files','docify_files'));   % define a global path
 
@@ -30,7 +30,7 @@ source_undocified = fullfile(rootpath,'test_docify_system_1_files','source_undoc
 source_docified = fullfile(rootpath,'test_docify_system_1_files','source_docified');
 
 % Copy test files to temporary folder
-tmpfolder = fullfile(tempdir,'test_docify');
+tmpfolder = fullfile(tmp_dir,'test_docify');
 try rmdir(tmpfolder,'s'), catch, end   % delete, if already present and if can
 copyfile(source_undocified,tmpfolder,'f')
 

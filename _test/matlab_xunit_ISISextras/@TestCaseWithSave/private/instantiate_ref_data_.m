@@ -47,13 +47,13 @@ if ~this.save_output
 else
     % In save operation i.e. storing recalculated output for one or all tests
     
-    % Create file name for saving results, checkng that the file is not the same as the
-    % default filename for containng data against which to test in the test suite
+    % Create file name for saving results, checking that the file is not the same as the
+    % default filename for containing data against which to test in the test suite
     if exist('filename','var')
         if ischarstring(filename)
             [fpath,~,fext] = fileparts(filename);
             if isempty(fpath)
-                filename = fullfile (tempdir(), filename);
+                filename = fullfile (tmp_dir(), filename);
             end
             if isempty(fext)
                 filename = [filename,'.mat'];
@@ -63,18 +63,18 @@ else
                 ' The name of file to which to write test results must be a non-empty character string')
         end
     else
-        filename = fullfile (tempdir(), [class_name,'_output.mat']);
+        filename = fullfile (tmp_dir(), [class_name,'_output.mat']);
     end
     
     % Check that the output folder is not write protected
     [folder,fn,fe] = fileparts(filename);
     if ~isOkToWriteTo (folder)
         warning('TEST_CASE_WITH_SAVE:runtime_error',...
-            ' Write protected test folder: %s; using tempdir folder',folder)
+            ' Write protected test folder: %s; using tmp_dir folder',folder)
         if exist(filename,'file') == 2
-            copyfile(filename,tempdir,'f');
+            copyfile(filename,tmp_dir,'f');
         end
-        filename = fullfile(tempdir,[fn,fe]);
+        filename = fullfile(tmp_dir,[fn,fe]);
     end
     
     % Store the file name into which to save tests, even if it

@@ -3,8 +3,8 @@ function test_integrate (varargin)
 %
 %   >> test_integrate           % Compare with previously saved results in test_integrate_output.mat
 %                               % in the same folder as this function
-%   >> test_integrate ('save')  % save to  test_integrate_output.mat in tempdir (type >> help tempdir
-%                               % for information about the system specific location returned by tempdir)
+%   >> test_integrate ('save')  % save to  test_integrate_output.mat in tmp_dir (type >> help tmp_dir
+%                               % for information about the system specific location returned by tmp_dir)
 %
 % Reads IX_dataset_1d and IX_dataset_2d from .mat file as input to the tests
 %
@@ -342,7 +342,7 @@ if save_output
     disp('    Save output')
     disp('===========================')
     
-    output_file=fullfile(tempdir,results_filename);
+    output_file=fullfile(tmp_dir,results_filename);
     save(output_file,'ih1_mex','ih1b_mex','ip1_mex','ip1b_mex','ihpa_mex','ihpb_mex','ihpc_mex',...
         'ih1',    'ih1b',    'ip1',    'ip1b',    'ihpa',    'ihpb',    'ihpc',...
         'w2x_sim','w2y_sim','w2xy_sim','w2x_mex','w2y_mex','w2xy_mex','w2x','w2y','w2xy',...

@@ -13,7 +13,7 @@ classdef test_pc_spec_config< TestCase
                 name = 'test_pc_spec_config';
             end
             this = this@TestCase(name);
-            this.working_dir = tempdir;
+            this.working_dir = tmp_dir;
         end
         function test_constructor_and_initial_op(obj)
             cm = opt_config_manager();

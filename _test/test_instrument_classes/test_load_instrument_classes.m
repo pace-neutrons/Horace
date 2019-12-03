@@ -141,7 +141,7 @@ for i=1:numel(varargin)
     if save_variables
         eval([arg_name,' = varargin{i};']);
         try
-            save(fullfile(tempdir,flname),arg_name);
+            save(fullfile(tmp_dir,flname),arg_name);
             ok = true;
         catch
             disp(['*** ERROR: Problem writing ',arg_name,' to ',flname])

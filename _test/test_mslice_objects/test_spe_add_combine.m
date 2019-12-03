@@ -10,7 +10,7 @@ banner_to_screen(mfilename)
 % Unpack test objects to test area
 % --------------------------------
 flnames=unpack_data_files;
-ref_dir=tempdir;
+ref_dir=tmp_dir;
 
 % Test combining spe files
 % -------------------------
@@ -44,8 +44,8 @@ for i=1:numel(flnames)
 end
 % Delete files created by this function
 try
-    delete(fullfile(tempdir,'s_add_tmp.spe'));
-    delete(fullfile(tempdir,'s_com_tmp.spe'));
+    delete(fullfile(tmp_dir,'s_add_tmp.spe'));
+    delete(fullfile(tmp_dir,'s_com_tmp.spe'));
 catch
     disp('Unable to delete temporary file(s)')
 end

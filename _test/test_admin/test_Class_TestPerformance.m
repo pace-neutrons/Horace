@@ -31,7 +31,7 @@ classdef test_Class_TestPerformance< TestCase
             test_res_name = 'TestPerformanceChildTestHelper_PerfRez.xml';
             this_folder = fileparts(mfilename('fullpath'));
             perf_test_source  = fullfile(this_folder,test_res_name);
-            per_test_working = fullfile(tempdir,test_res_name);
+            per_test_working = fullfile(tmp_dir,test_res_name);
             copyfile(perf_test_source,per_test_working,'f');
             clob = onCleanup(@()delete(per_test_working));
             tc = TestPerformanceChildTestHelper('TestPerformanceChildTestHelper',per_test_working);

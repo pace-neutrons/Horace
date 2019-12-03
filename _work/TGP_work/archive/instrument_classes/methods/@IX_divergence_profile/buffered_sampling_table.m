@@ -49,13 +49,13 @@ function [table,ind]=buffered_sampling_table(div_in,varargin)
 % - The size of the lookup table is restricted to a certain maximum size.
 %   Earlier entries will be deleted if new ones have to be added. The lookup
 %   table will always have the length of the number of unique entries in the
-%   most recent call, as it is assumed that this is the mostlikely next occasion
+%   most recent call, as it is assumed that this is the most likely next occasion
 %   the function will be called for again.
 
 
 nd_crit=1;      % if number of choppers is less than or equal to this, simply compute
 nd_max=1000;    % Maximum number of chopper lookup tables that can be stored on disk
-filename=fullfile(tempdir,'IX_divergence_profile_store.mat');
+filename=fullfile(tmp_dir,'IX_divergence_profile_store.mat');
 
 [div,~,ind]=unique(div_in);
 div=div(:);     % ensure column vector

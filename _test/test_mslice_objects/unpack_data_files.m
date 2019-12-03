@@ -9,5 +9,5 @@ rootpath=fileparts(mfilename('fullpath'));
 tmp=dir(fullfile(rootpath,'testdata*.zip'));
 flnames={};
 for i=1:numel(tmp)
-    flnames=[flnames,unzip(fullfile(rootpath,tmp(i).name),tempdir)];
+    flnames=[flnames,unzip(fullfile(rootpath,tmp(i).name),tmp_dir)];
 end

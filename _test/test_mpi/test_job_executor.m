@@ -15,7 +15,7 @@ classdef test_job_executor< MPI_Test_Common
             end
             % testing this on file-based framework only
             this = this@MPI_Test_Common(name,'herbert');
-            this.working_dir = tempdir;
+            this.working_dir = tmp_dir;
         end
         %
         function [serverfbMPI,fbMPIs,initMess]=...

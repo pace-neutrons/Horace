@@ -57,7 +57,7 @@ function [table,ind]=buffered_sampling_table(fermi_in,varargin)
 
 nf_crit=1;      % if number of choppers is less than or equal to this, simply compute
 nf_max=1000;    % Maximum number of chopper lookup tables that can be stored on disk
-filename=fullfile(tempdir,'IX_fermi_chopper_store.mat');
+filename=fullfile(tmp_dir,'IX_fermi_chopper_store.mat');
 
 [fermi,~,ind]=unique(fermi_in);
 fermi=fermi(:);     % ensure column vector

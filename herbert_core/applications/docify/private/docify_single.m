@@ -48,7 +48,7 @@ while true  % while...end only so the 'break' feature can be used
         % to replace the input file
         if replace_file
             [~,name,ext]=fileparts(file_full_in);
-            file_full_out=fullfile(tempdir,[name,str_random,ext]);
+            file_full_out=fullfile(tmp_dir,[name,str_random,ext]);
         else
             [file_full_out,ok,mess] = translate_write (file_out);
             if ~ok, break, end

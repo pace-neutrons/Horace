@@ -24,7 +24,7 @@ ok = mkdir(test_dir);
 if ok
     clear clob
 else
-    filename = fullfile (tempdir(), [fn,fext]);
+    filename = fullfile (tmp_dir(), [fn,fext]);
 end
 
 

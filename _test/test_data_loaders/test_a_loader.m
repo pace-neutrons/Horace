@@ -81,7 +81,7 @@ classdef test_a_loader< TestCase
             
             assertExceptionThrown(f,'A_LOADER:set_file_name');
             
-            spe_file  = fullfile(tempdir(),'abstract_test_file.altf');
+            spe_file  = fullfile(tmp_dir(),'abstract_test_file.altf');
             
             f=@()subsasgn(al,struct('type','.','subs','file_name'),spe_file);
             fl = fopen(spe_file,'w');
@@ -212,7 +212,7 @@ classdef test_a_loader< TestCase
             lt.en = 1:6;
             lt.det_par = ones(6,6);
             
-            test_file = fullfile(tempdir,'save_nxspe_testfile2.nxspe');
+            test_file = fullfile(tmp_dir,'save_nxspe_testfile2.nxspe');
             %test_file = 'save_nxspe_testfile.nxspe';
             %            test_file = 'save_nxspe_testfile.nxspe';
             if exist(test_file,'file')
@@ -250,7 +250,7 @@ classdef test_a_loader< TestCase
             lt.en = 1:6;
             lt.det_par = ones(6,3);            
             
-            test_file = fullfile(tempdir,'save_nxspe_testfile1');
+            test_file = fullfile(tmp_dir,'save_nxspe_testfile1');
             real_file = [test_file,'.nxspe'];
             %test_file = 'save_nxspe_testfile.nxspe';
             %            test_file = 'save_nxspe_testfile.nxspe';
@@ -260,7 +260,7 @@ classdef test_a_loader< TestCase
             lt.saveNXSPE(test_file,10,3,'w');
              % it looks like clear bug in hdf 1.6 for Matlab 2008b which
              % does not release file after hdf write. Because of this, the
-             % file can not be overwrtitten until matlab is shut down. 
+             % file can not be overwritten until Matlab is shut down. 
              % it looks like Matlab/hdf bug as higher Matlab versions do not
              % have such problem
             if matlab_version_num()>7.07

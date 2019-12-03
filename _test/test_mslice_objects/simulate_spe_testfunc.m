@@ -2,7 +2,7 @@ function simulate_spe_testfunc (en, par_file, spe_file, sqwfunc, pars, scale, ef
 % Simulate an spe file using an sqw model, with reproducible random looking noise
 
 % Create sqw file
-sqw_file=fullfile(tempdir,['test_',str_random(12),'.sqw']);
+sqw_file=fullfile(tmp_dir,['test_',str_random(12),'.sqw']);
 fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
 
 % Simulate on the sqw object

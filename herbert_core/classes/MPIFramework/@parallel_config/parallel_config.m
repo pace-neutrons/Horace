@@ -224,7 +224,7 @@ classdef parallel_config<config_base
                 if is_depl
                     folder = get_or_restore_field(obj,'working_directory');
                     if isempty(folder)
-                        folder = tempdir;
+                        folder = tmp_dir;
                     end
                 end
             end
@@ -245,7 +245,7 @@ classdef parallel_config<config_base
                 work_dir = get_or_restore_field(obj,'working_directory');
             end
             if isempty(work_dir)
-                work_dir = tempdir;
+                work_dir = tmp_dir;
             end
         end
         %
@@ -364,7 +364,7 @@ classdef parallel_config<config_base
             data = get_data_to_store@config_base(obj);
             % temp working directory should not be stored
             working_dir = data.working_directory;
-            tdr = tempdir;
+            tdr = tmp_dir;
             if strncmpi(working_dir,tdr,numel(working_dir))
                 data.working_directory = '';
             end
@@ -380,7 +380,7 @@ classdef parallel_config<config_base
                     'working directory value should be a string')
             end
             if ~isempty(val)
-                if strcmp(val,tempdir) % avoid storing tmp dir as working directory as this is default
+                if strcmp(val,tmp_dir) % avoid storing tmp dir as working directory as this is default
                     val = '';
                 else
                     test_dir = fullfile(val,'horace_test_write_directory');
@@ -389,7 +389,7 @@ classdef parallel_config<config_base
                     if ~ok
                         warning('PARALLEL_CONFIG:invalid_argument',...
                             'working directory %s does not have write permissions. Changing it to %s directory',...
-                            val,tempdir);
+                            val,tmp_dir);
                         val = '';
                     end
                 end

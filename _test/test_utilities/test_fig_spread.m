@@ -73,9 +73,9 @@ classdef test_fig_spread < TestCase
             fs.overlap_borders = true;
             fs = fs.replot_figs();
             
-            tf = fullfile(tempdir(),'test_fig_spread_GrabAll.fig');
+            tf = fullfile(tmp_dir(),'test_fig_spread_GrabAll.fig');
             if verLessThan('matlab','8.1')
-                fb = fullfile(tempdir(),'test_fig_spread_GrabAll');
+                fb = fullfile(tmp_dir(),'test_fig_spread_GrabAll');
                 fn = {[fb,'1.fig'],[fb,'2.fig'],[fb,'3.fig'],[fb,'4.fig']};
                 clob = onCleanup(@()delete(fn{:}));
             else

@@ -1,5 +1,5 @@
 function test_read_save
-% Test reading and saving of mslice classes
+% Test reading and saving of Mslice classes
 %
 %   >> test_read_save
 %
@@ -10,7 +10,7 @@ banner_to_screen(mfilename)
 % Unpack test objects to test area
 % --------------------------------
 flnames=unpack_data_files;
-ref_dir=tempdir;
+ref_dir=tmp_dir;
 
 % Read in objects
 % ----------------------------------------------------
@@ -108,21 +108,21 @@ for i=1:numel(flnames)
 end
 % Delete files created by this function
 try
-    delete(fullfile(tempdir,'mc_1_tmp.cut'));
-    delete(fullfile(tempdir,'mc_2_tmp.cut'));
-    delete(fullfile(tempdir,'mc_3a_tmp.cut'));
-    delete(fullfile(tempdir,'mc_3b_tmp.cut'));
-    delete(fullfile(tempdir,'mc_3c_tmp.cut'));
-    delete(fullfile(tempdir,'ms_1_tmp.slc'));
-    delete(fullfile(tempdir,'ms_2_tmp.slc'));
-    delete(fullfile(tempdir,'ms_3a_tmp.slc'));
-    delete(fullfile(tempdir,'ms_3b_tmp.slc'));
-    delete(fullfile(tempdir,'ms_3c_tmp.slc'));
-    delete(fullfile(tempdir,'ms_4_tmp.slc'));
-    delete(fullfile(tempdir,'s1_tmp.spe'));
-    delete(fullfile(tempdir,'s2_tmp.spe'));
-    delete(fullfile(tempdir,'s_add_tmp.spe'));
-    delete(fullfile(tempdir,'s_com_tmp.spe'));
+    delete(fullfile(tmp_dir,'mc_1_tmp.cut'));
+    delete(fullfile(tmp_dir,'mc_2_tmp.cut'));
+    delete(fullfile(tmp_dir,'mc_3a_tmp.cut'));
+    delete(fullfile(tmp_dir,'mc_3b_tmp.cut'));
+    delete(fullfile(tmp_dir,'mc_3c_tmp.cut'));
+    delete(fullfile(tmp_dir,'ms_1_tmp.slc'));
+    delete(fullfile(tmp_dir,'ms_2_tmp.slc'));
+    delete(fullfile(tmp_dir,'ms_3a_tmp.slc'));
+    delete(fullfile(tmp_dir,'ms_3b_tmp.slc'));
+    delete(fullfile(tmp_dir,'ms_3c_tmp.slc'));
+    delete(fullfile(tmp_dir,'ms_4_tmp.slc'));
+    delete(fullfile(tmp_dir,'s1_tmp.spe'));
+    delete(fullfile(tmp_dir,'s2_tmp.spe'));
+    delete(fullfile(tmp_dir,'s_add_tmp.spe'));
+    delete(fullfile(tmp_dir,'s_com_tmp.spe'));
 catch
     disp('Unable to delete temporary file(s)')
 end

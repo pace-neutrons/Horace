@@ -1,5 +1,5 @@
 classdef test_doc_filter < TestCase
-    % Test of the filtering of meta-documnetation sections according to keyword tags
+    % Test of the filtering of meta-documentation sections according to keyword tags
     properties
         file_in
         refdir
@@ -18,11 +18,11 @@ classdef test_doc_filter < TestCase
         
         %-------------------------------------------------------------------------------------
         function test_default(self)
-            % Test default case of only untagged doc_beg being prased
+            % Test default case of only un-tagged doc_beg being parsed
             filename = 'func_default.m';
             
             file_ref = fullfile(self.refdir,filename);
-            file_tmp = fullfile(tempdir,filename);
+            file_tmp = fullfile(tmp_dir,filename);
             cleanup = onCleanup(@()delete_file(file_tmp));
             try
                 docify(self.file_in,file_tmp,'-list',0);
@@ -38,7 +38,7 @@ classdef test_doc_filter < TestCase
             filename = 'func_all.m';
             
             file_ref = fullfile(self.refdir,filename);
-            file_tmp = fullfile(tempdir,filename);
+            file_tmp = fullfile(tmp_dir,filename);
             cleanup = onCleanup(@()delete_file(file_tmp));
             try
                 docify(self.file_in,file_tmp,'-all','-list',0);
@@ -53,7 +53,7 @@ classdef test_doc_filter < TestCase
             % Parse nothing
             filename = 'func_none.m';
             
-            file_tmp = fullfile(tempdir,filename);
+            file_tmp = fullfile(tmp_dir,filename);
             cleanup = onCleanup(@()delete_file(file_tmp));
             try
                 rep = docify(self.file_in,file_tmp,'-key',{},'-list',0);
@@ -73,7 +73,7 @@ classdef test_doc_filter < TestCase
             filename = 'func_filter.m';
             
             file_ref = fullfile(self.refdir,filename);
-            file_tmp = fullfile(tempdir,filename);
+            file_tmp = fullfile(tmp_dir,filename);
             cleanup = onCleanup(@()delete_file(file_tmp));
             try
                 docify(self.file_in,file_tmp,'-key','base','-list',0);
@@ -89,7 +89,7 @@ classdef test_doc_filter < TestCase
             filename = 'func_filter2.m';
             
             file_ref = fullfile(self.refdir,filename);
-            file_tmp = fullfile(tempdir,filename);
+            file_tmp = fullfile(tmp_dir,filename);
             cleanup = onCleanup(@()delete_file(file_tmp));
             try
                 docify(self.file_in,file_tmp,'-key',{'base','main'},'-list',0);

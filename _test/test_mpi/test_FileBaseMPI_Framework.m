@@ -17,7 +17,7 @@ classdef test_FileBaseMPI_Framework< TestCase
                 name = 'test_FileBaseMPI_Framework';
             end
             this = this@TestCase(name);
-            this.working_dir = tempdir;
+            this.working_dir = tmp_dir;
             pc = parallel_config;
             if strcmpi(pc.parallel_framework,'herbert')
                 this.change_setup = false;

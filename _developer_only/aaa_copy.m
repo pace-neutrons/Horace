@@ -97,7 +97,7 @@ if ~move
 else
     % Copy required files only to temporary directory then move, with rename if required
     % This avoids any possible overwriting or creation of unwanted folders
-    tmpdir=fullfile(tempdir,str_random);
+    tmpdir=fullfile(tmp_dir(),str_random);
     directory_recurse(source_root_path, @copy_selected_files, source_root_path, tmpdir, '', files_to_ignore);
     if ~rename
         move_selected_files(tmpdir, tmpdir, public_root_target, '__*.*')

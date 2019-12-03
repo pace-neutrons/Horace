@@ -3,8 +3,8 @@ function test_rebin (varargin)
 %
 %   >> test_rebin           % Compare with previously saved results in test_rebin_output.mat
 %                           % in the same folder as this function
-%   >> test_rebin ('save')  % Save to test_rebin_output.mat in tempdir (type >> help tempdir
-%                           % for information about the system specific location returned by tempdir)
+%   >> test_rebin ('save')  % Save to test_rebin_output.mat in tmp_dir (type >> help tmp_dir
+%                           % for information about the system specific location returned by tmp_dir)
 %
 % Reads IX_dataset_1d and IX_dataset_2d from .mat file as input to the tests
 %
@@ -376,7 +376,7 @@ if save_output
     disp('    Save output')
     disp('===========================')
     
-    output_file=fullfile(tempdir,results_filename);
+    output_file=fullfile(tmp_dir,results_filename);
     save(output_file, 'p1_reb_mex', 'p1_reb_int_mex', 'h1_reb_mex', 'h1_reb_nodist_mex', 'p1_reb', 'p1_reb_int', 'h1_reb', 'h1_reb_nodist',...
         'p1_reb1_mex','p1_reb2_mex','p1_reb3_mex','p1_reb1','p1_reb2','p1_reb3',...
         'w2x_sim','w2y_sim','w2xy_sim','w2x_mex','w2y_mex','w2xy_mex','w2x','w2y','w2xy','w2binx','w2biny','w2binxy',...

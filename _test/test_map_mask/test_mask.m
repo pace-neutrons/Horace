@@ -5,7 +5,7 @@ function test_mask
 
 banner_to_screen(mfilename)
 
-tmpfile=fullfile(tempdir,'tmp.msk');
+tmpfile=fullfile(tmp_dir,'tmp.msk');
 
 % -----------------------------------------------------------------------------
 % Empty mask - read and write, test consistency

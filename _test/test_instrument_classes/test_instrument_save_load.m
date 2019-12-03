@@ -16,7 +16,7 @@ classdef test_instrument_save_load < TestCaseWithSave
             self.inst_DGfermi = maps_instrument_obj_for_tests(300,250,'S');
             
             % Temporary output file
-            self.matfile = fullfile(tempdir,'test_instrument_save_load.mat');
+            self.matfile = fullfile(tmp_dir,'test_instrument_save_load.mat');
             
             self.save()
         end

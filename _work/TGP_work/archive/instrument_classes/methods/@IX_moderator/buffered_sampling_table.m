@@ -63,13 +63,13 @@ function [table,t_av,ind,fwhh,profile]=buffered_sampling_table(moderator_in,ei_i
 % - The size of the lookup table is restricted to a certain maximum size.
 %   Earlier entries will be deleted if new ones have to be added. THe lookup
 %   table will always have the length of the number of unique entries in the
-%   most recent call, as it is assumed that this is the mostlikely next occasion
-%   the function will be called for again.
+%   most recent call, as it is assumed that this is the most likely next
+%   occasion the function will be called for again.
 
 
 nm_crit=1;      % if number of moderators is less than or equal to this, simply compute
 nm_max=1000;    % Maximum number of moderator lookup tables that can be stored on disk
-filename=fullfile(tempdir,'IX_moderator_store.mat');
+filename=fullfile(tmp_dir,'IX_moderator_store.mat');
 
 % Get list of moderators whose pulse width depends on ei
 nm=numel(moderator_in);

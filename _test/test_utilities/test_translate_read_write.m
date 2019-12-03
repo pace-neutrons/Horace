@@ -7,7 +7,7 @@ banner_to_screen(mfilename)
 
 % Create folders for tests
 % ------------------------
-root_dir=tempdir;   % Get temporary folder location
+root_dir=tmp_dir;   % Get temporary folder location
 dir0=fullfile(root_dir,'herbert_tests','herb_dir0');
 dir1=fullfile(root_dir,'herbert_tests','herb_dir1');
 dir2=fullfile(root_dir,'herbert_tests','herb_dir2');

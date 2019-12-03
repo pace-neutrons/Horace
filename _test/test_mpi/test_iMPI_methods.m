@@ -16,7 +16,7 @@ classdef test_iMPI_methods< TestCase
                 name = 'test_iMPI_methods';
             end
             obj = obj@TestCase(name);
-            obj.working_dir = tempdir;
+            obj.working_dir = tmp_dir;
             cs = config_store.instance();
             obj.current_config_folder = cs.config_folder;
             

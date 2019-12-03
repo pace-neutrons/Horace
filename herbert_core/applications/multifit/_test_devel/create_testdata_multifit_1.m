@@ -1,5 +1,5 @@
 function create_testdata_multifit_1
-% Create some test data for testing multifit. Data written to tempdir with 
+% Create some test data for testing multifit. Data written to tmp_dir with 
 % name testdata_multifit_1.mat
 %
 % Creates the following:
@@ -15,7 +15,7 @@ function create_testdata_multifit_1
 %
 % Author: T.G.Perring
 
-output_file=fullfile(tempdir,'testdata_multifit_1.mat');
+output_file=fullfile(tmp_dir,'testdata_multifit_1.mat');
 
 p1=[110,52.5,10  ,30,0.1];     % Gaussian 1
 p2=[120,55,  12.5,20,0.2];     % Gaussian 2

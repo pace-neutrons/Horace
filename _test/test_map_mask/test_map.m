@@ -8,7 +8,7 @@ banner_to_screen(mfilename)
 % -----------------------------------------------------------------------------
 % Test read/write
 % ---------------
-tmpfile=fullfile(tempdir,'tmp.map');
+tmpfile=fullfile(tmp_dir,'tmp.map');
 
 % Read in a variety of maps that should be valid
 % ----------------------------------------------

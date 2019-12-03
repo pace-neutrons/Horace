@@ -3,7 +3,7 @@ function create_testdata_IX_datasets_ref
 %
 %   >> create_testdata_IX_datasets_ref
 %
-% The objects are different everytime this is run, as a random number generator is used.
+% The objects are different every time this is run, as a random number generator is used.
 % Objects created are:
 %
 %   p1 p2 p3            IX_dataset_1d point objects;
@@ -26,12 +26,12 @@ function create_testdata_IX_datasets_ref
 %   hh_1d_big           The above converted to all histogram datasets using point2hist
 %
 % These will be saved in the file test_IX_datasets_ref.mat in the system specific
-% temporary folder returned by matlab function tempdir (type >> help tempdir
-% for information about the system specific location returned by tempdir)
+% temporary folder returned by matlab function tmp_dir (type >> help tmp_dir
+% for information about the system specific location returned by tmp_dir)
 %
 % Author: T.G.Perring
 
-output_file=fullfile(tempdir,'testdata_IX_datasets_ref.mat');
+output_file=fullfile(tmp_dir,'testdata_IX_datasets_ref.mat');
 
 % Generate data
 % ---------------

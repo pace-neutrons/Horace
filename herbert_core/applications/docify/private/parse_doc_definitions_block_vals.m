@@ -51,7 +51,7 @@ end
 % Write mfile with definitions (use matlab itself to parse!)
 [~,tmpname]=fileparts(tempname);
 tmp_mfile=['docify_tmp_',tmpname];
-tmp_mfile_full=fullfile(tempdir,[tmp_mfile,'.m']);
+tmp_mfile_full=fullfile(tmp_dir,[tmp_mfile,'.m']);
 Cbeg={...
     'function S=docify_tmp',...
     '% Parse meta-documentation definitions. T.G.Perring April 2015',...
@@ -80,7 +80,7 @@ save_text([Cbeg(:);C;Cend(:)],tmp_mfile_full);
 
 % Run the file, and delete afterwards
 try
-    cd(tempdir)
+    cd(tmp_dir)
     [~,S]=evalc(tmp_mfile);
     err=false;
 catch

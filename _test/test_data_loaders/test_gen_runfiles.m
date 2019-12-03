@@ -32,7 +32,7 @@ classdef test_gen_runfiles< TestCase
             this = this@TestCase(name);
             
             this.test_data_path = herbert_test_data_path();
-            this.wk_dir = tempdir;
+            this.wk_dir = tmp_dir;
             
             this.par_file = fullfile(this.test_data_path,'demo_par.par');
             

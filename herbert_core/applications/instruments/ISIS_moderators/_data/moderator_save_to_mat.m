@@ -11,7 +11,7 @@ function moderator_save_to_mat (file_in, file_out)
 %                   TS1verBase2016_LH8020_newVM-var_South01_Maps.mcstas
 %
 %   file_out    Output file. By default will be written to the Matlab
-%               temporary folder as returned by function tempdir, with
+%               temporary folder as returned by function tmp_dir, with
 %               same name as file_in, and extension .mat.
 %               Contains three fields:
 %                   t           Time bin boundaries (microseconds)
@@ -24,7 +24,7 @@ function moderator_save_to_mat (file_in, file_out)
 
 if nargin==1
     [~,nam,~] = fileparts(file_in);
-    file_out = fullfile(tempdir,[nam,'.mat']);
+    file_out = fullfile(tmp_dir,[nam,'.mat']);
 end
 
 save(file_out,'t','en','intensity');
