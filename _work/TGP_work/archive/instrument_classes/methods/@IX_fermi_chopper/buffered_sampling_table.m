@@ -51,7 +51,7 @@ function [table,ind]=buffered_sampling_table(fermi_in,varargin)
 % - The size of the lookup table is restricted to a certain maximum size.
 %   Earlier entries will be deleted if new ones have to be added. THe lookup
 %   table will always have the length of the number of unique entries in the
-%   most recent call, as it is assumed that this is the mostlikely next occasion
+%   most recent call, as it is assumed that this is the most likely next occasion
 %   the function will be called for again.
 
 

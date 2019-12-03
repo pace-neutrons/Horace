@@ -35,8 +35,8 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
     %
     % The first method in the methods block is the constructor. it takes the
     % desired test method name as its input argument. The first line should
-    % always initialise the superclass. Afterwards, include any properties
-    % initialisations which will not be altered in any of the test methods.
+    % always initialize the super-class. Afterwards, include any properties
+    % institutionalization which will not be altered in any of the test methods.
     % This constructor will only be called once (despite the fact that it
     % takes a particular method name). Expensive operations such as reading
     % large data files for use as reference data are examples of what could
