@@ -201,7 +201,7 @@ classdef test_faccess_sqw_v2< TestCase
             
             tt = faccess_sqw_v2();
             
-            tf = fullfile(tempdir,'test_put_sqw_v2.sqw');
+            tf = fullfile(tmp_dir,'test_put_sqw_v2.sqw');
             clob = onCleanup(@()delete(tf));
             
             tt = tt.init(tob_sqw);
@@ -230,7 +230,7 @@ classdef test_faccess_sqw_v2< TestCase
             samplef  = fullfile(spath,'w2d_qq_small_sqw.sqw');
             
             
-            tf = fullfile(tempdir,'test_upgrade_sqwV2.sqw');
+            tf = fullfile(tmp_dir,'test_upgrade_sqwV2.sqw');
             clob = onCleanup(@()delete(tf));
             copyfile(samplef,tf);
             
@@ -258,7 +258,7 @@ classdef test_faccess_sqw_v2< TestCase
             samplef  = fullfile(spath,'test_sqw_file','w2_small_v1.sqw');
             
             
-            tf = fullfile(tempdir,'test_upgrade_sqwV2_multiheader.sqw');
+            tf = fullfile(tmp_dir,'test_upgrade_sqwV2_multiheader.sqw');
             clob = onCleanup(@()delete(tf));
             copyfile(samplef,tf);
             
@@ -289,7 +289,7 @@ classdef test_faccess_sqw_v2< TestCase
             
             sqwob = read_sqw(samplef);
             
-            tf = fullfile(tempdir,'test_upgrade_sqwV2_wac.sqw');
+            tf = fullfile(tmp_dir,'test_upgrade_sqwV2_wac.sqw');
             clob = onCleanup(@()delete(tf));
             tob = faccess_sqw_v2(sqwob,tf);
             tob = tob.put_sqw();
@@ -323,7 +323,7 @@ classdef test_faccess_sqw_v2< TestCase
             
             sqwob = read_sqw(samplef);
             
-            tf = fullfile(tempdir,'test_put_dnd_from_sqw.sqw');
+            tf = fullfile(tmp_dir,'test_put_dnd_from_sqw.sqw');
             clob = onCleanup(@()delete(tf));
             tob = faccess_sqw_v2(sqwob,tf);
             tob = tob.put_dnd();
@@ -348,7 +348,7 @@ classdef test_faccess_sqw_v2< TestCase
             
             dnob = read_dnd(samplef);
             
-            tf = fullfile(tempdir,'test_put_dnd_from_sqw.sqw');
+            tf = fullfile(tmp_dir,'test_put_dnd_from_sqw.sqw');
             clob = onCleanup(@()delete(tf));
             
             tob = faccess_dnd_v2(dnob,tf);
@@ -377,7 +377,7 @@ classdef test_faccess_sqw_v2< TestCase
             sq_obj = ttob.get_sqw('-verbatim');
             assertTrue(isa(sq_obj,'sqw'));
             
-            test_f = fullfile(tempdir,'test_sqw_reopen_to_wrire.sqw');
+            test_f = fullfile(tmp_dir,'test_sqw_reopen_to_wrire.sqw');
             clob = onCleanup(@()delete(test_f));
             
             % using already initialized object to write new data.

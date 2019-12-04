@@ -8,7 +8,7 @@ function test_tobyfit_refine_crystal_1 (option)
 %
 %   >> test_tobyfit_refine_crystal_1 ('-save')  % Run the Tobyfit tests and save fit parameters
 %                                               % to file test_tobyfit_refine_crystal_1_out.mat
-%                                               % in the temporary folder (given by tempdir).
+%                                               % in the temporary folder (given by tmp_dir).
 %                                               % Copy to the same folder as this file to use in
 %                                               % tests.
 %
@@ -20,7 +20,7 @@ function test_tobyfit_refine_crystal_1 (option)
 % Setup (should only have to do in extremis - assumes data on Toby Perring's computer
 %   >> test_tobyfit_refine_crystal_1 ('-setup')
 %                                   % Create the sqw files that will be refined and in
-%                                   % the temporary folder given by tempdir. Copy these
+%                                   % the temporary folder given by tmp_dir. Copy these
 %                                   % files to the folder
 %                                   % dir_in defined in this file to use it in the following
 %                                   % tests
@@ -54,7 +54,7 @@ end
 %% --------------------------------------------------------------------------------------
 % Setup
 % --------------------------------------------------------------------------------------
-dir_out=tempdir;    % folder for temporary file creation
+dir_out=tmp_dir;    % folder for temporary file creation
 
 % Temporary file with simulated data to be corrected
 sqw_file_res=fullfile(dir_out,'tobyfit_refine_crystal_res.sqw');            % output file for simulation in reference lattice
@@ -313,7 +313,7 @@ end
 % Save fit parameter output if requested
 % ---------------------------------------------------------------------------------------
 if save_output
-    save(fullfile(tempdir,savefile),'rlu_corr','rlu_corr_tf_a','rlu_corr_tf_b');
+    save(fullfile(tmp_dir,savefile),'rlu_corr','rlu_corr_tf_a','rlu_corr_tf_b');
 end
 
 

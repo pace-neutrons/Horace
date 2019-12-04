@@ -55,7 +55,7 @@ classdef test_change_crystal_1a < TestCase
             % generate shifted sqw file
             obj.par_file=fullfile(common_data_dir,'9cards_4_4to1.par');
             % Parameters for generation of reference sqw file
-            obj.dir_out=tempdir;
+            obj.dir_out=tmp_dir;
             
             sim_sqw_file=fullfile(obj.dir_out,'test_change_crystal_1a_sim.sqw'); % output file for simulation in reference lattice
             obj=obj.build_misaligned_source_file(sim_sqw_file);

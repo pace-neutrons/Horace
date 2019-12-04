@@ -2,7 +2,7 @@ classdef test_nsqw2sqw_internal_methods < TestCase
     % Series of tests to check work of mex files against Matlab files
     
     properties
-        out_dir=tempdir();
+        out_dir=tmp_dir();
         
         test_sample_file % file produced in serial to compare test against
         test_souce_files; % test files used for combining
@@ -31,7 +31,7 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             end
             
             
-            wk_dir = tempdir;
+            wk_dir = tmp_dir;
             targ_file = fullfile(wk_dir,'nsqw_2sqw_test_sample_file.sqw');
             obj.test_sample_file = targ_file;
             obj.test_targ_file = fullfile(obj.out_dir,'combine_sqw_pix_test.sqw');
@@ -145,7 +145,7 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             hc.mem_chunk_size = 10000000;
             
             serverfbMPI  = MessagesFilebased('combine_sqw_pix_test_job');
-            serverfbMPI.mess_exchange_folder = tempdir();
+            serverfbMPI.mess_exchange_folder = tmp_dir();
             clob2 = onCleanup(@()finalize_all(serverfbMPI));
             
             fout_name = obj.test_targ_file;

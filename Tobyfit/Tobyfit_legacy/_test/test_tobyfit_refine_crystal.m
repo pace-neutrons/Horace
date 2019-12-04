@@ -7,7 +7,7 @@ function test_tobyfit_refine_crystal (varargin)
 % Reads IX_dataset_1d and IX_dataset_2d from .mat file as input to the tests
 
 dir_in=fileparts(which(mfilename));
-dir_out=tempdir;
+dir_out=tmp_dir;
 sqw_file_nores=fullfile(dir_out,'tobyfit_refine_crystal_nores.sqw');           % output file for simulation in reference lattice
 sqw_file_nores_corr=fullfile(dir_out,'tobyfit_refine_crystal_nores_corr.sqw'); % output file for correction
 
@@ -18,7 +18,7 @@ if nargin==1
     if ischar(varargin{1}) && size(varargin{1},1)==1 && isequal(lower(varargin{1}),'save')
         save_output=true;
     else
-        error('Unrecognised option')
+        error('Unrecognized option')
     end
 elseif nargin==0
     save_output=false;

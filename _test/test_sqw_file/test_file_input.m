@@ -143,8 +143,8 @@ classdef  test_file_input < TestCase
         
         function obj = file_cut_array_vs_file(obj)
             %
-            tmp_file=fullfile(tempdir,'test_file_input_tmp.sqw');            
-            tmp0_file=fullfile(tempdir,'test_file_input_tmp0.sqw');
+            tmp_file=fullfile(tmp_dir,'test_file_input_tmp.sqw');            
+            tmp0_file=fullfile(tmp_dir,'test_file_input_tmp0.sqw');
             clob1 = onCleanup(@()delete(tmp0_file,tmp_file));
 
            

@@ -2,7 +2,7 @@ classdef test_rundata_vs_sqw < TestCase
     % Series of tests to check work of mex files against Matlab files
     
     properties
-        out_dir=tempdir();
+        out_dir=tmp_dir();
         
         en=-80:8:760;
         par_file='map_4to1_dec09.par';
