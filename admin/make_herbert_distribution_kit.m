@@ -44,11 +44,7 @@ end
 if run_by_horace
     horace_target_path = argi{1};
 end
-common_files_to_distribute = {'LICENSE','README.md'};
-if full_distribution
-    common_files_to_distribute{end+1} = 'CMakeLists.txt';
-end
-
+common_files_to_distribute = {'LICENSE','README.md','CMakeLists.txt'};
 %
 disp('!===================================================================!')
 disp('!==> Preparing HERBERT distribution kit  ===========================!')
@@ -92,6 +88,7 @@ for i=1:numel(common_files_to_distribute)
 end
 % copy foder, containing the code   to manage herbert package
 copy_files_list(fullfile(her_root_dir,'admin'),fullfile(targ_her_dir,'admin'));
+copy_files_list(fullfile(her_root_dir,'cmake'),fullfile(targ_her_dir,'cmake'));
 
 % copy source code files from system directory
 copy_files_list(fullfile(her_root_dir,'_LowLevelCode'),fullfile(targ_her_dir,'_LowLevelCode'),'+_',...
