@@ -98,8 +98,7 @@ if hec.init_tests % install githooks for users who may run unit tests
     copy_git_hooks('horace');
     % add path to folders, which responsible for administrative operations
     up_root = fileparts(rootpath);
-    addpath_message(fullfile(up_root,'admin'))
-    
+    addpath_message(1,fullfile(up_root,'admin'))
 end
 % Beta version: Suppress warning occurring when old instrument is stored in
 % an sqw file and is automatically converted into MAPS

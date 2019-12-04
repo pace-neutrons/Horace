@@ -7,11 +7,11 @@ function path=horace_on(non_default_path)
 % $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
 %
 %
-default_horace_path ='/usr/local/mprogs/Horace';
-default_herbert_path='/usr/local/mprogs/Herbert';
+default_horace_path ='/usr/local/mprogs/Horace/horace_core';
+default_herbert_path='/usr/local/mprogs/Herbert/herbert_core';
 % To use spinW together with Horace, modify the row below pointing to correct 
 % spinW location. Also need to modify spinw_on template and place it together
-% with horace_on.m script. 
+% with horace_on.m script.
 default_spinw_path = '/usr/local/mprogs/spinW';
 %
 if exist('non_default_path','var') && (strcmpi(non_default_path,'where') || strcmpi(non_default_path,'which'))
