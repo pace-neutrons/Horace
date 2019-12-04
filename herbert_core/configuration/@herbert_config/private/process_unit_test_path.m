@@ -12,6 +12,7 @@ xunit_path_extras= fullfile(tests_path,'matlab_xunit_ISISextras');  % path for a
 mpi_path = fullfile(tests_path,'test_mpi');
 
 % if the connection is done dynamically, additional folders should be added to Horace too
+% not a real dependency, thouth not nice Herbert knows about Horace.
 hor_path = which('horace_init');
 if isempty(hor_path)
     hor_uproot = '';

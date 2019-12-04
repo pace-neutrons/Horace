@@ -134,6 +134,7 @@ classdef herbert_config<config_base
         function this=set.init_tests(this,val)
             if val>0
                 init = true;
+                process_unit_test_path(init,'set_path');                
                 try % if users want to init unit tests 
                     %(and presumably commit their changes), install
                     % githooks to check their commits
@@ -145,7 +146,7 @@ classdef herbert_config<config_base
                 init = false;
             end
             config_store.instance().store_config(this,'init_tests',init);
-            process_unit_test_path(init,'set_path');
+
         end
         %------------------------------------------------------------------
         function folder=get.unit_test_folder(this)
