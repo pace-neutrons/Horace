@@ -280,13 +280,6 @@ function varargout = mtimesx_horace(varargin)
 
 
 
-
-%if isempty(which('mtimesx_mex'))
-%    root = fileparts(which('horace_init'));
-%    cd(fullfile(root,'_LowLevelCode','cpp','mtimesx'));
-%    mtimesx_build;
-%end
-
 if  numel(varargin) > 2 && isa(varargin{end},'logical')
     use_mex = varargin{end};
     argi = varargin(1:end-1);
