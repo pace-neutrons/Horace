@@ -26,9 +26,9 @@ classdef test_combine_pow < TestCaseWithSave
                 name= mfilename('class');
             end
             this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_combine_pow_output.mat'));
-            common_data_dir=fullfile(fileparts(which('horace_init')),'_test','common_data');
-            
-            test_functions_path=fullfile(fileparts(which('horace_init.m')),'_test/common_functions');
+            horace_root = fileparts(fileparts(which('horace_init')));
+            common_data_dir=fullfile(horace_root,'_test','common_data');
+            test_functions_path=fullfile(horace_root,'_test/common_functions');
             addpath(test_functions_path);
             
             
@@ -37,7 +37,7 @@ classdef test_combine_pow < TestCaseWithSave
             % Create spe files:
             this.par_file=fullfile(common_data_dir,'map_4to1_dec09.par');
             %spe_dir = tmp_dir(); 
-            spe_dir = fileparts(mfilename('fullpath'));            
+            spe_dir = fileparts(mfilename('fullpath'));
             % test files are present
             this.spe_file_1=fullfile(spe_dir,'test_combine_1.nxspe');
             this.spe_file_2=fullfile(spe_dir,'test_combine_2.nxspe');
