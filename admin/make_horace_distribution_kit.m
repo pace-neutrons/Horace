@@ -40,10 +40,7 @@ if ~ok
     error('MAKE_HORACE_DISTRIBUTION_KIT:invalid_argument',err_mess);
 end% default key values
 %
-common_files_to_distribute = {'license.txt','README.md'};
-if ~no_demo
-    common_files_to_distribute{end+1} = 'CMakeLists.txt';
-end
+common_files_to_distribute = {'license.txt','README.md','CMakeLists.txt'};
 
 
 hor_root_dir = fileparts(fileparts(which('horace_init'))); % MUST have rootpath so that horace_init, horace_off are included
@@ -74,6 +71,7 @@ copy_files_list(fullfile(hor_root_dir,'horace_core'),fullfile(horace_targ_dir,'h
 copy_files_list(fullfile(hor_root_dir,'_LowLevelCode'),fullfile(horace_targ_dir,'_LowLevelCode'),...
     '+_','h','cpp','c','sln','vcproj');
 copy_files_list(fullfile(hor_root_dir,'admin'),fullfile(horace_targ_dir,'admin'));
+copy_files_list(fullfile(hor_root_dir,'cmake'),fullfile(horace_targ_dir,'cmake'));
 %
 hor_on_template = fullfile(horace_targ_dir,'admin','horace_on.m.template');
 copyfile(hor_on_template,fullfile(target_Dir,'horace_on.m.template'),'f');
