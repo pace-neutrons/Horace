@@ -8,7 +8,7 @@ function test_tobyfit_2 (option)
 %
 %   >> test_tobyfit_2 ('-save')     % Run the Tobyfit tests and save fit parameters
 %                                   % to file test_tobyfit_2_out.mat
-%                                   % in the temporary folder (given by tempdir)
+%                                   % in the temporary folder (given by tmp_dir)
 %                                   % Copy to the same folder as this file to use in
 %                                   % tests.
 %
@@ -20,7 +20,7 @@ function test_tobyfit_2 (option)
 % Setup (should only have to do in extremis - assumes data on Toby Perring's computer
 %   >> test_tobyfit_2 ('-setup')    % Create the cuts that will be fitted and save in
 %                                   % test_tobyfit_2_data.mat in the temporary folder
-%                                   % given by tempdir. Copy this file to the same folder
+%                                   % given by tmp_dir. Copy this file to the same folder
 %                                   % that holds this .m file to use it in the following
 %                                   % tests
 %   >> status = test_tobyfit_2 ('-setup')
@@ -92,7 +92,7 @@ if save_data
     
     
     % Now save to file for future use
-    datafile_full = fullfile(tempdir,datafile);
+    datafile_full = fullfile(tmp_dir,datafile);
     save(datafile_full,'fe_1','fe_2','fe_arr','rb_1','rb_arr');
     disp(['Saved data for future use in',datafile_full])
     return
@@ -259,6 +259,6 @@ end
 % Save fit parameter output if requested
 % ---------------------------------------------------------------------------------------
 if save_output
-    save(fullfile(tempdir,savefile),...
+    save(fullfile(tmp_dir,savefile),...
         'par_fe_tf_1','par_rb_tf_1','par_ferb_tf_1');
 end

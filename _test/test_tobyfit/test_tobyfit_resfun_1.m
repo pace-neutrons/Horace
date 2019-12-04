@@ -10,7 +10,7 @@ function test_tobyfit_resfun_1 (option)
 %   >> test_test_tobyfit_resfun_1 ('-save')
 %               % Run the Tobyfit tests and save fit parameters
 %               % to file test_tobyfit_resfun_1_out.mat
-%               % in the temporary folder (given by tempdir)
+%               % in the temporary folder (given by tmp_dir)
 %               % Copy to the same folder as this file to use in tests
 %
 %   >> test_test_tobyfit_resfun_1 ('-notest')
@@ -22,7 +22,7 @@ function test_tobyfit_resfun_1 (option)
 % Setup (should only have to do in extremis - assumes data on Toby Perring's computer
 %   >> test_test_tobyfit_resfun_1 ('-setup')     % Create the cuts that will be fitted and save in
 %                                   % test_tobyfit_resfun_1_data.mat in the temporary folder
-%                                   % given by tempdir. Copy this file to the same folder
+%                                   % given by tmp_dir. Copy this file to the same folder
 %                                   % that holds this .m file to use it in the following
 %                                   % tests
 %   >> status = test_resfun_1 ('-setup')
@@ -70,7 +70,7 @@ if save_data
     w2b = cut_sqw(data_source,proj_110,[0,0.01,1],[0.45,0.55],[-0.05,0.05],[-2,0,12],'-pix');
     
     % Now save to file for future use
-    datafile_full = fullfile(tempdir,datafile);
+    datafile_full = fullfile(tmp_dir,datafile);
     save(datafile_full,'w2a','wce','w2b');
     disp(['Saved data for future use in',datafile_full])
     return
@@ -225,6 +225,6 @@ pause(pause_time)
 % Save fit parameter output if requested
 % ---------------------------------------------------------------------------------------
 if save_output
-    save(fullfile(tempdir,savefile),...
+    save(fullfile(tmp_dir,savefile),...
         'ww1','ww2','ww3','cov1','cov2','cov3','cov4');
 end

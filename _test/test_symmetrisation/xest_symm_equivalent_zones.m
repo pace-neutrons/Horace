@@ -32,7 +32,7 @@ classdef xest_symm_equivalent_zones< TestCase
             pos = [1,1,0];
             zone1=[1,-1,0];
             data_source = fullfile(this.testdir,'w3d_sqw.sqw');
-            outdir  = tempdir;
+            outdir  = tmp_dir;
             outfiles = {fullfile(outdir ,'HoracePartialZoneN1_file_partN0.tmp'),...
                 fullfile(outdir ,'HoracePartialZoneN2_file_partN0.tmp')}  ;
             cob = onCleanup(@()delete(outfiles{:}));
@@ -96,7 +96,7 @@ classdef xest_symm_equivalent_zones< TestCase
             pos = [1,1,0];
             zone1=[1,-1,0];
             data_source = fullfile(this.testdir,'w3d_sqw.sqw');
-            outdir  = tempdir;
+            outdir  = tmp_dir;
             outfile = fullfile(outdir ,'HoracePartialZoneN1_file_partN0.tmp');
             cob = onCleanup(@()delete(outfile));
             % does not currently work -- changes for the future

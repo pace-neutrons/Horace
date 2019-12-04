@@ -18,8 +18,8 @@ elastic_all_zero=0;     % =1 all energy values zero; =0 very narrow distribution
 
 % File names
 % ----------
-ascii_file=fullfile(tempdir,'testdata_read_ascii.dat');
-sqw_file=fullfile(tempdir,'testdata_read_ascii.sqw');
+ascii_file=fullfile(tmp_dir,'testdata_read_ascii.dat');
+sqw_file=fullfile(tmp_dir,'testdata_read_ascii.sqw');
 
 
 % =============================================

@@ -24,14 +24,14 @@ else
 end
 
 
-sqw1d_name{1}=fullfile(tempdir,'test_file_input_sqw_1d_1.sqw');
-sqw1d_name{2}=fullfile(tempdir,'test_file_input_sqw_1d_2.sqw');
-sqw2d_name{1}=fullfile(tempdir,'test_file_input_sqw_2d_1.sqw');
-sqw2d_name{2}=fullfile(tempdir,'test_file_input_sqw_2d_2.sqw');
-d1d_name{1}=fullfile(tempdir,'test_file_input_d1d_1.d1d');
-d1d_name{2}=fullfile(tempdir,'test_file_input_d1d_2.d1d');
-d2d_name{1}=fullfile(tempdir,'test_file_input_d2d_1.d2d');
-d2d_name{2}=fullfile(tempdir,'test_file_input_d2d_2.d2d');
+sqw1d_name{1}=fullfile(tmp_dir,'test_file_input_sqw_1d_1.sqw');
+sqw1d_name{2}=fullfile(tmp_dir,'test_file_input_sqw_1d_2.sqw');
+sqw2d_name{1}=fullfile(tmp_dir,'test_file_input_sqw_2d_1.sqw');
+sqw2d_name{2}=fullfile(tmp_dir,'test_file_input_sqw_2d_2.sqw');
+d1d_name{1}=fullfile(tmp_dir,'test_file_input_d1d_1.d1d');
+d1d_name{2}=fullfile(tmp_dir,'test_file_input_d1d_2.d1d');
+d2d_name{1}=fullfile(tmp_dir,'test_file_input_d2d_1.d2d');
+d2d_name{2}=fullfile(tmp_dir,'test_file_input_d2d_2.d2d');
 if get_names
     sqw1d_arr = [];
     sqw2d_arr = [];

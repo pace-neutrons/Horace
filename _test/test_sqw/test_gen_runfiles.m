@@ -17,7 +17,7 @@ classdef test_gen_runfiles< TestCase
         end
         function test_gen_sqw(obj)
             
-            outdir=tempdir;     % directory of spe and tmp files
+            outdir=tmp_dir;     % directory of spe and tmp files
             
             nfiles_max=2;
             

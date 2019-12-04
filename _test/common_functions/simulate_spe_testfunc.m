@@ -49,7 +49,7 @@ end
 
 
 % Create sqw file
-%sqw_file=fullfile(tempdir,['test_spe_testfun',str_random(12),'.sqw']);
+%sqw_file=fullfile(tmp_dir,['test_spe_testfun',str_random(12),'.sqw']);
 %clo = onCleanup(@()delete(sqw_file));
 w= fake_sqw (en, par_file, '', efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
 
