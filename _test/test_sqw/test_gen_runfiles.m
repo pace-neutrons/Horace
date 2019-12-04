@@ -11,8 +11,9 @@ classdef test_gen_runfiles< TestCase
 
             % -----------------------------------------------------------------------------
             % Add common functions folder to path, and get location of common data
-            addpath(fullfile(fileparts(which('horace_init')),'_test','common_functions'))
-            obj.common_data_dir=fullfile(fileparts(which('horace_init')),'_test','common_data');
+            horace_root = fileparts(fileparts(which('horace_init'))); 
+            addpath(fullfile(horace_root,'_test','common_functions'))
+            obj.common_data_dir=fullfile(horace_root,'_test','common_data');
             % -----------------------------------------------------------------------------
         end
         function test_gen_sqw(obj)
