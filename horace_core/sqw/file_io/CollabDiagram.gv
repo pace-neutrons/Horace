@@ -1,0 +1,22 @@
+digraph CollabDiag {
+   /* Collaboration&inheritance diagram showing relationship between various classes supporting sqw file access*/
+	edge [dir=back];
+	dnd_binfile_common [shape=box];
+
+	dnd_file_interface -> dnd_binfile_common -> faccess_dnd_v2;
+	dnd_binfile_common -> sqw_file_interface->sqw_binfile_common;
+	sqw_binfile_common-> faccess_sqw_prototype;
+	sqw_binfile_common-> faccess_sqw_v2;
+	sqw_binfile_common-> faccess_sqw_v3;
+
+	/*edge [dir=back,arrowhead=odiamond];*/
+
+
+	edge [dir=normal,arrowhead=odiamond]
+	{rank = same;"dnd_binfile_common";"sqw_serializer";"const_blocks_map"};
+	sqw_serializer  -> dnd_binfile_common;
+	const_blocks_map -> dnd_binfile_common;
+	edge [style=dotted,arrowhead=vee];
+	sqw_serializer -> sqw_fields_formatters;
+
+ }
