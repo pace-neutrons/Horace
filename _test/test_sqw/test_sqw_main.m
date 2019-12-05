@@ -44,7 +44,7 @@ classdef test_sqw_main < TestCase
             test_dnd.filename = [targ_file,fext];
             test_dnd.filepath = [targ_path,filesep];
             
-            [ok,mess]=equal_to_tol(loaded_dnd,test_dnd);
+            [ok,mess]=equal_to_tol(loaded_dnd,test_dnd,'ignore_str',true);
             assertTrue(ok,mess)
         end
         

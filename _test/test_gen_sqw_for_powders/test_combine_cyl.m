@@ -26,8 +26,9 @@ classdef test_combine_cyl < TestCaseWithSave
                 name= mfilename('class');
             end
             this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_combine_cyl_output.mat'));
-            common_data_dir=fullfile(fileparts(which('horace_init')),'_test','common_data');
-            test_functions_path=fullfile(fileparts(which('horace_init.m')),'_test/common_functions');
+            horace_root = horace_git_root();
+            common_data_dir=fullfile(horace_root,'_test','common_data');
+            test_functions_path=fullfile(horace_root,'_test/common_functions');
             addpath(test_functions_path);
             
             

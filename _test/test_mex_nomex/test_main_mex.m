@@ -23,11 +23,11 @@ classdef test_main_mex < TestCase
             end
             this = this@TestCase(name);
             
-            root_folder = fileparts(which('horace_init.m'));
+            root_folder = horace_git_root();
             if ispc
-                this.accum_cut_folder=fullfile(root_folder,'\@sqw');
+                this.accum_cut_folder=fullfile(root_folder,'horace_core','\@sqw');
             else
-                this.accum_cut_folder=fullfile(root_folder,'@sqw');
+                this.accum_cut_folder=fullfile(root_folder,'horace_core','@sqw');
             end
             this.this_folder = fileparts(which('test_main_mex.m'));
             this.curr_folder = pwd();
