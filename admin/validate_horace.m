@@ -84,7 +84,7 @@ end
 
 % Generate full test paths to unit tests
 % --------------------------------------
-horace_path = fileparts(fileparts(which('horace_init')));
+horace_path = horace_git_root();
 test_path=fullfile(horace_path,'_test');
 test_folders_full = cellfun(@(x)fullfile(test_path,x),test_folders,'UniformOutput',false);
 

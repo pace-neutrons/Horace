@@ -43,7 +43,7 @@ end% default key values
 common_files_to_distribute = {'license.txt','README.md','CMakeLists.txt'};
 
 
-hor_root_dir = fileparts(fileparts(which('horace_init'))); % MUST have rootpath so that horace_init, horace_off are included
+hor_root_dir = horace_git_root(); % MUST have rootpath so that horace_init, horace_off are included
 %
 disp('!===================================================================!')
 disp('!==> Preparing HORACE distribution kit  ============================!')
@@ -53,7 +53,7 @@ disp('!    Start collecting the Horace program files =====================!')
 current_dir  = pwd;
 build_dir     = current_dir;
 dir_to_return_to = build_dir;
-% if inside Horace package dir, go avay from there:
+% if inside Horace package dir, go away from there:
 [inside,common_root] = is_dir_inside(build_dir,hor_root_dir);
 % if inside Herbert package dir, go away from there:
 while inside

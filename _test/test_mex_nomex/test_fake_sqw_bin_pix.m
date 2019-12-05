@@ -29,7 +29,7 @@ classdef test_fake_sqw_bin_pix < TestCase
                 this.skip_this_test= true;
             end
             this.tmp_data_folder = tmp_dir;
-            root_dir = fileparts(fileparts(which('horace_init.m')));
+            root_dir = horace_git_root();
             this.sample_dir = fullfile(root_dir,'_test','common_data');
         end
         function test_bin_c(this)
