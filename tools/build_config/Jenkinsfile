@@ -1,0 +1,34 @@
+#!groovy
+
+pipeline {
+   agent any
+
+   stages {
+      stage('Clone') {
+         git 'https://github.com/hsautessella/Horace.git'
+      }
+
+      stage('Build') {
+         steps {
+            sh '''
+                module load cmake/3.7.2
+                module load matlab/R2018b
+                module load gcc/6.3.0
+                git checkout 43_create_linux_CI_build
+                ./tools/build_config/build_script.sh
+            '''
+         }
+      }
+
+      stage('Test') {
+         sh '''
+            cd DLL/
+            ctest
+         '''
+      }
+
+      stage('Deploy') {
+         sh 'echo -e "Deploy step..."'
+      }
+   }
+}
