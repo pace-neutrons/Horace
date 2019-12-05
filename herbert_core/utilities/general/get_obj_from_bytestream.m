@@ -23,4 +23,4 @@ else
     catch
         obj = byte_stream(bytestream,'Deserialize');
     end
-endd
+end

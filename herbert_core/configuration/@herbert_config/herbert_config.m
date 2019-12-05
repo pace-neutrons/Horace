@@ -144,6 +144,7 @@ classdef herbert_config<config_base
                 end
             else
                 init = false;
+                process_unit_test_path(init,'set_path');                                
             end
             config_store.instance().store_config(this,'init_tests',init);
 
