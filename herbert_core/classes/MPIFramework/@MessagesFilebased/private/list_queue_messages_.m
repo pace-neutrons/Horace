@@ -16,7 +16,7 @@ function [start_queue_num,free_queue_num]=list_queue_messages_(mess_folder,job_i
 %                    next message to pop in the queue.
 %
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 %
 if ~(exist(mess_folder,'dir')==7) % job was canceled
@@ -58,3 +58,4 @@ if strcmpi(fext,'.mat')
 else
     num = str2double(fext(2:end));
 end
+

@@ -36,7 +36,7 @@ classdef herbert_config<config_base
     % Type >> herbert_config  to see the list of current configuration option values.
     
     %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+    % $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
     %
     
     properties(Dependent)
@@ -183,4 +183,5 @@ classdef herbert_config<config_base
         end
     end
 end
+
 

@@ -4,7 +4,7 @@ function obj = check_and_set_code_(obj,code)
 % Throws IX_axis:invalid_argument if the code is invalid
 %
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 
 if isempty(code)
@@ -17,4 +17,5 @@ if is_string(code)
 end
 
 error('IX_axis:invalid_argument','Units code must be a character string');
+
 

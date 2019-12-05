@@ -23,7 +23,7 @@ function X = rand_cumpdf_arr(xtab,ind)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 np = numel(ind);        % number of random points requested
@@ -43,3 +43,4 @@ X = reshape(X,size(ind));
 % 
 % X = (1-dx).*xtab(ix) + dx.*xtab(ix+1);
 % X = reshape(X,size(ind));
+

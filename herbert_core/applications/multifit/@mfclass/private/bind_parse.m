@@ -235,7 +235,7 @@ function [ok,mess,ipb,ifunb,ipf,ifunf,R,self_rem] = bind_parse_single(np,nbp,isf
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 self_rem = false;
@@ -555,3 +555,4 @@ ifunb = zeros(0,1);
 ipf = zeros(0,1);
 ifunf = zeros(0,1);
 R = zeros(0,1);
+

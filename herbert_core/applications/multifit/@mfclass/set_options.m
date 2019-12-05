@@ -50,7 +50,7 @@ function obj = set_options (obj, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 %--------------------------------------------------------------------------
@@ -114,3 +114,4 @@ elseif rem(numel(varargin),2)==0
 else
     error('Check number and type of input arguments')
 end
+

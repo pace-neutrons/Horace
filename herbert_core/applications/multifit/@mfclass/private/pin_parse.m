@@ -57,7 +57,7 @@ function [ok,mess,pin,np]=pin_parse(pin_in,fun)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 ok=true;
@@ -175,3 +175,4 @@ np=zeros(size(fun));
 for i=1:numel(fun)
     np(i)=pin(i).np;
 end
+

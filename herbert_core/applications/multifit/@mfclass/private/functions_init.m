@@ -24,7 +24,7 @@ function Sfun = functions_init (ndatatot, islocal_fore, islocal_back)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 Sfun.foreground_is_local_ = islocal_fore;
@@ -48,3 +48,4 @@ fun_ = cell(1,nfun);
 pin_ = repmat(mfclass_plist(),1,nfun);
 np_  = zeros(1,nfun);
 free_ = repmat({true(1,0)},1,nfun);
+

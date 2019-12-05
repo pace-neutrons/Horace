@@ -3,7 +3,7 @@ function obj = init_workers_(obj,je_init_message,task_init_mess,log_prefix)
 % response informing that the job has started
 %
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 
 
@@ -43,6 +43,7 @@ for tid=n_workers:-1:1
             me.job_id,tid,err);
     end
 end
+
 
 
 

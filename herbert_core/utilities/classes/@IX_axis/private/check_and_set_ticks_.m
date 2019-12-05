@@ -4,7 +4,7 @@ function obj = check_and_set_ticks_(obj,ticks)
 % Throws IX_axis:invalid_argument if ticks are invalid
 %
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 %
 if isempty(ticks)
@@ -61,4 +61,5 @@ else
 end
 
 obj.ticks_=orderfields(obj.ticks_,{'positions','labels'});
+
 

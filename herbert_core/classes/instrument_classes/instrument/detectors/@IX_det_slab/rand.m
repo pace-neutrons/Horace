@@ -35,7 +35,7 @@ function X = rand (obj, npath_in, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 [sz,npath,ind,wvec] = parse_npath_ind_wvec_ (obj, npath_in, varargin{:});
@@ -51,3 +51,4 @@ X = [xscalefactor.*rand_truncexp2 (alf(:)') - 0.5*thickness;...
     height.*(rand(1,prod(sz))-0.5)];
 X = reshape(X,[3,sz]);
 X = squeeze(X);
+

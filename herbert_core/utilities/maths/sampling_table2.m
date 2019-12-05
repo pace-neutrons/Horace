@@ -44,7 +44,7 @@ function [xtab,cumpdf]=sampling_table2(x,pdf,step)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 % Default parameters
@@ -279,3 +279,4 @@ else
     val = 0.5*val;
     errbar = 0.5*sqrt(errbar);
 end
+

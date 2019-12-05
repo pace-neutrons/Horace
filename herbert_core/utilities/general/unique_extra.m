@@ -33,7 +33,7 @@ function [C, ix, nelmts, nbeg, nend] = unique_extra (A)
 
 % Original author: T.G.Perring  2019-03-25
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 % NOTE: If want to add the functionality of Matlab intrinsic unique, need
@@ -102,3 +102,4 @@ end
 % ia = ix(nbeg);  % first occurences in A
 % ic(ix) = replicate_iarray(1:numel(nelmts),nelmts);
 % ic = ic(:);     % for some mysterious reason ic is a row even though ix and replicate_iarray are not
+

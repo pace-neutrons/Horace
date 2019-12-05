@@ -18,7 +18,7 @@ function vout = replicate_iarray (v, npix)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 if numel(npix)==numel(v)
     if ~isempty(npix)
@@ -37,3 +37,4 @@ if numel(npix)==numel(v)
 else
     error('Number of elements in input array(s) incompatible')
 end
+

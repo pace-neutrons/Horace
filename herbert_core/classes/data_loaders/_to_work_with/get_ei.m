@@ -6,7 +6,7 @@ function ei =get_Ei(this)
 %exist in spe class; Returns empty array if it is not; Ei data usually loaded to spe
 %structure from nxspe file or spe_h5 file;
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 
 if  isa(this,'speData') % called on spe and this is morden spe
@@ -14,4 +14,5 @@ if  isa(this,'speData') % called on spe and this is morden spe
 else
     error('speData:getEi','this function can not be called on non-speData object');
 end
+
 

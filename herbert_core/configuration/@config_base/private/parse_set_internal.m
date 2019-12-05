@@ -31,7 +31,7 @@ function [S,ok,mess] = parse_set_internal (varargin)
 %
 % NOTE: For internal use only.
 
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 % Default return values
 S=struct();
@@ -97,3 +97,4 @@ end
 for i=1:numel(field_nams)
     S.(field_nams{i})=field_vals{i};
 end
+

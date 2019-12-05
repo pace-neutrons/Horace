@@ -2,7 +2,7 @@ function this=build_from_struct(this,a_struct,varargin)
 % function to fill the rundata class from data, defined in the input
 % structure,class or their combinations
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 
 if isempty(a_struct)
@@ -142,4 +142,5 @@ if loader_redefined
         this.loader = loaders_factory.instance().get_loader(file_name,par_file_name);
     end
 end
+
 

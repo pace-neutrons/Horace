@@ -55,7 +55,7 @@ function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,varargin)
 %       is used instead;
 
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 %
 %
@@ -341,3 +341,4 @@ else
         'parameter %s must be a %d-element vector or a [%d x %d] array of doubles',...
         name,n_components,n_files,n_components);
 end
+

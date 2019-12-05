@@ -2,7 +2,7 @@ function this=loadData(this)
 % the function loads the data from a file, initially binded to the class
 % in the class constructor
 %
-%% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+%% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 if(isempty(this.fileName))
   disp(' spe object is not bound to a file, can not load the data');
@@ -39,3 +39,4 @@ switch(lower(this.fileExt))
         error('speData:loadData',' unsupported file extension %s',this.fileExt);
 end
 end
+

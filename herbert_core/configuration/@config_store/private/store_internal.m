@@ -12,7 +12,7 @@ function store_internal(this,config_class,force_save,varargin)
 % defaults. 
 %
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 if isa(config_class,'config_base')
     class_name = config_class.class_name;
@@ -59,6 +59,7 @@ if config_class.saveable || force_save
 end
 % store data in memory too.
 this.config_storage_.(class_name)  = data_to_save;
+
 
 
 

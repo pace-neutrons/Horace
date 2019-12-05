@@ -80,7 +80,7 @@ function [varargout] =get_rundata(this,varargin)
 
 % $Author: Alex Buts 20/10/2011
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 % possible modifiers of the data format
@@ -251,3 +251,4 @@ else % return cell array of output variables, defined by the list of
     end
     
 end
+

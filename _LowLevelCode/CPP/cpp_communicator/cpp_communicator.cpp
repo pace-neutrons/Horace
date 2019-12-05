@@ -37,7 +37,7 @@ Outputs:
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
 
-    const char REVISION[] = "$Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)";
+    const char REVISION[] = "$Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)";
     if (nrhs == 0 && nlhs == 1) {
         plhs[0] = mxCreateString(REVISION);
         return;
@@ -124,3 +124,4 @@ void set_numlab_and_nlabs(class_handle<MPI_wrapper> const *const pCommunicatorHo
     }
 
 }
+

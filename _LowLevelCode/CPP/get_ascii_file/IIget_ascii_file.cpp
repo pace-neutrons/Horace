@@ -9,7 +9,7 @@
 //
 // low level functions to read the PAR, PHX and SPE files; Should be called from mexFunction
 //
-// $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+// $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 //
 // the buffer specified here in static mainly for throwing meaningfull error messages;
 // It would be better to specify static stringstream for that but some compuilers crash on its initialisation
@@ -397,4 +397,5 @@ void load_spe(std::ifstream &stream,double *data_S,double *data_ERR,double * dat
     }
     return;
 }
+
 

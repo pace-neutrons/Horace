@@ -1,7 +1,7 @@
 function lattice = build_oriented_lattice_(lattice,varargin)
 % build oriented lattice from any form of constructor input
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 
 if isa(varargin{1},'oriented_lattice') % copy constructor
@@ -36,4 +36,5 @@ else
         ' containing the same fields as public fields of the oriented lattice itself or '...
         'using constructor, containing positional parameters']);
 end
+
 

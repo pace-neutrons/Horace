@@ -137,7 +137,7 @@ function [ok,mess,free]=free_parse_single(free_in,np)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 if isempty(free_in)
@@ -177,3 +177,4 @@ if np>0
 else
     mess='Free parameters argument must be an empty numeric or logical vector as the parameter list is empty';
 end
+

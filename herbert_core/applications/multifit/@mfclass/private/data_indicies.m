@@ -27,7 +27,7 @@ function [ndatatot, ndata, item, ix] = data_indicies(data)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 if ~isempty(data)
@@ -75,3 +75,4 @@ function status = cell_is_xye(var)
 % - {{x1,y1,e1},{x2,y2,e2},...} (including case of {{x,y,e}} )
 % this function returns true if the former, false if the latter
 status = ~all(cellfun(@iscell,var(:)));
+

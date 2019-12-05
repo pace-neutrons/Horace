@@ -3,7 +3,7 @@ function self = replot_figs_(self,varargin)
 % placing subsequent figures one after another,
 % (possibly using new pictures sizes)
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 size = self.fig_size;
 if verLessThan('matlab','8.4')
@@ -24,3 +24,4 @@ for i=1:self.fig_count_
     end
 end
 self.n_hidden_fig_ = 0;
+

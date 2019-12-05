@@ -39,7 +39,7 @@ function [outputs,n_failed,task_ids,obj]=...
 %              task_param_list, assigned to this job
 %
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 %
 if ~exist('keep_workers_running','var')
@@ -70,3 +70,4 @@ cluster_wrp = obj.cluster_;
 if ~keep_workers_running
     clear clob;
 end
+

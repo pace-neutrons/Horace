@@ -27,7 +27,7 @@ function val = mean_d (obj, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 if ~isscalar(obj)
@@ -35,3 +35,4 @@ if ~isscalar(obj)
 end
 
 val = func_eval (obj.det_bank_, @mean_d, {'wvec'}, varargin{:});
+

@@ -2,7 +2,7 @@ function fields = check_par_defined(this)
 % method checks what fields in the structure are defined from the fields
 % the par file should define.
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 
 df = this.par_can_define();
@@ -21,4 +21,5 @@ function is=is_field_def(struct,field)
     if isempty(struct.(field))
         is = false;
     end
+
 

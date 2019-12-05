@@ -4,7 +4,7 @@ function obj = check_and_set_caption_(obj,cap)
 % Throws IX_axis:invalid_argument is caption is invalid
 %
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 
 if isempty(cap)
@@ -21,4 +21,5 @@ if iscellstr(cap)
 end
 
 error('IX_axis:invalid_argument','Caption must be character or cell array of strings');
+
 

@@ -20,7 +20,7 @@ function [data_struct,field_nams,field_vals] = parse_arg(data_struct,varargin)
 %
 % $Author: Alex Buts; 20/10/2011
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 
 % Parse arguments;
@@ -85,3 +85,4 @@ else
     field_vals = varargin(2:2:narg);
         
 end
+

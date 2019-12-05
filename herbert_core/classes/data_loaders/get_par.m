@@ -33,7 +33,7 @@ function par = get_par(file_name,varargin)
 %     6th  "        detector ID
 %
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 % redefine the file name of the par file
 if ~exist('file_name','var')
@@ -50,3 +50,4 @@ end
 
 % return loaded par data from specified loader instance
 par=rd.load_par(varargin{:});
+

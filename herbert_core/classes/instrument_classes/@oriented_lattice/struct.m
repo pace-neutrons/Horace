@@ -6,7 +6,7 @@ function public_struct = struct(this,varargin)
 % public fields fill be returned 
 %
 % 
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $) 
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $) 
 %
 
 opt = {'-all'};
@@ -25,4 +25,5 @@ public_struct  = struct();
 for i=1:numel(pub_fields)
     public_struct.(pub_fields{i}) = this.(pub_fields{i});
 end
+
 

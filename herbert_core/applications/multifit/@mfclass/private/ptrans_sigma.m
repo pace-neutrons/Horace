@@ -19,7 +19,7 @@ function [psig,bsig]=ptrans_sigma(sigfree,p_info)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 % Get list of estimated errors
@@ -39,3 +39,4 @@ if numel(p_info.nbp)==1
 else
     bsig=vec_to_cell(sig(p_info.nptot+1:end),p_info.nbp(:));
 end
+

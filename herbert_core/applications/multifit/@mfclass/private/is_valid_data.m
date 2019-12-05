@@ -73,7 +73,7 @@ function [ok, mess, wout] = is_valid_data (class_name, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 narg=numel(varargin);
@@ -375,3 +375,4 @@ else
     ok=false;
     mess='Data object must have methods ''sigvar_get'',''plus'',''mask'' and either ''sigvar_getx'' or ''mask_points''';
 end
+

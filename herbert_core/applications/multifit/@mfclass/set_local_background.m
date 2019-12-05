@@ -30,7 +30,7 @@ function obj = set_local_background(obj,set_local)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 if nargin==1
@@ -38,3 +38,4 @@ if nargin==1
 end
 isfore = false;
 obj = set_scope_private_(obj, isfore, set_local);
+

@@ -13,7 +13,7 @@ function obj = set_scope_private_(obj, isfore, set_local)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 % If no change of status, then do nothing
@@ -51,3 +51,4 @@ end
 % Rebuild the object
 obj = obj.set_fun_props_ (Sfun);
 obj = obj.set_constraints_props_ (Scon);
+

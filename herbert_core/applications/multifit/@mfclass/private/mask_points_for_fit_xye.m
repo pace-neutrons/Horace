@@ -40,7 +40,7 @@ function [msk,ok,mess] = mask_points_for_fit_xye (x, y, e, mask)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 % Check mask array
@@ -115,3 +115,4 @@ end
 
 % Get final list of points to fit
 msk = ok_data & mask;
+

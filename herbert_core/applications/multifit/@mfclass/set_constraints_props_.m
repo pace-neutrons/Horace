@@ -24,7 +24,7 @@ function obj = set_constraints_props_ (obj, S)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 obj.bound_ = S.bound_;
@@ -32,3 +32,4 @@ obj.bound_to_ = S.bound_to_;
 obj.ratio_ = S.ratio_;
 obj.bound_to_res_ = S.bound_to_res_;
 obj.ratio_res_ = S.ratio_res_;
+

@@ -28,7 +28,7 @@ function Sfun = functions_remove (Sfun_in, isfore, ind)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 % Fill output with default structure
@@ -69,3 +69,4 @@ elseif isnumeric(ind)
 else
     error('Logic error. Contact developers')
 end
+

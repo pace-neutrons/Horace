@@ -38,7 +38,7 @@ function X = rand (obj, npath_in, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 [sz, npath, ind, wvec] = parse_npath_ind_wvec_ (obj, npath_in, varargin{:});
@@ -69,3 +69,4 @@ reject = (x.^2 >= 1-y.^2);
 if sum(reject(:))>0
     [x(reject),y(reject)]=rand_xy2(alf(reject));
 end
+

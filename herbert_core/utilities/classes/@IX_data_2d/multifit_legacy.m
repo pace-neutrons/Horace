@@ -620,7 +620,7 @@ function [wout, fitdata, ok, mess] = multifit_legacy(win, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 % *** This function is identical for IX_dataset_1d, _2d, _3d, ...
@@ -647,3 +647,4 @@ args=multifit_gateway_wrap_functions (varargin,pos,func,plist,bpos,bfunc,bplist,
 if ~ok && nargout<3
     error(mess)
 end
+

@@ -38,7 +38,7 @@ function val = effic_alf (alf)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 c_eff_f = [0.7648360390553052,...
@@ -100,3 +100,4 @@ for j=numel(c):-1:2
     dd=sv;
 end
 y=(y.*d-dd)+0.5*c(1);
+

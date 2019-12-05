@@ -59,7 +59,7 @@ function wout=multifit_func_eval(w,xye,func,bfunc,plist,bplist,...
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 % Determine what calculated signal to return
@@ -257,3 +257,4 @@ if iscell(tmp.plist)
 else
     plist_cell={tmp.plist};         % catch case of p or c1<0> (see mfclass_plist)
 end
+

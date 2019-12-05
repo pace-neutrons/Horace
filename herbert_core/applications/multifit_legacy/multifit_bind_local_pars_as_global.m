@@ -25,7 +25,7 @@ function pbind = multifit_bind_local_pars_as_global (sz, bind, foreground)
  
 % Original author: T.G.Perring 
 % 
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $) 
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $) 
 
 
 nw=prod(sz);
@@ -39,3 +39,4 @@ else
     pbind=repmat(pbind_single,sz);
     pbind{1}={};
 end
+

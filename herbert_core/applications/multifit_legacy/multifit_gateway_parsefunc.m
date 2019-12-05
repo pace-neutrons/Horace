@@ -67,9 +67,10 @@ function [ok,mess,varargout] = multifit_gateway_parsefunc (varargin)
  
 % Original author: T.G.Perring 
 % 
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $) 
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $) 
 
 
 [ok,mess,parsing,output]=multifit_main(varargin{:},'parsefunc_');
 nout=nargout-2;
 varargout(1:nout)=output(1:nout);   % appears to work even if nout<=0
+

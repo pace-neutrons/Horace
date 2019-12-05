@@ -4,7 +4,7 @@ function this = set_consistent_array(this,field_name,value)
 % disabled
 %
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 
 if isempty(value)
@@ -40,4 +40,5 @@ if strcmp(field_name,'en_')
 else
     this.n_detindata_ = size(value,2);
 end
+
 

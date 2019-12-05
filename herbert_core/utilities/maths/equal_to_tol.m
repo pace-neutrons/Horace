@@ -104,7 +104,7 @@ function [ok,mess]=equal_to_tol(a,b,varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 % The following code is pretty complex as it has to handle legacy input as
@@ -635,3 +635,4 @@ else
     end
     str=str(1:end-1);
 end
+

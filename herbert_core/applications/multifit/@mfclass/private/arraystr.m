@@ -4,7 +4,7 @@ function str=arraystr(sz,i)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 if numel(sz)==2 && (sz(1)==1 ||sz(2)==1)
@@ -18,3 +18,4 @@ else
     end
     str(end:end)=']';
 end
+

@@ -34,7 +34,7 @@ function val = var_d_alf (alf)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 c_var_f = [1.226904583058190,...
@@ -99,3 +99,4 @@ for j=numel(c):-1:2
     dd=sv;
 end
 y=(y.*d-dd)+0.5*c(1);
+

@@ -18,7 +18,7 @@ function [err,message] = merge_files(file1,file2,varargin)
 % the function will throw the error with ID 'MERGE_FILES:invalid_argument' 
 % with error message explaning the reason for error.
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 throw = true;
 if nargout>0
@@ -80,3 +80,4 @@ if do_throw
 else
     err=true;
 end
+

@@ -36,6 +36,11 @@ if isempty(rev_str) || ~strcmpi(pack_name_stor,pack_name)
 end
 
 parse_files_update_revision(pack_dir,rev_str,rev_date,skip_files);
+up_root = fileparts(pack_dir);
+code_dir = fullfile(up_root,'_LowLevelCode');
+parse_files_update_revision(code_dir,rev_str,rev_date,{});
+admin_dir = fullfile(up_root,'admin');
+parse_files_update_revision(admin_dir,rev_str,rev_date,{});
 
 function parse_files_update_revision(input_dir,rev_num,rev_date,skip_files)
 % function lists all files and folders within the input directory,

@@ -23,7 +23,7 @@ function ind = parposfun2ind (ip, ifun, np, nbp)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 % Elementary check on size of parameters
@@ -44,3 +44,4 @@ end
 
 nppoff = [0;cumsum(npp)];
 ind = ip + nppoff(ifun);
+

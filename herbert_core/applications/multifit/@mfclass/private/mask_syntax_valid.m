@@ -48,7 +48,7 @@ function [ok, mess, xkeep, xremove, msk] = mask_syntax_valid (nd, xkeep_in, xrem
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 ok=true;
@@ -143,3 +143,4 @@ function [xkeep,xremove,mask] = error_output(nd)
 xkeep=cell(1,nd);
 xremove=cell(1,nd);
 mask=cell(1,nd);
+

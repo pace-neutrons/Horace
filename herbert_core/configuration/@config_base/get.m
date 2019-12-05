@@ -14,7 +14,7 @@ function [out,varargout]= get(this,varargin)
 %
 % This is deprecated function kept for compatibility with old interface
 
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 options = {'-public','defaults'};
 [ok,mess,public,defaults,fields_to_get]=parse_char_options(varargin,options);
 if ~ok; error('CONFIG_BASE:get',mess); end
@@ -36,4 +36,5 @@ out = this.(fields_to_get{1});
 for i=2:nargout
     varargout{i-1} = this.(fields_to_get{i});
 end
+
 

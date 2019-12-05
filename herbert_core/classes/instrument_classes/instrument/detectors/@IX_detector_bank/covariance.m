@@ -26,8 +26,9 @@ function val = covariance (obj, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 [~, ind] = parse_ind_wvec_ (obj.det, varargin{:});
 val = covariance (obj.det, squeeze(obj.dmat(1,:,ind(:))), varargin{:});
+

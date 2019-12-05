@@ -19,7 +19,7 @@ function S = get_constraints_props_ (obj)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 S = struct(...
@@ -28,3 +28,4 @@ S = struct(...
     'ratio_', obj.ratio_,...
     'bound_to_res_', obj.bound_to_,...
     'ratio_res_', obj.ratio_);
+

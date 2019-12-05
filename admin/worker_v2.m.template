@@ -14,7 +14,7 @@ function [ok,err_mess,je]=worker_v2(worker_controls_string)
 %              folder name where the job initialization data are located on
 %              a remote system
 %
-% $Revision: 822 $ ($Date: 2019-01-03 11:23:07 +0000 (Thu, 03 Jan 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 err_mess = [];
 exit_at_the_end = true;
@@ -194,3 +194,4 @@ if job_executor.is_job_canceled()
     error('MESSAGE_FRAMEWORK:canceled',...
         'Messages framework has been canceled or is not initialized any more')
 end
+

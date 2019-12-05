@@ -2,7 +2,7 @@ function fields = check_defined_fields(this)
 % method checks what fields in the structure are defined fromn the fields
 % the data file should define.
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 
 % a data file usually defines the following fields:
@@ -27,4 +27,5 @@ function is=is_field_def(struct,field)
     if isempty(struct.(field))
         is = false;
     end
+
 

@@ -12,7 +12,7 @@ function  obj = get_obj_from_bytestream(bytestream,varargin)
 %(used in testing/debugging situations)
 %
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 
 if nargin>1
@@ -23,4 +23,4 @@ else
     catch
         obj = byte_stream(bytestream,'Deserialize');
     end
-end
+endd

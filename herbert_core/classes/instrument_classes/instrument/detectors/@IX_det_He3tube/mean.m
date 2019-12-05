@@ -31,7 +31,7 @@ function val = mean (obj, npath_in, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 mx = mean_x (obj, npath_in, varargin{:});
@@ -40,3 +40,4 @@ mz = mean_z (obj, npath_in, varargin{:});
 
 val = reshape([mx(:)';my(:)';mz(:)'], [3,size(mx)]);
 val = squeeze(val);
+

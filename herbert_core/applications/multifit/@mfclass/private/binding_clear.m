@@ -35,7 +35,7 @@ function Scon = binding_clear (Scon_in, np_, nbp_, ipb, ifunb)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 % Fill output with default structure
@@ -71,3 +71,4 @@ else
     [Scon.bound_to_res_,Scon.ratio_res_,ok] = binding_resolve (Scon.bound_to_,Scon.ratio_);
     if ~ok, error('Logic error. Contact developers'), end   % should be OK - as started from a valid set
 end
+

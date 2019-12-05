@@ -6,7 +6,7 @@ function [n_detectors,en,full_file_name,nexus_dir,ei,psi,nxspe_version]= check_f
 %
 % $Author: Alex Buts; 20/10/2011
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 
 
@@ -47,6 +47,7 @@ n_detectors    = dataset_info.Dims(2);
 en = hdf5read(full_file_name,[nexus_dir,'/data/energy']);
 ei = hdf5read(full_file_name,[nexus_dir,'/NXSPE_info/fixed_energy']);
 psi = hdf5read(full_file_name,[nexus_dir,'/NXSPE_info/psi']);
+
 
 
 

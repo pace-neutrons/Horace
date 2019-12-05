@@ -44,7 +44,7 @@ function args_out=multifit_gateway_wrap_functions (args,pos,func,plist,bpos,bfun
  
 % Original author: T.G.Perring 
 % 
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $) 
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $) 
 
 
 % Create new foreground parameter list(s)
@@ -83,3 +83,4 @@ if ~isempty(bpos)
     args_out{bpos}=bfwrap;
     args_out{bpos+1}=bplist_new;
 end
+

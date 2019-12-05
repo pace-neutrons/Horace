@@ -22,10 +22,11 @@ function Y = interp1_arr(ytable,xq,ind)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 npnt = size(ytable,1);    % number of points in cumulative pdf
 ipnt = 1 + (npnt-1)*xq(:) + npnt*(ind(:)-1);       % indicies (real) in closed interval [1,npnt]
 Y = interp1(1:numel(ytable), ytable(:), ipnt, 'linear', 'extrap');
 Y = reshape(Y,size(xq));
+

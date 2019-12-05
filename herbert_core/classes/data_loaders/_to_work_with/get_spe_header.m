@@ -10,7 +10,7 @@ function [ndet,en]=get_spe_header(filename)
 
 %% Original author: T.G.Perring
 %%
-%% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+%% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 %% If no input parameter given, return
 %if ~exist('filename','var')
@@ -41,3 +41,4 @@ fclose(fid);
 % Transfer pointers of read quantities to outpu data structure
 %data.ndet = ndet;
 %data.en = en;
+

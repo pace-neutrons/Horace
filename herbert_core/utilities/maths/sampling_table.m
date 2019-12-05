@@ -30,7 +30,7 @@ function xtab=sampling_table(x,pdf,npnt)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 if nargin==2
@@ -51,3 +51,4 @@ cumpdf=cumpdf(ilo:ihi);
 % Interpolate the lookup table 
 A = [0; (1:npnt-2)'/(npnt-1); 1];
 xtab = interp1(cumpdf,xpdf,A,'pchip','extrap');
+

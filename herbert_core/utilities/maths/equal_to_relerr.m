@@ -15,7 +15,7 @@ function ok=equal_to_relerr(x1,x2,tol,min_denominator)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 if all(x1(:)==x2(:))
     ok=true;
@@ -26,3 +26,4 @@ else
         ok = all(abs(x2(:)-x1(:))./max(max(abs(x1(:)),abs(x2(:))),abs(min_denominator)*ones(numel(x1),1))<=tol);
     end
 end
+

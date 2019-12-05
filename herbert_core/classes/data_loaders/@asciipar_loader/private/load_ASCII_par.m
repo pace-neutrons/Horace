@@ -20,7 +20,7 @@ function par=load_ASCII_par(filename)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 % If no input parameter given, return
 if ~exist('filename','var')
@@ -77,3 +77,4 @@ cols=length(par); % number of columns 5 or 6
 par=[par;fscanf(fid,'%f')];
 fclose(fid);
 par=reshape(par,cols,n);
+

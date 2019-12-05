@@ -114,7 +114,7 @@ function obj = set_bbind (obj,varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 % Process input
@@ -128,3 +128,4 @@ if ~ok, error(mess), end
 % Add new bindings
 [ok, mess, obj] = add_bind_private_ (obj, isfore, varargin);
 if ~ok, error(mess), end
+

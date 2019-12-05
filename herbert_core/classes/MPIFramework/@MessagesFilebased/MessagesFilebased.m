@@ -13,7 +13,7 @@ classdef MessagesFilebased < iMessagesFramework
     % This class provides physical mechanism to exchange messages between tasks.
     %
     %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+    % $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
     %
     %
     properties(Dependent)
@@ -234,4 +234,5 @@ classdef MessagesFilebased < iMessagesFramework
         
     end
 end
+
 

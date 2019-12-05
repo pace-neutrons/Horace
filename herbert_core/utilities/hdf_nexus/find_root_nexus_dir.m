@@ -28,7 +28,7 @@ function [root_nx_path,data_version,data_structure] = find_root_nexus_dir(hdf_fi
 %
 % $Author: Alex Buts; 20/10/2011
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 %
 data_structure =  hdf5info(hdf_fileName,'ReadAttributes',true);
@@ -80,6 +80,7 @@ else
 
 end
 ver= ver.Data;
+
 
 
 

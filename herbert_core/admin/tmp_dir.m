@@ -7,7 +7,7 @@ function the_dir= tmp_dir()
 %            (usually /home/user_name/Documents/MATLAB/tmp) folder if the machine is
 %            identified as iDaaaaS machine.
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 
 if is_idaaas()
@@ -24,4 +24,4 @@ if is_idaaas()
     end
 else
     the_dir = tempdir();
-end
+endd

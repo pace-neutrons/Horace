@@ -18,7 +18,7 @@ function [det,loader]=load_phx_or_par_private(loader,return_array,force_reload,g
 %                   profived for file to load from.
 %
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 if ~isempty(loader.det_par_) &&(~force_reload)
     sample = loader.par_file_name;
@@ -138,4 +138,5 @@ function par = convert_phx2par(phx)
 par = phx;
 par(4,:) =2*(phx(1,:).*tand(0.5*phx(4,:)));
 par(5,:) =2*(phx(1,:).*tand(0.5*phx(5,:)));
+
 

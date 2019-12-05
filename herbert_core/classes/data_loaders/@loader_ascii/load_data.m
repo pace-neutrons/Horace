@@ -13,7 +13,7 @@ function [varargout]=load_data(this,new_file_name)
 
 % $Author: Alex Buts; 20/10/2011
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 if exist('new_file_name','var')
@@ -81,3 +81,4 @@ elseif nargout == 4
     varargout{3}=en;
     varargout{4}=this;
 end
+

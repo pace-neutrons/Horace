@@ -26,7 +26,7 @@ function [keyval,data]=extract_keyvalues(arglist,keywords)
 
 % Original author: A.Buts
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 % Catch case of empty data cell array
@@ -61,3 +61,4 @@ if ~isempty(val) && is_string(val)
 else
     is = false;
 end
+

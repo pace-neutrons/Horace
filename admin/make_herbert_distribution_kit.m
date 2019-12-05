@@ -28,7 +28,7 @@ function make_herbert_distribution_kit(varargin)
 % -- compress everything as it is which makes code suitable for further
 % development.
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 %
 options = {'-full','-run_by_horace'};
@@ -146,3 +146,4 @@ if ~run_by_horace
     disp('!===================================================================!')
     
 end
+

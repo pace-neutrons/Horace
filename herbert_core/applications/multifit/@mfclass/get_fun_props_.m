@@ -16,7 +16,7 @@ function S = get_fun_props_ (obj)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 S.foreground_is_local_ = obj.foreground_is_local_;
@@ -30,3 +30,4 @@ S.bfun_ = obj.bfun_;
 S.bpin_ = obj.bpin_;
 S.nbp_ = obj.nbp_;
 S.bfree_ = obj.bfree_;
+

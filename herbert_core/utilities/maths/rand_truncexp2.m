@@ -20,7 +20,7 @@ function X = rand_truncexp2 (x0)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 if any(x0(:))<0 || any(isnan(x0(:)))
@@ -82,3 +82,4 @@ reject = (y>exp(-X));
 if sum(reject(:))>0
     X(reject)=rand_truncexp2_small(x0(reject)); % recursively replace rejected points
 end
+

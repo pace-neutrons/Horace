@@ -35,7 +35,7 @@ function [ok,mess,ifun,fun,present,pin,free,bind] = args_parse_set_fun (varargin
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 % Parse input
@@ -153,3 +153,4 @@ end
 function [ifun,fun,present,pin,free,bind] = error_return
 ifun=[]; fun=[]; pin=[]; free=[]; bind=[];
 present = struct('pin',false,'free',false,'bind',false);
+

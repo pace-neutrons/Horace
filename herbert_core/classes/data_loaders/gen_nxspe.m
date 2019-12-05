@@ -72,7 +72,7 @@ function varargout = gen_nxspe(S,ERR,en,par_file,nxspe_file,efix, varargin)
 %         or gen_sqw for detailed description of these parameters
 %
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 
 %
@@ -252,5 +252,6 @@ if is_string(S) || is_string(ERR) || is_string(en)
     errs = qd(wrong_fields);
     error('GEN_NSPE:invalid_arguments','rundata instance N %d; Error: %s',i,errs{1})
 end
+
 
 

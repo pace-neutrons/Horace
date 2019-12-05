@@ -27,7 +27,7 @@ function X = rand_truncexp (x0,varargin)
 
 % Original author: T.G.Perring 
 % 
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 if x0==Inf
@@ -50,3 +50,4 @@ elseif x0==0
 else
     error('The limit of the truncated exponential must be in range 0 to +Inf')
 end
+

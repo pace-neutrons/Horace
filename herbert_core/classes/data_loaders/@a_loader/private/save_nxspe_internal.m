@@ -21,7 +21,7 @@ function save_nxspe_internal(this,filename,efix,psi,varargin)
 % $Author: Alex Buts; 05/01/2014
 %
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 % file access options
 options={'w', 'a'};
@@ -282,3 +282,4 @@ H5S.close(space_id);
 H5G.close(group_id);
 end
 %
+

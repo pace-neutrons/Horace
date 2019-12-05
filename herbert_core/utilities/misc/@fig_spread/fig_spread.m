@@ -19,7 +19,7 @@ classdef fig_spread
     %close_all   - delete all controlled figures
     %
     %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+    % $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
     %
     properties(Dependent)
         % current number of fig handles the class contains (including deleted figures)
@@ -302,4 +302,5 @@ classdef fig_spread
     end
     
 end
+
 

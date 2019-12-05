@@ -19,7 +19,7 @@ function [ok, mess, obj] = add_bind_private_ (obj, isfore, args)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 if isfore
@@ -54,3 +54,4 @@ if ~isempty(mess), disp(mess), end
 
 % Update the object
 obj = obj.set_constraints_props_ (S_con);
+

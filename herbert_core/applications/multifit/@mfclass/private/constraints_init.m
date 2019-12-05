@@ -23,7 +23,7 @@ function Scon = constraints_init (np_, nbp_)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 n = sum(np_) + sum(nbp_);
@@ -33,3 +33,4 @@ Scon.bound_to_ = zeros(n,1);
 Scon.ratio_ = zeros(n,1);
 Scon.bound_to_res_ = zeros(n,1);
 Scon.ratio_res_ = zeros(n,1);
+

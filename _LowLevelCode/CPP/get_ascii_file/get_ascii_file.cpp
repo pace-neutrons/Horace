@@ -69,7 +69,7 @@
 *
 *-----------------------------------------------------------------------
 *
-* $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+* $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 */
 
 /*!
@@ -101,7 +101,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ]){
   fileTypesAccepted[iNumFileTypes]="undefined";
 
 //--------->  ANALYSE INPUT PARAMETERS;
-  const char REVISION[]="$Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)";
+  const char REVISION[]="$Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)";
   if(nrhs==0&&nlhs==1){
         plhs[0]=mxCreateString(REVISION); 
         return;
@@ -230,3 +230,4 @@ error:
   mexErrMsgTxt(err_msg.c_str());
 
 }
+

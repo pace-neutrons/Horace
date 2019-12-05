@@ -38,7 +38,7 @@ function obj = replace_data(obj,varargin)
  
 % Original author: T.G.Perring 
 % 
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 % Trivial case of no input arguments; just return without doing anything
@@ -108,3 +108,4 @@ if ~ok, error(mess), end
 obj.data_ = data_out;
 obj.w_(idata) = w;
 obj.msk_(idata) = msk_out;
+

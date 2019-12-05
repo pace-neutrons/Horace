@@ -31,7 +31,7 @@ function val = covariance (obj, npath_in, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 cxx = var_x (obj, npath_in, varargin{:});
@@ -45,3 +45,4 @@ val(3,3,:) = czz(:);
 
 val = reshape(val, [3,3,size(cxx)]);
 val = squeeze(val);
+

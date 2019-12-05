@@ -18,7 +18,7 @@ function this=select_loader(this,varargin)
 %
 % $Author: Alex Buts 20/10/2011
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 
 if nargin==1; return; end
@@ -75,6 +75,7 @@ if nargin>vararg_start_from
     end
     this=set_param_recursively(this,varargin{vararg_start_from:end});
 end
+
 
 
 

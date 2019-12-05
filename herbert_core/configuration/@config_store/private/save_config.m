@@ -13,7 +13,7 @@ function [ok,mess] = save_config (file_name, config_data)
 %   ok              true if saved ok; false otherwise
 %   mess            message if not ok (empty otherwise)
 
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 % Delete existing configuration file, if there is one
@@ -41,3 +41,4 @@ catch
     mess=['Unable to save configuration to file: ',file_name];
     return
 end
+

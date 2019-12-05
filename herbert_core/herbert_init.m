@@ -14,7 +14,6 @@ function herbert_init
 % (keep this path, as may be removed by call to application_off)
 rootpath = fileparts(which('herbert_init'));
 
-
 % Remove all instances of Herbert
 % -------------------------------
 % (This might include this version of Herbert)
@@ -23,7 +22,6 @@ warning('off','MATLAB:subscripting:noSubscriptsSpecified');
 % if ~verLessThan('matlab','9.1')
 %     warning('off','MATLAB:subscripting:noSubscriptsSpecified');
 % end
-
 % Add paths
 % ---------
 addpath(rootpath);  % MUST have rootpath so that herbert_init, herbert_off included
@@ -69,8 +67,6 @@ end
 %
 
 if hec.init_tests % this is developer vesion
-    %
-    %
     % set unit tests to the Matlab search path, to overwrite the unit tests
     % routines, added to Matlab after Matlab 2017b, as new routines have
     % signatures, different from the standard unit tests routines.

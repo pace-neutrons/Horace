@@ -11,7 +11,7 @@ function n_out=bigtic(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 if nargin==0
     if nargout==0
@@ -40,4 +40,5 @@ elseif nargin==2
         disp('WARNING: Input to bigtic not valid. Function call ignored.')
     end
 end
+
 

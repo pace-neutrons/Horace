@@ -18,7 +18,7 @@ function [outputs,n_failed,task_ids,obj] = submit_and_run_job_(obj,...
 %
 %
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 
 
@@ -62,3 +62,4 @@ end
 % retrieve and reject all messages may left after the job was completed
 %  (e.g. if some tasks of the job have failed);
 obj.mess_framework.clear_messages();
+

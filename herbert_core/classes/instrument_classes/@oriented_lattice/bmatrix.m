@@ -26,11 +26,11 @@ function [b, arlu, angrlu] = bmatrix(obj)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 %
 
 angdeg = obj.angdeg;
 alatt  = obj.alatt;
-[b,arlu,angrlu] = bmatrix(alatt,angdeg);
+[b,arlu,angrlu] = bmatrix(alatt,angdeg);;

@@ -35,7 +35,7 @@ function Sfun = free_alter (Sfun_in, isfore, indfun, free)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 % Fill output with default structure
@@ -60,3 +60,4 @@ else
         Sfun.bfree_(indfun) = mat2cell(true(1,sum(np)),1,np);
     end
 end
+

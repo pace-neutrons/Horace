@@ -31,7 +31,7 @@ function [pf,ok,mess,p,bp]=ptrans_par_inverse(S, p_info)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 if ~isstruct(S)
@@ -132,3 +132,4 @@ function [pf,p,bp] = error_return(p_info)
 pf = NaN(1,numel(find(p_info.free)));
 p = cellfun(@(x)NaN(size(x)),p_info.p,'UniformOutput',false);
 bp = cellfun(@(x)NaN(size(x)),p_info.p,'UniformOutput',false);
+

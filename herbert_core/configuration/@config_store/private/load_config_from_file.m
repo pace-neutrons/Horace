@@ -21,7 +21,7 @@ function [config_data,result,mess] = load_config_from_file(file_name,class_field
 %                   if file is wrong or some IO error occurs.
 %   mess            Message. Empty if result==1
 
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 config_data=[];
 if exist(file_name,'file')
@@ -58,4 +58,5 @@ else
 end
 result = 1;
 mess = '';
+
 

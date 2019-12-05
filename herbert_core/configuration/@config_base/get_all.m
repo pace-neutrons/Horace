@@ -23,7 +23,7 @@ function S=get_all(this,opt)
 %
 
 
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 if nargin==1
     S=config_store(false);
@@ -32,3 +32,4 @@ elseif nargin==2 && ischar(opt) && ~isempty(opt) && size(opt,1)==1 && strncmpi(o
 else
     error('Check input arguments')
 end
+

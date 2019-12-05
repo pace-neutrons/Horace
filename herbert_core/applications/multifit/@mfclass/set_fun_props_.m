@@ -17,7 +17,7 @@ function obj = set_fun_props_ (obj, S)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 obj.foreground_is_local_ = S.foreground_is_local_;
@@ -31,3 +31,4 @@ obj.bfun_ = S.bfun_;
 obj.bpin_ = S.bpin_;
 obj.nbp_ = S.nbp_;
 obj.bfree_ = S.bfree_;
+

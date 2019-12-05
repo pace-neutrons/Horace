@@ -26,7 +26,7 @@ function Sfun = functions_append (Sfun_in, isfore, n_append)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 
 
 % Fill output with default structure
@@ -47,3 +47,4 @@ else
     Sfun.nbp_   = [Sfun.nbp_, zeros(1,n_append)];
     Sfun.bfree_ = [Sfun.bfree_, repmat({true(1,0)},1,n_append)];
 end
+

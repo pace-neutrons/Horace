@@ -34,7 +34,7 @@ function [ub, mess, umat] = ubmatrix (u, v, b)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
@@ -57,3 +57,4 @@ catch
     umat = [];
     mess = 'Problem calculating UB matrix. Check u and v are not parallel';
 end
+
