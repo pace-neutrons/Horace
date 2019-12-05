@@ -46,11 +46,12 @@ classdef test_change_crystal_1a < TestCase
             hpc.build_sqw_in_parallel=0;
             % -----------------------------------------------------------------------------
             % Add common functions folder to path, and get location of common data
-            cof_path= fullfile(fileparts(which('horace_init')),'_test','common_functions');
+            horace_root = horace_git_root();
+            cof_path= fullfile(horace_root,'_test','common_functions');
             addpath(cof_path);
             
             
-            common_data_dir=fullfile(fileparts(which('horace_init')),'_test','common_data');
+            common_data_dir=fullfile(horace_root,'_test','common_data');
             % -----------------------------------------------------------------------------
             % generate shifted sqw file
             obj.par_file=fullfile(common_data_dir,'9cards_4_4to1.par');
