@@ -74,7 +74,7 @@ if strcmp(targ_her_dir ,build_dir)
         ' Can not build in existing Herbert directory');
 end
 
-copy_files_list(fullfile(her_root_dir,'herbert_core'),fullfile(targ_her_dir,'herbert_core'));
+copy_files_list(fullfile(her_root_dir,'herbert_core'),fullfile(targ_her_dir,'herbert_core'),'+_');
 copy_files_list(fullfile(her_root_dir,'documentation'),fullfile(targ_her_dir ,'documentation'));
 common_files_to_distribute = cellfun(@(x)(fullfile(her_root_dir,x)),common_files_to_distribute,...
     'UniformOutput',false);

@@ -30,15 +30,13 @@ end
 
 % initialise variables
 
-service_dir = '_'; % qualifier for service folders
-
 exclude_list  = {'.','@','+'};
 p = '';           % path to be returned
 
 % Qualifier for service folders.
 % - Folders which have the form '_<computer>' e.g. '_PCWIN64' will be put on the path
 % - Other folders e.g. '_developer_only' will not, no these have to be handled separately
-service_dir = '_';
+service_dir = '_'; % qualifier for service folders
 
 % Generate path based on given root directory
 files = dir(d);
