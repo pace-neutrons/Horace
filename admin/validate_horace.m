@@ -89,21 +89,24 @@ test_path=fullfile(horace_path,'_test');
 test_folders_full = cellfun(@(x)fullfile(test_path,x),test_folders,'UniformOutput',false);
 
 
-% On exit always revert to initial Horace and Herbert configurations
-% ------------------------------------------------------------------
+hec = herbert_config();
+hoc = hor_config();
+hpc = hpc_config();
 % remove configurations from memory. Ensure only stored configurations are
 % stored
 clear config_store;
 % (Validation must always return Horace and Herbert to their initial states, regardless
 %  of any changes made in the test routines)
 
-hec = herbert_config();
-hoc = hor_config();
-hpc = hpc_config();
 
+% On exit always revert to initial Horace and Herbert configurations
+% ------------------------------------------------------------------
 cur_herbert_conf=hec.get_data_to_store();
 cur_horace_config=hoc.get_data_to_store();   % only get the public i.e. not sealed, fields
 cur_hpc_config = hpc.get_data_to_store();
+hec.saveable = false;
+hoc.saveable = false;
+hpc.saveable = false;
 
 % Create cleanup object (*** MUST BE DONE BEFORE ANY CHANGES TO CONFIGURATIONS)
 cleanup_obj=onCleanup(@()...
@@ -158,6 +161,7 @@ else
     
 end
 close all
+clear config_store;
 %profile off
 %profile viewer
 
