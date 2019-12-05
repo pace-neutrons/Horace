@@ -151,7 +151,7 @@ classdef field_generic_class_hv3 < field_simple_class_hv3
             % structure or custom class
             % get field names
             [sz,n_fields,pos,err] = size_fieldnames_from_file_(fid,pos,sz);
-            if err; return; end;
+            if err; return; end
                 
             % treat class and structure the same way,i.e. analysing the
             % list of the public fields
@@ -160,4 +160,4 @@ classdef field_generic_class_hv3 < field_simple_class_hv3
         end
     end
     
-endd
+end
