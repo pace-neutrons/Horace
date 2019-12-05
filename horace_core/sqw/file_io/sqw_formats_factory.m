@@ -30,7 +30,7 @@ classdef sqw_formats_factory < handle
     %                       used to initialize another accessor.
     %
     %
-    % $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+    % $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
     %
     properties(Access=private) %
         % List of registered file accessors:
@@ -241,3 +241,4 @@ classdef sqw_formats_factory < handle
         
     end
 end
+

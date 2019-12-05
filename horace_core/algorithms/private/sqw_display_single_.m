@@ -26,7 +26,7 @@ function sqw_display_single_(data,npixtot,nfiles,type)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 
 % NOTE: use sprintf to get fixed formatting of numbers (num2str strips trailing blanks)
@@ -117,3 +117,4 @@ if npixtot < 0.5   % in case so huge that can no longer hold integer with full p
     disp(' WARNING: The dataset contains no counts')
     disp(' ')
 end
+

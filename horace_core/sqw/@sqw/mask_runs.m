@@ -20,7 +20,7 @@ function wout=mask_runs(win,runno)
 
 % Original author: R.A.Ewings
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 
 % Check object to be masked is an sqw-type object
@@ -62,3 +62,4 @@ for i=1:numel(runno)
     mask_arr(runs==runno(i))=false;
 end
 wout=mask_pixels(win,mask_arr);
+

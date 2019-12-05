@@ -389,7 +389,7 @@ function [wout, fitdata, ok, mess] = fit_legacy_func(win, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 
 % Note: we could rely on the generic fit function in Herbert, but this would
@@ -444,3 +444,4 @@ for i = 1:numel(win)    % use numel so no assumptions made about shape of input 
         disp(['ERROR (dataset ',num2str(i),'): ',mess{i}])
     end
 end
+

@@ -55,7 +55,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
     % already exists in the file.
     %
     %
-    % $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+    % $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
     %
     %
     properties(Access=protected,Hidden=true)
@@ -292,3 +292,4 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         
     end
 end
+

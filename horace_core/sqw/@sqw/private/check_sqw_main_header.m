@@ -18,7 +18,7 @@ function [ok, mess] = check_sqw_main_header (main_header, field_names_only)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 fields = {'filename';'filepath';'title';'nfiles'};  % column
 
@@ -70,3 +70,4 @@ if ischar(arg) && (isempty(arg)||length(size(arg))==2 && size(arg,1)==1)
 else
     ok=false;
 end
+

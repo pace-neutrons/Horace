@@ -26,7 +26,7 @@ function wout=apply_mag_ff(self,win)
 %   division by the same (often large or small) numbers.
 
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 
 
@@ -37,4 +37,5 @@ function wout=apply_mag_ff(self,win)
 sqw_magFF = self.calc_mag_ff(win);
 
 wout=mtimes(win,sqw_magFF);
+
 

@@ -5,7 +5,7 @@ function  obj=set_sigma_transf(obj)
 % If sigma-transformation is not defined (incorrect or impossible),
 % method prints warning and does nothing. Transformation becomes undefined.
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 
 obj=obj.clear_transformations();
@@ -22,3 +22,4 @@ catch ME
     end
 end
 obj.shift = [0,0,0];
+

@@ -116,7 +116,7 @@ function wout = cut_sqw_main (data_source, ndims_source, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 
 % *** Currently only works if uoffset(4)=0 for input, output datasets
@@ -194,3 +194,4 @@ for i=1:prod(sz)
             proj, pbin_tmp, pin, en, opt, hor_log_level);
     end
 end
+

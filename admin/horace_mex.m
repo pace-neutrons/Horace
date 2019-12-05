@@ -8,7 +8,7 @@ function horace_mex
 % code one have to edit  ~/.matlab/mexoptions.sh file and add -fopenmp key
 % to the proper compiler and linker keys
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 
 
@@ -277,4 +277,3 @@ her_dll_targ = fullfile(her_path,'DLL',os_dirname,matlab_dirname);
 hor_dll_sourc= fullfile(hor_path,'DLL',os_dirname,matlab_dirname);
 
 copyfile(fullfile(hor_dll_sourc,ascii_reader),fullfile(her_dll_targ,ascii_reader),'f');
-

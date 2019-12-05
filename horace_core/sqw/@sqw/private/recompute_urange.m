@@ -14,7 +14,7 @@ function urange = recompute_urange(w)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 
 % Recomputing urange requires the whole of the pixel array to be processed,
@@ -40,3 +40,4 @@ urange(1,1:3)=min(u_q,[],2)';
 urange(2,1:3)=max(u_q,[],2)';
 urange(1,4)=min(w.data.pix(4,:)) + (pix0(4)-u0(4));
 urange(2,4)=max(w.data.pix(4,:)) + (pix0(4)-u0(4));
+

@@ -15,7 +15,7 @@ function vout = replicate_array (v, npix)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 if numel(npix)==numel(v)
     % Get the bin index for each pixel
@@ -30,3 +30,4 @@ if numel(npix)==numel(v)
 else
     error('Number of elements in input array(s) incompatible')
 end
+

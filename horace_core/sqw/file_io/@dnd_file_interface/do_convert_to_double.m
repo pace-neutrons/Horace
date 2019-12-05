@@ -2,7 +2,7 @@ function  val = do_convert_to_double(val)
 % convert all numerical types of the structure into double
 %
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 
 
@@ -18,4 +18,5 @@ elseif isstruct(val)
 elseif isnumeric(val)
     val = double(val);
 end
+
 

@@ -37,7 +37,7 @@ function urange=write_nsqw_to_sqw (infiles, outfile,varargin)
 % T.G.Perring   27 June 2007
 % T.G.Perring   22 March 2013  Modified to enable sqw files with more than one spe file to be combined.
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 accepted_options = {'allow_equal_headers','drop_subzones_headers','parallel'};
 
 if nargin<2
@@ -301,3 +301,4 @@ wrtr.delete();
 
 %
 %
+

@@ -9,7 +9,7 @@ function obj=put_dnd_metadata(obj,varargin)
 %>> put_dnd_metadata(obj,sqw_obj)
 %
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 
 % ignore nopix if it comes as input
@@ -61,5 +61,6 @@ fseek(obj.file_id_,pos,'bof');
 check_error_report_fail_(obj,'Error moving to the beginning of the metadata record');
 fwrite(obj.file_id_,bytes,'uint8');
 check_error_report_fail_(obj,'Error writing the dnd object metadata');
+
 
 

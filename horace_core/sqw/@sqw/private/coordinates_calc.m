@@ -43,7 +43,7 @@ function [ok,mess,xvals,xpix,xvar,xdevsqr]=coordinates_calc(w,xlist)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 
 % Get list of coordinates to average
@@ -148,3 +148,4 @@ end
 
 ok=true;
 mess='';
+

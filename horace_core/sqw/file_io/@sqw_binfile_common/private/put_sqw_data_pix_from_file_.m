@@ -42,7 +42,7 @@ function obj = put_sqw_data_pix_from_file_(obj, pix_comb_info,jobDispatcher)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 
 
@@ -191,4 +191,5 @@ end
 if log_level>1
     fprintf(' At the time  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));
 end
+
 

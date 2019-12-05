@@ -6,7 +6,7 @@ function obj = init_dnd_structure_field_by_field_(obj)
 % To overload, host should correctly set the obj.data_pos_ field.
 %
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 %
 
@@ -65,3 +65,4 @@ if res ~= 0
     error('SQW_FILE_IO:io_error',...
         '%s: Reason %s',mess_pos,mess)
 end
+

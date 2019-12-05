@@ -4,7 +4,7 @@ function [size_str,pos,err,template_struc] = calculate_positions_(obj,template_s
 %
 % pos at the end -- the final position
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 err = false;
 size_str= struct('start_pos_',pos);
@@ -140,3 +140,4 @@ if obj.input_is_file_  %file stream
 else  % bytes
     sz = double(typecast(input(pos:pos+4-1),'uint32'));
 end
+

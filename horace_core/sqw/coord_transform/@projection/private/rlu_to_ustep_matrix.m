@@ -45,7 +45,7 @@ function [rlu_to_ustep, u_to_rlu, ulen, mess] = rlu_to_ustep_matrix (alatt, angd
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
@@ -110,3 +110,4 @@ for i=1:3
     end
 end
 rlu_to_ustep = inv(ustep_to_rlu);   % matrix to convert a vector in r.l.u. to no. steps along u1, u2, u3
+

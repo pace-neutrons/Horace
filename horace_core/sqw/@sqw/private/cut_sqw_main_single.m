@@ -6,7 +6,7 @@ function wout = cut_sqw_main_single (data_source,...
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 
 % Initialise output
@@ -242,3 +242,4 @@ function delete_tmp_pix_files(pix_info)
 for ifile=1:pix_info.nfiles   % delete the temporary files
     delete(pix_info.infiles{ifile});
 end
+

@@ -30,7 +30,7 @@ function [data, count_out, status_ok, message] = fread_catch (fid, count_in, pre
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 ntry_retry=6;   % maximum number of attempts to read before trying to reopen
 ntry_reopen=6;  % further attempts with reopening
@@ -169,3 +169,4 @@ if(str2double(version_field{1})>=7)
 else
     error(' The array you are trying to read is bigger then 2^32-2 but Matlab version lower then 7.5 does not support such arrays')
 end
+

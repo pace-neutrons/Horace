@@ -37,7 +37,7 @@ function [iax,iint,pax,p,mess]=make_sqw_data_calc_ubins(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 
 iax=zeros(1,4);
@@ -147,3 +147,4 @@ elseif iscell(p) && isscalar(p) && isnumeric(p{1}) && numel(p{1})>1
 else
     mess='Binning description must have form [plo,pstep,phi], [plo,phi], or [pcent] or cell array of bin boundaries';
 end
+

@@ -2,7 +2,7 @@ function obj = check_and_set_transf_(obj,new_transf)
 % Function checks if symmetry transformation is well defined and sets this
 % transformation as new symmetry transformation.
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 
 
@@ -19,5 +19,6 @@ if abs(abs(d)-1)>1.e-6
 end
 
 obj.transf_matrix_ = new_transf;
+
 
 

@@ -22,7 +22,7 @@ function [qspec,en]=calc_qspec (obj,detdcn)
 
 % *** Only emode=1 has been translated to c++ as of 04/09/2009
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 
 % Get components of Q in spectrometer frame (x || ki, z vertical)
@@ -85,3 +85,4 @@ elseif obj.emode==0
 else
     error('RUNDATAH:invalid_argument','EMODE must =1 (direct geometry), =2 (indirect geometry), or =0 (elastic)')
 end
+

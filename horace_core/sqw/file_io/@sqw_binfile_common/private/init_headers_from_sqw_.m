@@ -3,7 +3,7 @@ function obj=init_headers_from_sqw_(obj,sqw_obj)
 % using sqw object, stored in memory
 %
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 
 main_h_form = obj.get_main_header_form();
@@ -50,4 +50,5 @@ detpar_form = obj.get_detpar_form();
 [detpar_pos,pos]=obj.sqw_serializer_.calculate_positions(detpar_form,detpar,pos);
 obj.detpar_pos_info_ = detpar_pos;
 obj.data_pos_ = pos;
+
 

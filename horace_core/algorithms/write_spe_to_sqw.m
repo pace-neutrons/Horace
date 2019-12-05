@@ -47,7 +47,7 @@ function [grid_size, urange] = write_spe_to_sqw (spe_file, par_file, sqw_file, e
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 
 disp('*** DEPRECATED FUNCTION:  Please replace this call to  write_spe_to_sqw  with one to  gen_sqw ***')
@@ -87,3 +87,4 @@ r2d=180/pi;
 if nargout==0
     clear grid_size urange
 end
+

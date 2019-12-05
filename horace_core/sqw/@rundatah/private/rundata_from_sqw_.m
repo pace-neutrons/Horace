@@ -8,7 +8,7 @@ function rd=rundata_from_sqw_(sqw_obj)
 %
 %
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 
 %
@@ -66,6 +66,7 @@ rd.efix = header.efix;
 rd.en  = en;
 rd.S   = signal;
 rd.ERR = err;
+
 
 
 

@@ -16,7 +16,7 @@ function qsqr_w = calculate_qsqr_w_pixels (win)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 
 if numel(win)~=1
@@ -32,3 +32,4 @@ qhkl_w = calculate_qw_pixels2 (win);
 % Convert to crystal Cartesian coordinates and sum the squares
 qcryst = [qhkl_w{1}, qhkl_w{2}, qhkl_w{3}] * B';
 qsqr_w = {sum(qcryst.^2,2), qhkl_w{4}};
+

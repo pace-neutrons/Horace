@@ -2,7 +2,7 @@ function  obj= get_sqw_footer_(obj)
 % Read sqw object v3 structure to initialize sqw-v3 file reader
 %
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 %
 obj = get_sqw_file_footer(obj);
@@ -100,5 +100,6 @@ if res ~= 0
     error('SQW_BINFILE_v3:io_error',...
         error_header,mess);
 end
+
 
 
