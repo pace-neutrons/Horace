@@ -43,7 +43,7 @@ end% default key values
 common_files_to_distribute = {'license.txt','README.md','CMakeLists.txt'};
 
 
-hor_root_dir = horace_git_root(); % MUST have rootpath so that horace_init, horace_off are included
+hor_root_dir = horace_root(); % MUST have rootpath so that horace_init, horace_off are included
 %
 disp('!===================================================================!')
 disp('!==> Preparing HORACE distribution kit  ============================!')
