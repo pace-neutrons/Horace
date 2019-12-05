@@ -66,7 +66,7 @@ target_Dir=[build_dir,'/ISIS'];
 horace_targ_dir = [target_Dir,'/Horace'];
 
 % copy everything, which can be found core Horace folder
-copy_files_list(fullfile(hor_root_dir,'horace_core'),fullfile(horace_targ_dir,'horace_core'));
+copy_files_list(fullfile(hor_root_dir,'horace_core'),fullfile(horace_targ_dir,'horace_core'),'+_');
 % copy source code files from system directory
 copy_files_list(fullfile(hor_root_dir,'_LowLevelCode'),fullfile(horace_targ_dir,'_LowLevelCode'),...
     '+_','h','cpp','c','sln','vcproj');
