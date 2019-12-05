@@ -14,9 +14,9 @@ function horace_mex
 
 start_dir=pwd;
 C_compiled=false;
-root_dir = fileparts(fileparts(which('horace_init.m')));
+root_dir = horace_git_root();
 
-% check OS for hdf compilation puirposes
+% check OS for hdf compilation purpose
 if ispc
     hdf_ext = '_win';
 elseif isunix

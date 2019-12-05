@@ -46,7 +46,7 @@ classdef test_change_crystal_1a < TestCase
             hpc.build_sqw_in_parallel=0;
             % -----------------------------------------------------------------------------
             % Add common functions folder to path, and get location of common data
-            horace_root = fileparts(fileparts(which('horace_init')));
+            horace_root = horace_git_root();
             cof_path= fullfile(horace_root,'_test','common_functions');
             addpath(cof_path);
             

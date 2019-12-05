@@ -16,7 +16,7 @@ classdef test_dnd_constructors< TestCase
                 name = 'test_dnd_constructors';
             end
             this=this@TestCase(name);
-            hor_root = fileparts(fileparts(which('horace_init.m')));
+            hor_root = horace_git_root();
             this.test_data=fullfile(hor_root,'_test/test_combine');
             this.common_data = fullfile(hor_root,'_test/common_data');
         end

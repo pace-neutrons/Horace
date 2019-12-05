@@ -1,7 +1,7 @@
 function horace_off
-% Remove paths to all horace root directory and all sub-directories.
+% Remove paths to all Horace root directory and all sub-directories.
 %
-% To remove horace from the matlab path, type
+% To remove Horace from the Matlab path, type
 %   >> horace_off
 
 % T.G.Perring
