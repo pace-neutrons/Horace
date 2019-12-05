@@ -12,21 +12,15 @@ build_dir="$horace_src/DLL"
 echo_and_run "cmake --version"
 echo_and_run "cd $build_dir"
 
-echo ""
-echo "Running CMake configure step:"
+echo -e "\nRunning CMake configure step:"
 matlab_root="$(dirname $(readlink -f $(which matlab)))/.."
-echo "Found matlab root: $matlab_root"
 cmake_conf_cmd="cmake .. -G \"Unix Makefiles\" -DBUILD_TESTS=ON -DMatlab_ROOT_DIR=$matlab_root"
 echo_and_run "$cmake_conf_cmd"
 
-echo ""
-echo "Running build step:"
+echo -e "\nRunning build step:"
 build_cmd="cmake --build ."
 echo_and_run "$build_cmd"
 
-echo ""
-echo "Running test step: "
+echo -e "\nRunning test step: "
 test_cmd="ctest"
 echo_and_run "$test_cmd"
-
-# # cd -
