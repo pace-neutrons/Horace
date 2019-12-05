@@ -19,7 +19,7 @@ function [ok,objinit,mess]=should_load(obj,filename)
 % The method is simple wrapper which packs dnd_file_interface.get_file_header
 % and this class should_load_stream method together.
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 if ~isnumeric(filename)
     [ok,mess,full_data_name] = check_file_exist(filename,'*');
@@ -37,4 +37,5 @@ end
 % call child function to check if the stream should be loaded by
 % appropriate loader
 [ok,objinit,mess]=obj.should_load_stream(header,fh);
+
 

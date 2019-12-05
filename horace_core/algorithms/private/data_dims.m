@@ -14,10 +14,11 @@ function [nd,sz] = data_dims(data)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 nd=numel(data.pax);
 sz=zeros(1,nd);
 for i=1:nd
     sz(i)=length(data.p{i})-1;
 end
+

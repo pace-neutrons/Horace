@@ -5,7 +5,7 @@ function   app_header = build_app_header(obj,obj_to_save)
 % files and various Horace subformats from each other
 %
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 
 if ~exist('obj_to_save','var')
@@ -46,4 +46,5 @@ else
     end
 end
 app_header.ndim = ndim;
+
 

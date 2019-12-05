@@ -3,7 +3,7 @@ function rdl = build_bounding_obj(obj,varargin)
 % min and max transmitted energy range
 %
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 if nargin == 3
     en_min  = varargin{1};
@@ -77,4 +77,5 @@ ndet = numel(det.x2);
 rdl.S= zeros(nen,ndet);
 rdl.ERR = zeros(nen,ndet);
 rdl.en = en;
+
 

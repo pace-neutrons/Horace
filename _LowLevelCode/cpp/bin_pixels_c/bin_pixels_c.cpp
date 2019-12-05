@@ -68,7 +68,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     double* pS, * pErr, * pNpix;   // arrays for the signal, error and number of pixels in a cell (density);
     mxArray* PixelSorted;
     //
-    const char REVISION[] = "$Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)";
+    const char REVISION[] = "$Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)";
     if (nrhs == 0 && nlhs == 1) {
         plhs[0] = mxCreateString(REVISION);
         return;
@@ -448,4 +448,5 @@ bool bin_pixels(double* s, double* e, double* npix,
 #undef OMP_VERSION_3
 #undef C_MUTEXES
 #undef SINGLE_PATH
+
 

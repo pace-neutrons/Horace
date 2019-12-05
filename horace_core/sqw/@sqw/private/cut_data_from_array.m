@@ -39,7 +39,7 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 
 % T.G.Perring   31 July 2007
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 
 ndatpix = 9;        % number of pieces of information the pixel info array (see put_sqw_data for more details)
@@ -128,3 +128,4 @@ if hor_log_level>=1
     disp('-----------------------------')
     disp(' ')
 end
+

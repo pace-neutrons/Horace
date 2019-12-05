@@ -4,7 +4,7 @@ function path=horace_on(non_default_path)
 %  horace_on(non_default_horace_path)  -- calls Horace with non-default Horace folder;
 %
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 %
 default_horace_path ='/usr/local/mprogs/Horace/horace_core';
@@ -83,4 +83,5 @@ if exist(default_herbert_path,'var')
 else
     herbert_on();
 end
+
 

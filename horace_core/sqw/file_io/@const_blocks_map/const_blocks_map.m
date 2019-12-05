@@ -3,7 +3,7 @@ classdef const_blocks_map
     % where const blocks are the blocks which can be overwritten on hdd.
     %
     %
-    % $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+    % $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
     %
     properties(Access =protected)
         cblocks_map_=[];
@@ -80,3 +80,4 @@ classdef const_blocks_map
     end
     
 end
+

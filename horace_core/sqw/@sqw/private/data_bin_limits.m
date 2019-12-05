@@ -22,7 +22,7 @@ function [val, n] = data_bin_limits (din)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
@@ -40,3 +40,4 @@ for i=1:ndim
     val(1,i)=din.p{i}(1);
     val(2,i)=din.p{i}(lis(end)+1);
 end
+

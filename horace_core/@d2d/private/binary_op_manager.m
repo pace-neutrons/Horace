@@ -28,7 +28,7 @@ function w = binary_op_manager (w1, w2, binary_op)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
     
 % Get array sizes of the input arguments 
@@ -162,3 +162,4 @@ if (length(sz1)==2 && (sz1(1)==1 || sz1(2)==1)) && (length(sz2)==2 && (sz2(1)==1
         ok=true;
     end
 end
+

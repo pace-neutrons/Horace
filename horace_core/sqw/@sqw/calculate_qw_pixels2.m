@@ -20,7 +20,7 @@ function qw=calculate_qw_pixels2(win)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 
 % Get some 'average' quantities for use in calculating transformations and bin boundaries
@@ -155,3 +155,4 @@ q = cell(1,3);
 q{1} = qtmp(1,:)';
 q{2} = qtmp(2,:)';
 q{3} = qtmp(3,:)';
+

@@ -17,7 +17,7 @@ function varargout = set_mod_pulse(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 
 % Parse input
@@ -140,3 +140,4 @@ try
 catch
     error('SQW:invalid_instrument','IX_moderator object not found in all instrument descriptions')
 end
+

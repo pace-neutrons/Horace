@@ -38,7 +38,7 @@ function [spec_to_u, u_to_rlu, spec_to_rlu] = calc_proj_matrix (alatt, angdeg, u
 
 % T.G.Perring 15/6/07
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 
 % Get matrix to convert from rlu to orthonormal frame defined by u,v; and 
@@ -66,3 +66,4 @@ u_to_rlu = inv(b_matrix);
 
 % Matrix to convert from spectrometer coordinates to r.l.u.
 spec_to_rlu = b_matrix\spec_to_u;
+

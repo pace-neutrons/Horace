@@ -22,7 +22,7 @@ function wout = mask (win, mask_array)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 
 % Initialise output argument
@@ -53,3 +53,4 @@ if is_sqw_type(win)
     wout.data.pix=win.data.pix(:,mask_pix);
     wout.data.urange=recompute_urange(wout);
 end
+

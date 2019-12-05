@@ -46,7 +46,7 @@ function weight = spinw_sqw(varargin)
 
 % Original author: Duc Le
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 % Parse input arguments
 if nargin==6
@@ -82,3 +82,4 @@ if ~isfield(swobj.matrix,'horace')
 end
 
 weight = swobj.matrix.horace.convolvfn(swobj,q{1:3},en,swobj.matrix.horace.partrans(pars));
+

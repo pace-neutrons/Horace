@@ -4,7 +4,7 @@ function obj = init_sqw_structure_field_by_field_(obj)
 % file
 %
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 fseek(obj.file_id_,obj.main_header_pos_,'bof');
 check_and_throw_error(obj,'Error moving to main data header position');
@@ -134,3 +134,4 @@ if res ~= 0
     error('SQW_BINFILE_COMMON:io_error',...
         '%s: Reason %s',mess_pos,mess)
 end
+

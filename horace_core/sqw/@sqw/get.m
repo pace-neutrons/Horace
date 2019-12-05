@@ -10,7 +10,7 @@ function varargout = get(this, index)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 % Edited from:
 % A Comprehensive Guide to Object Oriented Programming in MATLAB
@@ -58,3 +58,4 @@ if length(varargout) > 1 && nargout <= 1
         end
     end
 end
+

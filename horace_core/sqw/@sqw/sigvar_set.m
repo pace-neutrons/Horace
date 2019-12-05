@@ -5,7 +5,7 @@ function w = sigvar_set(w,sigvarobj)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 if ~isequal(size(w.data.s),size(sigvarobj.s))
     error('sqw object and sigvar object have inconsistent sizes')
@@ -25,3 +25,4 @@ end
 nopix=(w.data.npix==0);
 w.data.s(nopix)=0;
 w.data.e(nopix)=0;
+

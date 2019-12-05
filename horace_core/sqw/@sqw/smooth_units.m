@@ -3,7 +3,7 @@ function wout = smooth_units (win,varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 % Only applies to dnd datasets at the moment. Check all elements before smoothing (avoids possibly costly wasted computation if error)
 for i=1:numel(win)
@@ -16,3 +16,4 @@ wout=win;   % initalise the output
 for i=1:numel(win)
     wout(i).data = smooth_dnd(win(i).data,true,varargin{:});
 end
+

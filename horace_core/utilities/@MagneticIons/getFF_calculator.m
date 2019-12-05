@@ -41,7 +41,7 @@ function  fint = getFF_calculator(self,win)
 %
 %
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 
 if isa(win,'sqw')
@@ -56,4 +56,5 @@ end
 
 
 fint = @(h,k,l,en,argi)form_factor(self,h,k,l,en,argi);
+
 

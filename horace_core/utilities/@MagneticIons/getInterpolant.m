@@ -28,7 +28,7 @@ function [J0_ff,varargout] = getInterpolant(self,IonName)
 %
 %
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 
 %
@@ -46,5 +46,6 @@ if nargout>1
         varargout{i}=@(x2)(((par(i+1,1)*exp(-par(i+1,2)*x2)+par(i+1,3)*exp(-par(i+1,4)*x2)+par(i+1,5)*exp(-par(i+1,6)*x2)+par(i+1,7)).*x2));
     end
 end
+
 
 

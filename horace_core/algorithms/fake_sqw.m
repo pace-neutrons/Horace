@@ -61,7 +61,7 @@ function [tmp_sqw, grid_size, urange] = fake_sqw (en, par_file, sqw_file, efix, 
 
 % T.G.Perring  18 May 2009
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 small_bin=1e-12;
 %d2r=pi/180;
@@ -268,3 +268,4 @@ end
 if nargout==0
     clear tmp_file grid_size urange
 end
+

@@ -2,7 +2,7 @@ function obj = set_range_(obj,dir,val)
 % Set qe objec range in specific directio?
 %
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 
 if numel(val) == 1 % its dk
@@ -37,4 +37,4 @@ else  % only 3 can be here
             val(1),val(3));
     end
     
-end
+endd

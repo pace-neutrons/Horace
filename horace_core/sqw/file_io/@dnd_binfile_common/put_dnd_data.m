@@ -12,7 +12,7 @@ function obj=put_dnd_data(obj,varargin)
 % if only -update key is specified, the class has to be initialized by appropriate dnd object.
 
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 
 % ignore nopix if it come as input
@@ -69,5 +69,6 @@ fseek(obj.file_id_,obj.npix_pos_,'bof');
 check_error_report_fail_(obj,'Error moving to the beginning of the npix record');
 fwrite(obj.file_id_,input_obj.npix,'uint64');
 check_error_report_fail_(obj,'Error writing npix record');
+
 
 

@@ -28,7 +28,7 @@ function detpar_form = get_detpar_form_(varargin)
 % this structure size
 %
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 persistent var_part;
 persistent const_part;
@@ -57,4 +57,5 @@ else
     cs = [var_part(:);const_part(:)];
     detpar_form = struct(cs{:});
 end
+
 

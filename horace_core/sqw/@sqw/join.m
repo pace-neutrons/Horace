@@ -18,7 +18,7 @@ function wout=join(w,wi)
 % 2015-01-20
 
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 
 nfiles=length(w);
@@ -144,3 +144,4 @@ set(hor_config,'log_level',-1);
 cut_args = repmat({[]},size(wout.data.p));
 wout=cut_sqw(wout,cut_args{:});
 set(hor_config,'log_level',hc_log_level);
+

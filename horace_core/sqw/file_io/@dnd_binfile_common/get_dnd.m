@@ -38,7 +38,7 @@ function [res,varargout] = get_dnd (obj,varargin)
 %
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 [ok,mess,verbatim,hver,legacy,argi] =  parse_char_options(varargin,{'-verbatim','-hverbatim','-legacy'});
 if ~ok
@@ -80,3 +80,4 @@ switch ndim %TODO: the dnd constructor should deal with this switch.
             'get_sqw: unsupported number of dimensions (%d) read from binary file',ndim)
 end
 varargout = {};
+

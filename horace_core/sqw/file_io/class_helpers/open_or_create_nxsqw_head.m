@@ -27,7 +27,7 @@ function [fid,group_name,group_id,file_h,sqw_version] = open_or_create_nxsqw_hea
 % sqw_version -- the version of nxsqw file. 
 %
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 %
 %
@@ -94,3 +94,4 @@ write_attr_group(group_id,struct('NX_class','NXentry'));
 write_string_sign(group_id,'definition',data_format,'version',format_version);
 [~,hv] = horace_version('-brief');
 write_string_sign(group_id,'program_name','horace','version',hv);
+

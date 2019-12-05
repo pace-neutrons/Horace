@@ -3,7 +3,7 @@ function pix  = get_pix(obj,varargin)
 % sqw file information
 %
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 if ischar(obj.num_contrib_files)
     error('SQW_FILE_INTERFACE:runtime_error',...
@@ -65,4 +65,5 @@ else
     % *** T.G.Perring 5 Sep 2018: allow for size=0
     pix = zeros(9,0);
 end
+
 

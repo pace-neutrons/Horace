@@ -4,7 +4,7 @@ function obj=init_sqw_footer_(obj)
 % positions on hdd for subsequent recovery for read/write operations
 %
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 %
 
@@ -18,5 +18,6 @@ form = obj.get_si_form();
 % final position is shifted by 4 bytes
 obj.eof_pos_ = pos+4;
 %obj.pos_block_holder_  = data_block;
+
 
 

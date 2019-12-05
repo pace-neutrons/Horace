@@ -53,7 +53,7 @@ function [qw1,qw2]=calculate_qw_points(win,x)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 
 nd=size(x,2);   % number of dimensions - assume already checked for consistency between win and x
@@ -165,3 +165,4 @@ x1tmp=q./a;
 x2tmp=c./q;
 x1=min(x1tmp,x2tmp);
 x2=max(x1tmp,x2tmp);
+

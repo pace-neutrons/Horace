@@ -51,7 +51,7 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_2read] = cut_data_
 % - Aim to take advantage of in-place working within accumulate_cut
 
 % T.G.Perring   19 July 2007 (based on earlier prototype TGP code)
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 
 % Buffer sizes
@@ -430,5 +430,6 @@ tmpfiles = cell(1,nfiles);
 tmpfiles = cellfun(@(x)fullfile(wk_dir,['horace_subcut_',rand_digit_string(16),'.tmp']),tmpfiles,'UniformOutput',false);
 pci = pix_combine_info(tmpfiles,nbins);
 end
+
 
 

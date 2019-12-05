@@ -34,7 +34,7 @@ function urange = calc_urange_(efix, emode, eps_lo, eps_hi, det, alatt, angdeg, 
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 
 nfile=numel(efix);
@@ -76,3 +76,4 @@ for i=1:nfile
         omega(i), dpsi(i), gl(i), gs(i), data, det, detdcn);
     urange = [min(urange(1,:),urange1(1,:)); max(urange(2,:),urange1(2,:))];
 end
+

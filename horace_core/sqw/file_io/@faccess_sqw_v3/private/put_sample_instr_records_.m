@@ -13,7 +13,7 @@ function obj = put_sample_instr_records_(obj,varargin)
 %         sample information
 %
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 %
 %
@@ -109,3 +109,4 @@ if setting_sample
     %
     obj.real_eof_pos_ = ftell(obj.file_id_);
 end
+

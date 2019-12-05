@@ -14,7 +14,7 @@ function c = smooth_func_hat(width)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
@@ -24,3 +24,4 @@ else
     c = ones(max(1,2*floor(width/2)+1));
 end
 c = c/sum(reshape(c,1,numel(c)));
+

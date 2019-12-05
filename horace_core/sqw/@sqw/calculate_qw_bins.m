@@ -29,7 +29,7 @@ function qw=calculate_qw_bins(win,optstr)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 
 if numel(win)~=1
@@ -107,3 +107,4 @@ end
 
 % package as cell array of column vectors for convenience with fitting routines etc.
 qw = {qh(:), qk(:), ql(:), en(:)};
+

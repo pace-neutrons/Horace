@@ -28,7 +28,7 @@ function write_npix_to_pix_blocks_(obj,fout,pix_out_position,pix_comb_info)
 %
 % As the result -- writes combined pixels block to the ouput sqw file.
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 
 log_level = config_store.instance().get_value('herbert_config','log_level');
@@ -146,3 +146,4 @@ if (log_level>1)
     disp(['***   IO time to total time ratio: ',num2str(100*t_io_total/t_all_total),'%'])
     disp(['*** Size of the generated file is: ',num2str(file_size),'MB'])
 end
+

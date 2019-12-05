@@ -87,7 +87,7 @@ function varargout = refine_crystal (varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 
 % This routine is also used to change the crystal in sqw files, for which the syntax is
@@ -119,3 +119,4 @@ argout={rlu_corr,alatt,angdeg,rotmat,distance,rotangle};
 % ------------------------
 [varargout,mess]=horace_function_pack_output(w,argout{:});
 if ~isempty(mess), error(mess), end
+

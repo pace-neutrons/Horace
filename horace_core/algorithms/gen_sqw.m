@@ -94,7 +94,7 @@ function [tmp_file,grid_size,urange] = gen_sqw (spe_file, par_file, sqw_file, ef
 % T.G.Perring  14 August 2007
 % T.G.Perring  19 March 2013   Massively updated, also includes functionality of accumulate_sqw
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 
 % *** Possible improvements
 % - Cleverer choice of grid size on the basis of number of data points in the file
@@ -791,3 +791,4 @@ if log_level>-1
     % Create single sqw file combining all intermediate sqw files
     disp('--------------------------------------------------------------------------------')
 end
+

@@ -5,7 +5,7 @@ function   pos_info = get_pos_info(obj)
 %
 % Located in SQW_v3 due to a Matlab bug in inheritance chain
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 
 fields2save = obj.fields_to_save();
@@ -14,4 +14,5 @@ for i=1:numel(fields2save)
     fld = fields2save{i};
     pos_info.(fld) = obj.(fld);
 end
+
 

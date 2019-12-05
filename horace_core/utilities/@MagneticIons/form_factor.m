@@ -17,7 +17,7 @@ function FF = form_factor(self,h,k,l,varargin)
 % for the selected ion.
 %
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
 %
 if numel(varargin) > 1 && nargin > 5 && ~isempty(varargin{2})
     u_2_rlu = inv(varargin{2});
@@ -30,4 +30,5 @@ q = u_2_rlu\[h';k';l'];
 
 q2 = (q(1,:).*q(1,:)+q(2,:).*q(2,:)+q(3,:).*q(3,:))/(16*pi*pi);
 FF=self.J0_ff_(q2).^2+self.J2_ff_(q2).^2+self.J4_ff_(q2).^2+self.J6_ff_(q2).^2;
+
 
