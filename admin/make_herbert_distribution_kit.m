@@ -32,7 +32,7 @@ function make_herbert_distribution_kit(varargin)
 %
 %
 options = {'-full','-run_by_horace'};
-her_root_dir = fileparts(fileparts(which('herbert_init')));  % MUST have rootpath so that herbert_init, libisis_off included
+her_root_dir = herbert_root();  % MUST have rootpath so that herbert_init, libisis_off included
 if isempty(her_root_dir)
     error('MAKE_HERBERT_DISTRIBUTION_KIT:invalid_argument',...
         ' Herbert package have to be initiated to build herbert distribution kit');

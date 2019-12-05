@@ -6,7 +6,8 @@ classdef test_asciipar_loader< TestCase
         %
         function this=test_asciipar_loader(name)
             this = this@TestCase(name);
-            this.test_data_path = herbert_test_data_path();
+            [~,tdp] = herbert_root();
+            this.test_data_path = tdp;
         end
         
         function test_constructors(this)

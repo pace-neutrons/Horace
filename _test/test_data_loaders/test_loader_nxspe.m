@@ -8,7 +8,8 @@ classdef test_loader_nxspe< TestCase
         %
         function this=test_loader_nxspe(name)
             this = this@TestCase(name);
-            this.test_data_path = herbert_test_data_path();
+            [~,tdp] = herbert_root();
+            this.test_data_path = tdp;
         end
         
         function this=setUp(this)

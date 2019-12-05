@@ -17,7 +17,7 @@ classdef ClusterMPI < ClusterWrapper
     properties(Access = private)
         %
         DEBUG_REMOTE = false;
-        % the folder, containng mpiexec cluster configurations (host files)
+        % the folder, containing mpiexec cluster configurations (host files)
         config_folder_
     end
     
@@ -64,7 +64,7 @@ classdef ClusterMPI < ClusterWrapper
         end
         %
         function obj = init(obj,n_workers,mess_exchange_framework,log_level)
-            % The method to initate the cluster wrapper and start running
+            % The method to initiate the cluster wrapper and start running
             % the cluster job.
             %
             % Inputs:
@@ -75,7 +75,7 @@ classdef ClusterMPI < ClusterWrapper
             %              between cluster and the host Matlab session,
             %              which started and controls the job.
             %log_level     if present, the number, which describe the
-            %              verbosity of the cluster operations outpt;
+            %              verbosity of the cluster operations output;
             if ~exist('log_level','var')
                 log_level = -1;
             end

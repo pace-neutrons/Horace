@@ -65,7 +65,7 @@ test_folders={...
 initial_warn_state = warning();
 warning('off','MATLAB:class:DestructorError');
 % Generate full test paths to unit tests:
-rootpath = fileparts(fileparts(which('herbert_init')));
+rootpath = herbert_root();
 test_path=fullfile(rootpath,'_test');   % path to folder with all unit tests folders:
 test_folders_full = cellfun(@(x)fullfile(test_path,x),test_folders,'UniformOutput',false);
 

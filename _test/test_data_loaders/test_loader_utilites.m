@@ -11,14 +11,15 @@ classdef test_loader_utilites< TestCase
         
         function this=test_loader_utilites(name)
             this = this@TestCase(name);
-            this.test_data_path = herbert_test_data_path();
+            [~,tdp] = herbert_root();
+            this.test_data_path = tdp;
         end
         function this=setUp(this)
             this.log_level = get(herbert_config,'log_level');
             set(herbert_config,'log_level',-1,'-buffer');
         end
         function this=tearDown(this)
-            set(herbert_config,'log_level',this.log_level,'-buffer');            
+            set(herbert_config,'log_level',this.log_level,'-buffer');
         end
         
         % tests themself

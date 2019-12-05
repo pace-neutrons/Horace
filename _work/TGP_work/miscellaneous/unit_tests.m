@@ -1,5 +1,5 @@
 function unit_tests(on_off)
-% Enable or disable access to unit tests utilites
+% Enable or disable access to unit tests utilities
 %
 %   >> unit_tests('on')  or >> unit_tests on
 %   >> unit_tests('off') or >> unit_tests off
@@ -21,13 +21,13 @@ else
     end
 end
 
-% Enable or disable unit test utilites
+% Enable or disable unit test utilities
 if switch_on
     set(herbert_config,'init_tests',1);
-    addpath(fullfile(rootpath,'_test/matlab_xunit/xunit'));
+    addpath(fullfile(rootpath,'_test','matlab_xunit','xunit'));
     cd(fullfile(rootpath,'_test'));
 else
     set(herbert_config,'init_tests',0);
-    the_path=genpath_special(fullfile(rootpath,'_test/matlab_xunit/xunit'));
+    the_path=genpath_special(fullfile(rootpath,'_test','matlab_xunit','xunit'));
     rmpath(the_path);
 end

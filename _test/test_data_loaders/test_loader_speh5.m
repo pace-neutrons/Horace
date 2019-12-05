@@ -8,8 +8,8 @@ classdef test_loader_speh5< TestCase
            
         function this=test_loader_speh5(name)
             this = this@TestCase(name);
-            rootpath=fileparts(which('herbert_init.m'));
-            this.test_data_path = herbert_test_data_path();
+            [~,tdp] = herbert_root();
+            this.test_data_path = tdp;
         end
         function this=setUp(this)
             this.log_level = get(herbert_config,'log_level');

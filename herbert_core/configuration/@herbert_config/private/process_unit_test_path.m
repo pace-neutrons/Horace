@@ -3,7 +3,7 @@ function  tests_path = process_unit_test_path(init,set_path)
 % depending on init option, adds or removes this path from the Matlab
 % search path
 %
-rootpath = fileparts(fileparts(which('herbert_init')));
+rootpath = herbert_root();
 tests_path = fullfile(rootpath,'_test');
 system_admin = fullfile(rootpath,'admin');
 xunit_path= fullfile(tests_path,'matlab_xunit','xunit');  % path for unit tests harness

@@ -63,7 +63,7 @@ test_folders={...
 %=============================================================================
 initial_warn_state = warning('off','MATLAB:class:DestructorError');
 % Generate full test paths to unit tests:
-rootpath = fileparts(which('herbert_init'));
+rootpath = herbert_root();
 test_path=fullfile(rootpath,'_test');   % path to folder with all unit tests folders:
 test_folders_full = cellfun(@(x)fullfile(test_path,x),test_folders,'UniformOutput',false);
 
@@ -86,7 +86,7 @@ hc =herbert_config();
 current_conf=hc.get_data_to_store();
 cleanup_obj=onCleanup(@()herbert_test_cleanup(current_conf,test_folders_full,initial_warn_state));
 hc.saveable = false; % equivalent to older '-buffer' option for all setters below
-hc.init_tests = 1;    % initialise unit tests
+hc.init_tests = 1;    % initialize unit tests
 
 
 % Run unit tests

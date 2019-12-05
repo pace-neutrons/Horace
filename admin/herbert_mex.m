@@ -45,7 +45,7 @@ if ~configure_fortran
     build_fortran = true;
 end
 
-rootpath = fileparts(fileparts(which('herbert_init')));
+rootpath = herbert_root();
 % Source code directories, and output directories:
 %  - Herbert target directory:
 herbert_mex_target_dir=fullfile(rootpath,'herbert_core','DLL',['_',computer],matlab_version_folder());

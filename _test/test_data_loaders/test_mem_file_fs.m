@@ -8,7 +8,8 @@ classdef test_mem_file_fs< TestCase
     methods
         function this=test_mem_file_fs(name)
             this = this@TestCase(name);
-            this.test_data_path = herbert_test_data_path();
+            [~,tdp] = herbert_root();
+            this.test_data_path = tdp;
             
             
         end

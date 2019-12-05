@@ -7,7 +7,7 @@ ok = true;
 mess = [];
 
 
-her_folder = fileparts(which('herbert_init'));
+her_folder = herbert_root();
 code_folder = fullfile(her_folder,'_LowLevelCode','CPP','cpp_communicator');
 input_files = cellfun(@(fn)fullfile(code_folder,fn),input_files,'UniformOutput',false);
 
