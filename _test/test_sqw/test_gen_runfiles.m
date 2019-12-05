@@ -11,7 +11,7 @@ classdef test_gen_runfiles< TestCase
 
             % -----------------------------------------------------------------------------
             % Add common functions folder to path, and get location of common data
-            horace_root = horace_git_root(); 
+            horace_root = horace_root(); 
             addpath(fullfile(horace_root,'_test','common_functions'))
             obj.common_data_dir=fullfile(horace_root,'_test','common_data');
             % -----------------------------------------------------------------------------

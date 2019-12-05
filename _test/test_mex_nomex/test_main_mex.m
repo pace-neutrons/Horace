@@ -23,7 +23,7 @@ classdef test_main_mex < TestCase
             end
             this = this@TestCase(name);
             
-            root_folder = horace_git_root();
+            root_folder = horace_root();
             if ispc
                 this.accum_cut_folder=fullfile(root_folder,'horace_core','\@sqw');
             else

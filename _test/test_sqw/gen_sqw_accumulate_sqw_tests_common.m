@@ -101,7 +101,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % do other initialization
             obj.comparison_par={ 'min_denominator', 0.01, 'ignore_str', 1};
             obj.tol = 1.e-5;
-            horace_root= horace_git_root();
+            horace_root= horace_root();
             obj.test_functions_path=fullfile(horace_root,'_test/common_functions');
             
             addpath(obj.test_functions_path);
