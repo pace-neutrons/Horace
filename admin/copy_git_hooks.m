@@ -16,6 +16,10 @@ end
 source_folder = fullfile(root_folder,'.githooks');
 target_folder = fullfile(root_folder,'.git','hooks');
 
-copyfile([source_folder ,filesep,'*'],target_folder);
+[ok,msg,msg_id]=copyfile([source_folder ,filesep,'*'],target_folder,'f');
+if ~ok
+    warning(msg_id,' Error copying git hooks to %s, Error message %s',...
+        target_folder,msg);
+end
 
 
