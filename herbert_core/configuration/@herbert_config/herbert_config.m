@@ -97,7 +97,7 @@ classdef herbert_config<config_base
         function doinit=get.init_tests(this)
             doinit = get_or_restore_field(this,'init_tests');
         end
-
+        
         %-----------------------------------------------------------------
         % overloaded setters
         function this = set.use_mex(this,val)
@@ -134,20 +134,23 @@ classdef herbert_config<config_base
         function this=set.init_tests(this,val)
             if val>0
                 init = true;
-                process_unit_test_path(init,'set_path');                
-                try % if users want to init unit tests 
+                path = process_unit_test_path(init,'set_path');
+                if isempty(path)
+                    return;
+                end
+                try % if users want to init unit tests
                     %(and presumably commit their changes), install
                     % githooks to check their commits
                     copy_git_hooks('herbert');
-                    copy_git_hooks('horace');                    
+                    copy_git_hooks('horace');
                 catch
                 end
             else
                 init = false;
-                process_unit_test_path(init,'set_path');                                
+                process_unit_test_path(init,'set_path');
             end
             config_store.instance().store_config(this,'init_tests',init);
-
+            
         end
         %------------------------------------------------------------------
         function folder=get.unit_test_folder(this)
@@ -158,15 +161,15 @@ classdef herbert_config<config_base
             else
                 folder =[];
             end
-        end        
+        end
         
         %------------------------------------------------------------------
         function obj = set_unit_test_path(obj)
-            % add Herbert unit test path to Matlab search path 
+            % add Herbert unit test path to Matlab search path
             %
             % (overwrite Matlab's version of unit tests functions which
-            % come with Matlab 2017b and have the interface different from 
-            % the classical unit tests. 
+            % come with Matlab 2017b and have the interface different from
+            % the classical unit tests.
             process_unit_test_path(true,'set_path');
         end
         %------------------------------------------------------------------
