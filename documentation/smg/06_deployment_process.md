@@ -1,6 +1,6 @@
 # Distributing Horace to users
 
-Current Horace distribution process has two channels, which allows us frequently modify the code,
+Current Horace distribution process uses two channels, which allows us frequently modify the code,
 satisfy the requests of different groups of users and rapidly react to the bugs, encountered by users
 running their experiments in ISIS. The distribution is deployed  
 from live Horace/Herbert code tree after a developer added the requested features and 
@@ -17,11 +17,11 @@ who are doing the experiments in ISIS.
 The process of installing zip-archive from the user perspective is described in details at 
 [Horace Distribution page.](http://horace.isis.rl.ac.uk/Download_and_setup)
 
-To synchronize zip-archive distribution channel with production branch distribution channel, 
+To synchronize zip-archive distribution channel with the production branch distribution channel, 
 developer should merge all necessary changes into the production branch of the git archive
-and do the following work from this branch.
+and do the following work from this branch. (Horace and Herbert production branches together)
 
-After ensuring that all tests are passing on the production branch, the developer should leave 
+After ensuring that all tests are passing on the production branches, the developer should leave 
 the horace/herbert code tree and move his Matlab working folder to a location, where the Horace 
 distributive should be located. After that, he runs the `make_horace_deployment_kit` script, 
 which produces 5 archives. The main one -- ***horace_distribution_kit.zip*** containing the whole Horace
@@ -38,7 +38,7 @@ At the moment only Alex Buts (wkc26243) have write access to this folder. The de
 need write access to this folder should request it from 
 Freddie Akeroyd: <freddie.akeroyd@stfc.ac.uk>
 
-The `make_horace_deployment_kit` does the following:
+The `make_horace_deployment_kit` script performs the following operations:
 
  - It runs Matlab script which updates svn revision information in all code files 
     where this info is present, if appropriate the key `-update_version` is provided at input. 
@@ -49,8 +49,10 @@ The `make_horace_deployment_kit` does the following:
    of the code to copy to obtain different archives above.
  - Depending on input option, `make_horace_distribution_kit` may deploy `make_herbert_distribution_kit`
    script, which does similar operation with Herbert code. 
- - After all necessary code is copied into the target location the script compresses 
-   the files together with their position within folders, and removes target location. 
+ - After all necessary code is copied into the target location, the script
+   p-codes the specified folders on request, compresses 
+   the files together with their location within the folders tree, 
+   and removes target location after compression. 
 
 ## *production* branch channel.
 
