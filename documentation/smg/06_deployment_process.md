@@ -38,16 +38,20 @@ At the moment only Alex Buts (wkc26243) have write access to this folder. The de
 need write access to this folder should request it from 
 Freddie Akeroyd: <freddie.akeroyd@stfc.ac.uk>
 
-The `make_horace_deployment_kit` script performs the following operations:
+The [`make_horace_deployment_kit`](https://github.com/pace-neutrons/Horace/blob/master/admin/make_horace_deployment_kit.m)
+script performs the following operations:
 
- - It runs Matlab script which updates svn revision information in all code files 
-    where this info is present, if appropriate the key `-update_version` is provided at input. 
-   (can be reduced just to `-u`)
- - It runs `make_horace_distribution_kit` with different options. This script
+ - It runs [update_svn_revision_info Matlab script](https://github.com/pace-neutrons/Herbert/blob/master/admin/update_svn_revision_info.m) 
+    which updates svn revision information in all code files 
+    where this info is present, if the key `-update_version` is provided as input. 
+   (can be reduced to just `-u`)
+ - It runs [`make_horace_distribution_kit`](https://github.com/pace-neutrons/Horace/blob/master/admin/make_horace_distribution_kit.m)
+   with different options. This script
    defines the code-tree folders, which should be distributed to users and copies this 
    folders into the target location. The different script options define different amount and type
    of the code to copy to obtain different archives above.
- - Depending on input option, `make_horace_distribution_kit` may deploy `make_herbert_distribution_kit`
+ - Depending on input option, `make_horace_distribution_kit` may deploy 
+   [`make_herbert_distribution_kit`](https://github.com/pace-neutrons/Herbert/blob/master/admin/make_herbert_distribution_kit.m)
    script, which does similar operation with Herbert code. 
  - After all necessary code is copied into the target location, the script
    p-codes the specified folders on request, compresses 
