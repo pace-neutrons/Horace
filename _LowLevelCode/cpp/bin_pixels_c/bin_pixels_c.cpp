@@ -258,7 +258,7 @@ bool bin_pixels(double* s, double* e, double* npix,
                       tPixelSorted,pPixelSorted,pPixels,PixelSorted,pix_retained,nPixel_retained,\
                       s, e, npix,comb_size)\
           firstprivate(num_threads,data_size,distribution_size,\
-                        nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR)                                                                   
+                        nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR)
 #else
 #pragma omp parallel default(none),shared( \
                       pixel_data, ok, nGridCell, pStor, ppInd, \
@@ -309,7 +309,7 @@ bool bin_pixels(double* s, double* e, double* npix,
 
             mwSize il = ix * nDimX + iy * nDimY + iz * nDimZ + ie * nDimE;
             //Avoid strange situation, when the indexes point behind the grid.
-            //Should never happen but causes suspishions on some architectures
+            //Should never happen but causes suspicions on some architectures
             if (il >= distribution_size)il = distribution_size - 1;
 
             ok[i] = true;
