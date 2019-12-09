@@ -9,7 +9,7 @@ if isempty(rootpath)
         'herbert_init is not on Matlab search path');
 end
 tests_path = fullfile(rootpath,'_test');
-if ~(exist(test_path,'dir')==7)
+if ~(exist(tests_path,'dir')==7)
     warning('HERBERT_INIT:invalid_setup',...
         'Can not set-up access to the unit tests as no unint tests at %s are available',...
         test_path);
