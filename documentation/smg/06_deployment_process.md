@@ -31,7 +31,7 @@ the whole Horace code with demo files and tests and 4 smaller archives,
 the most important one is the small but self-consistent ***Horace&Herbert_NoDemoNoTests.zip*** 
 which contains complete working code without tests and demo files. 
 
-Then the developer should log into **shadow.isis.cclrc.ac.uk** and download these files to 
+Then the developer should log into **shadow.isis.cclrc.ac.uk** and upload these files to 
 **/isis/www/horace/kits** folder. This folder is available for downloading from the
 web at the location specified on 
 [Horace Distribution page.](http://horace.isis.rl.ac.uk/Download_and_setup)
