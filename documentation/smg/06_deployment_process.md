@@ -3,7 +3,7 @@
 Current Horace distribution process uses two channels, 
 which allows us frequently modify the code,
 satisfy the requests of different groups of users and rapidly react to the bugs, 
-encountered by users running their experiments in ISIS. The distribution is deployed  
+encountered by users running their experiments in ISIS. The distribution is deployed 
 from live Horace/Herbert code tree after a developer added the requested features and 
 run existing unit/system tests ensuring no trivial bugs are 
 introduced at the development stage.
