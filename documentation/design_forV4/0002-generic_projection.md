@@ -37,6 +37,8 @@ Draft
  the alternative coordinate system and its location v.r.t. the initial SQW object coordinate system. 
  
  > *what about initial sqw object? Can (should) we produce it in other coordinate system.
+ 
+ 
 
 ## Design requests.
 
@@ -46,5 +48,5 @@ Draft
    classes interface, to avoid substantial performance overheads.
  
 
-## Decision
+## Design ideas.
 
