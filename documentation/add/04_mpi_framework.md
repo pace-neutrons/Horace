@@ -10,7 +10,7 @@ The chunking of jobs into "pieces"is done in the MATLAB layer. The framework has
 
 ![MPI Framework](../diagrams/mpi-framework.png)
 
-(*: one MATLAB license is required for each execution node)
+(*: one MATLAB license for each execution node or Matlab distributed server license with correspondent number of nods is required)
 
 ### Interface
 

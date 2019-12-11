@@ -4,7 +4,7 @@
 
 The Horace data file contains serialized MATLAB objects. All read and write access to files is provided though a common `sqw_formats_factory` class. The supported formats are a complex tree of MATLAB classes.
 
-![File IO class hierarchy](..\..\sqw\file_io\CollabDiagram.png)
+![File IO class hierarchy](..\..\horace_core\sqw\file_io\CollabDiagram.png)
 
 
 
