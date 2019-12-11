@@ -24,7 +24,8 @@ and do the following work from this branch. (Horace and Herbert production branc
 
 After ensuring that all tests are passing on the production branches, the developer should leave 
 the Horace/Herbert code tree and move his Matlab working folder to a temporary location, 
-where the Horace distributive can be temporary placed. After that, he runs the 
+where the Horace distributive can be temporary placed. Normally this folder could be user home directory,
+ e.g. cd ~ on Unix or cd c:\Users\UserName\Documents\MATLAB on Windows. After that, he runs the 
 [`make_horace_deployment_kit`](https://github.com/pace-neutrons/Horace/blob/master/admin/make_horace_deployment_kit.m)
 script, which produces 5 archives. The main one -- ***horace_distribution_kit.zip*** containing 
 the whole Horace code with demo files and tests and 4 smaller archives, 
