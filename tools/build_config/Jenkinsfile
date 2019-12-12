@@ -1,20 +1,18 @@
 #!groovy
 
 pipeline {
-   agent any
+   agent {
+      label env.AGENT
+   }
 
    stages {
-      stage('Clone') {
-         git 'https://github.com/hsautessella/Horace.git'
-      }
 
       stage('Build') {
          steps {
             sh '''
-                module load cmake/3.7.2
-                module load matlab/R2018b
-                module load gcc/6.3.0
-                git checkout 43_create_linux_CI_build
+                echo \"load cmake/\$CMAKE_VERSION\"
+                echo \" load matlab/\$MATLAB_VERSION\"
+                echo \"load gcc/\$GCC_VERSION\"
                 ./tools/build_config/build_script.sh
             '''
          }
@@ -22,13 +20,19 @@ pipeline {
 
       stage('Test') {
          sh '''
-            cd DLL/
+            cd build &&
             ctest
          '''
       }
 
       stage('Deploy') {
          sh 'echo -e "Deploy step..."'
+      }
+   }
+
+   post {
+      always {
+         cleanWS()
       }
    }
 }

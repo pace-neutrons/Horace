@@ -7,7 +7,9 @@ function echo_and_run {
 
 this_dir=$(dirname "$0")
 horace_src="$this_dir/../.."
-build_dir="$horace_src/DLL"
+build_dir="$horace_src/build"
+
+echo_and_run "mkdir $build_dir"
 
 echo_and_run "cmake --version"
 echo_and_run "cd $build_dir"
@@ -22,5 +24,5 @@ build_cmd="cmake --build ."
 echo_and_run "$build_cmd"
 
 echo -e "\nRunning test step: "
-test_cmd="ctest"
+test_cmd="ctest -T Test"
 echo_and_run "$test_cmd"
