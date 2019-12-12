@@ -26,7 +26,7 @@ Draft
  hkl-dE system of the image and Crystal Cartesian coordinate system of the object's pixels. The numbers of 
  pixels contributed into cells of hkl-dE image is used implicitly as key to access data from the object's pixels array. 
  
- Different coordinate system is produced by [CutSQW operation](http://horace.isis.rl.ac.uk/Manipulating_and_extracting_data_from_SQW_files_and_objects)
+ Different image's coordinate system is produced by [CutSQW operation](http://horace.isis.rl.ac.uk/Manipulating_and_extracting_data_from_SQW_files_and_objects)
  where `proj` structure contains two vectors and optionally other parameters,
  describing a coordinate system, rotated and shifted w.r.t. the original hkl-dE coordinate system.
 
@@ -57,20 +57,26 @@ Draft
  
 
 ## Redesign plan.
+To satisfy the user request and achieve the design goals we should:
 
-1) Extract geometry properties into separate class (e.g. `axis_block`) and make the geometry explicit.
-   Look through `cut`-type of algorithms and identify the operations, performed on the "geometry"-type of properties  
-2) Modify plot functions to work using the "geometry" interface.
-3) Modify `cut`-type algorithms to work through interface to this properties.
-4) Make the transformation from one geometry to another geometry explicit. Encapsulate this transformation 
+1.Extract geometry properties into separate class (e.g. `axis_block`) and make the geometry explicit.
+  Look through `cut`-type of algorithms and plotting routines to identify the operations, performed 
+  on the sqw-object "geometry"-type of properties.
+  
+2.Modify plot functions to work using the "geometry" interface.
+
+3.Modify `cut`-type algorithms to work through interface to this properties.
+
+4.Make the transformation from one geometry to another geometry explicit. Encapsulate this transformation 
    within a projection class and rewrite `cut`-type of algorithms in the terms of this interface.
    Given current understanding of the code operations, a new projection should provide the methods:
-   - `get_contributing_bins` which would work no old projections and return pixels, which may 
+   - `get_contributing_bins` which would work on old projections and return pixels, which may 
       contribute into new projection ranges.
+   - `get_geometry`/`get_transformation` - the method to return new geometry of a projection w.r.t. the pixels geometry.
    - `bin_pixels` which would work on the pixels and arrange them according to the grid, defined by the new
       geometry
       
-   The pixel block, in turn, should be able to operate:
+   The pixel block, in turn, should be able to provide:
    - `get_pix_for_bins` method, returning pixels for the bins, provided by `get_contributing_bins` method.
 
 All subclasses and interfaces defined this way should be unit-testable.
