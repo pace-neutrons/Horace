@@ -19,14 +19,18 @@ pipeline {
       }
 
       stage('Test') {
-         sh '''
-            cd build &&
-            ctest
-         '''
+         steps {
+            sh '''
+               cd build &&
+               ctest
+            '''
+         }
       }
 
       stage('Deploy') {
-         sh 'echo -e "Deploy step..."'
+         steps {
+            sh 'echo -e "Deploy step..."'
+         }
       }
    }
 
