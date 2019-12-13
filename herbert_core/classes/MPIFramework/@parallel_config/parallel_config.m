@@ -93,6 +93,9 @@ classdef parallel_config<config_base
         %              one node, the nodes should be configured for MPI
         %              comminications (running mpiexec).
         %              Current framework is build and tested using MPICH v3.
+        %    n/a      -- not available. If worker can not be found on a
+        %              path, any parallel framework should be not
+        %              available. Parallel extensions will not work.
         parallel_framework;
         
         % The configuration class describing parallel cluster, running
@@ -172,15 +175,6 @@ classdef parallel_config<config_base
             'parallel_framework','cluster_config',...
             'shared_folder_on_local','shared_folder_on_remote','working_directory'};
         %-------------------------------------------------------------------
-        % Subscription factory:
-        % the list of the known framework names.
-        known_frmwks_names_ = {'herbert','parpool','mpiexec_mpi'};
-        % The map to exisiting parallel frameworks clusters
-        known_frameworks_ = containers.Map(parallel_config.known_frmwks_names_,...
-            {ClusterHerbert(),ClusterParpoolWrapper(),ClusterMPI()});
-        % the map of the framework indexes
-        frmwk_ids_ = containers.Map(parallel_config.known_frmwks_names_,...
-            {1,2,3});
     end
     properties(Access=private)
         worker_ = 'worker_v2'
@@ -268,14 +262,16 @@ classdef parallel_config<config_base
         %------------------------------------------------------------------
         function frmw = get.known_frameworks(obj)
             % Return list of frameworks, known to Herbert
-            frmw = obj.known_frmwks_names_;
+            frmw = MPI_fmwks_factory.instance().known_frameworks;
         end
-        function clust = get.known_clust_configs(obj)
-            % information about cluster configurations, available for the
-            % selected framework
-            fram = obj.parallel_framework;
-            controller = obj.known_frameworks_(fram);
-            clust  = controller.get_cluster_configs_available();
+        function clust_names = get.known_clust_configs(obj)
+            % information about clusters (framework configurations),
+            % available for the selected framework
+            if strcmpi(fram,'n\a')
+                clust_names = 'n\a';
+            else
+                clust_names = MPI_fmwks_factory.instance().get_all_configs();
+            end
         end
         %
         %-----------------------------------------------------------------
@@ -287,10 +283,17 @@ classdef parallel_config<config_base
             end
             scr_path = which(val);
             if isempty(scr_path)
-                error('PARALLEL_CONFIG:invalid_argument',...
-                    ['The script to run in parallel (%s) should be available ',...
-                    'to all running Matlab sessions but parallel config can not find it'],...
-                    val)
+                cur_fmw = get_or_restore_field(obj,'parallel_framework');
+                if ~strcmpi(cur_fmw,'n/a')
+                    warning('PARALLEL_CONFIG:invalid_argument',...
+                        ['The script to run in parallel (%s) should be available ',...
+                        'to all running Matlab sessions but parallel config can not find it.',...
+                        ' Parallel extensions are disabled'],...
+                        val)
+                end
+                val = obj.worker_v2_;
+                config_store.instance().store_config(obj,...
+                    'parallel_framework','n\a','cluster_config','n\a');
             end
             config_store.instance().store_config(obj,'worker',val);
         end
@@ -301,16 +304,26 @@ classdef parallel_config<config_base
             % (can be defined by single symbol) or by a framework number
             % in the list of frameworks
             %
-            opt = obj.known_frmwks_names_;
-            the_name = select_option_(opt,val);
-            theCluster = obj.known_frameworks_(the_name);
-            % will throw PARALLEL_CONFIG:invalid_configuration if the
-            % particular cluster is not available
-            theCluster.check_availability();
-            
+            wrkr = which(obj.worker_);
+            if isempty(wrkr)
+                the_name = 'n/a';
+            else
+                try
+                    MPI_fmwks_factory.instance().select_framework(val);
+                catch ME
+                    if strcmpi(ME.identifier,'PARALLEL_CONFIG:invalid_configuration')
+                        warning(ME.identifier,'%s',ME.message);
+                        return;
+                    else
+                        rethrow(ME);
+                    end
+                end
+                the_name = MPI_fmwks_factory.instance().mpi_framework;
+            end
             config_store.instance().store_config(...
                 obj,'parallel_framework',the_name);
-            all_configs = theCluster.get_cluster_configs_available();
+
+            all_configs = MPI_fmwks_factory.instance().get_all_configs();                   
             % if the config file is not among all existing configurations,
             % change current framework configuration to the default one for
             % the current framework.
@@ -331,7 +344,6 @@ classdef parallel_config<config_base
             
             config_store.instance().store_config(obj,'cluster_config',the_config);
         end
-        
         %
         function obj=set.shared_folder_on_local(obj,val)
             if isempty(val)
@@ -396,15 +408,6 @@ classdef parallel_config<config_base
             end
             config_store.instance().store_config(obj,'working_directory',val);
         end
-        %-----------------------------------------------------------------
-        function controller = get_cluster_wrapper(obj,n_workers,cluster_to_host_exch_fmwork)
-            % return the appropriate job controller
-            log_level = config_store.instance.get_value('herbert_config','log_level');
-            fram = obj.parallel_framework;
-            controller = obj.known_frameworks_(fram);
-            %
-            controller = controller.init(n_workers,cluster_to_host_exch_fmwork,log_level);
-        end
         %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED
         %------------------------------------------------------------------
@@ -419,6 +422,18 @@ classdef parallel_config<config_base
             value = this.([field_name,'_']);
         end
     end
+    methods(Static)
+        function the_opt = select_option(opt,arg)
+            % Select single valued option from the list of available options
+            % Inputs:
+            % opt -- cellarray of available options
+            % arg -- either string, which uniquely define one of the options or
+            %        the number, selecting the option with number.
+            %        Uniquely here means that the comparison of the
+            %        argument with all options available returns only
+            %        one match.
+            %
+            the_opt = select_option_(opt,arg);
+        end
+    end
 end
-
-
