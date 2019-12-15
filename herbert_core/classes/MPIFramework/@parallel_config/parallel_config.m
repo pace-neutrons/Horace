@@ -156,7 +156,7 @@ classdef parallel_config<config_base
         % Information method returning the list of the parallel frameworks,
         % known to Herbert. You can not add or change a framework
         % using this method, The framework has to be defined and subscribed
-        % via the algorithms factory.
+        % via the frameworks factory.
         known_frameworks
         % Information method returning list of the known clusters,
         % available to run the selected framework.
@@ -176,7 +176,7 @@ classdef parallel_config<config_base
             'shared_folder_on_local','shared_folder_on_remote','working_directory'};
         %-------------------------------------------------------------------
     end
-    properties(Access=private)
+    properties(Access=protected)
         worker_ = 'worker_v2'
         is_compiled_ = false;
         % these values provide defaults for the properties above
@@ -262,13 +262,15 @@ classdef parallel_config<config_base
         %------------------------------------------------------------------
         function frmw = get.known_frameworks(obj)
             % Return list of frameworks, known to Herbert
-            frmw = MPI_fmwks_factory.instance().known_frameworks;
+            frmw = MPI_fmwks_factory.instance().known_frmwks_names;
         end
+        
         function clust_names = get.known_clust_configs(obj)
             % information about clusters (framework configurations),
             % available for the selected framework
+            fram = obj.parallel_framework;
             if strcmpi(fram,'n\a')
-                clust_names = 'n\a';
+                clust_names = {'n\a'};
             else
                 clust_names = MPI_fmwks_factory.instance().get_all_configs();
             end
@@ -276,71 +278,34 @@ classdef parallel_config<config_base
         %
         %-----------------------------------------------------------------
         % overloaded setters
-        function obj = set.worker(obj,val)
-            if ~ischar(val)
-                error('PARALLEL_CONFIG:invalid_argument',...
-                    'The worker property needs the executable script name')
-            end
-            scr_path = which(val);
-            if isempty(scr_path)
-                cur_fmw = get_or_restore_field(obj,'parallel_framework');
-                if ~strcmpi(cur_fmw,'n/a')
-                    warning('PARALLEL_CONFIG:invalid_argument',...
-                        ['The script to run in parallel (%s) should be available ',...
-                        'to all running Matlab sessions but parallel config can not find it.',...
-                        ' Parallel extensions are disabled'],...
-                        val)
-                end
-                val = obj.worker_v2_;
-                config_store.instance().store_config(obj,...
-                    'parallel_framework','n\a','cluster_config','n\a');
-            end
-            config_store.instance().store_config(obj,'worker',val);
+        function obj = set.worker(obj,new_wrkr)
+            % Check and set new worker:
+            % Input:
+            % new_wrkr - the string, defining new worker function.
+            %
+            obj = check_and_set_worker_(obj,new_wrkr);
         end
         %
-        function obj=set.parallel_framework(obj,val)
-            % Set up MPI framework to use. Available options are:
-            % h[erbert], p[arpool] or m[pi_cluster]
-            % (can be defined by single symbol) or by a framework number
-            % in the list of frameworks
+        function obj=set.parallel_framework(obj,frmwk_name)
+            % Set up MPI framework to use. 
             %
-            wrkr = which(obj.worker_);
-            if isempty(wrkr)
-                the_name = 'n/a';
-            else
-                try
-                    MPI_fmwks_factory.instance().select_framework(val);
-                catch ME
-                    if strcmpi(ME.identifier,'PARALLEL_CONFIG:invalid_configuration')
-                        warning(ME.identifier,'%s',ME.message);
-                        return;
-                    else
-                        rethrow(ME);
-                    end
-                end
-                the_name = MPI_fmwks_factory.instance().mpi_framework;
-            end
-            config_store.instance().store_config(...
-                obj,'parallel_framework',the_name);
-
-            all_configs = MPI_fmwks_factory.instance().get_all_configs();                   
-            % if the config file is not among all existing configurations,
-            % change current framework configuration to the default one for
-            % the current framework.
-            if ~ismember(all_configs,obj.cluster_config)
-                obj.cluster_config = all_configs{1};
-            end
-            % The default cluster configuration may be different for different
-            % frameworks, so change default cluster configuration to the
-            % one, suitable for the selected framework.
-            obj.cluster_config_ =all_configs{1};
-            
+            % Available options defined by known_frameworks and are
+            % defined in MPI_fmwks_factory
+            % 
+            % The framework name (can be defined by single symbol)
+            % or by a framework number in the list of frameworks
+            %
+           obj = check_and_set_frmwk_(obj,frmwk_name);
         end
         %
         function obj = set.cluster_config(obj,val)
             % select one of the clusters which configuration is available
             opt = obj.known_clust_configs;
-            the_config = select_option_(opt,val);
+            if strcmpi(opt{1},'n/a')
+                the_config = 'n/a';
+            else
+                the_config = select_option_(opt,val);
+            end
             
             config_store.instance().store_config(obj,'cluster_config',the_config);
         end
