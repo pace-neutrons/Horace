@@ -9,7 +9,7 @@ if ~ischar(new_wrkr)
 end
 scr_path = which(new_wrkr);
 if isempty(scr_path)
-    def_wrkr = obj.worker_v2_;
+    def_wrkr = obj.worker_;
     if strcmp(new_wrkr,def_wrkr)
         cur_fmw = get_or_restore_field(obj,'parallel_framework');
         if ~strcmpi(cur_fmw,'n/a')
