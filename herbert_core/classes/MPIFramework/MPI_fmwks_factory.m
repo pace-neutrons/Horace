@@ -57,17 +57,27 @@ classdef MPI_fmwks_factory<handle
             % Set up MPI framework to use. Available options are:
             % h[erbert], p[arpool] or m[pi_cluster]
             % (can be defined by single symbol) or by a framework number
-            % in the list of frameworks
+            % in the list of frameworks.
             %
-            fmwk_name = parallel_config.select_option(...
-                obj.known_frmwks_names_,val);
-            theCluster = obj.known_frameworks_(fmwk_name);
+            % No protection against invalid input key is provided here so
+            % use parallel_config to get this protection, or organize it
+            %
+            %
+            [cl,fmwk_name]= obj.get_cluster(val);
             % will throw PARALLEL_CONFIG:invalid_configuration if the
             % particular cluster is not available
-            theCluster.check_availability();
+            cl.check_availability();
             %
             config_store.instance().store_config(...
                 'parallel_config','parallel_framework',fmwk_name);
+        end
+        function [cl,fmwk_name] = get_cluster(obj,val)
+            % return non-initialized cluster with for the framework with the
+            % name provided
+            fmwk_name = parallel_config.select_option(...
+                obj.known_frmwks_names_,val);
+            cl = obj.known_frameworks_(fmwk_name);
+            
         end
         function cfg = get_all_configs(obj,frmw_name)
             % return all known configurations for the selected framework
@@ -88,6 +98,7 @@ classdef MPI_fmwks_factory<handle
             end
         end
         
+        
         function fmwks = get.known_frmwks_names(obj)
             fmwks = obj.known_frmwks_names_;
         end
@@ -97,7 +108,12 @@ classdef MPI_fmwks_factory<handle
             % return the initialized MPI cluster, selected as default
             log_level = config_store.instance().get_value('herbert_config','log_level');
             fram      = obj.parallel_framework;
-            controller= obj.known_frameworks_(fram);
+            if strcmpi(fram,'n/a')
+                error('PARALLEL_CONFIG:not_available',...
+                    ' Can not run jobs in parallel. Any parallel framework is not available. Worker may be not installed.')
+            else
+                controller= obj.known_frameworks_(fram);
+            end
             %
             controller = controller.init(n_workers,cluster_to_host_exch_fmwork,log_level);
         end

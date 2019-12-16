@@ -5,7 +5,7 @@ classdef test_job_executor< MPI_Test_Common
     
     properties
         current_config_folder;
-        worker_h = @worker_4tests;
+        worker_h = @worker_4tests_local;
     end
     methods
         %
