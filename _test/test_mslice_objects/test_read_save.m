@@ -79,18 +79,16 @@ if ~equivalent_mslice_objects(mc_3a_ref,mc_3a), assertTrue(false,'mc_3a_ref, mc_
 if ~equivalent_mslice_objects(mc_3b_ref,mc_3b), assertTrue(false,'mc_3b_ref, mc_3b  not equivalent'), end
 if ~equivalent_mslice_objects(mc_3c_ref,mc_3c), assertTrue(false,'mc_3c_ref, mc_3c  not equivalent'), end
 
-if ~equivalent_mslice_objects(ms_1_ref,ms_1),   assertTrue(false,'ms_1_ref, ms_1  not equivalent'), end
-if ~equivalent_mslice_objects(ms_2_ref,ms_2),   assertTrue(false,'ms_2_ref, ms_2  not equivalent'), end
-if ~equivalent_mslice_objects(ms_3a_ref,ms_3a), assertTrue(false,'ms_3a_ref, ms_3a  not equivalent'), end
-if ~equivalent_mslice_objects(ms_3b_ref,ms_3b), assertTrue(false,'ms_3b_ref, ms_3b  not equivalent'), end
-if ~equivalent_mslice_objects(ms_3c_ref,ms_3c), assertTrue(false,'ms_3c_ref, ms_3c  not equivalent'), end
-if ~equivalent_mslice_objects(ms_4_ref,ms_4),   assertTrue(false,'ms_4_ref, ms_4  not equivalent'), end
-
-if ~equivalent_mslice_objects(s1_ref,s1), assertTrue(false,'s1_ref, s1  not equivalent'), end
-if ~equivalent_mslice_objects(s2_ref,s2), assertTrue(false,'s2_ref, s2  not equivalent'), end
-if ~equivalent_mslice_objects(s_add_ref,s_add), assertTrue(false,'s_add_ref, s_add  not equivalent'), end
-if ~equivalent_mslice_objects(s_com_ref,s_com), assertTrue(false,'s_com_ref, s_com  not equivalent'), end
-
+assertTrue(equivalent_mslice_objects(ms_1_ref,ms_1,1.e-5),   'ms_1_ref, ms_1  not equivalent');
+assertTrue(equivalent_mslice_objects(ms_2_ref,ms_2,1.e-5),   'ms_2_ref, ms_2  not equivalent');
+assertTrue(equivalent_mslice_objects(ms_3a_ref,ms_3a,1.e-5), 'ms_3a_ref, ms_3a  not equivalent');
+assertTrue(equivalent_mslice_objects(ms_3b_ref,ms_3b,1.e-5), 'ms_3b_ref, ms_3b  not equivalent');
+assertTrue(equivalent_mslice_objects(ms_3c_ref,ms_3c,1.e-5), 'ms_3c_ref, ms_3c  not equivalent');
+assertTrue(equivalent_mslice_objects(ms_4_ref,ms_4,1.e-5),   'ms_4_ref, ms_4  not equivalent')
+assertTrue(equivalent_mslice_objects(s1_ref,s1,1.e-5),       's1_ref, s1  not equivalent')
+assertTrue(equivalent_mslice_objects(s2_ref,s2,1.e-5),       's2_ref, s2  not equivalent')
+assertTrue(equivalent_mslice_objects(s_add_ref,s_add,1.e-5), 's_add_ref, s_add  not equivalent');
+assertTrue(equivalent_mslice_objects(s_com_ref,s_com,1.e-5), 's_com_ref, s_com  not equivalent')
 
 % Success announcement
 % --------------------
