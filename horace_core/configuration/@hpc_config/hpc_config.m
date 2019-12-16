@@ -42,7 +42,7 @@ classdef hpc_config < config_base
     % Type >> hpc_config  to see the list of current configuration option values.
     %
     %
-    % $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
+    % $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
     %
     properties(Dependent)
         % if true, launch separate Matlab session(s) or parallel job to

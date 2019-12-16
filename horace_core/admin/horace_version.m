@@ -59,10 +59,15 @@ application.name='horace';
 % - positions of major data blocks in the file
 % - position of data block
 % - position of end of data block
+% 01 Nov 2019:
+% Version 3.3
+% New Instrument classes
+% New object-oriented Tobyfit classes.
+% Support for indirect instruments with multiple energies.
 
-application.version=3;
+application.version=3.3;
 
-Matlab_SVN='$Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)';
+Matlab_SVN='$Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)';
 
 % Information about name and version of application
 mexMinVer     = [];

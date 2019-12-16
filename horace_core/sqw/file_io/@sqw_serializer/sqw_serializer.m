@@ -3,7 +3,7 @@ classdef sqw_serializer
     % using predefined format structures, provided by loader
     %
     %
-    % $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
+    % $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
     %
     %
     properties(Access=private,Hidden=true)

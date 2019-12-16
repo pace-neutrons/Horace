@@ -10,7 +10,7 @@ function   obj = put_main_header(obj,varargin)
 % If update options is selected, header have to exist. This option keeps
 % existing file information untouched;
 %
-% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
+% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
 %
 
 
