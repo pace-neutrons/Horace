@@ -269,8 +269,8 @@ classdef parallel_config<config_base
             % information about clusters (framework configurations),
             % available for the selected framework
             fram = obj.parallel_framework;
-            if strcmpi(fram,'n\a')
-                clust_names = {'n\a'};
+            if strcmpi(fram,'n/a')
+                clust_names = {'n/a'};
             else
                 clust_names = MPI_fmwks_factory.instance().get_all_configs();
             end

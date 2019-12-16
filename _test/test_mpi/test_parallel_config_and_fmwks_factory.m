@@ -14,6 +14,19 @@ classdef test_parallel_config_and_fmwks_factory < TestCase
             obj = obj@TestCase(name);
         end
         function test_fmwks_set_get(obj)
+            pc = parallel_config;
+            % define current config data to return it after testing
+            cur_config = pc.get_data_to_store();
+            clob1 = onCleanup(@()set(pc,cur_config));
+            pc.saveable = false;
+            clob2 = onCleanup(@()set(pc,'saveable',true));
+            
+            if strcmpi(pc.parallel_framework,'n/a')
+                should_throw = true;
+            else
+                should_throw = false;
+            end
+            
             
             all_fmwk_names = MPI_fmwks_factory.instance().known_frmwks_names;
             assertEqual(numel(all_fmwk_names),3);
@@ -21,12 +34,22 @@ classdef test_parallel_config_and_fmwks_factory < TestCase
             assertEqual(all_fmwk_names{2},'parpool');
             assertEqual(all_fmwk_names{3},'mpiexec_mpi');
             mf = MPI_fmwks_factory.instance();
-            mf.parallel_framework = 'her';
-            assertEqual(MPI_fmwks_factory.instance().parallel_framework,'herbert');
+            try
+                mf.parallel_framework = 'her';
+                assertEqual(MPI_fmwks_factory.instance().parallel_framework,'herbert');
+                all_cfg = MPI_fmwks_factory.instance().get_all_configs();
+                assertEqual(numel(all_cfg),1);
+                assertEqual(all_cfg{1},'local');
+            catch ME
+                if ~(should_throw && strcmpi(ME.identifier,'PARALLEL_CONFIG:not_available'))
+                    rethrow(ME);
+                end
+                all_cfg = MPI_fmwks_factory.instance().get_all_configs('herbe');
+                assertEqual(numel(all_cfg),1);
+                assertEqual(all_cfg{1},'local');
+                
+            end
             
-            all_cfg = MPI_fmwks_factory.instance().get_all_configs();
-            assertEqual(numel(all_cfg),1);
-            assertEqual(all_cfg{1},'local');
             
             all_cfg = MPI_fmwks_factory.instance().get_all_configs('parp');
             assertEqual(numel(all_cfg),1);
@@ -64,14 +87,25 @@ classdef test_parallel_config_and_fmwks_factory < TestCase
             catch Err
                 assertTrue(strcmpi(Err.identifier,'PARALLEL_CONFIG:invalid_argument'))
             end
-            mf = MPI_fmwks_factory.instance();
-            mf.parallel_framework ='h';
-            
-            assertEqual(MPI_fmwks_factory.instance().parallel_framework,'herbert');
+            try
+                mf = MPI_fmwks_factory.instance();
+                mf.parallel_framework ='h';
+                assertEqual(MPI_fmwks_factory.instance().parallel_framework,'herbert');
+            catch ME
+                if ~(should_throw && strcmpi(ME.identifier,'PARALLEL_CONFIG:not_available'))
+                    rethrow(ME);
+                end
+                
+            end
         end
         
         function test_parallel_config(obj)
             pc = parallel_config;
+            if strcmpi(pc.parallel_framework,'n/a')
+                warning('PARALLEL_CONFIG:not_available',...
+                    'Parallel framework is not installed propertly. Not testsed');
+                return
+            end
             % define current config data to return it after testing
             cur_config = pc.get_data_to_store();
             clob1 = onCleanup(@()set(pc,cur_config));

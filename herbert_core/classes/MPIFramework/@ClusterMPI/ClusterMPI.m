@@ -187,6 +187,7 @@ classdef ClusterMPI < ClusterWrapper
             % Should throw PARALLEL_CONFIG:not_avalable exception
             % if the particular framework is not avalable.
             %
+            check_availability@ClusterWrapper(obj);            
             check_mpi_mpiexec_can_be_enabled_(obj);
         end
         

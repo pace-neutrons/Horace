@@ -80,8 +80,12 @@ classdef MPI_fmwks_factory<handle
             else
                 frmw_name = obj.parallel_framework;
             end
-            controller = obj.known_frameworks_(frmw_name);
-            cfg = controller.get_cluster_configs_available();
+            if strcmpi(frmw_name,'n/a')
+                cfg = {'n/a'};
+            else
+                controller = obj.known_frameworks_(frmw_name);
+                cfg = controller.get_cluster_configs_available();
+            end
         end
         
         function fmwks = get.known_frmwks_names(obj)

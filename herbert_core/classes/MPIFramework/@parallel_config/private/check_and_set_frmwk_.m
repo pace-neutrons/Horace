@@ -8,11 +8,11 @@ function obj = check_and_set_frmwk_(obj,frmwk_name)
 % or by a framework number in the list of frameworks
 %
 wrkr = which(obj.worker_);
+mff = MPI_fmwks_factory.instance();
 if isempty(wrkr)
     the_name = 'n/a';
 else
     try
-        mff = MPI_fmwks_factory.instance();
         mff.parallel_framework = frmwk_name;
     catch ME
         if strcmpi(ME.identifier,'PARALLEL_CONFIG:invalid_configuration')

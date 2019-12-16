@@ -220,6 +220,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             % Should throw PARALLEL_CONFIG:not_avalable exception
             % if the particular framework is not avalable.
             %
+            check_availability@ClusterWrapper(obj);
             check_parpool_can_be_enabled_(obj);
         end
         

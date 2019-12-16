@@ -271,12 +271,13 @@ classdef ClusterWrapper
             %
             % Should throw PARALLEL_CONFIG:not_avalable exception
             % if the particular framework is not available.
-            %
-            % This function is empty as the generic cluster wrapper and
-            % its full implementation ClusterHerbert are always available.
-            %
-            % unavailable cluster throws PARALLEL_CONFIG:not_available
-            % exception.
+            worker = config_store.instance.get_value('parallel_config','worker');
+            pkp = which(worker);
+            if isempty(pkp)
+                error('PARALLEL_CONFIG:not_available',...
+                    'Parallel worker %s is not on Matlab path. Parallel extensions are not available',...
+                    worker);
+            end
         end
         % The property returns the list of the configurations, avalible for
         % usage by the

@@ -19,7 +19,7 @@ if isempty(scr_path)
                 ' Parallel extensions are disabled'],...
                 new_wrkr)
             config_store.instance().store_config(obj,...
-                'parallel_framework','n\a','cluster_config','n\a');
+                'parallel_framework','n/a','cluster_config','n/a');
             
         end
     else
