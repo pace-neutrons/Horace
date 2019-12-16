@@ -46,7 +46,7 @@ function [w,grid_size,urange,detchn] = calc_sqw(obj,grid_size_in,urange_in,varar
 %                  or the range of the data if not.
 %
 %
-% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
+% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
 %
 keys_recognized = {'-cache_detectors','-qspec'};
 [ok,mess,cache_detectors,cache_q_vectors] = parse_char_options(varargin,keys_recognized);
