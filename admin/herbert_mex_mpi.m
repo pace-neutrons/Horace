@@ -19,7 +19,7 @@ outdir = fullfile(her_folder,'herbert_core','DLL','_GLNXA64','_R2015a');
 %mex('-lut','CXXFLAGS=$CFLAGS -fopenmp -std=c++11','LDFLAGS= -pthread -Wl,--no-undefined  -fopenmp',add_files{:}, '-outdir', outdir);
 try 
     mex('-v',add_include,...
-        add_lib,'-lmpi','-lmpich','-lmpicxx',['-Wl,-rpath-link,',mpich_lib],input_files{:},'-outdir',outdir);
+        input_files{:},'-outdir',outdir);
 catch Err
     ok = false; 
     mess = Err.message;
