@@ -90,8 +90,8 @@ classdef MPI_fmwks_factory<handle
             else
                 frmw_name = obj.parallel_framework;
             end
-            if strcmpi(frmw_name,'n/a')
-                cfg = {'n/a'};
+            if strcmpi(frmw_name,'none')
+                cfg = {'none'};
             else
                 controller = obj.known_frameworks_(frmw_name);
                 cfg = controller.get_cluster_configs_available();
@@ -108,7 +108,7 @@ classdef MPI_fmwks_factory<handle
             % return the initialized MPI cluster, selected as default
             log_level = config_store.instance().get_value('herbert_config','log_level');
             fram      = obj.parallel_framework;
-            if strcmpi(fram,'n/a')
+            if strcmpi(fram,'none')
                 error('PARALLEL_CONFIG:not_available',...
                     ' Can not run jobs in parallel. Any parallel framework is not available. Worker may be not installed.')
             else

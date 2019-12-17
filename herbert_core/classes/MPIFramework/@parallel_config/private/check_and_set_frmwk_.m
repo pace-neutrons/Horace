@@ -10,7 +10,7 @@ function obj = check_and_set_frmwk_(obj,frmwk_name)
 wrkr = which(obj.worker_);
 mff = MPI_fmwks_factory.instance();
 if isempty(wrkr)
-    the_name = 'n/a';
+    the_name = 'none';
 else
     try
         mff.parallel_framework = frmwk_name;

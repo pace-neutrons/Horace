@@ -7,7 +7,7 @@ classdef MPI_Test_Common < TestCase
     properties
         %
         working_dir
-        % if parallel toolbox is not availible or parallel framework is not
+        % if parallel toolbox is not available or parallel framework is not
         % available, test should be counted as  passed but ignored.
         % Warning is necessary.
         ignore_test = false;
@@ -34,7 +34,7 @@ classdef MPI_Test_Common < TestCase
             end
             
             pc = parallel_config;
-            if strcmpi(pc.parallel_framework,'n/a')
+            if strcmpi(pc.parallel_framework,'none')
                 obj.ignore_test = true;
                 warning('MPI_Test_Common:not_available',...
                     'unit test to check parallel framework is not available as framework is not installed properly')

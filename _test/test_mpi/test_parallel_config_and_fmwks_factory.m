@@ -21,7 +21,7 @@ classdef test_parallel_config_and_fmwks_factory < TestCase
             pc.saveable = false;
             clob2 = onCleanup(@()set(pc,'saveable',true));
             
-            if strcmpi(pc.parallel_framework,'n/a')
+            if strcmpi(pc.parallel_framework,'none')
                 should_throw = true;
             else
                 should_throw = false;
@@ -101,9 +101,9 @@ classdef test_parallel_config_and_fmwks_factory < TestCase
         
         function test_parallel_config(obj)
             pc = parallel_config;
-            if strcmpi(pc.parallel_framework,'n/a')
+            if strcmpi(pc.parallel_framework,'none')
                 warning('PARALLEL_CONFIG:not_available',...
-                    'Parallel framework is not installed propertly. Not testsed');
+                    'Parallel framework is not installed properly. Not tested');
                 return
             end
             % define current config data to return it after testing
@@ -131,7 +131,7 @@ classdef test_parallel_config_and_fmwks_factory < TestCase
                 
                 all_clcfg = pc.known_clust_configs;
                 clust = pc.cluster_config;
-                % parpool framewok uses only one cluster, defined as default
+                % parpool framework uses only one cluster, defined as default
                 % in parallel computing toolbox settings.
                 assertEqual(numel(all_clcfg ),1);
                 assertEqual(all_clcfg{1},clust);

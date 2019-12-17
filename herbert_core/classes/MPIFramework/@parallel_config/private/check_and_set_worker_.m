@@ -12,14 +12,14 @@ if isempty(scr_path)
     def_wrkr = obj.worker_;
     if strcmp(new_wrkr,def_wrkr)
         cur_fmw = get_or_restore_field(obj,'parallel_framework');
-        if ~strcmpi(cur_fmw,'n/a')
+        if ~strcmpi(cur_fmw,'none')
             warning('PARALLEL_CONFIG:invalid_argument',...
                 ['The script to run in parallel (%s) should be available ',...
                 'to all running Matlab sessions but parallel config can not find it.',...
                 ' Parallel extensions are disabled'],...
                 new_wrkr)
             config_store.instance().store_config(obj,...
-                'parallel_framework','n/a','cluster_config','n/a');
+                'parallel_framework','none','cluster_config','none');
             
         end
     else

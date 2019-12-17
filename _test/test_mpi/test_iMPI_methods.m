@@ -8,7 +8,7 @@ classdef test_iMPI_methods< TestCase
         current_config
         % handle to the function responsible to run a remote job
         worker_h = @worker_4tests;
-        % if parallel toolbox is not availible or parallel framework is not
+        % if parallel toolbox is not available or parallel framework is not
         % available, test should be counted as  passed but ignored.
         % Warning is necessary.
         ignore_test = false;
@@ -25,7 +25,7 @@ classdef test_iMPI_methods< TestCase
             obj.current_config_folder = cs.config_folder;
             
             pc = parallel_config;
-            if strcmpi(pc.parallel_framework,'n/a')
+            if strcmpi(pc.parallel_framework,'none')
                 obj.ignore_test = true;
                 warning('test_iMPI_methods:not_available',...
                     ['unit test to check parallel framework is not available'...

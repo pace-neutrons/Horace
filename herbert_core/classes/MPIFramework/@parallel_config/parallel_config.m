@@ -24,7 +24,7 @@ classdef parallel_config<config_base
     %                        on cluster in parallel using parallel
     %                        workers.
     %
-    % is_compiled          - false if the worker is a matlab sctipt and
+    % is_compiled          - false if the worker is a Matlab script and
     %                        true if this script is compiled using Matlab
     %                        applications compiler.
     %
@@ -62,8 +62,8 @@ classdef parallel_config<config_base
         % path for all
         worker;
         
-        % False if the worker above is a matlab sctipt. The nodes need to
-        % have  Matlab licenses or Matlab distributed cluster lisenses to
+        % False if the worker above is a Matlab script. The nodes need to
+        % have  Matlab licenses or Matlab distributed cluster licenses to
         % run this code.
         % True if the worker above is compiled using Matlab applications
         % compiler. The nodes need to have appropriate Matlab
@@ -76,7 +76,7 @@ classdef parallel_config<config_base
         %    [h]erbert --stands for Poor man MPI framework, which runs on a single
         %              node only and is actually not uses MPI, but launches
         %              separate Matlab sessions using Java Launcher.
-        %              The sessions exchane information betweeneach other using
+        %              The sessions exchange information between each other using
         %              file-based messages (.mat files), so this framework is
         %              not suitable for any tasks, demanding heavy interprocess
         %              communications.
@@ -91,9 +91,9 @@ classdef parallel_config<config_base
         %              the framework compiled using herbert_mex_mpi script
         %              If the jobs are expected to run on more then
         %              one node, the nodes should be configured for MPI
-        %              comminications (running mpiexec).
+        %              communications (running mpiexec).
         %              Current framework is build and tested using MPICH v3.
-        %    n/a      -- not available. If worker can not be found on a
+        %    none      -- not available. If worker can not be found on a
         %              path, any parallel framework should be not
         %              available. Parallel extensions will not work.
         parallel_framework;
@@ -269,8 +269,8 @@ classdef parallel_config<config_base
             % information about clusters (framework configurations),
             % available for the selected framework
             fram = obj.parallel_framework;
-            if strcmpi(fram,'n/a')
-                clust_names = {'n/a'};
+            if strcmpi(fram,'none')
+                clust_names = {'none'};
             else
                 clust_names = MPI_fmwks_factory.instance().get_all_configs();
             end
@@ -301,8 +301,8 @@ classdef parallel_config<config_base
         function obj = set.cluster_config(obj,val)
             % select one of the clusters which configuration is available
             opt = obj.known_clust_configs;
-            if strcmpi(opt{1},'n/a')
-                the_config = 'n/a';
+            if strcmpi(opt{1},'none')
+                the_config = 'none';
             else
                 the_config = select_option_(opt,val);
             end
