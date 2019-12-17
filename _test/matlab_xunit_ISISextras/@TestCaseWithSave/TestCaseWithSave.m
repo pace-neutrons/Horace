@@ -355,6 +355,11 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             % Retrieve the data to compare tests against
             val = this.ref_data_;
         end
+        function set.ref_data(this,val)
+            % Set up reference dataset from outside source.
+            this.ref_data_ = val;
+        end
+        
         
         %------------------------------------------------------------------
         function this=add_to_files_cleanList (this, varargin)
