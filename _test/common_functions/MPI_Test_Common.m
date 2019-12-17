@@ -46,7 +46,11 @@ classdef MPI_Test_Common < TestCase
             obj.old_config  = pc.get_data_to_store();
             try
                 pc.parallel_framework = obj.framework_name;
-                set_framework = true;
+                if strcmpi(pc.parallel_framework,obj.framework_name)
+                   set_framework = true;
+                else
+                   set_framework = false;                    
+                end
             catch ME
                 if strcmp(ME.identifier,'PARALLEL_CONFIG:invalid_configuration')
                     set_framework = false;
