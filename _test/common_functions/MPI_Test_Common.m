@@ -16,7 +16,7 @@ classdef MPI_Test_Common < TestCase
         % current name of the framework to test
         framework_name ;
         % current worker used in tests
-        worker='worker_4tests_local'
+        worker='worker_4tests'
     end
     properties(Access=private)
         current_config_folder;

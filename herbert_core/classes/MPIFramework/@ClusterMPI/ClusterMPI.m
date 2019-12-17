@@ -202,6 +202,7 @@ classdef ClusterMPI < ClusterWrapper
                 mpi_exec = fullfile(rootpath,'DLL','_PCWIN64','MS_MPI_R2019b','mpiexec.exe');
             else
                 [~,mpi_exec] = system('which mpiexec');
+                mpi_exec= regexprep(mpi_exec,'[\x00-\x20\x7F-\xFF]$','');
             end
         end
     end
