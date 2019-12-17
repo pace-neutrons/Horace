@@ -6,11 +6,19 @@ if isempty('cpp_communicator')
     ok = false;
     mess = 'Can not find cpp_communicator mex file on Matlab search path';
 end
-
-mpiexec = ClusterMPI.get_mpiexec();
-if ~exist(mpiexec,'file')==2
+try
+    ver = cpp_communicator();
+catch ME
     ok = false;
-    mess = 'Can not find mpiexec to run parallel programs';
+    mess = ME.message;
+end
+
+if ok
+    mpiexec = ClusterMPI.get_mpiexec();
+    if ~exist(mpiexec,'file')==2
+        ok = false;
+        mess = 'Can not find mpiexec to run parallel programs';
+    end
 end
 
 if ~ok
