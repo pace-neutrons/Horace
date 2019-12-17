@@ -33,7 +33,7 @@ function par = get_par(file_name,varargin)
 %     6th  "        detector ID
 %
 %
-% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
+% $Revision:: 839 ($Date:: 2019-12-16 18:18:44 +0000 (Mon, 16 Dec 2019) $)
 %
 % redefine the file name of the par file
 if ~exist('file_name','var')

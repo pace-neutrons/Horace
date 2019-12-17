@@ -8,6 +8,10 @@ classdef test_iMPI_methods< TestCase
         current_config
         % handle to the function responsible to run a remote job
         worker_h = @worker_4tests;
+        % if parallel toolbox is not available or parallel framework is not
+        % available, test should be counted as  passed but ignored.
+        % Warning is necessary.
+        ignore_test = false;
     end
     methods
         %
@@ -21,9 +25,21 @@ classdef test_iMPI_methods< TestCase
             obj.current_config_folder = cs.config_folder;
             
             pc = parallel_config;
+            if strcmpi(pc.parallel_framework,'none')
+                obj.ignore_test = true;
+                warning('test_iMPI_methods:not_available',...
+                    ['unit test to check parallel framework is not available'...
+                    ' as framework is not installed properly'])
+                return;
+            end
+            
             obj.current_config = pc.get_data_to_store;
         end
         function tearDown(obj)
+            if obj.ignore_test
+                return;
+            end
+            
             % Here we restore the initial configuration as the previous
             % configuration may be restored on remote machine
             cs = config_store.instance();
@@ -46,6 +62,7 @@ classdef test_iMPI_methods< TestCase
             assertEqual(sample,csr);
         end
         function test_transfer_init_and_config(obj,varargin)
+            
             if nargin>1
                 obj.setUp();
                 clob1 = onCleanup(@()tearDown(obj));
@@ -142,6 +159,10 @@ classdef test_iMPI_methods< TestCase
             
         end
         function test_mpi_worker_single_thread(obj,varargin)
+            if obj.ignore_test
+                return;
+            end
+            
             if nargin>1
                 clob1 = onCleanup(@()tearDown(obj));
             end

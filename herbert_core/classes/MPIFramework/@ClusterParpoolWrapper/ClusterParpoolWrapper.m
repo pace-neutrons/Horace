@@ -4,7 +4,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
     % custom parallel classes.
     %
     %
-    % $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
+    % $Revision:: 839 ($Date:: 2019-12-16 18:18:44 +0000 (Mon, 16 Dec 2019) $)
     %
     %----------------------------------------------------------------------
     properties(Access = protected)
@@ -220,6 +220,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             % Should throw PARALLEL_CONFIG:not_avalable exception
             % if the particular framework is not avalable.
             %
+            check_availability@ClusterWrapper(obj);
             check_parpool_can_be_enabled_(obj);
         end
         

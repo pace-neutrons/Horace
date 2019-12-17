@@ -37,7 +37,7 @@ function [outputs,n_failed,task_ids,obj]=...
 %              task_param_list, assigned to this job
 %
 %
-% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
+% $Revision:: 839 ($Date:: 2019-12-16 18:18:44 +0000 (Mon, 16 Dec 2019) $)
 %
 %
 if ~exist('keep_workers_running','var')
@@ -57,8 +57,8 @@ n_workers = check_loop_param(loop_params,n_workers);
 % indicate new cluster created
 obj.job_is_starting_ = true;
 % initialize cluster, defined by current configuration
-par_cf = parallel_config();
-cluster_wrp = par_cf.get_cluster_wrapper(n_workers,mf);
+par_fc = MPI_fmwks_factory.instance();
+cluster_wrp = par_fc.get_running_cluster(n_workers,mf);
 
 if keep_workers_running % store cluster pointer for job resubmission
     obj.cluster_       = cluster_wrp;

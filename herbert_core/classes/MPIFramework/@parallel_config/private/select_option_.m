@@ -1,5 +1,13 @@
 function the_opt = select_option_(opt,arg)
-% Select slingle valid option from the list of available options
+% Select single valued option from the list of available options
+% Inputs:
+% opt -- cellarray of available options
+% arg -- either string, which uniquely define one of the options or
+%        the number, selecting the option with number.
+%        Uniquely here means that the comparison of the 
+%        argument with all options available returns only 
+%        one match.
+%
 if isnumeric(arg)
     if arg<0 || arg>numel(opt)
         error('PARALLEL_CONFIG:invalid_argument',...

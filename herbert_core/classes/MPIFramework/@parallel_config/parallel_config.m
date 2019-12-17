@@ -24,7 +24,7 @@ classdef parallel_config<config_base
     %                        on cluster in parallel using parallel
     %                        workers.
     %
-    % is_compiled          - false if the worker is a matlab sctipt and
+    % is_compiled          - false if the worker is a Matlab script and
     %                        true if this script is compiled using Matlab
     %                        applications compiler.
     %
@@ -54,7 +54,7 @@ classdef parallel_config<config_base
     %>>parallel_config  to see the list of current configuration option values.
     %
     %
-    % $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
+    % $Revision:: 839 ($Date:: 2019-12-16 18:18:44 +0000 (Mon, 16 Dec 2019) $)
     %
     properties(Dependent)
         % The name of the script or program to run on cluster in parallel
@@ -62,8 +62,8 @@ classdef parallel_config<config_base
         % path for all
         worker;
         
-        % False if the worker above is a matlab sctipt. The nodes need to
-        % have  Matlab licenses or Matlab distributed cluster lisenses to
+        % False if the worker above is a Matlab script. The nodes need to
+        % have  Matlab licenses or Matlab distributed cluster licenses to
         % run this code.
         % True if the worker above is compiled using Matlab applications
         % compiler. The nodes need to have appropriate Matlab
@@ -76,7 +76,7 @@ classdef parallel_config<config_base
         %    [h]erbert --stands for Poor man MPI framework, which runs on a single
         %              node only and is actually not uses MPI, but launches
         %              separate Matlab sessions using Java Launcher.
-        %              The sessions exchane information betweeneach other using
+        %              The sessions exchange information between each other using
         %              file-based messages (.mat files), so this framework is
         %              not suitable for any tasks, demanding heavy interprocess
         %              communications.
@@ -91,8 +91,11 @@ classdef parallel_config<config_base
         %              the framework compiled using herbert_mex_mpi script
         %              If the jobs are expected to run on more then
         %              one node, the nodes should be configured for MPI
-        %              comminications (running mpiexec).
+        %              communications (running mpiexec).
         %              Current framework is build and tested using MPICH v3.
+        %    none      -- not available. If worker can not be found on a
+        %              path, any parallel framework should be not
+        %              available. Parallel extensions will not work.
         parallel_framework;
         
         % The configuration class describing parallel cluster, running
@@ -153,7 +156,7 @@ classdef parallel_config<config_base
         % Information method returning the list of the parallel frameworks,
         % known to Herbert. You can not add or change a framework
         % using this method, The framework has to be defined and subscribed
-        % via the algorithms factory.
+        % via the frameworks factory.
         known_frameworks
         % Information method returning list of the known clusters,
         % available to run the selected framework.
@@ -172,17 +175,8 @@ classdef parallel_config<config_base
             'parallel_framework','cluster_config',...
             'shared_folder_on_local','shared_folder_on_remote','working_directory'};
         %-------------------------------------------------------------------
-        % Subscription factory:
-        % the list of the known framework names.
-        known_frmwks_names_ = {'herbert','parpool','mpiexec_mpi'};
-        % The map to exisiting parallel frameworks clusters
-        known_frameworks_ = containers.Map(parallel_config.known_frmwks_names_,...
-            {ClusterHerbert(),ClusterParpoolWrapper(),ClusterMPI()});
-        % the map of the framework indexes
-        frmwk_ids_ = containers.Map(parallel_config.known_frmwks_names_,...
-            {1,2,3});
     end
-    properties(Access=private)
+    properties(Access=protected)
         worker_ = 'worker_v2'
         is_compiled_ = false;
         % these values provide defaults for the properties above
@@ -268,70 +262,53 @@ classdef parallel_config<config_base
         %------------------------------------------------------------------
         function frmw = get.known_frameworks(obj)
             % Return list of frameworks, known to Herbert
-            frmw = obj.known_frmwks_names_;
+            frmw = MPI_fmwks_factory.instance().known_frmwks_names;
         end
-        function clust = get.known_clust_configs(obj)
-            % information about cluster configurations, available for the
-            % selected framework
+        
+        function clust_names = get.known_clust_configs(obj)
+            % information about clusters (framework configurations),
+            % available for the selected framework
             fram = obj.parallel_framework;
-            controller = obj.known_frameworks_(fram);
-            clust  = controller.get_cluster_configs_available();
+            if strcmpi(fram,'none')
+                clust_names = {'none'};
+            else
+                clust_names = MPI_fmwks_factory.instance().get_all_configs();
+            end
         end
         %
         %-----------------------------------------------------------------
         % overloaded setters
-        function obj = set.worker(obj,val)
-            if ~ischar(val)
-                error('PARALLEL_CONFIG:invalid_argument',...
-                    'The worker property needs the executable script name')
-            end
-            scr_path = which(val);
-            if isempty(scr_path)
-                error('PARALLEL_CONFIG:invalid_argument',...
-                    ['The script to run in parallel (%s) should be available ',...
-                    'to all running Matlab sessions but parallel config can not find it'],...
-                    val)
-            end
-            config_store.instance().store_config(obj,'worker',val);
+        function obj = set.worker(obj,new_wrkr)
+            % Check and set new worker:
+            % Input:
+            % new_wrkr - the string, defining new worker function.
+            %
+            obj = check_and_set_worker_(obj,new_wrkr);
         end
         %
-        function obj=set.parallel_framework(obj,val)
-            % Set up MPI framework to use. Available options are:
-            % h[erbert], p[arpool] or m[pi_cluster]
-            % (can be defined by single symbol) or by a framework number
-            % in the list of frameworks
+        function obj=set.parallel_framework(obj,frmwk_name)
+            % Set up MPI framework to use. 
             %
-            opt = obj.known_frmwks_names_;
-            the_name = select_option_(opt,val);
-            theCluster = obj.known_frameworks_(the_name);
-            % will throw PARALLEL_CONFIG:invalid_configuration if the
-            % particular cluster is not available
-            theCluster.check_availability();
-            
-            config_store.instance().store_config(...
-                obj,'parallel_framework',the_name);
-            all_configs = theCluster.get_cluster_configs_available();
-            % if the config file is not among all existing configurations,
-            % change current framework configuration to the default one for
-            % the current framework.
-            if ~ismember(all_configs,obj.cluster_config)
-                obj.cluster_config = all_configs{1};
-            end
-            % The default cluster configuration may be different for different
-            % frameworks, so change default cluster configuration to the
-            % one, suitable for the selected framework.
-            obj.cluster_config_ =all_configs{1};
-            
+            % Available options defined by known_frameworks and are
+            % defined in MPI_fmwks_factory
+            % 
+            % The framework name (can be defined by single symbol)
+            % or by a framework number in the list of frameworks
+            %
+           obj = check_and_set_frmwk_(obj,frmwk_name);
         end
         %
         function obj = set.cluster_config(obj,val)
             % select one of the clusters which configuration is available
             opt = obj.known_clust_configs;
-            the_config = select_option_(opt,val);
+            if strcmpi(opt{1},'none')
+                the_config = 'none';
+            else
+                the_config = select_option_(opt,val);
+            end
             
             config_store.instance().store_config(obj,'cluster_config',the_config);
         end
-        
         %
         function obj=set.shared_folder_on_local(obj,val)
             if isempty(val)
@@ -396,15 +373,6 @@ classdef parallel_config<config_base
             end
             config_store.instance().store_config(obj,'working_directory',val);
         end
-        %-----------------------------------------------------------------
-        function controller = get_cluster_wrapper(obj,n_workers,cluster_to_host_exch_fmwork)
-            % return the appropriate job controller
-            log_level = config_store.instance.get_value('herbert_config','log_level');
-            fram = obj.parallel_framework;
-            controller = obj.known_frameworks_(fram);
-            %
-            controller = controller.init(n_workers,cluster_to_host_exch_fmwork,log_level);
-        end
         %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED
         %------------------------------------------------------------------
@@ -419,6 +387,18 @@ classdef parallel_config<config_base
             value = this.([field_name,'_']);
         end
     end
+    methods(Static)
+        function the_opt = select_option(opt,arg)
+            % Select single valued option from the list of available options
+            % Inputs:
+            % opt -- cellarray of available options
+            % arg -- either string, which uniquely define one of the options or
+            %        the number, selecting the option with number.
+            %        Uniquely here means that the comparison of the
+            %        argument with all options available returns only
+            %        one match.
+            %
+            the_opt = select_option_(opt,arg);
+        end
+    end
 end
-
-

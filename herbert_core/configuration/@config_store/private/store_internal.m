@@ -12,7 +12,7 @@ function store_internal(this,config_class,force_save,varargin)
 % defaults. 
 %
 %
-% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
+% $Revision:: 839 ($Date:: 2019-12-16 18:18:44 +0000 (Mon, 16 Dec 2019) $)
 %
 if isa(config_class,'config_base')
     class_name = config_class.class_name;

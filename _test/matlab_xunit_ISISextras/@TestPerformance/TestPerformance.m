@@ -270,6 +270,7 @@ classdef TestPerformance < TestCaseWithSave
             else
                 test_name = [comp_name,'_',framework_name];
             end
+            test_name = regexprep(test_name,'[/\\]','_');
             if exist('addinfo','var')
                 test_name = [test_name,'_',addinfo];
             end

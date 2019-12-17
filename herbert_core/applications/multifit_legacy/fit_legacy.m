@@ -466,7 +466,7 @@ function [wout,fitdata,ok,mess] = fit_legacy(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 838 ($Date:: 2019-12-05 14:56:03 +0000 (Thu, 5 Dec 2019) $)
+% $Revision:: 839 ($Date:: 2019-12-16 18:18:44 +0000 (Mon, 16 Dec 2019) $)
 
 
 % Note:

@@ -7,14 +7,16 @@ classdef MPI_Test_Common < TestCase
     properties
         %
         working_dir
-        % if parallel toolbox is not availible, test should be ignored
-        ignore_test;
+        % if parallel toolbox is not available or parallel framework is not
+        % available, test should be counted as  passed but ignored.
+        % Warning is necessary.
+        ignore_test = false;
         %
         old_config;
         % current name of the framework to test
         framework_name ;
         % current worker used in tests
-        worker='worker_4tests'
+        worker='worker_4tests_local'
     end
     properties(Access=private)
         current_config_folder;
@@ -32,6 +34,12 @@ classdef MPI_Test_Common < TestCase
             end
             
             pc = parallel_config;
+            if strcmpi(pc.parallel_framework,'none')
+                obj.ignore_test = true;
+                warning('MPI_Test_Common:not_available',...
+                    'unit test to check parallel framework is not available as framework is not installed properly')
+                return;
+            end
             obj.parallel_config_ = pc;
             %pc.saveable = false;
             obj.working_dir = pc.working_directory;
@@ -62,12 +70,19 @@ classdef MPI_Test_Common < TestCase
             
         end
         function setUp(obj)
+            if obj.ignore_test
+                return;
+            end
             pc = obj.parallel_config_;
             pc.saveable = false;
             pc.parallel_framework = obj.framework_name;
             pc.worker = obj.worker;
         end
         function tearDown(obj)
+            if obj.ignore_test
+                return;
+            end
+            
             set(parallel_config,obj.old_config);
             obj.parallel_config_.saveable = true;
         end
