@@ -1,42 +1,43 @@
 #!groovy
 
 pipeline {
-   agent {
-      label env.AGENT
-   }
+    agent any
 
-   stages {
+    stages {
 
-      stage('Build') {
-         steps {
-            sh '''
-                echo \"load cmake/\$CMAKE_VERSION\"
-                echo \" load matlab/\$MATLAB_VERSION\"
-                echo \"load gcc/\$GCC_VERSION\"
-                ./tools/build_config/build_script.sh
-            '''
-         }
-      }
+        stage('Build') {
+            steps {
+                sh '''
+                    load cmake/\$CMAKE_VERSION &&
+                    load matlab/\$MATLAB_VERSION &&
+                    load gcc/\$GCC_VERSION &&
+                    ./tools/build_config/build.sh --build
+                '''
+        }
+    }
 
-      stage('Test') {
-         steps {
-            sh '''
-               cd build &&
-               ctest
-            '''
-         }
-      }
+        stage('Test') {
+            steps {
+                sh '''
+                    load cmake/\$CMAKE_VERSION &&
+                    load matlab/\$MATLAB_VERSION &&
+                    load gcc/\$GCC_VERSION &&
+                    ./tools/build_config/build.sh --test
+                '''
+                xUnit "build/Testing/**/*.xml"
+            }
+        }
 
-      stage('Deploy') {
-         steps {
-            sh 'echo -e "Deploy step..."'
-         }
-      }
-   }
+        stage('Package') {
+            steps {
+                sh './tools/build_config/build.sh --package'
+            }
+        }
+    }
 
-   post {
-      always {
-         cleanWS()
-      }
-   }
+    post {
+        always {
+            cleanWS()
+        }
+    }
 }
