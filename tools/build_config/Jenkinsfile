@@ -1,11 +1,32 @@
 #!groovy
 
+def post_github_status(String state, String message) {
+    withCredentials([string(credentialsId: 'GitHub_API_Token',
+            variable: 'api_token')]) {
+        sh """
+            curl -H "Authorization: token ${api_token}" \
+                --request POST \
+                --data '{"state": "${state}", \
+                         "description": "${message}", \
+                         "target_url": "$BUILD_URL", \
+                         "context": "$JOB_NAME"}' \
+                $PR_STATUSES_URL > /dev/null
+        """
+            }
+}
+
 pipeline {
     agent {
         label env.AGENT
     }
 
     stages {
+
+        stage('Notify') {
+            steps {
+                post_github_status("pending", "The build is running")
+            }
+        }
 
         stage('Build') {
             steps {
@@ -64,6 +85,14 @@ pipeline {
             )
 
             deleteDir()
+        }
+
+        success {
+            post_github_status("success", "The build succeeded")
+        }
+
+        failure {
+            post_github_status("failure", "The build failed")
         }
     }
 }
