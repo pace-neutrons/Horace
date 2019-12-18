@@ -10,9 +10,9 @@ pipeline {
         stage('Build') {
             steps {
                 sh '''
-                    load cmake/\$CMAKE_VERSION &&
-                    load matlab/\$MATLAB_VERSION &&
-                    load gcc/\$GCC_VERSION &&
+                    module load cmake/\$CMAKE_VERSION &&
+                    module load matlab/\$MATLAB_VERSION &&
+                    module load gcc/\$GCC_VERSION &&
                     ./tools/build_config/build.sh --build
                 '''
         }
@@ -21,9 +21,9 @@ pipeline {
         stage('Test') {
             steps {
                 sh '''
-                    load cmake/\$CMAKE_VERSION &&
-                    load matlab/\$MATLAB_VERSION &&
-                    load gcc/\$GCC_VERSION &&
+                    module load cmake/\$CMAKE_VERSION &&
+                    module load matlab/\$MATLAB_VERSION &&
+                    module load gcc/\$GCC_VERSION &&
                     ./tools/build_config/build.sh --test
                 '''
                 xUnit "build/Testing/**/*.xml"
