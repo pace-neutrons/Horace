@@ -15,16 +15,18 @@ def post_github_status(String state, String message) {
             }
 }
 
-node {
-    post_github_status("pending", "The build is running")
-}
-
 pipeline {
     agent {
         label env.AGENT
     }
 
     stages {
+
+        stage('Notify') {
+            steps {
+                post_github_status("pending", "The build is running")
+            }
+        }
 
         stage('Build') {
             steps {
