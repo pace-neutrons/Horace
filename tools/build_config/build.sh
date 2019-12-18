@@ -44,14 +44,14 @@ function run_build() {
     echo -e "\nRunning CMake configure step..."
     echo_and_run "${cmake_cmd}"
 
-    echo -e "\nRunning build step:"
+    echo -e "\nRunning build step..."
     build_cmd="cmake --build ${build_dir}"
     echo_and_run "${build_cmd}"
 }
 
 function run_tests() {
     echo -e "\nRunning test step..."
-    test_cmd="ctest -T Test"
+    test_cmd="ctest -T Test --no-compress-output"
     echo_and_run "$test_cmd"
 }
 
