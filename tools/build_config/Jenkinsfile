@@ -26,23 +26,7 @@ pipeline {
                     module load gcc/\$GCC_VERSION &&
                     ./tools/build_config/build.sh --test
                 '''
-                xunit (
-                    testTimeMargin: '3000',
-                    thresholdMode: 1,
-                    thresholds: [
-                        skipped(failureThreshold: '0'),
-                        failed(failureThreshold: '0')
-                    ],
-                    tools: [
-                        CTest(
-                            pattern: 'build/Testing/**/*.xml',
-                            deleteOutputFiles: true,
-                            failIfNotNew: false,
-                            skipNoTestFiles: true,
-                            stopProcessingIfError: true
-                        )
-                    ]
-                )
+
             }
         }
 
@@ -55,6 +39,30 @@ pipeline {
 
     post {
         always {
+            // archive CTest results file
+            archiveArtifacts(
+                artifacts: 'build/Testing/**/*.xml',
+                fingerprint: true
+            )
+
+            xunit (
+                testTimeMargin: '3000',
+                thresholdMode: 1,
+                thresholds: [
+                    skipped(failureThreshold: '0'),
+                    failed(failureThreshold: '0')
+                ],
+                tools: [
+                    CTest(
+                        pattern: 'build/Testing/**/*.xml',
+                        deleteOutputFiles: true,
+                        failIfNotNew: false,
+                        skipNoTestFiles: true,
+                        stopProcessingIfError: true
+                    )
+                ]
+            )
+
             deleteDir()
         }
     }
