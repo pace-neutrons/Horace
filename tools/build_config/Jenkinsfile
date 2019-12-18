@@ -36,8 +36,8 @@ pipeline {
                     module load gcc/\$GCC_VERSION &&
                     ./tools/build_config/build.sh --build
                 '''
+            }
         }
-    }
 
         stage('Test') {
             steps {
@@ -47,7 +47,6 @@ pipeline {
                     module load gcc/\$GCC_VERSION &&
                     ./tools/build_config/build.sh --test
                 '''
-
             }
         }
 
@@ -83,8 +82,6 @@ pipeline {
                     )
                 ]
             )
-
-            deleteDir()
         }
 
         success {
@@ -93,6 +90,10 @@ pipeline {
 
         failure {
             post_github_status("failure", "The build failed")
+        }
+
+        cleanup {
+            deleteDir()
         }
     }
 }
