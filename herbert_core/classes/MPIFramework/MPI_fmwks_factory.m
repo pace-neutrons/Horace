@@ -7,9 +7,10 @@ classdef MPI_fmwks_factory<handle
     % Implemented as classical singleton.
     %
     properties(Dependent)
-        % current active cluster and message exchange framework messages
-        % exchange between cluster's workers.
+        % current active cluster and message exchange framework
+        % used for messages exchange between cluster's workers.
         parallel_framework;
+        %
         % Information method returning the list of names of the parallel
         % frameworks, known to Herbert. You can not add or change a framework
         % using this method, The framework has to be defined and subscribed
@@ -61,28 +62,35 @@ classdef MPI_fmwks_factory<handle
             %
             % No protection against invalid input key is provided here so
             % use parallel_config to get this protection, or organize it
-            %
+            % before the call. Throws invalid_key for unknown framework
+            % names. Throws PARALLEL_CONFIG:not_available or 
+            % PARALLEL_CONFIG:invalid_configuration if the cluster is not
+            % available on the current system. 
             %
             [cl,fmwk_name]= obj.get_cluster(val);
             % will throw PARALLEL_CONFIG:invalid_configuration if the
-            % particular cluster is not available
+            % particular cluster is not available on current system
             cl.check_availability();
             %
             config_store.instance().store_config(...
                 'parallel_config','parallel_framework',fmwk_name);
         end
         function [cl,fmwk_name] = get_cluster(obj,val)
-            % return non-initialized cluster with for the framework with the
-            % name provided
+            % return non-initialized cluster wrapper for the framework with
+            % the name provided as input.
+            %
             fmwk_name = parallel_config.select_option(...
                 obj.known_frmwks_names_,val);
             cl = obj.known_frameworks_(fmwk_name);
             
         end
         function cfg = get_all_configs(obj,frmw_name)
-            % return all known configurations for the selected framework
-            % name, provided as input or take the config for the current framework
-            % the name is not provided.
+            % return all known configurations for the selected framework.
+            %
+            % frmw_name - if provided, return configuration for this
+            %             frameowk. If not provided, the configurations are
+            %             taken for the framework, selected current in
+            %             parallel_config
             %
             if exist('frmw_name','var')
                 frmw_name = parallel_config.select_option(...
@@ -105,7 +113,19 @@ classdef MPI_fmwks_factory<handle
         
         %-----------------------------------------------------------------
         function controller = get_running_cluster(obj,n_workers,cluster_to_host_exch_fmwork)
-            % return the initialized MPI cluster, selected as default
+            % return the initialized and running MPI cluster, selected as default
+            % Inputs:
+            % n_workers -- number of running workers
+            % cluster_to_host_exch_fmwork -- the instance of the messaging
+            %              framework, used for initial communication with
+            %              the cluster. Currently only FileBased
+            % Returns:
+            % controller -- the initialized instance of the cluster,
+            %               selected as current in parallel_config. The
+            %               cluster controls the requested number of the
+            %               parallel workers, communicating between each
+            %               other using the method, choosen for the
+            %               cluster.
             log_level = config_store.instance().get_value('herbert_config','log_level');
             fram      = obj.parallel_framework;
             if strcmpi(fram,'none')

@@ -18,6 +18,9 @@ else
         if strcmpi(ME.identifier,'PARALLEL_CONFIG:invalid_configuration')
             warning(ME.identifier,'%s',ME.message);
             return;
+        elseif strcmpi(ME.identifier,'PARALLEL_CONFIG:not_available')
+            warning(ME.identifier,'%s',ME.message);            
+            return;            
         else
             rethrow(ME);
         end
