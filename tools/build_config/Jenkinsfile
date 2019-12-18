@@ -26,7 +26,6 @@ pipeline {
                     module load gcc/\$GCC_VERSION &&
                     ./tools/build_config/build.sh --test
                 '''
-                xUnit "build/Testing/**/*.xml"
             }
         }
 
