@@ -1,7 +1,9 @@
 #!groovy
 
 pipeline {
-    agent any
+    agent {
+        label env.AGENT
+    }
 
     stages {
 
