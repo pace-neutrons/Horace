@@ -9,16 +9,6 @@ readonly CMAKE_GENERATOR="Unix Makefiles"
 readonly HORACE_ROOT="$(realpath $(dirname "$0")/../..)"
 readonly MATLAB_ROOT="$(realpath $(dirname $(readlink -f $(which matlab)))/..)"
 
-# set default parameter values
-build=$FALSE
-test=$FALSE
-package=$FALSE
-build_tests="ON"
-build_config='Release'
-build_dir="${HORACE_ROOT}/build"
-install_dir="${HORACE_ROOT}/install"
-
-
 function echo_and_run {
     echo "+ $1"
     eval "$1"
@@ -75,36 +65,49 @@ function run_package() {
     # echo_and_run "cmake --build install"
 }
 
-# parse command line args
-while [[ $# -gt 0 ]]; do
-    key="$1"
-    case $key in
-        # flags
-        -b|--build) build=$TRUE; shift ;;
-        -t|--test) test=$TRUE; shift ;;
-        -p|--package) package=$TRUE; shift ;;
-        # options
-        -X|--build_tests) build_tests="$2"; shift; shift ;;
-        -C|--build_config) build_config="$2"; shift; shift ;;
-        -O|--build_dir) build_dir="$(realpath $2)"; shift; shift ;;
-        -I|--install_dir) install_dir="$(realpath $2)"; shift; shift ;;
-    esac
-done
+function main() {
+    # set default parameter values
+    local build=$FALSE
+    local test=$FALSE
+    local package=$FALSE
+    local build_tests="ON"
+    local build_config='Release'
+    local build_dir="${HORACE_ROOT}/build"
+    local install_dir="${HORACE_ROOT}/install"
 
-print_package_versions
+    # parse command line args
+    while [[ $# -gt 0 ]]; do
+        key="$1"
+        case $key in
+            # flags
+            -b|--build) build=$TRUE; shift ;;
+            -t|--test) test=$TRUE; shift ;;
+            -p|--package) package=$TRUE; shift ;;
+            # options
+            -X|--build_tests) build_tests="$2"; shift; shift ;;
+            -C|--build_config) build_config="$2"; shift; shift ;;
+            -O|--build_dir) build_dir="$(realpath $2)"; shift; shift ;;
+            -I|--install_dir) install_dir="$(realpath $2)"; shift; shift ;;
+        esac
+    done
 
-if ((${build})); then
-    warning_msg="Warning: Build directory ${build_dir} already exists.\n\
-         This may not be a clean build."
-    echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
-    run_configure ${build_dir} ${build_config} ${build_tests}
-    run_build ${build_dir}
-fi
+    print_package_versions
 
-if ((${test})); then
-    run_tests ${build_dir}
-fi
+    if ((${build})); then
+        warning_msg="Warning: Build directory ${build_dir} already exists.\n\
+            This may not be a clean build."
+        echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
+        run_configure ${build_dir} ${build_config} ${build_tests}
+        run_build ${build_dir}
+    fi
 
-if ((${package})); then
-    run_package
-fi
+    if ((${test})); then
+        run_tests ${build_dir}
+    fi
+
+    if ((${package})); then
+        run_package
+    fi
+}
+
+main "$@"
