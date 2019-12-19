@@ -39,7 +39,7 @@ inst1=create_test_instrument(95,250,'s');
 %inst3=create_test_instrument(195,600,'a');
 %inst3.filter=[3,4,5];
 
-tmpsqwfile=fullfile(tempdir,'test_sqw_file_read_write_tmp.sqw');
+tmpsqwfile=fullfile(tmp_dir,'test_sqw_file_read_write_tmp.sqw');
 clob1 = onCleanup(@()delete(tmpsqwfile));
 
 % Write out to sqw files, read back in, and test they are the same
@@ -156,7 +156,7 @@ f1_2_i0s0=change_header_test(f1_2_i1s1,struct,struct);
 % Use instrument function definition to change instrument
 % -------------------------------------------------------
 % Create reference object, testing setting of array instrument on the way
-tmpsqwfile=fullfile(tempdir,'test_sqw_file_fileref_store.sqw');
+tmpsqwfile=fullfile(tmp_dir,'test_sqw_file_fileref_store.sqw');
 wref=f1_2;
 wref.header{1}.efix=130;
 wref.header{1}.efix=135;

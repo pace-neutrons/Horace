@@ -1,0 +1,60 @@
+function   obj = put_main_header(obj,varargin)
+% Save or replace main sqw header into properly initialized
+% binary sqw file
+%Usage:
+%>>obj.put_main_header();
+%>>obj.put_main_header('-update');
+%>>obj.put_header(sqw_obj_new_source_for_update); -- updates main header
+%                               information using new object as source
+%
+% If update options is selected, header have to exist. This option keeps
+% existing file information untouched;
+%
+% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+%
+
+
+[ok,mess,update,argi] = parse_char_options(varargin,{'-update'});
+if ~ok
+    error('SQW_FILE_IO:runtime_error',...
+        'SQW_BINFILE_COMMON:put_main_header: %s',mess);
+end
+%
+obj.check_obj_initated_properly();
+%
+[main_header,new_obj] = obj.extract_correct_subobj('main_header',argi{:});
+if new_obj
+    update = true;
+end
+
+
+if update
+    head_form = obj.get_main_header_form('-const');
+else
+    head_form = obj.get_main_header_form();
+end
+
+if update && ~obj.upgrade_mode
+    error('SQW_FILE_IO:runtime_error',...
+        'put_main_header : input object has not been initiated for update mode');
+end
+
+
+bytes = obj.sqw_serializer_.serialize(main_header,head_form);
+if update
+    val = obj.upgrade_map_.cblocks_map('main_header');
+    start_pos = val(1);
+    sz = val(2);
+    if sz ~= numel(bytes)
+        error('SQW_BINFILE_COMMON:invalid_argument',...
+            'unable to update main header as new data size is not equal to the space remaining')
+    end
+else
+    start_pos = obj.main_header_pos_;
+end
+fseek(obj.file_id_,start_pos ,'bof');
+check_error_report_fail_(obj,'Error moving to the start of the main header position');
+fwrite(obj.file_id_,bytes,'uint8');
+check_error_report_fail_(obj,'Error writing the main header information');
+
+

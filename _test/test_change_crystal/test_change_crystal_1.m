@@ -9,11 +9,12 @@ banner_to_screen(mfilename)
 
 % -----------------------------------------------------------------------------
 % Add common functions folder to path, and get location of common data
-addpath(fullfile(fileparts(which('horace_init')),'_test','common_functions'))
-common_data_dir=fullfile(fileparts(which('horace_init')),'_test','common_data');
+horace_root = horace_root();
+addpath(fullfile(horace_root,'_test','common_functions'))
+common_data_dir=fullfile(horace_root,'_test','common_data');
 % -----------------------------------------------------------------------------
 
-dir_out=tempdir;
+dir_out=tmp_dir;
 sim_sqw_file=fullfile(dir_out,'test_change_crystal_1sim.sqw');           % output file for simulation in reference lattice
 sim_sqw_file_corr=fullfile(dir_out,'test_change_crystal_1sim_corr.sqw'); % output file for correction
 

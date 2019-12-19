@@ -10,8 +10,8 @@ data_noinst_ref = fullfile(data_dir,'w1_noinst_ref.sqw');
 data_inst_ref = fullfile(data_dir,'w1_inst_ref.sqw');
 
 % File names for copying to later on
-data_noinst = fullfile(tempdir,'w1_noinst.sqw');
-data_inst = fullfile(tempdir,'w1_inst.sqw');
+data_noinst = fullfile(tmp_dir,'w1_noinst.sqw');
+data_inst = fullfile(tmp_dir,'w1_inst.sqw');
 
 
 %% --------------------------------------------------------------------------------------------------

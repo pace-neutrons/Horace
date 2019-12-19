@@ -2,8 +2,8 @@ classdef test_combine_cyl < TestCaseWithSave
     % Test combining powder cylinder sqw files
     %   >> test_combine_cyl           % Compare with previously saved results in test_combine_cyl_output.mat
     %                                 % in the same folder as this function
-    %   >> test_combine_cyl().save()  % Save to test_combine_cyl_output.mat in tempdir (type >> help tempdir
-    %                                  % for information about the system specific location returned by tempdir)
+    %   >> test_combine_cyl().save()  % Save to test_combine_cyl_output.mat in tmp_dir (type >> help tmp_dir
+    %                                  % for information about the system specific location returned by tmp_dir)
     %
     % Author: T.G.Perring
     
@@ -26,15 +26,16 @@ classdef test_combine_cyl < TestCaseWithSave
                 name= mfilename('class');
             end
             this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_combine_cyl_output.mat'));
-            common_data_dir=fullfile(fileparts(which('horace_init')),'_test','common_data');
-            test_functions_path=fullfile(fileparts(which('horace_init.m')),'_test/common_functions');
+            hor_root = horace_root();
+            common_data_dir=fullfile(hor_root,'_test','common_data');
+            test_functions_path=fullfile(hor_root,'_test','common_functions');
             addpath(test_functions_path);
             
             
             % =====================================================================================================================
             % Create spe files:
             this.par_file=fullfile(common_data_dir,'map_4to1_dec09.par');
-            %spe_dir = tempdir(); %fileparts(mfilename('fullpath'));
+            %spe_dir = tmp_dir(); %fileparts(mfilename('fullpath'));
             spe_dir = fileparts(mfilename('fullpath'));
             this.spe_file_1=fullfile(spe_dir,'test_combine_1.nxspe');
             this.spe_file_2=fullfile(spe_dir,'test_combine_2.nxspe');
@@ -74,7 +75,7 @@ classdef test_combine_cyl < TestCaseWithSave
         function this=test_combine_pow1(this)
             % Create sqw files, combine and check results
             % -------------------------------------------
-            sqw_file_1=fullfile(tempdir,'test_cyl_1.sqw');
+            sqw_file_1=fullfile(tmp_dir,'test_cyl_1.sqw');
             % clean up
             cleanup_obj=onCleanup(@()this.delete_files(sqw_file_1));
             
@@ -105,7 +106,7 @@ classdef test_combine_cyl < TestCaseWithSave
         function this=test_combine_cyl2(this)
             % Create sqw files, combine and check results
             % -------------------------------------------
-            sqw_file_2=fullfile(tempdir,'test_cyl_2.sqw');
+            sqw_file_2=fullfile(tmp_dir,'test_cyl_2.sqw');
             % clean up
             cleanup_obj=onCleanup(@()this.delete_files(sqw_file_2));
             
@@ -134,7 +135,7 @@ classdef test_combine_cyl < TestCaseWithSave
         function this=test_combine_cyl_tot(this)
             % Create sqw files, combine and check results
             % -------------------------------------------
-            sqw_file_tot=fullfile(tempdir,'test_cyl_tot.sqw');
+            sqw_file_tot=fullfile(tmp_dir,'test_cyl_tot.sqw');
             % clean up
             cleanup_obj=onCleanup(@()this.delete_files(sqw_file_tot));
             

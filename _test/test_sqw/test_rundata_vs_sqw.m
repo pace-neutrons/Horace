@@ -2,7 +2,7 @@ classdef test_rundata_vs_sqw < TestCase
     % Series of tests to check work of mex files against Matlab files
     
     properties
-        out_dir=tempdir();
+        out_dir=tmp_dir();
         
         en=-80:8:760;
         par_file='map_4to1_dec09.par';
@@ -37,7 +37,7 @@ classdef test_rundata_vs_sqw < TestCase
                 name = varargin{1};
             end
             this = this@TestCase(name);
-            root_dir = fileparts(which('horace_init.m'));
+            root_dir = horace_root();
             data_dir = fullfile(root_dir,'_test','common_data');
             this.sqw_file_single = fullfile(this.out_dir,this.sqw_file_single);
             this.par_file = fullfile(data_dir,this.par_file);

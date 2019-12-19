@@ -8,7 +8,7 @@ function test_tobyfit_let_1 (option)
 %
 %   >> test_tobyfit_let_1 ('-save') % Run the Tobyfit tests and save fit parameters
 %                                   % to file test_tobyfit_let_1_out.mat
-%                                   % in the temporary folder (given by tempdir)
+%                                   % in the temporary folder (given by tmp_dir)
 %                                   % Copy to the same folder as this file to use in
 %                                   % tests.
 %
@@ -120,6 +120,6 @@ if save_output
     wdata_1 = set_sample(wdata_1,struct());
     wfit_1 = set_instrument(wfit_1,struct());
     wfit_1 = set_sample(wfit_1,struct());
-    save(fullfile(tempdir,savefile),...
+    save(fullfile(tmp_dir,savefile),...
         'wdata_1','wfit_1','fitpar_1');
 end

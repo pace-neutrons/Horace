@@ -2,8 +2,8 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
     % Test combining powder cylinder sqw files
     %   >> test_gen_sqw_cylinder           % Compare with previously saved results in test_combine_cyl_output.mat
     %                                 % in the same folder as this function
-    %   >> test_gen_sqw_cylinder().save()  % Save to test_gen_sqw_cylinder_output.mat in tempdir (type >> help tempdir
-    %                                  % for information about the system specific location returned by tempdir)
+    %   >> test_gen_sqw_cylinder().save()  % Save to test_gen_sqw_cylinder_output.mat in tmp_dir (type >> help tmp_dir
+    %                                  % for information about the system specific location returned by tmp_dir)
     %
     % Author: T.G.Perring
     
@@ -23,8 +23,9 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
                 name= mfilename('class');
             end
             this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_gen_sqw_cylinder_output.mat'));
-            common_data_dir=fullfile(fileparts(which('horace_init')),'_test','common_data');
-            test_functions_path=fullfile(fileparts(which('horace_init.m')),'_test/common_functions');
+            hor_root = horace_root();
+            common_data_dir=fullfile(hor_root,'_test','common_data');
+            test_functions_path=fullfile(hor_root,'_test','common_functions');
             addpath(test_functions_path);
             
             
@@ -65,7 +66,7 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
         
         function this=test_gen_sqw_cyl(this)
             
-            sqw_cyl_file=fullfile(tempdir,'test_cyl_4to1.sqw');
+            sqw_cyl_file=fullfile(tmp_dir,'test_cyl_4to1.sqw');
             % clean up
             cleanup_obj=onCleanup(@()this.delete_files(sqw_cyl_file));
             

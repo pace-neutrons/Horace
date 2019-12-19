@@ -80,14 +80,14 @@ classdef test_gen_sqw_accumulate_sqw_mex < ...
             %-------------------------------------------------------------
             spe_file_names = cell(1,1);
             for i=1:1
-                spe_file_names{i}=fullfile(tempdir,['test_gen_sqw_threading_1th',num2str(i),'.nxspe']);
+                spe_file_names{i}=fullfile(tmp_dir,['test_gen_sqw_threading_1th',num2str(i),'.nxspe']);
             end
             % build special test files if they have not been build
             obj=build_test_files(obj,spe_file_names);
             
             
-            sqw_file_123_t8=fullfile(tempdir,'sqw_123_mex8_threading.sqw');             % output sqw file
-            sqw_file_123_t1=fullfile(tempdir,'sqw_123_mex1_threading.sqw');        % output sqw file
+            sqw_file_123_t8=fullfile(tmp_dir,'sqw_123_mex8_threading.sqw');             % output sqw file
+            sqw_file_123_t1=fullfile(tmp_dir,'sqw_123_mex1_threading.sqw');        % output sqw file
             clob3=onCleanup(@()obj.delete_files(sqw_file_123_t8,sqw_file_123_t1,spe_file_names{:}));
             % ---------------------------------------
             % Test gen_sqw
