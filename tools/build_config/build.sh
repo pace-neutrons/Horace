@@ -30,16 +30,11 @@ function warning {
 
 function run_configure() {
     echo_and_run "cd ${build_dir}"
-
     cmake_cmd="cmake ${HORACE_ROOT}"
     cmake_cmd+=" -G \"${CMAKE_GENERATOR}\""
     cmake_cmd+=" -DMatlab_ROOT_DIR=${MATLAB_ROOT}"
     cmake_cmd+=" -DCMAKE_BUILD_TYPE=${build_config}"
-    if [ "${build_tests}" == "OFF" ]; then
-        cmake_cmd+=" -DBUILD_TESTS=OFF"
-    else
-        cmake_cmd+=" -DBUILD_TESTS=ON"
-    fi
+    cmake_cmd+=" -DBUILD_TESTS=${build_tests}"
 
     echo -e "\nRunning CMake configure step..."
     echo_and_run "${cmake_cmd}"
