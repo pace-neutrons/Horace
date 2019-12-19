@@ -10,8 +10,8 @@ classdef MessagesCppMPI_tester < MessagesCppMPI
             obj = obj@MessagesCppMPI(varargin{:});
         end
         
-        function [obj,labNum,nLabs]=lab_index_test(obj)
-            [obj,labNum,nLabs] = obj.lab_index_tester();
+        function [obj,labNum,nLabs]=get_lab_index(obj)
+            [obj,labNum,nLabs] = obj.read_cpp_comm_pull_info();
         end
     end
 end

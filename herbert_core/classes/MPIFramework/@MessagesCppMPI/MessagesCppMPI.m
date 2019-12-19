@@ -50,9 +50,9 @@ classdef MessagesCppMPI < iMessagesFramework
             %Example
             % jd = MessagesFramework() -- use randomly generated job control
             %                             prefix
-            % jd = MessagesFramework('test_mode') 
-            % 
-
+            % jd = MessagesFramework('test_mode')
+            %
+            
             % Initialise folder path
             jd = jd@iMessagesFramework();
             if nargin>0
@@ -62,10 +62,21 @@ classdef MessagesCppMPI < iMessagesFramework
         end
         %------------------------------------------------------------------
         %
-        function  obj = init_framework(obj,test_mode)
+        function  obj = init_framework(obj,framework_info)
             % using control structure initialize operational message
             % framework
-            obj = init_framework_(obj,test_mode);
+            %  framework_info -- either:
+            %   a) string, defining the job name (job_id)
+            %     -- or:
+            %   b) the structure, defined by worker_job_info function:
+            %      in this case usually defines slave message exchange
+            %      framework.
+            %
+            %      If the string is 'test_mode' or the structure contains the field
+            %      .test_mode, the framework does not initializes real mpi, but runs
+            %      sets numLab to one and labNum to 1 and runs as fake worker in the
+            %      main process flow (not parallel)
+            obj = init_framework_(obj,framework_info);
         end
         %------------------------------------------------------------------
         % MPI interface
@@ -212,7 +223,17 @@ classdef MessagesCppMPI < iMessagesFramework
         function ind = get_num_labs_(obj)
             ind = obj.numLabs_;
         end
-        
+        function [obj,numLabs,labNum] = read_cpp_comm_pull_info(obj)
+            % service function, to retrieve MPI pull information from cpp
+            % communicator. This info should not currently change from the
+            % initialization time, but may be modified in a future.
+            [obj.mpi_framework_holder_,labNum,numLabs]= ...
+                cpp_communicator('labIndex',obj.mpi_framework_holder_);
+            %
+            obj.task_id_ = labNum;            
+            obj.numLabs_ = numLabs;
+            
+        end
     end
 end
 

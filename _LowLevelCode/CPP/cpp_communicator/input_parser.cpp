@@ -155,7 +155,7 @@ class_handle<MPI_wrapper> *parse_inputs(int nlhs, int nrhs, const mxArray *prhs[
         work_mode = init_mpi;
         return pCommunicator;
     }
-    else if (mex_mode.compare("init_test_mode")) {
+    else if (mex_mode.compare("init_test_mode")==0) {
         if (nrhs != 1) {
             std::stringstream err;
             err << " Init Test mode needs only 1 but got : " << nrhs << " input parameters";
@@ -178,7 +178,8 @@ class_handle<MPI_wrapper> *parse_inputs(int nlhs, int nrhs, const mxArray *prhs[
         throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", err.str().c_str());
     }
     if (work_mode != close_mpi && nrhs < 1) {
-        throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", "MPI communicator needs at least one argument to return the instance of the communicatir");
+        throw_error("MPI_MEX_COMMUNICATOR:invalid_argument",
+            "MPI communicator needs at least one argument to return the instance of the communicatir");
     }
 
     // get handlder from 

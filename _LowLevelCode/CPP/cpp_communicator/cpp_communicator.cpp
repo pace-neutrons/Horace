@@ -35,7 +35,8 @@ Inputs: -- Matlab_class_holder :: pointer to initialized C++ MPI framework wrapp
 Outputs: -- empty matrix.
 
 *** 'labIndex' Queries the number of the current parallel worker and the size of the MPI pool
-Inputs: -- Matlab_class_holder :: pointer to initialized C++ MPI framework wrapper used for interprocess communications
+Inputs: 
+    -- Matlab_class_holder :: pointer to initialized C++ MPI framework wrapper used for interprocess communications
 Outputs: 
   1     -- pointer to current real or fake MPI framework.
   2     -- Index (number) of current MPI process
