@@ -28,42 +28,43 @@ gl=2;
 gs=-0.5;
 gridsize=5;
 
-sqw_file=fullfile(tempdir,'f1_1.sqw');
+tmp = tmp_dir;
+sqw_file=fullfile(tmp,'f1_1.sqw');
 fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, gridsize)
 randomdata(sqw_file);
 
 psi=20;
-sqw_file=fullfile(tempdir,'f2_1.sqw');
+sqw_file=fullfile(tmp,'f2_1.sqw');
 fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, gridsize)
 randomdata(sqw_file);
 
 psi=[31,32];
-sqw_file=fullfile(tempdir,'f1_2.sqw');
+sqw_file=fullfile(tmp,'f1_2.sqw');
 fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, gridsize)
 randomdata(sqw_file);
 
 psi=[41,45];
-sqw_file=fullfile(tempdir,'f2_2.sqw');
+sqw_file=fullfile(tmp,'f2_2.sqw');
 fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, gridsize)
 randomdata(sqw_file);
 
 psi=[51,53,55];
-sqw_file=fullfile(tempdir,'f1_3.sqw');
+sqw_file=fullfile(tmp,'f1_3.sqw');
 fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, gridsize)
 randomdata(sqw_file);
 
 psi=[61,63.5,67.5];
-sqw_file=fullfile(tempdir,'f2_3.sqw');
+sqw_file=fullfile(tmp,'f2_3.sqw');
 fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, gridsize)
 randomdata(sqw_file);
 
 % Read objects into memory
-f1_1=read_sqw(fullfile(tempdir,'f1_1.sqw'));
-f2_1=read_sqw(fullfile(tempdir,'f2_1.sqw'));
-f1_2=read_sqw(fullfile(tempdir,'f1_2.sqw'));
-f2_2=read_sqw(fullfile(tempdir,'f2_2.sqw'));
-f1_3=read_sqw(fullfile(tempdir,'f1_3.sqw'));
-f2_3=read_sqw(fullfile(tempdir,'f2_3.sqw'));
+f1_1=read_sqw(fullfile(tmp,'f1_1.sqw'));
+f2_1=read_sqw(fullfile(tmp,'f2_1.sqw'));
+f1_2=read_sqw(fullfile(tmp,'f1_2.sqw'));
+f2_2=read_sqw(fullfile(tmp,'f2_2.sqw'));
+f1_3=read_sqw(fullfile(tmp,'f1_3.sqw'));
+f2_3=read_sqw(fullfile(tmp,'f2_3.sqw'));
 
 % The objects were written from Horace v2.1.1, so need to add dummy instrument and sample fields
 f1_1=convert_to_v3(f1_1);

@@ -2,7 +2,7 @@ classdef test_sqw_main < TestCase
     % Series of tests to check work of mex files against Matlab files
     
     properties
-        out_dir=tempdir();
+        out_dir=tmp_dir();
         tests_dir;
     end
     
@@ -44,7 +44,7 @@ classdef test_sqw_main < TestCase
             test_dnd.filename = [targ_file,fext];
             test_dnd.filepath = [targ_path,filesep];
             
-            [ok,mess]=equal_to_tol(loaded_dnd,test_dnd);
+            [ok,mess]=equal_to_tol(loaded_dnd,test_dnd,'ignore_str',true);
             assertTrue(ok,mess)
         end
         

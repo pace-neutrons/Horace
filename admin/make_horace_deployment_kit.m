@@ -1,11 +1,19 @@
-% script prepares and packs all flavours of recent Horace distributives 
+function make_horace_deployment_kit(varargin)
+% script prepares and packs all flavors of recent Horace distributive
 % for further placement on Horace distribution server.
 %
-% Update herbert code version:
-update_svn_revision_info('herbert') 
-% Update horace code version:
-update_svn_revision_info('horace') 
-
+%
+opt = {'-update_version'};
+[ok,mess,update_version] = parse_char_options(varargin,opt);
+if ~ok
+    error('MAKE_HORACE_DEPLOYMENT_KIT:invalid_argument',mess);
+end
+if update_version
+    % Update Herbert code version:
+    update_svn_revision_info('herbert')
+    % Update Horace code version:
+    update_svn_revision_info('horace')
+end
 % create Horace distribution
 make_horace_distribution_kit
 % create Horace distribution without demo and tests

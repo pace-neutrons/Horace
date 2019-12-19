@@ -55,6 +55,8 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
         end
         %
         function test_worker(this)
+            worker_local = 'worker_4tests_local';
+            
             mis = MPI_State.instance('clear');
             mis.is_tested = true;
             mis.is_deployed = true;
@@ -97,7 +99,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             [task_id_list,init_mess]=JobDispatcher.split_tasks(common_par,loop_par,true,1);
             
             serverfbMPI  = MessagesFilebased('test_gen_sqw_worker');
-            serverfbMPI.mess_exchange_folder = tempdir;
+            serverfbMPI.mess_exchange_folder = tmp_dir;
             clobm = onCleanup(@()finalize_all(serverfbMPI));
             
             starting_mess = JobExecutor.build_worker_init('gen_sqw_files_job',false,false);
@@ -108,8 +110,8 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             assertEqual(ok,MESS_CODES.ok,err);
             
             wk_init= serverfbMPI.get_worker_init('MessagesFilebased',1,1);
-            parc = parallel_config;
-            worker_h = str2func(parc.worker);
+
+            worker_h = str2func(worker_local);
             [ok,error_mess]=worker_h(wk_init);
             assertTrue(ok,error_mess)
             [ok,err] = serverfbMPI.receive_message(1,'started');
@@ -166,7 +168,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
                 [50,50,50,50],[-1.5,-2.1,-0.5,0;0,0,0.5,35]);
             
             serverfbMPI  = MessagesFilebased('test_do_job');
-            serverfbMPI.mess_exchange_folder = tempdir();
+            serverfbMPI.mess_exchange_folder = tmp_dir();
             clob1 = onCleanup(@()finalize_all(serverfbMPI));
             
             
@@ -198,7 +200,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             
             
             serverfbMPI  = MessagesFilebased('test_finish_task');
-            serverfbMPI.mess_exchange_folder = tempdir;
+            serverfbMPI.mess_exchange_folder = tmp_dir;
             clob1 = onCleanup(@()finalize_all(serverfbMPI));
             
             

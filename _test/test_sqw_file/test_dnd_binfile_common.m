@@ -1,6 +1,6 @@
 classdef test_dnd_binfile_common <  TestCase %WithSave
     %Testing common part of the code used to access binary sqw files
-    % and various auxliary methods, availble on this class
+    % and various auxiliary methods, available on this class
     %
     
     properties
@@ -123,7 +123,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             assertTrue(isa(tob,'faccess_sqw_v2'));
             
             
-            test_f = fullfile(tempdir,'test_change_file_to_write.sqw');
+            test_f = fullfile(tmp_dir,'test_change_file_to_write.sqw');
             clob = onCleanup(@()delete(test_f));
             
             tob=tob.set_file_to_update(test_f);
@@ -158,7 +158,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             sq_obj = ttob.get_sqw();
             assertTrue(isa(sq_obj,'d1d'));
             
-            test_f = fullfile(tempdir,'test_dnd_copy_constructor_write_perm.sqw');
+            test_f = fullfile(tmp_dir,'test_dnd_copy_constructor_write_perm.sqw');
             clob = onCleanup(@()delete(test_f));
             
             tob =  dnd_binfile_common_tester(sq_obj,test_f);
@@ -190,7 +190,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             sq_obj = ttob.get_sqw('-verbatim');
             assertTrue(isa(sq_obj,'d1d'));
             
-            test_f = fullfile(tempdir,'test_dnd_reopen_to_wrire.sqw');
+            test_f = fullfile(tmp_dir,'test_dnd_reopen_to_wrire.sqw');
             clob = onCleanup(@()delete(test_f));
             
             % using already initialized object to write new data.

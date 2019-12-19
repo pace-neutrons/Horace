@@ -28,8 +28,8 @@ classdef test_fake_sqw_bin_pix < TestCase
             if hc.use_mex ~= 1
                 this.skip_this_test= true;
             end
-            this.tmp_data_folder = tempdir;
-            root_dir = fileparts(which('horace_init.m'));
+            this.tmp_data_folder = tmp_dir;
+            root_dir = horace_root();
             this.sample_dir = fullfile(root_dir,'_test','common_data');
         end
         function test_bin_c(this)

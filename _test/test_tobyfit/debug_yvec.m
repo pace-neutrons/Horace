@@ -13,7 +13,7 @@ for i=1:ncmp
     title = ['Component ',num2str(i)];
     w(i) = histogram_array (yvec(i,:), nbins, title);
 end
-save(fullfile(tempdir,'histogram.mat'),'w')
+save(fullfile(tmp_dir,'histogram.mat'),'w')
 
 %--------------------------------------------------------------------------
 function w = histogram_array (vals, nbins, title)

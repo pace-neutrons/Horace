@@ -8,7 +8,7 @@ function test_tobyfit_refine_moderator_1 (option, version)
 %
 %   >> test_tobyfit_refine_moderator_1 ('-save')% Run the Tobyfit tests and save fit parameters
 %                                               % to file test_tobyfit_refine_moderator_1_out.mat
-%                                               % in the temporary folder (given by tempdir)
+%                                               % in the temporary folder (given by tmp_dir)
 %                                               % Copy to the same folder as this file to use in
 %                                               % tests.
 %
@@ -25,7 +25,7 @@ function test_tobyfit_refine_moderator_1 (option, version)
 %   >> test_tobyfit_refine_moderator_1 ('-setup')
 %                                   % Create the cuts that will be fitted and save in
 %                                   % test_tobyfit_refine_moderator_1.mat in the temporary
-%                                   % folder given by tempdir. Copy this file to the same folder
+%                                   % folder given by tmp_dir. Copy this file to the same folder
 %                                   % that holds this .m file to use it in the following
 %                                   % tests
 %
@@ -91,7 +91,7 @@ if save_data
     w1inc=cut_sqw(data_source,proj,[0.3,0.5],[0,0.2],[-0.1,0.1],[-3,0.1,3]);
     
     % Now save to file for future use
-    datafile_full = fullfile(tempdir,datafile);
+    datafile_full = fullfile(tmp_dir,datafile);
     save(datafile_full,'w1inc');
     disp(['Saved data for future use in',datafile_full])
     return
@@ -193,6 +193,6 @@ end
 % Save fit parameter output if requested
 % ---------------------------------------------------------------------------------------
 if save_output
-    save(fullfile(tempdir,savefile),'pfit','ppfit');
+    save(fullfile(tmp_dir,savefile),'pfit','ppfit');
 end
 

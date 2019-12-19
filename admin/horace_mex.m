@@ -8,15 +8,15 @@ function horace_mex
 % code one have to edit  ~/.matlab/mexoptions.sh file and add -fopenmp key
 % to the proper compiler and linker keys
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
+% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
 %
 
 
 start_dir=pwd;
 C_compiled=false;
-root_dir = fileparts(which('horace_init.m'));
+root_dir = horace_root();
 
-% check OS for hdf compilation puirposes
+% check OS for hdf compilation purpose
 if ispc
     hdf_ext = '_win';
 elseif isunix
@@ -30,9 +30,9 @@ end
 [ma,me,mi]=H5.get_libversion();
 hdf_version = ma+0.1*me+0.001*mi;
 if hdf_version == 1.812
-    hdf_root_dir = fullfile(root_dir,'_LowLevelCode','build_all',['HDF5_1.8.12',hdf_ext]);
+    hdf_root_dir = fullfile(root_dir,'_LowLevelCode','external',['HDF5_1.8.12',hdf_ext]);
 elseif hdf_version == 1.806
-    hdf_root_dir = fullfile(root_dir,'_LowLevelCode','build_all',['HDF5_1.8.6',hdf_ext]);
+    hdf_root_dir = fullfile(root_dir,'_LowLevelCode','external',['HDF5_1.8.6',hdf_ext]);
 else
     error('HORACE_MEX:not_implemented',...
         ['Matlab uses %d.%d.%d version of HDF library. ',...
@@ -40,7 +40,6 @@ else
         ' You need to download appropriate hdf headers yourseld and modify horace_mex to use your version'],...
         ma,me,mi);
 end
-hdf_include_dir = fullfile(hdf_root_dir,'include');
 % lib directirues:
 %arc = computer('arch');
 %lib_dir = fullfile(matlabroot,'bin',arc);
@@ -48,18 +47,17 @@ hdf_include_dir = fullfile(hdf_root_dir,'include');
 try % mex C++
     disp('**********> Creating mex files from C++ code')
     % root directory is assumed to be that in which this function resides
-    rootpath = fileparts(which('horace_init'));
-    cd(rootpath);
+    cd(root_dir);
     
     fortran_in_rel_dir = ['_LowLevelCode',filesep,'intel',filesep];
     cpp_in_rel_dir = ['_LowLevelCode',filesep,'cpp',filesep];
     % get folder names corresponding to the current Matlab version and OS
     [VerFolderName,versionDLLextention,OSdirname]=matlab_version_folder();
     if ispc
-        out_rel_dir = fullfile('DLL',OSdirname);
-        out_hdf_dir = fullfile('DLL',OSdirname,VerFolderName);
+        out_rel_dir = fullfile('horace_core','DLL',OSdirname);
+        out_hdf_dir = fullfile('horace_core','DLL',OSdirname,VerFolderName);
     else %Unix
-        out_rel_dir = fullfile('DLL',OSdirname,VerFolderName);
+        out_rel_dir = fullfile('horace_core','DLL',OSdirname,VerFolderName);
         out_hdf_dir = out_rel_dir;
     end
     
@@ -67,17 +65,17 @@ try % mex C++
         mkdir(out_rel_dir);
     end
     % simple OMP routines
-    mex_single([cpp_in_rel_dir 'accumulate_cut_c/accumulate_cut_c'], out_rel_dir,'accumulate_cut_c.cpp');
+    mex_single([cpp_in_rel_dir 'accumulate_cut_c'], out_rel_dir,'accumulate_cut_c.cpp');
     mex_single([cpp_in_rel_dir 'bin_pixels_c'], out_rel_dir,'bin_pixels_c.cpp');
     mex_single([cpp_in_rel_dir 'calc_projections_c'], out_rel_dir,'calc_projections_c.cpp');
-    mex_single([cpp_in_rel_dir 'sort_pixels_by_bins/sort_pixels_by_bins'], out_rel_dir,'sort_pixels_by_bins.cpp');
+    mex_single([cpp_in_rel_dir 'sort_pixels_by_bins'], out_rel_dir,'sort_pixels_by_bins.cpp');
     mex_single([cpp_in_rel_dir 'recompute_bin_data'], out_rel_dir,'recompute_bin_data_c.cpp');
     mex_single([cpp_in_rel_dir 'mtimesx_horace'], out_rel_dir,'mtimesx_mex.cpp');
     
     % create the procedured to access hdf files
     cof = {'hdf_mex_reader.cpp','hdf_pix_accessor.cpp','input_parser.cpp',...
         'pix_block_processor.cpp'};
-    mex_hdf([cpp_in_rel_dir 'hdf_mex_reader'], out_hdf_dir,hdf_include_dir,cof{:} );
+    mex_hdf([cpp_in_rel_dir 'hdf_mex_reader'], out_hdf_dir,hdf_root_dir,cof{:} );
     
     
     disp('**********> Successfully created required mex files from C++')
@@ -120,14 +118,21 @@ end
 function add_version_foloder(out_rel_dir)
 % Add folder with compiled mex files to Matlab search path
 %
-hor_folder = fileparts(which('horace_init.m'));
-mex_folder = fullfile(hor_folder,out_rel_dir);
+%hor_folder = fileparts(which('horace_init.m'));
+root_folder = fileparts(fileparts(mfilename('fullpath')));
+mex_folder    = fullfile(root_folder,out_rel_dir);
 addpath(mex_folder);
 
-function mex_hdf (in_rel_dir, out_rel_dir,hdf_include, varargin)
+function mex_hdf (in_rel_dir, out_rel_dir,hdf_root, varargin)
 % Usage:
-% mex_single (in_rel_dir, out_rel_dir, varargin)
+% mex_single (in_rel_dir, out_rel_dir,hdf_root, varargin)
 %
+% Inputs:
+% in_rel_dir -- the folder where hdf code is located vrt. the current
+%               folder
+% out_rel_dir -- the folder where target files should be placed vrt. to the
+%                current folder
+% hdf_root    -- the path to the
 % mex a set of files to produce a single mex file, the file with the mex
 % function has to be first in the  list of the files to compile
 %
@@ -148,7 +153,16 @@ disp(['Mex file creation from ',short_fname,' ...'])
 if ~check_access(outdir,add_files{1})
     error('MEX_SINGLE:invalid_arg',' can not get write access to new mex file: %s',fullfile(outdir,add_files{1}));
 end
-mex(['-I',hdf_include],'-lhdf5','-lhdf5_hl',add_files{:}, '-outdir', outdir);
+hdf_include = fullfile(hdf_root,'include');
+if ispc
+    hdf_lib = fullfile(hdf_root,'lib');
+else
+    arc = computer('arch');
+    matlab_root = find_matlab_path();
+    hdf_lib     = fullfile(matlab_root,arc);
+end
+mex(['-I',hdf_include],['-L',hdf_lib],'-lhdf5','-lhdf5_hl',add_files{:}, '-outdir', outdir);
+
 
 
 
@@ -263,4 +277,3 @@ her_dll_targ = fullfile(her_path,'DLL',os_dirname,matlab_dirname);
 hor_dll_sourc= fullfile(hor_path,'DLL',os_dirname,matlab_dirname);
 
 copyfile(fullfile(hor_dll_sourc,ascii_reader),fullfile(her_dll_targ,ascii_reader),'f');
-

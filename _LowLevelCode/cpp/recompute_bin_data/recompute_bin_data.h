@@ -6,7 +6,7 @@
 #include <sstream>
 #include <memory>
 //
-// $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)" 
+// $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)" 
 //
 
 template<class T>
@@ -68,4 +68,5 @@ void recompute_pix_sums(double *const pSignal, double *const pError, size_t dist
 
 
 #endif
+
 
