@@ -3,11 +3,11 @@
 set -o errexit  # exit early on any error
 set -o nounset  # raise error using unused variables
 
-FALSE=0
-TRUE=1
-CMAKE_GENERATOR="Unix Makefiles"
-HORACE_ROOT="$(realpath $(dirname "$0")/../..)"
-MATLAB_ROOT="$(realpath $(dirname $(readlink -f $(which matlab)))/..)"
+readonly FALSE=0
+readonly TRUE=1
+readonly CMAKE_GENERATOR="Unix Makefiles"
+readonly HORACE_ROOT="$(realpath $(dirname "$0")/../..)"
+readonly MATLAB_ROOT="$(realpath $(dirname $(readlink -f $(which matlab)))/..)"
 
 # set default parameter values
 build=$FALSE
