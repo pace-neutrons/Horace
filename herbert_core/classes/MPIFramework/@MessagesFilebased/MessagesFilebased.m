@@ -20,7 +20,17 @@ classdef MessagesFilebased < iMessagesFramework
         % Time in seconds a system waits for blocking message until
         % returning "not-received"
         time_to_fail;
+        % The folder located on a parallel file system and used for storing
+        % initial job info and message exchange between tasks if job uses
+        % filebased messages.
+        mess_exchange_folder;
+        
     end
+    properties(Constant=true)
+        % the name of the sub-folder where the remote jobs information is stored;
+        exchange_folder_name='Herbert_Remote_Job';
+    end
+    
     %----------------------------------------------------------------------
     %----------------------------------------------------------------------
     properties(Access=protected)
@@ -32,6 +42,8 @@ classdef MessagesFilebased < iMessagesFramework
         task_id_ = 0;
         %
         numLabs_ = 1;
+        %
+        mess_exchange_folder_ = '';
         % if true, enable debug printout
         DEBUG_ = false;
     end
@@ -59,7 +71,7 @@ classdef MessagesFilebased < iMessagesFramework
             end
             
         end
-
+        
         %------------------------------------------------------------------
         %
         function  obj = init_framework(obj,framework_info)
@@ -67,9 +79,14 @@ classdef MessagesFilebased < iMessagesFramework
             % framework
             obj = init_framework_(obj,framework_info);
         end
+        %
+        function folder = get.mess_exchange_folder(obj)
+            folder  = obj.mess_exchange_folder_;
+        end
+        %
         function obj=set_framework_range(obj,labNum,NumLabs)
             % The function to set numLab and labId describing framework
-            % extend during initialization procedure. 
+            % extend during initialization procedure.
             %
             % Also used independently to set up slave file-based framework,
             % in the case when main data exchange framework between nodes
@@ -77,6 +94,34 @@ classdef MessagesFilebased < iMessagesFramework
             obj.task_id_ = labNum;
             obj.numLabs_ = NumLabs;
         end
+        %
+        function obj = set.mess_exchange_folder(obj,val)
+            % set message exchange folder for filebased messages exchange
+            % within Herbert/Horace configuration folder
+            % and copy Herbert/Horace configurations to new configuration
+            % folder if this folder location differs from the default configuration
+            % location (for using on remote machines)
+            if ~ischar(val)
+                error('iMessagesFramework:invalid_argument',...
+                    'message exchange folder should be a string');
+            end
+            
+            if isempty(obj.mess_exchange_folder)
+                obj=construct_me_folder_(obj,val);
+                return;
+            end
+            
+            if strcmp(val,obj.mess_exchange_folder) % the same folder have been already set-up nothing to do
+                return;
+            end
+            % We are setting new folder so should delete old message exchange folder if one exist
+            if exist(obj.mess_exchange_folder,'dir') == 7
+                rmdir(obj.mess_exchange_folder,'s');
+            end
+            obj=construct_me_folder_(obj,val);
+            
+        end
+        
         %------------------------------------------------------------------
         % MPI interface
         %
@@ -211,6 +256,21 @@ classdef MessagesFilebased < iMessagesFramework
         function val = get.time_to_fail(obj)
             val = obj.time_to_fail_ ;
         end
+        %
+        function is = is_job_canceled(obj)
+            % method verifies if job has been canceled
+            if ~exist(obj.mess_exchange_folder_,'dir')
+                is=true;
+            else
+                is=false;
+            end
+            if ~is
+                mess = obj.probe_all('all','canceled');
+                if ~isempty(mess)
+                    is = true;
+                end
+            end
+        end
         
     end
     %----------------------------------------------------------------------
@@ -225,6 +285,41 @@ classdef MessagesFilebased < iMessagesFramework
                 mess_name,lab_from,lab_to));
             
         end
+        %
+        function obj = set_job_id_(obj,new_job_id)
+            %
+            if is_string(new_job_id) && ~isempty(new_job_id)
+                % message exchange folder name is defined on the basis
+                % of a job_id. As old job_id is available only here,
+                % one needs to deal with old message exchange folder too.
+                old_id = obj.job_id_;
+                obj.job_id_ = new_job_id;
+                if ~isempty(obj.mess_exchange_folder_)
+                    old_exchange = obj.mess_exchange_folder_;
+                    [fp,fs] = fileparts(obj.mess_exchange_folder_);
+                    if strcmpi(fs,old_id)
+                        obj.mess_exchange_folder_ = fullfile(fp,new_job_id);
+                        if exist(old_exchange,'dir') == 7
+                            rmdir(old_exchange,'s');
+                        end
+                    end
+                end
+                
+            else
+                error('MESSAGES_FILEBASED:invalid_argument',...
+                    'MPI job id has to be a string');
+            end
+        end
+        function [top_exchange_folder,mess_subfolder] = build_exchange_folder_name(obj,top_exchange_folder )
+            % build the name of the folder used to exchange messages
+            % between the base node and the MPI framework and, if
+            % necessary, filebased messages
+            if ~exist('top_exchange_folder','var')
+                top_exchange_folder = config_store.instance().config_folder;
+            end
+            [top_exchange_folder,mess_subfolder] = constr_exchange_folder_name_(obj,top_exchange_folder);
+        end
+        
         function ind = get_lab_index_(obj)
             ind = obj.task_id_;
         end

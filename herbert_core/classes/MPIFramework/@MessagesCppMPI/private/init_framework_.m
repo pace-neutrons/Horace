@@ -1,13 +1,13 @@
 function obj = init_framework_(obj,framework_info)
-% Internal init_framework method, used to construct functional filebased
+% Internal init_framework method, used to construct functional CppMPI 
 % message-exchange framework.
 % Input:
 %  framework_info -- either:
-%             a) string, defining the job name (job_id)
-%                 -- or:
-%             b) the structure, defined by worker_job_info function:
-%                in this case usually defines slave message exchange
-%                framework.
+%   a) string, defining the job name (job_id)
+%     -- or:
+%   b) the structure, defined by worker_job_info function:
+%      in this case usually defines slave message exchange
+%      framework.
 %
 
 if exist('framework_info','var')

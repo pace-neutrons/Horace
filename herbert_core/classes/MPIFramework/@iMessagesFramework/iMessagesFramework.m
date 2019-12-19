@@ -16,10 +16,6 @@ classdef iMessagesFramework
         % name is created in shared location to keep initial job settings
         % and transfer progress messages from cluster to the user's node.
         job_id;
-        % The folder located on a parallel file system and used for storing
-        % initial job info and message exchange between tasks if job uses
-        % filebased messages.
-        mess_exchange_folder;
         % returns the index of the worker currently executing the function.
         % labIndex is assigned to each worker when a job begins execution,
         % and applies only for the duration of that job.
@@ -32,15 +28,10 @@ classdef iMessagesFramework
     end
     properties(Access=protected)
         job_id_;
-        mess_exchange_folder_ = '';
         % time in seconds to waiting in blocking message until
         % unblocking or failing. Does not work for some operations in some frameworks
         % (e.g. receive_message in mpi)
         time_to_fail_ = 1000; %(sec)
-    end
-    properties(Constant=true)
-        % the name of the sub-folder where the remote jobs information is stored;
-        exchange_folder_name='Herbert_Remote_Job';
     end
     methods
         function obj = iMessagesFramework(varargin)
@@ -57,55 +48,11 @@ classdef iMessagesFramework
             id = obj.job_id_;
         end
         %
-        function folder = get.mess_exchange_folder(obj)
-            folder  = obj.mess_exchange_folder_;
-        end
-        %
         function obj = set.job_id(obj,val)
-            if is_string(val) && ~isempty(val)
-                old_id = obj.job_id_;
-                obj.job_id_ = val;
-                if ~isempty(obj.mess_exchange_folder_)
-                    old_exchange = obj.mess_exchange_folder_;
-                    [fp,fs] = fileparts(obj.mess_exchange_folder_);
-                    if strcmpi(fs,old_id)
-                        obj.mess_exchange_folder_ = fullfile(fp,val);
-                        rmdir(old_exchange,'s');
-                    end
-                end
-                
-            else
-                error('iMESSAGES_FRAMEWORK:invalid_argument',...
-                    'MPI job id has to be a string');
-            end
+            % set the string uniquely definging job name.
+            obj = set_job_id_(obj,val);
         end
         %
-        function obj = set.mess_exchange_folder(obj,val)
-            % set message exchange folder for filebased messages exchange
-            % within Herbert/Horace configuration folder
-            % and copy Herbert/Horace configurations to new configuration
-            % folder if this folder location differs from the default configuration
-            % location (for using on remote machines)
-            if ~ischar(val)
-                error('iMessagesFramework:invalid_argument',...
-                    'message exchange folder should be a string');
-            end
-            
-            if isempty(obj.mess_exchange_folder)
-                obj=construct_me_folder_(obj,val);
-                return;
-            end
-            
-            if strcmp(val,obj.mess_exchange_folder) % the same folder have been already set-up nothing to do
-                return;
-            end
-            % We are setting new folder so should delete old message exchange folder if one exist
-            if exist(obj.mess_exchange_folder,'dir') == 7
-                rmdir(obj.mess_exchange_folder,'s');
-            end
-            obj=construct_me_folder_(obj,val);
-            
-        end
         %
         function ind = get.labIndex(obj)
             ind = get_lab_index_(obj);
@@ -149,22 +96,6 @@ classdef iMessagesFramework
                     datapath,obj.job_id,intercom_name);
             end
             
-        end
-        
-        % HERBERT Job control interface+
-        function is = is_job_canceled(obj)
-            % method verifies if job has been canceled
-            if ~exist(obj.mess_exchange_folder_,'dir')
-                is=true;
-            else
-                is=false;
-            end
-            if ~is
-                mess = obj.probe_all('all','canceled');
-                if ~isempty(mess)
-                    is = true;
-                end
-            end
         end
         %
     end
@@ -342,6 +273,8 @@ classdef iMessagesFramework
         % remove all messages directed to the given lab from MPI message cache
         clear_messages(obj);
         
+        % method verifies if job has been canceled
+        is = is_job_canceled(obj)
     end
     methods(Abstract,Access=protected)
         % return the labIndex
@@ -349,17 +282,15 @@ classdef iMessagesFramework
         n_labs = get_num_labs_(obj);
     end
     methods(Access = protected)
-        function [top_exchange_folder,mess_subfolder] = build_exchange_folder_name(obj,top_exchange_folder )
-            % build the name of the folder used to exchange messages
-            % between the base node and the MPI framework and, if
-            % necessary, filebased messages
-            if ~exist('top_exchange_folder','var')
-                top_exchange_folder = config_store.instance().config_folder;
+        function obj = set_job_id_(obj,new_job_id)
+            % Set a string, which defines unique job.
+            if is_string(new_job_id) && ~isempty(new_job_id)
+                obj.job_id_ = new_job_id;
+            else
+                error('iMESSAGES_FRAMEWORK:invalid_argument',...
+                    'MPI job id has to be a string');
             end
-            [top_exchange_folder,mess_subfolder] = constr_exchange_folder_name_(obj,top_exchange_folder);
         end
     end
     
 end
-
-

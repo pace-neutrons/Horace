@@ -550,6 +550,105 @@ classdef test_FileBaseMPI_Framework< TestCase
             assertTrue(isempty(all_mess))
             assertTrue(isempty(mid_from))
         end
+        %
+        function test_transfer_init_and_config(obj,varargin)
+            
+            if nargin>1
+                obj.setUp();
+                clob1 = onCleanup(@()tearDown(obj));
+            end
+            
+            % testing the transfer of the initial information for a Herbert
+            % job through a data exchange folder
+            %
+            % Prepare current configuration to be able to restore it after
+            % the test finishes
+            
+            % set up basic default configuration
+            pc = parallel_config;
+            pc.saveable = false;
+            cur_data = pc.get_data_to_store();
+            clobC = onCleanup(@()set(pc,cur_data));
+            % creates working directory
+            pc.working_directory = fullfile(obj.working_dir,'some_irrelevant_folder_never_used_here');
+            wkdir0 = pc.working_directory;
+            clobW = onCleanup(@()rmdir(wkdir0,'s'));
+            
+            %--------------------------------------------------------------
+            % check the case when local file system and remote file system
+            % coincide
+            
+            pc.shared_folder_on_remote = '';
+            pc.shared_folder_on_local = '';
+            
+            % test structure to send
+            % store configuration in a local config folder as local and
+            % remote jobs have the same file system
+            mpi = MessagesFilebased('testiMPI_transferInit');
+            mpi.mess_exchange_folder = obj.working_dir;
+            clob0 = onCleanup(@()finalize_all(mpi));
+            % the operation above copies config files to the folder
+            % calculated by assign operation
+            config_exchange = fileparts(fileparts(mpi.mess_exchange_folder));
+            assertTrue(exist(fullfile(config_exchange,'herbert_config.mat'),'file')==2);
+            
+            jt = JETester();
+            initMess = jt.get_worker_init();
+            assertTrue(isa(initMess,'aMessage'));
+            data = initMess.payload;
+            assertTrue(data.exit_on_compl);
+            assertFalse(data.keep_worker_running);
+            
+            % simulate the configuration operations happening on a remote machine side
+            mis = MPI_State.instance();
+            mis.is_deployed = true;
+            mis.is_tested = true;
+            clob4 = onCleanup(@()set(mis,'is_deployed',false,'is_tested',false));
+            % the filesystem is shared so working_directory is used as
+            % shared folder
+            wk_dir = fullfile(obj.working_dir,'some_irrelevant_folder_never_used_here');
+            assertEqual(pc.working_directory ,wk_dir );
+            assertEqual(pc.shared_folder_on_local,wk_dir );
+            assertEqual(pc.shared_folder_on_remote,wk_dir );
+            
+            
+            %--------------------------------------------------------------
+            %now test storing/restoring project configuration from a
+            %directory different from default.
+            mis.is_deployed = false;
+            pc.shared_folder_on_local = obj.working_dir;
+            assertEqual(pc.working_directory ,wk_dir );
+            assertEqual(pc.shared_folder_on_local,obj.working_dir);
+            assertEqual(pc.shared_folder_on_remote,obj.working_dir);
+            
+            
+            %-------------------------------------------------------------
+            % ensure default configuration location will be restored after
+            % the test
+            clob5 = onCleanup(@()config_store.instance('clear'));
+            %
+            cfn = config_store.instance().config_folder_name;
+            remote_config_folder = fullfile(pc.shared_folder_on_remote,...
+                cfn);
+            clob6 = onCleanup(@()rmdir(remote_config_folder,'s'));
+            % remove all configurations from memory to ensure they would be
+            % read from non-default locations.
+            config_store.instance('clear');
+            
+            % these operations would happen on worker
+            mis.is_deployed = true;
+            config_store.set_config_folder(remote_config_folder)
+            
+            % on a deployed program working directory coincides with shared_folder_on_remote
+            pc = parallel_config;
+            assertEqual(pc.working_directory ,pc.shared_folder_on_remote);
+            
+            
+            r_config_folder = config_store.instance().config_folder;
+            assertEqual(r_config_folder,remote_config_folder);
+            
+        end
+        
     end
 end
 

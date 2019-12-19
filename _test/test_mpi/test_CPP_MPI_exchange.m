@@ -19,17 +19,12 @@ classdef test_CPP_MPI_exchange< TestCase
             if isempty(which('cpp_communicator'))
                 return
             end
-            mf = MessagesCppMPI_tester('test_comm');
+            mf = MessagesCppMPI('test_comm');
             clob = onCleanup(@()(finalize_all(mf)));
             
             assertEqual(mf.labIndex,uint64(1));
             assertEqual(mf.numLabs,uint64(1));
-           
-            % test direct access to framework's lab_index
-            [mf,labNum,nLabs]=mf.lab_index_test();
-            assertEqual(labNum,uint64(1));            
-            assertEqual(nLabs,uint64(1));                        
-            mf.finalize_all();
+                       
         end
     end
 end

@@ -50,11 +50,9 @@ classdef MessagesCppMPI < iMessagesFramework
             %Example
             % jd = MessagesFramework() -- use randomly generated job control
             %                             prefix
-            % jd = MessagesFramework('target_name') -- add prefix
-            %      which describes this job.
-            % File-based messages framework creates the exchange folder with
-            % the filename specified as input.
-            %
+            % jd = MessagesFramework('test_mode') 
+            % 
+
             % Initialise folder path
             jd = jd@iMessagesFramework();
             if nargin>0
@@ -64,10 +62,10 @@ classdef MessagesCppMPI < iMessagesFramework
         end
         %------------------------------------------------------------------
         %
-        function  obj = init_framework(obj,framework_info)
+        function  obj = init_framework(obj,test_mode)
             % using control structure initialize operational message
             % framework
-            obj = init_framework_(obj,framework_info);
+            obj = init_framework_(obj,test_mode);
         end
         %------------------------------------------------------------------
         % MPI interface
@@ -194,6 +192,16 @@ classdef MessagesCppMPI < iMessagesFramework
             val = obj.time_to_fail_ ;
         end
         
+        function is = is_job_canceled(obj)
+            % method verifies if job has been canceled
+            mess = obj.probe_all('all','canceled');
+            if ~isempty(mess)
+                is = true;
+            else
+                is=false;
+            end
+            
+        end
         
     end
     %----------------------------------------------------------------------
@@ -203,14 +211,6 @@ classdef MessagesCppMPI < iMessagesFramework
         end
         function ind = get_num_labs_(obj)
             ind = obj.numLabs_;
-        end
-        function [obj,labNum,nLabs]=lab_index_tester(obj)
-            % get labindex and number of MPI lab quering messaging
-            % framework directrly
-            [obj.mpi_framework_holder_,obj.task_id_,obj.numLabs_]= ...
-                cpp_communicator('labIndex',obj.mpi_framework_holder_);
-            labNum = obj.task_id_;
-            nLabs  = obj.numLabs_;
         end
         
     end
