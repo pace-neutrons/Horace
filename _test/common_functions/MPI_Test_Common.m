@@ -47,12 +47,15 @@ classdef MPI_Test_Common < TestCase
             try
                 pc.parallel_framework = obj.framework_name;
                 if strcmpi(pc.parallel_framework,obj.framework_name)
-                   set_framework = true;
+                    set_framework = true;
                 else
-                   set_framework = false;                    
+                    set_framework = false;
                 end
             catch ME
                 if strcmp(ME.identifier,'PARALLEL_CONFIG:invalid_configuration')
+                    set_framework = false;
+                    warning(ME.identifier,'%s',ME.message);
+                elseif strcmp(ME.identifier,'PARALLEL_CONFIG:not_available')
                     set_framework = false;
                     warning(ME.identifier,'%s',ME.message);
                 else
