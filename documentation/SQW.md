@@ -34,6 +34,7 @@ Combine multiple experiment [data files](http://horace.isis.rl.ac.uk/Input_file_
 #### Read/Write
 
 - Read the file data, but not pixel data
+
 - Read the pixel data or an m-dimensional cut of the pixel data
 - Read the pixel data corresponding to specific image pixels
 - Write the pixel data for specific image pixels
@@ -152,28 +153,81 @@ Object must support working with objects larger than system RAM. This requires t
 
 Operations should make use of multi-core and multiprocessors when available
 
-
-
-
-
 ## Design
 
 This section describes the implementation of SQW including full API and class breakdown.
-
-
 
 #### Requirements
 
 - Define primary API between objects
 - Create standard co-ordinate systems for pixel data and common interface to create projections into alternate frames
 
+### Classes
+
+#### SQW
+
+Core object providing the public API to datasets.
+
+Responsible for supporting all required operations
+
+_What does that actually mean?!_
+
+#### Projection
+
+Responsible for all image projections - this includes:
+
+- Crystal Cartesian to h,k,l,
+- arbitrary rotation,
+- arbitrary offset,
+- plane cuts
+- spherical cuts
+- cylindrical cuts
+
+Operations result in the creation of a new SQW object.
+
+Operations are performed to the Image Pixels using data from the backing PixelBlock.
+
+#### Image
+
+Represents the n-dimensional array of image pixel data with associated axis information. 
+
+Image pixel data is generated from the PixelBlock.
+
+- requires a well-defined mapping from image pixels to source data pixel
+
+#### Axes
+
+Represents a set of axis
+- value range
+- unit vectors
+- units
+- matrix mapping these axes to the pixeldata (? or should this be in the projection....)
+
+#### PixelBlock
+
+Contains the "raw" pixel data expressed as crystal Cartesian and detector index form.
+
+Provides methods to "get contributing pixels" for any subset of image pixels.
+
+- requires a well-defined mapping from image pixels to source data pixel
+
+#### IX_dataset
+
+Utility class for plot rendering; contains a simple representation of the image pixel data and axes with no additional functionality or data
+
+#### OperationsManager
+
+Utility class implementing low-level arithmetic operations.
+
+Responsible for performing calculation on Image or Pixel data as appropriate.
+
+
 
 
 ### Public API
 
 
-
-#### Model fitting
+#### Model fitting (SQW)
 
 | Operation            | SQW  | DND  | Notes |
 | -------------------- | :--: | :--: | :---- |
@@ -184,25 +238,28 @@ This section describes the implementation of SQW including full API and class br
 
 Q: Are these distinct functions or simply a set of optional arguments?
 
-#### Data manipulation
+#### Data manipulation (SQW)
 
 | Operation            | SQW  | DND  | Notes |
 | -------------------- | :--: | :--: | :---- |
 |`mask.m` | y | y |(bins) mask hunks of data|
 |`mask_points.m`| y | y | Mask all pixels lying outside axis bounds |
-|`mask_detectors.m`| y | | Remove all pixels from one or more detectors ids |
-|`mask_pixels.m`| y | | Retain pixels defined by binary mask (1) |
-|`mask_random_fraction_pixels.m`| y | | Retain a random fraction `(0,1)` of pixels from the dataset (scalar or per-axis) |
-|`mask_random_pixels.m`| y | | Discard all except N random pixels from the dataset (scalar or per-axis) |
-|`mask_runs.m`| y | | Remove all pixels from a specified run |
+|`mask_detectors.m`| y | n | Remove all pixels from one or more detectors ids |
+|`mask_pixels.m`| y | n | Retain pixels defined by binary mask (1) |
+|`mask_random_fraction_pixels.m`| y | n | Retain a random fraction `(0,1)` of pixels from the dataset (scalar or per-axis) |
+|`mask_random_pixels.m`| y | n | Discard all except N random pixels from the dataset (scalar or per-axis) |
+|`mask_runs.m`| y | n | Remove all pixels from a specified run |
+|`slim.m`| y | n | Remove random pixels (wrapper around `mask_*` functions)|
 
-#### Object Conversions
+Note: operations are performed on backing detector data where appropriate and image recalculated using the current projection
+
+#### Object Conversions (IX_Dataset)
 
 | Operator | SQW  | DND  | Notes |
 | -------- | :-:  | :-:  | :------ |
 |`IX_Dataset` |      |      | Factory returning IX_Dataset_Nd instance |
 
-#### Load/Save
+#### Load/Save (SQW)
 
 | Operation  | SQW  | DND  | Notes                                   |
 | ---------- | :--: | :--: | :-------------------------------------- |
@@ -210,7 +267,7 @@ Q: Are these distinct functions or simply a set of optional arguments?
 | `save.m`   |  y   |  y   | save `.nxsqw` (or`.sqw` file with flag) |
 | `export.m` |  y   |  y   | export data to ascii file               |
 
-#### Standard arithmetic operations
+#### Standard arithmetic operations (SQW via OperationsManager)
 
 | Operator                            | SQW  | DND  | Notes |
 | ----------------------------------- | :--: | :--: | :---- |
@@ -252,8 +309,6 @@ Q: Are these distinct functions or simply a set of optional arguments?
 | `mrdivide.m`                        |  y   |  y   |       |
 | `mldivide.m`                        |  y   |  y   |       |
 | `mpower.m`                          |  y   |  y   |       |
-
-
 
 ## Glossary
 
