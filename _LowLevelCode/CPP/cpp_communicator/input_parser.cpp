@@ -155,6 +155,16 @@ class_handle<MPI_wrapper> *parse_inputs(int nlhs, int nrhs, const mxArray *prhs[
         work_mode = init_mpi;
         return pCommunicator;
     }
+    else if (mex_mode.compare("init_test_mode")) {
+        if (nrhs != 1) {
+            std::stringstream err;
+            err << " Init Test mode needs only 1 but got : " << nrhs << " input parameters";
+            throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", err.str().c_str());
+        }
+        class_handle<MPI_wrapper>* pCommunicator = new class_handle<MPI_wrapper>();
+        work_mode = init_test_mode;
+        return pCommunicator;
+    }
     else if (mex_mode.compare("finalize") == 0) {
         work_mode = close_mpi;
         /* do not throw on finalize second time if the framework had been already finalized*/

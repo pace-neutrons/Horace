@@ -8,17 +8,26 @@
  --  'operation':   is the string, describing the operation, the communicator should perform.
                      majority of input and output parameters depends on  the operation
 
--- 	Matlab_class_holder: the value of the Matlab pointer to the MPI communicator. 
-                         All operations except init needs this pointer to use initialized MPI framework. 
+ -- Matlab_class_holder: the value of the Matlab pointer to the MPI communicator. 
+                         All operations except init test_init needs this pointer to use initialized MPI framework. 
                          init operation creates and returns this pointer. 
 
 The allowed operations and their parameters are:
+
 *** 'init'  Initializes MPI framework to allow further MPI operations.
 Inputs:  -- no other inputs accepted.
 Outputs:
   1     -- pointer to  new intialized MPI framework.
   2     -- Index (number) of current MPI process
   3     -- size of the MPI pool current worker is the part of.
+
+*** 'init_test_mode'  Initializes MPI wrapper with fake MPI values, which run within a single process. 
+Inputs:  -- no other inputs accepted.
+Outputs:
+  1     -- pointer to  fake MPI framework.
+  2     -- Index (number) of current MPI process:             always 1
+  3     -- size of the MPI pool current worker is the part of: always 1 
+
 
 *** 'finalize'  Closes MPI framework and breaks all incomplete MPI communications. No further MPI communications
                 allowed after this operation.
@@ -28,7 +37,7 @@ Outputs: -- empty matrix.
 *** 'labIndex' Queries the number of the current parallel worker and the size of the MPI pool
 Inputs: -- Matlab_class_holder :: pointer to initialized C++ MPI framework wrapper used for interprocess communications
 Outputs: 
-  1     -- pointer to current MPI framework.
+  1     -- pointer to current real or fake MPI framework.
   2     -- Index (number) of current MPI process
   3     -- size of the MPI pool current worker is the part of.
 */
@@ -67,7 +76,14 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     switch (work_type)
     {
     case(init_mpi): { // Initialize MPI communications and return labIndex and numLabs
-        pCommunicatorHolder->class_ptr->init();
+        pCommunicatorHolder->class_ptr->init(false);
+        n_workers = pCommunicatorHolder->class_ptr->numProcs;
+        set_numlab_and_nlabs(pCommunicatorHolder, nlhs, plhs, nrhs, prhs);
+        break;
+    }
+    case(init_test_mode):{
+        // init test mode providing true as input to init function
+        pCommunicatorHolder->class_ptr->init(true);
         n_workers = pCommunicatorHolder->class_ptr->numProcs;
         set_numlab_and_nlabs(pCommunicatorHolder, nlhs, plhs, nrhs, prhs);
         break;
@@ -102,8 +118,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
      if (nlhs > 0)
          plhs[(int)labIndex_Out::comm_ptr] = pCommunicatorHolder->export_hanlder_toMatlab();
-
 }
+/* If appropriate number of output arguments are availiable, set up the mex routine output arguments to mpi_numLab and mpi_labNum values
+   extracted from initialized MPI framework.
+*/
 void set_numlab_and_nlabs(class_handle<MPI_wrapper> const *const pCommunicatorHolder,int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
     if (nlhs >= (int)labIndex_Out::numLab + 1) {

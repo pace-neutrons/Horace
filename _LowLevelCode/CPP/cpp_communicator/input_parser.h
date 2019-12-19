@@ -8,6 +8,7 @@
 
 enum input_types {
     init_mpi,
+    init_test_mode,
     close_mpi,
     labSend,
     labReceive,
