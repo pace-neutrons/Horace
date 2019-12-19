@@ -28,7 +28,7 @@ function warning {
     echo -e "\e[33m$1\e[0m"
 }
 
-function run_build() {
+function run_configure() {
     echo_and_run "cd ${build_dir}"
 
     cmake_cmd="cmake ${HORACE_ROOT}"
@@ -43,7 +43,9 @@ function run_build() {
 
     echo -e "\nRunning CMake configure step..."
     echo_and_run "${cmake_cmd}"
+}
 
+function run_build() {
     echo -e "\nRunning build step..."
     build_cmd="cmake --build ${build_dir}"
     echo_and_run "${build_cmd}"
@@ -88,6 +90,7 @@ if ((${build})); then
     warning_msg="Warning: Build directory ${build_dir} already exists.\n\
          This may not be a clean build."
     echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
+    run_configure
     run_build
 fi
 
