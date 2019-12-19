@@ -6,7 +6,7 @@ set -o nounset  # raise error using unused variables
 FALSE=0
 TRUE=1
 CMAKE_GENERATOR="Unix Makefiles"
-HORACE_ROOT=$(realpath $(dirname "$0")/../..)
+HORACE_ROOT="$(realpath $(dirname "$0")/../..)"
 MATLAB_ROOT="$(realpath $(dirname $(readlink -f $(which matlab)))/..)"
 
 # set default parameter values
@@ -15,8 +15,8 @@ test=$FALSE
 package=$FALSE
 build_tests="ON"
 build_config='Release'
-build_dir="$HORACE_ROOT/build"
-install_dir="$HORACE_ROOT/install"
+build_dir="${HORACE_ROOT}/build"
+install_dir="${HORACE_ROOT}/install"
 
 
 function echo_and_run {
@@ -31,7 +31,7 @@ function warning {
 function run_build() {
     echo_and_run "cd ${build_dir}"
 
-    cmake_cmd="cmake $HORACE_ROOT"
+    cmake_cmd="cmake ${HORACE_ROOT}"
     cmake_cmd+=" -G \"${CMAKE_GENERATOR}\""
     cmake_cmd+=" -DMatlab_ROOT_DIR=${MATLAB_ROOT}"
     cmake_cmd+=" -DCMAKE_BUILD_TYPE=${build_config}"
@@ -52,7 +52,7 @@ function run_build() {
 function run_tests() {
     echo -e "\nRunning test step..."
     test_cmd="ctest -T Test --no-compress-output"
-    echo_and_run "$test_cmd"
+    echo_and_run "${test_cmd}"
 }
 
 # not yet implemented
