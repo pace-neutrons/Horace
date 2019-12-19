@@ -28,6 +28,13 @@ function warning {
     echo -e "\e[33m$1\e[0m"
 }
 
+function print_package_versions() {
+    echo "$(cmake --version | head -n 1)"
+    echo "Matlab: ${MATLAB_ROOT}"
+    echo "$(g++ --version | head -n 1)"
+    echo
+}
+
 function run_configure() {
     local build_dir=$1
     local build_config=$2
@@ -84,11 +91,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# print versions
-echo "$(cmake --version | head -n 1)"
-echo "Matlab: ${MATLAB_ROOT}"
-echo "$(g++ --version | head -n 1)"
-echo
+print_package_versions
 
 if ((${build})); then
     warning_msg="Warning: Build directory ${build_dir} already exists.\n\
