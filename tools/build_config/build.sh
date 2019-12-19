@@ -6,7 +6,11 @@ set -o nounset  # raise error using unused variables
 readonly FALSE=0
 readonly TRUE=1
 readonly CMAKE_GENERATOR="Unix Makefiles"
+# The Horace root directory is two levels above this script
 readonly HORACE_ROOT="$(realpath $(dirname "$0")/../..)"
+# The Matlab root directory is one level above Matlab/bin which contains the
+# matlab executable. The Matlab on the path will likely be a symlink so we need
+# to resolve it with `readlink`
 readonly MATLAB_ROOT="$(realpath $(dirname $(readlink -f $(which matlab)))/..)"
 
 function echo_and_run {
@@ -77,36 +81,36 @@ function main() {
 
   # parse command line args
   while [[ $# -gt 0 ]]; do
-      key="$1"
-      case $key in
-          # flags
-          -b|--build) build=$TRUE; shift ;;
-          -t|--test) test=$TRUE; shift ;;
-          -p|--package) package=$TRUE; shift ;;
-          # options
-          -X|--build_tests) build_tests="$2"; shift; shift ;;
-          -C|--build_config) build_config="$2"; shift; shift ;;
-          -O|--build_dir) build_dir="$(realpath $2)"; shift; shift ;;
-          -I|--install_dir) install_dir="$(realpath $2)"; shift; shift ;;
-      esac
+    key="$1"
+    case $key in
+        # flags
+        -b|--build) build=$TRUE; shift ;;
+        -t|--test) test=$TRUE; shift ;;
+        -p|--package) package=$TRUE; shift ;;
+        # options
+        -X|--build_tests) build_tests="$2"; shift; shift ;;
+        -C|--build_config) build_config="$2"; shift; shift ;;
+        -O|--build_dir) build_dir="$(realpath $2)"; shift; shift ;;
+        -I|--install_dir) install_dir="$(realpath $2)"; shift; shift ;;
+    esac
   done
 
   print_package_versions
 
   if ((${build})); then
-      warning_msg="Warning: Build directory ${build_dir} already exists.\n\
-          This may not be a clean build."
-      echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
-      run_configure ${build_dir} ${build_config} ${build_tests}
-      run_build ${build_dir}
+    warning_msg="Warning: Build directory ${build_dir} already exists.\n\
+        This may not be a clean build."
+    echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
+    run_configure ${build_dir} ${build_config} ${build_tests}
+    run_build ${build_dir}
   fi
 
   if ((${test})); then
-      run_tests ${build_dir}
+    run_tests ${build_dir}
   fi
 
   if ((${package})); then
-      run_package
+    run_package
   fi
 }
 
