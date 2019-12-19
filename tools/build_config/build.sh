@@ -29,6 +29,10 @@ function warning {
 }
 
 function run_configure() {
+    local build_dir=$1
+    local build_config=$2
+    local build_tests=$3
+
     echo_and_run "cd ${build_dir}"
     cmake_cmd="cmake ${HORACE_ROOT}"
     cmake_cmd+=" -G \"${CMAKE_GENERATOR}\""
@@ -41,13 +45,18 @@ function run_configure() {
 }
 
 function run_build() {
+    local build_dir=$1
+
     echo -e "\nRunning build step..."
     build_cmd="cmake --build ${build_dir}"
     echo_and_run "${build_cmd}"
 }
 
 function run_tests() {
+    local build_dir=$1
+
     echo -e "\nRunning test step..."
+    echo_and_run "cd ${build_dir}"
     test_cmd="ctest -T Test --no-compress-output"
     echo_and_run "${test_cmd}"
 }
@@ -85,13 +94,12 @@ if ((${build})); then
     warning_msg="Warning: Build directory ${build_dir} already exists.\n\
          This may not be a clean build."
     echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
-    run_configure
-    run_build
+    run_configure ${build_dir} ${build_config} ${build_tests}
+    run_build ${build_dir}
 fi
 
 if ((${test})); then
-    echo_and_run "cd ${build_dir}"
-    run_tests
+    run_tests ${build_dir}
 fi
 
 if ((${package})); then
