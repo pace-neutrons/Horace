@@ -29,10 +29,10 @@ linux use `-G "Unix Makefiles"`):
 
 7) The mex files will be written within `<Horace Root>/build/bin/`. At the moment
 you need to manually copy mex files, found in `bin` folder  into horace_core/DLL/_{$ARH}/_{$version}
-folder where {$ARG} is the value, returned by Matlab ***computer*** command and 
+folder where {$ARG} is the value, returned by Matlab ***computer*** command and
 {$version} -- the second part of the Matlab ***version*** command i.e.:
 
-``` 
+```
 version
 
 ans =
@@ -40,8 +40,7 @@ ans =
     '9.6.0.1072779 (R2019a)'
 ```
 -- you need **R2019a** part.
-This all will be automated in nearest future. 
-
+This all will be automated in nearest future.
 
 There's a known issue with running the compiled mex with newer versions of
 Matlab, if they were compiled using an older version of CMake. If you get an
