@@ -13,9 +13,7 @@ endif()
 
 include(herbert_AddUnitTest)
 
-set(TEST_DIRECTORIES
-    "get_ascii_file.tests"
-)
-foreach(_test_dir "${TEST_DIRECTORIES}")
-    add_subdirectory("${_test_dir}")
-endforeach()
+
+add_subdirectory(cpp_communicator.tests)
+add_subdirectory(get_ascii_file.tests)
+

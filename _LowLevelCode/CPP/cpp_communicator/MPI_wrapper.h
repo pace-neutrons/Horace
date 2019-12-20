@@ -1,7 +1,14 @@
 #pragma once
 #include <vector>
+#include <list>
 #include <cmath>
 #include <mpi.h>
+
+class iSendMessHolder {
+public:
+    MPI_Request* theRequest;
+    std::vector<uint8_t> mess_body;
+};
 
 /* The class which describes a block of information necessary to process block of pixels */
 class MPI_wrapper {
@@ -24,6 +31,7 @@ public:
     // when no real mpi exchange is initiated.
     bool isTested;
 private:
-
+    // the list of assyncroneous messages, stored until delivered
+    std::list<iSendMessHolder> assyncMessList;
 
 };

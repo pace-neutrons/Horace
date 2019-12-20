@@ -196,7 +196,7 @@ classdef MessagesCppMPI < iMessagesFramework
         end
         
         
-        function obj = set.time_to_fail(obj,val)
+        function set.time_to_fail(obj,val)
             obj.time_to_fail_ = val;
         end
         function val = get.time_to_fail(obj)
@@ -211,9 +211,11 @@ classdef MessagesCppMPI < iMessagesFramework
             else
                 is=false;
             end
-            
         end
-        
+        function delete(obj)
+            cpp_communicator('finalize',obj.mpi_framework_holder_);
+            obj.mpi_framework_holder_ = [];
+        end
     end
     %----------------------------------------------------------------------
     methods (Access=protected)
@@ -223,7 +225,7 @@ classdef MessagesCppMPI < iMessagesFramework
         function ind = get_num_labs_(obj)
             ind = obj.numLabs_;
         end
-        function [obj,numLabs,labNum] = read_cpp_comm_pull_info(obj)
+        function [numLabs,labNum] = read_cpp_comm_pull_info(obj)
             % service function, to retrieve MPI pull information from cpp
             % communicator. This info should not currently change from the
             % initialization time, but may be modified in a future.
@@ -232,7 +234,6 @@ classdef MessagesCppMPI < iMessagesFramework
             %
             obj.task_id_ = labNum;            
             obj.numLabs_ = numLabs;
-            
         end
     end
 end

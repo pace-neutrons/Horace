@@ -19,16 +19,15 @@ classdef test_CPP_MPI_exchange< TestCase
             if isempty(which('cpp_communicator'))
                 return
             end
-            mf = MessagesCppMPI_tester('test_mode');
+            mf = MessagesCppMPI_tester();
             clob = onCleanup(@()(finalize_all(mf)));
             
             assertEqual(mf.labIndex,uint64(1));
             assertEqual(mf.numLabs,uint64(1));
-            [mf,labNum,nLabs] = mf.get_lab_index();
+            [labNum,nLabs] = mf.get_lab_index();
             
             assertEqual(labNum,uint64(1));
             assertEqual(nLabs,uint64(1));
-            
         end
     end
 end

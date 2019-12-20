@@ -46,5 +46,3 @@ wlock_obj = unlock_(wlock_file);
 if ~isempty(wlock_obj)
     ok = MESS_CODES.write_lock_persists;
 end
-
-

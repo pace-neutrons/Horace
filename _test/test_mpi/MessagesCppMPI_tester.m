@@ -6,12 +6,12 @@ classdef MessagesCppMPI_tester < MessagesCppMPI
     end
     
     methods
-        function obj = MessagesCppMPI_tester(varargin)
-            obj = obj@MessagesCppMPI(varargin{:});
+        function obj = MessagesCppMPI_tester()
+            obj = obj@MessagesCppMPI('test_mode');
         end
         
-        function [obj,labNum,nLabs]=get_lab_index(obj)
-            [obj,labNum,nLabs] = obj.read_cpp_comm_pull_info();
+        function [labNum,nLabs]=get_lab_index(obj)
+            [labNum,nLabs] = obj.read_cpp_comm_pull_info();
         end
     end
 end

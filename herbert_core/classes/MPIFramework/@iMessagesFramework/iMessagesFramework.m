@@ -1,4 +1,4 @@
-classdef iMessagesFramework
+classdef iMessagesFramework < handle
     % Interface for messages in Herbert distributed jobs framework
     %
     % Defines generic interface a Horace program can use to exchange messages
@@ -48,9 +48,9 @@ classdef iMessagesFramework
             id = obj.job_id_;
         end
         %
-        function obj = set.job_id(obj,val)
+        function set.job_id(obj,val)
             % set the string uniquely definging job name.
-            obj = set_job_id_(obj,val);
+            set_job_id_(obj,val);
         end
         %
         %
@@ -202,7 +202,7 @@ classdef iMessagesFramework
         % initialize message framework
         % framework_info -- data, necessary for framework to operate and
         % do message exchange.
-        obj = init_framework(obj,framework_info)
+        init_framework(obj,framework_info)
         
         %------------------------------------------------------------------
         % MPI interface
@@ -266,7 +266,7 @@ classdef iMessagesFramework
         %------------------------------------------------------------------
         % delete all messages belonging to this instance of messages
         % framework and shut the framework down.
-        obj=finalize_all(obj)
+        finalize_all(obj)
         % wait until all worker arrive to the part of the code specified
         [ok,err]=labBarrier(obj,nothrow);
         %
@@ -282,7 +282,7 @@ classdef iMessagesFramework
         n_labs = get_num_labs_(obj);
     end
     methods(Access = protected)
-        function obj = set_job_id_(obj,new_job_id)
+        function set_job_id_(obj,new_job_id)
             % Set a string, which defines unique job.
             if is_string(new_job_id) && ~isempty(new_job_id)
                 obj.job_id_ = new_job_id;
