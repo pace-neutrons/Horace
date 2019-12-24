@@ -43,7 +43,7 @@ classdef MessagesCppMPI < iMessagesFramework
         % cluster, so the job should be interrupted (canceled)
         assync_messages_queue_length_ = 10;
         
-        DEBUG = false;
+        DEBUG_ = false;
     end
     %----------------------------------------------------------------------
     methods
