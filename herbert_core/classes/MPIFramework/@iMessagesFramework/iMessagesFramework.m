@@ -102,7 +102,7 @@ classdef iMessagesFramework < handle
     
     methods(Static)
         function cs = build_worker_init(path_to_data_exchange_folder,jobID,...
-                intercom_name,labID,numLabs)
+                intercom_name,labID,numLabs,test_mode)
             % prepare data necessary to initialize a MPI worker and
             % serialize them into the form, acceptable for transfer through
             % any system's interprocess pipe
@@ -129,19 +129,34 @@ classdef iMessagesFramework < handle
             % numLabs   -- number of independent workers, used by filebased
             %              MPI job. If labID is defined, numLabs has to
             %              be defined too.
+            % test_mode -- if true, generates the structure, used to
+            %              initialize CppMpi framework in test mode
+            %              In this case, the messages is not
+            %              serizlised. Can be defined only if labID 
+            %              and numLabs are defined
             % Returns:
             % base64-coded and mappped to ASCII 128 symbols linear
             % representaion of the information, necessary to initialize
             % MPI worker operating with any Herbert cluster
             %
+            % if test_mode is true, no encoding is performed and the
+            % 
+            %
             cs = struct('data_path',path_to_data_exchange_folder,...
                 'job_id',jobID,...
                 'intercomm_name',intercom_name);
+            serialize_message = true;
             if exist('labID','var')
                 cs.labID   = labID;
                 cs.numLabs = numLabs;
+                if exist('test_mode','var')
+                    serialize_message = ~test_mode;
+                    cs.test_mode = true;
+                end
             end
-            cs = iMessagesFramework.serialize_par(cs);
+            if serialize_message
+                cs = iMessagesFramework.serialize_par(cs);
+            end
         end
         %
         function params = deserialize_par(par_string)

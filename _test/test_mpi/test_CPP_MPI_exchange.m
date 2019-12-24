@@ -13,9 +13,43 @@ classdef test_CPP_MPI_exchange< TestCase
             end
             obj = obj@TestCase(name);
         end
+        function test_JobExecutor(obj)
+            if isempty(which('cpp_communicator'))
+                return
+            end
+            serverfbMPI  = MessagesFilebased('test_JE_CppMPI');
+            serverfbMPI.mess_exchange_folder = tmp_dir;
+            
+            [data_exchange_folder,JOB_id] = fileparts(serverfbMPI.mess_exchange_folder);
+            cs = iMessagesFramework.build_worker_init(fileparts(data_exchange_folder),...
+                JOB_id,'MessagesCppMPI',1,1,true);
+            
+            % intercomm constructor invoked here. 
+            [fbMPI,intercomm] = JobExecutor.init_frameworks(cs);
+            clob1 = onCleanup(@()(finalize_all(intercomm)));
+            clob2 = onCleanup(@()(finalize_all(fbMPI)));            
+            
+            assertTrue(isa(intercomm,'MessagesCppMPI'));
+            assertEqual(intercomm.labIndex,uint64(1));
+            assertEqual(intercomm.numLabs,uint64(1));
+            
+            
+            je = JETester();
+            common_job_param = struct('filepath',data_exchange_folder,...
+                'filename_template','test_jobDispatcherL%d_nf%d.txt',...
+                'fail_for_labsN',2:3);
+            im = InitMessage(common_job_param,1,1,1);
+            
+            je = je.init(fbMPI,intercomm,im,true);
+            
+            
+            [ok,err_mess,message] = serverfbMPI.receive_message(1,'started');
+            assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
+            assertEqual(message.mess_name,'started')
+            
+            
+        end
         function test_MessagesCppMPI_constructor(obj)
-            % crashes Matlab if applied for second time
-            % needs some thinking on how to avoid this.
             if isempty(which('cpp_communicator'))
                 return
             end
@@ -28,9 +62,11 @@ classdef test_CPP_MPI_exchange< TestCase
             
             assertEqual(labNum,uint64(1));
             assertEqual(nLabs,uint64(1));
-            mess = LogMessage(1,10,1,[]);
-            [ok,err_mess]  = mf.send_message(1,mess);
+            
+%             mess = LogMessage(1,10,1,[]);
+%             [ok,err_mess]  = mf.send_message(1,mess);
         end
+        
     end
 end
 
