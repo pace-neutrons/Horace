@@ -44,9 +44,7 @@ end
 mf = obj.mess_framework;
 if isempty(mf) % something wrong, framework deleted
     ok = false;
-    err = 'MPI initialization error';
-    fin_mess = aMessage('failed');
-    fin_mess.payload = err;
+    fin_mess = FailedMessage('inter-worker MPI initialization error');
     return
 end
 

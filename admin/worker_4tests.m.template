@@ -12,16 +12,17 @@ function [ok,err_mess,je]=worker_4tests(worker_controls_string)
 %              through pipes its size is system dependent and limited, so
 %              contains only minimal initialization information, namely the
 %              folder name where the job initialization data are located on
-%              a remote system
+%              a remote system.
 %
 % $Revision:: 839 ($Date:: 2019-12-16 18:18:44 +0000 (Mon, 16 Dec 2019) $)
 %
+
 err_mess = [];
 exit_at_the_end = true;
 if isempty(which('herbert_init.m'))
     horace_on();
 end
-DO_LOGGING = false;
+DO_LOGGING = true;
 
 
 % Check current state of mpi framework and set up deployment status
@@ -37,7 +38,10 @@ clot = onCleanup(@()(setattr(mis,'is_deployed',false)));
 %--------------------------------------------------------------------------
 % 1) step 1 of the worker initialization.
 %--------------------------------------------------------------------------
+worker_controls_string = char(worker_controls_string);
 control_struct = iMessagesFramework.deserialize_par(worker_controls_string);
+%disp(control_struct);
+
 % Initialize config files to use on remote session. Needs to be initialized
 % first as may be used by message framework.
 %
@@ -56,13 +60,13 @@ config_store.set_config_folder(config_exchange_folder);
 [fbMPI,intercomm] = JobExecutor.init_frameworks(control_struct);
 % initiate file-based framework to exchange messages between head node and
 % the pool of workers
-
 %--------------------------------------------------------------------------
 % step 1 the initialization has been completed providing the
 % communicator for exchange between control node and the cluster and
 % between the clusters nodes. The control node communicator knows the
 % folder for communications
 %--------------------------------------------------------------------------
+
 if DO_LOGGING
     log_name = sprintf('Job_%s_wkN%d#%d.log',fbMPI.job_id,intercomm.labIndex,intercomm.numLabs);
     flog_name = fullfile(config_exchange_folder,log_name);
@@ -76,11 +80,11 @@ if DO_LOGGING
     fprintf(fh,'      NumLabs        : %d:\n',fbMPI.numLabs);
     fprintf(fh,'Real MPI settings:\n');
     fprintf(fh,'      Job ID         : %s:\n',intercomm.job_id);
-    fprintf(fh,'      Exchange folder: %s:\n',intercomm.mess_exchange_folder);
     fprintf(fh,'      LabNum         : %d:\n',intercomm.labIndex);
     fprintf(fh,'      NumLabs        : %d:\n',intercomm.numLabs);
     
 end
+
 keep_worker_running = true;
 while keep_worker_running
     mess_cache.instance().clear()
@@ -88,19 +92,18 @@ while keep_worker_running
     %----------------------------------------------------------------------
     % 2) step 2 of the worker initialization.
     %----------------------------------------------------------------------
-    
+
     %
     if DO_LOGGING
         fprintf(fh,'entered worker loop\n');
-    	disp('WORKER_4TESTS: waiting for starting message ********************')
+        disp('WORKER_4TESTS: waiting for starting message ********************')
     end
     [ok,err,mess]= fbMPI.receive_message(0,'starting');
     %fprintf(fh,'got "starting" message\n');
-    if ok ~= MESS_CODES.ok
-        mess = aMessage('failed');
+    if ok ~= MESS_CODES.ok        
         err_mess = sprintf('job N%s failed while receive_je_info Error: %s:',...
             control_struct.job_id,err);
-        mess.payload = err_mess;
+        mess = FailedMessage(err_mess);
         fbMPI.send_message(0,mess);
         ok = MESS_CODES.runtime_error;
         if exit_at_the_end;     exit;
@@ -197,8 +200,8 @@ while keep_worker_running
             je.do_job_completed = true;
             if ~is_tested
                 if DO_LOGGING
-                    fprintf(fh,'Waiting at barrier for all do_job completeon\n');
-                    disp('WORKER_4TESTS: Waiting at barrier for all do_job completeon ')
+                    fprintf(fh,'Waiting at barrier for all do_job completion\n');
+                    disp('WORKER_4TESTS: Waiting at barrier for all do_job completion ')
                 end
 
                 
@@ -223,7 +226,8 @@ while keep_worker_running
         %fprintf(fh,'je loop completed\n');
     catch ME % Catch error in users code and finish task gracefully.
         if DO_LOGGING
-            fprintf(fh,'je exception caught\n');
+            fprintf(fh,'je exception caught, Message: %s, ID: %s\n',...
+                ME.message,ME.identifier);
             disp(['WORKER_4TESTS: processing failure: ',ME.identifier])
         end
         try
