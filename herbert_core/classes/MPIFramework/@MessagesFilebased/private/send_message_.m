@@ -20,7 +20,7 @@ if ~isa(message,'aMessage')
         class(message));
 end
 mess_name = message.mess_name;
-needs_queue = MESS_NAMES.is_queuing(mess_name);
+needs_queue = message.is_blocking;
 
 mess_fname = obj.job_stat_fname_(task_id,mess_name);
 if needs_queue
@@ -33,7 +33,7 @@ if needs_queue
 end
 
 [rlock_file,wlock_file]  = build_lock_fname_(mess_fname);
-while exist(rlock_file,'file') == 2 % previous message is reading, wait unitl read process completes
+while exist(rlock_file,'file') == 2 % previous message is reading, wait until read process completes
     pause(obj.time_to_react_)
 end
 

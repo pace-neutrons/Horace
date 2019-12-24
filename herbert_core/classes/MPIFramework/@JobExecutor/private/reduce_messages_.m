@@ -86,7 +86,7 @@ if ~all_ok
     n_failed = sum(~ok);
     err = sprintf('JobExecutorInit: %d workers have failed',...
         n_failed);
-    fin_message = FailMessage(err);
+    fin_message = FailedMessage(err);
     %all_payload(~ok) = all_messages(~ok);
     fin_message.payload = all_payload;
 else

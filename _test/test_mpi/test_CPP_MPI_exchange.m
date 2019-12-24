@@ -28,6 +28,8 @@ classdef test_CPP_MPI_exchange< TestCase
             
             assertEqual(labNum,uint64(1));
             assertEqual(nLabs,uint64(1));
+            mess = LogMessage(1,10,1,[]);
+            [ok,err_mess]  = mf.send_message(1,mess);
         end
     end
 end

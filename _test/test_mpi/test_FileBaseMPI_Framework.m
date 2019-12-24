@@ -47,17 +47,17 @@ classdef test_FileBaseMPI_Framework< TestCase
             [ok,err]=mf.send_message(0,'starting');
             assertEqual(ok,MESS_CODES.ok)
             assertTrue(isempty(err));
-            [ok,err]=mf.send_message(0,'running');
+            [ok,err]=mf.send_message(0,'log');
             assertEqual(ok,MESS_CODES.ok)
             assertTrue(isempty(err));
             %
             ok=mf.receive_message(0,'starting');
             assertEqual(ok,MESS_CODES.ok)
-            ok = mf.receive_message(0,'running');
+            ok = mf.receive_message(0,'log');
             assertEqual(ok,MESS_CODES.ok)
             
             
-            [all_messages_names,task_ids] = mf.probe_all(0,'running');
+            [all_messages_names,task_ids] = mf.probe_all(0,'log');
             assertTrue(isempty(all_messages_names));
             assertTrue(isempty(task_ids));
             %
@@ -101,7 +101,7 @@ classdef test_FileBaseMPI_Framework< TestCase
             cont = the_mess.payload;
             assertEqual(job_param,cont);
             
-            [all_messages_names,task_ids] = mf1.probe_all(0,'running');
+            [all_messages_names,task_ids] = mf1.probe_all(0,'log');
             assertTrue(isempty(all_messages_names));
             assertTrue(isempty(task_ids));
             
@@ -198,12 +198,12 @@ classdef test_FileBaseMPI_Framework< TestCase
             [ok,err] = mf.send_message(0,'started');
             assertEqual(ok,MESS_CODES.ok)
             assertTrue(isempty(err));
-            mess = FailMessage('failed');
+            mess = FailedMessage('failed');
             [ok,err] = mf.send_message(3,mess);
             assertEqual(ok,MESS_CODES.ok)
             assertTrue(isempty(err));
             
-            mess = aMessage('running');
+            mess = aMessage('log');
             [ok,err] = mf.send_message(3,mess);
             assertEqual(ok,MESS_CODES.ok)
             assertTrue(isempty(err));
@@ -229,7 +229,7 @@ classdef test_FileBaseMPI_Framework< TestCase
             assertEqual(id_from(1),0);
             assertEqual(id_from(2),0);
             
-            mess = aMessage('running');
+            mess = aMessage('log');
             % unlike normal mpi, filebased mpi allows sending message to
             % itself
             [ok,err] = mf3.send_message(3,mess);
@@ -250,7 +250,7 @@ classdef test_FileBaseMPI_Framework< TestCase
             assertEqual(id_from(2),0);
             assertEqual(id_from(3),3);
             
-            [all_mess,id_from] = mf3.probe_all('all','running');
+            [all_mess,id_from] = mf3.probe_all('all','log');
             assertEqual(numel(all_mess),3);
             assertEqual(id_from(1),0);
             assertEqual(id_from(2),0);
@@ -312,7 +312,7 @@ classdef test_FileBaseMPI_Framework< TestCase
             assertTrue(isempty(all_mess));
             
             % create just lock (no file yet)
-            lock_running = this.build_fake_lock(mf,'running');
+            lock_running = this.build_fake_lock(mf,'log');
             clob_lock3 = onCleanup(@()del_file(lock_running ));
             
             all_mess = mf.probe_all();
@@ -505,7 +505,7 @@ classdef test_FileBaseMPI_Framework< TestCase
             cs2  = iMessagesFramework.deserialize_par(css2);
             receiver = MessagesFilebased(cs2);
             
-            mess = aMessage('data');
+            mess = DataMessage();
             mess.payload  = 1;
             [ok,err] = sender.send_message(2,mess);
             assertEqual(ok,MESS_CODES.ok,err);

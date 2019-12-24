@@ -88,7 +88,7 @@ while ~all_received
                 if isempty(all_messages{i})
                     all_messages{i}  = message;
                 else
-                    if MESS_NAMES.is_queuing(all_messages{i}.mess_name)
+                    if all_messages{i}.is_blocking
                         mc.push_messages(tid_to_ask,message);
                     else
                         all_messages{i}  = message;

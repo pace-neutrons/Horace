@@ -45,7 +45,7 @@ if numel(argi) > 0 && ~isempty(argi{1})
     % lab jobs ans synchronous execution would wait for other labs 'canceled' results
     % This would not work in test mode, so test mode should always be run
     % as asynchronous
-    %if isa(mess,'FailMessage')
+    %if isa(mess,'FailedMessage')
     %    synchronize  = false;
     %end
 else

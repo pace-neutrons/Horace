@@ -1,6 +1,6 @@
-classdef FailMessage < aMessage
-    % Helper class desfines a Fauk message, used to transfer initial
-    % information to a single task of a distributed job.
+classdef FailedMessage < aMessage
+    % Helper class defines a Failure message, used to inform
+    % head-node and (possibly) other nodes that the job have failed.
     %
     %
     % $Revision:: 839 ($Date:: 2019-12-16 18:18:44 +0000 (Mon, 16 Dec 2019) $)
@@ -16,27 +16,28 @@ classdef FailMessage < aMessage
     end
     
     methods
-        function obj = FailMessage(fail_text,error_exception)
-            % Construct the intialization message
+        function obj = FailedMessage(fail_text,error_exception)
+            % Construct the initialization message
             %
             % Inputs:
             % fail_text  -- the text which describes the error
             % error_exception -- the class of the Matlab exception type,
             %               which  describes the caught exception
             %
+            obj = obj@aMessage('failed');
+            
             if ~exist('error_exception','var')
-                ex_text = 'automatic exception, generated at FailMessage without arguments: ';
+                ex_text = 'automatic exception, generated at FailedMessage without arguments: ';
                 if exist('fail_text','var')
                     ex_text  = [ex_text,fail_text];
                 end
-                error_exception = MException('FAIL_MESSAGE:no_aruments',...
+                error_exception = MException('FAILED_MESSAGE:no_aruments',...
                     ex_text);
             end
             if ~exist('fail_text','var')
                 fail_text = ' Failed message without parameters';
             end
             
-            obj = obj@aMessage('failed');
             obj.fail_text_  = fail_text;
             obj.payload     = error_exception;
         end
@@ -45,21 +46,6 @@ classdef FailMessage < aMessage
             text =obj.fail_text_;
         end
     end
-    %    methods(Access=protected)
-    %         function pl = get_payload(obj)
-    %             if isempty(obj.payload_)
-    %                 pl = obj.exception_;
-    %             else
-    %                 if isempty(obj.exception_)
-    %                     pl = obj.payload_;
-    %                 else
-    %                     pl  = {obj.exception_,obj.payload_};
-    %                 end
-    %             end
-    %
-    %         end
-    %    end
-    
 end
 
 

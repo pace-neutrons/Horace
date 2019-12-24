@@ -129,6 +129,6 @@ if isempty(mess)
     is = false;
     return
 end
-is = MESS_NAMES.is_queuing(mess.mess_name);
+is = mess.is_blocking;
 
 

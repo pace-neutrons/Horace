@@ -4,7 +4,7 @@ function [ww_f,pp_f,ok,mess] = mftest_mf_and_f_multiple_datasets (ww,varargin)
 %   [ww_f,pp_f,ok,mess] = mftest_mf_and_f_multiple_datasets (ww,varargin)
 %
 %   ww          array of datasets, or cell array of datasets with one fo the acceptable forms for fit
-%   varargin    all the other argumnets that can be passed to fit or multifit
+%   varargin    all the other arguments that can be passed to fit or multifit
 %
 %   ww_f        output fits
 %   pp_f        output fit parameters

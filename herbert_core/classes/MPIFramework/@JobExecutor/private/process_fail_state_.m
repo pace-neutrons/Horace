@@ -12,7 +12,7 @@ end
 %disp('error message')
 %disp(ME)
 %disp(['processing fail state, forming message: ',ME.identifier]);
-mess = FailMessage(err_text,ME);
+mess = FailedMessage(err_text,ME);
 % send canceled message to all other workers to finish their
 % current job at log point.
 if ~is_canceled

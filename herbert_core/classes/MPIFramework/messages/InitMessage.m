@@ -20,6 +20,7 @@ classdef InitMessage < aMessage
         return_results_ = false;
     end
     
+    
     methods
         function obj = InitMessage(common_data,loop_data,return_results,n_first_step)
             % Construct the intialization message
@@ -40,6 +41,11 @@ classdef InitMessage < aMessage
             %                 a cellarray it assumed to be 1
             %
             obj = obj@aMessage('init');
+            obj.is_blocking_ = true;
+            if ~exist('common_data','var')
+                common_data = [];
+                loop_data = 1;
+            end
             obj.payload = struct('common_data',common_data,...
                 'loopData',[],'n_first_step',1,'n_steps',0);
             if ~exist('n_first_step','var')
@@ -54,7 +60,7 @@ classdef InitMessage < aMessage
                 obj.payload.loopData = loop_data;
                 % would not work correctly if the first field was string
                 obj.payload.n_steps   = numel(loop_data.(fn{1}));
-                obj.payload.n_first_step  = 1;                
+                obj.payload.n_first_step  = 1;
             else
                 obj.payload.n_steps  = loop_data;
                 obj.payload.n_first_step  = n_first_step;

@@ -1,6 +1,13 @@
 classdef aMessage
-    % Class used to distribute messages
-    % between workers
+    % Class describes messages transferable
+    % between workers using any framework.
+    %
+    % All children classes, whcih have special features and derived from
+    % this message should follow have the following naming convention:
+    %
+    % The class name is defined as combination of [MessageName,'Message']
+    % where MessageName is the name of the message, first letter capitalized
+    % and 'Message' is the symbolic world "Message"
     %
     properties(Dependent)
         % message contents (arbitrary data distributed from sender to
@@ -9,16 +16,25 @@ classdef aMessage
         % message name, describing the message category (e.g. starting,
         % running, etc...
         mess_name;
+        % Numerical representation of the message name
         tag;
+        % the message is a non-blocking message, i.e. the next
+        % message of the same type overwrites this message, if this message
+        % has not been received.
+        is_blocking;
+        
     end
     properties(Access=protected)
-        payload_ =[];
-        mess_name_ = [];
+        payload_     = [];
+        mess_name_   = [];
+        is_blocking_ = false;
     end
-    
+    properties(Constant)
+    end
     
     methods
         function obj=aMessage(name)
+            % constructor, which may return any children messages.
             is = MESS_NAMES.name_exist(name);
             if is
                 obj.mess_name_ = name;
@@ -32,6 +48,9 @@ classdef aMessage
         end
         function name = get.mess_name(obj)
             name = obj.mess_name_;
+        end
+        function is = get.is_blocking(obj)
+            is = obj.is_blocking_;
         end
         function obj = set.payload(obj,val)
             if iscell(val)

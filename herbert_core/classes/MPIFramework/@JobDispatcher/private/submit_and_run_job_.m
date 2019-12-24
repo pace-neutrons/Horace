@@ -30,7 +30,7 @@ je_init_message = JobExecutor.build_worker_init(task_class_name,...
     exit_worker_when_job_ends,keep_workers_running);
 
 
-% determine the way of spliting job among workers and construct the
+% determine the way of splitting job among workers and construct the
 % messages to initialize each worker's job
 [task_ids,taskInitMessages]=...
     obj.split_tasks(common_params,loop_params,return_results,n_workers);

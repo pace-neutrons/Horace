@@ -10,7 +10,7 @@ classdef ClusterMPI < ClusterWrapper
         
         % the string user to launch Matlab
         matlab_starter_  = [];
-        % the string containgin Java handle to running mpiexec process
+        % the string containing Java handle to running mpiexec process
         mpiexec_handle_ = [];
         %
     end
@@ -154,7 +154,7 @@ classdef ClusterMPI < ClusterWrapper
                         'Framework launcher reports job finished without returning final messages. Reason: %s',...
                         mess);
                     if failed
-                        obj.status = FailMessage(mess_body);
+                        obj.status = FailedMessage(mess_body);
                     else
                         c_mess = aMessage('completed');
                         c_mess.payload = mess_body;

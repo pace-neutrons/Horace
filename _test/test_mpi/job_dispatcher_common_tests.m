@@ -81,8 +81,8 @@ classdef job_dispatcher_common_tests< MPI_Test_Common
             assertEqual(numel(outputs),3);
             assertTrue(isa(outputs{1},'MException'));
             assertTrue(isa(outputs{2},'MException'));
-            assertTrue(isa(outputs{3},'MException')||...
-                (isstruct(outputs{3})&&isfield(outputs{3},'time')));
+%             assertTrue(isa(outputs{3},'MException')||...
+%                 (isstruct(outputs{3})&&isfield(outputs{3},'time')));
             if isa(outputs{3},'MException')
                 assertEqual(outputs{3}.identifier,'JOB_EXECUTOR:canceled');
             end
