@@ -47,3 +47,7 @@ void MPI_wrapper::barrier() {
 
     MPI_Barrier(MPI_COMM_WORLD);
 }
+
+void MPI_wrapper::send(uint32_t data_address, int32_t data_tag, bool is_synchroneous, char* data_buffer, size_t nbytes_to_transfer) {
+
+}

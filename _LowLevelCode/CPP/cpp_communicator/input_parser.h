@@ -31,7 +31,7 @@ enum class labIndexInputs : int {
     N_INPUT_Arguments
 };
 
-enum class ProbeInputs : int { // all input arguments for read procedure
+enum class ProbeInputs : int { // all input arguments for labProbe procedure
     mode_name,
     comm_ptr,
     source_id,
@@ -39,14 +39,14 @@ enum class ProbeInputs : int { // all input arguments for read procedure
     N_INPUT_Arguments
 };
 
-enum class SendReceiveInputs : int { // all input arguments for read procedure
+enum class SendReceiveInputs : int { // all input arguments for send/receive procedure
     mode_name,
     comm_ptr,
     source_dest_id,
     tag,
-    n_bytes,
-    pDataBuf,
-
+    is_synchronous,
+    head_data_buffer,
+    large_data_buffer, // optional (for synchroneous messages)
     N_INPUT_Arguments
 };
 
@@ -153,5 +153,6 @@ template<class T> inline class_handle<T> *get_handler_fromMatlab(const mxArray *
 
 
 class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray *prhs[],
-    input_types &work_mode, int &data_address, int &data_tag, size_t &nbytes_to_transfer, 
-    char *&data_buffer, int& assynch_queue_length);
+    input_types &work_mode, uint32_t & data_address, int32_t & data_tag, bool& is_synchroneous,
+    char*& data_buffer,  size_t &nbytes_to_transfer,
+    int& assynch_queue_length);

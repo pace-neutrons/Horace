@@ -19,7 +19,7 @@ T retrieve_value(const char*err_id, const mxArray *prhs) {
         mexErrMsgIdAndTxt("MPI_MEX_COMMUNICATOR:invalid_argument", buf.str().c_str());
     }
 
-    auto *pVector = mxGetPr(prhs);
+    auto *pVector =reinterpret_cast<T *> (mxGetData(prhs));
 
     return static_cast<T>(pVector[0]);
 }
@@ -43,16 +43,17 @@ size_t   get_byte_length(const char*err_id, const mxArray *prhs) {
         std::stringstream buf;
         buf << " The input for " << err_id << "contains unknown vector type\n";
         mexErrMsgIdAndTxt("MPI_MEX_COMMUNICATOR:invalid_argument", buf.str().c_str());
+        // never reached but for compiler not to complain
+        return 0;
     };
     }
 }
 
 template<class T>
-T* retrieve_vector(const char*err_id, const mxArray *prhs, size_t &vec_size, int &vec_bytes) {
+T* retrieve_vector(const char*err_id, const mxArray *prhs, size_t &vec_size, size_t &vec_bytes) {
 
-    double *pPtr = mxGetPr(prhs);
 
-    T *pVector = reinterpret_cast<T *>(pPtr);
+    T *pVector = reinterpret_cast<T *>(mxGetData(prhs));
 
     size_t m_size_a = mxGetM(prhs);
     size_t n_size_a = mxGetN(prhs);
@@ -113,8 +114,10 @@ prhs  --  array of pointers to right hand side parameters
 work_mode         -- retrieved IO operations mode.
 data_address      -- address of the node to communicate with
 data_tag          -- MPI messages tag
-nbytes_to_transfer-- number of bytes to transfer over mpi. 
+is_synchroneous   -- for send/receive operations, if the communication mode is synchroneous
 data_buffer       -- refernece to pointert to the buffer with data. Defined for send and undef for labReceive/labProbe
+nbytes_to_transfer-- number of bytes to transfer over mpi.
+
 assynch_queue_length -- additional initiallization information, defining the length of the assynchroneous messages queue
                     Defined only for init-type procedures. 
 
@@ -122,7 +125,8 @@ returns:
 pointer to cpp_communicator class handler to share with Matlab
 */
 class_handle<MPI_wrapper> *parse_inputs(int nlhs, int nrhs, const mxArray *prhs[],
-    input_types &work_mode,int &data_address,int &data_tag, size_t &nbytes_to_transfer, char *&data_buffer, 
+    input_types &work_mode, uint32_t &data_address, int32_t &data_tag, bool &is_synchroneous,
+    char *& data_buffer, size_t &nbytes_to_transfer,
     int & assynch_queue_length)
 {
 
@@ -138,6 +142,17 @@ class_handle<MPI_wrapper> *parse_inputs(int nlhs, int nrhs, const mxArray *prhs[
     }
     else if (mex_mode.compare("labSend") == 0) {
         work_mode = labSend;
+        class_handle<MPI_wrapper>* pCommunicator = get_handler_fromMatlab<MPI_wrapper>(prhs[(int)SendReceiveInputs::comm_ptr], false);
+        // the target destination address
+        data_address = (uint32_t)retrieve_value<mxUint32>("labSend: destination address",prhs[(int)SendReceiveInputs::source_dest_id])-1;
+        // the sending data tag
+        data_tag = (int32_t)retrieve_value<mxInt32>("labSend: destination tag",prhs[(int)SendReceiveInputs::tag]);
+        // if the transfer is synchroneous or not
+        is_synchroneous = (bool)retrieve_value<mxUint8>("labSend: is synchronous", prhs[(int)SendReceiveInputs::is_synchronous]);
+        // retrieve pointer to serialized data to transfer
+        size_t vector_size, bytesize;
+        data_buffer = retrieve_vector<char>("labSend: data", prhs[(int)SendReceiveInputs::head_data_buffer], vector_size,bytesize);
+        nbytes_to_transfer = vector_size * bytesize;
     }
     else if (mex_mode.compare("labIndex") == 0) {
         work_mode = labIndex;

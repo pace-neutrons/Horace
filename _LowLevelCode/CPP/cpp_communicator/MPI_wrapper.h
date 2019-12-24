@@ -20,6 +20,7 @@ public:
     int init(bool isTested = false,int assynch_queue_max_len=10);
     void close();
     void barrier();
+    void send(uint32_t data_address, int32_t data_tag, bool is_synchroneous, char* data_buffer, size_t nbytes_to_transfer);
 
     ~MPI_wrapper() {
         this->close();

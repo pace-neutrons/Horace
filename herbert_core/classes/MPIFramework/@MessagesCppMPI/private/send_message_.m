@@ -11,14 +11,15 @@ elseif isa(message,'aMessage')
 end
 % convert types into defined types to transfer to cpp_communicator
 is_blocking = logical(mess.is_blocking);
-tag =uint32(mess.tag);
+
 task_id = uint32(task_id);
+tag =int32(mess.tag);
 %
 if is_blocking
     contents = hlp_serialize(mess);
     try
         obj.mpi_framework_holder_ = cpp_communicator('send',...
-            obj.mpi_framework_holder_,task_id,tag,is_blocking,contents);
+            obj.mpi_framework_holder_,task_id,tag,uint8(is_blocking),contents);
     catch ME
         if strcmpi(ME.identifier,'')
             ok = MESS_CODES.a_send_error;
