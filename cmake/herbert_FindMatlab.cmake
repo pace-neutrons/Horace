@@ -34,7 +34,7 @@ find_library(Matlab_UT_LIBRARY
 mark_as_advanced(FORCE Matlab_UT_LIBRARY)
 
 # The MX library doesn't seem to get found on UNIX, so make sure we have it
-if("${Matlab_MX_LIBRARY}" STREQUAL "")
+if(NOT DEFINED Matlab_MX_LIBRARY)
     find_library(Matlab_MX_LIBRARY
         NAMES "mex" "libmex" "mat" "libmat" "mx" "libmx"
         HINTS "${Matlab_LIBRARY_DIR}"
