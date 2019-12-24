@@ -34,7 +34,7 @@ pipeline {
                     module load cmake/\$CMAKE_VERSION &&
                     module load matlab/\$MATLAB_VERSION &&
                     module load gcc/\$GCC_VERSION &&
-                    ./tools/build_config/hello.sh
+                    echo "Hello, world"
                 '''
             }
         }
