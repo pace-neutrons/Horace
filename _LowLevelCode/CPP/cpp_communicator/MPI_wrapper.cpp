@@ -1,10 +1,15 @@
 #include "MPI_wrapper.h"
 #include "input_parser.h"
 
-int MPI_wrapper::init(bool isTested) {
+int MPI_wrapper::init(bool isTested, int assynch_messages_queue_len) {
     int* argc(nullptr);
     char*** argv(nullptr);
     int err(-1);
+    // initiate the assynchroneous messages queue.
+    this->assynch_queue_max_len_ = assynch_messages_queue_len;
+    this->assynch_mess_num_ = 0;
+    this->assyncMessList.clear();
+    //
     if (isTested) {
         // set up test values and return without initializeing the framework
         this->isTested = true;

@@ -19,6 +19,12 @@ enum input_types {
 
 // Enum various versions of input/output parameters, different for different kinds of input options
 // --------------   Inputs:
+enum class initIndexInputs : int {
+    mode_name,
+    assynch_queue_len,
+    N_INPUT_Arguments
+};
+
 enum class labIndexInputs : int {
     mode_name,
     comm_ptr,
@@ -147,4 +153,5 @@ template<class T> inline class_handle<T> *get_handler_fromMatlab(const mxArray *
 
 
 class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray *prhs[],
-    input_types &work_mode, int &data_address, int &data_tag, size_t &nbytes_to_transfer, char *&data_buffer);
+    input_types &work_mode, int &data_address, int &data_tag, size_t &nbytes_to_transfer, 
+    char *&data_buffer, int& assynch_queue_length);

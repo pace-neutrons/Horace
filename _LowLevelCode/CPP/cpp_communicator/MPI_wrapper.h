@@ -15,8 +15,9 @@ class MPI_wrapper {
 public:
 
     MPI_wrapper() :
-        labIndex(-1), numProcs(0), isTested(false) {}
-    int init(bool isTested = false);
+        labIndex(-1), numProcs(0), isTested(false),
+        assynch_queue_max_len_(10), assynch_mess_num_(0) {}
+    int init(bool isTested = false,int assynch_queue_max_len=10);
     void close();
     void barrier();
 
@@ -31,6 +32,11 @@ public:
     // when no real mpi exchange is initiated.
     bool isTested;
 private:
+    // the length of the queue to keep assynchroneous messages. If this length is exceeded,
+    // something is wrong and the job should be interrupted
+    int assynch_queue_max_len_;
+    // the current length of the assycnhroneous messages queue. (len(assyncMessList));
+    int assynch_mess_num_;
     // the list of assyncroneous messages, stored until delivered
     std::list<iSendMessHolder> assyncMessList;
 

@@ -15,14 +15,16 @@
 The allowed operations and their parameters are:
 
 *** 'init'  Initializes MPI framework to allow further MPI operations.
-Inputs:  -- no other inputs accepted.
+Inputs:  -- optional, 
+  2     --  length of asynchroneous messages queue. The framework fails if this lengs become exceeded.
 Outputs:
   1     -- pointer to  new intialized MPI framework.
   2     -- Index (number) of current MPI process
   3     -- size of the MPI pool current worker is the part of.
 
 *** 'init_test_mode'  Initializes MPI wrapper with fake MPI values, which run within a single process. 
-Inputs:  -- no other inputs accepted.
+Inputs:  -- optional,
+  2     --  length of asynchroneous messages queue. The framework fails if this lengs become exceeded.
 Outputs:
   1     -- pointer to  fake MPI framework.
   2     -- Index (number) of current MPI process:             always 1
@@ -56,14 +58,14 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     //* Check and parce input  arguments. */
     char *data_buffer(nullptr);
 
-    int data_address(0), data_tag(0);
+    int data_address(0), data_tag(0),assynch_queue_len(10);
     size_t n_workers;
     size_t nbytes_to_transfer;
     input_types work_type;
 
 
     class_handle<MPI_wrapper>* pCommunicatorHolder = parse_inputs(nlhs, nrhs, prhs,
-        work_type, data_address, data_tag, nbytes_to_transfer, data_buffer);
+        work_type, data_address, data_tag, nbytes_to_transfer, data_buffer, assynch_queue_len);
 
     // avoid problem with multiple finalization
     if (pCommunicatorHolder == nullptr) { // this can happen only if close_mpi is selected and the framework had been already finalized
@@ -77,14 +79,14 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     switch (work_type)
     {
     case(init_mpi): { // Initialize MPI communications and return labIndex and numLabs
-        pCommunicatorHolder->class_ptr->init(false);
+        pCommunicatorHolder->class_ptr->init(false, assynch_queue_len);
         n_workers = pCommunicatorHolder->class_ptr->numProcs;
         set_numlab_and_nlabs(pCommunicatorHolder, nlhs, plhs, nrhs, prhs);
         break;
     }
     case(init_test_mode):{
         // init test mode providing true as input to init function
-        pCommunicatorHolder->class_ptr->init(true);
+        pCommunicatorHolder->class_ptr->init(true, assynch_queue_len);
         n_workers = pCommunicatorHolder->class_ptr->numProcs;
         set_numlab_and_nlabs(pCommunicatorHolder, nlhs, plhs, nrhs, prhs);
         break;

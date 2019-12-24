@@ -28,13 +28,20 @@ classdef MessagesCppMPI < iMessagesFramework
         % previous attempt have not find it.
         time_to_react_ = 1; % (sec)
         %
-        % equivalent to labNum in MPI
+        % equivalent to labNum in MPI, the number of the current running
+        % MPI worker
         task_id_ = -1;
-        %
+        % Total number of MPI workers, participating in a job.
         numLabs_ = 0;
         %
-        %
+        % The variable to keep pointer to the internal C++ class,
+        % responsible for MPI operations
         mpi_framework_holder_ = [];
+        % The length of the queue to use for asynchronous messages.
+        % if this number of asynchronous messages has been send and no
+        % been received, something wrong is happening with the node or the
+        % cluster, so the job should be interrupted (canceled)
+        assync_messages_queue_length_ = 10;
         
         DEBUG = false;
     end
@@ -213,8 +220,10 @@ classdef MessagesCppMPI < iMessagesFramework
             end
         end
         function delete(obj)
-            cpp_communicator('finalize',obj.mpi_framework_holder_);
-            obj.mpi_framework_holder_ = [];
+            if ~isempty(obj.mpi_framework_holder_)
+                cpp_communicator('finalize',obj.mpi_framework_holder_);
+                obj.mpi_framework_holder_ = [];
+            end
         end
     end
     %----------------------------------------------------------------------
@@ -232,7 +241,7 @@ classdef MessagesCppMPI < iMessagesFramework
             [obj.mpi_framework_holder_,labNum,numLabs]= ...
                 cpp_communicator('labIndex',obj.mpi_framework_holder_);
             %
-            obj.task_id_ = labNum;            
+            obj.task_id_ = labNum;
             obj.numLabs_ = numLabs;
         end
     end

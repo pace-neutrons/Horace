@@ -56,12 +56,8 @@ if ~isempty(obj.mpi_framework_holder_)
 end
 if test_mode
     [obj.mpi_framework_holder_,obj.task_id_,obj.numLabs_]= ...
-        cpp_communicator('init_test_mode');
+        cpp_communicator('init_test_mode',obj.assync_messages_queue_length_);
 else
     [obj.mpi_framework_holder_,obj.task_id_,obj.numLabs_]= ...
-        cpp_communicator('init');
+        cpp_communicator('init',obj.assync_messages_queue_length_);
 end
-
-
-
-

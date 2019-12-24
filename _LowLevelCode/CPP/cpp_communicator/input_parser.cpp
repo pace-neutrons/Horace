@@ -115,16 +115,19 @@ data_address      -- address of the node to communicate with
 data_tag          -- MPI messages tag
 nbytes_to_transfer-- number of bytes to transfer over mpi. 
 data_buffer       -- refernece to pointert to the buffer with data. Defined for send and undef for labReceive/labProbe
-
+assynch_queue_length -- additional initiallization information, defining the length of the assynchroneous messages queue
+                    Defined only for init-type procedures. 
 
 returns:
 pointer to cpp_communicator class handler to share with Matlab
 */
-
 class_handle<MPI_wrapper> *parse_inputs(int nlhs, int nrhs, const mxArray *prhs[],
-    input_types &work_mode,int &data_address,int &data_tag, size_t &nbytes_to_transfer, char *&data_buffer)
+    input_types &work_mode,int &data_address,int &data_tag, size_t &nbytes_to_transfer, char *&data_buffer, 
+    int & assynch_queue_length)
 {
 
+    int default_assynch_queue_length(10);
+    assynch_queue_length = default_assynch_queue_length;
 
     // get correct file name and the group name
     std::string mex_mode;
@@ -146,23 +149,30 @@ class_handle<MPI_wrapper> *parse_inputs(int nlhs, int nrhs, const mxArray *prhs[
         work_mode = labBarrier;
     }
     else if (mex_mode.compare("init") == 0) {
-        if (nrhs != 1 ) {
+        if (nrhs > 2 || nrhs < 1) {
             std::stringstream err;
-            err << " Init mode needs only 1 but got : " << nrhs << " input parameters";
+            err << " Init mode needs only 1 or 2 inputs but got : " << nrhs << " input parameters";
             throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", err.str().c_str());
         }
         class_handle<MPI_wrapper> *pCommunicator = new class_handle<MPI_wrapper>();
         work_mode = init_mpi;
+        if (nrhs == 2) {
+            assynch_queue_length = (int)retrieve_value<double>("Init", prhs[(int)initIndexInputs::assynch_queue_len]);
+        }
         return pCommunicator;
     }
     else if (mex_mode.compare("init_test_mode")==0) {
-        if (nrhs != 1) {
+        if (nrhs > 2 || nrhs  < 1) {
             std::stringstream err;
             err << " Init Test mode needs only 1 but got : " << nrhs << " input parameters";
             throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", err.str().c_str());
         }
         class_handle<MPI_wrapper>* pCommunicator = new class_handle<MPI_wrapper>();
         work_mode = init_test_mode;
+        if (nrhs == 2) {
+            assynch_queue_length = (int)retrieve_value<double>("Init_test_mode", prhs[(int)initIndexInputs::assynch_queue_len]);
+        }
+
         return pCommunicator;
     }
     else if (mex_mode.compare("finalize") == 0) {
