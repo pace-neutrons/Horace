@@ -4,10 +4,18 @@
 #include <cmath>
 #include <mpi.h>
 
-class iSendMessHolder {
+class SendMessHolder {
 public:
-    MPI_Request* theRequest;
+    MPI_Request theRequest;
+    int mess_tag;
+    int destination;
     std::vector<uint8_t> mess_body;
+   //
+    //SendMessHolder(SendMessHolder&& other) noexcept;
+    SendMessHolder() :
+        theRequest(0), mess_tag(0), destination(0) {}
+    SendMessHolder(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag);
+    void init(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag);
 };
 
 /* The class which describes a block of information necessary to process block of pixels */
@@ -20,7 +28,7 @@ public:
     int init(bool isTested = false,int assynch_queue_max_len=10);
     void close();
     void barrier();
-    void send(uint32_t data_address, int32_t data_tag, bool is_synchroneous, char* data_buffer, size_t nbytes_to_transfer);
+    void send(int data_address, int data_tag, bool is_synchroneous, uint8_t* data_buffer, size_t nbytes_to_transfer);
 
     ~MPI_wrapper() {
         this->close();
@@ -39,6 +47,10 @@ private:
     // the current length of the assycnhroneous messages queue. (len(assyncMessList));
     int assynch_mess_num_;
     // the list of assyncroneous messages, stored until delivered
-    std::list<iSendMessHolder> assyncMessList;
+    std::list<SendMessHolder> assyncMessList;
+    // add message to the asynchroneous messages queue and check if the queue is exceeded
+    SendMessHolder* add_to_async_queue(uint8_t*pBuffer,size_t n_bytes,int dest_address, int data_tag);
+    // add wait for previous message to be receivedto and send message to synchroneous transfer 
+    SendMessHolder* set_sync_transfer(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag);
 
 };

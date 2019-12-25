@@ -66,10 +66,9 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     }
 
     //* Check and parce input  arguments. */
-    char* data_buffer(nullptr);
+    uint8_t * data_buffer(nullptr);
 
-    uint32_t data_address(0);
-    int32_t data_tag(0);
+    int data_address(0),data_tag(0);
     bool is_synchroneous(false);
     int  assynch_queue_len(10);
     size_t n_workers;

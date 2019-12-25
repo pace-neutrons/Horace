@@ -125,8 +125,8 @@ returns:
 pointer to cpp_communicator class handler to share with Matlab
 */
 class_handle<MPI_wrapper> *parse_inputs(int nlhs, int nrhs, const mxArray *prhs[],
-    input_types &work_mode, uint32_t &data_address, int32_t &data_tag, bool &is_synchroneous,
-    char *& data_buffer, size_t &nbytes_to_transfer,
+    input_types &work_mode, int &data_address, int &data_tag, bool &is_synchroneous,
+    uint8_t *& data_buffer, size_t &nbytes_to_transfer,
     int & assynch_queue_length)
 {
 
@@ -144,14 +144,14 @@ class_handle<MPI_wrapper> *parse_inputs(int nlhs, int nrhs, const mxArray *prhs[
         work_mode = labSend;
         class_handle<MPI_wrapper>* pCommunicator = get_handler_fromMatlab<MPI_wrapper>(prhs[(int)SendReceiveInputs::comm_ptr], false);
         // the target destination address
-        data_address = (uint32_t)retrieve_value<mxUint32>("labSend: destination address",prhs[(int)SendReceiveInputs::source_dest_id])-1;
+        data_address = (int)retrieve_value<mxUint32>("labSend: destination address",prhs[(int)SendReceiveInputs::source_dest_id])-1;
         // the sending data tag
-        data_tag = (int32_t)retrieve_value<mxInt32>("labSend: destination tag",prhs[(int)SendReceiveInputs::tag]);
+        data_tag = (int)retrieve_value<mxInt32>("labSend: destination tag",prhs[(int)SendReceiveInputs::tag]);
         // if the transfer is synchroneous or not
         is_synchroneous = (bool)retrieve_value<mxUint8>("labSend: is synchronous", prhs[(int)SendReceiveInputs::is_synchronous]);
         // retrieve pointer to serialized data to transfer
         size_t vector_size, bytesize;
-        data_buffer = retrieve_vector<char>("labSend: data", prhs[(int)SendReceiveInputs::head_data_buffer], vector_size,bytesize);
+        data_buffer = retrieve_vector<uint8_t >("labSend: data", prhs[(int)SendReceiveInputs::head_data_buffer], vector_size,bytesize);
         nbytes_to_transfer = vector_size * bytesize;
     }
     else if (mex_mode.compare("labIndex") == 0) {

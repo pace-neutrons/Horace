@@ -152,7 +152,7 @@ template<class T> inline class_handle<T> *get_handler_fromMatlab(const mxArray *
 
 
 
-class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray *prhs[],
-    input_types &work_mode, uint32_t & data_address, int32_t & data_tag, bool& is_synchroneous,
-    char*& data_buffer,  size_t &nbytes_to_transfer,
+class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray* prhs[],
+    input_types& work_mode, int &data_address, int & data_tag, bool& is_synchroneous,
+    uint8_t*& data_buffer,  size_t &nbytes_to_transfer,
     int& assynch_queue_length);
