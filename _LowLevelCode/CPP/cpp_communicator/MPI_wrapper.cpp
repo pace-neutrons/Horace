@@ -80,17 +80,14 @@ void MPI_wrapper::send(int dest_address, int data_tag, bool is_synchroneous, uin
 
 */
 SendMessHolder* MPI_wrapper::add_to_async_queue(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag) {
-    this->assynch_mess_num_++;
-    if (this->assynch_mess_num_ > this->assynch_queue_max_len_)
-        mexErrMsgIdAndTxt("MPI_MEX_COMMUNICATOR:runtime_error",
-            "the number of assynchroneous messages exceed the maximal numnber");
+
     //
     SendMessHolder* messToSend(nullptr), * prevMess(nullptr);
     //
     int isDelivered;
     MPI_Status status; // not clear what to do about it.
     auto pMess = this->assyncMessList.rbegin();
-    for (pMess; pMess != this->assyncMessList.rend(); pMess++) {
+    while (pMess != this->assyncMessList.rend()) {
         if (this->isTested)
             isDelivered = bool(pMess->theRequest);
         else {
@@ -100,9 +97,9 @@ SendMessHolder* MPI_wrapper::add_to_async_queue(uint8_t* pBuffer, size_t n_bytes
         if (isDelivered) {
             prevMess = messToSend;
             messToSend = &(*pMess);
-            if (prevMess) { // previous message is the last message
+            pMess++;
+            if (prevMess) { //delete previous message which is the last message
                 this->assyncMessList.pop_back();
-                this->assynch_mess_num_--;
             }
         }
         else { // not delivered
@@ -110,14 +107,18 @@ SendMessHolder* MPI_wrapper::add_to_async_queue(uint8_t* pBuffer, size_t n_bytes
         }
     }
 
-    if (messToSend) { // reuse existing message not to allocate memory again
+    if (messToSend) { // reuse existing delivered message space not to allocate memory again
         messToSend->init(pBuffer, n_bytes, dest_address, data_tag);
         this->assyncMessList.push_front(*messToSend);
         this->assyncMessList.pop_back();
-        this->assynch_mess_num_--;
     }
-    else { // no messages lef in the cache.
-        // create new message
+    else { // no space in the cache to recycle.
+        if (this->assync_queue_len()+1 > this->assynch_queue_max_len_) {
+            mexErrMsgIdAndTxt("MPI_MEX_COMMUNICATOR:runtime_error",
+                "the number of assynchroneous messages exceed the maximal numnber");
+        }
+
+        // add new message
         SendMessHolder mess(pBuffer, n_bytes, dest_address, data_tag);
         this->assyncMessList.push_front(mess);
     }

@@ -40,6 +40,17 @@ public:
     // test mode used to run various test operations over MPI_wrapper in single process, 
     // when no real mpi exchange is initiated.
     bool isTested;
+    // return the number of asynchroneous messages in the queue
+    size_t assync_queue_len() {
+        return this->assyncMessList.size();
+    }
+    //----------------------------------------------------------------------------------
+    // The methods used in unit tests -- have no sence in real life
+ 
+    // get access to the asynchroneous messages queue
+    std::list<SendMessHolder>* get_async_queue() {
+        return &this->assyncMessList;
+    }
 private:
     // the length of the queue to keep assynchroneous messages. If this length is exceeded,
     // something is wrong and the job should be interrupted
