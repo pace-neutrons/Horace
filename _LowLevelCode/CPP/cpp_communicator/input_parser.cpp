@@ -142,7 +142,6 @@ class_handle<MPI_wrapper> *parse_inputs(int nlhs, int nrhs, const mxArray *prhs[
     }
     else if (mex_mode.compare("labSend") == 0) {
         work_mode = labSend;
-        class_handle<MPI_wrapper>* pCommunicator = get_handler_fromMatlab<MPI_wrapper>(prhs[(int)SendReceiveInputs::comm_ptr], false);
         // the target destination address
         data_address = (int)retrieve_value<mxUint32>("labSend: destination address",prhs[(int)SendReceiveInputs::source_dest_id])-1;
         // the sending data tag
@@ -158,6 +157,10 @@ class_handle<MPI_wrapper> *parse_inputs(int nlhs, int nrhs, const mxArray *prhs[
         work_mode = labIndex;
     }
     else if (mex_mode.compare("labProbe") == 0) {
+        // the queried  address
+        data_address = (int)retrieve_value<mxUint32>("labProbe: source address", prhs[(int)ProbeInputs::source_id]) - 1;
+        // the queried tag
+        data_tag = (int)retrieve_value<mxInt32>("labProbe: requested tag", prhs[(int)ProbeInputs::tag]);
         work_mode = labProbe;
     }
     else if (mex_mode.compare("barrier") == 0) {
@@ -207,7 +210,7 @@ class_handle<MPI_wrapper> *parse_inputs(int nlhs, int nrhs, const mxArray *prhs[
             "MPI communicator needs at least one argument to return the instance of the communicatir");
     }
 
-    // get handlder from 
+    // get handlder from Matlab
     class_handle<MPI_wrapper> *pCommunicator = get_handler_fromMatlab<MPI_wrapper>(prhs[(int)labIndexInputs::comm_ptr]);
     return pCommunicator;
 

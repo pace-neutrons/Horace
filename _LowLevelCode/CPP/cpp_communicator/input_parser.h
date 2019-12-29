@@ -39,7 +39,7 @@ enum class ProbeInputs : int { // all input arguments for labProbe procedure
     N_INPUT_Arguments
 };
 
-enum class SendReceiveInputs : int { // all input arguments for send/receive procedure
+enum class SendReceiveInputs : int { // all input arguments for send or receive procedure
     mode_name,
     comm_ptr,
     source_dest_id,
@@ -75,6 +75,15 @@ enum class labIndex_Out :int { // output arguments for labIndex procedure
     n_workers,  // number of workers in the pull/
 
     N_OUTPUT_Arguments
+};
+
+enum class labProbe_Out:int { // output arguments of labProbe procedure
+    comm_ptr,   // the pointer to class responsible for MPI communications
+    addr_tag_array,     // 2-element array with the results of lab-probe operation
+
+    N_OUTPUT_Arguments
+
+
 };
 
 void throw_error(char const * const MESS_ID, char const * const error_message);

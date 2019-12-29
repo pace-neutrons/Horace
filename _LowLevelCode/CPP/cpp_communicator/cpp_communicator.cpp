@@ -39,7 +39,19 @@ Inputs:
   5  -- is_synchroneous -- should message be send synchroneously or assynchroneously.
   6  -- pointer to Matlab array, containing serialized message body
   7  -- large_data_buffer optional (for synchroneous messages) -- the pointer to Matlab structure, containing large data.
+Outputs:
+  1     -- pointer to  new the MPI framework, perforing asynchronous operation
 
+*** "labProbe"  executes asynchroneous MPI_Iprobe operation
+Inputs:
+  1  -- mode_name  -- the string 'labSend' identifies send mode
+  2  -- pointer to MPI initialized framework,
+  3  -- dest_id address (nuber) of the worker who should receive the message
+  4  -- tag -- the message tag (id)
+Outputs:
+  1     -- pointer to  new the MPI framework, perforing asynchronous operation
+  2     -- 2-elements array with address and tag of the first existing message present in the queue
+           satisfying the requests or empty matrix if no message is present
 
 *** 'finalize'  Closes MPI framework and breaks all incomplete MPI communications. No further MPI communications
                 allowed after this operation.
@@ -113,13 +125,25 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         return;
     }
     case(labSend): {
-        pCommunicatorHolder->class_ptr->send(data_address, data_tag, is_synchroneous, data_buffer, nbytes_to_transfer);
+        pCommunicatorHolder->class_ptr->labSend(data_address, data_tag, is_synchroneous, data_buffer, nbytes_to_transfer);
         break;
     }
     case(labReceive): {
         break;
     }
     case(labProbe): {
+        int address_present, tag_present;
+        pCommunicatorHolder->class_ptr->labProbe(data_address, data_tag, address_present, tag_present);
+        if (address_present == -1) {
+            plhs[(int)labProbe_Out::addr_tag_array] = mxCreateNumericMatrix(1, 0, mxINT32_CLASS, mxREAL);
+        }
+        else {
+            plhs[(int)labProbe_Out::addr_tag_array] = mxCreateNumericMatrix(2, 1, mxINT32_CLASS, mxREAL);
+            int32_t* pAddrTag = (int32_t*)mxGetData(plhs[(int)labProbe_Out::addr_tag_array]);
+            pAddrTag[0] = (int32_t)(address_present + 1);
+            pAddrTag[1] = (int32_t)(tag_present);
+
+        }
         break;
     }
     case(close_mpi): {
