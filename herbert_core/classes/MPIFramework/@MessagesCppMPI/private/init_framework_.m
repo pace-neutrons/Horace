@@ -50,14 +50,16 @@ catch Err
         'Can not initialize MPI communicator, err message: %s',...
         Err.message);
 end
-
+obj.data_message_tag_ = MESS_NAMES.mess_id('data');
 if ~isempty(obj.mpi_framework_holder_)
     cpp_communicator('finalize',obj.mpi_framework_holder_);
 end
 if test_mode
     [obj.mpi_framework_holder_,obj.task_id_,obj.numLabs_]= ...
-        cpp_communicator('init_test_mode',obj.assync_messages_queue_length_);
+        cpp_communicator('init_test_mode'...
+        ,obj.assync_messages_queue_length_,obj.data_message_tag_);
 else
     [obj.mpi_framework_holder_,obj.task_id_,obj.numLabs_]= ...
-        cpp_communicator('init',obj.assync_messages_queue_length_);
+        cpp_communicator('init',...
+        obj.assync_messages_queue_length_,obj.data_message_tag_);
 end

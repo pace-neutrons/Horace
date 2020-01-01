@@ -216,7 +216,7 @@ class_handle<MPI_wrapper> *parse_inputs(int nlhs, int nrhs, const mxArray *prhs[
 
 }
 
-void throw_error(char const * const MESS_ID, char const * const error_message) {
-    mexUnlock();
+void throw_error(char const * const MESS_ID, char const * const error_message, bool is_tested) {
+    if (!is_tested) mexUnlock();
     mexErrMsgIdAndTxt(MESS_ID, error_message);
 };

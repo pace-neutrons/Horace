@@ -22,6 +22,7 @@ enum input_types {
 enum class initIndexInputs : int {
     mode_name,
     assynch_queue_len,
+    data_mess_tag,
     N_INPUT_Arguments
 };
 
@@ -60,11 +61,10 @@ enum class closeOrGetInfoInputs : int { // all input arguments for close IO proc
 //--------------   Outputs;
 
 
-enum class read_Out :int { // output arguments for read procedure
+enum class labReceive_Out :int { // output arguments for labReceive procedure
     comm_ptr,   // the pointer to class responsible for MPI communications
-    pix_array,
-    is_io_completed,
-    mex_reader_handle,
+    mess_contents, //the pointer to the array of serialized message contents
+    data_celarray, // the pointer to the cellarray with the large data.
 
     N_OUTPUT_Arguments
 };
@@ -86,7 +86,7 @@ enum class labProbe_Out:int { // output arguments of labProbe procedure
 
 };
 
-void throw_error(char const * const MESS_ID, char const * const error_message);
+void throw_error(char const * const MESS_ID, char const * const error_message,bool is_tested =false);
 
 class MPI_wrapper;
 //

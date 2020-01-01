@@ -1,7 +1,16 @@
 #include "MPI_wrapper.h"
 #include "input_parser.h"
+#include <tuple> 
+
+// static data message tag, used by MPI wrapper to distinguish data messages and process them differently.
+int MPI_wrapper::data_mess_tag = 0;
+bool MPI_wrapper::MPI_wrapper_gtested = false;
+
 /** Initialize MPI communications framework */
-int MPI_wrapper::init(bool isTested, int assynch_messages_queue_len) {
+int MPI_wrapper::init(bool isTested, int assynch_messages_queue_len, int data_mess_tag) {
+
+    MPI_wrapper::data_mess_tag = data_mess_tag;
+
     int* argc(nullptr);
     char*** argv(nullptr);
     int err(-1);
@@ -81,7 +90,8 @@ void MPI_wrapper::labSend(int dest_address, int data_tag, bool is_synchroneous, 
         std::stringstream buf;
         buf << " The MPI_Issend for Worker N" << this->labIndex + 1 << "have failed with Error, code= "
             << labIndex << std::endl;
-        mexErrMsgIdAndTxt("MPI_MEX_COMMUNICATOR:runtime_error", buf.str().c_str());
+        throw_error("MPI_MEX_COMMUNICATOR:runtime_error", buf.str().c_str());
+
     }
 
 }
@@ -106,7 +116,7 @@ SendMessHolder* MPI_wrapper::add_to_async_queue(uint8_t* pBuffer, size_t n_bytes
                 std::stringstream buf;
                 buf << " The MPI_Test for messages in the queue for Worker N" << this->labIndex + 1 << "have failed with Error, code= "
                     << labIndex << std::endl;
-                mexErrMsgIdAndTxt("MPI_MEX_COMMUNICATOR:runtime_error", buf.str().c_str());
+                throw_error("MPI_MEX_COMMUNICATOR:runtime_error", buf.str().c_str());
             }
         }
 
@@ -130,8 +140,9 @@ SendMessHolder* MPI_wrapper::add_to_async_queue(uint8_t* pBuffer, size_t n_bytes
     }
     else { // no space in the cache to recycle.
         if (this->assync_queue_len() + 1 > this->assynch_queue_max_len_) {
-            mexErrMsgIdAndTxt("MPI_MEX_COMMUNICATOR:runtime_error",
-                "the number of assynchroneous messages exceed the maximal numnber");
+            throw_error("MPI_MEX_COMMUNICATOR:runtime_error",
+                "the number of assynchroneous messages exceed the maximal number",
+                MPI_wrapper::MPI_wrapper_gtested);
         }
 
         // add new message
@@ -151,7 +162,7 @@ SendMessHolder* MPI_wrapper::set_sync_transfer(uint8_t* pBuffer, size_t n_bytes,
 
 /* in test mode, verify if data source and data tag for message correspond data source and data tag requested */
 bool check_address_tag_requsted(SendMessHolder const& Mess, int addr_requested, int tag_requested) {
-    if (Mess.theRequest ==0 ) {// Assume that in test mode, request==0 means message is sent but not delivered, so it is present in the queue
+    if (Mess.theRequest == 0) {// Assume that in test mode, request==0 means message is sent but not delivered, so it is present in the queue
         if (addr_requested >= 0) {
             if (Mess.destination == addr_requested) {
                 if (tag_requested >= 0) {
@@ -221,6 +232,112 @@ void MPI_wrapper::labProbe(int data_address, int data_tag, int& addres_present, 
         }
     }
 }
+
+/* Create oputputs for labReceive and return pointers to the arrays locations for copying results
+into these outputs  */
+std::tuple<char*, void*> create_pls_for_labReceive(mxArray* plhs[], int data_size, int cell_size) {
+
+    plhs[(int)labReceive_Out::mess_contents] = mxCreateNumericMatrix(1, data_size, mxUINT8_CLASS, mxREAL);
+    plhs[(int)labReceive_Out::data_celarray] = mxCreateNumericMatrix(1, cell_size, mxCELL_CLASS, mxREAL);
+
+    char* pBuff = reinterpret_cast<char*>(mxGetData(plhs[(int)labReceive_Out::mess_contents]));
+    void* pCell = reinterpret_cast<void*>(mxGetData(plhs[(int)labReceive_Out::data_celarray]));
+
+    return std::make_tuple(pBuff, pCell);
+}
+
+/** receive message from another MPI worker
+Inputs:
+source_address  -- where ask for message. If -1, from any address
+source_data_tag -- the requested data tag, If -1, any tag.
+isSynchroneous  -- if true, blok the program execution until requested message is received.
+                   If false and message is not present, return emtpy result
+Output:
+mxArray* plhs[]   -- on input array of Matlab pointers to output parameters of mex routine
+                     on output:
+                     element labReceive_Out::mess_contents keeps pointer to received message contents
+                     element labReceive_Out::data_celarray pointer to cellarray of pointers to large data
+                     when appropriate message with tag equal data_tag is received.
+*/
+void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSynchronous, mxArray* plhs[]) {
+
+    if (source_data_tag == -1)source_data_tag = MPI_ANY_TAG;
+    if (source_address == -1)source_address = MPI_ANY_SOURCE;
+    int message_size(0);
+
+
+    if (this->isTested) {
+        if (source_data_tag == MPI_wrapper::data_mess_tag) {
+            throw_error("MPI_MEX_COMMUNICATOR:not_implemented",
+                "large data transfer is not implemented", MPI_wrapper::MPI_wrapper_gtested);
+        }
+        if (isSynchronous) {
+            if (!this->any_message_present()) {
+                throw_error("MPI_MEX_COMMUNICATOR:runtime_error",
+                    "Synchronized wating in test mode is not alowed", MPI_wrapper::MPI_wrapper_gtested);
+            }
+        }
+
+        // find last requested message
+        SendMessHolder* pMess(nullptr);
+        if (check_address_tag_requsted(SyncMessHolder, source_address, source_data_tag)) {
+            pMess = &this->SyncMessHolder;
+        }
+        if (!pMess) {
+            for (auto it = assyncMessList.rbegin(); it != assyncMessList.rend(); it++) {
+                if (check_address_tag_requsted(*it, source_address, source_data_tag)) {
+                    pMess = &(*it);
+                }
+            }
+        }
+        // if no message exist, return empty matrices.
+        if (!pMess) {
+            create_pls_for_labReceive(plhs, 0, 0);
+            return;
+        }
+        pMess->theRequest = 1;
+        int mess_size = (int)pMess->mess_body.size();
+        auto outPtrs = create_pls_for_labReceive(plhs, mess_size, 0);
+        char* pBuff = std::get<0>(outPtrs);
+        for (int i = 0; i < message_size; i++) {
+            pBuff[i] = pMess->mess_body[i];
+        }
+    }
+    else {
+        MPI_Status status;
+        if (isSynchronous) {
+            MPI_Probe(source_address, source_data_tag, MPI_COMM_WORLD, &status);
+        }
+        else {
+            int flag;
+            MPI_Iprobe(source_address, source_data_tag, MPI_COMM_WORLD, &flag, &status);
+            if (!flag) {
+                create_pls_for_labReceive(plhs, 0, 0);
+                return;
+            }
+
+        }
+        int mess_size(0);
+        source_address = status.MPI_SOURCE;
+        source_data_tag = status.MPI_TAG;
+        MPI_Get_count(&status, MPI_CHAR, &mess_size);
+        plhs[(int)labReceive_Out::mess_contents] = mxCreateNumericMatrix(mess_size, 1, mxUINT8_CLASS, mxREAL);
+        if (source_data_tag != MPI_wrapper::data_mess_tag) {
+            auto outPtrs = create_pls_for_labReceive(plhs, mess_size, 0);
+            char* pBuff = std::get<0>(outPtrs);
+            auto err = MPI_Recv(pBuff, mess_size, MPI_CHAR, source_address, source_data_tag, MPI_COMM_WORLD, &status);
+            if (err != MPI_SUCCESS)throw_error("MPI_MEX_COMMUNICATOR:runtime_error",
+                "Error receiving message");
+        }
+        else { // not implemented;
+            throw_error("MPI_MEX_COMMUNICATOR:not_implemented",
+                "Data receive is not yet implemented");
+        }
+
+    }
+
+}
+
 //
 ///** Move constructor for send message
 //    to avoid copying vector contents*/

@@ -42,7 +42,9 @@ classdef MessagesCppMPI < iMessagesFramework
         % been received, something wrong is happening with the node or the
         % cluster, so the job should be interrupted (canceled)
         assync_messages_queue_length_ = 10;
-        
+        % the tag for the data message, used by cpp_communicator to process
+        % data messages differently
+        data_message_tag_;
         DEBUG_ = false;
     end
     %----------------------------------------------------------------------

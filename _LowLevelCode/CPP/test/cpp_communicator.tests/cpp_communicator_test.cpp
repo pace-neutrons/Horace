@@ -12,9 +12,12 @@ using namespace Herbert::Utility;
 
 TEST(TestCPPCommunicator, send_assynchroneous) {
 
+    MPI_wrapper::MPI_wrapper_gtested = true;
     auto wrap = MPI_wrapper();
-    wrap.init(true,4);
+    wrap.init(true,4,6);
     ASSERT_TRUE(wrap.isTested);
+
+    EXPECT_EQ(MPI_wrapper::data_mess_tag, 6);
 
     std::vector<uint8_t> test_mess;
     test_mess.assign(10, 1);
@@ -63,8 +66,10 @@ TEST(TestCPPCommunicator, send_assynchroneous) {
     ASSERT_EQ(1, wrap.assync_queue_len());
 
 }
+
 TEST(TestCPPCommunicator, lab_probe) {
 
+    MPI_wrapper::MPI_wrapper_gtested = true;
     auto wrap = MPI_wrapper();
     wrap.init(true, 4);
     ASSERT_TRUE(wrap.isTested);
@@ -124,9 +129,27 @@ TEST(TestCPPCommunicator, lab_probe) {
     wrap.labProbe(9, 2, got_address, got_tag);
     ASSERT_EQ(got_address, 9);
     ASSERT_EQ(got_tag, 2);
+}
 
+TEST(TestCPPCommunicator, lab_receive) {
 
+    MPI_wrapper::MPI_wrapper_gtested = true;
 
+    auto wrap = MPI_wrapper();
+    wrap.init(true, 4);
+    ASSERT_TRUE(wrap.isTested);
+
+    mxArray* plhs[5];
+    wrap.labReceive(10, 1, false, plhs);
+
+    auto out = plhs[(int)labReceive_Out::mess_contents];
+    ASSERT_EQ(mxGetM(out),1);
+    ASSERT_EQ(mxGetN(out), 0);
+
+    ASSERT_ANY_THROW(wrap.labReceive(10, 1, true, plhs));
+
+    //delete(plhs[(int)labReceive_Out::mess_contents]);
+    //delete(plhs[(int)labReceive_Out::data_celarray]);
 
 }
 

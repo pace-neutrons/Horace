@@ -3,18 +3,27 @@
 #include <list>
 #include <cmath>
 #include <mpi.h>
+#include "input_parser.h"
 
+/** Helper class to keep information on send message unit MPI framework reports delivered.
+*
+* in test mode also used to simulate send/receive operations.
+*/
 class SendMessHolder {
 public:
+    // Holder for ISend request property
     MPI_Request theRequest;
+    // The holder for the tag of the message to send
     int mess_tag;
+    // The holder for the address of the message to send
     int destination;
+    // vector of the message contents, used as the buffer of the message contents until the message is received
     std::vector<uint8_t> mess_body;
-    //
-     //SendMessHolder(SendMessHolder&& other) noexcept;
+      //SendMessHolder(SendMessHolder&& other) noexcept;
     SendMessHolder() :
         theRequest(-1), mess_tag(-1), destination(-1) {}
     SendMessHolder(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag);
+
     void init(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag);
 };
 
@@ -25,12 +34,12 @@ public:
     MPI_wrapper() :
         labIndex(-1), numProcs(0), isTested(false),
         assynch_queue_max_len_(10) {}
-    int init(bool isTested = false, int assynch_queue_max_len = 10);
+    int init(bool isTested = false, int assynch_queue_max_len = 10, int data_mess_tag=5);
     void close();
     void barrier();
     void labSend(int data_address, int data_tag, bool is_synchroneous, uint8_t* data_buffer, size_t nbytes_to_transfer);
     void labProbe(int data_address, int data_tag, int& addres_present, int& tag_present);
-
+    void labReceive(int source_address, int source_data_tag, bool isSynchronous, mxArray* plhs[]);
     ~MPI_wrapper() {
         this->close();
     }
@@ -45,9 +54,13 @@ public:
     size_t assync_queue_len() {
         return this->assyncMessList.size();
     }
-    //----------------------------------------------------------------------------------
-    // The methods used in unit tests -- have no sence in real life
+    // the tag of message, containing data (processed differently, not yet implemented.)
+    static int data_mess_tag;
 
+    //----------------------------------------------------------------------------------
+    // The methods used in unit tests -- have no meaning in real communications
+
+    static bool MPI_wrapper_gtested;
     // get access to the asynchroneous messages queue
     std::list<SendMessHolder>* get_async_queue() {
         return &this->assyncMessList;
@@ -56,6 +69,29 @@ public:
     SendMessHolder* get_sync_queue() {
         return &this->SyncMessHolder;
     }
+    // check if any message present in test mode
+    bool any_message_present() {
+        if (SyncMessHolder.theRequest==0) 
+            return true;
+        for (auto it = assyncMessList.rbegin(); it != assyncMessList.rend(); it++) {
+            if (it->theRequest == 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+    // get first not "delivered" message in test mode.
+    SendMessHolder* get__message() {
+        if (SyncMessHolder.theRequest == 0)
+            return &SyncMessHolder;
+        for (auto it = assyncMessList.rbegin(); it != assyncMessList.rend(); it++) {
+            if (it->theRequest == 0) {
+                return &(*it);
+            }
+        }
+        return nullptr;
+    }
+
 private:
     // the length of the queue to keep assynchroneous messages. If this length is exceeded,
     // something is wrong and the job should be interrupted
