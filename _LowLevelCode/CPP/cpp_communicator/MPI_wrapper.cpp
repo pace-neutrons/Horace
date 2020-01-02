@@ -235,15 +235,25 @@ void MPI_wrapper::labProbe(int data_address, int data_tag, int& addres_present, 
 
 /* Create oputputs for labReceive and return pointers to the arrays locations for copying results
 into these outputs  */
-std::tuple<char*, void*> create_pls_for_labReceive(mxArray* plhs[], int data_size, int cell_size) {
+std::tuple<char*, void*, int32_t*> create_plhs_for_labReceive(mxArray* plhs[], int nlhs, int data_size, int cell_size) {
+
 
     plhs[(int)labReceive_Out::mess_contents] = mxCreateNumericMatrix(1, data_size, mxUINT8_CLASS, mxREAL);
     plhs[(int)labReceive_Out::data_celarray] = mxCreateNumericMatrix(1, cell_size, mxCELL_CLASS, mxREAL);
 
     char* pBuff = reinterpret_cast<char*>(mxGetData(plhs[(int)labReceive_Out::mess_contents]));
     void* pCell = reinterpret_cast<void*>(mxGetData(plhs[(int)labReceive_Out::data_celarray]));
+    int32_t* pSourceAddress(nullptr);
+    if (nlhs >= (int)labReceive_Out::real_source_address) {
+        if (data_size > 0) {
+            plhs[(int)labReceive_Out::real_source_address] = mxCreateNumericMatrix(1, 2, mxINT32_CLASS, mxREAL);
+            pSourceAddress = reinterpret_cast<int32_t*>(mxGetData(plhs[(int)labReceive_Out::real_source_address]));
+        }
+        else
+            plhs[(int)labReceive_Out::real_source_address] = mxCreateNumericMatrix(1, 0, mxINT32_CLASS, mxREAL);
+    }
 
-    return std::make_tuple(pBuff, pCell);
+    return std::make_tuple(pBuff, pCell, pSourceAddress);
 }
 
 /** receive message from another MPI worker
@@ -252,6 +262,8 @@ source_address  -- where ask for message. If -1, from any address
 source_data_tag -- the requested data tag, If -1, any tag.
 isSynchroneous  -- if true, blok the program execution until requested message is received.
                    If false and message is not present, return emtpy result
+nlhs            -- The number of output arguments. Should be larger or equal than
+                   labReceive_Out::N_OUTPUT_Arguments -1
 Output:
 mxArray* plhs[]   -- on input array of Matlab pointers to output parameters of mex routine
                      on output:
@@ -259,12 +271,12 @@ mxArray* plhs[]   -- on input array of Matlab pointers to output parameters of m
                      element labReceive_Out::data_celarray pointer to cellarray of pointers to large data
                      when appropriate message with tag equal data_tag is received.
 */
-void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSynchronous, mxArray* plhs[]) {
+void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSynchronous, mxArray* plhs[], int nlhs) {
 
     if (source_data_tag == -1)source_data_tag = MPI_ANY_TAG;
     if (source_address == -1)source_address = MPI_ANY_SOURCE;
     int message_size(0);
-
+    std::tuple<char *, void *, int32_t *> outPtrs;
 
     if (this->isTested) {
         if (source_data_tag == MPI_wrapper::data_mess_tag) {
@@ -287,23 +299,26 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
             for (auto it = assyncMessList.rbegin(); it != assyncMessList.rend(); it++) {
                 if (check_address_tag_requsted(*it, source_address, source_data_tag)) {
                     pMess = &(*it);
+                    break;
                 }
             }
         }
         // if no message exist, return empty matrices.
         if (!pMess) {
-            create_pls_for_labReceive(plhs, 0, 0);
+            create_plhs_for_labReceive(plhs, nlhs, 0, 0);
             return;
         }
-        pMess->theRequest = 1;
-        int mess_size = (int)pMess->mess_body.size();
-        auto outPtrs = create_pls_for_labReceive(plhs, mess_size, 0);
+        pMess->theRequest = 1; // mark as received        
+        message_size = (int)pMess->mess_body.size();
+        outPtrs = create_plhs_for_labReceive(plhs, nlhs, message_size, 0);
         char* pBuff = std::get<0>(outPtrs);
         for (int i = 0; i < message_size; i++) {
             pBuff[i] = pMess->mess_body[i];
         }
+        source_address = pMess->destination;
+        source_data_tag =pMess->mess_tag;
     }
-    else {
+    else {  // real receive
         MPI_Status status;
         if (isSynchronous) {
             MPI_Probe(source_address, source_data_tag, MPI_COMM_WORLD, &status);
@@ -312,20 +327,19 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
             int flag;
             MPI_Iprobe(source_address, source_data_tag, MPI_COMM_WORLD, &flag, &status);
             if (!flag) {
-                create_pls_for_labReceive(plhs, 0, 0);
+                create_plhs_for_labReceive(plhs, nlhs, 0, 0);
                 return;
             }
 
         }
-        int mess_size(0);
         source_address = status.MPI_SOURCE;
         source_data_tag = status.MPI_TAG;
-        MPI_Get_count(&status, MPI_CHAR, &mess_size);
-        plhs[(int)labReceive_Out::mess_contents] = mxCreateNumericMatrix(mess_size, 1, mxUINT8_CLASS, mxREAL);
+        MPI_Get_count(&status, MPI_CHAR, &message_size);
+        outPtrs = create_plhs_for_labReceive(plhs, nlhs, message_size, 0);
         if (source_data_tag != MPI_wrapper::data_mess_tag) {
-            auto outPtrs = create_pls_for_labReceive(plhs, mess_size, 0);
+
             char* pBuff = std::get<0>(outPtrs);
-            auto err = MPI_Recv(pBuff, mess_size, MPI_CHAR, source_address, source_data_tag, MPI_COMM_WORLD, &status);
+            auto err = MPI_Recv(pBuff, message_size, MPI_CHAR, source_address, source_data_tag, MPI_COMM_WORLD, &status);
             if (err != MPI_SUCCESS)throw_error("MPI_MEX_COMMUNICATOR:runtime_error",
                 "Error receiving message");
         }
@@ -333,8 +347,14 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
             throw_error("MPI_MEX_COMMUNICATOR:not_implemented",
                 "Data receive is not yet implemented");
         }
-
     }
+    // return information about real data source, if requested
+    int32_t* pInfo = std::get<2>(outPtrs);
+    if (pInfo) {
+        pInfo[0] = source_address;
+        pInfo[1] = source_data_tag;
+    }
+
 
 }
 
@@ -365,6 +385,7 @@ SendMessHolder::SendMessHolder(uint8_t* pBuffer, size_t n_bytes, int dest_addres
 * nbytes_to_transfer -- amount of bytes of data to transfer.
 */
 void SendMessHolder::init(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag) {
+
     this->mess_body.resize(n_bytes);
     this->mess_tag = data_tag;
     this->destination = dest_address;

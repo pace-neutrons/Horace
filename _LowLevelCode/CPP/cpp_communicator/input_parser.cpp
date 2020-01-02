@@ -138,19 +138,39 @@ class_handle<MPI_wrapper> *parse_inputs(int nlhs, int nrhs, const mxArray *prhs[
     retrieve_string(prhs[(int)labIndexInputs::mode_name], mex_mode, "MPI mode description");
 
     if (mex_mode.compare("labReceive") == 0) {
+        if (nrhs < (int)ReceiveInputs::N_INPUT_Arguments) {
+            std::stringstream err;
+            err << " labReceive needs " << (int)ReceiveInputs::N_INPUT_Arguments << 
+                " inputs but got "  << nrhs << " input parameters\n";
+            throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", err.str().c_str());
+        }
+
         work_mode = labReceive;
+        // the source address
+        data_address = (int)retrieve_value<mxUint32>("labReceive: source address", prhs[(int)ReceiveInputs::source_dest_id]) - 1;
+        // the source data tag
+        data_tag = (int)retrieve_value<mxInt32>("labReceive: source tag", prhs[(int)ReceiveInputs::tag]);
+        // if the transfer is synchroneous or not
+        is_synchroneous = (bool)retrieve_value<mxUint8>("labReceive: is synchronous", prhs[(int)ReceiveInputs::is_synchronous]);
     }
     else if (mex_mode.compare("labSend") == 0) {
+        if (nrhs < (int)SendInputs::N_INPUT_Arguments - 1) {
+            std::stringstream err;
+            err << " labSend needs " << (int)SendInputs::N_INPUT_Arguments - 1 << " or " << (int)SendInputs::N_INPUT_Arguments <<
+                " inputs but got " << nrhs << " input parameters\n";
+            throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", err.str().c_str());
+        }
+
         work_mode = labSend;
         // the target destination address
-        data_address = (int)retrieve_value<mxUint32>("labSend: destination address",prhs[(int)SendReceiveInputs::source_dest_id])-1;
+        data_address = (int)retrieve_value<mxUint32>("labSend: destination address",prhs[(int)SendInputs::source_dest_id])-1;
         // the sending data tag
-        data_tag = (int)retrieve_value<mxInt32>("labSend: destination tag",prhs[(int)SendReceiveInputs::tag]);
+        data_tag = (int)retrieve_value<mxInt32>("labSend: destination tag",prhs[(int)SendInputs::tag]);
         // if the transfer is synchroneous or not
-        is_synchroneous = (bool)retrieve_value<mxUint8>("labSend: is synchronous", prhs[(int)SendReceiveInputs::is_synchronous]);
+        is_synchroneous = (bool)retrieve_value<mxUint8>("labSend: is synchronous", prhs[(int)SendInputs::is_synchronous]);
         // retrieve pointer to serialized data to transfer
         size_t vector_size, bytesize;
-        data_buffer = retrieve_vector<uint8_t >("labSend: data", prhs[(int)SendReceiveInputs::head_data_buffer], vector_size,bytesize);
+        data_buffer = retrieve_vector<uint8_t >("labSend: data", prhs[(int)SendInputs::head_data_buffer], vector_size,bytesize);
         nbytes_to_transfer = vector_size * bytesize;
     }
     else if (mex_mode.compare("labIndex") == 0) {

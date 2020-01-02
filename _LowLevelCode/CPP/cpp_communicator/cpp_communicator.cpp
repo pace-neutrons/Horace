@@ -33,14 +33,28 @@ Outputs:
 *** "labSend"  executes MPI send operation:
 Inputs:
   1  -- mode_name  -- the string 'labSend' identifies send mode
-  2  -- pointer to MPI initialized framework,
-  3  -- dest_id address (nuber) of the worker who should receive the message
+  2  -- pointer to the initialized MPI framework,
+  3  -- dest_id address (nuber) of the worker who should receive the message 
   4  -- tag -- the message tag (id)
   5  -- is_synchroneous -- should message be send synchroneously or assynchroneously.
   6  -- pointer to Matlab array, containing serialized message body
   7  -- large_data_buffer optional (for synchroneous messages) -- the pointer to Matlab structure, containing large data.
 Outputs:
-  1     -- pointer to  new the MPI framework, perforing asynchronous operation
+  1     -- pointer to  new the MPI framework, perforing send operation
+
+*** "labReceive"  executes MPI receive operation:
+Inputs:
+  1  -- mode_name  -- the string 'labReceive' identifies receive mode
+  2  -- pointer to the initialized MPI framework,
+  3  -- source_id address (nuber) of the worker who should send the message (-1 -- any address)
+  4  -- tag -- the message tag (id) to receive (-1 -- any tag)
+  5  -- is_synchroneous -- should message be received synchronously (blocking operation until received) or 
+        assynchronously (return nothing if no message present).
+Outputs:
+  1 -- pointer to  new the MPI framework, perforing asynchronous operation
+  2 -- pointer to Matlab array, containing serialized message body
+  3 -- optional (for synchroneous messages) -- the pointer to Matlab cellarray containing large data -- not yet implemented
+  4 -- optional -- pointer to the 2-element array containing real source address and source tag for the message, been received
 
 *** "labProbe"  executes asynchroneous MPI_Iprobe operation
 Inputs:
@@ -129,6 +143,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         break;
     }
     case(labReceive): {
+        pCommunicatorHolder->class_ptr->labReceive(data_address, data_tag, is_synchroneous, plhs, nlhs);
         break;
     }
     case(labProbe): {

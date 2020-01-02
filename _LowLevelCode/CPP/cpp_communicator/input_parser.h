@@ -40,7 +40,7 @@ enum class ProbeInputs : int { // all input arguments for labProbe procedure
     N_INPUT_Arguments
 };
 
-enum class SendReceiveInputs : int { // all input arguments for send or receive procedure
+enum class SendInputs : int { // all input arguments for send procedure
     mode_name,
     comm_ptr,
     source_dest_id,
@@ -50,6 +50,15 @@ enum class SendReceiveInputs : int { // all input arguments for send or receive 
     large_data_buffer, // optional (for synchroneous messages)
     N_INPUT_Arguments
 };
+enum class ReceiveInputs : int { // all input arguments for receive procedure
+    mode_name,
+    comm_ptr,
+    source_dest_id,
+    tag,
+    is_synchronous,
+    N_INPUT_Arguments
+};
+
 
 enum class closeOrGetInfoInputs : int { // all input arguments for close IO procedure
     mode_name,
@@ -65,6 +74,7 @@ enum class labReceive_Out :int { // output arguments for labReceive procedure
     comm_ptr,   // the pointer to class responsible for MPI communications
     mess_contents, //the pointer to the array of serialized message contents
     data_celarray, // the pointer to the cellarray with the large data.
+    real_source_address, // optional pointer to the array with real source address and source tag received
 
     N_OUTPUT_Arguments
 };

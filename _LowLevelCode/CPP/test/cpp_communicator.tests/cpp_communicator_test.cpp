@@ -131,7 +131,7 @@ TEST(TestCPPCommunicator, lab_probe) {
     ASSERT_EQ(got_tag, 2);
 }
 
-TEST(TestCPPCommunicator, lab_receive) {
+TEST(TestCPPCommunicator, lab_receive_as_send) {
 
     MPI_wrapper::MPI_wrapper_gtested = true;
 
@@ -140,13 +140,82 @@ TEST(TestCPPCommunicator, lab_receive) {
     ASSERT_TRUE(wrap.isTested);
 
     mxArray* plhs[5];
-    wrap.labReceive(10, 1, false, plhs);
+    wrap.labReceive(10, 1, false, plhs,5);
 
     auto out = plhs[(int)labReceive_Out::mess_contents];
     ASSERT_EQ(mxGetM(out),1);
     ASSERT_EQ(mxGetN(out), 0);
 
-    ASSERT_ANY_THROW(wrap.labReceive(10, 1, true, plhs));
+    auto addrOut = plhs[(int)labReceive_Out::real_source_address];
+    ASSERT_EQ(mxGetM(addrOut), 1);
+    ASSERT_EQ(mxGetN(addrOut), 0);
+
+
+    ASSERT_ANY_THROW(wrap.labReceive(10, 1, true, plhs,5));
+
+    std::vector<uint8_t> test_mess;
+    test_mess.assign(10, 1);
+
+    for (int i = 0; i < test_mess.size(); i++) {
+        test_mess[i] = i;
+    }
+    test_mess[0] = 0; // sent but not delivered
+
+    wrap.labSend(10, 2, false, &test_mess[0], test_mess.size());
+    ASSERT_EQ(1, wrap.assync_queue_len());
+
+    wrap.labReceive(-1, -1, false, plhs,5);
+
+    out = plhs[(int)labReceive_Out::mess_contents];
+    ASSERT_EQ(mxGetM(out), 1);
+    ASSERT_EQ(mxGetN(out), 10);
+    auto pData = reinterpret_cast<char*>(mxGetData(out));
+    for (int i = 0; i < 10; i++) {
+        EXPECT_EQ(test_mess[i], pData[i]);
+    }
+    addrOut = plhs[(int)labReceive_Out::real_source_address];
+    ASSERT_EQ(mxGetM(addrOut), 1);
+    ASSERT_EQ(mxGetN(addrOut), 2);
+    auto pAddress = reinterpret_cast<int32_t *>(mxGetData(addrOut));
+    ASSERT_EQ(pAddress[0], 10);
+    ASSERT_EQ(pAddress[1], 2);
+
+    wrap.labReceive(10, 2, false, plhs, 4);
+    out = plhs[(int)labReceive_Out::mess_contents];
+    ASSERT_EQ(mxGetM(out), 1);
+    ASSERT_EQ(mxGetN(out), 0);
+
+    addrOut = plhs[(int)labReceive_Out::real_source_address];
+    ASSERT_EQ(mxGetM(addrOut), 1);
+    ASSERT_EQ(mxGetN(addrOut), 0);
+
+    wrap.labSend(5, 3, false, &test_mess[0], test_mess.size());
+    ASSERT_EQ(1, wrap.assync_queue_len());
+
+    wrap.labReceive(5, 2, false, plhs, 4);
+    out = plhs[(int)labReceive_Out::mess_contents];
+    ASSERT_EQ(mxGetM(out), 1);
+    ASSERT_EQ(mxGetN(out), 0);
+    addrOut = plhs[(int)labReceive_Out::real_source_address];
+    ASSERT_EQ(mxGetM(addrOut), 1);
+    ASSERT_EQ(mxGetN(addrOut), 0);
+
+
+    wrap.labReceive(5, 3, false, plhs, 4);
+    out = plhs[(int)labReceive_Out::mess_contents];
+    ASSERT_EQ(mxGetM(out), 1);
+    ASSERT_EQ(mxGetN(out), 10);
+    pData = reinterpret_cast<char*>(mxGetData(out));
+    for (int i = 0; i < 10; i++) {
+        EXPECT_EQ(test_mess[i], pData[i]);
+    }
+    addrOut = plhs[(int)labReceive_Out::real_source_address];
+    ASSERT_EQ(mxGetM(addrOut), 1);
+    ASSERT_EQ(mxGetN(addrOut), 2);
+    pAddress = reinterpret_cast<int32_t*>(mxGetData(addrOut));
+    ASSERT_EQ(pAddress[0], 5);
+    ASSERT_EQ(pAddress[1], 3);
+
 
     //delete(plhs[(int)labReceive_Out::mess_contents]);
     //delete(plhs[(int)labReceive_Out::data_celarray]);
