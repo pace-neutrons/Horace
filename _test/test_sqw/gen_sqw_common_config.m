@@ -24,7 +24,7 @@ classdef gen_sqw_common_config < TestCase
         change_framework_ = false;
         new_framework_ = 'herbert';
         
-        worker = 'worker_4tests'
+        worker = 'worker_v2'
         % Store the name of the worker, currently used by Horace parallel
         % framework, to recover after the tests are completed.
         current_worker_cache_ = [];
@@ -83,19 +83,19 @@ classdef gen_sqw_common_config < TestCase
             [obj.change_framework_,obj.new_framework_ ] = gen_sqw_common_config.check_change...
                 ('parallel_framework',parallel_framework,obj.old_configuration_.parc);
             
-            if obj.change_framework_ && strcmp(parallel_framework,'parpool') % check parpool can be enabled
-                cl = ClusterParpoolWrapper();
+            if obj.change_framework_ && ~isnumeric(parallel_framework) % check parallel framework can be enabled
+                cl = MPI_fmwks_factory.instance().get_cluster(parallel_framework);
                 try
                     cl.check_availability()
                     obj.skip_test = false;
                 catch ME
-                    if strcmpi(ME.identifier,'PARALLEL_CONFIG:not_avalable')
+                    if strcmpi(ME.identifier,'PARALLEL_CONFIG:not_available')
                         obj.skip_test = true;
                         obj.change_framework_ = false;
                         if log_level>0
                             warning('GEN_SQW_TEST_CONFIG:not_available',...
                                 'Can not initiate framework: %s because %s. This mode will not be tested',...
-                                parallel_framework,mess)
+                                parallel_framework,ME.message)
                         end
                     else
                         rethrow(ME);

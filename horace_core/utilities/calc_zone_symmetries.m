@@ -4,7 +4,7 @@ function transf=calc_zone_symmetries(v1,v2)
 % hkl vector v1 into another zone, defined by hkl vector v2
 %
 %
-% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
+% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
 %
 
 %Crude test to ensure that v1 and v2 are equivalent wavevectors:

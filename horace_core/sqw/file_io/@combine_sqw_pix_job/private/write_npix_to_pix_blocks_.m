@@ -28,7 +28,7 @@ function write_npix_to_pix_blocks_(obj,fout,pix_out_position,pix_comb_info)
 %
 % As the result -- writes combined pixels block to the ouput sqw file.
 %
-% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
+% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
 %
 
 log_level = config_store.instance().get_value('herbert_config','log_level');

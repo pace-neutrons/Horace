@@ -64,7 +64,7 @@ function [ok,mess]=equal_to_tol(w1,w2,varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
+% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
 
 
 if isa(w1,'sqw') && isa(w2,'sqw')
