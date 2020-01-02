@@ -20,7 +20,7 @@ function mess_completion (varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
+% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
 
 persistent  initialised itimer ntot t_thresh n_ratio_thresh t_start t_prev_msg n_ratio_prev_msg
 

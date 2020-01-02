@@ -193,7 +193,7 @@ std::string  verify_index_array(const mxArray * pix_cell_array_ptr, bool &is_int
 /**********************************************************************************************/
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-    const char REVISION[] = "$Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)";
+    const char REVISION[] = "$Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)";
     if (nrhs == 0 && nlhs == 1) {
         plhs[0] = mxCreateString(REVISION);
         return ;

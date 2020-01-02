@@ -39,7 +39,7 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 
 % T.G.Perring   31 July 2007
 %
-% $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
+% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
 %
 
 ndatpix = 9;        % number of pieces of information the pixel info array (see put_sqw_data for more details)

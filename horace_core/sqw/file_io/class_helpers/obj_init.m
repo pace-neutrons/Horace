@@ -6,7 +6,7 @@ classdef obj_init
     % in binary sqw file header from should_load method to a class initialization methods to avoid
     % repetitive reads and extractions of the same information from a file on disk.
     %
-    % $Revision:: 1757 ($Date:: 2019-12-05 14:56:06 +0000 (Thu, 5 Dec 2019) $)
+    % $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
     %
     properties(Access=protected,Hidden=true)
         file_id_ = -1;

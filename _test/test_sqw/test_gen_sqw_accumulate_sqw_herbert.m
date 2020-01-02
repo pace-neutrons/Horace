@@ -55,6 +55,8 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
         end
         %
         function test_worker(this)
+            worker_local = 'worker_4tests_local';
+            
             mis = MPI_State.instance('clear');
             mis.is_tested = true;
             mis.is_deployed = true;
@@ -108,8 +110,8 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             assertEqual(ok,MESS_CODES.ok,err);
             
             wk_init= serverfbMPI.get_worker_init('MessagesFilebased',1,1);
-            parc = parallel_config;
-            worker_h = str2func(parc.worker);
+
+            worker_h = str2func(worker_local);
             [ok,error_mess]=worker_h(wk_init);
             assertTrue(ok,error_mess)
             [ok,err] = serverfbMPI.receive_message(1,'started');
