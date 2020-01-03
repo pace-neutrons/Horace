@@ -24,10 +24,10 @@ classdef test_CPP_MPI_exchange< TestCase
             cs = iMessagesFramework.build_worker_init(fileparts(data_exchange_folder),...
                 JOB_id,'MessagesCppMPI',1,1,true);
             
-            % intercomm constructor invoked here. 
+            % intercomm constructor invoked here.
             [fbMPI,intercomm] = JobExecutor.init_frameworks(cs);
             clob1 = onCleanup(@()(finalize_all(intercomm)));
-            clob2 = onCleanup(@()(finalize_all(fbMPI)));            
+            clob2 = onCleanup(@()(finalize_all(fbMPI)));
             
             assertTrue(isa(intercomm,'MessagesCppMPI'));
             assertEqual(intercomm.labIndex,uint64(1));
@@ -58,18 +58,29 @@ classdef test_CPP_MPI_exchange< TestCase
             clob = onCleanup(@()(finalize_all(mf)));
             
             assertEqual(mf.labIndex,uint64(1));
-            assertEqual(mf.numLabs,uint64(1));
+            assertEqual(mf.numLabs,uint64(10));
             
             mess = LogMessage(1,10,1,[]);
             [ok,err_mess]  = mf.send_message(5,mess);
-            assertEqual(ok.MESS_CODES.ok);
+            assertEqual(ok,MESS_CODES.ok);
             assertTrue(isempty(err_mess));
             
             [mess_names,source_id_s] = mf.probe_all('all','all');
             assertEqual(numel(mess_names),1);
-            assertEqual(numel(source_id_s),1);            
-            assertEqual(source_id_s(1),5);                        
-            assertEqual(mess_names{1},mess.mess_name);                                    
+            assertEqual(numel(source_id_s),1);
+            assertEqual(source_id_s(1),int32(5));
+            assertEqual(mess_names{1},mess.mess_name);
+
+            [ok,err_mess]  = mf.send_message(7,mess);
+            assertEqual(ok,MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+
+            [mess_names,source_id_s] = mf.probe_all('all','all');
+            assertEqual(numel(mess_names),2);
+            assertEqual(numel(source_id_s),2);
+            assertEqual(source_id_s(1),int32(5));
+            assertEqual(source_id_s(1),int32(7));            
+            assertEqual(mess_names{1},mess.mess_name);
             
         end
         
@@ -81,14 +92,14 @@ classdef test_CPP_MPI_exchange< TestCase
             clob = onCleanup(@()(finalize_all(mf)));
             
             assertEqual(mf.labIndex,uint64(1));
-            assertEqual(mf.numLabs,uint64(1));
+            assertEqual(mf.numLabs,uint64(10));
             [labNum,nLabs] = mf.get_lab_index();
             
             assertEqual(labNum,uint64(1));
             assertEqual(nLabs,uint64(1));
             
-%             mess = LogMessage(1,10,1,[]);
-%             [ok,err_mess]  = mf.send_message(1,mess);
+            %             mess = LogMessage(1,10,1,[]);
+            %             [ok,err_mess]  = mf.send_message(1,mess);
         end
         
         

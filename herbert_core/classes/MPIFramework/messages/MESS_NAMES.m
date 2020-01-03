@@ -22,7 +22,7 @@ classdef MESS_NAMES
     properties(Constant,Access=private)
         % define list of the messages, known to the factory.
         mess_names_ = ...
-            {'failed','pending','queued','init',...
+            {'all','failed','pending','queued','init',...
             'starting','started','log',...
             'barrier','data','canceled','completed'};
     end
@@ -81,7 +81,7 @@ classdef MESS_NAMES
             persistent name2code_map_;
             persistent code2name_map_;
             if isempty(name2code_map_)
-                mess_codes = num2cell(0:numel(MESS_NAMES.mess_names_)-1);
+                mess_codes = num2cell(-1:numel(MESS_NAMES.mess_names_)-2);
                 name2code_map_ = containers.Map(MESS_NAMES.mess_names_,mess_codes);
                 code2name_map_ = containers.Map(mess_codes,MESS_NAMES.mess_names_);
             end

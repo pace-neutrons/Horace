@@ -96,9 +96,9 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 
     std::vector<int32_t> data_addresses;
     std::vector<int32_t> data_tag;
-
     bool is_synchroneous(false);
-    int  assynch_queue_len(10);
+
+    AdditinalParamHolder AddPar;
     size_t n_workers;
     size_t nbytes_to_transfer;
     input_types work_type;
@@ -106,7 +106,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 
     class_handle<MPI_wrapper>* pCommunicatorHolder = parse_inputs(nlhs, nrhs, prhs,
         work_type, data_addresses, data_tag,is_synchroneous,
-        data_buffer, nbytes_to_transfer, assynch_queue_len);
+        data_buffer, nbytes_to_transfer, AddPar);
 
     // avoid problem with multiple finalization
     if (pCommunicatorHolder == nullptr) { // this can happen only if close_mpi is selected and the framework had been already finalized
@@ -120,14 +120,14 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     switch (work_type)
     {
     case(init_mpi): { // Initialize MPI communications and return labIndex and numLabs
-        pCommunicatorHolder->class_ptr->init(false, assynch_queue_len);
+        pCommunicatorHolder->class_ptr->init(false, AddPar.assynch_queue_length,AddPar.data_message_tag);
         n_workers = pCommunicatorHolder->class_ptr->numProcs;
         set_numlab_and_nlabs(pCommunicatorHolder, nlhs, plhs, nrhs, prhs);
         break;
     }
     case(init_test_mode): {
         // init test mode providing true as input to init function
-        pCommunicatorHolder->class_ptr->init(true, assynch_queue_len);
+        pCommunicatorHolder->class_ptr->init(true, AddPar.assynch_queue_length, AddPar.data_message_tag);
         n_workers = pCommunicatorHolder->class_ptr->numProcs;
         set_numlab_and_nlabs(pCommunicatorHolder, nlhs, plhs, nrhs, prhs);
         break;

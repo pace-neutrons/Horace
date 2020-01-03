@@ -93,7 +93,15 @@ enum class labProbe_Out:int { // output arguments of labProbe procedure
 
     N_OUTPUT_Arguments
 
+};
+/** The structure contains additional parameters, different call may need to transfer to MPI_Wrapper*/
+struct AdditinalParamHolder {
+    int assynch_queue_length; // how many asynchronous messages could be placed into asynchronous queue
+    int data_message_tag;    // the tag of a data message, to process synchronously.
 
+    AdditinalParamHolder():
+        assynch_queue_length(10), data_message_tag(8)
+    {}
 };
 
 void throw_error(char const * const MESS_ID, char const * const error_message,bool is_tested =false);
@@ -174,4 +182,4 @@ template<class T> inline class_handle<T> *get_handler_fromMatlab(const mxArray *
 class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray* prhs[],
     input_types& work_mode, std::vector<int32_t> &data_addresses, std::vector<int32_t> &data_tag, bool& is_synchroneous,
     uint8_t*& data_buffer,  size_t &nbytes_to_transfer,
-    int& assynch_queue_length);
+    AdditinalParamHolder & addPar);

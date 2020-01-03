@@ -14,56 +14,64 @@ TEST(TestCPPCommunicator, send_assynchroneous) {
 
     MPI_wrapper::MPI_wrapper_gtested = true;
     auto wrap = MPI_wrapper();
-    wrap.init(true,4,6);
+    wrap.init(true,4,9);
     ASSERT_TRUE(wrap.isTested);
 
-    EXPECT_EQ(MPI_wrapper::data_mess_tag, 6);
+    EXPECT_EQ(MPI_wrapper::data_mess_tag, 9);
 
     std::vector<uint8_t> test_mess;
     test_mess.assign(10, 1);
 
     wrap.labSend(10,1,false, &test_mess[0], test_mess.size());
     ASSERT_EQ(1, wrap.assync_queue_len());
+    // "Deliver" message
+    auto queue = wrap.get_async_queue();
+    queue->rbegin()->theRequest = 1;
 
     test_mess.assign(10, 2);
     wrap.labSend(10, 1, false, &test_mess[0], test_mess.size());
     // the previous message has been delivered.
     ASSERT_EQ(1, wrap.assync_queue_len());
 
+    // "Deliver" message
+    queue->rbegin()->theRequest = 1;
     test_mess.assign(10, 3);
-    test_mess[0] = 0; // mark message delivered
     wrap.labSend(10, 1, false, &test_mess[0], test_mess.size());
     // the previous message has been delivered.
     ASSERT_EQ(1, wrap.assync_queue_len());
 
-    wrap.labSend(10, 1, false, &test_mess[0], test_mess.size());
+    wrap.labSend(9, 2, false, &test_mess[0], test_mess.size());
     // the previous had not been delivered
     ASSERT_EQ(2, wrap.assync_queue_len());
 
-    wrap.labSend(10, 1, false, &test_mess[0], test_mess.size());
+    wrap.labSend(8, 3, false, &test_mess[0], test_mess.size());
     // the previous had not been delivered
     ASSERT_EQ(3, wrap.assync_queue_len());
 
-    wrap.labSend(10, 1, false, &test_mess[0], test_mess.size());
+    wrap.labSend(7, 4, false, &test_mess[0], test_mess.size());
     // the previous had not been delivered
     ASSERT_EQ(4, wrap.assync_queue_len());
     // queue full
-    ASSERT_ANY_THROW(wrap.labSend(10, 1, false, &test_mess[0], test_mess.size()));
+    ASSERT_ANY_THROW(wrap.labSend(6, 1, false, &test_mess[0], test_mess.size()));
 
     // Mark all messages as delivered
     auto MessCache = wrap.get_async_queue();
 
     auto last = MessCache->rbegin();
-    last->theRequest = true; // mark last message delivered;
-    wrap.labSend(9, 1, false, &test_mess[0], test_mess.size());
+    last->theRequest = 1; // mark last message delivered;
+    wrap.labSend(5, 5, false, &test_mess[0], test_mess.size());
     ASSERT_EQ(4, wrap.assync_queue_len());
 
 
     for (auto it = MessCache->begin(); it != MessCache->end(); it++) {
-        it->theRequest = true;
+        it->theRequest = 1;
     }
-    wrap.labSend(8, 1, false, &test_mess[0], test_mess.size());
+    wrap.labSend(4, 6, false, &test_mess[0], test_mess.size());
     ASSERT_EQ(1, wrap.assync_queue_len());
+    auto it = MessCache->begin();
+    ASSERT_EQ(it->destination, 4);
+    ASSERT_EQ(it->mess_tag, 6);
+
 
 }
 
@@ -231,7 +239,6 @@ TEST(TestCPPCommunicator, lab_receive_as_send) {
     for (int i = 0; i < test_mess.size(); i++) {
         test_mess[i] = i;
     }
-    test_mess[0] = 0; // sent but not delivered
 
     wrap.labSend(10, 2, false, &test_mess[0], test_mess.size());
     ASSERT_EQ(1, wrap.assync_queue_len());
@@ -291,6 +298,73 @@ TEST(TestCPPCommunicator, lab_receive_as_send) {
 
     //delete(plhs[(int)labReceive_Out::mess_contents]);
     //delete(plhs[(int)labReceive_Out::data_celarray]);
+}
+
+TEST(TestCPPCommunicator, receive_sequence_ignore_same_tag) {
+    // when asynchronously receving list of the same tag non-data messages retain only the last one
+
+    MPI_wrapper::MPI_wrapper_gtested = true;
+
+    auto wrap = MPI_wrapper();
+    wrap.init(true, 4,10);
+    ASSERT_TRUE(wrap.isTested);
+
+    mxArray* plhs[4];
+
+    std::vector<uint8_t> test_mess;
+    test_mess.assign(10, 1);
+
+    wrap.labSend(5, 2, false, &test_mess[0], test_mess.size());
+    ASSERT_EQ(1, wrap.assync_queue_len());
+
+    wrap.labReceive(5, 2, false, plhs, 4);
+    // do send as the queue length is updated only at send
+    wrap.labSend(4, 1, false, &test_mess[0], test_mess.size());
+    ASSERT_EQ(1, wrap.assync_queue_len());
+
+    auto out = plhs[(int)labReceive_Out::mess_contents];
+    ASSERT_EQ(mxGetM(out), 1);
+    ASSERT_EQ(mxGetN(out), 10);
+    auto addrOut = plhs[(int)labReceive_Out::real_source_address];
+    ASSERT_EQ(mxGetM(addrOut), 1);
+    ASSERT_EQ(mxGetN(addrOut), 2);
+    auto pAddress = reinterpret_cast<int32_t*>(mxGetData(addrOut));
+    ASSERT_EQ(pAddress[0], 5);
+    ASSERT_EQ(pAddress[1], 2);
+
+    wrap.labSend(5, 2, false, &test_mess[0], test_mess.size());
+    ASSERT_EQ(2, wrap.assync_queue_len());
+
+    test_mess.assign(9, 2);
+    wrap.labSend(5, 2, false, &test_mess[0], test_mess.size());
+    ASSERT_EQ(3, wrap.assync_queue_len());
+
+    test_mess.assign(11, 3);
+    wrap.labSend(5, 2, false, &test_mess[0], test_mess.size());
+    ASSERT_EQ(4, wrap.assync_queue_len());
+
+    // drop all previous messages and receve only the last one
+    wrap.labReceive(5, 2, false, plhs, 4);
+    // do send as the queue length is updated only at send
+    wrap.labSend(7, 3, false, &test_mess[0], test_mess.size());
+    ASSERT_EQ(2, wrap.assync_queue_len());
+    //
+    auto MessCache = wrap.get_async_queue();
+    auto first = MessCache->begin();
+    auto last = MessCache->rbegin();
+    ASSERT_EQ(first->destination, 7);
+    ASSERT_EQ(last->destination, 4);
+
+
+    out = plhs[(int)labReceive_Out::mess_contents];
+    ASSERT_EQ(mxGetM(out), 1);
+    ASSERT_EQ(mxGetN(out), 11);
+    addrOut = plhs[(int)labReceive_Out::real_source_address];
+    ASSERT_EQ(mxGetM(addrOut), 1);
+    ASSERT_EQ(mxGetN(addrOut), 2);
+    pAddress = reinterpret_cast<int32_t*>(mxGetData(addrOut));
+    ASSERT_EQ(pAddress[0], 5);
+    ASSERT_EQ(pAddress[1], 2);
 
 }
 
