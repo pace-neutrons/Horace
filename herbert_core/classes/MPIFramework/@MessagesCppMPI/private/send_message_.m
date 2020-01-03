@@ -15,18 +15,22 @@ is_blocking = logical(mess.is_blocking);
 task_id = uint32(task_id);
 tag =int32(mess.tag);
 %
-if is_blocking
-    contents = hlp_serialize(mess);
-    try
-        obj.mpi_framework_holder_ = cpp_communicator('send',...
-            obj.mpi_framework_holder_,task_id,tag,uint8(is_blocking),contents);
-    catch ME
-        if strcmpi(ME.identifier,'')
-            ok = MESS_CODES.a_send_error;
-            err_mess = ME.message;
-        else
-            rethrow(ME);
-        end
+try
+    if is_blocking
+        error('MESSAGES_CPP_MPI:not_implemented',...
+            'blocking comminications are not yet implemented')
+    else
+        contents = hlp_serialize(mess);
+        
+        obj.mpi_framework_holder_ = cpp_communicator('labSend',...
+            obj.mpi_framework_holder_,...
+            task_id,tag,uint8(is_blocking),contents);
     end
-else
+catch ME
+    if strncmpi(ME.identifier,'MPI_MEX_COMMUNICATOR:',numel('MPI_MEX_COMMUNICATOR:'))
+        ok = MESS_CODES.a_send_error;
+        err_mess = ME.message;
+    else
+        rethrow(ME);
+    end
 end

@@ -94,7 +94,9 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     //* Check and parce input  arguments. */
     uint8_t * data_buffer(nullptr);
 
-    int data_address(0),data_tag(0);
+    std::vector<int32_t> data_addresses;
+    std::vector<int32_t> data_tag;
+
     bool is_synchroneous(false);
     int  assynch_queue_len(10);
     size_t n_workers;
@@ -103,7 +105,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 
 
     class_handle<MPI_wrapper>* pCommunicatorHolder = parse_inputs(nlhs, nrhs, prhs,
-        work_type, data_address, data_tag, is_synchroneous,
+        work_type, data_addresses, data_tag,is_synchroneous,
         data_buffer, nbytes_to_transfer, assynch_queue_len);
 
     // avoid problem with multiple finalization
@@ -139,25 +141,27 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         return;
     }
     case(labSend): {
-        pCommunicatorHolder->class_ptr->labSend(data_address, data_tag, is_synchroneous, data_buffer, nbytes_to_transfer);
+        pCommunicatorHolder->class_ptr->labSend(data_addresses[0], data_tag[0], is_synchroneous, data_buffer, nbytes_to_transfer);
         break;
     }
     case(labReceive): {
-        pCommunicatorHolder->class_ptr->labReceive(data_address, data_tag, is_synchroneous, plhs, nlhs);
+        pCommunicatorHolder->class_ptr->labReceive(data_addresses[0], data_tag[0], is_synchroneous, plhs, nlhs);
         break;
     }
     case(labProbe): {
-        int address_present, tag_present;
-        pCommunicatorHolder->class_ptr->labProbe(data_address, data_tag, address_present, tag_present);
-        if (address_present == -1) {
+        std::vector<int32_t> address_present, tag_present;
+        pCommunicatorHolder->class_ptr->labProbe(data_addresses, data_tag, address_present, tag_present);
+        size_t n_present= address_present.size();
+        if (n_present == 0) {
             plhs[(int)labProbe_Out::addr_tag_array] = mxCreateNumericMatrix(1, 0, mxINT32_CLASS, mxREAL);
         }
         else {
-            plhs[(int)labProbe_Out::addr_tag_array] = mxCreateNumericMatrix(2, 1, mxINT32_CLASS, mxREAL);
+            plhs[(int)labProbe_Out::addr_tag_array] = mxCreateNumericMatrix(2, n_present, mxINT32_CLASS, mxREAL);
             int32_t* pAddrTag = (int32_t*)mxGetData(plhs[(int)labProbe_Out::addr_tag_array]);
-            pAddrTag[0] = (int32_t)(address_present + 1);
-            pAddrTag[1] = (int32_t)(tag_present);
-
+            for(size_t i=0;i< n_present;i++){
+                pAddrTag[2 * i + 0] = address_present[i]+1;
+                pAddrTag[2 * i + 1] = tag_present[i];
+            }
         }
         break;
     }

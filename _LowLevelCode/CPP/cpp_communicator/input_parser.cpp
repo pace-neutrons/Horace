@@ -125,7 +125,7 @@ returns:
 pointer to cpp_communicator class handler to share with Matlab
 */
 class_handle<MPI_wrapper> *parse_inputs(int nlhs, int nrhs, const mxArray *prhs[],
-    input_types &work_mode, int &data_address, int &data_tag, bool &is_synchroneous,
+    input_types &work_mode, std::vector<int>& data_addresses, std::vector<int>& data_tag, bool &is_synchroneous,
     uint8_t *& data_buffer, size_t &nbytes_to_transfer,
     int & assynch_queue_length)
 {
@@ -144,12 +144,13 @@ class_handle<MPI_wrapper> *parse_inputs(int nlhs, int nrhs, const mxArray *prhs[
                 " inputs but got "  << nrhs << " input parameters\n";
             throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", err.str().c_str());
         }
-
+        data_addresses.resize(1);
+        data_tag.resize(1);
         work_mode = labReceive;
         // the source address
-        data_address = (int)retrieve_value<mxUint32>("labReceive: source address", prhs[(int)ReceiveInputs::source_dest_id]) - 1;
+        data_addresses[0] = (int32_t)retrieve_value<mxInt32>("labReceive: source address", prhs[(int)ReceiveInputs::source_dest_id]) - 1;
         // the source data tag
-        data_tag = (int)retrieve_value<mxInt32>("labReceive: source tag", prhs[(int)ReceiveInputs::tag]);
+        data_tag[0] = (int32_t)retrieve_value<mxInt32>("labReceive: source tag", prhs[(int)ReceiveInputs::tag]);
         // if the transfer is synchroneous or not
         is_synchroneous = (bool)retrieve_value<mxUint8>("labReceive: is synchronous", prhs[(int)ReceiveInputs::is_synchronous]);
     }
@@ -160,27 +161,40 @@ class_handle<MPI_wrapper> *parse_inputs(int nlhs, int nrhs, const mxArray *prhs[
                 " inputs but got " << nrhs << " input parameters\n";
             throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", err.str().c_str());
         }
+        data_addresses.resize(1);
+        data_tag.resize(1);
 
         work_mode = labSend;
         // the target destination address
-        data_address = (int)retrieve_value<mxUint32>("labSend: destination address",prhs[(int)SendInputs::source_dest_id])-1;
+        data_addresses[0] = (int32_t)retrieve_value<mxInt32>("labSend: destination address",prhs[(int)SendInputs::source_dest_id])-1;
         // the sending data tag
-        data_tag = (int)retrieve_value<mxInt32>("labSend: destination tag",prhs[(int)SendInputs::tag]);
+        data_tag[0] = (int32_t)retrieve_value<mxInt32>("labSend: destination tag",prhs[(int)SendInputs::tag]);
         // if the transfer is synchroneous or not
         is_synchroneous = (bool)retrieve_value<mxUint8>("labSend: is synchronous", prhs[(int)SendInputs::is_synchronous]);
         // retrieve pointer to serialized data to transfer
-        size_t vector_size, bytesize;
+        size_t vector_size,bytesize;
+
         data_buffer = retrieve_vector<uint8_t >("labSend: data", prhs[(int)SendInputs::head_data_buffer], vector_size,bytesize);
-        nbytes_to_transfer = vector_size * bytesize;
+        nbytes_to_transfer = size_t(vector_size) * bytesize;
     }
     else if (mex_mode.compare("labIndex") == 0) {
         work_mode = labIndex;
     }
     else if (mex_mode.compare("labProbe") == 0) {
+        size_t n_addresses,n_tags,block_size;
         // the queried  address
-        data_address = (int)retrieve_value<mxUint32>("labProbe: source address", prhs[(int)ProbeInputs::source_id]) - 1;
+        auto pData_addresses = retrieve_vector<mxInt32>("labProbe: source address", prhs[(int)ProbeInputs::source_id], n_addresses, block_size);
+        data_addresses.resize(n_addresses);
+        for (size_t i = 0; i < n_addresses; i++) {
+            data_addresses[i] = pData_addresses[i] - 1; // Matlab lab_index = MPI_index + 1
+        }
         // the queried tag
-        data_tag = (int)retrieve_value<mxInt32>("labProbe: requested tag", prhs[(int)ProbeInputs::tag]);
+        auto pData_tag = retrieve_vector<mxInt32>("labProbe: requested tag", prhs[(int)ProbeInputs::tag],n_tags,block_size);
+        data_tag.resize(n_tags);
+        for (size_t i = 0; i < n_tags; i++) {
+            data_tag[i] = pData_tag[i];
+        }
+
         work_mode = labProbe;
     }
     else if (mex_mode.compare("barrier") == 0) {

@@ -49,6 +49,30 @@ classdef test_CPP_MPI_exchange< TestCase
             
             
         end
+        function test_SendProbeReceive(obj)
+            % Test communications in test mode
+            if isempty(which('cpp_communicator'))
+                return
+            end
+            mf = MessagesCppMPI_tester();
+            clob = onCleanup(@()(finalize_all(mf)));
+            
+            assertEqual(mf.labIndex,uint64(1));
+            assertEqual(mf.numLabs,uint64(1));
+            
+            mess = LogMessage(1,10,1,[]);
+            [ok,err_mess]  = mf.send_message(5,mess);
+            assertEqual(ok.MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            
+            [mess_names,source_id_s] = mf.probe_all('all','all');
+            assertEqual(numel(mess_names),1);
+            assertEqual(numel(source_id_s),1);            
+            assertEqual(source_id_s(1),5);                        
+            assertEqual(mess_names{1},mess.mess_name);                                    
+            
+        end
+        
         function test_MessagesCppMPI_constructor(obj)
             if isempty(which('cpp_communicator'))
                 return
@@ -66,6 +90,7 @@ classdef test_CPP_MPI_exchange< TestCase
 %             mess = LogMessage(1,10,1,[]);
 %             [ok,err_mess]  = mf.send_message(1,mess);
         end
+        
         
     end
 end

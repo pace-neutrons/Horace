@@ -4,7 +4,7 @@
 #include <cstring>
 #include <sstream>
 #include <typeinfo>
-
+#include <vector>
 
 enum input_types {
     init_mpi,
@@ -172,6 +172,6 @@ template<class T> inline class_handle<T> *get_handler_fromMatlab(const mxArray *
 
 
 class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray* prhs[],
-    input_types& work_mode, int &data_address, int & data_tag, bool& is_synchroneous,
+    input_types& work_mode, std::vector<int32_t> &data_addresses, std::vector<int32_t> &data_tag, bool& is_synchroneous,
     uint8_t*& data_buffer,  size_t &nbytes_to_transfer,
     int& assynch_queue_length);

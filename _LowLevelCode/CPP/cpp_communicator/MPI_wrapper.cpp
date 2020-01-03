@@ -188,48 +188,89 @@ bool check_address_tag_requsted(SendMessHolder const& Mess, int addr_requested, 
 
 /** try for a message intended for this worker is present
 Inputs:
-data_address -- the address of a worker to ask for a message. -1 -- any worker
-data_tag     -- the tag of the message to ask for. -1 -- to ask for any tag
+data_address -- the vector of addresses of a workers to ask for a message. -1 -- any worker
+data_tag     -- the tags of the messages to ask for. -1 -- to ask for any tag
 Outputs:
 addres_present -- if message present, the address the message has been sent from. -1 if no message for the address(es) requested is present.
 tag_presnet    -- if message present, the tag of the message present, -1 if no message with the requested tag is present.
 */
-void MPI_wrapper::labProbe(int data_address, int data_tag, int& addres_present, int& tag_present) {
-    if (this->isTested) { // As there is only one host there, treat send message as the present message
-        if (check_address_tag_requsted(this->SyncMessHolder, data_address, data_tag)) {
-            addres_present = this->SyncMessHolder.destination;
-            tag_present = this->SyncMessHolder.mess_tag;
-            return;
-        }
+void MPI_wrapper::labProbe(const std::vector<int32_t>& data_address, const std::vector<int32_t>& data_tag,
+    std::vector<int32_t>& addres_present, std::vector<int32_t>& tag_present) {
 
-        addres_present = -1;
-        tag_present = -1;
-        auto pAsynchMess = this->assyncMessList.rbegin();
-        for (pAsynchMess; pAsynchMess != this->assyncMessList.rend(); pAsynchMess++) {
+    addres_present.resize(data_address.size());
+    tag_present.resize(data_address.size());
+    bool any_mess_present = false;
+    for (size_t i = 0; i < addres_present.size(); i++) {
+        addres_present[i] = -1;
+        tag_present[i] = -1;
 
-            if (check_address_tag_requsted(*pAsynchMess, data_address, data_tag)) {
-                addres_present = pAsynchMess->destination;
-                tag_present = pAsynchMess->mess_tag;
-                break;
+        for (size_t j = 0; j < data_tag.size(); j++) {
+            if (this->isTested) { // As there is only one host there, treat send message as the present message
+                if (check_address_tag_requsted(this->SyncMessHolder, data_address[i], data_tag[j])) {
+                    addres_present[i] = this->SyncMessHolder.destination;
+                    tag_present[i] = this->SyncMessHolder.mess_tag;
+                    any_mess_present = true;
+                    break;
+                }
+
+                auto pAsynchMess = this->assyncMessList.rbegin();
+                for (pAsynchMess; pAsynchMess != this->assyncMessList.rend(); pAsynchMess++) {
+
+                    if (check_address_tag_requsted(*pAsynchMess, data_address[i], data_tag[j])) {
+                        addres_present[i] = pAsynchMess->destination;
+                        tag_present[i] = pAsynchMess->mess_tag;
+                        any_mess_present = true;
+                        break;
+                    }
+                }
+            }
+            else { // real MPI asynchroneous probe
+                int search_address, search_tag;
+                if (data_address[i] < 0)
+                    search_address = MPI_ANY_SOURCE;
+                else
+                    search_address = data_address[i];
+
+                if (data_tag[j] < 0)
+                    search_tag = MPI_ANY_TAG;
+                else
+                    search_tag = data_tag[j];
+
+                int flag;
+                MPI_Status status;
+                MPI_Iprobe(search_address, search_tag, MPI_COMM_WORLD, &flag, &status);
+                if (flag) {
+                    addres_present[i] = status.MPI_SOURCE;
+                    tag_present[i] = status.MPI_TAG;
+                    any_mess_present = true;
+                    break;
+                }
+            }
+        } // j
+    } //i
+
+    if (!any_mess_present) {
+        addres_present.resize(0);
+        tag_present.resize(0);
+    }
+    else { // count number of existing messages and return only existing messages addesses and tags
+        size_t n_present = 0;
+        for (size_t i = 0; i < addres_present.size(); i++)
+            if (addres_present[i]>0)n_present++;
+        //
+        std::vector<int32_t> tmp_address(n_present, -1);
+        std::vector<int32_t> tmp_tag(n_present, -1);
+        //
+        size_t ic = 0;
+        for (size_t i = 0; i < addres_present.size(); i++) {
+            if (addres_present[i] > -1) {
+                tmp_address[ic] = addres_present[i];
+                tmp_tag[ic] = tag_present[i];
+                ic++;
             }
         }
-    }
-    else { // real MPI asynchroneous probe
-        if (data_address < 0)
-            data_address = MPI_ANY_SOURCE;
-        if (data_tag < 0)
-            data_tag = MPI_ANY_TAG;
-        int flag;
-        MPI_Status status;
-        MPI_Iprobe(data_address, data_tag, MPI_COMM_WORLD, &flag, &status);
-        if (flag) {
-            addres_present = status.MPI_SOURCE;
-            tag_present = status.MPI_TAG;
-        }
-        else {
-            addres_present = -1;
-            tag_present = -1;
-        }
+        addres_present.swap(tmp_address);
+        tag_present.swap(tmp_tag);
     }
 }
 
@@ -276,7 +317,7 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
     if (source_data_tag == -1)source_data_tag = MPI_ANY_TAG;
     if (source_address == -1)source_address = MPI_ANY_SOURCE;
     int message_size(0);
-    std::tuple<char *, void *, int32_t *> outPtrs;
+    std::tuple<char*, void*, int32_t*> outPtrs;
 
     if (this->isTested) {
         if (source_data_tag == MPI_wrapper::data_mess_tag) {
@@ -316,7 +357,7 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
             pBuff[i] = pMess->mess_body[i];
         }
         source_address = pMess->destination;
-        source_data_tag =pMess->mess_tag;
+        source_data_tag = pMess->mess_tag;
     }
     else {  // real receive
         MPI_Status status;
