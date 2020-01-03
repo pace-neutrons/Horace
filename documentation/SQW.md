@@ -238,6 +238,18 @@ Responsible for performing calculation on Image or Pixel data as appropriate.
 
 Q: Are these distinct functions or simply a set of optional arguments?
 
+### Bin calculations (SQW)
+| Operation            | SQW  | DND  | Notes |
+| -------------------- | :--: | :--: | :---- |
+|`calculate_q_bins.m` | y | y ||
+|`calculate_qsqr_bins.m`| y | ||
+|`calculate_qsqr_w_bins.m`| y | ||
+|`calculate_qsqr_w_pixels.m`| y | ||
+|`calculate_qw_bins.m` | y | y ||
+|`calculate_qw_pixels.m`| y | ||
+|`calculate_qw_pixels2.m`| y | |This should be used in place of `calculate_qw_pixels` as it handles the symmetrized data case correctly.|
+|`calculate_uproj_pixels.m` | y | |Projection|
+
 #### Data manipulation (SQW)
 
 | Operation            | SQW  | DND  | Notes |
@@ -249,6 +261,7 @@ Q: Are these distinct functions or simply a set of optional arguments?
 |`mask_random_fraction_pixels.m`| y | n | Retain a random fraction `(0,1)` of pixels from the dataset (scalar or per-axis) |
 |`mask_random_pixels.m`| y | n | Discard all except N random pixels from the dataset (scalar or per-axis) |
 |`mask_runs.m`| y | n | Remove all pixels from a specified run |
+|`noisify.m`| y | y | Add random noise and update error for image data |
 |`slim.m`| y | n | Remove random pixels (wrapper around `mask_*` functions)|
 
 Note: operations are performed on backing detector data where appropriate and image recalculated using the current projection
@@ -266,6 +279,14 @@ Note: operations are performed on backing detector data where appropriate and im
 | `read.m`   |  y   |  y   | read .`nxsqw` or `.sqw` file            |
 | `save.m`   |  y   |  y   | save `.nxsqw` (or`.sqw` file with flag) |
 | `export.m` |  y   |  y   | export data to ascii file               |
+
+#### Display (helper)
+
+|Operator|SQW|DND|Notes  |
+|--------|:-:|:-:|:------|
+|`display.m`  | y | y | pretty print object|
+|`shift_energy_bins.m`| y | n | for plotting data adjusted with `shift_pixels` |
+|`run_inspector.m`| y | n | Display UI for browsing|
 
 #### Standard arithmetic operations (SQW via OperationsManager)
 
