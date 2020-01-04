@@ -102,14 +102,14 @@ SendMessHolder* MPI_wrapper::add_to_async_queue(uint8_t* pBuffer, size_t n_bytes
 
     //
     SendMessHolder* messToSend(nullptr);
-    auto pPrevMess = this->assyncMessList.rend();
-    auto pMessToSend = this->assyncMessList.rend();
+    auto pPrevMess = this->assyncMessList.end();
+    auto pMessToSend = this->assyncMessList.end();
 
     //
     int isDelivered;
     MPI_Status status; // not clear what to do about it.
-    auto pMess = this->assyncMessList.rbegin();
-    while (pMess != this->assyncMessList.rend()) {
+    auto pMess = this->assyncMessList.begin();
+    while (pMess != this->assyncMessList.end()) {
         if (this->isTested)
             isDelivered = bool(pMess->theRequest);
         else {
@@ -126,16 +126,12 @@ SendMessHolder* MPI_wrapper::add_to_async_queue(uint8_t* pBuffer, size_t n_bytes
             pPrevMess = pMessToSend;
             pMessToSend = pMess;
             messToSend = &(*pMessToSend);
-            pMess++;
-            if (pPrevMess != this->assyncMessList.rend()) { //delete previously selected delivered message
-                auto dIt = --pPrevMess.base();
-                this->assyncMessList.erase(dIt);
-                pMessToSend = pPrevMess;
+            if (pPrevMess != this->assyncMessList.end()) { //delete previously selected delivered message
+                this->assyncMessList.erase(pPrevMess);
             }
         }
-        else { // not delivered
-            pMess++;
-        }
+        pMess++;
+
     }
 
     if (messToSend) { // reuse existing delivered message space not to allocate memory again

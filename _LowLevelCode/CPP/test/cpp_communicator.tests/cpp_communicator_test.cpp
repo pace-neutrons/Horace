@@ -71,10 +71,72 @@ TEST(TestCPPCommunicator, send_assynchroneous) {
     auto it = MessCache->begin();
     ASSERT_EQ(it->destination, 4);
     ASSERT_EQ(it->mess_tag, 6);
-
-
 }
 
+TEST(TestCPPCommunicator, send_assynch_random_receive1) {
+
+    MPI_wrapper::MPI_wrapper_gtested = true;
+    auto wrap = MPI_wrapper();
+    wrap.init(true, 6, 9);
+    ASSERT_TRUE(wrap.isTested);
+
+    EXPECT_EQ(MPI_wrapper::data_mess_tag, 9);
+
+    std::vector<uint8_t> test_mess;
+    test_mess.assign(10, 1);
+    for (int i = 1; i < 6; i++) {
+        wrap.labSend(i, i, false, &test_mess[0], test_mess.size());
+
+    }
+    ASSERT_EQ(5, wrap.assync_queue_len());
+
+    auto MessCache = wrap.get_async_queue();
+    for (auto it = MessCache->begin(); it != MessCache->end(); it++) {
+        if (it->mess_tag % 2 == 0) {
+            it->theRequest = 1; // "Receive" all even messages
+        }
+    }
+
+
+    wrap.labSend(7, 7, false, &test_mess[0], test_mess.size());
+    ASSERT_EQ(4, wrap.assync_queue_len());
+    for (auto it = MessCache->begin(); it != MessCache->end(); it++) {
+        ASSERT_EQ(it->mess_tag % 2, 1);
+    }
+
+}
+TEST(TestCPPCommunicator, send_assynch_random_receive2) {
+
+    MPI_wrapper::MPI_wrapper_gtested = true;
+    auto wrap = MPI_wrapper();
+    wrap.init(true, 6, 9);
+    ASSERT_TRUE(wrap.isTested);
+
+    EXPECT_EQ(MPI_wrapper::data_mess_tag, 9);
+
+    std::vector<uint8_t> test_mess;
+    test_mess.assign(10, 1);
+    for (int i = 1; i < 6; i++) {
+        wrap.labSend(i, i, false, &test_mess[0], test_mess.size());
+
+    }
+    ASSERT_EQ(5, wrap.assync_queue_len());
+
+    auto MessCache = wrap.get_async_queue();
+    for (auto it = MessCache->begin(); it != MessCache->end(); it++) {
+        if (it->mess_tag % 2 == 1) {
+            it->theRequest = 1; // "Receive" all odd messages
+        }
+    }
+
+
+    wrap.labSend(6, 6, false, &test_mess[0], test_mess.size());
+    ASSERT_EQ(3, wrap.assync_queue_len());
+    for (auto it = MessCache->begin(); it != MessCache->end(); it++) {
+        ASSERT_EQ(it->mess_tag % 2, 0);
+    }
+
+}
 TEST(TestCPPCommunicator, lab_probe_single) {
 
     MPI_wrapper::MPI_wrapper_gtested = true;
