@@ -14,27 +14,30 @@ Jenkins is used for building pull requests, when opened or edited, and building
 master every evening. Each build will create a Horace package that is shippable
 to users.
 
+A `pace-builder` GitHub account has been created to provide authentication
+between Jenkins and GitHub.
+
 ## Overview
 
 The CI builds follow the following high-level process:
 
-- Jenkins checks out the correct branch
-
-  For pull requests:
+For pull requests:
 
   - Webhooks are created in GitHub that notify Jenkins when a pull request event
   occurs.
   - When Jenkins receives a notification from GitHub it will checkout out the
   relevant pull request branch and merge it with master.
 
-  For nightly builds:
+For nightly builds:
 
   - Jenkins will clone master at a specific time each evening.
 
-- Jenkins loads and runs the [`Jenkinsfile`](./../../tools/build_config/Jenkinsfile)
-located in `tools/build_config`.
-- The `Jenkinsfile` script runs the platform specific build script and updates
-GitHub about the status of the build.
+For both:
+
+  - Jenkins loads and runs the [`Jenkinsfile`](./../../tools/build_config/Jenkinsfile)
+  located in `tools/build_config`.
+  - The `Jenkinsfile` script runs the platform specific build script and updates
+  GitHub about the status of the build.
 
 ## More Detailed Set Up
 
@@ -63,6 +66,10 @@ This means that, from the webhook's JSON, it can be decided if a build is to be
 triggered. Usually, builds should only be triggered when a pull request is `opened`
 or `synchronized` (a new commit is pushed to an existing pull request).
 
+Only one webhook should be required to trigger all the necessary build jobs.
+The webhook should have the format `<repo-name>-<secret>` so there is clear
+distinction between which webhooks are for which repository.
+
 From this page payloads can be re-delivered if required, for example, if the
 Jenkins servers were down and the payload was not received.
 
@@ -75,12 +82,15 @@ polling, as it does not require Jenkins to query GitHub on regular intervals.
 
 - [Jenkins Git](https://plugins.jenkins.io/git) - Clone Git repo
 - [Generic Webhook Trigger](https://plugins.jenkins.io/generic-webhook-trigger) -
-Allows GitHub to trigger build
+Allows GitHub to trigger builds
 - [xUnit](https://plugins.jenkins.io/xunit) - Parse and display test results
 
-Follow these steps to set up the pipeline:
+#### Setting Up the Pipeline
 
 - Create a new "Pipeline" job.
+- The pipeline should follow the naming convention: `<operating-system>-<Matlab-release>`
+and should be prefixed with `PR-` if the pipeline is building pull requests. E.g.
+`PR-Scientific-Linux-7-2018b`.
 - Enter the GitHub project URL e.g. `http:/pace-neutrons.github.com/horace`
 (this creates a link to the GitHub from the pipeline).
 - Select the `This project is parameterised` option:
