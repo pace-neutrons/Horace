@@ -95,7 +95,7 @@ Follow these steps to set up the pipeline:
         - `pull_request.statuses_url`: The url to send build statuses to
         - `pull_request.head.sha`: The HEAD sha of the pull request branch
 
-      <img src="./images/08_commit_sha.png" width=70%>
+      <img src="./images/08_commit_sha.png">
 
     - Enter the token you used when setting up your webhook in the `Token`
     section.
@@ -103,7 +103,7 @@ Follow these steps to set up the pipeline:
     - In the `Optional Filter` section, choose to only trigger builds if the
     action retrieved from GitHub matches the regex `(opened|synchronize)`.
 
-    <img src="./images/08_action_trigger.png" width=70%>
+    <img src="./images/08_action_trigger.png">
 
   - Set up the `Pipeline` section as shown below to have Jenkins pull the PR
   branch and merge it into master before building.
