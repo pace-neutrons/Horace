@@ -1,0 +1,99 @@
+#!groovy
+
+def post_github_status(String state, String message) {
+    withCredentials([string(credentialsId: 'GitHub_API_Token',
+            variable: 'api_token')]) {
+        sh """
+            curl -H "Authorization: token ${api_token}" \
+                --request POST \
+                --data '{"state": "${state}", \
+                         "description": "${message}", \
+                         "target_url": "$BUILD_URL", \
+                         "context": "$JOB_BASE_NAME"}' \
+                $PR_STATUSES_URL > /dev/null
+        """
+            }
+}
+
+pipeline {
+    agent {
+        label env.AGENT
+    }
+
+    stages {
+
+        stage('Notify') {
+            steps {
+                post_github_status("pending", "The build is running")
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh '''
+                    module load cmake/\$CMAKE_VERSION &&
+                    module load matlab/\$MATLAB_VERSION &&
+                    module load gcc/\$GCC_VERSION &&
+                    ./tools/build_config/build.sh --build
+                '''
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh '''
+                    module load cmake/\$CMAKE_VERSION &&
+                    module load matlab/\$MATLAB_VERSION &&
+                    module load gcc/\$GCC_VERSION &&
+                    ./tools/build_config/build.sh --test
+                '''
+            }
+        }
+
+        stage('Package') {
+            steps {
+                sh './tools/build_config/build.sh --package'
+            }
+        }
+    }
+
+    post {
+        always {
+            // archive CTest results file
+            archiveArtifacts(
+                artifacts: 'build/Testing/**/*.xml',
+                fingerprint: true
+            )
+
+            xunit (
+                testTimeMargin: '3000',
+                thresholdMode: 1,
+                thresholds: [
+                    skipped(failureThreshold: '0'),
+                    failed(failureThreshold: '0')
+                ],
+                tools: [
+                    CTest(
+                        pattern: 'build/Testing/**/*.xml',
+                        deleteOutputFiles: true,
+                        failIfNotNew: false,
+                        skipNoTestFiles: true,
+                        stopProcessingIfError: true
+                    )
+                ]
+            )
+        }
+
+        success {
+            post_github_status("success", "The build succeeded")
+        }
+
+        failure {
+            post_github_status("failure", "The build failed")
+        }
+
+        cleanup {
+            deleteDir()
+        }
+    }
+}
