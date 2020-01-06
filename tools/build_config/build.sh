@@ -58,7 +58,7 @@ function run_tests() {
 
   echo -e "\nRunning test step..."
   echo_and_run "cd ${build_dir}"
-  test_cmd="ctest -T Test --no-compress-output"
+  test_cmd="ctest -T Test --no-compress-output --output-on-failure"
   echo_and_run "${test_cmd}"
 }
 
@@ -87,6 +87,7 @@ function main() {
         -b|--build) build=$TRUE; shift ;;
         -t|--test) test=$TRUE; shift ;;
         -p|--package) package=$TRUE; shift ;;
+        -v|--print_versions) print_versions=$TRUE; shift ;;
         # options
         -X|--build_tests) build_tests="$2"; shift; shift ;;
         -C|--build_config) build_config="$2"; shift; shift ;;
@@ -95,7 +96,9 @@ function main() {
     esac
   done
 
-  print_package_versions
+  if ((${print_versions})); then
+    print_package_versions
+  fi
 
   if ((${build})); then
     warning_msg="Warning: Build directory ${build_dir} already exists.\n\
