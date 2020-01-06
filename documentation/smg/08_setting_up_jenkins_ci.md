@@ -2,7 +2,7 @@
 
 Machines administered by [ANVIL](https://anvil.softeng-support.ac.uk/) are used
 to run the continuous integration (CI) jobs. These machines are running
-Jenkins v2.190.3 (at time of writing).
+Jenkins v2.204.1 (at time of writing).
 
 As much of the CI configuration as possible should be scripted and committed to
 version control. This makes things re-creatable and locally testable. However,
