@@ -74,6 +74,7 @@ function main() {
   local build=$FALSE
   local test=$FALSE
   local package=$FALSE
+  local print_versions=$FALSE
   local build_tests="ON"
   local build_config='Release'
   local build_dir="${HERBERT_ROOT}/build"
