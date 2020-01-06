@@ -1,21 +1,22 @@
 # Setting Up Jenkins CI
 
-We use machines administered by [ANVIL](https://anvil.softeng-support.ac.uk/)
-to run our continuous integration (CI) jobs. These machines are running
-Jenkins v2.190.3.
+Machines administered by [ANVIL](https://anvil.softeng-support.ac.uk/) are used
+to run the continuous integration (CI) jobs. These machines are running
+Jenkins v2.190.3 (at time of writing).
 
-We would like to be able to script and commit as much of our CI configuration
-as possible. This makes things re-creatable and locally testable. However,
+As much of the CI configuration as possible should be scripted and committed to
+version control. This makes things re-creatable and locally testable. However,
 there is necessarily some set up that must be done within the GUI in Jenkins.
 It is therefore important that this document is kept up-to-date with the steps
 taken to reach the configuration we use.
 
-We will use the CI for building pull requests and building master every
-evening. Each build will create a Horace package that is shippable to users.
+Jenkins is used for building pull requests, when opened or edited, and building
+master every evening. Each build will create a Horace package that is shippable
+to users.
 
 ## Overview
 
-Our CI builds follow the following high-level process:
+The CI builds follow the following high-level process:
 
 - Jenkins checks out the correct branch
 
@@ -32,8 +33,8 @@ Our CI builds follow the following high-level process:
 
 - Jenkins loads and runs the [`Jenkinsfile`](./../../tools/build_config/Jenkinsfile)
 located in `tools/build_config`.
-- The `Jenkinsfile` script runs our build script (one for Windows, one for Unix)
-and updates GitHub about the status of the build.
+- The `Jenkinsfile` script runs the platform specific build script and updates
+GitHub about the status of the build.
 
 ## More Detailed Set Up
 
@@ -47,7 +48,7 @@ settings tab in the [main repo](https://github.com/pace-neutrons/Horace).
 
 Then selecting the `Webhooks` menu item on the left-hand side.
 
-Your webhook should have payload URL
+The webhook should have payload URL
 `https://anvil.softeng-support.ac.uk/jenkins/generic-webhook-trigger/invoke?token=<my_secret_token>`
 , content type `application/json` and only trigger on pull request events. This
 will send a json containing information about the pull request (including pull
@@ -58,12 +59,12 @@ request events trigger when a pull request is:
 > review request removed, labeled, unlabeled, synchronized, ready for review,
 > locked, or unlocked.*
 
-This means that, from the webhook's JSON, you must decide if you want to trigger
-a build. usually you'd only want to trigger builds when a pull request is
-`opened` or `synchronized`.
+This means that, from the webhook's JSON, it can be decided if a build is to be
+triggered. Usually, builds should only be triggered when a pull request is `opened`
+or `synchronized` (a new commit is pushed to an existing pull request).
 
-Form this page you can also re-deliver payloads that may not have reached
-Jenkins e.g. if the Jenkins servers were down.
+From this page payloads can be re-delivered if required, for example, if the
+Jenkins servers were down and the payload was not received.
 
 Using webhooks is a more efficient method to automatically trigger builds than
 polling, as it does not require Jenkins to query GitHub on regular intervals.
@@ -80,7 +81,8 @@ Allows GitHub to trigger build
 Follow these steps to set up the pipeline:
 
 - Create a new "Pipeline" job.
-- Enter the GitHub project URL (this creates a link to the GitHub from the pipeline).
+- Enter the GitHub project URL e.g. `http:/pace-neutrons.github.com/horace`
+(this creates a link to the GitHub from the pipeline).
 - Select the `This project is parameterised` option:
     - Create the following string parameters:
         - `AGENT`: The label of the agent to run the job on
@@ -97,8 +99,7 @@ Follow these steps to set up the pipeline:
 
       <img src="./images/08_commit_sha.png">
 
-    - Enter the token you used when setting up your webhook in the `Token`
-    section.
+    - Enter the token used when setting up the webhook in the `Token` section.
 
     - In the `Optional Filter` section, choose to only trigger builds if the
     action retrieved from GitHub matches the regex `(opened|synchronize)`.
