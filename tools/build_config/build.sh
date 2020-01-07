@@ -39,6 +39,7 @@ function run_configure() {
   cmake_cmd+=" -DMatlab_ROOT_DIR=${MATLAB_ROOT}"
   cmake_cmd+=" -DCMAKE_BUILD_TYPE=${build_config}"
   cmake_cmd+=" -DBUILD_TESTS=${build_tests}"
+  cmake_cmd+=" -BUILD_FORTRAN=${build_fortran}"
 
   echo -e "\nRunning CMake configure step..."
   echo_and_run "cd ${build_dir}"
@@ -78,6 +79,7 @@ function main() {
   local build_tests="ON"
   local build_config='Release'
   local build_dir="${HERBERT_ROOT}/build"
+  local build_fortran="ON"
   local install_dir="${HERBERT_ROOT}/install"
 
   # parse command line args
@@ -93,6 +95,7 @@ function main() {
         -X|--build_tests) build_tests="$2"; shift; shift ;;
         -C|--build_config) build_config="$2"; shift; shift ;;
         -O|--build_dir) build_dir="$(realpath $2)"; shift; shift ;;
+        -f|--build_fortran) build_fortran="$2"; shift; shift ;;
         -I|--install_dir) install_dir="$(realpath $2)"; shift; shift ;;
     esac
   done
