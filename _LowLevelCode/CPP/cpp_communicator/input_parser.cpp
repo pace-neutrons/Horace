@@ -164,7 +164,7 @@ class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray* prhs[
         data_tag.resize(1);
         work_mode = labReceive;
         // the source address
-        data_addresses[0] = (int32_t)retrieve_value<mxInt32>("labReceive: source address", prhs[(int)ReceiveInputs::source_dest_id]) - 1;
+        data_addresses[0] = (int32_t)retrieve_value<mxInt32>("labReceive: source address", prhs[(int)ReceiveInputs::source_id]) - 1;
         // the source data tag
         data_tag[0] = (int32_t)retrieve_value<mxInt32>("labReceive: source tag", prhs[(int)ReceiveInputs::tag]);
         // if the transfer is synchroneous or not
@@ -182,7 +182,7 @@ class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray* prhs[
 
         work_mode = labSend;
         // the target destination address
-        data_addresses[0] = (int32_t)retrieve_value<mxInt32>("labSend: destination address", prhs[(int)SendInputs::source_dest_id]) - 1;
+        data_addresses[0] = (int32_t)retrieve_value<mxInt32>("labSend: destination address", prhs[(int)SendInputs::dest_id]) - 1;
         // the sending data tag
         data_tag[0] = (int32_t)retrieve_value<mxInt32>("labSend: destination tag", prhs[(int)SendInputs::tag]);
         // if the transfer is synchroneous or not

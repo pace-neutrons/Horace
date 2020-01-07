@@ -250,7 +250,7 @@ classdef test_FileBaseMPI_Framework< TestCase
             assertEqual(id_from(2),0);
             assertEqual(id_from(3),3);
             
-            [all_mess,id_from] = mf3.probe_all('all','log');
+            [all_mess,id_from] = mf3.probe_all('any','log');
             assertEqual(numel(all_mess),3);
             assertEqual(id_from(1),0);
             assertEqual(id_from(2),0);

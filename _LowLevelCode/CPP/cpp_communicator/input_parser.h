@@ -43,7 +43,7 @@ enum class ProbeInputs : int { // all input arguments for labProbe procedure
 enum class SendInputs : int { // all input arguments for send procedure
     mode_name,
     comm_ptr,
-    source_dest_id,
+    dest_id,
     tag,
     is_synchronous,
     head_data_buffer,
@@ -53,7 +53,7 @@ enum class SendInputs : int { // all input arguments for send procedure
 enum class ReceiveInputs : int { // all input arguments for receive procedure
     mode_name,
     comm_ptr,
-    source_dest_id,
+    source_id,
     tag,
     is_synchronous,
     N_INPUT_Arguments

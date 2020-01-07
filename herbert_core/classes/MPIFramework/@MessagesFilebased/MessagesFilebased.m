@@ -265,7 +265,7 @@ classdef MessagesFilebased < iMessagesFramework
                 is=false;
             end
             if ~is
-                mess = obj.probe_all('all','canceled');
+                mess = obj.probe_all('any','canceled');
                 if ~isempty(mess)
                     is = true;
                 end

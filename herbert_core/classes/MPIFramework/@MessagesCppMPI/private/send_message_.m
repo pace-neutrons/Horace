@@ -11,6 +11,11 @@ elseif isa(message,'aMessage')
 end
 % convert types into defined types to transfer to cpp_communicator
 is_blocking = logical(mess.is_blocking);
+if (task_id<1 || task_id > obj.numLabs)
+    error('MESSAGES_CPP_MPI:invalid_argument',...
+        'The message is directed to %d but can be only sent to workers in range [1:%d]',...
+        task_id,obj.numLabs);
+end
 
 task_id = uint32(task_id);
 tag =int32(mess.tag);

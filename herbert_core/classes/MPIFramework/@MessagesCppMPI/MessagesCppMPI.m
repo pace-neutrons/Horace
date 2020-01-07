@@ -146,13 +146,13 @@ classdef MessagesCppMPI < iMessagesFramework
             % if no messages are present in the system
             % all_messages_names and task_ids are empty
             %
-            [all_messages_names,task_ids] = list_all_messages_(obj,varargin{:});
+            [all_messages_names,task_ids] = labprobe_all_messages_(obj,varargin{:});
         end
         %
         function [all_messages,task_ids] = receive_all(obj,varargin)
             % retrieve (and remove from system) all messages
             % existing in the system for the tasks with id-s specified as input
-            % Blocks execution until the messages all messages are received.
+            % Blocks execution until all messages are received.
             %
             %
             %Input:
@@ -206,7 +206,7 @@ classdef MessagesCppMPI < iMessagesFramework
         
         function is = is_job_canceled(obj)
             % method verifies if job has been canceled
-            mess = obj.probe_all('all','canceled');
+            mess = obj.probe_all('any','canceled');
             if ~isempty(mess)
                 is = true;
             else

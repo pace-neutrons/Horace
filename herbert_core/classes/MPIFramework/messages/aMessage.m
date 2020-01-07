@@ -73,6 +73,24 @@ classdef aMessage
             % implementation of operator ~= for aMessage class
             not = ~equal_to_tol(obj,b);
         end
+        function ln = saveobj(obj)
+            % Define information, necessary for message serialization
+            ser_struc = struct('mess_name',class(obj),...
+                'is_blocking',obj.is_blocking_,...
+                'payload',obj.payload_);
+            ln = hlp_serialize(ser_struc);
+        end
+    end
+    methods(Static)
+        function obj = loadobj(ls)
+            % Define information, necessary for message de-serialization
+            
+            ser_struc = hlp_deserialize(ls);
+            obj = feval(ser_struc.mess_name);
+            obj.is_blocking_ = ser_struc.is_blocking;
+            obj.payload_ = ser_struc.payload;
+        end
+        
     end
     methods(Access=protected)
         function pl = get_payload(obj)

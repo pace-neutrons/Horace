@@ -14,7 +14,7 @@ end
 if ~exist('task_ids','var')
     task_ids = [];
 end
-if isempty(task_ids) || (ischar(task_ids) && strcmpi(task_ids,'all'))
+if isempty(task_ids) || (ischar(task_ids) && strcmpi(task_ids,'any'))
     task_ids = 1:n_labs;
 end
 
@@ -22,7 +22,7 @@ lock_until_received = true;
 if ~exist('mess_name','var')
     mess_name = '';
 end
-if isempty(mess_name) || strcmp(mess_name,'all')
+if isempty(mess_name) || strcmp(mess_name,'any')
     lock_until_received = false;
 end
 

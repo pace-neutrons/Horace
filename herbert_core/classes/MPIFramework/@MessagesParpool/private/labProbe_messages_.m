@@ -16,7 +16,7 @@ if n_labs == 1
     task_ids_from = [];
     return;
 end
-if isempty(task_nums) || (ischar(task_nums) && strcmpi(task_nums,'all'))
+if isempty(task_nums) || (ischar(task_nums) && strcmpi(task_nums,'any'))
     task_nums = 1:n_labs;
 end
 % check if specific message name is requested

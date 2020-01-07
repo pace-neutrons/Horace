@@ -22,9 +22,12 @@ classdef MESS_NAMES
     properties(Constant,Access=private)
         % define list of the messages, known to the factory.
         mess_names_ = ...
-            {'all','failed','pending','queued','init',...
+            {'any','failed','pending','queued','init',...
             'starting','started','log',...
             'barrier','data','canceled','completed'};
+        % define job status messages, which should be processed within the
+        % same queue, and have common tag.
+        %log_messages_ = {'failed','log','canceled','completed'};
     end
     
     methods(Static)
@@ -176,10 +179,12 @@ classdef MESS_NAMES
             [~,blocking] = MESS_NAMES.mess_factory();
             name2code_map = MESS_NAMES.name_tag_maps();
             if iscell(mess_name)
-                ids = cellfun(@(x)(name2code_map(x)+1),mess_name,'UniformOutput',true);
+                ids = cellfun(@(x)(name2code_map(x)+2),mess_name,'UniformOutput',true);
                 is = blocking(ids);
+            elseif isnumeric(mess_name)
+                is = blocking(mess_name+2);
             else
-                id = name2code_map(mess_name)+1;
+                id = name2code_map(mess_name)+2;
                 is = blocking(id);
             end
         end

@@ -262,7 +262,7 @@ classdef JobExecutor
         function is = is_job_canceled(obj)
             is = obj.control_node_exch_.is_job_canceled();
             if ~is
-                [mess,tids] = obj.mess_framework_.probe_all('all','canceled');
+                [mess,tids] = obj.mess_framework_.probe_all('any','canceled');
                 if ~isempty(mess)
                     is = true;
                     % discard message(s)

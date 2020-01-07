@@ -49,7 +49,7 @@ classdef test_CPP_MPI_exchange< TestCase
             
             
         end
-        function test_SendProbeReceive(obj)
+        function test_SendReceive(obj)
             % Test communications in test mode
             if isempty(which('cpp_communicator'))
                 return
@@ -65,21 +65,141 @@ classdef test_CPP_MPI_exchange< TestCase
             assertEqual(ok,MESS_CODES.ok);
             assertTrue(isempty(err_mess));
             
-            [mess_names,source_id_s] = mf.probe_all('all','all');
+            [ok,err_mess,messR]  = mf.receive_message(5,mess.mess_name);
+            assertEqual(ok,MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            assertEqual(mess,messR);
+            
+            [ok,err_mess,messR]  = mf.receive_message(5,mess.mess_name);
+            assertEqual(ok,MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            assertTrue(isempty(messR));
+            
+            % blocking receive in test node is not alowed
+            [ok,err_mess,messR] = mf.receive_message(5,'init');
+            assertEqual(ok,MESS_CODES.a_recieve_error);
+            assertTrue(isempty(messR));
+            assertEqual(err_mess,'Synchronized wating in test mode is not alowed');
+            
+            
+            [ok,err_mess]  = mf.send_message(4,mess);
+            assertEqual(ok,MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            
+            [ok,err_mess,messR]  = mf.receive_message(5,'any');
+            assertEqual(ok,MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            assertTrue(isempty(messR));
+            
+            [ok,err_mess,messR]  = mf.receive_message(4,'any');
+            assertEqual(ok,MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            assertEqual(mess,messR);
+            
+            [ok,err_mess]  = mf.send_message(6,mess);
+            assertEqual(ok,MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            
+            [ok,err_mess,messR]  = mf.receive_message('any','any');
+            assertEqual(ok,MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            assertEqual(mess,messR);
+        end
+        function test_OutOfRange(obj)
+            % Test communications in test mode
+            if isempty(which('cpp_communicator'))
+                return
+            end
+            % only 10 pseudo-workers are defined here.
+            mf = MessagesCppMPI_tester();
+            clob = onCleanup(@()(finalize_all(mf)));
+            mess = LogMessage(1,10,1,[]);
+            assertEqual(mf.labIndex,uint64(1));
+            assertEqual(mf.numLabs,uint64(10));
+            
+            
+            f = @()send_message(mf,0,mess);
+            assertExceptionThrown(f,'MESSAGES_CPP_MPI:invalid_argument')
+            
+            f = @()send_message(mf,11,mess);
+            assertExceptionThrown(f,'MESSAGES_CPP_MPI:invalid_argument')
+            
+            f = @()receive_message(mf,0,mess.mess_name);
+            assertExceptionThrown(f,'MESSAGES_CPP_MPI:invalid_argument')
+            
+            f = @()receive_message(mf,11,mess.mess_name);
+            assertExceptionThrown(f,'MESSAGES_CPP_MPI:invalid_argument')
+            
+        end
+        %
+        function test_Send3Receive1Asynch(obj)
+            % Test communications in test mode
+            if isempty(which('cpp_communicator'))
+                return
+            end
+            mf = MessagesCppMPI_tester();
+            clob = onCleanup(@()(finalize_all(mf)));
+            
+            assertEqual(mf.labIndex,uint64(1));
+            assertEqual(mf.numLabs,uint64(10));
+            
+            mess = LogMessage(1,10,1,[]);
+            [ok,err_mess]  = mf.send_message(5,mess);
+            assertEqual(ok,MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            mess = LogMessage(2,10,3,[]);
+            [ok,err_mess]  = mf.send_message(5,mess);
+            assertEqual(ok,MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            
+            mess = LogMessage(3,10,5,[]);
+            [ok,err_mess]  = mf.send_message(5,mess);
+            assertEqual(ok,MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            
+            [ok,err_mess,messR]  = mf.receive_message(5,mess.mess_name);
+            assertEqual(ok,MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            
+            assertEqual(mess,messR);
+            
+            [mess_names,source_id_s] = mf.probe_all(5,'any');
+            assertTrue(isempty(mess_names));
+            assertTrue(isempty(source_id_s));
+            
+        end
+        %
+        function test_SendProbe(obj)
+            % Test communications in test mode
+            if isempty(which('cpp_communicator'))
+                return
+            end
+            mf = MessagesCppMPI_tester();
+            clob = onCleanup(@()(finalize_all(mf)));
+            
+            assertEqual(mf.labIndex,uint64(1));
+            assertEqual(mf.numLabs,uint64(10));
+            
+            mess = LogMessage(1,10,1,[]);
+            [ok,err_mess]  = mf.send_message(5,mess);
+            assertEqual(ok,MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            
+            [mess_names,source_id_s] = mf.probe_all('any','any');
             assertEqual(numel(mess_names),1);
             assertEqual(numel(source_id_s),1);
             assertEqual(source_id_s(1),int32(5));
             assertEqual(mess_names{1},mess.mess_name);
-
+            
             [ok,err_mess]  = mf.send_message(7,mess);
             assertEqual(ok,MESS_CODES.ok);
             assertTrue(isempty(err_mess));
-
-            [mess_names,source_id_s] = mf.probe_all('all','all');
+            
+            [mess_names,source_id_s] = mf.probe_all('any','any');
             assertEqual(numel(mess_names),2);
             assertEqual(numel(source_id_s),2);
             assertEqual(source_id_s(1),int32(5));
-            assertEqual(source_id_s(1),int32(7));            
+            assertEqual(source_id_s(1),int32(7));
             assertEqual(mess_names{1},mess.mess_name);
             
         end
@@ -98,8 +218,6 @@ classdef test_CPP_MPI_exchange< TestCase
             assertEqual(labNum,uint64(1));
             assertEqual(nLabs,uint64(1));
             
-            %             mess = LogMessage(1,10,1,[]);
-            %             [ok,err_mess]  = mf.send_message(1,mess);
         end
         
         
