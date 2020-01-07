@@ -13,17 +13,7 @@ classdef test_job_dispatcher_mpiexec < job_dispatcher_common_tests
             end
             this = this@job_dispatcher_common_tests(name,'mpiexec_mpi');
         end
-        %
-        function test_job_fail_restart(obj,varargin)
-            % Empty until mpi exchange is written
-        end
-        function test_job_with_logs_2workers(obj,varargin)
-            % Empty until mpi exchange is written
-        end
-        function test_job_with_logs_3workers(obj,varargin)
-            % Empty until mpi exchange is written
-        end
-        
+        %        
     end
 end
 

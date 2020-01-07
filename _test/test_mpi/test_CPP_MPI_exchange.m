@@ -211,7 +211,7 @@ classdef test_CPP_MPI_exchange< TestCase
             assertEqual(numel(mess_names),2);
             assertEqual(numel(source_id_s),2);
             assertEqual(source_id_s(1),int32(5));
-            assertEqual(source_id_s(1),int32(7));
+            assertEqual(source_id_s(2),int32(7));
             assertEqual(mess_names{1},mess.mess_name);
             
         end

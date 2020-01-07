@@ -3,7 +3,7 @@ function   [all_messages,tid_received_from] = receive_all_messages_(obj,task_ids
 % all messages, intended for this lab.
 %
 if ~exist('task_ids','var') || (ischar(task_ids) && strcmpi(task_ids,'any'))
-    task_ids = 1:obj.numLabs;
+    task_ids = int32(1:obj.numLabs);
 end
 this_tid = task_ids == obj.labIndex;
 if any(this_tid)

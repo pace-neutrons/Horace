@@ -22,7 +22,7 @@ exit_at_the_end = true;
 if isempty(which('herbert_init.m'))
     horace_on();
 end
-DO_LOGGING = true;
+DO_LOGGING = false;
 
 
 % Check current state of mpi framework and set up deployment status
@@ -92,7 +92,7 @@ while keep_worker_running
     %----------------------------------------------------------------------
     % 2) step 2 of the worker initialization.
     %----------------------------------------------------------------------
-
+    
     %
     if DO_LOGGING
         fprintf(fh,'entered worker loop\n');
@@ -100,7 +100,7 @@ while keep_worker_running
     end
     [ok,err,mess]= fbMPI.receive_message(0,'starting');
     %fprintf(fh,'got "starting" message\n');
-    if ok ~= MESS_CODES.ok        
+    if ok ~= MESS_CODES.ok
         err_mess = sprintf('job N%s failed while receive_je_info Error: %s:',...
             control_struct.job_id,err);
         mess = FailedMessage(err_mess);
@@ -203,7 +203,7 @@ while keep_worker_running
                     fprintf(fh,'Waiting at barrier for all do_job completion\n');
                     disp('WORKER_4TESTS: Waiting at barrier for all do_job completion ')
                 end
-
+                
                 
                 % when not tested, the synchronization is mandatory
                 je.labBarrier(false); % Wait until all workers finish their
@@ -228,6 +228,13 @@ while keep_worker_running
         if DO_LOGGING
             fprintf(fh,'je exception caught, Message: %s, ID: %s\n',...
                 ME.message,ME.identifier);
+            ss =numel(ME.stack);
+            for i=1:ss
+                fprintf(fh,'%s\n',ME.stack(i).file);
+                fprintf(fh,'%s\n',ME.stack(i).name);
+                fprintf(fh,'%s\n',num2str(ME.stack(i).line));
+                fprintf(fh,'%s\n','***************************');
+            end
             disp(['WORKER_4TESTS: processing failure: ',ME.identifier])
         end
         try

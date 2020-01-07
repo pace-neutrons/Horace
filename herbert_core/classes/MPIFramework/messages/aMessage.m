@@ -78,12 +78,11 @@ classdef aMessage
             cln = class(obj);
             if (strcmp(cln,'aMessage'))
                 ser_struc = struct('mess_name',obj.mess_name_,...
-                    'is_blocking',obj.is_blocking_,...
-                    'payload',obj.payload_);
+                    'is_blocking',obj.is_blocking_);
             else
-                ser_struc = struct('class_name',cln,...
-                    'payload',obj.payload_);
+                ser_struc = struct('class_name',cln);
             end
+            ser_struc.payload = obj.payload_;
             ln = hlp_serialize(ser_struc);
         end
     end
