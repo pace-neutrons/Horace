@@ -427,6 +427,23 @@ TEST(TestCPPCommunicator, receive_sequence_ignore_same_tag) {
     pAddress = reinterpret_cast<int32_t*>(mxGetData(addrOut));
     ASSERT_EQ(pAddress[0], 5);
     ASSERT_EQ(pAddress[1], 2);
+}
+TEST(TestCPPCommunicator, clear_all) {
+    MPI_wrapper::MPI_wrapper_gtested = true;
+
+    auto wrap = MPI_wrapper();
+    wrap.init(true, 4, 10);
+    ASSERT_TRUE(wrap.isTested);
+
+    std::vector<uint8_t> test_mess;
+    test_mess.assign(10, 1);
+
+    wrap.labSend(5, 2, false, &test_mess[0], test_mess.size());
+    wrap.labSend(6, 2, false, &test_mess[0], test_mess.size());
+    ASSERT_EQ(2, wrap.assync_queue_len());
+
+    wrap.clearAll();
+    ASSERT_EQ(0, wrap.assync_queue_len());
 
 }
 

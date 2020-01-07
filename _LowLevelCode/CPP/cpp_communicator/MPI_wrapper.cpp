@@ -398,7 +398,7 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
         }
         else { // receive all subsequent messages of the same kind
             std::vector<char> Buf(message_size);
-            char* pBuff = &(Buf[0]);
+            void* pBuff = &Buf[0];
             auto err = MPI_Recv(pBuff, message_size, MPI_CHAR, source_address, source_data_tag, MPI_COMM_WORLD, &status);
             if (err != MPI_SUCCESS)throw_error("MPI_MEX_COMMUNICATOR:runtime_error",
                 "Error receiving message");
@@ -407,7 +407,7 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
             while (mess_exist & (status.MPI_TAG == source_data_tag)) {
                 MPI_Get_count(&status, MPI_CHAR, &message_size);
                 Buf.resize(message_size);
-                pBuff = &(Buf[0]);
+                pBuff = &Buf[0];
                 auto err = MPI_Recv(pBuff, message_size, MPI_CHAR, source_address, source_data_tag, MPI_COMM_WORLD, &status);
                 if (err != MPI_SUCCESS)throw_error("MPI_MEX_COMMUNICATOR:runtime_error",
                     "Error receiving message");
@@ -427,6 +427,32 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
     }
 
 
+}
+/** Receive and discard all messages, directed to this lab. In test mode clears all messages. */
+void MPI_wrapper::clearAll() {
+
+    if (this->isTested) {
+        this->SyncMessHolder.theRequest = 0;
+        this->assyncMessList.clear();
+    }
+    else {  // real receive
+        MPI_Status status;
+        int mess_exist, message_size;
+        std::vector <uint8_t> buf;
+        void* pBuf(nullptr);
+        MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &mess_exist, &status);
+        while (mess_exist) {
+            MPI_Get_count(&status, MPI_CHAR, &message_size);
+            buf.resize(message_size);
+            pBuf = &buf[0];
+            auto source_address = status.MPI_SOURCE;
+            auto source_data_tag = status.MPI_TAG;
+            MPI_Recv(pBuf, message_size, MPI_CHAR, source_address, source_data_tag, MPI_COMM_WORLD, &status);
+
+            MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &mess_exist, &status);
+
+        }
+    }
 }
 
 //

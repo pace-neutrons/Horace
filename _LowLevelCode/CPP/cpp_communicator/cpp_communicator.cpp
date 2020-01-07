@@ -67,9 +67,17 @@ Outputs:
   2     -- 2-elements array with address and tag of the first existing message present in the queue
            satisfying the requests or empty matrix if no message is present
 
+*** "clearAll"  -- receive and ignore all messages, intended for this worker
+  1  -- mode_name  -- the string 'clearAll', which identifies this mode
+  2  -- pointer to MPI initialized framework.
+Outputs: -- pointer to the intialized framework
+
+
 *** 'finalize'  Closes MPI framework and breaks all incomplete MPI communications. No further MPI communications
                 allowed after this operation.
-Inputs: -- Matlab_class_holder :: pointer to initialized C++ MPI framework wrapper used for interprocess communications
+Inputs: 
+ 1 --  mode_name           :: the string 'finalize' identifying the mode
+ 2 --  Matlab_class_holder :: pointer to initialized C++ MPI framework wrapper used for interprocess communications
 Outputs: -- empty matrix.
 
 *** 'labIndex' Queries the number of the current parallel worker and the size of the MPI pool
@@ -164,6 +172,9 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
             }
         }
         break;
+    }
+    case(clearAll): { // receive and discard all messages, directed to the framework
+        pCommunicatorHolder->class_ptr->clearAll();
     }
     case(close_mpi): {
         pCommunicatorHolder->clear_mex_locks();

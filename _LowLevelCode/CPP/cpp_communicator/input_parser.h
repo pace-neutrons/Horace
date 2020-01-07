@@ -14,23 +14,19 @@ enum input_types {
     labReceive,
     labProbe,
     labIndex,
-    labBarrier
+    labBarrier,
+    clearAll  // run labReceive until all existing messages received and discarded
 };
 
 // Enum various versions of input/output parameters, different for different kinds of input options
 // --------------   Inputs:
-enum class initIndexInputs : int {
+enum class InitInputs : int {
     mode_name,
     assynch_queue_len,
     data_mess_tag,
     N_INPUT_Arguments
 };
 
-enum class labIndexInputs : int {
-    mode_name,
-    comm_ptr,
-    N_INPUT_Arguments
-};
 
 enum class ProbeInputs : int { // all input arguments for labProbe procedure
     mode_name,
@@ -60,7 +56,7 @@ enum class ReceiveInputs : int { // all input arguments for receive procedure
 };
 
 
-enum class closeOrGetInfoInputs : int { // all input arguments for close IO procedure
+enum class CloseOrInfoInputs : int { // all input arguments for close IO procedure
     mode_name,
     comm_ptr,
 

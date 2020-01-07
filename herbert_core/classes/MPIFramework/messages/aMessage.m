@@ -75,9 +75,15 @@ classdef aMessage
         end
         function ln = saveobj(obj)
             % Define information, necessary for message serialization
-            ser_struc = struct('mess_name',class(obj),...
-                'is_blocking',obj.is_blocking_,...
-                'payload',obj.payload_);
+            cln = class(obj);
+            if (strcmp(cln,'aMessage'))
+                ser_struc = struct('mess_name',obj.mess_name_,...
+                    'is_blocking',obj.is_blocking_,...
+                    'payload',obj.payload_);
+            else
+                ser_struc = struct('class_name',cln,...
+                    'payload',obj.payload_);
+            end
             ln = hlp_serialize(ser_struc);
         end
     end
@@ -86,9 +92,20 @@ classdef aMessage
             % Define information, necessary for message de-serialization
             
             ser_struc = hlp_deserialize(ls);
-            obj = feval(ser_struc.mess_name);
-            obj.is_blocking_ = ser_struc.is_blocking;
-            obj.payload_ = ser_struc.payload;
+            if numel(ser_struc) >1
+                ss = ser_struc(1);
+                pp = {ser_struc(:).payload};
+            else
+                ss = ser_struc;
+                pp = ser_struc.payload;
+            end
+            if (isfield(ss,'mess_name'))
+                obj = aMessage(ss.mess_name);
+                obj.is_blocking_ = ss.is_blocking;
+            else
+                obj = feval(ss.class_name);
+            end
+            obj.payload_ = pp;
         end
         
     end

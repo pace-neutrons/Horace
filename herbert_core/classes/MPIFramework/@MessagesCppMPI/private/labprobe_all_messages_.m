@@ -1,4 +1,4 @@
-function [all_messages,mid_from] = list_all_messages_(obj,mess_addr_requested,mess_name_or_tag)
+function [all_messages,mid_from] = labprobe_all_messages_(obj,mess_addr_requested,mess_name_or_tag)
 % list all messages sent to this task and retrieve the names
 % for the lobs with id, provided as input.
 %

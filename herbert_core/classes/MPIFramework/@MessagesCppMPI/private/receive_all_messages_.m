@@ -1,6 +1,6 @@
 function   [all_messages,tid_received_from] = receive_all_messages_(obj,task_ids,mess_name)
 % retrieve all messages sent from jobs with id provided. if ids are empty,
-% all messages, intended for this job.
+% all messages, intended for this lab.
 %
 if ~exist('task_ids','var') || (ischar(task_ids) && strcmpi(task_ids,'any'))
     task_ids = 1:obj.numLabs;
@@ -14,7 +14,7 @@ end
 
 lock_until_received = true;
 if ~exist('mess_name','var')
-    mess_name = '';
+    mess_name = 'any';
 end
 if isempty(mess_name) || strcmp(mess_name,'any')
     lock_until_received = false;
@@ -31,7 +31,7 @@ all_messages = cell(n_requested ,1);
 mess_received = false(n_requested ,1);
 tid_received_from = zeros(n_requested ,1);
 
-[message_names,tid_from] = list_all_messages_(obj,task_ids,mess_name);
+[message_names,tid_from] = labprobe_all_messages_(obj,task_ids,mess_name);
 %[tid_from,im] = unique(tid_from);
 %message_names = message_names(im);
 present_now = ismember(task_ids,tid_from);
@@ -82,7 +82,7 @@ while ~all_received
                 error('FILEBASED_MESSAGES:runtime_error',...
                     'Timeout waiting for receiving all messages')
             end
-            [message_names,tid_from] = list_all_messages_(obj,task_ids,mess_name);
+            [message_names,tid_from] = labprobe_all_messages_(obj,task_ids,mess_name);
             %[tid_from,im] = unique(tid_from);
             %message_names = message_names(im);
             present_now = ismember(task_ids,tid_from);

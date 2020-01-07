@@ -37,6 +37,7 @@ public:
     int init(bool isTested = false, int assynch_queue_max_len = 10, int data_mess_tag=5);
     void close();
     void barrier();
+    void clearAll();
     void labSend(int data_address, int data_tag, bool is_synchroneous, uint8_t* data_buffer, size_t nbytes_to_transfer);
     void labProbe(const std::vector<int32_t> &data_address, const std::vector<int32_t> &data_tag, 
         std::vector<int32_t> & addres_present, std::vector<int32_t> & tag_present);

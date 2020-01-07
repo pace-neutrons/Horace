@@ -179,14 +179,10 @@ classdef MessagesCppMPI < iMessagesFramework
             obj.numLabs_ = 0;
         end
         function clear_messages(obj)
-            % just run finalize -- all MPI messages will be invalidated
-            try
-                cpp_communicator('finalize',obj.mpi_framework_holder_);
-            catch ME
-                if ~strcmpi(ME.identifier,'MPI_MEX_COMMUNICATOR:runtime_error') % already finalized
-                    rethrow(ME);
-                end
-            end
+            % receive and discard all MPI messages directed to this
+            % workeer
+            obj.mpi_framework_holder_= ...
+                cpp_communicator('clearAll',obj.mpi_framework_holder_);
         end
         %
         function [ok,err]=labBarrier(obj,varargin)

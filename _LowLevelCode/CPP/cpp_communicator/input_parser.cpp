@@ -112,10 +112,10 @@ class_handle<MPI_wrapper>* process_init_mode(const char* ModeName, const mxArray
     }
     class_handle<MPI_wrapper>* pCommunicator = new class_handle<MPI_wrapper>();
     if (nrhs == 2) {
-        AddPar.assynch_queue_length = (int)retrieve_value<double>(ModeName, prhs[(int)initIndexInputs::assynch_queue_len]);
+        AddPar.assynch_queue_length = (int)retrieve_value<double>(ModeName, prhs[(int)InitInputs::assynch_queue_len]);
     }
     if (nrhs == 3) {
-        AddPar.data_message_tag = (int)retrieve_value<double>(ModeName, prhs[(int)initIndexInputs::data_mess_tag]);
+        AddPar.data_message_tag = (int)retrieve_value<double>(ModeName, prhs[(int)InitInputs::data_mess_tag]);
     }
 
     return pCommunicator;
@@ -151,7 +151,7 @@ class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray* prhs[
 
     // get correct file name and the group name
     std::string mex_mode;
-    retrieve_string(prhs[(int)labIndexInputs::mode_name], mex_mode, "MPI mode description");
+    retrieve_string(prhs[0], mex_mode, "MPI mode description");
 
     if (mex_mode.compare("labReceive") == 0) {
         if (nrhs < (int)ReceiveInputs::N_INPUT_Arguments) {
@@ -227,9 +227,12 @@ class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray* prhs[
     else if (mex_mode.compare("finalize") == 0) {
         work_mode = close_mpi;
         /* do not throw on finalize second time if the framework had been already finalized*/
-        class_handle<MPI_wrapper>* pCommunicator = get_handler_fromMatlab<MPI_wrapper>(prhs[(int)labIndexInputs::comm_ptr], false);
+        class_handle<MPI_wrapper>* pCommunicator = get_handler_fromMatlab<MPI_wrapper>(prhs[(int)CloseOrInfoInputs::comm_ptr], false);
 
         return pCommunicator;
+    }
+    else if(mex_mode.compare("clearAll") == 0){
+
     }
     else {
         std::stringstream err;
@@ -241,8 +244,8 @@ class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray* prhs[
             "MPI communicator needs at least one argument to return the instance of the communicatir");
     }
 
-    // get handlder from Matlab
-    class_handle<MPI_wrapper>* pCommunicator = get_handler_fromMatlab<MPI_wrapper>(prhs[(int)labIndexInputs::comm_ptr]);
+    // get handlder from Matlab. Throw if a problem
+    class_handle<MPI_wrapper>* pCommunicator = get_handler_fromMatlab<MPI_wrapper>(prhs[(int)CloseOrInfoInputs::comm_ptr], true);
     return pCommunicator;
 
 }

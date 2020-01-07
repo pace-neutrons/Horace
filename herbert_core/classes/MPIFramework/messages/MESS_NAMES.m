@@ -50,17 +50,7 @@ classdef MESS_NAMES
                 all_mess_list = cell(1,n_known_messages);
                 for i=1:n_known_messages
                     m_name = MESS_NAMES.mess_names_{i};
-                    try
-                        clName= [upper(m_name(1)),m_name(2:end),'Message'];
-                        cl = feval(clName);
-                    catch ME
-                        if strcmpi('MATLAB:UndefinedFunction',ME.identifier)
-                            cl = aMessage(m_name);
-                        else
-                            all_mess_list=[];
-                            rethrow(ME);
-                        end
-                    end
+                    [~,cl] = MESS_NAMES.mess_class_name(m_name);
                     all_mess_list{i} = cl;
                 end
                 is_mess_blocking = cellfun(@(x)(x.is_blocking),all_mess_list,...
@@ -68,6 +58,26 @@ classdef MESS_NAMES
             end
             mess_list = all_mess_list;
             is_blocking= is_mess_blocking;
+            
+        end
+        %
+        function [clName,mess_class] = mess_class_name(a_name)
+            % build the name of the class, corresponding to the message
+            % provided and instantiate this message class.
+            %
+            % if the class does not exist, return the name of the parent
+            % class (aMessage) and initate aMessage with given message name
+            
+            try
+                clName= [upper(a_name(1)),a_name(2:end),'Message'];
+                mess_class = feval(clName);
+            catch ME
+                if strcmpi('MATLAB:UndefinedFunction',ME.identifier)
+                    mess_class = aMessage(a_name);
+                else
+                    rethrow(ME);
+                end
+            end
             
         end
         %
