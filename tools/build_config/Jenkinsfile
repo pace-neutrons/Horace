@@ -21,7 +21,6 @@ def post_github_status(String state, String message) {
  *   MATLAB_VERSION
  *   GCC_VERSION
  *   OPEN_MPI_VERSION
- *   BUILD_FORTRAN
 */
 pipeline {
     agent {
@@ -43,7 +42,7 @@ pipeline {
                     module load matlab/\$MATLAB_VERSION &&
                     module load gcc/\$GCC_VERSION &&
                     module load openmpi/\$OPEN_MPI_VERSION &&
-                    ./tools/build_config/build.sh --print_versions --build --build_fortran \$BUILD_FORTRAN
+                    ./tools/build_config/build.sh --print_versions --build
                 '''
             }
         }
