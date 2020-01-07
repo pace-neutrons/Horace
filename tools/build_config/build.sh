@@ -39,7 +39,7 @@ function run_configure() {
   cmake_cmd+=" -DMatlab_ROOT_DIR=${MATLAB_ROOT}"
   cmake_cmd+=" -DCMAKE_BUILD_TYPE=${build_config}"
   cmake_cmd+=" -DBUILD_TESTS=${build_tests}"
-  cmake_cmd+=" -BUILD_FORTRAN=${build_fortran}"
+  cmake_cmd+=" -DBUILD_FORTRAN=${build_fortran}"
 
   echo -e "\nRunning CMake configure step..."
   echo_and_run "cd ${build_dir}"
