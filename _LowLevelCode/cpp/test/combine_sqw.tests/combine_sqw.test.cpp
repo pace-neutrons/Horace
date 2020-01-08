@@ -50,7 +50,7 @@ protected:
 
   // Called once, before the first test is executed.
   static void SetUpTestSuite() {
-    auto HORACE_ROOT{
+    std::string HORACE_ROOT {
         Environment::get_env_variable(Environment::HORACE_ROOT, ".")};
     test_file_name = HORACE_ROOT + "/_test/test_symmetrisation/w3d_sqw.sqw";
     num_bin_in_file = 472392;
