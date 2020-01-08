@@ -15,9 +15,9 @@ if verLessThan('matlab','8.4')
     xd(4:9:end)=xd(1:9:end);xd(5:9:end)=xd(1:9:end);
     xd(7:9:end)=xd(1:9:end);xd(8:9:end)=xd(1:9:end);
     set(c(2),'XData',xd)
-else
+elseif verLessThan('matlab',9.1)
     % TODO! Should be better way of doing this, but it is currently unclear
-    % how to set errorbar cap lengths to zero for Matlab V>=2014b in any
+    % how to set errorbar cap lengths to zero for Matlab 2016b>V>=2014b in any
     % other way.
     h=plot(x,signal,'Color',color,...
         'LineStyle',linestyle,'LineWidth',linewidth,...
@@ -40,5 +40,9 @@ else
     if ~hold_state
         hold 'off'
     end
+else
+    % Optional named value 'CapSize' introduced in MATLAB 2016b (v9.1)
+    h = errorbar(x,signal,error,'Color',color,'LineStyle',linestyle,...
+            'Marker',marker_type,'MarkerSize',marker_size,'CapSize',0);
 end
 
