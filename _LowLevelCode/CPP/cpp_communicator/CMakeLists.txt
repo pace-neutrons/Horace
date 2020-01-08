@@ -11,7 +11,7 @@ set(HDR_FILES
 )
 
 set(MEX_NAME "cpp_communicator")
-matlab_add_mex(
+herbert_add_mex(
     NAME "${MEX_NAME}"
     SRC "${SRC_FILES}" "${HDR_FILES}"
 )
