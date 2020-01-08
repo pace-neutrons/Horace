@@ -15,4 +15,5 @@ herbert_add_mex(
     NAME "${MEX_NAME}"
     SRC "${SRC_FILES}" "${HDR_FILES}"
 )
-target_link_libraries("${MEX_NAME}" MPI::MPI_CXX)
+target_include_directories("${MEX_NAME}" PRIVATE "${MPI_CXX_INCLUDE_PATH}")
+target_link_libraries("${MEX_NAME}" "${MPI_CXX_LIBRARIES}")
