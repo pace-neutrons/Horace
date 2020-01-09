@@ -21,11 +21,26 @@ set(FILE_NAMES
 )
 
 foreach(_file_name ${FILE_NAMES})
-    string(REPLACE "_fortran" "" _base_name ${_file_name})
+    string(REPLACE "_fortran" "" _base_name "${_file_name}")
     set(_mex_name "${_base_name}_mex")
-    herbert_add_mex(
-        NAME "${_mex_name}"
-        SRC "${_file_name}.F"
+    set(_outfile_name "${_mex_name}.${Matlab_MEX_EXTENSION}")
+    set(_outdir "${CMAKE_SOURCE_DIR}/herbert_core/DLL")
+    set(_outfile "${_outdir}/${_outfile_name}")
+
+    add_custom_command(
+        OUTPUT ${_outfile}
+        COMMAND ${Matlab_MEX_COMPILER}
+            "${CMAKE_CURRENT_LIST_DIR}/${_file_name}.F"
+            "$<TARGET_FILE:${HERBERT_FORTRAN_LIB}>"
+            -outdir "${_outdir}"
+            -output "${_mex_name}"
+            -compatibleArrayDims
+            FFLAGS='$$FFLAGS -ffixed-line-length-132'
+        DEPENDS
+            "${_file_name}.F"
+            "$<TARGET_FILE:${HERBERT_FORTRAN_LIB}>"
+        COMMENT "Building Fortran mex library ${_outfile_name}"
     )
-    target_link_libraries("${_mex_name}" "${HERBERT_FORTRAN_LIB}")
+    add_custom_target(${_mex_name} ALL DEPENDS ${_outfile})
+
 endforeach()

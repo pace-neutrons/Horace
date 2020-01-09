@@ -21,7 +21,7 @@ See the FindMatlab.cmake documentation for other variables defined by this
 module. You'll find the file bundled with your CMake installation.
 
 #]=======================================================================]
-find_package(Matlab REQUIRED COMPONENTS MAIN_PROGRAM)
+find_package(Matlab REQUIRED COMPONENTS MAIN_PROGRAM MEX_COMPILER)
 get_filename_component(Matlab_LIBRARY_DIR "${Matlab_MEX_LIBRARY}" DIRECTORY)
 get_filename_component(Matlab_BIN_DIR "${Matlab_MAIN_PROGRAM}" DIRECTORY)
 
