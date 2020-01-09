@@ -5,8 +5,7 @@ function mess_array = serialize_MException_(theException)
 % posess the requested properties. This is why this helper routine is
 % necessary
 %
-
-
+%
 strct = build_mex_stuct(theException);
 mess_array = hlp_serialize(strct);
 

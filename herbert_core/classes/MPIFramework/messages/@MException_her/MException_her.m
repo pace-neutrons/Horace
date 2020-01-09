@@ -1,25 +1,30 @@
 classdef MException_her < MException
-    %class define MException, recovered/prepared from serialization
+    %class define MException, recovered/prepared from/to custom serialization
+    %
+    %
     properties
+        % holder for stack variable, which can not be set up on MException
+        % class.
         stack_r=struct([]);
     end
     
     methods
         function obj = MException_her(anInput,message,stack)
+            % Custom MException constructor
             if isa(anInput,'MException') || isstruct(anInput)
                 if isa(anInput,'MException_her')  % Copy constructor
                     identifier = anInput.identifier;
                     message    = anInput.message;
                     stack      = anInput.stack_r;
-                else
+                else % restore from MExeption or recovered structure
                     identifier = anInput.identifier;
                     message    = anInput.message;
                     if isfield(anInput,'stack') || isprop(anInput,'stack')
                         stack      = anInput.stack;
                     end
                 end
-            elseif ischar(anInput)
-                identifier= anInput; % all other arguments have to be present
+            elseif ischar(anInput)  % use MException form
+                identifier= anInput; % message also have to be present.
             end
             obj = obj@MException(identifier,message);
             if exist('stack','var') && ~isempty(stack)
@@ -33,7 +38,7 @@ classdef MException_her < MException
                         if isfield(cs,'stack')
                             cs = MException_her(cs);
                         else
-                           cs = MException(cs.identifier,cs.message);
+                            cs = MException(cs.identifier,cs.message);
                         end
                     end
                     obj = obj.addCause(cs);
@@ -42,11 +47,13 @@ classdef MException_her < MException
             end
         end
         function bytes = saveobj(obj)
+            % overload, giving access to custom saveobj
             bytes = serialize_MException_(obj);
         end
     end
     methods(Static)
         function me = loadobj(bytes)
+            % overload, giving access to custom loadobj
             mes = hlp_deserialize(bytes);
             me = MException_her(mes);
         end

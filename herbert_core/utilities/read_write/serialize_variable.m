@@ -20,7 +20,7 @@ function byte_buf=serialize_variable(var,byte_buf)
 % data access routines to be used to read the file. Normally just
 % use the built-in Matlab load and save routines.
 
-class_name = class(var);
+type = class(var);
 
 if numel(byte_buf) ==0
     byte_buf = cell(1,1); 

@@ -87,14 +87,15 @@ classdef aMessage
             else
                 ser_struc = struct('class_name',cln);
             end
-            ser_struc.payload = obj.payload_;
+            ser_struc.payload = parce_payload_(obj.payload_);
             ln = hlp_serialize(ser_struc);
         end
     end
     %
     methods(Static)
         function obj = loadobj(ls)
-            % Define information, necessary for message de-serialization
+            % Retrieve message object from sequnce of bytes
+            % produced by saveobj method. 
             
             ser_struc = hlp_deserialize(ls);
             if numel(ser_struc) >1
