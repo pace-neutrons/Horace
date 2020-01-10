@@ -13,6 +13,7 @@ classdef test_CPP_MPI_exchange< TestCase
             end
             obj = obj@TestCase(name);
         end
+        %
         function test_JobExecutor(obj)
             if isempty(which('cpp_communicator'))
                 return
@@ -59,8 +60,58 @@ classdef test_CPP_MPI_exchange< TestCase
             assertTrue(isempty(message.payload{1}));
             assertEqual(message.payload{2},'a');
             assertEqual(message.payload{3},'b');
+            %--------------------------------------------------------------
+            mess = LogMessage(0,10,1,'2');
+            [ok,err]=intercomm.send_message(2,mess);
+            assertEqual(ok,MESS_CODES.ok,['Error = ',err])
+            mess = LogMessage(1,10,1,'3');
+            [ok,err]=intercomm.send_message(3,mess);
+            assertEqual(ok,MESS_CODES.ok,['Error = ',err])
             
+            je.log_progress(1,9,2,'1');
+            
+            [ok,err_mess,message] = serverfbMPI.receive_message(1,'log');
+            assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
+            assertEqual(message.mess_name,'log');
+            assertEqual(numel(message.worker_logs),3);
+            assertTrue(iscell(message.worker_logs));
+            
+            mess = aMessage('completed');
+            mess.payload = 'Job 2 has been completed';
+            [ok,err]=intercomm.send_message(2,mess);
+            assertEqual(ok,MESS_CODES.ok,['Error = ',err])
+            mess = FailedMessage('Test Failure from Node 3');
+            [ok,err]=intercomm.send_message(3,mess);
+            assertEqual(ok,MESS_CODES.ok,['Error = ',err])
+            
+            
+            [ok,err_mess] = je.finish_task();
+            assertEqual(ok,true,['Error: ',err_mess]);
+            [ok,err_mess,message] = serverfbMPI.receive_message(1,'log');
+            assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
+            assertEqual(message.mess_name,'failed');
+            assertEqual(numel(message.payload),3);
         end
+        %
+        function test_receive_all_mess(this)
+            
+            intercomm = MessagesCppMPI_test3();
+            clob1 = onCleanup(@()(finalize_all(intercomm)));
+            
+            mess = LogMessage(0,10,1,'0');
+            % CPP_MPI messages in test mode are "reflected" from target node
+            [ok,err]=intercomm.send_message(2,mess);
+            assertEqual(ok,MESS_CODES.ok,['Error = ',err])
+            [ok,err]=intercomm.send_message(3,mess);
+            assertEqual(ok,MESS_CODES.ok,['Error = ',err])
+            
+            [all_mess,task_ids] = intercomm.receive_all('any','any');
+            assertEqual(numel(all_mess),2);
+            assertEqual(numel(task_ids),2);
+            assertEqual(task_ids,[2;3]);
+        end
+        
+        %
         function test_SendReceive(obj)
             % Test communications in test mode
             if isempty(which('cpp_communicator'))
@@ -117,6 +168,7 @@ classdef test_CPP_MPI_exchange< TestCase
             assertTrue(isempty(err_mess));
             assertEqual(mess,messR);
         end
+        %
         function test_OutOfRange(obj)
             % Test communications in test mode
             if isempty(which('cpp_communicator'))

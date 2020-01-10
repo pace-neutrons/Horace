@@ -12,6 +12,18 @@ classdef test_MESS_NAMES_factory< TestCase
             end
             obj = obj@TestCase(name);
         end
+        function test_persistent(obj)
+            is = MESS_NAMES.is_persistent('failed');
+            assertTrue(is);
+            
+            is = MESS_NAMES.is_persistent(0);
+            assertTrue(is);
+            
+            mess = aMessage('canceled');
+            is = MESS_NAMES.is_persistent(mess);
+            assertFalse(is);
+            
+        end
         function test_selection(obj)
             
             name = MESS_NAMES.mess_name(8);
@@ -35,14 +47,13 @@ classdef test_MESS_NAMES_factory< TestCase
             assertTrue(is);
             
             ids = MESS_NAMES.mess_id(names);
-            assertEqual(ids,selection);            
+            assertEqual(ids,selection);
             
             % failed message should have 0 id, as its hardcoded in
             % filebased messages
-            ids = MESS_NAMES.mess_id('failed');            
+            ids = MESS_NAMES.mess_id('failed');
             assertEqual(ids,0);
         end
-        
         function test_operations(obj)
             names = MESS_NAMES.get_all_names();
             [mess,is_blocking] = MESS_NAMES.mess_factory();
@@ -58,8 +69,12 @@ classdef test_MESS_NAMES_factory< TestCase
                 
                 assertEqual(mess{i}.mess_name,name);
                 assertEqual(mess{i}.is_blocking,is_blocking(i));
-                assertEqual(name2tag_map(name),i-1);
-                assertEqual(tag2name_map(i-1),name);
+                assertEqual(tag2name_map(i-2),name);
+                if MESS_NAMES.is_persistent(name)
+                    assertEqual(name2tag_map(name),0);
+                else
+                    assertEqual(name2tag_map(name),i-2);
+                end
             end
         end
     end

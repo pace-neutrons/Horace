@@ -12,7 +12,6 @@ classdef FailedMessage < aMessage
         exception
     end
     properties(Access = protected)
-        fail_text_ = '';
     end
     
     methods
@@ -38,13 +37,26 @@ classdef FailedMessage < aMessage
                 fail_text = ' Failed message without parameters';
             end
             
-            obj.fail_text_  = fail_text;
-            obj.payload     = error_exception;
+            obj.payload     = struct('fail_reason',fail_text,...
+                'error',error_exception);
         end
         
         function text = get.fail_text(obj)
-            text =obj.fail_text_;
+            if iscell(obj.payload_)
+                text =obj.payload_{1}.fail_reason;
+                
+            else
+                text =obj.payload_(1).fail_reason;
+            end
         end
+        function text = get.exception(obj)
+            if iscell(obj.payload_)
+                text =obj.payload_{1}.error;
+            else
+                text =obj.payload_(1).error;
+            end
+        end
+        
     end
 end
 

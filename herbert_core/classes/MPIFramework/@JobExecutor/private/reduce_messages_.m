@@ -44,7 +44,7 @@ end
 mf = obj.mess_framework;
 if isempty(mf) % something wrong, framework deleted
     ok = false;
-    fin_mess = FailedMessage('inter-worker MPI initialization error');
+    fin_mess = FailedMessage('inter-worker communications: Initialization error');
     return
 end
 
@@ -82,7 +82,7 @@ err = [];
 all_payload = cellfun(@(x)(x.payload),all_messages,'UniformOutput',false);
 if ~all_ok
     n_failed = sum(~ok);
-    err = sprintf('JobExecutorInit: %d workers have failed',...
+    err = sprintf('JobExecutor: %d workers have failed',...
         n_failed);
     fin_message = FailedMessage(err);
     %all_payload(~ok) = all_messages(~ok);

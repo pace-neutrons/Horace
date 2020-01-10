@@ -80,6 +80,10 @@ classdef aMessage
         end
         function ln = saveobj(obj)
             % Define information, necessary for message serialization
+            %
+            % Do not! modify to send tag instead of the name!
+            % -- some special messages have the same tags but different
+            %    names
             cln = class(obj);
             if (strcmp(cln,'aMessage'))
                 ser_struc = struct('mess_name',obj.mess_name_,...

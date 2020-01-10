@@ -32,6 +32,8 @@ classdef iMessagesFramework < handle
         % unblocking or failing. Does not work for some operations in some frameworks
         % (e.g. receive_message in mpi)
         time_to_fail_ = 1000; %(sec)
+        % make fail message persistent
+        persistent_fail_message_=[];
     end
     methods
         function obj = iMessagesFramework(varargin)
@@ -95,9 +97,56 @@ classdef iMessagesFramework < handle
                 cs = obj.build_worker_init(...
                     datapath,obj.job_id,intercom_name);
             end
-            
         end
         %
+        function check_set_persistent(obj,mess,source_address)
+            % check if the input message is a persistent message (the message
+            % describing a state of the source which persists until the
+            % current job is completed or aborted) and if the message is
+            % present store it in framework until the task is completed
+            % or aborted
+            check_set_persistent_(obj,mess,source_address);
+        end
+        %
+        function [mess,id_from] = check_get_persistent(obj,source_address)
+            % check if a message is a persistent message (the message
+            % describing a state of the source which persists until the
+            % current job is completed or aborted) and return these
+            % persistent messages.
+            % Input:
+            % source_address -- the array of addresses to check for sources
+            %                   of the persistent messages
+            % Returns:
+            % mess   -- cellarray of persisting messages returned from all
+            %           or some sources requested
+            %id_from -- array of the addresses which have previously
+            %           generated persistent messages, stored within the
+            %           framework
+            [mess,id_from] = check_get_persistent_(obj,source_address);
+        end
+        %
+        function [all_messages,mid_from] = add_persistent(obj,...
+                all_messages,mid_from,mes_addr_to_check)
+            % Helper method used to add persistent messages to the list
+            % of the messages, received from other labs.
+            %
+            % If both messages are received from the same worker, overide
+            % other message with the persistent message.
+            % Inputs:
+            % all_messages -- cellarray of messages to mix with persistent
+            %                 messages.
+            % mid_from     -- array of the workers id-s (labNums) where
+            %                 these messages can be receved.
+            % mes_addr_to_check -- array of labNums to check for presence
+            %                 of persistent messages
+            % Return:
+            % all_messages  -- cellarray of the all present message names,
+            %                  persistent and not
+            % mid_from      -- array of labNum-s sending these messages.
+            %
+            [all_messages,mid_from] = add_persistent_(obj,...
+                all_messages,mid_from,mes_addr_to_check);
+        end
     end
     
     methods(Static)
@@ -132,7 +181,7 @@ classdef iMessagesFramework < handle
             % test_mode -- if true, generates the structure, used to
             %              initialize CppMpi framework in test mode
             %              In this case, the messages is not
-            %              serizlised. Can be defined only if labID 
+            %              serizlised. Can be defined only if labID
             %              and numLabs are defined
             % Returns:
             % base64-coded and mappped to ASCII 128 symbols linear
@@ -140,7 +189,7 @@ classdef iMessagesFramework < handle
             % MPI worker operating with any Herbert cluster
             %
             % if test_mode is true, no encoding is performed and the
-            % 
+            %
             %
             cs = struct('data_path',path_to_data_exchange_folder,...
                 'job_id',jobID,...

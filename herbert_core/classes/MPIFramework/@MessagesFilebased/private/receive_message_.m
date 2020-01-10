@@ -29,6 +29,13 @@ message=[];
 [is,err_code,err_mess] = check_job_canceled(obj);
 if is ; return; end
 %
+message = obj.check_get_persistent(from_task_id);
+if ~isempty(message)
+    err_code  =MESS_CODES.ok;
+    err_mess=[];
+    return;
+end
+
 mess_folder = obj.mess_exchange_folder;
 mess_present= false;
 mess_receive_option = 'nolocked';
@@ -56,9 +63,9 @@ while ~mess_present
         % check if message is as requested
         if ~isempty(mess_name)
             % failed accepted even if not requested
-            tid_requested = ismember(mess_names,{mess_name,'failed'});
-            mid_from    = mid_from (tid_requested);
-            mess_names  = mess_names(tid_requested);
+            mid_requested = ismember(mess_names,{mess_name,'failed'});
+            mid_from    = mid_from (mid_requested);
+            mess_names  = mess_names(mid_requested);
         end
         if ~isempty(mid_from)
             mess_present = true;
@@ -91,11 +98,11 @@ end
 
 % take only the first message directed to this lab
 mess_fname = obj.job_stat_fname_(obj.labIndex,mess_names{1},mid_from(1));
-if strcmp(mess_names{1},'failed')
-    is_failed = true;
-else
-    is_failed = false;
-end
+% if strcmp(mess_names{1},'failed')
+%     is_failed = true;
+% else
+%     is_failed = false;
+% end
 %
 % safeguard against message start being written up
 % but have not finished yet when dispatcher asks for it
@@ -131,10 +138,12 @@ message = mesl.message;
 err_code  =MESS_CODES.ok;
 err_mess=[];
 
-if is_failed  % make failed message persistent
-    plo = unlock_(rlock_file);
-    return;
-end
+obj.check_set_persistent(message,mid_from(1));
+
+% if is_failed  % make failed message persistent
+%     plo = unlock_(rlock_file);
+%     return;
+% end
 
 %clear source_unlocker;
 % check if a message is from the data queue and we need to progress the data

@@ -214,10 +214,14 @@ classdef MessagesFilebased < iMessagesFramework
         function finalize_all(obj)
             % delete all messages belonging to this instance of messages
             % framework and delete the framework itself
+            obj.persistent_fail_message_ = [];
+   
             delete_job_(obj);
         end
         function clear_messages(obj)
             % Clear all messages directed to this lab.
+            obj.persistent_fail_message_ = [];
+            %
             finished = false;
             pause(0.5); % give time to complete possible IO operations
             while ~finished

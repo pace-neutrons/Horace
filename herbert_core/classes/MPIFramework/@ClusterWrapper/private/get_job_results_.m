@@ -25,6 +25,8 @@ if isa(x,'MException') || isa(x,'ParallelException')
 elseif iscell(x)
     is_fail = cellfun(@is_err,x,'UniformOutput',true);
     is = any(is_fail);
+elseif isstruct(x) && isfield(x,'error') && isa(x.error,'MException')
+    is = true;
 else
     is = false;    
 end

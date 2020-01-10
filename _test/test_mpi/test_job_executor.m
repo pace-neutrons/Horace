@@ -61,7 +61,6 @@ classdef test_job_executor< MPI_Test_Common
             assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
             
         end
-        
         %
         function test_worker_fails(obj)
             mis = MPI_State.instance();
@@ -126,8 +125,8 @@ classdef test_job_executor< MPI_Test_Common
             assertTrue(exist(file3,'file')==2);
             assertTrue(exist(file3a,'file')==2);
             
-            assertTrue(isa(message.payload{1},'MException'))
-            assertTrue(isa(message.payload{2},'MException'))
+            assertTrue(isa(message.payload{1}.error,'MException'))
+            assertTrue(isa(message.payload{2}.error,'MException'))
             assertEqual(message.payload{3},'Job 3 generated 2 files')
             %-------------------------------------------------------------
             % clear remaining from the previous job.
@@ -358,9 +357,9 @@ classdef test_job_executor< MPI_Test_Common
             % but in fact got 'failed'
             assertEqual(mess.mess_name,'failed');
             assertEqual(numel(mess.payload),3)
-            assertTrue(isa(mess.payload{1},'MException'));
-            assertTrue(isa(mess.payload{2},'MException'));
-            assertTrue(isa(mess.payload{3},'MException'));
+            assertTrue(isa(mess.payload{1}.error,'MException'));
+            assertTrue(isa(mess.payload{2}.error,'MException'));
+            assertTrue(isa(mess.payload{3}.error,'MException'));
             
             
             serverfbMPI.clear_messages();
@@ -399,9 +398,9 @@ classdef test_job_executor< MPI_Test_Common
             assertEqual(mess.mess_name,'failed');
             assertTrue(iscell(mess.payload));
             assertEqual(numel(mess.payload),3); % one job is presumably in log, though it does not matter any more
-            assertTrue(isa(mess.payload{1},'MException'));
-            assertTrue(isa(mess.payload{2},'MException'));
-            assertTrue(isa(mess.payload{3},'MException'));
+            assertTrue(isa(mess.payload{1}.error,'MException'));
+            assertTrue(isa(mess.payload{2}.error,'MException'));
+            assertTrue(isa(mess.payload{3}.error,'MException'));
             %assertTrue(isstruct(mess.payload{3}));
             
         end
@@ -437,6 +436,7 @@ classdef test_job_executor< MPI_Test_Common
             assertEqual(mess.mess_name,'completed');
             assertTrue(iscell(mess.payload));
             assertEqual(numel(mess.payload),3);
+            serverfbMPI.clear_messages();
             
             
             je3.finish_task();
@@ -564,7 +564,7 @@ classdef test_job_executor< MPI_Test_Common
             serverfbMPI.mess_exchange_folder = obj.working_dir;
             
             clob = onCleanup(@()finalize_all(serverfbMPI));
-            cf = config_store.instance().config_folder;
+            cf = config_store.instance.config_folder;
             function reset_config(cf)
                 config_store.instance('clear');
                 config_store.set_config_folder(cf);
@@ -588,12 +588,7 @@ classdef test_job_executor< MPI_Test_Common
             assertEqual(mess.mess_name,'completed');
         end
         %
-        function xest_init_mpiexec_mpi_fw(obj)
-            % this test runs (if no changes are done) but as MPI framework
-            % can be initialized only once in a thread (at least MS MPI),
-            % and any subsequend initializations ignore previous finalize and
-            % kills Matlab, this test is disabled for the time being
-            % run it manually only
+        function test_init_mpiexec_mpi_fw(obj)
             if isempty(which('cpp_communicator'))
                 warning('TEST_JOB_EXECUTOR:not_available',...
                     'MPI framework executable is not available. Not testing it')
@@ -603,16 +598,16 @@ classdef test_job_executor< MPI_Test_Common
             serverfbMPI.mess_exchange_folder = obj.working_dir;
             
             clob = onCleanup(@()finalize_all(serverfbMPI));
-            cf = config_store.instance().config_folder;
+            cf = config_store.instance.config_folder;
             function reset_config(cf)
                 config_store.instance('clear');
                 config_store.set_config_folder(cf);
             end
             clob1 = onCleanup(@()reset_config(cf));
             % generate control with different types of frameoworks.
-            css1= serverfbMPI.get_worker_init('MessagesCppMPI');
+            css1= serverfbMPI.get_worker_init('MessagesCppMPI_test3');
             
-            ok = finish_task_tester(css1);
+            ok = finish_task_tester(css1,3);
             assertTrue(ok);
             
             [ok,err,mess] = serverfbMPI.receive_message(1,'started');
@@ -629,7 +624,7 @@ classdef test_job_executor< MPI_Test_Common
             serverfbMPI.mess_exchange_folder = obj.working_dir;
             clob = onCleanup(@()finalize_all(serverfbMPI));
             
-            cf = config_store.instance().config_folder;
+            cf = config_store.instance.config_folder;
             function reset_config(cf)
                 config_store.instance('clear');
                 config_store.set_config_folder(cf);
@@ -664,7 +659,7 @@ classdef test_job_executor< MPI_Test_Common
             assertEqual(mess.mess_name,'started');
             %--------------------------------------------------------------
             % check job canceled
-            errm = MException('JOB_EXECUTOR:canceled','fake canceled message');
+            errm = MException('JOB_EXECUTOR:failed','fake error generated');
             je2.process_fail_state(errm,true);
             assertTrue(exist(fbMPIs{2}.mess_name(1,'failed'),'file')==2);
             try
@@ -682,10 +677,10 @@ classdef test_job_executor< MPI_Test_Common
             
             assertEqual(numel(mess.payload),2)
             pl = mess.payload;
-            assertTrue(isa(pl{1},'MException'))
-            assertTrue(isa(pl{2},'MException'))
+            assertTrue(isa(pl{1}.error,'MException'))
+            assertTrue(isa(pl{2}.error,'MException'))
             
-            assertEqual(pl{2}.message,'fake canceled message');
+            assertEqual(pl{2}.fail_reason,'Task N2 failed at jobExecutor: JETester. Reason: fake error generated');
             %--------------------------------------------------------------
             % Check custom code exception on the head node
             errm = MException('CUSTOM_CODE:failed','fake failed message');

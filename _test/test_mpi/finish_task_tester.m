@@ -1,4 +1,4 @@
-function ok=finish_task_tester(worker_controls_string)
+function ok=finish_task_tester(worker_controls_string,varargin)
 %Inputs:
 % worker_controls_string - the structure, containing information, necessary to
 %              initiate the job.
@@ -41,6 +41,12 @@ config_store.set_config_folder(config_exchange_folder);
 % Initialize the frameworks, responsible for communications within the
 % cluster and between the cluster and the headnode.
 [fbMPI,intercomm] = JobExecutor.init_frameworks(control_struct);
+if nargin>1
+    % simulate fake extra nodes who started in parallel with this one
+    for i=2:varargin{1}
+        intercomm.send_message(i,'started');
+    end
+end
 try
     % initiate file-based framework to exchange messages between head node and
     % the pool of workers
@@ -63,6 +69,12 @@ try
     % if je.labIndex ~= 1
     %     pause(0.5)
     % end
+    if nargin>1
+        % simulate fake extra nodes who completed before this one
+        for i=2:varargin{1}
+            intercomm.send_message(i,'completed');
+        end        
+    end
     ok=je.finish_task();
 catch ME
     intercomm.clear_messages();

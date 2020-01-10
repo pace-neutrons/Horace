@@ -22,12 +22,14 @@ classdef MESS_NAMES
     properties(Constant,Access=private)
         % define list of the messages, known to the factory.
         mess_names_ = ...
-            {'any','failed','pending','queued','init',...
+            {'any','completed','pending','queued','init',...
             'starting','started','log',...
-            'barrier','data','canceled','completed'};
-        % define job status messages, which should be processed within the
-        % same queue, and have common tag.
-        %log_messages_ = {'failed','log','canceled','completed'};
+            'barrier','data','canceled','failed'};
+        % define persistent messages, which should be retained until
+        % clearAll operation is performed for the communications with
+        % current source. These messages also have the same tag to be
+        % transparently received through MPI 
+        persistant_messages_ = {'completed','failed'};
     end
     
     methods(Static)
@@ -59,6 +61,21 @@ classdef MESS_NAMES
             mess_list = all_mess_list;
             is_blocking= is_mess_blocking;
             
+        end
+        %
+        function is = is_persistent(mess_or_name_or_tag)
+            % check if given message is a persistent message
+            if isa(mess_or_name_or_tag,'aMessage')
+                name = mess_or_name_or_tag.mess_name;
+            elseif ischar(mess_or_name_or_tag)
+                name = mess_or_name_or_tag;
+            elseif isnumeric(mess_or_name_or_tag)
+                name = MESS_NAMES.mess_name(mess_or_name_or_tag);
+            else
+                error('MESS_NAMES:invalid_argument',...
+                    ' unknown type of input argument')
+            end
+            is = ismember(name,MESS_NAMES.persistant_messages_);
         end
         %
         function [clName,mess_class] = mess_class_name(a_name)
@@ -97,6 +114,11 @@ classdef MESS_NAMES
                 mess_codes = num2cell(-1:numel(MESS_NAMES.mess_names_)-2);
                 name2code_map_ = containers.Map(MESS_NAMES.mess_names_,mess_codes);
                 code2name_map_ = containers.Map(mess_codes,MESS_NAMES.mess_names_);
+            end
+            common_tag = name2code_map_(MESS_NAMES.persistant_messages_{1});
+            for i=1:numel(MESS_NAMES.persistant_messages_)
+                pm = MESS_NAMES.persistant_messages_{i};
+                name2code_map_(pm) = common_tag;
             end
             name2tag_map = name2code_map_;
             tag2name_map = code2name_map_;

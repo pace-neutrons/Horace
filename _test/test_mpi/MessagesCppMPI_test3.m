@@ -12,6 +12,9 @@ classdef MessagesCppMPI_test3 < MessagesCppMPI
             obj.numLabs_ = uint64(3);
         end
         function  obj = init_framework(obj,framework_info)
+            if isstruct(framework_info)
+                framework_info.test_mode = true;
+            end
             obj = init_framework@MessagesCppMPI(obj,framework_info);
             obj.numLabs_ = uint64(3);
         end
