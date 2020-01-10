@@ -64,6 +64,7 @@ elseif isunix
 
 end
 
+is_jenkins_true = is_jenkins()
 if is_jenkins()
    pc_type = types{8};  % 'jenkins'
 end

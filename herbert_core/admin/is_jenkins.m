@@ -6,10 +6,11 @@ function [is_jenkins_pc] = is_jenkins()
 jenkins_env_vars = ['JENKINS_URL', 'JOB_URL', 'JENKINS_HOME'];
 
 for i = 1:length(jenkins_env_vars)
-   if isempty(getenv(jenkins_env_vars(i)))
-       is_jenkins_pc = false;
-       return;
-   end
+    env_var = getenv(jenkins_env_vars(i))
+    if isempty(getenv(jenkins_env_vars(i)))
+        is_jenkins_pc = false;
+        return;
+    end
 end
 is_jenkins_pc = true;
 
