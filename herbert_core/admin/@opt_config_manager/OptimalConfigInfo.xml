@@ -231,4 +231,37 @@
          <working_directory/>
       </parallel_config>
    </unix_large>
+   <jenkins>
+      <info>Settings for running on Jenkins build servers</info>
+      <herbert_config>
+         <use_mex>[true]</use_mex>
+         <use_mex_C>[true]</use_mex_C>
+         <force_mex_if_use_mex>[true]</force_mex_if_use_mex>
+         <log_level>1</log_level>
+         <init_tests>[true]</init_tests>
+      </herbert_config>
+      <hor_config>
+         <mem_chunk_size>20000000</mem_chunk_size>
+         <threads>8</threads>
+         <ignore_nan>[true]</ignore_nan>
+         <ignore_inf>[false]</ignore_inf>
+         <use_mex>[true]</use_mex>
+         <delete_tmp>[true]</delete_tmp>
+      </hor_config>
+      <hpc_config>
+         <build_sqw_in_parallel>[true]</build_sqw_in_parallel>
+         <parallel_workers_number>8</parallel_workers_number>
+         <combine_sqw_using>mex_code</combine_sqw_using>
+         <mex_combine_thread_mode>1</mex_combine_thread_mode>
+         <mex_combine_buffer_size>4096</mex_combine_buffer_size>
+      </hpc_config>
+      <parallel_config>
+         <worker>worker_v2</worker>
+         <parallel_framework>mpiexec_mpi</parallel_framework>
+         <cluster_config>default</cluster_config>
+         <shared_folder_on_local/>
+         <shared_folder_on_remote/>
+         <working_directory/>
+      </parallel_config>
+   </jenkins>
 </data_struct>
