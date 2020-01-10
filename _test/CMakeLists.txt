@@ -18,6 +18,8 @@ foreach(_test_dir ${TEST_DIRECTORIES})
         NAME "Matlab.${_test_dir}"
         CUSTOM_TEST_COMMAND
             "try;\
+                hc = herbert_config;\
+                hc.init_tests = true;\
                 res = runtests('${CMAKE_SOURCE_DIR}/_test/${_test_dir}');\
             catch ME;\
                 disp('Error caught attempting to run test:');\
