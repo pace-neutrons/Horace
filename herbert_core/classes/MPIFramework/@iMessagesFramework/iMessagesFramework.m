@@ -31,7 +31,7 @@ classdef iMessagesFramework < handle
         % time in seconds to waiting in blocking message until
         % unblocking or failing. Does not work for some operations in some frameworks
         % (e.g. receive_message in mpi)
-        time_to_fail_ = 1000; %(sec)
+        time_to_fail_ = 300; %(sec)
         % make fail message persistent
         persistent_fail_message_=[];
     end

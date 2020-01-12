@@ -197,19 +197,15 @@ tag_presnet    -- if message present, the tag of the message present, -1 if no m
 void MPI_wrapper::labProbe(const std::vector<int32_t>& data_address, const std::vector<int32_t>& data_tag,
     std::vector<int32_t>& addres_present, std::vector<int32_t>& tag_present) {
 
-    addres_present.resize(data_address.size());
-    tag_present.resize(data_address.size());
+    typedef std::tuple<int32_t, int32_t> address;
+    std::list<address> addres_tmp;
     bool any_mess_present = false;
-    for (size_t i = 0; i < addres_present.size(); i++) {
-        addres_present[i] = -1;
-        tag_present[i] = -1;
+    for (size_t i = 0; i < data_address.size(); i++) {
 
         for (size_t j = 0; j < data_tag.size(); j++) {
             if (this->isTested) { // As there is only one host there, treat send message as the present message
                 if (check_address_tag_requsted(this->SyncMessHolder, data_address[i], data_tag[j])) {
-                    addres_present[i] = this->SyncMessHolder.destination;
-                    tag_present[i] = this->SyncMessHolder.mess_tag;
-                    any_mess_present = true;
+                    addres_tmp.push_back(std::make_tuple(this->SyncMessHolder.destination, this->SyncMessHolder.mess_tag));
                     break;
                 }
 
@@ -217,9 +213,7 @@ void MPI_wrapper::labProbe(const std::vector<int32_t>& data_address, const std::
                 for (pAsynchMess; pAsynchMess != this->assyncMessList.rend(); pAsynchMess++) {
 
                     if (check_address_tag_requsted(*pAsynchMess, data_address[i], data_tag[j])) {
-                        addres_present[i] = pAsynchMess->destination;
-                        tag_present[i] = pAsynchMess->mess_tag;
-                        any_mess_present = true;
+                        addres_tmp.push_back(std::make_tuple(pAsynchMess->destination, pAsynchMess->mess_tag));
                         break;
                     }
                 }
@@ -240,38 +234,25 @@ void MPI_wrapper::labProbe(const std::vector<int32_t>& data_address, const std::
                 MPI_Status status;
                 MPI_Iprobe(search_address, search_tag, MPI_COMM_WORLD, &flag, &status);
                 if (flag) {
-                    addres_present[i] = status.MPI_SOURCE;
-                    tag_present[i] = status.MPI_TAG;
-                    any_mess_present = true;
+                    addres_tmp.push_back(std::make_tuple(status.MPI_SOURCE, status.MPI_TAG));
                     break;
                 }
             }
         } // j
     } //i
+    addres_present.resize(0);
+    tag_present.resize(0);
 
-    if (!any_mess_present) {
-        addres_present.resize(0);
-        tag_present.resize(0);
+    if (addres_tmp.size() == 0) {
+        return;
     }
-    else { // count number of existing messages and return only existing messages addesses and tags
-        size_t n_present = 0;
-        for (size_t i = 0; i < addres_present.size(); i++)
-            if (addres_present[i] > 0)n_present++;
-        //
-        std::vector<int32_t> tmp_address(n_present, -1);
-        std::vector<int32_t> tmp_tag(n_present, -1);
-        //
-        size_t ic = 0;
-        for (size_t i = 0; i < addres_present.size(); i++) {
-            if (addres_present[i] > -1) {
-                tmp_address[ic] = addres_present[i];
-                tmp_tag[ic] = tag_present[i];
-                ic++;
-            }
-        }
-        addres_present.swap(tmp_address);
-        tag_present.swap(tmp_tag);
+
+    for (auto&& it : addres_tmp) {
+        addres_present.push_back(std::get<0>(it));
+        tag_present.push_back(std::get<1>(it));
     }
+
+
 }
 
 /* Create oputputs for labReceive and return pointers to the arrays locations for copying results

@@ -140,25 +140,47 @@ while keep_worker_running
         mis.do_logging(0,n_steps);
         %
         while ~je.is_completed()
+            je.do_job_completed = false; % do not waitn at barrier in
             je= je.do_job();
             % when its tested, workers are tested in single Matlab
             % session so it will hand up on synchronization
-            je.do_job_completed = true;
             if ~is_tested
+                if DO_LOGGING
+                    fprintf(fh,'Waiting at barrier for all do_job completion\n');
+                    disp('WORKER_4TESTS: Waiting at barrier for all do_job completion ')
+                end
+                % explicitly checn for cancelation before data reduction
+                is_canceled = je.is_job_canceled();
+                if is_canceled
+                    error('JOB_EXECUTOR:canceled',...
+                        'Job canceled before synchonization after do_job')
+                end
                 
                 % when not tested, the synchronization is mandatory
                 je.labBarrier(false); % Wait until all workers finish their
                 %                       job before reducing the data
             end
+ 
+            je.do_job_completed = true; % do not waitn at barrier in
+          % explicitly checn for cancelation before data reduction
+            %  the case of cancelation below
+            is_canceled = je.is_job_canceled();
+            if is_canceled
+                error('JOB_EXECUTOR:canceled',...
+                    'Job canceled before starting reduce_data')
+            end
             je = je.reduce_data();
         end
-        % Sent final running message. The node 1 waits for other nodes to
-        % send these this kind of messages
+        je.do_job_completed = false;
+ 
+        % Sent final running message. Implicitly check for cancelation.
         mis.do_logging(n_steps,n_steps);
         if ~is_tested
             % stop other nodes until the node 1 finishes to produce the
             % final message
             je.labBarrier(false);
+            je.do_job_completed = true;
+    
         end
         %fprintf(fh,'je loop completed\n');
     catch ME % Catch error in users code and finish task gracefully.

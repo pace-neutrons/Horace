@@ -86,8 +86,19 @@ if DO_LOGGING
 end
 
 keep_worker_running = true;
+num_of_runs = 0;
 while keep_worker_running
     mess_cache.instance().clear()
+    if DO_LOGGING
+        num_of_runs = num_of_runs+1;
+        fprintf(fh,'   ***************************************\n');
+        fprintf(fh,'   ******   RUN N : %d LabN %d  : ********\n',num_of_runs,intercomm.labIndex);
+        fprintf(fh,'   ****************************************=\n');
+        fprintf('   ***************************************\n');
+        fprintf('   ******   RUN N : %d LabN %d  : ********\n',num_of_runs,intercomm.labIndex);
+        fprintf('   ****************************************=\n');
+        
+    end
     %
     %----------------------------------------------------------------------
     % 2) step 2 of the worker initialization.
@@ -162,6 +173,7 @@ while keep_worker_running
             fprintf(fh,'Trying to init JE: %s\n',worker_init_data.JobExecutorClassName);
             disp('WORKER_4TESTS: initializing worker ************************')
         end
+        % its waiting here until all tasks report "started" to node 1
         [je,mess] = je.init(fbMPI,intercomm,init_message,is_tested);
         
         if DO_LOGGING
@@ -189,21 +201,27 @@ while keep_worker_running
             disp('WORKER_4TESTS:     Entering the job loop ******************')
         end
         
-        % send first "running" log message and set-up starting time.
+        % send first "running" log message and set-up starting time. Runs
+        % asynchronously.
         n_steps = je.n_steps;
         mis.do_logging(0,n_steps);
         %
         while ~je.is_completed()
+            je.do_job_completed = false; % do not waitn at barrier in
             je= je.do_job();
             % when its tested, workers are tested in single Matlab
             % session so it will hand up on synchronization
-            je.do_job_completed = true;
             if ~is_tested
                 if DO_LOGGING
                     fprintf(fh,'Waiting at barrier for all do_job completion\n');
                     disp('WORKER_4TESTS: Waiting at barrier for all do_job completion ')
                 end
-                
+                % explicitly checn for cancelation before data reduction
+                is_canceled = je.is_job_canceled();
+                if is_canceled
+                    error('JOB_EXECUTOR:canceled',...
+                        'Job canceled before synchonization after do_job')
+                end
                 
                 % when not tested, the synchronization is mandatory
                 je.labBarrier(false); % Wait until all workers finish their
@@ -213,21 +231,37 @@ while keep_worker_running
                 disp('WORKER_4TESTS: reducing data ')
                 fprintf(fh,'Reducing data\n');
             end
+            je.do_job_completed = true; % do not waitn at barrier in
+            % explicitly checn for cancelation before data reduction
+            %  the case of cancelation below
+            is_canceled = je.is_job_canceled();
+            if is_canceled
+                error('JOB_EXECUTOR:canceled',...
+                    'Job canceled before starting reduce_data')
+            end
             je = je.reduce_data();
         end
-        % Sent final running message. The node 1 waits for other nodes to
-        % send these this kind of messages
+        je.do_job_completed = false;
+ 
+        % Sent final running message. Implicitly check for cancelation.
         mis.do_logging(n_steps,n_steps);
         if ~is_tested
             % stop other nodes until the node 1 finishes to produce the
             % final message
+            if DO_LOGGING
+                disp('WORKER_4TESTS: JE end of task barrier')
+                fprintf(fh,'arriving at JE end of task barrier\n');
+            end
+            
             je.labBarrier(false);
+            je.do_job_completed = true;
+    
         end
         %fprintf(fh,'je loop completed\n');
     catch ME % Catch error in users code and finish task gracefully.
         if DO_LOGGING
-            fprintf(fh,'je exception caught, Message: %s, ID: %s\n',...
-                ME.message,ME.identifier);
+            fprintf(fh,'je exception caught, Message: %s, ID: %s;| job_completed: %d \n',...
+                ME.message,ME.identifier,je.do_job_completed);
             ss =numel(ME.stack);
             for i=1:ss
                 fprintf(fh,'%s\n',ME.stack(i).file);
@@ -259,8 +293,14 @@ while keep_worker_running
             
         end
     end %Exception
-    
+    if DO_LOGGING
+        fprintf(fh,'************* finishing subtask: %s\n',fbMPI.job_id);
+    end
     [ok,err_mess] = je.finish_task();
+    if DO_LOGGING
+        fprintf(fh,'************* subtask: %s finished\n',fbMPI.job_id);
+    end
+    
 end
 %pause
 if exit_at_the_end
