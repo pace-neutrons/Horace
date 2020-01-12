@@ -134,13 +134,14 @@ while keep_worker_running
         mis.check_canceled = @()(f_canc(je));
         
         % Execute job (run main job executor's do_job method
-
-        % send first "running" log message and set-up starting time.
+        
+        % send first "running" log message and set-up starting time. Runs
+        % asynchronously.
         n_steps = je.n_steps;
         mis.do_logging(0,n_steps);
         %
+        je.do_job_completed = false; % wait at barrier if exception in do_job
         while ~je.is_completed()
-            je.do_job_completed = false; % do not waitn at barrier in
             je= je.do_job();
             % when its tested, workers are tested in single Matlab
             % session so it will hand up on synchronization
@@ -149,7 +150,7 @@ while keep_worker_running
                     fprintf(fh,'Waiting at barrier for all do_job completion\n');
                     disp('WORKER_4TESTS: Waiting at barrier for all do_job completion ')
                 end
-                % explicitly checn for cancelation before data reduction
+                % explicitly check for cancelation before data reduction
                 is_canceled = je.is_job_canceled();
                 if is_canceled
                     error('JOB_EXECUTOR:canceled',...
@@ -160,19 +161,18 @@ while keep_worker_running
                 je.labBarrier(false); % Wait until all workers finish their
                 %                       job before reducing the data
             end
- 
-            je.do_job_completed = true; % do not waitn at barrier in
-          % explicitly checn for cancelation before data reduction
+            je.do_job_completed = true; % do not waitn at barrier if cancelation here
+            % explicitly check for cancelation before data reduction
             %  the case of cancelation below
             is_canceled = je.is_job_canceled();
             if is_canceled
                 error('JOB_EXECUTOR:canceled',...
                     'Job canceled before starting reduce_data')
             end
+            je.do_job_completed = false; 
             je = je.reduce_data();
         end
-        je.do_job_completed = false;
- 
+        
         % Sent final running message. Implicitly check for cancelation.
         mis.do_logging(n_steps,n_steps);
         if ~is_tested
@@ -180,11 +180,10 @@ while keep_worker_running
             % final message
             je.labBarrier(false);
             je.do_job_completed = true;
-    
         end
         %fprintf(fh,'je loop completed\n');
     catch ME % Catch error in users code and finish task gracefully.
-
+        
         try
             [ok,err_mess] = je.process_fail_state(ME,is_tested);
             %
