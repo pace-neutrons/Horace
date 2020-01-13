@@ -17,10 +17,10 @@ set(HDR_FILES
     "${CXX_SOURCE_DIR}/cpp_communicator/MPI_wrapper.h"
     "${CXX_SOURCE_DIR}/utility/environment.h"
 )
-include_directories(${MPI_CXX_HEADER_DIR})
 #
 set(LIBS
     "${Matlab_UT_LIBRARY}"
+    "${Matlab_MX_LIBRARY}"
 )
 
 

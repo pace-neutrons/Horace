@@ -63,8 +63,8 @@ TEST(TestCPPCommunicator, send_assynchroneous) {
     ASSERT_EQ(4, wrap.assync_queue_len());
 
 
-    for (auto it = MessCache->begin(); it != MessCache->end(); it++) {
-        it->theRequest = 1;
+    for (auto &it : *MessCache) {
+        it.theRequest = 1;
     }
     wrap.labSend(4, 6, false, &test_mess[0], test_mess.size());
     ASSERT_EQ(1, wrap.assync_queue_len());
