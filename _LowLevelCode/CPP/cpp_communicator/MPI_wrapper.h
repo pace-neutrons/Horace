@@ -21,7 +21,9 @@ public:
     std::vector<uint8_t> mess_body;
       //SendMessHolder(SendMessHolder&& other) noexcept;
     SendMessHolder() :
-        theRequest(-1), mess_tag(-1), destination(-1) {}
+        mess_tag(-1), destination(-1) {
+        this->theRequest = (MPI_Request)(-1);
+    }
     SendMessHolder(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag);
 
     void init(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag);

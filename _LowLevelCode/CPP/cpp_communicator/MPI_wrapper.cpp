@@ -469,7 +469,7 @@ void MPI_wrapper::clearAll() {
 //}
 /** Construtor building message from message holder*/
 SendMessHolder::SendMessHolder(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag) :
-    theRequest(-1), mess_tag(-1), destination(-1) {
+    mess_tag(-1), destination(-1) {
 
     this->init(pBuffer, n_bytes, dest_address, data_tag);
 
@@ -487,6 +487,7 @@ void SendMessHolder::init(uint8_t* pBuffer, size_t n_bytes, int dest_address, in
     this->mess_body.resize(n_bytes);
     this->mess_tag = data_tag;
     this->destination = dest_address;
+    this->theRequest = (MPI_Request)(-1);
 
     for (int i = 0; i < n_bytes; i++) {
         this->mess_body[i] = pBuffer[i];
