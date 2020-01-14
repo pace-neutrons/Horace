@@ -23,7 +23,7 @@ set(FILE_NAMES
 foreach(_file_name ${FILE_NAMES})
     string(REPLACE "_fortran" "" _base_name ${_file_name})
     set(_mex_name "${_base_name}_mex")
-    matlab_add_mex(
+    herbert_add_mex(
         NAME "${_mex_name}"
         SRC "${_file_name}.F"
     )
