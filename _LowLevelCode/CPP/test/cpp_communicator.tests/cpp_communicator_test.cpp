@@ -34,7 +34,7 @@ TEST(TestCPPCommunicator, send_assynchroneous) {
     ASSERT_EQ(1, wrap.assync_queue_len());
 
     // "Deliver" message
-    queue->rbegin()->theRequest = 1;
+    queue->rbegin()->theRequest = (MPI_Request)1;
     test_mess.assign(10, 3);
     wrap.labSend(10, 1, false, &test_mess[0], test_mess.size());
     // the previous message has been delivered.
@@ -58,7 +58,7 @@ TEST(TestCPPCommunicator, send_assynchroneous) {
     auto MessCache = wrap.get_async_queue();
 
     auto last = MessCache->rbegin();
-    last->theRequest = 1; // mark last message delivered;
+    last->theRequest = (MPI_Request)1; // mark last message delivered;
     wrap.labSend(5, 5, false, &test_mess[0], test_mess.size());
     ASSERT_EQ(4, wrap.assync_queue_len());
 
@@ -195,7 +195,7 @@ TEST(TestCPPCommunicator, lab_probe_single) {
     // Mark last messages as delivered
     auto MessCache = wrap.get_async_queue();
     auto lastMess = MessCache->rbegin();
-    lastMess->theRequest = 1;
+    lastMess->theRequest = (MPI_Request)1;
 
     req_address[0] = -1;
     req_tag[0] = -1;
