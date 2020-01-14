@@ -73,7 +73,7 @@ pipeline {
                     failed(failureThreshold: '0')
                 ],
                 tools: [
-                    CTest(
+                    GoogleTest(
                         pattern: 'build/Testing/**/*.xml',
                         deleteOutputFiles: true,
                         failIfNotNew: false,
