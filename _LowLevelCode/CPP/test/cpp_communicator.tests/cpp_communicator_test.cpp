@@ -26,7 +26,7 @@ TEST(TestCPPCommunicator, send_assynchroneous) {
     ASSERT_EQ(1, wrap.assync_queue_len());
     // "Deliver" message
     auto queue = wrap.get_async_queue();
-    queue->rbegin()->theRequest = 1;
+    queue->rbegin()->theRequest = (MPI_Request)1;
 
     test_mess.assign(10, 2);
     wrap.labSend(10, 1, false, &test_mess[0], test_mess.size());
@@ -64,7 +64,7 @@ TEST(TestCPPCommunicator, send_assynchroneous) {
 
 
     for (auto &it : *MessCache) {
-        it.theRequest = 1;
+        it.theRequest = (MPI_Request)1;
     }
     wrap.labSend(4, 6, false, &test_mess[0], test_mess.size());
     ASSERT_EQ(1, wrap.assync_queue_len());
@@ -93,7 +93,7 @@ TEST(TestCPPCommunicator, send_assynch_random_receive1) {
     auto MessCache = wrap.get_async_queue();
     for (auto it = MessCache->begin(); it != MessCache->end(); it++) {
         if (it->mess_tag % 2 == 0) {
-            it->theRequest = 1; // "Receive" all even messages
+            it->theRequest = (MPI_Request)1; // "Receive" all even messages
         }
     }
 
@@ -125,7 +125,7 @@ TEST(TestCPPCommunicator, send_assynch_random_receive2) {
     auto MessCache = wrap.get_async_queue();
     for (auto it = MessCache->begin(); it != MessCache->end(); it++) {
         if (it->mess_tag % 2 == 1) {
-            it->theRequest = 1; // "Receive" all odd messages
+            it->theRequest = (MPI_Request)1; // "Receive" all odd messages
         }
     }
 

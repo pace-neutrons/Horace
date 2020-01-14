@@ -346,7 +346,7 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
                     pMess = &(*it);
                     if (bool(pPrevMess) & (source_data_tag != MPI_ANY_TAG)) {
                         if (pPrevMess->mess_tag == pMess->mess_tag) {
-                            pPrevMess->theRequest = 1; // Mark prevoius message delivered and ignore it.
+                            pPrevMess->theRequest = (MPI_Request)1; // Mark prevoius message delivered and ignore it.
                         }
                         else {
                             pMess = pPrevMess; // other type of message is sitting in the queue. Recieve the previous message
@@ -361,7 +361,7 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
             create_plhs_for_labReceive(plhs, nlhs, 0, 0);
             return;
         }
-        pMess->theRequest = 1; // mark the message as received
+        pMess->theRequest = (MPI_Request)1; // mark the message as received
         message_size = (int)pMess->mess_body.size();
         outPtrs = create_plhs_for_labReceive(plhs, nlhs, message_size, 0);
         char* pBuff = std::get<0>(outPtrs);
