@@ -327,7 +327,7 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
                     pMess = &(*it);
                     if (bool(pPrevMess) & (source_data_tag != MPI_ANY_TAG)) {
                         if (pPrevMess->mess_tag == pMess->mess_tag) {
-                            pPrevMess->theRequest = 1; // Mark prevoius message delivered and ignore it.
+                            pPrevMess->theRequest = (MPI_Request)1; // Mark prevoius message delivered and ignore it.
                         }
                         else {
                             pMess = pPrevMess; // other type of message is sitting in the queue. Recieve the previous message
@@ -342,7 +342,7 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
             create_plhs_for_labReceive(plhs, nlhs, 0, 0);
             return;
         }
-        pMess->theRequest = 1; // mark the message as received
+        pMess->theRequest = (MPI_Request)1; // mark the message as received
         message_size = (int)pMess->mess_body.size();
         outPtrs = create_plhs_for_labReceive(plhs, nlhs, message_size, 0);
         char* pBuff = std::get<0>(outPtrs);
@@ -450,7 +450,7 @@ void MPI_wrapper::clearAll() {
 //}
 /** Construtor building message from message holder*/
 SendMessHolder::SendMessHolder(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag) :
-    theRequest(-1), mess_tag(-1), destination(-1) {
+    mess_tag(-1), destination(-1) {
 
     this->init(pBuffer, n_bytes, dest_address, data_tag);
 
@@ -468,6 +468,7 @@ void SendMessHolder::init(uint8_t* pBuffer, size_t n_bytes, int dest_address, in
     this->mess_body.resize(n_bytes);
     this->mess_tag = data_tag;
     this->destination = dest_address;
+    this->theRequest = (MPI_Request)(-1);
 
     for (int i = 0; i < n_bytes; i++) {
         this->mess_body[i] = pBuffer[i];

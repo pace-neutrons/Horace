@@ -30,4 +30,5 @@ herbert_add_unit_test(
     LIBRARIES "${LIBS}"
     MEX_TEST
 )
-target_link_libraries("${TEST_NAME}" MPI::MPI_CXX)
+target_include_directories("${TEST_NAME}" PRIVATE "${MPI_CXX_INCLUDE_PATH}")
+target_link_libraries("${TEST_NAME}" "${MPI_CXX_LIBRARIES}")
