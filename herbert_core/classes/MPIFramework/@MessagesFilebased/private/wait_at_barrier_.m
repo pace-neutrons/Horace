@@ -31,7 +31,7 @@ if obj.labIndex == 1
         end
     end
     % wait for, receive and dicard all barrier messages to clear the file system
-    [~,task_ids]=obj.receive_all('all','barrier');
+    [~,task_ids]=obj.receive_all('any','barrier');
     %is_failed = cellfun(@(nm)strcmp(nm.mess_name,'failed'),all_messages,'UniformOutput',true);
     
     mess = aMessage('barrier');

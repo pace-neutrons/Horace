@@ -10,7 +10,7 @@ classdef ClusterMPI < ClusterWrapper
         
         % the string user to launch Matlab
         matlab_starter_  = [];
-        % the string containgin Java handle to running mpiexec process
+        % the string containing Java handle to running mpiexec process
         mpiexec_handle_ = [];
         %
     end
@@ -154,7 +154,7 @@ classdef ClusterMPI < ClusterWrapper
                         'Framework launcher reports job finished without returning final messages. Reason: %s',...
                         mess);
                     if failed
-                        obj.status = FailMessage(mess_body);
+                        obj.status = FailedMessage(mess_body);
                     else
                         c_mess = aMessage('completed');
                         c_mess.payload = mess_body;
@@ -187,7 +187,7 @@ classdef ClusterMPI < ClusterWrapper
             % Should throw PARALLEL_CONFIG:not_avalable exception
             % if the particular framework is not avalable.
             %
-            check_availability@ClusterWrapper(obj);            
+            check_availability@ClusterWrapper(obj);
             check_mpi_mpiexec_can_be_enabled_(obj);
         end
         
@@ -201,11 +201,15 @@ classdef ClusterMPI < ClusterWrapper
                 % future.
                 mpi_exec = fullfile(rootpath,'DLL','_PCWIN64','MS_MPI_R2019b','mpiexec.exe');
             else
-                % use system-defined mpiexec
-                [~,mpi_exec] = system('which mpiexec');
-                % strip non-printing characters, spaces and eol/cr-s from the
-                % end of mpiexec string.
-                mpi_exec= regexprep(mpi_exec,'[\x00-\x20\x7F-\xFF]$','');
+                % try our custom isiscompute arrangement
+                mpi_exec = '/usr/local/mpich/bin/mpiexec';
+                if ~(exist(mpi_exec,'file')==2)
+                    % use system-defined mpiexec
+                    [~,mpi_exec] = system('which mpiexec');
+                    % strip non-printing characters, spaces and eol/cr-s from the
+                    % end of mpiexec string.
+                    mpi_exec= regexprep(mpi_exec,'[\x00-\x20\x7F-\xFF]$','');
+                end
             end
         end
     end

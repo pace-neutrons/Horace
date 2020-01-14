@@ -23,7 +23,6 @@ classdef MessagesParpool < iMessagesFramework
     end
     %----------------------------------------------------------------------
     properties(Access=protected)
-        data_exchange_folder_;
         % time to wait for a message send from one session can be read from
         % another one.
         time_to_react_ = 0.1
@@ -152,7 +151,7 @@ classdef MessagesParpool < iMessagesFramework
             %>>[all_messages,task_ids] = pm.receive_all([task_is],[mess_name]);
             %Input:
             % task_ids -- array of task id-s to check messages for or empty
-            %             or 'all' to check for all messages.
+            %             or 'any' to check for all messages.
             % mess_name -- if present, the name (or tag) of the message to
             %              receive.
             
@@ -189,11 +188,23 @@ classdef MessagesParpool < iMessagesFramework
                 [isDataAvail,srcWkrIdx,tag] = labProbe();
             end
         end
+        %
         function [ok,err]=labBarrier(obj,nothrow)
             labBarrier;
             ok = true;
             err = [];
         end
+        function is = is_job_canceled(obj)
+            % method verifies if job has been canceled
+            mess = obj.probe_all('any','canceled');
+            if ~isempty(mess)
+                is = true;
+            else
+                is=false;
+            end
+            
+        end
+        
     end
     %----------------------------------------------------------------------
     methods (Access=protected)

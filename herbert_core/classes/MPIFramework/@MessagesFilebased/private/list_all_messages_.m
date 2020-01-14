@@ -6,13 +6,13 @@ function [all_messages,mid_from] = list_all_messages_(obj,mess_ids_requested,mes
 %
 if ~exist('mess_ids_requested','var')
     mess_ids_requested = []; % list all available task_ids
-elseif ischar(mess_ids_requested) && strcmpi(mess_ids_requested,'all')
+elseif ischar(mess_ids_requested) && strcmpi(mess_ids_requested,'any')
     mess_ids_requested = [];
 end
 if ~exist('mess_name_or_tag','var')
     mess_tag_requested = [];
 elseif ischar(mess_name_or_tag)
-    if isempty(mess_name_or_tag) || strcmpi(mess_name_or_tag,'all')
+    if isempty(mess_name_or_tag) || strcmpi(mess_name_or_tag,'any')
         mess_tag_requested = [];
     else
         mess_tag_requested = MESS_NAMES.mess_id(mess_name_or_tag);

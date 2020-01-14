@@ -382,8 +382,8 @@ classdef ClusterWrapper
             
         end
         function ex = exit_worker_when_job_ends_(obj)
-            % function defines desired completeon of the workers.
-            % exit true for java-controlled worker and false for parallel
+            % function defines desired completion of the workers.
+            % should be true for java-controlled worker and false for parallel
             % computing toolbox controlled one.
             ex  = true;
         end
@@ -392,8 +392,8 @@ classdef ClusterWrapper
             % check if java process is still running or has been completed
             %
             % inputs:
-            % task_handle -- handle for jave process
-            % obj.running_mess_contents_ -- the scting, containing the
+            % task_handle -- handle for Java process
+            % obj.running_mess_contents_ -- the string, containing the
             %                               part of the java message,
             %                               indicating that the process is
             %                               still running

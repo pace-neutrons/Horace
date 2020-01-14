@@ -18,11 +18,11 @@ classdef test_mess_cache < TestCase
             mc = mess_cache.instance(11);
             assertEqual(mc.get_n_occupied(),0);
             
-            mc.push_messages(3 ,aMessage('running'));
-            mc.push_messages(5 ,aMessage('running'));
+            mc.push_messages(3 ,aMessage('log'));
+            mc.push_messages(5 ,aMessage('log'));
             mc.push_messages(7 ,aMessage('completed'));
             mc.push_messages(9 ,aMessage('failed'));
-            mc.push_messages(10 ,aMessage('running'));
+            mc.push_messages(10 ,aMessage('log'));
             
             assertEqual(mc.get_n_occupied(),5);
             
@@ -34,7 +34,7 @@ classdef test_mess_cache < TestCase
             assertTrue(~any(mess_present));
             
             
-            mess_name = 'running';
+            mess_name = 'log';
             tid_requested = 5:9;
             
             [mess,mess_present] = ...
@@ -60,8 +60,8 @@ classdef test_mess_cache < TestCase
         function test_cache_operations(obj)
             mess_cache.instance('delete');
             
-            mess_list{1} = aMessage('running');
-            mess_list{2} = aMessage('running');
+            mess_list{1} = aMessage('log');
+            mess_list{2} = aMessage('log');
             mess_list{3} = aMessage('completed');
             mess_list{4} = aMessage('failed');
             tid = [3,4,5,9];
@@ -80,7 +80,7 @@ classdef test_mess_cache < TestCase
             assertEqual(mc.cache_capacity,9)
             assertEqual(mc.get_n_occupied,2)
             
-            mess_list1{1} = aMessage('running');
+            mess_list1{1} = aMessage('log');
             mess_list1{2} = aMessage('completed');
             tid = [3,4];
             mc.push_messages(tid,mess_list1);
@@ -107,11 +107,11 @@ classdef test_mess_cache < TestCase
             
             mess_list = cell(1,10);
             tid = [3,5,7,9,10];
-            mess_list{tid(1)} = aMessage('running');
-            mess_list{tid(2)} = aMessage('running');
+            mess_list{tid(1)} = aMessage('log');
+            mess_list{tid(2)} = aMessage('log');
             mess_list{tid(3)} = aMessage('completed');
             mess_list{tid(4)} = aMessage('failed');
-            mess_list{tid(5)} = aMessage('running');
+            mess_list{tid(5)} = aMessage('log');
             
             
             mc = mess_cache.instance(10);
@@ -122,7 +122,7 @@ classdef test_mess_cache < TestCase
             mc.push_messages(tid_bool ,mess_list);
             assertEqual(mc.cache_capacity,10)
             
-            [mess_rec,tid ] = mess_cache.instance().pop_messages(6:10,'running');
+            [mess_rec,tid ] = mess_cache.instance().pop_messages(6:10,'log');
             assertEqual(numel(mess_rec),2)
             assertEqual(numel(tid ),2)
             assertEqual(tid(1),9);
@@ -136,16 +136,16 @@ classdef test_mess_cache < TestCase
             mc.clear();
             assertEqual(mc.cache_capacity,11)
             
-            mc.push_messages(3 ,aMessage('running'));
-            mc.push_messages(5 ,aMessage('running'));
+            mc.push_messages(3 ,aMessage('log'));
+            mc.push_messages(5 ,aMessage('log'));
             mc.push_messages(7 ,aMessage('completed'));
             mc.push_messages(9 ,aMessage('failed'));
-            mc.push_messages(10 ,aMessage('running'));
+            mc.push_messages(10 ,aMessage('log'));
             
             assertEqual(mc.cache_capacity,11)
             assertEqual(mc.get_n_occupied(),5)
             
-            [mess_rec,tid ] = mess_cache.instance().pop_messages(6:10,'running');
+            [mess_rec,tid ] = mess_cache.instance().pop_messages(6:10,'log');
             assertEqual(numel(mess_rec),2)
             assertEqual(numel(tid ),2)
             assertEqual(tid(1),9);

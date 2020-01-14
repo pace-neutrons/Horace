@@ -124,7 +124,7 @@ classdef MPI_fmwks_factory<handle
             %               selected as current in parallel_config. The
             %               cluster controls the requested number of the
             %               parallel workers, communicating between each
-            %               other using the method, choosen for the
+            %               other using the method, chosen for the
             %               cluster.
             log_level = config_store.instance().get_value('herbert_config','log_level');
             fram      = obj.parallel_framework;

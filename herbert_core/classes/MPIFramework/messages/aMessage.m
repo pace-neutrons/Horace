@@ -1,6 +1,13 @@
 classdef aMessage
-    % Class used to distribute messages
-    % between workers
+    % Class describes messages transferable
+    % between workers using any framework.
+    %
+    % All children classes, whcih have special features and derived from
+    % this message should follow have the following naming convention:
+    %
+    % The class name is defined as combination of [MessageName,'Message']
+    % where MessageName is the name of the message, first letter capitalized
+    % and 'Message' is the symbolic world "Message"
     %
     properties(Dependent)
         % message contents (arbitrary data distributed from sender to
@@ -9,16 +16,25 @@ classdef aMessage
         % message name, describing the message category (e.g. starting,
         % running, etc...
         mess_name;
+        % Numerical representation of the message name
         tag;
+        % the message is a non-blocking message, i.e. the next
+        % message of the same type overwrites this message, if this message
+        % has not been received.
+        is_blocking;
+        
     end
     properties(Access=protected)
-        payload_ =[];
-        mess_name_ = [];
+        payload_     = [];
+        mess_name_   = [];
+        is_blocking_ = false;
     end
-    
+    properties(Constant)
+    end
     
     methods
         function obj=aMessage(name)
+            % constructor, which may return any children messages.
             is = MESS_NAMES.name_exist(name);
             if is
                 obj.mess_name_ = name;
@@ -32,6 +48,9 @@ classdef aMessage
         end
         function name = get.mess_name(obj)
             name = obj.mess_name_;
+        end
+        function is = get.is_blocking(obj)
+            is = obj.is_blocking_;
         end
         function obj = set.payload(obj,val)
             if iscell(val)
@@ -54,6 +73,40 @@ classdef aMessage
             % implementation of operator ~= for aMessage class
             not = ~equal_to_tol(obj,b);
         end
+        function ln = saveobj(obj)
+            % Define information, necessary for message serialization
+            cln = class(obj);
+            if (strcmp(cln,'aMessage'))
+                ser_struc = struct('mess_name',obj.mess_name_,...
+                    'is_blocking',obj.is_blocking_);
+            else
+                ser_struc = struct('class_name',cln);
+            end
+            ser_struc.payload = obj.payload_;
+            ln = hlp_serialize(ser_struc);
+        end
+    end
+    methods(Static)
+        function obj = loadobj(ls)
+            % Define information, necessary for message de-serialization
+            
+            ser_struc = hlp_deserialize(ls);
+            if numel(ser_struc) >1
+                ss = ser_struc(1);
+                pp = {ser_struc(:).payload};
+            else
+                ss = ser_struc;
+                pp = ser_struc.payload;
+            end
+            if (isfield(ss,'mess_name'))
+                obj = aMessage(ss.mess_name);
+                obj.is_blocking_ = ss.is_blocking;
+            else
+                obj = feval(ss.class_name);
+            end
+            obj.payload_ = pp;
+        end
+        
     end
     methods(Access=protected)
         function pl = get_payload(obj)

@@ -87,7 +87,7 @@ classdef parallel_config<config_base
         %    [m]piexec_mpi-- Deploys MPI libraries and mpiexec to run parallel jobs.
         %              On Windows these libraries are provided with Herbert and
         %              configured for running the parallel jobs on a working node,
-        %              but a linux machine needs these libraries installed and
+        %              but a Linux machine needs these libraries installed and
         %              the framework compiled using herbert_mex_mpi script
         %              If the jobs are expected to run on more then
         %              one node, the nodes should be configured for MPI

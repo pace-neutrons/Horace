@@ -12,7 +12,7 @@ function [ok,err_mess,je]=worker_v2(worker_controls_string)
 %              through pipes its size is system dependent and limited, so
 %              contains only minimal initialization information, namely the
 %              folder name where the job initialization data are located on
-%              a remote system
+%              a remote system.
 %
 % $Revision:: 839 ($Date:: 2019-12-16 18:18:44 +0000 (Mon, 16 Dec 2019) $)
 %
@@ -36,6 +36,7 @@ clot = onCleanup(@()(setattr(mis,'is_deployed',false)));
 %--------------------------------------------------------------------------
 % 1) step 1 of the worker initialization.
 %--------------------------------------------------------------------------
+worker_controls_string = char(worker_controls_string);
 control_struct = iMessagesFramework.deserialize_par(worker_controls_string);
 % Initialize config files to use on remote session. Needs to be initialized
 % first as may be used by message framework.
@@ -73,10 +74,9 @@ while keep_worker_running
     [ok,err,mess]= fbMPI.receive_message(0,'starting');
     %fprintf(fh,'got "starting" message\n');
     if ok ~= MESS_CODES.ok
-        mess = aMessage('failed');
         err_mess = sprintf('job N%s failed while receive_je_info Error: %s:',...
             control_struct.job_id,err);
-        mess.payload = err_mess;
+        mess = FailedMessage(err_mess);
         fbMPI.send_message(0,mess);
         ok = MESS_CODES.runtime_error;
         if exit_at_the_end;     exit;
@@ -108,7 +108,7 @@ while keep_worker_running
     
     [ok,err_mess,init_message] = fbMPI.receive_message(0,'init');
     if ok ~= MESS_CODES.ok
-        [ok,err_mess]=je.finish_task(FailMessage(err_mess));
+        [ok,err_mess]=je.finish_task(FailedMessage(err_mess));
         if exit_at_the_end
             exit;
         else

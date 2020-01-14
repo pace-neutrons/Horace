@@ -309,7 +309,7 @@ pos = pos + 1;
 try
     % try to use the loadobj function
     v = eval([cls '.loadobj(conts)']);
-catch
+catch ME
     try
         % pass the struct directly to the constructor
         v = eval([cls '(conts)']);

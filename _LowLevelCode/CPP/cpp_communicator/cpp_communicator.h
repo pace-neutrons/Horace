@@ -4,7 +4,6 @@
 //
 //
 #include <memory>
-#include <mex.h>
 #include "MPI_wrapper.h"
 #include "input_parser.h"
 

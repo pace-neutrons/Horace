@@ -139,7 +139,7 @@ end
 %clear source_unlocker;
 % check if a message is from the data queue and we need to progress the data
 % queue
-from_data_queue = MESS_NAMES.is_queuing(mess_names{1});
+from_data_queue = MESS_NAMES.is_blocking(mess_names{1});
 progress_queue = false;
 if from_data_queue
     first_queue_num = list_queue_messages_(obj.mess_exchange_folder,obj.job_id,...
@@ -179,7 +179,7 @@ if progress_queue % prepare the next message to read -- the oldest message
     end
     unlock_(rlock_file);
 else
-    unlock_(mess_fname);
+    unlock_(mess_fname); % fancy command to delete file
     unlock_(rlock_file);
     %pause(0.1);
 end

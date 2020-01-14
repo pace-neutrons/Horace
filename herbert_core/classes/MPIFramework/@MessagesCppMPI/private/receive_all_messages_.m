@@ -1,9 +1,9 @@
 function   [all_messages,tid_received_from] = receive_all_messages_(obj,task_ids,mess_name)
 % retrieve all messages sent from jobs with id provided. if ids are empty,
-% all messages, intended for this job.
+% all messages, intended for this lab.
 %
-if ~exist('task_ids','var') || (ischar(task_ids) && strcmpi(task_ids,'all'))
-    task_ids = 1:obj.numLabs;
+if ~exist('task_ids','var') || (ischar(task_ids) && strcmpi(task_ids,'any'))
+    task_ids = int32(1:obj.numLabs);
 end
 this_tid = task_ids == obj.labIndex;
 if any(this_tid)
@@ -11,14 +11,15 @@ if any(this_tid)
 end
 
 
+
 lock_until_received = true;
 if ~exist('mess_name','var')
-    mess_name = '';
+    mess_name = 'any';
 end
-if isempty(mess_name) || strcmp(mess_name,'all')
+if isempty(mess_name) || strcmp(mess_name,'any')
     lock_until_received = false;
 else
-    if obj.DEBUG
+    if obj.DEBUG_
         disp(['**********  waiting for message: ',mess_name,' to arrive from tasks: ']);
         disp(task_ids')
     end
@@ -30,11 +31,11 @@ all_messages = cell(n_requested ,1);
 mess_received = false(n_requested ,1);
 tid_received_from = zeros(n_requested ,1);
 
-[message_names,tid_from] = list_all_messages_(obj,task_ids,mess_name);
+[message_names,tid_from] = labprobe_all_messages_(obj,task_ids,mess_name);
 %[tid_from,im] = unique(tid_from);
 %message_names = message_names(im);
 present_now = ismember(task_ids,tid_from);
-if obj.DEBUG
+if obj.DEBUG_
     disp(' Messages present initially:');
     disp(present_now');
 end
@@ -60,7 +61,7 @@ while ~all_received
         tid_received_from(i) = task_ids(i);
         mess_received(i) = true;
     end
-    if obj.DEBUG
+    if obj.DEBUG_
         disp(' Messages received:');
         disp(mess_received');
         for i=1:numel(all_messages)
@@ -81,7 +82,7 @@ while ~all_received
                 error('FILEBASED_MESSAGES:runtime_error',...
                     'Timeout waiting for receiving all messages')
             end
-            [message_names,tid_from] = list_all_messages_(obj,task_ids,mess_name);
+            [message_names,tid_from] = labprobe_all_messages_(obj,task_ids,mess_name);
             %[tid_from,im] = unique(tid_from);
             %message_names = message_names(im);
             present_now = ismember(task_ids,tid_from);
@@ -89,7 +90,7 @@ while ~all_received
             % existing received data messages
             is_old_data_mess = cellfun(@is_data_message,all_messages,...
                 'UniformOutput',true);
-            if obj.DEBUG
+            if obj.DEBUG_
                 nsteps  = nsteps +1;
                 disp([' Messages arrived at step ',num2str(nsteps), 'vs old data mess']);
                 disp(present_now);
@@ -128,6 +129,6 @@ if isempty(mess)
     is = false;
     return
 end
-is = MESS_NAMES.is_queuing(mess.mess_name);
+is = mess.is_blocking;
 
 

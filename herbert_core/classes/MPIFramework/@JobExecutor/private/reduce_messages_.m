@@ -44,17 +44,15 @@ end
 mf = obj.mess_framework;
 if isempty(mf) % something wrong, framework deleted
     ok = false;
-    err = 'MPI initialization error';
-    fin_mess = aMessage('failed');
-    fin_mess.payload = err;
+    fin_mess = FailedMessage('inter-worker MPI initialization error');
     return
 end
 
 if mf.labIndex == 1
     if lock_until_received
-        all_messages = mf.receive_all('all',reduction_name);
+        all_messages = mf.receive_all('any',reduction_name);
     else
-        [~,task_ids] = mf.probe_all('all',reduction_name);
+        [~,task_ids] = mf.probe_all('any',reduction_name);
         if numel(task_ids) > 0
             all_messages = mf.receive_all(task_ids,reduction_name);
         else
@@ -86,7 +84,7 @@ if ~all_ok
     n_failed = sum(~ok);
     err = sprintf('JobExecutorInit: %d workers have failed',...
         n_failed);
-    fin_message = FailMessage(err);
+    fin_message = FailedMessage(err);
     %all_payload(~ok) = all_messages(~ok);
     fin_message.payload = all_payload;
 else

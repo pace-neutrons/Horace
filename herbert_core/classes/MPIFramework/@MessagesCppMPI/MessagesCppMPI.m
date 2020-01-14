@@ -28,15 +28,24 @@ classdef MessagesCppMPI < iMessagesFramework
         % previous attempt have not find it.
         time_to_react_ = 1; % (sec)
         %
-        % equivalent to labNum in MPI
+        % equivalent to labNum in MPI, the number of the current running
+        % MPI worker
         task_id_ = -1;
-        %
+        % Total number of MPI workers, participating in a job.
         numLabs_ = 0;
         %
-        %
+        % The variable to keep pointer to the internal C++ class,
+        % responsible for MPI operations
         mpi_framework_holder_ = [];
-        
-        DEBUG = false;
+        % The length of the queue to use for asynchronous messages.
+        % if this number of asynchronous messages has been send and no
+        % been received, something wrong is happening with the node or the
+        % cluster, so the job should be interrupted (canceled)
+        assync_messages_queue_length_ = 10;
+        % the tag for the data message, used by cpp_communicator to process
+        % data messages differently
+        data_message_tag_;
+        DEBUG_ = false;
     end
     %----------------------------------------------------------------------
     methods
@@ -50,11 +59,9 @@ classdef MessagesCppMPI < iMessagesFramework
             %Example
             % jd = MessagesFramework() -- use randomly generated job control
             %                             prefix
-            % jd = MessagesFramework('target_name') -- add prefix
-            %      which describes this job.
-            % File-based messages framework creates the exchange folder with
-            % the filename specified as input.
+            % jd = MessagesFramework('test_mode')
             %
+            
             % Initialise folder path
             jd = jd@iMessagesFramework();
             if nargin>0
@@ -67,24 +74,27 @@ classdef MessagesCppMPI < iMessagesFramework
         function  obj = init_framework(obj,framework_info)
             % using control structure initialize operational message
             % framework
+            %  framework_info -- either:
+            %   a) string, defining the job name (job_id)
+            %     -- or:
+            %   b) the structure, defined by worker_job_info function:
+            %      in this case usually defines slave message exchange
+            %      framework.
+            %
+            %      If the string is 'test_mode' or the structure contains the field
+            %      .test_mode, the framework does not initializes real mpi, but runs
+            %      sets numLab to one and labNum to 1 and runs as fake worker in the
+            %      main process flow (not parallel)
             obj = init_framework_(obj,framework_info);
         end
         %------------------------------------------------------------------
         % MPI interface
         %
         function fn = mess_name(obj,task_id,mess_name)
-            % Fully qualified name of the task status message, which allows
-            % to identify message in the system. For filebased messages this
-            % is the name of the message file
-            % task_id -- is the id (number) of the task this message should
-            % be send
-            %
-            if ~isnumeric(task_id)
-                error('MESSAGES_MPI:invalid_argument',...
-                    'first message_name argument should be the target task number');
-            end
-            fn = obj.job_stat_fname_(task_id,mess_name);
+            % not used in MessagesCppMPI
+            fn  = mess_name;
         end
+        
         %
         function [ok,err_mess] = send_message(obj,task_id,message)
             % send message to a task with specified id
@@ -136,13 +146,13 @@ classdef MessagesCppMPI < iMessagesFramework
             % if no messages are present in the system
             % all_messages_names and task_ids are empty
             %
-            [all_messages_names,task_ids] = list_all_messages_(obj,varargin{:});
+            [all_messages_names,task_ids] = labprobe_all_messages_(obj,varargin{:});
         end
         %
         function [all_messages,task_ids] = receive_all(obj,varargin)
             % retrieve (and remove from system) all messages
             % existing in the system for the tasks with id-s specified as input
-            % Blocks execution until the messages all messages are received.
+            % Blocks execution until all messages are received.
             %
             %
             %Input:
@@ -169,14 +179,10 @@ classdef MessagesCppMPI < iMessagesFramework
             obj.numLabs_ = 0;
         end
         function clear_messages(obj)
-            % just run finalize -- all MPI messages will be invalidated
-            try
-                cpp_communicator('finalize',obj.mpi_framework_holder_);
-            catch ME
-                if ~strcmpi(ME.identifier,'MPI_MEX_COMMUNICATOR:runtime_error') % already finalized
-                    rethrow(ME);
-                end
-            end
+            % receive and discard all MPI messages directed to this
+            % workeer
+            obj.mpi_framework_holder_= ...
+                cpp_communicator('clearAll',obj.mpi_framework_holder_);
         end
         %
         function [ok,err]=labBarrier(obj,varargin)
@@ -187,14 +193,28 @@ classdef MessagesCppMPI < iMessagesFramework
         end
         
         
-        function obj = set.time_to_fail(obj,val)
+        function set.time_to_fail(obj,val)
             obj.time_to_fail_ = val;
         end
         function val = get.time_to_fail(obj)
             val = obj.time_to_fail_ ;
         end
         
-        
+        function is = is_job_canceled(obj)
+            % method verifies if job has been canceled
+            mess = obj.probe_all('any','canceled');
+            if ~isempty(mess)
+                is = true;
+            else
+                is=false;
+            end
+        end
+        function delete(obj)
+            if ~isempty(obj.mpi_framework_holder_)
+                cpp_communicator('finalize',obj.mpi_framework_holder_);
+                obj.mpi_framework_holder_ = [];
+            end
+        end
     end
     %----------------------------------------------------------------------
     methods (Access=protected)
@@ -204,15 +224,16 @@ classdef MessagesCppMPI < iMessagesFramework
         function ind = get_num_labs_(obj)
             ind = obj.numLabs_;
         end
-        function [obj,labNum,nLabs]=lab_index_tester(obj)
-            % get labindex and number of MPI lab quering messaging
-            % framework directrly
-            [obj.mpi_framework_holder_,obj.task_id_,obj.numLabs_]= ...
+        function [numLabs,labNum] = read_cpp_comm_pull_info(obj)
+            % service function, to retrieve MPI pull information from cpp
+            % communicator. This info should not currently change from the
+            % initialization time, but may be modified in a future.
+            [obj.mpi_framework_holder_,labNum,numLabs]= ...
                 cpp_communicator('labIndex',obj.mpi_framework_holder_);
-            labNum = obj.task_id_;
-            nLabs  = obj.numLabs_;
+            %
+            obj.task_id_ = labNum;
+            obj.numLabs_ = numLabs;
         end
-        
     end
 end
 

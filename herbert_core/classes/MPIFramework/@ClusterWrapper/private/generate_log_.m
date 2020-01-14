@@ -51,7 +51,11 @@ if isempty(stateMess)
     info = sprintf('***Job : %s : state: unknown |',obj.job_id);
     return;
 end
-info = sprintf('***Job : %s : state: %8s |',obj.job_id,stateMess.mess_name);
+name = stateMess.mess_name;
+if strcmpi(name,'log')
+    name = 'running';
+end
+info = sprintf('***Job : %s : state: %8s |',obj.job_id,name);
 if isa(stateMess,'LogMessage')
     if stateMess.time_per_step == 0
         info = [info, sprintf('Step#%.2f/%d, Estimated time left:  Unknown | ',...
