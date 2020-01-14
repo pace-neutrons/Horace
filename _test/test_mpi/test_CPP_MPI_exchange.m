@@ -22,9 +22,9 @@ classdef test_CPP_MPI_exchange< TestCase
             
             [data_exchange_folder,JOB_id] = fileparts(serverfbMPI.mess_exchange_folder);
             cs = iMessagesFramework.build_worker_init(fileparts(data_exchange_folder),...
-                JOB_id,'MessagesCppMPI_test3',1,3,true);
+                JOB_id,'MessagesCppMPI_3wkrs_tester',1,3,true);
             
-            % intercomm constructor invoked here.
+            % intercom constructor invoked here.
             [fbMPI,intercomm] = JobExecutor.init_frameworks(cs);
             clob1 = onCleanup(@()(finalize_all(intercomm)));
             clob2 = onCleanup(@()(finalize_all(fbMPI)));
@@ -61,6 +61,26 @@ classdef test_CPP_MPI_exchange< TestCase
             assertEqual(message.payload{3},'b');
             
         end
+        %
+        function test_receive_all_mess(this)
+            
+            intercomm = MessagesCppMPI_3wkrs_tester();
+            clob1 = onCleanup(@()(finalize_all(intercomm)));
+            
+            mess = LogMessage(0,10,1,'0');
+            % CPP_MPI messages in test mode are "reflected" from target node
+            [ok,err]=intercomm.send_message(2,mess);
+            assertEqual(ok,MESS_CODES.ok,['Error = ',err])
+            [ok,err]=intercomm.send_message(3,mess);
+            assertEqual(ok,MESS_CODES.ok,['Error = ',err])
+            
+            [all_mess,task_ids] = intercomm.receive_all('any','any');
+            assertEqual(numel(all_mess),2);
+            assertEqual(numel(task_ids),2);
+            assertEqual(task_ids,[2;3]);
+        end
+        
+        %
         function test_SendReceive(obj)
             % Test communications in test mode
             if isempty(which('cpp_communicator'))

@@ -28,6 +28,7 @@ classdef job_dispatcher_common_tests< MPI_Test_Common
                     end
                 end
             end
+            clear mex;
             
             % overloaded to empty test -- nothing new for this JD
             % JETester specific control parameters
@@ -165,7 +166,7 @@ classdef job_dispatcher_common_tests< MPI_Test_Common
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
             end
-            
+            clear mex;            
             % overloaded to empty test -- nothing new for this JD
             % JETester specific control parameters
             common_param = struct('filepath',obj.working_dir,...
@@ -199,7 +200,7 @@ classdef job_dispatcher_common_tests< MPI_Test_Common
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
             end
-            
+            clear mex;            
             % overloaded to empty test -- nothing new for this JD
             % JETester specific control parameters
             common_param = struct('filepath',obj.working_dir,...
@@ -234,6 +235,7 @@ classdef job_dispatcher_common_tests< MPI_Test_Common
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
             end
+            clear mex;
             
             % overloaded to empty test -- nothing new for this JD
             % JETester specific control parameters

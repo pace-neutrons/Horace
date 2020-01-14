@@ -609,8 +609,8 @@ classdef test_job_executor< MPI_Test_Common
                 config_store.set_config_folder(cf);
             end
             clob1 = onCleanup(@()reset_config(cf));
-            % generate control with different types of frameoworks.
-            css1= serverfbMPI.get_worker_init('MessagesCppMPI');
+            % generate control with different types of frameworks.
+            css1= serverfbMPI.get_worker_init('MessagesCppMPI_3wkrs_tester');
             
             ok = finish_task_tester(css1);
             assertTrue(ok);

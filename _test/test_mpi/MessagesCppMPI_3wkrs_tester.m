@@ -1,4 +1,4 @@
-classdef MessagesCppMPI_test3 < MessagesCppMPI
+classdef MessagesCppMPI_3wkrs_tester < MessagesCppMPI
     % Class to test protected methods of MessagesCppMPI class
     
     properties
@@ -6,12 +6,15 @@ classdef MessagesCppMPI_test3 < MessagesCppMPI
     end
     
     methods
-        function obj = MessagesCppMPI_test3()
+        function obj = MessagesCppMPI_3wkrs_tester()
             obj = obj@MessagesCppMPI('test_mode');
             % make tester look like 3 workers
             obj.numLabs_ = uint64(3);
         end
         function  obj = init_framework(obj,framework_info)
+            if isstruct(framework_info)
+                framework_info.test_mode = true;
+            end
             obj = init_framework@MessagesCppMPI(obj,framework_info);
             obj.numLabs_ = uint64(3);
         end
