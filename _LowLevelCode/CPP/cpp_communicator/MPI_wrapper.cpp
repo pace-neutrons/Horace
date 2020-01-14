@@ -7,7 +7,7 @@ int MPI_wrapper::data_mess_tag = 0;
 bool MPI_wrapper::MPI_wrapper_gtested = false;
 
 /** Initialize MPI communications framework */
-int MPI_wrapper::init(bool isTested, int assynch_messages_queue_len, int data_mess_tag) {
+int MPI_wrapper::init(bool isTested, int async_messages_queue_len, int data_mess_tag) {
 
     MPI_wrapper::data_mess_tag = data_mess_tag;
 
@@ -15,8 +15,8 @@ int MPI_wrapper::init(bool isTested, int assynch_messages_queue_len, int data_me
     char*** argv(nullptr);
     int err(-1);
     // initiate the assynchroneous messages queue.
-    this->assynch_queue_max_len_ = assynch_messages_queue_len;
-    this->assyncMessList.clear();
+    this->async_queue_max_len_ = async_messages_queue_len;
+    this->asyncMessList.clear();
     //
     if (isTested) {
         // set up test values and return without initializeing the framework
@@ -102,14 +102,14 @@ SendMessHolder* MPI_wrapper::add_to_async_queue(uint8_t* pBuffer, size_t n_bytes
 
     //
     SendMessHolder* messToSend(nullptr);
-    auto pPrevMess = this->assyncMessList.end();
-    auto pMessToSend = this->assyncMessList.end();
+    auto pPrevMess = this->asyncMessList.end();
+    auto pMessToSend = this->asyncMessList.end();
 
     //
     int isDelivered;
     MPI_Status status; // not clear what to do about it.
-    auto pMess = this->assyncMessList.begin();
-    while (pMess != this->assyncMessList.end()) {
+    auto pMess = this->asyncMessList.begin();
+    while (pMess != this->asyncMessList.end()) {
         if (this->isTested)
             isDelivered = bool(pMess->theRequest);
         else {
@@ -126,8 +126,8 @@ SendMessHolder* MPI_wrapper::add_to_async_queue(uint8_t* pBuffer, size_t n_bytes
             pPrevMess = pMessToSend;
             pMessToSend = pMess;
             messToSend = &(*pMessToSend);
-            if (pPrevMess != this->assyncMessList.end()) { //delete previously selected delivered message
-                this->assyncMessList.erase(pPrevMess);
+            if (pPrevMess != this->asyncMessList.end()) { //delete previously selected delivered message
+                this->asyncMessList.erase(pPrevMess);
             }
         }
         pMess++;
@@ -138,7 +138,7 @@ SendMessHolder* MPI_wrapper::add_to_async_queue(uint8_t* pBuffer, size_t n_bytes
         messToSend->init(pBuffer, n_bytes, dest_address, data_tag);
     }
     else { // no space in the cache to recycle.
-        if (this->assync_queue_len() + 1 > this->assynch_queue_max_len_) {
+        if (this->async_queue_len() + 1 > this->async_queue_max_len_) {
             throw_error("MPI_MEX_COMMUNICATOR:runtime_error",
                 "the number of assynchroneous messages exceed the maximal number",
                 MPI_wrapper::MPI_wrapper_gtested);
@@ -146,8 +146,8 @@ SendMessHolder* MPI_wrapper::add_to_async_queue(uint8_t* pBuffer, size_t n_bytes
 
         // add new message
         SendMessHolder mess(pBuffer, n_bytes, dest_address, data_tag);
-        this->assyncMessList.push_front(mess);
-        messToSend = &(*assyncMessList.begin());
+        this->asyncMessList.push_front(mess);
+        messToSend = &(*asyncMessList.begin());
 
     }
     return messToSend;
@@ -209,8 +209,8 @@ void MPI_wrapper::labProbe(const std::vector<int32_t>& data_address, const std::
                     break;
                 }
 
-                auto pAsynchMess = this->assyncMessList.rbegin();
-                for (pAsynchMess; pAsynchMess != this->assyncMessList.rend(); pAsynchMess++) {
+                auto pAsynchMess = this->asyncMessList.rbegin();
+                for (pAsynchMess; pAsynchMess != this->asyncMessList.rend(); pAsynchMess++) {
 
                     if (check_address_tag_requsted(*pAsynchMess, data_address[i], data_tag[j])) {
                         addres_tmp.push_back(std::make_tuple(pAsynchMess->destination, pAsynchMess->mess_tag));
@@ -321,7 +321,7 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
         }
         if (!pMess) {
             // look through the queue and find message to receive
-            for (auto it = assyncMessList.rbegin(); it != assyncMessList.rend(); it++) {
+            for (auto it = asyncMessList.rbegin(); it != asyncMessList.rend(); it++) {
                 if (check_address_tag_requsted(*it, source_address, source_data_tag)) {
                     pPrevMess = pMess;
                     pMess = &(*it);
@@ -414,7 +414,7 @@ void MPI_wrapper::clearAll() {
 
     if (this->isTested) {
         this->SyncMessHolder.theRequest = 0;
-        this->assyncMessList.clear();
+        this->asyncMessList.clear();
     }
     else {  // real receive
         MPI_Status status;

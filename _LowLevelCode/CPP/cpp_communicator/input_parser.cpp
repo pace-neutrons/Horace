@@ -43,7 +43,6 @@ size_t   get_byte_length(const char* err_id, const mxArray* prhs) {
         std::stringstream buf;
         buf << " The input for " << err_id << "contains unknown vector type\n";
         mexErrMsgIdAndTxt("MPI_MEX_COMMUNICATOR:invalid_argument", buf.str().c_str());
-        // never reached but for compiler not to complain
         return 0;
     };
     }
@@ -102,8 +101,17 @@ void retrieve_string(const mxArray* param, std::string& result, const char* Erro
     result.erase(buflen - 1, 1);
 }
 
-/* Helper method to process test mode*/
-class_handle<MPI_wrapper>* process_init_mode(const char* ModeName, const mxArray* prhs[], int nrhs, AdditinalParamHolder& AddPar) {
+/** Helper method to process initialization mode
+Inputs:
+ModeName -- pointer to string, indicating mode name if error occurs
+prhs     -- array of input array of pointers to the right hand parameters, recevied from Matlab
+nrgs     -- size of  input array of pointers
+Outputs:
+AddPar   -- the reference to structure, containing additional information about inputs
+Returns:
+pointer to handle, containing MPI communicator.
+*/
+class_handle<MPI_wrapper>* process_init_mode(const char* ModeName, const mxArray* prhs[], int nrhs, AdditionalParamHolder& AddPar) {
     if (nrhs > 3 || nrhs < 1) {
         std::stringstream err;
         err << ModeName << "  mode takes from 1 to 3 inputs but got : "
@@ -112,7 +120,7 @@ class_handle<MPI_wrapper>* process_init_mode(const char* ModeName, const mxArray
     }
     class_handle<MPI_wrapper>* pCommunicator = new class_handle<MPI_wrapper>();
     if (nrhs == 2) {
-        AddPar.assynch_queue_length = (int)retrieve_value<double>(ModeName, prhs[(int)InitInputs::assynch_queue_len]);
+        AddPar.async_queue_length = (int)retrieve_value<double>(ModeName, prhs[(int)InitInputs::async_queue_len]);
     }
     if (nrhs == 3) {
         AddPar.data_message_tag = (int)retrieve_value<double>(ModeName, prhs[(int)InitInputs::data_mess_tag]);
@@ -133,7 +141,7 @@ prhs  --  array of pointers to right hand side parameters
 work_mode         -- retrieved IO operations mode.
 data_address      -- address of the node to communicate with
 data_tag          -- MPI messages tag
-is_synchroneous   -- for send/receive operations, if the communication mode is synchroneous
+is_synchronous    -- for send/receive operations, if the communication mode is synchroneous
 data_buffer       -- refernece to pointert to the buffer with data. Defined for send and undef for labReceive/labProbe
 nbytes_to_transfer-- number of bytes to transfer over mpi.
 
@@ -144,9 +152,9 @@ returns:
 pointer to cpp_communicator class handler to share with Matlab
 */
 class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray* prhs[],
-    input_types& work_mode, std::vector<int>& data_addresses, std::vector<int>& data_tag, bool& is_synchroneous,
+    input_types& work_mode, std::vector<int>& data_addresses, std::vector<int>& data_tag, bool& is_synchronous,
     uint8_t*& data_buffer, size_t& nbytes_to_transfer,
-    AdditinalParamHolder& AddPar)
+    AdditionalParamHolder& AddPar)
 {
 
     // get correct file name and the group name
@@ -168,7 +176,7 @@ class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray* prhs[
         // the source data tag
         data_tag[0] = (int32_t)retrieve_value<mxInt32>("labReceive: source tag", prhs[(int)ReceiveInputs::tag]);
         // if the transfer is synchroneous or not
-        is_synchroneous = (bool)retrieve_value<mxUint8>("labReceive: is synchronous", prhs[(int)ReceiveInputs::is_synchronous]);
+        is_synchronous = (bool)retrieve_value<mxUint8>("labReceive: is synchronous", prhs[(int)ReceiveInputs::is_synchronous]);
     }
     else if (mex_mode.compare("labSend") == 0) {
         if (nrhs < (int)SendInputs::N_INPUT_Arguments - 1) {
@@ -186,7 +194,7 @@ class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray* prhs[
         // the sending data tag
         data_tag[0] = (int32_t)retrieve_value<mxInt32>("labSend: destination tag", prhs[(int)SendInputs::tag]);
         // if the transfer is synchroneous or not
-        is_synchroneous = (bool)retrieve_value<mxUint8>("labSend: is synchronous", prhs[(int)SendInputs::is_synchronous]);
+        is_synchronous = (bool)retrieve_value<mxUint8>("labSend: is synchronous", prhs[(int)SendInputs::is_synchronous]);
         // retrieve pointer to serialized data to transfer
         size_t vector_size, bytesize;
 
@@ -232,7 +240,7 @@ class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray* prhs[
         return pCommunicator;
     }
     else if(mex_mode.compare("clearAll") == 0){
-
+        work_mode = clearAll;
     }
     else {
         std::stringstream err;

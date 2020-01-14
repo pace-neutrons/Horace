@@ -35,7 +35,7 @@ public:
 
     MPI_wrapper() :
         labIndex(-1), numProcs(0), isTested(false),
-        assynch_queue_max_len_(10) {}
+        async_queue_max_len_(10) {}
     int init(bool isTested = false, int assynch_queue_max_len = 10, int data_mess_tag=5);
     void close();
     void barrier();
@@ -55,8 +55,8 @@ public:
     // when no real mpi exchange is initiated.
     bool isTested;
     // return the number of asynchroneous messages in the queue
-    size_t assync_queue_len() {
-        return this->assyncMessList.size();
+    size_t async_queue_len() {
+        return this->asyncMessList.size();
     }
     // the tag of message, containing data (processed differently, not yet implemented.)
     static int data_mess_tag;
@@ -67,7 +67,7 @@ public:
     static bool MPI_wrapper_gtested;
     // get access to the asynchroneous messages queue
     std::list<SendMessHolder>* get_async_queue() {
-        return &this->assyncMessList;
+        return &this->asyncMessList;
     }
     // get access to the synchroneous messages holder.
     SendMessHolder* get_sync_queue() {
@@ -77,32 +77,20 @@ public:
     bool any_message_present() {
         if (SyncMessHolder.theRequest==0) 
             return true;
-        for (auto it = assyncMessList.rbegin(); it != assyncMessList.rend(); it++) {
+        for (auto it = asyncMessList.rbegin(); it != asyncMessList.rend(); it++) {
             if (it->theRequest == 0) {
                 return true;
             }
         }
         return false;
     }
-    // get first not "delivered" message in test mode.
-    SendMessHolder* get__message() {
-        if (SyncMessHolder.theRequest == 0)
-            return &SyncMessHolder;
-        for (auto it = assyncMessList.rbegin(); it != assyncMessList.rend(); it++) {
-            if (it->theRequest == 0) {
-                return &(*it);
-            }
-        }
-        return nullptr;
-    }
-
 private:
     // the length of the queue to keep assynchroneous messages. If this length is exceeded,
     // something is wrong and the job should be interrupted
-    int assynch_queue_max_len_;
+    int async_queue_max_len_;
 
     // the list of assyncroneous messages, stored until delivered
-    std::list<SendMessHolder> assyncMessList;
+    std::list<SendMessHolder> asyncMessList;
 
     SendMessHolder SyncMessHolder;
 

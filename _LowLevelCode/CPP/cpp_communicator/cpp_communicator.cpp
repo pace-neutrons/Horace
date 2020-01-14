@@ -106,8 +106,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     std::vector<int32_t> data_tag;
     bool is_synchroneous(false);
 
-    AdditinalParamHolder AddPar;
-    size_t n_workers;
+    AdditionalParamHolder AddPar;
     size_t nbytes_to_transfer;
     input_types work_type;
 
@@ -124,19 +123,16 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 
     }
 
-    n_workers = pCommunicatorHolder->class_ptr->numProcs;
     switch (work_type)
     {
     case(init_mpi): { // Initialize MPI communications and return labIndex and numLabs
-        pCommunicatorHolder->class_ptr->init(false, AddPar.assynch_queue_length,AddPar.data_message_tag);
-        n_workers = pCommunicatorHolder->class_ptr->numProcs;
+        pCommunicatorHolder->class_ptr->init(false, AddPar.async_queue_length,AddPar.data_message_tag);
         set_numlab_and_nlabs(pCommunicatorHolder, nlhs, plhs, nrhs, prhs);
         break;
     }
     case(init_test_mode): {
         // init test mode providing true as input to init function
-        pCommunicatorHolder->class_ptr->init(true, AddPar.assynch_queue_length, AddPar.data_message_tag);
-        n_workers = pCommunicatorHolder->class_ptr->numProcs;
+        pCommunicatorHolder->class_ptr->init(true, AddPar.async_queue_length, AddPar.data_message_tag);
         set_numlab_and_nlabs(pCommunicatorHolder, nlhs, plhs, nrhs, prhs);
         break;
     }
@@ -175,6 +171,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     }
     case(clearAll): { // receive and discard all messages, directed to the framework
         pCommunicatorHolder->class_ptr->clearAll();
+        break;
     }
     case(close_mpi): {
         pCommunicatorHolder->clear_mex_locks();

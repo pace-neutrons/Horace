@@ -23,9 +23,9 @@ classdef test_CPP_MPI_exchange< TestCase
             
             [data_exchange_folder,JOB_id] = fileparts(serverfbMPI.mess_exchange_folder);
             cs = iMessagesFramework.build_worker_init(fileparts(data_exchange_folder),...
-                JOB_id,'MessagesCppMPI_test3',1,3,true);
+                JOB_id,'MessagesCppMPI_3wkrs_tester',1,3,true);
             
-            % intercomm constructor invoked here.
+            % intercom constructor invoked here.
             [fbMPI,intercomm] = JobExecutor.init_frameworks(cs);
             clob1 = onCleanup(@()(finalize_all(intercomm)));
             clob2 = onCleanup(@()(finalize_all(fbMPI)));
@@ -95,7 +95,7 @@ classdef test_CPP_MPI_exchange< TestCase
         %
         function test_receive_all_mess(this)
             
-            intercomm = MessagesCppMPI_test3();
+            intercomm = MessagesCppMPI_3wkrs_tester();
             clob1 = onCleanup(@()(finalize_all(intercomm)));
             
             mess = LogMessage(0,10,1,'0');
