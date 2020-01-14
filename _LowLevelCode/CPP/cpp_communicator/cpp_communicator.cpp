@@ -184,8 +184,9 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     } // end case
     } // end switch
 
-    if (nlhs > 0)
+    if (nlhs > 0) {
         plhs[(int)labIndex_Out::comm_ptr] = pCommunicatorHolder->export_hanlder_toMatlab();
+    }
 }
 /* If appropriate number of output arguments are availiable, set up the mex routine output arguments to mpi_numLab and mpi_labNum values
    extracted from initialized MPI framework.
@@ -195,18 +196,22 @@ void set_numlab_and_nlabs(class_handle<MPI_wrapper> const* const pCommunicatorHo
     if (nlhs >= (int)labIndex_Out::numLab + 1) {
         plhs[(int)labIndex_Out::numLab] = mxCreateNumericMatrix(1, 1, mxUINT64_CLASS, mxREAL);
         uint64_t* pNlab = (uint64_t*)mxGetData(plhs[(int)labIndex_Out::numLab]);
-        if (pCommunicatorHolder)
+        if (pCommunicatorHolder) {
             *pNlab = (uint64_t)pCommunicatorHolder->class_ptr->labIndex + 1;
-        else
+        }
+        else {
             *pNlab = 0;
+        }
     }
     if (nlhs == (int)labIndex_Out::n_workers + 1) {
         plhs[(int)labIndex_Out::n_workers] = mxCreateNumericMatrix(1, 1, mxUINT64_CLASS, mxREAL);
         uint64_t* pNworkers = (uint64_t*)mxGetData(plhs[(int)labIndex_Out::n_workers]);
-        if (pCommunicatorHolder)
+        if (pCommunicatorHolder) {
             *pNworkers = (uint64_t)(uint64_t)pCommunicatorHolder->class_ptr->numProcs;
-        else
+        }
+        else {
             *pNworkers = 0;
+        }
     }
 
 }

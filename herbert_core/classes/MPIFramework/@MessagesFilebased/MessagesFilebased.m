@@ -250,7 +250,7 @@ classdef MessagesFilebased < iMessagesFramework
         end
         
         
-        function obj = set.time_to_fail(obj,val)
+        function set.time_to_fail(obj,val)
             obj.time_to_fail_ = val;
         end
         function val = get.time_to_fail(obj)
@@ -259,17 +259,8 @@ classdef MessagesFilebased < iMessagesFramework
         %
         function is = is_job_canceled(obj)
             % method verifies if job has been canceled
-            if ~exist(obj.mess_exchange_folder_,'dir')
-                is=true;
-            else
-                is=false;
-            end
-            if ~is
-                mess = obj.probe_all('any','canceled');
-                if ~isempty(mess)
-                    is = true;
-                end
-            end
+            is = ~exist(obj.mess_exchange_folder_,'dir') || ...
+                ~isempty(obj.probe_all('any','canceled'));
         end
         
     end

@@ -81,7 +81,7 @@ classdef MESS_NAMES
             
         end
         %
-        function [name2tag_map,tag2name_map]=name_tag_maps()
+        function [name_to_tag_map,tag_to_name_map]=name_tag_maps()
             % the persistent class builds relationship between message id
             % (tag) and the message name
             %
@@ -91,15 +91,15 @@ classdef MESS_NAMES
             % tag2name_map -- the map, the numeric tag with corresponding
             %                 symbolic message names ;
             
-            persistent name2code_map_;
-            persistent code2name_map_;
-            if isempty(name2code_map_)
+            persistent name_to_code_map_;
+            persistent code_to_name_map_;
+            if isempty(name_to_code_map_)
                 mess_codes = num2cell(-1:numel(MESS_NAMES.mess_names_)-2);
-                name2code_map_ = containers.Map(MESS_NAMES.mess_names_,mess_codes);
-                code2name_map_ = containers.Map(mess_codes,MESS_NAMES.mess_names_);
+                name_to_code_map_ = containers.Map(MESS_NAMES.mess_names_,mess_codes);
+                code_to_name_map_ = containers.Map(mess_codes,MESS_NAMES.mess_names_);
             end
-            name2tag_map = name2code_map_;
-            tag2name_map = code2name_map_;
+            name_to_tag_map = name_to_code_map_;
+            tag_to_name_map = code_to_name_map_;
         end
         %
         function names = all_mess_names()
