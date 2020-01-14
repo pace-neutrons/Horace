@@ -204,7 +204,7 @@ TEST_F(TestCombineSQW, Get_NPix_For_Bins) {
     // number of pixels in file is known
     ASSERT_NE(std::numeric_limits<uint64_t>::max(), pix_map.num_pix_in_file());
 
-    ASSERT_EQ(pix_map.num_pix_in_file(), sample_pix_pos[num_bin_in_file - 1] + sample_npix[num_bin_in_file - 1])
+    ASSERT_EQ(pix_map.num_pix_in_file(), sample_pix_pos[num_bin_in_file - 1] + sample_npix[num_bin_in_file - 1]);
 }
 
 TEST_F(TestCombineSQW, Fully_Expand_Pix_Map_From_Start) {
@@ -246,7 +246,7 @@ TEST_F(TestCombineSQW, Check_Expand_Pix_Map) {
     bool end_pix_reached;
     size_t num_pix0 = pix_map.check_expand_pix_map(511, 512, end_pix_reached);
     ASSERT_FALSE(end_pix_reached);
-    ASSERT_EQ(510, num_pix1);
+    ASSERT_EQ(510, num_pix0);
 
     size_t pix_pos, npix;
     pix_map.get_npix_for_bin(511, pix_pos, npix);
@@ -374,7 +374,7 @@ TEST_F(TestCombineSQW, Get_NPix_For_Bins_Threads) {
     // number of pixels in file is known
     ASSERT_NE(std::numeric_limits<uint64_t>::max(), pix_map.num_pix_in_file());
 
-    ASSERT_EQ(pix_map.num_pix_in_file(), sample_pix_pos[num_bin_in_file - 1] + sample_npix[num_bin_in_file - 1])
+    ASSERT_EQ(pix_map.num_pix_in_file(), sample_pix_pos[num_bin_in_file - 1] + sample_npix[num_bin_in_file - 1]);
 }
 
 TEST_F(TestCombineSQW, Fully_Expand_Pix_Map_From_Start_Threads) {
@@ -766,7 +766,7 @@ TEST_F(TestCombineSQW, MXSQW_Reader_Propagate_Pix_Multi) {
 
     ProgParameters ProgSettings;
     ProgSettings.log_level = 2;
-    ProgSettings.nBin1read = 0;
+    ProgSettings.nBin2read = 0;
     ProgSettings.num_log_ticks = 100;
     ProgSettings.pixBufferSize = 1164180;
     ProgSettings.totNumBins = num_bin_in_file;
@@ -781,14 +781,14 @@ TEST_F(TestCombineSQW, MXSQW_Reader_Propagate_Pix_Multi) {
     Reader.read_pix_info(n_buf_pixels, n_bins_processed, nbinBuf);
 
     ASSERT_EQ(n_buf_pixels, ProgSettings.pixBufferSize);
-    ASSERT_EQ(n_bins_processed+0, ProgSettings.totNumBins);
+    ASSERT_EQ(n_bins_processed+1, ProgSettings.totNumBins);
 
     size_t nReadPixels, n_bin_max;
     const float * buf = reinterpret_cast<const float *>(Buffer.get_write_buffer(nReadPixels, n_bin_max));
     Buffer.unlock_write_buffer();
     ASSERT_EQ(nReadPixels, ProgSettings.pixBufferSize);
     //---------------------------------------------------------------------
-    std::vector<sqw_reader> reader_threads(0);
+    std::vector<sqw_reader> reader_threads(1);
     initialized=false;
     try {
         //(fileParam[i], change_fileno, fileno_provided, read_buf_size, read_files_multitreaded);
