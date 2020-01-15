@@ -10,7 +10,7 @@ set(TEST_DIRECTORIES
     "test_instrument_classes"
     "test_docify"
     "test_admin"
-    "test_mpi"
+    # "test_mpi"
 )
 
 foreach(_test_dir ${TEST_DIRECTORIES})
