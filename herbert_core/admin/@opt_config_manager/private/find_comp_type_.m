@@ -24,7 +24,7 @@ if ispc
             pc_type = types{1};%windows small
         end
     end
-    
+
 elseif isunix
     [ok,mem_string] = system('free | grep Mem');
     if ~ok
@@ -41,7 +41,7 @@ elseif isunix
         pc_type = types{3};
         return;
     end
-    
+
     rez=strfind(mess,'NUMA node');
     % if lscpu returns more then one numa node strigs, first string defines
     % the number of numa nodes and all subsequent strings describe each
@@ -56,7 +56,7 @@ elseif isunix
     else
         n_profile = 4; % normal unix machine
     end
-    
+
     if hpc_computer
         n_profile=n_profile+1;
     end
@@ -64,7 +64,6 @@ elseif isunix
 
 end
 
-is_jenkins_true = is_jenkins()
 if is_jenkins()
    pc_type = types{8};  % 'jenkins'
 end
