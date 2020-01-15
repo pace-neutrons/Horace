@@ -29,6 +29,6 @@ foreach(_test_dir ${TEST_DIRECTORIES})
         ADDITIONAL_PATH
             "${CMAKE_SOURCE_DIR}/admin"
             "${CMAKE_SOURCE_DIR}/herbert_core"
-        TIMEOUT 5400  # 1.5 hours
+        TIMEOUT 300  # 5 mins
     )
 endforeach()
