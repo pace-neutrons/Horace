@@ -35,3 +35,8 @@ add_subdirectory("_LowLevelCode")
 if(${BUILD_TESTS})
     add_subdirectory("_test")
 endif()
+
+configure_file("${CMAKE_SOURCE_DIR}/admin/worker_4tests.m.template"
+    "${CMAKE_SOURCE_DIR}/admin/worker_4tests.m")
+configure_file("${CMAKE_SOURCE_DIR}/admin/worker_v2.m.template"
+    "${CMAKE_SOURCE_DIR}/admin/worker_v2.m")
