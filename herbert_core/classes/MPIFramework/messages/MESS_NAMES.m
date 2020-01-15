@@ -122,7 +122,8 @@ classdef MESS_NAMES
 
             end
             name_to_tag_map = name_to_code_map_;
-            tag_to_name_map = code_to_name_map_;        end
+            tag_to_name_map = code_to_name_map_;  
+        end
         %
         function names = all_mess_names()
             names = MESS_NAMES.mess_names_;
