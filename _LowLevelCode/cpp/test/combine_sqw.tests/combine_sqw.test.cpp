@@ -822,7 +822,3 @@ TEST_F(TestCombineSQW, MXSQW_Reader_Propagate_Pix_Multi) {
         ASSERT_EQ(buf[i], buf1[i]) << "pix N" << n_pix;
     }
 }
-
-TEST_F(TestCombineSQW, Failing_Test) {
-	ASSERT_EQ(1,0);
-}
