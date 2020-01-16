@@ -27,7 +27,9 @@ function print_package_versions() {
   echo "$(cmake --version | head -n 1)"
   echo "Matlab: ${MATLAB_ROOT}"
   echo "$(g++ --version | head -n 1)"
-  echo "$(clang --version | head -n 1)"
+  if [ -f "$(which clang-tidy)" ]; then
+    echo "clang-tidy: $(clang-tidy --version | grep version)"
+  fi
   echo
 }
 
