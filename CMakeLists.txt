@@ -32,11 +32,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 add_subdirectory("_LowLevelCode")
+add_subdirectory("admin")
 if(${BUILD_TESTS})
     add_subdirectory("_test")
 endif()
-
-configure_file("${CMAKE_SOURCE_DIR}/admin/worker_4tests.m.template"
-    "${CMAKE_SOURCE_DIR}/admin/worker_4tests.m")
-configure_file("${CMAKE_SOURCE_DIR}/admin/worker_v2.m.template"
-    "${CMAKE_SOURCE_DIR}/admin/worker_v2.m")
