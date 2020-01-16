@@ -27,6 +27,7 @@ find_program(
 )
 
 if(CLANG_TIDY_EXE)
+    message("Found clang-tidy: ${CLANG_TIDY_EXE}")
     set(CLANG_TIDY_CHECKS
             "-*,cppcoreguidelines-*,clang-analyzer-*,bugprone-*,llvm-*,modernize-*,mpi-*,portability-*,readability-*"
             )
@@ -42,4 +43,6 @@ if(CLANG_TIDY_EXE)
                 -checks=${CLANG_TIDY_CHECKS};
         )
     endif()
+else()
+    message("Skipping clang-tidy checks - executable not found.")
 endif()
