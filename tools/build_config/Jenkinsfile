@@ -34,6 +34,7 @@ pipeline {
                     module load cmake/\$CMAKE_VERSION &&
                     module load matlab/\$MATLAB_VERSION &&
                     module load gcc/\$GCC_VERSION &&
+                    module load clang &&
                     ./tools/build_config/build.sh --build
                 '''
             }
