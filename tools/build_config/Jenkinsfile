@@ -66,6 +66,12 @@ pipeline {
                 fingerprint: true
             )
 
+            recordIssues(
+                tools: [
+                    clangTidy()
+                ]
+            )
+
             xunit (
                 testTimeMargin: '3000',
                 thresholdMode: 1,
