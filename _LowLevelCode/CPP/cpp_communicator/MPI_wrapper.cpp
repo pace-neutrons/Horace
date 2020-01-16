@@ -198,7 +198,8 @@ void MPI_wrapper::labProbe(const std::vector<int32_t>& data_address, const std::
     std::vector<int32_t>& addres_present, std::vector<int32_t>& tag_present) {
 
     typedef std::tuple<int32_t, int32_t> address;
-    std::list<address> addres_tmp;
+    std::vector<address> addres_tmp;
+    addres_tmp.reserve(data_address.size()); // most probable request is one tag per address
     bool any_mess_present = false;
     for (size_t i = 0; i < data_address.size(); i++) {
 
@@ -246,7 +247,8 @@ void MPI_wrapper::labProbe(const std::vector<int32_t>& data_address, const std::
     if (addres_tmp.size() == 0) {
         return;
     }
-
+    addres_present.reserve(addres_tmp.size());
+    tag_present.reserve(addres_tmp.size());
     for (auto&& it : addres_tmp) {
         addres_present.push_back(std::get<0>(it));
         tag_present.push_back(std::get<1>(it));
