@@ -1,5 +1,13 @@
 #!groovy
-
+/**
+ * The following parameters must be provided by the Jenkins build job and must match available application
+ * on the build target machine
+ *
+ *  - CMAKE_VERSION: The version of CMake to run the build with
+ *  - GCC_VERSION: The version of GCC to build with
+ *  - MATLAB_VERSION: The release number of the Matlab to load
+ *  - CLANG_VERSION: The version of CLang tooling to load to provide the clang-tidy code-style checks
+ */
 def post_github_status(String state, String message) {
     withCredentials([string(credentialsId: 'GitHub_API_Token',
             variable: 'api_token')]) {
