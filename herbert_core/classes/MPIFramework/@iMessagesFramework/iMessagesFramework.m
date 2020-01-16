@@ -3,9 +3,9 @@ classdef iMessagesFramework < handle
     %
     % Defines generic interface a Horace program can use to exchange messages
     % between jobs running either in separate Matlab sessions or in Matlab
-    % workers
+    % workers.
     % Also contains auxiliary methods and basic operations used by all
-    % Herbert MPI frameworks to set up remote jobs.
+    % Herbert MPI frameworks to set up and run remote jobs.
     %
     % $Revision:: 839 ($Date:: 2019-12-16 18:18:44 +0000 (Mon, 16 Dec 2019) $)
     %
@@ -32,7 +32,10 @@ classdef iMessagesFramework < handle
         % unblocking or failing. Does not work for some operations in some frameworks
         % (e.g. receive_message in mpi)
         time_to_fail_ = 300; %(sec)
-        % make fail message persistent
+        % The holder for persistent messages, used to mark special job states
+        % (e.g. completion or failure) for a particular worker (lab)
+        % if the variable is not empty, a special event happened, so the
+        % worker would operate differently.
         persistent_fail_message_=[];
     end
     methods
@@ -51,7 +54,7 @@ classdef iMessagesFramework < handle
         end
         %
         function set.job_id(obj,val)
-            % set the string uniquely definging job name.
+            % set the string uniquely defining job name.
             set_job_id_(obj,val);
         end
         %
@@ -82,7 +85,7 @@ classdef iMessagesFramework < handle
             % obj          --  an initiated instance of message exchange
             %                  framework on a head-node and
             % intercom_name -- the name of the framework, used
-            %                  to exchange messages between workes
+            %                  to exchange messages between workers
             % labId         -- labIndex if present, defines the number of
             %                  Herbert pseudo MPI worker to initiate
             % numLabs       -- if present, total  number of Herbert pseudo MPI
@@ -90,10 +93,10 @@ classdef iMessagesFramework < handle
             %
             %
             datapath = fileparts(fileparts(fileparts(obj.mess_exchange_folder)));
-            if exist('labID','var') % Herbert MPI worker. Numlabs and labnum are defined by configuration
+            if exist('labID','var') % Herbert MPI worker. numlabs and labNum are defined by configuration
                 cs = obj.build_worker_init(...
                     datapath,obj.job_id,intercom_name,labID,numLabs);
-            else  % real MPI worker (numlabs and labnum is defined by MPIexec
+            else  % real MPI worker (numLabs and labNum are defined by MPIexec
                 cs = obj.build_worker_init(...
                     datapath,obj.job_id,intercom_name);
             end
@@ -130,13 +133,13 @@ classdef iMessagesFramework < handle
             % Helper method used to add persistent messages to the list
             % of the messages, received from other labs.
             %
-            % If both messages are received from the same worker, overide
+            % If both messages are received from the same worker, override
             % other message with the persistent message.
             % Inputs:
             % all_messages -- cellarray of messages to mix with persistent
             %                 messages.
             % mid_from     -- array of the workers id-s (labNums) where
-            %                 these messages can be receved.
+            %                 these messages can be received.
             % mes_addr_to_check -- array of labNums to check for presence
             %                 of persistent messages
             % Return:
@@ -154,10 +157,11 @@ classdef iMessagesFramework < handle
                 intercom_name,labID,numLabs,test_mode)
             % prepare data necessary to initialize a MPI worker and
             % serialize them into the form, acceptable for transfer through
-            % any system's interprocess pipe
+            % any system's inter-process pipe
             %
             % Usage:
-            %>> cs =iMessagesFramework.build_worker_init(path_to_data_exchange_folder,[labID,numLabs])
+            %>> cs =iMessagesFramework.build_worker_init(...
+            %       path_to_data_exchange_folder,[labID,numLabs])
             % Where:
             % path_to_data_exchange_folder -- the path on a remote machine
             %                                 where the file-based messages
@@ -181,15 +185,15 @@ classdef iMessagesFramework < handle
             % test_mode -- if true, generates the structure, used to
             %              initialize CppMpi framework in test mode
             %              In this case, the messages is not
-            %              serizlised. Can be defined only if labID
+            %              serialized. Can be defined only if labID
             %              and numLabs are defined
             % Returns:
-            % base64-coded and mappped to ASCII 128 symbols linear
-            % representaion of the information, necessary to initialize
+            % base64-coded and mapped to ASCII 128 symbols linear
+            % representation of the information, necessary to initialize
             % MPI worker operating with any Herbert cluster
             %
             % if test_mode is true, no encoding is performed and the
-            %
+            % initialization structure is returned as it is.
             %
             cs = struct('data_path',path_to_data_exchange_folder,...
                 'job_id',jobID,...

@@ -1,6 +1,6 @@
 function ok=finish_task_tester(worker_controls_string,varargin)
 % The routine used in unit tests to reproduce part of the worker
-% operations.
+% operations, namely initialization and completeon.
 %Inputs:
 % worker_controls_string - the structure, containing information, necessary to
 %              initiate the job.
@@ -9,8 +9,8 @@ function ok=finish_task_tester(worker_controls_string,varargin)
 %              contains only minimal initialization information, namely the
 %              folder name where the job initialization data are located on
 %              a remote system
-% varargin  -- n-neighbour gurests -- if present, describes number of
-%             "virtual" neighboring workers, used as sources of messages to
+% varargin(n-neighbour) -- if present, defines number of "virtual"
+%             neighboring workers, used as sources of messages to
 %             test cpp_mpi communications.
 %
 % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
@@ -47,7 +47,8 @@ config_store.set_config_folder(config_exchange_folder);
 % cluster and between the cluster and the headnode.
 [fbMPI,intercomm] = JobExecutor.init_frameworks(control_struct);
 if nargin>1
-    % simulate fake extra nodes who started in parallel with this one
+    % simulate fake extra nodes who started in parallel with this one and
+    % reporting "started" state
     for i=2:varargin{1}
         intercomm.send_message(i,'started');
     end
@@ -60,10 +61,7 @@ try
     je = JETester();
     [je,mess] = je.init(fbMPI,intercomm,init_message);
     labind = intercomm.labIndex();
-    % if je.labIndex ~= 1
-    %     pause(0.5)
-    % end
-    
+    %
     if ~isempty(mess)
         disp([' non-empty message for lab ',num2str(labind)])
         err = sprinft(' Error sending ''started'' message from task N%d',...
@@ -71,14 +69,13 @@ try
         error('WORKER:init_worker',err);
     end
     je.task_outputs = sprintf(' finished job for lab %d',je.labIndex);
-    % if je.labIndex ~= 1
-    %     pause(0.5)
-    % end
+    %
     if nargin>1
         % simulate fake extra nodes who completed before this one
+        % and are reporting "completed" state
         for i=2:varargin{1}
             intercomm.send_message(i,'completed');
-        end        
+        end
     end
     ok=je.finish_task();
 catch ME
