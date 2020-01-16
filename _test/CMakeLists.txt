@@ -26,7 +26,7 @@ foreach(_test_dir ${TEST_DIRECTORIES})
                 exit(1);\
             end;\
             exit(~res)"
-        UNITTEST_PRECOMMAND "herbert_on"
+        UNITTEST_PRECOMMAND "herbert_init"
         ADDITIONAL_PATH
             "${CMAKE_SOURCE_DIR}/admin"
             "${CMAKE_SOURCE_DIR}/herbert_core"
