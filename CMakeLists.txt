@@ -32,6 +32,9 @@ if(${BUILD_TESTS})
     enable_testing()
 endif()
 
+# include clang-tidy if available
+include(horace_FindCLangTidy)
+
 # Set the destination of our build artifacts
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
