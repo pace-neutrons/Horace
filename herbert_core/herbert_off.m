@@ -22,7 +22,6 @@ try
         paths = strrep(paths, global_paths{i}, '');
     end
     rmpath(paths);
-    addpath(getenv('MATLABPATH'));  % restore any enviornment vars
     warning(warn_state);  % return warnings to initial state
 catch
     warning(warn_state);  % return warnings to initial state if error encountered
