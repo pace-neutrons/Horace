@@ -67,8 +67,8 @@ function run_tests() {
 # not yet implemented
 function run_package() {
   echo -e "\nRunning package step..."
-  echo "Not implemented"
-  # echo_and_run "cmake --build install"
+  echo_and_run "cd ${build_dir}"
+  echo_and_run "cpack -G TGZ"
 }
 
 function main() {
@@ -81,7 +81,6 @@ function main() {
   local build_config='Release'
   local build_dir="${HERBERT_ROOT}/build"
   local build_fortran="ON"
-  local install_dir="${HERBERT_ROOT}/install"
 
   # parse command line args
   while [[ $# -gt 0 ]]; do
