@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.7)
 
-project("Herbert")
+project("Herbert" VERSION "3.5.0")
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -35,13 +35,14 @@ add_subdirectory("_LowLevelCode")
 # =============================================================================
 # Install commands
 # =============================================================================
+include(herbert_CPackConfig)
 install(
     DIRECTORY "herbert_core/"
-    DESTINATION "${CMAKE_INSTALL_PREFIX}/Herbert"
+    DESTINATION "Herbert"
     USE_SOURCE_PERMISSIONS
     PATTERN "*.m~" EXCLUDE
 )
 install(
     FILES "LICENSE" "README.md"
-    DESTINATION "${CMAKE_INSTALL_PREFIX}"
+    DESTINATION "."
 )

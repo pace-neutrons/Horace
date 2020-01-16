@@ -3,7 +3,7 @@ function(install_template_file)
     get_filename_component(_new_file_name "${_template_file}" NAME_WE)
     install(
         FILES ${arg1}
-        DESTINATION "${CMAKE_INSTALL_PREFIX}"
+        DESTINATION "."
         RENAME "${_new_file_name}"
         )
 endfunction()
