@@ -3,14 +3,14 @@ set(TEST_DIRECTORIES
     "test_config"
     "test_IX_classes"
     "test_map_mask"
-    "test_mslice_objects"
+    # "test_mslice_objects"
     "test_multifit"
     "test_multifit_legacy"
     "test_utilities"
     "test_instrument_classes"
     "test_docify"
     "test_admin"
-    "test_mpi"
+    # "test_mpi"
 )
 
 foreach(_test_dir ${TEST_DIRECTORIES})
