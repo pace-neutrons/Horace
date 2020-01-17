@@ -35,6 +35,7 @@ classdef test_iMPI_methods< TestCase
             
             obj.current_config = pc.get_data_to_store;
         end
+        %
         function tearDown(obj)
             if obj.ignore_test
                 return;
@@ -47,6 +48,69 @@ classdef test_iMPI_methods< TestCase
             pc = parallel_config;
             set(pc,obj.current_config);
         end
+        %
+        function test_add_persistent(obj)
+            mf = MessagesFilebased();
+            
+            mf.check_set_persistent(FailedMessage('bad faulure'),1);
+            mf.check_set_persistent(aMessage('completed'),10);
+            mf.check_set_persistent(aMessage('completed'),5);
+            
+            other_mess ={};
+            other_id   =[];
+            [mess,ids]  = mf.add_persistent(other_mess,other_id,1:10);
+            assertEqual(numel(mess),3);
+            assertEqual(numel(ids),3);
+            assertEqual(ids,int32([1,5,10]));
+            
+            other_mess = {'log','data','data','log'};
+            other_id = [2,3,4,7];
+            [mess,ids]  = mf.add_persistent(other_mess,other_id,1:10);
+            assertEqual(numel(mess),7);
+            assertEqual(numel(ids),7);
+            assertEqual(ids,int32([1,2,3,4,5,7,10]));
+            
+            other_id = [1,4,5,7];
+            [mess,ids]  = mf.add_persistent(other_mess,other_id,1:10);
+            assertEqual(numel(mess),5);
+            assertEqual(numel(ids),5);
+            assertEqual(ids,int32([1,4,5,7,10]));
+            assertEqual(mess{1},'failed');            
+            assertEqual(mess{2},'data');                        
+            assertEqual(mess{3},'completed');                                    
+            assertEqual(mess{4},'log');                                                
+            assertEqual(mess{5},'completed');                                                            
+        end
+        %
+        function test_persistent(obj)
+            mf = MessagesFilebased();
+            assertTrue(isempty(mf.check_get_persistent(1)));
+            
+            mf.check_set_persistent(aMessage('log'),1);
+            assertTrue(isempty(mf.check_get_persistent(1)));
+            
+            mf.check_set_persistent(FailedMessage('bad faulure'),1);
+            me = mf.check_get_persistent(1);
+            assertTrue(isa(me,'FailedMessage'));
+            
+            me = mf.check_get_persistent(2);
+            assertTrue(isempty(me));
+            
+            [me,id] = mf.check_get_persistent('any');
+            assertEqual(numel(me),1);
+            assertEqual(id,int32(1));
+            
+            mf.check_set_persistent(aMessage('completed'),10);
+            [me,id] = mf.check_get_persistent('any');
+            assertEqual(numel(me),2);
+            assertEqual(id,int32([1,10]));
+            
+            mf.check_set_persistent(aMessage('completed'),4);
+            [me,id] = mf.check_get_persistent(1:5);
+            assertEqual(numel(me),2);
+            assertEqual(id,int32([1,4]));
+        end
+        %
         function test_serialize_deserialize(this)
             mf = MFTester('test_ser_deser');
             clob = onCleanup(@()finalize_all(mf));
@@ -61,6 +125,7 @@ classdef test_iMPI_methods< TestCase
                 'labID',1,'numLabs',10);
             assertEqual(sample,csr);
         end
+        %
         function test_mpi_worker_single_thread(obj,varargin)
             if obj.ignore_test
                 return;

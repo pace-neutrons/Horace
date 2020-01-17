@@ -9,20 +9,26 @@ function [err_code,err_mess,message] = receive_message_(obj,varargin)
 err_code = MESS_CODES.ok;
 err_mess = [];
 
+
 [id,tag,labReceiveSimulator] = get_mess_id_(varargin{:});
 % disabled due to the bug in the parallel parser
 % if ~isempty(labReceiveSimulator)
 %     labReceive = labReceiveSimulator();
 % end
+message = obj.check_get_persistent(id);
+if ~isempty(message);   return; end
+
 
 try
     if isempty(id)
-        message = labReceive();
+        [message,id,tag] = labReceive;
     elseif isempty(tag)
         message = labReceive(id);
     else % nargin == 3 or more
         message = labReceive(id,tag);
     end
+    obj.check_set_persistent(message,id);
+   
 catch Err
     err_code = MESS_CODES.a_recieve_error;
     err_mess = Err;

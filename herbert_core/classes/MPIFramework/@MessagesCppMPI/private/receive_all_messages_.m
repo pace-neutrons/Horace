@@ -27,9 +27,9 @@ end
 
 
 n_requested = numel(task_ids);
-all_messages = cell(n_requested ,1);
-mess_received = false(n_requested ,1);
-tid_received_from = zeros(n_requested ,1);
+all_messages = cell(n_requested,1);
+mess_received = false(n_requested,1);
+tid_received_from = zeros(n_requested,1);
 
 [message_names,tid_from] = labprobe_all_messages_(obj,task_ids,mess_name);
 %[tid_from,im] = unique(tid_from);
@@ -41,11 +41,12 @@ if obj.DEBUG_
 end
 
 all_received = false;
-nsteps = 0;
 t0 = tic;
 while ~all_received
     for i=1:n_requested
-        if ~present_now(i); continue; end
+        if ~present_now(i) || mess_received(i)
+            continue;
+        end
         
         [ok,err_mess,message]=receive_message_(obj,task_ids(i),mess_name);
         if ok ~= MESS_CODES.ok
@@ -83,26 +84,7 @@ while ~all_received
                     'Timeout waiting for receiving all messages')
             end
             [message_names,tid_from] = labprobe_all_messages_(obj,task_ids,mess_name);
-            %[tid_from,im] = unique(tid_from);
-            %message_names = message_names(im);
             present_now = ismember(task_ids,tid_from);
-            % verify data messages already present not to force overwriting
-            % existing received data messages
-            is_old_data_mess = cellfun(@is_data_message,all_messages,...
-                'UniformOutput',true);
-            if obj.DEBUG_
-                nsteps  = nsteps +1;
-                disp([' Messages arrived at step ',num2str(nsteps), 'vs old data mess']);
-                disp(present_now);
-                for i=1:numel(message_names)
-                    disp(message_names{i});
-                end
-                disp(is_old_data_mess');
-            end
-            
-            if any(is_old_data_mess )
-                present_now = present_now & ~is_old_data_mess';
-            end
             
             pause(0.1);
         end
@@ -122,13 +104,5 @@ if ~isempty(tid_received_from)
     all_messages  = all_messages(ic);
 end
 
-
-
-function is = is_data_message(mess)
-if isempty(mess)
-    is = false;
-    return
-end
-is = mess.is_blocking;
 
 

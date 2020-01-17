@@ -41,7 +41,7 @@ classdef MessagesCppMPI < iMessagesFramework
         % if this number of asynchronous messages has been send and no
         % been received, something wrong is happening with the node or the
         % cluster, so the job should be interrupted (canceled)
-        assync_messages_queue_length_ = 10;
+        assync_messages_queue_length_ = 100;
         % the tag for the data message, used by cpp_communicator to process
         % data messages differently
         data_message_tag_;
@@ -171,6 +171,7 @@ classdef MessagesCppMPI < iMessagesFramework
         function obj=finalize_all(obj)
             % delete all messages belonging to this instance of messages
             % framework and delete the framework itself
+            obj.persistent_fail_message_ = [];
             if ~isempty(obj.mpi_framework_holder_)
                 obj.mpi_framework_holder_ = ...
                     cpp_communicator('finalize',obj.mpi_framework_holder_);
@@ -181,6 +182,7 @@ classdef MessagesCppMPI < iMessagesFramework
         function clear_messages(obj)
             % receive and discard all MPI messages directed to this
             % workeer
+            obj.persistent_fail_message_ = [];
             obj.mpi_framework_holder_= ...
                 cpp_communicator('clearAll',obj.mpi_framework_holder_);
         end
@@ -212,8 +214,8 @@ classdef MessagesCppMPI < iMessagesFramework
         function delete(obj)
             if ~isempty(obj.mpi_framework_holder_)
                 cpp_communicator('finalize',obj.mpi_framework_holder_);
-                obj.mpi_framework_holder_ = [];
             end
+            obj.mpi_framework_holder_ = [];
         end
     end
     %----------------------------------------------------------------------

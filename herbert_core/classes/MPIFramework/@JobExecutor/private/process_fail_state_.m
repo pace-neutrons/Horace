@@ -34,12 +34,13 @@ if is_tested
     [ok,err_mess]=obj.finish_task(mess,'-asynchronous');
 else
     % stop until other nodes fail due to cancellation and come
-    % here    
+    % here
+    % job has been interrupted before the barrier in the job
+    % loop has been reached, so wait here for completed jobs to finish
     if ~obj.do_job_completed
-        % job has been interrupted before the barrier in the job
-        % loop has been reached, so been interrupted
         obj.labBarrier(false);
     end
     [ok,err_mess]=obj.finish_task(mess);
+    
 end
 
