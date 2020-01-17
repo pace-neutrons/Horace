@@ -1,11 +1,12 @@
+# Function to install a file whose name ends in .template
 function(install_template_file)
-    set(_template_file "${arg1}")
-    get_filename_component(_new_file_name "${_template_file}" NAME_WE)
+    set(_template_file "${ARGV0}")
+    string(REPLACE ".template" "" _new_file_name "${_template_file}")
     install(
-        FILES ${arg1}
+        FILES "${_template_file}"
         DESTINATION "."
         RENAME "${_new_file_name}"
-        )
+    )
 endfunction()
 
 set(TEMPLATE_FILES
