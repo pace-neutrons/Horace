@@ -29,12 +29,13 @@ def post_github_status(String state, String message) {
         credentialsId: 'pace_builder_GitHub_access_token',
         statusResultSource: [
             $class: "ConditionalStatusResultSource",
-            results: [[$class: "AnyBuildResult", message: message, state: state]]
-        ]
+            results: [
+                [$class: "AnyBuildResult", message: message, state: state]
+            ]
+        ],
         withBackref: true
     ])
 }
-
 
 /* Required pipeline parameters:
  *   AGENT
