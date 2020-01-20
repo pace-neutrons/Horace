@@ -205,7 +205,7 @@ while keep_worker_running
         % asynchronously.
         n_steps = je.n_steps;
         mis.do_logging(0,n_steps);
-        je.do_job_completed = false; % wait at barrier if excetion happens during execution
+        je.do_job_completed = false; % wait at barrier if exception happens during execution
     
         %
         je.do_job_completed = false; % wait at barrier if exception in do_job
@@ -218,24 +218,24 @@ while keep_worker_running
                     fprintf(fh,'Waiting at barrier for all do_job completion\n');
                     disp('WORKER_4TESTS: Waiting at barrier for all do_job completion ')
                 end
-                % explicitly check for cancelation before data reduction
+                % explicitly check for cancellation before data reduction
                 is_canceled = je.is_job_canceled();
                 if is_canceled
                     error('JOB_EXECUTOR:canceled',...
-                        'Job canceled before synchonization after do_job')
+                        'Job canceled before synchronization after do_job')
                 end
                 
                 % when not tested, the synchronization is mandatory
                 je.labBarrier(false); % Wait until all workers finish their
                 %                       job before reducing the data
             end
-            je.do_job_completed = true; % do not waitn at barrier if cancelation here
+            je.do_job_completed = true; % do not wait at barrier if cancellation here
             if DO_LOGGING
                 disp('WORKER_4TESTS: reducing data ')
                 fprintf(fh,'Reducing data\n');
             end
-            % explicitly check for cancelation before data reduction
-            %  the case of cancelation below
+            % explicitly check for cancellation before data reduction
+            %  the case of cancellation below
             is_canceled = je.is_job_canceled();
             if is_canceled
                 error('JOB_EXECUTOR:canceled',...
@@ -245,7 +245,7 @@ while keep_worker_running
             je = je.reduce_data();
         end
  
-        % Sent final running message. Implicitly check for cancelation.
+        % Sent final running message. Implicitly check for cancellation.
         mis.do_logging(n_steps,n_steps);
         if ~is_tested
             % stop other nodes until the node 1 finishes to produce the
