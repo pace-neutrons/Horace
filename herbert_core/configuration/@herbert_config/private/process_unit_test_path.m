@@ -14,8 +14,8 @@ if ~(exist(tests_path,'dir')==7)
         warning('HERBERT_INIT:invalid_setup',...
             'Can not set-up access to the unit tests as no unint tests at %s are available',...
             tests_path);
-        tests_path = '';
     end
+    tests_path = '';
     return;
 end
 system_admin = fullfile(rootpath,'admin');
