@@ -15,8 +15,8 @@ if ~(exist(tests_path,'dir')==7)
             'Can not set-up access to the unit tests as no unint tests at %s are available',...
             tests_path);
         tests_path = '';
-        return;
     end
+    return;
 end
 system_admin = fullfile(rootpath,'admin');
 xunit_path= fullfile(tests_path,'matlab_xunit','xunit');  % path for unit tests harness
