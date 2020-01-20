@@ -37,7 +37,7 @@ set(Herbert_FULL_VERSION "${Herbert_FULL_VERSION}-${Herbert_PLATFORM}")
 if(NOT "${Herbert_RELEASE_TYPE}" STREQUAL "release")
     find_package(Git QUIET)
     execute_process(
-        COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
+        COMMAND ${GIT_EXECUTABLE} rev-list --abbrev-commit --no-merges -n 1 HEAD
         WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
         RESULT_VARIABLE _res
         OUTPUT_VARIABLE GIT_REVISION_SHA
