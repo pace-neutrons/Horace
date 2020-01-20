@@ -28,6 +28,9 @@ if ~(from_task_id==-1) &&(from_task_id<1 || from_task_id > obj.numLabs)
         from_task_id,obj.numLabs);
 end
 
+message = obj.check_get_persistent(from_task_id);
+if ~isempty(message);   return; end
+
 
 mess_tag = MESS_NAMES.mess_id(mess_name);
 is_blocking = MESS_NAMES.is_blocking(mess_tag );
@@ -50,3 +53,4 @@ if isempty(mess_data) % no message present at asynchronous receive.
 else
     message = hlp_deserialize(mess_data);
 end
+obj.check_set_persistent(message,from_task_id);

@@ -16,4 +16,3 @@ include(herbert_AddUnitTest)
 
 add_subdirectory(cpp_communicator.tests)
 add_subdirectory(get_ascii_file.tests)
-
