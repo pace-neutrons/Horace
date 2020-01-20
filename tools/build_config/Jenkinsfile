@@ -99,8 +99,6 @@ pipeline {
                     )
                 ]
             )
-
-
         }
 
         success {
