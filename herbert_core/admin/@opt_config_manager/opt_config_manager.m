@@ -21,8 +21,8 @@ classdef opt_config_manager
         % known to the class.
         known_configurations;
     end
-    
-    
+
+
     properties(Access=private)
         test_mode_ = false;
         config_info_folder_;
@@ -39,12 +39,12 @@ classdef opt_config_manager
         % so should not be changed without changing find_comp_type.
         known_pc_types_ = {'win_small','win_large','a_mac',...
             'unix_small','unix_large',...
-            'idaaas_small','idaaas_large'};
+            'idaaas_small','idaaas_large', 'jenkins'};
         % amount of memory (in Gb) presumed to be necessary for a single
         % parallel worker.
         mem_size_per_worker_ = 16;
     end
-    
+
     methods
         function obj = opt_config_manager()
             %
@@ -53,7 +53,7 @@ classdef opt_config_manager
             if isempty(which('horace_init'))
                 obj.known_configs_ = {'herbert_config','parallel_config'};
             end
-            
+
         end
         function types = get_known_pc_types(obj)
             types = obj.known_pc_types_;
@@ -170,11 +170,11 @@ classdef opt_config_manager
             %            be used in parallel (MPI) computations.
             % mem_size-- The size of the physical memory in bytes,
             %
-            
+
             [pc_type,nproc,mem_size] = find_comp_type_(obj);
         end
-        
-        
+
+
     end
     methods(Access=private)
         function print_help(obj)
@@ -186,7 +186,7 @@ classdef opt_config_manager
                     fprintf('    :%d  : %s\n',i,types{i});
                 end
             end
-            
+
         end
     end
 end
