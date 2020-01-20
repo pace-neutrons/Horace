@@ -30,6 +30,9 @@ pipeline {
     stages {
 
         stage('Notify') {
+            when {
+                expression { env.PR_STATUSES_URL }
+            }
             steps {
                 post_github_status("pending", "The build is running")
             }
@@ -94,10 +97,16 @@ pipeline {
         }
 
         success {
+            when {
+                expression { env.PR_STATUSES_URL }
+            }
             post_github_status("success", "The build succeeded")
         }
 
         failure {
+            when {
+                expression { env.PR_STATUSES_URL }
+            }
             post_github_status("failure", "The build failed")
         }
 
