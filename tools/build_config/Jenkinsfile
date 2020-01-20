@@ -1,6 +1,8 @@
 #!groovy
 
 def post_github_status(String state, String message) {
+    // Non-PR builds will not set PR_STATUSES_URL - in which case we do not
+    // want to post any statuses to Git
     if (env.PR_STATUSES_URL) {
         withCredentials([string(credentialsId: 'GitHub_API_Token',
                 variable: 'api_token')]) {
