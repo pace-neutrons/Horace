@@ -1,4 +1,4 @@
-[<-previous](0004-cpp-tests-in-separate-projects.md) | next->
+[<-previous](0004-cpp-tests-in-separate-projects.md) | [next->](0006-use-jenkins-for-ci.md)
 
 # 5 - Use GTest in CPP tests
 
