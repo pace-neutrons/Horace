@@ -320,8 +320,8 @@ classdef test_FileBaseMPI_Framework< TestCase
             
             
             delete(lock_starting);
-
-            all_mess = mf.probe_all();            
+            
+            all_mess = mf.probe_all();
             assertTrue(ismember('starting',all_mess))
             assertEqual(mid_from,0);
             
@@ -343,7 +343,7 @@ classdef test_FileBaseMPI_Framework< TestCase
             
             all_mess = mf.probe_all();
             assertTrue(isempty(all_mess));
-           
+            
             
         end
         
@@ -484,7 +484,7 @@ classdef test_FileBaseMPI_Framework< TestCase
             % clear up the barrier messages
             [ok,err,mess] = fbMPI1.receive_message(2,'barrier');
             assertEqual(ok,MESS_CODES.ok,err)
-            assertEqual(mess.mess_name,'barrier');
+            assertEqual(mess.mess_name,'failed');
             
             [ok,err,mess] = fbMPI1.receive_message(3,'barrier');
             assertEqual(ok,MESS_CODES.ok,err)

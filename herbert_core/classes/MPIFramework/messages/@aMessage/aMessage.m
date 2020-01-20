@@ -43,15 +43,27 @@ classdef aMessage
                     ' message with name %s is not recognized',name);
             end
         end
+        %------------------------------------------------------------------
         function rez = get.payload(obj)
             rez = obj.get_payload();
         end
+        %
         function name = get.mess_name(obj)
             name = obj.mess_name_;
         end
+        %
         function is = get.is_blocking(obj)
             is = obj.is_blocking_;
         end
+        %
+        function tag = get.tag(obj)
+            if isempty(obj.mess_name_)
+                tag = -1;
+            else
+                tag = MESS_NAMES.mess_id(obj.mess_name_);
+            end
+        end        
+        %------------------------------------------------------------------
         function obj = set.payload(obj,val)
             if iscell(val)
                 if numel(val)==1 && isempty(val{1})
@@ -60,21 +72,18 @@ classdef aMessage
             end
             obj.payload_  = val;
         end
-        
-        function tag = get.tag(obj)
-            if isempty(obj.mess_name_)
-                tag = -1;
-            else
-                tag = MESS_NAMES.mess_id(obj.mess_name_);
-            end
-        end
         %
+        %------------------------------------------------------------------
         function not = ne(obj,b)
             % implementation of operator ~= for aMessage class
             not = ~equal_to_tol(obj,b);
         end
         function ln = saveobj(obj)
             % Define information, necessary for message serialization
+            %
+            % Do not! modify to send tag instead of the name!
+            % -- some special messages have the same tags but different
+            %    names
             cln = class(obj);
             if (strcmp(cln,'aMessage'))
                 ser_struc = struct('mess_name',obj.mess_name_,...
@@ -82,13 +91,15 @@ classdef aMessage
             else
                 ser_struc = struct('class_name',cln);
             end
-            ser_struc.payload = obj.payload_;
+            ser_struc.payload = parce_payload_(obj.payload_);
             ln = hlp_serialize(ser_struc);
         end
     end
+    %
     methods(Static)
         function obj = loadobj(ls)
-            % Define information, necessary for message de-serialization
+            % Retrieve message object from sequnce of bytes
+            % produced by saveobj method. 
             
             ser_struc = hlp_deserialize(ls);
             if numel(ser_struc) >1
@@ -108,6 +119,7 @@ classdef aMessage
         end
         
     end
+    %
     methods(Access=protected)
         function pl = get_payload(obj)
             pl = obj.payload_;

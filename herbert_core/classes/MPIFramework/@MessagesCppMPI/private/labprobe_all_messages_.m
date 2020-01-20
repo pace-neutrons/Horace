@@ -55,12 +55,14 @@ mes_addr_to_check = uint32(mess_addr_requested);
 mes_tag_to_check = int32(mess_tag_requested);
 
 [obj.mpi_framework_holder_,addr_block] = cpp_communicator('labProbe',...
-            obj.mpi_framework_holder_,mes_addr_to_check,mes_tag_to_check);
-%        
+    obj.mpi_framework_holder_,mes_addr_to_check,mes_tag_to_check);
+%
 if isempty(addr_block)
     all_messages = {};
-    mid_from = [];    
+    mid_from = [];
 else
     all_messages = MESS_NAMES.mess_name(addr_block(2,:));
     mid_from = addr_block(1,:);
 end
+% add persistent messages names to the messages, received from other labs
+[all_messages,mid_from] = obj.add_persistent(all_messages,mid_from,mes_addr_to_check);

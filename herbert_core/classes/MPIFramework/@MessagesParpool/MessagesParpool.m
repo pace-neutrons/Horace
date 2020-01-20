@@ -171,7 +171,7 @@ classdef MessagesParpool < iMessagesFramework
             %
             [all_messages,task_ids] = receive_all_messages_(obj,varargin{:});
         end
-        function finalize_all(obj)
+        function finalize_all(obj)   
             obj.clear_messages();
         end
         %
@@ -179,6 +179,7 @@ classdef MessagesParpool < iMessagesFramework
             % delete all messages belonging to this instance of messages
             % framework.
             %
+            obj.persistent_fail_message_ = [];
             if obj.numLabs == 1
                 return
             end

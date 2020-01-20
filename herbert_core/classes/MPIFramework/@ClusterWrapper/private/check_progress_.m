@@ -23,7 +23,7 @@ else
             if ok ~= MESS_CODES.ok
                 error('CLUSTER_WRAPPER:runtime_error',...
                     'Error %s receiving existing message: %s from job %s',...
-                    err,mess_names,obj.job_id);
+                    err,mess_names{i},obj.job_id);
             end
             tag = mess.tag;
             completed = check_completed(tag);

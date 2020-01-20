@@ -15,7 +15,7 @@ if verLessThan('matlab','8.4')
     xd(4:9:end)=xd(1:9:end);xd(5:9:end)=xd(1:9:end);
     xd(7:9:end)=xd(1:9:end);xd(8:9:end)=xd(1:9:end);
     set(c(2),'XData',xd)
-elseif verLessThan('matlab',9.1)
+elseif verLessThan('matlab','9.1')
     % TODO! Should be better way of doing this, but it is currently unclear
     % how to set errorbar cap lengths to zero for Matlab 2016b>V>=2014b in any
     % other way.

@@ -213,6 +213,4 @@ void set_numlab_and_nlabs(class_handle<MPI_wrapper> const* const pCommunicatorHo
             *pNworkers = 0;
         }
     }
-
 }
-
