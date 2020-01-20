@@ -1,23 +1,40 @@
 #!groovy
 
+def getRepoURL() {
+  sh "git config --get remote.origin.url > .git/remote-url"
+  return readFile(".git/remote-url").trim()
+}
+
+def getCommitSha() {
+  sh "git rev-parse HEAD > .git/current-commit"
+  return readFile(".git/current-commit").trim()
+}
+
 def post_github_status(String state, String message) {
     // Non-PR builds will not set PR_STATUSES_URL - in which case we do not
     // want to post any statuses to Git
-    if (env.PR_STATUSES_URL) {
-        withCredentials([string(credentialsId: 'GitHub_API_Token',
-                variable: 'api_token')]) {
-            sh """
-                curl -H "Authorization: token ${api_token}" \
-                    --request POST \
-                    --data '{"state": "${state}", \
-                            "description": "${message}", \
-                            "target_url": "$BUILD_URL", \
-                            "context": "$JOB_BASE_NAME"}' \
-                    $PR_STATUSES_URL > /dev/null
-            """
-        }
+    if (env.PR_COMMIT_SHA) {
+        def repo_url = getRepoURL()
+        def commit_sha = env.PR_COMMIT_SHA
+
+    } else {
+        def repo_url = getRepoURL()
+        def commit_sha = getCommitSha()
     }
+    step([
+        $class: 'GithubCommitStatus',
+        reposSource: [$class: "ManuallyEnteredRepositorySource", url: repo_url],
+        commitShaSource: [$class: "ManuallyEnteredShaSource", sha: commitSha],
+        errorHandlers: [[$class: 'ShallowAnyErrorHandler']],
+        credentialsId: 'pace_builder_GitHub_access_token',
+        statusResultSource: [
+            $class: "ConditionalStatusResultSource",
+            results: [[$class: "AnyBuildResult", message: message, state: state]]
+        ]
+        withBackref: true
+    ])
 }
+
 
 /* Required pipeline parameters:
  *   AGENT
@@ -35,7 +52,7 @@ pipeline {
 
         stage('Notify') {
             steps {
-                post_github_status("pending", "The build is running")
+                post_github_status("PENDING", "The build is running")
             }
         }
 
@@ -98,11 +115,11 @@ pipeline {
         }
 
         success {
-            post_github_status("success", "The build succeeded")
+            post_github_status("SUCCESS", "The build succeeded")
         }
 
         failure {
-            post_github_status("failure", "The build failed")
+            post_github_status("FAILURE", "The build failed")
         }
 
         cleanup {
