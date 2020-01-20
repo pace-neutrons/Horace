@@ -43,7 +43,7 @@ install(
     DESTINATION "Herbert"
     USE_SOURCE_PERMISSIONS
     PATTERN "*.m~" EXCLUDE
-    PATTERN "*.asv" EXCLDUE
+    PATTERN "*.asv" EXCLUDE
 )
 install(
     FILES "LICENSE" "README.md"
