@@ -67,7 +67,7 @@ pipeline {
 
                 // Archive the release package
                 archiveArtifacts(
-                    artifacts: 'build/Herbert-*.[gzip]',
+                    artifacts: 'build/Herbert-*',
                     fingerprint: true
                 )
             }
