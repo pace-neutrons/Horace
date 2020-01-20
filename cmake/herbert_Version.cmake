@@ -1,6 +1,6 @@
 set(Herbert_FULL_VERSION "${PROJECT_VERSION}")
 
-if(HERBERT_RELEASE_TYPE STREQUAL "nightly")
+if(Herbert_RELEASE_TYPE STREQUAL "nightly")
     string(TIMESTAMP _date "%Y%m%d")
     set(Herbert_FULL_VERSION "${Herbert_FULL_VERSION}-${_date}")
 endif()
@@ -34,7 +34,7 @@ elseif(WIN32)
 endif()
 set(Herbert_FULL_VERSION "${Herbert_FULL_VERSION}-${Herbert_PLATFORM}")
 
-if(NOT "${HERBERT_RELEASE_TYPE}" STREQUAL "release")
+if(NOT "${Herbert_RELEASE_TYPE}" STREQUAL "release")
     find_package(Git QUIET)
     execute_process(
         COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
