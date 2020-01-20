@@ -1,11 +1,20 @@
 classdef opt_config_manager
     %The class keeps the list of optimal horace/herbert configurations
-    %for different types of the computer and return such configuration
+    %for different types of the computers and return such configuration
     %on request.
+    %
+    % The optimal configurations are identified upon the results of Horace
+    % team testing Horace on the appropriate platform, so the list of such
+    % configurations is, by definition, limited.
+    %
+    % Further user actions are necessary to identify if such configuration
+    % is indeed best for users machine.
+    %
+    % $Revision:: 839 ($Date:: 2019-12-16 18:18:44 +0000 (Mon, 16 Dec 2019) $)
     %
     properties(Dependent,Access=public)
         % what type (out of known types) this pc belongs to. Usually is
-        % calculated automatically but can be set up manually for class
+        % calculated automatically but can be set up manually for the class
         % testing purposes.
         this_pc_type;
         % The folder where optimal class configurations are stored.
@@ -47,13 +56,28 @@ classdef opt_config_manager
 
     methods
         function obj = opt_config_manager()
-            %
+            % The constructor of the class, which selects a default
+            % configuration, presumably optibal for this type of the
+            % computer.
             obj.config_info_folder_ = fileparts(mfilename('fullpath'));
             obj.this_pc_type_ = find_comp_type_(obj);
-            if isempty(which('horace_init'))
+            % The manager violates the separation between Horace and
+            % Herbert as located in Herbert but needs to know about Horace.
+            % To avoid the issue, of knowing about Horace, here
+            % we are doing the following:
+            % 1) As this is the class, which configures package, it is
+            %   involved only after the package is enabled.
+            % 2) Here we check if Horace is enabled, and if it is not, it
+            %    is Herbert configuration, which does not know anything
+            %    about Horace.
+            if isempty(which('sqw')) % then it is Herbert
                 obj.known_configs_ = {'herbert_config','parallel_config'};
             end
-
+            % 3) When it comes to Horace configuration, Herbert will be
+            %    configured, so its configurations would not be default any
+            %    more and we do not need to do anything. This class will
+            %    configure Horace only, using list of all configurations
+            %    known to the class.
         end
         function types = get_known_pc_types(obj)
             types = obj.known_pc_types_;
@@ -159,7 +183,7 @@ classdef opt_config_manager
             % and return pc type.
             %
             % A pc type is a string, describing the computer from point of
-            % view of using it for high performance communications.
+            % view of using it for Horacing.
             %
             % Returns:
             % pc_type -- the sting containing the type of the pc. The type
@@ -170,10 +194,8 @@ classdef opt_config_manager
             %            be used in parallel (MPI) computations.
             % mem_size-- The size of the physical memory in bytes,
             %
-
             [pc_type,nproc,mem_size] = find_comp_type_(obj);
         end
-
 
     end
     methods(Access=private)
