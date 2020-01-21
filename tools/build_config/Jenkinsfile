@@ -17,10 +17,12 @@ def post_github_status(String state, String message) {
         def commit_sha = getCommitSha()
     }
     def repo_url = getRepoURL()
+    sh 'echo ${commit_sha}'
+    sh 'echo ${repo_url}'
     step([
         $class: 'GithubCommitStatus',
         reposSource: [$class: "ManuallyEnteredRepositorySource", url: repo_url],
-        commitShaSource: [$class: "ManuallyEnteredShaSource", sha: commitSha],
+        commitShaSource: [$class: "ManuallyEnteredShaSource", sha: commit_sha],
         errorHandlers: [[$class: 'ShallowAnyErrorHandler']],
         credentialsId: 'pace_builder_GitHub_access_token',
         statusResultSource: [
