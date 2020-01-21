@@ -8,6 +8,10 @@ def getCommitSha() {
   return sh(script: 'git rev-parse HEAD', returnStdout: true)
 }
 
+def print_hello() {
+    return sh(script: 'echo hello', returnStdout: true)
+}
+
 def post_github_status(String state, String message) {
     // Non-PR builds will not set PR_STATUSES_URL - in which case we do not
     // want to post any statuses to Git
@@ -19,6 +23,10 @@ def post_github_status(String state, String message) {
     repo_url = getRepoURL()
     sh 'echo ${commit_sha}'
     sh 'echo ${repo_url}'
+
+    hello = print_hello()
+    sh 'echo Got ${hello}'
+
     step([
         $class: 'GithubCommitStatus',
         reposSource: [$class: "ManuallyEnteredRepositorySource", url: repo_url],
