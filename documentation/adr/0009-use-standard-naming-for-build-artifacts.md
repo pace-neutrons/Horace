@@ -30,8 +30,8 @@ The release files will be named: `<application>-<version>-<target>[-<yymmdd>][-<
 
 | Argument | Description |
 |------|-----|
-|`version`| `m`.`n`.`o` taken from top` CMakeList.txt` file |
-|`target` | `win64`, `osx`, `linux` or specific Linux version information e.g. `centos.8`, `scientific.7` |
+|`version`| `m`.`n`.`o` taken from top ` CMakeList.txt` file |
+|`target` | `win64`, `osx` or `linux` |
 |`ext`    | `.zip` will be used for Windows releases; `.tar.gz` for MacOS and Linux |
 
 ## Consequences
@@ -40,4 +40,4 @@ Developers and users with multiple release files can identify the providence of 
 
 Naming scheme is trivially extensible to other platforms as they become available (e.g. `scarf`)
 
-The use of a specific Linux release name/version in the `target` argument is only required if the builds are not portable between different Linux releases.
+The use of a specific the generic `linux` in the `target` depends on the releases being portable between Linux flavours. If issues arise as a result of his we can extend the pattern and create release name/version  specific `target` tags.
