@@ -21,6 +21,7 @@ def post_github_status(String state, String message) {
  *   MATLAB_VERSION
  *   GCC_VERSION
  *   OPEN_MPI_VERSION
+ *   RELEASE_TYPE
 */
 pipeline {
     agent {
@@ -42,7 +43,8 @@ pipeline {
                     module load matlab/\$MATLAB_VERSION &&
                     module load gcc/\$GCC_VERSION &&
                     module load openmpi/\$OPEN_MPI_VERSION &&
-                    ./tools/build_config/build.sh --print_versions --build
+                    ./tools/build_config/build.sh --print_versions --build \
+                        --cmake_flags "-DHerbert_RELEASE_TYPE=$RELEASE_TYPE"
                 '''
             }
         }
@@ -62,6 +64,12 @@ pipeline {
         stage('Package') {
             steps {
                 sh './tools/build_config/build.sh --package'
+
+                // Archive the release package
+                archiveArtifacts(
+                    artifacts: 'build/Herbert-*',
+                    fingerprint: true
+                )
             }
         }
     }
