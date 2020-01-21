@@ -38,13 +38,14 @@ pipeline {
                     filter: 'build/Herbert-*',
                     fingerprintArtifacts: true,
                     projectName: "PACE-neutrons/Herbert/${base_job_name}",
-                    selector: lastSuccessful()
+                    selector: lastSuccessful(),
+                    target: "."
                 )
                 sh """
                     ls
-                    tar --wildcards --strip-components=1 -xf Herbert-*.tar.gz
+                    tar --wildcards --strip-components=1 -xf Herbert-*.tar.gz */Herbert
                     ls
-                """
+                """.toString()
             }
         }
 
