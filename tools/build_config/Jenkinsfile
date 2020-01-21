@@ -35,7 +35,7 @@ pipeline {
         stage('Clone-Herbert') {
             steps {
                 copyArtifacts(
-                    filter: 'Herbert-*',
+                    filter: 'build/Herbert-*',
                     fingerprintArtifacts: true,
                     projectName: "PACE-neutrons/Herbert/${base_job_name}",
                     selector: lastSuccessful()
