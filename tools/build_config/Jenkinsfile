@@ -41,7 +41,8 @@ pipeline {
                     selector: lastSuccessful()
                 )
                 sh """
-                    tar --wildcards --strip-components=1 -xf Herbert-* */Herbert
+                    ls
+                    tar --wildcards --strip-components=1 -xf Herbert-*.tar.gz
                     ls
                 """
             }
