@@ -12,11 +12,11 @@ def post_github_status(String state, String message) {
     // Non-PR builds will not set PR_STATUSES_URL - in which case we do not
     // want to post any statuses to Git
     if (env.PR_COMMIT_SHA) {
-        def commit_sha = env.PR_COMMIT_SHA
+        commit_sha = env.PR_COMMIT_SHA
     } else {
-        def commit_sha = getCommitSha()
+        commit_sha = getCommitSha()
     }
-    def repo_url = getRepoURL()
+    repo_url = getRepoURL()
     sh 'echo ${commit_sha}'
     sh 'echo ${repo_url}'
     step([
