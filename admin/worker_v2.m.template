@@ -146,42 +146,37 @@ while keep_worker_running
             % when its tested, workers are tested in single Matlab
             % session so it will hand up on synchronization
             if ~is_tested
-                if DO_LOGGING
-                    fprintf(fh,'Waiting at barrier for all do_job completion\n');
-                    disp('WORKER_4TESTS: Waiting at barrier for all do_job completion ')
-                end
-                % explicitly check for cancelation before data reduction
+                % explicitly check for cancellation before data reduction
                 is_canceled = je.is_job_canceled();
                 if is_canceled
                     error('JOB_EXECUTOR:canceled',...
-                        'Job canceled before synchonization after do_job')
+                        'Job canceled before synchronization after do_job')
                 end
                 
                 % when not tested, the synchronization is mandatory
                 je.labBarrier(false); % Wait until all workers finish their
                 %                       job before reducing the data
             end
-            je.do_job_completed = true; % do not waitn at barrier if cancelation here
-            % explicitly check for cancelation before data reduction
-            %  the case of cancelation below
+            je.do_job_completed = true; % do not wait at barrier if cancellation here
+            % explicitly check for cancellation before data reduction
+            %  the case of cancellation below
             is_canceled = je.is_job_canceled();
             if is_canceled
                 error('JOB_EXECUTOR:canceled',...
                     'Job canceled before starting reduce_data')
             end
-            je.do_job_completed = false; 
+            je.do_job_completed = false; % wait at barrier if cancellation here
             je = je.reduce_data();
         end
         
-        % Sent final running message. Implicitly check for cancelation.
+        % Sent final running message. Implicitly check for cancellation.
         mis.do_logging(n_steps,n_steps);
         if ~is_tested
             % stop other nodes until the node 1 finishes to produce the
             % final message
             je.labBarrier(false);
-            je.do_job_completed = true;
+            je.do_job_completed = true; % do not wait at barrier if cancellation here
         end
-        %fprintf(fh,'je loop completed\n');
     catch ME % Catch error in users code and finish task gracefully.
         
         try
