@@ -40,10 +40,10 @@ pipeline {
                     projectName: "PACE-neutrons/Herbert/${base_job_name}",
                     selector: lastSuccessful()
                 )
-                sh '''
+                sh """
                     tar --wildcards --strip-components=1 -xf Herbert-* */Herbert
                     ls
-                '''
+                """
             }
         }
 
