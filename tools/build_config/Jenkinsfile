@@ -4,9 +4,9 @@ def post_github_status(String state, String message) {
     withCredentials([string(credentialsId: 'GitHub_API_Token',
             variable: 'api_token')]) {
         sh """
-            if [[ -z \${PR_STATUSES_URL} ]]; then \
+            if [[ -z "$PR_STATUSES_URL" ]]; then \
                 commit_sha=\$(git rev-parse HEAD); \
-                PR_STATUSES_URL="https://api.github.com/repos/pace-neutrons/Herbert/statuses/\${commit_sha}"; \
+                PR_STATUSES_URL="https://api.github.com/repos/pace-neutrons/Herbert/statuses/$commit_sha"; \
             fi && \
             curl -H "Authorization: token ${api_token}" \
                 --request POST \
