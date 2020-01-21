@@ -1,18 +1,20 @@
 #!groovy
 
 def post_github_status(String state, String message) {
-    withCredentials([string(credentialsId: 'GitHub_API_Token',
-            variable: 'api_token')]) {
-        sh """
-            curl -H "Authorization: token ${api_token}" \
-                --request POST \
-                --data '{"state": "${state}", \
-                         "description": "${message}", \
-                         "target_url": "$BUILD_URL", \
-                         "context": "$JOB_BASE_NAME"}' \
-                $PR_STATUSES_URL > /dev/null
-        """
-            }
+    if (env.PR_STATUSES_URL) {
+        withCredentials([string(credentialsId: 'GitHub_API_Token',
+                variable: 'api_token')]) {
+            sh """
+                curl -H "Authorization: token ${api_token}" \
+                    --request POST \
+                    --data '{"state": "${state}", \
+                            "description": "${message}", \
+                            "target_url": "$BUILD_URL", \
+                            "context": "$JOB_BASE_NAME"}' \
+                    $PR_STATUSES_URL > /dev/null
+            """
+        }
+    }
 }
 
 def base_job_name = "${env.JOB_NAME}".replace("PR-", "")
