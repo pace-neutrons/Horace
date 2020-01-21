@@ -1,26 +1,22 @@
 #!groovy
 
 def getRepoURL() {
-  sh "git config --get remote.origin.url > .git/remote-url"
-  return readFile(".git/remote-url").trim()
+  return sh(script: 'git config --get remote.origin.url', returnStdout: true)
 }
 
 def getCommitSha() {
-  sh "git rev-parse HEAD > .git/current-commit"
-  return readFile(".git/current-commit").trim()
+  return sh(script: 'git rev-parse HEAD', returnStdout: true)
 }
 
 def post_github_status(String state, String message) {
     // Non-PR builds will not set PR_STATUSES_URL - in which case we do not
     // want to post any statuses to Git
     if (env.PR_COMMIT_SHA) {
-        def repo_url = getRepoURL()
         def commit_sha = env.PR_COMMIT_SHA
-
     } else {
-        def repo_url = getRepoURL()
         def commit_sha = getCommitSha()
     }
+    def repo_url = getRepoURL()
     step([
         $class: 'GithubCommitStatus',
         reposSource: [$class: "ManuallyEnteredRepositorySource", url: repo_url],
