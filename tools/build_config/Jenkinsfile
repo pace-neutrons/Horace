@@ -1,20 +1,21 @@
 #!groovy
 
 def post_github_status(String state, String message) {
-    withCredentials([string(credentialsId: 'GitHub_API_Token',
-            variable: 'api_token')]) {
-        sh '''
-            if [[ -z "$PR_STATUSES_URL" ]]; then \
-                PR_STATUSES_URL="https://api.github.com/repos/pace-neutrons/Herbert/statuses/\$(git rev-parse HEAD)"; \
-            fi && \
-            curl -H "Authorization: token ${api_token}" \
-                --request POST \
-                --data '{"state": "${state}", \
-                         "description": "${message}", \
-                         "target_url": "$BUILD_URL", \
-                         "context": "$JOB_BASE_NAME"}' \
-                $PR_STATUSES_URL > /dev/null
-        '''
+    // Non-PR builds will not set PR_STATUSES_URL - in which case we do not
+    // want to post any statuses to Git
+    if (env.PR_STATUSES_URL) {
+        withCredentials([string(credentialsId: 'GitHub_API_Token',
+                variable: 'api_token')]) {
+            sh """
+                curl -H "Authorization: token ${api_token}" \
+                    --request POST \
+                    --data '{"state": "${state}", \
+                            "description": "${message}", \
+                            "target_url": "$BUILD_URL", \
+                            "context": "$JOB_BASE_NAME"}' \
+                    $PR_STATUSES_URL > /dev/null
+            """
+        }
     }
 }
 
@@ -34,7 +35,7 @@ pipeline {
 
         stage('Notify') {
             steps {
-                post_github_status("PENDING", "The build is running")
+                post_github_status("pending", "The build is running")
             }
         }
 
@@ -97,11 +98,11 @@ pipeline {
         }
 
         success {
-            post_github_status("SUCCESS", "The build succeeded")
+            post_github_status("success", "The build succeeded")
         }
 
         failure {
-            post_github_status("FAILURE", "The build failed")
+            post_github_status("failure", "The build failed")
         }
 
         cleanup {
