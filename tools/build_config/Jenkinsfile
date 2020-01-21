@@ -3,8 +3,8 @@
 def post_github_status(String state, String message) {
     withCredentials([string(credentialsId: 'GitHub_API_Token',
             variable: 'api_token')]) {
-        sh """
-            if [[ -z "\$PR_STATUSES_URL" ]]; then \
+        sh '''
+            if [[ -z "$PR_STATUSES_URL" ]]; then \
                 PR_STATUSES_URL="https://api.github.com/repos/pace-neutrons/Herbert/statuses/\$(git rev-parse HEAD)"; \
             fi && \
             curl -H "Authorization: token ${api_token}" \
@@ -14,7 +14,7 @@ def post_github_status(String state, String message) {
                          "target_url": "$BUILD_URL", \
                          "context": "$JOB_BASE_NAME"}' \
                 $PR_STATUSES_URL > /dev/null
-        """
+        '''
     }
 }
 
