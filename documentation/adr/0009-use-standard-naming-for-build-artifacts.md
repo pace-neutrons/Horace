@@ -22,17 +22,18 @@ When production releases are made these build artifacts will be pushed to [GitHu
 
 ## Decision
 
-The release files will be named: `<application>-<version>-<target>[-<yymmdd>][-<sha>].<ext>`
+The release files will be named: `<application>-<version>-<target>-<matlab>[-<yymmdd>][-<sha>].<ext>`
 
-- Release files: `<application>-<version>-<target>`
-- PR builds will be:`<application>-<version>-<target>-<sha>`
-- Nightly builds will be: `<application>-<version>-<target>-<yymmdd>-<sha>`
+- Release files: `<application>-<version>-<target>-<matlab>`
+- PR builds will be:`<application>-<version>-<target>-<matlab>-<sha>`
+- Nightly builds will be: `<application>-<version>-<target>-<matlab>-<yymmdd>-<sha>`
 
 | Argument | Description |
 |------|-----|
 |`version`| `m`.`n`.`o` taken from top ` CMakeList.txt` file |
 |`target` | `win64`, `osx` or `linux` |
 |`ext`    | `.zip` will be used for Windows releases; `.tar.gz` for MacOS and Linux |
+|`matlab` | MATLAB version, e.g. `2018b` |
 
 ## Consequences
 
