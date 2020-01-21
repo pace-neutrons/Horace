@@ -17,6 +17,9 @@ the path to the directory containing Matlab's dynamically linked libraries
 ``Matlab_UT_LIBRARY``
 the path to the Matlab UT library
 
+``Matlab_VERSION``
+the Matlab release e.g. 2019b
+
 See the FindMatlab.cmake documentation for other variables defined by this
 module. You'll find the file bundled with your CMake installation.
 
@@ -24,6 +27,7 @@ module. You'll find the file bundled with your CMake installation.
 find_package(Matlab REQUIRED COMPONENTS MAIN_PROGRAM MEX_COMPILER)
 get_filename_component(Matlab_LIBRARY_DIR "${Matlab_MEX_LIBRARY}" DIRECTORY)
 get_filename_component(Matlab_BIN_DIR "${Matlab_MAIN_PROGRAM}" DIRECTORY)
+get_filename_component(Matlab_VERSION "${Matlab_ROOT_DIR}" NAME)
 
 # Find the libut library
 find_library(Matlab_UT_LIBRARY

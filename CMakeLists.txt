@@ -19,8 +19,8 @@ list(APPEND CMAKE_MODULE_PATH
 
 # Look for packages early so we can exit if they're not found
 find_package(MPI REQUIRED)
-include(herbert_Version)
 include(herbert_FindMatlab)
+include(herbert_Version)
 include(herbert_AddMex)
 if(${BUILD_TESTS})
     include(CTest)
