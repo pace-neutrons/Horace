@@ -18,7 +18,7 @@ the path to the directory containing Matlab's dynamically linked libraries
 the path to the Matlab UT library
 
 ``Matlab_VERSION``
-the Matlab release e.g. 2019b
+the Matlab release e.g. R2019b
 
 See the FindMatlab.cmake documentation for other variables defined by this
 module. You'll find the file bundled with your CMake installation.

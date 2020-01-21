@@ -7,13 +7,13 @@ Build a version release string:
 
  Optional elements are included based on the value of Herbert_RELEASE_TYPE
  - Date included for "nightly" builds
- - SHA included for non-"release" builds (i.e. "nightly" or "pull-request"
+ - SHA included for non-"release" builds (i.e. "nightly" or "pull-request")
 
 Variables required by the module
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``Herbert_RELEASE_TYPE
-Release type: "nightly", "release" or "pull-request"
+Release type: "nightly", "release" or "pull-request" (default)
 
 ``Matlab_VERSION
 This is provided by the `herbert_FindMatlab` module which must be loaded first
