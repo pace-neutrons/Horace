@@ -1,46 +1,22 @@
 #!groovy
 
-def getRepoURL() {
-  return sh(script: 'git config --get remote.origin.url', returnStdout: true)
-}
-
-def getCommitSha() {
-  return sh(script: 'git rev-parse HEAD', returnStdout: true)
-}
-
-def print_hello() {
-    return sh(script: 'echo hello', returnStdout: true)
-}
-
 def post_github_status(String state, String message) {
-    // Non-PR builds will not set PR_STATUSES_URL - in which case we do not
-    // want to post any statuses to Git
-    if (env.PR_COMMIT_SHA) {
-        commit_sha = env.PR_COMMIT_SHA
-    } else {
-        commit_sha = getCommitSha()
+    withCredentials([string(credentialsId: 'GitHub_API_Token',
+            variable: 'api_token')]) {
+        sh """
+            if [[ -z ${PR_STATUSES_URL} ]]; then \
+                commit_sha=$(git rev-parse HEAD); \
+                PR_STATUSES_URL="https://api.github.com/repos/pace-neutrons/Herbert/statuses/${commit_sha}"; \
+            fi && \
+            curl -H "Authorization: token ${api_token}" \
+                --request POST \
+                --data '{"state": "${state}", \
+                         "description": "${message}", \
+                         "target_url": "$BUILD_URL", \
+                         "context": "$JOB_BASE_NAME"}' \
+                $PR_STATUSES_URL > /dev/null
+        """
     }
-    repo_url = getRepoURL()
-    sh 'echo ${commit_sha}'
-    sh 'echo ${repo_url}'
-
-    hello = print_hello()
-    sh 'echo Got ${hello}'
-
-    step([
-        $class: 'GithubCommitStatus',
-        reposSource: [$class: "ManuallyEnteredRepositorySource", url: repo_url],
-        commitShaSource: [$class: "ManuallyEnteredShaSource", sha: commit_sha],
-        errorHandlers: [[$class: 'ShallowAnyErrorHandler']],
-        credentialsId: 'pace_builder_GitHub_access_token',
-        statusResultSource: [
-            $class: "ConditionalStatusResultSource",
-            results: [
-                [$class: "AnyBuildResult", message: message, state: state]
-            ]
-        ],
-        withBackref: true
-    ])
 }
 
 /* Required pipeline parameters:
