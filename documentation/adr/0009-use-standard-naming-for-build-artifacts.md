@@ -33,7 +33,7 @@ The release files will be named: `<application>-<version>-<target>-<matlab>[-<yy
 |------|-----|
 |`version`| `m`.`n`.`o` taken from top ` CMakeList.txt` file |
 |`target` | `win64`, `osx` or `linux` |
-|`matlab` | MATLAB version, e.g. `2018b` |
+|`matlab` | MATLAB version, e.g. `R2018b` |
 |`ext`    | `.zip` will be used for Windows releases; `.tar.gz` for MacOS and Linux |
 
 ## Consequences
