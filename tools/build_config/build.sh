@@ -34,9 +34,7 @@ function run_configure() {
   local build_dir=$1
   local build_config=$2
   local build_tests=$3
-  if [[ -z "${1-$4}" ]]; then
-    local cmake_flags="$4"
-  fi
+  local cmake_flags="${4-}"  # Default value is empty string
 
   cmake_cmd="cmake ${HERBERT_ROOT}"
   cmake_cmd+=" -G \"${CMAKE_GENERATOR}\""
@@ -68,7 +66,6 @@ function run_tests() {
   echo_and_run "${test_cmd}"
 }
 
-# not yet implemented
 function run_package() {
   echo -e "\nRunning package step..."
   echo_and_run "cd ${build_dir}"
