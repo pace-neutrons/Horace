@@ -1,4 +1,4 @@
-[<-previous](0007-use-herbert-as-library-dependency.md) | next->
+[<-previous](0007-use-herbert-as-library-dependency.md) | [next->](0009-use-standard-naming-for-build-artifacts.md) 
 
 # 8 - Use Jenkins scritped pipeline for builds
 
