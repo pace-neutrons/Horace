@@ -34,7 +34,9 @@ function run_configure() {
   local build_dir=$1
   local build_config=$2
   local build_tests=$3
-  local cmake_flags="$4"
+  if [[ -z "${1-$4}" ]]; then
+    local cmake_flags="$4"
+  fi
 
   cmake_cmd="cmake ${HERBERT_ROOT}"
   cmake_cmd+=" -G \"${CMAKE_GENERATOR}\""
