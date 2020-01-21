@@ -10,13 +10,14 @@ Accepted
 
 ## Context
 
-The continuous builds (of `master` and the pull requests) will create many release artifacts containing the archived (`.zip` or `tag.gz`) source and binary folders.
+The continuous builds (of `master` and the pull requests) will create many release artifacts containing the archived (`.zip` or `tar.gz`) source and binary folders.
 
-These should follow a consistent naming convention so that it can be quickly determined:
+These should follow a consistent naming convention so that the following can be quickly determined and the required build identified:
 
 - target platform
 - build date
-- whether this is PR build or branch build.
+- MATLAB version
+- whether this is a PR build or branch build.
 
 When production releases are made these build artifacts will be pushed to [GitHub](https://github.com/pace-neutrons).
 
@@ -32,8 +33,8 @@ The release files will be named: `<application>-<version>-<target>-<matlab>[-<yy
 |------|-----|
 |`version`| `m`.`n`.`o` taken from top ` CMakeList.txt` file |
 |`target` | `win64`, `osx` or `linux` |
-|`ext`    | `.zip` will be used for Windows releases; `.tar.gz` for MacOS and Linux |
 |`matlab` | MATLAB version, e.g. `2018b` |
+|`ext`    | `.zip` will be used for Windows releases; `.tar.gz` for MacOS and Linux |
 
 ## Consequences
 
