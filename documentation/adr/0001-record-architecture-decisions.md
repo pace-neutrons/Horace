@@ -2,7 +2,7 @@
 
 # 1. Record architecture decisions
 
-Date: 2019-11-04
+Date: 2019-Nov-04
 
 ## Status
 
