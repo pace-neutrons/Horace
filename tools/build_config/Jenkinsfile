@@ -41,13 +41,13 @@ pipeline {
                     selector: lastSuccessful(),
                     target: "Herbert-dir"
                 )
-                sh """
+                sh '''
                     ls -a
                     ls Herbert-dir -a
-                    archive_name="$(ls Herbert-*.tar.gz)"
+                    archive_name="\$(ls Herbert-*.tar.gz)"
                     tar --wildcards --strip-components=1 -xf \$archive_name */Herbert *.m
                     ls -a
-                """.toString()
+                '''.toString()
             }
         }
 
