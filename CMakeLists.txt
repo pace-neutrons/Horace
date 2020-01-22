@@ -24,6 +24,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 option(BUILD_TESTS ON)
 
 # Look for packages early so we can exit if they're not found
+find_package(Herbert)
 find_package(OpenMP)
 include(horace_FindMatlab)
 include(horace_FindHDF5)
