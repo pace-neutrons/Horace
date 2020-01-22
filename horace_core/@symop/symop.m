@@ -29,6 +29,7 @@ classdef symop
     %   is_identity     - Determine if a symmetry operation is the identity operation
     %   is_rotation     - Determine if a symmetry operation is a rotation
     %   is_reflection   - Determine if a symmetry operation is a reflection
+    %   is_motion       - Determine if a symmetry operation was supplied as a complete motion
     
     properties (Access=private)
         uoffset_ = [];  % offset vector for symmetry operator (rlu) (row)
@@ -36,6 +37,7 @@ classdef symop
         v_ = [];        % second vector defining reflection plane (rlu) (row)
         n_ = [];        % rotation axis (un-normalised) (rlu) (row)
         theta_deg_ = [];% rotation angle (deg)
+        W_ = [];        % motion transformation operation (real space matrix)
     end
     
     methods
@@ -71,6 +73,20 @@ classdef symop
             %               i.e. is an offset vector (in reciprocal lattice units: (h,k,l))
             %               Default: [0,0,0] i.e. the mirror plane goes throught the origin
             %
+            %   Symmetry Motion operator:
+            %       >> this = symop(W, offset)
+            %
+            %       Input:
+            %       ------
+            %       W       A transformation operation in matrix form.
+            %               W can represent the identity element {eye(3)},
+            %               the inversion element {-eye(3)}, any rotation
+            %               or any rotoinversion. The elements of W are
+            %               almost certainly integers.
+            %       offset  [Optional] The origin at which the transformation
+            %               is performed, expressed in r.l.u.
+            %               Default: [0,0,0] 
+            %
             % EXAMPLES:
             %   Rotation of 120 degress about [1,1,1]:
             %       this = symop ([1,1,1], 120)
@@ -93,7 +109,13 @@ classdef symop
                     obj.theta_deg_ = theta_deg;
                     return
                 end
-                error ('dummy:ID',[mess_refl,'\n*OR* ',mess_rot])
+                [ok,mess_mot,W,uoffset] = check_motion_args(varargin{:});
+                if ok
+                    obj.W_ = W;
+                    obj.uoffset_ = uoffset;
+                    return
+                end
+                error('dummy:ID','%s\n*OR*\n%s\n*OR*\n%s',mess_refl,mess_rot,mess_mot);
             end
         end
         
@@ -115,7 +137,7 @@ classdef symop
             indstr='';
             for i=1:numel(obj)
                 if numel(obj)>1
-                    indstr = ['[',num2str(i),'] '];
+                    indstr = sprintf('[%d] ',i);
                 end
                 if is_identity(obj(i))
                     disp([indstr,'Identity operator (no symmetrisation)'])
@@ -129,6 +151,17 @@ classdef symop
                     disp([' In-plane u (rlu): ',vec2str(obj(i).u_)])
                     disp([' In-plane v (rlu): ',vec2str(obj(i).v_)])
                     disp(['     offset (rlu): ',vec2str(obj(i).uoffset_)])
+                elseif is_motion(obj(i))
+                    disp([indstr,'Motion:'])
+                    if sum(abs(obj(i).uoffset_))>0
+                        fprintf(' % 1d % 1d % 1d    % g\n',obj(i).W_(1,:),obj(i).uoffset_(1));
+                        fprintf(' % 1d % 1d % 1d  + % g\n',obj(i).W_(2,:),obj(i).uoffset_(2));
+                        fprintf(' % 1d % 1d % 1d    % g\n',obj(i).W_(3,:),obj(i).uoffset_(3));
+                    else
+                        fprintf(' % 1d % 1d % 1d\n',obj(i).W_(1,:));
+                        fprintf(' % 1d % 1d % 1d\n',obj(i).W_(2,:));
+                        fprintf(' % 1d % 1d % 1d\n',obj(i).W_(3,:));
+                    end
                 else
                     error('Logic error - see developers')
                 end
@@ -143,6 +176,7 @@ classdef symop
             %
             %   >> status = is_identity (this)
             if isscalar(obj)
+                
                 status = isempty(obj.uoffset_);
             else
                 status = false(size(obj));
@@ -176,6 +210,17 @@ classdef symop
                 status = false(size(obj));
                 for i=1:numel(obj)
                     status(i) = ~isempty(obj(i).u_);
+                end
+            end
+        end
+        
+        function status = is_motion(obj)
+            if isscalar(obj)
+                status = ~isempty(obj.W_);
+            else
+                status = false(size(obj));
+                for i=1:numel(obj)
+                    status(i) = ~isempty(obj(i).W_);
                 end
             end
         end

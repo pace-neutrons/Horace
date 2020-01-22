@@ -211,6 +211,11 @@ if ~isempty(pix_retained) || pix_tmpfile_ok  % prepare the output pix array
     
 end
 
+% Bad hack to prevent returning [] for pix, which breaks other routines,
+% notably, parts of cut_sqw_sym_main_single
+if max(size(pix))==0
+    pix = zeros(9,0);
+end
 
 if hor_log_level>=1
     disp('-----------------------------')

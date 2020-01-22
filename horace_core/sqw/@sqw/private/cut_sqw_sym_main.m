@@ -184,22 +184,28 @@ header_ave=header_average(header);
 % Perform cuts
 % ------------
 sz = cellfun(@(x)max(size(x,1),1),pbin);    % size of array of cuts (note: numel(wsize)==4)
+sz_squeeze = [sz(sz>1),ones(1,max(2-sum(sz>1),0))];
 if return_cut
-    sz_squeeze = [sz(sz>1),ones(1,max(2-sum(sz>1),0))];
     if opt.keep_pix
-        wout = repmat(sqw,sz_squeeze);      % array
+        wout = sqw;
     else
-        wout = eval(['repmat(d',num2str(ndims),'d,sz_squeeze)']);
+        wout = eval(sprintf('d%dd',ndims)); % construct a d0d, d1d, d2d, d3d, d4d, ...
+    end    
+    if prod(sz_squeeze)>1
+        wout = repmat(wout, sz_squeeze); % an array
     end
-    if return_comp && prod(sz)>1
-        wsym = repmat({sqw},sz_squeeze);    % cell array of arrays
+end
+if return_comp
+    wsym = {wout};
+    if prod(sz_squeeze)>1
+        wsym = repmat(wsym, sz_squeeze); % a cell array
     end
 end
 for i=1:prod(sz)
     [i1,i2,i3,i4] = ind2sub(sz,i);
     pbin_tmp = {pbin{1}(i1,:),pbin{2}(i2,:),pbin{3}(i3,:),pbin{4}(i4,:)};
     if return_cut
-        if return_comp && prod(sz)>1
+        if return_comp
             [wout(i),wsym{i}] = cut_sqw_sym_main_single (data_source,...
                 main_header, header, detpar, data, npixtot, pix_position,...
                 proj, pbin_tmp, pin, en, sym, opt, hor_log_level);
@@ -208,15 +214,12 @@ for i=1:prod(sz)
                 main_header, header, detpar, data, npixtot, pix_position,...
                 proj, pbin_tmp, pin, en, sym, opt, hor_log_level);
         end
-        
     else
         cut_sqw_sym_main_single (data_source,...
             main_header, header, detpar, data, npixtot, pix_position,...
             proj, pbin_tmp, pin, en, sym, opt, hor_log_level);
     end
 end
-
-% If return_comp but only a single component, just copy the return cut
-if return_comp && prod(sz)==1
-    wsym = wout;
+if prod(sz)==1 && return_comp
+    wsym = wsym{1}; % convert back from a 1x1 cell array
 end
