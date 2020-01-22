@@ -43,5 +43,8 @@ elseif is_rotation(obj)
     n = Minv * obj.n_';
     % Perform active rotation (hence reversal of sign of theta
     R = rotvec_to_rotmat (-obj.theta_deg_*n/norm(n));
+    
+elseif is_motion(obj)
+    R = obj.W_;
 end
     
