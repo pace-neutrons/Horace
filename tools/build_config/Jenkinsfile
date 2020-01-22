@@ -39,12 +39,14 @@ pipeline {
                     fingerprintArtifacts: true,
                     projectName: "PACE-neutrons/Herbert/${base_job_name}",
                     selector: lastSuccessful(),
-                    target: "."
+                    target: "Herbert-dir"
                 )
                 sh """
-                    ls
-                    tar --wildcards --strip-components=1 -xf Herbert-*.tar.gz */Herbert
-                    ls
+                    ls -a
+                    ls Herbert-dir -a
+                    archive_name="$(ls Herbert-*.tar.gz)"
+                    tar --wildcards --strip-components=1 -xf \$archive_name */Herbert *.m
+                    ls -a
                 """.toString()
             }
         }
