@@ -69,7 +69,7 @@ pipeline {
             steps {
                 sh '''
                     module load cmake/\$CMAKE_VERSION &&
-                    ./tools/build_config/build.sh --package'
+                    ./tools/build_config/build.sh --package
                 '''
 
                 // Archive the release package
