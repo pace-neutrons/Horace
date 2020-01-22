@@ -43,7 +43,7 @@ pipeline {
                 sh '''
                     archive_name="\$(find -name Herbert-*.tar.gz)"
                     tar --wildcards --strip-components=1 -xf \$archive_name */Herbert *.m
-                '''.toString()
+                '''
             }
         }
 
