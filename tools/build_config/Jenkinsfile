@@ -67,7 +67,10 @@ pipeline {
 
         stage('Package') {
             steps {
-                sh './tools/build_config/build.sh --package'
+                sh '''
+                    module load cmake/\$CMAKE_VERSION &&
+                    ./tools/build_config/build.sh --package
+                '''
 
                 // Archive the release package
                 archiveArtifacts(
