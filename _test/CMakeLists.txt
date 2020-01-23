@@ -20,6 +20,12 @@ set(TEST_DIRECTORIES
 )
 
 foreach(_test_dir ${TEST_DIRECTORIES})
+    if("${_test_dir}" STREQUAL "test_tobyfit")
+        set(TEST_TIMEOUT_LENGTH "1020")  # 17 minutes
+    else()
+        set(TEST_TIMEOUT_LENGTH "420")  # 6 minutes
+    endif()
+
     set(TEST_NAME "Matlab.${_test_dir}")
     matlab_add_unit_test(
         NAME "${TEST_NAME}"
@@ -40,6 +46,6 @@ foreach(_test_dir ${TEST_DIRECTORIES})
             "${CMAKE_SOURCE_DIR}/admin"
             "${CMAKE_SOURCE_DIR}/horace_core"
             "${Herbert_ROOT}"
-        TIMEOUT 300  # 5 mins
+        TIMEOUT ${TEST_TIMEOUT_LENGTH}
     )
 endforeach()
