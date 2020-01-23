@@ -9,7 +9,7 @@ set(TEST_DIRECTORIES
     "test_mslice_utilities"
     "test_multifit"
     "test_rebin"
-    "test_spinw_integration"
+    # "test_spinw_integration"
     "test_sqw"
     "test_sqw_file"
     "test_symmetrisation"
