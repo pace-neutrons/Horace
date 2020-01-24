@@ -28,5 +28,19 @@ elseif(NOT EXISTS "${Herbert_ROOT}/herbert_init.m")
     message(WARNING "Herbert_ROOT - ${Herbert_ROOT} does not contain herbert_init.m")
 endif()
 
+find_file(Herbert_ON_TEMPLATE
+    NAMES "herbert_on.m.template"
+    PATHS ${Herbert_ROOT} ${Herbert_ROOT}/admin ${Herbert_ROOT}/../admin
+    NO_DEFAULT_PATH
+)
+mark_as_advanced(Herbert_ON_TEMPLATE)
+
+find_file(Herbert_WORKER_TEMPLATE
+    NAMES "worker_v2.m.template"
+    PATHS ${Herbert_ROOT} ${Herbert_ROOT}/admin ${Herbert_ROOT}/../admin
+    NO_DEFAULT_PATH
+)
+mark_as_advanced(Herbert_WORKER_TEMPLATE)
+
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Herbert DEFAULT_MSG Herbert_ROOT)
