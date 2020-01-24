@@ -11,6 +11,7 @@ set(TEST_DIRECTORIES
     "test_docify"
     "test_admin"
     # "test_mpi"
+    "test_mpi_wrappers"
 )
 
 foreach(_test_dir ${TEST_DIRECTORIES})
