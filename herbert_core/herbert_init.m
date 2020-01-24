@@ -130,7 +130,6 @@ for i=1:numel(application_init_old)
             paths = genpath(rootpath);
             warn_state=warning('off','all');    % turn of warnings (so don't get errors if remove non-existent paths)
             rmpath(paths);
-            addpath(getenv('MATLABPATH'));
             warning(warn_state);    % return warnings to initial state
         end
         cd(start_dir)           % return to starting directory
@@ -139,4 +138,6 @@ for i=1:numel(application_init_old)
         message=ME.message;
         disp(['Problems removing ',rootpath,' and any sub-directories from matlab path. Reason: ',message]);
     end
+    % Make sure we're not removing any global paths
+    addpath(getenv('MATLABPATH'));
 end
