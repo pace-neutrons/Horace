@@ -130,7 +130,8 @@ for i=1:numel(application_init_old)
             paths = genpath(rootpath);
             warn_state=warning('off','all');    % turn of warnings (so don't get errors if remove non-existent paths)
             rmpath(paths);
-            warning(warn_state);    % return warnings to initial state            
+            addpath(getenv('MATLABPATH'));
+            warning(warn_state);    % return warnings to initial state
         end
         cd(start_dir)           % return to starting directory
     catch ME
