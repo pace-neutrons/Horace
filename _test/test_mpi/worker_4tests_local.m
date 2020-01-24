@@ -1,4 +1,4 @@
-function [ok,err_mess,je]=worker_v2(worker_controls_string)
+function [ok,err_mess,je]=worker_4tests_local(worker_controls_string)
 % function used as standard worker to do a job in a separate Matlab
 % session.
 %
