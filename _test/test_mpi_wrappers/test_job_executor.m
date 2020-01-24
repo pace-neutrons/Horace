@@ -619,6 +619,13 @@ classdef test_job_executor< MPI_Test_Common
         end
         %
         function test_init_parpool_fw(obj)
+            ok = license('checkout','Distrib_Computing_Toolbox');
+            if ~ok
+               warning('PARALLEL_CONFIG:not_available',...
+                   'Distrib_Computing_Toolbox is not available on this machne. Not tested')
+               return;
+            end
+
             %
             serverfbMPI  = MessagesFilebased('test_init_parpool_fw');
             serverfbMPI.mess_exchange_folder = obj.working_dir;
