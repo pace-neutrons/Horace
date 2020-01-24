@@ -621,11 +621,23 @@ classdef test_job_executor< MPI_Test_Common
         function test_init_parpool_fw(obj)
             ok = license('checkout','Distrib_Computing_Toolbox');
             if ~ok
-               warning('PARALLEL_CONFIG:not_available',...
-                   'Distrib_Computing_Toolbox is not available on this machne. Not tested')
-               return;
+                warning('PARALLEL_CONFIG:not_available',...
+                    'Distrib_Computing_Toolbox is not available on this machne. Not tested')
+                return;
+            else
+                try
+                    nl = numlabs();
+                catch ME
+                    if strcmpi(ME.identifier,'MATLAB:UndefinedFunction')
+                        warning('PARALLEL_CONFIG:not_available',...
+                            'License for parallel computer toolbox is available but toolbox is not installed. Can not use parpool parallelization');
+                        return
+                    else
+                        rethrow(ME);
+                    end
+                end
             end
-
+            
             %
             serverfbMPI  = MessagesFilebased('test_init_parpool_fw');
             serverfbMPI.mess_exchange_folder = obj.working_dir;
