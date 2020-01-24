@@ -128,10 +128,6 @@ for i=1:numel(application_init_old)
             disp(['Function ',app_name,'_off.m not found in ',rootpath])
             disp('Clearing rootpath and subdirectories from Matlab path in any case')
         end
-        paths = genpath(rootpath);
-        warn_state=warning('off','all');    % turn of warnings (so don't get errors if remove non-existent paths)
-        rmpath(paths);
-        warning(warn_state);    % return warnings to initial state
         cd(start_dir)           % return to starting directory
     catch ME
         cd(start_dir)           % return to starting directory
