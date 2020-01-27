@@ -135,3 +135,16 @@ parameters, i.e. `-build -test -package`.
 
 The build scripts are intended to work locally as well as on Jenkins, so any
 Jenkins specific tasks should *not* be in the build scripts.
+
+### Authentication
+
+In order to create merge commits and to post build statuses to GitHub some
+credentials must be provided within the Jenkins GUI. For this, the `pace.builder`
+GitHub account has been created and given write permissions to the Horace and
+Herbert repository. The email for this account is `pace.buider.stfc@gmail.co.uk`.
+
+Credentials are saved in the Jenkins PACE area providing an API token linked to
+the account. These credentials can be accessed within the Jenkinsfile using a
+`withCredentials` block, this block will prevent the credentials being printed
+to the terminal. Jenkins logs are not private, be careful to never publish
+passwords or API tokens.
