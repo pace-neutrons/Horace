@@ -19,6 +19,7 @@ foreach(_test_dir ${TEST_DIRECTORIES})
         NAME "${TEST_NAME}"
         CUSTOM_TEST_COMMAND
             "try;\
+                herbert_init;\
                 res = runtests('${CMAKE_SOURCE_DIR}/_test/${_test_dir}');\
             catch ME;\
                 disp('Error caught attempting to run test:');\
@@ -26,7 +27,6 @@ foreach(_test_dir ${TEST_DIRECTORIES})
                 exit(1);\
             end;\
             exit(~res)"
-        UNITTEST_PRECOMMAND "herbert_init"
         ADDITIONAL_PATH
             "${CMAKE_SOURCE_DIR}/admin"
             "${CMAKE_SOURCE_DIR}/herbert_core"
