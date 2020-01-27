@@ -32,7 +32,11 @@ For nightly builds:
 
   - Jenkins will clone master at a specific time each evening.
 
-For both:
+For manual branch builds:
+
+  - A user manually triggers a build and enters a branch name that is then cloned.
+
+For all:
 
   - Jenkins loads and runs the [`Jenkinsfile`](./../../tools/build_config/Jenkinsfile)
   located in `tools/build_config`.
@@ -100,7 +104,7 @@ and should be prefixed with `PR-` if the pipeline is building pull requests. E.g
         - `MATLAB_VERSION`: The (release) version of Matlab to load
         - `GCC_VERSION`: The version of GCC to use (Linux only)
 
-  For pull requests:
+  **For pull requests**:
     - Select the `Generic Webhook Trigger` option and retrieve the json values:
         - `action`: The type of pull request event this is
         - `pull_request.number`: The pull request number on GitHub
@@ -120,6 +124,20 @@ and should be prefixed with `PR-` if the pipeline is building pull requests. E.g
   branch and merge it into master before building.
 
   <img src="./images/08_git_pipeline.png">
+
+**For branch builds:**
+
+  - Add a new string parameter called `BRANCH`, leave the default blank
+
+  <img src="./images/08_branch_parameter.png">
+
+  - Fill in the pipeline section as shown below to checkout the given branch
+
+  <img src="./images/08_branch_pipeline.png">
+
+  When developers want to build a specific branch, they can navigate to the
+  `Branch-*` Jenkins job, choose `Build with Parameters` in the panel on the
+  left and enter the name of the branch they want to build.
 
 ### Jenkinsfile and Build Scripts
 
