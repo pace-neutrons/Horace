@@ -19,13 +19,9 @@ set(TEST_DIRECTORIES
     "test_utilities"
 )
 
-foreach(_test_dir ${TEST_DIRECTORIES})
-    if("${_test_dir}" STREQUAL "test_tobyfit")
-        set(TEST_TIMEOUT_LENGTH "1020")  # 17 minutes
-    else()
-        set(TEST_TIMEOUT_LENGTH "420")  # 6 minutes
-    endif()
+set(TEST_TIMEOUT_LENGTH "1200")  # 20 minutes
 
+foreach(_test_dir ${TEST_DIRECTORIES})
     set(TEST_NAME "Matlab.${_test_dir}")
     matlab_add_unit_test(
         NAME "${TEST_NAME}"
@@ -35,6 +31,8 @@ foreach(_test_dir ${TEST_DIRECTORIES})
                 horace_init;\
                 hc = herbert_config;\
                 hc.init_tests = true;\
+                pc = parallel_config;\
+                pc.parallel_framework = 'mpiexec_mpi';\
                 res = runtests('${CMAKE_SOURCE_DIR}/_test/${_test_dir}');\
             catch ME;\
                 disp('Error caught attempting to run test:');\
@@ -47,5 +45,12 @@ foreach(_test_dir ${TEST_DIRECTORIES})
             "${CMAKE_SOURCE_DIR}/horace_core"
             "${Herbert_ROOT}"
         TIMEOUT ${TEST_TIMEOUT_LENGTH}
+    )
+    # The MPI tests require that `herbert_on.m` be on the path for all workers
+    # when Matlab starts up: add the path of the directory it's copied into
+    # to the MATLABPATH environment variable when tests are run.
+    set_tests_properties("${TEST_NAME}"
+        PROPERTIES
+            ENVIRONMENT "MATLABPATH=${MATLABPATH}:${CMAKE_BINARY_DIR}/horace_config"
     )
 endforeach()
