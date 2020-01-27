@@ -1,6 +1,6 @@
-[<-previous](0007-use-herbert-as-library-dependency.md) | next->
+[<-previous](0007-use-herbert-as-library-dependency.md) | [next->](0009-use-standard-naming-for-build-artifacts.md)
 
-# 8 - Use Jenkins scritped pipeline for builds
+# 8 - Use Jenkins scripted pipeline for builds
 
 Date: 2019-Dec-20
 
@@ -29,7 +29,7 @@ Differences bewteen the `PR`, `Branch` and `master` builds will be split between
 
 The pipeline script will call a `build.[sh|ps1]` script with appropriate arguments to perform the build and test steps. The `Jenkinsfile` will provide a scaffold that can be applied to all build targets.
 
-The build jobs we be organised into `Horace` and `Herbert` folders. Sepearte projects will be written for:
+The build jobs we be organised into `Horace` and `Herbert` folders. Separate projects will be written for:
 
 ```
 Horace/PR-builds
@@ -46,6 +46,6 @@ Each project name will follow the pattern: `[PR-|Branch-]<target-os>-<target-mat
 
 Separating the build steps from Jenkinsfile build scaffold allows the same build to be executed on the developer machine.
 
-Creation of new build targets will require the duplication of an existing `master-` or `PR-` build with the build agent and target MATLAB updated appropraitely.
+Creation of new build targets will require the duplication of an existing `master-` or `PR-` build with the build agent and target MATLAB updated appropriately.
 
 The non-trivial mapping between the MATLAB version and compatible compilers is maintained by hand.
