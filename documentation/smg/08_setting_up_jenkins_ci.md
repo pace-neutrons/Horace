@@ -127,7 +127,7 @@ and should be prefixed with `PR-` if the pipeline is building pull requests. E.g
 
 **For branch builds:**
 
-  - Add a new string parameter called `BRANCH`, leave the default blank
+  - Add a new string parameter called `BRANCH_NAME`, leave the default blank
 
   <img src="./images/08_branch_parameter.png">
 
