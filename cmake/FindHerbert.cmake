@@ -1,4 +1,23 @@
-if(Herbert_ROOT)
+#[=======================================================================[.rst:
+FindHerbert
+-----------
+
+Looks for the Herbert Matlab software package.
+
+Variables defined by the module
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``Herbert_ROOT``
+The directory within Herbert that contains ``herbert_init.m``
+
+``Herbert_ON_TEMPLATE``
+The path to the template file for herbert_on - usually in Herbert/admin
+
+``Herbert_WORKER_TEMPLATE``
+The path to the template file for worker_v2 - usually in Herbert/admin
+
+#]=======================================================================]
+if(Herbert_FOUND)
     # Already in cache, be silent
     set(Herbert_FIND_QUIETLY TRUE)
 endif()
@@ -18,15 +37,11 @@ set(DIRS_TO_SEARCH
     ENV{ProgramFiles}/Herbert/herbert_core
 )
 
-if(NOT Herbert_ROOT)
-    find_path(Herbert_ROOT
-        NAMES "herbert_init.m"
-        PATHS ${DIRS_TO_SEARCH}
-        DOC "The Herbert root directory - the directory containing herbert_init.m."
-    )
-elseif(NOT EXISTS "${Herbert_ROOT}/herbert_init.m")
-    message(WARNING "Herbert_ROOT - ${Herbert_ROOT} does not contain herbert_init.m")
-endif()
+find_path(Herbert_ROOT
+    NAMES "herbert_init.m"
+    PATHS ${DIRS_TO_SEARCH}
+    DOC "The Herbert root directory - the directory containing herbert_init.m"
+)
 
 find_file(Herbert_ON_TEMPLATE
     NAMES "herbert_on.m.template"
