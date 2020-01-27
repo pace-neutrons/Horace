@@ -258,7 +258,7 @@
       <parallel_config>
          <worker>worker_v2</worker>
          <parallel_framework>mpiexec_mpi</parallel_framework>
-         <cluster_config>default</cluster_config>
+         <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
