@@ -3,7 +3,6 @@ param (
   [string]$build_config = 'Release',
   [string]$build_dir = "",
   [string]$build_tests = "On",
-  [string]$install_dir = "",
   [string]$cmake_flags = "",
   [string]$build_fortran = "OFF",
 
@@ -98,9 +97,6 @@ function Invoke-Package() {
 # Resolve/set default parameters
 if ($build_dir -eq "") {
   $build_dir = Join-Path -Path $HERBERT_ROOT -ChildPath 'build'
-}
-if ($install_dir -eq "") {
-  $install_dir = Join-Path -Path $HERBERT_ROOT -ChildPath 'install'
 }
 
 if ($print_versions -eq $true) {
