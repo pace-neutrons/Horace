@@ -32,6 +32,8 @@ foreach(_test_dir ${TEST_DIRECTORIES})
             catch ME;\
                 disp('Error caught attempting to run test:');\
                 disp(ME);\
+                disp(ME.cause);\
+                disp(ME.stack);\
                 exit(1);\
             end;\
             exit(~res)"
