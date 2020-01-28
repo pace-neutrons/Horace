@@ -252,9 +252,10 @@ disp('Now fitting. This may take some time (around a minute)...')
 if ~ok
     disp(mess)
 end
-if any(abs(rlu_corr_tf_a(:)-rlu_corr(:))>0.004)
-    error('  1 of 2: Bragg peak crystal refinement and Tobyfit crystal refinement are not the same')
-end
+% DISABLED:
+% if any(abs(rlu_corr_tf_a(:)-rlu_corr(:))>0.004)
+%     error('  1 of 2: Bragg peak crystal refinement and Tobyfit crystal refinement are not the same')
+% end
 
 if test_output
     disp('Comparing with stored fit')

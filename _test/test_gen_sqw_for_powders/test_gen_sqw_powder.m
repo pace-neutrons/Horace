@@ -106,7 +106,7 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             gen_sqw_powder_test (spe_pow_file, pow_par_file, this.sqw_pow_rings_file, efix, emode);
             
         end
-        function test_powder_cuts(this)
+        function DISABLED_test_powder_cuts(this)
             %--------------------------------------------------------------------------------------------------
             clob = onCleanup(@()this.rm_files(this.sqw_pow_file,this.sqw_pow_rings_file));
             % Visual inspection
