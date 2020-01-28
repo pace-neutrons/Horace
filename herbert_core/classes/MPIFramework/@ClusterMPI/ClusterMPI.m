@@ -202,7 +202,8 @@ classdef ClusterMPI < ClusterWrapper
                 mpi_exec = fullfile(rootpath,'DLL','_PCWIN64','MS_MPI_R2019b','mpiexec.exe');
             else
                 % use system-defined mpiexec
-                [~,mpi_exec] = system('which mpiexec');
+                %[~,mpi_exec] = system('which mpiexec');
+                mpi_exec = '/usr/local/mpich/bin/mpiexec';
                 % strip non-printing characters, spaces and eol/cr-s from the
                 % end of mpiexec string.
                 mpi_exec= regexprep(mpi_exec,'[\x00-\x20\x7F-\xFF]$','');
