@@ -17,7 +17,7 @@ def post_github_status(String state, String message) {
     }
 }
 
-def base_job_name = "${env.JOB_BASE_NAME}".replace("PR-", "")
+def base_job_name = "${env.JOB_BASE_NAME}".replace("PR-", "").replace("Branch-", "")
 
 pipeline {
     agent {
