@@ -20,6 +20,7 @@ $VS_VERSION_MAP = @{
 }
 # Herbert's root directory is two levels above this script
 $HERBERT_ROOT = Resolve-Path (Join-Path -Path $PSScriptRoot -ChildPath '/../..')
+$MAX_CTEST_SUCCESS_OUTPUT_LENGTH = 10000 # 10kB
 
 function Write-And-Invoke([string]$command) {
   Write-Output "+ $command"
@@ -104,7 +105,11 @@ function Invoke-Test {
   param([string]$build_dir, [string]$build_config)
   Write-Output "`nRunning test step..."
   Push-Location -Path $build_dir
-  Invoke-In-Dir -directory $build_dir -command "ctest -C $build_config -T Test"
+  $test_cmd = "ctest -C $build_config"
+  $test_cmd += " -T Test --no-compress-output"
+  $test_cmd += " --output-on-failure"
+  $test_cmd += " --test-output-size-passed $MAX_CTEST_SUCCESS_OUTPUT_LENGTH"
+  Invoke-In-Dir -directory $build_dir -command $test_cmd
   if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
   }
