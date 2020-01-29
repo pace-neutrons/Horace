@@ -36,8 +36,12 @@ foreach(_test_dir ${TEST_DIRECTORIES})
     # The MPI tests require that `herbert_on.m` be on the path for all workers
     # when Matlab starts up: add the path of the directory it's copied into
     # to the MATLABPATH environment variable when tests are run.
+    set(MATLABPATH "${MATLABPATH}:${CMAKE_BINARY_DIR}/herbert_config")
+    if(WIN32)
+        string(REPLACE ":" ";" MATLABPATH "${MATLAB_PATH}")
+    endif()
     set_tests_properties("${TEST_NAME}"
         PROPERTIES
-            ENVIRONMENT "MATLABPATH=${MATLABPATH}:${CMAKE_BINARY_DIR}/herbert_config"
+            ENVIRONMENT "MATLABPATH=${MATLABPATH}"
     )
 endforeach()
