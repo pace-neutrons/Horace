@@ -18,8 +18,13 @@ function genie_figure_make_cur(fig)
 
 % Determine which figure(s) to make current
 if ~exist('fig','var'), fig=[]; end
-[fig_handle,ok,mess] = get_figure_handle (fig);
-if ~ok, error(mess), end
+if isa(fig,'handle')
+    fig_handle = fig;
+else
+    [fig_handle,ok,mess] = get_figure_handle (fig);
+    if ~ok, error(mess), end
+end
+
 [ok,curr] = is_genie_figure (fig_handle);
 if ~any(ok)
     disp('No keep/make_current figure(s) with given name(s), figure number(s) or figure handle(s)')
@@ -48,13 +53,13 @@ for h=fig_handle'   % needs to be row vector here
     
     % Enable keep uimenu option, if present
     hmenu=findobj(h,'Type','uimenu','Tag','keep');
-    if ~isempty(hmenu),
+    if ~isempty(hmenu)
         set(hmenu,'Enable','on'),
     end
     
     % Disable Make Current uimenu option, if present
     hmenu=findobj(h,'Type','uimenu','Tag','make_cur');
-    if ~isempty(h),
+    if ~isempty(h)
         set(hmenu,'Enable','off'),
     end
     
