@@ -1,22 +1,22 @@
 #!groovy
 
 def post_github_status(String state, String message) {
-    // Non-PR builds will not set PR_STATUSES_URL - in which case we do not
-    // want to post any statuses to Git
-    if (env.PR_STATUSES_URL) {
-        withCredentials([string(credentialsId: 'GitHub_API_Token',
-                variable: 'api_token')]) {
-            sh """
-                curl -H "Authorization: token ${api_token}" \
-                    --request POST \
-                    --data '{"state": "${state}", \
-                            "description": "${message}", \
-                            "target_url": "$BUILD_URL", \
-                            "context": "$JOB_BASE_NAME"}' \
-                    $PR_STATUSES_URL > /dev/null
-            """
-        }
+  // Non-PR builds will not set PR_STATUSES_URL - in which case we do not
+  // want to post any statuses to Git
+  if (env.PR_STATUSES_URL) {
+    withCredentials([string(credentialsId: 'GitHub_API_Token',
+        variable: 'api_token')]) {
+      sh """
+        curl -H "Authorization: token ${api_token}" \
+          --request POST \
+          --data '{"state": "${state}", \
+              "description": "${message}", \
+              "target_url": "$BUILD_URL", \
+              "context": "$JOB_BASE_NAME"}' \
+          $PR_STATUSES_URL > /dev/null
+      """
     }
+  }
 }
 
 /* Required pipeline parameters:
@@ -28,126 +28,126 @@ def post_github_status(String state, String message) {
  *   RELEASE_TYPE
 */
 pipeline {
-    agent {
-        label env.AGENT
+  agent {
+    label env.AGENT
+  }
+
+  stages {
+
+    stage('Notify') {
+      steps {
+        script {
+          post_github_status("pending", "The build is running")
+        }
+      }
     }
 
-    stages {
-
-        stage('Notify') {
-            steps {
-                script {
-                    post_github_status("pending", "The build is running")
-                }
-            }
+    stage('Build') {
+      steps {
+        script {
+          if (isUnix()) {
+            sh '''
+              module load cmake/\$CMAKE_VERSION &&
+              module load matlab/\$MATLAB_VERSION &&
+              module load gcc/\$GCC_VERSION &&
+              module load openmpi/\$OPEN_MPI_VERSION &&
+              ./tools/build_config/build.sh --print_versions --build \
+                --cmake_flags "-DHerbert_RELEASE_TYPE=$RELEASE_TYPE"
+            '''
+          }
+          else {
+            powershell '''
+              ./tools/build_config/build.ps1 -print_versions -build \
+                  -cmake_flags "-DHerbert_RELEASE_TYPE=$RELEASE_TYPE"
+            '''
+          }
         }
-
-        stage('Build') {
-            steps {
-                script {
-                    if (isUnix()) {
-                        sh '''
-                            module load cmake/\$CMAKE_VERSION &&
-                            module load matlab/\$MATLAB_VERSION &&
-                            module load gcc/\$GCC_VERSION &&
-                            module load openmpi/\$OPEN_MPI_VERSION &&
-                            ./tools/build_config/build.sh --print_versions --build \
-                                --cmake_flags "-DHerbert_RELEASE_TYPE=$RELEASE_TYPE"
-                        '''
-                    }
-                    else {
-                        powershell '''
-                            ./tools/build_config/build.ps1 -print_versions -build \
-                                    -cmake_flags "-DHerbert_RELEASE_TYPE=$RELEASE_TYPE"
-                        '''
-                    }
-                }
-            }
-        }
-
-        stage('Test') {
-            steps {
-                script {
-                    if (isUnix()) {
-                        sh '''
-                            module load cmake/\$CMAKE_VERSION &&
-                            module load matlab/\$MATLAB_VERSION &&
-                            module load gcc/\$GCC_VERSION &&
-                            module load openmpi/\$OPEN_MPI_VERSION &&
-                            ./tools/build_config/build.sh --test
-                        '''
-                    }
-                    else {
-                        powershell '''
-                            ./tools/build_config/build.ps1 -test
-                        '''
-                    }
-                }
-            }
-        }
-
-        stage('Package') {
-            steps {
-                script {
-                    if (isUnix()) {
-                        sh '''
-                            module load cmake/\$CMAKE_VERSION &&
-                            ./tools/build_config/build.sh --package
-                        '''
-                    }
-                    else {
-                        powershell '''
-                            ./tools/build_config/build.ps1 -test
-                        '''
-                    }
-                }
-
-                // Archive the release package
-                archiveArtifacts(
-                    artifacts: 'build/Herbert-*',
-                    fingerprint: true
-                )
-            }
-        }
+      }
     }
 
-    post {
-        always {
-            // archive CTest results file
-            archiveArtifacts(
-                artifacts: 'build/Testing/**/*.xml',
-                fingerprint: true
-            )
-
-            xunit (
-                testTimeMargin: '3000',
-                thresholdMode: 1,
-                thresholds: [
-                    skipped(failureThreshold: '0'),
-                    failed(failureThreshold: '0')
-                ],
-                tools: [
-                    CTest(
-                        pattern: 'build/Testing/**/*.xml',
-                        deleteOutputFiles: true,
-                        failIfNotNew: false,
-                        skipNoTestFiles: true,
-                        stopProcessingIfError: true
-                    )
-                ]
-            )
+    stage('Test') {
+      steps {
+        script {
+          if (isUnix()) {
+            sh '''
+              module load cmake/\$CMAKE_VERSION &&
+              module load matlab/\$MATLAB_VERSION &&
+              module load gcc/\$GCC_VERSION &&
+              module load openmpi/\$OPEN_MPI_VERSION &&
+              ./tools/build_config/build.sh --test
+            '''
+          }
+          else {
+            powershell '''
+              ./tools/build_config/build.ps1 -test
+            '''
+          }
         }
-
-        success {
-            post_github_status("success", "The build succeeded")
-        }
-
-        failure {
-            post_github_status("failure", "The build failed")
-        }
-
-        cleanup {
-            deleteDir()
-        }
+      }
     }
+
+    stage('Package') {
+      steps {
+        script {
+          if (isUnix()) {
+            sh '''
+              module load cmake/\$CMAKE_VERSION &&
+              ./tools/build_config/build.sh --package
+            '''
+          }
+          else {
+            powershell '''
+              ./tools/build_config/build.ps1 -test
+            '''
+          }
+        }
+
+        // Archive the release package
+        archiveArtifacts(
+          artifacts: 'build/Herbert-*',
+          fingerprint: true
+        )
+      }
+    }
+  }
+
+  post {
+    always {
+      // archive CTest results file
+      archiveArtifacts(
+        artifacts: 'build/Testing/**/*.xml',
+        fingerprint: true
+      )
+
+      xunit (
+        testTimeMargin: '3000',
+        thresholdMode: 1,
+        thresholds: [
+          skipped(failureThreshold: '0'),
+          failed(failureThreshold: '0')
+        ],
+        tools: [
+          CTest(
+            pattern: 'build/Testing/**/*.xml',
+            deleteOutputFiles: true,
+            failIfNotNew: false,
+            skipNoTestFiles: true,
+            stopProcessingIfError: true
+          )
+        ]
+      )
+    }
+
+    success {
+      post_github_status("success", "The build succeeded")
+    }
+
+    failure {
+      post_github_status("failure", "The build failed")
+    }
+
+    cleanup {
+      deleteDir()
+    }
+  }
 }
