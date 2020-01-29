@@ -117,7 +117,7 @@ pipeline {
           }
           else {
             powershell '''
-              ./tools/build_config/build.ps1 -test
+              ./tools/build_config/build.ps1 -package
             '''
           }
         }
