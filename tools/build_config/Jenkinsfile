@@ -20,13 +20,14 @@ def post_github_status(String state, String message) {
         }
         else {
           powershell """
+            [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
             \$payload = @{
               "state" = "${state}";
               "description" = "${message}";
               "target_url" = "$BUILD_URL";
               "context" = "$JOB_BASE_NAME"}
 
-            Invoke-RestMethod -URI $PR_STATUSES_URL \
+            Invoke-RestMethod -URI "$PR_STATUSES_URL" \
               -Headers @{Authorization = "token ${api_token}"} \
               -Method 'POST' \
               -Body (\$payload|ConvertTo-JSON) \
