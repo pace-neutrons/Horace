@@ -35,21 +35,32 @@ pipeline {
     stages {
 
         stage('Notify') {
-            steps {
-                post_github_status("pending", "The build is running")
+            if (isUnix) {
+                steps {
+                    post_github_status("pending", "The build is running")
+                }
             }
         }
 
         stage('Build') {
-            steps {
-                sh '''
-                    module load cmake/\$CMAKE_VERSION &&
-                    module load matlab/\$MATLAB_VERSION &&
-                    module load gcc/\$GCC_VERSION &&
-                    module load openmpi/\$OPEN_MPI_VERSION &&
-                    ./tools/build_config/build.sh --print_versions --build \
-                        --cmake_flags "-DHerbert_RELEASE_TYPE=$RELEASE_TYPE"
-                '''
+            if (isUnix) {
+                steps {
+                    sh '''
+                        module load cmake/\$CMAKE_VERSION &&
+                        module load matlab/\$MATLAB_VERSION &&
+                        module load gcc/\$GCC_VERSION &&
+                        module load openmpi/\$OPEN_MPI_VERSION &&
+                        ./tools/build_config/build.sh --print_versions --build \
+                            --cmake_flags "-DHerbert_RELEASE_TYPE=$RELEASE_TYPE"
+                    '''
+                }
+            } else {
+                steps {
+                    powershell '''
+                        ./tools/build_config/build.ps1 -print_versions -build \
+                                -cmake_flags "-DHerbert_RELEASE_TYPE=$RELEASE_TYPE"
+                    '''
+                }
             }
         }
 
