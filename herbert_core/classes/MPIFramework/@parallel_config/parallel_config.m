@@ -102,10 +102,11 @@ classdef parallel_config<config_base
         % selected framework.
         % For herbert framework, the configuration name can only be 'local'
         % as herbert frameworks runs on a single node only. A parpool
-        % cluster accepts only 'default' configuration, as the cluster
-        % itself is selected using parallel computing toolbox GUI, while
-        % mpi_cluster can accept 'local' configuration for jobs, running
-        % locally or any configuration, defined in Herbert/admin/mpi_cluster_configs
+        % cluster accepts only 'default' configuration and actual configuration
+        % is set up as default on Dsitributed computing toolbox GUI.
+        % 'mpi_cluster' can accept 'local' configuration for jobs, running
+        % locally or any configuration, defined in
+        % herbert_core/admin/mpi_cluster_configs
         % folder. The files, provided there are the files to use as input
         % for mpiexec /gmachinefile <file_name> on Windows or
         % -f <file_name> on Linux. The property picks up the file and
@@ -287,15 +288,15 @@ classdef parallel_config<config_base
         end
         %
         function obj=set.parallel_framework(obj,frmwk_name)
-            % Set up MPI framework to use. 
+            % Set up MPI framework to use.
             %
             % Available options defined by known_frameworks and are
             % defined in MPI_fmwks_factory
-            % 
+            %
             % The framework name (can be defined by single symbol)
             % or by a framework number in the list of frameworks
             %
-           obj = check_and_set_frmwk_(obj,frmwk_name);
+            obj = check_and_set_frmwk_(obj,frmwk_name);
         end
         %
         function obj = set.cluster_config(obj,val)
