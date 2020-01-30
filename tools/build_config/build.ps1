@@ -81,7 +81,6 @@ function Invoke-Configure {
   Write-Output "`nRunning CMake configure step..."
   $cmake_cmd = "cmake $HERBERT_ROOT"
   $cmake_cmd += " $(New-CMake-Generator-Command -vs_version $vs_version)"
-  $cmake_cmd += " -DCMAKE_BUILD_TYPE=$build_config"
   $cmake_cmd += " -DBUILD_TESTS=$build_tests"
   $cmake_cmd += " -DBUILD_FORTRAN=$build_fortran"
   $cmake_cmd += " $cmake_flags"
