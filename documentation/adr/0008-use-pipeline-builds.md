@@ -29,7 +29,7 @@ Differences between the `PR`, `Branch` and `master` builds will be split between
 
 The pipeline script will call a `build.[sh|ps1]` script with appropriate arguments to perform the build and test steps. The `Jenkinsfile` will provide a scaffold that can be applied to all build targets.
 
-The build jobs we be organised into `Horace` and `Herbert` folders. Separate projects will be written for:
+The build jobs will be organised into `Horace` and `Herbert` folders. Separate projects will be written for:
 
 ```
 Horace/PR-builds

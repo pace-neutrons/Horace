@@ -118,7 +118,7 @@ and should be prefixed with `PR-` if the pipeline is building pull requests, e.g
 
 ### Jenkinsfile and Build Scripts
 
-This is the entry point for Jenkins. The script loads the versions of libraries required, calls the build scripts and notifies GitHub of the build's status.
+The `Jenkinksfile` script is the entry point for Jenkins. This loads the required versions of libraries, calls the build scripts, and notifies GitHub of the build's status.
 
 There are two build scripts, one written in Bash and one in PowerShell. The scripts are named `build.<sh/ps1>` and have a similar API.
 
