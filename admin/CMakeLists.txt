@@ -1,6 +1,8 @@
 # Copy template files into <build_dir>/horace_config
 file(MAKE_DIRECTORY ${LOCAL_INIT_DIR})
 
+# Regex to match a standard Unix/Windwows path - especially the default paths
+# in herbert_on.m.template and horace_on.m.template
 set(_path_regex "[a-zA-Z0-9/\\\\_\\-\\.: ]+")
 
 # Format and copy horace_on template
