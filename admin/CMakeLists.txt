@@ -6,9 +6,11 @@ if(${BUILD_TESTS})
 endif()
 configure_file("worker_v2.m.template" "${WORKER_CONFIG_DIR}/worker_v2.m")
 
+set(_path_regex "[a-zA-Z0-9/\\\\_\\-\\.: ]+")
+
 file(READ "herbert_on.m.template" _herbert_on_template)
-string(REPLACE
-    "her_default_path='/usr/local/mprogs/Herbert'"
+string(REGEX REPLACE
+    "her_default_path='${_path_regex}'"
     "her_default_path='${CMAKE_SOURCE_DIR}/herbert_core'"
     _herbert_on_script
     "${_herbert_on_template}"
