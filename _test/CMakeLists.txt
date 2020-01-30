@@ -12,6 +12,16 @@ set(TEST_DIRECTORIES
     "test_admin"
     # "test_mpi"
 )
+# The MPI tests require that `herbert_on.m` be on the path for all workers
+# when Matlab starts up: add the local_init directory - which contains
+# these files - to the MATLABPATH environment variable when tests are run.
+file(TO_CMAKE_PATH "$ENV{MATLABPATH}" MATLAB_PATH)
+if(WIN32)
+    set(PATH_SEPARATOR "\;")
+else()
+    set(PATH_SEPARATOR ":")
+endif()
+set(MATLAB_PATH "${MATLAB_PATH}${PATH_SEPARATOR}${CMAKE_BINARY_DIR}/local_init")
 
 foreach(_test_dir ${TEST_DIRECTORIES})
     set(TEST_NAME "Matlab.${_test_dir}")
@@ -32,16 +42,8 @@ foreach(_test_dir ${TEST_DIRECTORIES})
             "${CMAKE_SOURCE_DIR}/herbert_core"
         TIMEOUT 300  # 5 mins
     )
-    file(TO_CMAKE_PATH "$ENV{MATLABPATH}" MATLABPATH)
-    # The MPI tests require that `herbert_on.m` be on the path for all workers
-    # when Matlab starts up: add the path of the directory it's copied into
-    # to the MATLABPATH environment variable when tests are run.
-    set(MATLABPATH "${MATLABPATH}:${CMAKE_BINARY_DIR}/herbert_config")
-    if(WIN32)
-        string(REPLACE ":" ";" MATLABPATH "${MATLAB_PATH}")
-    endif()
     set_tests_properties("${TEST_NAME}"
         PROPERTIES
-            ENVIRONMENT "MATLABPATH=${MATLABPATH}"
+            ENVIRONMENT "MATLABPATH=${MATLAB_PATH}"
     )
 endforeach()

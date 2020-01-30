@@ -1,5 +1,5 @@
-# Copy template files into <build_dir>/herbert_config
-set(WORKER_CONFIG_DIR "${CMAKE_BINARY_DIR}/herbert_config")
+# Copy template files into <build_dir>/local_init
+set(WORKER_CONFIG_DIR "${CMAKE_BINARY_DIR}/local_init")
 file(MAKE_DIRECTORY ${WORKER_CONFIG_DIR})
 if(${BUILD_TESTS})
     configure_file("worker_4tests.m.template" "${WORKER_CONFIG_DIR}/worker_4tests.m")
