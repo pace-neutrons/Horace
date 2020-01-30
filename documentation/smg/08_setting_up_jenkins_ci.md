@@ -84,6 +84,10 @@ and should be prefixed with `PR-` if the pipeline is building pull requests, e.g
         - `MATLAB_VERSION`: The (release) version of Matlab to load
         - `GCC_VERSION`: The version of GCC to use (Linux only)
 
+    The list of required parameters are noted in the docstring for the pipeline
+    within the Jenkinsfile, and should be added with descriptions through the
+    Jenkins job GUI.
+
   **For pull requests**:
     - Select the `Generic Webhook Trigger` option and retrieve the json values:
         - `action`: The type of pull request event this is
