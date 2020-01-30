@@ -28,4 +28,4 @@ which us done in the above mentioned file.
 The batch file currently is running in the scheduler so is started as soon as the windows machine is up.
 It tries to restart the job every file minutes in case job script crashes.
 
-The batch file supposed to be run in scheduler or as a service as soon as the Horace Build job setup is completed/
+The batch file supposed to be run in scheduler or as a service as soon as the Horace Build job setup is completed.

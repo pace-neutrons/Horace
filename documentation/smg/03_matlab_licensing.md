@@ -5,7 +5,7 @@ The Horace and Herbert code bases are primarily written in Matlab, with some key
 Matlab is a [licensed product](https://uk.mathworks.com/pricing-licensing.html), for which ISIS has access to a number of licenses.
 In order to build, deploy and execute Horace in the various configurations a range of licenses will be needed.
 
-The Matlab compiler (required to convert Matlab into an executable or library) is licensed separately to the main Matlab
+The Matlab compiler (required to convert Matlab into an executable or library) is licensed separately to the main Matlab.
 
 ## Execution Environment
 
