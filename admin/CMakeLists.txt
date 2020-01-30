@@ -2,8 +2,6 @@
 set(WORKER_CONFIG_DIR "${CMAKE_BINARY_DIR}/horace_config")
 file(MAKE_DIRECTORY ${WORKER_CONFIG_DIR})
 
-# This regex is designed to match a standard Unix/Windows path that may be
-# defined as the default path for Herbert/Horace
 set(_path_regex "[a-zA-Z0-9/\\\\_\\-\\.: ]+")
 
 # Format and copy horace_on template
@@ -25,8 +23,8 @@ file(WRITE "${WORKER_CONFIG_DIR}/horace_on.m" "${_horace_on_script}")
 # Format and copy herbert_on template
 file(READ "${Herbert_ON_TEMPLATE}" _herbert_on_template)
 string(REGEX REPLACE
-    "her_default_path ?= ?'${_path_regex}';"
-    "her_default_path = '${Herbert_ROOT}';"
+    "default_herbert_path ?= ?'${_path_regex}';"
+    "default_herbert_path = '${Herbert_ROOT}';"
     _herbert_on_script
     "${_herbert_on_template}"
 )
