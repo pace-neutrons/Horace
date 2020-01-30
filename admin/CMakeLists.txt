@@ -1,6 +1,5 @@
 # Copy template files into <build_dir>/horace_config
-set(WORKER_CONFIG_DIR "${CMAKE_BINARY_DIR}/horace_config")
-file(MAKE_DIRECTORY ${WORKER_CONFIG_DIR})
+file(MAKE_DIRECTORY ${LOCAL_INIT_DIR})
 
 set(_path_regex "[a-zA-Z0-9/\\\\_\\-\\.: ]+")
 
@@ -18,7 +17,7 @@ string(REGEX REPLACE
     _horace_on_script
     "${_horace_on_script}"
 )
-file(WRITE "${WORKER_CONFIG_DIR}/horace_on.m" "${_horace_on_script}")
+file(WRITE "${LOCAL_INIT_DIR}/horace_on.m" "${_horace_on_script}")
 
 # Format and copy herbert_on template
 file(READ "${Herbert_ON_TEMPLATE}" _herbert_on_template)
@@ -28,7 +27,7 @@ string(REGEX REPLACE
     _herbert_on_script
     "${_herbert_on_template}"
 )
-file(WRITE "${WORKER_CONFIG_DIR}/herbert_on.m" "${_herbert_on_script}")
+file(WRITE "${LOCAL_INIT_DIR}/herbert_on.m" "${_herbert_on_script}")
 
 # Copy Herbert's worker template
-configure_file("${Herbert_WORKER_TEMPLATE}" "${WORKER_CONFIG_DIR}/worker_v2.m")
+configure_file("${Herbert_WORKER_TEMPLATE}" "${LOCAL_INIT_DIR}/worker_v2.m")

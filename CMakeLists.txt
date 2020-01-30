@@ -20,6 +20,10 @@ list(APPEND CMAKE_MODULE_PATH
     "${CMAKE_SOURCE_DIR}/cmake/external"
 )
 
+# Set some useful global variables
+# this will hold herbert/horace_on.m and worker_v2.m
+set(LOCAL_INIT_DIR "${CMAKE_BINARY_DIR}/local_init")
+
 # Set our options
 option(BUILD_TESTS ON)
 
