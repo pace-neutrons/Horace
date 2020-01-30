@@ -56,9 +56,7 @@ pipeline {
 
     stage('Notify') {
       steps {
-        script {
-          post_github_status("pending", "The build is running")
-        }
+        post_github_status("pending", "The build is running")
       }
     }
 
