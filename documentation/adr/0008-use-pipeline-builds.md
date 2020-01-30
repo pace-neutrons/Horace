@@ -25,7 +25,7 @@ This configuration will be:
 - set required variables (e.g. build agent type, MATLAB and compiler versions)
 - manage Git triggers and branches
 
-Differences bewteen the `PR`, `Branch` and `master` builds will be split between the UI (extraction of information about pull request is required for `PR` builds) and `Jenkinsfile` scaffold (target commit to post build status).
+Differences between the `PR`, `Branch` and `master` builds will be split between the UI (extraction of information about pull request is required for `PR` builds) and `Jenkinsfile` scaffold (target commit to post build status).
 
 The pipeline script will call a `build.[sh|ps1]` script with appropriate arguments to perform the build and test steps. The `Jenkinsfile` will provide a scaffold that can be applied to all build targets.
 
