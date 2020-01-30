@@ -27,7 +27,15 @@ module. You'll find the file bundled with your CMake installation.
 find_package(Matlab REQUIRED COMPONENTS MAIN_PROGRAM MEX_COMPILER)
 get_filename_component(Matlab_LIBRARY_DIR "${Matlab_MEX_LIBRARY}" DIRECTORY)
 get_filename_component(Matlab_BIN_DIR "${Matlab_MAIN_PROGRAM}" DIRECTORY)
-get_filename_component(Matlab_VERSION "${Matlab_ROOT_DIR}" NAME)
+
+# Get the Matlab release from the VersionInfo.xml file
+file(READ "${Matlab_ROOT_DIR}/VersionInfo.xml" _version_info)
+string(REGEX REPLACE
+    ".*<release>(R[0-9]+[ab])</release>.*"
+    "\\1"
+    Matlab_VERSION
+    "${_version_info}"
+)
 
 # Find the libut library
 find_library(Matlab_UT_LIBRARY

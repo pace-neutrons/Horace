@@ -76,7 +76,7 @@ pipeline {
           else {
             powershell '''
               ./tools/build_config/build.ps1 -print_versions -build \
-                  -cmake_flags "-DHerbert_RELEASE_TYPE=$RELEASE_TYPE"
+                  -cmake_flags "-DHerbert_RELEASE_TYPE=\$env:RELEASE_TYPE"
             '''
           }
         }
