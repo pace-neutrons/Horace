@@ -45,6 +45,6 @@ foreach(_test_dir ${TEST_DIRECTORIES})
     # variable when tests are run.
     set_tests_properties("${TEST_NAME}"
         PROPERTIES
-            ENVIRONMENT "MATLABPATH=${MATLABPATH}:${CMAKE_BINARY_DIR}/horace_config"
+            ENVIRONMENT "MATLABPATH=${MATLABPATH}:${LOCAL_INIT_DIR}"
     )
 endforeach()
