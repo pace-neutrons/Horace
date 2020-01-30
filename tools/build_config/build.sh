@@ -12,7 +12,7 @@ readonly HORACE_ROOT="$(realpath $(dirname "$0")/../..)"
 # matlab executable. The Matlab on the path will likely be a symlink so we need
 # to resolve it with `readlink`
 readonly MATLAB_ROOT="$(realpath $(dirname $(readlink -f $(which matlab)))/..)"
-readonly MAX_CTEST_SUCCESS_OUTPUT_LENGTH="10000" # 10 kilobytes
+readonly MAX_CTEST_SUCCESS_OUTPUT_LENGTH=10000 # 10 kilobytes
 
 function echo_and_run {
   echo "+ $1"
