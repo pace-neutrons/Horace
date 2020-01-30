@@ -2,17 +2,19 @@
 set(WORKER_CONFIG_DIR "${CMAKE_BINARY_DIR}/horace_config")
 file(MAKE_DIRECTORY ${WORKER_CONFIG_DIR})
 
+set(_path_regex "[a-zA-Z0-9/\\\\_\\-\\.: ]+")
+
 # Format and copy horace_on template
 file(READ "horace_on.m.template" _horace_on_template)
-string(REPLACE
-    "default_horace_path ='/usr/local/mprogs/Horace/horace_core';"
-    "default_horace_path ='${CMAKE_SOURCE_DIR}/horace_core';"
+string(REGEX REPLACE
+    "default_horace_path ?= ?'${_path_regex}';"
+    "default_horace_path = '${CMAKE_SOURCE_DIR}/horace_core';"
     _horace_on_script
     "${_horace_on_template}"
 )
-string(REPLACE
-    "default_herbert_path='/usr/local/mprogs/Herbert/herbert_core';"
-    "default_herbert_path='${Herbert_ROOT}';"
+string(REGEX REPLACE
+    "default_herbert_path ?= ?'${_path_regex}';"
+    "default_herbert_path = '${Herbert_ROOT}';"
     _horace_on_script
     "${_horace_on_script}"
 )
@@ -20,9 +22,9 @@ file(WRITE "${WORKER_CONFIG_DIR}/horace_on.m" "${_horace_on_script}")
 
 # Format and copy herbert_on template
 file(READ "${Herbert_ON_TEMPLATE}" _herbert_on_template)
-string(REPLACE
-    "her_default_path='/usr/local/mprogs/Herbert';"
-    "her_default_path='${Herbert_ROOT}';"
+string(REGEX REPLACE
+    "default_herbert_path ?= ?'${_path_regex}';"
+    "default_herbert_path = '${Herbert_ROOT}';"
     _herbert_on_script
     "${_herbert_on_template}"
 )
