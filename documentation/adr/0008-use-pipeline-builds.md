@@ -1,4 +1,4 @@
-[<-previous](0007-use-herbert-as-library-dependency.md) | [next->](0009-use-standard-naming-for-build-artifacts.md) 
+[<-previous](0007-use-herbert-as-library-dependency.md) | [next->](0009-use-standard-naming-for-build-artifacts.md)
 
 # 8 - Use Jenkins scripted pipeline for builds
 
@@ -18,27 +18,29 @@ These builds will be the same except for the commit to build (for `master` this 
 
 ## Decision
 
-Jenkins builds pipelines will be scripted (`tools/build_config/Jenkinsfile`) with minimal configuration set in the Jenkins UI. 
+Jenkins builds pipelines will be scripted (`tools/build_config/Jenkinsfile`) with minimal configuration set in the Jenkins UI.
 
 This configuration will be:
 
 - set required variables (e.g. build agent type, MATLAB and compiler versions)
 - manage Git triggers and branches
 
-Differences between the `PR `and `master` builds will be split between the UI (extraction of information about pull request is required for `PR` builds) and `Jenkinsfile` scaffold (target commit to post build status).
+Differences between the `PR`, `Branch` and `master` builds will be split between the UI (extraction of information about pull request is required for `PR` builds) and `Jenkinsfile` scaffold (target commit to post build status).
 
 The pipeline script will call a `build.[sh|ps1]` script with appropriate arguments to perform the build and test steps. The `Jenkinsfile` will provide a scaffold that can be applied to all build targets.
 
-The build jobs we be organised into `Horace` and `Herbert` folders. Separate projects will be written for:
+The build jobs will be organised into `Horace` and `Herbert` folders. Separate projects will be written for:
 
 ```
 Horace/PR-builds
       /master-builds
+      /branch-builds
 Herbert/PR-builds
        /master-builds
+       /branch-builds
 ```
 
-Each project name will follow the pattern: `[PR-]<target-os>-<target-matlab>`.e.g. `PR-Scientific-Linux-2018b`, `osx-2019a`, `win64-2018a`.
+Each project name will follow the pattern: `[PR-|Branch-]<target-os>-<target-matlab>`.e.g. `PR-Scientific-Linux-2018b`, `osx-2019a`, `win64-2018a`.
 
 ## Consequences
 
