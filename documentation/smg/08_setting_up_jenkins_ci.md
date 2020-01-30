@@ -141,18 +141,38 @@ and should be prefixed with `PR-` if the pipeline is building pull requests. E.g
 
 ### Jenkinsfile and Build Scripts
 
-This is the entry point for Jenkins. The script loads the versions of libraries
-required, calls the build scripts and notifies GitHub of the build's status.
+This is the entry point for Jenkins. The script loads the versions of libraries required, calls the build scripts and notifies GitHub of the build's status.
 
-There are two build scripts, one written in Bash and one in Powershell. The
-scripts are both named `build.<sh/ps1>` and have a similar API. To call the
-script and only build use the `--build` flag, to build and test use both flags
-`--build --test`. There is also a `--package` flag. These flags can be used
-on there own or in combination. Note that Powershell uses *a single dash* for
-parameters, i.e. `-build -test -package`.
+There are two build scripts, one written in Bash and one in PowerShell. The scripts are named `build.<sh/ps1>` and have a similar API.
 
-The build scripts are intended to work locally as well as on Jenkins, so any
-Jenkins specific tasks should *not* be in the build scripts.
+The build scripts are intended to work locally as well as on Jenkins, so any Jenkins specific tasks should *not* be in the build scripts.
+
+#### Actions
+
+| Argument (`.ps1`) | Argument (`.sh`)       |      |
+| --------------- | ------- | ---- |
+| `-build`        | `--build`, `-b` |   Perform build   |
+| `-test`          | `--test`, `-t` | Run MATLAB and C++ tests |
+| `-package`          | `--package`, `-p`  | Create archive of build artifacts |
+| `-print_versions`          | `--print_versions`, `-v`  | Display versions of compilers, MATLAB and libraries used |
+
+#### Options
+
+| Argument (`.ps1`) | Argument (`.sh`) | Default | |
+| --------------- | ------- | ---- | ---- |
+| `-build_tests` | `--build_tests`, `-X` | `ON` | Build test files (`ON` \| `OFF`) |
+| `-build_fortran` | `--build_fortran`, `-f` | `OFF` | Build Fortran source (`ON` \| `OFF`) |
+| `-build_config` | `--build_config`, `-X` | `Release` | Build configuration to use (`Release` \| `Debug`) |
+| `-build_dir` | `--build_dir`, `-O` | `./build` | Output directory for CMake build |
+| `-cmake_flags` | `--cmake_flags`, `-B` | - | Custom parameters to pass to CMake configure step |
+| `-vs_version` | | `2017` | Target Visual Studio version for CMake output (1) |
+
+Actions may be combined so to call the script and only build use the `--build` flag, to build and test use both flags `--build --test`.
+
+Notes:
+1. The Visual Studio version must match a configured Visual Studio release or an error will be thrown
+2. PowerShell uses *a single dash* for parameters, i.e. `-build -test -package`.
+
 
 ### Authentication
 
