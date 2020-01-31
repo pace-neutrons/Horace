@@ -12,7 +12,7 @@ readonly HORACE_ROOT="$(realpath $(dirname "$0")/../..)"
 # matlab executable. The Matlab on the path will likely be a symlink so we need
 # to resolve it with `readlink`
 readonly MATLAB_ROOT="$(realpath $(dirname $(readlink -f $(which matlab)))/..)"
-readonly MAX_CTEST_SUCCESS_OUTPUT_LENGTH=4096 #bytes
+readonly MAX_CTEST_SUCCESS_OUTPUT_LENGTH=10000 # 10 kilobytes
 
 function echo_and_run {
   echo "+ $1"
@@ -59,7 +59,9 @@ function run_tests() {
 
   echo -e "\nRunning test step..."
   echo_and_run "cd ${build_dir}"
-  test_cmd="ctest -T Test --no-compress-output --test-output-size-passed ${MAX_CTEST_SUCCESS_OUTPUT_LENGTH}"
+  test_cmd="ctest -T Test --no-compress-output"
+  test_cmd+=" --output-on-failure"
+  test_cmd+=" --test-output-size-passed ${MAX_CTEST_SUCCESS_OUTPUT_LENGTH}"
   echo_and_run "${test_cmd}"
 }
 
@@ -75,6 +77,7 @@ function main() {
   local build=$FALSE
   local test=$FALSE
   local package=$FALSE
+  local print_versions=$FALSE
   local build_tests="ON"
   local build_config='Release'
   local build_dir="${HORACE_ROOT}/build"
@@ -87,6 +90,7 @@ function main() {
         -b|--build) build=$TRUE; shift ;;
         -t|--test) test=$TRUE; shift ;;
         -p|--package) package=$TRUE; shift ;;
+        -v|--print_versions) print_versions=$TRUE; shift ;;
         # options
         -X|--build_tests) build_tests="$2"; shift; shift ;;
         -C|--build_config) build_config="$2"; shift; shift ;;
@@ -94,7 +98,9 @@ function main() {
     esac
   done
 
-  print_package_versions
+  if ((${print_versions})); then
+    print_package_versions
+  fi
 
   if ((${build})); then
     warning_msg="Warning: Build directory ${build_dir} already exists.\n\
