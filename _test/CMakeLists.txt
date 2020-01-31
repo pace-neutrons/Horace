@@ -18,9 +18,20 @@ set(TEST_DIRECTORIES
     "test_transformation"
     "test_utilities"
 )
+# The MPI tests require that the `[herbert|horace]_on` and `worker_v2`scripts
+# be on the path for all workers when Matlab starts up: add the path of the
+# directory it's copied into to the MATLABPATH environment variable when tests
+# are run.
+# LOCAL_INIT_DIR is defined in the top-level CMakeLists
+file(TO_CMAKE_PATH "$ENV{MATLABPATH}" MATLAB_PATH)
+if(WIN32)
+    set(PATH_SEPARATOR "\;")
+else()
+    set(PATH_SEPARATOR ":")
+endif()
+set(MATLAB_PATH "${MATLAB_PATH}${PATH_SEPARATOR}${LOCAL_INIT_DIR}")
 
 set(TEST_TIMEOUT_LENGTH "1200")  # 20 minutes
-
 foreach(_test_dir ${TEST_DIRECTORIES})
     set(TEST_NAME "Matlab.${_test_dir}")
     matlab_add_unit_test(
@@ -39,13 +50,8 @@ foreach(_test_dir ${TEST_DIRECTORIES})
             exit(~res)"
         TIMEOUT ${TEST_TIMEOUT_LENGTH}
     )
-    # The MPI tests require that the `[herbert|horace]_on` and `worker_v2`
-    # scripts be on the path for all workers when Matlab starts up: add the
-    # path of the directory it's copied into to the MATLABPATH environment
-    # variable when tests are run.
-    # LOCAL_INIT_DIR is defined in the top-level CMakeLists
     set_tests_properties("${TEST_NAME}"
         PROPERTIES
-            ENVIRONMENT "MATLABPATH=${MATLABPATH}:${LOCAL_INIT_DIR}"
+            ENVIRONMENT "MATLABPATH=${MATLAB_PATH}"
     )
 endforeach()
