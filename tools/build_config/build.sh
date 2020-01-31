@@ -78,7 +78,6 @@ function main() {
   local build_tests="ON"
   local build_config='Release'
   local build_dir="${HORACE_ROOT}/build"
-  local install_dir="${HORACE_ROOT}/install"
 
   # parse command line args
   while [[ $# -gt 0 ]]; do
@@ -92,7 +91,6 @@ function main() {
         -X|--build_tests) build_tests="$2"; shift; shift ;;
         -C|--build_config) build_config="$2"; shift; shift ;;
         -O|--build_dir) build_dir="$(realpath $2)"; shift; shift ;;
-        -I|--install_dir) install_dir="$(realpath $2)"; shift; shift ;;
     esac
   done
 
