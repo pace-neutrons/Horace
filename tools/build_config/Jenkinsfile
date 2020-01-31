@@ -90,14 +90,10 @@ pipeline {
                 Write-Output "Could not find archive matching pattern 'build/Herbert-*'"
                 exit 1;
               }
-              ls
               Write-Output "Extracting '\$zip_file'..."
-              Expand-Archive -Force -LiteralPath (\$zip_file.FullName) -DestinationPath .
-              ls
-              Move-Item -Force (\$zip_file.BaseName + "/Herbert") .
-              ls
-              ls Herbert
-              Remove-Item -Recurse \$zip_file.BaseName
+              Expand-Archive -Force -LiteralPath (\$zip_file.FullName) -DestinationPath \$env:TEMP
+              \$herbert_path = [IO.Path]::Combine($env:TEMP, \$zip_file.BaseName, Herbert)
+              Move-Item -Force (\$env:TEMP + \$zip_file.BaseName + "\$herbert_path") .
             '''
           }
         }
