@@ -22,7 +22,7 @@ set(
 )
 
 set(MEX_NAME "combine_sqw")
-matlab_add_mex(
+horace_add_mex(
     NAME "${MEX_NAME}"
     SRC "${SRC_FILES}" "${HDR_FILES}"
 )
