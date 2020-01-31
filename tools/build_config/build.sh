@@ -7,11 +7,11 @@ readonly FALSE=0
 readonly TRUE=1
 readonly CMAKE_GENERATOR="Unix Makefiles"
 # The Herbert root directory is two levels above this script
-readonly HERBERT_ROOT="$(realpath $(dirname "$0")/../..)"
+readonly HERBERT_ROOT="$(realpath "$(dirname "$0")"/../..)"
 # The Matlab root directory is one level above Matlab/bin which contains the
 # matlab executable. The Matlab on the path will likely be a symlink so we need
 # to resolve it with `readlink`
-readonly MATLAB_ROOT=$(realpath "$(dirname $(readlink -f $(command -v matlab)))"/..)
+readonly MATLAB_ROOT="$(realpath "$(dirname "$(readlink -f "$(command -v matlab)")")"/..)"
 readonly MAX_CTEST_SUCCESS_OUTPUT_LENGTH="10000" # 10kB
 
 function echo_and_run {
@@ -99,7 +99,7 @@ function main() {
         # options
         -X|--build_tests) build_tests="$2"; shift; shift ;;
         -C|--build_config) build_config="$2"; shift; shift ;;
-        -O|--build_dir) build_dir="$(realpath $2)"; shift; shift ;;
+        -O|--build_dir) build_dir="$(realpath "$2")"; shift; shift ;;
         -f|--build_fortran) build_fortran="$2"; shift; shift ;;
         -B|--cmake_flags) cmake_flags="$2"; shift; shift ;;
 	*) echo "Unrecognised argument '$key'"; exit 1 ;;
@@ -114,12 +114,12 @@ function main() {
     warning_msg="Warning: Build directory ${build_dir} already exists.\n\
         This may not be a clean build."
     echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
-    run_configure ${build_dir} ${build_config} ${build_tests} ${cmake_flags}
-    run_build ${build_dir}
+    run_configure "${build_dir}" "${build_config}" "${build_tests}" "${cmake_flags}"
+    run_build "${build_dir}"
   fi
 
   if ((${test})); then
-    run_tests ${build_dir}
+    run_tests "${build_dir}"
   fi
 
   if ((${package})); then
