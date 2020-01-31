@@ -43,6 +43,7 @@ foreach(_test_dir ${TEST_DIRECTORIES})
     # scripts be on the path for all workers when Matlab starts up: add the
     # path of the directory it's copied into to the MATLABPATH environment
     # variable when tests are run.
+    # LOCAL_INIT_DIR is defined in the top-level CMakeLists
     set_tests_properties("${TEST_NAME}"
         PROPERTIES
             ENVIRONMENT "MATLABPATH=${MATLABPATH}:${LOCAL_INIT_DIR}"

@@ -1,4 +1,5 @@
-# Copy template files into <build_dir>/horace_config
+# Copy template files into <build_dir>/local_init
+# LOCAL_INIT_DIR is defined in the top-level CMakeLists
 file(MAKE_DIRECTORY ${LOCAL_INIT_DIR})
 
 # Regex to match a standard Unix/Windwows path - especially the default paths
