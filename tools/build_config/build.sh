@@ -11,7 +11,7 @@ readonly HERBERT_ROOT="$(realpath $(dirname "$0")/../..)"
 # The Matlab root directory is one level above Matlab/bin which contains the
 # matlab executable. The Matlab on the path will likely be a symlink so we need
 # to resolve it with `readlink`
-readonly MATLAB_ROOT="$(realpath $(dirname $(readlink -f $(which matlab)))/..)"
+readonly MATLAB_ROOT=$(realpath "$(dirname $(readlink -f $(command -v matlab)))"/..)
 readonly MAX_CTEST_SUCCESS_OUTPUT_LENGTH="10000" # 10kB
 
 function echo_and_run {
@@ -24,10 +24,10 @@ function warning {
 }
 
 function print_package_versions() {
-  echo "$(cmake --version | head -n 1)"
+  cmake --version | head -n 1
   echo "Matlab: ${MATLAB_ROOT}"
-  echo "$(g++ --version | head -n 1)"
-  echo "$(gfortran --version | head -n 1)"
+  g++ --version | head -n 1
+  gfortran --version | head -n 1
   echo
 }
 
