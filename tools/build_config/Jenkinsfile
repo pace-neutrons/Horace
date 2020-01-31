@@ -86,14 +86,13 @@ pipeline {
             // out what we need and delete the leftovers.
             powershell '''
               \$zip_file = Get-Item "build/Herbert-*"
-              if (\$zip_file) {
-                Write-Output "Found Herbert archive: '\$zip_file'"
-              } else {
+              if (-Not \$zip_file) {
                 Write-Output "Could not find archive matching pattern 'build/Herbert-*'"
-                exit 1
+                exit 1;
               }
+              Write-Output "Extracting '\$zip_file'..."
               Expand-Archive -Force -LiteralPath (\$zip_file.FullName) -DestinationPath (pwd).Path
-              Move-Item -Force (\$zip_file.BaseName + "/Herbert") (pwd).Path
+              Move-Item -Force (\$zip_file.BaseName + "/Herbert") .
               Remove-Item -Recurse \$zip_file.BaseName
             '''
           }
