@@ -21,7 +21,7 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 # Set our options
-option(BUILD_TESTS ON)
+option(BUILD_TESTS "Build the C++ tests" ON)
 
 # Look for packages early so we can exit if they're not found
 find_package(OpenMP)
