@@ -109,7 +109,7 @@ classdef test_multifit_horace_1< TestCaseWithSave
             this=save_or_test_variables(this,wfit_single1,wfit_single2,wfit_single12);
             
         end
-        function this=test_fit_single_or_array2(this)
+        function this=DISABLED_test_fit_single_or_array2(this)
             
             [wfit_single12,fitpar_single12]=fit_sqw(this.win, @sqw_bcc_hfm, [5,5,1,10,0], [0,1,1,1,1], @linear_bkgd, [0,0]);
             

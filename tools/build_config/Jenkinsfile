@@ -39,6 +39,8 @@ def post_github_status(String state, String message) {
   }
 }
 
+def base_job_name = "${env.JOB_BASE_NAME}".replace("PR-", "").replace("Branch-", "")
+
 /* Pipeline parameters:
  *   All platforms:
  *     AGENT (e.g. 'sl7', 'PACE Windows (Private)', 'osx')
@@ -60,6 +62,25 @@ pipeline {
     stage('Notify') {
       steps {
         post_github_status("pending", "The build is running")
+      }
+    }
+
+    stage('Clone-Herbert') {
+      steps {
+        copyArtifacts(
+          filter: 'build/Herbert-*',
+          fingerprintArtifacts: true,
+          projectName: "PACE-neutrons/Herbert/${base_job_name}",
+          selector: lastSuccessful()
+        )
+        script {
+          if (isUnix()) {
+            sh '''
+              archive_name="\$(find -name Herbert-*.tar.gz)"
+              tar --wildcards --strip-components=1 -xf \$archive_name */Herbert *.m
+            '''
+          }
+        }
       }
     }
 
