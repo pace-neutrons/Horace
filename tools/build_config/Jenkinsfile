@@ -80,6 +80,23 @@ pipeline {
               tar --wildcards --strip-components=1 -xf \$archive_name */Herbert
             '''
           }
+          else {
+            // I couldn't find an elegant way of replicating the `--strip-components`
+            // option in the `tar` command, so we extract the whole zip, move
+            // out what we need and delete the leftovers.
+            powershell '''
+              \$zip_file = Get-Item "Herbert-*"
+              if (\$zip_file) {
+                Write-Output "Found Herbert archive: '\$zip_file'"
+              } else {
+                Write-Output "Could not find archive matching pattern 'Herbert-*'"
+                exit 1
+              }
+              Expand-Archive -Force -Path (\$zip_file.FullName) -DestinationPath (pwd).Path
+              Move-Item -Force (\$zip_file.BaseName + "/Herbert") (pwd).Path
+              Remove-Item -Recurse \$zip_file.BaseName
+            '''
+          }
         }
       }
     }
