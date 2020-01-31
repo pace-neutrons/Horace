@@ -1,19 +1,23 @@
 #!groovy
 
 def post_github_status(String state, String message) {
-    withCredentials([string(credentialsId: 'GitHub_API_Token',
-            variable: 'api_token')]) {
-        sh """
-            curl -H "Authorization: token ${api_token}" \
-                --request POST \
-                --data '{"state": "${state}", \
-                         "description": "${message}", \
-                         "target_url": "$BUILD_URL", \
-                         "context": "$JOB_BASE_NAME"}' \
-                $PR_STATUSES_URL > /dev/null
-        """
-            }
+    if (env.PR_STATUSES_URL) {
+        withCredentials([string(credentialsId: 'GitHub_API_Token',
+                variable: 'api_token')]) {
+            sh """
+                curl -H "Authorization: token ${api_token}" \
+                    --request POST \
+                    --data '{"state": "${state}", \
+                            "description": "${message}", \
+                            "target_url": "$BUILD_URL", \
+                            "context": "$JOB_BASE_NAME"}' \
+                    $PR_STATUSES_URL > /dev/null
+            """
+        }
+    }
 }
+
+def base_job_name = "${env.JOB_BASE_NAME}".replace("PR-", "").replace("Branch-", "")
 
 pipeline {
     agent {
@@ -28,13 +32,28 @@ pipeline {
             }
         }
 
+        stage('Clone-Herbert') {
+            steps {
+                copyArtifacts(
+                    filter: 'build/Herbert-*',
+                    fingerprintArtifacts: true,
+                    projectName: "PACE-neutrons/Herbert/${base_job_name}",
+                    selector: lastSuccessful()
+                )
+                sh '''
+                    archive_name="\$(find -name Herbert-*.tar.gz)"
+                    tar --wildcards --strip-components=1 -xf \$archive_name */Herbert *.m
+                '''
+            }
+        }
+
         stage('Build') {
             steps {
                 sh '''
                     module load cmake/\$CMAKE_VERSION &&
                     module load matlab/\$MATLAB_VERSION &&
                     module load gcc/\$GCC_VERSION &&
-                    ./tools/build_config/build.sh --build
+                    ./tools/build_config/build.sh --print_versions --build
                 '''
             }
         }

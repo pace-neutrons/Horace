@@ -9,7 +9,7 @@ function path=horace_on(non_default_path)
 %
 default_horace_path ='/usr/local/mprogs/Horace/horace_core';
 default_herbert_path='/usr/local/mprogs/Herbert/herbert_core';
-% To use spinW together with Horace, modify the row below pointing to correct 
+% To use spinW together with Horace, modify the row below pointing to correct
 % spinW location. Also need to modify spinw_on template and place it together
 % with horace_on.m script.
 default_spinw_path = '/usr/local/mprogs/spinW';
@@ -38,8 +38,9 @@ herbert_initated=~isempty(which('herbert_init.m'));
 if ~herbert_initated
     try
         try_herbert_on(default_herbert_path);
-    catch
-        error('HORACE_ON:wrong_dependencies','Can not initiate Herbert');
+    catch ME
+        disp('HORACE_ON:wrong_dependencies - cannot initiate Herbert');
+        rethrow(ME);
     end
 else % reinitialize Herbert on where it is now.
     her_path = fileparts(which('herbert_init.m'));
