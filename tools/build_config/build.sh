@@ -102,6 +102,7 @@ function main() {
         -O|--build_dir) build_dir="$(realpath $2)"; shift; shift ;;
         -f|--build_fortran) build_fortran="$2"; shift; shift ;;
         -B|--cmake_flags) cmake_flags="$2"; shift; shift ;;
+	*) echo "Unrecognised argument '$key'"; exit 1 ;;
     esac
   done
 
