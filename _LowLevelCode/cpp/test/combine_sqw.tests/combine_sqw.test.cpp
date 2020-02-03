@@ -510,6 +510,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix) {
     reader.get_pix_for_bin(126, pPix_info, start_buf_pos, pix_start_num, num_bin_pix, false);
     ASSERT_EQ(pix_start_num, 334);
     ASSERT_EQ(num_bin_pix, 4);
+    // DISABLED
     // for (size_t i = 0; i<num_bin_pix * 9; i++) {
     //     ASSERT_EQ(pixels[pix_start_num*9+i], pix_buffer[i]);
     // }
@@ -518,10 +519,11 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix) {
     reader.get_pix_for_bin(num_bin_in_file-860, pPix_info, start_buf_pos, pix_start_num, num_bin_pix, false);
     ASSERT_EQ(pix_start_num, sample_pix_pos[num_bin_in_file - 860]);
     ASSERT_EQ(num_bin_pix, sample_npix[num_bin_in_file - 860]);
+    // DISABLED
     // for (size_t i = 0; i<num_bin_pix * 9; i++) {
     //     ASSERT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos*9 + i]);
     // }
-
+    //
     // reader.get_pix_for_bin(num_bin_in_file - 860+1, pPix_info, start_buf_pos, pix_start_num, num_bin_pix, false);
     // ASSERT_EQ(pix_start_num, sample_pix_pos[num_bin_in_file - 860+1]);
     // ASSERT_EQ(num_bin_pix, sample_npix[num_bin_in_file - 860+1]);
@@ -573,6 +575,7 @@ TEST_F(TestCombineSQW, SQW_Reader_NoBuf_Mode) {
     reader.get_pix_for_bin(126, pPix_info, start_buf_pos, pix_start_num, num_bin_pix, false);
     ASSERT_EQ(pix_start_num, 334);
     ASSERT_EQ(num_bin_pix, 4);
+    // DISABLED
     // for (size_t i = 0; i<num_bin_pix * 9; i++) {
     //     ASSERT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[i]);
     // }
@@ -580,6 +583,7 @@ TEST_F(TestCombineSQW, SQW_Reader_NoBuf_Mode) {
     reader.get_pix_for_bin(num_bin_in_file - 860, pPix_info, start_buf_pos, pix_start_num, num_bin_pix, false);
     ASSERT_EQ(pix_start_num, sample_pix_pos[num_bin_in_file - 860]);
     ASSERT_EQ(num_bin_pix, sample_npix[num_bin_in_file - 860]);
+    // DISABLED
     // for (size_t i = 0; i<num_bin_pix * 9; i++) {
     //     ASSERT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos * 9 + i]);
     // }
@@ -587,6 +591,7 @@ TEST_F(TestCombineSQW, SQW_Reader_NoBuf_Mode) {
     reader.get_pix_for_bin(num_bin_in_file - 860 + 1, pPix_info, start_buf_pos, pix_start_num, num_bin_pix, false);
     ASSERT_EQ(pix_start_num, sample_pix_pos[num_bin_in_file - 860 + 1]);
     ASSERT_EQ(num_bin_pix, sample_npix[num_bin_in_file - 860 + 1]);
+    // DISABLED
     // for (size_t i = 0; i<num_bin_pix * 9; i++) {
     //     ASSERT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos * 9 + i]);
     // }
@@ -635,6 +640,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix_Threads) {
     reader.get_pix_for_bin(126, pPix_info, start_buf_pos, pix_start_num, num_bin_pix, false);
     ASSERT_EQ(pix_start_num, 334);
     ASSERT_EQ(num_bin_pix, 4);
+    // DISABLED
     // for (size_t i = 0; i<num_bin_pix * 9; i++) {
     //     ASSERT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[i]);
     // }
@@ -642,12 +648,14 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix_Threads) {
     reader.get_pix_for_bin(num_bin_in_file - 860, pPix_info, start_buf_pos, pix_start_num, num_bin_pix, false);
     ASSERT_EQ(pix_start_num, sample_pix_pos[num_bin_in_file - 860]);
     ASSERT_EQ(num_bin_pix, sample_npix[num_bin_in_file - 860]);
+    // DISABLED
     // for (size_t i = 0; i<num_bin_pix * 9; i++) {
     //     ASSERT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos * 9 + i]);
     // }
     reader.get_pix_for_bin(num_bin_in_file - 860 + 1, pPix_info, start_buf_pos, pix_start_num, num_bin_pix, false);
     ASSERT_EQ(pix_start_num, sample_pix_pos[num_bin_in_file - 860 + 1]);
     ASSERT_EQ(num_bin_pix, sample_npix[num_bin_in_file - 860 + 1]);
+    // DISABLED
     // for (size_t i = 0; i<num_bin_pix * 9; i++) {
     //     ASSERT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos * 9 + i]);
     // }
@@ -675,36 +683,36 @@ TEST_F(TestCombineSQW, SQW_Reader_Read_All) {
 
     size_t start_buf_pos(0), pix_start_num, num_bin_pix;
     //--------------------------------------------------------------------------------------------
-    reader.init(file_par, false, false, 0);
-    //
-    auto t_start = std::chrono::steady_clock::now();
-    start_buf_pos = 0;
-    for (size_t i = 0; i < this->num_bin_in_file; i++) {
-        reader.get_pix_for_bin(i, pPix_info, start_buf_pos, pix_start_num, num_bin_pix, false);
-        start_buf_pos += num_bin_pix;
-    }
-    auto t_end = std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::steady_clock::now() - t_start).count();
-    std::cout << "\n Time to run single thread with system buffer: " << t_end << "ms\n";
+    // DISABLED
+    // reader.init(file_par, false, false, 0);
+    // //
+    // auto t_start = std::chrono::steady_clock::now();
+    // start_buf_pos = 0;
+    // for (size_t i = 0; i < this->num_bin_in_file; i++) {
+    //     reader.get_pix_for_bin(i, pPix_info, start_buf_pos, pix_start_num, num_bin_pix, false);
+    //     start_buf_pos += num_bin_pix;
+    // }
+    // auto t_end = std::chrono::duration_cast<std::chrono::milliseconds>(
+    //         std::chrono::steady_clock::now() - t_start).count();
+    // std::cout << "\n Time to run single thread with system buffer: " << t_end << "ms\n";
 
     // for (size_t i = 0; i < pix_buffer.size(); i++) {
     //     ASSERT_EQ(pix_buffer[i], pixels[i]);
     //     pix_buffer[i] = 0;
     // }
     //--------------------------------------------------------------------------------------------
-    //
-    reader.init(file_par, false, false, 1024);
-    //
-    t_start = std::chrono::steady_clock::now();
-    start_buf_pos = 0;
-    for (size_t i = 0; i < this->num_bin_in_file; i++) {
-        reader.get_pix_for_bin(i, pPix_info, start_buf_pos, pix_start_num, num_bin_pix, false);
-        start_buf_pos += num_bin_pix;
-    }
-    t_end = std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::steady_clock::now() - t_start).count();
-    std::cout << "\n Time to run single thread with 1024 words buffer: " << t_end << "ms\n";
-
+    // DISABLED
+    // reader.init(file_par, false, false, 1024);
+    // //
+    // t_start = std::chrono::steady_clock::now();
+    // start_buf_pos = 0;
+    // for (size_t i = 0; i < this->num_bin_in_file; i++) {
+    //     reader.get_pix_for_bin(i, pPix_info, start_buf_pos, pix_start_num, num_bin_pix, false);
+    //     start_buf_pos += num_bin_pix;
+    // }
+    // t_end = std::chrono::duration_cast<std::chrono::milliseconds>(
+    //         std::chrono::steady_clock::now() - t_start).count();
+    // std::cout << "\n Time to run single thread with 1024 words buffer: " << t_end << "ms\n";
 
     // for (size_t i = 0; i < pix_buffer.size(); i++) {
     //     ASSERT_EQ(pix_buffer[i], pixels[i]);
@@ -712,17 +720,18 @@ TEST_F(TestCombineSQW, SQW_Reader_Read_All) {
     // }
 
     //--------------------------------------------------------------------------------------------
-    reader.init(file_par, false, false, 512, 1);
+    // DISABLED
+    // reader.init(file_par, false, false, 512, 1);
 
-    t_start = std::chrono::steady_clock::now();
-    start_buf_pos = 0;
-    for (size_t i = 0; i < this->num_bin_in_file; i++) {
-        reader.get_pix_for_bin(i, pPix_info, start_buf_pos, pix_start_num, num_bin_pix, false);
-        start_buf_pos += num_bin_pix;
-    }
-    t_end = std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::steady_clock::now() - t_start).count();
-    std::cout << "\n Time to run threads: " << t_end << "ms\n";
+    // t_start = std::chrono::steady_clock::now();
+    // start_buf_pos = 0;
+    // for (size_t i = 0; i < this->num_bin_in_file; i++) {
+    //     reader.get_pix_for_bin(i, pPix_info, start_buf_pos, pix_start_num, num_bin_pix, false);
+    //     start_buf_pos += num_bin_pix;
+    // }
+    // t_end = std::chrono::duration_cast<std::chrono::milliseconds>(
+    //         std::chrono::steady_clock::now() - t_start).count();
+    // std::cout << "\n Time to run threads: " << t_end << "ms\n";
 
     // for (size_t i = 0; i < pix_buffer.size(); i++) {
     //     ASSERT_EQ(pix_buffer[i], pixels[i]);
