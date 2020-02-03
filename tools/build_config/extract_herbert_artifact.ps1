@@ -22,6 +22,19 @@ $extract_cmd = "Expand-Archive -Force -LiteralPath " + $zip_file.FullName
 $extract_cmd += " -DestinationPath $env:TEMP"
 Write-And-Invoke "$extract_cmd"
 
+# Make sure there's no Herbert already in the working directory. PowerShell
+# will not overwrite directories - even with the "-Force" flag
+if (Test-Path "Herbert") {
+  Write-Output "Removing existing Herbert directory..."
+  Write-And-Invoke "Remove-Item -Force -Recurse Herbert"
+}
+
 # Move only the required 'Herbert' directory from the extracted zip
-$herbert_path = [IO.Path]::Combine($env:TEMP, $zip_file.BaseName, "Herbert")
+$extraction_path = [IO.Path]::Combine($env:TEMP, $zip_file.BaseName)
+$herbert_path = [IO.Path]::Combine($extraction_path, "Herbert")
 Write-And-Invoke "Move-Item -Force $herbert_path ."
+try {
+  Write-And-Invoke "Remove-Item -Force -Recurse $extraction_path -ErrorAction Stop"
+} catch {
+  Write-Output "Could not remove directory '$extraction_path'"
+}
