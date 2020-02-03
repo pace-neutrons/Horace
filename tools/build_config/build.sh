@@ -95,6 +95,7 @@ function main() {
         -X|--build_tests) build_tests="$2"; shift; shift ;;
         -C|--build_config) build_config="$2"; shift; shift ;;
         -O|--build_dir) build_dir="$(realpath $2)"; shift; shift ;;
+        *) echo "Unrecognised argument '$key'"; exit 1 ;;
     esac
   done
 
