@@ -81,20 +81,7 @@ pipeline {
             '''
           }
           else {
-            // I couldn't find an elegant way of replicating the `--strip-components`
-            // option in the `tar` command, so we extract the whole zip, move
-            // out what we need and delete the leftovers.
-            powershell '''
-              \$zip_file = Get-Item "build/Herbert-*"
-              if (-Not \$zip_file) {
-                Write-Output "Could not find archive matching pattern 'build/Herbert-*'"
-                exit 1;
-              }
-              Write-Output "Extracting '\$zip_file'..."
-              Expand-Archive -Force -LiteralPath (\$zip_file.FullName) -DestinationPath \$env:TEMP
-              \$herbert_path = [IO.Path]::Combine($env:TEMP, \$zip_file.BaseName, "Herbert")
-              Move-Item -Force "\$herbert_path" .
-            '''
+            powershell './extract_herbert_artifact.ps1'
           }
         }
       }
