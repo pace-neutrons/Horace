@@ -12,6 +12,8 @@ param (
   [switch]$print_versions
 )
 
+. $PSScriptRoot/powershell_helpers.ps1
+
 # Mapping from year to Visual Studio version
 $VS_VERSION_MAP = @{
   2015 = 'Visual Studio 14 2015';
@@ -21,22 +23,6 @@ $VS_VERSION_MAP = @{
 # Horace's root directory is two levels above this script
 $HORACE_ROOT = Resolve-Path (Join-Path -Path $PSScriptRoot -ChildPath '/../..')
 $MAX_CTEST_SUCCESS_OUTPUT_LENGTH = 10000 # 10kB
-
-function Write-And-Invoke([string]$command) {
-  Write-Output "+ $command"
-  Invoke-Expression "$command"
-}
-
-function Invoke-In-Dir {
-  param([string]$directory, [string]$command)
-  Push-Location -Path $directory
-  try {
-    Write-And-Invoke "$command"
-  }
-  finally {
-    Pop-Location
-  }
-}
 
 function New-Build-Directory {
   param([string]$build_dir)

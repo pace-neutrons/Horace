@@ -1,15 +1,14 @@
-# Import functions from build script - in particular Write-And-Invoke
-. $PSScriptRoot/build.ps1
+. $PSScriptRoot/powershell_helpers.ps1
 
 # Index "-1" here to deal with case where we may have more than one artifact.
 # We always want the last in the list, that will be the latest as they're
 # sorted alphabetically
 $zip_name_filter = "build/Herbert-*"
 try {
-    $zip_file = (Get-Item "$zip_name_filter")[-1]
+  $zip_file = (Get-Item "$zip_name_filter")[-1]
 } catch [System.Management.Automation.RuntimeException] {
-    Write-Output "Could not find archive matching pattern '$zip_name_filter'"
-    exit 1;
+  Write-Output "Could not find archive matching pattern '$zip_name_filter'"
+  exit 1;
 }
 
 # Extract Herbert archive to user's temp directory
