@@ -92,7 +92,7 @@ pipeline {
               }
               Write-Output "Extracting '\$zip_file'..."
               Expand-Archive -Force -LiteralPath (\$zip_file.FullName) -DestinationPath \$env:TEMP
-              \$herbert_path = [IO.Path]::Combine($env:TEMP, \$zip_file.BaseName, Herbert)
+              \$herbert_path = [IO.Path]::Combine($env:TEMP, \$zip_file.BaseName, "Herbert")
               Move-Item -Force (\$env:TEMP + \$zip_file.BaseName + "\$herbert_path") .
             '''
           }
