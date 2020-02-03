@@ -669,7 +669,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix_Threads) {
     }
 }
 
-TEST_F(TestCombineSQW, SQW_Reader_Read_All) {
+TEST_F(TestCombineSQW, DISABLED_SQW_Reader_Read_All) {
     sqw_reader reader;
     fileParameters file_par;
     file_par.fileName = test_file_name;
@@ -680,67 +680,63 @@ TEST_F(TestCombineSQW, SQW_Reader_Read_All) {
     std::vector<float> pix_buffer;
     pix_buffer.resize(this->pixels.size());
     float *pPix_info = &pix_buffer[0];
-
     size_t start_buf_pos(0), pix_start_num, num_bin_pix;
-    //--------------------------------------------------------------------------------------------
-    // DISABLED
-    // reader.init(file_par, false, false, 0);
-    // //
-    // auto t_start = std::chrono::steady_clock::now();
-    // start_buf_pos = 0;
-    // for (size_t i = 0; i < this->num_bin_in_file; i++) {
-    //     reader.get_pix_for_bin(i, pPix_info, start_buf_pos, pix_start_num, num_bin_pix, false);
-    //     start_buf_pos += num_bin_pix;
-    // }
-    // auto t_end = std::chrono::duration_cast<std::chrono::milliseconds>(
-    //         std::chrono::steady_clock::now() - t_start).count();
-    // std::cout << "\n Time to run single thread with system buffer: " << t_end << "ms\n";
+    // --------------------------------------------------------------------------------------------
+    reader.init(file_par, false, false, 0);
 
-    // for (size_t i = 0; i < pix_buffer.size(); i++) {
-    //     ASSERT_EQ(pix_buffer[i], pixels[i]);
-    //     pix_buffer[i] = 0;
-    // }
-    //--------------------------------------------------------------------------------------------
-    // DISABLED
-    // reader.init(file_par, false, false, 1024);
-    // //
-    // t_start = std::chrono::steady_clock::now();
-    // start_buf_pos = 0;
-    // for (size_t i = 0; i < this->num_bin_in_file; i++) {
-    //     reader.get_pix_for_bin(i, pPix_info, start_buf_pos, pix_start_num, num_bin_pix, false);
-    //     start_buf_pos += num_bin_pix;
-    // }
-    // t_end = std::chrono::duration_cast<std::chrono::milliseconds>(
-    //         std::chrono::steady_clock::now() - t_start).count();
-    // std::cout << "\n Time to run single thread with 1024 words buffer: " << t_end << "ms\n";
+    auto t_start = std::chrono::steady_clock::now();
+    start_buf_pos = 0;
+    for (size_t i = 0; i < this->num_bin_in_file; i++) {
+        reader.get_pix_for_bin(i, pPix_info, start_buf_pos, pix_start_num, num_bin_pix, false);
+        start_buf_pos += num_bin_pix;
+    }
+    auto t_end = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now() - t_start).count();
+    std::cout << "\n Time to run single thread with system buffer: " << t_end << "ms\n";
 
-    // for (size_t i = 0; i < pix_buffer.size(); i++) {
-    //     ASSERT_EQ(pix_buffer[i], pixels[i]);
-    //     pix_buffer[i] = 0;
-    // }
+    for (size_t i = 0; i < pix_buffer.size(); i++) {
+        ASSERT_EQ(pix_buffer[i], pixels[i]);
+        pix_buffer[i] = 0;
+    }
+    // --------------------------------------------------------------------------------------------
+    reader.init(file_par, false, false, 1024);
 
-    //--------------------------------------------------------------------------------------------
-    // DISABLED
-    // reader.init(file_par, false, false, 512, 1);
+    t_start = std::chrono::steady_clock::now();
+    start_buf_pos = 0;
+    for (size_t i = 0; i < this->num_bin_in_file; i++) {
+        reader.get_pix_for_bin(i, pPix_info, start_buf_pos, pix_start_num, num_bin_pix, false);
+        start_buf_pos += num_bin_pix;
+    }
+    t_end = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now() - t_start).count();
+    std::cout << "\n Time to run single thread with 1024 words buffer: " << t_end << "ms\n";
 
-    // t_start = std::chrono::steady_clock::now();
-    // start_buf_pos = 0;
-    // for (size_t i = 0; i < this->num_bin_in_file; i++) {
-    //     reader.get_pix_for_bin(i, pPix_info, start_buf_pos, pix_start_num, num_bin_pix, false);
-    //     start_buf_pos += num_bin_pix;
-    // }
-    // t_end = std::chrono::duration_cast<std::chrono::milliseconds>(
-    //         std::chrono::steady_clock::now() - t_start).count();
-    // std::cout << "\n Time to run threads: " << t_end << "ms\n";
+    for (size_t i = 0; i < pix_buffer.size(); i++) {
+        ASSERT_EQ(pix_buffer[i], pixels[i]);
+        pix_buffer[i] = 0;
+    }
 
-    // for (size_t i = 0; i < pix_buffer.size(); i++) {
-    //     ASSERT_EQ(pix_buffer[i], pixels[i]);
-    //     pix_buffer[i] = 0;
-    // }
+    // --------------------------------------------------------------------------------------------
+    reader.init(file_par, false, false, 512, 1);
+
+    t_start = std::chrono::steady_clock::now();
+    start_buf_pos = 0;
+    for (size_t i = 0; i < this->num_bin_in_file; i++) {
+        reader.get_pix_for_bin(i, pPix_info, start_buf_pos, pix_start_num, num_bin_pix, false);
+        start_buf_pos += num_bin_pix;
+    }
+    t_end = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now() - t_start).count();
+    std::cout << "\n Time to run threads: " << t_end << "ms\n";
+
+    for (size_t i = 0; i < pix_buffer.size(); i++) {
+        ASSERT_EQ(pix_buffer[i], pixels[i]);
+        pix_buffer[i] = 0;
+    }
 
     //--------------------------------------------------------------------------------------------
     reader.init(file_par, false, false, 0);
-    //
+
     t_start = std::chrono::steady_clock::now();
     start_buf_pos = 0;
     for (size_t i = 0; i < this->num_bin_in_file; i++) {
