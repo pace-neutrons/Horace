@@ -3,7 +3,7 @@
 # Index "-1" here to deal with case where we may have more than one artifact.
 # We always want the last in the list, that will be the latest as they're
 # sorted alphabetically
-$zip_name_filter = "build/Herbert-*"
+$zip_name_filter = "build/Herbert-*.zip"
 try {
   $zip_file = (Get-Item "$zip_name_filter")[-1]
 } catch [System.Management.Automation.RuntimeException] {
