@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.7)
 
-project("Horace")
+project("Horace" VERSION "3.3.0")
 
 # C++11 is required for GTest
 set(CMAKE_CXX_STANDARD 11)
@@ -28,6 +28,7 @@ set(LOCAL_INIT_DIR "${CMAKE_BINARY_DIR}/local_init")
 option(BUILD_TESTS "Build the C++ tests" ON)
 
 # Look for packages early so we can exit if they're not found
+include(horace_Version)
 find_package(Herbert)
 find_package(OpenMP)
 include(horace_AddMex)
