@@ -81,7 +81,7 @@ pipeline {
             '''
           }
           else {
-            powershell './extract_herbert_artifact.ps1'
+            powershell './tools/build_config/extract_herbert_artifact.ps1'
           }
         }
       }
