@@ -9,8 +9,9 @@ banner_to_screen(mfilename)
 
 % -----------------------------------------------------------------------------
 % Add common functions folder to path, and get location of common data
-addpath(fullfile(horace_root(),'_test','common_functions'))
-common_data_dir=fullfile(horace_root(),'_test','common_data');
+HORACE_ROOT = horace_root();
+addpath(fullfile(HORACE_ROOT,'_test','common_functions'))
+common_data_dir=fullfile(HORACE_ROOT,'_test','common_data');
 % -----------------------------------------------------------------------------
 
 dir_out=tmp_dir;
