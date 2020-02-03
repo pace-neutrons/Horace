@@ -175,8 +175,8 @@ pipeline {
       post_github_status("failure", "The build failed")
     }
 
-    // cleanup {
-    //   deleteDir()
-    // }
+    cleanup {
+      deleteDir()
+    }
   }
 }
