@@ -12,7 +12,10 @@ param (
   [switch]$print_versions
 )
 
-. $PSScriptRoot/powershell_helpers.ps1
+. $PSScriptRoot/powershell_helpers.ps1 <# Imports:
+  Write-And-Invoke
+  Invoke-In-Dir
+#>
 
 # Mapping from year to Visual Studio version
 $VS_VERSION_MAP = @{

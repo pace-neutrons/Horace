@@ -1,4 +1,6 @@
-. $PSScriptRoot/powershell_helpers.ps1
+. $PSScriptRoot/powershell_helpers.ps1 <# Imports:
+  Write-And-Invoke
+#>
 
 # Index "-1" here to deal with case where we may have more than one artifact.
 # We always want the last in the list, that will be the latest as they're
