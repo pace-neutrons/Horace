@@ -3,7 +3,6 @@ param (
   [string]$build_config = 'Release',
   [string]$build_dir = "",
   [string]$build_tests = "On",
-  [string]$cmake_flags = "",
   [string]$build_fortran = "OFF",
 
   [switch]$build,
