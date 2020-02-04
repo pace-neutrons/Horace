@@ -44,7 +44,8 @@ configure_file(
 execute_process(
     COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
     RESULT_VARIABLE RESULT
-    WORKING_DIRECTORY "${GTEST_DOWNLOAD_DIR}")
+    WORKING_DIRECTORY "${GTEST_DOWNLOAD_DIR}"
+)
 
 if(RESULT)
     message(FATAL_ERROR "CMake configure step for googletest failed: ${RESULT}")
@@ -58,6 +59,9 @@ execute_process(
 if(RESULT)
     message(FATAL_ERROR "Build step for googletest failed: ${RESULT}")
 endif()
+
+# We don't want to install GTest libs when we run `make install`
+set(INSTALL_GTEST OFF CACHE BOOL "Enable installation of googletest." FORCE)
 
 # Prevent overriding the parent project's compiler/linker settings on Windows
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)

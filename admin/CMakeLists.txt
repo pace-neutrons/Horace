@@ -34,3 +34,29 @@ file(WRITE "${LOCAL_INIT_DIR}/herbert_on.m" "${_herbert_on_script}")
 
 # Copy Herbert's worker template
 configure_file("${Herbert_WORKER_TEMPLATE}" "${LOCAL_INIT_DIR}/worker_v2.m")
+
+# =============================================================================
+# Install commands
+# =============================================================================
+# Function to install a file whose name ends in .template
+function(install_template_file)
+    set(_template_file "${ARGV0}")
+    # Deal with absolute paths - extract just the file name
+    get_filename_component(_template_base_name "${_template_file}" NAME)
+    # Remove the .template extension from the file name
+    string(REPLACE ".template" "" _new_file_name "${_template_base_name}")
+    install(
+        FILES "${_template_file}"
+        DESTINATION "."
+        RENAME "${_new_file_name}"
+    )
+endfunction()
+
+set(TEMPLATE_FILES
+    "horace_on.m.template"
+    "${Herbert_ON_TEMPLATE}"
+    "${Herbert_WORKER_TEMPLATE}"
+)
+foreach(_template_file ${TEMPLATE_FILES})
+    install_template_file("${_template_file}")
+endforeach()

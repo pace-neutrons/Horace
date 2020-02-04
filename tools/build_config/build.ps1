@@ -1,16 +1,37 @@
 param (
-  [int]$vs_version = 2017,
-  [string]$build_config = 'Release',
-  [string]$build_dir = "",
-  [string]$build_tests = "On",
-  [string]$build_fortran = "OFF",
-  [string]$cmake_flags = "",
+  [switch][Alias("b")]$build,
+  [switch][Alias("t")]$test,
+  [switch][Alias("p")]$package,
+  [switch][Alias("v")]$print_versions,
 
-  [switch]$build,
-  [switch]$test,
-  [switch]$package,
-  [switch]$print_versions
+  [int][ValidateSet(2015, 2017, 2019)]
+  [Alias("VS")]
+  $vs_version = 2017,
+
+  [string][ValidateSet("ON", "OFF")]
+  [Alias("X")]
+  $build_tests = "ON",
+
+  [string][ValidateSet("Release", "Debug")]
+  [Alias("C")]
+  $build_config = 'Release',
+
+  [string]
+  [Alias("O")]
+  $build_dir = "",
+
+  [string]
+  [Alias("F")]
+  $cmake_flags = ""
 )
+
+if ($args) {
+  $error_msg = "Unrecognised argument(s):"
+  foreach($arg in $args) {
+    $error_msg += "`n    $arg"
+  }
+  throw "$error_msg"
+}
 
 . $PSScriptRoot/powershell_helpers.ps1 <# Imports:
   Write-And-Invoke
@@ -64,14 +85,12 @@ function Invoke-Configure {
     [string]$build_dir,
     [string]$build_config,
     [string]$build_tests,
-    [string]$build_fortran,
     [string]$cmake_flags
   )
   Write-Output "`nRunning CMake configure step..."
   $cmake_cmd = "cmake $HORACE_ROOT"
   $cmake_cmd += " $(New-CMake-Generator-Command -vs_version $vs_version)"
   $cmake_cmd += " -DBUILD_TESTS=$build_tests"
-  $cmake_cmd += " -DBUILD_FORTRAN=$build_fortran"
   $cmake_cmd += " $cmake_flags"
 
   Invoke-In-Dir -directory $build_dir -command $cmake_cmd
@@ -106,8 +125,7 @@ function Invoke-Test {
 function Invoke-Package {
   param([string]$build_dir)
   Write-Output "`nRunning package step..."
-  Write-Output "Not implemented"
-  # Invoke-In-Dir -directory $build_dir -command "cpack -G ZIP"
+  Invoke-In-Dir -directory $build_dir -command "cpack -G ZIP"
   if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
   }
@@ -129,7 +147,6 @@ if ($build -eq $true) {
     -build_dir $build_dir `
     -build_config $build_config `
     -build_tests $build_tests `
-    -build_fortran $build_fortran `
     -cmake_flags $cmake_flags
   Invoke-Build -build_dir $build_dir -build_config $build_config
 }
