@@ -3,7 +3,6 @@ param (
   [string]$build_config = 'Release',
   [string]$build_dir = "",
   [string]$build_tests = "On",
-  [string]$build_fortran = "OFF",
   [string]$cmake_flags = "",
 
   [switch]$build,
@@ -64,14 +63,12 @@ function Invoke-Configure {
     [string]$build_dir,
     [string]$build_config,
     [string]$build_tests,
-    [string]$build_fortran,
     [string]$cmake_flags
   )
   Write-Output "`nRunning CMake configure step..."
   $cmake_cmd = "cmake $HORACE_ROOT"
   $cmake_cmd += " $(New-CMake-Generator-Command -vs_version $vs_version)"
   $cmake_cmd += " -DBUILD_TESTS=$build_tests"
-  $cmake_cmd += " -DBUILD_FORTRAN=$build_fortran"
   $cmake_cmd += " $cmake_flags"
 
   Invoke-In-Dir -directory $build_dir -command $cmake_cmd
@@ -128,7 +125,6 @@ if ($build -eq $true) {
     -build_dir $build_dir `
     -build_config $build_config `
     -build_tests $build_tests `
-    -build_fortran $build_fortran `
     -cmake_flags $cmake_flags
   Invoke-Build -build_dir $build_dir -build_config $build_config
 }
