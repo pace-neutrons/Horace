@@ -28,12 +28,12 @@ set(LOCAL_INIT_DIR "${CMAKE_BINARY_DIR}/local_init")
 option(BUILD_TESTS "Build the C++ tests" ON)
 
 # Look for packages early so we can exit if they're not found
-include(horace_Version)
 find_package(Herbert)
 find_package(OpenMP)
 include(horace_AddMex)
 include(horace_FindMatlab)
 include(horace_FindHDF5)
+include(horace_Version)
 if(${BUILD_TESTS})
     include(CTest)
     include(horace_FindGTest)
