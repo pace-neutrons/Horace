@@ -8,8 +8,7 @@ param (
   [string][Alias("X")]$build_tests = "On",
   [string][Alias("C")]$build_config = 'Release',
   [string][Alias("O")]$build_dir = "",
-  [string][Alias("B")]$cmake_flags = ""
-
+  [string][Alias("CF")]$cmake_flags = ""
 )
 
 if ($args) {
