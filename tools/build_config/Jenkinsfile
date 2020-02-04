@@ -137,6 +137,12 @@ pipeline {
             powershell './tools/build_config/build.ps1 -package'
           }
         }
+
+        // Archive the release package
+        archiveArtifacts(
+            artifacts: 'build/Horace-*',
+            fingerprint: true
+        )
       }
     }
   }
