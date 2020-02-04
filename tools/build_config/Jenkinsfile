@@ -58,9 +58,9 @@ pipeline {
       steps {
         script {
           if (env.BRANCH_NAME) {
-            currentBuild.displayName = "${env.BRANCH_NAME}-#${env.BUILD_NUMBER}"
+            currentBuild.displayName = "#${env.BUILD_NUMBER}-${env.BRANCH_NAME}"
           } else if (env.PR_NUMBER) {
-            currentBuild.displayName = "PR-${env.PR_NUMBER}-#${env.BUILD_NUMBER}"
+            currentBuild.displayName = "#${env.BUILD_NUMBER}-PR${env.PR_NUMBER}"
           }
         }
         post_github_status("pending", "The build is running")
