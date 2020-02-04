@@ -142,11 +142,11 @@ The build scripts are intended to work locally as well as on Jenkins, so any Jen
 | Argument (`.ps1`) | Argument (`.sh`) | Default | |
 | --------------- | ------- | ---- | ---- |
 | `-build_tests` | `--build_tests`, `-X` | `ON` | Build test files (`ON` \| `OFF`) |
-| `-build_fortran` | `--build_fortran`, `-f` | `OFF` | Build Fortran source (`ON` \| `OFF`) |
-| `-build_config` | `--build_config`, `-X` | `Release` | Build configuration to use (`Release` \| `Debug`) |
+| `-build_fortran` | `--build_fortran`, `-N` | `OFF` | Build Fortran source (`ON` \| `OFF`) |
+| `-build_config` | `--build_config`, `-C` | `Release` | Build configuration to use (`Release` \| `Debug`) |
 | `-build_dir` | `--build_dir`, `-O` | `./build` | Output directory for CMake build |
-| `-cmake_flags` | `--cmake_flags`, `-B` | - | Custom parameters to pass to CMake configure step |
-| `-vs_version` | | `2017` | Target Visual Studio version for CMake output (1) |
+| `-cmake_flags` | `--cmake_flags`, `-F` | | Custom parameters to pass to CMake configure step |
+| `-vs_version`, `VS` | | `2017` | Target Visual Studio version for CMake output (1) |
 
 Actions may be combined so to call the script and only build use the `--build` flag, to build and test use both flags `--build --test`.
 
