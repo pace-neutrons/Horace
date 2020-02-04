@@ -12,6 +12,14 @@ param (
   [switch]$print_versions
 )
 
+if ($args) {
+  $error_msg = "Unrecognised argument(s):"
+  foreach($arg in $args) {
+    $error_msg += "`n    $arg"
+  }
+  throw "$error_msg"
+}
+
 # Mapping from year to Visual Studio version
 $VS_VERSION_MAP = @{
   2015 = 'Visual Studio 14 2015';
