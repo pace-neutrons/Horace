@@ -1,16 +1,41 @@
 param (
-  [int]$vs_version = 2017,
-  [string]$build_config = 'Release',
-  [string]$build_dir = "",
-  [string]$build_tests = "On",
-  [string]$cmake_flags = "",
-  [string]$build_fortran = "OFF",
+  [switch][Alias("b")]$build,
+  [switch][Alias("t")]$test,
+  [switch][Alias("p")]$package,
+  [switch][Alias("v")]$print_versions,
 
-  [switch]$build,
-  [switch]$test,
-  [switch]$package,
-  [switch]$print_versions
+  [int][ValidateSet(2015, 2017, 2019)]
+  [Alias("VS")]
+  $vs_version = 2017,
+
+  [string][ValidateSet("ON", "OFF")]
+  [Alias("X")]
+  $build_tests = "ON",
+
+  [string][ValidateSet("Release", "Debug")]
+  [Alias("C")]
+  $build_config = 'Release',
+
+  [string]
+  [Alias("O")]
+  $build_dir = "",
+
+  [string][ValidateSet("ON", "OFF")]
+  [Alias("N")]
+  $build_fortran = "OFF",
+
+  [string]
+  [Alias("F")]
+  $cmake_flags = ""
 )
+
+if ($args) {
+  $error_msg = "Unrecognised argument(s):"
+  foreach($arg in $args) {
+    $error_msg += "`n    $arg"
+  }
+  throw "$error_msg"
+}
 
 # Mapping from year to Visual Studio version
 $VS_VERSION_MAP = @{
