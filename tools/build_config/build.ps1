@@ -1,14 +1,15 @@
 param (
-  [int]$vs_version = 2017,
-  [string]$build_config = 'Release',
-  [string]$build_dir = "",
-  [string]$build_tests = "On",
-  [string]$cmake_flags = "",
+  [switch][Alias("b")]$build,
+  [switch][Alias("t")]$test,
+  [switch][Alias("p")]$package,
+  [switch][Alias("v")]$print_versions,
 
-  [switch]$build,
-  [switch]$test,
-  [switch]$package,
-  [switch]$print_versions
+  [int][Alias("VS")]$vs_version = 2017,
+  [string][Alias("X")]$build_tests = "On",
+  [string][Alias("C")]$build_config = 'Release',
+  [string][Alias("O")]$build_dir = "",
+  [string][Alias("B")]$cmake_flags = ""
+
 )
 
 if ($args) {
