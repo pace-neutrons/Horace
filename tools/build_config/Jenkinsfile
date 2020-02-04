@@ -56,6 +56,13 @@ pipeline {
 
     stage('Notify') {
       steps {
+        script {
+          if (env.BRANCH_NAME) {
+            currentBuild.displayName = "${env.BRANCH_NAME}-#${env.BUILD_NUMBER}"
+          } else if (env.PR_NUMBER) {
+            currentBuild.displayName = "PR-${env.PR_NUMBER}-#${env.BUILD_NUMBER}"
+          }
+        }
         post_github_status("pending", "The build is running")
       }
     }
