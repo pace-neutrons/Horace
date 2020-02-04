@@ -1,3 +1,30 @@
+#[=======================================================================[.rst:
+horace_Version
+-----------------
+
+Build a version release string:
+  <version>[-<date>]-<target>-<matlab>[-<sha>]
+
+ Optional elements are included based on the value of Horace_RELEASE_TYPE
+ - Date included for "nightly" builds
+ - SHA included for non-"release" builds (i.e. "nightly" or "pull-request")
+
+Variables required by the module
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``Horace_RELEASE_TYPE``
+Release type: "nightly", "release" or "pull-request" (default)
+
+``Matlab_VERSION``
+This is provided by the `horace_FindMatlab` module which must be loaded first
+
+Variables defined by the module
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``Horace_FULL_VERSION``
+formatted version string
+
+#]=======================================================================]
 set(Horace_FULL_VERSION "${PROJECT_VERSION}")
 
 if(Horace_RELEASE_TYPE STREQUAL "nightly")
