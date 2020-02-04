@@ -25,7 +25,7 @@ list(APPEND CMAKE_MODULE_PATH
 set(LOCAL_INIT_DIR "${CMAKE_BINARY_DIR}/local_init")
 
 # Set our options
-option(BUILD_TESTS ON)
+option(BUILD_TESTS "Build the C++ tests" ON)
 
 # Look for packages early so we can exit if they're not found
 find_package(Herbert)
