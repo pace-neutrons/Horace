@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.7)
 
-project("Horace")
+project("Horace" VERSION "3.3.0")
 
 # C++11 is required for GTest
 set(CMAKE_CXX_STANDARD 11)
@@ -33,6 +33,7 @@ find_package(OpenMP)
 include(horace_AddMex)
 include(horace_FindMatlab)
 include(horace_FindHDF5)
+include(horace_Version)
 if(${BUILD_TESTS})
     include(CTest)
     include(horace_FindGTest)
@@ -48,3 +49,26 @@ if(${BUILD_TESTS})
     add_subdirectory("_test")
 endif()
 add_subdirectory("admin")
+
+# =============================================================================
+# Install commands
+# =============================================================================
+include(horace_CPackConfig)
+install(
+    DIRECTORY "horace_core/"
+    DESTINATION "Horace"
+    USE_SOURCE_PERMISSIONS
+    PATTERN "*.m~" EXCLUDE
+    PATTERN "*.asv" EXCLUDE
+)
+install(
+    FILES "LICENSE" "README.md"
+    DESTINATION "."
+)
+install(
+    DIRECTORY "${Herbert_ROOT}/"
+    DESTINATION "Herbert"
+    USE_SOURCE_PERMISSIONS
+    PATTERN "*.m~" EXCLUDE
+    PATTERN "*.asv" EXCLUDE
+)

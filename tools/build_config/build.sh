@@ -67,11 +67,10 @@ function run_tests() {
   echo_and_run "${test_cmd}"
 }
 
-# not yet implemented
 function run_package() {
   echo -e "\nRunning package step..."
-  echo "Not implemented"
-  # echo_and_run "cmake --build install"
+  echo_and_run "cd ${build_dir}"
+  echo_and_run "cpack -G TGZ"
 }
 
 function main() {
@@ -98,7 +97,7 @@ function main() {
         -X|--build_tests) build_tests="$2"; shift; shift ;;
         -C|--build_config) build_config="$2"; shift; shift ;;
         -O|--build_dir) build_dir="$(realpath $2)"; shift; shift ;;
-        -B|--cmake_flags) cmake_flags="$2"; shift; shift ;;
+        -F|--cmake_flags) cmake_flags="$2"; shift; shift ;;
         *) echo "Unrecognised argument '$key'"; exit 1 ;;
     esac
   done
