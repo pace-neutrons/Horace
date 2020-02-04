@@ -1,6 +1,6 @@
 #[=======================================================================[.rst:
 horace_Version
------------------
+--------------
 
 Build a version release string:
   <version>[-<date>]-<target>-<matlab>[-<sha>]
@@ -32,34 +32,13 @@ if(Horace_RELEASE_TYPE STREQUAL "nightly")
     set(Horace_FULL_VERSION "${Horace_FULL_VERSION}-${_date}")
 endif()
 
-macro(get_release_value)
-    set(_release_key ${ARGV0})
-    execute_process(
-        COMMAND cat "/etc/os-release"
-        COMMAND grep "-e" "^${_release_key}="
-        RESULT_VARIABLE _res
-        OUTPUT_VARIABLE ${ARGV1}
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-    string(REGEX REPLACE
-        "${_release_key}=\\\"?\(.+\)\\\"?"
-        "\\1"
-        ${ARGV1}
-        ${${ARGV1}}
-    )
-    string(REPLACE " " "." ${ARGV1} ${${ARGV1}})
-    string(REPLACE "\"" "" ${ARGV1} ${${ARGV1}})
-endmacro()
-
 if(UNIX)
-    # Get distribution name from /etc/os-release
-    get_release_value("ID" _id)
-    get_release_value("VERSION_ID" _version_id)
-    set(Horace_PLATFORM "${_id}.${_version_id}")
+    set(Horace_PLATFORM "linux")
 elseif(WIN32)
     set(Horace_PLATFORM "win64")
 endif()
-set(Horace_FULL_VERSION "${Horace_FULL_VERSION}-${Horace_PLATFORM}")
+
+set(Horace_FULL_VERSION "${Horace_FULL_VERSION}-${Horace_PLATFORM}-${Matlab_VERSION}")
 
 if(NOT "${Horace_RELEASE_TYPE}" STREQUAL "release")
     find_package(Git QUIET)
