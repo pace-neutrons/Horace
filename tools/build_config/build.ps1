@@ -11,6 +11,14 @@ param (
   [switch]$print_versions
 )
 
+if ($args) {
+  $error_msg = "Unrecognised argument(s):"
+  foreach($arg in $args) {
+    $error_msg += "`n    $arg"
+  }
+  throw "$error_msg"
+}
+
 . $PSScriptRoot/powershell_helpers.ps1 <# Imports:
   Write-And-Invoke
   Invoke-In-Dir
