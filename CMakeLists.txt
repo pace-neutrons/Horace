@@ -65,3 +65,10 @@ install(
     FILES "LICENSE" "README.md"
     DESTINATION "."
 )
+install(
+    DIRECTORY "${Herbert_ROOT}/"
+    DESTINATION "Herbert"
+    USE_SOURCE_PERMISSIONS
+    PATTERN "*.m~" EXCLUDE
+    PATTERN "*.asv" EXCLUDE
+)
