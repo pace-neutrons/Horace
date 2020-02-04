@@ -41,7 +41,9 @@ configure_file("${Herbert_WORKER_TEMPLATE}" "${LOCAL_INIT_DIR}/worker_v2.m")
 # Function to install a file whose name ends in .template
 function(install_template_file)
     set(_template_file "${ARGV0}")
+    # Deal with absolute paths - extract just the file name
     get_filename_component(_template_base_name "${_template_file}" NAME)
+    # Remove the .template extension from the file name
     string(REPLACE ".template" "" _new_file_name "${_template_base_name}")
     install(
         FILES "${_template_file}"
