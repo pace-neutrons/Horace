@@ -61,7 +61,7 @@ pipeline {
             currentBuild.description = "${env.BRANCH_NAME}"
           } else if (env.PR_NUMBER) {
             currentBuild.displayName = "#${env.BUILD_NUMBER} PR-${env.PR_NUMBER}"
-            currentBuild.description = "${env.PR_COMMIT_SHA}"
+            currentBuild.description = "Git-SHA: ${env.PR_COMMIT_SHA}"
           }
         }
         post_github_status("pending", "The build is running")
