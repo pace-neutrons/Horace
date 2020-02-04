@@ -69,6 +69,7 @@ function run_tests() {
 
 function run_package() {
   echo -e "\nRunning package step..."
+  echo_and_run "cd ${build_dir}"
   echo_and_run "cpack -G TGZ"
 }
 
