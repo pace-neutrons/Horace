@@ -67,11 +67,9 @@ function run_tests() {
   echo_and_run "${test_cmd}"
 }
 
-# not yet implemented
 function run_package() {
   echo -e "\nRunning package step..."
-  echo "Not implemented"
-  # echo_and_run "cmake --build install"
+  echo_and_run "cpack -G TGZ"
 }
 
 function main() {
