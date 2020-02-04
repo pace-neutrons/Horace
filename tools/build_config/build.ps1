@@ -4,11 +4,25 @@ param (
   [switch][Alias("p")]$package,
   [switch][Alias("v")]$print_versions,
 
-  [int][Alias("VS")]$vs_version = 2017,
-  [string][Alias("X")]$build_tests = "On",
-  [string][Alias("C")]$build_config = 'Release',
-  [string][Alias("O")]$build_dir = "",
-  [string][Alias("CF")]$cmake_flags = ""
+  [int][ValidateSet(2015, 2017, 2019)]
+  [Alias("VS")]
+  $vs_version = 2017,
+
+  [string][ValidateSet("ON", "OFF")]
+  [Alias("X")]
+  $build_tests = "ON",
+
+  [string][ValidateSet("Release", "Debug")]
+  [Alias("C")]
+  $build_config = 'Release',
+
+  [string]
+  [Alias("O")]
+  $build_dir = "",
+
+  [string]
+  [Alias("F")]
+  $cmake_flags = ""
 )
 
 if ($args) {
