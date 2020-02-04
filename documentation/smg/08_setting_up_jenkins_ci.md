@@ -21,7 +21,7 @@ For pull requests:
 
 For nightly builds:
 
-  - Jenkins will clone master at a specific time each evening.
+  - Jenkins will clone master at a specific time each evening if there have been any code changes.
 
 For manual branch builds:
 
@@ -85,6 +85,15 @@ and should be prefixed with `PR-` if the pipeline is building pull requests, e.g
     The list of required parameters are noted in the docstring for the pipeline
     within the Jenkinsfile, and should be added with descriptions through the
     Jenkins job GUI.
+
+#### Nightly builds
+
+The nightly build should run if there have been any code changes to the `master` branch.
+  - In the `Build Triggers` section select the `Poll SCM` option.
+  - Set the schedule to run overnight (e.g. between 1am and 2am `H 1 * * *`)
+  - Add a `RELEASE_TYPE` string parameters and set to `nightly`
+
+Note: the Herbert build will trigger the downstream Horace build. To ensure the latest build artifacts are used the Horace build must be scheduled to trigger *after the Herbert build will have completed*.
 
 #### Pull requests
 - Select the `Generic Webhook Trigger` option and retrieve the json values:
