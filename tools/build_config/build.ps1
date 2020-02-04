@@ -106,7 +106,8 @@ function Invoke-Test {
 function Invoke-Package {
   param([string]$build_dir)
   Write-Output "`nRunning package step..."
-  Invoke-In-Dir -directory $build_dir -command "cpack -G ZIP"
+  Write-Output "Not implemented"
+  # Invoke-In-Dir -directory $build_dir -command "cpack -G ZIP"
   if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
   }
