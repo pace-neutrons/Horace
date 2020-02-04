@@ -54,3 +54,14 @@ add_subdirectory("admin")
 # Install commands
 # =============================================================================
 include(horace_CPackConfig)
+install(
+    DIRECTORY "horace_core/"
+    DESTINATION "Horace"
+    USE_SOURCE_PERMISSIONS
+    PATTERN "*.m~" EXCLUDE
+    PATTERN "*.asv" EXCLUDE
+)
+install(
+    FILES "LICENSE" "README.md"
+    DESTINATION "."
+)
