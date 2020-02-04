@@ -49,3 +49,8 @@ if(${BUILD_TESTS})
     add_subdirectory("_test")
 endif()
 add_subdirectory("admin")
+
+# =============================================================================
+# Install commands
+# =============================================================================
+include(horace_CPackConfig)
