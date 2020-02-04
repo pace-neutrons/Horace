@@ -4,6 +4,7 @@ param (
   [string]$build_dir = "",
   [string]$build_tests = "On",
   [string]$build_fortran = "OFF",
+  [string]$cmake_flags = "",
 
   [switch]$build,
   [switch]$test,
