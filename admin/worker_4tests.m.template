@@ -20,7 +20,7 @@ function [ok,err_mess,je]=worker_4tests(worker_controls_string)
 err_mess = [];
 exit_at_the_end = true;
 if isempty(which('herbert_init.m'))
-    horace_on();
+    herbert_on();
 end
 DO_LOGGING = false;
 
@@ -82,7 +82,7 @@ if DO_LOGGING
     fprintf(fh,'      Job ID         : %s:\n',intercomm.job_id);
     fprintf(fh,'      LabNum         : %d:\n',intercomm.labIndex);
     fprintf(fh,'      NumLabs        : %d:\n',intercomm.numLabs);
-    
+
 end
 
 keep_worker_running = true;
@@ -97,13 +97,13 @@ while keep_worker_running
         fprintf('   ***************************************\n');
         fprintf('   ******   RUN N : %d LabN %d  : ********\n',num_of_runs,intercomm.labIndex);
         fprintf('   ****************************************=\n');
-        
+
     end
     %
     %----------------------------------------------------------------------
     % 2) step 2 of the worker initialization.
     %----------------------------------------------------------------------
-    
+
     %
     if DO_LOGGING
         fprintf(fh,'entered worker loop\n');
@@ -125,7 +125,7 @@ while keep_worker_running
         keep_worker_running = worker_init_data.keep_worker_running;
     end
     %
-    
+
     exit_at_the_end = ~is_tested && worker_init_data.exit_on_compl;
     %
     if DO_LOGGING
@@ -147,12 +147,12 @@ while keep_worker_running
     % 3) step 3 of the worker initialization. Initializing the particular
     % job executor
     %----------------------------------------------------------------------
-    
-    
+
+
     % receive init message which defines the job parameters
     % implicit barrier exists which should block execution until
     % this message is received.
-    
+
     [ok,err_mess,init_message] = fbMPI.receive_message(0,'init');
     if ok ~= MESS_CODES.ok
         [ok,err_mess]=je.finish_task(FailedMessage(err_mess));
@@ -167,7 +167,7 @@ while keep_worker_running
         fprintf(fh,'***************************************\n');
         fprintf(fh,'got JE %s "init" message\n',worker_init_data.JobExecutorClassName);
     end
-    
+
     try
         if DO_LOGGING
             fprintf(fh,'Trying to init JE: %s\n',worker_init_data.JobExecutorClassName);
@@ -175,7 +175,7 @@ while keep_worker_running
         end
         % its waiting here until all tasks report "started" to node 1
         [je,mess] = je.init(fbMPI,intercomm,init_message,is_tested);
-        
+
         if DO_LOGGING
             fprintf(fh,'JE: %s has been initialized, init error message: ''%s''\n',worker_init_data.JobExecutorClassName,mess);
             disp('WORKER_4TESTS: worker has been initialized ************************')
@@ -192,21 +192,21 @@ while keep_worker_running
         % of the code.
         mis.logger = @(step,n_steps,time,add_info)...
             (je.log_progress(step,n_steps,time,add_info));
-        
+
         mis.check_canceled = @()(f_canc(je));
-        
+
         % Execute job (run main job executor's do_job method
         if DO_LOGGING
             fprintf(fh,'je loop started\n');
             disp('WORKER_4TESTS:     Entering the job loop ******************')
         end
-        
+
         % send first "running" log message and set-up starting time. Runs
         % asynchronously.
         n_steps = je.n_steps;
         mis.do_logging(0,n_steps);
         je.do_job_completed = false; % wait at barrier if exception happens during execution
-    
+
         %
         je.do_job_completed = false; % wait at barrier if exception in do_job
         while ~je.is_completed()
@@ -224,7 +224,7 @@ while keep_worker_running
                     error('JOB_EXECUTOR:canceled',...
                         'Job canceled before synchronization after do_job')
                 end
-                
+
                 % when not tested, the synchronization is mandatory
                 je.labBarrier(false); % Wait until all workers finish their
                 %                       job before reducing the data
@@ -241,10 +241,10 @@ while keep_worker_running
                 error('JOB_EXECUTOR:canceled',...
                     'Job canceled before starting reduce_data')
             end
-            je.do_job_completed = false; 
+            je.do_job_completed = false;
             je = je.reduce_data();
         end
- 
+
         % Sent final running message. Implicitly check for cancellation.
         mis.do_logging(n_steps,n_steps);
         if ~is_tested
@@ -254,10 +254,10 @@ while keep_worker_running
                 disp('WORKER_4TESTS: JE end of task barrier')
                 fprintf(fh,'arriving at JE end of task barrier\n');
             end
-            
+
             je.labBarrier(false);
             je.do_job_completed = true;
-    
+
         end
         %fprintf(fh,'je loop completed\n');
     catch ME % Catch error in users code and finish task gracefully.
@@ -275,12 +275,12 @@ while keep_worker_running
         end
         try
             [ok,err_mess] = je.process_fail_state(ME,is_tested);
-            
+
             if DO_LOGGING
                 disp('WORKER_4TESTS: Process JE fail state is completed ')
                 fprintf(fh,'Process JE fail state is completed for worker: %d\n',je.labIndex);
             end
-            
+
             if keep_worker_running
                 continue;
             else
@@ -292,7 +292,7 @@ while keep_worker_running
             else
                 rethrow(ME1);
             end
-            
+
         end
     end %Exception
     if DO_LOGGING
@@ -302,7 +302,7 @@ while keep_worker_running
     if DO_LOGGING
         fprintf(fh,'************* subtask: %s finished\n',fbMPI.job_id);
     end
-    
+
 end
 %pause
 if exit_at_the_end
