@@ -19,7 +19,7 @@ function [ok,err_mess,je]=worker_4tests_local(worker_controls_string)
 err_mess = [];
 exit_at_the_end = true;
 if isempty(which('herbert_init.m'))
-    horace_on();
+    herbert_on();
 end
 
 
@@ -100,12 +100,12 @@ while keep_worker_running
     % 3) step 3 of the worker initialization. Initializing the particular
     % job executor
     %----------------------------------------------------------------------
-    
-    
+
+
     % receive init message which defines the job parameters
     % implicit barrier exists which should block execution until
     % this message is received.
-    
+
     [ok,err_mess,init_message] = fbMPI.receive_message(0,'init');
     if ok ~= MESS_CODES.ok
         [ok,err_mess]=je.finish_task(FailedMessage(err_mess));
@@ -115,7 +115,7 @@ while keep_worker_running
             return
         end
     end
-    
+
     try
         [je,mess] = je.init(fbMPI,intercomm,init_message,is_tested);
         if ~isempty(mess)
@@ -130,11 +130,11 @@ while keep_worker_running
         % of the code.
         mis.logger = @(step,n_steps,time,add_info)...
             (je.log_progress(step,n_steps,time,add_info));
-        
+
         mis.check_canceled = @()(f_canc(je));
-        
+
         % Execute job (run main job executor's do_job method
-        
+
         % send first "running" log message and set-up starting time. Runs
         % asynchronously.
         n_steps = je.n_steps;
@@ -152,7 +152,7 @@ while keep_worker_running
                     error('JOB_EXECUTOR:canceled',...
                         'Job canceled before synchronization after do_job')
                 end
-                
+
                 % when not tested, the synchronization is mandatory
                 je.labBarrier(false); % Wait until all workers finish their
                 %                       job before reducing the data
@@ -168,7 +168,7 @@ while keep_worker_running
             je.do_job_completed = false; % wait at barrier if cancellation here
             je = je.reduce_data();
         end
-        
+
         % Sent final running message. Implicitly check for cancellation.
         mis.do_logging(n_steps,n_steps);
         if ~is_tested
@@ -178,7 +178,7 @@ while keep_worker_running
             je.do_job_completed = true; % do not wait at barrier if cancellation here
         end
     catch ME % Catch error in users code and finish task gracefully.
-        
+
         try
             [ok,err_mess] = je.process_fail_state(ME,is_tested);
             %
@@ -193,10 +193,10 @@ while keep_worker_running
             else
                 rethrow(ME1);
             end
-            
+
         end
     end %Exception
-    
+
     [ok,err_mess] = je.finish_task();
 end
 %pause
