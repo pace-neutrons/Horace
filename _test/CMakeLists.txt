@@ -10,7 +10,7 @@ set(TEST_DIRECTORIES
     "test_instrument_classes"
     "test_docify"
     "test_admin"
-    # "test_mpi"
+    "test_mpi"
     "test_mpi_wrappers"
 )
 # The MPI tests require that `herbert_on.m` be on the path for all workers
@@ -30,7 +30,10 @@ foreach(_test_dir ${TEST_DIRECTORIES})
         NAME "${TEST_NAME}"
         CUSTOM_TEST_COMMAND
             "try;\
-                herbert_init;\
+                herbert_on;\
+                pc = parallel_config;\
+                pc.parallel_framework = 'mpiexec_mpi';\
+                disp(pc);\
                 res = runtests('${CMAKE_SOURCE_DIR}/_test/${_test_dir}');\
             catch ME;\
                 disp('Error caught attempting to run test:');\
@@ -41,7 +44,7 @@ foreach(_test_dir ${TEST_DIRECTORIES})
         ADDITIONAL_PATH
             "${CMAKE_SOURCE_DIR}/admin"
             "${CMAKE_SOURCE_DIR}/herbert_core"
-        TIMEOUT 300  # 5 mins
+        TIMEOUT 6200  # 2 hours
     )
     set_tests_properties("${TEST_NAME}"
         PROPERTIES
