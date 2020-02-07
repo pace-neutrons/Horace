@@ -24,7 +24,46 @@ See the FindMatlab.cmake documentation for other variables defined by this
 module. You'll find the file bundled with your CMake installation.
 
 #]=======================================================================]
-find_package(Matlab REQUIRED COMPONENTS MAIN_PROGRAM MEX_COMPILER)
+include(MatlabHelpers)
+
+root_dir_changed(_root_changed)
+release_changed(_release_changed)
+if(_root_changed AND NOT _release_changed)
+    unset(Herbert_MATLAB_RELEASE CACHE)
+elseif(_release_changed AND NOT _root_changed)
+    unset(Matlab_ROOT_DIR CACHE)
+endif()
+
+if("${Herbert_MATLAB_RELEASE}" STREQUAL "")
+    find_package(Matlab COMPONENTS MAIN_PROGRAM MEX_COMPILER)
+else()
+    matlab_get_version_from_release_name("${Herbert_MATLAB_RELEASE}" _version)
+    find_package(Matlab EXACT ${_version} COMPONENTS MAIN_PROGRAM MEX_COMPILER)
+endif()
+
+matlab_get_release_at_path("${Matlab_ROOT_DIR}" _found_release)
+set(_INPUTTED_MATLAB_RELEASE "${Herbert_MATLAB_RELEASE}" CACHE INTERNAL "")
+set(_CACHED_Herbert_MATLAB_RELEASE "${_found_release}" CACHE INTERNAL "")
+set(_CACHED_MATLAB_ROOT_DIR "${Matlab_ROOT_DIR}" CACHE INTERNAL "")
+
+if(NOT "${_found_release}" STREQUAL "${_INPUTTED_MATLAB_RELEASE}")
+    if(NOT "${_INPUTTED_MATLAB_RELEASE}" STREQUAL "")
+        set(Herbert_FindMatlab_error_msg
+            "Requested Matlab '${_INPUTTED_MATLAB_RELEASE}' doesn't match "
+            "Matlab at '${Matlab_ROOT_DIR}'")
+        unset(_INPUTTED_MATLAB_RELEASE CACHE)
+    endif()
+endif()
+unset(_INPUTTED_MATLAB_RELEASE CACHE)
+
+if(NOT "${Matlab_FOUND}")
+    set(Herbert_FindMatlab_error_msg "Couldn't find matlab")
+endif()
+
+if(NOT "${Herbert_FindMatlab_error_msg}" STREQUAL "")
+    message(FATAL_ERROR "${Herbert_FindMatlab_error_msg}")
+endif()
+
 get_filename_component(Matlab_LIBRARY_DIR "${Matlab_MEX_LIBRARY}" DIRECTORY)
 get_filename_component(Matlab_BIN_DIR "${Matlab_MAIN_PROGRAM}" DIRECTORY)
 

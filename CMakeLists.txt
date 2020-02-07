@@ -10,6 +10,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Set our options
 option(BUILD_TESTS "Build the C++ tests" ON)
 option(BUILD_FORTRAN "Build the Fortran Mex libraries" OFF)
+set(Herbert_MATLAB_RELEASE "" CACHE STRING "The release of Matlab to find e.g. R2018b")
 
 # Add cmake directory to CMake's path
 list(APPEND CMAKE_MODULE_PATH
