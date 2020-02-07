@@ -29,54 +29,46 @@ include(MatlabHelpers)
 root_dir_changed(_root_changed)
 release_changed(_release_changed)
 if(_root_changed AND NOT _release_changed)
+    # If Matlab_ROOT_DIR has been changed but not Matlab_RELEASE, discard the
+    # old Matlab_RELEASE in favour of the ROOT_DIR
     unset(Matlab_RELEASE CACHE)
 elseif(_release_changed AND NOT _root_changed)
+    # If Matlab_RELEASE has been changed but not Matlab_ROOT_DIR, discard the
+    # old Matlab_ROOT_DIR in favour of the Matlab_RELEASE
     unset(Matlab_ROOT_DIR CACHE)
 endif()
 
-if("${Matlab_RELEASE}" STREQUAL "")
+if("${Matlab_RELEASE}" STREQUAL "")  # specific version not required
     find_package(Matlab COMPONENTS MAIN_PROGRAM MEX_COMPILER)
 else()
     matlab_get_version_from_release_name("${Matlab_RELEASE}" _version)
     find_package(Matlab EXACT ${_version} COMPONENTS MAIN_PROGRAM MEX_COMPILER)
 endif()
 
+# Get the release of the Matlab that's been found
 matlab_get_release_at_path("${Matlab_ROOT_DIR}" _found_release)
+# Set the release as a cache variable to allow editing in the GUI
 set(Matlab_RELEASE "${_found_release}" CACHE STRING
     "The release of Matlab to find e.g. R2018b" FORCE)
-set(_INPUTTED_MATLAB_RELEASE "${Matlab_RELEASE}" CACHE INTERNAL "")
+# Set local cached versions of variables so changes on next run can be tracked
 set(_CACHED_Matlab_RELEASE "${_found_release}" CACHE INTERNAL "")
 set(_CACHED_MATLAB_ROOT_DIR "${Matlab_ROOT_DIR}" CACHE INTERNAL "")
 
-if(NOT "${_found_release}" STREQUAL "${_INPUTTED_MATLAB_RELEASE}")
-    if(NOT "${_INPUTTED_MATLAB_RELEASE}" STREQUAL "")
-        set(Herbert_FindMatlab_error_msg
-            "Requested Matlab '${_INPUTTED_MATLAB_RELEASE}' doesn't match "
-            "Matlab at '${Matlab_ROOT_DIR}'")
-        unset(_INPUTTED_MATLAB_RELEASE CACHE)
-    endif()
+# Throw error if the Matlab found does not match the Matlab requested by Matlab_RELEASE
+if(NOT "${_found_release}" STREQUAL "${Matlab_RELEASE}"
+        AND NOT "${_INPUTTED_MATLAB_RELEASE}" STREQUAL "")
+    message(FATAL_ERROR
+        "Requested Matlab '${_INPUTTED_MATLAB_RELEASE}' doesn't match Matlab "
+        "at '${Matlab_ROOT_DIR}'"
+    )
 endif()
-unset(_INPUTTED_MATLAB_RELEASE CACHE)
 
 if(NOT "${Matlab_FOUND}")
-    set(Herbert_FindMatlab_error_msg "Couldn't find matlab")
-endif()
-
-if(NOT "${Herbert_FindMatlab_error_msg}" STREQUAL "")
-    message(FATAL_ERROR "${Herbert_FindMatlab_error_msg}")
+    message(FATAL_ERROR "Matlab not found!")
 endif()
 
 get_filename_component(Matlab_LIBRARY_DIR "${Matlab_MEX_LIBRARY}" DIRECTORY)
 get_filename_component(Matlab_BIN_DIR "${Matlab_MAIN_PROGRAM}" DIRECTORY)
-
-# Get the Matlab release from the VersionInfo.xml file
-file(READ "${Matlab_ROOT_DIR}/VersionInfo.xml" _version_info)
-string(REGEX REPLACE
-    ".*<release>(R[0-9]+[ab])</release>.*"
-    "\\1"
-    Matlab_VERSION
-    "${_version_info}"
-)
 
 # Find the libut library
 find_library(Matlab_UT_LIBRARY
