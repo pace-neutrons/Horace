@@ -64,7 +64,7 @@ if(NOT "${_found_release}" STREQUAL "${Matlab_RELEASE}"
 endif()
 
 if(NOT "${Matlab_FOUND}")
-    message(FATAL_ERROR "Matlab not found!")
+    message(FATAL_ERROR "Matlab '${Matlab_RELEASE}' not found!")
 endif()
 
 get_filename_component(Matlab_LIBRARY_DIR "${Matlab_MEX_LIBRARY}" DIRECTORY)
