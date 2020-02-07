@@ -80,3 +80,8 @@ macro(release_changed _output)
         set(${_output} TRUE)
     endif()
 endmacro()
+
+macro(set_matlab_release _value)
+    set(Matlab_RELEASE "${_value}" CACHE STRING
+        "The release of Matlab to find e.g. R2018b" FORCE)
+endmacro()

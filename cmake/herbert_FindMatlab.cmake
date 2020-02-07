@@ -47,12 +47,16 @@ endif()
 
 # Get the release of the Matlab that's been found
 matlab_get_release_at_path("${Matlab_ROOT_DIR}" _found_release)
-# Set the release as a cache variable to allow editing in the GUI
-set(Matlab_RELEASE "${_found_release}" CACHE STRING
-    "The release of Matlab to find e.g. R2018b" FORCE)
+
 # Set local cached versions of variables so changes on next run can be tracked
-set(_CACHED_Matlab_RELEASE "${_found_release}" CACHE INTERNAL "")
+set(_CACHED_Matlab_RELEASE "${Matlab_RELEASE}" CACHE INTERNAL "")
 set(_CACHED_MATLAB_ROOT_DIR "${Matlab_ROOT_DIR}" CACHE INTERNAL "")
+
+if(${Matlab_FOUND})
+    set_matlab_release("${_found_release}")
+else()
+    set_matlab_release("${_CACHED_Matlab_RELEASE}")
+endif()
 
 # Throw error if the Matlab found does not match the Matlab requested by Matlab_RELEASE
 if(NOT "${_found_release}" STREQUAL "${Matlab_RELEASE}"
@@ -63,8 +67,8 @@ if(NOT "${_found_release}" STREQUAL "${Matlab_RELEASE}"
     )
 endif()
 
-if(NOT "${Matlab_FOUND}")
-    message(FATAL_ERROR "Matlab '${Matlab_RELEASE}' not found!")
+if(NOT ${Matlab_FOUND})
+    message(FATAL_ERROR "Matlab '${_CACHED_Matlab_RELEASE}' not found!")
 endif()
 
 get_filename_component(Matlab_LIBRARY_DIR "${Matlab_MEX_LIBRARY}" DIRECTORY)
