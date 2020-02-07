@@ -94,7 +94,6 @@ function New-CMake-Generator-Command {
 
 function Write-Versions {
   Write-Output "$(cmake --version)"
-  Write-Output "Matlab: $($(Get-Command matlab.exe).Source)"
   Write-Output "Visual Studio version: $($VS_VERSION_MAP[$vs_version])"
 }
 
