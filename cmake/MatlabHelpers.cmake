@@ -74,7 +74,7 @@ macro(root_dir_changed _output)
 endmacro()
 
 macro(release_changed _output)
-    if("${_CACHED_Herbert_MATLAB_RELEASE}" STREQUAL "${Herbert_MATLAB_RELEASE}")
+    if("${_CACHED_Matlab_RELEASE}" STREQUAL "${Matlab_RELEASE}")
         set(${_output} FALSE)
     else()
         set(${_output} TRUE)

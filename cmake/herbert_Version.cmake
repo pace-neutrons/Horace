@@ -12,10 +12,10 @@ Build a version release string:
 Variables required by the module
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``Herbert_RELEASE_TYPE
+``Herbert_RELEASE_TYPE``
 Release type: "nightly", "release" or "pull-request" (default)
 
-``Matlab_VERSION
+``Matlab_VERSION``
 This is provided by the `herbert_FindMatlab` module which must be loaded first
 
 Variables defined by the module
@@ -39,7 +39,7 @@ elseif(WIN32)
     set(Herbert_PLATFORM "win64")
 endif()
 
-set(Herbert_FULL_VERSION "${Herbert_FULL_VERSION}-${Herbert_PLATFORM}-${Matlab_VERSION}")
+set(Herbert_FULL_VERSION "${Herbert_FULL_VERSION}-${Herbert_PLATFORM}-${Matlab_RELEASE}")
 
 if(NOT "${Herbert_RELEASE_TYPE}" STREQUAL "release")
     find_package(Git QUIET)

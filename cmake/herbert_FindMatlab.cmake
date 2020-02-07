@@ -17,7 +17,7 @@ the path to the directory containing Matlab's dynamically linked libraries
 ``Matlab_UT_LIBRARY``
 the path to the Matlab UT library
 
-``Matlab_VERSION``
+``Matlab_RELEASE``
 the Matlab release e.g. R2019b
 
 See the FindMatlab.cmake documentation for other variables defined by this
@@ -29,21 +29,23 @@ include(MatlabHelpers)
 root_dir_changed(_root_changed)
 release_changed(_release_changed)
 if(_root_changed AND NOT _release_changed)
-    unset(Herbert_MATLAB_RELEASE CACHE)
+    unset(Matlab_RELEASE CACHE)
 elseif(_release_changed AND NOT _root_changed)
     unset(Matlab_ROOT_DIR CACHE)
 endif()
 
-if("${Herbert_MATLAB_RELEASE}" STREQUAL "")
+if("${Matlab_RELEASE}" STREQUAL "")
     find_package(Matlab COMPONENTS MAIN_PROGRAM MEX_COMPILER)
 else()
-    matlab_get_version_from_release_name("${Herbert_MATLAB_RELEASE}" _version)
+    matlab_get_version_from_release_name("${Matlab_RELEASE}" _version)
     find_package(Matlab EXACT ${_version} COMPONENTS MAIN_PROGRAM MEX_COMPILER)
 endif()
 
 matlab_get_release_at_path("${Matlab_ROOT_DIR}" _found_release)
-set(_INPUTTED_MATLAB_RELEASE "${Herbert_MATLAB_RELEASE}" CACHE INTERNAL "")
-set(_CACHED_Herbert_MATLAB_RELEASE "${_found_release}" CACHE INTERNAL "")
+set(Matlab_RELEASE "${_found_release}" CACHE STRING
+    "The release of Matlab to find e.g. R2018b" FORCE)
+set(_INPUTTED_MATLAB_RELEASE "${Matlab_RELEASE}" CACHE INTERNAL "")
+set(_CACHED_Matlab_RELEASE "${_found_release}" CACHE INTERNAL "")
 set(_CACHED_MATLAB_ROOT_DIR "${Matlab_ROOT_DIR}" CACHE INTERNAL "")
 
 if(NOT "${_found_release}" STREQUAL "${_INPUTTED_MATLAB_RELEASE}")
