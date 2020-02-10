@@ -1,5 +1,5 @@
 function [res,err] = parpool_mpi_send_receive_tester(job_control)
-if isempty(which('horace_init'))
+if isempty(which('herbert_init'))
     herbert_on();
 end
 
