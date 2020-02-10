@@ -1,4 +1,4 @@
-classdef test_MException_serialization < TestCase
+classdef test_MException_her < TestCase
     %
     % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
     %
@@ -7,9 +7,9 @@ classdef test_MException_serialization < TestCase
     end
     methods
         %
-        function this=test_MException_serialization(name)
+        function this=test_MException_her(name)
             if ~exist('name','var')
-                name = 'test_MException_serialization';
+                name = 'test_MException_her';
             end
             this = this@TestCase(name);
         end
@@ -34,6 +34,23 @@ classdef test_MException_serialization < TestCase
             assertTrue(isa(MER,'MException_her'));
             assertEqual(myExc,MER);
         end
+        function test_get_report(obj)
+            % get exception
+            try
+                mex_Thrower(1)
+            catch ME
+                myExc = MException_her(ME);
+            end
+            %
+            [err_text,css] = getReport(myExc);
+            assertEqual(numel(css),3);
+            assertTrue(strncmp(err_text,css{1},100));
+            assertTrue(strncmp(css{3},...
+                'Error using <a href="matlab:matlab.internal.language.introspective.errorDocCallback(''test_MException',...
+                100));
+            
+        end
+        
     end
     
 end

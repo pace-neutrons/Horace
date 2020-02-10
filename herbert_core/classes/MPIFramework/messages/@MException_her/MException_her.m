@@ -50,6 +50,26 @@ classdef MException_her < MException
             % overload, giving access to custom saveobj
             bytes = serialize_MException_(obj);
         end
+        %
+        function [rep,fs] = getReport(obj)
+            % function generates the report for custom serializable
+            % extension.
+            err = obj.stack_r;
+            fs = cell(numel(err),1);
+            form = ['Error using <a href="matlab:matlab.internal.language.introspective.errorDocCallback(''%s'', ''%s'', %d)"',...
+                'style="font-weight:bold">%s</a>',...
+                ' (<a href="matlab: opentoline(''%s'',%d,0)">line %d</a>)\n%s\n'];
+            fs{1} = sprintf(form,err(1).name,err(1).file,err(1).line,...
+                    obj.message,...
+                    err(1).file,err(1).line,err(1).line,err(1).name);                        
+            for i=2:numel(err)
+                %fs{i} = sprintf('line: %d ; fun: %s ; file: %s\n',...
+                fs{i} = sprintf(form,err(i).name,err(i).file,err(i).line,...
+                    err(i).name,...
+                    err(i).file,err(i).line,err(i).line,err(i).name);
+            end
+            rep = [fs{:}];
+        end
     end
     methods(Static)
         function me = loadobj(bytes)
