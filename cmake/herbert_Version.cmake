@@ -15,7 +15,7 @@ Variables required by the module
 ``Herbert_RELEASE_TYPE``
 Release type: "nightly", "release" or "pull-request" (default)
 
-``Matlab_VERSION``
+``Matlab_RELEASE``
 This is provided by the `herbert_FindMatlab` module which must be loaded first
 
 Variables defined by the module

@@ -5,6 +5,23 @@ herbert_FindMatlab
 Calls the FindMatlab script that is shipped with CMake, and also finds some
 other libraries that are not found by the afformentioned FindMatlab script.
 
+There are some known caching issues with the find step of this module,
+particularly if ``Matlab_ROOT_DIR`` and ``Matlab_RELEASE`` have conflicts. If
+you run into any issues, please clear the cache and re-configure.
+
+Input Variables to this module
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``Matlab_ROOT_DIR``
+the path to the root of a Matlab install. If specified this must be consistent
+with ``Matlab_RELEASE``, which should also be passed.
+
+``Matlab_RELEASE``
+the Matlab release e.g. R2019b you wish to build against.
+
+See the FindMatlab.cmake documentation for other input variables to this
+module. You'll find the FindMatlab.cmake script bundled with this repo.
+
 Variables defined by the module
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -18,58 +35,17 @@ the path to the directory containing Matlab's dynamically linked libraries
 the path to the Matlab UT library
 
 ``Matlab_RELEASE``
-the Matlab release e.g. R2019b
+the Matlab release e.g. R2019b used to build against
 
 See the FindMatlab.cmake documentation for other variables defined by this
-module. You'll find the file bundled with your CMake installation.
+module. You'll find the FindMatlab.cmake script bundled with this repo.
 
 #]=======================================================================]
 include(MatlabHelpers)
 
-root_dir_changed(_root_changed)
-release_changed(_release_changed)
-if(_root_changed AND NOT _release_changed)
-    # If Matlab_ROOT_DIR has been changed but not Matlab_RELEASE, discard the
-    # old Matlab_RELEASE in favour of the ROOT_DIR
-    unset(Matlab_RELEASE CACHE)
-elseif(_release_changed AND NOT _root_changed)
-    # If Matlab_RELEASE has been changed but not Matlab_ROOT_DIR, discard the
-    # old Matlab_ROOT_DIR in favour of the Matlab_RELEASE
-    unset(Matlab_ROOT_DIR CACHE)
-endif()
-
-if("${Matlab_RELEASE}" STREQUAL "")  # specific version not required
-    find_package(Matlab COMPONENTS MAIN_PROGRAM MEX_COMPILER)
-else()
-    matlab_get_version_from_release_name("${Matlab_RELEASE}" _version)
-    find_package(Matlab EXACT ${_version} COMPONENTS MAIN_PROGRAM MEX_COMPILER)
-endif()
-
-# Get the release of the Matlab that's been found
-matlab_get_release_at_path("${Matlab_ROOT_DIR}" _found_release)
-
-# Set local cached versions of variables so changes on next run can be tracked
-set(_CACHED_Matlab_RELEASE "${Matlab_RELEASE}" CACHE INTERNAL "")
-set(_CACHED_MATLAB_ROOT_DIR "${Matlab_ROOT_DIR}" CACHE INTERNAL "")
-
-if(${Matlab_FOUND})
-    set_matlab_release("${_found_release}")
-else()
-    set_matlab_release("${_CACHED_Matlab_RELEASE}")
-endif()
-
-# Throw error if the Matlab found does not match the Matlab requested by Matlab_RELEASE
-if(NOT "${_found_release}" STREQUAL "${Matlab_RELEASE}"
-        AND NOT "${_INPUTTED_MATLAB_RELEASE}" STREQUAL "")
-    message(FATAL_ERROR
-        "Requested Matlab '${_INPUTTED_MATLAB_RELEASE}' doesn't match Matlab "
-        "at '${Matlab_ROOT_DIR}'"
-    )
-endif()
-
-if(NOT ${Matlab_FOUND})
-    message(FATAL_ERROR "Matlab '${_CACHED_Matlab_RELEASE}' not found!")
-endif()
+# Call `find_package(Matlab)` using passed in arguments `Matlab_ROOT_DIR` and/or
+# `Matlab_RELEASE` to find the desired version.
+matlab_find_package()
 
 get_filename_component(Matlab_LIBRARY_DIR "${Matlab_MEX_LIBRARY}" DIRECTORY)
 get_filename_component(Matlab_BIN_DIR "${Matlab_MAIN_PROGRAM}" DIRECTORY)
