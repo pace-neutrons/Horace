@@ -71,7 +71,7 @@ endmacro()
   Returns ``TRUE`` if ``Matlab_ROOT_DIR`` differs from the previous run
 #]=======================================================================]
 macro(matlab_root_dir_changed _output)
-    if("${_CACHED_MATLAB_ROOT_DIR}" STREQUAL "${Matlab_ROOT_DIR}")
+    if("${_CACHED_Matlab_ROOT_DIR}" STREQUAL "${Matlab_ROOT_DIR}")
         set(${_output} FALSE)
     else()
         set(${_output} TRUE)
@@ -139,7 +139,7 @@ macro(matlab_find_package)
 
     # Set local cached versions of variables so changes on next run can be tracked
     set(_CACHED_Matlab_RELEASE "${Matlab_RELEASE}" CACHE INTERNAL "")
-    set(_CACHED_MATLAB_ROOT_DIR "${Matlab_ROOT_DIR}" CACHE INTERNAL "")
+    set(_CACHED_Matlab_ROOT_DIR "${Matlab_ROOT_DIR}" CACHE INTERNAL "")
 
     if(${Matlab_FOUND}) # `Matlab_FOUND` defined by `find_package(Matlab)`
         # Get the release of the Matlab that's been found
@@ -149,7 +149,7 @@ macro(matlab_find_package)
             "The release of Matlab to find e.g. R2018b" FORCE)
     else()
         unset(_CACHED_Matlab_RELEASE CACHE)
-        unset(_CACHED_MATLAB_ROOT_DIR CACHE)
+        unset(_CACHED_Matlab_ROOT_DIR CACHE)
         unset(Matlab_VERSION_STRING_INTERNAL CACHE)
         message(FATAL_ERROR "Matlab '${Matlab_RELEASE}' not found at '${Matlab_ROOT_DIR}'.")
     endif()
