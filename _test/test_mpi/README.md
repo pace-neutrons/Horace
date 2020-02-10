@@ -1,0 +1,1 @@
+The folder contains the tests verifying MPI/filebased messages code by running various test communication jobs

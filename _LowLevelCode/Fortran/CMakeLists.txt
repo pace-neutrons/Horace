@@ -64,7 +64,7 @@ add_library("${HERBERT_FORTRAN_LIB}"
 )
 target_compile_options("${HERBERT_FORTRAN_LIB}"
     PUBLIC "-fPIC"
-    PUBLIC "-ffixed-line-length-none"
+    PUBLIC "-ffixed-line-length-132"
 )
 
 add_subdirectory("source_mex")

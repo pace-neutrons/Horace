@@ -4,7 +4,7 @@
 
 
 template<typename T>
-T retrieve_value(const char*err_id, const mxArray *prhs) {
+T retrieve_value(const char* err_id, const mxArray* prhs) {
 
 
 
@@ -19,12 +19,12 @@ T retrieve_value(const char*err_id, const mxArray *prhs) {
         mexErrMsgIdAndTxt("MPI_MEX_COMMUNICATOR:invalid_argument", buf.str().c_str());
     }
 
-    auto *pVector = mxGetPr(prhs);
+    auto* pVector = reinterpret_cast<T*> (mxGetData(prhs));
 
     return static_cast<T>(pVector[0]);
 }
 
-size_t   get_byte_length(const char*err_id, const mxArray *prhs) {
+size_t   get_byte_length(const char* err_id, const mxArray* prhs) {
 
 
     mxClassID category = mxGetClassID(prhs);
@@ -43,16 +43,16 @@ size_t   get_byte_length(const char*err_id, const mxArray *prhs) {
         std::stringstream buf;
         buf << " The input for " << err_id << "contains unknown vector type\n";
         mexErrMsgIdAndTxt("MPI_MEX_COMMUNICATOR:invalid_argument", buf.str().c_str());
+        return 0;
     };
     }
 }
 
 template<class T>
-T* retrieve_vector(const char*err_id, const mxArray *prhs, size_t &vec_size, int &vec_bytes) {
+T* retrieve_vector(const char* err_id, const mxArray* prhs, size_t& vec_size, size_t& vec_bytes) {
 
-    double *pPtr = mxGetPr(prhs);
 
-    T *pVector = reinterpret_cast<T *>(pPtr);
+    T* pVector = reinterpret_cast<T*>(mxGetData(prhs));
 
     size_t m_size_a = mxGetM(prhs);
     size_t n_size_a = mxGetN(prhs);
@@ -78,7 +78,7 @@ T* retrieve_vector(const char*err_id, const mxArray *prhs, size_t &vec_size, int
     return pVector;
 }
 
-void retrieve_string(const mxArray *param, std::string &result, const char *ErrorPrefix) {
+void retrieve_string(const mxArray* param, std::string& result, const char* ErrorPrefix) {
 
     mxClassID  category = mxGetClassID(param);
     if (category != mxCHAR_CLASS) {
@@ -101,6 +101,34 @@ void retrieve_string(const mxArray *param, std::string &result, const char *Erro
     result.erase(buflen - 1, 1);
 }
 
+/** Helper method to process initialization mode
+Inputs:
+ModeName -- pointer to string, indicating mode name if error occurs
+prhs     -- array of input array of pointers to the right hand parameters, recevied from Matlab
+nrgs     -- size of  input array of pointers
+Outputs:
+AddPar   -- the reference to structure, containing additional information about inputs
+Returns:
+pointer to handle, containing MPI communicator.
+*/
+class_handle<MPI_wrapper>* process_init_mode(const char* ModeName, const mxArray* prhs[], int nrhs, AdditionalParamHolder& AddPar) {
+    if (nrhs > 3 || nrhs < 1) {
+        std::stringstream err;
+        err << ModeName << "  mode takes from 1 to 3 inputs but got : "
+            << nrhs << " input parameters";
+        throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", err.str().c_str());
+    }
+    class_handle<MPI_wrapper>* pCommunicator = new class_handle<MPI_wrapper>();
+    if (nrhs == 2) {
+        AddPar.async_queue_length = (int)retrieve_value<double>(ModeName, prhs[(int)InitInputs::async_queue_len]);
+    }
+    if (nrhs == 3) {
+        AddPar.data_message_tag = (int)retrieve_value<double>(ModeName, prhs[(int)InitInputs::data_mess_tag]);
+    }
+
+    return pCommunicator;
+
+}
 
 /** process input values and extract parameters, necessary for the reader to work in the form the program requests
 *Inputs:
@@ -113,54 +141,106 @@ prhs  --  array of pointers to right hand side parameters
 work_mode         -- retrieved IO operations mode.
 data_address      -- address of the node to communicate with
 data_tag          -- MPI messages tag
-nbytes_to_transfer-- number of bytes to transfer over mpi. 
+is_synchronous    -- for send/receive operations, if the communication mode is synchroneous
 data_buffer       -- refernece to pointert to the buffer with data. Defined for send and undef for labReceive/labProbe
+nbytes_to_transfer-- number of bytes to transfer over mpi.
 
+AddParr    -- The structure, containing additional parameters, different operation calls may need to process and
+              transfer to the calling routine.
 
 returns:
 pointer to cpp_communicator class handler to share with Matlab
 */
-
-class_handle<MPI_wrapper> *parse_inputs(int nlhs, int nrhs, const mxArray *prhs[],
-    input_types &work_mode,int &data_address,int &data_tag, size_t &nbytes_to_transfer, char *&data_buffer)
+class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray* prhs[],
+    input_types& work_mode, std::vector<int>& data_addresses, std::vector<int>& data_tag, bool& is_synchronous,
+    uint8_t*& data_buffer, size_t& nbytes_to_transfer,
+    AdditionalParamHolder& AddPar)
 {
-
 
     // get correct file name and the group name
     std::string mex_mode;
-    retrieve_string(prhs[(int)labIndexInputs::mode_name], mex_mode, "MPI mode description");
+    retrieve_string(prhs[0], mex_mode, "MPI mode description");
 
     if (mex_mode.compare("labReceive") == 0) {
+        if (nrhs < (int)ReceiveInputs::N_INPUT_Arguments) {
+            std::stringstream err;
+            err << " labReceive needs " << (int)ReceiveInputs::N_INPUT_Arguments <<
+                " inputs but got " << nrhs << " input parameters\n";
+            throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", err.str().c_str());
+        }
+        data_addresses.resize(1);
+        data_tag.resize(1);
         work_mode = labReceive;
+        // the source address
+        data_addresses[0] = (int32_t)retrieve_value<mxInt32>("labReceive: source address", prhs[(int)ReceiveInputs::source_id]) - 1;
+        // the source data tag
+        data_tag[0] = (int32_t)retrieve_value<mxInt32>("labReceive: source tag", prhs[(int)ReceiveInputs::tag]);
+        // if the transfer is synchroneous or not
+        is_synchronous = (bool)retrieve_value<mxUint8>("labReceive: is synchronous", prhs[(int)ReceiveInputs::is_synchronous]);
     }
     else if (mex_mode.compare("labSend") == 0) {
+        if (nrhs < (int)SendInputs::N_INPUT_Arguments - 1) {
+            std::stringstream err;
+            err << " labSend needs " << (int)SendInputs::N_INPUT_Arguments - 1 << " or " << (int)SendInputs::N_INPUT_Arguments <<
+                " inputs but got " << nrhs << " input parameters\n";
+            throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", err.str().c_str());
+        }
+        data_addresses.resize(1);
+        data_tag.resize(1);
+
         work_mode = labSend;
+        // the target destination address
+        data_addresses[0] = (int32_t)retrieve_value<mxInt32>("labSend: destination address", prhs[(int)SendInputs::dest_id]) - 1;
+        // the sending data tag
+        data_tag[0] = (int32_t)retrieve_value<mxInt32>("labSend: destination tag", prhs[(int)SendInputs::tag]);
+        // if the transfer is synchroneous or not
+        is_synchronous = (bool)retrieve_value<mxUint8>("labSend: is synchronous", prhs[(int)SendInputs::is_synchronous]);
+        // retrieve pointer to serialized data to transfer
+        size_t vector_size, bytesize;
+
+        data_buffer = retrieve_vector<uint8_t >("labSend: data", prhs[(int)SendInputs::head_data_buffer], vector_size, bytesize);
+        nbytes_to_transfer = size_t(vector_size) * bytesize;
     }
     else if (mex_mode.compare("labIndex") == 0) {
         work_mode = labIndex;
     }
     else if (mex_mode.compare("labProbe") == 0) {
+        size_t n_addresses, n_tags, block_size;
+        // the queried  address
+        auto pData_addresses = retrieve_vector<mxInt32>("labProbe: source address", prhs[(int)ProbeInputs::source_id], n_addresses, block_size);
+        data_addresses.resize(n_addresses);
+        for (size_t i = 0; i < n_addresses; i++) {
+            data_addresses[i] = pData_addresses[i] - 1; // Matlab lab_index = MPI_index + 1
+        }
+        // the queried tag
+        auto pData_tag = retrieve_vector<mxInt32>("labProbe: requested tag", prhs[(int)ProbeInputs::tag], n_tags, block_size);
+        data_tag.resize(n_tags);
+        for (size_t i = 0; i < n_tags; i++) {
+            data_tag[i] = pData_tag[i];
+        }
+
         work_mode = labProbe;
     }
     else if (mex_mode.compare("barrier") == 0) {
         work_mode = labBarrier;
     }
     else if (mex_mode.compare("init") == 0) {
-        if (nrhs != 1 ) {
-            std::stringstream err;
-            err << " Init mode needs only 1 but got : " << nrhs << " input parameters";
-            throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", err.str().c_str());
-        }
-        class_handle<MPI_wrapper> *pCommunicator = new class_handle<MPI_wrapper>();
         work_mode = init_mpi;
-        return pCommunicator;
+        return process_init_mode("Init", prhs, nrhs, AddPar);
+    }
+    else if (mex_mode.compare("init_test_mode") == 0) {
+        work_mode = init_test_mode;
+        return process_init_mode("Init_test_mode", prhs, nrhs, AddPar);
     }
     else if (mex_mode.compare("finalize") == 0) {
         work_mode = close_mpi;
         /* do not throw on finalize second time if the framework had been already finalized*/
-        class_handle<MPI_wrapper> *pCommunicator = get_handler_fromMatlab<MPI_wrapper>(prhs[(int)labIndexInputs::comm_ptr], false);
+        class_handle<MPI_wrapper>* pCommunicator = get_handler_fromMatlab<MPI_wrapper>(prhs[(int)CloseOrInfoInputs::comm_ptr], false);
 
         return pCommunicator;
+    }
+    else if(mex_mode.compare("clearAll") == 0){
+        work_mode = clearAll;
     }
     else {
         std::stringstream err;
@@ -168,16 +248,17 @@ class_handle<MPI_wrapper> *parse_inputs(int nlhs, int nrhs, const mxArray *prhs[
         throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", err.str().c_str());
     }
     if (work_mode != close_mpi && nrhs < 1) {
-        throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", "MPI communicator needs at least one argument to return the instance of the communicatir");
+        throw_error("MPI_MEX_COMMUNICATOR:invalid_argument",
+            "MPI communicator needs at least one argument to return the instance of the communicatir");
     }
 
-    // get handlder from 
-    class_handle<MPI_wrapper> *pCommunicator = get_handler_fromMatlab<MPI_wrapper>(prhs[(int)labIndexInputs::comm_ptr]);
+    // get handlder from Matlab. Throw if a problem
+    class_handle<MPI_wrapper>* pCommunicator = get_handler_fromMatlab<MPI_wrapper>(prhs[(int)CloseOrInfoInputs::comm_ptr], true);
     return pCommunicator;
 
 }
 
-void throw_error(char const * const MESS_ID, char const * const error_message) {
-    mexUnlock();
+void throw_error(char const* const MESS_ID, char const* const error_message, bool is_tested) {
+    if (!is_tested) mexUnlock();
     mexErrMsgIdAndTxt(MESS_ID, error_message);
 };

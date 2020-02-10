@@ -1,3 +1,16 @@
-/.vs
-/build/*
+### IDEs ###
+.vs/*
+.vscode/*
 
+### Files/Directories ###
+build/*
+
+### MATLAB ###
+# Windows default autosave extension
+*.asv
+
+# OSX / *nix default autosave extension
+*.m~
+
+# Compiled MEX binaries (all platforms)
+# *.mex*  # commented out for now - uncomment when distribution channel is up

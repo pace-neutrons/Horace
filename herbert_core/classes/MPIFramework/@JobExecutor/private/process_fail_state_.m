@@ -12,7 +12,7 @@ end
 %disp('error message')
 %disp(ME)
 %disp(['processing fail state, forming message: ',ME.identifier]);
-mess = FailMessage(err_text,ME);
+mess = FailedMessage(err_text,ME);
 % send canceled message to all other workers to finish their
 % current job at log point.
 if ~is_canceled
@@ -33,13 +33,14 @@ end
 if is_tested
     [ok,err_mess]=obj.finish_task(mess,'-asynchronous');
 else
-    % stop until other nodes fail due to cancelation and come
-    % here    
+    % stop until other nodes fail due to cancellation and come
+    % here
+    % job has been interrupted before the barrier in the job
+    % loop has been reached, so wait here for completed jobs to finish
     if ~obj.do_job_completed
-        % job has been interupted before the barrier in the job
-        % loop has been reached, so been interupted
         obj.labBarrier(false);
     end
     [ok,err_mess]=obj.finish_task(mess);
+    
 end
 

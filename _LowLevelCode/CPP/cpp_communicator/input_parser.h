@@ -4,27 +4,31 @@
 #include <cstring>
 #include <sstream>
 #include <typeinfo>
-
+#include <vector>
 
 enum input_types {
     init_mpi,
+    init_test_mode,
     close_mpi,
     labSend,
     labReceive,
     labProbe,
     labIndex,
-    labBarrier
+    labBarrier,
+    clearAll  // run labReceive until all existing messages received and discarded
 };
 
 // Enum various versions of input/output parameters, different for different kinds of input options
 // --------------   Inputs:
-enum class labIndexInputs : int {
+enum class InitInputs : int {
     mode_name,
-    comm_ptr,
+    async_queue_len,
+    data_mess_tag,
     N_INPUT_Arguments
 };
 
-enum class ProbeInputs : int { // all input arguments for read procedure
+
+enum class ProbeInputs : int { // all input arguments for labProbe procedure
     mode_name,
     comm_ptr,
     source_id,
@@ -32,18 +36,27 @@ enum class ProbeInputs : int { // all input arguments for read procedure
     N_INPUT_Arguments
 };
 
-enum class SendReceiveInputs : int { // all input arguments for read procedure
+enum class SendInputs : int { // all input arguments for send procedure
     mode_name,
     comm_ptr,
-    source_dest_id,
+    dest_id,
     tag,
-    n_bytes,
-    pDataBuf,
-
+    is_synchronous,
+    head_data_buffer,
+    large_data_buffer, // optional (for synchronous messages)
+    N_INPUT_Arguments
+};
+enum class ReceiveInputs : int { // all input arguments for receive procedure
+    mode_name,
+    comm_ptr,
+    source_id,
+    tag,
+    is_synchronous,
     N_INPUT_Arguments
 };
 
-enum class closeOrGetInfoInputs : int { // all input arguments for close IO procedure
+
+enum class CloseOrInfoInputs : int { // all input arguments for close IO procedure
     mode_name,
     comm_ptr,
 
@@ -53,11 +66,11 @@ enum class closeOrGetInfoInputs : int { // all input arguments for close IO proc
 //--------------   Outputs;
 
 
-enum class read_Out :int { // output arguments for read procedure
+enum class labReceive_Out :int { // output arguments for labReceive procedure
     comm_ptr,   // the pointer to class responsible for MPI communications
-    pix_array,
-    is_io_completed,
-    mex_reader_handle,
+    mess_contents, //the pointer to the array of serialized message contents
+    data_celarray, // the pointer to the cellarray with the large data.
+    real_source_address, // optional pointer to the array with real source address and source tag received
 
     N_OUTPUT_Arguments
 };
@@ -70,7 +83,24 @@ enum class labIndex_Out :int { // output arguments for labIndex procedure
     N_OUTPUT_Arguments
 };
 
-void throw_error(char const * const MESS_ID, char const * const error_message);
+enum class labProbe_Out:int { // output arguments of labProbe procedure
+    comm_ptr,   // the pointer to class responsible for MPI communications
+    addr_tag_array,     // 2-element array with the results of lab-probe operation
+
+    N_OUTPUT_Arguments
+
+};
+/** The structure contains additional parameters, different call may need to transfer to MPI_Wrapper*/
+struct AdditionalParamHolder {
+    int async_queue_length; // how many asynchronous messages could be placed into asynchronous queue
+    int data_message_tag;    // the tag of a data message, to process synchronously.
+
+    AdditionalParamHolder():
+        async_queue_length(10), data_message_tag(8)
+    {}
+};
+
+void throw_error(char const * const MESS_ID, char const * const error_message,bool is_tested =false);
 
 class MPI_wrapper;
 //
@@ -145,5 +175,7 @@ template<class T> inline class_handle<T> *get_handler_fromMatlab(const mxArray *
 
 
 
-class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray *prhs[],
-    input_types &work_mode, int &data_address, int &data_tag, size_t &nbytes_to_transfer, char *&data_buffer);
+class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray* prhs[],
+    input_types& work_mode, std::vector<int32_t> &data_addresses, std::vector<int32_t> &data_tag, bool& is_synchroneous,
+    uint8_t*& data_buffer,  size_t &nbytes_to_transfer,
+    AdditionalParamHolder & addPar);

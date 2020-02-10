@@ -10,9 +10,11 @@ if isempty(rootpath)
 end
 tests_path = fullfile(rootpath,'_test');
 if ~(exist(tests_path,'dir')==7)
-    warning('HERBERT_INIT:invalid_setup',...
-        'Can not set-up access to the unit tests as no unint tests at %s are available',...
-        test_path);
+    if init
+        warning('HERBERT_INIT:invalid_setup',...
+            'Can not set-up access to the unit tests as no unint tests at %s are available',...
+            tests_path);
+    end
     tests_path = '';
     return;
 end

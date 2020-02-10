@@ -17,8 +17,8 @@ classdef InitMessage < aMessage
         return_results
     end
     properties(Access = protected)
-        return_results_ = false;
     end
+    
     
     methods
         function obj = InitMessage(common_data,loop_data,return_results,n_first_step)
@@ -40,8 +40,17 @@ classdef InitMessage < aMessage
             %                 a cellarray it assumed to be 1
             %
             obj = obj@aMessage('init');
+            obj.is_blocking_ = true;
+            if ~exist('common_data','var')
+                common_data = [];
+                loop_data = 1;
+            end
+            if ~exist('return_results','var')
+                return_results = false;
+            end
             obj.payload = struct('common_data',common_data,...
-                'loopData',[],'n_first_step',1,'n_steps',0);
+                'loopData',[],'n_first_step',1,'n_steps',0,...
+                'return_results',return_results );
             if ~exist('n_first_step','var')
                 n_first_step = 1;
             end
@@ -54,15 +63,10 @@ classdef InitMessage < aMessage
                 obj.payload.loopData = loop_data;
                 % would not work correctly if the first field was string
                 obj.payload.n_steps   = numel(loop_data.(fn{1}));
-                obj.payload.n_first_step  = 1;                
+                obj.payload.n_first_step  = 1;
             else
                 obj.payload.n_steps  = loop_data;
                 obj.payload.n_first_step  = n_first_step;
-            end
-            if exist('return_results','var')
-                obj.return_results_  = return_results;
-            else
-                obj.return_results_  = false;
             end
         end
         
@@ -76,7 +80,7 @@ classdef InitMessage < aMessage
             cd = obj.payload.loopData;
         end
         function yesno = get.return_results(obj)
-            yesno  = obj.return_results_;
+            yesno  = obj.payload.return_results;
         end
         function nfs = get.n_first_step(obj)
             nfs = obj.payload.n_first_step;

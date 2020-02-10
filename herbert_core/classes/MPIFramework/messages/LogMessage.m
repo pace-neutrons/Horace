@@ -18,7 +18,14 @@ classdef LogMessage<aMessage
     
     methods
         function obj = LogMessage(step,n_steps,step_time,add_info)
-            obj = obj@aMessage('running');
+            obj = obj@aMessage('log');
+            %
+            if ~exist('step','var') % empty constructor
+                step = 0;
+                n_steps=0;
+                step_time =0;
+                add_info = '';
+            end
             obj.payload=struct('step',step,'n_steps',n_steps,...
                 'time',step_time,'add_info','');
             if ~isempty(add_info)

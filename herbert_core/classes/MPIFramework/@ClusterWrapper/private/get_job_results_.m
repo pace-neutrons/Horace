@@ -26,5 +26,5 @@ elseif iscell(x)
     is_fail = cellfun(@is_err,x,'UniformOutput',true);
     is = any(is_fail);
 else
-    is = false;    
+    is =  isstruct(x) && isfield(x,'error') && isa(x.error,'MException');
 end

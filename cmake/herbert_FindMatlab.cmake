@@ -17,13 +17,25 @@ the path to the directory containing Matlab's dynamically linked libraries
 ``Matlab_UT_LIBRARY``
 the path to the Matlab UT library
 
+``Matlab_VERSION``
+the Matlab release e.g. R2019b
+
 See the FindMatlab.cmake documentation for other variables defined by this
 module. You'll find the file bundled with your CMake installation.
 
 #]=======================================================================]
-find_package(Matlab REQUIRED COMPONENTS MAIN_PROGRAM)
+find_package(Matlab REQUIRED COMPONENTS MAIN_PROGRAM MEX_COMPILER)
 get_filename_component(Matlab_LIBRARY_DIR "${Matlab_MEX_LIBRARY}" DIRECTORY)
 get_filename_component(Matlab_BIN_DIR "${Matlab_MAIN_PROGRAM}" DIRECTORY)
+
+# Get the Matlab release from the VersionInfo.xml file
+file(READ "${Matlab_ROOT_DIR}/VersionInfo.xml" _version_info)
+string(REGEX REPLACE
+    ".*<release>(R[0-9]+[ab])</release>.*"
+    "\\1"
+    Matlab_VERSION
+    "${_version_info}"
+)
 
 # Find the libut library
 find_library(Matlab_UT_LIBRARY
@@ -34,9 +46,9 @@ find_library(Matlab_UT_LIBRARY
 mark_as_advanced(FORCE Matlab_UT_LIBRARY)
 
 # The MX library doesn't seem to get found on UNIX, so make sure we have it
-if("${Matlab_MX_LIBRARY}" STREQUAL "")
+if(NOT DEFINED Matlab_MX_LIBRARY)
     find_library(Matlab_MX_LIBRARY
-        NAMES "mex" "libmex" "mat" "libmat" "mx" "libmx"
+        NAMES "mx" "libmx"
         HINTS "${Matlab_LIBRARY_DIR}"
         NO_DEFAULT_PATH
     )

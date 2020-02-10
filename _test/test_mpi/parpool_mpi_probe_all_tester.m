@@ -65,11 +65,11 @@ else %sender
         mess1 = aMessage('starting');
         mess2 = aMessage('started');
     else
-        mess1 = aMessage('running');        
+        mess1 = aMessage('log');
         mess2 = aMessage('started');
 
     end
-    [ok1,err1] = pm.send_message(lab_receiver,mess1);    
+    [ok1,err1] = pm.send_message(lab_receiver,mess1);
     [ok2,err2] = pm.send_message(lab_receiver,mess2);
     %[ok2,err2] = pm.send_message(lab_receiver,mess2);
     res = (ok1 == MESS_CODES.ok) &&(ok2 == MESS_CODES.ok);

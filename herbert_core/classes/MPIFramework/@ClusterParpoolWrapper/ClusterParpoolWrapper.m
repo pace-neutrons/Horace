@@ -165,11 +165,11 @@ classdef ClusterParpoolWrapper < ClusterWrapper
                     if code > 4 %failed
                         mess_texst = obj.task_.ErrorMessage;
                         err = obj.task_.Error;
-                        if ~isa(obj.current_status_,'FailMessage')
+                        if ~isa(obj.current_status_,'FailedMessage')
                             pause(1);
                             [completed, obj] = check_progress@ClusterWrapper(obj,varargin{:});
                             if ~completed
-                                obj.current_status_ = FailMessage(...
+                                obj.current_status_ = FailedMessage(...
                                     sprintf('cluster job %s failed returning error:  %s, code: %s',...
                                     obj.job_id,mess_texst,obj.cluster_cur_state_ ),...
                                     err);
@@ -183,9 +183,9 @@ classdef ClusterParpoolWrapper < ClusterWrapper
                         if isempty(obj.current_status_) || ~strcmpi(obj.current_status_.mess_name,'completed')
                             if ~completed
                                 completed = true;
-                                fm = FailMessage('Cluster reports job completed but results have not been returned to host');
+                                fm = FailedMessage('Cluster reports job completed but results have not been returned to host');
                             else
-                                fm = FailMessage('Cluster reports job completed but the final completed message has not been received');
+                                fm = FailedMessage('Cluster reports job completed but the final completed message has not been received');
                             end
                             obj.current_status_  = fm;
                         end
@@ -236,8 +236,12 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             if isa(mess,'aMessage')
                 stat_mess = mess;
             elseif ischar(mess)
-                if strcmp(mess,'running')
-                    if ~isempty(obj.current_status_) && strcmp(obj.current_status_.mess_name,'running')
+                if strcmp(mess,'log') || strcmpi(mess,'running')
+                    if strcmpi(mess,'running')
+                        mess = 'log';
+                    end
+                    if ~isempty(obj.current_status_) && ...
+                            strcmp(obj.current_status_.mess_name,'log')
                         stat_mess = obj.current_status_;
                     else
                         stat_mess = aMessage(mess);

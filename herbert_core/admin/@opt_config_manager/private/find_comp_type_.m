@@ -6,6 +6,7 @@ function [pc_type,nproc,mem_size] = find_comp_type_(obj)
 types = obj.known_pc_types_;
 Gb = 1024*1024*1024;
 nproc = 1;
+
 if ispc
     [~,sys] = memory();
     mem_size = sys.PhysicalMemory.Total;
@@ -23,7 +24,7 @@ if ispc
             pc_type = types{1};%windows small
         end
     end
-    
+
 elseif isunix
     [ok,mem_string] = system('free | grep Mem');
     if ~ok
@@ -40,7 +41,7 @@ elseif isunix
         pc_type = types{3};
         return;
     end
-    
+
     rez=strfind(mess,'NUMA node');
     % if lscpu returns more then one numa node strigs, first string defines
     % the number of numa nodes and all subsequent strings describe each
@@ -55,11 +56,16 @@ elseif isunix
     else
         n_profile = 4; % normal unix machine
     end
-    
+
     if hpc_computer
         n_profile=n_profile+1;
     end
     pc_type = types{n_profile};
+
+end
+
+if is_jenkins()
+   pc_type = types{8};  % 'jenkins'
 end
 
 function mem_size = parse_mem_string(mem_string)

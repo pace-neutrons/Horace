@@ -125,10 +125,12 @@ classdef test_parallel_config_and_fmwks_factory < TestCase
                 assertTrue(strcmp(Err.identifier,'PARALLEL_CONFIG:invalid_argument'));
                 assertTrue(strcmp(pc.cluster_config,'local'));
             end
-            try
-                pc.parallel_framework='parp';
-                assertEqual(pc.parallel_framework,'parpool');
-                
+            old_pfm = pc.parallel_framework;
+            pc.parallel_framework='parp';
+            if strcmpi(old_pfm,pc.parallel_framework)
+                [wn,wid] = lastwarn();
+                assertEqual(wid,'PARALLEL_CONFIG:not_available',wn)
+            elseif strcmpi(pc.parallel_framework,'parpool')
                 all_clcfg = pc.known_clust_configs;
                 clust = pc.cluster_config;
                 % parpool framework uses only one cluster, defined as default
@@ -136,16 +138,16 @@ classdef test_parallel_config_and_fmwks_factory < TestCase
                 assertEqual(numel(all_clcfg ),1);
                 assertEqual(all_clcfg{1},clust);
                 assertEqual(clust,'default');
-            catch Err
-                if ~strcmp(Err.identifier,'PARALLEL_CONFIG:not_available')
-                    rethrow(Err);
-                end
+            else
+                assertFalse(true,'Invalid Framework initialized');
             end
             
-            try
-                pc.parallel_framework='m';
-                assertEqual(pc.parallel_framework,'mpiexec_mpi');
-                
+            old_pfm = pc.parallel_framework;
+            pc.parallel_framework='m';
+            if strcmpi(old_pfm,pc.parallel_framework)
+                [mess,wid] = lastwarn();
+                assertEqual(wid,'PARALLEL_CONFIG:not_available',mess)
+            elseif strcmpi(pc.parallel_framework,'mpiexec_mpi')
                 all_clcfg = pc.known_clust_configs;
                 assertTrue(numel(all_clcfg)>1);
                 
@@ -162,33 +164,32 @@ classdef test_parallel_config_and_fmwks_factory < TestCase
                     pc.cluster_config = 'test_lnx';
                     clust = pc.cluster_config;
                     assertEqual(clust,'test_lnx_cluster.lnx');
-                    
                 end
                 
-            catch Err
-                if ~strcmp(Err.identifier,'PARALLEL_CONFIG:not_available')
-                    rethrow(Err);
-                end
+            else
+                assertFalse(true,'Invalid Framework initialized');
             end
             pc.parallel_framework=0;
             assertEqual(pc.parallel_framework,'herbert');
             
-            try
-                pc.parallel_framework=3;
-                assertEqual(pc.parallel_framework,'mpiexec_mpi');
-            catch Err
-                if ~strcmp(Err.identifier,'PARALLEL_CONFIG:not_available')
-                    rethrow(Err);
-                end
+            old_pfm = pc.parallel_framework;
+            pc.parallel_framework=3;
+            
+            if strcmpi(old_pfm,pc.parallel_framework)
+                [mess,wid] = lastwarn();
+                assertEqual(wid,'PARALLEL_CONFIG:not_available',mess)
+            elseif ~strcmpi(pc.parallel_framework,'mpiexec_mpi')
+                assertFalse(true,'Invalid Framework initialized');
             end
             
-            try
-                pc.parallel_framework=2;
-                assertEqual(pc.parallel_framework,'parpool');
-            catch Err
-                if ~strcmp(Err.identifier,'PARALLEL_CONFIG:not_avalable')
-                    rethrow(Err);
-                end
+            old_pfm = pc.parallel_framework;
+            pc.parallel_framework=2;
+            
+            if strcmpi(old_pfm,pc.parallel_framework)
+                [mess,wid] = lastwarn();
+                assertEqual(wid,'PARALLEL_CONFIG:not_available',mess)
+            elseif ~strcmpi(pc.parallel_framework,'parpool')
+                assertFalse(true,'Invalid Framework initialized');
             end
             
             pc.parallel_framework=1;

@@ -105,9 +105,11 @@ classdef JobExecutor
             %                        between workers too.
             % intercom_class     --  the class, providing MPI or pseudo MPI
             %                         communications between workers
-            %
             % InitMessage         -- The message with information necessary
-            %                        to run the job itself
+            %                        to run the job itself. The message
+            %                        template is generated buy
+            %                        iMessageFramework.build_worker_init
+            %                        method.
             % is_tested           -- if present and true, the method would
             %                        run in test mode to avoid blocking
             %                        communications
@@ -260,7 +262,7 @@ classdef JobExecutor
         function is = is_job_canceled(obj)
             is = obj.control_node_exch_.is_job_canceled();
             if ~is
-                [mess,tids] = obj.mess_framework_.probe_all('all','canceled');
+                [mess,tids] = obj.mess_framework_.probe_all('any','canceled');
                 if ~isempty(mess)
                     is = true;
                     % discard message(s)
@@ -316,7 +318,7 @@ classdef JobExecutor
     end
     methods(Static)
         function initMessage = build_worker_init(JE_className,exit_on_completion,...
-                keep_worker_running)
+                keep_worker_running,test_mode)
             % Builds the structure, used by a worker to initialize a
             % particular job executor class and its mode of operation
             % (Stage 2 of worker initialization) to run on a worker.
@@ -330,13 +332,16 @@ classdef JobExecutor
             % keep_worker_running -- true if worker's Matlab session should
             %                run after JE work is completed waiting for
             %                another starting and init messages.
+            % test_mode   -- the mode used for testing CppMPI framework. 
+            %                if present and true, sets-up test framework
+            %                mode
             %
             if ~exist('exit_on_completion','var')
                 exit_on_completion = true;
             end
             if ~exist('keep_worker_running','var')
                 keep_worker_running = false;
-            end
+            end           
             
             info = struct(...
                 'JobExecutorClassName',JE_className,...
@@ -351,9 +356,9 @@ classdef JobExecutor
             % communications between the nodes of cluster and the cluster
             % and the headnode.
             %
-            % The control structure is defined on iMessageFramework class
-            % as it actually defines the particular frameworks to use by
-            % job.
+            % The control structure is defined on iMessageFramework class,
+            % get_worker_init method which actually describes the particular 
+            % frameworks to use for message exchange within the job.
             %
             % here we need to know what framework to use to exchange messages between
             % the MPI jobs.

@@ -14,9 +14,11 @@ n_labs = obj.numLabs;
 if n_labs == 1
     messages = {};
     task_ids_from = [];
+    % add persistent messages names to the messages, received from other labs
+    [messages,task_ids_from] = obj.add_persistent(messages,task_ids_from,task_nums);
     return;
 end
-if isempty(task_nums) || (ischar(task_nums) && strcmpi(task_nums,'all'))
+if isempty(task_nums) || (ischar(task_nums) && strcmpi(task_nums,'any'))
     task_nums = 1:n_labs;
 end
 % check if specific message name is requested
@@ -59,6 +61,9 @@ task_ids_from  = task_nums (avail);
 res_tags       = res_tags(avail);
 
 messages       = MESS_NAMES.mess_name(res_tags);
+% add persistent messages names to the messages, received from other labs
+[messages,task_ids_from] = obj.add_persistent(messages,task_ids_from,task_nums);
+
 
 function [avail,tag] = lab_prober_all_tags(lab_num)
 

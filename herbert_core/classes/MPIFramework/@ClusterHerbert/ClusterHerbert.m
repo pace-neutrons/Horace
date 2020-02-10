@@ -157,7 +157,7 @@ classdef ClusterHerbert < ClusterWrapper
                         'Framework launcher reports job finished without returning final messages. Reason: %s',...
                         mess);
                     if failed
-                        obj.status = FailMessage(mess_body);
+                        obj.status = FailedMessage(mess_body);
                     else
                         c_mess = aMessage('completed');
                         c_mess.payload = mess_body;
