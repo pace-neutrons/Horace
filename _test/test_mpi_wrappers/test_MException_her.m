@@ -43,7 +43,7 @@ classdef test_MException_her < TestCase
             end
             %
             [err_text,css] = getReport(myExc);
-            assertEqual(numel(css),3);
+            assertTrue(numel(css)>=3);
             assertTrue(strncmp(err_text,css{1},100));
             assertTrue(strncmp(css{3},...
                 'Error using <a href="matlab:matlab.internal.language.introspective.errorDocCallback(''test_MException',...
