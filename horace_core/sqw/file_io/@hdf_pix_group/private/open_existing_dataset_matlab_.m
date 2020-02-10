@@ -2,7 +2,7 @@ function open_existing_dataset_matlab_(obj,fid,pix_size_defined,n_pixels,chunk_s
 % opens existing pixels dataset within opened hdf file and selected group
 %
 %
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 %
     

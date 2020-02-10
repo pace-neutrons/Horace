@@ -42,7 +42,7 @@ classdef dnd_file_interface
     % There is also range of auxiliary less important methods.
     % ----------------------------------------------------------------
     %
-    % $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
     properties(Access=protected,Hidden=true)
         filename_=''
