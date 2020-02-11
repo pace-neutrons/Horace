@@ -21,19 +21,19 @@ classdef rundata
     % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
     %
     properties(Dependent)
-        n_detectors = [];   % Number of detectors, used when dealing with masked detectors  -- will be derived
+        n_detectors ;   % Number of detectors, used when dealing with masked detectors  -- will be derived
         %
-        S         = [];     % Array of signal [ne x ndet]   -- obtained from speFile or equivalent
-        ERR       = [];     % Array of errors  [ne x ndet]  -- obtained from speFile or equivalent
-        en        = [];     % Column vector of energy bin boundaries   -- obtained from speFile or equivalent
+        S         ;     % Array of signal [ne x ndet]   -- obtained from speFile or equivalent
+        ERR       ;     % Array of errors  [ne x ndet]  -- obtained from speFile or equivalent
+        en        ;     % Column vector of energy bin boundaries   -- obtained from speFile or equivalent
         %
         % Detector parameters:
-        det_par     = [];   % Horace structure of par-values, describing detectors angular positions   -- usually obtained from parFile or equivalent
+        det_par   ;   % Horace structure of par-values, describing detectors angular positions   -- usually obtained from parFile or equivalent
         % Helper variables used to display data file name and redefine
         % loader
-        data_file_name='';
+        data_file_name;
         % par file name defined in loader
-        par_file_name ='';
+        par_file_name;
         
         % Experiment parameters;
         efix    ;     % Fixed energy (meV)   -- has to be in file or supplied in parameters list
@@ -178,7 +178,7 @@ classdef rundata
         
         % Returns whole or partial data from a rundata object
         [varargout] =get_rundata(this,varargin);
-        % Load all data, defined by loader in memory. Do not overload by default                
+        % Load all data, defined by loader in memory. Do not overload by default
         this = load(this,varargin);
         
         % Load in memory if not yet there all auxiliary data defined for
@@ -200,7 +200,7 @@ classdef rundata
         % Returns the list data fields which have to be defined by the run for cases
         % of crystal or powder experiments
         [data_fields,lattice_fields] = what_fields_are_needed(this,varargin);
-        %------------------------------------------------------------------        
+        %------------------------------------------------------------------
         function this=rundata(varargin)
             % rundata class constructor
             %
@@ -260,9 +260,6 @@ classdef rundata
                 fields ={fields{:},lattice_fields{:}};
             end
         end
-        %         function val = subsref(this,S)
-        %         end
-        
         %----
         function mode = get.emode(this)
             % method to check emode and verify its default
@@ -321,6 +318,25 @@ classdef rundata
         %------------------------------------------------------------------
         % A LOADER RELATED PROPERTIES
         %------------------------------------------------------------------
+        function is = is_loaded(obj)
+            % check if rundata are already loaded in memory
+            is = false;
+            if isempty(obj.loader__)
+                return;
+            end
+            is = obj.loader__.is_loaded();
+        end
+        %
+        function obj = unload(obj)
+            % remove all rundata fields from memory and delete loader
+            %
+            if isempty(obj.efix__) && ~isempty(obj.loader__) && ...
+                    ismember('efix',obj.loader__.defined_fields())
+                obj.efix__ = obj.loader__.efix;
+            end
+            obj.loader__ = [];
+        end
+        %
         function ndet = get.n_detectors(this)
             % method to check number of detectors defined in rundata
             ndet = get_loader_field(this,'n_detectors');
@@ -371,8 +387,8 @@ classdef rundata
             out = feval(classname);%(this,'data_file_name',data_fname,'par_file_name',val));
             if isempty(data_fname)
                 [~,~,fext] = fileparts(val);
-                if strcmpi(fext,'.nxspe') %HACK assumes that par can be loaded from nxspe only! 
-                    this = out.initialize(val,this); % shoule be fixed by 
+                if strcmpi(fext,'.nxspe') %HACK assumes that par can be loaded from nxspe only!
+                    this = out.initialize(val,this); % shoule be fixed by
                 else
                     if isempty(this.loader__)
                         this.loader__ = memfile();
@@ -438,7 +454,7 @@ classdef rundata
             % serialized except memory only data
             iarr = serialize_(this);
         end
-        %------------------------------------------------------------------                
+        %------------------------------------------------------------------
         %------------------------------------------------------------------
         
         function this=saveNXSPE(this,filename,varargin)

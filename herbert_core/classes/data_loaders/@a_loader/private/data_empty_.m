@@ -1,4 +1,4 @@
-function [s_empty,err_empty,dat_empty,det_empty] = data_empty(this)
+function [s_empty,err_empty,dat_empty,det_empty] = data_empty_(this)
 % helper method checks which data fields are empty
 %
 %

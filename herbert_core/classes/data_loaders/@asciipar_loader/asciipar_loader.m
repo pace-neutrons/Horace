@@ -187,6 +187,12 @@ classdef asciipar_loader
                 return
             end
             [this.det_par_,this.n_detinpar_,this.par_file_name_] = check_det_par(value);
+            % HACK:
+            if isa(this,'loader_nxspe')
+                if strcmp(this.par_file_name_,this.file_name)
+                    this.par_file_name_ = '';
+                end
+            end
         end
         
         function fname=get.par_file_name(this)
