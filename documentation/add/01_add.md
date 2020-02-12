@@ -103,6 +103,11 @@ Work on Vertical Slices of key project functions:
 
  These slices are all dependent on the `sqw` object for which the updated API must be designed.
 
+See:  
+- [Generic Projections](./06-generic_projection.md)
+- [SQW Object redesign](./07-sqw_redesign.md)
+
+
 #### Mid term
 
 - restructure C++ libraries to separate the MATLAB wrapper from the core functionality; this will enable simpler testing and the future addition of Python bindings for the functions:
