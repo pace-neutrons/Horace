@@ -141,7 +141,7 @@ while keep_worker_running
     
     [ok,err_mess,init_message] = fbMPI.receive_message(0,'init');
     if ok ~= MESS_CODES.ok
-        [ok,err_mess]=je.finish_task(FailMessage(err_mess));
+        [ok,err_mess]=je.finish_task(FailedMessage(err_mess));
         if exit_at_the_end
             exit;
         else

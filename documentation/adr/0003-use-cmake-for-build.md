@@ -2,7 +2,7 @@
 
 # 3. Use CMake for build tool
 
-Date: 2019-11-06
+Date: 2019-Nov-06
 
 ## Status
 

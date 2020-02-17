@@ -1,5 +1,5 @@
 function [all_ok,err,fin_message] = average_range_process_function_(all_messages,mess_name)
-% the function which do actually calculates agerage range of all
+% the function which do actually calculates aggregate range of all
 % homogeneous messages
 %
 % Inputs:
@@ -13,7 +13,7 @@ function [all_ok,err,fin_message] = average_range_process_function_(all_messages
 % all_ok        -- true if all messages in the cellarray are the requested messages
 %                  false, if some messages names in all_messages list are
 %                  different.
-% err           -- string wich describes the reason for failure in more
+% err           -- string which describes the reason for failure in more
 %                  details if the all_ok == false or empty if true/
 % fin_message   -- class of the type aMessage, containing the results of
 %                  the function operations. This message will be send to
@@ -30,7 +30,7 @@ if ~all_ok
     n_failed = sum(~ok);
     err = sprintf('GEN_SQW_FILES_JOB:runtime_error: %d workers have failed',...
         n_failed);
-    fin_message = FailMessage(err);
+    fin_message = FailedMessage(err);
     %all_payload(~ok) = all_messages(~ok);
     fin_message.payload = all_payload;
 else

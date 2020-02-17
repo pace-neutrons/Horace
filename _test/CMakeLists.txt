@@ -1,0 +1,57 @@
+set(TEST_DIRECTORIES
+    "test_ascii_column_data"
+    "test_change_crystal"
+    "test_combine"
+    "test_dnd"
+    "test_gen_sqw_for_powders"
+    "test_herbert_utilites"
+    "test_mex_nomex"
+    # "test_mslice_utilities"
+    "test_multifit"
+    "test_rebin"
+    # "test_spinw_integration"
+    # "test_sqw"
+    "test_sqw_file"
+    "test_symmetrisation"
+    "test_sym_op"
+    # "test_tobyfit"
+    "test_transformation"
+    "test_utilities"
+)
+# The MPI tests require that the `[herbert|horace]_on` and `worker_v2`scripts
+# be on the path for all workers when Matlab starts up: add the path of the
+# directory it's copied into to the MATLABPATH environment variable when tests
+# are run.
+# LOCAL_INIT_DIR is defined in the top-level CMakeLists
+file(TO_CMAKE_PATH "$ENV{MATLABPATH}" MATLAB_PATH)
+if(WIN32)
+    set(PATH_SEPARATOR "\;")
+else()
+    set(PATH_SEPARATOR ":")
+endif()
+set(MATLAB_PATH "${MATLAB_PATH}${PATH_SEPARATOR}${LOCAL_INIT_DIR}")
+
+set(TEST_TIMEOUT_LENGTH "1200")  # 20 minutes
+foreach(_test_dir ${TEST_DIRECTORIES})
+    set(TEST_NAME "Matlab.${_test_dir}")
+    matlab_add_unit_test(
+        NAME "${TEST_NAME}"
+        CUSTOM_TEST_COMMAND
+            "try;\
+                horace_on;\
+                res = runtests('${CMAKE_SOURCE_DIR}/_test/${_test_dir}');\
+            catch ME;\
+                disp('Error caught attempting to run test:');\
+                disp(ME);\
+                disp(ME.cause);\
+                disp(ME.stack);\
+                exit(1);\
+            end;\
+            exit(~res)"
+        TIMEOUT ${TEST_TIMEOUT_LENGTH}
+    )
+    set_tests_properties("${TEST_NAME}"
+        PROPERTIES
+            ENVIRONMENT "MATLABPATH=${MATLAB_PATH}"
+    )
+endforeach()

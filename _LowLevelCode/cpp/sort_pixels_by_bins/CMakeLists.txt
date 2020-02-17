@@ -10,7 +10,7 @@ set(
 )
 
 set(MEX_NAME "sort_pixels_by_bins")
-matlab_add_mex(
+horace_add_mex(
     NAME "${MEX_NAME}"
     SRC "${SRC_FILES}" "${HDR_FILES}"
 )

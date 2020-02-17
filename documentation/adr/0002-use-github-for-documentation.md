@@ -2,7 +2,7 @@
 
 # 2. Use GitHub for Project Documentation
 
-Date: 2019-11-06
+Date: 2019-Nov-06
 
 ## Status
 
