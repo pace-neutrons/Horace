@@ -161,7 +161,7 @@ Operations should make use of multi-core and multiprocessors when available
 1. Ensure system tests exist that cover the major end-to-end paths through the system (`gen_sqw`,`tobyfit`, `multifit`, `cut`, `symmetrize` etc) and that these run and pass
 2. Extract small data and utility classes from existing SQW object updating APIs across Horace and Herbert code  where appropriate. New classes should be "new style" MATLAB classes.
 3. Extract `PixelBlock` into new class. All associated APIs updated.
-4. Migrate `SQW` and `DND` objects to style classes.
+4. Migrate `SQW` and `DND` objects to new style classes.
 5. Review API and data in `SQW` and `DND`classes with a view to removing unrequired methods and data.
 
 ## Implementation Decisions
