@@ -126,7 +126,7 @@ classdef test_combine_pow < TestCaseWithSave
             plot(w2_2)
             %--------------------------------------------------------------------------------------------------
         end
-        function this=test_combine_pow_tot(this)
+        function this=DISABLED_test_combine_pow_tot(this)
             % Create sqw files, combine and check results
             % -------------------------------------------
             sqw_file_tot=fullfile(tmp_dir,'test_pow_tot.sqw');

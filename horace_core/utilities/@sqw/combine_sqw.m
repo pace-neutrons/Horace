@@ -27,11 +27,11 @@ end
 
 %Catch case of one or other dataset being empty
 if numel(w1.data.pix)==0 && numel(w2.data.pix)~=0
-	wout=w2; return;
+    wout=w2; return;
 elseif numel(w1.data.pix)~=0 && numel(w2.data.pix)==0
-	wout=w1; return;
+    wout=w1; return;
 elseif numel(w1.data.pix)==0 && numel(w2.data.pix)==0
-	wout=w1; return;%case where both empty returns first dataset
+    wout=w1; return;%case where both empty returns first dataset
 end
 
 [ndims1,sz1]=dimensions(w1);
@@ -50,9 +50,9 @@ end
 %     header = w1.header{1};
 % end
 % uconv=header.u_to_rlu(1:3,1:3);
-% 
-% 
-% 
+%
+%
+%
 
 coords_rlu1=inv(w1.data.u_to_rlu) * w1.data.pix([1:4],:);
 rlutrans=[(2*pi./w1.data.alatt)'; 1];
@@ -107,7 +107,7 @@ for i=1:ndims1
     step=wout.data.p{i}(2)-wout.data.p{i}(1);
     wout.data.p{i}=[min_full{i}-step+eps:step:max_full{i}+step-eps]';
 end
-    
+
 %Question - how do we deal with the fact that the integration range along
 %one or more of the non-plot axes must be different for the two objects? Do
 %we just take the average?? If we do not address this point then the
@@ -134,22 +134,21 @@ if nints>=1
         intmin_2{i}=min(coords_rlu2_new(w2.data.iax(i),:));
         intmax_2{i}=max(coords_rlu2_new(w2.data.iax(i),:));
     end
-end
-
-if nints>=1
     for i=1:nints
         intmin{i}=min([intmin_1{i} intmin_2{i}]);
         intmax{i}=max([intmax_1{i} intmax_2{i}]);
     end
-end
-
-intlimits=[cell2mat(intmin); cell2mat(intmax)];
-wout.data.iint=intlimits;
-
-if nints>=1
+    
+    
+    intlimits=[cell2mat(intmin); cell2mat(intmax)];
+    wout.data.iint=intlimits;
+    
+    
     for i=1:nints
         wout.data.urange(:,wout.data.iax(i))=intlimits(:,i);
     end
+else
+    wout.data.iint = zeros(2,0);
 end
 
 

@@ -10,7 +10,7 @@ set(
 )
 
 set(MEX_NAME "accumulate_cut_c")
-matlab_add_mex(
+horace_add_mex(
     NAME "${MEX_NAME}"
     SRC "${SRC_FILES}" "${HDR_FILES}"
 )
