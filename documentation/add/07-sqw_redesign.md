@@ -158,11 +158,21 @@ Operations should make use of multi-core and multiprocessors when available
 
  *After each refactoring change it is essential that the unit and system tests pass; unit tests should be added for all new APIs.*
 
-1. Ensure system tests exist that cover the major end-to-end paths through the system (gen_sqw, tobyfit, multifit, cut, symmetrize) and that these run and pass
+1. Ensure system tests exist that cover the major end-to-end paths through the system (`gen_sqw`,`tobyfit`, `multifit`, `cut`, `symmetrize` etc) and that these run and pass
 2. Extract small data and utility classes from existing SQW object updating APIs across Horace and Herbert code  where appropriate. New classes should be "new style" MATLAB classes.
 3. Extract `PixelBlock` into new class. All associated APIs updated.
-4. Migrate `SQW` and `DND` objects to new style classes.
+4. Migrate `SQW` and `DND` objects to style classes.
 5. Review API and data in `SQW` and `DND`classes with a view to removing unrequired methods and data.
+
+## Implementation Decisions
+
+- Handle classes to be used for external objects (e.g. DND, SQW)
+
+- Update SQW object to include number of pixblock columns and read/write N columns rather than the current fixed 7
+
+- Experiment object includes array of instrument, sample, lattice, detector data and mappings from pix-block to objects
+
+- Instrument data will be added to SQW object post-creation until full data is available in the Mantid data files; scripts exist for construction of LET and are a model for other instruments. Since the Mantid file parse will require an XML to IX_Inst builder this can be written ahead of time and instruments created as XML.
 
 ## Design
 
@@ -183,7 +193,7 @@ Responsible for supporting all required operations
 
 _What does that actually mean?!_
 
-#### Projection
+#### ProjectionManager
 
 Responsible for all image projections - this includes:
 
@@ -224,6 +234,8 @@ Provides methods to "get contributing pixels" for any subset of image pixels as 
 
 Custom data may be stored per-pixel in a named elements `get_data(name): data[n,m]`.
 
+The same `get_data(name)` method can be used to provide access to the "standard" data (e.g. `get_data("signal")`)
+
 - requires a well-defined mapping from image pixels to source data pixel
 
 #### IX_dataset
@@ -237,13 +249,22 @@ Metadata for the file:
 - number of files
 - file information
 
+#### Experiment
+
+Collects all data describing the experiment: sample, conditions, instrument, detectors
+
+- Instrument specification (`IX_instr`)
+- Detector information (`IX_detector_array`)
+- Sample information (`IX_sample`)  --  orientation, lattice angles, goniometer position
+
 #### Header
 
 Represents metadata for a single source file
 
 - filepath and filename
 - sample state (orientation, lattice angles, goniometer position
-- array of energies (incident or final)
+- mapping of PixelBlock detector, run, instrument IDs to elements in the instrument and detector arrays
+- mapping of array of energies (incident or final) to detector and instrument blocks
 
 
 #### OperationsManager
@@ -256,8 +277,14 @@ Responsible for performing calculation on Image or Pixel data as appropriate.
 
 ### Class Overview
 
-![Class Overview](C:\Users\xzl80115\PACE\Horace\documentation\diagrams\sqw_v002.png)
+#### SQW
+![SQW Class Overview](C:\Users\xzl80115\PACE\Horace\documentation\diagrams\sqw.png)
 
+#### DND
+![DND Class Overview](C:\Users\xzl80115\PACE\Horace\documentation\diagrams\dnd.png)
+
+#### Projection
+![Projection Class Overview](C:\Users\xzl80115\PACE\Horace\documentation\diagrams\projection.png)
 
 ### Public API
 
@@ -287,16 +314,16 @@ Q: Are these distinct functions or simply a set of optional arguments?
 
 #### Projection Manager  (SQW)
 
-Provides methods to *generate* an image from an existing image (DND) or the base pixel data; supports definiton of multiple sequential transformations and provides 
+Provides methods to *generate* an image from an existing image (DND) or the base pixel data; supports definition of multiple sequential transformations.
 | Operation            | SQW  | DND  | Notes |
 | -------------------- | :--: | :--: | :---- |
 |`cut` | y | n | Perform a cut and return new SQW object|
 |`symmetrize`| y | n | Symmetrize return new SQW object |
-| `transform` | y | y | Execute a sequence of IProjections on the data to create a new image |
+| `transform` | y | y | Execute a sequence of `IProjection`s on the data to create a new image |
 
 #### IProjection
 
-Interface class to support the creation of a range of simple projections - translation, rotation, skew, cylindrical, sphetical  
+Interface class to support the creation of a range of simple projections - translation, rotation, skew, cylindrical, spherical.
 
 | Operation            | SQW  | DND  | Notes |
 | -------------------- | :--: | :--: | :---- |
@@ -385,22 +412,19 @@ Note: operations are performed on backing detector data where appropriate and im
 
 #### Pixel Block
 
-Object supports storage of custom data in addition to the standard 9-columns of PixBlock data. These are stored in a dictionary `{name: value}`
+Object supports storage of custom data in addition to the standard 9-columns of pixel data. These are stored in a dictionary `{name: value}`.
 
 | Operation  |          | Notes |
 | ---------|---------- | :---- |
 | `get_pixels` | `set_pixels` | Return/replace full pixel block array |
-| `get_coords` | `set_coords` | Return/replace nx4 array of the four co-ordinates |
-| `get_run_ids` | `set_run_ids` | Return/replace nx1 vector of run indexes |
-| `get_energy_ids` | `set_energy_ids` | Return/replace nx1 vector of energy indexes |
-| `get_detector_ids` | `set_detector_ids` | Return/replace nx1 vector of detector indexes |
-| `get_signal` | `set_signal` | Return/replace nx1 vector of run signal |
-| `get_variance`| `set_variance`  | Return/replace nx1 vector of run signal variances |
+| `get_coords` | `set_coords` | Return/replace `n x 4` array of the four co-ordinates |
+| `get_run_ids` | `set_run_ids` | Return/replace `n x 1` vector of run indexes |
+| `get_energy_ids` | `set_energy_ids` | Return/replace `n x 1` vector of energy indexes |
+| `get_detector_ids` | `set_detector_ids` | Return/replace `n x 1` vector of detector indexes |
+| `get_signal` | `set_signal` | Return/replace `n x 1` vector of run signal |
+| `get_variance`| `set_variance`  | Return/replace `n x 1` vector of run signal variances |
 | `get_num_pixels`|   | Return number of pixels (`n`) |
-| `get_data(name)` | `set_data(name, ...)` | Return/replace nxm array of (named) custom data |
-
-
-
+| `get_data(name)` | `set_data(name, ...)` | Return/replace `n x m` array of (named) custom or default data |
 
 ## PseudoCode
 
