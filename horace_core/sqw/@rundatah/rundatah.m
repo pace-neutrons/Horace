@@ -72,6 +72,9 @@ classdef rundatah < rundata
                 end
             end
         end
+        
+        function deserialise(bytes)
+        end
     end
     
     methods

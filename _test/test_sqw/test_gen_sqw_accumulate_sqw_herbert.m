@@ -120,7 +120,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             
             assertTrue(exist(tmp_file1,'file')==2);
             assertTrue(exist(tmp_file2,'file')==2);
-            [ok,err] = serverfbMPI.receive_message(1,'running');
+            [ok,err] = serverfbMPI.receive_message(1,'log');
             assertTrue(ok==MESS_CODES.ok,err);
             
             
@@ -192,7 +192,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             je.do_job();
             
             assertTrue(exist(tmp_file,'file')==2);
-            [ok,err]=serverfbMPI.receive_message(1,'running');
+            [ok,err]=serverfbMPI.receive_message(1,'log');
             assertEqual(ok,MESS_CODES.ok,err);
         end
         %

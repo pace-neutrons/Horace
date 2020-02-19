@@ -48,9 +48,15 @@ classdef sqw_serializer
             % serialize struct into the form, usually written by Horace
             % and defined by format_struct
             %
+            if nargin == 1 % object tries to serialize themselves
+                stream = obj.saveobj();
+                return;
+            end
             stream = serialize_(obj,struct,format_struct);
         end
-        
+        function bytes = saveobj(obj)
+            bytes = hlp_serialize('sqw_serializer');
+        end
         function [size_str,pos,eof,template_struc] = calculate_positions(obj,template_struc,input,varargin)
             % calculate the positions, the fields of the input templated_structure
             % occupy in an input stream.
@@ -142,6 +148,22 @@ classdef sqw_serializer
         end
         
     end
+    methods(Static)
+        function obj = loadobj(ls)
+            % Retrieve message object from sequnce of bytes
+            % produced by saveobj method.
+            
+            ser_struc = hlp_deserialize(ls);
+            if strcmp(ser_struc,'sqw_serializer')
+                obj = sqw_serializer();
+            else
+                error('SQW_SERIALIZER:runtime_error',...
+                    'Attempt to recover sqw serializer from incorrect data')
+            end
+            
+        end
+    end
+    
     
 end
 
