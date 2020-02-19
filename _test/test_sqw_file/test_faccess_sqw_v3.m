@@ -42,6 +42,7 @@ classdef test_faccess_sqw_v3< TestCase
             assertTrue(initobj.file_id>0);
             
         end
+        %
         function obj = test_should_load_file(obj)
             to = faccess_sqw_v3();
             co = onCleanup(@()to.delete());
@@ -53,7 +54,7 @@ classdef test_faccess_sqw_v3< TestCase
             assertTrue(initobj.file_id>0);
             
         end
-        
+        %
         function obj = test_init_and_get(obj)
             to = faccess_sqw_v3();
             
@@ -96,6 +97,7 @@ classdef test_faccess_sqw_v3< TestCase
             assertEqual(size(data.npix,3),numel(data.p{3})-1)
             
         end
+        %
         function obj = test_get_data(obj)
             to = faccess_sqw_v3(obj.sample_file);
             
@@ -145,6 +147,7 @@ classdef test_faccess_sqw_v3< TestCase
             assertEqual(sqw_obj1.main_header.filepath,...
                 'd:\Users\abuts\Data\ExcitDev\ISIS_svn\Hor#162\_test\test_sqw_file\')
         end
+        %
         function test_save_sqw2to3(obj)
             samp_f = fullfile(obj.sample_dir,...
                 'test_sqw_file_read_write_v3.sqw');
@@ -176,6 +179,7 @@ classdef test_faccess_sqw_v3< TestCase
             tob=tob.init(tf);
             assertEqual(tob.file_version,'-v3.1');
         end
+        %
         function obj = test_save_load_sqwV31(obj)
             samp_f = fullfile(obj.sample_dir,...
                 'test_sqw_file_read_write_v3_1.sqw');
@@ -205,6 +209,7 @@ classdef test_faccess_sqw_v3< TestCase
             assertEqual(sqw_ob.main_header,ver_obj.main_header);
             assertEqual(sqw_ob,ver_obj);
         end
+        %
         function obj = test_save_load_sqwV31_crossbuf(obj)
             hc    = hor_config;
             mchs  = hc.mem_chunk_size;
@@ -239,6 +244,7 @@ classdef test_faccess_sqw_v3< TestCase
             assertEqual(sqw_ob.main_header,ver_obj.main_header);
             assertEqual(sqw_ob,ver_obj);
         end
+        %
         function test_save_sqwV3toV2(obj)
             samp_f = fullfile(obj.sample_dir,...
                 'test_sqw_file_read_write_v3_1.sqw');
@@ -272,7 +278,18 @@ classdef test_faccess_sqw_v3< TestCase
             tob1.delete();
         end
         
-        
+        function test_serialize_deserialise(obj)
+            
+            fo = faccess_sqw_v3();
+            fo = fo.init(obj.sample_file);
+            
+            by = hlp_serialize(fo);
+            
+            fr = hlp_deserialize(by);
+            
+            assertEqual(fo,fr);
+
+        end
         
     end
 end

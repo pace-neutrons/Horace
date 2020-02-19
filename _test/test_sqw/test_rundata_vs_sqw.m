@@ -100,12 +100,31 @@ classdef test_rundata_vs_sqw < TestCase
             
             % calculate bounding object surrounding existing data object
             bob = rd.build_bounding_obj();
-            bos = bob.calc_sqw(grid_size,urange);            
+            bos = bob.calc_sqw(grid_size,urange);
             assertElementsAlmostEqual(bos.data.urange,urange,'relative',1.e-6);
             
             pix_range =[min(bos.data.pix(1:4,:),[],2)'; max(bos.data.pix(1:4,:),[],2)'];
             assertElementsAlmostEqual(bos.data.urange,pix_range);
+        end
+        
+        function  this=test_serialize_deserialize_rundatah(this)
+            rd = rundatah(this.sqw_obj);
             
+            by = rd.serialize();
+            
+            fa = rundatah.deserialize(by);
+            [~,fa] = fa.get_par;
+            assertTrue(isa(fa,'rundatah'));
+            [ok,mess]=equal_to_tol(rd.S,fa.S);
+            assertTrue(ok,mess);
+            [ok,mess]=equal_to_tol(rd.det_par,fa.det_par,1.e-4);
+            assertTrue(ok,mess);
+            rd = rd.unload();
+            fa = fa.unload();
+            assertEqual(rd,fa);
+        end
+        %
+        function obj = test_send_receive_rundata(obj)
             
         end
     end
