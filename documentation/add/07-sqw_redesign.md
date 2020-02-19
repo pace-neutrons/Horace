@@ -52,11 +52,13 @@ Combine multiple experiment [data files](http://horace.isis.rl.ac.uk/Input_file_
 
 - Cut -- extract a N-dimensional subset of pixels
 
-- Projection -- aggregate pixel data onto an M-dimensional surface (M<N). This should support projections onto planes and spherical shells (TBI) and spiral slices (TBI).
+- Projection -- aggregate pixel data onto an M-dimensional surface (M &#8804; N). This should support projections onto planes and spherical shells (TBI) and spiral slices (TBI) as well as reorientations.
 
 - Symmetrization -- enhance signal-to-noise utilizing symmetries within the data
 
 The operations are performed on the pixel data and the image recalculated from that. If the pixel-data is not available (a DND object) the operations are performed directly on the image.
+
+Note: future extensions may support for projections for which M > N. These would require the creation of a generalized higher-dimension DnD object.
 
 #### Model Fitting
 
