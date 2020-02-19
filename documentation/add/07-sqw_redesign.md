@@ -251,6 +251,7 @@ Metadata for the file:
 - number of files
 - file information
 
+
 #### Experiment
 
 Collects all data describing the experiment: sample, conditions, instrument, detectors
@@ -280,13 +281,13 @@ Responsible for performing calculation on Image or Pixel data as appropriate.
 ### Class Overview
 
 #### SQW
-![SQW Class Overview](C:\Users\xzl80115\PACE\Horace\documentation\diagrams\sqw.png)
+(![SQW Class Overview](../diagrams/sqw.png)
 
 #### DND
-![DND Class Overview](C:\Users\xzl80115\PACE\Horace\documentation\diagrams\dnd.png)
+![DND Class Overview](../diagrams/dnd.png)
 
 #### Projection
-![Projection Class Overview](C:\Users\xzl80115\PACE\Horace\documentation\diagrams\projection.png)
+![Projection Class Overview](../diagrams/projection.png)
 
 ### Public API
 
