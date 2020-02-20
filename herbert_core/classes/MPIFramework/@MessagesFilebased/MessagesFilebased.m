@@ -95,7 +95,7 @@ classdef MessagesFilebased < iMessagesFramework
             obj.numLabs_ = NumLabs;
         end
         %
-        function obj = set.mess_exchange_folder(obj,val)
+        function set.mess_exchange_folder(obj,val)
             % set message exchange folder for filebased messages exchange
             % within Herbert/Horace configuration folder
             % and copy Herbert/Horace configurations to new configuration

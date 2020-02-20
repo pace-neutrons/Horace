@@ -187,7 +187,12 @@ classdef asciipar_loader
                 return
             end
             [this.det_par_,this.n_detinpar_,this.par_file_name_] = check_det_par(value);
-            % HACK:
+            % HACK: (removes par_file_name_ from asciipar_loader if nxspe
+            % loader is used, as nxspe loader uses its own par file name.)
+            % Porper solution -- redesighn a_loader not to inherit from
+            % ascii_par_loader but have separate class to downdload
+            % detector information and change this class depending on the 
+            % input type provided.
             if isa(this,'loader_nxspe')
                 if strcmp(this.par_file_name_,this.file_name)
                     this.par_file_name_ = '';

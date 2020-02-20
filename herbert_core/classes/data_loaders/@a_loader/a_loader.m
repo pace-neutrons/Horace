@@ -29,11 +29,11 @@ classdef a_loader < asciipar_loader
         % consistent if both are present;
         n_detectors
         % signal
-        S  
+        S
         % error
         ERR
         % energy boundaries
-        en 
+        en
         % the variable which describes the file from which main part or
         % all data should be loaded
         file_name
@@ -181,7 +181,7 @@ classdef a_loader < asciipar_loader
             %
             non_ldd = data_empty_(obj);
             if non_ldd
-                is = false;                
+                is = false;
             else
                 arr = get_consistent_array(obj,'S_');
                 if isnumeric(arr) % then data in memory are incorrect
