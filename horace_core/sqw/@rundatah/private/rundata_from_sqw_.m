@@ -36,7 +36,7 @@ if size(tmp,1)~=ne*numel(group)
 end
 
 % Get the indexing of detector group in the detector information
-[lia,ind]=ismember(group,detpar.group);
+[~,ind]=ismember(group,detpar.group);
 
 signal=NaN(ne,ndet0);
 err=zeros(ne,ndet0);
