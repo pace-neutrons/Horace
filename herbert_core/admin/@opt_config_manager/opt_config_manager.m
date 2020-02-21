@@ -70,7 +70,7 @@ classdef opt_config_manager
             % 2) Here we check if Horace is enabled, and if it is not, it
             %    is Herbert configuration, which does not know anything
             %    about Horace.
-            if isempty(which('sqw')) % then it is Herbert
+            if isempty(which('hor_config')) % then it is Herbert
                 obj.known_configs_ = {'herbert_config','parallel_config'};
             end
             % 3) When it comes to Horace configuration, Herbert will be
