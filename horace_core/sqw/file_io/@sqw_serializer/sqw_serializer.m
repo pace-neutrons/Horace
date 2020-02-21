@@ -55,7 +55,7 @@ classdef sqw_serializer
             stream = serialize_(obj,struct,format_struct);
         end
         function bytes = saveobj(obj)
-            bytes = hlp_serialize('sqw_serializer');
+            bytes = []; %hlp_serialize('sqw_serializer');
         end
         function [size_str,pos,eof,template_struc] = calculate_positions(obj,template_struc,input,varargin)
             % calculate the positions, the fields of the input templated_structure
