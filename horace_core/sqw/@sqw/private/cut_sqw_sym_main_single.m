@@ -55,7 +55,7 @@ else
     % primary cut for reference in later loops
     [proj_ref, pbin_ref] = get_proj_and_pbin (wtmp{1});
     
-    % Inefficient wsy of catching if non-orthogonal projection because Alex's
+    % Inefficient way of catching if non-orthogonal projection because Alex's
     % projection class does not retain this property of projaxes
     if proj_ref.nonorthogonal
         error('CUT_SQW_SYM:not_implemented',...
@@ -78,7 +78,7 @@ else
         % Get some 'average' quantities for use in calculating transformations and bin boundaries
         % -----------------------------------------------------------------------------------------
         % *** assumes that all the contributing spe files had the same lattice parameters and projection axes
-        % This could be generalised later - but with repercussions in many routines
+        % This could be generalized later - but with repercussions in many routines
         header_ave=header_average(header);
         
         
