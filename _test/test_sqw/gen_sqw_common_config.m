@@ -60,15 +60,15 @@ classdef gen_sqw_common_config < TestCase
             if obj.change_mex_ && obj.new_mex_ % check mex can be enabled
                 [~,n_errors]=check_horace_mex();
                 if n_errors>0
-                    use_mex = 1;
-                else
                     use_mex = 0;
+                else
+                    use_mex = 1;
                 end
                 if ~use_mex
                     obj.skip_test = true;
                     if log_level>0
                         warning('GEN_SQW_TEST_CONFIG:not_available',...
-                            ['Can not initiate mex mode: '
+                            ['Can not initiate mex mode: ',...
                             ' This mex mode will not be tested'])
                     end
                 end
