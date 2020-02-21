@@ -71,19 +71,19 @@ classdef data_sqw_dnd
             % Builds valid data_sqw_dnd object from various data structures
             %
             % Simplest constructor
-            %   >> [data,mess] = make_sqw_data          % assumes ndim=0
-            %   >> [data,mess] = make_sqw_data (ndim)   % sets dimensionality
+            %   >> [data,mess] = data_sqw_dnd          % assumes ndim=0
+            %   >> [data,mess] = data_sqw_dnd (ndim)   % sets dimensionality
             %
             % Old style syntax:
-            %   >> [data,mess] = make_sqw_data (u1,p1,u2,p2,...,un,pn)  % Define plot axes
-            %   >> [data,mess] = make_sqw_data (u0,...)
-            %   >> [data,mess] = make_sqw_data (lattice,...)
-            %   >> [data,mess] = make_sqw_data (lattice,u0,...)
-            %   >> [data,mess] = make_sqw_data (...,'nonorthogonal')    % permit non-orthogonal axes
+            %   >> [data,mess] = data_sqw_dnd (u1,p1,u2,p2,...,un,pn)  % Define plot axes
+            %   >> [data,mess] = data_sqw_dnd (u0,...)
+            %   >> [data,mess] = data_sqw_dnd (lattice,...)
+            %   >> [data,mess] = data_sqw_dnd (lattice,u0,...)
+            %   >> [data,mess] = data_sqw_dnd (...,'nonorthogonal')    % permit non-orthogonal axes
             %
             % New style syntax:
-            %   >> [data,mess] = make_sqw_data (proj, p1_bin, p2_bin, p3_bin, p4_bin)
-            %   >> [data,mess] = make_sqw_data (lattice,...)
+            %   >> [data,mess] = data_sqw_dnd (proj, p1_bin, p2_bin, p3_bin, p4_bin)
+            %   >> [data,mess] = data_sqw_dnd (lattice,...)
             %
             %
             % Input:

@@ -176,6 +176,10 @@ classdef sqw_header
                 %
                 % a first subzone header assumed not to belong to subzone headers
                 [numbers,~] = regexp(hd.filepath,'\d*','match','split');
+                if iscell(numbers) && numel(numbers) < 3
+                   is = false;
+                   return;
+                end
                 num = str2double(numbers(3));
                 if num>1
                     is = true;

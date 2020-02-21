@@ -278,7 +278,7 @@ classdef test_faccess_sqw_v3< TestCase
             tob1.delete();
         end
         
-        function test_serialize_deserialise(obj)
+        function xest_serialize_deserialise(obj)
             
             fo = faccess_sqw_v3();
             fo = fo.init(obj.sample_file);
