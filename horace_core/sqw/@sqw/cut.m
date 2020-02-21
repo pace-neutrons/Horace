@@ -46,10 +46,10 @@ function varargout = cut (varargin)
 %                   If true: use u,v (and w, if given) as non-orthogonal projection
 %                   axes: u1 || u, u2 || v, u3 || w if given, or u3 || u x v if not.
 %
-%       type        [1x3] Character string defining normalisation. Each character
-%                   indicates how u1, u2, u3 are normalised, as follows:
+%       type        [1x3] Character string defining normalization. Each character
+%                   indicates how u1, u2, u3 are normalized, as follows:
 %                   - if 'a': projection axis unit length is one inverse Angstrom
-%                   - if 'r': then if ui=(h,k,l) in r.l.u., is normalised so
+%                   - if 'r': then if ui=(h,k,l) in r.l.u., is normalized so
 %                             max(abs(h,k,l))=1
 %                   - if 'p': if orthogonal projection axes:
 %                                   |u1|=|u|, (u x u2)=(u x v), (u x u3)=(u x w)
@@ -80,7 +80,7 @@ function varargout = cut (varargin)
 %           - [pstep]           Plot axis: sets step size; plot limits
 %                              taken from the extent of the data
 %           - [plo, phi]        Integration axis: range of integration
-%           - [plo, pstep, phi] Plot axis: minimum and maximum bin centres
+%           - [plo, pstep, phi] Plot axis: minimum and maximum bin centers
 %                              and step size
 %
 %   p4_bin          Binning along the energy axis:
@@ -88,16 +88,16 @@ function varargout = cut (varargin)
 %           - [pstep]           Plot axis: sets step size; plot limits
 %                              taken from the extent of the data.
 %                               If pstep=0 then use bin size of the first
-%                              spe file and synchronise the output bin
+%                              spe file and synchronize the output bin
 %                              boundaries with those boundaries. The overall
 %                              range is chosen to ensure that the energy
 %                              range of the input data is contained within
 %                              the bin boundaries.
 %           - [plo, phi]        Integration axis: range of integration
-%           - [plo, pstep, phi] Plot axis: minimum and maximum bin centres
+%           - [plo, pstep, phi] Plot axis: minimum and maximum bin centers
 %                              and step size.
 %                               If pstep=0 then use bin size of the first
-%                              spe file and synchronise the output bin
+%                              spe file and synchronize the output bin
 %                              boundaries with the reference boundaries.
 %                              The overall range is chosen to ensure that
 %                              the energy range plo to phi is contained

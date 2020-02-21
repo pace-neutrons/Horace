@@ -2,7 +2,7 @@ function c=to_cut(w,varargin)
 % Create cut object from sqw object
 %
 %   >> c = to_cut (w)
-% With keywowrds:
+% With keywords:
 %   >> c = to_cut (w, 'x','k')        % make x-axis the component along b* (other options available too)
 %   >> c = to_cut (w, 'signal','Q')   % make y-axis equal to |Q| (other options available too)
 %   >> c = to_cut (w, 'x', 'E', 'signal' 'k')
