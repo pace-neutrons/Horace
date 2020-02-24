@@ -29,21 +29,8 @@ foreach(_test_dir ${TEST_DIRECTORIES})
     matlab_add_unit_test(
         NAME "${TEST_NAME}"
         CUSTOM_TEST_COMMAND
-            "try;\
-                herbert_on;\
-                pc = parallel_config;\
-                pc.parallel_framework = 'mpiexec_mpi';\
-                disp(pc);\
-                res = runtests('${CMAKE_SOURCE_DIR}/_test/${_test_dir}');\
-            catch ME;\
-                disp('Error caught attempting to run test:');\
-                disp(ME);\
-                exit(1);\
-            end;\
-            exit(~res)"
-        ADDITIONAL_PATH
-            "${CMAKE_SOURCE_DIR}/admin"
-            "${CMAKE_SOURCE_DIR}/herbert_core"
+            "validate_herbert ${_test_dir} -exit_on_completion -talkative"
+        ADDITIONAL_PATH "${CMAKE_SOURCE_DIR}/admin"
         TIMEOUT 6200  # 2 hours
     )
     set_tests_properties("${TEST_NAME}"
