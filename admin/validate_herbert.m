@@ -6,8 +6,8 @@ function err = validate_herbert(varargin)
 % Arguments:
 %
 %  'test_folders' A list of test directories to run.
-%      These should be relative to Herbert's '_test' directory. If not
-%      specified, all test directories are run.
+%                 These should be relative to Herbert's '_test' directory. If 
+%                 not specified, all test directories are run.
 %
 % possible input keys:
 %
@@ -19,7 +19,7 @@ function err = validate_herbert(varargin)
 %              various herbert log messages (log_level in configurations
 %              is set to default, not quiet as default)
 %
-% '-exit_on_completeon'  exit Matlab when the tests are completed.
+% '-exit_on_completion'  exit Matlab when the tests are completed.
 %               This option is useful when running tests from
 %               a script or continuous integration tools.
 % Returns:
@@ -45,8 +45,8 @@ for i = 1:numel(varargin)
 end
 
 % Parse the flags
-options = {'-parallel', '-talkative', '-exit_on_completeon'};
-[ok, mess, parallel, talkative, exit_on_completeon] = ... 
+options = {'-parallel', '-talkative', '-exit_on_completion'};
+[ok, mess, parallel, talkative, exit_on_completion] = ... 
         parse_char_options(optional_flags, options);
 if ~ok
     error('VALIDATE_HERBERT:invalid_argument', mess)
@@ -136,7 +136,7 @@ end
 if tests_ok
     err = 0;
 end
-if exit_on_completeon
+if exit_on_completion
     exit;
 end
 
