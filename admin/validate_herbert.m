@@ -1,7 +1,7 @@
 function err = validate_herbert(varargin)
 % Run unit tests on Herbert installation
 %
-%   >> validate_herbert([test_directory1, test_directory2, mode_key1,mode_key2...])
+%   >> validate_herbert([test_directory1, test_directory2, mode_key1, mode_key2...])
 %
 % Arguments:
 %
@@ -33,21 +33,9 @@ end
 
 % Parse arguments
 % ---------------
-test_folders = {};
-optional_flags = {};
-for i = 1:numel(varargin)
-    arg = varargin{i};
-    if startsWith(arg, '-')
-        optional_flags{end+1} = arg;
-    else
-        test_folders{end+1} = arg;
-    end
-end
-
-% Parse the flags
 options = {'-parallel', '-talkative', '-exit_on_completion'};
-[ok, mess, parallel, talkative, exit_on_completion] = ... 
-        parse_char_options(optional_flags, options);
+[ok, mess, parallel, talkative, exit_on_completion, test_folders] = ...
+        parse_char_options(varargin, options);
 if ~ok
     error('VALIDATE_HERBERT:invalid_argument', mess)
 end
@@ -140,7 +128,7 @@ if exit_on_completion
     exit(err);
 end
 
-%=================================================================================================================
+%==============================================================================
 function herbert_test_cleanup(old_config, test_folders, initial_warn_state)
     % Reset the configuration
     set(herbert_config, old_config);
