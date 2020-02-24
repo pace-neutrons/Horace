@@ -1,66 +1,76 @@
 function err=validate_herbert(varargin)
 % Run unit tests on Herbert installation
 %
-%   >> validate_herbert([mode_key1,mode_key2...])   % Run all Herbert unit
-%                                                     and system tests.
+%   >> validate_herbert([test_directory1, test_directory2, mode_key1,mode_key2...])
 %
+% Arguments:
 %
-% possible keys provided as input for validate_herbert script are:
+%  test_folder     A list of test directories to run. 
+%      These should be relative to Herbert's '_test' directory. If not 
+%      specified, all test directories are run.
+%
+% possible input keys:
 %
 % '-parallel'   Enables parallel execution of unit tests if the parallel
 %              computer toolbox is available. Needs large memory as some
-%              tests satart its own version of parallel computing toolbox.
+%              tests start its own version of parallel computing toolbox.
 %
 % '-talkative' prints output of the tests and
-%              varioud herbert log messages (log_level  in configurations
+%              various herbert log messages (log_level in configurations
 %              is set to default, not quiet as default)
 %
 % '-exit_on_completeon'  exit Matlab when the tests are completed.
 %               This option is useful when running tests from
 %               a script or continuous integration tools.
 % Returns:
-% err -- 0 if tests are successful and  -1 if some tests have failed
+%   err -- 0 if tests are successful and  -1 if some tests have failed
 
-
-% Parse optional arguments
-% ------------------------
-options = {'-parallel','-talkative','-exit_on_completeon'};
 % For running from shell script:
 err = -1;
 if isempty(which('herbert_init'))
     herbert_on();
 end
 
-if nargin==0
-    talkative=false;
-    parallel=false;
-    exit_on_completeon= false;
-else
-    [ok,mess,parallel,talkative,exit_on_completeon]=parse_char_options(varargin,options);
-    if ~ok
-        error('VALIDATE_HERBERT:invalid_argument',mess)
+% Parse arguments
+% ------------------------
+test_folders = {};
+optional_flags = {};
+for i = 1:numel(varargin)
+    arg = varargin{i};
+    if startsWith(arg, '-')
+        optional_flags{end + 1} = arg;
+    else
+        test_folders{end + 1} = arg;
     end
 end
 
+% Parse the flags
+options = {'-parallel','-talkative','-exit_on_completeon'};
+[ok,mess,parallel,talkative,exit_on_completeon]=parse_char_options(optional_flags,options);
+if ~ok
+    error('VALIDATE_HERBERT:invalid_argument',mess)
+end
 
 %==============================================================================
 % Place list of test folders here (relative to the master _test folder)
 % -----------------------------------------------------------------------------
-test_folders={...
-    'test_data_loaders',...
-    'test_config',...
-    'test_IX_classes',...
-    'test_map_mask',...
-    'test_mslice_objects',...
-    'test_multifit',...
-    'test_multifit_legacy',...
-    'test_utilities',...
-    'test_instrument_classes',...
-    'test_docify'...
-    'test_admin',...
-    'test_mpi_wrappers',...    
-    'test_mpi',...
+if isempty(test_folders)  % No tests specified on command line - run them all
+    test_folders={...
+        'test_data_loaders',...
+        'test_config',...
+        'test_IX_classes',...
+        'test_map_mask',...
+        'test_mslice_objects',...
+        'test_multifit',...
+        'test_multifit_legacy',...
+        'test_utilities',...
+        'test_instrument_classes',...
+        'test_docify'...
+        'test_admin',...
+        'test_mpi_wrappers',...    
+        'test_mpi',...
     };
+end
 
 %=============================================================================
 initial_warn_state = warning();
