@@ -23,7 +23,7 @@ function err = validate_herbert(varargin)
 %               This option is useful when running tests from
 %               a script or continuous integration tools.
 % Returns:
-%   err -- 0 if tests are successful and  -1 if some tests have failed
+%   err -- 0 if tests are successful and -1 if some tests have failed
 
 % For running from shell script:
 err = -1;
@@ -137,7 +137,7 @@ if tests_ok
     err = 0;
 end
 if exit_on_completion
-    exit;
+    exit(err);
 end
 
 %=================================================================================================================
