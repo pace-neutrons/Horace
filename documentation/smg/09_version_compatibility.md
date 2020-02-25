@@ -42,14 +42,14 @@ Information on compiler compatibility is available from the [MathWorks](https://
 |                    | XE 2015 ||y|y|y|y||
 |                    | XE 2013 |||||y|y|
 
-[1]: Intel Parallel Studio 2015-2019; Intel Visual Fortran Composer 2011-2013
+Notes:
 
-[2]: Intel Parallel Studio 2015-2019; Intel Fortran Composer 2013
+1. Intel Parallel Studio 2015-2019; Intel Visual Fortran Composer 2011-2013
+2. Intel Parallel Studio 2015-2019; Intel Fortran Composer 2013
 
 | HDF5 | | 2019b | 2019a | 2018b | 2018a | 2017b | 2015b |
-| ------ | ----- | | ------| ----- | ----- | ----- | ------ |
+| ------ | ----- | ----- | ------| ----- | ----- | ----- | ------ |
 | | 1.8.12 | y | ? | y | ? |  y |  y |
 | <b>MPI</b> |    |  | |  | |  |  |
 | Windows (MSMPI) | 8.0.12438 | y | | y | y | | n/a |
-| Linux (MPICH) | 1.4.1p1| y | | y | | |n/a|
-
+| Linux (MPICH) | 1.4.1p1 | y | | y | | | n/a |
