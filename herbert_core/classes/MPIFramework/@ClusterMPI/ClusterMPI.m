@@ -7,7 +7,7 @@ classdef ClusterMPI < ClusterWrapper
     %
     %----------------------------------------------------------------------
     properties(Access = protected)
-        
+
         % the string user to launch Matlab
         matlab_starter_  = [];
         % the string containing Java handle to running mpiexec process
@@ -20,7 +20,7 @@ classdef ClusterMPI < ClusterWrapper
         % the folder, containing mpiexec cluster configurations (host files)
         config_folder_
     end
-    
+
     methods
         function obj = ClusterMPI(n_workers,mess_exchange_framework)
             % Constructor, which initiates MPI wrapper
@@ -80,19 +80,19 @@ classdef ClusterMPI < ClusterWrapper
                 log_level = -1;
             end
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
-            
+
             pc = parallel_config();
             obj.worker_name_        = pc.worker;
             obj.is_compiled_script_ = pc.is_compiled;
-            
+
             %
-            
+
             %
             prog_path  = find_matlab_path();
             if isempty(prog_path)
                 error('CLUSTER_HERBERT:runtime_error','Can not find Matlab');
             end
-            
+
             mpiexec = obj.get_mpiexec();
             if ispc()
                 obj.running_mess_contents_= 'process has not exited';
@@ -102,7 +102,7 @@ classdef ClusterMPI < ClusterWrapper
                 obj.matlab_starter_= fullfile(prog_path,'matlab');
             end
             mpiexec_str = {mpiexec,'-n',num2str(n_workers)};
-            
+
             % build generic worker init string without lab parameters
             cs = obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
             worker_init = sprintf('%s(''%s'');exit;',obj.worker_name_,cs);
@@ -118,7 +118,7 @@ classdef ClusterMPI < ClusterWrapper
                     ' Can not start mpiexec with %d workers, Error: %s',...
                     mess);
             end
-            
+
             %
             if log_level > -1
                 fprintf(obj.started_info_message_);
@@ -177,7 +177,7 @@ classdef ClusterMPI < ClusterWrapper
             %
             config = find_and_return_host_files_(obj);
         end
-        
+
         %
         function check_availability(obj)
             % verify the availability of the compiled Herbert MPI
@@ -190,7 +190,7 @@ classdef ClusterMPI < ClusterWrapper
             check_availability@ClusterWrapper(obj);
             check_mpi_mpiexec_can_be_enabled_(obj);
         end
-        
+
         %------------------------------------------------------------------
     end
     methods(Static)
@@ -202,7 +202,7 @@ classdef ClusterMPI < ClusterWrapper
                 mpi_exec = fullfile(rootpath,'DLL','_PCWIN64','MS_MPI_R2019b','mpiexec.exe');
             else
                 % try our custom isiscompute arrangement
-                mpi_exec = '/usr/local/mpich/bin/mpiexec';
+                mpi_exec = fullfile(matlabroot, 'bin', computer('arch'), 'mpiexec');
                 if ~(exist(mpi_exec,'file')==2)
                     % use system-defined mpiexec
                     [~,mpi_exec] = system('which mpiexec');
@@ -221,7 +221,7 @@ classdef ClusterMPI < ClusterWrapper
             task_handle = obj.mpiexec_handle_;
             [ok,failed,mess] = obj.is_java_process_running(task_handle);
         end
-        
+
     end
 end
 
