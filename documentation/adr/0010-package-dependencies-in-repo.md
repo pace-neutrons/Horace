@@ -1,6 +1,6 @@
 [<-previous](0009-use-standard-naming-for-build-artifacts.md) | next->
 
-# 9 - Package dependencies in the repository
+# 10 - Package dependencies in the repository
 
 Date: 2020-Feb-25
 
