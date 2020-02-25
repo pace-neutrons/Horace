@@ -59,5 +59,6 @@ Notes:
 | :--- | --- | :---: | :---: | :---: | :---: | :---: | :---: |
 | | 1.8.12 | y | y | y | y |  y |  y |
 | <b>MPI</b> |    |  | |  | |  |  |
-| Windows (MSMPI) | 8.0.12438 | y | ? | y | y | ? | n/a |
-| Linux (MPICH) | 1.4.1p1 | y | y | y | ? | ? | n/a |
+| Windows (MSMPI) | 8.0.12438 | y | y | y | y |   | n/a |
+|                 | 5.0.12435 |   |   |   |   | y | n/a |
+| Linux (MPICH2) | 1.4.1p1 | y | y | y | y | ? | n/a |
