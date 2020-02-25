@@ -7,3 +7,4 @@
 - [Distributing Horace](./06_deployment_process.md)
 - [Windows Anvil Node](./07_windows_anvil_node.md)
 - [Setting Up Jenkins CI](./08_setting_up_jenkins_ci.md)
+- [MATLAB compiler and library versions compatibility](./09_version_compatibility.md)
