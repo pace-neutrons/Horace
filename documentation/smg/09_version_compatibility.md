@@ -7,6 +7,10 @@ For each MATLAB release, MathWorks define a limited compatibility matrix of libr
 Information on compiler compatibility is available from the [MathWorks](https://uk.mathworks.com/support/requirements/previous-releases.html) site. This does not document information about library dependencies.
 
 
+
+### Compilers
+
+
 | C++  |    | R2019b | R2019a | R2018b | R2018a | R2017b | R2015b |
 | :--- | --- | :---: | :---: | :---: | :---: | :---: | :---: |
 |Windows | VS2019 | y | y |  | |  |  |
@@ -47,9 +51,13 @@ Notes:
 1. Intel Parallel Studio 2015-2019; Intel Visual Fortran Composer 2011-2013
 2. Intel Parallel Studio 2015-2019; Intel Fortran Composer 2013
 
+
+
+### Libraries
+
 | HDF5 | | R2019b | R2019a | R2018b | R2018a | R2017b | R2015b |
 | :--- | --- | :---: | :---: | :---: | :---: | :---: | :---: |
-| | 1.8.12 | y | ? | y | ? |  y |  y |
+| | 1.8.12 | y | y | y | y |  y |  y |
 | <b>MPI</b> |    |  | |  | |  |  |
-| Windows (MSMPI) | 8.0.12438 | y | | y | y | | n/a |
-| Linux (MPICH) | 1.4.1p1 | y | | y | | | n/a |
+| Windows (MSMPI) | 8.0.12438 | y | ? | y | y | ? | n/a |
+| Linux (MPICH) | 1.4.1p1 | y | y | y | ? | ? | n/a |
