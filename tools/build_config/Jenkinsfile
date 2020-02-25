@@ -44,7 +44,6 @@ def post_github_status(String state, String message) {
  *   CMAKE_VERSION
  *   MATLAB_VERSION
  *   GCC_VERSION
- *   OPEN_MPI_VERSION
  *   RELEASE_TYPE
 */
 pipeline {
@@ -76,7 +75,6 @@ pipeline {
               module load cmake/\$CMAKE_VERSION &&
               module load matlab/\$MATLAB_VERSION &&
               module load gcc/\$GCC_VERSION &&
-              module load openmpi/\$OPEN_MPI_VERSION &&
               ./tools/build_config/build.sh --print_versions --build \
                 --cmake_flags "-DHerbert_RELEASE_TYPE=$RELEASE_TYPE"
             '''
@@ -99,7 +97,6 @@ pipeline {
               module load cmake/\$CMAKE_VERSION &&
               module load matlab/\$MATLAB_VERSION &&
               module load gcc/\$GCC_VERSION &&
-              module load openmpi/\$OPEN_MPI_VERSION &&
               ./tools/build_config/build.sh --test
             '''
           }
