@@ -18,10 +18,9 @@ if ~(exist(tests_path,'dir')==7)
     tests_path = '';
     return;
 end
-core_path = fileparts(which('herbert_init'));
 system_admin = fullfile(rootpath,'admin');
-xunit_path = fullfile(core_path, 'utilities', 'testing', 'matlab_xunit','xunit');  % path for unit tests harness
-xunit_path_extras = fullfile(core_path, 'utilities', 'testing', 'matlab_xunit_ISISextras');  % path for additional functions
+xunit_path = fullfile(rootpath, '_test', 'shared', 'matlab_xunit', 'xunit');  % path for unit tests harness
+xunit_path_extras = fullfile(rootpath, '_test', 'shared', 'matlab_xunit_ISISextras');  % path for additional functions
 % add to path the MPI unit tests as these have to be on the  path for all MPI workers
 mpi_path = fullfile(tests_path,'test_mpi');
 
