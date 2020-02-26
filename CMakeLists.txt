@@ -42,21 +42,14 @@ add_subdirectory("admin")
 # Install commands
 # =============================================================================
 include(herbert_CPackConfig)
-set(TOP_LEVEL_INSTALL_DIRS  # List of directories for top level of install dir
-    "admin"
-    "herbert_core"
-    "_test"
-)
-foreach(_dir ${TOP_LEVEL_INSTALL_DIRS})
-    install(
-        DIRECTORY "${_dir}"
-        DESTINATION "Herbert"
-        USE_SOURCE_PERMISSIONS
-        PATTERN "*.m~" EXCLUDE
-        PATTERN "*.asv" EXCLUDE
-    )
-endforeach()
 
+install(
+    DIRECTORY "herbert_core"
+    DESTINATION "Herbert"
+    USE_SOURCE_PERMISSIONS
+    PATTERN "*.m~" EXCLUDE
+    PATTERN "*.asv" EXCLUDE
+)
 install(
     FILES "LICENSE" "README.md"
     DESTINATION "."
