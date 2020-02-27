@@ -138,13 +138,6 @@ classdef herbert_config<config_base
                 if isempty(path)
                     return;
                 end
-                try % if users want to init unit tests
-                    %(and presumably commit their changes), install
-                    % githooks to check their commits
-                    copy_git_hooks('herbert');
-                    copy_git_hooks('horace');
-                catch
-                end
             else
                 init = false;
                 process_unit_test_path(init,'set_path');

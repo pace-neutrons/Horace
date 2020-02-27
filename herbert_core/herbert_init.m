@@ -71,8 +71,6 @@ if hec.init_tests % this is developer vesion
     % routines, added to Matlab after Matlab 2017b, as new routines have
     % signatures, different from the standard unit tests routines.
     hec.set_unit_test_path();
-    % copy github hooks
-    copy_git_hooks('herbert');
 end
 
 
