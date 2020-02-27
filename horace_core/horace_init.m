@@ -93,9 +93,7 @@ end
 
 
 hec = herbert_config;
-if hec.init_tests % install githooks for users who may run unit tests 
-    % (and push to git repository)
-    copy_git_hooks('horace');
+if hec.init_tests
     % add path to folders, which responsible for administrative operations
     up_root = fileparts(rootpath);
     addpath_message(1,fullfile(up_root,'admin'))
