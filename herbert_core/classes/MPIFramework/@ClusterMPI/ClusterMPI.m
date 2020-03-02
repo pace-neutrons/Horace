@@ -195,14 +195,15 @@ classdef ClusterMPI < ClusterWrapper
     end
     methods(Static)
         function mpi_exec=get_mpiexec()
+            rootpath = fileparts(which('herbert_init'));
             if ispc()
-                rootpath = fileparts(which('herbert_init'));
                 % only one version of mpiexec is used now. May change in a
                 % future.
                 mpi_exec = fullfile(rootpath,'DLL','_PCWIN64','MS_MPI_R2019b','mpiexec.exe');
             else
-                % try our custom isiscompute arrangement
-                mpi_exec = fullfile(matlabroot, 'bin', computer('arch'), 'mpiexec');
+                mpi_exec = fullfile(rootpath, 'external', computer('arch'), ...
+                        'mpich-3.3a2/bin/mpiexec');
+
                 if ~(exist(mpi_exec,'file')==2)
                     % use system-defined mpiexec
                     [~,mpi_exec] = system('which mpiexec');
@@ -224,5 +225,3 @@ classdef ClusterMPI < ClusterWrapper
 
     end
 end
-
-
