@@ -1,7 +1,7 @@
 if(UNIX)
-    set(EXTERNAL_ROOT "${CMAKE_SOURCE_DIR}/_LowLevelCode/external")
-    set(MPICH_VERSION "1.4.1p1")
-    set(MPICH_ROOT "${EXTERNAL_ROOT}/glnx/mpich2-${MPICH_VERSION}")
+    set(EXTERNAL_ROOT "${CMAKE_SOURCE_DIR}/herbert_core/external")
+    set(MPICH_VERSION "3.3a2")
+    set(MPICH_ROOT "${EXTERNAL_ROOT}/glnxa64/mpich-${MPICH_VERSION}")
 
     # We point CMake to the mpicc and mpicxx compiler scripts, these are then
     # used by CMake's "Find" script to find the relevant libraries that we
@@ -15,9 +15,9 @@ if(UNIX)
     find_file(MPI_CXX_COMPILER
         NAMES "mpicxx"
         PATHS "${MPICH_ROOT}/bin"
-        DOC "Path to C MPI compiler script"
+        DOC "Path to CXX MPI compiler script"
         NO_DEFAULT_PATH
     )
 endif()
 
-find_package(MPI)
+find_package(MPI REQUIRED)
