@@ -15,16 +15,18 @@ end
 if isfield(str,'lattice')
     str.lattice = oriented_lattice(str.lattice);
 end
+cln = str.class_name;
 if isempty(str.par_file_name)
-    rd = rundata(str.data_file_name);
+    rd = feval(cln,str.data_file_name);
 else
-    rd = rundata(str.data_file_name,str.par_file_name);    
+    rd = feval(cln,str.data_file_name,str.par_file_name);    
 end
 
-str = rmfield(str,{'data_file_name','par_file_name'});
+str = rmfield(str,{'data_file_name','par_file_name','class_name'});
+
 
 fields = fieldnames(str);
 for nf = 1:numel(fields)
-    rd.(fields{nf}) = str.(fields{nf});
+    rd.(fields{nf}) = str.(fields{nf});    
 end
 

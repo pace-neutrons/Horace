@@ -110,7 +110,7 @@
       </herbert_config>
       <hor_config>
          <mem_chunk_size>5000000</mem_chunk_size>
-         <threads>8</threads>
+         <threads>4</threads>
          <ignore_nan>[true]</ignore_nan>
          <ignore_inf>[false]</ignore_inf>
          <use_mex>[true]</use_mex>
@@ -125,8 +125,8 @@
       </hpc_config>
       <parallel_config>
          <worker>worker_v2</worker>
-         <parallel_framework>parpool</parallel_framework>
-         <cluster_config>default</cluster_config>
+         <parallel_framework>herbert</parallel_framework>
+         <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
@@ -158,8 +158,8 @@
       </hpc_config>
       <parallel_config>
          <worker>worker_v2</worker>
-         <parallel_framework>parpool</parallel_framework>
-         <cluster_config>default</cluster_config>
+         <parallel_framework>herbert</parallel_framework>
+         <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>

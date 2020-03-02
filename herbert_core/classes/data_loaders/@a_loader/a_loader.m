@@ -21,22 +21,22 @@ classdef a_loader < asciipar_loader
     % $Author: Alex Buts; 05/01/2014
     %
     %
-    % $Revision:: 839 ($Date:: 2019-12-16 18:18:44 +0000 (Mon, 16 Dec 2019) $)
+    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
     %
     % the properties common for all data loaders.
     properties(Dependent)
         % number of detectors in par file or in data file (should be
         % consistent if both are present;
-        n_detectors=[];
+        n_detectors
         % signal
-        S     = [];
+        S
         % error
-        ERR   = [];
+        ERR
         % energy boundaries
-        en   = [];
+        en
         % the variable which describes the file from which main part or
         % all data should be loaded
-        file_name='';
+        file_name
     end
     
     properties(Access=protected)
@@ -176,6 +176,23 @@ classdef a_loader < asciipar_loader
             end
         end
         %
+        function is = is_loaded(obj)
+            % function checks if the run data are already located in memory
+            %
+            non_ldd = data_empty_(obj);
+            if non_ldd
+                is = false;
+            else
+                arr = get_consistent_array(obj,'S_');
+                if isnumeric(arr) % then data in memory are incorrect
+                    is = true;
+                else
+                    is = false;
+                end
+            end
+            
+        end
+        %
         function fields = defined_fields(this)
             % the method returns the cellarray of fields names,
             % which are defined by current instance of loader class
@@ -248,7 +265,7 @@ classdef a_loader < asciipar_loader
             
             
             if keepexising
-                [s_empty,err_empty,dat_empty,det_empty] = data_empty(this);
+                [s_empty,err_empty,dat_empty,det_empty] = data_empty_(this);
                 if dat_empty
                     [Sl,ERRl,enl]=this.load_data();
                     this.en_ = enl;

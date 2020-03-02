@@ -33,7 +33,7 @@ function [C, ix, nelmts, nbeg, nend] = unique_extra (A)
 
 % Original author: T.G.Perring  2019-03-25
 %
-% $Revision:: 839 ($Date:: 2019-12-16 18:18:44 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 
 % NOTE: If want to add the functionality of Matlab intrinsic unique, need

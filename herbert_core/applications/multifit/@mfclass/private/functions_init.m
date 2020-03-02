@@ -24,7 +24,7 @@ function Sfun = functions_init (ndatatot, islocal_fore, islocal_back)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 839 ($Date:: 2019-12-16 18:18:44 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 
 Sfun.foreground_is_local_ = islocal_fore;

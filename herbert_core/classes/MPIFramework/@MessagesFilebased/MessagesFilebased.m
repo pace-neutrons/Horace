@@ -13,7 +13,7 @@ classdef MessagesFilebased < iMessagesFramework
     % This class provides physical mechanism to exchange messages between tasks.
     %
     %
-    % $Revision:: 839 ($Date:: 2019-12-16 18:18:44 +0000 (Mon, 16 Dec 2019) $)
+    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
     %
     %
     properties(Dependent)
@@ -95,7 +95,7 @@ classdef MessagesFilebased < iMessagesFramework
             obj.numLabs_ = NumLabs;
         end
         %
-        function obj = set.mess_exchange_folder(obj,val)
+        function set.mess_exchange_folder(obj,val)
             % set message exchange folder for filebased messages exchange
             % within Herbert/Horace configuration folder
             % and copy Herbert/Horace configurations to new configuration

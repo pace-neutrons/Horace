@@ -23,6 +23,7 @@ if ispc()
 elseif isunix()
     % let's use MPICH
     mpi_folder = '/usr/local/mpich/';
+    %mpi_folder = '/home/isis_direct_soft/mpich/';
     mpi_hdrs_folder    = fullfile(mpi_folder,'include');
     mpi_lib_folder = fullfile(mpi_folder,'lib');
     %

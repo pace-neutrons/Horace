@@ -38,3 +38,14 @@ foreach(_test_dir ${TEST_DIRECTORIES})
             ENVIRONMENT "MATLABPATH=${MATLAB_PATH}"
     )
 endforeach()
+
+# =============================================================================
+# Install commands
+# =============================================================================
+install(
+    DIRECTORY "shared"
+    DESTINATION "Herbert/_test"
+    USE_SOURCE_PERMISSIONS
+    PATTERN "*.m~" EXCLUDE
+    PATTERN "*.asv" EXCLUDE
+)

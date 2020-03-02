@@ -10,7 +10,7 @@ classdef opt_config_manager
     % Further user actions are necessary to identify if such configuration
     % is indeed best for users machine.
     %
-    % $Revision:: 839 ($Date:: 2019-12-16 18:18:44 +0000 (Mon, 16 Dec 2019) $)
+    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
     %
     properties(Dependent,Access=public)
         % what type (out of known types) this pc belongs to. Usually is
@@ -70,7 +70,7 @@ classdef opt_config_manager
             % 2) Here we check if Horace is enabled, and if it is not, it
             %    is Herbert configuration, which does not know anything
             %    about Horace.
-            if isempty(which('sqw')) % then it is Herbert
+            if isempty(which('hor_config')) % then it is Herbert
                 obj.known_configs_ = {'herbert_config','parallel_config'};
             end
             % 3) When it comes to Horace configuration, Herbert will be

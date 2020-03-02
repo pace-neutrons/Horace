@@ -1,4 +1,4 @@
-function  tests_path = process_unit_test_path(init,set_path)
+function  tests_path = process_unit_test_path(init, set_path)
 % method finds out path to unit tests and other admin folders  and,
 % depending on init option, adds or removes this path from the Matlab
 % search path
@@ -19,8 +19,8 @@ if ~(exist(tests_path,'dir')==7)
     return;
 end
 system_admin = fullfile(rootpath,'admin');
-xunit_path= fullfile(tests_path,'matlab_xunit','xunit');  % path for unit tests harness
-xunit_path_extras= fullfile(tests_path,'matlab_xunit_ISISextras');  % path for additional functions
+xunit_path = fullfile(rootpath, '_test', 'shared', 'matlab_xunit', 'xunit');  % path for unit tests harness
+xunit_path_extras = fullfile(rootpath, '_test', 'shared', 'matlab_xunit_ISISextras');  % path for additional functions
 % add to path the MPI unit tests as these have to be on the  path for all MPI workers
 mpi_path = fullfile(tests_path,'test_mpi');
 

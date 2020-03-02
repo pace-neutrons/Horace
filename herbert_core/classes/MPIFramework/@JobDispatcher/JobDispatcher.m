@@ -8,7 +8,7 @@ classdef JobDispatcher
     % and if it is not, uses multiple Matlab, communicating through filebased messages.
     %
     %
-    % $Revision:: 839 ($Date:: 2019-12-16 18:18:44 +0000 (Mon, 16 Dec 2019) $)
+    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
     %
     %
     properties(Dependent)
@@ -249,53 +249,7 @@ classdef JobDispatcher
             % are present or exception with Err_code as MExeption.identifier
             % if no errors returned
             %
-            mEXceptions_outputs = false(size(outputs));
-            if iscell(outputs)
-                fprintf('Job %s have failed. Outputs: \n',obj.job_id);
-                for i=1:numel(outputs)
-                    if isa(outputs{i},'MException')
-                        mEXceptions_outputs(i) = true;
-                        fprintf('Task N%d failed. Error %s; Message %s\n',...
-                            i,outputs{i}.identifier,outputs{i}.message);
-                    else
-                        mEXceptions_outputs(i) = false;
-                        fprintf('Task N%d failed. Outputs: \n',i);
-                        if isempty(outputs{i})
-                            fprintf('[]\n');
-                        else
-                            disp(outputs{i});
-                        end
-                    end
-                end
-            elseif isempty(mEXceptions_outputs) 
-                ext_type = class(outputs);
-                fprintf('Job %s have failed sending unhandled exception: %s\n',obj.job_id,ext_type);
-                error(Err_code,'Parallel job have failed throwing unhandled exception: %s',ext_type);                                
-            else
-                mEXceptions_outputs(1) = isa(outputs,'MException');
-                fprintf('Job %s have failed. Output: \n',obj.job_id);
-                disp(outputs);
-            end
-            if any(mEXceptions_outputs)
-                warning(Err_code,...
-                    ' Number: %d parallel tasks out of total: %d tasks have failed',...
-                    n_failed,n_workers)
-                errOutputs = outputs(mEXceptions_outputs);
-                if iscell(errOutputs)
-                    for i=1:numel(errOutputs)
-                        disp(['***** Error output N ',num2str(i)]);
-                        disp(getReport(errOutputs{i}))
-                    end
-                else
-                    disp(getReport(errOutputs))
-                end
-                error(Err_code,'Parallel job have failed, producing errors above.');                
-            else
-                error(Err_code,...
-                    ' Number: %d parallel tasks out of total: %d tasks have failed',...
-                    n_failed,n_workers)
-            end
-            
+            display_fail_jobs_(obj,outputs,n_failed,n_workers,Err_code);
             
         end
         

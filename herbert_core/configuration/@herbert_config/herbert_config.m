@@ -36,7 +36,7 @@ classdef herbert_config<config_base
     % Type >> herbert_config  to see the list of current configuration option values.
     
     %
-    % $Revision:: 839 ($Date:: 2019-12-16 18:18:44 +0000 (Mon, 16 Dec 2019) $)
+    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
     %
     
     properties(Dependent)
@@ -137,13 +137,6 @@ classdef herbert_config<config_base
                 path = process_unit_test_path(init,'set_path');
                 if isempty(path)
                     return;
-                end
-                try % if users want to init unit tests
-                    %(and presumably commit their changes), install
-                    % githooks to check their commits
-                    copy_git_hooks('herbert');
-                    copy_git_hooks('horace');
-                catch
                 end
             else
                 init = false;
