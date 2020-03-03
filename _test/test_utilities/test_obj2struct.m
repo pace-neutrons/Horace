@@ -75,7 +75,7 @@ classdef test_obj2struct < TestCaseWithSave
         end
 
         %--------------------------------------------------------------------------
-        function DISABLED_test_5 (self)
+        function test_5 (self)
             % Complicated structure - independent properties
             Ssub2.aa = 'kitty';
             Ssub2.bb = IX_aperture;
@@ -88,7 +88,7 @@ classdef test_obj2struct < TestCaseWithSave
 
             Sres = obj2structIndep(S);
 
-            assertEqualWithSave (self,Sres);
+            assertEqualToTolWithSave (self, Sres, 'tol', 1e-12);
 
         end
 
