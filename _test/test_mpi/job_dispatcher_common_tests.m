@@ -12,7 +12,9 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             this = this@MPI_Test_Common(test_name, framework_name);
         end
 
-        function test_job_fail_restart(obj, varargin)
+        % This test requires 3 cores but only 2 are available on build servers.
+        % Test is disabled for now
+        function DISABLED_test_job_fail_restart(obj, varargin)
             if obj.ignore_test
                 return;
             end
