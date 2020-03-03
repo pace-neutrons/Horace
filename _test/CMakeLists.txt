@@ -37,17 +37,8 @@ foreach(_test_dir ${TEST_DIRECTORIES})
     matlab_add_unit_test(
         NAME "${TEST_NAME}"
         CUSTOM_TEST_COMMAND
-            "try;\
-                horace_on;\
-                res = runtests('${CMAKE_SOURCE_DIR}/_test/${_test_dir}');\
-            catch ME;\
-                disp('Error caught attempting to run test:');\
-                disp(ME);\
-                disp(ME.cause);\
-                disp(ME.stack);\
-                exit(1);\
-            end;\
-            exit(~res)"
+            "validate_horace ${_test_dir} -talkative -forcemex -exit_on_completion"
+        ADDITIONAL_PATH "${CMAKE_SOURCE_DIR}/admin"
         TIMEOUT ${TEST_TIMEOUT_LENGTH}
     )
     set_tests_properties("${TEST_NAME}"
