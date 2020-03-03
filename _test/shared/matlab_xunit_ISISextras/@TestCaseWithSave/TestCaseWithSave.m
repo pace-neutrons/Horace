@@ -648,7 +648,7 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             % (*** TGP 09/12/2018: this always enforces the default same name
             %  no matter how many other variables might have been previously saved.
             %  On the otherhand, this utlity routine always appears to be called
-            %  with an explicit value for var_name, so thhis code block is not
+            %  with an explicit value for var_name, so this code block is not
             %  going to be called...)
             if isempty(var_name)
                 var_name = [test_name,'_1'];
