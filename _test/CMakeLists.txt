@@ -31,7 +31,7 @@ foreach(_test_dir ${TEST_DIRECTORIES})
         CUSTOM_TEST_COMMAND
             "validate_herbert ${_test_dir} -exit_on_completion -talkative"
         ADDITIONAL_PATH "${CMAKE_SOURCE_DIR}/admin"
-        TIMEOUT 6200  # 2 hours
+        TIMEOUT 480  # 8 minutes
     )
     set_tests_properties("${TEST_NAME}"
         PROPERTIES
