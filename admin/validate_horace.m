@@ -171,13 +171,13 @@ end
 
 %=================================================================================================================
 function validate_horace_cleanup(cur_herbert_config, cur_horace_config, cur_hpc_config, test_folders)
+    warn = warning('off', 'all'); % avoid warning on deleting non-existent path
     % Reset the configurations, and remove unit test folders from the path
     set(herbert_config, cur_herbert_config);
     set(hor_config, cur_horace_config);
     set(hpc_config, cur_hpc_config);
 
     % Clear up the test folders, previously placed on the path
-    warn = warning('off', 'all'); % avoid warning on deleting non-existent path
     for i = 1:numel(test_folders)
         rmpath(test_folders{i});
     end
