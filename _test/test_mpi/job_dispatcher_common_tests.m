@@ -187,7 +187,8 @@ classdef job_dispatcher_common_tests< MPI_Test_Common
             
         end
         %
-        function test_job_with_logs_3workers(obj,varargin)
+        % Test disabled as build servers currently only have 2 cores
+        function DISABLED_test_job_with_logs_3workers(obj,varargin)
             if obj.ignore_test
                 return;
             end
@@ -259,4 +260,5 @@ classdef job_dispatcher_common_tests< MPI_Test_Common
         
     end
 end
+
 
