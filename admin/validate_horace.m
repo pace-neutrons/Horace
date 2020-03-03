@@ -25,20 +25,14 @@ function err = validate_horace(varargin)
 
 % $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
 
-% Parse arguments
-% ---------------
-% Determine if first argument is not one of the options
-if nargin>0 && ((ischar(varargin{1}) && ~strcmp(varargin{1}(1),'-')) || iscellstr(varargin{1}))
-    test_folders=varargin{1};
-    if ischar(test_folders), test_folders={test_folders}; end
-    nopt_beg=2;
-else
-    nopt_beg=1;
+err = -1;
+if isempty(which('horace_init'))
+    horace_on();
 end
 
-% Find optional arguments
+% Parse arguments
+% ---------------
 options = {'-parallel','-talkative','-nomex','-forcemex','-exit_on_completion'};
-
 [ok,mess,parallel,talkative,nomex,forcemex, exit_on_completion, test_folders] = ...
         parse_char_options(varargin,options);
 if ~ok
