@@ -1,4 +1,4 @@
-function validate_horace(varargin)
+function err = validate_horace(varargin)
 % Run unit tests on Horace installation
 %
 %   >> validate_horace                 % Run full Horace validation
@@ -19,6 +19,8 @@ function validate_horace(varargin)
 %   >> validate_horace (...'-forcemex') %  Enforce use of mex files only. The
 %                                       % default otherwise for Horace to revert to
 %                                       % using matlab code.
+%   >> validate_horace (...'-exit_on_completion') % Exit Matlab when test suite ends.
+                                                  % Exits with non-zero error code if any tests failed
 
 % $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
 
@@ -42,7 +44,7 @@ test_folders={...
     'test_transformation'...
     'test_utilities',...
     'test_sym_op'...
-    %     %'test_spinw_integration',...
+    % 'test_spinw_integration',...
     };
 %==============================================================================
 
@@ -58,9 +60,10 @@ else
 end
 
 % Find optional arguments
-options = {'-parallel','-talkative','-nomex','-forcemex'};
+options = {'-parallel','-talkative','-nomex','-forcemex','-exit_on_completion'};
 
-[ok,mess,parallel,talkative,nomex,forcemex]=parse_char_options(varargin,options);
+[ok,mess,parallel,talkative,nomex,forcemex, exit_on_completion] = ...
+        parse_char_options(varargin,options);
 if ~ok
     error('VALIDATE_HORACE:invalid_argument',mess)
 end
@@ -146,25 +149,31 @@ if parallel && license('checkout','Distrib_Computing_Toolbox')
                 cores = 12;
             end
             parpool(cores);
-            
+
         end
     end
+    test_ok = false(1, numel(test_folders_full));
     time=bigtic();
     parfor i=1:numel(test_folders_full)
-        runtests(test_folders_full{i})
+        test_ok(i) = runtests(test_folders_full{i})
     end
     bigtoc(time,'===COMPLETED UNIT TESTS IN PARALLEL');
+    tests_ok = all(test_ok);
 else
     time=bigtic();
-    runtests(test_folders_full{:});
+    tests_ok = runtests(test_folders_full{:});
     bigtoc(time,'===COMPLETED UNIT TESTS RUN ');
-    
+
 end
 close all
 clear config_store;
-%profile off
-%profile viewer
 
+if tests_ok
+    err = 0;
+end
+if exit_on_completion
+    exit(err);
+end
 
 %=================================================================================================================
 function validate_horace_cleanup(cur_herbert_config,cur_horace_config,cur_hpc_config,test_folders)
