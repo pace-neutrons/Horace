@@ -10,7 +10,7 @@ set(TEST_DIRECTORIES
     "test_multifit"
     "test_rebin"
     # "test_spinw_integration"
-    # "test_sqw"
+    "test_sqw"
     "test_sqw_file"
     "test_symmetrisation"
     "test_sym_op"
