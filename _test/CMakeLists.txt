@@ -25,11 +25,17 @@ set(TEST_DIRECTORIES
 # LOCAL_INIT_DIR is defined in the top-level CMakeLists
 file(TO_CMAKE_PATH "$ENV{MATLABPATH}" MATLAB_PATH)
 if(WIN32)
-    set(PATH_SEPARATOR "\;")
+    set(MATLAB_PATH "${MATLAB_PATH}\;${LOCAL_INIT_DIR}")
 else()
-    set(PATH_SEPARATOR ":")
+    set(MATLAB_PATH "${MATLAB_PATH}:${LOCAL_INIT_DIR}")
 endif()
-set(MATLAB_PATH "${MATLAB_PATH}${PATH_SEPARATOR}${LOCAL_INIT_DIR}")
+
+set(ENV_VARIABLES
+    # paths automatically added to Matlab path
+    "MATLABPATH=${MATLAB_PATH}"
+    # temporary directory for Matlab - prevents read/write collisions on Jenkins
+    "TMP=${CMAKE_BINARY_DIR}/tests"
+)
 
 set(TEST_TIMEOUT_LENGTH "1200")  # 20 minutes
 foreach(_test_dir ${TEST_DIRECTORIES})
@@ -43,6 +49,6 @@ foreach(_test_dir ${TEST_DIRECTORIES})
     )
     set_tests_properties("${TEST_NAME}"
         PROPERTIES
-            ENVIRONMENT "MATLABPATH=${MATLAB_PATH}"
+            ENVIRONMENT "${ENV_VARIABLES}"
     )
 endforeach()
