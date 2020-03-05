@@ -44,3 +44,7 @@
 - test_proj_captions.m
 	- test_spher_caption (no ticket)
 	- test_spher_caption2D (no ticket)
+
+- combine_sqw.test.cpp
+	- SQW_Reader_Propagate_Pix
+	- SQW_Reader_Read_All
