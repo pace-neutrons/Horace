@@ -10,8 +10,8 @@ set(_path_regex "[a-zA-Z0-9/\\\\_\\-\\.: ]+")
 
 file(READ "herbert_on.m.template" _herbert_on_template)
 string(REGEX REPLACE
-    "her_default_path='${_path_regex}'"
-    "her_default_path='${CMAKE_SOURCE_DIR}/herbert_core'"
+    "default_herbert_path ?= ?'${_path_regex}'"
+    "default_herbert_path = '${CMAKE_SOURCE_DIR}/herbert_core'"
     _herbert_on_script
     "${_herbert_on_template}"
 )

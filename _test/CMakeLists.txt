@@ -10,7 +10,7 @@ set(TEST_DIRECTORIES
     "test_instrument_classes"
     "test_docify"
     "test_admin"
-    # "test_mpi"
+    "test_mpi"
     "test_mpi_wrappers"
 )
 # The MPI tests require that `herbert_on.m` be on the path for all workers
@@ -29,19 +29,9 @@ foreach(_test_dir ${TEST_DIRECTORIES})
     matlab_add_unit_test(
         NAME "${TEST_NAME}"
         CUSTOM_TEST_COMMAND
-            "try;\
-                herbert_init;\
-                res = runtests('${CMAKE_SOURCE_DIR}/_test/${_test_dir}');\
-            catch ME;\
-                disp('Error caught attempting to run test:');\
-                disp(ME);\
-                exit(1);\
-            end;\
-            exit(~res)"
-        ADDITIONAL_PATH
-            "${CMAKE_SOURCE_DIR}/admin"
-            "${CMAKE_SOURCE_DIR}/herbert_core"
-        TIMEOUT 300  # 5 mins
+            "validate_herbert ${_test_dir} -exit_on_completion -talkative"
+        ADDITIONAL_PATH "${CMAKE_SOURCE_DIR}/admin"
+        TIMEOUT 480  # 8 minutes
     )
     set_tests_properties("${TEST_NAME}"
         PROPERTIES

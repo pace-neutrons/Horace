@@ -17,7 +17,7 @@ function ok=finish_task_tester(worker_controls_string,varargin)
 %
 
 if isempty(which('herbert_init.m'))
-    horace_on();
+    herbert_on();
 end
 % Check current state of mpi framework and set up deployment status
 % within Matlab code to run
@@ -57,7 +57,7 @@ try
     % initiate file-based framework to exchange messages between head node and
     % the pool of workers
     init_message =  InitMessage('dummy_not_used',3,true,1);
-    
+
     je = JETester();
     [je,mess] = je.init(fbMPI,intercomm,init_message);
     labind = intercomm.labIndex();

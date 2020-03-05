@@ -1,12 +1,12 @@
 function [res,err] = parpool_mpi_send_receive_tester(job_control)
-if isempty(which('horace_init'))
-    horace_on();
+if isempty(which('herbert_init'))
+    herbert_on();
 end
 
 nl = numlabs;
 if nl > 1
     mis = MPI_State.instance();
-    mis.is_deployed = true;    
+    mis.is_deployed = true;
 end
 
 pm = MessagesParpool('parpool_MPI_tester');

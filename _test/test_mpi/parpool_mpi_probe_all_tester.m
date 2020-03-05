@@ -1,7 +1,7 @@
 function [res,err] = parpool_mpi_probe_all_tester(job_control)
 %
-if isempty(which('horace_init'))
-    horace_on();
+if isempty(which('herbert_init'))
+    herbert_on();
 end
 nl = numlabs;
 if nl > 1
@@ -40,12 +40,12 @@ if receiver
     n_senders = numel(lab_senders);
     res  = cell2struct(cell(5,n_senders),...
         {'srcWkrInd','senders','mess_names','mess','rec_mess_id'});
-    
+
     pause(1);
     [mess_names,task_ids_from] = pm.probe_all(lab_senders);
     res = set_results(li,res,task_ids_from,mess_names);
-    
-    
+
+
     [all_messages,task_ids_from] = pm.receive_all(lab_senders,'started');
     for i=1:n_senders
         res(i).mess = all_messages{i};
@@ -53,9 +53,9 @@ if receiver
     end
     err = [];
 else %sender
-    
+
     lab_receiver = find_lab_receiver(li,nl,receiver_ind);
-    
+
     if lab_receiver == 0
         res = [];
         err = 1;
