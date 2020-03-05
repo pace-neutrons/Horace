@@ -5,6 +5,23 @@ herbert_FindMatlab
 Calls the FindMatlab script that is shipped with CMake, and also finds some
 other libraries that are not found by the afformentioned FindMatlab script.
 
+There are some known caching issues with the find step of this module,
+particularly if ``Matlab_ROOT_DIR`` and ``Matlab_RELEASE`` have conflicts. If
+you run into any issues, please clear the cache and re-configure.
+
+Input Variables to this module
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``Matlab_ROOT_DIR``
+the path to the root of a Matlab install. If specified this must be consistent
+with ``Matlab_RELEASE``, which should also be passed.
+
+``Matlab_RELEASE``
+the Matlab release e.g. R2019b you wish to build against.
+
+See the FindMatlab.cmake documentation for other input variables to this
+module. You'll find the FindMatlab.cmake script bundled with this repo.
+
 Variables defined by the module
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -17,25 +34,21 @@ the path to the directory containing Matlab's dynamically linked libraries
 ``Matlab_UT_LIBRARY``
 the path to the Matlab UT library
 
-``Matlab_VERSION``
-the Matlab release e.g. R2019b
+``Matlab_RELEASE``
+the Matlab release e.g. R2019b used to build against
 
 See the FindMatlab.cmake documentation for other variables defined by this
-module. You'll find the file bundled with your CMake installation.
+module. You'll find the FindMatlab.cmake script bundled with this repo.
 
 #]=======================================================================]
-find_package(Matlab REQUIRED COMPONENTS MAIN_PROGRAM MEX_COMPILER)
+include(MatlabHelpers)
+
+# Call `find_package(Matlab)` using passed in arguments `Matlab_ROOT_DIR` and/or
+# `Matlab_RELEASE` to find the desired version.
+matlab_find_package()
+
 get_filename_component(Matlab_LIBRARY_DIR "${Matlab_MEX_LIBRARY}" DIRECTORY)
 get_filename_component(Matlab_BIN_DIR "${Matlab_MAIN_PROGRAM}" DIRECTORY)
-
-# Get the Matlab release from the VersionInfo.xml file
-file(READ "${Matlab_ROOT_DIR}/VersionInfo.xml" _version_info)
-string(REGEX REPLACE
-    ".*<release>(R[0-9]+[ab])</release>.*"
-    "\\1"
-    Matlab_VERSION
-    "${_version_info}"
-)
 
 # Find the libut library
 find_library(Matlab_UT_LIBRARY

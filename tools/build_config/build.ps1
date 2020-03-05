@@ -26,7 +26,11 @@ param (
 
   [string]
   [Alias("F")]
-  $cmake_flags = ""
+  $cmake_flags = "",
+
+  [string]
+  [Alias("M")]
+  $matlab_release = ""
 )
 
 if ($args) {
@@ -90,7 +94,6 @@ function New-CMake-Generator-Command {
 
 function Write-Versions {
   Write-Output "$(cmake --version)"
-  Write-Output "Matlab: $($(Get-Command matlab.exe).Source)"
   Write-Output "Visual Studio version: $($VS_VERSION_MAP[$vs_version])"
 }
 
@@ -101,6 +104,7 @@ function Invoke-Configure {
     [string]$build_config,
     [string]$build_tests,
     [string]$build_fortran,
+    [string]$matlab_release,
     [string]$cmake_flags
   )
   Write-Output "`nRunning CMake configure step..."
@@ -108,6 +112,7 @@ function Invoke-Configure {
   $cmake_cmd += " $(New-CMake-Generator-Command -vs_version $vs_version)"
   $cmake_cmd += " -DBUILD_TESTS=$build_tests"
   $cmake_cmd += " -DBUILD_FORTRAN=$build_fortran"
+  $cmake_cmd += " -DMatlab_RELEASE=$matlab_release"
   $cmake_cmd += " $cmake_flags"
 
   Invoke-In-Dir -directory $build_dir -command $cmake_cmd
@@ -165,7 +170,8 @@ if ($build -eq $true) {
     -build_config $build_config `
     -build_tests $build_tests `
     -build_fortran $build_fortran `
-    -cmake_flags $cmake_flags
+    -cmake_flags $cmake_flags `
+    -matlab_release $matlab_release
   Invoke-Build -build_dir $build_dir -build_config $build_config
 }
 

@@ -76,13 +76,15 @@ pipeline {
               module load matlab/\$MATLAB_VERSION &&
               module load gcc/\$GCC_VERSION &&
               ./tools/build_config/build.sh --print_versions --build \
-                --cmake_flags "-DHerbert_RELEASE_TYPE=$RELEASE_TYPE"
+                  --cmake_flags "-DHerbert_RELEASE_TYPE=$RELEASE_TYPE" \
+                  --matlab_release \$MATLAB_VERSION
             '''
           }
           else {
             powershell '''
               ./tools/build_config/build.ps1 -print_versions -build \
-                  -cmake_flags "-DHerbert_RELEASE_TYPE=\$env:RELEASE_TYPE"
+                  -cmake_flags "-DHerbert_RELEASE_TYPE=\$env:RELEASE_TYPE" \
+                  -matlab_release \$env:MATLAB_VERSION
             '''
           }
         }
