@@ -1682,7 +1682,7 @@ if(Matlab_HAS_CPP_API)
     DOC "MatlabEngine Library"
     NO_DEFAULT_PATH
   )
-  # list(APPEND _matlab_required_variables Matlab_ENGINE_LIBRARY)
+  list(APPEND _matlab_required_variables Matlab_ENGINE_LIBRARY)
   if(Matlab_ENGINE_LIBRARY)
     set(Matlab_ENGINE_LIBRARY_FOUND TRUE)
   endif()
