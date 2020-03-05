@@ -10,7 +10,7 @@ set(TEST_DIRECTORIES
     "test_multifit"
     "test_rebin"
     # "test_spinw_integration"
-    # "test_sqw"
+    "test_sqw"
     "test_sqw_file"
     "test_symmetrisation"
     "test_sym_op"
@@ -25,11 +25,17 @@ set(TEST_DIRECTORIES
 # LOCAL_INIT_DIR is defined in the top-level CMakeLists
 file(TO_CMAKE_PATH "$ENV{MATLABPATH}" MATLAB_PATH)
 if(WIN32)
-    set(PATH_SEPARATOR "\;")
+    set(MATLAB_PATH "${MATLAB_PATH}\;${LOCAL_INIT_DIR}")
 else()
-    set(PATH_SEPARATOR ":")
+    set(MATLAB_PATH "${MATLAB_PATH}:${LOCAL_INIT_DIR}")
 endif()
-set(MATLAB_PATH "${MATLAB_PATH}${PATH_SEPARATOR}${LOCAL_INIT_DIR}")
+
+set(ENV_VARIABLES
+    # paths automatically added to Matlab path
+    "MATLABPATH=${MATLAB_PATH}"
+    # temporary directory for Matlab - prevents read/write collisions on Jenkins
+    "TMP=${CMAKE_BINARY_DIR}/tests"
+)
 
 set(TEST_TIMEOUT_LENGTH "1200")  # 20 minutes
 foreach(_test_dir ${TEST_DIRECTORIES})
@@ -37,21 +43,12 @@ foreach(_test_dir ${TEST_DIRECTORIES})
     matlab_add_unit_test(
         NAME "${TEST_NAME}"
         CUSTOM_TEST_COMMAND
-            "try;\
-                horace_on;\
-                res = runtests('${CMAKE_SOURCE_DIR}/_test/${_test_dir}');\
-            catch ME;\
-                disp('Error caught attempting to run test:');\
-                disp(ME);\
-                disp(ME.cause);\
-                disp(ME.stack);\
-                exit(1);\
-            end;\
-            exit(~res)"
+            "validate_horace ${_test_dir} -talkative -forcemex -exit_on_completion"
+        ADDITIONAL_PATH "${CMAKE_SOURCE_DIR}/admin"
         TIMEOUT ${TEST_TIMEOUT_LENGTH}
     )
     set_tests_properties("${TEST_NAME}"
         PROPERTIES
-            ENVIRONMENT "MATLABPATH=${MATLAB_PATH}"
+            ENVIRONMENT "${ENV_VARIABLES}"
     )
 endforeach()
