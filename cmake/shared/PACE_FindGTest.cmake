@@ -1,5 +1,5 @@
 #[=======================================================================[.rst:
-herbert_FindGTest
+PACE_FindGTest
 -----------------
 
 Download and build GoogleTest and GMock. Then, export variables with which we
@@ -12,6 +12,10 @@ GMock using the following:
     add_executable(MY_TEST_EXE ${SRC_FILES})
     target_link_libraries(MY_TEST_EXE gtest gmock)
 
+
+The ``GTest-CMakeLists.txt.in`` file MUST be located within:
+    "${CMAKE_CURRENT_LIST_DIR}/../templates/"
+where ${CMAKE_CURRENT_LIST_DIR} is the directory this script lies in.
 
 Variables defined by the module
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -34,11 +38,14 @@ This script is based on the script given in the CMake guide on GoogleTest's
 GitHub https://github.com/google/googletest/blob/master/googletest/README.md.
 
 #]=======================================================================]
+set(GTEST_VERSION "1.10.0")
+
 set(GTEST_DOWNLOAD_DIR "${CMAKE_BINARY_DIR}/googletest-download")
 # Copy the CMakeLists file that imports the external project
 configure_file(
-    "${CMAKE_SOURCE_DIR}/cmake/templates/GTest-CMakeLists.txt.in"
-    "${GTEST_DOWNLOAD_DIR}/CMakeLists.txt")
+    "${CMAKE_CURRENT_LIST_DIR}/templates/GTest-CMakeLists.txt.in"
+    "${GTEST_DOWNLOAD_DIR}/CMakeLists.txt"
+)
 
 # Run configure on the CMakeLists file
 execute_process(

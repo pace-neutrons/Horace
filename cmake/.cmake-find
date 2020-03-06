@@ -1,0 +1,4 @@
+This is an intentionally empty file that can be used by other CMake projects to
+locate the directory this file lives in. This allows other projects to safely
+locate the cmake/shared and cmake/external directories in order to use the
+scripts within.

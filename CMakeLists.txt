@@ -15,16 +15,17 @@ option(BUILD_FORTRAN "Build the Fortran Mex libraries" OFF)
 list(APPEND CMAKE_MODULE_PATH
     "${CMAKE_SOURCE_DIR}/cmake"
     "${CMAKE_SOURCE_DIR}/cmake/external"
+    "${CMAKE_SOURCE_DIR}/cmake/shared"
 )
 
 # Look for packages early so we can exit if they're not found
 include(herbert_FindMPI)
-include(herbert_FindMatlab)
-include(herbert_Version)
-include(herbert_AddMex)
+include(PACE_FindMatlab)
+include(PACE_Version)
+include(PACE_AddMex)
 if(${BUILD_TESTS})
     include(CTest)
-    include(herbert_FindGTest)
+    include(PACE_FindGTest)
     enable_testing()
 endif()
 
@@ -37,11 +38,12 @@ if(${BUILD_TESTS})
     add_subdirectory("_test")
 endif()
 add_subdirectory("admin")
+add_subdirectory("cmake")
 
 # =============================================================================
 # Install commands
 # =============================================================================
-include(herbert_CPackConfig)
+include(PACE_CPackConfig)
 
 if(WIN32)
     # Don't package external Linux libraries on Windows

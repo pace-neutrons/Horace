@@ -8,7 +8,8 @@ set(HDR_FILES
 )
 
 set(MEX_NAME "get_ascii_file")
-herbert_add_mex(
+pace_add_mex(
     NAME "${MEX_NAME}"
     SRC "${SRC_FILES}" "${HDR_FILES}"
+    COPY_TO "${CMAKE_SOURCE_DIR}/herbert_core/DLL"
 )
