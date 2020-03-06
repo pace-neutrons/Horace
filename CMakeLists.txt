@@ -42,7 +42,7 @@ add_subdirectory("admin")
 # =============================================================================
 # Install commands
 # =============================================================================
-include(herbert_CPackConfig)
+include(PACE_CPackConfig)
 
 if(WIN32)
     # Don't package external Linux libraries on Windows
