@@ -28,7 +28,7 @@ set(LOCAL_INIT_DIR "${CMAKE_BINARY_DIR}/local_init")
 option(BUILD_TESTS "Build the C++ tests" ON)
 
 # Look for packages early so we can exit if they're not found
-find_package(Herbert)
+find_package(Herbert REQUIRED)
 find_package(OpenMP)
 include(PACE_AddMex)
 include(PACE_FindMatlab)
