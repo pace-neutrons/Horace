@@ -30,7 +30,7 @@ option(BUILD_TESTS "Build the C++ tests" ON)
 # Look for packages early so we can exit if they're not found
 find_package(Herbert)
 find_package(OpenMP)
-include(horace_AddMex)
+include(PACE_AddMex)
 include(horace_FindMatlab)
 include(horace_FindHDF5)
 include(horace_Version)
