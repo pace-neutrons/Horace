@@ -13,7 +13,7 @@ endif()
 
 # This must be included only after the variables TESTS_BIN_DIR and (on Windows)
 # TEST_ENV_PATH have been defined
-include(horace_AddUnitTest)
+include(pace_AddCppUnitTest)
 
 set(TEST_DIRECTORIES
     "combine_sqw.tests"

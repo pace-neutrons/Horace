@@ -36,7 +36,8 @@ top-level Horace directory.
 
 ## Adding a test in CMake
 
-A function `horace_add_unit_test` is provided to make adding tests easier.
+A function `pace_add_cpp_unit_test` is provided to make adding tests easier; this
+function is located in Herbert, but is automatically located by Horace.
 Suppose you are testing code within the `my_module` directory. You want to add
 tests for `my_module`, and the test required libraries `GMock` and `OpenMP`.
 The `CMakeLists.txt` file, within the `test/my_module.tests`directory, should
@@ -60,7 +61,7 @@ set(
     "${CXX_SOURCE_DIR}/my_module/src_file_2.h"
 )
 
-horace_add_unit_test(
+pace_add_cpp_unit_test(
     NAME "my_module.test"
     SOURCES "${TEST_SRC_FILES}" "${SRC_FILES}" "${HDR_FILES}"
     LIBS OpenMP::OpenMP_CXX gmock

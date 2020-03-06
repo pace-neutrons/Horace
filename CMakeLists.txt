@@ -36,7 +36,7 @@ include(horace_FindHDF5)
 include(PACE_Version)
 if(${BUILD_TESTS})
     include(CTest)
-    include(horace_FindGTest)
+    include(PACE_FindGTest)
     enable_testing()
 endif()
 
