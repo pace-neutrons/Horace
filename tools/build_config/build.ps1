@@ -22,7 +22,11 @@ param (
 
   [string]
   [Alias("F")]
-  $cmake_flags = ""
+  $cmake_flags = "",
+
+  [string][ValidatePattern("R[0-9]{4}[ab]")]
+  [Alias("M")]
+  $matlab_release = ""
 )
 
 if ($args) {
@@ -85,12 +89,14 @@ function Invoke-Configure {
     [string]$build_dir,
     [string]$build_config,
     [string]$build_tests,
+    [string]$matlab_release,
     [string]$cmake_flags
   )
   Write-Output "`nRunning CMake configure step..."
   $cmake_cmd = "cmake $HORACE_ROOT"
   $cmake_cmd += " $(New-CMake-Generator-Command -vs_version $vs_version)"
   $cmake_cmd += " -DBUILD_TESTS=$build_tests"
+  $cmake_cmd += " -DMatlab_RELEASE=$matlab_release"
   $cmake_cmd += " $cmake_flags"
 
   Invoke-In-Dir -directory $build_dir -command $cmake_cmd
@@ -147,6 +153,7 @@ if ($build -eq $true) {
     -build_dir $build_dir `
     -build_config $build_config `
     -build_tests $build_tests `
+    -matlab_release $matlab_release `
     -cmake_flags $cmake_flags
   Invoke-Build -build_dir $build_dir -build_config $build_config
 }
