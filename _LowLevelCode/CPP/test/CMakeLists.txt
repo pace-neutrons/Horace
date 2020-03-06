@@ -11,8 +11,7 @@ if(WIN32)
     string(REPLACE ";" "\;" TEST_ENV_PATH "${TEST_ENV_PATH}")
 endif()
 
-include(herbert_AddUnitTest)
-
+include(PACE_AddCppUnitTest)
 
 add_subdirectory(cpp_communicator.tests)
 add_subdirectory(get_ascii_file.tests)
