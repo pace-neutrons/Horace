@@ -53,7 +53,8 @@ add_subdirectory("admin")
 # =============================================================================
 # Install commands
 # =============================================================================
-include(horace_CPackConfig)
+include(PACE_CPackConfig)
+
 install(
     DIRECTORY "horace_core/"
     DESTINATION "Horace"
