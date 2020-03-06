@@ -41,7 +41,7 @@ See the FindMatlab.cmake documentation for other variables defined by this
 module. You'll find the FindMatlab.cmake script bundled with this repo.
 
 #]=======================================================================]
-include(MatlabHelpers)
+include(PACE_MatlabHelpers)
 
 # Call `find_package(Matlab)` using passed in arguments `Matlab_ROOT_DIR` and/or
 # `Matlab_RELEASE` to find the desired version.

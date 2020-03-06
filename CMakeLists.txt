@@ -15,6 +15,7 @@ option(BUILD_FORTRAN "Build the Fortran Mex libraries" OFF)
 list(APPEND CMAKE_MODULE_PATH
     "${CMAKE_SOURCE_DIR}/cmake"
     "${CMAKE_SOURCE_DIR}/cmake/external"
+    "${CMAKE_SOURCE_DIR}/cmake/shared"
 )
 
 # Look for packages early so we can exit if they're not found
