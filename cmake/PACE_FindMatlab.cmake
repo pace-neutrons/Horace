@@ -1,5 +1,5 @@
 #[=======================================================================[.rst:
-herbert_FindMatlab
+PACE_FindMatlab
 -----------------
 
 Calls the FindMatlab script that is shipped with CMake, and also finds some
