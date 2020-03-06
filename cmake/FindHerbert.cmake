@@ -37,6 +37,10 @@ set(DIRS_TO_SEARCH
     ENV{ProgramFiles}/Herbert/herbert_core
 )
 
+if(Herbert_ROOT AND NOT EXISTS "${Herbert_ROOT}/herbert_init.m")
+    message(FATAL_ERROR "Could not find herbert_init.m inside Herbert_ROOT: ${Herbert_ROOT}")
+endif()
+
 find_path(Herbert_ROOT
     NAMES "herbert_init.m"
     PATHS ${DIRS_TO_SEARCH}
