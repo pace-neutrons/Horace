@@ -24,7 +24,7 @@ include(PACE_Version)
 include(PACE_AddMex)
 if(${BUILD_TESTS})
     include(CTest)
-    include(herbert_FindGTest)
+    include(PACE_FindGTest)
     enable_testing()
 endif()
 

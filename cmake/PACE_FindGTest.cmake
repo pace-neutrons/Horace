@@ -1,5 +1,5 @@
 #[=======================================================================[.rst:
-herbert_FindGTest
+PACE_FindGTest
 -----------------
 
 Download and build GoogleTest and GMock. Then, export variables with which we
@@ -12,6 +12,9 @@ GMock using the following:
     add_executable(MY_TEST_EXE ${SRC_FILES})
     target_link_libraries(MY_TEST_EXE gtest gmock)
 
+
+The ``GTest-CMakeLists.txt.in`` file MUST be located within:
+    "${CMAKE_SOURCE_DIR}/cmake/templates/"
 
 Variables defined by the module
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
