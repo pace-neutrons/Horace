@@ -38,6 +38,7 @@ if(${BUILD_TESTS})
     add_subdirectory("_test")
 endif()
 add_subdirectory("admin")
+add_subdirectory("cmake")
 
 # =============================================================================
 # Install commands
