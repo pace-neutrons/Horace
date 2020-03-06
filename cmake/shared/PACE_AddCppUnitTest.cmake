@@ -1,5 +1,5 @@
 #[=======================================================================[.rst:
-pace_add_unit_test
+pace_add_cpp_unit_test
 --------------------
 
 Add a C++ unit test that links to GoogleTest.
@@ -33,7 +33,7 @@ horace_add_unit_test(
 )
 
 #]=======================================================================]
-function(pace_add_unit_test)
+function(pace_add_cpp_unit_test)
 
     # Parse the arguments
     set(prefix "TEST")

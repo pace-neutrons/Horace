@@ -12,7 +12,7 @@ set(HDR_FILES
     "${CXX_SOURCE_DIR}/utility/environment.h"
 )
 
-pace_add_unit_test(
+pace_add_cpp_unit_test(
     NAME "get_ascii_file.test"
     SOURCES "${TEST_SRC_FILES}" "${SRC_FILES}" "${HDR_FILES}"
     MEX_TEST
