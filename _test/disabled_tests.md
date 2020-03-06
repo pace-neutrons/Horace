@@ -20,7 +20,7 @@
 	- test_fit_single_or_array2 https://github.com/pace-neutrons/Horace/issues/111
 
 - test_symmetrisation
-	- test_symm_equivalent_zones (no ticket)
+	- test_symm_equivalent_zones (Optimize Symmetrization #24 : https://github.com/pace-neutrons/Horace/issues/24 -- but is the part of the refactoring
 
 - test_tobyfit/
 	- test_tobyfit_refine_crystal.m (line 256) https://github.com/pace-neutrons/Horace/issues/111
@@ -34,7 +34,7 @@
     - test_gen_sqw_accumulate_sqw_parpool.m 
     - test_nsqw2sqw_internal_methods.m 
 
-- test_proj_captions.m
+- test_proj_captions.m  : part of https://github.com/pace-neutrons/Horace/issues/49 -- generic projection refactoring
 	- test_spher_caption (no ticket)
 	- test_spher_caption2D (no ticket)
 
