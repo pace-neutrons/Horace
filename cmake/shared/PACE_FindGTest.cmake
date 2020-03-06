@@ -14,7 +14,8 @@ GMock using the following:
 
 
 The ``GTest-CMakeLists.txt.in`` file MUST be located within:
-    "${CMAKE_SOURCE_DIR}/cmake/templates/"
+    "${CMAKE_CURRENT_LIST_DIR}/../templates/"
+where ${CMAKE_CURRENT_LIST_DIR} is the directory this script lies in.
 
 Variables defined by the module
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
