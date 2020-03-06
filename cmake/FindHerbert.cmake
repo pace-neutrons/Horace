@@ -57,5 +57,23 @@ find_file(Herbert_WORKER_TEMPLATE
 )
 mark_as_advanced(Herbert_WORKER_TEMPLATE)
 
+find_path(Herbert_CMAKE_DIR
+    NAMES ".cmake-find"
+    PATHS ${Herbert_ROOT}/cmake ${Herbert_ROOT}/../cmake
+    NO_DEFAULT_PATH
+)
+mark_as_advanced(Herbert_CMAKE_DIR)
+
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(Herbert DEFAULT_MSG Herbert_ROOT)
+find_package_handle_standard_args(Herbert DEFAULT_MSG
+    Herbert_ROOT
+    Herbert_CMAKE_DIR
+)
+
+if(Herbert_FOUND)
+    # Add Herbert's general CMake scripts to CMake path
+    list(APPEND CMAKE_MODULE_PATH
+        "${Herbert_CMAKE_DIR}/external"
+        "${Herbert_CMAKE_DIR}/shared"
+    )
+endif()
