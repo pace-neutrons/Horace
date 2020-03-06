@@ -1,15 +1,15 @@
 #[=======================================================================[.rst:
-herbert_add_mex
---------------------
+pace_add_mex
+-------
 
-Build a Matlab mex library. Most arguments are passed to the `matlab_add_mex`
+Build a Matlab mex library. Most arguments are passed to the `matlab_pace_add_mex`
 function defined in the `FindMatlab.cmake` script bundled with CMake. Due to
 this, the `FindMatlab.cmake` script must be called before this script is this
 function is defined.
 
 ::
 
-    herbert_add_mex(
+    pace_add_mex(
         NAME <name>
         [EXECUTABLE | MODULE | SHARED]
         SRC src1 [src2 ...]
@@ -50,10 +50,11 @@ a library. If no type is given explicitly, the type is ``SHARED``.
 Additional:
 
 ``COPY_TO``
-The directory to copy the mex library into after compilation.
+The directory to copy the mex library into after compilation. If not specified
+the library is not copied.
 
 #]=======================================================================]
-function(herbert_add_mex)
+function(pace_add_mex)
 
     # Parse the arguments
     set(prefix "MEX")
@@ -76,10 +77,6 @@ function(herbert_add_mex)
         set(TYPE "SHARED")
     endif()
 
-    if(NOT ${prefix}_COPY_TO)
-        set(${prefix}_COPY_TO "${CMAKE_SOURCE_DIR}/herbert_core/DLL")
-    endif()
-
     matlab_add_mex(
         NAME "${${prefix}_NAME}"
         "${TYPE}"
@@ -89,12 +86,14 @@ function(herbert_add_mex)
         LINK_TO "${${prefix}_LINK_TO}"
     )
 
-    set(_target_file "$<TARGET_FILE:${${prefix}_NAME}>")
-    set(_dest_file "${${prefix}_COPY_TO}/$<TARGET_FILE_NAME:${${prefix}_NAME}>")
-    add_custom_command(TARGET "${${prefix}_NAME}"
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy "${_target_file}" "${_dest_file}"
-        COMMENT "Copying ${${prefix}_NAME}.${Matlab_MEX_EXTENSION} into ${${prefix}_COPY_TO}"
-    )
+    if(${prefix}_COPY_TO)
+        set(_target_file "$<TARGET_FILE:${${prefix}_NAME}>")
+        set(_dest_file "${${prefix}_COPY_TO}/$<TARGET_FILE_NAME:${${prefix}_NAME}>")
+        add_custom_command(TARGET "${${prefix}_NAME}"
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy "${_target_file}" "${_dest_file}"
+            COMMENT "Copying ${${prefix}_NAME}.${Matlab_MEX_EXTENSION} into ${${prefix}_COPY_TO}"
+        )
+    endif()
 
 endfunction()

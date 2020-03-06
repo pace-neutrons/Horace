@@ -11,9 +11,10 @@ set(HDR_FILES
 )
 
 set(MEX_NAME "cpp_communicator")
-herbert_add_mex(
+pace_add_mex(
     NAME "${MEX_NAME}"
     SRC "${SRC_FILES}" "${HDR_FILES}"
+    COPY_TO "${CMAKE_SOURCE_DIR}/herbert_core/DLL"
 )
 target_include_directories("${MEX_NAME}" PRIVATE "${MPI_CXX_INCLUDE_PATH}")
 target_link_libraries("${MEX_NAME}" "${MPI_CXX_LIBRARIES}")

@@ -21,7 +21,7 @@ list(APPEND CMAKE_MODULE_PATH
 include(herbert_FindMPI)
 include(PACE_FindMatlab)
 include(PACE_Version)
-include(herbert_AddMex)
+include(PACE_AddMex)
 if(${BUILD_TESTS})
     include(CTest)
     include(herbert_FindGTest)
