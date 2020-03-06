@@ -40,8 +40,9 @@ GitHub https://github.com/google/googletest/blob/master/googletest/README.md.
 set(GTEST_DOWNLOAD_DIR "${CMAKE_BINARY_DIR}/googletest-download")
 # Copy the CMakeLists file that imports the external project
 configure_file(
-    "${CMAKE_SOURCE_DIR}/cmake/templates/GTest-CMakeLists.txt.in"
-    "${GTEST_DOWNLOAD_DIR}/CMakeLists.txt")
+    "${CMAKE_CURRENT_LIST_DIR}/templates/GTest-CMakeLists.txt.in"
+    "${GTEST_DOWNLOAD_DIR}/CMakeLists.txt"
+)
 
 # Run configure on the CMakeLists file
 execute_process(
