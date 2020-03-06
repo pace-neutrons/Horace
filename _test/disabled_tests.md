@@ -26,7 +26,13 @@
 	- test_tobyfit_refine_crystal.m (line 256) https://github.com/pace-neutrons/Horace/issues/111
 
 - test_faccess_sqw_v3.m
-	- test_serialize_deserialise (no ticket)
+	- test_serialize_deserialise  https://github.com/pace-neutrons/Horace/issues/126
+
+- test_sqw ->                    https://github.com/pace-neutrons/Horace/issues/126
+    disabled folder:     
+    - test_gen_sqw_accumulate_sqw_herbert.m 
+    - test_gen_sqw_accumulate_sqw_parpool.m 
+    - test_nsqw2sqw_internal_methods.m 
 
 - test_proj_captions.m
 	- test_spher_caption (no ticket)
