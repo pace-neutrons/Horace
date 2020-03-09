@@ -30,7 +30,7 @@ set(LIBS
     "${Matlab_UT_LIBRARY}"
 )
 
-horace_add_unit_test(
+pace_add_cpp_unit_test(
     NAME "${TEST_NAME}"
     SOURCES "${SRC_FILES}" "${HDR_FILES}" "${TEST_SRC_FILES}"
     LIBRARIES "${LIBS}"

@@ -28,15 +28,15 @@ set(LOCAL_INIT_DIR "${CMAKE_BINARY_DIR}/local_init")
 option(BUILD_TESTS "Build the C++ tests" ON)
 
 # Look for packages early so we can exit if they're not found
-find_package(Herbert)
+find_package(Herbert REQUIRED)
 find_package(OpenMP)
-include(horace_AddMex)
-include(horace_FindMatlab)
+include(PACE_AddMex)
+include(PACE_FindMatlab)
 include(horace_FindHDF5)
-include(horace_Version)
+include(PACE_Version)
 if(${BUILD_TESTS})
     include(CTest)
-    include(horace_FindGTest)
+    include(PACE_FindGTest)
     enable_testing()
 endif()
 
@@ -53,7 +53,8 @@ add_subdirectory("admin")
 # =============================================================================
 # Install commands
 # =============================================================================
-include(horace_CPackConfig)
+include(PACE_CPackConfig)
+
 install(
     DIRECTORY "horace_core/"
     DESTINATION "Horace"
