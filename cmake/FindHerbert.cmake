@@ -38,14 +38,15 @@ set(DIRS_TO_SEARCH
 )
 
 if(Herbert_ROOT AND NOT EXISTS "${Herbert_ROOT}/herbert_init.m")
-    message(FATAL_ERROR "Could not find herbert_init.m inside Herbert_ROOT: ${Herbert_ROOT}")
+    message(FATAL_ERROR
+        "Could not find herbert_init.m inside Herbert_ROOT: '${Herbert_ROOT}'")
+else()
+    find_path(Herbert_ROOT
+        NAMES "herbert_init.m"
+        PATHS ${DIRS_TO_SEARCH}
+        DOC "The Herbert root directory - the directory containing herbert_init.m"
+    )
 endif()
-
-find_path(Herbert_ROOT
-    NAMES "herbert_init.m"
-    PATHS ${DIRS_TO_SEARCH}
-    DOC "The Herbert root directory - the directory containing herbert_init.m"
-)
 
 find_file(Herbert_ON_TEMPLATE
     NAMES "herbert_on.m.template"
