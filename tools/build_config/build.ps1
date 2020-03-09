@@ -28,7 +28,7 @@ param (
   [Alias("F")]
   $cmake_flags = "",
 
-  [string]
+  [string][ValidatePattern("R[0-9]{4}[ab]")]
   [Alias("M")]
   $matlab_release = ""
 )
