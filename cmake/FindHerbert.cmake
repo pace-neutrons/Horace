@@ -46,7 +46,7 @@ find_path(Herbert_ROOT
 
 # Deals with the case where Herbert_ROOT is given on the command line but to
 # somewhere incorrect
-if(NOT EXISTS "${Herbert_ROOT}/herbert_init.m")
+if(Herbert_ROOT AND NOT EXISTS "${Herbert_ROOT}/herbert_init.m")
     message(FATAL_ERROR
         "Could not find herbert_init.m inside Herbert_ROOT: '${Herbert_ROOT}'")
 endif()
