@@ -167,7 +167,7 @@ pipeline {
       post_github_status("success", "The build succeeded")
     }
 
-    failure {
+    unsuccessful {
       post_github_status("failure", "The build failed")
     }
 
