@@ -37,15 +37,18 @@ set(DIRS_TO_SEARCH
     ENV{ProgramFiles}/Herbert/herbert_core
 )
 
-if(Herbert_ROOT AND NOT EXISTS "${Herbert_ROOT}/herbert_init.m")
+# Always call this find_path as it make Herbert_ROOT editable in the CMake GUI
+find_path(Herbert_ROOT
+    NAMES "herbert_init.m"
+    PATHS ${DIRS_TO_SEARCH}
+    DOC "The Herbert root directory - the directory containing herbert_init.m"
+)
+
+# Deals with the case where Herbert_ROOT is given on the command line but to
+# somewhere incorrect
+if(NOT EXISTS "${Herbert_ROOT}/herbert_init.m")
     message(FATAL_ERROR
         "Could not find herbert_init.m inside Herbert_ROOT: '${Herbert_ROOT}'")
-else()
-    find_path(Herbert_ROOT
-        NAMES "herbert_init.m"
-        PATHS ${DIRS_TO_SEARCH}
-        DOC "The Herbert root directory - the directory containing herbert_init.m"
-    )
 endif()
 
 find_file(Herbert_ON_TEMPLATE
