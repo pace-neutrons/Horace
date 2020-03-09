@@ -22,8 +22,9 @@ set(
 )
 
 set(MEX_NAME "combine_sqw")
-horace_add_mex(
+pace_add_mex(
     NAME "${MEX_NAME}"
     SRC "${SRC_FILES}" "${HDR_FILES}"
+    COPY_TO "${CMAKE_SOURCE_DIR}/horace_core/DLL"
 )
 target_link_libraries("${MEX_NAME}" "${Matlab_UT_LIBRARY}")
