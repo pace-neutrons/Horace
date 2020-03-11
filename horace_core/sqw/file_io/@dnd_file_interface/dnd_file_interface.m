@@ -60,9 +60,13 @@ classdef dnd_file_interface
         % the type of data stored in file (legacy field, -- see getter for details)
         data_type_ = 'undefined';
         %
-        
         %True if convert all read fields (except pixels) into double
         convert_to_double_ = true;
+        
+        % internal sqw/dnd object holder used as source for subsequent
+        % write operations, when file accessor is initialized from an sqw
+        % object
+        sqw_holder_ = [];
     end
     %
     properties(Constant,Access=protected,Hidden=true)
@@ -181,13 +185,18 @@ classdef dnd_file_interface
             for i=1:numel(flds)
                 struc.(flds{i}) = obj.(flds{i});
             end
-            %struc = structIndep(obj);
-            % dynamic fields, containing special information generated on
-            % % construction. Should not be stored
-            % caches = {'sqw_serializer_','file_closer_','sqw_holder_'};
-            % struc = rmfield(struc,caches);
+            if ~isempty(obj.sqw_holder_)
+                warning('FACCESS:not_implemented',...
+                    'sqw object serializaton is not fully implemeted. Using sturcture on object');
+                struc.sqw_holder_ = struct(obj.sqw_holder_);
+            end
         end
-        
+        %
+        function struc = struct(obj)
+            % convert faccess object into structure, which would allow to
+            % recover such object
+            struc = saveobj(obj);
+        end
     end
     methods(Access = protected,Hidden=true)
         %
@@ -219,9 +228,7 @@ classdef dnd_file_interface
         val = do_convert_to_double(val)
         % build object from correspondent data structure.
         function obj = loadobj(struc)
-            
             obj = feval(struc.class_name);
-            struc = rmfield(struc,'class_name');
             obj = obj.init_from_structure(struc);
         end
     end

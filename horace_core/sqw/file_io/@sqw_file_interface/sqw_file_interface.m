@@ -70,6 +70,13 @@ classdef sqw_file_interface < dnd_binfile_common
                 end
             end
         end
+        %
+        function flds = fields_to_save(obj)
+            % return list of fileldnames to save on hdd to be able to recover
+            % all substantial parts of appropriate sqw file.
+            flds = fields_to_save@dnd_binfile_common(obj);
+            flds = [obj.fields_to_save_(:);flds(:)];
+        end 
     end
     
     %----------------------------------------------------------------------

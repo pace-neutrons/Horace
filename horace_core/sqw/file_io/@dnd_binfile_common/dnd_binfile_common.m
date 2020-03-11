@@ -75,9 +75,6 @@ classdef dnd_binfile_common < dnd_file_interface
         % holder for the object which surely closes open sqw file on class
         % deletion
         file_closer_ = [];
-        % internal sqw/dnd object holder used as source for subsequent
-        % write operations
-        sqw_holder_ = [];
         % a pointer to eof position, used to identify the state of IO
         % operations showing position where the data have actually been
         % written
@@ -198,6 +195,9 @@ classdef dnd_binfile_common < dnd_file_interface
         function obj = init_by_input_file(obj,objinit)
             % initialize object to read input file using proper obj_init information
             %
+            % objinit information is obtained by can_load method if the
+            % file indeed can be loaded by the selected loader
+            %
             obj.file_id_ = objinit.file_id;
             obj.num_dim_ = objinit.num_dim;
             obj.file_closer_ = onCleanup(@()obj.fclose());
@@ -237,8 +237,46 @@ classdef dnd_binfile_common < dnd_file_interface
                     obj.(flds{i}) = obj_structure_from_saveobj.(flds{i});
                 end
             end
+            if ~ischar(obj.num_dim_) && ~isempty(obj.filename_)
+                file = fullfile(obj.filepath,obj.filename);
+                if exist(file,'file') == 2
+                    obj = obj.activate();
+                end
+            end
         end
-        
+        %
+        function obj = deactivate(obj)
+            % close respective file keeping all internal information about
+            % this file alive.
+            %
+            % To use for MPI transfers between workers when open file can
+            % not be transferred between workers but everything else can
+            if ~isempty(obj.file_closer_)
+                obj.file_closer_ = [];
+            end
+            obj = obj.fclose();
+            obj.file_id_ = 0;
+        end
+        %
+        function obj = activate(obj)
+            % open respective file for reading without reading any
+            % suplementary file information. Assume that this information
+            % is correct
+            %
+            % To use for MPI transfers between workers when open file can
+            % not be transferred between workers but everything else can
+            if ~isempty(obj.file_closer_)
+                obj.file_closer_ = [];
+            end
+            
+            obj.file_id_ = fopen(fullfile(obj.filepath,obj.filename));
+            if obj.file_id_ <=0
+                error('FILE_IO:runtime_error',...
+                    'Can not open file %s at location %s',...
+                    obj.filename,obj.filepath);
+            end
+            obj.file_closer_ = onCleanup(@()obj.fclose());
+        end
     end
     %----------------------------------------------------------------------
     methods % defined by this class
@@ -445,37 +483,6 @@ classdef dnd_binfile_common < dnd_file_interface
             % It references external sqw object to write
             sqw_obj  = obj.sqw_holder_;
         end
-        function obj = deactivate(obj)
-            % close respective file keeping all internal information about
-            % this file alive.
-            %
-            % To use for MPI transfers between workers when open file can
-            % not be transferred between workers but everything else can
-            if ~isempty(obj.file_closer_)
-                obj.file_closer_ = [];
-            end
-            obj = obj.fclose();
-            obj.file_id_ = 0;
-        end
-        function obj = activate(obj)
-            % open respective file for reading without reading any
-            % suplementary file information. Assume that this information
-            % is correct
-            %
-            % To use for MPI transfers between workers when open file can
-            % not be transferred between workers but everything else can
-            if ~isempty(obj.file_closer_)
-                obj.file_closer_ = [];
-            end
-            
-            obj.file_id_ = fopen(fullfile(obj.filepath,obj.filename));
-            if obj.file_id_ <=0
-                error('FILE_IO:runtime_error',...
-                    'Can not open file %s at location %s',...
-                    obj.filename,obj.filepath);
-            end
-            obj.file_closer_ = onCleanup(@()obj.fclose());
-        end
         %
         function struc = saveobj(obj)
             % method used to convert object into structure
@@ -485,11 +492,6 @@ classdef dnd_binfile_common < dnd_file_interface
             for i=1:numel(flds)
                 struc.(flds{i}) = obj.(flds{i});
             end
-            %struc = structIndep(obj);
-            % dynamic fields, containing special information generated on
-            % % construction. Should not be stored
-            % caches = {'sqw_serializer_','file_closer_','sqw_holder_'};
-            % struc = rmfield(struc,caches);
         end
     end
     %
