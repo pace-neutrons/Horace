@@ -2,10 +2,13 @@ classdef dnd_binfile_common < dnd_file_interface
     % Class contains common methods and code used to access binary dnd
     % files.
     %
-    %  Binary sqw/dnd-file accessors inherit this class, use common methods,
-    %  defined in this class, implement remaining methods, inherited from
-    %  dnd_file_interface and overload the methods, which have different
-    %  data access requests.
+    % The fields, defined by class are specific to binary access to sqw
+    % files
+    %
+    % Binary sqw/dnd-file accessors inherit this class, use common methods,
+    % defined in this class, implement remaining methods, inherited from
+    % dnd_file_interface and overload the methods, which have different
+    % data access requests.
     %
     % dnd_binfile_common Methods:
     % ----------------------------------------------------------------
@@ -86,8 +89,7 @@ classdef dnd_binfile_common < dnd_file_interface
     properties(Constant,Access=private,Hidden=true)
         % list of fileldnames to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file
-        fields_to_save_ = {'num_dim_','dnd_dimensions_','data_type_',...
-            'data_pos_','s_pos_','e_pos_','npix_pos_','dnd_eof_pos_',...
+        fields_to_save_ = {'data_pos_';'s_pos_';'e_pos_';'npix_pos_';'dnd_eof_pos_';...
             'data_fields_locations_'};
         
     end
@@ -193,13 +195,6 @@ classdef dnd_binfile_common < dnd_file_interface
             end
         end
         %
-        function flds = fields_to_save(obj)
-            % return list of fileldnames to save on hdd to be able to recover
-            % all substantial parts of appropriate sqw file.
-            flds = obj.fields_to_save_;
-        end
-        %
-        %
         function obj = init_by_input_file(obj,objinit)
             % initialize object to read input file using proper obj_init information
             %
@@ -223,6 +218,27 @@ classdef dnd_binfile_common < dnd_file_interface
             end
             [obj,missinig_fields] = copy_contents_(obj,other_obj,keep_internals);
         end
+        %
+        function flds = fields_to_save(obj)
+            % return list of fileldnames to save on hdd to be able to recover
+            % all substantial parts of appropriate sqw file.
+            flds = fields_to_save@dnd_file_interface(obj);
+            flds = [flds(:);obj.fields_to_save_(:)];
+        end
+        
+        %
+        function obj=init_from_structure(obj,obj_structure_from_saveobj)
+            % init file accessors using structure, obtained for object
+            % serialization (saveobj method);
+            obj = init_from_structure@dnd_file_interface(obj,obj_structure_from_saveobj);
+            flds = obj.fields_to_save_;
+            for i=1:numel(flds)
+                if isfield(obj_structure_from_saveobj,flds{i})
+                    obj.(flds{i}) = obj_structure_from_saveobj.(flds{i});
+                end
+            end
+        end
+        
     end
     %----------------------------------------------------------------------
     methods % defined by this class
@@ -423,16 +439,16 @@ classdef dnd_binfile_common < dnd_file_interface
         function sqw_obj = get_sqw_internal(obj)
             % return internal sqw object, stored within class or empty
             % string such object is not present
-            % 
-            % internal iSQW object set up when accessor is initialized 
-            % by an sqw object to write data. 
+            %
+            % internal iSQW object set up when accessor is initialized
+            % by an sqw object to write data.
             % It references external sqw object to write
             sqw_obj  = obj.sqw_holder_;
         end
         function obj = deactivate(obj)
             % close respective file keeping all internal information about
             % this file alive.
-            % 
+            %
             % To use for MPI transfers between workers when open file can
             % not be transferred between workers but everything else can
             if ~isempty(obj.file_closer_)
@@ -442,10 +458,10 @@ classdef dnd_binfile_common < dnd_file_interface
             obj.file_id_ = 0;
         end
         function obj = activate(obj)
-            % open respective file for reading without reading any 
+            % open respective file for reading without reading any
             % suplementary file information. Assume that this information
             % is correct
-            % 
+            %
             % To use for MPI transfers between workers when open file can
             % not be transferred between workers but everything else can
             if ~isempty(obj.file_closer_)
@@ -458,7 +474,22 @@ classdef dnd_binfile_common < dnd_file_interface
                     'Can not open file %s at location %s',...
                     obj.filename,obj.filepath);
             end
-            obj.file_closer_ = onCleanup(@()obj.fclose());            
+            obj.file_closer_ = onCleanup(@()obj.fclose());
+        end
+        %
+        function struc = saveobj(obj)
+            % method used to convert object into structure
+            % for saving it to disc.
+            struc = saveobj@dnd_file_interface(obj);
+            flds = obj.fields_to_save_;
+            for i=1:numel(flds)
+                struc.(flds{i}) = obj.(flds{i});
+            end
+            %struc = structIndep(obj);
+            % dynamic fields, containing special information generated on
+            % % construction. Should not be stored
+            % caches = {'sqw_serializer_','file_closer_','sqw_holder_'};
+            % struc = rmfield(struc,caches);
         end
     end
     %

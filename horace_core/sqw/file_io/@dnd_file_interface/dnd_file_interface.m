@@ -71,6 +71,12 @@ classdef dnd_file_interface
         app_header_form_ = struct('appname','horace','version',double(1),...
             'sqw_type',uint32(1),'ndim',uint32(1));
     end
+    properties(Constant,Access=private,Hidden=true)
+        % list of fileldnames to save on hdd to be able to recover
+        % all substantial parts of appropriate sqw file
+        fields_to_save_ = {'filename_';'filepath_';'file_ver_';...
+            'num_dim_';'dnd_dimensions_';'data_type_';'convert_to_double_'};
+    end
     
     properties(Dependent)
         % The name of the file, for the accessor to work with.
@@ -166,7 +172,41 @@ classdef dnd_file_interface
             obj.sqw_type_       = false;
             obj.convert_to_double_ = true;
         end
+        %
+        function struc = saveobj(obj)
+            % method used to convert object into structure
+            % for saving it to disc.
+            struc = struct('class_name',class(obj));
+            flds = obj.fields_to_save_;
+            for i=1:numel(flds)
+                struc.(flds{i}) = obj.(flds{i});
+            end
+            %struc = structIndep(obj);
+            % dynamic fields, containing special information generated on
+            % % construction. Should not be stored
+            % caches = {'sqw_serializer_','file_closer_','sqw_holder_'};
+            % struc = rmfield(struc,caches);
+        end
         
+    end
+    methods(Access = protected,Hidden=true)
+        %
+        function flds = fields_to_save(obj)
+            % return list of fileldnames to save on hdd to be able to recover
+            % all substantial parts of appropriate sqw file.
+            flds = obj.fields_to_save_;
+        end
+        %
+        function obj=init_from_structure(obj,obj_structure_from_saveobj)
+            % init file accessors using structure, obtained for object
+            % serialization (saveobj method);
+            flds = obj.fields_to_save_;
+            for i=1:numel(flds)
+                if isfield(obj_structure_from_saveobj,flds{i})
+                    obj.(flds{i}) = obj_structure_from_saveobj.(flds{i});
+                end
+            end
+        end
     end
     %----------------------------------------------------------------------
     methods(Static) % defined by this class
@@ -177,6 +217,13 @@ classdef dnd_file_interface
         %
         % convert all numerical types of a structure into double
         val = do_convert_to_double(val)
+        % build object from correspondent data structure.
+        function obj = loadobj(struc)
+            
+            obj = feval(struc.class_name);
+            struc = rmfield(struc,'class_name');
+            obj = obj.init_from_structure(struc);
+        end
     end
     %----------------------------------------------------------------------
     methods(Abstract)
@@ -199,6 +246,7 @@ classdef dnd_file_interface
         %>>obj = obj.init(filename_to_read);
         %>>obj = obj.init(sqw_object);
         %>>obj = obj.init(sqw_object,filename_to_write);
+        %>>obj = obj.init(obj_structure_from_saveobj);
         obj = init(obj,varargin);
         %
         % Set new filename to write file or prepare existing file for
