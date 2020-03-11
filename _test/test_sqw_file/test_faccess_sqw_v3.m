@@ -283,7 +283,6 @@ classdef test_faccess_sqw_v3< TestCase
             fo = fo.init(obj.sample_file);
             
             by = hlp_serialize(fo);
-            
             fr = hlp_deserialize(by);
             
             assertEqual(fo,fr);

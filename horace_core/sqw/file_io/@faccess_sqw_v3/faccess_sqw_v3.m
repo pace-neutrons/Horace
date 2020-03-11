@@ -75,7 +75,8 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         % list of fileldnames to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file
         data_fields_to_save_ = {'instrument_head_pos_';'instrument_pos_';...
-            'sample_head_pos_';'sample_pos_';'instr_sample_end_pos_'};
+            'sample_head_pos_';'sample_pos_';'instr_sample_end_pos_';...
+            'position_info_pos_';'eof_pos_'};
         v3_data_form_ = field_generic_class_hv3();
     end
     

@@ -113,7 +113,7 @@ classdef sqw_binfile_common < sqw_file_interface
         function flds = fields_to_save(obj)
             % returns the fields to save in the structure in sqw format
             %
-            dnd_flds = fields_to_save@dnd_binfile_common(obj);
+            dnd_flds = fields_to_save@sqw_file_interface(obj);
             flds = [obj.data_fields_to_save_(:);dnd_flds(:);...
                 obj.pixel_fields_to_save_(:)];
         end
