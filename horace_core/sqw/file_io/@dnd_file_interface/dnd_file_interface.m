@@ -78,7 +78,7 @@ classdef dnd_file_interface
     properties(Constant,Access=private,Hidden=true)
         % list of fileldnames to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file
-        fields_to_save_ = {'filename_';'filepath_';'file_ver_';...
+        fields_to_save_ = {'filename_';'filepath_';...
             'num_dim_';'dnd_dimensions_';'data_type_';'convert_to_double_'};
     end
     
