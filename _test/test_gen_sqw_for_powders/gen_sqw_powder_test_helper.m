@@ -16,15 +16,6 @@ function gen_sqw_powder_test_helper (spe_file, par_file, sqw_file, efix, emode)
 %   efix            Fixed energy (meV)                 [scalar or vector length nfile]
 %   emode           Direct geometry=1, indirect geometry=2, elastic=0    [scalar]
 %
-% Output:
-% --------
-%   tmp_file        List of temporary files created by this call to gen_sqw (can be empty
-%                  e.g. if a single spe file, when no temporary file is created)
-%   grid_size       Actual size of grid used (size is unity along dimensions
-%                  where there is zero range of the data points)
-%   urange          Actual range of grid
-%
-%
 % *** IMPORTANCE NOTES ***
 %
 % - This sqw object that is created is a 2D object, with axes (|Q|, eps)
@@ -64,7 +55,7 @@ else
     tmp_file=cell(size(spe_file));
     sqw_dir=fileparts(sqw_file);
     for i=1:numel(tmp_file)
-        [dummy,spe_name]=fileparts(spe_file{i});
+        [~, spe_name]=fileparts(spe_file{i});
         tmp_file{i}=fullfile(sqw_dir,[spe_name,'.tmp']);
     end
 end

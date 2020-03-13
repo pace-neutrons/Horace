@@ -36,7 +36,6 @@ classdef test_combine_pow < TestCaseWithSave
             % =====================================================================================================================
             % Create spe files:
             this.par_file=fullfile(common_data_dir,'map_4to1_dec09.par');
-            %spe_dir = tmp_dir();
             spe_dir = fileparts(mfilename('fullpath'));
             % test files are present
             this.spe_file_1=fullfile(spe_dir,'test_combine_1.nxspe');
@@ -68,7 +67,6 @@ classdef test_combine_pow < TestCaseWithSave
                     this.efix, emode, alatt, angdeg, u, v, this.psi_2, omega, dpsi, gl, gs)
             end
             % test files are in svn
-            %add_to_files_cleanList(this,this.spe_file_1,this.spe_file_2);
             add_to_path_cleanList(this,test_functions_path);
         end
 
