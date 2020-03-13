@@ -1,7 +1,7 @@
-function gen_sqw_cylinder_test (spe_file, par_file, sqw_file, efix, varargin)
+function gen_sqw_cylinder_test_helper (spe_file, par_file, sqw_file, efix, varargin)
 % Read one or more spe files and a detector parameter file, and create an output sqw file.
 %
-%   >> gen_sqw_cylinder_test (spe_file, par_file, sqw_file, efix, emode, clatt, omega, gl, gs)
+%   >> gen_sqw_cylinder_test_helper (spe_file, par_file, sqw_file, efix, emode, clatt, omega, gl, gs)
 %
 % *** TEST ROUTINE
 %       This was created rapidly as a fix-up during an experiment. A polished version is
