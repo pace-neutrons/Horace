@@ -132,7 +132,7 @@ classdef test_combine_cyl < TestCaseWithSave
             % pd(w1_tot)  % does not overlay - but that is OK
             %--------------------------------------------------------------------------------------------------
         end
-        function this=DISABLED_test_combine_cyl_tot(this)
+        function this = test_combine_cyl_tot(this)
             % Create sqw files, combine and check results
             % -------------------------------------------
             sqw_file_tot=fullfile(tmp_dir,'test_cyl_tot.sqw');
@@ -160,8 +160,6 @@ classdef test_combine_cyl < TestCaseWithSave
             acolor r
             plot(w1_tot)  % does not overlay - but that is OK
             %--------------------------------------------------------------------------------------------------
-
         end
-
     end
 end
