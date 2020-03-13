@@ -1,4 +1,4 @@
-function [new_config, old_config] = set_local_parallel_config()
+function [new_config, old_parallel_conf] = set_local_parallel_config()
     % Set the config directories for the parallel framework
     %
     % The config directory is moved to "tempdir/config" and the shared directories
@@ -18,7 +18,9 @@ function [new_config, old_config] = set_local_parallel_config()
     SHARED_LOCAL_DIR = fullfile(tempdir(), 'local');
     SHARED_REMOTE_DIR = fullfile(tempdir(), 'remote');
 
-    old_config = parallel_config().get_data_to_store();
+    old_parallel_conf = parallel_config().get_data_to_store();
+    old_herbert_conf = herbert_config().get_data_to_store();
+    cleanup = onCleanup(@() set(herbert_config, old_herbert_conf));
 
     config_store.set_config_folder(CONFIG_FOLDER);
 
