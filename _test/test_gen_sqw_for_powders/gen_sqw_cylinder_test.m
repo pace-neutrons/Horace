@@ -100,10 +100,17 @@ else
     tmp_file=cell(size(spe_file));
     sqw_dir=fileparts(sqw_file);
     for i=1:numel(tmp_file)
-        [dummy,spe_name]=fileparts(spe_file{i});
+        [~, spe_name]=fileparts(spe_file{i});
         tmp_file{i}=fullfile(sqw_dir,[spe_name,'.tmp']);
     end
 end
+
+% Always use the Matlab ASCII loader: reading with mex can give
+% slightly different answers due to floating point errors. This
+% can result in inconsistent binning and cause this test to fail
+herbert_conf = herbert_config();
+original_herbert_conf = herbert_conf.get_data_to_store();
+herbert_conf.use_mex_C = false;
 
 % Process files
 grid=[1,1,1,1];     % need to force to be one bin for the algorithm to work
@@ -112,6 +119,7 @@ for i=1:numel(spe_file)
         alatt, angdeg, u, v, psi, omega(i), dpsi, gl(i), gs(i), grid);
 end
 
+set(herbert_config, original_herbert_conf);
 
 % The special part: replace u1 with sqrt(u1^2+u2^2) and set u2=0 - this allows for cylindrical symmetry
 % -----------------------------------------------------------------------------------------------------
