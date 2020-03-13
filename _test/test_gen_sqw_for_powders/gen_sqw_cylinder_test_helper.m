@@ -28,14 +28,6 @@ function gen_sqw_cylinder_test_helper (spe_file, par_file, sqw_file, efix, varar
 %                  from the sample towards the moderator
 % Non-zero omega can be used to tie the direction of Qz in a different coordinate frame
 %
-% Output:
-% --------
-%   tmp_file        List of temporary files created by this call to gen_sqw (can be empty
-%                  e.g. if a single spe file, when no temporary file is created)
-%   grid_size       Actual size of grid used (size is unity along dimensions
-%                  where there is zero range of the data points)
-%   urange          Actual range of grid
-%
 %
 % *** IMPORTANCE NOTES ***
 %
