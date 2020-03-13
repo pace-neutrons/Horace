@@ -31,7 +31,7 @@ Draft
  describing a coordinate system, rotated and shifted w.r.t. the original hkl-dE coordinate system.
 
  There are samples of other coordinate system usages (e.g. [gen_sqw_cylinder_test_helper](https://github.com/pace-neutrons/Horace/blob/master/_test/test_gen_sqw_for_powders/gen_sqw_cylinder_test_helper.m)
- and [gen_sqw_powder_test](https://github.com/pace-neutrons/Horace/blob/master/horace_core/gen_sqw_powder_test.m))
+ and [gen_sqw_powder_test_helper](https://github.com/pace-neutrons/Horace/blob/master/_test/test_gen_sqw_for_powders/gen_sqw_powder_test_helper.m))
  but they are not suitable for a user who is not looking in the details of the code implementation.
 
  User need to be able to define and use sqw object, containing image expressed in other types of standard coordinate
