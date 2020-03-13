@@ -1,4 +1,4 @@
-classdef test_FileBaseMPI_Framework< TestCase
+classdef test_FileBaseMPI_Framework < TestCase
     %
     % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
     %
@@ -29,18 +29,17 @@ classdef test_FileBaseMPI_Framework< TestCase
         end
         %
         function setUp(obj)
+            [pc, ~] = set_local_parallel_config();
             if obj.change_setup
-                pc = parallel_config;
                 pc.parallel_framework = 'herbert';
             end
         end
-        function teadDown(obj)
+        %
+        function tearDown(obj)
             if obj.change_setup
                 set(parallel_config,obj.old_config);
             end
         end
-        
-        
         %
         function test_finalize_all(this)
             mf = MFTester('test_finalize_all');
