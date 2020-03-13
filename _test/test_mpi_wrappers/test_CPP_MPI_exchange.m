@@ -4,6 +4,7 @@ classdef test_CPP_MPI_exchange< TestCase
     %
     
     properties
+        original_parallel_config;
     end
     methods
         %
@@ -12,6 +13,12 @@ classdef test_CPP_MPI_exchange< TestCase
                 name = 'test_CPP_MPI_exchange';
             end
             obj = obj@TestCase(name);
+
+            [~, obj.original_parallel_config] = set_local_parallel_config();
+        end
+        %
+        function tearDown(obj)
+           set(parallel_config, obj.original_parallel_config);
         end
         %
         function test_JobExecutor(obj)
