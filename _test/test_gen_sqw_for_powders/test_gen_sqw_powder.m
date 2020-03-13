@@ -11,12 +11,12 @@ classdef test_gen_sqw_powder < TestCaseWithSave
         %
         sqw_pow_file;
         sqw_pow_rings_file;
-        
+
         cleanup_obj;
     end
-    
+
     %banner_to_screen(mfilename)
-    
+
     % Check input argument
     % if nargin==1
     %     if ischar(varargin{1}) && size(varargin{1},1)==1 && isequal(lower(varargin{1}),'save')
@@ -37,20 +37,20 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             else
                 name= mfilename('class');
             end
-            
+
             % Set up paths:
-            
+
             rootpath=fileparts(mfilename('fullpath'));
             sample_file=fullfile(rootpath,'test_gen_sqw_powder_output.mat');
             this = this@TestCaseWithSave(name,sample_file);
-            
+
             % -----------------------------------------------------------------------------
             % Add common functions folder to path, and get location of common data
             hor_root = horace_root();
             addpath(fullfile(hor_root,'_test','common_functions'))
             common_data_dir=fullfile(hor_root,'_test','common_data');
             % -----------------------------------------------------------------------------
-            
+
             % =====================================================================================================================
             % Create sqw file:
             en=0:1:90;
@@ -65,10 +65,10 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             v=[0,0,1];
             psi=20;
             omega=0; dpsi=0; gl=0; gs=0;
-            
+
             ampl=10; SJ=8; gap=5; gamma=5; bkconst=0;
             scale=0.1;
-            
+
             if ~exist(spe_file,'file')
                 simulate_spe_testfunc (en, par_file, spe_file, @sqw_sc_hfm_testfunc, [ampl,SJ,gap,gamma,bkconst], scale,...
                     efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
@@ -82,29 +82,29 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             this.sqw_pow_rings_file=fullfile(tmp,'test_pow_rings.sqw');
             %
             cleanup_obj=onCleanup(@()this.rm_files(spe_pow_file,pow_par_file,pow_phx_file));
-            
+
             %--------------------------------------------------------------------------------------------------
             % Perform a powder average in Horace
-            gen_sqw_powder_test (spe_file, par_file, this.sqw_pow_file, efix, emode);
-            
+            gen_sqw_powder_test_helper (spe_file, par_file, this.sqw_pow_file, efix, emode);
+
             % Create a simple powder file for Horace and mslice to compare with
             [powmap,powpar]=powder_map(parObject(par_file),[3,0.2626,60],'squeeze');
             save(powpar,pow_par_file)
             save(phxObject(powpar),pow_phx_file)
-            
-            
+
+
             ld=loaders_factory.instance().get_loader(spe_file);
             data.filename='';
             data.filepath='';
             [data.S,data.ERR,data.en] = ld.load_data();
             wspe=spe(data);
-            
+
             spe_pow=remap(wspe,powmap);
             save(spe_pow,spe_pow_file)
-            
+
             % Create sqw file from the powder map
-            gen_sqw_powder_test (spe_pow_file, pow_par_file, this.sqw_pow_rings_file, efix, emode);
-            
+            gen_sqw_powder_test_helper (spe_pow_file, pow_par_file, this.sqw_pow_rings_file, efix, emode);
+
         end
         function DISABLED_test_powder_cuts(this)
             %--------------------------------------------------------------------------------------------------
@@ -112,34 +112,34 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             % Visual inspection
             % Plot the powder averaged sqw data
             wpow=read_sqw(this.sqw_pow_file);
-            
+
             %cuts_list= containers.Map();
             w2 = cut_sqw(wpow,[0,0.03,7],0,'-nopix');
             w1= cut_sqw(wpow,[2,0.03,6.5],[53,57],'-nopix');
-            
+
             plot(w2)
             lz 0 0.5
             dd(w1)
-            
+
             % Plot the same slice and cut from the sqw file created using the rings map
             % Slightly different - as expected, because of the summing of a ring of pixels
             % onto a single pixel in the rings map.
             wpowrings=read_sqw(this.sqw_pow_rings_file);
-            
+
             w2rings = cut_sqw(wpow,[0,0.03,7],0,'-nopix');
             w1rings=cut_sqw(wpowrings,[2,0.03,6.5],[53,57],'-nopix');
             plot(w2rings)
             lz 0 0.5
             dd(w1rings)
-            
-            
-            
+
+
+
             % % mslice:
             % mslice_start
             % mslice_load_data (spe_pow_file, pow_phx_file, efix, emode, 'S(Q,w)', '')
             % % Now must do the rest manually. Agrees with the rings map data in Horace
             %--------------------------------------------------------------------------------------------------
-            
+
             %--------------------------------------------------------------------------------------------------
             this.save_or_test_variables(w2,w1, w2rings,w1rings,...
                 'tol',-3.e-2,'ignore_str',1);

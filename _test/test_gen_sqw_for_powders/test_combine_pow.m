@@ -81,7 +81,7 @@ classdef test_combine_pow < TestCaseWithSave
 
             emode = 1;
 
-            gen_sqw_powder_test (this.spe_file_1, this.par_file, sqw_file_1, this.efix, emode);
+            gen_sqw_powder_test_helper (this.spe_file_1, this.par_file, sqw_file_1, this.efix, emode);
 
 
             w2_1 = cut_sqw(sqw_file_1,[0,0.05,8],0,'-nopix');
@@ -109,7 +109,7 @@ classdef test_combine_pow < TestCaseWithSave
 
             emode = 1;
 
-            gen_sqw_powder_test (this.spe_file_2, this.par_file, sqw_file_2, this.efix, emode);
+            gen_sqw_powder_test_helper (this.spe_file_2, this.par_file, sqw_file_2, this.efix, emode);
 
             w2_2=cut_sqw(sqw_file_2,[0,0.05,8],0,'-nopix');
 
@@ -134,7 +134,7 @@ classdef test_combine_pow < TestCaseWithSave
             cleanup_obj=onCleanup(@()this.delete_files(sqw_file_tot));
 
             emode = 1;
-            gen_sqw_powder_test ({this.spe_file_1,this.spe_file_2}, this.par_file, sqw_file_tot, this.efix, emode);
+            gen_sqw_powder_test_helper ({this.spe_file_1,this.spe_file_2}, this.par_file, sqw_file_tot, this.efix, emode);
 
             w2_tot=cut_sqw(sqw_file_tot,[0,0.05,8],0,'-nopix');
 

@@ -1,4 +1,4 @@
-function gen_sqw_powder_test (spe_file, par_file, sqw_file, efix, emode)
+function gen_sqw_powder_test_helper (spe_file, par_file, sqw_file, efix, emode)
 % Read one or more spe files and a detector parameter file, and create an output sqw file.
 %
 %   >> gen_sqw_cylinder_test (spe_file, par_file, sqw_file, efix, emode)
@@ -153,13 +153,13 @@ else
         disp('--------------------------------------------------------------------------------')
         disp('Creating final output sqw file:')
     end
-    
+
     write_nsqw_to_sqw (tmp_file, sqw_file);
-    
+
     if il>-1
         disp('--------------------------------------------------------------------------------')
     end
-    
+
 end
 
 
