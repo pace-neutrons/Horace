@@ -72,7 +72,7 @@ classdef test_combine_cyl < TestCaseWithSave
 
         end
 
-        function this=test_combine_pow1(this)
+        function this=test_combine_cyl1(this)
             % Create sqw files, combine and check results
             % -------------------------------------------
             sqw_file_1=fullfile(tmp_dir,'test_cyl_1.sqw');
