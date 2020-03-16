@@ -101,6 +101,18 @@ classdef test_FileBaseMPI_Framework< TestCase
             cont = the_mess.payload;
             assertEqual(job_param,cont);
             
+            init_mess = InitMessage('some init info');
+            [ok,err] = mf0.send_message(1,init_mess);
+            assertEqual(ok,MESS_CODES.ok)
+            assertTrue(isempty(err));
+            
+            [ok,err,the_mess]=mf1.receive_message(0,'init');
+            assertEqual(ok,MESS_CODES.ok)
+            assertTrue(isempty(err));
+            assertEqual(the_mess.payload.common_data,'some init info');
+            
+            
+            
             [all_messages_names,task_ids] = mf1.probe_all(0,'log');
             assertTrue(isempty(all_messages_names));
             assertTrue(isempty(task_ids));
