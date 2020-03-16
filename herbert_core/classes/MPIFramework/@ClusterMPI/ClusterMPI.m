@@ -199,7 +199,8 @@ classdef ClusterMPI < ClusterWrapper
             if ispc()
                 % only one version of mpiexec is used now. May change in a
                 % future.
-                mpi_exec = fullfile(rootpath,'DLL','_PCWIN64','MS_MPI_R2019b','mpiexec.exe');
+                mpi_exec = fullfile(rootpath, 'external', computer('arch'), ...
+                        'MSMPI-8.0.12', 'Bin', 'mpiexec.exe');
             else
                 mpi_exec = fullfile(rootpath, 'external', computer('arch'), ...
                         'mpich-3.3a2/bin/mpiexec');
