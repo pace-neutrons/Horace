@@ -1,4 +1,4 @@
-classdef a_loader < asciipar_loader
+classdef a_loader < a_detpar_loader_interface
     % Base class for all data loaders used by the rundata class and
     % loaders_factory
     %
@@ -17,8 +17,6 @@ classdef a_loader < asciipar_loader
     % protected data properties as public properties for
     % data variables ensure integrity of variables (waste of time when
     % loading from file)
-    %
-    % $Author: Alex Buts; 05/01/2014
     %
     %
     % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
@@ -53,6 +51,9 @@ classdef a_loader < asciipar_loader
         data_file_name_='';
         % the data fields which are defined in the main data file
         loader_defines={};
+        % holder to keep appropriate class, responsible for loading the
+        % detectors parameters
+        detpar_loader_ = [];
     end
     %
     methods(Abstract, Static)
@@ -126,7 +127,7 @@ classdef a_loader < asciipar_loader
     
     methods
         % constructor;
-        function this=a_loader(varargin)
+        function obj=a_loader(varargin)
             % initiate the list of the fields this loader defines
             %>>Accepts:
             %   default empty constructor:
@@ -136,7 +137,13 @@ classdef a_loader < asciipar_loader
             %   copy constructor:
             %>>this=a_loader(other_loader);
             %
-            this=this@asciipar_loader(varargin{:});
+            if(nargin>1)
+                if isa(varargin{1},'a_loader')
+                    obj = varargin{1};
+                else
+                    obj=select_detpar_loader_(varargin{:});
+                end
+            end
         end
         function [ndet,en,this]=get_run_info(this)
             % Get number of detectors and energy boundaries defined by the data files
@@ -228,7 +235,9 @@ classdef a_loader < asciipar_loader
                 this.en_=[];
                 this.n_detindata_=[];
             end
-            this=this.delete_par();
+            if ~isempty()
+            end
+            this.detp=this.delete_par();
         end
         function [ok,mess,ndet,en]=is_loader_valid(this)
             % method checks if a loader is fully defined and valid
@@ -405,6 +414,39 @@ classdef a_loader < asciipar_loader
             [ok,mess,f_name] = check_file_exist(new_name,this.get_file_extension());
         end
     end
+    methods(Access=protected)
+        function det_par= get_det_par(obj)
+            % get method for dependent property det_par            
+            if isempty(obj.detpar_loader_)
+                det_par = [];
+            else
+                det_par = get_det_par(obj.detpar_loader_);
+            end
+        end
+        function fname = get_par_file_name(obj)
+            % get method for dependent property par_file_name            
+            if isempty(obj.detpar_loader_)
+                fname = '';
+            else
+                fname = get_par_file_name(obj.detpar_loader_);
+            end            
+        end
+
+        function ndet = get_n_detectors(obj)
+            %method to retrieve number of detectors            
+            if isempty(obj.detpar_loader_)
+                ndet = [];
+            else
+                ndet = get_n_detectors(obj.detpar_loader_);
+            end            
+            
+        end
+        
+        % method sets detector parameters from memory
+        obj = set_det_par(obj,value);
+        
+    end
+    
     %
     
 end

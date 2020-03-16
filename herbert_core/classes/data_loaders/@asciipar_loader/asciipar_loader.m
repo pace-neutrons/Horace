@@ -1,4 +1,4 @@
-classdef asciipar_loader
+classdef asciipar_loader < a_detpar_loader_interface
     % The class responsible for loading ascii par and phx files
     %
     %Defines methods used to load detector parameters from ASCI par or phx file
@@ -14,24 +14,17 @@ classdef asciipar_loader
     % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
     %
     % the properties common for all data loaders.
-    properties(Dependent)
-        % array of detector parameters
-        det_par   =[];
-        % the variable which describes the name of ASCII par file which, if present
-        % contain detector information overwriting existing or providing
-        % missing information about the detectors angular positions
-        par_file_name='';       
-    end
+    %
     properties (Access=protected)
         % number of detectors, defined in the file, described by the par
         % file name
         n_detinpar_=[];
-		% storage field for detector information
+        % storage field for detector information
         det_par_=[];
-		% storage field for ASCII par file name
+        % storage field for a par file name
         par_file_name_ ='';
     end
-    %
+    
     methods
         % constructor;
         function this=asciipar_loader(varargin)
@@ -70,7 +63,7 @@ classdef asciipar_loader
             %  det              -- detector's information in the form of
             %                      the Horace structure
             %  this             -- the instance of properly initiated loader class
-            %  '-forcereload'     usually data are loaded in memory onece, and taken from memory after that 
+            %  '-forcereload'     usually data are loaded in memory onece, and taken from memory after that
             %                     -forcereload request always loading data into memory.
             
             %
@@ -114,7 +107,7 @@ classdef asciipar_loader
             %   det.width       Row vector of detector widths (m)
             %   det.height      Row vector of detector heights (m)
             %
-            % '-getphx'         option returns data in phx format. 
+            % '-getphx'         option returns data in phx format.
             %                   invoking this assumes (and sets up) -nohorace
             %                   option.
             % Phx data format has a form:
@@ -130,10 +123,10 @@ classdef asciipar_loader
             %
             % In standard phx file only the columns 3,4,5 and 6 contain useful information.
             % You can expect to find column 1 to be the secondary flightpath and the column
-            % 7 � the detector ID in Mantid-generated phx files only or in
+            % 7-th the detector ID in Mantid-generated phx files only or in
             % the files read from nxspe source
             %
-            % reader ignores column 2, so -getphx option returns array of 
+            % reader ignores column 2, so -getphx option returns array of
             % 6xndet data in similar to par format, but the meaning or the
             % columns 4 and 5 are different
             %
@@ -143,13 +136,6 @@ classdef asciipar_loader
             
         end
         %
-        function this=delete_par(this)
-            % clear memory from loaded detectors information
-            this.det_par_=[];
-            if isempty(this.par_file_name)
-                this.n_detinpar_=[];
-            end
-        end
         function fields = par_file_defines(this)
             % Data fields which are defined by a par file
             % ASCII Par or phx file defines det_par only (n_detectors in
@@ -161,18 +147,45 @@ classdef asciipar_loader
             %>> fields= par_file_defines(loader);
             %   loader -- the specific loader constructor
             %
-            fields = check_par_defined(this);
+            fields = check_par_defined_(this);
         end
-        % -----------------------------------------------------------------
-        % ---- SETTERS GETTERS FOR SPECIAL PROPERTIES     -----------------
-        % -----------------------------------------------------------------
-        % connected properties related to det_par location in file or in
-        % memory
-        function det_par=get.det_par(this)
-            % get method for dependent property det_par
-            det_par= this.det_par_;
+        % ------------------------------------------------------------------
+        function this=delete_par(this)
+            % clear memory from loaded detectors information
+            this.det_par_=[];
+            if isempty(this.par_file_name)
+                this.n_detinpar_=[];
+            end
         end
-        function this=set.det_par(this,value)
+    end
+    methods(Access=protected)
+        %
+        function obj=set_par_file_name(obj,par_f_name)
+            % method checks if the ASCII file with the name par_file_name exists
+            %
+            % Then it sets this par file name as the source par file name and
+            % clears all previous loaded par file information (if any).
+            %
+            if isempty(par_f_name)
+                % disconnect detector information in memory from a par file
+                obj.par_file_name_='';
+                if isempty(obj.det_par)
+                    obj.n_detinpar_=[];
+                end
+            else
+                [ok,mess,f_name] = check_file_exist(par_f_name,{'.par','.phx'});
+                if ~ok
+                    error('ASCIIPAR_LOADER:set_par_file_name',mess);
+                end
+                if ~strcmp(obj.par_file_name_,f_name)
+                    obj.par_file_name_= f_name;
+                    obj.n_detinpar_ = asciipar_loader.get_par_info(f_name);
+                    obj.det_par_=[];
+                end
+            end
+        end
+        %
+        function obj=set_det_par(obj,value)
             % method sets detector parameters from memory
             %Usage:
             %loader.det_par = value;
@@ -183,65 +196,30 @@ classdef asciipar_loader
             %if the value to set is syntactically correct, the operation sets
             %also n_detectors to the number of detectors, defined by the array
             if isempty(value)
-                this=this.delete_par();
+                obj=obj.delete_par();
                 return
             end
-            [this.det_par_,this.n_detinpar_,this.par_file_name_] = check_det_par(value);
-            % HACK: (removes par_file_name_ from asciipar_loader if nxspe
-            % loader is used, as nxspe loader uses its own par file name.)
-            % Porper solution -- redesighn a_loader not to inherit from
-            % ascii_par_loader but have separate class to downdload
-            % detector information and change this class depending on the 
-            % input type provided.
-            if isa(this,'loader_nxspe')
-                if strcmp(this.par_file_name_,this.file_name)
-                    this.par_file_name_ = '';
-                end
-            end
-        end
-        
-        function fname=get.par_file_name(this)
-            % get method for dependent property par_file_name
-            fname = this.par_file_name_;
+            [obj.det_par_,obj.n_detinpar_,obj.par_file_name_] = check_det_par_(obj,value);
         end
         %
-        function this=set.par_file_name(this,par_f_name)
-            % method checks if the ASCII file with the name par_file_name exists
-            %
-            % Then it sets this par file name as the source par file name and
-            % clears all previous loaded par file information (if any).
-            %
-            
-            if isempty(par_f_name)
-                % disconnect detector information in memory from a par file
-                this.par_file_name_='';
-                if isempty(this.det_par)
-                    this.n_detinpar_=[];
-                end
-            else
-                [ok,mess,f_name] = check_file_exist(par_f_name,{'.par','.phx'});
-                if ~ok
-                    error('ASCIIPAR_LOADER:set_par_file_name',mess);
-                end
-                if ~strcmp(this.par_file_name_,f_name)
-                    this.par_file_name_= f_name;
-                    this.n_detinpar_ = asciipar_loader.get_par_info(f_name);
-                    this.det_par_=[];
-                end
-            end
+        function fn = get_par_file_name(obj)
+            fn  = obj.par_file_name_;
         end
-        
-        function ndet = n_detectors(this)
-            %method to get number of detectors
-            ndet = this.n_detinpar_;
+        %
+        function ndet = get_n_det_in_par(obj)
+            ndet = obj.n_detinpar_;
         end
-        % ------------------------------------------------------------------
+        function det_par= get_det_par(obj)
+            det_par = obj.det_par_;
+        end
     end
+    %
     methods(Static)
         function fields = par_can_define()
-            fields = {'det_par','n_detectors'};            
+            fields = {'det_par','n_det_in_par'};
         end
-        
+       
+        %
         function ndet=get_par_info(par_file_name,varargin)
             % get number of detectors described in ASCII par or phx file
             
@@ -257,7 +235,13 @@ classdef asciipar_loader
             end
         end
     end
-    
+    %
+    methods(Access=private)
+        % internal submethod of set_det_par function
+        [det_par,n_det,file_name] = check_det_par_(obj,value)
+        % Data fields which are defined by a par file
+        fields = check_par_defined_(this);
+    end
 end
 
 
