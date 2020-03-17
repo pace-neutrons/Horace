@@ -37,7 +37,7 @@ protected:
     char *buf = reinterpret_cast<char *>(&sample_npix[0]);
     data_file_bin.seekg(BIN_POS_IN_FILE);
     data_file_bin.read(buf, NUM_BINS_IN_FILE * 8);
-    for (std::size_t i = 1; i < sample_npix.size(); i++) {
+    for (auto i = 1; i < sample_npix.size(); i++) {
       sample_pix_pos[i] = sample_pix_pos[i - 1] + sample_npix[i - 1];
     }
     data_file_bin.seekg(PIX_POS_IN_FILE);
@@ -71,7 +71,7 @@ TEST_F(TestCombineSQW, Read_NBins) {
   ASSERT_EQ(sample_npix[5], buffer[5].num_bin_pixels);
   ASSERT_EQ(sample_npix[129], buffer[129].num_bin_pixels);
 
-  for (std::size_t i = 1; i < buffer.size(); i++) {
+  for (auto i = 1; i < buffer.size(); i++) {
     ASSERT_EQ(buffer[i].pix_pos,
               buffer[i - 1].pix_pos + buffer[i - 1].num_bin_pixels);
   }
@@ -114,7 +114,7 @@ TEST_F(TestCombineSQW, Read_NBins) {
   ASSERT_EQ(sample_npix[1], buffer2[1].num_bin_pixels);
   ASSERT_EQ(sample_npix[5], buffer2[5].num_bin_pixels);
 
-  for (std::size_t i = 1; i < buffer2.size(); i++) {
+  for (auto i = 1; i < buffer2.size(); i++) {
     ASSERT_EQ(buffer2[i].pix_pos,
               buffer[i - 1].pix_pos + buffer[i - 1].num_bin_pixels);
   }
@@ -197,7 +197,7 @@ TEST_F(TestCombineSQW, Fully_Expand_Pix_Map_From_Start) {
   ASSERT_EQ(last_mem_bin, n_tot_bins);
   ASSERT_EQ(last_mem_bin, NUM_BINS_IN_FILE);
 
-  for (size_t i = 0; i < NUM_BINS_IN_FILE; i++) {
+  for (auto i = 0; i < NUM_BINS_IN_FILE; i++) {
     size_t pix_start, npix;
     pix_map.get_npix_for_bin(i, pix_start, npix);
     ASSERT_EQ(pix_start, sample_pix_pos[i]);
@@ -231,7 +231,7 @@ TEST_F(TestCombineSQW, Check_Expand_Pix_Map) {
             num_pix);
   ASSERT_TRUE(end_pix_reached);
 
-  for (size_t i = 512; i < NUM_BINS_IN_FILE; i++) {
+  for (auto i = 512; i < NUM_BINS_IN_FILE; i++) {
     size_t pix_start, npix;
     pix_map.get_npix_for_bin(i, pix_start, npix);
     ASSERT_EQ(pix_start, sample_pix_pos[i]);
@@ -375,7 +375,7 @@ TEST_F(TestCombineSQW, Fully_Expand_Pix_Map_From_Start_Threads) {
   ASSERT_EQ(last_mem_bin, n_tot_bins);
   ASSERT_EQ(last_mem_bin, NUM_BINS_IN_FILE);
 
-  for (size_t i = 0; i < NUM_BINS_IN_FILE; i++) {
+  for (auto i = 0; i < NUM_BINS_IN_FILE; i++) {
     size_t pix_start, npix;
     pix_map.get_npix_for_bin(i, pix_start, npix);
     ASSERT_EQ(pix_start, sample_pix_pos[i]);
@@ -408,7 +408,7 @@ TEST_F(TestCombineSQW, Check_Expand_Pix_Map_Threads) {
             num_pix);
   ASSERT_TRUE(end_pix_reached);
 
-  for (size_t i = 512; i < NUM_BINS_IN_FILE; i++) {
+  for (auto i = 512; i < NUM_BINS_IN_FILE; i++) {
     size_t pix_start, npix;
     pix_map.get_npix_for_bin(i, pix_start, npix);
     ASSERT_EQ(pix_start, sample_pix_pos[i]);
@@ -480,7 +480,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix) {
                          num_bin_pix, false);
   ASSERT_EQ(pix_start_num, 0);
   ASSERT_EQ(num_bin_pix, 3);
-  for (size_t i = 0; i < num_bin_pix * 9; i++) {
+  for (auto i = 0; i < num_bin_pix * 9; i++) {
     ASSERT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[i]);
   }
   // pix buffer have not changed at all
@@ -494,7 +494,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix) {
   ASSERT_EQ(pix_start_num, 334);
   ASSERT_EQ(num_bin_pix, 4);
   // DISABLED
-  // for (size_t i = 0; i<num_bin_pix * 9; i++) {
+  // for (auto i = 0; i<num_bin_pix * 9; i++) {
   //     ASSERT_EQ(pixels[pix_start_num*9+i], pix_buffer[i]);
   // }
 
@@ -504,7 +504,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix) {
   ASSERT_EQ(pix_start_num, sample_pix_pos[NUM_BINS_IN_FILE - 860]);
   ASSERT_EQ(num_bin_pix, sample_npix[NUM_BINS_IN_FILE - 860]);
   // DISABLED
-  // for (size_t i = 0; i<num_bin_pix * 9; i++) {
+  // for (auto i = 0; i<num_bin_pix * 9; i++) {
   //     ASSERT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos*9 +
   //     i]);
   // }
@@ -512,7 +512,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix) {
   // reader.get_pix_for_bin(NUM_BINS_IN_FILE - 860+1, pPix_info, start_buf_pos,
   // pix_start_num, num_bin_pix, false); ASSERT_EQ(pix_start_num,
   // sample_pix_pos[NUM_BINS_IN_FILE - 860+1]); ASSERT_EQ(num_bin_pix,
-  // sample_npix[NUM_BINS_IN_FILE - 860+1]); for (size_t i = 0; i<num_bin_pix *
+  // sample_npix[NUM_BINS_IN_FILE - 860+1]); for (auto i = 0; i<num_bin_pix *
   // 9; i++) {
   //     ASSERT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos * 9 +
   //     i]);
@@ -523,7 +523,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix) {
                          pix_start_num, num_bin_pix, false);
   ASSERT_EQ(pix_start_num, sample_pix_pos[NUM_BINS_IN_FILE - 1]);
   ASSERT_EQ(num_bin_pix, sample_npix[NUM_BINS_IN_FILE - 1]);
-  for (size_t i = 0; i < num_bin_pix * 9; i++) {
+  for (auto i = 0; i < num_bin_pix * 9; i++) {
     ASSERT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos * 9 + i]);
   }
 }
@@ -553,7 +553,7 @@ TEST_F(TestCombineSQW, SQW_Reader_NoBuf_Mode) {
                          num_bin_pix, false);
   ASSERT_EQ(pix_start_num, 0);
   ASSERT_EQ(num_bin_pix, 3);
-  for (size_t i = 0; i < num_bin_pix * 9; i++) {
+  for (auto i = 0; i < num_bin_pix * 9; i++) {
     ASSERT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[i]);
   }
   // pix buffer have not changed at all
@@ -567,7 +567,7 @@ TEST_F(TestCombineSQW, SQW_Reader_NoBuf_Mode) {
   ASSERT_EQ(pix_start_num, 334);
   ASSERT_EQ(num_bin_pix, 4);
   // DISABLED
-  // for (size_t i = 0; i<num_bin_pix * 9; i++) {
+  // for (auto i = 0; i<num_bin_pix * 9; i++) {
   //     ASSERT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[i]);
   // }
   start_buf_pos = 5;
@@ -576,7 +576,7 @@ TEST_F(TestCombineSQW, SQW_Reader_NoBuf_Mode) {
   ASSERT_EQ(pix_start_num, sample_pix_pos[NUM_BINS_IN_FILE - 860]);
   ASSERT_EQ(num_bin_pix, sample_npix[NUM_BINS_IN_FILE - 860]);
   // DISABLED
-  // for (size_t i = 0; i<num_bin_pix * 9; i++) {
+  // for (auto i = 0; i<num_bin_pix * 9; i++) {
   //     ASSERT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos * 9 +
   //     i]);
   // }
@@ -586,7 +586,7 @@ TEST_F(TestCombineSQW, SQW_Reader_NoBuf_Mode) {
   ASSERT_EQ(pix_start_num, sample_pix_pos[NUM_BINS_IN_FILE - 860 + 1]);
   ASSERT_EQ(num_bin_pix, sample_npix[NUM_BINS_IN_FILE - 860 + 1]);
   // DISABLED
-  // for (size_t i = 0; i<num_bin_pix * 9; i++) {
+  // for (auto i = 0; i<num_bin_pix * 9; i++) {
   //     ASSERT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos * 9 +
   //     i]);
   // }
@@ -596,7 +596,7 @@ TEST_F(TestCombineSQW, SQW_Reader_NoBuf_Mode) {
                          pix_start_num, num_bin_pix, false);
   ASSERT_EQ(pix_start_num, sample_pix_pos[NUM_BINS_IN_FILE - 1]);
   ASSERT_EQ(num_bin_pix, sample_npix[NUM_BINS_IN_FILE - 1]);
-  for (size_t i = 0; i < num_bin_pix * 9; i++) {
+  for (auto i = 0; i < num_bin_pix * 9; i++) {
     ASSERT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos * 9 + i]);
   }
 }
@@ -626,7 +626,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix_Threads) {
                          num_bin_pix, false);
   ASSERT_EQ(pix_start_num, 0);
   ASSERT_EQ(num_bin_pix, 3);
-  for (size_t i = 0; i < num_bin_pix * 9; i++) {
+  for (auto i = 0; i < num_bin_pix * 9; i++) {
     ASSERT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[i]);
   }
   // pix buffer have not changed at all
@@ -640,7 +640,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix_Threads) {
   ASSERT_EQ(pix_start_num, 334);
   ASSERT_EQ(num_bin_pix, 4);
   // DISABLED
-  // for (size_t i = 0; i<num_bin_pix * 9; i++) {
+  // for (auto i = 0; i<num_bin_pix * 9; i++) {
   //     ASSERT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[i]);
   // }
   start_buf_pos = 5;
@@ -649,7 +649,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix_Threads) {
   ASSERT_EQ(pix_start_num, sample_pix_pos[NUM_BINS_IN_FILE - 860]);
   ASSERT_EQ(num_bin_pix, sample_npix[NUM_BINS_IN_FILE - 860]);
   // DISABLED
-  // for (size_t i = 0; i<num_bin_pix * 9; i++) {
+  // for (auto i = 0; i<num_bin_pix * 9; i++) {
   //     ASSERT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos * 9 +
   //     i]);
   // }
@@ -658,7 +658,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix_Threads) {
   ASSERT_EQ(pix_start_num, sample_pix_pos[NUM_BINS_IN_FILE - 860 + 1]);
   ASSERT_EQ(num_bin_pix, sample_npix[NUM_BINS_IN_FILE - 860 + 1]);
   // DISABLED
-  // for (size_t i = 0; i<num_bin_pix * 9; i++) {
+  // for (auto i = 0; i<num_bin_pix * 9; i++) {
   //     ASSERT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos * 9 +
   //     i]);
   // }
@@ -668,7 +668,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix_Threads) {
                          pix_start_num, num_bin_pix, false);
   ASSERT_EQ(pix_start_num, sample_pix_pos[NUM_BINS_IN_FILE - 1]);
   ASSERT_EQ(num_bin_pix, sample_npix[NUM_BINS_IN_FILE - 1]);
-  for (size_t i = 0; i < num_bin_pix * 9; i++) {
+  for (auto i = 0; i < num_bin_pix * 9; i++) {
     ASSERT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos * 9 + i]);
   }
 }
@@ -690,7 +690,7 @@ TEST_F(TestCombineSQW, DISABLED_SQW_Reader_Read_All) {
 
   auto t_start = std::chrono::steady_clock::now();
   start_buf_pos = 0;
-  for (size_t i = 0; i < NUM_BINS_IN_FILE; i++) {
+  for (auto i = 0; i < NUM_BINS_IN_FILE; i++) {
     reader.get_pix_for_bin(i, pPix_info, start_buf_pos, pix_start_num,
                            num_bin_pix, false);
     start_buf_pos += num_bin_pix;
@@ -701,7 +701,7 @@ TEST_F(TestCombineSQW, DISABLED_SQW_Reader_Read_All) {
   std::cout << "\n Time to run single thread with system buffer: " << t_end
             << "ms\n";
 
-  for (size_t i = 0; i < pix_buffer.size(); i++) {
+  for (auto i = 0; i < pix_buffer.size(); i++) {
     ASSERT_EQ(pix_buffer[i], pixels[i]);
     pix_buffer[i] = 0;
   }
@@ -710,7 +710,7 @@ TEST_F(TestCombineSQW, DISABLED_SQW_Reader_Read_All) {
 
   t_start = std::chrono::steady_clock::now();
   start_buf_pos = 0;
-  for (size_t i = 0; i < NUM_BINS_IN_FILE; i++) {
+  for (auto i = 0; i < NUM_BINS_IN_FILE; i++) {
     reader.get_pix_for_bin(i, pPix_info, start_buf_pos, pix_start_num,
                            num_bin_pix, false);
     start_buf_pos += num_bin_pix;
@@ -721,7 +721,7 @@ TEST_F(TestCombineSQW, DISABLED_SQW_Reader_Read_All) {
   std::cout << "\n Time to run single thread with 1024 words buffer: " << t_end
             << "ms\n";
 
-  for (size_t i = 0; i < pix_buffer.size(); i++) {
+  for (auto i = 0; i < pix_buffer.size(); i++) {
     ASSERT_EQ(pix_buffer[i], pixels[i]);
     pix_buffer[i] = 0;
   }
@@ -731,7 +731,7 @@ TEST_F(TestCombineSQW, DISABLED_SQW_Reader_Read_All) {
 
   t_start = std::chrono::steady_clock::now();
   start_buf_pos = 0;
-  for (size_t i = 0; i < NUM_BINS_IN_FILE; i++) {
+  for (auto i = 0; i < NUM_BINS_IN_FILE; i++) {
     reader.get_pix_for_bin(i, pPix_info, start_buf_pos, pix_start_num,
                            num_bin_pix, false);
     start_buf_pos += num_bin_pix;
@@ -741,7 +741,7 @@ TEST_F(TestCombineSQW, DISABLED_SQW_Reader_Read_All) {
               .count();
   std::cout << "\n Time to run threads: " << t_end << "ms\n";
 
-  for (size_t i = 0; i < pix_buffer.size(); i++) {
+  for (auto i = 0; i < pix_buffer.size(); i++) {
     ASSERT_EQ(pix_buffer[i], pixels[i]);
     pix_buffer[i] = 0;
   }
@@ -751,7 +751,7 @@ TEST_F(TestCombineSQW, DISABLED_SQW_Reader_Read_All) {
 
   t_start = std::chrono::steady_clock::now();
   start_buf_pos = 0;
-  for (size_t i = 0; i < NUM_BINS_IN_FILE; i++) {
+  for (auto i = 0; i < NUM_BINS_IN_FILE; i++) {
     reader.get_pix_for_bin(i, pPix_info, start_buf_pos, pix_start_num,
                            num_bin_pix, false);
     start_buf_pos += num_bin_pix;
@@ -836,10 +836,10 @@ TEST_F(TestCombineSQW, MXSQW_Reader_Propagate_Pix_Multi) {
   Buffer.unlock_write_buffer();
   ASSERT_EQ(nReadPixels, ProgSettings.pixBufferSize);
 
-  for (size_t i = 0; i < n_bins_processed + 1; i += 10) {
+  for (auto i = 0; i < n_bins_processed + 1; i += 10) {
     ASSERT_EQ(nbin_Buffer_Threads[i], nbin_Buffer_noThreads[i]) << "bin N" << i;
   }
-  for (size_t i = 0; i < n_buf_pixels; i += 100) {
+  for (auto i = 0; i < n_buf_pixels; i += 100) {
     size_t n_pix = i / 9;
     ASSERT_EQ(buf[i], buf1[i]) << "pix N" << n_pix;
   }
