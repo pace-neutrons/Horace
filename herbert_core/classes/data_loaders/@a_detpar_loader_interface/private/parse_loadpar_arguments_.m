@@ -1,6 +1,5 @@
-function [return_array,force_reload,getphx,lext,this]=parse_loadpar_arguments(this,options,varargin)
-% method processes the arguments specified with load_par methods
-%
+function [return_array,force_reload,getphx,lext,obj]=parse_loadpar_arguments_(obj,varargin)
+% Auxiliry method processes the arguments specified with load_par methods
 %
 % usage:
 %>>this = load_par(this,'-nohor')
@@ -37,51 +36,47 @@ function [return_array,force_reload,getphx,lext,this]=parse_loadpar_arguments(th
 %                     the file name, stored in the loader
 %
 
-
-
-return_array = false;
-force_reload = false;
-hor_format_deprecated=false;
-getphx = false;
-file_name  = {};
+CallClassName = class(obj);
 %
-if numel(varargin)>0
-    [ok,mess,return_array,return_array2,hor_format_deprecated,force_reload,getphx,file_name]=parse_char_options(varargin,options);
-    if ~ok
-        if get(herbert_config,'log_level')>0
-            disp('Usage:');
-            help asciipar_loader.load_par;
-        end
-        
-        error('ASCIIPAR_LOADER:load_par',mess)
-    else
-        return_array =return_array||return_array2;
+options = {'-nohorace','-array','-horace','-forcereload','-getphx'};
+[ok,mess,return_array,return_array2,hor_format_deprecated,force_reload,getphx,file_name]=...
+    parse_char_options(varargin,options);
+if ~ok
+    if get(herbert_config,'log_level')>0
+        disp('Usage:');
+        help([CallClassName,'.load_par']);
     end
-    
+    error([upper(CallClassName),':invalid_argument'],mess)
+else
+    return_array =return_array||return_array2;
 end
+
+
 if getphx
     return_array = true;
 end
 %
 if hor_format_deprecated
-    warning('ASCIIPAR_LOADER:load_par','option -horace is deprecated, loader returns data in horace format by default')
+    warning([upper(CallClassName),':deprecated_option'],...
+        'option -horace is deprecated, loader returns data in horace format by default')
 end
 if numel(file_name)>1
     if get(herbert_config,'log_level')>0
         disp('Usage:');
-        help asciipar_loader.load_par;
+        help([CallClassName,'.load_par']);
     end
-    
-    error('ASCIIPAR_LOADER:load_par','Too many input aruments')
+    error([upper(CallClassName),':invalid_argument'],...
+        'Too many input aruments')
 elseif numel(file_name)==1
-    this.par_file_name = file_name{1};
+    obj.par_file_name = file_name{1};
 end
 
-if isempty(this.par_file_name)
-    error('ASCIIPAR_LOADER:load_par','Attempting to load ASCII detector parameters but the parameters file is not defined')
+if isempty(obj.par_file_name)
+    error([upper(CallClassName),':invalid_argument'],...
+        'Attempting to load ASCII detector parameters but the parameters file is not defined')
 end
 if ~exist('lext','var')
-    [~,~,lext] = fileparts(this.par_file_name);
+    [~,~,lext] = fileparts(obj.par_file_name);
     lext= lower(lext);
 end
 

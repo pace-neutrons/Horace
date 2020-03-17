@@ -121,7 +121,7 @@ classdef loader_nxspe < a_loader
             end
             
         end
-        
+        %
         function this = loader_nxspe(full_nxspe_file_name,varargin)
             % the constructor for nxspe data loader
             % it verifies if the file is correct nxspe file and
@@ -141,7 +141,7 @@ classdef loader_nxspe < a_loader
                 this = this.init();
             end
         end
-        
+        %
         function fields = defined_fields(this)
             % the method returns the cellarray of fields names, which are
             % defined by nxspe file and par file if present

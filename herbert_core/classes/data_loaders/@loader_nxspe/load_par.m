@@ -62,33 +62,19 @@ function [det,this]=load_par(this,varargin)
 % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 %
 options = {'-nohorace','-array','-horace','-forcereload','-getphx'}; % if options changes, parse_par_file_arg should also change
-[return_array,reload,file_provided,getphx,new_file_name,lext]=parse_par_file_arg(this,options,varargin{:});
+[return_array,reload,file_provided,getphx,new_file_name]=parse_par_file_arg(this,options,varargin{:});
+
 
 if file_provided
-    if ~strcmp('.nxspe',lext)
-        this.par_file_name = new_file_name;
-    else
-        this.file_name = new_file_name;
-    end
+    this.par_file_name = new_file_name;
 end
 
-if isempty(this.par_file_name)
-    [det,this] = load_nxspe_par(this,return_array,reload);
-    if getphx % in this case return_array is true and we are converting only array
-        det = convert_par2phx(det);
-    end
-else
-    ascii_par_file = this.par_file_name;
-    if return_array
-        params = {ascii_par_file,'-nohor'};
-    else
-        params = {ascii_par_file};
-    end
-    if getphx
-      params = {params{:},'-getphx'};
-    end
-    [det,this]=load_par@asciipar_loader(this,params{:});
+[det,this] = load_nxspe_par_(this,return_array,reload);
+if getphx % in this case return_array is true and we are converting only array
+    det = convert_par2phx(det);
 end
+
+
 %--------------------------------------------------------------------------
 function phx = convert_par2phx(par)
 % par contains col:
@@ -144,9 +130,9 @@ if numel(varargin)>0
             error('LOADER_NXSPE:load_par','only one file name allowed as input parameter')
         end
         new_file_name = file_name{1};
-        [dummy0,dummy1,lext] = fileparts(new_file_name);
-        if isempty(lext)
-            error('LOADER_NXSPE:load_par','new file name %s should have known extension',new_file_name)
+        [~,~,lext_prov] = fileparts(new_file_name);
+        if isempty(lext) || ~strcmpi(lext,lext_prov)
+            error('LOADER_NXSPE:load_par','the input file name %s should have extension .nxspe',new_file_name)
         end
         file_provided = true;
     end
