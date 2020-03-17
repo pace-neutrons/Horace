@@ -2,10 +2,10 @@
 
 class PixMapTester : public pix_mem_map {
 public:
-  void read_bins(std::size_t num_bins,
+  void read_bins(std::size_t starting_bin_num,
                  std::vector<pix_mem_map::bin_info> &buffer,
                  std::size_t &bin_end, std::size_t &buf_end) {
-    pix_mem_map::_read_bins(num_bins, buffer, bin_end, buf_end);
+    pix_mem_map::_read_bins(starting_bin_num, buffer, bin_end, buf_end);
   };
 
   void read_bins_job() { pix_mem_map::read_bins_job(); }

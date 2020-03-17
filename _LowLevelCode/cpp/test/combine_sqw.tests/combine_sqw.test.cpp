@@ -29,22 +29,29 @@ protected:
 
   // Called once, before the first test is executed.
   static void SetUpTestSuite() {
-    std::ifstream data_file_bin;
-    data_file_bin.open(TEST_FILE_NAME, std::ios::in | std::ios::binary);
+    std::ifstream data_file_bin(TEST_FILE_NAME,
+                                std::ios::in | std::ios::binary);
     if (!data_file_bin.is_open()) {
-      throw "Can not open test data file";
+      throw std::exception("Can not open test data file");
     }
-    char *buf = reinterpret_cast<char *>(&sample_npix[0]);
-    data_file_bin.seekg(BIN_POS_IN_FILE);
-    data_file_bin.read(buf, NUM_BINS_IN_FILE * 8);
-    for (auto i = 1; i < sample_npix.size(); i++) {
-      sample_pix_pos[i] = sample_pix_pos[i - 1] + sample_npix[i - 1];
-    }
-    data_file_bin.seekg(PIX_POS_IN_FILE);
-    buf = reinterpret_cast<char *>(&pixels[0]);
-    data_file_bin.read(buf, NUM_PIXELS * 9 * 8);
+    try {
+      // Read npix data
+      data_file_bin.seekg(BIN_POS_IN_FILE);
+      data_file_bin.read(reinterpret_cast<char *>(sample_npix.data()),
+                         NUM_BINS_IN_FILE * 8);
+      // Fill the sample_pix_pos vector
+      for (auto i = 1; i < sample_npix.size(); i++) {
+        sample_pix_pos[i] = sample_pix_pos[i - 1] + sample_npix[i - 1];
+      }
 
-    data_file_bin.close();
+      // Read pixel data
+      data_file_bin.seekg(PIX_POS_IN_FILE);
+      data_file_bin.read(reinterpret_cast<char *>(pixels.data()),
+                         NUM_PIXELS * 9 * 8);
+    } catch (...) {
+      data_file_bin.close();
+      throw;
+    }
   }
 };
 
