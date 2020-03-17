@@ -1,7 +1,7 @@
 #include "combine_sqw/combine_sqw.h"
 #include "combine_sqw/nsqw_pix_reader.h"
-#include "combine_sqw/pix_mem_map.h"
 #include "combine_sqw/sqw_pix_writer.h"
+#include "test/combine_sqw.tests/pix_map_tester.h"
 #include "utility/environment.h"
 
 #include <gtest/gtest.h>
@@ -9,35 +9,6 @@
 #include <vector>
 
 using namespace Horace::Utility;
-
-class pix_map_tester : public pix_mem_map {
-public:
-  void read_bins(std::size_t num_bin,
-                 std::vector<pix_mem_map::bin_info> &buffer,
-                 std::size_t &bin_end, std::size_t &buf_end) {
-    pix_mem_map::_read_bins(num_bin, buffer, bin_end, buf_end);
-  }
-  void read_bins_job() { pix_mem_map::read_bins_job(); }
-
-  std::size_t get_first_thread_bin() const { return n_first_rbuf_bin; }
-  std::size_t get_last_thread_bin() const { return rbuf_nbin_end; }
-  std::size_t get_n_buf_pix() const { return rbuf_end; }
-  void wait_for_read_completed() {
-    std::unique_lock<std::mutex> data_ready(this->exchange_lock);
-    this->bins_ready.wait(data_ready, [this]() { return this->nbins_read; });
-  }
-  bool thread_get_data(std::size_t &num_bin, std::vector<bin_info> &inbuf,
-                       std::size_t &bin_end, std::size_t &buf_end) {
-    return pix_mem_map::_thread_get_data(num_bin, inbuf, bin_end, buf_end);
-  }
-  void thread_query_data(std::size_t &num_first_bin, std::size_t &num_last_bin,
-                         std::size_t &buf_end) {
-    pix_mem_map::_thread_query_data(num_first_bin, num_last_bin, buf_end);
-  }
-  void thread_request_to_read(std::size_t start_bin) {
-    pix_mem_map::_thread_request_to_read(start_bin);
-  }
-};
 
 class TestCombineSQW : public ::testing::Test {
 
@@ -86,7 +57,7 @@ std::size_t TestCombineSQW::num_bin_in_file, TestCombineSQW::bin_pos_in_file,
     TestCombineSQW::pix_pos_in_file;
 
 TEST_F(TestCombineSQW, Read_NBins) {
-  pix_map_tester pix_map;
+  PixMapTester pix_map;
 
   pix_map.init(this->test_file_name, bin_pos_in_file, num_bin_in_file, 128,
                false);
@@ -319,7 +290,7 @@ TEST_F(TestCombineSQW, Normal_Expand_Mode) {
 }
 
 TEST_F(TestCombineSQW, Thread_Job) {
-  pix_map_tester pix_map;
+  PixMapTester pix_map;
   pix_map.init(this->test_file_name, bin_pos_in_file, num_bin_in_file, 0, true);
   size_t first_th_bin, last_tr_bin, buf_end;
 
@@ -818,7 +789,7 @@ TEST_F(TestCombineSQW, MXSQW_Reader_Propagate_Pix_Multi) {
   bool initialized(false);
   try {
     //(fileParam[i], change_fileno, fileno_provided, read_buf_size,
-    //read_files_multitreaded);
+    // read_files_multitreaded);
     reader_noThread[0].init(file_par, false, false, 64, 0);
     initialized = true;
   } catch (...) {
@@ -856,7 +827,7 @@ TEST_F(TestCombineSQW, MXSQW_Reader_Propagate_Pix_Multi) {
   initialized = false;
   try {
     //(fileParam[i], change_fileno, fileno_provided, read_buf_size,
-    //read_files_multitreaded);
+    // read_files_multitreaded);
     reader_threads[0].init(file_par, false, false, 64, 1);
     initialized = true;
   } catch (...) {
