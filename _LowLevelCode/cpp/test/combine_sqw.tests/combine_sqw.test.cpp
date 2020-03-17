@@ -29,9 +29,6 @@ protected:
 
   // Called once, before the first test is executed.
   static void SetUpTestSuite() {
-    sample_npix.resize(NUM_BINS_IN_FILE);
-    sample_pix_pos.resize(NUM_BINS_IN_FILE, 0);
-    pixels.resize(NUM_PIXELS * 9, 0);
     std::ifstream data_file_bin;
     data_file_bin.open(TEST_FILE_NAME, std::ios::in | std::ios::binary);
     if (!data_file_bin.is_open()) {
@@ -51,9 +48,9 @@ protected:
   }
 };
 
-std::vector<uint64_t> TestCombineSQW::sample_npix;
-std::vector<uint64_t> TestCombineSQW::sample_pix_pos;
-std::vector<float> TestCombineSQW::pixels;
+std::vector<uint64_t> TestCombineSQW::sample_npix(NUM_BINS_IN_FILE, 0);
+std::vector<uint64_t> TestCombineSQW::sample_pix_pos(NUM_BINS_IN_FILE, 0);
+std::vector<float> TestCombineSQW::pixels(NUM_PIXELS * 9, 0);
 
 TEST_F(TestCombineSQW, Read_NBins) {
   PixMapTester pix_map;
