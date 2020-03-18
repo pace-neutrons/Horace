@@ -49,8 +49,8 @@ classdef a_loader < a_detpar_loader_interface
         en_=[];
         % name of data file to load data from
         data_file_name_='';
-        % the data fields which are defined in the main data file
-        loader_defines={};
+        % the data fields which are defined by the main data file
+        loader_define_={};
         % holder to keep appropriate class, responsible for loading the
         % detectors parameters
         detpar_loader_ = [];
@@ -83,9 +83,7 @@ classdef a_loader < a_detpar_loader_interface
     %------------------------------------------------------------------
     % A_LOADER Interface:
     %------------------------------------------------------------------
-    
     methods(Abstract)
-        [varargout]=load_data(this,varargin);
         % Load main data defined for the loader. (e.g. Signal and Error)
         % Expected interface:
         %>>this=load_data(this,varargin);             1)
@@ -96,11 +94,8 @@ classdef a_loader < a_detpar_loader_interface
         % the class instance has to be present in the RHS of the load_data statement in form 1 or 4
         % if one wants to load data into the the class memory itself.
         % forms 2) and 3) just load and return signal, error and energy bins if possible.
-        %
-        %
-        %
+        [varargout]=load_data(this,varargin);
         
-        this=init(this,data_file_name,varargin);
         % the method performs the initialization of the main part of the constructor.
         %
         % Invoked separately it initializes a loader, defined by empty constructor.
@@ -113,17 +108,12 @@ classdef a_loader < a_detpar_loader_interface
         %   this=this.init(data_file,varargin);
         % end
         % See loader_ascii or loader_nxspe for actual example of init method and the constructor.
+        this=init(this,data_file_name,varargin);
         
-        this=set_data_info(this,file_name);
         % method sets internal file information obtained for appropriate file
         % by get_data_info method into internal class memory.
+        this=set_data_info(this,file_name);
     end
-    methods(Access=protected)
-        function obj = set_input_file_name(obj,new_name)
-            obj = set_file_name_(obj,new_name);
-        end
-    end
-    
     
     methods
         % constructor;
@@ -145,6 +135,7 @@ classdef a_loader < a_detpar_loader_interface
                 end
             end
         end
+        %
         function [ndet,en,this]=get_run_info(this)
             % Get number of detectors and energy boundaries defined by the data files
             % and detector files processed by this class instance
@@ -173,11 +164,11 @@ classdef a_loader < a_detpar_loader_interface
             end
         end
         %
-        function fields = loader_can_define(this)
+        function fields = loader_define(obj)
             % what fields loader can actually define
-            fields = this.loader_defines;
-            if ~isempty(this.par_file_name)
-                par_fields = this.par_can_define();
+            fields = obj.loader_define_;
+            if ~isempty(obj.detpar_loader_)
+                par_fields = obj.detpar_loader_.loader_define();
                 not_in_loader = ~ismember(par_fields,fields);
                 fields = [fields,par_fields{not_in_loader}];
             end
@@ -220,7 +211,7 @@ classdef a_loader < a_detpar_loader_interface
             fields = check_defined_fields(this);
         end
         %
-        function this=delete(this)
+        function obj=delete(obj)
             % delete all memory demanding data/fields from memory and close all
             % open files (if any)
             %
@@ -229,16 +220,17 @@ classdef a_loader < a_detpar_loader_interface
             % deleter should be overloaded
             %
             %
-            this.S_ = [];
-            this.ERR_ = [];
-            if isempty(this.data_file_name_)
-                this.en_=[];
-                this.n_detindata_=[];
+            obj.S_ = [];
+            obj.ERR_ = [];
+            if isempty(obj.data_file_name_)
+                obj.en_=[];
+                obj.n_detindata_=[];
             end
-            if ~isempty()
+            if ~isempty(obj.detpar_loader_)
+                obj.detpar_loader_ = obj.detpar_loader_.delete();
             end
-            this.detp=this.delete_par();
         end
+        %
         function [ok,mess,ndet,en]=is_loader_valid(this)
             % method checks if a loader is fully defined and valid
             %Usage:
@@ -253,7 +245,7 @@ classdef a_loader < a_detpar_loader_interface
             % defined by particular loaders
             [ok,mess,ndet,en] = is_loader_valid_internal(this);
         end
-        
+        %
         function this=load(this,varargin)
             % load all information, stored in data and par files into
             % memory
@@ -348,7 +340,7 @@ classdef a_loader < a_detpar_loader_interface
             % clears all previously loaded run information
             % (if any) inconsistent with the new file or occupying substantial
             % memory.
-            obj = obj.set_input_file_name(new_name);
+            obj = set_file_name_(obj,new_name);
         end
         %
         function filename = get.file_name(this)
@@ -358,15 +350,22 @@ classdef a_loader < a_detpar_loader_interface
             filename = this.data_file_name_;
         end
         %
-        function ndet = get.n_detectors(this)
-            %method to get number of detectors
-            ndet = this.n_detinpar_;
-            if isempty(ndet)
-                ndet = this.n_detindata_;
+        function ndet = get.n_detectors(obj)
+            % method to get number of detectors, consistent between
+            % data and detectors information
+            if ~isempty(obj.detpar_loader_)
+                ndet = obj.detpar_loader_.n_det_in_par;
             else
-                if ~isempty(this.n_detindata_)
-                    if this.n_detindata_ ~= this.n_detinpar_
-                        ndet = 'n_det from par file ~= n_det from data file';
+                ndet = [];
+            end
+            if isempty(ndet)
+                ndet = obj.n_detindata_;
+            else
+                if ~isempty(obj.n_detindata_)
+                    if obj.n_detindata_ ~= ndet
+                        ndet = sprintf(...
+                            'n_det from par file (%d) ~= n_det from data file (%d)',...
+                            ndet,obj.n_detindata_);
                     end
                 end
             end
@@ -413,41 +412,105 @@ classdef a_loader < a_detpar_loader_interface
             % loader exists. Make public for easy overloading and work with memfiles.
             [ok,mess,f_name] = check_file_exist(new_name,this.get_file_extension());
         end
+        %
+        function fields = par_can_define(obj)
+            if isempty(obj.detpar_loader_)
+                fields ={};
+            else
+                fields = par_can_define(obj.detpar_loader_);
+            end
+        end
+        function [par,obj] = load_par(obj,varargin)
+            % load detectors info from
+            if numel(varargin)>1
+                [~,~,~,~,filename]=parse_loadpar_arguments(obj,varargin{:});
+            else
+                filename = '';
+            end
+            argi = {};
+            if isempty(filename)
+                if isempty(obj.detpar_loader_)
+                    error('A_LOADER:runtime_error',...
+                        'Requested to load detectors parameters but the file-source of the parameters is not defined')
+                end
+            else
+                % set new par file name and define new loader for this par
+                % file
+                obj.par_file_name = filename;
+                if numel(varargin) >1
+                    argi= varargin{2:end};
+                end
+            end
+            %
+            if nargout>1
+                [par,obj.detpar_loader_] = obj.detpar_loader_.load_par(argi{:});
+            else
+                par = obj.detpar_loader_.load_par(argi{:});
+            end
+            
+        end
+        
     end
+    %
     methods(Access=protected)
+        %------------------------------------------------------------------
+        % A par_loader interface:
+        %------------------------------------------------------------------
         function det_par= get_det_par(obj)
-            % get method for dependent property det_par            
+            % get method for dependent property det_par
             if isempty(obj.detpar_loader_)
                 det_par = [];
             else
                 det_par = get_det_par(obj.detpar_loader_);
             end
         end
+        %
         function fname = get_par_file_name(obj)
-            % get method for dependent property par_file_name            
+            % get method for dependent property par_file_name
             if isempty(obj.detpar_loader_)
                 fname = '';
             else
                 fname = get_par_file_name(obj.detpar_loader_);
-            end            
+            end
         end
-
-        function ndet = get_n_detectors(obj)
-            %method to retrieve number of detectors            
+        %
+        function ndet = get_n_det_in_par(obj)
+            %method to retrieve number of detectors, defined by
+            %parameters file
             if isempty(obj.detpar_loader_)
                 ndet = [];
             else
-                ndet = get_n_detectors(obj.detpar_loader_);
-            end            
+                ndet = get_n_det_in_par(obj.detpar_loader_);
+            end
+        end
+        %
+        function obj=set_det_par(obj,value)
+            %method checks and sets detector parameters from memory.
+            %
+            % normaly it sets up the existing detpar loader, but if one is
+            % not defined, nxspepar_loader is used as a default
+            if isempty(obj.detpar_loader_)
+                obj.detpar_loader_ = nxspepar_loader(value);
+            else
+                obj.detpar_loader_ = set_det_par(obj.detpar_loader_,value);
+            end
+        end
+        %
+        function obj = set_par_file_name(obj,par_f_name)
+            % Method sets this par file name as the source par file name.
+            % depending on the extension, it can also change the type of the
+            % loader.
+            error('A_LOADER:not_implemented','not yet implemented');
+        end
+        %------------------------------------------------------------------
+    end
+    methods(Static)
+        function [ndet,varargout]=get_par_info(par_file_name_or_handle,varargin)
+            % get number of detectors and other detrcotrs methadata defined by
+            % par,phx nxspe or other supported file
             
         end
-        
-        % method sets detector parameters from memory
-        obj = set_det_par(obj,value);
-        
     end
-    
     %
-    
 end
 

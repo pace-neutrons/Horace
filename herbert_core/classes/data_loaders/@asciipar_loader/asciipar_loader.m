@@ -15,7 +15,18 @@ classdef asciipar_loader < a_detpar_loader_interface
     %
     % the properties common for all data loaders.
     %
-    
+    %
+    properties (Access=protected)
+        % number of detectors, defined in the file, described by the par
+        % file name
+        n_detinpar_=[];
+        % storage field for detector information
+        det_par_=[];
+        % storage field for a par file name
+        par_file_name_ ='';
+        % The data fields an ascii par loader defines
+        par_can_define_ = {'det_par','n_det_in_par'};
+    end
     methods
         % constructor;
         function this=asciipar_loader(varargin)
@@ -124,12 +135,15 @@ classdef asciipar_loader < a_detpar_loader_interface
             % 6xndet data in similar to par format, but the meaning or the
             % columns 4 and 5 are different
             %
-            [return_array,force_reload,getphx,lext,obj] = parse_loadpar_arguments(obj,varargin{:});
+            [return_array,force_reload,getphx,lext,filename] = parse_loadpar_arguments(obj,varargin{:});
+            if ~isempty(filename)
+                obj.par_file_name = filename;
+            end
             [det,obj] = load_phx_or_par_private(obj,return_array,force_reload,getphx,lext);
             
         end
         %
-        function fields = par_file_defines(this)
+        function fields = loader_define(this)
             % Data fields which are defined by a par file
             % ASCII Par or phx file defines det_par only (n_detectors in
             % the loader is dependent/service field) but other future par
@@ -137,13 +151,18 @@ classdef asciipar_loader < a_detpar_loader_interface
             % For such loader this method should be overloaded
             
             %usage:
-            %>> fields= par_file_defines(loader);
+            %>> fields= loader_can_define(loader);
             %   loader -- the specific loader constructor
             %
-            fields = check_par_defined(this);
+            fields = get_par_defined(this);
         end
         %
-        function this=delete_par(this)
+        function fields = par_can_define(obj)
+            fields = obj.par_can_define_;
+        end
+        
+        %
+        function this=delete(this)
             % clear memory from loaded detectors information
             this.det_par_=[];
             if isempty(this.par_file_name)
@@ -191,28 +210,46 @@ classdef asciipar_loader < a_detpar_loader_interface
         function det_par= get_det_par(obj)
             det_par = obj.det_par_;
         end
+        %
+        function obj=set_det_par(obj,value)
+            %method checks and sets detector parameters from memory
+            %Usage:
+            %
+            %loader.det_par = value;
+            %where value is 6-column array of detector's value correspondent to
+            %the one, usually defined in par file but with opposite sign of azimuthal angle
+            %or Horace structure with correspondent information
+            %
+            %if the value to set is syntactically correct, the operation sets
+            %also n_detectors to the number of detectors, defined by the array
+            if isempty(value)
+                obj=obj.delete();
+                return
+            end
+            [obj.det_par_,obj.n_detinpar_,obj.par_file_name_] = obj.check_det_par(value);
+        end
     end
     %
     methods(Static)
-        function fields = par_can_define()
-            fields = {'det_par','n_det_in_par'};
-        end
-        
         %
-        function ndet=get_par_info(par_file_name,varargin)
+        function [ndet,varargout]=get_par_info(par_file_name)
             % get number of detectors described in ASCII par or phx file
             [ok,mess,f_name] = check_file_exist(par_file_name,{'.par','.phx'});
             if ~ok
                 error('ASCIIPAR_LOADER:invalid_argument',mess);
             end
-                        
+            
             fid=fopen(f_name,'rt');
             if fid==-1
                 error('ASCIIPAR_LOADER:invalid_argument','Error opening file %s\n',par_file_name);
             end
             
             ndet = fscanf(fid,'%d \n',1);
-            fclose(fid);
+            if nargout>1
+                varargout{1} = fid;
+            else
+                fclose(fid);
+            end
             if isempty(ndet)|| (ndet<0)|| (ndet> 4.2950e+009)
                 error('ASCIIPAR_LOADER:invalid_argument',...
                     'Invalid par file, Error reading number of detectors from file %s\n',par_file_name);

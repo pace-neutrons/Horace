@@ -83,6 +83,37 @@ classdef loader_ascii < a_loader
     end
     
     methods
+        function obj = loader_ascii(full_spe_file_name,varargin)
+            % the constructor for spe data loader; called usually from run_data
+            % class;
+            %
+            % it verifies, if files, with names provided as input parameters exist and
+            % prepares the class for future IO operations.
+            %
+            % usage:
+            %>> loader =loader_ascii();
+            %>> loader =loader_ascii(spe_file)
+            %>> loader =loader_ascii(spe_file,par_file)
+            %
+            % where:
+            %   spe_file    -- full file name (with path) for existing spe file
+            %   par_file    -- full file name (with path) for existing par file
+            %
+            %  If the constructor is called with a file name, the file has to exist. Check_file exist function verifies if
+            % the file is present regardless of the case of file name and file extension, which forces unix file system
+            % behave like Windows file system.
+            % The run_data structure fields which become defined if proper spe file is provided
+            
+            obj=obj@a_loader(varargin{:});
+            obj.loader_define_ ={'S','ERR','en','n_detectors'};            
+            if exist('full_spe_file_name','var')
+                obj = obj.init(full_spe_file_name);
+            else
+                obj = obj.init();
+            end
+            
+        end
+        %
         function ascii_loader = init(ascii_loader,full_spe_file_name,full_par_file_name,fh)
             % method initiates internal structure of ascii_loader, which is responsible for
             % work with spe data file.
@@ -97,7 +128,6 @@ classdef loader_ascii < a_loader
             %                      energy bins and full file name for this file
             %
             
-            ascii_loader.loader_defines ={'S','ERR','en','n_detectors'};
             if ~exist('full_spe_file_name','var')
                 return
             end
@@ -128,35 +158,6 @@ classdef loader_ascii < a_loader
             this.en_ = en;
         end
         
-        function ascii_loader = loader_ascii(full_spe_file_name,varargin)
-            % the constructor for spe data loader; called usually from run_data
-            % class;
-            %
-            % it verifies, if files, with names provided as input parameters exist and
-            % prepares the class for future IO operations.
-            %
-            % usage:
-            %>> loader =loader_ascii();
-            %>> loader =loader_ascii(spe_file)
-            %>> loader =loader_ascii(spe_file,par_file)
-            %
-            % where:
-            %   spe_file    -- full file name (with path) for existing spe file
-            %   par_file    -- full file name (with path) for existing par file
-            %
-            %  If the constructor is called with a file name, the file has to exist. Check_file exist function verifies if
-            % the file is present regardless of the case of file name and file extension, which forces unix file system
-            % behave like Windows file system.
-            % The run_data structure fields which become defined if proper spe file is provided
-            
-            ascii_loader=ascii_loader@a_loader(varargin{:});
-            if exist('full_spe_file_name','var')
-                ascii_loader = ascii_loader.init(full_spe_file_name);
-            else
-                ascii_loader = ascii_loader.init();
-            end
-            
-        end
         
     end
 end

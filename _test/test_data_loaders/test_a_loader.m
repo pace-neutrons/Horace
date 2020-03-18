@@ -51,6 +51,7 @@ classdef test_a_loader< TestCase
             
             assertEqual({'det_par','n_detectors'},al2.defined_fields());
         end
+        %
         function test_constructors2(this)
             al=a_loader_tester();
             

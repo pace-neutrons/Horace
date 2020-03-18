@@ -96,7 +96,6 @@ classdef loader_nxspe < a_loader
             %                      file and contains number of detectors
             %                      energy bins, full file name and other nxspe information for this file
             %
-            this.loader_defines ={'S','ERR','en','efix','psi','det_par','n_detectors'};
             if ~exist('full_nxspe_file_name','var')
                 return
             end
@@ -122,7 +121,7 @@ classdef loader_nxspe < a_loader
             
         end
         %
-        function this = loader_nxspe(full_nxspe_file_name,varargin)
+        function obj = loader_nxspe(full_nxspe_file_name,varargin)
             % the constructor for nxspe data loader
             % it verifies if the file is correct nxspe file and
             % prepares the file for IO operations.
@@ -134,11 +133,13 @@ classdef loader_nxspe < a_loader
             %                         nxspe file
             % The run_data structure fields which become defined if proper spe file is provided
             
-            this=this@a_loader(varargin{:});
+            obj=obj@a_loader(varargin{:});
+            obj.loader_define_ ={'S','ERR','en','efix','psi','det_par','n_detectors'};
+            
             if exist('full_nxspe_file_name','var')
-                this= this.init(full_nxspe_file_name);
+                obj= obj.init(full_nxspe_file_name);
             else
-                this = this.init();
+                obj = obj.init();
             end
         end
         %

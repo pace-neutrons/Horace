@@ -45,17 +45,17 @@ classdef test_asciipar_loader< TestCase
         function test_load_par_fails(this)
             al=asciipar_loader();
             f = @()al.load_par();
-            assertExceptionThrown(f,'ASCIIPAR_LOADER:load_par');
+            assertExceptionThrown(f,'ASCIIPAR_LOADER:invalid_argument');
             
             f = @()al.load_par('arg1','arg2');
-            assertExceptionThrown(f,'ASCIIPAR_LOADER:load_par');
+            assertExceptionThrown(f,'ASCIIPAR_LOADER:invalid_argument');
             
             if get(herbert_config,'log_level')>-1
                 par_file = fullfile(this.test_data_path,'map_4to1_jul09.par');
                 % deprecated option '-hor'
                 par=al.load_par(par_file,'-hor');
                 [wmess,wID] = lastwarn;
-                assertEqual('ASCIIPAR_LOADER:load_par',wID);
+                assertEqual('ASCIIPAR_LOADER:deprecated_option',wID);
                 mess_part='option -horace is deprecated';
                 assertTrue(strncmp(mess_part,wmess,numel(mess_part)));
             end
@@ -142,11 +142,11 @@ classdef test_asciipar_loader< TestCase
             assertEqual(28160,ndet)
             
             f=@()asciipar_loader.get_par_info('non_existing_file');
-            assertExceptionThrown(f,'ASCIIPAR_LOADER:get_par_info');
+            assertExceptionThrown(f,'ASCIIPAR_LOADER:invalid_argument');
             
             other_file_name = fullfile(this.test_data_path,'MAP11014.nxspe');
             f=@()asciipar_loader.get_par_info(other_file_name);
-            assertExceptionThrown(f,'ASCIIPAR_LOADER:get_par_info');
+            assertExceptionThrown(f,'ASCIIPAR_LOADER:invalid_argument');
             
         end
         
@@ -176,21 +176,21 @@ classdef test_asciipar_loader< TestCase
         end
         function test_par_file_defines(this)
             al=asciipar_loader();
-            assertTrue(isempty(al.par_file_defines()));
+            assertTrue(isempty(al.loader_define()));
             
             par_file = fullfile(this.test_data_path,'demo_par.par');
             al.par_file_name = par_file;
-            assertEqual({'det_par','n_det_in_par'},al.par_file_defines());
+            assertEqual({'det_par','n_det_in_par'},al.loader_define());
             
             
             al.par_file_name = '';
-            assertTrue(isempty(al.par_file_defines()));
+            assertTrue(isempty(al.loader_define()));
             
             [det,al] = al.load_par(par_file);
-            assertEqual({'det_par','n_det_in_par'},al.par_file_defines());
+            assertEqual({'det_par','n_det_in_par'},al.loader_define());
             
             al.par_file_name = '';
-            assertEqual({'det_par','n_det_in_par'},al.par_file_defines());
+            assertEqual({'det_par','n_det_in_par'},al.loader_define());
         end
         
         function test_det_info_contained_and_array(this)
@@ -243,13 +243,13 @@ classdef test_asciipar_loader< TestCase
             hor_par = al.det_par;
             al.par_file_name  = par_file;
             [detp] = al.load_par('-nohor');
-
-            % test return from memory             
+            
+            % test return from memory
             al.det_par = hor_par;
             det2 = al.load_par('-nohor');
             assertElementsAlmostEqual(det(2,:),detp(2,:),'relative',1.e-4);
             assertElementsAlmostEqual(det(3,:),detp(3,:),'relative',1.e-4);
-            % phx file does not contain correct L2 values to read par from phx correctly            
+            % phx file does not contain correct L2 values to read par from phx correctly
             assertElementsAlmostEqual(det(4,:),(10/6)*detp(4,:),'absolute',1.e-2);
             assertElementsAlmostEqual(det(5,:),(10/6)*detp(5,:),'absolute',1.e-2);
             
@@ -270,7 +270,7 @@ classdef test_asciipar_loader< TestCase
             al.par_file_name  = par_file;
             [detp] = al.load_par('-getphx');
             
-            % test return from memory 
+            % test return from memory
             al.det_par = hor_par;
             det2 = al.load_par('-getphx');
             
@@ -280,10 +280,10 @@ classdef test_asciipar_loader< TestCase
             assertElementsAlmostEqual(det(4,:),detp(4,:),'relative',1.e-2);
             assertElementsAlmostEqual(det(5,:),detp(5,:),'relative',1.e-2);
             
-            assertElementsAlmostEqual(det,det2,'relative',1.e-8);            
+            assertElementsAlmostEqual(det,det2,'relative',1.e-8);
             
         end
-
+        
         function test_load_phx_nomex(this)
             hcfg=herbert_config();
             current = hcfg.use_mex;
