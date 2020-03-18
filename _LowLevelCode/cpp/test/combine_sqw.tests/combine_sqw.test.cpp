@@ -90,7 +90,7 @@ TEST_F(TestCombineSQW, Read_NBins) {
   pix_map.read_bins(0, buffer1, bin_end, buf_end);
   ASSERT_EQ(1, bin_end);
   ASSERT_EQ(1, buf_end);
-  ASSERT_EQ(sample_npix[0], buffer[0].num_bin_pixels);
+  ASSERT_EQ(sample_npix[0], buffer1[0].num_bin_pixels);
 
   pix_map.read_bins(125, buffer1, bin_end, buf_end);
   ASSERT_EQ(sample_npix[125], buffer1[0].num_bin_pixels);
@@ -123,7 +123,7 @@ TEST_F(TestCombineSQW, Read_NBins) {
 
   for (auto i = 1; i < buffer2.size(); i++) {
     ASSERT_EQ(buffer2[i].pix_pos,
-              buffer[i - 1].pix_pos + buffer[i - 1].num_bin_pixels);
+              buffer2[i - 1].pix_pos + buffer2[i - 1].num_bin_pixels);
   }
 
   pix_map.read_bins(NUM_BINS_IN_FILE - 2, buffer2, bin_end, buf_end);
