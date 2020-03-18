@@ -59,29 +59,30 @@ std::vector<uint64_t> TestCombineSQW::sample_npix(NUM_BINS_IN_FILE, 0);
 std::vector<uint64_t> TestCombineSQW::sample_pix_pos(NUM_BINS_IN_FILE, 0);
 std::vector<float> TestCombineSQW::pixels(NUM_PIXELS * 9, 0);
 
-TEST_F(TestCombineSQW, Read_NBins) {
+TEST_F(TestCombineSQW,
+       read_bins_extracts_correct_bin_data_from_file_reading_from_start) {
   PixMapTester pix_map;
-
   pix_map.init(TEST_FILE_NAME, BIN_POS_IN_FILE, NUM_BINS_IN_FILE, 128, false);
-  std::vector<pix_mem_map::bin_info> buffer(256);
 
+  std::vector<pix_mem_map::bin_info> buffer(256);
   std::size_t bin_end, buf_end;
   pix_map.read_bins(0, buffer, bin_end, buf_end);
 
-  ASSERT_EQ(256, bin_end);
-  ASSERT_EQ(256, buf_end);
-  ASSERT_EQ(sample_npix[125], buffer[125].num_bin_pixels);
-  ASSERT_EQ(sample_npix[115], buffer[115].num_bin_pixels);
-  ASSERT_EQ(sample_npix[114], buffer[114].num_bin_pixels);
-  ASSERT_EQ(sample_npix[0], buffer[0].num_bin_pixels);
-  ASSERT_EQ(sample_npix[1], buffer[1].num_bin_pixels);
-  ASSERT_EQ(sample_npix[5], buffer[5].num_bin_pixels);
-  ASSERT_EQ(sample_npix[129], buffer[129].num_bin_pixels);
-
+  EXPECT_EQ(256, bin_end);
+  EXPECT_EQ(256, buf_end);
   for (auto i = 1; i < buffer.size(); i++) {
-    ASSERT_EQ(buffer[i].pix_pos,
+    EXPECT_EQ(sample_npix[i], buffer[i].num_bin_pixels);
+  }
+  for (auto i = 1; i < buffer.size(); i++) {
+    EXPECT_EQ(buffer[i].pix_pos,
               buffer[i - 1].pix_pos + buffer[i - 1].num_bin_pixels);
   }
+}
+
+TEST_F(TestCombineSQW, Read_NBins) {
+  PixMapTester pix_map;
+  std::vector<pix_mem_map::bin_info> buffer(256);
+  std::size_t bin_end, buf_end;
 
   //--------------------------------------------------------------------------------------------
   pix_map.init(TEST_FILE_NAME, BIN_POS_IN_FILE, NUM_BINS_IN_FILE, 0, false);
