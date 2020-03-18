@@ -79,35 +79,38 @@ TEST_F(TestCombineSQW,
   }
 }
 
+TEST_F(TestCombineSQW,
+       read_bins_extracts_correct_bin_data_from_file_reading_from_given_index) {
+  PixMapTester pix_map;
+  pix_map.init(TEST_FILE_NAME, BIN_POS_IN_FILE, NUM_BINS_IN_FILE, 0, false);
+
+  std::vector<pix_mem_map::bin_info> buffer1(1);
+  std::size_t bin_end, buf_end;
+  pix_map.read_bins(0, buffer1, bin_end, buf_end);
+  EXPECT_EQ(1, bin_end);
+  EXPECT_EQ(1, buf_end);
+  EXPECT_EQ(sample_npix[0], buffer1[0].num_bin_pixels);
+
+  pix_map.read_bins(125, buffer1, bin_end, buf_end);
+  EXPECT_EQ(sample_npix[125], buffer1[0].num_bin_pixels);
+  EXPECT_EQ(126, bin_end);
+  EXPECT_EQ(1, buf_end);
+
+  pix_map.read_bins(115, buffer1, bin_end, buf_end);
+  EXPECT_EQ(sample_npix[115], buffer1[0].num_bin_pixels);
+  EXPECT_EQ(116, bin_end);
+  EXPECT_EQ(1, buf_end);
+
+  pix_map.read_bins(5, buffer1, bin_end, buf_end);
+  EXPECT_EQ(sample_npix[5], buffer1[0].num_bin_pixels);
+}
+
 TEST_F(TestCombineSQW, Read_NBins) {
   PixMapTester pix_map;
   std::vector<pix_mem_map::bin_info> buffer(256);
   std::size_t bin_end, buf_end;
 
   //--------------------------------------------------------------------------------------------
-  pix_map.init(TEST_FILE_NAME, BIN_POS_IN_FILE, NUM_BINS_IN_FILE, 0, false);
-  std::vector<pix_mem_map::bin_info> buffer1(1);
-
-  pix_map.read_bins(0, buffer1, bin_end, buf_end);
-  ASSERT_EQ(1, bin_end);
-  ASSERT_EQ(1, buf_end);
-  ASSERT_EQ(sample_npix[0], buffer1[0].num_bin_pixels);
-
-  pix_map.read_bins(125, buffer1, bin_end, buf_end);
-  ASSERT_EQ(sample_npix[125], buffer1[0].num_bin_pixels);
-  ASSERT_EQ(126, bin_end);
-  ASSERT_EQ(1, buf_end);
-
-  pix_map.read_bins(115, buffer1, bin_end, buf_end);
-  ASSERT_EQ(sample_npix[115], buffer1[0].num_bin_pixels);
-  ASSERT_EQ(116, bin_end);
-  ASSERT_EQ(1, buf_end);
-
-  pix_map.read_bins(5, buffer1, bin_end, buf_end);
-  ASSERT_EQ(sample_npix[5], buffer1[0].num_bin_pixels);
-
-  //--------------------------------------------------------------------------------------------
-
   pix_map.init(TEST_FILE_NAME, BIN_POS_IN_FILE, NUM_BINS_IN_FILE, 0, false);
   std::vector<pix_mem_map::bin_info> buffer2(128);
 
