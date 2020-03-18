@@ -1,4 +1,4 @@
-function [return_array,force_reload,getphx,lext,filename]=parse_loadpar_arguments_(obj,varargin)
+function [return_array,force_reload,getphx,lext,new_filename]=parse_loadpar_arguments_(obj,varargin)
 % Auxiliry method processes the arguments specified with load_par methods
 %
 % usage:
@@ -68,19 +68,24 @@ if numel(file_name)>1
     error([upper(CallClassName),':invalid_argument'],...
         'Too many input aruments')
 elseif numel(file_name)==1
-    filename = file_name{1};
+    new_filename = file_name{1};
 else
-    filename ='';
+    new_filename ='';
 end
 
-if isempty(obj.par_file_name)
+if isempty(obj.par_file_name) && isempty(new_filename)
     error([upper(CallClassName),':invalid_argument'],...
         'Attempting to load ASCII detector parameters but the parameters file is not defined')
 end
 
-if ~isempty(filename)
-    [~,~,lext] = fileparts(filename);
-    lext= lower(lext);
+if isempty(new_filename)
+    filename = obj.par_file_name;
+else
+    filename = new_filename;
 end
+
+[~,~,lext] = fileparts(filename);
+lext= lower(lext);
+
 
 

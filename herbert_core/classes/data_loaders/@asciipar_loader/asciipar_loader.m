@@ -135,9 +135,9 @@ classdef asciipar_loader < a_detpar_loader_interface
             % 6xndet data in similar to par format, but the meaning or the
             % columns 4 and 5 are different
             %
-            [return_array,force_reload,getphx,lext,filename] = parse_loadpar_arguments(obj,varargin{:});
-            if ~isempty(filename)
-                obj.par_file_name = filename;
+            [return_array,force_reload,getphx,lext,new_filename] = parse_loadpar_arguments(obj,varargin{:});
+            if ~isempty(new_filename)
+                obj.par_file_name = new_filename;
             end
             [det,obj] = load_phx_or_par_private(obj,return_array,force_reload,getphx,lext);
             
