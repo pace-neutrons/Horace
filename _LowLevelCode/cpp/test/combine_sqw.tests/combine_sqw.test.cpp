@@ -32,7 +32,7 @@ protected:
     std::ifstream data_file_bin(TEST_FILE_NAME,
                                 std::ios::in | std::ios::binary);
     if (!data_file_bin.is_open()) {
-      throw std::exception("Can not open test data file");
+      throw std::runtime_error("Can not open test data file");
     }
     try {
       // Read npix data
