@@ -189,13 +189,18 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
         end
         %
         % Test disabled as build servers currently only have 2 cores
-        function DISABLED_test_job_with_logs_3workers(obj, varargin)
+        function test_job_with_logs_3workers(obj, varargin)
             if obj.ignore_test
                 return;
             end
             if nargin > 1
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
+            end
+            [physical_cores, logical_cores] = get_num_cores();
+            if physical_cores < 3 && logical_cores >= 3
+                p_cluster = parcluster;
+                p_cluster.NumWorkers = 3;
             end
             clear mex;
             % overloaded to empty test -- nothing new for this JD
