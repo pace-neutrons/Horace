@@ -36,6 +36,10 @@ classdef a_loader < a_detpar_loader_interface
         % all data should be loaded
         file_name
     end
+    properties(Constant,Access=protected)
+        fext_to_parloader_map_ = containers.Map({'.par','.phx','.nxspe'},...
+            {asciipar_loader(),asciipar_loader(),nxspepar_loader()});
+    end
     
     properties(Access=protected)
         % number of detectors defined by data file (e.g. second dimension
@@ -127,11 +131,11 @@ classdef a_loader < a_detpar_loader_interface
             %   copy constructor:
             %>>this=a_loader(other_loader);
             %
-            if(nargin>1)
+            if(nargin>0)
                 if isa(varargin{1},'a_loader')
                     obj = varargin{1};
                 else
-                    obj=select_detpar_loader_(varargin{:});
+                    obj.par_file_name = varargin{1};
                 end
             end
         end
@@ -208,7 +212,7 @@ classdef a_loader < a_detpar_loader_interface
             %usage:
             %>> fields= defined_fields(loader);
             %
-            fields = check_defined_fields(this);
+            fields = check_defined_fields_(this);
         end
         %
         function obj=delete(obj)
@@ -420,8 +424,12 @@ classdef a_loader < a_detpar_loader_interface
                 fields = par_can_define(obj.detpar_loader_);
             end
         end
+        %------------------------------------------------------------------
+        % PAR file public interface
+        %------------------------------------------------------------------
         function [par,obj] = load_par(obj,varargin)
-            % load detectors info from
+            % load detectors info from the previously defined or newly
+            % set-up detector parameters file.
             if numel(varargin)>1
                 [~,~,~,~,filename]=parse_loadpar_arguments(obj,varargin{:});
             else
@@ -447,9 +455,12 @@ classdef a_loader < a_detpar_loader_interface
             else
                 par = obj.detpar_loader_.load_par(argi{:});
             end
-            
         end
-        
+        %
+        function ldr = get_par_loader(obj)
+            % auxiliary function returns loader, used to download par files
+            ldr = obj.detpar_loader_;
+        end
     end
     %
     methods(Access=protected)
@@ -497,18 +508,64 @@ classdef a_loader < a_detpar_loader_interface
         end
         %
         function obj = set_par_file_name(obj,par_f_name)
-            % Method sets this par file name as the source par file name.
-            % depending on the extension, it can also change the type of the
-            % loader.
-            error('A_LOADER:not_implemented','not yet implemented');
+            % Method sets this par file name as the source of the detector
+            % parameters.
+            %
+            % If loader is not defined, the method also selects and initiates 
+            % appropriate par file loader depending on the file extension.
+            %
+            % If it already defined, the file should have extension,
+            % appropriate for the loader selected. 
+            %
+            % An empty filename clears the loader and removes detector info
+            % from memory.
+            if isempty(par_f_name)
+                obj.detpar_loader_ = [];
+                return;
+            end
+            if ~ischar(par_f_name)
+                error('A_LOADER:invalid_argument',...
+                    ' A par file name, should be a string, defining the full path to the detectors parameter file');
+            end
+            
+            if ~isempty(obj.detpar_loader_)
+                obj.detpar_loader_.par_file_name = par_f_name;
+            else
+                [~,~,fext] = fileparts(par_f_name);
+                ldr = a_loader.fext_to_parloader_map_(lower(fext));
+                ldr.par_file_name = par_f_name;
+                obj.detpar_loader_ = ldr;
+            end
         end
         %------------------------------------------------------------------
     end
     methods(Static)
-        function [ndet,varargout]=get_par_info(par_file_name_or_handle,varargin)
+        function [ndet,varargout]=get_par_info(par_file_name)
             % get number of detectors and other detrcotrs methadata defined by
             % par,phx nxspe or other supported file
-            
+            if ~ischar(par_file_name)
+                error('A_LOADER:invalid_argument',...
+                    ' A par file name, should be a string, defining the full path to the detectors parameter file');
+            end
+            [~,~,fext] = fileparts(par_f_name);
+            ldr = a_loader.fext_to_parloader_map_(lower(fext));
+            nout = max(nargout,1) - 1;
+            switch(nout)
+                case -1
+                    return;
+                case 0
+                    ndet = ldr.get_par_info(par_file_name);
+                case 1
+                    [ndet,varargout{1}] = ldr.get_par_info(par_file_name);
+                case 2
+                    [ndet,varargout{1},varargout{2}] = ldr.get_par_info(par_file_name);
+                case 3
+                    [ndet,varargout{1},varargout{2},varargout{3}]...
+                        = ldr.get_par_info(par_file_name);
+                case 4
+                    error('A_LOADER:invalid_argument',...
+                        'invalid numner of output arguments');
+            end
         end
     end
     %

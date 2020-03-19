@@ -1,4 +1,4 @@
-function fields = check_defined_fields(this)
+function fields = check_defined_fields_(this)
 % method checks what fields in the structure are defined fromn the fields
 % the data file should define.
 %
@@ -6,9 +6,13 @@ function fields = check_defined_fields(this)
 %
 
 % a data file usually defines the following fields:
-loader_def = this.loader_defines;
+loader_def = this.loader_define;
 % par file can define the following fields:
-par_def    =  this.par_file_defines();
+if ~isempty(this.detpar_loader_)
+    par_def    =  this.detpar_loader_.loader_define();
+else
+    par_def    = {};
+end
 
 if isempty(this.file_name) % no data file
     % find the fields which are defined by the file structure. 
