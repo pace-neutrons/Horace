@@ -158,6 +158,18 @@ classdef test_cluster_wrapper < TestCase
             assertEqual(cluster.log_value,ref_string);
             
         end
+        
+        function test_parpool_uses_logical_cores_if_requested(obj)
+            [physical_cores, logical_cores] = get_num_cores();
+            if physical_cores >= logical_cores
+                return
+            end
+            msg_framework = MessagesFilebased('test_cluster_init');
+            clust = ClusterParpoolWrapper();
+            clust.init(physical_cores + 1, msg_framework, herbert_config().log_level);
+            % An error is thrown if cluster does not allow using the extra
+            % cores
+        end
     end
 end
 
