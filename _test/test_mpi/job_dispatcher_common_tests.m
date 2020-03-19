@@ -12,9 +12,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             this = this@MPI_Test_Common(test_name, framework_name);
         end
 
-        % This test requires 3 cores but only 2 are available on build servers.
-        % Test is disabled for now
-        function DISABLED_test_job_fail_restart(obj, varargin)
+        function test_job_fail_restart(obj, varargin)
             if obj.ignore_test
                 return;
             end
@@ -188,7 +186,6 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
 
         end
         %
-        % Test disabled as build servers currently only have 2 cores
         function test_job_with_logs_3workers(obj, varargin)
             if obj.ignore_test
                 return;
@@ -196,11 +193,6 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             if nargin > 1
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
-            end
-            [physical_cores, logical_cores] = get_num_cores();
-            if physical_cores < 3 && logical_cores >= 3
-                p_cluster = parcluster;
-                p_cluster.NumWorkers = 3;
             end
             clear mex;
             % overloaded to empty test -- nothing new for this JD
