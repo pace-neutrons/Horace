@@ -25,10 +25,10 @@ classdef a_detpar_loader_interface
         fields = loader_define(this);
         
         % clear memory from loaded detectors information
-        this=delete(this)        
+        this=delete(this)
         
         % The data fields an par loader defines
-        fields = par_can_define(obj);        
+        fields = par_can_define(obj);
     end
     methods(Abstract,Access=protected)
         % get method for dependent property det_par
@@ -47,7 +47,7 @@ classdef a_detpar_loader_interface
     methods(Static,Abstract)
         % get number of detectors defined by par,phx nxspe or other supported
         % file, and return other information, if it is requested
-        [ndet,fh]=get_par_info(par_file_name_or_handle)
+        [ndet,fh]=get_par_info(par_file_name)
     end
     methods
         % -----------------------------------------------------------------
@@ -85,11 +85,17 @@ classdef a_detpar_loader_interface
             % file information from memory
             obj = set_par_file_name(obj,par_f_name);
         end
-        
+        %
         function ndet = get.n_det_in_par(obj)
             % retrieve number of detectors defined by current detectors
             % info
             ndet = get_n_det_in_par(obj);
+        end
+        %
+        function fields = get_par_defined(this)
+            % method checks what fields in the structure are defined from the fields
+            % the par file should define.
+            fields = check_par_defined_(this);
         end
         %
     end
@@ -142,11 +148,69 @@ classdef a_detpar_loader_interface
             [det_par,n_detinpar,par_file_name] = check_det_par_(obj,value);
         end
         %
-        function fields = get_par_defined(this)
-            % method checks what fields in the structure are defined from the fields
-            % the par file should define.
-            fields = check_par_defined_(this);
+    end
+    methods(Static,Access=protected)
+        function phx = convert_par2phx(par)
+            % internal function changing data format from par to phx
+            %
+            % par contains col:
+            %     4th  "        width (m)
+            %     5th  "        height (m)
+            %phx contains col:
+            %    4 	angular width e.g. delta scattered angle (deg)
+            %    5 	angular height e.g. delta azimuthal angle (deg)
+            
+            phx = par;
+            phx(4,:) =(360/pi)*atan(0.5*(par(4,:)./par(1,:)));
+            phx(5,:) =(360/pi)*atan(0.5*(par(5,:)./par(1,:)));
+        end
+        function par = convert_phx2par(phx)
+            % internal function changing data format from phx to par
+            %phx contains col:
+            %    4 	angular width e.g. delta scattered angle (deg)
+            %    5 	angular height e.g. delta azimuthal angle (deg)
+            % par contains col:
+            %     4th  "        width (m)
+            %     5th  "        height (m)
+            
+            par = phx;
+            par(4,:) =2*(phx(1,:).*tand(0.5*phx(4,:)));
+            par(5,:) =2*(phx(1,:).*tand(0.5*phx(5,:)));
         end
         %
+        function [ndet,nxspe_version,nexus_dir,NXspeInfo,f_name]=get_nxspe_file_info(file_name)
+            % get number of detectors and the structure of nexus file descring nxspe file
+            % Input:
+            %  par_file_name -- the name of the nxspe file, containing the
+            %                   detector information
+            % Output:
+            %  ndet  -- number of detectors defined in the input file
+            %  nxspe_version -- version of nxspe file. (Defined by Mantid)
+            %  nexus_dir     -- root directory of the whole nxspe dataset
+            %  NXspeInfo     -- the structure, containing internal layout
+            %                   of the nxspe data file
+            if ~ischar(file_name)
+                error('A_PAR_LOADER:invalid_argument',' first parameter has to be a file name');
+            end
+            
+            [ok,mess,f_name] = check_file_exist(file_name,{'.nxspe'});
+            if ~ok
+                error('A_PAR_LOADER:invalid_argument',mess);
+            end
+            if ~H5F.is_hdf5(f_name)
+                error('A_PAR_LOADER:invalid_argument','file %s is not proper hdf5 file',file_name);
+            end
+            
+            [nexus_dir,nxspe_version,nexus_file_structure] = find_root_nexus_dir(f_name,'NXSPE');
+            if isempty(nexus_dir)
+                error('A_PAR_LOADER:invalid_argument','NXSPE data can not be located withing nexus file: %s',...
+                    file_name);
+            end
+            NXspeInfo   =find_dataset_info(nexus_file_structure,nexus_dir,'');
+            dataset_info=find_dataset_info(NXspeInfo,'data','data');
+            ndet    = dataset_info.Dims(2);
+            
+        end
+        
     end
 end

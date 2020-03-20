@@ -54,7 +54,7 @@ end
 
 if return_array
     if getphx
-        par = convert_par2phx(par);
+        par = a_detpar_loader_interface.convert_par2phx(par);
     end
 else
     par = obj.det_par_;

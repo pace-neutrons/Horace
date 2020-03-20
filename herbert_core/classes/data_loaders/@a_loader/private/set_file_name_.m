@@ -12,7 +12,7 @@ if isempty(new_name)
 else
     [ok,mess,f_name] = check_file_exist(this,new_name);
     if ~ok
-        error('A_LOADER:set_file_name',mess);
+        error('A_LOADER:invalid_argument',mess);
     end
 end
 if ~strcmp(this.data_file_name_,f_name)

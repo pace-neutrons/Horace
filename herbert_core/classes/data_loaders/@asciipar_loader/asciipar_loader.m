@@ -160,7 +160,6 @@ classdef asciipar_loader < a_detpar_loader_interface
         function fields = par_can_define(obj)
             fields = obj.par_can_define_;
         end
-        
         %
         function this=delete(this)
             % clear memory from loaded detectors information
@@ -189,7 +188,7 @@ classdef asciipar_loader < a_detpar_loader_interface
             else
                 [ok,mess,f_name] = check_file_exist(par_f_name,{'.par','.phx'});
                 if ~ok
-                    error('ASCIIPAR_LOADER:set_par_file_name',mess);
+                    error('ASCIIPAR_LOADER:invalid_argument',mess);
                 end
                 if ~strcmp(obj.par_file_name_,f_name)
                     obj.par_file_name_= f_name;

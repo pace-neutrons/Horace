@@ -7,6 +7,9 @@ classdef test_loader_nxspe< TestCase
     methods
         %
         function this=test_loader_nxspe(name)
+            if nargin<1
+                name = 'test_loader_nxspe';
+            end
             this = this@TestCase(name);
             [~,tdp] = herbert_root();
             this.test_data_path = tdp;
@@ -31,7 +34,7 @@ classdef test_loader_nxspe< TestCase
         function test_wrong_first_argument(this)
             f = @()loader_nxspe(10);
             % should throw; first argument has to be a file name
-            assertExceptionThrown(f,'A_LOADER:set_file_name');
+            assertExceptionThrown(f,'A_LOADER:invalid_argument');
         end
         function test_file_not_exist(this)
             f = @()loader_nxspe(f_name(this,'missing_file.nxspe'));
@@ -40,7 +43,7 @@ classdef test_loader_nxspe< TestCase
             % 2009
             ws = warning('off','MATLAB:printf:BadEscapeSequenceInFormat');
             
-            assertExceptionThrown(f,'A_LOADER:set_file_name');
+            assertExceptionThrown(f,'NXSPEPAR_LOADER:invalid_argument');
             warning(ws);
         end
         function test_non_supported_nxspe(this)
@@ -158,7 +161,8 @@ classdef test_loader_nxspe< TestCase
             assertEqual(28160,numel(par.x2))
             assertEqual(28160,loader.n_detectors)
             %assertEqual(loader.root_nexus_dir,'/11014.spe');
-            assertEqual(loader.file_name,f_name(this,'MAP11014.nxspe'));
+            assertTrue(isempty(loader.file_name));
+            assertEqual(loader.par_file_name,f_name(this,'MAP11014.nxspe'));
             assertEqual(loader.det_par,par);
         end
         function test_load_phx_from_nxspe(this)
@@ -322,7 +326,7 @@ classdef test_loader_nxspe< TestCase
             assertEqual(0,is_loader_valid(la));
             
             f = @()la.get_run_info();
-            assertExceptionThrown(f,'A_LOADER:get_run_info');
+            assertExceptionThrown(f,'A_LOADER:runtime_error');
         end
         
         function test_get_file_extension(this)
@@ -359,11 +363,9 @@ classdef test_loader_nxspe< TestCase
             assertTrue(isempty(la.det_par));
             
             [ok,mess]=la.is_loader_valid();
-            assertEqual(1,ok);
-            assertEqual('',mess);
+            assertEqual(-1,ok);
+            assertEqual(mess,'load_par undefined');
             
-            par=la.load_par();
-            assertEqual(size(par1),size(par));
         end
         function test_all_fields_defined(this)
             nxspe_file_name = fullfile(this.test_data_path,'MAP11014.nxspe');
@@ -376,22 +378,22 @@ classdef test_loader_nxspe< TestCase
             
             loader.par_file_name = par_file_name;
             fields = defined_fields(loader);
-            assertTrue(any(ismember({'det_par','n_detectors'},fields)));
+            assertTrue(any(ismember({'det_par','n_det_in_par'},fields)));
             
             loader.file_name =nxspe_file_name;
             fields = defined_fields(loader);
-            assertTrue(any(ismember({'S','ERR','en','efix','psi','det_par','n_detectors'},fields)));
+            assertTrue(any(ismember({'S','ERR','en','efix','psi','det_par','n_detectors','n_det_in_par'},fields)));
             
             loader.par_file_name ='';
             fields = defined_fields(loader);
-            assertTrue(any(ismember({'S','ERR','en','efix','psi','det_par','n_detectors'},fields)));
+            assertTrue(any(ismember({'S','ERR','en','efix','psi','det_par','n_detectors','n_det_in_par'},fields)));
             
             
         end
         function test_loader_nxspe_defines(this)
             loader = loader_nxspe(f_name(this,'MAP11014.nxspe'));
             fields = defined_fields(loader);
-            assertEqual({'S','ERR','en','efix','psi','det_par','n_detectors'},fields);
+            assertEqual({'S','ERR','en','efix','psi','det_par','n_detectors','n_det_in_par'},fields);
         end
         function test_load(this)
             dat_file =f_name(this,'MAP11014v2.nxspe');
@@ -400,7 +402,7 @@ classdef test_loader_nxspe< TestCase
             
             fields = defined_fields(lx);
             
-            assertEqual({'S','ERR','en','efix','psi','det_par','n_detectors'},fields);
+            assertEqual({'S','ERR','en','efix','psi','det_par','n_detectors','n_det_in_par'},fields);
             assertEqual(lx.n_detectors,size(lx.S,2));
             assertEqual(numel(lx.en),size(lx.S,1)+1);
             S = lx.S;

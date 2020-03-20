@@ -13,13 +13,13 @@ classdef test_asciipar_loader< TestCase
         function test_constructors(this)
             par_file = 'missing_par_file.par';
             f = @()asciipar_loader(par_file);
-            assertExceptionThrown(f,'ASCIIPAR_LOADER:set_par_file_name');
+            assertExceptionThrown(f,'ASCIIPAR_LOADER:invalid_argument');
             
             par_file = fullfile(this.test_data_path,'demo_par.par');
             al1=asciipar_loader(par_file);
             
             
-            [fp,fn,fext]=fileparts(al1.par_file_name);
+            [~,fn,fext]=fileparts(al1.par_file_name);
             assertEqual('demo_par',fn);
             assertTrue(strcmpi('.par',fext));
             

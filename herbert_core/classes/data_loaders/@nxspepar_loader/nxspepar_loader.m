@@ -181,7 +181,7 @@ classdef nxspepar_loader < a_detpar_loader_interface
             end
         end
         %-----------------------------------------------------------------
-        % NXSPE specific methods
+        % NXSPE specific methods used to improve IO performance
         %-----------------------------------------------------------------
         function [nexus_dir,nexus_info,nxspe_ver] = get_nxspe_info(obj)
             % return information, retrieved from existing nxspe data file
@@ -194,18 +194,24 @@ classdef nxspepar_loader < a_detpar_loader_interface
             nxspe_ver = obj.nxspe_version_;
         end
         %
-        function [obj] = set_nxspe_info(obj,nexus_dir,nexus_info,nxspe_ver)
+        function obj = set_nxspe_info(obj,nexus_dir,nexus_info,nxspe_ver)
             % sets information, retrieved from existing nxspe data file
             %
+            % Another way to initialize nxspepar_loader,
             % used to simplify joint operation of nxspepar_loader and
-            % nxspe_loader
+            % nxspe_loader, when they load data from the same file
+            %
+            % As it is supposed to be internal method, used for efficiency,
+            % no extensive checks are performed
             %
             obj.nexus_root_dir_= nexus_dir;
             obj.nexus_datast_info_= nexus_info;
             obj.nxspe_version_= nxspe_ver;
-            if ~strcmp(obj.par_file_name_,nexus_info.Filename)
-                obj = set_par_file_name(obj,nexus_info.Filename);
-            end
+            obj.par_file_name_ = nexus_info.Filename;
+            
+            dataset_info=find_dataset_info(nexus_info,'data','data');
+            obj.n_detinpar_  = dataset_info.Dims(2);
+            obj.det_par_ = [];
         end
         % ------------------------------------------------------------------
     end
@@ -213,7 +219,7 @@ classdef nxspepar_loader < a_detpar_loader_interface
     methods(Access=protected)
         %
         function obj=set_par_file_name(obj,par_f_name)
-            % method checks if the ASCII file with the name par_file_name exists
+            % method checks if the file with the name par_file_name exists
             %
             % Then it sets this par file name as the source par file name and
             % clears all previous loaded par file information (if any).
@@ -227,7 +233,7 @@ classdef nxspepar_loader < a_detpar_loader_interface
             else
                 [ok,mess,f_name] = check_file_exist(par_f_name,{'.nxspe'});
                 if ~ok
-                    error('NXSPEPAR_LOADER:set_par_file_name',mess);
+                    error('NXSPEPAR_LOADER:invalid_argument',mess);
                 end
                 if ~strcmp(obj.par_file_name_,f_name)
                     obj.par_file_name_= f_name;
@@ -239,7 +245,6 @@ classdef nxspepar_loader < a_detpar_loader_interface
             end
             %
         end
-        %
         %
         function fn = get_par_file_name(obj)
             fn  = obj.par_file_name_;
@@ -274,7 +279,8 @@ classdef nxspepar_loader < a_detpar_loader_interface
     %
     methods(Static)
         
-        function [ndet,nxspe_version,nexus_dir,NXspeInfo]=get_par_info(par_file_name)
+        function [ndet,nxspe_version,nexus_dir,NXspeInfo,full_file_name]=...
+                get_par_info(par_file_name)
             % get number of detectors and the structure of nexus file described in nxspe file
             % Input:
             %  par_file_name -- the name of the nxspe file, containing the
@@ -285,20 +291,11 @@ classdef nxspepar_loader < a_detpar_loader_interface
             %  nexus_dir     -- root directory of the whole nxspe dataset
             %  NXspeInfo     -- the structure, containing internal layout
             %                   of the nxspe data file
+            % full_file_name -- the name of the file, found by search
+            %                   procedure given par_file_name as input
             
-            [ok,mess,f_name] = check_file_exist(par_file_name,{'.nxspe'});
-            if ~ok
-                error('NXSPEPAR_LOADER:invalid_argument',mess);
-            end
-            
-            [nexus_dir,nxspe_version,nexus_file_structure] = find_root_nexus_dir(f_name,'NXSPE');
-            if isempty(nexus_dir)
-                error('NXSPEPAR_LOADER:invalid_argument','NXSPE data can not be located withing nexus file file %s\n',...
-                    par_file_name);
-            end
-            NXspeInfo   =find_dataset_info(nexus_file_structure,nexus_dir,'');
-            dataset_info=find_dataset_info(NXspeInfo,'data','data');
-            ndet    = dataset_info.Dims(2);
+            [ndet,nxspe_version,nexus_dir,NXspeInfo,full_file_name]=...
+                a_detpar_loader_interface.get_nxspe_file_info(par_file_name);
         end
     end
 end

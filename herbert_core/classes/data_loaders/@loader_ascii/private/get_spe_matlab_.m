@@ -1,4 +1,4 @@
-function varargout = get_spe_matlab(filename,varargin)
+function varargout = get_spe_matlab_(filename,varargin)
 % Get signal, error and energy bin boundaries for spe file
 %
 %>> [S,ERR,en] = get_spe_matlab(filename,[info])
@@ -21,12 +21,12 @@ function varargout = get_spe_matlab(filename,varargin)
 % Based on Radu coldea routine load_spe in mslice
 
 filename=strtrim(filename); % Remove blanks from beginning and end of filename
-if isempty(filename),
+if isempty(filename)
     error('Filename is empty')
 end
 fid=fopen(filename,'rt');
-if fid==-1,
-    error('LOADER_ASCII:get_spe_matlab',[' Can not open file ',filename]);
+if fid==-1
+    error('LOADER_ASCII:runtime_error',[' Can not open file ',filename]);
 end
 clob = onCleanup(@()fclose(fid));
 
@@ -34,12 +34,13 @@ clob = onCleanup(@()fclose(fid));
 ndet=fscanf(fid,'%d',1);
 ne=fscanf(fid,'%d',1);
 if isempty(ne)|| isempty(ndet)
-    error('LOADER_ASCII:get_spe_matlab', ...
+    error('LOADER_ASCII:invalid_argument', ...
         ' file %s is not proper spe file as can not interpret ndet and ne parameters in first row',...
         filename);
 end
 if (ndet<0) || (ndet > 1e+32) || (ne<0) || (ne> 100000)
-    error('LOADER_ASCII:problems_with_file','found ndet=%d and ne=%d when interpreting file %s',ndet,ne,filename);
+    error('LOADER_ASCII:runtime_error',...
+        'found ndet=%d and ne=%d when interpreting file %s',ndet,ne,filename);
 end
 temp=fgetl(fid);    % read eol
 temp=fgetl(fid);    % read string '### Phi Grid'
@@ -64,7 +65,7 @@ end
 S=zeros(ne,ndet);
 ERR=zeros(ne,ndet);
 try
-    for i=1:ndet,
+    for i=1:ndet
         temp  =fgetl(fid);        % read eol character
         s_text=fgetl(fid);        % get rid of line ### S(Phi,w)
         S(:,i)=fscanf(fid,'%10f',ne);

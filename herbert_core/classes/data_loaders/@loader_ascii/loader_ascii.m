@@ -12,6 +12,7 @@ classdef loader_ascii < a_loader
             % return the file extension used by this loader
             fext='.spe';
         end
+        %
         function descr=get_file_description()
             % method returns the description of the file format loaded by this
             % loader.
@@ -19,8 +20,7 @@ classdef loader_ascii < a_loader
             descr =sprintf('ASCII spe files: (*%s)',ext);
             
         end
-        
-        
+        %
         function [ok,fh] = can_load(file_name)
             % check if the file name is spe file name and the file can be
             % loaded by loader_ascii
@@ -47,7 +47,7 @@ classdef loader_ascii < a_loader
             [ndet,en,full_file_name]=loader_ascii.get_data_info(file_name);
             fh = struct('n_detectors',ndet,'en',en,'file_name',full_file_name);
         end
-        
+        %
         function [ndet,en,full_file_name]=get_data_info(file_name)
             % Load header information of VMS format ASCII .spe file
             %
@@ -62,22 +62,22 @@ classdef loader_ascii < a_loader
             %
             %
             if ~exist('file_name','var')
-                error('LOAD_ASCII:get_data_info',' has to be called with valid file name');
+                error('LOAD_ASCII:invalid_argument',' has to be called with valid file name');
             end
             
             if ischar(file_name)
                 [ok,mess,full_file_name] = check_file_exist(file_name,{'.spe'});
                 if ~ok
-                    error('LOAD_ASCII:get_data_info',mess);
+                    error('LOAD_ASCII:invalid_argument',mess);
                 end
             else
-                error('LOAD_ASCII:get_data_info',' has to be called with valid file name');
+                error('LOAD_ASCII:invalid_argument',' has to be called with valid file name');
             end
             %
             % get info about ascii spe file;
-            [ne,ndet,en]= get_spe_matlab(full_file_name,'-info_only');
+            [ne,ndet,en]= get_spe_matlab_(full_file_name,'-info_only');
             if numel(en) ~= ne+1
-                error('LOADER_ASCII:get_data_info',' ill formatted ascii spe file %s',file_name);
+                error('LOADER_ASCII:invalid_argument',' ill formatted ascii spe file %s',file_name);
             end
         end
     end
@@ -150,6 +150,7 @@ classdef loader_ascii < a_loader
                 
             end
         end
+        %
         function this = set_data_info(this,full_spe_file_name)
             % obtain data file information and set it into class
             [ndet,en,full_file_name]=loader_ascii.get_data_info(full_spe_file_name);
@@ -157,8 +158,6 @@ classdef loader_ascii < a_loader
             this.n_detindata_ = ndet;
             this.en_ = en;
         end
-        
-        
     end
 end
 

@@ -7,6 +7,9 @@ classdef test_loader_ascii< TestCase
     methods
         %
         function this=test_loader_ascii(name)
+            if nargin<1
+                name = 'test_loader_ascii';
+            end
             this = this@TestCase(name);
             [~,tdp] = herbert_root();
             this.test_data_path = tdp;
@@ -26,35 +29,35 @@ classdef test_loader_ascii< TestCase
         function test_wrong_first_argument(this)
             f = @()loader_ascii(10);
             % should throw; first argument has to be a file name
-            assertExceptionThrown(f,'A_LOADER:set_file_name');
+            assertExceptionThrown(f,'A_LOADER:invalid_argument');
         end
         
         function test_wrong_second_argument(this)
             f = @()loader_ascii(fullfile(this.test_data_path,'some_spe_file_which_was_checked_before.spe'),10);
             % should throw; third parameter has to be a file name
-            assertExceptionThrown(f,'ASCIIPAR_LOADER:invalid_argument');
+            assertExceptionThrown(f,'A_LOADER:invalid_argument');
         end
         function test_par_file_not_there(this)
             f = @()loader_ascii(fullfile(this.test_data_path,'some_spe_file_which_was_checked_before.spe'),...
                 'missing_par_file.par');
             % should throw; par file do not exist
-            assertExceptionThrown(f,'ASCIIPAR_LOADER:set_par_file_name');
+            assertExceptionThrown(f,'ASCIIPAR_LOADER:invalid_argument');
         end
         function test_spe_file_not_there(this)
             spe_file = fullfile(this.test_data_path,'missing_spe_file.spe');
             par_file = fullfile(this.test_data_path,'demo_par.par');
             f = @()loader_ascii(spe_file,par_file);
             % should throw; spe file does not exist
-            assertExceptionThrown(f,'A_LOADER:set_file_name');
+            assertExceptionThrown(f,'A_LOADER:invalid_argument');
         end
         function test_loader_defined(this)
             spe_file = fullfile(this.test_data_path,'MAP10001.spe');
             par_file = fullfile(this.test_data_path,'demo_par.par');
             ld = loader_ascii(spe_file,par_file);
             
-            [fpath,fname,fext]= fileparts(ld.file_name);
+            [~,fname,fext]= fileparts(ld.file_name);
             assertEqual([fname,fext],'MAP10001.spe');
-            [fpath,fname,fext]= fileparts(ld.par_file_name);
+            [~,fname,fext]= fileparts(ld.par_file_name);
             if ispc
                 assertEqual([fname,fext],'demo_par.par');
             else
@@ -86,18 +89,17 @@ classdef test_loader_ascii< TestCase
             assertEqual({'S','ERR','en','n_detectors'},loader.defined_fields());
             
             loader.par_file_name =  fullfile(this.test_data_path,'demo_par.par');
-            assertEqual({'S','ERR','en','n_detectors','det_par'},loader.defined_fields());
+            assertEqual({'S','ERR','en','n_detectors','det_par','n_det_in_par'},loader.defined_fields());
             
         end
         
         function test_par_fields_defined(this)
             loader=loader_ascii();
             par_file = fullfile(this.test_data_path,'demo_par.par');
-            [par,loader]=load_par(loader,par_file);
-            fields = par_file_defines(loader);
-            assertEqual({'det_par','n_detectors'},fields);
-            assertEqual({'n_detectors','det_par'},loader.defined_fields());
-            [fpath,fname,fext] = fileparts(loader.par_file_name);
+            [~,loader]=load_par(loader,par_file);
+            fields = get_par_defined(loader);
+            assertEqual({'det_par','n_det_in_par'},fields);
+            [~,fname,fext] = fileparts(loader.par_file_name);
             if ispc
                 assertEqual([fname,fext],'demo_par.par');
             else
@@ -109,7 +111,7 @@ classdef test_loader_ascii< TestCase
         function test_get_run_info_no_par_file(this)
             loader=loader_ascii(fullfile(this.test_data_path,'spe_info_correspondent2demo_par.spe'));
             f = @()get_run_info(loader);
-            assertExceptionThrown(f,'A_LOADER:get_run_info');
+            assertExceptionThrown(f,'A_LOADER:runtime_error');
             % run info obtained from spe file
             loader.det_par = ones(6,28160);
             [ndet,en,this]=loader.get_run_info();
@@ -127,14 +129,14 @@ classdef test_loader_ascii< TestCase
             f = @()loader_ascii(spe_file,wrong_par);
             
             %f = @()get__info(loader);
-            assertExceptionThrown(f,'ASCIIPAR_LOADER:get_par_info');
+            assertExceptionThrown(f,'ASCIIPAR_LOADER:invalid_argument');
         end
         function test_get_run_info_wrong_spe(this)
             wrong_spe = fullfile(this.test_data_path,'spe_wrong.spe');
             wrong_par = fullfile(this.test_data_path,'demo_par.par');
             
             f =@()loader_ascii(wrong_spe,wrong_par);
-            assertExceptionThrown(f,'LOADER_ASCII:get_spe_matlab');
+            assertExceptionThrown(f,'LOADER_ASCII:invalid_argument');
         end
         function test_get_run_info_inconsistent2spe(this)
             inconsistent_spe = fullfile(this.test_data_path,'spe_info_insonsistent2demo_par.spe');
@@ -144,7 +146,7 @@ classdef test_loader_ascii< TestCase
             
             f = @()get_run_info(loader);
             % inconsistent spe and par files
-            assertExceptionThrown(f,'A_LOADER:get_run_info');
+            assertExceptionThrown(f,'A_LOADER:runtime_error');
         end
         function test_get_run_info_OK(this)
             SPE_file=fullfile(this.test_data_path,'spe_info_correspondent2demo_par.spe');
@@ -203,7 +205,7 @@ classdef test_loader_ascii< TestCase
             assertEqual(file_name,la.file_name);
             
             f=@()la.get_run_info();
-            assertExceptionThrown(f,'A_LOADER:get_run_info');
+            assertExceptionThrown(f,'A_LOADER:runtime_error');
             
             par_file_name =fullfile(this.test_data_path,'demo_par.par');
             la.par_file_name = par_file_name;
@@ -211,18 +213,7 @@ classdef test_loader_ascii< TestCase
             
             assertEqual(en,en1);
             assertEqual(ndet,ndet1);
-        end
-        function test_init_all(this)
-            spe_file_name = fullfile(this.test_data_path,'MAP10001.spe');
-            par_file_name =fullfile(this.test_data_path,'demo_par.par');
-            
-            la = loader_ascii();
-            la=la.init(spe_file_name,par_file_name);
-            
-            [ndet,en]=la.get_run_info();
-            assertEqual(28160,ndet);
-            assertEqual(31,numel(en));
-            
+        
         end
         function test_an_load_and_init_all(this)
             spe_file_name = fullfile(this.test_data_path,'MAP10001.spe');
@@ -239,6 +230,20 @@ classdef test_loader_ascii< TestCase
             assertEqual(31,numel(en));
             
         end
+        %
+        function test_init_all(this)
+            spe_file_name = fullfile(this.test_data_path,'MAP10001.spe');
+            par_file_name =fullfile(this.test_data_path,'demo_par.par');
+            
+            la = loader_ascii();
+            la=la.init(spe_file_name,par_file_name);
+            
+            [ndet,en]=la.get_run_info();
+            assertEqual(28160,ndet);
+            assertEqual(31,numel(en));
+            
+        end
+        
         
         function test_get_file_extension(this)
             fext=loader_ascii.get_file_extension();

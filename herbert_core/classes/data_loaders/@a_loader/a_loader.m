@@ -157,7 +157,7 @@ classdef a_loader < a_detpar_loader_interface
             
             [ok,mess,ndet,en] = is_loader_valid(this);
             if ok<1
-                error('A_LOADER:get_run_info',mess);
+                error('A_LOADER:runtime_error',mess);
             end
             
             if isempty(this.en)
@@ -265,7 +265,7 @@ classdef a_loader < a_detpar_loader_interface
             options = {'-keepexisting'};
             [ok,mess,keepexising]=parse_char_options(varargin,options);
             if ~ok
-                error('A_LOADER:load',mess);
+                error('A_LOADER:invalid_argument',mess);
             end
             
             
@@ -287,7 +287,7 @@ classdef a_loader < a_detpar_loader_interface
                 end
                 [ok,mess]=is_loader_valid(this);
                 if ~ok
-                    error('A_LOADER:load',mess);
+                    error('A_LOADER:runtime_error',mess);
                 end
             else
                 this=this.load_data();
@@ -295,7 +295,7 @@ classdef a_loader < a_detpar_loader_interface
             end
         end
         %
-        function this=saveNXSPE(this,filename,efix,psi,varargin)
+        function obj=saveNXSPE(obj,filename,efix,psi,varargin)
             % method to save loaders data stored in memory as nxspe file
             
             % filename -- the name of the file to write data to. Should not exist
@@ -323,15 +323,15 @@ classdef a_loader < a_detpar_loader_interface
             % rw_mode is default, just for the future, it is not currently used
             [ok,mess,reload,remaining]=parse_char_options(varargin,options);
             if ~ok
-                error('A_LOADER:saveNXSPE',mess);
+                error('A_LOADER:invalid_argument',mess);
             end
             if reload
-                this=load(this);
+                obj=obj.load();
             else
-                this=load(this,'-keep');
+                obj=obj.load('-keep');
             end
             
-            save_nxspe_internal(this,filename,efix,psi,remaining{:});
+            save_nxspe_internal(obj,filename,efix,psi,remaining{:});
         end
         % -----------------------------------------------------------------
         % ---- SETTERS GETTERS FOR CLASS PROPERTIES     -------------------
@@ -344,7 +344,7 @@ classdef a_loader < a_detpar_loader_interface
             % clears all previously loaded run information
             % (if any) inconsistent with the new file or occupying substantial
             % memory.
-            obj = set_file_name_(obj,new_name);
+            obj = set_data_file_name(obj,new_name);
         end
         %
         function filename = get.file_name(this)
@@ -430,12 +430,16 @@ classdef a_loader < a_detpar_loader_interface
         function [par,obj] = load_par(obj,varargin)
             % load detectors info from the previously defined or newly
             % set-up detector parameters file.
-            if numel(varargin)>1
-                [~,~,~,~,filename]=parse_loadpar_arguments(obj,varargin{:});
+            options = {'-array','-forcereload','-getphx'};
+            if numel(varargin)>0
+                present = false(numel(options),1);
+                [present(1),present(2),present(3) ,~,filename]=parse_loadpar_arguments(obj,varargin{:});
+                argi = options(present);
             else
                 filename = '';
+                argi = {};                
             end
-            argi = {};
+
             if isempty(filename)
                 if isempty(obj.detpar_loader_)
                     error('A_LOADER:runtime_error',...
@@ -464,6 +468,12 @@ classdef a_loader < a_detpar_loader_interface
     end
     %
     methods(Access=protected)
+        function obj = set_data_file_name(obj,filename)
+            % protected method to call private set file name procedure
+            %
+            % protected to allow overloading by children
+            obj = set_file_name_(obj,filename);
+        end
         %------------------------------------------------------------------
         % A par_loader interface:
         %------------------------------------------------------------------
@@ -501,7 +511,8 @@ classdef a_loader < a_detpar_loader_interface
             % normaly it sets up the existing detpar loader, but if one is
             % not defined, nxspepar_loader is used as a default
             if isempty(obj.detpar_loader_)
-                obj.detpar_loader_ = nxspepar_loader(value);
+                obj.detpar_loader_ = nxspepar_loader();
+                obj.detpar_loader_.det_par = value;
             else
                 obj.detpar_loader_ = set_det_par(obj.detpar_loader_,value);
             end
@@ -511,11 +522,11 @@ classdef a_loader < a_detpar_loader_interface
             % Method sets this par file name as the source of the detector
             % parameters.
             %
-            % If loader is not defined, the method also selects and initiates 
+            % If loader is not defined, the method also selects and initiates
             % appropriate par file loader depending on the file extension.
             %
             % If it already defined, the file should have extension,
-            % appropriate for the loader selected. 
+            % appropriate for the loader selected.
             %
             % An empty filename clears the loader and removes detector info
             % from memory.
@@ -528,14 +539,15 @@ classdef a_loader < a_detpar_loader_interface
                     ' A par file name, should be a string, defining the full path to the detectors parameter file');
             end
             
-            if ~isempty(obj.detpar_loader_)
-                obj.detpar_loader_.par_file_name = par_f_name;
-            else
-                [~,~,fext] = fileparts(par_f_name);
-                ldr = a_loader.fext_to_parloader_map_(lower(fext));
-                ldr.par_file_name = par_f_name;
-                obj.detpar_loader_ = ldr;
+            if strcmp(obj.par_file_name,par_f_name)
+                return; % nothing to do -- existing file requested
             end
+            
+            [~,~,fext] = fileparts(par_f_name);
+            ldr = a_loader.fext_to_parloader_map_(lower(fext));
+            ldr.par_file_name = par_f_name;
+            obj.detpar_loader_ = ldr;
+            
         end
         %------------------------------------------------------------------
     end

@@ -108,7 +108,7 @@ classdef test_a_loader< TestCase
             
             f=@()subsasgn(al,struct('type','.','subs','file_name'),spe_file);
             
-            assertExceptionThrown(f,'A_LOADER:set_file_name');
+            assertExceptionThrown(f,'A_LOADER:invalid_argument');
             
             spe_file  = fullfile(tmp_dir(),'abstract_test_file.altf');
             
@@ -226,12 +226,12 @@ classdef test_a_loader< TestCase
         function test_get_run_info(this)
             al=a_loader_tester();
             f = @()al.get_run_info();
-            assertExceptionThrown(f,'A_LOADER:get_run_info');
+            assertExceptionThrown(f,'A_LOADER:runtime_error');
             
             par_file = fullfile(this.test_data_path,'demo_par.par');
             al.par_file_name = par_file;
             f = @()al.get_run_info();
-            assertExceptionThrown(f,'A_LOADER:get_run_info');
+            assertExceptionThrown(f,'A_LOADER:runtime_error');
             
         end
         
@@ -249,7 +249,7 @@ classdef test_a_loader< TestCase
                 delete(test_file);
             end
             f=@()lt.saveNXSPE(test_file,10,3);
-            assertExceptionThrown(f,'A_LOADER:load');
+            assertExceptionThrown(f,'A_LOADER:runtime_error');
             
             lt.det_par = ones(6,3);
             
@@ -295,10 +295,10 @@ classdef test_a_loader< TestCase
             % have such problem
             if matlab_version_num()>7.07
                 f=@()lt.saveNXSPE(test_file,10,3);
-                assertExceptionThrown(f,'A_LOADER:saveNXSPE');
+                assertExceptionThrown(f,'A_LOADER:invalid_argument');
                 
                 f=@()lt.saveNXSPE(test_file,10,3,'a');
-                assertExceptionThrown(f,'A_LOADER:saveNXSPE');
+                assertExceptionThrown(f,'A_LOADER:invalid_argument');
                 
                 lt.saveNXSPE(test_file,10,3,'w');
             end
