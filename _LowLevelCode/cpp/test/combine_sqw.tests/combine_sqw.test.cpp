@@ -84,53 +84,50 @@ TEST_F(TestCombineSQW,
   PixMapTester pix_map;
   pix_map.init(TEST_FILE_NAME, BIN_POS_IN_FILE, NUM_BINS_IN_FILE, 0, false);
 
-  std::vector<pix_mem_map::bin_info> buffer1(1);
+  std::vector<pix_mem_map::bin_info> buffer(1);
   std::size_t bin_end, buf_end;
-  pix_map.read_bins(0, buffer1, bin_end, buf_end);
+  pix_map.read_bins(0, buffer, bin_end, buf_end);
   EXPECT_EQ(1, bin_end);
   EXPECT_EQ(1, buf_end);
-  EXPECT_EQ(sample_npix[0], buffer1[0].num_bin_pixels);
+  EXPECT_EQ(sample_npix[0], buffer[0].num_bin_pixels);
 
-  pix_map.read_bins(125, buffer1, bin_end, buf_end);
-  EXPECT_EQ(sample_npix[125], buffer1[0].num_bin_pixels);
+  pix_map.read_bins(125, buffer, bin_end, buf_end);
+  EXPECT_EQ(sample_npix[125], buffer[0].num_bin_pixels);
   EXPECT_EQ(126, bin_end);
   EXPECT_EQ(1, buf_end);
 
-  pix_map.read_bins(115, buffer1, bin_end, buf_end);
-  EXPECT_EQ(sample_npix[115], buffer1[0].num_bin_pixels);
+  pix_map.read_bins(115, buffer, bin_end, buf_end);
+  EXPECT_EQ(sample_npix[115], buffer[0].num_bin_pixels);
   EXPECT_EQ(116, bin_end);
   EXPECT_EQ(1, buf_end);
 
-  pix_map.read_bins(5, buffer1, bin_end, buf_end);
-  EXPECT_EQ(sample_npix[5], buffer1[0].num_bin_pixels);
+  pix_map.read_bins(5, buffer, bin_end, buf_end);
+  EXPECT_EQ(sample_npix[5], buffer[0].num_bin_pixels);
 }
 
 TEST_F(TestCombineSQW, Read_NBins) {
   PixMapTester pix_map;
-  std::vector<pix_mem_map::bin_info> buffer(256);
-  std::size_t bin_end, buf_end;
-
-  //--------------------------------------------------------------------------------------------
   pix_map.init(TEST_FILE_NAME, BIN_POS_IN_FILE, NUM_BINS_IN_FILE, 0, false);
-  std::vector<pix_mem_map::bin_info> buffer2(128);
 
-  pix_map.read_bins(0, buffer2, bin_end, buf_end);
+  std::size_t bin_end, buf_end;
+  std::vector<pix_mem_map::bin_info> buffer(128);
+  pix_map.read_bins(0, buffer, bin_end, buf_end);
 
   EXPECT_EQ(128, bin_end);
   EXPECT_EQ(128, buf_end);
-  EXPECT_EQ(sample_npix[125], buffer2[125].num_bin_pixels);
-  EXPECT_EQ(sample_npix[115], buffer2[115].num_bin_pixels);
-  EXPECT_EQ(sample_npix[114], buffer2[114].num_bin_pixels);
-  EXPECT_EQ(sample_npix[0], buffer2[0].num_bin_pixels);
-  EXPECT_EQ(sample_npix[1], buffer2[1].num_bin_pixels);
-  EXPECT_EQ(sample_npix[5], buffer2[5].num_bin_pixels);
+  EXPECT_EQ(sample_npix[125], buffer[125].num_bin_pixels);
+  EXPECT_EQ(sample_npix[115], buffer[115].num_bin_pixels);
+  EXPECT_EQ(sample_npix[114], buffer[114].num_bin_pixels);
+  EXPECT_EQ(sample_npix[0], buffer[0].num_bin_pixels);
+  EXPECT_EQ(sample_npix[1], buffer[1].num_bin_pixels);
+  EXPECT_EQ(sample_npix[5], buffer[5].num_bin_pixels);
 
-  for (std::size_t i = 1; i < buffer2.size(); i++) {
-    EXPECT_EQ(buffer2[i].pix_pos,
-              buffer2[i - 1].pix_pos + buffer2[i - 1].num_bin_pixels);
+  for (std::size_t i = 1; i < buffer.size(); i++) {
+    EXPECT_EQ(buffer[i].pix_pos,
+              buffer[i - 1].pix_pos + buffer[i - 1].num_bin_pixels);
   }
 
-  pix_map.read_bins(NUM_BINS_IN_FILE - 2, buffer2, bin_end, buf_end);
+  pix_map.read_bins(NUM_BINS_IN_FILE - 2, buffer, bin_end, buf_end);
   EXPECT_EQ(NUM_BINS_IN_FILE, bin_end);
   EXPECT_EQ(2, buf_end);
 }
