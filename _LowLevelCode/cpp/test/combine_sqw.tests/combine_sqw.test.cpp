@@ -38,7 +38,7 @@ protected:
       // Read npix data
       data_file_bin.seekg(BIN_POS_IN_FILE);
       data_file_bin.read(reinterpret_cast<char *>(sample_npix.data()),
-                         NUM_BINS_IN_FILE * 8);
+                         NUM_BINS_IN_FILE * sizeof(sample_npix[0]));
       // Fill the sample_pix_pos vector
       for (auto i = 1; i < sample_npix.size(); i++) {
         sample_pix_pos[i] = sample_pix_pos[i - 1] + sample_npix[i - 1];
@@ -47,7 +47,7 @@ protected:
       // Read pixel data
       data_file_bin.seekg(PIX_POS_IN_FILE);
       data_file_bin.read(reinterpret_cast<char *>(pixels.data()),
-                         NUM_PIXELS * 9 * 8);
+                         NUM_PIXELS * 9 * sizeof(pixels[0]));
     } catch (...) {
       data_file_bin.close();
       throw;
@@ -504,30 +504,28 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix) {
                          num_bin_pix, false);
   EXPECT_EQ(pix_start_num, 334);
   EXPECT_EQ(num_bin_pix, 4);
-  // DISABLED
-  // for (auto i = 0; i<num_bin_pix * 9; i++) {
-  //     EXPECT_EQ(pixels[pix_start_num*9+i], pix_buffer[i]);
-  // }
+   for (auto i = 0; i<num_bin_pix * 9; i++) {
+       EXPECT_EQ(pixels[pix_start_num*9+i], pix_buffer[i]);
+   }
 
   start_buf_pos = 5;
   reader.get_pix_for_bin(NUM_BINS_IN_FILE - 860, pPix_info, start_buf_pos,
                          pix_start_num, num_bin_pix, false);
   EXPECT_EQ(pix_start_num, sample_pix_pos[NUM_BINS_IN_FILE - 860]);
   EXPECT_EQ(num_bin_pix, sample_npix[NUM_BINS_IN_FILE - 860]);
-  // DISABLED
-  // for (auto i = 0; i<num_bin_pix * 9; i++) {
-  //     EXPECT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos*9 +
-  //     i]);
-  // }
-  //
-  // reader.get_pix_for_bin(NUM_BINS_IN_FILE - 860+1, pPix_info, start_buf_pos,
-  // pix_start_num, num_bin_pix, false); EXPECT_EQ(pix_start_num,
-  // sample_pix_pos[NUM_BINS_IN_FILE - 860+1]); EXPECT_EQ(num_bin_pix,
-  // sample_npix[NUM_BINS_IN_FILE - 860+1]); for (auto i = 0; i<num_bin_pix *
-  // 9; i++) {
-  //     EXPECT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos * 9 +
-  //     i]);
-  // }
+   for (auto i = 0; i<num_bin_pix * 9; i++) {
+       EXPECT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos*9 +
+       i]);
+   }
+  
+   reader.get_pix_for_bin(NUM_BINS_IN_FILE - 860+1, pPix_info, start_buf_pos,
+   pix_start_num, num_bin_pix, false); EXPECT_EQ(pix_start_num,
+   sample_pix_pos[NUM_BINS_IN_FILE - 860+1]); EXPECT_EQ(num_bin_pix,
+   sample_npix[NUM_BINS_IN_FILE - 860+1]); for (auto i = 0; i<num_bin_pix *
+   9; i++) {
+       EXPECT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos * 9 +
+       i]);
+   }
 
   start_buf_pos = 2;
   reader.get_pix_for_bin(NUM_BINS_IN_FILE - 1, pPix_info, start_buf_pos,
@@ -577,30 +575,27 @@ TEST_F(TestCombineSQW, SQW_Reader_NoBuf_Mode) {
                          num_bin_pix, false);
   EXPECT_EQ(pix_start_num, 334);
   EXPECT_EQ(num_bin_pix, 4);
-  // DISABLED
-  // for (auto i = 0; i<num_bin_pix * 9; i++) {
-  //     EXPECT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[i]);
-  // }
+   for (auto i = 0; i<num_bin_pix * 9; i++) {
+       EXPECT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[i]);
+   }
   start_buf_pos = 5;
   reader.get_pix_for_bin(NUM_BINS_IN_FILE - 860, pPix_info, start_buf_pos,
                          pix_start_num, num_bin_pix, false);
   EXPECT_EQ(pix_start_num, sample_pix_pos[NUM_BINS_IN_FILE - 860]);
   EXPECT_EQ(num_bin_pix, sample_npix[NUM_BINS_IN_FILE - 860]);
-  // DISABLED
-  // for (auto i = 0; i<num_bin_pix * 9; i++) {
-  //     EXPECT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos * 9 +
-  //     i]);
-  // }
+   for (auto i = 0; i<num_bin_pix * 9; i++) {
+       EXPECT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos * 9 +
+       i]);
+   }
 
   reader.get_pix_for_bin(NUM_BINS_IN_FILE - 860 + 1, pPix_info, start_buf_pos,
                          pix_start_num, num_bin_pix, false);
   EXPECT_EQ(pix_start_num, sample_pix_pos[NUM_BINS_IN_FILE - 860 + 1]);
   EXPECT_EQ(num_bin_pix, sample_npix[NUM_BINS_IN_FILE - 860 + 1]);
-  // DISABLED
-  // for (auto i = 0; i<num_bin_pix * 9; i++) {
-  //     EXPECT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos * 9 +
-  //     i]);
-  // }
+   for (auto i = 0; i<num_bin_pix * 9; i++) {
+       EXPECT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos * 9 +
+       i]);
+   }
 
   start_buf_pos = 2;
   reader.get_pix_for_bin(NUM_BINS_IN_FILE - 1, pPix_info, start_buf_pos,
@@ -650,29 +645,26 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix_Threads) {
                          num_bin_pix, false);
   EXPECT_EQ(pix_start_num, 334);
   EXPECT_EQ(num_bin_pix, 4);
-  // DISABLED
-  // for (auto i = 0; i<num_bin_pix * 9; i++) {
-  //     EXPECT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[i]);
-  // }
+   for (auto i = 0; i<num_bin_pix * 9; i++) {
+       EXPECT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[i]);
+   }
   start_buf_pos = 5;
   reader.get_pix_for_bin(NUM_BINS_IN_FILE - 860, pPix_info, start_buf_pos,
                          pix_start_num, num_bin_pix, false);
   EXPECT_EQ(pix_start_num, sample_pix_pos[NUM_BINS_IN_FILE - 860]);
   EXPECT_EQ(num_bin_pix, sample_npix[NUM_BINS_IN_FILE - 860]);
-  // DISABLED
-  // for (auto i = 0; i<num_bin_pix * 9; i++) {
-  //     EXPECT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos * 9 +
-  //     i]);
-  // }
+   for (auto i = 0; i<num_bin_pix * 9; i++) {
+       EXPECT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos * 9 +
+       i]);
+   }
   reader.get_pix_for_bin(NUM_BINS_IN_FILE - 860 + 1, pPix_info, start_buf_pos,
                          pix_start_num, num_bin_pix, false);
   EXPECT_EQ(pix_start_num, sample_pix_pos[NUM_BINS_IN_FILE - 860 + 1]);
   EXPECT_EQ(num_bin_pix, sample_npix[NUM_BINS_IN_FILE - 860 + 1]);
-  // DISABLED
-  // for (auto i = 0; i<num_bin_pix * 9; i++) {
-  //     EXPECT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos * 9 +
-  //     i]);
-  // }
+   for (auto i = 0; i<num_bin_pix * 9; i++) {
+       EXPECT_EQ(pixels[pix_start_num * 9 + i], pix_buffer[start_buf_pos * 9 +
+       i]);
+   }
 
   start_buf_pos = 2;
   reader.get_pix_for_bin(NUM_BINS_IN_FILE - 1, pPix_info, start_buf_pos,
@@ -684,7 +676,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix_Threads) {
   }
 }
 
-TEST_F(TestCombineSQW, DISABLED_SQW_Reader_Read_All) {
+TEST_F(TestCombineSQW, SQW_Reader_Read_All) {
   sqw_reader reader;
   fileParameters file_par;
   file_par.fileName = TEST_FILE_NAME;
