@@ -80,11 +80,13 @@ classdef rundata
         function fields = main_data_fields()
             fields = rundata.min_field_set__;
         end
+        %
         function run = from_string(str)
             % build rundata object from its string representation obrained earlier by
             % serialize function
             run = rundata_from_string(str);
         end
+        %
         function [run,size] = deserialize(iarr)
             % build rundata object from its string representation obrained earlier by
             % serialize function
@@ -92,6 +94,7 @@ classdef rundata
             % this object (minus 8 bytes spent on storing the object size itself)
             [run,size] = deserialize_(iarr);
         end
+        %
         function [runfiles_list,defined]=gen_runfiles(spe_files,varargin)
             % Returns array of rundata objects created by the input arguments.
             %
@@ -145,6 +148,9 @@ classdef rundata
             % ^2    Optional parameter. If absent, the default value defined by
             %       is used instead;
             [runfiles_list,defined]= rundata.gen_runfiles_of_type('rundata',spe_files,varargin{:});
+        end
+        
+        function obj = loadobj(struc)
         end
     end
     methods(Static,Access=protected)
@@ -245,7 +251,7 @@ classdef rundata
             % cunstruct rundata from different arguments
             if ~isempty(varargin)
                 if ischar(varargin{1})
-                    this=select_loader(this,varargin{1},varargin{2:end});
+                    this=select_loader_(this,varargin{1},varargin{2:end});
                 else
                     this=set_param_recursively(this,varargin{1},varargin{2:end});
                 end
@@ -372,7 +378,7 @@ classdef rundata
             %classname = class(this);
             %this = feval(classname);
             %this = this.initialize('data_file_name',val);
-            this = this.select_loader(val);
+            this = this.select_loader_(val);
             %this = rundata(this,'data_file_name',val);
         end
         function fname = get.data_file_name(this)
@@ -383,22 +389,24 @@ classdef rundata
         function this = set.par_file_name(this,val)
             % method to change par file on defined loader
             data_fname = this.data_file_name;
-            classname = class(this);
-            out = feval(classname);%(this,'data_file_name',data_fname,'par_file_name',val));
             if isempty(data_fname)
                 [~,~,fext] = fileparts(val);
                 if strcmpi(fext,'.nxspe') %HACK assumes that par can be loaded from nxspe only!
+                    classname = class(this);
+                    out = feval(classname);%(this,'data_file_name',data_fname,'par_file_name',val));
                     this = out.initialize(val,this); % shoule be fixed by
                 else
                     if isempty(this.loader__)
-                        this.loader__ = memfile();
+                        this.loader__ = loader_nxspe();
                     end
                     this.loader__.par_file_name = val;
                 end
             else
+                classname = class(this);
+                out = feval(classname);%(this,'data_file_name',data_fname,'par_file_name',val));
                 this = out.initialize(data_fname,val,this);
             end
-            %this = this.select_loader('data_file_name',data_fname,'par_file_name',val);
+            %this = this.select_loader_('data_file_name',data_fname,'par_file_name',val);
         end
         function fname = get.par_file_name(this)
             % method to query what par file a rundata class uses. May be empty
@@ -434,7 +442,7 @@ classdef rundata
             if isempty(this.loader__)
                 this.efix__=val;
             else
-                if ismember('efix',loader_can_define(this.loader__))
+                if ismember('efix',loader_define(this.loader__))
                     this.loader__.efix = val;
                 else
                     this.efix__ = val;
@@ -491,6 +499,12 @@ classdef rundata
                 this.loader__=ld.saveNXSPE(filename,this.efix,psi,varargin{:});
             end
             
+        end
+        
+        function out_struct = saveobj(obj)
+            % method converts rundata into structure, used to saveable/olad
+            % rundata object to disk.
+            out_struct = convert_to_struct_(obj);
         end
     end
 end

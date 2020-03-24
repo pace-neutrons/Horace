@@ -16,7 +16,7 @@ classdef test_nxspepar_loader< TestCase
         function test_constructors(this)
             par_file = 'missing_par_file.nxspe';
             f = @()nxspepar_loader(par_file);
-            assertExceptionThrown(f,'NXSPEPAR_LOADER:set_par_file_name');
+            assertExceptionThrown(f,'NXSPEPAR_LOADER:invalid_argument');
             
             par_file = fullfile(this.test_data_path,'MAP11014.nxspe');
             al1=nxspepar_loader(par_file);

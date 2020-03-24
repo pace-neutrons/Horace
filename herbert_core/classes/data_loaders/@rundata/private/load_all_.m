@@ -9,7 +9,7 @@ else
     this.loader__ = this.loader__.load('-keepexisting');
 end
 
-def_fields = this.loader__.loader_can_define();
+def_fields = this.loader__.loader_define();
 if ismember('efix',def_fields)
     if reload || isempty(this.efix__)
         this.efix__ = this.loader.efix;

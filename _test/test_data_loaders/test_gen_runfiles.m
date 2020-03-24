@@ -65,28 +65,36 @@ classdef test_gen_runfiles< TestCase
             
             this=gen_test_files(this,ldd);
         end
+        function delete(obj)
+            for i=1:numel(obj.test_files)
+                if exist(obj.test_files{i},'file')==2
+                    delete(obj.test_files{i});
+                end
+            end
+        end
         %
         function this=gen_test_files(this,ldd)
             this.test_files = cell(this.nfiles_max,1);
-            mf = memfile();
-            det = ldd.load_par();
-            ndet = ldd.n_detectors();
+            det_ld = ldd.load_par();
+            ndet = ldd.n_det_in_par();
             
             for i=1:this.nfiles_max
-                this.test_files{i}=['TestFile',num2str(i),'.mem'];
-                mf.efix = this.efix(i);
-                mf.en   = this.en{i};
+                this.test_files{i}=['test_gen_runfiles_test_files_',num2str(i),'.nxspe'];
+                rd = rundata();
+                rd.efix = this.efix(i);
+                rd.en   = this.en{i};
                 nen = numel(this.en{i})-1;
                 S = ones(nen,ndet);
                 S(:,1) = NaN;
                 S(:,10) = NaN;
-                
-                mf.psi  = this.psi(i);
-                mf.S   = S;
-                mf.ERR = ones(nen ,ndet);
-                mf.par_file_name = this.par_file;
-                mf.det_par = det;
-                mf.save(this.test_files{i});
+                or = oriented_lattice();
+                or.psi = this.psi(i); 
+                rd.lattice = or;
+                rd.S   = S;
+                rd.ERR = ones(nen ,ndet);
+                rd.par_file_name = this.par_file;
+                rd.det_par = det_ld;
+                saveNxspe(this.test_files{i},rd)
             end
         end
         %
@@ -221,8 +229,8 @@ classdef test_gen_runfiles< TestCase
             psi_wm = zeros(n_tot,1);
             psi_wm(1:n_exist) = this.psi(1:n_exist);
             
-            for i=this.nfiles_max:this.nfiles_max+n_missing
-                t_files_wm{i}=['TestFile',num2str(i),'.mem'];
+            for i=this.nfiles_max+1:this.nfiles_max+n_missing
+                t_files_wm{i}=['TestFile_genrunfiles',num2str(i),'.spe'];
                 efix_wm(i) = 35+0.5*i;
                 psi_wm(i)=90-i+1;
             end
@@ -259,7 +267,8 @@ classdef test_gen_runfiles< TestCase
                     assertEqual(dpsil,this.dpsi(1)*(pi/180));
                     assertEqual(gll,this.gl(1)*(pi/180));
                     assertEqual(gsl,this.gs(1)*(pi/180));
-                    assertEqual(det_par,det_parl);
+                    [ok,mess]=equal_to_tol(det_par,det_parl,'ignore_str',true);
+                    assertTrue(ok,mess);
                 else
                     assertTrue(isempty(run_files{i}.en));
                     assertTrue(isempty(run_files{i}.loader));

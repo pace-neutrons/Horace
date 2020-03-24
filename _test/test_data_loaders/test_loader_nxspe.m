@@ -395,6 +395,7 @@ classdef test_loader_nxspe< TestCase
             fields = defined_fields(loader);
             assertEqual({'S','ERR','en','efix','psi','det_par','n_detectors','n_det_in_par'},fields);
         end
+        %
         function test_load(this)
             dat_file =f_name(this,'MAP11014v2.nxspe');
             lx = loader_nxspe(dat_file);

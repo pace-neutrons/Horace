@@ -93,7 +93,7 @@ classdef test_rundata< TestCase
             %             assertTrue(all(ismember({'omega','dpsi','gl','gs','u','v'},fields_from_defaults)));
         end
         function test_hdfh5_file_loader_in_use(this)
-            spe_file = f_name(this,'MAP11020.spe_h5');
+            spe_file = f_name(this,'MAP11020.spe');
             par_file = f_name(this,'demo_par.PAR');
             run=rundata(spe_file,par_file,'psi',2,'alatt',[1;1;1],'angdeg',[90;90;90]);
             fl=get(run,'loader');
@@ -112,7 +112,7 @@ classdef test_rundata< TestCase
             
         end
         function test_not_all_fields_defined_powder(this)
-            run=rundata(f_name(this,'MAP11020.spe_h5'),f_name(this,'demo_par.PAR'),'efix',200.);
+            run=rundata(f_name(this,'MAP11020.spe'),f_name(this,'demo_par.PAR'),'efix',200.);
             % run is not defined fully (properly)
             [is_undef,fields_to_load,undef_fields]=check_run_defined(run);
             assertEqual(1,is_undef);
@@ -124,7 +124,7 @@ classdef test_rundata< TestCase
             %             assertTrue(all(ismember({'omega','dpsi','gl','gs','u','v'},fields_from_defaults)));
         end
         function test_not_all_fields_defined_crystal(this)
-            run=rundata(f_name(this,'MAP11020.spe_h5'),f_name(this,'demo_par.PAR'),'efix',200.,'gl',1.);
+            run=rundata(f_name(this,'MAP11020.spe'),f_name(this,'demo_par.PAR'),'efix',200.,'gl',1.);
             % run is not defined fully (properly)
             [is_undef,fields_to_load,undef_fields]=check_run_defined(run);
             assertEqual(2,is_undef);
@@ -140,7 +140,7 @@ classdef test_rundata< TestCase
         function test_all_fields_defined_powder(this)
             % checks different option of private function
             % what_fields_are_needed()
-            run=rundata(f_name(this,'MAP11020.spe_h5'),f_name(this,'demo_par.PAR'),'efix',200.);
+            run=rundata(f_name(this,'MAP11020.spe'),f_name(this,'demo_par.PAR'),'efix',200.);
             % run is not defined fully (properly) for crystal
             run.is_crystal=false;
             % but is sufficient for powder
@@ -211,7 +211,7 @@ classdef test_rundata< TestCase
         function test_modify_par_file_empty(this)
             run=rundata();
             run=rundata(run,'par_file_name',f_name(this,'demo_par.PAR'),...
-                'data_file_name',f_name(this,'MAP11020.spe_h5'),'psi',2);
+                'data_file_name',f_name(this,'MAP11020.spe'),'psi',2);
             
             assertEqual(28160,run.n_detectors);
             det = get_par(run);
@@ -257,29 +257,25 @@ classdef test_rundata< TestCase
             if exist(test_file,'file')
                 delete(test_file);
             end
-            tf = memfile();
-            tf.S=ones(10,28160);
-            tf.ERR=ones(10,28160);
-            tf.en = 1:11;
-            tf.save('test_file');
+            spe_spource = fullfile(this.test_data_path,'spe_info_inconsistent2demo_par.spe');
             lat = oriented_lattice();
             lat.psi = 10;
             
-            run=rundata('test_file.mem');
+            run=rundata(spe_spource);
             run.lattice = lat;
             f=@()run.saveNXSPE(test_file);
-            assertExceptionThrown(f,'A_LOADER:saveNXSPE');
+            assertExceptionThrown(f,'A_LOADER:runtime_error');
             
             run.par_file_name = f_name(this,'demo_par.PAR');
             assertEqual(run.lattice,lat);
             f=@()run.saveNXSPE(test_file);
             % efix has to be defined
-            assertExceptionThrown(f,'A_LOADER:saveNXSPE');
+            assertExceptionThrown(f,'A_LOADER:runtime_error');
             
             run.efix = 1;
             f=@()run.saveNXSPE(test_file);
             % efix has to be defined
-            assertExceptionThrown(f,'A_LOADER:saveNXSPE');
+            assertExceptionThrown(f,'A_LOADER:runtime_error');
             
             run.efix = 150;
             run=run.saveNXSPE(test_file,'w');
@@ -444,7 +440,7 @@ classdef test_rundata< TestCase
             test_path = fileparts(mfilename('fullpath'));
             ts = load(fullfile(test_path,'fromwindow_data4test.mat'));
             td = ts.df;
-            saveNXSPE(test_file,td);
+            saveNxspe(test_file,td);
             assertEqual(exist(test_file,'file'),2);
             
             ldr = loader_nxspe(test_file);
