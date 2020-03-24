@@ -151,6 +151,10 @@ classdef rundata
         end
         
         function obj = loadobj(struc)
+            % build rundata from the structure, obtained from saveobj
+            % method. 
+            obj = set_up_from_struct_(struc);
+            
         end
     end
     methods(Static,Access=protected)
@@ -408,6 +412,7 @@ classdef rundata
             end
             %this = this.select_loader_('data_file_name',data_fname,'par_file_name',val);
         end
+        %
         function fname = get.par_file_name(this)
             % method to query what par file a rundata class uses. May be empty
             % for some data loaders, which have det information inside.

@@ -92,25 +92,7 @@ classdef test_rundata< TestCase
             %             assertEqual(6,numel(fields_from_defaults));
             %             assertTrue(all(ismember({'omega','dpsi','gl','gs','u','v'},fields_from_defaults)));
         end
-        function test_hdfh5_file_loader_in_use(this)
-            spe_file = f_name(this,'MAP11020.spe');
-            par_file = f_name(this,'demo_par.PAR');
-            run=rundata(spe_file,par_file,'psi',2,'alatt',[1;1;1],'angdeg',[90;90;90]);
-            fl=get(run,'loader');
-            assertTrue(isa(fl,'loader_speh5'));
-            % hdf5 file reader loads par files by the constructor
-            % the data above fully define the  run
-            [is_undef,fields_to_load,undef_fields]=check_run_defined(run);
-            assertEqual(1,is_undef);
-            assertTrue(isempty(undef_fields));
-            
-            assertEqual(3,numel(fields_to_load));
-            %            assertTrue(all(ismember({'S','ERR','efix','en','det_par'},fields_from_loader)));
-            assertTrue(all(ismember({'S','ERR','det_par'},fields_to_load)));
-            %             assertEqual(6,numel(fields_from_defaults));
-            %             assertTrue(all(ismember({'omega','dpsi','gl','gs','u','v'},fields_from_defaults)));
-            
-        end
+        %
         function test_not_all_fields_defined_powder(this)
             run=rundata(f_name(this,'MAP11020.spe'),f_name(this,'demo_par.PAR'),'efix',200.);
             % run is not defined fully (properly)
@@ -211,7 +193,7 @@ classdef test_rundata< TestCase
         function test_modify_par_file_empty(this)
             run=rundata();
             run=rundata(run,'par_file_name',f_name(this,'demo_par.PAR'),...
-                'data_file_name',f_name(this,'MAP11020.spe'),'psi',2);
+                'data_file_name',f_name(this,'MAP10001.spe'),'psi',2);
             
             assertEqual(28160,run.n_detectors);
             det = get_par(run);
@@ -278,6 +260,15 @@ classdef test_rundata< TestCase
             assertExceptionThrown(f,'A_LOADER:runtime_error');
             
             run.efix = 150;
+            f=@()run.saveNXSPE(test_file);
+            assertExceptionThrown(f,'A_LOADER:runtime_error');
+            
+            run.data_file_name = fullfile(this.test_data_path,'MAP10001.spe');
+            
+            f=@()run.saveNXSPE(test_file);
+            assertExceptionThrown(f,'A_LOADER:runtime_error');
+            run.par_file_name = f_name(this,'demo_par.PAR');
+            
             run=run.saveNXSPE(test_file,'w');
             
             ld = loader_nxspe(test_file);
@@ -364,8 +355,8 @@ classdef test_rundata< TestCase
             clOb = onCleanup(@()warning(ws));
             s1 = struct(run);
             s2 = struct(runr);
-            s1 = rmfield(s1,{'loader__','loader','efix__'});
-            s2 = rmfield(s2,{'loader__','loader','efix__'});
+            s1 = rmfield(s1,{'efix__'});
+            s2 = rmfield(s2,{'efix__'});
             assertEqual(s1,s2);
         end
         

@@ -143,7 +143,7 @@ for i=1:numel(field_names)
 end
 if loader_redefined
     if isempty(this.loader__)
-        this=select_loader(this,file_name,par_file_name);
+        this=select_loader_(this,file_name,par_file_name);
     else
         if isempty(file_name)
             this.loader__.par_file_name = par_file_name;

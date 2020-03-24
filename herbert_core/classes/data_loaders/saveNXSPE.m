@@ -54,15 +54,15 @@ error('saveNXSPE:not_implemented',...
 function rd = parce_fromwindow(data2save,nxspe_filename)
 % the routine takes fromwindow mslice structure and converts it into
 % rundata to save in nxspe file
-tf = memfile();
+tf = struct();
 tf.S=data2save.S';
 tf.ERR=data2save.ERR';
 tf.en = data2save.en;
 tf.det_par = [ones(numel(data2save.det_theta),1),data2save.det_theta*(180/pi),...
     data2save.det_psi*(180/pi),data2save.det_dtheta,...
     data2save.det_dpsi,data2save.det_group]';
-[~,fn] = fileparts(nxspe_filename);
-tf.save(fn);
+%[~,fn] = fileparts(nxspe_filename);
+%tf.save(fn);
 lat = oriented_lattice();
 if isfield(data2save,'psi_samp')
     lat.psi = data2save.psi_samp*180/pi;
@@ -70,6 +70,6 @@ else
     lat.psi = NaN;
 end
 
-rd=rundata([fn,'.mem']);
+rd=rundata(tf);
 rd.lattice = lat;
 rd.efix = data2save.efixed;

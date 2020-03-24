@@ -139,7 +139,7 @@ classdef test_loader_ascii< TestCase
             assertExceptionThrown(f,'LOADER_ASCII:invalid_argument');
         end
         function test_get_run_info_inconsistent2spe(this)
-            inconsistent_spe = fullfile(this.test_data_path,'spe_info_insonsistent2demo_par.spe');
+            inconsistent_spe = fullfile(this.test_data_path,'spe_info_inconsistent2demo_par.spe');
             demo_par = fullfile(this.test_data_path,'demo_par.par');
             
             loader=loader_ascii(inconsistent_spe,demo_par);

@@ -7,7 +7,7 @@ out_struct.class_name = class(obj);
 fields = {'data_file_name','par_file_name','efix','emode'};
 
 if ~isempty(obj.loader__)
-    fields_from_loader = obj.loader_.loader_define();
+    fields_from_loader = obj.loader__.loader_define();
     in_loader = ismember(fields,fields_from_loader);
     left_fields = fields(~in_loader);    
 end

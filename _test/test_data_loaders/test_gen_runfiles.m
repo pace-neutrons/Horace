@@ -23,6 +23,7 @@ classdef test_gen_runfiles< TestCase
         par_file;
         test_files;
         wk_dir
+        clob = []
     end
     methods
         function this=test_gen_runfiles(name)
@@ -65,6 +66,7 @@ classdef test_gen_runfiles< TestCase
             
             this=gen_test_files(this,ldd);
         end
+        %
         function delete(obj)
             for i=1:numel(obj.test_files)
                 if exist(obj.test_files{i},'file')==2
@@ -96,6 +98,7 @@ classdef test_gen_runfiles< TestCase
                 rd.det_par = det_ld;
                 saveNxspe(this.test_files{i},rd)
             end
+            this.clob = onCleanup(@()delete(this));
         end
         %
         function test_genrunfiles_indirect(this)
