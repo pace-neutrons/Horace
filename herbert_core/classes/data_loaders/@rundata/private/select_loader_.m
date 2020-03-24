@@ -26,9 +26,14 @@ assume_ASCII_spe_loader = false;
 
 first_file = varargin{1};
 if isempty(first_file) % assume ASCII spe loader
+    if isempty(first_file) && numel(varargin) == 1
+        this.loader__ = [];
+        return;
+    end
     assume_ASCII_spe_loader = true;
 elseif ~ischar(first_file)    % build from a file;
-    error('RUNDATA:invalid_argument','unsupported first argument');
+    error('RUNDATA:invalid_argument',...
+        'unsupported first argument. Should be data file name and input is not char');
 end
 % check if second parameter is a file
 second_file ='';

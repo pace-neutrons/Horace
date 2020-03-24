@@ -1,8 +1,12 @@
-function this=set_loader_field(this,field_name,val)
+function obj=set_loader_field(obj,field_name,val)
 % these
-if isempty(this.loader) 
-    %TODO: should be specific loader for that
-    this.loader__=loader_nxspe();
+if isempty(obj.loader)
+    if isempty(val)
+        return;
+    else
+        %TODO: should be specific loader for that
+        obj.loader__=loader_nxspe();        
+    end
 end
-this.loader__.(field_name)=val;
+obj.loader__.(field_name)=val;
 

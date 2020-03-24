@@ -28,6 +28,45 @@ classdef test_rundata< TestCase
         function this=tearDown(this)
             set(herbert_config,'log_level',this.log_level,'-buffer');
         end
+        %
+        
+        function test_custom_save_loadobj_empty(obj)
+            rd = rundata();
+            tf = fullfile(tmp_dir,'test_custom_save_loadobj_empty.mat');
+            clob = onCleanup(@()delete(tf));
+            save(tf,'rd');
+            ld = load(tf);
+            
+            assertEqual(ld.rd,rd);
+        end
+        %
+        function test_custom_save_loadobj_meta(obj)
+            rd = rundata(f_name(obj,'MAP10001.spe'),f_name(obj,'demo_par.PAR'),'efix',200.);
+            tf = fullfile(tmp_dir,'test_custom_save_loadobj_meta.mat');
+            clob = onCleanup(@()delete(tf));
+            save(tf,'rd');
+            ld = load(tf);
+            
+            assertEqual(ld.rd,rd);
+        end
+        
+        function test_custom_save_loadobj_all(obj)
+            ds.alatt=[1;1;1];
+            ds.angdeg=[90;90;90];
+            rd=rundata(f_name(obj,'MAP11014v2.nxspe'),ds);
+            %
+            rd = get_rundata (rd,'-this');            
+            
+            tf = fullfile(tmp_dir,'test_custom_save_loadobj_all.mat');
+            clob = onCleanup(@()delete(tf));
+            save(tf,'rd');
+            ld = load(tf);
+            
+            assertEqual(ld.rd,rd);
+        end
+        
+        
+        
         
         % tests themself
         function test_wrong_first_argument_has_to_be_fileName(this)
@@ -441,7 +480,7 @@ classdef test_rundata< TestCase
             assertEqual(par.azim',td.det_psi*(180/pi));
             assertEqual(par.x2,ones(1,numel(par.x2)));
         end
-        
+        %
     end
 end
 

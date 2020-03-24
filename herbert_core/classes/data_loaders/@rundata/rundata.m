@@ -349,28 +349,28 @@ classdef rundata
         %
         function ndet = get.n_detectors(this)
             % method to check number of detectors defined in rundata
-            ndet = get_loader_field(this,'n_detectors');
+            ndet = get_loader_field_(this,'n_detectors');
         end
         function S=get.S(this)
-            S = get_loader_field(this,'S');
+            S = get_loader_field_(this,'S');
         end
         function this = set.S(this,val)
             this=set_loader_field(this,'S',val);
         end
         function ERR=get.ERR(this)
-            ERR = get_loader_field(this,'ERR');
+            ERR = get_loader_field_(this,'ERR');
         end
         function this = set.ERR(this,val)
             this=set_loader_field(this,'ERR',val);
         end
         function det=get.det_par(this)
-            det = get_loader_field(this,'det_par');
+            det = get_loader_field_(this,'det_par');
         end
         function this = set.det_par(this,val)
             this=set_loader_field(this,'det_par',val);
         end
         function en=get.en(this)
-            en=get_loader_field(this,'en');
+            en=get_loader_field_(this,'en');
         end
         function this=set.en(this,val)
             this=set_loader_field(this,'en',val);
@@ -387,7 +387,7 @@ classdef rundata
         end
         function fname = get.data_file_name(this)
             % method to query what data file a rundata class uses
-            fname = get_loader_field(this,'file_name');
+            fname = get_loader_field_(this,'file_name');
         end
         %---
         function this = set.par_file_name(this,val)
@@ -416,7 +416,7 @@ classdef rundata
         function fname = get.par_file_name(this)
             % method to query what par file a rundata class uses. May be empty
             % for some data loaders, which have det information inside.
-            fname = get_loader_field(this,'par_file_name');
+            fname = get_loader_field_(this,'par_file_name');
         end
         function inst = get.instrument(this)
             % return instrument

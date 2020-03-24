@@ -9,7 +9,9 @@ fields = {'data_file_name','par_file_name','efix','emode'};
 if ~isempty(obj.loader__)
     fields_from_loader = obj.loader__.loader_define();
     in_loader = ismember(fields,fields_from_loader);
-    left_fields = fields(~in_loader);    
+    left_fields = fields(~in_loader);  
+else
+    left_fields = fields;
 end
 
 
@@ -20,9 +22,6 @@ if obj.is_crystal
     out_struct.lattice = obj.oriented_lattice__.struct();
 end
 %-------------------- Store data loaded in memory if necessary.
-if ~isfield(out_struct,'data_file_name')
-    out_struct.data_file_name = obj.data_file_name;
-end
 %
 if isempty(out_struct.data_file_name) || ...
         ~(exist(out_struct.data_file_name,'file')==2) || ...

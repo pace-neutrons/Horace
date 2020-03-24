@@ -81,7 +81,7 @@ classdef a_detpar_loader_interface
         function obj=set.par_file_name(obj,par_f_name)
             % Method sets this par file name as the source par file name.
             %
-            % Depending on the current state, it can clears all previous
+            % Depending on the current state, it can clear all previous
             % file information from memory
             obj = set_par_file_name(obj,par_f_name);
         end
