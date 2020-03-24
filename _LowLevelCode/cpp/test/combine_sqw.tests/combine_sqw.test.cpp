@@ -58,7 +58,7 @@ protected:
 
 std::vector<uint64_t> TestCombineSQW::sample_npix(NUM_BINS_IN_FILE, 0);
 std::vector<uint64_t> TestCombineSQW::sample_pix_pos(NUM_BINS_IN_FILE, 0);
-std::vector<float> TestCombineSQW::pixels(NUM_PIXELS * NUM_PIXBLOCK_COLS, 0);
+std::vector<float> TestCombineSQW::pixels(NUM_PIXELS *NUM_PIXBLOCK_COLS, 0);
 
 TEST_F(TestCombineSQW,
        read_bins_extracts_correct_bin_data_from_file_reading_from_start) {
@@ -183,11 +183,13 @@ TEST_F(TestCombineSQW, Get_NPix_For_Bins) {
 
 TEST_F(TestCombineSQW, Fully_Expand_Pix_Map_From_Start) {
   pix_mem_map pix_map;
-  const std::size_t pix_buffer_size{ 512 };
-  pix_map.init(TEST_FILE_NAME, BIN_POS_IN_FILE, NUM_BINS_IN_FILE, pix_buffer_size, false);
+  const std::size_t pix_buffer_size{512};
+  pix_map.init(TEST_FILE_NAME, BIN_POS_IN_FILE, NUM_BINS_IN_FILE,
+               pix_buffer_size, false);
 
   bool end_pix_reached;
-  size_t num_pix = pix_map.check_expand_pix_map(4, pix_buffer_size, end_pix_reached);
+  size_t num_pix =
+      pix_map.check_expand_pix_map(4, pix_buffer_size, end_pix_reached);
   ASSERT_FALSE(end_pix_reached);
   EXPECT_EQ(pix_buffer_size, num_pix);
 
@@ -217,12 +219,14 @@ TEST_F(TestCombineSQW, Fully_Expand_Pix_Map_From_Start) {
 
 TEST_F(TestCombineSQW, Check_Expand_Pix_Map) {
   pix_mem_map pix_map;
-  const std::size_t pix_buffer_size{ 512 };
-  pix_map.init(TEST_FILE_NAME, BIN_POS_IN_FILE, NUM_BINS_IN_FILE, pix_buffer_size, false);
+  const std::size_t pix_buffer_size{512};
+  pix_map.init(TEST_FILE_NAME, BIN_POS_IN_FILE, NUM_BINS_IN_FILE,
+               pix_buffer_size, false);
 
   bool end_pix_reached;
-  const std::size_t pix_position{ pix_buffer_size - 1 };
-  size_t num_pix0 = pix_map.check_expand_pix_map(pix_position, pix_buffer_size, end_pix_reached);
+  const std::size_t pix_position{pix_buffer_size - 1};
+  size_t num_pix0 = pix_map.check_expand_pix_map(pix_position, pix_buffer_size,
+                                                 end_pix_reached);
   ASSERT_FALSE(end_pix_reached);
   EXPECT_EQ(pix_position - 1, num_pix0);
 
@@ -233,8 +237,8 @@ TEST_F(TestCombineSQW, Check_Expand_Pix_Map) {
 
   // Read whole map in memory requesting map for much bigger number of npixels
   // then the real npix number in the file.
-  size_t num_pix =
-      pix_map.check_expand_pix_map(pix_buffer_size, 2 * NUM_PIXELS, end_pix_reached);
+  size_t num_pix = pix_map.check_expand_pix_map(pix_buffer_size, 2 * NUM_PIXELS,
+                                                end_pix_reached);
   // the file contains
   EXPECT_EQ(sample_pix_pos[NUM_BINS_IN_FILE - 1] +
                 sample_npix[NUM_BINS_IN_FILE - 1] - pix_pos - npix,
@@ -249,7 +253,8 @@ TEST_F(TestCombineSQW, Check_Expand_Pix_Map) {
   }
   EXPECT_EQ(pix_map.num_pix_in_file(), num_pix + pix_pos + npix);
 
-  num_pix = pix_map.check_expand_pix_map(pix_buffer_size, pix_buffer_size, end_pix_reached);
+  num_pix = pix_map.check_expand_pix_map(pix_buffer_size, pix_buffer_size,
+                                         end_pix_reached);
   ASSERT_FALSE(end_pix_reached);
   EXPECT_EQ(pix_buffer_size, num_pix);
 
@@ -264,8 +269,9 @@ TEST_F(TestCombineSQW, Check_Expand_Pix_Map) {
 
 TEST_F(TestCombineSQW, Normal_Expand_Mode) {
   pix_mem_map pix_map;
-  const std::size_t pix_buffer_size{ 512 };
-  pix_map.init(TEST_FILE_NAME, BIN_POS_IN_FILE, NUM_BINS_IN_FILE, pix_buffer_size, false);
+  const std::size_t pix_buffer_size{512};
+  pix_map.init(TEST_FILE_NAME, BIN_POS_IN_FILE, NUM_BINS_IN_FILE,
+               pix_buffer_size, false);
   size_t pix_pos, npix;
   pix_map.get_npix_for_bin(0, pix_pos, npix);
   EXPECT_EQ(sample_pix_pos[0], pix_pos);
@@ -361,11 +367,13 @@ TEST_F(TestCombineSQW, Get_NPix_For_Bins_Threads) {
 
 TEST_F(TestCombineSQW, Fully_Expand_Pix_Map_From_Start_Threads) {
   pix_mem_map pix_map;
-  const std::size_t pix_buffer_size{ 512 };
-  pix_map.init(TEST_FILE_NAME, BIN_POS_IN_FILE, NUM_BINS_IN_FILE, pix_buffer_size, true);
+  const std::size_t pix_buffer_size{512};
+  pix_map.init(TEST_FILE_NAME, BIN_POS_IN_FILE, NUM_BINS_IN_FILE,
+               pix_buffer_size, true);
 
   bool end_pix_reached;
-  size_t num_pix = pix_map.check_expand_pix_map(4, pix_buffer_size, end_pix_reached);
+  size_t num_pix =
+      pix_map.check_expand_pix_map(4, pix_buffer_size, end_pix_reached);
   ASSERT_FALSE(end_pix_reached);
   EXPECT_EQ(pix_buffer_size, num_pix);
 
@@ -395,11 +403,13 @@ TEST_F(TestCombineSQW, Fully_Expand_Pix_Map_From_Start_Threads) {
 
 TEST_F(TestCombineSQW, Check_Expand_Pix_Map_Threads) {
   pix_mem_map pix_map;
-  const std::size_t pix_buffer_size{ 512 };
-  pix_map.init(TEST_FILE_NAME, BIN_POS_IN_FILE, NUM_BINS_IN_FILE, pix_buffer_size, true);
+  const std::size_t pix_buffer_size{512};
+  pix_map.init(TEST_FILE_NAME, BIN_POS_IN_FILE, NUM_BINS_IN_FILE,
+               pix_buffer_size, true);
 
   bool end_pix_reached;
-  size_t num_pix1 = pix_map.check_expand_pix_map(511, pix_buffer_size, end_pix_reached);
+  size_t num_pix1 =
+      pix_map.check_expand_pix_map(511, pix_buffer_size, end_pix_reached);
   ASSERT_FALSE(end_pix_reached);
   EXPECT_EQ(510, num_pix1);
 
@@ -410,8 +420,8 @@ TEST_F(TestCombineSQW, Check_Expand_Pix_Map_Threads) {
 
   // Read whole map in memory requesting map for much bigger number of npixels
   // then the real npix number in the file.
-  size_t num_pix =
-      pix_map.check_expand_pix_map(pix_buffer_size, 2 * NUM_PIXELS, end_pix_reached);
+  size_t num_pix = pix_map.check_expand_pix_map(pix_buffer_size, 2 * NUM_PIXELS,
+                                                end_pix_reached);
   // the file contains
   EXPECT_EQ(sample_pix_pos[NUM_BINS_IN_FILE - 1] +
                 sample_npix[NUM_BINS_IN_FILE - 1] - pix_pos - npix,
@@ -426,7 +436,8 @@ TEST_F(TestCombineSQW, Check_Expand_Pix_Map_Threads) {
   }
   EXPECT_EQ(pix_map.num_pix_in_file(), num_pix + pix_pos + npix);
 
-  num_pix = pix_map.check_expand_pix_map(pix_buffer_size, pix_buffer_size, end_pix_reached);
+  num_pix = pix_map.check_expand_pix_map(pix_buffer_size, pix_buffer_size,
+                                         end_pix_reached);
   ASSERT_FALSE(end_pix_reached);
   EXPECT_EQ(pix_buffer_size, num_pix);
 
@@ -441,8 +452,9 @@ TEST_F(TestCombineSQW, Check_Expand_Pix_Map_Threads) {
 
 TEST_F(TestCombineSQW, Normal_Expand_Mode_Threads) {
   pix_mem_map pix_map;
-  const std::size_t pix_buffer_size{ 512 };
-  pix_map.init(TEST_FILE_NAME, BIN_POS_IN_FILE, NUM_BINS_IN_FILE, pix_buffer_size, true);
+  const std::size_t pix_buffer_size{512};
+  pix_map.init(TEST_FILE_NAME, BIN_POS_IN_FILE, NUM_BINS_IN_FILE,
+               pix_buffer_size, true);
 
   size_t pix_pos, npix;
   pix_map.get_npix_for_bin(0, pix_pos, npix);
