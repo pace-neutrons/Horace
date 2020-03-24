@@ -375,15 +375,10 @@ classdef rundata
         function this=set.en(this,val)
             this=set_loader_field(this,'en',val);
         end
-        %--- LESS LOADER LOCATED BUT STILL DEFINED THERE and DEFINING
-        %    LOADER
+        %
         function this = set.data_file_name(this,val)
-            % method to change data file for a run data class
-            %classname = class(this);
-            %this = feval(classname);
-            %this = this.initialize('data_file_name',val);
+            % Sets new data file name, and as the method to change data file for a run data class
             this = this.select_loader_(val);
-            %this = rundata(this,'data_file_name',val);
         end
         function fname = get.data_file_name(this)
             % method to query what data file a rundata class uses
