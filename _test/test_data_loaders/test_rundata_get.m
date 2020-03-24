@@ -249,7 +249,7 @@ classdef test_rundata_get< TestCase
         
         function test_error(this)
             % to test errors, whcuch seems ere observed
-            spefile = fullfile(this.test_data_path,'MAP11020.spe');
+            spefile = fullfile(this.test_data_path,'MAP10001.spe');
             parfile = fullfile(this.test_data_path,'demo_par.PAR');
             
             r=rundata(spefile,parfile,'efix',45,'psi',-32,'angdeg',[91,92,93],'alatt',[4.5,4.6,4.7]);

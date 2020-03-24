@@ -94,7 +94,7 @@ classdef test_rundata< TestCase
         end
         %
         function test_not_all_fields_defined_powder(this)
-            run=rundata(f_name(this,'MAP11020.spe'),f_name(this,'demo_par.PAR'),'efix',200.);
+            run=rundata(f_name(this,'MAP10001.spe'),f_name(this,'demo_par.PAR'),'efix',200.);
             % run is not defined fully (properly)
             [is_undef,fields_to_load,undef_fields]=check_run_defined(run);
             assertEqual(1,is_undef);
@@ -106,7 +106,7 @@ classdef test_rundata< TestCase
             %             assertTrue(all(ismember({'omega','dpsi','gl','gs','u','v'},fields_from_defaults)));
         end
         function test_not_all_fields_defined_crystal(this)
-            run=rundata(f_name(this,'MAP11020.spe'),f_name(this,'demo_par.PAR'),'efix',200.,'gl',1.);
+            run=rundata(f_name(this,'MAP10001.spe'),f_name(this,'demo_par.PAR'),'efix',200.,'gl',1.);
             % run is not defined fully (properly)
             [is_undef,fields_to_load,undef_fields]=check_run_defined(run);
             assertEqual(2,is_undef);
@@ -122,7 +122,7 @@ classdef test_rundata< TestCase
         function test_all_fields_defined_powder(this)
             % checks different option of private function
             % what_fields_are_needed()
-            run=rundata(f_name(this,'MAP11020.spe'),f_name(this,'demo_par.PAR'),'efix',200.);
+            run=rundata(f_name(this,'MAP10001.spe'),f_name(this,'demo_par.PAR'),'efix',200.);
             % run is not defined fully (properly) for crystal
             run.is_crystal=false;
             % but is sufficient for powder
