@@ -1,4 +1,4 @@
-[<-previous](0009-use-standard-naming-for-build-artifacts.md) | next->
+[<-previous](0009-use-standard-naming-for-build-artifacts.md) | [next->](0011-version-project-with-cmake.md)
 
 # 10 - Package dependencies in the repository
 
