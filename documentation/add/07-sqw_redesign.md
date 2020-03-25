@@ -2,139 +2,112 @@
 
 ## Overview
 
-This section describes the the role of the SQW object within the Horace framework, data it holds and operations it supports without focusing on any implementation details. 
+This document describes the the role of the SQW object within the Horace framework, data it holds and operations it supports *without focusing on any implementation details*. 
 
 Where specific fields are cited they are the key data that represent that information.
 
 ### What is the purpose?
 
-Holds neutron scattering experiment data and provides methods that manipulate, slice and project the data and generate model fits using third-party functions, 
+The SQW object holds neutron scattering experiment data and provides methods that manipulate, slice and project the data and generate model fits using third-party functions.
 
-Provide an interface to the Horace file which can be interchanged with external applications (* TBI)
+The object provides an interface to the Horace file which can be interchanged with external applications and a public API.
 
 The SQW object exists in two distinct forms: 
 
-- "DND" which contains only processed image data
-- "SQW" which is backed by a full detector pixel array.
+- "SQW" which contains all experimental data and the detector pixel array,
+- "DND" which contains only processed neutron image data
 
-In an SQW object where pixel data is included, operations are performed on that data and the current image pixel data recalculated from this. For DND objects operations are performed directly on the image.
+The two objects are treated by Horace as 'first class citizens'. The objects share a common API where that is appropriate. In an SQW object, operations are performed on the pixel array data and the current image data recalculated from this. For DND objects the operations are performed directly on the image data. 
+In addition, the extra information and raw data contained on the SQW object allows a scattering model to be fitted.
 
-Historically these objects both operate as 'first class citizens', but that logical distinction is necessary.
+## Main Classes
 
-### Operations
+### SQW
 
-#### Generate SQW file
+The `SQW` object is the providing the public API to data. Data manipulations are performed on the `PixelBlock` and `Image` is recalculated.
 
-Combine multiple experiment [data files](http://horace.isis.rl.ac.uk/Input_file_formats)  (pairs of legacy `.spe` and `.par` files, or `.nxspe` files from Mantid) into a single SQW object. 
+![SQW Class Overview](../diagrams/sqw.png)
 
-1) `.nxspe` / `.spe` (per-run) data files are converted to intermediate `.sqw`-format data files. Pixel data is ordered by "image pixel" buckets
+### DND
 
-2) Intermediate files are combined on a image-pixel bucket basis to produce the final `.sqw` file. There is *no aggregation of signal/err data* in this step.
+The `DND` object is a "cut-down SQW" object containing only `Image` data. The `PixelBlock`,  `IX_Instr`and `IX_DetectorArray` information is NOT included, and any data manipulation operations are performed directly on the `Image` data.
 
-#### Read/Write
+![DND Class Overview](../diagrams/dnd.png)
 
-- Read the file data, but not pixel data
+### Main Header
 
-- Read the pixel data or an m-dimensional cut of the pixel data
-- Read the pixel data corresponding to specific image pixels
-- Write the pixel data for specific image pixels
-- Write all pixel data
-- Support for legacy Horace file format and 'new' NeXus / HDF5 format (TBI)
-- Display data to console (1)
-- Export data to ASCII file (1)
+The `MainHeader` object contains high-level metadata for the `SQW` or `DND` object. The dataset title and file location.
 
-**Notes**
-(1): What data subset of should be displayed at the console or in an text  export file?
 
-#### Data manipulation
+### Experiment
 
-- Implement basic arithmetic operations on object data. 
+The Experiment object wraps all data relating to the sample, instrument and experiment conditions. This makes use of the `IX_xxx` classes (see below).
 
-- Cut -- extract a N-dimensional subset of pixels
-
-- Projection -- aggregate pixel data onto an M-dimensional surface (M &le; N). This should support projections onto planes and spherical shells (TBI) and spiral slices (TBI) as well as reorientations.
-
-- Symmetrization -- enhance signal-to-noise utilizing symmetries within the data
-
-The operations are performed on the pixel data and the image recalculated from that. If the pixel-data is not available (a DND object) the operations are performed directly on the image.
-
-Note: future extensions may support for projections for which M > N. These would require the creation of a generalized higher-dimension DnD object.
-
-#### Model Fitting
-
-- Fit experiment data to parametized models. 
-
-- Tobyfit (included in Horace) and third-party models are supported.
-
-- Models cay take additional resolution convolution function to remove artefacts from the image
-
-### Data
-
-#### Source File Data
-
-- Filename(s) of experiment data  files contributing to this data object
-
-#### Experiment Data
-
-|  | Description | Notes |
-|-----|---------|---|
-| emode | switch for efix as incident or final energy ||
-| efix | incident or final neutron energy for file ||
-| alatt | sample lattice basis vector (&#X00C5;) ||
-| angdeg | angles between samples lattice basis vector | (1) |
-| cu | sample orienting vector along neutron beam (reciprocal lattice) ||
-| cv | sample orienting vector along plane normal to &Psi; (reciprocal lattice) ||
-| psi | nominal angle between `cu` and incident beam ||
-| omega | angle between `cv` and goniometer rotation `gs` ||
-| gl | goniometer rotation perpendicular to &Psi; about axis `omega` away from `cu` | (2) |
-| gs | goniometer rotation perpendicular to `gl` and &Psi; | (2) |
-| en[] | Energy bin boundaries in input file (meV) ||
+This data should all be available from the Mantid `.nxspe` file, however it is likely that there is data missing in the current Mantid spec or not populated so a method will be created to load that data from another source. In the first instance this will be a custom data file (1).
 
 **Notes**
-(1): is this an array?
-(2): "typically" constant for all SPE files in one SQW; what if it's not?
+(1): the format of this datafile is TBD. To ease the eventual integration with Mantid a Nexus/HDF5 file or some other structured data that maps easily into the HDF5 format should be used.
 
-#### Detector Data
+####  Instrument specification (`IX_instr`)
+The instrument class contains the information about the components that make up the instrument pre-sample, including the choppers, moderators and incident beams. 
 
-|  | Description | Notes |
-|-----|---------|---|
-|  x2[] | Sample-to-detector distances |(1)|
-| phi[]  | angle from incident neutron to detector ||
-| azim[]  | angle from plane perp to &Psi; about incident beam to detector ||
-| width[] | detector width |(1)|
-| height[] | detector height |(1)|
-| iGroup | index of detector group ||
+The object contains a structured set of components that will be unique to each site.
 
-**Notes**
-(1): all distances are in the same (unspecified) unit
+#### Detector information (`IX_detector_array`)
+The detector information class contains information about individual detector elements and their geometry. The data in this object will change when calibrations are performed or elements replaced or serviced as part of regular maintenance tasks. 
 
-#### Instrument Data
+Multiple definitions can be defined in the `IX_detector_array` and indexes in the `header` class associate data points with specific values.
 
-Full model of the machine instrument and detectors -- required for SQW object containing Pixel Data.
+#### Sample information (`IX_sample`) 
+This includes sample orientation, lattice angles and lattice description (Hall symbol).
 
-- Instance of the Herbert `IX_Instr` class used by TobyFit
+Notes:
 
-Notes 
+(1): the lattice description (Hall Symbol) is not included in the current implementation and will be added.
 
-(1): Where does the data for this come from?
+#### Experiment information (`IX_experiment`)
 
-#### Pixel Data
+This includes about the goniometer position data and energy.
+
+Notes: 
+
+(1): this is a new  `IX_xxx` class
+
+#### Header
+
+The `Header` object contains the mapping from the `PixelBlock` to the appropriate array elements of the instrument, detector, experiment and sample arrays specific to each contributing neutron mesaurement. This configuration supports recalibration of detectors and changing experiment conditions to be handled.
+
+### Pixel Block
+
+Contains the "raw" pixel data expressed as crystal Cartesian and detector index form.
+
+Provides methods to "get contributing pixels" for any subset of image pixels as well as get/set methods for each column or block of columns, e.g. `get_signals()`, `get_coordinates()`, `get_energy_ids()` and the number of pixels.
+
+Custom data may be stored per-pixel in a named elements `get_data(name): array[num_pixels,num_cols]`.
+
+The same `get_data(name)` method can be used to provide access to the "standard" data (e.g. `get_data("signal")`)
 
 |  | Description | Notes |
 |-----|---------|---|
 |u1, u2, u3, dE | coordinate in crystal Cartesian lattice (a\*, b\*, a\* x b*, dE) | (2) |
-| iFile | index into headers array for source file |(1)|
+| iRun | index into headers array for run (source file) |(1)|
 | iDetector | index of pixel detector |(1)|
 | iEnergy | index of energy bin | (1) |
 | signal | Correlated intensity ||
 | err | Intensity variance ||
 
 **Notes**
-(1): the triple of indexes uniquely identify the detector element corresponding to this pixel and are an alternate representation of the (u1,u2,u3,dE) data.
+(1): the triple of indexes uniquely identify the detector element corresponding to this pixel and are an alternate representation of the (u1, u2, u3, dE) data.
 
 (2): pixel data are ordered by IMAGE PIXEL. If projection is applied the IMAGE PIX ARRAY IS REORDERED
 
-#### Image Data
+(3): existing binary data format must be extended to include additional "number of columns" field (&ge;9) information and the file read/write routines updated to read from an array of `n` columns.
+
+
+### Image
+
+Represents the n-dimensional array of image pixel data with associated axis information. 
+Image pixel data is generated from the PixelBlock via one or more projections.
 
 |  | Description | Notes |
 |-----|---------|---|
@@ -145,59 +118,26 @@ Notes
 | u_to_rlue\[\]\[\] | Matrix of pixel project in hkle ||
 | ulen[] | Length of pixel projection axes Ang^-1 or meV | (2) |
 
+
+The `Axis` classes describes image axes
+- value range
+- unit vectors
+- units
+- matrix mapping these axes to the pixel data
+- requires a well-defined mapping from image pixels to source data pixel
+
 **Notes**
 (1): if the image data is updated, e.g. after a slice or projection, the backing pixel data must be updated/reordered
 (2): where is the data saying which unit this is?
 (3): `pix_signal` represents the array of pixel signal data from which this image data was derived, `pix_err` the array of pixel variance.
 
-### Constraints
+### Projection Manager
 
-Object must support working with objects larger than system RAM. This requires the use of a "temporary" SQW file with updated pixel data; changes only written to the original file with an explicit write to avoid accidental modification of data.
+The `ProjectionManager` class will manage all projection operations.
 
-Operations should make use of multi-core and multiprocessors when available
+![Projection Class Overview](../diagrams/projection.png)
 
-## Migration Path
-
- *After each refactoring change it is essential that the unit and system tests pass; unit tests should be added for all new APIs.*
-
-1. Ensure system tests exist that cover the major end-to-end paths through the system (`gen_sqw`,`tobyfit`, `multifit`, `cut`, `symmetrize` etc) and that these run and pass
-2. Extract small data and utility classes from existing SQW object updating APIs across Horace and Herbert code  where appropriate. New classes should be "new style" MATLAB classes.
-3. Extract `PixelBlock` into new class. All associated APIs updated.
-4. Migrate `SQW` and `DND` objects to new style classes.
-5. Review API and data in `SQW` and `DND`classes with a view to removing unrequired methods and data.
-
-## Implementation Decisions
-
-- Handle classes to be used for external objects (e.g. DND, SQW)
-
-- Update SQW object to include number of pixblock columns and read/write N columns rather than the current fixed 7
-
-- Experiment object includes array of instrument, sample, lattice, detector data and mappings from pix-block to objects
-
-- Instrument data will be added to SQW object post-creation until full data is available in the Mantid data files; scripts exist for construction of LET and are a model for other instruments. Since the Mantid file parse will require an XML to IX_Inst builder this can be written ahead of time and instruments created as XML.
-
-## Design
-
-This section describes the implementation of SQW including full API and class breakdown.
-
-#### Requirements
-
-- Define primary API between objects
-- Create standard co-ordinate systems for pixel data and common interface to create projections into alternate frames
-
-### Classes
-
-#### SQW
-
-Core object providing the public API to datasets.
-
-Responsible for supporting all required operations
-
-_What does that actually mean?!_
-
-#### ProjectionManager
-
-Responsible for all image projections - this includes:
+Responsible for all image projections - this includes symmetrization and simpler data operations:
 
 - Crystal Cartesian to h,k,l,
 - arbitrary rotation,
@@ -206,93 +146,220 @@ Responsible for all image projections - this includes:
 - spherical cuts
 - cylindrical cuts
 
-Operations result in the creation of a new SQW object. Operations are performed to the Image Pixels using data from the backing PixelBlock.
-
-#### IProjection
-
-Interface class for single projection/transformation operation.
-
-#### Image
-
-Represents the n-dimensional array of image pixel data with associated axis information. 
-
-Image pixel data is generated from the PixelBlock.
-
-- requires a well-defined mapping from image pixels to source data pixel
-
-#### Axes
-
-Represents a set of axis
-- value range
-- unit vectors
-- units
-- matrix mapping these axes to the pixel data (? or should this be in the projection....)
-
-#### Pixel Block
-
-Contains the "raw" pixel data expressed as crystal Cartesian and detector index form.
-
-Provides methods to "get contributing pixels" for any subset of image pixels as well as get/set methods for each column or block of columns, e.g. `get_signals()`, `get_coordinates()`, `get_energy_ids()` and the number of pixels.
-
-Custom data may be stored per-pixel in a named elements `get_data(name): data[n,m]`.
-
-The same `get_data(name)` method can be used to provide access to the "standard" data (e.g. `get_data("signal")`)
-
-- requires a well-defined mapping from image pixels to source data pixel
-
-#### IX_dataset
-
-Utility class for plot rendering; contains a simple representation of the image pixel data and axes with no additional functionality or data
-
-#### MainHeader
-
-Metadata for the file:
-
-- number of files
-- file information
-
-
-#### Experiment
-
-Collects all data describing the experiment: sample, conditions, instrument, detectors
-
-- Instrument specification (`IX_instr`)
-- Detector information (`IX_detector_array`)
-- Sample information (`IX_sample`)  --  orientation, lattice angles, goniometer position
-
-#### Header
-
-Represents metadata for a single source file
-
-- filepath and filename
-- sample state (orientation, lattice angles, goniometer position
-- mapping of PixelBlock detector, run, instrument IDs to elements in the instrument and detector arrays
-- mapping of array of energies (incident or final) to detector and instrument blocks
-
-
-#### OperationsManager
-
-Utility class implementing low-level arithmetic operations.
-
-Responsible for performing calculation on Image or Pixel data as appropriate.
+Operations result in the creation of a new SQW/DND object and are performed to the Image Pixels using data from the backing `PixelBlock`.
 
 
 
-### Class Overview
+### Operations
 
-#### SQW
-(![SQW Class Overview](../diagrams/sqw.png)
+#### Generate SQW file
 
-#### DND
-![DND Class Overview](../diagrams/dnd.png)
+Combine multiple experiment [data files](http://horace.isis.rl.ac.uk/Input_file_formats)  (pairs of legacy `.spe` and `.par` files, or `.nxspe` files from Mantid) into a single SQW object. 
 
-#### Projection
-![Projection Class Overview](../diagrams/projection.png)
+1) `.nxspe` / `.spe` (per-run) data files are converted to intermediate `.sqw`-format data files. Pixel data is ordered by "image pixel" buckets. There is *no aggregation of signal/err data* in this step.
 
-### Public API
+2) Intermediate files are combined on a image-pixel bucket basis to produce the final `.sqw` file. 
+
+#### Read/Write
+
+- Read the file data, but not pixel data
+
+- Read the pixel data or an m-dimensional cut of the pixel data
+- Read the pixel data corresponding to specific image pixels
+- Write the pixel data for specific image pixels
+- Write all pixel data
+- Support for legacy Horace file format 
+- Support for a new NeXus / HDF5 format (tbd)
+- Display data to console ('display')
+- Export data to ASCII file ('save_xye')
+
+#### Data manipulation
+
+- Basic arithmetic operations on object data. 
+- Cut -- extract a N-dimensional subset of pixels
+- Projection -- aggregate pixel data onto an M-dimensional surface (M &le; N). This should support projections onto planes and spherical shells (TBI) and spiral slices (TBI) as well as reorientations.
+
+- Symmetrization -- enhance signal-to-noise utilizing symmetries within the data
+
+The operations are performed on the pixel data and the image recalculated from that. If the pixel-data is not available (a DND object) the operations are performed directly on the image with reduced functionality but higher speed.
+
+The data manipulations are implemented through the `ProjectionManager` class and instances of `IProjection`.
+
+Note: future extensions may add support for projections for which `M > N`. These would require the creation of a generalized higher-dimension DnD object.
+
+#### Model Fitting
+
+- Fit experiment data to parametrized models. 
+- Tobyfit (included in Horace) and third-party models are supported.
+- Models may take additional resolution convolution function to remove artefacts from the image
+- Fit functions will be able to take Python or custom user functions
+
+## Migration Path
+
+ *After each refactoring change it is essential that the unit and system tests pass; unit tests should be added for all new APIs.*
+
+1. Ensure system tests exist that cover the major end-to-end paths through the system (`gen_sqw`,`tobyfit`, `multifit`, `cut`, `symmetrize` etc.) and that these run and pass
+2. Extract small data and utility classes from existing SQW object updating APIs across Horace and Herbert code  where appropriate. New classes should be "new style" MATLAB classes.
+3. Extract `PixelBlock` into new class. All associated APIs updated.
+4. Migrate `SQW` and `DND` objects to new style classes.
+5. Review API and data in `SQW` and `DND`classes with a view to removing unrequired methods and data.
+6. Migrate save-data object to HDF format
+
+## Implementation Decisions
+
+- All classes to be rewritten as "new-style" MATLAB classes defined by the `classdef` keyword (e.g. DND, SQW) if currently implemented as "old-style" (`@-directory`) classes
+
+- Update SQW pixel block to include a number of data columns and read/write `N` columns rather than the current fixed nine
+
+- Experiment object includes array of instrument, sample, lattice, detector data and mappings from pix-block to objects
+
+- Instrument data will be added to SQW object post-creation until full data is available in the Mantid data files; scripts exist for construction of LET and are a model for other instruments. Since the Mantid file parse will require an XML to IX_Inst builder this can be written ahead of time and instruments created as XML.
+
+- A standard set of units will be used for all internally stored data, but the data *will not* carry dimension information (c.f. Euphonic):
+
+|   | Unit |
+| ---- | ---- |
+| Distance | m   |
+| Angle    | radian |
+| Energy   | meV   |
+
+Lattice parameters will be the only deviation from these standard units
+|   | Unit |
+| ---- | ---- |
+| Distance | angstrom, 1 Å = 10<sup>-10</sup> m |
+| Angle    | degree   |
+
+- Plots routines taken outside the core data objects. It is preferable to move these functions from the general namespace to avoid collisions with any user defined plot routines.
+  If required a `sqw.plot(...)` function can be retained that calls these implementations.
+
+- Move the `.sqw` datafile to an [HDF5](https://www.hdfgroup.org/solutions/hdf5/) file. This has performant read/write operations from C++, Python and MATLAB and is an open self-describing format which supports simple interfacing with external application. The use of the [NeXus format](https://www.nexusformat.org/) is preferred but may not be possible immediately if key data are not supported in the current standards.
+
+### Constraints
+
+Object must support working with objects larger than system RAM. This requires the use of a "temporary" SQW file with updated pixel data; changes only written to the original file with an explicit write to avoid accidental modification of data.
+
+Operations should make use of multi-core and multiprocessors when available
+
+## PseudoCode
+
+### GenSQW
+
+```
+tmp_filenames = []
+for file in files:
+    rd = rundata(file)
+    rd = rd.load();
+
+    sqw = rd.convert_to_q(lattice, goniometer);
+    urange = minmax(urange, sqw.range);
+    sqw = sqw.rebin()
+    tmp_filenames = [tmp_filenames sqw.save_to_tmp()];
+end
+
+sqw = sqw.combine_tmp(tmp_filenames, new_filename)
+```
+
+### Cut
+
+```
+contr_bins = old_sqw.get_contr_pixels(new_projection, bins)
+pix_in_hkl = old_sqw.projection.convert(pix_in_crc);
+
+%contr_bins = old_sqw.get_contr_pixels(new_projection,bins)
+%rot_matrix=new_proj.get_transf(old_proj)
+%[new_proj_coord=hkl_grid*rot_matrix
+
+contributing_edges= get_edges(new_proj_coord, bins);
+contributing_pixels = convert_edges_to_pix_positions();
+%
+all_poss_pix = old_sqw.get_pix(contr_bins);
+the_pix = new_proj.cut_pix(all_poss_pix);
+```
+
+### PixelBlock
+
+Existing `PixelBlock` read/write from the `SQW` object are to slices, e.g. in `tobyfit_DGdisk_resconv`
+
+```matlab
+% Run and detector for each pixel
+irun = win(i).data.pix(5,:)';   % column vector
+idet = win(i).data.pix(6,:)';   % column vector
+npix = size(win(i).data.pix,2);
+```
+
+or `read_cut_diff`
+
+```matlab
+% Take difference between the cut files, looking after error bars appropriately
+data=data1;     % pick up values from first dataset
+
+data.y=data1.y-data2.y;    
+data.pixels(:,5)=data1.pixels(:,5)-data2.pixels(:,5);
+if all(ebars==[0,0])
+    data.e=zeros(size(data.e));
+    data.pixels(:,6)=0;
+elseif all(ebars==[0,1])
+    data.e=data2.e;
+    data.pixels(:,6)=data2.pixels(:,6);
+elseif all(ebars==[1,1])
+    data.e=sqrt(data1.e.^2+data2.e.^2);
+    data.pixels(:,6)=sqrt(data1.pixels(:,6).^2+data2.pixels(:,6).^2);
+end
+```
 
 
-#### Model fitting (SQW)
+#### Proposed API
+
+The new `PixelBlock` will wrap this access to the full array with a `getPixels()` if there is a need, e.g. for writing, or via a set of helper `getX`/`setX` functions. These shield users from knowledge of the arrangement of data in the pixel array supporting a radical restructuring of the data in the HDF5 file if that is 
+
+So the example in  `tobyfit_DGdisk_resconv` becomes
+
+```matlab
+% Run and detector for each pixel
+irun = win(i).data.getRunIds()';   % column vector
+idet = win(i).data.getDetectorIds()';   % column vector
+npix = win(i).data.getNumPixels();
+```
+
+For the use-cases in `recompute_bin_data`:
+
+```matlab
+wout.data.s=accumarray(ind, w.data.pix(8,:), [nbin,1])./w.data.npix(:);
+```
+becomes
+```matlab
+wout.data.s=accumarray(
+  ind, w.data.getSignal(), [nbin,1]
+)./w.data.getNumPixels();
+```
+and in `noisify`        
+
+```matlab
+[wout(i).data.pix(8,:),wout(i).data.pix(9,:)]=noisify(
+  w(i).data.pix(8,:), w(i).data.pix(9,:), varargin{:});
+```
+becomes
+```matlab
+[sig, var] = noisify(
+  w(i).data.getSignal(), w(i).data.getVariance(), varargin{:}
+)
+
+wout(i).data.setSignal(sig)
+wout(i).data.setVar(var)
+```
+or
+```matlab
+wout(i).data.setSigVar(
+  noisify(
+    w(i).data.getSignal(), w(i).data.getVariance(), varargin{:}
+  )
+)
+```
+
+## Public API
+
+
+### Model fitting (SQW)
 
 | Operation            | SQW  | DND  | Notes |
 | -------------------- | :--: | :--: | :---- |
@@ -303,7 +370,7 @@ Responsible for performing calculation on Image or Pixel data as appropriate.
 
 Q: Are these distinct functions or simply a set of optional arguments?
 
-#### Bin calculations (SQW)
+### Bin calculations (SQW)
 | Operation            | SQW  | DND  | Notes |
 | -------------------- | :--: | :--: | :---- |
 |`calculate_q_bins.m` | y | y ||
@@ -311,11 +378,10 @@ Q: Are these distinct functions or simply a set of optional arguments?
 |`calculate_qsqr_w_bins.m`| y | ||
 |`calculate_qsqr_w_pixels.m`| y | ||
 |`calculate_qw_bins.m` | y | y ||
-|`calculate_qw_pixels.m`| y | ||
-|`calculate_qw_pixels2.m`| y | |This should be used in place of `calculate_qw_pixels` as it handles the symmetrized data case correctly.|
+|`calculate_qw_pixels2.m`| y | ||
 |`calculate_uproj_pixels.m` | y | |Projection|
 
-#### Projection Manager  (SQW)
+### Projection Manager  (SQW)
 
 Provides methods to *generate* an image from an existing image (DND) or the base pixel data; supports definition of multiple sequential transformations.
 | Operation            | SQW  | DND  | Notes |
@@ -324,7 +390,7 @@ Provides methods to *generate* an image from an existing image (DND) or the base
 |`symmetrize`| y | n | Symmetrize return new SQW object |
 | `transform` | y | y | Execute a sequence of `IProjection`s on the data to create a new image |
 
-#### IProjection
+### IProjection
 
 Interface class to support the creation of a range of simple projections - translation, rotation, skew, cylindrical, spherical.
 
@@ -332,7 +398,7 @@ Interface class to support the creation of a range of simple projections - trans
 | -------------------- | :--: | :--: | :---- |
 |`apply_tansformation` | y | y | Execute the transformation and return a new data object|
 
-#### Data manipulation (SQW)
+### Data manipulation (SQW)
 
 | Operation            | SQW  | DND  | Notes |
 | -------------------- | :--: | :--: | :---- |
@@ -348,13 +414,13 @@ Interface class to support the creation of a range of simple projections - trans
 
 Note: operations are performed on backing detector data where appropriate and image recalculated using the current projection
 
-#### Object Conversions (IX_Dataset)
+### Object Conversions (IX_Dataset)
 
 | Operator | SQW  | DND  | Notes |
 | -------- | :-:  | :-:  | :------ |
-|`IX_Dataset` |      |      | Factory returning IX_Dataset_Nd instance |
+|`IX_Dataset` |      |      | Factory returning `IX_Dataset_Nd` instance |
 
-#### Load/Save (SQW)
+### Load/Save (SQW)
 
 | Operation  | SQW  | DND  | Notes                                   |
 | ---------- | :--: | :--: | :-------------------------------------- |
@@ -362,7 +428,7 @@ Note: operations are performed on backing detector data where appropriate and im
 | `save.m`   |  y   |  y   | save `.nxsqw` (or`.sqw` file with flag) |
 | `export.m` |  y   |  y   | export data to ascii file               |
 
-#### Display (helper)
+### Display (helper)
 
 |Operator|SQW|DND|Notes  |
 |--------|:-:|:-:|:------|
@@ -370,7 +436,7 @@ Note: operations are performed on backing detector data where appropriate and im
 |`shift_energy_bins.m`| y | n | for plotting data adjusted with `shift_pixels` |
 |`run_inspector.m`| y | n | Display UI for browsing|
 
-#### Standard arithmetic operations (SQW via OperationsManager)
+### Standard arithmetic operations (SQW via OperationsManager)
 
 | Operator                            | SQW  | DND  | Notes |
 | ----------------------------------- | :--: | :--: | :---- |
@@ -413,7 +479,7 @@ Note: operations are performed on backing detector data where appropriate and im
 | `mldivide.m`                        |  y   |  y   |       |
 | `mpower.m`                          |  y   |  y   |       |
 
-#### Pixel Block
+### Pixel Block
 
 Object supports storage of custom data in addition to the standard 9-columns of pixel data. These are stored in a dictionary `{name: value}`.
 
@@ -429,103 +495,61 @@ Object supports storage of custom data in addition to the standard 9-columns of 
 | `get_num_pixels`|   | Return number of pixels (`n`) |
 | `get_data(name)` | `set_data(name, ...)` | Return/replace `n x m` array of (named) custom or default data |
 
-## PseudoCode
+### Experiment
 
+| Property | Type        | Notes |
+| -------- | ----------- | ----- |
+| sample   | `IX_Sample[n_runs]` |  |
+| detector | `IX_DetectorArray[n]` | |
+| instrument | `IX_Instr[n_runs]` ||
+| experiment | `IX_Experiment[n_runs]` ||
+| header | `Header` ||
 
-### PixelBlock
+### MainHeader
 
-Existing PixelBlock read/write from the `SQW` object are to slices, e.g. in `tobyfit_DGdisk_resconv`
+| Property | Type | Notes |
+| -------- | ---- | ----- |
+| filepath | string | Source file location |
+| filename | string | Source filename |
+| num_files | int | Number of contributing files (empty if `DND` object) |
+| title | string | User-specified title for the object data |
 
-```matlab
-% Run and detector for each pixel
-irun = win(i).data.pix(5,:)';   % column vector
-idet = win(i).data.pix(6,:)';   % column vector
-npix = size(win(i).data.pix,2);
-```
+### Header
 
-or `read_cut_diff`
+| Property | Type        | Notes |
+| -------- | ----------- | ----- |
+| filepath | string | Source `.nxspe` location |
+| filename | string | Source `.nxspe` filename |
+| detector_blocks | int[] | Map of `PixelBlock.detector_id` and `PixelBlock.energy_id` to `Experiment.detector` index |
+| instrument_blocks | int[] | Map of `PixelBlock.run_id` and `PixelBlock.energy_id` to `Experiment.instrument` index |
+| sample_blocks | int[] | Map of `PixelBlock.run_id` and `PixelBlock.energy_id` to `Experiment.sample` index |
 
-```matlab
-% Take difference between the cut files, looking after error bars appropriately
-data=data1;     % pick up values from first dataset
+### IX_Experiment
 
-data.y=data1.y-data2.y;    
-data.pixels(:,5)=data1.pixels(:,5)-data2.pixels(:,5);
-if all(ebars==[0,0])
-    data.e=zeros(size(data.e));
-    data.pixels(:,6)=0;
-elseif all(ebars==[0,1])
-    data.e=data2.e;
-    data.pixels(:,6)=data2.pixels(:,6);
-elseif all(ebars==[1,1])
-    data.e=sqrt(data1.e.^2+data2.e.^2);
-    data.pixels(:,6)=sqrt(data1.pixels(:,6).^2+data2.pixels(:,6).^2);
-end
-```
+| Property | Type | Notes |
+| --- | --- | --- |
+| efix | float | Fixed energy (meV) |
+| psi | float | Angle of u w.r.t. ki (deg) |
+| omega | float | Angle of axis of small goniometer arc w.r.t. notional u (deg) |
+| dpsi | float | Correction to psi (deg) |
+| gl | float | Large goniometer arc angle (deg) |
+| gs | float | Small goniometer arc angle (deg)  |
 
+### IX_Sample
 
-#### Proposed API
+| Property | Type | Notes |
+| --- | --- | --- |
+| name | string | Name of the sample (e.g. 'YBCO 6.6')|
+| single_crystal | bool | true if sample is a single crystal |
+| xgeom | array | |
+| ygeom | array | |
+| shape | string | Model for sample shape (e.g., 'cuboid') |
+| ps | array | Parameters for the sample shape model (array; length depends on `shape`) |
+| eta | |  Mosaic spread (FWHH) (deg) |
+| temperature | | Temperature of the sample (K) |
+| hall_symbol | string | Hall symbol describing sample symmetry |
 
-The new PixelBlock class can wrap this access with a `getPixels()` if there is a need for the whole array (e.g. for writing) or via helper `getX`/`setX` functions:
-
-```
-getPixels() { return pixels }
-
-getCoords() { return pixels(:, 1:4) }
-getRunIds() { return pixels(:, 5) }
-getDetectorIds()  { return pixels(:, 6) }
-getEnergyIds()  { return pixels(:, 7) }
-getSignal() { return pixels(:, 8) }
-getVariance() { return pixels(:, 9) }
-getNumPixels() { return npix }
-
-setSignal(signal) { pixels(:, 8) = signal }
-setVariance(var) { pixels(:, 9) = var }
-[...]
-```
-So the example in  `tobyfit_DGdisk_resconv` becomes
-
-```matlab
-% Run and detector for each pixel
-irun = win(i).data.getRunIds()';   % column vector
-idet = win(i).data.getDetectorIds()';   % column vector
-npix = win(i).data.getNumPixels();
-```
-
-Over use-cases in `recompute_bin_data`:
-
-```matlab
-wout.data.s=accumarray(ind, w.data.pix(8,:), [nbin,1])./w.data.npix(:);
-```
-becomes
-```matlab
-wout.data.s=accumarray(
-  ind, w.data.getSignal(), [nbin,1]
-)./w.data.getNumPixels();
-```
-and in `noisify`        
-
-```matlab
-[wout(i).data.pix(8,:),wout(i).data.pix(9,:)]=noisify(
-  w(i).data.pix(8,:), w(i).data.pix(9,:), varargin{:});
-```
-becomes
-```matlab
-[sig, var] = noisify(
-  w(i).data.getSignal(), w(i).data.getVariance(), varargin{:}
-)
-
-wout(i).data.setSignal(sig)
-wout(i).data.setVar(var)
-```
-or
-```matlab
-wout(i).data.setSigVar(
-  noisify(
-    w(i).data.getSignal(), w(i).data.getVariance(), varargin{:}
-  )
-)
-```
+The `shape` and `ps` attributes can be replaced with an instance of a new `Shape` class with `.covariance(...)` and `.random_points(...)` methods at the point support for more than `cuboid` is required.
 
 
 
