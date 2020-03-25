@@ -1,9 +1,10 @@
 // get_ascii_file.cpp : Defines the exported functions for the DLL application.
 //
 #include "get_ascii_file.h"
+#include "utility/version.h"
 /*! \file get_ascii_file.cpp
 *
-*  \brief     result=get_ascii_file(fileName,[file_type]) function reads par, phx or spx - ASCII 
+*  \brief     result=get_ascii_file(fileName,[file_type]) function reads par, phx or spx - ASCII
 *             files depending on the output arguments specified and the file format itself
 *
 * usage:
@@ -11,14 +12,14 @@
 * [result] = get_ascii_file(fileName,[file_type])
 *
 *
-* input arguments: 
+* input arguments:
 *	file_name -- a string which specifies the name of the input data file.
 *	             The file has to be an ascii file of format specified below
 *	file_type -- optional string, defining the file format
 *	             three values for this string are currently possible:
 *				 spe, par,  phx or nothing
 *				 if omitted, the program tries to identify the file type by itself
-*				 if the option is specified and the file format differs from the requested, 
+*				 if the option is specified and the file format differs from the requested,
 *				 the error is returned
 *
 *output parameters:    three forms are possible:
@@ -94,16 +95,16 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ]){
   FileTypeDescriptor FILE_TYPE;   // file descriptor will tell which file we have opened and some additional information about it
 
 
-  std::string fileTypesAccepted[iNumFileTypes+1]; 
+  std::string fileTypesAccepted[iNumFileTypes+1];
   fileTypesAccepted[iPAR_type]    ="par";
   fileTypesAccepted[iPHX_type]    ="phx";
   fileTypesAccepted[iSPE_type]    ="spe";
   fileTypesAccepted[iNumFileTypes]="undefined";
 
 //--------->  ANALYSE INPUT PARAMETERS;
-  const char REVISION[]="$Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)";
-  if(nrhs==0&&nlhs==1){
-        plhs[0]=mxCreateString(REVISION); 
+  const char REVISION[]=VERSION;
+  if(nrhs==0 && nlhs==1){
+        plhs[0]=mxCreateString(REVISION);
         return;
   }
 

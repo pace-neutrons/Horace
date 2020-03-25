@@ -16,5 +16,7 @@ pace_add_mex(
     SRC "${SRC_FILES}" "${HDR_FILES}"
     COPY_TO "${CMAKE_SOURCE_DIR}/herbert_core/DLL"
 )
-target_include_directories("${MEX_NAME}" PRIVATE "${MPI_CXX_INCLUDE_PATH}")
+target_include_directories("${MEX_NAME}"
+    PRIVATE "${CXX_SOURCE_DIR}"
+    PRIVATE "${MPI_CXX_INCLUDE_PATH}")
 target_link_libraries("${MEX_NAME}" "${MPI_CXX_LIBRARIES}")

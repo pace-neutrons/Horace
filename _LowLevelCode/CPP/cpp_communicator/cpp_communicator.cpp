@@ -1,4 +1,5 @@
 #include "cpp_communicator.h"
+#include "utility/version.h"
 /* The mex file provides media for MPI communications betwen various Horace workers.
 
  Usage:
@@ -34,7 +35,7 @@ Outputs:
 Inputs:
   1  -- mode_name  -- the string 'labSend' identifies send mode
   2  -- pointer to the initialized MPI framework,
-  3  -- dest_id address (nuber) of the worker who should receive the message 
+  3  -- dest_id address (nuber) of the worker who should receive the message
   4  -- tag -- the message tag (id)
   5  -- is_synchroneous -- should message be send synchroneously or assynchroneously.
   6  -- pointer to Matlab array, containing serialized message body
@@ -48,7 +49,7 @@ Inputs:
   2  -- pointer to the initialized MPI framework,
   3  -- source_id address (nuber) of the worker who should send the message (-1 -- any address)
   4  -- tag -- the message tag (id) to receive (-1 -- any tag)
-  5  -- is_synchroneous -- should message be received synchronously (blocking operation until received) or 
+  5  -- is_synchroneous -- should message be received synchronously (blocking operation until received) or
         assynchronously (return nothing if no message present).
 Outputs:
   1 -- pointer to  new the MPI framework, perforing asynchronous operation
@@ -75,7 +76,7 @@ Outputs: -- pointer to the intialized framework
 
 *** 'finalize'  Closes MPI framework and breaks all incomplete MPI communications. No further MPI communications
                 allowed after this operation.
-Inputs: 
+Inputs:
  1 --  mode_name           :: the string 'finalize' identifying the mode
  2 --  Matlab_class_holder :: pointer to initialized C++ MPI framework wrapper used for interprocess communications
 Outputs: -- empty matrix.
@@ -93,7 +94,7 @@ Outputs:
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 {
 
-    const char REVISION[] = "$Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)";
+    const char REVISION[] = VERSION;
     if (nrhs == 0 && nlhs == 1) {
         plhs[0] = mxCreateString(REVISION);
         return;
