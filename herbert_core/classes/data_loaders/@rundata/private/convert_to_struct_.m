@@ -18,8 +18,8 @@ end
 for nf=1:numel(left_fields)
     out_struct.(left_fields{nf}) = obj.(left_fields{nf});
 end
-if ~isempty(obj.efix_)  %incident energy have is not in the loader or have 
-                         % been fixed externally
+if ~isempty(obj.efix_)  %incident energy here is not in the loader or have 
+                        %been set-up externally
     out_struct.efix = obj.efix_;
 end
 if obj.is_crystal
