@@ -417,8 +417,6 @@ classdef test_rundata< TestCase
             clOb = onCleanup(@()warning(ws));
             s1 = struct(run);
             s2 = struct(runr);
-            s1 = rmfield(s1,{'efix__'});
-            s2 = rmfield(s2,{'efix__'});
             assertEqual(s1,s2);
         end
         
