@@ -17,6 +17,8 @@
   # disabled on Windows:
    - test_job_dispatcher_mpiexec:test_job_with_3workers  
      hangs up when runs in sequence of tests, passes if tested alone (ticket to do)
+   - test_job_dispatcher_mpiexec:test_job_fail_restart 
+     works on some windows machines and fails on other. Needs investigations
 
 
 - test_ParpoolMPI_Framework.m
