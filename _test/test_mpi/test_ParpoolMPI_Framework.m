@@ -5,6 +5,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
     %
     
     properties
+        pool_deleter = [];
     end
     methods
         %
@@ -15,24 +16,25 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             this = this@MPI_Test_Common(name);
         end
         %
-        function test_probe_all_receive_all(this,varargin)
+        function test_probe_all_receive_all(obj,varargin)
             % common code -------------------------------------------------
-            if this.ignore_test
+            if obj.ignore_test
                 return;
             end
             if nargin>1
-                this.setUp();
-                clob0 = onCleanup(@()tearDown(this));
+                obj.setUp();
+                clob0 = onCleanup(@()tearDown(obj));
             end
             
             cl = parcluster();
             num_labs = cl.NumWorkers;
             if num_labs < 3
+                warning('Can not run test_send_receive_message, not enough workers');
                 return;
             end
             num_labs = 3*floor(num_labs/3);
-            if num_labs > 27
-                num_labs = 27;
+            if num_labs > 6
+                num_labs = 6;
             end
             pl = gcp('nocreate'); % Get the current parallel pool
             %if ~isempty(pl)
@@ -48,9 +50,13 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
                 delete(pl)
                 pl = parpool(cl,num_labs);
             end
+            if isempty(obj.pool_deleter)
+                obj.pool_deleter = onCleanup(@()delete(pl));
+            end
+            
             num_labs = pl.NumWorkers;
             
-            job_param = struct('filepath',this.working_dir,...
+            job_param = struct('filepath',obj.working_dir,...
                 'filename_template','test_ProbeAllMPI%d_nf%d.txt');
             ind = 1:num_labs;
             job_exchange_folder = job_param.filepath;
@@ -90,24 +96,25 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             
         end
         %
-        function test_send_receive_message(this,varargin)
+        function test_send_receive_message(obj,varargin)
             % common code -------------------------------------------------
-            if this.ignore_test
+            if obj.ignore_test
                 return;
             end
             if nargin>1
-                this.setUp();
-                clob0 = onCleanup(@()tearDown(this));
+                obj.setUp();
+                clob0 = onCleanup(@()tearDown(obj));
             end
             
             cl = parcluster();
             num_labs = cl.NumWorkers;
             if num_labs < 3
+                warning('Can not run test_send_receive_message, not enough workers');
                 return;
             end
             num_labs = 3*floor(num_labs/3);
-            if num_labs > 27
-                num_labs = 27;
+            if num_labs > 6
+                num_labs = 6;
             end
             pl = gcp('nocreate'); % Get the current parallel pool
             %if ~isempty(pl)
@@ -117,11 +124,14 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
                 delete(pl)
                 pl = parpool(cl,num_labs);
             end
+            if isempty(obj.pool_deleter)
+                obj.pool_deleter = onCleanup(@()delete(pl));
+            end
             num_labs = pl.NumWorkers;
             
             % end of    common code ---------------------------------------
             
-            job_param = struct('filepath',this.working_dir,...
+            job_param = struct('filepath',obj.working_dir,...
                 'filename_template','test_ParpoolMPI%d_nf%d.txt');
             
             ind = 1:num_labs;
