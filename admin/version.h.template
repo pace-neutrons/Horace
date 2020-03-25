@@ -1,0 +1,3 @@
+/* ${Herbert_AUTO_GENERATED_FILE_WARNING} */
+
+#define VERSION "${Herbert_SHORT_VERSION}"

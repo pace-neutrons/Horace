@@ -4,6 +4,8 @@
 
 ### Files/Directories ###
 build/*
+# CMake generated file
+_LowLevelCode/CPP/utility/version.h
 
 ### MATLAB ###
 # Windows default autosave extension
