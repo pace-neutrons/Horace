@@ -18,6 +18,10 @@ end
 for nf=1:numel(left_fields)
     out_struct.(left_fields{nf}) = obj.(left_fields{nf});
 end
+if ~isempty(obj.efix__)  %incident energy have is not in the loader or have 
+                         % been fixed exterhanly
+    out_struct.efix = obj.efix__;
+end
 if obj.is_crystal
     out_struct.lattice = obj.oriented_lattice__.struct();
 end

@@ -152,7 +152,7 @@ classdef rundata
         
         function obj = loadobj(struc)
             % build rundata from the structure, obtained from saveobj
-            % method. 
+            % method.
             obj = set_up_from_struct_(struc);
             
         end
@@ -439,13 +439,12 @@ classdef rundata
         end
         %
         function this = set.efix(this,val)
-            if isempty(this.loader__)
-                this.efix__=val;
-            else
+            % always correct local efix, regardless of the state of the
+            % loader
+            this.efix__=val;
+            if ~isempty(this.loader__)
                 if ismember('efix',loader_define(this.loader__))
                     this.loader__.efix = val;
-                else
-                    this.efix__ = val;
                 end
             end
         end

@@ -55,7 +55,7 @@ classdef test_rundata< TestCase
             ds.angdeg=[90;90;90];
             rd=rundata(f_name(obj,'MAP11014v2.nxspe'),ds);
             %
-            rd = get_rundata (rd,'-this');            
+            rd = get_rundata (rd,'-this');
             
             tf = fullfile(tmp_dir,'test_custom_save_loadobj_all.mat');
             clob = onCleanup(@()delete(tf));
@@ -65,7 +65,23 @@ classdef test_rundata< TestCase
             assertEqual(ld.rd,rd);
         end
         
-        
+        function test_custom_save_loadobj_ei_fixed(obj)
+            ds.alatt=[1;1;1];
+            ds.angdeg=[90;90;90];
+            rd=rundata(f_name(obj,'MAP11014v2.nxspe'),ds);
+            assertEqual(rd.efix,800);
+            rd.efix = 801;
+            %
+            rd = get_rundata (rd,'-this');
+            assertEqual(rd.efix,801);
+            
+            tf = fullfile(tmp_dir,'test_custom_save_loadobj_all.mat');
+            clob = onCleanup(@()delete(tf));
+            save(tf,'rd');
+            ld = load(tf);
+            
+            assertEqual(ld.rd,rd);
+        end
         
         
         % tests themself
@@ -91,7 +107,7 @@ classdef test_rundata< TestCase
             assertEqual(dat.efix,10);
             assertEqual(dat.lattice.psi,2);
         end
-        
+        %
         function test_build_from_Other_rundata(this)
             ro = rundata();
             rn = rundata(ro);
@@ -104,13 +120,14 @@ classdef test_rundata< TestCase
             assertExceptionThrown(f,'LOADERS_FACTORY:get_loader');
             warning(ws);
         end
+        %
         function test_file_not_found(this)
             f = @()rundata(f_name(this,'not_existing_file.spe'));
             ws=warning('off','MATLAB:printf:BadEscapeSequenceInFormat');
             assertExceptionThrown(f,'LOADERS_FACTORY:get_loader');
             warning(ws);
         end
-        
+        %
         function test_spe_file_loader_in_use(this)
             % define necessary parameters
             ds.efix=200;
@@ -144,6 +161,7 @@ classdef test_rundata< TestCase
             %             assertEqual(6,numel(fields_from_defaults));
             %             assertTrue(all(ismember({'omega','dpsi','gl','gs','u','v'},fields_from_defaults)));
         end
+        %
         function test_not_all_fields_defined_crystal(this)
             run=rundata(f_name(this,'MAP10001.spe'),f_name(this,'demo_par.PAR'),'efix',200.,'gl',1.);
             % run is not defined fully (properly)
@@ -158,6 +176,7 @@ classdef test_rundata< TestCase
             %             assertEqual(6,numel(fields_from_defaults));
             %             assertTrue(all(ismember({'omega','dpsi','gl','gs','u','v'},fields_from_defaults)));
         end
+        %
         function test_all_fields_defined_powder(this)
             % checks different option of private function
             % what_fields_are_needed()
@@ -174,7 +193,7 @@ classdef test_rundata< TestCase
             assertTrue(all(ismember({'S','ERR','det_par'},fields_to_load)));
             %assertTrue(isempty(fields_from_defaults));
         end
-        
+        %
         function test_get_signalFromASCII(this)
             % define necessary parameters
             ds.efix=200;
@@ -199,7 +218,7 @@ classdef test_rundata< TestCase
             assertEqual([30,28160],size(Err));
             assertEqual([31,1],size(en));
         end
-        
+        %
         function test_nxspe_file_loader_in_use(this)
             ds.alatt=[1;1;1];
             ds.angdeg=[90;90;90];
@@ -218,6 +237,7 @@ classdef test_rundata< TestCase
             %assertTrue(all(ismember({'omega','dpsi','gl','gs'},fields_from_defaults)));
             
         end
+        %
         function test_modify_par_file_load(this)
             data_file = f_name(this,'MAP11014.nxspe');
             run=rundata(data_file);
@@ -229,6 +249,7 @@ classdef test_rundata< TestCase
             det = get_par(run);
             assertEqual(28160,numel(det.phi));
         end
+        %
         function test_modify_par_file_empty(this)
             run=rundata();
             run=rundata(run,'par_file_name',f_name(this,'demo_par.PAR'),...
@@ -239,6 +260,7 @@ classdef test_rundata< TestCase
             assertEqual(28160,numel(det.x2));
             assertEqual(2,run.lattice.psi);
         end
+        %
         function test_modify_data_file_load_makes_par_wrong(this)
             % a rundata class instanciated from nxspe which makes det_par
             % defined
@@ -252,11 +274,12 @@ classdef test_rundata< TestCase
             
             assertTrue(isempty(run.det_par));
         end
+        %
         function default_rundata_type(this)
             run=rundata();
             assertEqual(run.is_crystal,get(rundata_config,'is_crystal'));
         end
-        
+        %
         function this=test_subsref_S(this)
             run=rundata(f_name(this,'MAP11014.nxspe'));
             % request oriented lattice with minimal valie to use
@@ -272,7 +295,7 @@ classdef test_rundata< TestCase
             assertEqual(S,run_str.S);
             warning(wr);
         end
-        
+        %
         function test_save_rundata_nxspe(this)
             test_file = fullfile(tmp_dir,'test_save_rundata_nxspe.nxspe');
             if exist(test_file,'file')
