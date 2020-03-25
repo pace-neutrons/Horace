@@ -1,5 +1,5 @@
 function val = get_loader_field_(this,field_name)
-% function retrunds field name coordinaged with storage and data loader
+% function returns field name coordinated with storage and data loader
 %
 persistent char_fields;
 if isempty(this.loader)
@@ -12,5 +12,5 @@ if isempty(this.loader)
         val=[];
     end
 else
-    val=this.loader__.(field_name);
+    val=this.loader_.(field_name);
 end

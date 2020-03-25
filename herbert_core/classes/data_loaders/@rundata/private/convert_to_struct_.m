@@ -6,8 +6,8 @@ out_struct.class_name = class(obj);
 
 fields = {'data_file_name','par_file_name','efix','emode'};
 
-if ~isempty(obj.loader__)
-    fields_from_loader = obj.loader__.loader_define();
+if ~isempty(obj.loader_)
+    fields_from_loader = obj.loader_.loader_define();
     in_loader = ismember(fields,fields_from_loader);
     left_fields = fields(~in_loader);  
 else
@@ -18,12 +18,12 @@ end
 for nf=1:numel(left_fields)
     out_struct.(left_fields{nf}) = obj.(left_fields{nf});
 end
-if ~isempty(obj.efix__)  %incident energy have is not in the loader or have 
-                         % been fixed exterhanly
-    out_struct.efix = obj.efix__;
+if ~isempty(obj.efix_)  %incident energy have is not in the loader or have 
+                         % been fixed externally
+    out_struct.efix = obj.efix_;
 end
 if obj.is_crystal
-    out_struct.lattice = obj.oriented_lattice__.struct();
+    out_struct.lattice = obj.oriented_lattice_.struct();
 end
 %-------------------- Store data loaded in memory if necessary.
 %

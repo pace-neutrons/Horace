@@ -5,8 +5,8 @@ if isempty(obj.loader)
         return;
     else
         %TODO: should be specific loader for that
-        obj.loader__=loader_nxspe();        
+        obj.loader_=loader_nxspe();
     end
 end
-obj.loader__.(field_name)=val;
+obj.loader_.(field_name)=val;
 

@@ -4,15 +4,15 @@ function this = load_all_(this,reload)
 %
 %
 if reload
-    this.loader__ = this.loader__.load();
+    this.loader_ = this.loader_.load();
 else
-    this.loader__ = this.loader__.load('-keepexisting');
+    this.loader_ = this.loader_.load('-keepexisting');
 end
 
-def_fields = this.loader__.loader_define();
+def_fields = this.loader_.loader_define();
 if ismember('efix',def_fields)
-    if reload || isempty(this.efix__)
-        this.efix__ = this.loader.efix;
+    if reload || isempty(this.efix_)
+        this.efix_ = this.loader.efix;
     end
 end
 
@@ -20,16 +20,16 @@ lattice_fields = oriented_lattice.lattice_fields;
 lattice_loaded = ismember(def_fields,lattice_fields);
 if any(lattice_loaded)
     lat_fields=def_fields(lattice_loaded);
-    if isempty(this.oriented_lattice__)
+    if isempty(this.oriented_lattice_)
         lat  = oriented_lattice();
     else
-        lat = this.oriented_lattice__;
+        lat = this.oriented_lattice_;
     end
     for i=1:numel(lat_fields)
         fld =lat_fields{i};
         if reload || ~lat.is_defined(fld)
-            lat.(fld) = this.loader__.(fld);
+            lat.(fld) = this.loader_.(fld);
         end
     end
-    this.oriented_lattice__ = lat;
+    this.oriented_lattice_ = lat;
 end

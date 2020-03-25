@@ -27,7 +27,7 @@ assume_ASCII_spe_loader = false;
 first_file = varargin{1};
 if isempty(first_file) % assume ASCII spe loader
     if isempty(first_file) && numel(varargin) == 1
-        this.loader__ = [];
+        this.loader_ = [];
         return;
     end
     assume_ASCII_spe_loader = true;
@@ -46,29 +46,29 @@ if nargin>2
 end
 
 if assume_ASCII_spe_loader
-    this.loader__ = loader_ascii();
-    this.loader__.par_file_name =second_file;
+    this.loader_ = loader_ascii();
+    this.loader_.par_file_name =second_file;
 else
     if ~verLessThan('matlab', '9.0') && verLessThan('matlab', '9.1')
         warning('off','MATLAB:subscripting:noSubscriptsSpecified')
     end
     
-    this.loader__ = loaders_factory.instance().get_loader(first_file,second_file);
+    this.loader_ = loaders_factory.instance().get_loader(first_file,second_file);
 end
-def_fields = this.loader__.defined_fields();
+def_fields = this.loader_.defined_fields();
 lat_fields = oriented_lattice.lattice_fields;
 in_lat  = ismember(lat_fields,def_fields);
 if any(in_lat)
-    if isempty(this.oriented_lattice__)
-        this.oriented_lattice__ = oriented_lattice();
+    if isempty(this.oriented_lattice_)
+        this.oriented_lattice_ = oriented_lattice();
         lat_fields = lat_fields(in_lat);
         
-        lat = this.oriented_lattice__;
+        lat = this.oriented_lattice_;
         for i=1:numel(lat_fields)
             flt = lat_fields{i};
-            lat.(flt) = this.loader__.(flt);
+            lat.(flt) = this.loader_.(flt);
         end
-        this.oriented_lattice__ = lat;
+        this.oriented_lattice_ = lat;
     end
 end
 
@@ -76,7 +76,7 @@ end
 if nargin>vararg_start_from
     % set up values which are defined by other arguments
     if isa(varargin{vararg_start_from},'rundata')
-        varargin{vararg_start_from}.loader__ = this.loader__;
+        varargin{vararg_start_from}.loader_ = this.loader_;
     end
     this=set_param_recursively(this,varargin{vararg_start_from:end});
 end
