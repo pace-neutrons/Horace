@@ -81,7 +81,8 @@ classdef test_gen_runfiles< TestCase
             ndet = ldd.n_det_in_par();
             
             for i=1:this.nfiles_max
-                this.test_files{i}=['test_gen_runfiles_test_files_',num2str(i),'.nxspe'];
+                this.test_files{i}=...
+                    fullfile(tmp_dir,['test_gen_runfiles_test_files_',num2str(i),'.nxspe']);
                 rd = rundata();
                 rd.efix = this.efix(i);
                 rd.en   = this.en{i};
