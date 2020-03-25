@@ -25,10 +25,14 @@ compilation_date  =[];
 
 % list of the function names used in nice formatted messages formed by the
 % function
-functions_name_list={'get_ascii_file  : '};%,'byte_stream      : ',};
+functions_name_list={
+    'get_ascii_file  : ', ...
+    'cpp_communicator  : '
+};
+
 
 % list of the mex files handles used by Horace and verified by this script.
-functions_handle_list={@get_ascii_file}; %,@byte_stream,...
+functions_handle_list={@get_ascii_file, @cpp_communicator};
 %    };
 rez = cell(numel(functions_name_list),1);
 
@@ -65,5 +69,3 @@ else
     minVer=[];
     maxVer=[];
 end
-
-
