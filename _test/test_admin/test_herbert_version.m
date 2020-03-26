@@ -1,7 +1,7 @@
-classdef test_version < TestCase
+classdef test_herbert_version < TestCase
 
 properties
-    VERSION_REGEX = '[0-9]\.[0-9]\.[0-9](\.[0-9a-z]+|)'
+    VERSION_REGEX = '[0-9]\.[0-9]\.[0-9](\.[0-9a-z]+|)';
 end
 
 methods 
