@@ -37,7 +37,7 @@ classdef test_asciipar_loader< TestCase
             al=asciipar_loader();
             al.par_file_name = par_file;
             
-            [fp,fn,fext]=fileparts(al.par_file_name);
+            [~,fn,fext]=fileparts(al.par_file_name);
             assertEqual('map_4to1_jul09',fn);
             assertEqual('.par',fext);
             
@@ -77,7 +77,7 @@ classdef test_asciipar_loader< TestCase
             if ispc
                 assertEqual([fname,fext],obj.test_par_file);
             else
-                assertEqual([fname,fext],obj.test_par_file);
+                assertEqual([fname,fext],'demo_par.PAR');
             end
             
             assertTrue(all(ismember({'filename','filepath','x2','phi','azim','width','height','group'},fields(par))));
