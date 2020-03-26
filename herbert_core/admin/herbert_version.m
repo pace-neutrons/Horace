@@ -12,7 +12,14 @@ function varargout = herbert_version()
 %   >> [major, minor] = herbert_version();
 %   >> [major, minor, patch] = herbert_version();
 %
-VERSION = get_raw_version();
+try
+    VERSION = herbert_get_raw_version();
+catch ME
+    if ~strcmp(ME.identifier, 'MATLAB:UndefinedFunction')
+        rethrow(ME);
+    end
+    VERSION = '0.0.0.dev';
+end
 
 % If only one output requested return whole version string
 if nargout <= 1
