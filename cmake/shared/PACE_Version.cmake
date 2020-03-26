@@ -27,8 +27,9 @@ formatted version string
 #]=======================================================================]
 
 set(${PROJECT_NAME}_FULL_VERSION "${PROJECT_VERSION}")
+string(TOUPPER "${${PROJECT_NAME}_RELEASE_TYPE}" ${PROJECT_NAME}_RELEASE_TYPE)
 
-if(${PROJECT_NAME}_RELEASE_TYPE STREQUAL "nightly")
+if(${PROJECT_NAME}_RELEASE_TYPE STREQUAL "NIGHTLY")
     string(TIMESTAMP _date "%Y%m%d")
     set(${PROJECT_NAME}_FULL_VERSION "${${PROJECT_NAME}_FULL_VERSION}-${_date}")
 endif()
@@ -41,7 +42,7 @@ endif()
 
 set(${PROJECT_NAME}_FULL_VERSION "${${PROJECT_NAME}_FULL_VERSION}-${${PROJECT_NAME}_PLATFORM}-${Matlab_RELEASE}")
 
-if(NOT "${${PROJECT_NAME}_RELEASE_TYPE}" STREQUAL "release")
+if(NOT "${${PROJECT_NAME}_RELEASE_TYPE}" STREQUAL "RELEASE")
     find_package(Git QUIET)
     execute_process(
         COMMAND ${GIT_EXECUTABLE} rev-list --abbrev-commit --no-merges -n 1 HEAD
@@ -57,7 +58,7 @@ message(STATUS "${PROJECT_NAME}_FULL_VERSION: ${${PROJECT_NAME}_FULL_VERSION}")
 
 # Set the short version which is used in ${PROJECT_NAME}_version.[m|h] files
 set(${PROJECT_NAME}_SHORT_VERSION "${PROJECT_VERSION}")
-if(NOT "${${PROJECT_NAME}_RELEASE_TYPE}" STREQUAL "release")
+if(NOT "${${PROJECT_NAME}_RELEASE_TYPE}" STREQUAL "RELEASE")
     set(${PROJECT_NAME}_SHORT_VERSION "${${PROJECT_NAME}_SHORT_VERSION}\.${GIT_REVISION_SHA}")
 endif()
 message(STATUS "${PROJECT_NAME}_SHORT_VERSION: ${${PROJECT_NAME}_SHORT_VERSION}")
