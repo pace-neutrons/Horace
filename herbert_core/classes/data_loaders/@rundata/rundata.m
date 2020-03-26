@@ -385,27 +385,15 @@ classdef rundata
             fname = get_loader_field_(this,'file_name');
         end
         %---
-        function this = set.par_file_name(this,val)
-            % method to change par file on defined loader
-            data_fname = this.data_file_name;
-            if isempty(data_fname)
-                [~,~,fext] = fileparts(val);
-                if strcmpi(fext,'.nxspe') %HACK assumes that par can be loaded from nxspe only!
-                    classname = class(this);
-                    out = feval(classname);%(this,'data_file_name',data_fname,'par_file_name',val));
-                    this = out.initialize(val,this); % shoule be fixed by
-                else
-                    if isempty(this.loader_)
-                        this.loader_ = loader_nxspe();
-                    end
-                    this.loader_.par_file_name = val;
-                end
+        function obj = set.par_file_name(obj,val)
+            % method to change par file on a defined loader
+            if isempty(obj.loader_) % assuming both data and parameters are taken from 
+                                    % the same nxspe file (or will be stored in
+                                    % it)
+                obj.loader_ = loader_nxspe('',val);            
             else
-                classname = class(this);
-                out = feval(classname);%(this,'data_file_name',data_fname,'par_file_name',val));
-                this = out.initialize(data_fname,val,this);
+                obj.loader_.par_file_name = val;  
             end
-            %this = this.select_loader_('data_file_name',data_fname,'par_file_name',val);
         end
         %
         function fname = get.par_file_name(this)

@@ -221,6 +221,11 @@ classdef loader_nxspe < a_loader
             %
             if ~isempty(obj.detpar_loader_)
                 if strcmp(filename,obj.par_file_name)
+                    if ~isa(obj.detpar_loader_,'nxspepar_loader')
+                        error('LOADER_NXSPE:invalid_argument',...
+                            'setting non-nxspe par file %s as the source of the nxspe data',...
+                            filename);
+                    end
                     obj.data_file_name_ = filename;
                     [obj.root_nexus_dir,obj.nexus_dataset_info_,obj.nxspe_version] = ...
                         obj.detpar_loader_.get_nxspe_info();

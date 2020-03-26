@@ -1,10 +1,10 @@
 function obj=set_loader_field(obj,field_name,val)
-% these
+% this method sets up a field, specific to data loader.
+%
 if isempty(obj.loader)
     if isempty(val)
         return;
     else
-        %TODO: should be specific loader for that
         obj.loader_=loader_nxspe();
     end
 end

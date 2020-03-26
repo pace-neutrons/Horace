@@ -6,27 +6,30 @@ classdef test_rundata< TestCase
     properties
         log_level;
         test_data_path;
+        
+        test_par_file = 'demo_par.par';
+        EXPECTED_DET_NUM = 28160        
     end
     methods
-        function fn=f_name(this,short_filename)
-            fn = fullfile(this.test_data_path,short_filename);
+        function fn=f_name(obj,short_filename)
+            fn = fullfile(obj.test_data_path,short_filename);
         end
         
         %
-        function this=test_rundata(name)
+        function obj=test_rundata(name)
             if ~exist('name','var')
                 name = 'test_rundata';
             end
-            this = this@TestCase(name);
+            obj = obj@TestCase(name);
             [~,tdp] = herbert_root();
-            this.test_data_path = tdp;
+            obj.test_data_path = tdp;
         end
-        function this=setUp(this)
-            this.log_level = get(herbert_config,'log_level');
+        function obj=setUp(obj)
+            obj.log_level = get(herbert_config,'log_level');
             set(herbert_config,'log_level',-1,'-buffer');
         end
-        function this=tearDown(this)
-            set(herbert_config,'log_level',this.log_level,'-buffer');
+        function obj=tearDown(obj)
+            set(herbert_config,'log_level',obj.log_level,'-buffer');
         end
         %
         
@@ -85,22 +88,22 @@ classdef test_rundata< TestCase
         
         
         % tests themself
-        function test_wrong_first_argument_has_to_be_fileName(this)
+        function test_wrong_first_argument_has_to_be_fileName(obj)
             f = @()rundata(10);
             assertExceptionThrown(f,'PARSE_CONFIG_ARG:wrong_arguments');
         end
-        function test_defaultsOK_andFixed(this)
+        function test_defaultsOK_andFixed(obj)
             nn=numel(fields(rundata));
             % number of public fields by default;
             assertEqual(14,nn);
         end
-        function test_build_from_wrong_struct(this)
+        function test_build_from_wrong_struct(obj)
             a.x=10;
             a.y=20;
             f = @()rundata(a);
             assertExceptionThrown(f,'RUNDATA:set_fields');
         end
-        function test_build_from_good_struct(this)
+        function test_build_from_good_struct(obj)
             a.efix=10;
             a.psi=2;
             dat=rundata(a);
@@ -108,34 +111,34 @@ classdef test_rundata< TestCase
             assertEqual(dat.lattice.psi,2);
         end
         %
-        function test_build_from_Other_rundata(this)
+        function test_build_from_Other_rundata(obj)
             ro = rundata();
             rn = rundata(ro);
             assertEqual(ro,rn);
         end
         
-        function test_wrong_file_extension(this)
-            f = @()rundata(f_name(this,'file.unspported_extension'));
+        function test_wrong_file_extension(obj)
+            f = @()rundata(f_name(obj,'file.unspported_extension'));
             ws=warning('off','MATLAB:printf:BadEscapeSequenceInFormat');
             assertExceptionThrown(f,'LOADERS_FACTORY:get_loader');
             warning(ws);
         end
         %
-        function test_file_not_found(this)
-            f = @()rundata(f_name(this,'not_existing_file.spe'));
+        function test_file_not_found(obj)
+            f = @()rundata(f_name(obj,'not_existing_file.spe'));
             ws=warning('off','MATLAB:printf:BadEscapeSequenceInFormat');
             assertExceptionThrown(f,'LOADERS_FACTORY:get_loader');
             warning(ws);
         end
         %
-        function test_spe_file_loader_in_use(this)
+        function test_spe_file_loader_in_use(obj)
             % define necessary parameters
             ds.efix=200;
             ds.psi=2;
             ds.alatt=[1;1;1];
             ds.angdeg=[90;90;90];
-            spe_file = f_name(this,'MAP10001.spe');
-            par_file = f_name(this,'demo_par.PAR');
+            spe_file = f_name(obj,'MAP10001.spe');
+            par_file = f_name(obj,'demo_par.PAR');
             run=rundata(spe_file,par_file ,ds);
             fl=run.loader();
             assertTrue(isa(fl,'loader_ascii'));
@@ -149,8 +152,8 @@ classdef test_rundata< TestCase
             %             assertTrue(all(ismember({'omega','dpsi','gl','gs','u','v'},fields_from_defaults)));
         end
         %
-        function test_not_all_fields_defined_powder(this)
-            run=rundata(f_name(this,'MAP10001.spe'),f_name(this,'demo_par.PAR'),'efix',200.);
+        function test_not_all_fields_defined_powder(obj)
+            run=rundata(f_name(obj,'MAP10001.spe'),f_name(obj,'demo_par.PAR'),'efix',200.);
             % run is not defined fully (properly)
             [is_undef,fields_to_load,undef_fields]=check_run_defined(run);
             assertEqual(1,is_undef);
@@ -162,8 +165,8 @@ classdef test_rundata< TestCase
             %             assertTrue(all(ismember({'omega','dpsi','gl','gs','u','v'},fields_from_defaults)));
         end
         %
-        function test_not_all_fields_defined_crystal(this)
-            run=rundata(f_name(this,'MAP10001.spe'),f_name(this,'demo_par.PAR'),'efix',200.,'gl',1.);
+        function test_not_all_fields_defined_crystal(obj)
+            run=rundata(f_name(obj,'MAP10001.spe'),f_name(obj,'demo_par.PAR'),'efix',200.,'gl',1.);
             % run is not defined fully (properly)
             [is_undef,fields_to_load,undef_fields]=check_run_defined(run);
             assertEqual(2,is_undef);
@@ -177,10 +180,10 @@ classdef test_rundata< TestCase
             %             assertTrue(all(ismember({'omega','dpsi','gl','gs','u','v'},fields_from_defaults)));
         end
         %
-        function test_all_fields_defined_powder(this)
+        function test_all_fields_defined_powder(obj)
             % checks different option of private function
             % what_fields_are_needed()
-            run=rundata(f_name(this,'MAP10001.spe'),f_name(this,'demo_par.PAR'),'efix',200.);
+            run=rundata(f_name(obj,'MAP10001.spe'),f_name(obj,'demo_par.PAR'),'efix',200.);
             % run is not defined fully (properly) for crystal
             run.is_crystal=false;
             % but is sufficient for powder
@@ -194,14 +197,14 @@ classdef test_rundata< TestCase
             %assertTrue(isempty(fields_from_defaults));
         end
         %
-        function test_get_signalFromASCII(this)
+        function test_get_signalFromASCII(obj)
             % define necessary parameters
             ds.efix=200;
             ds.psi=2;
             ds.alatt=[1;1;1];
             ds.angdeg=[90;90;90];
             
-            run=rundata(f_name(this,'MAP10001.spe'),f_name(this,'demo_par.PAR'),ds);
+            run=rundata(f_name(obj,'MAP10001.spe'),f_name(obj,'demo_par.PAR'),ds);
             %run is fully defined
             run.lattice.omega=20; % let's change the omega value;
             [is_undef,fields_to_load,undef_fields]=check_run_defined(run);
@@ -214,16 +217,16 @@ classdef test_rundata< TestCase
             S = run.S;
             Err = run.ERR;
             en  = run.en;
-            assertEqual([30,28160],size(S));
-            assertEqual([30,28160],size(Err));
+            assertEqual([30,obj.EXPECTED_DET_NUM],size(S));
+            assertEqual([30,obj.EXPECTED_DET_NUM],size(Err));
             assertEqual([31,1],size(en));
         end
         %
-        function test_nxspe_file_loader_in_use(this)
+        function test_nxspe_file_loader_in_use(obj)
             ds.alatt=[1;1;1];
             ds.angdeg=[90;90;90];
             
-            run=rundata(f_name(this,'MAP11014.nxspe'),ds);
+            run=rundata(f_name(obj,'MAP11014.nxspe'),ds);
             fl=get(run,'loader');
             assertTrue(isa(fl,'loader_nxspe'));
             %run is fully defined
@@ -238,50 +241,50 @@ classdef test_rundata< TestCase
             
         end
         %
-        function test_modify_par_file_load(this)
-            data_file = f_name(this,'MAP11014.nxspe');
+        function test_modify_par_file_load(obj)
+            data_file = f_name(obj,'MAP11014.nxspe');
             run=rundata(data_file);
-            par_file_name = f_name(this,'demo_par.PAR');
+            par_file_name = f_name(obj,'demo_par.PAR');
             assertTrue(isempty(run.det_par));
             run=rundata(run,'par_file_name',par_file_name);
             
-            assertEqual(28160,run.n_detectors);
+            assertEqual(obj.EXPECTED_DET_NUM,run.n_detectors);
             det = get_par(run);
-            assertEqual(28160,numel(det.phi));
+            assertEqual(obj.EXPECTED_DET_NUM,numel(det.phi));
         end
         %
-        function test_modify_par_file_empty(this)
+        function test_modify_par_file_empty(obj)
             run=rundata();
-            run=rundata(run,'par_file_name',f_name(this,'demo_par.PAR'),...
-                'data_file_name',f_name(this,'MAP10001.spe'),'psi',2);
+            run=rundata(run,'par_file_name',f_name(obj,'demo_par.PAR'),...
+                'data_file_name',f_name(obj,'MAP10001.spe'),'psi',2);
             
-            assertEqual(28160,run.n_detectors);
+            assertEqual(obj.EXPECTED_DET_NUM,run.n_detectors);
             det = get_par(run);
-            assertEqual(28160,numel(det.x2));
+            assertEqual(obj.EXPECTED_DET_NUM,numel(det.x2));
             assertEqual(2,run.lattice.psi);
         end
         %
-        function test_modify_data_file_load_makes_par_wrong(this)
+        function test_modify_data_file_load_makes_par_wrong(obj)
             % a rundata class instanciated from nxspe which makes det_par
             % defined
-            run=rundata(f_name(this,'MAP11014.nxspe'));
+            run=rundata(f_name(obj,'MAP11014.nxspe'));
             assertTrue(isempty(run.det_par));
             
             run = get_rundata(run,'det_par','-this');
             % we change the initial file name to spe, which does not have
             % information about par data
-            run.data_file_name=f_name(this,'MAP10001.spe');
+            run.data_file_name=f_name(obj,'MAP10001.spe');
             
             assertTrue(isempty(run.det_par));
         end
         %
-        function default_rundata_type(this)
+        function default_rundata_type(obj)
             run=rundata();
             assertEqual(run.is_crystal,get(rundata_config,'is_crystal'));
         end
         %
-        function this=test_subsref_S(this)
-            run=rundata(f_name(this,'MAP11014.nxspe'));
+        function obj=test_subsref_S(obj)
+            run=rundata(f_name(obj,'MAP11014.nxspe'));
             % request oriented lattice with minimal valie to use
             % get_rundata
             run.lattice = oriented_lattice([1,2,3],[90,80,90]);
@@ -296,12 +299,12 @@ classdef test_rundata< TestCase
             warning(wr);
         end
         %
-        function test_save_rundata_nxspe(this)
+        function test_save_rundata_nxspe(obj)
             test_file = fullfile(tmp_dir,'test_save_rundata_nxspe.nxspe');
             if exist(test_file,'file')
                 delete(test_file);
             end
-            spe_spource = fullfile(this.test_data_path,'spe_info_inconsistent2demo_par.spe');
+            spe_spource = fullfile(obj.test_data_path,'spe_info_inconsistent2demo_par.spe');
             lat = oriented_lattice();
             lat.psi = 10;
             
@@ -310,7 +313,7 @@ classdef test_rundata< TestCase
             f=@()run.saveNXSPE(test_file);
             assertExceptionThrown(f,'A_LOADER:runtime_error');
             
-            run.par_file_name = f_name(this,'demo_par.PAR');
+            run.par_file_name = f_name(obj,'demo_par.PAR');
             assertEqual(run.lattice,lat);
             f=@()run.saveNXSPE(test_file);
             % efix has to be defined
@@ -325,11 +328,11 @@ classdef test_rundata< TestCase
             f=@()run.saveNXSPE(test_file);
             assertExceptionThrown(f,'A_LOADER:runtime_error');
             
-            run.data_file_name = fullfile(this.test_data_path,'MAP10001.spe');
+            run.data_file_name = fullfile(obj.test_data_path,'MAP10001.spe');
             
             f=@()run.saveNXSPE(test_file);
             assertExceptionThrown(f,'A_LOADER:runtime_error');
-            run.par_file_name = f_name(this,'demo_par.PAR');
+            run.par_file_name = f_name(obj,'demo_par.PAR');
             
             run=run.saveNXSPE(test_file,'w');
             
@@ -352,8 +355,8 @@ classdef test_rundata< TestCase
             
         end
         %
-        function test_set_field_have_preference(this)
-            run=rundata(f_name(this,'MAP11014.nxspe'));
+        function test_set_field_have_preference(obj)
+            run=rundata(f_name(obj,'MAP11014.nxspe'));
             
             assertEqual(0,get_rundata(run,'psi'));
             
@@ -373,8 +376,8 @@ classdef test_rundata< TestCase
             
         end
         %
-        function test_serialization_powder(this)
-            run=rundata(f_name(this,'MAP11014.nxspe'));
+        function test_serialization_powder(obj)
+            run=rundata(f_name(obj,'MAP11014.nxspe'));
             
             str1 = to_string(run);
             run1 = rundata.from_string(str1);
@@ -382,13 +385,13 @@ classdef test_rundata< TestCase
             assertEqual(run,run1);
         end
         %
-        function test_serialization_crystal(this)
+        function test_serialization_crystal(obj)
             ds.efix=200;
             ds.psi=2;
             ds.alatt=[1;1;1];
             ds.angdeg=[90;90;90];
-            spe_file = f_name(this,'MAP10001.spe');
-            par_file = f_name(this,'demo_par.PAR');
+            spe_file = f_name(obj,'MAP10001.spe');
+            par_file = f_name(obj,'demo_par.PAR');
             run=rundata(spe_file,par_file ,ds);
             
             str1 = to_string(run);
@@ -421,13 +424,13 @@ classdef test_rundata< TestCase
         end
         
         %
-        function test_load_metadata(this)
+        function test_load_metadata(obj)
             ds.efix=200;
             ds.psi=2;
             ds.alatt=[1;1;1];
             ds.angdeg=[90;90;90];
-            spe_file = f_name(this,'MAP10001.spe');
-            par_file = f_name(this,'demo_par.PAR');
+            spe_file = f_name(obj,'MAP10001.spe');
+            par_file = f_name(obj,'demo_par.PAR');
             run=rundata(spe_file,par_file ,ds);
             
             [run1,ok,mess,undef_list] = run.load_metadata();
@@ -468,9 +471,9 @@ classdef test_rundata< TestCase
             assertFalse(isempty(undef_list));
             assertEqual(numel(undef_list),2);
             
-            % nxspe defines psi and this verifies that it is loaded
+            % nxspe defines psi and obj verifies that it is loaded
             % correctly
-            run=rundata(f_name(this,'MAP11014.nxspe'),ds);
+            run=rundata(f_name(obj,'MAP11014.nxspe'),ds);
             [run1,ok,mess,undef_list] = run.load_metadata();
             
             assertEqual(run.lattice.psi,0);
@@ -481,7 +484,7 @@ classdef test_rundata< TestCase
             assertTrue(isempty(undef_list));
         end
         %
-        function test_saveNXSPE_unbound(this)
+        function test_saveNXSPE_unbound(obj)
             test_file = fullfile(tmp_dir,'test_saveNXSPE_unbound.nxspe');
             clob = onCleanup(@()delete(test_file));
             if exist(test_file,'file')==2

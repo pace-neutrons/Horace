@@ -9,7 +9,7 @@ function this=select_loader_(this,varargin)
 % Usage: (private, used by rundata constructor);
 %>>this=select_loader(this,'data_file.nxspe',['par_file.par'],varargin{2:end})
 %>>this=select_loader(this,'data_file.spe',   'par_file.par',varargin{2:end})
-%>>this=select_loader(this,'data_file.spe_h5','par_file.par',varargin{2:end})
+%
 %
 % where varagin{:} has the form:
 % 'field', value -- with field to be an existing rundata field name and

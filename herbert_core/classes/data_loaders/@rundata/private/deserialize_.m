@@ -10,6 +10,5 @@ if verLessThan('matlab','7.12')
 else
     str = hlp_deserialize(iarr(9:size+8));
 end
-%size = size+8;
 
 rd= set_up_from_struct_(str);
