@@ -134,7 +134,7 @@ else
 end
 
 write_string_sign(group_id,'definition','NXSPE','version',version);
-[dummy,hv] = herbert_version('-brief');
+hv = herbert_version();
 write_string_sign(group_id,'program_name','herbert','version',hv);
 %-------------------------------------------------------------------------
 % write nxspe info
