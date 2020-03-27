@@ -10,8 +10,8 @@ Accepted
 
 ## Context
 
-The project needs a versioning system. The version should be accessible from
-within the project's Matlab and C++ code.
+Every instance of the project should carry an up-to-date version number. This
+version number should be accessible from within the Matlab and C++ code.
 
 ## Decision
 
