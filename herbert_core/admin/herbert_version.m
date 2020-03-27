@@ -1,8 +1,8 @@
 function varargout = herbert_version()
 % Returns the version of this instance of Herbert
 %
-% If 1 or fewer output arguments are specified, the full version string is
-% returned. If more than 1 output argument is specified, then an array of
+% If one or fewer output arguments are specified, the full version string is
+% returned. If more than one output argument is specified, then an array of
 % strings is returned containing the first n version numbers, where n is the
 % number of output arguments required. If more output arguments are requested
 % than there are version numbers, an error is raised.
