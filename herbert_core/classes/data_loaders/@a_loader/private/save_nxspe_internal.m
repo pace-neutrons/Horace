@@ -27,7 +27,7 @@ function save_nxspe_internal(this,filename,efix,psi,varargin)
 options={'w', 'a'};
 [ok,mess,write_access,ap]=parse_char_options(varargin,options);
 if ~ok
-    error('A_LOADER:load',mess);
+    error('A_LOADER:invalid_argument',mess);
 end
 [filepath,fname]=fileparts(filename);
 filename = fullfile(filepath,[fname,'.nxspe']);
@@ -43,7 +43,7 @@ end
 % check inputs and set defaults.
 if exist(filename,'file')
     if readwrite_access
-        error('A_LOADER:saveNXSPE','File %s already exist',filename);
+        error('A_LOADER:invalid_argument','File %s already exist',filename);
     else
         delete(filename);
     end
@@ -57,20 +57,24 @@ if ~exist('emode','var')
     end
 end
 if emode<0 || emode>2
-    error('A_LOADER:saveNXSPE','attempt to save with unsupported emode %d; emode has to be from 0 to 2',emode);
+    error('A_LOADER:invalid_argument',...
+        'attempt to save with unsupported emode %d; emode has to be from 0 to 2',emode);
 end
 if ~exist('efix','var')
     try
         efix = this.efix;
     catch
-        error('A_LOADER:saveNXSPE','efix has to be defined for saveNXSPE but it is not');
+        error('A_LOADER:invalid_argument',...
+            'efix has to be defined for saveNXSPE but it is not');
     end
 end
 if isempty(efix)
-    error('A_LOADER:saveNXSPE','efix has to be not empty for saveNXSPE but it is empty');
+    error('A_LOADER:invalid_argument',...
+        'efix has to be not empty for saveNXSPE but it is empty');
 end
 if ~isnumeric(efix)
-    error('A_LOADER:saveNXSPE',' expecting efix to have digita value but it has %s: ',efix);
+    error('A_LOADER:invalid_argument',...
+        ' expecting efix to have digita value but it has %s: ',efix);
 end
 if ~exist('psi','var')
     try
@@ -83,16 +87,20 @@ if isempty(psi) || ~isreal(psi)
     psi =NaN;
 end
 if isempty(this.det_par) || ischar(this.det_par)
-    error('A_LOADER:saveNXSPE','data do not contain correct detector information to save');
+    error('A_LOADER:invalid_argument',...
+        'data do not contain correct detector information to save');
 end
 if isempty(this.S) || ischar(this.S)
-    error('A_LOADER:saveNXSPE','data do not contain correct signal information to save');
+    error('A_LOADER:invalid_argument',...
+        'data do not contain correct signal information to save');
 end
 if isempty(this.ERR) || ischar(this.ERR)
-    error('A_LOADER:saveNXSPE','data do not contain correct error information to save');
+    error('A_LOADER:invalid_argument',...
+        'data do not contain correct error information to save');
 end
 if isempty(this.n_detectors) || ischar(this.n_detectors)
-    error('A_LOADER:saveNXSPE','data do not contain correct detector information or detectors are not consistent with signal and error arrays');
+    error('A_LOADER:invalid_argument',...
+        'data do not contain correct detector information or detectors are not consistent with signal and error arrays');
 end
 
 %--------------------------------------------------------------------------

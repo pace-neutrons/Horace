@@ -6,13 +6,13 @@ function efix = check_efix_defined_correctly(this)
 % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 %
 
-if isempty(this.loader__)
-    efix = this.efix__;
+if isempty(this.loader_)
+    efix = this.efix_;
 else
-    if ismember('efix',this.loader__.defined_fields())
-        efix = this.loader__.efix;
+    if ismember('efix',this.loader_.defined_fields())
+        efix = this.loader_.efix;
     else
-        efix = this.efix__;
+        efix = this.efix_;
     end
 end
 
@@ -37,7 +37,7 @@ if this.emode == 1
         bin_bndry = this.en(end);
     end
     if (efix<bin_bndry)
-        efix = sprintf('Emode=1 and efix incompartible with max energy transfer, efix: %f max(dE): %f',efix,bin_bndry);
+        efix = sprintf('Emode=1 and efix incompatible with max energy transfer, efix: %f max(dE): %f',efix,bin_bndry);
     end
 elseif this.emode == 2
     efix_min = min(efix);
@@ -51,7 +51,7 @@ elseif this.emode == 2
     % detectors array
     if n_efix>1
         if isempty(this.S)
-            ldr = this.loader__;
+            ldr = this.loader_;
             if isempty(ldr)
                 return;
             end
@@ -67,7 +67,7 @@ elseif this.emode == 2
     end
     
     if efix_min+bin_bndry<0
-        efix = sprintf('Emode=2 and efix is incompartible with min energy transfer, efix: %f min(dE): %f',efix,bin_bndry);
+        efix = sprintf('Emode=2 and efix is incompatible with min energy transfer, efix: %f min(dE): %f',efix,bin_bndry);
     end
 else
     efix = 0; %'no efix for elastic mode';

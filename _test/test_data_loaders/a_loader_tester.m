@@ -38,7 +38,7 @@ classdef a_loader_tester< a_loader
         end
        
         function this=set_defined_fields(this,fields)
-            this.loader_defines = fields;
+            this.loader_define_ = fields;
         end
    
     end

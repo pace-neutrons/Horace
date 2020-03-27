@@ -18,14 +18,6 @@ catch
      error('RUNDATAOLD:spe_loader',lasterr());
 end
 
-try
-    run=rundata(fullfile(path,'MAP11020.spe_h5'),fullfile(path,'demo_par.PAR'));
-    run.is_crystal=false;    
-    run.efix = 200;    
-    run=get_rundata(run,'-this');        
-catch
-    error('RUNDATAOLD:h5_loader',lasterr());
-end
 
 try
      run=rundata(fullfile(path,'MAP11014.nxspe'));
