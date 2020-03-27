@@ -30,6 +30,11 @@ classdef test_IX_sample < TestCaseWithSave
         end
         
         %--------------------------------------------------------------------------
+        function test_IX_sample_constructor_accepts_and_sets_hall_symbol(name)
+            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-hall_symbol', 'hsymbol');
+            assertEqual(sample.hall_symbol, 'hsymbol');
+        end
+        %--------------------------------------------------------------------------
         function test_covariance (self)
             s = self.slookup;
             cov = s.func_eval(2,[2,2,1,4,3],@covariance);
