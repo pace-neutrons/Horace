@@ -7,4 +7,4 @@ function str= convert_to_string(run)
 %
 v = serialize_(run);
 str_arr =num2str(v);
-str = reshape(str_arr,1,numel(str_arr));;
+str = reshape(str_arr,1,numel(str_arr));

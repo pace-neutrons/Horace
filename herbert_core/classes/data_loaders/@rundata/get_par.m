@@ -17,13 +17,13 @@ function [par,this]=get_par(this,format)
 
 
 if isempty(this.det_par)
-    if isempty(this.loader__)
+    if isempty(this.loader_)
         error('RUNDATA:invalid_argument','get_par function needs initiated loader');
     end
     if ~exist('format','var')
         format={};
     end
-    [par,this.loader__]= this.loader.load_par(format{:});
+    [par,this.loader_]= this.loader.load_par(format{:});
 else
     par = this.det_par;
 end

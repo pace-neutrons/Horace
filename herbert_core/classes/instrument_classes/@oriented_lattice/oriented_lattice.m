@@ -60,15 +60,15 @@ classdef oriented_lattice
         v
         % Goniometer parameters
         %  Angle of u w.r.t. ki (deg)  [Default=nan]
-        psi   = nan;
+        psi ;
         %  Angle of axis of small goniometer arc w.r.t. notional u (deg)  [Default=0]
-        omega = 0;
+        omega ;
         %  Correction to psi (deg)  [Default=0]
-        dpsi  = 0;
+        dpsi;
         %  Large goniometer arc angle (deg)  [Default=0]
-        gl    = 0;
+        gl  ;
         %  Small goniometer arc angle (deg)  [Default=0]
-        gs    = 0;
+        gs ;
         % what units (deg or rad) used for all angular units. (All angular
         % units have to be set in degrees, but can be retrieved as radians)
         angular_units;

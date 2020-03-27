@@ -1,8 +1,8 @@
 function [dataset_info,ds_group_path] = find_dataset_info(Groups,the_group_name,ds_short_name)
-% fucntion searches through hdf5 file structure for specified group,
+% function searches through hdf5 file structure for specified group,
 % and/or dataset
 % 
-%>>[dataset_info,ds_group_path] = find_dataset_info(hdf5_file,folder_name,data_file_name,)
+%>>[dataset_info,ds_group_path] = find_dataset_info(hdf5_file,folder_name,data_file_name)
 %>>[dataset_info,ds_group_path] = find_dataset_info(hdf_file_structure,folder_name,data_file_name)
 %>>[dataset_info,ds_group_path] = find_dataset_info(branch_of_hdf_file_structure,folder_name,data_file_name)
 
@@ -11,13 +11,13 @@ function [dataset_info,ds_group_path] = find_dataset_info(Groups,the_group_name,
 %                          function hdf5info or
 % hdf5_file             -- the name of hdf5 file or
 % 
-% branch_of_hdf_file_structure=dataset_info
+% branch_of_hdf_file_structure = dataset_info
 %                        -- part of the srtucture found by previous search
 %                           for group (with empty data_file_name)
 %
 % folder_name           -- if not empty, the short name of the group(folder), the
 %                          dataset have to belong to. If it does not exist,
-%                          the search goes for first dataset.
+%                          the search goes for the first dataset.
 % 
 % data_file_name        -- the short name of the dataset to look for (if
 %                          empty, then search is performed by the
@@ -29,7 +29,7 @@ function [dataset_info,ds_group_path] = find_dataset_info(Groups,the_group_name,
 %Outputs:
 %dataset_info   -- the srcucture which describes the hdf5 folder with
 %                  requested name
-%data_file_name -- full name to the dataset requseted can be used in
+%ds_group_path  -- full name to the dataset requseted can be used in
 %                  hdf5read/hdf5write to access the dataset
 %
 % folder_name and data_file_name are empty if nothing was found

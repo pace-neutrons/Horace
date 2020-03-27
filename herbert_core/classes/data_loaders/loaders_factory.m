@@ -11,7 +11,7 @@ classdef loaders_factory < handle
         % Registered file readers:
         % Add all new file readers which inherit from a_loader to this list in the order
         % of expected frequency for their appearance.
-        supported_readers = {loader_nxspe(),loader_ascii(),memfile(),loader_speh5()};
+        supported_readers = {loader_nxspe(),loader_ascii()};
         % field describes
         reader_descriptions_ = {};
         % supported filenames extensions;
