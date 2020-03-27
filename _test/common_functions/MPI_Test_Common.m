@@ -33,18 +33,15 @@ classdef MPI_Test_Common < TestCase
                 obj.framework_name = 'parpool';
             end
             [obj.parallel_config_, obj.old_config] = set_local_parallel_config();
-            
+
             pc = parallel_config;
+            obj.working_dir = pc.working_directory;
             if strcmpi(pc.parallel_framework,'none')
                 obj.ignore_test = true;
                 warning('MPI_Test_Common:not_available',...
                     'unit test to check parallel framework is not available as framework is not installed properly')
                 return;
             end
-            obj.parallel_config_ = pc;
-            %pc.saveable = false;
-            obj.working_dir = pc.working_directory;
-            obj.old_config  = pc.get_data_to_store();
             try
                 pc.parallel_framework = obj.framework_name;
                 if strcmpi(pc.parallel_framework,obj.framework_name)
