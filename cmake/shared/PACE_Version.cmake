@@ -22,7 +22,12 @@ Variables defined by the module
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``${PROJECT_NAME}_FULL_VERSION``
-formatted version string
+formatted version string of form <version>[-<date>]-<target>-<matlab>[-<sha>]
+
+``${PROJECT_NAME}_SHORT_VERSION``
+formatted version string that omits architecture and Matlab version. The
+returned version will be of the form `<major>.<minor>.<patch>[.<git-sha>]. The
+SHA will not be appended if ${PROJECT_NAME_RELEASE_TYPE} is "RELEASE".
 
 #]=======================================================================]
 
