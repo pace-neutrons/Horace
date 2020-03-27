@@ -1,3 +1,5 @@
 /* ${Herbert_AUTO_GENERATED_FILE_WARNING} */
 
-#define HERBERT_VERSION "${Herbert_SHORT_VERSION}"
+namespace Herbert {
+    constexpr char VERSION[] = "${Herbert_SHORT_VERSION}";
+}

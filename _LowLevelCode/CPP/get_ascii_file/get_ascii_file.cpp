@@ -101,10 +101,9 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ]){
   fileTypesAccepted[iSPE_type]    ="spe";
   fileTypesAccepted[iNumFileTypes]="undefined";
 
-//--------->  ANALYSE INPUT PARAMETERS;
-  const char REVISION[]=HERBERT_VERSION;
+  //--------->  ANALYSE INPUT PARAMETERS;
   if(nrhs==0 && nlhs==1){
-        plhs[0]=mxCreateString(REVISION);
+        plhs[0]=mxCreateString(Herbert::VERSION);
         return;
   }
 
