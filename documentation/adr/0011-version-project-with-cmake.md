@@ -31,4 +31,6 @@ will include the SHA.
 - The version number will be accessible from within Matlab and C++.
 - The version number will be correct for every build.
 - The version returned by the Matlab version will not be updated until CMake is
-  run.
+  run. If CMake has not been run, the version returned by the Matlab code will
+  be `0.0.0.dev` indicating that this is a developer copy that is yet to be
+  built.
