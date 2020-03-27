@@ -17,7 +17,7 @@ The allowed operations and their parameters are:
 
 *** 'init'  Initializes MPI framework to allow further MPI operations.
 Inputs:  -- optional,
-  2     --  length of asynchroneous messages queue. The framework fails if this lengs become exceeded.
+  2     --  length of asynchronous messages queue. The framework fails if this length is exceeded.
 Outputs:
   1     -- pointer to  new intialized MPI framework.
   2     -- Index (number) of current MPI process
@@ -25,7 +25,7 @@ Outputs:
 
 *** 'init_test_mode'  Initializes MPI wrapper with fake MPI values, which run within a single process.
 Inputs:  -- optional,
-  2     --  length of asynchroneous messages queue. The framework fails if this lengs become exceeded.
+  2     --  length of asynchronous messages queue. The framework fails if this length is exceeded.
 Outputs:
   1     -- pointer to  fake MPI framework.
   2     -- Index (number) of current MPI process:             always 1
@@ -35,11 +35,11 @@ Outputs:
 Inputs:
   1  -- mode_name  -- the string 'labSend' identifies send mode
   2  -- pointer to the initialized MPI framework,
-  3  -- dest_id address (nuber) of the worker who should receive the message
+  3  -- dest_id address (number) of the worker who should receive the message
   4  -- tag -- the message tag (id)
-  5  -- is_synchroneous -- should message be send synchroneously or assynchroneously.
+  5  -- is_synchronous -- should message be send synchronously or asynchronously.
   6  -- pointer to Matlab array, containing serialized message body
-  7  -- large_data_buffer optional (for synchroneous messages) -- the pointer to Matlab structure, containing large data.
+  7  -- large_data_buffer optional (for synchronous messages) -- the pointer to Matlab structure, containing large data.
 Outputs:
   1     -- pointer to  new the MPI framework, perforing send operation
 
@@ -47,21 +47,21 @@ Outputs:
 Inputs:
   1  -- mode_name  -- the string 'labReceive' identifies receive mode
   2  -- pointer to the initialized MPI framework,
-  3  -- source_id address (nuber) of the worker who should send the message (-1 -- any address)
+  3  -- source_id address (number) of the worker who should send the message (-1 -- any address)
   4  -- tag -- the message tag (id) to receive (-1 -- any tag)
-  5  -- is_synchroneous -- should message be received synchronously (blocking operation until received) or
-        assynchronously (return nothing if no message present).
+  5  -- is_synchronous -- should message be received synchronously (blocking operation until received) or
+        asynchronously (return nothing if no message present).
 Outputs:
   1 -- pointer to  new the MPI framework, perforing asynchronous operation
   2 -- pointer to Matlab array, containing serialized message body
-  3 -- optional (for synchroneous messages) -- the pointer to Matlab cellarray containing large data -- not yet implemented
+  3 -- optional (for synchronous messages) -- the pointer to Matlab cellarray containing large data -- not yet implemented
   4 -- optional -- pointer to the 2-element array containing real source address and source tag for the message, been received
 
-*** "labProbe"  executes asynchroneous MPI_Iprobe operation
+*** "labProbe"  executes asynchronous MPI_Iprobe operation
 Inputs:
   1  -- mode_name  -- the string 'labSend' identifies send mode
   2  -- pointer to MPI initialized framework,
-  3  -- dest_id address (nuber) of the worker who should receive the message
+  3  -- dest_id address (number) of the worker who should receive the message
   4  -- tag -- the message tag (id)
 Outputs:
   1     -- pointer to  new the MPI framework, perforing asynchronous operation
@@ -105,7 +105,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 
     std::vector<int32_t> data_addresses;
     std::vector<int32_t> data_tag;
-    bool is_synchroneous(false);
+    bool is_synchronous(false);
 
     AdditionalParamHolder AddPar;
     size_t nbytes_to_transfer;
@@ -113,7 +113,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 
 
     class_handle<MPI_wrapper>* pCommunicatorHolder = parse_inputs(nlhs, nrhs, prhs,
-        work_type, data_addresses, data_tag,is_synchroneous,
+        work_type, data_addresses, data_tag,is_synchronous,
         data_buffer, nbytes_to_transfer, AddPar);
 
     // avoid problem with multiple finalization
@@ -146,11 +146,11 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         return;
     }
     case(labSend): {
-        pCommunicatorHolder->class_ptr->labSend(data_addresses[0], data_tag[0], is_synchroneous, data_buffer, nbytes_to_transfer);
+        pCommunicatorHolder->class_ptr->labSend(data_addresses[0], data_tag[0], is_synchronous, data_buffer, nbytes_to_transfer);
         break;
     }
     case(labReceive): {
-        pCommunicatorHolder->class_ptr->labReceive(data_addresses[0], data_tag[0], is_synchroneous, plhs, nlhs);
+        pCommunicatorHolder->class_ptr->labReceive(data_addresses[0], data_tag[0], is_synchronous, plhs, nlhs);
         break;
     }
     case(labProbe): {
