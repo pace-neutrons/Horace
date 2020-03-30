@@ -496,9 +496,8 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix) {
 
   std::size_t pix_start_num, num_bin_pix, start_buf_pos(0);
   std::vector<float> pix_buffer(NUM_PIXBLOCK_COLS * 1000);
-  float *pPix_info = &pix_buffer[0];
 
-  reader.get_pix_for_bin(0, pPix_info, start_buf_pos, pix_start_num,
+  reader.get_pix_for_bin(0, pix_buffer.data(), start_buf_pos, pix_start_num,
                          num_bin_pix, false);
   EXPECT_EQ(pix_start_num, 0);
   EXPECT_EQ(num_bin_pix, 3);
@@ -506,12 +505,12 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix) {
     EXPECT_EQ(pixels[pix_start_num * NUM_PIXBLOCK_COLS + i], pix_buffer[i]);
   }
   // pix buffer have not changed at all
-  reader.get_pix_for_bin(127, pPix_info, start_buf_pos, pix_start_num,
+  reader.get_pix_for_bin(127, pix_buffer.data(), start_buf_pos, pix_start_num,
                          num_bin_pix, false);
   EXPECT_EQ(pix_start_num, 338);
   EXPECT_EQ(num_bin_pix, 0);
 
-  reader.get_pix_for_bin(126, pPix_info, start_buf_pos, pix_start_num,
+  reader.get_pix_for_bin(126, pix_buffer.data(), start_buf_pos, pix_start_num,
                          num_bin_pix, false);
   EXPECT_EQ(pix_start_num, 334);
   EXPECT_EQ(num_bin_pix, 4);
@@ -520,8 +519,8 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix) {
   }
 
   start_buf_pos = 5;
-  reader.get_pix_for_bin(NUM_BINS_IN_FILE - 860, pPix_info, start_buf_pos,
-                         pix_start_num, num_bin_pix, false);
+  reader.get_pix_for_bin(NUM_BINS_IN_FILE - 860, pix_buffer.data(),
+                         start_buf_pos, pix_start_num, num_bin_pix, false);
   EXPECT_EQ(pix_start_num, sample_pix_pos[NUM_BINS_IN_FILE - 860]);
   EXPECT_EQ(num_bin_pix, sample_npix[NUM_BINS_IN_FILE - 860]);
   for (std::size_t i = 0; i < num_bin_pix * NUM_PIXBLOCK_COLS; i++) {
@@ -529,8 +528,8 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix) {
               pix_buffer[start_buf_pos * NUM_PIXBLOCK_COLS + i]);
   }
 
-  reader.get_pix_for_bin(NUM_BINS_IN_FILE - 860 + 1, pPix_info, start_buf_pos,
-                         pix_start_num, num_bin_pix, false);
+  reader.get_pix_for_bin(NUM_BINS_IN_FILE - 860 + 1, pix_buffer.data(),
+                         start_buf_pos, pix_start_num, num_bin_pix, false);
   EXPECT_EQ(pix_start_num, sample_pix_pos[NUM_BINS_IN_FILE - 860 + 1]);
   EXPECT_EQ(num_bin_pix, sample_npix[NUM_BINS_IN_FILE - 860 + 1]);
   for (std::size_t i = 0; i < num_bin_pix * NUM_PIXBLOCK_COLS; i++) {
@@ -539,7 +538,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix) {
   }
 
   start_buf_pos = 2;
-  reader.get_pix_for_bin(NUM_BINS_IN_FILE - 1, pPix_info, start_buf_pos,
+  reader.get_pix_for_bin(NUM_BINS_IN_FILE - 1, pix_buffer.data(), start_buf_pos,
                          pix_start_num, num_bin_pix, false);
   EXPECT_EQ(pix_start_num, sample_pix_pos[NUM_BINS_IN_FILE - 1]);
   EXPECT_EQ(num_bin_pix, sample_npix[NUM_BINS_IN_FILE - 1]);
@@ -568,9 +567,8 @@ TEST_F(TestCombineSQW, SQW_Reader_NoBuf_Mode) {
 
   std::size_t pix_start_num, num_bin_pix, start_buf_pos(0);
   std::vector<float> pix_buffer(NUM_PIXBLOCK_COLS * 1000);
-  float *pPix_info = &pix_buffer[0];
 
-  reader.get_pix_for_bin(0, pPix_info, start_buf_pos, pix_start_num,
+  reader.get_pix_for_bin(0, pix_buffer.data(), start_buf_pos, pix_start_num,
                          num_bin_pix, false);
   EXPECT_EQ(pix_start_num, 0);
   EXPECT_EQ(num_bin_pix, 3);
@@ -578,12 +576,12 @@ TEST_F(TestCombineSQW, SQW_Reader_NoBuf_Mode) {
     EXPECT_EQ(pixels[pix_start_num * NUM_PIXBLOCK_COLS + i], pix_buffer[i]);
   }
   // pix buffer have not changed at all
-  reader.get_pix_for_bin(127, pPix_info, start_buf_pos, pix_start_num,
+  reader.get_pix_for_bin(127, pix_buffer.data(), start_buf_pos, pix_start_num,
                          num_bin_pix, false);
   EXPECT_EQ(pix_start_num, 338);
   EXPECT_EQ(num_bin_pix, 0);
 
-  reader.get_pix_for_bin(126, pPix_info, start_buf_pos, pix_start_num,
+  reader.get_pix_for_bin(126, pix_buffer.data(), start_buf_pos, pix_start_num,
                          num_bin_pix, false);
   EXPECT_EQ(pix_start_num, 334);
   EXPECT_EQ(num_bin_pix, 4);
@@ -591,8 +589,8 @@ TEST_F(TestCombineSQW, SQW_Reader_NoBuf_Mode) {
     EXPECT_EQ(pixels[pix_start_num * NUM_PIXBLOCK_COLS + i], pix_buffer[i]);
   }
   start_buf_pos = 5;
-  reader.get_pix_for_bin(NUM_BINS_IN_FILE - 860, pPix_info, start_buf_pos,
-                         pix_start_num, num_bin_pix, false);
+  reader.get_pix_for_bin(NUM_BINS_IN_FILE - 860, pix_buffer.data(),
+                         start_buf_pos, pix_start_num, num_bin_pix, false);
   EXPECT_EQ(pix_start_num, sample_pix_pos[NUM_BINS_IN_FILE - 860]);
   EXPECT_EQ(num_bin_pix, sample_npix[NUM_BINS_IN_FILE - 860]);
   for (std::size_t i = 0; i < num_bin_pix * NUM_PIXBLOCK_COLS; i++) {
@@ -600,8 +598,8 @@ TEST_F(TestCombineSQW, SQW_Reader_NoBuf_Mode) {
               pix_buffer[start_buf_pos * NUM_PIXBLOCK_COLS + i]);
   }
 
-  reader.get_pix_for_bin(NUM_BINS_IN_FILE - 860 + 1, pPix_info, start_buf_pos,
-                         pix_start_num, num_bin_pix, false);
+  reader.get_pix_for_bin(NUM_BINS_IN_FILE - 860 + 1, pix_buffer.data(),
+                         start_buf_pos, pix_start_num, num_bin_pix, false);
   EXPECT_EQ(pix_start_num, sample_pix_pos[NUM_BINS_IN_FILE - 860 + 1]);
   EXPECT_EQ(num_bin_pix, sample_npix[NUM_BINS_IN_FILE - 860 + 1]);
   for (std::size_t i = 0; i < num_bin_pix * NUM_PIXBLOCK_COLS; i++) {
@@ -610,7 +608,7 @@ TEST_F(TestCombineSQW, SQW_Reader_NoBuf_Mode) {
   }
 
   start_buf_pos = 2;
-  reader.get_pix_for_bin(NUM_BINS_IN_FILE - 1, pPix_info, start_buf_pos,
+  reader.get_pix_for_bin(NUM_BINS_IN_FILE - 1, pix_buffer.data(), start_buf_pos,
                          pix_start_num, num_bin_pix, false);
   EXPECT_EQ(pix_start_num, sample_pix_pos[NUM_BINS_IN_FILE - 1]);
   EXPECT_EQ(num_bin_pix, sample_npix[NUM_BINS_IN_FILE - 1]);
@@ -639,9 +637,8 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix_Threads) {
 
   std::size_t pix_start_num, num_bin_pix, start_buf_pos(0);
   std::vector<float> pix_buffer(NUM_PIXBLOCK_COLS * 1000);
-  float *pPix_info = &pix_buffer[0];
 
-  reader.get_pix_for_bin(0, pPix_info, start_buf_pos, pix_start_num,
+  reader.get_pix_for_bin(0, pix_buffer.data(), start_buf_pos, pix_start_num,
                          num_bin_pix, false);
   EXPECT_EQ(pix_start_num, 0);
   EXPECT_EQ(num_bin_pix, 3);
@@ -649,12 +646,12 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix_Threads) {
     EXPECT_EQ(pixels[pix_start_num * NUM_PIXBLOCK_COLS + i], pix_buffer[i]);
   }
   // pix buffer have not changed at all
-  reader.get_pix_for_bin(127, pPix_info, start_buf_pos, pix_start_num,
+  reader.get_pix_for_bin(127, pix_buffer.data(), start_buf_pos, pix_start_num,
                          num_bin_pix, false);
   EXPECT_EQ(pix_start_num, 338);
   EXPECT_EQ(num_bin_pix, 0);
 
-  reader.get_pix_for_bin(126, pPix_info, start_buf_pos, pix_start_num,
+  reader.get_pix_for_bin(126, pix_buffer.data(), start_buf_pos, pix_start_num,
                          num_bin_pix, false);
   EXPECT_EQ(pix_start_num, 334);
   EXPECT_EQ(num_bin_pix, 4);
@@ -662,16 +659,16 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix_Threads) {
     EXPECT_EQ(pixels[pix_start_num * NUM_PIXBLOCK_COLS + i], pix_buffer[i]);
   }
   start_buf_pos = 5;
-  reader.get_pix_for_bin(NUM_BINS_IN_FILE - 860, pPix_info, start_buf_pos,
-                         pix_start_num, num_bin_pix, false);
+  reader.get_pix_for_bin(NUM_BINS_IN_FILE - 860, pix_buffer.data(),
+                         start_buf_pos, pix_start_num, num_bin_pix, false);
   EXPECT_EQ(pix_start_num, sample_pix_pos[NUM_BINS_IN_FILE - 860]);
   EXPECT_EQ(num_bin_pix, sample_npix[NUM_BINS_IN_FILE - 860]);
   for (std::size_t i = 0; i < num_bin_pix * NUM_PIXBLOCK_COLS; i++) {
     EXPECT_EQ(pixels[pix_start_num * NUM_PIXBLOCK_COLS + i],
               pix_buffer[start_buf_pos * NUM_PIXBLOCK_COLS + i]);
   }
-  reader.get_pix_for_bin(NUM_BINS_IN_FILE - 860 + 1, pPix_info, start_buf_pos,
-                         pix_start_num, num_bin_pix, false);
+  reader.get_pix_for_bin(NUM_BINS_IN_FILE - 860 + 1, pix_buffer.data(),
+                         start_buf_pos, pix_start_num, num_bin_pix, false);
   EXPECT_EQ(pix_start_num, sample_pix_pos[NUM_BINS_IN_FILE - 860 + 1]);
   EXPECT_EQ(num_bin_pix, sample_npix[NUM_BINS_IN_FILE - 860 + 1]);
   for (std::size_t i = 0; i < num_bin_pix * NUM_PIXBLOCK_COLS; i++) {
@@ -680,7 +677,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix_Threads) {
   }
 
   start_buf_pos = 2;
-  reader.get_pix_for_bin(NUM_BINS_IN_FILE - 1, pPix_info, start_buf_pos,
+  reader.get_pix_for_bin(NUM_BINS_IN_FILE - 1, pix_buffer.data(), start_buf_pos,
                          pix_start_num, num_bin_pix, false);
   EXPECT_EQ(pix_start_num, sample_pix_pos[NUM_BINS_IN_FILE - 1]);
   EXPECT_EQ(num_bin_pix, sample_npix[NUM_BINS_IN_FILE - 1]);
@@ -698,9 +695,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Read_All) {
   file_par.nbin_start_pos = BIN_POS_IN_FILE;
   file_par.pix_start_pos = PIX_POS_IN_FILE;
   file_par.total_NfileBins = NUM_BINS_IN_FILE;
-  std::vector<float> pix_buffer;
-  pix_buffer.resize(this->pixels.size());
-  float *pPix_info = &pix_buffer[0];
+  std::vector<float> pix_buffer(this->pixels.size());
   std::size_t start_buf_pos(0), pix_start_num, num_bin_pix;
   // --------------------------------------------------------------------------------------------
   reader.init(file_par, false, false, 0);
@@ -708,7 +703,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Read_All) {
   auto t_start = std::chrono::steady_clock::now();
   start_buf_pos = 0;
   for (std::size_t i = 0; i < NUM_BINS_IN_FILE; i++) {
-    reader.get_pix_for_bin(i, pPix_info, start_buf_pos, pix_start_num,
+    reader.get_pix_for_bin(i, pix_buffer.data(), start_buf_pos, pix_start_num,
                            num_bin_pix, false);
     start_buf_pos += num_bin_pix;
   }
@@ -728,7 +723,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Read_All) {
   t_start = std::chrono::steady_clock::now();
   start_buf_pos = 0;
   for (std::size_t i = 0; i < NUM_BINS_IN_FILE; i++) {
-    reader.get_pix_for_bin(i, pPix_info, start_buf_pos, pix_start_num,
+    reader.get_pix_for_bin(i, pix_buffer.data(), start_buf_pos, pix_start_num,
                            num_bin_pix, false);
     start_buf_pos += num_bin_pix;
   }
@@ -749,7 +744,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Read_All) {
   t_start = std::chrono::steady_clock::now();
   start_buf_pos = 0;
   for (std::size_t i = 0; i < NUM_BINS_IN_FILE; i++) {
-    reader.get_pix_for_bin(i, pPix_info, start_buf_pos, pix_start_num,
+    reader.get_pix_for_bin(i, pix_buffer.data(), start_buf_pos, pix_start_num,
                            num_bin_pix, false);
     start_buf_pos += num_bin_pix;
   }
@@ -769,7 +764,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Read_All) {
   t_start = std::chrono::steady_clock::now();
   start_buf_pos = 0;
   for (std::size_t i = 0; i < NUM_BINS_IN_FILE; i++) {
-    reader.get_pix_for_bin(i, pPix_info, start_buf_pos, pix_start_num,
+    reader.get_pix_for_bin(i, pix_buffer.data(), start_buf_pos, pix_start_num,
                            num_bin_pix, false);
     start_buf_pos += num_bin_pix;
   }
