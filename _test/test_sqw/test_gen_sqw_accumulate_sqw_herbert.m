@@ -86,7 +86,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             %
             [path,file] = fileparts(this.spe_file{2});
             tmp_file2 = fullfile(path,[file,'.tmp']);
-            ds.psi=psi(1);
+            ds.psi=psi(2);
             run2=rundatah(this.spe_file{1},ds);
             runs = {run1;run2};
             tmp_file = {tmp_file1,tmp_file2};
@@ -110,7 +110,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             assertEqual(ok,MESS_CODES.ok,err);
             
             wk_init= serverfbMPI.get_worker_init('MessagesFilebased',1,1);
-
+            
             worker_h = str2func(worker_local);
             [ok,error_mess]=worker_h(wk_init);
             assertTrue(ok,error_mess)
@@ -132,6 +132,47 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             assertElementsAlmostEqual(res.urange,...
                 [-1.5000 -2.1000 -0.5000 0;0 0 0.5000 35.0000]);
             %
+            %-------------------------------------------------------------
+            % Accumulate headers job:
+            infiles = {tmp_file1,tmp_file2};
+            %write_nsqw_to_sqw(infiles,'test_sqw_file.sqw');
+            %[main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
+            [~,~,~,~,~,~,det,ldrs] = accumulate_headers_job.read_input_headers(infiles);
+            assertEqual(numel(det.group),96);
+            
+            [common_par,loop_par] = accumulate_headers_job.pack_job_pars(ldrs);
+            assertTrue(isempty(common_par));
+            assertEqual(numel(loop_par),2);
+            
+            je_init_message = JobExecutor.build_worker_init(...
+                'accumulate_headers_job',false,false);
+            [task_ids,taskInitMessages]=...
+                JobDispatcher.split_tasks(common_par,loop_par,true,2);
+            
+            [ok,err]=serverfbMPI.send_message(1,je_init_message);
+            assertEqual(ok,MESS_CODES.ok,err);
+            [ok,err]=serverfbMPI.send_message(2,je_init_message);
+            assertEqual(ok,MESS_CODES.ok,err);
+            [ok,err]=serverfbMPI.send_message(1,taskInitMessages{1});
+            assertEqual(ok,MESS_CODES.ok,err);
+            [ok,err]=serverfbMPI.send_message(2,taskInitMessages{2});
+            assertEqual(ok,MESS_CODES.ok,err);
+            
+            wk_init1= serverfbMPI.get_worker_init('MessagesFilebased',1,2);
+            wk_init2= serverfbMPI.get_worker_init('MessagesFilebased',2,2);
+            
+            
+            [ok,error_mess]=worker_h(wk_init2);
+            assertTrue(ok,error_mess)
+            [ok,error_mess]=worker_h(wk_init1);
+            assertTrue(ok,error_mess)
+            
+            
+            [ok,err] = serverfbMPI.receive_message(1,'started');
+            assertTrue(ok==MESS_CODES.ok,err);
+            [ok,err] = serverfbMPI.receive_message(1,'log');
+            assertTrue(ok==MESS_CODES.ok,err);
+            [ok,err,mes] = serverfbMPI.receive_message(1,'completed');
         end
         %
         function test_do_job(this)
@@ -194,6 +235,8 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             assertTrue(exist(tmp_file,'file')==2);
             [ok,err]=serverfbMPI.receive_message(1,'log');
             assertEqual(ok,MESS_CODES.ok,err);
+            
+            
         end
         %
         function test_finish_task(this)
@@ -243,7 +286,5 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
                 [-2,-3, -3,-20; 2, 3, 3 15]);
             
         end
-        
-        
     end
 end
