@@ -12,6 +12,7 @@ classdef IX_sample
         % require checks against the other properties
         class_version_ = 1;
         name_ = '';
+        hall_symbol_ = '';
         single_crystal_ = true;
         xgeom_ = [1,0,0];
         ygeom_ = [0,1,0];
@@ -26,6 +27,7 @@ classdef IX_sample
     properties (Dependent)
         % Mirrors of private properties
         name
+        hall_symbol
         single_crystal
         xgeom
         ygeom
@@ -82,6 +84,8 @@ classdef IX_sample
             %   single_crystal  true if single crystal, false otherwise
             %                   Default: true (i.e. single crystal)
             %
+            %   hall_symbol     Symmetry group (e.g. '')
+            %
             % Note: any number of the arguments can given in arbitrary order
             % after leading positional arguments if they are preceded by the 
             % argument name (including abbrevioations) with a preceding hyphen e.g.
@@ -96,8 +100,8 @@ classdef IX_sample
                 obj = IX_sample.loadobj(varargin{1});
                 
             elseif nargin>0
-                namelist = {'name','single_crystal','xgeom','ygeom','shape',...
-                    'ps','eta','temperature'};
+                namelist = {'name','single_crystal','xgeom','ygeom',...
+                    'shape','ps','eta','temperature','hall_symbol'};
                 [S, present] = parse_args_namelist ({namelist,{'char','logical'}}, varargin{:});
                 
                 if present.name
@@ -119,6 +123,9 @@ classdef IX_sample
                 end
                 if present.temperature
                     obj.temperature_ = S.temperature;
+                end
+                if present.hall_symbol
+                    obj.hall_symbol_ = S.hall_symbol;
                 end
                 
                 [ok,mess] = check_xygeom (obj.xgeom_,obj.ygeom_);
@@ -155,7 +162,7 @@ classdef IX_sample
                 error('single_crystal must true or false (or 1 or 0)')
             end
         end
-        
+
         function obj=set.xgeom_(obj,val)
             if isnumeric(val) && numel(val)==3 && ~all(val==0)
                 obj.xgeom_=val(:)';
@@ -163,7 +170,7 @@ classdef IX_sample
                 error('''xgeom'' must be a three-vector')
             end
         end
-        
+
         function obj=set.ygeom_(obj,val)
             if isnumeric(val) && numel(val)==3 && ~all(val==0)
                 obj.ygeom_=val(:)';
@@ -171,7 +178,7 @@ classdef IX_sample
                 error('''ygeom'' must be a three-vector')
             end
         end
-        
+
         function obj=set.shape_(obj,val)
             if is_string(val) && ~isempty(val)
                 [ok,mess,fullname] = obj.shapes_.valid(val);
@@ -184,7 +191,7 @@ classdef IX_sample
                 error('Sample shape must be a non-empty character string')
             end
         end
-        
+
         function obj=set.ps_(obj,val)
             if isnumeric(val) && (isempty(val) || isvector(val))
                 if isempty(val)
@@ -214,7 +221,14 @@ classdef IX_sample
                 error('Temperature must be numeric scalar greater than or equal to zero')
             end
         end
-        
+
+        function obj=set.hall_symbol_(obj,val)
+            if is_string(val)
+                obj.hall_symbol_=val;
+            else
+                error('Sample Hall symbol must be a character string (or empty string)')
+            end
+        end
         %------------------------------------------------------------------
         % Set methods for dependent properties
         %
@@ -268,6 +282,10 @@ classdef IX_sample
         function obj=set.temperature(obj,val)
             obj.temperature_=val;
         end
+
+        function obj=set.hall_symbol(obj,val)
+            obj.hall_symbol_=val;
+        end
         
         %------------------------------------------------------------------
         % Get methods for dependent properties
@@ -290,17 +308,21 @@ classdef IX_sample
         function val=get.shape(obj)
             val=obj.shape_;
         end
-        
+
         function val=get.ps(obj)
             val=obj.ps_;
         end
-        
+
         function val=get.eta(obj)
             val=obj.eta_;
         end
-        
+
         function val=get.temperature(obj)
             val=obj.temperature_;
+        end
+
+        function val=get.hall_symbol(obj)
+            val=obj.hall_symbol_;
         end
         %------------------------------------------------------------------
         function is = eq(obj1,obj2)
