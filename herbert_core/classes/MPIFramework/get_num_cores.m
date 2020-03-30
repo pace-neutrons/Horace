@@ -1,16 +1,18 @@
-function [physical, logical] = get_num_cores()
+function [physical_cores, logical_cores] = get_num_cores()
 % Get the number of physical and logical cores on the system
 %
 % Output:
 % -------
-%   physical      The number of physical cores on this PC
-%   logical       The number of logical cores on this PC
+%   physical_cores      The number of physical cores on this PC
+%   logical_cores       The number of logical cores on this PC
 %
-core_info = evalc('feature(''numcores'')');
-match_str = 'MATLAB detected: ([0-9]+) %s cores';
+physical_cores = get_cores('physical');
+logical_cores = get_cores('logical');
 
-[match, ~] = regexp(core_info, sprintf(match_str, 'physical'), 'tokens', 'match');
-physical = str2double(match{1});
 
-[match, ~] = regexp(core_info, sprintf(match_str, 'logical'), 'tokens', 'match');
-logical = str2double(match{1});
+function num_cores = get_cores(core_type)
+    core_info = evalc('feature(''numcores'')');
+    match_str = 'MATLAB detected: ([0-9]+) %s cores';
+    [match, ~] = regexp(core_info, sprintf(match_str, core_type), 'tokens', ...
+                        'match');
+    num_cores = str2double(match{1});
