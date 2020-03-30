@@ -48,17 +48,6 @@ end
 
 % make the file independent on the extension case;
 file_l =fullfile(filepath,[filename,lext]);
-if strcmp('.mem',lext)
-    ok = mem_file_fs.instance().file_exist(filename);
-    if ok
-        mess='';
-    else
-        mess = ['*** Can not find file: ',file_l];
-    end
-    file_name=[filename,lext];
-    return
-end
-
 % deal with normal files.
 if ~exist(file_l,'file')
     if ispc

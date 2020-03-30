@@ -1,8 +1,11 @@
-function this=set_loader_field(this,field_name,val)
-% these
-if isempty(this.loader) 
-    %TODO: should be specific loader for that
-    this.loader__=loader_nxspe();
+function obj=set_loader_field(obj,field_name,val)
+% this method sets up a field, specific to data loader.
+%
+if isempty(obj.loader)
+    if isempty(val)
+        return;
+    else
+        obj.loader_=loader_nxspe();
+    end
 end
-this.loader__.(field_name)=val;
-
+obj.loader_.(field_name)=val;

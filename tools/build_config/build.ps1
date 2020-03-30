@@ -133,7 +133,6 @@ function Invoke-Build {
 function Invoke-Test {
   param([string]$build_dir, [string]$build_config)
   Write-Output "`nRunning test step..."
-  Push-Location -Path $build_dir
   $test_cmd = "ctest -C $build_config"
   $test_cmd += " -T Test --no-compress-output"
   $test_cmd += " --output-on-failure"

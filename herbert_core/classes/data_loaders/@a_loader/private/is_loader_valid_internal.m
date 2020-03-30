@@ -49,30 +49,18 @@ else  % check data in memory
     end
 end
 %
-if isempty(this.par_file_name)
-    if isempty(this.n_detinpar_)
-        if ~ismember('det_par',this.loader_defines)
-            ok = -1;
-            return;
-        else
-            % this will set up n_par_detectors = n_data_detectors 
-            n_par_detectors = this.n_detectors;
-        end
-    else
-        n_par_detectors = this.n_detinpar_;
-    end
+if isempty(this.detpar_loader_)
+    mess = 'load_par undefined';
+    ok = -1;
+    return
 else
-    if isempty(this.n_detectors)
-        n_par_detectors = this.get_par_info(this.par_file_name,this.file_name);
-    else
-        n_par_detectors = this.n_detinpar_;
-    end
+    n_par_detectors = this.detpar_loader_.n_det_in_par;
 end
 
 if n_par_detectors ~= n_data_detectors
     ok = 0;
     mess=sprintf('inconsistent data and par file with data having %d detectors different from par file: %d detectors ',...
-                 n_data_detectors,n_par_detectors);
+        n_data_detectors,n_par_detectors);
 else
     ok = 1;
     mess = '';

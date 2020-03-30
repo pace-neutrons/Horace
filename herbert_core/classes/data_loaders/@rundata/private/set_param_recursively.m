@@ -142,13 +142,13 @@ for i=1:numel(field_names)
     end
 end
 if loader_redefined
-    if isempty(this.loader__)
-        this=select_loader(this,file_name,par_file_name);
+    if isempty(this.loader_)
+        this=select_loader_(this,file_name,par_file_name);
     else
         if isempty(file_name)
-            this.loader__.par_file_name = par_file_name;
+            this.loader_.par_file_name = par_file_name;
         else
-            this.loader__ = loaders_factory.instance().get_loader(file_name,par_file_name);
+            this.loader_ = loaders_factory.instance().get_loader(file_name,par_file_name);
         end
     end
 end

@@ -54,22 +54,22 @@ classdef rundata
     
     properties(Constant,Access=private)
         % list of the fields defined in any loader
-        loader_dependent_fields__={'S','ERR','en','det_par','n_detectors'};
+        loader_dependent_fields_={'S','ERR','en','det_par','n_detectors'};
         % minimal set of fields, defining reasonable run
-        min_field_set__ = {'efix','en','emode','n_detectors','S','ERR','det_par'};
+        min_field_set_ = {'efix','en','emode','n_detectors','S','ERR','det_par'};
     end
     properties(Access=private)
         % energy transfer mode
-        emode__=1;
+        emode_=1;
         %  incident energy or crystal analyser energy
-        efix__ = [];
+        efix_ = [];
         %
         % INTERNAL SERVICE PARAMETERS: (private read, private write in new Matlab versions)
         % The class which provides actual data loading:
-        loader__ = [];
+        loader_ = [];
         
         % oriented lattice which describes crytsal (present if run describes crystal)
-        oriented_lattice__ =[];
+        oriented_lattice_ =[];
         
         % instrument model holder;
         instrument_ = struct();
@@ -78,13 +78,15 @@ classdef rundata
     end
     methods(Static)
         function fields = main_data_fields()
-            fields = rundata.min_field_set__;
+            fields = rundata.min_field_set_;
         end
+        %
         function run = from_string(str)
             % build rundata object from its string representation obrained earlier by
             % serialize function
             run = rundata_from_string(str);
         end
+        %
         function [run,size] = deserialize(iarr)
             % build rundata object from its string representation obrained earlier by
             % serialize function
@@ -92,6 +94,7 @@ classdef rundata
             % this object (minus 8 bytes spent on storing the object size itself)
             [run,size] = deserialize_(iarr);
         end
+        %
         function [runfiles_list,defined]=gen_runfiles(spe_files,varargin)
             % Returns array of rundata objects created by the input arguments.
             %
@@ -145,6 +148,13 @@ classdef rundata
             % ^2    Optional parameter. If absent, the default value defined by
             %       is used instead;
             [runfiles_list,defined]= rundata.gen_runfiles_of_type('rundata',spe_files,varargin{:});
+        end
+        
+        function obj = loadobj(struc)
+            % build rundata from the structure, obtained from saveobj
+            % method.
+            obj = set_up_from_struct_(struc);
+            
         end
     end
     methods(Static,Access=protected)
@@ -245,7 +255,7 @@ classdef rundata
             % cunstruct rundata from different arguments
             if ~isempty(varargin)
                 if ischar(varargin{1})
-                    this=select_loader(this,varargin{1},varargin{2:end});
+                    this=select_loader_(this,varargin{1},varargin{2:end});
                 else
                     this=set_param_recursively(this,varargin{1},varargin{2:end});
                 end
@@ -255,7 +265,7 @@ classdef rundata
         function fields = fields_with_defaults(this)
             % method returns data fields, which have default values
             fields = {'emode'};
-            if ~isempty(this.oriented_lattice__)
+            if ~isempty(this.oriented_lattice_)
                 lattice_fields = oriented_lattice.fields_with_defaults();
                 fields ={fields{:},lattice_fields{:}};
             end
@@ -263,20 +273,20 @@ classdef rundata
         %----
         function mode = get.emode(this)
             % method to check emode and verify its default
-            mode = this.emode__;
+            mode = this.emode_;
         end
         %
         function this = set.emode(this,val)
             % method to check emode and verify its defaults
             if val>-1 && val <3
-                this.emode__ = val;
+                this.emode_ = val;
             else
                 error('RUNDATA:set_emode','unsupported emode %d, only 0 1 and 2 are supported',val);
             end
         end
         %----
         function is = get.is_crystal(this)
-            if isempty(this.oriented_lattice__)
+            if isempty(this.oriented_lattice_)
                 is = false;
             else
                 is = true;
@@ -285,27 +295,27 @@ classdef rundata
         %
         function this = set.is_crystal(this,val)
             if val == 0
-                this.oriented_lattice__ = [];
+                this.oriented_lattice_ = [];
             elseif val == 1
-                if isempty(this.oriented_lattice__)
-                    this.oriented_lattice__ = oriented_lattice();
+                if isempty(this.oriented_lattice_)
+                    this.oriented_lattice_ = oriented_lattice();
                 end
             elseif isa(val,'oriented_lattice')
-                this.oriented_lattice__ = val;
+                this.oriented_lattice_ = val;
             else
                 error('RUNDATA:set_is_crystal',' you can either remove crystal information or set oriented lattice to define crystal');
             end
         end
         %
         function lattice = get.lattice(this)
-            lattice = this.oriented_lattice__;
+            lattice = this.oriented_lattice_;
         end
         %
         function this = set.lattice(this,val)
             if isa(val,'oriented_lattice')
-                this.oriented_lattice__ = val;
+                this.oriented_lattice_ = val;
             elseif isempty(val)
-                this.oriented_lattice__ =[];
+                this.oriented_lattice_ =[];
             else
                 error('RUNDATA:set_lattice','set lattice parameter can be oriented_lattice only')
             end
@@ -313,7 +323,7 @@ classdef rundata
         %
         %
         function loader=get.loader(this)
-            loader=this.loader__;
+            loader=this.loader_;
         end
         %------------------------------------------------------------------
         % A LOADER RELATED PROPERTIES
@@ -321,89 +331,75 @@ classdef rundata
         function is = is_loaded(obj)
             % check if rundata are already loaded in memory
             is = false;
-            if isempty(obj.loader__)
+            if isempty(obj.loader_)
                 return;
             end
-            is = obj.loader__.is_loaded();
+            is = obj.loader_.is_loaded();
         end
         %
         function obj = unload(obj)
             % remove all rundata fields from memory and delete loader
             %
-            if isempty(obj.efix__) && ~isempty(obj.loader__) && ...
-                    ismember('efix',obj.loader__.defined_fields())
-                obj.efix__ = obj.loader__.efix;
+            if isempty(obj.efix_) && ~isempty(obj.loader_) && ...
+                    ismember('efix',obj.loader_.defined_fields())
+                obj.efix_ = obj.loader_.efix;
             end
-            obj.loader__ = [];
+            obj.loader_ = [];
         end
         %
         function ndet = get.n_detectors(this)
             % method to check number of detectors defined in rundata
-            ndet = get_loader_field(this,'n_detectors');
+            ndet = get_loader_field_(this,'n_detectors');
         end
         function S=get.S(this)
-            S = get_loader_field(this,'S');
+            S = get_loader_field_(this,'S');
         end
         function this = set.S(this,val)
             this=set_loader_field(this,'S',val);
         end
         function ERR=get.ERR(this)
-            ERR = get_loader_field(this,'ERR');
+            ERR = get_loader_field_(this,'ERR');
         end
         function this = set.ERR(this,val)
             this=set_loader_field(this,'ERR',val);
         end
         function det=get.det_par(this)
-            det = get_loader_field(this,'det_par');
+            det = get_loader_field_(this,'det_par');
         end
         function this = set.det_par(this,val)
             this=set_loader_field(this,'det_par',val);
         end
         function en=get.en(this)
-            en=get_loader_field(this,'en');
+            en=get_loader_field_(this,'en');
         end
         function this=set.en(this,val)
             this=set_loader_field(this,'en',val);
         end
-        %--- LESS LOADER LOCATED BUT STILL DEFINED THERE and DEFINING
-        %    LOADER
+        %
         function this = set.data_file_name(this,val)
-            % method to change data file for a run data class
-            %classname = class(this);
-            %this = feval(classname);
-            %this = this.initialize('data_file_name',val);
-            this = this.select_loader(val);
-            %this = rundata(this,'data_file_name',val);
+            % Sets new data file name, and as the method to change data file for a run data class
+            this = this.select_loader_(val);
         end
         function fname = get.data_file_name(this)
             % method to query what data file a rundata class uses
-            fname = get_loader_field(this,'file_name');
+            fname = get_loader_field_(this,'file_name');
         end
         %---
-        function this = set.par_file_name(this,val)
-            % method to change par file on defined loader
-            data_fname = this.data_file_name;
-            classname = class(this);
-            out = feval(classname);%(this,'data_file_name',data_fname,'par_file_name',val));
-            if isempty(data_fname)
-                [~,~,fext] = fileparts(val);
-                if strcmpi(fext,'.nxspe') %HACK assumes that par can be loaded from nxspe only!
-                    this = out.initialize(val,this); % shoule be fixed by
-                else
-                    if isempty(this.loader__)
-                        this.loader__ = memfile();
-                    end
-                    this.loader__.par_file_name = val;
-                end
+        function obj = set.par_file_name(obj,val)
+            % method to change par file on a defined loader
+            if isempty(obj.loader_) % assuming both data and parameters are taken from 
+                                    % the same nxspe file (or will be stored in
+                                    % it)
+                obj.loader_ = loader_nxspe('',val);            
             else
-                this = out.initialize(data_fname,val,this);
+                obj.loader_.par_file_name = val;  
             end
-            %this = this.select_loader('data_file_name',data_fname,'par_file_name',val);
         end
+        %
         function fname = get.par_file_name(this)
             % method to query what par file a rundata class uses. May be empty
             % for some data loaders, which have det information inside.
-            fname = get_loader_field(this,'par_file_name');
+            fname = get_loader_field_(this,'par_file_name');
         end
         function inst = get.instrument(this)
             % return instrument
@@ -431,13 +427,12 @@ classdef rundata
         end
         %
         function this = set.efix(this,val)
-            if isempty(this.loader__)
-                this.efix__=val;
-            else
-                if ismember('efix',loader_can_define(this.loader__))
-                    this.loader__.efix = val;
-                else
-                    this.efix__ = val;
+            % always correct local efix, regardless of the state of the
+            % loader
+            this.efix_=val;
+            if ~isempty(this.loader_)
+                if ismember('efix',loader_define(this.loader_))
+                    this.loader_.efix = val;
                 end
             end
         end
@@ -473,7 +468,7 @@ classdef rundata
             %               file. (see Matlab manual for details of these options)
             %              Adding to existing nxspe file is not
             %              currently supported, so the only difference
-            %              between the options is that method will thow
+            %              between the options is that method will throw
             %              if the file, opened in read-write mode exist.
             %              Existing file in write mode will be silently
             %              overwritten.
@@ -488,9 +483,15 @@ classdef rundata
                 else
                     psi = nan;
                 end
-                this.loader__=ld.saveNXSPE(filename,this.efix,psi,varargin{:});
+                this.loader_=ld.saveNXSPE(filename,this.efix,psi,varargin{:});
             end
             
+        end
+        
+        function out_struct = saveobj(obj)
+            % method converts rundata into structure, used to saveable/olad
+            % rundata object to disk.
+            out_struct = convert_to_struct_(obj);
         end
     end
 end

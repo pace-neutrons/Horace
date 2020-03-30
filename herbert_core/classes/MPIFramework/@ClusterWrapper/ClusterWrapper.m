@@ -428,7 +428,8 @@ classdef ClusterWrapper
                     %                        end
                 else
                     failed = true;
-                    mess = fprintf('Java run error with ID: %d',term);
+                    mess = fprintf('Java run error with ID: %d\n',term);
+                    ok = false;
                 end
             catch Err
                 if strcmp(Err.identifier,'MATLAB:Java:GenericException')

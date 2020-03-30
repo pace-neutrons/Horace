@@ -21,7 +21,6 @@ if exist('new_file_name','var')
         error('LOAD_ASCII:load_data','new file name has to be a string')
     end
     this.file_name  = new_file_name;
-    
 else
     if isempty(this.file_name)
         error('LOAD_ASCII:load_data','input spe file is not fully defined')
@@ -48,7 +47,7 @@ if use_mex
     end
 end
 if ~use_mex
-    [S,ERR,en] = get_spe_matlab(file_name);
+    [S,ERR,en] = get_spe_matlab_(file_name);
 end
 
 % Convert symbolic NaN-s into ISO NaN-s

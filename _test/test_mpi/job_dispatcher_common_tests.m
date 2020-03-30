@@ -14,7 +14,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
 
         % This test requires 3 cores but only 2 are available on build servers.
         % Test is disabled for now
-        function DISABLED_test_job_fail_restart(obj, varargin)
+        function test_job_fail_restart(obj, varargin)
             if obj.ignore_test
                 return;
             end
@@ -189,7 +189,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
         end
         %
         % Test disabled as build servers currently only have 2 cores
-        function DISABLED_test_job_with_logs_3workers(obj, varargin)
+        function test_job_with_logs_3workers(obj, varargin)
             if obj.ignore_test
                 return;
             end

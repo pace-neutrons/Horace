@@ -9,6 +9,9 @@ classdef test_a_loader< TestCase
     methods
         %
         function this=test_a_loader(name)
+            if nargin<1
+                name = 'test_a_loader';
+            end
             this = this@TestCase(name);
             [~,tdp] = herbert_root();
             this.test_data_path =tdp;
@@ -34,24 +37,49 @@ classdef test_a_loader< TestCase
             assertExceptionThrown(f,'A_LOADER:abstract_method_called');
             
         end
+        %
         function test_constructors(this)
             par_file = fullfile(this.test_data_path,'demo_par.par');
             al1=a_loader_tester(par_file);
             
-            [fp,fn,fext]=fileparts(al1.par_file_name);
+            [~,fn,fext]=fileparts(al1.par_file_name);
             assertEqual('demo_par',fn);
             assertTrue(strcmpi('.par',fext));
             
+            ldr = al1.get_par_loader();
+            assertTrue(isa(ldr,'asciipar_loader'));
+            
+            assertEqual(al1.n_detectors,28160);
+            
             [par,al1]=al1.load_par();
-            assertEqual({'det_par','n_detectors'},al1.defined_fields());
+            assertEqual({'det_par','n_det_in_par'},al1.defined_fields());
             
             al2 = a_loader_tester(al1);
             
             assertEqual(par,al2.det_par);
+            assertEqual({'det_par','n_det_in_par'},al2.defined_fields());
             
-            assertEqual({'det_par','n_detectors'},al2.defined_fields());
+            % clear par loader.
+            al1.par_file_name = '';
+            ldr = al1.get_par_loader();
+            assertTrue(isempty(ldr));
+            
+            assertTrue(isempty(al1.n_detectors));
+            % select nxspe loader
+            par_file = fullfile(this.test_data_path,'MAP11014.nxspe');
+            
+            al1.par_file_name = par_file;
+            [~,fn,fext]=fileparts(al1.par_file_name);
+            assertEqual('MAP11014',fn);
+            assertTrue(strcmpi('.nxspe',fext));
+            
+            ldr = al1.get_par_loader();
+            assertTrue(isa(ldr,'nxspepar_loader'));
+            assertEqual(al1.n_detectors,28160);
+            
         end
-        function test_constructors2(this)
+        %
+        function test_constructors0(this)
             al=a_loader_tester();
             
             assertTrue(isempty(al.par_file_name));
@@ -80,7 +108,7 @@ classdef test_a_loader< TestCase
             
             f=@()subsasgn(al,struct('type','.','subs','file_name'),spe_file);
             
-            assertExceptionThrown(f,'A_LOADER:set_file_name');
+            assertExceptionThrown(f,'A_LOADER:invalid_argument');
             
             spe_file  = fullfile(tmp_dir(),'abstract_test_file.altf');
             
@@ -93,9 +121,10 @@ classdef test_a_loader< TestCase
             
             delete(spe_file);
         end
+        %
         function test_setters_getters(this)
             al=a_loader_tester();
-            al = al.set_defined_fields({'S','ERR','en'});
+            al = al.set_defined_fields({'S','ERR','en','n_detectors'});
             al.S = ones(3,5);
             
             assertEqual('ill defined : size(Signal) ~= size(ERR)',al.S);
@@ -172,7 +201,7 @@ classdef test_a_loader< TestCase
             lt.en = ones(6,1);
             [ok,mess]=lt.is_loader_valid();
             assertEqual(-1,ok);
-            assertEqual('loader undefined',mess);
+            assertEqual('load_par undefined',mess);
             
             par_file = fullfile(this.test_data_path,'demo_par.par');
             lt.par_file_name = par_file;
@@ -197,12 +226,12 @@ classdef test_a_loader< TestCase
         function test_get_run_info(this)
             al=a_loader_tester();
             f = @()al.get_run_info();
-            assertExceptionThrown(f,'A_LOADER:get_run_info');
+            assertExceptionThrown(f,'A_LOADER:runtime_error');
             
             par_file = fullfile(this.test_data_path,'demo_par.par');
             al.par_file_name = par_file;
             f = @()al.get_run_info();
-            assertExceptionThrown(f,'A_LOADER:get_run_info');
+            assertExceptionThrown(f,'A_LOADER:runtime_error');
             
         end
         
@@ -220,7 +249,7 @@ classdef test_a_loader< TestCase
                 delete(test_file);
             end
             f=@()lt.saveNXSPE(test_file,10,3);
-            assertExceptionThrown(f,'A_LOADER:load');
+            assertExceptionThrown(f,'A_LOADER:runtime_error');
             
             lt.det_par = ones(6,3);
             
@@ -249,7 +278,7 @@ classdef test_a_loader< TestCase
             lt.S=ones(5,3);
             lt.ERR = zeros(5,3);
             lt.en = 1:6;
-            lt.det_par = ones(6,3);            
+            lt.det_par = ones(6,3);
             
             test_file = fullfile(tmp_dir,'save_nxspe_testfile1');
             real_file = [test_file,'.nxspe'];
@@ -257,20 +286,20 @@ classdef test_a_loader< TestCase
             %            test_file = 'save_nxspe_testfile.nxspe';
             if exist(real_file,'file')
                 delete(real_file);
-            end                       
+            end
             lt.saveNXSPE(test_file,10,3,'w');
-             % it looks like clear bug in hdf 1.6 for Matlab 2008b which
-             % does not release file after hdf write. Because of this, the
-             % file can not be overwritten until Matlab is shut down. 
-             % it looks like Matlab/hdf bug as higher Matlab versions do not
-             % have such problem
+            % it looks like clear bug in hdf 1.6 for Matlab 2008b which
+            % does not release file after hdf write. Because of this, the
+            % file can not be overwritten until Matlab is shut down.
+            % it looks like Matlab/hdf bug as higher Matlab versions do not
+            % have such problem
             if matlab_version_num()>7.07
                 f=@()lt.saveNXSPE(test_file,10,3);
-                assertExceptionThrown(f,'A_LOADER:saveNXSPE');
-
+                assertExceptionThrown(f,'A_LOADER:invalid_argument');
+                
                 f=@()lt.saveNXSPE(test_file,10,3,'a');
-                assertExceptionThrown(f,'A_LOADER:saveNXSPE');
-                        
+                assertExceptionThrown(f,'A_LOADER:invalid_argument');
+                
                 lt.saveNXSPE(test_file,10,3,'w');
             end
             
@@ -291,7 +320,7 @@ classdef test_a_loader< TestCase
             assertEqual(det_load.x2,det_old.x2);
             
             delete(real_file);
-        end        
+        end
     end
 end
 
