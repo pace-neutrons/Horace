@@ -245,38 +245,6 @@ classdef dnd_binfile_common < dnd_file_interface
             end
         end
         %
-        function obj = deactivate(obj)
-            % close respective file keeping all internal information about
-            % this file alive.
-            %
-            % To use for MPI transfers between workers when open file can
-            % not be transferred between workers but everything else can
-            if ~isempty(obj.file_closer_)
-                obj.file_closer_ = [];
-            end
-            obj = obj.fclose();
-            obj.file_id_ = 0;
-        end
-        %
-        function obj = activate(obj)
-            % open respective file for reading without reading any
-            % supplementary file information. Assume that this information
-            % is correct
-            %
-            % To use for MPI transfers between workers when open file can
-            % not be transferred between workers but everything else can
-            if ~isempty(obj.file_closer_)
-                obj.file_closer_ = [];
-            end
-            
-            obj.file_id_ = fopen(fullfile(obj.filepath,obj.filename));
-            if obj.file_id_ <=0
-                error('FILE_IO:runtime_error',...
-                    'Can not open file %s at location %s',...
-                    obj.filename,obj.filepath);
-            end
-            obj.file_closer_ = onCleanup(@()obj.fclose());
-        end
     end
     %----------------------------------------------------------------------
     methods % defined by this class
@@ -493,6 +461,40 @@ classdef dnd_binfile_common < dnd_file_interface
                 struc.(flds{i}) = obj.(flds{i});
             end
         end
+        %
+        function obj = deactivate(obj)
+            % close respective file keeping all internal information about
+            % this file alive.
+            %
+            % To use for MPI transfers between workers when open file can
+            % not be transferred between workers but everything else can
+            if ~isempty(obj.file_closer_)
+                obj.file_closer_ = [];
+            end
+            obj = obj.fclose();
+            obj.file_id_ = 0;
+        end
+        %
+        function obj = activate(obj)
+            % open respective file for reading without reading any
+            % supplementary file information. Assume that this information
+            % is correct
+            %
+            % To use for MPI transfers between workers when open file can
+            % not be transferred between workers but everything else can
+            if ~isempty(obj.file_closer_)
+                obj.file_closer_ = [];
+            end
+            
+            obj.file_id_ = fopen(fullfile(obj.filepath,obj.filename));
+            if obj.file_id_ <=0
+                error('FILE_IO:runtime_error',...
+                    'Can not open file %s at location %s',...
+                    obj.filename,obj.filepath);
+            end
+            obj.file_closer_ = onCleanup(@()obj.fclose());
+        end
+        
     end
     %
     methods(Static)

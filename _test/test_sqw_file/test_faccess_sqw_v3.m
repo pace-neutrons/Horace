@@ -276,9 +276,9 @@ classdef test_faccess_sqw_v3< TestCase
             assertEqual(tob.data_position,tob1.data_position);
             assertEqual(tob.npix_position,tob1.npix_position);
             tob1.delete();
-        end        
+        end
+        %
         function test_serialize_deserialise_faccess(obj)
-            
             fo = faccess_sqw_v3();
             fo = fo.init(obj.sample_file);
             
