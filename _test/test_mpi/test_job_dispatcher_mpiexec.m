@@ -15,7 +15,7 @@ classdef test_job_dispatcher_mpiexec < job_dispatcher_common_tests
         end
         %
         function test_job_fail_restart(obj, varargin)
-            if is_jenkins && isunix
+            if is_jenkins
                 warning('test_job_fail_restart disabled')
                 return
             else
