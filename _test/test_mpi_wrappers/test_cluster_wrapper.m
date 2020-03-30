@@ -161,7 +161,8 @@ classdef test_cluster_wrapper < TestCase
         
         function test_parpool_can_utilise_logical_cores(obj)
             [physical_cores, logical_cores] = get_num_cores();
-            if physical_cores >= logical_cores
+            if physical_cores == logical_cores
+                % If no extra logical cores available, this test can do nothing
                 return
             end
             msg_framework = MessagesFilebased('test_cluster_init');
