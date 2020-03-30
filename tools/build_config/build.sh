@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 set -o errexit  # exit early on any error
-set -o nounset  # raise error using unused variables
+set -o nounset  # raise error using unset variables
 
 readonly FALSE=0
 readonly TRUE=1
@@ -34,13 +34,15 @@ function run_configure() {
   local build_dir=$1
   local build_config=$2
   local build_tests=$3
-  local cmake_flags="${4-}"  # Default value is empty string
+  local matlab_release=$4
+  local cmake_flags="${5-}"  # Default value is empty string
 
   cmake_cmd="cmake ${HORACE_ROOT}"
   cmake_cmd+=" -G \"${CMAKE_GENERATOR}\""
   cmake_cmd+=" -DMatlab_ROOT_DIR=${MATLAB_ROOT}"
   cmake_cmd+=" -DCMAKE_BUILD_TYPE=${build_config}"
   cmake_cmd+=" -DBUILD_TESTS=${build_tests}"
+  cmake_cmd+=" -DMatlab_RELEASE=${matlab_release}"
   cmake_cmd+=" ${cmake_flags}"
 
   echo -e "\nRunning CMake configure step..."
@@ -82,6 +84,7 @@ function main() {
   local build_tests="ON"
   local build_config='Release'
   local build_dir="${HORACE_ROOT}/build"
+  local matlab_release=""
   local cmake_flags=""
 
   # parse command line args
@@ -97,6 +100,7 @@ function main() {
         -X|--build_tests) build_tests="$2"; shift; shift ;;
         -C|--build_config) build_config="$2"; shift; shift ;;
         -O|--build_dir) build_dir="$(realpath $2)"; shift; shift ;;
+        -M|--matlab_release) matlab_release="$2"; shift; shift ;;
         -F|--cmake_flags) cmake_flags="$2"; shift; shift ;;
         *) echo "Unrecognised argument '$key'"; exit 1 ;;
     esac
@@ -110,7 +114,7 @@ function main() {
     warning_msg="Warning: Build directory ${build_dir} already exists.\n\
         This may not be a clean build."
     echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
-    run_configure "${build_dir}" "${build_config}" "${build_tests}" "${cmake_flags}"
+    run_configure "${build_dir}" "${build_config}" "${build_tests}" "${matlab_release}" "${cmake_flags}"
     run_build ${build_dir}
   fi
 
