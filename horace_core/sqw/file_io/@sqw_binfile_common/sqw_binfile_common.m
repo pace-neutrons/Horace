@@ -161,6 +161,24 @@ classdef sqw_binfile_common < sqw_file_interface
                 obj.sqw_serializer_ = sqw_serializer();
             end
         end
+      function obj = deactivate(obj)
+            % close respective file keeping all internal information about
+            % this file alive.
+            %
+            % To use for MPI transfers between workers when open file can
+            % not be transferred between workers but everything else can
+            obj = deactivate@dnd_binfile_common(obj);
+        end
+        %
+        function obj = activate(obj)
+            % open respective file for reading without reading any
+            % supplementary file information. Assume that this information
+            % is correct
+            %
+            % To use for MPI transfers between workers when open file can
+            % not be transferred between workers but everything else can
+            obj = activate@dnd_binfile_common(obj);            
+        end                
     end % end protected
     %
     methods % defined by this class

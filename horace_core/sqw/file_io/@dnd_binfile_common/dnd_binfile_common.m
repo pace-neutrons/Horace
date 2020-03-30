@@ -260,7 +260,7 @@ classdef dnd_binfile_common < dnd_file_interface
         %
         function obj = activate(obj)
             % open respective file for reading without reading any
-            % suplementary file information. Assume that this information
+            % supplementary file information. Assume that this information
             % is correct
             %
             % To use for MPI transfers between workers when open file can
