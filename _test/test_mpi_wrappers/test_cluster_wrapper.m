@@ -159,7 +159,7 @@ classdef test_cluster_wrapper < TestCase
             
         end
         
-        function test_parpool_can_utilise_logical_cores(obj)
+        function test_utilises_logical_cores_when_n_workers_gt_physical_cores(obj)
             [physical_cores, logical_cores] = get_num_cores();
             if physical_cores == logical_cores
                 % If no extra logical cores available, this test can do nothing
@@ -167,10 +167,29 @@ classdef test_cluster_wrapper < TestCase
             end
             msg_framework = MessagesFilebased('test_cluster_init');
             clust = ClusterParpoolWrapper();
-            clust.init(physical_cores + 1, msg_framework, herbert_config().log_level);
-            % An error is thrown if cluster does not allow using the extra
-            % cores
+            n_workers = physical_cores + 1;
+            clust = clust.init(n_workers, msg_framework, ...
+                               herbert_config().log_level);
+            assertEqual(clust.n_workers, n_workers);
+        end
+
+        function test_num_workers_set_when_n_workers_lt_num_physical_cores(obj)
+            physical_cores = get_num_cores();
+            msg_framework = MessagesFilebased('test_cluster_init');
+            clust = ClusterParpoolWrapper();
+            n_workers = physical_cores - 1;
+            clust = clust.init(n_workers, msg_framework, ...
+                               herbert_config().log_level);
+            assertEqual(clust.n_workers, n_workers);
+        end
+
+        function test_num_workers_set_when_n_workers_eq_num_physical_cores(obj)
+            physical_cores = get_num_cores();
+            msg_framework = MessagesFilebased('test_cluster_init');
+            clust = ClusterParpoolWrapper();
+            clust = clust.init(physical_cores, msg_framework, ...
+                               herbert_config().log_level);
+            assertEqual(clust.n_workers, physical_cores);
         end
     end
 end
-
