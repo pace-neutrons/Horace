@@ -21,6 +21,7 @@ classdef MPI_Test_Common < TestCase
     properties(Access=private)
         current_config_folder;
         parallel_config_;
+        old_parallel_config_;
     end
     
     methods
@@ -32,8 +33,8 @@ classdef MPI_Test_Common < TestCase
             else
                 obj.framework_name = 'parpool';
             end
-            
-            pc = parallel_config;
+
+            [pc, obj.old_parallel_config_] = set_local_parallel_config();
             if strcmpi(pc.parallel_framework,'none')
                 obj.ignore_test = true;
                 warning('MPI_Test_Common:not_available',...
@@ -89,8 +90,7 @@ classdef MPI_Test_Common < TestCase
             if obj.ignore_test
                 return;
             end
-            
-            set(parallel_config,obj.old_config);
+            set(parallel_config,obj.old_parallel_config_);
             obj.parallel_config_.saveable = true;
         end
         function delete(obj)
