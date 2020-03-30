@@ -498,8 +498,8 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix) {
   std::vector<float> pix_buffer(NUM_PIXBLOCK_COLS * 1000);
 
   std::size_t bin_number{0};
-  reader.get_pix_for_bin(0, pix_buffer.data(), start_buf_pos, pix_start_num,
-                         num_bin_pix, false);
+  reader.get_pix_for_bin(bin_number, pix_buffer.data(), start_buf_pos,
+                         pix_start_num, num_bin_pix, false);
   EXPECT_EQ(pix_start_num, 0);
   EXPECT_EQ(num_bin_pix, 3);
   for (std::size_t i = 0; i < num_bin_pix * NUM_PIXBLOCK_COLS; i++) {
@@ -573,8 +573,8 @@ TEST_F(TestCombineSQW, SQW_Reader_NoBuf_Mode) {
   std::vector<float> pix_buffer(NUM_PIXBLOCK_COLS * 1000);
 
   std::size_t bin_number{0};
-  reader.get_pix_for_bin(0, pix_buffer.data(), start_buf_pos, pix_start_num,
-                         num_bin_pix, false);
+  reader.get_pix_for_bin(bin_number, pix_buffer.data(), start_buf_pos,
+                         pix_start_num, num_bin_pix, false);
   EXPECT_EQ(pix_start_num, 0);
   EXPECT_EQ(num_bin_pix, 3);
   for (std::size_t i = 0; i < num_bin_pix * NUM_PIXBLOCK_COLS; i++) {
