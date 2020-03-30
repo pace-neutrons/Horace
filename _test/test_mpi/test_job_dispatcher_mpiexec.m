@@ -15,7 +15,7 @@ classdef test_job_dispatcher_mpiexec < job_dispatcher_common_tests
         end
         %
         function test_job_fail_restart(obj, varargin)
-            if is_jenkins
+            if is_jenkins && isunix
                 warning('test_job_fail_restart disabled')
                 return
             else
@@ -23,11 +23,11 @@ classdef test_job_dispatcher_mpiexec < job_dispatcher_common_tests
             end
         end
         function test_job_with_logs_3workers(obj, varargin)
-            if ispc % fail in sequence of tests on winwods
+            if ispc % fail in sequence of tests on windows
                 warning('test_job_with_logs_3workers disabled')
                 return
             else
-                if is_jenkins
+                if is_jenkins % fails due to 3 processes not running on ANVIL
                     warning('test_job_with_logs_3workers disabled')
                     return
                 else
