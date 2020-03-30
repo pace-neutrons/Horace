@@ -63,10 +63,15 @@ classdef MESS_NAMES
             
         end
         %
+        function mess_class = gen_empty_message(mess_name)
+            % generate empty message given message name
+            %
+            [~,mess_class] = MESS_NAMES.mess_class_name(mess_name);
+        end
         function is = is_persistent(mess_or_name_or_tag)
-            disp(' check persistency argument:')
-            disp(mess_or_name_or_tag);
             % check if given message is a persistent message
+            %
+            %
             if isa(mess_or_name_or_tag,'aMessage')
                 name = mess_or_name_or_tag.mess_name;
             elseif ischar(mess_or_name_or_tag)

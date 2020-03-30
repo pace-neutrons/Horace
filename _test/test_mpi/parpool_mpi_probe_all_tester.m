@@ -65,7 +65,7 @@ else %sender
         mess1 = aMessage('starting');
         mess2 = aMessage('started');
     else
-        mess1 = aMessage('log');
+        mess1 = LogMessage();
         mess2 = aMessage('started');
 
     end
