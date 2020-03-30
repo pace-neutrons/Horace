@@ -13,13 +13,16 @@ classdef test_IX_sample < TestCaseWithSave
     methods
         %--------------------------------------------------------------------------
         function self = test_IX_sample (name)
+            if nargin<1
+                name = 'test_IX_sample';
+            end
             self@TestCaseWithSave(name);
             
             % Make some samples and sample arrays
             self.sam1 = IX_sample ([1,0,0],[0,1,0],'cuboid',[2,3,4]);
             self.sam2 = IX_sample ([0,1,0],[0,0,1],'cuboid',[12,13,34]);
             self.sam3 = IX_sample ([1,1,0],[0,0,1],'cuboid',[22,23,24]);
-
+            
             self.s1 = [self.sam1, self.sam1, self.sam2, self.sam2, self.sam2];
             self.s2 = [self.sam3, self.sam1, self.sam2, self.sam3, self.sam1];
             self.s3 = [self.sam2, self.sam3, self.sam1, self.sam2, self.sam3];
@@ -33,7 +36,7 @@ classdef test_IX_sample < TestCaseWithSave
         function test_covariance (self)
             s = self.slookup;
             cov = s.func_eval(2,[2,2,1,4,3],@covariance);
-            assertEqualWithSave (self,cov);            
+            assertEqualWithSave (self,cov);
         end
         
         %--------------------------------------------------------------------------
@@ -52,12 +55,20 @@ classdef test_IX_sample < TestCaseWithSave
             
             assertEqualToTol(mean2, [0;0;0], 'tol', 0.003);
             assertEqualToTol(mean3, [0;0;0], 'tol', 0.02);
-                        
+            
             assertEqualToTol(std2, self.sam1.ps'/sqrt(12), 'reltol', 0.001);
             assertEqualToTol(std3, self.sam2.ps'/sqrt(12), 'tol', 0.01);
         end
         
         %--------------------------------------------------------------------------
+        function test_eq(obj)
+            samp1 = IX_sample ([1,0,0],[0,1,0],'cuboid',[2,3,4]);
+            samp2 = IX_sample ([1,0,0],[0,1,0],'cuboid',[2,3,4]);
+            
+            assertTrue(samp1==samp2);
+            
+            assertFalse(samp1==obj.sam2);
+        end
     end
 end
 
