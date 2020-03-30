@@ -190,6 +190,7 @@ classdef MESS_NAMES
                 is = false;
             end
         end
+        %
         function is = tag_valid(the_tag)
             % verify if the tag provided is valid message tag.
             if the_tag>=1 && the_tag <= numel(MESS_NAMES.mess_names_)
@@ -198,6 +199,7 @@ classdef MESS_NAMES
                 is = false;
             end
         end
+        %
         function is= is_blocking(mess_name)
             % check if the message with the name, provided as imput is
             % blocking message. (should be send-received synchroneously)
