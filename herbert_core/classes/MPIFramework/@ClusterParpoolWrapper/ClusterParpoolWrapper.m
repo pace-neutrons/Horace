@@ -116,13 +116,11 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             
             % By default Matlab only utilises physical cores; enable use of
             % logical cores if required
-            if cl.NumWorkers < obj.n_workers
-                [n_physical_cores, n_logical_cores] = get_num_cores();
-                if obj.n_workers <= n_logical_cores
-                    cl.NumWorkers = obj.n_workers;
-                    if cl.NumWorkers > n_physical_cores
-                        disp(['Enabling hyper-threading in cluster ''', cl.Profile, '''']);
-                    end
+            n_requested_workers = obj.n_workers;
+            if n_requested_workers > cl.NumWorkers
+                [~, n_logical_cores] = get_num_cores();
+                if n_requested_workers <= n_logical_cores
+                    cl.NumWorkers = n_requested_workers;
                 end
             end
 
