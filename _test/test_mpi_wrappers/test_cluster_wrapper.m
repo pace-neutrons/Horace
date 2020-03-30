@@ -159,7 +159,7 @@ classdef test_cluster_wrapper < TestCase
             
         end
         
-        function test_parpool_uses_logical_cores_if_requested(obj)
+        function test_parpool_can_utilise_logical_cores(obj)
             [physical_cores, logical_cores] = get_num_cores();
             if physical_cores >= logical_cores
                 return
