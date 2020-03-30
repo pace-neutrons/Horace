@@ -31,7 +31,3 @@
 - test_proj_captions.m  : part of https://github.com/pace-neutrons/Horace/issues/49 -- generic projection refactoring
 	- test_spher_caption (no ticket)
 	- test_spher_caption2D (no ticket)
-
-- combine_sqw.test.cpp
-	- SQW_Reader_Propagate_Pix
-	- SQW_Reader_Read_All
