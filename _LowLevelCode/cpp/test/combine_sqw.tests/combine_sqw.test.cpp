@@ -224,16 +224,16 @@ TEST_F(TestCombineSQW, Check_Expand_Pix_Map) {
                pix_buffer_size, false);
 
   bool end_pix_reached;
-  const std::size_t pix_position{pix_buffer_size - 1};
+  const std::size_t final_pix_position{pix_buffer_size - 1};
   std::size_t num_pix0 = pix_map.check_expand_pix_map(
-      pix_position, pix_buffer_size, end_pix_reached);
+      final_pix_position, pix_buffer_size, end_pix_reached);
   ASSERT_FALSE(end_pix_reached);
-  EXPECT_EQ(pix_position - 1, num_pix0);
+  EXPECT_EQ(final_pix_position - 1, num_pix0);
 
   std::size_t pix_pos, npix;
-  pix_map.get_npix_for_bin(pix_position, pix_pos, npix);
-  EXPECT_EQ(sample_pix_pos[pix_position], pix_pos);
-  EXPECT_EQ(sample_npix[pix_position], npix);
+  pix_map.get_npix_for_bin(final_pix_position, pix_pos, npix);
+  EXPECT_EQ(sample_pix_pos[final_pix_position], pix_pos);
+  EXPECT_EQ(sample_npix[final_pix_position], npix);
 
   // Read whole map in memory requesting map for much bigger number of npixels
   // then the real npix number in the file.
