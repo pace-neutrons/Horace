@@ -1,10 +1,9 @@
-classdef test_CPP_MPI_exchange < TestCase
+classdef test_CPP_MPI_exchange < MPI_Test_Common
     %
     % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
     %
 
     properties
-        original_parallel_config;
     end
     methods
         %
@@ -12,13 +11,7 @@ classdef test_CPP_MPI_exchange < TestCase
             if ~exist('name', 'var')
                 name = 'test_CPP_MPI_exchange';
             end
-            obj = obj@TestCase(name);
-
-            [~, obj.original_parallel_config] = set_local_parallel_config();
-        end
-        %
-        function tearDown(obj)
-            set(parallel_config, obj.original_parallel_config);
+            obj = obj@MPI_Test_Common(name);
         end
         %
         function test_JobExecutor(obj)

@@ -33,32 +33,7 @@ classdef test_loader_utilites< TestCase
             assertEqual(result,'/11014.spe');
             assertEqual(version,'1.1');            
         end               
- % FIND_DATASET_INFO
-         function test_correct_rootDS(this)       
-             [DS_info,ds_path] = find_dataset_info(f_name(this,'MAP11020.spe_h5'),'',''); 
-             assertTrue(all(ismember(fieldnames(DS_info),...
-             {'Filename' 'Name' 'Groups' 'Datasets' 'Datatypes' 'Links' 'Attributes'})));
-             assertEqual(ds_path,'/');            
-         end         
-        function test_correct_hdf_srtuct(this)
-            finf = hdf5info(f_name(this,'MAP11020.spe_h5'));
-            [DS_info,ds_path] = find_dataset_info(finf,'',''); 
-            assertTrue(all(ismember(fieldnames(DS_info),...
-            {'Filename' 'Name' 'Groups' 'Datasets' 'Datatypes' 'Links' 'Attributes'})));
-            assertEqual(ds_path,'/');            
-        end            
-       function test_correct_root_srtuct(this)
-            finf = hdf5info(f_name(this,'MAP11020.spe_h5'));
-            [DS_info,ds_path] = find_dataset_info(finf.GroupHierarchy,'',''); 
-            assertTrue(all(ismember(fieldnames(DS_info),...
-            {'Filename' 'Name' 'Groups' 'Datasets' 'Datatypes' 'Links' 'Attributes'})));
-            assertEqual(ds_path,'/');            
-       end          
-       function test_correct_DS_found(this)
-            [DS_info,ds_path] = find_dataset_info(f_name(this,'MAP11020.spe_h5'),'','S(Phi,w)'); 
-            assertEqual(DS_info.Dims,[30,28160]);
-            assertEqual(ds_path,'/S(Phi,w)');                              
-       end     
+ % FIND_DATASET_INFO   
        function test_correct_Folder_found(this)
             [DS_info,ds_path] = find_dataset_info(f_name(this,'MAP11014.nxspe'),'data',''); 
             

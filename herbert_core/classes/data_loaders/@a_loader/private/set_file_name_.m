@@ -4,15 +4,16 @@ function  this = set_file_name_(this,new_name)
 %
 if isempty(new_name)
     % disconnect detector information in memory from a par file
-    this.file_name_ = '';
+    this.data_file_name_ = '';
     if isempty(this.S_)
         this.en_ = [];
         this.n_detindata_=[];
     end
+    f_name = '';
 else
     [ok,mess,f_name] = check_file_exist(this,new_name);
     if ~ok
-        error('A_LOADER:set_file_name',mess);
+        error('A_LOADER:invalid_argument',mess);
     end
 end
 if ~strcmp(this.data_file_name_,f_name)

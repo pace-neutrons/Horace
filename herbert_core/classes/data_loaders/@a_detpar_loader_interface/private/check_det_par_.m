@@ -1,4 +1,4 @@
-function [det_par,n_det,file_name] = check_det_par(value)
+function [det_par,n_det,file_name] = check_det_par_(obj,value)
 % method checks if value can represent par file and detectors coordinates
 % and converts this value into format, used in det_par field
 %

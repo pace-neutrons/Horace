@@ -43,16 +43,16 @@ if ~isempty(undef_list) && ~isempty(this.loader)
         % extract lattice fields stored in loader
         lat_in_load = ismember(undef_lattice,ldf);
         lat_fld = undef_lattice(lat_in_load);
-        latt = this.oriented_lattice__;
+        latt = this.oriented_lattice_;
         %
         for i=1:numel(lat_fld)
             fld = lat_fld{i};
-            val = this.loader__.(fld);
+            val = this.loader_.(fld);
             if ~isempty(val) && ~isnan(val)
                 latt.(fld) = val;
             end
         end
-        this.oriented_lattice__ = latt;
+        this.oriented_lattice_ = latt;
         undef_lattice = this.lattice.get_undef_fields();
         
         %
@@ -63,7 +63,7 @@ if ~isempty(undef_list) && ~isempty(this.loader)
             dat_fld = undef_data(dat_in_load);
             for i=1:numel(dat_fld )
                 fld = dat_fld{i};
-                val = this.loader__.(fld);
+                val = this.loader_.(fld);
                 if ~isempty(val) && ~isnan(val)
                     this.(fld) = val;
                 end
