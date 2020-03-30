@@ -10,12 +10,6 @@
 - test_combine_pow.m
 	- test_combine_pow_tot (no ticket)
 
-- test_gen_sqw_cylinder.m
-	- test_gen_sqw_cyl [single assertion] https://github.com/pace-neutrons/Horace/issues/111
-
-- test_gen_sqw_powder.m
-	- test_powder_cuts https://github.com/pace-neutrons/Horace/issues/111
-
 - test_multifit_horace_1.m
 	- test_fit_single_or_array2 https://github.com/pace-neutrons/Horace/issues/111
 
@@ -29,10 +23,10 @@
 	- test_serialize_deserialise  https://github.com/pace-neutrons/Horace/issues/126
 
 - test_sqw ->                    https://github.com/pace-neutrons/Horace/issues/126
-    disabled folder:     
-    - test_gen_sqw_accumulate_sqw_herbert.m 
-    - test_gen_sqw_accumulate_sqw_parpool.m 
-    - test_nsqw2sqw_internal_methods.m 
+    disabled folder:
+    - test_gen_sqw_accumulate_sqw_herbert.m
+    - test_gen_sqw_accumulate_sqw_parpool.m
+    - test_nsqw2sqw_internal_methods.m
 
 - test_proj_captions.m  : part of https://github.com/pace-neutrons/Horace/issues/49 -- generic projection refactoring
 	- test_spher_caption (no ticket)
