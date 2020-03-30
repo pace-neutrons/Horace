@@ -191,5 +191,15 @@ classdef test_cluster_wrapper < TestCase
                                herbert_config().log_level);
             assertEqual(clust.n_workers, physical_cores);
         end
+        
+        function test_init_fails_if_n_workers_gt_num_logical_cores(obj)
+            [~, logical_cores] = get_num_cores();
+            msg_framework = MessagesFilebased('test_cluster_init');
+            clust = ClusterParpoolWrapper();
+            n_workers = logical_cores + 1;
+            assertExceptionThrown(@() clust.init(n_workers, msg_framework, ...
+                                  herbert_config().log_level), ...
+                                  'PARPOOL_CLUSTER_WRAPPER:runtime_error');
+        end
     end
 end
