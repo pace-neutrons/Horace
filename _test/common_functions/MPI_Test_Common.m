@@ -32,8 +32,7 @@ classdef MPI_Test_Common < TestCase
             else
                 obj.framework_name = 'parpool';
             end
-            [obj.parallel_config_, obj.old_config] = set_local_parallel_config();
-
+            
             pc = parallel_config;
             obj.working_dir = pc.working_directory;
             if strcmpi(pc.parallel_framework,'none')
