@@ -28,7 +28,7 @@ classdef MESS_NAMES
         % define persistent messages, which should be retained until
         % clearAll operation is performed for the communications with
         % current source. These messages also have the same tag to be
-        % transparently received through MPI 
+        % transparently received through MPI
         persistant_messages_ = {'completed','failed'};
     end
     
@@ -63,8 +63,15 @@ classdef MESS_NAMES
             
         end
         %
+        function mess_class = gen_empty_message(mess_name)
+            % generate empty message given message name
+            %
+            [~,mess_class] = MESS_NAMES.mess_class_name(mess_name);
+        end
         function is = is_persistent(mess_or_name_or_tag)
             % check if given message is a persistent message
+            %
+            %
             if isa(mess_or_name_or_tag,'aMessage')
                 name = mess_or_name_or_tag.mess_name;
             elseif ischar(mess_or_name_or_tag)
@@ -87,7 +94,9 @@ classdef MESS_NAMES
             
             try
                 clName= [upper(a_name(1)),a_name(2:end),'Message'];
-                mess_class = feval(clName);
+                if nargout>1
+                    mess_class = feval(clName);
+                end
             catch ME
                 if strcmpi('MATLAB:UndefinedFunction',ME.identifier)
                     mess_class = aMessage(a_name);
@@ -95,7 +104,15 @@ classdef MESS_NAMES
                     rethrow(ME);
                 end
             end
-            
+        end
+        %
+        function [has,class_name] = has_class(a_name)
+            % check if the message with name provided has specialized class
+            % -child of the aMessage class, or this name is just a name of
+            % the message.
+            %
+            class_name = MESS_NAMES.mess_class_name(a_name);
+            has = exist([class_name,'.m'],'file')==2;
         end
         %
         function [name_to_tag_map,tag_to_name_map]=name_tag_maps()
@@ -116,13 +133,13 @@ classdef MESS_NAMES
                 code_to_name_map_ = containers.Map(mess_codes,MESS_NAMES.mess_names_);
                 common_tag = name_to_code_map_(MESS_NAMES.persistant_messages_{1});
                 for i=1:numel(MESS_NAMES.persistant_messages_)
-                   pm = MESS_NAMES.persistant_messages_{i};
-                   name_to_code_map_(pm) = common_tag;
+                    pm = MESS_NAMES.persistant_messages_{i};
+                    name_to_code_map_(pm) = common_tag;
                 end
-
+                
             end
             name_to_tag_map = name_to_code_map_;
-            tag_to_name_map = code_to_name_map_;  
+            tag_to_name_map = code_to_name_map_;
         end
         %
         function names = all_mess_names()

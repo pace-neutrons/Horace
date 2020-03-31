@@ -86,7 +86,7 @@ classdef test_iMPI_methods< TestCase
             mf = MessagesFilebased();
             assertTrue(isempty(mf.check_get_persistent(1)));
             
-            mf.check_set_persistent(aMessage('log'),1);
+            mf.check_set_persistent(LogMessage(),1);
             assertTrue(isempty(mf.check_get_persistent(1)));
             
             mf.check_set_persistent(FailedMessage('bad faulure'),1);

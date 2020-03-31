@@ -34,10 +34,19 @@ classdef aMessage
     
     methods
         function obj=aMessage(name)
-            % constructor, which may return any children messages.
+            % constructor, which may return any children messages classes
             is = MESS_NAMES.name_exist(name);
             if is
-                obj.mess_name_ = name;
+                [has, class_name] = MESS_NAMES.has_class(name);
+                if has && ~isa(obj,class_name) % instantiate specialized class 
+                    error('AMESSAGE:invalid_argument',...
+                        [' Attempt to initialize a message "%s" ',...
+                        'with special constructor: "%s" ',...
+                        'using generic aMessage constructor'],...
+                        name,class_name);
+                else
+                    obj.mess_name_ = name;
+                end
             else
                 error('AMESSAGE:invalid_argument',...
                     ' message with name %s is not recognized',name);
@@ -62,7 +71,7 @@ classdef aMessage
             else
                 tag = MESS_NAMES.mess_id(obj.mess_name_);
             end
-        end        
+        end
         %------------------------------------------------------------------
         function obj = set.payload(obj,val)
             if iscell(val)
@@ -78,7 +87,7 @@ classdef aMessage
             % implementation of operator ~= for aMessage class
             not = ~equal_to_tol(obj,b);
         end
-        function ln = saveobj(obj)
+        function ser_struc = saveobj(obj)
             % Define information, necessary for message serialization
             %
             % Do not! modify to send tag instead of the name!
@@ -92,16 +101,14 @@ classdef aMessage
                 ser_struc = struct('class_name',cln);
             end
             ser_struc.payload = parce_payload_(obj.payload_);
-            ln = hlp_serialize(ser_struc);
         end
     end
     %
     methods(Static)
-        function obj = loadobj(ls)
+        function obj = loadobj(ser_struc)
             % Retrieve message object from sequnce of bytes
-            % produced by saveobj method. 
+            % produced by saveobj method.
             
-            ser_struc = hlp_deserialize(ls);
             if numel(ser_struc) >1
                 ss = ser_struc(1);
                 pp = {ser_struc(:).payload};
