@@ -202,8 +202,6 @@ while keep_worker_running
         % asynchronously.
         n_steps = je.n_steps;
         mis.do_logging(0,n_steps);
-        je.do_job_completed = false; % wait at barrier if exception happens during execution
-
         %
         je.do_job_completed = false; % wait at barrier if exception in do_job
         while ~je.is_completed()

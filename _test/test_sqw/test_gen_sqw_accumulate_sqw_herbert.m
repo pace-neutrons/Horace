@@ -11,7 +11,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
     %1) Normal usage:
     % Run all unit tests and compare their results with previously saved
     % results stored in test_gen_sqw_accumulate_sqw_output.mat file
-    % located in the same folder as obj function:
+    % located in the same folder as this function:
     %
     %>>runtests test_gen_sqw_accumulate_sqw_sep_session
     %---------------------------------------------------------------------
@@ -35,12 +35,12 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             % Series of tests of gen_sqw and associated functions
             % Optionally writes results to output file
             %
-            %   >> test_gen_sqw_accumulate_sqw          % Compares with
+            %   >> test_gen_sqw_accumulate_sqw           % Compares with
             %   previously saved results stored in
             %   test_gen_sqw_accumulate_sqw_output.mat, located
             %   in the same folder as this function.
             %
-            %   >> test_gen_sqw_accumulate_sqw ('save') % Save to
+            %   >> test_gen_sqw_accumulate_sqw ('save')  % Save to
             %   test_multifit_horace_1_output.mat
             %
             % Reads previously created test data sets.
