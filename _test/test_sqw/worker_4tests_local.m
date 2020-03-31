@@ -97,10 +97,9 @@ while keep_worker_running
     [ok,err,mess]= fbMPI.receive_message(0,'starting');
     %fprintf(fh,'got "starting" message\n');
     if ok ~= MESS_CODES.ok
-        mess = aMessage('failed');
         err_mess = sprintf('job N%s failed while receive_je_info Error: %s:',...
             control_struct.job_id,err);
-        mess.payload = err_mess;
+        mess = FailedMessage(err_mess);        
         fbMPI.send_message(0,mess);
         ok = MESS_CODES.runtime_error;
         if exit_at_the_end;     exit;
