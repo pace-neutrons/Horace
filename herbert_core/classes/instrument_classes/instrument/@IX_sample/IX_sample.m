@@ -1,11 +1,11 @@
 classdef IX_sample
     % Sample class definition
-    
+
     properties (Constant, Access=private)
         shapes_ = fixedNameList({'point','cuboid'})   % valid sample types
         n_ps_ = containers.Map({'point','cuboid'},[0,3]) % number of parameters for sample description
     end
-    
+
     properties (Access=private)
         % Stored properties - but kept private and accessible only through
         % public dependent properties because validity checks of setters
@@ -20,10 +20,10 @@ classdef IX_sample
         ps_ = [];
         eta_ = IX_mosaic();
         temperature_ = 0;
-        
+
         valid_ = true;
     end
-    
+
     properties (Dependent)
         % Mirrors of private properties
         name
@@ -36,7 +36,7 @@ classdef IX_sample
         eta
         temperature
     end
-    
+
     methods
         %------------------------------------------------------------------
         % Constructor
@@ -87,23 +87,23 @@ classdef IX_sample
             %   hall_symbol     Symmetry group (e.g. '')
             %
             % Note: any number of the arguments can given in arbitrary order
-            % after leading positional arguments if they are preceded by the 
+            % after leading positional arguments if they are preceded by the
             % argument name (including abbrevioations) with a preceding hyphen e.g.
             %
             %   sample = IX_sample (xgeom,ygeom,shape,ps,'-name','FeSi','-temp',273.16)
 
-            
+
             % Use the non-dependent property set functions to force a check of type,
             % size etc.
             if nargin==1 && isstruct(varargin{1})
                 % Assume trying to initialise from a structure array of properties
                 obj = IX_sample.loadobj(varargin{1});
-                
+
             elseif nargin>0
                 namelist = {'name','single_crystal','xgeom','ygeom',...
                     'shape','ps','eta','temperature','hall_symbol'};
                 [S, present] = parse_args_namelist ({namelist,{'char','logical'}}, varargin{:});
-                
+
                 if present.name
                     obj.name_ = S.name;
                 end
@@ -127,7 +127,7 @@ classdef IX_sample
                 if present.hall_symbol
                     obj.hall_symbol_ = S.hall_symbol;
                 end
-                
+
                 [ok,mess] = check_xygeom (obj.xgeom_,obj.ygeom_);
                 if ~ok, error(mess), end
                 if numel(obj.ps_)~=obj.n_ps_(obj.shape_)
@@ -135,7 +135,7 @@ classdef IX_sample
                 end
             end
         end
-        
+
         %------------------------------------------------------------------
         % Set methods
         %
@@ -146,7 +146,7 @@ classdef IX_sample
         % and in the set functions for the dependent properties. There is a
         % synchronisation that must be maintained as the checks in both places
         % must be identical.
-        
+
         function obj=set.name_(obj,val)
             if is_string(val)
                 obj.name_=val;
@@ -154,7 +154,7 @@ classdef IX_sample
                 error('Sample name must be a character string (or empty string)')
             end
         end
-        
+
         function obj=set.single_crystal_(obj,val)
             if islognumscalar(val)
                 obj.single_crystal_=logical(val);
@@ -203,7 +203,7 @@ classdef IX_sample
                 error('Sample parameters must be a numeric vector')
             end
         end
-        
+
         function obj=set.eta_(obj,val)
             if isa(val,'IX_mosaic') && isscalar(val)
                 obj.eta_=val;
@@ -213,7 +213,7 @@ classdef IX_sample
                 error('Mosaic spread must be numeric or an IX_mosaic object')
             end
         end
-        
+
         function obj=set.temperature_(obj,val)
             if isnumeric(val) && isscalar(val) && val>=0
                 obj.temperature_=val;
@@ -238,23 +238,23 @@ classdef IX_sample
         function obj=set.name(obj,val)
             obj.name_=val;
         end
-        
+
         function obj=set.single_crystal(obj,val)
             obj.single_crystal_=val;
         end
-        
+
         function obj=set.xgeom(obj,val)
             obj.xgeom_=val;
             [ok,mess] = check_xygeom (obj.xgeom_,obj.ygeom_);
             if ~ok, error(mess), end
         end
-        
+
         function obj=set.ygeom(obj,val)
             obj.ygeom_=val;
             [ok,mess] = check_xygeom (obj.xgeom_,obj.ygeom_);
             if ~ok, error(mess), end
         end
-        
+
         function obj=set.shape(obj,val)
             % Have to set the shape parameters to an invalid quantity if sample shape changes
             val_old = obj.shape_;
@@ -264,7 +264,7 @@ classdef IX_sample
                 obj.valid_ = false;
             end
         end
-        
+
         function obj=set.ps(obj,val)
             % Must check the numnber of parameters is consistent with the sample shape
             obj.ps_=val;
@@ -274,11 +274,11 @@ classdef IX_sample
                 error('The number of shape parameters is inconsistent with the shape type')
             end
         end
-        
+
         function obj=set.eta(obj,val)
             obj.eta_=val;
         end
-        
+
         function obj=set.temperature(obj,val)
             obj.temperature_=val;
         end
@@ -286,25 +286,25 @@ classdef IX_sample
         function obj=set.hall_symbol(obj,val)
             obj.hall_symbol_=val;
         end
-        
+
         %------------------------------------------------------------------
         % Get methods for dependent properties
         function val=get.name(obj)
             val=obj.name_;
         end
-        
+
         function val=get.single_crystal(obj)
             val=obj.single_crystal_;
         end
-        
+
         function val=get.xgeom(obj)
             val=obj.xgeom_;
         end
-        
+
         function val=get.ygeom(obj)
             val=obj.ygeom_;
         end
-        
+
         function val=get.shape(obj)
             val=obj.shape_;
         end
@@ -324,9 +324,19 @@ classdef IX_sample
         function val=get.hall_symbol(obj)
             val=obj.hall_symbol_;
         end
+
         %------------------------------------------------------------------
+        function is_eq = eq(obj1,obj2)
+            s1 = structIndep(obj1);
+            s2 = structIndep(obj2);
+            is_eq = equal_to_tol(s1,s2);
+        end
+
+        function is_neq = ne(obj1, obj2)
+            is_neq = ~eq(obj1, obj2);
+        end
     end
-    
+
     %======================================================================
     % Methods for fast construction of structure with independent properties
     methods (Static, Access = private)
@@ -339,7 +349,7 @@ classdef IX_sample
             end
             names = names_store;
         end
-        
+
         function names = propNamesPublic_
             % Determine the visible public property names and cache the result.
             % Code is boilerplate
@@ -349,7 +359,7 @@ classdef IX_sample
             end
             names = names_store;
         end
-        
+
         function struc = scalarEmptyStructIndep_
             % Create a scalar structure with empty fields, and cache the result
             % Code is boilerplate
@@ -361,7 +371,7 @@ classdef IX_sample
             end
             struc = struc_store;
         end
-        
+
         function struc = scalarEmptyStructPublic_
             % Create a scalar structure with empty fields, and cache the result
             % Code is boilerplate
@@ -374,7 +384,7 @@ classdef IX_sample
             struc = struc_store;
         end
     end
-    
+
     methods
         function S = structIndep(obj)
             % Return the independent properties of an object as a structure
@@ -392,7 +402,7 @@ classdef IX_sample
             %
             %
             % See also structPublic, structArrIndep, structArrPublic
-            
+
             names = obj.propNamesIndep_';
             if ~isempty(obj)
                 tmp = obj(1);
@@ -405,7 +415,7 @@ classdef IX_sample
                 S = struct(args{:});
             end
         end
-        
+
         function S = structArrIndep(obj)
             % Return the independent properties of an object array as a structure array
             %
@@ -426,13 +436,13 @@ classdef IX_sample
             %
             %
             % See also structIndep, structPublic, structArrPublic
-            
+
             if numel(obj)>1
                 S = arrayfun(@fill_it, obj);
             else
                 S = structIndep(obj);
             end
-            
+
             function S = fill_it (obj)
                 names = obj.propNamesIndep_';
                 S = obj.scalarEmptyStructIndep_;
@@ -442,7 +452,7 @@ classdef IX_sample
             end
 
         end
-        
+
         function S = structPublic(obj)
             % Return the public properties of an object as a structure
             %
@@ -459,7 +469,7 @@ classdef IX_sample
             %
             %
             % See also structIndep, structArrPublic, structArrIndep
-            
+
             names = obj.propNamesPublic_';
             if ~isempty(obj)
                 tmp = obj(1);
@@ -472,7 +482,7 @@ classdef IX_sample
                 S = struct(args{:});
             end
         end
-        
+
         function S = structArrPublic(obj)
             % Return the public properties of an object array as a structure array
             %
@@ -493,13 +503,13 @@ classdef IX_sample
             %
             %
             % See also structPublic, structIndep, structArrIndep
-            
+
             if numel(obj)>1
                 S = arrayfun(@fill_it, obj);
             else
                 S = structPublic(obj);
             end
-            
+
             function S = fill_it (obj)
                 names = obj.propNamesPublic_';
                 S = obj.scalarEmptyStructPublic_;
@@ -510,7 +520,7 @@ classdef IX_sample
 
         end
     end
-    
+
     %======================================================================
     % Custom loadobj and saveobj
     % - to enable custom saving to .mat files and bytestreams
@@ -531,13 +541,13 @@ classdef IX_sample
             % Output:
             % -------
             %   S       Structure created from obj that is to be saved
-            
+
             % The following is boilerplate code
-            
+
             S = structIndep(obj);
         end
     end
-    
+
     %------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
@@ -556,11 +566,11 @@ classdef IX_sample
             %   obj     Either (1) the object passed without change, or (2) an
             %           object (or object array) created from the input structure
             %       	or structure array)
-            
+
             % The following is boilerplate code; it calls a class-specific function
             % called loadobj_private_ that takes a scalar structure and returns
             % a scalar instance of the class
-            
+
             if isobject(S)
                 obj = S;
             else
@@ -568,10 +578,10 @@ classdef IX_sample
             end
         end
         %------------------------------------------------------------------
-        
+
     end
     %======================================================================
-    
+
 end
 
 %------------------------------------------------------------------
