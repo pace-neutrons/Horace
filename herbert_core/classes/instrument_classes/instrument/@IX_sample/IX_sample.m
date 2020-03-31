@@ -326,16 +326,14 @@ classdef IX_sample
         end
 
         %------------------------------------------------------------------
-        function is = eq(obj1,obj2)
+        function is_eq = eq(obj1,obj2)
             s1 = structIndep(obj1);
             s2 = structIndep(obj2);
-            is = equal_to_tol(s1,s2);
+            is_eq = equal_to_tol(s1,s2);
         end
 
-        function is = ne(obj1,obj2)
-            s1 = structIndep(obj1);
-            s2 = structIndep(obj2);
-            is = ~equal_to_tol(s1,s2);
+        function is_neq = ne(obj1, obj2)
+            is_neq = ~eq(obj1, obj2);
         end
     end
 
