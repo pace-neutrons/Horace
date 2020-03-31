@@ -22,7 +22,7 @@ classdef test_job_dispatcher_herbert < job_dispatcher_common_tests
             end
         end
         function test_job_with_logs_3workers(obj, varargin)
-            if is_jenkins
+            if is_jenkins && isunix
                 warning('test_job_with_logs_3workers disabled')
                 return
             else
