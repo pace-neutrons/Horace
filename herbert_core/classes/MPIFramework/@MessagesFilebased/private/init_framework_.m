@@ -22,6 +22,7 @@ if isstruct(framework_info) && isfield(framework_info,'job_id')
         obj = obj.set_framework_range(framework_info.labID,framework_info.numLabs);
     end
 elseif(is_string(framework_info))
+    rng(feature('getpid'));
     obj.job_id =[framework_info,'_', char(floor(25*rand(1,10)) + 65)];
     obj.task_id_ = 0;
 else
