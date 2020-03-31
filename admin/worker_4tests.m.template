@@ -250,6 +250,7 @@ while keep_worker_running
         end
 
         % Sent final running message. Implicitly check for cancellation.
+        % The node 1 waits for other nodes to send these this kind of messages
         mis.do_logging(n_steps,n_steps);
         if ~is_tested
             % stop other nodes until the node 1 finishes to produce the
@@ -319,4 +320,3 @@ if job_executor.is_job_canceled()
     error('MESSAGE_FRAMEWORK:canceled',...
         'Messages framework has been canceled or is not initialized any more')
 end
-
