@@ -15,7 +15,6 @@ function rd=rundata_from_sqw_(sqw_obj)
 data = sqw_obj.data;
 header = sqw_obj.header;
 detpar = sqw_obj.detpar;
-%[dummy,filename] = fileparts(sqw_obj.main_header.filename);
 %
 if iscell(header) && numel(header) > 1
     error('RUNDATAH:invalid_argument',...
