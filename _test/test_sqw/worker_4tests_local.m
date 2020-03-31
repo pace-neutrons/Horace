@@ -79,7 +79,6 @@ if DO_LOGGING
     fprintf(fh,'      Job ID         : %s:\n',intercomm.job_id);
     fprintf(fh,'      LabNum         : %d:\n',intercomm.labIndex);
     fprintf(fh,'      NumLabs        : %d:\n',intercomm.numLabs);
-    
 end
 
 keep_worker_running = true;
@@ -104,7 +103,7 @@ while keep_worker_running
     %
     if DO_LOGGING
         fprintf(fh,'entered worker loop\n');
-    	disp('WORKER_4TESTS: waiting for starting message ********************')
+        disp('WORKER_4TESTS: waiting for starting message ********************')
     end
     [ok,err,mess]= fbMPI.receive_message(0,'starting');
     %fprintf(fh,'got "starting" message\n');
@@ -255,7 +254,7 @@ while keep_worker_running
             je.do_job_completed = true;
 
         end
-        %fprintf(fh,'je loop completed\n');
+
     catch ME % Catch error in users code and finish task gracefully.
         if DO_LOGGING
             fprintf(fh,'je exception caught, Message: %s, ID: %s;| job_completed: %d \n',...
