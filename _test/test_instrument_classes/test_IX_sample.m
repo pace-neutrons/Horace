@@ -85,6 +85,47 @@ classdef test_IX_sample < TestCaseWithSave
         end
 
         %--------------------------------------------------------------------------
+        function test_identical_samples_are_equal(obj)
+            samp1 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4]);
+            samp2 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4]);
+
+            assertTrue(samp1 == samp2);
+            assertFalse(samp1 ~= samp2)
+        end
+
+        function test_different_samples_are_not_equal(obj)
+            samp1 = IX_sample ([1,0,0],[0,1,0],'cuboid',[2,3,4]);
+            samp2 = IX_sample ([1,1,0],[0,0,1],'cuboid',[22,23,24]);
+
+            assertFalse(samp1 == samp2);
+            assertTrue(samp1 ~= samp2)
+        end
+
+        function test_identical_samples_with_matching_hall_symbol_are_equal(obj)
+            samp1 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-hall_symbol', 'hsymbol');
+            samp2 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-hall_symbol', 'hsymbol');
+
+            assertTrue(samp1 == samp2);
+            assertFalse(samp1 ~= samp2)
+        end
+
+        function test_matching_samples_with_missing_hall_symbol_are_not_equal(obj)
+            samp1 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4]);
+            samp2 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-hall_symbol', 'hsymbol');
+
+            assertFalse(samp1 == samp2);
+            assertTrue(samp1 ~= samp2)
+        end
+
+        function test_matching_samples_with_different_hall_symbols_are_not_equal(obj)
+            samp1 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-hall_symbol', 'other');
+            samp2 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-hall_symbol', 'hsymbol');
+
+            assertFalse(samp1 == samp2);
+            assertTrue(samp1 ~= samp2)
+        end
+
+        %--------------------------------------------------------------------------
         function test_pdf (self)
             nsamp = 1e7;
             ind = randselection([2,3],[ceil(nsamp/10),10]);     % random indicies from 2 and 3
@@ -104,16 +145,7 @@ classdef test_IX_sample < TestCaseWithSave
             assertEqualToTol(std2, self.sam1.ps'/sqrt(12), 'reltol', 0.001);
             assertEqualToTol(std3, self.sam2.ps'/sqrt(12), 'tol', 0.01);
         end
-        
-        %--------------------------------------------------------------------------
-        function test_eq(obj)
-            samp1 = IX_sample ([1,0,0],[0,1,0],'cuboid',[2,3,4]);
-            samp2 = IX_sample ([1,0,0],[0,1,0],'cuboid',[2,3,4]);
-            
-            assertTrue(samp1==samp2);
-            
-            assertFalse(samp1==obj.sam2);
-        end
+
     end
 end
 

@@ -328,7 +328,13 @@ classdef IX_sample
         function is = eq(obj1,obj2)
             s1 = structIndep(obj1);
             s2 = structIndep(obj2);
-            is = equal_to_tol(s1,s2);            
+            is = equal_to_tol(s1,s2);
+        end
+
+        function is = ne(obj1,obj2)
+            s1 = structIndep(obj1);
+            s2 = structIndep(obj2);
+            is = ~equal_to_tol(s1,s2);
         end
     end
     
