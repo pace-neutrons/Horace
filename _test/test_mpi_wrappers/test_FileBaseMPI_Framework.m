@@ -1,14 +1,9 @@
-classdef test_FileBaseMPI_Framework < TestCase
+classdef test_FileBaseMPI_Framework < MPI_Test_Common
     %
     % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
     %
 
     properties
-        working_dir
-        old_config
-        % if default current framework is not a Herbert framework,
-        % one need to change the setup
-        change_setup = false;
     end
     methods
         %
@@ -16,29 +11,7 @@ classdef test_FileBaseMPI_Framework < TestCase
             if ~exist('name', 'var')
                 name = 'test_FileBaseMPI_Framework';
             end
-            this = this@TestCase(name);
-            this.working_dir = tmp_dir;
-            pc = parallel_config;
-            if strcmpi(pc.parallel_framework, 'herbert')
-                this.change_setup = false;
-            else
-                this.old_config = pc.get_data_to_store;
-                pc.parallel_framework = 'herbert';
-                this.change_setup = true;
-            end
-        end
-        %
-        function setUp(obj)
-            [pc, ~] = set_local_parallel_config();
-            if obj.change_setup
-                pc.parallel_framework = 'herbert';
-            end
-        end
-        %
-        function tearDown(obj)
-            if obj.change_setup
-                set(parallel_config, obj.old_config);
-            end
+            this = this@MPI_Test_Common(name, 'herbert');
         end
         %
         function test_finalize_all(this)

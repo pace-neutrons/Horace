@@ -30,12 +30,57 @@ classdef test_IX_sample < TestCaseWithSave
         end
         
         %--------------------------------------------------------------------------
+        function test_IX_sample_constructor_error_if_required_args_missing(name)
+            f = @()IX_sample([1,0,0],[0,1,0],'cuboid');
+            assertExceptionThrown(f, '')
+        end
+
+        %--------------------------------------------------------------------------
+        function test_IX_sample_constructor_error_if_invalid_shape(name)
+            f = @()IX_sample([1,0,0],[0,1,0],'banana',[2,3,4]);
+            assertExceptionThrown(f, '')
+        end
+
+        %--------------------------------------------------------------------------
+        function test_IX_sample_constructor_accepts_and_sets_hall_symbol(name)
+            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-hall_symbol', 'hsymbol');
+            assertEqual(sample.hall_symbol, 'hsymbol');
+        end
+
+        %--------------------------------------------------------------------------
+        function test_IX_sample_constructor_accepts_and_sets_temperature(name)
+            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-temperature', 1234.5);
+            assertEqual(sample.temperature, 1234.5);
+        end
+        function test_IX_sample_constructor_errors_for_non_numeric_temperature(name)
+            f = @()IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-temperature', 'string');
+            assertExceptionThrown(f, '')
+        end
+
+        %--------------------------------------------------------------------------
+        function test_IX_sample_constructor_accepts_and_sets_name(name)
+            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-name', 'test name');
+            assertEqual(sample.name, 'test name');
+        end
+
+        %--------------------------------------------------------------------------
+        function test_IX_sample_constructor_accepts_and_sets_mosaic_eta(name)
+            eta = IX_mosaic(1234);
+            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-eta', eta);
+            assertEqual(sample.eta, eta);
+        end
+        function test_IX_sample_constructorsets_sets_numeric_eta_as_mosaic(name)
+            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-eta', 4134);
+            assertEqual(sample.eta, IX_mosaic(4134));
+        end
+
+        %--------------------------------------------------------------------------
         function test_covariance (self)
             s = self.slookup;
             cov = s.func_eval(2,[2,2,1,4,3],@covariance);
             assertEqualWithSave (self,cov);            
         end
-        
+
         %--------------------------------------------------------------------------
         function test_pdf (self)
             nsamp = 1e7;
