@@ -107,12 +107,7 @@ classdef test_job_dispatcher_parpool< job_dispatcher_common_tests
             end
         end
         function test_job_with_logs_3workers(obj, varargin)
-            if is_jenkins
-                warning('test_job_with_logs_3workers disabled')
-                return
-            else
-                test_job_with_logs_3workers@job_dispatcher_common_tests(obj, varargin{:})
-            end
+            test_job_with_logs_3workers@job_dispatcher_common_tests(obj, varargin{:})
         end
         
         
