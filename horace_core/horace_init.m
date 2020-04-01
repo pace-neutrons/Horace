@@ -73,10 +73,10 @@ end
 hpcc = hpc_config;
 if hc.is_default ||hpcc.is_default
     warning([' Found Horace is not configured. ',...
-             ' Setting up the configuration, identified as optimal for this type of the machine.',...
-             ' Please, check configurations (typing:',...
-             ' >>hor_config and >>hpc_config)',...
-             ' to ensure these configurations are correct.'])
+        ' Setting up the configuration, identified as optimal for this type of the machine.',...
+        ' Please, check configurations (typing:',...
+        ' >>hor_config and >>hpc_config)',...
+        ' to ensure these configurations are correct.'])
     % load and apply configuration, assumed to be optimal for this kind of the machine.
     conf_c = opt_config_manager();
     conf_c.load_configuration('-set_config','-change_only_default','-force_save');
@@ -87,7 +87,7 @@ if check_mex
         hc.use_mex = false;
     else
         hc.use_mex = true;
-    end	
+    end
 end
 
 
@@ -97,6 +97,9 @@ if hec.init_tests
     % add path to folders, which responsible for administrative operations
     up_root = fileparts(rootpath);
     addpath_message(1,fullfile(up_root,'admin'))
+    % Copy worter_4tests.template into Horace tests to be used in these
+    % tests.
+    copy_tests_fiels();
 end
 % Beta version: Suppress warning occurring when old instrument is stored in
 % an sqw file and is automatically converted into MAPS
@@ -154,4 +157,30 @@ if exist(string,'dir')==7
     end
 else
     warning('HORACE:init','"%s" is not a directory - not added to path',string)
+end
+
+function copy_tests_fiels()
+% copy test files, used in Horace to their appropriate place in test folder
+%
+% At the moment, only worker_4tests.m.template is copied and distributed.
+%
+source = fullfile(herbert_root(),'admin','worker_4tests.m.template');
+[content,ok,mess] = read_text(source);
+if ~ok
+    warning('HORACE_INIT:runtine_error',...
+        ' Can not read source script file: %s used as a template for local worker in gen_sqw tests. Error: %s',...
+        source,mess)
+end
+content = [...
+    {' ************************ !!! WARNING !!! ********************************'};...
+    {' This file is copied automatically from Herbert worker_4tests.m.template  '};...
+    {' All modifications to this file will be lost next time Horace is initiated'};...
+    {' ************************************************************************'};...
+    content'];
+target = fullfile(horace_root(),'_test','test_sqw','worker_4tests_local.m');
+[ok,mess]=save_text(content,target);
+if ~ok
+    warning('HORACE_INIT:runtine_error',...
+        ' Can not write script file: %s used as local worker in gen_sqw tests; Error: %s',...
+        target,mess)
 end
