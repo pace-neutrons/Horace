@@ -76,8 +76,8 @@ classdef dnd_file_interface
             'sqw_type',uint32(1),'ndim',uint32(1));
     end
     properties(Constant,Access=private,Hidden=true)
-        % list of fileldnames to save on hdd to be able to recover
-        % all substantial parts of appropriate sqw file
+        % list of fieldnames to save on hdd to be able to recover
+        % all substantial parts of appropriate sqw file accessor
         fields_to_save_ = {'filename_';'filepath_';...
             'num_dim_';'dnd_dimensions_';'data_type_';'convert_to_double_'};
     end
@@ -187,7 +187,7 @@ classdef dnd_file_interface
             end
             if ~isempty(obj.sqw_holder_)
                 warning('FACCESS:not_implemented',...
-                    'sqw object serializaton is not fully implemeted. Using sturcture on object');
+                    'sqw object serialization is not fully implemented. Using structure on object');
                 struc.sqw_holder_ = struct(obj.sqw_holder_);
             end
         end
@@ -201,7 +201,7 @@ classdef dnd_file_interface
     methods(Access = protected,Hidden=true)
         %
         function flds = fields_to_save(obj)
-            % return list of fileldnames to save on hdd to be able to recover
+            % return list of filenames to save on hdd to be able to recover
             % all substantial parts of appropriate sqw file.
             flds = obj.fields_to_save_;
         end
