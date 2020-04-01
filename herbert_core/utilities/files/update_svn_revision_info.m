@@ -88,7 +88,7 @@ cont = fread(fh,'*char');
 try
     cont = regexprep(cont','(?<=\$Revisio).*?(?=\$\))',['n',rev_num,'($Date',rev_date]);
     fseek(fh,0,'bof');
-    fwrite(fh,cont);    
+    fwrite(fh,cont);
 catch
 end
 
