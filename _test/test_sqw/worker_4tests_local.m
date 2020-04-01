@@ -1,7 +1,7 @@
-% ************************ !!! WARNING !!! ********************************
+%************************* !!! WARNING !!! ********************************
 % This file is copied automatically from Herbert worker_4tests.m.template
 % All modifications to this file will be lost next time Horace is initiated
-% ************************************************************************
+%**************************************************************************
 function [ok,err_mess,je]=worker_4tests(worker_controls_string)
 % function used as standard worker to do a job in a separate Matlab
 % session.
@@ -46,8 +46,14 @@ clot = onCleanup(@()(setattr(mis,'is_deployed',false)));
 %--------------------------------------------------------------------------
 % 1) step 1 of the worker initialization.
 %--------------------------------------------------------------------------
+% There was some issue in testing mpiexec mpi, when this string, provided in command line,
+% was converted into UTF or something similar. Then the failure was occurring,
+% so this command deals with this issue.
 worker_controls_string = char(worker_controls_string);
+% Deserialize control string and convert it into a control structure.
 control_struct = iMessagesFramework.deserialize_par(worker_controls_string);
+
+
 % Initialize config files to use on remote session. Needs to be initialized
 % first as may be used by message framework.
 %
@@ -59,7 +65,7 @@ config_store.instance('clear');
 cfn = config_store.instance().config_folder_name;
 config_exchange_folder = fullfile(control_struct.data_path,cfn);
 
-% set pas to config sources:
+% set path to the config sources:
 config_store.set_config_folder(config_exchange_folder);
 % Initialize the frameworks, responsible for communications within the
 % cluster and between the cluster and the headnode.
@@ -88,6 +94,7 @@ if DO_LOGGING
     fprintf(fh,'      Job ID         : %s:\n',intercomm.job_id);
     fprintf(fh,'      LabNum         : %d:\n',intercomm.labIndex);
     fprintf(fh,'      NumLabs        : %d:\n',intercomm.numLabs);
+
 end
 
 keep_worker_running = true;
@@ -115,6 +122,7 @@ while keep_worker_running
         disp('WORKER_4TESTS: waiting for starting message ********************')
     end
     [ok,err,mess]= fbMPI.receive_message(0,'starting');
+    %fprintf(fh,'got "starting" message\n');
     if ok ~= MESS_CODES.ok
         err_mess = sprintf('job N%s failed while receive_je_info Error: %s:',...
             control_struct.job_id,err);
@@ -209,6 +217,8 @@ while keep_worker_running
         % asynchronously.
         n_steps = je.n_steps;
         mis.do_logging(0,n_steps);
+        je.do_job_completed = false; % wait at barrier if exception happens during execution
+
         %
         je.do_job_completed = false; % wait at barrier if exception in do_job
         while ~je.is_completed()
@@ -262,7 +272,7 @@ while keep_worker_running
             je.do_job_completed = true;
 
         end
-
+        %fprintf(fh,'je loop completed\n');
     catch ME % Catch error in users code and finish task gracefully.
         if DO_LOGGING
             fprintf(fh,'je exception caught, Message: %s, ID: %s;| job_completed: %d \n',...
