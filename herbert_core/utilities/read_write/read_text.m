@@ -1,4 +1,4 @@
-function tline = read_text (file, max_size_MB)
+function [tline,ok,mess] = read_text (file, max_size_MB)
 % Reads lines of text from an ASCII file into a cell array of strings
 %
 %   >> w = read_text                % prompts for file
@@ -19,7 +19,7 @@ if ~ok, error(mess), end
 
 % Read data
 % -----------
-tline = textcell (file_full,max_size_MB);
+[tline,ok,mess] = textcell (file_full,max_size_MB);
 
 
 % Earlier version (prior to 4 Dec 2012) - retain for time being as reading ASCII files on different architectures can be tricky
