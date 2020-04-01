@@ -1,16 +1,14 @@
-set(TEMPLATES_DIR "${CMAKE_CURRENT_LIST_DIR}/templates")
-
 # Copy template files into <build_dir>/local_init
 set(WORKER_CONFIG_DIR "${CMAKE_BINARY_DIR}/local_init")
 file(MAKE_DIRECTORY ${WORKER_CONFIG_DIR})
 if(${BUILD_TESTS})
-    configure_file("${TEMPLATES_DIR}/worker_4tests.m.template" "${WORKER_CONFIG_DIR}/worker_4tests.m")
+    configure_file("worker_4tests.m.template" "${WORKER_CONFIG_DIR}/worker_4tests.m")
 endif()
-configure_file("${TEMPLATES_DIR}/worker_v2.m.template" "${WORKER_CONFIG_DIR}/worker_v2.m")
+configure_file("worker_v2.m.template" "${WORKER_CONFIG_DIR}/worker_v2.m")
 
 set(_path_regex "[a-zA-Z0-9/\\\\_\\-\\.: ]+")
 
-file(READ "${TEMPLATES_DIR}/herbert_on.m.template" _herbert_on_template)
+file(READ "herbert_on.m.template" _herbert_on_template)
 string(REGEX REPLACE
     "default_herbert_path ?= ?'${_path_regex}'"
     "default_herbert_path = '${CMAKE_SOURCE_DIR}/herbert_core'"
@@ -24,12 +22,12 @@ set(Herbert_AUTO_GENERATED_FILE_WARNING
 # Configure the herbert_version.m script. The template script is copied into
 # herbert_core/admin and CMake's project version formmatted into it. This
 # provides the function with an up-to-date version number for every build.
-configure_file("${TEMPLATES_DIR}/herbert_get_raw_version.m.template"
+configure_file("herbert_get_raw_version.m.template"
                "${CMAKE_SOURCE_DIR}/herbert_core/admin/herbert_get_raw_version.m")
 
 # Configure the version.h header. The template is copied into _LowLevelCode/CPP
 # and defines macro VERSION with CMake's project version.
-configure_file("${TEMPLATES_DIR}/version.h.template"
+configure_file("version.h.template"
                "${CMAKE_SOURCE_DIR}/_LowLevelCode/CPP/utility/version.h")
 
 # =============================================================================
@@ -37,10 +35,10 @@ configure_file("${TEMPLATES_DIR}/version.h.template"
 # =============================================================================
 install(
     FILES
-        "${TEMPLATES_DIR}/herbert_on.m.template"
+        "herbert_on.m.template"
         "herbert_root.m"  # required by validate_herbert
         "validate_herbert.m"
-        "${TEMPLATES_DIR}/worker_4tests.m.template"
-        "${TEMPLATES_DIR}/worker_v2.m.template"
+        "worker_4tests.m.template"
+        "worker_v2.m.template"
     DESTINATION "Herbert/admin/"
 )
