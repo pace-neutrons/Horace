@@ -18,7 +18,7 @@ Similar data files are also required for Euphonic testing.
 
 ## Decision
 
-The data will be store in STFC hosted SAN (storage area network).
+The data will be stored in STFC hosted SAN (storage area network).
 
 Tests will read the data from this network storage location.
 
