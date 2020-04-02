@@ -32,7 +32,6 @@ if nargout > numel(version_numbers)
     error("Too many output arguments requested.") ;
 end
 
-varargout = repmat('', 1, nargout);
 % Return as many version numbers as requested
 for i = 1:numel(version_numbers)
     varargout(i) = version_numbers(i);
