@@ -42,9 +42,13 @@ clot = onCleanup(@()(setattr(mis,'is_deployed',false)));
 %--------------------------------------------------------------------------
 % 1) step 1 of the worker initialization.
 %--------------------------------------------------------------------------
+% There was some issue in testing mpiexec mpi, when this string, provided in command line,
+% was converted into UTF or something similar. Then the failure was occurring, 
+% so this command deals with this issue.
 worker_controls_string = char(worker_controls_string);
+% Deserialize control string and convert it into a control structure.
 control_struct = iMessagesFramework.deserialize_par(worker_controls_string);
-%disp(control_struct);
+
 
 % Initialize config files to use on remote session. Needs to be initialized
 % first as may be used by message framework.
@@ -57,7 +61,7 @@ config_store.instance('clear');
 cfn = config_store.instance().config_folder_name;
 config_exchange_folder = fullfile(control_struct.data_path,cfn);
 
-% set pas to config sources:
+% set path to the config sources:
 config_store.set_config_folder(config_exchange_folder);
 % Initialize the frameworks, responsible for communications within the
 % cluster and between the cluster and the headnode.
@@ -250,6 +254,7 @@ while keep_worker_running
         end
 
         % Sent final running message. Implicitly check for cancellation.
+        % The node 1 waits for other nodes to send these this kind of messages
         mis.do_logging(n_steps,n_steps);
         if ~is_tested
             % stop other nodes until the node 1 finishes to produce the
@@ -319,4 +324,3 @@ if job_executor.is_job_canceled()
     error('MESSAGE_FRAMEWORK:canceled',...
         'Messages framework has been canceled or is not initialized any more')
 end
-

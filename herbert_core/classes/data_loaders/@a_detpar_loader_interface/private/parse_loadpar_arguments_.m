@@ -6,7 +6,7 @@ function [return_array,force_reload,getphx,lext,new_filename]=parse_loadpar_argu
 %                      returns detectors information loaded from the nxspe file,
 %                      previously associated with loader_nxspe class by
 %                      loader_nxspe constructor
-%  this             -- the instance of properly initated loader class
+%  this             -- the instance of properly initiated loader class
 %
 % '-nohor' or '-array' -- if present request to return the data as
 %                      as (6,ndet) array with fields:

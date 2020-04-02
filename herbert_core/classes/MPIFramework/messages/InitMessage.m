@@ -45,6 +45,9 @@ classdef InitMessage < aMessage
                 common_data = [];
                 loop_data = 1;
             end
+            if ~exist('loop_data','var')
+                loop_data = 1;
+            end
             if ~exist('return_results','var')
                 return_results = false;
             end

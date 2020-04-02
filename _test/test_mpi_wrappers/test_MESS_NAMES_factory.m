@@ -24,8 +24,8 @@ classdef test_MESS_NAMES_factory< TestCase
             assertFalse(is);
             
         end
+        %
         function test_selection(obj)
-            
             name = MESS_NAMES.mess_name(8);
             assertTrue(iscell(name));
             assertEqual(numel(name),1);
@@ -54,6 +54,7 @@ classdef test_MESS_NAMES_factory< TestCase
             ids = MESS_NAMES.mess_id('failed');
             assertEqual(ids,0);
         end
+        %
         function test_operations(obj)
             names = MESS_NAMES.get_all_names();
             [mess,is_blocking] = MESS_NAMES.mess_factory();
@@ -76,6 +77,24 @@ classdef test_MESS_NAMES_factory< TestCase
                     assertEqual(name2tag_map(name),i-2);
                 end
             end
+        end
+        
+        
+        function test_specialized_classes(obj)
+            % initialize empty init message using generic constructor
+            try
+                mc = aMessage('init');
+                thrown = false;
+            catch ME
+                thrown = true;
+                assertEqual(ME.identifier,'AMESSAGE:invalid_argument');
+            end
+            assertTrue(thrown,' Successfull attempt to intialize specialized message using generic constructor');
+                        
+            mc = InitMessage('some init info');
+            assertTrue(isa(mc,'InitMessage'));            
+            
+            assertEqual(mc.common_data,'some init info');
         end
     end
 end

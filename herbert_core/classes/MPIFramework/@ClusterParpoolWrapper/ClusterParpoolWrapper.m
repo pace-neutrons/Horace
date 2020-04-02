@@ -244,7 +244,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
                             strcmp(obj.current_status_.mess_name,'log')
                         stat_mess = obj.current_status_;
                     else
-                        stat_mess = aMessage(mess);
+                        stat_mess  = MESS_NAMES.gen_empty_message(mess);
                     end
                 elseif strcmp(mess,'finished')
                     stat_mess = aMessage('completed');

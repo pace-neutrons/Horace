@@ -12,6 +12,13 @@ if nargin==0
     nloop=500;  % default value
 end
 
+% General parse_keywords test (extract from removed test_parsing_2)
+[ok,mess,ind,val]=parse_keywords({'moo','hel','hello'},'hel',14);
+assertTrue(ok,['Problem with parse_keywords: ',mess]);
+assertEqual(ind,2)
+assertEqual(val{1},14)
+
+
 inpars={[13,14],'hello','missus',true};
 argname={'name','newplot','type'};
 argvals={[11,12,13,14],'zoot',rand(4,3),true,false,'suit'};
@@ -33,25 +40,6 @@ for i=1:nloop
 end
 disp(' ')
 
-% Test equivalence of parse_arguments and parse_args_simple
-disp('Testing equivalence of parse_arguments and parse_args_simple...')
-for i=1:nloop
-    [para,keyworda,presenta] = parse_arguments(argcell{i},arglist);
-    [parb,keywordb,presentb] = parse_args_simple(argcell{i},arglist);
-    if ~isequal(para,parb) || ~isequal(keyworda,keywordb) || ~isequal(presenta,presentb)
-        disp('Unequal output argument(s)');
-        disp('Input arguments')
-        disp('   parameters:')
-        disp(argcell{i})
-        disp('   arglist:')
-        disp(arglist)
-        assertTrue(false,'Unequal output')
-    end
-end
-disp(' ')
-disp('Result: parse_arguments and parse_args_simple gave equal output')
-disp(' ')
-disp(' ')
 
 
 % Test relative speed of parse_arguments, parse_args_simple and parse_keywords
@@ -67,20 +55,6 @@ t=toc;
 disp(['     Time per function call (microseconds): ',num2str(1e6*t/nloop)]);
 disp(' ')
 
-disp('Parse_args_simple')
-tic
-n=0;
-for i=1:nloop
-    [par,keyword,present] = parse_args_simple(argcell{i},arglist);
-    n=n+numel(par)+numel(keyword)+numel(present);
-end
-n_parse_args_simple=n;
-t=toc;
-disp(['     Time per function call (microseconds): ',num2str(1e6*t/nloop)]);
-disp(' ')
-if n_parse_arguments~=n_parse_args_simple
-    assertTrue(false,'parse_arguments and parse_args_simple are not equivalent')
-end
 
 disp('Parse_keywords')
 tic
@@ -90,8 +64,8 @@ for i=1:nloop
     if ~ok, assertTrue(false,mess), end
     n=n+sum(ind)+numel(val);
 end
-if n==n_parse_args_simple
-    disp('Whoopee! (a message to prevent clever optimisation by matlab)')
+if n==n_parse_arguments
+    disp('Whoopee! (a message to prevent clever optimization by Matlab)')
 end
 
 t=toc;
