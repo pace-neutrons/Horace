@@ -6,7 +6,7 @@
 build/*
 # CMake generated file
 _LowLevelCode/cpp/utility/version.h
-horace_core/admin/horace_get_raw_version.m
+horace_core/admin/horace_get_build_version.m
 
 ### MATLAB ###
 # Windows default autosave extension
