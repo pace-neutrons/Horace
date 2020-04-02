@@ -1,8 +1,9 @@
 // calc_projections_c.cpp : Defines the exported functions for the DLL application.
 //
 #include "calc_projections_c.h"
+#include "utility/version.h"
 //
-// enumerate input parameters for easy references. 
+// enumerate input parameters for easy references.
 enum inPar {
     Spec_to_proj,
     Data,
@@ -83,9 +84,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     double *pEfix(nullptr), k_to_e;
     urangeModes uRange_mode;
 
-    const char REVISION[] = "$Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)";
     if (nrhs == 0 && nlhs == 1) {
-        plhs[0] = mxCreateString(REVISION);
+        plhs[0] = mxCreateString(Horace::VERSION);
         return;
     }
 
@@ -340,7 +340,7 @@ void calc_projections_emode(double * const pMinMax,
 
         pKf = (double *)mxCalloc(nEnergies, sizeof(double));
         if (!pKf) { throw(" Can not allocate temporary memory for array of wave vectors"); }
-        // 
+        //
         for (mwSize i = 0; i < nEnergies; i++)
         {
             switch (emode)
@@ -377,7 +377,7 @@ void calc_projections_emode(double * const pMinMax,
     firstprivate(nDetectors,nEnergies,ki,urange_mode,emode,singleEfixed,pEfix,pEnergies,k_to_e) //\
     //reduction(min: q1_min,q2_min,q3_min,e_min; max: q1_max,q2_max,q3_max,e_max)
     {
-#pragma omp for 
+#pragma omp for
         for (long ii = 0; ii < nDetectors; ii++)
         {
             //	detdcn=[cosd(det.phi); sind(det.phi).*cosd(det.azim); sind(det.phi).*sind(det.azim)];   % [3 x ndet]
@@ -494,7 +494,7 @@ void calc_projections_emode(double * const pMinMax,
             }
         } // end omp for
 
-    }  // end parallel block 
+    }  // end parallel block
     if (pKf)mxFree(pKf);
     // mvs do not support reduction min/max Shame! Calculate single threaded here
     for (int i = 0; i < 4; i++) {

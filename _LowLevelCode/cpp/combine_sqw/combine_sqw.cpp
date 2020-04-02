@@ -1,8 +1,8 @@
 #include "../CommonCode.h"
-
 #include "combine_sqw.h"
 #include "nsqw_pix_reader.h"
 #include "sqw_pix_writer.h"
+#include "utility/version.h"
 
 #include <memory>
 #include <stdio.h>
@@ -29,12 +29,12 @@ enum OutputArguments { // unique output arguments,
 % Mex routine used to combine multiple sqw files with common grid into the single one.
 %
 % the routine accepts three arguments namely:
-% 
+%
 % 1) inFileParams -- cellarray of the structures, which define input files and information necessary to
 %                    read their pixels. The structure is processed by fileParameters class.
 % The structure has the following fields:
     "file_name"         -- name of the file to process
-    "npix_start_pos"    -- the location of the beginning of the npix data in the binary file 
+    "npix_start_pos"    -- the location of the beginning of the npix data in the binary file
                            (output of ftellg(fid) or of fseek(fid, npix_start_pos)
     "pix_start_pos"     -- the location of the beginning of the pix data in the binary file. Similar to npix
     "file_id"           -- number of pixel (pixel ID) distinguishing the pixels, obtained from this run from
@@ -42,12 +42,12 @@ enum OutputArguments { // unique output arguments,
     "nbins_total"       -- number of bins stored in single data file
 %
 % 2) outFileParams -- structure, which defines the parameters for the pixels to write.
-    The structure is similar to the one used for inFileParams but some fields are undefined. 
+    The structure is similar to the one used for inFileParams but some fields are undefined.
     The fields need to be defined are file_name, npix_start_pos and pix_start_pos.
     The undefined fields are file_id and nbins_total
-    nbins_total is calculated from nbins_total of the input files and file id 
+    nbins_total is calculated from nbins_total of the input files and file id
     is the combination of file_ids of input files to can not be unique or defined.
-% 
+%
 % 3) programSettings -- array of parameters defining the file combine process, namely:
 % n_bin        -- number of bins in the image array
 % 1            --first bin to start copy pixels for
@@ -61,7 +61,7 @@ enum OutputArguments { // unique output arguments,
 %                 combining files together
 % buf size     -- buffer size -- the size of buffer used for each input file
 %                 read operations
-% multithreaded_combining - number, which define if or how to use multiple threads to read files and, 
+% multithreaded_combining - number, which define if or how to use multiple threads to read files and,
                   which combining subalgorithm to deploy
 */
 
@@ -91,20 +91,20 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
   bool interrupted(false);
   //int count(0);
   std::mutex log_mutex;
-  std::unique_lock<std::mutex> l(log_mutex);  
+  std::unique_lock<std::mutex> l(log_mutex);
   int c_sensitivity(2000); // msc
   while (!Buff.is_write_job_completed()) {
-    
+
     Buff.logging_ready.wait_for(l, std::chrono::milliseconds(c_sensitivity), [&Buff]() {return Buff.do_logging; });
     if (Buff.do_logging) {
       if (interrupted) {
         mexPrintf("%s", ".\n");
         mexEvalString("pause(.002);");
       }
-      mexPrintf("%s", "\n");      
+      mexPrintf("%s", "\n");
       Buff.print_log_meassage(log_level);
     }
-    
+
     if (utIsInterruptPending()) {
       if (!interrupted) {
         mexPrintf("%s", "MEX::COMBINE_SQW: Interrupting by CTRL-C ..");
@@ -114,27 +114,27 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
       }
       interrupted = true;
     }
-    
+
     mexPrintf("%s", ".");
     mexEvalString("pause(.002);");
   }
   //mexPrintf("Log loop completed\n");
   //mexEvalString("pause(.002);");
-  
+
   writer.join();
- 
-  reader.join();  
+
+  reader.join();
   Reader.finish_read_jobs();
   //mexPrintf("Reader joined\n");
   //mexEvalString("pause(.002);");
-  
+
 
   if (interrupted) {
     mexPrintf("%s", ".\n");
     mexEvalString("pause(.002);");
   }
   else {
-    mexPrintf("%s", "\n");      
+    mexPrintf("%s", "\n");
     Buff.print_final_log_mess(log_level);
   }
 
@@ -145,17 +145,15 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-
-  const char REVISION[] = "$Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)";
   if (nrhs == 0 && nlhs == 1) {
-    plhs[0] = mxCreateString(REVISION);
+    plhs[0] = mxCreateString(Horace::VERSION);
     return;
   }
   //--------------------------------------------------------
   //-------   PROCESS PARAMETERS   -------------------------
   //--------------------------------------------------------
-  
-  
+
+
 
   bool debug_file_reader(false);
   size_t n_prog_params(4);
@@ -262,7 +260,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   auto OutFilePar = fileParameters(pOutFileParams);
   // set up the number of bins, which is currently equal for input and output files
   OutFilePar.total_NfileBins = ProgSettings.totNumBins;
-  
+
   //--------------------------------------------------------
   //-------   RUN PROGRAM      -----------------------------
   //--------------------------------------------------------
@@ -272,7 +270,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   }
   size_t n_buf_pixels(0), n_bins_processed(0);
   if (debug_file_reader) {
-    
+
     auto nbin_Buffer = mxCreateNumericMatrix(ProgSettings.totNumBins, 1, mxUINT64_CLASS, mxREAL);
     uint64_t *nbinBuf = (uint64_t *)mxGetPr(nbin_Buffer);
 

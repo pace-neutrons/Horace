@@ -1,5 +1,6 @@
 // accumulate_cut.cpp : Defines the exported functions for the DLL application.
 #include "accumulate_cut_c.h"
+#include"utility/version.h"
 
 enum InputArguments {
     Pixel_data,
@@ -72,10 +73,8 @@ based on Matlab code of T.G.Perring   19 July 2007; C-version Alex Buts 02 July 
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-
-    const char REVISION[] = "$Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)";
     if (nrhs == 0 && nlhs == 1) {
-        plhs[0] = mxCreateString(REVISION);
+        plhs[0] = mxCreateString(Horace::VERSION);
         return;
     }
 
@@ -213,11 +212,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
                 }
             }
         }
-        // process issue occurring with 1D cut, when axis is 1 and signal array is 2D array with second dimension 1 (always in Matlab) 
+        // process issue occurring with 1D cut, when axis is 1 and signal array is 2D array with second dimension 1 (always in Matlab)
         if (nAxis != nDimensions) {
             if ((nDimensions == 2 && nAxis == 1) || nAxis == 0) // this may be actually one dimensional plot or 0 dimensional plot (point)
             {
-                if (pmDims[1] == 1) { // have to work with a defied shape (column) arrays 
+                if (pmDims[1] == 1) { // have to work with a defied shape (column) arrays
                     nDimensions = 1;
                 }
             }
@@ -239,7 +238,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     {
         for (int i = 0; i < nDimensions; i++) {
             iAxis[i] = iRound(pPAX[i]);
-            grid_size[iAxis[i] - 1] = iRound(pmDims[i]); // here iAxis[i]-1 to agree with the numbering of the arrays in Matlab 
+            grid_size[iAxis[i] - 1] = iRound(pmDims[i]); // here iAxis[i]-1 to agree with the numbering of the arrays in Matlab
         }                                                 // c-arrays.
     } // else -- everything will be added to a single point, grid_size is all 0;
 
