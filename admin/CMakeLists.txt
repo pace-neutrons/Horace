@@ -22,8 +22,8 @@ set(Herbert_AUTO_GENERATED_FILE_WARNING
 # Configure the herbert_version.m script. The template script is copied into
 # herbert_core/admin and CMake's project version formmatted into it. This
 # provides the function with an up-to-date version number for every build.
-configure_file("herbert_get_raw_version.m.template"
-               "${CMAKE_SOURCE_DIR}/herbert_core/admin/herbert_get_raw_version.m")
+configure_file("herbert_get_build_version.m.template"
+               "${CMAKE_SOURCE_DIR}/herbert_core/admin/herbert_get_build_version.m")
 
 # Configure the version.h header. The template is copied into _LowLevelCode/CPP
 # and defines macro VERSION with CMake's project version.

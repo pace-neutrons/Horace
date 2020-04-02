@@ -13,7 +13,7 @@ function varargout = herbert_version()
 %   >> [major, minor, patch] = herbert_version();
 %
 try
-    VERSION = herbert_get_raw_version();
+    VERSION = herbert_get_build_version();
 catch ME
     if ~strcmp(ME.identifier, 'MATLAB:UndefinedFunction')
         rethrow(ME);

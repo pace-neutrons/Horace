@@ -6,7 +6,7 @@
 build/*
 # CMake generated file
 _LowLevelCode/CPP/utility/version.h
-herbert_core/admin/herbert_get_raw_version.m
+herbert_core/admin/herbert_get_build_version.m
 
 ### MATLAB ###
 # Windows default autosave extension
