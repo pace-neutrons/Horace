@@ -70,8 +70,6 @@ elseif isunix
         pc_type = types{9};  % 'jenkins_unix'
         return;
     end
-    
-    
 end
 
 

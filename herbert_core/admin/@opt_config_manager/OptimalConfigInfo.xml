@@ -263,7 +263,7 @@
          <shared_folder_on_remote/>
          <working_directory/>
       </parallel_config>
-   </jenkins>
+   </jenkins_win>
    <jenkins_unix>
       <info>Settings for running on Jenkins Unix ANWIL build servers</info>
       <herbert_config>
@@ -296,6 +296,5 @@
          <shared_folder_on_remote/>
          <working_directory/>
       </parallel_config>
-   </jenkins>
-
+   </jenkins_unix>
 </data_struct>

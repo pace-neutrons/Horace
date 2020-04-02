@@ -32,6 +32,8 @@ classdef opt_config_manager
         % The helper, method providing the list of the configurations,
         % known to the class.
         known_configurations;
+        % The configuration, considered default for this particular pc type
+        default_config;
     end
     
     
@@ -40,7 +42,12 @@ classdef opt_config_manager
         config_info_folder_;
         this_pc_type_;
         config_filename_  = 'OptimalConfigInfo.xml'
+        % property, containing structure, responsible for current default
+        % configuration
         current_config_ = [];
+        % Structrue, containing all default configurations known to the
+        % developers and read from the all config file
+        all_known_configurations_ = [];
     end
     properties(Access=private)
         % the configurations, which may be optimized for a particular pc so
@@ -82,9 +89,11 @@ classdef opt_config_manager
             %    configure Horace only, using list of all configurations
             %    known to the class.
         end
+        %
         function types = get.known_pc_types(obj)
             types = obj.known_pc_types_;
         end
+        %
         function fn = get.config_filename(obj)
             fn = obj.config_filename_;
         end
@@ -101,6 +110,9 @@ classdef opt_config_manager
         %
         function pc_type = get.this_pc_type(obj)
             pc_type = obj.this_pc_type_;
+        end
+        function config = get.default_config(obj)
+            config = obj.current_config_;
         end
         %
         function obj = set.this_pc_type(obj,val)
@@ -133,6 +145,10 @@ classdef opt_config_manager
                     'The pc type may be either the name of the pc type from the list above or the type number in this list');
             end
             obj.this_pc_type_ = pc_type;
+            % set up selected pc-specific configuration
+            if ~isempty(obj.all_known_configurations_)
+                obj = set_pc_specific_config_(obj,obj.all_known_configurations_,pc_type);
+            end
         end
         %
         function num = get.pc_config_num(obj)
@@ -146,8 +162,10 @@ classdef opt_config_manager
         end
         %------------------------------------------------------------------
         function save_configurations(obj,varargin)
-            % assuming the current configuration is the optimal one, save
-            % it in configuration file for further usage.
+            % assuming the current Horace/Herbert configurations are the 
+            % optimal one, save it in configuration file for further usage.
+            % as default configuration for the selected type of computer.
+            %
             % Usage:
             % obj.save_configurations([info]);
             % where:
@@ -156,7 +174,7 @@ classdef opt_config_manager
             %         of the computer;
             save_configurations_(obj,varargin{:});
         end
-        function conf = load_configuration(obj,varargin)
+        function obj = load_configuration(obj,varargin)
             % method loads the previous configuration, which
             % stored as optimal for this computer.
             %
@@ -179,7 +197,8 @@ classdef opt_config_manager
                 {'-set_config','-change_only_default','-force_save'});
             if ~ok; error('OPT_CONFIG_MANAGER:invalid_argument',mess);
             end
-            conf = load_configuration_(obj,set_config,set_def_only,force_save);
+            
+            obj = load_configuration_(obj,set_config,set_def_only,force_save);
         end
         function [pc_type,nproc,mem_size] = find_comp_type(obj)
             % analyze pc parameters (memory, number of processors etc.)
