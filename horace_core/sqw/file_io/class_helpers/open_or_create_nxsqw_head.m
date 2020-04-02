@@ -92,6 +92,5 @@ write_attr_group(group_id,struct('NX_class','NXentry'));
 % write sqw dataset definition
 
 write_string_sign(group_id,'definition',data_format,'version',format_version);
-[~,hv] = horace_version('-brief');
+hv = horace_version();
 write_string_sign(group_id,'program_name','horace','version',hv);
-
