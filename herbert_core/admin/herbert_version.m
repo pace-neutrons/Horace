@@ -18,13 +18,7 @@ catch ME
     if ~strcmp(ME.identifier, 'MATLAB:UndefinedFunction')
         rethrow(ME);
     end
-    try
-        herbert_root = fileparts(fileparts(which('herbert_init')));
-        version_file = fullfile(herbert_root , 'VERSION');
-        VERSION = [strtrim(fileread(version_file)), '.dev'];
-    catch
-        VERSION = '0.0.0.dev';
-    end
+    VERSION = read_from_version_file();
 end
 
 % If only one output requested return whole version string
@@ -43,3 +37,13 @@ varargout = repmat('', 1, nargout);
 for i = 1:numel(version_numbers)
     varargout(i) = version_numbers(i);
 end
+
+
+function version_str = read_from_version_file()
+    try
+        herbert_root = fileparts(fileparts(which('herbert_init')));
+        version_file = fullfile(herbert_root , 'VERSION');
+        version_str = [strtrim(fileread(version_file)), '.dev'];
+    catch
+        version_str = '0.0.0.dev';
+    end
