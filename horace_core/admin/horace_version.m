@@ -18,10 +18,16 @@ catch ME
     if ~strcmp(ME.identifier, 'MATLAB:UndefinedFunction')
         rethrow(ME);
     end
-    VERSION = '0.0.0.dev';
+    try
+        horace_root = fileparts(fileparts(which('horace_init')));
+        version_file = fullfile(horace_root , 'VERSION');
+        VERSION = [fileread(version_file), '.dev'];
+    catch
+        VERSION = '0.0.0.dev';
+    end
 end
 
-% If only one output requested return whole version string
+% If only one output requested, return whole version string
 if nargout <= 1
     varargout{1} = VERSION;
     return;
