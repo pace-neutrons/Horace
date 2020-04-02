@@ -1,4 +1,4 @@
-#include "../CommonCode.h"
+#include "CommonCode.h"
 #include "combine_sqw.h"
 #include "nsqw_pix_reader.h"
 #include "sqw_pix_writer.h"

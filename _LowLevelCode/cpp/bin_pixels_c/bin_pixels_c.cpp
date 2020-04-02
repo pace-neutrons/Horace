@@ -1,4 +1,4 @@
-#include "../CommonCode.h"
+#include "CommonCode.h"
 #include "utility/version.h"
 //
 enum input_arguments {
