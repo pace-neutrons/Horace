@@ -1,4 +1,5 @@
 #include "../CommonCode.h"
+#include "utility/version.h"
 //
 enum input_arguments {
     Sqw_parameters,
@@ -68,9 +69,8 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     double* pS, * pErr, * pNpix;   // arrays for the signal, error and number of pixels in a cell (density);
     mxArray* PixelSorted;
     //
-    const char REVISION[] = "$Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)";
     if (nrhs == 0 && nlhs == 1) {
-        plhs[0] = mxCreateString(REVISION);
+        plhs[0] = mxCreateString(Horace::VERSION);
         return;
     }
 

@@ -1,5 +1,5 @@
 #include "recompute_bin_data.h"
-
+#include "utility/version.h"
 
 enum InputArguments {
     Npix_data,
@@ -15,10 +15,8 @@ enum OutputArguments { // unique output arguments,
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-
-    const char REVISION[] = "$Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)";
     if (nrhs == 0 && nlhs == 1) {
-        plhs[0] = mxCreateString(REVISION);
+        plhs[0] = mxCreateString(Horace::VERSION);
         return;
     }
 
