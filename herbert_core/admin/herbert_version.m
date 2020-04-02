@@ -18,7 +18,13 @@ catch ME
     if ~strcmp(ME.identifier, 'MATLAB:UndefinedFunction')
         rethrow(ME);
     end
-    VERSION = '0.0.0.dev';
+    try
+        herbert_root = fileparts(fileparts(which('herbert_init')));
+        version_file = fullfile(herbert_root , 'VERSION');
+        VERSION = [fileread(version_file), '.dev'];
+    catch
+        VERSION = '0.0.0.dev';
+    end
 end
 
 % If only one output requested return whole version string

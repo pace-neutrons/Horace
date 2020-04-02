@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.7)
 
-project("Herbert" VERSION "3.3.0")
+file(READ "${CMAKE_SOURCE_DIR}/VERSION" _version)
+project("Herbert" VERSION "${_version}")
 
 set(CMAKE_CXX_STANDARD 11)
 
