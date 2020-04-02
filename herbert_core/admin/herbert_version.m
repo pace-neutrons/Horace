@@ -21,7 +21,7 @@ catch ME
     try
         herbert_root = fileparts(fileparts(which('herbert_init')));
         version_file = fullfile(herbert_root , 'VERSION');
-        VERSION = [fileread(version_file), '.dev'];
+        VERSION = [strtrim(fileread(version_file)), '.dev'];
     catch
         VERSION = '0.0.0.dev';
     end
@@ -38,6 +38,7 @@ if nargout > numel(version_numbers)
     error("Too many output arguments requested.") ;
 end
 
+varargout = repmat('', 1, nargout);
 % Return as many version numbers as requested
 for i = 1:numel(version_numbers)
     varargout(i) = version_numbers(i);
