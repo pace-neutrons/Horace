@@ -63,13 +63,13 @@ classdef test_pc_spec_config< TestCase
             cm = opt_config_manager();
             try
                 cm.this_pc_type = 'rubbish';
-                assertTrue(false,'No exception was thrown on invalid argument')
+                assertTrue(false,'No exception was thrown on invalid configuration')
             catch ME
                 assertEqual(ME.identifier,'OPT_CONFIG_MANAGER:invalid_argument')
             end
             try
                 cm.this_pc_type = -1;
-                assertTrue(false,'No exception was thrown on invalid argument')
+                assertTrue(false,'No exception was thrown on invalid configuration')
             catch ME
                 assertEqual(ME.identifier,'OPT_CONFIG_MANAGER:invalid_argument')
             end
@@ -85,6 +85,20 @@ classdef test_pc_spec_config< TestCase
             cm.this_pc_type = 'a_mac';
             assertEqual(cm.this_pc_type,'a_mac');
             assertEqual(cm.pc_config_num,3);
+            
+            kpc = cm.known_pc_types;
+            nconf = numel(kpc);
+            for i=1:nconf
+                cm.this_pc_type = i;
+                assertEqual(cm.this_pc_type,kpc{i});
+                assertEqual(cm.pc_config_num,i);
+            end
+            for i=1:nconf
+                cm.this_pc_type = kpc{i};
+                assertEqual(cm.this_pc_type,kpc{i});
+                assertEqual(cm.pc_config_num,i);
+            end
+            
         end
         
     end
