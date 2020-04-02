@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.7)
 
 file(READ "${CMAKE_SOURCE_DIR}/VERSION" _version)
+string(STRIP "${_version}" _version)
 project("Horace" VERSION "${_version}")
 
 # C++11 is required for GTest
