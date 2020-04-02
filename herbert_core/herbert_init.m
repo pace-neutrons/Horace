@@ -134,12 +134,6 @@ for i=1:numel(application_init_old)
     addpath(getenv('MATLABPATH'));
 end
 
-function padded_str = center_and_pad_string(central_str, pad_str, pad_to_length)
-    to_append = repmat(pad_str, 1, floor((pad_to_length - numel(central_str))/2));
-    to_prepend = repmat(pad_str, 1, ceil((pad_to_length - numel(central_str))/2));
-    padded_str = sprintf("%s%s%s", to_append, central_str, to_prepend);
-
-
 function print_banner()
     width = 66;
     lines = {'ISIS utilities for visualization and analysis', ...
