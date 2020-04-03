@@ -8,7 +8,7 @@
 
 - test_job_dispatcher_parpool.m
   - test_job_submittion (no ticket)
-  - test_job_fail_restart - Linux only
+  - test_job_fail_restart (no ticket)
 
-- test_job_dispatcher_mpiexec
+- test_job_dispatcher_mpiexec.m
   - test_job_with_logs_3workers - Windows Only
