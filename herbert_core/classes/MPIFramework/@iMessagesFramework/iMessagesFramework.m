@@ -45,9 +45,10 @@ classdef iMessagesFramework < handle
             if nargin>0
                 obj.job_id = varargin{1};
             else
-                % use process ID to seed the RNG so processes don't conflict
-                rng(feature('getpid'));
-                obj.job_id_ = char(floor(25*rand(1,10)) + 65);
+                % use process ID and time as job ID. This prevents clashes
+                % between processes
+                obj.job_id_ = sprintf('%i%i', feature('getpid'), ...
+                                      round(datetime('now').Second*1e4));
             end
         end
         %
