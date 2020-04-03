@@ -1,8 +1,7 @@
 classdef test_pc_spec_config< TestCase
+    % Testing default configuration manager, selecting
+    % configuration as function of a pc type
     %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
-    %
-    
     properties
         working_dir;
     end
@@ -15,7 +14,43 @@ classdef test_pc_spec_config< TestCase
             this = this@TestCase(name);
             this.working_dir = tmp_dir;
         end
+        function test_load_config(obj)
+            cm = opt_config_manager();
+            assertTrue(isempty(cm.default_config));
+            %
+            % The strung sets configuration in memory. Should not be used
+            % in tests.
+            %cm = cm.load_configuration('-set_config','-change_only_default','-force_save');
+            cm = cm.load_configuration();
+            % Some pc type will be selected.
+            assertFalse(isempty(cm.default_config));
+            
+            % check generic win_small configuration
+            cm.this_pc_type = 'win_small';
+            def_config = cm.default_config;
+            assertFalse(def_config.hpc_config.build_sqw_in_parallel);
+            assertEqual(def_config.hpc_config.mex_combine_thread_mode,0);
+        end
+        
         function test_constructor_and_initial_op(obj)
+            herc = herbert_config;
+            co1 = herc.get_data_to_store();
+            parc = parallel_config();
+            co2 = parc.get_data_to_store();
+            clob_her = onCleanup(@()set(herc,co1));
+            clob_par = onCleanup(@()set(parc,co2));
+            if ~isempty(which('horace_init'))
+                hc = hor_config();
+                co3 = hc.get_data_to_store();
+                hpc = hpc_config();
+                co4 = hpc.get_data_to_store();
+                clob_hc = onCleanup(@()set(hc,co3));
+                clob_hpc = onCleanup(@()set(hpc,co4));
+            else
+                clob_hc = [];
+                clob_hpc =[];
+                
+            end
             cm = opt_config_manager();
             source_dir = fileparts(which('opt_config_manager.m'));
             assertEqual(source_dir,cm.config_info_folder);
@@ -59,32 +94,46 @@ classdef test_pc_spec_config< TestCase
             is = is_idaaas('host_192_168_243_32');
             assertTrue(is);
         end
-        function test_set_pc_type(obj)
+        %
+        function test_set_wrong_pc_name(obj)
             cm = opt_config_manager();
             try
                 cm.this_pc_type = 'rubbish';
-                assertTrue(false,'No exception was thrown on invalid argument')
+                assertTrue(false,'No exception was thrown on invalid configuration')
             catch ME
                 assertEqual(ME.identifier,'OPT_CONFIG_MANAGER:invalid_argument')
             end
+        end
+        function test_set_wrong_pc_id(obj)
+            cm = opt_config_manager();
             try
                 cm.this_pc_type = -1;
-                assertTrue(false,'No exception was thrown on invalid argument')
+                assertTrue(false,'No exception was thrown on invalid configuration')
             catch ME
                 assertEqual(ME.identifier,'OPT_CONFIG_MANAGER:invalid_argument')
             end
+        end
+        %
+        function test_set_pc_type_by_id(obj)
+            cm = opt_config_manager();
+            kpc = cm.known_pc_types;
+            ntypes = numel(kpc);
+            for i=1:ntypes
+                cm.this_pc_type = i;
+                assertEqual(cm.this_pc_type,kpc{i});
+                assertEqual(cm.pc_config_num,i);
+            end
+        end
+        function test_set_pc_id_by_name(obj)
+            cm = opt_config_manager();
+            kpc = cm.known_pc_types;
+            ntypes = numel(kpc);
+            for i=1:ntypes
+                cm.this_pc_type = kpc{i};
+                assertEqual(cm.this_pc_type,kpc{i});
+                assertEqual(cm.pc_config_num,i);
+            end
             
-            cm.this_pc_type = 1;
-            assertEqual(cm.this_pc_type,'win_small');
-            assertEqual(cm.pc_config_num,1);
-            
-            cm.this_pc_type = 7;
-            assertEqual(cm.this_pc_type,'idaaas_large');
-            assertEqual(cm.pc_config_num,7);
-            
-            cm.this_pc_type = 'a_mac';
-            assertEqual(cm.this_pc_type,'a_mac');
-            assertEqual(cm.pc_config_num,3);
         end
         
     end
