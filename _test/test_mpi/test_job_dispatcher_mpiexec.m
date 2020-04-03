@@ -18,9 +18,13 @@ classdef test_job_dispatcher_mpiexec < job_dispatcher_common_tests
             test_job_fail_restart@job_dispatcher_common_tests(obj, varargin{:})
         end
         function test_job_with_logs_3workers(obj, varargin)
+            % DISABLED on Windows
+            if ispc
+                warning('test_job_with_logs_3workers disabled on Windows')
+                return;
+            end
             test_job_with_logs_3workers@job_dispatcher_common_tests(obj, varargin{:})
         end
         
     end
 end
-
