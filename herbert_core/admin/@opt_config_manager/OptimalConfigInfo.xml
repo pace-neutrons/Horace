@@ -265,7 +265,7 @@
       </parallel_config>
    </jenkins_win>
    <jenkins_unix>
-      <info>Settings for running on Jenkins Unix ANWIL build servers</info>
+      <info>Settings for running on Jenkins Unix ANVIL build servers</info>
       <herbert_config>
          <use_mex>[true]</use_mex>
          <use_mex_C>[true]</use_mex_C>

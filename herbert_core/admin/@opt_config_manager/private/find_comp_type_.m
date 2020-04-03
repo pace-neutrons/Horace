@@ -2,7 +2,12 @@ function [pc_type,nproc,mem_size] = find_comp_type_(obj)
 % find pc type as function of the pc properties, like memory size number of
 % processors, etc.
 %
-%
+% TO DO:
+% Does not currently identify number of processors properly. Only rough
+% estimate or no estimate at all. (Dealt with this issue elsewhere, but future
+% improvements/merging may be necessary to address this)
+% 
+
 types = obj.known_pc_types_;
 Gb = 1024*1024*1024;
 nproc = 1;

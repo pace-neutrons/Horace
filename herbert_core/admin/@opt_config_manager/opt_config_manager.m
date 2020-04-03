@@ -147,7 +147,7 @@ classdef opt_config_manager
             obj.this_pc_type_ = pc_type;
             % set up selected pc-specific configuration
             if ~isempty(obj.all_known_configurations_)
-                obj = set_pc_specific_config_(obj,obj.all_known_configurations_,pc_type);
+                obj = set_pc_specific_config_(obj,pc_type);
             end
         end
         %

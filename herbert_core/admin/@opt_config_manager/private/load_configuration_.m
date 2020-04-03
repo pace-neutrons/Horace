@@ -4,7 +4,7 @@ function obj = load_configuration_(obj,set_config,set_defaults_only,force_save)
 % configures Horace and Herbert using loaded configurations
 %
 % returns the object, with the configuration data, choosen as default for
-% selected pc type.
+% the selected pc type.
 %
 %
 config_file = fullfile(obj.config_info_folder,obj.config_filename);
@@ -13,13 +13,10 @@ if ~(exist(config_file,'file') == 2)
         config_file)
     return;
 end
-config_data = xml_read(config_file);
-obj.all_known_configurations_ = config_data;
-
+obj.all_known_configurations_ = xml_read(config_file);
 
 current_pc = obj.this_pc_type;
-%
-obj = set_pc_specific_config_(obj,config_data,current_pc);
+obj = set_pc_specific_config_(obj,current_pc);
 %
 if ~set_config
     return
