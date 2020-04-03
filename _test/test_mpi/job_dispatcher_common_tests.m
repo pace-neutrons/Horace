@@ -16,6 +16,8 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             if obj.ignore_test
                 return;
             end
+            fprintf('test_job_dispatcher_%s:test_job_fail_restart\n', ...
+                    obj.framework_name)
             if nargin > 1
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
@@ -165,6 +167,8 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             if obj.ignore_test
                 return;
             end
+            fprintf('test_job_dispatcher_%s:test_job_with_logs_2workers\n', ...
+                    obj.framework_name)
             if nargin > 1
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
@@ -199,6 +203,8 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             if obj.ignore_test
                 return;
             end
+            fprintf('test_job_dispatcher_%s:test_job_with_logs_3workers\n', ...
+                    obj.framework_name)
             if nargin > 1
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
@@ -234,6 +240,8 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             if obj.ignore_test
                 return;
             end
+            fprintf('test_job_dispatcher_%s:test_job_with_logs_worker\n', ...
+                    obj.framework_name)
             if nargin > 1
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
