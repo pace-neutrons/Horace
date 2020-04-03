@@ -11,12 +11,15 @@ classdef test_job_dispatcher_herbert < job_dispatcher_common_tests
             if ~exist('name','var')
                 name = 'test_job_dispatcher_herbert';
             end
+            disp('test_job_dispatcher_herbert:test_job_dispatcher_herbert')
             this = this@job_dispatcher_common_tests(name,'herbert');
         end
         function test_job_fail_restart(obj, varargin)
+            disp('test_job_dispatcher_herbert:test_job_fail_restart')
             test_job_fail_restart@job_dispatcher_common_tests(obj, varargin{:})
         end
         function test_job_with_logs_3workers(obj, varargin)
+            disp('test_job_dispatcher_herbert:test_job_with_logs_3workers')
             test_job_with_logs_3workers@job_dispatcher_common_tests(obj, varargin{:})
         end
         

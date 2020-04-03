@@ -12,6 +12,7 @@ classdef test_job_dispatcher_parpool< job_dispatcher_common_tests
             if ~exist('name','var')
                 name = 'test_job_dispatcher_parpool';
             end
+            disp('test_job_dispatcher_parpool:test_job_dispatcher_parpool')
             this = this@job_dispatcher_common_tests(name,'parpool');
         end
         %
@@ -19,6 +20,7 @@ classdef test_job_dispatcher_parpool< job_dispatcher_common_tests
             if obj.ignore_test
                 return;
             end
+            disp('test_job_dispatcher_parpool:test_finish_tasks_reduce_messages')
             if nargin>1
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
@@ -102,9 +104,11 @@ classdef test_job_dispatcher_parpool< job_dispatcher_common_tests
             if ~ispc
                 warning('test_job_fail_restart disabled on Unix');
             end
+            disp('test_job_dispatcher_parpool:test_job_fail_restart')
             test_job_fail_restart@job_dispatcher_common_tests(obj, varargin{:})
         end
         function test_job_with_logs_3workers(obj, varargin)
+            disp('test_job_dispatcher_parpool:test_job_with_logs_3workers')
             test_job_with_logs_3workers@job_dispatcher_common_tests(obj, varargin{:})
         end
     end
