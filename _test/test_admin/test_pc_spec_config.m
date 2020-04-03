@@ -95,7 +95,7 @@ classdef test_pc_spec_config< TestCase
             assertTrue(is);
         end
         %
-        function test_set_pc_type(obj)
+        function test_set_wrong_pc_name(obj)
             cm = opt_config_manager();
             try
                 cm.this_pc_type = 'rubbish';
@@ -103,39 +103,39 @@ classdef test_pc_spec_config< TestCase
             catch ME
                 assertEqual(ME.identifier,'OPT_CONFIG_MANAGER:invalid_argument')
             end
+        end
+        function test_set_wrong_pc_id(obj)
+            cm = opt_config_manager();
             try
                 cm.this_pc_type = -1;
                 assertTrue(false,'No exception was thrown on invalid configuration')
             catch ME
                 assertEqual(ME.identifier,'OPT_CONFIG_MANAGER:invalid_argument')
             end
-            
-            cm.this_pc_type = 1;
-            assertEqual(cm.this_pc_type,'win_small');
-            assertEqual(cm.pc_config_num,1);
-            
-            cm.this_pc_type = 7;
-            assertEqual(cm.this_pc_type,'idaaas_large');
-            assertEqual(cm.pc_config_num,7);
-            
-            cm.this_pc_type = 'a_mac';
-            assertEqual(cm.this_pc_type,'a_mac');
-            assertEqual(cm.pc_config_num,3);
-            
+        end
+        %
+        function test_set_pc_type_by_id(obj)
+            cm = opt_config_manager();
             kpc = cm.known_pc_types;
-            nconf = numel(kpc);
-            for i=1:nconf
+            ntypes = numel(kpc);
+            for i=1:ntypes
                 cm.this_pc_type = i;
                 assertEqual(cm.this_pc_type,kpc{i});
                 assertEqual(cm.pc_config_num,i);
             end
-            for i=1:nconf
+        end
+        function test_set_pc_id_by_name(obj)
+            cm = opt_config_manager();
+            kpc = cm.known_pc_types;
+            ntypes = numel(kpc);
+            for i=1:ntypes
                 cm.this_pc_type = kpc{i};
                 assertEqual(cm.this_pc_type,kpc{i});
                 assertEqual(cm.pc_config_num,i);
             end
             
         end
+        
     end
 end
 
