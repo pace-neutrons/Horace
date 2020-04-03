@@ -47,8 +47,8 @@ classdef iMessagesFramework < handle
             else
                 % use process ID and time as job ID. This prevents clashes
                 % between processes
-                obj.job_id_ = sprintf('%i%i', feature('getpid'), ...
-                                      round(datetime('now').Second*1e4));
+                obj.job_id_ = sprintf('%05i', feature('getpid'), ...
+                                      round(datetime('now').Second*1e3));
             end
         end
         %

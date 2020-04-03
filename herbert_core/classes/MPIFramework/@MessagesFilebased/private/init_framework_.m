@@ -23,8 +23,8 @@ if isstruct(framework_info) && isfield(framework_info,'job_id')
     end
 elseif(is_string(framework_info))
     % use process ID and time as job ID. This prevents clashes between processes
-    obj.job_id_ = sprintf('%i%i', feature('getpid'), ...
-                          round(datetime('now').Second*1e4));
+    obj.job_id_ = sprintf('%05i', feature('getpid'), ...
+                          round(datetime('now').Second*1e3));
     obj.task_id_ = 0;
 else
     error('FILEBASED_MESSAGES:invalid_argument',...
