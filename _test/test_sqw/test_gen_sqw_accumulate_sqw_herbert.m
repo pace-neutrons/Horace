@@ -298,5 +298,17 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
                 [-2,-3, -3,-20; 2, 3, 3 15]);
             
         end
+        %------------------------------------------------------------------
+%         % Block of code to disable some tests for debugging Jenkins jobs
+%         function test_gen_sqw(obj,varargin)
+%         end
+%         function test_accumulate_sqw14(obj,varargin)        
+%         end
+%         function test_accumulate_and_combine1to4(obj,varargin)        
+%         end
+%         function test_accumulate_sqw1456(obj,varargin)        
+%         end
+%         function test_accumulate_sqw11456(obj,varargin)        
+%         end
     end
 end
