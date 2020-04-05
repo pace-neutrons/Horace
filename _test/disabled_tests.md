@@ -26,3 +26,11 @@
 - combine_sqw.test.cpp
 	- SQW_Reader_Propagate_Pix
 	- SQW_Reader_Read_All
+    
+- test_sqw:
+    -test_gen_sqw_accumulate_sqw_parpool:test_gen_sqw
+    -test_gen_sqw_accumulate_sqw_parpool:test_accumulate_sqw14
+    -test_gen_sqw_accumulate_sqw_parpool:test_accumulate_and_combine1to4
+    -test_gen_sqw_accumulate_sqw_parpool:test_accumulate_sqw1456
+    -test_gen_sqw_accumulate_sqw_parpool:test_accumulate_sqw11456
+    Disabled on Jenkins Windows. 
