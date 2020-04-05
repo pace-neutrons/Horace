@@ -1,7 +1,7 @@
 classdef test_gen_sqw_accumulate_sqw_herbert <  ...
         gen_sqw_accumulate_sqw_tests_common & gen_sqw_common_config
     % Series of tests of gen_sqw and associated functions
-    % generated using multiple matlab workers.
+    % generated using multiple Matlab workers.
     %
     % Optionally writes results to output file to compare with previously
     % saved sample test results
@@ -184,7 +184,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             assertTrue(ok==MESS_CODES.ok,err);            
             assertEqual(numel(mess1.payload),2)
             res_s = mess1.payload{1};
-            assertEqual(sum(reshape(res_s.npix,1,numel(res_s.npix))),2246);
+            assertEqual(sum(reshape(res_s.npix,1,numel(res_s.npix))),14985);
         end
         %
         function test_do_job(obj)
