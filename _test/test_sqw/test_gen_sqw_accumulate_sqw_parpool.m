@@ -57,17 +57,50 @@ classdef test_gen_sqw_accumulate_sqw_parpool <  ...
         
         %------------------------------------------------------------------
         %         % Block of code to disable some tests for debugging Jenkins jobs
-        %         function test_gen_sqw(obj,varargin)
-        %         end
-        %         function test_accumulate_sqw14(obj,varargin)
-        %         end
-        %         function test_accumulate_and_combine1to4(obj,varargin)
-        %         end
-        %         function test_accumulate_sqw1456(obj,varargin)
-        %         end
-        %         function test_accumulate_sqw11456(obj,varargin)
-        %         end
-        
+        function test_gen_sqw(obj,varargin)
+            if is_jenkins && ispc
+                warning('test_gen_sqw disabled')
+                return
+            else
+                test_gen_sqw@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
+            end
+        end
+        function test_accumulate_sqw14(obj,varargin)
+            if is_jenkins && ispc
+                warning('test_accumulate_sqw14 disabled')
+                return
+            else
+                test_accumulate_sqw14@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
+            end
+            
+        end
+        function test_accumulate_and_combine1to4(obj,varargin)
+            if is_jenkins && ispc
+                warning('test_accumulate_and_combine1to4 disabled')
+                return
+            else
+                test_accumulate_and_combine1to4@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
+            end
+            
+        end
+        function test_accumulate_sqw1456(obj,varargin)
+            if is_jenkins && ispc
+                warning('test_accumulate_sqw1456 disabled')
+                return
+            else
+                test_accumulate_sqw1456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
+            end
+            
+        end
+        function test_accumulate_sqw11456(obj,varargin)
+            if is_jenkins && ispc
+                warning('test_accumulate_sqw11456 disabled')
+                return
+            else
+                test_accumulate_sqw11456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
+            end
+            
+        end
     end
     
 end
