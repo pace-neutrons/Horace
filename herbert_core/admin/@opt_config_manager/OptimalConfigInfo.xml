@@ -238,7 +238,7 @@
          <use_mex_C>[true]</use_mex_C>
          <force_mex_if_use_mex>[false]</force_mex_if_use_mex>
          <log_level>1</log_level>
-         <init_tests>[false]</init_tests>
+         <init_tests>[true]</init_tests>
       </herbert_config>
       <hor_config>
          <mem_chunk_size>20000000</mem_chunk_size>
