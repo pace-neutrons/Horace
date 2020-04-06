@@ -55,7 +55,7 @@ while true  % while...end only so the 'break' feature can be used
         end
         % Write to file
         try
-            save_text(source,file_full_out)
+            save_text(source,file_full_out);
         catch
             ok=false;
             if replace_file
