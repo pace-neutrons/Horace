@@ -8,8 +8,8 @@
 
 - test_job_dispatcher_parpool.m
   - test_job_submittion (no ticket)
-  - test_job_fail_restart (no ticket)
+  - test_job_fail_restart (no ticket)  Disabled on Jenkins
 
 - test_job_dispatcher_mpiexec.m
-  - test_job_fail_restart - Windows Only
-  - test_job_with_logs_3workers - Windows Only
+  - test_job_fail_restart - Windows only
+  - test_job_with_logs_3workers - Windows & Jenkins Only

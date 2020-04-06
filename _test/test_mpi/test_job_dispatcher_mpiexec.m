@@ -16,7 +16,7 @@ classdef test_job_dispatcher_mpiexec < job_dispatcher_common_tests
         %
         function test_job_fail_restart(obj, varargin)
             % DISABLED on Windows
-            if ispc
+            if ispc 
                 warning('test_job_fail_restart disabled on Windows')
                 return;
             end
@@ -24,7 +24,7 @@ classdef test_job_dispatcher_mpiexec < job_dispatcher_common_tests
         end
         function test_job_with_logs_3workers(obj, varargin)
             % DISABLED on Windows
-            if ispc
+            if ispc && is_jenkins
                 warning('test_job_with_logs_3workers disabled on Windows')
                 return;
             end
