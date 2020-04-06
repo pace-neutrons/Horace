@@ -17,6 +17,9 @@ classdef opt_config_manager
         % calculated automatically but can be set up manually for the class
         % testing purposes.
         this_pc_type;
+        % return list of known pc types, one may know an optimal
+        % configurations for.
+        known_pc_types;
         % The folder where optimal class configurations are stored.
         % Normally it is the class folder but may be changed for testing
         % purposes
@@ -29,15 +32,22 @@ classdef opt_config_manager
         % The helper, method providing the list of the configurations,
         % known to the class.
         known_configurations;
+        % The configuration, considered default for this particular pc type
+        default_config;
     end
-
-
+    
+    
     properties(Access=private)
         test_mode_ = false;
         config_info_folder_;
         this_pc_type_;
         config_filename_  = 'OptimalConfigInfo.xml'
+        % property, containing structure, responsible for current default
+        % configuration
         current_config_ = [];
+        % Structrue, containing all default configurations known to the
+        % developers and read from the all config file
+        all_known_configurations_ = [];
     end
     properties(Access=private)
         % the configurations, which may be optimized for a particular pc so
@@ -48,12 +58,12 @@ classdef opt_config_manager
         % so should not be changed without changing find_comp_type.
         known_pc_types_ = {'win_small','win_large','a_mac',...
             'unix_small','unix_large',...
-            'idaaas_small','idaaas_large', 'jenkins'};
+            'idaaas_small','idaaas_large', 'jenkins_win', 'jenkins_unix'};
         % amount of memory (in Gb) presumed to be necessary for a single
         % parallel worker.
         mem_size_per_worker_ = 16;
     end
-
+    
     methods
         function obj = opt_config_manager()
             % The constructor of the class, which selects a default
@@ -79,9 +89,11 @@ classdef opt_config_manager
             %    configure Horace only, using list of all configurations
             %    known to the class.
         end
-        function types = get_known_pc_types(obj)
+        %
+        function types = get.known_pc_types(obj)
             types = obj.known_pc_types_;
         end
+        %
         function fn = get.config_filename(obj)
             fn = obj.config_filename_;
         end
@@ -98,6 +110,9 @@ classdef opt_config_manager
         %
         function pc_type = get.this_pc_type(obj)
             pc_type = obj.this_pc_type_;
+        end
+        function config = get.default_config(obj)
+            config = obj.current_config_;
         end
         %
         function obj = set.this_pc_type(obj,val)
@@ -130,6 +145,10 @@ classdef opt_config_manager
                     'The pc type may be either the name of the pc type from the list above or the type number in this list');
             end
             obj.this_pc_type_ = pc_type;
+            % set up selected pc-specific configuration
+            if ~isempty(obj.all_known_configurations_)
+                obj = set_pc_specific_config_(obj,pc_type);
+            end
         end
         %
         function num = get.pc_config_num(obj)
@@ -143,8 +162,10 @@ classdef opt_config_manager
         end
         %------------------------------------------------------------------
         function save_configurations(obj,varargin)
-            % assuming the current configuration is the optimal one, save
-            % it in configuration file for further usage.
+            % assuming the current Horace/Herbert configurations are the 
+            % optimal one, save it in configuration file for further usage.
+            % as default configuration for the selected type of computer.
+            %
             % Usage:
             % obj.save_configurations([info]);
             % where:
@@ -153,7 +174,7 @@ classdef opt_config_manager
             %         of the computer;
             save_configurations_(obj,varargin{:});
         end
-        function conf = load_configuration(obj,varargin)
+        function obj = load_configuration(obj,varargin)
             % method loads the previous configuration, which
             % stored as optimal for this computer.
             %
@@ -176,7 +197,8 @@ classdef opt_config_manager
                 {'-set_config','-change_only_default','-force_save'});
             if ~ok; error('OPT_CONFIG_MANAGER:invalid_argument',mess);
             end
-            conf = load_configuration_(obj,set_config,set_def_only,force_save);
+            
+            obj = load_configuration_(obj,set_config,set_def_only,force_save);
         end
         function [pc_type,nproc,mem_size] = find_comp_type(obj)
             % analyze pc parameters (memory, number of processors etc.)
@@ -196,7 +218,7 @@ classdef opt_config_manager
             %
             [pc_type,nproc,mem_size] = find_comp_type_(obj);
         end
-
+        
     end
     methods(Access=private)
         function print_help(obj)
@@ -208,7 +230,7 @@ classdef opt_config_manager
                     fprintf('    :%d  : %s\n',i,types{i});
                 end
             end
-
+            
         end
     end
 end
