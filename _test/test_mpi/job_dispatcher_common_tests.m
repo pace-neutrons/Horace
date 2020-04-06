@@ -12,12 +12,12 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             this = this@MPI_Test_Common(test_name, framework_name);
         end
 
-        % This test requires 3 cores but only 2 are available on build servers.
-        % Test is disabled for now
         function test_job_fail_restart(obj, varargin)
             if obj.ignore_test
                 return;
             end
+            fprintf('test_job_dispatcher_%s:test_job_fail_restart\n', ...
+                    obj.framework_name)
             if nargin > 1
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
@@ -66,12 +66,11 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             assertEqual(numel(outputs), 3);
             fin = cellfun(@is_err, outputs);
             assertTrue(sum(fin) > 1)
-
+            
             assertEqual(outputs{2}.fail_reason, ...
                 'Task N2 failed at jobExecutor: JETester. Reason: simulated failure for lab N 2');
             % file may exist or may not -- depending on relation between
             % speed of workers
-
 
             co = onCleanup(@()(my_delete(file3, file3a)));
             common_param.fail_for_labsN = 1:2;
@@ -81,7 +80,6 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             assertEqual(numel(outputs), 3);
             fin = cellfun(@is_err, outputs);
             assertTrue(sum(fin) > 1)
-
 
             clear co;
             % check long job canceled due to part of the job failed
@@ -104,7 +102,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             [outputs, n_failed, ~, jd] = jd.restart_job('JETester', common_param, 99, true, true, 1);
             assertTrue(n_failed >= 1);
             assertEqual(numel(outputs), 3);
-
+            
             fin = cellfun(@is_err, outputs);
             assertTrue(sum(fin) > 1)
             if ~strcmp(outputs{3}.fail_reason, ...
@@ -132,16 +130,16 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                     end
                 end
             end
-
-
+            
             common_param = rmfield(common_param, 'fail_for_labsN');
             files = {file1, file2, file3, file3a};
             co = onCleanup(@()(my_delete(files{:})));
 
-            [outputs, n_failed] = jd.restart_job('JETester', common_param, 4, true, false, 1);
+            [outputs, n_failed] = jd.restart_job('JETester', common_param, 4, true, false, 1);            
+            
             assertEqual(n_failed, 0);
             assertEqual(numel(outputs), 3);
-
+             
             assertEqual(outputs{1}, 'Job 1 generated 1 files');
             assertEqual(outputs{2}, 'Job 2 generated 1 files');
             assertEqual(outputs{3}, 'Job 3 generated 2 files');
@@ -158,6 +156,8 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             if obj.ignore_test
                 return;
             end
+            fprintf('test_job_dispatcher_%s:test_job_with_logs_2workers\n', ...
+                    obj.framework_name)
             if nargin > 1
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
@@ -188,11 +188,12 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
 
         end
         %
-        % Test disabled as build servers currently only have 2 cores
         function test_job_with_logs_3workers(obj, varargin)
             if obj.ignore_test
                 return;
             end
+            fprintf('test_job_dispatcher_%s:test_job_with_logs_3workers\n', ...
+                    obj.framework_name)
             if nargin > 1
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
@@ -228,6 +229,8 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             if obj.ignore_test
                 return;
             end
+            fprintf('test_job_dispatcher_%s:test_job_with_logs_worker\n', ...
+                    obj.framework_name)
             if nargin > 1
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
