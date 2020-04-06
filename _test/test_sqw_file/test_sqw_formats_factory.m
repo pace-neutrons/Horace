@@ -1,8 +1,6 @@
 classdef test_sqw_formats_factory <  TestCase %WithSave
     %Testing sqw-read-write factory
     %
-    
-    
     properties
         test_folder
         clob
@@ -32,9 +30,9 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             assertEqual(loader.filename,'w1d_sqw.sqw')
             assertEqual(loader.npixels,8031)
             
-
+            
             warning('off','SQW_FILE_IO:legacy_data')
-            obj.clob = onCleanup(@()warning('on','SQW_FILE_IO:legacy_data'));            
+            obj.clob = onCleanup(@()warning('on','SQW_FILE_IO:legacy_data'));
             file_v3_old = fullfile(fileparts(obj.test_folder),...
                 'test_sqw_file','test_sqw_file_read_write_v3.sqw');
             
@@ -77,7 +75,7 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             assertEqual(loader.data_type,'b+')
             assertEqual(loader.num_dim,2)
             assertEqual(loader.dnd_dimensions,[81,72])
-
+            
             file_ficVer = fullfile(fileparts(obj.test_folder),...
                 'test_sqw_file','test_sqw_file_fictional_ver.sqw');
             fl = @()(sqw_formats_factory.instance().get_loader(file_ficVer));
@@ -92,7 +90,7 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             assertEqual(loader.filename,'w2_small_v1.sqw')
             assertEqual(loader.npixels,179024)
             
-
+            
             
         end
         function obj= test_pref_access(obj)
@@ -115,9 +113,17 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             ldrs = sqw_formats_factory.instance().get_loader(files);
             
             assertTrue(isa(ldrs{1},'faccess_sqw_v2'));
-            assertTrue(isa(ldrs{2},'faccess_sqw_v3'));            
-
+            assertTrue(isa(ldrs{2},'faccess_sqw_v3'));
+        end
+        function test_serialize_deserialise_emtpy_accessors(obj)
             
+            ldrs = sqw_formats_factory.instance().supported_accessors;
+            for i=1:numel(ldrs)
+                fo = ldrs{i};
+                by = hlp_serialize(fo);
+                fr = hlp_deserialize(by);
+                assertEqual(fo,fr);
+            end
         end
         
     end

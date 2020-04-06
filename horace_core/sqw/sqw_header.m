@@ -177,8 +177,8 @@ classdef sqw_header
                 % a first subzone header assumed not to belong to subzone headers
                 [numbers,~] = regexp(hd.filepath,'\d*','match','split');
                 if iscell(numbers) && numel(numbers) < 3
-                   is = false;
-                   return;
+                    is = false;
+                    return;
                 end
                 num = str2double(numbers(3));
                 if num>1
@@ -233,8 +233,9 @@ classdef sqw_header
             if ~allow_equal_headers
                 for i=2:nfiles_tot
                     if isequal(hstruct_sort(i-1),hstruct_sort(i))
-                        mess='At least two headers have the all the same filename, efix, psi, omega, dpsi, gl and gs';
-                        error('SQW_HEADER:invalid_header',mess);
+                        error('SQW_HEADER:invalid_header',...
+                            'At least headers %d and %d have the all the same: filename, efix, psi, omega, dpsi, gl and gs',...
+                            i-1,i);
                     end
                 end
             end

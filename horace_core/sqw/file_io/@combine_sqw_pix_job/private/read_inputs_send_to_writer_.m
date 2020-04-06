@@ -15,7 +15,7 @@ filenum          = pix_comb_info.filenum;
 nbin = common_par.nbin;     % total number of bins
 ibin_end = 0;
 fprintf('***************** data reader: lab N%d\n',obj.labIndex);
-mess_completion(nbin,5,1);   % initialise completion message reporting - only if exceeds time threshold
+mess_completion(nbin,5,1);   % initialize completion message reporting - only if exceeds time threshold
 
 pix_buf_size=common_par.pix_buf_size;
 mess_exch = obj.mess_framework;
@@ -41,11 +41,11 @@ while ibin_end<nbin
     n_pix_2process = npix_in_bins(end);
     if n_pix_2process ==0 % send empty pix section message
         niter = niter+1;
-        pix_section_mess  = aMessage('data');
+
         payload = struct('lab',obj.labIndex,'messN',niter,'npix',0,...
             'bin_range',[ibin_start,ibin_end],'pix_tb',[],...
-            'filled_bin_ind',[]);
-        pix_section_mess.payload = payload;
+            'filled_bin_ind',[]);        
+        pix_section_mess  = DataMessage(payload);
         [ok,err_mess]=mess_exch.send_message(1,pix_section_mess);
         if ok ~= MESS_CODES.ok
             error('COMBINE_SQW_PIX_JOB:runtime_error',err_mess);

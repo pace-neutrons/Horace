@@ -15,7 +15,7 @@ is_deployed = mpis.is_deployed;
 nbin = common_par.nbin;     % total number of bins
 npix = common_par.npixels;  % total number of pixels
 disp('***************** data writer: ');
-mess_completion(npix,5,1);   % initialise completion message reporting - only if exceeds time threshold
+mess_completion(npix,5,1);   % initialize completion message reporting - only if exceeds time threshold
 n_pix_written = 0;
 ibin_end = 0;
 

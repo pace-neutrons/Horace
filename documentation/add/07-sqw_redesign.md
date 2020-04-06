@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the the role of the SQW object within the Horace framework, data it holds and operations it supports *without focusing on any implementation details*. 
+This document describes the role of the SQW object within the Horace framework, data it holds and operations it supports *without focusing on any implementation details*. 
 
 Where specific fields are cited they are the key data that represent that information.
 
@@ -75,7 +75,7 @@ Notes:
 
 #### Header
 
-The `Header` object contains the mapping from the `PixelBlock` to the appropriate array elements of the instrument, detector, experiment and sample arrays specific to each contributing neutron mesaurement. This configuration supports recalibration of detectors and changing experiment conditions to be handled.
+The `Header` object contains the mapping from the `PixelBlock` to the appropriate array elements of the instrument, detector, experiment and sample arrays specific to each contributing neutron measurement. This configuration supports recalibration of detectors and changing experiment conditions to be handled.
 
 ### Pixel Block
 
@@ -94,7 +94,7 @@ The same `get_data(name)` method can be used to provide access to the "standard"
 | iDetector | index of pixel detector |(1)|
 | iEnergy | index of energy bin | (1) |
 | signal | Correlated intensity ||
-| err | Intensity variance ||
+| variance | Intensity variance ||
 
 **Notes**
 (1): the triple of indexes uniquely identify the detector element corresponding to this pixel and are an alternate representation of the (u1, u2, u3, dE) data.
@@ -111,13 +111,12 @@ Image pixel data is generated from the PixelBlock via one or more projections.
 
 |  | Description | Notes |
 |-----|---------|---|
-| signal[] | Mean intensity, calculated as `Sum(pix_signal(k))/npix(k)` | (1), (3) |
-| err[] | Average error, calculated as  `sqrt(Sum(pix_err(k)^2/npix(k)))` |(1), (3)|
+| signal[] | Mean intensity, calculated as `Sum(pix_signal(k))/npix(k)` | (1), (2) |
+| err[] | Average error, calculated as  `sqrt(Sum(pix_variance(k)/npix(k)))` |(1), (2) |
 | npix[] | Number of detector pixels contributing to each image pixel ||
-| uoffset[] | Offset of pixel project axes origin ||
-| u_to_rlue\[\]\[\] | Matrix of pixel project in hkle ||
-| ulen[] | Length of pixel projection axes Ang^-1 or meV | (2) |
-
+| uoffset[] | Offset of pixel projection axes origin | (3) |
+| u_to_rlue\[\]\[\] | Matrix of pixel projection in hkle | (3) |
+| ulen[] | Length of pixel projection axes Ang^-1 or meV | (3), (4) |
 
 The `Axis` classes describes image axes
 - value range
@@ -128,8 +127,9 @@ The `Axis` classes describes image axes
 
 **Notes**
 (1): if the image data is updated, e.g. after a slice or projection, the backing pixel data must be updated/reordered
-(2): where is the data saying which unit this is?
-(3): `pix_signal` represents the array of pixel signal data from which this image data was derived, `pix_err` the array of pixel variance.
+(2): `pix_signal` represents the array of pixel signal data from which this image data was derived, `pix_variance` the array of pixel variance.
+(3): uoffset and ulen are 4x1 vectors and u_to_rlue is a 4x4 matrix, with the four coordinates are always assumed to be (u1, u2, u3, dE) in that order.
+(4): u1, u2, u3 have units of Ang^-1, dE has units of meV.
 
 ### Projection Manager
 
@@ -169,7 +169,7 @@ Combine multiple experiment [data files](http://horace.isis.rl.ac.uk/Input_file_
 - Write the pixel data for specific image pixels
 - Write all pixel data
 - Support for legacy Horace file format 
-- Support for a new NeXus / HDF5 format (tbd)
+- Support for a new NeXus / HDF5 format `.nxsqw` (tbd)
 - Display data to console ('display')
 - Export data to ASCII file ('save_xye')
 
@@ -232,7 +232,7 @@ Lattice parameters will be the only deviation from these standard units
 - Plots routines taken outside the core data objects. It is preferable to move these functions from the general namespace to avoid collisions with any user defined plot routines.
   If required a `sqw.plot(...)` function can be retained that calls these implementations.
 
-- Move the `.sqw` datafile to an [HDF5](https://www.hdfgroup.org/solutions/hdf5/) file. This has performant read/write operations from C++, Python and MATLAB and is an open self-describing format which supports simple interfacing with external application. The use of the [NeXus format](https://www.nexusformat.org/) is preferred but may not be possible immediately if key data are not supported in the current standards.
+- Move the `.sqw` datafile format to an [HDF5](https://www.hdfgroup.org/solutions/hdf5/) file with extension `.nxsqw`. HDF5 has performant read/write operations from C++, Python and MATLAB and is an open self-describing format which supports simple interfacing with external application. The use of the [NeXus format](https://www.nexusformat.org/) is preferred but may not be possible immediately if key data are not supported in the current standards.
 
 ### Constraints
 
@@ -262,17 +262,17 @@ sqw = sqw.combine_tmp(tmp_filenames, new_filename)
 ### Cut
 
 ```
-contr_bins = old_sqw.get_contr_pixels(new_projection, bins)
+contributing_bins = old_sqw.get_contributing_pixels(new_projection, bins)
 pix_in_hkl = old_sqw.projection.convert(pix_in_crc);
 
-%contr_bins = old_sqw.get_contr_pixels(new_projection,bins)
+%contributing_bins = old_sqw.get_contributing_pixels(new_projection,bins)
 %rot_matrix=new_proj.get_transf(old_proj)
 %[new_proj_coord=hkl_grid*rot_matrix
 
 contributing_edges= get_edges(new_proj_coord, bins);
 contributing_pixels = convert_edges_to_pix_positions();
 %
-all_poss_pix = old_sqw.get_pix(contr_bins);
+all_poss_pix = old_sqw.get_pix(contributing_bins);
 the_pix = new_proj.cut_pix(all_poss_pix);
 ```
 
@@ -310,7 +310,7 @@ end
 
 #### Proposed API
 
-The new `PixelBlock` will wrap this access to the full array with a `getPixels()` if there is a need, e.g. for writing, or via a set of helper `getX`/`setX` functions. These shield users from knowledge of the arrangement of data in the pixel array supporting a radical restructuring of the data in the HDF5 file if that is 
+The new `PixelBlock` will wrap this access to the full array with a `getPixels()` if there is a need, e.g. for writing, or via a set of helper `getX`/`setX` functions. These shield users from knowledge of the arrangement of data in the pixel array supporting a radical restructuring of the data in the HDF5 file if that is needed.
 
 So the example in  `tobyfit_DGdisk_resconv` becomes
 
@@ -368,7 +368,14 @@ wout(i).data.setSigVar(
 | `multifit_sqw.m`     |  y   |  y   |       |
 | `multifit_sqw_sqw.m` |  y   |  y   |       |
 
-Q: Are these distinct functions or simply a set of optional arguments?
+`multifit.m` is a class constructor function for a `mfclass` for fitting a function defined on the coordinates of the SQW or DND object it applies to.
+
+`mutlifit_func.m` is a function which wraps an `mfclass` so that users can use an older syntax where the fitting was defined in a single line in one function.
+
+`multifit_sqw.m` is a wrapper which automatically converts the coordinates of the SQW or DND object to crystal coordinates (*Qh*, *Qk*, *Ql*, *dE*) before passing these to a user defined model *foreground* function.
+Background functions are passed the coordinates of the SQW or DND object directly.
+
+`multifit_sqw_sqw.m` is a wrapper which converts the coordinates to (*Qh*, *Qk*, *Ql*, *dE*) for both foreground and background functions.
 
 ### Bin calculations (SQW)
 | Operation            | SQW  | DND  | Notes |
@@ -402,7 +409,7 @@ Interface class to support the creation of a range of simple projections - trans
 
 | Operation            | SQW  | DND  | Notes |
 | -------------------- | :--: | :--: | :---- |
-|`mask.m` | y | y |(bins) mask hunks of data|
+|`mask.m` | y | y |(bins) mask chunks of data|
 |`mask_points.m`| y | y | Mask all pixels lying outside axis bounds |
 |`mask_detectors.m`| y | n | Remove all pixels from one or more detectors ids |
 |`mask_pixels.m`| y | n | Retain pixels defined by binary mask (1) |
@@ -559,10 +566,10 @@ The `shape` and `ps` attributes can be replaced with an instance of a new `Shape
 |---|---|
 |`.d0d`, `.d1d`, `.d2d`, `.d3d`, `.d4d` | n-dimensional Horace binary data file|
 | DND | n-dimensional image data object |
-|`.nxspe`|NeXus / HDF5 experiment information and detector geometry file format |
+|`.nxspe`| NeXus / HDF5 experiment data and detector geometry file [format](http://download.nexusformat.org/sphinx/classes/applications/NXspe.html) |
 |`.par`| Legacy detector geometry information [format](https://docs.mantidproject.org/nightly/algorithms/SavePAR-v1.html#algm-savepar) |
 |`.spe`| Legacy experiment data [format](https://docs.mantidproject.org/nightly/algorithms/SaveSPE-v1.html#algm-savespe) |
 |`.sqw`| Horace binary data file |
 | SQW | Horace data object including experiment, pixel and image data |
-|`.nxsqw` | Horace NeXus/HDF5 data file [format](http://download.nexusformat.org/sphinx/classes/applications/NXspe.html) |
+|`.nxsqw` | Horace NeXus/HDF5 data file format (TBD) |
 

@@ -81,7 +81,7 @@ for i=1:numel(spe_file_out)
             if isempty(spe_file_out{i})
                 ok=false; mess='spe file names must be non-empty strings'; return
             else
-                ok=false; mess=['spe file: ',spe_file_out{i},' does not exist']; return
+                ok=false; mess=sprintf('spe file: %s does not exist',spe_file_out{i}); return
             end
         end
     end
