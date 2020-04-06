@@ -5,9 +5,6 @@ classdef field_generic_class_hv3 < field_simple_class_hv3
     %  The variable is serialized together with its length and class type
     %  so its format is fully self-consistent
     %
-    %
-    % $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
-    %
     
     properties(Access=private)
     end

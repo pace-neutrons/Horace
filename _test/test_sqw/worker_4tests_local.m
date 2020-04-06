@@ -1,4 +1,8 @@
-function [ok,err_mess,je]=worker_4tests_local(worker_controls_string)
+%************************* !!! WARNING !!! ********************************
+% This file is copied automatically from Herbert worker_4tests.m.template
+% All modifications to this file will be lost next time Horace is initiated
+%**************************************************************************
+function [ok,err_mess,je]=worker_4tests(worker_controls_string)
 % function used as standard worker to do a job in a separate Matlab
 % session.
 %
@@ -12,14 +16,19 @@ function [ok,err_mess,je]=worker_4tests_local(worker_controls_string)
 %              through pipes its size is system dependent and limited, so
 %              contains only minimal initialization information, namely the
 %              folder name where the job initialization data are located on
-%              a remote system
+%              a remote system.
 %
-% $Revision: 822 $ ($Date: 2019-01-03 11:23:07 +0000 (Thu, 03 Jan 2019) $)
+% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 %
+
 err_mess = [];
 exit_at_the_end = true;
 if isempty(which('herbert_init.m'))
-    horace_on();
+    herbert_on();
+    try
+        horace_on();
+    catch
+    end
 end
 DO_LOGGING = false;
 
@@ -37,7 +46,14 @@ clot = onCleanup(@()(setattr(mis,'is_deployed',false)));
 %--------------------------------------------------------------------------
 % 1) step 1 of the worker initialization.
 %--------------------------------------------------------------------------
+% There was some issue in testing mpiexec mpi, when this string, provided in command line,
+% was converted into UTF or something similar. Then the failure was occurring,
+% so this command deals with this issue.
+worker_controls_string = char(worker_controls_string);
+% Deserialize control string and convert it into a control structure.
 control_struct = iMessagesFramework.deserialize_par(worker_controls_string);
+
+
 % Initialize config files to use on remote session. Needs to be initialized
 % first as may be used by message framework.
 %
@@ -49,20 +65,20 @@ config_store.instance('clear');
 cfn = config_store.instance().config_folder_name;
 config_exchange_folder = fullfile(control_struct.data_path,cfn);
 
-% set pas to config sources:
+% set path to the config sources:
 config_store.set_config_folder(config_exchange_folder);
 % Initialize the frameworks, responsible for communications within the
 % cluster and between the cluster and the headnode.
 [fbMPI,intercomm] = JobExecutor.init_frameworks(control_struct);
 % initiate file-based framework to exchange messages between head node and
 % the pool of workers
-
 %--------------------------------------------------------------------------
 % step 1 the initialization has been completed providing the
 % communicator for exchange between control node and the cluster and
 % between the clusters nodes. The control node communicator knows the
 % folder for communications
 %--------------------------------------------------------------------------
+
 if DO_LOGGING
     log_name = sprintf('Job_%s_wkN%d#%d.log',fbMPI.job_id,intercomm.labIndex,intercomm.numLabs);
     flog_name = fullfile(config_exchange_folder,log_name);
@@ -76,31 +92,41 @@ if DO_LOGGING
     fprintf(fh,'      NumLabs        : %d:\n',fbMPI.numLabs);
     fprintf(fh,'Real MPI settings:\n');
     fprintf(fh,'      Job ID         : %s:\n',intercomm.job_id);
-    fprintf(fh,'      Exchange folder: %s:\n',intercomm.mess_exchange_folder);
     fprintf(fh,'      LabNum         : %d:\n',intercomm.labIndex);
     fprintf(fh,'      NumLabs        : %d:\n',intercomm.numLabs);
-    
+
 end
+
 keep_worker_running = true;
+num_of_runs = 0;
 while keep_worker_running
     mess_cache.instance().clear()
+    if DO_LOGGING
+        num_of_runs = num_of_runs+1;
+        fprintf(fh,'   ***************************************\n');
+        fprintf(fh,'   ******   RUN N : %d LabN %d  : ********\n',num_of_runs,intercomm.labIndex);
+        fprintf(fh,'   ****************************************=\n');
+        fprintf('   ***************************************\n');
+        fprintf('   ******   RUN N : %d LabN %d  : ********\n',num_of_runs,intercomm.labIndex);
+        fprintf('   ****************************************=\n');
+
+    end
     %
     %----------------------------------------------------------------------
     % 2) step 2 of the worker initialization.
     %----------------------------------------------------------------------
-    
+
     %
     if DO_LOGGING
         fprintf(fh,'entered worker loop\n');
-    	disp('WORKER_4TESTS: waiting for starting message ********************')
+        disp('WORKER_4TESTS: waiting for starting message ********************')
     end
     [ok,err,mess]= fbMPI.receive_message(0,'starting');
     %fprintf(fh,'got "starting" message\n');
     if ok ~= MESS_CODES.ok
-        mess = aMessage('failed');
         err_mess = sprintf('job N%s failed while receive_je_info Error: %s:',...
             control_struct.job_id,err);
-        mess.payload = err_mess;
+        mess = FailedMessage(err_mess);
         fbMPI.send_message(0,mess);
         ok = MESS_CODES.runtime_error;
         if exit_at_the_end;     exit;
@@ -111,7 +137,7 @@ while keep_worker_running
         keep_worker_running = worker_init_data.keep_worker_running;
     end
     %
-    
+
     exit_at_the_end = ~is_tested && worker_init_data.exit_on_compl;
     %
     if DO_LOGGING
@@ -133,12 +159,12 @@ while keep_worker_running
     % 3) step 3 of the worker initialization. Initializing the particular
     % job executor
     %----------------------------------------------------------------------
-    
-    
+
+
     % receive init message which defines the job parameters
     % implicit barrier exists which should block execution until
     % this message is received.
-    
+
     [ok,err_mess,init_message] = fbMPI.receive_message(0,'init');
     if ok ~= MESS_CODES.ok
         [ok,err_mess]=je.finish_task(FailedMessage(err_mess));
@@ -153,14 +179,15 @@ while keep_worker_running
         fprintf(fh,'***************************************\n');
         fprintf(fh,'got JE %s "init" message\n',worker_init_data.JobExecutorClassName);
     end
-    
+
     try
         if DO_LOGGING
             fprintf(fh,'Trying to init JE: %s\n',worker_init_data.JobExecutorClassName);
             disp('WORKER_4TESTS: initializing worker ************************')
         end
+        % its waiting here until all tasks report "started" to node 1
         [je,mess] = je.init(fbMPI,intercomm,init_message,is_tested);
-        
+
         if DO_LOGGING
             fprintf(fh,'JE: %s has been initialized, init error message: ''%s''\n',worker_init_data.JobExecutorClassName,mess);
             disp('WORKER_4TESTS: worker has been initialized ************************')
@@ -177,63 +204,96 @@ while keep_worker_running
         % of the code.
         mis.logger = @(step,n_steps,time,add_info)...
             (je.log_progress(step,n_steps,time,add_info));
-        
+
         mis.check_canceled = @()(f_canc(je));
-        
+
         % Execute job (run main job executor's do_job method
         if DO_LOGGING
             fprintf(fh,'je loop started\n');
             disp('WORKER_4TESTS:     Entering the job loop ******************')
         end
-        
-        % send first "running" log message and set-up starting time.
+
+        % send first "running" log message and set-up starting time. Runs
+        % asynchronously.
         n_steps = je.n_steps;
         mis.do_logging(0,n_steps);
+        je.do_job_completed = false; % wait at barrier if exception happens during execution
+
         %
+        je.do_job_completed = false; % wait at barrier if exception in do_job
         while ~je.is_completed()
             je= je.do_job();
             % when its tested, workers are tested in single Matlab
             % session so it will hand up on synchronization
-            je.do_job_completed = true;
             if ~is_tested
                 if DO_LOGGING
-                    fprintf(fh,'Waiting at barrier for all do_job completeon\n');
-                    disp('WORKER_4TESTS: Waiting at barrier for all do_job completeon ')
+                    fprintf(fh,'Waiting at barrier for all do_job completion\n');
+                    disp('WORKER_4TESTS: Waiting at barrier for all do_job completion ')
+                end
+                % explicitly check for cancellation before data reduction
+                is_canceled = je.is_job_canceled();
+                if is_canceled
+                    error('JOB_EXECUTOR:canceled',...
+                        'Job canceled before synchronization after do_job')
                 end
 
-                
                 % when not tested, the synchronization is mandatory
                 je.labBarrier(false); % Wait until all workers finish their
                 %                       job before reducing the data
             end
+            je.do_job_completed = true; % do not wait at barrier if cancellation here
             if DO_LOGGING
                 disp('WORKER_4TESTS: reducing data ')
                 fprintf(fh,'Reducing data\n');
             end
+            % explicitly check for cancellation before data reduction
+            %  the case of cancellation below
+            is_canceled = je.is_job_canceled();
+            if is_canceled
+                error('JOB_EXECUTOR:canceled',...
+                    'Job canceled before starting reduce_data')
+            end
+            je.do_job_completed = false;
             je = je.reduce_data();
         end
-        % Sent final running message. The node 1 waits for other nodes to
-        % send these this kind of messages
+
+        % Sent final running message. Implicitly check for cancellation.
+        % The node 1 waits for other nodes to send these this kind of messages
         mis.do_logging(n_steps,n_steps);
         if ~is_tested
             % stop other nodes until the node 1 finishes to produce the
             % final message
+            if DO_LOGGING
+                disp('WORKER_4TESTS: JE end of task barrier')
+                fprintf(fh,'arriving at JE end of task barrier\n');
+            end
+
             je.labBarrier(false);
+            je.do_job_completed = true;
+
         end
         %fprintf(fh,'je loop completed\n');
     catch ME % Catch error in users code and finish task gracefully.
         if DO_LOGGING
-            fprintf(fh,'je exception caught\n');
+            fprintf(fh,'je exception caught, Message: %s, ID: %s;| job_completed: %d \n',...
+                ME.message,ME.identifier,je.do_job_completed);
+            ss =numel(ME.stack);
+            for i=1:ss
+                fprintf(fh,'%s\n',ME.stack(i).file);
+                fprintf(fh,'%s\n',ME.stack(i).name);
+                fprintf(fh,'%s\n',num2str(ME.stack(i).line));
+                fprintf(fh,'%s\n','***************************');
+            end
             disp(['WORKER_4TESTS: processing failure: ',ME.identifier])
         end
         try
             [ok,err_mess] = je.process_fail_state(ME,is_tested);
-            
+
             if DO_LOGGING
                 disp('WORKER_4TESTS: Process JE fail state is completed ')
                 fprintf(fh,'Process JE fail state is completed for worker: %d\n',je.labIndex);
             end
-            
+
             if keep_worker_running
                 continue;
             else
@@ -245,11 +305,17 @@ while keep_worker_running
             else
                 rethrow(ME1);
             end
-            
+
         end
     end %Exception
-    
+    if DO_LOGGING
+        fprintf(fh,'************* finishing subtask: %s\n',fbMPI.job_id);
+    end
     [ok,err_mess] = je.finish_task();
+    if DO_LOGGING
+        fprintf(fh,'************* subtask: %s finished\n',fbMPI.job_id);
+    end
+
 end
 %pause
 if exit_at_the_end

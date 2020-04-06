@@ -64,11 +64,10 @@ classdef sqw_binfile_common < sqw_file_interface
     properties(Constant,Access=private,Hidden=true)
         % list of field names to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file
-        data_fields_to_save_ = {'num_contrib_files_','npixels_',...
-            'main_header_pos_','main_head_pos_info_','header_pos_',...
-            'header_pos_info_','detpar_pos_','detpar_pos_info_'};
-        pixel_fields_to_save_ = {'urange_pos_',...
-            'pix_pos_','eof_pix_pos_'};
+        data_fields_to_save_ = {'main_header_pos_';'main_head_pos_info_';'header_pos_';...
+            'header_pos_info_';'detpar_pos_';'detpar_pos_info_'};
+        pixel_fields_to_save_ = {'urange_pos_';...
+            'pix_pos_';'eof_pix_pos_'};
     end
     %
     methods(Access = protected,Hidden=true)
@@ -112,14 +111,13 @@ classdef sqw_binfile_common < sqw_file_interface
         end
         %
         function flds = fields_to_save(obj)
-            % returns the fields to save in the structure in sqw binfile v3 format
-            % sorted in the order of increase of the field location on hdd.
+            % returns the fields to save in the structure in sqw format
             %
-            dnd_flds = fields_to_save@dnd_binfile_common(obj);
+            dnd_flds = fields_to_save@sqw_file_interface(obj);
             flds = [obj.data_fields_to_save_(:);dnd_flds(:);...
                 obj.pixel_fields_to_save_(:)];
         end
-        
+        %
         function bl_map = const_blocks_map(obj)
             bl_map  = obj.const_block_map_;
         end
@@ -147,7 +145,22 @@ classdef sqw_binfile_common < sqw_file_interface
             error('SQW_FILE_IO:runtime_error',...
                 'init_v3_specific: generic method is not implemented')
         end
-        
+        %
+        function obj=init_from_structure(obj,obj_structure_from_saveobj)
+            % init file accessors using structure, obtained for object
+            % serialization (saveobj method);
+            obj = init_from_structure@sqw_file_interface(obj,obj_structure_from_saveobj);
+            %
+            flds = [obj.data_fields_to_save_(:);obj.pixel_fields_to_save_(:)];
+            for i=1:numel(flds)
+                if isfield(obj_structure_from_saveobj,flds{i})
+                    obj.(flds{i}) = obj_structure_from_saveobj.(flds{i});
+                end
+            end
+            if isempty(obj.sqw_serializer_) && ~ischar(obj.num_dim)
+                obj.sqw_serializer_ = sqw_serializer();
+            end
+        end
     end % end protected
     %
     methods % defined by this class
@@ -287,6 +300,21 @@ classdef sqw_binfile_common < sqw_file_interface
             %
             data_form = get_data_form_(obj,varargin{:});
         end
+        function struc = saveobj(obj)
+            % method used to convert object into structure
+            % for saving it to disc.
+            struc = saveobj@sqw_file_interface(obj);
+            flds = [obj.data_fields_to_save_(:);obj.pixel_fields_to_save_(:)];
+            for i=1:numel(flds)
+                struc.(flds{i}) = obj.(flds{i});
+            end
+            %struc = structIndep(obj);
+            % dynamic fields, containing special information generated on
+            % % construction. Should not be stored
+            % caches = {'sqw_serializer_','file_closer_','sqw_holder_'};
+            % struc = rmfield(struc,caches);
+        end
+        
     end
     %
     methods(Static,Hidden=true)

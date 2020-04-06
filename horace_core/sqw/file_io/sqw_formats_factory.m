@@ -47,6 +47,11 @@ classdef sqw_formats_factory < handle
         access_to_type_ind_ = {1,2,4,4,4,4,4,4};
         types_map_ ;
     end
+    properties(Dependent)
+        % return list of the non-initialized accessor classes subscribed to
+        % the factory
+        supported_accessors
+    end
     
     methods(Access=private)
         % Guard the constructor against external invocation.  We only want
@@ -239,6 +244,10 @@ classdef sqw_formats_factory < handle
             end
         end
         
+        %
+        function obj_list = get.supported_accessors(obj)
+            obj_list = obj.supported_accessors_;
+        end
     end
 end
 
