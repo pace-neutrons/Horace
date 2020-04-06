@@ -1,9 +1,10 @@
-function [is_jenkins_pc] = is_jenkins()
+function [is_jenkins_pc,job_name] = is_jenkins()
 % Attempt to determine if the PC we're running on is a Jenkins server.
 %   This is detected through environment variables that are always set by
 %   Jenkins.
 
 jenkins_env_vars = {'JENKINS_URL', 'JOB_URL', 'JENKINS_HOME'};
+job_name ='';
 
 for i = 1:length(jenkins_env_vars)
     if isempty(getenv(jenkins_env_vars{i}))
@@ -13,4 +14,6 @@ for i = 1:length(jenkins_env_vars)
 end
 is_jenkins_pc = true;
 
+if nargout > 1
+    job_name = getenv('JOB_NAME');
 end
