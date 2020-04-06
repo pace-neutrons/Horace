@@ -98,24 +98,16 @@ classdef test_job_dispatcher_parpool< job_dispatcher_common_tests
             assertTrue(exist(file3,'file') == 2);
             delete(cjob)
         end
+        % DISABLED
         function test_job_fail_restart(obj, varargin)
-            if is_jenkins
-                warning('test_job_fail_restart disabled')
-                return
-            else
-                test_job_fail_restart@job_dispatcher_common_tests(obj, varargin{:})
-            end
+            warning('test_job_dispatcher_parpool:test_job_fail_restart disabled')
+            return;
+            % disp('test_job_dispatcher_parpool:test_job_fail_restart')
+            % test_job_fail_restart@job_dispatcher_common_tests(obj, varargin{:})
         end
         function test_job_with_logs_3workers(obj, varargin)
-            if is_jenkins
-                warning('test_job_with_logs_3workers disabled')
-                return
-            else
-                test_job_with_logs_3workers@job_dispatcher_common_tests(obj, varargin{:})
-            end
+            test_job_with_logs_3workers@job_dispatcher_common_tests(obj, varargin{:})
         end
-        
-        
     end
 end
 

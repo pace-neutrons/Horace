@@ -45,7 +45,10 @@ classdef iMessagesFramework < handle
             if nargin>0
                 obj.job_id = varargin{1};
             else
-                obj.job_id_ = char(floor(25*rand(1,10)) + 65);
+                % use process ID and time as job ID. This prevents clashes
+                % between processes
+                obj.job_id_ = sprintf('%05i', feature('getpid'), ...
+                                      round(datetime('now').Second*1e3));
             end
         end
         %
