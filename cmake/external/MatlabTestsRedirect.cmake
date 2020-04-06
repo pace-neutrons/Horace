@@ -60,7 +60,7 @@ if(no_unittest_framework)
   set(unittest_to_run "${unittest_file_to_run_name}")
 endif()
 
-set(command_to_run "try, ${unittest_to_run}, catch err, disp('An exception has been thrown during the execution'), disp(err), disp(err.stack), exit(1), end, exit(0)")
+set(command_to_run "try, ${unittest_to_run}, catch err, disp('An exception has been thrown during the execution'), disp(getReport(err,'extended')), exit(1), end, exit(0)")
 set(Matlab_SCRIPT_TO_RUN
     "addpath(${concat_string}); ${cmd_to_run_before_test}; ${command_to_run}"
    )
