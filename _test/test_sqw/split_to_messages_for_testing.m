@@ -13,7 +13,7 @@ payload = struct('npix',[],'bin_range',[nbin_start,nbin_end],'pix_tb',[],...
 
 messages = cell(n_files,1);
 for i=1:n_files
-    messages{i} = aMessage('data');
+    messages{i} = DataMessage();
     file_ind = proc_pix(2,:)==fileind(i);
     file_pix  = proc_pix(:,file_ind);
     

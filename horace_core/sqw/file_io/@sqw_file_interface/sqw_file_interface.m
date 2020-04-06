@@ -53,6 +53,32 @@ classdef sqw_file_interface < dnd_binfile_common
         % number of pixels, contributing into this file.
         npixels
     end
+    properties(Constant,Access=private,Hidden=true)
+        % list of field names to save on hdd to be able to recover
+        % all substantial parts of appropriate sqw file
+        fields_to_save_ = {'num_contrib_files_';'npixels_'};
+    end
+    methods(Access = protected,Hidden=true)
+        function obj=init_from_structure(obj,obj_structure_from_saveobj)
+            % init file accessors using structure, obtained for object
+            % serialization (saveobj method);
+            obj = init_from_structure@dnd_binfile_common(obj,obj_structure_from_saveobj);
+            flds = obj.fields_to_save_;
+            for i=1:numel(flds)
+                if isfield(obj_structure_from_saveobj,flds{i})
+                    obj.(flds{i}) = obj_structure_from_saveobj.(flds{i});
+                end
+            end
+        end
+        %
+        function flds = fields_to_save(obj)
+            % return list of fileldnames to save on hdd to be able to recover
+            % all substantial parts of appropriate sqw file.
+            flds = fields_to_save@dnd_binfile_common(obj);
+            flds = [obj.fields_to_save_(:);flds(:)];
+        end 
+    end
+    
     %----------------------------------------------------------------------
     methods
         function nfiles = get.num_contrib_files(obj)
@@ -76,6 +102,21 @@ classdef sqw_file_interface < dnd_binfile_common
             obj = delete@dnd_binfile_common(obj);
             % its still sqw loader
             obj.sqw_type_ = true;
+        end
+        %
+        function struc = saveobj(obj)
+            % method used to convert object into structure
+            % for saving it to disc.
+            struc = saveobj@dnd_binfile_common(obj);
+            flds = obj.fields_to_save_;
+            for i=1:numel(flds)
+                struc.(flds{i}) = obj.(flds{i});
+            end
+            %struc = structIndep(obj);
+            % dynamic fields, containing special information generated on
+            % % construction. Should not be stored
+            % caches = {'sqw_serializer_','file_closer_','sqw_holder_'};
+            % struc = rmfield(struc,caches);
         end
     end
     %----------------------------------------------------------------------
@@ -104,6 +145,5 @@ classdef sqw_file_interface < dnd_binfile_common
         % sqw file and always opens it in write mode.
         new_obj = upgrade_file_format(obj);
     end
-    
 end
 

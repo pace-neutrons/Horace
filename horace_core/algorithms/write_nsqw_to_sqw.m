@@ -152,9 +152,6 @@ end
 [header_combined,nspe] = sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers);
 
 
-if numel(datahdr) > 1
-    sqw_header.check_headers_equal(datahdr{1},datahdr(2:end));
-end
 urange=datahdr{1}.urange;
 for i=2:nfiles
     urange=[min(urange(1,:),datahdr{i}.urange(1,:));max(urange(2,:),datahdr{i}.urange(2,:))];
