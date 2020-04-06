@@ -114,6 +114,16 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             
             cl  = parcluster();
             
+            % By default Matlab only utilises physical cores; enable use of
+            % logical cores if required
+            n_requested_workers = obj.n_workers;
+            if n_requested_workers > cl.NumWorkers
+                [~, n_logical_cores] = get_num_cores();
+                if n_requested_workers <= n_logical_cores
+                    cl.NumWorkers = n_requested_workers;
+                end
+            end
+
             num_labs = cl.NumWorkers;
             if num_labs < obj.n_workers
                 error('PARPOOL_CLUSTER_WRAPPER:runtime_error',...
