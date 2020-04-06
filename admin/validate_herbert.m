@@ -74,7 +74,7 @@ hc.saveable = false; % equivalent to older '-buffer' option for all setters belo
 hc.init_tests = 1; % initialize unit tests
 pcf = parallel_config();
 par_config = pcf.get_data_to_store();
-pcf.saveanle = false;
+pcf.saveable = false;
 pcf.shared_folder_on_local = tmp_dir;
 
 % Generate full test paths to unit tests:
