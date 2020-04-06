@@ -22,9 +22,10 @@ if isstruct(framework_info) && isfield(framework_info,'job_id')
         obj = obj.set_framework_range(framework_info.labID,framework_info.numLabs);
     end
 elseif(is_string(framework_info))
-    % use process ID and time as job ID. This prevents clashes between processes
-    obj.job_id_ = sprintf('%05i', feature('getpid'), ...
-                          round(datetime('now').Second*1e3));
+    % Add framework info to the unique framework id to improve user
+    % experience
+    obj.job_id_ = sprintf('%s_%s',framework_info,...
+        iMessagesFramework.get_framework_id());
     obj.task_id_ = 0;
 else
     error('FILEBASED_MESSAGES:invalid_argument',...

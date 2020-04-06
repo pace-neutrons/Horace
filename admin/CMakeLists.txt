@@ -23,7 +23,6 @@ file(WRITE "${WORKER_CONFIG_DIR}/herbert_on.m" "${_herbert_on_script}")
 install(
     FILES
         "herbert_on.m.template"
-        "herbert_root.m"  # required by validate_herbert
         "validate_herbert.m"
         "worker_4tests.m.template"
         "worker_v2.m.template"

@@ -34,6 +34,12 @@ classdef config_store < handle
             if is_virtual
                 newStore.config_folder_name_ = ['mprogs_config_',type];
             end
+            [is_virtual,build_name] = is_jenkins();
+            if is_virtual
+                [~,build_name] = fileparts(build_name); % remove all possible folder path's of the build name 
+                % to be able to create valid file name.
+                newStore.config_folder_name_ = ['mprogs_config_',build_name];
+            end
             
             if nargin>0
                 [fp,fn] = fileparts(varargin{1});

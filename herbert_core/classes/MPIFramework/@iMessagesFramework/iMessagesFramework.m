@@ -40,15 +40,11 @@ classdef iMessagesFramework < handle
     end
     methods
         function obj = iMessagesFramework(varargin)
-            % default prefix is random string of 10 capital Latin letters
-            % (25 such letters)
+            % default prefix is 5 digits of processID+3 digits of current number of seconds
             if nargin>0
                 obj.job_id = varargin{1};
             else
-                % use process ID and time as job ID. This prevents clashes
-                % between processes
-                obj.job_id_ = sprintf('%05i', feature('getpid'), ...
-                                      round(datetime('now').Second*1e3));
+                obj.job_id_ = iMessagesFramework.get_framework_id();
             end
         end
         %
@@ -266,6 +262,15 @@ classdef iMessagesFramework < handle
         %
     end
     
+    methods(Static,Access=protected)
+        function id = get_framework_id()
+            % get random ID for messaging framework
+            % use process ID and time as job ID. This prevents clashes
+            % between processes
+            id = sprintf('%08i', feature('getpid')*1.e+5+round(datetime('now').Second*10));
+        end
+        
+    end
     methods(Abstract)
         %------------------------------------------------------------------
         % HERBERT Job control interface

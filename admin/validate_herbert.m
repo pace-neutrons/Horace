@@ -6,7 +6,7 @@ function err = validate_herbert(varargin)
 % Arguments:
 %
 %  'test_folders' A list of test directories to run.
-%                 These should be relative to Herbert's '_test' directory. If 
+%                 These should be relative to Herbert's '_test' directory. If
 %                 not specified, all test directories are run.
 %
 % possible input keys:
@@ -35,10 +35,11 @@ end
 % ---------------
 options = {'-parallel', '-talkative', '-exit_on_completion'};
 [ok, mess, parallel, talkative, exit_on_completion, test_folders] = ...
-        parse_char_options(varargin, options);
+    parse_char_options(varargin, options);
 if ~ok
     error('VALIDATE_HERBERT:invalid_argument', mess)
 end
+
 
 %==============================================================================
 % Place list of test folders here (relative to the master _test folder)
@@ -60,15 +61,31 @@ if isempty(test_folders) % No tests specified on command line - run them all
         'test_mpi', ...
         };
 end
-
 %=============================================================================
 initial_warn_state = warning();
 warning('off', 'MATLAB:class:DestructorError');
+
+% Set Herbert configuration to the default (but don't save)
+% (The validation should be done starting with the defaults, otherwise an error
+%  may be due to a poor choice by the user of configuration parameters)
+hc = herbert_config();
+current_conf = hc.get_data_to_store();
+hc.saveable = false; % equivalent to older '-buffer' option for all setters below
+hc.init_tests = 1; % initialize unit tests
+pcf = parallel_config();
+par_config = pcf.get_data_to_store();
+pcf.saveable = false;
+pcf.shared_folder_on_local = tmp_dir;
+
 % Generate full test paths to unit tests:
 rootpath = herbert_root();
 test_path = fullfile(rootpath, '_test'); % path to folder with all unit tests folders:
 test_folders_full = cellfun(...
-        @(x) fullfile(test_path, x), test_folders, 'UniformOutput', false);
+    @(x) fullfile(test_path, x), test_folders, 'UniformOutput', false);
+%
+
+cleanup_obj = onCleanup(@()herbert_test_cleanup(...
+    current_conf, par_config,test_folders_full, initial_warn_state));
 
 clear config_store;
 
@@ -81,14 +98,6 @@ clear config_store;
 %  appropriate action when deployed, but we do not want this to be done
 %  during validation)
 
-% Set Herbert configuration to the default (but don't save)
-% (The validation should be done starting with the defaults, otherwise an error
-%  may be due to a poor choice by the user of configuration parameters)
-hc = herbert_config();
-current_conf = hc.get_data_to_store();
-cleanup_obj = onCleanup(@()herbert_test_cleanup(current_conf, test_folders_full, initial_warn_state));
-hc.saveable = false; % equivalent to older '-buffer' option for all setters below
-hc.init_tests = 1; % initialise unit tests
 
 % Run unit tests
 % --------------
@@ -104,7 +113,7 @@ if parallel && license('checkout', 'Distrib_Computing_Toolbox')
         end
         matlabpool(cores);
     end
-
+    
     test_ok = false(1, numel(test_folders_full));
     time = bigtic();
     parfor i = 1:numel(test_folders_full)
@@ -118,7 +127,7 @@ else
     time = bigtic();
     tests_ok = runtests(test_folders_full{:});
     bigtoc(time, '===COMPLETED UNIT TESTS RUN ');
-
+    
 end
 
 if tests_ok
@@ -129,12 +138,13 @@ if exit_on_completion
 end
 
 %==============================================================================
-function herbert_test_cleanup(old_config, test_folders, initial_warn_state)
-    % Reset the configuration
-    set(herbert_config, old_config);
-    % clear up the test folders, previously placed on the path
-    warning('off', 'all'); % avoid varnings on deleting non-existent path
-    for i = 1:numel(test_folders)
-        rmpath(test_folders{i});
-    end
-    warning(initial_warn_state);
+function herbert_test_cleanup(old_her_config,old_pc_config,test_folders, initial_warn_state)
+% Reset the configuration
+set(herbert_config, old_her_config);
+set(parallel_config,old_pc_config);
+% clear up the test folders, previously placed on the path
+warning('off', 'all'); % avoid varnings on deleting non-existent path
+for i = 1:numel(test_folders)
+    rmpath(test_folders{i});
+end
+warning(initial_warn_state);
