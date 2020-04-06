@@ -11,5 +11,5 @@
   - test_job_fail_restart (no ticket)  Disabled on Jenkins
 
 - test_job_dispatcher_mpiexec.m
-  - test_job_fail_restart - Windows only
-  - test_job_with_logs_3workers - Windows & Jenkins Only
+  - test_job_fail_restart - Windows only        ! Random hand-uo of one or another
+  - test_job_with_logs_3workers - Windows Only  ! on Windows.
