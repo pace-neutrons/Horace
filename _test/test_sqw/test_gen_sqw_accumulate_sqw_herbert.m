@@ -184,7 +184,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             assertTrue(ok==MESS_CODES.ok,err);            
             assertEqual(numel(mess1.payload),2)
             res_s = mess1.payload{1};
-            assertEqual(sum(reshape(res_s.npix,1,numel(res_s.npix))),14985);
+            assertEqual(sum(reshape(res_s.npix,1,numel(res_s.npix))),2246);
         end
         %
         function test_do_job(obj)
