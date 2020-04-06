@@ -31,7 +31,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 end
             end
             clear mex;
-            disp(32);
+
             % overloaded to empty test -- nothing new for this JD
             % JETester specific control parameters
             common_param = struct('filepath', obj.working_dir, ...
@@ -45,11 +45,11 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
 
             files = {file1, file3, file3a};
             co = onCleanup(@()(my_delete(files{:})));
-            disp(46);
+
             jd = JobDispatcher(['test_job_', obj.framework_name, '_fail_restart']);
-            
+
             [outputs, n_failed, ~, jd] = jd.start_job('JETester', common_param, 36, true, 3, true, 1);
-            disp(50)
+
             function is = is_err(x)
                 if isa(x, 'MException') || isa(x, 'ParallelException')
                     is = true;
@@ -72,29 +72,24 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             % file may exist or may not -- depending on relation between
             % speed of workers
 
-            disp(73);
             co = onCleanup(@()(my_delete(file3, file3a)));
             common_param.fail_for_labsN = 1:2;
             [outputs, n_failed, ~, jd] = jd.restart_job('JETester', common_param, 4, true, true, 1);
-            disp(77);
-            
+
             assertTrue(n_failed >= 2);
             assertEqual(numel(outputs), 3);
             fin = cellfun(@is_err, outputs);
             assertTrue(sum(fin) > 1)
 
-            disp(84);
             clear co;
             % check long job canceled due to part of the job failed
             [outputs, n_failed, ~, jd] = jd.restart_job('JETester', common_param, 99, true, true, 1);
-            disp(88);
+
             assertTrue(n_failed >= 2);
             assertEqual(numel(outputs), 3);
             fin = cellfun(@is_err, outputs);
             assertTrue(sum(fin) > 1)
-            
-            disp(93);
-            
+
             for i = 1:33
                 fileN = fullfile(obj.working_dir, sprintf('test_JD_%sL3_nf%d.txt', obj.framework_name, i));
                 if exist(fileN, 'file') == 2
@@ -107,8 +102,6 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             [outputs, n_failed, ~, jd] = jd.restart_job('JETester', common_param, 99, true, true, 1);
             assertTrue(n_failed >= 1);
             assertEqual(numel(outputs), 3);
-            
-            disp(109);
             
             fin = cellfun(@is_err, outputs);
             assertTrue(sum(fin) > 1)
@@ -138,15 +131,11 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 end
             end
             
-            disp(139);
-
             common_param = rmfield(common_param, 'fail_for_labsN');
             files = {file1, file2, file3, file3a};
             co = onCleanup(@()(my_delete(files{:})));
 
-            [outputs, n_failed] = jd.restart_job('JETester', common_param, 4, true, false, 1);
-            
-            disp(147);            
+            [outputs, n_failed] = jd.restart_job('JETester', common_param, 4, true, false, 1);            
             
             assertEqual(n_failed, 0);
             assertEqual(numel(outputs), 3);
