@@ -51,7 +51,7 @@ end
 pix_tb = pix_tb(:,bin_filled); % accelerate combining by removing empty cells
 
 if is_deployed
-    pix_section  = aMessage('data');
+
     payload = struct('lab',obj.labIndex,'messN',[],'npix',[],...
         'bin_range',[],'pix_tb',[],'filled_bin_ind',[]);
     if nfiles > 1
@@ -65,7 +65,7 @@ if is_deployed
     payload.pix_tb = pix_tb;
     payload.filled_bin_ind = filled_bin_ind;
     
-    pix_section.payload = payload;
+    pix_section  = DataMessage(payload);    
 else
     % combine pix from all files according to the bin
     pix_section = cat(2,pix_tb{:});
