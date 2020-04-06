@@ -100,8 +100,8 @@ classdef test_cluster_wrapper < TestCase
             assertEqual(cluster.log_value,'.');
             
             cluster = cluster.display_progress('unknown state');
-            ref_string = sprintf('\n%s\n','**** unknown state                            ****');
-            assertEqual(cluster.log_value,ref_string);
+            ref_string = sprintf('\n%s','**** unknown state    ');
+            assertTrue(strncmp(cluster.log_value,ref_string,20));
             if verLessThan('matlab','9.1')
                 CR =sprintf('\n');
             else
