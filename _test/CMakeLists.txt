@@ -14,7 +14,7 @@ set(TEST_DIRECTORIES
     "test_sqw_file"
     "test_symmetrisation"
     "test_sym_op"
-    # "test_tobyfit"
+    "test_tobyfit"
     "test_transformation"
     "test_utilities"
 )
