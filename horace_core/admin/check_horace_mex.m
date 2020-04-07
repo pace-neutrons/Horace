@@ -1,19 +1,17 @@
 function [rez, n_errors, can_use_mex_4_combine] = check_horace_mex()
-% function checks if horace mex files are compiled correctly and return
-% their SVN min and max version and the latest date these files were
-% compiled
+% function checks if horace mex files are compiled correctly and returns
+% their version string.
 %
 % Usage:
 %   >>[rez, n_errors] = check_horace_mex();
 %   >>[rez, n_errors, can_use_mex_4_combine] = check_horace_mex();
 %
+% If some mex files are cannot be launched,the function returns the number of
+% files not launched as n_errors, these mex files' versions strings will be 
+% empty.
 %
-% If some mex files are can not be launched,the function returns the number of
-% files not launched as n_errors. mex-files versions strings become empty.
-%
-% rez is cellarray, which contains reply from mex files queried about their
+% rez is cellarray, which contains the reply from mex files queried about their
 % version
-%
 %
 % $Revision: 1738 $    $Date: 2019-03-12 14:31:09 +0000 (Tue, 12 Mar 2019) $
 %
