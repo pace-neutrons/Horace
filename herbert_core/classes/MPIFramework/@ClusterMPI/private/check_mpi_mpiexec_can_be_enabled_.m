@@ -7,12 +7,12 @@ if isempty(which('cpp_communicator'))
     error('PARALLEL_CONFIG:not_available',mess);
 end
 try
-    ver = cpp_communicator();
-    if ~strncmpi(ver,'$Revision::',11)
+    mex_ver = cpp_communicator();
+    if ~is_valid_version(mex_ver)
         error('PARALLEL_CONFIG:runtime_error',...
             ['Can not reliably probe C++ MPI communicator,'
             ' returned version type: %s is not recognized'],...
-            ver);
+            mex_ver);
     end
 catch ME
     mess = ME.message;

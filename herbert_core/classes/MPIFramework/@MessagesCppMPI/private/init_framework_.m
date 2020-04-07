@@ -39,11 +39,11 @@ if isempty(mpi_com_path)
         'Can not find CPP MPI communicator on Matlab routines search path')
 end
 try
-    ver = cpp_communicator();
-    if ~strncmpi(ver,'$Revision::',11)
+    mex_ver = cpp_communicator();
+    if ~is_valid_version(mex_ver)
         error('MPI_MESSAGES:runtime_error',...
             'Can not probe C++ MPI communicator, returned version type: %s is not recognized',...
-            ver);
+            mex_ver);
     end
 catch Err
     error('MPI_MESSAGES:runtime_error',...

@@ -1,64 +1,48 @@
-function [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=herbert_version(varargin)
-% the function returns the version of herbert, which should correspond to
-% the distinctive tag version from the SVN server. 
+function varargout = herbert_version()
+% Returns the version of this instance of Herbert
+%
+% If one or fewer output arguments are specified, the full version string is
+% returned. If more than one output argument is specified, then an array of
+% strings is returned containing the first n version numbers, where n is the
+% number of output arguments required. If more output arguments are requested
+% than there are version numbers, an error is raised.
 %
 % Usage:
-% [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=horace_version()
-% [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=horace_version('brief')
-% 
-% where application is a structure containing the fields with program name
-% (Horace)and Horace release version. 
+%   >> version_string = herbert_version();
+%   >> [major, minor] = herbert_version();
+%   >> [major, minor, patch] = herbert_version();
 %
-% if horace_version is called with parameter, the function
-% returns revision data (Matlab_SVN) as number rather then string
-% (convenient for versions comparison)
-%
-%
-% An pre-commit hook script provided as part of the package 
-% has to be enabled on svn and svn file properties 
-% (Keywords) Date and Revision should be set on this file 
-% to support valid Matlab versioning.
-%
-% The script will modify the data of this file before committing. 
-% The variable below introduced to allow the commit hook touching this file and 
-% make this touches available to the svn (may be it is a cumbersome solution, but is 
-% the best and most portable for any OS I can think of). 
-%
-%
-% $COMMIT_COUNTER:: 4 $
-%
-% No variable below this one should resemble COMMIT_COUNTER, as their values will 
-% be modified and probably corrupted at commit
-% after the counter changed, the svn version row below will be updated 
-% to the latest svn version at commit.
-
-application.name='herbert';
-
-
-application.version=1;
-
-Matlab_SVN='$Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)';
-
-% % Information about name and version of application
-mexMinVer     = 'disabled';
-mexMaxVer     = 'disabled';
-date          = '01/01/0000';
-if get(herbert_config,'use_mex')
-     [mex_messages,n_errors,mexMinVer,mexMaxVer,date]=check_herbert_mex();
-     if n_errors~= 0
-         display(mex_messages);
-         set(hor_config,'use_mex',0);
-     end
+try
+    VERSION = herbert_get_build_version();
+catch ME
+    if ~strcmp(ME.identifier, 'MATLAB:UndefinedFunction')
+        rethrow(ME);
+    end
+    VERSION = read_from_version_file();
 end
-hd     =str2double(Matlab_SVN(12:16));
 
+% If only one output requested return whole version string
+if nargout <= 1
+    varargout{1} = VERSION;
+    return;
+end
 
-application.svn_version=hd;
-application.mex_min_version = mexMinVer;
-application.mex_max_version = mexMaxVer;
-application.mex_last_compilation_date=date;
-if nargin>0    
-    Matlab_SVN =sprintf('%d.%d',application.version,application.svn_version);
+version_numbers = split(VERSION, '.');
+if nargout > numel(version_numbers)
+    error("Too many output arguments requested.") ;
+end
+
+% Return as many version numbers as requested
+for i = 1:numel(version_numbers)
+    varargout(i) = version_numbers(i);
 end
 
 
+function version_str = read_from_version_file()
+    try
+        herbert_root = fileparts(fileparts(which('herbert_init')));
+        version_file = fullfile(herbert_root , 'VERSION');
+        version_str = [strtrim(fileread(version_file)), '.dev'];
+    catch
+        version_str = '0.0.0.dev';
+    end

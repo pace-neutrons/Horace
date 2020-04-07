@@ -73,13 +73,7 @@ if hec.init_tests % this is developer vesion
     hec.set_unit_test_path();
 end
 
-
-
-disp('!==================================================================!')
-disp('!         ISIS utilities for visualization and analysis            !')
-disp('!              of neutron spectroscopy data                        !')
-disp('!------------------------------------------------------------------!')
-
+print_banner();
 
 %=========================================================================================================
 function addgenpath_message (varargin)
@@ -139,3 +133,15 @@ for i=1:numel(application_init_old)
     % Make sure we're not removing any global paths
     addpath(getenv('MATLABPATH'));
 end
+
+function print_banner()
+    width = 66;
+    lines = {'ISIS utilities for visualization and analysis', ...
+             'of neutron spectroscopy data', ...
+             ['Herbert ', herbert_version()]
+    };            
+    fprintf('!%s!\n', repmat('=', 1, width));                
+    for i = 1:numel(lines)
+        fprintf('!%s!\n', center_and_pad_string(lines{i}, ' ', width));
+    end
+    fprintf('!%s!\n', repmat('-', 1, width));

@@ -13,3 +13,4 @@ pace_add_mex(
     SRC "${SRC_FILES}" "${HDR_FILES}"
     COPY_TO "${CMAKE_SOURCE_DIR}/herbert_core/DLL"
 )
+target_include_directories("${MEX_NAME}" PRIVATE "${CXX_SOURCE_DIR}")

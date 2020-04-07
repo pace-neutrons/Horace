@@ -78,7 +78,7 @@ pcf.saveable = false;
 pcf.shared_folder_on_local = tmp_dir;
 
 % Generate full test paths to unit tests:
-rootpath = herbert_root();
+rootpath = fileparts(fileparts(which('herbert_init')));
 test_path = fullfile(rootpath, '_test'); % path to folder with all unit tests folders:
 test_folders_full = cellfun(...
     @(x) fullfile(test_path, x), test_folders, 'UniformOutput', false);

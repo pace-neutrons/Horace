@@ -22,13 +22,19 @@ Variables defined by the module
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``${PROJECT_NAME}_FULL_VERSION``
-formatted version string
+formatted version string of form <version>[-<date>]-<target>-<matlab>[-<sha>]
+
+``${PROJECT_NAME}_SHORT_VERSION``
+formatted version string that omits architecture and Matlab version. The
+returned version will be of the form `<major>.<minor>.<patch>[.<git-sha>]. The
+SHA will not be appended if ${PROJECT_NAME_RELEASE_TYPE} is "RELEASE".
 
 #]=======================================================================]
 
 set(${PROJECT_NAME}_FULL_VERSION "${PROJECT_VERSION}")
+string(TOUPPER "${${PROJECT_NAME}_RELEASE_TYPE}" _release_type)
 
-if(${PROJECT_NAME}_RELEASE_TYPE STREQUAL "nightly")
+if("${_release_type}" STREQUAL "NIGHTLY")
     string(TIMESTAMP _date "%Y%m%d")
     set(${PROJECT_NAME}_FULL_VERSION "${${PROJECT_NAME}_FULL_VERSION}-${_date}")
 endif()
@@ -41,7 +47,7 @@ endif()
 
 set(${PROJECT_NAME}_FULL_VERSION "${${PROJECT_NAME}_FULL_VERSION}-${${PROJECT_NAME}_PLATFORM}-${Matlab_RELEASE}")
 
-if(NOT "${${PROJECT_NAME}_RELEASE_TYPE}" STREQUAL "release")
+if(NOT "${_release_type}" STREQUAL "RELEASE")
     find_package(Git QUIET)
     execute_process(
         COMMAND ${GIT_EXECUTABLE} rev-list --abbrev-commit --no-merges -n 1 HEAD
@@ -54,3 +60,9 @@ if(NOT "${${PROJECT_NAME}_RELEASE_TYPE}" STREQUAL "release")
 endif()
 
 message(STATUS "${PROJECT_NAME}_FULL_VERSION: ${${PROJECT_NAME}_FULL_VERSION}")
+
+# Set the short version which is used in ${PROJECT_NAME}_version.[m|h] files
+set(${PROJECT_NAME}_SHORT_VERSION "${PROJECT_VERSION}")
+if(NOT "${_release_type}" STREQUAL "RELEASE")
+    set(${PROJECT_NAME}_SHORT_VERSION "${${PROJECT_NAME}_SHORT_VERSION}\.${GIT_REVISION_SHA}")
+endif()

@@ -13,5 +13,11 @@ endif()
 
 include(PACE_AddCppUnitTest)
 
-add_subdirectory(cpp_communicator.tests)
-add_subdirectory(get_ascii_file.tests)
+set(TEST_DIRS
+    cpp_communicator.tests
+    get_ascii_file.tests
+    utility.tests
+)
+foreach(_test_dir ${TEST_DIRS})
+    add_subdirectory(${_test_dir})
+endforeach()
