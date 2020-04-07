@@ -102,8 +102,8 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ]){
   fileTypesAccepted[iNumFileTypes]="undefined";
 
   //--------->  ANALYSE INPUT PARAMETERS;
-  if(nrhs==0 && nlhs==1){
-        plhs[0]=mxCreateString(Herbert::VERSION);
+  if (nrhs == 0 && (nlhs == 0 || nlhs == 1)) {
+        plhs[0] = mxCreateString(Herbert::VERSION);
         return;
   }
 
