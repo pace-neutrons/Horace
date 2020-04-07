@@ -52,6 +52,7 @@ if isempty(test_folders) % no tests specified on command line - run them all
         'test_dnd', ...
         'test_gen_sqw_for_powders', ...
         'test_herbert_utilites', ...
+        'test_mex_nomex', ...
         'test_mslice_utilities', ...
         'test_multifit', ...
         'test_rebin', ...
@@ -64,22 +65,6 @@ if isempty(test_folders) % no tests specified on command line - run them all
         'test_sym_op', ...
         };
 end
-
-%==============================================================================
-% Check mex files if mex functions are available
-% ----------------------------------------------
-
-[~, n_errors] = check_horace_mex();
-if n_errors == 0
-    test_folders{end+1} = 'test_mex_nomex';
-else
-    nomex = true;
-    warning('VALIDATE_HORACE:mex', 'mex files are not all working, and will not be tested');
-    if forcemex
-        error('VALIDATE_HORACE:mex', 'cannot force mex if mex files are not working');
-    end
-end
-
 
 % Generate full test paths to unit tests
 % --------------------------------------
