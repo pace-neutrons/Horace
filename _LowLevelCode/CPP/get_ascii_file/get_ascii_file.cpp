@@ -137,7 +137,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ]){
       if(!mxIsChar(prhs[iFileType])||(mxGetM(prhs[iFileType]))!=1){  // not a file type
             buf<<"second parameter, if present has to be a scalar string, which specify a file type\n";      goto error;
       }else{                                                         // get file type
-            int fileType_Length = mxGetN(prhs[iFileType])+1;
+            std::size_t fileType_Length = mxGetN(prhs[iFileType])+1;
             if(fileType_Length!=4){	buf<<"second parameter has to be a string of 3 ASCII symbols\n";	   	goto error;
             }
             if(mxGetString(prhs[iFileType], fileType, fileType_Length)){
