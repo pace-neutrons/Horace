@@ -233,7 +233,7 @@ classdef hor_config<config_base
             if use
                 % Configure mex usage
                 % --------------------
-                [~,n_errors,~,~,~,can_combine_with_mex]=check_horace_mex();
+                [~, n_errors, can_combine_with_mex] = check_horace_mex();
                 if n_errors>0
                     use = false;
                     warning('HOR_CONFIG:set_use_mex',...
