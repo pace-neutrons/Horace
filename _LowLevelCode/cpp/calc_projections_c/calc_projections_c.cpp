@@ -84,7 +84,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     double *pEfix(nullptr), k_to_e;
     urangeModes uRange_mode;
 
-    if (nrhs == 0 && nlhs == 1) {
+    if (nrhs == 0 && (nlhs == 0 || nlhs == 1)) {
         plhs[0] = mxCreateString(Horace::VERSION);
         return;
     }

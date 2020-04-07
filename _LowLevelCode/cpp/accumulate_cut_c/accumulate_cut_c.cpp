@@ -73,7 +73,7 @@ based on Matlab code of T.G.Perring   19 July 2007; C-version Alex Buts 02 July 
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-    if (nrhs == 0 && nlhs == 1) {
+    if (nrhs == 0 && (nlhs == 0 || nlhs == 1)) {
         plhs[0] = mxCreateString(Horace::VERSION);
         return;
     }
