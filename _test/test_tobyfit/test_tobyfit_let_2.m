@@ -16,6 +16,7 @@ function test_tobyfit_let_2 (option)
 %
 %   >> test_tobyfit_let_2 ('-notest')   % Run without testing against previously stored results.
 %                                       % For performing visual checks or debugging the tests!
+%
 
 
 % ----------------------------------------------------------------------------
@@ -62,6 +63,13 @@ datafile='test_tobyfit_let_2_data.mat';
 savefile='test_tobyfit_let_2_out.mat';      
 
 error_on_failure = true;
+
+% Seed the RNG for reproducibility
+rng_state = rng();
+seed = mod(posixtime(datetime('now'))*1e3, 1e6);
+rng(seed);
+fprintf('RNG seed: %i\n', seed);
+clean_up = onCleanup(@() rng(rng_state));
 
 %% --------------------------------------------------------------------------------------
 % Read or create sqw file for refinement test
@@ -151,6 +159,7 @@ if test_output
         error_test (error_on_failure, 'Histograms not equivalent')
     end
     if ~equal_to_tol(fwhh_1, tmp.fwhh_1, [0,0.03])
+        fprintf('fwhh_1: %f    tmp.fwhh_1: %f\n', fwhh_1, tmp.fwhh_1);
         error_test (error_on_failure, 'fwhh not equivalent')
     end
 end
@@ -169,7 +178,8 @@ if test_output
         error_test (error_on_failure, 'Histograms not equivalent')
     end
     if ~equal_to_tol(fwhh_2, tmp.fwhh_2, [0,0.03])
-        error_test (error_on_failure, 'fwhh not equivalent')
+        fprintf('fwhh_1: %f    tmp.fwhh_1: %f\n', fwhh_1, tmp.fwhh_1);
+        error_test(error_on_failure, 'fwhh not equivalent')
     end
 end
 
