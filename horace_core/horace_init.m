@@ -81,7 +81,8 @@ if hc.is_default ||hpcc.is_default
 end
 
 if check_mex
-    if isempty(mexMaxVer)
+    [~, n_mex_errors] = check_horace_mex();
+    if n_mex_errors >= 1
         hc.use_mex = false;
     else
         hc.use_mex = true;
