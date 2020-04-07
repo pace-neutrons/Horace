@@ -1,11 +1,10 @@
 classdef Experiment
-    %EXPERIMENT Summary of this class goes here
-    %   Detailed explanation goes here
+    %EXPERIMENT Container object for all data describing the Experiment
     
     properties(Access=private)
-        instruments_ = {}
-        detector_array_ = {}
-        sample_ = {}
+        instruments_ = []
+        detector_array_ = []
+        sample_ = []
     end
     
     properties (Dependent)
@@ -17,37 +16,42 @@ classdef Experiment
     
     methods
         function obj = Experiment(detector_array, instruments, sample)
-            %EXPERIMENT Construct an instance of this class
-            %   Detailed explanation goes here
+            % Create a new Experiment object.
+            %
+            %   obj = Experiment (detector_array(s), instrument(s), sample(s))
+            %
+            %   detector_array  Detector array (IX_detector_array objects)
+            %   instrument      Instrument (Concrete class inheriting IX_inst)
+            %   sample          Sample data (IX_sample object)
+            %
+            % Each argument can be a single object or array of objects.
+            
             obj.detector_array = detector_array;
             obj.instruments = instruments;
             obj.sample = sample;            
         end
-        
-        
+                
         function obj=set.detector_array_(obj,val)
             if isa(val,'IX_detector_array') 
-                if isscalar(val)
-                    obj.detector_array_ = { val };
-                else
-                    obj.detector_array_ = val;
-                end
+                obj.detector_array_ = val;
             else
-                error('Detector array must be an IX_detector_array object')
+                error('Detector array must be one or an array of IX_detector_array object')
             end
         end
+        
         function obj=set.instruments_(obj,val)
-            if isa(val,'IX_Instr') && isscalar(val)
-                obj.instruments_= [ val] ;
+            if isa(val,'IX_inst')
+                obj.instruments_ = val;
             else
-                error('Instruments must be an IX_Instr object')
+                error('Instruments must be one or an array of IX_inst objects')
             end
         end
+        
         function obj=set.sample_(obj,val)
-            if isa(val,'IX_sample') && isscalar(val)
-                obj.sample_=val;
+            if isa(val,'IX_sample') 
+                obj.sample_ = val;
             else
-                error('Instruments must be an IX_sample object')
+                error('Sample must be one or an array of IX_sample objects')
             end
         end
         
@@ -64,7 +68,6 @@ classdef Experiment
         function obj=set.instruments(obj, val)
             obj.instruments_ = val;
         end
-        
         
         function val=get.sample(obj)
             val=obj.sample_;
