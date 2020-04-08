@@ -1,7 +1,7 @@
 #ifndef H_ACCUMULATE_CUT
 #define H_ACCUMULATE_CUT
 
-#include "../CommonCode.h"
+#include "CommonCode.h"
 
 #define iRound(x) (int)floor((x) + 0.5)
 //
