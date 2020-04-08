@@ -37,9 +37,13 @@ set(ENV_VARIABLES
     "TMP=${CMAKE_BINARY_DIR}/tests"
 )
 
-set(TEST_TIMEOUT_LENGTH "1200")  # 40 minutes
 foreach(_test_dir ${TEST_DIRECTORIES})
     set(TEST_NAME "Matlab.${_test_dir}")
+    if("${_test_dir}" STREQUAL "test_sqw")
+        set(TEST_TIMEOUT_LENGTH "1500")  # 25 minutes
+    else()
+        set(TEST_TIMEOUT_LENGTH "900")  # 16 minutes
+    endif()
     matlab_add_unit_test(
         NAME "${TEST_NAME}"
         CUSTOM_TEST_COMMAND
