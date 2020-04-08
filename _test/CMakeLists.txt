@@ -1,4 +1,5 @@
 set(TEST_DIRECTORIES
+    "test_admin"
     "test_ascii_column_data"
     "test_change_crystal"
     "test_combine"
@@ -14,7 +15,7 @@ set(TEST_DIRECTORIES
     "test_sqw_file"
     "test_symmetrisation"
     "test_sym_op"
-    # "test_tobyfit"
+    "test_tobyfit"
     "test_transformation"
     "test_utilities"
 )

@@ -1,5 +1,5 @@
 #pragma once
-#include "../CommonCode.h"
+#include "CommonCode.h"
 
 enum MatrixTypes
 {
@@ -52,7 +52,7 @@ void  mat_multiply(Rz *rez, L const *const a, R const*const b, size_t Mi, size_t
             for (size_t i = 0; i < Mi; ++i) {
                 double sum = 0;
                 for (size_t k1 = 0; k1 < Mk0; ++k1) {
-                    if (expandA) { // A is a 2D matrix 
+                    if (expandA) { // A is a 2D matrix
                         sum += static_cast<double>(a[k1*Mi + i]) * static_cast<double>(b[k1 + jkb + kb]);
                     }
                     else if (expandB) { // B is a 2D matrix
