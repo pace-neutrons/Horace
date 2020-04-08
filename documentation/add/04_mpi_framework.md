@@ -1,6 +1,13 @@
 # Generic MPI Framework
 
-A generic framework for parallelization has been created in MATLAB. The framework presents a common interface to users and supports parallelization through the MATLAB parallel toolbox and using MPI. A switch argument is used to configure 'the amount of parallelism'
+A generic parallelization framework has been created in Horace to improve expensive operations performance using parallel jobs execution. 
+
+A standard message parsing interface consists of a communicator block, controlling parallel processes and information exchange media, responsible for point-to-point or collective interaction between processes.
+To accommodate different demands and of different users, 
+Current implementation supports three different message transfer media, namely message files on a HDD, Matlab parallel computing toolbox MPI implementation and standard MPI framework (currently used implementations are Microsoft MPI for Windows and MPICH for Linux).
+
+
+ The framework presents a common interface to users and supports parallelization through the MATLAB parallel toolbox and using MPI. A switch argument is used to configure 'the amount of parallelism'
 
 Jobs are compiled operations (e.g. C++, compiled MATLAB) or MATLAB scripts (*)
 
@@ -29,6 +36,10 @@ A common interface has been implemented to ensure the operation is independent o
 | | |
 
 #### Message Framework
+
+A messages framework is responsible for information exchange between independent workers
+
+ To allow 
 
 The default message framework is file based
 
