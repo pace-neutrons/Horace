@@ -1,5 +1,5 @@
 classdef test_gen_sqw_accumulate_sqw_herbert <  ...
-        gen_sqw_accumulate_sqw_tests_common & gen_sqw_common_config
+         gen_sqw_common_config & gen_sqw_accumulate_sqw_tests_common
     % Series of tests of gen_sqw and associated functions
     % generated using multiple Matlab workers.
     %
@@ -49,7 +49,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             if ~exist('test_name','var')
                 test_name = mfilename('class');
             end
-            obj = obj@gen_sqw_common_config(-1,1,-1,'herbert');
+            obj = obj@gen_sqw_common_config(-1,1,'mex_code','herbert');
             obj = obj@gen_sqw_accumulate_sqw_tests_common(test_name,'herbert');
         end
         function del_tmp(obj,tmp_files_list)

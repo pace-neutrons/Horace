@@ -1,5 +1,5 @@
 classdef test_gen_sqw_accumulate_sqw_mex < ...
-        gen_sqw_accumulate_sqw_tests_common & gen_sqw_common_config
+         gen_sqw_common_config & gen_sqw_accumulate_sqw_tests_common
     % Series of tests of gen_sqw and associated functions generated using
     % mex code.
     %
@@ -51,8 +51,8 @@ classdef test_gen_sqw_accumulate_sqw_mex < ...
                 name= mfilename('class');
             end
            
-            obj = obj@gen_sqw_common_config(1,0,'mex_code',-1);            
-            obj = obj@gen_sqw_accumulate_sqw_tests_common(name,'mex');            
+            obj = obj@gen_sqw_common_config(1,0,'mex_code',-1);
+            obj = obj@gen_sqw_accumulate_sqw_tests_common(name,'mex');
         end
         %------------------------------------------------------------------
         % the test specific to mex mode
