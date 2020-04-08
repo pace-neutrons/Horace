@@ -122,7 +122,7 @@ if save_data
         kk = tobyfit(wtmp{1});
         kk = kk.set_fun(@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg],...
             [alatt_true,angdeg_true],rotvec});
-        kk = kk.set_mc_points(10);
+        kk = kk.set_mc_points(100);
         wsim = kk.simulate;
         wsim = noisify(wsim,0.01);
         
@@ -219,23 +219,44 @@ end
 proj.u=[1,1,0];
 proj.v=[0,0,1];
 
+proj111.u=[1,1,1];
+proj111.v=[0,0,1];
+
 w110_r=cut_sqw(sqw_file_res,proj,[0.8,0.01,1.2],[-0.2,0.2],[-0.15,0.15],[-Inf,Inf]);
-w110_t=cut_sqw(sqw_file_res,proj,[0.85,1.15],[-0.2,0.01,0.2],[-0.15,0.15],[-Inf,Inf]);
+w110_t=cut_sqw(sqw_file_res,proj,[0.85,1.15],[-0.2,0.02,0.2],[-0.15,0.15],[-Inf,Inf]);
 w110_v=cut_sqw(sqw_file_res,proj,[0.85,1.15],[-0.2,0.2],[-0.15,0.01,0.2],[-Inf,Inf]);
 
-w00m1_r=cut_sqw(sqw_file_res,proj,[-0.15,0.15],   [-1.3,0.01,-0.7],[-0.15,0.15],   [-Inf,Inf]);
+w111_r=cut_sqw(sqw_file_res,proj111,[0.8,0.01,1.2],[-0.2,0.2],[-0.15,0.15],[-Inf,Inf]);
+w111_t=cut_sqw(sqw_file_res,proj111,[0.85,1.15],[-0.2,0.02,0.2],[-0.15,0.15],[-Inf,Inf]);
+w111_v=cut_sqw(sqw_file_res,proj111,[0.85,1.15],[-0.2,0.2],[-0.15,0.01,0.2],[-Inf,Inf]);
+
+w00m1_r=cut_sqw(sqw_file_res,proj,[-0.15,0.15],   [-1.3,0.02,-0.7],[-0.15,0.15],   [-Inf,Inf]);
 w00m1_t=cut_sqw(sqw_file_res,proj,[-0.2,0.01,0.2],[-1.2,-0.8],     [-0.15,0.15],   [-Inf,Inf]);
 w00m1_v=cut_sqw(sqw_file_res,proj,[-0.15,0.15],   [-1.2,-0.8],     [-0.2,0.01,0.2],[-Inf,Inf]);
+
+w220_r=cut_sqw(sqw_file_res,proj,[1.85,0.01,2.2],[-0.2,0.2],[-0.15,0.15],[-Inf,Inf]);
+w220_t=cut_sqw(sqw_file_res,proj,[1.85,2.15],[-0.2,0.02,0.2],[-0.15,0.15],[-Inf,Inf]);
+w220_v=cut_sqw(sqw_file_res,proj,[1.85,2.15],[-0.2,0.2],[-0.15,0.01,0.2],[-Inf,Inf]);
+
 
 w110_r=set_sample_and_inst(w110_r,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
 w110_t=set_sample_and_inst(w110_t,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
 w110_v=set_sample_and_inst(w110_v,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
 
+w111_r=set_sample_and_inst(w111_r,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
+w111_t=set_sample_and_inst(w111_t,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
+w111_v=set_sample_and_inst(w111_v,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
+
 w00m1_r=set_sample_and_inst(w00m1_r,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
 w00m1_t=set_sample_and_inst(w00m1_t,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
 w00m1_v=set_sample_and_inst(w00m1_v,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
 
-w=[w110_r,w110_t,w110_v;w00m1_r,w00m1_t,w00m1_v];
+w220_r=set_sample_and_inst(w220_r,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
+w220_t=set_sample_and_inst(w220_t,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
+w220_v=set_sample_and_inst(w220_v,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
+
+
+w=[w110_r,w110_t,w110_v; w111_r,w111_t,w111_v; w00m1_r,w00m1_t,w00m1_v; w220_r,w220_t,w220_v];
 
 mc = 2;
 
@@ -244,14 +265,15 @@ mc = 2;
 kk = tobyfit (w);
 kk = kk.set_refine_crystal ('fix_angdeg','fix_alatt_ratio');
 kk = kk.set_mc_points (mc);
-kk = kk.set_fun (@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]},[1,1,0]);
-kk = kk.set_options('list',nlist);
+kk = kk.set_fun (@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]},[0,1,0]);
+kk = kk.set_options('list',nlist,'fit',[1e-2,30,1e-3]);
 disp('Now fitting. This may take some time (around a minute)...')
 [w_tf_a,fitpar_tf_a,ok,mess,rlu_corr_tf_a] = kk.fit;
 
 if ~ok
     disp(mess)
 end
+
 if any(abs(rlu_corr_tf_a(:)-rlu_corr(:))>0.004)
     error('  1 of 2: Bragg peak crystal refinement and Tobyfit crystal refinement are not the same')
 end
@@ -270,8 +292,8 @@ kk = tobyfit (w);
 kk = kk.set_refine_crystal ('fix_angdeg','fix_alatt_ratio');
 kk = kk.set_mc_points (mc);
 kk = kk.set_local_foreground(true);
-kk = kk.set_fun (@make_bragg_blobs,{{[amp,qfwhh,efwhh],[alatt,angdeg]}},[1,1,0]);
-kk = kk.set_options('list',nlist);
+kk = kk.set_fun (@make_bragg_blobs,{{[amp,qfwhh,efwhh],[alatt,angdeg]}},[0,1,0]);
+kk = kk.set_options('list',nlist,'fit',[1e-2,30,1e-3]);
 disp('Now fitting. This may take some time (around a minute)...')
 [w_tf_b,fitpar_tf_b,ok,mess,rlu_corr_tf_b] = kk.fit;
 
@@ -330,3 +352,4 @@ for i=1:numel(flname)
         disp(['Unable to delete temporary file: ',flname{i}])
     end
 end
+    
