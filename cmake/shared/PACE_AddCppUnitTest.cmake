@@ -74,15 +74,18 @@ function(pace_add_cpp_unit_test)
             "${TEST_NAME}" PRIVATE "${Matlab_INCLUDE_DIRS}")
     endif()
 
+    # Prefix test name with cpp. to give easy regex for running only C++ tests
+    set(_full_test_name "cpp.${TEST_NAME}")
+
     # Add the test to CTest
     add_test(
-        NAME "${TEST_NAME}"
+        NAME "${_full_test_name}"
         COMMAND "${TESTS_BIN_DIR}/${TEST_NAME}"
         WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     )
     # Add Matlab dll directory to the CTest path
     if(WIN32 AND "${TEST_MEX_TEST}")
-        set_tests_properties("${TEST_NAME}" PROPERTIES
+        set_tests_properties("${_full_test_name}" PROPERTIES
             ENVIRONMENT "PATH=${TEST_ENV_PATH}"
         )
     endif()
