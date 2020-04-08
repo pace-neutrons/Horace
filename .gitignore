@@ -1,4 +1,19 @@
-# DLL/*
-*.user
-build/
+### IDEs ###
+.vs/*
+.vscode/*
 
+### Files/Directories ###
+build/*
+# CMake generated file
+_LowLevelCode/cpp/utility/version.h
+horace_core/admin/horace_get_build_version.m
+
+### MATLAB ###
+# Windows default autosave extension
+*.asv
+
+# OSX / *nix default autosave extension
+*.m~
+
+# Compiled MEX binaries (all platforms)
+# *.mex*  # commented out for now - uncomment when distribution channel is up
