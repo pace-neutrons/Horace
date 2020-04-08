@@ -85,6 +85,9 @@ classdef gen_sqw_common_config < TestCase
                 ('parallel_framework',parallel_framework,obj.old_configuration_.parc);
             [jen,job_folder] = is_jenkins();
             if jen
+                if ~obj.change_framework_
+                    obj.new_framework_  =obj.old_configuration_.parc.parallel_framework;
+                end
                 obj.change_framework_ = true;
                 [~,job_folder] = fileparts(job_folder);
                 obj.new_working_folder = fullfile(tmp_dir(),job_folder);
