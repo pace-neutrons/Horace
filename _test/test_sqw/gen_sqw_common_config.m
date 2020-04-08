@@ -7,7 +7,8 @@ classdef gen_sqw_common_config < TestCase
         % should not run due to the system not satisfies the conditions for
         % them to run and  the classes can not be tested
         skip_test = false;
-        
+        % if necessary, the config folder to store job data
+        new_working_folder=''
     end
     properties(Access=protected)
         old_configuration_=[];
@@ -82,6 +83,12 @@ classdef gen_sqw_common_config < TestCase
             
             [obj.change_framework_,obj.new_framework_ ] = gen_sqw_common_config.check_change...
                 ('parallel_framework',parallel_framework,obj.old_configuration_.parc);
+            [jen,job_folder] = is_jenkins();
+            if jen
+                obj.change_framework_ = true;
+                [~,job_folder] = fileparts(job_folder);
+                obj.new_working_folder = fullfile(tmp_dir(),job_folder);
+            end
             
             if obj.change_framework_ && ~isnumeric(parallel_framework) % check parallel framework can be enabled
                 cl = MPI_fmwks_factory.instance().get_cluster(parallel_framework);
@@ -120,11 +127,15 @@ classdef gen_sqw_common_config < TestCase
             parc = parallel_config;
             if obj.change_framework_
                 parc.parallel_framework = obj.new_framework_;
+                if ~isempty(obj.new_working_folder)
+                    parc.working_directory = obj.new_working_folder;
+                end
             end
             obj.current_worker_cache_ = parc.worker;
             parc.worker = obj.worker;
             
         end
+        %
         function tearDown(obj)
             if obj.change_mex_
                 hc = hor_config;
@@ -146,11 +157,11 @@ classdef gen_sqw_common_config < TestCase
             
             
         end
+        %
         function delete(obj)
             obj.restore_initial_config();
         end
-        
-        
+        %
         function store_initial_config(obj)
             hc = hor_config;
             hpc = hpc_config;
