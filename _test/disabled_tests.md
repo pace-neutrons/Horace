@@ -23,9 +23,4 @@
 	- test_spher_caption (no ticket)
 	- test_spher_caption2D (no ticket)
 - test_sqw:
-    -test_gen_sqw_accumulate_sqw_parpool:test_gen_sqw
-    -test_gen_sqw_accumulate_sqw_parpool:test_accumulate_sqw14
-    -test_gen_sqw_accumulate_sqw_parpool:test_accumulate_and_combine1to4
-    -test_gen_sqw_accumulate_sqw_parpool:test_accumulate_sqw1456
-    -test_gen_sqw_accumulate_sqw_parpool:test_accumulate_sqw11456
-    Disabled on Jenkins Windows.
+    disabled all parallel tests for parallel combine sqw job. It looks like Something is wrong with it
