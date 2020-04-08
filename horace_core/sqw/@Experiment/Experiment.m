@@ -4,15 +4,15 @@ classdef Experiment
     properties(Access=private)
         class_version_ = 1;
         instruments_ = []
-        detector_array_ = []
-        sample_ = []
+        detector_arrays_ = []
+        samples_ = []
     end
     
     properties (Dependent)
         % Mirrors of private properties
         instruments
-        detector_array
-        sample
+        detector_arrays
+        samples
     end
     
     methods
@@ -36,17 +36,17 @@ classdef Experiment
                 % Assume trying to initialise from a structure array of properties
                 obj = IX_fermi_chopper.loadobj(varargin{1});
             elseif nargin==3
-                obj.detector_array = varargin{1};
+                obj.detector_arrays = varargin{1};
                 obj.instruments =  varargin{2};
-                obj.sample = varargin{3};
+                obj.samples = varargin{3};
             else
                 error ('Must give all of detector_array, instrument and sample')
             end
         end
 
-        function obj=set.detector_array_(obj,val)
+        function obj=set.detector_arrays_(obj,val)
             if isa(val,'IX_detector_array') || isempty(val)
-                obj.detector_array_ = val;
+                obj.detector_arrays_ = val;
             else
                 error('Detector array must be one or an array of IX_detector_array object')
             end
@@ -60,19 +60,19 @@ classdef Experiment
             end
         end
         
-        function obj=set.sample_(obj,val)
+        function obj=set.samples_(obj,val)
             if isa(val,'IX_sample') || isempty(val)
-                obj.sample_ = val;
+                obj.samples_ = val;
             else
                 error('Sample must be one or an array of IX_sample objects')
             end
         end
 
-        function val=get.detector_array(obj)
-            val=obj.detector_array_;
+        function val=get.detector_arrays(obj)
+            val=obj.detector_arrays_;
         end
-        function obj=set.detector_array(obj, val)
-            obj.detector_array_ = val;
+        function obj=set.detector_arrays(obj, val)
+            obj.detector_arrays_ = val;
         end
 
         function val=get.instruments(obj)
@@ -82,11 +82,11 @@ classdef Experiment
             obj.instruments_ = val;
         end
 
-        function val=get.sample(obj)
-            val=obj.sample_;
+        function val=get.samples(obj)
+            val=obj.samples_;
         end
-        function obj=set.sample(obj, val)
-            obj.sample_ = val;
+        function obj=set.samples(obj, val)
+            obj.samples_ = val;
         end
 
         %------------------------------------------------------------------
