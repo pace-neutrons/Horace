@@ -42,7 +42,7 @@ foreach(_test_dir ${TEST_DIRECTORIES})
     if("${_test_dir}" STREQUAL "test_sqw")
         set(TEST_TIMEOUT_LENGTH "1500")  # 25 minutes
     else()
-        set(TEST_TIMEOUT_LENGTH "900")  # 16 minutes
+        set(TEST_TIMEOUT_LENGTH "960")  # 16 minutes
     endif()
     matlab_add_unit_test(
         NAME "${TEST_NAME}"
