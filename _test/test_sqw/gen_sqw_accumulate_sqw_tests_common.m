@@ -106,8 +106,15 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             
             addpath(obj.test_functions_path);
             
-            hc = hor_config;
-            obj.working_dir = hc.working_directory;
+            if isempty(obj.new_working_folder)
+                hc = hor_config;
+                obj.working_dir = hc.working_directory;
+            else
+                obj.working_dir = obj.new_working_folder;
+            end
+            if ~(exist(obj.working_dir,'dir') == 7)
+                mkdir(obj.working_dir);
+            end
             
             % build test file names
             obj.spe_file=cell(1,obj.nfiles_max);
@@ -116,6 +123,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 obj.spe_file{i}=fullfile(wkd ,...
                     ['gen_sqw_acc_sqw_spe_',test_prefix,num2str(i),'.nxspe']);
             end
+            
             
             data_path = fileparts(mfilename('fullpath'));
             %this.par_file=fullfile(this.results_path,'96dets.par');
