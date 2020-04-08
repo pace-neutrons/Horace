@@ -17,7 +17,7 @@
 	- test_symm_equivalent_zones (Optimize Symmetrization #24 : https://github.com/pace-neutrons/Horace/issues/24 -- but is the part of the refactoring
 
 - test_tobyfit/
-	- test_tobyfit_refine_crystal.m (line 256) https://github.com/pace-neutrons/Horace/issues/111
+	- test_tobyfit_refine_crystal_1.m (no ticket)
 
 - test_proj_captions.m  : part of https://github.com/pace-neutrons/Horace/issues/49 -- generic projection refactoring
 	- test_spher_caption (no ticket)
@@ -28,4 +28,4 @@
     -test_gen_sqw_accumulate_sqw_parpool:test_accumulate_and_combine1to4
     -test_gen_sqw_accumulate_sqw_parpool:test_accumulate_sqw1456
     -test_gen_sqw_accumulate_sqw_parpool:test_accumulate_sqw11456
-    Disabled on Jenkins Windows. 
+    Disabled on Jenkins Windows.

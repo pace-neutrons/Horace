@@ -7,7 +7,7 @@
 #define H_CALC_PROJECTIONS_C
 
 
-#include "../CommonCode.h"
+#include "CommonCode.h"
 
 
 // $Revision: 1524 $ $Date: 2017-09-27 15:48:11 +0100 (Wed, 27 Sep 2017) $
@@ -22,8 +22,8 @@ enum urangeModes
 {
     noUrange,  // do not return any coordinates, output, if present will be empty
     urangeCoord,    // the the output will contain the array of 4d coordinates (4xnPixels array of transformed coordinates)
-    urangePixels     // the the output will contain the array of pixels (9xnPixels array of pixels, including 
-               // where each 9-element row contains 4 transformed coordinates, experiment ID (1 here), 
+    urangePixels     // the the output will contain the array of pixels (9xnPixels array of pixels, including
+               // where each 9-element row contains 4 transformed coordinates, experiment ID (1 here),
                // detector group number, energy bin number, pixels signal, pixels error squared)
 };
 
