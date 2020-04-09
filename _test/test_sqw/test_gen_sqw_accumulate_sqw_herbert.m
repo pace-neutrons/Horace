@@ -1,5 +1,5 @@
 classdef test_gen_sqw_accumulate_sqw_herbert <  ...
-         gen_sqw_common_config & gen_sqw_accumulate_sqw_tests_common
+        gen_sqw_common_config & gen_sqw_accumulate_sqw_tests_common
     % Series of tests of gen_sqw and associated functions
     % generated using multiple Matlab workers.
     %
@@ -51,6 +51,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             end
             obj = obj@gen_sqw_common_config(-1,1,'mex_code','herbert');
             obj = obj@gen_sqw_accumulate_sqw_tests_common(test_name,'herbert');
+            obj.print_running_tests = true;
         end
         function del_tmp(obj,tmp_files_list)
             for i=1:numel(tmp_files_list)
@@ -181,7 +182,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             [ok,err] = serverfbMPI.receive_message(1,'log');
             assertTrue(ok==MESS_CODES.ok,err);
             [ok,err,mess1] = serverfbMPI.receive_message(1,'completed');
-            assertTrue(ok==MESS_CODES.ok,err);            
+            assertTrue(ok==MESS_CODES.ok,err);
             assertEqual(numel(mess1.payload),2)
             res_s = mess1.payload{1};
             assertEqual(sum(reshape(res_s.npix,1,numel(res_s.npix))),2246);
@@ -299,16 +300,16 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             
         end
         %------------------------------------------------------------------
-%         % Block of code to disable some tests for debugging Jenkins jobs
-%         function test_gen_sqw(obj,varargin)
-%         end
-%         function test_accumulate_sqw14(obj,varargin)        
-%         end
-%         function test_accumulate_and_combine1to4(obj,varargin)        
-%         end
-%         function test_accumulate_sqw1456(obj,varargin)        
-%         end
-%         function test_accumulate_sqw11456(obj,varargin)        
-%         end
+        %         % Block of code to disable some tests for debugging Jenkins jobs
+        %         function test_gen_sqw(obj,varargin)
+        %         end
+        %         function test_accumulate_sqw14(obj,varargin)
+        %         end
+        %         function test_accumulate_and_combine1to4(obj,varargin)
+        %         end
+        %         function test_accumulate_sqw1456(obj,varargin)
+        %         end
+        %         function test_accumulate_sqw11456(obj,varargin)
+        %         end
     end
 end
