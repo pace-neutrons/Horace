@@ -17,6 +17,7 @@ include(PACE_AddCppUnitTest)
 
 set(TEST_DIRECTORIES
     "combine_sqw.tests"
+    "utility.tests"
 )
 
 foreach(_test_dir ${TEST_DIRECTORIES})

@@ -2,7 +2,7 @@
 #define H_SORT_PIXELS_BY_BINS
 
 
-#include "../CommonCode.h"
+#include "CommonCode.h"
 
 
 #define iRound(x)  (int)floor((x)+0.5)
@@ -26,7 +26,7 @@ void sort_pixels_by_bins( K * const pPixelSorted, size_t nPixelsSorted, std::vec
         throw("Sort_pixels_by_bins: pixels data and their cell distributions are inconsistent ");
     }
 
-    
+
     //#pragma omp parallel
     for(size_t nblock=0; nblock < PixelIndexes.size();nblock++)
     {
@@ -47,7 +47,7 @@ void sort_pixels_by_bins( K * const pPixelSorted, size_t nPixelsSorted, std::vec
         }
     }
 
-    
+
 }
 
 

@@ -27,6 +27,9 @@ function obj = common_init_logic_(obj,varargin)
 %                    the file will be overwritten or upgraded if the loader
 %                    has already been initiated with this file
 %
+% obj = obj.init(save_struct) % initialize the class using the structure
+%                   obtained using saveobj method.
+%
 %>>obj=obj.init(another_object) -- copy constructor. Also accepts all
 %                 additional arguments from above.
 %
@@ -73,6 +76,8 @@ elseif ischar(input) || isnumeric(input)
             fname,mess);
     end
     obj = obj.init_by_input_file(objinit);
+elseif isstruct(input) && isfield(input,'class_name')
+    obj = loadobj(input);
 else
     type = class(input);
     if ismember(type,{'d0d','d1d','d2d','d3d','d4d','sqw'}) || is_sqw_struct(input)
