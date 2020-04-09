@@ -1,15 +1,17 @@
 # Generic MPI Framework
 
-A generic parallelization framework has been created in Horace to improve expensive operations performance using parallel jobs execution. 
+A generic parallelization framework has been created in Horace to improve performance of computationally-expensive operations benefiting from parallel execution.
 
-A standard message parsing interface consists of a communicator block, controlling parallel processes and information exchange media, responsible for point-to-point or collective interaction between processes.
-To accommodate different demands and of different users, 
-Current implementation supports three different message transfer media, namely message files on a HDD, Matlab parallel computing toolbox MPI implementation and standard MPI framework (currently used implementations are Microsoft MPI for Windows and MPICH for Linux).
+A standard message parsing interface consists of a communicator part, controlling parallel processes and an information exchange media, responsible for point-to-point or collective interaction between these processes.
+To accommodate different demands of different users, 
+we use three different **message transfer media**, namely: 1) message files stored/read from a HDD, 2) Matlab parallel computing toolbox MPI implementation (lab`**` operations) and 3) standard MPI framework. Currently used implementations are Microsoft MPI for Windows and MPICH for Linux. The **communicator/controller**[1](https://en.wikipedia.org/wiki/Message_Passing_Interface#Communicator) parts for these media, are correspondingly: 1) Matlab sessions or compiled Matlab sessions, launched by Matlab's Java launcher, 2) Matlab Parallel computing toolbox job control mechanism and 3) mpiexec launcher, directly controlling standard MPI processes.
+
+The option 1) suits to users who do not want to compile C++ code on a Unix system and do not have Matlab parallel computing toolbox installed, option 2) best for people, who has Matlab parallel computing toolbox installed and 3) -- for experienced users who can compile 
+
+To provide transparent
 
 
- The framework presents a common interface to users and supports parallelization through the MATLAB parallel toolbox and using MPI. A switch argument is used to configure 'the amount of parallelism'
-
-Jobs are compiled operations (e.g. C++, compiled MATLAB) or MATLAB scripts (*)
+User jobs are compiled operations (e.g. C++, compiled MATLAB) or MATLAB scripts (*)
 
 Communication between nodes and the dispatcher is via a Messaging Framework which can be file- or MPI- based.
 
