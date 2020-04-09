@@ -28,6 +28,12 @@ classdef test_experiment < TestCaseWithSave
             assertTrue(isempty(expt.detector_arrays));
         end
 
+        function test_constructor_raises_error_with_invalid_arguments(self)
+            assertExceptionThrown(@()Experiment(IX_detector_array, IX_inst_DGfermi, 'not-a-sample'), 'EXPERIMENT:invalid_argument');
+            assertExceptionThrown(@()Experiment(IX_detector_array, 'not-an-inst', IX_sample), 'EXPERIMENT:invalid_argument');
+            assertExceptionThrown(@()Experiment('not-a-da', IX_inst_DGfermi, IX_sample), 'EXPERIMENT:invalid_argument');
+        end
+
         function test_creates_object_with_array_object_arguments(self)
             detector_array = IX_detector_array;
             instrument = IX_inst_DGfermi;
@@ -93,7 +99,7 @@ classdef test_experiment < TestCaseWithSave
             instruments = 'non-instrument object value';
             expt = Experiment();
             
-            assertExceptionThrown(@() setInstrumentsProperty(expt, instruments), '');
+            assertExceptionThrown(@() setInstrumentsProperty(expt, instruments), 'EXPERIMENT:invalid_argument');
             function setInstrumentsProperty(e, i)
                 e.instruments = i;
             end
@@ -111,7 +117,7 @@ classdef test_experiment < TestCaseWithSave
             samples = 'non-sample object value';
             expt = Experiment();
             
-            assertExceptionThrown(@() setSamplesProperty(expt, samples), '');
+            assertExceptionThrown(@() setSamplesProperty(expt, samples), 'EXPERIMENT:invalid_argument');
             function setSamplesProperty(e, s)
                 e.samples = s;
             end
@@ -129,7 +135,7 @@ classdef test_experiment < TestCaseWithSave
             detector_arrays = 'non-detector_arrays object value';
             expt = Experiment();
             
-            assertExceptionThrown(@() setDetectorArraysProperty(expt, detector_arrays), '');
+            assertExceptionThrown(@() setDetectorArraysProperty(expt, detector_arrays), 'EXPERIMENT:invalid_argument');
             function setDetectorArraysProperty(e, d)
                 e.detector_arrays = d;
             end
