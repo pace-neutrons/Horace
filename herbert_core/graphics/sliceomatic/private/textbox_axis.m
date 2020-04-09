@@ -2,8 +2,7 @@ function textbox_axis(handle, type, textb)
 % DJW 18/6/2007 - added fig and type to input arguments so handle can be
 % used as callback. 
 
-% THIS code will only work within libisis - can use gcf instead when
-% outside libisis, this allows better control though. 
+% Can use gcf instead which allows better control though. 
 
 % *** Replace:
 % [fig, axes, plot, other] = ixf_get_related_handles(handle);

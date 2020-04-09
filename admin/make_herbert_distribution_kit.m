@@ -18,9 +18,8 @@ function make_herbert_distribution_kit(varargin)
 % To use Herbert  one has to unpack the resulting zip file and add the folder
 % where the function herbert_init.m resides to the Matlab search path.
 % alternatively, you can edit the file herbert_init.m.template, file and
-% replace the variable $libisis_path$ and $Horathe_path$ by the actual
-% folders  where the files herbert_init.m  and add to the search path the file
-% herbert_on.m,
+% replace the variable $Horathe_path$ by the actual folders where the file
+% herbert_init.m and add to the search path the file herbert_on.m,
 % after renaming the file herbert_on.m.template to file herbert_on.
 %
 % if called without parameters, this function p-codes Horace private
@@ -32,7 +31,7 @@ function make_herbert_distribution_kit(varargin)
 %
 %
 options = {'-full','-run_by_horace'};
-her_root_dir = herbert_root();  % MUST have rootpath so that herbert_init, libisis_off included
+her_root_dir = herbert_root();  % MUST have rootpath so that herbert_init included
 if isempty(her_root_dir)
     error('MAKE_HERBERT_DISTRIBUTION_KIT:invalid_argument',...
         ' Herbert package have to be initiated to build herbert distribution kit');

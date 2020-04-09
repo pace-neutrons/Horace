@@ -121,8 +121,7 @@ else
         try
             this=repmat(this,arg);
         catch
-            % Generic way of making an array of objects - I think
-            % (works with libisis objects, for which repmat doesn't work)
+            % Generic way of making an array of objects
             this(arg)=this;
         end
     end

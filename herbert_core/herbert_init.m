@@ -77,7 +77,7 @@ function addgenpath_message (varargin)
 % Add a recursive toolbox path from the component directory names, printing
 % a message if the directory does not exist.
 % e.g.
-%   >> addpath_message('c:\mprogs\libisis','bindings','matlab','classes')
+%   >> addpath_message('c:\mprogs\my_app','bindings','matlab','classes')
 
 % T.G.Perring
 
