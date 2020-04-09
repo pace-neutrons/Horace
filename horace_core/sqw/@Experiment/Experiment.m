@@ -40,7 +40,8 @@ classdef Experiment
                 obj.instruments_ =  varargin{2};
                 obj.samples_ = varargin{3};
             else
-                error ('Must give all of detector_array, instrument and sample')
+                error('EXPERIMENT:invalid_argument', ...
+                    'Must give all of detector_array, instrument and sample')
             end
         end
 
@@ -48,7 +49,8 @@ classdef Experiment
             if isa(val,'IX_detector_array') || isempty(val)
                 obj.detector_arrays_ = val;
             else
-                error('Detector array must be one or an array of IX_detector_array object')
+                error('EXPERIMENT:invalid_argument', ...
+                    'Detector array must be one or an array of IX_detector_array object')
             end
         end
         
@@ -56,7 +58,8 @@ classdef Experiment
             if isa(val,'IX_inst') || isempty(val)
                 obj.instruments_ = val;
             else
-                error('Instruments must be one or an array of IX_inst objects')
+                error('EXPERIMENT:invalid_argument', ...
+                    'Instruments must be one or an array of IX_inst objects')
             end
         end
         
@@ -64,7 +67,8 @@ classdef Experiment
             if isa(val,'IX_sample') || isempty(val)
                 obj.samples_ = val;
             else
-                error('Sample must be one or an array of IX_sample objects')
+                error('EXPERIMENT:invalid_argument', ...
+                    'Sample must be one or an array of IX_sample objects')
             end
         end
 
