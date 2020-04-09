@@ -52,6 +52,7 @@ classdef TestSuite < TestComponent
     properties (SetAccess = protected)
         TestCaseClasses = containers.Map();
         TestComponents  = {};
+        PrintRunInfo    = containers.Map('KeyType','char','ValueType','logical');
     end
     
     methods
@@ -199,7 +200,9 @@ classdef TestSuite < TestComponent
             suite = TestSuite;
             suite.Name = class_name;
             suite.Location = which(class_name);
-            suite.TestCaseClasses(class_name) = feval(class_name,class_name);
+            cli = feval(class_name,class_name);
+            suite.TestCaseClasses(class_name) = cli;
+            print_addinfo = cli.print_running_tests;
             
             methods = getClassMethods(class_name);
             for k = 1:numel(methods)
@@ -215,7 +218,7 @@ classdef TestSuite < TestComponent
                         @()setUp(suite.TestCaseClasses(class_name)),...
                         @()tearDown(suite.TestCaseClasses(class_name)));
                     tc.Name =[class_name,'::', method_name];
-                    
+                    tc.print_running_tests = print_addinfo;
                     suite.add(tc);
                 end
             end

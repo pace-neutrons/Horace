@@ -233,6 +233,9 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
         
         % List of any paths to remove after test suite is completed
         paths_to_remove_= {};
+        
+        % 
+        print_running_tests_ = false;
     end
     
     methods
@@ -535,7 +538,7 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             % Use static utility methods
             this.delete_files (this.files_to_delete_)
             this.remove_paths (this.paths_to_remove_)
-        end
+        end                
     end
     
     

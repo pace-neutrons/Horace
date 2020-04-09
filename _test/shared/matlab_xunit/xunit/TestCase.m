@@ -28,11 +28,12 @@
 %   Copyright 2008-2010 The MathWorks, Inc.
 
 classdef TestCase < TestComponent
-    
+   
     properties
         MethodName
     end
-
+    
+    
     methods
         function self = TestCase(testMethod)
             %TestCase Constructor
@@ -69,11 +70,19 @@ classdef TestCase < TestComponent
                 self.setUp();
                 if ischar(self.MethodName)
                     f = str2func(self.MethodName);
+                    name2print  = self.Name;
                 elseif ishandle(self.MethodName)
                     f = self.MethodName;
+                    name2print  = func2str(self.MethodName);
                 else
                     error('TestCase:invalid_argument',...
                         'Unknown Method name type');
+                end
+                if self.print_running_tests
+                    tStart = tic;                    
+                    fprintf('**************************************************** \n');
+                    fprintf('************  starging test: %s\n',name2print);
+                    fprintf('**************************************************** \n');
                 end
                 
                 try
@@ -83,6 +92,14 @@ classdef TestCase < TestComponent
                     monitor.testCaseFailure(self, failureException);
                     did_pass = false;
                 end
+                if self.print_running_tests
+                    tEnd = toc(tStart);
+                    fprintf('**************************************************** \n');
+                    fprintf('************  Test:  %s completed in %5.1fsec\n',...
+                        name2print,tEnd);
+                    fprintf('**************************************************** \n');
+                end
+                
                 
                 self.tearDown();
                 
@@ -97,7 +114,7 @@ classdef TestCase < TestComponent
         function num = numTestCases(self)
             num = 1;
         end
-           
+        
         function print(self, numLeadingBlanks)
             if nargin < 2
                 numLeadingBlanks = 0;

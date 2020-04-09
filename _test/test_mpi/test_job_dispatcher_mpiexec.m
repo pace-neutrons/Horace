@@ -12,6 +12,7 @@ classdef test_job_dispatcher_mpiexec < job_dispatcher_common_tests
                 name = 'test_job_dispatcher_herbert';
             end
             this = this@job_dispatcher_common_tests(name,'mpiexec_mpi');
+            this.print_running_tests = true;            
         end
         %
         function test_job_fail_restart(obj, varargin)

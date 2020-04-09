@@ -20,6 +20,10 @@ classdef TestComponent < handle
     properties
         Name = '';
         Location = '';
+        % If true, prings the names of rest cases beeing run in addition to
+        % normal test output. Usftul for debugging test folders, failing on
+        % time-out. Default  - false;
+        print_running_tests = false;
     end
     
     properties (Access = 'protected')
