@@ -36,9 +36,9 @@ classdef Experiment
                 % Assume trying to initialise from a structure array of properties
                 obj = IX_fermi_chopper.loadobj(varargin{1});
             elseif nargin==3
-                obj.detector_arrays = varargin{1};
-                obj.instruments =  varargin{2};
-                obj.samples = varargin{3};
+                obj.detector_arrays_ = varargin{1};
+                obj.instruments_ =  varargin{2};
+                obj.samples_ = varargin{3};
             else
                 error ('Must give all of detector_array, instrument and sample')
             end
