@@ -13,6 +13,7 @@ classdef test_job_dispatcher_parpool< job_dispatcher_common_tests
                 name = 'test_job_dispatcher_parpool';
             end
             this = this@job_dispatcher_common_tests(name,'parpool');
+            this.print_running_tests = true;            
         end
         %
         function test_finish_tasks_reduce_messages(obj,varargin)

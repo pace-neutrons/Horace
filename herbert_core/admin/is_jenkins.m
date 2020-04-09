@@ -2,7 +2,10 @@ function [is_jenkins_pc,job_name] = is_jenkins()
 % Attempt to determine if the PC we're running on is a Jenkins server.
 %   This is detected through environment variables that are always set by
 %   Jenkins.
-
+%
+% Returns:
+% is_jenkins -- true if the progam is running on Jenkins
+% job_name   -- the value of the Jenkins variable "JOB_NAME", 
 jenkins_env_vars = {'JENKINS_URL', 'JOB_URL', 'JENKINS_HOME'};
 job_name ='';
 

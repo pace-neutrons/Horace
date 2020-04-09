@@ -535,7 +535,7 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             % Use static utility methods
             this.delete_files (this.files_to_delete_)
             this.remove_paths (this.paths_to_remove_)
-        end
+        end                
     end
     
     
