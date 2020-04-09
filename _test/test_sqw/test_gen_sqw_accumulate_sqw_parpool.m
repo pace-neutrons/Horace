@@ -53,6 +53,7 @@ classdef test_gen_sqw_accumulate_sqw_parpool <  ...
             end
             obj = obj@gen_sqw_common_config(-1,1,'mex_code','parpool');
             obj = obj@gen_sqw_accumulate_sqw_tests_common(test_name,'parpool');
+            obj.print_running_tests = true;
         end
         
         %         %------------------------------------------------------------------
@@ -83,24 +84,24 @@ classdef test_gen_sqw_accumulate_sqw_parpool <  ...
         %             end
         %
         %         end
-%         function test_accumulate_sqw1456(obj,varargin)
-%             if is_jenkins && ispc
-%                 warning('test_accumulate_sqw1456 disabled')
-%                 return
-%             else
-%                 test_accumulate_sqw1456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
-%             end
-%             
-%         end
-%         function test_accumulate_sqw11456(obj,varargin)
-%             if is_jenkins && ispc
-%                 warning('test_accumulate_sqw11456 disabled')
-%                 return
-%             else
-%                 test_accumulate_sqw11456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
-%             end
-%             
-%         end
+        %         function test_accumulate_sqw1456(obj,varargin)
+        %             if is_jenkins && ispc
+        %                 warning('test_accumulate_sqw1456 disabled')
+        %                 return
+        %             else
+        %                 test_accumulate_sqw1456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
+        %             end
+        %
+        %         end
+        %         function test_accumulate_sqw11456(obj,varargin)
+        %             if is_jenkins && ispc
+        %                 warning('test_accumulate_sqw11456 disabled')
+        %                 return
+        %             else
+        %                 test_accumulate_sqw11456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
+        %             end
+        %
+        %         end
     end
     
 end
