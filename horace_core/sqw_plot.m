@@ -156,7 +156,7 @@ tmp=IX_dataset_2d ('Spectral weight', weight, zeros(size(weight)),...
 
 if opt.plot
     da(tmp)
-    plot_labels(labels,xrlp);   % do this in case of older Herbert or Libisis
+    plot_labels(labels,xrlp);   % do this in case of older Herbert
     if opt.grid && numel(xrlp)>2
         % Plot vertical lines at the rlp except at edges of the plot
         set(gca,'TickDir','out')
