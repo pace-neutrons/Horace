@@ -1,5 +1,6 @@
 #include "sort_pixels_by_bins.h"
-//
+#include "utility/version.h"
+
 enum Input_Arguments {
     Pixel_data,
     Pixel_Indexes,
@@ -188,14 +189,13 @@ std::string  verify_index_array(const mxArray * pix_cell_array_ptr, bool &is_int
 !
 ! 1 -- cellarray of arrays of pixels for sorting
 ! 2 -- cellarray of arrays of indexes of pixels within cells (a cell has more then one pixel and all pixels within this cell have the same index)
-! 3 -- number of pixels in each cell  (densities) 
+! 3 -- number of pixels in each cell  (densities)
 !
 /**********************************************************************************************/
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-    const char REVISION[] = "$Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)";
-    if (nrhs == 0 && nlhs == 1) {
-        plhs[0] = mxCreateString(REVISION);
+    if (nrhs == 0 && (nlhs == 0 || nlhs == 1)) {
+        plhs[0] = mxCreateString(Horace::VERSION);
         return ;
     }
 
@@ -269,7 +269,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
       }
     */
     InputOutputTypes type_requested = process_types(pix_single_precision, index_is_integer, double_output);
-    if (type_requested == ERROR){ 
+    if (type_requested == ERROR){
         mexErrMsgTxt("Sort_pixels_by_bins: unsupported combination of input/output types");
     }
 

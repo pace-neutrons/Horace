@@ -15,15 +15,23 @@ version number should be accessible from within the Matlab and C++ code.
 
 ## Decision
 
-The version will be defined in the top-level CMakeLists.txt file, within the
-`project()` call. Template Matlab and C++ files will be written, these
-templates will be formatted and copied into the Matlab/C++ source tree by
-CMake at configure time.
+The version number will be defined in a top-level VERSION file. This file
+should contain a version number of format \<major\>.\<minor\>.\<patch\> and
+nothing else, including whitespace.
 
-The version will have format \<major\>.\<minor\>.\<patch\>[.\<git-sha\>].
-The Git SHA will be excluded from builds created via the release pipeline;
-builds generated locally by developers and in pull request/nightly Jenkins jobs
-will include the SHA.
+CMake will read the VERSION file and formate template Matlab and C++ files.
+These templates will be copied into the Matlab/C++ source tree by CMake at
+configure time.
+
+If CMake is building a developer version (i.e. CMake variable
+`Horace_RELEASE_TYPE` is not equal to `RELEASE`), CMake will append a Git SHA
+to the end of the version number. The Git SHA will be excluded from builds
+created via the release pipeline; builds generated locally by developers and in
+pull request/nightly Jenkins jobs will include the SHA.
+
+If CMake has not been run and has not generated the Matlab file containing the
+version, Matlab will read the VERSION file and append `.dev` to the version.
+This will signify this is an un-built developer version.
 
 ## Consequences
 
@@ -31,6 +39,5 @@ will include the SHA.
 - The version number will be accessible from within Matlab and C++.
 - The version number will be correct for every build.
 - The version returned by the Matlab version will not be updated until CMake is
-  run. If CMake has not been run, the version returned by the Matlab code will
-  be `0.0.0.dev` indicating that this is a developer copy that is yet to be
-  built.
+  run. This means local developer copies of the repo will have outdated
+  version SHAs if CMake has not been run.

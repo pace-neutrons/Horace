@@ -11,8 +11,8 @@ end
 use = logical(use);
 if use
     if (exist(hdf_mex_reader,'file') == 3)
-        ver = hdf_mex_reader();
-        if isempty(ver)
+        hor_ver = hdf_mex_reader();
+        if isempty(hor_ver)
             error('HDF_PIX_GROUP:runtime_error',...
                 'Attempt to enable hdf mex access mode but the mex file to do  this is broken');
         end
@@ -29,4 +29,3 @@ elseif ~obj.use_mex_to_read && use
     obj.mex_read_handler_ = hdf_mex_reader('init',obj.filename_,obj.nexus_group_name_);
     obj.use_mex_to_read_ = true;
 end
-

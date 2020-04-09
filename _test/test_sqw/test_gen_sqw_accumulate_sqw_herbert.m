@@ -1,7 +1,7 @@
 classdef test_gen_sqw_accumulate_sqw_herbert <  ...
         gen_sqw_accumulate_sqw_tests_common & gen_sqw_common_config
     % Series of tests of gen_sqw and associated functions
-    % generated using multiple matlab workers.
+    % generated using multiple Matlab workers.
     %
     % Optionally writes results to output file to compare with previously
     % saved sample test results
@@ -35,13 +35,12 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             % Series of tests of gen_sqw and associated functions
             % Optionally writes results to output file
             %
-            %   >> test_gen_sqw_accumulate_sqw          % Compares with
-            %   previously saved results in
-            %   test_gen_sqw_accumulate_sqw_output.mat
-            %                                           % in the same
-            %                                           folder as this
-            %                                           function
-            %   >> test_gen_sqw_accumulate_sqw ('save') % Save to
+            %   >> test_gen_sqw_accumulate_sqw           % Compares with
+            %   previously saved results stored in
+            %   test_gen_sqw_accumulate_sqw_output.mat, located
+            %   in the same folder as this function.
+            %
+            %   >> test_gen_sqw_accumulate_sqw ('save')  % Save to
             %   test_multifit_horace_1_output.mat
             %
             % Reads previously created test data sets.
@@ -53,8 +52,16 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             obj = obj@gen_sqw_common_config(-1,1,-1,'herbert');
             obj = obj@gen_sqw_accumulate_sqw_tests_common(test_name,'herbert');
         end
+        function del_tmp(obj,tmp_files_list)
+            for i=1:numel(tmp_files_list)
+                file = tmp_files_list{i};
+                if exist(file,'file')==2
+                    delete(file);
+                end
+            end
+        end
         %
-        function test_worker(this)
+        function test_worker(obj)
             worker_local = 'worker_4tests_local';
             
             mis = MPI_State.instance('clear');
@@ -64,9 +71,9 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             %
             % Input data:
             %--------------------------------------------------------------
-            this= build_test_files(this);
+            obj= build_test_files(obj);
             
-            [dummy,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
+            [dummy,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
             ds.efix=efix(1);
             ds.emode =emode;
             ds.psi=psi(1);
@@ -80,21 +87,21 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             ds.v = v;
             
             %
-            [path,file] = fileparts(this.spe_file{1});
+            [path,file] = fileparts(obj.spe_file{1});
             tmp_file1 = fullfile(path,[file,'.tmp']);
-            run1=rundatah(this.spe_file{1},ds);
+            run1=rundatah(obj.spe_file{1},ds);
             %
-            [path,file] = fileparts(this.spe_file{2});
+            [path,file] = fileparts(obj.spe_file{2});
             tmp_file2 = fullfile(path,[file,'.tmp']);
-            ds.psi=psi(1);
-            run2=rundatah(this.spe_file{1},ds);
+            ds.psi=psi(2);
+            run2=rundatah(obj.spe_file{1},ds);
             runs = {run1;run2};
-            tmp_file = {tmp_file1,tmp_file2};
-            clof = onCleanup(@()delete(tmp_file{:}));
+            tmp_files = {tmp_file1,tmp_file2};
+            clof = onCleanup(@()del_tmp(obj,tmp_files));
             %--------------------------------------------------------------
             % prepare job parameters for the parallel processing
             [common_par,loop_par]=gen_sqw_files_job.pack_job_pars(...
-                runs,tmp_file,this.instrum(1),this.sample,...
+                runs,tmp_files,obj.instrum(1),obj.sample,...
                 [50,50,50,50],[-1.5,-2.1,-0.5,0;0,0,0.5,35]);
             [task_id_list,init_mess]=JobDispatcher.split_tasks(common_par,loop_par,true,1);
             
@@ -110,7 +117,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             assertEqual(ok,MESS_CODES.ok,err);
             
             wk_init= serverfbMPI.get_worker_init('MessagesFilebased',1,1);
-
+            
             worker_h = str2func(worker_local);
             [ok,error_mess]=worker_h(wk_init);
             assertTrue(ok,error_mess)
@@ -131,20 +138,66 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             assertEqual(res.grid_size,[50 50 50 50]);
             assertElementsAlmostEqual(res.urange,...
                 [-1.5000 -2.1000 -0.5000 0;0 0 0.5000 35.0000]);
+            % clear results of gen_tmp job
+            serverfbMPI.clear_messages();
             %
+            %-------------------------------------------------------------
+            % Accumulate headers job. Test components.
+            %write_nsqw_to_sqw(infiles,'test_sqw_file.sqw');
+            %[main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
+            [~,~,~,~,~,~,det,ldrs] = accumulate_headers_job.read_input_headers(tmp_files);
+            assertEqual(numel(det.group),96);
+            
+            [common_par,loop_par] = accumulate_headers_job.pack_job_pars(ldrs);
+            assertTrue(isempty(common_par));
+            assertEqual(numel(loop_par),2);
+            
+            je_init_message = JobExecutor.build_worker_init(...
+                'accumulate_headers_job',false,false);
+            [task_ids,taskInitMessages]=...
+                JobDispatcher.split_tasks(common_par,loop_par,true,2);
+            
+            [ok,err]=serverfbMPI.send_message(1,je_init_message);
+            assertEqual(ok,MESS_CODES.ok,err);
+            [ok,err]=serverfbMPI.send_message(2,je_init_message);
+            assertEqual(ok,MESS_CODES.ok,err);
+            [ok,err]=serverfbMPI.send_message(1,taskInitMessages{1});
+            assertEqual(ok,MESS_CODES.ok,err);
+            [ok,err]=serverfbMPI.send_message(2,taskInitMessages{2});
+            assertEqual(ok,MESS_CODES.ok,err);
+            
+            wk_init1= serverfbMPI.get_worker_init('MessagesFilebased',1,2);
+            wk_init2= serverfbMPI.get_worker_init('MessagesFilebased',2,2);
+            
+            
+            [ok,error_mess]=worker_h(wk_init2);
+            assertTrue(ok,error_mess)
+            [ok,error_mess]=worker_h(wk_init1);
+            assertTrue(ok,error_mess)
+            
+            
+            [ok,err] = serverfbMPI.receive_message(1,'started');
+            assertTrue(ok==MESS_CODES.ok,err);
+            [ok,err] = serverfbMPI.receive_message(1,'log');
+            assertTrue(ok==MESS_CODES.ok,err);
+            [ok,err,mess1] = serverfbMPI.receive_message(1,'completed');
+            assertTrue(ok==MESS_CODES.ok,err);            
+            assertEqual(numel(mess1.payload),2)
+            res_s = mess1.payload{1};
+            assertEqual(sum(reshape(res_s.npix,1,numel(res_s.npix))),2246);
         end
         %
-        function test_do_job(this)
+        function test_do_job(obj)
             
             mis = MPI_State.instance('clear');
             mis.is_tested = true;
             mis.is_deployed = true;
             clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));
             
-            this= build_test_files(this);
+            obj= build_test_files(obj);
             
             
-            [dummy,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
+            [dummy,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
             ds.efix=efix(1);
             ds.emode =emode;
             ds.psi=psi(1);
@@ -157,14 +210,14 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             ds.u = u;
             ds.v = v;
             
-            [path,file] = fileparts(this.spe_file{1});
+            [path,file] = fileparts(obj.spe_file{1});
             tmp_file = fullfile(path,[file,'.tmp']);
             clob = onCleanup(@()delete(tmp_file));
             
-            run=rundatah(this.spe_file{1},ds);
+            run=rundatah(obj.spe_file{1},ds);
             
             [common_par,loop_par]=gen_sqw_files_job.pack_job_pars(...
-                run,tmp_file,this.instrum(1),this.sample,...
+                run,tmp_file,obj.instrum(1),obj.sample,...
                 [50,50,50,50],[-1.5,-2.1,-0.5,0;0,0,0.5,35]);
             
             serverfbMPI  = MessagesFilebased('test_do_job');
@@ -194,9 +247,11 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             assertTrue(exist(tmp_file,'file')==2);
             [ok,err]=serverfbMPI.receive_message(1,'log');
             assertEqual(ok,MESS_CODES.ok,err);
+            
+            
         end
         %
-        function test_finish_task(this)
+        function test_finish_task(obj)
             
             
             serverfbMPI  = MessagesFilebased('test_finish_task');
@@ -243,7 +298,17 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
                 [-2,-3, -3,-20; 2, 3, 3 15]);
             
         end
-        
-        
+        %------------------------------------------------------------------
+%         % Block of code to disable some tests for debugging Jenkins jobs
+%         function test_gen_sqw(obj,varargin)
+%         end
+%         function test_accumulate_sqw14(obj,varargin)        
+%         end
+%         function test_accumulate_and_combine1to4(obj,varargin)        
+%         end
+%         function test_accumulate_sqw1456(obj,varargin)        
+%         end
+%         function test_accumulate_sqw11456(obj,varargin)        
+%         end
     end
 end

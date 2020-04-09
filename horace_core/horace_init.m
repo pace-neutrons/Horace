@@ -61,8 +61,6 @@ horace_plot.name_contour = 'Horace contour plot';
 horace_plot.name_sliceomatic = 'Sliceomatic';
 set_global_var('horace_plot',horace_plot);
 
-[~,Matlab_code,mexMinVer,mexMaxVer,date] = horace_version();
-mc = [Matlab_code(1:48),'$)'];
 %
 hc = hor_config;
 check_mex = false;
@@ -73,63 +71,38 @@ end
 hpcc = hpc_config;
 if hc.is_default ||hpcc.is_default
     warning([' Found Horace is not configured. ',...
-             ' Setting up the configuration, identified as optimal for this type of the machine.',...
-             ' Please, check configurations (typing:',...
-             ' >>hor_config and >>hpc_config)',...
-             ' to ensure these configurations are correct.'])
+        ' Setting up the configuration, identified as optimal for this type of the machine.',...
+        ' Please, check configurations (typing:',...
+        ' >>hor_config and >>hpc_config)',...
+        ' to ensure these configurations are correct.'])
     % load and apply configuration, assumed to be optimal for this kind of the machine.
     conf_c = opt_config_manager();
     conf_c.load_configuration('-set_config','-change_only_default','-force_save');
 end
 
 if check_mex
-    if isempty(mexMaxVer)
+    [~, n_mex_errors] = check_horace_mex();
+    if n_mex_errors >= 1
         hc.use_mex = false;
     else
         hc.use_mex = true;
-    end	
+    end
 end
-
-
 
 hec = herbert_config;
 if hec.init_tests
     % add path to folders, which responsible for administrative operations
     up_root = fileparts(rootpath);
     addpath_message(1,fullfile(up_root,'admin'))
+    % Copy worter_4tests.template into Horace tests to be used in these
+    % tests.
+    copy_tests_fiels();
 end
 % Beta version: Suppress warning occurring when old instrument is stored in
 % an sqw file and is automatically converted into MAPS
 warning('off','SQW_FILE:old_version')
 
-
-disp('!==================================================================!')
-disp('!                      HORACE                                      !')
-disp('!------------------------------------------------------------------!')
-disp('!  Visualisation of multi-dimensional neutron spectroscopy data    !')
-disp('!                                                                  !')
-disp('!  R.A. Ewings, A. Buts, M.D. Le, J van Duijn,                     !')
-disp('!  I. Bustinduy, and T.G. Perring                                  !')
-disp('!                                                                  !')
-disp('!  Nucl. Inst. Meth. A 834, 132-142 (2016)                         !')
-disp('!                                                                  !')
-disp('!  http://dx.doi.org/10.1016/j.nima.2016.07.036                    !')
-disp('!------------------------------------------------------------------!')
-disp(['! Matlab  code: ',mc,' !']);
-if isempty(mexMaxVer)
-    disp('! Mex code:    Disabled  or not supported on this platform         !')
-else
-    if mexMinVer==mexMaxVer
-        mess=sprintf('! Mex files   : $Revision:: %4d (%s  $) !',mexMaxVer,date(1:28));
-    else
-        mess=sprintf(...
-            '! Mex files   :$Revisions::%4d-%3d(%s$)!',mexMinVer,mexMaxVer,date(1:28));
-    end
-    disp(mess)
-    
-end
-disp('!------------------------------------------------------------------!')
-
+print_banner();
 
 %--------------------------------------------------------------------------
 function addpath_message (type,varargin)
@@ -155,3 +128,49 @@ if exist(string,'dir')==7
 else
     warning('HORACE:init','"%s" is not a directory - not added to path',string)
 end
+
+function copy_tests_fiels()
+% copy test files, used in Horace to their appropriate place in test folder
+%
+% At the moment, only worker_4tests.m.template is copied and distributed.
+%
+source = fullfile(herbert_root(),'admin','worker_4tests.m.template');
+[content,ok,mess] = read_text(source);
+if ~ok
+    warning('HORACE_INIT:runtine_error',...
+        ' Can not read source script file: %s used as a template for local worker in gen_sqw tests. Error: %s',...
+        source,mess)
+end
+content = [...
+    {'%************************* !!! WARNING !!! ********************************'};...
+    {'% This file is copied automatically from Herbert worker_4tests.m.template  '};...
+    {'% All modifications to this file will be lost next time Horace is initiated'};...
+    {'%**************************************************************************'};...
+    content'];
+target = fullfile(horace_root(),'_test','test_sqw','worker_4tests_local.m');
+[ok,mess]=save_text(content,target);
+if ~ok
+    warning('HORACE_INIT:runtine_error',...
+        ' Can not write script file: %s used as local worker in gen_sqw tests; Error: %s',...
+        target,mess)
+end
+
+function print_banner()
+    width = 66;
+    lines = {
+        ['Horace ', horace_version()], ...
+        repmat('-', 1, width), ...
+        'Visualisation of multi-dimensional neutron spectroscopy data', ...
+        '', ...
+        'R.A. Ewings, A. Buts, M.D. Le, J van Duijn,', ...
+        'I. Bustinduy, and T.G. Perring', ...
+        '', ...
+        'Nucl. Inst. Meth. A 834, 132-142 (2016)', ...
+        '', ...
+        'http://dx.doi.org/10.1016/j.nima.2016.07.036'
+    };            
+    fprintf('!%s!\n', repmat('=', 1, width));                
+    for i = 1:numel(lines)
+        fprintf('!%s!\n', center_and_pad_string(lines{i}, ' ', width));
+    end
+    fprintf('!%s!\n', repmat('-', 1, width));

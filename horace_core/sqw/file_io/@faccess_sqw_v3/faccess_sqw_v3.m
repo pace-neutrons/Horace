@@ -71,6 +71,16 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         eof_pos_ = 0;
     end
     %
+    properties(Constant,Access=protected,Hidden=true)
+        % list of fileldnames to save on hdd to be able to recover
+        % all substantial parts of appropriate sqw file
+        data_fields_to_save_ = {'instrument_head_pos_';'instrument_pos_';...
+            'sample_head_pos_';'sample_pos_';'instr_sample_end_pos_';...
+            'position_info_pos_';'eof_pos_'};
+        v3_data_form_ = field_generic_class_hv3();
+    end
+    
+    %
     methods(Access=protected,Hidden=true)
         function obj=init_from_sqw_file(obj)
             % initialize the structure of faccess class using opened
@@ -124,15 +134,19 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             end
             [obj,missinig_fields] = copy_contents_(obj,other_obj,keep_internals);
         end
-        
-    end
-    %
-    properties(Constant,Access=protected,Hidden=true)
-        % list of fileldnames to save on hdd to be able to recover
-        % all substantial parts of appropriate sqw file
-        data_fields_to_save_ = {'instrument_head_pos_','instrument_pos_',...
-            'sample_head_pos_','sample_pos_','instr_sample_end_pos_'};
-        v3_data_form_ = field_generic_class_hv3();
+        %
+        function obj=init_from_structure(obj,obj_structure_from_saveobj)
+            % init file accessors using structure, obtained for object
+            % serialization (saveobj method);
+            obj = init_from_structure@sqw_binfile_common(obj,obj_structure_from_saveobj);
+            %
+            flds = obj.data_fields_to_save_;
+            for i=1:numel(flds)
+                if isfield(obj_structure_from_saveobj,flds{i})
+                    obj.(flds{i}) = obj_structure_from_saveobj.(flds{i});
+                end
+            end
+        end
     end
     %
     methods
@@ -169,7 +183,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             %                       to save sqw object provided. The name
             %                       of the file to save the object should
             %                       be provided separately.
-			
+            
             %
             % set up fields, which define appropriate file version
             obj.file_ver_ = 3.1;
@@ -263,16 +277,26 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         end
         %
         function obj = upgrade_file_format(obj)
-		    % upgrade the file to recent write format and open this file 
-			% for writing/updating
-			%
-            % v3.1 is currently (01/01/2017) recent file format, so 
+            % upgrade the file to recent write format and open this file
+            % for writing/updating
+            %
+            % v3.1 is currently (01/01/2017) recent file format, so
             % the method just reopens file for update.
             if ~isempty(obj.filename)
                 obj = obj.set_file_to_update();
             end
         end
         %
+        function struc = saveobj(obj)
+            % method used to convert object into structure
+            % for saving it to disc.
+            struc = saveobj@sqw_binfile_common(obj);
+            flds = obj.data_fields_to_save_;
+            for i=1:numel(flds)
+                struc.(flds{i}) = obj.(flds{i});
+            end
+        end
+        
     end
     %
     methods(Static,Hidden=true)
@@ -291,5 +315,6 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         end
         
     end
+    
 end
 
