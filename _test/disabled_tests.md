@@ -17,6 +17,7 @@
 	- test_symm_equivalent_zones (Optimize Symmetrization #24 : https://github.com/pace-neutrons/Horace/issues/24 -- but is the part of the refactoring
 
 - test_tobyfit/
+	- test_tobyfit_1 https://github.com/pace-neutrons/Horace/issues/186
 	- test_tobyfit_refine_crystal_1.m (no ticket)
 
 - test_proj_captions.m  : part of https://github.com/pace-neutrons/Horace/issues/49 -- generic projection refactoring
