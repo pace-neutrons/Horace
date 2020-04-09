@@ -27,9 +27,6 @@ warning('off','MATLAB:subscripting:noSubscriptsSpecified');
 addpath(rootpath);  % MUST have rootpath so that herbert_init, herbert_off included
 addpath(fullfile(rootpath,'admin'));
 
-% Compatibility functions with Libisis, Mgenie
-addgenpath_message (rootpath,'compatibility');
-
 % Configurations
 addgenpath_message (rootpath,'configuration');
 
