@@ -233,9 +233,6 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
         
         % List of any paths to remove after test suite is completed
         paths_to_remove_= {};
-        
-        % 
-        print_running_tests_ = false;
     end
     
     methods

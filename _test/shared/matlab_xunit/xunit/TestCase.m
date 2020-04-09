@@ -81,7 +81,7 @@ classdef TestCase < TestComponent
                 if self.print_running_tests
                     tStart = tic;                    
                     fprintf('**************************************************** \n');
-                    fprintf('************  starging test: %s\n',name2print);
+                    fprintf('************  starting test: %s\n',name2print);
                     fprintf('**************************************************** \n');
                 end
                 
