@@ -24,8 +24,8 @@ function make_horace_distribution_kit(varargin)
 % where the function Horace_init.m resides to the Matlab search path.
 % alternatively, you can edit the file Horace_on.template, file and
 % replace the variable $herbert_path$ and $Horathe_path$ by the actual
-% folders  where the files Horace_init.m and libisis_init.m or herbert_init reside
-% (Horace needs Libisis or Herbert to work)
+% folders  where the files Horace_init.m and herbert_init reside
+% (Horace needs Herbert to work)
 % and add to the search path the file Horace_on.m,
 % after renaming the file Horace_on.m.template to horace_on.m.
 %
