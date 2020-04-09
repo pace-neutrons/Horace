@@ -80,6 +80,60 @@ classdef test_experiment < TestCaseWithSave
             assertEqual(expt.samples, [])
             assertEqual(expt.detector_arrays, [])
         end
+
+        function test_instruments_setter_updates_value_for_valid_value(self)
+            instruments = [IX_inst_DGfermi, IX_inst_DGdisk];
+            expt = Experiment();
+            expt.instruments = instruments;
+            
+            assertEqual(expt.instruments, instruments);
+        end
+
+        function test_instruments_setter_raises_error_for_invalid_value(self)
+            instruments = 'non-instrument object value';
+            expt = Experiment();
+            
+            assertExceptionThrown(@() setInstrumentsProperty(expt, instruments), '');
+            function setInstrumentsProperty(e, i)
+                e.instruments = i;
+            end
+        end
+
+        function test_samples_setter_updates_value_for_valid_value(self)
+            samples = [IX_sample];
+            expt = Experiment();
+            expt.samples = samples;
+            
+            assertEqual(expt.samples, samples);
+        end
+
+        function test_samples_setter_raises_error_for_invalid_value(self)
+            samples = 'non-sample object value';
+            expt = Experiment();
+            
+            assertExceptionThrown(@() setSamplesProperty(expt, samples), '');
+            function setSamplesProperty(e, s)
+                e.samples = s;
+            end
+        end
+
+        function test_detector_arrays_setter_updates_value_for_valid_value(self)
+            detector_arrays = [IX_detector_array];
+            expt = Experiment();
+            expt.detector_arrays = detector_arrays;
+            
+            assertEqual(expt.detector_arrays, detector_arrays);
+        end
+
+        function test_detector_arrays_setter_raises_error_for_invalid_value(self)
+            detector_arrays = 'non-detector_arrays object value';
+            expt = Experiment();
+            
+            assertExceptionThrown(@() setDetectorArraysProperty(expt, detector_arrays), '');
+            function setDetectorArraysProperty(e, d)
+                e.detector_arrays = d;
+            end
+        end
     end
 end
 
