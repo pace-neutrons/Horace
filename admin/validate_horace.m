@@ -56,13 +56,13 @@ if isempty(test_folders) % no tests specified on command line - run them all
         'test_multifit', ...
         'test_rebin', ...
         % 'test_spinw_integration', ...
-        'test_sqw', ...
-        'test_sqw_file', ...
         'test_sym_op', ...
         'test_symmetrisation', ...
         'test_tobyfit', ...
         'test_transformation', ...
         'test_utilities', ...
+        'test_sqw_file', ...
+        'test_sqw' ...
         };
 end
 
@@ -129,7 +129,7 @@ if parallel && license('checkout', 'Distrib_Computing_Toolbox')
                 cores = 12;
             end
             parpool(cores);
-
+            
         end
     end
     test_ok = false(1, numel(test_folders_full));
@@ -143,7 +143,7 @@ else
     time = bigtic();
     tests_ok = runtests(test_folders_full{:});
     bigtoc(time, '===COMPLETED UNIT TESTS RUN ');
-
+    
 end
 close all
 clear config_store;
@@ -157,14 +157,14 @@ end
 
 %=================================================================================================================
 function validate_horace_cleanup(cur_herbert_config, cur_horace_config, cur_hpc_config, test_folders)
-    warn = warning('off', 'all'); % avoid warning on deleting non-existent path
-    % Reset the configurations, and remove unit test folders from the path
-    set(herbert_config, cur_herbert_config);
-    set(hor_config, cur_horace_config);
-    set(hpc_config, cur_hpc_config);
+warn = warning('off', 'all'); % avoid warning on deleting non-existent path
+% Reset the configurations, and remove unit test folders from the path
+set(herbert_config, cur_herbert_config);
+set(hor_config, cur_horace_config);
+set(hpc_config, cur_hpc_config);
 
-    % Clear up the test folders, previously placed on the path
-    for i = 1:numel(test_folders)
-        rmpath(test_folders{i});
-    end
-    warning(warn);
+% Clear up the test folders, previously placed on the path
+for i = 1:numel(test_folders)
+    rmpath(test_folders{i});
+end
+warning(warn);
