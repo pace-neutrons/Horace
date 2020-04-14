@@ -130,6 +130,7 @@ classdef test_faccess_sqw_v3< TestCase
             inst1 = to.get_instrument(1);
             assertEqual(inst,inst1);
         end
+        %
         function obj = test_get_sqw(obj)
             
             fo = faccess_sqw_v3();
@@ -287,6 +288,44 @@ classdef test_faccess_sqw_v3< TestCase
             
             assertEqual(fo,fr);
         end
+        %
+        function test_wrong_file_name_activated(obj)
+            ld = sqw_formats_factory.instance.get_loader(obj.sample_file);
+            sample_obj = ld.get_sqw();
+            
+            test_name = 'test_wrong_file_name_activated_1.sqw';
+            targ_file = fullfile(tmp_dir(),test_name);
+            
+            wrt =sqw_formats_factory.instance.get_pref_access(sample_obj);
+            wrt = wrt.init(sample_obj,targ_file);
+            
+            % test file has been stored with name test_name.
+            wrt.put_sqw();
+            test_name_2 = 'test_wrong_file_name_activated_2.sqw';
+            targ_file_2 = fullfile(tmp_dir(),test_name_2);
+            wrt.delete();
+            clob1 = onCleanup(@()delete(targ_file));
+            copyfile(targ_file,targ_file_2);
+            clob = onCleanup(@()delete(targ_file_2));
+            
+            % test file has been recovered with the name test_name_2.
+            ld = sqw_formats_factory.instance.get_loader(targ_file_2);
+            assertEqual(ld.filename,test_name_2);
+            assertEqual(ld.filepath,tmp_dir());
+        end
+        %
+        function test_correct_file_activated(obj)
+            test_name = 'test_correct_activation.sqw';
+            targ_file = fullfile(tmp_dir(),test_name);
+            copyfile(obj.sample_file,targ_file);
+            clob = onCleanup(@()delete(targ_file));
+            
+            fo = faccess_sqw_v3();
+            fo = fo.init(targ_file);
+            assertEqual(fo.filename,test_name);
+            assertEqual(fo.filepath,tmp_dir());
+        end
+        
         
     end
 end
