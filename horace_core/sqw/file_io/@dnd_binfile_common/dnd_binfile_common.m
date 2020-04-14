@@ -237,6 +237,9 @@ classdef dnd_binfile_common < dnd_file_interface
                     obj.(flds{i}) = obj_structure_from_saveobj.(flds{i});
                 end
             end
+            if obj.is_activated()
+                return;
+            end
             if ~ischar(obj.num_dim_) && ~isempty(obj.filename_)
                 file = fullfile(obj.filepath,obj.filename);
                 if exist(file,'file') == 2
@@ -452,13 +455,12 @@ classdef dnd_binfile_common < dnd_file_interface
             sqw_obj  = obj.sqw_holder_;
         end
         %
-        function struc = saveobj(obj)
-            % method used to convert object into structure
-            % for saving it to disc.
-            struc = saveobj@dnd_file_interface(obj);
-            flds = obj.fields_to_save_;
-            for i=1:numel(flds)
-                struc.(flds{i}) = obj.(flds{i});
+        function is = is_activated(obj)
+            % check if the file-accessor is bind with open binary file
+            if ~isempty(obj.file_closer_) && obj.file_id_ >0
+                is  = true;
+            else
+                is = false;
             end
         end
         %
@@ -494,7 +496,16 @@ classdef dnd_binfile_common < dnd_file_interface
             end
             obj.file_closer_ = onCleanup(@()obj.fclose());
         end
-        
+        %
+        function struc = saveobj(obj)
+            % method used to convert object into structure
+            % for saving it to disc.
+            struc = saveobj@dnd_file_interface(obj);
+            flds = obj.fields_to_save_;
+            for i=1:numel(flds)
+                struc.(flds{i}) = obj.(flds{i});
+            end
+        end
     end
     %
     methods(Static)
