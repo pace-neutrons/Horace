@@ -182,7 +182,7 @@ tmp=IX_dataset_2d ('Spectral weight', weight, zeros(size(weight)),...
 
 if opt.plot
     da(tmp)
-    plot_labels(labels,xrlp);   % do this in case of older Herbert or Libisis
+    plot_labels(labels,xrlp);   % do this in case of older Herbert
 end
 
 if nargout>=1
