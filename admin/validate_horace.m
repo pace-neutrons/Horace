@@ -109,8 +109,10 @@ set(hoc, 'defaults');
 hec.init_tests = true; % initialise unit tests
 hoc.use_mex = ~nomex;
 hoc.force_mex_if_use_mex = forcemex;
-if ~talkative
-    set(hec, 'log_level', -1); % turn off informational output
+if talkative
+    hec.log_level = 1; % force log level high.
+else
+    hec.log_level = -1;    % turn off informational output
 end
 
 
