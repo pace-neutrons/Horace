@@ -23,5 +23,4 @@
 - test_proj_captions.m  : part of https://github.com/pace-neutrons/Horace/issues/49 -- generic projection refactoring
 	- test_spher_caption (no ticket)
 	- test_spher_caption2D (no ticket)
-- test_sqw:
-    disabled all parallel tests for parallel combine sqw job. It looks like Something is wrong with it
+    
