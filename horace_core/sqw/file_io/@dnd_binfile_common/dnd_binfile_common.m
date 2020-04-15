@@ -456,17 +456,14 @@ classdef dnd_binfile_common < dnd_file_interface
         end
         %
         function is = is_activated(obj)
-            % check if the file-accessor is bind with open binary file
-            if ~isempty(obj.file_closer_) && obj.file_id_ >0
-                is  = true;
-            else
-                is = false;
-            end
+            % Check if the file-accessor is bind with open binary file
+            %
+            is =  ~isempty(obj.file_closer_) && obj.file_id_ >0;
         end
         %
         function obj = deactivate(obj)
-            % close respective file keeping all internal information about
-            % this file alive.
+            % Close respective file keeping all internal information about
+            % this file in memory.
             %
             % To use for MPI transfers between workers when open file can
             % not be transferred between workers but everything else can
@@ -480,7 +477,7 @@ classdef dnd_binfile_common < dnd_file_interface
         function obj = activate(obj)
             % open respective file for reading without reading any
             % supplementary file information. Assume that this information
-            % is correct
+            % is correct.
             %
             % To use for MPI transfers between workers when open file can
             % not be transferred between workers but everything else can
