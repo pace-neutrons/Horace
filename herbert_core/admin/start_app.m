@@ -8,12 +8,12 @@ function start_app (app_name,opt,varargin)
 % Place this function (i.e. start_app) in a directory on your matlab path.
 %
 % EXAMPLE
-% To set up libisis, located in root directory c:\mprogs\libisis, type (or add to
+% To set up my_app, located in root directory c:\mprogs\my_app, type (or add to
 % your startup.m):
-%   >> start_app ('libisis','c:\mprogs\libisis')
+%   >> start_app ('my_app','c:\mprogs\my_app')
 %
 % To turn the application off:
-%   >> start_app ('libisis', '-off')
+%   >> start_app ('my_app', '-off')
 %
 % Notes:
 % ------

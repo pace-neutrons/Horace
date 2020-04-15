@@ -103,10 +103,6 @@ function sliceomatic(U1,U2,U3,S,xlabel,ylabel,zlabel,xaxis,yaxis,zaxis,clim,isof
 
 colordef white  % to avoid screw-up that earlier 'colordef none' produces
 
-
-% *** Remove:
-% IXG_ST_STDVALUES = ixf_global_var('libisis_graphics','get','IXG_ST_STDVALUES');
-
 if nargin==0
     help sliceomatic
     return
