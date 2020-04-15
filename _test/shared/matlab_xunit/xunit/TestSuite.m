@@ -225,7 +225,7 @@ classdef TestSuite < TestComponent
             
         end
         
-        function suite = fromName(name)
+        function suite = fromName(name,folder)
             %fromName Construct test suite from M-file name
             %   test_suite = TestSuite.fromName(name) constructs a TestSuite
             %   object from an M-file with the given name.  The name can be of a
@@ -241,6 +241,11 @@ classdef TestSuite < TestComponent
             if isdir(name)
                 suite = TestSuiteInDir(name);
                 suite.gatherTestCases();
+                return;
+            end
+            if nargin>1
+                suite = TestSuiteInDir(folder);                
+                suite.add(TestSuite.fromName(name));
                 return;
             end
             
