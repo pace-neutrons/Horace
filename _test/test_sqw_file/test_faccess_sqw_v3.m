@@ -304,9 +304,9 @@ classdef test_faccess_sqw_v3< TestCase
             test_name_2 = 'test_wrong_file_name_activated_2.sqw';
             targ_file_2 = fullfile(tmp_dir(),test_name_2);
             wrt.delete();
-            clob1 = onCleanup(@()delete(targ_file));
+            clob_for_tf1 = onCleanup(@()delete(targ_file));
             copyfile(targ_file,targ_file_2);
-            clob = onCleanup(@()delete(targ_file_2));
+            clob_for_tf2 = onCleanup(@()delete(targ_file_2));
             
             % test file has been recovered with the name test_name_2.
             ld = sqw_formats_factory.instance.get_loader(targ_file_2);
