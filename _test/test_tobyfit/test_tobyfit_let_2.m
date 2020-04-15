@@ -65,11 +65,9 @@ savefile='test_tobyfit_let_2_out.mat';
 error_on_failure = true;
 
 % Seed the RNG for reproducibility
-rng_state = rng();
-seed = mod(posixtime(datetime('now'))*1e3, 1e6);
-rng(seed);
-fprintf('RNG seed: %i\n', seed);
-clean_up = onCleanup(@() rng(rng_state));
+[rng_state, old_rng_state] = seed_rng();
+clean_up = onCleanup(@() rng(old_rng_state));
+fprintf('RNG seed: %i\n', rng_state.Seed);
 
 %% --------------------------------------------------------------------------------------
 % Read or create sqw file for refinement test
