@@ -1,27 +1,44 @@
 # Generic MPI Framework
 
-A generic parallelization framework has been created in Horace to improve performance of computationally-expensive operations benefiting from parallel execution.
+A generic parallelization framework has been created in Horace to improve performance of computationally-expensive operations benefiting from parallel execution. The framework substantially simplifies the standard parallelization interface by tailoring it to the subset of the tasks, relevant to Horace.
 
 A standard message parsing interface consists of a communicator part, controlling parallel processes and an information exchange media, responsible for point-to-point or collective interaction between these processes.
 
 To accommodate different demands of different users on different systems, 
-Horace can utilize three different **message transfer media**, namely: 1) message files written/read from a HDD, 2) Matlab parallel computing toolbox MPI implementation (based on toolbox lab`**` operations) and 3) standard MPI framework. Currently used MPI implementations are Microsoft MPI for Windows and MPICH for Linux. The **communicator/controller**[1](https://en.wikipedia.org/wiki/Message_Passing_Interface#Communicator) parts for these media, are correspondingly: 1) Matlab sessions or compiled Matlab sessions, launched by Matlab's Java launcher, 2) Matlab Parallel computing toolbox job control mechanism and 3) mpiexec launcher, directly controlling standard MPI processes.
+Horace can utilize three different **message transfer media**, namely: 1) Communications via message files written/read from a HDD, 2) Using Matlab parallel computing toolbox MPI implementation (based on toolbox lab`**` operations) and 3) Communication using standard MPI framework. Currently used MPI implementations are Microsoft MPI for Windows and MPICH for Linux. The **communicator/controller**[1](https://en.wikipedia.org/wiki/Message_Passing_Interface#Communicator) parts for these media, responsible for controlling the parallel processes, are correspondingly: 1) Matlab sessions or compiled Matlab sessions, launched by Matlab's Java launcher, 2) Matlab Parallel computing toolbox job control mechanism and 3) mpiexec launcher, directly controlling standard MPI processes. Additional controller will be necessary to use Horace parallelization on a public cluster. This controller is wrapping the cluster job submission mechanism (i.g. *qsub* or *bsub*)
 
 The option 1) suits for users who do not want to compile C++ code on a Unix system and do not have Matlab parallel computing toolbox installed, option 2) is best for the people, who has Matlab parallel computing toolbox and 3) -- for experienced users who can compile C++ code and set up MPI framework. 
 
-To provide transparent interchange between these frameworks, the common wrappers are written around used message transfer media and controllers, to provide common interface to the job. The Horace parallel job communicate with each other using this interface, which allows simple and transparent switching between frameworks. 
+A cluster, executing Horace job should have the simple topology: 
+![Horace Cluster](../diagrams/HoraceMPICluster.png )
+**Fig 1** Cluster to run Horace jobs.
 
-Normally users interact with the parallel jobs the same way as they would work with Horace analysing their data, implicitly launching parallel jobs for time-consuming operations, if parallel execution is configured for appropriate algorithms. Horace is currently written in Matlab. Matlab is a commercial software, but for the cases the licensing requests (*) are not satisfied, we provide compiled version of this code, requesting only one Matlab license for the headnode and [Matlab Redistributable](https://uk.mathworks.com/products/compiler/matlab-runtime.html) installed on the cluster. The python wrapper around Horace code eliminating the need for any Matlab licensing is under development. 
+To provide transparent interchange between these frameworks, the common wrappers are written around used message transfer media and controllers, to provide common interface to the job. The Horace parallel job communicate with each other using this interface, which allows simple and transparent switching between the frameworks. 
+
+The interaction between **communicator/controller** and **message transfer media** running a Horace job on a  cluster presented on **Fig 1**, can be summarised in the following table:
+
+| communicator\media |  Filebased |  Matlab MPI | mpiexec MPI |
+| :----  | :---: | :---: | :---: |
+| Java Launcher | Native | -- | -- |
+| Matlab MPI    | possible |  Native| -- |
+| mpiexec MPI    | possible |  -- | Native |
+| Job submission/initialization/control| Only | -- | -- | 
+Where 
 
 
-The chunking of jobs into "pieces"is done in the MATLAB layer. The File-based framework has been written with the assumption that *chunks may be processed independently*, but limited number of interprocess communications is occurring. This restricts the use of file-based framework to only part of Horace algorithms. In addition to that, current implementation allows to use this framework on single multiprocessor node only. Matlab MPI and standard MPI frameworks do not have such restrictions.
+From a user perspective, the interaction with the parallel jobs occurs the same way as they would work with Horace analysing their data, implicitly launching parallel jobs for time-consuming operations, if parallel execution is configured for appropriate algorithms. Horace is currently written in Matlab. Matlab is a commercial software, but for the cases the licensing requests (*) are not satisfied, we provide compiled version of this code, requesting only one Matlab license for the headnode and [Matlab Redistributable](https://uk.mathworks.com/products/compiler/matlab-runtime.html) installed on the cluster. The python wrapper around Horace code eliminating the need for any Matlab licensing is under development. 
 
-Generic Horace job managment interaction is presented on the Fig 1: 
+
+The chunking of jobs into "pieces"is done in the MATLAB layer. The File-based framework has been written with the assumption that *chunks may be processed independently*, but limited number of interprocess communications is occurring. This restricts the use of file-based framework to only part of Horace algorithms. In addition to that, current implementation allows to use filebased framework on single multiprocessor node only. Matlab MPI and standard MPI frameworks do not have such restrictions.
+
+Generic Horace job management interaction is presented on the Fig 2: 
 ![MPI Framework](../diagrams/mpi-framework.png)
-**Fig 1:**  Horace parallel job framework
+**Fig 2:**  Horace parallel job framework
 
 
-(*: one MATLAB license for each execution node or Matlab distributed server license with correspondent number of nods is required)
+
+
+(*: one MATLAB license for each execution node or Matlab distributed server license with correspondent number of nodes licenses is required)
 
 ## Interface
 
@@ -55,18 +72,26 @@ The main methods and properties of *JobExecutor* involved in job control and int
 
 | Method | M/P *Method or Property* | Description |
 |:----| :---: | :---
-| labIndex | P | The id(number) of the running task (labNum in Matlab or MPI rank in MPI) |
-|mess_framework | P |  Access to messages framework used to exchange messages between executor and controller | 
-| control\_node\_exch | P | The framework used to exchange messages between MPI jobs pool and the control node. For filebased messages its the same as mess_framework but for proper MPI job or remote host its different | 
-| task_outputs | P | a helper property, containing task outputs to transfer to the headnode, if these outputs are defined |
+| labIndex | P | The id(number) of the running task (Worker Number in filebased, labNum in Matlab or MPI rank for MPI) |
+|mess_framework | P |  Access to messages framework used to exchange messages between the parallel tasks For filebased messages its the same as *control\_node\_exch*  but for proper MPI job or remote host its different | 
+| control\_node\_exch | P | The framework used to exchange messages between MPI jobs pool and the control node.  | 
+| task_outputs | P | A helper property, containing task outputs to transfer to the headnode, if these outputs are defined. |
 |_______________| __ | _______________________________________________________________| 
 | init | M | Initialize JobExecutor's communications capabilities
 | finish_task | M | Safely finish job execution and inform the head node about it. |
 | reduce_send_message | M | collect similar messages send from all nodes and send final message to the  head node |
 | log_progress | M | log progress of the job execution and report it to the calling framework. | 
 
+As filebased messaging framework is always available, input algorithm data are separated into chunks and distributed to parallel workers using filebased messages. The JobDispatcher class is responsible for running the *worker*-s instantiating user jobs, in parallel. 
+
 #### JobDispatcher:
-To run the *JobExecutor* in parallel, it has to be divided into appropriate 
+To run the *JobExecutor* in parallel, it has to be divided into appropriate chunks, and to be sent for execution on the appropriate parallel environment. 
+The class, responsible for chunking the task, controlling the parallel pool, sending user job information to this pool and initial data for the user jobs and reporting the progress of the job is the *JobDispatcher* class.
+The main methods of the class are:
+
+| Method | M/P *Method or Property* | Description |
+|:----| :---: | :---
+| job_id | P | The id(number) of the running task (Worker Number in filebased, labNum in Matlab or 
 
 
 
