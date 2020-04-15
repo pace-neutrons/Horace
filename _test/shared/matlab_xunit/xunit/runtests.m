@@ -87,11 +87,21 @@ else
     if numel(name_list) == 0
         suite = TestSuite.fromPwd();
     elseif numel(name_list) == 1
-        suite = TestSuite.fromName(name_list{1});
+        if iscell(name_list{1})
+            nml = name_list{1};
+            suite = TestSuite.fromName(nml{2},nml{1});
+        else
+            suite = TestSuite.fromName(name_list{1});
+        end
     else
         suite = TestSuite();
         for k = 1:numel(name_list)
-            suite.add(TestSuite.fromName(name_list{k}));
+            if iscell(name_list{1})
+                nml = name_list{1};
+                suite.add(TestSuite.fromName(nml{2},nml{1}));
+            else
+                suite.add(TestSuite.fromName(name_list{k}));
+            end
         end
     end
 end
@@ -153,8 +163,13 @@ while k <= numel(varargin)
             warning('runtests:unrecognizedOption', 'Unrecognized option: %s', arg);
         end
     else
-        name_list{end+1} = arg;
+        [test_folder,test_name] = fileparts(arg);
+        if isempty(test_folder)
+            name_list{end+1} = test_name;
+        else
+            name_list{end+1} = {test_folder,test_name};
+        end
     end
     k = k + 1;
 end
-    
+
