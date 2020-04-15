@@ -23,7 +23,7 @@ The interaction between **communicator/controller** and **message transfer media
 | Matlab MPI    | possible |  Native| -- |
 | mpiexec MPI    | possible |  -- | Native |
 | Job submission/initialization/control| Only | -- | -- | 
-Where 
+Where Native indicates 
 
 
 From a user perspective, the interaction with the parallel jobs occurs the same way as they would work with Horace analysing their data, implicitly launching parallel jobs for time-consuming operations, if parallel execution is configured for appropriate algorithms. Horace is currently written in Matlab. Matlab is a commercial software, but for the cases the licensing requests (*) are not satisfied, we provide compiled version of this code, requesting only one Matlab license for the headnode and [Matlab Redistributable](https://uk.mathworks.com/products/compiler/matlab-runtime.html) installed on the cluster. The python wrapper around Horace code eliminating the need for any Matlab licensing is under development. 
