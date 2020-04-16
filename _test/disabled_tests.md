@@ -23,4 +23,7 @@
 - test_proj_captions.m  : part of https://github.com/pace-neutrons/Horace/issues/49 -- generic projection refactoring
 	- test_spher_caption (no ticket)
 	- test_spher_caption2D (no ticket)
-    
+ 
+- test_sqw_gen_workflow:
+   - test_gen_sqw_accumulate_sqw_parpool::test_sqw_acc_sqw11456_parpool ! Random failures on Jenkins Windows
+   - test_gen_sqw_accumulate_sqw_parpool::test_accumulate_sqw14         ! 
