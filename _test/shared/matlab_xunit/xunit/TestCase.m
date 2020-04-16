@@ -28,7 +28,7 @@
 %   Copyright 2008-2010 The MathWorks, Inc.
 
 classdef TestCase < TestComponent
-   
+    
     properties
         MethodName
     end
@@ -45,7 +45,7 @@ classdef TestCase < TestComponent
             self.Location = which(class(self));
         end
         
-        function did_pass = run(self, monitor)
+        function [did_pass,num_tests_run] = run(self, monitor,num_tests_run)
             %run Execute the test case
             %    test_case.run(monitor) calls the TestCase object's setUp()
             %    method, then the test method, then the tearDown() method.
@@ -61,6 +61,9 @@ classdef TestCase < TestComponent
             
             if nargin < 2
                 monitor = CommandWindowTestRunDisplay();
+            end
+            if nargin< 3
+                num_tests_run = 0;
             end
             
             did_pass = true;
@@ -79,7 +82,7 @@ classdef TestCase < TestComponent
                         'Unknown Method name type');
                 end
                 if self.print_running_tests
-                    tStart = tic;                    
+                    tStart = tic;
                     fprintf('**************************************************** \n');
                     fprintf('************  starting test: %s\n',name2print);
                     fprintf('**************************************************** \n');
@@ -109,6 +112,7 @@ classdef TestCase < TestComponent
             end
             
             monitor.testComponentFinished(self, did_pass);
+            num_tests_run = num_tests_run+1;
         end
         
         function num = numTestCases(self)

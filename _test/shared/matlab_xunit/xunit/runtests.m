@@ -133,7 +133,10 @@ if verbose
 else
     monitor = TestRunDisplay(logfile_handle);
 end
-did_pass = suite.run(monitor);
+[did_pass,num_tests_run] = suite.run(monitor);
+if did_pass && num_tests_run == 0
+    error('xunit:runtests:noTestCasesFound', 'No test cases were run');
+end
 
 if nargout > 0
     out = did_pass;
