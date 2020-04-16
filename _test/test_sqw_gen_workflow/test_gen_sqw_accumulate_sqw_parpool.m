@@ -51,11 +51,11 @@ classdef test_gen_sqw_accumulate_sqw_parpool <  ...
             if ~exist('test_name','var')
                 test_name = mfilename('class');
             end
-%             if is_jenkins && ispc
-%                 combine_algorithm = 'mex_code'; % disable mpi combine on Jenkins windows
-%             else
-                 combine_algorithm = 'mpi_code'; % this is what should be tested
-%             end
+            %             if is_jenkins && ispc
+            %                 combine_algorithm = 'mex_code'; % disable mpi combine on Jenkins windows
+            %             else
+            combine_algorithm = 'mpi_code'; % this is what should be tested
+            %             end
             
             obj = obj@gen_sqw_common_config(-1,1,combine_algorithm,'parpool');
             obj = obj@gen_sqw_accumulate_sqw_tests_common(test_name,'parpool');
@@ -72,15 +72,14 @@ classdef test_gen_sqw_accumulate_sqw_parpool <  ...
         %                 test_gen_sqw@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
         %             end
         %         end
-        %         function test_accumulate_sqw14(obj,varargin)
-        %             if is_jenkins && ispc
-        %                 warning('test_accumulate_sqw14 disabled')
-        %                 return
-        %             else
-        %                 test_accumulate_sqw14@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
-        %             end
-        %
-        %         end
+        function test_accumulate_sqw14(obj,varargin)
+            if is_jenkins && ispc
+                warning('test_accumulate_sqw14 disabled')
+            else
+                test_accumulate_sqw14@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
+            end
+            
+        end
         %         function test_accumulate_and_combine1to4(obj,varargin)
         %             if is_jenkins && ispc
         %                 warning('test_accumulate_and_combine1to4 disabled')
@@ -99,15 +98,15 @@ classdef test_gen_sqw_accumulate_sqw_parpool <  ...
         %             end
         %
         %         end
-        %         function test_accumulate_sqw11456(obj,varargin)
-        %             if is_jenkins && ispc
-        %                 warning('test_accumulate_sqw11456 disabled')
-        %                 return
-        %             else
-        %                 test_accumulate_sqw11456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
-        %             end
-        %
-        %         end
+        function test_accumulate_sqw11456(obj,varargin)
+            if is_jenkins && ispc
+                warning('test_accumulate_sqw11456 disabled')
+                return
+            else
+                test_accumulate_sqw11456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
+            end
+            
+        end
     end
     
 end
