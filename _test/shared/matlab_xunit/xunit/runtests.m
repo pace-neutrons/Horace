@@ -163,11 +163,15 @@ while k <= numel(varargin)
             warning('runtests:unrecognizedOption', 'Unrecognized option: %s', arg);
         end
     else
-        [test_folder,test_name] = fileparts(arg);
-        if isempty(test_folder)
-            name_list{end+1} = test_name;
+        if isfolder(arg)
+            name_list{end+1} = arg;
         else
-            name_list{end+1} = {test_folder,test_name};
+            [test_folder,test_name] = fileparts(arg);
+            if isempty(test_folder)
+                name_list{end+1} = test_name;
+            else
+                name_list{end+1} = {test_folder,test_name};
+            end
         end
     end
     k = k + 1;
