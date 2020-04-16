@@ -17,6 +17,7 @@ set(TEST_DIRECTORIES
     "test_sym_op"
     "test_tobyfit"
     "test_tobyfit/test_let"
+    "test_tobyfit/test_refine_crystal"
     "test_transformation"
     "test_utilities"
 )

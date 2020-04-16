@@ -68,6 +68,14 @@ datafile='test_tobyfit_refine_crystal_1_data.mat';
 % File to which to save results of refinement
 savefile='test_tobyfit_refine_crystal_1_out.mat';   % filename where saved results are written
 
+addpath('..')
+cleanup = onCleanup(@() rmpath('..'));
+
+% Seed the RNG for reproducibility
+[rng_state, old_rng_state] = seed_rng();
+clean_up = onCleanup(@() rng(old_rng_state));
+fprintf('RNG seed: %i\n', rng_state.Seed);
+
 
 %% --------------------------------------------------------------------------------------
 % Read or create sqw file for refinement test
