@@ -25,10 +25,10 @@
 	- test_spher_caption2D (no ticket)
  
 - test_sqw_gen_workflow:
-   - test_gen_sqw_accumulate_sqw_parpool: Disabled on Jenkins:
-      -- :test_accumulate_sqw1456 ! Random failures on Jenkins Windows
-      -- :test_accumulate_sqw14   !
-      -- :test_gen_sqw            ! Random failures on Windows when write_nsqw2_sqw in parallel. Can not start Herbert cluster
+   - test_gen_sqw_accumulate_sqw_parpool: Disabled on Jenkins Windows Only:
+      -- :test_accumulate_sqw1456 ! Random failures when write_nsqw2_sqw in parallel
+      -- :test_accumulate_sqw14   ! Random failures on Jenkins 
+      -- :test_gen_sqw            ! Random failures when write_nsqw2_sqw in parallel. Can not start Herbert cluster
                                   ! may be other reason different run
 
     - test_gen_sqw_accumulate_sqw_herbert: Disabled on Jenkins:
