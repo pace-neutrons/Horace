@@ -40,8 +40,9 @@ end
 datafile='test_tobyfit_let_1_data.mat';   % filename where saved results are written
 savefile='test_tobyfit_let_1_out.mat';   % filename where saved results are written
 
-addpath('..')
-cleanup = onCleanup(@() rmpath('..'));
+test_tobyfit_dir = fullfile(horace_root(), '_test', 'test_tobyfit');
+addpath(test_tobyfit_dir)
+cleanup = onCleanup(@() rmpath(test_tobyfit_dir));
 
 
 %% --------------------------------------------------------------------------------------
