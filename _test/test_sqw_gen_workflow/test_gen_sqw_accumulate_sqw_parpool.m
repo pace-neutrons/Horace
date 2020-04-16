@@ -100,7 +100,6 @@ classdef test_gen_sqw_accumulate_sqw_parpool <  ...
         function test_accumulate_sqw11456(obj,varargin)
             if is_jenkins && ispc
                 warning('test_accumulate_sqw11456 disabled')
-                return
             else
                 test_accumulate_sqw11456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
             end
