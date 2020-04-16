@@ -64,8 +64,9 @@ savefile='test_tobyfit_let_2_out.mat';
 
 error_on_failure = true;
 
-addpath('..')
-cleanup = onCleanup(@() rmpath('..'));
+test_tobyfit_dir = fullfile(horace_root(), '_test', 'test_tobyfit');
+addpath(test_tobyfit_dir)
+cleanup = onCleanup(@() rmpath(test_tobyfit_dir));
 
 % Seed the RNG for reproducibility
 [rng_state, old_rng_state] = seed_rng();
