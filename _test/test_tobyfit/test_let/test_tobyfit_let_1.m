@@ -40,6 +40,9 @@ end
 datafile='test_tobyfit_let_1_data.mat';   % filename where saved results are written
 savefile='test_tobyfit_let_1_out.mat';   % filename where saved results are written
 
+addpath('..')
+cleanup = onCleanup(@() rmpath('..'));
+
 
 %% --------------------------------------------------------------------------------------
 % Read cuts

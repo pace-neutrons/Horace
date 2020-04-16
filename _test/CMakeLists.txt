@@ -16,6 +16,7 @@ set(TEST_DIRECTORIES
     "test_symmetrisation"
     "test_sym_op"
     "test_tobyfit"
+    "test_tobyfit/test_let"
     "test_transformation"
     "test_utilities"
 )
