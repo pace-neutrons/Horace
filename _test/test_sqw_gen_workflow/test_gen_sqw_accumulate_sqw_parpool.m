@@ -54,7 +54,7 @@ classdef test_gen_sqw_accumulate_sqw_parpool <  ...
 %             if is_jenkins && ispc
 %                 combine_algorithm = 'mex_code'; % disable mpi combine on Jenkins windows
 %             else
-%                 combine_algorithm = 'mpi_code'; % this is what should be tested
+                 combine_algorithm = 'mpi_code'; % this is what should be tested
 %             end
             
             obj = obj@gen_sqw_common_config(-1,1,combine_algorithm,'parpool');
