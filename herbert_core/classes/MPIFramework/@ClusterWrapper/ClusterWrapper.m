@@ -1,41 +1,43 @@
 classdef ClusterWrapper
     % The class-wrapper containing common code for any Matlab cluster,
     % and job progress logging operations supported by Herbert
-    % 
-    % 
+    %
+    %
     %
     % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
     %
     %----------------------------------------------------------------------
     properties(Dependent)   %
-        % the property identifies that wrapper received the message that
-        % the cluster status have changed
-        status_changed;
-        % the current cluster status, usually defined by status message,
-        % e.g. 
-        status;
-        % short abbreviation of the status property.
-        status_name;
-        % The string which describes the current status
-        log_value
-        % The accessor for mess_exchange_framework.job_id if mess exchange
+        % The string, providing unique identifier(name) for the job and cluster.
+        % accessor for mess_exchange_framework.job_id if mess exchange
         % framework is defined
         job_id
         % number of workers (numLabs) in the cluster
         n_workers;
-        % defines the behavior of each worker when the particular task is
-        % finished.
-        % for parpool worker this should be false as MPI framework
-        % reports failure, while for Java worker this should be true, as
-        % Matlab workers should finish when parallel job ends.
-        exit_worker_when_job_ends;
         % Cluster configuration contains the information about the cluster
         % one needs to provide to run mpi job on the appropriate
         % MPI cluster.  If the mpi job is run on a single node, the cluster
         % configuration is not necessary so this field contains 'local'
         % info. If one wants to run e.g. mpi job using mpiexec, the cluster
         % configuration should refer to the appropriate hosts file
-        cluster_config
+        cluster_config        
+        
+        % the current cluster status, usually defined by status message,
+        % e.g. The string which describes the current status
+        status;
+        % short abbreviation of the status property.
+        status_name;
+        % the property identifies that wrapper received the message that
+        % the cluster status have changed
+        status_changed;
+        % the string to display to user the current state of the cluster
+        log_value
+        % defines the behavior of each worker when the particular task is
+        % finished.
+        % for parpool worker this should be false as MPI framework
+        % reports failure, while for Java worker this should be true, as
+        % Matlab workers should finish when parallel job ends.
+        exit_worker_when_job_ends;
         % The name of the framework, used for message exchange within the
         % cluster
         pool_exchange_frmwk_name

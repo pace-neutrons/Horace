@@ -2,26 +2,29 @@ classdef JobDispatcher
     % The class to run and control Herbert MPI jobs which are the children
     % of JobExecutor class.
     %
-    % Allow user to run multi-session or MPI jobs, defined by the classes-children of
-    % JobExecutor class.
+    % Allow user to run multi-session or MPI jobs, defined by the 
+    % classes-children of JobExecutor class.
     %
     % The parallel job is run on a Cluster, selected by parallel_config
     % configuration.
     %
     %
     properties(Dependent)
-        % The interface to internal classes, used by
-        % JobDispatcher
-        % Returns the string with running job id
+        % The string with running job id, i.e. the name, which describes 
+        % the job, and distinguish it from any other job, may be running 
+        % on a system. Normally, a folder with such name exist on a
+        % shared file system and all file-based messages, related to
+        % controlling this job a distributed through this folder.
         job_id
         % the framework used to exchange messages within the parallel
         % cluster, i.e. between the parallel workers of the cluster
         mess_framework;
-        % exposing read access to parallel cluster to run a parallel job
+        % Exposes read access to parallel cluster to run a parallel job.        
         cluster
         % true if jobDispatcher already controls a
         % cluster so the next job can be executed on existing cluster
-        % rather then after starting a new one.
+        % rather then after starting a new one. False if the cluster is not
+        % running. 
         is_initialized
         %
         % -----------------------------------------------------------------
@@ -29,14 +32,16 @@ classdef JobDispatcher
         % how often (in second) job dispatcher should query the task status
         task_check_time;
         % fail limit -- number of times to try action until deciding the
-        fail_limit     % action have failed
+        %               action have failed
+        fail_limit      
         % time interval to wait until job which do not send any messages
-        % considered failed
+        % from the cluster is considered failed (and should be terminated)
         time_to_fail
     end
     %
     properties(Access=protected)
         task_check_time_ = 4;
+        %
         fail_limit_ = 100; % number of times to try for changes in job status file until
         % decided the job have failed
         %
