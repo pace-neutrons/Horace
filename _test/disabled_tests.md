@@ -29,6 +29,6 @@
       -- :test_accumulate_sqw14   ! Random failures on Jenkins 
       -- :test_gen_sqw            ! Random failures when write_nsqw2_sqw in parallel. Can not start Herbert cluster
                                   ! may be other reason different run
-    - test_gen_sqw_accumulate_sqw_herbert: Disabled on Jenkins:
-       --:test_accumulate_sqw1456   ! combine_job -- random failures write_nsqw2_sqw, can not read mess_data_FromN2_ToN1 (2 workers) (unix too)
-       --:test_accumulate_sqw11456  !
+    - test_gen_sqw_accumulate_sqw_herbert: Disabled combine_job using file-based exchange on Jenkins:
+         due to random failures write_nsqw2_sqw, can not read mess_data_FromN2_ToN1 (2 workers) (unix too)
+
