@@ -49,11 +49,11 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             if ~exist('test_name','var')
                 test_name = mfilename('class');
             end
-            %             if is_jenkins && ispc
-            %                 combine_algorithm = 'mex_code'; % disable mpi combine on Jenkins windows
-            %             else
-            combine_algorithm = 'mpi_code'; % this is what should be tested
-            %             end
+            if is_jenkins
+                combine_algorithm = 'mex_code'; % disable mpi combine on Jenkins windows
+            else
+                combine_algorithm = 'mpi_code'; % this is what should be tested
+            end
             obj = obj@gen_sqw_common_config(-1,1,combine_algorithm,'herbert');
             obj = obj@gen_sqw_accumulate_sqw_tests_common(test_name,'herbert');
             obj.print_running_tests = true;
@@ -305,34 +305,34 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             
         end
         %------------------------------------------------------------------
-        %         % Block of code to disable some tests for debugging Jenkins jobs
-        function test_gen_sqw(obj,varargin)
-            if is_jenkins && ispc
-                warning('test_gen_sqw disabled')
-            else
-                test_gen_sqw@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
-            end
-            
-        end
-        %         function test_accumulate_sqw14(obj,varargin)
-        %         end
-        %         function test_accumulate_and_combine1to4(obj,varargin)
-        %         end
-        function test_accumulate_sqw1456(obj,varargin)
-            if is_jenkins
-                warning('test_accumulate_sqw1456 disabled')
-            else
-                test_accumulate_sqw1456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
-            end
-            
-        end
-        function test_accumulate_sqw11456(obj,varargin)
-            if is_jenkins
-                warning('test_accumulate_sqw11456 disabled')
-            else
-                test_accumulate_sqw11456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
-            end
-            
-        end
+%         %         % Block of code to disable some tests for debugging Jenkins jobs
+%         function test_gen_sqw(obj,varargin)
+%             if is_jenkins && ispc
+%                 warning('test_gen_sqw disabled')
+%             else
+%                 test_gen_sqw@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
+%             end
+%             
+%         end
+%         %         function test_accumulate_sqw14(obj,varargin)
+%         %         end
+%         %         function test_accumulate_and_combine1to4(obj,varargin)
+%         %         end
+%         function test_accumulate_sqw1456(obj,varargin)
+%             if is_jenkins
+%                 warning('test_accumulate_sqw1456 disabled')
+%             else
+%                 test_accumulate_sqw1456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
+%             end
+%             
+%         end
+%         function test_accumulate_sqw11456(obj,varargin)
+%             if is_jenkins
+%                 warning('test_accumulate_sqw11456 disabled')
+%             else
+%                 test_accumulate_sqw11456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
+%             end
+%             
+%         end
     end
 end
