@@ -20,7 +20,7 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             class_dir = fileparts(which('test_nsqw2sqw_internal_methods.m'));
             obj.this_tests_dir = fileparts(class_dir);
             
-            source_test_dir = get_common_data_path();
+            source_test_dir = fullfile(horace_root(),'_test','common_data');
             source_file = fullfile(source_test_dir,'MAP11014.nxspe');
             
             psi = [0,2,20]; %-- test settings;
