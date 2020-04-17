@@ -19,7 +19,7 @@ classdef test_projection_class<TestCase
             end            
             this=this@TestCase(name);
             this.tests_folder = fileparts(fileparts(mfilename('fullpath')));
-            this.par_file=fullfile( this.tests_folder,'test_sqw','gen_sqw_96dets.nxspe');
+            this.par_file=fullfile( this.tests_folder,'common_data','gen_sqw_96dets.nxspe');
             
             efix = this.fake_sqw_par{4};
             en = 0.05*efix:0.2+1/50:0.95*efix;
