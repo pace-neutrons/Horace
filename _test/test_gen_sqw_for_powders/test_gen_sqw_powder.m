@@ -48,7 +48,7 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             % Add common functions folder to path, and get location of common data
             common_path = add_common_test_functions_to_path();
             clean_up = onCleanup(@() rmpath(common_path));
-            common_data_dir = get_common_data_path();
+            common_data_dir=fullfile(horace_root(),'_test','common_data');
             % -----------------------------------------------------------------------------
 
             % =====================================================================================================================

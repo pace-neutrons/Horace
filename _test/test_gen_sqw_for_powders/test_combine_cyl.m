@@ -26,7 +26,7 @@ classdef test_combine_cyl < TestCaseWithSave
                 name= mfilename('class');
             end
             this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_combine_cyl_output.mat'));
-            common_data_dir = get_common_data_path();
+            common_data_dir=fullfile(horace_root(),'_test','common_data');
             common_path = add_common_test_functions_to_path();
             cleanup = onCleanup(@() rmpath(common_path));
 
