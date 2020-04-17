@@ -11,7 +11,7 @@ banner_to_screen(mfilename)
 % Add common functions folder to path, and get location of common data
 common_path = add_common_test_functions_to_path();
 cleanup = onCleanup(@() rmpath(common_path));
-common_data_dir=fullfile(horace_root(),'_test','common_data');
+common_data_dir = get_common_data_path();
 % -----------------------------------------------------------------------------
 
 dir_out=tmp_dir;
