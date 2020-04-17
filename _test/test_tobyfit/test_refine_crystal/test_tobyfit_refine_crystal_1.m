@@ -132,7 +132,7 @@ if save_data
         kk = tobyfit(wtmp{1});
         kk = kk.set_fun(@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg],...
             [alatt_true,angdeg_true],rotvec});
-        kk = kk.set_mc_points(10);
+        kk = kk.set_mc_points(100);
         wsim = kk.simulate;
         wsim = noisify(wsim,0.01);
         
