@@ -26,9 +26,11 @@ classdef test_combine_cyl < TestCaseWithSave
                 name= mfilename('class');
             end
             this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_combine_cyl_output.mat'));
-            common_data_dir=fullfile(horace_root(),'_test','common_data');
-            common_path = add_common_test_functions_to_path();
-            cleanup = onCleanup(@() rmpath(common_path));
+            hor_root = horace_root();
+            common_data_dir=fullfile(hor_root,'_test','common_data');
+            test_functions_path=fullfile(hor_root,'_test','common_functions');
+            addpath(test_functions_path);
+
 
             % =====================================================================================================================
             % Create spe files:

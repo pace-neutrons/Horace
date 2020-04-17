@@ -99,9 +99,12 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             obj.test_pref = test_prefix;
             
             % do other initialization
-            obj.comparison_par={'min_denominator', 0.01, 'ignore_str', 1};
+            obj.comparison_par={ 'min_denominator', 0.01, 'ignore_str', 1};
             obj.tol = 1.e-5;
-            obj.test_functions_path = add_common_test_functions_to_path();
+            hor_root= horace_root();
+            obj.test_functions_path=fullfile(hor_root,'_test/common_functions');
+            
+            addpath(obj.test_functions_path);
             
             hc = hor_config;
             obj.working_dir = hc.working_directory;
