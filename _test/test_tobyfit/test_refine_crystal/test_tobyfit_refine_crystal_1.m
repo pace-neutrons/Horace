@@ -54,6 +54,11 @@ end
 %% --------------------------------------------------------------------------------------
 % Setup
 % --------------------------------------------------------------------------------------
+common_path = add_common_test_functions_to_path();
+test_tobyfit_dir = fullfile(horace_root(), '_test', 'test_tobyfit');
+addpath(test_tobyfit_dir)
+clean_up_path = onCleanup(@() rmpath(common_path, test_tobyfit_dir));
+
 dir_out=tmp_dir;    % folder for temporary file creation
 
 % Temporary file with simulated data to be corrected
@@ -68,13 +73,9 @@ datafile='test_tobyfit_refine_crystal_1_data.mat';
 % File to which to save results of refinement
 savefile='test_tobyfit_refine_crystal_1_out.mat';   % filename where saved results are written
 
-test_tobyfit_dir = fullfile(horace_root(), '_test', 'test_tobyfit');
-addpath(test_tobyfit_dir)
-cleanup = onCleanup(@() rmpath(test_tobyfit_dir));
-
 % Seed the RNG for reproducibility
 [rng_state, old_rng_state] = seed_rng();
-clean_up = onCleanup(@() rng(old_rng_state));
+clean_up_rng = onCleanup(@() rng(old_rng_state));
 fprintf('RNG seed: %i\n', rng_state.Seed);
 
 
