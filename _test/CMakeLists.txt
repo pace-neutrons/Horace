@@ -18,10 +18,10 @@ set(TEST_DIRECTORIES
     "test_transformation"
     "test_utilities"
     "test_sqw"
-    "test_sqw_gen_workflow/test_gen_sqw_accumulate_sqw_nomex"
-    "test_sqw_gen_workflow/test_gen_sqw_accumulate_sqw_mex"
-    "test_sqw_gen_workflow/test_gen_sqw_accumulate_sqw_herbert"
-    "test_sqw_gen_workflow/test_gen_sqw_accumulate_sqw_parpool"
+    "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_nomex"
+    "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_mex"
+    "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_herbert"
+    "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_parpool"
 )
 # The MPI tests require that the `[herbert|horace]_on` and `worker_v2`scripts
 # be on the path for all workers when Matlab starts up: add the path of the
