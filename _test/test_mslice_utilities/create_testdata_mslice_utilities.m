@@ -9,9 +9,9 @@ function create_testdata_mslice_utilities
 
 % -----------------------------------------------------------------------------
 % Add common functions folder to path, and get location of common data
-horace_root = horace_root();
-addpath(fullfile(horace_root,'_test','common_functions'))
-common_data_dir=fullfile(horace_root,'_test','common_data');
+common_path = add_common_test_functions_to_path();
+clean_up = onCleanup(@() rmpath(common_path));
+common_data_dir = fullfile(horace_root(),'_test','common_data');
 % -----------------------------------------------------------------------------
 
 output_file=fullfile(tmp_dir,'testdata_mslice_utilities');

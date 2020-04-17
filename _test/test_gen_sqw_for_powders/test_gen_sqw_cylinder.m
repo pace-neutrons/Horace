@@ -25,8 +25,8 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
             this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_gen_sqw_cylinder_output.mat'));
             hor_root = horace_root();
             common_data_dir=fullfile(hor_root,'_test','common_data');
-            test_functions_path=fullfile(hor_root,'_test','common_functions');
-            addpath(test_functions_path);
+            common_path = add_common_test_functions_to_path();
+            clean_up = onCleanup(@() rmpath(common_path));
 
 
             % =====================================================================================================================
