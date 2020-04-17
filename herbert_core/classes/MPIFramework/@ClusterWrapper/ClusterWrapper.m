@@ -1,6 +1,8 @@
 classdef ClusterWrapper
     % The class-wrapper containing common code for any Matlab cluster,
     % and job progress logging operations supported by Herbert
+    % 
+    % 
     %
     % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
     %
@@ -9,7 +11,8 @@ classdef ClusterWrapper
         % the property identifies that wrapper received the message that
         % the cluster status have changed
         status_changed;
-        % the current cluster status, usually defined by status message
+        % the current cluster status, usually defined by status message,
+        % e.g. 
         status;
         % short abbreviation of the status property.
         status_name;

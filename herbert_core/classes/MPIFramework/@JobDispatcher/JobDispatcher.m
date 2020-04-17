@@ -1,30 +1,21 @@
 classdef JobDispatcher
-    % The class to run and control Herbert MPI jobs.
+    % The class to run and control Herbert MPI jobs which are the children
+    % of JobExecutor class.
     %
     % Allow user to run multi-session or MPI jobs, defined by the classes-children of
     % JobExecutor class.
     %
-    % In case of Parallel computer toolbox available, runs Matlab MPI communicating jobs
-    % and if it is not, uses multiple Matlab, communicating through filebased messages.
-    %
-    %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
+    % The parallel job is run on a Cluster, selected by parallel_config
+    % configuration.
     %
     %
     properties(Dependent)
-        % how often (in second) job dispatcher should query the task status
-        task_check_time;
-        % fail limit -- number of times to try action until deciding the
-        fail_limit     % action have failed
-        % time interval to wait until job which do not send any messages
-        % considered failed
-        time_to_fail
-        % -----------------------------------------------------------------
-        % The convenience interface to internal classes, used by
+        % The interface to internal classes, used by
         % JobDispatcher
         % Returns the string with running job id
         job_id
-        % the framework used to exchange messages with parallel cluster
+        % the framework used to exchange messages within the parallel
+        % cluster, i.e. between the parallel workers of the cluster
         mess_framework;
         % exposing read access to parallel cluster to run a parallel job
         cluster
@@ -32,6 +23,16 @@ classdef JobDispatcher
         % cluster so the next job can be executed on existing cluster
         % rather then after starting a new one.
         is_initialized
+        %
+        % -----------------------------------------------------------------
+        %
+        % how often (in second) job dispatcher should query the task status
+        task_check_time;
+        % fail limit -- number of times to try action until deciding the
+        fail_limit     % action have failed
+        % time interval to wait until job which do not send any messages
+        % considered failed
+        time_to_fail
     end
     %
     properties(Access=protected)
@@ -65,7 +66,7 @@ classdef JobDispatcher
             %      which distinguish this job as the job which will produce
             %      the file with the name provided
             %
-            % Initialise messages framework
+            % Initialize messages framework
             mess_cache.instance('delete');
             mf = MessagesFilebased(varargin{:});
             pc = parallel_config;

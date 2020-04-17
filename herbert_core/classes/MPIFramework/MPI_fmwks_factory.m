@@ -24,7 +24,7 @@ classdef MPI_fmwks_factory<handle
         % Subscription factory:
         % the list of the known framework names.
         known_frmwks_names_ = {'herbert','parpool','mpiexec_mpi'};
-        % The map to exisiting parallel frameworks clusters
+        % The map to existing parallel frameworks clusters
         known_frameworks_ = containers.Map(MPI_fmwks_factory.known_frmwks_names_,...
             {ClusterHerbert(),ClusterParpoolWrapper(),ClusterMPI()});
         % the map of the framework indexes

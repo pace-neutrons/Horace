@@ -136,7 +136,7 @@ classdef JobExecutor
         end
         %
         function [ok,mess,obj] =finish_task(obj,varargin)
-            % Safely finish job execution and inform head node about it.
+            % Safely finish job execution and inform the head node about it.
             %
             %Usage:
             %>>[ok,mess] = obj.finish_task();
