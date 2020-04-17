@@ -326,7 +326,13 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             end
             
         end
-        %         function test_accumulate_sqw11456(obj,varargin)
-        %         end
+        function test_accumulate_sqw11456(obj,varargin)
+            if is_jenkins
+                warning('test_accumulate_sqw11456 disabled')
+            else
+                test_accumulate_sqw11456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
+            end
+            
+        end
     end
 end
