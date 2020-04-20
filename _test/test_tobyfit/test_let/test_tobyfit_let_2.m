@@ -69,7 +69,8 @@ addpath(test_tobyfit_dir)
 cleanup = onCleanup(@() rmpath(test_tobyfit_dir));
 
 % Seed the RNG for reproducibility
-[rng_state, old_rng_state] = seed_rng();
+seed = 503057;
+[rng_state, old_rng_state] = seed_rng(seed);
 clean_up = onCleanup(@() rng(old_rng_state));
 fprintf('RNG seed: %i\n', rng_state.Seed);
 
