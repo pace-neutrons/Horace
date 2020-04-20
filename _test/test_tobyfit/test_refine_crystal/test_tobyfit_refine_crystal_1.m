@@ -72,9 +72,9 @@ test_tobyfit_dir = fullfile(horace_root(), '_test', 'test_tobyfit');
 addpath(test_tobyfit_dir)
 cleanup = onCleanup(@() rmpath(test_tobyfit_dir));
 
-% Seed the RNG for reproducibility
-seed = 774016;  % This seed provides a passing test at time of writing
-[rng_state, old_rng_state] = seed_rng(seed);
+% This seed provides a passing test at time of writing
+fixed_seed = 774016;
+[rng_state, old_rng_state] = seed_rng(fixed_seed);
 clean_up = onCleanup(@() rng(old_rng_state));
 fprintf('RNG seed: %i\n', rng_state.Seed);
 
