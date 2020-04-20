@@ -73,7 +73,7 @@ addpath(test_tobyfit_dir)
 cleanup = onCleanup(@() rmpath(test_tobyfit_dir));
 
 % This seed provides a passing test at time of writing
-fixed_seed = 774016;
+fixed_seed = 774015;
 [rng_state, old_rng_state] = seed_rng(fixed_seed);
 clean_up = onCleanup(@() rng(old_rng_state));
 fprintf('RNG seed: %i\n', rng_state.Seed);
