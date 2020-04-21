@@ -15,6 +15,8 @@ set(TEST_DIRECTORIES
     "test_symmetrisation"
     "test_sym_op"
     "test_tobyfit"
+    "test_tobyfit/test_let"
+    "test_tobyfit/test_refine_crystal"
     "test_transformation"
     "test_utilities"
     "test_sqw"
@@ -46,6 +48,8 @@ foreach(_test_dir ${TEST_DIRECTORIES})
     set(TEST_NAME "Matlab.${_test_dir}")
     if("${_test_dir}" STREQUAL "test_sqw")
         set(TEST_TIMEOUT_LENGTH "1500")  # 25 minutes
+    elseif("${_test_dir}" STREQUAL "test_tobyfit")
+        set(TEST_TIMEOUT_LENGTH "1200")  # 20 minutes
     else()
         set(TEST_TIMEOUT_LENGTH "960")  # 16 minutes
     endif()
