@@ -6,10 +6,10 @@ function [u_true, v_true, alatt_true, angdeg_true] = uv_correct2 (u, v, alatt, a
 % This function can be used to correct the scattering plane vectors to the true wectors once the 
 % misorientation angles and true lattice parameters have been determined.
 %
-% In particular, this can be used to get the true u and v for mslice after determining the misorientation parameters
-% e.g. with Tobyfit. All that is required in mslice is to change u and v (and the lattice parameters to
-% alatt_true and angdeg_true if these are different from alatt and angdeg). The value of psi as required by
-% mslice does not need to be changed, as that is accounted for in the output vectors u_true and v_true.
+% In particular, this can be used to get the true u and v after determining the misorientation parameters
+% e.g. with Tobyfit. All that is required is to change u and v (and the lattice parameters to
+% alatt_true and angdeg_true if these are different from alatt and angdeg). The value of psi does 
+% not need to be changed, as that is accounted for in the output vectors u_true and v_true.
 %
 % Input:
 % --------
@@ -24,9 +24,8 @@ function [u_true, v_true, alatt_true, angdeg_true] = uv_correct2 (u, v, alatt, a
 % Output:
 % --------
 %   u_true, v_true      True directions of input u, v, as expressed using the true lattice parameters
-%                      These can be used in programs like mslice with the same value of psi but will now
-%                      label data with the correct reciprocal lattice units if used with the same value of
-%                      psi (and in Horace, dpsi=gl=gs=0).
+%                      These label data with the correct reciprocal lattice units if used with the same value of
+%                      psi.
 %   alatt_true          True values for lattice parmeters [a,b,c] (Ang)
 %   angdeg_true         True calues of lattice angles [alf,bet,gam] (deg)
 

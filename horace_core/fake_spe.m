@@ -174,6 +174,6 @@ end
 % Create output file, if requested
 if file_given
     newloc=fullfile(filepath,filename);
-    w=spe(data);    % use mslice class @spe
+    w=spe(data);
     save(w,newloc);
 end
