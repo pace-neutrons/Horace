@@ -37,9 +37,9 @@ classdef test_fake_sqw < TestCase
             obj = obj@TestCase(test_class_name);
             obj.working_dir = tmp_dir;
             
-            data_path = fileparts(mfilename('fullpath'));
+            common_data = fullfile(fileparts(fileparts(mfilename('fullpath'))),'common_data');
             %this.par_file=fullfile(this.results_path,'96dets.par');
-            obj.par_file=fullfile(data_path,'gen_sqw_96dets.nxspe');
+            obj.par_file=fullfile(common_data,'gen_sqw_96dets.nxspe');
         end
         function test_det_from_q_invalid(obj)
             f = @()build_det_from_q_range('wrong_detpar',obj.gen_sqw_par{:});

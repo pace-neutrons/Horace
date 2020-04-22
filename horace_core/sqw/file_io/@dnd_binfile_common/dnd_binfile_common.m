@@ -237,6 +237,9 @@ classdef dnd_binfile_common < dnd_file_interface
                     obj.(flds{i}) = obj_structure_from_saveobj.(flds{i});
                 end
             end
+            if obj.is_activated()
+                return;
+            end
             if ~ischar(obj.num_dim_) && ~isempty(obj.filename_)
                 file = fullfile(obj.filepath,obj.filename);
                 if exist(file,'file') == 2
@@ -452,19 +455,15 @@ classdef dnd_binfile_common < dnd_file_interface
             sqw_obj  = obj.sqw_holder_;
         end
         %
-        function struc = saveobj(obj)
-            % method used to convert object into structure
-            % for saving it to disc.
-            struc = saveobj@dnd_file_interface(obj);
-            flds = obj.fields_to_save_;
-            for i=1:numel(flds)
-                struc.(flds{i}) = obj.(flds{i});
-            end
+        function is = is_activated(obj)
+            % Check if the file-accessor is bind with open binary file
+            %
+            is =  ~isempty(obj.file_closer_) && obj.file_id_ >0;
         end
         %
         function obj = deactivate(obj)
-            % close respective file keeping all internal information about
-            % this file alive.
+            % Close respective file keeping all internal information about
+            % this file in memory.
             %
             % To use for MPI transfers between workers when open file can
             % not be transferred between workers but everything else can
@@ -478,7 +477,7 @@ classdef dnd_binfile_common < dnd_file_interface
         function obj = activate(obj)
             % open respective file for reading without reading any
             % supplementary file information. Assume that this information
-            % is correct
+            % is correct.
             %
             % To use for MPI transfers between workers when open file can
             % not be transferred between workers but everything else can
@@ -494,7 +493,16 @@ classdef dnd_binfile_common < dnd_file_interface
             end
             obj.file_closer_ = onCleanup(@()obj.fclose());
         end
-        
+        %
+        function struc = saveobj(obj)
+            % method used to convert object into structure
+            % for saving it to disc.
+            struc = saveobj@dnd_file_interface(obj);
+            flds = obj.fields_to_save_;
+            for i=1:numel(flds)
+                struc.(flds{i}) = obj.(flds{i});
+            end
+        end
     end
     %
     methods(Static)

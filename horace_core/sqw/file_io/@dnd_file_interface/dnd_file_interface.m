@@ -295,6 +295,16 @@ classdef dnd_file_interface
         % write dnd image data, namely s, err and npix ('-update' option updates this
         % information within existing file)
         obj = put_dnd_data(obj,varargin);
+        % Return true if the file accessor is connected to an open file
+        is = is_activated(obj);
+        % open file, connected to the sqw object, defined as input,
+        % assuming that all information about this file is already loaded
+        % in memory by init/deactivate or deserialize methods.
+        obj = activate(obj)
+        % Close files related to this file accessor leaving all information
+        % about this file in memory, e.g. preparing to serialize the class.
+        obj = deactivate(obj)
+        
     end
     methods(Abstract,Access=protected,Hidden=true)
         % init file accessors from sqw object in memory
