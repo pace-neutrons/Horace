@@ -49,7 +49,6 @@ function [qw1,qw2]=calculate_qw_points(win,x)
 % Algorithm applies for the case when the following two conditions are met
 %    - data originates from a single spe file
 %    - one, and only one, of the integration axes has range [-Inf,Inf], [-Inf,<finite>] or [<finite>,Inf]]
-% This is the situation when Horace is being used is mslice mode.
 
 % Original author: T.G.Perring
 %

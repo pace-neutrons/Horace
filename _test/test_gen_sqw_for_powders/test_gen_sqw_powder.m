@@ -87,7 +87,7 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             % Perform a powder average in Horace
             gen_sqw_powder_test_helper (spe_file, par_file, this.sqw_pow_file, efix, emode);
 
-            % Create a simple powder file for Horace and mslice to compare with
+            % Create a simple powder file for Horace to compare with
             [powmap,powpar]=powder_map(parObject(par_file),[3,0.2626,60],'squeeze');
             save(powpar,pow_par_file)
             save(phxObject(powpar),pow_phx_file)
@@ -132,12 +132,6 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             lz 0 0.5
             dd(w1rings)
 
-
-
-            % % mslice:
-            % mslice_start
-            % mslice_load_data (spe_pow_file, pow_phx_file, efix, emode, 'S(Q,w)', '')
-            % % Now must do the rest manually. Agrees with the rings map data in Horace
             %--------------------------------------------------------------------------------------------------
 
             %--------------------------------------------------------------------------------------------------
