@@ -28,7 +28,7 @@ classdef ClusterWrapper
         % short abbreviation of the status property.
         status_name;
         % the property identifies that wrapper received the message that
-        % the cluster status have changed
+        % the cluster status have changed.        
         status_changed;
         % the string to display to user the current state of the cluster
         log_value

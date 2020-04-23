@@ -312,9 +312,7 @@ classdef iMessagesFramework < handle
         % >> on success, message contains an object of class aMessage,
         %        with message contents
         %
-        [is_ok,err_mess,message] = receive_message(obj,task_id,mess_name)
-        
-        
+        [is_ok,err_mess,message] = receive_message(obj,task_id,mess_name
         
         % list all messages existing in the system for the tasks
         % with id-s specified as input
