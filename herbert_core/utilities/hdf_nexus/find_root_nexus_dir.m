@@ -26,11 +26,8 @@ function [root_nx_path,data_version,data_structure] = find_root_nexus_dir(hdf_fi
 %                    function and returned by this procedure for
 %                    efficiency (if needed, not to read it again).
 %
-% $Author: Alex Buts; 20/10/2011
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-%
-%
+% 
+
 if ~exist('nexus_application_name','var')
     nexus_application_name = 'NXSPE';
 end
@@ -39,8 +36,8 @@ if nargin>2
 else
     test_mode = false;
 end
-data_structure =  hdf5info(hdf_fileName,'ReadAttributes',true);
-groups         =  data_structure.GroupHierarchy.Groups(:);
+data_structure =  h5info(hdf_fileName);
+groups         =  data_structure.Groups(:);
 
 n_nx_entries=0;
 nx_folders=cell(1,1);
@@ -51,17 +48,19 @@ for i=1:numel(groups)
         error('ISIS_UTILITES:invalid_argument',...
             'hdf file %s is not valid NEXUS file',hdf_fileName);
     end
-    [fp,shortName] = fileparts(groups(i).Attributes.Name);
+    [~,shortName] = fileparts(groups(i).Attributes.Name);
     % if this attribute is NX_class, look further:
-    if strcmp(shortName,'NX_class')&&strcmp(groups(i).Attributes.Value.Data,'NXentry')
-        nexus_folder = data_structure.GroupHierarchy.Groups(i);
+    if strcmp(shortName,'NX_class')&&strcmp(groups(i).Attributes.Value,'NXentry')
+        nexus_folder = groups(i);
         for j=1:numel(nexus_folder.Datasets)
-            if strcmp([nexus_folder.Name,'/definition'],nexus_folder.Datasets(j).Name)
-                definition = hdf5read(hdf_fileName,nexus_folder.Datasets(j).Name);
-                if strcmp(definition.Data,nexus_application_name)
+            if strcmp('definition',nexus_folder.Datasets(j).Name)
+                def_path = [nexus_folder.Name,'/definition'];
+                definition = h5read(hdf_fileName,def_path);
+                if strcmp(definition,nexus_application_name)
                     n_nx_entries=n_nx_entries+1;
                     nx_folders{n_nx_entries}= nexus_folder.Name;
-                    nx_version{n_nx_entries}= read_nxspe_version(hdf_fileName,nexus_folder.Datasets(j));
+                    nx_version{n_nx_entries}= ...
+                        get_version(nexus_folder.Datasets(j),hdf_fileName);
                 end
             end
         end
@@ -84,20 +83,17 @@ else
     data_version    = nx_version{1};
 end
 
-function ver=read_nxspe_version(hdf_fileName,DS)
+function ver=get_version(def_dataset,filename)
 % Matlab version specific function to obtain correct NeXus version
-mat_ver_array=datevec(version('-date'));
+%mat_ver_array=datevec(version('-date'));
 
-if mat_ver_array(1)<=2009
-    [fp,shortName] = fileparts(DS.Attributes.Name);
-    ver = hdf5read(hdf_fileName,[DS.Name,'/',shortName]);
-    
-else
-    ver = hdf5read(hdf_fileName,DS.Name, DS.Attributes.Shortname);
-    
+for i=1:numel(def_dataset.Attributes)
+    attr = def_dataset.Attributes(i);
+    if strcmp(attr.Name,'version')
+        ver = attr.Value;
+        return;
+    end
 end
-ver= ver.Data;
-
-
-
+error('ISIS_UTILITES:invalid_argument',...
+    'NXSPE dataset in file %s does not have correct version',filename)
 
