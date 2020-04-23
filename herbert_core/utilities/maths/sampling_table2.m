@@ -106,16 +106,16 @@ else
 end
 
 % Evaluate integrals and get cumulative pdf
-yout = integrate_1d_points_matlab (x, pdf, zeros(size(x)), xtab);
+yout = integrate_1d_points (x, pdf, zeros(size(x)), xtab);
 cumpdf = [0;cumsum(yout)];
 cumpdf = cumpdf/cumpdf(end);
 
 
 %======================================================================================================================
-function [sout,eout] = integrate_1d_points_matlab (x, s, e, xout)
+function [sout,eout] = integrate_1d_points (x, s, e, xout)
 % Integrates point data along axis iax=1 of an IX_dataset_nd with dimensionality ndim=1.
 %
-%   >> [sout,eout] = integrate_1d_points_matlab (x, s, e, xout)
+%   >> [sout,eout] = integrate_1d_points (x, s, e, xout)
 %
 % Input:
 % ------
