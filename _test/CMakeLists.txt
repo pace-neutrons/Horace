@@ -7,7 +7,6 @@ set(TEST_DIRECTORIES
     "test_gen_sqw_for_powders"
     "test_herbert_utilites"
     "test_mex_nomex"
-    # "test_mslice_utilities"
     "test_multifit"
     "test_rebin"
     # "test_spinw_integration"
