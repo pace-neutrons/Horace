@@ -361,7 +361,7 @@ else
         else
             dx_out=repmat(reshape(diff(xbounds_true),[ones(1,iax-1),numel(xbounds_true)-1,1]),x_sz_repmat);
         end
-        [wout_s,wout_e] = win.integrate_points(iax,win_x, win_s, win_e, xbounds_true, use_mex, force_mex);
+        [wout_s,wout_e] = win.integrate_points(iax, win_x, win_s, win_e, xbounds_true);
         if ~integrate_data
             wout_s=wout_s./dx_out;
             wout_e=wout_e./dx_out;

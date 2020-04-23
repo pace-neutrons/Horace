@@ -1,4 +1,4 @@
-function  [wout_s,wout_e] = integrate_points(iax,x, s, e, xout)
+function  [wout_s,wout_e] = integrate_points(iax, x, s, e, xout)
 %Integrates point data along along specific axis.
 switch iax
     case(1)
