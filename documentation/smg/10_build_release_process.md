@@ -14,11 +14,6 @@ The `master` branch should always be 'releasable' with all tests passing. Builds
 
 The Horace build artifact is a single deployable unit to a specific MATLAB/OS platform. This is equivalent to the artifact created by the legacy MATLAB create release process.
 
-These build artifacts are stored in Jenkins and, as such, are not accessible outside of STFC. 
-
-A 'deploy' pipeline will be created ([Horace #73](https://github.com/pace-neutrons/Horace/issues/73)) that will tag the GitHub source with the release number and copy the built artifact to the GitHub 'releases' from where external end-users are expected to access releases.
-
-
 ### Features
 
 Feature development and bug fixes should be performed on branches and reviewed using a GitHub Pull Request (PR).
@@ -39,9 +34,9 @@ Patch releases should be tested and built through the same build pipeline as the
 
 1. User reports issue
 2. Bug report issue created in GitHub/Issues documenting how to reproduce
-3. Fix developed on a branch taken from the *release* tag (`Rm_n_o`)
+3. Fix developed on a branch (`xxx_branch`) taken from the *release* tag (`Rm_n_o`)
 4. All tests likely to be affected by changes in Herbert and Horace must be run on developers machine
-5. PR created for merge into Release branch (`rel_m_n_o`) *and* `master` branch
+5. PR created for merge into Release branch (`rel_m_n_o`) *and* `master` branch. If this is the first release patch, the branch will need to be created
 6. If the build / test against of the PR against the Release branch succeeds on all platforms, that build artifact can be released to the target platform as version `m.n.o+1`
 
 If the hotfix is being done out-of-hours the PR can be merged by the developer WITHOUT review, but the branch should not be deleted and should be reviewed as the earliest opportunity.
@@ -57,3 +52,18 @@ Advantages:
 Disadvantages:
 
 - slower; have to wait for full build and test pipeline to execute
+
+### Releases
+
+The Jenkins build artifacts are are not accessible outside of STFC. End users will be directed to GitHub to access packaged releases.
+
+A 'deploy' pipeline will be created ([Horace #73](https://github.com/pace-neutrons/Horace/issues/73)). 
+
+This will:
+
+- tag the `master` branch with the release number (`Rm_n_o`)
+- copy the built artifact to the GitHub
+
+The release tag will be an anchor for any subsequently needed release branch and patch branches.
+
+The version number is stored in a text file (`VERSION`) in the root of the Herbert and Horace source. This will follow [semantic versioning](https://semver.org/) and is used in the build process to set the version number in the MATLAB and compiled C++ components.
