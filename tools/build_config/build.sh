@@ -43,7 +43,6 @@ function run_configure() {
   cmake_cmd+=" -DMatlab_ROOT_DIR=${MATLAB_ROOT}"
   cmake_cmd+=" -DCMAKE_BUILD_TYPE=${build_config}"
   cmake_cmd+=" -DBUILD_TESTS=${build_tests}"
-  cmake_cmd+=" -DBUILD_FORTRAN=${build_fortran}"
   cmake_cmd+=" -DMatlab_RELEASE=${matlab_release}"
   cmake_cmd+=" ${cmake_flags}"
 
@@ -86,7 +85,6 @@ function main() {
   local build_tests="ON"
   local build_config='Release'
   local build_dir="${HERBERT_ROOT}/build"
-  local build_fortran="ON"
   local cmake_flags=""
   local matlab_release=""
 
@@ -103,7 +101,6 @@ function main() {
         -X|--build_tests) build_tests="$2"; shift; shift ;;
         -C|--build_config) build_config="$2"; shift; shift ;;
         -O|--build_dir) build_dir="$(realpath "$2")"; shift; shift ;;
-        -N|--build_fortran) build_fortran="$2"; shift; shift ;;
         -F|--cmake_flags) cmake_flags="$2"; shift; shift ;;
         -M|--matlab_release) matlab_release="$2"; shift; shift ;;
         *) echo "Unrecognised argument '$key'"; exit 1 ;;

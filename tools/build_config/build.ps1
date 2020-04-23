@@ -20,10 +20,6 @@ param (
   [Alias("O")]
   $build_dir = "",
 
-  [string][ValidateSet("ON", "OFF")]
-  [Alias("N")]
-  $build_fortran = "OFF",
-
   [string]
   [Alias("F")]
   $cmake_flags = "",
@@ -103,7 +99,6 @@ function Invoke-Configure {
     [string]$build_dir,
     [string]$build_config,
     [string]$build_tests,
-    [string]$build_fortran,
     [string]$matlab_release,
     [string]$cmake_flags
   )
@@ -111,7 +106,6 @@ function Invoke-Configure {
   $cmake_cmd = "cmake $HERBERT_ROOT"
   $cmake_cmd += " $(New-CMake-Generator-Command -vs_version $vs_version)"
   $cmake_cmd += " -DBUILD_TESTS=$build_tests"
-  $cmake_cmd += " -DBUILD_FORTRAN=$build_fortran"
   $cmake_cmd += " -DMatlab_RELEASE=$matlab_release"
   $cmake_cmd += " $cmake_flags"
 
@@ -168,7 +162,6 @@ if ($build -eq $true) {
     -build_dir $build_dir `
     -build_config $build_config `
     -build_tests $build_tests `
-    -build_fortran $build_fortran `
     -cmake_flags $cmake_flags `
     -matlab_release $matlab_release
   Invoke-Build -build_dir $build_dir -build_config $build_config
