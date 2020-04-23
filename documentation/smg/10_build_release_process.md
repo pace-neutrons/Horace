@@ -31,11 +31,11 @@ When a pull request is opened or updated the code is built and tested of the mer
 4. Create Horace PR (if required) - if a Herbert PR has been created too the Horace PR must not be merged until the Herbert PR has been merged
 5. If the build / test against of the PR against the Release branch succeeds on all platforms the PR can be merge.
 
-### Hot fixing:
+### Hot fixing
 
 Patch releases should be tested and built through the same build pipeline as the initial production releases.
 
-![git-hotfix](..\diagrams\git-hotfix.png)
+<img src="./images/10_git_hotfix_branches.png">
 
 1. User reports issue
 2. Bug report issue created in GitHub/Issues documenting how to reproduce
