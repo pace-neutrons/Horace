@@ -35,11 +35,13 @@ When a pull request is opened or updated the code is built and tested of the mer
 
 Patch releases should be tested and built through the same build pipeline as the initial production releases.
 
+![git-hotfix](..\diagrams\git-hotfix.png)
+
 1. User reports issue
 2. Bug report issue created in GitHub/Issues documenting how to reproduce
-3. Fix developed on a branch taken from the *release* tag (`REL_m_n_o`)
+3. Fix developed on a branch taken from the *release* tag (`Rm_n_o`)
 4. All tests likely to be affected by changes in Herbert and Horace must be run on developers machine
-5. PR created for merge into Release branch (`release_m_n_o`) *and* `master` branch
+5. PR created for merge into Release branch (`rel_m_n_o`) *and* `master` branch
 6. If the build / test against of the PR against the Release branch succeeds on all platforms, that build artifact can be released to the target platform as version `m.n.o+1`
 
 If the hotfix is being done out-of-hours the PR can be merged by the developer WITHOUT review, but the branch should not be deleted and should be reviewed as the earliest opportunity.
