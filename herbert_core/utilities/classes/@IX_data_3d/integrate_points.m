@@ -4,7 +4,7 @@ switch iax
     case(1)
         [wout_s,wout_e] = integrate_3d_x_points (x, s, e, xout);
     case(2)
-        [wout_s,wout_e] = integrate_3d_y_points(x, s, e, xout, use_mex, force_mex);
+        [wout_s,wout_e] = integrate_3d_y_points(x, s, e, xout);
     case(3)
         [wout_s,wout_e] = integrate_3d_z_points(x, s, e, xout, use_mex, force_mex);
     otherwise
