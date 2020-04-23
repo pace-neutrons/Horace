@@ -27,9 +27,9 @@ function herbert_mex(varargin)
 % root directory is assumed to be that in which mslice_init resides
 
 % list of keys the script accepts
-options={'-prompt','-setmex','-CPP','-FOR','-keep_lib','-use_lib','-missing'};
+options={'-prompt','-setmex','-CPP','-keep_lib','-use_lib','-missing'};
 %defaults:
-[ok,mess,prompt4compiler,set_mex,configure_cpp,configure_fortran,keep_lib,use_lib,use_missing] = parse_char_options(varargin,options);
+[ok,mess,prompt4compiler,set_mex,configure_cpp,keep_lib,use_lib,use_missing] = parse_char_options(varargin,options);
 if ~ok
     error(mess)
 end
@@ -40,9 +40,6 @@ else
 end
 if ~configure_cpp
     build_c = true;    
-end
-if ~configure_fortran
-    build_fortran = true;
 end
 
 rootpath = herbert_root();
@@ -59,8 +56,6 @@ else
 end
 %  - mslice extras directory:
 herbert_C_code_dir  =fullfile(rootpath,'_LowLevelCode','CPP');
-herbert_F_code_dir  =fullfile(rootpath,'_LowLevelCode','Fortran');
-lib_dir             =fullfile(herbert_F_code_dir,'mex');
 % check folder permissions
 ok = check_folder_permissions(lib_dir);
 if ~ok
@@ -70,156 +65,12 @@ end
 
 % -----------------------------------------------------
 if prompt4compiler
-    [build_c,build_fortran] = ask4Compiler(configure_cpp,configure_fortran);
+    [build_c,build_fortran] = ask4Compiler(configure_cpp);
     if user_choice=='e'
         return;
     end
     set_mex = ask2SetMex();
 end
-
-
-try
-    if build_fortran
-        if ~(exist(lib_dir,'dir') == 7)
-            mkdir(lib_dir);
-        end
-        % --> BUILD FORTRAN MEX FILES LIBRARY:
-        source_dir = fullfile(herbert_F_code_dir,'source');
-        modules=cell(33,1);
-        modules{1}=build_fortran_module(source_dir,lib_dir,'type_definitions.f90',lib_dir,use_lib);
-        modules{2}=build_fortran_module(fullfile(source_dir,'tools'),lib_dir,'tools_parameters.f90',lib_dir,use_lib);
-        modules{3}=build_fortran_module(fullfile(source_dir,'tools'),lib_dir,'tools.f90',lib_dir,use_lib);
-        
-        modules{4}=build_fortran_module(fullfile(source_dir,'maths'),lib_dir,'I_maths.f90',lib_dir,use_lib);
-        
-        modules{5}=build_fortran_module(fullfile(source_dir,'tools'),lib_dir,'remark.f90',lib_dir,use_lib);
-        
-        
-        % build objects:
-        math_list={ 'I_Index.f90','bin_boundaries_get_xarr.f90',...
-            'upper_index.f90',                 'lower_index.f90',                 'integrate_1d_points.f90',...
-            'integrate_2d_x_points.f90',       'integrate_2d_y_points.f90',       'integrate_3d_x_points.f90',...
-            'integrate_3d_y_points.f90',       'integrate_3d_z_points.f90',...
-            'rebin_1d_hist.f90',               'rebin_2d_x_hist.f90',             'rebin_2d_y_hist.f90',...
-            'rebin_3d_x_hist.f90',             'rebin_3d_y_hist.f90',             'rebin_3d_z_hist.f90',...
-            'single_integrate_1d_points.f90',  'single_integrate_2d_x_points.f90','single_integrate_2d_y_points.f90',...
-            'single_integrate_3d_x_points.f90','single_integrate_3d_y_points.f90','single_integrate_3d_z_points.f90'};
-        
-        ic = 5;
-        for i=1:numel(math_list)
-            ic=ic+1;
-            modules{ic}=build_fortran_module(fullfile(source_dir,'maths'),lib_dir,math_list{i},lib_dir,use_lib);
-        end
-        
-        % --> BUILD ACTUAL MEX FILES:
-        source_dir = herbert_F_code_dir;
-        
-        mex_single_f(source_dir,herbert_mex_target_dir,lib_dir,missing,...
-            'source_mex/get_spe_fortran.F',...
-            modules{:});
-        
-        % templated generated routines which have matlab equivalent
-        mex_single_f(source_dir,herbert_mex_target_dir,lib_dir,missing,...
-            '-o','bin_boundaries_from_descriptor_mex',...
-            'source_mex/bin_boundaries_from_descriptor.F',...
-            'source_mex_interface/IFL_bin_boundaries_get_marr.f90',...
-            'source_mex_interface/IFL_bin_boundaries_get_xarr.f90',...
-            modules{:});
-        
-        
-        mex_single_f(source_dir,herbert_mex_target_dir,lib_dir,missing,...
-            '-o','integrate_1d_points_mex',...
-            'source_mex/integrate_1d_points.F',...
-            'source_mex_interface/IFL_integrate_1d_points.f90',...
-            modules{:});
-        
-        mex_single_f(source_dir,herbert_mex_target_dir,lib_dir,missing,...
-            '-o','integrate_2d_x_points_mex',...
-            'source_mex/integrate_2d_x_points.F',...
-            'source_mex_interface/IFL_integrate_2d_x_points.f90',...
-            modules{:});
-        mex_single_f(source_dir,herbert_mex_target_dir,lib_dir,missing,...
-            '-o','integrate_2d_y_points_mex',...
-            'source_mex/integrate_2d_y_points.F',...
-            'source_mex_interface/IFL_integrate_2d_y_points.f90',...
-            modules{:});
-        
-        mex_single_f(source_dir,herbert_mex_target_dir,lib_dir,missing,...
-            '-o','integrate_3d_x_points_mex',...
-            'source_mex/integrate_3d_x_points.F',...
-            'source_mex_interface/IFL_integrate_3d_x_points.f90',...
-            modules{:});
-        mex_single_f(source_dir,herbert_mex_target_dir,lib_dir,missing,...
-            '-o','integrate_3d_y_points_mex',...
-            'source_mex/integrate_3d_y_points.F',...
-            'source_mex_interface/IFL_integrate_3d_y_points.f90',...
-            modules{:});
-        
-        mex_single_f(source_dir,herbert_mex_target_dir,lib_dir,missing,...
-            '-o','integrate_3d_z_points_mex',...
-            'source_mex/integrate_3d_z_points.F',...
-            'source_mex_interface/IFL_integrate_3d_z_points.f90',...
-            modules{:});
-        
-        mex_single_f(source_dir,herbert_mex_target_dir,lib_dir,missing,...
-            '-o','rebin_1d_hist_mex',...
-            'source_mex/rebin_1d_hist.F',...
-            'source_mex_interface/IFL_rebin_1d_hist.f90',...
-            modules{:});
-        mex_single_f(source_dir,herbert_mex_target_dir,lib_dir,missing,...
-            '-o','rebin_2d_x_hist_mex',...
-            'source_mex/rebin_2d_x_hist.F',...
-            'source_mex_interface/IFL_rebin_2d_x_hist.f90',...
-            modules{:});
-        mex_single_f(source_dir,herbert_mex_target_dir,lib_dir,missing,...
-            '-o','rebin_2d_y_hist_mex',...
-            'source_mex/rebin_2d_y_hist.F',...
-            'source_mex_interface/IFL_rebin_2d_y_hist.f90',...
-            modules{:});
-        mex_single_f(source_dir,herbert_mex_target_dir,lib_dir,missing,...
-            '-o','rebin_3d_x_hist_mex',...
-            'source_mex/rebin_3d_x_hist.F',...
-            'source_mex_interface/IFL_rebin_3d_x_hist.f90',...
-            modules{:});
-        mex_single_f(source_dir,herbert_mex_target_dir,lib_dir,missing,...
-            '-o','rebin_3d_y_hist_mex',...
-            'source_mex/rebin_3d_y_hist.F',...
-            'source_mex_interface/IFL_rebin_3d_y_hist.f90',...
-            modules{:});
-        mex_single_f(source_dir,herbert_mex_target_dir,lib_dir,missing,...
-            '-o','rebin_3d_z_hist_mex',...
-            'source_mex/rebin_3d_z_hist.F',...
-            'source_mex_interface/IFL_rebin_3d_z_hist.f90',...
-            modules{:});
-                
-        disp (' ')
-        disp('!==================================================================!')
-        disp('!  Succesfully created required FORTRAN mex files  ================!')
-        if set_mex
-            set(herbert_config,'use_mex',true);
-            disp('!  Setting it to immediate use                     ================!')
-        end
-        
-        disp('!==================================================================!')
-        disp(' ')
-        
-        
-    end
-catch ex
-    set(herbert_config,'use_mex',false);
-    disp (' ')
-    disp('!==================================================================!')
-    disp('!  FORTRAN mex-ing failed                          ================!')
-    disp('!==================================================================!')
-    disp(' ')
-    keep_lib = true;
-    if build_fortran
-        rethrow(ex);
-    else
-        disp(ex);
-    end
-end
-
 
 try
     if build_c
@@ -304,26 +155,24 @@ disp(' <=== completed');
 
 
 
-function [build_c, build_fortran] = ask4Compiler(configure_cpp,configure_fortran)
+function [build_c] = ask4Compiler(configure_cpp)
 build_c = true;
 build_fortran = true;
-if ~(configure_cpp|| configure_fortran)
+if ~(configure_cpp)
     disp('!==================================================================!')
     disp('! Would you like to select your compilers (win) or have configured !')
-    disp('! your compiler yourself?:  y/n/c/f/e                              !')
+    disp('! your compiler yourself?:  y/n/e                                  !')
     disp('! y-select and configure;  n - already configured                  !')
-    disp('! c or f allow you to build C or FORTRAN part of the program       !')
-    disp('!        having configured proper compiler yourself                !')
     disp('! e (end)-- cancel script execution                                !')
     disp('!------------------------------------------------------------------!')
     disp('!------------------------------------------------------------------!')
     disp('! e -- cancel (end)                                                !')
-    user_entry=input('! y/n/c/f/e :','s');
+    user_entry=input('! y/n/e :','s');
     user_entry=strtrim(lower(user_entry));
     user_choice = user_entry(1);
     disp(['!===> ' user_choice,' choosen                                                    !']);
     disp('!==================================================================!')
-    if ~(user_choice=='y'||user_choice=='n'||user_choice=='c'||user_choice=='f')
+    if ~(user_choice=='y'||user_choice=='n')
         user_choice='e';
     end
     
@@ -335,19 +184,11 @@ if user_choice=='e'
     build_fortran=false;
     return;
 end
-if configure_fortran
-    % Prompt for fortran compiler
-    disp('!==================================================================!')
-    disp('! please, select your FORTRAN compiler  ===========================!')
-    mex -setup
-    build_c=false; 
-end
 
 if configure_cpp
     disp('!==================================================================!')
     disp('! please, select your compilers    ================================!')
-    mex -setup
-    build_fortran = false;    
+    mex -setup 
 end
 
 
