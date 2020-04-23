@@ -4,7 +4,7 @@ function [wout_s, wout_e] = rebin_hist(iax,x, s, e, xout, use_mex, force_mex)
 % Overcomplicated but follows minimal change rules
 switch iax
     case(1)
-        [wout_s,wout_e] = rebin_2d_x_hist (x, s, e, xout, use_mex, force_mex);
+        [wout_s,wout_e] = rebin_2d_x_hist (x, s, e, xout);
     case(2)
         [wout_s,wout_e] = rebin_2d_y_hist (x, s, e, xout, use_mex, force_mex);
     otherwise
