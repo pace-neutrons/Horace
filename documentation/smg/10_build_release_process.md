@@ -67,3 +67,23 @@ This will:
 The release tag will be an anchor for any subsequently needed release branch and patch branches.
 
 The version number is stored in a text file (`VERSION`) in the root of the Herbert and Horace source. This will follow [semantic versioning](https://semver.org/) and is used in the build process to set the version number in the MATLAB and compiled C++ components.
+
+### Facility Deployment
+
+Users participating in ISIS experiments use expensive neutron facility and need to be able to see and analyse their data as quickly as possible, ideally in the process of experiment and immediately after that. In addition to standard Horace scripts users sometimes write their own scripts, which places high demand on the software reliability. Sometimes, their custom scripts use standard software in the operational modes, which are difficult to predict. Often these script identify issues, which have not been anticipated during development so users need urgent fixing or modifications to the software. Sometimes, the issues can be caused by specific user's data, so can be easily reproduced only using these data. The changes fixing the user issue should occur immediately, as users should not lose a day or even an hour waiting until the whole build pipeline completes, produces all possible artefacts and get installed on the facility computers.  
+
+Quick modifications to the software with only partial testing carries the risks of breaking the other parts of the software. Despite that, in reality, single crystal experiments on different machines rarely happen simultaneously. The combined probability of error in modified code and the situation when this error immediately and severely affects another high priority user can be considered low. If this happens, the possibility to revert changes as rapidly as they were introduced, is also very important. 
+
+Because of the specific demands, the process of deploying the software on the ISIS facility differs from the  normal build-release process. 
+
+Namely:
+
+When a release is produced and placed to the github, the master branch is tagged with the release number. 
+The release tagged version is checked out in the common software area of the ISIS computing facility provided to users. The low level build artefacts i.e. C++ libraries are copied into appropriate places of this area from the Jenkins node, testing release on this system. 
+
+If any errors are identified during user cycle, a bugfixing branch is created from the actual release. The changes, fixing user issue are committed to the github as soon as they are introduced. The changes become the contents of the bugfixing PR, which is reviewed, tested against all remaining code base and operating systems and eventually becomes the part of **master** like any other code changes. 
+
+Such workflow allows rapid response to the requests of the users, who is carrying out their experiments, with only minor temporary decrease in the code reliability.
+
+The changes to low level performance code are considered high risk changes, so they are not introduced using this process. They are also not considered the critical changes as the code expected to run correctly without low level C++ code, may be with decreased performance. 
+
