@@ -65,7 +65,7 @@ end
 
 % -----------------------------------------------------
 if prompt4compiler
-    [build_c,build_fortran] = ask4Compiler(configure_cpp);
+    build_c = ask4Compiler(configure_cpp);
     if user_choice=='e'
         return;
     end
@@ -155,9 +155,8 @@ disp(' <=== completed');
 
 
 
-function [build_c] = ask4Compiler(configure_cpp)
+function build_c = ask4Compiler(configure_cpp)
 build_c = true;
-build_fortran = true;
 if ~(configure_cpp)
     disp('!==================================================================!')
     disp('! Would you like to select your compilers (win) or have configured !')
@@ -181,7 +180,6 @@ if user_choice=='e'
     disp('!  canceled                                                        !')
     disp('!==================================================================!')
     build_c = false;
-    build_fortran=false;
     return;
 end
 
