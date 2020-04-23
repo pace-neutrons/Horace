@@ -105,7 +105,7 @@ classdef IX_data_1d < IX_dataset
     %======================================================================
     methods(Static,Access = protected)
         % Rebins histogram data along specific axis.
-        [wout_s, wout_e] = rebin_hist(iax,x, s, e, xout, use_mex, force_mex)
+        [wout_s, wout_e] = rebin_hist(iax, x, s, e, xout)
         %Integrates point data along along specific axis.
         [wout_s,wout_e] = integrate_points(iax,x, s, e, xout, use_mex, force_mex)
     end

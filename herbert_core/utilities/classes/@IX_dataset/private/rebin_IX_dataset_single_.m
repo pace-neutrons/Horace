@@ -177,7 +177,7 @@ if nx~=sz_full(iax)
             wout_s=win_s;
             wout_e=win_e;
         else
-            [wout_s, wout_e] = win.rebin_hist(iax,win_x, win_s, win_e, wout_x, use_mex, force_mex);
+            [wout_s, wout_e] = win.rebin_hist(iax, win_x, win_s, win_e, wout_x);
         end
         if integrate_data
             if oneD
@@ -200,7 +200,7 @@ if nx~=sz_full(iax)
                 dx_in=repmat(reshape(diff(win_x),[ones(1,iax-1),numel(win_x)-1,1]),x_sz_repmat);
                 dx_out=repmat(reshape(diff(wout_x),[ones(1,iax-1),numel(wout_x)-1,1]),x_sz_repmat);
             end
-            [wout_s, wout_e] = win.rebin_hist(iax,win_x, win_s./dx_in, win_e./dx_in, wout_x, use_mex, force_mex);
+            [wout_s, wout_e] = win.rebin_hist(iax, win_x, win_s./dx_in, win_e./dx_in, wout_x);
             wout_s=wout_s.*dx_out;
             wout_e=wout_e.*dx_out;
         end
