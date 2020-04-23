@@ -43,39 +43,17 @@ data.S(abs(data.S)<small_data)=0;
 data.ERR(abs(data.ERR)<small_data)=0;
 
 % Write to file
-use_mex=get(herbert_config,'use_mex');
-if use_mex
-    try
-        ierr=put_spe_mex(file_tmp,data.S,data.ERR,data.en);
-        if round(ierr)~=0
-            error(['Error writing spe data to ',file_tmp])
-        end
-    catch
-        force_mex=get(herbert_config,'force_mex_if_use_mex');
-        if ~force_mex
-            display(['Error calling mex function ',mfilename,'_mex. Calling matlab equivalent'])
-            use_mex=false;
-        else
-            ok=false;
-            mess=['Error writing spe data to ',file_tmp]';
-            filename='';
-            filepath='';
-        end
+try     % matlab write
+    if get(herbert_config,'log_level')>-1	
+        disp(['Matlab writing of .spe file : ' file_tmp]);
     end
-end
-if ~use_mex
-    try     % matlab write
-		if get(herbert_config,'log_level')>-1	
-			disp(['Matlab writing of .spe file : ' file_tmp]);
-		end
-        [ok,mess]=put_spe_matlab(data,file_tmp);
-        if ~ok
-            error(mess)
-        end
-    catch
-        ok=false;
-        mess=['Error writing spe data to ',file_tmp]';
-        filename='';
-        filepath='';
+    [ok,mess]=put_spe_matlab(data,file_tmp);
+    if ~ok
+        error(mess)
     end
+catch
+    ok=false;
+    mess=['Error writing spe data to ',file_tmp]';
+    filename='';
+    filepath='';
 end

@@ -20,41 +20,21 @@ mess='';
 file_tmp=strtrim(filename);
 
 % Get file name and path (incl. final separator)
-[path,name,ext]=fileparts(file_tmp);
+[dir_path,name,ext]=fileparts(file_tmp);
 data.filename=[name,ext];
-data.filepath=[path,filesep];
-
+data.filepath=[dir_path,filesep];
 
 % Read spe file
-use_mex=get(herbert_config,'use_mex');
-if use_mex
-    try
-        [data.S,data.ERR,data.en]=get_spe_mex(file_tmp);
-    catch
-        force_mex=get(herbert_config,'force_mex_if_use_mex');
-        if ~force_mex
-            display(['Error calling mex function ',mfilename,'_mex. Calling matlab equivalent'])
-            use_mex=false;
-        else
-            data=[];
-            ok=false;
-            mess=['Error loading spe data from ',file_tmp]';
-            return
-        end
+try
+    if get(herbert_config,'log_level')>-1
+        disp(['Matlab loading of .spe file : ' file_tmp]);
     end
-end
-if ~use_mex
-    try     % matlab read
-		if get(herbert_config,'log_level')>-1
-			disp(['Matlab loading of .spe file : ' file_tmp]);
-		end
-        [data.S,data.ERR,data.en]=get_spe_matlab(file_tmp);
-    catch
-        data=[];
-        ok=false;
-        mess='Unable to load spe file.';
-        return
-    end
+    [data.S,data.ERR,data.en]=get_spe_matlab(file_tmp);
+catch
+    data=[];
+    ok=false;
+    mess='Unable to load spe file.';
+    return
 end
 
 % Put NaN for data <=10^30:

@@ -1,14 +1,6 @@
 enable_language(Fortran)
 
 set(HERBERT_FORTRAN_LIB "herbert_fortran")
-set(FILE_IO_SRC
-    "source/file_io/cut_footer_info.f90"
-    "source/file_io/cut_fortran_routines.f90"
-    "source/file_io/cut_pixel_info.f90"
-    "source/file_io/slice_footer_info.f90"
-    "source/file_io/slice_fortran_routines.f90"
-    "source/file_io/slice_pixel_info.f90"
-)
 set(MATHS_SRC
     "source/maths/bin_boundaries_get_xarr.f90"
     "source/maths/I_Index.f90"
