@@ -18,12 +18,6 @@ hc.saveable = false;
 
 
 banner_to_screen(mfilename)
-if isempty(which('bin_boundaries_from_descriptor_mex'))
-    test_mex = false;
-else
-    test_mex = true;
-end
-
 
 data_filename='testdata_IX_datasets_ref.mat';
 results_filename='test_rebin_output.mat';

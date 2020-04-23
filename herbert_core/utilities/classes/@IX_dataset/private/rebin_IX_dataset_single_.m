@@ -154,7 +154,7 @@ if nx~=sz_full(iax)
         if ~ok_rebin, wout_x=[]; wout_s=[]; wout_e=[]; return, end
         if is_descriptor
             if ~isempty(xb)
-                wout_x=bin_boundaries_from_descriptor_(xb, win_x, use_mex, force_mex);  % also scalar wout_x a possibility here i.e. no data points left
+                wout_x=bin_boundaries_from_descriptor_(xb, win_x);  % also scalar wout_x a possibility here i.e. no data points left
             else
                 wout_x=win_x;
             end
@@ -218,7 +218,7 @@ else
             if is_descriptor
                 win_xb=bin_boundaries_simple(win_x);
                 if ~isempty(xb)
-                    xbounds_true=bin_boundaries_from_descriptor_(xb, win_xb, use_mex, force_mex);  % also scalar wout_x a possibility here i.e. no data points left
+                    xbounds_true=bin_boundaries_from_descriptor_(xb, win_xb);  % also scalar wout_x a possibility here i.e. no data points left
                 else
                     xbounds_true=win_xb;
                 end

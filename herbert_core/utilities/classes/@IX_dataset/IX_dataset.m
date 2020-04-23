@@ -39,8 +39,8 @@ classdef IX_dataset
         % a binary matlab file. Inverse of save.
         obj = read(filename);
         % Access internal function for testing purposes
-        function [x_out, ok, mess] = bin_boundaries_from_descriptor(xbounds, x_in, use_mex, force_mex)
-            [x_out, ok, mess] = bin_boundaries_from_descriptor_(xbounds, x_in, use_mex, force_mex);
+        function [x_out, ok, mess] = bin_boundaries_from_descriptor(xbounds, x_in)
+            [x_out, ok, mess] = bin_boundaries_from_descriptor_(xbounds, x_in);
         end
         
     end
