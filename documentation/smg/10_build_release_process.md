@@ -6,7 +6,7 @@ All users should be using a build that has been built, tested and packaged using
 
 ### Master
 
-The `master` branch should always be 'releasable' with all tests passing. Builds are run on all target platforms to created a `.zip`/`.tar.gz` release packages each night.
+The `master` branch should always be 'releasable' with all tests passing. Builds are run on all target platforms to create a `.zip`/`.tar.gz` release packages each night.
 
 - The Herbert `master` branch is built and a zip release build artifact with MATLAB-release and platform-specific binary is created.
 
@@ -18,7 +18,7 @@ The Horace build artifact is a single deployable unit to a specific MATLAB/OS pl
 
 Feature development and bug fixes should be performed on branches and reviewed using a GitHub Pull Request (PR).
 
-When a pull request is opened or updated the code is built and tested of the merge of the PR branch and `master`.
+When a pull request is opened or updated the merged code of the PR branch and `master` is built and tested.
 
 1. Feature developed on a branch taken from the `master`
 2. All tests likely to be affected by changes in Herbert and Horace must be run on developers machine
@@ -37,9 +37,9 @@ Patch releases should be tested and built through the same build pipeline as the
 3. Fix developed on a branch (`xxx_branch`) taken from the *release* tag (`Rm_n_o`)
 4. All tests likely to be affected by changes in Herbert and Horace must be run on developers machine
 5. PR created for merge into Release branch (`rel_m_n_o`) *and* `master` branch. If this is the first release patch, the branch will need to be created
-6. If the build / test against of the PR against the Release branch succeeds on all platforms, that build artifact can be released to the target platform as version `m.n.o+1`
+6. If the build and test of the PR to the Release branch succeeds on all platforms, that build artifact can be released to the target platform as version `m.n.o+1`
 
-If the hotfix is being done out-of-hours the PR can be merged by the developer WITHOUT review, but the branch should not be deleted and should be reviewed as the earliest opportunity.
+If the hotfix is being done out-of-hours the PR can be merged by the developer WITHOUT review provided all tests pass, but the branch should not be deleted and should be reviewed as the earliest opportunity.
 
 The same caveats apply about the Horace build dependencies on Herbert.
 
