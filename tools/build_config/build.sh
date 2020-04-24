@@ -27,7 +27,6 @@ function print_package_versions() {
   cmake --version | head -n 1
   echo "Matlab: ${MATLAB_ROOT}"
   g++ --version | head -n 1
-  gfortran --version | head -n 1
   echo
 }
 
