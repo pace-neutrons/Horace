@@ -29,7 +29,7 @@ try
     if get(herbert_config,'log_level')>-1
         disp(['Matlab loading of .spe file : ' file_tmp]);
     end
-    [data.S,data.ERR,data.en]=get_spe_matlab(file_tmp);
+    [data.S,data.ERR,data.en]=read_spe_(file_tmp);
 catch
     data=[];
     ok=false;

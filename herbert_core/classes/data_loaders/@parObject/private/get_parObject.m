@@ -49,7 +49,7 @@ mess='';
 % Remove blanks from beginning and end of filename
 file_tmp=strtrim(filename);
 
-% Read file (use matlab, as files are generally small, so Fortran or C++ code not really necessary)
+% Read file (use matlab, as files are generally small, so C++ code not really necessary)
 try
     % Open file for reading
     fid=fopen(file_tmp,'rt');

@@ -1,6 +1,6 @@
-function [ok,mess]=put_spe_matlab(data,file)
+function [ok,mess] = write_spe_(data,file)
 % Writes ASCII .spe file
-%   >> [ok,mess,filename,filepath]=put_spe(data,file)
+%   >> [ok,mess,filename,filepath] = write_spe_(data,file)
 %
 % data has following fields:
 %   data.filename   Name of file excluding path

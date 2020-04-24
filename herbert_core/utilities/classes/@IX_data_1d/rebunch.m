@@ -138,7 +138,7 @@ else
         xbounds=[win.x(1),0.5*(win.x(ind)+win.x(ind+1)),win.x(nx)];     % integration ranges
         xout=0.5*(xbounds(2:end)+xbounds(1:end-1));     % centres of integration ranges
         xout_bins=diff(xbounds);
-        [yout,eout] = integrate_1d_points (win.x, win.signal, win.error, xbounds);
+        [yout,eout] = integrate_1d_points_ (win.x, win.signal, win.error, xbounds);
         yout=yout./xout_bins;
         eout=eout./xout_bins;
 

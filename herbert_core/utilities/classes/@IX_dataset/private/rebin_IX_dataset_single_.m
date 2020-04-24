@@ -154,7 +154,7 @@ if nx~=sz_full(iax)
         if ~ok_rebin, wout_x=[]; wout_s=[]; wout_e=[]; return, end
         if is_descriptor
             if ~isempty(xb)
-                wout_x=bin_boundaries_from_descriptor_(xb, win_x, use_mex, force_mex);  % also scalar wout_x a possibility here i.e. no data points left
+                wout_x=bin_boundaries_from_descriptor_(xb, win_x);  % also scalar wout_x a possibility here i.e. no data points left
             else
                 wout_x=win_x;
             end
@@ -177,7 +177,7 @@ if nx~=sz_full(iax)
             wout_s=win_s;
             wout_e=win_e;
         else
-            [wout_s, wout_e] = win.rebin_hist(iax,win_x, win_s, win_e, wout_x, use_mex, force_mex);
+            [wout_s, wout_e] = win.rebin_hist(iax, win_x, win_s, win_e, wout_x);
         end
         if integrate_data
             if oneD
@@ -200,7 +200,7 @@ if nx~=sz_full(iax)
                 dx_in=repmat(reshape(diff(win_x),[ones(1,iax-1),numel(win_x)-1,1]),x_sz_repmat);
                 dx_out=repmat(reshape(diff(wout_x),[ones(1,iax-1),numel(wout_x)-1,1]),x_sz_repmat);
             end
-            [wout_s, wout_e] = win.rebin_hist(iax,win_x, win_s./dx_in, win_e./dx_in, wout_x, use_mex, force_mex);
+            [wout_s, wout_e] = win.rebin_hist(iax, win_x, win_s./dx_in, win_e./dx_in, wout_x);
             wout_s=wout_s.*dx_out;
             wout_e=wout_e.*dx_out;
         end
@@ -218,7 +218,7 @@ else
             if is_descriptor
                 win_xb=bin_boundaries_simple(win_x);
                 if ~isempty(xb)
-                    xbounds_true=bin_boundaries_from_descriptor_(xb, win_xb, use_mex, force_mex);  % also scalar wout_x a possibility here i.e. no data points left
+                    xbounds_true=bin_boundaries_from_descriptor_(xb, win_xb);  % also scalar wout_x a possibility here i.e. no data points left
                 else
                     xbounds_true=win_xb;
                 end
@@ -361,7 +361,7 @@ else
         else
             dx_out=repmat(reshape(diff(xbounds_true),[ones(1,iax-1),numel(xbounds_true)-1,1]),x_sz_repmat);
         end
-        [wout_s,wout_e] = win.integrate_points(iax,win_x, win_s, win_e, xbounds_true, use_mex, force_mex);
+        [wout_s,wout_e] = win.integrate_points(iax, win_x, win_s, win_e, xbounds_true);
         if ~integrate_data
             wout_s=wout_s./dx_out;
             wout_e=wout_e./dx_out;

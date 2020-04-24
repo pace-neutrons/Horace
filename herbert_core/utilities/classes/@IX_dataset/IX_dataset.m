@@ -39,8 +39,8 @@ classdef IX_dataset
         % a binary matlab file. Inverse of save.
         obj = read(filename);
         % Access internal function for testing purposes
-        function [x_out, ok, mess] = bin_boundaries_from_descriptor(xbounds, x_in, use_mex, force_mex)
-            [x_out, ok, mess] = bin_boundaries_from_descriptor_(xbounds, x_in, use_mex, force_mex);
+        function [x_out, ok, mess] = bin_boundaries_from_descriptor(xbounds, x_in)
+            [x_out, ok, mess] = bin_boundaries_from_descriptor_(xbounds, x_in);
         end
         
     end
@@ -262,9 +262,9 @@ classdef IX_dataset
     %======================================================================
     methods(Abstract,Static,Access=protected)
         % Rebins histogram data along specific axis.
-        [wout_s, wout_e] = rebin_hist(iax,wout_x, use_mex, force_mex);
+        [wout_s, wout_e] = rebin_hist(iax, wout_x);
         %Integrates point data along along specific axis.
-        [wout_s,wout_e] = integrate_points(iax,xbounds_true, use_mex, force_mex);
+        [wout_s,wout_e] = integrate_points(iax, xbounds_true);
     end
 end
 
