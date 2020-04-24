@@ -36,7 +36,7 @@ Patch releases should be tested and built through the same build pipeline as the
 2. Bug report issue created in GitHub/Issues documenting how to reproduce
 3. Fix developed on a branch (`xxx_branch`) taken from the *release* tag (`Rm_n_o`)
 4. All tests likely to be affected by changes in Herbert and Horace must be run on developers machine
-5. PR created for merge into Release branch (`rel_m_n_o`) *and* `master` branch. If this is the first release patch, the branch will need to be created
+5. PR created for merge into Release branch (`rel_m_n`) *and* `master` branch. If this is the first release patch, the branch will need to be created
 6. If the build and test of the PR to the Release branch succeeds on all platforms, that build artifact can be released to the target platform as version `m.n.o+1`
 
 If the hotfix is being done out-of-hours the PR can be merged by the developer WITHOUT review provided all tests pass, but the branch should not be deleted and should be reviewed as the earliest opportunity.
