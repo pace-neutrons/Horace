@@ -75,7 +75,7 @@ classdef loader_ascii < a_loader
             end
             %
             % get info about ascii spe file;
-            [ne,ndet,en]= get_spe_matlab_(full_file_name,'-info_only');
+            [ne,ndet,en]= get_spe_(full_file_name,'-info_only');
             if numel(en) ~= ne+1
                 error('LOADER_ASCII:invalid_argument',' ill formatted ascii spe file %s',file_name);
             end

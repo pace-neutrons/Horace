@@ -1,7 +1,7 @@
-function varargout = get_spe_matlab_(filename,varargin)
+function varargout = get_spe_(filename,varargin)
 % Get signal, error and energy bin boundaries for spe file
 %
-%>> [S,ERR,en] = get_spe_matlab(filename,[info])
+%>> [S,ERR,en] = get_spe_(filename,[info])
 %Input:
 %    filename   -- name ascii spe file to read infornation from
 %    info       -- optional parameter -- if present, fuunction reads and
