@@ -1,7 +1,7 @@
-function [S,ERR,en] = get_spe_matlab(filename)
+function [S,ERR,en] = read_spe_(filename)
 % Get signal, error and energy bin boundaries for spe file
 %
-%   >> [S,ERR,en] = get_spe_matlab(filename)
+%   >> [S,ERR,en] = read_spe_(filename)
 %
 %   S          [ne x ndet] array of signal values
 %   ERR        [ne x ndet] array of error values (st. dev.)
