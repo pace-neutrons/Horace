@@ -1,24 +1,18 @@
 function herbert_mex(varargin)
-% Create mex files for all the Herbert Fortran and C++ routines
+% Create mex files for all the Herbert C++ routines
 %
 %>> herbert_mex       -- this should automatically produce the mex files
 %                        for Herbert
 %>> herbert_mex options -- modify build options for Herbert (convenience)
 %
 % Available options:
-% -prompt  --   ask to configure FORTRAN and C compiler, default not to ask
-%               if provided, assume that compiler is configured and we are
-%               building both Fortran and C parts of code
+% -prompt  --   ask to configure C compiler, default not to ask
+%               if provided, assume that compiler is configured
 % -setmex    -- by default, successfully mexed  files are not set to be
 %               used. when prompt is on, you are asked to set or not set
-%               them up. use -setmex to use mex
-%               files after successful compilation.
-%
+%               them up. use -setmex to use mex files after successful 
+%               compilation.
 % -CPP_config  --configure C++ compiler to C++ -part of code, build C;
-% -FOR_config -- configure Fortran compiler to build FORTRAN -part of code, build FORTRAN;
-% -keep_lib  -- keep the intermediate Fortran library
-% -use_lib   -- use the previously build library when building the mex-code (missing
-%              library components will be added, will also invoke -keep_lib
 % -missing   -- build only missing mex files, if not present, script
 %               rebuilds all existing files
 %
@@ -27,9 +21,9 @@ function herbert_mex(varargin)
 % root directory is assumed to be that in which mslice_init resides
 
 % list of keys the script accepts
-options={'-prompt','-setmex','-CPP','-keep_lib','-use_lib','-missing'};
+options={'-prompt','-setmex','-CPP','-missing'};
 %defaults:
-[ok,mess,prompt4compiler,set_mex,configure_cpp,keep_lib,use_lib,use_missing] = parse_char_options(varargin,options);
+[ok,mess,prompt4compiler,set_mex,configure_cpp,use_missing] = parse_char_options(varargin,options);
 if ~ok
     error(mess)
 end
@@ -107,15 +101,6 @@ catch ex
     set(herbert_config,'use_mex_C',false);
     rethrow(ex)
 end
-
-if ~keep_lib
-    try
-        rmdir(lib_dir,'s');
-    catch
-    end
-end
-
-
 
 
 %----------------------------------------------------------------
