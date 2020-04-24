@@ -15,5 +15,5 @@ if ~existgpath(pathname)
     return  % doesn't exist anyway
 end
 
-% Delete from Fortran and Matlab
+% Delete the file
 ixf_global_path('del',pathname);

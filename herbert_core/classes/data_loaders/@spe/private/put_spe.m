@@ -26,7 +26,7 @@ file_tmp=strtrim(file);
 filename=[name,ext];
 filepath=[path,filesep];
 
-% Prepare data for Fortran routine: must get rid of NaNs
+% Remove NaNs from data
 index=~isfinite(data.S)|data.S<=null_data|~isfinite(data.ERR);
 if sum(index(:)>0)
     data.S(index)=null_data;
@@ -34,10 +34,8 @@ if sum(index(:)>0)
 end
 
 % Prepare data for Matlab: - must ensure no data has exponents outside range -99 to +99
-% The problem is that although the fortran will write e.g. -1.234E-008 as -1.234-008, which
-% the fortran read routines will cope with, the Matlab and C++ reads will not cope. Matlab
-% sees -1.234-008 as two numbers, and C++ sees this as one number, but does not interpreet the
-% exponent.
+% The problem is that Matlab sees -1.234-008 as two numbers, and C++ sees this 
+% as one number, but does not interpreet the exponent.
 small_data=1.0e-30;
 data.S(abs(data.S)<small_data)=0;
 data.ERR(abs(data.ERR)<small_data)=0;

@@ -28,7 +28,7 @@ else
 end
 
 %% =====================================================================================================================
-%  Setup location of reference functions (fortran or matlab)
+%  Setup location of reference functions
 % ======================================================================================================================
 warning('off','MATLAB:unknownObjectNowStruct');
 clob = onCleanup(@()warning('on','MATLAB:unknownObjectNowStruct'));

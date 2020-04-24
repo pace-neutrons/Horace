@@ -34,7 +34,7 @@ if ~ok
     return
 end
 
-% Read file (use matlab, as files are generally small, so Fortran or C++ code not really necessary)
+% Read file (use matlab, as files are generally small, so C++ code not really necessary)
 str=strtrim(textcell(file_tmp));
 nline=numel(str);
 if nline==0
