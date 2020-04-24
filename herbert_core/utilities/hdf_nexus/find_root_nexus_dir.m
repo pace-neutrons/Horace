@@ -26,7 +26,7 @@ function [root_nx_path,data_version,data_structure] = find_root_nexus_dir(hdf_fi
 %                    function and returned by this procedure for
 %                    efficiency (if needed, not to read it again).
 %
-% 
+%
 
 if ~exist('nexus_application_name','var')
     nexus_application_name = 'NXSPE';
@@ -60,7 +60,7 @@ for i=1:numel(groups)
                     n_nx_entries=n_nx_entries+1;
                     nx_folders{n_nx_entries}= nexus_folder.Name;
                     nx_version{n_nx_entries}= ...
-                        get_version(nexus_folder.Datasets(j),hdf_fileName);
+                        get_version(nexus_folder.Datasets(j),nexus_application_name,hdf_fileName);
                 end
             end
         end
@@ -83,17 +83,18 @@ else
     data_version    = nx_version{1};
 end
 
-function ver=get_version(def_dataset,filename)
-% Matlab version specific function to obtain correct NeXus version
-%mat_ver_array=datevec(version('-date'));
-
+function ver=get_version(def_dataset,APP_NAME,filename)
+% get nexust version from nexus attributes
+%
 for i=1:numel(def_dataset.Attributes)
     attr = def_dataset.Attributes(i);
     if strcmp(attr.Name,'version')
         ver = attr.Value;
+        if iscell(ver)
+            ver = regexprep(ver{1},'[\n\r\0]+','');
+        end
         return;
     end
 end
 error('ISIS_UTILITES:invalid_argument',...
-    'NXSPE dataset in file %s does not have correct version',filename)
-
+    'Dataset %s in file %s does not have correct version',APP_NAME,filename)

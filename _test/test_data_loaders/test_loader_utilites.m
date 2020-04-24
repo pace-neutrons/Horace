@@ -44,25 +44,25 @@ classdef test_loader_utilites< TestCase
        function test_correct_DSinCorrectFolder_found(this)
             [DS_info,ds_path] = find_dataset_info(f_name(this,'MAP11014.nxspe'),'data','data'); 
             
-            assertEqual(DS_info.Dims,[30,28160]);
+            assertEqual(DS_info.Dataspace.Size,[30,28160]);
             assertEqual(ds_path,'/11014.spe/data/data');                              
        end           
        function test_correct_DSinCorrect2Folder_found(this)
             [DS_info,ds_path] = find_dataset_info(f_name(this,'MAP11014.nxspe'),'data','azimuthal'); 
             
-            assertEqual(DS_info.Dims,28160);
+            assertEqual(DS_info.Dataspace.Size,28160);
             assertEqual(ds_path,'/11014.spe/data/azimuthal');                              
        end     
       function test_correct_DS2_found(this)
             [DS_info,ds_path] = find_dataset_info(f_name(this,'MAP11014.nxspe'),'','azimuthal'); 
             
-            assertEqual(DS_info.Dims,28160);
+            assertEqual(DS_info.Dataspace.Size,28160);
             assertEqual(ds_path,'/11014.spe/data/azimuthal');                              
       end            
        function test_correct_DS3_found(this)
             [DS_info,ds_path] = find_dataset_info(f_name(this,'group_search_tester.h5'),'','dsa1cgI4'); 
             
-            assertEqual(DS_info.Dims,[2,2]);
+            assertEqual(DS_info.Dataspace.Size,[2,2]);
             assertEqual(ds_path,'/a1/cg/dsa1cgI4');                              
        end           
        function test_correct_Folder2_found(this)
@@ -76,7 +76,7 @@ classdef test_loader_utilites< TestCase
             [result,version,data_struct] = find_root_nexus_dir(f_name(this,'MAP11014.nxspe'),'NXSPE'); % file name has loose relation to the result
             assertEqual(result,'/11014.spe');
             [DS_info,ds_path] = find_dataset_info(data_struct,'data','azimuthal');       
-            assertEqual(DS_info.Dims,28160);
+            assertEqual(DS_info.Dataspace.Size,28160);
             assertEqual(ds_path,'/11014.spe/data/azimuthal');                              
        end   
     end
