@@ -41,6 +41,8 @@ Patch releases should be tested and built through the same build pipeline as the
 
 If the hotfix is being done out-of-hours the PR can be merged by the developer WITHOUT review provided all tests pass, but the branch should not be deleted and should be reviewed as the earliest opportunity.
 
+On any Horace release branch, the associate version of Herbert (`Rm_n_x`) will remain unchanged except for patches.
+
 The same caveats apply about the Horace build dependencies on Herbert.
 
 Advantages:
