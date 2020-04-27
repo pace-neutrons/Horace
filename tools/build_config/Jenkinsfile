@@ -179,6 +179,12 @@ pipeline {
         ]
       )
 
+      publishCppcheck (
+	displayAllErrors: true,
+        allowNoReport: true,
+	pattern: 'build/cppcheck.xml'
+      )
+
       xunit (
         testTimeMargin: '3000',
         thresholdMode: 1,
