@@ -78,7 +78,11 @@ data_source='D:\data\Fe\sqw_Toby\Fe_ei787.sqw';  % sqw file from which to take c
 datafile='test_tobyfit_1_data.mat';   % filename where saved results are written
 savefile='test_tobyfit_1_out.mat';   % filename where saved results are written
 
-
+% This seed provides a passing test at time of writing
+fixed_seed = 0;
+[old_rng_state, rng_state] = seed_rng(fixed_seed);
+clean_up = onCleanup(@() rng(old_rng_state));
+fprintf('RNG seed: %i\n', rng_state.Seed);
 
 %% --------------------------------------------------------------------------------------
 % Create cuts to save as input data

@@ -19,8 +19,8 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             obj = obj@TestCase(name);
             class_dir = fileparts(which('test_nsqw2sqw_internal_methods.m'));
             obj.this_tests_dir = fileparts(class_dir);
-            her_root_dir = fileparts(fileparts(which('herbert_init.m')));
-            source_test_dir = fullfile(her_root_dir,'_test','common_data');
+            
+            source_test_dir = fullfile(horace_root(),'_test','common_data');
             source_file = fullfile(source_test_dir,'MAP11014.nxspe');
             
             psi = [0,2,20]; %-- test settings;
@@ -193,7 +193,7 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             
             assertTrue(je1.is_completed);
             assertTrue(exist(fout_name,'file')==2);
-            [ok,err]=serverfbMPI.receive_message(1,'running');
+            [ok,err]=serverfbMPI.receive_message(1,'log');
             assertEqual(ok,MESS_CODES.ok,err);
             
             [ok,mess] = is_cut_equal(obj.test_sample_file,fout_name,projaxes,[-1,0.1,5],[-0.4,0.4],[-0.4,0.4],[10,20]);

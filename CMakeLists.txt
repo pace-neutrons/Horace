@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.7)
 
-project("Horace")
+file(READ "${CMAKE_SOURCE_DIR}/VERSION" _version)
+string(STRIP "${_version}" _version)
+project("Horace" VERSION "${_version}")
 
 # C++11 is required for GTest
 set(CMAKE_CXX_STANDARD 11)
@@ -15,20 +17,28 @@ if(POLICY CMP0074)
 endif()
 
 # Add cmake directory to CMake's path
-if(NOT CMAKE_MODULE_PATH)
-  set(CMAKE_MODULE_PATH)
-endif()
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH
+    "${CMAKE_SOURCE_DIR}/cmake"
+    "${CMAKE_SOURCE_DIR}/cmake/external"
+)
+
+# Set some useful global variables
+# this will hold herbert/horace_on.m and worker_v2.m
+set(LOCAL_INIT_DIR "${CMAKE_BINARY_DIR}/local_init")
 
 # Set our options
-option(BUILD_TESTS ON)
+option(BUILD_TESTS "Build the C++ tests" ON)
 
 # Look for packages early so we can exit if they're not found
+find_package(Herbert REQUIRED)
 find_package(OpenMP)
-include(horace_FindMatlab)
+include(PACE_AddMex)
+include(PACE_FindMatlab)
 include(horace_FindHDF5)
+include(PACE_Version)
 if(${BUILD_TESTS})
-    include(horace_FindGTest)
+    include(CTest)
+    include(PACE_FindGTest)
     enable_testing()
 endif()
 
@@ -40,3 +50,31 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 add_subdirectory("_LowLevelCode")
+if(${BUILD_TESTS})
+    add_subdirectory("_test")
+endif()
+add_subdirectory("admin")
+
+# =============================================================================
+# Install commands
+# =============================================================================
+include(PACE_CPackConfig)
+
+install(
+    DIRECTORY "horace_core/"
+    DESTINATION "Horace"
+    USE_SOURCE_PERMISSIONS
+    PATTERN "*.m~" EXCLUDE
+    PATTERN "*.asv" EXCLUDE
+)
+install(
+    FILES "LICENSE" "README.md"
+    DESTINATION "."
+)
+install(
+    DIRECTORY "${Herbert_ROOT}/"
+    DESTINATION "Herbert"
+    USE_SOURCE_PERMISSIONS
+    PATTERN "*.m~" EXCLUDE
+    PATTERN "*.asv" EXCLUDE
+)

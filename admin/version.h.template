@@ -1,0 +1,5 @@
+/* ${Horace_AUTO_GENERATED_FILE_WARNING} */
+
+namespace Horace {
+    constexpr char VERSION[] = "${Horace_SHORT_VERSION}";
+}

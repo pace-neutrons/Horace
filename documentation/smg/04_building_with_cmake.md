@@ -3,18 +3,18 @@
 CMake provides a way to generate build files across multiple platforms. It also
 ships with a script to aid in compiling Matlab mex libraries.
 
-1) After cloning the Horace repository, open the CMake GUI and select the root
+1. After cloning the Horace repository, open the CMake GUI and select the root
 of the repository as the source.
-2) Select `<Horace Root>/build/` as the binary directory.
-3) Click configure. When the dialogue appears select your desired generator.
+2. Select `<Horace Root>/build/` as the binary directory.
+3. Click configure. When the dialogue appears select your desired generator.
 You should pick a compiler that is compatible with your Matlab version, e.g.
-MatlabR2017B is not compatible with Visual Studio 2019, so choose Visual Studio 2017.
-4) Make sure to also select your platform/architecture, this should also match
+Matlab R2017b is not compatible with Visual Studio 2019, so choose Visual Studio 2017.
+4. Make sure to also select your platform/architecture, this should also match
 your Matlab version: if you installed a 64-bit version of Matlab choose x64 as
 the platform.
-5) Now click finish in the dialogue. CMake will find the Matlab compiler and
+5. Now click finish in the dialogue. CMake will find the Matlab compiler and
 various libraries.
-6) Now click generate. The build files should be generated inside the DLL
+6. Now click generate. The build files should be generated inside the DLL
 directory. On Windows you can open the `<Horace Root>/build/Horace.sln` file in
 Visual Studio and build the targets. On linux you can `cd` into the
 `<Horace Root>/build/` directory and run `make` depending on the generator you
@@ -27,21 +27,10 @@ linux use `-G "Unix Makefiles"`):
 
 `$ cmake --build <Horace Root>/build`
 
-7) The mex files will be written within `<Horace Root>/build/bin/`. At the moment
-you need to manually copy mex files, found in `bin` folder  into horace_core/DLL/_{$ARH}/_{$version}
-folder where {$ARG} is the value, returned by Matlab ***computer*** command and 
-{$version} -- the second part of the Matlab ***version*** command i.e.:
+7. The mex files will be written within `<Horace Root>/build/bin/` and copied to `horace_core/DLL`.
 
-``` 
-version
-
-ans =
-
-    '9.6.0.1072779 (R2019a)'
-```
--- you need **R2019a** part.
-This all will be automated in nearest future. 
-
+At the moment you need to manually copy mex files into `horace_core/DLL/_{$ARH}/_{$version}`
+folder where {$ARH} is the value, returned by Matlab ***computer*** command (e.g. `PCWIN64`) and {$version} is the MATLAB release (e.g. R2018b), returned as part of the Matlab ***version*** command. 
 
 There's a known issue with running the compiled mex with newer versions of
 Matlab, if they were compiled using an older version of CMake. If you get an

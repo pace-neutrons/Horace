@@ -1,4 +1,6 @@
 set(CXX_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}")
+include_directories("${CXX_SOURCE_DIR}")
+
 set(
     MEX_FUNCTIONS
     "accumulate_cut_c"
