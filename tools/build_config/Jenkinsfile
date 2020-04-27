@@ -73,25 +73,44 @@ pipeline {
       }
     }
 
-    stage('Clone-Herbert') {
+    stage('Copy-Herbert') {
       steps {
-        copyArtifacts(
-          filter: 'build/Herbert-*',
-          fingerprintArtifacts: true,
-          projectName: "PACE-neutrons/Herbert/${base_job_name}",
-          selector: lastSuccessful()
-        )
         script {
-          if (isUnix()) {
-            sh '''
-              archive_name="\$(find -name Herbert-*.tar.gz)"
-              tar --wildcards --strip-components=1 -xf \$archive_name */Herbert
-            '''
-          }
-          else {
-            powershell './tools/build_config/extract_herbert_artifact.ps1'
+          if (env.RELEASE_TYPE == "nightly") {
+            copyArtifacts(
+              filter: 'build/Herbert-*',
+              fingerprintArtifacts: true,
+              projectName: "PACE-neutrons/Herbert/${base_job_name}",
+              selector: lastSuccessful()
+            )
+
+            if (isUnix()) {
+              sh '''
+                archive_name="\$(find -name Herbert-*.tar.gz)"
+                tar --wildcards --strip-components=1 -xf \$archive_name */Herbert
+              '''
+            }
+            else {
+              powershell './tools/build_config/extract_herbert_artifact.ps1'
+            }
+
+          } else {
+            if (isUnix()) {
+              sh '''
+                ./tools/build_config/clone_herbert_branch.sh
+              '''
+            } else {
+              powershell '''
+                $herbert_url = \"https://github.com/pace-neutrons/Herbert.git\"
+                git clone \$herbert_url --depth 1
+                cd Herbert
+                ./tools/build_config/build.ps1 -build
+              '''
+            }
           }
         }
+
+
       }
     }
 
