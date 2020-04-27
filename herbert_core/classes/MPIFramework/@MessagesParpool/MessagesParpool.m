@@ -113,8 +113,8 @@ classdef MessagesParpool < iMessagesFramework
         end
         %
         function [messages_name,task_id] = probe_all(obj,varargin)
-            % list all messages existing in the system for the tasks
-            % with id-s specified as input.
+            % list all messages existing in the system and sent from the
+            % tasks with id-s specified as input.
             % NonBlocking
             %Usage:
             %>> [mess_names,task_id] = obj.probe_all([task_ids],[mess_name|mess_tag]);
@@ -171,7 +171,7 @@ classdef MessagesParpool < iMessagesFramework
             %
             [all_messages,task_ids] = receive_all_messages_(obj,varargin{:});
         end
-        function finalize_all(obj)   
+        function finalize_all(obj)
             obj.clear_messages();
         end
         %

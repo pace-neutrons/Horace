@@ -90,11 +90,6 @@ classdef MessagesCppMPI < iMessagesFramework
         %------------------------------------------------------------------
         % MPI interface
         %
-        function fn = mess_name(obj,task_id,mess_name)
-            % not used in MessagesCppMPI
-            fn  = mess_name;
-        end
-        
         %
         function [ok,err_mess] = send_message(obj,task_id,message)
             % send message to a task with specified id
@@ -194,7 +189,6 @@ classdef MessagesCppMPI < iMessagesFramework
             err = [];
         end
         
-        
         function set.time_to_fail(obj,val)
             obj.time_to_fail_ = val;
         end
@@ -216,6 +210,11 @@ classdef MessagesCppMPI < iMessagesFramework
                 cpp_communicator('finalize',obj.mpi_framework_holder_);
             end
             obj.mpi_framework_holder_ = [];
+        end
+        %
+        function fn = mess_name(obj,task_id,mess_name)
+            % not used in MessagesCppMPI
+            fn  = mess_name;
         end
     end
     %----------------------------------------------------------------------

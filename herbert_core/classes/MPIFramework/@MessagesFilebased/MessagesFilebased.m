@@ -121,7 +121,6 @@ classdef MessagesFilebased < iMessagesFramework
             obj=construct_me_folder_(obj,val);
             
         end
-        
         %------------------------------------------------------------------
         % MPI interface
         %

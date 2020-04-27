@@ -283,10 +283,6 @@ classdef iMessagesFramework < handle
         %------------------------------------------------------------------
         % MPI interface
         %
-        % Fully qualified name of a message, which allows
-        % to identify message in a system.
-        fn = mess_name(obj,task_id,mess_name)
-        
         % send message to a task with specified id
         % Usage:
         % >>mf = MessagesFramework();
@@ -296,8 +292,8 @@ classdef iMessagesFramework < handle
         % >>    task with id==1. (not received)
         % >>    if other value, error_code and error_mess provide additional
         %       information for the failure
-        %
         [ok,err_mess] = send_message(obj,task_id,message)
+        
         % receive message from a task with specified id.
         % Blocking until message is received.
         %
@@ -311,10 +307,10 @@ classdef iMessagesFramework < handle
         %       failure.
         % >> on success, message contains an object of class aMessage,
         %        with message contents
-        %
         [is_ok,err_mess,message] = receive_message(obj,task_id,mess_name
         
-        % list all messages existing in the system for the tasks
+        
+        % list all messages existing in the system from the tasks
         % with id-s specified as input
         %Input:
         %task_ids -- array of task id-s to check messages for
@@ -328,7 +324,9 @@ classdef iMessagesFramework < handle
         [all_messages_names,task_ids] = probe_all(obj,task_ids,mess_names)
         
         % retrieve (and remove from system) all messages
-        % existing in the system for the tasks with id-s specified as input
+        % existing in the system directed to current node and originated 
+        % from the tasks with id-s specified as input. Blocking if list of 
+        %
         %
         %Input:
         %task_ids -- array of task id-s to check messages for
@@ -337,18 +335,28 @@ classdef iMessagesFramework < handle
         %                 have messages available in the system .
         %task_ids       -- array of task id-s for these messages
         [all_messages,task_ids] = receive_all(obj,task_ids,mess_name_or_tag)
+
+        % wait until all workers arrive to the part of the code marked 
+        % by this barrier.
+        [ok,err]=labBarrier(obj,nothrow);        
         %------------------------------------------------------------------
         % delete all messages belonging to this instance of messages
         % framework and shut the framework down.
         finalize_all(obj)
-        % wait until all worker arrive to the part of the code specified
-        [ok,err]=labBarrier(obj,nothrow);
+        
         %
-        % remove all messages directed to the given lab from MPI message cache
+        % remove all messages directed to the given lab from MPI message
+        % cache
+        % Do not shut the cluster down
         clear_messages(obj);
         
         % method verifies if job has been canceled
         is = is_job_canceled(obj)
+        
+        % Fully qualified name of a message, which allows
+        % to identify message in a system. Used by filebased messages only,
+        % and completely ignored by other frameworks.
+        fn = mess_name(obj,task_id,mess_name)
     end
     methods(Abstract,Access=protected)
         % return the labIndex
