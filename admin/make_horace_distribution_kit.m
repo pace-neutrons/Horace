@@ -13,19 +13,19 @@ function make_horace_distribution_kit(varargin)
 %                   together with main code.
 %'-noherbert'    -- do not pack Herbert together with Horace
 %
-% excludes (not copies to distribution) all files and subfolders of a folder where 
+% excludes (not copies to distribution) all files and subfolders of a folder where
 % _exclude_all.txt file is found
 %
-% excludes (not copies to distribution) all files of a folder where 
-% _exclude_files.txt file is found but keeps subfolders of this folder and 
+% excludes (not copies to distribution) all files of a folder where
+% _exclude_files.txt file is found but keeps subfolders of this folder and
 % processes the files of the subfolder.
 %
 % To use Horace  one has to unpack the resulting zip file and add the folder
 % where the function Horace_init.m resides to the Matlab search path.
 % alternatively, you can edit the file Horace_on.template, file and
 % replace the variable $herbert_path$ and $Horathe_path$ by the actual
-% folders  where the files Horace_init.m and libisis_init.m or herbert_init reside
-% (Horace needs Libisis or Herbert to work)
+% folders  where the files Horace_init.m and herbert_init reside
+% (Horace needs Herbert to work)
 % and add to the search path the file Horace_on.m,
 % after renaming the file Horace_on.m.template to horace_on.m.
 %
@@ -40,7 +40,7 @@ if ~ok
     error('MAKE_HORACE_DISTRIBUTION_KIT:invalid_argument',err_mess);
 end% default key values
 %
-common_files_to_distribute = {'license.txt','README.md','CMakeLists.txt'};
+common_files_to_distribute = {'LICENSE','README.md','CMakeLists.txt'};
 
 
 hor_root_dir = horace_root(); % MUST have rootpath so that horace_init, horace_off are included
@@ -93,7 +93,7 @@ end
 if ~no_demo
     % copy source code files from system directory
     copy_files_list(fullfile(hor_root_dir,'_test'),fullfile(horace_targ_dir,'_test'),'+_')
-    copy_files_list(fullfile(hor_root_dir,'demo'),fullfile(horace_targ_dir,'demo'),'+_')    
+    copy_files_list(fullfile(hor_root_dir,'demo'),fullfile(horace_targ_dir,'demo'),'+_')
 end
 %
 disp('!    The HORACE program files collected successfully ==============!')

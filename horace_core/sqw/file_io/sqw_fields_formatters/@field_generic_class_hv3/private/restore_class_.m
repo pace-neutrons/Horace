@@ -54,8 +54,7 @@ else
         try
             the_class=repmat(the_class,arg');
         catch
-            % Generic way of making an array of objects - I think
-            % (works with libisis objects, for which repmat doesn't work)
+            % Generic way of making an array of objects
             the_class(arg)=the_class;
         end
     end

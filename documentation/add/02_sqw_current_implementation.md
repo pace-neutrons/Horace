@@ -20,7 +20,7 @@
 |`cut.m`  | y | |projects n-dimensions down onto a m-dimensional plane defined by the argument vectors|
 |`cut_sym.m`  | y | |cut with symmetrization|
 |`to_cut.m`| y | ||
-|`to_slice.m`| y | ||
+|`to_slice.m`| y | | plot routine|
 |`join.m`| y | ||
 |`disp2sqw_eval.m` | y | y ||
 |`dispersion.m` | y | y ||

@@ -76,11 +76,7 @@ obj.position_info_pos_ = pos_info_location;
 obj.eof_pos_  = eof_pos;
 obj.real_eof_pos_ = eof_pos;
 
-fields = obj.fields_to_save(); % use this to allow overload and read dnd v3 from sqw
-for i=1:numel(fields)
-    fn = fields{i};
-    obj.(fn) = fd_struct.(fn);
-end
+obj = obj.init_from_structure(fd_struct);
 obj.data_type_ = char(obj.data_type_);
 
 % debug and sanity options@

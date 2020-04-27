@@ -1,4 +1,4 @@
-[<-previous](0008-use-pipeline-builds.md) | next->
+[<-previous](0008-use-pipeline-builds.md) | [next->](0010-package-dependencies-in-repo.md)
 
 # 9 - Use standard naming for build artifacts
 

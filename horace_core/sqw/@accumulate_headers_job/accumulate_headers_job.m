@@ -47,7 +47,7 @@ classdef accumulate_headers_job < JobExecutor
             end
             
             if mf.labIndex == 1
-                all_messages = mf.receive_all('all','data');
+                all_messages = mf.receive_all('any','data');
                 for i=1:numel(all_messages)
                     obj.s_accum = obj.s_accum + all_messages{i}.payload.s;
                     obj.e_accum = obj.e_accum + all_messages{i}.payload.e;
@@ -58,9 +58,8 @@ classdef accumulate_headers_job < JobExecutor
                     'e',obj.e_accum,'npix',obj.npix_accum);
             else
                 %
-                the_mess = aMessage('data');
-                the_mess.payload = struct('s',obj.s_accum,...
-                    'e',obj.e_accum,'npix',obj.npix_accum);
+                the_mess = DataMessage(struct('s',obj.s_accum,...
+                    'e',obj.e_accum,'npix',obj.npix_accum));
                 
                 [ok,err]=mf.send_message(1,the_mess);
                 if ok ~= MESS_CODES.ok

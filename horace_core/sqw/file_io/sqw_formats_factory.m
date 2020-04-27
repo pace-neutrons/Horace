@@ -1,5 +1,5 @@
 classdef sqw_formats_factory < handle
-    % Provides and initialises appropriate sqw file accessor
+    % Provides and initializes appropriate sqw file accessor
     % given sqw file name or preferred sqw file accessor
     % for given sqw/dnd object or sqw/dnd object type.
     %
@@ -41,11 +41,16 @@ classdef sqw_formats_factory < handle
         %
         % Old class interface:
         % classes to load/save
-        % sqw2 corrseponds to sqw file in indirect mode with varying efixed
+        % sqw2 corresponds to sqw file in indirect mode with varying efixed
         written_types_ = {'sqw','sqw2','dnd','d0d','d1d','d2d','d3d','d4d'};
         % number of loader in the list of loaders to use with correspondent class
         access_to_type_ind_ = {1,2,4,4,4,4,4,4};
         types_map_ ;
+    end
+    properties(Dependent)
+        % return list of the non-initialized accessor classes subscribed to
+        % the factory
+        supported_accessors
     end
     
     methods(Access=private)
@@ -53,7 +58,7 @@ classdef sqw_formats_factory < handle
         % to allow a single instance of this class.  See description in
         % Singleton pattern.
         function obj = sqw_formats_factory()
-            %sqw_formats_factory constructor: Initialise your custom properties.
+            %sqw_formats_factory constructor: Initialize your custom properties.
             obj.types_map_= containers.Map(obj.written_types_ ,...
                 obj.access_to_type_ind_);
         end
@@ -226,7 +231,7 @@ classdef sqw_formats_factory < handle
             % class(obj1) == 'faccess_sqw_v2' and class(obj2) == 'faccess_sqw_v3'.
             %
             %NOTE:
-            % faccess_sqw_v3 is not compartible with faccess_sqw_v3_2 as
+            % faccess_sqw_v3 is not compatible with faccess_sqw_v3_2 as
             % contains different information about detectors.
             if isa(obj2,class(obj1))
                 is_compartible = true;
@@ -239,6 +244,10 @@ classdef sqw_formats_factory < handle
             end
         end
         
+        %
+        function obj_list = get.supported_accessors(obj)
+            obj_list = obj.supported_accessors_;
+        end
     end
 end
 

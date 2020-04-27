@@ -13,10 +13,11 @@ endif()
 
 # This must be included only after the variables TESTS_BIN_DIR and (on Windows)
 # TEST_ENV_PATH have been defined
-include(horace_AddUnitTest)
+include(PACE_AddCppUnitTest)
 
 set(TEST_DIRECTORIES
     "combine_sqw.tests"
+    "utility.tests"
 )
 
 foreach(_test_dir ${TEST_DIRECTORIES})

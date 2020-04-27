@@ -15,7 +15,6 @@ function rd=rundata_from_sqw_(sqw_obj)
 data = sqw_obj.data;
 header = sqw_obj.header;
 detpar = sqw_obj.detpar;
-[dummy,filename] = fileparts(sqw_obj.main_header.filename);
 %
 if iscell(header) && numel(header) > 1
     error('RUNDATAH:invalid_argument',...
@@ -36,7 +35,7 @@ if size(tmp,1)~=ne*numel(group)
 end
 
 % Get the indexing of detector group in the detector information
-[lia,ind]=ismember(group,detpar.group);
+[~,ind]=ismember(group,detpar.group);
 
 signal=NaN(ne,ndet0);
 err=zeros(ne,ndet0);
@@ -58,11 +57,14 @@ lattice.gs    = header.gs*(180/pi);
 rd = rundatah();
 
 rd.lattice = lattice;
+% Set lattice before loader, to have efix redefined on rundata rather then
+% in the loader
+rd.efix = header.efix;
+% will define loader
 rd.det_par = detpar;
 
 rd.emode   = header.emode;
 
-rd.efix = header.efix;
 rd.en  = en;
 rd.S   = signal;
 rd.ERR = err;
