@@ -307,7 +307,7 @@ classdef iMessagesFramework < handle
         %       failure.
         % >> on success, message contains an object of class aMessage,
         %        with message contents
-        [is_ok,err_mess,message] = receive_message(obj,task_id,mess_name
+        [is_ok,err_mess,message] = receive_message(obj,task_id,mess_name)
         
         
         % list all messages existing in the system from the tasks
@@ -351,12 +351,7 @@ classdef iMessagesFramework < handle
         clear_messages(obj);
         
         % method verifies if job has been canceled
-        is = is_job_canceled(obj)
-        
-        % Fully qualified name of a message, which allows
-        % to identify message in a system. Used by filebased messages only,
-        % and completely ignored by other frameworks.
-        fn = mess_name(obj,task_id,mess_name)
+        is = is_job_canceled(obj)               
     end
     methods(Abstract,Access=protected)
         % return the labIndex

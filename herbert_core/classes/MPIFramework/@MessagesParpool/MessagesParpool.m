@@ -68,10 +68,6 @@ classdef MessagesParpool < iMessagesFramework
         %------------------------------------------------------------------
         % MPI interface
         %
-        function fn = mess_name(obj,task_id,mess_name)
-            % not used in MessagesParpool
-            fn  = mess_name;
-        end
         %
         function [ok,err_mess,message] = receive_message(obj,varargin)
             % receive message from a task with specified id

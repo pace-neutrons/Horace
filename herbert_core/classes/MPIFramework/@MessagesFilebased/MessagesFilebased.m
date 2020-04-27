@@ -124,19 +124,6 @@ classdef MessagesFilebased < iMessagesFramework
         %------------------------------------------------------------------
         % MPI interface
         %
-        function fn = mess_name(obj,task_id,mess_name)
-            % Fully qualified name of the task status message, which allows
-            % to identify message in the system. For filebased messages this
-            % is the name of the message file
-            % task_id -- is the id (number) of the task this message should
-            % be send
-            %
-            if ~isnumeric(task_id)
-                error('MESSAGES_FILEBASED:invalid_argument',...
-                    'first message_name argument should be the target task number');
-            end
-            fn = obj.job_stat_fname_(task_id,mess_name);
-        end
         %
         function [ok,err_mess,wlock_obj] = send_message(obj,task_id,message)
             % send message to a task with specified id
@@ -214,7 +201,7 @@ classdef MessagesFilebased < iMessagesFramework
             % delete all messages belonging to this instance of messages
             % framework and delete the framework itself
             obj.persistent_fail_message_ = [];
-   
+            
             delete_job_(obj);
         end
         function clear_messages(obj)
@@ -265,7 +252,32 @@ classdef MessagesFilebased < iMessagesFramework
             is = ~exist(obj.mess_exchange_folder_,'dir') || ...
                 ~isempty(obj.probe_all('any','canceled'));
         end
-        
+        %------------------------------------------------------------------
+        % Filebased framework specific properties:
+        %
+        function fn = mess_file_name(obj,task_id,mess_name)
+            % Generates the name of the messages file.
+            %
+            % Inputs:
+            % mess_name -- the string-name of the message, written to the
+            %              file system
+            % task_id -- is the id (number) of the task this message should
+            % be send
+            %
+            % Returns:
+            % The name of the message file, which allows
+            % to identify message on the file system system and its source
+            % and target workers.
+            %
+            % Used mainly for debugging purposes to see how messages
+            % are propagated
+            %
+            if ~isnumeric(task_id)
+                error('MESSAGES_FILEBASED:invalid_argument',...
+                    'first message_name argument should be the target task number');
+            end
+            fn = obj.job_stat_fname_(task_id,mess_name);
+        end
     end
     %----------------------------------------------------------------------
     methods (Access=protected)

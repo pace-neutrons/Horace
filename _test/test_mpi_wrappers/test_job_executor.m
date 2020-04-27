@@ -141,7 +141,7 @@ classdef test_job_executor< MPI_Test_Common
             [~,~,je2]=obj.worker_h(css2);
             % receive message which je1 should wait for when running in
             % parallel
-            started_mess = je2.mess_framework.mess_name(1,'started');
+            started_mess = je2.mess_framework.mess_file_name(1,'started');
             assertTrue(exist(started_mess,'file')==2);
             %
             [ok,err_mess,messs] = je1.mess_framework.receive_message(2,'started');
@@ -252,17 +252,17 @@ classdef test_job_executor< MPI_Test_Common
             % Initialize 3 job executors to simulate 3 workers
             je = JETester();
             je3 = je.init(fbMPIs{3},fbMPIs{3},initMess);
-            mess_name3 = fbMPIs{3}.mess_name(1,'started');
+            mess_name3 = fbMPIs{3}.mess_file_name(1,'started');
             assertEqual(exist(mess_name3,'file'),2)
             
             je2 = je.init(fbMPIs{2},fbMPIs{2},initMess);
-            mess_name2 = fbMPIs{2}.mess_name(1,'started');
+            mess_name2 = fbMPIs{2}.mess_file_name(1,'started');
             assertEqual(exist(mess_name2,'file'),2)
             
             je1 = je.init(fbMPIs{1},fbMPIs{1},initMess);
             assertEqual(exist(mess_name3 ,'file'),0)
             assertEqual(exist(mess_name2 ,'file'),0)
-            mess_name0 = fbMPIs{1}.mess_name(0,'started');
+            mess_name0 = fbMPIs{1}.mess_file_name(0,'started');
             assertEqual(exist(mess_name0,'file'),2)
             
             [ok,err,mess] = serverfbMPI.receive_message(1,'started');
@@ -271,11 +271,11 @@ classdef test_job_executor< MPI_Test_Common
             
             % test log progress
             je3.log_progress(1,10,1,[]);
-            mess_name3 = fbMPIs{3}.mess_name(1,'log');
+            mess_name3 = fbMPIs{3}.mess_file_name(1,'log');
             assertEqual(exist(mess_name3,'file'),2)
             
             je2.log_progress(2,10,2,[]);
-            mess_name2 = fbMPIs{2}.mess_name(1,'log');
+            mess_name2 = fbMPIs{2}.mess_file_name(1,'log');
             assertEqual(exist(mess_name2,'file'),2)
             
             je1.log_progress(1,9,1.3,[]);
@@ -294,7 +294,7 @@ classdef test_job_executor< MPI_Test_Common
             
             % test log progress
             je3.log_progress(2,10,2,[]);
-            mess_name3 = fbMPIs{3}.mess_name(1,'log');
+            mess_name3 = fbMPIs{3}.mess_file_name(1,'log');
             assertEqual(exist(mess_name3,'file'),2)
             
             
@@ -488,14 +488,14 @@ classdef test_job_executor< MPI_Test_Common
             
             
             je3=je3.reduce_send_message(LogMessage(),[],false);
-            assertTrue(exist(fbMPIs{3}.mess_name(1,'log'),'file')==2);
+            assertTrue(exist(fbMPIs{3}.mess_file_name(1,'log'),'file')==2);
             je2=je2.reduce_send_message(LogMessage(),[],false);
-            assertTrue(exist(fbMPIs{2}.mess_name(1,'log'),'file')==2);
+            assertTrue(exist(fbMPIs{2}.mess_file_name(1,'log'),'file')==2);
             
             je1=je1.reduce_send_message(LogMessage(),[],false);
-            assertFalse(exist(fbMPIs{3}.mess_name(1,'log'),'file')==2);
-            assertFalse(exist(fbMPIs{2}.mess_name(1,'log'),'file')==2);
-            assertTrue(exist(fbMPIs{1}.mess_name(0,'log'),'file')==2);
+            assertFalse(exist(fbMPIs{3}.mess_file_name(1,'log'),'file')==2);
+            assertFalse(exist(fbMPIs{2}.mess_file_name(1,'log'),'file')==2);
+            assertTrue(exist(fbMPIs{1}.mess_file_name(0,'log'),'file')==2);
             
             
             [ok,err,mess] = serverfbMPI.receive_message(1,'log');
@@ -680,7 +680,7 @@ classdef test_job_executor< MPI_Test_Common
             % check job canceled
             errm = MException('JOB_EXECUTOR:failed','fake error generated');
             je2.process_fail_state(errm,true);
-            assertTrue(exist(fbMPIs{2}.mess_name(1,'failed'),'file')==2);
+            assertTrue(exist(fbMPIs{2}.mess_file_name(1,'failed'),'file')==2);
             try
                 je1.log_progress(2,10,3,[]);
             catch ERRm

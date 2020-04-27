@@ -284,7 +284,7 @@ classdef ClusterWrapper
                     worker);
             end
         end
-        % The property returns the list of the configurations, avalible for
+        % The property returns the list of the configurations, available for
         % usage by the
         function config = get_cluster_configs_available(obj)
             % The function returns the list of the available clusters

@@ -211,11 +211,7 @@ classdef MessagesCppMPI < iMessagesFramework
             end
             obj.mpi_framework_holder_ = [];
         end
-        %
-        function fn = mess_name(obj,task_id,mess_name)
-            % not used in MessagesCppMPI
-            fn  = mess_name;
-        end
+        %   
     end
     %----------------------------------------------------------------------
     methods (Access=protected)
