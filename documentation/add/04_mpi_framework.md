@@ -11,7 +11,7 @@ Horace can utilize three different **message transfer media**, namely:
     2. Using Matlab parallel computing toolbox MPI implementation (based on the toolbox lab`**` operations) and   
     3. Communication using standard MPI framework. Currently used MPI implementations are Microsoft MPI for Windows and MPICH for Linux. 
     
-The **communicator/controller**[1](https://en.wikipedia.org/wiki/Message_Passing_Interface#Communicator) parts for these media, responsible for controlling the parallel processes, are correspondingly:
+The **communicator/controller** [\[1\]](https://en.wikipedia.org/wiki/Message_Passing_Interface#Communicator) parts for these media, responsible for controlling the parallel processes, are correspondingly:
 
     1. Pool of Matlab sessions or compiled Matlab sessions, launched by Matlab's Java launcher,
     2. Matlab Parallel computing toolbox job control mechanism and 
@@ -229,7 +229,7 @@ Main Messages Framework methods are provided in the **Table 6**
 
 #### Note^1 Common initialization
 
-Different frameworks launch different types of parallel processes but each process should know what task it need to perform. The job description can be very different in size, so it is better to provide such description by writing appropriate description files. Command line arguments are used to provide each parallel worker with information about the location of a folder, where job initialization information is placed on shared file system. As different frameworks and different operating system use different type of encoding and different protocols for transmitting command line arguments, the location information encoded into ASCII string using standard Java base64 encoder. The *build_worker_init* method performs the encoding of the input initialization information, namely initialization folder location and, for file-based transfer, the worker number, for further transfer of this information to parallel workers using command line arguments of correspondent job. 
+Different frameworks launch different types of parallel processes but each process should know what task it needs to perform. The job description can be very different in size, so it is better to provide such description by writing appropriate description files. Command line arguments are used to provide each parallel worker with information about the location of a folder, where the job initialization information is placed on a shared file system. To avoid issues when different frameworks and different operating systems processing non-ASCII characters in a command line differently, the location information is encoded into single ASCII-128 string using standard Java base64 encoder. The *build_worker_init* method performs the encoding of the input initialization information, namely initialization folder location and, for file-based transfer, the worker number, for further transfer of this information to parallel workers using command line arguments of correspondent job. 
 
 #### Note^2 Persistent messages
 Persistent messages are used to distribute information about special states of the system, i.e. failure or job completed states as parallel interrupts, used for these purposes in standard MPI frameworks are not available for all parallel frameworks. 
