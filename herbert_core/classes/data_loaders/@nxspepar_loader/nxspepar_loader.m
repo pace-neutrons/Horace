@@ -31,7 +31,7 @@ classdef nxspepar_loader < a_detpar_loader_interface
         nexus_root_dir_ = '';
         % the structure, containing the folder structure of the nxspe file
         % as defined in hdf5 file
-        nexus_datast_info_ = [];
+        nexus_dataset_info_ = [];
         % version of nxspe data
         nxspe_version_ = 0;
     end
@@ -190,27 +190,48 @@ classdef nxspepar_loader < a_detpar_loader_interface
             % nxspe_loader
             %
             nexus_dir = obj.nexus_root_dir_;
-            nexus_info= obj.nexus_datast_info_;
+            nexus_info= obj.nexus_dataset_info_;
             nxspe_ver = obj.nxspe_version_;
+            if iscell(nxspe_ver)
+                nxspe_ver = nxspe_ver{1};
+            end
         end
         %
-        function obj = set_nxspe_info(obj,nexus_dir,nexus_info,nxspe_ver)
+        function obj = set_nxspe_info(obj,fh,varargin)
             % sets information, retrieved from existing nxspe data file
             %
             % Another way to initialize nxspepar_loader,
             % used to simplify joint operation of nxspepar_loader and
             % nxspe_loader, when they load data from the same file
             %
+            % Two input formats are possible:
+            % obj = set_nxspe_info(obj,fh) % set up nxspe file info from
+            %                              the structure, obtained by loader factory
+            %
+            % obj = set_nxspe_info(obj,nexus_dir,nexus_info,nxspe_ver) %
+            %                  set up nxspe file info from the independent
+            %                  nxspe parts
             % As it is supposed to be internal method, used for efficiency,
             % no extensive checks are performed
             %
-            obj.nexus_root_dir_= nexus_dir;
-            obj.nexus_datast_info_= nexus_info;
-            obj.nxspe_version_= nxspe_ver;
-            obj.par_file_name_ = nexus_info.Filename;
+            if nargin== 2
+                obj.nexus_root_dir_= fh.root_nexus_dir;
+                obj.nexus_dataset_info_= fh.nexus_dataset_info_;
+                obj.nxspe_version_= fh.nxspe_version;
+                obj.par_file_name_ = fh.data_file_name_;
+                % add old style format information
+                obj.nexus_dataset_info_.Filename = obj.par_file_name_;
+            else
+                dir = fh;
+                fh = varargin{1};
+                obj.nexus_root_dir_= dir ;
+                obj.nexus_dataset_info_= fh;
+                obj.nxspe_version_= varargin{2};
+                obj.par_file_name_ = fh.Filename;
+            end
             
-            dataset_info=find_dataset_info(nexus_info,'data','data');
-            obj.n_detinpar_  = dataset_info.Dims(2);
+            dataset_info=find_dataset_info(obj.nexus_dataset_info_,'data','data');
+            obj.n_detinpar_  = dataset_info.Dataspace.Size(2);
             obj.det_par_ = [];
         end
         % ------------------------------------------------------------------
@@ -238,7 +259,7 @@ classdef nxspepar_loader < a_detpar_loader_interface
                 if ~strcmp(obj.par_file_name_,f_name)
                     obj.par_file_name_= f_name;
                     [obj.n_detinpar_,obj.nxspe_version_,...
-                        obj.nexus_root_dir_,obj.nexus_datast_info_]...
+                        obj.nexus_root_dir_,obj.nexus_dataset_info_]...
                         = nxspepar_loader.get_par_info(f_name);
                     obj.det_par_=[];
                 end

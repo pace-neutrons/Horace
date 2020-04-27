@@ -25,7 +25,7 @@ function indx=bin_index(x,b,inclusive)
 
 % T.G.Perring   2 June 2011     First version
 %
-% *** Crying out to be turned into Fortran or c++ : unavoidable loop
+% *** Crying out to be turned into C++ : unavoidable loop
 
 nx=numel(x);
 nb=numel(b);

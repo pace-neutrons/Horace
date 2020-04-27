@@ -17,8 +17,6 @@ function [sout,eout] = integrate_1d_points (x, s, e, xout)
 %   sout    Integrated signal
 %   eout    Standard deviations on integrated signal
 
-% ***This is a copy of a private function used by rebin, but is just too handy to leave buried.
-
 iax=1;
 ndim=1;
 

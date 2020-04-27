@@ -56,11 +56,11 @@ classdef IX_dataset_tester < IX_dataset
     %======================================================================
     methods(Static,Access=protected)
         % Rebins histogram data along specific axis.
-        function [wout_s, wout_e] = rebin_hist(iax,wout_x, use_mex, force_mex)
+        function [wout_s, wout_e] = rebin_hist(iax, wout_x)
             error('IX_dataset_tester:not_implemented','rebin_hist not implemented')
         end
         %Integrates point data along along specific axis.
-        function [wout_s,wout_e] = integrate_points(iax,xbounds_true, use_mex, force_mex)
+        function [wout_s,wout_e] = integrate_points(iax, xbounds_true)
             error('IX_dataset_tester:not_implemented','integrate_points not implemented')
         end
     end

@@ -47,7 +47,7 @@ if use_mex
     end
 end
 if ~use_mex
-    [S,ERR,en] = get_spe_matlab_(file_name);
+    [S,ERR,en] = get_spe_(file_name);
 end
 
 % Convert symbolic NaN-s into ISO NaN-s

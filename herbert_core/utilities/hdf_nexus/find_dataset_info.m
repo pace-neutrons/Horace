@@ -34,12 +34,11 @@ function [dataset_info,ds_group_path] = find_dataset_info(Groups,the_group_name,
 %
 % folder_name and data_file_name are empty if nothing was found
 %
-% $Author: Alex Buts; 20/10/2011
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-%
 %
 %--> clear search request
+if nargin < 3
+    ds_short_name = '';
+end
 if ~isempty(the_group_name)
     if the_group_name(1)=='/'
         the_group_name = the_group_name(2:end);
@@ -62,7 +61,8 @@ if isstruct(Groups) %got some file srtucture;
         gh = Groups.GroupHierarchy;     
     else
         if ~isfield(Groups,'Name')
-            error('FIND_DATASET_INFO:invalid_argument',' input structhre is not correct hdf file info\n');
+            error('FIND_DATASET_INFO:invalid_argument',...
+                ' input structhre is not a correct hdf file info\n');
         end
         gh = Groups;   
     end
@@ -75,10 +75,10 @@ elseif ischar(Groups) % may be it is a file
     if ~H5F.is_hdf5(file)
         error('FIND_DATASET_INFO:invalid_file',' file %s is not recognized as hdf5 file',file);
     end
-    fileinfo = hdf5info(file);
-    gh = fileinfo.GroupHierarchy;
+    gh = h5info(file);
 else
-    error('FIND_DATASET_INFO:invalid_argument',' input argument is nether hdf file info not a file name\');
+    error('FIND_DATASET_INFO:invalid_argument',...
+        ' input argument is nether hdf file info not a file name\');
 end
 %
 %%--> search itself
@@ -151,7 +151,7 @@ else
 end         
 
 for i=1:numel(dataset_info.Datasets)
-    if strcmp(dataset_info.Datasets(i).Name,ds_full_name)
+    if strcmp(dataset_info.Datasets(i).Name,ds_short_name)
         dataset_info = dataset_info.Datasets(i);
         return
     end    

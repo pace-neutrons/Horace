@@ -114,7 +114,7 @@ else
     if ~ok, wout=[]; return, end
     true_values= ~(any_lim_inf|any_dx_zero);   % true bin boundaries
     for i=find(true_values&is_descriptor)
-        xbounds{i}=bin_boundaries_from_descriptor_(xbounds{i},0,use_mex,force_mex);  % need to give dummy x bins for mex file
+        xbounds{i}=bin_boundaries_from_descriptor_(xbounds{i});
     end
     
 end

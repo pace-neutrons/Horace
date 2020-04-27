@@ -3,7 +3,6 @@ set(TEST_DIRECTORIES
     "test_config"
     "test_IX_classes"
     "test_map_mask"
-    # "test_mslice_objects"
     "test_multifit"
     "test_multifit_legacy"
     "test_utilities"

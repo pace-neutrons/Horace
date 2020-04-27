@@ -207,8 +207,9 @@ classdef a_detpar_loader_interface
                     file_name);
             end
             NXspeInfo   =find_dataset_info(nexus_file_structure,nexus_dir,'');
+            NXspeInfo.Filename = nexus_file_structure.Filename;
             dataset_info=find_dataset_info(NXspeInfo,'data','data');
-            ndet    = dataset_info.Dims(2);
+            ndet    = dataset_info.Dataspace.Size(2);
             
         end
         

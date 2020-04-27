@@ -130,8 +130,7 @@ classdef loader_nxspe < a_loader
                 else
                     ldr = nxspepar_loader();
                     obj.detpar_loader_ = ...
-                        ldr.set_nxspe_info(...
-                        fh.root_nexus_dir,fh.nexus_dataset_info_,fh.nxspe_version);
+                        ldr.set_nxspe_info(fh);
                 end
             else
                 obj.par_file_name = full_par_file_name;
@@ -231,7 +230,7 @@ classdef loader_nxspe < a_loader
                         obj.detpar_loader_.get_nxspe_info();
                     %
                     dataset_info=find_dataset_info(obj.nexus_dataset_info_,'data','data');
-                    obj.n_detindata_  = dataset_info.Dims(2);
+                    obj.n_detindata_  = dataset_info.Dataspace.Size(2);
                     obj.en_  = h5read(filename,[obj.root_nexus_dir,'/data/energy']);
                     obj.efix = h5read(filename,[obj.root_nexus_dir,'/NXSPE_info/fixed_energy']);
                     obj.psi = h5read(filename,[obj.root_nexus_dir,'/NXSPE_info/psi']);
