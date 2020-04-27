@@ -149,7 +149,6 @@ The build scripts are intended to work locally as well as on Jenkins, so any Jen
 | Argument (`.ps1`) | Argument (`.sh`) | Default | |
 | --------------- | ------- | ---- | ---- |
 | `-build_tests` | `--build_tests`, `-X` | `ON` | Build test files (`ON` \| `OFF`) |
-| `-build_fortran` | `--build_fortran`, `-N` | `OFF` | Build Fortran source (`ON` \| `OFF`) |
 | `-build_config` | `--build_config`, `-C` | `Release` | Build configuration to use (`Release` \| `Debug`) |
 | `-build_dir` | `--build_dir`, `-O` | `./build` | Output directory for CMake build |
 | `-cmake_flags` | `--cmake_flags`, `-F` | | Custom parameters to pass to CMake configure step |
@@ -158,9 +157,9 @@ The build scripts are intended to work locally as well as on Jenkins, so any Jen
 Actions may be combined so to call the script and only build use the `--build` flag, to build and test use both flags `--build --test`.
 
 Notes:
+
 1. The Visual Studio version must match a configured Visual Studio release or an error will be thrown
 2. PowerShell uses *a single dash* for parameters, i.e. `-build -test -package`.
-
 
 ## Authentication
 
