@@ -27,9 +27,7 @@ function print_package_versions() {
   echo "$(cmake --version | head -n 1)"
   echo "Matlab: ${MATLAB_ROOT}"
   echo "$(g++ --version | head -n 1)"
-  if [ -f "$(which clang-tidy)" ]; then
-    echo "clang-tidy: $(clang-tidy --version | grep version)"
-  fi
+  echo "$(cppcheck --version | head -n 1)"
   echo
 }
 
@@ -70,6 +68,18 @@ function run_tests() {
   test_cmd+=" --output-on-failure"
   test_cmd+=" --test-output-size-passed ${MAX_CTEST_SUCCESS_OUTPUT_LENGTH}"
   echo_and_run "${test_cmd}"
+}
+
+function run_analysis() {
+  local build_dir=$1
+
+  echo -e "\nRunning analysis step..."
+  analysis_cmd="cppcheck --enable=all --inconclusive"
+  analysis_cmd+=" --xml --xml-version=2"
+  analysis_cmd+=" -I ${HORACE_ROOT}/_LowLevelCode/cpp"
+  analysis_cmd+=" ${HORACE_ROOT}/_LowLevelCode/"
+  analysis_cmd+=" 2> ${build_dir}/cppcheck.xml"
+  echo_and_run "${analysis_cmd}"
 }
 
 function run_package() {
@@ -119,6 +129,8 @@ function main() {
     echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
     run_configure "${build_dir}" "${build_config}" "${build_tests}" "${matlab_release}" "${cmake_flags}"
     run_build ${build_dir}
+
+    run_analysis ${build_dir}
   fi
 
   if ((${test})); then
