@@ -73,14 +73,16 @@ function run_tests() {
 function run_analysis() {
   local build_dir=$1
 
-  echo -e "\nRunning analysis step..."
+  if [ -f "$(which cppcheck)" ]; then
+    echo -e "\nRunning analysis step..."
 
-  analysis_cmd="cppcheck --enable=all --inconclusive"
-  analysis_cmd+=" --xml --xml-version=2"
-  analysis_cmd+=" -I ${HORACE_ROOT}/_LowLevelCode/cpp"
-  analysis_cmd+=" ${HORACE_ROOT}/_LowLevelCode/"
-  analysis_cmd+=" 2> ${build_dir}/cppcheck.xml"
-  echo_and_run "${analysis_cmd}"
+    analysis_cmd="cppcheck --enable=all --inconclusive"
+    analysis_cmd+=" --xml --xml-version=2"
+    analysis_cmd+=" -I ${HORACE_ROOT}/_LowLevelCode/cpp"
+    analysis_cmd+=" ${HORACE_ROOT}/_LowLevelCode/"
+    analysis_cmd+=" 2> ${build_dir}/cppcheck.xml"
+    echo_and_run "${analysis_cmd}"
+  fi
 }
 
 function run_package() {
