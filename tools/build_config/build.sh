@@ -74,6 +74,10 @@ function run_analysis() {
   local build_dir=$1
 
   echo -e "\nRunning analysis step..."
+
+  # TODO: debug print
+  print_package_versions
+
   analysis_cmd="cppcheck --enable=all --inconclusive"
   analysis_cmd+=" --xml --xml-version=2"
   analysis_cmd+=" -I ${HORACE_ROOT}/_LowLevelCode/cpp"
