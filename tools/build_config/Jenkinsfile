@@ -73,7 +73,7 @@ pipeline {
       }
     }
 
-    stage('Copy-Herbert') {
+    stage('Get-Herbert') {
       steps {
         script {
           if (env.RELEASE_TYPE == "nightly") {
