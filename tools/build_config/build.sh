@@ -7,11 +7,11 @@ readonly FALSE=0
 readonly TRUE=1
 readonly CMAKE_GENERATOR="Unix Makefiles"
 # The Horace root directory is two levels above this script
-readonly HORACE_ROOT="$(realpath $(dirname "$0")/../..)"
+readonly HORACE_ROOT="$(realpath "$(dirname "$0")"/../..)"
 # The Matlab root directory is one level above Matlab/bin which contains the
 # matlab executable. The Matlab on the path will likely be a symlink so we need
 # to resolve it with `readlink`
-readonly MATLAB_ROOT="$(realpath $(dirname $(readlink -f $(which matlab)))/..)"
+readonly MATLAB_ROOT="$(realpath $(dirname "$(readlink -f "$(which matlab)")")/..)"
 readonly MAX_CTEST_SUCCESS_OUTPUT_LENGTH=10000 # 10 kilobytes
 
 function echo_and_run {
@@ -24,9 +24,9 @@ function warning {
 }
 
 function print_package_versions() {
-  echo "$(cmake --version | head -n 1)"
+  cmake --version | head -n 1
   echo "Matlab: ${MATLAB_ROOT}"
-  echo "$(g++ --version | head -n 1)"
+  g++ --version | head -n 1
   echo
 }
 
@@ -115,7 +115,7 @@ function main() {
         This may not be a clean build."
     echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
     run_configure "${build_dir}" "${build_config}" "${build_tests}" "${matlab_release}" "${cmake_flags}"
-    run_build ${build_dir}
+    run_build "${build_dir}"
   fi
 
   if ((${test})); then
