@@ -7,6 +7,7 @@ readonly HERBERT_URL="https://github.com/pace-neutrons/Herbert.git"
 
 readonly bash_helpers="$(realpath "$(dirname "$0")")/bash_helpers.sh"
 
+# shellcheck source=./bash_helpers.sh
 . "${bash_helpers}"  # imports echo_and_run
 
 herbert_branch=${1-master}
