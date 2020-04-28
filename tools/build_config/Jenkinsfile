@@ -104,6 +104,24 @@ pipeline {
       }
     }
 
+    stage('Analyze') {
+      steps {
+        script {
+          if (isUnix()) {
+            sh '''
+              module load cppcheck/\$CPPCHECK_VERSION &&
+              ./tools/build_config/build.sh --analyze
+            '''
+          }
+          else {
+            powershell '''
+              Write-Output \"Static Analysis in not performed on Windows\"
+            '''
+          }
+        }
+      }
+    }
+
     stage('Build') {
       steps {
         script {
@@ -112,7 +130,6 @@ pipeline {
               module load cmake/\$CMAKE_VERSION &&
               module load matlab/\$MATLAB_VERSION &&
               module load gcc/\$GCC_VERSION &&
-              module load cppcheck/\$CPPCHECK_VERSION &&
               ./tools/build_config/build.sh --build \
                   --cmake_flags \"-DHorace_RELEASE_TYPE=\$RELEASE_TYPE\" \
                   --matlab_release \$MATLAB_VERSION
