@@ -100,11 +100,11 @@ function main() {
     esac
   done
 
-  if ((${print_versions})); then
+  if ((print_versions)); then
     print_package_versions
   fi
 
-  if ((${build})); then
+  if ((build)); then
     warning_msg="Warning: Build directory ${build_dir} already exists.\n\
         This may not be a clean build."
     echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
@@ -112,11 +112,11 @@ function main() {
     run_build "${build_dir}"
   fi
 
-  if ((${test})); then
+  if ((test)); then
     run_tests ${build_dir}
   fi
 
-  if ((${package})); then
+  if ((package)); then
     run_package
   fi
 }
