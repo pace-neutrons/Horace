@@ -129,7 +129,7 @@ function main() {
   fi
 
   if ((${analyze})); then
-    run_analysis "${build_dir}"
+    run_analysis "${HORACE_ROOT}"
   fi
 
   if ((${build})); then
