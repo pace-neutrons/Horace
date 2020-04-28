@@ -6,7 +6,7 @@
  *  - CMAKE_VERSION: The version of CMake to run the build with
  *  - GCC_VERSION: The version of GCC to build with
  *  - MATLAB_VERSION: The release number of the Matlab to load
- *  - CLANG_VERSION: The version of CLang tooling to load to provide the clang-tidy code-style checks
+ *  - CPPCHECK_VERSION: The version of CppCheck tooling to load to provide the code-style checks
  */
 def post_github_status(String state, String message) {
   // Non-PR builds will not set PR_STATUSES_URL - in which case we do not
