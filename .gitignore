@@ -1,6 +1,7 @@
 ### IDEs ###
 .vs/*
 .vscode/*
+.idea/*
 
 ### Files/Directories ###
 build/*
@@ -14,6 +15,9 @@ horace_core/admin/horace_get_build_version.m
 
 # OSX / *nix default autosave extension
 *.m~
+
+# debug folder
+cmake-build-debug/*
 
 # Compiled MEX binaries (all platforms)
 # *.mex*  # commented out for now - uncomment when distribution channel is up
