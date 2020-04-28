@@ -4,7 +4,8 @@
 # passed verbatim to the Herbert build script
 
 param(
-  [string][Alias("B")]$branch = "master"
+  [string][Alias("B")]$branch = "master",
+  [string]$build_args = ""
 )
 
 . $PSScriptRoot/powershell_helpers.ps1 <# Imports:
@@ -21,5 +22,5 @@ if (Test-Path -Path "./Herbert") {
 } else {
   Write-And-Invoke "git clone $HERBERT_URL --depth 1 --branch $branch"
 }
-$build_cmd = "./tools/build_config/build.ps1 -build -build_tests OFF $args"
+$build_cmd = "./tools/build_config/build.ps1 -build -build_tests OFF $build_args"
 Invoke-In-Dir -directory "Herbert" -command "$build_cmd"

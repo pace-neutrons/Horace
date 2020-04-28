@@ -14,12 +14,13 @@ while [[ $# -gt 0 ]]; do
 key="$1"
 case $key in
     --branch) herbert_branch="$2"; shift; shift ;;
-    *) build_args="${@}"; break ;;
+    --build_args) build_args="$2"; shift; shift ;;
+    *) exit 1;
 esac
 done
 
-if [ "${branch}" = "" ]; then
-    branch="${DEFAULT_BRANCH}"
+if [ "${herbert_branch}" = "" ]; then
+    herbert_branch="${DEFAULT_BRANCH}"
 fi
 
 echo "Cloning and building Herbert branch '${herbert_branch}'..."
@@ -32,4 +33,4 @@ else
     echo_and_run "cd Herbert"
 fi
 
-echo_and_run "./tools/build_config/build.sh --build ${build_args}"
+echo_and_run "./tools/build_config/build.sh --build --build_tests OFF ${build_args}"
