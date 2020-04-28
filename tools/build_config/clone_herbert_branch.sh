@@ -10,15 +10,21 @@ readonly bash_helpers="$(realpath "$(dirname "$0")")/bash_helpers.sh"
 # shellcheck source=./bash_helpers.sh
 . "${bash_helpers}"  # imports echo_and_run
 
-herbert_branch=${1-master}
-if [ "${herbert_branch}" = "" ]; then
-    herbert_branch="${DEFAULT_BRANCH}"
+branch=${1-master}
+if [ "${branch}" = "" ]; then
+    branch="${DEFAULT_BRANCH}"
 fi
 
-echo "Cloning and building Herbert branch '${herbert_branch}'..."
+build_args="${*:2}"
+
+echo "Cloning and building Herbert branch '${branch}'..."
 if [[ -d "Herbert" ]]; then
-    echo_and_run "rm -r Herbert"
+    echo_and_run "cd Herbert" &&
+    echo_and_run "git fetch origin" &&
+    echo_and_run "git checkout origin/${branch}"
+else
+    echo_and_run "git clone ${HERBERT_URL} --depth 1 --branch ${branch}" &&
+    echo_and_run "cd Herbert"
 fi
-echo_and_run "git clone ${HERBERT_URL} --depth 1 --branch ${herbert_branch}" &&
-echo_and_run "cd Herbert" &&
-echo_and_run "./tools/build_config/build.sh --build"
+
+echo_and_run "./tools/build_config/build.sh --build ${build_args}"
