@@ -18,9 +18,8 @@ Write-Output "Cloning and building Herbert branch $branch..."
 if (Test-Path -Path "./Herbert") {
   Invoke-In-Dir -directory "Herbert" -command "git fetch origin"
   Invoke-In-Dir -directory "Herbert" -command "git checkout origin/$branch"
-
 } else {
   Write-And-Invoke "git clone $HERBERT_URL --depth 1 --branch $branch"
 }
-$build_cmd = "./tools/build_config/build.ps1 -build $args"
+$build_cmd = "./tools/build_config/build.ps1 -build -build_tests OFF $args"
 Invoke-In-Dir -directory "Herbert" -command "$build_cmd"

@@ -105,15 +105,12 @@ pipeline {
             } else {
               powershell '''
                 ./tools/build_config/clone_herbert_branch.ps1 \
-                    -cmake_flags ""-DHerbert_RELEASE_TYPE=\$env:RELEASE_TYPE"" \
-                    -matlab_release \$env:MATLAB_VERSION \
-                    -build_tests OFF
+                  \"-cmake_flags \"\"-DHorace_RELEASE_TYPE=\$env:RELEASE_TYPE\"\" \
+                  -matlab_release \$env:MATLAB_VERSION\"
               '''
             }
           }
         }
-
-
       }
     }
 
