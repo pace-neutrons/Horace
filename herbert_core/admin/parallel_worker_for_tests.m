@@ -21,6 +21,9 @@ function [ok, err_mess,je] = parallel_worker_for_tests(worker_controls_string,DO
 % je       -- instance of a job executor, used to run the particular
 %             task after the task completion.
 
+if ~exist('DO_LOGGING','var')
+    DO_LOGGING = false;
+end
 %
 % Check current state of mpi framework and set up deployment status
 % within Matlab code to run
