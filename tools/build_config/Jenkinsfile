@@ -173,16 +173,10 @@ pipeline {
         fingerprint: true
       )
 
-      recordIssues(
-        tools: [
-         clangTidy()
-        ]
-      )
-
       publishCppcheck (
-	displayAllErrors: true,
+        displayAllErrors: true,
         allowNoReport: true,
-	pattern: 'build/cppcheck.xml'
+        pattern: 'build/cppcheck.xml'
       )
 
       xunit (
