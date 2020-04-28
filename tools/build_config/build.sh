@@ -75,9 +75,6 @@ function run_analysis() {
 
   echo -e "\nRunning analysis step..."
 
-  # TODO: debug print
-  print_package_versions
-
   analysis_cmd="cppcheck --enable=all --inconclusive"
   analysis_cmd+=" --xml --xml-version=2"
   analysis_cmd+=" -I ${HORACE_ROOT}/_LowLevelCode/cpp"
@@ -133,7 +130,6 @@ function main() {
     echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
     run_configure "${build_dir}" "${build_config}" "${build_tests}" "${matlab_release}" "${cmake_flags}"
     run_build ${build_dir}
-
     run_analysis ${build_dir}
   fi
 
