@@ -6,7 +6,7 @@ All users should be using a build that has been built, tested and packaged using
 
 ### Master
 
-The `master` branch should always be 'releasable' with all tests passing. Builds are run on all target platforms to create a `.zip`/`.tar.gz` release packages each night.
+The `master` branch should always be 'releasable' with all tests passing. Builds are run on all target platforms to create `.zip`/`.tar.gz` release packages each night.
 
 - The Herbert `master` branch is built and a zip release build artifact with MATLAB-release and platform-specific binary is created.
 
@@ -88,4 +88,3 @@ If any errors are identified during user cycle, a bugfixing branch is created fr
 Such workflow allows rapid response to the requests of the users, who is carrying out their experiments, with only minor temporary decrease in the code reliability.
 
 The changes to low level performance code are considered high risk changes, so they are not introduced using this process. They are also not considered the critical changes as the code expected to run correctly without low level C++ code, may be with decreased performance. 
-
