@@ -97,14 +97,13 @@ pipeline {
           } else {
             if (isUnix()) {
               sh '''
-                ./tools/build_config/clone_herbert_branch.sh \
-                    "--cmake_flags \"-DHorace_RELEASE_TYPE=\$RELEASE_TYPE\" \
-                    --matlab_release \$MATLAB_VERSION \
-                    --build_tests OFF
+                ./tools/build_config/clone_herbert_branch.sh --build_args \
+                    \"--cmake_flags \\\"-DHorace_RELEASE_TYPE=\$RELEASE_TYPE\\\" \
+                    --matlab_release \$MATLAB_VERSION\"
               '''
             } else {
               powershell '''
-                ./tools/build_config/clone_herbert_branch.ps1 \
+                ./tools/build_config/clone_herbert_branch.ps1 -build_args \
                   \"-cmake_flags \"\"-DHorace_RELEASE_TYPE=\$env:RELEASE_TYPE\"\" \
                   -matlab_release \$env:MATLAB_VERSION\"
               '''
