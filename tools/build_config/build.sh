@@ -14,14 +14,8 @@ readonly HORACE_ROOT="$(realpath "$(dirname "$0")"/../..)"
 readonly MATLAB_ROOT="$(realpath $(dirname "$(readlink -f "$(which matlab)")")/..)"
 readonly MAX_CTEST_SUCCESS_OUTPUT_LENGTH=10000 # 10 kilobytes
 
-function echo_and_run {
-  echo "+ $1"
-  eval "$1"
-}
-
-function warning {
-  echo -e "\e[33m$1\e[0m"
-}
+# shellcheck source=./bash_helpers.sh
+. "${HORACE_ROOT}/tools/build_config/bash_helpers.sh"
 
 function print_package_versions() {
   cmake --version | head -n 1
