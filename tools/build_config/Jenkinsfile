@@ -186,16 +186,16 @@ pipeline {
 
   post {
     always {
-      // archive CTest results file
+      // archive CTest results file and static analysis report
       archiveArtifacts(
-        artifacts: 'build/Testing/**/*.xml,build/cppcheck.xml',
+        artifacts: 'build/Testing/**/*.xml,**/cppcheck.xml',
         fingerprint: true
       )
 
       publishCppcheck (
         displayAllErrors: true,
         allowNoReport: true,
-        pattern: 'build/cppcheck.xml'
+        pattern: '**/cppcheck.xml'
       )
 
       xunit (
