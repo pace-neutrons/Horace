@@ -19,7 +19,7 @@ The allowed operations and their parameters are:
 Inputs:  -- optional,
   2     --  length of asynchronous messages queue. The framework fails if this length is exceeded.
 Outputs:
-  1     -- pointer to  new intialized MPI framework.
+  1     -- pointer to  new initialized MPI framework.
   2     -- Index (number) of current MPI process
   3     -- size of the MPI pool current worker is the part of.
 
