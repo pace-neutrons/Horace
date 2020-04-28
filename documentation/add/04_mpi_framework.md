@@ -34,8 +34,11 @@ Each **communicator/controller** is responsible for correspondent **message tran
 | `mpiexec MPI`    | *possible* |  --- | **Native**|
 | `Job submission/initialization` | **Only**| --- | --- | 
 
-Where the word *Native* indicates the media, used by communicator by design (e.g. mpiexec program is responsible for controlling the pool of parallel processes/programms, communicating over MPI interface). *Possible* means that, despite *Native* mechanism exist, communication can be performed by alternative means, i.e. mpiexec processes can communicate between each other sending file-based messages if necessary. 
-The last row of the table with world *Only* means that each parallel job is initialized and controlled from the *Login Session* (**Fig 1**) using file-based messages mechanism, i.e. input for the task, logging of the progress and output (unless it is source/target sqw file, which is referred by its name&location) are distributed using file-based messages. 
+Where the word *Native* indicates the media, used by communicator by design (e.g. mpiexec program is responsible for controlling the pool of parallel processes/programms, communicating over MPI interface). *Possible* means that, despite *Native* mechanism exist, communication can be performed by alternative means, i.e. mpiexec processes can communicate between each other sending file-based messages if necessary. This usually makes sense for debugging purposes only and is described in **ClusterWrapper** classes description below. 
+The last row of the table with world *Only* means that each parallel job is initialized and controlled from the *Login Session* (**Fig 1**) using file-based messages mechanism, i.e. input for the task, logging of the progress and the output are distributed using file-based messages, unless it is source/target sqw file, which is referred by its name&location. 
+
+The File-based framework has been written with the assumption that *job chunks may be processed independently*, but limited number of interprocess communications is occurring. This restricts the use of file-based framework to the correspondent part of Horace algorithms and for initial job submission. Matlab MPI and standard MPI frameworks do not have such restrictions but can not be used for job submission to the cluster.
+
 
 A cluster, executing Horace job using the wrappers should have the simple topology: 
 
@@ -48,19 +51,17 @@ where the large green boxes indicate software blocks, used to organize parallel 
 From a user perspective, interaction with a parallel job occurs the same way as they would work with Horace analysing their data, implicitly launching parallel jobs for time-consuming operations, if parallel execution is configured for appropriate algorithms. Horace is currently written in Matlab. Matlab is a commercial software, but for the cases the licensing requests (*) are not satisfied, we provide compiled version of this code, requesting only one Matlab license for the headnode and [Matlab Redistributable](https://uk.mathworks.com/products/compiler/matlab-runtime.html) installed on the cluster. The python wrapper around Horace code eliminating the need for any Matlab licensing is under development. 
 
 
-The chunking of jobs into parallel "pieces"is done in the MATLAB layer using physical prblem understanding. The File-based framework has been written with the assumption that *chunks may be processed independently*, but limited number of interprocess communications is occurring. This restricts the use of file-based framework to the correspondent part of Horace algorithms and for initial job submission. Matlab MPI and standard MPI frameworks do not have such restrictions but can not be used for job submission to the cluster.
-
-Generic Horace job management interaction is presented on the **Fig 2**: 
+Generic Horace parallel job management and software components interaction is presented on the **Fig 2**: 
 
 ![Fig 2: MPI Framework](../diagrams/mpi-framework.png)
 
 **Fig 2:**  Horace parallel job framework
 
+An algorithm with parallel capabilities defines appropriate **JobExecutor** class, which together with correspondent parallel configuration, defined by  **parallel\_config** class are provided to **JobDispatcher**. The **JobDispatcher** performs **ClusterWrapper** initialization according to the **parallel_config** and the chunking of jobs into parallel "pieces", using physical problem description, provided by **JobExecutor**. **ClusterWrapper** starts the parallel cluster and takes from the **JobDispatcher** the chunks of the job, formatted into the job initialization messages. **ClusterWrapper** sends these chunks to the parallel *workers*, which run independent Matlab Instances, executing the particular **JobExecutor** job chunks and communicating between each others using appropriate **MessagesFramework**
 
+The components of a Horace parallel job, presented on **Fig 1** and **Fig 2** and mentioned here are described below. 
 
-(*: one MATLAB license for each execution node or Matlab distributed server license with correspondent number of nodes licenses is required)
-
-The components or a Horace parallel job, presented on **Fig 1** and **Fig 2** are described below. 
+(*: one Matlab license for each execution node or Matlab distributed server license with correspondent number of nodes licenses is required)
 
 
 ## Interfaces
@@ -72,7 +73,7 @@ A common interfaces have been implemented to ensure the operation is independent
 
 #### JobExecutor:
 
-Each independent Matlab or compiled Matlab session, controlled by any **Controller** runs a *worker* script, which instantiates and runs JobExecutor class.  To run under the framework, a Horace parallel job has to inherit from the abstract *JobExecutor* class and define the main methods responsible for the particular job execution.
+Each independent Matlab or compiled Matlab session, controlled by any **Controller/ClusterWrapper** runs a *worker* script, which instantiates and runs **JobExecutor** class.  To run under the framework, a Horace parallel job has to inherit from the abstract **JobExecutor** class and define the main methods responsible for the particular job execution.
 
 The methods to be defined for a job are:
 
@@ -80,13 +81,12 @@ The methods to be defined for a job are:
 
 | Method | Description | Practical Example (From [*accumulate\_headers\_job*](https://github.com/pace-neutrons/Horace/blob/master/horace_core/sqw/%40accumulate_headers_job/accumulate_headers_job.m)  parallel algorithm)  |
 | :----  | :--- | :---| 
-| **do_job** | Do chunk of the job independent on other parallel executors | Read range of tmp files and calculate this range average signal and error. | 
-| **reduce_data** | Send result to head worker (**Fig 1**) node or receive partial result and combine them on the head worker. | Send the average signal/error to node-1 or accept partial averages, sum them and send results to the logon node for node-1 |
-| **is_completed** | Check if the job completed and return true if it is | return true |
-| **task_outputs** | The property, containing the result of **do_job** operation | Set the values to return the results of the calculations to the control node on the node-1. Ignored for other nodes.
+| `do_job` | Do chunk of the job independent on other parallel executors | Read range of tmp files and calculate this range average signal and error. | 
+| `reduce_data` | Send result to head worker (**Fig 1**) node (node-1) or receive partial result and combine them on the head worker (node-1). | Send the average signal/error to node-1 or accept partial averages, sum them and send results to the logon node for node-1 |
+| `is_completed` | Check if the job completed and return true if it is | return true |
 
-The *JobExecutor* parent class itself contains methods and properties, responsible for inter-nodes communications and the communications with the control node launching the job. 
-The *worker* instantiates the job specific instance of *JobExecutor* class child and runts it in the following pseudo-code loop:
+The **JobExecutor** parent class itself contains methods and properties, responsible for inter-nodes communications and the communications with the control node launching the job. 
+The *worker* instantiates the job specific instance of **JobExecutor** class child and runts it in the following pseudo-code loop:
 
 ```
  fbMPI = FileBasedFramework.initialize(Initialization_string) % Initialize file-based framework 
@@ -96,7 +96,7 @@ The *worker* instantiates the job specific instance of *JobExecutor* class child
  TheJobExecutor.init(initializetion_info);      % Initialized 
  
  while ~TheJobExecutor.is_completed;
- 	TheJobExecutor.do_job();           % Do chunk of the work
+  	TheJobExecutor.do_job();           % Do chunk of the work
 	TheJobExecutor.labBarrier();       % Synchronize independent processes
 	TheJobExecutor.reduce_data();      % Reduce intermediate data
  endwhile
@@ -106,29 +106,29 @@ The *worker* instantiates the job specific instance of *JobExecutor* class child
  TheJobExecutor.finish_task();
   
 ```
-The main methods and properties (M/P) of *JobExecutor* involved in a job control and intertask communications are summarized in the table:
+The main methods and properties (M/P) of **JobExecutor** involved in a job control and intertask communications are summarized in the table 3:
 
-**Table 3** Communication and control properties and methods of **JobExecutor** used in *worker* script
+**Table 3** Main communication and control properties and methods of **JobExecutor** used in *worker* script
 
 | Method or Property | M/P | Description |
 |:----| :---: | :---
-| `labIndex` | P | The id(number) of the running task (Worker Number in filebased, labNum in Matlab or MPI rank for MPI) |
+| `labIndex` | P | The id(number) of the running task (Worker Number in file-based, labNum in Matlab or MPI rank+1 for MPI framework) |
 |`mess_framework` | P |  Access to messages framework used for messages exchange between the parallel tasks. For file-based messages its the same as *control\_node\_exch*  but for proper MPI job or remote host it usually  different | 
-| `control_node_exch` | P | The framework used to exchange messages between MPI jobs pool and the control (login) node.  | 
-| `task_outputs` | P | A helper property, containing task outputs to transfer to the headnode, if these outputs are defined. |
-|_______________| __ | _______________________________________________________________| 
+| `control_node_exch` | P | The framework used to exchange messages between MPI jobs pool and the control (login) node. Contains initialized instance of a **MessagesFileBased** class.|
+| `task_outputs` | P | The property, containing the result of `do_job` operation to distribute to another nodes or to transfer to the headnode(node-1) for if these outputs are defined.|
+| *Communicator methods:* | :: |  *convenience methods, operating over defined messages frameworks* | 
 | `init` | M | Initialize JobExecutor's communications capabilities
-| `finish_task` | M | Safely finish job execution and inform other nodes about it. |
 | `reduce_send_message` | M | collect similar (usually unblocking (see below)) messages send from all nodes and send final message to the head node (node 1 for nodes with N>1 or logon node for node 1)|
 | `log_progress` | M | log progress of the job execution and report it to the calling framework. | 
 | `labBarrier` | M | synchronize parallel workers execution, deploying MPI barrier operation of the framework, used for interprocess communications |
+| `finish_task` | M | Safely finish job execution and inform other nodes about it. |
 
 
-As file-based messaging framework is always available, input algorithm data are separated into chunks and distributed to parallel workers using file-based messages. The *JobDispatcher* class is responsible for running the *worker*-s instantiating user jobs, in parallel. 
+The file-based messaging framework is part of Herbert. As such, this framework is always available. The input data of the particular parallel algorithm are separated into chunks and distributed to parallel workers using file-based messages. The **JobDispatcher** class is responsible for the splitting the task and running the *worker*-s instantiating user jobs, in parallel.
 
 #### JobDispatcher:
-To run the *JobExecutor* in parallel, it has to be divided into appropriate chunks, and to be sent for execution on the appropriate parallel environment. 
-The class, responsible for chunking the task, controlling the parallel pool of workers, sending user job information to this pool and initial data for the user jobs, reporting the progress of the job and retrieving the job results for further usage is the *JobDispatcher* class.
+To run the **JobExecutor** in parallel, its input data have to be divided into appropriate chunks, and to be sent for execution on the appropriate parallel environment. 
+The class, responsible for chunking the task, controlling the parallel pool of workers, sending user job information to this pool and initial data for the user jobs, reporting the progress of the job and retrieving the job results for further usage is the **JobDispatcher** class.
 The main methods and properties (M/P) of the class are:
 
 **Table 4** Main properties and methods of **JobDispatcher** class.
@@ -137,7 +137,7 @@ The main methods and properties (M/P) of the class are:
 |:----| :---: | :--- |
 | **Job/Cluster identification properties:** | :: | *Properties, used to identify the particular job and describe media, used in parallel execution:*|
 | `job_id` | P | The name, which describes the job, and distinguish it from any other job, may be running on a system. A folder with such name exist on a shared file system and all file-based messages, related to this job control are distributed through this folder. 
-| `mess_framework` | P | The framework used to exchange messages within the parallel cluster, i.e. between the parallel workers of the cluster. A job running on a cluster always communicate with *JobDispatcher* using file-based messages, but parallel workers can communicate among each other using range of different media (See **Table 1**)
+| `mess_framework` | P |  The instance of the file-based messages framework used for exchange between *logon* node and the cluster. Used for providing initialization information for the job, receiving log messages from *node-1* and returning some calculations results (See **Table 1**).
 | `cluster` | P | Exposes read access to the class, controlling cluster, i.e. the pool of independent processes or programs, to execute parallel job. 
 | `is_initialized` | P | true if *JobDispatcher* already controls a cluster so the next job can be executed on existing cluster rather then after starting a new one. False if the cluster is not running and needs to be started up |
 |**Job control properties**: | :: | |
@@ -145,11 +145,14 @@ The main methods and properties (M/P) of the class are:
 | `fail_limit` | P | number of times to try action until deciding the action have failed |
 | `time_to_fail` | P | Time interval to wait until job which do not return any messages from the cluster is considered failed and should be terminated. |
 |**Job control Methods** : | :: | |
-| `split_tasks` | M | Auxiliary method, used internally by the following methods and taking as input the structure, containing the information common to all parallel workers, number of workers and cellarray of input parameters to split among the workers. Returns the array of messages, to initialize each worker of the cluster. | 
 | `start_job` | M | Taking as input the number of workers requested, job name and its input job parameters, splits the job among workers using *split\_tasks*, starts the cluster and controls the job execution, regularly querying the *cluster* on the progress of the job execution and displaying the results of the execution. Returns the result of the job. |
-| `restart_job` | M |  The same as *start_job* but does not start the cluster using existing cluster to start new or continue the old job providing new input data. |
+| `restart_job` | M | Restart parallel Matlab job started earlier by *start\_job* command, providing it with new input data. The cluster to do the job must be running. Do the same as *start\_job* after that and returns the results of the new job. |
+| `finalize_all` | M | Stop parallel processes and delete cluster. Clear all existing messages |
+| `display_fail_job_results` | M | Auxiliary method to display job results  if the job have failed. |
+| `split_tasks` | M | Auxiliary method, used internally by the following methods and taking as input the structure, containing the information common to all parallel workers, number of workers and cellarray of input parameters to split among the workers. Returns the array of messages, to initialize each worker of the cluster. | 
 
-One of the main properties of *JobDispatcher* class is *cluster* property, containing an instance of *ClusterWrapper* class, responsible for control of the pool of multiple parallel processes or programs, i.e. the *cluster*. The *JobDispatcher* controls and communicates with the cluster through the properties, described below. 
+
+One of the main properties of *JobDispatcher* class is *cluster* property, containing an instance of *ClusterWrapper* class, responsible for control of the pool of multiple parallel processes or programs, i.e. the *cluster*. The *JobDispatcher* controls and communicates with the cluster through the **ClusterWrapper** properties, described below. 
 
 
 
@@ -229,7 +232,7 @@ Main Messages Framework methods are provided in the **Table 6**
 
 #### Note^1 Common initialization
 
-Different frameworks launch different types of parallel processes but each process should know what task it needs to perform. The job description can be very different in size, so it is better to provide such description by writing appropriate description files. Command line arguments are used to provide each parallel worker with information about the location of a folder, where the job initialization information is placed on a shared file system. To avoid issues when different frameworks and different operating systems processing non-ASCII characters in a command line differently, the location information is encoded into single ASCII-128 string using standard Java base64 encoder. The *build_worker_init* method performs the encoding of the input initialization information, namely initialization folder location and, for file-based transfer, the worker number, for further transfer of this information to parallel workers using command line arguments of correspondent job. 
+Different frameworks launch different types of parallel processes but each process should know what task it needs to perform. The job description can be very different in size, so it is better to provide such description by writing appropriate description files. Command line arguments are used to provide each parallel worker with information about the location of a folder, where the job initialization information is placed on a shared file system plus some auxiliary information. Currently this information contains the name of the *message framework* used for communications between workers and worker number (*labNum*) for file-based messages framework. To avoid issues when different frameworks and different operating systems processing non-ASCII characters in a command line differently, the location information is encoded into single ASCII-128 string using standard Java base64 encoder. The *build_worker_init* method performs the encoding of the input initialization information, namely initialization folder location and, for file-based transfer, the worker number, for further transfer of this information to parallel workers using command line arguments of correspondent job. 
 
 #### Note^2 Persistent messages
 Persistent messages are used to distribute information about special states of the system, i.e. failure or job completed states as parallel interrupts, used for these purposes in standard MPI frameworks are not available for all parallel frameworks. 
