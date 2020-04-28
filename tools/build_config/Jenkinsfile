@@ -171,7 +171,7 @@ pipeline {
     always {
       // archive CTest results file
       archiveArtifacts(
-        artifacts: 'build/Testing/**/*.xml',
+        artifacts: 'build/Testing/**/*.xml', 'build/cppcheck.xml',
         fingerprint: true
       )
 
