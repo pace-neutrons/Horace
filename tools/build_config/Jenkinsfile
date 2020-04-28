@@ -101,10 +101,9 @@ pipeline {
               '''
             } else {
               powershell '''
-                $herbert_url = \"https://github.com/pace-neutrons/Herbert.git\"
-                git clone \$herbert_url --depth 1
-                cd Herbert
-                ./tools/build_config/build.ps1 -build
+                ./tools/build_config/clone_herbert_branch.ps1 \
+                  -cmake_flags ""-DHerbert_RELEASE_TYPE=\$env:RELEASE_TYPE"" \
+                  -matlab_release \$env:MATLAB_VERSION
               '''
             }
           }
