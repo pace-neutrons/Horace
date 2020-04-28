@@ -67,6 +67,29 @@ pipeline {
       }
     }
 
+    stage('Analyze') {
+      steps {
+        script {
+          if (isUnix()) {
+            sh '''
+              module load cmake/\$CMAKE_VERSION &&
+              module load matlab/\$MATLAB_VERSION &&
+              module load gcc/\$GCC_VERSION &&
+              module load cppcheck/\$CPPCHECK_VERSION &&
+              ./tools/build_config/build.sh --print_versions --analyze
+            '''
+          }
+          else {
+            powershell '''
+              ./tools/build_config/build.ps1 -print_versions
+
+              Write-Output \"Static Analysis in not performed on Windows\"
+            '''
+          }
+        }
+      }
+    }
+
     stage('Build') {
       steps {
         script {
@@ -138,10 +161,16 @@ pipeline {
 
   post {
     always {
-      // archive CTest results file
+      // archive CTest results file and static analysis report
       archiveArtifacts(
-        artifacts: 'build/Testing/**/*.xml',
+        artifacts: 'build/Testing/**/*.xml,**/cppcheck.xml',
         fingerprint: true
+      )
+
+      publishCppcheck (
+        displayAllErrors: true,
+        allowNoReport: true,
+        pattern: '**/cppcheck.xml'
       )
 
       xunit (
