@@ -97,6 +97,9 @@ pipeline {
           } else {
             if (isUnix()) {
               sh '''
+                module load cmake/\$CMAKE_VERSION &&
+                module load matlab/\$MATLAB_VERSION &&
+                module load gcc/\$GCC_VERSION &&
                 ./tools/build_config/clone_herbert_branch.sh --build_args \
                     \"--cmake_flags \\\"-DHorace_RELEASE_TYPE=\$RELEASE_TYPE\\\" \
                     --matlab_release \$MATLAB_VERSION\"
