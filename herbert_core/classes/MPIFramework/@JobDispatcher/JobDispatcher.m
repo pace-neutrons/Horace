@@ -8,7 +8,7 @@ classdef JobDispatcher
     % The parallel job is run on a Cluster, selected by parallel_config
     % configuration.
     %
-    % JobDispatcher properties:
+    % JobDispatcher: Main properties and methods
     % ---------------------------------------------
     % Job Description and control properties:
     %
@@ -223,7 +223,6 @@ classdef JobDispatcher
                 job_class_name,common_params,loop_params,return_results,...
                 keep_workers_running,task_query_time);
         end
-        
         %
         %------------------------------------------------------------------
         function limit = get.fail_limit(this)
@@ -288,8 +287,9 @@ classdef JobDispatcher
         end
         %
         function display_fail_job_results(obj,outputs,n_failed,n_workers,Err_code)
-            % Auxiliary method to display job results if the job have failed
-            % 
+            % Display job results if the job have failed.
+            % Auxiliary method.
+            %
             % Input:
             % Outputs -- usually cellarray of the results, returned by a
             %            parallel job
