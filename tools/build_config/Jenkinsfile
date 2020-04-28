@@ -109,12 +109,17 @@ pipeline {
         script {
           if (isUnix()) {
             sh '''
+              module load cmake/\$CMAKE_VERSION &&
+              module load matlab/\$MATLAB_VERSION &&
+              module load gcc/\$GCC_VERSION &&
               module load cppcheck/\$CPPCHECK_VERSION &&
-              ./tools/build_config/build.sh --analyze
+              ./tools/build_config/build.sh --print_versions --analyze
             '''
           }
           else {
             powershell '''
+              ./tools/build_config/build.ps1 -print_versions
+
               Write-Output \"Static Analysis in not performed on Windows\"
             '''
           }
@@ -137,7 +142,7 @@ pipeline {
           }
           else {
             powershell '''
-            ./tools/build_config/build.ps1 -print_versions -build \
+            ./tools/build_config/build.ps1 -build \
                 -cmake_flags \"-DHorace_RELEASE_TYPE=\$env:RELEASE_TYPE\" \
                 -matlab_release \$env:MATLAB_VERSION
             '''
