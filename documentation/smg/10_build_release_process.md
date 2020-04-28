@@ -10,7 +10,7 @@ The `master` branch should always be 'releasable' with all tests passing. Builds
 
 - The Herbert `master` branch is built and a zip release build artifact with MATLAB-release and platform-specific binary is created.
 
-- The Horace `master` branch is built and zip release build artifact with MATLAB-release and platform-specific binary created, which includes the last successful Herbert `master` build.
+- The Horace `master` branch is built and a zip release build artifact with MATLAB-release and platform-specific binary is created, which includes the last successful Herbert `master` build.
 
 The Horace build artifact is a single deployable unit to a specific MATLAB/OS platform. This is equivalent to the artifact created by the legacy MATLAB create release process.
 
@@ -24,7 +24,7 @@ When a pull request is opened or updated the merged code of the PR branch and `m
 2. All tests likely to be affected by changes in Herbert and Horace must be run on developers machine
 3. Create Herbert PR (if required) for merge into `master` branch
 4. Create Horace PR (if required) - if a Herbert PR has been created too the Horace PR must not be merged until the Herbert PR has been merged
-5. If the build / test against of the PR against the Release branch succeeds on all platforms the PR can be merge.
+5. If the build / test of the PR against the Release branch succeeds on all platforms, and the code has been reviewed, the PR can be merged.
 
 ### Hot fixing
 
@@ -39,9 +39,9 @@ Patch releases should be tested and built through the same build pipeline as the
 5. PR created for merge into Release branch (`rel_m_n`) *and* `master` branch. If this is the first release patch, the branch will need to be created
 6. If the build and test of the PR to the Release branch succeeds on all platforms, that build artifact can be released to the target platform as version `m.n.o+1`
 
-If the hotfix is being done out-of-hours the PR can be merged by the developer WITHOUT review provided all tests pass, but the branch should not be deleted and should be reviewed as the earliest opportunity.
+If the hotfix is being done out-of-hours the PR can be merged by the developer WITHOUT review provided all tests pass, but the branch should not be deleted and should be reviewed at the earliest opportunity.
 
-On any Horace release branch, the associate version of Herbert (`Rm_n_x`) will remain unchanged except for patches.
+On any Horace release branch, the associated version of Herbert (`Rm_n_x`) will remain unchanged except for patches.
 
 The same caveats apply about the Horace build dependencies on Herbert.
 
@@ -64,7 +64,7 @@ A 'deploy' pipeline will be created ([Horace #73](https://github.com/pace-neutro
 This will:
 
 - tag the `master` branch with the release number (`Rm_n_o`)
-- copy the built artifact to the GitHub
+- copy the built artifact to GitHub
 
 The release tag will be an anchor for any subsequently needed release branch and patch branches.
 
@@ -72,19 +72,35 @@ The version number is stored in a text file (`VERSION`) in the root of the Herbe
 
 ### Facility Deployment
 
-Users participating in ISIS experiments use expensive neutron facility and need to be able to see and analyse their data as quickly as possible, ideally in the process of experiment and immediately after that. In addition to standard Horace scripts users sometimes write their own scripts, which places high demand on the software reliability. Sometimes, their custom scripts use standard software in the operational modes, which are difficult to predict. Often these script identify issues, which have not been anticipated during development so users need urgent fixing or modifications to the software. Sometimes, the issues can be caused by specific user's data, so can be easily reproduced only using these data. The changes fixing the user issue should occur immediately, as users should not lose a day or even an hour waiting until the whole build pipeline completes, produces all possible artefacts and get installed on the facility computers.  
+Users participating in ISIS experiments use expensive neutron facilities and need to be able to see and analyse their data as quickly as possible, 
+ideally in the process of an experiment and/or immediately after that. 
+In addition to standard Horace scripts users sometimes write their own scripts, which places high demands on the software's reliability.
+Sometimes, their custom scripts use standard software in the operational modes, which are difficult to predict. Often these scripts identify issues which have not been anticipated during development, so users need urgent fixes or modifications to the software. 
+Sometimes, the issues can be caused by specific user data, so can only be easily reproduced using these data. 
+The changes fixing the user's issue should occur immediately, as users should not lose a day, or even an hour, waiting until the whole build pipeline completes, produces all build artifacts and is installed on the facility computers.
 
-Quick modifications to the software with only partial testing carries the risks of breaking the other parts of the software. Despite that, in reality, single crystal experiments on different machines rarely happen simultaneously. The combined probability of error in modified code and the situation when this error immediately and severely affects another high priority user can be considered low. If this happens, the possibility to revert changes as rapidly as they were introduced, is also very important. 
+Quick modifications to the software, with only partial testing, carries the risks of breaking other parts of the software.
+Despite that, in reality, single crystal experiments on different machines rarely happen simultaneously. 
+The combined probability of error in modified code and the situation when this error immediately and severely affects another high priority user can be considered low. 
+If this happens, the possibility to revert changes as rapidly as they were introduced, is also very important. 
 
-Because of the specific demands, the process of deploying the software on the ISIS facility differs from the  normal build-release process. 
+Because of the following specific demands, the process of deploying the software on the ISIS facility differs from the normal build-release process. 
 
 Namely:
 
-When a release is produced and placed to the github, the master branch is tagged with the release number. 
-The release tagged version is checked out in the common software area of the ISIS computing facility provided to users. The low level build artefacts i.e. C++ libraries are copied into appropriate places of this area from the Jenkins node, testing release on this system. 
+When a release is produced and placed on GitHub, the master branch is tagged with the release number. 
+The tagged release version is checked out in the common software area of the ISIS computing facility provided to users. 
+The low level build artifacts (i.e. C++ libraries), will be manually copied into the pacakge. 
+These artifacts will come from a package built on the corresponding system by Jenkins.
 
-If any errors are identified during user cycle, a bugfixing branch is created from the actual release. The changes, fixing user issue are committed to the github as soon as they are introduced. The changes become the contents of the bugfixing PR, which is reviewed, tested against all remaining code base and operating systems and eventually becomes the part of **master** like any other code changes. 
+If any errors are identified during user cycle, a bug-fixing branch is created from the relevant release. 
+The changes, fixing the user's issue, are committed to GitHub as soon as they are completed. 
+The changes become the contents of the bug-fixing PR, which is reviewed and tested against the existing codebase on all operating systems. 
+Eventually, this PR will be merged into **master** like any other code change. 
 
-Such workflow allows rapid response to the requests of the users, who is carrying out their experiments, with only minor temporary decrease in the code reliability.
+Such a workflow allows rapid response to the requests of users who are carrying out their experiments,
+with only a minor, temporary decrease in the code's reliability.
 
-The changes to low level performance code are considered high risk changes, so they are not introduced using this process. They are also not considered the critical changes as the code expected to run correctly without low level C++ code, may be with decreased performance. 
+The changes to low level performance code are considered high risk changes, so they are not introduced using this process. 
+They are also not considered critical changes, as there should always be equivalent functionality implemented in Matlab. 
+This may lead to decreased performance. 
