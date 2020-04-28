@@ -71,7 +71,7 @@ function run_tests() {
 }
 
 function run_analysis() {
-  local build_dir=$1
+  local output_dir=$1
 
   if [ -f "$(which cppcheck)" ]; then
     echo -e "\nRunning analysis step..."
@@ -80,7 +80,7 @@ function run_analysis() {
     analysis_cmd+=" --xml --xml-version=2"
     analysis_cmd+=" -I ${HORACE_ROOT}/_LowLevelCode/cpp"
     analysis_cmd+=" ${HORACE_ROOT}/_LowLevelCode/"
-    analysis_cmd+=" 2> ${build_dir}/cppcheck.xml"
+    analysis_cmd+=" 2> ${output_dir}/cppcheck.xml"
     echo_and_run "${analysis_cmd}"
   fi
 }
@@ -95,6 +95,7 @@ function main() {
   # set default parameter values
   local build=$FALSE
   local test=$FALSE
+  local analyze=$FALSE
   local package=$FALSE
   local print_versions=$FALSE
   local build_tests="ON"
@@ -110,6 +111,7 @@ function main() {
         # flags
         -b|--build) build=$TRUE; shift ;;
         -t|--test) test=$TRUE; shift ;;
+        -a|--analyze) analyze=$TRUE; shift ;;
         -p|--package) package=$TRUE; shift ;;
         -v|--print_versions) print_versions=$TRUE; shift ;;
         # options
@@ -126,17 +128,20 @@ function main() {
     print_package_versions
   fi
 
+  if ((${analyze})); then
+    run_analysis "${build_dir}"
+  fi
+
   if ((${build})); then
     warning_msg="Warning: Build directory ${build_dir} already exists.\n\
         This may not be a clean build."
     echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
     run_configure "${build_dir}" "${build_config}" "${build_tests}" "${matlab_release}" "${cmake_flags}"
-    run_build ${build_dir}
-    run_analysis ${build_dir}
+    run_build "${build_dir}"
   fi
 
   if ((${test})); then
-    run_tests ${build_dir}
+    run_tests "${build_dir}"
   fi
 
   if ((${package})); then
