@@ -1,4 +1,13 @@
 #!groovy
+/**
+ * The following parameters must be provided by the Jenkins build job and must match available application
+ * on the build target machine
+ *
+ *  - CMAKE_VERSION: The version of CMake to run the build with
+ *  - GCC_VERSION: The version of GCC to build with
+ *  - MATLAB_VERSION: The release number of the Matlab to load
+ *  - CPPCHECK_VERSION: The version of CppCheck tooling to load to provide the code-style checks
+ */
 
 def post_github_status(String state, String message) {
   // Non-PR builds will not set PR_STATUSES_URL - in which case we do not
@@ -40,11 +49,14 @@ def post_github_status(String state, String message) {
 }
 
 /* Required pipeline parameters:
- *   AGENT
- *   CMAKE_VERSION
- *   MATLAB_VERSION
- *   GCC_VERSION
- *   RELEASE_TYPE
+ *   All platforms:
+ *     AGENT (e.g. 'sl7', 'PACE Windows (Private)', 'osx')
+ *     MATLAB_VERSION (e.g R2018b)
+ *     RELEASE_TYPE ('nightly', 'release' - optional)
+ *   Unix only:
+ *     CMAKE_VERSION  (e.g. 3.7.2)
+ *     GCC_VERSION (e.g. 6.3.0)
+ *     CPPCHECK_VERSION (e.g. 1.77)
 */
 pipeline {
   agent {
@@ -67,6 +79,29 @@ pipeline {
       }
     }
 
+    stage('Analyze') {
+      steps {
+        script {
+          if (isUnix()) {
+            sh '''
+              module load cmake/\$CMAKE_VERSION &&
+              module load matlab/\$MATLAB_VERSION &&
+              module load gcc/\$GCC_VERSION &&
+              module load cppcheck/\$CPPCHECK_VERSION &&
+              ./tools/build_config/build.sh --print_versions --analyze
+            '''
+          }
+          else {
+            powershell '''
+              ./tools/build_config/build.ps1 -print_versions
+
+              Write-Output \"Static Analysis in not performed on Windows\"
+            '''
+          }
+        }
+      }
+    }
+
     stage('Build') {
       steps {
         script {
@@ -75,14 +110,14 @@ pipeline {
               module load cmake/\$CMAKE_VERSION &&
               module load matlab/\$MATLAB_VERSION &&
               module load gcc/\$GCC_VERSION &&
-              ./tools/build_config/build.sh --print_versions --build \
+              ./tools/build_config/build.sh --build \
                   --cmake_flags "-DHerbert_RELEASE_TYPE=$RELEASE_TYPE" \
                   --matlab_release \$MATLAB_VERSION
             '''
           }
           else {
             powershell '''
-              ./tools/build_config/build.ps1 -print_versions -build \
+              ./tools/build_config/build.ps1 -build \
                   -cmake_flags "-DHerbert_RELEASE_TYPE=\$env:RELEASE_TYPE" \
                   -matlab_release \$env:MATLAB_VERSION
             '''
@@ -138,10 +173,16 @@ pipeline {
 
   post {
     always {
-      // archive CTest results file
+      // archive CTest results file and static analysis report
       archiveArtifacts(
-        artifacts: 'build/Testing/**/*.xml',
+        artifacts: 'build/Testing/**/*.xml,**/cppcheck.xml',
         fingerprint: true
+      )
+
+      publishCppcheck (
+        displayAllErrors: true,
+        allowNoReport: true,
+        pattern: '**/cppcheck.xml'
       )
 
       xunit (
