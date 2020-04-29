@@ -49,7 +49,7 @@ else
     end
 end
 %  - mslice extras directory:
-herbert_C_code_dir  =fullfile(rootpath,'_LowLevelCode','CPP');
+herbert_C_code_dir  =fullfile(rootpath,'_LowLevelCode','cpp');
 % check folder permissions
 ok = check_folder_permissions(lib_dir);
 if ~ok
