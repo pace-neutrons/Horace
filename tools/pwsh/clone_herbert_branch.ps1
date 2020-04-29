@@ -8,10 +8,10 @@ param(
   [string]$build_args = ""
 )
 
-. $PSScriptRoot/powershell_helpers.ps1 <# Imports:
-  Write-And-Invoke
-  Invoke-In-Dir
-#>
+<# Import:
+    Write-And-Invoke
+    Invoke-In-Dir #>
+. $PSScriptRoot/powershell_helpers.ps1
 
 $HERBERT_URL = "https://github.com/pace-neutrons/Herbert.git"
 
