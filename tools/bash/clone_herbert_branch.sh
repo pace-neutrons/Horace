@@ -23,7 +23,7 @@ if [ "${herbert_branch}" = "" ]; then
     herbert_branch="${DEFAULT_BRANCH}"
 fi
 
-echo "Cloning and building Herbert branch '${herbert_branch}'..."
+echo "Building Herbert branch '${herbert_branch}'..."
 if [[ -d "Herbert" ]]; then
     echo_and_run "cd Herbert" &&
     echo_and_run "git fetch origin" &&
