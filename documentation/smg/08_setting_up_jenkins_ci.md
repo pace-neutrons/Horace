@@ -81,7 +81,8 @@ and should be prefixed with `PR-` if the pipeline is building pull requests, e.g
         - `CMAKE_VERSION`: The version of CMake to load
         - `MATLAB_VERSION`: The (release) version of Matlab to load
         - `GCC_VERSION`: The version of GCC to use (Linux only)
-
+        - `CPPCHECK_VERSION`: The version of CppCheck to use (Linux only)
+    
     The list of required parameters are noted in the docstring for the pipeline
     within the Jenkinsfile, and should be added with descriptions through the
     Jenkins job GUI.
@@ -139,8 +140,9 @@ The build scripts are intended to work locally as well as on Jenkins, so any Jen
 
 | Argument (`.ps1`) | Argument (`.sh`)       |      |
 | --------------- | ------- | ---- |
-| `-build`        | `--build`, `-b` |   Perform build   |
-| `-test`          | `--test`, `-t` | Run MATLAB and C++ tests |
+| `-build`        | `--build`, `-b`   |   Perform build   |
+| `-test`         | `--test`, `-t`    | Run MATLAB and C++ tests |
+|      | `--analyze`, `-a` | Run static code analysis (Linux only) |
 | `-package`          | `--package`, `-p`  | Create archive of build artifacts |
 | `-print_versions`          | `--print_versions`, `-v`  | Display versions of compilers, MATLAB and libraries used |
 
