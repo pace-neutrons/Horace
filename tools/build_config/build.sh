@@ -21,6 +21,7 @@ function print_package_versions() {
   cmake --version | head -n 1
   echo "Matlab: ${MATLAB_ROOT}"
   g++ --version | head -n 1
+  cppcheck --version | head -n 1
   echo
 }
 
@@ -63,6 +64,21 @@ function run_tests() {
   echo_and_run "${test_cmd}"
 }
 
+function run_analysis() {
+  local output_dir=$1
+
+  if [ -f "$(which cppcheck)" ]; then
+    echo -e "\nRunning analysis step..."
+
+    analysis_cmd="cppcheck --enable=all --inconclusive"
+    analysis_cmd+=" --xml --xml-version=2"
+    analysis_cmd+=" -I ${HORACE_ROOT}/_LowLevelCode/cpp"
+    analysis_cmd+=" ${HORACE_ROOT}/_LowLevelCode/"
+    analysis_cmd+=" 2> ${output_dir}/cppcheck.xml"
+    echo_and_run "${analysis_cmd}"
+  fi
+}
+
 function run_package() {
   echo -e "\nRunning package step..."
   echo_and_run "cd ${build_dir}"
@@ -73,6 +89,7 @@ function main() {
   # set default parameter values
   local build=$FALSE
   local test=$FALSE
+  local analyze=$FALSE
   local package=$FALSE
   local print_versions=$FALSE
   local build_tests="ON"
@@ -88,6 +105,7 @@ function main() {
         # flags
         -b|--build) build=$TRUE; shift ;;
         -t|--test) test=$TRUE; shift ;;
+        -a|--analyze) analyze=$TRUE; shift ;;
         -p|--package) package=$TRUE; shift ;;
         -v|--print_versions) print_versions=$TRUE; shift ;;
         # options
@@ -104,6 +122,10 @@ function main() {
     print_package_versions
   fi
 
+  if ((analyze)); then
+    run_analysis "${HORACE_ROOT}"
+  fi
+
   if ((build)); then
     warning_msg="Warning: Build directory ${build_dir} already exists.\n\
         This may not be a clean build."
@@ -113,7 +135,7 @@ function main() {
   fi
 
   if ((test)); then
-    run_tests ${build_dir}
+    run_tests "${build_dir}"
   fi
 
   if ((package)); then

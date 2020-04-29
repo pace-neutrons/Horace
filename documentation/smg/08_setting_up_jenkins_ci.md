@@ -81,7 +81,8 @@ and should be prefixed with `PR-` if the pipeline is building pull requests, e.g
         - `CMAKE_VERSION`: The version of CMake to load
         - `MATLAB_VERSION`: The (release) version of Matlab to load
         - `GCC_VERSION`: The version of GCC to use (Linux only)
-
+        - `CPPCHECK_VERSION`: The version of CppCheck to use (Linux only)
+    
     The list of required parameters are noted in the docstring for the pipeline
     within the Jenkinsfile, and should be added with descriptions through the
     Jenkins job GUI.
@@ -139,8 +140,9 @@ The build scripts are intended to work locally as well as on Jenkins, so any Jen
 
 | Argument (`.ps1`) | Argument (`.sh`)       |      |
 | --------------- | ------- | ---- |
-| `-build`        | `--build`, `-b` |   Perform build   |
-| `-test`          | `--test`, `-t` | Run MATLAB and C++ tests |
+| `-build`        | `--build`, `-b`   |   Perform build   |
+| `-test`         | `--test`, `-t`    | Run MATLAB and C++ tests |
+|      | `--analyze`, `-a` | Run static code analysis (Linux only) |
 | `-package`          | `--package`, `-p`  | Create archive of build artifacts |
 | `-print_versions`          | `--print_versions`, `-v`  | Display versions of compilers, MATLAB and libraries used |
 
@@ -149,7 +151,6 @@ The build scripts are intended to work locally as well as on Jenkins, so any Jen
 | Argument (`.ps1`) | Argument (`.sh`) | Default | |
 | --------------- | ------- | ---- | ---- |
 | `-build_tests` | `--build_tests`, `-X` | `ON` | Build test files (`ON` \| `OFF`) |
-| `-build_fortran` | `--build_fortran`, `-N` | `OFF` | Build Fortran source (`ON` \| `OFF`) |
 | `-build_config` | `--build_config`, `-C` | `Release` | Build configuration to use (`Release` \| `Debug`) |
 | `-build_dir` | `--build_dir`, `-O` | `./build` | Output directory for CMake build |
 | `-cmake_flags` | `--cmake_flags`, `-F` | | Custom parameters to pass to CMake configure step |
@@ -158,9 +159,9 @@ The build scripts are intended to work locally as well as on Jenkins, so any Jen
 Actions may be combined so to call the script and only build use the `--build` flag, to build and test use both flags `--build --test`.
 
 Notes:
+
 1. The Visual Studio version must match a configured Visual Studio release or an error will be thrown
 2. PowerShell uses *a single dash* for parameters, i.e. `-build -test -package`.
-
 
 ## Authentication
 
