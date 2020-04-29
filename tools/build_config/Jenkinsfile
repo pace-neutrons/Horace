@@ -1,5 +1,13 @@
 #!groovy
-
+/**
+ * The following parameters must be provided by the Jenkins build job and must match available application
+ * on the build target machine
+ *
+ *  - CMAKE_VERSION: The version of CMake to run the build with
+ *  - GCC_VERSION: The version of GCC to build with
+ *  - MATLAB_VERSION: The release number of the Matlab to load
+ *  - CPPCHECK_VERSION: The version of CppCheck tooling to load to provide the code-style checks
+ */
 def post_github_status(String state, String message) {
   // Non-PR builds will not set PR_STATUSES_URL - in which case we do not
   // want to post any statuses to Git
@@ -49,6 +57,7 @@ def base_job_name = "${env.JOB_BASE_NAME}".replace("PR-", "").replace("Branch-",
  *   Unix only:
  *     CMAKE_VERSION (e.g. 3.7.2)
  *     GCC_VERSION (e.g. 6.3.0)
+ *     CPPCHECK_VERSION (e.g. 1.77)
  *   Windows only:
  *     VS_VERSION (e.g. 2017)
  */
@@ -116,6 +125,29 @@ pipeline {
       }
     }
 
+    stage('Analyze') {
+      steps {
+        script {
+          if (isUnix()) {
+            sh '''
+              module load cmake/\$CMAKE_VERSION &&
+              module load matlab/\$MATLAB_VERSION &&
+              module load gcc/\$GCC_VERSION &&
+              module load cppcheck/\$CPPCHECK_VERSION &&
+              ./tools/build_config/build.sh --print_versions --analyze
+            '''
+          }
+          else {
+            powershell '''
+              ./tools/build_config/build.ps1 -print_versions
+
+              Write-Output \"Static Analysis in not performed on Windows\"
+            '''
+          }
+        }
+      }
+    }
+
     stage('Build') {
       steps {
         script {
@@ -131,7 +163,7 @@ pipeline {
           }
           else {
             powershell '''
-            ./tools/build_config/build.ps1 -print_versions -build \
+            ./tools/build_config/build.ps1 -build \
                 -cmake_flags \"-DHorace_RELEASE_TYPE=\$env:RELEASE_TYPE\" \
                 -matlab_release \$env:MATLAB_VERSION
             '''
@@ -171,8 +203,8 @@ pipeline {
 
         // Archive the release package
         archiveArtifacts(
-            artifacts: 'build/Horace-*',
-            fingerprint: true
+          artifacts: 'build/Horace-*',
+          fingerprint: true
         )
       }
     }
@@ -180,10 +212,16 @@ pipeline {
 
   post {
     always {
-      // archive CTest results file
+      // archive CTest results file and static analysis report
       archiveArtifacts(
-        artifacts: 'build/Testing/**/*.xml',
+        artifacts: 'build/Testing/**/*.xml,**/cppcheck.xml',
         fingerprint: true
+      )
+
+      publishCppcheck (
+        displayAllErrors: true,
+        allowNoReport: true,
+        pattern: '**/cppcheck.xml'
       )
 
       xunit (
