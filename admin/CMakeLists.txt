@@ -25,10 +25,10 @@ set(Herbert_AUTO_GENERATED_FILE_WARNING
 configure_file("herbert_get_build_version.m.template"
                "${CMAKE_SOURCE_DIR}/herbert_core/admin/herbert_get_build_version.m")
 
-# Configure the version.h header. The template is copied into _LowLevelCode/CPP
+# Configure the version.h header. The template is copied into _LowLevelCode/cpp
 # and defines macro VERSION with CMake's project version.
 configure_file("version.h.template"
-               "${CMAKE_SOURCE_DIR}/_LowLevelCode/CPP/utility/version.h")
+               "${CMAKE_SOURCE_DIR}/_LowLevelCode/cpp/utility/version.h")
 
 # =============================================================================
 # Install commands
