@@ -15,7 +15,7 @@ param(
 
 $HERBERT_URL = "https://github.com/pace-neutrons/Herbert.git"
 
-Write-Output "Cloning and building Herbert branch $branch..."
+Write-Output "Building Herbert branch $branch..."
 if (Test-Path -Path "./Herbert") {
   Invoke-In-Dir -directory "Herbert" -command "git fetch origin"
   Invoke-In-Dir -directory "Herbert" -command "git checkout origin/$branch"
