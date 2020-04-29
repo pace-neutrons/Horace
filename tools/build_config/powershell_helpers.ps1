@@ -20,7 +20,7 @@ function Write-And-Invoke([string]$command) {
         Hello, World!
 #>
   Write-Output "+ $command"
-  # Invoke-Expression "$command"
+  Invoke-Expression "$command"
 }
 
 function Invoke-In-Dir {
