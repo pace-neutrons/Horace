@@ -81,7 +81,7 @@ and should be prefixed with `PR-` if the pipeline is building pull requests, e.g
         - `CMAKE_VERSION`: The version of CMake to load
         - `MATLAB_VERSION`: The (release) version of Matlab to load
         - `GCC_VERSION`: The version of GCC to use (Linux only)
-    - `CPPCHECK_VERSION`: The version of CppCheck to use (Linux only)
+        - `CPPCHECK_VERSION`: The version of CppCheck to use (Linux only)
     
     The list of required parameters are noted in the docstring for the pipeline
     within the Jenkinsfile, and should be added with descriptions through the
