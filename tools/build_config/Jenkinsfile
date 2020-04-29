@@ -83,9 +83,17 @@ pipeline {
     }
 
     stage('Get-Herbert') {
+      /* For nightly builds, we use the last successful archived Herbert
+       * master build.
+       *
+       * For PR and Branch builds, we clone and build the Herbert master
+       * source from GitHub
+      */
+
       steps {
         script {
           if (env.RELEASE_TYPE == "nightly") {
+            // Get the last successful Herbert master build
             copyArtifacts(
               filter: 'build/Herbert-*',
               fingerprintArtifacts: true,
@@ -104,6 +112,7 @@ pipeline {
             }
 
           } else {
+            // Get Herbert from GitHub and call the build script
             if (isUnix()) {
               sh '''
                 module load cmake/\$CMAKE_VERSION &&
