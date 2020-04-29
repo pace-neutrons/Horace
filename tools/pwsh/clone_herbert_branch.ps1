@@ -4,7 +4,7 @@
 # passed verbatim to the Herbert build script
 
 param(
-  [string][Alias("B")]$branch = "master",
+  [string]$branch = "master",
   [string]$build_args = ""
 )
 
