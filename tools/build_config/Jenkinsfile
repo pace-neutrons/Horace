@@ -170,24 +170,24 @@ pipeline {
     }
 
     stage('Package') {
-       steps {
-         script {
-           if (isUnix()) {
-             sh './tools/build_config/build.sh --package'
-           }
-           else {
-             powershell './tools/build_config/build.ps1 -package'
-           }
-         }
+      steps {
+        script {
+          if (isUnix()) {
+            sh './tools/build_config/build.sh --package'
+          }
+          else {
+            powershell './tools/build_config/build.ps1 -package'
+          }
+        }
 
-         // Archive the release package
-         archiveArtifacts(
-             artifacts: 'build/Horace-*',
-             fingerprint: true
-         )
-       }
-     }
-   }
+        // Archive the release package
+        archiveArtifacts(
+          artifacts: 'build/Horace-*',
+          fingerprint: true
+        )
+      }
+    }
+  }
 
   post {
     always {
