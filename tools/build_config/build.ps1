@@ -37,7 +37,7 @@ if ($args) {
   throw "$error_msg"
 }
 
-. $PSScriptRoot/powershell_helpers.ps1 <# Imports:
+. $PSScriptRoot/../pwsh/powershell_helpers.ps1 <# Imports:
   Write-And-Invoke
   Invoke-In-Dir
 #>

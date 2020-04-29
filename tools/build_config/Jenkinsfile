@@ -100,7 +100,7 @@ pipeline {
               '''
             }
             else {
-              powershell './tools/build_config/extract_herbert_artifact.ps1'
+              powershell './tools/pwsh/extract_herbert_artifact.ps1'
             }
 
           } else {
@@ -109,13 +109,13 @@ pipeline {
                 module load cmake/\$CMAKE_VERSION &&
                 module load matlab/\$MATLAB_VERSION &&
                 module load gcc/\$GCC_VERSION &&
-                ./tools/build_config/clone_herbert_branch.sh --build_args \
+                ./tools/bash/clone_herbert_branch.sh --build_args \
                     \"--cmake_flags \\\"-DHerbert_RELEASE_TYPE=\$RELEASE_TYPE\\\" \
                     --matlab_release \$MATLAB_VERSION\"
               '''
             } else {
               powershell '''
-                ./tools/build_config/clone_herbert_branch.ps1 -build_args \
+                ./tools/pwsh/clone_herbert_branch.ps1 -build_args \
                   \"-cmake_flags \"\"-DHerbert_RELEASE_TYPE=\$env:RELEASE_TYPE\"\" \
                   -matlab_release \$env:MATLAB_VERSION\"
               '''
