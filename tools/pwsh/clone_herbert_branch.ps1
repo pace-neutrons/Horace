@@ -25,5 +25,6 @@ if (Test-Path -Path "$HERBERT_DIR") {
 }
 
 $build_cmd = "$HERBERT_DIR/tools/build_config/build.ps1 -build"
-$build_cmd += " -build_tests OFF $build_args"
+$build_cmd += " -build_tests OFF"
+$build_cmd += " $build_args"
 Write-And-Invoke "$build_cmd"
