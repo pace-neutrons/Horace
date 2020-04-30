@@ -26,12 +26,14 @@ fi
 
 echo "Building Herbert branch '${herbert_branch}'..."
 if [[ -d "${HERBERT_DIR}" ]]; then
-    echo_and_run "cd ${HERBERT_DIR}" &&
-    echo_and_run "git fetch origin" &&
-    echo_and_run "git checkout origin/${herbert_branch}"
+    echo_and_run "git -C ${HERBERT_DIR} fetch origin" &&
+    echo_and_run "git -C ${HERBERT_DIR} reset --hard origin/${herbert_branch}"
 else
-    echo_and_run "git clone ${HERBERT_URL} --depth 1 --branch ${herbert_branch} ${HERBERT_DIR}" &&
-    echo_and_run "cd ${HERBERT_DIR}"
+    git_clone_cmd="git clone ${HERBERT_URL} --depth 1"
+    git_clone_cmd+=" --branch ${herbert_branch} ${HERBERT_DIR}"
+    echo_and_run "${git_clone_cmd}"
 fi
 
-echo_and_run "./tools/build_config/build.sh --build --build_tests OFF ${build_args}"
+build_cmd="${HERBERT_DIR}/tools/build_config/build.sh --build"
+build_cmd+=" --build_tests OFF ${build_args}"
+echo_and_run "${build_cmd}"
