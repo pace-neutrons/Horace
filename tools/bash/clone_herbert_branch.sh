@@ -34,7 +34,10 @@ else
     echo_and_run "git clone ${HERBERT_URL} --depth 1 --branch ${herbert_branch} ${HERBERT_DIR}"
 fi
 
-echo_and_run "${HERBERT_DIR}/tools/build_config/build.sh --build --build_tests OFF ${build_args}"
+# Run Herbert build
+build_cmd="${HERBERT_DIR}/tools/build_config/build.sh --build"
+build_cmd+=" --build_tests OFF ${build_args}"
+echo_and_run "${build_cmd}"
 
 # Set Herbert's CMake install directory
 set_install_dir="cmake -B${HERBERT_BUILD_DIR} -H${HERBERT_DIR}"
