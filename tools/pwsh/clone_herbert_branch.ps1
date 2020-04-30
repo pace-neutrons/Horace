@@ -14,7 +14,7 @@ param(
 . $PSScriptRoot/powershell_helpers.ps1
 
 $HERBERT_URL = "https://github.com/pace-neutrons/Herbert.git"
-$HERBERT_DIR = "$($(pwd).Path)/Herbert"
+$HERBERT_DIR = "$($(Get-Location).Path)/Herbert"
 
 Write-Output "Building Herbert branch '$branch'..."
 if (Test-Path -Path "$HERBERT_DIR") {
