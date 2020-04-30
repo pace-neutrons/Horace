@@ -4,7 +4,7 @@
 
 readonly DEFAULT_BRANCH="master"
 readonly HERBERT_URL="https://github.com/pace-neutrons/Herbert.git"
-readonly HERBERT_DIR="Herbert"
+readonly HERBERT_DIR="$(pwd)/Herbert-download"
 readonly HERBERT_BUILD_DIR="${HERBERT_DIR}/build"
 readonly HERBERT_INSTALL_DIR="$(pwd)/Herbert"
 
@@ -28,21 +28,19 @@ fi
 
 echo "Building Herbert branch '${herbert_branch}'..."
 if [[ -d "${HERBERT_DIR}" ]]; then
-    echo_and_run "cd ${HERBERT_DIR}" &&
-    echo_and_run "git fetch origin" &&
-    echo_and_run "git checkout origin/${herbert_branch}"
+    echo_and_run "git -C ${HERBERT_DIR} fetch origin" &&
+    echo_and_run "git -C ${HERBERT_DIR} reset --hard origin/${herbert_branch}"
 else
-    echo_and_run "git clone ${HERBERT_URL} --depth 1 --branch ${herbert_branch} ${HERBERT_DIR}" &&
-    echo_and_run "cd ${HERBERT_DIR}"
+    echo_and_run "git clone ${HERBERT_URL} --depth 1 --branch ${herbert_branch} ${HERBERT_DIR}"
 fi
 
-echo_and_run "./tools/build_config/build.sh --build --build_tests OFF ${build_args}"
+echo_and_run "${HERBERT_DIR}/tools/build_config/build.sh --build --build_tests OFF ${build_args}"
 
 # Set Herbert's CMake install directory
-set_install_dir="cmake -B ${HERBERT_BUILD_DIR} -S ${HERBERT_DIR}"
+set_install_dir="cmake -B${HERBERT_BUILD_DIR} -H${HERBERT_DIR}"
 set_install_dir+=" -DCMAKE_INSTALL_PREFIX=${HERBERT_INSTALL_DIR}"
 echo_and_run "${set_install_dir}"
 
 # Run the install build target - this creates Herbert package in install dir
-install_cmd="cmake --build ${HERBERT_BUILD_DIR} --target INSTALL"
+install_cmd="cmake --build ${HERBERT_BUILD_DIR} --target install"
 echo_and_run "${install_cmd}"
