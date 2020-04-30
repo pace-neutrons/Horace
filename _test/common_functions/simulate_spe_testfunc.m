@@ -32,7 +32,11 @@ end
 [~,seed_key] = fileparts(spe_file);
 sk = regexp(seed_key,'(\d+)','tokens');
 sk = [sk{:}];
-seed_key =['key_', [sk{:}]];
+if isempty(sk)
+    seed_key = ['key_',seed_key];
+else
+    seed_key =['key_', [sk{:}]];
+end
 if seed_defined
     if isfield(seeds_store,seed_key)
         seed = seeds_store.(seed_key);
