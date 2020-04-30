@@ -27,4 +27,4 @@ if isempty(which('herbert_init.m'))
     end
 end
 DO_LOGGING = false;
-[ok,err_mess,je] = parallel_worker_for_tests(worker_controls_string,DO_LOGGING);
+[ok,err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING);
