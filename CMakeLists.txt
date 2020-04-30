@@ -57,6 +57,11 @@ add_subdirectory("admin")
 # =============================================================================
 include(PACE_CPackConfig)
 
+if(WIN32)
+    # Don't package external Linux libraries on Windows
+    set(EXTERNAL_IGNORE_PATTERN "*/external/glnxa64")
+endif()
+
 install(
     DIRECTORY "horace_core/"
     DESTINATION "Horace"
@@ -73,5 +78,6 @@ install(
     DESTINATION "Herbert"
     USE_SOURCE_PERMISSIONS
     PATTERN "*.m~" EXCLUDE
-    PATTERN "*.asv" EXCLUDE
+    PATTERN "*.asv ${EXTERNAL_IGNORE_PATTERN}" EXCLUDE
+    PATTERN "${EXTERNAL_IGNORE_PATTERN}" EXCLUDE
 )
