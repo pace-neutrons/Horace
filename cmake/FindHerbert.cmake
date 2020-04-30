@@ -24,19 +24,23 @@ endif()
 
 set(DIRS_TO_SEARCH
     ENV{HERBERT_ROOT}
-    ${CMAKE_SOURCE_DIR}/Herbert/Herbert
+    ENV{HERBERT_ROOT}/herbert_core
     ${CMAKE_SOURCE_DIR}/Herbert
+    ${CMAKE_SOURCE_DIR}/Herbert/herbert_core
     ${CMAKE_SOURCE_DIR}/../Herbert/
+    ${CMAKE_SOURCE_DIR}/../Herbert/herbert_core
     /usr/local/mprogs/Herbert
+    /usr/local/mprogs/Herbert/herbert_core
     /usr/local/Herbert
+    /usr/local/Herbert/herbert_core
     ENV{ProgramFiles}/Herbert
+    ENV{ProgramFiles}/Herbert/herbert_core
 )
 
 # Always call this find_path as it make Herbert_ROOT editable in the CMake GUI
 find_path(Herbert_ROOT
     NAMES "herbert_init.m"
     PATHS ${DIRS_TO_SEARCH}
-    PATH_SUFFIXES "herbert_core"
     DOC "The Herbert root directory - the directory containing herbert_init.m"
 )
 

@@ -3,10 +3,8 @@
 # master
 
 readonly DEFAULT_BRANCH="master"
-readonly HERBERT_URL="https://github.com/pace-neutrons/Herbert.git"
 readonly HERBERT_DIR="Herbert"
-readonly HERBERT_BUILD_DIR="${HERBERT_DIR}/build"
-readonly HERBERT_INSTALL_DIR="$(pwd)/Herbert"
+readonly HERBERT_URL="https://github.com/pace-neutrons/Herbert.git"
 
 readonly bash_helpers="$(realpath "$(dirname "$0")")/bash_helpers.sh"
 
@@ -36,16 +34,4 @@ else
     echo_and_run "cd ${HERBERT_DIR}"
 fi
 
-# Run Herbert build
-build_cmd="${HERBERT_DIR}/tools/build_config/build.sh --build"
-build_cmd+=" --build_tests OFF ${build_args}"
-echo_and_run "${build_cmd}"
-
-# Set Herbert's CMake install directory
-set_install_dir="cmake -B ${HERBERT_BUILD_DIR} -S ${HERBERT_DIR}"
-set_install_dir+=" -DCMAKE_INSTALL_PREFIX=${HERBERT_INSTALL_DIR}"
-echo_and_run "${set_install_dir}"
-
-# Run the install build target - this creates Herbert package in install dir
-install_cmd="cmake --build ${HERBERT_BUILD_DIR} --target INSTALL"
-echo_and_run "${install_cmd}"
+echo_and_run "./tools/build_config/build.sh --build --build_tests OFF ${build_args}"
