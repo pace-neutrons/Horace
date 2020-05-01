@@ -7,27 +7,21 @@ readonly FALSE=0
 readonly TRUE=1
 readonly CMAKE_GENERATOR="Unix Makefiles"
 # The Horace root directory is two levels above this script
-readonly HORACE_ROOT="$(realpath $(dirname "$0")/../..)"
+readonly HORACE_ROOT="$(realpath "$(dirname "$0")"/../..)"
 # The Matlab root directory is one level above Matlab/bin which contains the
 # matlab executable. The Matlab on the path will likely be a symlink so we need
 # to resolve it with `readlink`
-readonly MATLAB_ROOT="$(realpath $(dirname $(readlink -f $(which matlab)))/..)"
+readonly MATLAB_ROOT="$(realpath "$(dirname "$(readlink -f "$(which matlab)")")"/..)"
 readonly MAX_CTEST_SUCCESS_OUTPUT_LENGTH=10000 # 10 kilobytes
 
-function echo_and_run {
-  echo "+ $1"
-  eval "$1"
-}
-
-function warning {
-  echo -e "\e[33m$1\e[0m"
-}
+# shellcheck source=../bash/bash_helpers.sh
+. "${HORACE_ROOT}/tools/bash/bash_helpers.sh"
 
 function print_package_versions() {
-  echo "$(cmake --version | head -n 1)"
+  cmake --version | head -n 1
   echo "Matlab: ${MATLAB_ROOT}"
-  echo "$(g++ --version | head -n 1)"
-  echo "$(cppcheck --version | head -n 1)"
+  g++ --version | head -n 1
+  cppcheck --version | head -n 1
   echo
 }
 
@@ -124,15 +118,15 @@ function main() {
     esac
   done
 
-  if ((${print_versions})); then
+  if ((print_versions)); then
     print_package_versions
   fi
 
-  if ((${analyze})); then
+  if ((analyze)); then
     run_analysis "${HORACE_ROOT}"
   fi
 
-  if ((${build})); then
+  if ((build)); then
     warning_msg="Warning: Build directory ${build_dir} already exists.\n\
         This may not be a clean build."
     echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
@@ -140,11 +134,11 @@ function main() {
     run_build "${build_dir}"
   fi
 
-  if ((${test})); then
+  if ((test)); then
     run_tests "${build_dir}"
   fi
 
-  if ((${package})); then
+  if ((package)); then
     run_package
   fi
 }
