@@ -32,6 +32,18 @@ For all:
   - Jenkins loads and runs the [`Jenkinsfile`](./../../tools/build_config/Jenkinsfile) located in `tools/build_config`.
   - The `Jenkinsfile` script runs the platform specific build script and updates GitHub about the status of the build.
 
+## Managing Herbert Dependency
+
+In order to build and run, Horace requires Herbert also be present in the Jenkins
+workspace. So that Horace builds are run against an up-to-date Herbert,
+pull request and branch builds will checkout and build the latest Herbert master from GitHub.
+This means that Horace is run against Herbert source, instead of a Herbert package.
+
+Nightly builds should be equivalent to normal releases, so Horace should use a
+packaged version of Herbert. This will ensure that our Herbert and Horace packages
+are compatible. The Herbert package to use will be copied from the last successful
+Herbert nightly build.
+
 ## GitHub
 
 The only job required on GitHub is to set up webhooks to notify Jenkins of pull requests. These can be created by GitHub repository admins by opening the settings tab in the [main repo](https://github.com/pace-neutrons/Horace).
@@ -82,7 +94,7 @@ and should be prefixed with `PR-` if the pipeline is building pull requests, e.g
         - `MATLAB_VERSION`: The (release) version of Matlab to load
         - `GCC_VERSION`: The version of GCC to use (Linux only)
         - `CPPCHECK_VERSION`: The version of CppCheck to use (Linux only)
-    
+
     The list of required parameters are noted in the docstring for the pipeline
     within the Jenkinsfile, and should be added with descriptions through the
     Jenkins job GUI.
