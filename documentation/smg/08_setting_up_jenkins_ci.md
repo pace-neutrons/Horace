@@ -34,12 +34,12 @@ For all:
 
 ## Managing Herbert Dependency
 
-In order to build and run, Horace requires Herbert also be present in the Jenkins
+In order to build and run, Horace requires that Herbert also be present in the Jenkins
 workspace. So that Horace builds are run against an up-to-date Herbert,
 pull request and branch builds will checkout and build the latest Herbert master from GitHub.
 This means that Horace is run against Herbert source, instead of a Herbert package.
 
-Nightly builds should be equivalent to normal releases, so Horace should use a
+Nightly builds should be equivalent to production releases, so Horace will use a
 packaged version of Herbert. This will ensure that our Herbert and Horace packages
 are compatible. The Herbert package to use will be copied from the last successful
 Herbert nightly build.
