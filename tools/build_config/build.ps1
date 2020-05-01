@@ -37,10 +37,10 @@ if ($args) {
   throw "$error_msg"
 }
 
-. $PSScriptRoot/powershell_helpers.ps1 <# Imports:
-  Write-And-Invoke
-  Invoke-In-Dir
-#>
+<# Import:
+    Write-And-Invoke
+    Invoke-In-Dir #>
+. $PSScriptRoot/../pwsh/powershell_helpers.ps1
 
 # Mapping from year to Visual Studio version
 $VS_VERSION_MAP = @{
