@@ -2,11 +2,11 @@ classdef data_sqw_dnd
     % Class defines structure of the data, used by sqw&dnd objects
     %
     % Trivial implementation, wrapping around a structure
-    
+
     % Original author: T.G.Perring
     %
     % $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
-    %   
+    %
     properties
         filename=''   % Name of sqw file that is being read, excluding path
         filepath=''   % Path to sqw file that is being read, including terminating file separator
@@ -40,7 +40,7 @@ classdef data_sqw_dnd
         %             [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
         urange=[Inf,Inf,Inf,Inf;... %True range of the data along each axis [urange(2,4)]
             -Inf,-Inf,-Inf,-Inf] % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf] -- convention if no pixels
-        pix=zeros(9,0)              % Array containing data for each pixel - convention for no pixels
+        pix = PixelData()      % Array containing data for each pixel
         % If npixtot=sum(npix), then pix(9,npixtot) contains:
         % u1      -|
         % u2       |  Coordinates of pixel in the projection axes
@@ -53,7 +53,7 @@ classdef data_sqw_dnd
         % err         Error array (variance i.e. error bar squared)
         axis_caption=an_axis_caption(); %  Reference to class, which define axis captions
     end
-    
+
     methods
         %------------------------------------------------------------------
         % Determine data type of the data field of an sqw data structure
@@ -181,7 +181,7 @@ classdef data_sqw_dnd
             %                   ien         Energy bin number for the pixel in the array in the (irun)th header
             %                   signal      Signal array
             %                   err         Error array (variance i.e. error bar squared)
-            
+
             if nargin>0 && isa(varargin{1},'data_sqw_dnd') % handle shallow copy constructor
                 obj =varargin{1};                          % its COW for Matlab anyway
             else
@@ -229,7 +229,7 @@ classdef data_sqw_dnd
         end
         %
         function obj=clear_sqw_data(obj)
-            obj.pix=[];
+            obj.pix = PixelData();
             obj.urange=[];
         end
         %
@@ -242,7 +242,7 @@ classdef data_sqw_dnd
             %
             [ok, type, mess]=obj.check_sqw_data_(type_in);
         end
-        
+
     end
 end
 
