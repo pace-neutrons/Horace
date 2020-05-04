@@ -57,6 +57,12 @@ methods
         error_array = obj.raw_pix_data(9, :);
         assertEqual(obj.pixel_data_obj.errors, error_array)
     end
+
+    function test_PIXELDATA_error_raised_if_setting_data_with_lt_9_cols(obj)
+        f = @() PixelData(zeros(5, 10));
+        assertExceptionThrown(f, 'PIXELDATA:setter_error');
+    end
+
 end
 
 end
