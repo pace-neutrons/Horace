@@ -9,6 +9,7 @@ classdef MException_her < MException
     end
     
     methods
+        
         function obj = MException_her(anInput,message,stack)
             % Custom MException constructor
             if isa(anInput,'MException') || isstruct(anInput)
@@ -46,9 +47,9 @@ classdef MException_her < MException
                 end
             end
         end
-        function bytes = saveobj(obj)
+        function mex_struc = saveobj(obj)
             % overload, giving access to custom saveobj
-            bytes = serialize_MException_(obj);
+            mex_struc = serialize_MException_(obj);
         end
         %
         function [rep,fs] = getReport(obj)
@@ -60,8 +61,8 @@ classdef MException_her < MException
                 'style="font-weight:bold">%s</a>',...
                 ' (<a href="matlab: opentoline(''%s'',%d,0)">line %d</a>)\n%s\n'];
             fs{1} = sprintf(form,err(1).name,err(1).file,err(1).line,...
-                    err(1).name,...
-                    err(1).file,err(1).line,err(1).line,obj.message);                        
+                err(1).name,...
+                err(1).file,err(1).line,err(1).line,obj.message);
             for i=2:numel(err)
                 %fs{i} = sprintf('line: %d ; fun: %s ; file: %s\n',...
                 fs{i} = sprintf(form,err(i).name,err(i).file,err(i).line,...
@@ -72,10 +73,9 @@ classdef MException_her < MException
         end
     end
     methods(Static)
-        function me = loadobj(bytes)
+        function me = loadobj(mex_struc)
             % overload, giving access to custom loadobj
-            mes = hlp_deserialize(bytes);
-            me = MException_her(mes);
+            me = MException_her(mex_struc);
         end
     end
 end

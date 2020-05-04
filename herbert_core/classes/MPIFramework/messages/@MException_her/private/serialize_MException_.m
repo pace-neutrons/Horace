@@ -1,4 +1,4 @@
-function mess_array = serialize_MException_(theException)
+function mess_struc = serialize_MException_(theException)
 % Helper function used to serialize MException
 %
 % The MExeption class can not be serialzied by hlp_serialize as does not
@@ -6,10 +6,10 @@ function mess_array = serialize_MException_(theException)
 % necessary
 %
 %
-strct = build_mex_stuct(theException);
-mess_array = hlp_serialize(strct);
+mess_struc = build_mes_stuct(theException);
 
-function strct = build_mex_stuct(mexc)
+
+function strct = build_mes_stuct(mexc)
 
 persistent flds;
 if isempty(flds)

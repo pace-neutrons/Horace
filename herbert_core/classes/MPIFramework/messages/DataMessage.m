@@ -6,18 +6,23 @@ classdef DataMessage < aMessage
     %
     % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
     %
-    %    
+    %
     methods
         function obj = DataMessage(payload)
             % Construct the data message
             obj = obj@aMessage('data');
-            obj.is_blocking_ = true;            
             if exist('payload','var')
                 obj.payload = payload;
             end
         end
-        
     end
+    methods(Static,Access=protected)
+        function isblocking = get_blocking_state()
+            % return the blocking state of a message
+            isblocking = true;
+        end
+    end
+    
     
 end
 

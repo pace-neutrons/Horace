@@ -1,35 +1,42 @@
 classdef aMessage
     % Class describes messages transferable
-    % between workers using any framework.
+    % between workers using any Herbert framework.
     %
     % All children classes, whcih have special features and derived from
-    % this message should follow have the following naming convention:
+    % this message should follow the following naming convention:
     %
     % The class name is defined as combination of [MessageName,'Message']
     % where MessageName is the name of the message, first letter capitalized
     % and 'Message' is the symbolic world "Message"
     %
     properties(Dependent)
-        % message contents (arbitrary data distributed from sender to
-        % receiver)
-        payload;
         % message name, describing the message category (e.g. starting,
         % running, etc...
         mess_name;
+        
         % Numerical representation of the message name
         tag;
-        % the message is a non-blocking message, i.e. the next
+        
+        % message contents (arbitrary data distributed from sender to
+        % receiver. The data have to be serializable
+        payload;
+        
+        %-- Static class properties:
+        %
+        
+        % the message is a non-blocking message, i.e. if true, the next
         % message of the same type overwrites this message, if this message
         % has not been received.
         is_blocking;
         
+        % the message stays in the system until task is completed
+        % playing the role of parallel interrupt, which sticks until the
+        % task is reset
+        is_persistent;
     end
-    properties(Access=protected)
+    properties(Access=protected,Hidden=true)
         payload_     = [];
         mess_name_   = [];
-        is_blocking_ = false;
-    end
-    properties(Constant)
     end
     
     methods
@@ -38,7 +45,7 @@ classdef aMessage
             is = MESS_NAMES.name_exist(name);
             if is
                 [has, class_name] = MESS_NAMES.has_class(name);
-                if has && ~isa(obj,class_name) % instantiate specialized class 
+                if has && ~isa(obj,class_name) % instantiate specialized class
                     error('AMESSAGE:invalid_argument',...
                         [' Attempt to initialize a message "%s" ',...
                         'with special constructor: "%s" ',...
@@ -52,6 +59,21 @@ classdef aMessage
                     ' message with name %s is not recognized',name);
             end
         end
+        %
+        function ser_struc = saveobj(obj)
+            % Define information, necessary for message serialization
+            %
+            % Do not! modify to send tag instead of the name!
+            % -- some special messages have the same tags but different
+            %    names
+            cln = class(obj);
+            if (strcmp(cln,'aMessage'))
+                ser_struc = struct('mess_name',obj.mess_name_);
+            else
+                ser_struc = struct('class_name',cln);
+            end
+            ser_struc.payload = parce_payload_(obj.payload_);
+        end
         %------------------------------------------------------------------
         function rez = get.payload(obj)
             rez = obj.get_payload();
@@ -62,7 +84,11 @@ classdef aMessage
         end
         %
         function is = get.is_blocking(obj)
-            is = obj.is_blocking_;
+            is = obj.get_blocking_state();
+        end
+        %
+        function is = get.is_persistent(obj)
+            is = obj.get_persist_state();
         end
         %
         function tag = get.tag(obj)
@@ -87,26 +113,11 @@ classdef aMessage
             % implementation of operator ~= for aMessage class
             not = ~equal_to_tol(obj,b);
         end
-        function ser_struc = saveobj(obj)
-            % Define information, necessary for message serialization
-            %
-            % Do not! modify to send tag instead of the name!
-            % -- some special messages have the same tags but different
-            %    names
-            cln = class(obj);
-            if (strcmp(cln,'aMessage'))
-                ser_struc = struct('mess_name',obj.mess_name_,...
-                    'is_blocking',obj.is_blocking_);
-            else
-                ser_struc = struct('class_name',cln);
-            end
-            ser_struc.payload = parce_payload_(obj.payload_);
-        end
     end
     %
     methods(Static)
         function obj = loadobj(ser_struc)
-            % Retrieve message object from sequnce of bytes
+            % Retrieve message object from the structure
             % produced by saveobj method.
             
             if numel(ser_struc) >1
@@ -124,13 +135,23 @@ classdef aMessage
             end
             obj.payload_ = pp;
         end
-        
     end
     %
     methods(Access=protected)
         function pl = get_payload(obj)
             pl = obj.payload_;
         end
+    end
+    methods(Static,Access=protected)
+        function isblocking = get_blocking_state()
+            % return the blocking state of a message
+            isblocking = false;
+        end
+        function is_pers = get_persist_state()
+            % return the persistent state for a message
+            is_pers = false;
+        end
+        
     end
 end
 

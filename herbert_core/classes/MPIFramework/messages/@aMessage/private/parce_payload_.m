@@ -27,8 +27,10 @@ elseif isstruct(payload)
         end
     end
 elseif isobject(payload)
-    if isa(payload,'MException')
-        payload_p = MException_her(payload);
+    try
+        payload_p = payload.saveobj(payload);
+    catch
+        payload_p  = parce_payload_(struct(payload));
     end
 end
 

@@ -25,11 +25,11 @@ classdef test_MException_her < TestCase
                 myExc = MException_her(ME);
             end
             %
-            bytes = myExc.saveobj();
-            assertTrue(isa(bytes,'uint8'));
-            assertTrue(numel(bytes)>200);
+            mex_str = myExc.saveobj();
+            assertTrue(isstruct(mex_str));
+
             
-            MER = myExc.loadobj(bytes);
+            MER = myExc.loadobj(mex_str);
             assertTrue(isa(MER,'MException'));
             assertTrue(isa(MER,'MException_her'));
             assertEqual(myExc,MER);

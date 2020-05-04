@@ -56,7 +56,12 @@ classdef FailedMessage < aMessage
                 text =obj.payload_(1).error;
             end
         end
-        
+    end
+    methods(Static,Access=protected)
+        function is_pers = get_persist_state()
+            % return the persistent state for a message
+            is_pers = true;
+        end
     end
 end
 

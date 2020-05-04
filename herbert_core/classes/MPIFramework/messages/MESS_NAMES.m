@@ -29,11 +29,10 @@ classdef MESS_NAMES
         % clearAll operation is performed for the communications with
         % current source. These messages also have the same tag to be
         % transparently received through MPI
-        persistant_messages_ = {'completed','failed'};
     end
     
     methods(Static)
-        function [mess_list,is_blocking] = mess_factory()
+        function [class_map,is_blocking,is_persistent] = mess_factory()
             % The factory, containing the  instances  of all known messages.
             %
             % input: (Optional)
@@ -44,21 +43,21 @@ classdef MESS_NAMES
             % is_blocking -- boolean array indicating if messages are
             %                blocking or not
             
-            persistent all_mess_list;
+            persistent mess_class_map;
             persistent is_mess_blocking;
             %
-            if isempty(all_mess_list)
+            if isempty(mess_class_map)
                 n_known_messages = numel(MESS_NAMES.mess_names_);
                 all_mess_list = cell(1,n_known_messages);
                 for i=1:n_known_messages
                     m_name = MESS_NAMES.mess_names_{i};
                     [~,cl] = MESS_NAMES.mess_class_name(m_name);
-                    all_mess_list{i} = cl;
+                    mess_class_map(m_name) = cl;
                 end
                 is_mess_blocking = cellfun(@(x)(x.is_blocking),all_mess_list,...
                     'UniformOutput',true);
             end
-            mess_list = all_mess_list;
+            class_map = mess_class_map;
             is_blocking= is_mess_blocking;
             
         end
@@ -73,8 +72,11 @@ classdef MESS_NAMES
             %
             %
             if isa(mess_or_name_or_tag,'aMessage')
-                name = mess_or_name_or_tag.mess_name;
-            elseif ischar(mess_or_name_or_tag)
+                is = mess_or_name_or_tag.is_persistent;
+                return
+            end
+            
+            if ischar(mess_or_name_or_tag)
                 name = mess_or_name_or_tag;
             elseif isnumeric(mess_or_name_or_tag)
                 name = MESS_NAMES.mess_name(mess_or_name_or_tag);
@@ -93,7 +95,7 @@ classdef MESS_NAMES
             % class (aMessage) and initate aMessage with given message name
             
             try
-                clName= [upper(a_name(1)),a_name(2:end),'Message'];
+                clName= [upper(a_name(1)),lower(a_name(2:end)),'Message'];
                 if nargout>1
                     mess_class = feval(clName);
                 end
@@ -174,10 +176,14 @@ classdef MESS_NAMES
         function name = mess_name(mess_id)
             % get message name derived from message code (tag)
             %
-            [~,code2name_map]=MESS_NAMES.name_tag_maps();
+
             if isempty(mess_id)
                 name  = {};
-            elseif isnumeric(mess_id)
+                return
+            end
+            
+            [~,code2name_map]=MESS_NAMES.name_tag_maps();            
+            if isnumeric(mess_id)
                 if numel(mess_id) > 1
                     name = arrayfun(@(x)(code2name_map(x)),mess_id,...
                         'UniformOutput',false);
