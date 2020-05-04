@@ -63,6 +63,10 @@ methods
         assertExceptionThrown(f, 'PIXELDATA:setter_error');
     end
 
+    function test_num_pixels_returns_the_number_of_rows_in_the_data_block(obj)
+        assertEqual(obj.pixel_data_obj.num_pixels, 10);
+    end
+
 end
 
 end
