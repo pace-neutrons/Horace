@@ -7,7 +7,7 @@ end
 
 methods (Access = private)
 
-    function pix_data = get_random_pix_data_(obj, rows)
+    function pix_data = get_random_pix_data_(~, rows)
         data = rand(9, rows);
         pix_data = PixelData(data);
     end
@@ -22,18 +22,18 @@ methods
         obj.pixel_data_obj = PixelData(obj.raw_pix_data);
     end
 
-    function test_default_construction_sets_empty_pixel_data(obj)
+    function test_default_construction_sets_empty_pixel_data(~)
         pix_data = PixelData();
         num_cols = 9;
         assertEqual(pix_data.data, zeros(num_cols, 0));
     end
 
-    function test_PIXELDATA_raised_on_construction_with_data_with_lt_9_cols(obj)
+    function test_PIXELDATA_raised_on_construction_with_data_with_lt_9_cols(~)
         f = @() PixelData(ones(3, 3));
         assertExceptionThrown(f, 'PIXELDATA:data_error')
     end
 
-    function test_coordinates_returns_empty_array_if_pixel_data_empty(obj)
+    function test_coordinates_returns_empty_array_if_pixel_data_empty(~)
         pix_data = PixelData();
         assertTrue(isempty(pix_data.coordinates));
     end
@@ -85,7 +85,7 @@ methods
         assertEqual(obj.pixel_data_obj.errors, error_array)
     end
 
-    function test_PIXELDATA_error_raised_if_setting_data_with_lt_9_cols(obj)
+    function test_PIXELDATA_error_raised_if_setting_data_with_lt_9_cols(~)
         f = @() PixelData(zeros(5, 10));
         assertExceptionThrown(f, 'PIXELDATA:data_error');
     end
