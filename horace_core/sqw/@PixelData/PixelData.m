@@ -1,4 +1,4 @@
-classdef PixelData
+classdef PixelData < matlab.mixin.SetGet
 % PixelData Provides an interface for access to pixel data
 %
 
