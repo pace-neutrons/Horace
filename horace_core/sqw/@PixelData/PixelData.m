@@ -65,6 +65,10 @@ methods
         end
     end
 
+    function is_empty = isempty(obj)
+       is_empty = isempty(obj.data);
+    end
+
     function s = size(obj, varargin)
         % Return the size of the PixelData
         %   Axis 1 gives the number of columns, axis 2 gives the number of

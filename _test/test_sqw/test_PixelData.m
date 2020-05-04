@@ -135,6 +135,15 @@ methods
         assertEqual(size(obj.pixel_data_obj, 2), 10);
     end
 
+    function test_PixelData_object_with_underlying_data_is_not_empty(obj)
+        assertFalse(isempty(obj.pixel_data_obj));
+    end
+
+    function test_default_PixelData_object_is_empty(~)
+        pix_data_obj = PixelData();
+        assertTrue(isempty(pix_data_obj));
+    end
+
 end
 
 end
