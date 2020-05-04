@@ -67,21 +67,41 @@ methods
         run_index = obj.data(5, :);
     end
 
+    function obj = set.irun(obj, iruns)
+        obj.data(5, :) = iruns;
+    end
+
     function detector_index = get.idet(obj)
        detector_index = obj.data(6, :);
+    end
+
+    function obj = set.idet(obj, detector_indices)
+       obj.data(6, :) = detector_indices;
     end
 
     function detector_index = get.ienergy(obj)
        detector_index = obj.data(7, :);
     end
 
+    function obj = set.ienergy(obj, energies)
+        obj.data(7, :) = energies;
+     end
+
     function signals = get.signals(obj)
        signals = obj.data(8, :);
     end
 
+    function obj = set.signals(obj, signals)
+        obj.data(8, :) = signals;
+     end
+
     function errors = get.errors(obj)
        errors = obj.data(9, :);
     end
+
+    function obj = set.errors(obj, errors)
+        obj.data(9, :) = errors;
+     end
 
     function num_pix = get.num_pixels(obj)
         num_pix = size(obj.data, 2);
