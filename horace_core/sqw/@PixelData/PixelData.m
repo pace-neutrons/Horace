@@ -28,6 +28,9 @@ properties (Dependent)
 
     % The errors on the signal array (variance i.e. error bar squared) (1 x n array)
     errors;
+
+    % The number of pixels in the data block
+    num_pixels;
 end
 
 methods
@@ -74,6 +77,10 @@ methods
 
     function errors = get.errors(obj)
        errors = obj.data(9, :);
+    end
+
+    function num_pix = get.num_pixels(obj)
+        num_pix = size(obj.data, 2);
     end
 
 end
