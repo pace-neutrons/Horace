@@ -95,7 +95,7 @@ methods
         coord_data = obj.data(1:4, :);
     end
 
-    function obj = set.coordinates(obj, coordinates)
+    function set.coordinates(obj, coordinates)
         obj.data(1:4, :) = coordinates;
     end
 
@@ -103,7 +103,7 @@ methods
         run_index = obj.data(5, :);
     end
 
-    function obj = set.irun(obj, iruns)
+    function set.irun(obj, iruns)
         obj.data(5, :) = iruns;
     end
 
@@ -111,7 +111,7 @@ methods
        detector_index = obj.data(6, :);
     end
 
-    function obj = set.idet(obj, detector_indices)
+    function set.idet(obj, detector_indices)
        obj.data(6, :) = detector_indices;
     end
 
@@ -119,7 +119,7 @@ methods
        detector_index = obj.data(7, :);
     end
 
-    function obj = set.ienergy(obj, energies)
+    function set.ienergy(obj, energies)
         obj.data(7, :) = energies;
      end
 
@@ -127,7 +127,7 @@ methods
        signals = obj.data(8, :);
     end
 
-    function obj = set.signals(obj, signals)
+    function set.signals(obj, signals)
         obj.data(8, :) = signals;
      end
 
@@ -135,7 +135,7 @@ methods
        errors = obj.data(9, :);
     end
 
-    function obj = set.errors(obj, errors)
+    function set.errors(obj, errors)
         obj.data(9, :) = errors;
      end
 
