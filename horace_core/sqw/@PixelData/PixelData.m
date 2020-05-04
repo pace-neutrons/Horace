@@ -6,6 +6,7 @@ properties (Access=private)
     PIXEL_BLOCK_COLS_ = 9;
     data_ = zeros(9, 0);
 end
+
 properties (Dependent)
     % Returns the full raw pixel data block (9 x n array)
     data;
@@ -38,6 +39,41 @@ methods
     function obj = PixelData(data)
         if nargin == 1
             obj.data = data;
+        end
+    end
+
+    function sref = subsref(obj, s)
+        % Implements a "get-index" operator for the class
+        %  Indexing PixelData objects directly, indexes into the 'data'
+        %  attribute. This is implemented to provide backwards compatibility
+        %  for scripts written for Horace versions < 4.
+        switch s(1).type
+        case '.'
+            sref = builtin('subsref', obj, s);
+        case '()'
+            sref = builtin('subsref', obj.data, s);
+        case '{}'
+            error('PIXELDATA:subsref', ...
+                  'Operator ''{}'' not defined for class ''PixelData''.');
+        end
+    end
+
+    function obj = subsasgn(obj, s, val)
+        % Implements a "set-index" operator for the class
+        %  Indexing PixelData objects directly, indexes into the 'data'
+        %  attribute. This is implemented to provide backwards compatibility
+        %  for scripts written for Horace versions < 4.
+        if isempty(s) && isa(val, 'PixelData')
+            obj = PixelData(val);
+        end
+        switch s(1).type
+        case '.'
+            obj = builtin('subsasgn', obj, s, val);
+        case '()'
+            obj.data = builtin('subsasgn', obj.data, s, val);
+        case '{}'
+            error('PIXELDATA:subsasgn', ...
+                  'Operator ''{}'' not defined for class ''PixelData''.');
         end
     end
 

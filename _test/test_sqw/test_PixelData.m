@@ -104,6 +104,18 @@ methods
         assertExceptionThrown(f, 'MATLAB:subsassigndimmismatch')
     end
 
+    function test_PixelData_objects_can_be_indexed_to_retrieve_data(obj)
+        pix_data_obj = obj.get_random_pix_data_(10);
+        assertEqual(pix_data_obj(1:5, 2:6), pix_data_obj.data(1:5, 2:6));
+    end
+
+    function test_PixelData_objects_can_be_indexed_to_set_data(obj)
+        pix_data_obj = obj.get_random_pix_data_(10);
+        new_data = ones(9, 4);
+        pix_data_obj(:, 2:5) = new_data;
+        assertEqual(pix_data_obj.data(:, 2:5), new_data);
+    end
+
 end
 
 end
