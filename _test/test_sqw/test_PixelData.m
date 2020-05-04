@@ -42,6 +42,19 @@ methods
         assertEqual(obj.pixel_data_obj.data, obj.raw_pix_data);
     end
 
+    function test_coordinate_data_can_be_retrieved_using_get_function(obj)
+        assertEqual(get(obj.pixel_data_obj, 'coordinates'), ...
+                    obj.pixel_data_obj.coordinates);
+    end
+
+    function test_coordinate_data_can_be_set_using_set_function(obj)
+        num_rows = 10;
+        pix_data_obj = obj.get_random_pix_data_(num_rows);
+        new_coord_data = ones(4, num_rows);
+        set(pix_data_obj, 'coordinates', new_coord_data);
+        assertEqual(pix_data_obj.coordinates, new_coord_data);
+    end
+
     function test_get_coordinates_returns_coordinate_data(obj)
         coord_data = obj.raw_pix_data(1:4, :);
         assertEqual(obj.pixel_data_obj.coordinates, coord_data);
