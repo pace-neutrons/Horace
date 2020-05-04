@@ -28,9 +28,20 @@ methods
         assertEqual(pix_data.data, zeros(num_cols, 0));
     end
 
+    function test_PixelData_can_be_constructed_with_file_name(~)
+        fname = fullfile(mfilename());
+        pix_data_obj = PixelData(fname);
+        assertEqual(pix_data_obj.data, fname);
+    end
+
+    function test_PIXELDATA_raised_on_construction_with_non_existent_file(~)
+        f = @() PixelData('/doesnt/exist');
+        assertExceptionThrown(f, 'PIXELDATA:data');
+    end
+
     function test_PIXELDATA_raised_on_construction_with_data_with_lt_9_cols(~)
         f = @() PixelData(ones(3, 3));
-        assertExceptionThrown(f, 'PIXELDATA:data_error')
+        assertExceptionThrown(f, 'PIXELDATA:data')
     end
 
     function test_coordinates_returns_empty_array_if_pixel_data_empty(~)
@@ -87,7 +98,7 @@ methods
 
     function test_PIXELDATA_error_raised_if_setting_data_with_lt_9_cols(~)
         f = @() PixelData(zeros(5, 10));
-        assertExceptionThrown(f, 'PIXELDATA:data_error');
+        assertExceptionThrown(f, 'PIXELDATA:data');
     end
 
     function test_num_pixels_returns_the_number_of_rows_in_the_data_block(obj)
