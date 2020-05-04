@@ -33,6 +33,11 @@ methods
         assertExceptionThrown(f, 'PIXELDATA:data_error')
     end
 
+    function test_PIXELDATA_raised_on_construction_with_data_with_gt_9_cols(~)
+        f = @() PixelData(ones(10, 3));
+        assertExceptionThrown(f, 'PIXELDATA:data_error')
+    end
+
     function test_coordinates_returns_empty_array_if_pixel_data_empty(~)
         pix_data = PixelData();
         assertTrue(isempty(pix_data.coordinates));

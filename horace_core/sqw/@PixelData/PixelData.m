@@ -85,9 +85,9 @@ methods
     end
 
     function obj = set.data(obj, pixel_data)
-        if size(pixel_data, 1) < obj.PIXEL_BLOCK_COLS_
+        if size(pixel_data, 1) ~= obj.PIXEL_BLOCK_COLS_
             msg = ['Cannot set pixel data, invalid dimensions. Axis 1 must '...
-                   'have length greater than %i found ''%i'''];
+                   'have length %i found ''%i''.'];
             error('PIXELDATA:data_error', msg, obj.PIXEL_BLOCK_COLS_, ...
                   size(pixel_data, 1));
         end
