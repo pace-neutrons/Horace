@@ -134,6 +134,14 @@ methods
         assertEqual(pix_data_obj.data(:, 2:5), new_data);
     end
 
+    function test_size_of_PixelData_object_returns_underlying_data_size(obj)
+        % This may no longer be true if we start adding additional columns that
+        % are not part of the underlying pixel block
+        assertEqual(size(obj.pixel_data_obj), [9, 10]);
+        assertEqual(size(obj.pixel_data_obj, 1), 9);
+        assertEqual(size(obj.pixel_data_obj, 2), 10);
+    end
+
 end
 
 end

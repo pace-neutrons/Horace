@@ -101,6 +101,21 @@ methods
         end
     end
 
+    function s = size(obj, varargin)
+        % Return the size of the PixelData
+        %   Axis 1 gives the number of columns, axis 2 gives the number of
+        %   pixels
+        %
+        % For the time being, the number of columns is equal to the number of
+        % columns in the underlying pix data block. When we start allowing
+        % additional columns to be added, the number of columns of a PixelData
+        % object may not equal the number in the main underlying data
+        % structure.
+        % This overload should always return the number of columns in the
+        % underlying structure + the number of additional columns
+        s = size(obj.data, varargin{:});
+    end
+
     function pixel_data = get.data(obj)
         pixel_data = obj.data_;
     end
