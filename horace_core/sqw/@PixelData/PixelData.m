@@ -59,6 +59,10 @@ methods
         coord_data = obj.data(1:4, :);
     end
 
+    function obj = set.coordinates(obj, coordinates)
+        obj.data(1:4, :) = coordinates;
+    end
+
     function run_index = get.irun(obj)
         run_index = obj.data(5, :);
     end

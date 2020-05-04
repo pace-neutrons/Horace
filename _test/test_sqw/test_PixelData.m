@@ -5,6 +5,15 @@ properties
     pixel_data_obj;
 end
 
+methods (Access = private)
+
+    function pix_data = get_random_pix_data_(obj, rows)
+        data = rand(9, rows);
+        pix_data = PixelData(data);
+    end
+
+end
+
 methods
 
     function obj = test_PixelData(~)
@@ -65,6 +74,34 @@ methods
 
     function test_num_pixels_returns_the_number_of_rows_in_the_data_block(obj)
         assertEqual(obj.pixel_data_obj.num_pixels, 10);
+    end
+
+    function test_coordinate_data_is_settable(obj)
+        num_rows = 10;
+        pix_data_obj = obj.get_random_pix_data_(num_rows);
+
+        new_coord_data = ones(4, num_rows);
+        pix_data_obj.coordinates = new_coord_data;
+        assertEqual(pix_data_obj.coordinates, new_coord_data);
+        assertEqual(pix_data_obj.data(1:4, :), new_coord_data);
+    end
+
+    function test_error_raised_if_setting_coordinates_with_wrong_num_rows(obj)
+        num_rows = 10;
+        pix_data_obj = obj.get_random_pix_data_(num_rows);
+
+        new_coord_data = ones(4, num_rows - 1);
+        f = @() (set(pix_data_obj, 'coordinates', new_coord_data));
+        assertExceptionThrown(f, 'MATLAB:subsassigndimmismatch')
+    end
+
+    function test_error_raised_if_setting_coordinates_with_wrong_num_cols(obj)
+        num_rows = 10;
+        pix_data_obj = obj.get_random_pix_data_(num_rows);
+
+        new_coord_data = ones(3, num_rows);
+        f = @() (set(pix_data_obj, 'coordinates', new_coord_data));
+        assertExceptionThrown(f, 'MATLAB:subsassigndimmismatch')
     end
 
 end
