@@ -26,17 +26,9 @@ classdef PixelData < matlab.mixin.SetGet
 %   errors         The errors on the signal array (variance i.e. error bar squared) (1 x n array)
 %   num_pixels     The number of pixels in the data block
 
-properties (Constant)
-    % The minimum number of columns the pixel data can have
-    MIN_PIXEL_BLOCK_COLS_ = 9;
-end
-
 properties (Access=private)
-    % The raw pixel data behind this interface
+    PIXEL_BLOCK_COLS_ = 9;
     data_ = zeros(9, 0);
-
-    % The way the pixel data is stored, either 'memory' or 'file'
-    storage_type_;
 end
 
 properties (Dependent)
@@ -69,9 +61,6 @@ end
 methods
 
     function obj = PixelData(data)
-        % Construct a PixelData object
-        %  data     The pixel data to interface to. This can be a numeric array
-        %           or a path to a .sqw file.
         if nargin == 1
             obj.data = data;
         end
@@ -116,16 +105,14 @@ methods
         pixel_data = obj.data_;
     end
 
-    function set.data(obj, pixel_data)
-        if isa(pixel_data, 'char')
-            obj.set_file_as_data_(pixel_data);
-        elseif isa(pixel_data, 'numeric')
-            obj.set_numeric_array_as_data_(pixel_data);
-        else
-            err_msg = ['Cannot instantiate PixelData object with type %s. ' ...
-                       'Only file paths and numeric types allowed'];
-            error('PIXELDATA:data', err_msg, class(pixel_data));
+    function obj = set.data(obj, pixel_data)
+        if size(pixel_data, 1) < obj.PIXEL_BLOCK_COLS_
+            msg = ['Cannot set pixel data, invalid dimensions. Axis 1 must '...
+                   'have length greater than %i found ''%i'''];
+            error('PIXELDATA:data_error', msg, obj.PIXEL_BLOCK_COLS_, ...
+                  size(pixel_data, 1));
         end
+        obj.data_ = pixel_data;
     end
 
     function coord_data = get.coordinates(obj)
@@ -178,33 +165,6 @@ methods
 
     function num_pix = get.num_pixels(obj)
         num_pix = size(obj.data, 2);
-    end
-
-end
-
-methods (Access=protected)
-
-    function set_file_as_data_(obj, file_path)
-        % Set the source of the pixel data as a file path
-        if ~(exist(file_path, 'file'))
-            err_msg = ['Cannot instantiate PixelData object with ', ...
-                       'non-existent file ''%s''.'];
-            error('PIXELDATA:data', err_msg, file_path);
-        end
-        obj.storage_type_ = 'file';
-        obj.data_ = file_path;
-    end
-
-    function set_numeric_array_as_data_(obj, num_array)
-        % Set the source of the pixel data as a numeric array
-        if size(num_array, 1) < obj.MIN_PIXEL_BLOCK_COLS_
-            msg = ['Cannot set pixel data, invalid dimensions. Axis 1 must '...
-                   'have length greater than %i. Found %i.'];
-            error('PIXELDATA:data', msg, obj.MIN_PIXEL_BLOCK_COLS_, ...
-                  size(num_array, 1));
-        end
-        obj.storage_type_ = 'memory';
-        obj.data_ = num_array;
     end
 
 end
