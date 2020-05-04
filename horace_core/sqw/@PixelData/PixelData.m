@@ -1,6 +1,30 @@
 classdef PixelData < matlab.mixin.SetGet
 % PixelData Provides an interface for access to pixel data
 %
+%   This class provides getters and setters for each data column in an SQW
+%   pixel array. You can access the data using the attributes listed below or
+%   using Matlab's get(obj, 'attr') and set(obj, 'attr', value) methods.
+%
+%
+% Usage
+%   >> pix_data = PixelData(data)
+%   >> signal = pix_data.signal;
+%
+%  or equivalently:
+%
+%   >> pix_data = PixelData()
+%   >> pix_data.data = data;
+%   >> signal = get(pix_data, 'signal');
+%
+% Attributes:
+%   data           The raw pixel data
+%   coordinates    Get/set the coords in projection axes of the pixel data (4 x n array)
+%   irun           The run index the pixel originated from (1 x n array)
+%   idet           The detector group number in the detector listing for the pixels (1 x n array)
+%   ienergy        The energy bin numbers (1 x n array)
+%   signals        The signal array (1 x n array)
+%   errors         The errors on the signal array (variance i.e. error bar squared) (1 x n array)
+%   num_pixels     The number of pixels in the data block
 
 properties (Constant)
     % The minimum number of columns the pixel data can have
