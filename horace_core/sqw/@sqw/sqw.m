@@ -5,7 +5,7 @@ function w = sqw (varargin)
 %   >> w = sqw (filename)       % Create an sqw object from a file
 %   >> w = sqw (din)            % Create from a structure with valid fields
 %                               % Structure array will output an array of sqw objects
-
+%
 % For private use by d0d/d0d d0d/sqw,...d4d/d4d d4d/sqw
 %   >> w = sqw ('$dnd',filename)% Create an sqw object from a file
 %   >> w = sqw ('$dnd',din)     % Create from a structure with valid fields
@@ -117,7 +117,7 @@ if narg==1 &&( isstruct(args{1}) || isa(args{1},'data_sqw_dnd'))
         end
     end
     return
-    
+
 elseif narg==1 && ischar(args{1}) && length(size(args{1}))==2 && size(args{1},1)==1
     % filename: is a single row of characters
     % ----------------------------------------
@@ -126,14 +126,14 @@ elseif narg==1 && ischar(args{1}) && length(size(args{1}))==2 && size(args{1},1)
         if ~strcmpi(ldr.data_type,'a')   % not a valid sqw-type structure
             error('Data file does not contain valid sqw-type object')
         end
-        
+
         w=struct();
         [w.main_header,w.header,w.detpar,w.data] = ldr.get_sqw('-legacy');
     else            % insist on dnd type
         if ~(strcmpi(ldr.data_type,'a')||strcmpi(ldr.data_type,'b+'))   % not a valid sqw or dnd structure
             error('Data file does not contain valid dnd-type object')
         end
-        
+
         w.main_header=make_sqw_main_header;
         w.header=make_sqw_header;
         w.detpar=make_sqw_detpar;
@@ -149,7 +149,7 @@ elseif narg==1 && ischar(args{1}) && length(size(args{1}))==2 && size(args{1},1)
     else
         error(mess)
     end
-    
+
 else
     % All other cases - use as input to a bare constructor
     % ----------------------------------------------------
@@ -165,6 +165,6 @@ else
     else
         error(mess)
     end
-    
+
 end
 
