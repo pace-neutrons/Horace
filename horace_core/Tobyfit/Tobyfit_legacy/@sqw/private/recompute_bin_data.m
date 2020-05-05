@@ -23,9 +23,9 @@ for i=1:nbin
 end
 
 % Accumulate signal
-wout.data.s=accumarray(ind,w.data.pix(8,:),[nbin,1])./w.data.npix(:);
+wout.data.s=accumarray(ind,w.data.pix.isignals,[nbin,1])./w.data.npix(:);
 wout.data.s=reshape(wout.data.s,size(w.data.npix));
-wout.data.e=accumarray(ind,w.data.pix(9,:),[nbin,1])./(w.data.npix(:).^2);
+wout.data.e=accumarray(ind,w.data.pix.ierrors,[nbin,1])./(w.data.npix(:).^2);
 wout.data.e=reshape(wout.data.e,size(w.data.npix));
 nopix=(w.data.npix(:)==0);
 wout.data.s(nopix)=0;

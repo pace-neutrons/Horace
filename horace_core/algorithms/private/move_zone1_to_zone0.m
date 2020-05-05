@@ -13,7 +13,7 @@ try
             cut_par.zone_id,cut_par.zone_center);
         mpi_obj.do_logging(n_zone,n_zones,0,add_mess);
     end
-    
+
     if exist(param.data_source,'file')~=2
         error('Source file %s does not exist',param.data_source);
     end
@@ -26,7 +26,7 @@ try
     ei_range = cut_range{end};
     cut_ranges{end+1} = [ei_range(1),0,ei_range(end)];
     ei_range  = cut_ranges{end};
-    
+
     info_obj   = cut_sqw(param.data_source,param.proj,cut_ranges{:},'-nopix');
     %
     % how many subzones zone has to be split to fit memory
@@ -40,8 +40,8 @@ try
         add_mess = sprintf('Divided zone  [%d,%d,%d] into %d chunks, Starting chunk #1',cut_par.zone_center,n_ranges);
         mpi_obj.do_logging(n_zone,n_zones,0,add_mess);
     end
-    
-    
+
+
     for i=1:n_ranges
         if log_level>0
             fprintf('Processing zone part #%d out of %d\n',i,n_ranges);
@@ -53,8 +53,8 @@ try
             sectioncut=cut_sqw(sectioncut,param.proj,...
                 cut_par.cut_range{1:end-1},ei_range);
         end
-        
-        
+
+
         if ~isempty(sectioncut.data.pix)
             % if correction function is defined, apply correction function
             % to the object before transforming its coordinates
@@ -106,9 +106,9 @@ chunk_id = sprintf('pixBase%dZoneID%dchunk%d#%d',n_headers,zone_id,...
     function hd = change_header(hd)
         hd.filename = [hd.filename,file_id];
         hd.filepath = chunk_id;
-    end    
+    end
 if numel(headers) > 1
-    headers = cellfun(@(x)change_header(x),headers,'UniformOutput',false); 
+    headers = cellfun(@(x)change_header(x),headers,'UniformOutput',false);
 else
     headers = change_header(headers);
 end
@@ -196,17 +196,17 @@ if all(shifts==0)
     %Convert coordinates back to inverse Angstroms:
     %coords_ang=(inv(T1))*coords_rlu1;
     coords_ang=Tt*coords1;
-    
+
 else
     shifts_in_a = T1\shifts';
     %coords_rlu1=T_sym*bsxfun(@plus,w1.data.pix(1:3,:),shifts_in_a);
-    %Convert coordinates back to inverse Angstroms:    
-    %coords_ang=(inv(T1))*coords_rlu1;    
-    coords_ang=Tt*bsxfun(@plus,w1.data.pix(1:3,:),shifts_in_a);     
+    %Convert coordinates back to inverse Angstroms:
+    %coords_ang=(inv(T1))*coords_rlu1;
+    coords_ang=Tt*bsxfun(@plus,w1.data.pix(1:3,:),shifts_in_a);
 end
 % modify pixel's id to add informaion about zone, pixel came from
 if pixid_shift~=0
-    wout.data.pix(5,:)= w1.data.pix(5,:)+pixid_shift;
+    wout.data.pix(5,:)= w1.data.pix.irun+pixid_shift;
 end
 
 %coords2=w2.data.pix([1:3],:);
@@ -269,10 +269,10 @@ for i=1:3
         continue;                       % TODO: change it!
     end
     bins = 1:nbins(i)+1;
-    % new axis step in each old direction     
+    % new axis step in each old direction
     q0  = qt(i,maxin(i));
     qst0 = qst(i,maxin(i));
-    new_axis = arrayfun(@(x)axis_fun(q0,shifts(i),qst0,x),bins);    
+    new_axis = arrayfun(@(x)axis_fun(q0,shifts(i),qst0,x),bins);
     % matrix definition
     if new_axis(1)>new_axis(end)
         p1new{maxin(i)} =  flipud(new_axis');

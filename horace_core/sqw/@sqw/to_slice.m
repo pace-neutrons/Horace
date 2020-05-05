@@ -5,13 +5,13 @@ function s=to_slice(w,varargin)
 %   >> s = to_slice (w, 'signal','Q')   % make signal equal to |Q| (other options available too)
 %
 %   w           2D sqw object
-%   
+%
 %   'signal'    [Optional] keyword to make the signal axis another coordinate than the intensity.
 %               Useful to see the variation of e.g. energy across a slice.
-%               Valid coordinates are: 
+%               Valid coordinates are:
 %                   'h', 'k', 'l'       r.l.u.
 %                   'E'                 energy transfer
-%                   'Q'                 |Q|         
+%                   'Q'                 |Q|
 
 % Note: this would normally be called just slice, which is the class of the output object.
 % However, because we have already used 'cut' as the name of another method of sqw objects,
@@ -26,7 +26,7 @@ end
 if dimensions(w)~=2
     error('Conversion to cut only possible for a 2D sqw object')
 end
-    
+
 % Check only one spe file
 if ~w.main_header.nfiles==1
     error('Conversion of sqw object only possible if just one contributing .spe file')
@@ -77,8 +77,8 @@ s.c(w.data.npix==0)=NaN;
 s.e(w.data.npix==0)=0;
 s.npixels=w.data.npix;
 s.pixels=zeros(npixtot,7);
-s.pixels(:,1)=w.data.pix(6,:)';
-s.pixels(:,2)=ecent(w.data.pix(7,:));
+s.pixels(:,1)=w.data.pix.idet';
+s.pixels(:,2)=ecent(w.data.pix.ienergy);
 s.pixels(:,3)=de;
 s.pixels(:,4)=xpix{1};
 s.pixels(:,5)=xpix{2};
@@ -86,8 +86,8 @@ if~isempty(ind_signal);
     s.pixels(:,6)=xpix{ind_signal};
     s.pixels(:,7)=sqrt(xdevsqr{ind_signal});
 else
-    s.pixels(:,6)=w.data.pix(8,:)';
-    s.pixels(:,7)=sqrt(w.data.pix(9,:)');
+    s.pixels(:,6)=w.data.pix.isignals';
+    s.pixels(:,7)=sqrt(w.data.pix.ierrors');
 end
 
 if all(w.data.dax==[2,1])    % axes are permuted for plotting purposes

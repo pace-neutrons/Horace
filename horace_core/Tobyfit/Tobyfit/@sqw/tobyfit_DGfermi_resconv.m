@@ -150,11 +150,11 @@ if refine_moderator
     % searlier on so that here all moderators are replaced by a single one
     % derived from the first object in the lookup table.
     moderator = moderator_table.object_store(1);
-    
+
     % Strip out moderator refinement parameters and update moderator
     [moderator, pars{1}] = refine_moderator_strip_pars...
         (moderator, modshape, pars{1});
-    
+
     % Replace moderator(s) in object lookup with updated moderator
     moderator_table.object_store = moderator;
 end
@@ -172,7 +172,7 @@ for i=1:numel(ind)
     else
         state_out{i} = rng;     % capture the random number generator state
     end
-    
+
     % Create pointers to parts of lookup structure for the current dataset
     x0=lookup.x0{iw};
     xa=lookup.xa{iw};
@@ -190,61 +190,61 @@ for i=1:numel(ind)
     dt=lookup.dt{iw};
     qw=lookup.qw{iw};
     dq_mat=lookup.dq_mat{iw};
-    
+
     % Run and detector for each pixel
-    irun = win(i).data.pix(5,:)';   % column vector
-    idet = win(i).data.pix(6,:)';   % column vector
+    irun = win(i).data.pix.irun';   % column vector
+    idet = win(i).data.pix.idet';   % column vector
     npix = size(win(i).data.pix,2);
-    
+
     % Catch case of refining crystal orientation
     if refine_crystal
         % Strip out crystal refinement parameters and reorientate datasets
         [win(i), pars{1}] = refine_crystal_strip_pars (win(i), xtal, pars{1});
-        
+
         % Update s_mat and spec_to_rlu because crystal orientation will have changed
         [ok,mess,~,s_mat,spec_to_rlu,alatt,angdeg]=sample_coords_to_spec_to_rlu(win(i).header);
         if ~ok, error(mess), end
-        
+
         % Recompute Q because crystal orientation will have changed (don't need to update qw{4})
         qw(1:3) = calculate_q (ki(irun), kf, detdcn(:,idet), spec_to_rlu(:,:,irun));
-        
+
         % Recompute (Q,w) deviations matrix for same reason
         dq_mat = dq_matrix_DGfermi (ki(irun), kf,...
             x0(irun), xa(irun), x1(irun), x2(idet), thetam(irun), angvel(irun),...
             s_mat(:,:,irun), f_mat(:,:,idet), d_mat(:,:,idet),...
             spec_to_rlu(:,:,irun), k_to_v, k_to_e);
     end
-    
+
     % Find out if the crystal has a mosaic spread
     % -------------------------------------------
     mosaic_spread = mosaic_crystal(sample_table.object_elements(iw).eta);
-    
+
     % Simulate the signal for the data set
     % ------------------------------------
     for imc=1:mc_points
         yvec=zeros(11,1,npix);
-        
+
         % Fill time deviations for moderator
         if mc_contributions.moderator
             [~,mod_t_av] = moderator_table.func_eval(iw,irun,@pulse_width);
             yvec(1,1,:) = (1e-6)*(moderator_table.rand_ind(iw,irun) - mod_t_av);
         end
-        
+
         % Aperture deviations
         if mc_contributions.aperture
             yvec(2:3,1,:) = aperture_table.rand_ind(iw,irun);
         end
-        
+
         % Fermi chopper deviations
         if mc_contributions.chopper
             yvec(4,1,:) = (1e-6)*(fermi_table.rand_ind(iw,irun));
         end
-        
+
         % Sample deviations
         if mc_contributions.sample
             yvec(5:7,1,:) = sample_table.func_eval(iw,@rand,[1,npix]);
         end
-        
+
         % Detector deviations
         if mc_contributions.detector_depth || mc_contributions.detector_area
             det_points = detector_table.func_eval(iw,@rand,idet,kf);
@@ -256,12 +256,12 @@ for i=1:numel(ind)
                 yvec(8:10,1,:) = det_points;
             end
         end
-        
+
         % Energy bin
         if mc_contributions.energy_bin
             yvec(11,1,:) = dt'.*(rand(1,npix)-0.5);
         end
-        
+
         % Calculate the deviations in Q and energy, and then the S(Q,w) intensity
         % -----------------------------------------------------------------------
         dq = mtimesx_horace(dq_mat,yvec);
@@ -273,7 +273,7 @@ for i=1:numel(ind)
             q(1:3,:,:) = mtimesx_horace(Rrlu, q(1:3,:,:));
         end
         q = squeeze(q);    % 4 x 1 x npix ==> 4 x npix
-        
+
         if imc==1
             stmp=sqwfunc(q(1,:)',q(2,:)',q(3,:)',q(4,:)',pars{:});
         else

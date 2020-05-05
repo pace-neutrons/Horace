@@ -49,15 +49,15 @@ classdef test_change_crystal_1a < TestCase
             hor_root = horace_root();
             cof_path= fullfile(hor_root,'_test','common_functions');
             addpath(cof_path);
-            
-            
+
+
             common_data_dir=fullfile(hor_root,'_test','common_data');
             % -----------------------------------------------------------------------------
             % generate shifted sqw file
             obj.par_file=fullfile(common_data_dir,'9cards_4_4to1.par');
             % Parameters for generation of reference sqw file
             obj.dir_out=tmp_dir;
-            
+
             sim_sqw_file=fullfile(obj.dir_out,'test_change_crystal_1a_sim.sqw'); % output file for simulation in reference lattice
             obj=obj.build_misaligned_source_file(sim_sqw_file);
             %
@@ -69,46 +69,46 @@ classdef test_change_crystal_1a < TestCase
                 test_change_crystal_1a.change_crystal_1a_cleanup(...
                 files ,sqw_file,cl_path));
             obj.clob = {onCleanup(@()clearner(nxs_file_s,sim_sqw_file,cof_path)),hpc_restore};
-            
+
         end
         function DISABLED_test_u_alighnment_tf_way(obj)
             % Fit Bragg peak positions
             % ------------------------
             proj.u=obj.u;
             proj.v=obj.v;
-            
-            
+
+
             %bp=[0,-1,-1; 0,-1,0; 1,2,0; 2,3,0; 0,-1,1;0,0,1];
             % bp=   [0,-1,0;  3,  1,   0; 2  ,0,0];  %;0,0,1
             bp=[0,-1,0; 1,2,0; 0,-1,1]; %;0,0,1
-            
+
             half_len=0.5; half_thick=0.25; bin_width=0.025;
-            
+
             [rlu_real,width,wcut,wpeak]=bragg_positions(obj.misaligned_sqw_file,...
                 bp, 1.5, 0.02, 0.4, 1.5, 0.02, 0.4, 2, 'gauss');
             %[rlu0,width,wcut,wpeak]=bragg_positions(read_sqw(sim_sqw_file), proj, rlu, half_len, half_thick, bin_width);
             %bragg_positions_view(wcut,wpeak)
-            
-            
+
+
             % Get correction matrix from the 3 peak positions:
             % ------------------------------------------------
             [rlu_corr,alatt1,angdeg1,rotmat_fit] = refine_crystal(rlu_real,...
                 obj.alatt, obj.angdeg, bp,...
                 'fix_angdeg','fix_alatt_ratio');
             %'fix_lattice');
-            
-            
-            
+
+
+
             % Apply to a copy of the sqw object to see that the alignment is now OK
             % ---------------------------------------------------------------------
             sim_sqw_file_corr=fullfile(obj.dir_out,'test_change_crystal_1sima_corr.sqw'); % output file for correction
             copyfile(obj.misaligned_sqw_file,sim_sqw_file_corr)
             cleanup_obj=onCleanup(@()delete(sim_sqw_file_corr));
-            
+
             change_crystal_sqw(sim_sqw_file_corr,rlu_corr)
             rlu0_corr=get_bragg_positions(read_sqw(sim_sqw_file_corr), proj,...
                 bp, half_len, half_thick, bin_width);
-            
+
             % problem in
             assertElementsAlmostEqual(bp,rlu0_corr,'absolute',half_thick);
             %
@@ -122,17 +122,17 @@ classdef test_change_crystal_1a < TestCase
             %
             realigned_sqw_file=fullfile(obj.dir_out,'test_change_crystal_1sima_realigned.sqw'); % output file for correction
             cleanup_obj1=onCleanup(@()delete(realigned_sqw_file));
-            
+
             % Generate re-aligned crystal
             gen_sqw (obj.nxs_file, '', realigned_sqw_file, ...
                 obj.efix, obj.emode, alatt_c, obj.angdeg,...
                 obj.u, obj.v, obj.psi, 0, dpsi_deg, gl_deg, gs_deg);
-            
+
             rlu1_corr=get_bragg_positions(read_sqw(realigned_sqw_file), ...
                 proj, bp, half_len, half_thick, bin_width);
             assertElementsAlmostEqual(bp,rlu1_corr,'absolute',half_thick);
             assertElementsAlmostEqual(rlu0_corr,rlu1_corr,'absolute',0.01);
-            
+
         end
         %
         function xest_u_alighnment(obj)
@@ -143,41 +143,41 @@ classdef test_change_crystal_1a < TestCase
             % ------------------------
             proj.u=obj.u;
             proj.v=obj.v;
-            
-            
+
+
             %bp=[0,-1,-1; 0,-1,0; 1,2,0; 2,3,0; 0,-1,1;0,0,1];
             %bp=[0,-1,0; 1,2,0; 0,-1,1]; %;0,0,1
             %bp=[1,3,0;0,0,1;0,-1,0; 0,-1,-1;0,0,-1]; %;0,0,1
             bp=[1,3,0;0,0,1; 0,-1,-1;0,0,-1]; %;0,0,1
             half_len=0.5; half_thick=0.25; bin_width=0.025;
-            
+
             rlu_real=get_bragg_positions(obj.misaligned_sqw_file, proj,...
                 bp, half_len, half_thick, bin_width);
-            
+
             %[rlu_real,width,wcut,wpeak]=bragg_positions(obj.misaligned_sqw_file,...
             %    bp, 1.5, 0.02, 0.4, 1.5, 0.02, 0.4, 2, 'gauss');
             %[rlu0,width,wcut,wpeak]=bragg_positions(read_sqw(sim_sqw_file), proj, rlu, half_len, half_thick, bin_width);
             %bragg_positions_view(wcut,wpeak)
-            
-            
+
+
             % Get correction matrix from the 5 peak positions:
             % ------------------------------------------------
             [rlu_corr,alatt,angdeg,rotmat_fit]=orient_crystal(bp,rlu_real,bp,obj.alatt,obj.angdeg);
             %[rlu_corr,alatt1,angdeg1,rotmat_fit] = refine_crystal(rlu_real,...
             %    obj.alatt, obj.angdeg, bp,'fix_angdeg','fix_alatt_ratio');
-            
-            
-            
+
+
+
             % Apply to a copy of the sqw object to see that the alignment is now OK
             % ---------------------------------------------------------------------
             sim_sqw_file_corr=fullfile(obj.dir_out,'test_change_crystal_1sima_corr.sqw'); % output file for correction
             copyfile(obj.misaligned_sqw_file,sim_sqw_file_corr)
             cleanup_obj=onCleanup(@()delete(sim_sqw_file_corr));
-            
+
             change_crystal_sqw(sim_sqw_file_corr,rlu_corr)
             rlu0_corr=get_bragg_positions(read_sqw(sim_sqw_file_corr), proj,...
                 bp, half_len, half_thick, bin_width);
-            
+
             % problem in
             assertElementsAlmostEqual(bp,rlu0_corr,'absolute',half_thick);
             %
@@ -191,16 +191,16 @@ classdef test_change_crystal_1a < TestCase
             %
             realigned_sqw_file=fullfile(obj.dir_out,'test_change_crystal_1sima_realigned.sqw'); % output file for correction
             cleanup_obj1=onCleanup(@()delete(realigned_sqw_file));
-            
+
             % Generate re-aligned crystal
             gen_sqw (obj.nxs_file, '', realigned_sqw_file, ...
                 obj.efix, obj.emode, alatt_c, angdeg_c,...
                 obj.u, obj.v, obj.psi, 0, dpsi_deg, gl_deg, gs_deg);
-            
+
             rlu1_corr=get_bragg_positions(read_sqw(realigned_sqw_file), ...
                 proj, bp, half_len, half_thick, bin_width);
             assertElementsAlmostEqual(bp,rlu1_corr,'absolute',half_thick);
-            
+
         end
     end
     methods(Access=private)
@@ -208,17 +208,17 @@ classdef test_change_crystal_1a < TestCase
         function  obj=build_misaligned_source_file(obj,sim_sqw_file)
             % generate sqw file misaligned according to wrong gl, gs,dpsi.
             %
-            
+
             hpc = hpc_config;
             hpc_ds = hpc.get_data_to_store;
             clob2 = onCleanup(@()set(hpc_config,hpc_ds));
             hpc.combine_sqw_using = 'matlab';
-            hpc.build_sqw_in_parallel = 0;            
-            
+            hpc.build_sqw_in_parallel = 0;
+
             qfwhh=0.1;                % Spread of Bragg peaks
             efwhh=1;                  % Energy width of Bragg peaks
             rotvec=[0,0,0]*(pi/180);  % orientation of the true lattice w.r.t reference lattice
-            
+
             obj.nxs_file =cell(size(obj.psi));
             nxs_file_exist = true;
             for i=1:numel(obj.psi)
@@ -227,15 +227,15 @@ classdef test_change_crystal_1a < TestCase
                     nxs_file_exist = false;
                 end
             end
-            
+
             if ~nxs_file_exist
-                
+
                 % Create sqw file for refinement testing
                 % --------------------------------------
                 urange = calc_sqw_urange (obj.efix, obj.emode,...
                     obj.en(1), obj.en(end), obj.par_file, obj.alatt, obj.angdeg,...
                     obj.u, obj.v, obj.psi, obj.omega, obj.dpsi, obj.gl, obj.gs);
-                
+
                 for i=1:numel(obj.psi)
                     sqw_obj = fake_sqw (obj.en, obj.par_file, '', obj.efix,...
                         obj.emode, obj.alatt, obj.angdeg,...
@@ -246,16 +246,16 @@ classdef test_change_crystal_1a < TestCase
                         {[qfwhh,efwhh],[obj.alatt,obj.angdeg],...
                         [obj.alatt,obj.angdeg],rotvec});
                     % mainly to propagate errors as sqw_eval nullified errors?
-                    npix = size(sqw_obj.data.pix,2);
-                    sqw_obj.data.pix(9,:) = ones(1,npix);
+                    npix = sqw_obj.data.pix.num_pixels;
+                    sqw_obj.data.pix.errors = ones(1,npix);
                     sqw_obj=recompute_bin_data_tester(sqw_obj);
                     % convert to nxspe (instrument view)
                     rdo = rundatah(sqw_obj);
                     rdo.saveNXSPE(obj.nxs_file{i});
                 end
             end
-            
-            
+
+
             % Generate misaligned sqw file, with gl gs dpsi =0
             if ~(exist(sim_sqw_file,'file')==2)
                 gen_sqw (obj.nxs_file, '', sim_sqw_file, ...
@@ -263,7 +263,7 @@ classdef test_change_crystal_1a < TestCase
                     obj.u, obj.v, obj.psi, 0, 0, 0, 0);
             end
             obj.misaligned_sqw_file = sim_sqw_file;
-            
+
         end
     end
     methods(Static,Access=private)
@@ -277,7 +277,7 @@ classdef test_change_crystal_1a < TestCase
                 return
             end
             ws = warning('off','MATLAB:DELETE:Permission');
-            
+
             % Delete temporary nxs files
             for i=1:numel(nxs_file)
                 try
@@ -286,11 +286,11 @@ classdef test_change_crystal_1a < TestCase
                 end
             end
             delete(misaligned_sqw_file);
-            
+
             rmpath(cof_path);
             warning(ws);
         end
-        
+
     end
 end
 

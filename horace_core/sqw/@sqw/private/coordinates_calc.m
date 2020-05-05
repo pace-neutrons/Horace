@@ -14,7 +14,7 @@ function [ok,mess,xvals,xpix,xvar,xdevsqr]=coordinates_calc(w,xlist)
 %               'E'                 energy transfer
 %               'Q'                 |Q|
 %
-%           e.g. valid values for xlist include: 
+%           e.g. valid values for xlist include:
 %               'E'
 %               {'h'}
 %               {'d1','d2'}
@@ -119,7 +119,7 @@ if present.d1||present.d2||present.d3||present.d4
     U=inv(w.data.u_to_rlu(1:3,1:3))*header_ave.u_to_rlu(1:3,1:3);
     T=inv(w.data.u_to_rlu(1:3,1:3))*(w.data.uoffset(1:3)-header_ave.uoffset(1:3));
     uproj=U*w.data.pix(1:3,:)-repmat(T,[1,npixtot]);        % pixel Q coordinates now in projection axes
-    uproj=[uproj;w.data.pix(4,:)+header_ave.uoffset(4)];    % now append energy data
+    uproj=[uproj;w.data.pix.coordinates(4, :)+header_ave.uoffset(4)];    % now append energy data
 
     % Get display axes
     pax=w.data.pax;
@@ -132,10 +132,10 @@ if present.d1||present.d2||present.d3||present.d4
 end
 
 if present.E
-    xpix{ind.E}=w.data.pix(4,:)'+header_ave.uoffset(4);
+    xpix{ind.E}=w.data.pix.coordinates(4, :)'+header_ave.uoffset(4);
 end
 
-% Compute average, and spread if 
+% Compute average, and spread if
 [xvals,xvar,xdevsqr]=average_bin_data(w,xpix);
 
 % Convert output to arrays if input was not a cell array

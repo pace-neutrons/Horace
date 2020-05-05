@@ -17,7 +17,7 @@ function wout = noisify (w,varargin)
 wout=w;
 for i=1:numel(w)
     if is_sqw_type(w(i));   % determine if sqw or dnd type
-        [wout(i).data.pix(8,:),wout(i).data.pix(9,:)]=noisify(w(i).data.pix(8,:),w(i).data.pix(9,:),varargin{:});
+        [wout(i).data.pix(8,:),wout(i).data.pix(9,:)]=noisify(w(i).data.pix.isignals,w(i).data.pix.ierrors,varargin{:});
         wout(i)=recompute_bin_data(wout(i));
     else
         [wout(i).data.s,wout(i).data.e]=noisify(w(i).data.s,w(i).data.e,varargin{:});
