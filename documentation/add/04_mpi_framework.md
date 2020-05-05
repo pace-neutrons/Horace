@@ -175,7 +175,7 @@ Each cluster implements the *ClusterWrapper* methods used by *JobDispatcher* to 
 **Table 5** A Cluster properties list:
 
 | Method or Property| M/P |Description |
-| :--- | :--- | :--- | 
+| :--- | :---: | :--- | 
 |`job_id`  | P  | The string, providing unique identifier(name) for the running cluster and the job running on this cluster. When cluster is running, it is the same name as *job\_id* in the *JobDispatcher*. This name is also propagated to *iMessagesFramework* below.|
 | `n_workers` | P | number of independent parallel *workers*, running within the cluster. Each worker is a headless Matlab session or compiled Matlab session executing *worker* script, instantiating the job.  
 | `status` | P | Set of properties, used to control the cluster state and the job progress. Used by *JobDispatcher* to check and display the job progress. |
@@ -197,7 +197,7 @@ Every type of cluster runs its own type of parallel processes. To be useful, the
 
 ## Message Framework
 
-A messages framework is responsible for information exchange between independent workers. The information is transmitted through correspondent media and curried out by **Messages**, which are the instances of special *messages classes*, described in details in the next chapter. The same interface is used for sending initial job description and parameters from the *logon node* to cluster nodes, but as  neither Matlab MPI nor normal MPI is available for communications between logon node and a parallel job, only file-based messages are used for job initialisation.
+A messages framework is responsible for information exchange between independent workers. The transfer API itself is built using very reduced subset of standard MPI API, hiding more advanced and complex details of MPI API from users. The information is transmitted through correspondent media and wrapped by **Messages**, which are the instances of special *messages classes*, described in details in the next chapter. The same interface is used for sending initial job description and parameters from the *logon node* to cluster nodes, but as  neither Matlab MPI nor normal MPI is available for communications between logon node and a parallel job, only file-based messages are used for job initialisation.
 
 The parent for all messages framework classes is abstract **iMessagesFramework** interface, which provides methods, common for all messages framework, and defines the interface for methods, which need different physical realization. 
 
@@ -212,7 +212,7 @@ Main Messages Framework methods are provided in the **Table 6**
 **Table 6** Main message framework methods and properties.
 
 | Method or Property| M/P |Description |
-| :--- | :--- | :--- | 
+| :--- | :---: | :--- | 
 | `job_id` | P | The string, providing unique identifier(name) for the running cluster and the job running on this cluster. The same ID as the one used in **ClusterWrapper** (it picks up the value from the messages framework) and **JobExecutor** (synchronized through **JobDispatcher**) |
 | `labIndex` | P | The number of parallel process, used to identify the particular parallel worker. |
 | `NumLabs` | P | Total number of workers in the parallel pool. |
@@ -257,9 +257,79 @@ Different types of messages created to serve correspondent purposes:
 To provide the described flexibility and variability of messages, all messages used by Horace MPI are children of **aMessage**  class and subscribed to a messages factory. 
 
 ## Messages class and messages factory.
+### Messages:
 
-The ordinary message can be defined as member of **aMessage** class with a specific name. Some messages need additional functionality so additional properties are defined for children classes, describing these messages. Current family of the message classes is defined on the **Fig 6**
+To information transferred between independent workers is wrapped into message classes, which are the children of **aMessage** class. The information for the transfer is the job specific data, assigned to the *payload* property. 
+Any Matlab data can be assigned to the *payload* property. The only request to the data is that the data are  serializable, i.e. it is either basic Matlab data type or a class which have *saveobj/loadobj* methods or can be correctly convertible into/from a structure.
+
+The appropriate parallel treatment of the message data (see the **Note^3** above) is described by different message classes types. Some messages need additional functionality so additional properties are defined for children classes, describing these messages, while some messages are defined by the message name only. Any message class - child of **aMessage** class should follow the naming convention *MessageClassName = \[MeaningfulMessageName, 'Message'\]*. This convention is enforced by messages factory  **MESS_NAMES**, where each message is subscribed by its meaningful name. The factory is described in the next chapter. Current family of specialized message classes is presented on the **Fig 6**
 
 ![Fig 6: Messages Family](../diagrams/aMessagesTree.png)
 
 **Fig 6** Existing family of messages classes
+
+**Table 7** describes the main properties of the message class:
+
+**Table 7** Main properties of **aMessage** class:
+
+| Method or Property| M/P |Description |
+| :--- | :---: | :--- | 
+| `payload` | P | The property to accept any information, relevant to the particular job. The information has to be serializable. |
+| `mess_name` | P | The string, containing meaningful message name. Used to distinguish different messages from each other | 
+| `tag` | P |  The number, assigned to the message class at subscription to the factory, and used in the transfer of messages through standard MPI interfaces instead of the message name to identify a message type.
+| `is_blocking` | P | If message is blocking message, so the program requesting it should wait until the message is received. (see **Note^3** of previous chapter) |
+| `is_persistent` | P | If the message contains the information about the task state, i.e. describes interrupts (see **Note^3** of previous chapter) |
+| `saveobj` | M | convert message into a serializable structure |
+| `loadobj` | M | build message from the structure, obtained by *saveobj* method
+
+The algorithms, which needs to send a message, instantiates appropriate message by its constructor. The constructor of **aMessage** class calls the **MESS_NAMES** factory and checks the message subscription and if the correct message constructor has been invoked. 
+
+
+### MessagesFactory:
+
+The messages factory contains common information about all messages, defined in the system. Currently messages factory is responsible for associating message names with message tags, identifying and verifying the specific message classes, presented on **fig 6** and allowing instances of **aMessage** class only for the messages, which do not have specialized class overloads.  To do that, all messages, used in Horace framework are subscribed to messages factory class **MESS\_NAMES**.  The messages are subscribed to factory by their meaningful name *mess\_name*. Currently, the following messages names are defined:
+
+ *'any','completed','pending','queued','init', 'starting','started','log', 'barrier','data','canceled','failed'*
+ 
+Where *any* is not a message but the name, related to the tag, referring to any message in the system. Not every messages are used by every framework. For example, `barrier` message is used by **MessagesFilebased** framework only, as other frameworks use MPI specific command `barrier` to achieve processes synchronization. 
+
+The messages which do not have defined message class are created as the instances of **aMessage** class with the specific message name. For example, messages, which identify task initialization process and the end of a task initialization are **aMessage** classes instances with the names *starting* and *started*. These messages are instantiated by calling **aMessage** class with the appropriate name, namely **aMessage(`starting`)**  or **aMessage(`started`)** while *log* message contains more advanced information about the progress of the job needs to be initialized by its own constructor **LogMessage(step,n\_steps,step\_time,add\_info)** (see the class documentation describing the log message parameters meaning). As the class for *log* message exist, log messages can be instantiated by simply calling **aMessage('log')** class. **MESS\_NAMES** factory would throw error on such attempt. 
+
+Main methods, defined by Messages factory are summarized in the **Table 8** All methods of the factory are static methods.
+
+**Table 8** Main methods and properties of the **MESS\_NAMES** factory. *(optimize?)*
+
+| Method or Property| M/P |Description |
+| :--- | :---: | :--- | 
+|`gen_empty_message` | M | returns uninitialized message class given as input the message name. Advantage over using message constructor directly in the fact that it automatically returns overloaded and non-overloaded classes |
+| `mess_class_name` | M | returns message class name if one is defined for this name given as input the message name. Similar to `gen_empty_message` *(optimize?)*
+| `has_class` | M |  check if the message with name provided has specialized class-child of the **aMessage** class, or this name is just a name of the message. *(optimize?)*
+|`name_tag_maps` | M | returns the map, containing correspondence between message name and the message tag |
+| `all_mess_names` | M | returns the list of the messages, subscribed to the factory |
+| `mess_id`   | M | returns the message tag from given message name |
+| `mess_name` | M | returns the message name from given message tag |
+| `name_exist` | M | verify if the name provided is a valid message name, i.e. is already subscribed to the messages name factory | 
+| `tag_valid` | M | verify if the tag provided is valid message tag. |
+| `is_blocking` | M | true if the message, described by message name is blocking message | 
+| `is_persistent` | M | true if the message described by message name is persistent message |
+
+
+## Parallel configuration
+
+The optimal to hardware and software cluster and message framework and other parallel settings needs to be identified, stored and used for all subsequent calculations on a given computer. **parallel\_config** class used to store such configuration and return chosen settings to the appropriate factories. The class is the child of **config\_base**, providing saving appropriate values to the configuration files and loading and returning these values on request. The properties of the **parallel\_config** class are provided in the **Table 9**
+
+**Table 9** Parallel configuration settings.
+
+
+
+| Property| R/W^1 |Description |
+| :--- | :---: | :--- | 
+|`worker`| RW | The name of the script or program to run  on cluster in parallel using parallel workers. |
+|  `is_compiled` | R | false if the worker is a Matlab script and true if this script is compiled using Matlab applications compiler. |
+| `parallel_framework` | RW | The name of a framework to use. Currently available are **h\[erbert\]**, **p\[arpool\]** and  **m\[pi_cluster\]** frameworks. |
+| `cluster_config` | RW | The configuration class describing parallel cluster, running selected framework |
+| `shared_folder_on_local` |RW| The folder on your working machine containing the job input and output data |
+|`shared_folder_on_remote`|RW |The folder where shared data should be found on a remote worker as accessed by remote worker itself |
+| `working_directory` | RW | The folder, containing input data for the job and tmp and output results should be stored. Needs to have the same view from the local and remote workers *(inconsistency?)* | 
+| `known_frameworks` | R | Information method returning the list of the parallel frameworks, known to Herbert and available on the machine |
+| `known_clust_configs` | R | Information method returning the list of the clusters, available to run the selected framework |
