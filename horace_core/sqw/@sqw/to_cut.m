@@ -9,15 +9,15 @@ function c=to_cut(w,varargin)
 %
 %   w           1D sqw object
 %   'x'         [Optional] keyword to make the x-axis for the cut correspond to another coordinate
-%               Valid coordinates are: 
+%               Valid coordinates are:
 %                   'h', 'k', 'l'       r.l.u.
 %                   'E'                 energy transfer
-%                   'Q'                 |Q|         
+%                   'Q'                 |Q|
 %               Default is to use the display axis of the sqw object
-%   
+%
 %   'signal'    [Optional] keyword to make the signal axis another coordinate than the intensity.
 %               Useful to see the variation of e.g. energy across a cut.
-%   
+%
 %
 % Note: this would normally be called just cut, which is the class of the output object.
 % However, because we have already used 'cut' as the name of another method of sqw objects,
@@ -33,7 +33,7 @@ end
 if dimensions(w)~=1
     error('Conversion to cut only possible for a 1D sqw object')
 end
-    
+
 % Check only one spe file
 if ~w.main_header.nfiles==1
     error('Conversion of sqw object only possible if just one contributing .spe file')
@@ -89,16 +89,16 @@ c.e=c.e(ok_pnts);
 c.npixels=c.npixels(ok_pnts);
 
 c.pixels=zeros(npixtot,6);
-c.pixels(:,1)=w.data.pix(6,:)';
-c.pixels(:,2)=ecent(w.data.pix(7,:));
+c.pixels(:,1)=w.data.pix.idet';
+c.pixels(:,2)=ecent(w.data.pix.ienergy);
 c.pixels(:,3)=de;
 c.pixels(:,4)=xpix{ind_x};
 if ~isempty(ind_signal);
     c.pixels(:,5)=xpix{ind_signal};
     c.pixels(:,6)=sqrt(xdevsqr{ind_signal});
 else
-    c.pixels(:,5)=w.data.pix(8,:)';
-    c.pixels(:,6)=sqrt(w.data.pix(9,:)');
+    c.pixels(:,5)=w.data.pix.isignals';
+    c.pixels(:,6)=sqrt(w.data.pix.ierrors');
 end
 
 [title_main, title_pax] = data_plot_titles (w.data);    % note: axes annotations correctly account for permutation in w.data.dax

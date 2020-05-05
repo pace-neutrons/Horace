@@ -39,16 +39,16 @@ if ~all(u==eye(3))   % not identity matrix, so need to perform matrix transforma
     qk=urlu(2,:)';
     ql=urlu(3,:)';
 else
-    qh=win.data.pix(1,:)';
-    qk=win.data.pix(2,:)';
-    ql=win.data.pix(3,:)';
+    qh=win.data.pix.coordinates(1, :)';
+    qk=win.data.pix.coordinates(2, :)';
+    ql=win.data.pix.coordinates(3, :)';
 end
-en=win.data.pix(4,:)';
+en=win.data.pix.coordinates(4, :)';
 
-if ~u0(1)==0, qh=qh+u0(1); end 
-if ~u0(2)==0, qk=qk+u0(2); end 
-if ~u0(3)==0, ql=ql+u0(3); end 
-if ~u0(4)==0, en=en+u0(4); end 
+if ~u0(1)==0, qh=qh+u0(1); end
+if ~u0(2)==0, qk=qk+u0(2); end
+if ~u0(3)==0, ql=ql+u0(3); end
+if ~u0(4)==0, en=en+u0(4); end
 
 % package as cell array of column vectors for convenience with fitting routines etc.
 qw = {qh(:), qk(:), ql(:), en(:)};

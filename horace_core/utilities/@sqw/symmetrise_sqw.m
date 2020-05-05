@@ -120,7 +120,7 @@ coords=@() win.data.pix([1:3],:); % MP: emulate a pointer / lazy data copy
 
 num_pixels=size(win.data.pix, 2); % MP, num_pixels=numel(coords)/3
 
-%Note that we allow the inclusion of an offset from the origin of the 
+%Note that we allow the inclusion of an offset from the origin of the
 %reflection plane. This is specified in rlu.
 vec3=uconv\(v3'-header.uoffset(1:3));
 %Ensure v3 is a column vector:
@@ -170,7 +170,7 @@ coords_cut=bsxfun(@plus, tmp, win.data.uoffset(1:3)); % MP: replaced repmat
 clear 'tmp';
 
 %Extra line required here to include energy in coords_cut (needed below):
-epix=@() win.data.pix(4,:);%energy is never reflected, of course % MP: only accessed once
+epix=@() win.data.pix.coordinates(4, :);%energy is never reflected, of course % MP: only accessed once
 coords_cut=[coords_cut;epix()]; % MP: (TODO) horzcat needs quite some memory, could reduced by resizing coords_cut first and then assigning last row
 
 ndims=dimensions(win);
@@ -185,7 +185,7 @@ ndims=dimensions(win);
 %     min_unref{i}=min(win.data.p{win.data.pax(i)});
 %     max_unref{i}=max(win.data.p{win.data.pax(i)});
 % end
-% 
+%
 % %Extent of data after symmetrisation:
 % for i=1:ndims
 %     min_ref{i}=min(coords_cut(win.data.pax(i),:));

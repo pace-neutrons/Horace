@@ -1,7 +1,7 @@
 function wout = binary_op_manager_single(w1,w2,binary_op)
 % Implement binary operator for objects with a signal and a variance array.
 %
-% Generic method, generalised for sqw objects, that requires: 
+% Generic method, generalised for sqw objects, that requires:
 %   (1) have methods to set, get and find size of signal and variance arrays:
 %           >> sz = sigvar_size(obj)
 %           >> w = sigvar(obj)          % w is sigvar object (has fields w.s, w.e)
@@ -38,7 +38,7 @@ if ~isa(w1,'double') && ~isa(w2,'double')
                 error('Two sqw objects have different npix numbers ')
             end
             wout = w1;
-            result = binary_op(sigvar(w1.data.pix(8,:),w1.data.pix(9,:)), sigvar(w2.data.pix(8,:),w2.data.pix(9,:)));
+            result = binary_op(sigvar(w1.data.pix(8,:),w1.data.pix(9,:)), sigvar(w2.data.pix.isignals,w2.data.pix.ierrors));
             wout.data.pix(8:9,:) = [result.s;result.e];
             wout = recompute_bin_data (wout);
         else
@@ -64,7 +64,7 @@ if ~isa(w1,'double') && ~isa(w2,'double')
                 etmp = replicate_array(wtmp.e, wout.data.npix)';
                 wtmp = sigvar(stmp,etmp);
             end
-            result = binary_op(sigvar(wout.data.pix(8,:),wout.data.pix(9,:)), wtmp);
+            result = binary_op(sigvar(wout.data.pix.isignals,wout.data.pix.ierrors), wtmp);
             wout.data.pix(8:9,:) = [result.s;result.e];
             wout = recompute_bin_data (wout);
         else
@@ -90,7 +90,7 @@ if ~isa(w1,'double') && ~isa(w2,'double')
                 etmp = replicate_array(wtmp.e, wout.data.npix)';
                 wtmp = sigvar(stmp,etmp);
             end
-            result = binary_op(wtmp, sigvar(wout.data.pix(8,:),wout.data.pix(9,:)));
+            result = binary_op(wtmp, sigvar(wout.data.pix.isignals,wout.data.pix.ierrors));
             wout.data.pix(8:9,:) = [result.s;result.e];
             wout = recompute_bin_data (wout);
         else
@@ -111,7 +111,7 @@ if ~isa(w1,'double') && ~isa(w2,'double')
             error ('Sizes of signal arrays in the objects are different')
         end
     end
-    
+
 elseif ~isa(w1,'double') && isa(w2,'double')
     if is_sqw_type(w1)
         if isscalar(w2) || isequal(size(w1.data.npix),size(w2))
@@ -121,7 +121,7 @@ elseif ~isa(w1,'double') && isa(w2,'double')
             else
                 s_tmp = w2;
             end
-            result = binary_op(sigvar(w1.data.pix(8,:),w1.data.pix(9,:)), sigvar(s_tmp,[]));
+            result = binary_op(sigvar(w1.data.pix.isignals,w1.data.pix.ierrors), sigvar(s_tmp,[]));
             wout.data.pix(8:9,:) = [result.s;result.e];
             wout = recompute_bin_data (wout);
         else
@@ -136,7 +136,7 @@ elseif ~isa(w1,'double') && isa(w2,'double')
             error ('Check that the numeric variable is scalar or array with same size as object signal')
         end
     end
-    
+
 elseif isa(w1,'double') && ~isa(w2,'double')
     if is_sqw_type(w2)
         if isscalar(w1) || isequal(size(w2.data.npix),size(w1))
@@ -146,7 +146,7 @@ elseif isa(w1,'double') && ~isa(w2,'double')
             else
                 s_tmp = w1;
             end
-            result = binary_op(sigvar(s_tmp,[]), sigvar(w2.data.pix(8,:),w2.data.pix(9,:)));
+            result = binary_op(sigvar(s_tmp,[]), sigvar(w2.data.pix.isignals,w2.data.pix.ierrors));
             wout.data.pix(8:9,:) = [result.s;result.e];
             wout = recompute_bin_data (wout);
         else
@@ -161,7 +161,7 @@ elseif isa(w1,'double') && ~isa(w2,'double')
             error ('Check that the numeric variable is scalar or array with same size as object signal')
         end
     end
-    
+
 else
     error ('binary operations between objects and doubles only defined')
 end

@@ -15,7 +15,7 @@ persistent seeds_store;
 if isempty(seeds_store)
     seed_dir = fileparts(which('simulate_spe_testfunc.m'));
     seeds_file = fullfile(seed_dir,'sim_spe_testfun_seeds_file.mat');
-    
+
     if exist(seeds_file,'file')==2
         storage = load(seeds_file);
         seeds_store = storage.seeds_store;
@@ -59,7 +59,7 @@ wcalc=sqw_eval(w{1},sqwfunc,pars);
 clear w
 
 % Add random looking, but determinisitic, noise
-peak=max(abs(wcalc.data.pix(8,:)));
+peak=max(abs(wcalc.data.pix.signals));
 if peak==0
     peak=10; % Case of all signal==0
 end
@@ -73,12 +73,12 @@ else
 end
 wran=sqw_eval(wcalc,@sqw_rand_like,par); % range is -0.5 to +0.5
 %save(wran,'c:/temp/rand_sqw_new.sqw');
-wcalc.data.pix(8,:)=wcalc.data.pix(8,:)+(0.1*peak)*wran.data.pix(8,:);  % spread is 10% of peak
+wcalc.data.pix.signals=wcalc.data.pix.signals+(0.1*peak)*wran.data.pix.signals;  % spread is 10% of peak
 
 if ~seed_defined
     si = Singleton.instance();
     seeds_store.(seed_key) = si.singleton_data;
-    seed_dir = fileparts(which('simulate_spe_testfunc.m'));    
+    seed_dir = fileparts(which('simulate_spe_testfunc.m'));
     seeds_file = fullfile(seed_dir,'sim_spe_testfun_seeds_file.mat');
     save(seeds_file,'seeds_store');
     seed_defined = true;
@@ -103,13 +103,13 @@ wran=sqw_eval(wcalc,@sqw_rand_like,par);
 
 if ~seed_defined
     si = Singleton.instance();
-    seeds_store.(seed_key) = si.singleton_data;    
-    seed_dir = fileparts(which('simulate_spe_testfunc.m'));    
+    seeds_store.(seed_key) = si.singleton_data;
+    seed_dir = fileparts(which('simulate_spe_testfunc.m'));
     seeds_file = fullfile(seed_dir,'sim_spe_testfun_seeds_file.mat');
     save(seeds_file,'seeds_store');
 end
 
-wcalc.data.pix(9,:)=(0.05*peak*scale)*(1+wran.data.pix(8,:));
+wcalc.data.pix.errors=(0.05*peak*scale)*(1+wran.data.pix.signals);
 
 % Convert to equivalent spe data
 wspe=rundatah(wcalc);
