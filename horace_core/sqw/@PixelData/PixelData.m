@@ -60,6 +60,23 @@ end
 methods
 
     function obj = PixelData(data)
+        % Construct a PixelData object from the given data. Default
+        % construction initialises the underlying data as an empty (9 x 0)
+        % array.
+        %
+        % Arguments:
+        %   data    A 9 x n matrix, where each row corresponds to a pixel and
+        %           the columns correspond to the following:
+        %             col 1: u1
+        %             col 2: u2
+        %             col 3: u3
+        %             col 4: u4
+        %             col 5: irun
+        %             col 6: idet
+        %             col 7: ienergy
+        %             col 8: signals
+        %             col 9: errors
+        %
         if nargin == 1
             obj.data = data;
         end
@@ -73,7 +90,7 @@ methods
         % Return the size of the PixelData
         %   Axis 1 gives the number of columns, axis 2 gives the number of
         %   pixels
-        %
+
         % For the time being, the number of columns is equal to the number of
         % columns in the underlying pix data block. When we start allowing
         % additional columns to be added, the number of columns of a PixelData
