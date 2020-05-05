@@ -1,4 +1,4 @@
-function [ok, err_mess,je] = parallel_worker_for_tests(worker_controls_string,DO_LOGGING)
+function [ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING)
 % function used as standard worker to do a job in a separate Matlab
 % session.
 %

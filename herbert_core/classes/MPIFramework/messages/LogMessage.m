@@ -1,7 +1,6 @@
 classdef LogMessage<aMessage
     % Class describes message, used to report job progress
     %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
     %
     properties(Dependent)
         % current step within the loop which doing the job
@@ -18,6 +17,19 @@ classdef LogMessage<aMessage
     
     methods
         function obj = LogMessage(step,n_steps,step_time,add_info)
+            % create log message containing information about task
+            % progress.
+            %
+            %Inputs:
+            % step      - current step, If not provided assumed 0
+            % n_steps   - total number of steps task should make.
+            %             If not provided, accepts 0
+            % step_time - time in seconds to make one step. If not
+            %             provided, assumed 0, which is processed by
+            %             logging routine as unknown name
+            % add_info  - any additional information to display in log
+            %             messages.
+            %
             obj = obj@aMessage('log');
             %
             if ~exist('step','var') % empty constructor

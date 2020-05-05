@@ -31,7 +31,7 @@ message=[];
 [is,err_code,err_mess] = check_job_canceled(obj);
 if is ; return; end
 %
-message = obj.check_get_persistent(from_task_id);
+message = obj.get_interrupt(from_task_id);
 if ~isempty(message)
     err_code  =MESS_CODES.ok;
     err_mess=[];
@@ -139,11 +139,11 @@ obj.check_set_persistent(message,mid_from(1));
 
 % check if a message is from the data queue and we need to progress the data
 % queue
-from_data_queue = MESS_NAMES.is_blocking(mess_names{1});
+from_data_queue = message.is_blocking;
 progress_queue = false;
 if from_data_queue
     first_queue_num = list_queue_messages_(obj.mess_exchange_folder,obj.job_id,...
-        mess_names{1},from_task_id,obj.labIndex);
+        message.mess_name,from_task_id,obj.labIndex);
     if first_queue_num(1) >0
         progress_queue = true;
     end

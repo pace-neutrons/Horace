@@ -101,36 +101,43 @@ classdef iMessagesFramework < handle
             end
         end
         %
-        function check_set_persistent(obj,mess,source_address)
-            % check if the input message is a persistent message (the message
-            % describing a state of the source which persists until the
-            % current job is completed or aborted) and if the message is
-            % present store it in framework until the task is completed
-            % or aborted
-            check_set_persistent_(obj,mess,source_address);
+        function set_interrupt(obj,mess,source_address)
+            % check if the input message is an interrupt message
+            % and if the message is an interrupt, 
+            % set it as framework output until the task is completed
+            % or aborted.
+            %
+            % Interrupt message is the message describing a state
+            % of the source which persists until the current job
+            % is completed or aborted.
+            
+            set_interrupt_(obj,mess,source_address);
         end
         %
-        function [mess,id_from] = check_get_persistent(obj,source_address)
-            % check if a message is a persistent message (the message
-            % describing a state of the source which persists until the
-            % current job is completed or aborted) and return these
-            % persistent messages.
+        function [mess,id_from] = get_interrupt(obj,source_address)
+            % check if an interrupt message has been received from any of the
+            % source addresses and return such messages.
+            %
+            % Interrupt message is the message describing a state
+            % of the source which persists until the current job
+            % is completed or aborted.
+            %
             % Input:
             % source_address -- the array of addresses to check for sources
             %                   of the persistent messages
             % Returns:
-            % mess   -- cellarray of persisting messages returned from all
-            %           or some sources requested
-            %id_from -- array of the addresses which have previously
-            %           generated persistent messages, stored within the
-            %           framework
-            [mess,id_from] = check_get_persistent_(obj,source_address);
+            % mess    -- cellarray of interrupt messages returned from all
+            %            or some sources requested
+            % id_from -- array of the addresses which have previously
+            %            generated interrupt messages, stored within the
+            %            framework
+            [mess,id_from] = get_interrupt_(obj,source_address);
         end
         %
-        function [all_messages,mid_from] = add_persistent(obj,...
+        function [all_messages,mid_from] = add_interrupt(obj,...
                 all_messages,mid_from,mes_addr_to_check)
-            % Helper method used to add persistent messages to the list
-            % of the messages, received from other labs.
+            % Helper method used to add interrupt (persistent) messages 
+            % to the list of the messages, received from other labs.
             %
             % If both messages are received from the same worker, override
             % other message with the persistent message.
@@ -146,7 +153,7 @@ classdef iMessagesFramework < handle
             %                  persistent and not
             % mid_from      -- array of labNum-s sending these messages.
             %
-            [all_messages,mid_from] = add_persistent_(obj,...
+            [all_messages,mid_from] = add_interrupt_(obj,...
                 all_messages,mid_from,mes_addr_to_check);
         end
     end

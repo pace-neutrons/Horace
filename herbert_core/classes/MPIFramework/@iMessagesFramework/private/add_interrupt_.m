@@ -1,15 +1,15 @@
-function [all_messages,mid_from] = add_persistent_(obj,all_messages,mid_from,mes_addr_to_check)
+function [all_messages,mid_from] = add_interrupt_(obj,all_messages,mid_from,mes_addr_to_check)
 % Helper method used to add persistent messages to the list
 % of the messages, received from other labs.
 %
-% If both messages are received from the same worker, overide
+% If both messages are received from the same worker, overrides
 % other message with the persistent message.
 
 % Inputs:
 % all_messages -- cellarray of messages to mix with persistent
 %                 messages.
 % mid_from     -- array of the workers id-s (labNums) where
-%                 these messages can be receved.
+%                 these messages can be received.
 % mes_addr_to_check -- array of labNums to check for presence
 %                 of persistent messages
 % Return:
@@ -21,8 +21,8 @@ if isempty(mes_addr_to_check)
     mes_addr_to_check = int32(1:obj.numLabs);
 end
 
-% check if any persistent messages exist for checked labs
-[pers_mess,pers_sources] = obj.check_get_persistent(mes_addr_to_check);
+% check if any interrupt messages exist for checked labs
+[pers_mess,pers_sources] = obj.get_interrupt(mes_addr_to_check);
 % if they are, mix persistent message names with the names, received from
 % the framework
 if ~isempty(pers_mess)

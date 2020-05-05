@@ -24,11 +24,11 @@ if ~ischar(mess_name)
 end
 if ~(from_task_id==-1) &&(from_task_id<1 || from_task_id > obj.numLabs)
     error('MESSAGES_CPP_MPI:invalid_argument',...
-        'The message requested from worker N%d but can be only recevied from workers in range [1:%d]',...
+        'The message requested from worker N%d but can be only received from workers in range [1:%d]',...
         from_task_id,obj.numLabs);
 end
 
-message = obj.check_get_persistent(from_task_id);
+message = obj.get_interrupt(from_task_id);
 if ~isempty(message);   return; end
 
 
@@ -53,4 +53,4 @@ if isempty(mess_data) % no message present at asynchronous receive.
 else
     message = hlp_deserialize(mess_data);
 end
-obj.check_set_persistent(message,from_task_id);
+obj.set_interrupt(message,from_task_id);

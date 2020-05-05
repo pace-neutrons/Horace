@@ -1,8 +1,8 @@
 classdef aMessage
     % Class describes messages transferable
-    % between workers using any Herbert framework.
+    % between workers using any MPI framework, recognized by Herbert.
     %
-    % All children classes, whcih have special features and derived from
+    % All children classes, which have special features and derived from
     % this message should follow the following naming convention:
     %
     % The class name is defined as combination of [MessageName,'Message']

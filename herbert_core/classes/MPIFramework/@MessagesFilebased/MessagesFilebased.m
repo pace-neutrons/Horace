@@ -169,8 +169,8 @@ classdef MessagesFilebased < iMessagesFramework
             %Returns:
             % mess_names   -- cellarray of strings, containing message names
             %                 for the requested tasks.
-            % task_ids      -- array of task id-s for the message names
-            %                  in the mess_names
+            % task_ids     -- array of task id-s for the message names
+            %                 in the mess_names
             %
             % if no messages are present in the system
             % all_messages_names and task_ids are empty

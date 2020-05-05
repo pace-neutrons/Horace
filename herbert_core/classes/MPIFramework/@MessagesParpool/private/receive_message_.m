@@ -15,7 +15,7 @@ err_mess = [];
 % if ~isempty(labReceiveSimulator)
 %     labReceive = labReceiveSimulator();
 % end
-message = obj.check_get_persistent(id);
+message = obj.get_interrupt(id);
 if ~isempty(message);   return; end
 
 

@@ -51,7 +51,7 @@ if isempty(mess_names) % no messages
     all_messages = {};
     mid_from     = [];
     % add persistent messages names to the messages, received from other labs
-    [all_messages,mid_from] = obj.add_persistent(all_messages,mid_from,task_ids_requested);
+    [all_messages,mid_from] = obj.add_interrupt(all_messages,mid_from,task_ids_requested);
     return
 end
 
@@ -60,14 +60,14 @@ if ~any(to_this) % no messages directed to this lab
     all_messages = {};
     mid_from     = [];
     % add persistent messages names to the messages, received from other labs
-    [all_messages,mid_from] = obj.add_persistent(all_messages,mid_from,task_ids_requested);
+    [all_messages,mid_from] = obj.add_interrupt(all_messages,mid_from,task_ids_requested);
     return
 end
 all_messages = mess_names(to_this);
 mid_from     = mid_from(to_this);
 if isempty(task_ids_requested) && isempty(mess_tag_requested) % all messages we need are listed
     % add persistent messages names to the messages, received from other labs
-    [all_messages,mid_from] = obj.add_persistent(all_messages,mid_from,task_ids_requested);
+    [all_messages,mid_from] = obj.add_interrupt(all_messages,mid_from,task_ids_requested);
     return;
 end
 
@@ -80,10 +80,10 @@ if ~isempty(mess_tag_requested) % we have some particular message tags requested
 end
 
 if ~isempty(task_ids_requested)
-    is_requested  = ismember(mid_from,task_ids_requested);
+    is_requested = ismember(mid_from,task_ids_requested);
     all_messages = all_messages(is_requested);
     mid_from     = mid_from(is_requested);
 end
 % add persistent messages names to the messages, received from other labs
-[all_messages,mid_from] = obj.add_persistent(all_messages,mid_from,task_ids_requested);
+[all_messages,mid_from] = obj.add_interrupt(all_messages,mid_from,task_ids_requested);
 
