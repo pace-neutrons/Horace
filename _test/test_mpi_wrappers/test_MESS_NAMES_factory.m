@@ -56,7 +56,7 @@ classdef test_MESS_NAMES_factory< TestCase
         end
         %
         function test_operations(obj)
-            names = MESS_NAMES.get_all_names();
+            names = MESS_NAMES.all_mess_names();
             [mess,is_blocking] = MESS_NAMES.mess_factory();
             assertEqual(numel(names),numel(mess));
             assertEqual(numel(mess),numel(is_blocking));

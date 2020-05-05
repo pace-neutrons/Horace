@@ -67,25 +67,6 @@ classdef MESS_NAMES
             %
             [~,mess_class] = MESS_NAMES.mess_class_name(mess_name);
         end
-        function is = is_persistent(mess_or_name_or_tag)
-            % check if given message is a persistent message
-            %
-            %
-            if isa(mess_or_name_or_tag,'aMessage')
-                is = mess_or_name_or_tag.is_persistent;
-                return
-            end
-            
-            if ischar(mess_or_name_or_tag)
-                name = mess_or_name_or_tag;
-            elseif isnumeric(mess_or_name_or_tag)
-                name = MESS_NAMES.mess_name(mess_or_name_or_tag);
-            else
-                error('MESS_NAMES:invalid_argument',...
-                    ' unknown type of input argument')
-            end
-            is = ismember(name,MESS_NAMES.persistant_messages_);
-        end
         %
         function [clName,mess_class] = mess_class_name(a_name)
             % build the name of the class, corresponding to the message
@@ -144,9 +125,6 @@ classdef MESS_NAMES
             tag_to_name_map = code_to_name_map_;
         end
         %
-        function names = all_mess_names()
-            names = MESS_NAMES.mess_names_;
-        end
         
         function id = mess_id(varargin)
             % get message id (tag) derived from message name
@@ -176,13 +154,13 @@ classdef MESS_NAMES
         function name = mess_name(mess_id)
             % get message name derived from message code (tag)
             %
-
+            
             if isempty(mess_id)
                 name  = {};
                 return
             end
             
-            [~,code2name_map]=MESS_NAMES.name_tag_maps();            
+            [~,code2name_map]=MESS_NAMES.name_tag_maps();
             if isnumeric(mess_id)
                 if numel(mess_id) > 1
                     name = arrayfun(@(x)(code2name_map(x)),mess_id,...
@@ -247,10 +225,31 @@ classdef MESS_NAMES
             end
         end
         %
-        function names = get_all_names()
-            % return all message names, subscribed to the factory
-            names  = MESS_NAMES.mess_names_;
+        function is = is_persistent(mess_or_name_or_tag)
+            % check if given message is a persistent message
+            %
+            %
+            if isa(mess_or_name_or_tag,'aMessage')
+                is = mess_or_name_or_tag.is_persistent;
+                return
+            end
+            
+            if ischar(mess_or_name_or_tag)
+                name = mess_or_name_or_tag;
+            elseif isnumeric(mess_or_name_or_tag)
+                name = MESS_NAMES.mess_name(mess_or_name_or_tag);
+            else
+                error('MESS_NAMES:invalid_argument',...
+                    ' unknown type of input argument')
+            end
+            is = ismember(name,MESS_NAMES.persistant_messages_);
         end
+        %
+        function names = all_mess_names()
+            % return all message names, subscribed to the factory
+            names = MESS_NAMES.mess_names_;
+        end
+        
     end
 end
 
