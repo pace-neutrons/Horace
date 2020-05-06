@@ -2,7 +2,7 @@ function  create_pix_dataset_(obj,fid,group_name,n_pixels,chunk_size)
 % Create new pixels dataset within existing hdf file
 %
 %
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 %
 obj.pix_group_id_ = H5G.create(fid,group_name,10*numel(group_name));
