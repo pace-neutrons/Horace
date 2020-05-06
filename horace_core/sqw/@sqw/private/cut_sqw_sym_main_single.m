@@ -14,7 +14,7 @@ function [wout, wsym] = cut_sqw_sym_main_single (data_source,...
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 if isempty(sym)
@@ -99,7 +99,7 @@ else
             main_header, header, detpar, data, npixtot, pix_position,...
             proj_trans, pbin_trans, pin, en, opt_tmp, hor_log_level);
         % Transform pixels
-        if isa(wtmp{i},'sqw')
+        if isa(wtmp{i},'sqw') && numel(wtmp{i}.data.pix)>0
             wtmp{i}.data.pix(1:3,:) = transform_pix (sym{i-1},...
                 upix_to_rlu, upix_offset, wtmp{i}.data.pix(1:3,:));
         end

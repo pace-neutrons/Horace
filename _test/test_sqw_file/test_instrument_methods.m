@@ -24,8 +24,7 @@ classdef test_instrument_methods <  TestCase %WithSave
         end
         %
         function obj=setUp(obj)
-            tmp_dir = tmp_dir;
-            obj.test_file_ = fullfile(tmp_dir,obj.sample_file);
+            obj.test_file_ = fullfile(tmp_dir(),obj.sample_file);
             copyfile(fullfile(obj.test_folder,obj.sample_file),obj.test_file_,'f')
         end
         function tearDown(obj)

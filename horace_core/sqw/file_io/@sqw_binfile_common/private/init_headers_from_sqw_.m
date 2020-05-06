@@ -3,7 +3,7 @@ function obj=init_headers_from_sqw_(obj,sqw_obj)
 % using sqw object, stored in memory
 %
 %
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 
 main_h_form = obj.get_main_header_form();

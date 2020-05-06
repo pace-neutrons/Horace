@@ -2,7 +2,7 @@
 
 # 4 - CPP tests in separate projects
 
-Date: 2019-NOV-20
+Date: 2019-Nov-20
 
 ## Status
 

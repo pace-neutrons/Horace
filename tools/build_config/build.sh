@@ -12,6 +12,7 @@ readonly HORACE_ROOT="$(realpath $(dirname "$0")/../..)"
 # matlab executable. The Matlab on the path will likely be a symlink so we need
 # to resolve it with `readlink`
 readonly MATLAB_ROOT="$(realpath $(dirname $(readlink -f $(which matlab)))/..)"
+readonly MAX_CTEST_SUCCESS_OUTPUT_LENGTH=10000 # 10 kilobytes
 
 function echo_and_run {
   echo "+ $1"
@@ -33,12 +34,14 @@ function run_configure() {
   local build_dir=$1
   local build_config=$2
   local build_tests=$3
+  local cmake_flags="${4-}"  # Default value is empty string
 
   cmake_cmd="cmake ${HORACE_ROOT}"
   cmake_cmd+=" -G \"${CMAKE_GENERATOR}\""
   cmake_cmd+=" -DMatlab_ROOT_DIR=${MATLAB_ROOT}"
   cmake_cmd+=" -DCMAKE_BUILD_TYPE=${build_config}"
   cmake_cmd+=" -DBUILD_TESTS=${build_tests}"
+  cmake_cmd+=" ${cmake_flags}"
 
   echo -e "\nRunning CMake configure step..."
   echo_and_run "cd ${build_dir}"
@@ -59,14 +62,15 @@ function run_tests() {
   echo -e "\nRunning test step..."
   echo_and_run "cd ${build_dir}"
   test_cmd="ctest -T Test --no-compress-output"
+  test_cmd+=" --output-on-failure"
+  test_cmd+=" --test-output-size-passed ${MAX_CTEST_SUCCESS_OUTPUT_LENGTH}"
   echo_and_run "${test_cmd}"
 }
 
-# not yet implemented
 function run_package() {
   echo -e "\nRunning package step..."
-  echo "Not implemented"
-  # echo_and_run "cmake --build install"
+  echo_and_run "cd ${build_dir}"
+  echo_and_run "cpack -G TGZ"
 }
 
 function main() {
@@ -74,10 +78,11 @@ function main() {
   local build=$FALSE
   local test=$FALSE
   local package=$FALSE
+  local print_versions=$FALSE
   local build_tests="ON"
   local build_config='Release'
   local build_dir="${HORACE_ROOT}/build"
-  local install_dir="${HORACE_ROOT}/install"
+  local cmake_flags=""
 
   # parse command line args
   while [[ $# -gt 0 ]]; do
@@ -87,21 +92,25 @@ function main() {
         -b|--build) build=$TRUE; shift ;;
         -t|--test) test=$TRUE; shift ;;
         -p|--package) package=$TRUE; shift ;;
+        -v|--print_versions) print_versions=$TRUE; shift ;;
         # options
         -X|--build_tests) build_tests="$2"; shift; shift ;;
         -C|--build_config) build_config="$2"; shift; shift ;;
         -O|--build_dir) build_dir="$(realpath $2)"; shift; shift ;;
-        -I|--install_dir) install_dir="$(realpath $2)"; shift; shift ;;
+        -F|--cmake_flags) cmake_flags="$2"; shift; shift ;;
+        *) echo "Unrecognised argument '$key'"; exit 1 ;;
     esac
   done
 
-  print_package_versions
+  if ((${print_versions})); then
+    print_package_versions
+  fi
 
   if ((${build})); then
     warning_msg="Warning: Build directory ${build_dir} already exists.\n\
         This may not be a clean build."
     echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
-    run_configure ${build_dir} ${build_config} ${build_tests}
+    run_configure "${build_dir}" "${build_config}" "${build_tests}" "${cmake_flags}"
     run_build ${build_dir}
   fi
 

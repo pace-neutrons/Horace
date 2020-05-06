@@ -31,7 +31,7 @@ function urange = calc_sqw_urange (efix, emode, eps_lo, eps_hi, det, alatt, angd
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 
 % Check that the first argument is sqw object
