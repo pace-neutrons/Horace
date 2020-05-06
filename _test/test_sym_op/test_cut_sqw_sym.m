@@ -10,6 +10,15 @@ classdef test_cut_sqw_sym < TestCaseWithSave
         width
         ebins
         tol_sp
+        data2_source
+        sym2
+        data2
+        proj2
+        ubin2
+        vbin2
+        wbin2
+        ebin2
+        
     end
     
     methods
@@ -40,6 +49,30 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             this.bin = [range(1)+step/2,step,range(2)-step/2];
             this.width = [-0.15,0.15];  % Width in Ang^-1 of cuts
             this.ebins = [105,0,115];
+            
+            %%% New tests:
+            % Read the stored pixel data
+            this.data2_source = fullfile(this_path, 'test_sym_op.sqw');
+            this.data2 = read_horace(this.data2_source);
+            % Construct the pointgroup operations of P 2_1 3:
+            Ws = [1 -1  1 -1  0  0  0  0  0  0  0  0
+                  0  0  0  0  1 -1  1 -1  0  0  0  0
+                  0  0  0  0  0  0  0  0  1 -1  1 -1
+                  0  0  0  0  0  0  0  0  1 -1 -1  1
+                  1 -1 -1  1  0  0  0  0  0  0  0  0
+                  0  0  0  0  1 -1 -1  1  0  0  0  0
+                  0  0  0  0  1  1 -1 -1  0  0  0  0
+                  0  0  0  0  0  0  0  0  1  1 -1 -1
+                  1  1 -1 -1  0  0  0  0  0  0  0  0];
+            Ws = mat2cell(reshape(Ws,[3,3,12]),3,3,ones(12,1));
+            this.sym2 = squeeze(cellfun(@symop, Ws, 'UniformOutput', false));
+            % setup projection and binning specifications
+            this.proj2 = projaxes([1,0,0],[0,1,0]);
+            this.ubin2 = [0, 0.05, 0.5];
+            this.vbin2 = [-0.1, 0.1];
+            this.wbin2 = [-0.1, 0.1];
+            this.ebin2 = [-2, 2];
+            
             
             % Tolerance
             this.tol_sp = [1e-6,1e-6];
@@ -88,7 +121,6 @@ classdef test_cut_sqw_sym < TestCaseWithSave
                 this.width, this.width, this.ebins, this.sym, '-pix');
             this.assertEqualToTolWithSave (w2sym, this.tol_sp,'ignore_str',1);
         end
-        
         %------------------------------------------------------------------------
         function test_cut_sym_with_nopix (this)
             % Test symmetrisation, without keeping pixels
@@ -180,6 +212,21 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             this.assertEqualToTolWithSave (d2, this.tol_sp,'ignore_str',1);
         end
 
+        %------------------------------------------------------------------------
+        function test_cut_sqw_sym_ptgr(this)
+            % Test multiple overlapping symmetry related cuts, some of
+            % which contribute zero pixels to the result.
+            
+            % Turn off output, but return to input value when exit or cntl-c
+            finishup = onCleanup(@() set(hor_config,'log_level',this.log_level));
+            set(hor_config,'log_level',-1);  % turn off output
+            
+            [c, s] = cut_sqw_sym(this.data2, this.proj2, ...
+                this.ubin2, this.vbin2, this.wbin2, this.ebin2, ...
+                this.sym2(2:end)); % skip the superfluous first (identity) operation
+            this.assertEqualToTolWithSave(c, this.tol_sp,'ignore_str',1);
+            this.assertEqualToTolWithSave(s, this.tol_sp,'ignore_str',1);
+        end
         %------------------------------------------------------------------------
         % Tests to add:
         % - cut from a file with no pixels, overlapping limits, outside limits

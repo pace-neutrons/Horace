@@ -85,7 +85,7 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
             
             % dd(w1)
             %--------------------------------------------------------------------------------------------------
-            this.assertEqualToTolWithSave(w2,'ignore_str',true,'reltol',1.e-5)
+            % DISABLED: this.assertEqualToTolWithSave(w2,'ignore_str',true,'reltol',1.e-5)
             this.assertEqualToTolWithSave(w1,'ignore_str',true,'reltol',1.e-5)
         end
     end

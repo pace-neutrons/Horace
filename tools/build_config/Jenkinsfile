@@ -1,99 +1,197 @@
 #!groovy
 
 def post_github_status(String state, String message) {
-    withCredentials([string(credentialsId: 'GitHub_API_Token',
-            variable: 'api_token')]) {
-        sh """
+  // Non-PR builds will not set PR_STATUSES_URL - in which case we do not
+  // want to post any statuses to Git
+  if (env.PR_STATUSES_URL) {
+    script {
+      withCredentials([string(credentialsId: 'GitHub_API_Token',
+          variable: 'api_token')]) {
+        if (isUnix()) {
+          sh """
             curl -H "Authorization: token ${api_token}" \
-                --request POST \
-                --data '{"state": "${state}", \
-                         "description": "${message}", \
-                         "target_url": "$BUILD_URL", \
-                         "context": "$JOB_BASE_NAME"}' \
-                $PR_STATUSES_URL > /dev/null
-        """
-            }
+              --request POST \
+              --data '{"state": "${state}", \
+                "description": "${message}", \
+                "target_url": "$BUILD_URL", \
+                "context": "$JOB_BASE_NAME"}' \
+              $PR_STATUSES_URL > /dev/null
+            """
+        }
+        else {
+          powershell """
+            [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
+            \$payload = @{
+              "state" = "${state}";
+              "description" = "${message}";
+              "target_url" = "$BUILD_URL";
+              "context" = "$JOB_BASE_NAME"}
+
+            Invoke-RestMethod -URI "$PR_STATUSES_URL" \
+              -Headers @{Authorization = "token ${api_token}"} \
+              -Method 'POST' \
+              -Body (\$payload|ConvertTo-JSON) \
+              -ContentType "application/json"
+          """
+        }
+      }
+    }
+  }
 }
 
+def base_job_name = "${env.JOB_BASE_NAME}".replace("PR-", "").replace("Branch-", "")
+
+/* Pipeline parameters:
+ *   All platforms:
+ *     AGENT (e.g. 'sl7', 'PACE Windows (Private)', 'osx')
+ *     MATLAB_VERSION (e.g R2018b)
+ *     RELEASE_TYPE ('nightly', 'release' - optional)
+ *   Unix only:
+ *     CMAKE_VERSION (e.g. 3.7.2)
+ *     GCC_VERSION (e.g. 6.3.0)
+ *   Windows only:
+ *     VS_VERSION (e.g. 2017)
+ */
 pipeline {
-    agent {
-        label env.AGENT
+  agent {
+    label env.AGENT
+  }
+
+  stages {
+
+    stage('Notify') {
+      steps {
+        script {
+          if (env.BRANCH_NAME) {
+            currentBuild.description = "Branch: ${env.BRANCH_NAME}"
+          } else if (env.PR_NUMBER) {
+            currentBuild.displayName = "#${env.BUILD_NUMBER} PR-${env.PR_NUMBER}"
+            currentBuild.description = "Git-SHA: ${env.PR_COMMIT_SHA.take(7)}"
+          }
+        }
+        post_github_status("pending", "The build is running")
+      }
     }
 
-    stages {
-
-        stage('Notify') {
-            steps {
-                post_github_status("pending", "The build is running")
-            }
+    stage('Clone-Herbert') {
+      steps {
+        copyArtifacts(
+          filter: 'build/Herbert-*',
+          fingerprintArtifacts: true,
+          projectName: "PACE-neutrons/Herbert/${base_job_name}",
+          selector: lastSuccessful()
+        )
+        script {
+          if (isUnix()) {
+            sh '''
+              archive_name="\$(find -name Herbert-*.tar.gz)"
+              tar --wildcards --strip-components=1 -xf \$archive_name */Herbert
+            '''
+          }
+          else {
+            powershell './tools/build_config/extract_herbert_artifact.ps1'
+          }
         }
-
-        stage('Build') {
-            steps {
-                sh '''
-                    module load cmake/\$CMAKE_VERSION &&
-                    module load matlab/\$MATLAB_VERSION &&
-                    module load gcc/\$GCC_VERSION &&
-                    ./tools/build_config/build.sh --build
-                '''
-            }
-        }
-
-        stage('Test') {
-            steps {
-                sh '''
-                    module load cmake/\$CMAKE_VERSION &&
-                    module load matlab/\$MATLAB_VERSION &&
-                    module load gcc/\$GCC_VERSION &&
-                    ./tools/build_config/build.sh --test
-                '''
-            }
-        }
-
-        stage('Package') {
-            steps {
-                sh './tools/build_config/build.sh --package'
-            }
-        }
+      }
     }
 
-    post {
-        always {
-            // archive CTest results file
-            archiveArtifacts(
-                artifacts: 'build/Testing/**/*.xml',
-                fingerprint: true
-            )
-
-            xunit (
-                testTimeMargin: '3000',
-                thresholdMode: 1,
-                thresholds: [
-                    skipped(failureThreshold: '0'),
-                    failed(failureThreshold: '0')
-                ],
-                tools: [
-                    CTest(
-                        pattern: 'build/Testing/**/*.xml',
-                        deleteOutputFiles: true,
-                        failIfNotNew: false,
-                        skipNoTestFiles: true,
-                        stopProcessingIfError: true
-                    )
-                ]
-            )
+    stage('Build') {
+      steps {
+        script {
+          if (isUnix()) {
+            sh '''
+              module load cmake/\$CMAKE_VERSION &&
+              module load matlab/\$MATLAB_VERSION &&
+              module load gcc/\$GCC_VERSION &&
+              ./tools/build_config/build.sh --build \
+                  --cmake_flags \"-DHorace_RELEASE_TYPE=\$RELEASE_TYPE\"
+            '''
+          }
+          else {
+            powershell '''
+            ./tools/build_config/build.ps1 -print_versions -build \
+                -cmake_flags \"-DHorace_RELEASE_TYPE=\$env:RELEASE_TYPE\"
+            '''
+          }
         }
-
-        success {
-            post_github_status("success", "The build succeeded")
-        }
-
-        failure {
-            post_github_status("failure", "The build failed")
-        }
-
-        cleanup {
-            deleteDir()
-        }
+      }
     }
+
+    stage('Test') {
+      steps {
+        script {
+          if (isUnix()) {
+            sh '''
+              module load cmake/\$CMAKE_VERSION &&
+              module load matlab/\$MATLAB_VERSION &&
+              module load gcc/\$GCC_VERSION &&
+              ./tools/build_config/build.sh --test
+            '''
+          }
+          else {
+            powershell './tools/build_config/build.ps1 -test'
+          }
+        }
+      }
+    }
+
+    stage('Package') {
+      steps {
+        script {
+          if (isUnix()) {
+            sh './tools/build_config/build.sh --package'
+          }
+          else {
+            powershell './tools/build_config/build.ps1 -package'
+          }
+        }
+
+        // Archive the release package
+        archiveArtifacts(
+            artifacts: 'build/Horace-*',
+            fingerprint: true
+        )
+      }
+    }
+  }
+
+  post {
+    always {
+      // archive CTest results file
+      archiveArtifacts(
+        artifacts: 'build/Testing/**/*.xml',
+        fingerprint: true
+      )
+
+      xunit (
+        testTimeMargin: '3000',
+        thresholdMode: 1,
+        thresholds: [
+          skipped(failureThreshold: '0'),
+          failed(failureThreshold: '0')
+        ],
+        tools: [
+          CTest(
+            pattern: 'build/Testing/**/*.xml',
+            deleteOutputFiles: true,
+            failIfNotNew: false,
+            skipNoTestFiles: true,
+            stopProcessingIfError: true
+          )
+        ]
+      )
+    }
+
+    success {
+      post_github_status("success", "The build succeeded")
+    }
+
+    failure {
+      post_github_status("failure", "The build failed")
+    }
+
+    cleanup {
+      deleteDir()
+    }
+  }
 }

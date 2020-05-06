@@ -71,7 +71,7 @@ classdef test_change_crystal_1a < TestCase
             obj.clob = {onCleanup(@()clearner(nxs_file_s,sim_sqw_file,cof_path)),hpc_restore};
             
         end
-        function test_u_alighnment_tf_way(obj)
+        function DISABLED_test_u_alighnment_tf_way(obj)
             % Fit Bragg peak positions
             % ------------------------
             proj.u=obj.u;

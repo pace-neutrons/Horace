@@ -39,7 +39,7 @@ classdef hor_config<config_base
     %                       Use hpc_config class directly to modify these
     %                       settings.
     %
-    % $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
     properties(Dependent)
         % Maximum number of pixels that are processed at one go during cuts

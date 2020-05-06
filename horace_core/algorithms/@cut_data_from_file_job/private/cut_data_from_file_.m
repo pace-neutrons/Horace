@@ -51,7 +51,7 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 % - Aim to take advantage of in-place working within accumulate_cut
 
 % T.G.Perring   19 July 2007 (based on earlier prototype TGP code)
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 % Buffer sizes
@@ -211,6 +211,11 @@ if ~isempty(pix_retained) || pix_tmpfile_ok  % prepare the output pix array
     
 end
 
+% Bad hack to prevent returning [] for pix, which breaks other routines,
+% notably, parts of cut_sqw_sym_main_single
+if max(size(pix))==0
+    pix = zeros(9,0);
+end
 
 if hor_log_level>=1
     disp('-----------------------------')
