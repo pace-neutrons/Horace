@@ -23,7 +23,7 @@ function err = validate_horace(varargin)
 %   >> validate_horace (...'-exit_on_completion') % Exit Matlab when test suite ends.
 % Exits with non-zero error code if any tests failed
 
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 err = -1;
 if isempty(which('horace_init'))

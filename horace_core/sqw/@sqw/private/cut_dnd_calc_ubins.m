@@ -53,7 +53,7 @@ function [iax, iint, pax, p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin, p
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 tol=1e-7;   % relative tolerance for single<=>double comparisons
 
