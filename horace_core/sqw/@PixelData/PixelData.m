@@ -101,6 +101,11 @@ methods
         s = size(obj.data, varargin{:});
     end
 
+    function nel = numel(obj)
+        % Return the number of data points in the pixel data block
+        nel = numel(obj.data);
+    end
+
     function pixel_data = get.data(obj)
         pixel_data = obj.data_;
     end

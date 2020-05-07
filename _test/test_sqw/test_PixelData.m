@@ -155,6 +155,10 @@ methods
         assertExceptionThrown(f, 'PIXELDATA:data')
     end
 
+    function test_numel_returns_the_number_of_elements_in_the_data(obj)
+        assertEqual(numel(obj.pixel_data_obj), numel(obj.pixel_data_obj.data));
+    end
+
 end
 
 end
