@@ -159,6 +159,11 @@ methods
         assertEqual(numel(obj.pixel_data_obj), numel(obj.pixel_data_obj.data));
     end
 
+    function test_can_construct_from_another_PixelData_object(obj)
+        pixel_data_obj_copy = PixelData(obj.pixel_data_obj);
+        assertEqual(pixel_data_obj_copy.data, obj.pixel_data_obj.data);
+    end
+
 end
 
 end
