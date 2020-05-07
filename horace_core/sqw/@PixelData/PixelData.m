@@ -78,7 +78,11 @@ methods
         %             col 9: errors
         %
         if nargin == 1
-            obj.data = data;
+            if isa(data, 'PixelData')
+                obj.data = data.data;
+            else
+                obj.data = data;
+            end
         end
     end
 
