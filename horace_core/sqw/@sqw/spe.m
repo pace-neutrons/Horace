@@ -9,7 +9,7 @@ function d=spe(w)
 %               - The sqw object is sqw-type
 %               - Only one spe file contributed
 %               - All energy bins for a given detector are either
-%                present or absent. That is, the sqw file contains all 
+%                present or absent. That is, the sqw file contains all
 %                pixels for a detector, or the detector was completely
 %                masked.
 %
@@ -42,7 +42,7 @@ data.filepath=w.header.filepath;
 ne=numel(w.header.en)-1;    % number of energy bins
 ndet0=numel(w.detpar.group);% number of detectors
 
-tmp=w.data.pix(6:9,:)';     % columns are: det number, energy bin number, signal, error
+tmp=w.data.pix.data(6:9,:)';     % columns are: det number, energy bin number, signal, error
 tmp=sortrows(tmp,[1,2]);    % order by detector group number, then energy
 group=unique(tmp(:,1));    % unique detector group numbers in the data in numerical increasing order
 

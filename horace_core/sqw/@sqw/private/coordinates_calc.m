@@ -97,10 +97,10 @@ ind=cell2struct(num2cell(ind),xname,2);
 xpix=cell(1,numel(xlist));
 
 header_ave=header_average(w.header);   % get average header
-npixtot=size(w.data.pix,2);
+npixtot=w.data.pix.num_pixels;
 if present.h||present.k||present.l||present.Q
     % Matrix and translation to convert from pixel coords to hkl
-    uhkl=header_ave.u_to_rlu(1:3,1:3)*w.data.pix(1:3,:)+repmat(header_ave.uoffset(1:3),[1,npixtot]);
+    uhkl=header_ave.u_to_rlu(1:3,1:3)*w.data.pix.data(1:3,:)+repmat(header_ave.uoffset(1:3),[1,npixtot]);
     if present.Q
         % Get |Q|
         B=bmatrix(header_ave.alatt, header_ave.angdeg);
@@ -118,7 +118,7 @@ if present.d1||present.d2||present.d3||present.d4
     % Matrix and translation to convert from pixel coords to projection coordinates
     U=inv(w.data.u_to_rlu(1:3,1:3))*header_ave.u_to_rlu(1:3,1:3);
     T=inv(w.data.u_to_rlu(1:3,1:3))*(w.data.uoffset(1:3)-header_ave.uoffset(1:3));
-    uproj=U*w.data.pix(1:3,:)-repmat(T,[1,npixtot]);        % pixel Q coordinates now in projection axes
+    uproj=U*w.data.pix.data(1:3,:)-repmat(T,[1,npixtot]);        % pixel Q coordinates now in projection axes
     uproj=[uproj;w.data.pix.coordinates(4, :)+header_ave.uoffset(4)];    % now append energy data
 
     % Get display axes

@@ -67,7 +67,7 @@ function varargout = resolution_plot (en, instrument, sample, detpar, efix, emod
 
 
 % *** Really should be using fake_sqw to create an sqw object, but as of 10 Nov 2018
-%     it requires a par file, and will not accept a detpar structure. A fully 
+%     it requires a par file, and will not accept a detpar structure. A fully
 %     object oriented sqw object construction would deal with this, but for the
 %     mean time, create an sqw object here.
 
@@ -241,7 +241,7 @@ data.s = zeros(3,3);
 data.e = zeros(3,3);
 data.npix = zeros(3,3);
 data.urange = [data.uoffset;data.uoffset];
-data.pix = [zeros(4,1);1;1;1;0;0];  % wrong (Q,w) - but will be filled in a later function
+data.pix = PixelData([zeros(4,1);1;1;1;0;0]);  % wrong (Q,w) - but will be filled in a later function
 
 wres.data = data;
 

@@ -34,7 +34,7 @@ if isempty(sym)
             wsym = wout;
         end
     end
-    
+
 else
     % ------------------------
     % Multiple cuts to combine
@@ -50,26 +50,26 @@ else
         proj_trans, pbin_trans, pin, en, opt_tmp, hor_log_level);
     % Create output wsym array of required length
     % wsym = [wsym;repmat(eval(class(wsym)),numel(sym),1)];
-    
+
     % Reverse engineer the full projection and binning descriptor from the
     % primary cut for reference in later loops
     [proj_ref, pbin_ref] = get_proj_and_pbin (wtmp{1});
-    
+
     % Inefficient way of catching if non-orthogonal projection because Alex's
     % projection class does not retain this property of projaxes
     if proj_ref.nonorthogonal
         error('CUT_SQW_SYM:not_implemented',...
             'Symmetrised cuts are not yet implemented for nonorthogonal axes')
     end
-    
+
     % Store some parameters for later loops
     header_ave=header_average(header);
     alatt = header_ave.alatt;
     angdeg = header_ave.angdeg;
     upix_to_rlu = header_ave.u_to_rlu(1:3,1:3);
     upix_offset = header_ave.uoffset;
-    
-    
+
+
     for i=2:numel(sym)+1
         % Transform primary cut binning and projection
         [ok, mess, proj_trans, pbin_trans] = transform_proj (sym{i-1},...
@@ -80,8 +80,8 @@ else
         % *** assumes that all the contributing spe files had the same lattice parameters and projection axes
         % This could be generalized later - but with repercussions in many routines
         header_ave=header_average(header);
-        
-        
+
+
         % Because Alex's aProjection class (of which proj is an instance)
         % is a rather odd hybrid object with projection and cut information
         % in its public and private properties, regenerate this class
@@ -89,23 +89,23 @@ else
         % same way that was done by cut_sqw_check_pbins in cut_sqw_sym_main
         proj_trans=projection(proj_trans);
         [proj_trans, ~, ~, pin, en] = proj_trans.update_pbins(header_ave, data,pbin_trans);
-        
+
         %[ok,mess,proj_trans] = cut_sqw_check_pbins (header_ave, data,...
         %   proj_trans, pbin_trans);
-        
-        
-        
+
+
+
         wtmp{i} = cut_sqw_main_single (data_source,...
             main_header, header, detpar, data, npixtot, pix_position,...
             proj_trans, pbin_trans, pin, en, opt_tmp, hor_log_level);
         % Transform pixels
-        if isa(wtmp{i},'sqw') && numel(wtmp{i}.data.pix)>0
-            wtmp{i}.data.pix(1:3,:) = transform_pix (sym{i-1},...
-                upix_to_rlu, upix_offset, wtmp{i}.data.pix(1:3,:));
+        if isa(wtmp{i},'sqw') && numel(wtmp{i}.data.pix.data)>0
+            wtmp{i}.data.pix.data(1:3,:) = transform_pix (sym{i-1},...
+                upix_to_rlu, upix_offset, wtmp{i}.data.pix.data(1:3,:));
         end
-        
+
     end
-    
+
     % Merge cuts
     % ----------
     % Take account of duplicated pixels if sqw cuts; if dnd cuts, then duplicated
@@ -113,30 +113,30 @@ else
     if hor_log_level>0
         disp('Combining symmetry related cuts...')
     end
-    
+
     if isa(wtmp{1},'sqw')
         wout = combine_sqw_same_bins (wtmp{:});
     else
         wout = combine_dnd_same_bins (wtmp{:});
     end
-    
+
     if nargout==2
         wsym = repmat(eval(class(wtmp{1})),numel(wtmp),1);
         for i=1:numel(wtmp)
             wsym(i)=wtmp{i};
         end
     end
-    
+
     if hor_log_level>0
         disp('--------------------------------------------------------------------------------')
     end
-    
+
     % Save to file if requested
     % ---------------------------
     if ~isempty(opt.outfile)
         save (wout, opt.outfile);
     end
-    
+
 end
 
 

@@ -67,7 +67,7 @@ for i=1:numel(win)
             if iscell(wdisp)
                 wdisp=wdisp{1};     % pick out the first dispersion relation
             end
-            wout(i).data.pix(4,:)=wout(i).data.pix.coordinates(4, :)-wdisp(:)';
+            wout(i).data.pix.coordinates(4,:)=wout(i).data.pix.coordinates(4, :)-wdisp(:)';
         else
             % Get average h,k,l,e for the bin, compute sqw for that average, and fill pixels with the average signal for the bin that contains them
             qw = calculate_qw_pixels(win(i));
@@ -77,7 +77,7 @@ for i=1:numel(win)
                 wdisp=wdisp{1};     % pick out the first dispersion relation
             end
             wdisp=replicate_array(wdisp,win(i).data.npix);
-            wout(i).data.pix(4,:)=wout(i).data.pix.coordinates(4, :)-wdisp(:)';
+            wout(i).data.pix.coordinates(4,:)=wout(i).data.pix.coordinates(4, :)-wdisp(:)';
         end
         % Have shifted the energy, but need to recompute the bins.
         % - If energy is a plot axis, then extend the range of the
@@ -100,9 +100,9 @@ for i=1:numel(win)
         data.dax = zeros(1,0);
         data.s = 0;
         data.e = 0;
-        data.npix = size(data.pix,2);
-        eps_lo = min(data.pix(4,:));
-        eps_hi = max(data.pix(4,:));
+        data.npix = data.pix.num_pixels;
+        eps_lo = min(data.pix.coordinates(4,:));
+        eps_hi = max(data.pix.coordinates(4,:));
         data.urange(:,4) = [eps_lo;eps_hi];
         wout(i).data = data;
         wout(i) = recompute_bin_data(wout(i));

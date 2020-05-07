@@ -190,7 +190,7 @@ T_sym = transf_matrix*T1;
 Tt = T1\T_sym;
 
 if all(shifts==0)
-    coords1=w1.data.pix(1:3,:);
+    coords1=w1.data.pix.coordinates(1:3,:);
 
     %coords_rlu1=T_sym*coords1;
     %Convert coordinates back to inverse Angstroms:
@@ -202,11 +202,11 @@ else
     %coords_rlu1=T_sym*bsxfun(@plus,w1.data.pix(1:3,:),shifts_in_a);
     %Convert coordinates back to inverse Angstroms:
     %coords_ang=(inv(T1))*coords_rlu1;
-    coords_ang=Tt*bsxfun(@plus,w1.data.pix(1:3,:),shifts_in_a);
+    coords_ang=Tt*bsxfun(@plus,w1.data.pix.coordinates(1:3,:),shifts_in_a);
 end
 % modify pixel's id to add informaion about zone, pixel came from
 if pixid_shift~=0
-    wout.data.pix(5,:)= w1.data.pix.irun+pixid_shift;
+    wout.data.pix.irun = w1.data.pix.irun+pixid_shift;
 end
 
 %coords2=w2.data.pix([1:3],:);
@@ -282,7 +282,7 @@ for i=1:3
 end
 
 %Place the new coords_ang1 and p1 arrays into the output object:
-wout.data.pix(1:3,:)=coords_ang;
+wout.data.pix.coordinates(1:3,:)=coords_ang;
 wout.data.p=p1new;
 
 %Use the internal Horace routines to recalculate intensity/error/npix etc

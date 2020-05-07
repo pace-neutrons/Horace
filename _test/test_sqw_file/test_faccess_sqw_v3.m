@@ -116,7 +116,7 @@ classdef test_faccess_sqw_v3< TestCase
             assertEqual(size(data.pix),[9,20]);
 
             pix = to.get_pix(1,20);
-            assertEqual(data.pix,pix);
+            assertEqual(data.pix.data,pix.data);
         end
         %
         function test_get_sqw_returns_a_PixelData_object(obj)

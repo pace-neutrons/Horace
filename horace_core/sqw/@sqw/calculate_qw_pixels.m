@@ -34,7 +34,7 @@ u = header_ave.u_to_rlu(1:3,1:3);
 
 % Assume that the first three axes are Q, and the 4th axis is energy
 if ~all(u==eye(3))   % not identity matrix, so need to perform matrix transformation
-    urlu=u*win.data.pix(1:3,:);
+    urlu=u*win.data.pix.coordinates(1:3, :);
     qh=urlu(1,:)';
     qk=urlu(2,:)';
     ql=urlu(3,:)';

@@ -60,7 +60,7 @@ if ischar(data_source)
         end
         job_name = ['cut_sqw_to_',fn];
         job_disp = JobDispatcher(job_name);
-        
+
         [comb_using,n_workers] = config_store.instance().get_value...
             ('hpc_config','combine_sqw_using','parallel_workers_number');
         if strcmp(comb_using,'mpi_code') && opt.keep_pix % keep cluster running for combining procedure
@@ -68,13 +68,13 @@ if ischar(data_source)
         else
             keep_workers_running = false;
         end
-        
+
         [common_par,loop_par] = cut_data_from_file_job.pack_job_pars...
             (data_source, opt.keep_pix, pix_tmpfile_ok, proj, nstart, nend);
-        
+
         [outputs,n_failed,~,job_disp]=job_disp.start_job...
             ('accumulate_headers_job', common_par, loop_par, true, n_workers, keep_workers_running);
-        
+
         if n_failed == 0
             s    = outputs{1}.s;
             e    = outputs{1}.e;
@@ -85,7 +85,7 @@ if ischar(data_source)
         else
             job_disp.display_fail_job_results(outputs,n_failed,n_workers,'CUT_SQW:runtime_error');
         end
-        
+
     else
         % Original cut algorithm
         fid=fopen(data_source,'r');
@@ -94,7 +94,7 @@ if ischar(data_source)
                 'Unable to open source file: %s',data_source)
         end
         clobInput = onCleanup(@()fclose(fid));
-        
+
         status=fseek(fid,pix_position,'bof');    % Move directly to location of start of pixel data block
         if status<0;  fclose(fid);
             error('CUT_SQW:runtime_error',...
@@ -105,7 +105,7 @@ if ischar(data_source)
             opt.keep_pix, pix_tmpfile_ok, proj, targ_pax, targ_nbin);
         clear clobInput;
     end
-    
+
 else
     % Pixel information taken from object
     [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_array...
@@ -168,7 +168,7 @@ data_out.e(no_pix)=0;
 
 if opt.keep_pix
     data_out.urange = urange_pix;
-    data_out.pix = pix;
+    data_out.pix = PixelData(pix);
 end
 
 % Collect fields to make those for a valid sqw object
@@ -196,7 +196,7 @@ if ~isempty(opt.outfile)
             ls = ls.put_sqw();
         end
         ls.delete();
-        
+
         if pix_tmpfile_ok
             clear tmpFilesClob;
         end
@@ -206,7 +206,7 @@ if ~isempty(opt.outfile)
     if hor_log_level>=0, disp(' '), end
 end
 
-if exist('tmpFilesClob','var') && ~isempty(tmpFilesClob) %to satisfy Matlab code analyzer who complain about 
+if exist('tmpFilesClob','var') && ~isempty(tmpFilesClob) %to satisfy Matlab code analyzer who complain about
     clear tmpFilesClob    % tmpFilesClob missing
 end
 

@@ -197,7 +197,7 @@ for i=1:numel(ind)
     % Run and detector for each pixel
     irun = win(i).data.pix.irun';   % column vector
     idet = win(i).data.pix.idet';   % column vector
-    npix = size(win(i).data.pix,2);
+    npix = win(i).data.pix.num_pixels;
 
     % Catch case of refining crystal orientation or moderator parameters
     if refine_crystal
@@ -282,6 +282,7 @@ for i=1:numel(ind)
             stmp=stmp+sqwfunc(q(1,:)',q(2,:)',q(3,:)',q(4,:)',pars{:});
         end
     end
-    wout(i).data.pix(8:9,:)=[stmp(:)'/mc_points;zeros(1,numel(stmp))];
+    wout(i).data.pix.signals = stmp(:)'/mc_points;
+    wout(i).data.pix.errors = zeros(1,numel(stmp));
     wout(i)=recompute_bin_data(wout(i));
 end
