@@ -98,26 +98,26 @@ banner_to_screen([mfilename,': Test(s) passed (matches are within requested tole
 
 function test_change_crystal_1_cleanup(sqw_file,sim_sqw_file,sim_sqw_file_corr)
 
-ws = warning('off','MATLAB:DELETE:Permission');
+% ws = warning('off','MATLAB:DELETE:Permission');
 
-try
-    if exist(sim_sqw_file,'file')
-        delete(sim_sqw_file)
-    end
-    if exist(sim_sqw_file_corr,'file')
-        delete(sim_sqw_file_corr)
-    end
-catch
-    disp('Unable to delete temporary sqw file(s)')
-end
-% Delete temporary sqw files
-for i=1:numel(sqw_file)
-    try
-        delete(sqw_file{i})
-    catch
-    end
-end
-warning(ws);
+% try
+%     if exist(sim_sqw_file,'file')
+%         delete(sim_sqw_file)
+%     end
+%     if exist(sim_sqw_file_corr,'file')
+%         delete(sim_sqw_file_corr)
+%     end
+% catch
+%     disp('Unable to delete temporary sqw file(s)')
+% end
+% % Delete temporary sqw files
+% for i=1:numel(sqw_file)
+%     try
+%         delete(sqw_file{i})
+%     catch
+%     end
+% end
+% warning(ws);
 
 
 

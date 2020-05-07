@@ -111,7 +111,7 @@ check_error_report_fail_(obj,'Error writing the pixels information');
 if isa(input_obj.pix,'pix_combine_info')
     npix = input_obj.pix.npixels;
 else
-    npix = size(input_obj.pix,2);
+    npix = input_obj.pix.num_pixels;
 end
 fwrite(obj.file_id_,npix,'uint64');
 %
@@ -119,7 +119,7 @@ obj.eof_pix_pos_ = obj.pix_pos_ + npix * 9*4;
 if nopix
     if reserve
         block_size= config_store.instance().get_value('hor_config','mem_chunk_size'); % size of buffer to hold pixel information
-        
+
         fseek(obj.file_id_,obj.pix_pos_ ,'bof');
         if block_size >= npix
             res_data = single(zeros(9,npix));
@@ -137,7 +137,7 @@ if nopix
             end
         end
         clear res_data;
-        
+
     else %TODO: Copied from prototype. Does this make any sense?
         fseek(obj.file_id_,obj.eof_pix_pos_ ,'bof');
         ferror(obj.file_id_, 'clear'); % clear error in case if pixels have never been written
@@ -154,7 +154,7 @@ if isa(input_obj.pix,'pix_combine_info') % pix field contains info to read &
     %to do that.
     obj =put_sqw_data_pix_from_file_(obj,input_obj.pix,jobDispatcher);
 else % write pixels directly
-    
+
     % Try writing large array of pixel information a block at a time - seems to speed up the write slightly
     % Need a flag to indicate if pixels are written or not, as cannot rely just on npixtot - we really
     % could have no pixels because none contributed to the given data range.
@@ -163,20 +163,20 @@ else % write pixels directly
     shift = (npix_lo-1)*9*4;
     fseek(obj.file_id_,obj.pix_pos_+shift ,'bof');
     check_error_report_fail_(obj,'Error moving to the start of the pixels record');
-    
+
     npix_to_write = npix_hi-npix_lo+1;
     if npix_to_write <=block_size
         if write_all
-            fwrite(obj.file_id_,input_obj.pix,'float32');
+            fwrite(obj.file_id_,input_obj.pix.data,'float32');
         else
-            fwrite(obj.file_id_,input_obj.pix(:,npix_lo:npix_hi),'float32');
+            fwrite(obj.file_id_,input_obj.pix.data(:,npix_lo:npix_hi),'float32');
         end
         check_error_report_fail_(obj,'Error writing pixels array');
     else
         for ipix=npix_lo:block_size:npix_hi
             istart = ipix;
             iend   = min(ipix+block_size-1,npix_hi);
-            fwrite(obj.file_id_,input_obj.pix(:,istart:iend),'float32');
+            fwrite(obj.file_id_,input_obj.pix.data(:,istart:iend),'float32');
             check_error_report_fail_(obj,...
                 sprintf('Error writing pixels array, npix from: %d to: %d in the rage from: %d to: %d',...
                 istart,iend,npix_lo,npix_hi));

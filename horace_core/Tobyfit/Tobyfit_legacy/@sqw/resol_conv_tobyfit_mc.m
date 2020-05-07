@@ -138,7 +138,7 @@ for i=1:numel(ind)
     end
 
     qw = calculate_qw_pixels(win(i));   % get qw *after* changing crystal orientation
-    npix = size(win(i).data.pix,2);
+    npix = win(i).data.pix.num_pixels;
     irun = win(i).data.pix.irun;
     idet = win(i).data.pix.idet;
 
@@ -192,7 +192,8 @@ for i=1:numel(ind)
             stmp=stmp+sqwfunc(qw{1}+dq(:,1),qw{2}+dq(:,2),qw{3}+dq(:,3),qw{4}+dq(:,4),pars{:});
         end
     end
-    wout(i).data.pix(8:9,:)=[stmp(:)'/mc_npoints;zeros(1,numel(stmp))];
+    wout(i).data.pix.signals=stmp(:)'/mc_npoints;
+    wout(i).data.pix.errors=zeros(1,numel(stmp));
     wout(i)=recompute_bin_data(wout(i));
 end
 

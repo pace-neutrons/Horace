@@ -38,8 +38,9 @@ if ~isa(w1,'double') && ~isa(w2,'double')
                 error('Two sqw objects have different npix numbers ')
             end
             wout = w1;
-            result = binary_op(sigvar(w1.data.pix(8,:),w1.data.pix(9,:)), sigvar(w2.data.pix.isignals,w2.data.pix.ierrors));
-            wout.data.pix(8:9,:) = [result.s;result.e];
+            result = binary_op(sigvar(w1.data.pix.signals, w1.data.pix.errors, sigvar(w2.data.pix.signals,w2.data.pix.errors));
+            wout.data.pix.signals = result.s;
+            wout.data.pix.errors = result.e;
             wout = recompute_bin_data (wout);
         else
             error('sqw type objects must have commensurate array dimensions for binary operations')
@@ -64,8 +65,9 @@ if ~isa(w1,'double') && ~isa(w2,'double')
                 etmp = replicate_array(wtmp.e, wout.data.npix)';
                 wtmp = sigvar(stmp,etmp);
             end
-            result = binary_op(sigvar(wout.data.pix.isignals,wout.data.pix.ierrors), wtmp);
-            wout.data.pix(8:9,:) = [result.s;result.e];
+            result = binary_op(sigvar(wout.data.pix.signals,wout.data.pix.errors), wtmp);
+            wout.data.pix.signals = result.s;
+            wout.data.pix.errors = result.e;
             wout = recompute_bin_data (wout);
         else
             error ('Check that the numeric variable is scalar or array with same size as object signal')
@@ -90,8 +92,9 @@ if ~isa(w1,'double') && ~isa(w2,'double')
                 etmp = replicate_array(wtmp.e, wout.data.npix)';
                 wtmp = sigvar(stmp,etmp);
             end
-            result = binary_op(wtmp, sigvar(wout.data.pix.isignals,wout.data.pix.ierrors));
-            wout.data.pix(8:9,:) = [result.s;result.e];
+            result = binary_op(wtmp, sigvar(wout.data.pix.signals,wout.data.pix.errors));
+            wout.data.pix.signals = result.s;
+            wout.data.pix.errors = result.e;
             wout = recompute_bin_data (wout);
         else
             error ('Check that the numeric variable is scalar or array with same size as object signal')
@@ -121,8 +124,9 @@ elseif ~isa(w1,'double') && isa(w2,'double')
             else
                 s_tmp = w2;
             end
-            result = binary_op(sigvar(w1.data.pix.isignals,w1.data.pix.ierrors), sigvar(s_tmp,[]));
-            wout.data.pix(8:9,:) = [result.s;result.e];
+            result = binary_op(sigvar(w1.data.pix.signals,w1.data.pix.errors), sigvar(s_tmp,[]));
+            wout.data.pix.signals = result.s;
+            wout.data.pix.errors = result.e;
             wout = recompute_bin_data (wout);
         else
             error ('Check that the numeric variable is scalar or array with same size as object signal')
@@ -146,8 +150,9 @@ elseif isa(w1,'double') && ~isa(w2,'double')
             else
                 s_tmp = w1;
             end
-            result = binary_op(sigvar(s_tmp,[]), sigvar(w2.data.pix.isignals,w2.data.pix.ierrors));
-            wout.data.pix(8:9,:) = [result.s;result.e];
+            result = binary_op(sigvar(s_tmp,[]), sigvar(w2.data.pix.signals,w2.data.pix.errors));
+            wout.data.pix.signals = result.s;
+            wout.data.pix.errors = result.e;
             wout = recompute_bin_data (wout);
         else
             error ('Check that the numeric variable is scalar or array with same size as object signal')

@@ -20,7 +20,7 @@ if use_mex
         if isempty(w.data.pix)
             return;
         end
-        [wout.data.s,wout.data.e]=recompute_bin_data_c(w.data.npix,w.data.pix,n_threads);
+        [wout.data.s,wout.data.e]=recompute_bin_data_c(w.data.npix,w.data.pix.data,n_threads);
     catch ME
         use_mex = false;
         if log_level>0
@@ -75,11 +75,11 @@ if ~use_mex
     %t=toc(t1)
 
     if ~isempty(ind)
-        wout.data.s=accumarray(ind,w.data.pix.isignals,[nbin,1])./w.data.npix(:);
+        wout.data.s=accumarray(ind,w.data.pix.signals,[nbin,1])./w.data.npix(:);
         wout.data.s=reshape(wout.data.s,size(w.data.npix));
         % separate into two steps to save memory
         npix2 = (w.data.npix(:).^2);
-        wout.data.e=accumarray(ind,w.data.pix.ierrors,[nbin,1])./npix2;
+        wout.data.e=accumarray(ind,w.data.pix.errors,[nbin,1])./npix2;
         clear npix2;
         %
         wout.data.e=reshape(wout.data.e,size(w.data.npix));

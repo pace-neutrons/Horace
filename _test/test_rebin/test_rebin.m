@@ -44,29 +44,29 @@ classdef test_rebin< TestCase
 
             w3d_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-1,0.025,1],[-Inf,Inf],[0,1.4,100]);
             w3d_sqw=sqw_eval(w3d_sqw,@fake_cross_sec,[this.stiffness,this.gam,this.amp]);
-            errs=w3d_sqw.data.pix.isignals;
-            w3d_sqw.data.pix.ierrors=errs;
+            errs=w3d_sqw.data.pix.signals;
+            w3d_sqw.data.pix.errors=errs;
             w3d_sqw=cut(w3d_sqw,[-1,0.025,1],[-1,0.025,1],[0,1.4,100]);
             w3d_d3d=d3d(w3d_sqw);
 
             w2d_qe_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-0.1,0.1],[-Inf,Inf],[0,1.4,100]);
             w2d_qe_sqw=sqw_eval(w2d_qe_sqw,@fake_cross_sec,[this.stiffness,this.gam,this.amp]);
-            errs=w2d_qe_sqw.data.pix.isignals;
-            w2d_qe_sqw.data.pix.ierrors=errs;
+            errs=w2d_qe_sqw.data.pix.signals;
+            w2d_qe_sqw.data.pix.errors=errs;
             w2d_qe_sqw=cut(w2d_qe_sqw,[-1,0.025,1],[0,1.4,100]);
             w2d_qe_d2d=d2d(w2d_qe_sqw);
 
             w2d_qq_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-1,0.025,1],[-Inf,Inf],[30,40]);
             w2d_qq_sqw=sqw_eval(w2d_qq_sqw,@fake_cross_sec,[this.stiffness,this.gam,this.amp]);
-            errs=w2d_qq_sqw.data.pix.isignals;
-            w2d_qq_sqw.data.pix.ierrors=errs;
+            errs=w2d_qq_sqw.data.pix.signals;
+            w2d_qq_sqw.data.pix.errors=errs;
             w2d_qq_sqw=cut(w2d_qq_sqw,[-1,0.025,1],[-1,0.025,1]);
             w2d_qq_d2d=d2d(w2d_qq_sqw);
 
             w1d_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-0.1,0.1],[-Inf,Inf],[30,40]);
             w1d_sqw=sqw_eval(w1d_sqw,@fake_cross_sec,[this.stiffness,this.gam,this.amp]);
-            errs=w1d_sqw.data.pix.isignals;
-            w1d_sqw.data.pix.ierrors=errs;
+            errs=w1d_sqw.data.pix.signals;
+            w1d_sqw.data.pix.errors=errs;
             w1d_sqw=cut(w1d_sqw,[-1,0.025,1]);
             w1d_d1d=d1d(w1d_sqw);
 
@@ -121,7 +121,7 @@ classdef test_rebin< TestCase
 
             %Fixup involving rigging the error arrays from a simulation:
             w2d_qq_sqw_reb_check.data.e=w2d_qq_sqw_reb.data.e;
-            w2d_qq_sqw_reb_check.data.pix(9,:)=w2d_qq_sqw_reb.data.pix.ierrors;
+            w2d_qq_sqw_reb_check.data.pix.errors=w2d_qq_sqw_reb.data.pix.errors;
 
             [ok,mess]=equal_to_tol(w2d_qq_sqw_reb_check,w2d_qq_sqw_reb,-1e-6,'ignore_str', 1);
             assertTrue(ok,['rebin sqw using template object fails: ',mess])

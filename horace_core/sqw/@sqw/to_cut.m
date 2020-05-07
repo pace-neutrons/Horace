@@ -67,7 +67,7 @@ ind_x=find(ind==1);
 ind_signal=find(ind==2);
 
 % Fill structure
-npixtot=size(w.data.pix,2);
+npixtot=w.data.pix.num_pixels;
 ecent=0.5*(w.header.en(2:end)+w.header.en(1:end-1));
 de=w.header.en(2)-w.header.en(1);    % energy bin size assumed all the same
 de=repmat(de,npixtot,1);
@@ -93,12 +93,12 @@ c.pixels(:,1)=w.data.pix.idet';
 c.pixels(:,2)=ecent(w.data.pix.ienergy);
 c.pixels(:,3)=de;
 c.pixels(:,4)=xpix{ind_x};
-if ~isempty(ind_signal);
+if ~isempty(ind_signal)
     c.pixels(:,5)=xpix{ind_signal};
     c.pixels(:,6)=sqrt(xdevsqr{ind_signal});
 else
-    c.pixels(:,5)=w.data.pix.isignals';
-    c.pixels(:,6)=sqrt(w.data.pix.ierrors');
+    c.pixels(:,5)=w.data.pix.signals';
+    c.pixels(:,6)=sqrt(w.data.pix.errors');
 end
 
 [title_main, title_pax] = data_plot_titles (w.data);    % note: axes annotations correctly account for permutation in w.data.dax

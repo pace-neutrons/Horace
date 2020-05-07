@@ -69,13 +69,13 @@ end
 %wrong!
 ax(isnan(ax))=1;
 if any(abs(ax)>1.001)
-    error('Horace error: Brillouin zone centres are not equivalent'); 
+    error('Horace error: Brillouin zone centres are not equivalent');
 end
 
 %Now we work out how to alter each of the objects:
 %
-coords1=w1.data.pix([1:3],:);
-coords2=w2.data.pix([1:3],:);
+coords1=w1.data.pix.coordinates([1:3],:);
+coords2=w2.data.pix.coordinates([1:3],:);
 p1=w1.data.p;
 p2=w2.data.p;
 
@@ -117,7 +117,7 @@ for i=1:3
 end
 
 %Place the new coords_ang1 and p1 arrays into the output object:
-wout.data.pix([1:3],:)=coords_ang1;
+wout.data.pix.coordinates([1:3],:)=coords_ang1;
 wout.data.p=p1new;
 
 %Use the internal Horace routines to recalculate intensity/error/npix etc

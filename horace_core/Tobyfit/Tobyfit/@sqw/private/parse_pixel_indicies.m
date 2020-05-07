@@ -127,7 +127,7 @@ if isnumeric(indx)
     end
     indx_internal = {indx};      % cell array for standard form later on
     iw_internal = ones(nw,1);    % every sqw object has the same indx array - indx is effectively infinitely long
-    
+
 elseif iscell(indx)
     nind = numel(indx);
     for i=1:nind
@@ -137,7 +137,7 @@ elseif iscell(indx)
         end
     end
     indx_internal = indx;        % standard name for internal working
-    
+
     if nind==1
         iw_internal = ones(nw,1);    % every sqw object has the same indx array - indx is effectively infinitely long
     else
@@ -168,7 +168,7 @@ for i=1:nw
     end
     indx_tmp = indx_internal{iw_internal(i)};
     if size(indx_tmp,2)==1
-        if ~(max(indx_tmp)<=size(wtmp.data.pix,2) && min(indx_tmp)>=0)
+        if ~(max(indx_tmp)<=wtmp.data.pix.num_pixels && min(indx_tmp)>=0)
             mess = 'One or more pixel indicies outside range of sqw object';
             return
         end

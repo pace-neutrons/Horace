@@ -63,7 +63,7 @@ if ok
             sz_msk=[sz_msk,1];
         end
         if isequal(nd,nd_msk) && isequal(sz,sz_msk) && isequal(win.data.npix,mask_array.data.npix)
-            mask_array=logical(mask_array.data.pix.isignals);
+            mask_array=logical(mask_array.data.pix.signals);
         else
             error('Dimensionality, number of bins on each dimension and number of pixels in each bin of input and mask must match')
         end
@@ -82,7 +82,7 @@ end
 ibin = replicate_array(1:prod(sz),win.data.npix);   % (linear) bin number for each pixel
 npix=accumarray(ibin(mask_array),ones(1,sum(mask_array)),[prod(sz),1]);
 wout.data.npix=reshape(npix,sz);
-wout.data.pix=win.data.pix(:,mask_array);
+wout.data.pix.data=win.data.pix.data(:,mask_array);
 wout.data.urange=recompute_urange(wout);
 wout=recompute_bin_data(wout);
 

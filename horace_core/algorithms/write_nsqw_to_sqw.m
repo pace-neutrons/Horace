@@ -229,8 +229,8 @@ if combine_in_parallel
     else
         job_disp.display_fail_job_results(outputs,n_failed,n_workers,'WRITE_NSQW_TO_SQW:runtime_error');
     end
-    
-    
+
+
 else
     % read arrays and accumulate headers directly
     [s_accum,e_accum,npix_accum] = accumulate_headers_job.accumulate_headers(ldrs);

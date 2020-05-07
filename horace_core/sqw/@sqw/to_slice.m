@@ -55,7 +55,7 @@ end
 ind_signal=find(ind==1);    % will be empty if 'signal' was not a supplied keyword
 
 % Fill structure
-npixtot=size(w.data.pix,2);
+npixtot=w.data.pix.num_pixels;
 ecent=0.5*(w.header.en(2:end)+w.header.en(1:end-1));
 de=w.header.en(2)-w.header.en(1);    % energy bin size assumed all the same
 de=repmat(de,npixtot,1);
@@ -66,7 +66,7 @@ s.xbounds=w.data.p{dax(1)}';
 s.ybounds=w.data.p{dax(2)}';
 s.x=xvals{1};
 s.y=xvals{2};
-if~isempty(ind_signal);
+if~isempty(ind_signal)
     s.c=xvals{ind_signal};
     s.e=sqrt(xvar{ind_signal});
 else
@@ -82,12 +82,12 @@ s.pixels(:,2)=ecent(w.data.pix.ienergy);
 s.pixels(:,3)=de;
 s.pixels(:,4)=xpix{1};
 s.pixels(:,5)=xpix{2};
-if~isempty(ind_signal);
+if~isempty(ind_signal)
     s.pixels(:,6)=xpix{ind_signal};
     s.pixels(:,7)=sqrt(xdevsqr{ind_signal});
 else
-    s.pixels(:,6)=w.data.pix.isignals';
-    s.pixels(:,7)=sqrt(w.data.pix.ierrors');
+    s.pixels(:,6)=w.data.pix.signals';
+    s.pixels(:,7)=sqrt(w.data.pix.errors');
 end
 
 if all(w.data.dax==[2,1])    % axes are permuted for plotting purposes

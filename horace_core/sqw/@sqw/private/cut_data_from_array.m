@@ -76,7 +76,7 @@ v = zeros(ndatpix,npix_read);
 ibeg = cumsum([1;range(1:end-1)]);
 iend = cumsum(range);
 for i=1:length(range)
-    v(:,ibeg(i):iend(i)) = pix_in(:,nstart(i):nend(i));
+    v(:,ibeg(i):iend(i)) = pix_in.data(:,nstart(i):nend(i));
 end
 if hor_log_level>=1, t_read = bigtoc(1); end
 if hor_log_level>=2
@@ -98,9 +98,9 @@ if keep_pix
     if hor_log_level>=0, disp(['Sorting pixel information for ',num2str(npix_retain),' pixels']), end
     pix = v(:,ok);          % pixels that are to be retained
     clear v                 % no longer needed - was only a work array - so because it is large, clear before we (possibly) sort pixels
-    
+
     pix = sort_pix(pix,ix,npix);
-    
+
     if hor_log_level>=1, t_sort = bigtoc(3); end
 else
     pix = [];
