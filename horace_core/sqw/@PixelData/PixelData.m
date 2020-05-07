@@ -105,12 +105,17 @@ methods
         pixel_data = obj.data_;
     end
 
+
     function obj = set.data(obj, pixel_data)
         if size(pixel_data, 1) ~= obj.PIXEL_BLOCK_COLS_
             msg = ['Cannot set pixel data, invalid dimensions. Axis 1 must '...
-                   'have length %i found ''%i''.'];
-            error('PIXELDATA:data_error', msg, obj.PIXEL_BLOCK_COLS_, ...
+                   'have length %i, found ''%i''.'];
+            error('PIXELDATA:data', msg, obj.PIXEL_BLOCK_COLS_, ...
                   size(pixel_data, 1));
+        elseif ~isnumeric(pixel_data)
+            msg = ['Cannot set pixel data, invalid type. Data must have a '...
+                   'numeric type, found ''%i'''];
+            error('PIXELDATA:data', msg, class(pixel_data));
         end
         obj.data_ = pixel_data;
     end
