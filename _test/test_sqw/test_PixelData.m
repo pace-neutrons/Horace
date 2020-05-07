@@ -30,12 +30,12 @@ methods
 
     function test_PIXELDATA_raised_on_construction_with_data_with_lt_9_cols(~)
         f = @() PixelData(ones(3, 3));
-        assertExceptionThrown(f, 'PIXELDATA:data_error')
+        assertExceptionThrown(f, 'PIXELDATA:data')
     end
 
     function test_PIXELDATA_raised_on_construction_with_data_with_gt_9_cols(~)
         f = @() PixelData(ones(10, 3));
-        assertExceptionThrown(f, 'PIXELDATA:data_error')
+        assertExceptionThrown(f, 'PIXELDATA:data')
     end
 
     function test_coordinates_returns_empty_array_if_pixel_data_empty(~)
@@ -92,7 +92,7 @@ methods
 
     function test_PIXELDATA_error_raised_if_setting_data_with_lt_9_cols(~)
         f = @() PixelData(zeros(5, 10));
-        assertExceptionThrown(f, 'PIXELDATA:data_error');
+        assertExceptionThrown(f, 'PIXELDATA:data');
     end
 
     function test_num_pixels_returns_the_number_of_rows_in_the_data_block(obj)
@@ -142,6 +142,17 @@ methods
     function test_default_PixelData_object_is_empty(~)
         pix_data_obj = PixelData();
         assertTrue(isempty(pix_data_obj));
+    end
+
+    function test_PIXELDATA_error_if_constructed_with_non_numeric_type(~)
+        f = @() PixelData('non_numeric');
+        assertExceptionThrown(f, 'PIXELDATA:data')
+    end
+
+    function test_PIXELDATA_error_if_data_set_with_non_numeric_type(~)
+        pix_data_obj = PixelData();
+        f = @() set(pix_data_obj, 'data', {1, 'abc'});
+        assertExceptionThrown(f, 'PIXELDATA:data')
     end
 
 end
