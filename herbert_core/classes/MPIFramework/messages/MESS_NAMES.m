@@ -1,4 +1,4 @@
-classdef MESS_NAMES
+classdef MESS_NAMES < handle
     % The class lists and subscribes all message names and message codes
     % (tags) used in Herbert MPI data exchange
     % and provides connection between the message names and the message
@@ -30,101 +30,97 @@ classdef MESS_NAMES
         % current source. These messages also have the same tag to be
         % transparently received through MPI
     end
+    properties(Access = private,Hidden=true)
+        % the map, between message meaningful name and message class
+        mess_class_map_;
+        % the map between message meaningful and message tag
+        name_to_tag_map_;
+        % the map between messge tag and message meaningful name
+        tag_to_name_map_;
+    end
+    methods(Access = private)
+        function obj = MESS_NAMES()
+            % Private factory constructor.
+            %
+            % Builds message names constistent with messages factory
+            %
+            %
+            n_known_messages = numel(MESS_NAMES.mess_names_);
+            % Define tag for message 'any' to be -1;
+            mess_tags = num2cell(-1:n_known_messages-2);
+            obj.name_to_tag_map_ = containers.Map(MESS_NAMES.mess_names_,mess_tags);
+            obj.tag_to_name_map_ = containers.Map(mess_tags,MESS_NAMES.mess_names_);
+            
+            for i=1:n_known_messages
+                m_name = MESS_NAMES.mess_names_{i};
+                try
+                    clName= [upper(m_name(1)),lower(m_name(2:end)),'Message'];
+                    if nargout>1
+                        mess_class = feval(clName);
+                    end
+                catch ME
+                    if strcmpi('MATLAB:UndefinedFunction',ME.identifier)
+                        mess_class = aMessage(a_name);
+                    else
+                        rethrow(ME);
+                    end
+                end
+                obj.mess_class_map_(m_name) = mess_class;
+            end
+        end
+        
+    end
+    
     
     methods(Static)
-        function [class_map,is_blocking,is_persistent] = mess_factory()
-            % The factory, containing the  instances  of all known messages.
+        function obj = instance()
+            % Function containing and returning single instance of a given
+            % message.
             %
-            % input: (Optional)
-            % if present, message name.
-            %
-            % Returns:
-            % mess_list   -- cellarray of all subscribed messages classes.
-            % is_blocking -- boolean array indicating if messages are
-            %                blocking or not
-            
-            persistent mess_class_map;
-            persistent is_mess_blocking;
-            %
-            if isempty(mess_class_map)
-                n_known_messages = numel(MESS_NAMES.mess_names_);
-                all_mess_list = cell(1,n_known_messages);
-                for i=1:n_known_messages
-                    m_name = MESS_NAMES.mess_names_{i};
-                    [~,cl] = MESS_NAMES.mess_class_name(m_name);
-                    mess_class_map(m_name) = cl;
-                end
-                is_mess_blocking = cellfun(@(x)(x.is_blocking),all_mess_list,...
-                    'UniformOutput',true);
+            persistent inst;
+            if isempty(inst)
+                inst = MESS_NAMES();
             end
-            class_map = mess_class_map;
-            is_blocking= is_mess_blocking;
+            obj = inst;
             
-        end
-        %
-        function mess_class = gen_empty_message(mess_name)
-            % generate empty message given message name
-            %
-            [~,mess_class] = MESS_NAMES.mess_class_name(mess_name);
         end
         %
         function [clName,mess_class] = mess_class_name(a_name)
-            % build the name of the class, corresponding to the message
-            % provided and instantiate this message class.
+            % return the name(s) of the class, corresponding to the message
+            % name(s) provided as input
             %
-            % if the class does not exist, return the name of the parent
-            % class (aMessage) and initate aMessage with given message name
-            
-            try
-                clName= [upper(a_name(1)),lower(a_name(2:end)),'Message'];
-                if nargout>1
-                    mess_class = feval(clName);
-                end
-            catch ME
-                if strcmpi('MATLAB:UndefinedFunction',ME.identifier)
-                    mess_class = aMessage(a_name);
+            mn = MESS_NAMES.instance();
+            is_name = isKey(mn.mess_class_map_,a_name);
+            if all(is_name)
+                if iscell(a_name)
+                    clName = cell(1,numel(a_name));
+                    mess_class = cell(1,numel(a_name));
+                    for i=1:numel(a_name)
+                        mess_class{i} =  mn.mess_class_map_(a_name{i});
+                        clName{i} = class(mess_class{i});
+                    end
                 else
-                    rethrow(ME);
-                end
-            end
-        end
-        %
-        function [has,class_name] = has_class(a_name)
-            % check if the message with name provided has specialized class
-            % -child of the aMessage class, or this name is just a name of
-            % the message.
-            %
-            class_name = MESS_NAMES.mess_class_name(a_name);
-            has = exist([class_name,'.m'],'file')==2;
-        end
-        %
-        function [name_to_tag_map,tag_to_name_map]=name_tag_maps()
-            % the persistent class builds relationship between message id
-            % (tag) and the message name
-            %
-            % Returns:
-            % name2tag_map -- the map, connecting symbolic message name
-            %                 with the numeric tag;
-            % tag2name_map -- the map, the numeric tag with corresponding
-            %                 symbolic message names ;
-            
-            persistent name_to_code_map_;
-            persistent code_to_name_map_;
-            if isempty(name_to_code_map_)
-                mess_codes = num2cell(-1:numel(MESS_NAMES.mess_names_)-2);
-                name_to_code_map_ = containers.Map(MESS_NAMES.mess_names_,mess_codes);
-                code_to_name_map_ = containers.Map(mess_codes,MESS_NAMES.mess_names_);
-                common_tag = name_to_code_map_(MESS_NAMES.persistant_messages_{1});
-                for i=1:numel(MESS_NAMES.persistant_messages_)
-                    pm = MESS_NAMES.persistant_messages_{i};
-                    name_to_code_map_(pm) = common_tag;
+                    mess_class =  mn.mess_class_map_(a_name);
+                    clName  = class(mess_class);
                 end
                 
+            else
+                error('MESS_NAMES:invalid_argument',....
+                    'The name %s is not a registered message name',a_name);
             end
-            name_to_tag_map = name_to_code_map_;
-            tag_to_name_map = code_to_name_map_;
+            
         end
+        
         %
+        function mess_class = gen_empty_message(mess_name)
+            % generate empty message class instance given message name
+            %
+            [~,mess_class] = MESS_NAMES.instance().mess_class_map_(mess_name);
+        end
+        function names = all_mess_names()
+            % return all message names, subscribed to the factory
+            names = MESS_NAMES.mess_names_;
+        end
         
         function id = mess_id(varargin)
             % get message id (tag) derived from message name
@@ -135,7 +131,9 @@ classdef MESS_NAMES
             %
             % where id-s is the array of message id-s (tags)
             %
-            name2code_map=MESS_NAMES.name_tag_maps();
+            mn = MESS_NAMES.instance();
+            name2code_map = mn.name_to_tag_map_;
+            
             if iscell(varargin{1})
                 id = cellfun(@(nm)(name2code_map(nm)),...
                     varargin{1},'UniformOutput',true);
@@ -154,13 +152,14 @@ classdef MESS_NAMES
         function name = mess_name(mess_id)
             % get message name derived from message code (tag)
             %
-            
             if isempty(mess_id)
                 name  = {};
                 return
             end
             
-            [~,code2name_map]=MESS_NAMES.name_tag_maps();
+            mn = MESS_NAMES.instance();
+            code2name_map= mn.tag_to_name_map_;
+            
             if isnumeric(mess_id)
                 if numel(mess_id) > 1
                     name = arrayfun(@(x)(code2name_map(x)),mess_id,...
@@ -194,35 +193,46 @@ classdef MESS_NAMES
         %
         function is = tag_valid(the_tag)
             % verify if the tag provided is valid message tag.
-            if the_tag>=1 && the_tag <= numel(MESS_NAMES.mess_names_)
-                is = true;
-            else
-                is = false;
-            end
+            mn = MESS_NAMES.instance();
+            is = isKey(mn.tag_to_name_map_,the_tag);
         end
         %
-        function is= is_blocking(mess_name)
+        function is= is_blocking(mess_name_or_tag)
             % check if the message with the name, provided as imput is
             % blocking message. (should be send-received synchroneously)
             %
             % Input:
             % mess_name -- a string with message name or cellarray of
-            %              message names
+            %              message names, or a number defining the message
+            %              tag, or cellarray of the messages or array of
+            %              tags or cellarray of message classes.
             % Output
             % is        -- logical array, containing true if the corresponend
             %              message is blocking and false otherwise
             %
-            [~,blocking] = MESS_NAMES.mess_factory();
-            name2code_map = MESS_NAMES.name_tag_maps();
-            if iscell(mess_name)
-                ids = cellfun(@(x)(name2code_map(x)+2),mess_name,'UniformOutput',true);
-                is = blocking(ids);
-            elseif isnumeric(mess_name)
-                is = blocking(mess_name+2);
-            else
-                id = name2code_map(mess_name)+2;
-                is = blocking(id);
+            if isa(mess_or_name_or_tag,'aMessage')
+                is = mess_or_name_or_tag.is_blocking;
+                return
             end
+            
+            mni = MESS_NAMES.instance();
+            if isnumeric(mess_name_or_tag)
+                if numel(mess_name_or_tag) > 1
+                    is = arrayfun(@(mn)MESS_NAMES.is_blocking(mn),mess_name_or_tag,...
+                        'UniformOutput',true);
+                else
+                    name = mni.tag_to_name_map_(mess_name_or_tag);
+                    mc = mni.mess_class_map_(name);
+                    is = mc.is_blocking();
+                end
+            elseif ischar(mess_name_or_tag)
+                mc = mni.mess_class_map_(mess_name_or_tag);
+                is = mc.is_blocking();
+            elseif iscell(mess_name_or_tag)
+                is = cellfun(@(mn)MESS_NAMES.is_blocking(mn),mess_name_or_tag,...
+                    'UniformOutput',true);
+            end
+            
         end
         %
         function is = is_persistent(mess_or_name_or_tag)
@@ -234,21 +244,26 @@ classdef MESS_NAMES
                 return
             end
             
-            if ischar(mess_or_name_or_tag)
-                name = mess_or_name_or_tag;
-            elseif isnumeric(mess_or_name_or_tag)
-                name = MESS_NAMES.mess_name(mess_or_name_or_tag);
-            else
-                error('MESS_NAMES:invalid_argument',...
-                    ' unknown type of input argument')
+            mni = MESS_NAMES.instance();
+            if isnumeric(mess_name_or_tag)
+                if numel(mess_name_or_tag) > 1
+                    is = arrayfun(@(mn)MESS_NAMES.is_persistent(mn),mess_name_or_tag,...
+                        'UniformOutput',true);
+                else
+                    name = mni.tag_to_name_map_(mess_name_or_tag);
+                    mc = mni.mess_class_map_(name);
+                    is = mc.is_persistent();
+                end
+            elseif ischar(mess_name_or_tag)
+                mc = mni.mess_class_map_(mess_name_or_tag);
+                is = mc.is_persistent();
+            elseif iscell(mess_name_or_tag)
+                is = cellfun(@(mn)MESS_NAMES.is_persistent(mn),mess_name_or_tag,...
+                    'UniformOutput',true);
             end
-            is = ismember(name,MESS_NAMES.persistant_messages_);
+            
         end
         %
-        function names = all_mess_names()
-            % return all message names, subscribed to the factory
-            names = MESS_NAMES.mess_names_;
-        end
         
     end
 end

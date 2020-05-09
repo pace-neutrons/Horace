@@ -57,19 +57,14 @@ classdef test_MESS_NAMES_factory< TestCase
         %
         function test_operations(obj)
             names = MESS_NAMES.all_mess_names();
-            [mess,is_blocking] = MESS_NAMES.mess_factory();
-            assertEqual(numel(names),numel(mess));
-            assertEqual(numel(mess),numel(is_blocking));
             
-            [name2tag_map,tag2name_map]= MESS_NAMES.name_tag_maps();
-            assertEqual(name2tag_map.Count,uint64(numel(names)))
-            assertEqual(tag2name_map.Count,uint64(numel(names)))
-            for i=1:numel(mess)
+             for i=1:numel(names)
                 name = names{i};
                 assertTrue(MESS_NAMES.name_exist(name));
+                [~,mess] = MESS_NAMES.mess_class_name(name);
                 
-                assertEqual(mess{i}.mess_name,name);
-                assertEqual(mess{i}.is_blocking,is_blocking(i));
+                assertEqual(mess.mess_name,name);
+                assertEqual(mess.is_blocking,is_blocking(i));
                 assertEqual(tag2name_map(i-2),name);
                 if MESS_NAMES.is_persistent(name)
                     assertEqual(name2tag_map(name),0);

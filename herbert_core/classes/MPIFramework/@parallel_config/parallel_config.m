@@ -36,13 +36,15 @@ classdef parallel_config<config_base
     %                        cluster, running selected framework.
     %
     % shared_folder_on_local - The folder on your working machine containing
-    %                         the job input and output data.
+    %                          the job input and output data.
     %
-    % shared_folder_on_remote - The place where your data should be found on
-    %                          a remote worker.
+    % shared_folder_on_remote - The place where job input and ouptut data 
+    %                           should be found on (shared_folder_on_local) 
+    %                           a remote worker.
     %
     % working_directory    - The folder, containing input data for the job
-    %                        and tmp and output results should be stored.
+    %                        and tmp and output results should be stored. 
+    %                        View from a remote worker. 
     % ---------------------------------------------------------------------
     % known_frameworks     - Information method returning the list of
     %                        the parallel frameworks, known to Herbert.
@@ -52,9 +54,6 @@ classdef parallel_config<config_base
     % ---------------------------------------------------------------------
     % Type:
     %>>parallel_config  to see the list of current configuration option values.
-    %
-    %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
     %
     properties(Dependent)
         % The name of the script or program to run on cluster in parallel
@@ -112,8 +111,8 @@ classdef parallel_config<config_base
         % -f <file_name> on Linux. The property picks up the file and
         % assumes that the cluster configuration, defined there is correct.
         cluster_config;
-        %
-        % the folder on your working machine containing the job input and
+
+        % The folder on your working machine containing the job input and
         % output data mounted on local machine and available from the remote
         % machines.
         % Must have read/write permissions for all machines. Should be fast
@@ -121,9 +120,8 @@ classdef parallel_config<config_base
         %
         % If empty, assumed that the local machine filesystem is shared
         % with remote machine filesystem and have the same mounting points.
-        
         shared_folder_on_local;
-        %
+        
         % The place where a job data should be found on a remote worker.
         % Must have read/write permissions for all machines.
         %
@@ -132,7 +130,7 @@ classdef parallel_config<config_base
         %
         % If empty, assumed to be equal to shared_folder_on_local.
         shared_folder_on_remote;
-        %
+
         % Used as  the folder where tmp files should be stored in
         % parallel and non-parallel configuration.
         %
@@ -146,19 +144,21 @@ classdef parallel_config<config_base
         % directory)
         %
         % If parallel Horace job is deployed, the value of this directory
-        % evaluated on a remote worker equal to
-        % shared_folder_on_worker value
+        % evaluated on a remote worker equal to shared_folder_on_remote value        
         working_directory
+        
         %------------------------------------------------------------------
         % Information fields, without setters:
-        %------------------------------------------------------------------
+        %------------------------------------------------------------------        
         % true, if working directory have not ever been set
         wkdir_is_default
+        
         % Information method returning the list of the parallel frameworks,
         % known to Herbert. You can not add or change a framework
         % using this method, The framework has to be defined and subscribed
         % via the frameworks factory.
         known_frameworks
+        
         % Information method returning list of the known clusters,
         % available to run the selected framework.
         % For mpiexec_mpi framework, the cluster is defined

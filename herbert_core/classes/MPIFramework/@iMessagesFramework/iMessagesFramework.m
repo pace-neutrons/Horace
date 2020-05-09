@@ -7,8 +7,6 @@ classdef iMessagesFramework < handle
     % Also contains auxiliary methods and basic operations used by all
     % Herbert MPI frameworks to set up and run remote jobs.
     %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-    %
     %----------------------------------------------------------------------
     properties(Dependent)
         % job ID  used to identify job control messages
@@ -134,7 +132,7 @@ classdef iMessagesFramework < handle
             [mess,id_from] = get_interrupt_(obj,source_address);
         end
         %
-        function [all_messages,mid_from] = add_interrupt(obj,...
+        function [all_messages,mid_from] = retrieve_interrupt(obj,...
                 all_messages,mid_from,mes_addr_to_check)
             % Helper method used to add interrupt (persistent) messages 
             % to the list of the messages, received from other labs.
@@ -153,7 +151,7 @@ classdef iMessagesFramework < handle
             %                  persistent and not
             % mid_from      -- array of labNum-s sending these messages.
             %
-            [all_messages,mid_from] = add_interrupt_(obj,...
+            [all_messages,mid_from] = retrieve_interrupt_(obj,...
                 all_messages,mid_from,mes_addr_to_check);
         end
     end

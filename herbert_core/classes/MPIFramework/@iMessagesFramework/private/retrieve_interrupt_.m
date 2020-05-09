@@ -1,4 +1,4 @@
-function [all_messages,mid_from] = add_interrupt_(obj,all_messages,mid_from,mes_addr_to_check)
+function [all_messages,mid_from] = retrieve_interrupt_(obj,all_messages,mid_from,mes_addr_to_check)
 % Helper method used to add persistent messages to the list
 % of the messages, received from other labs.
 %
@@ -37,8 +37,8 @@ if ~isempty(pers_mess)
         all_messages = [all_messages(:);pers_name_rem(:)];
         mid_from     = [mid_from(:);pers_soruces_rem(:)];
     else
-        all_messages = [all_messages(:);pmess_names(:)];        
-        mid_from     = [mid_from(:);pers_sources(:)];        
+        all_messages = [all_messages(:);pmess_names(:)];
+        mid_from     = [mid_from(:);pers_sources(:)];
     end
     all_messages = reshape(all_messages,1,numel(all_messages));
     mid_from  = reshape(mid_from,1,numel(all_messages));
