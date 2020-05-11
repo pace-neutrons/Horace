@@ -143,17 +143,17 @@ try
     for i=1:nsteps
         if hor_log_level>=1;    bigtic(1);    end
         % -- read
-        v=read_data_block_(fid,noffset,range,block_ind_from(i),block_ind_to(i),ndatpix);
+        pix_data=PixelData(read_data_block_(fid,noffset,range,block_ind_from(i),block_ind_to(i),ndatpix));
         %
         if hor_log_level>=1;  t_read = t_read + bigtoc(1); bigtic(2);   end
         if hor_log_level>=0
-            fprintf('Step %3d of %4d; Have read data for %d pixels -- now processing data...',i,nsteps,size(v,2));
+            fprintf('Step %3d of %4d; Have read data for %d pixels -- now processing data...',i,nsteps,pix_data.num_pixels);
         end
         %
         % -- cut
         [s, e, npix, urange_step_pix, del_npix_retain, ok, ix_add] = ...
             cut_data_from_file_job.accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
-            v, proj, pax);
+            pix_data, proj, pax);
         if hor_log_level>=0; fprintf(' ----->  retained  %d pixels\n',del_npix_retain); end
         if hor_log_level>=1; t_accum = t_accum + bigtoc(2); end
         %
@@ -163,16 +163,16 @@ try
             if hor_log_level>=1, bigtic(3), end
             if pix_tmpfile_ok
                 % pix now not an array but pix_combine_info class
-                pix = accumulate_pix_to_file_(pix,false,v,ok,ix_add,npix,pmax,del_npix_retain);
+                pix = accumulate_pix_to_file_(pix,false,pix_data,ok,ix_add,npix,pmax,del_npix_retain);
             else
                 n_blocks=n_blocks+1;
-                pix_retained{n_blocks} = v(:,ok);    % accumulate pixels into buffer array
+                pix_retained{n_blocks} = pix_data.data(:,ok);    % accumulate pixels into buffer array
                 pix_ix_retained{n_blocks} = ix_add;
             end
             if hor_log_level>=1, t_sort = t_sort + bigtoc(3); end
         end
         % -------------
-        
+
         if hor_log_level>=1, bigtic(1), end
         % if program runs as mpi worker, check if it has been
         % cancelled and throw if it was.
@@ -180,9 +180,9 @@ try
             mpi_obj.check_cancellation();
         end
     end
-catch ME   
+catch ME
     if pix_tmpfile_ok
-        accumulate_pix_to_file_(pix,true,v,ok,ix_add,npix,pmax,del_npix_retain)        
+        accumulate_pix_to_file_(pix,true,pix_data,ok,ix_add,npix,pmax,del_npix_retain)
         for j=1:pix.nfiles
             if exist(pix.infiles{j},'file')==2
                 delete(pix.infiles{j});
@@ -199,16 +199,16 @@ if hor_log_level>=1, t_read = t_read + bigtoc(1); end
 if ~isempty(pix_retained) || pix_tmpfile_ok  % prepare the output pix array
     % or file combine info
     if hor_log_level>=1, bigtic(3), end
-    
-    clear v ok ix_add; % clear big arrays
+
+    clear pix_data ok ix_add; % clear big arrays
     if pix_tmpfile_ok % this time pix is pix_combine_info class. del_npix_retain not used
-        v = [];ok=[];ix_add=[];
-        pix = accumulate_pix_to_file_(pix,true,v,ok,ix_add,npix,pmax,0);
+        pix_data = [];ok=[];ix_add=[];
+        pix = accumulate_pix_to_file_(pix,true,pix_data,ok,ix_add,npix,pmax,0);
     else
         pix = sort_pix(pix_retained,pix_ix_retained,npix);
     end
     if hor_log_level>=1, t_sort = t_sort + bigtoc(3); end
-    
+
 end
 
 % Bad hack to prevent returning [] for pix, which breaks other routines,
@@ -237,7 +237,7 @@ if hor_log_level>=1
         disp('-----------------------------')
         fprintf(' Cut data from file finished at:  %4d;%02d;%02d|%02d;%02d;%02d\n',fix(clock));
     end
-    
+
     disp('-----------------------------')
     disp(' ')
 end
@@ -274,7 +274,7 @@ for i=1:nblocks
     if i>1
         block_ind_from(i) = block_ind_to(i-1)+1;
     end
-    
+
     run_sum = tot_pix(ind)+buf_size;
 end
 %
