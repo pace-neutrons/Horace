@@ -164,6 +164,48 @@ methods
         assertEqual(pixel_data_obj_copy.data, obj.pixel_data_obj.data);
     end
 
+    function test_get_data_returns_coordinates_for_given_index_range(obj)
+        pix_data_obj = obj.get_random_pix_data_(10);
+        coords = pix_data_obj.get_data({'coordinates'}, 2:6);
+        assertEqual(coords, pix_data_obj.coordinates(:, 2:6));
+    end
+
+    function test_get_data_returns_multiple_fields_for_given_index_range(obj)
+        pix_data_obj = obj.get_random_pix_data_(10);
+        coord_sig = pix_data_obj.get_data({'coordinates', 'signals'}, 4:9);
+        expected_coord_sig = [pix_data_obj.coordinates(:, 4:9); ...
+                              pix_data_obj.signals(4:9)];
+        assertEqual(coord_sig, expected_coord_sig);
+    end
+
+    function test_get_data_returns_full_pixel_range_if_no_range_given(obj)
+        pix_data_obj = obj.get_random_pix_data_(10);
+        coord_sig = pix_data_obj.get_data({'coordinates', 'signals'});
+        expected_coord_sig = [pix_data_obj.coordinates; pix_data_obj.signals];
+        assertEqual(coord_sig, expected_coord_sig);
+    end
+
+    function test_get_data_allows_data_retrieval_for_single_field(obj)
+        fields = {'coordinates', 'irun', 'idet', 'ienergy', 'signals', 'errors'};
+        for i = 1:numel(fields)
+            field_data = obj.pixel_data_obj.get_data(fields{i});
+            assertEqual(field_data, get(obj.pixel_data_obj, fields{i}));
+        end
+    end
+
+    function test_get_data_throws_PIXELDATA_on_non_valid_field_name(obj)
+        f = @() obj.pixel_data_obj.get_data('not_a_field');
+        assertExceptionThrown(f, 'PIXELDATA:get_data');
+    end
+
+    function test_get_data_orders_columns_corresponding_to_input_cell_array(obj)
+        pix_data_obj = obj.get_random_pix_data_(10);
+        irun_idet_signals = pix_data_obj.get_data({'idet', 'signals', 'irun'});
+        assertEqual(irun_idet_signals(1, :), pix_data_obj.idet);
+        assertEqual(irun_idet_signals(2, :), pix_data_obj.signals);
+        assertEqual(irun_idet_signals(3, :), pix_data_obj.irun);
+    end
+
 end
 
 end
