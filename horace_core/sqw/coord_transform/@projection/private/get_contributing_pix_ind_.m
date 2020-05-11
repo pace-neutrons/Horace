@@ -4,9 +4,9 @@ function [indx,ok]=get_contributing_pix_ind_(this,v)
 % Transform the coordinates u1-u4 into the new projection axes, if necessary
 % *** TGP 9 Dec 2012: this looks as if the case of energy being a plot axis that rounding errors will in general be a problem.
 if ebin==1 && trans_elo==0   % Catch special (and common) case of energy being an integration axis to save calculations
-    indx=[bsxfun(@minus,v(1:3,:)',trans_bott_left')*rot_ustep',v(4,:)'];  % nx4 matrix
+    indx=[bsxfun(@minus,v.coordinates(1:3,:)',trans_bott_left')*rot_ustep',v.coordinates(4,:)'];  % nx4 matrix
 else
-    indx=[bsxfun(@minus,v(1:3,:)',trans_bott_left')*rot_ustep',(v(4,:)'-trans_elo)*(1/ebin)];  % nx4 matrix
+    indx=[bsxfun(@minus,v.coordinates(1:3,:)',trans_bott_left')*rot_ustep',(v.coordinates(4,:)'-trans_elo)*(1/ebin)];  % nx4 matrix
 end
 
 % Find the points that lie inside or on the boundary of the range of the cut
