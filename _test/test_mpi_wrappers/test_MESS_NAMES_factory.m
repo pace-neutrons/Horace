@@ -27,55 +27,90 @@ classdef test_MESS_NAMES_factory< TestCase
         %
         function test_selection(obj)
             name = MESS_NAMES.mess_name(8);
-            assertTrue(iscell(name));
-            assertEqual(numel(name),1);
+            assertTrue(ischar(name));
             
-            is = MESS_NAMES.name_exist(name);
+            mni = MESS_NAMES.instance();
+            is = mni.is_subscribed(name);
             assertTrue(is);
-            is = MESS_NAMES.name_exist(name{1});
+            is = mni.is_registered(name);
             assertTrue(is);
             
             
             id = MESS_NAMES.mess_id(name);
             assertEqual(id,8);
-            id = MESS_NAMES.mess_id(name{1});
+            id = MESS_NAMES.mess_id({name});
             assertEqual(id,8);
             
             selection = [1,3,5];
             names = MESS_NAMES.mess_name(selection);
-            is = MESS_NAMES.name_exist(names);
-            assertTrue(is);
+            
+            id_s = MESS_NAMES.mess_id(names);
+            assertEqual(selection,id_s);
             
             ids = MESS_NAMES.mess_id(names);
             assertEqual(ids,selection);
             
-            % failed message should have 0 id, as its hardcoded in
-            % filebased messages
-            ids = MESS_NAMES.mess_id('failed');
-            assertEqual(ids,0);
+            %TODO: check if this is incorrect any more
+            %             % failed message should have 0 id, as its hardcoded in
+            %             % filebased messages
+            %             ids = MESS_NAMES.mess_id('failed');
+            %             assertEqual(ids,0);
         end
         %
         function test_operations(obj)
-            names = MESS_NAMES.all_mess_names();
+            mni = MESS_NAMES.instance();
+            assertTrue(mni.is_initialized);
             
-             for i=1:numel(names)
+            names = mni.known_messages;
+            
+            for i=1:numel(names)
                 name = names{i};
-                assertTrue(MESS_NAMES.name_exist(name));
-                [~,mess] = MESS_NAMES.mess_class_name(name);
+                assertTrue(mni.is_registered(name));
+                assertTrue(mni.is_subscribed(name));
+                mess = mni.get_mess_class(name);
+                if isempty(mess)
+                    continue;
+                end
                 
                 assertEqual(mess.mess_name,name);
-                assertEqual(mess.is_blocking,is_blocking(i));
-                assertEqual(tag2name_map(i-2),name);
-                if MESS_NAMES.is_persistent(name)
-                    assertEqual(name2tag_map(name),0);
-                else
-                    assertEqual(name2tag_map(name),i-2);
-                end
+                assertEqual(mess.is_blocking,MESS_NAMES.is_blocking(name));
+                assertEqual(mess.is_persistent,MESS_NAMES.is_persistent(name));
+                
+                assertEqual(mess.tag,mni.mess_id(name));
+                id = mess.tag;
+                assertTrue(MESS_NAMES.tag_valid(id));
+                assertEqual(MESS_NAMES.mess_name(id),mess.mess_name);
+                
+                % TODO -- check where this is used again
+                %                 if MESS_NAMES.is_persistent(name)
+                %                     assertEqual(name2tag_map(name),0);
+                %                 else
+                %                     assertEqual(name2tag_map(name),i-2);
+                %                 end
             end
         end
         
         
         function test_specialized_classes(obj)
+            try
+                mc = aMessage('nont_exist');
+                thrown = false;
+            catch ME
+                thrown = true;
+                assertEqual(ME.identifier,'MESS_NAMES:invalid_argument');
+            end
+            assertTrue(thrown,' Successfull attempt to create non-subscribed message');
+            
+            try
+                mc = aMessage(1);
+                thrown = false;
+            catch ME
+                thrown = true;
+                assertEqual(ME.identifier,'MESS_NAMES:invalid_argument');
+            end
+            assertTrue(thrown,' Successfull attempt to create message with wrong arguments');
+            
+            
             % initialize empty init message using generic constructor
             try
                 mc = aMessage('init');
@@ -85,11 +120,18 @@ classdef test_MESS_NAMES_factory< TestCase
                 assertEqual(ME.identifier,'AMESSAGE:invalid_argument');
             end
             assertTrue(thrown,' Successfull attempt to intialize specialized message using generic constructor');
-                        
+            
+            
             mc = InitMessage('some init info');
-            assertTrue(isa(mc,'InitMessage'));            
+            assertTrue(isa(mc,'InitMessage'));
             
             assertEqual(mc.common_data,'some init info');
+            
+            mc1 = InitMessage('other init info');
+            assertTrue(isa(mc1,'InitMessage'));
+            assertEqual(mc1.common_data,'other init info');
+            
+            assertFalse(strcmp(mc1.common_data,mc.common_data));
         end
     end
 end

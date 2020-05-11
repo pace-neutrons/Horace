@@ -42,7 +42,21 @@ classdef aMessage
     methods
         function obj=aMessage(name)
             % constructor, which may return any children messages classes
-            [~,obj] = MESS_NAMES.mess_class_name(name)
+            mfi = MESS_NAMES.instance();
+            mess_class_name = MESS_NAMES.get_class_name(name);
+            
+            if ~strcmp(class(obj),mess_class_name) % called from constructor
+                error('AMESSAGE:invalid_argument',...
+                    [' Message with name %s has specialized constructor %s',...
+                    ' but instantiated trough generic aMessage interface'],...
+                    name,mess_class_name);
+            end
+            if mfi.is_registered(name)
+                % use factory to obtain sunscribed instance of the class
+                obj = mfi.get_mess_class(name);
+            else
+                obj.mess_name_ = name;
+            end
         end
         %
         function ser_struc = saveobj(obj)
