@@ -104,9 +104,6 @@ classdef sqw_formats_factory < handle
             %                    The errors are usually caused by missing or not-recognized (non-sqw) input files.
             %
             if iscell(sqw_file_name) % process range of files
-                for i = 1:numel(sqw_file_name)
-                    disp(sqw_file_name{i})
-                end
                 loader = cellfun(@(x)(obj.get_loader(x)),sqw_file_name,...
                     'UniformOutput',false);
                 return;
