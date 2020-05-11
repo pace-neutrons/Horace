@@ -43,8 +43,8 @@ function [s, e, npix, urange_step_pix, npix_retain, ok, ix] = accumulate_cut_mat
 %
 % Temporary and ineffective solution to keep pixels double all through the
 % Horace. TODO: redefine pixels as single and propagate it through all Horace
-if isa(v,'single')
-    v= double(v);
+if isa(v.data,'single')
+    v.data = double(v.data);
 end
 
 [indx,ok] = proj.get_contributing_pix_ind(v);
@@ -64,8 +64,8 @@ indx = indx(:,pax); % Now keep only the plot axes with at least two bins
 if ~isempty(pax)        % there is at least one plot axis with two or more bins
     indx=ceil(indx);    % indx contains the bin index for the plot axes (one row per pixel)
     indx(indx==0)=1;    % make sure index is between 1 and n
-    s    = s    + accumarray(indx, v(8,ok), size(s));
-    e    = e    + accumarray(indx, v(9,ok), size(s));
+    s    = s    + accumarray(indx, v.signals(ok), size(s));
+    e    = e    + accumarray(indx, v.errors(ok), size(s));
     npix = npix + accumarray(indx, ones(1,size(indx,1)), size(s));
     npix_retain = length(indx);
     % If keeping the information about individual pixels, get that information and single index into the column representation
@@ -80,8 +80,8 @@ if ~isempty(pax)        % there is at least one plot axis with two or more bins
         ix=[];
     end
 else
-    s    = s    + sum(v(8,ok));
-    e    = e    + sum(v(9,ok));
+    s    = s    + sum(v.signals(ok));
+    e    = e    + sum(v.errors(ok));
     npix = npix + size(indx,1);
     npix_retain = sum(ok(:));
     if keep_pix
