@@ -72,11 +72,11 @@ npix_read = sum(range(:));              % number of pixels that will be read fro
 
 % Copy data from ranges that may contribute to cut - we assume that if can hold the full data, we will have enough space to hold subset
 if hor_log_level>=1, bigtic(1), end
-v = zeros(ndatpix,npix_read);
+cut_pix_data = PixelData(zeros(ndatpix,npix_read));
 ibeg = cumsum([1;range(1:end-1)]);
 iend = cumsum(range);
 for i=1:length(range)
-    v(:,ibeg(i):iend(i)) = pix_in.data(:,nstart(i):nend(i));
+    cut_pix_data.data(:,ibeg(i):iend(i)) = pix_in.data(:,nstart(i):nend(i));
 end
 if hor_log_level>=1, t_read = bigtoc(1); end
 if hor_log_level>=2
@@ -89,15 +89,15 @@ if hor_log_level>=1, bigtic(2), end
 if hor_log_level>=0, disp(['Have data from ',num2str(npix_read),' pixels - now processing data...']), end
 [s, e, npix, urange_step_pix, npix_retain, ok, ix] = ...
     cut_data_from_file_job.accumulate_cut(s, e, npix, urange_step_pix, keep_pix, ...
-    v, proj, pax);
+    cut_pix_data, proj, pax);
 if hor_log_level>=1, t_accum = bigtoc(2); end
 
 % Sort pixels
 if keep_pix
     if hor_log_level>=1, bigtic(3), end
     if hor_log_level>=0, disp(['Sorting pixel information for ',num2str(npix_retain),' pixels']), end
-    pix = v(:,ok);          % pixels that are to be retained
-    clear v                 % no longer needed - was only a work array - so because it is large, clear before we (possibly) sort pixels
+    pix = cut_pix_data.data(:,ok);          % pixels that are to be retained
+    clear cut_pix_data                 % no longer needed - was only a work array - so because it is large, clear before we (possibly) sort pixels
 
     pix = sort_pix(pix,ix,npix);
 
