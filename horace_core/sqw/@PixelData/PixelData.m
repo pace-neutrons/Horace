@@ -16,6 +16,12 @@ classdef PixelData < matlab.mixin.SetGet
 %   >> pix_data.data = data;
 %   >> signal = get(pix_data, 'signal');
 %
+%  To retrieve multiple fields of data, e.g. irun and ienergy, for pixels 1 to
+%  10:
+%
+%   >> pix_data = PixelData(data)
+%   >> signal = pix_data.get_data({'irun', 'ienergy'}, 1:10);
+%
 % Attributes:
 %   data           The raw pixel data
 %   coordinates    Get/set the coords in projection axes of the pixel data (4 x n array)
@@ -29,6 +35,9 @@ classdef PixelData < matlab.mixin.SetGet
 properties (Access=private)
     PIXEL_BLOCK_COLS_ = 9;
     data_ = zeros(9, 0);
+    FIELD_INDEX_MAP_ = containers.Map(...
+        {'coordinates', 'irun', 'idet', 'ienergy', 'signals', 'errors'}, ...
+        {1:4, 5, 6, 7, 8, 9})
 end
 properties (Dependent)
     % Returns the full raw pixel data block (9 x n array)
@@ -110,10 +119,51 @@ methods
         nel = numel(obj.data);
     end
 
+    function data = get_data(obj, fields, pix_indices)
+        % Retrive data for a field, or fields, for the given pixel indices. If
+        % no pixel indices are given, all pixels are returned.
+        %
+        % This method provides a convinient way of retrieving multiple fields
+        % of data from the pixel block. When retrieving multiple fields, the
+        % columns of data will be ordered corresponding to the order the fields
+        % appear in the inputted cell array.
+        %
+        % Arguments:
+        %   fields      The name of a field, or a cell array of field names
+        %   pix_indices The pixel indices to retrieve, if not given, get full range
+        %
+        % Usage:
+        %   >> sig_and_err = pix.get_data({'signals', 'errors'})
+        %        retrives the signals and errors over the whole range of pixels
+        %
+        %   >> run_det_id_range = pix.get_data({'irun', 'idet'}, 4:10);
+        %        retrives the run and detector IDs for pixels 4 to 10
+        %
+        if ~isa(fields, 'cell')
+            fields = {fields};
+        end
+        try
+            field_indices = cell2mat(obj.FIELD_INDEX_MAP_.values(fields));
+        catch ME
+            switch ME.identifier
+            case 'MATLAB:Containers:Map:NoKey'
+                error('PIXELDATA:get_data', 'Invalid field requested.')
+            otherwise
+                rethrow(ME)
+            end
+        end
+
+        if nargin < 3
+            % No pixel indices given, return them all
+            data = obj.data(field_indices, :);
+        else
+            data = obj.data(field_indices, pix_indices);
+        end
+    end
+
     function pixel_data = get.data(obj)
         pixel_data = obj.data_;
     end
-
 
     function obj = set.data(obj, pixel_data)
         if size(pixel_data, 1) ~= obj.PIXEL_BLOCK_COLS_
