@@ -42,11 +42,11 @@ classdef test_cluster_wrapper < TestCase
             
             %--------------------------------------------------------------
             cluster = cluster.init_workers(jeInit,worker_init_mess);
-            % send ready messages do disable cluster locking            
+            % send ready messages do disable cluster locking
             meR1.send_message(0,'started');
-%             meR2.send_message(1,'started'); % these are now sent to
-%             worker 1 and not tested here
-%             meR3.send_message(1,'started');
+            %             meR2.send_message(1,'started'); % these are now sent to
+            %             worker 1 and not tested here
+            %             meR3.send_message(1,'started');
             
             [completed,cluster] = cluster.check_progress();
             assertEqual(cluster.status.mess_name,'started');
@@ -165,41 +165,52 @@ classdef test_cluster_wrapper < TestCase
                 % If no extra logical cores available, this test can do nothing
                 return
             end
-            msg_framework = MessagesFilebased('test_cluster_init');
-            clust = ClusterParpoolWrapper();
+            msg_framework = MessagesFilebased('logical_cores_when_n_workers_gt');
+            clust = ClusterParpoolWrapper(0,msg_framework);
+            clob = onCleanup(@()finalize_all(clust));            
             n_workers = physical_cores + 1;
             clust = clust.init(n_workers, msg_framework, ...
-                               herbert_config().log_level);
+                herbert_config().log_level);
             assertEqual(clust.n_workers, n_workers);
         end
-
+        
         function test_num_workers_set_when_n_workers_lt_num_physical_cores(obj)
             physical_cores = get_num_cores();
-            msg_framework = MessagesFilebased('test_cluster_init');
+            msg_framework = MessagesFilebased('num_workers_set_when_n_workers_lt');
             clust = ClusterParpoolWrapper();
+            
             n_workers = physical_cores - 1;
             clust = clust.init(n_workers, msg_framework, ...
-                               herbert_config().log_level);
+                herbert_config().log_level);
+            clob = onCleanup(@()finalize_all(clust));
+            
             assertEqual(clust.n_workers, n_workers);
         end
-
+        
         function test_num_workers_set_when_n_workers_eq_num_physical_cores(obj)
             physical_cores = get_num_cores();
-            msg_framework = MessagesFilebased('test_cluster_init');
-            clust = ClusterParpoolWrapper();
+            msg_framework = MessagesFilebased('num_workers_set_when_n_workers_eq');
+            
+            clust = ClusterParpoolWrapper(0,msg_framework);
             clust = clust.init(physical_cores, msg_framework, ...
-                               herbert_config().log_level);
+                herbert_config().log_level);
+            clob = onCleanup(@()finalize_all(clust));
+            
             assertEqual(clust.n_workers, physical_cores);
         end
         
         function test_init_fails_if_n_workers_gt_num_logical_cores(obj)
             [~, logical_cores] = get_num_cores();
-            msg_framework = MessagesFilebased('test_cluster_init');
+            msg_framework = MessagesFilebased('init_fails_if_n_workers');
+            clob1 = onCleanup(@()finalize_all(msg_framework));            
             clust = ClusterParpoolWrapper();
+            clob2 = onCleanup(@()finalize_all(clust));                        
+            
             n_workers = logical_cores + 1;
             assertExceptionThrown(@() clust.init(n_workers, msg_framework, ...
-                                  herbert_config().log_level), ...
-                                  'PARPOOL_CLUSTER_WRAPPER:runtime_error');
+                herbert_config().log_level), ...
+                'PARPOOL_CLUSTER_WRAPPER:runtime_error');
+            clob3 = onCleanup(@()finalize_all(clust));
         end
     end
 end
