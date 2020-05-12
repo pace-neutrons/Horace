@@ -60,7 +60,7 @@ urange_step_pix = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
 % intersect with the cut. As of 26 Sep 2018 the rest of the code works even if nstart is empty
 % but catching this case here avoids a lot of unnecessary working later on
 if isempty(nstart)
-    pix = zeros(ndatpix,0);
+    pix = PixelData(zeros(ndatpix,0));
     npix_retain = 0;
     npix_read = 0;
     return
@@ -96,14 +96,14 @@ if hor_log_level>=1, t_accum = bigtoc(2); end
 if keep_pix
     if hor_log_level>=1, bigtic(3), end
     if hor_log_level>=0, disp(['Sorting pixel information for ',num2str(npix_retain),' pixels']), end
-    pix = cut_pix_data.data(:,ok);          % pixels that are to be retained
+    pix = PixelData(cut_pix_data.data(:,ok));          % pixels that are to be retained
     clear cut_pix_data                 % no longer needed - was only a work array - so because it is large, clear before we (possibly) sort pixels
 
     pix = sort_pix(pix,ix,npix);
 
     if hor_log_level>=1, t_sort = bigtoc(3); end
 else
-    pix = [];
+    pix = PixelData();
 end
 
 if hor_log_level>=1

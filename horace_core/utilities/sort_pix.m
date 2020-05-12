@@ -2,8 +2,8 @@ function   pix = sort_pix(pix_retained,pix_ix_retained,npix,varargin)
 % function sorts pixels according to their indexes in n-D array npix
 %
 %input:
-% pix_retained   9xNpix array of pixels, which have to be sorted or sell array
-%       containing arrays of such pixels
+% pix_retained   PixelData object, which is to be sorted or a cell array
+%       containing arrays of PixelData objects
 %
 % ix    indexes of these pixels in n-D array or cell array of such indexes
 % npix  auxiliary array, containing numbers of pixels in each cell of
@@ -62,10 +62,10 @@ end
 %
 if use_mex
     try
-        % TODO: make "keep type" a default behaviour!        
+        % TODO: make "keep type" a default behaviour!
         % function retrieves keep_type variable value from this file
         % so returns double or single resolution pixels depending on this
-        pix = sort_pixels_by_bins(pix_retained,pix_ix_retained,npix);
+        pix = sort_pixels_by_bins(pix_retained.data, pix_ix_retained, npix);
         %pix = sort_pixels_by_bins(pix_retained,pix_ix_retained);
         clear pix_retained pix_ix_retained;  % clear big arrays
     catch ME
@@ -95,15 +95,15 @@ if ~use_mex
         pix = cat(2,pix_retained{:});
     end
     clear pix_retained;
-    pix=pix(:,ind);     % reorders pix
+    pix=PixelData(pix.data(:,ind));     % reorders pix
     clear ind;
     % TODO: make "keep type" a default behaviour!
     if ~keep_type
-        if ~isa(pix,'double')
-            pix = double(pix);
+        if ~isa(pix.data,'double')
+            pix.data = double(pix);
         end
     end
-    
+
 end
 
 
