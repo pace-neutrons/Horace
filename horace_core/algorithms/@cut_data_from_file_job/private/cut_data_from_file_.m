@@ -166,7 +166,7 @@ try
                 pix = accumulate_pix_to_file_(pix,false,pix_data,ok,ix_add,npix,pmax,del_npix_retain);
             else
                 n_blocks=n_blocks+1;
-                pix_retained{n_blocks} = pix_data.data(:,ok);    % accumulate pixels into buffer array
+                pix_retained{n_blocks} = PixelData(pix_data.data(:,ok));    % accumulate pixels into buffer array
                 pix_ix_retained{n_blocks} = ix_add;
             end
             if hor_log_level>=1, t_sort = t_sort + bigtoc(3); end

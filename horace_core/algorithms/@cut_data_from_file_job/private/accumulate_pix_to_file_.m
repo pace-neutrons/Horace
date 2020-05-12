@@ -27,7 +27,7 @@ end
 npix_now = npix; % npix is accumulated
 if del_npix_retain>0
     n_mem_blocks = n_mem_blocks + 1;
-    pix_mem_retained{n_mem_blocks} = v(:,ok);    % accumulate pixels into buffer array
+    pix_mem_retained{n_mem_blocks} = PixelData(v.data(:,ok));    % accumulate pixels into buffer array
     pix_mem_ix_retained{n_mem_blocks} = ix_add;
 end
 
@@ -38,7 +38,7 @@ end
 if finish_accum
     pix_comb_info= save_pixels_to_file(pix_comb_info);
     pix_comb_info.npix_cumsum = cumsum(npix(:));
-    
+
     pix_comb_info  = pix_comb_info.trim_nfiles(n_writ_files);
     clear npix_prev pix_mem_retained pix_mem_ix_retained n_pix_in_memory;
 end
@@ -55,7 +55,7 @@ end
         % clear current memory buffer state;
         n_mem_blocks = 0;
         clear pix_mem_retained pix_mem_ix_retained;
-        
+
         n_writ_files  = n_writ_files+1;
         file_name = pix_comb_info.infiles{n_writ_files};
         [mess,position] = put_sqw_data_npix_and_pix_to_file_(file_name,npix_in_mem,pix_2write);
