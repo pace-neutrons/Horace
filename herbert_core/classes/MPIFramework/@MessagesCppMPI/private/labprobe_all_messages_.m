@@ -65,4 +65,7 @@ else
     mid_from = addr_block(1,:);
 end
 % add persistent messages names to the messages, received from other labs
-[all_messages,mid_from] = obj.add_persistent(all_messages,mid_from,mes_addr_to_check);
+[all_messages,mid_from] = obj.retrieve_interrupt(all_messages,mid_from,mes_addr_to_check);
+if ~iscell(all_messages)
+    all_messages = {all_messages};
+end

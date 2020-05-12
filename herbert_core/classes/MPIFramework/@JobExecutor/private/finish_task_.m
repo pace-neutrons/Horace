@@ -50,7 +50,7 @@ if numel(argi) > 0 && ~isempty(argi{1})
     %    synchronize  = false;
     %end
 else
-    mess = aMessage('completed');
+    mess = CompletedMessage();
     if obj.return_results_
         mess.payload = obj.task_results_holder_;
     end

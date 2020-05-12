@@ -19,7 +19,7 @@ function [ok,err,fin_mess,obj] = reduce_messages_(obj,mess,mess_process_function
 %
 if ischar(mess)
     mess_name = mess;
-    the_mess = aMessage(mess_name);
+    the_mess = MESS_NAMES.instance().get_mess_class(mess_name);
 elseif isa(mess,'aMessage')
     the_mess = mess;
     mess_name = the_mess.mess_name;

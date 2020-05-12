@@ -29,6 +29,6 @@ end
 if ~isempty(mexc.cause)
     strct.cause = cell(numel(mexc.cause),1);
     for i=1:numel(mexc.cause)
-        strct.cause{i} = build_mex_stuct(mexc.cause{i});
+        strct.cause{i} = build_mes_stuct(mexc.cause{i});
     end
 end

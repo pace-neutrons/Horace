@@ -1,7 +1,5 @@
 classdef test_MException_her < TestCase
-    %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
-    %
+    % Test serializanble-deserializable exception
     
     properties
     end
@@ -27,7 +25,7 @@ classdef test_MException_her < TestCase
             %
             mex_str = myExc.saveobj();
             assertTrue(isstruct(mex_str));
-
+            
             
             MER = myExc.loadobj(mex_str);
             assertTrue(isa(MER,'MException'));

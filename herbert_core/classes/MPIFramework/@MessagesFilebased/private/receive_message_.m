@@ -135,7 +135,7 @@ message = mesl.message;
 err_code  =MESS_CODES.ok;
 err_mess=[];
 
-obj.check_set_persistent(message,mid_from(1));
+obj.set_interrupt(message,mid_from(1));
 
 % check if a message is from the data queue and we need to progress the data
 % queue

@@ -33,7 +33,7 @@ if ~isempty(message);   return; end
 
 
 mess_tag = MESS_NAMES.mess_id(mess_name);
-is_blocking = MESS_NAMES.is_blocking(mess_tag );
+is_blocking = MESS_NAMES.is_blocking(mess_name);
 try
     [obj.mpi_framework_holder_,mess_data]=cpp_communicator('labReceive',...
         obj.mpi_framework_holder_,int32(from_task_id),int32(mess_tag),...

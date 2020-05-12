@@ -54,7 +54,7 @@ classdef MESS_NAMES < handle
             % Builds message names constistent with messages factory
             %
             %
-            obj.initializing_= true;
+            obj.initializing_= true;            
             %
             % Define tag for message 'any' to be -1;
             tags_list = num2cell(-1:numel(MESS_NAMES.mess_names_)-2);
@@ -68,7 +68,8 @@ classdef MESS_NAMES < handle
             %
             % any message does not have class and used only for assigning
             % the tag to it
-            obj.mess_class_map_('any') = [];
+            obj.mess_class_map_('any') = struct('is_blocking',false,...
+                'is_persistent',false,'mess_name','any','tag',tags_list(1));
             obj.known_messages_{1} = 'any';
             
             for i=2:n_known_messages
@@ -142,10 +143,11 @@ classdef MESS_NAMES < handle
             % message.
             %
             persistent inst;
-            
+
             if isempty(inst)
                 inst = MESS_NAMES();
             end
+            
             % intitializing_ indicates subsequent calls to this function
             % within recursive messages constructor
             if ~inst.is_initialized && ~inst.initializing_

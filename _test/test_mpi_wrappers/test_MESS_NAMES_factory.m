@@ -12,7 +12,12 @@ classdef test_MESS_NAMES_factory< TestCase
             end
             obj = obj@TestCase(name);
         end
-        function test_persistent(obj)
+        function test_get_mess_class(~)
+            mni = MESS_NAMES.instance();
+            mess = mni.get_mess_class('failed');
+            assertTrue(isa(mess,'FailedMessage'));
+        end
+        function test_persistent(~)
             is = MESS_NAMES.is_persistent('failed');
             assertTrue(is);
             
@@ -68,9 +73,6 @@ classdef test_MESS_NAMES_factory< TestCase
                 assertTrue(mni.is_registered(name));
                 assertTrue(mni.is_subscribed(name));
                 mess = mni.get_mess_class(name);
-                if isempty(mess)
-                    continue;
-                end
                 
                 assertEqual(mess.mess_name,name);
                 assertEqual(mess.is_blocking,MESS_NAMES.is_blocking(name));

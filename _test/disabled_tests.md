@@ -13,3 +13,6 @@
 - test_job_dispatcher_mpiexec.m
   - test_job_fail_restart - Windows only        ! Random hand-uo of one or another
   - test_job_with_logs_3workers - Windows Only  ! on Windows.
+  
+- test_CPP_MPI_exchange
+  - test_JobExecutor ! Disabled as https://github.com/pace-neutrons/Herbert/issues/155

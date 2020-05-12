@@ -28,8 +28,8 @@ elseif isstruct(payload)
     end
 elseif isobject(payload)
     try
-        payload_p = payload.saveobj(payload);
-    catch
+        payload_p = payload.saveobj();
+    catch ME
         payload_p  = parce_payload_(struct(payload));
     end
 end

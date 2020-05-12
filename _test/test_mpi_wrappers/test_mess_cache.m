@@ -20,7 +20,7 @@ classdef test_mess_cache < TestCase
             
             mc.push_messages(3 ,LogMessage());
             mc.push_messages(5 ,LogMessage());
-            mc.push_messages(7 ,aMessage('completed'));
+            mc.push_messages(7 ,CompletedMessage());
             mc.push_messages(9 ,FailedMessage('failed'));
             mc.push_messages(10 ,LogMessage());
             
@@ -62,7 +62,7 @@ classdef test_mess_cache < TestCase
             
             mess_list{1} = LogMessage();
             mess_list{2} = LogMessage();
-            mess_list{3} = aMessage('completed');
+            mess_list{3} = CompletedMessage();
             mess_list{4} = FailedMessage('failed');
             tid = [3,4,5,9];
             
@@ -81,7 +81,7 @@ classdef test_mess_cache < TestCase
             assertEqual(mc.get_n_occupied,2)
             
             mess_list1{1} = LogMessage();
-            mess_list1{2} = aMessage('completed');
+            mess_list1{2} = CompletedMessage();
             tid = [3,4];
             mc.push_messages(tid,mess_list1);
             
@@ -109,7 +109,7 @@ classdef test_mess_cache < TestCase
             tid = [3,5,7,9,10];
             mess_list{tid(1)} = LogMessage();
             mess_list{tid(2)} = LogMessage();
-            mess_list{tid(3)} = aMessage('completed');
+            mess_list{tid(3)} = CompletedMessage();
             mess_list{tid(4)} = FailedMessage('failed');
             mess_list{tid(5)} = LogMessage();
             
@@ -138,7 +138,7 @@ classdef test_mess_cache < TestCase
             
             mc.push_messages(3 ,LogMessage());
             mc.push_messages(5 ,LogMessage());
-            mc.push_messages(7 ,aMessage('completed'));
+            mc.push_messages(7 ,CompletedMessage());
             mc.push_messages(9 ,FailedMessage('failed'));
             mc.push_messages(10 ,LogMessage());
             

@@ -65,12 +65,11 @@ classdef aMessage
             % Do not! modify to send tag instead of the name!
             % -- some special messages have the same tags but different
             %    names
-            cln = class(obj);
-            if (strcmp(cln,'aMessage'))
-                ser_struc = struct('mess_name',obj.mess_name_);
-            else
-                ser_struc = struct('class_name',cln);
-            end
+            
+            ser_struc = struct('message_name',obj.mess_name);
+            
+            ws = warning('off','MATLAB:structOnObject');
+            clob = onCleanup(@()warning(ws));
             ser_struc.payload = parce_payload_(obj.payload_);
         end
         %------------------------------------------------------------------
@@ -126,12 +125,7 @@ classdef aMessage
                 ss = ser_struc;
                 pp = ser_struc.payload;
             end
-            if (isfield(ss,'mess_name'))
-                obj = aMessage(ss.mess_name);
-                obj.is_blocking_ = ss.is_blocking;
-            else
-                obj = feval(ss.class_name);
-            end
+            obj = MESS_NAMES.instance().get_mess_class(ss.message_name);
             obj.payload_ = pp;
         end
     end
