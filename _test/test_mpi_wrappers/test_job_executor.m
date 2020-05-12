@@ -588,7 +588,7 @@ classdef test_job_executor< MPI_Test_Common
             assertEqual(mess.mess_name,'completed');
         end
         %
-        function test_init_mpiexec_mpi_fw(obj)
+        function DISABLED_test_init_mpiexec_mpi_fw(obj)
             if isempty(which('cpp_communicator'))
                 warning('TEST_JOB_EXECUTOR:not_available',...
                     'MPI framework executable is not available. Not testing it')
