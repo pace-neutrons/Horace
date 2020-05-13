@@ -24,12 +24,13 @@ classdef aMessage
         %-- Static class properties:
         %
         
-        % the message is a non-blocking message, i.e. if true, the next
+        % If the message is a blocking message. If false, the next
         % message of the same type overwrites this message, if this message
-        % has not been received.
+        % has not been received. If true, the system waits for message to
+        % be received.
         is_blocking;
         
-        % the message stays in the system until task is completed
+        % If the message stays in the system until task is completed
         % playing the role of parallel interrupt, which sticks until the
         % task is reset
         is_persistent;
@@ -126,7 +127,7 @@ classdef aMessage
                 pp = ser_struc.payload;
             end
             obj = MESS_NAMES.instance().get_mess_class(ss.message_name);
-            obj.payload_ = pp;
+            obj.payload_ = restore_payload_(pp);
         end
     end
     %
@@ -144,7 +145,6 @@ classdef aMessage
             % return the persistent state for a message
             is_pers = false;
         end
-        
     end
 end
 

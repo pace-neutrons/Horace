@@ -2,13 +2,16 @@ classdef FailedMessage < aMessage
     % Helper class defines a Failure message, used to inform
     % head-node and (possibly) other nodes that the job have failed.
     %
-    %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-    %
-    %
     properties(Dependent)
-        %
+        % The custon text, containig custom information about the failure
         fail_text
+        
+        % The field containing the Matlab exception, thrown by the program
+        % and containing information about the failure.
+        %
+        % if message was deserialized, the exception is converted into
+        % MException_her class, as standard MException can not be
+        % deserialized
         exception
     end
     properties(Access = protected)
@@ -21,7 +24,8 @@ classdef FailedMessage < aMessage
             % Inputs:
             % fail_text  -- the text which describes the error
             % error_exception -- the class of the Matlab exception type,
-            %               which  describes the caught exception
+            %                    which  contains the information about the
+            %                    problem.
             %
             obj = obj@aMessage('failed');
             
@@ -39,6 +43,14 @@ classdef FailedMessage < aMessage
             
             obj.payload     = struct('fail_reason',fail_text,...
                 'error',error_exception);
+        end
+        function struc = saveobj(obj)
+            %
+            if ~isempty(obj.payload) && isstruct(obj.payload)...
+                    && isa(obj.payload.error,'MException')
+                obj.payload.error = MException_her(obj.payload.error);
+            end
+            struc = saveobj@aMessage(obj);
         end
         
         function text = get.fail_text(obj)
@@ -62,7 +74,29 @@ classdef FailedMessage < aMessage
             % return the persistent state for a message
             is_pers = true;
         end
+%         function struc_r = replace_mexc_(struc)
+%             % function replaces reference to MException class, which is not
+%             % restorable at de-serialization to the reference to
+%             % MException_her class, which is deserializable.
+%             if ~isstruct(struc)
+%                 struc_r = struc;
+%                 return;
+%             end
+%             flds = fieldnames(struc);
+%             struc_r = struc;
+%             for i=1:numel(flds)
+%                 if strcmpi(flds{i},'class_name')
+%                     if strcmp(struc.class_name,'MException')
+%                         struc_r.class_name = 'MException_her';
+%                     end
+%                 elseif isstruct(struc.(flds{i}))
+%                     struc_r.(flds{i}) = FailedMessage.replace_mexc_(struc.(flds{i}));
+%                 end
+%             end
+%             
+%         end
     end
+    
 end
 
 

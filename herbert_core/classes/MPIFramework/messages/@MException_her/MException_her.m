@@ -42,14 +42,13 @@ classdef MException_her < MException
                             cs = MException(cs.identifier,cs.message);
                         end
                     end
-                    obj = obj.addCause(cs);
-                    
+                    obj = obj.addCause(cs);                    
                 end
             end
         end
         function mex_struc = saveobj(obj)
             % overload, giving access to custom saveobj
-            mex_struc = serialize_MException_(obj);
+            mex_struc = MException_to_struct_(obj);
         end
         %
         function [rep,fs] = getReport(obj)
