@@ -206,31 +206,32 @@ classdef test_main_mex < TestCase
             pix(3,:) = uz(:);
             pix(4,:) = et(:);
             pix(7,:) = 1:size(pix,2);
+            pix = PixelData(pix);
             npix = 4*ones(10,10,10,10);
-            ix = ceil(pix(1,:));
-            iy = ceil(pix(2,:));
-            iz = ceil(pix(3,:));
-            ie = ceil(pix(4,:));
+            ix = ceil(pix.coordinates(1,:));
+            iy = ceil(pix.coordinates(2,:));
+            iz = ceil(pix.coordinates(3,:));
+            ie = ceil(pix.coordinates(4,:));
             ix = sub2ind(size(npix), ix,iy,iz,ie);
 
             % test sorting parameters and matlab sorting
             pix1 = sort_pix(pix,ix,[]);
-            assertElementsAlmostEqual(pix1(7,1:4),[1810,1820,3810,3820]);
-            assertElementsAlmostEqual(pix1(7,5:8),[1809,1819,3809,3819]);
-            assertElementsAlmostEqual(pix1(7,end-3:end),[36181,36191,38181,38191]);
+            assertElementsAlmostEqual(pix1.ienergy(1:4),[1810,1820,3810,3820]);
+            assertElementsAlmostEqual(pix1.ienergy(5:8),[1809,1819,3809,3819]);
+            assertElementsAlmostEqual(pix1.ienergy(end-3:end),[36181,36191,38181,38191]);
 
             pix2 = sort_pix(pix,ix,npix,'-nomex');
-            assertElementsAlmostEqual(pix1,pix2);
+            assertElementsAlmostEqual(pix1.data,pix2.data);
 
             if ~get(hor_config,'use_mex')
                 return
             end
             % test mex
             pix1 = sort_pix(pix,ix,npix,'-force_mex');
-            assertElementsAlmostEqual(pix1(7,1:4),[1810,1820,3810,3820]);
+            assertElementsAlmostEqual(pix1.ienergy(1:4),[1810,1820,3810,3820]);
             assertElementsAlmostEqual(pix1,pix2);
 
-            pix0 = single(pix);
+            pix0 = PixelData(single(pix));
             ix0  = int64(ix);
             pix0a = sort_pix(pix0,ix0,npix,'-force_mex');
             assertElementsAlmostEqual(pix0a,pix2,'absolute',1.e-6);
