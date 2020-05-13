@@ -165,7 +165,7 @@ methods
         pixel_data = obj.data_;
     end
 
-    function obj = set.data(obj, pixel_data)
+    function set.data(obj, pixel_data)
         if size(pixel_data, 1) ~= obj.PIXEL_BLOCK_COLS_
             msg = ['Cannot set pixel data, invalid dimensions. Axis 1 must '...
                    'have length %i, found ''%i''.'];
