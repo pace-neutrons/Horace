@@ -100,7 +100,7 @@ if ~use_mex
     % TODO: make "keep type" a default behaviour!
     if ~keep_type
         if ~isa(pix.data,'double')
-            pix.data = double(pix);
+            pix = PixelData(double(pix.data));
         end
     end
 
