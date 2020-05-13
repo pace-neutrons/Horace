@@ -108,7 +108,7 @@ classdef test_nsqw2sqw_internal_methods < TestCase
 
             run_label = 0:nfiles-1;
             pix_comb = pix_combine_info(infiles,numel(sqw_data.npix),pos_npixstart,pos_pixstart,npixtot,run_label);
-            sqw_data.pix = PixelData(pix_comb);
+            sqw_data.pix = pix_comb;
             [fp,fn,fe] = fileparts(obj.test_targ_file);
             main_header_combined.filename = [fn,fe];
             main_header_combined.filepath = [fp,filesep];
