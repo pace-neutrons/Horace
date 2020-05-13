@@ -22,7 +22,7 @@ classdef test_MESS_NAMES_factory< TestCase
             assertTrue(is);
             
             is = MESS_NAMES.is_persistent(0);
-            assertTrue(is);
+            assertFalse(is);
             
             mess = aMessage('canceled');
             is = MESS_NAMES.is_persistent(mess);
@@ -30,7 +30,17 @@ classdef test_MESS_NAMES_factory< TestCase
             
         end
         %
-        function test_selection(obj)
+        function test_interrupts(~)
+            il = MESS_NAMES.instance().interrupts;
+            assertTrue(iscell(il))
+            assertTrue(numel(il)>=1)            
+            assertTrue(ismember('failed',il));
+            itag = MESS_NAMES.instance().interrupt_tags;
+            assertTrue(numel(itag)>=1)
+            assertTrue(isnumeric(itag))
+        end
+        %
+        function test_selection(~)
             name = MESS_NAMES.mess_name(8);
             assertTrue(ischar(name));
             
@@ -62,7 +72,7 @@ classdef test_MESS_NAMES_factory< TestCase
             %             assertEqual(ids,0);
         end
         %
-        function test_operations(obj)
+        function test_operations(~)
             mni = MESS_NAMES.instance();
             assertTrue(mni.is_initialized);
             

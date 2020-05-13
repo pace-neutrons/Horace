@@ -1,9 +1,8 @@
-function [id,tag,labReceiveSimulator] = get_mess_id_(tid_requested,message_id)
+function [id,tag] = get_mess_id_(tid_requested,message_id)
 % convert any format message id into the format, accepted by standard mpi
 %
 id = [];
 tag = [];
-labReceiveSimulator = [];
 if nargin == 0
     return;
 end

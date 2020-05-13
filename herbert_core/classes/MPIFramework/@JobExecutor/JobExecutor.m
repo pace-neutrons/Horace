@@ -426,6 +426,9 @@ classdef JobExecutor
             else % the framework is defined by the appropriate framework name
                 mf = feval(control_structure.intercomm_name);
                 mf = mf.init_framework(control_structure);
+                % set labNum and NumLabs for filebased  MPI framework,
+                % equal to values, defined for proper MPI framework to
+                % avoid cross-taling and invalid indexising
                 cntrl_node_exchange = cntrl_node_exchange.set_framework_range(mf.labIndex,mf.numLabs);
                 internode_exchange  = mf;
             end

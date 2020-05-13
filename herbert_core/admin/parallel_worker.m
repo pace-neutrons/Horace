@@ -17,6 +17,7 @@ function [ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING)
 % err_mess -- empty if ok==true and contains error message if it is not.
 % je       -- instance of a job executor, used to run the particular
 %             task after the task completion.
+%%
 
 if ~exist('DO_LOGGING','var')
     DO_LOGGING = false;
@@ -32,7 +33,7 @@ is_tested = mis.is_tested; % set up to tested state within unit tests.
 % other unit tests. The production job finishes Matlab and clean-up is not necessary
 % though doing no harm.
 clot = onCleanup(@()(setattr(mis,'is_deployed',false)));
-%--------------------------------------------------------------------------
+%% ------------------------------------------------------------------------
 % 1) step 1 of the worker initialization.
 %--------------------------------------------------------------------------
 % There was some issue in testing mpiexec mpi, when this string, provided in command line,
@@ -71,12 +72,14 @@ config_store.set_config_folder(config_exchange_folder);
 if DO_LOGGING;  fh = log_inputs_level1(); end
 
 keep_worker_running = true;
+%%
+
 num_of_runs = 0;
 while keep_worker_running
     mess_cache.instance().clear()
     if DO_LOGGING; num_of_runs = log_num_runs(num_of_runs); end
     %
-    %----------------------------------------------------------------------
+    %% --------------------------------------------------------------------
     % 2) step 2 of the worker initialization.
     %----------------------------------------------------------------------
     %
@@ -104,11 +107,11 @@ while keep_worker_running
     if DO_LOGGING; log_worker_init_received();  end
     % instantiate job executor class.
     je = feval(worker_init_data.JobExecutorClassName);
-    %----------------------------------------------------------------------
+    % ---------------------------------------------------------------------
     % step 2 of the worker initialization completed. a jobExecutor is
     % initialized and worker knows what to do when it finishes or
     % fails.
-    %----------------------------------------------------------------------
+    %% --------------------------------------------------------------------
     %
     %----------------------------------------------------------------------
     % 3) step 3 of the worker initialization. Initializing the particular
@@ -131,6 +134,7 @@ while keep_worker_running
     end
     if DO_LOGGING; log_init_received();   end
     
+    %%
     try
         if DO_LOGGING; log_init_je_started();  end
         % its waiting here until all tasks report "started" to node 1
@@ -159,7 +163,7 @@ while keep_worker_running
         % asynchronously.
         n_steps = je.n_steps;
         mis.do_logging(0,n_steps);
-        %
+        %%
         je.do_job_completed = false; % wait at barrier if exception in do_job
         while ~je.is_completed()
             je= je.do_job();
@@ -201,6 +205,7 @@ while keep_worker_running
             je.labBarrier(false);
             je.do_job_completed = true; % do not wait at barrier if cancellation here
         end
+        %
     catch ME % Catch error in users code and finish task gracefully.
         if DO_LOGGING; log_exception_caught();  end
         try
@@ -221,10 +226,15 @@ while keep_worker_running
             
         end
     end %Exception
-    if DO_LOGGING;  fprintf(fh,'************* finishing subtask: %s\n',fbMPI.job_id); end
-    [ok,err_mess] = je.finish_task();
-    if DO_LOGGING;  fprintf(fh,'************* subtask: %s  finished\n',fbMPI.job_id); end
     
+    %%
+    if DO_LOGGING;  fprintf(fh,'************* finishing subtask: %s\n',fbMPI.job_id); end
+    if is_tested
+        [ok,err_mess] = je.finish_task('-asynch');
+    else
+        [ok,err_mess] = je.finish_task();
+    end
+    if DO_LOGGING;  fprintf(fh,'************* subtask: %s  finished\n',fbMPI.job_id); end
 end
 %pause
 if exit_at_the_end

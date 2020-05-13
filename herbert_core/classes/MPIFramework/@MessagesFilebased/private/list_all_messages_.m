@@ -11,11 +11,11 @@ elseif ischar(task_ids_requested) && strcmpi(task_ids_requested,'any')
 end
 if ~exist('mess_name_or_tag','var')
     mess_tag_requested = [];
-    mess_names_req = {};    
+    mess_names_req = {};
 elseif ischar(mess_name_or_tag)
     if isempty(mess_name_or_tag) || strcmpi(mess_name_or_tag,'any')
         mess_tag_requested = [];
-        mess_names_req = {};            
+        mess_names_req = {};
     else
         mess_tag_requested = MESS_NAMES.mess_id(mess_name_or_tag);
         mess_names_req = mess_name_or_tag;
@@ -74,7 +74,15 @@ end
 if ~isempty(mess_tag_requested) % we have some particular message tags requested
     %mess_tags_present = MESS_NAMES.mess_id(all_messages);
     % allow to list fail message
-    is_requested  = ismember(all_messages,[mess_names_req(:);'failed']);
+    % interrupt message accepted even if not requested
+    fail_list = MESS_NAMES.instance().interrupts;
+    if iscell(mess_names_req)
+        rec_mess = [mess_names_req(:);fail_list(:)];
+    else
+        rec_mess = [mess_names_req;fail_list(:)];
+    end
+    
+    is_requested  = ismember(all_messages,rec_mess);
     all_messages = all_messages(is_requested);
     mid_from     = mid_from(is_requested);
 end

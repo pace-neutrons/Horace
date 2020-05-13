@@ -123,7 +123,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
                     cl.NumWorkers = n_requested_workers;
                 end
             end
-
+            
             num_labs = cl.NumWorkers;
             if num_labs < obj.n_workers
                 error('PARPOOL_CLUSTER_WRAPPER:runtime_error',...
@@ -254,12 +254,12 @@ classdef ClusterParpoolWrapper < ClusterWrapper
                             strcmp(obj.current_status_.mess_name,'log')
                         stat_mess = obj.current_status_;
                     else
-                        stat_mess  = MESS_NAMES.gen_empty_message(mess);
+                        stat_mess  = MESS_NAMES.instance().get_mess_class(mess);
                     end
                 elseif strcmp(mess,'finished')
-                    stat_mess = aMessage('completed');
+                    stat_mess = CompletedMessage();
                 else
-                    stat_mess = aMessage(mess);
+                    stat_mess = MESS_NAMES.instance().get_mess_class(mess);
                 end
             else
                 error('CLUSTER_WRAPPER:invalid_argument',...

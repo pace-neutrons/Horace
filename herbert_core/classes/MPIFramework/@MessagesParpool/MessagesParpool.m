@@ -1,20 +1,14 @@
 classdef MessagesParpool < iMessagesFramework
-    % The class providing file-based message exchange functionality for Herbert
-    % distributed jobs framework.
+    % The class providing Matlab Parallel Computing toolbox-based
+    % message exchange functionality for Herbert distributed jobs framework.
     %
-    % The framework's functionality is similar to parfor
-    % but does not required parallel toolbox and works by starting
-    % separate Matlab sessions to do separate tasks.
+    % The framework's functionality provides common Herbert interface to
+    % Matlab parallel computing toolbox messages exchange functionality.
+    %
+    %
     % Works in conjunction with worker function from admin folder,
     % The worker has to be placed on Matlab search path
     % defined before Herbert is initiated
-    %
-    %
-    % This class provides physical mechanism to exchange messages between tasks.
-    %
-    %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-    %
     %
     properties(Dependent)
     end
@@ -26,7 +20,9 @@ classdef MessagesParpool < iMessagesFramework
         % time to wait for a message send from one session can be read from
         % another one.
         time_to_react_ = 0.1
-        mess_stack_ = {};
+        % holder to the class, wrapping Matlab MPI framework (parallel
+        % computing toolbox)
+        MPI_ = [];
     end
     %----------------------------------------------------------------------
     methods
@@ -48,7 +44,6 @@ classdef MessagesParpool < iMessagesFramework
             if nargin>0
                 jd = jd.init_framework(varargin{1});
             end
-            jd.mess_stack_ = cell(1,jd.numLabs);
         end
         %------------------------------------------------------------------
         % HERBERT Job control interface
@@ -71,7 +66,9 @@ classdef MessagesParpool < iMessagesFramework
         %
         function [ok,err_mess,message] = receive_message(obj,varargin)
             % receive message from a task with specified id
-            % Blocking until message is received.
+            %
+            % Blocking until correspondent Send is issued at the requested worker
+            %
             %
             %Usage
             %>>[ok,err,message] = obj.receive_message() -- Receive any message.
@@ -84,6 +81,7 @@ classdef MessagesParpool < iMessagesFramework
         function [ok,err_mess] = send_message(obj,task_id,message)
             % send message to a task with specified id
             % NonBlocking
+            %
             % Usage:
             % >>mf = MessagesFramework();
             % >>mess = aMessage('mess_name')
@@ -95,13 +93,7 @@ classdef MessagesParpool < iMessagesFramework
             ok = true;
             err_mess = [];
             try
-                if isa(message,'aMessage')
-                    tag = message.tag;
-                elseif ischar(message)
-                    tag = MESS_NAMES.mess_id(message);
-                    message = aMessage(message);
-                end
-                labSend(message,task_id,tag);
+                obj.MPI_.labSend(message,task_id);
             catch Err
                 ok = false;
                 err_mess = Err;
@@ -186,8 +178,8 @@ classdef MessagesParpool < iMessagesFramework
             end
         end
         %
-        function [ok,err]=labBarrier(obj,nothrow)
-            labBarrier;
+        function [ok,err]=labBarrier(obj,~)
+            obj.MPI_.labBarrier();
             ok = true;
             err = [];
         end
@@ -206,10 +198,10 @@ classdef MessagesParpool < iMessagesFramework
     %----------------------------------------------------------------------
     methods (Access=protected)
         function ind = get_lab_index_(obj)
-            ind = labindex();
+            ind = obj.MPI_.labIndex;
         end
         function nl = get_num_labs_(obj)
-            nl = numlabs();
+            nl = obj.MPI_.numLabs;
         end
         
     end

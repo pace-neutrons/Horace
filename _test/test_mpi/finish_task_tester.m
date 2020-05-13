@@ -57,7 +57,7 @@ try
     % initiate file-based framework to exchange messages between head node and
     % the pool of workers
     init_message =  InitMessage('dummy_not_used',3,true,1);
-
+    
     je = JETester();
     [je,mess] = je.init(fbMPI,intercomm,init_message);
     labind = intercomm.labIndex();
@@ -77,7 +77,11 @@ try
             intercomm.send_message(i,'completed');
         end
     end
-    ok=je.finish_task();
+    if mis.is_tested % serial execution
+        ok=je.finish_task('-asynch');
+    else
+        ok=je.finish_task();
+    end
 catch ME
     intercomm.clear_messages();
     rethrow(ME);

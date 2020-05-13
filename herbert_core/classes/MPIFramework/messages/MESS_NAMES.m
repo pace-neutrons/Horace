@@ -16,12 +16,21 @@ classdef MESS_NAMES < handle
     % specify what kind of message should be transferred in which way.
     %
     %
-    % WARNING! failed message needs to have tag==0, as this is hardcoded in
-    % filebased messages framework.
-    %
     properties
+        % list of the messages, registered with the factory.
         known_messages;
+        
+        % true when all messages subscribed to the factory through their
+        % names have instantiated their classes and registered them with
+        % the factory.
         is_initialized;
+        
+        % list of the names of the persistent messages, which represent
+        % interrupts:
+        interrupts
+        
+        % tags of the messages, which are the interrupts messages
+        interrupt_tags;
     end
     properties(Constant,Access=private)
         % define list of the messages, known to the factory.
@@ -42,7 +51,16 @@ classdef MESS_NAMES < handle
         % the map between messge tag and message meaningful name
         tag_to_name_map_ = containers.Map('KeyType','double','ValueType','char');
         % list of the defined and initialised messages
+        interrupts_map_ = containers.Map('KeyType','double','ValueType','char')
+        % property containing the list or registered message names.
+        % If all messages are registered properly and factory is activated,
+        % all messages from mess_names_ are registered and known_messages_
+        % == mess_names_. Used as helper to debug factory and as check for
+        % is_initialized property.
         known_messages_ = {};
+        % helper property. When true, used to  disable recursive call to
+        % the factory in the process of registering message classes with
+        % the factory.
         initializing_ = false;
     end
     methods(Access = private)
@@ -54,7 +72,7 @@ classdef MESS_NAMES < handle
             % Builds message names constistent with messages factory
             %
             %
-            obj.initializing_= true;            
+            obj.initializing_= true;
             %
             % Define tag for message 'any' to be -1;
             tags_list = num2cell(-1:numel(MESS_NAMES.mess_names_)-2);
@@ -83,6 +101,12 @@ classdef MESS_NAMES < handle
                 end
                 obj.mess_class_map_(m_name) = mess_class;
                 obj.known_messages_{end+1} = m_name;
+                
+                % register all interrupts messages with interupts map.
+                if mess_class.is_persistent
+                    inter_tag = obj.name_to_tag_map_(m_name);
+                    obj.interrupts_map_(inter_tag) = m_name;
+                end
             end
             obj.initializing_ = false;
         end
@@ -134,6 +158,19 @@ classdef MESS_NAMES < handle
                     'The name %s is not a registered message name\n',a_name{:});
             end
         end
+        
+        function lst = get.interrupts(obj)
+            % return list of the messages, which considered as interrupt
+            % messages
+            lst = obj.interrupts_map_.values;
+        end
+        function tgs = get.interrupt_tags(obj)
+            % return the tags of the messages, which considered as interrupt
+            % messages
+            tgs = obj.interrupts_map_.keys;
+            tgs = [tgs{:}];
+        end
+        
     end
     
     
@@ -143,7 +180,7 @@ classdef MESS_NAMES < handle
             % message.
             %
             persistent inst;
-
+            
             if isempty(inst)
                 inst = MESS_NAMES();
             end
@@ -222,7 +259,7 @@ classdef MESS_NAMES < handle
                         'UniformOutput',false);
                 else
                     name = code2name_map(mess_id);
-                end 
+                end
             else
                 error('MESS_NAMES:invalid_argument',...
                     'name %s is not recognized as a message name',messname)
@@ -301,7 +338,6 @@ classdef MESS_NAMES < handle
             
         end
         %
-        
     end
 end
 

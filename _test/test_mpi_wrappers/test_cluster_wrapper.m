@@ -166,8 +166,10 @@ classdef test_cluster_wrapper < TestCase
                 return
             end
             msg_framework = MessagesFilebased('logical_cores_when_n_workers_gt');
+            clob1 = onCleanup(@()finalize_all(msg_framework));
+            
             clust = ClusterParpoolWrapper(0,msg_framework);
-            clob = onCleanup(@()finalize_all(clust));            
+            clob = onCleanup(@()finalize_all(clust));
             n_workers = physical_cores + 1;
             clust = clust.init(n_workers, msg_framework, ...
                 herbert_config().log_level);
@@ -177,12 +179,14 @@ classdef test_cluster_wrapper < TestCase
         function test_num_workers_set_when_n_workers_lt_num_physical_cores(obj)
             physical_cores = get_num_cores();
             msg_framework = MessagesFilebased('num_workers_set_when_n_workers_lt');
+            clob1 = onCleanup(@()finalize_all(msg_framework));
             clust = ClusterParpoolWrapper();
+            clob = onCleanup(@()finalize_all(clust));
             
             n_workers = physical_cores - 1;
             clust = clust.init(n_workers, msg_framework, ...
                 herbert_config().log_level);
-            clob = onCleanup(@()finalize_all(clust));
+            
             
             assertEqual(clust.n_workers, n_workers);
         end
@@ -190,11 +194,14 @@ classdef test_cluster_wrapper < TestCase
         function test_num_workers_set_when_n_workers_eq_num_physical_cores(obj)
             physical_cores = get_num_cores();
             msg_framework = MessagesFilebased('num_workers_set_when_n_workers_eq');
+            clob1 = onCleanup(@()finalize_all(msg_framework));
             
             clust = ClusterParpoolWrapper(0,msg_framework);
+            clob = onCleanup(@()finalize_all(clust));
+            
             clust = clust.init(physical_cores, msg_framework, ...
                 herbert_config().log_level);
-            clob = onCleanup(@()finalize_all(clust));
+            clob2 = onCleanup(@()finalize_all(clust));
             
             assertEqual(clust.n_workers, physical_cores);
         end
@@ -202,9 +209,9 @@ classdef test_cluster_wrapper < TestCase
         function test_init_fails_if_n_workers_gt_num_logical_cores(obj)
             [~, logical_cores] = get_num_cores();
             msg_framework = MessagesFilebased('init_fails_if_n_workers');
-            clob1 = onCleanup(@()finalize_all(msg_framework));            
+            clob1 = onCleanup(@()finalize_all(msg_framework));
             clust = ClusterParpoolWrapper();
-            clob2 = onCleanup(@()finalize_all(clust));                        
+            clob2 = onCleanup(@()finalize_all(clust));
             
             n_workers = logical_cores + 1;
             assertExceptionThrown(@() clust.init(n_workers, msg_framework, ...

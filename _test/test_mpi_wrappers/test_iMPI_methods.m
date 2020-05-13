@@ -11,7 +11,6 @@ classdef test_iMPI_methods< TestCase
         % if parallel toolbox is not available or parallel framework is not
         % available, test should be counted as  passed but ignored.
         % Warning is necessary.
-        ignore_test = false;
     end
     methods
         %
@@ -25,22 +24,11 @@ classdef test_iMPI_methods< TestCase
             obj.current_config_folder = cs.config_folder;
             
             pc = parallel_config;
-            if strcmpi(pc.parallel_framework,'none')
-                obj.ignore_test = true;
-                warning('test_iMPI_methods:not_available',...
-                    ['unit test to check parallel framework is not available'...
-                    ' as framework is not installed properly'])
-                return;
-            end
             
             obj.current_config = pc.get_data_to_store;
         end
         %
         function tearDown(obj)
-            if obj.ignore_test
-                return;
-            end
-            
             % Here we restore the initial configuration as the previous
             % configuration may be restored on remote machine
             cs = config_store.instance();
@@ -53,8 +41,8 @@ classdef test_iMPI_methods< TestCase
             mf = MessagesFilebased();
             
             mf.set_interrupt(FailedMessage('bad faulure'),1);
-            mf.set_interrupt(CompletedMessage(),10);
-            mf.set_interrupt(CompletedMessage(),5);
+            mf.set_interrupt(FailedMessage(),10);
+            mf.set_interrupt(FailedMessage(),5);
             
             other_mess ={};
             other_id   =[];
@@ -75,18 +63,25 @@ classdef test_iMPI_methods< TestCase
             assertEqual(numel(mess),5);
             assertEqual(numel(ids),5);
             assertEqual(ids,int32([1,4,5,7,10]));
-            assertEqual(mess{1},'failed');            
-            assertEqual(mess{2},'data');                        
-            assertEqual(mess{3},'completed');                                    
-            assertEqual(mess{4},'log');                                                
-            assertEqual(mess{5},'completed');                                                            
+            assertEqual(mess{1},'failed');
+            assertEqual(mess{2},'data');
+            assertEqual(mess{3},'failed');
+            assertEqual(mess{4},'log');
+            assertEqual(mess{5},'failed');
         end
         %
-        function test_persistent(~)
+        function test_persistent_absent(~)
             mf = MessagesFilebased();
             assertTrue(isempty(mf.get_interrupt(1)));
             
             mf.set_interrupt(LogMessage(),1);
+            assertTrue(isempty(mf.get_interrupt(1)));
+            
+            me = mf.get_interrupt(2);
+            assertTrue(isempty(me));
+        end
+        function test_persistent_present(~)
+            mf = MessagesFilebased();
             assertTrue(isempty(mf.get_interrupt(1)));
             
             mf.set_interrupt(FailedMessage('bad faulure'),1);
@@ -100,16 +95,40 @@ classdef test_iMPI_methods< TestCase
             assertEqual(numel(me),1);
             assertEqual(id,int32(1));
             
-            mf.set_interrupt(CompletedMessage(),10);
+            mf.set_interrupt(FailedMessage(),10);
             [me,id] = mf.get_interrupt('any');
             assertEqual(numel(me),2);
             assertEqual(id,int32([1,10]));
             
-            mf.set_interrupt(CompletedMessage(),4);
+            mf.set_interrupt(FailedMessage(),4);
             [me,id] = mf.get_interrupt(1:5);
             assertEqual(numel(me),2);
             assertEqual(id,int32([1,4]));
         end
+        function test_persistent_get_from_empty(~)
+            mf = MessagesFilebased();
+            assertTrue(isempty(mf.get_interrupt(1)));
+            
+            mf.set_interrupt(FailedMessage('bad faulure'),1);
+            me = mf.get_interrupt(1);
+            assertTrue(isa(me,'FailedMessage'));
+            
+            [me,id] = mf.get_interrupt([]);
+            assertEqual(numel(me),1);
+            assertEqual(id,int32(1));
+            
+            mf.set_interrupt(FailedMessage(),10);
+            [me,id] = mf.get_interrupt([]);
+            assertEqual(numel(me),2);
+            assertEqual(id,int32([1,10]));
+            
+            mf.set_interrupt(FailedMessage(),4);
+            [me,id] = mf.get_interrupt(1:5);
+            assertEqual(numel(me),2);
+            assertEqual(id,int32([1,4]));
+        end
+        
+        
         %
         function test_serialize_deserialize(~)
             mf = MFTester('test_ser_deser');
@@ -127,10 +146,6 @@ classdef test_iMPI_methods< TestCase
         end
         %
         function test_mpi_worker_single_thread(obj,varargin)
-            if obj.ignore_test
-                return;
-            end
-            
             if nargin>1
                 clob1 = onCleanup(@()tearDown(obj));
             end
