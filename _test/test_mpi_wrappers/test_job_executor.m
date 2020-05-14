@@ -654,7 +654,7 @@ classdef test_job_executor< MPI_Test_Common
             end
             clob1 = onCleanup(@()reset_config(cf));
             % generate control with different types of frameoworks.
-            css1= serverfbMPI.get_worker_init('MessagesParpool');
+            css1= serverfbMPI.get_worker_init('MessagesParpool',1,1);
             
             ok = finish_task_tester(css1);
             assertTrue(ok);

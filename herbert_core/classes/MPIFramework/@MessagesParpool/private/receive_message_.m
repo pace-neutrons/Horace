@@ -13,7 +13,7 @@ if ~isempty(message);   return; end
 
 try
     message = obj.MPI_.labReceive(id,tag);
-    obj.set_intrrupt(message,id);   
+    obj.set_interrupt(message,id);   
 catch Err
     err_code = MESS_CODES.a_recieve_error;
     err_mess = Err;

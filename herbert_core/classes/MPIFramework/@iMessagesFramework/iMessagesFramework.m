@@ -55,10 +55,10 @@ classdef iMessagesFramework < handle
             set_job_id_(obj,val);
         end
         %
-        %
         function ind = get.labIndex(obj)
             ind = get_lab_index_(obj);
         end
+        %
         function ind = get.numLabs(obj)
             ind = get_num_labs_(obj);
         end

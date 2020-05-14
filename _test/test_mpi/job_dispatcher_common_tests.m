@@ -82,7 +82,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             assertTrue(sum(fin) > 1)
 
             clear co;
-            % check long job canceled due to part of the job failed
+            % check long job cancelled due to part of the job failed
             [outputs, n_failed, ~, jd] = jd.restart_job('JETester', common_param, 99, true, true, 1);
 
             assertTrue(n_failed >= 2);

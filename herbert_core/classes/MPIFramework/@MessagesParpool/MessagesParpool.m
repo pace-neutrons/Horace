@@ -11,6 +11,8 @@ classdef MessagesParpool < iMessagesFramework
     % defined before Herbert is initiated
     %
     properties(Dependent)
+        % return true if the framework is tested
+        is_tested
     end
     %----------------------------------------------------------------------
     properties(Constant=true)
@@ -23,6 +25,8 @@ classdef MessagesParpool < iMessagesFramework
         % holder to the class, wrapping Matlab MPI framework (parallel
         % computing toolbox)
         MPI_ = [];
+        %
+        mess_cache_
     end
     %----------------------------------------------------------------------
     methods
@@ -39,7 +43,16 @@ classdef MessagesParpool < iMessagesFramework
             % jd = MessagesFramework('target_name') -- add prefix
             %      which describes this job.
             %
-            
+            % jd = MessagesFramework(control_structure) Where the control
+            %      structure is the structure with fields:
+            %    - job_id -- the string containing job description (like
+            %                the one in 'target_name' above.
+            %  Optional: (if these fields are present, the messages
+            %              framework is initialized in test mode)
+            %   - labNum  -- number of this node in test mode
+            %
+            %   - numLabs -- number of fake 'Virtual nodes' surrounding
+            %                this node in the test mode
             jd = jd@iMessagesFramework();
             if nargin>0
                 jd = jd.init_framework(varargin{1});
@@ -159,6 +172,7 @@ classdef MessagesParpool < iMessagesFramework
             %
             [all_messages,task_ids] = receive_all_messages_(obj,varargin{:});
         end
+        %
         function finalize_all(obj)
             obj.clear_messages();
         end
@@ -167,14 +181,22 @@ classdef MessagesParpool < iMessagesFramework
             % delete all messages belonging to this instance of messages
             % framework.
             %
+            % Clear persistent fail message may be present in parent
+            % framework
             obj.persistent_fail_message_ = [];
-            if obj.numLabs == 1
-                return
-            end
-            [isDataAvail,srcWkrIdx,tag] = labProbe();
+            % clear cached messages
+            obj.mess_cache_.clear();
+            %             if obj.numLabs == 1
+            %                 return
+            %             end
+            % receive and reject all messages, may be present in the
+            % messages framework.
+            [isDataAvail,tag,srcWkrIdx] = obj.MPI_.labProbe([],[]);
             while isDataAvail
-                labReceive(srcWkrIdx,tag);
-                [isDataAvail,srcWkrIdx,tag] = labProbe();
+                for i=1:numel(srcWkrIdx)
+                    obj.MPI_.labReceive(srcWkrIdx(i),tag(i));
+                end
+                [isDataAvail,tag,srcWkrIdx] = obj.MPI_.labProbe([],[]);
             end
         end
         %
@@ -183,6 +205,7 @@ classdef MessagesParpool < iMessagesFramework
             ok = true;
             err = [];
         end
+        %
         function is = is_job_canceled(obj)
             % method verifies if job has been canceled
             mess = obj.probe_all('any','canceled');
@@ -193,7 +216,22 @@ classdef MessagesParpool < iMessagesFramework
             end
             
         end
-        
+        % ----------------------------------------------------------------
+        % Test methods
+        %
+        function is = get.is_tested(obj)
+            is = obj.MPI_.is_tested;
+        end
+        function obj = set_mpi_wrapper(obj,wrapper)
+            if ~isa(wrapper,'MatlabMPIWrapper')
+                error('MESSAGES_PARPOOL:invalid_argument',...
+                    ' Only MPI wrapper can be provided as input for this function');
+            end
+            obj.MPI_ = wrapper;
+        end
+        function wrapper = get_mpi_wrapper(obj)
+            wrapper = obj.MPI_;
+        end
     end
     %----------------------------------------------------------------------
     methods (Access=protected)

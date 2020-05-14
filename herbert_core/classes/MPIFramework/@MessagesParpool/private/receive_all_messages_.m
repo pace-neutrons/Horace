@@ -30,10 +30,11 @@ not_this_id = task_ids ~= obj.labIndex;
 tid_requested = task_ids(not_this_id);
 tid_received_from = tid_requested;
 
-mc = mess_cache.instance();
-%log_file_h = mc.log_file_h;
+% use cache for persistent messages
 
-[all_messages,mess_present] = mc.get_cache_messages(tid_requested,mess_name,lock_until_received);
+%log_file_h =  obj.mess_cache_.log_file_h;
+
+[all_messages,mess_present] = obj.mess_cache_.get_cache_messages(tid_requested,mess_name,lock_until_received);
 n_requested = numel(all_messages);
 % if any(mess_present)
 %     fprintf(log_file_h,' Old messages present\n');
@@ -73,7 +74,7 @@ while ~all_received
         if strcmp(message.mess_name,'failed') || is_failed
             % failed message is persistent.
             % Make it ready for the next possible receive request
-            mc.push_messages(tid_to_ask,message);
+            obj.mess_cache_.push_messages(tid_to_ask,message);
             is_failed = true;
         else
             is_failed = false;
@@ -89,7 +90,7 @@ while ~all_received
                     all_messages{i}  = message;
                 else
                     if all_messages{i}.is_blocking
-                        mc.push_messages(tid_to_ask,message);
+                        obj.mess_cache_.push_messages(tid_to_ask,message);
                     else
                         all_messages{i}  = message;
                     end
@@ -97,7 +98,7 @@ while ~all_received
                 mess_present(i)  = true;
             else
                 % wrong message, receive and store it for the future
-                mc.push_messages(tid_to_ask,message);
+                obj.mess_cache_.push_messages(tid_to_ask,message);
             end
         else
             all_messages{i}  = message;

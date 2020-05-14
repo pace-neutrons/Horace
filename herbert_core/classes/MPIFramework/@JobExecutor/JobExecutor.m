@@ -170,7 +170,6 @@ classdef JobExecutor
             % clear all possible messages stored in message cache. Should
             % be irrelevant but may be usefil for reinitializing a job
             % executor to run different task on the same parallel worker.
-            mess_cache.instance('delete');
             if ~exist('is_tested','var')
                 synchronize = true;
             else

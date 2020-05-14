@@ -5,9 +5,6 @@ classdef mess_cache < handle
     % Assumed only one message of any kind per lab and any subsequent
     % message from a lab overwrites all previous messages, received from this
     % lab.
-    properties
-        
-    end
     properties(Dependent)
         % when the class is initialized, this should be set to the number of
         % workers in the pool.
@@ -25,27 +22,42 @@ classdef mess_cache < handle
     end
     
     
-    methods(Static)
-        function obj = instance(varargin)
-            persistent cache;
-            if nargin>0
-                if ischar(varargin{1}) % clear cache holder
-                    clear cache;
-                    cache = [];
-                    return;
-                else
-                    argi = varargin;
-                end
-            else
-                argi = {};
-            end
-            if isempty(cache)
-                cache = mess_cache(argi{:});
-            end
-            obj = cache;
-        end
-    end
+    %     methods(Static)
+    %         function obj = instance(varargin)
+    %             persistent cache;
+    %             if nargin>0
+    %                 if ischar(varargin{1}) % clear cache holder
+    %                     clear cache;
+    %                     cache = [];
+    %                     return;
+    %                 else
+    %                     argi = varargin;
+    %                 end
+    %             else
+    %                 argi = {};
+    %             end
+    %             if isempty(cache)
+    %                 cache = mess_cache(argi{:});
+    %             end
+    %             obj = cache;
+    %         end
+    %     end
     methods
+        function obj = mess_cache(num_labs)
+            if ~exist('num_labs','var')
+                num_labs = 1;
+            end
+            obj.init(num_labs);
+        end
+        %
+        function init(obj,num_labs)
+            obj.mess_cache_ = cell(1,num_labs);
+            obj.cache_capacity_ = num_labs;
+            for i=1:num_labs
+                obj.mess_cache_{i} = copy(single_tid_mess_queue);
+            end
+        end
+        
         function push_messages(obj,task_ids,mess)
             if iscell(mess) %list of messages
                 if numel(task_ids) ~= numel(mess)
@@ -137,16 +149,17 @@ classdef mess_cache < handle
                         all_messages{i} = old_mess{n_message};
                     end
                 end
-            end
-            
-            
+            end            
         end
+        %
         function sz = get.cache_capacity(obj)
             sz = obj.cache_capacity_;
         end
+        %
         function noc = get_n_occupied(obj)
             noc = sum(cellfun(@(x)(x.length~=0),obj.mess_cache_,'UniformOutput',true));
         end
+        %
         function clear(obj)
             % clear cache contents without changing the cache capacity
             num_labs= obj.cache_capacity_;
@@ -156,6 +169,7 @@ classdef mess_cache < handle
             end
             
         end
+        %
         function fh = get.log_file_h(obj)
             if isempty(obj.log_file_h_)
                 fn = sprintf('Log_file_worker%d.txt',labindex);
@@ -163,32 +177,14 @@ classdef mess_cache < handle
             end
             fh = obj.log_file_h_;
         end
+        %
         function delete(obj)
             if ~isempty(obj.log_file_h_ )
                 fclose(obj.log_file_h_ );
                 obj.log_file_h_  = [];
             end
-            obj.instance('delete');
+            obj.init(1);
         end
-    end
-    methods(Access = private)
-        function obj = mess_cache(num_labs)
-            if ~exist('num_labs','var')
-                nmp = which('numlabs');
-                if isempty(nmp)
-                    num_labs = 1;
-                else
-                    num_labs = numlabs; % MPI numlabs
-                end
-            end
-            obj.mess_cache_ = cell(1,num_labs);
-            obj.cache_capacity_ = num_labs;
-            for i=1:num_labs
-                obj.mess_cache_{i} = copy(single_tid_mess_queue);
-            end
-            
-        end
-        
     end
 end
 

@@ -76,7 +76,6 @@ keep_worker_running = true;
 
 num_of_runs = 0;
 while keep_worker_running
-    mess_cache.instance().clear()
     if DO_LOGGING; num_of_runs = log_num_runs(num_of_runs); end
     %
     %% --------------------------------------------------------------------

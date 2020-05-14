@@ -31,7 +31,7 @@ classdef JETester < JobExecutor
             n_steps = obj.n_iterations_;
             task_num = obj.labIndex;
             disp('****************************************************');
-            disp(['labN: ',num2str(task_num),' genrating n_files: ',num2str(n_steps)]);
+            disp(['labN: ',num2str(task_num),' generating n_files: ',num2str(n_steps)]);
             %fh = mess_cache.instance().log_file_h;
             %fprintf(fh,'entering do-job loop\n');
             job_par = obj.common_data_;

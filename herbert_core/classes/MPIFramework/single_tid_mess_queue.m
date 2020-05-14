@@ -55,9 +55,9 @@ classdef single_tid_mess_queue < matlab.mixin.Copyable
         function push(obj,mess)
             % add message to the end of the queue
             if ischar(mess) && strcmp(mess,'failed')
-                obj.failed_ = aMessage('failed');
+                obj.failed_ = FailedMessage();
                 return
-            elseif isa(mess,'aMessage') && strcmp(mess.mess_name,'failed')
+            elseif isa(mess,'aMessage') && mess.is_persistent
                 obj.failed_ = mess;
                 return;
             end

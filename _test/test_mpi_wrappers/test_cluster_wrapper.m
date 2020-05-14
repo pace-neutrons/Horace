@@ -165,28 +165,27 @@ classdef test_cluster_wrapper < TestCase
                 % If no extra logical cores available, this test can do nothing
                 return
             end
-            msg_framework = MessagesFilebased('logical_cores_when_n_workers_gt');
-            clob1 = onCleanup(@()finalize_all(msg_framework));
-            
-            clust = ClusterParpoolWrapper(0,msg_framework);
-            clob = onCleanup(@()finalize_all(clust));
+            msg_framework = MessagesFilebased('logical_cores_when_n_workers_gt');            
+            clust = ClusterParpoolWrapper();
+
             n_workers = physical_cores + 1;
             clust = clust.init(n_workers, msg_framework, ...
                 herbert_config().log_level);
+            clob = onCleanup(@()finalize_all(clust));            
+            
             assertEqual(clust.n_workers, n_workers);
+
         end
         
         function test_num_workers_set_when_n_workers_lt_num_physical_cores(obj)
             physical_cores = get_num_cores();
             msg_framework = MessagesFilebased('num_workers_set_when_n_workers_lt');
-            clob1 = onCleanup(@()finalize_all(msg_framework));
             clust = ClusterParpoolWrapper();
-            clob = onCleanup(@()finalize_all(clust));
             
             n_workers = physical_cores - 1;
             clust = clust.init(n_workers, msg_framework, ...
                 herbert_config().log_level);
-            
+            clob = onCleanup(@()finalize_all(clust));
             
             assertEqual(clust.n_workers, n_workers);
         end
