@@ -98,7 +98,7 @@ if ~isempty(ind_signal)
     c.pixels(:,6)=sqrt(xdevsqr{ind_signal});
 else
     c.pixels(:,5)=w.data.pix.signals';
-    c.pixels(:,6)=sqrt(w.data.pix.errors');
+    c.pixels(:,6)=sqrt(w.data.pix.variance');
 end
 
 [title_main, title_pax] = data_plot_titles (w.data);    % note: axes annotations correctly account for permutation in w.data.dax

@@ -74,7 +74,7 @@ methods
 
     function test_errors_returns_error_array(obj)
         error_array = obj.raw_pix_data(9, :);
-        assertEqual(obj.pixel_data_obj.errors, error_array)
+        assertEqual(obj.pixel_data_obj.variance, error_array)
     end
 
     function test_PIXELDATA_error_raised_if_setting_data_with_lt_9_cols(~)
@@ -186,7 +186,7 @@ methods
     end
 
     function test_get_data_allows_data_retrieval_for_single_field(obj)
-        fields = {'coordinates', 'irun', 'idet', 'ienergy', 'signals', 'errors'};
+        fields = {'coordinates', 'irun', 'idet', 'ienergy', 'signals', 'variance'};
         for i = 1:numel(fields)
             field_data = obj.pixel_data_obj.get_data(fields{i});
             assertEqual(field_data, obj.pixel_data_obj.(fields{i}));

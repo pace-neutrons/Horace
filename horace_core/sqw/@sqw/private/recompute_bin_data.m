@@ -79,7 +79,7 @@ if ~use_mex
         wout.data.s=reshape(wout.data.s,size(w.data.npix));
         % separate into two steps to save memory
         npix2 = (w.data.npix(:).^2);
-        wout.data.e=accumarray(ind,w.data.pix.errors,[nbin,1])./npix2;
+        wout.data.e=accumarray(ind,w.data.pix.variance,[nbin,1])./npix2;
         clear npix2;
         %
         wout.data.e=reshape(wout.data.e,size(w.data.npix));

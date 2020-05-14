@@ -247,7 +247,7 @@ classdef test_change_crystal_1a < TestCase
                         [obj.alatt,obj.angdeg],rotvec});
                     % mainly to propagate errors as sqw_eval nullified errors?
                     npix = sqw_obj.data.pix.num_pixels;
-                    sqw_obj.data.pix.errors = ones(1,npix);
+                    sqw_obj.data.pix.variance = ones(1,npix);
                     sqw_obj=recompute_bin_data_tester(sqw_obj);
                     % convert to nxspe (instrument view)
                     rdo = rundatah(sqw_obj);

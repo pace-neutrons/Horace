@@ -1,4 +1,4 @@
-classdef PixelData % < matlab.mixin.SetGet
+classdef PixelData
 % PixelData Provides an interface for access to pixel data
 %
 %   This class provides getters and setters for each data column in an SQW
@@ -29,14 +29,14 @@ classdef PixelData % < matlab.mixin.SetGet
 %   idet           The detector group number in the detector listing for the pixels (1 x n array)
 %   ienergy        The energy bin numbers (1 x n array)
 %   signals        The signal array (1 x n array)
-%   errors         The errors on the signal array (variance i.e. error bar squared) (1 x n array)
+%   variance         The variance on the signal array (variance i.e. error bar squared) (1 x n array)
 %   num_pixels     The number of pixels in the data block
 
 properties (Access=private)
     PIXEL_BLOCK_COLS_ = 9;
     data_ = zeros(9, 0);
     FIELD_INDEX_MAP_ = containers.Map(...
-        {'coordinates', 'irun', 'idet', 'ienergy', 'signals', 'errors'}, ...
+        {'coordinates', 'irun', 'idet', 'ienergy', 'signals', 'variance'}, ...
         {1:4, 5, 6, 7, 8, 9})
 end
 properties (Dependent)
@@ -59,8 +59,8 @@ properties (Dependent)
     % The signal array (1 x n array)
     signals;
 
-    % The errors on the signal array (variance i.e. error bar squared) (1 x n array)
-    errors;
+    % The variance on the signal array (variance i.e. error bar squared) (1 x n array)
+    variance;
 
     % The number of pixels in the data block
     num_pixels;
@@ -84,7 +84,7 @@ methods
         %             col 6: idet
         %             col 7: ienergy
         %             col 8: signals
-        %             col 9: errors
+        %             col 9: variance
         %
         if nargin == 1
             if isa(data, 'PixelData')
@@ -133,8 +133,8 @@ methods
         %   pix_indices The pixel indices to retrieve, if not given, get full range
         %
         % Usage:
-        %   >> sig_and_err = pix.get_data({'signals', 'errors'})
-        %        retrives the signals and errors over the whole range of pixels
+        %   >> sig_and_err = pix.get_data({'signals', 'variance'})
+        %        retrives the signals and variance over the whole range of pixels
         %
         %   >> run_det_id_range = pix.get_data({'irun', 'idet'}, 4:10);
         %        retrives the run and detector IDs for pixels 4 to 10
@@ -219,12 +219,12 @@ methods
         obj.data(obj.FIELD_INDEX_MAP_('signals'), :) = signals;
      end
 
-    function errors = get.errors(obj)
-       errors = obj.data(obj.FIELD_INDEX_MAP_('errors'), :);
+    function variance = get.variance(obj)
+       variance = obj.data(obj.FIELD_INDEX_MAP_('variance'), :);
     end
 
-    function obj = set.errors(obj, errors)
-        obj.data(obj.FIELD_INDEX_MAP_('errors'), :) = errors;
+    function obj = set.variance(obj, variance)
+        obj.data(obj.FIELD_INDEX_MAP_('variance'), :) = variance;
      end
 
     function num_pix = get.num_pixels(obj)
