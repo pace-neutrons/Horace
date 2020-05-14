@@ -109,7 +109,7 @@ if ~seed_defined
     save(seeds_file,'seeds_store');
 end
 
-wcalc.data.pix.errors=(0.05*peak*scale)*(1+wran.data.pix.signals);
+wcalc.data.pix.variance=(0.05*peak*scale)*(1+wran.data.pix.signals);
 
 % Convert to equivalent spe data
 wspe=rundatah(wcalc);

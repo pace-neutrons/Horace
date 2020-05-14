@@ -25,7 +25,7 @@ end
 % Accumulate signal
 wout.data.s=accumarray(ind,w.data.pix.signals,[nbin,1])./w.data.npix(:);
 wout.data.s=reshape(wout.data.s,size(w.data.npix));
-wout.data.e=accumarray(ind,w.data.pix.errors,[nbin,1])./(w.data.npix(:).^2);
+wout.data.e=accumarray(ind,w.data.pix.variance,[nbin,1])./(w.data.npix(:).^2);
 wout.data.e=reshape(wout.data.e,size(w.data.npix));
 nopix=(w.data.npix(:)==0);
 wout.data.s(nopix)=0;

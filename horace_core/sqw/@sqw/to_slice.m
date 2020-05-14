@@ -87,7 +87,7 @@ if~isempty(ind_signal)
     s.pixels(:,7)=sqrt(xdevsqr{ind_signal});
 else
     s.pixels(:,6)=w.data.pix.signals';
-    s.pixels(:,7)=sqrt(w.data.pix.errors');
+    s.pixels(:,7)=sqrt(w.data.pix.variance');
 end
 
 if all(w.data.dax==[2,1])    % axes are permuted for plotting purposes

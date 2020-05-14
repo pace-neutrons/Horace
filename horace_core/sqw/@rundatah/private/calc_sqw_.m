@@ -105,7 +105,7 @@ else
         sqw_data.pix=PixelData(sqw_data.pix.data(:,ix));
 
         sqw_data.s=reshape(accumarray(ibin,sqw_data.pix.signals,[prod(grid_size),1]),grid_size);
-        sqw_data.e=reshape(accumarray(ibin,sqw_data.pix.errors,[prod(grid_size),1]),grid_size);
+        sqw_data.e=reshape(accumarray(ibin,sqw_data.pix.variance,[prod(grid_size),1]),grid_size);
         sqw_data.npix=reshape(npix,grid_size);      % All we do is write to file, but reshape for consistency with definition of sqw data structure
         sqw_data.s=sqw_data.s./sqw_data.npix;       % normalise data
         sqw_data.e=sqw_data.e./(sqw_data.npix).^2;  % normalise variance
@@ -218,7 +218,7 @@ sqw_data.pax=[1,2,3,4];
 sqw_data.p=p;
 sqw_data.dax=[1,2,3,4];
 sqw_data.s=sum(obj.S(:));
-sqw_data.e=sum(pix.errors);   % take advantage of the squaring that has already been done for pix array
+sqw_data.e=sum(pix.variance);   % take advantage of the squaring that has already been done for pix array
 sqw_data.npix=ne*ndet;
 sqw_data.urange=urange;
 sqw_data.pix=PixelData(pix);

@@ -142,7 +142,7 @@ if ~use_mex
         pix.ienergy = 1;
     end
     pix.signals=obj.S(:)';
-    pix.errors=((obj.ERR(:)).^2)';
+    pix.variance=((obj.ERR(:)).^2)';
 
 end
 
