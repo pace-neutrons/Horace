@@ -47,19 +47,6 @@ methods
         assertEqual(obj.pixel_data_obj.data, obj.raw_pix_data);
     end
 
-    function test_coordinate_data_can_be_retrieved_using_get_function(obj)
-        assertEqual(get(obj.pixel_data_obj, 'coordinates'), ...
-                    obj.pixel_data_obj.coordinates);
-    end
-
-    function test_coordinate_data_can_be_set_using_set_function(obj)
-        num_rows = 10;
-        pix_data_obj = obj.get_random_pix_data_(num_rows);
-        new_coord_data = ones(4, num_rows);
-        set(pix_data_obj, 'coordinates', new_coord_data);
-        assertEqual(pix_data_obj.coordinates, new_coord_data);
-    end
-
     function test_get_coordinates_returns_coordinate_data(obj)
         coord_data = obj.raw_pix_data(1:4, :);
         assertEqual(obj.pixel_data_obj.coordinates, coord_data);
@@ -112,9 +99,13 @@ methods
     function test_error_raised_if_setting_coordinates_with_wrong_num_rows(obj)
         num_rows = 10;
         pix_data_obj = obj.get_random_pix_data_(num_rows);
-
         new_coord_data = ones(4, num_rows - 1);
-        f = @() (set(pix_data_obj, 'coordinates', new_coord_data));
+
+        function set_coordinates(data)
+            pix_data_obj.coordinates = data;
+        end
+
+        f = @() (set_coordinates(new_coord_data));
         assertExceptionThrown(f, 'MATLAB:subsassigndimmismatch')
     end
 
@@ -122,8 +113,12 @@ methods
         num_rows = 10;
         pix_data_obj = obj.get_random_pix_data_(num_rows);
 
+        function set_coordinates(data)
+            pix_data_obj.coordinates = data;
+        end
+
         new_coord_data = ones(3, num_rows);
-        f = @() (set(pix_data_obj, 'coordinates', new_coord_data));
+        f = @() set_coordinates(new_coord_data);
         assertExceptionThrown(f, 'MATLAB:subsassigndimmismatch')
     end
 
@@ -151,7 +146,12 @@ methods
 
     function test_PIXELDATA_error_if_data_set_with_non_numeric_type(~)
         pix_data_obj = PixelData();
-        f = @() set(pix_data_obj, 'data', {1, 'abc'});
+
+        function set_data(data)
+            pix_data_obj.data = data;
+        end
+
+        f = @() set_data({1, 'abc'});
         assertExceptionThrown(f, 'PIXELDATA:data')
     end
 
@@ -189,7 +189,7 @@ methods
         fields = {'coordinates', 'irun', 'idet', 'ienergy', 'signals', 'errors'};
         for i = 1:numel(fields)
             field_data = obj.pixel_data_obj.get_data(fields{i});
-            assertEqual(field_data, get(obj.pixel_data_obj, fields{i}));
+            assertEqual(field_data, obj.pixel_data_obj.(fields{i}));
         end
     end
 
