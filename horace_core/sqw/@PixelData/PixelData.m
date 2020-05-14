@@ -1,4 +1,4 @@
-classdef PixelData < matlab.mixin.SetGet
+classdef PixelData % < matlab.mixin.SetGet
 % PixelData Provides an interface for access to pixel data
 %
 %   This class provides getters and setters for each data column in an SQW
@@ -165,7 +165,7 @@ methods
         pixel_data = obj.data_;
     end
 
-    function set.data(obj, pixel_data)
+    function obj = set.data(obj, pixel_data)
         if size(pixel_data, 1) ~= obj.PIXEL_BLOCK_COLS_
             msg = ['Cannot set pixel data, invalid dimensions. Axis 1 must '...
                    'have length %i, found ''%i''.'];
@@ -183,7 +183,7 @@ methods
         coord_data = obj.data(obj.FIELD_INDEX_MAP_('coordinates'), :);
     end
 
-    function set.coordinates(obj, coordinates)
+    function obj = set.coordinates(obj, coordinates)
         obj.data(obj.FIELD_INDEX_MAP_('coordinates'), :) = coordinates;
     end
 
@@ -191,7 +191,7 @@ methods
         run_index = obj.data(obj.FIELD_INDEX_MAP_('irun'), :);
     end
 
-    function set.irun(obj, iruns)
+    function obj = set.irun(obj, iruns)
         obj.data(obj.FIELD_INDEX_MAP_('irun'), :) = iruns;
     end
 
@@ -199,7 +199,7 @@ methods
        detector_index = obj.data(obj.FIELD_INDEX_MAP_('idet'), :);
     end
 
-    function set.idet(obj, detector_indices)
+    function obj = set.idet(obj, detector_indices)
        obj.data(obj.FIELD_INDEX_MAP_('idet'), :) = detector_indices;
     end
 
@@ -207,7 +207,7 @@ methods
        detector_index = obj.data(obj.FIELD_INDEX_MAP_('ienergy'), :);
     end
 
-    function set.ienergy(obj, energies)
+    function obj = set.ienergy(obj, energies)
         obj.data(obj.FIELD_INDEX_MAP_('ienergy'), :) = energies;
      end
 
@@ -215,7 +215,7 @@ methods
        signals = obj.data(obj.FIELD_INDEX_MAP_('signals'), :);
     end
 
-    function set.signals(obj, signals)
+    function obj = set.signals(obj, signals)
         obj.data(obj.FIELD_INDEX_MAP_('signals'), :) = signals;
      end
 
@@ -223,7 +223,7 @@ methods
        errors = obj.data(obj.FIELD_INDEX_MAP_('errors'), :);
     end
 
-    function set.errors(obj, errors)
+    function obj = set.errors(obj, errors)
         obj.data(obj.FIELD_INDEX_MAP_('errors'), :) = errors;
      end
 
