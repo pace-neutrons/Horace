@@ -129,6 +129,7 @@ is_deployed_mpi = mpi_obj.is_deployed;
 %
 if ~pix_tmpfile_ok && keep_pix
     pix_retained = cell(1,nsteps);
+    pix_retained(1, :) = {PixelData()};
     pix_ix_retained=cell(1,nsteps);
 else
     pix_retained  = {};

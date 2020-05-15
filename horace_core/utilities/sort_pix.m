@@ -93,7 +93,7 @@ if ~use_mex
     if numel(pix_retained) == 1
         pix = pix_retained{1};
     else
-        pix = cat(2,pix_retained{:});
+        pix = PixelData.cat(pix_retained{:});
     end
     clear pix_retained;
     if isempty(pix)  % return early if no pixels
