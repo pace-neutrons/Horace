@@ -107,7 +107,8 @@ methods
     end
 
     function is_empty = isempty(obj)
-       is_empty = isempty(obj.data);
+        % Return true if the PixelData object holds no pixel data
+        is_empty = isempty(obj.data);
     end
 
     function s = size(obj, varargin)
