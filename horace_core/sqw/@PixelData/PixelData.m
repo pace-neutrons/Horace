@@ -66,6 +66,17 @@ properties (Dependent)
     num_pixels;
 end
 
+methods (Static)
+
+    function obj = cat(varargin)
+        % Concatentate the given PixelData objects' pixels
+        data_cell_array = cellfun(@(p) p.data, varargin, 'UniformOutput', false);
+        data = cat(2, data_cell_array{:});
+        obj = PixelData(data);
+    end
+
+end
+
 methods
 
     function obj = PixelData(data)
