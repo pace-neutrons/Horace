@@ -67,6 +67,7 @@ if use_mex
         % so returns double or single resolution pixels depending on this
         pix = sort_pixels_by_bins(pix_retained.data, pix_ix_retained, npix);
         %pix = sort_pixels_by_bins(pix_retained,pix_ix_retained);
+        pix = PixelData(pix);
         clear pix_retained pix_ix_retained;  % clear big arrays
     catch ME
         use_mex=false;
@@ -95,6 +96,11 @@ if ~use_mex
         pix = cat(2,pix_retained{:});
     end
     clear pix_retained;
+    if isempty(pix)  % return early if no pixels
+        pix = PixelData();
+        return;
+    end
+    
     pix=PixelData(pix.data(:,ind));     % reorders pix
     clear ind;
     % TODO: make "keep type" a default behaviour!
