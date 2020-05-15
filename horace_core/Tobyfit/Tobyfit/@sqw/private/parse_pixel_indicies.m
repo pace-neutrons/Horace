@@ -69,18 +69,18 @@ if nargin==1
     if nout>0
         if nw==1
             if iscell(win), pix = win{1}.data.pix; else, pix = win.data.pix; end
-            if nout>=1, irun = pix(5,:)'; end   % column vector
-            if nout>=2, idet = pix(6,:)'; end   % column vector
-            if nout>=3, ien  = pix(7,:)'; end   % column vector
+            if nout>=1, irun = pix.irun'; end   % column vector
+            if nout>=2, idet = pix.idet'; end   % column vector
+            if nout>=3, ien  = pix.ienergy'; end   % column vector
         else
             if nout>=1, irun = cell(size(win)); end
             if nout>=2, idet = cell(size(win)); end
             if nout>=3, ien  = cell(size(win)); end
             for i = 1:nw
                 if iscell(win), pix = win{i}.data.pix; else, pix = win(i).data.pix; end
-                if nout>=1, irun{i} = pix(5,:)'; end   % column vector
-                if nout>=2, idet{i} = pix(6,:)'; end   % column vector
-                if nout>=3, ien{i}  = pix(7,:)'; end   % column vector
+                if nout>=1, irun{i} = pix.irun'; end   % column vector
+                if nout>=2, idet{i} = pix.idet'; end   % column vector
+                if nout>=3, ien{i}  = pix.ienergy'; end   % column vector
             end
         end
         if nout>=1, varargout{1} = irun; end
