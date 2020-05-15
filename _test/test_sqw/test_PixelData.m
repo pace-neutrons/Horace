@@ -72,9 +72,9 @@ methods
         assertEqual(obj.pixel_data_obj.signals, signal_array)
     end
 
-    function test_errors_returns_error_array(obj)
-        error_array = obj.raw_pix_data(9, :);
-        assertEqual(obj.pixel_data_obj.variance, error_array)
+    function test_variance_returns_variance_array(obj)
+        variance_array = obj.raw_pix_data(9, :);
+        assertEqual(obj.pixel_data_obj.variance, variance_array)
     end
 
     function test_PIXELDATA_error_raised_if_setting_data_with_lt_9_cols(~)
@@ -215,6 +215,14 @@ methods
         assertEqual(combined_pix.num_pixels, 15);
         assertEqual(combined_pix.data, ...
                     horzcat(pix_data_obj1.data, pix_data_obj2.data));
+    end
+
+    function test_get_pixels_returns_PixelData_obj_with_given_pix_indices(~)
+        data = rand(9, 10);
+        pix = PixelData(data);
+        sub_pix = pix.get_pixels([3, 5, 7]);
+        assertTrue(isa(pix, 'PixelData'));
+        assertEqual(sub_pix.data, data(:, [3, 5, 7]));
     end
 
 end

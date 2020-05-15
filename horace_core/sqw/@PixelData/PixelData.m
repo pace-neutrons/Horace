@@ -172,6 +172,19 @@ methods
         end
     end
 
+    function pixels = get_pixels(obj, pix_indices)
+        % Retrieve the pixels at the given indices.
+        %
+        % Inputs:
+        %   pix_indices     1-D array of pixel indices to retrieve
+        %
+        % Outputs:
+        %   pixels      PixelData object containing a subset of pixels
+        %
+        pixels = PixelData(obj.data(:, pix_indices));
+    end
+
+    % --- Getters / Setters ---
     function pixel_data = get.data(obj)
         pixel_data = obj.data_;
     end
