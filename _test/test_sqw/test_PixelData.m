@@ -206,6 +206,17 @@ methods
         assertEqual(irun_idet_signals(3, :), pix_data_obj.irun);
     end
 
+    function test_cat_combines_given_PixelData_objects(obj)
+        pix_data_obj1 = obj.get_random_pix_data_(10);
+        pix_data_obj2 = obj.get_random_pix_data_(5);
+
+        combined_pix = PixelData.cat(pix_data_obj1, pix_data_obj2);
+
+        assertEqual(combined_pix.num_pixels, 15);
+        assertEqual(combined_pix.data, ...
+                    horzcat(pix_data_obj1.data, pix_data_obj2.data));
+    end
+
 end
 
 end
