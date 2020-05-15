@@ -29,13 +29,13 @@ function [u_to_rlu, urange, pix] = calc_projections_(obj, detdcn,qspec,proj_mode
 %   urange      [2 x 4] array containing the full extent of the data in crystal Cartesian
 %              coordinates and energy transfer; first row the minima, second row the
 %              maxima.
-%   pix         [9 x npix] array of pixel information:
-%                   pix(1:4,:)  coordinates in crystal Cartesian coordinates and energy
-%                   pix(5,:)    run index: alway unity from this routine
-%                   pix(6,:)    detecetor index
-%                   pix(7,:)    energy bin index
-%                   pix(8,:)    signal
-%                   pix(9,:)    error squared
+%   pix         PixelData object with attributes:
+%                   pix.coordinates  coordinates in crystal Cartesian coordinates and energy
+%                   pix.irun         run index: alway unity from this routine
+%                   pix.idet         detecetor index
+%                   pix.ienergy      energy bin index
+%                   pix.signals      signal
+%                   pix.variance     error squared
 %              The order of the pixels is increasing energy dfor first detector, then
 %              increasing energy for the second detector, ....
 
