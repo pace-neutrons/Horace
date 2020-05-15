@@ -24,6 +24,7 @@ classdef single_tid_mess_queue < matlab.mixin.Copyable
                 n_mess  = obj.buffer_.Count;
             end
         end
+        %
         function [ok,queue_key]=check(obj,mess_name)
             % check if the message with the specified name is present in the
             % queue.
@@ -52,6 +53,7 @@ classdef single_tid_mess_queue < matlab.mixin.Copyable
                 end
             end
         end
+        %
         function push(obj,mess)
             % add message to the end of the queue
             if ischar(mess) && strcmp(mess,'failed')

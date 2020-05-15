@@ -22,7 +22,7 @@ lock_until_received = true;
 if ~exist('mess_name','var')
     mess_name = '';
 end
-if isempty(mess_name) || strcmp(mess_name,'any')
+if isempty(mess_name) || (ischar(mess_name) && strcmp(mess_name,'any'))
     lock_until_received = false;
 end
 

@@ -181,8 +181,9 @@ classdef MessagesFilebased < iMessagesFramework
         function [all_messages,task_ids] = receive_all(obj,varargin)
             % retrieve (and remove from system) all messages
             % existing in the system for the tasks with id-s specified as input
-            % Blocks execution until the messages all messages are received.
-            %
+            % Blocks execution until the all requested messages are received
+            % if the message names are provided and unblocking if they are
+            % absent
             %
             %Input:
             %task_ids -- array of task id-s to check messages for

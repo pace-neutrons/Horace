@@ -103,12 +103,12 @@ classdef MessagesParpool < iMessagesFramework
             % >>    task with id==1. (not received)
             % >>    if false, error_mess indicates reason for failure
             %
-            ok = true;
+            ok = MESS_CODES.ok;
             err_mess = [];
             try
-                obj.MPI_.labSend(message,task_id);
+                obj.MPI_.mlabSend(message,task_id);
             catch Err
-                ok = false;
+                ok = MESS_CODES.a_send_error;
                 err_mess = Err;
             end
         end
@@ -191,17 +191,17 @@ classdef MessagesParpool < iMessagesFramework
             %             end
             % receive and reject all messages, may be present in the
             % messages framework.
-            [isDataAvail,tag,srcWkrIdx] = obj.MPI_.labProbe([],[]);
+            [isDataAvail,tag,srcWkrIdx] = obj.MPI_.mlabProbe([],[]);
             while isDataAvail
                 for i=1:numel(srcWkrIdx)
-                    obj.MPI_.labReceive(srcWkrIdx(i),tag(i));
+                    obj.MPI_.mlabReceive(srcWkrIdx(i),tag(i));
                 end
-                [isDataAvail,tag,srcWkrIdx] = obj.MPI_.labProbe([],[]);
+                [isDataAvail,tag,srcWkrIdx] = obj.MPI_.mlabProbe([],[]);
             end
         end
         %
         function [ok,err]=labBarrier(obj,~)
-            obj.MPI_.labBarrier();
+            obj.MPI_.mlabBarrier();
             ok = true;
             err = [];
         end

@@ -38,6 +38,9 @@ classdef LogMessage<aMessage
                 step_time =0;
                 add_info = '';
             end
+            if ~exist('add_info','var')
+                add_info = '';
+            end
             obj.payload=struct('step',step,'n_steps',n_steps,...
                 'time',step_time,'add_info','');
             if ~isempty(add_info)

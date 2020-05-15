@@ -1,5 +1,6 @@
 function [id,tag] = get_mess_id_(tid_requested,message_id)
 % convert any format message id into the format, accepted by standard mpi
+% command
 %
 id = [];
 tag = [];
@@ -28,6 +29,9 @@ end
 % end
 
 function id = check_id(input)
+if ischar(input) && strcmpi(input,'any')
+    input = [];
+end
 if ~isnumeric(input)
     error('PARPOOL_MESSAGES:invalid_argument',...
         'labIndex should be numeric. It is: %s',class(input))

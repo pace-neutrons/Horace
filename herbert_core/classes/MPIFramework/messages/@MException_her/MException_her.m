@@ -26,6 +26,7 @@ classdef MException_her < MException
                 end
             elseif ischar(anInput)  % use MException form
                 identifier= anInput; % message also have to be present.
+                anInput = struct();
             end
             obj = obj@MException(identifier,message);
             if exist('stack','var') && ~isempty(stack)

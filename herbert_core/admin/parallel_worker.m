@@ -69,7 +69,10 @@ config_store.set_config_folder(config_exchange_folder);
 % folder for communications
 %--------------------------------------------------------------------------
 
-if DO_LOGGING;  fh = log_inputs_level1(); end
+if DO_LOGGING
+    fh = log_inputs_level1();
+    clob_log = onCleanup(@()fclose(fh));
+end
 
 keep_worker_running = true;
 %%
@@ -246,12 +249,12 @@ end
         fprintf('WORKER_4TESTS: %s ****************************\n',mess);
         fprintf(fh,'---> %s\n',mess);
     end
+
 %
-    function fh=log_inputs_level1
+    function fh = log_inputs_level1()
         log_name = sprintf('Job_%s_wkN%d#%d.log',fbMPI.job_id,intercomm.labIndex,intercomm.numLabs);
         flog_name = fullfile(config_exchange_folder,log_name);
         fh = fopen(flog_name,'w');
-        clob_log = onCleanup(@()fclose(fh));
         fprintf(fh,'Log file %s :\n',log_name);
         fprintf(fh,'FB MPI settings:\n');
         fprintf(fh,'      Job ID         : %s:\n',fbMPI.job_id);

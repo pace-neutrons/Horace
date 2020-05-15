@@ -47,18 +47,13 @@ else
 end
 not_this  = task_nums ~= obj.labIndex;
 task_nums = task_nums(not_this);
-n_senders = numel(task_nums);
 %
-avail = false(1,n_senders);
-res_tags  = -1*ones(1,n_senders);
-for i=1:n_senders
-    [avail(i),res_tags(i)] = lab_prober(task_nums(i));
-end
+[avail,res_tags] = arrayfun(lab_prober,task_nums);
 task_ids_from  = task_nums (avail);
 res_tags       = res_tags(avail);
-
+%
 messages       = MESS_NAMES.mess_name(res_tags);
-if ~iscell(messages)
+if ~isempty(messages) && ~iscell(messages)
     messages = {messages};
 end
 % add persistent messages names to the messages, received from other labs
@@ -67,7 +62,7 @@ end
 
 function [avail,tag] = lab_prober_all_tags(obj,lab_num)
 
-[avail,tag] = obj.MPI_.labProbe(lab_num,[]);
+[avail,tag] = obj.MPI_.mlabProbe(lab_num,[]);
 if ~avail
     tag = -1;
 end
@@ -75,12 +70,12 @@ end
 function [avail,tag_res] = lab_prober_tag(obj,lab_num,tag)
 %
 % check requested message
-[mess_avail,tag_req] = obj.MPI_.labProbe(lab_num,tag);
+[mess_avail,tag_req] = obj.MPI_.mlabProbe(lab_num,tag);
 % check if fail message has been send from the lab specified
 i_tags = MESS_NAMES.instance().interrupt_tags;
 for i=1:numel(i_tags)
-    [fail_avail,tag_fail] = obj.MPI_.labProbe(lab_num,i_tags(i));
-    if fai_avail
+    [fail_avail,tag_fail] = obj.MPI_.mlabProbe(lab_num,i_tags(i));
+    if fail_avail
         break;
     end
 end
