@@ -42,7 +42,7 @@ mpi_lib = cellfun(@(x)fullfile(mpi_lib_folder,x),mpi_lib_2use,...
 
 % code folder:
 her_folder = herbert_root();
-code_folder = fullfile(her_folder,'_LowLevelCode','CPP','cpp_communicator');
+code_folder = fullfile(her_folder,'_LowLevelCode','cpp','cpp_communicator');
 input_files = cellfun(@(fn)fullfile(code_folder,fn),input_files,'UniformOutput',false);
 
 % additional include folder, containing mpich
