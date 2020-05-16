@@ -14,11 +14,11 @@ function [present,tag_present,source]=labProbe_(obj,task_id,mess_tag)
 %            id, the information on where the data are present
 %
 source = task_id;
+tag_present = [];
 if obj.is_tested
     if isempty(task_id)
         if obj.messages_cache_.Count==0
             present = false;
-            tag_present = [];
             return
         end
         kk = obj.messages_cache_.keys;
@@ -42,21 +42,21 @@ if obj.is_tested
                     return;
                 else
                     present = false;
-                    tag_present  = [];
                 end
             end
         else
             present = false;
-            tag_present = [];
         end
     end
 else % Real MPI request
     if isempty(task_id)
-        [present,source,tag_present] = labProbe;
+        [present,source,matlab_tag_present] = labProbe;
+        tag_present = matlab_tag_present-obj.matalb_tag_shift_;
     else
         if mess_tag == -1
-            [present,source,tag_present] = labProbe;
+            [present,source,matlab_tag_present] = labProbe;
             if present
+                tag_present = matlab_tag_present-obj.matalb_tag_shift_;
                 from_req = source ==  task_id;
                 if any(from_req)
                     present = true;
@@ -67,11 +67,10 @@ else % Real MPI request
                 end
             end
         else
-            present = labProbe(task_id,mess_tag);
+            matlab_tag = mess_tag+obj.matalb_tag_shift_;
+            present = labProbe(task_id,matlab_tag);
             if present
                 tag_present = mess_tag;
-            else
-                tag_present  = [];
             end
         end
     end

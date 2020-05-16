@@ -202,7 +202,7 @@ classdef MessagesParpool < iMessagesFramework
         %
         function [ok,err]=labBarrier(obj,~)
             obj.MPI_.mlabBarrier();
-            ok = true;
+            ok = MESS_CODES.ok;
             err = [];
         end
         %
@@ -214,7 +214,6 @@ classdef MessagesParpool < iMessagesFramework
             else
                 is=false;
             end
-            
         end
         % ----------------------------------------------------------------
         % Test methods

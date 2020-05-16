@@ -1,7 +1,5 @@
 classdef test_MESS_NAMES_factory< TestCase
     %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
-    %
     properties
     end
     methods
@@ -33,7 +31,7 @@ classdef test_MESS_NAMES_factory< TestCase
         function test_interrupts(~)
             il = MESS_NAMES.instance().interrupts;
             assertTrue(iscell(il))
-            assertTrue(numel(il)>=1)            
+            assertTrue(numel(il)>=1)
             assertTrue(ismember('failed',il));
             itag = MESS_NAMES.instance().interrupt_tags;
             assertTrue(numel(itag)>=1)
@@ -65,11 +63,6 @@ classdef test_MESS_NAMES_factory< TestCase
             ids = MESS_NAMES.mess_id(names);
             assertEqual(ids,selection);
             
-            %TODO: check if this is incorrect any more
-            %             % failed message should have 0 id, as its hardcoded in
-            %             % filebased messages
-            %             ids = MESS_NAMES.mess_id('failed');
-            %             assertEqual(ids,0);
         end
         %
         function test_operations(~)
@@ -93,12 +86,6 @@ classdef test_MESS_NAMES_factory< TestCase
                 assertTrue(MESS_NAMES.tag_valid(id));
                 assertEqual(MESS_NAMES.mess_name(id),mess.mess_name);
                 
-                % TODO -- check where this is used again
-                %                 if MESS_NAMES.is_persistent(name)
-                %                     assertEqual(name2tag_map(name),0);
-                %                 else
-                %                     assertEqual(name2tag_map(name),i-2);
-                %                 end
             end
         end
         

@@ -18,10 +18,12 @@ else
     elseif mess_tag == -1
         source = targ_id;
         message = labReceive(targ_id);
+        tag = message.tag;
     else % nargin == 3 or more
         source = targ_id;
-        tag     = mess_tag;
+        mess_tag     = mess_tag+obj.matalb_tag_shift_;
         message = labReceive(targ_id,mess_tag);
+        tag = message.tag;        
     end
 end
 

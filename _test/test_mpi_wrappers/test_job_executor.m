@@ -683,14 +683,21 @@ classdef test_job_executor< MPI_Test_Common
             %--------------------------------------------------------------
             % check job canceled
             errm = MException('JOB_EXECUTOR:failed','fake error generated');
-            je2.process_fail_state(errm,true);
+            err_mess = je2.process_fail_state(errm,true);
+            [ok,err_mess]=je2.finish_task(err_mess);
+            assertTrue(ok)
+            assertTrue(isempty(err_mess))
+            
             assertTrue(exist(fbMPIs{2}.mess_file_name(1,'failed'),'file')==2);
             try
                 je1.log_progress(2,10,3,[]);
             catch ERRm
                 assertTrue(strcmpi(ERRm.identifier,'JOB_EXECUTOR:canceled'));
             end
-            je1.process_fail_state(ERRm,true);
+            err_mess=je1.process_fail_state(ERRm,true);
+            [ok,err_mess]=je1.finish_task(err_mess);
+            assertTrue(ok)
+            assertTrue(isempty(err_mess))
             
             % asked for running, got failed
             [ok,err,mess] = serverfbMPI.receive_message(1,'log');
@@ -707,7 +714,13 @@ classdef test_job_executor< MPI_Test_Common
             %--------------------------------------------------------------
             % Check custom code exception on the head node
             errm = MException('CUSTOM_CODE:failed','fake failed message');
-            je1.process_fail_state(errm,true);
+            err_mess = je1.process_fail_state(errm,true);
+            % asynchroneous in test mode as waits for other jobs to
+            % complete
+            [ok,err]=je1.finish_task(err_mess,'-asynch');
+            assertTrue(ok)
+            assertTrue(isempty(err))
+            
             try
                 je2.log_progress(2,10,3,[]);
             catch ERRm

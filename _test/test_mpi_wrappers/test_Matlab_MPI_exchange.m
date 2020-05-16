@@ -110,9 +110,8 @@ classdef test_Matlab_MPI_exchange < MPI_Test_Common
             assertEqual(numel(all_mess), 2);
             assertEqual(numel(task_ids), 2);
             assertEqual(task_ids, [2, 3]);
-        end
-        
-        %         %
+        end        
+        %
         function test_SendReceive(~)
             
             mf = MessagesMatlabMPI_tester();
@@ -193,7 +192,7 @@ classdef test_Matlab_MPI_exchange < MPI_Test_Common
             assertTrue(isempty(source_id_s));
             
         end
-        %         %
+        %
         function test_SendProbe(~)
             % Test communications in test mode
             mf = MessagesMatlabMPI_tester();
@@ -271,6 +270,7 @@ classdef test_Matlab_MPI_exchange < MPI_Test_Common
             
             
         end
+        %
         function test_MessagesMatlabMPI_one_mess_test1_send_receive(~)
             mf = MessagesMatlabMPI_tester();
             clob = onCleanup(@()(finalize_all(mf)));
@@ -300,7 +300,7 @@ classdef test_Matlab_MPI_exchange < MPI_Test_Common
                 'Should throw when trying to receive non-exising message in test mode');
             
         end
-        
+        %
         function test_MessagesMatlabMPI_one_mess_test1(~)
             mf = MessagesMatlabMPI_tester();
             clob = onCleanup(@()(finalize_all(mf)));

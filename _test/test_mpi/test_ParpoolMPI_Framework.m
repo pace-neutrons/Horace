@@ -174,25 +174,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             
         end
         %
-        function test_send_receive_tester(obj)
-            if obj.ignore_test
-                return;
-            end
-            
-            job_param = struct('filepath',obj.working_dir,...
-                'filename_template','test_ParpoolMPI%d_nf%d.txt');
-            filepath = job_param.filepath;
-            fnt = job_param.filename_template;
-            fname = sprintf(fnt,1,1);
-            file = fullfile(filepath,fname);
-            clob = onCleanup(@()delete(file));
-            
-            mok = parpool_mpi_send_receive_tester(job_param);
-            assertEqual(mok,-1);
-            
-            assertTrue(exist(file,'file')==2);
-            
-        end
+        
         %
         function test_probe_receive_all_tester(obj)
             if obj.ignore_test
@@ -225,22 +207,37 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             [mok,~,pm] = parpool_mpi_probe_all_tester(job_param,...
                 struct('job_id','test_probe_all','labID',1,'numLabs',6));
             assertTrue(mok);
-            assertTrue(exist(file,'file')==2);            
+            assertTrue(exist(file,'file')==2);
             
-%             wrapper = pm.get_mpi_wrapper();
-%             wrapper.set_labIndex(6);
-%             pm = pm.set_mpi_wrapper(wrapper);
-%             mok = parpool_mpi_probe_all_tester(job_param,...
-%                 pm);
-%             assertTrue(mok);
-            
-            
-
+            %             wrapper = pm.get_mpi_wrapper();
+            %             wrapper.set_labIndex(6);
+            %             pm = pm.set_mpi_wrapper(wrapper);
+            %             mok = parpool_mpi_probe_all_tester(job_param,...
+            %                 pm);
+            %             assertTrue(mok);
             
         end
-        
-        
-        
+        function test_send_receive_tester(obj)
+            if obj.ignore_test
+                return;
+            end
+            
+            job_param = struct('filepath',obj.working_dir,...
+                'filename_template','test_ParpoolMPI%d_nf%d.txt');
+            filepath = job_param.filepath;
+            fnt = job_param.filename_template;
+            fname = sprintf(fnt,1,1);
+            file = fullfile(filepath,fname);
+            clob = onCleanup(@()delete(file));
+            pool_control = struct('job_id',...
+                'parpool_MPI_tester','labID',1,'numLabs',1);
+            mok = parpool_mpi_send_receive_tester(job_param,pool_control );
+            assertTrue(isa(mok,'aMessage'));
+            assertEqual(mok.mess_name,'started');
+            
+            assertTrue(exist(file,'file')==2);
+            
+        end
     end
     
 end

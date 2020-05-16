@@ -53,7 +53,7 @@ classdef aMessage
                     name,mess_class_name);
             end
             if mfi.is_registered(name)
-                % use factory to obtain sunscribed instance of the class
+                % use factory to obtain subscribed instance of the class
                 obj = mfi.get_mess_class(name);
             else
                 obj.mess_name_ = name;

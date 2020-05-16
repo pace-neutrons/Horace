@@ -211,8 +211,23 @@ while keep_worker_running
     catch ME % Catch error in users code and finish task gracefully.
         if DO_LOGGING; log_exception_caught();  end
         try
-            [ok,err_mess] = je.process_fail_state(ME,is_tested);
+            if DO_LOGGING
+                mess = je.process_fail_state(ME,is_tested,fh);
+            else
+                mess = je.process_fail_state(ME,is_tested);
+            end
             if DO_LOGGING; log_disp_message(' Completed processing JE fail state'); end
+            if is_tested
+                je.finish_task(mess,'-async');
+            else
+                if DO_LOGGING; log_disp_message('arriving at Process_fail_state end of task barrier'); end
+                
+                je.labBarrier(false);
+                je.do_job_completed = true;
+                
+                if DO_LOGGING; log_disp_message('--->Arived at finish task at failure\n'); end
+                je.finish_task(mess);
+            end
             
             if keep_worker_running
                 continue;
@@ -220,17 +235,19 @@ while keep_worker_running
                 break;
             end
         catch ME1 % the only exception should happen here is "job canceled"
+            disp(getReport(ME1))
+            pause
             if exit_at_the_end
                 exit;
             else
                 rethrow(ME1);
             end
-            
         end
     end %Exception
     
     %%
-    if DO_LOGGING;  fprintf(fh,'************* finishing subtask: %s\n',fbMPI.job_id); end
+    if DO_LOGGING;  fprintf(fh,'************* finishing subtask: %s \n',...
+            fbMPI.job_id); end
     if is_tested
         [ok,err_mess] = je.finish_task('-asynch');
     else

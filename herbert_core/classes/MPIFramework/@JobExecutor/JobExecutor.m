@@ -181,10 +181,11 @@ classdef JobExecutor
         %------------------------------------------------------------------
         function id = get.labIndex(obj)
             % get number (job id) of current running job
-            if ~isempty(obj.mess_framework_)
-                id = obj.mess_framework_.labIndex;
-            else % class has not been initiated properly
+            if isempty(obj.mess_framework_)
+                % class has not been initiated properly
                 id  = -1;
+            else
+                id = obj.mess_framework_.labIndex;
             end
         end
         %
@@ -319,6 +320,21 @@ classdef JobExecutor
                 end
             end
         end
+        function broadcast_state(obj,state_name)
+            % Helper method to inform other nodes about the state of the
+            % current node
+            %
+            % Normally used to tell others that the task
+            mf = obj.mess_framework;
+            n_labs = mf.numLabs;
+            this_lid = obj.labIndex;
+            for lid=1:n_labs
+                if lid ~=this_lid
+                    obj.mess_framework.send_message(lid,state_name);
+                end
+            end
+            
+        end
         %
         function initMessage = get_worker_init(obj,exit_on_completion,...
                 keep_worker_running)
@@ -350,20 +366,20 @@ classdef JobExecutor
                 exit_on_completion,keep_worker_running);
         end
         %
-        function [ok,err_message]=process_fail_state(obj,ME,is_tested)
+        function mess_with_err=process_fail_state(obj,ME,is_tested,varargin)
             % Process and gracefully complete an exception, thrown by the
             % user code running on the worker.
             % Inputs:
             % ME        -- exception class, thrown by the user code
             % is_tested -- if false, indicates that the  code is run on a
             %              mpi worker or if true, is tested within a
-            %               main Matlab session so blocking operations
-            %               should be disabled
+            %              main Matlab session so blocking operations
+            %              should be disabled
             % Returns:
             % results of the finish_task operation
             %
             % Should run on non-initialized object
-            [ok,err_message] = process_fail_state_(obj,ME,is_tested);
+            mess_with_err = process_fail_state_(obj,ME,is_tested,varargin{:});
         end
     end
     methods(Static)

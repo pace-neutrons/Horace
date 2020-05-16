@@ -21,6 +21,13 @@ classdef MatlabMPIWrapper < handle
         is_tested_ = false;
         labindex_ = 1;
         numlabs_  = 1;
+        % Variables for logging the MPI results
+        do_logging_ = false; % disable/enable logging for MPI operations
+        log_fh_ = [];
+        cl_fh_ = [];
+        % shift all tags used by framework by this number to avoid negative
+        % tags
+        matalb_tag_shift_=10;
     end
     properties(Access=private)
         % the variable, used as the cache for mirrored messages in test
@@ -51,6 +58,13 @@ classdef MatlabMPIWrapper < handle
                 obj.labindex_ = labNum;
                 obj.numlabs_  = NumLabs;
             end
+            if obj.do_logging_
+                pc = parallel_config;
+                cf = pc.config_folder;
+                f_name = sprintf('MPI_log_Node%d_of_%d.txt',obj.labIndex,obj.numLabs);
+                obj.log_fh_ = fopen(fullfile(cf,f_name),'w');
+                obj.cl_fh_ = onCleanup(@()fclose(obj.log_fh_));
+            end
         end
         %
         function mlabSend(obj,message,targ_id)
@@ -67,18 +81,23 @@ classdef MatlabMPIWrapper < handle
             if isa(message,'aMessage')
                 mess_tag = message.tag;
             elseif ischar(message)
-                message = MESS_NAMES.get_mess_class(message);
-                mess_tag= MESS_NAMES.mess_id(message);
+                message = MESS_NAMES.instance().get_mess_class(message);
+                mess_tag= message.tag;
+            end
+            if obj.do_logging_
+                fprintf(obj.log_fh_,'***Send-> message: %s to lab %d\n',...
+                    message.mess_name,targ_id);
             end
             
             if obj.is_tested
                 push_message_(obj,message,targ_id,mess_tag);
             else
-                labSend(message,targ_id,mess_tag)
+                matlab_tag = mess_tag + obj.matalb_tag_shift_;
+                labSend(message,targ_id,matlab_tag);
             end
         end
         %
-        function [present,tag_present,source]=mlabProbe(obj,task_id,mess_tag)
+        function [present,tag_present,source]=mlabProbe(obj,targ_id,mess_tag)
             % Wrapper around Matlab labProbe command.
             % Checks if specific message is available on the system
             %
@@ -93,18 +112,40 @@ classdef MatlabMPIWrapper < handle
             % source   - in most cases equal to task id, but if any task
             %            id, the information on where the data are present
             %
-
-            if ~exist('mess_tag','var') 
+            
+            if nargin<3
                 mess_tag = -1;
             end
             if isempty(mess_tag)
                 mess_tag = -1;
             end
-            if ~exist('task_id','var')
-                task_id = [];
+            if nargin<2
+                targ_id = [];
+            end
+            if obj.do_logging_
+                if isempty(targ_id)
+                    lab_name = 'any';
+                else
+                    lab_name = num2str(targ_id);
+                end
+                fprintf(obj.log_fh_,'***  probing  Lab: %s for tag %d\n',...
+                    lab_name,mess_tag);
             end
             
-            [present,tag_present,source]= labProbe_(obj,task_id,mess_tag);
+            
+            [present,tag_present,source]= labProbe_(obj,targ_id,mess_tag);
+            if obj.do_logging_
+                if present
+                    fprintf(obj.log_fh_,'***  data present ******\n');
+                    lab_name = num2str(source);
+                    tag_name = num2str(tag_present);
+                    fprintf(obj.log_fh_,'     Source: %s, tag(s) %s\n',...
+                        lab_name,tag_name);
+                else
+                    fprintf(obj.log_fh_,'*** got nothing\n');
+                end
+            end
+            
         end
         %
         function [message,varargout]=mlabReceive(obj,targ_id,mess_tag)
@@ -119,21 +160,35 @@ classdef MatlabMPIWrapper < handle
             %
             % in production mode: Blocks until correspondent message has
             %               been sent
-            if ~exist('mess_tag','var') 
+            if nargin<3
                 mess_tag = -1;
             end
             if isempty(mess_tag)
                 mess_tag = -1;
             end
-            if ~exist('targ_id','var')
+            if nargin<2
                 targ_id = [];
             end
-            [message,tag,source] = labReceive_(obj,targ_id,mess_tag);            
+            if obj.do_logging_
+                if isempty(targ_id)
+                    lab_name = 'any';
+                else
+                    lab_name = num2str(targ_id);
+                end
+                fprintf(obj.log_fh_,'***receving from Lab: %s Mess tag %d\n',...
+                    lab_name,targ_id);
+            end
+            
+            [message,tag,source] = labReceive_(obj,targ_id,mess_tag);
             if nargout>1
                 varargout{1} = tag;
             end
             if nargout>2
                 varargout{2} = source;
+            end
+            if obj.do_logging_
+                fprintf(obj.log_fh_,'            Message with tag %s Received from source %d\n',...
+                    tag,source);
             end
             
         end
@@ -143,11 +198,20 @@ classdef MatlabMPIWrapper < handle
             %
             % Stops lab execution until all labs reached the barrier.
             % Ignored in test mode.
+            if obj.do_logging_
+                fprintf(obj.log_fh_,'*** Ariving at barrier for node %d\n',...
+                    obj.labIndex);
+            end
             if obj.is_tested
                 return; % no barrier should be encountered in test mode
                 %       (single threaded test)
             end
             labBarrier();
+            if obj.do_logging_
+                fprintf(obj.log_fh_,'*** Leaving barrier for node %d\n',...
+                    obj.labIndex);
+            end
+            
         end
         %
         function li = get.labIndex(obj)
