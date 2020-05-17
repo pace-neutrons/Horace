@@ -87,7 +87,7 @@ classdef MessagesParpool < iMessagesFramework
             %>>[ok,err,message] = obj.receive_message() -- Receive any message.
             %>>[ok,err,message] = obj.receive_message(labId)  -- Receive
             %                     message from lab with the idSpecified
-            % Receive ny message.
+            %                     Receive any message.
             [ok,err_mess,message] = receive_message_(obj,varargin{:});
         end
         %
@@ -221,6 +221,7 @@ classdef MessagesParpool < iMessagesFramework
         function is = get.is_tested(obj)
             is = obj.MPI_.is_tested;
         end
+        %
         function obj = set_mpi_wrapper(obj,wrapper)
             if ~isa(wrapper,'MatlabMPIWrapper')
                 error('MESSAGES_PARPOOL:invalid_argument',...
@@ -228,6 +229,7 @@ classdef MessagesParpool < iMessagesFramework
             end
             obj.MPI_ = wrapper;
         end
+        %
         function wrapper = get_mpi_wrapper(obj)
             wrapper = obj.MPI_;
         end

@@ -315,8 +315,10 @@ classdef JobExecutor
                 [mess,tids] = obj.mess_framework_.probe_all('any','canceled');
                 if ~isempty(mess)
                     is = true;
-                    % discard message(s)
-                    obj.mess_framework_.receive_all(tids,'canceled');
+                    mf = obj.mess_framework_;
+                    for i=1:numel(tids)
+                        mf.receive_message(tids(i),'canceled');
+                    end
                 end
             end
         end
