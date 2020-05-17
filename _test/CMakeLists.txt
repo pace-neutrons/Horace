@@ -10,7 +10,7 @@ set(TEST_DIRECTORIES
     "test_docify"
     "test_admin"
     "test_mpi/test_job_dispatcher_herbert"
-    "test_mpi/test_job_dispatcher_mpiexec"
+    #"test_mpi/test_job_dispatcher_mpiexec"
     "test_mpi/test_job_dispatcher_parpool"
     "test_mpi/test_ParpoolMPI_Framework"
     "test_mpi_wrappers"

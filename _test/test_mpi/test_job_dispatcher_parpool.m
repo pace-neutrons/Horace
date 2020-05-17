@@ -12,6 +12,12 @@ classdef test_job_dispatcher_parpool< job_dispatcher_common_tests
             this = this@job_dispatcher_common_tests(name,'parpool');
             this.print_running_tests = true;
         end
+        function delete(~)
+            pl = gcp('nocreate'); % Get the current parallel pool                
+            delete(pl);
+            
+            %delete@job_dispatcher_common_tests();
+        end
         %
         
         function test_finish_tasks_reduce_messages(obj,varargin)
@@ -97,12 +103,7 @@ classdef test_job_dispatcher_parpool< job_dispatcher_common_tests
             assertTrue(exist(file3,'file') == 2);
             delete(cjob)
         end
-        % DISABLED on Jenkins
         function test_job_fail_restart(obj, varargin)
-            if is_jenkins
-                warning('test_job_dispatcher_parpool:test_job_fail_restart disabled')
-                return;
-            end
             test_job_fail_restart@job_dispatcher_common_tests(obj, varargin{:})
         end
         function test_job_with_logs_3workers(obj, varargin)

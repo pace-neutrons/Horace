@@ -166,14 +166,16 @@ while keep_worker_running
         n_steps = je.n_steps;
         mis.do_logging(0,n_steps);
         %%
-        je.do_job_completed = false; % wait at barrier if exception in do_job
+        
         while ~je.is_completed()
             je= je.do_job();
+            je.do_job_completed = false; % do 2 barriers on exception (one at process failure)
             % when its tested, workers are tested in single Matlab
             % session so it will hand up on synchronization
+            % explicitly check for cancellation before data reduction
+            is_canceled = je.is_job_canceled();
+            
             if ~is_tested
-                % explicitly check for cancellation before data reduction
-                is_canceled = je.is_job_canceled();
                 if is_canceled
                     error('JOB_EXECUTOR:canceled',...
                         'Job canceled before synchronization after do_job')
@@ -183,7 +185,7 @@ while keep_worker_running
                 je.labBarrier(false); % Wait until all workers finish their
                 %                       job before reducing the data
             end
-            je.do_job_completed = true; % do not wait at barrier if cancellation here
+            je.do_job_completed = true; % do 1 barrier on exception (miss one at process failure)
             if DO_LOGGING; log_disp_message('Reduce data started');  end
             % explicitly check for cancellation before data reduction
             %  the case of cancellation below
@@ -192,7 +194,6 @@ while keep_worker_running
                 error('JOB_EXECUTOR:canceled',...
                     'Job canceled before starting reduce_data')
             end
-            je.do_job_completed = false; % wait at barrier if cancellation here
             je = je.reduce_data();
         end
         
