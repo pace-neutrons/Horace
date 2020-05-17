@@ -320,21 +320,7 @@ classdef JobExecutor
                 end
             end
         end
-        function broadcast_state(obj,state_name)
-            % Helper method to inform other nodes about the state of the
-            % current node
-            %
-            % Normally used to tell others that the task
-            mf = obj.mess_framework;
-            n_labs = mf.numLabs;
-            this_lid = obj.labIndex;
-            for lid=1:n_labs
-                if lid ~=this_lid
-                    obj.mess_framework.send_message(lid,state_name);
-                end
-            end
-            
-        end
+ 
         %
         function initMessage = get_worker_init(obj,exit_on_completion,...
                 keep_worker_running)
