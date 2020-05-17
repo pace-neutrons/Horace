@@ -61,7 +61,7 @@ classdef MatlabMPIWrapper < handle
             if obj.do_logging_
                 pc = parallel_config;
                 cf = pc.config_folder;
-                f_name = sprintf('MPI_log_Node%d_of_%d.txt',obj.labIndex,obj.numLabs);
+                f_name = sprintf('MPI_log_Node%d_of_%d.log',obj.labIndex,obj.numLabs);
                 obj.log_fh_ = fopen(fullfile(cf,f_name),'w');
                 obj.cl_fh_ = onCleanup(@()fclose(obj.log_fh_));
             end
@@ -187,8 +187,11 @@ classdef MatlabMPIWrapper < handle
                 varargout{2} = source;
             end
             if obj.do_logging_
-                fprintf(obj.log_fh_,'            Message with tag %s Received from source %d\n',...
-                    tag,source);
+                tag_name = num2str(tag);
+                source_name = num2str(source);
+                fprintf(obj.log_fh_,...
+                    '            Message with tag %s Received from source %s\n',...
+                    tag_name,source_name);
             end
             
         end

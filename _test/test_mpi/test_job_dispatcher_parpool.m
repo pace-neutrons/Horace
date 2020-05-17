@@ -104,10 +104,6 @@ classdef test_job_dispatcher_parpool< job_dispatcher_common_tests
             delete(cjob)
         end
         function test_job_fail_restart(obj, varargin)
-            if isunix && is_jenkins
-                 warning('test_job_fail_restart disabled on Unix Jenkins');
-                 return
-            end
             test_job_fail_restart@job_dispatcher_common_tests(obj, varargin{:})
         end
         function test_job_with_logs_3workers(obj, varargin)

@@ -109,6 +109,7 @@ while keep_worker_running
     if DO_LOGGING; log_worker_init_received();  end
     % instantiate job executor class.
     je = feval(worker_init_data.JobExecutorClassName);
+    je.do_job_completed = false; % do 2 barriers on exception (one at process failure)    
     % ---------------------------------------------------------------------
     % step 2 of the worker initialization completed. a jobExecutor is
     % initialized and worker knows what to do when it finishes or
@@ -158,42 +159,41 @@ while keep_worker_running
         
         mis.check_canceled = @()(f_canc(je));
         
-        % Execute job (run main job executor's do_job method
-        if DO_LOGGING; log_disp_message('Entering Je do_job loop'); end
         
         % send first "running" log message and set-up starting time. Runs
         % asynchronously.
         n_steps = je.n_steps;
+        if DO_LOGGING; log_disp_message('Logging start and checking for job cancelation before loop je.is_completed loop'); end        
         mis.do_logging(0,n_steps);
         %%
         
         while ~je.is_completed()
-            je= je.do_job();
             je.do_job_completed = false; % do 2 barriers on exception (one at process failure)
-            % when its tested, workers are tested in single Matlab
-            % session so it will hand up on synchronization
+            % Execute job (run main job executor's do_job method
+            if DO_LOGGING; log_disp_message('Entering Je do_job loop'); end
+            
+            je= je.do_job();
             % explicitly check for cancellation before data reduction
+            if DO_LOGGING; log_disp_message('Check for cancelation after Je do_job loop'); end            
             is_canceled = je.is_job_canceled();
+            if is_canceled
+                error('JOB_EXECUTOR:canceled',...
+                    'Job canceled before synchronization after do_job')
+            end            
             
             if ~is_tested
-                if is_canceled
-                    error('JOB_EXECUTOR:canceled',...
-                        'Job canceled before synchronization after do_job')
-                end
-                if DO_LOGGING; log_disp_message('Got to barrier for all chunks do_job completion'); end
+                if DO_LOGGING; log_disp_message('Got to barrier for all chunks do_job completion'); end                
+                % when its tested, workers are tested in single Matlab
+                % session so it will hand up on synchronization               
+
                 % when not tested, the synchronization is mandatory
                 je.labBarrier(false); % Wait until all workers finish their
                 %                       job before reducing the data
             end
-            je.do_job_completed = true; % do 1 barrier on exception (miss one at process failure)
+            je.do_job_completed = true; % do 1 barrier on exception at reduction (miss one at process failure)
             if DO_LOGGING; log_disp_message('Reduce data started');  end
             % explicitly check for cancellation before data reduction
             %  the case of cancellation below
-            is_canceled = je.is_job_canceled();
-            if is_canceled
-                error('JOB_EXECUTOR:canceled',...
-                    'Job canceled before starting reduce_data')
-            end
             je = je.reduce_data();
         end
         
@@ -311,7 +311,7 @@ end
     end
 %
     function log_init_je_started()
-        fprintf(fh,'Trying to init JE: %s\n',worker_init_data.JobExecutorClassName);
+        fprintf(fh,'Trying to start JE: %s\n',worker_init_data.JobExecutorClassName);
         disp('WORKER_4TESTS: initializing worker ************************')
     end
 %
