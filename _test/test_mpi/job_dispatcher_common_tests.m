@@ -48,7 +48,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
 
             jd = JobDispatcher(['test_job_', obj.framework_name, '_fail_restart']);
 
-            [outputs, n_failed, ~, jd] = jd.start_job('JETester', common_param, 360, true, 3, true, 1);
+            [outputs, n_failed, ~, jd] = jd.start_job('JETester', common_param, 36, true, 3, true, 1);
 
             function is = is_err(x)
                 if isa(x, 'MException') || isa(x, 'ParallelException')
