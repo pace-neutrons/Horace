@@ -102,7 +102,7 @@ if ~use_mex
         return;
     end
 
-    pix=PixelData(pix.data(:,ind));     % reorders pix
+    pix=pix.get_pixels(ind);     % reorders pix
     clear ind;
     % TODO: make "keep type" a default behaviour!
     if ~keep_type

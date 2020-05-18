@@ -102,7 +102,7 @@ for n=1:numel(win)
         % Section pix array
         [nstart,nend] = aProjection.get_nrange(win(n).data.npix,irange);   % get contiguous ranges of pixels to be retained
         ind=ind_from_nrange(nstart,nend);
-        wout(n).data.pix = PixelData(win(n).data.pix.data(:,ind));
+        wout(n).data.pix = win(n).data.pix.get_pixels(ind);
         % Update urange
         wout(n).data.urange=recompute_urange(wout(n));
     end

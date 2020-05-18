@@ -27,7 +27,7 @@ end
 npix_now = npix; % npix is accumulated
 if del_npix_retain>0
     n_mem_blocks = n_mem_blocks + 1;
-    pix_mem_retained{n_mem_blocks} = PixelData(v.data(:,ok));    % accumulate pixels into buffer array
+    pix_mem_retained{n_mem_blocks} = v.get_pixels(ok);    % accumulate pixels into buffer array
     pix_mem_ix_retained{n_mem_blocks} = ix_add;
 end
 

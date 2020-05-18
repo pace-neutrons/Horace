@@ -284,6 +284,13 @@ methods
         assertEqual(sub_pix.data, data(:, [3, 5, 7]));
     end
 
+    function test_get_pixels_returns_PixelData_with_equal_num_cols(obj)
+        pix = obj.get_random_pix_data_(10);
+        orignal_size = size(pix.data, 1);
+        sub_pix = pix.get_pixels(1:5);
+        assertEqual(size(sub_pix.data, 1), orignal_size);
+    end
+
 end
 
 end
