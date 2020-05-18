@@ -4,12 +4,12 @@
 
 Horace is a suite of programs for the visualization and analysis of large datasets from time-of-flight neutron inelastic scattering spectrometers
 
-The code is split into two projects: 
+The code is split into two projects:
 
 - `Horace`: user-level functions
 - `Herbert`: a library of lower-level data manipulation routines that are used by Horace, but may be used independently.
 
-Both projects include a small number of C++ and Fortran implementations of performance critical routines.
+Both projects include a small number of C++ implementations of performance critical routines.
 
 The Horace code base includes a fallback implementation of each of the C++ routines for use in the compiled source has not been loaded.
 
@@ -32,18 +32,9 @@ These operations include:
 - read ASCII Tobyfit `.par` files, `.spe` or `.phx` data files
 - combine_sqw
 
-### Fortran
-
-The routines which do rebinning and integration are still needed, as these operations are not ones that are intrinsically vectorisable -- there were situations when the equivalent MATLAB was vastly slower - say two orders of magnitude when the number of bins in the input data that was being rebinned when they were written. 
-
-There are some utility routines that are called by the rebinning and integration routines (e.g. upper_index). There is no C++ that performs the same functions. 
-
-Other Fortran is no longer needed, for example that which reads the old Mslice slices and cuts (Mslice is a MATLAB program that is still use a bit to look at neutron data at ISIS and elsewhere), but there are MATLAB routines which do the same job and they can be retained as a fallback. 
-
 ### Python
 
 TBI - this will replicate the MATLAB API to support users with Python rather than MATLAB skills.
-
 
 ## MPI Framework
 
@@ -60,15 +51,13 @@ The MATLAB source for Horace  defines two core data objects that represent exper
 - SQW is the core data object for Horace. The object contains the raw pixel data (file-backed), methods to transform, combine. slice and process it and metadata describing the instrument and experiment.
 - DND objects share common structure with SQW but exclude the raw pixel data, detector information and other headers
 
-
 #### V3 Implementation
 
-The Horace v3 [implementation](./02_sqw_current_implementation.md) 
+The Horace v3 [implementation](./02_sqw_current_implementation.md)
 
 - uses "classic" MATLAB classes
 - implements over 150 public methods in the API
 - includes significant code duplication between the SQW and DND objects
-
 
 #### V4 redesign
 
@@ -99,11 +88,11 @@ Work on Vertical Slices of key project functions:
   - return SQW data object
 - symmetrize : Symmetrize a SQW dataset in a plane specified by the a vector triple.
 - cut-sqw : Take a cut from an SQW object by integrating over one or more axes.
-- projections : 
+- projections :
 
  These slices are all dependent on the `sqw` object for which the updated API must be designed.
 
-See:  
+See:
 - [Generic Projections](./06-generic_projection.md)
 - [SQW Object redesign](./07-sqw_redesign.md)
 

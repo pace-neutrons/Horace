@@ -1,8 +1,8 @@
 function horace_mex
 % Usage:
 % horace_mex;
-% Create mex files for all the Horace Fortran and C(++) routines
-% assuming that proper mex file compilers are configured for Matlab
+% Create mex files for all the Horace C(++) routines assuming that proper mex 
+% file compilers are configured for Matlab
 %
 % to configure a gcc compiler (version >= 4.3 requested)  to produce omp
 % code one have to edit  ~/.matlab/mexoptions.sh file and add -fopenmp key
@@ -48,11 +48,10 @@ try % mex C++
     disp('**********> Creating mex files from C++ code')
     % root directory is assumed to be that in which this function resides
     cd(root_dir);
-    
-    fortran_in_rel_dir = ['_LowLevelCode',filesep,'intel',filesep];
+
     cpp_in_rel_dir = ['_LowLevelCode',filesep,'cpp',filesep];
     % get folder names corresponding to the current Matlab version and OS
-    [VerFolderName,versionDLLextention,OSdirname]=matlab_version_folder();
+    [VerFolderName, ~, OSdirname] = matlab_version_folder();
     if ispc
         out_rel_dir = fullfile('horace_core','DLL',OSdirname);
         out_hdf_dir = fullfile('horace_core','DLL',OSdirname,VerFolderName);
@@ -95,23 +94,9 @@ catch ME
     message=ME.message;
     warning('**********> Can not create C++ combining procedure, reason: %s. combining using C++ is not availile',message);
 end
-%
-F_compiled=false;
-try  % mex FORTRAN
-    disp('**********> Creating mex files from FORTRAN code')
-    %    mex_single(fortran_in_rel_dir, out_rel_dir,'get_par_fortran.F','IIget_par_fortran.f');
-    %    mex_single(fortran_in_rel_dir, out_rel_dir,'get_phx_fortran.f','IIget_phx_fortran.f');
-    %    mex_single([fortran_in_rel_dir 'get_spe_fortran' filesep 'get_spe_fortran'], out_rel_dir,'get_spe_fortran.F','IIget_spe_fortran.F');
-    %
-    %    disp('**********> Successfully created all requested mex files from FORTRAN')
-    disp('**********> No FORTRAN functions used at the moment')
-    F_compiled=true;
-catch ME
-    message=ME.message;
-    warning('**********> Can not create FORTRAN mex files, reason: %s Please try to do it manually.',message);
-end
+
 cd(start_dir);
-if C_compiled && F_compiled
+if C_compiled
     set(hor_config,'use_mex',true);
 end
 
@@ -202,7 +187,7 @@ end
 
 function access =check_access(outdir,filename)
 
-[spath,sfname] = fileparts(filename);
+[~, sfname] = fileparts(filename);
 fname = fullfile(outdir,[sfname,'.',mexext()]);
 
 if exist(fname,'file')

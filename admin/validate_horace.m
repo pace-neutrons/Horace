@@ -26,15 +26,17 @@ function err = validate_horace(varargin)
 % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 err = -1;
+
 if isempty(which('horace_init'))
     horace_on();
 end
 
 % Parse arguments
 % ---------------
-options = {'-parallel', '-talkative', '-nomex', '-forcemex', '-exit_on_completion'};
+options = {'-parallel',  '-talkative',  '-nomex',  '-forcemex',  '-exit_on_completion'};
 [ok, mess, parallel, talkative, nomex, forcemex, exit_on_completion, test_folders] = ...
     parse_char_options(varargin, options);
+
 if ~ok
     error('VALIDATE_HORACE:invalid_argument', mess)
 end
@@ -42,8 +44,8 @@ end
 %==============================================================================
 % Place list of test folders here (relative to the master _test folder)
 % -----------------------------------------------------------------------------
-if isempty(test_folders) % no tests specified on command line - run them all
-    test_folders = { ...
+if isempty(test_folders)% no tests specified on command line - run them all
+    test_folders = {...
         'test_admin', ...
         'test_ascii_column_data', ...
         'test_change_crystal', ...
@@ -52,7 +54,6 @@ if isempty(test_folders) % no tests specified on command line - run them all
         'test_gen_sqw_for_powders', ...
         'test_herbert_utilites', ...
         'test_mex_nomex', ...
-        'test_mslice_utilities', ...
         'test_multifit', ...
         'test_rebin', ...
         'test_sym_op', ...
@@ -62,17 +63,17 @@ if isempty(test_folders) % no tests specified on command line - run them all
         'test_utilities', ...
         'test_sqw_file', ...
         'test_sqw' ...
-        'test_gen_sqw_workflow' ...        
-        % 'test_spinw_integration', ...        
+        'test_gen_sqw_workflow' ...
+        % 'test_spinw_integration', ...
         };
 end
 
 % Generate full test paths to unit tests
 % --------------------------------------
 horace_path = horace_root();
-test_path = fullfile(horace_path, '_test');
-test_folders_full = cellfun(@(x)fullfile(test_path, x), test_folders, 'UniformOutput', false);
-
+test_path = fullfile(horace_path,  '_test');
+test_folders_full = cellfun(@(x)fullfile(test_path, x), test_folders, ...
+                            'UniformOutput', false);
 
 hec = herbert_config();
 hoc = hor_config();
@@ -96,34 +97,35 @@ hpc.saveable = false;
 cleanup_obj = onCleanup(@() ...
     validate_horace_cleanup(cur_herbert_conf, cur_horace_config, cur_hpc_config, {}));
 
-
 % Run unit tests
 % --------------
 % Set Horace and Herbert configurations to the defaults (but don't save)
 % (The validation should be done starting with the defaults, otherwise an error
 %  may be due to a poor choice by the user of configuration parameters)
 
-set(hec, 'defaults');
-set(hoc, 'defaults');
+set(hec,  'defaults');
+set(hoc,  'defaults');
 
 % Special unit tests settings.
 hec.init_tests = true; % initialise unit tests
 hoc.use_mex = ~nomex;
 hoc.force_mex_if_use_mex = forcemex;
+
 if talkative
     hec.log_level = 1; % force log level high.
 else
-    hec.log_level = -1;    % turn off informational output
+    hec.log_level = -1; % turn off informational output
 end
 
-
-if parallel && license('checkout', 'Distrib_Computing_Toolbox')
+if parallel && license('checkout',  'Distrib_Computing_Toolbox')
     cores = feature('numCores');
-    if verLessThan('matlab', '8.4')
+    if verLessThan('matlab',  '8.4')
         if matlabpool('SIZE') == 0
+
             if cores > 12
                 cores = 12;
             end
+
             matlabpool(cores);
         end
     else
@@ -132,42 +134,47 @@ if parallel && license('checkout', 'Distrib_Computing_Toolbox')
                 cores = 12;
             end
             parpool(cores);
-            
         end
     end
+
     test_ok = false(1, numel(test_folders_full));
     time = bigtic();
+
     parfor i = 1:numel(test_folders_full)
         test_ok(i) = runtests(test_folders_full{i})
     end
-    bigtoc(time, '===COMPLETED UNIT TESTS IN PARALLEL');
+
+    bigtoc(time,  '===COMPLETED UNIT TESTS IN PARALLEL');
     tests_ok = all(test_ok);
 else
     time = bigtic();
     tests_ok = runtests(test_folders_full{:});
-    bigtoc(time, '===COMPLETED UNIT TESTS RUN ');
-    
+    bigtoc(time,  '===COMPLETED UNIT TESTS RUN ');
+
 end
+
 close all
 clear config_store;
 
 if tests_ok
     err = 0;
 end
+
 if exit_on_completion
     exit(err);
 end
 
 %=================================================================================================================
 function validate_horace_cleanup(cur_herbert_config, cur_horace_config, cur_hpc_config, test_folders)
-warn = warning('off', 'all'); % avoid warning on deleting non-existent path
-% Reset the configurations, and remove unit test folders from the path
-set(herbert_config, cur_herbert_config);
-set(hor_config, cur_horace_config);
-set(hpc_config, cur_hpc_config);
+    warn = warning('off',  'all'); % avoid warning on deleting non-existent path
+    % Reset the configurations, and remove unit test folders from the path
+    set(herbert_config, cur_herbert_config);
+    set(hor_config, cur_horace_config);
+    set(hpc_config, cur_hpc_config);
 
-% Clear up the test folders, previously placed on the path
-for i = 1:numel(test_folders)
-    rmpath(test_folders{i});
-end
-warning(warn);
+    % Clear up the test folders, previously placed on the path
+    for i = 1:numel(test_folders)
+        rmpath(test_folders{i});
+    end
+
+    warning(warn);
