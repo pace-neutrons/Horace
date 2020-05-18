@@ -210,7 +210,7 @@ classdef test_main_mex < TestCase
             npix = 4*ones(10,10,10,10);
             ix = ceil(pix.u1);
             iy = ceil(pix.u2);
-            iz = ceil(pix.coordinates(3,:));
+            iz = ceil(pix.u3);
             ie = ceil(pix.coordinates(4,:));
             ix = sub2ind(size(npix), ix,iy,iz,ie);
 
