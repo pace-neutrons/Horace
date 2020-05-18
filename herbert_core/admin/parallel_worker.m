@@ -75,6 +75,7 @@ if DO_LOGGING
 end
 
 keep_worker_running = true;
+exit_at_the_end = false;
 %%
 
 num_of_runs = 0;
@@ -109,7 +110,7 @@ while keep_worker_running
     if DO_LOGGING; log_worker_init_received();  end
     % instantiate job executor class.
     je = feval(worker_init_data.JobExecutorClassName);
-    je.do_job_completed = false; % do 2 barriers on exception (one at process failure)    
+    je.do_job_completed = false; % do 2 barriers on exception (one at process failure)
     % ---------------------------------------------------------------------
     % step 2 of the worker initialization completed. a jobExecutor is
     % initialized and worker knows what to do when it finishes or
@@ -125,10 +126,9 @@ while keep_worker_running
     % receive init message which defines the job parameters
     % implicit barrier exists which should block execution until
     % this message is received.
-    
     [ok,err_mess,init_message] = fbMPI.receive_message(0,'init');
     if ok ~= MESS_CODES.ok
-        [ok,err_mess]=je.finish_task(FailedMessage(err_mess));
+        fbMPI.send_message(0,FailedMessage(err_mess));
         if exit_at_the_end
             exit;
         else
@@ -163,7 +163,7 @@ while keep_worker_running
         % send first "running" log message and set-up starting time. Runs
         % asynchronously.
         n_steps = je.n_steps;
-        if DO_LOGGING; log_disp_message('Logging start and checking for job cancelation before loop je.is_completed loop'); end        
+        if DO_LOGGING; log_disp_message('Logging start and checking for job cancelation before loop je.is_completed loop'); end
         mis.do_logging(0,n_steps);
         %%
         
@@ -174,18 +174,18 @@ while keep_worker_running
             
             je= je.do_job();
             % explicitly check for cancellation before data reduction
-            if DO_LOGGING; log_disp_message('Check for cancelation after Je do_job loop'); end            
+            if DO_LOGGING; log_disp_message('Check for cancelation after Je do_job loop'); end
             is_canceled = je.is_job_canceled();
             if is_canceled
                 error('JOB_EXECUTOR:canceled',...
                     'Job canceled before synchronization after do_job')
-            end            
+            end
             
             if ~is_tested
-                if DO_LOGGING; log_disp_message('Got to barrier for all chunks do_job completion'); end                
+                if DO_LOGGING; log_disp_message('Got to barrier for all chunks do_job completion'); end
                 % when its tested, workers are tested in single Matlab
-                % session so it will hand up on synchronization               
-
+                % session so it will hand up on synchronization
+                
                 % when not tested, the synchronization is mandatory
                 je.labBarrier(false); % Wait until all workers finish their
                 %                       job before reducing the data
@@ -255,7 +255,7 @@ while keep_worker_running
     end
     if DO_LOGGING;  fprintf(fh,'************* subtask: %s  finished\n',fbMPI.job_id); end
 end
-%pause
+%pause % for debugging filebased framework
 if exit_at_the_end
     exit;
 end

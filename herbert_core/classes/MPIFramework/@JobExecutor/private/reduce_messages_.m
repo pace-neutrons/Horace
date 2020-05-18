@@ -43,7 +43,8 @@ end
 %
 mf = obj.mess_framework;
 if isempty(mf) % something wrong, framework deleted
-    ok = false;
+    ok = MESS_CODES.job_canceled;
+    err = 'Something wrong, framework does not exist';
     fin_mess = FailedMessage('inter-worker communications: Initialization error');
     return
 end

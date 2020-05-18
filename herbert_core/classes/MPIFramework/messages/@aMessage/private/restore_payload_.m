@@ -14,16 +14,17 @@ function payload = restore_payload_(input)
 %   payload  -- restored data, presumably in the form, before saveobj was
 %               applied
 
-if isfield(input,'class_name')
-    cls = input.class_name;
+if isfield(input,'class_name_for_aMessage')
+    cls = input.class_name_for_aMessage;
+    input = rmfield(input,'class_name_for_aMessage');
     try
         % try to use the loadobj function
         payload = eval([cls '.loadobj(input)']);
-    catch ME
+    catch ME1
         try
             % pass the struct directly to the constructor
             payload = eval([cls '(input)']);
-        catch ME
+        catch ME2
             try
                 % try to set the fields manually
                 payload = feval(cls);
@@ -36,8 +37,13 @@ if isfield(input,'class_name')
                         % to the original (if you are lucky, it didn't matter, through). Consider
                         % relaxing the access rights to this property or add support for loadobj from
                         % a struct.
-                        warn_once('restore_payload:restricted_access',...
-                            'No permission to set property %s in object of type %s.',fn{i},cls);
+                        err = MException('AMESSAGE:restore_payload',...
+                            'Restricted access: Can not restore object %s',...
+                            cls);
+                        err.addCause(ME);
+                        err.addCause(ME2);
+                        err.addCause(ME1);
+                        throw(err);
                     end
                 end
             catch
