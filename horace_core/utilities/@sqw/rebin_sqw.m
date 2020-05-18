@@ -265,7 +265,7 @@ switch route
                 %work out the extent of the q co-ords direct from the pix
                 %array. The Matlab funciton "qr" will be quite useful here.
                 set1=[v11 v12 v13]; set2=[v21 v22 v23];
-                coords=win.data.pix.coordinates([1:3],:);  %we can do this because energy is not an axis
+                coords=win.data.pix.q_coordinates;  %we can do this because energy is not an axis
 %                 [Q1,R1]=qr(set1');
                 [Q2,R2]=qr(set2');
 %                 coords1=(Q1*inv(R1))*coords;

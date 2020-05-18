@@ -116,7 +116,7 @@ for i=1:3
 end
 
 %Coordinates of detector pixels, in the frame discussed above
-coords=@() win.data.pix.coordinates([1:3],:); % MP: emulate a pointer / lazy data copy
+coords=@() win.data.pix.q_coordinates; % MP: emulate a pointer / lazy data copy
 
 num_pixels=win.data.pix.num_pixels;  % MP, num_pixels=numel(coords)/3
 
@@ -148,9 +148,9 @@ coords_new([1:3], idx) = Reflec*coords_new([1:3], idx); % MP: (TODO) could poten
 clear 'side_dot'; % MP: not needed anymore
 coords_new=bsxfun(@plus, coords_new, vec3); % MP
 
-wout.data.pix.coordinates([1:3],:)=coords_new;
+wout.data.pix.q_coordinates=coords_new;
 clear 'coords_new';
-coords_new = @() wout.data.pix.coordinates([1:3],:); % MP: 'pointer'
+coords_new = @() wout.data.pix.q_coordinates; % MP: 'pointer'
 
 
 %=========================================================================

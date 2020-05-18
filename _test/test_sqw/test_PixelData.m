@@ -69,7 +69,7 @@ methods
 
     function test_q_coordinates_returns_first_3_dims_of_coordinates(obj)
         q_coords = obj.pixel_data_obj.q_coordinates;
-        assertEqual(q_coords, obj.pixel_data_obj.coordinates(1:3, :));
+        assertEqual(q_coords, obj.pixel_data_obj.q_coordinates);
     end
 
     function test_setting_q_coordinates_updates_u1_u2_and_u3(obj)
