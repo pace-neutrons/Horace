@@ -26,6 +26,7 @@ classdef PixelData
 %   u1, u2, u3     The 1st, 2nd and 3rd dimension of the crystal coordinates in projection axes (1 x n arrays)
 %   dE             The energy deltas of the pixels in meV (1 x n array)
 %   coordinates    The coords in projection axes of the pixel data [u1, u2, u3, dE] (4 x n array)
+%   q_coordinates  The spacial coords in projection axes of the pixel data [u1, u2, u3] (3 x n array)
 %   run_idx        The run index the pixel originated from (1 x n array)
 %   detector_idx   The detector group number in the detector listing for the pixels (1 x n array)
 %   energy_idx     The energy bin numbers (1 x n array)
@@ -39,12 +40,13 @@ properties (Access=private)
     FIELD_INDEX_MAP_ = containers.Map(...
         {'u1', 'u2', 'u3', 'dE', ...
          'coordinates', ...
+         'q_coordinates', ...
          'run_idx', ...
          'detector_idx', ...
          'energy_idx', ...
          'signals', ...
          'variance'}, ...
-        {1, 2, 3, 4, 1:4, 5, 6, 7, 8, 9})
+        {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9})
 end
 properties (Dependent)
     % Returns the full raw pixel data block (9 x n array)
@@ -53,11 +55,8 @@ properties (Dependent)
     % Return the 1st, 2nd and 3rd dimension of the crystal cartestian orientation (1 x n arrays)
     u1; u2; u3;
 
-    % % Returns the  (1 x n array)
-    % u2;
-
-    % % Returns the  (1 x n array)
-    % u3;
+    % Return the spatial dimensions of the crystal cartestian orientation (3 x n array)
+    q_coordinates;
 
     % Returns the array of energy deltas of the pixels (1 x n array) [meV]
     dE;
@@ -245,6 +244,14 @@ methods
 
     function obj = set.coordinates(obj, coordinates)
         obj.data(obj.FIELD_INDEX_MAP_('coordinates'), :) = coordinates;
+    end
+
+    function coord_data = get.q_coordinates(obj)
+        coord_data = obj.data(obj.FIELD_INDEX_MAP_('q_coordinates'), :);
+    end
+
+    function obj = set.q_coordinates(obj, q_coordinates)
+        obj.data(obj.FIELD_INDEX_MAP_('q_coordinates'), :) = q_coordinates;
     end
 
     function run_index = get.run_idx(obj)
