@@ -26,6 +26,9 @@ classdef FailedMessage < aMessage
             % error_exception -- the class of the Matlab exception type,
             %                    which  contains the information about the
             %                    problem.
+            % If no arguments are provided, default text and MException are
+            % used, though they not contain any useful information about
+            % the problem. 
             %
             obj = obj@aMessage('failed');
             
@@ -74,27 +77,6 @@ classdef FailedMessage < aMessage
             % return the persistent state for a message
             is_pers = true;
         end
-%         function struc_r = replace_mexc_(struc)
-%             % function replaces reference to MException class, which is not
-%             % restorable at de-serialization to the reference to
-%             % MException_her class, which is deserializable.
-%             if ~isstruct(struc)
-%                 struc_r = struc;
-%                 return;
-%             end
-%             flds = fieldnames(struc);
-%             struc_r = struc;
-%             for i=1:numel(flds)
-%                 if strcmpi(flds{i},'class_name')
-%                     if strcmp(struc.class_name,'MException')
-%                         struc_r.class_name = 'MException_her';
-%                     end
-%                 elseif isstruct(struc.(flds{i}))
-%                     struc_r.(flds{i}) = FailedMessage.replace_mexc_(struc.(flds{i}));
-%                 end
-%             end
-%             
-%         end
     end
     
 end

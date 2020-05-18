@@ -123,13 +123,17 @@ classdef MESS_NAMES < handle
         %
         function is = is_subscribed(obj,name)
             % verify if the name provided is a valid message name, i.e.
-            % is already subscribed to the messages name factory
+            % is already subscribed to the messages name factory.
             %
             is = all(ismember(name,obj.mess_names_));
         end
         %
         function mess_list = get.known_messages(obj)
-            % return list of the messages, known to the factory
+            % return list of the messages, known to the factory and
+            % registered with it. 
+            %
+            % used to check if factory registration is completed.
+            %
             mess_list = obj.known_messages_;
         end
         %
@@ -158,19 +162,19 @@ classdef MESS_NAMES < handle
                     'The name %s is not a registered message name\n',a_name{:});
             end
         end
-        
+        %
         function lst = get.interrupts(obj)
             % return list of the messages, which considered as interrupt
             % messages
             lst = obj.interrupts_map_.values;
         end
+        %
         function tgs = get.interrupt_tags(obj)
             % return the tags of the messages, which considered as interrupt
             % messages
             tgs = obj.interrupts_map_.keys;
             tgs = [tgs{:}];
         end
-        
     end
     
     
@@ -217,12 +221,16 @@ classdef MESS_NAMES < handle
         %
         function id = mess_id(varargin)
             % get message id (tag) derived from message name
+            %
+            % Input:
+            % single name or sequence of the name to get id-s
+            % Returns:
+            % array of id-s correspondent to names.
+            % 
             % usage:
             % id = MESS_NAMES.mess_id('completed')
             % or
             % ids = MESS_NAMES.mess_id('completed','log','started')
-            %
-            % where id-s is the array of message id-s (tags)
             %
             mn = MESS_NAMES.instance();
             name2code_map = mn.name_to_tag_map_;
@@ -234,16 +242,19 @@ classdef MESS_NAMES < handle
                 id = cellfun(@(nm)(name2code_map(nm)),...
                     varargin,'UniformOutput',true);
             else
-                %disp(['MEss name: ',mess_name])
-                %if isempty(mess_name)
-                %    dbstack
-                %end
                 id = name2code_map(varargin{1});
             end
         end
         %
         function name = mess_name(mess_id)
             % get message name derived from message code (tag)
+            %
+            % Input:
+            % mess_id -- array of message id(s)
+            % Returns:
+            % name    -- cellarray of message names in case of array of
+            %            message id-s or single name(char) for single
+            %            element message id-s.
             %
             if isempty(mess_id)
                 name  = '';
@@ -268,51 +279,66 @@ classdef MESS_NAMES < handle
         %
         function is = tag_valid(the_tag)
             % verify if the tag provided is valid message tag.
+            % 
+            % 
             mn = MESS_NAMES.instance();
             is = isKey(mn.tag_to_name_map_,the_tag);
         end
         %
-        function is= is_blocking(mess_name_or_tag)
+        function is= is_blocking(mess_or_name_or_tag)
             % check if the message with the name, provided as imput is
             % blocking message. (should be send-received synchroneously)
             %
             % Input:
-            % mess_name -- a string with message name or cellarray of
-            %              message names, or a number defining the message
-            %              tag, or cellarray of the messages or array of
-            %              tags or cellarray of message classes.
+            % mess_or_name_or_tag -- a string 
+            %              with message name or instance of message 
+            %              class or cellarray of message names, or a number
+            %              defining the message tag, or cellarray of the
+            %              messages names or array of tags or cellarray of
+            %              message classes.
             % Output
             % is        -- logical array, containing true if the corresponend
             %              message is blocking and false otherwise
             %
-            if isa(mess_name_or_tag,'aMessage')
-                is = mess_name_or_tag.is_blocking;
+            if isa(mess_or_name_or_tag,'aMessage')
+                is = mess_or_name_or_tag.is_blocking;
                 return
             end
             
             mni = MESS_NAMES.instance();
-            if isnumeric(mess_name_or_tag)
-                if numel(mess_name_or_tag) > 1
-                    is = arrayfun(@(mn)mni.tag_to_name_map_(mn),mess_name_or_tag,...
+            if isnumeric(mess_or_name_or_tag)
+                if numel(mess_or_name_or_tag) > 1
+                    is = arrayfun(@(mn)mni.tag_to_name_map_(mn),mess_or_name_or_tag,...
                         'UniformOutput',true);
                 else
-                    name = mni.tag_to_name_map_(mess_name_or_tag);
+                    name = mni.tag_to_name_map_(mess_or_name_or_tag);
                     mc = mni.mess_class_map_(name);
                     is = mc.is_blocking();
                 end
-            elseif ischar(mess_name_or_tag)
-                mc = mni.mess_class_map_(mess_name_or_tag);
+            elseif ischar(mess_or_name_or_tag)
+                mc = mni.mess_class_map_(mess_or_name_or_tag);
                 is = mc.is_blocking();
-            elseif iscell(mess_name_or_tag)
-                is = cellfun(@(mn)MESS_NAMES.is_blocking(mn),mess_name_or_tag,...
+            elseif iscell(mess_or_name_or_tag)
+                is = cellfun(@(mn)MESS_NAMES.is_blocking(mn),mess_or_name_or_tag,...
                     'UniformOutput',true);
             end
             
         end
         %
         function is = is_persistent(mess_or_name_or_tag)
-            % check if given message is a persistent message
+            % check if given message is a persistent message (interrupt
+            % message)
             %
+            % mess_or_name_or_tag --  a string with
+            %              message name or instance of message 
+            %              class or cellarray of message names, or a number
+            %              defining the message tag, or cellarray of the
+            %              messages names or array of tags or cellarray of
+            %              message classes.
+            % Output
+            % is        -- logical array, containing true if the corresponend
+            %              message is persistent and false otherwise
+            %            
             if isa(mess_or_name_or_tag,'aMessage')
                 is = mess_or_name_or_tag.is_persistent;
                 return
@@ -335,7 +361,6 @@ classdef MESS_NAMES < handle
                 is = cellfun(@(mn)MESS_NAMES.is_persistent(mn),mess_or_name_or_tag,...
                     'UniformOutput',true);
             end
-            
         end
         %
     end

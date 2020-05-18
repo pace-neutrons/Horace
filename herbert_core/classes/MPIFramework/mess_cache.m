@@ -22,26 +22,6 @@ classdef mess_cache < handle
     end
     
     
-    %     methods(Static)
-    %         function obj = instance(varargin)
-    %             persistent cache;
-    %             if nargin>0
-    %                 if ischar(varargin{1}) % clear cache holder
-    %                     clear cache;
-    %                     cache = [];
-    %                     return;
-    %                 else
-    %                     argi = varargin;
-    %                 end
-    %             else
-    %                 argi = {};
-    %             end
-    %             if isempty(cache)
-    %                 cache = mess_cache(argi{:});
-    %             end
-    %             obj = cache;
-    %         end
-    %     end
     methods
         function obj = mess_cache(num_labs)
             if ~exist('num_labs','var')
@@ -59,6 +39,8 @@ classdef mess_cache < handle
         end
         
         function push_messages(obj,task_ids,mess)
+            % place message into messages cache
+            % 
             if iscell(mess) %list of messages
                 if numel(task_ids) ~= numel(mess)
                     error('MESS_cache:invalid_argument',...
@@ -162,6 +144,8 @@ classdef mess_cache < handle
         %
         function clear(obj)
             % clear cache contents without changing the cache capacity
+            %
+            
             num_labs= obj.cache_capacity_;
             obj.mess_cache_ = cell(1,num_labs);
             for i=1:num_labs

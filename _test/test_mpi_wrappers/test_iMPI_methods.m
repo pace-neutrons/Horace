@@ -1,6 +1,6 @@
 classdef test_iMPI_methods< TestCase
-    %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+    % Testing the common methods, used by all messages frameworks. 
+    % 
     %
     properties
         working_dir

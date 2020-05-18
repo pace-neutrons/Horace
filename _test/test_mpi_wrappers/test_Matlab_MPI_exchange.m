@@ -1,7 +1,4 @@
 classdef test_Matlab_MPI_exchange < MPI_Test_Common
-    %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
-    %
     
     properties
     end

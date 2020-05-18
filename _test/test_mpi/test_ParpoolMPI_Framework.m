@@ -174,8 +174,6 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             
         end
         %
-        
-        %
         function test_probe_receive_all_tester(obj)
             if obj.ignore_test
                 return;
