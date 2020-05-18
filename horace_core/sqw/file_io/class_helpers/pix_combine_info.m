@@ -2,9 +2,6 @@ classdef pix_combine_info
     % Helper class used to carry out and provide information
     % necessary for pixel combining using write_nsqw_to_sqw algorithm.
     %
-    %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-    %
     properties(Access = protected)
         n_pixels_ = 'undefined';
         filenum_ = [];
@@ -61,6 +58,9 @@ classdef pix_combine_info
     methods
         %
         function obj = pix_combine_info(infiles,nbins,pos_npixstart,pos_pixstart,npixtot,run_label,filenums)
+            if nargin == 0
+                return
+            end
             obj.infiles = infiles;
             if ~exist('pos_npixstart','var') % pre-initialization for file-based combining of the cuts.
                 nfiles = obj.nfiles;
@@ -208,7 +208,18 @@ classdef pix_combine_info
             if ~isempty(obj.filenum_)
                 obj.filenum_ = obj.filenum_(1:nfiles_to_leave);
             end
-            
+        end
+        function struc = saveobj(obj)
+            struc = structIndep(obj);
+        end
+    end
+    methods(Static)
+        function obj = loadobj(struc)
+            obj = pix_combine_info();
+            flds = fieldnames(struc);
+            for i=1:numel(flds)
+                obj.(flds{i}) = struc.(flds{i});
+            end
         end
     end
     
