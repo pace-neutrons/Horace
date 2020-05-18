@@ -166,14 +166,14 @@ if ndims1==1
     wout.data.s=zeros(length(wout.data.p{1})-1,1);
     wout.data.e=wout.data.s;
     wout.data.npix=wout.data.s;
-    wout.data.npix(1)=numel(wout.data.pix.coordinates(1, :));
+    wout.data.npix(1)=numel(wout.data.pix.u1);
     wout=sqw(wout);
     wout=cut(wout,[]);
 elseif ndims1==2
     wout.data.s=zeros(length(wout.data.p{1})-1,length(wout.data.p{2})-1);
     wout.data.e=wout.data.s;
     wout.data.npix=wout.data.s;
-    wout.data.npix(1,1)=numel(wout.data.pix.coordinates(1, :));
+    wout.data.npix(1,1)=numel(wout.data.pix.u1);
     wout=sqw(wout);
     wout=cut(wout,[],[]);
 elseif ndims1==3
@@ -181,7 +181,7 @@ elseif ndims1==3
         length(wout.data.p{3})-1);
     wout.data.e=wout.data.s;
     wout.data.npix=wout.data.s;
-    wout.data.npix(1,1,1)=numel(wout.data.pix.coordinates(1, :));
+    wout.data.npix(1,1,1)=numel(wout.data.pix.u1);
     wout=sqw(wout);
     wout=cut(wout,[],[],[]);
 elseif ndims1==4
@@ -189,7 +189,7 @@ elseif ndims1==4
         length(wout.data.p{3})-1,length(wout.data.p{4})-1);
     wout.data.e=wout.data.s;
     wout.data.npix=wout.data.s;
-    wout.data.npix(1,1,1,1)=numel(wout.data.pix.coordinates(1, :));
+    wout.data.npix(1,1,1,1)=numel(wout.data.pix.u1);
     wout=sqw(wout);
     wout=cut(wout,[],[],[],[]);
 else
