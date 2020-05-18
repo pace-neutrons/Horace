@@ -60,7 +60,8 @@ else
 end
 %
 if ~isempty(argi)
-    mess_reduction_function = argi{1};
+    is_fh = cellfun(@(x)isa(x,'function_handle'),argi,'UniformOutput',true);
+    mess_reduction_function = argi{is_fh}; % again, only first will be returned, which is correct but implicit
 else
     mess_reduction_function = [];
 end
