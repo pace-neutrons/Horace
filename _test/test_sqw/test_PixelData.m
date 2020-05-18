@@ -47,6 +47,26 @@ methods
         assertEqual(obj.pixel_data_obj.data, obj.raw_pix_data);
     end
 
+    function test_u1_returns_first_dim_in_coordinates_array(obj)
+        u1 = obj.pixel_data_obj.u1;
+        assertEqual(u1, obj.pixel_data_obj.coordinates(1, :));
+    end
+
+    function test_u2_returns_second_dim_in_coordinates_array(obj)
+        u2 = obj.pixel_data_obj.u2;
+        assertEqual(u2, obj.pixel_data_obj.coordinates(2, :));
+    end
+
+    function test_u3_returns_third_dim_in_coordinates_array(obj)
+        u3 = obj.pixel_data_obj.u3;
+        assertEqual(u3, obj.pixel_data_obj.coordinates(3, :));
+    end
+
+    function test_dE_returns_fourth_dim_in_coordinates_array(obj)
+        dE = obj.pixel_data_obj.dE;
+        assertEqual(dE, obj.pixel_data_obj.coordinates(4, :));
+    end
+
     function test_get_coordinates_returns_coordinate_data(obj)
         coord_data = obj.raw_pix_data(1:4, :);
         assertEqual(obj.pixel_data_obj.coordinates, coord_data);
@@ -186,7 +206,8 @@ methods
     end
 
     function test_get_data_allows_data_retrieval_for_single_field(obj)
-        fields = {'coordinates', 'run_idx', 'detector_idx', 'energy_idx', 'signals', 'variance'};
+        fields = {'u1', 'u2', 'u3', 'dE', 'coordinates', 'run_idx', ...
+                  'detector_idx', 'energy_idx', 'signals', 'variance'};
         for i = 1:numel(fields)
             field_data = obj.pixel_data_obj.get_data(fields{i});
             assertEqual(field_data, obj.pixel_data_obj.(fields{i}));

@@ -23,7 +23,9 @@ classdef PixelData
 %
 % Attributes:
 %   data           The raw pixel data
-%   coordinates    Get/set the coords in projection axes of the pixel data (4 x n array)
+%   u1, u2, u3     The 1st, 2nd and 3rd dimension of the crystal coordinates in projection axes (1 x n arrays)
+%   dE             The energy deltas of the pixels in meV (1 x n array)
+%   coordinates    The coords in projection axes of the pixel data [u1, u2, u3, dE] (4 x n array)
 %   run_idx        The run index the pixel originated from (1 x n array)
 %   detector_idx   The detector group number in the detector listing for the pixels (1 x n array)
 %   energy_idx     The energy bin numbers (1 x n array)
@@ -35,12 +37,30 @@ properties (Access=private)
     PIXEL_BLOCK_COLS_ = 9;
     data_ = zeros(9, 0);
     FIELD_INDEX_MAP_ = containers.Map(...
-        {'coordinates', 'run_idx', 'detector_idx', 'energy_idx', 'signals', 'variance'}, ...
-        {1:4, 5, 6, 7, 8, 9})
+        {'u1', 'u2', 'u3', 'dE', ...
+         'coordinates', ...
+         'run_idx', ...
+         'detector_idx', ...
+         'energy_idx', ...
+         'signals', ...
+         'variance'}, ...
+        {1, 2, 3, 4, 1:4, 5, 6, 7, 8, 9})
 end
 properties (Dependent)
     % Returns the full raw pixel data block (9 x n array)
     data;
+
+    % Return the 1st, 2nd and 3rd dimension of the crystal cartestian orientation (1 x n arrays)
+    u1; u2; u3;
+
+    % % Returns the  (1 x n array)
+    % u2;
+
+    % % Returns the  (1 x n array)
+    % u3;
+
+    % Returns the array of energy deltas of the pixels (1 x n array) [meV]
+    dE;
 
     % Returns the coordinates of the pixels in the projection axes, i.e.: u1,
     % u2, u3 and dE (4 x n array)
@@ -90,7 +110,7 @@ methods
         %             col 2: u2
         %             col 3: u3
         %             col 4: u4
-        %             col 5: irun
+        %             col 5: run_idx
         %             col 6: detector_idx
         %             col 7: energy_idx
         %             col 8: signals
@@ -201,6 +221,22 @@ methods
             error('PIXELDATA:data', msg, class(pixel_data));
         end
         obj.data_ = pixel_data;
+    end
+
+    function u1 = get.u1(obj)
+        u1 = obj.data(obj.FIELD_INDEX_MAP_('u1'), :);
+    end
+
+    function u2 = get.u2(obj)
+        u2 = obj.data(obj.FIELD_INDEX_MAP_('u2'), :);
+    end
+
+    function u3 = get.u3(obj)
+        u3 = obj.data(obj.FIELD_INDEX_MAP_('u3'), :);
+    end
+
+    function dE = get.dE(obj)
+        dE = obj.data(obj.FIELD_INDEX_MAP_('dE'), :);
     end
 
     function coord_data = get.coordinates(obj)
