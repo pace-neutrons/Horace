@@ -209,7 +209,7 @@ classdef test_main_mex < TestCase
             pix = PixelData(pix);
             npix = 4*ones(10,10,10,10);
             ix = ceil(pix.u1);
-            iy = ceil(pix.coordinates(2,:));
+            iy = ceil(pix.u2);
             iz = ceil(pix.coordinates(3,:));
             ie = ceil(pix.coordinates(4,:));
             ix = sub2ind(size(npix), ix,iy,iz,ie);
