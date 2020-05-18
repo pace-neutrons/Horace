@@ -53,7 +53,7 @@ end
 
 % Do the masking calculation:
 det_id=unique(det_id);    % remove duplicates if present
-dets=win.data.pix.idet;
+dets=win.data.pix.detector_idx;
 mask_arr=true(size(dets));
 for i=1:numel(det_id)
     mask_arr(dets==det_id(i))=false;

@@ -32,7 +32,7 @@ function [u_to_rlu, urange, pix] = calc_projections_(obj, detdcn,qspec,proj_mode
 %   pix         PixelData object with attributes:
 %                   pix.coordinates  coordinates in crystal Cartesian coordinates and energy
 %                   pix.run_idx         run index: alway unity from this routine
-%                   pix.idet         detecetor index
+%                   pix.detector_idx         detecetor index
 %                   pix.ienergy      energy bin index
 %                   pix.signals      signal
 %                   pix.variance     error squared
@@ -131,14 +131,14 @@ if ~use_mex
     if ~qspec_provided
         det = obj.det_par;
         if isfield(det,'group')
-            pix.idet=reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); % detector index
+            pix.detector_idx=reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); % detector index
         else
             group = 1:ndet;
-            pix.idet=reshape(repmat(group,[ne,1]),[1,ne*ndet]); % detector index
+            pix.detector_idx=reshape(repmat(group,[ne,1]),[1,ne*ndet]); % detector index
         end
         pix.ienergy=reshape(repmat((1:ne)',[1,ndet]),[1,ne*ndet]); % energy bin index
     else
-        pix.idet = 1;
+        pix.detector_idx = 1;
         pix.ienergy = 1;
     end
     pix.signals=obj.S(:)';

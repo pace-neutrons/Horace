@@ -94,7 +94,7 @@ else
     dt=cell(nw,1);
     for i=1:nw
         irun = win{i}.data.pix.run_idx';
-        idet = win{i}.data.pix.idet';
+        idet = win{i}.data.pix.detector_idx';
         ien  = win{i}.data.pix.ienergy';
 
         [deps,eps_lo,eps_hi,ne]=energy_transfer_info(win{i}.header);

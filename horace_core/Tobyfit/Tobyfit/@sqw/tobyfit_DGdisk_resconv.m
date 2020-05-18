@@ -196,7 +196,7 @@ for i=1:numel(ind)
 
     % Run and detector for each pixel
     irun = win(i).data.pix.run_idx';   % column vector
-    idet = win(i).data.pix.idet';   % column vector
+    idet = win(i).data.pix.detector_idx';   % column vector
     npix = win(i).data.pix.num_pixels;
 
     % Catch case of refining crystal orientation or moderator parameters

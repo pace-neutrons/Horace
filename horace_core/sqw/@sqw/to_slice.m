@@ -77,7 +77,7 @@ s.c(w.data.npix==0)=NaN;
 s.e(w.data.npix==0)=0;
 s.npixels=w.data.npix;
 s.pixels=zeros(npixtot,7);
-s.pixels(:,1)=w.data.pix.idet';
+s.pixels(:,1)=w.data.pix.detector_idx';
 s.pixels(:,2)=ecent(w.data.pix.ienergy);
 s.pixels(:,3)=de;
 s.pixels(:,4)=xpix{1};
