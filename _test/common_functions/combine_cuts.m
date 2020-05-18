@@ -54,7 +54,7 @@ for i=1:numel(w)
     ibin(nbeg(i):nend(i))=replicate_array(1:nbin,w(i).data.npix);
 end
 [~,ix]=sort(ibin);
-pix=PixelData(pix.data(:,ix));
+pix=pix.get_pixels(ix);
 
 data=w(1).data;
 data.npix=npix;
