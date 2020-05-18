@@ -95,7 +95,7 @@ else
     for i=1:nw
         irun = win{i}.data.pix.run_idx';
         idet = win{i}.data.pix.detector_idx';
-        ien  = win{i}.data.pix.ienergy';
+        ien  = win{i}.data.pix.energy_idx';
 
         [deps,eps_lo,eps_hi,ne]=energy_transfer_info(win{i}.header);
         eps=(eps_lo(irun).*(ne(irun)-ien)+eps_hi(irun).*(ien-1))./(ne(irun)-1);

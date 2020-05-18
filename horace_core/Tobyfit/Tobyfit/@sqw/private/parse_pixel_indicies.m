@@ -71,7 +71,7 @@ if nargin==1
             if iscell(win), pix = win{1}.data.pix; else, pix = win.data.pix; end
             if nout>=1, irun = pix.run_idx'; end   % column vector
             if nout>=2, idet = pix.detector_idx'; end   % column vector
-            if nout>=3, ien  = pix.ienergy'; end   % column vector
+            if nout>=3, ien  = pix.energy_idx'; end   % column vector
         else
             if nout>=1, irun = cell(size(win)); end
             if nout>=2, idet = cell(size(win)); end
@@ -80,7 +80,7 @@ if nargin==1
                 if iscell(win), pix = win{i}.data.pix; else, pix = win(i).data.pix; end
                 if nout>=1, irun{i} = pix.run_idx'; end   % column vector
                 if nout>=2, idet{i} = pix.detector_idx'; end   % column vector
-                if nout>=3, ien{i}  = pix.ienergy'; end   % column vector
+                if nout>=3, ien{i}  = pix.energy_idx'; end   % column vector
             end
         end
         if nout>=1, varargout{1} = irun; end
@@ -206,7 +206,7 @@ if nout>0
             if iscell(win), pix = win{1}.data.pix; else, pix = win.data.pix; end
             if nout>=1, irun = pix.run_idx(indx_tmp)'; end   % column vector
             if nout>=2, idet = pix.detector_idx(indx_tmp)'; end   % column vector
-            if nout>=3, ien  = pix.ienergy(indx_tmp)'; end   % column vector
+            if nout>=3, ien  = pix.energy_idx(indx_tmp)'; end   % column vector
         else
             if nout>=1, irun = indx_tmp(:,1); end
             if nout>=2, idet = indx_tmp(:,2); end
@@ -222,7 +222,7 @@ if nout>0
                 if iscell(win), pix = win{i}.data.pix; else, pix = win(i).data.pix; end
                 if nout>=1, irun{i} = pix.run_idx(indx_tmp)'; end   % column vector
                 if nout>=2, idet{i} = pix.detector_idx(indx_tmp)'; end   % column vector
-                if nout>=3, ien{i}  = pix.ienergy(indx_tmp)'; end   % column vector
+                if nout>=3, ien{i}  = pix.energy_idx(indx_tmp)'; end   % column vector
             else
                 if nout>=1, irun{i} = indx_tmp(:,1); end
                 if nout>=2, idet{i} = indx_tmp(:,2); end

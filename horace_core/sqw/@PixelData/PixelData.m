@@ -16,18 +16,17 @@ classdef PixelData
 %   >> pix_data.data = data;
 %   >> signal = get(pix_data, 'signal');
 %
-%  To retrieve multiple fields of data, e.g. irun and ienergy, for pixels 1 to
-%  10:
+%  To retrieve multiple fields of data, e.g. run_idx and energy_idx, for pixels 1 to 10:
 %
 %   >> pix_data = PixelData(data)
-%   >> signal = pix_data.get_data({'run_idx', 'ienergy'}, 1:10);
+%   >> signal = pix_data.get_data({'run_idx', 'energy_idx'}, 1:10);
 %
 % Attributes:
 %   data           The raw pixel data
 %   coordinates    Get/set the coords in projection axes of the pixel data (4 x n array)
 %   run_idx        The run index the pixel originated from (1 x n array)
 %   detector_idx   The detector group number in the detector listing for the pixels (1 x n array)
-%   ienergy        The energy bin numbers (1 x n array)
+%   energy_idx     The energy bin numbers (1 x n array)
 %   signals        The signal array (1 x n array)
 %   variance       The variance on the signal array (variance i.e. error bar squared) (1 x n array)
 %   num_pixels     The number of pixels in the data block
@@ -36,7 +35,7 @@ properties (Access=private)
     PIXEL_BLOCK_COLS_ = 9;
     data_ = zeros(9, 0);
     FIELD_INDEX_MAP_ = containers.Map(...
-        {'coordinates', 'run_idx', 'detector_idx', 'ienergy', 'signals', 'variance'}, ...
+        {'coordinates', 'run_idx', 'detector_idx', 'energy_idx', 'signals', 'variance'}, ...
         {1:4, 5, 6, 7, 8, 9})
 end
 properties (Dependent)
@@ -54,7 +53,7 @@ properties (Dependent)
     detector_idx;
 
     % The energy bin numbers (1 x n array)
-    ienergy;
+    energy_idx;
 
     % The signal array (1 x n array)
     signals;
@@ -93,7 +92,7 @@ methods
         %             col 4: u4
         %             col 5: irun
         %             col 6: detector_idx
-        %             col 7: ienergy
+        %             col 7: energy_idx
         %             col 8: signals
         %             col 9: variance
         %
@@ -228,12 +227,12 @@ methods
        obj.data(obj.FIELD_INDEX_MAP_('detector_idx'), :) = detector_indices;
     end
 
-    function detector_index = get.ienergy(obj)
-       detector_index = obj.data(obj.FIELD_INDEX_MAP_('ienergy'), :);
+    function detector_index = get.energy_idx(obj)
+       detector_index = obj.data(obj.FIELD_INDEX_MAP_('energy_idx'), :);
     end
 
-    function obj = set.ienergy(obj, energies)
-        obj.data(obj.FIELD_INDEX_MAP_('ienergy'), :) = energies;
+    function obj = set.energy_idx(obj, energies)
+        obj.data(obj.FIELD_INDEX_MAP_('energy_idx'), :) = energies;
      end
 
     function signals = get.signals(obj)

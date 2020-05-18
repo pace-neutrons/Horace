@@ -216,9 +216,9 @@ classdef test_main_mex < TestCase
 
             % test sorting parameters and matlab sorting
             pix1 = sort_pix(pix,ix,[]);
-            assertElementsAlmostEqual(pix1.ienergy(1:4),[1810,1820,3810,3820]);
-            assertElementsAlmostEqual(pix1.ienergy(5:8),[1809,1819,3809,3819]);
-            assertElementsAlmostEqual(pix1.ienergy(end-3:end),[36181,36191,38181,38191]);
+            assertElementsAlmostEqual(pix1.energy_idx(1:4),[1810,1820,3810,3820]);
+            assertElementsAlmostEqual(pix1.energy_idx(5:8),[1809,1819,3809,3819]);
+            assertElementsAlmostEqual(pix1.energy_idx(end-3:end),[36181,36191,38181,38191]);
 
             pix2 = sort_pix(pix,ix,npix,'-nomex');
             assertElementsAlmostEqual(pix1.data,pix2.data);
@@ -228,7 +228,7 @@ classdef test_main_mex < TestCase
             end
             % test mex
             pix1 = sort_pix(pix,ix,npix,'-force_mex');
-            assertElementsAlmostEqual(pix1.ienergy(1:4),[1810,1820,3810,3820]);
+            assertElementsAlmostEqual(pix1.energy_idx(1:4),[1810,1820,3810,3820]);
             assertElementsAlmostEqual(pix1.data, pix2.data);
 
             pix0 = PixelData(single(pix.data));

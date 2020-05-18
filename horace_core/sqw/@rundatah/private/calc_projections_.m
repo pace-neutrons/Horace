@@ -33,7 +33,7 @@ function [u_to_rlu, urange, pix] = calc_projections_(obj, detdcn,qspec,proj_mode
 %                   pix.coordinates  coordinates in crystal Cartesian coordinates and energy
 %                   pix.run_idx         run index: alway unity from this routine
 %                   pix.detector_idx         detecetor index
-%                   pix.ienergy      energy bin index
+%                   pix.energy_idx      energy bin index
 %                   pix.signals      signal
 %                   pix.variance     error squared
 %              The order of the pixels is increasing energy dfor first detector, then
@@ -136,10 +136,10 @@ if ~use_mex
             group = 1:ndet;
             pix.detector_idx=reshape(repmat(group,[ne,1]),[1,ne*ndet]); % detector index
         end
-        pix.ienergy=reshape(repmat((1:ne)',[1,ndet]),[1,ne*ndet]); % energy bin index
+        pix.energy_idx=reshape(repmat((1:ne)',[1,ndet]),[1,ne*ndet]); % energy bin index
     else
         pix.detector_idx = 1;
-        pix.ienergy = 1;
+        pix.energy_idx = 1;
     end
     pix.signals=obj.S(:)';
     pix.variance=((obj.ERR(:)).^2)';

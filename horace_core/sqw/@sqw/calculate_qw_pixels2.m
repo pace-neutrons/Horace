@@ -36,7 +36,7 @@ k_to_e = c.c_k_to_emev;
 
 irun = win.data.pix.run_idx';   % column vector
 idet = win.data.pix.detector_idx';   % column vector
-ien  = win.data.pix.ienergy';   % column vector
+ien  = win.data.pix.energy_idx';   % column vector
 
 if ~iscell(win.header)
     header={win.header};

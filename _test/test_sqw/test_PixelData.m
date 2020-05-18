@@ -62,9 +62,9 @@ methods
         assertEqual(obj.pixel_data_obj.detector_idx, detector_indices)
     end
 
-    function test_ienergy_returns_energy_bin_number_data(obj)
+    function test_energy_idx_returns_energy_bin_number_data(obj)
         energy_bin_nums = obj.raw_pix_data(7, :);
-        assertEqual(obj.pixel_data_obj.ienergy, energy_bin_nums)
+        assertEqual(obj.pixel_data_obj.energy_idx, energy_bin_nums)
     end
 
     function test_signals_returns_signal_array(obj)
@@ -186,7 +186,7 @@ methods
     end
 
     function test_get_data_allows_data_retrieval_for_single_field(obj)
-        fields = {'coordinates', 'run_idx', 'detector_idx', 'ienergy', 'signals', 'variance'};
+        fields = {'coordinates', 'run_idx', 'detector_idx', 'energy_idx', 'signals', 'variance'};
         for i = 1:numel(fields)
             field_data = obj.pixel_data_obj.get_data(fields{i});
             assertEqual(field_data, obj.pixel_data_obj.(fields{i}));
