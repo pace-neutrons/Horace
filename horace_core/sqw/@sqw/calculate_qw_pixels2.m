@@ -34,7 +34,7 @@ end
 c=neutron_constants;
 k_to_e = c.c_k_to_emev;
 
-irun = win.data.pix.irun';   % column vector
+irun = win.data.pix.run_idx';   % column vector
 idet = win.data.pix.idet';   % column vector
 ien  = win.data.pix.ienergy';   % column vector
 

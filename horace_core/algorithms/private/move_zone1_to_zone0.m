@@ -206,7 +206,7 @@ else
 end
 % modify pixel's id to add informaion about zone, pixel came from
 if pixid_shift~=0
-    wout.data.pix.irun = w1.data.pix.irun+pixid_shift;
+    wout.data.pix.run_idx = w1.data.pix.run_idx+pixid_shift;
 end
 
 %coords2=w2.data.pix([1:3],:);

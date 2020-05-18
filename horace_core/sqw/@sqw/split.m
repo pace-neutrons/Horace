@@ -36,7 +36,7 @@ npix=w.data.npix;
 pix=w.data.pix;
 
 % Sort (an index array to) pix into increasing run number, and increasing bin number within each run
-irun=pix.irun';
+irun=pix.run_idx';
 ibin=replicate_array (1:numel(npix),npix);
 [runbin,ix]=sortrows([irun,ibin]);  % get index of run
 irun=runbin(:,1);
@@ -76,7 +76,7 @@ for i=1:nfiles
         npix(ib(nb))=diff([nb;numel(ib)+1]);
         data.npix=npix;
         data.pix=PixelData(pix.data(:,ix(nbeg(ind(i)):nend(ind(i)))));
-        data.pix.irun=1;    % all pixels will be from run 1, by definition
+        data.pix.run_idx=1;    % all pixels will be from run 1, by definition
         wout(i).data=data;
         wout(i)=recompute_bin_data(wout(i));
     else

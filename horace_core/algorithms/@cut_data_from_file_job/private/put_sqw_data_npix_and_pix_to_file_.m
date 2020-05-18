@@ -7,17 +7,13 @@ function [mess, position, npixtot] = put_sqw_data_npix_and_pix_to_file_(outfile,
 % ------
 %   outfile     File name, or file identifier of open file, to which to append data
 %   npix        Array containing the number of pixels in each bin
-%   data.pix    Array containing data for each pixel:
-%              If npixtot=sum(npix), then pix(9,npixtot) contains:
-%                   u1      -|
-%                   u2       |  Coordinates of pixel in the projection axes of the original sqw file(s)
-%                   u3       |
-%                   u4      -|
-%                   irun        Run index in the header block from which pixel came
-%                   idet        Detector group number in the detector listing for the pixel
-%                   ien         Energy bin number for the pixel in the array in the (irun)th header
-%                   signal      Signal array
-%                   err         Error array (variance i.e. error bar squared)
+%   data.pix    PixelData object with the following attributes:
+%                   coordinates  Coordinates of pixel in the projection axes of the original sqw file(s) 4xn matrix
+%                   run_idx      Run index in the header block from which pixel came
+%                   idet         Detector group number in the detector listing for the pixel
+%                   ien          Energy bin number for the pixel in the array in the (irun)th header
+%                   signal       Signal array
+%                   variance     Error array (variance i.e. error bar squared)
 %
 % Output:
 % -------

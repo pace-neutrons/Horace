@@ -20,12 +20,12 @@ classdef PixelData
 %  10:
 %
 %   >> pix_data = PixelData(data)
-%   >> signal = pix_data.get_data({'irun', 'ienergy'}, 1:10);
+%   >> signal = pix_data.get_data({'run_idx', 'ienergy'}, 1:10);
 %
 % Attributes:
 %   data           The raw pixel data
 %   coordinates    Get/set the coords in projection axes of the pixel data (4 x n array)
-%   irun           The run index the pixel originated from (1 x n array)
+%   run_idx        The run index the pixel originated from (1 x n array)
 %   idet           The detector group number in the detector listing for the pixels (1 x n array)
 %   ienergy        The energy bin numbers (1 x n array)
 %   signals        The signal array (1 x n array)
@@ -36,7 +36,7 @@ properties (Access=private)
     PIXEL_BLOCK_COLS_ = 9;
     data_ = zeros(9, 0);
     FIELD_INDEX_MAP_ = containers.Map(...
-        {'coordinates', 'irun', 'idet', 'ienergy', 'signals', 'variance'}, ...
+        {'coordinates', 'run_idx', 'idet', 'ienergy', 'signals', 'variance'}, ...
         {1:4, 5, 6, 7, 8, 9})
 end
 properties (Dependent)
@@ -48,7 +48,7 @@ properties (Dependent)
     coordinates;
 
     % The run index the pixel originated from (1 x n array)
-    irun;
+    run_idx;
 
     % The detector group number in the detector listing for the pixels (1 x n array)
     idet;
@@ -148,7 +148,7 @@ methods
         %   >> sig_and_err = pix.get_data({'signals', 'variance'})
         %        retrives the signals and variance over the whole range of pixels
         %
-        %   >> run_det_id_range = pix.get_data({'irun', 'idet'}, 4:10);
+        %   >> run_det_id_range = pix.get_data({'run_idx', 'idet'}, 4:10);
         %        retrives the run and detector IDs for pixels 4 to 10
         %
         if ~isa(fields, 'cell')
@@ -212,12 +212,12 @@ methods
         obj.data(obj.FIELD_INDEX_MAP_('coordinates'), :) = coordinates;
     end
 
-    function run_index = get.irun(obj)
-        run_index = obj.data(obj.FIELD_INDEX_MAP_('irun'), :);
+    function run_index = get.run_idx(obj)
+        run_index = obj.data(obj.FIELD_INDEX_MAP_('run_idx'), :);
     end
 
-    function obj = set.irun(obj, iruns)
-        obj.data(obj.FIELD_INDEX_MAP_('irun'), :) = iruns;
+    function obj = set.run_idx(obj, iruns)
+        obj.data(obj.FIELD_INDEX_MAP_('run_idx'), :) = iruns;
     end
 
     function detector_index = get.idet(obj)

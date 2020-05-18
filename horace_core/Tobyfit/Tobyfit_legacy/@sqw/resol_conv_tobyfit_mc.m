@@ -139,7 +139,7 @@ for i=1:numel(ind)
 
     qw = calculate_qw_pixels(win(i));   % get qw *after* changing crystal orientation
     npix = win(i).data.pix.num_pixels;
-    irun = win(i).data.pix.irun;
+    irun = win(i).data.pix.run_idx;
     idet = win(i).data.pix.idet;
 
     for imc=1:mc_npoints

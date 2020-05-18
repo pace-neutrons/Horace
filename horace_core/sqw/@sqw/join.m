@@ -97,7 +97,7 @@ main_header.nfiles=sum(run_contributes); % For the output structure
 
 rc_idx = find(run_contributes);
 for i=1:length(rc_idx)
-    data{rc_idx(i)}.pix.irun=i; % repopulate individual run numbers
+    data{rc_idx(i)}.pix.run_idx=i; % repopulate individual run numbers
 end
 
 
