@@ -229,12 +229,12 @@ classdef test_main_mex < TestCase
             % test mex
             pix1 = sort_pix(pix,ix,npix,'-force_mex');
             assertElementsAlmostEqual(pix1.ienergy(1:4),[1810,1820,3810,3820]);
-            assertElementsAlmostEqual(pix1,pix2);
+            assertElementsAlmostEqual(pix1.data, pix2.data);
 
-            pix0 = PixelData(single(pix));
+            pix0 = PixelData(single(pix.data));
             ix0  = int64(ix);
             pix0a = sort_pix(pix0,ix0,npix,'-force_mex');
-            assertElementsAlmostEqual(pix0a,pix2,'absolute',1.e-6);
+            assertElementsAlmostEqual(pix0a.data, pix2.data,'absolute',1.e-6);
 
 
         end
