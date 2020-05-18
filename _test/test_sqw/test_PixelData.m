@@ -52,9 +52,21 @@ methods
         assertEqual(u1, obj.pixel_data_obj.coordinates(1, :));
     end
 
+    function test_u1_sets_the_first_dim_in_coordinates_array(obj)
+        pix_data_obj = obj.get_random_pix_data_(10);
+        pix_data_obj.u1 = 1;
+        assertEqual(pix_data_obj.coordinates(1, :), ones(1, 10));
+    end
+
     function test_u2_returns_second_dim_in_coordinates_array(obj)
         u2 = obj.pixel_data_obj.u2;
         assertEqual(u2, obj.pixel_data_obj.coordinates(2, :));
+    end
+
+    function test_u2_sets_the_second_dim_in_coordinates_array(obj)
+        pix_data_obj = obj.get_random_pix_data_(10);
+        pix_data_obj.u2 = 1;
+        assertEqual(pix_data_obj.coordinates(2, :), ones(1, 10));
     end
 
     function test_u3_returns_third_dim_in_coordinates_array(obj)
@@ -62,9 +74,21 @@ methods
         assertEqual(u3, obj.pixel_data_obj.coordinates(3, :));
     end
 
+    function test_u3_sets_the_third_dim_in_coordinates_array(obj)
+        pix_data_obj = obj.get_random_pix_data_(10);
+        pix_data_obj.u3 = 1;
+        assertEqual(pix_data_obj.coordinates(3, :), ones(1, 10));
+    end
+
     function test_dE_returns_fourth_dim_in_coordinates_array(obj)
         dE = obj.pixel_data_obj.dE;
         assertEqual(dE, obj.pixel_data_obj.coordinates(4, :));
+    end
+
+    function test_dE_sets_the_fourth_dim_in_coordinates_array(obj)
+        pix_data_obj = obj.get_random_pix_data_(10);
+        pix_data_obj.dE = 1;
+        assertEqual(pix_data_obj.coordinates(4, :), ones(1, 10));
     end
 
     function test_q_coordinates_returns_first_3_dims_of_coordinates(obj)

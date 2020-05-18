@@ -226,16 +226,32 @@ methods
         u1 = obj.data(obj.FIELD_INDEX_MAP_('u1'), :);
     end
 
+    function obj = set.u1(obj, u1)
+        obj.data(obj.FIELD_INDEX_MAP_('u1'), :) = u1;
+    end
+
     function u2 = get.u2(obj)
         u2 = obj.data(obj.FIELD_INDEX_MAP_('u2'), :);
+    end
+
+    function obj = set.u2(obj, u2)
+        obj.data(obj.FIELD_INDEX_MAP_('u2'), :) = u2;
     end
 
     function u3 = get.u3(obj)
         u3 = obj.data(obj.FIELD_INDEX_MAP_('u3'), :);
     end
 
+    function obj = set.u3(obj, u3)
+        obj.data(obj.FIELD_INDEX_MAP_('u3'), :) = u3;
+    end
+
     function dE = get.dE(obj)
         dE = obj.data(obj.FIELD_INDEX_MAP_('dE'), :);
+    end
+
+    function obj = set.dE(obj, dE)
+        obj.data(obj.FIELD_INDEX_MAP_('dE'), :) = dE;
     end
 
     function coord_data = get.coordinates(obj)
