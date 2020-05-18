@@ -38,6 +38,6 @@ u_q=(u_to_rlu\pix_to_rlu)*(w.data.pix.data(1:3,:)) + u_to_rlu\repmat((pix0(1:3)-
 urange=zeros(2,4);
 urange(1,1:3)=min(u_q,[],2)';
 urange(2,1:3)=max(u_q,[],2)';
-urange(1,4)=min(w.data.pix.coordinates(4, :)) + (pix0(4)-u0(4));
-urange(2,4)=max(w.data.pix.coordinates(4, :)) + (pix0(4)-u0(4));
+urange(1,4)=min(w.data.pix.dE) + (pix0(4)-u0(4));
+urange(2,4)=max(w.data.pix.dE) + (pix0(4)-u0(4));
 

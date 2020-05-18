@@ -175,7 +175,7 @@ coords_cut=bsxfun(@plus, tmp, win.data.uoffset(1:3)); % MP: replaced repmat
 clear 'tmp';
 
 %Extra line required here to include energy in coords_cut (needed below):
-epix=@() win.data.pix.coordinates(4, :);%energy is never reflected, of course % MP: only accessed once
+epix=@() win.data.pix.dE;%energy is never reflected, of course % MP: only accessed once
 coords_cut=[coords_cut;epix()]; % MP: (TODO) horzcat needs quite some memory, could reduced by resizing coords_cut first and then assigning last row
 
 ndims=dimensions(win);
