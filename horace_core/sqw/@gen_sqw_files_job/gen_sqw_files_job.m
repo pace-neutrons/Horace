@@ -80,7 +80,7 @@ classdef gen_sqw_files_job < JobExecutor
             
             if nargin > 1
                 [ok,mess] = finish_task@JobExecutor(obj,...
-                    varargin{1},@average_range_process_function_);
+                    varargin{:},@average_range_process_function_);
             else
                 [ok,mess] = finish_task@JobExecutor(obj,...
                     [],@average_range_process_function_);

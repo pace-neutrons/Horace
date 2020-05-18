@@ -34,7 +34,7 @@ Each **communicator/controller** is responsible for correspondent **message tran
 | `mpiexec MPI`    | *possible* |  --- | **Native**|
 | `Job submission/initialization` | **Only**| --- | --- | 
 
-Where the word *Native* indicates the media, used by the communicator by design (e.g. mpiexec program is responsible for controlling the pool of parallel processes/programs, communicating over MPI interface). *Possible* means that, despite *Native* mechanism exist, communication can be performed by alternative means, i.e. *mpiexec* MPI processes can communicate between each other sending file-based messages if necessary. This usually makes sense for debugging purposes only and is described in **ClusterWrapper** classes chapter below. 
+Where the word *Native* indicates the media, used by a communicator by design (e.g. mpiexec program is responsible for controlling the pool of parallel processes/programs, communicating over MPI interface). *Possible* means that, despite *Native* mechanism exist, communication can be performed by alternative means, i.e. *mpiexec* MPI processes can communicate between each other sending file-based messages if necessary. This usually makes sense for debugging purposes only and is described in **ClusterWrapper** classes chapter below. 
 The last row of the table with the word *Only* means that each parallel job is initialized and controlled from the *Login Session* (**Fig 1**) using file-based messages mechanism, i.e. the initialization information for a parallel task, logging of the progress and the information about the task results are distributed using file-based messages. 
 
 The File-based framework has been written with the assumption that *job chunks may be processed independently*, but limited number of interprocess communications is occurring. This restricts the use of file-based framework to the correspondent part of Horace algorithms and for initial job submission. Matlab MPI and standard MPI frameworks do not have such restrictions but can not be used for job submission to the cluster.
@@ -82,7 +82,7 @@ The methods to be defined for a job are:
 | Method | Description | Practical Example (From [*accumulate\_headers\_job*](https://github.com/pace-neutrons/Horace/blob/master/horace_core/sqw/%40accumulate_headers_job/accumulate_headers_job.m)  parallel algorithm)  |
 | :----  | :--- | :---| 
 | `do_job` | Do chunk of the job independent on other parallel executors | Read range of tmp files and calculate this range average signal and error. | 
-| `reduce_data` | Send result to head worker (**Fig 1**) node (node-1) or receive partial result and combine them on the head worker (node-1). | Send the average signal/error to node-1 or accept partial averages, sum them and send results to the logon node for node-1 |
+| `reduce_data` | Send result to head worker node (**Fig 1**)  (node 1) or receive partial result and combine them on the head worker (node 1). | Send the average signal/error to node 1 or accept partial averages, sum them and send results to the logon node for node 1 |
 | `is_completed` | Check if the job completed and return true if it is | return true |
 
 The **JobExecutor** parent class itself contains methods and properties, responsible for inter-nodes communications and the communications with the control node launching the job. 

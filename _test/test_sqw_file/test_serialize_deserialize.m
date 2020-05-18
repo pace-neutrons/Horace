@@ -539,10 +539,19 @@ classdef test_serialize_deserialize< TestCase
             assertEqual(pos-1,numel(bytes));
             
             assertEqual(recov,test_data)
-            
-            
         end
-        
+        function test_serialize_deserialize_pix_comb_info(~)
+            
+            infiles = {'a','bbb','sss','dd'};
+            nfiles = numel(infiles);
+            run_label = 0:nfiles-1;
+            pix_comb = pix_combine_info(infiles,1000,2000,3000,1000,run_label);
+            
+            struc = pix_comb.saveobj();
+            pix_res = pix_combine_info.loadobj(struc);
+            
+            assertEqual(pix_comb,pix_res);
+        end
         %
         
     end

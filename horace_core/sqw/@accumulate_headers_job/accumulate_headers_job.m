@@ -4,9 +4,6 @@ classdef accumulate_headers_job < JobExecutor
     % If run in serial, provides methods to generate range of tmp files from
     % range of runfiles
     %
-    %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-    %
     
     properties
         s_accum;

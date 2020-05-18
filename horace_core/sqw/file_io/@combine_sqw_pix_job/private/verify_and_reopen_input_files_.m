@@ -24,11 +24,6 @@ function fid = verify_and_reopen_input_files_(pix_comb_info)
 % Output:
 % fid            array of handles of files open for read operations.
 
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
-
-
 nfiles = pix_comb_info.nfiles;
 
 % Open all input files and move to the start of the pixel information
