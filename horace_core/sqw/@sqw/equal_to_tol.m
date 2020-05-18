@@ -177,16 +177,16 @@ else
             % Sort retained pixels by bin and then run,det,energy bin indicies
             fields = {'run_idx', 'detector_idx', 'energy_idx'};
             [~,ix]=sortrows([ibinarr, pix1.get_data(fields, ipix)']);
-            s1=pix1.data(:,ipix)';
+            s1=pix1.get_pixels(ipix).data';
             s1=s1(ix,:);
             [~,ix]=sortrows([ibinarr, pix2.get_data(fields, ipix)']);
-            s2=pix2.data(:,ipix)';
+            s2=pix2.get_pixels(ipix).data';
             s2=s2(ix,:);
             % Now compare retained pixels
             [ok,mess]=equal_to_tol(s1,s2,args{:},'name_a',name_a,'name_b',name_b );
         else
-            s1=pix1.data(:,ipix);
-            s2=pix2.data(:,ipix);
+            s1=pix1.get_pixels(ipix).data;
+            s2=pix2.get_pixels(ipix).data;
             [ok,mess]=equal_to_tol(s1,s2,args{:},'name_a',name_a,'name_b',name_b);
         end
     end

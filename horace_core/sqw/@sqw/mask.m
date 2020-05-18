@@ -50,7 +50,7 @@ wout.data.npix(~mask_array) = 0;
 if is_sqw_type(win)
     mask_pix = logical(replicate_array (mask_array, win.data.npix));
     wout.data.pix=PixelData();   % Clear the memory of a large array that is going to be replaced - but is a field, so musst leave present
-    wout.data.pix=PixelData(win.data.pix.data(:,mask_pix));
+    wout.data.pix=win.data.pix.get_pixels(mask_pix);
     wout.data.urange=recompute_urange(wout);
 end
 

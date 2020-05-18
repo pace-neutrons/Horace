@@ -96,7 +96,7 @@ if hor_log_level>=1, t_accum = bigtoc(2); end
 if keep_pix
     if hor_log_level>=1, bigtic(3), end
     if hor_log_level>=0, disp(['Sorting pixel information for ',num2str(npix_retain),' pixels']), end
-    pix = PixelData(cut_pix_data.data(:,ok));          % pixels that are to be retained
+    pix = cut_pix_data.get_pixels(ok);          % pixels that are to be retained
     clear cut_pix_data                 % no longer needed - was only a work array - so because it is large, clear before we (possibly) sort pixels
 
     pix = sort_pix(pix,ix,npix);

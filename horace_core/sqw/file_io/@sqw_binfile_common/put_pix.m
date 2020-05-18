@@ -169,14 +169,14 @@ else % write pixels directly
         if write_all
             fwrite(obj.file_id_,input_obj.pix.data,'float32');
         else
-            fwrite(obj.file_id_,input_obj.pix.data(:,npix_lo:npix_hi),'float32');
+            fwrite(obj.file_id_,input_obj.pix.get_pixels(npix_lo:npix_hi).data,'float32');
         end
         check_error_report_fail_(obj,'Error writing pixels array');
     else
         for ipix=npix_lo:block_size:npix_hi
             istart = ipix;
             iend   = min(ipix+block_size-1,npix_hi);
-            fwrite(obj.file_id_,input_obj.pix.data(:,istart:iend),'float32');
+            fwrite(obj.file_id_,input_obj.pix.get_pixels(:,istart:iend).data,'float32');
             check_error_report_fail_(obj,...
                 sprintf('Error writing pixels array, npix from: %d to: %d in the rage from: %d to: %d',...
                 istart,iend,npix_lo,npix_hi));
