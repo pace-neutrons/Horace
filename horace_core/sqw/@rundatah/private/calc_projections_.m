@@ -31,7 +31,7 @@ function [u_to_rlu, urange, pix] = calc_projections_(obj, detdcn,qspec,proj_mode
 %              maxima.
 %   pix         PixelData object with attributes:
 %                   pix.coordinates  coordinates in crystal Cartesian coordinates and energy
-%                   pix.irun         run index: alway unity from this routine
+%                   pix.run_idx         run index: alway unity from this routine
 %                   pix.idet         detecetor index
 %                   pix.ienergy      energy bin index
 %                   pix.signals      signal

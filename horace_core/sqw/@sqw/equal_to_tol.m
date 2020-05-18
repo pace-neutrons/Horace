@@ -175,7 +175,7 @@ else
         name_b = [name_b,'.pix'];
         if opt.reorder
             % Sort retained pixels by bin and then run,det,energy bin indicies
-            fields = {'irun', 'idet', 'ienergy'};
+            fields = {'run_idx', 'idet', 'ienergy'};
             [~,ix]=sortrows([ibinarr, pix1.get_data(fields, ipix)']);
             s1=pix1.data(:,ipix)';
             s1=s1(ix,:);

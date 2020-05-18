@@ -93,7 +93,7 @@ else
     dq_mat=cell(nw,1);
     dt=cell(nw,1);
     for i=1:nw
-        irun = win{i}.data.pix.irun';
+        irun = win{i}.data.pix.run_idx';
         idet = win{i}.data.pix.idet';
         ien  = win{i}.data.pix.ienergy';
 
