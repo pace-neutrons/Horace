@@ -40,7 +40,7 @@ if ~all(u==eye(3))   % not identity matrix, so need to perform matrix transforma
     ql=urlu(3,:)';
 else
     qh=win.data.pix.u1';
-    qk=win.data.pix.coordinates(2, :)';
+    qk=win.data.pix.u2';
     ql=win.data.pix.coordinates(3, :)';
 end
 en=win.data.pix.coordinates(4, :)';
