@@ -89,7 +89,7 @@ c.e=c.e(ok_pnts);
 c.npixels=c.npixels(ok_pnts);
 
 c.pixels=zeros(npixtot,6);
-c.pixels(:,1)=w.data.pix.idet';
+c.pixels(:,1)=w.data.pix.detector_idx';
 c.pixels(:,2)=ecent(w.data.pix.ienergy);
 c.pixels(:,3)=de;
 c.pixels(:,4)=xpix{ind_x};

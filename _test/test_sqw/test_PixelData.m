@@ -57,9 +57,9 @@ methods
         assertEqual(obj.pixel_data_obj.run_idx, run_indices)
     end
 
-    function test_idet_returns_detector_index_data(obj)
+    function test_detector_idx_returns_detector_index_data(obj)
         detector_indices = obj.raw_pix_data(6, :);
-        assertEqual(obj.pixel_data_obj.idet, detector_indices)
+        assertEqual(obj.pixel_data_obj.detector_idx, detector_indices)
     end
 
     function test_ienergy_returns_energy_bin_number_data(obj)
@@ -186,7 +186,7 @@ methods
     end
 
     function test_get_data_allows_data_retrieval_for_single_field(obj)
-        fields = {'coordinates', 'run_idx', 'idet', 'ienergy', 'signals', 'variance'};
+        fields = {'coordinates', 'run_idx', 'detector_idx', 'ienergy', 'signals', 'variance'};
         for i = 1:numel(fields)
             field_data = obj.pixel_data_obj.get_data(fields{i});
             assertEqual(field_data, obj.pixel_data_obj.(fields{i}));
@@ -200,8 +200,8 @@ methods
 
     function test_get_data_orders_columns_corresponding_to_input_cell_array(obj)
         pix_data_obj = obj.get_random_pix_data_(10);
-        data_subset = pix_data_obj.get_data({'idet', 'signals', 'run_idx'});
-        assertEqual(data_subset(1, :), pix_data_obj.idet);
+        data_subset = pix_data_obj.get_data({'detector_idx', 'signals', 'run_idx'});
+        assertEqual(data_subset(1, :), pix_data_obj.detector_idx);
         assertEqual(data_subset(2, :), pix_data_obj.signals);
         assertEqual(data_subset(3, :), pix_data_obj.run_idx);
     end

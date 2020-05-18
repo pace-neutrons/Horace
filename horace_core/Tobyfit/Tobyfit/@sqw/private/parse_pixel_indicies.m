@@ -70,7 +70,7 @@ if nargin==1
         if nw==1
             if iscell(win), pix = win{1}.data.pix; else, pix = win.data.pix; end
             if nout>=1, irun = pix.run_idx'; end   % column vector
-            if nout>=2, idet = pix.idet'; end   % column vector
+            if nout>=2, idet = pix.detector_idx'; end   % column vector
             if nout>=3, ien  = pix.ienergy'; end   % column vector
         else
             if nout>=1, irun = cell(size(win)); end
@@ -79,7 +79,7 @@ if nargin==1
             for i = 1:nw
                 if iscell(win), pix = win{i}.data.pix; else, pix = win(i).data.pix; end
                 if nout>=1, irun{i} = pix.run_idx'; end   % column vector
-                if nout>=2, idet{i} = pix.idet'; end   % column vector
+                if nout>=2, idet{i} = pix.detector_idx'; end   % column vector
                 if nout>=3, ien{i}  = pix.ienergy'; end   % column vector
             end
         end
@@ -205,7 +205,7 @@ if nout>0
         if size(indx_tmp,2)==1
             if iscell(win), pix = win{1}.data.pix; else, pix = win.data.pix; end
             if nout>=1, irun = pix.run_idx(indx_tmp)'; end   % column vector
-            if nout>=2, idet = pix.idet(indx_tmp)'; end   % column vector
+            if nout>=2, idet = pix.detector_idx(indx_tmp)'; end   % column vector
             if nout>=3, ien  = pix.ienergy(indx_tmp)'; end   % column vector
         else
             if nout>=1, irun = indx_tmp(:,1); end
@@ -221,7 +221,7 @@ if nout>0
             if size(indx_tmp,2)==1
                 if iscell(win), pix = win{i}.data.pix; else, pix = win(i).data.pix; end
                 if nout>=1, irun{i} = pix.run_idx(indx_tmp)'; end   % column vector
-                if nout>=2, idet{i} = pix.idet(indx_tmp)'; end   % column vector
+                if nout>=2, idet{i} = pix.detector_idx(indx_tmp)'; end   % column vector
                 if nout>=3, ien{i}  = pix.ienergy(indx_tmp)'; end   % column vector
             else
                 if nout>=1, irun{i} = indx_tmp(:,1); end

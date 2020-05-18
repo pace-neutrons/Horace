@@ -26,17 +26,17 @@ classdef PixelData
 %   data           The raw pixel data
 %   coordinates    Get/set the coords in projection axes of the pixel data (4 x n array)
 %   run_idx        The run index the pixel originated from (1 x n array)
-%   idet           The detector group number in the detector listing for the pixels (1 x n array)
+%   detector_idx   The detector group number in the detector listing for the pixels (1 x n array)
 %   ienergy        The energy bin numbers (1 x n array)
 %   signals        The signal array (1 x n array)
-%   variance         The variance on the signal array (variance i.e. error bar squared) (1 x n array)
+%   variance       The variance on the signal array (variance i.e. error bar squared) (1 x n array)
 %   num_pixels     The number of pixels in the data block
 
 properties (Access=private)
     PIXEL_BLOCK_COLS_ = 9;
     data_ = zeros(9, 0);
     FIELD_INDEX_MAP_ = containers.Map(...
-        {'coordinates', 'run_idx', 'idet', 'ienergy', 'signals', 'variance'}, ...
+        {'coordinates', 'run_idx', 'detector_idx', 'ienergy', 'signals', 'variance'}, ...
         {1:4, 5, 6, 7, 8, 9})
 end
 properties (Dependent)
@@ -51,7 +51,7 @@ properties (Dependent)
     run_idx;
 
     % The detector group number in the detector listing for the pixels (1 x n array)
-    idet;
+    detector_idx;
 
     % The energy bin numbers (1 x n array)
     ienergy;
@@ -92,7 +92,7 @@ methods
         %             col 3: u3
         %             col 4: u4
         %             col 5: irun
-        %             col 6: idet
+        %             col 6: detector_idx
         %             col 7: ienergy
         %             col 8: signals
         %             col 9: variance
@@ -148,7 +148,7 @@ methods
         %   >> sig_and_err = pix.get_data({'signals', 'variance'})
         %        retrives the signals and variance over the whole range of pixels
         %
-        %   >> run_det_id_range = pix.get_data({'run_idx', 'idet'}, 4:10);
+        %   >> run_det_id_range = pix.get_data({'run_idx', 'detector_idx'}, 4:10);
         %        retrives the run and detector IDs for pixels 4 to 10
         %
         if ~isa(fields, 'cell')
@@ -220,12 +220,12 @@ methods
         obj.data(obj.FIELD_INDEX_MAP_('run_idx'), :) = iruns;
     end
 
-    function detector_index = get.idet(obj)
-       detector_index = obj.data(obj.FIELD_INDEX_MAP_('idet'), :);
+    function detector_index = get.detector_idx(obj)
+       detector_index = obj.data(obj.FIELD_INDEX_MAP_('detector_idx'), :);
     end
 
-    function obj = set.idet(obj, detector_indices)
-       obj.data(obj.FIELD_INDEX_MAP_('idet'), :) = detector_indices;
+    function obj = set.detector_idx(obj, detector_indices)
+       obj.data(obj.FIELD_INDEX_MAP_('detector_idx'), :) = detector_indices;
     end
 
     function detector_index = get.ienergy(obj)
