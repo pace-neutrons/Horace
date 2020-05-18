@@ -4,9 +4,6 @@ classdef gen_sqw_files_job < JobExecutor
     % If run in serial, provides methods to generate range of tmp files from
     % range of runfiles
     %
-    %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-    %
     properties(Access = private)
         is_finished_  = false;
     end
@@ -15,7 +12,7 @@ classdef gen_sqw_files_job < JobExecutor
         function obj = gen_sqw_files_job(varargin)
             obj = obj@JobExecutor();
         end
-        function this=do_job(this)
+        function obj=do_job(obj)
             % Run jobs of converting from rundata to sqw in separate Matlab
             % session.
             %
@@ -26,8 +23,8 @@ classdef gen_sqw_files_job < JobExecutor
             % unpack input data transferred though MPI channels for
             % runfiles_to_sqw to understand.
             
-            common_par = this.common_data_;
-            loop_par   = this.loop_data_;
+            common_par = obj.common_data_;
+            loop_par   = obj.loop_data_;
             
             grid_size_in = common_par.grid_size_in;
             urange_in = common_par.urange_in;
@@ -60,10 +57,10 @@ classdef gen_sqw_files_job < JobExecutor
                 end
             end
             % Do conversion
-            [grid_size,urange] = this.runfiles_to_sqw(run_files,tmp_fnames,...
+            [grid_size,urange] = obj.runfiles_to_sqw(run_files,tmp_fnames,...
                 grid_size_in,urange_in,false);
             % return results
-            this.task_outputs  = struct('grid_size',grid_size,...
+            obj.task_outputs  = struct('grid_size',grid_size,...
                 'urange',urange);
             
         end

@@ -24,9 +24,6 @@ function [grid_size, urange] = rundata_write_to_sqw_(run_files, sqw_file, ...
 
 
 % Original author: T.G.Perring
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
 
 nfiles = numel(run_files);
 

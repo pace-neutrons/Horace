@@ -5,9 +5,6 @@ classdef combine_sqw_pix_job < JobExecutor
     %
     % Given range of tmp files with pixels distributed in bins
     %
-    %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-    %
     
     properties(Access = private)
         is_finished_  = false;
@@ -79,7 +76,7 @@ classdef combine_sqw_pix_job < JobExecutor
             % 
             % get the information, common for all parallel workers.
             common_par      = obj.common_data_;
-            % receive block of the, cpecific for the given workers
+            % receive block of the, specific for the given workers
             pix_comb_info   = obj.loop_data_{1};
             
             if obj.DEBUG
@@ -226,7 +223,7 @@ classdef combine_sqw_pix_job < JobExecutor
             % npix_per_bins -- 2D array containing the section of numbers of
             %                  pixels per bin per file
             % npix_in_bins  -- cumulative sum of pixels in bins of all files
-            % bin_start     -- first bin to analyse from the npix_section
+            % bin_start     -- first bin to analyze from the npix_section
             %                 and npix_in_bins
             % pix_buf_size -- the size of pixels buffer intended for
             %                 writing
@@ -278,7 +275,7 @@ classdef combine_sqw_pix_job < JobExecutor
         end
         %
         function [common_par,loop_par ] = pack_job_pars(pix_comb_info,fout_name,pix_out_pos,n_workers)
-            % prepare job parameter in the form, suitable for sploitting them between jobs and sending them
+            % prepare job parameter in the form, suitable for splitting them between jobs and sending them
             % to parallel workers.
             if n_workers < 2
                 error('COMBINE_SQW_PIX_JOB:invalid_argument',...
@@ -296,7 +293,7 @@ classdef combine_sqw_pix_job < JobExecutor
             whole_buffer = config_store.instance().get_value('hor_config','mem_chunk_size');
             % the reader buffers together should be equal to the write buffer
             common_par.pix_buf_size = ceil(whole_buffer/(n_workers-1));
-            % less workers as one workes will hold the write job
+            % less workers as one worker will hold the write job
             loop_par = pix_comb_info.split_into_parts(n_workers-1);
             % add special loop par for the first worker as the first worker
             % will write rather than read
