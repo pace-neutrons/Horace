@@ -90,7 +90,7 @@ c.npixels=c.npixels(ok_pnts);
 
 c.pixels=zeros(npixtot,6);
 c.pixels(:,1)=w.data.pix.detector_idx';
-c.pixels(:,2)=ecent(w.data.pix.ienergy);
+c.pixels(:,2)=ecent(w.data.pix.energy_idx);
 c.pixels(:,3)=de;
 c.pixels(:,4)=xpix{ind_x};
 if ~isempty(ind_signal)
