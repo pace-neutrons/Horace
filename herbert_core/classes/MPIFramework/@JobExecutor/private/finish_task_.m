@@ -31,8 +31,24 @@ else
     argi = {};
 end
 
-if numel(argi) > 0 && ~isempty(argi{1})
-    mess = argi{1};
+if numel(argi) > 0
+    is_mess = cellfun(@(x)isa(x,'aMessage'),argi,'UniformOutput',true);
+    if any(is_mess)
+        mess = argi{is_mess}; % only one should occur. Will reject seond one.
+        argi = argi(~is_mess);
+    else
+        mess = [];
+    end
+else
+    mess = [];
+end
+
+if isempty(mess)
+    mess = CompletedMessage();
+    if obj.return_results_
+        mess.payload = obj.task_results_holder_;
+    end
+else
     %disp(['in finish task, got message with id: ',mess.mess_name]);
     if obj.return_results_  && ~isempty(obj.task_results_holder_)
         if isempty(mess.payload)
@@ -41,23 +57,10 @@ if numel(argi) > 0 && ~isempty(argi{1})
             mess.payload = [{mess.payload},obj.task_results_holder_];
         end
     end
-    % This should not be necessary, as further cancellation code
-    % should cancel other
-    % lab jobs ans synchronous execution would wait for other labs 'canceled' results
-    % This would not work in test mode, so test mode should always be run
-    % as asynchronous
-    %if isa(mess,'FailedMessage')
-    %    synchronize  = false;
-    %end
-else
-    mess = CompletedMessage();
-    if obj.return_results_
-        mess.payload = obj.task_results_holder_;
-    end
 end
 %
-if numel(argi)>1
-    mess_reduction_function = argi{2};
+if ~isempty(argi)
+    mess_reduction_function = argi{1};
 else
     mess_reduction_function = [];
 end

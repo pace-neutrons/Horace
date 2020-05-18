@@ -16,15 +16,14 @@ function payload = restore_payload_(input)
 
 if isfield(input,'class_name')
     cls = input.class_name;
-    input = rmfield(input,'class_name');
     try
         % try to use the loadobj function
         payload = eval([cls '.loadobj(input)']);
-    catch
+    catch ME
         try
             % pass the struct directly to the constructor
             payload = eval([cls '(input)']);
-        catch
+        catch ME
             try
                 % try to set the fields manually
                 payload = feval(cls);
@@ -32,7 +31,7 @@ if isfield(input,'class_name')
                 for i=1:numel(fn)
                     try
                         set(payload,fn{i},input.(fn{i}));
-                    catch
+                    catch ME
                         % Note: if this happens, your deserialized object might not be fully identical
                         % to the original (if you are lucky, it didn't matter, through). Consider
                         % relaxing the access rights to this property or add support for loadobj from

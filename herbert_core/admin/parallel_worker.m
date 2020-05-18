@@ -140,7 +140,7 @@ while keep_worker_running
     %%
     try
         if DO_LOGGING; log_init_je_started();  end
-        % its waiting here until all tasks report "started" to node 1
+        % node 1 is waiting here until all tasks report "started" to it
         [je,mess] = je.init(fbMPI,intercomm,init_message,is_tested);
         
         if DO_LOGGING; log_init_je_finished();  end
@@ -237,7 +237,6 @@ while keep_worker_running
             end
         catch ME1 % the only exception should happen here is "job canceled"
             disp(getReport(ME1))
-            pause
             if exit_at_the_end
                 exit;
             else
