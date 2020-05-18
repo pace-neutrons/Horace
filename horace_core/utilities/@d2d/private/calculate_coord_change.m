@@ -74,8 +74,8 @@ end
 
 %Now we work out how to alter each of the objects:
 %
-coords1=w1.data.pix.coordinates([1:3],:);
-coords2=w2.data.pix.coordinates([1:3],:);
+coords1=w1.data.pix.q_coordinates;
+coords2=w2.data.pix.q_coordinates;
 p1=w1.data.p;
 p2=w2.data.p;
 
@@ -117,7 +117,7 @@ for i=1:3
 end
 
 %Place the new coords_ang1 and p1 arrays into the output object:
-wout.data.pix.coordinates([1:3],:)=coords_ang1;
+wout.data.pix.q_coordinates=coords_ang1;
 wout.data.p=p1new;
 
 %Use the internal Horace routines to recalculate intensity/error/npix etc
