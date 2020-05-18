@@ -65,7 +65,7 @@ if step
 end
 u = (uproj_to_rlu\upix_to_rlu)*win.data.pix.coordinates(1:3,:) -...
     uproj_to_rlu\(uproj_offset(1:3)-upix_offset(1:3));
-en = (win.data.pix.coordinates(4, :) - (uproj_offset(4)-upix_offset(4)))/ustep(4);
+en = (win.data.pix.dE - (uproj_offset(4)-upix_offset(4)))/ustep(4);
 
 % package as cell array of column vectors
 uproj = {u(1,:)', u(2,:)', u(3,:)', en'};

@@ -211,7 +211,7 @@ classdef test_main_mex < TestCase
             ix = ceil(pix.u1);
             iy = ceil(pix.u2);
             iz = ceil(pix.u3);
-            ie = ceil(pix.coordinates(4,:));
+            ie = ceil(pix.dE);
             ix = sub2ind(size(npix), ix,iy,iz,ie);
 
             % test sorting parameters and matlab sorting

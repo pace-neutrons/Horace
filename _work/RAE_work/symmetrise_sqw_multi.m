@@ -218,7 +218,7 @@ for nn=1:numel(v1)
     clear 'tmp';
 
     %Extra line required here to include energy in coords_cut (needed below):
-    epix=@() wout.data.pix.coordinates(4, :);%energy is never reflected, of course % MP: only accessed once
+    epix=@() wout.data.pix.dE;%energy is never reflected, of course % MP: only accessed once
     coords_cut=[coords_cut;epix()]; % MP: (TODO) horzcat needs quite some memory, could reduced by resizing coords_cut first and then assigning last row
 
     ndims=dimensions(wout);

@@ -119,7 +119,7 @@ if present.d1||present.d2||present.d3||present.d4
     U=inv(w.data.u_to_rlu(1:3,1:3))*header_ave.u_to_rlu(1:3,1:3);
     T=inv(w.data.u_to_rlu(1:3,1:3))*(w.data.uoffset(1:3)-header_ave.uoffset(1:3));
     uproj=U*w.data.pix.data(1:3,:)-repmat(T,[1,npixtot]);        % pixel Q coordinates now in projection axes
-    uproj=[uproj;w.data.pix.coordinates(4, :)+header_ave.uoffset(4)];    % now append energy data
+    uproj=[uproj;w.data.pix.dE+header_ave.uoffset(4)];    % now append energy data
 
     % Get display axes
     pax=w.data.pax;
@@ -132,7 +132,7 @@ if present.d1||present.d2||present.d3||present.d4
 end
 
 if present.E
-    xpix{ind.E}=w.data.pix.coordinates(4, :)'+header_ave.uoffset(4);
+    xpix{ind.E}=w.data.pix.dE'+header_ave.uoffset(4);
 end
 
 % Compute average, and spread if

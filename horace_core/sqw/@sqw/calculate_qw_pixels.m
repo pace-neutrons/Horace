@@ -43,7 +43,7 @@ else
     qk=win.data.pix.u2';
     ql=win.data.pix.u3';
 end
-en=win.data.pix.coordinates(4, :)';
+en=win.data.pix.dE';
 
 if ~u0(1)==0, qh=qh+u0(1); end
 if ~u0(2)==0, qk=qk+u0(2); end
