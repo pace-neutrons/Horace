@@ -1,7 +1,6 @@
 classdef test_ParpoolMPI_Framework< MPI_Test_Common
     % Class to test basic mpi method like send/receive/probe message(s)
-    %
-    
+    %    
     properties
         pool_deleter = [];
     end

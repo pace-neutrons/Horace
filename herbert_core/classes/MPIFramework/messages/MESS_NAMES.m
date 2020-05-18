@@ -23,7 +23,7 @@ classdef MESS_NAMES < handle
         % true when all messages subscribed to the factory through their
         % names have instantiated their classes and registered them with
         % the factory.
-        is_initialized;
+        is_initialized
         
         % list of the names of the persistent messages, which represent
         % interrupts:
@@ -33,7 +33,8 @@ classdef MESS_NAMES < handle
         interrupt_tags;
     end
     properties(Constant,Access=private)
-        % define list of the messages, known to the factory.
+        % define list of the messages, known to the factory. Any new
+        % message to use in system needs to be added here.
         mess_names_ = ...
             {'any','completed','pending','queued','init',...
             'starting','started','log',...
@@ -112,6 +113,33 @@ classdef MESS_NAMES < handle
         end
     end
     methods
+        function mess_list = get.known_messages(obj)
+            % return list of the messages, known to the factory and
+            % registered with it.
+            %
+            % used to check if factory registration is completed.
+            %
+            mess_list = obj.known_messages_;
+        end
+        %
+        function is = get.is_initialized(obj)
+            % return true if all messages are subscribed to the factory
+            is = numel(obj.known_messages_)==numel(MESS_NAMES.mess_names_);
+        end
+        %
+        function lst = get.interrupts(obj)
+            % return list of the messages, which considered as interrupt
+            % messages
+            lst = obj.interrupts_map_.values;
+        end
+        %
+        function tgs = get.interrupt_tags(obj)
+            % return the tags of the messages, which considered as interrupt
+            % messages
+            tgs = obj.interrupts_map_.keys;
+            tgs = [tgs{:}];
+        end
+        %----------------------------------------------------------------
         function is = is_registered(obj,name)
             % return true, if message with the name, provided as input
             % is registered with the factory.
@@ -126,20 +154,6 @@ classdef MESS_NAMES < handle
             % is already subscribed to the messages name factory.
             %
             is = all(ismember(name,obj.mess_names_));
-        end
-        %
-        function mess_list = get.known_messages(obj)
-            % return list of the messages, known to the factory and
-            % registered with it. 
-            %
-            % used to check if factory registration is completed.
-            %
-            mess_list = obj.known_messages_;
-        end
-        %
-        function is = get.is_initialized(obj)
-            % return true if all messages are subscribed to the factory
-            is = numel(obj.known_messages_)==numel(MESS_NAMES.mess_names_);
         end
         %
         function mess_class = get_mess_class(obj,a_name)
@@ -161,19 +175,6 @@ classdef MESS_NAMES < handle
                 error('MESS_NAMES:invalid_argument',....
                     'The name %s is not a registered message name\n',a_name{:});
             end
-        end
-        %
-        function lst = get.interrupts(obj)
-            % return list of the messages, which considered as interrupt
-            % messages
-            lst = obj.interrupts_map_.values;
-        end
-        %
-        function tgs = get.interrupt_tags(obj)
-            % return the tags of the messages, which considered as interrupt
-            % messages
-            tgs = obj.interrupts_map_.keys;
-            tgs = [tgs{:}];
         end
     end
     
@@ -220,13 +221,13 @@ classdef MESS_NAMES < handle
         end
         %
         function id = mess_id(varargin)
-            % get message id (tag) derived from message name
+            % get message id (tag) corresponding to the message name
             %
             % Input:
             % single name or sequence of the name to get id-s
             % Returns:
             % array of id-s correspondent to names.
-            % 
+            %
             % usage:
             % id = MESS_NAMES.mess_id('completed')
             % or
@@ -279,8 +280,8 @@ classdef MESS_NAMES < handle
         %
         function is = tag_valid(the_tag)
             % verify if the tag provided is valid message tag.
-            % 
-            % 
+            %
+            %
             mn = MESS_NAMES.instance();
             is = isKey(mn.tag_to_name_map_,the_tag);
         end
@@ -290,8 +291,8 @@ classdef MESS_NAMES < handle
             % blocking message. (should be send-received synchroneously)
             %
             % Input:
-            % mess_or_name_or_tag -- a string 
-            %              with message name or instance of message 
+            % mess_or_name_or_tag -- a string
+            %              with message name or instance of message
             %              class or cellarray of message names, or a number
             %              defining the message tag, or cellarray of the
             %              messages names or array of tags or cellarray of
@@ -330,7 +331,7 @@ classdef MESS_NAMES < handle
             % message)
             %
             % mess_or_name_or_tag --  a string with
-            %              message name or instance of message 
+            %              message name or instance of message
             %              class or cellarray of message names, or a number
             %              defining the message tag, or cellarray of the
             %              messages names or array of tags or cellarray of
@@ -338,7 +339,7 @@ classdef MESS_NAMES < handle
             % Output
             % is        -- logical array, containing true if the corresponend
             %              message is persistent and false otherwise
-            %            
+            %
             if isa(mess_or_name_or_tag,'aMessage')
                 is = mess_or_name_or_tag.is_persistent;
                 return
