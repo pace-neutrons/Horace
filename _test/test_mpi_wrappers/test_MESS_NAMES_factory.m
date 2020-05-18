@@ -1,7 +1,5 @@
 classdef test_MESS_NAMES_factory< TestCase
     %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
-    %
     properties
     end
     methods
@@ -12,12 +10,17 @@ classdef test_MESS_NAMES_factory< TestCase
             end
             obj = obj@TestCase(name);
         end
-        function test_persistent(obj)
+        function test_get_mess_class(~)
+            mni = MESS_NAMES.instance();
+            mess = mni.get_mess_class('failed');
+            assertTrue(isa(mess,'FailedMessage'));
+        end
+        function test_persistent(~)
             is = MESS_NAMES.is_persistent('failed');
             assertTrue(is);
             
             is = MESS_NAMES.is_persistent(0);
-            assertTrue(is);
+            assertFalse(is);
             
             mess = aMessage('canceled');
             is = MESS_NAMES.is_persistent(mess);
@@ -25,62 +28,88 @@ classdef test_MESS_NAMES_factory< TestCase
             
         end
         %
-        function test_selection(obj)
+        function test_interrupts(~)
+            il = MESS_NAMES.instance().interrupts;
+            assertTrue(iscell(il))
+            assertTrue(numel(il)>=1)
+            assertTrue(ismember('failed',il));
+            itag = MESS_NAMES.instance().interrupt_tags;
+            assertTrue(numel(itag)>=1)
+            assertTrue(isnumeric(itag))
+        end
+        %
+        function test_selection(~)
             name = MESS_NAMES.mess_name(8);
-            assertTrue(iscell(name));
-            assertEqual(numel(name),1);
+            assertTrue(ischar(name));
             
-            is = MESS_NAMES.name_exist(name);
+            mni = MESS_NAMES.instance();
+            is = mni.is_subscribed(name);
             assertTrue(is);
-            is = MESS_NAMES.name_exist(name{1});
+            is = mni.is_registered(name);
             assertTrue(is);
             
             
             id = MESS_NAMES.mess_id(name);
             assertEqual(id,8);
-            id = MESS_NAMES.mess_id(name{1});
+            id = MESS_NAMES.mess_id({name});
             assertEqual(id,8);
             
             selection = [1,3,5];
             names = MESS_NAMES.mess_name(selection);
-            is = MESS_NAMES.name_exist(names);
-            assertTrue(is);
+            
+            id_s = MESS_NAMES.mess_id(names);
+            assertEqual(selection,id_s);
             
             ids = MESS_NAMES.mess_id(names);
             assertEqual(ids,selection);
             
-            % failed message should have 0 id, as its hardcoded in
-            % filebased messages
-            ids = MESS_NAMES.mess_id('failed');
-            assertEqual(ids,0);
         end
         %
-        function test_operations(obj)
-            names = MESS_NAMES.get_all_names();
-            [mess,is_blocking] = MESS_NAMES.mess_factory();
-            assertEqual(numel(names),numel(mess));
-            assertEqual(numel(mess),numel(is_blocking));
+        function test_operations(~)
+            mni = MESS_NAMES.instance();
+            assertTrue(mni.is_initialized);
             
-            [name2tag_map,tag2name_map]= MESS_NAMES.name_tag_maps();
-            assertEqual(name2tag_map.Count,uint64(numel(names)))
-            assertEqual(tag2name_map.Count,uint64(numel(names)))
-            for i=1:numel(mess)
+            names = mni.known_messages;
+            
+            for i=1:numel(names)
                 name = names{i};
-                assertTrue(MESS_NAMES.name_exist(name));
+                assertTrue(mni.is_registered(name));
+                assertTrue(mni.is_subscribed(name));
+                mess = mni.get_mess_class(name);
                 
-                assertEqual(mess{i}.mess_name,name);
-                assertEqual(mess{i}.is_blocking,is_blocking(i));
-                assertEqual(tag2name_map(i-2),name);
-                if MESS_NAMES.is_persistent(name)
-                    assertEqual(name2tag_map(name),0);
-                else
-                    assertEqual(name2tag_map(name),i-2);
-                end
+                assertEqual(mess.mess_name,name);
+                assertEqual(mess.is_blocking,MESS_NAMES.is_blocking(name));
+                assertEqual(mess.is_persistent,MESS_NAMES.is_persistent(name));
+                
+                assertEqual(mess.tag,mni.mess_id(name));
+                id = mess.tag;
+                assertTrue(MESS_NAMES.tag_valid(id));
+                assertEqual(MESS_NAMES.mess_name(id),mess.mess_name);
+                
             end
         end
         
         
         function test_specialized_classes(obj)
+            try
+                mc = aMessage('nont_exist');
+                thrown = false;
+            catch ME
+                thrown = true;
+                assertEqual(ME.identifier,'MESS_NAMES:invalid_argument');
+            end
+            assertTrue(thrown,' Successfull attempt to create non-subscribed message');
+            
+            try
+                mc = aMessage(1);
+                thrown = false;
+            catch ME
+                thrown = true;
+                assertEqual(ME.identifier,'MESS_NAMES:invalid_argument');
+            end
+            assertTrue(thrown,' Successfull attempt to create message with wrong arguments');
+            
+            
             % initialize empty init message using generic constructor
             try
                 mc = aMessage('init');
@@ -90,11 +119,18 @@ classdef test_MESS_NAMES_factory< TestCase
                 assertEqual(ME.identifier,'AMESSAGE:invalid_argument');
             end
             assertTrue(thrown,' Successfull attempt to intialize specialized message using generic constructor');
-                        
+            
+            
             mc = InitMessage('some init info');
-            assertTrue(isa(mc,'InitMessage'));            
+            assertTrue(isa(mc,'InitMessage'));
             
             assertEqual(mc.common_data,'some init info');
+            
+            mc1 = InitMessage('other init info');
+            assertTrue(isa(mc1,'InitMessage'));
+            assertEqual(mc1.common_data,'other init info');
+            
+            assertFalse(strcmp(mc1.common_data,mc.common_data));
         end
     end
 end

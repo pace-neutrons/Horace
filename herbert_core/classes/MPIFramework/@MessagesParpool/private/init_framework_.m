@@ -9,10 +9,13 @@ function obj = init_framework_(obj,framework_info)
 %     in this case usually defines slave message exchange
 %     framework.
 %
-
 if exist('framework_info','var')
     if isstruct(framework_info) && isfield(framework_info,'job_id')
         obj.job_id = framework_info.job_id;
+        if isfield(framework_info,'labID') % init Parpool framework in test mode
+            obj.MPI_ = MatlabMPIWrapper(true,...
+                framework_info.labID,framework_info.numLabs);
+        end
     elseif(is_string(framework_info))
         obj.job_id = framework_info;
     else
@@ -23,4 +26,8 @@ else
     error('PARPOOL_MESSAGES:invalid_argument',...
         'inputs for init_framework function is missing')
 end
+if isempty(obj.MPI_)
+    obj.MPI_ = MatlabMPIWrapper(false);
+end
 
+obj.mess_cache_ = mess_cache(obj.MPI_.numLabs);

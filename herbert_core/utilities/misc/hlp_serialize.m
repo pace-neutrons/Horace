@@ -242,7 +242,7 @@ function m = serialize_object(v)
                 % contents is still an object: turn into a struct now
                 conts = serialize_struct(struct(conts));
             end
-        catch ME
+        catch ME % left exception variable for debugging purposes 
             % saveobj failed for this object: turn into a struct
             conts = serialize_struct(struct(v));
         end

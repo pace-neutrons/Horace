@@ -14,7 +14,7 @@ classdef test_CPP_MPI_exchange < MPI_Test_Common
             obj = obj@MPI_Test_Common(name);
         end
         %
-        function test_JobExecutor(obj)
+        function DISABLED_test_JobExecutor(obj)
             if isempty(which('cpp_communicator'))
                 return
             end
@@ -78,7 +78,7 @@ classdef test_CPP_MPI_exchange < MPI_Test_Common
             assertEqual(numel(message.worker_logs), 3);
             assertTrue(iscell(message.worker_logs));
 
-            mess = aMessage('completed');
+            mess = CompletedMessage();
             mess.payload = 'Job 2 has been completed';
             [ok, err] = intercomm.send_message(2, mess);
             assertEqual(ok, MESS_CODES.ok, ['Error = ', err])

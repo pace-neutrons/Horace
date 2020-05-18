@@ -5,7 +5,7 @@ classdef test_job_executor< MPI_Test_Common
     
     properties
         current_config_folder;
-        worker_h = @worker_4tests_local;
+        worker_h = @(str)parallel_worker(str,false);
     end
     methods
         %
@@ -141,7 +141,7 @@ classdef test_job_executor< MPI_Test_Common
             [~,~,je2]=obj.worker_h(css2);
             % receive message which je1 should wait for when running in
             % parallel
-            started_mess = je2.mess_framework.mess_name(1,'started');
+            started_mess = je2.mess_framework.mess_file_name(1,'started');
             assertTrue(exist(started_mess,'file')==2);
             %
             [ok,err_mess,messs] = je1.mess_framework.receive_message(2,'started');
@@ -252,17 +252,17 @@ classdef test_job_executor< MPI_Test_Common
             % Initialize 3 job executors to simulate 3 workers
             je = JETester();
             je3 = je.init(fbMPIs{3},fbMPIs{3},initMess);
-            mess_name3 = fbMPIs{3}.mess_name(1,'started');
+            mess_name3 = fbMPIs{3}.mess_file_name(1,'started');
             assertEqual(exist(mess_name3,'file'),2)
             
             je2 = je.init(fbMPIs{2},fbMPIs{2},initMess);
-            mess_name2 = fbMPIs{2}.mess_name(1,'started');
+            mess_name2 = fbMPIs{2}.mess_file_name(1,'started');
             assertEqual(exist(mess_name2,'file'),2)
             
             je1 = je.init(fbMPIs{1},fbMPIs{1},initMess);
             assertEqual(exist(mess_name3 ,'file'),0)
             assertEqual(exist(mess_name2 ,'file'),0)
-            mess_name0 = fbMPIs{1}.mess_name(0,'started');
+            mess_name0 = fbMPIs{1}.mess_file_name(0,'started');
             assertEqual(exist(mess_name0,'file'),2)
             
             [ok,err,mess] = serverfbMPI.receive_message(1,'started');
@@ -271,11 +271,11 @@ classdef test_job_executor< MPI_Test_Common
             
             % test log progress
             je3.log_progress(1,10,1,[]);
-            mess_name3 = fbMPIs{3}.mess_name(1,'log');
+            mess_name3 = fbMPIs{3}.mess_file_name(1,'log');
             assertEqual(exist(mess_name3,'file'),2)
             
             je2.log_progress(2,10,2,[]);
-            mess_name2 = fbMPIs{2}.mess_name(1,'log');
+            mess_name2 = fbMPIs{2}.mess_file_name(1,'log');
             assertEqual(exist(mess_name2,'file'),2)
             
             je1.log_progress(1,9,1.3,[]);
@@ -294,7 +294,7 @@ classdef test_job_executor< MPI_Test_Common
             
             % test log progress
             je3.log_progress(2,10,2,[]);
-            mess_name3 = fbMPIs{3}.mess_name(1,'log');
+            mess_name3 = fbMPIs{3}.mess_file_name(1,'log');
             assertEqual(exist(mess_name3,'file'),2)
             
             
@@ -336,7 +336,7 @@ classdef test_job_executor< MPI_Test_Common
             je2.mess_framework.send_message(1,'canceled');
             je2.mess_framework.send_message(3,'canceled');
             % and then finish task with failure
-            je2.finish_task(FailedMessage('simulated fail'));
+            je2.finish_task(FailedMessage('simulated fail'),'-asynch');
             try
                 je1.log_progress(1,9,1.3,[]); %throws as no point to continue the execution after
             catch ME
@@ -347,9 +347,9 @@ classdef test_job_executor< MPI_Test_Common
             catch ME
                 assertEqual(ME.identifier,'JOB_EXECUTOR:canceled')
             end
-            je3.finish_task(FailedMessage('job canceled'));
+            je3.finish_task(FailedMessage('job canceled'),'-asynch');
             
-            je1.finish_task(FailedMessage('job canceled',ME));
+            je1.finish_task(FailedMessage('job canceled',ME),'-asynch');
             %
             % Server expects  to receive "running" message
             [ok,err,mess] = serverfbMPI.receive_message(1,'log');
@@ -382,16 +382,16 @@ classdef test_job_executor< MPI_Test_Common
             je3.mess_framework.clear_messages();
             
             je3.log_progress(9,10,1,[]);
-            je2.finish_task(FailedMessage('simulated fail wk2'));
+            je2.finish_task(FailedMessage('simulated fail wk2'),'-asynch');
             je2.mess_framework.send_message(3,'canceled');
             try
                 je3.log_progress(10,10,1.3,[]); %throws as no point to contiunue the execution after
             catch ME
                 assertEqual(ME.identifier,'JOB_EXECUTOR:canceled')
             end
-            je3.finish_task(FailedMessage('Job Canceled',ME));
+            je3.finish_task(FailedMessage('Job Canceled',ME),'-asynch');
             
-            je1.finish_task(FailedMessage('simulated fail wk1'));
+            je1.finish_task(FailedMessage('simulated fail wk1'),'-asynch');
             
             [ok,err,mess] = serverfbMPI.receive_message(1,'log');
             assertEqual(ok,MESS_CODES.ok,err);
@@ -426,9 +426,9 @@ classdef test_job_executor< MPI_Test_Common
             je3.task_outputs = {'Successfully completed task3'};
             je2.task_outputs = {'Successfully completed task2',2};
             je1.task_outputs = {'Successfully completed task1',1};
-            je3.finish_task();
-            je2.finish_task();
-            je1.finish_task();
+            je3.finish_task('-asynch');
+            je2.finish_task('-asynch');
+            je1.finish_task('-asynch');
             
             
             [ok,err,mess] = serverfbMPI.receive_message(1,'completed');
@@ -439,10 +439,10 @@ classdef test_job_executor< MPI_Test_Common
             serverfbMPI.clear_messages();
             
             
-            je3.finish_task();
+            je3.finish_task('-asynch');
             je2.task_outputs = '';
-            je2.finish_task(FailedMessage('test fail'));
-            je1.finish_task();
+            je2.finish_task(FailedMessage('test fail'),'-asynch');
+            je1.finish_task('-asynch');
             [ok,err,mess] = serverfbMPI.receive_message(1,'completed');
             assertEqual(ok,MESS_CODES.ok,err);
             assertEqual(mess.mess_name,'failed');
@@ -464,7 +464,7 @@ classdef test_job_executor< MPI_Test_Common
             assertEqual(mess.mess_name,'started');
             
             je1.task_outputs = {'Successfully completed task1',1};
-            je1.finish_task();
+            je1.finish_task('-asynch');
             
             [ok,err,mess] = serverfbMPI.receive_message(1,'completed');
             assertEqual(ok,MESS_CODES.ok,err);
@@ -488,14 +488,14 @@ classdef test_job_executor< MPI_Test_Common
             
             
             je3=je3.reduce_send_message(LogMessage(),[],false);
-            assertTrue(exist(fbMPIs{3}.mess_name(1,'log'),'file')==2);
+            assertTrue(exist(fbMPIs{3}.mess_file_name(1,'log'),'file')==2);
             je2=je2.reduce_send_message(LogMessage(),[],false);
-            assertTrue(exist(fbMPIs{2}.mess_name(1,'log'),'file')==2);
+            assertTrue(exist(fbMPIs{2}.mess_file_name(1,'log'),'file')==2);
             
             je1=je1.reduce_send_message(LogMessage(),[],false);
-            assertFalse(exist(fbMPIs{3}.mess_name(1,'log'),'file')==2);
-            assertFalse(exist(fbMPIs{2}.mess_name(1,'log'),'file')==2);
-            assertTrue(exist(fbMPIs{1}.mess_name(0,'log'),'file')==2);
+            assertFalse(exist(fbMPIs{3}.mess_file_name(1,'log'),'file')==2);
+            assertFalse(exist(fbMPIs{2}.mess_file_name(1,'log'),'file')==2);
+            assertTrue(exist(fbMPIs{1}.mess_file_name(0,'log'),'file')==2);
             
             
             [ok,err,mess] = serverfbMPI.receive_message(1,'log');
@@ -546,7 +546,7 @@ classdef test_job_executor< MPI_Test_Common
             assertEqual(je.task_outputs,'Job 1 generated 1 files')
             
             % finalize the job run on worker and return final results
-            [ok,mess] =je.finish_task();
+            [ok,mess] =je.finish_task('-asynch');
             assertTrue(ok);
             assertTrue(isempty(mess));
             
@@ -560,6 +560,10 @@ classdef test_job_executor< MPI_Test_Common
         end
         %
         function test_finish_task_tester(obj)
+            mis = MPI_State.instance();
+            mis.is_tested = true;
+            clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));
+            
             serverfbMPI  = MessagesFilebased('test_finish_task_tester');
             serverfbMPI.mess_exchange_folder = obj.working_dir;
             
@@ -588,7 +592,7 @@ classdef test_job_executor< MPI_Test_Common
             assertEqual(mess.mess_name,'completed');
         end
         %
-        function test_init_mpiexec_mpi_fw(obj)
+        function DISABLED_test_init_mpiexec_mpi_fw(obj)
             if isempty(which('cpp_communicator'))
                 warning('TEST_JOB_EXECUTOR:not_available',...
                     'MPI framework executable is not available. Not testing it')
@@ -650,7 +654,7 @@ classdef test_job_executor< MPI_Test_Common
             end
             clob1 = onCleanup(@()reset_config(cf));
             % generate control with different types of frameoworks.
-            css1= serverfbMPI.get_worker_init('MessagesParpool');
+            css1= serverfbMPI.get_worker_init('MessagesParpool',1,1);
             
             ok = finish_task_tester(css1);
             assertTrue(ok);
@@ -679,14 +683,21 @@ classdef test_job_executor< MPI_Test_Common
             %--------------------------------------------------------------
             % check job canceled
             errm = MException('JOB_EXECUTOR:failed','fake error generated');
-            je2.process_fail_state(errm,true);
-            assertTrue(exist(fbMPIs{2}.mess_name(1,'failed'),'file')==2);
+            err_mess = je2.process_fail_state(errm,true);
+            [ok,err_mess]=je2.finish_task(err_mess);
+            assertTrue(ok)
+            assertTrue(isempty(err_mess))
+            
+            assertTrue(exist(fbMPIs{2}.mess_file_name(1,'failed'),'file')==2);
             try
                 je1.log_progress(2,10,3,[]);
             catch ERRm
                 assertTrue(strcmpi(ERRm.identifier,'JOB_EXECUTOR:canceled'));
             end
-            je1.process_fail_state(ERRm,true);
+            err_mess=je1.process_fail_state(ERRm,true);
+            [ok,err_mess]=je1.finish_task(err_mess);
+            assertTrue(ok)
+            assertTrue(isempty(err_mess))
             
             % asked for running, got failed
             [ok,err,mess] = serverfbMPI.receive_message(1,'log');
@@ -703,7 +714,13 @@ classdef test_job_executor< MPI_Test_Common
             %--------------------------------------------------------------
             % Check custom code exception on the head node
             errm = MException('CUSTOM_CODE:failed','fake failed message');
-            je1.process_fail_state(errm,true);
+            err_mess = je1.process_fail_state(errm,true);
+            % asynchroneous in test mode as waits for other jobs to
+            % complete
+            [ok,err]=je1.finish_task(err_mess,'-asynch');
+            assertTrue(ok)
+            assertTrue(isempty(err))
+            
             try
                 je2.log_progress(2,10,3,[]);
             catch ERRm

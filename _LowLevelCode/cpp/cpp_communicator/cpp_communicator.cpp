@@ -19,7 +19,7 @@ The allowed operations and their parameters are:
 Inputs:  -- optional,
   2     --  length of asynchronous messages queue. The framework fails if this length is exceeded.
 Outputs:
-  1     -- pointer to  new intialized MPI framework.
+  1     -- pointer to  new initialized MPI framework.
   2     -- Index (number) of current MPI process
   3     -- size of the MPI pool current worker is the part of.
 
@@ -41,7 +41,7 @@ Inputs:
   6  -- pointer to Matlab array, containing serialized message body
   7  -- large_data_buffer optional (for synchronous messages) -- the pointer to Matlab structure, containing large data.
 Outputs:
-  1     -- pointer to  new the MPI framework, perforing send operation
+  1     -- pointer to  new the MPI framework, performing send operation
 
 *** "labReceive"  executes MPI receive operation:
 Inputs:
@@ -52,7 +52,7 @@ Inputs:
   5  -- is_synchronous -- should message be received synchronously (blocking operation until received) or
         asynchronously (return nothing if no message present).
 Outputs:
-  1 -- pointer to  new the MPI framework, perforing asynchronous operation
+  1 -- pointer to  new the MPI framework, performing asynchronous operation
   2 -- pointer to Matlab array, containing serialized message body
   3 -- optional (for synchronous messages) -- the pointer to Matlab cellarray containing large data -- not yet implemented
   4 -- optional -- pointer to the 2-element array containing real source address and source tag for the message, been received
@@ -64,14 +64,14 @@ Inputs:
   3  -- dest_id address (number) of the worker who should receive the message
   4  -- tag -- the message tag (id)
 Outputs:
-  1     -- pointer to  new the MPI framework, perforing asynchronous operation
+  1     -- pointer to  new the MPI framework, performing asynchronous operation
   2     -- 2-elements array with address and tag of the first existing message present in the queue
            satisfying the requests or empty matrix if no message is present
 
 *** "clearAll"  -- receive and ignore all messages, intended for this worker
   1  -- mode_name  -- the string 'clearAll', which identifies this mode
   2  -- pointer to MPI initialized framework.
-Outputs: -- pointer to the intialized framework
+Outputs: -- pointer to the initialized framework
 
 
 *** 'finalize'  Closes MPI framework and breaks all incomplete MPI communications. No further MPI communications
@@ -98,7 +98,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         return;
     }
 
-    //* Check and parce input  arguments. */
+    //* Check and parse input  arguments. */
     uint8_t * data_buffer(nullptr);
 
     std::vector<int32_t> data_addresses;

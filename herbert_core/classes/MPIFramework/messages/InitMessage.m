@@ -40,7 +40,6 @@ classdef InitMessage < aMessage
             %                 a cellarray it assumed to be 1
             %
             obj = obj@aMessage('init');
-            obj.is_blocking_ = true;
             if ~exist('common_data','var')
                 common_data = [];
                 loop_data = 1;
@@ -88,9 +87,14 @@ classdef InitMessage < aMessage
         function nfs = get.n_first_step(obj)
             nfs = obj.payload.n_first_step;
         end
-        
-        
+        %
     end
+    methods(Static,Access=protected)
+        function isblocking = get_blocking_state()
+            % return the blocking state of a message
+            isblocking = true;
+        end
+    end
+    
 end
-
 

@@ -12,7 +12,7 @@ end
 
 %
 if is_string(message) && ~isempty(message)
-    message = aMessage(message);
+    message = MESS_NAMES.instance().get_mess_class(message);
 end
 if ~isa(message,'aMessage')
     error('FILEBASE_MESSAGES:runtime_error',...

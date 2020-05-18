@@ -1,8 +1,6 @@
 classdef JETester < JobExecutor
     % Class used to test job dispatcher functionality
     %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
-    %
     %
     
     properties(Access = private)
@@ -31,7 +29,7 @@ classdef JETester < JobExecutor
             n_steps = obj.n_iterations_;
             task_num = obj.labIndex;
             disp('****************************************************');
-            disp(['labN: ',num2str(task_num),' genrating n_files: ',num2str(n_steps)]);
+            disp(['labN: ',num2str(task_num),' generating n_files: ',num2str(n_steps)]);
             %fh = mess_cache.instance().log_file_h;
             %fprintf(fh,'entering do-job loop\n');
             job_par = obj.common_data_;

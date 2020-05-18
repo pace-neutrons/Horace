@@ -1,5 +1,5 @@
-function check_set_persistent_(obj,mess,source_address)
-% check if the input message is a persistent message (the message
+function set_interrupt_(obj,mess,source_address)
+% check if a message is an interrupt message  (the message
 % describing a state of the source which persists until the
 % current job is completed or aborted) and if the message is
 % present store it in framework until the task is completed
@@ -8,7 +8,7 @@ function check_set_persistent_(obj,mess,source_address)
 if isempty(mess)
     return;
 end
-if MESS_NAMES.is_persistent(mess)
+if mess.is_persistent
     if isempty(obj.persistent_fail_message_)
         obj.persistent_fail_message_ =  containers.Map('KeyType','int32','ValueType','any');
     end

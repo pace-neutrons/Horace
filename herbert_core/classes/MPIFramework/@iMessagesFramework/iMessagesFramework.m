@@ -7,8 +7,6 @@ classdef iMessagesFramework < handle
     % Also contains auxiliary methods and basic operations used by all
     % Herbert MPI frameworks to set up and run remote jobs.
     %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-    %
     %----------------------------------------------------------------------
     properties(Dependent)
         % job ID  used to identify job control messages
@@ -57,10 +55,10 @@ classdef iMessagesFramework < handle
             set_job_id_(obj,val);
         end
         %
-        %
         function ind = get.labIndex(obj)
             ind = get_lab_index_(obj);
         end
+        %
         function ind = get.numLabs(obj)
             ind = get_num_labs_(obj);
         end
@@ -101,36 +99,43 @@ classdef iMessagesFramework < handle
             end
         end
         %
-        function check_set_persistent(obj,mess,source_address)
-            % check if the input message is a persistent message (the message
-            % describing a state of the source which persists until the
-            % current job is completed or aborted) and if the message is
-            % present store it in framework until the task is completed
-            % or aborted
-            check_set_persistent_(obj,mess,source_address);
+        function set_interrupt(obj,mess,source_address)
+            % check if the input message is an interrupt message
+            % and if the message is an interrupt, 
+            % set it as framework output until the task is completed
+            % or aborted.
+            %
+            % Interrupt message is the message describing a state
+            % of the source which persists until the current job
+            % is completed or aborted.
+            
+            set_interrupt_(obj,mess,source_address);
         end
         %
-        function [mess,id_from] = check_get_persistent(obj,source_address)
-            % check if a message is a persistent message (the message
-            % describing a state of the source which persists until the
-            % current job is completed or aborted) and return these
-            % persistent messages.
+        function [mess,id_from] = get_interrupt(obj,source_address)
+            % check if an interrupt message has been received from any of the
+            % source addresses and return such messages.
+            %
+            % Interrupt message is the message describing a state
+            % of the source which persists until the current job
+            % is completed or aborted.
+            %
             % Input:
             % source_address -- the array of addresses to check for sources
             %                   of the persistent messages
             % Returns:
-            % mess   -- cellarray of persisting messages returned from all
-            %           or some sources requested
-            %id_from -- array of the addresses which have previously
-            %           generated persistent messages, stored within the
-            %           framework
-            [mess,id_from] = check_get_persistent_(obj,source_address);
+            % mess    -- cellarray of interrupt messages returned from all
+            %            or some sources requested
+            % id_from -- array of the addresses which have previously
+            %            generated interrupt messages, stored within the
+            %            framework
+            [mess,id_from] = get_interrupt_(obj,source_address);
         end
         %
-        function [all_messages,mid_from] = add_persistent(obj,...
+        function [all_messages,mid_from] = retrieve_interrupt(obj,...
                 all_messages,mid_from,mes_addr_to_check)
-            % Helper method used to add persistent messages to the list
-            % of the messages, received from other labs.
+            % Helper method used to add interrupt (persistent) messages 
+            % to the list of the messages, received from other labs.
             %
             % If both messages are received from the same worker, override
             % other message with the persistent message.
@@ -146,7 +151,7 @@ classdef iMessagesFramework < handle
             %                  persistent and not
             % mid_from      -- array of labNum-s sending these messages.
             %
-            [all_messages,mid_from] = add_persistent_(obj,...
+            [all_messages,mid_from] = retrieve_interrupt_(obj,...
                 all_messages,mid_from,mes_addr_to_check);
         end
     end
@@ -283,10 +288,6 @@ classdef iMessagesFramework < handle
         %------------------------------------------------------------------
         % MPI interface
         %
-        % Fully qualified name of a message, which allows
-        % to identify message in a system.
-        fn = mess_name(obj,task_id,mess_name)
-        
         % send message to a task with specified id
         % Usage:
         % >>mf = MessagesFramework();
@@ -296,8 +297,8 @@ classdef iMessagesFramework < handle
         % >>    task with id==1. (not received)
         % >>    if other value, error_code and error_mess provide additional
         %       information for the failure
-        %
         [ok,err_mess] = send_message(obj,task_id,message)
+        
         % receive message from a task with specified id.
         % Blocking until message is received.
         %
@@ -311,12 +312,10 @@ classdef iMessagesFramework < handle
         %       failure.
         % >> on success, message contains an object of class aMessage,
         %        with message contents
-        %
         [is_ok,err_mess,message] = receive_message(obj,task_id,mess_name)
         
         
-        
-        % list all messages existing in the system for the tasks
+        % list all messages existing in the system from the tasks
         % with id-s specified as input
         %Input:
         %task_ids -- array of task id-s to check messages for
@@ -330,7 +329,9 @@ classdef iMessagesFramework < handle
         [all_messages_names,task_ids] = probe_all(obj,task_ids,mess_names)
         
         % retrieve (and remove from system) all messages
-        % existing in the system for the tasks with id-s specified as input
+        % existing in the system directed to current node and originated 
+        % from the tasks with id-s specified as input. Blocking if list of 
+        %
         %
         %Input:
         %task_ids -- array of task id-s to check messages for
@@ -339,18 +340,23 @@ classdef iMessagesFramework < handle
         %                 have messages available in the system .
         %task_ids       -- array of task id-s for these messages
         [all_messages,task_ids] = receive_all(obj,task_ids,mess_name_or_tag)
+
+        % wait until all workers arrive to the part of the code marked 
+        % by this barrier.
+        [ok,err]=labBarrier(obj,nothrow);        
         %------------------------------------------------------------------
         % delete all messages belonging to this instance of messages
         % framework and shut the framework down.
         finalize_all(obj)
-        % wait until all worker arrive to the part of the code specified
-        [ok,err]=labBarrier(obj,nothrow);
+        
         %
-        % remove all messages directed to the given lab from MPI message cache
+        % remove all messages directed to the given lab from MPI message
+        % cache
+        % Do not shut the cluster down
         clear_messages(obj);
         
         % method verifies if job has been canceled
-        is = is_job_canceled(obj)
+        is = is_job_canceled(obj)               
     end
     methods(Abstract,Access=protected)
         % return the labIndex

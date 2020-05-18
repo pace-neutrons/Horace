@@ -1,9 +1,9 @@
-function [id,tag,labReceiveSimulator] = get_mess_id_(tid_requested,message_id)
+function [id,tag] = get_mess_id_(tid_requested,message_id)
 % convert any format message id into the format, accepted by standard mpi
+% command
 %
 id = [];
 tag = [];
-labReceiveSimulator = [];
 if nargin == 0
     return;
 end
@@ -29,6 +29,9 @@ end
 % end
 
 function id = check_id(input)
+if ischar(input) && strcmpi(input,'any')
+    input = [];
+end
 if ~isnumeric(input)
     error('PARPOOL_MESSAGES:invalid_argument',...
         'labIndex should be numeric. It is: %s',class(input))

@@ -1,8 +1,5 @@
 classdef test_job_dispatcher_parpool< job_dispatcher_common_tests
     % Test running using the parpool job dispatcher.
-    %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
-    %
     
     properties
     end
@@ -13,9 +10,14 @@ classdef test_job_dispatcher_parpool< job_dispatcher_common_tests
                 name = 'test_job_dispatcher_parpool';
             end
             this = this@job_dispatcher_common_tests(name,'parpool');
-            this.print_running_tests = true;            
+            this.print_running_tests = true;
+        end
+        function delete(~)
+            pl = gcp('nocreate'); % Get the current parallel pool
+            delete(pl);
         end
         %
+        
         function test_finish_tasks_reduce_messages(obj,varargin)
             if obj.ignore_test
                 return;
@@ -99,17 +101,20 @@ classdef test_job_dispatcher_parpool< job_dispatcher_common_tests
             assertTrue(exist(file3,'file') == 2);
             delete(cjob)
         end
-        % DISABLED on Jenkins
         function test_job_fail_restart(obj, varargin)
-            if is_jenkins
-                warning('test_job_dispatcher_parpool:test_job_fail_restart disabled')
-                return;
-            end
             test_job_fail_restart@job_dispatcher_common_tests(obj, varargin{:})
         end
         function test_job_with_logs_3workers(obj, varargin)
             test_job_with_logs_3workers@job_dispatcher_common_tests(obj, varargin{:})
         end
+        function test_job_with_logs_2workers(obj,varargin)
+            test_job_with_logs_2workers@job_dispatcher_common_tests(obj, varargin{:})
+        end
+        function test_job_with_logs_worker(obj, varargin)
+            test_job_with_logs_worker@job_dispatcher_common_tests(obj, varargin{:})
+        end
+        
     end
+    
 end
 

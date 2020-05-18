@@ -1,4 +1,4 @@
-function [res,err] = parpool_mpi_send_receive_tester(job_control)
+function [res,err] = parpool_mpi_send_receive_tester(job_control,pool_control)
 if isempty(which('herbert_init'))
     herbert_on();
 end
@@ -9,7 +9,13 @@ if nl > 1
     mis.is_deployed = true;
 end
 
-pm = MessagesParpool('parpool_MPI_tester');
+if exist('pool_control','var')
+    is_tested = true;
+    pm = MessagesParpool(pool_control);
+else
+    is_tested = false;
+    pm = MessagesParpool('parpool_mpi_tested');
+end
 
 
 li = pm.labIndex;
@@ -37,7 +43,11 @@ if ~ok
     res = -1;
     return
 end
-[ok,err,res] = pm.receive_message(id_receive);
+if is_tested
+    [ok,err,res] = pm.receive_message(id_send);
+else
+    [ok,err,res] = pm.receive_message(id_receive);
+end
 if ~ok
     res = -2;
 end

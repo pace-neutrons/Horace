@@ -1,22 +1,18 @@
 classdef MessagesParpool < iMessagesFramework
-    % The class providing file-based message exchange functionality for Herbert
-    % distributed jobs framework.
+    % The class providing Matlab Parallel Computing toolbox-based
+    % message exchange functionality for Herbert distributed jobs framework.
     %
-    % The framework's functionality is similar to parfor
-    % but does not required parallel toolbox and works by starting
-    % separate Matlab sessions to do separate tasks.
+    % The framework's functionality provides common Herbert interface to
+    % Matlab parallel computing toolbox messages exchange functionality.
+    %
+    %
     % Works in conjunction with worker function from admin folder,
     % The worker has to be placed on Matlab search path
     % defined before Herbert is initiated
     %
-    %
-    % This class provides physical mechanism to exchange messages between tasks.
-    %
-    %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-    %
-    %
     properties(Dependent)
+        % return true if the framework is tested
+        is_tested
     end
     %----------------------------------------------------------------------
     properties(Constant=true)
@@ -26,7 +22,11 @@ classdef MessagesParpool < iMessagesFramework
         % time to wait for a message send from one session can be read from
         % another one.
         time_to_react_ = 0.1
-        mess_stack_ = {};
+        % holder to the class, wrapping Matlab MPI framework (parallel
+        % computing toolbox)
+        MPI_ = [];
+        %
+        mess_cache_
     end
     %----------------------------------------------------------------------
     methods
@@ -43,12 +43,20 @@ classdef MessagesParpool < iMessagesFramework
             % jd = MessagesFramework('target_name') -- add prefix
             %      which describes this job.
             %
-            
+            % jd = MessagesFramework(control_structure) Where the control
+            %      structure is the structure with fields:
+            %    - job_id -- the string containing job description (like
+            %                the one in 'target_name' above.
+            %  Optional: (if these fields are present, the messages
+            %              framework is initialized in test mode)
+            %   - labNum  -- number of this node in test mode
+            %
+            %   - numLabs -- number of fake 'Virtual nodes' surrounding
+            %                this node in the test mode
             jd = jd@iMessagesFramework();
             if nargin>0
                 jd = jd.init_framework(varargin{1});
             end
-            jd.mess_stack_ = cell(1,jd.numLabs);
         end
         %------------------------------------------------------------------
         % HERBERT Job control interface
@@ -68,26 +76,25 @@ classdef MessagesParpool < iMessagesFramework
         %------------------------------------------------------------------
         % MPI interface
         %
-        function fn = mess_name(obj,task_id,mess_name)
-            % not used in MessagesParpool
-            fn  = mess_name;
-        end
         %
         function [ok,err_mess,message] = receive_message(obj,varargin)
             % receive message from a task with specified id
-            % Blocking until message is received.
+            %
+            % Blocking until correspondent Send is issued at the requested worker
+            %
             %
             %Usage
             %>>[ok,err,message] = obj.receive_message() -- Receive any message.
             %>>[ok,err,message] = obj.receive_message(labId)  -- Receive
             %                     message from lab with the idSpecified
-            % Receive ny message.
+            %                     Receive any message.
             [ok,err_mess,message] = receive_message_(obj,varargin{:});
         end
         %
         function [ok,err_mess] = send_message(obj,task_id,message)
             % send message to a task with specified id
             % NonBlocking
+            %
             % Usage:
             % >>mf = MessagesFramework();
             % >>mess = aMessage('mess_name')
@@ -96,25 +103,19 @@ classdef MessagesParpool < iMessagesFramework
             % >>    task with id==1. (not received)
             % >>    if false, error_mess indicates reason for failure
             %
-            ok = true;
+            ok = MESS_CODES.ok;
             err_mess = [];
             try
-                if isa(message,'aMessage')
-                    tag = message.tag;
-                elseif ischar(message)
-                    tag = MESS_NAMES.mess_id(message);
-                    message = aMessage(message);
-                end
-                labSend(message,task_id,tag);
+                obj.MPI_.mlabSend(message,task_id);
             catch Err
-                ok = false;
+                ok = MESS_CODES.a_send_error;
                 err_mess = Err;
             end
         end
         %
         function [messages_name,task_id] = probe_all(obj,varargin)
-            % list all messages existing in the system for the tasks
-            % with id-s specified as input.
+            % list all messages existing in the system and sent from the
+            % tasks with id-s specified as input.
             % NonBlocking
             %Usage:
             %>> [mess_names,task_id] = obj.probe_all([task_ids],[mess_name|mess_tag]);
@@ -171,7 +172,8 @@ classdef MessagesParpool < iMessagesFramework
             %
             [all_messages,task_ids] = receive_all_messages_(obj,varargin{:});
         end
-        function finalize_all(obj)   
+        %
+        function finalize_all(obj)
             obj.clear_messages();
         end
         %
@@ -179,22 +181,31 @@ classdef MessagesParpool < iMessagesFramework
             % delete all messages belonging to this instance of messages
             % framework.
             %
+            % Clear persistent fail message may be present in parent
+            % framework
             obj.persistent_fail_message_ = [];
-            if obj.numLabs == 1
-                return
-            end
-            [isDataAvail,srcWkrIdx,tag] = labProbe();
+            % clear cached messages
+            obj.mess_cache_.clear();
+            %             if obj.numLabs == 1
+            %                 return
+            %             end
+            % receive and reject all messages, may be present in the
+            % messages framework.
+            [isDataAvail,tag,srcWkrIdx] = obj.MPI_.mlabProbe([],[]);
             while isDataAvail
-                labReceive(srcWkrIdx,tag);
-                [isDataAvail,srcWkrIdx,tag] = labProbe();
+                for i=1:numel(srcWkrIdx)
+                    obj.MPI_.mlabReceive(srcWkrIdx(i),tag(i));
+                end
+                [isDataAvail,tag,srcWkrIdx] = obj.MPI_.mlabProbe([],[]);
             end
         end
         %
-        function [ok,err]=labBarrier(obj,nothrow)
-            labBarrier;
-            ok = true;
+        function [ok,err]=labBarrier(obj,~)
+            obj.MPI_.mlabBarrier();
+            ok = MESS_CODES.ok;
             err = [];
         end
+        %
         function is = is_job_canceled(obj)
             % method verifies if job has been canceled
             mess = obj.probe_all('any','canceled');
@@ -203,17 +214,33 @@ classdef MessagesParpool < iMessagesFramework
             else
                 is=false;
             end
-            
         end
-        
+        % ----------------------------------------------------------------
+        % Test methods
+        %
+        function is = get.is_tested(obj)
+            is = obj.MPI_.is_tested;
+        end
+        %
+        function obj = set_mpi_wrapper(obj,wrapper)
+            if ~isa(wrapper,'MatlabMPIWrapper')
+                error('MESSAGES_PARPOOL:invalid_argument',...
+                    ' Only MPI wrapper can be provided as input for this function');
+            end
+            obj.MPI_ = wrapper;
+        end
+        %
+        function wrapper = get_mpi_wrapper(obj)
+            wrapper = obj.MPI_;
+        end
     end
     %----------------------------------------------------------------------
     methods (Access=protected)
         function ind = get_lab_index_(obj)
-            ind = labindex();
+            ind = obj.MPI_.labIndex;
         end
         function nl = get_num_labs_(obj)
-            nl = numlabs();
+            nl = obj.MPI_.numLabs;
         end
         
     end

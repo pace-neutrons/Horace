@@ -17,9 +17,6 @@ function [outputs,n_failed,task_ids,obj] = submit_and_run_job_(obj,...
 %                   portion of the task to run
 %
 %
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-%
 
 
 exit_worker_when_job_ends = cluster_wrp.exit_worker_when_job_ends;

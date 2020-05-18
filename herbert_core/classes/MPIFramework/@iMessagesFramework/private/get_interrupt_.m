@@ -1,16 +1,16 @@
-function [mess,id_from] = check_get_persistent_(obj,source_address)
-% check if a message is a persistent message (the message
+function [mess,id_from] = get_interrupt_(obj,source_address)
+% check if a message is a interrupt message (the message
 % describing a state of the source which persists until the
 % current job is completed or aborted) and return these
-% persistent messages.
+% messages.
 % Input:
 % source_address -- the array of addresses to check for sources
-%                   of the persistent messages
+%                   of the interrupt messages
 % Returns:
 % mess   -- cellarray of persisting messages returned from all
 %           or some sources requested
 %id_from -- array of the addresses which have previously
-%           generated persistent messages, stored within the
+%           generated interrupt messages, stored within the
 %           framework
 
 mess = {};

@@ -60,7 +60,7 @@ classdef test_FileBaseMPI_Framework < MPI_Test_Common
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
             
-            mess_fname = mf0.mess_name(1, 'starting');
+            mess_fname = mf0.mess_file_name(1, 'starting');
             assertTrue(exist(mess_fname, 'file') == 2);
             %
             fii.labID = 1;
@@ -241,7 +241,7 @@ classdef test_FileBaseMPI_Framework < MPI_Test_Common
         end
         
         function lock_file = build_fake_lock(this, mf, mess_name)
-            mess_file = mf.mess_name(0, mess_name);
+            mess_file = mf.mess_file_name(0, mess_name);
             [fp, fn] = fileparts(mess_file);
             lock_file = fullfile(fp, [fn, '.lockw']);
             fh = fopen(lock_file, 'w');

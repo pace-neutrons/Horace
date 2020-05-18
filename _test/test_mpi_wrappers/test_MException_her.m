@@ -1,7 +1,5 @@
 classdef test_MException_her < TestCase
-    %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
-    %
+    % Test serializanble-deserializable exception
     
     properties
     end
@@ -13,7 +11,7 @@ classdef test_MException_her < TestCase
             end
             this = this@TestCase(name);
         end
-        function test_serialize_deserialize(obj)
+        function test_serialize_deserialize(~)
             % get exception
             try
                 mex_Thrower(2)
@@ -25,16 +23,16 @@ classdef test_MException_her < TestCase
                 myExc = MException_her(ME);
             end
             %
-            bytes = myExc.saveobj();
-            assertTrue(isa(bytes,'uint8'));
-            assertTrue(numel(bytes)>200);
+            mex_str = myExc.saveobj();
+            assertTrue(isstruct(mex_str));
             
-            MER = myExc.loadobj(bytes);
+            
+            MER = myExc.loadobj(mex_str);
             assertTrue(isa(MER,'MException'));
             assertTrue(isa(MER,'MException_her'));
             assertEqual(myExc,MER);
         end
-        function test_get_report(obj)
+        function test_get_report(~)
             % get exception
             try
                 mex_Thrower(1)
@@ -50,7 +48,28 @@ classdef test_MException_her < TestCase
                 100));
             
         end
+        function test_FailWithMexc(~)
+            try
+                mex_Thrower(3)
+            catch ME
+            end
+            me = FailedMessage('testing problem',ME);
+            struc = me.saveobj();
+            mer = aMessage.loadobj(struc);
+            % for comparison, replace initial mexeption with MException_her
+            % as MException is not serializable)
+            me.payload.error = MException_her(me.payload.error);
+            assertEqual(me,mer);
+        end
         
+        function test_aMessageWithStructure(~)
+            add_info = struct('bla_bla',1);
+            add_info.something = {'1','2';'aa','bb'};
+            me = LogMessage(1,10,4.,add_info);
+            struc = me.saveobj();
+            mer = aMessage.loadobj(struc);
+            assertEqual(me,mer);
+        end
     end
     
 end

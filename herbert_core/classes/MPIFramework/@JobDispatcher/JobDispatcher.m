@@ -1,46 +1,96 @@
 classdef JobDispatcher
-    % The class to run and control Herbert MPI jobs.
+    % The class to run and control Herbert MPI jobs which are the children
+    % of JobExecutor class.
     %
-    % Allow user to run multi-session or MPI jobs, defined by the classes-children of
-    % JobExecutor class.
+    % Allow user to run multi-session or MPI jobs, defined by the
+    % classes-children of JobExecutor class.
     %
-    % In case of Parallel computer toolbox available, runs Matlab MPI communicating jobs
-    % and if it is not, uses multiple Matlab, communicating through filebased messages.
+    % The parallel job is run on a Cluster, selected by parallel_config
+    % configuration.
     %
+    % JobDispatcher: Main properties and methods
+    % ---------------------------------------------
+    % Job Description and control properties:
     %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
+    % job_id         - String describing the current job
+    % mess_framework - Instance of the file-based messages framework used
+    %                  for communications with the cluster
+    % cluster        - Read-only instance of a <a href="matlab:help('ClusterWrapper');">ClusterWrapper</a>
+    %                  controlling a parallel job
+    % is_initialized - true if jobDispatcher already controls a cluster.
     %
+    % ---------------------------------------------
+    % JobTiming:
+    %
+    % task_check_time - how often (in second) job dispatcher should query the task status
+    % fail_limit      - number of times to try an action before deciding a
+    %                   job have failed
+    % time_to_fail    - time interval to wait until job which do not send
+    %                   any messages from cluster is considered failed.
+    %
+    % ---------------------------------------------------------------------
+    % JobDispatcher methods:
+    %
+    % start_job    - Start cluster and initilize parallel job to be executed
+    %                by the cluster.
+    % restart_job  - Restart parallel Matlab job started earlier by start_job
+    %                command
+    % finalize_all - Stop cluster and parallel processes and clear all messages.
+    %
+    % Helpers:
+    % display_fail_job_results - Auxiliary method to display job results
+    %               if the job have failed.
+    % split_tasks - Divide list of job parameters among given number of
+    %               workers and generate list of init messages for the
+    %               subtasks
     %
     properties(Dependent)
+        % The string with running job id, i.e. the name, which describes
+        % the job, and distinguish it from any other job, may be running
+        % on a system. Normally, a folder with such name exist on a
+        % shared file system and all file-based messages, related to
+        % controlling this job a distributed through this folder.
+        job_id
+        
+        % the instance of the file-based messages framework used for
+        % exchange between logon node and the cluster. Used for providing
+        % initialization information for the job, receiving log messages
+        % from node-1 and returning some calculations results
+        mess_framework;
+        
+        % Exposes read access to parallel cluster, instance of a
+        % <a href="matlab:help('ClusterWrapper');">ClusterWrapper</a> class
+        % to run a parallel job.
+        cluster
+        
+        % True if jobDispatcher already controls a cluster
+        % so the next job can be executed on existing cluster
+        % rather then after starting a new one. False if the cluster is not
+        % running and needs to start-up.
+        is_initialized
+        % -----------------------------------------------------------------
+        
         % how often (in second) job dispatcher should query the task status
         task_check_time;
-        % fail limit -- number of times to try action until deciding the
-        fail_limit     % action have failed
+        
+        %number of times to try action until deciding the action have failed
+        fail_limit
+        
         % time interval to wait until job which do not send any messages
-        % considered failed
+        % from the cluster is considered failed (and should be terminated)
         time_to_fail
-        % -----------------------------------------------------------------
-        % The convenience interface to internal classes, used by
-        % JobDispatcher
-        % Returns the string with running job id
-        job_id
-        % the framework used to exchange messages with parallel cluster
-        mess_framework;
-        % exposing read access to parallel cluster to run a parallel job
-        cluster
-        % true if jobDispatcher already controls a
-        % cluster so the next job can be executed on existing cluster
-        % rather then after starting a new one.
-        is_initialized
     end
     %
-    properties(Access=protected)
+    properties(Access=protected, Hidden = true)
+        % how often (in second) job dispatcher should query the task status
         task_check_time_ = 4;
+        %
         fail_limit_ = 100; % number of times to try for changes in job status file until
         % decided the job have failed
         %
         % The framework to exchange messages with the tasks
         mess_framework_;
+        %
         time_to_fail_  = 300; %300sec, 5 min
         
         % holder for initiated cluster allowing to resubmit jobs
@@ -51,10 +101,10 @@ classdef JobDispatcher
         % the first time or is reused.
         job_is_starting_ = true;
     end
-    
+    %
     methods
         function jd = JobDispatcher(varargin)
-            % Initialize job dispatcher
+            % Initialize job dispatcher.
             % If provided with parameters, the first parameter should be
             % the sting-prefix of the job control files, used to distinguish
             % this job control files from any other job control files
@@ -65,8 +115,7 @@ classdef JobDispatcher
             %      which distinguish this job as the job which will produce
             %      the file with the name provided
             %
-            % Initialise messages framework
-            mess_cache.instance('delete');
+            % Initialize messages framework
             mf = MessagesFilebased(varargin{:});
             pc = parallel_config;
             if ~isempty(pc.shared_folder_on_local)
@@ -78,7 +127,8 @@ classdef JobDispatcher
         function [outputs,n_failed,task_ids,this]=start_job(this,...
                 job_class_name,common_params,loop_params,return_results,...
                 number_of_workers,keep_workers_running,task_query_time)
-            % send parallel job to be executed by Matlab cluster
+            % Starts the cluster and sends parallel job to be executed by
+            % Matlab cluster.
             %
             % Usage:
             % [n_failed,outputs,task_ids,this] = ...
@@ -107,7 +157,7 @@ classdef JobDispatcher
             %                    check if tasks are completed. By default,
             %                    check every 4 seconds
             %
-            % Returns
+            % Returns:
             % n_failed  -- number of tasks that have failed.
             % outputs   -- cellarray of outputs from each task.
             %              Empty if tasks do not return anything
@@ -129,8 +179,8 @@ classdef JobDispatcher
         function [outputs,n_failed,task_ids,this]=restart_job(this,...
                 job_class_name,common_params,loop_params,return_results,...
                 keep_workers_running,task_query_time)
-            % restart parallel Matlab job started earlier by start_job command,
-            % providing it with new data. The cluster must be running
+            % Restart parallel Matlab job started earlier by start_job command,
+            % providing it with new data. The cluster to do the job must be running.
             %
             % Usage:
             % [n_failed,outputs,task_ids,this] = ...
@@ -172,7 +222,6 @@ classdef JobDispatcher
                 job_class_name,common_params,loop_params,return_results,...
                 keep_workers_running,task_query_time);
         end
-        
         %
         %------------------------------------------------------------------
         function limit = get.fail_limit(this)
@@ -210,12 +259,13 @@ classdef JobDispatcher
             mf = obj.mess_framework_;
         end
         function id = get.job_id(obj)
-            % return unique string, describing the job
+            % Return unique string, describing the job
             id = obj.mess_framework_.job_id;
         end
         function is = get.is_initialized(obj)
-            % return true if job dispatcher is initialized i.e. holds
-            % control over a parallel cluster
+            % Return true if job dispatcher is initialized i.e. controls 
+            % a parallel cluster
+
             is = ~isempty(obj.cluster_);
         end
         function cl = get.cluster(obj)
@@ -225,15 +275,19 @@ classdef JobDispatcher
         end
         %
         function obj = finalize_all(obj)
-            % destructor. As this is not a handle class, invalid cluster_
-            % object may stay if delete does not assigned to a new object
-            mess_cache.instance('delete');
+            % Stop cluster and parallel processes and clear all messages.
+            %
+            % As this is not a handle class, invalid cluster
+            % object may stay if delete does not assigned to a new object.
+            %
             obj.cluster_ = [];
             obj.job_destroyer_ = [];
         end
+        %
         function display_fail_job_results(obj,outputs,n_failed,n_workers,Err_code)
-            % Auxiliary method to display job results if the job have
-            % failed
+            % Display job results if the job have failed.
+            % Auxiliary method.
+            %
             % Input:
             % Outputs -- usually cellarray of the results, returned by a
             %            parallel job
@@ -250,7 +304,6 @@ classdef JobDispatcher
             % if no errors returned
             %
             display_fail_jobs_(obj,outputs,n_failed,n_workers,Err_code);
-            
         end
         
     end

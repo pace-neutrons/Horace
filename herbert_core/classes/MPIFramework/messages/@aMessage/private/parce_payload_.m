@@ -12,23 +12,37 @@ function payload_p = parce_payload_(payload)
 %   payload_p  -- modified input, containing all serializable classes
 
 
-payload_p = payload;
+
 
 if iscell(payload)
-    for i=1:numel(payload)
-        payload_p{i}= parce_payload_(payload{i});
-    end
-    
+    payload_p  = cellfun(@(c)parce_payload_(c),payload,...
+        'UniformOutput',false);
 elseif isstruct(payload)
     names=fieldnames(payload);
-    for i=1:numel(payload)
+    if numel(payload) > 1
+        % NOT IMPLEMENTED EFFICIENTLY. NEEDS RETHINKING
+        data = struct2cell(payload);
+        data = cellfun(@(c)parce_payload_(c),data,...
+            'UniformOutput',false);
+        payload_p = cell2struct(data,names,1);
+    else
         for j=1:numel(names)
-            payload_p(i).(names{j}) = parce_payload_(payload(i).(names{j}));
+            payload_p.(names{j}) = parce_payload_(payload.(names{j}));
         end
     end
 elseif isobject(payload)
-    if isa(payload,'MException')
-        payload_p = MException_her(payload);
+    class_name = class(payload);
+    if strcmp(class_name,'MException')
+        class_name = 'MException_her';
+        payload   = MException_her(payload);
     end
+    try
+        payload_p = payload.saveobj();
+    catch ME % left for debugging purposes.
+        payload_p  = parce_payload_(struct(payload));
+    end
+    payload_p.class_name = class_name;
+else
+    payload_p = payload;
 end
 

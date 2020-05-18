@@ -1,41 +1,84 @@
 classdef JobExecutor
-    % The class, responsible for running a task on a worker
+    % The abstact class, responsible for running a specific task on a
+    % worker.
     %
+    % Works in conjunction with the  <a href="matlab:help('parallel_worker');">worker</a>]
+    % function from admin folder.
+    % The script, initializing Herbert and Horace has to be placed on Matlab
+    % search path before Herbert and Horace are initiated
     %
-    % Works in conjunction with worker function from admin folder,
-    % The worker has to be placed on Matlab search path
-    % defined before Herbert is initiated
+    % JobExecutor Properties and Methods
+    %-------------------------------------
+    % Abstract methods to overload:
     %
+    % do_job       - Do chunk of the job independent on other parallel executors
+    % reduce_data  - Receive partial results from neighbours and combine them on the head worker
+    % is_completed - Check if the job completed and return true if it is.
     %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
+    %-------------------------------------
+    % JobExecutor Properties:
     %
+    % labIndex          - The number of the running task.
+    % mess_framework    - Access to messages framework used for messages
+    %                     exchange between the parallel tasks.
+    % control_node_exch - The instance of the framework used to exchange
+    %                     messages between MPI jobs pool and the control (login) node
+    % task_outputs      - A helper property, containing task outputs to
+    %                     transfer to the headnode.
+    % n_steps           - Number of steps to loop over job data
+    %
+    % do_job_completed  - Helper method used for synchronization with
+    %                     worker, if the task have failed
+    %-------------------------------------
+    % Communicator methods i.e. convenience methods, operating over defined
+    % messages frameworks:
+    %
+    % init                -  Initialize JobExecutor's communications
+    %                        capabilities
+    % reduce_send_message -  collect similar messages send from all nodes and
+    %                        send final message to the head node
+    %                        (node 1 for nodes with N>1 or logon node for node 1)
+    % log_progress        - log progress of the job execution and report
+    %                       it to the logon node.
+    % labBarrier          - synchronize parallel workers execution,
+    %                       deploying MPI barrier operation of the framework,
+    %                       used for interprocess communications.
+    % finish_task         - Safely complete job execution and inform other
+    %                       nodes about it.
     %
     properties(Dependent)
-        %-------------------------------------
-        % Properties of a job executor:
-        % the id(number) of the running task
+        % The id(number) of the running task. Worker Number in filebased,
+        % labNum in Matlab or MPI rank for MPI
         labIndex;
-        % Number of steps to loop over job data. Public interface to
-        % n_iterations_. Read-only
-        n_steps
-        % Access to messages framework used to exchange messages between
-        % executor and controller
+        
+        % Access to messages framework used for messages exchange between
+        % the parallel tasks.
+        % For file-based messages its the same as control_node_exch
+        % but for proper MPI job on a remote host it is usually  different.
         mess_framework;
-        % The framework used to exchange messages between MPI jobs pool and
-        % the control node. For filebased messages its the same as
+        
+        % Framework to exchange messages between MPI jobs pool and control
+        % node.
+        % For filebased messages its the same as
         % mess_framework but for proper MPI job or remote host its
         % different.
         control_node_exch;
-        % a helper property, containing task outputs if these outputs are
-        % defined
+        
+        % a helper property, containing task outputs to transfer to the
+        % headnode, if these outputs are defined.
         task_outputs
-        % Helper method used for synchronization with worker
+        
+        % Number of steps to loop over job data. Public interface to
+        % n_iterations_. Read-only
+        n_steps
+        
+        % Helper method used for synchronization with worker,
         % needed to verify barrier in case of some worker failed
         % while some finished do_job but some failed before that.
         do_job_completed
     end
     %
-    properties(Access=protected)
+    properties(Access=protected, Hidden = true)
         % handle for the messages framework
         mess_framework_ = [];
         % the holder of the class, responsible for communication between the
@@ -66,14 +109,19 @@ classdef JobExecutor
         % holder for do_job_completed value
         do_job_completed_  = false;
     end
+    %
     methods(Abstract)
         % should be overloaded by a particular implementation
         %
-        % abstract method to do particular job.
+        
+        % abstract method to do particular chunk of the job independently
+        % on other workers
         this=do_job(this);
+        
         % abstract method to collect and reduce data, located on different.
-        % workers
+        % workers.
         this=reduce_data(this);
+        
         % the method to analyse outputs and indicate that the tasks or job
         % has been completed.
         ok = is_completed(this);
@@ -81,37 +129,34 @@ classdef JobExecutor
     %------------------------------------------------------------------ ---
     methods
         function je = JobExecutor()
-            % Initialize job executor
-            % If provided with parameters, the first parameter should be
-            % the sting-prefix of the job control files, used to distinguish
-            % this job control files from any other job control files
-            %Example
-            % jd = JobExecutor() -- use randomly generated job control
-            % prefix
+            % Create the job executor empty instance
+            % ready for initialization.
+            %
         end
         %
         function [obj,mess]=init(obj,fbMPI,intercom_class,InitMessage,is_tested)
-            % initiate worker side.
-            %e.g:
+            % Initiate Job executor on a worker side.
+            % namely:
             % set up tag, indicating that the job have started
             % and process main job control parameters, present in
-            % inputs and files:
             %
-            % fbMPI               -- the initialized instance of file-based 
-            %                        messages framework, used for messages 
+            % inputs:
+            %
+            % fbMPI               -- the initialized instance of file-based
+            %                        messages framework, used for messages
             %                        exchange between worker and the control node.
             %                        Depending on the used framework and job,
             %                        this class can be used for communications
             %                        between workers too.
             % intercom_class     --  the class, providing MPI or pseudo MPI
-            %                         communications between workers
+            %                        communications between workers.
             % InitMessage         -- The message with information necessary
             %                        to run the job itself. The message
             %                        template is generated buy
             %                        iMessageFramework.build_worker_init
             %                        method.
             % is_tested           -- if present and true, the method would
-            %                        run in test mode to avoid blocking
+            %                        run in test mode avoiding blocking
             %                        communications
             % returns:
             % obj          initialized JobExecutor object
@@ -125,7 +170,6 @@ classdef JobExecutor
             % clear all possible messages stored in message cache. Should
             % be irrelevant but may be usefil for reinitializing a job
             % executor to run different task on the same parallel worker.
-            mess_cache.instance('delete');
             if ~exist('is_tested','var')
                 synchronize = true;
             else
@@ -134,9 +178,55 @@ classdef JobExecutor
             %
             [obj,mess]=init_je_(obj,fbMPI,intercom_class,InitMessage,synchronize);
         end
+        %------------------------------------------------------------------
+        function id = get.labIndex(obj)
+            % get number (job id) of current running job
+            if isempty(obj.mess_framework_)
+                % class has not been initiated properly
+                id  = -1;
+            else
+                id = obj.mess_framework_.labIndex;
+            end
+        end
+        %
+        function out = get.task_outputs(obj)
+            out = obj.task_results_holder_;
+        end
+        %
+        function obj = set.task_outputs(obj,val)
+            obj.task_results_holder_ = val;
+        end
+        %
+        function n_steps = get.n_steps(obj)
+            n_steps = obj.n_iterations_;
+        end
+        %
+        function mf= get.mess_framework(obj)
+            % returns reference to MPI framework, used for exchange between
+            % MPI nodes of a cluster
+            mf = obj.mess_framework_;
+        end
+        %
+        function mf = get.control_node_exch(obj)
+            % returns reference to MPI framework, used for exchange between
+            % MPI cluster and control node.
+            mf = obj.control_node_exch_;
+        end
+        %
+        function is = get.do_job_completed(obj)
+            is = obj.do_job_completed_;
+        end
+        %
+        function obj = set.do_job_completed(obj,val)
+            obj.do_job_completed_ = logical(val);
+        end
+        
+        %------------------------------------------------------------------
+        % Reduced convenence MPI interface, operating with all intialized
+        % MPI frameworks
         %
         function [ok,mess,obj] =finish_task(obj,varargin)
-            % Safely finish job execution and inform head node about it.
+            % Safely finish job execution and inform the head node about it.
             %
             %Usage:
             %>>[ok,mess] = obj.finish_task();
@@ -210,49 +300,6 @@ classdef JobExecutor
             %
             log_progress_(this,step,n_steps,time_per_step,add_info);
         end
-        %------------------------------------------------------------------
-        function id = get.labIndex(obj)
-            % get number (job id) of current running job
-            if ~isempty(obj.mess_framework_)
-                id = obj.mess_framework_.labIndex;
-            else % class has not been initiated properly
-                id  = -1;
-            end
-        end
-        %
-        function out = get.task_outputs(obj)
-            out = obj.task_results_holder_;
-        end
-        %
-        function obj = set.task_outputs(obj,val)
-            obj.task_results_holder_ = val;
-        end
-        %
-        function n_steps = get.n_steps(obj)
-            n_steps = obj.n_iterations_;
-        end
-        %
-        function mf= get.mess_framework(obj)
-            % returns reference to MPI framework, used for exchange between
-            % MPI nodes of a cluster
-            mf = obj.mess_framework_;
-        end
-        %
-        function mf = get.control_node_exch(obj)
-            % returns reference to MPI framework, used for exchange between
-            % MPI cluster and control node.
-            mf = obj.control_node_exch_;
-        end
-        function is = get.do_job_completed(obj)
-            is = obj.do_job_completed_;
-        end
-        function obj = set.do_job_completed(obj,val)
-            obj.do_job_completed_ = logical(val);
-        end
-        
-        %------------------------------------------------------------------
-        % MPI interface (Underdeveloped, may be not necessary except
-        % is_job_canceled)
         %
         function [ok,err]=labBarrier(obj,nothrow)
             % implement labBarrier to synchronize various workers.
@@ -260,16 +307,23 @@ classdef JobExecutor
         end
         %
         function is = is_job_canceled(obj)
+            % check all available framework for the job cancellation state.
+            %
+            % Returns true if received any 'canceled' signal.
             is = obj.control_node_exch_.is_job_canceled();
             if ~is
                 [mess,tids] = obj.mess_framework_.probe_all('any','canceled');
                 if ~isempty(mess)
                     is = true;
-                    % discard message(s)
-                    obj.mess_framework_.receive_all(tids,'canceled');
+                    mf = obj.mess_framework_;
+                    for i=1:numel(tids)
+                        mf.receive_message(tids(i),'canceled');
+                    end
                 end
             end
         end
+ 
+        %
         function initMessage = get_worker_init(obj,exit_on_completion,...
                 keep_worker_running)
             % Builds the structure, used by a worker to initialize this
@@ -300,20 +354,20 @@ classdef JobExecutor
                 exit_on_completion,keep_worker_running);
         end
         %
-        function [ok,err_message]=process_fail_state(obj,ME,is_tested)
+        function mess_with_err=process_fail_state(obj,ME,is_tested,varargin)
             % Process and gracefully complete an exception, thrown by the
             % user code running on the worker.
             % Inputs:
             % ME        -- exception class, thrown by the user code
             % is_tested -- if false, indicates that the  code is run on a
             %              mpi worker or if true, is tested within a
-            %               main Matlab session so blocking operations
-            %               should be disabled
+            %              main Matlab session so blocking operations
+            %              should be disabled
             % Returns:
             % results of the finish_task operation
             %
             % Should run on non-initialized object
-            [ok,err_message] = process_fail_state_(obj,ME,is_tested);
+            mess_with_err = process_fail_state_(obj,ME,is_tested,varargin{:});
         end
     end
     methods(Static)
@@ -332,7 +386,7 @@ classdef JobExecutor
             % keep_worker_running -- true if worker's Matlab session should
             %                run after JE work is completed waiting for
             %                another starting and init messages.
-            % test_mode   -- the mode used for testing CppMPI framework. 
+            % test_mode   -- the mode used for testing CppMPI framework.
             %                if present and true, sets-up test framework
             %                mode
             %
@@ -341,7 +395,7 @@ classdef JobExecutor
             end
             if ~exist('keep_worker_running','var')
                 keep_worker_running = false;
-            end           
+            end
             
             info = struct(...
                 'JobExecutorClassName',JE_className,...
@@ -357,7 +411,7 @@ classdef JobExecutor
             % and the headnode.
             %
             % The control structure is defined on iMessageFramework class,
-            % get_worker_init method which actually describes the particular 
+            % get_worker_init method which actually describes the particular
             % frameworks to use for message exchange within the job.
             %
             % here we need to know what framework to use to exchange messages between
@@ -375,6 +429,9 @@ classdef JobExecutor
             else % the framework is defined by the appropriate framework name
                 mf = feval(control_structure.intercomm_name);
                 mf = mf.init_framework(control_structure);
+                % set labNum and NumLabs for filebased  MPI framework,
+                % equal to values, defined for proper MPI framework to
+                % avoid cross-taling and invalid indexising
                 cntrl_node_exchange = cntrl_node_exchange.set_framework_range(mf.labIndex,mf.numLabs);
                 internode_exchange  = mf;
             end

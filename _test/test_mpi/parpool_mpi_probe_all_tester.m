@@ -1,15 +1,25 @@
-function [res,err] = parpool_mpi_probe_all_tester(job_control)
+function [res,varargout] = parpool_mpi_probe_all_tester(job_control,communicator_control)
 %
 if isempty(which('herbert_init'))
     herbert_on();
 end
-nl = numlabs;
-if nl > 1
+
+if exist('communicator_control','var')
+    if isstruct(communicator_control)
+        pm = MessagesParpool(communicator_control);
+    else
+        pm = communicator_control;
+    end
+else
+    pm = MessagesParpool('parpool_MPI_tester');
+end
+
+nl = pm.numLabs;
+if nl > 1 && ~pm.is_tested
     mis = MPI_State.instance();
     mis.is_deployed = true;
 end
 
-pm = MessagesParpool('parpool_MPI_tester');
 
 
 all_lab_ind = 1:nl;
@@ -40,12 +50,12 @@ if receiver
     n_senders = numel(lab_senders);
     res  = cell2struct(cell(5,n_senders),...
         {'srcWkrInd','senders','mess_names','mess','rec_mess_id'});
-
+    
     pause(1);
     [mess_names,task_ids_from] = pm.probe_all(lab_senders);
     res = set_results(li,res,task_ids_from,mess_names);
-
-
+    
+    
     [all_messages,task_ids_from] = pm.receive_all(lab_senders,'started');
     for i=1:n_senders
         res(i).mess = all_messages{i};
@@ -53,9 +63,9 @@ if receiver
     end
     err = [];
 else %sender
-
+    
     lab_receiver = find_lab_receiver(li,nl,receiver_ind);
-
+    
     if lab_receiver == 0
         res = [];
         err = 1;
@@ -67,7 +77,7 @@ else %sender
     else
         mess1 = LogMessage();
         mess2 = aMessage('started');
-
+        
     end
     [ok1,err1] = pm.send_message(lab_receiver,mess1);
     [ok2,err2] = pm.send_message(lab_receiver,mess2);
@@ -81,7 +91,14 @@ else %sender
     %res = ok1;
     %err = err1;
 end
-pm.clear_messages();
+if nargout>1
+   varargout{1} = err;    
+end
+if nargout>2
+    varargout{2} = pm;
+else
+    pm.clear_messages();
+end
 
 function ind = cycle_ind(ind0,period)
 ind = ind0;
