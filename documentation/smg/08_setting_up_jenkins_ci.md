@@ -32,6 +32,18 @@ For all:
   - Jenkins loads and runs the [`Jenkinsfile`](./../../tools/build_config/Jenkinsfile) located in `tools/build_config`.
   - The `Jenkinsfile` script runs the platform specific build script and updates GitHub about the status of the build.
 
+## Managing Herbert Dependency
+
+In order to build and run, Horace requires that Herbert also be present in the Jenkins
+workspace. So that Horace builds are run against an up-to-date Herbert,
+pull request and branch builds will checkout and build the latest Herbert master from GitHub.
+This means that Horace is run against Herbert source, instead of a Herbert package.
+
+Nightly builds should be equivalent to production releases, so Horace will use a
+packaged version of Herbert. This will ensure that our Herbert and Horace packages
+are compatible. The Herbert package to use will be copied from the last successful
+Herbert nightly build.
+
 ## GitHub
 
 The only job required on GitHub is to set up webhooks to notify Jenkins of pull requests. These can be created by GitHub repository admins by opening the settings tab in the [main repo](https://github.com/pace-neutrons/Horace).
@@ -81,6 +93,7 @@ and should be prefixed with `PR-` if the pipeline is building pull requests, e.g
         - `CMAKE_VERSION`: The version of CMake to load
         - `MATLAB_VERSION`: The (release) version of Matlab to load
         - `GCC_VERSION`: The version of GCC to use (Linux only)
+        - `CPPCHECK_VERSION`: The version of CppCheck to use (Linux only)
 
     The list of required parameters are noted in the docstring for the pipeline
     within the Jenkinsfile, and should be added with descriptions through the
@@ -139,8 +152,9 @@ The build scripts are intended to work locally as well as on Jenkins, so any Jen
 
 | Argument (`.ps1`) | Argument (`.sh`)       |      |
 | --------------- | ------- | ---- |
-| `-build`        | `--build`, `-b` |   Perform build   |
-| `-test`          | `--test`, `-t` | Run MATLAB and C++ tests |
+| `-build`        | `--build`, `-b`   |   Perform build   |
+| `-test`         | `--test`, `-t`    | Run MATLAB and C++ tests |
+|      | `--analyze`, `-a` | Run static code analysis (Linux only) |
 | `-package`          | `--package`, `-p`  | Create archive of build artifacts |
 | `-print_versions`          | `--print_versions`, `-v`  | Display versions of compilers, MATLAB and libraries used |
 
@@ -149,7 +163,6 @@ The build scripts are intended to work locally as well as on Jenkins, so any Jen
 | Argument (`.ps1`) | Argument (`.sh`) | Default | |
 | --------------- | ------- | ---- | ---- |
 | `-build_tests` | `--build_tests`, `-X` | `ON` | Build test files (`ON` \| `OFF`) |
-| `-build_fortran` | `--build_fortran`, `-N` | `OFF` | Build Fortran source (`ON` \| `OFF`) |
 | `-build_config` | `--build_config`, `-C` | `Release` | Build configuration to use (`Release` \| `Debug`) |
 | `-build_dir` | `--build_dir`, `-O` | `./build` | Output directory for CMake build |
 | `-cmake_flags` | `--cmake_flags`, `-F` | | Custom parameters to pass to CMake configure step |
@@ -158,9 +171,9 @@ The build scripts are intended to work locally as well as on Jenkins, so any Jen
 Actions may be combined so to call the script and only build use the `--build` flag, to build and test use both flags `--build --test`.
 
 Notes:
+
 1. The Visual Studio version must match a configured Visual Studio release or an error will be thrown
 2. PowerShell uses *a single dash* for parameters, i.e. `-build -test -package`.
-
 
 ## Authentication
 

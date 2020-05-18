@@ -1,4 +1,4 @@
-function [qw1,qw2]=calculate_qw_points(win,x)
+function [qw1, qw2] = calculate_qw_points(win, x)
 % Calculate qh,qk,ql,en for set of points in an n-dimensional sqw dataset
 %
 %   >> qw=calculate_qw_points(win)          % (Q,w) when energy is the implicit variable for a direct geometry cut
@@ -40,7 +40,7 @@ function [qw1,qw2]=calculate_qw_points(win,x)
 %             - if no roots, corresponding row in qw1 and qw2 set to NaN
 %             - if there is a root, it will be in qw1, and the row in qw2 set to naN
 %             - if two roots, the larger energy trasnfer root is always in qw1
-%           
+%
 %    - if a component of Q is implicit variable to be determined
 %           in general there are either zero or two roots, just as for direct geometry.
 %
@@ -49,120 +49,119 @@ function [qw1,qw2]=calculate_qw_points(win,x)
 % Algorithm applies for the case when the following two conditions are met
 %    - data originates from a single spe file
 %    - one, and only one, of the integration axes has range [-Inf,Inf], [-Inf,<finite>] or [<finite>,Inf]]
-% This is the situation when Horace is being used is mslice mode.
 
 % Original author: T.G.Perring
 %
 % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
-
-nd=size(x,2);   % number of dimensions - assume already checked for consistency between win and x
-np=size(x,1);   % number of points
+np = size(x, 1); % number of points
 
 % Fixed energy
-c=neutron_constants;
+c = neutron_constants;
 k_to_e = c.c_k_to_emev;
-efix=win.header.efix;
-kfix=sqrt(efix/k_to_e);
-
+efix = win.header.efix;
+kfix = sqrt(efix / k_to_e);
 
 % Some useful shorthand names to elements of input sqw object
-u0=win.data.uoffset;
-u=win.data.u_to_rlu;
-iax=win.data.iax;
-iint=win.data.iint;
-pax=win.data.pax;
-dax=win.data.dax;
-
+u0 = win.data.uoffset;
+u = win.data.u_to_rlu;
+iax = win.data.iax;
+iint = win.data.iint;
+pax = win.data.pax;
+dax = win.data.dax;
 
 % Get matrix to convert projection axes to spectrometer axes:
-[spec_to_u, u_to_rlu, spec_to_rlu] = calc_proj_matrix (win.header.alatt, win.header.angdeg, win.header.cu, win.header.cv,...
+[~, ~, spec_to_rlu] = calc_proj_matrix (win.header.alatt, win.header.angdeg, win.header.cu, win.header.cv, ...
     win.header.psi, win.header.omega, win.header.dpsi, win.header.gl, win.header.gs);
-M=spec_to_rlu\u(1:3,1:3);   % convert projection axes to spectrometer axes
-
+M = spec_to_rlu \ u(1:3, 1:3); % convert projection axes to spectrometer axes
 
 % Get coordinates in frame of projection axes, accounting for offset and centre of integration axes
-ptot=u0;
-for i=1:length(iax)
+ptot = u0;
+for i = 1:length(iax)
     % get offset from integration axis, accounting for non-finite limit(s)
-    if isfinite(iint(1,i)) && isfinite(iint(2,i))
-        iint_ave=0.5*(iint(1,i)+iint(2,i));
+    if isfinite(iint(1, i)) && isfinite(iint(2, i))
+        iint_ave = 0.5 * (iint(1, i) + iint(2, i));
     else
-        iint_ave=0;
-        inf_ax=iax(i);  % keep the infinite axis index for later use
+        iint_ave = 0;
+        inf_ax = iax(i); % keep the infinite axis index for later use
     end
-    ptot=ptot+iint_ave*u(:,iax(i));  % overall displacement of plot volume in (rlu;en)
+
+    ptot = ptot + iint_ave * u(:, iax(i)); % overall displacement of plot volume in (rlu;en)
 end
-ud=u(:,pax(dax));   % need to permute the vectors to match the display (cf. plot) axes
-prlu=repmat(ptot,[1,np])+ud*x'; % (4 x np) array of coordinates as rlu and energy
-qspec=spec_to_rlu\prlu(1:3,:);  % (3 x np) array of coordinates in spectrometer coordinates
-eps=prlu(4,:);                  % split out energy for later convenience
+
+ud = u(:, pax(dax)); % need to permute the vectors to match the display (cf. plot) axes
+prlu = repmat(ptot, [1, np]) + ud * x'; % (4 x np) array of coordinates as rlu and energy
+qspec = spec_to_rlu \ prlu(1:3, :); % (3 x np) array of coordinates in spectrometer coordinates
+eps = prlu(4, :); % split out energy for later convenience
 
 % if the unknown axis is energy transfer, qspec is the momentum vector, and eps=0
 % if the unknown is a Q axis, qspec will contain the offset vector to the point where the the component along
 % the unknown projectioon axis is zero, and the energy transfer will be correct.
 
 % Compute missing coordinate
-if inf_ax==4    % Missing coordinate is energy transfer
-    if win.header.emode==1          % direct geometry
-        kf=repmat([kfix;0;0],[1,np])-qspec;
-        eps=efix-k_to_e*dot(kf,kf,1);
-        qw1=[prlu(1:3,:);eps]';
-        qw2=[];
+if inf_ax == 4% Missing coordinate is energy transfer
+
+    if win.header.emode == 1% direct geometry
+        kf = repmat([kfix; 0; 0], [1, np]) - qspec;
+        eps = efix - k_to_e * dot(kf, kf, 1);
+        qw1 = [prlu(1:3, :); eps]';
+        qw2 = [];
     else
-        sintheta=sqrt(dot(qspec(2:3,:),qspec(2:3,:),1))/kfix;
-        sintheta(sintheta>1)=NaN;   % no solution possible
-        ki=q1+kfix*cos(asin(sintheta));
-        ki(ki<=0)=NaN;              % cannot have negative |ki|
-        eps1=k_to_e*ki.^2;
-        ki=q1-kfix*cos(asin(sintheta));
-        ki(ki<=0)=NaN;              % cannot have negative |ki|
-        eps2=k_to_e*ki.^2;
-        qw1=[prlu(1:3,:);eps1]';
-        qw2=[prlu(1:3,:);eps2]';
+        sintheta = sqrt(dot(qspec(2:3, :), qspec(2:3, :), 1)) / kfix;
+        sintheta(sintheta > 1) = NaN; % no solution possible
+        ki = q1 + kfix * cos(asin(sintheta));
+        ki(ki <= 0) = NaN; % cannot have negative |ki|
+        eps1 = k_to_e * ki.^2;
+        ki = q1 - kfix * cos(asin(sintheta));
+        ki(ki <= 0) = NaN; % cannot have negative |ki|
+        eps2 = k_to_e * ki.^2;
+        qw1 = [prlu(1:3, :); eps1]';
+        qw2 = [prlu(1:3, :); eps2]';
     end
 
-else            % Missing coordinate is one of the Q coordinates
-    if win.header.emode==1          % direct geometry
-        del=repmat([kfix;0;0],[1,np])-qspec;
-        M0=M(:,inf_ax);
-        acoeff=dot(M0,M0)*ones(1,np);
-        bcoeff=-2*dot(del,repmat(M0,[1,np]),1);
-        ccoeff=dot(del,del,1)-(efix-eps)/k_to_e;
-        [p1,p2]=real_quadratic_roots (acoeff,bcoeff,ccoeff);
+    else% Missing coordinate is one of the Q coordinates
+
+    if win.header.emode == 1% direct geometry
+        del = repmat([kfix; 0; 0], [1, np]) - qspec;
+        M0 = M(:, inf_ax);
+        acoeff = dot(M0, M0) * ones(1, np);
+        bcoeff = -2 * dot(del, repmat(M0, [1, np]), 1);
+        ccoeff = dot(del, del, 1) - (efix - eps) / k_to_e;
+        [p1, p2] = real_quadratic_roots (acoeff, bcoeff, ccoeff);
     else
-        ki=sqrt(efix+eps)/k_to_e;
-        del=[ki;zeros(2,np)]-qspec;
-        M0=M(:,inf_ax);
-        acoeff=dot(M0,M0)*ones(1,np);
-        bcoeff=-2*dot(del,repmat(M0,[1,np]),1);
-        ccoeff=dot(del,del,1)-efix/k_to_e;
-        [p1,p2]=real_quadratic_roots (acoeff,bcoeff,ccoeff);
+        ki = sqrt(efix + eps) / k_to_e;
+        del = [ki; zeros(2, np)] - qspec;
+        M0 = M(:, inf_ax);
+        acoeff = dot(M0, M0) * ones(1, np);
+        bcoeff = -2 * dot(del, repmat(M0, [1, np]), 1);
+        ccoeff = dot(del, del, 1) - efix / k_to_e;
+        [p1, p2] = real_quadratic_roots (acoeff, bcoeff, ccoeff);
     end
-    qw1=(prlu+u(:,inf_ax)*p1)';
-    qw2=(prlu+u(:,inf_ax)*p2)';
-    
+
+    qw1 = (prlu + u(:, inf_ax) * p1)';
+    qw2 = (prlu + u(:, inf_ax) * p2)';
+
 end
-bad=~isfinite(sum(qw1,2)); qw1(bad,:)=NaN;
-bad=~isfinite(sum(qw2,2)); qw2(bad,:)=NaN;
+
+bad = ~isfinite(sum(qw1, 2)); qw1(bad, :) = NaN;
+bad = ~isfinite(sum(qw2, 2)); qw2(bad, :) = NaN;
 
 %===============================================================================
-function [x1,x2]=real_quadratic_roots (a,b,c)
-% Find real roots of a quadratic equation
-%
-%   >> [x1,x2]=real_quadratic_roots (a,b,c)
-%
-%   a, b, c     Coefficients of a*x^2 + b*x + c = 0
-%               Can be arrays of same size. Must be real
-%
-%   x1,x2       Arrays containing the roots, x1<=x2.
-%               If no real roots for ith coefficients, then returns x1(i)=x2(i)=NaN
+function [x1, x2] = real_quadratic_roots (a, b, c)
+    % Find real roots of a quadratic equation
+    %
+    %   >> [x1,x2]=real_quadratic_roots (a,b,c)
+    %
+    %   a, b, c     Coefficients of a*x^2 + b*x + c = 0
+    %               Can be arrays of same size. Must be real
+    %
+    %   x1,x2       Arrays containing the roots, x1<=x2.
+    %               If no real roots for ith coefficients, then returns x1(i)=x2(i)=NaN
 
-b2m4ac=b.^2-4*a.*c;
-b2m4ac(b2m4ac<0)=NaN;
-q=-0.5*(b+sign(b).*sqrt(b2m4ac));
-x1tmp=q./a;
-x2tmp=c./q;
-x1=min(x1tmp,x2tmp);
-x2=max(x1tmp,x2tmp);
-
+    b2m4ac = b.^2 - 4 * a .* c;
+    b2m4ac(b2m4ac < 0) = NaN;
+    q = -0.5 * (b + sign(b) .* sqrt(b2m4ac));
+    x1tmp = q ./ a;
+    x2tmp = c ./ q;
+    x1 = min(x1tmp, x2tmp);
+    x2 = max(x1tmp, x2tmp);

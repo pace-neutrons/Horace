@@ -81,7 +81,7 @@ classdef test_combine_cyl < TestCaseWithSave
 
             emode = 1;
 
-            gen_sqw_cylinder_test_helper (this.spe_file_1, this.par_file, sqw_file_1, this.efix, emode, this.alatt(3), this.psi_1, 90, 0);
+            gen_sqw_cylinder(this.spe_file_1, this.par_file, sqw_file_1, this.efix, emode, this.alatt(3), this.psi_1, 90, 0);
 
             w2_1 = cut_sqw(sqw_file_1,0.1,0.1,[40,50],'-nopix');
             w1_1 = cut_sqw(sqw_file_1,[0,0.1,3],[2.2,2.5],[40,50],'-nopix');
@@ -112,7 +112,7 @@ classdef test_combine_cyl < TestCaseWithSave
 
             emode = 1;
 
-            gen_sqw_cylinder_test_helper (this.spe_file_2, this.par_file, sqw_file_2, this.efix, emode, this.alatt(3), this.psi_2, 90, 0);
+            gen_sqw_cylinder(this.spe_file_2, this.par_file, sqw_file_2, this.efix, emode, this.alatt(3), this.psi_2, 90, 0);
 
             w2_2=cut_sqw(sqw_file_2,0.1,0.1,[40,50],'-nopix');
 
@@ -140,7 +140,7 @@ classdef test_combine_cyl < TestCaseWithSave
             cleanup_obj=onCleanup(@()this.delete_files(sqw_file_tot));
 
             emode = 1;
-            gen_sqw_cylinder_test_helper ({this.spe_file_1,this.spe_file_2}, this.par_file, sqw_file_tot, this.efix, emode, this.alatt(3), [this.psi_1,this.psi_2], 90, 0);
+            gen_sqw_cylinder({this.spe_file_1,this.spe_file_2}, this.par_file, sqw_file_tot, this.efix, emode, this.alatt(3), [this.psi_1,this.psi_2], 90, 0);
 
             w2_tot=cut_sqw(sqw_file_tot,0.1,0.1,[40,50],'-nopix');
 

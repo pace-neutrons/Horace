@@ -1,11 +1,15 @@
-function gen_sqw_powder_test_helper (spe_file, par_file, sqw_file, efix, emode)
+function gen_sqw_powder(spe_file, par_file, sqw_file, efix, emode)
 % Read one or more spe files and a detector parameter file, and create an output sqw file.
-%
-%   >> gen_sqw_cylinder_test (spe_file, par_file, sqw_file, efix, emode)
 %
 % *** TEST ROUTINE
 %       This was created rapidly as a fix-up during an experiment. A polished version is
-%       marked for addition at a later date.
+%       marked for addition at a later date.  Use on your own risk
+%
+% Look at horace_core/../_test/test_combine_pow.m and horace_core/../_test/test_gen_sqw_powder.m 
+% for samples of acceptable usage.
+%
+%   >> gen_sqw_cylinder(spe_file, par_file, sqw_file, efix, emode)
+%
 %
 % Input: (in the following, nfile = number of spe files)
 % ------
@@ -132,7 +136,7 @@ for i=1:nfiles
 end
 
 
-% Combne all the tmp files into the final sqw file
+% Combine all the tmp files into the final sqw file
 % ------------------------------------------------
 if nfiles==1
     % Single spe file, so no recombining needs to be done

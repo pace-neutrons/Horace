@@ -1,11 +1,15 @@
-function gen_sqw_cylinder_test_helper (spe_file, par_file, sqw_file, efix, varargin)
+function gen_sqw_cylinder(spe_file, par_file, sqw_file, efix, varargin)
 % Read one or more spe files and a detector parameter file, and create an output sqw file.
-%
-%   >> gen_sqw_cylinder_test_helper (spe_file, par_file, sqw_file, efix, emode, clatt, omega, gl, gs)
-%
+% 
 % *** TEST ROUTINE
 %       This was created rapidly as a fix-up during an experiment. A polished version is
-%       marked for addition at a later date.
+%       marked for addition at a later date. Use on your own risk
+%
+% Look at horace_core/../_test/test_combine_cyl.m and horace_core/../_test/test_gen_sqw_cylinder.m 
+% for samples of acceptable usage
+%
+%   >> gen_sqw_cylinder(spe_file, par_file, sqw_file, efix, emode, clatt, omega, gl, gs)
+%
 %
 % Input: (in the following, nfile = number of spe files)
 % ------
@@ -34,7 +38,7 @@ function gen_sqw_cylinder_test_helper (spe_file, par_file, sqw_file, efix, varar
 % - This sqw object that is created is a 3D object, with axes (Q_inplane, Qz, eps)
 %
 % - Use cut_sqw and @sqw/cut WITHOUT the proj option. All other use may lead to
-%  unexpected behaviour. The symmetrisation routines may not work, but the only
+%  unexpected behavior. The symmetrisation routines may not work, but the only
 %  symmetrisation that is meaningful is to add +ve and -ve Qz, so this can be
 %  done by hand. Many other functions in Horace will not be meaningful.
 
@@ -181,7 +185,7 @@ for i=1:nfiles
 end
 
 
-% Combne all the tmp files into the final sqw file
+% Combine all the tmp files into the final sqw file
 % ------------------------------------------------
 if nfiles==1
     % Single spe file, so no recombining needs to be done
