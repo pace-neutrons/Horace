@@ -129,6 +129,10 @@ methods
         % construction initialises the underlying data as an empty (9 x 0)
         % array.
         %
+        %   >> obj = PixelData(ones(9, 200))
+        %
+        %   >> obj = PixelData(200)  % intialise 200 pixels with underlying data set to zero
+        %
         % Input:
         % ------
         %   data    A 9 x n matrix, where each row corresponds to a pixel and
@@ -143,9 +147,15 @@ methods
         %             col 8: signals
         %             col 9: variance
         %
+        %  data    An integer specifying the desired number of pixels. The underlying
+        %          data will be filled with zeros
+        %
         if nargin == 1
             if isa(data, 'PixelData')
                 obj.data = data.data;
+            elseif numel(data) == 1 && isnumeric(data) && floor(data) == data
+                % input is integer
+                obj.data = zeros(obj.PIXEL_BLOCK_COLS_, data);
             else
                 obj.data = data;
             end

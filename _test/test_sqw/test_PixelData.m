@@ -295,6 +295,23 @@ methods
         pix = PixelData.loadobj(PixelData(ones(9, 10)));
         assertEqual(pix.data, ones(9, 10));
     end
+
+    function test_construction_with_int_fills_underlying_data_with_zeros(~)
+        pix = PixelData(20);
+        assertEqual(pix.data, zeros(9, 20));
+        assertEqual(pix.variance, zeros(1, 20));
+    end
+
+    function test_construction_with_float_raises_PIXELDATA_error(~)
+        f = @() PixelData(1.2);
+        assertExceptionThrown(f, 'PIXELDATA:data');
+    end
+
+    function test_construction_with_char_raises_PIXELDATA_error(~)
+        f = @() PixelData('1');
+        assertExceptionThrown(f, 'PIXELDATA:data');
+    end
+
 end
 
 end
