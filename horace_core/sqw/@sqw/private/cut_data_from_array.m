@@ -42,7 +42,6 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 % $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
 %
 
-ndatpix = 9;        % number of pieces of information the pixel info array (see put_sqw_data for more details)
 hor_log_level=config_store.instance().get_value('herbert_config','log_level');
 
 % Output arrays for accumulated data
@@ -60,7 +59,7 @@ urange_step_pix = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
 % intersect with the cut. As of 26 Sep 2018 the rest of the code works even if nstart is empty
 % but catching this case here avoids a lot of unnecessary working later on
 if isempty(nstart)
-    pix = PixelData(zeros(ndatpix,0));
+    pix = PixelData();
     npix_retain = 0;
     npix_read = 0;
     return
@@ -72,7 +71,7 @@ npix_read = sum(range(:));              % number of pixels that will be read fro
 
 % Copy data from ranges that may contribute to cut - we assume that if can hold the full data, we will have enough space to hold subset
 if hor_log_level>=1, bigtic(1), end
-cut_pix_data = PixelData(zeros(ndatpix,npix_read));
+cut_pix_data = PixelData(npix_read);
 ibeg = cumsum([1;range(1:end-1)]);
 iend = cumsum(range);
 for i=1:length(range)

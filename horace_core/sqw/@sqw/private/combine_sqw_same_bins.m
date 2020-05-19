@@ -48,7 +48,7 @@ wout.data.npix = reshape (accumarray (ibin,1,[prod(sz),1]), sz);
 clear ibin      % clear a large work array
 
 % Get the full pix array
-pix = PixelData(zeros(9,npixtot_all));
+pix = PixelData(npixtot_all);
 for i=1:nw
     pix.data(:,nbeg(i):nend(i)) = varargin{i}.data.pix.data;
 end
