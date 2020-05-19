@@ -14,17 +14,21 @@ function payload = restore_payload_(input)
 %   payload  -- restored data, presumably in the form, before saveobj was
 %               applied
 
-if isfield(input,'class_name')
-    cls = input.class_name;
-    input = rmfield(input,'class_name');
+% service field used by a parce_payload_ /restore_payload_  only to
+% identify class.
+if isfield(input,'cln_4_amess')
+    % let's make it strange and unique for aMessage. And shorter, as its
+    % serialized too
+    cls = input.cln_4_amess;
+    input = rmfield(input,'cln_4_amess');
     try
         % try to use the loadobj function
         payload = eval([cls '.loadobj(input)']);
-    catch
+    catch ME1
         try
             % pass the struct directly to the constructor
             payload = eval([cls '(input)']);
-        catch
+        catch ME2
             try
                 % try to set the fields manually
                 payload = feval(cls);
@@ -32,13 +36,18 @@ if isfield(input,'class_name')
                 for i=1:numel(fn)
                     try
                         set(payload,fn{i},input.(fn{i}));
-                    catch
+                    catch ME
                         % Note: if this happens, your deserialized object might not be fully identical
                         % to the original (if you are lucky, it didn't matter, through). Consider
                         % relaxing the access rights to this property or add support for loadobj from
                         % a struct.
-                        warn_once('restore_payload:restricted_access',...
-                            'No permission to set property %s in object of type %s.',fn{i},cls);
+                        err = MException('AMESSAGE:restore_payload',...
+                            'Restricted access: Can not restore object %s',...
+                            cls);
+                        err.addCause(ME);
+                        err.addCause(ME2);
+                        err.addCause(ME1);
+                        throw(err);
                     end
                 end
             catch

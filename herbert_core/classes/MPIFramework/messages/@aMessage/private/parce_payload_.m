@@ -31,9 +31,8 @@ elseif isstruct(payload)
         end
     end
 elseif isobject(payload)
-    class_name = class(payload);
-    if strcmp(class_name,'MException')
-        class_name = 'MException_her';
+    
+    if isa(payload,'MException')
         payload   = MException_her(payload);
     end
     try
@@ -41,7 +40,11 @@ elseif isobject(payload)
     catch ME % left for debugging purposes.
         payload_p  = parce_payload_(struct(payload));
     end
-    payload_p.class_name = class_name;
+    % service field used by a parce_payload_ /restore_payload_  only to
+    % identify class.
+    % let's make it strange and unique for aMessage. And shorter, as its
+    % serialized too.
+    payload_p.cln_4_amess = class(payload);
 else
     payload_p = payload;
 end
