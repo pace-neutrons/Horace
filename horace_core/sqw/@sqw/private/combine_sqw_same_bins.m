@@ -28,7 +28,7 @@ nbeg = nend - npixtot + 1;
 pixind = zeros(npixtot_all,3);
 fields = {'run_idx', 'detector_idx', 'energy_idx'};
 for i=1:nw
-    pixind(nbeg(i):nend(i),:) = varargin{i}.data.pix.get_data(fields).data';
+    pixind(nbeg(i):nend(i),:) = varargin{i}.data.pix.get_data(fields)';
 end
 [~,ix_all] = unique(pixind,'rows','first');     % indicies to first occurence
 clear pixind    % clear a large work array
