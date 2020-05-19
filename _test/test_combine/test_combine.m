@@ -41,7 +41,7 @@ classdef test_combine< TestCase
         %2d
         w2d_qq_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-1,0.025,1],[-Inf,Inf],[30,40]);
         w2d_qq_sqw=sqw_eval(w2d_qq_sqw,@fake_cross_sec,[this.stiffness,this.gam,this.amp]);
-        errs=w2d_qq_sqw.data.pix.signals;
+        errs=w2d_qq_sqw.data.pix.signal;
         w2d_qq_sqw.data.pix.variance=errs;
         w2d_qq_sqw=cut(w2d_qq_sqw,[-1,0.025,1],[-1,0.025,1]);
         w2d_qq_d2d=d2d(w2d_qq_sqw);
@@ -55,7 +55,7 @@ classdef test_combine< TestCase
         %1d
         w1d_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-0.1,0.1],[-Inf,Inf],[30,40]);
         w1d_sqw=sqw_eval(w1d_sqw,@fake_cross_sec,[this.stiffness,this.gam,this.amp]);
-        errs=w1d_sqw.data.pix.signals;
+        errs=w1d_sqw.data.pix.signal;
         w1d_sqw.data.pix.variance=errs;
         w1d_sqw=cut(w1d_sqw,[-1,0.025,1]);
         w1d_d1d=d1d(w1d_sqw);

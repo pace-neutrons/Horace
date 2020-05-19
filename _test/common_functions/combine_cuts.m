@@ -50,7 +50,7 @@ ibin=zeros(1,nend(end));
 for i=1:numel(w)
     npix=npix+w(i).data.npix;
     pix.data(:,nbeg(i):nend(i))=w(i).data.pix.data;
-    pix.signals(nbeg(i):nend(i))=pix.signals(nbeg(i):nend(i))+(nbeg_f(i)-1);
+    pix.signal(nbeg(i):nend(i))=pix.signal(nbeg(i):nend(i))+(nbeg_f(i)-1);
     ibin(nbeg(i):nend(i))=replicate_array(1:nbin,w(i).data.npix);
 end
 [~,ix]=sort(ibin);
@@ -121,7 +121,7 @@ for i=1:nbin
 end
 
 % Accumulate signal
-wout.data.s=accumarray(ind,w.data.pix.signals,[nbin,1])./w.data.npix(:);
+wout.data.s=accumarray(ind,w.data.pix.signal,[nbin,1])./w.data.npix(:);
 wout.data.s=reshape(wout.data.s,size(w.data.npix));
 wout.data.e=accumarray(ind,w.data.pix.variance,[nbin,1])./(w.data.npix(:).^2);
 wout.data.e=reshape(wout.data.e,size(w.data.npix));

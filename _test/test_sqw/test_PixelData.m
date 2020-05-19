@@ -124,9 +124,9 @@ methods
         assertEqual(obj.pixel_data_obj.energy_idx, energy_bin_nums)
     end
 
-    function test_signals_returns_signal_array(obj)
+    function test_signal_returns_signal_array(obj)
         signal_array = obj.raw_pix_data(8, :);
-        assertEqual(obj.pixel_data_obj.signals, signal_array)
+        assertEqual(obj.pixel_data_obj.signal, signal_array)
     end
 
     function test_variance_returns_variance_array(obj)
@@ -135,8 +135,10 @@ methods
     end
 
     function test_PIXELDATA_error_raised_if_setting_data_with_lt_9_cols(~)
-        f = @() PixelData(zeros(5, 10));
-        assertExceptionThrown(f, 'PIXELDATA:data');
+        f = @(x) PixelData(zeros(x, 10));
+        for i = [-10, -5, 0, 5]
+            assertExceptionThrown(@() f(i), 'PIXELDATA:data');
+        end
     end
 
     function test_num_pixels_returns_the_number_of_rows_in_the_data_block(obj)
@@ -229,22 +231,22 @@ methods
 
     function test_get_data_returns_multiple_fields_for_given_index_range(obj)
         pix_data_obj = obj.get_random_pix_data_(10);
-        coord_sig = pix_data_obj.get_data({'coordinates', 'signals'}, 4:9);
+        coord_sig = pix_data_obj.get_data({'coordinates', 'signal'}, 4:9);
         expected_coord_sig = [pix_data_obj.coordinates(:, 4:9); ...
-                              pix_data_obj.signals(4:9)];
+                              pix_data_obj.signal(4:9)];
         assertEqual(coord_sig, expected_coord_sig);
     end
 
     function test_get_data_returns_full_pixel_range_if_no_range_given(obj)
         pix_data_obj = obj.get_random_pix_data_(10);
-        coord_sig = pix_data_obj.get_data({'coordinates', 'signals'});
-        expected_coord_sig = [pix_data_obj.coordinates; pix_data_obj.signals];
+        coord_sig = pix_data_obj.get_data({'coordinates', 'signal'});
+        expected_coord_sig = [pix_data_obj.coordinates; pix_data_obj.signal];
         assertEqual(coord_sig, expected_coord_sig);
     end
 
     function test_get_data_allows_data_retrieval_for_single_field(obj)
         fields = {'u1', 'u2', 'u3', 'dE', 'coordinates', 'q_coordinates', ...
-                  'run_idx', 'detector_idx', 'energy_idx', 'signals', ...
+                  'run_idx', 'detector_idx', 'energy_idx', 'signal', ...
                   'variance'};
         for i = 1:numel(fields)
             field_data = obj.pixel_data_obj.get_data(fields{i});
@@ -259,9 +261,9 @@ methods
 
     function test_get_data_orders_columns_corresponding_to_input_cell_array(obj)
         pix_data_obj = obj.get_random_pix_data_(10);
-        data_subset = pix_data_obj.get_data({'detector_idx', 'signals', 'run_idx'});
+        data_subset = pix_data_obj.get_data({'detector_idx', 'signal', 'run_idx'});
         assertEqual(data_subset(1, :), pix_data_obj.detector_idx);
-        assertEqual(data_subset(2, :), pix_data_obj.signals);
+        assertEqual(data_subset(2, :), pix_data_obj.signal);
         assertEqual(data_subset(3, :), pix_data_obj.run_idx);
     end
 
@@ -297,9 +299,11 @@ methods
     end
 
     function test_construction_with_int_fills_underlying_data_with_zeros(~)
-        pix = PixelData(20);
-        assertEqual(pix.data, zeros(9, 20));
-        assertEqual(pix.variance, zeros(1, 20));
+        npix = 20;
+        pix = PixelData(npix);
+        assertEqual(pix.num_pixels, npix);
+        assertEqual(pix.data, zeros(9, npix));
+        assertEqual(pix.variance, zeros(1, npix));
     end
 
     function test_construction_with_float_raises_PIXELDATA_error(~)

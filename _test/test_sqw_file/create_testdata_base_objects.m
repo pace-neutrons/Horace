@@ -84,7 +84,7 @@ function randomdata(file)
 % Make random signal and error
 w=read_sqw(file);
 npix=w.data.pix.num_pixels;
-w.data.pix.signals=10*rand(1,npix);
+w.data.pix.signal=10*rand(1,npix);
 w.data.pix.variance=1+0.1*rand(1,npix);
 w=recompute_bin_data(w);
 save(w,file);
@@ -114,7 +114,7 @@ for i=1:nbin
 end
 
 % Accumulate signal
-s=accumarray(ind,w.data.pix.signals,[nbin,1])./w.data.npix(:);
+s=accumarray(ind,w.data.pix.signal,[nbin,1])./w.data.npix(:);
 wout.data.s=reshape(s,size(w.data.npix));
 e=accumarray(ind,w.data.pix.variance,[nbin,1])./(w.data.npix(:).^2);
 wout.data.e=reshape(e,size(w.data.npix));

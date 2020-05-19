@@ -75,7 +75,7 @@ if ~use_mex
     %t=toc(t1)
 
     if ~isempty(ind)
-        wout.data.s=accumarray(ind,w.data.pix.signals,[nbin,1])./w.data.npix(:);
+        wout.data.s=accumarray(ind,w.data.pix.signal,[nbin,1])./w.data.npix(:);
         wout.data.s=reshape(wout.data.s,size(w.data.npix));
         % separate into two steps to save memory
         npix2 = (w.data.npix(:).^2);

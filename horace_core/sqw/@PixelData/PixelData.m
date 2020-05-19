@@ -27,7 +27,7 @@ classdef PixelData
 %   run_idx        The run index the pixel originated from (1 x n array)
 %   detector_idx   The detector group number in the detector listing for the pixels (1 x n array)
 %   energy_idx     The energy bin numbers (1 x n array)
-%   signals        The signal array (1 x n array)
+%   signal        The signal array (1 x n array)
 %   variance       The variance on the signal array (variance i.e. error bar squared) (1 x n array)
 %   num_pixels     The number of pixels in the data block
 %   data           The raw pixel data - usage of this attribute is discouraged, the structure
@@ -43,7 +43,7 @@ properties (Access=private)
          'run_idx', ...
          'detector_idx', ...
          'energy_idx', ...
-         'signals', ...
+         'signal', ...
          'variance'}, ...
         {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9})
 end
@@ -71,7 +71,7 @@ properties (Dependent)
     energy_idx;
 
     % The signal array (1 x n array)
-    signals;
+    signal;
 
     % The variance on the signal array (variance i.e. error bar squared) (1 x n array)
     variance;
@@ -144,7 +144,7 @@ methods
         %             col 5: run_idx
         %             col 6: detector_idx
         %             col 7: energy_idx
-        %             col 8: signals
+        %             col 8: signal
         %             col 9: variance
         %
         %  arg    An integer specifying the desired number of pixels. The underlying
@@ -196,8 +196,8 @@ methods
         % columns of data will be ordered corresponding to the order the fields
         % appear in the inputted cell array.
         %
-        %   >> sig_and_err = pix.get_data({'signals', 'variance'})
-        %        retrives the signals and variance over the whole range of pixels
+        %   >> sig_and_err = pix.get_data({'signal', 'variance'})
+        %        retrives the signal and variance over the whole range of pixels
         %
         %   >> run_det_id_range = pix.get_data({'run_idx', 'detector_idx'}, 4:10);
         %        retrives the run and detector IDs for pixels 4 to 10
@@ -336,12 +336,12 @@ methods
         obj.data(obj.FIELD_INDEX_MAP_('energy_idx'), :) = energies;
      end
 
-    function signals = get.signals(obj)
-       signals = obj.data(obj.FIELD_INDEX_MAP_('signals'), :);
+    function signal = get.signal(obj)
+       signal = obj.data(obj.FIELD_INDEX_MAP_('signal'), :);
     end
 
-    function obj = set.signals(obj, signals)
-        obj.data(obj.FIELD_INDEX_MAP_('signals'), :) = signals;
+    function obj = set.signal(obj, signal)
+        obj.data(obj.FIELD_INDEX_MAP_('signal'), :) = signal;
      end
 
     function variance = get.variance(obj)

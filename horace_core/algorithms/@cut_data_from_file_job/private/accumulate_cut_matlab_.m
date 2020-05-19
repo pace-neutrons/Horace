@@ -64,7 +64,7 @@ indx = indx(:,pax); % Now keep only the plot axes with at least two bins
 if ~isempty(pax)        % there is at least one plot axis with two or more bins
     indx=ceil(indx);    % indx contains the bin index for the plot axes (one row per pixel)
     indx(indx==0)=1;    % make sure index is between 1 and n
-    s    = s    + accumarray(indx, v.signals(ok), size(s));
+    s    = s    + accumarray(indx, v.signal(ok), size(s));
     e    = e    + accumarray(indx, v.variance(ok), size(s));
     npix = npix + accumarray(indx, ones(1,size(indx,1)), size(s));
     npix_retain = length(indx);
@@ -80,7 +80,7 @@ if ~isempty(pax)        % there is at least one plot axis with two or more bins
         ix=[];
     end
 else
-    s    = s    + sum(v.signals(ok));
+    s    = s    + sum(v.signal(ok));
     e    = e    + sum(v.variance(ok));
     npix = npix + size(indx,1);
     npix_retain = sum(ok(:));

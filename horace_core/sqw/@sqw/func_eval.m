@@ -116,7 +116,7 @@ for i = 1:numel(win)    % use numel so no assumptions made about shape of input 
     % If sqw object, fill every pixel with the value of its corresponding bin
     if sqw_type
         s = replicate_array(wout(i).data.s, win(i).data.npix)';
-        wout(i).data.pix.signals = s;
+        wout(i).data.pix.signal = s;
         wout(i).data.pix.variance = zeros(size(s));
     elseif all_bins
         wout(i).data.npix=ones(size(wout(i).data.npix));    % in this case, must set npix>0 to be plotted.

@@ -71,7 +71,7 @@ for i=1:numel(win)
             %qw = calculate_qw_pixels2(win(i));
             qw = calculate_qw_pixels(win(i));
             stmp=sqwfunc(qw{:},pars{:});
-            wout(i).data.pix.signals=stmp(:)';
+            wout(i).data.pix.signal=stmp(:)';
             wout(i).data.pix.variance=zeros(1,numel(stmp));
             wout(i)=recompute_bin_data(wout(i));
         else
@@ -81,7 +81,7 @@ for i=1:numel(win)
             qw_ave=average_bin_data(win(i),qw);
             stmp=sqwfunc(qw_ave{:},pars{:});
             stmp=replicate_array(stmp,win(i).data.npix);
-            wout(i).data.pix.signals=stmp(:)';
+            wout(i).data.pix.signal=stmp(:)';
             wout(i).data.pix.variance=zeros(1,numel(stmp));
             wout(i)=recompute_bin_data(wout(i));
         end
