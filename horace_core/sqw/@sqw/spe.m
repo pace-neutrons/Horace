@@ -42,7 +42,7 @@ data.filepath=w.header.filepath;
 ne=numel(w.header.en)-1;    % number of energy bins
 ndet0=numel(w.detpar.group);% number of detectors
 
-tmp=w.data.pix.data(6:9,:)';     % columns are: det number, energy bin number, signal, error
+tmp=w.data.pix.get_data({'detector_idx', 'energy_idx', 'signals', 'variance'});
 tmp=sortrows(tmp,[1,2]);    % order by detector group number, then energy
 group=unique(tmp(:,1));    % unique detector group numbers in the data in numerical increasing order
 

@@ -68,7 +68,7 @@ else
     for ipix=1:block_size:npixtot
         istart = ipix;
         iend   = min(ipix+block_size-1,npixtot);
-        fwrite(fid,single(pix.data(:,istart:iend)),'float32');
+        fwrite(fid,single(pix.get_pixels(istart:iend).data),'float32');
     end
 end
 
