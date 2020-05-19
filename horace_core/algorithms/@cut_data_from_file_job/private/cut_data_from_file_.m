@@ -14,8 +14,7 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 %   keep_pix        Set to true if wish to retain the information about individual pixels; set to false if not
 %   pix_tmpfile_ok  if keep_pix=false, ignore
 %                   if keep_pix=true, set buffering option:
-%                       pix_tmpfile_ok = false: Require that output argument pix is 9xn array of u1,u2,u3,u4,irun,idet,ien,s,e
-%                                              for each retained pixel
+%                       pix_tmpfile_ok = false: Require pix is a PixelData object
 %                       pix_tmpfile_ok = true:  Buffering of pixel info to temporary files if pixels exceed a threshold
 %                                              In this case, output argument pix contains details of temporary files (see below)
 %   urange_step     [2x4] array of the ranges of the data as defined by (i) output proj. axes ranges for
@@ -37,7 +36,7 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 %   urange_step_pix Actual range of contributing pixels
 %   pix             if keep_pix=false, pix=[];
 %                   if keep_pix==true, then contents depend on value of pix_tmpfile_ok:
-%                       pix_tmpfile_ok = false: contains u1,u2,u3,u4,irun,idet,ien,s,e for each retained pixel
+%                       pix_tmpfile_ok = false: contains a PixelData object
 %                       pix_tmpfile_ok = true: structure with fields
 %                           pix.tmpfiles        cell array of filename(s) containing npix and pix
 %                           pix.pos_npixstart   array with position(s) from start of file(s) of array npix
