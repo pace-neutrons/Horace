@@ -165,7 +165,7 @@ Cluster classes are responsible for launching and initializing parallel workers,
 
 The particular implementation of a cluster overloads and expands *init* method of **ClusterWrapper**, which is responsible for launching the parallel processes itself and overloads and expands other methods in a way, which is appropriate to the particular technology. The majority of the methods do not need extensive extension, as all deploy file-based messaging framework to exchange information with the cluster. The list of the main methods is provided in the **Table 5** below. 
 
-Each cluster uses and may expand the *ClusterWrapper* methods used by *JobDispatcher* to control the jobs:
+Every cluster uses and may expand the *ClusterWrapper* methods used by *JobDispatcher* to control the jobs:
 
 **Table 5** A Cluster properties and methods list:
 
@@ -290,9 +290,9 @@ The appropriate processing of messages data (see the **Messages types** above) i
 
 All additional properties and methods of the overloaded classes needs to be just a convenience methods to get or change appropriate parts of the *payload* property below. 
 
-**Table 7** describes the main properties of the message class:
+**Table 8** describes the main properties of the message class:
 
-**Table 7** Main properties of **aMessage** class:
+**Table 8** Main properties of **aMessage** class:
 
 | Method or Property| M/P |Description |
 | :--- | :---: | :--- | 
@@ -319,7 +319,7 @@ The messages which do not have defined message class are created as the instance
 
 Main methods, defined by Messages factory are summarized in the **Table 8** All methods of the factory are static methods.
 
-**Table 8** Main methods and properties of the **MESS\_NAMES** factory.
+**Table 9** Main methods and properties of the **MESS\_NAMES** factory.
 
 | Method or Property| M/P |Description |
 | :--- | :---: | :--- | 
@@ -346,7 +346,7 @@ Main methods, defined by Messages factory are summarized in the **Table 8** All 
 
 The optimal to hardware and software cluster and message framework and other parallel settings needs to be identified, stored and used for all subsequent calculations on a given computer. **parallel\_config** class used to store such configuration and return chosen settings to the appropriate factories. The class is the child of **config\_base**, providing saving appropriate values to the configuration files and loading and returning these values on request. The properties of the **parallel\_config** class are provided in the **Table 9**
 
-**Table 9** Parallel configuration settings.
+**Table 10** Parallel configuration settings.
 
 | Property| R/W^1 |Description |
 | :--- | :---: | :--- | 
