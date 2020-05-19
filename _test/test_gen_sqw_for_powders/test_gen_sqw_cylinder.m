@@ -73,7 +73,7 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
             emode=1;
             %--------------------------------------------------------------------------------------------------
             % Perform a cylinder average in Horace
-            gen_sqw_cylinder_test_helper (this.spe_file, this.par_file, sqw_cyl_file, this.efix, emode, 1.5, 0, 0, 0);
+            gen_sqw_cylinder(this.spe_file, this.par_file, sqw_cyl_file, this.efix, emode, 1.5, 0, 0, 0);
 
             %--------------------------------------------------------------------------------------------------
             % Visual inspection

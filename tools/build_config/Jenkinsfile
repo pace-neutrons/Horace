@@ -82,28 +82,6 @@ pipeline {
       }
     }
 
-    stage('Clone-Herbert') {
-      steps {
-        copyArtifacts(
-          filter: 'build/Herbert-*',
-          fingerprintArtifacts: true,
-          projectName: "PACE-neutrons/Herbert/${base_job_name}",
-          selector: lastSuccessful()
-        )
-        script {
-          if (isUnix()) {
-            sh '''
-              archive_name="\$(find -name Herbert-*.tar.gz)"
-              tar --wildcards --strip-components=1 -xf \$archive_name */Herbert
-            '''
-          }
-          else {
-            powershell './tools/build_config/extract_herbert_artifact.ps1'
-          }
-        }
-      }
-    }
-
     stage('Analyze') {
       steps {
         script {
@@ -119,9 +97,60 @@ pipeline {
           else {
             powershell '''
               ./tools/build_config/build.ps1 -print_versions
-
               Write-Output \"Static Analysis in not performed on Windows\"
             '''
+          }
+        }
+      }
+    }
+
+    stage('Get-Herbert') {
+      /* For nightly builds, we use the last successful archived Herbert
+       * master build.
+       *
+       * For PR and Branch builds, we clone and build the Herbert master
+       * source from GitHub
+      */
+
+      steps {
+        script {
+          if (env.RELEASE_TYPE == "nightly") {
+            // Get the last successful Herbert master build
+            copyArtifacts(
+              filter: 'build/Herbert-*',
+              fingerprintArtifacts: true,
+              projectName: "PACE-neutrons/Herbert/${base_job_name}",
+              selector: lastSuccessful()
+            )
+
+            if (isUnix()) {
+              sh '''
+                archive_name="\$(find -name Herbert-*.tar.gz)"
+                tar --wildcards --strip-components=1 -xf \$archive_name */Herbert
+              '''
+            }
+            else {
+              powershell './tools/pwsh/extract_herbert_artifact.ps1'
+            }
+
+          } else {
+            // Get Herbert from GitHub and call the build script
+            if (isUnix()) {
+              sh '''
+                module load cmake/\$CMAKE_VERSION &&
+                module load matlab/\$MATLAB_VERSION &&
+                module load gcc/\$GCC_VERSION &&
+                ./tools/bash/clone_herbert_branch.sh --build_args \
+                    \"--cmake_flags \\\"-DHerbert_RELEASE_TYPE=\$RELEASE_TYPE\\\" \
+                    --matlab_release \$MATLAB_VERSION\"
+              '''
+            } else {
+              powershell '''
+                ./tools/pwsh/clone_herbert_branch.ps1 -build_args \
+                  \"-cmake_flags \"\"-DHerbert_RELEASE_TYPE=\$env:RELEASE_TYPE\"\" \
+                  -matlab_release \$env:MATLAB_VERSION\"
+              '''
+            }
           }
         }
       }
