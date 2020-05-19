@@ -22,7 +22,6 @@ classdef PixelData
 %   >> signal = pix_data.get_data({'run_idx', 'energy_idx'}, 1:10);
 %
 % Attributes:
-%   data           The raw pixel data
 %   u1, u2, u3     The 1st, 2nd and 3rd dimension of the crystal coordinates in projection axes (1 x n arrays)
 %   dE             The energy deltas of the pixels in meV (1 x n array)
 %   coordinates    The coords in projection axes of the pixel data [u1, u2, u3, dE] (4 x n array)
@@ -33,6 +32,8 @@ classdef PixelData
 %   signals        The signal array (1 x n array)
 %   variance       The variance on the signal array (variance i.e. error bar squared) (1 x n array)
 %   num_pixels     The number of pixels in the data block
+%   data           The raw pixel data - usage of this attribute is discouraged, the structure
+%                  of the return value is not guaranteed
 
 properties (Access=private)
     PIXEL_BLOCK_COLS_ = 9;
@@ -49,9 +50,6 @@ properties (Access=private)
         {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9})
 end
 properties (Dependent)
-    % Returns the full raw pixel data block (9 x n array)
-    data;
-
     % Return the 1st, 2nd and 3rd dimension of the crystal cartestian orientation (1 x n arrays)
     u1; u2; u3;
 
@@ -82,6 +80,9 @@ properties (Dependent)
 
     % The number of pixels in the data block
     num_pixels;
+
+    % Returns the full raw pixel data block usage of this attribute is discouraged, the structure of the return value is not guaranteed
+    data;
 end
 
 methods (Static)
@@ -192,7 +193,8 @@ methods
     end
 
     function pixels = get_pixels(obj, pix_indices)
-        % Retrieve the pixels at the given indices.
+        % Retrieve the pixels at the given indices, return a new PixelData
+        % object
         %
         % Inputs:
         %   pix_indices     1-D array of pixel indices to retrieve
