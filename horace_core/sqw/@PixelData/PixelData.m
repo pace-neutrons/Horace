@@ -5,8 +5,6 @@ classdef PixelData
 %   pixel array. You can access the data using the attributes listed below or
 %   using Matlab's get(obj, 'attr') and set(obj, 'attr', value) methods.
 %
-%
-% Usage
 %   >> pix_data = PixelData(data)
 %   >> signal = pix_data.signal;
 %
@@ -88,7 +86,19 @@ end
 methods (Static)
 
     function obj = cat(varargin)
-        % Concatentate the given PixelData objects' pixels
+        % Concatentate the given PixelData objects' pixels. This function performs
+        % a straight-forward data concatenation.
+        %
+        %   >> joined_pix = PixelData.cat(pix_data1, pix_data2);
+        %
+        % Input:
+        % ------
+        %   varargin    A cell array of PixelData objects
+        %
+        % Output:
+        % -------
+        %   obj         A PixelData object containing all the pixels in the inputted
+        %               PixelData objects
         data_cell_array = cellfun(@(p) p.data, varargin, 'UniformOutput', false);
         data = cat(2, data_cell_array{:});
         obj = PixelData(data);
@@ -119,7 +129,8 @@ methods
         % construction initialises the underlying data as an empty (9 x 0)
         % array.
         %
-        % Arguments:
+        % Input:
+        % ------
         %   data    A 9 x n matrix, where each row corresponds to a pixel and
         %           the columns correspond to the following:
         %             col 1: u1
@@ -175,16 +186,16 @@ methods
         % columns of data will be ordered corresponding to the order the fields
         % appear in the inputted cell array.
         %
-        % Arguments:
-        %   fields      The name of a field, or a cell array of field names
-        %   pix_indices The pixel indices to retrieve, if not given, get full range
-        %
-        % Usage:
         %   >> sig_and_err = pix.get_data({'signals', 'variance'})
         %        retrives the signals and variance over the whole range of pixels
         %
         %   >> run_det_id_range = pix.get_data({'run_idx', 'detector_idx'}, 4:10);
         %        retrives the run and detector IDs for pixels 4 to 10
+        %
+        % Input:
+        % ------
+        %   fields      The name of a field, or a cell array of field names
+        %   pix_indices The pixel indices to retrieve, if not given, get full range
         %
         if ~isa(fields, 'cell')
             fields = {fields};
@@ -194,7 +205,8 @@ methods
         catch ME
             switch ME.identifier
             case 'MATLAB:Containers:Map:NoKey'
-                error('PIXELDATA:get_data', 'Invalid field requested.')
+                error('PIXELDATA:get_data', ...
+                      'Invalid field requested in PixelData.get_data().')
             otherwise
                 rethrow(ME)
             end
@@ -212,10 +224,12 @@ methods
         % Retrieve the pixels at the given indices, return a new PixelData
         % object
         %
-        % Inputs:
+        % Input:
+        % ------
         %   pix_indices     1-D array of pixel indices to retrieve
         %
-        % Outputs:
+        % Output:
+        % -------
         %   pixels      PixelData object containing a subset of pixels
         %
         pixels = PixelData(obj.data(:, pix_indices));
