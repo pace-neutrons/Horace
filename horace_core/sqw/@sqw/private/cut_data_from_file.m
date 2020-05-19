@@ -94,7 +94,7 @@ if keep_pix
         % pix is pix_combine info class
         pix = init_pix_combine_info(nsteps,numel(s));
     else
-        pix = PixelData(zeros(ndatpix,0));
+        pix = PixelData();
     end
 else
     pix = [];   % pix is a return argument, so must give it a value
