@@ -291,6 +291,10 @@ methods
         assertEqual(size(sub_pix.data, 1), orignal_size);
     end
 
+    function test_load_obj_returns_equivalent_object(~)
+        pix = PixelData.loadobj(PixelData(ones(9, 10)));
+        assertEqual(pix.data, ones(9, 10));
+    end
 end
 
 end
