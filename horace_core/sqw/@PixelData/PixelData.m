@@ -94,6 +94,22 @@ methods (Static)
         obj = PixelData(data);
     end
 
+    function obj = loadobj(S)
+        % Load a PixelData object from a .mat file
+        %
+        %   >> obj = loadobj(S)
+        %
+        % Input:
+        % ------
+        %   S       An instance of this object
+        %
+        % Output:
+        % -------
+        %   obj     An instance of this object
+
+        obj = PixelData(S);
+    end
+
 end
 
 methods
