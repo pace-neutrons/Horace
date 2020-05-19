@@ -74,8 +74,6 @@ end
 
 %Now we work out how to alter each of the objects:
 %
-coords1=w1.data.pix.q_coordinates;
-coords2=w2.data.pix.q_coordinates;
 p1=w1.data.p;
 p2=w2.data.p;
 
@@ -84,15 +82,15 @@ p2=w2.data.p;
 u_to_rlu1=w1.data.u_to_rlu([1:3],[1:3]);
 umat1=repmat(w1.data.ulen(1:3)',1,3);
 T1=u_to_rlu1./umat1;
-coords_rlu1=T1*coords1;
+coords_rlu1=T1*w1.data.pix.q_coordinates;
 %
 %This bit is for debug:
 u_to_rlu2=w2.data.u_to_rlu([1:3],[1:3]);
 umat2=repmat(w2.data.ulen(1:3)',1,3);
 T2=u_to_rlu2./umat2;
-coords_rlu2=T2*coords2;
+coords_rlu2=T2*w2.data.pix.q_coordinates;
 
-fullax=repmat(ax,1,(numel(coords1))/3);
+fullax=repmat(ax,1,w1.data.pix.num_pixels);
 
 if shift>2.5
     % we swap round h and k first
