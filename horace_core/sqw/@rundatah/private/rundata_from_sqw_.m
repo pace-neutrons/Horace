@@ -25,7 +25,7 @@ en     = header.en;
 ne=numel(en)-1;    % number of energy bins
 ndet0=numel(detpar.group);% number of detectors
 
-tmp=data.pix.data(6:9,:)';     % columns are: det number, energy bin number, signal, error
+tmp=data.pix.get_data({'detector_idx', 'energy_idx', 'signals', 'variance'})';
 tmp=sortrows(tmp,[1,2]);  % order by detector group number, then energy
 group=unique(tmp(:,1));   % unique detector group numbers in the data in numerical increasing order
 

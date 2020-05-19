@@ -196,7 +196,7 @@ for nn=1:numel(v1)
     clear 'side_dot'; % MP: not needed anymore
     coords_new=bsxfun(@plus, coords_new, vec3); % MP
 
-    wout.data.pix([1:3],:)=coords_new;
+    wout.data.pix.q_coordinates=coords_new;
     clear 'coords_new';
     coords_new = @() wout.data.pix([1:3],:); % MP: 'pointer'
 
