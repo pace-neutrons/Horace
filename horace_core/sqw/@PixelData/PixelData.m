@@ -124,7 +124,7 @@ end
 
 methods
 
-    function obj = PixelData(data)
+    function obj = PixelData(arg)
         % Construct a PixelData object from the given data. Default
         % construction initialises the underlying data as an empty (9 x 0)
         % array.
@@ -135,29 +135,29 @@ methods
         %
         % Input:
         % ------
-        %   data    A 9 x n matrix, where each row corresponds to a pixel and
+        %   arg    A 9 x n matrix, where each row corresponds to a pixel and
         %           the columns correspond to the following:
         %             col 1: u1
         %             col 2: u2
         %             col 3: u3
-        %             col 4: u4
+        %             col 4: dE
         %             col 5: run_idx
         %             col 6: detector_idx
         %             col 7: energy_idx
         %             col 8: signals
         %             col 9: variance
         %
-        %  data    An integer specifying the desired number of pixels. The underlying
+        %  arg    An integer specifying the desired number of pixels. The underlying
         %          data will be filled with zeros
         %
         if nargin == 1
-            if isa(data, 'PixelData')
-                obj.data = data.data;
-            elseif numel(data) == 1 && isnumeric(data) && floor(data) == data
+            if isa(arg, 'PixelData')
+                obj.data = arg.data;
+            elseif numel(arg) == 1 && isnumeric(arg) && floor(arg) == arg
                 % input is integer
-                obj.data = zeros(obj.PIXEL_BLOCK_COLS_, data);
+                obj.data = zeros(obj.PIXEL_BLOCK_COLS_, arg);
             else
-                obj.data = data;
+                obj.data = arg;
             end
         end
     end
