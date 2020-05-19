@@ -28,4 +28,5 @@
         Disabled combine_job using MPI exchange on Jenkins:  due to random failures write_nsqw2_sqw,(time-out)
         for:
         -test_accumulate_sqw1456;
+        -test_accumulate_sqw11456;
           
