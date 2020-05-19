@@ -199,7 +199,7 @@ if all(shifts==0)
 
 else
     shifts_in_a = T1\shifts';
-    %coords_rlu1=T_sym*bsxfun(@plus,w1.data.pix(1:3,:),shifts_in_a);
+    %coords_rlu1=T_sym*bsxfun(@plus,w1.data.pix.q_coordinates,shifts_in_a);
     %Convert coordinates back to inverse Angstroms:
     %coords_ang=(inv(T1))*coords_rlu1;
     coords_ang=Tt*bsxfun(@plus,w1.data.pix.q_coordinates,shifts_in_a);

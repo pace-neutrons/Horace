@@ -100,8 +100,8 @@ else
             proj_trans, pbin_trans, pin, en, opt_tmp, hor_log_level);
         % Transform pixels
         if isa(wtmp{i},'sqw') && numel(wtmp{i}.data.pix.data)>0
-            wtmp{i}.data.pix.data(1:3,:) = transform_pix (sym{i-1},...
-                upix_to_rlu, upix_offset, wtmp{i}.data.pix.data(1:3,:));
+            wtmp{i}.data.pix.q_coordinates = transform_pix (sym{i-1},...
+                upix_to_rlu, upix_offset, wtmp{i}.data.pix.q_coordinates);
         end
 
     end
