@@ -164,7 +164,7 @@ for nn=1:numel(v1)
     end
 
     %Coordinates of detector pixels, in the frame discussed above
-    coords=@() wout.data.pix([1:3],:); % MP: emulate a pointer / lazy data copy
+    coords=@() wout.data.pix.q_coordinates; % MP: emulate a pointer / lazy data copy
 
     num_pixels=size(wout.data.pix, 2); % MP, num_pixels=numel(coords)/3
 
@@ -198,7 +198,7 @@ for nn=1:numel(v1)
 
     wout.data.pix.q_coordinates=coords_new;
     clear 'coords_new';
-    coords_new = @() wout.data.pix([1:3],:); % MP: 'pointer'
+    coords_new = @() wout.data.pix.q_coordinates; % MP: 'pointer'
 
 
     %=========================================================================
