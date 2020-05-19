@@ -26,9 +26,9 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 % Output:
 %   s               Array of accumulated signal from all contributing pixels (dimensions match the plot axes)
 %   e               Array of accumulated variance
-%   npix            Array of number of contributing pixels (if keep_pix==true, otherwise pix=[])
+%   npix            Array of number of contributing pixels (if keep_pix==true, otherwise pix.num_pixels = 0)
 %   urange_step_pix Actual range of contributing pixels
-%   pix             if keep_pix==true: contains u1,u2,u3,u4,irun,idet,ien,s,e for each retained pixel; otherwise pix=[]
+%   pix             if keep_pix==true: contains full PixelData object; otherwise an empty PixelData object
 %   npix_retain     Number of pixels that contribute to the cut
 %   npix_read       Number of pixels read from file
 %

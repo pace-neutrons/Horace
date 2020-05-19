@@ -40,17 +40,7 @@ classdef data_sqw_dnd
         %             [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
         urange=[Inf,Inf,Inf,Inf;... %True range of the data along each axis [urange(2,4)]
             -Inf,-Inf,-Inf,-Inf] % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf] -- convention if no pixels
-        pix = PixelData()      % Array containing data for each pixel
-        % If npixtot=sum(npix), then pix(9,npixtot) contains:
-        % u1      -|
-        % u2       |  Coordinates of pixel in the projection axes
-        % u3       |
-        % u4      -|
-        % irun        Run index in the header block from which pixel came
-        % idet        Detector group number in the detector listing for the pixel
-        % ien         Energy bin number for the pixel in the array in the (irun)th header
-        % signal      Signal array
-        % err         Error array (variance i.e. error bar squared)
+        pix = PixelData()      % Object containing data for each pixel
         axis_caption=an_axis_caption(); %  Reference to class, which define axis captions
     end
 
@@ -170,17 +160,7 @@ classdef data_sqw_dnd
             %   data.npix       No. contributing pixels to each bin of the plot axes.
             %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
             %   data.urange     True range of the data along each axis [urange(2,4)]
-            %   data.pix        Array containing data for each pixel:
-            %                  If npixtot=sum(npix), then pix(9,npixtot) contains:
-            %                   u1      -|
-            %                   u2       |  Coordinates of pixel in the projection axes
-            %                   u3       |
-            %                   u4      -|
-            %                   irun        Run index in the header block from which pixel came
-            %                   idet        Detector group number in the detector listing for the pixel
-            %                   ien         Energy bin number for the pixel in the array in the (irun)th header
-            %                   signal      Signal array
-            %                   err         Error array (variance i.e. error bar squared)
+            %   data.pix        A PixelData object
 
             if nargin>0 && isa(varargin{1},'data_sqw_dnd') % handle shallow copy constructor
                 obj =varargin{1};                          % its COW for Matlab anyway
