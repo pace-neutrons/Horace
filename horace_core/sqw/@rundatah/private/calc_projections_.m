@@ -135,7 +135,7 @@ if ~use_mex
         pix.detector_idx = 1;
         pix.energy_idx = 1;
     end
-    pix.signals=obj.S(:)';
+    pix.signal=obj.S(:)';
     pix.variance=((obj.ERR(:)).^2)';
 
 end

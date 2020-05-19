@@ -104,7 +104,7 @@ else
         sqw_data.p=p;   % added by RAE 10/6/11 to avoid crash when doing non-mex generation of sqw files
         sqw_data.pix=sqw_data.pix.get_pixels(ix);
 
-        sqw_data.s=reshape(accumarray(ibin,sqw_data.pix.signals,[prod(grid_size),1]),grid_size);
+        sqw_data.s=reshape(accumarray(ibin,sqw_data.pix.signal,[prod(grid_size),1]),grid_size);
         sqw_data.e=reshape(accumarray(ibin,sqw_data.pix.variance,[prod(grid_size),1]),grid_size);
         sqw_data.npix=reshape(npix,grid_size);      % All we do is write to file, but reshape for consistency with definition of sqw data structure
         sqw_data.s=sqw_data.s./sqw_data.npix;       % normalise data

@@ -63,7 +63,7 @@ if ok
             sz_msk=[sz_msk,1];
         end
         if isequal(nd,nd_msk) && isequal(sz,sz_msk) && isequal(win.data.npix,mask_array.data.npix)
-            mask_array=logical(mask_array.data.pix.signals);
+            mask_array=logical(mask_array.data.pix.signal);
         else
             error('Dimensionality, number of bins on each dimension and number of pixels in each bin of input and mask must match')
         end

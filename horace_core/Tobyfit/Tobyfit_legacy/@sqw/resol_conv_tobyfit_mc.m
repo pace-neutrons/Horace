@@ -192,7 +192,7 @@ for i=1:numel(ind)
             stmp=stmp+sqwfunc(qw{1}+dq(:,1),qw{2}+dq(:,2),qw{3}+dq(:,3),qw{4}+dq(:,4),pars{:});
         end
     end
-    wout(i).data.pix.signals=stmp(:)'/mc_npoints;
+    wout(i).data.pix.signal=stmp(:)'/mc_npoints;
     wout(i).data.pix.variance=zeros(1,numel(stmp));
     wout(i)=recompute_bin_data(wout(i));
 end

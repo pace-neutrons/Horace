@@ -97,7 +97,7 @@ if ~isempty(ind_signal)
     c.pixels(:,5)=xpix{ind_signal};
     c.pixels(:,6)=sqrt(xdevsqr{ind_signal});
 else
-    c.pixels(:,5)=w.data.pix.signals';
+    c.pixels(:,5)=w.data.pix.signal';
     c.pixels(:,6)=sqrt(w.data.pix.variance');
 end
 

@@ -86,7 +86,7 @@ if~isempty(ind_signal)
     s.pixels(:,6)=xpix{ind_signal};
     s.pixels(:,7)=sqrt(xdevsqr{ind_signal});
 else
-    s.pixels(:,6)=w.data.pix.signals';
+    s.pixels(:,6)=w.data.pix.signal';
     s.pixels(:,7)=sqrt(w.data.pix.variance');
 end
 
