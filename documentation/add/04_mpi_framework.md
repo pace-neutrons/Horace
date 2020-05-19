@@ -127,18 +127,18 @@ The main methods and properties (M/P) of **JobExecutor** involved in a job contr
 The file-based messaging framework is part of Herbert. As such, this framework is always available. The input data of the particular parallel algorithm are separated into chunks and distributed to parallel workers using file-based messages. The **JobDispatcher** class is responsible for the splitting the task and running the *worker*-s instantiating user jobs, in parallel.
 
 #### JobDispatcher:
-To run the **JobExecutor** in parallel, its input data have to be divided into appropriate chunks, and to be sent for execution on the appropriate parallel environment. 
+To run the instances of **JobExecutor** in parallel, its input data have to be divided into appropriate chunks, and are sent for execution on the appropriate parallel environment. 
 The class, responsible for chunking the task, controlling the parallel pool of workers, sending user job information to this pool and initial data for the user jobs, reporting the progress of the job and retrieving the job results for further usage is the **JobDispatcher** class.
-The main methods and properties (M/P) of the class are:
+The main methods and properties (M/P) of this class are:
 
 **Table 4** Main properties and methods of **JobDispatcher** class.
 
 | Method or Property | M/P | Description |
 |:----| :---: | :--- |
 | **Job/Cluster identification properties:** | :: | *Properties, used to identify the particular job and describe media, used in parallel execution:*|
-| `job_id` | P | The name, which describes the job, and distinguish it from any other job, may be running on a system. A folder with such name exist on a shared file system and all file-based messages, related to this job control are distributed through this folder. 
-| `mess_framework` | P |  The instance of the file-based messages framework used for exchange between *logon* node and the cluster. Used for providing initialization information for the job, receiving log messages from *node-1* and returning some calculations results (See **Table 1**).
-| `cluster` | P | Exposes read access to the class, controlling cluster, i.e. the pool of independent processes or programs, to execute parallel job. 
+| `job_id` | P | The name, which describes the job, and distinguish it from any other job, may be running on a system. A folder with such name is created by **MessagesFilebased** class on a shared file system and all file-based messages, related to this job control are distributed through this folder. 
+| `mess_framework` | P |  The instance of the file-based messages framework used for exchange between *logon* node and the cluster. Used for providing initialization information for the job, receiving log messages from *node 1* (head-worker) and returning some calculations results (See **Table 1**).
+| `cluster` | P | Exposes read access to the class, controlling cluster, i.e. **ClusterWrapper** -- the pool of independent processes or programs, to execute parallel job. 
 | `is_initialized` | P | true if *JobDispatcher* already controls a cluster so the next job can be executed on existing cluster rather then after starting a new one. False if the cluster is not running and needs to be started up |
 |**Job control properties**: | :: | |
 | `task_check_time` | P |  how often (in second) job dispatcher should query the task status and report progress to user |
@@ -197,9 +197,9 @@ Every type of cluster runs its own type of parallel processes. To be useful, the
 
 ## Message Framework
 
-A messages framework is responsible for information exchange between independent workers. The transfer API itself is built using very reduced subset of standard MPI API, hiding more advanced and complex details of MPI API from users. The information is transmitted through correspondent media and wrapped by **Messages**, which are the instances of special *messages classes*, described in details in the next chapter. The same interface is used for sending initial job description and parameters from the *logon node* to cluster nodes, but as  neither Matlab MPI nor normal MPI are available for communications between logon node and a parallel job, only file-based framework and file-based messages are used for a job initialisation.
+A messages framework is responsible for handling the information exchange between independent workers. The messages API itself is built using very reduced subset of standard MPI API, hiding more advanced and complex details of MPI API from users. The information is transmitted through correspondent media and wrapped by **Messages**, which are the instances of special *messages classes*, described in details in the next chapter. The same interface is used for sending initial job description and parameters from the *logon node* to cluster nodes, but as  neither Matlab MPI nor normal MPI are available for communications between logon node and a parallel job, only file-based framework and file-based messages are used for a job initialisation.
 
-The parent for all messages framework classes is abstract **iMessagesFramework** interface, which provides methods, common for all messages framework, and defines the interface for methods, which need different physical realization. 
+The parent for all message framework classes is abstract **iMessagesFramework** interface, which provides methods, common for all message frameworks, and defines the interface for the methods, which need different physical realization. 
 
 ![Fig 5: Messages interface](../diagrams/iMessagesInterface.png )
 
@@ -219,8 +219,8 @@ Main Messages Framework methods are provided in the **Table 6**
 | **Common service methods:** | :: | *Methods, used by all frameworks regardless of the framework type:* |
 |`build_worker_init` | M | Generate ASCII string, used for initialization of all workers. See **Common initialization**
 | `get_interrupt` | M | Check if an interrupt message was received before and return it. See **Interrupts** below.
-| `set_interrupt` | M | Check if the input message is an interrupt message and store interrupt message in the interrupt buffer. See See **Interrupts** below. |
-| `retrieve_interrupt` | M | Helper method used to add interrupt messages to the list of the messages, received from other labs if interrupt message has been received before. Helper function around `get_interrupt`. See See **Interrupts** below.
+| `set_interrupt` | M | Check if the input message is an interrupt message and store interrupt message in the interrupt buffer. See the chapter **Interrupts** below. |
+| `retrieve_interrupt` | M | Helper method used to add interrupt messages to the list of the messages, received from other labs if interrupt message has been received before. Wrapper around `get_interrupt`. See the chapter **Interrupts** below.
 | **Abstract methods:** | :: | *The methods, exposing interface to MPI communications. Implementation is specific for each framework:* | 
 | `init_framework` | M | Given input data, necessary for framework initialization, make framework operational. E.g. for file-based framework it may be name of the folder and the id of the current parallel worker when for MPI framework, this command wraps C++ *MPI_init* command, which defines the worker ID and number of workers (MPI rank and MPI pool size). 
 |`send_message`| M | send message to a specified worker. Unblocking or pretends to be unblocking. 
@@ -244,15 +244,15 @@ Independent workers may need to report to the other workers some special conditi
 
 Different purposes can be best served using different types of messages. There are 3 purposes, differentiated in Horace.
 
-    1) logging, diagnostics and informing user about progress of a job. 
-    2) Interprocess data exchange, necessary for performing a particular user job and 
-    3) The information about error, failure or job completion. 
+1. logging, diagnostics and informing user about progress of a job. 
+2. Interprocess data exchange, necessary for performing a particular user job and 
+3. The information about error or failure. 
     
 Correspondent types of messages created to serve these purposes:
 
-    1) Non-blocking (transient)  messages. Informing user about a job progress is important task, but user is interested only in the final value. Different independent task should not be synchronous with regard to log messages as only some average progress is required. Non-blocking messages are best suited for such kind of task. If more then one non-blocking message is present in the MPI messages queue, the client receives only the last message.
-    2) Blocking messages are necessary to transfer information between independent workers when the results of calculations on a single node depends on the results on other nodes.
-    3) Persistent messages necessary to indicate some critical conditions or error states, as, for example, parallel interrupts, available in MPI are not available in file-based messages system (*ClusterHerbert*) and not accessible for Matlab MPI (*ClusterParpool*). The persistent messages used to carry out such information. 
+1. Non-blocking (transient)  messages. Informing user about a job progress is important task, but user is interested only in the final value. Different independent task should not be synchronous with regard to log messages as only some average progress is required. Non-blocking messages are best suited for such kind of task. If more then one non-blocking message is present in the MPI messages queue, the client receives only the last message.
+2. Blocking messages are necessary to transfer information between independent workers when the result of calculations on a single node depends on the results on other nodes.
+3. Persistent messages necessary to indicate some critical conditions or error states, as, for example, parallel interrupts available in MPI are not available in file-based messages system (*ClusterHerbert*) and not accessible for Matlab MPI (*ClusterParpool*). The persistent messages used to carry out such information. 
 
 To provide the described flexibility and variability of messages, all messages used by Horace MPI are children of **aMessage**  class and subscribed to a messages factory (see below). 
 
