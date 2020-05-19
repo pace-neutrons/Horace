@@ -7,15 +7,15 @@ A standard message parsing framework consists of a communicator part, controllin
 To accommodate different demands of different users on different systems, 
 Horace can utilize three different **message transfer media**, namely: 
 
-    1. Communications via message files written/read from a HDD,
-    2. Using Matlab parallel computing toolbox MPI implementation (based on the toolbox lab`**` operations) and   
-    3. Communication using standard MPI framework. Currently used MPI implementations are Microsoft MPI for Windows and MPICH for Linux. 
+1. Communications via message files written/read from a HDD,
+2. Using Matlab parallel computing toolbox MPI implementation (based on the toolbox lab`**` operations) and   
+3. Communication using standard MPI framework. Currently used MPI implementations are Microsoft MPI for Windows and MPICH for Linux. 
     
-The **communicator/controller** [\[1\]](https://en.wikipedia.org/wiki/Message_Passing_Interface#Communicator) parts for these media, responsible for controlling the parallel processes, are correspondingly:
+The **communicator/controller** [[1]](https://en.wikipedia.org/wiki/Message_Passing_Interface#Communicator) parts for these media, responsible for controlling the parallel processes, are correspondingly:
 
-    1. Pool of Matlab sessions or compiled Matlab sessions, launched by Matlab's Java launcher,
-    2. Matlab Parallel computing toolbox job control mechanism and 
-    3. **mpiexec** launcher, directly controlling standard MPI processes.
+1. Pool of Matlab sessions or compiled Matlab sessions, launched by Matlab's Java launcher,
+2. Matlab Parallel computing toolbox job control mechanism and 
+3. **mpiexec** launcher, directly controlling standard MPI processes.
     
 Additional controller will be necessary to use Horace parallelization on a public cluster. This controller wraps around and interfaces the cluster job submission mechanism (e.g. *qsub* or *bsub*)
 
@@ -112,7 +112,7 @@ The main methods and properties (M/P) of **JobExecutor** involved in a job contr
 
 | Method or Property | M/P | Description |
 |:----| :---: | :---
-| `labIndex` | P | The id(number) of the running task (Worker Number in file-based, labNum in Matlab or MPI rank+1 for MPI framework) |
+| `labIndex` | P | The id(number) of the running task (Worker Number in file-based, labindex in Matlab or MPI rank+1 for MPI framework) |
 |`mess_framework` | P |  Access to messages framework used for messages exchange between the parallel tasks. For file-based messages its the same as *control\_node\_exch*  but for proper MPI job or remote host it usually  different | 
 | `control_node_exch` | P | The framework used to exchange messages between MPI jobs pool and the control (login) node. Contains initialized instance of a **MessagesFileBased** class.|
 | `task_outputs` | P | The property, containing the result of `do_job` operation to distribute to another nodes or to transfer to the headnode(node-1) for if these outputs are defined.|
@@ -137,7 +137,7 @@ The main methods and properties (M/P) of this class are:
 |:----| :---: | :--- |
 | **Job/Cluster identification properties:** | :: | *Properties, used to identify the particular job and describe media, used in parallel execution:*|
 | `job_id` | P | The name, which describes the job, and distinguish it from any other job, may be running on a system. A folder with such name is created by **MessagesFilebased** class on a shared file system and all file-based messages, related to this job control are distributed through this folder. 
-| `mess_framework` | P |  The instance of the file-based messages framework used for exchange between *logon* node and the cluster. Used for providing initialization information for the job, receiving log messages from *node 1* (head-worker) and returning some calculations results (See **Table 1**).
+| `mess_framework` | P |  The instance of the file-based messages framework used for exchange between *logon* node and the cluster. Used for providing initialization information for the job, receiving log messages from *node 1(head-worker)* and returning some calculations results (See **Table 1**).
 | `cluster` | P | Exposes read access to the class, controlling cluster, i.e. **ClusterWrapper** -- the pool of independent processes or programs, to execute parallel job. 
 | `is_initialized` | P | true if *JobDispatcher* already controls a cluster so the next job can be executed on existing cluster rather then after starting a new one. False if the cluster is not running and needs to be started up |
 |**Job control properties**: | :: | |
@@ -157,22 +157,17 @@ One of the main properties of *JobDispatcher* class is *cluster* property, conta
 
 
 ## Cluster Management 
-Cluster classes are responsible for launching and initializing parallel workers, obtaining job progress and completing the parallel execution. The parent for all cluster classes is a *ClusterWrapper* class, which provides common interface for the communicators/controllers managing the parallel processes itself. **Fig 3** shows *ClusterWrapper* interface and lists the classes, performing its actual software implementations. 
+Cluster classes are responsible for launching and initializing parallel workers, obtaining job progress and completing the parallel execution. The parent for all cluster classes is a *ClusterWrapper* class, which provides common interface for the communicators/controllers managing the parallel processes itself. **Fig 3** shows *ClusterWrapper* interface and lists the classes, performing actual software implementations of clusters. 
 
 ![Fig 3: Cluster Wrapper](../diagrams/ClusterWrapperInterface.png)
 
 **Fig 3:** Cluster Wrappers interface and its current implementations. 
 
-To provide simple selection of a framework, all Cluster Wrapper classes are subscribed to framework factory **MPI\_fmwks\_factory**. User interacts with the factory through **parallel\_config** configurations class:
+The particular implementation of a cluster overloads and expands *init* method of **ClusterWrapper**, which is responsible for launching the parallel processes itself and overloads and expands other methods in a way, which is appropriate to the particular technology. The majority of the methods do not need extensive extension, as all deploy file-based messaging framework to exchange information with the cluster. The list of the main methods is provided in the **Table 5** below. 
 
-![Fig 4:  Parallel Framework Selection](../diagrams/SelectClusterWrapper.png)
-**Fig 4:** Selection of a parallel framework. The cluster classes are subscribed to factory with the following names: **herbert:->ClusterHerbert; parpool:->ClusterParpoolWrapper; mpiexec_mpi:->ClusterMPI**
+Each cluster uses and may expand the *ClusterWrapper* methods used by *JobDispatcher* to control the jobs:
 
-*Parallel_config* class receives from *MPI\_fmwks\_factory*  list of the subscribed and available framework names and the user selects the appropriate framework. Then, *Job_dispatcher* uses *get\_running\_cluster* method of the factory to start cluster and use it for running the parallel job described by *theJobExectutor* instance. 
-
-Each cluster implements the *ClusterWrapper* methods used by *JobDispatcher* to control the jobs:
-
-**Table 5** A Cluster properties list:
+**Table 5** A Cluster properties and methods list:
 
 | Method or Property| M/P |Description |
 | :--- | :---: | :--- | 
@@ -192,7 +187,32 @@ Each cluster implements the *ClusterWrapper* methods used by *JobDispatcher* to 
 | `check_availability` | M | the method, returning true if cluster of given type is available on given machine. E.g., check_availability  for **ClusterParpoorlWrapper** will return false if parallel computing toolbox is not installed on the given machine. 
 | `get_cluster_configs_available` | M | a given type of cluster (except **ClusterHerbert**) may have different configurations. E.g., for **ClusterMPI** it may be *local* for running MPI on a local machine or clusters described by **mpiexec** hosts files. These files should be located in special clusters configurations folder. |
 
-Every type of cluster runs its own type of parallel processes. To be useful, the processes should interact between each other. Messages framework classes are responsible for providing common interface for message exchange within the cluster and the messages exchange between **JobDispatcher** running on the *logon node* and *node-1* of the cluster.
+To provide simple selection of a framework, all Cluster Wrapper-children classes are subscribed to framework factory **MPI\_fmwks\_factory**. User interacts with the factory through **parallel\_config** configurations class:
+
+![Fig 4:  Parallel Framework Selection](../diagrams/SelectClusterWrapper.png)
+**Fig 4:** Selection of a parallel framework. The cluster classes are subscribed to factory with the following names: **herbert:->ClusterHerbert; parpool:->ClusterParpoolWrapper; mpiexec_mpi:->ClusterMPI**
+
+*Parallel_config* class receives from *MPI\_fmwks\_factory*  list of the subscribed and available Cluster Wrapper names and user selects the appropriate wrapper and framework. Then, *Job_dispatcher* uses *get\_running\_cluster* method of the factory to start cluster and use it for running the parallel job defined by *theJobExectutor* instance. 
+Brief description of the MPI frameworks factory or rather Cluster-Wrappers factory is provided in the **Table 6**
+
+**Table 6** MPI clusters factory methods. 
+
+| Method or Property| Access |Description |
+| :--- | :---: | :--- | 
+| *Properties list:* | - | |
+| `parallel_framework` | `RW` | returns or accepts the name of the framework and cluster to use as default |
+| `known_frmwks_names` | `R` | returns the list of names of the parallel frameworks, known to Herbert |
+| *Static Method* | - | | 
+| `instance` | `R` | Return unique instance of the framework |
+| *Methods* |  - | |
+| `get_cluster` | `R` | given the name of cluster wrapper above, return the uninitialized instance of the cluster | 
+| `get_all_configs` | `R` | given the name of cluster wrapper above, return the list of configurations, available for this cluster. See **parallel_config** description on the details about the cluster configuration | 
+| `get_running_cluster` | `R` | given the requested number of parallel workers, initialize and return the initialized and running MPI cluster, selected as the default cluster |
+
+User normally interacts with this factory through **parallel_config** class, selecting the cluster to use. **JobDispatcher** then uses `get_running_cluster` of this factory to actually start parallel cluster running. 
+
+
+Every type of cluster runs its own type of parallel processes. To be useful, the processes should normally interact with each other. Messages framework classes are responsible for providing common interface for message exchange within the cluster and the messages exchange between **JobDispatcher** running on the *Control node (node 0)* of the user session and the *head-node (node 1)* of the cluster.
 
 
 ## Message Framework
@@ -207,9 +227,9 @@ The parent for all message framework classes is abstract **iMessagesFramework** 
 
 Each messages framework natively works with appropriate cluster wrapper. This is why no independent factory exists to select framework, as by default, each cluster uses its native framework. The **ClusterWrapper** property  *pool\_exchange\_frmwk\_name* can be used to set **MessagesFilebased** framework to perform exchange between independent workers. This is very inefficient mechanism which used and should be used for debugging purposes only. 
 
-Main Messages Framework methods are provided in the **Table 6**
+Main Messages Framework methods are provided in the **Table 7**
 
-**Table 6** Main message framework methods and properties.
+**Table 7** Main message framework methods and properties.
 
 | Method or Property| M/P |Description |
 | :--- | :---: | :--- | 
@@ -262,7 +282,7 @@ To provide the described flexibility and variability of messages, all messages u
 To information transferred between independent workers is wrapped into message classes, which are the children of **aMessage** class. The information for the transfer is the job specific data, assigned to the *payload* property. 
 Any Matlab data can be assigned to the *payload* property. The only request to the data is that the data are  serializable, i.e. it is either basic Matlab data type or a class which have *saveobj/loadobj* methods or can be correctly converted into/from a structure.
 
-The appropriate processing of messages data (see the **Messages types** above) is assured by different message classes. Simplest messages classes are just instances of **aMessage** class with different names, indicating different states. An example of such messages are `starting`  or `canceled`  messages, indicating the appropriate states of the program. Some messages need additional functionality so additional properties are defined for the children classes, describing these messages. Any message class - child of **aMessage** class must follow the naming convention *MessageClassName = \[MessageName, 'Message'\]*. This convention is enforced by messages factory  **MESS_NAMES**, where each message is subscribed by its meaningful name (low case of `messagename` of the message class name). The factory is described in the next chapter. Current family of specialized message classes is presented on the **Fig 6**
+The appropriate processing of messages data (see the **Messages types** above) is assured by different message classes. Simplest messages classes are just instances of **aMessage** class with different names, indicating different states. An example of such messages are `starting`  or `canceled`  messages, indicating the appropriate states of the program. Some messages need additional functionality so additional properties are defined for the children classes, describing these messages. Any message class - child of **aMessage** class must follow the naming convention *`MessageClassName = [MessageName, 'Message']`*. This convention is enforced by messages factory  **MESS_NAMES**, where each message is subscribed by its meaningful name (low case of `messagename` of the message class name). The factory is described in the next chapter. Current family of specialized message classes is presented on the **Fig 6**
 
 ![Fig 6: Messages Family](../diagrams/aMessagesTree.png)
 
@@ -332,7 +352,7 @@ The optimal to hardware and software cluster and message framework and other par
 | :--- | :---: | :--- | 
 |`worker`| `RW` | The name of the script or program to run  on cluster in parallel using parallel workers. |
 |  `is_compiled` | `R` | false if the worker is a Matlab script and true if this script is compiled using Matlab applications compiler. |
-| `parallel_framework` | `RW`| The name of a parallel framework to use. Currently available are **h\[erbert\]**, **p\[arpool\]** and  **m\[pi_cluster\]** frameworks. |
+| `parallel_framework` | `RW`| The name of a parallel framework to use. Currently available are **`h[erbert]`**, **`p[arpool]`** and  **`m[pi_cluster]`** frameworks. |
 | `cluster_config` | `RW` | The configuration class describing parallel cluster, running selected framework |
 | `shared_folder_on_local` |`RW`| The folder on your working machine containing the job input and output data |
 |`shared_folder_on_remote`|`RW` |The folder where shared data should be found on a remote worker as accessed by remote worker itself |
