@@ -14,9 +14,13 @@ function payload = restore_payload_(input)
 %   payload  -- restored data, presumably in the form, before saveobj was
 %               applied
 
-if isfield(input,'class_name_for_aMessage')
-    cls = input.class_name_for_aMessage;
-    input = rmfield(input,'class_name_for_aMessage');
+% service field used by a parce_payload_ /restore_payload_  only to
+% identify class.
+if isfield(input,'cln_4_amess')
+    % let's make it strange and unique for aMessage. And shorter, as its
+    % serialized too
+    cls = input.cln_4_amess;
+    input = rmfield(input,'cln_4_amess');
     try
         % try to use the loadobj function
         payload = eval([cls '.loadobj(input)']);
