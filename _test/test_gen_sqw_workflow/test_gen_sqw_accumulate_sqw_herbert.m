@@ -68,7 +68,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
         end
         %
         function test_worker(obj)
-            worker_local = 'worker_4tests_local';
+            worker_local = 'parallel_worker';
             
             mis = MPI_State.instance('clear');
             mis.is_tested = true;
