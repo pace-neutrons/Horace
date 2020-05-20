@@ -2,22 +2,28 @@ classdef PixelData
 % PixelData Provides an interface for access to pixel data
 %
 %   This class provides getters and setters for each data column in an SQW
-%   pixel array. You can access the data using the attributes listed below or
-%   using Matlab's get(obj, 'attr') and set(obj, 'attr', value) methods.
+%   pixel array. You can access the data using the attributes listed below,
+%   using the get_data() method (to retrive column data) or using the
+%   get_pixels() method (retrieve row data).
 %
 %   >> pix_data = PixelData(data)
 %   >> signal = pix_data.signal;
 %
 %  or equivalently:
 %
-%   >> pix_data = PixelData()
+%   >> pix_data = PixelData();
 %   >> pix_data.data = data;
-%   >> signal = get(pix_data, 'signal');
+%   >> signal = pix_data.get_data('signal');
 %
 %  To retrieve multiple fields of data, e.g. run_idx and energy_idx, for pixels 1 to 10:
 %
-%   >> pix_data = PixelData(data)
+%   >> pix_data = PixelData(data);
 %   >> signal = pix_data.get_data({'run_idx', 'energy_idx'}, 1:10);
+%
+%  To retrieve data for pixels 1, 4 and 10 (returning another PixelData object):
+%
+%   >> pix_data = PixelData(data);
+%   >> pixel_subset = pix_data.get_pixels([1, 4, 10])
 %
 % Attributes:
 %   u1, u2, u3     The 1st, 2nd and 3rd dimension of the crystal coordinates in projection axes, units are per Angstrom (1 x n arrays)
@@ -136,7 +142,7 @@ methods
         % Input:
         % ------
         %   arg    A 9 x n matrix, where each row corresponds to a pixel and
-        %           the columns correspond to the following:
+        %          the columns correspond to the following:
         %             col 1: u1
         %             col 2: u2
         %             col 3: u3
@@ -148,7 +154,7 @@ methods
         %             col 9: variance
         %
         %  arg    An integer specifying the desired number of pixels. The underlying
-        %          data will be filled with zeros
+        %         data will be filled with zeros
         %
         if nargin == 1
             if isa(arg, 'PixelData')
