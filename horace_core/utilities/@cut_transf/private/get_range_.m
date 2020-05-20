@@ -2,7 +2,7 @@ function range = get_range_(obj,dir)
 % Return cut range in specified direction
 % dir -- direction of cut (1,2 or 3)
 %
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 if dir<4
     shift = obj.zone_center(dir);

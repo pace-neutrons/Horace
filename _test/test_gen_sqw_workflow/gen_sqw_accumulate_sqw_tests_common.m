@@ -476,6 +476,8 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % accumulate_sqw
             % ---------------------------------------------------------------------------
             [dummy,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
+            hc = hpc_config;
+            disp(hc);
             
             [dummy,dummy,urange1456]=gen_sqw (obj.spe_file([1,4,5,6]), '',sqw_file_1456, efix([1,4,5,6]), emode, alatt, angdeg, u, v,...
                 psi([1,4,5,6]), omega([1,4,5,6]), dpsi([1,4,5,6]), gl([1,4,5,6]), gs([1,4,5,6]));

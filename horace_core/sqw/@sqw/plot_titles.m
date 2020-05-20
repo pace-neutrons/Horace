@@ -23,7 +23,7 @@ function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axi
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 % This routine invented solely for the convenience of interface to sliceomatic, which cannot
 % see the sqw private function data_plot_titles
