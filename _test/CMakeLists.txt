@@ -48,7 +48,7 @@ foreach(_test_dir ${TEST_DIRECTORIES})
     if("${_test_dir}" STREQUAL "test_sqw")
         set(TEST_TIMEOUT_LENGTH "1500")  # 25 minutes
     elseif("${_test_dir}" STREQUAL "test_tobyfit")
-        set(TEST_TIMEOUT_LENGTH "1200")  # 20 minutes
+        set(TEST_TIMEOUT_LENGTH "3000")  # 50 minutes ?
     else()
         set(TEST_TIMEOUT_LENGTH "960")  # 16 minutes
     endif()
