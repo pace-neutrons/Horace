@@ -42,9 +42,9 @@ The File-based framework has been written with the assumption that *job chunks m
 
 A cluster, executing Horace job using the wrappers should have the simple topology: 
 
-![Fig 1: Horace Cluster](../diagrams/HoraceMPICluster.png)
+![Fig 1: Horace Cluster](..\\diagrams/HoraceMPICluster.png)
 
-**Fig 1:** Cluster running Horace job with location of main software components of a job.
+**Fig 1:** Cluster running Horace job with location of main software components of the parallel framework.
 
 The picture shows the interaction between main hardware components, necessary for Horace jobs and main software components, used to run these jobs. Black boxes on the **Fig 1** indicate the hardware components, namely parallel processes or parallel programs running Horace software, where the green boxes refer to the software  components, running on the appropriate hardware. The description of the software components is provided below. The red arrows on the picture refer to the message transfer media, used for communication between the processes/nodes. Currently implemented Horace jobs mainly communicate to/with the *headnode*, though its not a constrain but the details of current implementation. The frameworks allow efficient communication between nodes without any constrains. The Blue lines on the picture refer to the File-based message transfer, used to submit initial job and return job progress and information about the job results. There are also black arrows, referring to the process of the software submission to the cluster, described in more details in the chapter on **Common initialization**. 
 
@@ -53,7 +53,7 @@ From a user perspective, interaction with a parallel job occurs the same way as 
 
 Generic Horace parallel job management and software components interaction is presented on the **Fig 2**: 
 
-![Fig 2: MPI Framework](../diagrams/mpi-framework.png)
+![Fig 2: MPI Framework](..\\diagrams/mpi-framework.png)
 
 **Fig 2:**  Horace parallel job framework
 
@@ -159,7 +159,7 @@ One of the main properties of *JobDispatcher* class is *cluster* property, conta
 ## Cluster Management 
 Cluster classes are responsible for launching and initializing parallel workers, obtaining job progress and completing the parallel execution. The parent for all cluster classes is a *ClusterWrapper* class, which provides common interface for the communicators/controllers managing the parallel processes itself. **Fig 3** shows *ClusterWrapper* interface and lists the classes, performing actual software implementations of clusters. 
 
-![Fig 3: Cluster Wrapper](../diagrams/ClusterWrapperInterface.png)
+![Fig 3: Cluster Wrapper](..\\diagrams/ClusterWrapperInterface.png)
 
 **Fig 3:** Cluster Wrappers interface and its current implementations. 
 
@@ -189,7 +189,7 @@ Every cluster uses and may expand the *ClusterWrapper* methods used by *JobDispa
 
 To provide simple selection of a framework, all Cluster Wrapper-children classes are subscribed to framework factory **MPI\_fmwks\_factory**. User interacts with the factory through **parallel\_config** configurations class:
 
-![Fig 4:  Parallel Framework Selection](../diagrams/SelectClusterWrapper.png)
+![Fig 4:  Parallel Framework Selection](..\\diagrams/SelectClusterWrapper.png)
 **Fig 4:** Selection of a parallel framework. The cluster classes are subscribed to factory with the following names: **herbert:->ClusterHerbert; parpool:->ClusterParpoolWrapper; mpiexec_mpi:->ClusterMPI**
 
 *Parallel_config* class receives from *MPI\_fmwks\_factory*  list of the subscribed and available Cluster Wrapper names and user selects the appropriate wrapper and framework. Then, *Job_dispatcher* uses *get\_running\_cluster* method of the factory to start cluster and use it for running the parallel job defined by *theJobExectutor* instance. 
@@ -221,7 +221,7 @@ A messages framework is responsible for handling the information exchange betwee
 
 The parent for all message framework classes is abstract **iMessagesFramework** interface, which provides methods, common for all message frameworks, and defines the interface for the methods, which need different physical realization. 
 
-![Fig 5: Messages interface](../diagrams/iMessagesInterface.png )
+![Fig 5: Messages interface](..\\diagrams/iMessagesInterface.png )
 
 **Fig 5:** Messages Framework
 
@@ -284,7 +284,7 @@ Any Matlab data can be assigned to the *payload* property. The only request to t
 
 The appropriate processing of messages data (see the **Messages types** above) is assured by different message classes. Simplest messages classes are just instances of **aMessage** class with different names, indicating different states. An example of such messages are `starting`  or `canceled`  messages, indicating the appropriate states of the program. Some messages need additional functionality so additional properties are defined for the children classes, describing these messages. Any message class - child of **aMessage** class must follow the naming convention *`MessageClassName = [MessageName, 'Message']`*. This convention is enforced by messages factory  **MESS_NAMES**, where each message is subscribed by its meaningful name (low case of `messagename` of the message class name). The factory is described in the next chapter. Current family of specialized message classes is presented on the **Fig 6**
 
-![Fig 6: Messages Family](../diagrams/aMessagesTree.png)
+![Fig 6: Messages Family](..\\diagrams/aMessagesTree.png)
 
 **Fig 6** Existing family of messages classes
 
