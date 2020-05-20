@@ -42,7 +42,7 @@ The File-based framework has been written with the assumption that *job chunks m
 
 A cluster, executing Horace job using the wrappers should have the simple topology: 
 
-![Fig 1: Horace Cluster](..\\diagrams/HoraceMPICluster.png)
+![Fig 1: Horace Cluster](..\diagrams/HoraceMPICluster.png)
 
 **Fig 1:** Cluster running Horace job with location of main software components of the parallel framework.
 
