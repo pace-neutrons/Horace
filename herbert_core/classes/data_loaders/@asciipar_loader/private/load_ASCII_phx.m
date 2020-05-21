@@ -20,7 +20,6 @@ function phx=load_ASCII_phx(filename)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 % Remove blanks from beginning and end of filename
 
@@ -33,13 +32,13 @@ end
 
 filename=strtrim(filename);
 
-use_mex = get(herbert_config,'use_mex_C');
+use_mex = get(herbert_config,'use_mex');
 if use_mex
     try     %using C routine
         phx=get_ascii_file(filename,'phx');
         [ncol,ndet]=size(phx);
         if ncol <7
-            phx=[phx(1,:);phx(3:6,:);1:ndet];            
+            phx=[phx(1,:);phx(3:6,:);1:ndet];
         else
             phx=[phx(1,:);phx(3:7,:)];
         end

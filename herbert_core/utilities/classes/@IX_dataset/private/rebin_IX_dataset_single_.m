@@ -49,6 +49,8 @@ function [wout,ok_rebin,mess] = rebin_IX_dataset_single_(win,iax,xbounds,true_va
 
 % ---------------------------------------------------------------------
 % Case of IX_dataset_nd
+use_mex = false; %FORTRAN mex have been disabled
+%
 ndim=win.ndim();
 nrebin=numel(iax);
 wout_x=cell(1,nrebin);

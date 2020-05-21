@@ -4,7 +4,6 @@
       <info>Typical configuration for Windows small machine assumes no MPI settings and use OMP if possible</info>
       <herbert_config>
          <use_mex>[true]</use_mex>
-         <use_mex_C>[true]</use_mex_C>
          <force_mex_if_use_mex>[false]</force_mex_if_use_mex>
          <log_level>1</log_level>
          <init_tests>[false]</init_tests>
@@ -37,7 +36,6 @@
       <info>Typical configuration for MAC machine assumes no MPI settings and no mex code</info>
       <herbert_config>
          <use_mex>[false]</use_mex>
-         <use_mex_C>[false]</use_mex_C>
          <force_mex_if_use_mex>[false]</force_mex_if_use_mex>
          <log_level>1</log_level>
          <init_tests>[false]</init_tests>
@@ -70,7 +68,6 @@
       <info>Typical configuration for Windows large machine assumes use some MPI use OMP</info>
       <herbert_config>
          <use_mex>[true]</use_mex>
-         <use_mex_C>[true]</use_mex_C>
          <force_mex_if_use_mex>[false]</force_mex_if_use_mex>
          <log_level>1</log_level>
          <init_tests>[false]</init_tests>
@@ -103,7 +100,6 @@
       <info>iDaaaS small machine should have mex code but would not benefit from MPI</info>
       <herbert_config>
          <use_mex>[true]</use_mex>
-         <use_mex_C>[true]</use_mex_C>
          <force_mex_if_use_mex>[false]</force_mex_if_use_mex>
          <log_level>1</log_level>
          <init_tests>[false]</init_tests>
@@ -136,7 +132,6 @@
       <info>iDaaaS large machine benefit from mex code and can run some MPI</info>
       <herbert_config>
          <use_mex>[true]</use_mex>
-         <use_mex_C>[true]</use_mex_C>
          <force_mex_if_use_mex>[false]</force_mex_if_use_mex>
          <log_level>1</log_level>
          <init_tests>[false]</init_tests>
@@ -158,8 +153,8 @@
       </hpc_config>
       <parallel_config>
          <worker>worker_v2</worker>
-         <parallel_framework>herbert</parallel_framework>
-         <cluster_config>local</cluster_config>
+         <parallel_framework>parpool</parallel_framework>
+         <cluster_config>default</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
@@ -169,7 +164,6 @@
       <info>General Unix pc would not have mex code so, user should set it up after compiling it himself</info>
       <herbert_config>
          <use_mex>[false]</use_mex>
-         <use_mex_C>[false]</use_mex_C>
          <force_mex_if_use_mex>[false]</force_mex_if_use_mex>
          <log_level>1</log_level>
          <init_tests>[false]</init_tests>
@@ -202,7 +196,6 @@
       <info>Unix large is our isiscompute machine which uses OMP and MPI and everything is present</info>
       <herbert_config>
          <use_mex>[true]</use_mex>
-         <use_mex_C>[true]</use_mex_C>
          <force_mex_if_use_mex>[false]</force_mex_if_use_mex>
          <log_level>1</log_level>
          <init_tests>[false]</init_tests>
@@ -235,7 +228,6 @@
       <info>Settings for running on Jenkins Windows build servers</info>
       <herbert_config>
          <use_mex>[true]</use_mex>
-         <use_mex_C>[true]</use_mex_C>
          <force_mex_if_use_mex>[false]</force_mex_if_use_mex>
          <log_level>1</log_level>
          <init_tests>[true]</init_tests>
@@ -268,7 +260,6 @@
       <info>Settings for running on Jenkins Unix ANVIL build servers</info>
       <herbert_config>
          <use_mex>[true]</use_mex>
-         <use_mex_C>[true]</use_mex_C>
          <force_mex_if_use_mex>[true]</force_mex_if_use_mex>
          <log_level>1</log_level>
          <init_tests>[true]</init_tests>

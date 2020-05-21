@@ -3,7 +3,7 @@ function [varargout]=load_data(this,new_file_name)
 %
 % this fucntion is the method of load_spe class
 %
-% this function has to have its eqivalents in all other loader classes
+% this function has to have its equivalents in all other loader classes
 % as all loaders are accessed through common interface.
 %
 %usage:
@@ -13,8 +13,6 @@ function [varargout]=load_data(this,new_file_name)
 
 % $Author: Alex Buts; 20/10/2011
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-
 
 if exist('new_file_name','var')
     if ~isa(new_file_name,'char')
@@ -29,7 +27,7 @@ else
 end
 file_name  = this.file_name;
 
-use_mex=config_store.instance().get_value('herbert_config','use_mex_C');
+use_mex=config_store.instance().get_value('herbert_config','use_mex');
 if use_mex
     try
         [S,ERR,en] = get_ascii_file(file_name ,'spe');
@@ -39,7 +37,7 @@ if use_mex
             if get(herbert_config,'log_level')>-1
                 warning('LOAD_ASCII:load_data',' Cannot read data using C++ routines -- reverted to Matlab\n Reason: %s',err.message);
             end
-            set(herbert_config,'use_mex_C',false);  % don't use Herbert C++ routines from now on
+            set(herbert_config,'use_mex',false);  % don't use Herbert C++ routines from now on
             use_mex=false;
         else
             error('LOAD_ASCII:load_data',' Cannot read data using C++ routines \n Reason: %s',err.message);

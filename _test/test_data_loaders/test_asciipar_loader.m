@@ -115,12 +115,12 @@ classdef test_asciipar_loader< TestCase
             par_file = fullfile(obj.test_data_path,'wrong_demo_par_7Col.PAR');
             
             f = @()al.load_par(par_file);
-            use_mex=get(herbert_config,'use_mex_C');
+            use_mex=get(herbert_config,'use_mex');
             force_mex_if_use_mex=get(herbert_config,'force_mex_if_use_mex');
-            set(herbert_config,'use_mex_C',true,'force_mex_if_use_mex',true,'-buffer');
+            set(herbert_config,'use_mex',true,'force_mex_if_use_mex',true,'-buffer');
             % should throw; par file has 7 columns
             assertExceptionThrown(f,'ASCIIPAR_LOADER:load_par');
-            set(herbert_config,'use_mex_C',use_mex,'force_mex_if_use_mex',force_mex_if_use_mex,'-buffer');
+            set(herbert_config,'use_mex',use_mex,'force_mex_if_use_mex',force_mex_if_use_mex,'-buffer');
             
         end
         function test_mslice_par(obj)
@@ -233,9 +233,9 @@ classdef test_asciipar_loader< TestCase
         end
         function test_load_phx_as_par_mex(obj)
             hcfg=herbert_config();
-            current = hcfg.use_mex_C;
-            c = onCleanup(@()set(hcfg,'use_mex_C',current));
-            hcfg.use_mex_C = true;
+            current = hcfg.use_mex;
+            c = onCleanup(@()set(hcfg,'use_mex',current));
+            hcfg.use_mex = true;
             
             phx_file = fullfile(obj.test_data_path,'map_4to1_jul09.phx');
             par_file = fullfile(obj.test_data_path,'map_4to1_jul09.par');
@@ -259,9 +259,9 @@ classdef test_asciipar_loader< TestCase
         end
         function test_load_phx_mex(obj)
             hcfg=herbert_config();
-            current = hcfg.use_mex_C;
-            c = onCleanup(@()set(hcfg,'use_mex_C',current));
-            hcfg.use_mex_C = true;
+            current = hcfg.use_mex;
+            c = onCleanup(@()set(hcfg,'use_mex',current));
+            hcfg.use_mex = true;
             
             phx_file = fullfile(obj.test_data_path,'map_4to1_jul09.phx');
             par_file = fullfile(obj.test_data_path,'map_4to1_jul09.par');

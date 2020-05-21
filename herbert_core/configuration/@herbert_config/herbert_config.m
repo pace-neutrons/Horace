@@ -18,39 +18,32 @@ classdef herbert_config<config_base
     %
     % Fields are:
     % -----------
-    %   use_mex             Use fortran mex files for time-consuming
+    %   use_mex             Use C++ mex files for time-consuming
     %                       operation, if available
-    %   use_mex_C           Use c++ mex files for time-consuming operation,
-    %                       if available
-    %  force_mex_if_use_mex Force using mex (ususlly mex failure causes an
-    %                       attempt to use matlab).
-    %                       This is option is for testing mex agains matlab
+    %  force_mex_if_use_mex Force using mex (usually mex failure causes an
+    %                       attempt to use Matlab).
+    %                       This is option is for testing mex against Matlab
     %   log_level           Set verbosity of informational output
-    %                           -1  No information messges printed
-    %                            0  Major information messges printed
-    %                            1  Minor information messges printed in addition
+    %                           -1  No information messages printed
+    %                            0  Major information messages printed
+    %                            1  Minor information messages printed in addition
     %                                   :
     %                       The larger the value, the more information is printed
     %   init_tests          Enable the unit test functions
     %
     % Type >> herbert_config  to see the list of current configuration option values.
     
-    %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-    %
     
     properties(Dependent)
-        %   Use fortran mex files for time-consuming operation, if
+        %   Use C++ mex files for time-consuming operation, if
         %   available.
         use_mex;
-        % use C part of mex code
-        use_mex_C;
-        % force using mex (ususlly mex failure causes attempt to use
-        % matlab). This is rather for testing mex agains matlab
+        % force using mex (usually mex failure causes attempt to use
+        % Matlab). This is rather for testing mex against Matlab
         force_mex_if_use_mex;
         % the level to report:
-        % -1, do not tell even about an errors (usefull for unit tests)
-        % 0 - be quet but report errors,
+        % -1, do not tell even about an errors (useful for unit tests)
+        % 0 - be quiet but report errors,
         % 1 report result of long-lasting operations,
         % 2 report elaborate timing
         log_level
@@ -64,13 +57,12 @@ classdef herbert_config<config_base
     end
     %
     properties(Constant,Access=private)
-        saved_properties_list_={'use_mex','use_mex_C','force_mex_if_use_mex',...
+        saved_properties_list_={'use_mex','force_mex_if_use_mex',...
             'log_level','init_tests'};
     end
     properties(Access=private)
         % these values provide defaults for the properties above
         use_mex_              = false;
-        use_mex_C_            = false;
         force_mex_if_use_mex_ = false;
         log_level_            = 0;
         init_tests_           = false;
@@ -84,9 +76,6 @@ classdef herbert_config<config_base
         % overloaded getters
         function use = get.use_mex(this)
             use = get_or_restore_field(this,'use_mex');
-        end
-        function use = get.use_mex_C(this)
-            use = get_or_restore_field(this,'use_mex_C');
         end
         function force = get.force_mex_if_use_mex(this)
             force = get_or_restore_field(this,'force_mex_if_use_mex');
@@ -107,14 +96,6 @@ classdef herbert_config<config_base
                 use = false;
             end
             config_store.instance().store_config(this,'use_mex',use);
-        end
-        function this = set.use_mex_C(this,val)
-            if val>0
-                use = true;
-            else
-                use = false;
-            end
-            config_store.instance().store_config(this,'use_mex_C',use);
         end
         function this = set.force_mex_if_use_mex(this,val)
             if val>0

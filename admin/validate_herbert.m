@@ -93,7 +93,7 @@ clear config_store;
 % ------------------------------------------------------
 % (Validation must always return Herbert to its initial state, regardless
 %  of any changes made in the test routines. For example, as of 23/10/13
-%  the call to @loader_ascii\load_data will set use_mex_C=false if a
+%  the call to @loader_ascii\load_data will set use_mex=false if a
 %  problem is encountered, and will save the configuration. This is
 %  appropriate action when deployed, but we do not want this to be done
 %  during validation)

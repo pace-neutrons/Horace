@@ -20,7 +20,6 @@ function par=load_ASCII_par(filename)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 % If no input parameter given, return
 if ~exist('filename','var')
@@ -35,7 +34,7 @@ filename=strtrim(filename);
 %     error('LOAD_ASCII:load_ASCII_par',' file %s has to be an ascii file but it is hdf5 file\n',filename);
 % end
 
-use_mex = get(herbert_config,'use_mex_C');
+use_mex = get(herbert_config,'use_mex');
 if use_mex
     try     %using C routine
         par=get_ascii_file(filename,'par');
