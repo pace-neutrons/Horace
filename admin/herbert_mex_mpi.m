@@ -54,11 +54,12 @@ else
 end
 outdir = fullfile(her_folder,'herbert_core','DLL',['_',computer],'_R2015a');
 
+build_version_h(her_folder)
 try
     mex(add_include{:},input_files{:},...
         mpi_lib{:},'-outdir',outdir);
 catch Err
     ok = false;
     mess = Err.message;
+    disp(mess);
 end
-

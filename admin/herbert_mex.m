@@ -10,13 +10,11 @@ function herbert_mex(varargin)
 %               if provided, assume that compiler is configured
 % -setmex    -- by default, successfully mexed  files are not set to be
 %               used. when prompt is on, you are asked to set or not set
-%               them up. use -setmex to use mex files after successful 
+%               them up. use -setmex to use mex files after successful
 %               compilation.
 % -CPP_config  --configure C++ compiler to C++ -part of code, build C;
 % -missing   -- build only missing mex files, if not present, script
 %               rebuilds all existing files
-%
-%   $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 %
 % root directory is assumed to be that in which mslice_init resides
 
@@ -33,7 +31,7 @@ else
     missing ={};
 end
 if ~configure_cpp
-    build_c = true;    
+    build_c = true;
 end
 
 rootpath = herbert_root();
@@ -51,10 +49,6 @@ end
 %  - mslice extras directory:
 herbert_C_code_dir  =fullfile(rootpath,'_LowLevelCode','cpp');
 % check folder permissions
-ok = check_folder_permissions(lib_dir);
-if ~ok
-    error('HERBERT_MEX:invalid_permissions','can not get write permissions to auxiliary modules folder %s',lib_dir)
-end
 
 
 % -----------------------------------------------------
@@ -65,7 +59,8 @@ if prompt4compiler
     end
     set_mex = ask2SetMex();
 end
-
+% build package version
+build_version_h(rootpath)
 try
     if build_c
         % build C++ files
@@ -171,7 +166,7 @@ end
 if configure_cpp
     disp('!==================================================================!')
     disp('! please, select your compilers    ================================!')
-    mex -setup 
+    mex -setup
 end
 
 
