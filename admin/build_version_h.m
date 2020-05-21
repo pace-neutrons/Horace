@@ -13,7 +13,7 @@ if exist(ver_file_fp,'file') == 2
 end
 [~,pack_name] = fileparts(pack_folder);
 %
-version_template = fullfile(pack_folder,'Version');
+version_template = fullfile(pack_folder,'VERSION');
 fh_source = fopen(version_template );
 if fh_source<1
     error('HERBERT_MEX:runtime_error',...
