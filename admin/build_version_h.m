@@ -11,6 +11,7 @@ ver_file_fp = fullfile(pack_folder,'_LowLevelCode','cpp','utility',version_file)
 if exist(ver_file_fp,'file') == 2
     return;
 end
+[~,pack_name] = fileparts(pack_folder);
 %
 version_template = fullfile(pack_folder,'Version');
 fh_source = fopen(version_template );
@@ -24,6 +25,6 @@ ver = fscanf(fh_source,'%s');
 %
 fh_targ = fopen(ver_file_fp,'w');
 clob_ou = onCleanup(@()fclose(fh_targ));
-fprintf(fh_targ,['namespace Horace {\n',...
+fprintf(fh_targ,['namespace %s {\n',...
     '    constexpr char VERSION[] = "%s from %s";\n}'],...
-    ver,date);
+    pack_name,ver,date);
