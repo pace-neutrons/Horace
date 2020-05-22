@@ -13,8 +13,16 @@ been provided to PACE.
 
 The path to the SAN is stored as a secret in Jenkins with the ID `SAN_path`.
 To mount the SAN when running a Jenkins pipeline, you should use the dedicated
-user ID provided to PACE. The credentials for this are stored in a credentials
-file with ID `SAN_credentials_file`.
+user ID provided to PACE. The credentials for this are stored in a credentials file in Jenkins the with ID `SAN_credentials_file`,
+see https://www.jenkins.io/doc/book/using/using-credentials/ for an overview
+of credentials and credential files in Jenkins. The credentials file has
+format:
+
+```txt
+username
+domain
+password
+```
 
 One way to mount the drive on Linux is to use `gio`. The code fragment below
 gives an example of how to copy the file `README.txt` from the SAN area in a
