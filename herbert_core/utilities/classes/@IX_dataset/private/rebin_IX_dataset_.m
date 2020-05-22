@@ -56,7 +56,7 @@ function [wout,ok,mess] = rebin_IX_dataset_(win, integrate_data, point_integrati
 
 %[use_mex,force_mex]=get(herbert_config,'use_mex','force_mex_if_use_mex');
 use_mex = false; % no FORTRAN code to rebin data any more
-
+force_mex = false;
 nax=numel(iax); % number of axes to be rebinned
 
 % Check point integration option
