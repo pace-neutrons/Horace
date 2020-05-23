@@ -62,9 +62,6 @@ classdef test_gen_runfiles< TestCase
             this.v=[0.025,-0.01,1.04];
             
             ldd= asciipar_loader(this.par_file);
-            is = is_jenkins();
-            disp([' *** Check if is Jenkins called and it is: ',...
-                num2str(is)]);
             this.det = ldd.load_par();
             
             this=gen_test_files(this,ldd);
