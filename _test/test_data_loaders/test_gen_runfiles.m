@@ -62,6 +62,9 @@ classdef test_gen_runfiles< TestCase
             this.v=[0.025,-0.01,1.04];
             
             ldd= asciipar_loader(this.par_file);
+            is = is_jenkins();
+            disp([' *** Check if is Jenkins called and it is: ',...
+                num2str(is)]);
             this.det = ldd.load_par();
             
             this=gen_test_files(this,ldd);
@@ -91,7 +94,7 @@ classdef test_gen_runfiles< TestCase
                 S(:,1) = NaN;
                 S(:,10) = NaN;
                 or = oriented_lattice();
-                or.psi = this.psi(i); 
+                or.psi = this.psi(i);
                 rd.lattice = or;
                 rd.S   = S;
                 rd.ERR = ones(nen ,ndet);
@@ -155,11 +158,11 @@ classdef test_gen_runfiles< TestCase
             efix_wrong = efix_dif(1:2,1:10);
             run_files = rundata.gen_runfiles(this.test_files(1:2),this.par_file,...
                 efix_wrong,2,this.alatt,this.angdeg,...
-                 this.u,this.v,this.psi(1:2),...
-                 this.omega(1:2),this.dpsi(1:2),this.gl(1:2),this.gs(1:2));            
-              e_fix = run_files{1}.efix;
-              assertTrue(ischar(e_fix))
-              assertTrue(strncmp(e_fix,'Emode=2',7));
+                this.u,this.v,this.psi(1:2),...
+                this.omega(1:2),this.dpsi(1:2),this.gl(1:2),this.gs(1:2));
+            e_fix = run_files{1}.efix;
+            assertTrue(ischar(e_fix))
+            assertTrue(strncmp(e_fix,'Emode=2',7));
         end
         
         function test_genrunfiles(this)
