@@ -14,24 +14,25 @@ classdef test_pc_spec_config< TestCase
             this = this@TestCase(name);
             this.working_dir = tmp_dir;
         end
+        %
         function test_load_config(obj)
             cm = opt_config_manager();
-            assertTrue(isempty(cm.default_config));
+            assertTrue(isempty(cm.optimal_config));
             %
             % The strung sets configuration in memory. Should not be used
             % in tests.
             %cm = cm.load_configuration('-set_config','-change_only_default','-force_save');
             cm = cm.load_configuration();
             % Some pc type will be selected.
-            assertFalse(isempty(cm.default_config));
+            assertFalse(isempty(cm.optimal_config));
             
             % check generic win_small configuration
             cm.this_pc_type = 'win_small';
-            def_config = cm.default_config;
+            def_config = cm.optimal_config;
             assertFalse(def_config.hpc_config.build_sqw_in_parallel);
             assertEqual(def_config.hpc_config.mex_combine_thread_mode,0);
         end
-        
+        %
         function test_constructor_and_initial_op(obj)
             herc = herbert_config;
             co1 = herc.get_data_to_store();
@@ -49,7 +50,6 @@ classdef test_pc_spec_config< TestCase
             else
                 clob_hc = [];
                 clob_hpc =[];
-                
             end
             cm = opt_config_manager();
             source_dir = fileparts(which('opt_config_manager.m'));
@@ -104,6 +104,7 @@ classdef test_pc_spec_config< TestCase
                 assertEqual(ME.identifier,'OPT_CONFIG_MANAGER:invalid_argument')
             end
         end
+        %
         function test_set_wrong_pc_id(obj)
             cm = opt_config_manager();
             try
@@ -124,6 +125,7 @@ classdef test_pc_spec_config< TestCase
                 assertEqual(cm.pc_config_num,i);
             end
         end
+        %
         function test_set_pc_id_by_name(obj)
             cm = opt_config_manager();
             kpc = cm.known_pc_types;

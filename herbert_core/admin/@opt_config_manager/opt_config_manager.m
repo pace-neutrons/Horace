@@ -10,7 +10,6 @@ classdef opt_config_manager
     % Further user actions are necessary to identify if such configuration
     % is indeed best for users machine.
     %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
     %
     properties(Dependent,Access=public)
         % what type (out of known types) this pc belongs to. Usually is
@@ -32,8 +31,8 @@ classdef opt_config_manager
         % The helper, method providing the list of the configurations,
         % known to the class.
         known_configurations;
-        % The configuration, considered default for this particular pc type
-        default_config;
+        % The configuration, considered optimal for this particular pc type
+        optimal_config;
     end
     
     
@@ -111,7 +110,7 @@ classdef opt_config_manager
         function pc_type = get.this_pc_type(obj)
             pc_type = obj.this_pc_type_;
         end
-        function config = get.default_config(obj)
+        function config = get.optimal_config(obj)
             config = obj.current_config_;
         end
         %
@@ -152,7 +151,8 @@ classdef opt_config_manager
         end
         %
         function num = get.pc_config_num(obj)
-            % return the number of the
+            % return the number of the configuration in the list of all
+            % known configurations
             cur_type = obj.this_pc_type;
             num = find(ismember(obj.known_pc_types_,cur_type),1);
         end
@@ -174,7 +174,7 @@ classdef opt_config_manager
             %         of the computer;
             save_configurations_(obj,varargin{:});
         end
-        function obj = load_configuration(obj,varargin)
+        function [obj,opt_config] = load_configuration(obj,varargin)
             % method loads the previous configuration, which
             % stored as optimal for this computer.
             %
@@ -199,6 +199,7 @@ classdef opt_config_manager
             end
             
             obj = load_configuration_(obj,set_config,set_def_only,force_save);
+            opt_config = obj.optimal_config;
         end
         function [pc_type,nproc,mem_size] = find_comp_type(obj)
             % analyze pc parameters (memory, number of processors etc.)
