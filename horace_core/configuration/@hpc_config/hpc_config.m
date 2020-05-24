@@ -97,6 +97,9 @@ classdef hpc_config < config_base
         % configuration. To change the parallel configuration, work with
         % this configuration class itself;
         parallel_configuration
+        % helper property, returining the list of options, which define hpc
+        % configuration. Coinsids with saved_properties_list_ 
+        hpc_options
     end
     properties(Dependent,Hidden=true)
         % DEPRECATED properties left for old parallel interface to work
@@ -125,7 +128,7 @@ classdef hpc_config < config_base
         saved_properties_list_={...
             'build_sqw_in_parallel','parallel_workers_number',...
             'combine_sqw_using',...
-            'mex_combine_thread_mode','mex_combine_buffer_size',...
+            'mex_combine_thread_mode','mex_combine_buffer_size'...
             }
         combine_sqw_options_ = {'matlab','mex_code','mpi_code'};
     end
@@ -183,6 +186,9 @@ classdef hpc_config < config_base
         end
         function config = get.parallel_configuration(obj)
             config = parallel_config();
+        end
+        function hpco = get.hpc_options(obj)
+            hpco = obj.saved_properties_list_;
         end
         %----------------------------------------------------------------
         function this = set.combine_sqw_using(this,val)
