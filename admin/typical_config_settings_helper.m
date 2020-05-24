@@ -83,7 +83,6 @@ cm.save_configurations('Unix large is our isiscompute machine which uses OMP and
 function set_windows_small(parc,herc,horc,hpcc)
 %
 herc.use_mex = true;
-herc.use_mex_C = true;
 %
 horc.mem_chunk_size =  5000000;
 horc.threads = 8;
@@ -99,7 +98,6 @@ hpcc.mex_combine_buffer_size=64*1024;
 function set_mac_small(parc,herc,horc,hpcc)
 %
 herc.use_mex = false;
-herc.use_mex_C = false;
 
 %
 horc.mem_chunk_size =  5000000;
@@ -114,7 +112,6 @@ hpcc.mex_combine_buffer_size=64*1024;
 function set_windows_large(parc,herc,horc,hpcc)
 %
 herc.use_mex = true;
-herc.use_mex_C = true;
 %
 horc.mem_chunk_size =  20000000;
 horc.threads = 8;
@@ -129,7 +126,6 @@ hpcc.mex_combine_buffer_size=128*1024;
 function set_idaaas_small(parc,herc,horc,hpcc)
 %
 herc.use_mex = true;
-herc.use_mex_C = true;
 %
 horc.mem_chunk_size =  5000000;
 horc.threads = 8;
@@ -144,7 +140,6 @@ hpcc.mex_combine_buffer_size=8*1024;
 function set_idaaas_large(parc,herc,horc,hpcc)
 %
 herc.use_mex = true;
-herc.use_mex_C = true;
 %
 horc.mem_chunk_size =  20000000;
 horc.threads = 4;
@@ -154,14 +149,13 @@ hpcc.build_sqw_in_parallel = 1;
 hpcc.parallel_workers_number =  6;
 hpcc.combine_sqw_using = 'mex_code';
 hpcc.mex_combine_thread_mode=1;
-hpcc.mex_combine_buffer_size=8*1024;
+hpcc.mex_combine_buffer_size=128*1024;
 
 
 
 function set_unix_small(parc,herc,horc,hpcc)
 %
 herc.use_mex = false;
-herc.use_mex_C = false;
 %
 horc.mem_chunk_size =  5000000;
 horc.threads = 8;
@@ -178,7 +172,6 @@ hpcc.mex_combine_buffer_size=128*1024;
 function set_unix_large(parc,herc,horc,hpcc)
 %
 herc.use_mex = true;
-herc.use_mex_C = true;
 %
 horc.mem_chunk_size = 20000000;
 horc.threads = 8;

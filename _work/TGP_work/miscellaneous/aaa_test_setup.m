@@ -11,7 +11,7 @@ if nargin==1
     if ischar(varargin{1}) && size(varargin{1},1)==1 && isequal(lower(varargin{1}),'off')
         on=false;
     else
-        error('Unrecognised option')
+        error('Unrecognized option')
     end
 elseif nargin==0
     on=true;

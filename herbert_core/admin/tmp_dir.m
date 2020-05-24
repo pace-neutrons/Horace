@@ -19,6 +19,9 @@ if is_idaaas()
         location = getenv('HOME');        
     end
     the_dir = fullfile(location,'tmp');
+    % dereference simulinks and obtain real path
+    [~,fatr] = fileattrib(the_dir);
+    the_dir = [fatr.Name,filesep];
     if ~(exist(the_dir,'dir') == 7)
         mkdir(the_dir);
     end

@@ -1,7 +1,7 @@
 // get_ascii_file.cpp : Defines the exported functions for the DLL application.
 //
 #include "get_ascii_file.h"
-#include "utility/version.h"
+#include "../utility/version.h"
 /*! \file get_ascii_file.cpp
 *
 *  \brief     result=get_ascii_file(fileName,[file_type]) function reads par, phx or spx - ASCII

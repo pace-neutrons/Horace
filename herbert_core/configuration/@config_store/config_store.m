@@ -268,10 +268,10 @@ classdef config_store < handle
             %       unusual instance of Herbert config, with modified
             %       defaults. Should not be used
             %
-            % [use_mex,use_mex_C]=conifg_store.instance().restore_config(herbert_config,...
-            %                     'use_mex','use_mex_C')
-            %                     returns current Herbert config settings for fields
-            %                      'use_mex' and 'use_mex_C'
+            % [use_mex,log_level]=conifg_store.instance().restore_config(herbert_config,...
+            %                     'use_mex','log_level')
+            %                      returns current Herbert config settings for fields
+            %                      'use_mex' and 'log_level'
             
             config_data=this.get_config_(class_to_restore);
             % execute class setters.

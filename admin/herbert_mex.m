@@ -10,13 +10,11 @@ function herbert_mex(varargin)
 %               if provided, assume that compiler is configured
 % -setmex    -- by default, successfully mexed  files are not set to be
 %               used. when prompt is on, you are asked to set or not set
-%               them up. use -setmex to use mex files after successful 
+%               them up. use -setmex to use mex files after successful
 %               compilation.
 % -CPP_config  --configure C++ compiler to C++ -part of code, build C;
 % -missing   -- build only missing mex files, if not present, script
 %               rebuilds all existing files
-%
-%   $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 %
 % root directory is assumed to be that in which mslice_init resides
 
@@ -33,7 +31,7 @@ else
     missing ={};
 end
 if ~configure_cpp
-    build_c = true;    
+    build_c = true;
 end
 
 rootpath = herbert_root();
@@ -51,10 +49,6 @@ end
 %  - mslice extras directory:
 herbert_C_code_dir  =fullfile(rootpath,'_LowLevelCode','cpp');
 % check folder permissions
-ok = check_folder_permissions(lib_dir);
-if ~ok
-    error('HERBERT_MEX:invalid_permissions','can not get write permissions to auxiliary modules folder %s',lib_dir)
-end
 
 
 % -----------------------------------------------------
@@ -65,15 +59,16 @@ if prompt4compiler
     end
     set_mex = ask2SetMex();
 end
-
+% build package version
+build_version_h(rootpath)
 try
     if build_c
         % build C++ files
         mex_single_c(fullfile(herbert_C_code_dir,'get_ascii_file'), herbert_mex_target_dir,...
             'get_ascii_file.cpp','IIget_ascii_file.cpp')
         
-        try % failure in using this routine does not affect use_mex_C option as the routine is not checking it and
-            % created for compartibility with older versions of matlab
+        try % failure in using this routine does not affect use_mex option as the routine is not checking it and
+            % created for compatibility with older versions of Matlab
             mex_single_c(fullfile(herbert_C_code_dir,'byte_stream'), herbert_mex_target_dir,...
                 'byte_stream.cpp')
         catch
@@ -81,9 +76,9 @@ try
         
         disp (' ')
         disp('!==================================================================!')
-        disp('!  Succesfully created required C mex files   =====================!')
+        disp('!  Successfully created required C mex files   =====================!')
         if set_mex
-            set(herbert_config,'use_mex_C',true);
+            set(herbert_config,'use_mex',true);
             disp('!  Setting it to immediate use                     ================!')
         end
         disp('!==================================================================!')
@@ -98,7 +93,7 @@ catch ex
     disp('!  C mex-ing failed                                ================!')
     disp('!==================================================================!')
     disp(' ')
-    set(herbert_config,'use_mex_C',false);
+    set(herbert_config,'use_mex',false);
     rethrow(ex)
 end
 
@@ -128,7 +123,7 @@ if(exist(targ_file,'file'))
         delete(targ_file)
     catch
         cd(old_path);
-        error([' file: ',f_name,mexext,' locked. deleteon error: ',lasterr()]);
+        error([' file: ',f_name,mexext,' locked. deletion error: ',lasterr()]);
     end
 end
 
@@ -154,7 +149,7 @@ if ~(configure_cpp)
     user_entry=input('! y/n/e :','s');
     user_entry=strtrim(lower(user_entry));
     user_choice = user_entry(1);
-    disp(['!===> ' user_choice,' choosen                                                    !']);
+    disp(['!===> ' user_choice,' chosen                                                     !']);
     disp('!==================================================================!')
     if ~(user_choice=='y'||user_choice=='n')
         user_choice='e';
@@ -171,25 +166,25 @@ end
 if configure_cpp
     disp('!==================================================================!')
     disp('! please, select your compilers    ================================!')
-    mex -setup 
+    mex -setup
 end
 
 
 function set_mex = ask2SetMex()
 disp('!==================================================================!')
-disp('! Would you like to use mex files immidiately after successfull    !')
+disp('! Would you like to use mex files immediately after successful    !')
 disp('! compilation?: y/n                                                !')
 disp('! if no, you will be able to use them  by setting herbert          !')
 disp('! configuration                                                    !')
-disp('!>>set(herbert_config,''use_mex'',1,''use_mex_C'',1)                   !')
-disp('! when compilation was successfull,                                !')
+disp('!>>set(herbert_config,''use_mex'',1,')                        !')
+disp('! when compilation was successful,                                !')
 disp('! if yes, this script will do it for you                           !')
 disp('!------------------------------------------------------------------!')
 disp('!------------------------------------------------------------------!')
 user_entry=input('! y/n :','s');
 user_entry=strtrim(lower(user_entry));
 user_choice = user_entry(1);
-disp(['!===> ' user_choice,' choosen                                                    !']);
+disp(['!===> ' user_choice,' chosen                                                    !']);
 disp('!==================================================================!')
 
 if strncmp(user_entry,'y',1)

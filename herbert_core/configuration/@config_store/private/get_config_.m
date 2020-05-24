@@ -19,8 +19,6 @@ function config_data=get_config_(this,class_to_restore)
 % and stays there for further usage. 
 %
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-%
 if ischar(class_to_restore)
     class_name = class_to_restore;
     class_to_restore = feval(class_name);

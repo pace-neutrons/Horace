@@ -54,8 +54,9 @@ function [wout,ok,mess] = rebin_IX_dataset_(win, integrate_data, point_integrati
 %   mess                Error message; empty if ok
 
 
-[use_mex,force_mex]=get(herbert_config,'use_mex','force_mex_if_use_mex');
-
+%[use_mex,force_mex]=get(herbert_config,'use_mex','force_mex_if_use_mex');
+use_mex = false; % no FORTRAN code to rebin data any more
+force_mex = false;
 nax=numel(iax); % number of axes to be rebinned
 
 % Check point integration option
@@ -72,7 +73,7 @@ end
 
 % Check rebin parameters
 % ----------------------
-% If the rebin boundaries are the same for all input datasets (i.e. no knowledge of their axes is required to
+% If the rebin boundaries are the same for all input databases (i.e. no knowledge of their axes is required to
 % resolve infinities in the lower of upper rebin limits, or retain original bin widths for some regions) then
 % construct the new bin boundaries here to avoid repeated calculation in a loop over the size of win.
 
