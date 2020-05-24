@@ -1,4 +1,4 @@
-function hpc(varargin)
+function [hpc_cli,hpc_opt] = hpc(varargin)
 % function tries to identify if current system is a high performance
 % computer and sets up hpc options which assumed to be optimal for current system
 %
@@ -8,7 +8,7 @@ function hpc(varargin)
 %
 % User should try to identify optimal hpc setting for his particular computer
 % and not rely very much on the results, produced by this command, though
-% it should be ok to run in on isiscompute. 
+% it should be ok to run in on isiscompute.
 %
 % Usage:
 %>>hpc on    -- enable hpc computing extensions
@@ -16,50 +16,86 @@ function hpc(varargin)
 %>>hpc       -- print current hpc computing extensions value and the values,
 %               recommended by this function (very crude estimate)
 %
-% The meaning of hpc properties this function sets can be described as below:
-%   combine_sqw_using: true/false -- should mex extension be used to
+% If provided with output arguments, two structures, defining configurations:
+% namely
+% [hpc_cli,hpc_opt] = hpc(___);
+% where
+% hpc_cli  -- the current hpc configuration, used by computer
+%                  (changes if hpc is on)
+% hpc_opt  -- the configuration, assumed to be optimal for the
+%             identified type of the machine.
+%
+%
+% The meaning of hpc properties is described by hpc_config configuration
+%                        file.
+%  combine_sqw_using: matlab/mex_code/mpi_code -- should mex extension be
 %                                      combine tmp files, if such extension
-%                                      is available
-%   mex_combine_thread_mode:          0  use mex file for combining and run 
-%                                        separate input and output thread
-%                                     1  use mex file for combining and in 
-%                                        addition to option 0, spawn separate 
-%                                        input thread for each input file 
-%                                     2  debugging option related to option 1
-%                                     3  debugging option related to option 1
+%                                      is available, or if mpi code to be
+%                                      used for combining (currently test
+%                                      option) or matlab code (slow serial
+%                                      option used for backup)
+%  mex_combine_thread_mode:      0  use mex file for combining and run
+%                                   separate input and output thread
+%                                1  use mex file for combining and in
+%                                   addition to option 0, spawn separate
+%                                   input thread for each input file
+%                                2  debugging option related to option 1
+%                                3  debugging option related to option 1
 %  mex_combine_buffer_size: 65536 -- file buffer used for each input file in mex-file combining
-% 
-%  build_sqw_in_parallel: 0     -- use separate Matlab sessions when processing input spe or nxspe files
-%  parallel_workers_number: 4     -- how many sessions to use.
+%
+%  build_sqw_in_parallel:   0  -- use separate Matlab sessions when processing input spe or nxspe files
+%  parallel_workers_number: 4  -- number of parallel sessions to use.
+%
+%  The options, presumed to be optimal are identified according to the
+%  computer type and managed by opt_config_manager class.
 
-hpc_options_names = {'combine_sqw_using','mex_combine_thread_mode','mex_combine_buffer_size',...
-        'build_sqw_in_parallel','parallel_workers_number'};
+hpc_cli = hpc_config();
+hpc_options_names = hpc_cli.hpc_options;
 
 if nargin>0
     val = varargin{1};
     if strcmpi(val,'on')
-        find_hpc_options(hpc_options_names,'-set_config');        
+        ocp = opt_config_manager();
+        % load configuration, assumed optimal for calculated type of the computer.
+        ocp = ocp.load_configuration();
+        config = ocp.optimal_config;
+        hpc_opt = config.hpc_config;
+        
+        flds = fieldnames(hpc_opt);
+        for i=1:numel(flds)
+            hpc_cli.(flds{i}) = hpc_opt.(flds{i});
+        end
     elseif strcmpi(val,'off')
-        hpc = hpc_config;
-        hpc.combine_sqw_using = 'matlab';
-        hpc.build_sqw_in_parallel = 0;
+        hpc_cli.combine_sqw_using = 'matlab';
+        hpc_cli.build_sqw_in_parallel = 0;
     else
         fprintf('Unknown hpc option ''%s'', Use ''on'' or ''off'' only\n',varargin{1});
     end
 else
+    ocp = opt_config_manager();
+    % load configuration, assumed optimal for calculated type of the computer.
+    ocp = ocp.load_configuration(varargin{:});
+    config = ocp.optimal_config;
+    hpc_opt = config.hpc_config;
     
-    [use_mex_fcr,mex_comb_tmr,mex_comb_bsr,acspr,acp_numr]=find_hpc_options(hpc_options_names);
-    [use_mex_fcc,mex_comb_tmc,mex_comb_bsc,acspc,acp_numc]=get(hpc_config,...
-        hpc_options_names{:});
-    
+    disp('|-------------------------|----------------|----------------|');
     disp('| computer hpc options    | current val    | recommended val|');
     disp('|-------------------------|----------------|----------------|');
-    fprintf('| combine_sqw_using:      | %14s | %14s |\n',use_mex_fcc,use_mex_fcr);
-    fprintf('| mex_combine_thread_mode:| %14d | %14d |\n',mex_comb_tmc,mex_comb_tmr);
-    fprintf('| mex_combine_buffer_size:| %14d | %14d |\n',mex_comb_bsc,mex_comb_bsr);
-    disp('|-------------------------|----------------|----------------|');
-    fprintf('| build_sqw_in_parallel:  | %14d | %14d |\n',acspc,acspr);
-    fprintf('| parallel_wrkrs_number:  | %14d | %14d |\n',acp_numc,acp_numr);
+    format_ticks = [2];
+    for i=1:numel(hpc_options_names)
+        opt = hpc_options_names{i};
+        exist_val = hpc_cli.(opt);
+        opt_val   = hpc_opt.(opt);
+        if isnumeric(exist_val) || islogical(exist_val)
+            fprintf('| %23s | %14d | %14d |\n',opt,exist_val,opt_val);
+        elseif ischar(exist_val)
+            fprintf('| %23s | %14s | %14s |\n',opt,exist_val,opt_val);
+        end
+        is_tick = intersect(format_ticks,i);
+        if ~isempty(is_tick)
+            disp('|-------------------------|----------------|----------------|');
+        end
+    end
     disp('-------------------------------------------------------------');
 end
 
