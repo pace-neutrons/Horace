@@ -97,9 +97,12 @@ classdef test_gen_sqw_accumulate_sqw_parpool <  ...
         end
         function test_accumulate_sqw1456(obj,varargin)
             if is_jenkins && ispc
-                hpc = hpc_config;
-                hpc.combine_sqw_using = 'mex_code';
-                clOb = onCleanup(@()set(hpc,'combine_sqw_using','mpi_code'));
+                %                 hpc = hpc_config;
+                %                 hpc.combine_sqw_using = 'mex_code';
+                %                 clOb = onCleanup(@()set(hpc,'combine_sqw_using','mpi_code'));
+                warning('test_accumulate_sqw1456:disabled','test_accumulate_sqw1456 disabled on this machine');
+                return
+                
             end
             test_accumulate_sqw1456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
         end
