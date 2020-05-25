@@ -35,8 +35,9 @@
         -test_accumulate_sqw14
         -test_accumulate_sqw1456;
         -test_accumulate_sqw11456;
-        Additionally disabled on Windows Jenkins:
+        Additionally disabled on Windows Jenkins due to random failures:
         -test_gen_sqw
         -test_accumulate_and_combine1to4
         -test_accumulate_sqw14
+        -test_accumulate_sqw1456
           
