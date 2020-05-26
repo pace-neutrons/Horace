@@ -104,9 +104,9 @@ end
 % Always use the Matlab ASCII loader: reading with mex can give
 % slightly different answers due to floating point errors. This
 % can result in inconsistent binning and cause this test to fail
-herbert_conf = herbert_config();
-original_herbert_conf = herbert_conf.get_data_to_store();
-herbert_conf.use_mex_C = false;
+her_conf = herbert_config();
+original_herbert_conf = her_conf.get_data_to_store();
+her_conf.use_mex = false;
 
 % Process files
 grid=[1,1,1,1];     % need to force to be one bin for the algorithm to work
