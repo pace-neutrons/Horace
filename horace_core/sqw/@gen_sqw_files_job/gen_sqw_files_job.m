@@ -26,9 +26,15 @@ classdef gen_sqw_files_job < JobExecutor
             common_par = obj.common_data_;
             loop_par   = obj.loop_data_;
             
-            grid_size_in = common_par.grid_size_in;
-            urange_in = common_par.urange_in;
-            
+            try
+                grid_size_in = common_par.grid_size_in;
+                urange_in = common_par.urange_in;
+            catch ME
+                mess =  matlab.unittest.diagnostics.ConstraintDiagnostic.getDisplayableString(common_par);
+                mex1 = MException('GEN_SQW_FILES_JOB:invalid_common_par',mess);
+                ME = ME.addCause(mex1);
+                rethrow(ME);
+            end
             if isstruct(loop_par)
                 run_files  = loop_par.runfile;
                 if ~iscell(run_files)
