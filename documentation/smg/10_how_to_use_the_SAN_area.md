@@ -26,11 +26,16 @@ domain
 password
 ```
 
-One way to mount the drive on Linux is to use `gio`. The code fragment below
-gives an example of how to copy the file `README.txt` from the SAN area in a
-Jenkinsfile. ANVIL requires the use of `dbus-run-session` when mounting the
-drive. In reality, you may want to have a separate bash script that contains
-the mount/copy commands and takes the SAN path and credentials as arguments.
+### Example
+
+The examples below demonstrate how to mount the share and copy the file `README.txt` from the SAN area 
+in a Jenkinsfile. In a production system you may want to have a separate bash script that contains the 
+mount/copy commands and takes the SAN path and credentials as arguments.
+
+#### Linux
+
+One way to mount the drive on the ANVIL Linux build agents is to use `gio`. ANVIL requires the use of 
+`dbus-run-session` when mounting the drive this way. 
 
 ```groovy
 pipeline {
@@ -55,7 +60,11 @@ pipeline {
   }
 }
 ```
-A Windows build agent does not require the drive to mounted explicitly. This script works for `powershell` or `bat` script steps.
+
+#### Windows
+
+A Windows build agent does not require the drive to mounted explicitly. This script works for both
+`powershell` and `bat` script steps.
 
 ```groovy
 pipeline {
@@ -77,3 +86,5 @@ pipeline {
   }
 }
 ```
+
+ 
