@@ -118,6 +118,3 @@ for i=1:numel(sqw_file)
     end
 end
 warning(ws);
-
-
-

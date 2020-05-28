@@ -69,18 +69,18 @@ if nargin==1
     if nout>0
         if nw==1
             if iscell(win), pix = win{1}.data.pix; else, pix = win.data.pix; end
-            if nout>=1, irun = pix(5,:)'; end   % column vector
-            if nout>=2, idet = pix(6,:)'; end   % column vector
-            if nout>=3, ien  = pix(7,:)'; end   % column vector
+            if nout>=1, irun = pix.run_idx'; end   % column vector
+            if nout>=2, idet = pix.detector_idx'; end   % column vector
+            if nout>=3, ien  = pix.energy_idx'; end   % column vector
         else
             if nout>=1, irun = cell(size(win)); end
             if nout>=2, idet = cell(size(win)); end
             if nout>=3, ien  = cell(size(win)); end
             for i = 1:nw
                 if iscell(win), pix = win{i}.data.pix; else, pix = win(i).data.pix; end
-                if nout>=1, irun{i} = pix(5,:)'; end   % column vector
-                if nout>=2, idet{i} = pix(6,:)'; end   % column vector
-                if nout>=3, ien{i}  = pix(7,:)'; end   % column vector
+                if nout>=1, irun{i} = pix.run_idx'; end   % column vector
+                if nout>=2, idet{i} = pix.detector_idx'; end   % column vector
+                if nout>=3, ien{i}  = pix.energy_idx'; end   % column vector
             end
         end
         if nout>=1, varargout{1} = irun; end
@@ -127,7 +127,7 @@ if isnumeric(indx)
     end
     indx_internal = {indx};      % cell array for standard form later on
     iw_internal = ones(nw,1);    % every sqw object has the same indx array - indx is effectively infinitely long
-    
+
 elseif iscell(indx)
     nind = numel(indx);
     for i=1:nind
@@ -137,7 +137,7 @@ elseif iscell(indx)
         end
     end
     indx_internal = indx;        % standard name for internal working
-    
+
     if nind==1
         iw_internal = ones(nw,1);    % every sqw object has the same indx array - indx is effectively infinitely long
     else
@@ -168,7 +168,7 @@ for i=1:nw
     end
     indx_tmp = indx_internal{iw_internal(i)};
     if size(indx_tmp,2)==1
-        if ~(max(indx_tmp)<=size(wtmp.data.pix,2) && min(indx_tmp)>=0)
+        if ~(max(indx_tmp)<=wtmp.data.pix.num_pixels && min(indx_tmp)>=0)
             mess = 'One or more pixel indicies outside range of sqw object';
             return
         end
@@ -204,9 +204,9 @@ if nout>0
         indx_tmp = indx_internal{iw_internal(1)};
         if size(indx_tmp,2)==1
             if iscell(win), pix = win{1}.data.pix; else, pix = win.data.pix; end
-            if nout>=1, irun = pix(5,indx_tmp)'; end   % column vector
-            if nout>=2, idet = pix(6,indx_tmp)'; end   % column vector
-            if nout>=3, ien  = pix(7,indx_tmp)'; end   % column vector
+            if nout>=1, irun = pix.run_idx(indx_tmp)'; end   % column vector
+            if nout>=2, idet = pix.detector_idx(indx_tmp)'; end   % column vector
+            if nout>=3, ien  = pix.energy_idx(indx_tmp)'; end   % column vector
         else
             if nout>=1, irun = indx_tmp(:,1); end
             if nout>=2, idet = indx_tmp(:,2); end
@@ -220,9 +220,9 @@ if nout>0
             indx_tmp = indx_internal{iw_internal(i)};
             if size(indx_tmp,2)==1
                 if iscell(win), pix = win{i}.data.pix; else, pix = win(i).data.pix; end
-                if nout>=1, irun{i} = pix(5,indx_tmp)'; end   % column vector
-                if nout>=2, idet{i} = pix(6,indx_tmp)'; end   % column vector
-                if nout>=3, ien{i}  = pix(7,indx_tmp)'; end   % column vector
+                if nout>=1, irun{i} = pix.run_idx(indx_tmp)'; end   % column vector
+                if nout>=2, idet{i} = pix.detector_idx(indx_tmp)'; end   % column vector
+                if nout>=3, ien{i}  = pix.energy_idx(indx_tmp)'; end   % column vector
             else
                 if nout>=1, irun{i} = indx_tmp(:,1); end
                 if nout>=2, idet{i} = indx_tmp(:,2); end

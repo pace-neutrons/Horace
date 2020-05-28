@@ -1,5 +1,5 @@
 % Compare SQWs. Fails if different.
-%   ignore_latt: ingore lattice parameters 
+%   ignore_latt: ingore lattice parameters
 %   (these have been refined since ILL data analysis)
 function compare(l, r, ignore_latt)
     if is_string(l)
@@ -42,7 +42,7 @@ function compare(l, r, ignore_latt)
     assert(all(l.header.ulabel{2}==r.header.ulabel{2}));
     assert(all(l.header.ulabel{3}==r.header.ulabel{3}));
     disp('(relevant parts) of headers equal');
-    
+
     %% helper functions for fuzzy comparison
     % checks if
     %   abs(x_i - y_i) <= tol*max(abs(x_i),abs(y_i))
@@ -85,32 +85,32 @@ function compare(l, r, ignore_latt)
     assert(all(l.data.npix(:)==r.data.npix(:)));
 
     assert(all(size(l.data.pix)==size(r.data.pix)));
-    bounds = 0:1000000:numel(l.data.pix);
-    bounds = [bounds numel(l.data.pix)];
+    bounds = 0:1000000:numel(l.data.pix.data);
+    bounds = [bounds numel(l.data.pix.data)];
     disp('Data except pixels equal');
     h = waitbar(0,'Comparing pixel data...') ;
     for k=1:(numel(bounds)-1)
         idx = (bounds(k)+1):bounds(k+1);
         try
-            assert(all(l.data.pix(idx)==r.data.pix(idx)));
+            assert(all(l.data.pix.data(idx)==r.data.pix.data(idx)));
         catch exception
             e = -10;
             while true
                 try
-                    assert(eqrel(l.data.pix(idx), r.data.pix(idx), 10^e));
+                    assert(eqrel(l.data.pix.data(idx), r.data.pix.data(idx), 10^e));
                 catch e2
                     e = e+1;
                     continue;
                 end
-                
+
                 colprintf([1,0.5,0], ['Fuzzy with e=' num2str(e) '\n']);
                 break;
             end
-            
-            e = find(~(l.data.pix(idx)==r.data.pix(idx)));
+
+            e = find(~(l.data.pix.data(idx)==r.data.pix.data(idx)));
             disp('Diffs:');
-            t=l.data.pix(idx);
-            u=r.data.pix(idx);
+            t=l.data.pix.data(idx);
+            u=r.data.pix.data(idx);
             disp([t(e) u(e)]);
         end
         waitbar(k/numel(bounds));

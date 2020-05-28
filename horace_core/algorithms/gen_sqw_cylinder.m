@@ -169,8 +169,8 @@ for i=1:nfiles
     w=read_sqw(tmp_file{i});
     % Compute new coordinates
     data=w.data;
-    data.pix(1:2,:)=[sqrt(sum(data.pix(1:2,:).^2,1));zeros(1,size(data.pix,2))];
-    data.urange(:,1:2)=[min(data.pix(1:2,:),[],2)';max(data.pix(1:2,:),[],2)'];
+    data.pix.coordinates(1:2,:)=[sqrt(sum(data.pix.coordinates(1:2,:).^2,1));zeros(1,data.pix.num_pixels)];
+    data.urange(:,1:2)=[min(data.pix.coordinates(1:2,:),[],2)';max(data.pix.coordinates(1:2,:),[],2)'];
     data.iax=2;   % second axis becomes integration axis
     data.iint=[-Inf;Inf];
     data.pax=[1,3,4];

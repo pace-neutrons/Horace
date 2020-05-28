@@ -149,6 +149,7 @@ instrument_default=struct;  % default 1x1 struct
 sample_default=struct;      % default 1x1 struct
 [ok,mess,present,grid_size,urange,instrument,sample]=gen_sqw_check_optional_args(...
     nfiles,grid_default,instrument_default,sample_default,varargin{:});
+
 if ~ok, error(mess), end
 
 

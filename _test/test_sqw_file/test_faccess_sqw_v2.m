@@ -221,7 +221,7 @@ classdef test_faccess_sqw_v2< TestCase
             rec_sqw = tn.get_sqw('-ver');
             tn.delete();
             %
-            assertEqual(struct(tob_sqw),struct(rec_sqw));
+            assertTrue(equal_to_tol(tob_sqw, rec_sqw));
             %
         end
         %
