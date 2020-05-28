@@ -55,3 +55,25 @@ pipeline {
   }
 }
 ```
+A Windows build agent does not require the drive to mounted explicitly. This script works for `powershell` or `bat` script steps.
+
+```groovy
+pipeline {
+  agent any
+
+  stages {
+    stage('Copy') {
+      steps {
+         withCredentials([string(credentialsId: 'SAN_path', variable: 'san_path')]) {
+           bat '''
+             // hide most of the verbose robocopy output, which will include the secret path
+             robocopy "%san_path%" . README.txt /nfl /ndl /njh /njs /nc /np
+             dir
+             more README.txt
+           '''
+        }
+      }
+    }
+  }
+}
+```
