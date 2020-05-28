@@ -2,11 +2,11 @@ classdef data_sqw_dnd
     % Class defines structure of the data, used by sqw&dnd objects
     %
     % Trivial implementation, wrapping around a structure
-    
+
     % Original author: T.G.Perring
     %
     % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-    %   
+    %
     properties
         filename=''   % Name of sqw file that is being read, excluding path
         filepath=''   % Path to sqw file that is being read, including terminating file separator
@@ -40,20 +40,10 @@ classdef data_sqw_dnd
         %             [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
         urange=[Inf,Inf,Inf,Inf;... %True range of the data along each axis [urange(2,4)]
             -Inf,-Inf,-Inf,-Inf] % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf] -- convention if no pixels
-        pix=zeros(9,0)              % Array containing data for each pixel - convention for no pixels
-        % If npixtot=sum(npix), then pix(9,npixtot) contains:
-        % u1      -|
-        % u2       |  Coordinates of pixel in the projection axes
-        % u3       |
-        % u4      -|
-        % irun        Run index in the header block from which pixel came
-        % idet        Detector group number in the detector listing for the pixel
-        % ien         Energy bin number for the pixel in the array in the (irun)th header
-        % signal      Signal array
-        % err         Error array (variance i.e. error bar squared)
+        pix = PixelData()      % Object containing data for each pixel
         axis_caption=an_axis_caption(); %  Reference to class, which define axis captions
     end
-    
+
     methods
         %------------------------------------------------------------------
         % Determine data type of the data field of an sqw data structure
@@ -170,18 +160,8 @@ classdef data_sqw_dnd
             %   data.npix       No. contributing pixels to each bin of the plot axes.
             %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
             %   data.urange     True range of the data along each axis [urange(2,4)]
-            %   data.pix        Array containing data for each pixel:
-            %                  If npixtot=sum(npix), then pix(9,npixtot) contains:
-            %                   u1      -|
-            %                   u2       |  Coordinates of pixel in the projection axes
-            %                   u3       |
-            %                   u4      -|
-            %                   irun        Run index in the header block from which pixel came
-            %                   idet        Detector group number in the detector listing for the pixel
-            %                   ien         Energy bin number for the pixel in the array in the (irun)th header
-            %                   signal      Signal array
-            %                   err         Error array (variance i.e. error bar squared)
-            
+            %   data.pix        A PixelData object
+
             if nargin>0 && isa(varargin{1},'data_sqw_dnd') % handle shallow copy constructor
                 obj =varargin{1};                          % its COW for Matlab anyway
             else
@@ -229,7 +209,7 @@ classdef data_sqw_dnd
         end
         %
         function obj=clear_sqw_data(obj)
-            obj.pix=[];
+            obj.pix = PixelData();
             obj.urange=[];
         end
         %
@@ -242,7 +222,7 @@ classdef data_sqw_dnd
             %
             [ok, type, mess]=obj.check_sqw_data_(type_in);
         end
-        
+
     end
 end
 

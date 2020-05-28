@@ -14,7 +14,7 @@ function wout = section (win,varargin)
 %   [ax_2_lo, ax_2_hi]  Lower and upper limits for the second axis
 %
 %           :                       :
-%  
+%
 %       for as many axes as there are plot axes
 %
 % Output:
@@ -102,7 +102,7 @@ for n=1:numel(win)
         % Section pix array
         [nstart,nend] = aProjection.get_nrange(win(n).data.npix,irange);   % get contiguous ranges of pixels to be retained
         ind=ind_from_nrange(nstart,nend);
-        wout(n).data.pix=win(n).data.pix(:,ind);
+        wout(n).data.pix = win(n).data.pix.get_pixels(ind);
         % Update urange
         wout(n).data.urange=recompute_urange(wout(n));
     end

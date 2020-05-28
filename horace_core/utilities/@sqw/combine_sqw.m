@@ -26,12 +26,12 @@ if ~is_sqw_type(w1) || ~is_sqw_type(w2)
 end
 
 %Catch case of one or other dataset being empty
-if numel(w1.data.pix)==0 && numel(w2.data.pix)~=0
+if isempty(w1.data.pix) && ~isempty(w2.data.pix)
     wout=w2; return;
-elseif numel(w1.data.pix)~=0 && numel(w2.data.pix)==0
+elseif ~isempty(w1.data.pix) && isempty(w2.data.pix)
     wout=w1; return;
-elseif numel(w1.data.pix)==0 && numel(w2.data.pix)==0
-    wout=w1; return;%case where both empty returns first dataset
+elseif isempty(w1.data.pix) && isempty(w2.data.pix)
+    wout=w1; return;  %case where both empty returns first dataset
 end
 
 [ndims1,sz1]=dimensions(w1);
@@ -54,7 +54,7 @@ end
 %
 %
 
-coords_rlu1=inv(w1.data.u_to_rlu) * w1.data.pix([1:4],:);
+coords_rlu1=inv(w1.data.u_to_rlu) * w1.data.pix.coordinates;
 rlutrans=[(2*pi./w1.data.alatt)'; 1];
 coords_rlu1=coords_rlu1./repmat(rlutrans,1,numel(coords_rlu1) /4);
 %
@@ -64,7 +64,7 @@ for i=1:ndims1
 end
 
 %Next do the same for the 2nd dataset:
-coords_rlu2=inv(w1.data.u_to_rlu) * w2.data.pix([1:4],:);%notice we put this in the co-ord
+coords_rlu2=inv(w1.data.u_to_rlu) * w2.data.pix.coordinates;%notice we put this in the co-ord
 %frame of w1. We are not interested in the co-ord frame of w2, just its
 %pixel info, which is in inverse Angstroms and meV
 rlutrans=[(2*pi./w1.data.alatt)'; 1];
@@ -117,11 +117,11 @@ end
 
 %We must ensure that no detector pixels are double counted when we
 %combine! Can use the function "unique" to do this:
-pixfull=[w1.data.pix w2.data.pix]';%(n1+n2)-by-9 array
+pixfull=[w1.data.pix.data w2.data.pix.data]';%(n1+n2)-by-9 array
 pixfull=unique(pixfull,'rows');%keeps only non-repeated rows
 
 %Now make this unique set of combined pixels the output pix array:
-wout.data.pix=pixfull';
+wout.data.pix.data=pixfull';
 
 %We need to fiddle the integration ranges so that all of the data for the
 %combined dataset is included. Can do this by looking at the minima and
@@ -138,12 +138,12 @@ if nints>=1
         intmin{i}=min([intmin_1{i} intmin_2{i}]);
         intmax{i}=max([intmax_1{i} intmax_2{i}]);
     end
-    
-    
+
+
     intlimits=[cell2mat(intmin); cell2mat(intmax)];
     wout.data.iint=intlimits;
-    
-    
+
+
     for i=1:nints
         wout.data.urange(:,wout.data.iax(i))=intlimits(:,i);
     end
@@ -166,14 +166,14 @@ if ndims1==1
     wout.data.s=zeros(length(wout.data.p{1})-1,1);
     wout.data.e=wout.data.s;
     wout.data.npix=wout.data.s;
-    wout.data.npix(1)=numel(wout.data.pix(1,:));
+    wout.data.npix(1)=numel(wout.data.pix.u1);
     wout=sqw(wout);
     wout=cut(wout,[]);
 elseif ndims1==2
     wout.data.s=zeros(length(wout.data.p{1})-1,length(wout.data.p{2})-1);
     wout.data.e=wout.data.s;
     wout.data.npix=wout.data.s;
-    wout.data.npix(1,1)=numel(wout.data.pix(1,:));
+    wout.data.npix(1,1)=numel(wout.data.pix.u1);
     wout=sqw(wout);
     wout=cut(wout,[],[]);
 elseif ndims1==3
@@ -181,7 +181,7 @@ elseif ndims1==3
         length(wout.data.p{3})-1);
     wout.data.e=wout.data.s;
     wout.data.npix=wout.data.s;
-    wout.data.npix(1,1,1)=numel(wout.data.pix(1,:));
+    wout.data.npix(1,1,1)=numel(wout.data.pix.u1);
     wout=sqw(wout);
     wout=cut(wout,[],[],[]);
 elseif ndims1==4
@@ -189,7 +189,7 @@ elseif ndims1==4
         length(wout.data.p{3})-1,length(wout.data.p{4})-1);
     wout.data.e=wout.data.s;
     wout.data.npix=wout.data.s;
-    wout.data.npix(1,1,1,1)=numel(wout.data.pix(1,:));
+    wout.data.npix(1,1,1,1)=numel(wout.data.pix.u1);
     wout=sqw(wout);
     wout=cut(wout,[],[],[],[]);
 else

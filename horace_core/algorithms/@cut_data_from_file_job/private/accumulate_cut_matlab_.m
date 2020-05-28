@@ -14,7 +14,7 @@ function [s, e, npix, urange_step_pix, npix_retain, ok, ix] = accumulate_cut_mat
 % * npix            Array of number of contributing pixels
 % * urange_step_pix Actual range of contributing pixels
 %   keep_pix        Set to true if wish to retain the information about individual pixels; set to false if not
-%   v(9,:)          u1,u2,u3,u4,irun,idet,ien,s,e for each pixel, where ui are coords in projection axes of the pixel data in the file
+%   v               A PixelData object
 %   urange_step     [2x4] array of the ranges of the data as defined by (i) output proj. axes ranges for
 %                  integration axes (or plot axes with one bin), and (ii) step range (0 to no. bins)
 %                  for plotaxes (with more than one bin)
@@ -43,8 +43,8 @@ function [s, e, npix, urange_step_pix, npix_retain, ok, ix] = accumulate_cut_mat
 %
 % Temporary and ineffective solution to keep pixels double all through the
 % Horace. TODO: redefine pixels as single and propagate it through all Horace
-if isa(v,'single')
-    v= double(v);
+if isa(v.data,'single')
+    v.data = double(v.data);
 end
 
 [indx,ok] = proj.get_contributing_pix_ind(v);
@@ -64,8 +64,8 @@ indx = indx(:,pax); % Now keep only the plot axes with at least two bins
 if ~isempty(pax)        % there is at least one plot axis with two or more bins
     indx=ceil(indx);    % indx contains the bin index for the plot axes (one row per pixel)
     indx(indx==0)=1;    % make sure index is between 1 and n
-    s    = s    + accumarray(indx, v(8,ok), size(s));
-    e    = e    + accumarray(indx, v(9,ok), size(s));
+    s    = s    + accumarray(indx, v.signal(ok), size(s));
+    e    = e    + accumarray(indx, v.variance(ok), size(s));
     npix = npix + accumarray(indx, ones(1,size(indx,1)), size(s));
     npix_retain = length(indx);
     % If keeping the information about individual pixels, get that information and single index into the column representation
@@ -80,8 +80,8 @@ if ~isempty(pax)        % there is at least one plot axis with two or more bins
         ix=[];
     end
 else
-    s    = s    + sum(v(8,ok));
-    e    = e    + sum(v(9,ok));
+    s    = s    + sum(v.signal(ok));
+    e    = e    + sum(v.variance(ok));
     npix = npix + size(indx,1);
     npix_retain = sum(ok(:));
     if keep_pix

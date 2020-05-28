@@ -29,13 +29,7 @@ function [u_to_rlu, urange, pix] = calc_projections_(obj, detdcn,qspec,proj_mode
 %   urange      [2 x 4] array containing the full extent of the data in crystal Cartesian
 %              coordinates and energy transfer; first row the minima, second row the
 %              maxima.
-%   pix         [9 x npix] array of pixel information:
-%                   pix(1:4,:)  coordinates in crystal Cartesian coordinates and energy
-%                   pix(5,:)    run index: alway unity from this routine
-%                   pix(6,:)    detecetor index
-%                   pix(7,:)    energy bin index
-%                   pix(8,:)    signal
-%                   pix(9,:)    error squared
+%   pix         PixelData object
 %              The order of the pixels is increasing energy dfor first detector, then
 %              increasing energy for the second detector, ....
 
@@ -81,7 +75,7 @@ if use_mex
         try
             c=neutron_constants;
             k_to_e = c.c_k_to_emev;  % used by calc_projections_c;
-            
+
             data = struct('S',obj.S,'ERR',obj.ERR,'en',obj.en);
             det  = obj.det_par;
             efix  = obj.efix;
@@ -89,6 +83,7 @@ if use_mex
             %proj_mode = 2;
             %nThreads = 1;
             [urange,pix] =calc_projections_c(spec_to_u, data, det, efix, k_to_e, emode, nThreads,proj_mode);
+            pix = PixelData(pix);
         catch  ERR % use Matlab routine
             warning('HORACE:using_mex','Problem with C-code: %s, using Matlab',ERR.message);
             use_mex=false;
@@ -105,11 +100,11 @@ if ~use_mex
         ucoords = [spec_to_u*qspec;en];
     else
         ucoords = [spec_to_u*qspec(1:3,:);qspec(4,:)];
-        qspec_provided = true;        
+        qspec_provided = true;
     end
-    
+
     urange=[min(ucoords,[],2)';max(ucoords,[],2)'];
-    
+
     % Return without filling the pixel array if urange only is requested
     if nargout==2
         return;
@@ -122,25 +117,26 @@ if ~use_mex
         pix =ucoords;
         return;
     end
-    
+
     % Fill pixel array
-    pix=ones(9,ne*ndet);
-    pix(1:4,:)=ucoords;
+    pix=PixelData(ones(9,ne*ndet));
+    pix.coordinates=ucoords;
     clear ucoords;  % delete big array before creating another big array
     if ~qspec_provided
         det = obj.det_par;
         if isfield(det,'group')
-            pix(6,:)=reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); % detector index
+            pix.detector_idx=reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); % detector index
         else
             group = 1:ndet;
-            pix(6,:)=reshape(repmat(group,[ne,1]),[1,ne*ndet]); % detector index
+            pix.detector_idx=reshape(repmat(group,[ne,1]),[1,ne*ndet]); % detector index
         end
-        pix(7,:)=reshape(repmat((1:ne)',[1,ndet]),[1,ne*ndet]); % energy bin index
+        pix.energy_idx=reshape(repmat((1:ne)',[1,ndet]),[1,ne*ndet]); % energy bin index
     else
-        pix(6:7,:)=1;
+        pix.detector_idx = 1;
+        pix.energy_idx = 1;
     end
-    pix(8,:)=obj.S(:)';
-    pix(9,:)=((obj.ERR(:)).^2)';
-    
+    pix.signal=obj.S(:)';
+    pix.variance=((obj.ERR(:)).^2)';
+
 end
 

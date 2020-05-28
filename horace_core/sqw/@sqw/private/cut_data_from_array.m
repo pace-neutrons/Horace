@@ -26,9 +26,9 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 % Output:
 %   s               Array of accumulated signal from all contributing pixels (dimensions match the plot axes)
 %   e               Array of accumulated variance
-%   npix            Array of number of contributing pixels (if keep_pix==true, otherwise pix=[])
+%   npix            Array of number of contributing pixels (if keep_pix==true, otherwise pix.num_pixels = 0)
 %   urange_step_pix Actual range of contributing pixels
-%   pix             if keep_pix==true: contains u1,u2,u3,u4,irun,idet,ien,s,e for each retained pixel; otherwise pix=[]
+%   pix             if keep_pix==true: contains full PixelData object; otherwise an empty PixelData object
 %   npix_retain     Number of pixels that contribute to the cut
 %   npix_read       Number of pixels read from file
 %
@@ -42,7 +42,6 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 
-ndatpix = 9;        % number of pieces of information the pixel info array (see put_sqw_data for more details)
 hor_log_level=config_store.instance().get_value('herbert_config','log_level');
 
 % Output arrays for accumulated data
@@ -60,7 +59,7 @@ urange_step_pix = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
 % intersect with the cut. As of 26 Sep 2018 the rest of the code works even if nstart is empty
 % but catching this case here avoids a lot of unnecessary working later on
 if isempty(nstart)
-    pix = zeros(ndatpix,0);
+    pix = PixelData();
     npix_retain = 0;
     npix_read = 0;
     return
@@ -72,11 +71,11 @@ npix_read = sum(range(:));              % number of pixels that will be read fro
 
 % Copy data from ranges that may contribute to cut - we assume that if can hold the full data, we will have enough space to hold subset
 if hor_log_level>=1, bigtic(1), end
-v = zeros(ndatpix,npix_read);
+cut_pix_data = PixelData(npix_read);
 ibeg = cumsum([1;range(1:end-1)]);
 iend = cumsum(range);
 for i=1:length(range)
-    v(:,ibeg(i):iend(i)) = pix_in(:,nstart(i):nend(i));
+    cut_pix_data.data(:,ibeg(i):iend(i)) = pix_in.data(:,nstart(i):nend(i));
 end
 if hor_log_level>=1, t_read = bigtoc(1); end
 if hor_log_level>=2
@@ -89,21 +88,21 @@ if hor_log_level>=1, bigtic(2), end
 if hor_log_level>=0, disp(['Have data from ',num2str(npix_read),' pixels - now processing data...']), end
 [s, e, npix, urange_step_pix, npix_retain, ok, ix] = ...
     cut_data_from_file_job.accumulate_cut(s, e, npix, urange_step_pix, keep_pix, ...
-    v, proj, pax);
+    cut_pix_data, proj, pax);
 if hor_log_level>=1, t_accum = bigtoc(2); end
 
 % Sort pixels
 if keep_pix
     if hor_log_level>=1, bigtic(3), end
     if hor_log_level>=0, disp(['Sorting pixel information for ',num2str(npix_retain),' pixels']), end
-    pix = v(:,ok);          % pixels that are to be retained
-    clear v                 % no longer needed - was only a work array - so because it is large, clear before we (possibly) sort pixels
-    
+    pix = cut_pix_data.get_pixels(ok);          % pixels that are to be retained
+    clear cut_pix_data                 % no longer needed - was only a work array - so because it is large, clear before we (possibly) sort pixels
+
     pix = sort_pix(pix,ix,npix);
-    
+
     if hor_log_level>=1, t_sort = bigtoc(3); end
 else
-    pix = [];
+    pix = PixelData();
 end
 
 if hor_log_level>=1
