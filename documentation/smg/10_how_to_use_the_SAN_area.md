@@ -11,14 +11,11 @@ been provided to PACE.
 
 ## Mounting the SAN on Jenkins
 
-The path to the SAN and the credentials to mount it are stored as [Jenkins
-credentials](https://www.jenkins.io/doc/book/using/using-credentials/).
-The path to the SAN is stored as a secret string and the credentials are stored
-as a secret file. The path to the SAN is stored with ID `SAN_path`.
-PACE has been provided with dedicated credentials to mount the SAN.
-The credentials are stored in a secret file in Jenkins with the key
-`SAN_credentials_file`.
-The file has format:
+The PACE project has been provided with dedicated credentials to mount the SAN. These, and the path, 
+are stored securely in ANVIL as [Jenkins credentials](https://www.jenkins.io/doc/book/using/using-credentials/).
+
+The path to the SAN is stored as a secret string with key `SAN_path`. The credentials are in a secret 
+file with the key `SAN_credentials_file`. This file has format:
 
 ```txt
 username
