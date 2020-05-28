@@ -26,7 +26,7 @@ password
 ### Example
 
 The examples below demonstrate how to mount the share and copy the file `README.txt` from the SAN area 
-in a Jenkinsfile. In a production system you may want to have a separate bash script that contains the 
+in a Jenkinsfile. In a production system you may want to have a separate shell script that contains the 
 mount/copy commands and takes the SAN path and credentials as arguments.
 
 #### Linux
@@ -60,7 +60,7 @@ pipeline {
 
 #### Windows
 
-A Windows build agent does not require the drive to mounted explicitly. This script works for both
+A Windows build agent does not require the drive to be mounted explicitly. This script works for both
 `powershell` and `bat` script steps.
 
 ```groovy
