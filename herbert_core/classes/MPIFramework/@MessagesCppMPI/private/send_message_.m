@@ -8,6 +8,10 @@ if ischar(message)
     mess = aMessage(message);
 elseif isa(message,'aMessage')
     mess = message;
+else
+    error('MESSAGESCPPMPI:send_message', ...
+          'Message must be of type ''char'' or ''aMessage''. Found ''%s''.', ...
+          class(message));
 end
 % convert types into defined types to transfer to cpp_communicator
 is_blocking = logical(mess.is_blocking);
@@ -26,7 +30,7 @@ try
             'blocking comminications are not yet implemented')
     else
         contents = hlp_serialize(mess);
-        
+
         obj.mpi_framework_holder_ = cpp_communicator('labSend',...
             obj.mpi_framework_holder_,...
             task_id,tag,uint8(is_blocking),contents);
