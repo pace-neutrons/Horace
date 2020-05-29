@@ -26,14 +26,29 @@ When a pull request is opened or updated the merged code of the PR branch and `m
 4. Create Horace PR (if required) - if a Herbert PR has been created too the Horace PR must not be merged until the Herbert PR has been merged
 5. If the build / test of the PR against the Release branch succeeds on all platforms, and the code has been reviewed, the PR can be merged.
 
-### Hot fixing
+### Releases
 
-Patch releases should be tested and built through the same build pipeline as the initial production releases.
+The Jenkins build artifacts are are not accessible outside of STFC. End users will be directed to GitHub to access packaged releases.
+
+A 'deploy' pipeline will be created ([Horace #73](https://github.com/pace-neutrons/Horace/issues/73)).
+
+This will:
+
+- tag the `master` branch with the release number (`Rm_n_o`)
+- copy the built artifact to GitHub
+
+The release tag will be an anchor for any subsequently needed release branch and patch branches.
+
+The version number is stored in a text file (`VERSION`) in the root of the Herbert and Horace source. This will follow [semantic versioning](https://semver.org/) and is used in the build process to set the version number in the MATLAB and compiled C++ components.
+
+### Patch releases
+
+Patch releases will be made to releases branches to resolve specific bugs identified. These should be tested and built through the same build pipeline as the initial production releases.
 
 <img src="./images/10_git_hotfix_branches.png">
 
 1. User reports issue
-2. Bug report issue created in GitHub/Issues documenting how to reproduce
+2. Bug report issue created in GitHub/Issues documenting how to reproduce, and include any custom scripts or data that triggered the issue
 3. Fix developed on a branch (`xxx_branch`) taken from the *release* tag (`Rm_n_o`)
 4. All tests likely to be affected by changes in Herbert and Horace must be run on developers machine
 5. PR created for merge into Release branch (`rel_m_n`) *and* `master` branch. If this is the first release patch, the branch will need to be created
@@ -55,52 +70,37 @@ Disadvantages:
 
 - slower; have to wait for full build and test pipeline to execute
 
-### Releases
 
-The Jenkins build artifacts are are not accessible outside of STFC. End users will be directed to GitHub to access packaged releases.
 
-A 'deploy' pipeline will be created ([Horace #73](https://github.com/pace-neutrons/Horace/issues/73)). 
+### Hot-fix Releases
 
-This will:
+If a particular fix is required quickly on a target system so that facility users to not lose critical machine time the full build and test process can be bypassed. 
 
-- tag the `master` branch with the release number (`Rm_n_o`)
-- copy the built artifact to GitHub
+Quick modifications to the software, with only partial testing, carry the risks of breaking other parts of the software, so this is an exceptional use-case. Non-time critical issues should be resolved through the standard Patch Release process.
 
-The release tag will be an anchor for any subsequently needed release branch and patch branches.
+A "hot-fix" pipeline has been created in ANVIL that does not run tests and only builds and packages Herbert or Horace. This will complete is around 5 minutes as it is the test execution step of the standard PR pipeline that take in excess of an hour to run.
 
-The version number is stored in a text file (`VERSION`) in the root of the Herbert and Horace source. This will follow [semantic versioning](https://semver.org/) and is used in the build process to set the version number in the MATLAB and compiled C++ components.
+1. User reports issue
+2. Bug report issue created in GitHub/Issues documenting how to reproduce, and include any custom scripts or data that triggered the issue
+3. Fix developed on a branch (`xxx_branch`) taken from the *release* tag (`Rm_n_o`)
+4. New tests demonstrating the issue and it's resolution are developed and tests identified as being likely to be affected by the code code run on developer's machine
+5. Run the branch through the "hot-fix" build pipeline on Jenkins that *just* executers the build and package steps
+6. The build artifact can be released to the specific target platform as version `m.n.o.<sha>`
+7. Open PR to merge your the hot-fix branch into the `master` and `rel_m_n` branches, as per the standard Patch Release process
+8. When the build and test of the PR to the Release branch succeeds on all platforms, that build artifact can be released to all platforms as version `m.n.o+1`
 
-### Facility Deployment
 
-Users participating in ISIS experiments use expensive neutron facilities and need to be able to see and analyse their data as quickly as possible, 
-ideally in the process of an experiment and/or immediately after that. 
-In addition to standard Horace scripts users sometimes write their own scripts, which places high demands on the software's reliability.
-Sometimes, their custom scripts use standard software in the operational modes, which are difficult to predict. Often these scripts identify issues which have not been anticipated during development, so users need urgent fixes or modifications to the software. 
-Sometimes, the issues can be caused by specific user data, so can only be easily reproduced using these data. 
-The changes fixing the user's issue should occur immediately, as users should not lose a day, or even an hour, waiting until the whole build pipeline completes, produces all build artifacts and is installed on the facility computers.
 
-Quick modifications to the software, with only partial testing, carries the risks of breaking other parts of the software.
-Despite that, in reality, single crystal experiments on different machines rarely happen simultaneously. 
-The combined probability of error in modified code and the situation when this error immediately and severely affects another high priority user can be considered low. 
-If this happens, the possibility to revert changes as rapidly as they were introduced, is also very important. 
+Advantages::
 
-Because of the following specific demands, the process of deploying the software on the ISIS facility differs from the normal build-release process. 
+- users will run a tested and built version of Horace on all platforms most of the time
+- changes fixing an issue can be made rapidly so users will lose a minimum amount of time while running experiments
+- hot-fixed releases will have a version number including the the commit-SHA, so will the build will be identifiable and traceable
+- no requirement to maintain a separate production branch. The only "maintained" branches are the release branches and master
+- patches will be rapidly deployed a well-defined, reproducible build
+- packaged hot-fix release will be identical to a standard release so can be deployed using the same processes
 
-Namely:
+Disadvantages:
 
-When a release is produced and placed on GitHub, the master branch is tagged with the release number. 
-The tagged release version is checked out in the common software area of the ISIS computing facility provided to users. 
-The low level build artifacts (i.e. C++ libraries), will be manually copied into the pacakge. 
-These artifacts will come from a package built on the corresponding system by Jenkins.
-
-If any errors are identified during user cycle, a bug-fixing branch is created from the relevant release. 
-The changes, fixing the user's issue, are committed to GitHub as soon as they are completed. 
-The changes become the contents of the bug-fixing PR, which is reviewed and tested against the existing codebase on all operating systems. 
-Eventually, this PR will be merged into **master** like any other code change. 
-
-Such a workflow allows rapid response to the requests of users who are carrying out their experiments,
-with only a minor, temporary decrease in the code's reliability.
-
-The changes to low level performance code are considered high risk changes, so they are not introduced using this process. 
-They are also not considered critical changes, as there should always be equivalent functionality implemented in Matlab. 
-This may lead to decreased performance. 
+- not fully tested code released to production systems
+- slower than build/deploy directly on the target platform
