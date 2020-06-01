@@ -74,7 +74,7 @@ Disadvantages:
 
 ### Hot-fix Releases
 
-If a particular fix is required quickly on a target system so that facility users to not lose critical machine time the full build and test process can be bypassed. 
+If a particular fix is required quickly on a target system, the full build and test process can be bypassed so that facility users do not lose critical machine time. 
 
 Quick modifications to the software, with only partial testing, carry the risks of breaking other parts of the software, so this is an exceptional use-case. Non-time critical issues should be resolved through the standard Patch Release process.
 
