@@ -86,7 +86,7 @@ A "hot-fix" pipeline has been created in ANVIL that does not run tests and only 
 4. New tests demonstrating the issue and its resolution are developed. Tests identified as being likely to be affected by the code changes run on developer's machine
 5. Run the branch through the "hot-fix" build pipeline on Jenkins that *just* executers the build and package steps
 6. The build artifact can be released to the specific target platform as version `m.n.o.<sha>`
-7. Open PR to merge your the hot-fix branch into the `master` and `rel_m_n` branches, as per the standard Patch Release process
+7. Open PR to merge the hot-fix branch into the `master` and `rel_m_n` branches, as per the standard Patch Release process
 8. When the build and test of the PR to the Release branch succeeds on all platforms, that build artifact can be released to all platforms as version `m.n.o+1`
 
 
