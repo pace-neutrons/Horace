@@ -78,7 +78,9 @@ If a particular fix is required quickly on a target system, the full build and t
 
 Quick modifications to the software, with only partial testing, carry the risks of breaking other parts of the software, so this is an exceptional use-case. Non-time critical issues should be resolved through the standard Patch Release process.
 
-A "hot-fix" pipeline has been created in ANVIL that does not run tests and only builds and packages Herbert or Horace. This will complete is around 5 minutes as it is the test execution step of the standard PR pipeline that take in excess of an hour to run.
+"Hot-fix" pipelines will be created in ANVIL ([Horace #241](https://github.com/pace-neutrons/Horace/issues/241) that only build and package Herbert and Horace and do not run the tests.
+
+This will complete is around 5 minutes as it is the test execution step of the standard PR pipeline that take in excess of an hour to run.
 
 1. User reports issue
 2. Bug report issue created in GitHub/Issues documenting how to reproduce, and include any custom scripts or data that triggered the issue
