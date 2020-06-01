@@ -1,5 +1,9 @@
-/*************************************************************************************
- * Highly simplified and reduced mtimesx routine, used to multiply matrices, used in Tobyfit
+/******************************************************************************
+ * Parallel mex matrix multiplication implementation used in Tobyfit.
+ *
+ * Highly simplified and reduced implementation of the mtimesx function
+ * developed by James Tursa, available at:
+ * https://uk.mathworks.com/matlabcentral/fileexchange/25977-mtimesx-fast-matrix-multiply-with-multi-dimensional-support
  *
  * The usage is as follows (arguments in brackets [] are optional):
  *
