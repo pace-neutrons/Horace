@@ -95,7 +95,7 @@ Advantages::
 
 - users will run a tested and built version of Horace on all platforms most of the time
 - changes fixing an issue can be made rapidly so users will lose a minimum amount of time while running experiments
-- hot-fixed releases will have a version number including the the commit-SHA, so will the build will be identifiable and traceable
+- hot-fixed releases will have a version number including the the commit-SHA, so the build will be identifiable and traceable
 - no requirement to maintain a separate production branch. The only "maintained" branches are the release branches and master
 - patches will be rapidly deployed and well-defined, reproducible build
 - packaged hot-fix release will be identical to a standard release so can be deployed using the same processes
