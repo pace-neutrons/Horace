@@ -43,7 +43,7 @@ The version number is stored in a text file (`VERSION`) in the root of the Herbe
 
 ### Patch releases
 
-Patch releases will be made to releases branches to resolve specific bugs identified. These should be tested and built through the same build pipeline as the initial production releases.
+Patch releases will be made to release branches to resolve specific bugs identified. These should be tested and built through the same build pipeline as the initial production releases.
 
 <img src="./images/10_git_hotfix_branches.png">
 
