@@ -50,7 +50,7 @@
  * copy). For example:
  *
  *     If A is (2,3,4,5) and B is (3,6,1,5), then
- *     mtimesx(A,B) would result in C(2,6,4,5)
+ *     mtimesx_horace(A,B) would result in C(2,6,4,5)
  *     where C(:,:,i,j) = A(:,:,i,j) * B(:,:,1,j), i=1:4, j=1:5
  *
  *     which would be equivalent to the MATLAB m-code:
