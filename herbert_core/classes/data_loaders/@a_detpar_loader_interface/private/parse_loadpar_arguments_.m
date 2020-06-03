@@ -1,5 +1,5 @@
 function [return_array,force_reload,getphx,lext,new_filename]=parse_loadpar_arguments_(obj,varargin)
-% Auxiliry method processes the arguments specified with load_par methods
+% Auxiliary method processes the arguments specified with load_par methods
 %
 % usage:
 %>>this = load_par(this,'-nohor')
