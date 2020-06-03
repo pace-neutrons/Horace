@@ -1,5 +1,5 @@
-#include "CommonCode.h"
-#include "utility/version.h"
+#include "../CommonCode.h"
+#include "../utility/version.h"
 //
 enum input_arguments {
     Sqw_parameters,
