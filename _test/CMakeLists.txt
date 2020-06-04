@@ -9,11 +9,12 @@ set(TEST_DIRECTORIES
     "test_instrument_classes"
     "test_docify"
     "test_admin"
+    "test_mpi_wrappers"
     "test_mpi/test_job_dispatcher_herbert"
     #"test_mpi/test_job_dispatcher_mpiexec"
     "test_mpi/test_job_dispatcher_parpool"
     "test_mpi/test_ParpoolMPI_Framework"
-    "test_mpi_wrappers"
+
 )
 # The MPI tests require that `herbert_on.m` be on the path for all workers
 # when Matlab starts up: add the local_init directory - which contains
