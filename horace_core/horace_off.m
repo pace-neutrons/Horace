@@ -23,3 +23,6 @@ catch
     warning(warn_state);    % return warnings to initial state if error encountered
     error('Problems removing "%s" and sub-directories from Matlab path',rootpath)
 end
+% Make sure we're not removing any global paths
+addpath(getenv('MATLABPATH'));
+
