@@ -97,13 +97,6 @@ classdef test_MException_her < TestCase
             %assertEqual(rep1(18:end)',rep2(23:end)');
             %assertEqual(rep1(17:end-16)',rep3(22:end-5)')
             ind1 = find(ismember(rep1,{'Test','exception','at'}),1);
-            disp('')
-            disp('**************   rep1:')
-            disp(rep1(ind1:ind1+7)')
-            disp('**************   rep3:')
-            disp(rep3(1:8)')
-            disp('**************   rep2:')
-            disp(rep2(1:8)')
             
             assertEqual(rep1(ind1:ind1+7)',rep3(1:8)')
             assertEqual(rep2(1:8)',rep3(1:8)')
