@@ -94,9 +94,16 @@ classdef test_MException_her < TestCase
             rep1 = strsplit(rep1);
             rep2 = strsplit(rep2);
             rep3 = strsplit(rep3);
-            %assertEqual(rep1(18:end)',rep2(23:end)');            
+            %assertEqual(rep1(18:end)',rep2(23:end)');
             %assertEqual(rep1(17:end-16)',rep3(22:end-5)')
-            assertEqual(rep1(12:19)',rep3(1:8)')            
+            disp('**************   rep1:')
+            disp(rep1(12:19)')
+            disp('**************   rep3:')
+            disp(rep3(1:8)')
+            disp('**************   rep2:')
+            disp(rep2(1:8)')
+            
+            assertEqual(rep1(12:19)',rep3(1:8)')
             assertEqual(rep2(1:8)',rep3(1:8)')
         end
         
