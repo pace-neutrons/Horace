@@ -169,7 +169,12 @@ while k <= numel(varargin)
         if isfolder(arg)
             name_list{end+1} = arg;
         else
-            [test_folder,test_name] = fileparts(arg);
+            if ~isempty(strfind(arg,':'))
+                test_folder = '';
+                test_name = arg;
+            else
+                [test_folder,test_name] = fileparts(arg);
+            end
             if isempty(test_folder)
                 name_list{end+1} = test_name;
             else
