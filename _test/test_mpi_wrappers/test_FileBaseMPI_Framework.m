@@ -1,7 +1,4 @@
 classdef test_FileBaseMPI_Framework < MPI_Test_Common
-    %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
-    %
     
     properties
     end
@@ -329,7 +326,6 @@ classdef test_FileBaseMPI_Framework < MPI_Test_Common
             
             
         end
-        
         %
         function test_shared_folder(this)
             mf = MessagesFilebased();

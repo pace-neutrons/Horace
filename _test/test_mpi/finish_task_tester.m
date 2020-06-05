@@ -12,9 +12,7 @@ function ok=finish_task_tester(worker_controls_string,varargin)
 % varargin(n-neighbour) -- if present, defines number of "virtual"
 %             neighboring workers, used as sources of messages to
 %             test cpp_mpi communications.
-%
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
-%
+
 
 if isempty(which('herbert_init.m'))
     herbert_on();

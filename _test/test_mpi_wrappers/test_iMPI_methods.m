@@ -80,6 +80,7 @@ classdef test_iMPI_methods< TestCase
             me = mf.get_interrupt(2);
             assertTrue(isempty(me));
         end
+        %
         function test_persistent_present(~)
             mf = MessagesFilebased();
             assertTrue(isempty(mf.get_interrupt(1)));
@@ -105,6 +106,7 @@ classdef test_iMPI_methods< TestCase
             assertEqual(numel(me),2);
             assertEqual(id,int32([1,4]));
         end
+        %
         function test_persistent_get_from_empty(~)
             mf = MessagesFilebased();
             assertTrue(isempty(mf.get_interrupt(1)));
@@ -127,8 +129,6 @@ classdef test_iMPI_methods< TestCase
             assertEqual(numel(me),2);
             assertEqual(id,int32([1,4]));
         end
-        
-        
         %
         function test_serialize_deserialize(~)
             mf = MFTester('test_ser_deser');
