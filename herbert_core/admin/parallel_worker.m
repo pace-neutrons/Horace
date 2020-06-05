@@ -163,7 +163,7 @@ while keep_worker_running
         % send first "running" log message and set-up starting time. Runs
         % asynchronously.
         n_steps = je.n_steps;
-        if DO_LOGGING; log_disp_message('Logging start and checking for job cancelation before loop je.is_completed loop'); end
+        if DO_LOGGING; log_disp_message('Logging start and checking for job cancellation before loop je.is_completed loop'); end
         mis.do_logging(0,n_steps);
         %%
         
@@ -174,7 +174,7 @@ while keep_worker_running
             
             je= je.do_job();
             % explicitly check for cancellation before data reduction
-            if DO_LOGGING; log_disp_message('Check for cancelation after Je do_job loop'); end
+            if DO_LOGGING; log_disp_message('Check for constellation after Je do_job loop'); end
             is_canceled = je.is_job_canceled();
             if is_canceled
                 error('JOB_EXECUTOR:canceled',...
@@ -226,7 +226,7 @@ while keep_worker_running
                 je.labBarrier(false);
                 je.do_job_completed = true;
                 
-                if DO_LOGGING; log_disp_message('--->Arived at finish task at failure\n'); end
+                if DO_LOGGING; log_disp_message('--->Arrived at finish task at failure\n'); end
                 je.finish_task(mess);
             end
             
