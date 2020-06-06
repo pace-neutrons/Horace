@@ -1,12 +1,12 @@
-classdef test_FileBaseMPI_Framework < MPI_Test_Common
+classdef test_exchange_FileBaseMPI < MPI_Test_Common
     
     properties
     end
     methods
         %
-        function this = test_FileBaseMPI_Framework(name)
+        function this = test_exchange_FileBaseMPI(name)
             if ~exist('name', 'var')
-                name = 'test_FileBaseMPI_Framework';
+                name = 'test_exchange_FileBaseMPI';
             end
             this = this@MPI_Test_Common(name, 'herbert');
         end

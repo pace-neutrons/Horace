@@ -15,6 +15,9 @@ classdef MESS_NAMES < handle
     % it also manages list of asynchronous and synchronous messages, and
     % specify what kind of message should be transferred in which way.
     %
+    % there is agreement within  the code that 'any' message has tag -1
+    %
+    %
     %
     properties
         % list of the messages, registered with the factory.

@@ -88,6 +88,23 @@ classdef test_MESS_NAMES_factory< TestCase
                 
             end
         end
+        %
+        function test_any_tag(~)
+            
+            is = MESS_NAMES.tag_valid(-1);
+            assertTrue(is);
+            
+            id = MESS_NAMES.mess_id('any');
+            assertEqual(id,-1);
+            
+            name = MESS_NAMES.mess_name(-1);
+            assertEqual(name,'any');
+            
+            is = MESS_NAMES.is_persistent(-1);
+            assertFalse(is);
+            is = MESS_NAMES.is_blocking(-1);
+            assertFalse(is);
+        end
         
         
         function test_specialized_classes(obj)

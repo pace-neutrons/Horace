@@ -5,6 +5,7 @@ classdef MessagesCppMPI < iMessagesFramework
     % The framework's functionality is similar to parfor
     % but does not required parallel toolbox and works by starting
     % separate Matlab sessions to do separate tasks.
+    %
     % Works in conjunction with worker function from admin folder,
     % The worker has to be placed on Matlab search path
     % defined before Herbert is initiated
@@ -13,13 +14,12 @@ classdef MessagesCppMPI < iMessagesFramework
     % This class provides physical mechanism to exchange messages between tasks
     % using MPICH on Unix or MS MPI on Windows.
     %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-    %
-    %
     properties(Dependent)
         % Time in seconds a system waits for blocking message until
         % returning "not-received"
         time_to_fail;
+        % return true if the framework is tested
+        is_tested
     end
     %----------------------------------------------------------------------
     %----------------------------------------------------------------------
@@ -46,6 +46,8 @@ classdef MessagesCppMPI < iMessagesFramework
         % data messages differently
         data_message_tag_;
         DEBUG_ = false;
+        % The holder for is_tested property value
+        is_tested_ = true;
     end
     %----------------------------------------------------------------------
     methods
@@ -107,8 +109,12 @@ classdef MessagesCppMPI < iMessagesFramework
         %
         function [ok,err_mess,message] = receive_message(obj,varargin)
             % receive message from a task with specified task_id
-            % Blocking until the message is received.
             %
+            % Blocking state depends on the message type requested.
+            %
+            % If blocking message is requested, blocks until this message
+            % has been send. If unblocking message is requested and the
+            % message was not issued, returns success and empty message
             %Usage
             % >>[ok,err_mess,message] = mf.receive_message([from_task_id,mess_name])
             % >>ok  if true, says that message have been successfully
@@ -205,13 +211,18 @@ classdef MessagesCppMPI < iMessagesFramework
                 is=false;
             end
         end
+        %
+        function is = get.is_tested(obj)
+            % return true if the framework is tested (not real MPI)
+            is = obj.is_tested_;
+        end
         function delete(obj)
             if ~isempty(obj.mpi_framework_holder_)
                 cpp_communicator('finalize',obj.mpi_framework_holder_);
             end
             obj.mpi_framework_holder_ = [];
         end
-        %   
+        %
     end
     %----------------------------------------------------------------------
     methods (Access=protected)

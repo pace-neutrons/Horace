@@ -5,15 +5,12 @@ classdef MessagesFilebased < iMessagesFramework
     % The framework's functionality is similar to parfor
     % but does not required parallel toolbox and works by starting
     % separate Matlab sessions to do separate tasks.
+    %
     % Works in conjunction with worker function from admin folder,
     % The worker has to be placed on Matlab search path
     % defined before Herbert is initiated
     %
-    %
     % This class provides physical mechanism to exchange messages between tasks.
-    %
-    %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
     %
     %
     properties(Dependent)
@@ -141,7 +138,12 @@ classdef MessagesFilebased < iMessagesFramework
         %
         function [ok,err_mess,message] = receive_message(obj,varargin)
             % receive message from a task with specified task_id
-            % Blocking until the message is received.
+            %
+            % Blocking state depends on the message type requested.
+            %
+            % If blocking message is requested, waits until this message
+            % has been send. If unblocking message is requested and the
+            % message was not issued, returns success and empty message
             %
             %Usage
             % >>[ok,err_mess,message] = mf.receive_message([from_task_id,mess_name])

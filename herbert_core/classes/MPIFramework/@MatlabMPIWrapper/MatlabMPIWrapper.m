@@ -120,7 +120,10 @@ classdef MatlabMPIWrapper < handle
                 mess_tag = -1;
             end
             if nargin<2
-                targ_id = [];
+                error('MATLAB_MPI_WRAPPER:runtime_error',...
+                    'Requesting receive from undefined lab')
+                
+                %targ_id = [];
             end
             if obj.do_logging_
                 if isempty(targ_id)
@@ -131,9 +134,10 @@ classdef MatlabMPIWrapper < handle
                 fprintf(obj.log_fh_,'***  probing  Lab: %s for tag %d\n',...
                     lab_name,mess_tag);
             end
+            is_blocking = MESS_NAMES.is_blocking(mess_tag);
             
             
-            [present,tag_present,source]= labProbe_(obj,targ_id,mess_tag);
+            [present,tag_present,source]= labProbe_(obj,targ_id,mess_tag,is_blocking);
             if obj.do_logging_
                 if present
                     fprintf(obj.log_fh_,'***  data present ******\n');
@@ -178,8 +182,8 @@ classdef MatlabMPIWrapper < handle
                 fprintf(obj.log_fh_,'***receving from Lab: %s Mess tag %d\n',...
                     lab_name,targ_id);
             end
-            
-            [message,tag,source] = labReceive_(obj,targ_id,mess_tag);
+            is_blocking = MESS_NAMES.is_blocking(mess_tag);
+            [message,tag,source] = labReceive_(obj,targ_id,mess_tag,is_blocking);
             if nargout>1
                 varargout{1} = tag;
             end

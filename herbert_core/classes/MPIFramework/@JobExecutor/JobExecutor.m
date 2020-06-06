@@ -72,9 +72,17 @@ classdef JobExecutor
         % n_iterations_. Read-only
         n_steps
         
-        % Helper method used for synchronization with worker,
-        % needed to verify barrier in case of some worker failed
-        % while some finished do_job but some failed before that.
+        % Helper method used for workers synchronization,
+        % in case when some workers failed at "do_job" operation but
+        % others were able to complete it.
+        %
+        % After worker finishes "do_job" operation, it comes to barrier,
+        % waiting for all other workers to finish "do_job" operation before
+        % data reduction can begin.
+        % false at this property indicates that if an exception is thrown, 
+        % the worker should wait other workers at another barrier after
+        % processing exception, as the barrier after do_job have been
+        % bypassed.
         do_job_completed
     end
     %
@@ -322,7 +330,6 @@ classdef JobExecutor
                 end
             end
         end
- 
         %
         function initMessage = get_worker_init(obj,exit_on_completion,...
                 keep_worker_running)

@@ -83,7 +83,6 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             assertEqual(mess.mess_name,'completed');
             
         end
-        
         %
         function test_probe_all_receive_all(obj,varargin)
             % common code -------------------------------------------------

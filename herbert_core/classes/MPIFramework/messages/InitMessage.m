@@ -2,12 +2,9 @@ classdef InitMessage < aMessage
     % Helper class desfines a message, used to transfer initial
     % information to a single task of a distributed job.
     %
-    %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-    %
-    %
+    % is_blocking = true for this message
     properties(Dependent)
-        %
+        %        
         n_first_step
         n_steps
         

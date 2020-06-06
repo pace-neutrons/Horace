@@ -23,10 +23,7 @@ function [mess_names,mid_from,mid_to,varargout] = parse_folder_contents_(folder_
 % ext       -- message extensions (except locks), used to organize the messages
 %              queue.
 %
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-%
-%
+
 
 if nargin > 1
     nolocked = true;

@@ -10,7 +10,7 @@
   - test_job_fail_restart - Windows only        ! Random hand-uo of one or another
   - test_job_with_logs_3workers - Windows Only  ! on Windows.
   
-- test_CPP_MPI_exchange
+- test_exchange_CPP_MPI
   - test_JobExecutor ! Disabled as https://github.com/pace-neutrons/Herbert/issues/155  
 - test_job_executor
   - test_init_mpiexec_mpi_fw  ! Disabled as https://github.com/pace-neutrons/Herbert/issues/155

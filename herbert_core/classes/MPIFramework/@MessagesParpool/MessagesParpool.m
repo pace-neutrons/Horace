@@ -10,6 +10,7 @@ classdef MessagesParpool < iMessagesFramework
     % The worker has to be placed on Matlab search path
     % defined before Herbert is initiated
     %
+    %
     properties(Dependent)
         % return true if the framework is tested
         is_tested
@@ -80,13 +81,17 @@ classdef MessagesParpool < iMessagesFramework
         function [ok,err_mess,message] = receive_message(obj,varargin)
             % receive message from a task with specified id
             %
-            % Blocking until correspondent Send is issued at the requested worker
+            % Blocking state depends on the message type requested.
             %
+            % If blocking message is requested, blocks until this message
+            % has been send. If unblocking message is requested and the
+            % message was not issued, returns success and empty message
             %
             %Usage
-            %>>[ok,err,message] = obj.receive_message() -- Receive any message.
             %>>[ok,err,message] = obj.receive_message(labId)  -- Receive
-            %                     message from lab with the idSpecified
+            %                     message from lab with the idSpecified or
+            %
+            %>>[ok,err,message] = obj.receive_message('any')  -- Receive
             %                     Receive any message.
             [ok,err_mess,message] = receive_message_(obj,varargin{:});
         end
