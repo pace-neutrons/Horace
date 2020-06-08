@@ -169,7 +169,14 @@ while k <= numel(varargin)
         if isfolder(arg)
             name_list{end+1} = arg;
         else
-            [test_folder,test_name] = fileparts(arg);
+            ddot_ind = strfind(arg,':');
+            if isempty(ddot_ind) || ~ispc ||...
+                    (ispc && (ddot_ind == 2)) % C: or other drive on Windows and full path provided.
+                [test_folder,test_name] = fileparts(arg);
+            else
+                test_folder = '';
+                test_name = arg;
+            end
             if isempty(test_folder)
                 name_list{end+1} = test_name;
             else
