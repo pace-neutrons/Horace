@@ -47,7 +47,7 @@ if isKey(obj.messages_cache_,target_id)
         remove(obj.messages_cache_,target_id);
     end
 else
-    if isempty(target_id)
+    if isempty(target_id) || (isnumeric(target_id) && target_id == -1)
         error('MATLAB_MPI_WRAPPER:runtime_error',...
             'Requesting receive from undefined lab')
         % PREVIOUS VERSION: should this behaviour to be supported?

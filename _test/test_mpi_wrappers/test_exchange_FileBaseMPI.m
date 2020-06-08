@@ -1,17 +1,21 @@
-classdef test_exchange_FileBaseMPI < MPI_Test_Common
+classdef test_exchange_FileBaseMPI < exchange_common_tests
     
     properties
     end
     methods
         %
-        function this = test_exchange_FileBaseMPI(name)
+        function obj = test_exchange_FileBaseMPI(name)
             if ~exist('name', 'var')
                 name = 'test_exchange_FileBaseMPI';
             end
-            this = this@MPI_Test_Common(name, 'herbert');
+            %this = this@MPI_Test_Common(name, 'herbert');
+            obj = obj@exchange_common_tests(name,...
+                'MessagesFileBasedMPI_mirror_tester','MessagesFileBasedMPI_mirror_tester');
+            
+            
         end
         %
-        function test_finalize_all(this)
+        function test_finalize_all(~)
             mf = MFTester('test_finalize_all');
             [ok, err] = mf.send_message(0, 'starting');
             assertEqual(ok, MESS_CODES.ok)

@@ -9,23 +9,50 @@ if ~exist('from_task_id','var') || ...
         (ischar(from_task_id) && strcmpi(from_task_id,'any')) || ...
         isempty(from_task_id)
     %receive message from any task
-    from_task_id = -1;
-elseif ~isnumeric(from_task_id)
-    error('MESSAGES_FRAMEWORK:invalid_argument',...
-        'Task_id to receive message should be a number');
+    
+    err_code = MESS_CODES.a_recieve_error;
+    try
+        err_mess = MException('MESSAGES_FRAMEWORK:invalid_argument',...
+            'Requesting receive message from undefined lab is not currently supported');
+    catch err_mess
+    end
+    message = [];
+    return;
+end
+if ~isnumeric(from_task_id)
+    message = [];
+    err_code = MESS_CODES.a_recieve_error;
+    try
+        error('MESSAGES_FRAMEWORK:invalid_argument',...
+            'Task_id to receive message should be a number');
+    catch err_mess
+    end
+    return;
 end
 
 if ~exist('mess_name','var') %receive any message for this task
     mess_name = 'any';
 end
 if ~ischar(mess_name)
-    error('MESSAGES_FRAMEWORK:invalid_argument',...
-        'mess_name in recive_message command should be a message name (e.g. "starting")');
+    message = [];
+    err_code = MESS_CODES.a_recieve_error;
+    try
+        error('MESSAGES_FRAMEWORK:invalid_argument',...
+            'mess_name in recive_message command should be a message name (e.g. "starting")');
+    catch err_mess
+    end
+    return;
 end
-if ~(from_task_id==-1) &&(from_task_id<1 || from_task_id > obj.numLabs)
-    error('MESSAGES_CPP_MPI:invalid_argument',...
-        'The message requested from worker N%d but can be only received from workers in range [1:%d]',...
-        from_task_id,obj.numLabs);
+if (from_task_id<1 || from_task_id > obj.numLabs)
+    message = [];
+    err_code = MESS_CODES.a_recieve_error;
+    try
+        error('MESSAGES_CPP_MPI:invalid_argument',...
+            'The message requested from worker N%d but can be only received from workers in range [1:%d]',...
+            from_task_id,obj.numLabs);
+    catch err_mess
+    end
+    return;
 end
 
 message = obj.get_interrupt(from_task_id);
@@ -41,7 +68,7 @@ try
 catch ERR
     if strcmpi(ERR.identifier,'MPI_MEX_COMMUNICATOR:runtime_error')
         err_code = MESS_CODES.a_recieve_error;
-        err_mess = ERR.message;
+        err_mess = ERR;
         message  = [];
         return;
     else

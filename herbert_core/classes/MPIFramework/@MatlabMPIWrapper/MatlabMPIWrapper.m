@@ -78,6 +78,13 @@ classdef MatlabMPIWrapper < handle
             %buffer.
             % Non-blocking or pretends to be non-blocking.
             %
+            if targ_id<1 || targ_id > obj.numLabs
+                error('MESSAGES_FRAMEWORK:invalid_argument',...
+                    'The message is directed to %d but can be only sent to workers in range [1:%d]',...
+                    task_id,obj.numLabs);
+                
+            end
+            
             if isa(message,'aMessage')
                 mess_tag = message.tag;
             elseif ischar(message)
@@ -134,10 +141,8 @@ classdef MatlabMPIWrapper < handle
                 fprintf(obj.log_fh_,'***  probing  Lab: %s for tag %d\n',...
                     lab_name,mess_tag);
             end
-            is_blocking = MESS_NAMES.is_blocking(mess_tag);
             
-            
-            [present,tag_present,source]= labProbe_(obj,targ_id,mess_tag,is_blocking);
+            [present,tag_present,source]= labProbe_(obj,targ_id,mess_tag);
             if obj.do_logging_
                 if present
                     fprintf(obj.log_fh_,'***  data present ******\n');

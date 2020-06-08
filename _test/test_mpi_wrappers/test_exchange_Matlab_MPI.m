@@ -158,53 +158,6 @@ classdef test_exchange_Matlab_MPI < exchange_common_tests
             assertEqual(task_ids, [2, 3]);
         end
         %
-%         function test_SendReceive(~)
-%             
-%             mf = MessagesMatlabMPI_tester();
-%             clob = onCleanup(@()(finalize_all(mf)));
-%             assertEqual(mf.labIndex, 1);
-%             assertEqual(mf.numLabs, 10);
-%             
-%             
-%             mess = LogMessage(1, 10, 1, []);
-%             [ok, err_mess] = mf.send_message(5, mess);
-%             assertEqual(ok, MESS_CODES.ok);
-%             assertTrue(isempty(err_mess));
-%             
-%             [ok, err_mess, messR] = mf.receive_message(5, mess.mess_name);
-%             assertEqual(ok, MESS_CODES.ok);
-%             assertTrue(isempty(err_mess));
-%             assertEqual(mess, messR);
-%             
-%             [all_messages,task_ids] = mf.receive_all('any');
-%             assertTrue(isempty(all_messages));
-%             assertTrue(isempty(task_ids));
-%             
-%             % blocking receive in test mode is not alowed
-%             [ok, err_mess, messR] = mf.receive_message(5, 'init');
-%             assertEqual(ok, MESS_CODES.a_recieve_error);
-%             assertTrue(isempty(messR));
-%             assertEqual(err_mess.identifier, 'MATLAB_MPI_WRAPPER:runtime_error');
-%             
-%             
-%             [ok, err_mess] = mf.send_message(4, mess);
-%             assertEqual(ok, MESS_CODES.ok);
-%             assertTrue(isempty(err_mess));
-%             
-%             [ok, err_mess, messR] = mf.receive_message(4, 'any');
-%             assertEqual(ok, MESS_CODES.ok);
-%             assertTrue(isempty(err_mess));
-%             assertEqual(mess, messR);
-%             
-%             [ok, err_mess] = mf.send_message(6, mess);
-%             assertEqual(ok, MESS_CODES.ok);
-%             assertTrue(isempty(err_mess));
-%             
-%             [ok, err_mess, messR] = mf.receive_message('any', 'any');
-%             assertEqual(ok, MESS_CODES.ok);
-%             assertTrue(isempty(err_mess));
-%             assertEqual(mess, messR);
-%         end
         %
         function test_Send3Receive1Asynch(~)
             
