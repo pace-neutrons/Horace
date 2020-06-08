@@ -25,7 +25,7 @@ target_link_libraries("${MEX_NAME}" "${MPI_CXX_LIBRARIES}")
 if(UNIX)
     # For MPICH on Linux we need to set relative RPATH values so dynamic libs
     # can be located by the mex library
-    file(RELATIVE_PATH _mpich_lib_file "${COPY_DESTINATION}" "${MPI_mpi_LIBRARY}")
+    file(RELATIVE_PATH _mpich_lib_file "${COPY_DESTINATION}" "${MPI_LIBRARY}")
     get_filename_component(_mpich_lib_dir "${_mpich_lib_file}" DIRECTORY)
     set_target_properties("${MEX_NAME}"
         PROPERTIES
