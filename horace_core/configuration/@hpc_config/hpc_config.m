@@ -25,7 +25,7 @@ classdef hpc_config < config_base
     %
     % combine_sqw_using        - what type of sub-algorithm to use for c
     %                            ombining sqw/tmp files together.
-    % combine_sqw_options        the helper property providing options,
+    % combine_sqw_options      - the helper property providing options,
     %                            available to provide for
     %                            'combine_sqw_using' property.
     %                            Currently these options are 'matlab', 'mex_code' and 'mpi_code'
@@ -53,6 +53,7 @@ classdef hpc_config < config_base
         %
         % set-up algorithm, to use for combining multiple sqw(tmp) filesL
         combine_sqw_using
+        %
         % helper read-only property, displaying possible codes to use to
         % combines sqw (combine_sqw_using) available options, namely:
         % matlab   : this mode uses initial Matlab code to combine multiple
