@@ -6,8 +6,7 @@ end
 methods
 
     function obj = setUp(obj)
-        pc = parallel_config;
-        obj.original_pconfig = pc.get_data_to_store();
+        [pc, obj.original_pconfig] = set_local_parallel_config();
         pc.parallel_framework = 'mpiexec_mpi';
     end
 
