@@ -4,37 +4,36 @@ A generic parallelization framework has been created for Horace to improve perfo
 
 A standard message parsing framework consists of a communicator part, controlling parallel processes and an information exchange media, responsible for point-to-point or collective interaction between these processes.
 
-To accommodate different demands of different users on different systems, 
-Horace can utilize three different **message transfer media**, namely: 
+To accommodate different demands of different users on different systems, Horace can utilize three different **message transfer media**, namely:
 
 1. Communications via message files written/read from a HDD,
-2. Using Matlab parallel computing toolbox MPI implementation (based on the toolbox lab`**` operations) and   
-3. Communication using standard MPI framework. Currently used MPI implementations are Microsoft MPI for Windows and MPICH for Linux. 
-    
+2. Using Matlab parallel computing toolbox MPI implementation (based on the toolbox lab`**` operations) and finally,
+3. Communication using standard MPI framework. Currently used MPI implementations are Microsoft MPI for Windows and MPICH for Linux.
+ 
 The **communicator/controller** [[1]](https://en.wikipedia.org/wiki/Message_Passing_Interface#Communicator) parts for these media, responsible for controlling the parallel processes, are correspondingly:
 
 1. Pool of Matlab sessions or compiled Matlab sessions, launched by Matlab's Java launcher,
-2. Matlab Parallel computing toolbox job control mechanism and 
+2. Matlab Parallel computing toolbox job control mechanism and
 3. **mpiexec** launcher, directly controlling standard MPI processes.
-    
+ 
 Additional controller will be necessary to use Horace parallelization on a public cluster. This controller wraps around and interfaces the cluster job submission mechanism (e.g. *qsub* or *bsub*)
 
-The option 1) suits the users who do not want to compile C++ code on a Unix system and do not have Matlab parallel computing toolbox installed, option 2) is best for the people, who has Matlab parallel computing toolbox and 3) -- for experienced users who can compile C++ code and set up MPI framework. 
+The option 1) suits the users who do not want to compile C++ code on a Unix system and do not have Matlab parallel computing toolbox installed, option 2) is best for the people, who has Matlab parallel computing toolbox and 3) -- for experienced users who can compile C++ code and set up MPI framework.
 
-To provide simple switching between different frameworks, the common wrappers are written around the libraries and programs controlling parallel processes and transferring the messages. The wrappers provide common interface to users job. A Horace parallel job tasks are controlled and communicate with each other using this interface, which makes them oblivious to the actual mechanism used for the communications. 
+To provide simple switching between different frameworks, the common wrappers are written around the libraries and programs controlling parallel processes and transferring the messages. The wrappers provide common interface to users job. A Horace parallel job tasks are controlled and communicate with each other using this interface, which makes them oblivious to the actual mechanism used for the communications.
 
 Each **communicator/controller** is responsible for correspondent **message transfer media**. The correspondence is summarized in the following table:
 
-**Table 1.** Parallel communicators and message transfer media used by Horace parallel framework. 
+**Table 1.** Parallel communicators and message transfer media used by Horace parallel framework.
 
 | communicator\media |  Filebased |  Matlab MPI | mpiexec MPI |
 | :----  | :---: | :---: | :---: |
 | `Java Launcher` | **Native** | --- | --- |
 | `Matlab MPI`    | *possible* |  **Native**| --- |
 | `mpiexec MPI`    | *possible* |  --- | **Native**|
-| `Job submission/initialization` | **Only**| --- | --- | 
+| `Job submission/initialization` | **Only**| --- | --- |
 
-Where the word *Native* indicates the media, used by a communicator by design (e.g. mpiexec program is responsible for controlling the pool of parallel processes/programs, communicating over MPI interface). *Possible* means that, despite *Native* mechanism exist, communication can be performed by alternative means, i.e. *mpiexec* MPI processes can communicate between each other sending file-based messages if necessary. This usually makes sense for debugging purposes only and is described in **ClusterWrapper** classes chapter below. 
+Where the word *Native* indicates the media, used by a communicator by design (e.g. mpiexec program is responsible for controlling the pool of parallel processes/programs, communicating over MPI interface). *Possible* means that, despite *Native* mechanism exist, communication can be performed by alternative means, i.e. *mpiexec* MPI processes can communicate between each other sending file-based messages if necessary. This usually makes sense for debugging purposes only and is described in **ClusterWrapper** classes chapter below.
 The last row of the table with the word *Only* means that each parallel job is initialized and controlled from the *Login Session* (**Fig 1**) using file-based messages mechanism, i.e. the initialization information for a parallel task, logging of the progress and the information about the task results are distributed using file-based messages. 
 
 The File-based framework has been written with the assumption that *job chunks may be processed independently*, but limited number of interprocess communications is occurring. This restricts the use of file-based framework to the correspondent part of Horace algorithms and for initial job submission. Matlab MPI and standard MPI frameworks do not have such restrictions but can not be used for job submission to the cluster.
@@ -46,12 +45,12 @@ A cluster, executing Horace job using the wrappers should have the simple topolo
 
 **Fig 1:** Cluster running Horace job with location of main software components of the parallel framework.
 
-The picture shows the interaction between main hardware components, necessary for Horace jobs and main software components, used to run these jobs. Black boxes on the **Fig 1** indicate the hardware components, namely parallel processes or parallel programs running Horace software, where the green boxes refer to the software  components, running on the appropriate hardware. The description of the software components is provided below. The red arrows on the picture refer to the message transfer media, used for communication between the processes/nodes. Currently implemented Horace jobs mainly communicate to/with the *headnode*, though its not a constrain but the details of current implementation. The frameworks allow efficient communication between nodes without any constrains. The Blue lines on the picture refer to the File-based message transfer, used to submit initial job and return job progress and information about the job results. There are also black arrows, referring to the process of the software submission to the cluster, described in more details in the chapter on **Common initialization**. 
+The picture shows the interaction between main hardware components, necessary for Horace jobs and main software components, used to run these jobs. Black boxes on the **Fig 1** indicate the hardware components, namely parallel processes or parallel programs running Horace software, where the green boxes refer to the software  components, running on the appropriate hardware. The description of the software components is provided below. The red arrows on the picture refer to the message transfer media, used for communication between the processes/nodes. Currently implemented Horace jobs mainly communicate to/with the *headnode*, though its not a constrain but the details of current implementation. The frameworks allow efficient communication between nodes without any constrains. The Blue lines on the picture refer to the File-based message transfer, used to submit initial job and return job progress and information about the job results. There are also black arrows, referring to the process of the software submission to the cluster, described in more details in the chapter on **Common initialization**.
 
-From a user perspective, interaction with a parallel job occurs the same way as they would work with Horace analysing their data, implicitly launching parallel jobs for time-consuming operations, if parallel execution is configured for appropriate algorithms. Horace is currently written in Matlab. Matlab is a commercial software, but for the cases the licensing requests (*) are not satisfied, we provide compiled version of this code, requesting only one Matlab license for the headnode and [Matlab Redistributable](https://uk.mathworks.com/products/compiler/matlab-runtime.html) installed on the cluster. The python wrapper around Horace code eliminating the need for any Matlab licensing is under development. 
+From a user perspective, interaction with a parallel job occurs the same way as they would work with Horace analysing their data, implicitly launching parallel jobs for time-consuming operations, if parallel execution is configured for appropriate algorithms. Horace is currently written in Matlab. Matlab is a commercial software, but for the cases the licensing requests (*) are not satisfied, we provide compiled version of this code, requesting only one Matlab license for the headnode and [Matlab Redistributable](https://uk.mathworks.com/products/compiler/matlab-runtime.html) installed on the cluster. The python wrapper around Horace code eliminating the need for any Matlab licensing is under development.
 
 
-Generic Horace parallel job management and software components interaction is presented on the **Fig 2**: 
+Generic Horace parallel job management and software components interaction is presented on the **Fig 2**:
 
 ![Fig 2: MPI Framework](../diagrams/mpi-framework.png)
 
@@ -80,31 +79,31 @@ The methods to be defined for a job are:
 **Table 2** Abstract methods of a **JobExecutor** class
 
 | Method | Description | Practical Example (From [*accumulate\_headers\_job*](https://github.com/pace-neutrons/Horace/blob/master/horace_core/sqw/%40accumulate_headers_job/accumulate_headers_job.m)  parallel algorithm)  |
-| :----  | :--- | :---| 
-| `do_job` | Do chunk of the job independent on other parallel executors | Read range of tmp files and calculate this range average signal and error. | 
+| :----  | :--- | :---|
+| `do_job` | Do chunk of the job independent on other parallel executors | Read range of tmp files and calculate this range average signal and error. |
 | `reduce_data` | Send result to head worker node (**Fig 1**)  (node 1) or receive partial result and combine them on the head worker (node 1). | Send the average signal/error to node 1 or accept partial averages, sum them and send results to the logon node for node 1 |
 | `is_completed` | Check if the job completed and return true if it is | return true |
 
-The **JobExecutor** parent class itself contains methods and properties, responsible for inter-nodes communications and the communications with the control node launching the job. 
+The **JobExecutor** parent class itself contains methods and properties, responsible for inter-nodes communications and the communications with the control node launching the job.
 The *worker* instantiates the job specific instance of **JobExecutor** class child and runts it in the following pseudo-code loop:
 
 ```
- fbMPI = FileBasedFramework.initialize(Initialization_string) % Initialize file-based framework 
- initializetion_info = fbMPI.get_initialization_info();  % and obtain job initialization info, 
+ fbMPI = FileBasedFramework.initialize(Initialization_string) % Initialize file-based framework
+ initializetion_info = fbMPI.get_initialization_info();  % and obtain job initialization info,
                                                    %from the head node, running JobDispatcher
- 
- TheJobExecutor.init(initializetion_info);      % Initialized 
- 
+
+ TheJobExecutor.init(initializetion_info);      % Initialized
+
  while ~TheJobExecutor.is_completed;
   	TheJobExecutor.do_job();           % Do chunk of the work
 	TheJobExecutor.labBarrier();       % Synchronize independent processes
 	TheJobExecutor.reduce_data();      % Reduce intermediate data
  endwhile
  TheJobExecutor.labBarrier();
- 
+
  TheJobExecutor.reduce_send_messages(Final result); % take final result and process it
  TheJobExecutor.finish_task();
-  
+
 ```
 The main methods and properties (M/P) of **JobExecutor** involved in a job control and intertask communications are summarized in the table 3:
 
@@ -172,19 +171,19 @@ Every cluster uses and may expand the *ClusterWrapper* methods used by *JobDispa
 | Method or Property| M/P |Description |
 | :--- | :---: | :--- | 
 |`job_id`  | P  | The string, providing unique identifier(name) for the running cluster and the job running on this cluster. When cluster is running, it is the same name as *job\_id* in the *JobDispatcher*. This name is also propagated to *iMessagesFramework* below.|
-| `n_workers` | P | number of independent parallel *workers*, running within the cluster. Each worker is a headless Matlab session or compiled Matlab session executing *worker* script, instantiating the job.  
+| `n_workers` | P | number of independent parallel *workers*, running within the cluster. Each worker is a headless Matlab session or compiled Matlab session executing *worker* script, instantiating the job.
 | `status` | P | Set of properties, used to control the cluster state and the job progress. Used by *JobDispatcher* to check and display the job progress. |
 | `exit_worker_when_job_ends` | P | Logical property, indicating if cluster should be shut-down after the job is finished, or if it should be run waiting for the next job. |
-| `pool_exchange_frmwk_name` | P | The name of the messages exchange framework, used to exchange information between parallel workers. Normally it is the native for the cluster type message exchange framework (see **Table 1**) but file based message exchange can be set up here. Normally it can be requested for debugging purposes. 
+| `pool_exchange_frmwk_name` | P | The name of the messages exchange framework, used to exchange information between parallel workers. Normally it is the native for the cluster type message exchange framework (see **Table 1**) but file based message exchange can be set up here. Normally it can be requested for debugging purposes.
 | **Job Control methods:**| :: | *list of the methods, used to control the parallel job*:
-| `init` | M | Accepts number of independent workers and physically start these parallel processes. | 
-| `start_job` | M | Accepts the list of messages, used to initialize particular parallel job. The list is generated by *JobDispatcher*. Sends these messages to parallel processes to start the actual job execution. | 
+| `init` | M | Accepts number of independent workers and physically start these parallel processes. |
+| `start_job` | M | Accepts the list of messages, used to initialize particular parallel job. The list is generated by *JobDispatcher*. Sends these messages to parallel processes to start the actual job execution. |
 | `check_progress` | M | Check the messages, indicating the progress of the parallel job and receive these messages. |
 | `display_progress` | M | Report job progress using internal state of the cluster calculated by executing *check\_progress* method |
-| `retrieve_results` | M | Get the results of the parallel job execution, 
+| `retrieve_results` | M | Get the results of the parallel job execution.
 | `finalize_all` | M | Close parallel framework, delete file-based exchange folders and complete parallel job.|
 | **Factory methods** |:: | *list of the methods, used by MPI\_fmwks\_factory to identify and work with available cluster types:* |
-| `check_availability` | M | the method, returning true if cluster of given type is available on given machine. E.g., check_availability  for **ClusterParpoorlWrapper** will return false if parallel computing toolbox is not installed on the given machine. 
+| `check_availability` | M | the method, returning true if cluster of given type is available on given machine. E.g., check_availability  for **ClusterParpoorlWrapper** will return false if parallel computing toolbox is not installed on the given machine.
 | `get_cluster_configs_available` | M | a given type of cluster (except **ClusterHerbert**) may have different configurations. E.g., for **ClusterMPI** it may be *local* for running MPI on a local machine or clusters described by **mpiexec** hosts files. These files should be located in special clusters configurations folder. |
 
 To provide simple selection of a framework, all Cluster Wrapper-children classes are subscribed to framework factory **MPI\_fmwks\_factory**. User interacts with the factory through **parallel\_config** configurations class:
@@ -195,14 +194,14 @@ To provide simple selection of a framework, all Cluster Wrapper-children classes
 *Parallel_config* class receives from *MPI\_fmwks\_factory*  list of the subscribed and available Cluster Wrapper names and user selects the appropriate wrapper and framework. Then, *Job_dispatcher* uses *get\_running\_cluster* method of the factory to start cluster and use it for running the parallel job defined by *theJobExectutor* instance. 
 Brief description of the MPI frameworks factory or rather Cluster-Wrappers factory is provided in the **Table 6**
 
-**Table 6** MPI clusters factory methods. 
+**Table 6** MPI clusters factory methods.
 
 | Method or Property| Access |Description |
-| :--- | :---: | :--- | 
+| :--- | :---: | :--- |
 | *Properties list:* | - | |
 | `parallel_framework` | `RW` | returns or accepts the name of the framework and cluster to use as default |
 | `known_frmwks_names` | `R` | returns the list of names of the parallel frameworks, known to Herbert |
-| *Static Method* | - | | 
+| *Static Method* | - | |
 | `instance` | `R` | Return unique instance of the framework |
 | *Methods* |  - | |
 | `get_cluster` | `R` | given the name of cluster wrapper above, return the uninitialized instance of the cluster | 
@@ -244,7 +243,7 @@ Main Messages Framework methods are provided in the **Table 7**
 | **Abstract methods:** | :: | *The methods, exposing interface to MPI communications. Implementation is specific for each framework:* | 
 | `init_framework` | M | Given input data, necessary for framework initialization, make framework operational. E.g. for file-based framework it may be name of the folder and the id of the current parallel worker when for MPI framework, this command wraps C++ *MPI_init* command, which defines the worker ID and number of workers (MPI rank and MPI pool size). 
 |`send_message`| M | send message to a specified worker. Unblocking or pretends to be unblocking. 
-|`receive_message`| M | Receive message from the specified task. Depending on the requested message type it can be blocking, unblocking or persistent message (see **Messages types** below). | 
+|`receive_message`| M | Receive message from the specified task. Depending on the requested message type it can be blocking, unblocking or persistent message (see **Messages types** below). See also **Note [^1]**|
 |`probe_all`| M | list all messages existing in the system from the tasks requested. Non-blocking
 |`receive_all`| M | receive all messages directed to current node and originated from the tasks with id-s specified as input. Non-blocking if issued without any message name or with keyword *any* and blocking if a requested message name is specified.
 |`labBarrier` | M | synchronize parallel worker execution and wait until all independent workers arrive at the barrier. | 
@@ -252,6 +251,9 @@ Main Messages Framework methods are provided in the **Table 7**
 |`finalize_all`|M | shut down parallel framework and parallel cluster.
 
 A Horace job uses the particular implementation of  **iMessageFramework** and deploys the methods, defined in the interface above to communicate with neighbouring workers when it becomes necessary according to the algorithm logic. Some coarse logic, providing basic communications and synchronization is implemented in *worker* script.
+
+[^1]: The developer should expect that error may happen during a worker execution, and the *Fail* message or *Canceled* message can be send from the client instead of expected message. If the client expect a persistent message with a specific tag, it may not be able to recieve such message, so hand-up woild occur. This means that the *receive_message* should not be used directly in the production code. *receive_all* method which, would deal with such situation, should be used instead.
+
 
 #### Common initialization.
 
@@ -264,10 +266,11 @@ Independent workers may need to report to the other workers some special conditi
 
 Different purposes can be best served using different types of messages. There are 3 purposes, differentiated in Horace.
 
-1. logging, diagnostics and informing user about progress of a job. 
-2. Interprocess data exchange, necessary for performing a particular user job and 
-3. The information about error or failure. 
-    
+1. logging, diagnostics and informing user about progress of a job.
+2. Interprocess data exchange, necessary for performing a particular user job and
+3. The information about error or failure.
+
+
 Correspondent types of messages created to serve these purposes:
 
 1. Non-blocking (transient)  messages. Informing user about a job progress is important task, but user is interested only in the final value. Different independent task should not be synchronous with regard to log messages as only some average progress is required. Non-blocking messages are best suited for such kind of task. If more then one non-blocking message is present in the MPI messages queue, the client receives only the last message.
@@ -285,6 +288,8 @@ Any Matlab data can be assigned to the *payload* property. The only request to t
 The appropriate processing of messages data (see the **Messages types** above) is assured by different message classes. Simplest messages classes are just instances of **aMessage** class with different names, indicating different states. An example of such messages are `starting`  or `canceled`  messages, indicating the appropriate states of the program. Some messages need additional functionality so additional properties are defined for the children classes, describing these messages. Any message class - child of **aMessage** class must follow the naming convention *`MessageClassName = [MessageName, 'Message']`*. This convention is enforced by messages factory  **MESS_NAMES**, where each message is subscribed by its meaningful name (low case of `messagename` of the message class name). The factory is described in the next chapter. Current family of specialized message classes is presented on the **Fig 6**
 
 ![Fig 6: Messages Family](../diagrams/aMessagesTree.png)
+
+
 
 **Fig 6** Existing family of messages classes
 
@@ -314,6 +319,8 @@ The messages factory contains common information about all messages, defined in 
  *'any','completed','pending','queued','init', 'starting','started','log', 'barrier','data','canceled','failed'*
  
 Where *any* is not a message but the name, related to the tag, referring to any message in the system. Not every messages are used by every framework. For example, `barrier` message is used by **MessagesFilebased** framework only, as other frameworks use MPI specific command `barrier` to achieve processes synchronization. 
+
+There is agreement within the frameworks code, that 'any' message has tag -1.  As Matlab MPI does not accepts negative tags, the Herbert framework tags are shifhted internaly to get valid Matlab tags and Matlab tags are shifted back at receive to get constitent Herbert framework tags.
 
 The messages which do not have defined message class are created as the instances of **aMessage** class with the specific message name. For example, messages, which identify task initialization process and the end of a task initialization are **aMessage** classes instances with the names *starting* and *started*. These messages are instantiated by calling **aMessage** class with the appropriate name, namely **aMessage(`starting`)**  or **aMessage(`started`)** while *log* message contains more advanced information about the progress of the job needs to be initialized by its own constructor **LogMessage(step,n\_steps,step\_time,add\_info)** (see the class documentation describing the log message parameters meaning). As the class for *log* message exist, log messages can not be instantiated by simply calling **aMessage('log')** class. **MESS\_NAMES** factory, called within **aMessage** class constructor, would throw error on such attempt. 
 
@@ -380,3 +387,4 @@ else
 end
 ```
 to adapt its behaviour to a parallel environment. In addition to that  **MPI\_State** gets from the *parallel\_worker* and provides to the particular code accessors to the parallel framework, used for message exchange between workers. The usage of direct MPI methods within mainly serial code is undesirable as it makes serial code substantially parallel, but may be still necessary for the particular purposes and particular jobs. 
+
