@@ -30,8 +30,9 @@ if(UNIX)
     set(Herbert_MPICH_LIB_RPATH "\$ORIGIN/${_mpich_lib_dir}")
     # Using the recommended BUILD_RPATH property did not work with CMake 3.7 so
     # the link flags are set explicitly.
+    get_target_property(_link_flags "${MEX_NAME}" LINK_FLAGS)
     set_target_properties("${MEX_NAME}"
         PROPERTIES
-            LINK_FLAGS "-Wl,-rpath,${Herbert_MPICH_LIB_RPATH}"
+            LINK_FLAGS "${_link_flags} -Wl,-rpath,${Herbert_MPICH_LIB_RPATH}"
     )
 endif()
