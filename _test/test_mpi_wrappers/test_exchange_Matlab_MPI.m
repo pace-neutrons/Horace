@@ -9,7 +9,7 @@ classdef test_exchange_Matlab_MPI < exchange_common_tests
                 name = 'test_exchange_Matlab_MPI';
             end
             obj = obj@exchange_common_tests(name,...
-                'MessagesMatlabMPI_tester','MessagesMatlabMPI_tester');
+                'MessagesMatlabMPI_tester');
             
             obj.ignore_test = ~license('checkout', 'Distrib_Computing_Toolbox');
             
@@ -274,14 +274,24 @@ classdef test_exchange_Matlab_MPI < exchange_common_tests
             mf = MessagesMatlabMPI_tester();
             clob = onCleanup(@()(finalize_all(mf)));
             
-            mess = LogMessage(1,10,0);
+            mess = InitMessage(1,10,0);
+            tag = mess.tag;
+            mpi_wrapper = mf.get_mpi_wrapper();
+            assertExceptionThrown(@()mlabReceive(mpi_wrapper,2,tag),...
+                'MESSAGES_FRAMEWORK:runtime_error',...
+                'Should throw when trying to receive non-existing blocking message from wrong tag');
+            
+            
+            % return nothing requesting missing non-blocking message
+            [mess_r,tag,source]=mpi_wrapper.mlabReceive(2,tag+1);
+            assertTrue(isempty(mess_r));
+            assertEqual(tag,mess.tag+1);
+            assertEqual(source,2);
+            
+            mpi_wrapper.mlabSend(mess,2);
             tag = mess.tag;
             
-            mpi_wrapper = mf.get_mpi_wrapper();
-            mpi_wrapper.mlabSend(mess,2);
-            assertExceptionThrown(@()mlabReceive(mpi_wrapper,2,tag+1),...
-                'MATLAB_MPI_WRAPPER:runtime_error',...
-                'Should throw when trying to receive message wotj wrong tag');
+            
             [mess_r,tag_r,source]=mpi_wrapper.mlabReceive(2,tag);
             assertEqual(mess_r,mess);
             assertEqual(tag_r,mess.tag);
@@ -289,14 +299,14 @@ classdef test_exchange_Matlab_MPI < exchange_common_tests
             
             
             mpi_wrapper.mlabSend(mess,2);
-            [mess_r,tag,source]=mpi_wrapper.mlabReceive(2);
+            [mess_r,tag_r,source]=mpi_wrapper.mlabReceive(2);
             assertEqual(mess_r,mess);
-            assertEqual(tag,mess.tag);
+            assertEqual(tag_r,mess.tag);
             assertEqual(source,2);
             
-            assertExceptionThrown(@()mlabReceive(mpi_wrapper,2),...
-                'MATLAB_MPI_WRAPPER:runtime_error',...
-                'Should throw when trying to receive non-exising message in test mode');
+            assertExceptionThrown(@()mlabReceive(mpi_wrapper,2,mess.tag),...
+                'MESSAGES_FRAMEWORK:runtime_error',...
+                'Should throw when trying to receive non-exising blocking message in test mode');
             
         end
         %
@@ -333,7 +343,11 @@ classdef test_exchange_Matlab_MPI < exchange_common_tests
             assertEqual(tag,mess.tag);
             assertEqual(source,5);
             
-            [mess_r,tag,source]=mpi_wrapper.mlabReceive([]);
+            assertExceptionThrown(@()mlabReceive(mpi_wrapper,[]),...
+                'MESSAGES_FRAMEWORK:invalid_argument',...
+                'Should throw when trying to receive message from undefined lab');
+            
+            [mess_r,tag,source]=mpi_wrapper.mlabReceive(5);
             assertEqual(mess_r,mess);
             assertEqual(tag,mess.tag);
             assertEqual(source,5);
@@ -342,6 +356,7 @@ classdef test_exchange_Matlab_MPI < exchange_common_tests
             assertFalse(avail)
             assertTrue(isempty(tag));
             assertEqual(source,5);
+            
             
             [avail,tag,source]=mpi_wrapper.mlabProbe([]);
             assertFalse(avail)

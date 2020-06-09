@@ -1,7 +1,9 @@
-function [id,tag] = get_mess_id_(tid_requested,message_id)
+function [id,tag,is_blocking] = get_mess_id_(tid_requested,message_id,varargin)
 % convert any format message id into the format, accepted by standard mpi
 % command
 %
+
+
 id = [];
 tag = [];
 if nargin == 0
@@ -22,11 +24,30 @@ if exist('message_id','var')
             'unrecognized message labIndex should be numeric')
     end
 end
-% if nargin == 3
-%     labReceiveSimulator = varargin{1};
-% else
-%
-% end
+if nargin>2
+    [ok,mess,synch,asynch]=parse_char_options(varargin,{'-synchroneous','-asynchromeous'});
+    if ~ok
+        error('MESSAGES_FRAMEWORK:invalid_argument',mess);
+    end
+    if synch && asynch
+        error('MESSAGES_FRAMEWORK:invalid_argument',...
+            'Both -synchroneous and -asynchroneous options are provided as input. Only one is allowed');
+    end
+    if synch
+        is_blocking = true;
+    elseif asynch
+        is_blocking = false;
+    else
+        is_blocking = MESS_NAMES.is_blocking(mess_name);
+    end
+else
+    if nargin>1        
+        is_blocking = MESS_NAMES.is_blocking(tag);
+    else
+        is_blocking  = false;
+    end
+end
+
 
 function id = check_id(input)
 if ischar(input) && strcmpi(input,'any')

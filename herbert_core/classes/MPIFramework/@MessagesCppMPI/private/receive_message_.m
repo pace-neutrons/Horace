@@ -1,4 +1,4 @@
-function [err_code,err_mess,message] = receive_message_(obj,from_task_id,mess_name)
+function [err_code,err_mess,message] = receive_message_(obj,from_task_id,mess_name,varargin)
 % Receive message from job with the task_id (MPI rank) specified
 % if task_id is empty, or directly requests 'any', receive message from any task.
 %
@@ -9,50 +9,26 @@ if ~exist('from_task_id','var') || ...
         (ischar(from_task_id) && strcmpi(from_task_id,'any')) || ...
         isempty(from_task_id)
     %receive message from any task
-    
-    err_code = MESS_CODES.a_recieve_error;
-    try
-        err_mess = MException('MESSAGES_FRAMEWORK:invalid_argument',...
-            'Requesting receive message from undefined lab is not currently supported');
-    catch err_mess
-    end
-    message = [];
-    return;
+    error('MESSAGES_FRAMEWORK:invalid_argument',...
+        'Requesting receive message from undefined lab is not currently supported');
 end
 if ~isnumeric(from_task_id)
-    message = [];
-    err_code = MESS_CODES.a_recieve_error;
-    try
-        error('MESSAGES_FRAMEWORK:invalid_argument',...
-            'Task_id to receive message should be a number');
-    catch err_mess
-    end
-    return;
+    error('MESSAGES_FRAMEWORK:invalid_argument',...
+        'Task_id to receive message should be a number');
 end
 
 if ~exist('mess_name','var') %receive any message for this task
     mess_name = 'any';
 end
 if ~ischar(mess_name)
-    message = [];
-    err_code = MESS_CODES.a_recieve_error;
-    try
-        error('MESSAGES_FRAMEWORK:invalid_argument',...
-            'mess_name in recive_message command should be a message name (e.g. "starting")');
-    catch err_mess
-    end
-    return;
+    error('MESSAGES_FRAMEWORK:invalid_argument',...
+        'mess_name in recive_message command should be a message name (e.g. "starting")');
+    
 end
 if (from_task_id<1 || from_task_id > obj.numLabs)
-    message = [];
-    err_code = MESS_CODES.a_recieve_error;
-    try
-        error('MESSAGES_CPP_MPI:invalid_argument',...
-            'The message requested from worker N%d but can be only received from workers in range [1:%d]',...
-            from_task_id,obj.numLabs);
-    catch err_mess
-    end
-    return;
+    error('MESSAGES_FRAMEWORK:invalid_argument',...
+        'The message requested from worker N%d but can be only received from workers in range [1:%d]',...
+        from_task_id,obj.numLabs);
 end
 
 message = obj.get_interrupt(from_task_id);
@@ -60,17 +36,35 @@ if ~isempty(message);   return; end
 
 
 mess_tag = MESS_NAMES.mess_id(mess_name);
-is_blocking = MESS_NAMES.is_blocking(mess_name);
+if nargin>3
+    [ok,mess,synch,asynch]=parse_char_options(varargin,{'-synchroneous','-asynchromeous'});
+    if ~ok
+        error('MESSAGES_FRAMEWORK:invalid_argument',mess);
+    end
+    if synch && asynch
+        error('MESSAGES_FRAMEWORK:invalid_argument',...
+            'Both -synchroneous and -asynchroneous options are provided as input. Only one is allowed');
+    end
+    if synch
+        is_blocking = true;        
+    elseif asynch
+        is_blocking = false;
+    else
+        is_blocking = MESS_NAMES.is_blocking(mess_name);
+    end
+else
+    is_blocking = MESS_NAMES.is_blocking(mess_name);
+end
+
+
 try
     [obj.mpi_framework_holder_,mess_data]=cpp_communicator('labReceive',...
         obj.mpi_framework_holder_,int32(from_task_id),int32(mess_tag),...
         uint8(is_blocking));
 catch ERR
     if strcmpi(ERR.identifier,'MPI_MEX_COMMUNICATOR:runtime_error')
-        err_code = MESS_CODES.a_recieve_error;
-        err_mess = ERR;
-        message  = [];
-        return;
+        error('MESSAGES_FRAMEWORK:runtime_error',...
+            'synchroneous waiting in test mode is not allowed')        
     else
         rethrow(ERR);
     end

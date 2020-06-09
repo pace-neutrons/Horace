@@ -81,7 +81,7 @@ classdef MatlabMPIWrapper < handle
             if targ_id<1 || targ_id > obj.numLabs
                 error('MESSAGES_FRAMEWORK:invalid_argument',...
                     'The message is directed to %d but can be only sent to workers in range [1:%d]',...
-                    task_id,obj.numLabs);
+                    targ_id,obj.numLabs);
                 
             end
             
@@ -157,7 +157,7 @@ classdef MatlabMPIWrapper < handle
             
         end
         %
-        function [message,varargout]=mlabReceive(obj,targ_id,mess_tag)
+        function [message,varargout]=mlabReceive(obj,targ_id,mess_tag,is_blocking)
             % wrapper around Matlab labReceive operation.
             % Inputs:
             % targ_id  - the number of the lab to ask the information from
@@ -166,9 +166,14 @@ classdef MatlabMPIWrapper < handle
             % Returns:
             % message   -- the instance of aMessage class, containing the
             %              requested information
-            %
+            
+            % if the message tag corresponds to blocking message,
             % in production mode: Blocks until correspondent message has
-            %               been sent
+            %               been sent, in testing -- throws if the message
+            %               has not been issued.
+            % if the message is unblocking -- returns empty message if
+            %               message has not been issued/delivered
+            
             if nargin<3
                 mess_tag = -1;
             end
@@ -187,7 +192,9 @@ classdef MatlabMPIWrapper < handle
                 fprintf(obj.log_fh_,'***receving from Lab: %s Mess tag %d\n',...
                     lab_name,targ_id);
             end
-            is_blocking = MESS_NAMES.is_blocking(mess_tag);
+            if ~exist('is_blocking','var')
+                is_blocking = MESS_NAMES.is_blocking(mess_tag);
+            end
             [message,tag,source] = labReceive_(obj,targ_id,mess_tag,is_blocking);
             if nargout>1
                 varargout{1} = tag;

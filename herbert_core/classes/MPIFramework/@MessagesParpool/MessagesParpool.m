@@ -12,8 +12,6 @@ classdef MessagesParpool < iMessagesFramework
     %
     %
     properties(Dependent)
-        % return true if the framework is tested
-        is_tested
     end
     %----------------------------------------------------------------------
     properties(Constant=true)
@@ -78,22 +76,23 @@ classdef MessagesParpool < iMessagesFramework
         % MPI interface
         %
         %
-        function [ok,err_mess,message] = receive_message(obj,varargin)
-            % receive message from a task with specified id
+        function [ok,err_mess,message] = receive_message(obj,task_id,varargin)
+            % receive message from a task with specified task_id
             %
             % Blocking state depends on the message type requested.
             %
             % If blocking message is requested, blocks until this message
             % has been send. If unblocking message is requested and the
             % message was not issued, returns success and empty message
-            %
             %Usage
-            %>>[ok,err,message] = obj.receive_message(labId)  -- Receive
-            %                     message from lab with the idSpecified or
+            % >>[ok,err_mess,message] = mf.receive_message(task_id,[mess_name])
+            % >>ok  if MESS_CODES.ok, says that message have been successfully
+            %       received from task with from_task_id.
+            % >>   if MESS_CODES is not ok, error_mess indicates reason for failure
+            % >>   on success, message contains an object of class aMessage,
+            %      with message contents
             %
-            %>>[ok,err,message] = obj.receive_message('any')  -- Receive
-            %                     Receive any message.
-            [ok,err_mess,message] = receive_message_(obj,varargin{:});
+            [ok,err_mess,message] = receive_message_(obj,task_id,varargin{:});
         end
         %
         function [ok,err_mess] = send_message(obj,task_id,message)
@@ -110,12 +109,7 @@ classdef MessagesParpool < iMessagesFramework
             %
             ok = MESS_CODES.ok;
             err_mess = [];
-            try
-                obj.MPI_.mlabSend(message,task_id);
-            catch Err
-                ok = MESS_CODES.a_send_error;
-                err_mess = Err;
-            end
+            obj.MPI_.mlabSend(message,task_id);            
         end
         %
         function [messages_name,task_id] = probe_all(obj,varargin)
@@ -223,9 +217,6 @@ classdef MessagesParpool < iMessagesFramework
         % ----------------------------------------------------------------
         % Test methods
         %
-        function is = get.is_tested(obj)
-            is = obj.MPI_.is_tested;
-        end
         %
         function obj = set_mpi_wrapper(obj,wrapper)
             if ~isa(wrapper,'MatlabMPIWrapper')
@@ -246,6 +237,9 @@ classdef MessagesParpool < iMessagesFramework
         end
         function nl = get_num_labs_(obj)
             nl = obj.MPI_.numLabs;
+        end
+        function is = get_is_tested(obj)
+            is = obj.MPI_.is_tested;
         end
         
     end

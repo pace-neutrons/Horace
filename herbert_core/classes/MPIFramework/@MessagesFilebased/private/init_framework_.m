@@ -21,6 +21,9 @@ if isstruct(framework_info) && isfield(framework_info,'job_id')
     if isfield(framework_info,'labID')
         obj = obj.set_framework_range(framework_info.labID,framework_info.numLabs);
     end
+    if isfield(framework_info,'test_mode')
+        obj.is_tested_ = framework_info.test_mode;
+    end
 elseif(is_string(framework_info))
     % Add framework info to the unique framework id to improve user
     % experience

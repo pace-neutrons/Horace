@@ -43,6 +43,9 @@ classdef MessagesFilebased < iMessagesFramework
         mess_exchange_folder_ = '';
         % if true, enable debug printout
         DEBUG_ = false;
+        % true if framework is tested, i.e. running on single session, not
+        % really communicating with with independent workers.
+        is_tested_ = false;
     end
     %----------------------------------------------------------------------
     methods
@@ -146,7 +149,7 @@ classdef MessagesFilebased < iMessagesFramework
             % message was not issued, returns success and empty message
             %
             %Usage
-            % >>[ok,err_mess,message] = mf.receive_message([from_task_id,mess_name])
+            % >>[ok,err_mess,message] = mf.receive_message(from_task_id,[mess_name])
             % >>ok  if true, says that message have been successfully
             %       received from task with from_task_id.
             % >>   if false, error_mess indicates reason for failure
@@ -329,11 +332,17 @@ classdef MessagesFilebased < iMessagesFramework
             [top_exchange_folder,mess_subfolder] = constr_exchange_folder_name_(obj,top_exchange_folder);
         end
         
+        
         function ind = get_lab_index_(obj)
             ind = obj.task_id_;
         end
         function ind = get_num_labs_(obj)
             ind = obj.numLabs_;
+        end
+        function is = get_is_tested(obj)
+            % return true if the framework is tested (Running on single
+            % Matlab session)
+            is = obj.is_tested_;
         end
         
     end

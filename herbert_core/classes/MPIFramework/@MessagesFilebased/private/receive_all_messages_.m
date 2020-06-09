@@ -14,7 +14,7 @@ end
 
 lock_until_received = true;
 if ~exist('mess_name','var')
-    mess_name = '';
+    mess_name = 'any';
 end
 if isempty(mess_name) || strcmp(mess_name,'any')
     lock_until_received = false;

@@ -18,8 +18,6 @@ classdef MessagesCppMPI < iMessagesFramework
         % Time in seconds a system waits for blocking message until
         % returning "not-received"
         time_to_fail;
-        % return true if the framework is tested
-        is_tested
     end
     %----------------------------------------------------------------------
     %----------------------------------------------------------------------
@@ -107,7 +105,7 @@ classdef MessagesCppMPI < iMessagesFramework
             [ok,err_mess] = send_message_(obj,task_id,message);
         end
         %
-        function [ok,err_mess,message] = receive_message(obj,varargin)
+        function [ok,err_mess,message] = receive_message(obj,task_id,varargin)
             % receive message from a task with specified task_id
             %
             % Blocking state depends on the message type requested.
@@ -116,14 +114,14 @@ classdef MessagesCppMPI < iMessagesFramework
             % has been send. If unblocking message is requested and the
             % message was not issued, returns success and empty message
             %Usage
-            % >>[ok,err_mess,message] = mf.receive_message([from_task_id,mess_name])
-            % >>ok  if true, says that message have been successfully
+            % >>[ok,err_mess,message] = mf.receive_message(task_id,[mess_name])
+            % >>ok  if MESS_CODES.ok, says that message have been successfully
             %       received from task with from_task_id.
-            % >>   if false, error_mess indicates reason for failure
+            % >>   if MESS_CODES is not ok, error_mess indicates reason for failure
             % >>   on success, message contains an object of class aMessage,
             %      with message contents
             %
-            [ok,err_mess,message] = receive_message_(obj,varargin{:});
+            [ok,err_mess,message] = receive_message_(obj,task_id,varargin{:});
         end
         %
         %
@@ -212,10 +210,6 @@ classdef MessagesCppMPI < iMessagesFramework
             end
         end
         %
-        function is = get.is_tested(obj)
-            % return true if the framework is tested (not real MPI)
-            is = obj.is_tested_;
-        end
         function delete(obj)
             if ~isempty(obj.mpi_framework_holder_)
                 cpp_communicator('finalize',obj.mpi_framework_holder_);
@@ -242,6 +236,11 @@ classdef MessagesCppMPI < iMessagesFramework
             obj.task_id_ = labNum;
             obj.numLabs_ = numLabs;
         end
+        function is = get_is_tested(obj)
+            % return true if the framework is tested (not real MPI)
+            is = obj.is_tested_;
+        end
+        
     end
 end
 

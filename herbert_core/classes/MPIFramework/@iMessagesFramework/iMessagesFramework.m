@@ -23,6 +23,8 @@ classdef iMessagesFramework < handle
         labIndex;
         % Number of independent workers used by the framework
         numLabs;
+        % return true if the framework is tested
+        is_tested        
     end
     properties(Access=protected)
         job_id_;
@@ -62,6 +64,10 @@ classdef iMessagesFramework < handle
         function ind = get.numLabs(obj)
             ind = get_num_labs_(obj);
         end
+        function is = get.is_tested(obj)
+            is = get_is_tested(obj);
+        end
+        
         %
         function cs = get_worker_init(obj,intercom_name,labID,numLabs)
             % Generate slave MPI worker init info, using static
@@ -362,6 +368,7 @@ classdef iMessagesFramework < handle
         % return the labIndex
         ind = get_lab_index_(obj);
         n_labs = get_num_labs_(obj);
+        is = get_is_tested(obj);
     end
     methods(Access = protected)
         function set_job_id_(obj,new_job_id)

@@ -10,7 +10,7 @@ classdef test_exchange_FileBaseMPI < exchange_common_tests
             end
             %this = this@MPI_Test_Common(name, 'herbert');
             obj = obj@exchange_common_tests(name,...
-                'MessagesFileBasedMPI_mirror_tester','MessagesFileBasedMPI_mirror_tester');
+                'MessagesFileBasedMPI_mirror_tester');
             
             
         end
@@ -98,9 +98,8 @@ classdef test_exchange_FileBaseMPI < exchange_common_tests
         end
         %
         function test_receive_all_mess(this)
-            fiis = iMessagesFramework.build_worker_init(this.working_dir, ...
-                'FB_MPI_Test_recevie_all', 'MessagesFilebased', 0, 3);
-            fii = iMessagesFramework.deserialize_par(fiis);
+            fii = iMessagesFramework.build_worker_init(this.working_dir, ...
+                'FB_MPI_Test_recevie_all', 'MessagesFilebased', 0, 3,'test_mode');
             mf0 = MessagesFilebased(fii);
             
             clob = onCleanup(@()(mf0.finalize_all()));
@@ -153,7 +152,10 @@ classdef test_exchange_FileBaseMPI < exchange_common_tests
         end
         %
         function test_probe_all(this)
-            mf = MessagesFilebased('MFT_probe_all_messages');
+            fiis = iMessagesFramework.build_worker_init(this.working_dir, ...
+                'MFT_probe_all_messages', 'MessagesFilebased', 0, 3,'test_mode');
+            
+            mf = MessagesFilebased(fiis);
             clob = onCleanup(@()(mf.finalize_all()));
             
             all_mess = mf.probe_all(1);

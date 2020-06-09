@@ -30,7 +30,7 @@ if isKey(obj.messages_cache_,target_id)
         if ~(tag==-1 || strcmp(tag,'any'))
             if tag ~=tag_rec
                 if is_blocking
-                    error('MATLAB_MPI_WRAPPER:runtime_error',...
+                    error('MESSAGES_FRAMEWORK:runtime_error',...
                         'Attempt to issue blocking receive from lab %d, tag %d Tag present: %d',...
                         target_id,tag,tag_rec )
                 else
@@ -48,7 +48,7 @@ if isKey(obj.messages_cache_,target_id)
     end
 else
     if isempty(target_id) || (isnumeric(target_id) && target_id == -1)
-        error('MATLAB_MPI_WRAPPER:runtime_error',...
+        error('MESSAGES_FRAMEWORK:invalid_argument',...
             'Requesting receive from undefined lab')
         % PREVIOUS VERSION: should this behaviour to be supported?
         %         if obj.messages_cache_.Count == 0
@@ -61,11 +61,11 @@ else
         %         return;
     end
     if is_blocking
-        error('MATLAB_MPI_WRAPPER:runtime_error',...
+        error('MESSAGES_FRAMEWORK:runtime_error',...
             'Attempt to issue blocking receive from lab %d',...
             target_id)
     else
         message = [];
-        tag_rec = [];
+        tag_rec = mess_tag;
     end
 end

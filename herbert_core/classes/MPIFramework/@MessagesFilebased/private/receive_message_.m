@@ -1,17 +1,22 @@
-function [err_code,err_mess,message] = receive_message_(obj,from_task_id,mess_name)
+function [err_code,err_mess,message] = receive_message_(obj,from_task_id,mess_name,varargin)
 % Receive message from job with the task_id (MPI rank) specified
 % if task_id is empty, receive message from any task.
 %
 %
-if ~exist('from_task_id','var') %receive message from any task
-    from_task_id = [];
+
+if ~exist('from_task_id','var') || isempty(from_task_id) ||...
+        (isnumeric(from_task_id ) && from_task_id < 0) || ...
+        (ischar(from_task_id) && strcmp(from_task_id,'any'))
+    %receive message from any task
+    error('MESSAGES_FRAMEWORK:invalid_argument',...
+        'Requesting receive message from undefined lab is not currently supported');
 end
 if ~isnumeric(from_task_id)
     error('MESSAGES_FRAMEWORK:invalid_argument',...
         'Task_id to receive message should be a number');
 end
 if ~exist('mess_name','var') %receive any message for this task
-    mess_name = '';
+    mess_name = 'any';
 end
 if ~ischar(mess_name)
     error('MESSAGES_FRAMEWORK:invalid_argument',...
@@ -37,6 +42,27 @@ if ~isempty(message)
     err_mess=[];
     return;
 end
+if nargin>3
+    [ok,mess,synch,asynch]=parse_char_options(varargin,{'-synchroneous','-asynchromeous'});
+    if ~ok
+        error('MESSAGES_FRAMEWORK:invalid_argument',mess);
+    end
+    if synch && asynch
+        error('MESSAGES_FRAMEWORK:invalid_argument',...
+            'Both -synchroneous and -asynchroneous options are provided as input. Only one is allowed');
+    end
+    if synch
+        is_blocking = true;
+    elseif asynch
+        is_blocking = false;
+    else
+        is_blocking = MESS_NAMES.is_blocking(mess_name);
+    end
+else
+    is_blocking = MESS_NAMES.is_blocking(mess_name);
+end
+
+
 
 mess_folder = obj.mess_exchange_folder;
 mess_present= false;
@@ -63,7 +89,7 @@ while ~mess_present
         mess_names  = mess_names(from_lab_requested );
         mid_from   = mid_from(from_lab_requested );
         % check if message is as requested
-        if ~isempty(mess_name)
+        if ~(isempty(mess_name) || strcmp(mess_name,'any'))
             % interrupt message accepted even if not requested
             fail_list = MESS_NAMES.instance().interrupts;
             if iscell(mess_name)
@@ -86,14 +112,25 @@ while ~mess_present
         %             fname = fopen(of(i));
         %             fprintf(f_hl,'  opened file: %s\n',fname);
         %         end
+        if is_blocking
+            if obj.is_tested
+                error('MESSAGES_FRAMEWORK:runtime_error',...
+                    'Can not request blocking message in test mode')
+            end
+        else
+            err_code = MESS_CODES.ok;
+            err_mess = [];
+            message  = [];
+            return;
+        end
         
         % do waiting for it
         t_passed = toc(t0);
         if t_passed > obj.time_to_fail_
-            err_code =  MESS_CODES.timeout_exceeded;
-            err_mess = sprintf('Timeout waiting for message "%s" for task with id: %d',...
+            error('MESSAGES_FRAMEWORK:invalid_argument',...
+                'Timeout waiting for message "%s" for task with id: %d',...
                 mess_name,obj.labIndex);
-            return;
+            
         else
             pause(obj.time_to_react_);
             [is,err_code,err_mess] = check_job_canceled(obj);

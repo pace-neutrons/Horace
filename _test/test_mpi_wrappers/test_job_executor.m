@@ -71,9 +71,11 @@ classdef test_job_executor< MPI_Test_Common
             common_job_param = struct('filepath',obj.working_dir,...
                 'filename_template','test_jobDispatcherL%d_nf%d.txt',...
                 'fail_for_labsN',1:2);
+            in_data = iMessagesFramework.build_worker_init(tmp_dir,...
+                'test_worker_some_fail','MessagesFilebased',0,3,'test_mode');
             
             % initiate exchange class which would work on a client(worker's) side
-            serverfbMPI  = MessagesFilebased('test_worker_some_fail');
+            serverfbMPI  = MessagesFilebased(in_data );
             serverfbMPI.mess_exchange_folder = obj.working_dir;
             %
             clob = onCleanup(@()finalize_all(serverfbMPI));
@@ -170,7 +172,10 @@ classdef test_job_executor< MPI_Test_Common
             
             %cs  = iMessagesFramework.deserialize_par(css1);
             % initiate exchange class which would work on a client(worker's) side
-            serverfbMPI  = MessagesFilebased('test_worker');
+            in_data = iMessagesFramework.build_worker_init(tmp_dir,...
+                'test_worker','MessagesFilebased',0,2,'test_mode');
+
+            serverfbMPI  = MessagesFilebased(in_data);
             serverfbMPI.mess_exchange_folder = obj.working_dir;
             %
             clob = onCleanup(@()finalize_all(serverfbMPI));

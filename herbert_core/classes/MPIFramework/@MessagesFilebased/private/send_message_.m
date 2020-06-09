@@ -9,6 +9,11 @@ if ~exist(obj.mess_exchange_folder,'dir')
     err_mess = sprintf('Job with id %s have been canceled. No message exchange folder exist',obj.job_id);
     return;
 end
+if task_id<0 || task_id>obj.numLabs
+    error('MESSAGES_FRAMEWORK:invalid_argument',...
+        'The message is directed to %d but can be only sent to workers in range [0:%d]',...
+        task_id,obj.numLabs);
+end
 
 %
 if is_string(message) && ~isempty(message)

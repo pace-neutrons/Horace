@@ -17,7 +17,7 @@ if obj.is_tested
     [message,tag,source] = pop_message_(obj,targ_id,mess_tag,is_blocking);
 else
     if isempty(targ_id)
-        error('MATLAB_MPI_WRAPPER:runtime_error',...
+        error('MESSAGES_FRAMEWORK:invalid_argument',...
             'Requesting receive from undefined lab')
         %[message,source,tag] = labReceive;
     elseif mess_tag == -1

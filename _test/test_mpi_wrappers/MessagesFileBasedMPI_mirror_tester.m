@@ -1,6 +1,9 @@
-classdef MessagesFileBasedMPI_mirror_tester < MFTester & handle
+classdef MessagesFileBasedMPI_mirror_tester < MFTester
+    % The class, which mimicks the file-based messages mirroring, i.e.
+    % when one sends message to a particular worker, the class reflects it and
+    % provides the same message as available from this worker.
     properties(Access=protected)
-        mirror_labNum_;
+        mess_name_fun_
     end
     
     methods
@@ -10,19 +13,31 @@ classdef MessagesFileBasedMPI_mirror_tester < MFTester & handle
             init_struct = iMessagesFramework.build_worker_init(tmp_dir, ...
                 'test_FB_message', 'MessagesFilebased', 1, 10,'test_mode');
             obj=obj@MFTester(init_struct);
-            obj.mirror_labNum_ = 1;
+            obj.mess_name_fun_  = @(name,lab_to,lab_from)sprintf('mess_%s_FromN%d_ToN%d.mat',...
+                name,lab_from,lab_to);
         end
-        
-        function [ok,err_mess,message] = receive_message(obj,varargin)
-            obj.mirror_labNum_ = varargin{1};
-            [ok,err_mess,message] = receive_message@MessagesFilebased(obj,varargin{:});
+        function [ok,err_mess,message] = send_message(obj,targ,varargin)
+            obj.mess_name_fun_  = @(name,lab_to,lab_from)sprintf('mess_%s_FromN%d_ToN%d.mat',...
+                name,lab_to,lab_from);
+            [ok,err_mess,message] = send_message@MessagesFilebased(obj,targ,varargin{:});
+            obj.mess_name_fun_  = @(name,lab_to,lab_from)sprintf('mess_%s_FromN%d_ToN%d.mat',...
+                name,lab_from,lab_to);
+            
         end
         
     end
+    %
     methods (Access=protected)
-        function ind = get_lab_index_(obj)
-            ind = obj.mirror_labNum_;
+        function mess_fname = job_stat_fname_(obj,lab_to,mess_name,lab_from)
+            %build filename for a specific message
+            if ~exist('lab_from','var')
+                lab_from = obj.labIndex;
+            end
+            mess_fname= fullfile(obj.mess_exchange_folder,...
+                obj.mess_name_fun_(mess_name,lab_to,lab_from));
+            
         end
+        
     end
     
     

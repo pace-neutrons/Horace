@@ -10,7 +10,7 @@ classdef test_exchange_CPP_MPI < exchange_common_tests
                 name = 'test_exchange_CPP_MPI';
             end
             obj = obj@exchange_common_tests(name,...
-                'MessagesCppMPI_tester','MessagesCppMPI_tester');
+                'MessagesCppMPI_tester');
             
             obj.ignore_test = isempty(which('cpp_communicator'));
             if obj.ignore_test
@@ -134,90 +134,19 @@ classdef test_exchange_CPP_MPI < exchange_common_tests
             
             
             f = @()send_message(mf, 0, mess);
-            assertExceptionThrown(f, 'MESSAGES_CPP_MPI:invalid_argument')
+            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument')
             
             f = @()send_message(mf, 11, mess);
-            assertExceptionThrown(f, 'MESSAGES_CPP_MPI:invalid_argument')
+            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument')
             
             f = @()receive_message(mf, 0, mess.mess_name);
-            assertExceptionThrown(f, 'MESSAGES_CPP_MPI:invalid_argument')
+            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument')
             
             f = @()receive_message(mf, 11, mess.mess_name);
-            assertExceptionThrown(f, 'MESSAGES_CPP_MPI:invalid_argument')
+            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument')
             
         end
         %
-        function test_Send3Receive1Asynch(obj)
-            % Test communications in test mode
-            if obj.ignore_test
-                return
-            end
-            mf = MessagesCppMPI_tester();
-            clob = onCleanup(@()(finalize_all(mf)));
-            
-            assertEqual(mf.labIndex, uint64(1));
-            assertEqual(mf.numLabs, uint64(10));
-            
-            mess = LogMessage(1, 10, 1, []);
-            [ok, err_mess] = mf.send_message(5, mess);
-            assertEqual(ok, MESS_CODES.ok);
-            assertTrue(isempty(err_mess));
-            mess = LogMessage(2, 10, 3, []);
-            [ok, err_mess] = mf.send_message(5, mess);
-            assertEqual(ok, MESS_CODES.ok);
-            assertTrue(isempty(err_mess));
-            
-            mess = LogMessage(3, 10, 5, []);
-            [ok, err_mess] = mf.send_message(5, mess);
-            assertEqual(ok, MESS_CODES.ok);
-            assertTrue(isempty(err_mess));
-            
-            [ok, err_mess, messR] = mf.receive_message(5, mess.mess_name);
-            assertEqual(ok, MESS_CODES.ok);
-            assertTrue(isempty(err_mess));
-            
-            assertEqual(mess, messR);
-            
-            [mess_names, source_id_s] = mf.probe_all(5, 'any');
-            assertTrue(isempty(mess_names));
-            assertTrue(isempty(source_id_s));
-            
-        end
-        %
-        function test_SendProbe(obj)
-            % Test communications in test mode
-            if obj.ignore_test
-                return
-            end
-            mf = MessagesCppMPI_tester();
-            clob = onCleanup(@()(finalize_all(mf)));
-            
-            assertEqual(mf.labIndex, uint64(1));
-            assertEqual(mf.numLabs, uint64(10));
-            
-            mess = LogMessage(1, 10, 1, []);
-            [ok, err_mess] = mf.send_message(5, mess);
-            assertEqual(ok, MESS_CODES.ok);
-            assertTrue(isempty(err_mess));
-            
-            [mess_names, source_id_s] = mf.probe_all('any', 'any');
-            assertEqual(numel(mess_names), 1);
-            assertEqual(numel(source_id_s), 1);
-            assertEqual(source_id_s(1), int32(5));
-            assertEqual(mess_names{1}, mess.mess_name);
-            
-            [ok, err_mess] = mf.send_message(7, mess);
-            assertEqual(ok, MESS_CODES.ok);
-            assertTrue(isempty(err_mess));
-            
-            [mess_names, source_id_s] = mf.probe_all('any', 'any');
-            assertEqual(numel(mess_names), 2);
-            assertEqual(numel(source_id_s), 2);
-            assertEqual(source_id_s(1), int32(5));
-            assertEqual(source_id_s(2), int32(7));
-            assertEqual(mess_names{1}, mess.mess_name);
-            
-        end
         %
         function test_MessagesCppMPI_constructor(obj)
             if obj.ignore_test

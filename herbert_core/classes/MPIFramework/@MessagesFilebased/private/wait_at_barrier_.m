@@ -44,7 +44,7 @@ else
     %fprintf(' sending barrier message\n')
     obj.send_message(1,'barrier');
     %fprintf(' waiting for barrier message\n')
-    [ok,err]=obj.receive_message(1,'barrier');
+    [ok,err]=obj.receive_message(1,'barrier','-synchroneous');
     if ok ~= MESS_CODES.ok
         if nothrow
             ok = false;
@@ -56,5 +56,5 @@ else
     end
     all_present = true;
 end
-%fprintf(' Completed lab barier for lab N%d\n',obj.labIndex)
+
 
