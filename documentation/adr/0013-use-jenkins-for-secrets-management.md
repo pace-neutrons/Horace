@@ -10,7 +10,8 @@ Accepted
 
 ## Context
 
-The build processes for all of the PACE projects require credentials to access GitHub and the SAN area. These need to be securely and accessible as steps in the Jenkinsfile and any scripts launched from that.
+The build processes for all of the PACE projects require credentials to access GitHub and the SAN area. 
+These need to be stored securely and be accessible to steps in the Jenkinsfile and any scripts launched from that.
 
 For security reasons this data cannot be stored in the build or pipeline scripts as these are stored in GitHub.
 
@@ -20,7 +21,7 @@ The data will be stored in ANVIL through the available Jenkins [Credentials](htt
 
 A `file` object will be used for the SAN credentials as this maps directly onto the format required by be `gio mount` syntax on Linux build nodes.
 
-A `string` objects will be used for other credentials types, e.g. GitHub access tokens.
+A `string` object will be used for other credentials types, e.g. GitHub access tokens.
 
 Credentials will be stored in the `PACE-neutrons`  store and use `snake_case` IDs that clearly identify their use. The first word will identify the associated system, e.g. `SAN_credentials_file`.
 
