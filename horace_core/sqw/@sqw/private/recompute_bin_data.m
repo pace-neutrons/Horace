@@ -20,7 +20,7 @@ if use_mex
         if isempty(w.data.pix)
             return;
         end
-        [wout.data.s,wout.data.e]=recompute_bin_data_c(w.data.npix,w.data.pix,n_threads);
+        [wout.data.s,wout.data.e]=recompute_bin_data_c(w.data.npix,w.data.pix.data,n_threads);
     catch ME
         use_mex = false;
         if log_level>0
@@ -31,9 +31,9 @@ end
 % USE MATLAB
 if ~use_mex
     nbin=numel(w.data.npix);
-    
+
     %t1=tic();
-    
+
     try
         %error('MATLAB:nomem','bla=bla')
         i  = int64(1:nbin);
@@ -51,13 +51,13 @@ if ~use_mex
         switch ME.identifier
             case 'MATLAB:nomem'
                 clear i ti allocatable;
-                
+
                 nend=cumsum(w.data.npix(:));
                 npixtot=nend(end);
                 nbeg=nend-w.data.npix(:)+1;
                 ind=zeros(npixtot,1,'int32');
-                
-                
+
+
                 if log_level>0
                     warning('SQW:recompute_bin_data',' not enough memory to define bin indexes, running slow loop')
                 end
@@ -67,19 +67,19 @@ if ~use_mex
                 if log_level>0
                     warning('SQW:recompute_bin_data',' slow loop completed')
                 end
-                
+
             otherwise
                 rethrow(ME);
         end
     end
     %t=toc(t1)
-    
-    if ~isempty(ind)        
-        wout.data.s=accumarray(ind,w.data.pix(8,:),[nbin,1])./w.data.npix(:);
+
+    if ~isempty(ind)
+        wout.data.s=accumarray(ind,w.data.pix.signal,[nbin,1])./w.data.npix(:);
         wout.data.s=reshape(wout.data.s,size(w.data.npix));
         % separate into two steps to save memory
         npix2 = (w.data.npix(:).^2);
-        wout.data.e=accumarray(ind,w.data.pix(9,:),[nbin,1])./npix2;
+        wout.data.e=accumarray(ind,w.data.pix.variance,[nbin,1])./npix2;
         clear npix2;
         %
         wout.data.e=reshape(wout.data.e,size(w.data.npix));

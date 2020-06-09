@@ -7,14 +7,14 @@ function horace_mex
 % to configure a gcc compiler (version >= 4.3 requested)  to produce omp
 % code one have to edit  ~/.matlab/mexoptions.sh file and add -fopenmp key
 % to the proper compiler and linker keys
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
 
 
 start_dir=pwd;
 C_compiled=false;
 root_dir = horace_root();
+
+% build package version
+build_version_h(root_dir)
 
 % check OS for hdf compilation purpose
 if ispc

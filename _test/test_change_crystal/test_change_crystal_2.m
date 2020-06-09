@@ -2,7 +2,7 @@ function test_change_crystal_2
 % Perform tests of change_crystal functions and methods.
 %
 %   >> test_change_crystal_2
-% 
+%
 % It is assumed that test_change_crystal_1 has already been successfully performed.
 % That test ensures that change_crystal_sqw on a file is correct; here we check that
 % all the permutations of object types and files are handled correctly.
@@ -158,7 +158,7 @@ filename={w2_1_file,w2_2_file,w1_1_file,w1_2_file,...
           d2_1_file,d2_2_file,d1_1_file,d1_2_file,...
           w2c_1_file,w2c_2_file,w1c_1_file,w1c_2_file,...
           d2c_1_file,d2c_2_file,d1c_1_file,d1c_2_file};
-      
+
 delete_error=false;
 for i=1:numel(filename)
     if exist(filename{i},'file')
@@ -245,13 +245,14 @@ end
 function [ok_out,mess]=test_result(expect_ok, wout, ref_ans)
 % Test if get expected result (which may also be a failure)
 try
-    [ok,mess]=equal_to_tol(wout, ref_ans,-2e-7,'nan_equal',true,'ignore_str',true);
+    [ok, ~]=equal_to_tol(wout, ref_ans,-2e-7,'nan_equal',true,'ignore_str',true);
     if ok && ~expect_ok
         ok_out=false; mess='Unexpected equality within tolerance'; return
     elseif ~ok && expect_ok
         ok_out=false; mess='Unexpected inequality outside tolerance'; return
     end
     ok_out=true; mess='';
-catch
+catch ME
+    disp(getReport(ME, 'extended'));
     error('Should not get to here')
 end

@@ -7,17 +7,13 @@ function [mess, position, npixtot] = put_sqw_data_npix_and_pix_to_file_(outfile,
 % ------
 %   outfile     File name, or file identifier of open file, to which to append data
 %   npix        Array containing the number of pixels in each bin
-%   data.pix    Array containing data for each pixel:
-%              If npixtot=sum(npix), then pix(9,npixtot) contains:
-%                   u1      -|
-%                   u2       |  Coordinates of pixel in the projection axes of the original sqw file(s)
-%                   u3       |
-%                   u4      -|
-%                   irun        Run index in the header block from which pixel came
-%                   idet        Detector group number in the detector listing for the pixel
-%                   ien         Energy bin number for the pixel in the array in the (irun)th header
-%                   signal      Signal array
-%                   err         Error array (variance i.e. error bar squared)
+%   data.pix    PixelData object with the following attributes:
+%                   coordinates  Coordinates of pixel in the projection axes of the original sqw file(s) 4xn matrix
+%                   run_idx      Run index in the header block from which pixel came
+%                   idet         Detector group number in the detector listing for the pixel
+%                   ien          Energy bin number for the pixel in the array in the (irun)th header
+%                   signal       Signal array
+%                   variance     Error array (variance i.e. error bar squared)
 %
 % Output:
 % -------
@@ -57,7 +53,7 @@ end
 position.npix=ftell(fid);
 fwrite(fid,int64(npix),'int64');    % make int64 so that can deal with huge numbers of pixels
 
-npixtot = size(pix,2); % write total number of pixels to be consistent with combine_pix mex
+npixtot = pix.num_pixels; % write total number of pixels to be consistent with combine_pix mex
 fwrite(fid,int64(npixtot),'int64');  % make int64 so that can deal with huge numbers of pixels
 position.pix=ftell(fid); % point directly to pix position
 
@@ -67,12 +63,12 @@ position.pix=ftell(fid); % point directly to pix position
 block_size=config_store.instance().get_value('hor_config','mem_chunk_size');    % size of buffer to hold pixel information
 % block_size=1000000;
 if npixtot<=block_size
-    fwrite(fid,single(pix),'float32');
+    fwrite(fid,single(pix.data),'float32');
 else
     for ipix=1:block_size:npixtot
         istart = ipix;
         iend   = min(ipix+block_size-1,npixtot);
-        fwrite(fid,single(pix(:,istart:iend)),'float32');
+        fwrite(fid,single(pix.get_pixels(istart:iend).data),'float32');
     end
 end
 

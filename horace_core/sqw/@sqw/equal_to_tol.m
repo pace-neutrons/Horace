@@ -134,22 +134,22 @@ end
 if (~opt.reorder && opt.fraction==1) || ~is_sqw_type(w1)
     % Test strict equality of all pixels; pass structures to get to the generic equal_to_tol
     [ok,mess]=equal_to_tol(struct(w1),struct(w2),args{:},'name_a',name_a,'name_b',name_b);
-    
+
 else
     % Test pixels in a fraction of non-empty bins, accounting for reordering of pixels
     % if required
-    
+
     % Test all fields except pix array
-    tmp1=struct(w1); tmp1.data.pix=0;
-    tmp2=struct(w2); tmp2.data.pix=0;
+    tmp1=struct(w1); tmp1.data.pix=PixelData();
+    tmp2=struct(w2); tmp2.data.pix=PixelData();
     [ok,mess]=equal_to_tol(tmp1,tmp2,args{:},'name_a',name_a,'name_b',name_b);
     if ~ok, return, end
-    
+
     % Check a subset of the bins with reordering
     npix=w1.data.npix(:);
     nend=cumsum(npix);  % we already know that w1.data.npix and w2.data.npix are equal
     nbeg=nend-npix+1;
-    
+
     if opt.fraction>0 && any(npix~=0)
         % Testing of bins requested and there is least one bin with more than one pixel
         % Get indices of bins to test
@@ -175,20 +175,21 @@ else
         name_b = [name_b,'.pix'];
         if opt.reorder
             % Sort retained pixels by bin and then run,det,energy bin indicies
-            [~,ix]=sortrows([ibinarr,pix1(5:7,ipix)']);
-            s1=pix1(:,ipix)';
+            fields = {'run_idx', 'detector_idx', 'energy_idx'};
+            [~,ix]=sortrows([ibinarr, pix1.get_data(fields, ipix)']);
+            s1=pix1.get_pixels(ipix).data';
             s1=s1(ix,:);
-            [~,ix]=sortrows([ibinarr,pix2(5:7,ipix)']);
-            s2=pix2(:,ipix)';
+            [~,ix]=sortrows([ibinarr, pix2.get_data(fields, ipix)']);
+            s2=pix2.get_pixels(ipix).data';
             s2=s2(ix,:);
             % Now compare retained pixels
             [ok,mess]=equal_to_tol(s1,s2,args{:},'name_a',name_a,'name_b',name_b );
         else
-            s1=pix1(:,ipix);
-            s2=pix2(:,ipix);
+            s1=pix1.get_pixels(ipix).data;
+            s2=pix2.get_pixels(ipix).data;
             [ok,mess]=equal_to_tol(s1,s2,args{:},'name_a',name_a,'name_b',name_b);
         end
     end
-    
+
 end
 

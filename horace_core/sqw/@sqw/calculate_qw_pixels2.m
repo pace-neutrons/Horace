@@ -34,9 +34,9 @@ end
 c=neutron_constants;
 k_to_e = c.c_k_to_emev;
 
-irun = win.data.pix(5,:)';   % column vector
-idet = win.data.pix(6,:)';   % column vector
-ien  = win.data.pix(7,:)';   % column vector
+irun = win.data.pix.run_idx';   % column vector
+idet = win.data.pix.detector_idx';   % column vector
+ien  = win.data.pix.energy_idx';   % column vector
 
 if ~iscell(win.header)
     header={win.header};

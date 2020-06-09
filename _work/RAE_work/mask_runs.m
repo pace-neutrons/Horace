@@ -55,8 +55,8 @@ end
 
 %Do the masking calculation:
 for i=1:numel(runno)
-    mask_arr=ones(1,size(wout.data.pix,2));
-    ff=find(wout.data.pix(5,:)==runno(i));
+    mask_arr=ones(1, wout.data.pix.num_pixels);
+    ff=find(wout.data.pix.run_idx==runno(i));
     mask_arr(ff)=0;
     wout=mask_pixels(wout,mask_arr);
 end

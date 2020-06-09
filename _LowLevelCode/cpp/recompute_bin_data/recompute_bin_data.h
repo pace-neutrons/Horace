@@ -1,7 +1,7 @@
 #ifndef H_RECOMPUTE_BIN_DATA
 #define H_RECOMPUTE_BIN_DATA
 
-#include "CommonCode.h"
+#include "../CommonCode.h"
 
 #include <sstream>
 #include <memory>
