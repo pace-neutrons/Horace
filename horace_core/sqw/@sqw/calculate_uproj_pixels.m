@@ -63,9 +63,9 @@ end
 if step
     uproj_to_rlu = repmat(ustep(1:3),3,1).*uproj_to_rlu;
 end
-u = (uproj_to_rlu\upix_to_rlu)*win.data.pix(1:3,:) -...
+u = (uproj_to_rlu\upix_to_rlu)*win.data.pix.q_coordinates -...
     uproj_to_rlu\(uproj_offset(1:3)-upix_offset(1:3));
-en = (win.data.pix(4,:) - (uproj_offset(4)-upix_offset(4)))/ustep(4);
+en = (win.data.pix.dE - (uproj_offset(4)-upix_offset(4)))/ustep(4);
 
 % package as cell array of column vectors
 uproj = {u(1,:)', u(2,:)', u(3,:)', en'};

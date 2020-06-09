@@ -1,5 +1,5 @@
 #include "recompute_bin_data.h"
-#include "utility/version.h"
+#include "../utility/version.h"
 
 enum InputArguments {
     Npix_data,

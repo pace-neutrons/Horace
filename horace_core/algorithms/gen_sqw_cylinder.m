@@ -104,9 +104,9 @@ end
 % Always use the Matlab ASCII loader: reading with mex can give
 % slightly different answers due to floating point errors. This
 % can result in inconsistent binning and cause this test to fail
-herbert_conf = herbert_config();
-original_herbert_conf = herbert_conf.get_data_to_store();
-herbert_conf.use_mex_C = false;
+her_conf = herbert_config();
+original_herbert_conf = her_conf.get_data_to_store();
+her_conf.use_mex = false;
 
 % Process files
 grid=[1,1,1,1];     % need to force to be one bin for the algorithm to work
@@ -169,8 +169,8 @@ for i=1:nfiles
     w=read_sqw(tmp_file{i});
     % Compute new coordinates
     data=w.data;
-    data.pix(1:2,:)=[sqrt(sum(data.pix(1:2,:).^2,1));zeros(1,size(data.pix,2))];
-    data.urange(:,1:2)=[min(data.pix(1:2,:),[],2)';max(data.pix(1:2,:),[],2)'];
+    data.pix.coordinates(1:2,:)=[sqrt(sum(data.pix.coordinates(1:2,:).^2,1));zeros(1,data.pix.num_pixels)];
+    data.urange(:,1:2)=[min(data.pix.coordinates(1:2,:),[],2)';max(data.pix.coordinates(1:2,:),[],2)'];
     data.iax=2;   % second axis becomes integration axis
     data.iint=[-Inf;Inf];
     data.pax=[1,3,4];
