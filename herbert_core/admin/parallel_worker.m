@@ -88,7 +88,7 @@ while keep_worker_running
     %
     if DO_LOGGING; log_disp_message(' Entereing JE loop: receiving "starting" message'); end
     %
-    [ok,err,mess]= fbMPI.receive_message(0,'starting','-synchroneous');
+    [ok,err,mess]= fbMPI.receive_message(0,'starting','-synch');
     %fprintf(fh,'got "starting" message\n');
     if ok ~= MESS_CODES.ok
         err_mess = sprintf('job N%s failed while receive_je_info Error: %s:',...

@@ -37,13 +37,13 @@ if ~isempty(message);   return; end
 
 mess_tag = MESS_NAMES.mess_id(mess_name);
 if nargin>3
-    [ok,mess,synch,asynch]=parse_char_options(varargin,{'-synchroneous','-asynchromeous'});
+    [ok,mess,synch,asynch]=parse_char_options(varargin,{'-synchronous','-asynchronous'});
     if ~ok
         error('MESSAGES_FRAMEWORK:invalid_argument',mess);
     end
     if synch && asynch
         error('MESSAGES_FRAMEWORK:invalid_argument',...
-            'Both -synchroneous and -asynchroneous options are provided as input. Only one is allowed');
+            'Both -synchronous and -asynchronous options are provided as input. Only one is allowed');
     end
     if synch
         is_blocking = true;        

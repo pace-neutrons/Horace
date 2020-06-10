@@ -2,9 +2,6 @@ function [completed,obj] = check_progress_(obj,varargin)
 % Check the task progress verifying and receiving all messages, sent from
 % worker N1
 %
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-%
 completed = false;
 if nargin > 1
     obj.status = varargin{1};
@@ -19,7 +16,7 @@ else
         obj.status_changed_ = false;
     else
         for i=1:numel(mess_names)
-            [ok,err,mess] = me.receive_message(1,mess_names{i});
+            [ok,err,mess] = me.receive_message(1,mess_names{i},'-synch');
             if ok ~= MESS_CODES.ok
                 error('CLUSTER_WRAPPER:runtime_error',...
                     'Error %s receiving existing message: %s from job %s',...

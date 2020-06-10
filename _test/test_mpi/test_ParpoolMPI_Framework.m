@@ -20,6 +20,8 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
                 return;
             end
             
+        end
+        function start_pool(obj)
             cl = parcluster();
             num_labs = cl.NumWorkers;
             if num_labs < 3
@@ -31,17 +33,21 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             if num_labs > 6
                 num_labs = 6;
             end
-            obj.cluster = cl;
+
             pl = gcp('nocreate'); % Get the current parallel pool
             %if ~isempty(pl)
             %    delete(pl);
             %end
             if isempty(pl) || pl.NumWorkers ~=num_labs
+                obj.cluster = cl;                
                 delete(pl)
+                obj.pool_deleter = [];
                 pl = parpool(cl,num_labs);
+                obj.pool_deleter = onCleanup(@()delete(pl));
+                obj.pool = pl;
+            else
+                obj.pool = pl;
             end
-            obj.pool_deleter = onCleanup(@()delete(pl));
-            obj.pool = pl;
             
         end
         function delete(obj)
@@ -56,6 +62,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
             end
+            obj.start_pool();
             
             serverfbMPI  = MessagesFilebased('test_finish_tasks_reduce_mess');
             serverfbMPI.mess_exchange_folder = obj.working_dir;
@@ -66,7 +73,6 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             
             pl = obj.pool;
             num_labs = pl.NumWorkers;
-            
             spmd
                 ok = finish_task_tester(css1);
             end
@@ -93,6 +99,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
             end
+            obj.start_pool();
             
             pl = obj.pool;
             num_labs = pl.NumWorkers;
@@ -143,6 +150,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
             end
+            obj.start_pool();            
             pl = obj.pool;
             num_labs = pl.NumWorkers;
             % end of    common code ---------------------------------------
@@ -190,9 +198,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
         end
         %
         function test_probe_receive_all_tester(obj)
-            if obj.ignore_test
-                return;
-            end
+   
             
             job_param = struct('filepath',obj.working_dir,...
                 'filename_template','test_ParpoolMPI%d_nf%d.txt');
@@ -232,10 +238,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             
         end
         %
-        function test_send_receive_tester(obj)
-            if obj.ignore_test
-                return;
-            end
+        function test_send_receive_tester(obj)    
             
             job_param = struct('filepath',obj.working_dir,...
                 'filename_template','test_ParpoolMPI%d_nf%d.txt');

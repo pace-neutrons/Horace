@@ -24,14 +24,15 @@ if exist('message_id','var')
             'unrecognized message labIndex should be numeric')
     end
 end
+
 if nargin>2
-    [ok,mess,synch,asynch]=parse_char_options(varargin,{'-synchroneous','-asynchromeous'});
+    [ok,mess,synch,asynch]=parse_char_options(varargin,{'-synchronous','-asynchronous'});
     if ~ok
         error('MESSAGES_FRAMEWORK:invalid_argument',mess);
     end
     if synch && asynch
         error('MESSAGES_FRAMEWORK:invalid_argument',...
-            'Both -synchroneous and -asynchroneous options are provided as input. Only one is allowed');
+            'Both -synchronous and -asynchronous options are provided as input. Only one is allowed');
     end
     if synch
         is_blocking = true;
@@ -41,7 +42,7 @@ if nargin>2
         is_blocking = MESS_NAMES.is_blocking(mess_name);
     end
 else
-    if nargin>1        
+    if nargin>1
         is_blocking = MESS_NAMES.is_blocking(tag);
     else
         is_blocking  = false;

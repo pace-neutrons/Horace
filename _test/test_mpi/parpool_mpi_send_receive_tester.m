@@ -46,7 +46,7 @@ end
 if is_tested
     [ok,err,res] = pm.receive_message(id_send);
 else
-    [ok,err,res] = pm.receive_message(id_receive);
+    [ok,err,res] = pm.receive_message(id_receive,'any','-synch');
 end
 if ~ok
     res = -2;
