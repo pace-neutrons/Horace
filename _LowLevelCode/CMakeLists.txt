@@ -1,5 +1,6 @@
 set(Herbert_DLL_DIR "${CMAKE_SOURCE_DIR}/herbert_core/DLL")
-set(Herbert_DLL_EXTERNAL_DIR "${Herbert_DLL_DIR}/external")
 
+# Add external directory first - this means we can get the location required
+# runtime executables/libraries are copied to
 add_subdirectory("external")
 add_subdirectory("cpp")
