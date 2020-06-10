@@ -7,7 +7,5 @@ else()
     set(MPIEXEC_EXE "win64/MSMPI-8.0.12/Bin/mpiexec.exe")
     set(LICENSE_FILE "win64/MSMPI-8.0.12/License/license.rtf")
 endif()
-configure_file("${MPIEXEC_EXE}" "${CMAKE_SOURCE_DIR}/herbert_core/DLL/"
-               COPYONLY)
-configure_file("${LICENSE_FILE}" "${CMAKE_SOURCE_DIR}/herbert_core/DLL/"
-               COPYONLY)
+configure_file("${MPIEXEC_EXE}" "${Herbert_DLL_DIR}/" COPYONLY)
+configure_file("${LICENSE_FILE}" "${Herbert_DLL_DIR}/" COPYONLY)
