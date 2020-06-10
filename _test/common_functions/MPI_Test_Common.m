@@ -14,7 +14,7 @@ classdef MPI_Test_Common < TestCase
         %
         old_config;
         % current name of the framework to test
-        framework_name ;
+        framework_name;
         % current worker used in tests
         worker='worker_4tests'
     end

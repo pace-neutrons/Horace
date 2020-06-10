@@ -1,16 +1,16 @@
-classdef test_exchange_FileBaseMPI < exchange_common_tests
+classdef test_exchange_FileBasedMPI < exchange_common_tests
     
     properties
     end
     methods
         %
-        function obj = test_exchange_FileBaseMPI(name)
+        function obj = test_exchange_FileBasedMPI(name)
             if ~exist('name', 'var')
-                name = 'test_exchange_FileBaseMPI';
+                name = 'test_exchange_FileBasedMPI';
             end
             %this = this@MPI_Test_Common(name, 'herbert');
             obj = obj@exchange_common_tests(name,...
-                'MessagesFileBasedMPI_mirror_tester');
+                'MessagesFileBasedMPI_mirror_tester','herbert');
             
             
         end

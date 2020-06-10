@@ -44,7 +44,7 @@ else
     %fprintf(' sending barrier message\n')
     obj.send_message(1,'barrier');
     %fprintf(' waiting for barrier message\n')
-    [ok,err]=obj.receive_message(1,'barrier','-synchroneous');
+    [ok,err]=obj.receive_message(1,'barrier','-synch');
     if ok ~= MESS_CODES.ok
         if nothrow
             ok = false;
