@@ -198,8 +198,15 @@ methods
         assertTrue(isempty(pix_data_obj));
     end
 
-    function test_PIXELDATA_error_if_constructed_with_non_numeric_type(~)
-        f = @() PixelData('non_numeric');
+    function test_PIXELDATA_error_if_constructed_with_struct(~)
+        s = struct();
+        f = @() PixelData(s);
+        assertExceptionThrown(f, 'PIXELDATA:data')
+    end
+
+    function test_PIXELDATA_error_if_constructed_with_cell_array(~)
+        s = {'a', 1};
+        f = @() PixelData(s);
         assertExceptionThrown(f, 'PIXELDATA:data')
     end
 
@@ -311,11 +318,11 @@ methods
         assertExceptionThrown(f, 'PIXELDATA:data');
     end
 
-    function test_construction_with_char_raises_PIXELDATA_error(~)
-        f = @() PixelData('1');
-        assertExceptionThrown(f, 'PIXELDATA:data');
+    function test_construction_with_file_path_sets_file_path_on_object(~)
+        file_path = '../test_sqw_file/sqw_1d_1.sqw';
+        pix_data = PixelData(file_path);
+        assertEqual(pix_data.file_path, file_path);
     end
-
 end
 
 end

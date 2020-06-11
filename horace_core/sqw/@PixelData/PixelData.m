@@ -41,7 +41,6 @@ classdef PixelData
 
 properties (Access=private)
     PIXEL_BLOCK_COLS_ = 9;
-    data_ = zeros(9, 0);
     FIELD_INDEX_MAP_ = containers.Map(...
         {'u1', 'u2', 'u3', 'dE', ...
          'coordinates', ...
@@ -52,6 +51,12 @@ properties (Access=private)
          'signal', ...
          'variance'}, ...
         {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9})
+
+    data_ = zeros(9, 0);
+    f_accessor_;  % instance of faccess object to access pixel data from file
+end
+properties
+   file_path = '';
 end
 properties (Dependent)
     % Return the 1st, 2nd and 3rd dimension of the crystal cartestian orientation (1 x n arrays) [A^-1]
@@ -130,7 +135,7 @@ end
 
 methods
 
-    function obj = PixelData(arg)
+    function obj = PixelData(varargin)
         % Construct a PixelData object from the given data. Default
         % construction initialises the underlying data as an empty (9 x 0)
         % array.
@@ -138,6 +143,8 @@ methods
         %   >> obj = PixelData(ones(9, 200))
         %
         %   >> obj = PixelData(200)  % intialise 200 pixels with underlying data set to zero
+        %
+        %   >> obj = PixelData(file_path)  % initialise pixel data from an sqw file
         %
         % Input:
         % ------
@@ -156,12 +163,17 @@ methods
         %  arg    An integer specifying the desired number of pixels. The underlying
         %         data will be filled with zeros
         %
+        %  arg    A path to an SQW file.
+        %
         if nargin == 1
-            if isa(arg, 'PixelData')
+            arg = varargin{1};
+            if isa(arg, 'PixelData')  %  TODO make sure this works with file-backed
                 obj.data = arg.data;
             elseif numel(arg) == 1 && isnumeric(arg) && floor(arg) == arg
                 % input is integer
                 obj.data = zeros(obj.PIXEL_BLOCK_COLS_, arg);
+            elseif ischar(arg)
+                obj.file_path = arg;
             else
                 obj.data = arg;
             end
