@@ -2,7 +2,10 @@ classdef test_PixelData < TestCase
 
 properties
     raw_pix_data = rand(9, 10);
+    test_sqw_file_path = '../test_sqw_file/sqw_1d_1.sqw';
+
     pixel_data_obj;
+    pix_data_from_file;
 end
 
 methods (Access = private)
@@ -19,7 +22,10 @@ methods
     function obj = test_PixelData(~)
         obj = obj@TestCase('test_PixelData');
 
+        % Construct an object from raw data
         obj.pixel_data_obj = PixelData(obj.raw_pix_data);
+        % Construct an object from a file
+        obj.pix_data_from_file = PixelData(obj.test_sqw_file_path);
     end
 
     function test_default_construction_sets_empty_pixel_data(~)
@@ -318,11 +324,30 @@ methods
         assertExceptionThrown(f, 'PIXELDATA:data');
     end
 
-    function test_construction_with_file_path_sets_file_path_on_object(~)
-        file_path = '../test_sqw_file/sqw_1d_1.sqw';
-        pix_data = PixelData(file_path);
-        assertEqual(pix_data.file_path, file_path);
+    function test_construction_with_file_path_sets_file_path_on_object(obj)
+        assertEqual(obj.pix_data_from_file.file_path, obj.test_sqw_file_path);
     end
+
+    function test_construction_with_file_path_populates_data_from_file(obj)
+        assertFalse(isempty(obj.pix_data_from_file));
+        expected_signal_chunk = [0, 0, 0, 0, 0483.5, 4463.0, 1543.0, 0, 0, 0];
+        assertEqual(obj.pix_data_from_file.signal(9825:9834), ...
+                    expected_signal_chunk);
+    end
+
+    function test_construction_with_file_path_sets_num_pixels_in_file(obj)
+        f_accessor = sqw_formats_factory.instance().get_loader(...
+                obj.test_sqw_file_path);
+        num_pix_in_file = f_accessor.npixels;
+        assertEqual(obj.pix_data_from_file.num_pixels, num_pix_in_file);
+    end
+
+    function test_error_on_construction_with_non_existent_file(~)
+        file_path = 'not-a-file';
+        f = @() PixelData(file_path);
+        assertExceptionThrown(f, 'SQW_FILE_IO:runtime_error');
+    end
+
 end
 
 end

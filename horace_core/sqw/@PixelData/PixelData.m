@@ -170,11 +170,15 @@ methods
             if isa(arg, 'PixelData')  %  TODO make sure this works with file-backed
                 obj.data = arg.data;
             elseif numel(arg) == 1 && isnumeric(arg) && floor(arg) == arg
-                % input is integer
+                % input is an integer
                 obj.data = zeros(obj.PIXEL_BLOCK_COLS_, arg);
             elseif ischar(arg)
+                % input is a file path
                 obj.file_path = arg;
+                obj.f_accessor_ = sqw_formats_factory.instance().get_loader(arg);
+                obj.data = obj.f_accessor_.get_pix(1, obj.num_pixels).data;
             else
+                % input sets underlying data
                 obj.data = arg;
             end
         end
@@ -371,7 +375,11 @@ methods
      end
 
     function num_pix = get.num_pixels(obj)
-        num_pix = size(obj.data, 2);
+        if isempty(obj.f_accessor_)
+            num_pix = size(obj.data, 2);
+        else
+            num_pix = obj.f_accessor_.npixels;
+        end
     end
 
 end
