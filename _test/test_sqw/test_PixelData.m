@@ -6,6 +6,7 @@ properties
 
     pixel_data_obj;
     pix_data_from_file;
+    pix_data_from_faccess;
 end
 
 methods (Access = private)
@@ -26,8 +27,12 @@ methods
         obj.pixel_data_obj = PixelData(obj.raw_pix_data);
         % Construct an object from a file
         obj.pix_data_from_file = PixelData(obj.test_sqw_file_path);
+        % Construct an object from a file accessor
+        f_accessor = sqw_formats_factory.instance().get_loader(obj.test_sqw_file_path);
+        obj.pix_data_from_faccess = PixelData(f_accessor);
     end
 
+    % --- Tests for in-memory operations ---
     function test_default_construction_sets_empty_pixel_data(~)
         pix_data = PixelData();
         num_cols = 9;
@@ -324,8 +329,11 @@ methods
         assertExceptionThrown(f, 'PIXELDATA:data');
     end
 
+    % --- Tests for file-backed operations ---
     function test_construction_with_file_path_sets_file_path_on_object(obj)
-        assertEqual(obj.pix_data_from_file.file_path, obj.test_sqw_file_path);
+        [dir_name, file_name, ext] = fileparts(obj.test_sqw_file_path);
+        expected_abs_path = fullfile(what(dir_name).path, [file_name, ext]);
+        assertEqual(obj.pix_data_from_file.file_path, expected_abs_path);
     end
 
     function test_construction_with_file_path_populates_data_from_file(obj)
@@ -346,6 +354,19 @@ methods
         file_path = 'not-a-file';
         f = @() PixelData(file_path);
         assertExceptionThrown(f, 'SQW_FILE_IO:runtime_error');
+    end
+
+    function test_construction_with_faccess_populates_data_from_file(obj)
+        assertFalse(isempty(obj.pix_data_from_faccess));
+        expected_signal_chunk = [0, 0, 0, 0, 0483.5, 4463.0, 1543.0, 0, 0, 0];
+        assertEqual(obj.pix_data_from_faccess.signal(9825:9834), ...
+                    expected_signal_chunk);
+    end
+
+    function test_construction_with_faccess_sets_file_path(obj)
+        [dir_name, file_name, ext] = fileparts(obj.test_sqw_file_path);
+        expected_abs_path = fullfile(what(dir_name).path, [file_name, ext]);
+        assertEqual(obj.pix_data_from_faccess.file_path, expected_abs_path);
     end
 
 end

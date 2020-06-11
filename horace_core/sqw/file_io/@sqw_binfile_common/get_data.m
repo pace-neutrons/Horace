@@ -161,6 +161,7 @@ if ~nopix
     if ~exist('npix_hi','var')
         npix_hi = obj.npixels;
     end
-    data.pix = obj.get_pix(npix_lo,npix_hi);
+    % TODO: add constructor that takes npix_lo and npix_hi and loads that range
+    data.pix = PixelData(obj);
 end
 

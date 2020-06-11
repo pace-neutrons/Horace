@@ -135,7 +135,7 @@ end
 
 methods
 
-    function obj = PixelData(varargin)
+    function obj = PixelData(arg)
         % Construct a PixelData object from the given data. Default
         % construction initialises the underlying data as an empty (9 x 0)
         % array.
@@ -145,6 +145,8 @@ methods
         %   >> obj = PixelData(200)  % intialise 200 pixels with underlying data set to zero
         %
         %   >> obj = PixelData(file_path)  % initialise pixel data from an sqw file
+        %
+        %   >> obj = PixelData(faccess_reader)  % initialise pixel data from an sqw file reader
         %
         % Input:
         % ------
@@ -165,18 +167,22 @@ methods
         %
         %  arg    A path to an SQW file.
         %
+        %  arg    An instance of an sqw_binfile_common file reader.
+        %
         if nargin == 1
-            arg = varargin{1};
             if isa(arg, 'PixelData')  %  TODO make sure this works with file-backed
                 obj.data = arg.data;
+                obj.file_path = arg.file_path;
             elseif numel(arg) == 1 && isnumeric(arg) && floor(arg) == arg
                 % input is an integer
                 obj.data = zeros(obj.PIXEL_BLOCK_COLS_, arg);
             elseif ischar(arg)
                 % input is a file path
-                obj.file_path = arg;
-                obj.f_accessor_ = sqw_formats_factory.instance().get_loader(arg);
-                obj.data = obj.f_accessor_.get_pix(1, obj.num_pixels).data;
+                f_accessor = sqw_formats_factory.instance().get_loader(arg);
+                obj = obj.init_from_file_accessor_(f_accessor);
+            elseif isa(arg, 'sqw_binfile_common')
+                % input is a file accessor
+                obj = obj.init_from_file_accessor_(arg);
             else
                 % input sets underlying data
                 obj.data = arg;
@@ -380,6 +386,18 @@ methods
         else
             num_pix = obj.f_accessor_.npixels;
         end
+    end
+
+end
+
+methods (Access = private)
+
+    function obj = init_from_file_accessor_(obj, f_accessor)
+        % Initialise a PixelData object from a file accessor
+        obj.f_accessor_ = f_accessor;
+        obj.data = obj.f_accessor_.get_pix(1, obj.num_pixels);
+        obj.file_path = fullfile(obj.f_accessor_.filepath, ...
+                                 obj.f_accessor_.filename);
     end
 
 end

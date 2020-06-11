@@ -55,7 +55,7 @@ if res ~= 0
 end
 
 if size>0
-    pix = PixelData(fread(obj.file_id_,[9,size],'float32'));
+    pix = fread(obj.file_id_,[9,size],'float32');
     [mess,res] = ferror(obj.file_id_);
     if res ~= 0
         error('SQW_BINFILE_COMMON:io_error',...
@@ -63,5 +63,5 @@ if size>0
     end
 else
     % *** T.G.Perring 5 Sep 2018: allow for size=0
-    pix = PixelData();
+    pix = [];
 end
