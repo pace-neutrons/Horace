@@ -70,7 +70,7 @@
  *
  */
 #include "MatMultiply.h"
-#include "utility/version.h"
+#include "../utility/version.h"
 
 #include <string>
 #include <map>

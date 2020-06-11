@@ -1,6 +1,6 @@
-[<-previous](0012-use-network-storage-for-large-datafiles.md) | [next->](0014-use-double-array-in-memory-for-pixel-data.md)
+[<-previous](0014-use-jenkins-for-network-path-storage.md) | [next->](0016-use-double-array-in-memory-for-pixel-data.md)
 
-# 13 - Store Pixel data in single precision
+# 15 - Store Pixel data in single precision
 
 Date: 2020-Jun-10
 
