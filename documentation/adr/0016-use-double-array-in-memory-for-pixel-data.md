@@ -1,6 +1,6 @@
-[<-previous](0013-store-pixel-data-in-single-precision.md) | next->
+[<-previous](0015-store-pixel-data-in-single-precision.md) | next->
 
-# 14 - Use double array for in-memory Pixel data
+# 16 - Use double array for in-memory Pixel data
 
 Date: 2020-Jun-10
 

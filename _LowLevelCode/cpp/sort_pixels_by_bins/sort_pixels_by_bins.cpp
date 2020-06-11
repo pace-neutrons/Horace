@@ -1,5 +1,5 @@
 #include "sort_pixels_by_bins.h"
-#include "utility/version.h"
+#include "../utility/version.h"
 
 enum Input_Arguments {
     Pixel_data,
