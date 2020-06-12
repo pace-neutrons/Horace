@@ -198,7 +198,7 @@ methods
 
     function is_empty = isempty(obj)
         % Return true if the PixelData object holds no pixel data
-        is_empty = isempty(obj.data);
+        is_empty = obj.num_pixels == 0;
     end
 
     function s = size(obj, varargin)
@@ -224,7 +224,9 @@ methods
 
     function nel = numel(obj)
         % Return the number of data points in the pixel data block
-        nel = numel(obj.data);
+        %   If the data is file backed, this returns the number of values in
+        %   the file
+        nel = obj.PIXEL_BLOCK_COLS_*obj.num_pixels;
     end
 
     function data = get_data(obj, fields, pix_indices)
