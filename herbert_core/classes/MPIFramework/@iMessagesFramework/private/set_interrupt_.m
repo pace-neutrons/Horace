@@ -3,8 +3,7 @@ function set_interrupt_(obj,mess,source_address)
 % describing a state of the source which persists until the
 % current job is completed or aborted) and if the message is
 % present store it in framework until the task is completed
-% or aborted
-
+% or aborted.
 if isempty(mess)
     return;
 end

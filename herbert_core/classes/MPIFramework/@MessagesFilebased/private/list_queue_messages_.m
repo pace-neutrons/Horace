@@ -15,10 +15,6 @@ function [start_queue_num,free_queue_num]=list_queue_messages_(mess_folder,job_i
 % free_queue_num  -- the number of the free space in the queue, i.e. the
 %                    next message to pop in the queue.
 %
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-%
-%
 if ~(exist(mess_folder,'dir')==7) % job was canceled
     error('FILEBASED_MESSAGES:runtime_error',...
         'Job with id %s has been canceled. No messages folder exist',job_id)

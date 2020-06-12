@@ -34,6 +34,13 @@ classdef MESS_NAMES < handle
         
         % tags of the messages, which are the interrupts messages
         interrupt_tags;
+        
+        % list of the messages, which should be reacted upon while waiting
+        % for other type of messages
+        state_messages
+        
+        % The tags of the state messages
+        state_mess_tags
     end
     properties(Constant,Access=private)
         % define list of the messages, known to the factory. Any new
@@ -42,10 +49,9 @@ classdef MESS_NAMES < handle
             {'any','completed','pending','queued','init',...
             'starting','started','log',...
             'barrier','data','canceled','failed'};
-        % define persistent messages, which should be retained until
-        % clearAll operation is performed for the communications with
-        % current source. These messages also have the same tag to be
-        % transparently received through MPI
+        % define state messages, which should be reacted upon receiving if
+        %  waiting for any other message
+        state_mess_ = {'canceled','failed'};
     end
     properties(Access = private,Hidden=true)
         %
@@ -66,6 +72,8 @@ classdef MESS_NAMES < handle
         % the factory in the process of registering message classes with
         % the factory.
         initializing_ = false;
+        % tags of the state messages
+        state_mess_tags_ = {};
     end
     methods(Access = private)
         function obj = MESS_NAMES()
@@ -112,6 +120,7 @@ classdef MESS_NAMES < handle
                     obj.interrupts_map_(inter_tag) = m_name;
                 end
             end
+            obj.state_mess_tags_ = MESS_NAMES.mess_id(obj.state_mess_);
             obj.initializing_ = false;
         end
     end
@@ -179,6 +188,13 @@ classdef MESS_NAMES < handle
                     'The name %s is not a registered message name\n',a_name{:});
             end
         end
+        
+        function sm = get.state_messages(obj)
+            sm  = obj.state_mess_;
+        end
+        function sm = get.state_mess_tags(obj)
+            sm  = obj.state_mess_tags_;
+        end
     end
     
     
@@ -222,7 +238,7 @@ classdef MESS_NAMES < handle
             end
             
         end
-        %
+        
         function id = mess_id(varargin)
             % get message id (tag) corresponding to the message name
             %

@@ -13,10 +13,7 @@ classdef MessagesFilebased < iMessagesFramework
     % This class provides physical mechanism to exchange messages between tasks.
     %
     %
-    properties(Dependent)
-        % Time in seconds a system waits for blocking message until
-        % returning "not-received"
-        time_to_fail;
+    properties(Dependent) 
         % The folder located on a parallel file system and used for storing
         % initial job info and message exchange between tasks if job uses
         % filebased messages.
@@ -207,7 +204,7 @@ classdef MessagesFilebased < iMessagesFramework
             if nargin>2 && ((ischar(varargin{2}) && ~strcmp(varargin{2},'any')) || ...
                     (isnumeric(varargin{2}) && varargin{2} ~=-1))
                 % performance boosting operation, especially important for
-                % Windows, as dir locks message files there. 
+                % Windows, as dir locks message files there.
                 if ischar(varargin{1}) && strcmp(varargin{1},'any')
                     warning('Outdated receive interface -- keyword all should be used')
                     varargin{1} = 'all';
@@ -266,12 +263,6 @@ classdef MessagesFilebased < iMessagesFramework
         end
         
         
-        function set.time_to_fail(obj,val)
-            obj.time_to_fail_ = val;
-        end
-        function val = get.time_to_fail(obj)
-            val = obj.time_to_fail_ ;
-        end
         %
         function is = is_job_canceled(obj)
             % method verifies if job has been canceled
@@ -365,7 +356,23 @@ classdef MessagesFilebased < iMessagesFramework
             is = obj.is_tested_;
         end
         
+        function [start_queue_num,free_queue_num]=list_queue_messages(obj,mess_name,send_from,sent_to)
+            % process list of the messages already sent from this routine and placed in
+            % a queue and return the numbers of the first message in the queue and
+            % the number of the  first free place in the queue
+            %
+            % Inputs:
+            % mess_name   -- the name of the messages in the queue
+            % send_from   -- the number of job (lab) the messages should be send
+            % sent_to     -- the number of job (lab) the messages should be directed.
+            % Outputs:
+            % start_queue_num -- the number of the first message to pop from the queue.
+            % free_queue_num  -- the number of the free space in the queue, i.e. the
+            %                    next message to pop in the queue.
+            
+            [start_queue_num,free_queue_num]=...
+                list_queue_messages_(obj.mess_exchange_folder,obj.job_id,mess_name,send_from,sent_to);
+        end
+        
     end
 end
-
-

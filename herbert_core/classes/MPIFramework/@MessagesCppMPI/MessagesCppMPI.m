@@ -15,9 +15,6 @@ classdef MessagesCppMPI < iMessagesFramework
     % using MPICH on Unix or MS MPI on Windows.
     %
     properties(Dependent)
-        % Time in seconds a system waits for blocking message until
-        % returning "not-received"
-        time_to_fail;
     end
     %----------------------------------------------------------------------
     %----------------------------------------------------------------------

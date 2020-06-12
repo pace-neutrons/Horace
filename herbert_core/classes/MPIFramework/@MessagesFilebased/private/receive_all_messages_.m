@@ -22,7 +22,7 @@ else
         disp(['**********  waiting for message: ',mess_name,' to arrive from tasks: ']);
         disp(task_ids')
     end
-    lock_until_received = ~MESS_NAMES.is_blocking(mess_name);
+    lock_until_received = MESS_NAMES.is_blocking(mess_name);
 end
 
 
@@ -30,36 +30,47 @@ n_requested = numel(task_ids);
 all_messages = cell(n_requested ,1);
 mess_received = false(n_requested ,1);
 tid_received_from = zeros(n_requested ,1);
+%mess_name = arrayfun(@(x)(mess_name),mess_received,'UniformOutput',false);
 
-[message_names,tid_from] = list_all_messages_(obj,task_ids,mess_name);
-%[tid_from,im] = unique(tid_from);
-%message_names = message_names(im);
+[message_names,tid_from] = obj.probe_all(task_ids,mess_name);
+%
 present_now = ismember(task_ids,tid_from);
 if obj.DEBUG_
     disp(' Messages present initially:');
     disp(present_now');
 end
+% % define list of special states to verify alongside with messages requested
+% special_states = MESS_NAMES.instance().state_messages;
+% interrupts     = MESS_NAMES.instance().interrupts;
+% non_interrupt  = ~ismember(special_states,interrupts);
+% special_states = special_states(non_interrupt);
+
 
 all_received = false;
 nsteps = 0;
 t0 = tic;
 while ~all_received
     for i=1:n_requested
-        if ~present_now(i); continue; end
-        
-        [ok,err_mess,message]=receive_message_(obj,task_ids(i),mess_name);
-        if ok ~= MESS_CODES.ok
-            if ok == MESS_CODES.job_canceled
-                error('MESSAGE_FRAMEWORK:canceled',err_mess);
-            else
-                error('FILEBASED_MESSAGES:runtime_error',...
-                    'Can not receive existing message: %s, Err: %s',...
-                    message_names{i},err_mess);
+        if ~present_now(i)
+            [is,~,err_message] = check_job_canceled_(obj,task_ids(i));
+            if is
+                error('MESSAGE_FRAMEWORK:canceled',err_message);                
             end
+        else
+            [ok,err_mess,message]=receive_message_(obj,task_ids(i),mess_name);
+            if ok ~= MESS_CODES.ok
+                if ok == MESS_CODES.job_canceled
+                    error('MESSAGE_FRAMEWORK:canceled',err_mess);
+                else
+                    error('FILEBASED_MESSAGES:runtime_error',...
+                        'Can not receive existing message: %s, Err: %s',...
+                        message_names{i},err_mess);
+                end
+            end
+            all_messages{i} = message;
+            tid_received_from(i) = task_ids(i);
+            mess_received(i) = true;
         end
-        all_messages{i} = message;
-        tid_received_from(i) = task_ids(i);
-        mess_received(i) = true;
     end
     if obj.DEBUG_
         disp(' Messages received:');
@@ -73,7 +84,6 @@ while ~all_received
         
     end
     
-    
     if lock_until_received
         all_received = all(mess_received);
         if ~all_received
@@ -82,26 +92,27 @@ while ~all_received
                 error('FILEBASED_MESSAGES:runtime_error',...
                     'Timeout waiting for receiving all messages')
             end
-            [message_names,tid_from] = list_all_messages_(obj,task_ids,mess_name);
+            % have it appeared?
+            [message_names,tid_from] = obj.probe_all(task_ids,mess_name);
             %[tid_from,im] = unique(tid_from);
             %message_names = message_names(im);
             present_now = ismember(task_ids,tid_from);
+            
             % verify data messages already present not to force overwriting
             % existing received data messages
-            is_old_data_mess = cellfun(@is_data_message,all_messages,...
-                'UniformOutput',true);
+            present_now = present_now & ~mess_received';
             if obj.DEBUG_
                 nsteps  = nsteps +1;
-                disp([' Messages arrived at step ',num2str(nsteps), 'vs old data mess']);
+                disp([' Messages arrived at step ',num2str(nsteps), 'vs old mess received']);
                 disp(present_now);
                 for i=1:numel(message_names)
                     disp(message_names{i});
                 end
-                disp(is_old_data_mess');
+                disp(mess_received');
             end
-            
-            if any(is_old_data_mess )
-                present_now = present_now & ~is_old_data_mess';
+            if obj.is_tested
+                error('MESSAGES_FRAMEWORK:runtime_error',...
+                    'Issued request for missing blocking message in test mode');
             end
             
             pause(0.1);
@@ -122,13 +133,5 @@ if ~isempty(tid_received_from)
     all_messages  = all_messages(ic);
 end
 
-
-
-function is = is_data_message(mess)
-if isempty(mess)
-    is = false;
-    return
-end
-is = mess.is_blocking;
 
 

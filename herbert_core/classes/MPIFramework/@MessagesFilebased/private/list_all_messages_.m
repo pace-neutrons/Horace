@@ -44,8 +44,6 @@ end
 
 folder_contents = get_folder_contents_(obj,mess_folder);
 
-
-
 [mess_names,mid_from,mid_to] = parse_folder_contents_(folder_contents,'nolock');
 if isempty(mess_names) % no messages
     all_messages = {};

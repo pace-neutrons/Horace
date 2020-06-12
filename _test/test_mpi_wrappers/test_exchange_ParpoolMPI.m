@@ -17,38 +17,7 @@ classdef test_exchange_ParpoolMPI < exchange_common_tests
             
         end
         %
-        function test_SendProbe(~)
-            % Test communications in test mode
-            mf = MessagesMatlabMPI_tester();
-            clob = onCleanup(@()(finalize_all(mf)));
-            assertEqual(mf.labIndex, 1);
-            assertEqual(mf.numLabs, 10);
-            
-            mess = LogMessage(1, 10, 1, []);
-            [ok, err_mess] = mf.send_message(5, mess);
-            assertEqual(ok, MESS_CODES.ok);
-            assertTrue(isempty(err_mess));
-            
-            [mess_names, source_id_s] = mf.probe_all('any', 'any');
-            assertEqual(numel(mess_names), 1);
-            assertEqual(numel(source_id_s), 1);
-            assertEqual(source_id_s(1), 5);
-            assertEqual(mess_names{1}, mess.mess_name);
-            
-            [ok, err_mess] = mf.send_message(7, mess);
-            assertEqual(ok, MESS_CODES.ok);
-            assertTrue(isempty(err_mess));
-            
-            [mess_names, source_id_s] = mf.probe_all('any', 'any');
-            assertEqual(numel(mess_names), 2);
-            assertEqual(numel(source_id_s), 2);
-            assertEqual(source_id_s(1), 5);
-            assertEqual(source_id_s(2), 7);
-            assertEqual(mess_names{1}, mess.mess_name);
-            
-        end
-        %
-        function test_MessagesMatlabMPI_two_mess_test_mode(~)
+        function test_MessagesMPIWrapper_two_mess_test_mode(~)
             mf = MessagesMatlabMPI_tester(2,6);
             clob = onCleanup(@()(finalize_all(mf)));
             
@@ -95,7 +64,7 @@ classdef test_exchange_ParpoolMPI < exchange_common_tests
             
         end
         %
-        function test_MessagesMatlabMPI_one_mess_test1_send_receive(~)
+        function test_MessagesMPIWrapper_one_mess_test1_send_receive(~)
             mf = MessagesMatlabMPI_tester();
             clob = onCleanup(@()(finalize_all(mf)));
             
@@ -135,7 +104,7 @@ classdef test_exchange_ParpoolMPI < exchange_common_tests
             
         end
         %
-        function test_MessagesMatlabMPI_one_mess_test1(~)
+        function test_MessagesMPIWrapper_one_mess_test1(~)
             mf = MessagesMatlabMPI_tester();
             clob = onCleanup(@()(finalize_all(mf)));
             

@@ -9,8 +9,10 @@ if ~exist('task_ids_requested','var') || isempty(task_ids_requested)
 elseif ischar(task_ids_requested) && strcmpi(task_ids_requested,'all')
     task_ids_requested = 1:obj.numLabs;
 end
-not_this = task_ids_requested ~= obj.labIndex;
-task_ids_requested = task_ids_requested(not_this);
+% No harm in sending filebased messages to itself, especially as 
+% list_all_messages_ accepts them.
+% not_this = task_ids_requested ~= obj.labIndex;
+% task_ids_requested = task_ids_requested(not_this);
 
 if ~exist('mess_name_or_tag','var')
     error('FILEBASED_MESSAGES:invalid_argument',...
@@ -51,19 +53,20 @@ for i=1:numel(interrupt_names )
     end
 end
 % -------------------------------------------------------------------------
+net_range = max(task_ids_requested);
+net_range = 1:net_range;
 if any(any_interrupt) % some interrupts are present, mix them with real messages
     if ~isempty(all_messages) % combine messages and interrupts
-        mess = cell(1,max(task_ids_requested));
-        from_all_labs = false(1, max(task_ids_requested));
+        mess = cell(1,numel(net_range));
+        from_all_labs = false(1, numel(net_range));
         mess(mid_from)= all_messages(:);
         from_all_labs(mid_from) = true;
         mess(any_interrupt) = interrupt_found(any_interrupt);
         from_all_labs = from_all_labs | any_interrupt;
         all_messages = mess(from_all_labs);
-        mid_from = 1:max(task_ids_requested);
-        mid_from  = mid_from(from_all_labs);
+        mid_from  = net_range(from_all_labs);
     else
         all_messages = interrupt_found(any_interrupt);
-        mid_from     = task_ids_requested(any_interrupt);
+        mid_from     = net_range(any_interrupt);
     end
 end

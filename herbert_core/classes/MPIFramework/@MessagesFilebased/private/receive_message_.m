@@ -37,7 +37,7 @@ end
 % cl_log = onCleanup(@()fclose(f_hl));
 %
 message=[];
-[is,err_code,err_mess] = check_job_canceled(obj);
+[is,err_code,err_mess] = check_job_canceled_(obj);
 if is ; return; end
 %
 message = obj.get_interrupt(from_task_id);
@@ -50,46 +50,13 @@ end
 is_blocking = obj.check_is_blocking(mess_name,varargin);
 
 
-mess_folder = obj.mess_exchange_folder;
+
 mess_present= false;
-mess_receive_option = 'nolocked';
 t0 = tic;
-while ~mess_present
-    folder_contents = get_folder_contents_(obj,mess_folder);
-    
-    [mess_names,mid_from,mid_to] = parse_folder_contents_(folder_contents,mess_receive_option);
-    if isempty(mess_names)
-        for_this_lab  = false;
-    else
-        for_this_lab = obj.labIndex == mid_to;
-    end
-    if any(for_this_lab) % a message intended for this lab received.
-        mess_names = mess_names(for_this_lab);
-        mid_from   = mid_from(for_this_lab);
-        % check if message is from the lab requested
-        if ~isempty(from_task_id)
-            from_lab_requested = mid_from == from_task_id;
-        else
-            from_lab_requested = true(size(mid_from));
-        end
-        mess_names  = mess_names(from_lab_requested );
-        mid_from   = mid_from(from_lab_requested );
-        % check if message is as requested
-        if ~(isempty(mess_name) || strcmp(mess_name,'any'))
-            % interrupt message accepted even if not requested
-            fail_list = MESS_NAMES.instance().interrupts;
-            if iscell(mess_name)
-                all_mess = [mess_name(:);fail_list(:)];
-            else
-                all_mess = [mess_name;fail_list(:)];
-            end
-            mid_requested = ismember(mess_names,all_mess);
-            mid_from    = mid_from (mid_requested);
-            mess_names  = mess_names(mid_requested);
-        end
-        if ~isempty(mid_from)
-            mess_present = true;
-        end
+while ~mess_present    
+    mess_name_present = obj.probe_all(from_task_id,mess_name);
+    if ~isempty(mess_name_present )
+        mess_present = true;
     end
     if ~mess_present % no message intended for this lab is present in system.
         %         of = fopen('all');
@@ -119,7 +86,7 @@ while ~mess_present
             
         else
             pause(obj.time_to_react_);
-            [is,err_code,err_mess] = check_job_canceled(obj);
+            [is,err_code,err_mess] = check_job_canceled_(obj);
             if is ; return; end
             continue;
         end
@@ -128,7 +95,7 @@ end
 
 
 % take only the first message directed to this lab
-mess_fname = obj.job_stat_fname_(obj.labIndex,mess_names{1},mid_from(1));
+mess_fname = obj.job_stat_fname_(obj.labIndex,mess_name_present{1},from_task_id);
 %
 % safeguard against message start being written up
 % but have not finished yet when other worker asks for it
@@ -164,7 +131,7 @@ message = mesl.message;
 err_code  =MESS_CODES.ok;
 err_mess=[];
 
-obj.set_interrupt(message,mid_from(1));
+obj.set_interrupt(message,from_task_id);
 
 % check if a message is from the data queue and we need to progress the data
 % queue
@@ -217,15 +184,3 @@ end
 %clear target_unlocker;
 
 
-function [is,err_code,err_message] = check_job_canceled(obj)
-
-mess_folder = obj.mess_exchange_folder;
-if ~exist(mess_folder,'dir')
-    err_code    = MESS_CODES.job_canceled;
-    err_message = sprintf('Job with id %s have been canceled',obj.job_id);
-    is          = true;
-else
-    err_code     = [];
-    err_message  = '';
-    is           = false;
-end

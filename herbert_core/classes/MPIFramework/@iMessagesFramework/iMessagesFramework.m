@@ -14,6 +14,7 @@ classdef iMessagesFramework < handle
         % name is created in shared location to keep initial job settings
         % and transfer progress messages from cluster to the user's node.
         job_id;
+        
         % returns the index of the worker currently executing the function.
         % labIndex is assigned to each worker when a job begins execution,
         % and applies only for the duration of that job.
@@ -21,10 +22,16 @@ classdef iMessagesFramework < handle
         % workers running the current job, defined by numlabs. Index 0
         % reserved for interactive user's node.
         labIndex;
+        
         % Number of independent workers used by the framework
         numLabs;
+        
         % return true if the framework is tested
         is_tested
+
+        % Time in seconds a system waits for blocking message until
+        % returning "not-received" (and normally throwing error)
+        time_to_fail;        
     end
     properties(Access=protected)
         job_id_;
@@ -160,6 +167,12 @@ classdef iMessagesFramework < handle
             [all_messages,mid_from] = retrieve_interrupt_(obj,...
                 all_messages,mid_from,mes_addr_to_check);
         end
+        function set.time_to_fail(obj,val)
+            obj.time_to_fail_ = val;
+        end
+        function val = get.time_to_fail(obj)
+            val = obj.time_to_fail_ ;
+        end        
     end
     
     methods(Static)
@@ -306,7 +319,6 @@ classdef iMessagesFramework < handle
             end
             
         end
-        
         
     end
     methods(Abstract)

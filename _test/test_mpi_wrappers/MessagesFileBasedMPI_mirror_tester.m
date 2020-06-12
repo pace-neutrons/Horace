@@ -5,6 +5,10 @@ classdef MessagesFileBasedMPI_mirror_tester < MFTester
     properties(Access=protected)
         mess_name_fun_
     end
+    properties
+        inverse_fname_f
+    end
+    
     
     methods
         function obj = MessagesFileBasedMPI_mirror_tester(varargin)
@@ -23,7 +27,9 @@ classdef MessagesFileBasedMPI_mirror_tester < MFTester
         function [ok,err_mess,message] = send_message(obj,targ,varargin)
             obj.mess_name_fun_  = @(name,lab_to,lab_from)sprintf('mess_%s_FromN%d_ToN%d.mat',...
                 name,lab_to,lab_from);
-            [ok,err_mess,message] = send_message@MessagesFilebased(obj,targ,varargin{:});
+            obj.inverse_fname_f = obj.mess_name_fun_;
+            
+            [ok,err_mess,message] = send_message@MessagesFilebased(obj,targ,varargin{:});            
             obj.mess_name_fun_  = @(name,lab_to,lab_from)sprintf('mess_%s_FromN%d_ToN%d.mat',...
                 name,lab_from,lab_to);
             
@@ -40,6 +46,11 @@ classdef MessagesFileBasedMPI_mirror_tester < MFTester
             mess_fname= fullfile(obj.mess_exchange_folder,...
                 obj.mess_name_fun_(mess_name,lab_to,lab_from));
             
+        end
+        function [start_queue_num,free_queue_num]=list_queue_messages(obj,mess_name,send_from,sent_to)
+            % overload list_queue_messages to do opposite transfer
+            [start_queue_num,free_queue_num]=...
+                list_queue_messages@MessagesFilebased(obj,mess_name,sent_to,send_from);
         end
         
     end
