@@ -141,7 +141,7 @@ end
 
 methods
 
-    function obj = PixelData(arg)
+    function obj = PixelData(arg, mem_alloc)
         % Construct a PixelData object from the given data. Default
         % construction initialises the underlying data as an empty (9 x 0)
         % array.
@@ -153,6 +153,8 @@ methods
         %   >> obj = PixelData(file_path)  % initialise pixel data from an sqw file
         %
         %   >> obj = PixelData(faccess_reader)  % initialise pixel data from an sqw file reader
+        %
+        %   >> obj = PixelData(faccess_reader, mem_alloc)  % set maximum memory allocation
         %
         % Input:
         % ------
@@ -175,25 +177,46 @@ methods
         %
         %  arg    An instance of an sqw_binfile_common file reader.
         %
-        if nargin == 1
-            if isa(arg, 'PixelData')  %  TODO make sure this works with file-backed
-                obj.data = arg.data;
-                obj.file_path_ = arg.file_path;
-            elseif numel(arg) == 1 && isnumeric(arg) && floor(arg) == arg
-                % input is an integer
-                obj.data = zeros(obj.PIXEL_BLOCK_COLS_, arg);
-            elseif ischar(arg)
-                % input is a file path
-                f_accessor = sqw_formats_factory.instance().get_loader(arg);
-                obj = obj.init_from_file_accessor_(f_accessor);
-            elseif isa(arg, 'sqw_binfile_common')
-                % input is a file accessor
-                obj = obj.init_from_file_accessor_(arg);
-            else
-                % input sets underlying data
-                obj.data = arg;
-            end
+        %  mem_alloc    The maximum amount of memory allocated to hold pixel
+        %               data in bytes. If pixels cannot all be held in memory
+        %               at one time, they will be loaded from the file
+        %               (specified by 'arg') when they are required. This
+        %               argument does nothing if the class is contstructed with
+        %               in-memory data. (Optional)
+        %
+        if nargin == 0
+            return
         end
+        % In memory construction
+        if isa(arg, 'PixelData')  % TODO make sure this works with file-backed
+            obj.data = arg.data;
+            obj.file_path_ = arg.file_path;
+            return;
+        end
+        if numel(arg) == 1 && isnumeric(arg) && floor(arg) == arg
+            % input is an integer
+            obj.data = zeros(obj.PIXEL_BLOCK_COLS_, arg);
+            return;
+        end
+
+        if nargin == 2
+            obj.page_memory_size_ = mem_alloc;
+        end
+        % File-backed construction
+        if ischar(arg)
+            % input is a file path
+            f_accessor = sqw_formats_factory.instance().get_loader(arg);
+            obj = obj.init_from_file_accessor_(f_accessor);
+            return;
+        end
+        if isa(arg, 'sqw_binfile_common')
+            % input is a file accessor
+            obj = obj.init_from_file_accessor_(arg);
+            return;
+        end
+
+        % input sets underlying data
+        obj.data = arg;
     end
 
     function is_empty = isempty(obj)
