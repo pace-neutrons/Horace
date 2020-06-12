@@ -54,10 +54,10 @@ properties (Access=private)
 
     data_ = zeros(9, 0);
     f_accessor_;  % instance of faccess object to access pixel data from file
+    file_path_ = '';
+    page_memory_size_ = 2e6; %1e9;  % 1Gb
 end
-properties
-   file_path = '';
-end
+
 properties (Dependent)
     % Return the 1st, 2nd and 3rd dimension of the crystal cartestian orientation (1 x n arrays) [A^-1]
     u1; u2; u3;
@@ -92,6 +92,12 @@ properties (Dependent)
 
     % Returns the full raw pixel data block usage of this attribute is discouraged, the structure of the return value is not guaranteed
     data;
+
+    % The file that the pixel data has been read from, empty if no file
+    file_path;
+
+    % The maximum number of pixels to be stored in memory at one time
+    page_size;
 end
 
 methods (Static)
@@ -172,7 +178,7 @@ methods
         if nargin == 1
             if isa(arg, 'PixelData')  %  TODO make sure this works with file-backed
                 obj.data = arg.data;
-                obj.file_path = arg.file_path;
+                obj.file_path_ = arg.file_path;
             elseif numel(arg) == 1 && isnumeric(arg) && floor(arg) == arg
                 % input is an integer
                 obj.data = zeros(obj.PIXEL_BLOCK_COLS_, arg);
@@ -394,6 +400,14 @@ methods
         end
     end
 
+    function file_path = get.file_path(obj)
+        file_path = obj.file_path_;
+end
+
+    function page_size = get.page_size(obj)
+        page_size = obj.get_num_pix_in_mem_page_size_();
+    end
+
 end
 
 methods (Access = private)
@@ -401,8 +415,7 @@ methods (Access = private)
     function obj = init_from_file_accessor_(obj, f_accessor)
         % Initialise a PixelData object from a file accessor
         obj.f_accessor_ = f_accessor;
-        obj.data = obj.f_accessor_.get_pix(1, obj.num_pixels);
-        obj.file_path = fullfile(obj.f_accessor_.filepath, ...
+        obj.file_path_ = fullfile(obj.f_accessor_.filepath, ...
                                  obj.f_accessor_.filename);
     end
 
