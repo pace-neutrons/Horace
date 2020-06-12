@@ -379,6 +379,13 @@ methods
         assertEqual(obj.pix_data_from_faccess.file_path, expected_abs_path);
     end
 
+    function test_page_size_is_set_on_construction_when_given_as_argument(obj)
+        mem_alloc = 1e6;  % 1Mb
+        pix = PixelData(obj.test_sqw_file_path, mem_alloc);
+        expected_page_size = floor(mem_alloc/(8*9));  % mem_alloc/(double*num_rows)
+        assertEqual(pix.page_size, expected_page_size);
+    end
+
 end
 
 end
