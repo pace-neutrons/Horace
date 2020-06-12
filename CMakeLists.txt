@@ -13,11 +13,8 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 option(BUILD_TESTS "Build the C++ tests" ON)
 
 # Add cmake directory to CMake's path
-list(APPEND CMAKE_MODULE_PATH
-    "${CMAKE_SOURCE_DIR}/cmake"
-    "${CMAKE_SOURCE_DIR}/cmake/external"
-    "${CMAKE_SOURCE_DIR}/cmake/shared"
-)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake"
+     "${CMAKE_SOURCE_DIR}/cmake/external" "${CMAKE_SOURCE_DIR}/cmake/shared")
 
 # Look for packages early so we can exit if they're not found
 include(herbert_FindMPI)
@@ -46,20 +43,11 @@ add_subdirectory("cmake")
 # =============================================================================
 include(PACE_CPackConfig)
 
-if(WIN32)
-    # Don't package external Linux libraries on Windows
-    set(EXTERNAL_IGNORE_PATTERN "*/external/glnxa64")
-endif()
-
 install(
     DIRECTORY "herbert_core"
     DESTINATION "Herbert"
     USE_SOURCE_PERMISSIONS
     PATTERN "*.m~" EXCLUDE
     PATTERN "*.asv" EXCLUDE
-    PATTERN "${EXTERNAL_IGNORE_PATTERN}" EXCLUDE
-)
-install(
-    FILES "LICENSE" "README.md"
-    DESTINATION "."
-)
+    PATTERN "*.gitignore" EXCLUDE)
+install(FILES "LICENSE" "README.md" DESTINATION ".")
