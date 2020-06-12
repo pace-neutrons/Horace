@@ -37,7 +37,7 @@ len = numel(mess_template);
 
 
 % extract only messages
-[is_mess,is_lock] = arrayfun(@(x)is_message(x,mess_template,len),folder_contents);
+[is_mess,is_lock] = arrayfun(@(x)is_message_(x,mess_template,len),folder_contents);
 
 % remove locked files from further consideration
 if any(is_lock)
@@ -66,6 +66,15 @@ if numel(mess_files) ==0
         varargout{1}  = {};
     end
     return;
+end
+% Sort messages according to their access date, the most recent come first
+if isfield(mess_files,'datenum')
+    mess_date = arrayfun(@(x)(x.datenum),mess_files,'UniformOutput',true);
+    [~,ind] = sort(mess_date,'descend');
+    mess_files = mess_files(ind);
+else %  dos command sorts files with oldest coming last
+    %
+   % mess_files = fliplr(mess_files);
 end
 
 % identify messages sources and destinations
@@ -105,7 +114,7 @@ end
 end
 
 
-function [is_mess,is_lock] = is_message(file_struc,mess_template,len)
+function [is_mess,is_lock] = is_message_(file_struc,mess_template,len)
 % the functon verifies if the file structure produced by dir
 % and received as input is actually the file, with filebased
 % message or is a lock file.

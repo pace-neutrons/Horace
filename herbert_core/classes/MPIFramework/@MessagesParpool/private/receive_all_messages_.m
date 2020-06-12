@@ -14,7 +14,7 @@ end
 if ~exist('task_ids','var')
     task_ids = [];
 end
-if isempty(task_ids) || (ischar(task_ids) && strcmpi(task_ids,'any'))
+if isempty(task_ids) || (ischar(task_ids) && strcmpi(task_ids,'all'))
     task_ids = 1:n_labs;
 end
 
@@ -28,6 +28,9 @@ end
 
 not_this_id = task_ids ~= obj.labIndex;
 tid_requested = task_ids(not_this_id);
+if size(tid_requested,2)>1
+    tid_requested  = tid_requested';
+end
 tid_received_from = tid_requested;
 
 % use cache for persistent messages
@@ -36,9 +39,6 @@ tid_received_from = tid_requested;
 
 [all_messages,mess_present] = obj.mess_cache_.get_cache_messages(tid_requested,mess_name,lock_until_received);
 n_requested = numel(all_messages);
-% if any(mess_present)
-%     fprintf(log_file_h,' Old messages present\n');
-% end
 
 % check new messages received from other labs
 [mess_names,tid_from] = labProbe_messages_(obj,tid_requested);
@@ -56,9 +56,7 @@ while ~all_received
         end
         n_cur_mess = n_cur_mess+1;
         tid_to_ask = tid_from(n_cur_mess);
-        %fprintf(log_file_h,'New message %s N %d fron TID %d present\n',...
-        %    mess_names{n_cur_mess},i,tid_to_ask);
-        
+        %
         [ok,err_exception,message]=receive_message_(obj,tid_to_ask,mess_names{n_cur_mess});
         if ok ~= MESS_CODES.ok
             if ok == MESS_CODES.job_canceled
@@ -105,11 +103,6 @@ while ~all_received
             mess_present(i)  = true;
         end
     end
-%     fprintf(log_file_h,'mess present: ');
-%     for j=1:numel(mess_present)
-%         fprintf(log_file_h,' %d ',mess_present(j));
-%     end
-%     fprintf(log_file_h,'\n');
 %     
     % check if we want to wait for more messages to arrive
     if lock_until_received

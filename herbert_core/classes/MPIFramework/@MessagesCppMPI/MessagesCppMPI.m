@@ -189,6 +189,13 @@ classdef MessagesCppMPI < iMessagesFramework
             %                 the name provided
             %
             %
+            if nargin>1 && ischar(varargin{1})
+                if strcmp('any',varargin{1})
+                    warning('Outdated receive all interface. Use all instead of any')
+                    varargin{1} = 'all';
+                end
+            end
+            
             [all_messages,task_ids] = receive_all_messages_(obj,varargin{:});
         end
         %
@@ -227,7 +234,7 @@ classdef MessagesCppMPI < iMessagesFramework
         
         function is = is_job_canceled(obj)
             % method verifies if job has been canceled
-            mess = obj.probe_all('any','canceled');
+            mess = obj.probe_all('all','canceled');
             if ~isempty(mess)
                 is = true;
             else

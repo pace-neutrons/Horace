@@ -22,6 +22,7 @@ function [ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING)
 if ~exist('DO_LOGGING','var')
     DO_LOGGING = false;
 end
+je = [];
 %
 % Check current state of mpi framework and set up deployment status
 % within Matlab code to run
@@ -89,7 +90,6 @@ while keep_worker_running
     if DO_LOGGING; log_disp_message(' Entereing JE loop: receiving "starting" message'); end
     %
     [ok,err,mess]= fbMPI.receive_message(0,'starting','-synch');
-    %fprintf(fh,'got "starting" message\n');
     if ok ~= MESS_CODES.ok
         err_mess = sprintf('job N%s failed while receive_je_info Error: %s:',...
             control_struct.job_id,err);

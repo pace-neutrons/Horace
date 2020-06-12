@@ -2,7 +2,7 @@ function   [all_messages,tid_received_from] = receive_all_messages_(obj,task_ids
 % retrieve all messages sent from jobs with id provided. if ids are empty,
 % all messages, intended for this job.
 %
-if ~exist('task_ids','var') || (ischar(task_ids) && strcmpi(task_ids,'any'))
+if ~exist('task_ids','var') || isempty(task_ids) || (ischar(task_ids) && strcmpi(task_ids,'all'))
     task_ids = 1:obj.numLabs;
 end
 this_tid = task_ids == obj.labIndex;
@@ -11,11 +11,10 @@ if any(this_tid)
 end
 
 
-
-lock_until_received = true;
 if ~exist('mess_name','var')
     mess_name = 'any';
 end
+
 if isempty(mess_name) || strcmp(mess_name,'any')
     lock_until_received = false;
 else
@@ -23,6 +22,7 @@ else
         disp(['**********  waiting for message: ',mess_name,' to arrive from tasks: ']);
         disp(task_ids')
     end
+    lock_until_received = ~MESS_NAMES.is_blocking(mess_name);
 end
 
 
@@ -107,7 +107,7 @@ while ~all_received
             pause(0.1);
         end
     else
-        all_received = true;
+        break;
     end
     
 end

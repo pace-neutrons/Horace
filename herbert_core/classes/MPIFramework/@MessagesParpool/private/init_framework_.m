@@ -9,6 +9,14 @@ function obj = init_framework_(obj,framework_info)
 %     in this case usually defines slave message exchange
 %     framework.
 %
+%  If the control structure contains labID and numLabs, its assumed that
+%  the framework is enabled in test mode, which means no real MPI
+%  communications are enabled and message exchange is simulated.
+%
+%  Real MPI framework intialization structure should not contain labID and
+%  numLabs fields. In this case, the labID and numLabs are taken from
+%  parallel computing toolbox labnum and numlabs functions.
+%
 if exist('framework_info','var')
     if isstruct(framework_info) && isfield(framework_info,'job_id')
         obj.job_id = framework_info.job_id;

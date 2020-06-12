@@ -7,11 +7,15 @@ classdef MessagesFileBasedMPI_mirror_tester < MFTester
     end
     
     methods
-        function obj = MessagesFileBasedMPI_mirror_tester()
+        function obj = MessagesFileBasedMPI_mirror_tester(varargin)
             % create intialization structure, which would represent 10
             % workers, communicating over file-based MPI messages
-            init_struct = iMessagesFramework.build_worker_init(tmp_dir, ...
-                'test_FB_message', 'MessagesFilebased', 1, 10,'test_mode');
+            if nargin == 0
+                init_struct = iMessagesFramework.build_worker_init(tmp_dir, ...
+                    'test_FB_message', 'MessagesFilebased', 1, 10,'test_mode');
+            else
+                init_struct = varargin{1};
+            end
             obj=obj@MFTester(init_struct);
             obj.mess_name_fun_  = @(name,lab_to,lab_from)sprintf('mess_%s_FromN%d_ToN%d.mat',...
                 name,lab_from,lab_to);

@@ -320,7 +320,7 @@ classdef JobExecutor
             % Returns true if received any 'canceled' signal.
             is = obj.control_node_exch_.is_job_canceled();
             if ~is
-                [mess,tids] = obj.mess_framework_.probe_all('any','canceled');
+                [mess,tids] = obj.mess_framework_.probe_all('all','canceled');
                 if ~isempty(mess)
                     is = true;
                     mf = obj.mess_framework_;

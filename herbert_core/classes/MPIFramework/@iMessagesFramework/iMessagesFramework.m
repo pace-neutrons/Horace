@@ -280,6 +280,33 @@ classdef iMessagesFramework < handle
             % between processes
             id = sprintf('%08i', feature('getpid')*1.e+5+round(datetime('now').Second*10));
         end
+        %
+        function is_blocking = check_is_blocking(mess_name,options)
+            % helper function used to check if the requested message should
+            % be processed synchroneously or asynchroneously.
+            %
+            if isempty(options)
+                is_blocking = MESS_NAMES.is_blocking(mess_name);
+                return
+            end
+            [ok,mess,synch,asynch]=parse_char_options(options,{'-synchronous','-asynchronous'});
+            if ~ok
+                error('MESSAGES_FRAMEWORK:invalid_argument',mess);
+            end
+            if synch && asynch
+                error('MESSAGES_FRAMEWORK:invalid_argument',...
+                    'Both -synchronous and -asynchronous options are provided as input. Only one is allowed');
+            end
+            if synch
+                is_blocking = true;
+            elseif asynch
+                is_blocking = false;
+            else
+                is_blocking = MESS_NAMES.is_blocking(mess_name);
+            end
+            
+        end
+        
         
     end
     methods(Abstract)
@@ -308,7 +335,7 @@ classdef iMessagesFramework < handle
         % receive message from a task with specified id.
         %
         % Blocking  or unblocking behavior depends on requested message
-        % type. 
+        % type.
         %
         % If the requested message type is blocking, blocks until the
         % message is available
@@ -327,12 +354,12 @@ classdef iMessagesFramework < handle
         %
         % Inputs:
         % id        - the address of the lab to receive message from
-        % mess_name - name/tag of the message to receive. 
+        % mess_name - name/tag of the message to receive.
         %             'any' means any tag.
         % Optional:
-        % ['-s[ynchronous]'|'-a[synchronous]'] -- override default message 
+        % ['-s[ynchronous]'|'-a[synchronous]'] -- override default message
         %              receiving rules and receive the message
-        %              block program execution if '-synchronous' keyword 
+        %              block program execution if '-synchronous' keyword
         %              is provided, or continue execution if message has
         %              not been send ('-asynchronous' mode).
         %

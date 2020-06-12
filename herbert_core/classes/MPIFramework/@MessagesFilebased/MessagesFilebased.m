@@ -204,7 +204,18 @@ classdef MessagesFilebased < iMessagesFramework
             % if no messages are present in the system
             % all_messages_names and task_ids are empty
             %
-            [all_messages_names,task_ids] = list_all_messages_(obj,varargin{:});
+            if nargin>2 && ((ischar(varargin{2}) && ~strcmp(varargin{2},'any')) || ...
+                    (isnumeric(varargin{2}) && varargin{2} ~=-1))
+                % performance boosting operation, especially important for
+                % Windows, as dir locks message files there. 
+                if ischar(varargin{1}) && strcmp(varargin{1},'any')
+                    warning('Outdated receive interface -- keyword all should be used')
+                    varargin{1} = 'all';
+                end
+                [all_messages_names,task_ids] = list_specific_messages_(obj,varargin{:});
+            else
+                [all_messages_names,task_ids] = list_all_messages_(obj,varargin{:});
+            end
         end
         %
         function [all_messages,task_ids] = receive_all(obj,varargin)
@@ -216,6 +227,7 @@ classdef MessagesFilebased < iMessagesFramework
             %
             %Input:
             %task_ids -- array of task id-s to check messages for
+            %
             %Return:
             % all_messages -- cellarray of messages for the tasks requested and
             %                 have messages available in the system .
@@ -224,6 +236,13 @@ classdef MessagesFilebased < iMessagesFramework
             %                 the name provided
             %
             %
+            if nargin>1 && ischar(varargin{1})
+                if strcmp('any',varargin{1})
+                    warning('Outdated receive all interface. Use all instead of any')
+                    varargin{1} = 'all';
+                end
+            end
+            
             [all_messages,task_ids] = receive_all_messages_(obj,varargin{:});
         end
         %
@@ -231,35 +250,12 @@ classdef MessagesFilebased < iMessagesFramework
             % delete all messages belonging to this instance of messages
             % framework and delete the framework itself
             obj.persistent_fail_message_ = [];
-            
             delete_job_(obj);
         end
+        
         function clear_messages(obj)
             % Clear all messages directed to this lab.
-            obj.persistent_fail_message_ = [];
-            %
-            finished = false;
-            pause(0.5); % give time to complete possible IO operations
-            while ~finished
-                try
-                    [all_messages,mid_from] = list_all_messages_(obj);
-                catch ME
-                    if strcmp(ME.identifier,'MESSAGE_FRAMEWORK:canceled')
-                        return;
-                    else
-                        rethrow(ME);
-                    end
-                end
-                if isempty(all_messages)
-                    finished = true;
-                    continue;
-                end
-                
-                for i=1:numel(mid_from) % delete messages files
-                    mess_fname = obj.job_stat_fname_(obj.labIndex,all_messages{i},mid_from(i));
-                    delete(mess_fname);
-                end
-            end
+            obj.clear_all_messages_();
         end
         %
         function [ok,err]=labBarrier(obj,nothrow)
@@ -280,7 +276,7 @@ classdef MessagesFilebased < iMessagesFramework
         function is = is_job_canceled(obj)
             % method verifies if job has been canceled
             is = ~exist(obj.mess_exchange_folder_,'dir') || ...
-                ~isempty(obj.probe_all('any','canceled'));
+                ~isempty(obj.probe_all('all','canceled'));
         end
         %------------------------------------------------------------------
         % Filebased framework specific properties:

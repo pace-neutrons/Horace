@@ -8,9 +8,11 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             if ~exist('name', 'var')
                 name = 'test_exchange_FileBasedMPI';
             end
-            %this = this@MPI_Test_Common(name, 'herbert');
+            cs  = iMessagesFramework.build_worker_init(tmp_dir, ...
+                    'test_FB_message', 'MessagesFilebased', 1, 3,'test_mode');
+
             obj = obj@exchange_common_tests(name,...
-                'MessagesFileBasedMPI_mirror_tester','herbert');
+                'MessagesFileBasedMPI_mirror_tester','herbert',cs);
             
             
         end
@@ -97,7 +99,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertFalse(exist(job_exchange_folder, 'dir') == 7)
         end
         %
-        function test_receive_all_mess(this)
+        function test_receive_all_mess_client_server(this)
             fii = iMessagesFramework.build_worker_init(this.working_dir, ...
                 'FB_MPI_Test_recevie_all', 'MessagesFilebased', 0, 3,'test_mode');
             mf0 = MessagesFilebased(fii);
@@ -152,98 +154,68 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
         end
         %
         function test_probe_all(this)
-            fiis = iMessagesFramework.build_worker_init(this.working_dir, ...
-                'MFT_probe_all_messages', 'MessagesFilebased', 0, 3,'test_mode');
+            fs = iMessagesFramework.build_worker_init(this.working_dir, ...
+                'MFT_probe_all_messages', 'MessagesFilebased', 0, 5,'test_mode');
             
-            mf = MessagesFilebased(fiis);
-            clob = onCleanup(@()(mf.finalize_all()));
+            m_host = MessagesFilebased(fs);
+            clob = onCleanup(@()(m_host.finalize_all()));
             
-            all_mess = mf.probe_all(1);
+            fr = iMessagesFramework.build_worker_init(this.working_dir, ...
+                'MFT_probe_all_messages', 'MessagesFilebased', 3, 5,'test_mode');
+            m3 = MessagesFilebased(fr);
+
+            
+            all_mess = m_host.probe_all(1);
             assertTrue(isempty(all_mess));
             
             
             mess = aMessage('starting');
             % send message to itself
-            [ok, err] = mf.send_message(0, mess);
+            [ok, err] = m_host.send_message(3, mess);
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
-            [all_mess, mid_from] = mf.probe_all();
+            [all_mess, mid_from] = m3.probe_all();
             assertTrue(ismember('starting', all_mess))
             assertFalse(ismember('started', all_mess))
             assertEqual(mid_from, 0);
+                                   
             
-            
-            [all_mess, mid_from] = mf.probe_all(0);
-            assertTrue(ismember('starting', all_mess))
-            assertEqual(mid_from, 0);
-            [all_mess, mid_from] = mf.probe_all(0, 'starting');
-            assertTrue(ismember('starting', all_mess))
-            assertEqual(mid_from, 0);
-            
-            
-            [ok, err] = mf.send_message(0, 'started');
-            assertEqual(ok, MESS_CODES.ok)
-            assertTrue(isempty(err));
-            mess = FailedMessage('failed');
-            [ok, err] = mf.send_message(3, mess);
+            [ok, err] = m3.send_message(0, 'started');
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
             
             mess = LogMessage();
-            [ok, err] = mf.send_message(3, mess);
+            [ok, err] = m3.send_message(0, mess);
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
             
-            [all_mess, mid_from] = mf.probe_all(0);
-            assertEqual(numel(all_mess), 2);
-            assertEqual(all_mess{1}, 'started');
-            assertEqual(mid_from(1), 0);
-            assertEqual(mid_from(2), 0);
+            [all_mess, mid_from] = m_host.probe_all(3);
+            assertEqual(numel(all_mess), 1);
+            assertEqual(all_mess{1}, 'log');
+            assertEqual(mid_from(1), 3);
+
+            
+            mess = FailedMessage('failed');
+            [ok, err] = m3.send_message(0, mess);
+            assertEqual(ok, MESS_CODES.ok)
+            assertTrue(isempty(err));
+            
+            mess = LogMessage();
+            [ok, err] = m3.send_message(0, mess);
+            assertEqual(ok, MESS_CODES.ok)
+            assertTrue(isempty(err));
             
             %
-            %-------------------------------------------------------------
-            % define external receiver, which would run on an MPI worker
-            cs = mf.build_worker_init(mf.mess_exchange_folder, ...
-                mf.job_id, 'MessagesFilebased', 3, 5);
+            [all_mess, id_from] = m_host.probe_all();
             
-            init_str = mf.deserialize_par(cs);
-            mf3 = MessagesFilebased(init_str);
-            [all_mess, id_from] = mf3.probe_all();
+            % failed overwrites log despite log send later 
+            assertEqual(numel(all_mess), 1);
+            assertEqual(all_mess{1}, 'failed');            
+            assertEqual(id_from(1), 3);
             
-            
-            assertEqual(numel(all_mess), 2);
-            assertEqual(id_from(1), 0);
-            assertEqual(id_from(2), 0);
-            
-            mess = LogMessage();
-            % unlike normal mpi, filebased mpi allows sending message to
-            % itself
-            [ok, err] = mf3.send_message(3, mess);
-            assertEqual(ok, MESS_CODES.ok)
-            assertTrue(isempty(err));
-            
-            
-            [all_mess, id_from] = mf3.probe_all();
-            assertEqual(numel(all_mess), 3);
-            assertEqual(id_from(1), 0);
-            assertEqual(id_from(2), 0);
-            assertEqual(id_from(3), 3);
-            
-            
-            [all_mess, id_from] = mf3.probe_all([0, 3]);
-            assertEqual(numel(all_mess), 3);
-            assertEqual(id_from(1), 0);
-            assertEqual(id_from(2), 0);
-            assertEqual(id_from(3), 3);
-            
-            [all_mess, id_from] = mf3.probe_all('any', 'log');
-            assertEqual(numel(all_mess), 3);
-            assertEqual(id_from(1), 0);
-            assertEqual(id_from(2), 0);
-            assertEqual(id_from(3), 3);
         end
         
-        function lock_file = build_fake_lock(this, mf, mess_name)
+        function lock_file = build_fake_lock(~, mf, mess_name)
             mess_file = mf.mess_file_name(0, mess_name);
             [fp, fn] = fileparts(mess_file);
             lock_file = fullfile(fp, [fn, '.lockw']);
@@ -314,23 +286,21 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             delete(lock_started);
             
             all_mess = mf.probe_all();
-            assertEqual(numel(all_mess), 2);
-            
-            [ok, err] = mf.receive_message(0, 'starting');
+            assertEqual(numel(all_mess), 1);
+            % receved the most recent  message 
+            [ok, err] = mf.receive_message(0, 'started');
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
             
             all_mess = mf.probe_all();
             assertEqual(numel(all_mess), 1);
             
-            [ok, err] = mf.receive_message(0, 'started');
+            [ok, err] = mf.receive_message(0, 'starting');
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
             
             all_mess = mf.probe_all();
-            assertTrue(isempty(all_mess));
-            
-            
+            assertTrue(isempty(all_mess));                        
         end
         %
         function test_shared_folder(this)
@@ -503,16 +473,16 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertEqual(ok, MESS_CODES.ok, err);
             
             [all_mess, mid_from] = receiver.probe_all([], 'data');
-            assertEqual(numel(all_mess), 3)
-            assertEqual(mid_from, ones(3, 1))
+            assertEqual(numel(all_mess), 1)
+            assertEqual(mid_from, 1)
             
             [ok, err, mess] = receiver.receive_message(1, 'data');
             assertEqual(ok, MESS_CODES.ok, err);
             assertEqual(mess.payload, 1);
             
             [all_mess, mid_from] = receiver.probe_all([], 'data');
-            assertEqual(numel(all_mess), 2)
-            assertEqual(mid_from, ones(2, 1))
+            assertEqual(numel(all_mess), 1)
+            assertEqual(mid_from, 1)
             
             
             mess.payload = 4;

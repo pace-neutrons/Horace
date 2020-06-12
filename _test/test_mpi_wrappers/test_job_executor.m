@@ -631,7 +631,7 @@ classdef test_job_executor< MPI_Test_Common
             ok = license('checkout','Distrib_Computing_Toolbox');
             if ~ok
                 warning('PARALLEL_CONFIG:not_available',...
-                    'Distrib_Computing_Toolbox is not available on this machne. Not tested')
+                    'Distrib_Computing_Toolbox is not available on this machine. Not tested')
                 return;
             else
                 try
@@ -658,7 +658,7 @@ classdef test_job_executor< MPI_Test_Common
                 config_store.set_config_folder(cf);
             end
             clob1 = onCleanup(@()reset_config(cf));
-            % generate control with different types of frameoworks.
+            % generate control with different types of frameworks.
             css1= serverfbMPI.get_worker_init('MessagesParpool',1,1);
             
             ok = finish_task_tester(css1);
@@ -720,7 +720,7 @@ classdef test_job_executor< MPI_Test_Common
             % Check custom code exception on the head node
             errm = MException('CUSTOM_CODE:failed','fake failed message');
             err_mess = je1.process_fail_state(errm,true);
-            % asynchroneous in test mode as waits for other jobs to
+            % asynchronous in test mode as waits for other jobs to
             % complete
             [ok,err]=je1.finish_task(err_mess,'-asynch');
             assertTrue(ok)

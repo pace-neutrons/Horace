@@ -1,12 +1,13 @@
 function [err_code,err_mess,message] = receive_message_(obj,from_task_id,mess_name,varargin)
-% Receive message from job with the task_id (MPI rank) specified
-% if task_id is empty, receive message from any task.
+% Receive message from job with the task_id (MPI rank) specified as input
+%
+% if task_id is empty, or equal to 'any' throws
 %
 %
 
 if ~exist('from_task_id','var') || isempty(from_task_id) ||...
         (isnumeric(from_task_id ) && from_task_id < 0) || ...
-        (ischar(from_task_id) && strcmp(from_task_id,'any'))
+        ischar(from_task_id)
     %receive message from any task
     error('MESSAGES_FRAMEWORK:invalid_argument',...
         'Requesting receive message from undefined lab is not currently supported');
@@ -17,6 +18,9 @@ if ~isnumeric(from_task_id)
 end
 if ~exist('mess_name','var') %receive any message for this task
     mess_name = 'any';
+end
+if isnumeric(mess_name)
+    mess_name = MESS_NAMES.mess_name(mess_name);
 end
 if ~ischar(mess_name)
     error('MESSAGES_FRAMEWORK:invalid_argument',...
@@ -42,26 +46,8 @@ if ~isempty(message)
     err_mess=[];
     return;
 end
-if nargin>3
-    [ok,mess,synch,asynch]=parse_char_options(varargin,{'-synchronous','-asynchronous'});
-    if ~ok
-        error('MESSAGES_FRAMEWORK:invalid_argument',mess);
-    end
-    if synch && asynch
-        error('MESSAGES_FRAMEWORK:invalid_argument',...
-            'Both -synchronous and -asynchronous options are provided as input. Only one is allowed');
-    end
-    if synch
-        is_blocking = true;        
-    elseif asynch
-        is_blocking = false;
-    else
-        is_blocking = MESS_NAMES.is_blocking(mess_name);
-    end
-else
-    is_blocking = MESS_NAMES.is_blocking(mess_name);
-end
-
+% check if the message should be received synchroneously or asynchroneously
+is_blocking = obj.check_is_blocking(mess_name,varargin);
 
 
 mess_folder = obj.mess_exchange_folder;

@@ -261,7 +261,7 @@ classdef MESS_NAMES < handle
             %            element message id-s.
             %
             if isempty(mess_id)
-                name  = '';
+                name  = 'any';
                 return
             end
             

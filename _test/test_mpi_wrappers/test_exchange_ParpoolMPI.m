@@ -8,65 +8,12 @@ classdef test_exchange_ParpoolMPI < exchange_common_tests
             if ~exist('name', 'var')
                 name = 'test_exchange_ParpoolMPI';
             end
+            cs = struct('job_id','exchangeFileBasedMPI','labID',1,'numLabs',3,...
+                'test_mode',true);
             obj = obj@exchange_common_tests(name,...
-                'MessagesMatlabMPI_tester','parpool');
+                'MessagesMatlabMPI_tester','parpool',cs);
             
             obj.ignore_test = ~license('checkout', 'Distrib_Computing_Toolbox');
-            
-        end
-        %
-        %
-        function test_receive_all_mess(~)
-            
-            mf = MessagesMatlabMPI_tester(1,3);
-            clob = onCleanup(@()(finalize_all(mf)));
-            assertEqual(mf.labIndex, 1);
-            assertEqual(mf.numLabs, 3);
-            
-            mess = LogMessage(0, 10, 1, '0');
-            % CPP_MPI messages in test mode are "reflected" from target node
-            [ok, err] = mf.send_message(2, mess);
-            assertEqual(ok, MESS_CODES.ok, ['Error = ', err])
-            [ok, err] = mf.send_message(3, mess);
-            assertEqual(ok, MESS_CODES.ok, ['Error = ', err])
-            
-            [all_mess, task_ids] = mf.receive_all('any', 'any');
-            assertEqual(numel(all_mess), 2);
-            assertEqual(numel(task_ids), 2);
-            assertEqual(task_ids, [2, 3]);
-        end
-        %
-        %
-        function test_Send3Receive1Asynch(~)
-            
-            mf = MessagesMatlabMPI_tester();
-            clob = onCleanup(@()(finalize_all(mf)));
-            assertEqual(mf.labIndex, 1);
-            assertEqual(mf.numLabs, 10);
-            
-            mess = LogMessage(1, 10, 1, []);
-            [ok, err_mess] = mf.send_message(5, mess);
-            assertEqual(ok, MESS_CODES.ok);
-            assertTrue(isempty(err_mess));
-            mess = LogMessage(2, 10, 3, []);
-            [ok, err_mess] = mf.send_message(5, mess);
-            assertEqual(ok, MESS_CODES.ok);
-            assertTrue(isempty(err_mess));
-            
-            mess = LogMessage(3, 10, 5, []);
-            [ok, err_mess] = mf.send_message(5, mess);
-            assertEqual(ok, MESS_CODES.ok);
-            assertTrue(isempty(err_mess));
-            
-            [ok, err_mess, messR] = mf.receive_message(5, mess.mess_name);
-            assertEqual(ok, MESS_CODES.ok);
-            assertTrue(isempty(err_mess));
-            
-            assertEqual(mess, messR);
-            
-            [mess_names, source_id_s] = mf.probe_all(5, 'any');
-            assertTrue(isempty(mess_names));
-            assertTrue(isempty(source_id_s));
             
         end
         %

@@ -5,7 +5,7 @@ err_code = MESS_CODES.ok;
 err_mess = [];
 
 
-[id,tag,synchroneous] = get_mess_id_(varargin{:});
+[id,tag,synchroneous] = get_mess_id_(obj,varargin{:});
 %
 message = obj.get_interrupt(id);
 if ~isempty(message)

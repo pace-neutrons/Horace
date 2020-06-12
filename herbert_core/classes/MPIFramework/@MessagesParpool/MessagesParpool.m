@@ -176,7 +176,7 @@ classdef MessagesParpool < iMessagesFramework
             %>>[all_messages,task_ids] = pm.receive_all([task_is],[mess_name]);
             %Input:
             % task_ids -- array of task id-s to check messages for or empty
-            %             or 'any' to check for all messages.
+            %             or 'all' to check for all messages.
             % mess_name -- if present, the name (or tag) of the message to
             %              receive.
             
@@ -194,6 +194,12 @@ classdef MessagesParpool < iMessagesFramework
             %                 the recieve_all method.
             %
             %
+            if nargin>1 && ischar(varargin{1})
+                if strcmp('any',varargin{1})
+                    warning('Outdated receive all interface. Use all instead of any')
+                    varargin{1} = 'all';
+                end
+            end
             [all_messages,task_ids] = receive_all_messages_(obj,varargin{:});
         end
         %
@@ -232,7 +238,7 @@ classdef MessagesParpool < iMessagesFramework
         %
         function is = is_job_canceled(obj)
             % method verifies if job has been canceled
-            mess = obj.probe_all('any','canceled');
+            mess = obj.probe_all('all','canceled');
             if ~isempty(mess)
                 is = true;
             else
