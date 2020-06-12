@@ -346,6 +346,8 @@ methods
     function test_construction_with_file_path_sets_num_pixels_in_file(obj)
         f_accessor = sqw_formats_factory.instance().get_loader(...
                 obj.test_sqw_file_path);
+        assertEqual(obj.pix_data_from_file.num_pixels, f_accessor.npixels);
+    end
 
     function test_construction_with_file_path_sets_size(obj)
         f_accessor = sqw_formats_factory.instance().get_loader(...
