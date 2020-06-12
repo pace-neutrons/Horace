@@ -33,7 +33,7 @@ classdef PixelData
 %   run_idx        The run index the pixel originated from (1 x n array)
 %   detector_idx   The detector group number in the detector listing for the pixels (1 x n array)
 %   energy_idx     The energy bin numbers (1 x n array)
-%   signal        The signal array (1 x n array)
+%   signal         The signal array (1 x n array)
 %   variance       The variance on the signal array (variance i.e. error bar squared) (1 x n array)
 %   num_pixels     The number of pixels in the data block
 %   data           The raw pixel data - usage of this attribute is discouraged, the structure
@@ -55,7 +55,7 @@ properties (Access=private)
     data_ = zeros(9, 0);
     f_accessor_;  % instance of faccess object to access pixel data from file
     file_path_ = '';
-    page_memory_size_ = 2e6; %1e9;  % 1Gb
+    page_memory_size_ = 1e9;  % 1Gb
 end
 
 properties (Dependent)
@@ -404,10 +404,18 @@ methods
 
     function file_path = get.file_path(obj)
         file_path = obj.file_path_;
-end
+    end
 
     function page_size = get.page_size(obj)
-        page_size = obj.get_num_pix_in_mem_page_size_();
+        % The number of pixels that can be held in memory within the given page
+        % size. If num_pixels < "number of pixels that can fit in memory size",
+        % return num_pixels - this avoids ever reading past end of file
+        num_bytes_in_val = 8;  % pixel data stored in memory as a double
+        num_bytes_in_pixel = num_bytes_in_val*obj.PIXEL_BLOCK_COLS_;
+        page_size = floor(obj.page_memory_size_/num_bytes_in_pixel);
+        if page_size > obj.num_pixels
+            page_size = obj.num_pixels;
+        end
     end
 
 end
@@ -418,7 +426,10 @@ methods (Access = private)
         % Initialise a PixelData object from a file accessor
         obj.f_accessor_ = f_accessor;
         obj.file_path_ = fullfile(obj.f_accessor_.filepath, ...
-                                 obj.f_accessor_.filename);
+                                  obj.f_accessor_.filename);
+        if obj.num_pixels <= obj.page_size
+            obj.data = obj.f_accessor_.get_pix(1, obj.page_size);
+        end
     end
 
 end
