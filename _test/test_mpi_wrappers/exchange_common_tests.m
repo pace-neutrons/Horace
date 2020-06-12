@@ -233,6 +233,7 @@ classdef exchange_common_tests < MPI_Test_Common
             assertExceptionThrown(f,'MESSAGE_FRAMEWORK:canceled',...
                 'Receiving missing Blocking message should throw in test mode')
         end
+        %
         function test_receive_data_fail_comes(obj)
             if obj.ignore_test
                 return
@@ -253,14 +254,47 @@ classdef exchange_common_tests < MPI_Test_Common
             [ok, err] = intercomm.send_message(3, FailedMessage());
             assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
             
-            [messr,tid_from] = receive_all(intercomm,'all', 'data');
+            [messr,tid_from] = intercomm.receive_all('all', 'data');
             assertEqual(numel(messr),2)
             assertEqual(numel(tid_from),2)
             
             assertEqual(messr{1}.mess_name,'data')
             assertEqual(messr{2}.mess_name,'failed')
+        end
+        function test_receive_data_log_remains(obj)
+            if obj.ignore_test
+                return
+            end
+            intercomm = feval(obj.comm_name,obj.tests_control_strcut);
+            clob_s = onCleanup(@()(finalize_all(intercomm)));
+            
+            
+            mess = DataMessage();
+            mess.payload = 'a';
+            % CPP_MPI messages in test mode are "reflected" from target node
+            [ok, err] = intercomm.send_message(2, mess);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            mess.payload = 'b';
+            [ok, err] = intercomm.send_message(3, mess);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            
+            [ok, err] = intercomm.send_message(3, LogMessage());
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            
+            [messr,tid_from] = intercomm.receive_all('all', 'data');
+            assertEqual(numel(messr),2)
+            assertEqual(numel(tid_from),2)
+            
+            assertEqual(messr{1}.mess_name,'data')
+            assertEqual(messr{2}.mess_name,'data')
+            
+            [messr,tid_from] = intercomm.receive_all('all', 'log');
+            assertEqual(numel(messr),1)
+            assertEqual(numel(tid_from),1)
+            assertEqual(tid_from,3)
             
         end
+        
         
         
         function test_Send_and_Probe(obj)
