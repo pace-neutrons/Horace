@@ -346,8 +346,16 @@ methods
     function test_construction_with_file_path_sets_num_pixels_in_file(obj)
         f_accessor = sqw_formats_factory.instance().get_loader(...
                 obj.test_sqw_file_path);
-        num_pix_in_file = f_accessor.npixels;
-        assertEqual(obj.pix_data_from_file.num_pixels, num_pix_in_file);
+
+    function test_construction_with_file_path_sets_size(obj)
+        f_accessor = sqw_formats_factory.instance().get_loader(...
+                obj.test_sqw_file_path);
+        size_ax_1 = size(obj.pix_data_from_file, 1);
+        assertEqual(size_ax_1, 9);
+
+        size_ax_2 = size(obj.pix_data_from_file, 2);
+        assertEqual(size_ax_2, f_accessor.npixels);
+        assertEqual(obj.pix_data_from_file.num_pixels, f_accessor.npixels);
     end
 
     function test_error_on_construction_with_non_existent_file(~)

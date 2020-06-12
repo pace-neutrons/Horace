@@ -198,16 +198,22 @@ methods
     function s = size(obj, varargin)
         % Return the size of the PixelData
         %   Axis 1 gives the number of columns, axis 2 gives the number of
-        %   pixels
-
-        % For the time being, the number of columns is equal to the number of
-        % columns in the underlying pix data block. When we start allowing
-        % additional columns to be added, the number of columns of a PixelData
-        % object may not equal the number in the main underlying data
-        % structure.
-        % This overload should always return the number of columns in the
-        % underlying structure + the number of additional columns
-        s = size(obj.data, varargin{:});
+        %   pixels. Along with Matlab convention, any other axis returns 1.
+        if nargin == 1
+            s = [obj.PIXEL_BLOCK_COLS_, obj.num_pixels];
+        else
+            s = ones(1, numel(varargin));
+            for i = 1:numel(varargin)
+                dim = varargin{i};
+                if dim == 1
+                    s(i) = obj.PIXEL_BLOCK_COLS_;
+                elseif dim == 2
+                    s(i) = obj.num_pixels;
+                else
+                    s(i) = size(obj.data, dim);
+                end
+            end
+        end
     end
 
     function nel = numel(obj)
