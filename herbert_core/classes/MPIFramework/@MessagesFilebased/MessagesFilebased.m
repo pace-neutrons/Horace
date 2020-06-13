@@ -223,8 +223,11 @@ classdef MessagesFilebased < iMessagesFramework
             % absent
             %
             %Input:
-            %task_ids -- array of task id-s to check messages for
-            %
+            %task_ids  -- array of task id-s to check messages for
+            %mess_name -- if present, the name of the message to receive. 
+            %             if 'any' or empty, recevie any type of message
+            
+            %            
             %Return:
             % all_messages -- cellarray of messages for the tasks requested and
             %                 have messages available in the system .

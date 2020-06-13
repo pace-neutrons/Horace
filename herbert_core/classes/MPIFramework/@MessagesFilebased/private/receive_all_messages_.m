@@ -1,4 +1,4 @@
-function   [all_messages,tid_received_from] = receive_all_messages_(obj,task_ids,mess_name)
+function   [all_messages,tid_received_from] = receive_all_messages_(obj,task_ids,mess_name,varargin)
 % retrieve all messages sent from jobs with id provided. if ids are empty,
 % all messages, intended for this job.
 %
@@ -11,19 +11,21 @@ if any(this_tid)
 end
 
 
-if ~exist('mess_name','var')
+if ~exist('mess_name','var') || isempty(mess_name)
     mess_name = 'any';
 end
+lock_until_received = obj.check_is_blocking(mess_name,varargin);
 
-if isempty(mess_name) || strcmp(mess_name,'any')
-    lock_until_received = false;
-else
-    if obj.DEBUG_
-        disp(['**********  waiting for message: ',mess_name,' to arrive from tasks: ']);
-        disp(task_ids')
+if obj.DEBUG_
+    if lock_until_received
+        how = ' synchronously';
+    else
+        how = ' asynchronously';
     end
-    lock_until_received = MESS_NAMES.is_blocking(mess_name);
+    disp(['**********',how,'  waiting for message: ',mess_name,' to arrive from tasks: ']);
+    disp(task_ids')
 end
+
 
 
 n_requested = numel(task_ids);
@@ -51,7 +53,21 @@ nsteps = 0;
 t0 = tic;
 while ~all_received
     for i=1:n_requested
-        if ~present_now(i)
+        if present_now(i)
+            [ok,err_mess,message]=receive_message_(obj,task_ids(i),mess_name);
+            if ok ~= MESS_CODES.ok
+                if ok == MESS_CODES.job_canceled
+                    error('MESSAGE_FRAMEWORK:canceled',err_mess);
+                else
+                    error('FILEBASED_MESSAGES:runtime_error',...
+                        'Can not receive existing message: %s, Err: %s',...
+                        message_names{i},err_mess);
+                end
+            end
+            all_messages{i} = message;
+            tid_received_from(i) = task_ids(i);
+            mess_received(i) = true;
+        else % check canceled message
             [is,err_code,err_message] = check_job_canceled_(obj,task_ids(i));
             if is
                 if err_code == MESS_CODES.job_canceled_request
@@ -67,20 +83,7 @@ while ~all_received
                     error('MESSAGE_FRAMEWORK:canceled',err_message);
                 end
             end
-        else
-            [ok,err_mess,message]=receive_message_(obj,task_ids(i),mess_name);
-            if ok ~= MESS_CODES.ok
-                if ok == MESS_CODES.job_canceled
-                    error('MESSAGE_FRAMEWORK:canceled',err_mess);
-                else
-                    error('FILEBASED_MESSAGES:runtime_error',...
-                        'Can not receive existing message: %s, Err: %s',...
-                        message_names{i},err_mess);
-                end
-            end
-            all_messages{i} = message;
-            tid_received_from(i) = task_ids(i);
-            mess_received(i) = true;
+            
         end
     end
     if obj.DEBUG_
@@ -133,10 +136,10 @@ while ~all_received
     end
     
 end
-if ~lock_until_received
-    all_messages = all_messages(mess_received);
-    tid_received_from = tid_received_from(mess_received);
-end
+
+all_messages = all_messages(mess_received);
+tid_received_from = tid_received_from(mess_received);
+
 % sort received messages according to task id to ensure consistent sequence
 % of task messages
 if ~isempty(tid_received_from)

@@ -1,4 +1,4 @@
-function   [all_messages,tid_received_from] = receive_all_messages_(obj,task_ids,mess_name)
+function   [all_messages,tid_received_from] = receive_all_messages_(obj,task_ids,mess_name,varargin)
 % retrieve all messages intended for jobs with task id-s  provided as input
 % if message name is also present, return only messages with the name
 % specified and wait until the messages with this name arrive from all labs

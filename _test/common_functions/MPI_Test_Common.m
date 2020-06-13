@@ -34,7 +34,8 @@ classdef MPI_Test_Common < TestCase
             end
 
             [pc, obj.old_parallel_config_] = set_local_parallel_config();
-            obj.parallel_config_restore_ = onCleanup(@()set(parallel_config,obj.old_parallel_config_));
+            opc = obj.old_parallel_config_;
+            obj.parallel_config_restore_ = onCleanup(@()set(parallel_config,opc));
             if strcmpi(pc.parallel_framework,'none')
                 obj.ignore_test = true;
                 warning('MPI_Test_Common:not_available',...

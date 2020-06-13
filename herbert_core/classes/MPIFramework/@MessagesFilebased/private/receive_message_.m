@@ -102,15 +102,7 @@ received = false;
 
 %deadlock_tries = 100;
 lock_(rlock_file);
-while ~received
-    
-    % the message can not be in process of writing as it should be locked
-    % in this case
-    %     if exist(wlock_file,'file') == 2
-    %         pause(obj.time_to_react_)
-    %         %fprintf(f_hl,'****MESS Receiving: Write lock file %s present\n',wlock_file);
-    %         continue;
-    %     end
+while ~received    
     try
         mesl = load(mess_fname);
         received = true;
@@ -175,8 +167,3 @@ else
     unlock_(rlock_file);
     %pause(0.1);
 end
-
-%clear source_unlocker
-%clear target_unlocker;
-
-

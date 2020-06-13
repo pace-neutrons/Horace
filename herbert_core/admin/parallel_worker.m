@@ -70,13 +70,17 @@ config_store.set_config_folder(config_exchange_folder);
 % folder for communications
 %--------------------------------------------------------------------------
 
+keep_worker_running = true;
 if DO_LOGGING
     fh = log_inputs_level1();
     clob_log = onCleanup(@()fclose(fh));
+    exit_at_the_end = false;
+else
+    exit_at_the_end = ~is_tested;
 end
 
-keep_worker_running = true;
-exit_at_the_end = false;
+
+
 %%
 
 num_of_runs = 0;
@@ -104,8 +108,12 @@ while keep_worker_running
         keep_worker_running = worker_init_data.keep_worker_running;
     end
     %
-    
-    exit_at_the_end = ~is_tested && worker_init_data.exit_on_compl;
+    %
+    if DO_LOGGING
+        exit_at_the_end = false;
+    else
+        exit_at_the_end = ~is_tested && worker_init_data.exit_on_compl;
+    end
     %
     if DO_LOGGING; log_worker_init_received();  end
     % instantiate job executor class.
@@ -174,7 +182,7 @@ while keep_worker_running
             
             je= je.do_job();
             % explicitly check for cancellation before data reduction
-            if DO_LOGGING; log_disp_message('Check for constellation after Je do_job loop'); end
+            if DO_LOGGING; log_disp_message('Check for canstellation after Je do_job loop'); end
             is_canceled = je.is_job_canceled();
             if is_canceled
                 error('JOB_EXECUTOR:canceled',...
@@ -189,11 +197,16 @@ while keep_worker_running
                 % when not tested, the synchronization is mandatory
                 je.labBarrier(false); % Wait until all workers finish their
                 %                       job before reducing the data
-            end
+             end
             je.do_job_completed = true; % do 1 barrier on exception at reduction (miss one at process failure)
             if DO_LOGGING; log_disp_message('Reduce data started');  end
             % explicitly check for cancellation before data reduction
             %  the case of cancellation below
+            is_canceled = je.is_job_canceled();
+            if is_canceled
+                error('JOB_EXECUTOR:canceled',...
+                    'Job canceled before recuding data')
+            end
             je = je.reduce_data();
         end
         
@@ -255,7 +268,8 @@ while keep_worker_running
     end
     if DO_LOGGING;  fprintf(fh,'************* subtask: %s  finished\n',fbMPI.job_id); end
 end
-%pause % for debugging filebased framework
+% disp(' Paused Parallel worker')
+% pause % for debugging filebased framework
 if exit_at_the_end
     exit;
 end

@@ -13,7 +13,7 @@ classdef test_job_dispatcher_common_methods < TestCase
             end
             obj = obj@TestCase(name);
         end
-        function test_split_job_struct(obj)        
+        function test_split_job_struct(~)        
             common_par = [];
             l1= {'aaa','bbbb','s','aaanana'};
             l2 = {10,20,3,14};
