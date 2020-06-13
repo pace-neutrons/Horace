@@ -37,7 +37,9 @@ end
 % cl_log = onCleanup(@()fclose(f_hl));
 %
 message=[];
-[is,err_code,err_mess] = check_job_canceled_(obj);
+[is,err_code,err_mess] = check_job_canceled_(obj); % only framework dead 
+%                        returns canceled, canceled message still can be
+%                        received.
 if is ; return; end
 %
 message = obj.get_interrupt(from_task_id);
@@ -59,12 +61,6 @@ while ~mess_present
         mess_present = true;
     end
     if ~mess_present % no message intended for this lab is present in system.
-        %         of = fopen('all');
-        %         fprintf(f_hl,'****MESS: %s NOT present: %d open files in worker\n',mess_name,numel(of));
-        %         for i=1:numel(of)
-        %             fname = fopen(of(i));
-        %             fprintf(f_hl,'  opened file: %s\n',fname);
-        %         end
         if is_blocking
             if obj.is_tested
                 error('MESSAGES_FRAMEWORK:runtime_error',...

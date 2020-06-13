@@ -212,7 +212,7 @@ classdef exchange_common_tests < MPI_Test_Common
                 'Receiving missing Blocking message should throw in test mode')
         end
         
-        function test_receive_data_and_canceled_throws(obj)
+        function test_receive_data_receives_canceled(obj)
             if obj.ignore_test
                 return
             end
@@ -229,9 +229,12 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
             
             
-            f = @()receive_all(intercomm,'all', 'data');
-            assertExceptionThrown(f,'MESSAGE_FRAMEWORK:canceled',...
-                'Receiving missing Blocking message should throw in test mode')
+            [all_mess, task_ids] = intercomm.receive_all('all', 'data');
+            assertEqual(numel(all_mess), 2);
+            assertEqual(numel(task_ids), 2);
+            assertEqual(task_ids, [2; 3]);
+            assertEqual(all_mess{1}.mess_name,'data');
+            assertEqual(all_mess{2}.mess_name,'canceled');            
         end
         %
         function test_receive_data_fail_comes(obj)

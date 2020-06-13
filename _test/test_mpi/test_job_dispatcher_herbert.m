@@ -1,5 +1,5 @@
 classdef test_job_dispatcher_herbert < job_dispatcher_common_tests
-   properties
+    properties
     end
     methods
         %

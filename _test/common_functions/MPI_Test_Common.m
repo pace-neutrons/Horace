@@ -11,9 +11,7 @@ classdef MPI_Test_Common < TestCase
         % available, test should be counted as  passed but ignored.
         % Warning is necessary.
         ignore_test = false;
-        %
-        old_config;
-        % current name of the framework to test
+          % current name of the framework to test
         framework_name;
         % current worker used in tests
         worker='worker_4tests'
@@ -22,6 +20,7 @@ classdef MPI_Test_Common < TestCase
         current_config_folder;
         parallel_config_;
         old_parallel_config_;
+        parallel_config_restore_; 
     end
     
     methods
@@ -35,6 +34,7 @@ classdef MPI_Test_Common < TestCase
             end
 
             [pc, obj.old_parallel_config_] = set_local_parallel_config();
+            obj.parallel_config_restore_ = onCleanup(@()set(parallel_config,obj.old_parallel_config_));
             if strcmpi(pc.parallel_framework,'none')
                 obj.ignore_test = true;
                 warning('MPI_Test_Common:not_available',...
@@ -44,7 +44,6 @@ classdef MPI_Test_Common < TestCase
             obj.parallel_config_ = pc;
             %pc.saveable = false;
             obj.working_dir = pc.working_directory;
-            obj.old_config  = pc.get_data_to_store();
             try
                 pc.parallel_framework = obj.framework_name;
                 if strcmpi(pc.parallel_framework,obj.framework_name)

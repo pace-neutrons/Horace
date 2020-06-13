@@ -104,7 +104,7 @@ classdef MessagesFilebased < iMessagesFramework
             end
             
             if isempty(obj.mess_exchange_folder)
-                obj=construct_me_folder_(obj,val);
+                construct_me_folder_(obj,val);
                 return;
             end
             
@@ -115,7 +115,7 @@ classdef MessagesFilebased < iMessagesFramework
             if exist(obj.mess_exchange_folder,'dir') == 7
                 rmdir(obj.mess_exchange_folder,'s');
             end
-            obj=construct_me_folder_(obj,val);
+            construct_me_folder_(obj,val);
             
         end
         %------------------------------------------------------------------
@@ -252,7 +252,7 @@ classdef MessagesFilebased < iMessagesFramework
         
         function clear_messages(obj)
             % Clear all messages directed to this lab.
-            obj.clear_all_messages_();
+            clear_all_messages_(obj);
         end
         %
         function [ok,err]=labBarrier(obj,nothrow)

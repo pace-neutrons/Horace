@@ -52,9 +52,20 @@ t0 = tic;
 while ~all_received
     for i=1:n_requested
         if ~present_now(i)
-            [is,~,err_message] = check_job_canceled_(obj,task_ids(i));
+            [is,err_code,err_message] = check_job_canceled_(obj,task_ids(i));
             if is
-                error('MESSAGE_FRAMEWORK:canceled',err_message);                
+                if err_code == MESS_CODES.job_canceled_request
+                    [ok,err_message,message]=receive_message_(obj,task_ids(i),'canceled');
+                    if ~ok
+                        error('MESSAGE_FRAMEWORK:canceled',...
+                            'Error receiving canceled message: %s',err_message);
+                    end
+                    all_messages{i} = message;
+                    tid_received_from(i) = task_ids(i);
+                    mess_received(i) = true;
+                else
+                    error('MESSAGE_FRAMEWORK:canceled',err_message);
+                end
             end
         else
             [ok,err_mess,message]=receive_message_(obj,task_ids(i),mess_name);

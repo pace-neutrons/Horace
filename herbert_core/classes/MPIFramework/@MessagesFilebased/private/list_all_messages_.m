@@ -98,7 +98,14 @@ if any(is_fail) % lets assume that only one fail message from one lab is possibl
     fail_mess = all_messages(is_fail);
     
     all_labs = cell(1,max(mid_from));
+    disp('all labs');
+    disp(all_labs);
+    disp('mid from');
+    disp(mid_from);    
+    
     [mid_from,mu]=unique(mid_from);        
+    disp(' mu');    
+    disp(mu);
     all_labs(mid_from) = all_messages(mu);
     all_labs(fail_from) = fail_mess(:);
     all_messages = all_labs(mid_from);

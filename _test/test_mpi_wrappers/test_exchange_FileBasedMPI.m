@@ -451,8 +451,73 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             [ok, err, mess] = fbMPI1.receive_message(3, 'barrier');
             assertEqual(ok, MESS_CODES.ok, err)
             assertEqual(mess.mess_name, 'barrier');
-            
         end
+        function test_barrier_ignores_canceled(this)
+            mf = MessagesFilebased('test_barrier_fail');
+            mf.mess_exchange_folder = this.working_dir;
+            clob = onCleanup(@()mf.finalize_all());
+            % create three pseudo-independent message exchange classes
+            % presumably to run on independent workers
+            css1 = iMessagesFramework.build_worker_init( ...
+                this.working_dir, mf.job_id, 'MessagesFilebased', 1, 3);
+            cs1 = iMessagesFramework.deserialize_par(css1);
+            css2 = iMessagesFramework.build_worker_init( ...
+                this.working_dir, mf.job_id, 'MessagesFilebased', 2, 3);
+            cs2 = iMessagesFramework.deserialize_par(css2);
+            css3 = iMessagesFramework.build_worker_init( ...
+                this.working_dir, mf.job_id, 'MessagesFilebased', 3, 3);
+            cs3 = iMessagesFramework.deserialize_par(css3);
+            
+            fbMPI1 = MessagesFilebased(cs1);
+            fbMPI2 = MessagesFilebased(cs2);
+            fbMPI3 = MessagesFilebased(cs3);
+            
+            t0 = fbMPI3.time_to_fail;
+            fbMPI3.time_to_fail = 0.1;
+            % barrier fails at waiting time due to short time to fail
+            try
+                fbMPI3.labBarrier(false);
+            catch ME
+                assertEqual(ME.message, ...
+                    'Timeout waiting for message "barrier" for task with id: 3');
+            end
+            fbMPI2.time_to_fail = 0.1;
+            try
+                fbMPI2.labBarrier(false);
+            catch ME
+                assertEqual(ME.message, ...
+                    'Timeout waiting for message "barrier" for task with id: 2');
+            end            
+            [ok, err] = fbMPI2.send_message(1, 'canceled');
+            assertEqual(ok, MESS_CODES.ok, err)
+            
+            
+            % will pass without delay as all other worker would reach the
+            % barrier
+            ok = fbMPI1.labBarrier(false);
+            assertTrue(ok);
+            
+            % and other workers would pass barrier now
+            ok = fbMPI3.labBarrier(false);
+            assertTrue(ok);
+            ok = fbMPI2.labBarrier(false);
+            assertTrue(ok);
+            
+            % clear up the barrier messages
+            [ok, err, mess] = fbMPI1.receive_message(2, 'barrier');
+            assertEqual(ok, MESS_CODES.ok, err)
+            assertEqual(mess.mess_name, 'barrier');
+            
+            [ok, err, mess] = fbMPI1.receive_message(3, 'barrier');
+            assertEqual(ok, MESS_CODES.ok, err)
+            assertEqual(mess.mess_name, 'barrier');
+            
+            % canceled is still there
+            [ok, err, mess] = fbMPI1.receive_message(2, 'canceled');
+            assertEqual(ok, MESS_CODES.ok, err)
+            assertEqual(mess.mess_name, 'canceled');
+        end
+        
         %
         function test_data_queue(obj)
             css1 = iMessagesFramework.build_worker_init(obj.working_dir, ...

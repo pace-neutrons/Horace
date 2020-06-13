@@ -15,7 +15,7 @@ else
             is           = false;
         else
             is          = true;
-            err_code    = MESS_CODES.job_canceled;
+            err_code    = MESS_CODES.job_canceled_request;
             err_message = sprintf('Job: "%s" received canceled message from Task with id: %d',...
                 obj.job_id,from_tid);
         end
