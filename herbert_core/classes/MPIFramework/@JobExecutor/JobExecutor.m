@@ -361,20 +361,25 @@ classdef JobExecutor
                 exit_on_completion,keep_worker_running);
         end
         %
-        function mess_with_err=process_fail_state(obj,ME,is_tested,varargin)
+        function mess_with_err=process_fail_state(obj,ME,varargin)
             % Process and gracefully complete an exception, thrown by the
             % user code running on the worker.
             % Inputs:
             % ME        -- exception class, thrown by the user code
-            % is_tested -- if false, indicates that the  code is run on a
-            %              mpi worker or if true, is tested within a
-            %              main Matlab session so blocking operations
-            %              should be disabled
-            % Returns:
-            % results of the finish_task operation
+            %Optional:
+            % fh        -- if present, means logging mode -- received
+            %              opened file hanldle to write log information into it
+            %Performs:
+            % If exception is any except 'canceled', sends 'canceled'
+            % message to all neighboring nodes. If 'canceled', just returns
+            % synchronize worker according to the state of the parallel job
+            % execution. 
+            % 
             %
-            % Should run on non-initialized object
-            mess_with_err = process_fail_state_(obj,ME,is_tested,varargin{:});
+            % Returns:
+            % FailedMessage of the finish_task operation
+            %
+            mess_with_err = process_fail_state_(obj,ME,varargin{:});
         end
     end
     methods(Static)

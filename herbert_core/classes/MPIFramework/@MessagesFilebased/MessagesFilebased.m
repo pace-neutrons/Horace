@@ -13,7 +13,7 @@ classdef MessagesFilebased < iMessagesFramework
     % This class provides physical mechanism to exchange messages between tasks.
     %
     %
-    properties(Dependent) 
+    properties(Dependent)
         % The folder located on a parallel file system and used for storing
         % initial job info and message exchange between tasks if job uses
         % filebased messages.
@@ -224,10 +224,10 @@ classdef MessagesFilebased < iMessagesFramework
             %
             %Input:
             %task_ids  -- array of task id-s to check messages for
-            %mess_name -- if present, the name of the message to receive. 
+            %mess_name -- if present, the name of the message to receive.
             %             if 'any' or empty, recevie any type of message
             
-            %            
+            %
             %Return:
             % all_messages -- cellarray of messages for the tasks requested and
             %                 have messages available in the system .
@@ -261,6 +261,11 @@ classdef MessagesFilebased < iMessagesFramework
         function [ok,err]=labBarrier(obj,nothrow)
             if ~exist('nothrow','var')
                 nothrow = false;
+            end
+            if obj.is_tested % no blocking in testing mode
+                ok = true;
+                err = [];
+                return;
             end
             [ok,err]=wait_at_barrier_(obj,nothrow);
         end
@@ -297,6 +302,17 @@ classdef MessagesFilebased < iMessagesFramework
                     'first message_name argument should be the target task number');
             end
             fn = obj.job_stat_fname_(task_id,mess_name);
+        end
+        function set_is_tested(obj,is_tested)
+            % method, used in tests to set is_tested mode to framework. 
+            % In test mode, barrier operation is disabled
+            %
+            % Inputs:
+            % is_tested  logical value, setting test mode on (true) or off
+            %            (false)
+            % 
+            %
+            obj.is_tested_ = logical(is_tested);
         end
     end
     %----------------------------------------------------------------------

@@ -1,4 +1,4 @@
-function mess = process_fail_state_(obj,ME,is_tested,log_file_h)
+function mess = process_fail_state_(obj,ME,log_file_h)
 
 if ~exist('log_file_h','var')
     log_file_h = [];
@@ -43,16 +43,16 @@ end
 
 % finish task, in particular, removes all messages, directed to this
 % lab
-if ~is_tested
-    % stop until other nodes fail due to cancellation and come
-    % here
-    % job has been interrupted before the barrier in the job
-    % loop has been reached, so wait here for completed jobs to finish
-    if obj.do_job_completed
-        if DO_LOGGING ; fprintf(log_file_h,'--->Failing job not waiting for others\n'); end
-    else
-        if DO_LOGGING ; fprintf(log_file_h,'--->Arriving at Incompleted job barrier\n'); end
-        obj.labBarrier(false);
-    end
+
+% stop until other nodes fail due to cancellation and come
+% here
+% job has been interrupted before the barrier in the job
+% loop has been reached, so wait here for completed jobs to finish
+if obj.do_job_completed
+    if DO_LOGGING ; fprintf(log_file_h,'--->Failing job not waiting for others\n'); end
+else
+    if DO_LOGGING ; fprintf(log_file_h,'--->Arriving at Incompleted job barrier\n'); end
+    obj.labBarrier(false);
 end
+
 

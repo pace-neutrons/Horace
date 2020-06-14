@@ -1,8 +1,6 @@
 classdef test_job_executor< MPI_Test_Common
+    % TODO -- modify these tests to run with every frameworks
     %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
-    %
-    
     properties
         current_config_folder;
         worker_h = @(str)parallel_worker(str,false);
@@ -26,6 +24,7 @@ classdef test_job_executor< MPI_Test_Common
             % set short time to fail interval to fail quickly in case of
             % various errors
             serverfbMPI.time_to_fail = 1;
+            serverfbMPI.set_is_tested(true); % disable barriers
             
             fbMPIs= cell(1,n_workers);
             for i=1:n_workers
@@ -33,6 +32,7 @@ classdef test_job_executor< MPI_Test_Common
                 css1= serverfbMPI.get_worker_init('MessagesFilebased',i,n_workers);
                 csr1= serverfbMPI.deserialize_par(css1);
                 fbMPIs{i} = MessagesFilebased(csr1);
+                fbMPIs{i}.set_is_tested(true); % disable barriers
             end
             
             common_job_param = 'dumy_not_used';
@@ -79,9 +79,9 @@ classdef test_job_executor< MPI_Test_Common
             serverfbMPI.mess_exchange_folder = obj.working_dir;
             %
             clob = onCleanup(@()finalize_all(serverfbMPI));
-            css1= serverfbMPI.get_worker_init('MessagesFilebased',1,3);
-            css2= serverfbMPI.get_worker_init('MessagesFilebased',2,3);
-            css3= serverfbMPI.get_worker_init('MessagesFilebased',3,3);
+            css1= serverfbMPI.get_worker_init('MessagesFilebased',1,3,'test_mode');
+            css2= serverfbMPI.get_worker_init('MessagesFilebased',2,3,'test_mode');
+            css3= serverfbMPI.get_worker_init('MessagesFilebased',3,3,'test_mode');
             %
             je_initMess = JobExecutor.build_worker_init('JETester');
             je_worker_init = {InitMessage(common_job_param,1,true,1),...
@@ -174,13 +174,13 @@ classdef test_job_executor< MPI_Test_Common
             % initiate exchange class which would work on a client(worker's) side
             in_data = iMessagesFramework.build_worker_init(tmp_dir,...
                 'test_worker','MessagesFilebased',0,2,'test_mode');
-
+            
             serverfbMPI  = MessagesFilebased(in_data);
             serverfbMPI.mess_exchange_folder = obj.working_dir;
             %
             clob = onCleanup(@()finalize_all(serverfbMPI));
-            css1= serverfbMPI.get_worker_init('MessagesFilebased',1,2);
-            css2= serverfbMPI.get_worker_init('MessagesFilebased',2,2);
+            css1= serverfbMPI.get_worker_init('MessagesFilebased',1,2,'test_mode');
+            css2= serverfbMPI.get_worker_init('MessagesFilebased',2,2,'test_mode');
             
             
             je_initMess = JobExecutor.build_worker_init('JETester');
@@ -688,7 +688,7 @@ classdef test_job_executor< MPI_Test_Common
             %--------------------------------------------------------------
             % check job canceled
             errm = MException('JOB_EXECUTOR:failed','fake error generated');
-            err_mess = je2.process_fail_state(errm,true);
+            err_mess = je2.process_fail_state(errm);
             [ok,err_mess]=je2.finish_task(err_mess);
             assertTrue(ok)
             assertTrue(isempty(err_mess))
@@ -699,7 +699,7 @@ classdef test_job_executor< MPI_Test_Common
             catch ERRm
                 assertTrue(strcmpi(ERRm.identifier,'JOB_EXECUTOR:canceled'));
             end
-            err_mess=je1.process_fail_state(ERRm,true);
+            err_mess=je1.process_fail_state(ERRm);
             [ok,err_mess]=je1.finish_task(err_mess);
             assertTrue(ok)
             assertTrue(isempty(err_mess))
@@ -719,9 +719,22 @@ classdef test_job_executor< MPI_Test_Common
             %--------------------------------------------------------------
             % Check custom code exception on the head node
             errm = MException('CUSTOM_CODE:failed','fake failed message');
-            err_mess = je1.process_fail_state(errm,true);
+            err_mess = je1.process_fail_state(errm);
             % asynchronous in test mode as waits for other jobs to
             % complete
+            
+            try
+                je1.finish_task(err_mess);
+                no_inerrupt = true;
+            catch ME
+                no_inerrupt = false;
+                assertEqual(ME.identifier,...
+                    'MESSAGES_FRAMEWORK:runtime_error',...
+                    'finish_task Should throw "blocking message requested" in test mode');
+            end
+            assertFalse(no_inerrupt,...
+                'finish_task Should throw "blocking message requested" in test mode')
+            
             [ok,err]=je1.finish_task(err_mess,'-asynch');
             assertTrue(ok)
             assertTrue(isempty(err))

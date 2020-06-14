@@ -109,11 +109,9 @@ while keep_worker_running
     end
     %
     %
-    if DO_LOGGING
-        exit_at_the_end = false;
-    else
-        exit_at_the_end = ~is_tested && worker_init_data.exit_on_compl;
-    end
+
+    exit_at_the_end = ~is_tested && worker_init_data.exit_on_compl;
+
     %
     if DO_LOGGING; log_worker_init_received();  end
     % instantiate job executor class.
@@ -189,15 +187,13 @@ while keep_worker_running
                     'Job canceled before synchronization after do_job')
             end
             
-            if ~is_tested
-                if DO_LOGGING; log_disp_message('Got to barrier for all chunks do_job completion'); end
-                % when its tested, workers are tested in single Matlab
-                % session so it will hand up on synchronization
-                
-                % when not tested, the synchronization is mandatory
-                je.labBarrier(false); % Wait until all workers finish their
-                %                       job before reducing the data
-             end
+            if DO_LOGGING; log_disp_message('Got to barrier for all chunks do_job completion'); end
+            % when its tested, workers are tested in single Matlab
+            % session so it will hand up on synchronization
+            
+            % when not tested, the synchronization is mandatory
+            je.labBarrier(false); % Wait until all workers finish their
+            %                       job before reducing the data
             je.do_job_completed = true; % do 1 barrier on exception at reduction (miss one at process failure)
             if DO_LOGGING; log_disp_message('Reduce data started');  end
             % explicitly check for cancellation before data reduction
@@ -213,35 +209,34 @@ while keep_worker_running
         % Sent final running message. Implicitly check for cancellation.
         % The node 1 waits for other nodes to send these this kind of messages
         mis.do_logging(n_steps,n_steps);
-        if ~is_tested
-            % stop other nodes until the node 1 finishes to produce the
-            % final message
-            if DO_LOGGING; log_disp_message('arriving at JE end of task barrier'); end
-            
-            je.labBarrier(false);
-            je.do_job_completed = true; % do not wait at barrier if cancellation here
-        end
+        % stop other nodes until the node 1 finishes to produce the
+        % final message
+        if DO_LOGGING; log_disp_message('arriving at JE end of task barrier'); end
+        
+        je.labBarrier(false);
+        je.do_job_completed = true; % do not wait at barrier if cancellation here
         %
     catch ME % Catch error in users code and finish task gracefully.
         if DO_LOGGING; log_exception_caught();  end
         try
             if DO_LOGGING
-                mess = je.process_fail_state(ME,is_tested,fh);
+                mess = je.process_fail_state(ME,fh);
             else
-                mess = je.process_fail_state(ME,is_tested);
+                mess = je.process_fail_state(ME);
             end
             if DO_LOGGING; log_disp_message(' Completed processing JE fail state'); end
+            if DO_LOGGING; log_disp_message('arriving at Process_fail_state end of task barrier'); end
+            
+            je.labBarrier(false);
+            je.do_job_completed = true;
+            
+            if DO_LOGGING; log_disp_message('--->Arrived at finish task at failure\n'); end
             if is_tested
-                je.finish_task(mess,'-async');
+                finish_mode = '-asynch';
             else
-                if DO_LOGGING; log_disp_message('arriving at Process_fail_state end of task barrier'); end
-                
-                je.labBarrier(false);
-                je.do_job_completed = true;
-                
-                if DO_LOGGING; log_disp_message('--->Arrived at finish task at failure\n'); end
-                je.finish_task(mess);
+                finish_mode = '-synch';                
             end
+            je.finish_task(mess,finish_mode);
             
             if keep_worker_running
                 continue;
@@ -261,11 +256,8 @@ while keep_worker_running
     %%
     if DO_LOGGING;  fprintf(fh,'************* finishing subtask: %s \n',...
             fbMPI.job_id); end
-    if is_tested
-        [ok,err_mess] = je.finish_task('-asynch');
-    else
-        [ok,err_mess] = je.finish_task();
-    end
+    [ok,err_mess] = je.finish_task();
+    
     if DO_LOGGING;  fprintf(fh,'************* subtask: %s  finished\n',fbMPI.job_id); end
 end
 % disp(' Paused Parallel worker')

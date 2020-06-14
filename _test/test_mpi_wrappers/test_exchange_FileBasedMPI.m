@@ -399,6 +399,8 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
         end
         %
         function test_barrier_fail(this)
+            % To deploy barrier, init should be not in test mode!
+            %
             mf = MessagesFilebased('test_barrier_fail');
             mf.mess_exchange_folder = this.working_dir;
             clob = onCleanup(@()mf.finalize_all());
@@ -415,8 +417,12 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             cs3 = iMessagesFramework.deserialize_par(css3);
             
             fbMPI1 = MessagesFilebased(cs1);
+            fbMPI1.set_is_tested(false); % ensure test mode is disabled
             fbMPI2 = MessagesFilebased(cs2);
+            fbMPI2.set_is_tested(false); % ensure test mode is disabled
             fbMPI3 = MessagesFilebased(cs3);
+            fbMPI3.set_is_tested(false); % ensure test mode is disabled
+            
             
             t0 = fbMPI3.time_to_fail;
             fbMPI3.time_to_fail = 0.1;
@@ -469,11 +475,14 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             cs3 = iMessagesFramework.deserialize_par(css3);
             
             fbMPI1 = MessagesFilebased(cs1);
+            fbMPI1.set_is_tested(false); % ensure test mode is disabled            
             fbMPI2 = MessagesFilebased(cs2);
+            fbMPI2.set_is_tested(false); % ensure test mode is disabled            
             fbMPI3 = MessagesFilebased(cs3);
+            fbMPI3.set_is_tested(false); % ensure test mode is disabled            
             
             t0 = fbMPI3.time_to_fail;
-            fbMPI3.time_to_fail = 0.1;
+            fbMPI3.time_to_fail = 0.01; %
             % barrier fails at waiting time due to short time to fail
             try
                 fbMPI3.labBarrier(false);
@@ -487,7 +496,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             catch ME
                 assertEqual(ME.message, ...
                     'Timeout waiting for message "barrier" for task with id: 2');
-            end            
+            end
             [ok, err] = fbMPI2.send_message(1, 'canceled');
             assertEqual(ok, MESS_CODES.ok, err)
             
@@ -496,7 +505,6 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             % barrier
             ok = fbMPI1.labBarrier(false);
             assertTrue(ok);
-            
             % and other workers would pass barrier now
             ok = fbMPI3.labBarrier(false);
             assertTrue(ok);

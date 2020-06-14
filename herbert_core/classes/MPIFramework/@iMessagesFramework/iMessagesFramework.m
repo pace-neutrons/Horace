@@ -28,10 +28,10 @@ classdef iMessagesFramework < handle
         
         % return true if the framework is tested
         is_tested
-
+        
         % Time in seconds a system waits for blocking message until
         % returning "not-received" (and normally throwing error)
-        time_to_fail;        
+        time_to_fail;
     end
     properties(Access=protected)
         job_id_;
@@ -76,7 +76,7 @@ classdef iMessagesFramework < handle
         end
         
         %
-        function cs = get_worker_init(obj,intercom_name,labID,numLabs)
+        function cs = get_worker_init(obj,intercom_name,labID,numLabs,varargin)
             % Generate slave MPI worker init info, using static
             % build_worker_init method and information, retrieved from
             % the initialized control node.
@@ -91,6 +91,18 @@ classdef iMessagesFramework < handle
             % or
             % cs = obj.get_worker_init1(intercom_name,labId,numLabs) % for Herbert MPI
             %                                          worker
+            % cs = obj.get_worker_init1(intercom_name,labId,numLabs,test_mode)
+            %                                          % for Herbert MPI
+            %                                          worker, initialized
+            %                                          in test mode, i.e.
+            %                                          barrier is not
+            %                                          deployed
+            % if test_mode is character string, testing is enabled and the
+            % output is serialized. If its boolean, testing is enabled but
+            % if the output is serialized defined if its true (serialized)
+            % or false (initialization structure is returned)
+            %
+            %
             % where
             % obj          --  an initiated instance of message exchange
             %                  framework on a head-node and
@@ -104,8 +116,19 @@ classdef iMessagesFramework < handle
             %
             datapath = fileparts(fileparts(fileparts(obj.mess_exchange_folder)));
             if exist('labID','var') % Herbert MPI worker. numlabs and labNum are defined by configuration
-                cs = obj.build_worker_init(...
-                    datapath,obj.job_id,intercom_name,labID,numLabs);
+                if nargin> 4 
+                    if ischar(varargin{1})
+                        test_with_serialation = false;
+                    else
+                        test_with_serialation = logical(varargin{1});
+                    end
+                    cs = obj.build_worker_init(...
+                        datapath,obj.job_id,intercom_name,labID,numLabs,test_with_serialation);
+                    
+                else
+                    cs = obj.build_worker_init(...
+                        datapath,obj.job_id,intercom_name,labID,numLabs);
+                end
             else  % real MPI worker (numLabs and labNum are defined by MPIexec
                 cs = obj.build_worker_init(...
                     datapath,obj.job_id,intercom_name);
@@ -172,7 +195,7 @@ classdef iMessagesFramework < handle
         end
         function val = get.time_to_fail(obj)
             val = obj.time_to_fail_ ;
-        end        
+        end
     end
     
     methods(Static)
