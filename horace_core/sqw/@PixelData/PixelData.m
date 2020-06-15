@@ -56,6 +56,7 @@ properties (Access=private)
     f_accessor_;  % instance of faccess object to access pixel data from file
     file_path_ = '';
     page_memory_size_ = 1e9;  % 1Gb
+    pix_position_ = 1;
 end
 
 properties (Dependent)
@@ -312,6 +313,18 @@ methods
         pixels = PixelData(obj.data(:, pix_indices));
     end
 
+    function has_more = has_more(obj)
+        % Returns true if there are subsequent pixels stored in the file that
+        % are not held in the current page
+        %
+        %    >> has_more = pix.has_more();
+        %
+        has_more = false;
+        if ~isempty(obj.f_accessor_)
+            has_more = obj.pix_position_ + obj.page_size - 1 < obj.num_pixels;
+        end
+    end
+
     % --- Getters / Setters ---
     function pixel_data = get.data(obj)
         pixel_data = obj.data_;
@@ -466,12 +479,14 @@ methods (Access = private)
         pg_size = obj.page_size;
         if obj.num_pixels <= pg_size
             obj.data = obj.f_accessor_.get_pix(1, pg_size);
+            obj.pix_position_ = obj.num_pixels;
         end
     end
 
     function obj = load_page_(obj, pix_idx_start)
         pix_idx_end = pix_idx_start + obj.page_size - 1;
         obj.data = obj.f_accessor_.get_pix(pix_idx_start, pix_idx_end);
+        obj.pix_position_ = pix_idx_start;
     end
 
     function obj = load_first_page_if_data_empty_(obj)
