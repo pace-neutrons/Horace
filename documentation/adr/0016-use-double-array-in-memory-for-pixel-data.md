@@ -38,8 +38,9 @@ Access to the data through the PixelData class API will return `double` values.
 
 ## Consequences
 
-- Individual functions that use single precision data for performance optimization (e.g. sorting) will be required to convert data on input and output
-- Rounding errors accumulated during calculations will be 
+- Individual functions that use single precision data for performance optimization (e.g. sorting) will be required to convert data on input and output.
+- Rounding errors accumulated during calculations will typically remain smaller than the signal underlying signal.
+- Calculated data values will be truncated when written to file.
 - The recomputation of pixel coordinates by different routines in `TobyFit` and `gen_sqw` means rounding errors may result in pixels to be binned differently -- these differences should be considered and if possible eliminated.
 - There is no requirement to maintain `single` and `double` precision implementations of most toolkit functions.
 
