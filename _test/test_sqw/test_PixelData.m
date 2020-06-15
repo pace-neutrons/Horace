@@ -428,6 +428,40 @@ methods
         assertFalse(isempty(pix.data));
     end
 
+    function test_number_of_pixels_in_page_matches_memory_usage_size(~)
+        data = rand(9, 30);
+        pix_in_page = 11;
+        faccess = FakeFAccess(data);
+        mem_alloc = pix_in_page*8*9;  % 11 pixels held in memory at a time
+        pix = PixelData(faccess, mem_alloc);
+        pix.u1;
+        assertEqual(size(pix.data, 2), pix_in_page);
+    end
+
+    function test_has_more_rets_true_if_there_are_subsequent_pixels_in_file(~)
+        data = rand(9, 12);
+        pix_in_page = 11;
+        mem_alloc = pix_in_page*8*9;  % 11 pixels held in memory at a time
+        faccess = FakeFAccess(data);
+        pix = PixelData(faccess, mem_alloc);
+        assertTrue(pix.has_more());
+    end
+
+    function test_has_more_rets_false_if_all_data_in_page(~)
+        data = rand(9, 11);
+        pix_in_page = 11;
+        mem_alloc = pix_in_page*8*9;  % 11 pixels held in memory at a time
+        faccess = FakeFAccess(data);
+        pix = PixelData(faccess, mem_alloc);
+        assertFalse(pix.has_more());
+    end
+
+    function test_has_more_rets_false_if_all_data_created_in_memory(~)
+        data = rand(9, 30);
+        pix = PixelData(data);
+        assertFalse(pix.has_more());
+    end
+
 end
 
 end
