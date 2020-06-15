@@ -13,9 +13,6 @@ function [ok,err_mess,je]=worker_v2(worker_controls_string)
 %              contains only minimal initialization information, namely the
 %              folder name where the job initialization data are located on
 %              a remote system.
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-%
 err_mess = [];
 exit_at_the_end = true;
 if isempty(which('herbert_init.m'))
