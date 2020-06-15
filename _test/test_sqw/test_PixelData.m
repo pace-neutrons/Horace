@@ -9,6 +9,9 @@ properties
     pix_data_from_file;
     pix_data_from_faccess;
     pix_data_small_page;
+    pix_fields = {'u1', 'u2', 'u3', 'dE', 'coordinates', 'q_coordinates', ...
+                  'run_idx', 'detector_idx', 'energy_idx', 'signal', ...
+                  'variance'};
 end
 
 methods (Access = private)
@@ -267,12 +270,9 @@ methods
     end
 
     function test_get_data_allows_data_retrieval_for_single_field(obj)
-        fields = {'u1', 'u2', 'u3', 'dE', 'coordinates', 'q_coordinates', ...
-                  'run_idx', 'detector_idx', 'energy_idx', 'signal', ...
-                  'variance'};
-        for i = 1:numel(fields)
-            field_data = obj.pixel_data_obj.get_data(fields{i});
-            assertEqual(field_data, obj.pixel_data_obj.(fields{i}));
+        for i = 1:numel(obj.pix_fields)
+            field_data = obj.pixel_data_obj.get_data(obj.pix_fields{i});
+            assertEqual(field_data, obj.pixel_data_obj.(obj.pix_fields{i}));
         end
     end
 
@@ -403,7 +403,7 @@ methods
     function test_calling_get_data_returns_data_for_single_page(~)
         data = rand(9, 30);
         faccess = FakeFAccess(data);
-        mem_alloc = 11*8*9;  % 11 pixels held in memory at a time
+        mem_alloc = 11*8*9;
         pix = PixelData(faccess, mem_alloc);
         sig_var = pix.get_data({'signal', 'variance'}, 3:8);
         assertEqual(sig_var, data(8:9, 3:8));
@@ -421,7 +421,7 @@ methods
     function test_file_data_not_loaded_on_init_if_page_size_lt_num_pixels(~)
         data = rand(9, 30);
         faccess = FakeFAccess(data);
-        mem_alloc = 11*8*9;  % 11 pixels held in memory at a time
+        mem_alloc = 11*8*9;
         pix = PixelData(faccess, mem_alloc);
         assertTrue(isempty(pix.data));
         pix.u1;
@@ -432,7 +432,7 @@ methods
         data = rand(9, 30);
         pix_in_page = 11;
         faccess = FakeFAccess(data);
-        mem_alloc = pix_in_page*8*9;  % 11 pixels held in memory at a time
+        mem_alloc = pix_in_page*8*9;
         pix = PixelData(faccess, mem_alloc);
         pix.u1;
         assertEqual(size(pix.data, 2), pix_in_page);
@@ -441,7 +441,7 @@ methods
     function test_has_more_rets_true_if_there_are_subsequent_pixels_in_file(~)
         data = rand(9, 12);
         pix_in_page = 11;
-        mem_alloc = pix_in_page*8*9;  % 11 pixels held in memory at a time
+        mem_alloc = pix_in_page*8*9;
         faccess = FakeFAccess(data);
         pix = PixelData(faccess, mem_alloc);
         assertTrue(pix.has_more());
@@ -450,7 +450,7 @@ methods
     function test_has_more_rets_false_if_all_data_in_page(~)
         data = rand(9, 11);
         pix_in_page = 11;
-        mem_alloc = pix_in_page*8*9;  % 11 pixels held in memory at a time
+        mem_alloc = pix_in_page*8*9;
         faccess = FakeFAccess(data);
         pix = PixelData(faccess, mem_alloc);
         assertFalse(pix.has_more());
@@ -460,6 +460,93 @@ methods
         data = rand(9, 30);
         pix = PixelData(data);
         assertFalse(pix.has_more());
+    end
+
+    function test_advance_loads_next_page_of_data_into_memory_for_props(obj)
+        data = rand(9, 30);
+        f = @(pix, iter) assertEqual(pix.signal, ...
+                data(8, (iter*11 + 1):((iter*11 + 1) + pix.page_size - 1)));
+        obj.do_pixel_data_loop_with_f(f, data);
+    end
+
+    function test_advance_loads_next_page_of_data_into_memory_for_get_data(obj)
+        data = rand(9, 30);
+        f = @(pix, iter) assertEqual(pix.get_data('signal'), ...
+                data(8, (iter*11 + 1):((iter*11 + 1) + pix.page_size - 1)));
+
+        obj.do_pixel_data_loop_with_f(f, data);
+    end
+
+    function test_advance_raises_PIXELDATA_if_at_end_of_data(obj)
+        npix = 30;
+        data = rand(9, npix);
+        faccess = FakeFAccess(data);
+
+        pix_in_page = 11;
+        mem_alloc = pix_in_page*8*9;
+        pix = PixelData(faccess, mem_alloc);
+
+        f = @() obj.advance_pix(pix, floor(npix/pix_in_page + 1));
+        assertExceptionThrown(f, 'PIXELDATA:advance')
+    end
+
+    function test_advance_does_nothing_if_PixelData_not_file_backed(~)
+        data = rand(9, 10);
+        pix = PixelData(data);
+        pix.advance();
+        assertEqual(pix.data, data);
+    end
+
+    function test_advance_while_loop_to_sum_signal_data(~)
+        data = randi([0, 99], 9, 30);
+        faccess = FakeFAccess(data);
+
+        pix_in_page = 11;
+        mem_alloc = pix_in_page*8*9;
+        pix = PixelData(faccess, mem_alloc);
+
+        signal_sum = sum(pix.signal);
+        while pix.has_more()
+            pix.advance();
+            signal_sum = signal_sum + sum(pix.signal);
+        end
+
+        assertEqual(signal_sum, sum(data(8, :)));
+    end
+
+    function test_page_size_returns_size_of_data_held_in_memory(obj)
+        pix = obj.get_random_pix_data_(10);
+        assertEqual(pix.page_size, 10);
+        pix.data = zeros(9, 12);
+        assertEqual(pix.page_size, 12);
+    end
+
+end
+
+methods (Static)
+
+    function do_pixel_data_loop_with_f(func, data)
+        % func should be a function handle, it is evaluated within a
+        % while-advance block over some pixel data
+        faccess = FakeFAccess(data);
+
+        pix_in_page = 11;
+        mem_alloc = pix_in_page*8*9;
+        pix = PixelData(faccess, mem_alloc);
+
+        func(pix, 0)
+        iter = 1;
+        while pix.has_more()
+            pix.advance();
+            func(pix, iter)
+            iter = iter + 1;
+        end
+    end
+
+    function advance_pix(pix, niters)
+        for i = 1:niters
+            pix.advance();
+        end
     end
 
 end

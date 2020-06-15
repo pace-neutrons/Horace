@@ -325,6 +325,38 @@ methods
         end
     end
 
+    function advance(obj)
+        % Load the next page of pixel data from the file backing the object
+        %
+        % An example of using this to loop over and sum all signal data in an
+        % SQW file:
+        %
+        %   pix = PixelData('my_data.sqw')
+        %   signal_sum = 0
+        %   while pix.has_more()
+        %       signal_sum = signal_sum + pix.signal;
+        %       pix.advance();
+        %   end
+        %
+        % This function will throw a PIXELDATA:advance error if attempting to
+        % advance past the final page of data in the file
+        %
+        if ~isempty(obj.f_accessor_)
+            try
+                obj.load_page_(obj.pix_position_ + obj.page_size);
+            catch ME
+                switch ME.identifier
+                case 'PIXELDATA:load_page_'
+                    error('PIXELDATA:advance', ...
+                          'Attempting to advance past final page of data in %s', ...
+                          obj.file_path);
+                otherwise
+                    rethrow(ME);
+                end
+            end
+        end
+    end
+
     % --- Getters / Setters ---
     function pixel_data = get.data(obj)
         pixel_data = obj.data_;
@@ -456,14 +488,21 @@ methods
     end
 
     function page_size = get.page_size(obj)
-        % The number of pixels that can be held in memory within the given page
-        % size. If num_pixels < "number of pixels that can fit in memory size",
+        % The number of pixels that are held in the current page. If no pixels
+        % are held, this returns the number of pixels that will be loaded into
+        % the next page.
+        %
+        % If "num_pixels in file" < "number of pixels that can fit in memory size",
         % return num_pixels - this avoids ever reading past end of file
-        num_bytes_in_val = 8;  % pixel data stored in memory as a double
-        num_bytes_in_pixel = num_bytes_in_val*obj.PIXEL_BLOCK_COLS_;
-        page_size = floor(obj.page_memory_size_/num_bytes_in_pixel);
-        if page_size > obj.num_pixels
-            page_size = obj.num_pixels;
+        if isempty(obj.data)
+            num_bytes_in_val = 8;  % pixel data stored in memory as a double
+            num_bytes_in_pixel = num_bytes_in_val*obj.PIXEL_BLOCK_COLS_;
+            page_size = floor(obj.page_memory_size_/num_bytes_in_pixel);
+            if page_size > obj.num_pixels
+                page_size = obj.num_pixels;
+            end
+        else
+            page_size = size(obj.data, 2);
         end
     end
 
@@ -484,7 +523,13 @@ methods (Access = private)
     end
 
     function obj = load_page_(obj, pix_idx_start)
+        if pix_idx_start >= obj.num_pixels
+            error('PIXELDATA:load_page_', 'No more pixel data to read from file');
+        end
         pix_idx_end = pix_idx_start + obj.page_size - 1;
+        if pix_idx_end > obj.num_pixels
+            pix_idx_end = obj.num_pixels;
+        end
         obj.data = obj.f_accessor_.get_pix(pix_idx_start, pix_idx_end);
         obj.pix_position_ = pix_idx_start;
     end
@@ -494,6 +539,10 @@ methods (Access = private)
             obj = obj.load_page_(1);
         end
     end
+
+    % function flush_cache_(obj)
+    %     obj.data = [];
+    % end
 
 end
 
