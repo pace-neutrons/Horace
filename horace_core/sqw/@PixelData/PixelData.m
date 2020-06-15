@@ -199,10 +199,10 @@ methods
             return;
         end
 
+        % File-backed construction
         if nargin == 2
             obj.page_memory_size_ = mem_alloc;
         end
-        % File-backed construction
         if ischar(arg)
             % input is a file path
             f_accessor = sqw_formats_factory.instance().get_loader(arg);
@@ -275,6 +275,7 @@ methods
         if ~isa(fields, 'cell')
             fields = {fields};
         end
+        obj = obj.load_first_page_if_data_empty_();
         try
             field_indices = cell2mat(obj.FIELD_INDEX_MAP_.values(fields));
         catch ME
@@ -307,6 +308,7 @@ methods
         % -------
         %   pixels      PixelData object containing a subset of pixels
         %
+        obj = obj.load_first_page_if_data_empty_();
         pixels = PixelData(obj.data(:, pix_indices));
     end
 
@@ -330,6 +332,7 @@ methods
     end
 
     function u1 = get.u1(obj)
+        obj = obj.load_first_page_if_data_empty_();
         u1 = obj.data(obj.FIELD_INDEX_MAP_('u1'), :);
     end
 
@@ -338,6 +341,7 @@ methods
     end
 
     function u2 = get.u2(obj)
+        obj = obj.load_first_page_if_data_empty_();
         u2 = obj.data(obj.FIELD_INDEX_MAP_('u2'), :);
     end
 
@@ -346,6 +350,7 @@ methods
     end
 
     function u3 = get.u3(obj)
+        obj = obj.load_first_page_if_data_empty_();
         u3 = obj.data(obj.FIELD_INDEX_MAP_('u3'), :);
     end
 
@@ -354,6 +359,7 @@ methods
     end
 
     function dE = get.dE(obj)
+        obj = obj.load_first_page_if_data_empty_();
         dE = obj.data(obj.FIELD_INDEX_MAP_('dE'), :);
     end
 
@@ -362,6 +368,7 @@ methods
     end
 
     function coord_data = get.coordinates(obj)
+        obj = obj.load_first_page_if_data_empty_();
         coord_data = obj.data(obj.FIELD_INDEX_MAP_('coordinates'), :);
     end
 
@@ -370,6 +377,7 @@ methods
     end
 
     function coord_data = get.q_coordinates(obj)
+        obj = obj.load_first_page_if_data_empty_();
         coord_data = obj.data(obj.FIELD_INDEX_MAP_('q_coordinates'), :);
     end
 
@@ -378,6 +386,7 @@ methods
     end
 
     function run_index = get.run_idx(obj)
+        obj = obj.load_first_page_if_data_empty_();
         run_index = obj.data(obj.FIELD_INDEX_MAP_('run_idx'), :);
     end
 
@@ -386,36 +395,40 @@ methods
     end
 
     function detector_index = get.detector_idx(obj)
-       detector_index = obj.data(obj.FIELD_INDEX_MAP_('detector_idx'), :);
+        obj = obj.load_first_page_if_data_empty_();
+        detector_index = obj.data(obj.FIELD_INDEX_MAP_('detector_idx'), :);
     end
 
     function obj = set.detector_idx(obj, detector_indices)
-       obj.data(obj.FIELD_INDEX_MAP_('detector_idx'), :) = detector_indices;
+        obj.data(obj.FIELD_INDEX_MAP_('detector_idx'), :) = detector_indices;
     end
 
     function detector_index = get.energy_idx(obj)
-       detector_index = obj.data(obj.FIELD_INDEX_MAP_('energy_idx'), :);
+        obj = obj.load_first_page_if_data_empty_();
+        detector_index = obj.data(obj.FIELD_INDEX_MAP_('energy_idx'), :);
     end
 
     function obj = set.energy_idx(obj, energies)
         obj.data(obj.FIELD_INDEX_MAP_('energy_idx'), :) = energies;
-     end
+    end
 
     function signal = get.signal(obj)
-       signal = obj.data(obj.FIELD_INDEX_MAP_('signal'), :);
+        obj = obj.load_first_page_if_data_empty_();
+        signal = obj.data(obj.FIELD_INDEX_MAP_('signal'), :);
     end
 
     function obj = set.signal(obj, signal)
         obj.data(obj.FIELD_INDEX_MAP_('signal'), :) = signal;
-     end
+    end
 
     function variance = get.variance(obj)
-       variance = obj.data(obj.FIELD_INDEX_MAP_('variance'), :);
+        obj = obj.load_first_page_if_data_empty_();
+        variance = obj.data(obj.FIELD_INDEX_MAP_('variance'), :);
     end
 
     function obj = set.variance(obj, variance)
         obj.data(obj.FIELD_INDEX_MAP_('variance'), :) = variance;
-     end
+    end
 
     function num_pix = get.num_pixels(obj)
         if isempty(obj.f_accessor_)
@@ -450,8 +463,20 @@ methods (Access = private)
         obj.f_accessor_ = f_accessor;
         obj.file_path_ = fullfile(obj.f_accessor_.filepath, ...
                                   obj.f_accessor_.filename);
-        if obj.num_pixels <= obj.page_size
-            obj.data = obj.f_accessor_.get_pix(1, obj.page_size);
+        pg_size = obj.page_size;
+        if obj.num_pixels <= pg_size
+            obj.data = obj.f_accessor_.get_pix(1, pg_size);
+        end
+    end
+
+    function obj = load_page_(obj, pix_idx_start)
+        pix_idx_end = pix_idx_start + obj.page_size - 1;
+        obj.data = obj.f_accessor_.get_pix(pix_idx_start, pix_idx_end);
+    end
+
+    function obj = load_first_page_if_data_empty_(obj)
+        if isempty(obj.data) && ~isempty(obj.f_accessor_)
+            obj = obj.load_page_(1);
         end
     end
 
