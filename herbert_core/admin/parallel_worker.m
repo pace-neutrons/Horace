@@ -192,7 +192,7 @@ while keep_worker_running
             
             je= je.do_job();
             % explicitly check for cancellation before data reduction
-            if DO_LOGGING; log_disp_message('Check for canstellation after Je do_job loop'); end
+            if DO_LOGGING; log_disp_message('Check for cancellation after Je do_job loop'); end
             is_canceled = je.is_job_canceled();
             if is_canceled
                 error('JOB_EXECUTOR:canceled',...

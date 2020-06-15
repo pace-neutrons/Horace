@@ -177,8 +177,10 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             co = onCleanup(@()(delete(files{:})));
             
             jd = JobDispatcher(['test_', obj.framework_name, '_2workers']);
+            n_workers = 2;
             
-            [outputs, n_failed] = jd.start_job('JETester', common_param, 3, true, 2, false, 1);
+            
+            [outputs, n_failed,~,jd] = jd.start_job('JETester', common_param, 3, true, n_workers, true, 1);
             
             assertEqual(n_failed, 0);
             assertEqual(numel(outputs), 2);
@@ -187,6 +189,16 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             assertTrue(exist(file1, 'file') == 2);
             assertTrue(exist(file2, 'file') == 2);
             assertTrue(exist(file3, 'file') == 2);
+            
+            n_steps = 30;
+            common_param = struct('data_buffer_size',10000000);
+            [outputs, n_failed] = jd.restart_job('JETesterSendData',...
+                common_param,n_steps*n_workers,true, false, 1);
+            assertEqual(n_failed, 0);
+            for i=1:numel(outputs)
+                assertEqualToTol(outputs{i},(n_steps+1)*n_steps/2);
+            end
+            
             
         end
         %
@@ -237,14 +249,21 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             
             n_steps = 30;
             [outputs, n_failed,~,jd] = jd.restart_job('JETesterWithData',...
-                common_param,n_steps*n_workers,true, false, 1);
+                common_param,n_steps*n_workers,true, true, 1);
             assertEqual(n_failed, 0);
             for i=1:numel(outputs)
                 assertEqualToTol(outputs{i},(n_steps+1)*n_steps/2);
             end
             
-            
-            
+
+            n_steps = 30;
+            common_param = struct('data_buffer_size',10000000);
+            [outputs, n_failed] = jd.restart_job('JETesterSendData',...
+                common_param,n_steps*n_workers,true, false, 1);
+            assertEqual(n_failed, 0);
+            for i=1:numel(outputs)
+                assertEqualToTol(outputs{i},(n_steps+1)*n_steps/2);
+            end
         end
         %
         function test_job_with_logs_worker(obj, varargin)
