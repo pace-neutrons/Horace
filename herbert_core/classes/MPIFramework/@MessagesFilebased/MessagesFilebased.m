@@ -304,13 +304,13 @@ classdef MessagesFilebased < iMessagesFramework
             fn = obj.job_stat_fname_(task_id,mess_name);
         end
         function set_is_tested(obj,is_tested)
-            % method, used in tests to set is_tested mode to framework. 
+            % method, used in tests to set is_tested mode to framework.
             % In test mode, barrier operation is disabled
             %
             % Inputs:
             % is_tested  logical value, setting test mode on (true) or off
             %            (false)
-            % 
+            %
             %
             obj.is_tested_ = logical(is_tested);
         end
@@ -325,7 +325,31 @@ classdef MessagesFilebased < iMessagesFramework
             mess_fname= fullfile(obj.mess_exchange_folder,...
                 sprintf('mess_%s_FromN%d_ToN%d.mat',...
                 mess_name,lab_from,lab_to));
-            
+        end
+        %
+        function    [receive_now,n_steps] = check_whats_coming(obj,task_ids,mess_name,mess_array,n_steps)
+            % Service function to check what messages will be arriving during next step waiting in
+            % synchroneous mode
+            %
+            % part of receive_all messages function used in synchroneous messages receive operations.
+            % Extractced for unit testing as accessable only from parallel
+            % code otherwise
+            %
+            % Inputs:
+            % task_ids -- all lab-nums to receive messages from.
+            % mess_name-- the name of the message to check for.
+            % mess_array    -- cellarray of size(task_ids) where already received
+            %                  messages are stored and not-received messages are
+            %                  represented by empty cells
+            % mess_received -- boolean array of size task_ids, indicating if some messages
+            %                  from the labs requested  have already arrived and
+            %                  receieved
+            % Returns:
+            % receive_now    -- boolean array of size task_ids, where true indicates
+            %                   that message from correspondent task id is present and
+            %                   can be read.
+            %
+            [receive_now,n_steps] = check_whats_coming_(obj,task_ids,mess_name,mess_array,n_steps);
         end
         %
         function obj = set_job_id_(obj,new_job_id)
@@ -352,6 +376,7 @@ classdef MessagesFilebased < iMessagesFramework
                     'MPI job id has to be a string');
             end
         end
+        %
         function [top_exchange_folder,mess_subfolder] = build_exchange_folder_name(obj,top_exchange_folder )
             % build the name of the folder used to exchange messages
             % between the base node and the MPI framework and, if
@@ -361,8 +386,7 @@ classdef MessagesFilebased < iMessagesFramework
             end
             [top_exchange_folder,mess_subfolder] = constr_exchange_folder_name_(obj,top_exchange_folder);
         end
-        
-        
+        %
         function ind = get_lab_index_(obj)
             ind = obj.task_id_;
         end

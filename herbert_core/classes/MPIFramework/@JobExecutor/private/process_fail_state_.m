@@ -29,9 +29,14 @@ else
     mf = obj.mess_framework;
     n_labs = mf.numLabs;
     this_lid = mf.labIndex;
+    % provide 'canceled' message with the information about the failure to
+    % ensure that if host completed its job and is reducing message,
+    % correct canceled information will be processed.
+    cm = aMessage('canceled');
+    cm.payload = ME;
     for lid=1:n_labs
         if lid ~=this_lid
-            [ok,err]=mf.send_message(lid,'canceled');
+            [ok,err]=mf.send_message(lid,cm);
             if ok ~=MESS_CODES.ok
                 error('JOB_EXECUTOR:runtime_error',...
                     ' Error %s sending "canceled" message to neighouring node %d',...

@@ -29,10 +29,13 @@ classdef MessagesFileBasedMPI_mirror_tester < MFTester
                 name,lab_to,lab_from);
             obj.inverse_fname_f = obj.mess_name_fun_;
             
-            [ok,err_mess,message] = send_message@MessagesFilebased(obj,targ,varargin{:});            
+            [ok,err_mess,message] = send_message@MessagesFilebased(obj,targ,varargin{:});
             obj.mess_name_fun_  = @(name,lab_to,lab_from)sprintf('mess_%s_FromN%d_ToN%d.mat',...
                 name,lab_from,lab_to);
             
+        end
+        function [receive_now,n_steps] = check_whats_coming_tester(obj,task_ids,mess_name,mess_array,n_steps)
+            [receive_now,n_steps] = obj.check_whats_coming(task_ids,mess_name,mess_array,n_steps);
         end
         
     end

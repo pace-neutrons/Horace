@@ -67,7 +67,7 @@ else
 end
 
 
-[ok,err_mess,fin_mess] = reduce_messages_(obj,mess,mess_reduction_function,syncronize ,'completed');
+[ok,err_mess,fin_mess] = reduce_messages_(obj,mess,mess_reduction_function,syncronize);
 if obj.labIndex == 1
     [ok,err_mess] = obj.control_node_exch.send_message(0,fin_mess);
     if ok == MESS_CODES.ok

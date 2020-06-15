@@ -60,12 +60,19 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 end
             end
             assertTrue(n_failed > 0);
-            %assertEqual(numel(outputs), 3);
-            %fin = cellfun(@is_err, outputs);
-            %assertTrue(sum(fin) > 1)
+            assertEqual(numel(outputs), 3);
+            fin = cellfun(@is_err, outputs);
+            assertTrue(sum(fin) >= 1)
             
-            %assertEqual(outputs{2}.fail_reason, ...
-            %    'Task N2 failed at jobExecutor: JETester. Reason: simulated failure for lab N 2');
+            if isstruct(outputs{2})
+                assertEqual(outputs{2}.fail_reason, ...
+                    'Task N2 failed at jobExecutor: JETester. Reason: simulated failure for lab N 2');
+            else
+                assertEqual(outputs{2}.message, ...
+                    'simulated failure for lab N 2');
+                
+                
+            end
             % file may exist or may not -- depending on relation between
             % speed of workers
             
@@ -73,19 +80,19 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             common_param.fail_for_labsN = 1:2;
             [outputs, n_failed, ~, jd] = jd.restart_job('JETester', common_param, 4, true, true, 1);
             
-            assertTrue(n_failed > 0);
-%             assertEqual(numel(outputs), 3);
-%             fin = cellfun(@is_err, outputs);
-%             assertTrue(sum(fin) > 1)
+            assertTrue(n_failed >= 1);
+            assertEqual(numel(outputs), 3);
+            fin = cellfun(@is_err, outputs);
+            assertTrue(sum(fin) >= 1)
             
             clear co;
             % check long job cancelled due to part of the job failed
             [outputs, n_failed, ~, jd] = jd.restart_job('JETester', common_param, 99, true, true, 1);
             
             assertTrue(n_failed > 0);
-%             assertEqual(numel(outputs), 3);
-%             fin = cellfun(@is_err, outputs);
-%             assertTrue(sum(fin) > 1)
+            assertEqual(numel(outputs), 3);
+            fin = cellfun(@is_err, outputs);
+            assertTrue(sum(fin) >= 1)
             
             for i = 1:33
                 fileN = fullfile(obj.working_dir, sprintf('test_JD_%sL3_nf%d.txt', obj.framework_name, i));
@@ -98,16 +105,15 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             common_param.fail_for_labsN = 3;
             [outputs, n_failed, ~, jd] = jd.restart_job('JETester', common_param, 99, true, true, 1);
             assertTrue(n_failed >= 1);
-%             assertEqual(numel(outputs), 3);
-%             
-%             fin = cellfun(@is_err, outputs);
-%             assertTrue(sum(fin) > 1)
-%             if ~strcmp(outputs{3}.fail_reason, ...
-%                     'Task N3 failed at jobExecutor: JETester. Reason: simulated failure for lab N 3')
-%                 for i = 1:3
-%                     disp(outputs{i});
-%                 end
-%             end
+            assertEqual(numel(outputs), 3);
+            fin = cellfun(@is_err, outputs);
+            assertTrue(sum(fin) >= 1)
+            %             if ~strcmp(outputs{3}.fail_reason, ...
+            %                     'Task N3 failed at jobExecutor: JETester. Reason: simulated failure for lab N 3')
+            %                  for i = 1:3
+            %                      disp(outputs{i});
+            %                  end
+            %              end
             
             
             for i = 1:33
@@ -206,8 +212,9 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             co = onCleanup(@()(delete(files{:})));
             
             jd = JobDispatcher(['test_', obj.framework_name, '_3workers']);
+            n_workers = 3;
             
-            [outputs, n_failed] = jd.start_job('JETester', common_param, 3, true, 3, false, 1);
+            [outputs, n_failed,~,jd] = jd.start_job('JETester', common_param, 3, true, n_workers, true, 1);
             
             assertEqual(n_failed, 0);
             assertEqual(numel(outputs), 3);
@@ -217,6 +224,26 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             assertTrue(exist(file1, 'file') == 2);
             assertTrue(exist(file2, 'file') == 2);
             assertTrue(exist(file3, 'file') == 2);
+            
+            
+            common_param = struct('data_buffer_size',10000000);
+            n_steps = 3;
+            [outputs, n_failed,~,jd] = jd.restart_job('JETesterWithData',...
+                common_param,n_steps*n_workers, true,true, 1);
+            assertEqual(n_failed, 0);
+            for i=1:numel(outputs)
+                assertEqualToTol(outputs{i},(n_steps+1)*n_steps/2);
+            end
+            
+            n_steps = 30;
+            [outputs, n_failed,~,jd] = jd.restart_job('JETesterWithData',...
+                common_param,n_steps*n_workers,true, false, 1);
+            assertEqual(n_failed, 0);
+            for i=1:numel(outputs)
+                assertEqualToTol(outputs{i},(n_steps+1)*n_steps/2);
+            end
+            
+            
             
         end
         %

@@ -20,7 +20,7 @@ end
 
 mess = LogMessage(step,n_steps,time_per_step,add_info);
 
-[~,~,fin_mess] = reduce_messages_(obj,mess,[],false,'log');
+[~,~,fin_mess] = reduce_messages_(obj,mess,[],false);
 if obj.labIndex == 1
     if isa(fin_mess,'LogMessage') % calculate average logs
         all_logs = fin_mess.payload;
@@ -55,7 +55,7 @@ if obj.labIndex == 1
     obj.control_node_exch.send_message(0,fin_mess);
 end
 if strcmp(fin_mess.mess_name,'failed')
-    error('JOB_EXECUTOR:runtime_error',...
+    error('JOB_EXECUTOR:canceled',...
         'Task N%d has been interrupted at log point at step %d#%d as other worker(s) reported failure',...
         obj.labIndex,step,n_steps);
 end

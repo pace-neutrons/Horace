@@ -14,7 +14,6 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             obj = obj@exchange_common_tests(name,...
                 'MessagesFileBasedMPI_mirror_tester','herbert',cs);
             
-            
         end
         %
         function test_finalize_all(~)
@@ -458,6 +457,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertEqual(ok, MESS_CODES.ok, err)
             assertEqual(mess.mess_name, 'barrier');
         end
+        
         function test_barrier_ignores_canceled(this)
             mf = MessagesFilebased('test_barrier_fail');
             mf.mess_exchange_folder = this.working_dir;
@@ -475,11 +475,11 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             cs3 = iMessagesFramework.deserialize_par(css3);
             
             fbMPI1 = MessagesFilebased(cs1);
-            fbMPI1.set_is_tested(false); % ensure test mode is disabled            
+            fbMPI1.set_is_tested(false); % ensure test mode is disabled
             fbMPI2 = MessagesFilebased(cs2);
-            fbMPI2.set_is_tested(false); % ensure test mode is disabled            
+            fbMPI2.set_is_tested(false); % ensure test mode is disabled
             fbMPI3 = MessagesFilebased(cs3);
-            fbMPI3.set_is_tested(false); % ensure test mode is disabled            
+            fbMPI3.set_is_tested(false); % ensure test mode is disabled
             
             t0 = fbMPI3.time_to_fail;
             fbMPI3.time_to_fail = 0.01; %
@@ -525,6 +525,153 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertEqual(ok, MESS_CODES.ok, err)
             assertEqual(mess.mess_name, 'canceled');
         end
+        %
+        function test_check_whats_coming_1(~)
+            init_struct = iMessagesFramework.build_worker_init(tmp_dir, ...
+                'test_check_whats_coming_1mess', 'MessagesFilebased', 1, 10,'test_mode');
+            
+            itcm = MessagesFileBasedMPI_mirror_tester(init_struct);
+            clob_s = onCleanup(@()(finalize_all(itcm)));
+            itcm.time_to_fail = 1000;
+            
+            
+            dm = DataMessage();
+            dm.payload = 'a';
+            % CPP_MPI messages in test mode are "reflected" from target node
+            [ok, err] = itcm.send_message(2, dm);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            lm = LogMessage(0,10,1,[]);
+            [ok, err] = itcm.send_message(3,lm);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            
+            task_ids = 1:itcm.numLabs;
+            mess_array = cell(1,numel(task_ids));
+            are_avail=itcm.check_whats_coming_tester(task_ids,'log',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),1)
+            assertTrue(are_avail(3))
+            mess_array{3} = lm;
+            
+            are_avail=itcm.check_whats_coming_tester(task_ids,'data',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),1)
+            assertTrue(are_avail(2))
+            mess_array{2} = dm;
+            
+            
+            are_avail=itcm.check_whats_coming_tester(task_ids,'log',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),1)
+            assertTrue(are_avail(3))
+            
+            are_avail=itcm.check_whats_coming_tester(task_ids,'data',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),0)
+            assertFalse(are_avail(2))
+            
+            [ok, err] = itcm.send_message(3,'completed');
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            
+            are_avail=itcm.check_whats_coming_tester(task_ids,'completed',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),1)
+            assertTrue(are_avail(3))
+            
+            [ok, err] = itcm.send_message(2,'completed');
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            
+            are_avail=itcm.check_whats_coming_tester(task_ids,'completed',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),1)
+            assertFalse(are_avail(2))
+            assertTrue(are_avail(3))
+            
+            [ok, err] = itcm.send_message(2,FailedMessage);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            are_avail=itcm.check_whats_coming_tester(task_ids,'data',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),1)
+            assertTrue(are_avail(2))
+        end
+        %
+        function test_check_whats_coming_2(~)
+            init_struct = iMessagesFramework.build_worker_init(tmp_dir, ...
+                'test_check_whats_coming_1mess', 'MessagesFilebased', 1, 10,'test_mode');
+            
+            itcm = MessagesFileBasedMPI_mirror_tester(init_struct);
+            clob_s = onCleanup(@()(finalize_all(itcm)));
+            itcm.time_to_fail = 1000;
+            
+            
+            dm = DataMessage();
+            dm.payload = 'a';
+            % CPP_MPI messages in test mode are "reflected" from target node
+            [ok, err] = itcm.send_message(2, dm);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            [ok, err] = itcm.send_message(4, dm);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            
+            lm = LogMessage(0,10,1,[]);
+            [ok, err] = itcm.send_message(3,lm);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            [ok, err] = itcm.send_message(6,lm);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            
+            
+            task_ids = 1:itcm.numLabs;
+            mess_array = cell(1,numel(task_ids));
+            are_avail=itcm.check_whats_coming_tester(task_ids,'log',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),2)
+            assertTrue(are_avail(3))
+            assertTrue(are_avail(6))
+            mess_array{3} = lm;
+            
+            are_avail=itcm.check_whats_coming_tester(task_ids,'data',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),2)
+            assertTrue(are_avail(2))
+            assertTrue(are_avail(4))
+            mess_array{2} = dm;
+            
+            
+            are_avail=itcm.check_whats_coming_tester(task_ids,'log',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),2)
+            assertTrue(are_avail(3))
+            assertTrue(are_avail(6))
+            
+            are_avail=itcm.check_whats_coming_tester(task_ids,'data',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),1)
+            assertTrue(are_avail(4))
+            
+            [ok, err] = itcm.send_message(3,'completed');
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            
+            are_avail=itcm.check_whats_coming_tester(task_ids,'completed',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),1)
+            assertTrue(are_avail(3))
+            
+            [ok, err] = itcm.send_message(2,'completed');
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            
+            are_avail=itcm.check_whats_coming_tester(task_ids,'completed',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),1)
+            assertFalse(are_avail(2))
+            assertTrue(are_avail(3))
+            
+            [ok, err] = itcm.send_message(2,FailedMessage);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            are_avail=itcm.check_whats_coming_tester(task_ids,'data',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),2)
+            assertTrue(are_avail(2))
+            assertTrue(are_avail(4))
+        end
+        
         
         %
         function test_data_queue(obj)
@@ -585,6 +732,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertTrue(isempty(all_mess))
             assertTrue(isempty(mid_from))
         end
+        
         %
         function test_transfer_init_and_config(obj, varargin)
             

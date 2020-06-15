@@ -171,7 +171,7 @@ while k <= numel(varargin)
         else
             ddot_ind = strfind(arg,':');
             if isempty(ddot_ind) || ~ispc ||...
-                    (ispc && (ddot_ind == 2)) % C: or other drive on Windows and full path provided.
+                    (ispc && numel(ddot_ind) == 1 && (ddot_ind(1) == 2)) % C: or other drive on Windows and full path provided.
                 [test_folder,test_name] = fileparts(arg);
             else
                 test_folder = '';

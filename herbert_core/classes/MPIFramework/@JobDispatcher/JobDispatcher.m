@@ -147,6 +147,12 @@ classdef JobDispatcher
             %                   iteration number defined in jobExecutor)
             % number_of_workers -- number of Matlab sessions to
             %                    process the tasks
+            % return_results  --if true, job expected to return the results
+            %                   of calculations i.e. the contents assigned
+            %                   to
+            %                   JobExecutor.task_outputs
+            %                   field
+            %
             %
             % Optional:
             % keep_workers_running -- true if workers should not finish
@@ -185,7 +191,7 @@ classdef JobDispatcher
             % Usage:
             % [n_failed,outputs,task_ids,this] = ...
             %     this.restart_job(this,job_class_name,common_params,loop_params,...
-            %    ,[job_query_time]])
+            %    ,[keep_workers_running,[job_query_time]])
             %
             %Where:
             % job_class_name -- name of the class - child of jobExecutor,
@@ -197,6 +203,12 @@ classdef JobDispatcher
             %                   or the number of iterations to do over
             %                   common_params (which may depend on the
             %                   iteration number)
+            % return_results  --if true, job expected to return the results
+            %                   of calculations i.e. the contents assigned
+            %                   to
+            %                   JobExecutor.task_outputs
+            %                   field
+            %
             %
             % Optional:
             % keep_workers_running -- true if workers should not finish
@@ -207,10 +219,11 @@ classdef JobDispatcher
             %                    check if tasks are completed. By default,
             %                    check every 4 seconds
             %
-            % Returns
-            % n_failed  -- number of tasks that have failed.
+            % Returns:
             % outputs   -- cellarray of outputs from each task.
             %              Empty if tasks do not return anything
+            % n_failed  -- number of tasks that have failed.
+            %
             % task_ids   -- cellarray containing relation between task_id
             %              (task number) and task parameters from
             %               tasks_param_list, assigned to this task
@@ -263,9 +276,9 @@ classdef JobDispatcher
             id = obj.mess_framework_.job_id;
         end
         function is = get.is_initialized(obj)
-            % Return true if job dispatcher is initialized i.e. controls 
+            % Return true if job dispatcher is initialized i.e. controls
             % a parallel cluster
-
+            
             is = ~isempty(obj.cluster_);
         end
         function cl = get.cluster(obj)

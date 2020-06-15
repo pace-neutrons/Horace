@@ -167,7 +167,7 @@ classdef exchange_common_tests < MPI_Test_Common
             [all_mess, task_ids] = intercomm.receive_all('all', 'any');
             assertEqual(numel(all_mess), 2);
             assertEqual(numel(task_ids), 2);
-            assertEqual(task_ids, [2; 3]);
+            assertEqual(task_ids, [2,3]);
         end
         %
         function test_receive_data_mess(obj)
@@ -190,8 +190,8 @@ classdef exchange_common_tests < MPI_Test_Common
             [all_mess, task_ids] = intercomm.receive_all('all', 'data');
             assertEqual(numel(all_mess), 2);
             assertEqual(numel(task_ids), 2);
-            assertEqual(task_ids, [2; 3]);
-        end
+            assertEqual(task_ids, [2, 3]);
+        end        
         %
         function test_receive_missing_data_blocking(obj)
             if obj.ignore_test
@@ -232,7 +232,7 @@ classdef exchange_common_tests < MPI_Test_Common
             [all_mess, task_ids] = intercomm.receive_all('all', 'data');
             assertEqual(numel(all_mess), 2);
             assertEqual(numel(task_ids), 2);
-            assertEqual(task_ids, [2; 3]);
+            assertEqual(task_ids, [2, 3]);
             assertEqual(all_mess{1}.mess_name,'data');
             assertEqual(all_mess{2}.mess_name,'canceled');            
         end
@@ -264,6 +264,7 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(messr{1}.mess_name,'data')
             assertEqual(messr{2}.mess_name,'failed')
         end
+        %
         function test_receive_data_log_remains(obj)
             if obj.ignore_test
                 return
@@ -297,9 +298,7 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(tid_from,3)
             
         end
-        
-        
-        
+        %
         function test_Send_and_Probe(obj)
             % Test communications in test mode
             if obj.ignore_test

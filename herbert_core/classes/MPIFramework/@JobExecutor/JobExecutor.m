@@ -270,6 +270,7 @@ classdef JobExecutor
             % where:
             % message -- either message to send or the message's to send
             %            name (from the list of acceptable names)
+            %
             % mess_process_function -- if present, and not empty, the function
             %                          is used to process the messages from
             %                          received from all except one workers

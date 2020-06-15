@@ -1,9 +1,6 @@
 function [new_config, old_parallel_conf] = set_local_parallel_config()
 % Set the config directories for the parallel framework
 %
-% The config directory is moved to "tempdir/config" and the shared directories
-% for parallel communications are set to "tempdir/local" and "tempdir/remote".
-%
 % This function is useful for if you're running the same tests in parallel on
 % the same machine (e.g. on a build server), it avoids IO errors when separate
 % processes attempt to read/write the same config/temporary files.

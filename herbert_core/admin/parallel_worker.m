@@ -74,12 +74,9 @@ keep_worker_running = true;
 if DO_LOGGING
     fh = log_inputs_level1();
     clob_log = onCleanup(@()fclose(fh));
-    exit_at_the_end = false;
-else
-    exit_at_the_end = ~is_tested;
 end
-
-
+exit_at_the_end = ~is_tested;
+%exit_at_the_end = false;
 
 %%
 
@@ -93,62 +90,77 @@ while keep_worker_running
     %
     if DO_LOGGING; log_disp_message(' Entereing JE loop: receiving "starting" message'); end
     %
-    [ok,err,mess]= fbMPI.receive_message(0,'starting','-synch');
-    if ok ~= MESS_CODES.ok
-        err_mess = sprintf('job N%s failed while receive_je_info Error: %s:',...
-            control_struct.job_id,err);
-        mess = FailedMessage(err_mess);
-        fbMPI.send_message(0,mess);
-        ok = MESS_CODES.runtime_error;
-        if exit_at_the_end;     exit;
-        else;                   return;
-        end
-    else
-        worker_init_data = mess.payload;
-        keep_worker_running = worker_init_data.keep_worker_running;
-    end
-    %
-    %
-
-    exit_at_the_end = ~is_tested && worker_init_data.exit_on_compl;
-
-    %
-    if DO_LOGGING; log_worker_init_received();  end
-    % instantiate job executor class.
-    je = feval(worker_init_data.JobExecutorClassName);
-    je.do_job_completed = false; % do 2 barriers on exception (one at process failure)
-    % ---------------------------------------------------------------------
-    % step 2 of the worker initialization completed. a jobExecutor is
-    % initialized and worker knows what to do when it finishes or
-    % fails.
-    %% --------------------------------------------------------------------
-    %
-    %----------------------------------------------------------------------
-    % 3) step 3 of the worker initialization. Initializing the particular
-    % job executor
-    %----------------------------------------------------------------------
-    
-    
-    % receive init message which defines the job parameters
-    % implicit barrier exists which should block execution until
-    % this message is received.
-    [ok,err_mess,init_message] = fbMPI.receive_message(0,'init');
-    if ok ~= MESS_CODES.ok
-        fbMPI.send_message(0,FailedMessage(err_mess));
-        if exit_at_the_end
-            exit;
-        else
-            return
-        end
-    end
-    if DO_LOGGING; log_init_received();   end
-    
-    %%
     try
+        [ok,err,mess]= fbMPI.receive_message(0,'starting','-synch');
+        if ok ~= MESS_CODES.ok
+            err_mess = sprintf('job N%s failed while receive_je_info Error: %s:',...
+                control_struct.job_id,err);
+            mess = FailedMessage(err_mess);
+            fbMPI.send_message(0,mess);
+            ok = MESS_CODES.runtime_error;
+            if exit_at_the_end;     exit;
+            else;                   return;
+            end
+        else
+            worker_init_data = mess.payload;
+            keep_worker_running = worker_init_data.keep_worker_running;
+        end
+        %
+        %
+        exit_at_the_end = ~is_tested && worker_init_data.exit_on_compl;
+        %exit_at_the_end = false; % used for debugging filebased framework, to
+        %be able to view the results of a failure.
+        
+        %
+        if DO_LOGGING; log_worker_init_received();  end
+        % instantiate job executor class.
+        je = feval(worker_init_data.JobExecutorClassName);
+        je.do_job_completed = false; % do 2 barriers on exception (one at process failure)
+        % ---------------------------------------------------------------------
+        % step 2 of the worker initialization completed. a jobExecutor is
+        % initialized and worker knows what to do when it finishes or
+        % fails.
+        %% --------------------------------------------------------------------
+        %
+        %----------------------------------------------------------------------
+        % 3) step 3 of the worker initialization. Initializing the particular
+        % job executor
+        %----------------------------------------------------------------------
+        
+        
+        % receive init message which defines the job parameters
+        % implicit barrier exists which should block execution until
+        % this message is received.
+        [ok,err_mess,init_message] = fbMPI.receive_message(0,'init');
+        if ok ~= MESS_CODES.ok
+            fbMPI.send_message(0,FailedMessage(err_mess));
+            if exit_at_the_end
+                exit;
+            else
+                return
+            end
+        end
+        if DO_LOGGING; log_init_received();   end
+        
+        %%
+        
         if DO_LOGGING; log_init_je_started();  end
         % node 1 is waiting here until all tasks report "started" to it
         [je,mess] = je.init(fbMPI,intercomm,init_message,is_tested);
+    catch ME % JE init have probably not inititialized propertly or
+        % something wrong with the code. We can not process interrupt
+        % propertly, but filebased framework shoule still be
+        % available.
+        err_mess = sprintf('job N%s failed. Error during job initialization %s:',...
+            control_struct.job_id,ME.message);
+        fbMPI.send_message(0,FailedMessage(err_mess,ME));
         
+        if exit_at_the_end;     exit;
+        else;                   return;
+        end
+    end
+    %
+    try
         if DO_LOGGING; log_init_je_finished();  end
         if ~isempty(mess)
             err = sprinft(' Error sending ''started'' message from task N%d',...
@@ -234,7 +246,7 @@ while keep_worker_running
             if is_tested
                 finish_mode = '-asynch';
             else
-                finish_mode = '-synch';                
+                finish_mode = '-synch';
             end
             je.finish_task(mess,finish_mode);
             
@@ -293,10 +305,10 @@ end
     function num_of_runs = log_num_runs(num_of_runs)
         num_of_runs = num_of_runs+1;
         fprintf(fh,'   ***************************************\n');
-        fprintf(fh,'   ******   RUN N : %d LabN %d  : ********\n',num_of_runs,intercomm.labIndex);
+        fprintf(fh,'   ****** LabN %d  :  RUN N : %d  ********\n',intercomm.labIndex,num_of_runs);
         fprintf(fh,'   ****************************************=\n');
         fprintf('   ***************************************\n');
-        fprintf('   ******   RUN N : %d LabN %d  : ********\n',num_of_runs,intercomm.labIndex);
+        fprintf('   ******  LabN %d  : RUN N : %d  ********\n',intercomm.labIndex,num_of_runs);
         fprintf('   ****************************************=\n');
     end
 %

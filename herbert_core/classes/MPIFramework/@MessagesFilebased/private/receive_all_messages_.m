@@ -27,11 +27,10 @@ if obj.DEBUG_
 end
 
 
-
 n_requested = numel(task_ids);
-all_messages = cell(n_requested ,1);
-mess_received = false(n_requested ,1);
-tid_received_from = zeros(n_requested ,1);
+all_messages = cell(1,n_requested);
+mess_received = false(1,n_requested);
+tid_received_from = zeros(1,n_requested);
 %mess_name = arrayfun(@(x)(mess_name),mess_received,'UniformOutput',false);
 
 [message_names,tid_from] = obj.probe_all(task_ids,mess_name);
@@ -49,7 +48,7 @@ end
 
 
 all_received = false;
-nsteps = 0;
+n_steps = 0;
 t0 = tic;
 while ~all_received
     for i=1:n_requested
@@ -88,7 +87,7 @@ while ~all_received
     end
     if obj.DEBUG_
         disp(' Messages received:');
-        disp(mess_received');
+        disp(mess_received);
         for i=1:numel(all_messages)
             disp(all_messages{i});
             if ~isempty(all_messages{i})
@@ -102,33 +101,16 @@ while ~all_received
         all_received = all(mess_received);
         if ~all_received
             t1 = toc(t0);
-            if t1>obj.time_to_fail_
-                error('FILEBASED_MESSAGES:runtime_error',...
+            if t1>obj.time_to_fail_;   error('FILEBASED_MESSAGES:runtime_error',...
                     'Timeout waiting for receiving all messages')
             end
-            % have it appeared?
-            [message_names,tid_from] = obj.probe_all(task_ids,mess_name);
-            %[tid_from,im] = unique(tid_from);
-            %message_names = message_names(im);
-            present_now = ismember(task_ids,tid_from);
             
-            % verify data messages already present not to force overwriting
-            % existing received data messages
-            present_now = present_now & ~mess_received';
-            if obj.DEBUG_
-                nsteps  = nsteps +1;
-                disp([' Messages arrived at step ',num2str(nsteps), 'vs old mess received']);
-                disp(present_now);
-                for i=1:numel(message_names)
-                    disp(message_names{i});
-                end
-                disp(mess_received');
-            end
-            if obj.is_tested
-                error('MESSAGES_FRAMEWORK:runtime_error',...
+            [present_now,n_steps] = obj.check_whats_coming(task_ids,mess_name,...
+                all_messages,n_steps);
+            
+            if obj.is_tested;  error('MESSAGES_FRAMEWORK:runtime_error',...
                     'Issued request for missing blocking message in test mode');
             end
-            
             pause(0.1);
         end
     else
@@ -146,6 +128,4 @@ if ~isempty(tid_received_from)
     [tid_received_from,ic]  = sort(tid_received_from);
     all_messages  = all_messages(ic);
 end
-
-
 

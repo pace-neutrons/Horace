@@ -1,4 +1,4 @@
-function [ok,err,fin_mess,obj] = reduce_messages_(obj,mess,mess_process_function,lock_until_received,reduction_name)
+function [ok,err,fin_mess,obj] = reduce_messages_(obj,mess,mess_process_function,lock_until_received)
 % reduce all messages and build final message as the result of all similar
 % messages on the workers
 % Inputs:
@@ -12,11 +12,7 @@ function [ok,err,fin_mess,obj] = reduce_messages_(obj,mess,mess_process_function
 %                          reducing logging, in which case head-node should
 %                          not wait for other nodes to produce log messages
 %                          if absent, assumed to be true
-% other_name            -- alternative name of the message. Should be used
-%                          to collect messages from other workers if current
-%                          message mess is Fail. If absent, the name is the
-%                          same as the mess.mess_name
-%
+
 if ischar(mess)
     mess_name = mess;
     the_mess = MESS_NAMES.instance().get_mess_class(mess_name);
@@ -36,9 +32,6 @@ end
 if ~exist('lock_until_received','var')
     lock_until_received = true;
 end
-if ~exist('reduction_name','var')
-    reduction_name = mess_name;
-end
 
 %
 mf = obj.mess_framework;
@@ -51,13 +44,16 @@ end
 
 if mf.labIndex == 1
     if lock_until_received
-        all_messages = mf.receive_all('all',reduction_name,'-synch');    
+        all_messages = mf.receive_all('all',mess_name,'-synch');    
+        %disp([' all messages ',mess_name,' received synchronously']);        
     else
-        all_messages = mf.receive_all('all',reduction_name,'-asynch');            
+        all_messages = mf.receive_all('all',mess_name,'-asynch');          
+        %disp([' all messages ',mess_name,' received asynchronously']);                
     end
-    all_messages = [{the_mess};all_messages];
+    all_messages = [{the_mess},all_messages];
+    %disp(all_messages);
     
-    [ok,err,fin_mess] = mes_proc_f(all_messages,reduction_name);
+    [ok,err,fin_mess] = mes_proc_f(all_messages,mess_name);
 else
     %
     fin_mess = the_mess;
@@ -72,10 +68,10 @@ end
 function [all_ok,err,fin_message] = default_mess_process_function(all_messages,mess_name)
 
 
-ok = cellfun(@(x)(strcmpi(x.mess_name,mess_name)),all_messages,'UniformOutput',true);
+ok = cellfun(@(x)(is_the_same(x,mess_name)),all_messages,'UniformOutput',true);
 all_ok = all(ok);
 err = [];
-all_payload = cellfun(@(x)(x.payload),all_messages,'UniformOutput',false);
+all_payload = cellfun(@(x)extract_payload(x,mess_name),all_messages,'UniformOutput',false);
 if ~all_ok
     n_failed = sum(~ok);
     err = sprintf('JobExecutor: %d workers have failed',...
@@ -86,4 +82,16 @@ if ~all_ok
 else
     fin_message = all_messages{1};
     fin_message.payload = all_payload;
+end
+function is = is_the_same(mess,mess_name)
+if isa(mess,'aMessage')
+    is = strcmpi(mess.mess_name,mess_name);
+else
+    is = false;
+end
+function pl = extract_payload(mess,mess_name)
+if isempty(mess)
+    pl = ['Empty result for message: ',mess_name];
+else
+    pl = mess.payload;
 end

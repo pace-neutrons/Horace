@@ -75,6 +75,7 @@ classdef MESS_NAMES < handle
         % tags of the state messages
         state_mess_tags_ = {};
     end
+    
     methods(Access = private)
         function obj = MESS_NAMES()
         end
