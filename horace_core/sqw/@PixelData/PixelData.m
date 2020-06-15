@@ -1,4 +1,4 @@
-classdef PixelData
+classdef PixelData < matlab.mixin.Copyable
 % PixelData Provides an interface for access to pixel data
 %
 %   This class provides getters and setters for each data column in an SQW
