@@ -2,11 +2,13 @@ classdef test_PixelData < TestCase
 
 properties
     raw_pix_data = rand(9, 10);
+    small_page_size_ = 1e6;  % 1Mb
     test_sqw_file_path = '../test_sqw_file/sqw_1d_1.sqw';
 
     pixel_data_obj;
     pix_data_from_file;
     pix_data_from_faccess;
+    pix_data_small_page;
 end
 
 methods (Access = private)
@@ -30,6 +32,8 @@ methods
         % Construct an object from a file accessor
         f_accessor = sqw_formats_factory.instance().get_loader(obj.test_sqw_file_path);
         obj.pix_data_from_faccess = PixelData(f_accessor);
+        % Construct an object from file accessor with small page size
+        obj.pix_data_small_page = PixelData(f_accessor, obj.small_page_size_);
     end
 
     % --- Tests for in-memory operations ---
@@ -380,10 +384,48 @@ methods
     end
 
     function test_page_size_is_set_on_construction_when_given_as_argument(obj)
-        mem_alloc = 1e6;  % 1Mb
-        pix = PixelData(obj.test_sqw_file_path, mem_alloc);
+        mem_alloc = obj.small_page_size_;  % 1Mb
         expected_page_size = floor(mem_alloc/(8*9));  % mem_alloc/(double*num_rows)
-        assertEqual(pix.page_size, expected_page_size);
+        assertEqual(obj.pix_data_small_page.page_size, expected_page_size);
+        assertEqual(size(obj.pix_data_small_page.variance), ...
+                    [1, obj.pix_data_small_page.page_size]);
+    end
+
+    function test_calling_getter_returns_data_for_single_page(~)
+        data = rand(9, 30);
+        faccess = FakeFAccess(data);
+        mem_alloc = 11*8*9;  % 11 pixels held in memory at a time
+        pix = PixelData(faccess, mem_alloc);
+        assertEqual(size(pix.signal), [1, pix.page_size]);
+        assertEqual(pix.signal, data(8, 1:11));
+    end
+
+    function test_calling_get_data_returns_data_for_single_page(~)
+        data = rand(9, 30);
+        faccess = FakeFAccess(data);
+        mem_alloc = 11*8*9;  % 11 pixels held in memory at a time
+        pix = PixelData(faccess, mem_alloc);
+        sig_var = pix.get_data({'signal', 'variance'}, 3:8);
+        assertEqual(sig_var, data(8:9, 3:8));
+    end
+
+    function test_data_values_are_not_effected_by_changes_in_copies(~)
+        n_rows = 5;
+        p1 = PixelData(ones(9, n_rows));
+        p2 = copy(p1);
+        p2.u1 = zeros(1, n_rows);
+        assertEqual(p2.u1, zeros(1, n_rows));
+        assertEqual(p1.u1, ones(1, n_rows));
+    end
+
+    function test_file_data_not_loaded_on_init_if_page_size_lt_num_pixels(~)
+        data = rand(9, 30);
+        faccess = FakeFAccess(data);
+        mem_alloc = 11*8*9;  % 11 pixels held in memory at a time
+        pix = PixelData(faccess, mem_alloc);
+        assertTrue(isempty(pix.data));
+        pix.u1;
+        assertFalse(isempty(pix.data));
     end
 
 end
