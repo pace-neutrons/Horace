@@ -19,7 +19,16 @@ methods
             pix_lo = 1;
             pix_hi = size(obj.fake_data, 2);
         end
-        data = obj.fake_data(:, pix_lo:pix_hi);
+        try
+            data = obj.fake_data(:, pix_lo:pix_hi);
+        catch ME
+            switch ME.identifier
+            case 'MATLAB:badsubscript'
+                error('FAKEFACCESS:get_pix', 'End of fake file reached');
+            otherwise
+                rethrow(ME);
+            end
+        end
     end
 
     function new_obj = upgrade_file_format(obj)
