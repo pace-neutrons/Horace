@@ -110,10 +110,10 @@ classdef test_faccess_sqw_v3< TestCase
             assertTrue(isa(data_dnd,'data_sqw_dnd'));
             assertEqual(data_dnd.filename,'test_sqw_file_read_write_v3.sqw');
 
-            data = to.get_data('-ver',1,20);
+            data = to.get_data('-ver');
             assertEqual(data.filename,data_dnd.filename)
             assertEqual(data.filepath,data_dnd.filepath)
-            assertEqual(size(data.pix),[9,20]);
+            assertTrue(isa(data.pix, 'PixelData'));
 
             pix = to.get_pix(1,20);
             assertEqual(data.pix.data,pix.data);
