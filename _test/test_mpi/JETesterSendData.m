@@ -10,6 +10,9 @@ classdef JETesterSendData < JobExecutor
         n_step
         buffer;
         partial_data_cache
+        %
+        log_step
+        log_step_count        
     end
     
     methods
@@ -26,6 +29,13 @@ classdef JETesterSendData < JobExecutor
             obj.n_step = 0;
             dbs = job_par.data_buffer_size;
             obj.buffer = ones(1,dbs);
+            if obj.n_steps > 10
+                obj.log_step = floor(obj.n_steps/10);
+            else
+                obj.log_step = 1;
+            end
+            obj.log_step_count = 0;
+            
         end
         function obj=do_job(obj)
             % Test do_job method implementation for testing purposes
@@ -63,6 +73,9 @@ classdef JETesterSendData < JobExecutor
             ok = obj.is_finished_;
         end
         function obj=gen_data(obj,task_num)
+            mis = MPI_State.instance();
+            
+            
             if task_num == 1
                 for j=1:obj.n_steps
                     all_mess = obj.mess_framework.receive_all('all','data');
@@ -74,6 +87,14 @@ classdef JETesterSendData < JobExecutor
                     accum = accum/numel(all_mess); % should give step number as the result
                     fprintf(' step: %d; accum: %d\n',j,accum);
                     obj.partial_data_cache(j) = accum;
+                    obj.log_step_count = obj.log_step_count+1;
+                    if obj.log_step_count >=obj.log_step
+                        
+                        mis.do_logging(j,obj.n_steps)
+                        obj.log_step_count=0;
+                    end
+                    
+                    
                 end
             else
                 me = DataMessage();
@@ -81,6 +102,12 @@ classdef JETesterSendData < JobExecutor
                     me.payload = obj.buffer*i;
                     obj.mess_framework.send_message(1,me);
                     obj.partial_data_cache(i) = i;
+                    obj.log_step_count = obj.log_step_count+1;
+                    if obj.log_step_count >=obj.log_step
+                        mis.do_logging(i,obj.n_steps)
+                        obj.log_step_count=0;
+                    end
+                    
                 end
             end
         end

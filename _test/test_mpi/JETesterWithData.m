@@ -10,6 +10,9 @@ classdef JETesterWithData < JobExecutor
         n_step
         buffer;
         partial_data_cache
+        %
+        log_step
+        log_step_count
     end
     
     methods
@@ -26,6 +29,12 @@ classdef JETesterWithData < JobExecutor
             obj.n_step = 0;
             dbs = job_par.data_buffer_size;
             obj.buffer = ones(1,dbs);
+            if obj.n_steps > 10
+                obj.log_step = floor(obj.n_steps/10);
+            else
+                obj.log_step = 1;
+            end
+            obj.log_step_count = 0;
         end
         function obj=do_job(obj)
             % Test do_job method implementation for testing purposes
@@ -78,6 +87,12 @@ classdef JETesterWithData < JobExecutor
                 me.payload = obj.buffer*obj.n_step;
                 obj.mess_framework.send_message(1,me);
                 obj.partial_data_cache(obj.n_step+1) = obj.n_step;
+            end
+            obj.log_step_count = obj.log_step_count+1;
+            if obj.log_step_count >=obj.log_step
+            mis = MPI_State.instance();
+            mis.do_logging(obj.n_step,obj.n_steps)
+            obj.log_step_count=0;
             end
         end
     end

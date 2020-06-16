@@ -70,7 +70,8 @@ end
 % Sort messages according to their access date, the most recent come first
 if isfield(mess_files,'datenum')
     mess_date = arrayfun(@(x)(x.datenum),mess_files,'UniformOutput',true);
-    [~,ind] = sort(mess_date,'descend');
+    %[~,ind] = sort(mess_date,'descend');
+    [~,ind] = sort(mess_date);    
     mess_files = mess_files(ind);
 else %  dos command sorts files with oldest coming last
     %

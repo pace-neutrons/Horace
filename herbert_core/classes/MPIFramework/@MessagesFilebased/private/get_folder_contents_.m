@@ -12,7 +12,8 @@ end
 
 function fc = get_folder_contents_DOS_(mess_folder)
 % Actually
-command = ['Dir /TW /o-d ',mess_folder];
+%command = ['Dir /TW /o-d ',mess_folder];
+command = ['Dir /TW /od ',mess_folder];
 if exist(mess_folder,'dir') ~= 7
     fc = [];
     return
