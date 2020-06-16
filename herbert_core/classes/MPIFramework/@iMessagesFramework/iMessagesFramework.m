@@ -116,7 +116,7 @@ classdef iMessagesFramework < handle
             %
             datapath = fileparts(fileparts(fileparts(obj.mess_exchange_folder)));
             if exist('labID','var') % Herbert MPI worker. numlabs and labNum are defined by configuration
-                if nargin> 4 
+                if nargin> 4
                     if ischar(varargin{1})
                         test_with_serialation = false;
                     else
@@ -321,6 +321,7 @@ classdef iMessagesFramework < handle
             % helper function used to check if the requested message should
             % be processed synchroneously or asynchroneously.
             %
+            %
             if isempty(options)
                 is_blocking = MESS_NAMES.is_blocking(mess_name);
                 return
@@ -340,6 +341,65 @@ classdef iMessagesFramework < handle
             else
                 is_blocking = MESS_NAMES.is_blocking(mess_name);
             end
+        end
+        function [messages,tid_from] = mix_messages(messages,tid_from,add_mess,tid_add_from)
+            % helper function to add more messages to the list of existing messages
+            %
+            % Used to add interrupts to list of existing messages.
+            % the additional messages overwrite the old one if have the same task id-s
+            % Inputs:
+            % messages -- cellarray of objects
+            % tid_from -- numeric array of indexes, indicating where the
+            %             objects are obtained from.
+            %             Requested size(messages) == size(tid_from);
+            % add_mess -- cellarray of additional objects
+            % tid_add_from -- array of indexes, inticating where additional
+            %                 objects have arrived from. The values may
+            %                 coinside withsome or all indexes from
+            %                 tid_from.
+            %             Requested size(add_mess) == size(tid_add_from);
+            % Returns
+            % messages  -- cellarray of objects, combined from messages and
+            %              add_mess celarrays
+            % tid_from  -- unique indexes, sources of objects in messaves
+            %              celarray
+            % if some indexes in tid_from coinside with indexes from
+            % tid_add_from, the values in correspondent cells of outipt messages
+            % are replaced by correspondent values from  add_mess;
+            %
+            
+            if isempty(add_mess)
+                return;
+            end
+            if isempty(messages)
+                messages = add_mess;
+                tid_from = tid_add_from;
+            end
+            if any(size(messages)~= size(tid_from))
+                error('iMESSAGES_FRAMEWOR:invalid_argument',...
+                    'size of messages array needs to be equal to size of source indexes')
+            end
+            if any(size(add_mess)~= size(tid_add_from))
+                error('iMESSAGES_FRAMEWOR:invalid_argument',...
+                    'size of additional messages array needs to be equal to size of arricional source indexes')
+            end
+            
+            
+            range = double(max(max(tid_from),max(tid_add_from)));
+            
+            % convert to cellarray of empty or full messages
+            mess_cell     = cell(1,numel(range));
+            from_all_labs = false(1, range); % boolean indicating empty messages from anywhere
+            
+            mess_cell(tid_from)= messages(:);
+            from_all_labs(tid_from) = true;
+            mess_cell(tid_add_from) = add_mess(:);
+            from_all_labs(tid_add_from) = true;
+            
+            whole_range = 1:range;
+            tid_from = whole_range(from_all_labs);
+            messages = mess_cell(from_all_labs);
+            
             
         end
         
@@ -460,6 +520,7 @@ classdef iMessagesFramework < handle
         is = get_is_tested(obj);
     end
     methods(Access = protected)
+        %
         function set_job_id_(obj,new_job_id)
             % Set a string, which defines unique job.
             if is_string(new_job_id) && ~isempty(new_job_id)
@@ -469,6 +530,49 @@ classdef iMessagesFramework < handle
                     'MPI job id has to be a string');
             end
         end
+        %
+        function [from_task_id,mess_name,is_blocking]=check_receive_inputs(obj,from_task_id,mess_name,varargin)
+            % Helper function to check if receive message inputs are correct
+            %
+            % Returns the receive inputs in the standard form
+            % from_task_id -- the index(number) of the worker(lab) to
+            %                 receive message from
+            % mess_name    -- the name of the message to receive. May be
+            %                 'any' if any message is requested.
+            % is_blocking  -- if the receiving shoule be blocking(synchroneous)
+            %                 or unblocking (asynchroneous)
+            %
+            %
+            if ~exist('from_task_id','var') || isempty(from_task_id) ||...
+                    (isnumeric(from_task_id ) && from_task_id < 0) || ...
+                    ischar(from_task_id)
+                %receive message from any task
+                error('MESSAGES_FRAMEWORK:invalid_argument',...
+                    'Requesting receive message from undefined lab is not currently supported');
+            end
+            if ~isnumeric(from_task_id)
+                error('MESSAGES_FRAMEWORK:invalid_argument',...
+                    'Task_id to receive message should be a number');
+            elseif numel(from_task_id)>1
+                error('MESSAGES_FRAMEWORK:invalid_argument',...
+                    'Receiving only one message from one lab may be requested. Asked for: %d',...
+                    numel(from_task_id));
+            end
+            if ~exist('mess_name','var') %receive any message for this task
+                mess_name = 'any';
+            end
+            if isnumeric(mess_name)
+                mess_name = MESS_NAMES.mess_name(mess_name);
+            end
+            if ~ischar(mess_name)
+                error('MESSAGES_FRAMEWORK:invalid_argument',...
+                    'mess_name in recive_message command should be a message name (e.g. "starting")');
+            end
+            
+            % check if the message should be received synchroneously or asynchroneously
+            is_blocking = obj.check_is_blocking(mess_name,varargin);
+        end
+        
     end
     
 end

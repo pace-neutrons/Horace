@@ -14,4 +14,4 @@ if isKey(obj.messages_cache_,target_id)
 else
     obj.messages_cache_(target_id) = {struct('tag',mess_tag,'mess',message.saveobj())};
 end
-end
+

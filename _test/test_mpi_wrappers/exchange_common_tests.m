@@ -191,7 +191,7 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(numel(all_mess), 2);
             assertEqual(numel(task_ids), 2);
             assertEqual(task_ids, [2, 3]);
-        end        
+        end
         %
         function test_receive_missing_data_blocking(obj)
             if obj.ignore_test
@@ -234,7 +234,7 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(numel(task_ids), 2);
             assertEqual(task_ids, [2, 3]);
             assertEqual(all_mess{1}.mess_name,'data');
-            assertEqual(all_mess{2}.mess_name,'canceled');            
+            assertEqual(all_mess{2}.mess_name,'canceled');
         end
         %
         function test_receive_data_fail_comes(obj)
@@ -326,6 +326,13 @@ classdef exchange_common_tests < MPI_Test_Common
             assertTrue(isempty(err_mess));
             
             [mess_names, source_id_s] = m_comm.probe_all('all', 'any');
+            assertEqual(numel(mess_names), 2);
+            assertEqual(numel(source_id_s), 2);
+            assertEqual(double(source_id_s(1)), (5));
+            assertEqual(double(source_id_s(2)), (7));
+            assertEqual(mess_names{1}, mess.mess_name);
+            
+            [mess_names, source_id_s] = m_comm.probe_all([], 'any');
             assertEqual(numel(mess_names), 2);
             assertEqual(numel(source_id_s), 2);
             assertEqual(double(source_id_s(1)), (5));
@@ -557,6 +564,125 @@ classdef exchange_common_tests < MPI_Test_Common
             assertTrue(isempty(mess_names));
             assertTrue(isempty(source_id_s));
         end
+        
+        function test_probe_and_receive_fail(obj)
+            if obj.ignore_test
+                return
+            end
+            m_comm = feval(obj.comm_name);
+            clob_s = onCleanup(@()(finalize_all(m_comm )));
+            
+            
+            assertEqual(double(m_comm.labIndex), 1);
+            assertEqual(double(m_comm.numLabs), 10);
+            
+            mess1 = LogMessage(0,10);
+            [ok, err_mess] = m_comm.send_message(5, mess1);
+            assertEqual(ok, MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            
+            mess2 = FailedMessage('an error');
+            [ok, err_mess] = m_comm.send_message(6, mess2);
+            assertEqual(ok, MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            
+            [messNames,sources] = m_comm.probe_all(5, mess1.mess_name);
+            assertFalse(isempty(messNames));
+            assertEqual(sources(1),5);
+            
+            [messNames,sources] = m_comm.probe_all(6, mess2.mess_name);
+            assertFalse(isempty(messNames));
+            assertEqual(sources(1),6);
+            % AND despite asking for different message name, probe gives
+            % fail
+            [messNames,sources] = m_comm.probe_all(6, mess1.mess_name);
+            assertFalse(isempty(messNames));
+            assertEqual(sources(1),6);
+            
+            [messNames,sources] = m_comm.probe_all('all', mess1.mess_name);
+            assertEqual(numel(messNames),2);
+            assertEqual(sources(1),5);
+            assertEqual(sources(2),6);
+            assertEqual(messNames{1},'log');
+            assertEqual(messNames{2},'failed');
+
+            [messNames,sources] = m_comm.probe_all('all', 'any');
+            assertEqual(numel(messNames),2);
+            assertEqual(sources(1),5);
+            assertEqual(sources(2),6);
+            assertEqual(messNames{1},'log');
+            assertEqual(messNames{2},'failed');            
+            
+            %-----------------------------------------------------------
+            [ok, err_mess, messR] = m_comm.receive_message(6, mess1.mess_name);
+            assertEqual(ok, MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            assertEqual(messR.mess_name,'failed');
+            
+            [ok, err_mess] = m_comm.send_message(3, mess2);
+            assertEqual(ok, MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            
+            
+            [messNames,sources] = m_comm.probe_all('all', mess1.mess_name);
+            assertEqual(numel(messNames),3);
+            
+            assertEqual(sources(1),3);
+            assertEqual(sources(2),5);
+            assertEqual(sources(3),6);
+            assertEqual(messNames{1},'failed');
+            assertEqual(messNames{2},'log');
+            assertEqual(messNames{3},'failed');
+            
+            [messNames,sources] = m_comm.probe_all('all',[]);
+            assertEqual(numel(messNames),3);
+            
+            assertEqual(sources(1),3);
+            assertEqual(sources(2),5);
+            assertEqual(sources(3),6);
+            assertEqual(messNames{1},'failed');
+            assertEqual(messNames{2},'log');
+            assertEqual(messNames{3},'failed');
+            
+            
+            % percistently receiving Fail message
+            [ok, err_mess, messR] = m_comm.receive_message(6, mess1.mess_name);
+            assertEqual(ok, MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            assertEqual(messR.mess_name,'failed');
+            
+            [ok, err_mess, messR] = m_comm.receive_message(3, mess1.mess_name);
+            assertEqual(ok, MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            assertEqual(messR.mess_name,'failed');
+            
+            
+            [messNames,sources] = m_comm.probe_all('all', mess1.mess_name);
+            assertEqual(numel(messNames),3);
+            
+            assertEqual(sources(1),3);
+            assertEqual(sources(2),5);
+            assertEqual(sources(3),6);
+            assertEqual(messNames{1},'failed');
+            assertEqual(messNames{2},'log');
+            assertEqual(messNames{3},'failed');
+            
+            % log message can be receved
+            [ok, err_mess, messR] = m_comm.receive_message(5, mess1.mess_name);
+            assertEqual(ok, MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            assertEqual(messR.mess_name,'log');
+            
+            % but fail remains
+            [messNames,sources] = m_comm.probe_all('all', mess1.mess_name);
+            assertEqual(numel(messNames),2);
+            assertEqual(sources(1),3);
+            assertEqual(sources(2),6);
+            assertEqual(messNames{1},'failed');
+            assertEqual(messNames{2},'failed');
+            
+        end
+        
         
         function test_SendReceive(obj)
             % Test communications in test mode

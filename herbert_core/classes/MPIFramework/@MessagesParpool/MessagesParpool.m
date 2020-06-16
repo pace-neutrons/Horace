@@ -53,6 +53,7 @@ classdef MessagesParpool < iMessagesFramework
             %   - numLabs -- number of fake 'Virtual nodes' surrounding
             %                this node in the test mode
             jd = jd@iMessagesFramework();
+            jd.MPI_ = [];
             if nargin>0
                 jd = jd.init_framework(varargin{1});
             end
@@ -137,12 +138,12 @@ classdef MessagesParpool < iMessagesFramework
             obj.MPI_.mlabSend(message,task_id);
         end
         %
-        function [messages_name,task_id] = probe_all(obj,varargin)
+        function [messages_name,task_id] = probe_all(obj,task_id,varargin)
             % list all messages existing in the system and sent from the
             % tasks with id-s specified as input.
             % NonBlocking
             %Usage:
-            %>> [mess_names,task_id] = obj.probe_all([task_ids],[mess_name|mess_tag]);
+            %>> [mess_names,task_id] = obj.probe_all(task_ids,[mess_name|mess_tag]);
             %Where:
             % task_ids    -- the task ids of the labs to verify messages
             %                from. Query all available labs if this field
@@ -159,7 +160,7 @@ classdef MessagesParpool < iMessagesFramework
             % if no messages are present in the system
             % messages_name and task_id are empty
             %
-            [messages_name,task_id] = labProbe_messages_(obj,varargin{:});
+            [messages_name,task_id] = labProbe_messages_(obj,task_id,varargin{:});
         end
         %
         function [all_messages,task_ids] = receive_all(obj,varargin)
@@ -221,12 +222,12 @@ classdef MessagesParpool < iMessagesFramework
             %             end
             % receive and reject all messages, may be present in the
             % messages framework.
-            [isDataAvail,tag,srcWkrIdx] = obj.MPI_.mlabProbe([],[]);
-            while isDataAvail
-                for i=1:numel(srcWkrIdx)
-                    obj.MPI_.mlabReceive(srcWkrIdx(i),tag(i));
+            [mess_names,source_id] = obj.MPI_.mlabProbe([],[]);
+            while ~isempty(mess_names)
+                for i=1:numel(source_id)
+                    obj.MPI_.mlabReceive(source_id(i),mess_names(i));
                 end
-                [isDataAvail,tag,srcWkrIdx] = obj.MPI_.mlabProbe([],[]);
+                [mess_names,source_id] = obj.MPI_.mlabProbe([],[]);
             end
         end
         %

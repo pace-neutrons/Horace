@@ -1,42 +1,15 @@
-function [err_code,err_mess,message] = receive_message_(obj,from_task_id,mess_name,varargin)
+function [err_code,err_mess,message] = receive_message_(obj,from_task_id,varargin)
 % Receive message from job with the task_id (MPI rank) specified as input
 %
 % if task_id is empty, or equal to 'any' throws
 %
 %
-
-if ~exist('from_task_id','var') || isempty(from_task_id) ||...
-        (isnumeric(from_task_id ) && from_task_id < 0) || ...
-        ischar(from_task_id)
-    %receive message from any task
-    error('MESSAGES_FRAMEWORK:invalid_argument',...
-        'Requesting receive message from undefined lab is not currently supported');
-end
-if ~isnumeric(from_task_id)
-    error('MESSAGES_FRAMEWORK:invalid_argument',...
-        'Task_id to receive message should be a number');
-end
-if ~exist('mess_name','var') %receive any message for this task
-    mess_name = 'any';
-end
-if isnumeric(mess_name)
-    mess_name = MESS_NAMES.mess_name(mess_name);
-end
-if ~ischar(mess_name)
-    error('MESSAGES_FRAMEWORK:invalid_argument',...
-        'mess_name in recive_message command should be a message name (e.g. "starting")');
-end
-% code to build debugging log file
-% task_id = obj.task_id_;
-% n_labs  = obj.numLabs_;
-% f_name = sprintf('message_%s_receive_log%d#%d',mess_name,task_id,n_labs);
-% f_hl = fopen(f_name,'w');
-% if f_hl<1
-%     error('LOGGING:error','Can not open file %s',f_name);
-% end
-% cl_log = onCleanup(@()fclose(f_hl));
-%
 message=[];
+%
+% call parent function to check and validate inputs
+[from_task_id,mess_name,is_blocking]=obj.check_receive_inputs(from_task_id,varargin{:});
+%
+
 [is,err_code,err_mess] = check_job_canceled_(obj); % only framework dead 
 %                        returns canceled, canceled message still can be
 %                        received.
@@ -48,9 +21,6 @@ if ~isempty(message)
     err_mess=[];
     return;
 end
-% check if the message should be received synchroneously or asynchroneously
-is_blocking = obj.check_is_blocking(mess_name,varargin);
-
 
 
 mess_present= false;

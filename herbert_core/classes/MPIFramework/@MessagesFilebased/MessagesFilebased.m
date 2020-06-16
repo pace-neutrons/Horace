@@ -181,12 +181,12 @@ classdef MessagesFilebased < iMessagesFramework
         end
         %
         %
-        function [all_messages_names,task_ids] = probe_all(obj,varargin)
+        function [all_messages_names,task_ids] = probe_all(obj,task_ids_in,varargin)
             % list all messages existing in the system with id-s specified as input
             % and intended for this task
             %
             %Usage:
-            %>> [mess_names,task_ids] = obj.probe_all([task_ids],[{mess_name,mess_tag}]);
+            %>> [mess_names,task_ids] = obj.probe_all(task_ids,[mess_name|mess_tag]);
             %Where:
             % task_ids -- array of task id-s to check messages for or all
             %             messages if this is empty
@@ -201,17 +201,24 @@ classdef MessagesFilebased < iMessagesFramework
             % if no messages are present in the system
             % all_messages_names and task_ids are empty
             %
-            if nargin>2 && ((ischar(varargin{2}) && ~strcmp(varargin{2},'any')) || ...
-                    (isnumeric(varargin{2}) && varargin{2} ~=-1))
+            if nargin>2 && ((ischar(varargin{1}) && ~strcmp(varargin{1},'any')) || ...
+                    (isnumeric(varargin{1}) && varargin{1} ~=-1))
                 % performance boosting operation, especially important for
                 % Windows, as dir locks message files there.
-                if ischar(varargin{1}) && strcmp(varargin{1},'any')
+                if ischar(task_ids_in) && strcmp(task_ids_in,'any')
                     warning('Outdated receive interface -- keyword all should be used')
-                    varargin{1} = 'all';
+                    task_ids_in = 'all';
                 end
-                [all_messages_names,task_ids] = list_specific_messages_(obj,varargin{:});
+                [all_messages_names,task_ids] = list_specific_messages_(obj,task_ids_in,varargin{:});
             else
-                [all_messages_names,task_ids] = list_all_messages_(obj,varargin{:});
+                [all_messages_names,task_ids] = list_all_messages_(obj,task_ids_in,varargin{:});                
+            end
+            [mess,id_from] = obj.get_interrupt(task_ids_in);
+            % mix received messages names with old interrupt names received earlier            
+            if ~isempty(mess) 
+                int_names = cellfun(@(x)(x.mess_name),mess,'UniformOutput',false);
+                [all_messages_names,task_ids] = ...
+                    obj.mix_messages(all_messages_names,task_ids,int_names,id_from);
             end
         end
         %

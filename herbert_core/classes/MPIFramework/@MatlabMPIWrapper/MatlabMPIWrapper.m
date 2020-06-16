@@ -104,20 +104,19 @@ classdef MatlabMPIWrapper < handle
             end
         end
         %
-        function [present,tag_present,source]=mlabProbe(obj,targ_id,mess_tag)
+        function [mess_names,tid_from]=mlabProbe(obj,targ_id,mess_tag)
             % Wrapper around Matlab labProbe command.
             % Checks if specific message is available on the system
             %
             % Inputs:
-            % task_id  - the address of lab to ask for information
-            %            if empty, any task_id
+            % targ_id  - the address of lab to ask for information
+            %            if empty, or all -- any task_id
             % mess_tag - if not emtpy, check for specific message tag
+            %
             % Returns:
-            % present  - true if requested information is available
-            % tag_present - the tag of the present information block or
-            %            empty if present is false
-            % source   - in most cases equal to task id, but if any task
-            %            id, the information on where the data are present
+            % mess_names  - cellarray of message names, ready for receiving
+            %
+            % tid_from    - the index of the lab where where the data are present
             %
             
             if nargin<3
@@ -127,14 +126,14 @@ classdef MatlabMPIWrapper < handle
                 mess_tag = -1;
             end
             if nargin<2
-                error('MATLAB_MPI_WRAPPER:runtime_error',...
-                    'Requesting receive from undefined lab')
+                error('MESSAGES_FRAMEWORK:invalid_argument',...
+                    'Requesting probe from undefined lab')
                 
                 %targ_id = [];
             end
             if obj.do_logging_
                 if isempty(targ_id)
-                    lab_name = 'any';
+                    lab_name = 'all';
                 else
                     lab_name = num2str(targ_id);
                 end
@@ -142,14 +141,24 @@ classdef MatlabMPIWrapper < handle
                     lab_name,mess_tag);
             end
             
-            [present,tag_present,source]= labProbe_(obj,targ_id,mess_tag);
+            [tags_present,tid_from]= labProbe_(obj,targ_id,mess_tag);
+            if isempty(tags_present)
+                mess_names = {};
+            else
+                mess_names = MESS_NAMES.mess_name(tags_present);
+            end
+            if ~iscell(mess_names )
+                mess_names  = {mess_names};
+            end
+            
             if obj.do_logging_
-                if present
+                if ~is_empty(tags_present)
                     fprintf(obj.log_fh_,'***  data present ******\n');
-                    lab_name = num2str(source);
-                    tag_name = num2str(tag_present);
-                    fprintf(obj.log_fh_,'     Source: %s, tag(s) %s\n',...
-                        lab_name,tag_name);
+                    for i=1:numel(mess_names)
+                        lab_name = num2str(tid_from);
+                        fprintf(obj.log_fh_,'     Source: %s, tag(s) %s\n',...
+                            lab_name,mess_names{i});
+                    end
                 else
                     fprintf(obj.log_fh_,'*** got nothing\n');
                 end

@@ -18,7 +18,8 @@ id_from = source_address;
 if isempty(obj.persistent_fail_message_)
     return;
 end
-if isempty(source_address) || (ischar(source_address) && strcmp(source_address,'any'))
+if isempty(source_address) || (ischar(source_address) && ...
+        (strcmp(source_address,'all')||strcmp(source_address,'any')))
     id_from = obj.persistent_fail_message_.keys();
     id_from = [id_from{:}];
     mess = obj.persistent_fail_message_.values();

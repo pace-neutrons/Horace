@@ -21,7 +21,7 @@ if exist('message_id','var')
         tag  = check_tag(message_id);
     else
         error('PARPOOL_MESSAGES:invalid_argument',...
-            'unrecognized message labIndex should be numeric')
+            'unrecognized message labIndex should be numeric tag correspondent to message or ')
     end
 end
 % check if the message should be received synchroneously or asynchroneously
