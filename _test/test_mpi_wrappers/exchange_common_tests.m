@@ -564,7 +564,7 @@ classdef exchange_common_tests < MPI_Test_Common
             assertTrue(isempty(mess_names));
             assertTrue(isempty(source_id_s));
         end
-        
+        %
         function test_probe_and_receive_fail(obj)
             if obj.ignore_test
                 return
@@ -681,9 +681,8 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(messNames{1},'failed');
             assertEqual(messNames{2},'failed');
             
-        end
-        
-        
+        end       
+        %
         function test_SendReceive(obj)
             % Test communications in test mode
             if obj.ignore_test

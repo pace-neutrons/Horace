@@ -13,7 +13,7 @@ function [tags_present,source]=labProbe_(obj,task_id,mess_tag)
 
 %
 if ischar(task_id)
-    if strcmp(task_id,'all')
+    if strcmp(task_id,'all') ||strcmp(task_id,'any')
         task_id = [];
     else
         error('MESSAGES_FRAMEWORK:invalid_argument',...
@@ -85,7 +85,9 @@ if obj.is_tested
         cont = obj.messages_cache_(tid);
         mess_cont = cont{1};
         tag_present = mess_cont.tag;
-        if mess_tag ~= -1
+        if mess_tag == -1
+            mess_tag = tag_present;
+        else
             if tag_present == mess_tag
                 present = true;
                 return;

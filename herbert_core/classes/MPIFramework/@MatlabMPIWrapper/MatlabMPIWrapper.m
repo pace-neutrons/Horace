@@ -189,6 +189,9 @@ classdef MatlabMPIWrapper < handle
             if isempty(mess_tag)
                 mess_tag = -1;
             end
+            if iscell(mess_tag)
+                mess_tag = MESS_NAMES.mess_id(mess_tag);
+            end
             if nargin<2
                 targ_id = [];
             end

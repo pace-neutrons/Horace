@@ -38,22 +38,22 @@ classdef test_exchange_ParpoolMPI < exchange_common_tests
             mess2 = FailedMessage('test failure');
             mpi_wrapper.mlabSend(mess1,5);
             mpi_wrapper.mlabSend(mess2,5);
-            [avail,tag,source]=mpi_wrapper.mlabProbe(5);
-            assertTrue(avail)
-            assertEqual(tag,mess1.tag);
+            [mess_names,source]=mpi_wrapper.mlabProbe(5);
+            assertTrue(~isempty(mess_names))
+            assertEqual(mess_names{1},mess1.mess_name);
             assertEqual(source,5);
-            [avail,tag,source]=mpi_wrapper.mlabProbe([]);
-            assertTrue(avail)
-            assertEqual(tag,mess1.tag);
+            [mess_names,source]=mpi_wrapper.mlabProbe([]);
+            assertTrue(~isempty(mess_names))
+            assertEqual(mess_names{1},mess1.mess_name);
             assertEqual(source,5);
             
             [mess_r,tag,source]=mpi_wrapper.mlabReceive(5);
             assertEqual(mess_r,mess1);
             assertEqual(tag,mess1.tag);
             assertEqual(source,5);
-            [avail,tag,source]=mpi_wrapper.mlabProbe(5);
-            assertTrue(avail)
-            assertEqual(tag,mess2.tag);
+            [mess_names,source]=mpi_wrapper.mlabProbe(5);
+            assertTrue(~isempty(mess_names))
+            assertEqual(mess_names{1},mess2.mess_name);
             assertEqual(source,5);
             
             [mess_r,tag,source]=mpi_wrapper.mlabReceive(5);
@@ -61,6 +61,7 @@ classdef test_exchange_ParpoolMPI < exchange_common_tests
             assertEqual(tag,mess2.tag);
             assertEqual(source,5);
         end
+        %
         function test_MessagesMPIWrapper_two_mess_probe_test_mode(~)
             mf = MessagesMatlabMPI_tester(2,6);
             clob = onCleanup(@()(finalize_all(mf)));
@@ -81,27 +82,26 @@ classdef test_exchange_ParpoolMPI < exchange_common_tests
             mess = LogMessage(1,10,0);
             mpi_wrapper.mlabSend(mess,5);
             mpi_wrapper.mlabSend(mess,3);
-            [avail,tag,source]=mpi_wrapper.mlabProbe(5);
-            assertTrue(avail)
-            assertEqual(tag,mess.tag);
+            [mess_names,source]=mpi_wrapper.mlabProbe(5);
+            assertTrue(~isempty(mess_names))
             assertEqual(source,5);
             %
-            [avail,tag,source]=mpi_wrapper.mlabProbe([]);
-            assertTrue(avail)
-            assertEqual(numel(tag),2);
-            assertEqual(tag(1),mess.tag);
-            assertEqual(source(1),3);
-            assertEqual(source(2),5);            
+            [mess_names,source]=mpi_wrapper.mlabProbe([]);
+            assertTrue(~isempty(mess_names))
 
-            [avail,tag,source]=mpi_wrapper.mlabProbe('all');
-            assertTrue(avail)
-            assertEqual(numel(tag),2);
-            assertEqual(tag(1),mess.tag);
+            assertEqual(numel(mess_names),2);
+            assertEqual(mess_names{1},mess.mess_name);
             assertEqual(source(1),3);
-            assertEqual(source(2),5);            
+            assertEqual(source(2),5);
+            
+            [mess_names,source]=mpi_wrapper.mlabProbe('all');
+            assertTrue(~isempty(mess_names))
+            assertEqual(numel(mess_names),2);
+            assertEqual(mess_names{1},mess.mess_name);
+            assertEqual(source(1),3);
+            assertEqual(source(2),5);
             
         end
-        
         %
         function test_MessagesMPIWrapper_one_mess_test1_send_receive(~)
             mf = MessagesMatlabMPI_tester();
@@ -162,19 +162,18 @@ classdef test_exchange_ParpoolMPI < exchange_common_tests
             
             mess = LogMessage(1,10,0);
             mpi_wrapper.mlabSend(mess,5);
-            [avail,tag,source]=mpi_wrapper.mlabProbe(5);
-            assertTrue(avail)
-            assertEqual(tag,mess.tag);
+            [mess_names,source]=mpi_wrapper.mlabProbe(5);
+            assertTrue(~isempty(mess_names))
+            assertEqual(mess_names{1},mess.mess_name);
             assertEqual(source,5);
-            [avail,tag,source]=mpi_wrapper.mlabProbe(6);
-            assertFalse(avail)
-            assertTrue(isempty(tag));
-            assertEqual(source,6);
+            [mess_names,source]=mpi_wrapper.mlabProbe(6);
+            assertTrue(isempty(mess_names))
+            assertTrue(isempty(source));
             
-
-            [avail,tag,source]=mpi_wrapper.mlabProbe('all');
-            assertTrue(avail)
-            assertEqual(tag,mess.tag);
+            
+            [mess_names,source]=mpi_wrapper.mlabProbe('all');
+            assertTrue(~isempty(mess_names))
+            assertEqual(mess_names{1},mess.mess_name);
             assertEqual(source,5);
             
             assertExceptionThrown(@()mlabReceive(mpi_wrapper,[]),...
@@ -186,17 +185,15 @@ classdef test_exchange_ParpoolMPI < exchange_common_tests
             assertEqual(tag,mess.tag);
             assertEqual(source,5);
             
-            [avail,tag,source]=mpi_wrapper.mlabProbe(5);
-            assertFalse(avail)
-            assertTrue(isempty(tag));
-            assertEqual(source,5);
+            [mess_names,source]=mpi_wrapper.mlabProbe(5);
+            assertTrue(isempty(mess_names))
+            assertTrue(isempty(source))
             
-            
-            [avail,tag,source]=mpi_wrapper.mlabProbe([]);
-            assertFalse(avail)
-            assertTrue(isempty(tag));
+            [mess_names,source]=mpi_wrapper.mlabProbe([]);
+            assertTrue(isempty(mess_names))
             assertTrue(isempty(source));
             
         end
+        %
     end
 end
