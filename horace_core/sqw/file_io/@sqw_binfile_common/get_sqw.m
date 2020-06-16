@@ -7,7 +7,6 @@ function [sqw_object,varargout] = get_sqw (obj,varargin)
 %   >> sqw_object = obj.get_sqw('-hverbatim')
 %   >> sqw_object = obj.get_sqw('-hisverbatim')
 %   >> sqw_object = obj.get_sqw('-nopix')
-%   >> sqw_object = obj.get_sqw(npix_lo, npix_hi)
 %
 % Input:
 % --------
@@ -32,10 +31,6 @@ function [sqw_object,varargout] = get_sqw (obj,varargin)
 %                                   detpar and data
 %
 %               Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
-%
-%   npix_lo     -|- [optional] pixel number range to be read from the file
-%   npix_hi     -|
-%
 %
 % Output:
 % --------
@@ -66,15 +61,8 @@ if ~ok
 end
 verbatim = verbatim||hverbatim;
 if numel(argi)>0
-    numer = cellfun(@isnumeric,argi);
-    if any(~numer)
-        error('SQW_BINFILE_COMMON:invalid_argument',...
-            'Unrecognised options %s to get_sqw',argi{:});
-    end
-    num_arg = argi{numer};
-    pix_range  = true;
-else
-    pix_range = false;
+    error('SQW_BINFILE_COMMON:invalid_argument',...
+        'Unrecognised options %s to get_sqw',argi{:});
 end
 
 
@@ -119,20 +107,7 @@ else
 end
 
 data_opt={opt1{:},opt2{:},opt3{:}};
-if pix_range
-    if numel(num_arg) == 2
-        npix_lo = num_arg{1};
-        npix_hi = num_arg{2};
-        
-    elseif numel(num_arg) == 1
-        npix_lo = num_arg{1};
-        npix_hi = obj.npixels;
-    end
-    sqw_struc.data = obj.get_data(data_opt{:},npix_lo,npix_hi);
-else
-    sqw_struc.data = obj.get_data(data_opt{:});
-end
-
+sqw_struc.data = obj.get_data(data_opt{:});
 
 sqw_struc.header = headers;
 if legacy
