@@ -386,9 +386,11 @@ methods
     function test_page_size_is_set_on_construction_when_given_as_argument(obj)
         mem_alloc = obj.small_page_size_;  % 1Mb
         expected_page_size = floor(mem_alloc/(8*9));  % mem_alloc/(double*num_rows)
-        assertEqual(obj.pix_data_small_page.page_size, expected_page_size);
+        % the first page is loaded on access, so this first assert which accesses
+        % .variance is necessary to set pix.page_size
         assertEqual(size(obj.pix_data_small_page.variance), ...
                     [1, obj.pix_data_small_page.page_size]);
+        assertEqual(obj.pix_data_small_page.page_size, expected_page_size);
     end
 
     function test_calling_getter_returns_data_for_single_page(~)

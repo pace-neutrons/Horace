@@ -3,6 +3,7 @@ classdef FakeFAccess < sqw_binfile_common
 
 properties
     fake_data = [];
+    closed = false;
 end
 
 methods
@@ -33,6 +34,18 @@ methods
 
     function new_obj = upgrade_file_format(obj)
         new_obj = [];
+    end
+
+    function obj = fclose(obj)
+        obj.closed = true;
+    end
+
+    function obj = activate(obj)
+        obj.closed = false;
+    end
+
+    function is = is_activated(obj)
+        is = ~obj.closed;
     end
 
 end
