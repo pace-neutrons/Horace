@@ -56,7 +56,8 @@ properties (Access=private)
     f_accessor_;  % instance of faccess object to access pixel data from file
     file_path_ = '';
     page_memory_size_ = 1e9;  % 1Gb
-    pix_position_ = 1;
+    pix_position_ = 1;  % the pixel index in the file of the first pixel in the cache
+    max_page_size_;  % the maximum number of pixels that can fie in the page memory size
 end
 
 properties (Dependent)
@@ -204,6 +205,7 @@ methods
         if nargin == 2
             obj.page_memory_size_ = mem_alloc;
         end
+        obj.max_page_size_ = obj.get_max_page_size_(obj.page_memory_size_);
         if ischar(arg)
             % input is a file path
             f_accessor = sqw_formats_factory.instance().get_loader(arg);
@@ -321,7 +323,7 @@ methods
         %
         has_more = false;
         if ~isempty(obj.f_accessor_)
-            has_more = obj.pix_position_ + obj.page_size - 1 < obj.num_pixels;
+            has_more = obj.pix_position_ + obj.page_size- 1 < obj.num_pixels;
         end
     end
 
@@ -343,7 +345,7 @@ methods
         %
         if ~isempty(obj.f_accessor_)
             try
-                obj.load_page_(obj.pix_position_ + obj.page_size);
+                obj.load_page_(obj.pix_position_ + obj.max_page_size_);
             catch ME
                 switch ME.identifier
                 case 'PIXELDATA:load_page_'
@@ -488,22 +490,11 @@ methods
     end
 
     function page_size = get.page_size(obj)
-        % The number of pixels that are held in the current page. If no pixels
-        % are held, this returns the number of pixels that will be loaded into
-        % the next page.
+        % The number of pixels that are held in the current page.
         %
         % If "num_pixels in file" < "number of pixels that can fit in memory size",
         % return num_pixels - this avoids ever reading past end of file
-        if isempty(obj.data)
-            num_bytes_in_val = 8;  % pixel data stored in memory as a double
-            num_bytes_in_pixel = num_bytes_in_val*obj.PIXEL_BLOCK_COLS_;
-            page_size = floor(obj.page_memory_size_/num_bytes_in_pixel);
-            if page_size > obj.num_pixels
-                page_size = obj.num_pixels;
-            end
-        else
-            page_size = size(obj.data, 2);
-        end
+        page_size = size(obj.data, 2);
     end
 
 end
@@ -515,23 +506,26 @@ methods (Access = private)
         obj.f_accessor_ = f_accessor;
         obj.file_path_ = fullfile(obj.f_accessor_.filepath, ...
                                   obj.f_accessor_.filename);
-        pg_size = obj.page_size;
-        if obj.num_pixels <= pg_size
-            obj.data = obj.f_accessor_.get_pix(1, pg_size);
-            obj.pix_position_ = obj.num_pixels;
-        end
     end
 
     function obj = load_page_(obj, pix_idx_start)
         if pix_idx_start >= obj.num_pixels
             error('PIXELDATA:load_page_', 'No more pixel data to read from file');
         end
-        pix_idx_end = pix_idx_start + obj.page_size - 1;
+        pix_idx_end = pix_idx_start + obj.max_page_size_ - 1;
         if pix_idx_end > obj.num_pixels
             pix_idx_end = obj.num_pixels;
         end
+        if ~obj.f_accessor_.is_activated()
+            % open the sqw file if it's not open
+            obj.f_accessor_.activate();
+        end
         obj.data = obj.f_accessor_.get_pix(pix_idx_start, pix_idx_end);
         obj.pix_position_ = pix_idx_start;
+        if pix_idx_start == 1 && obj.num_pixels <= obj.max_page_size_
+            % close the sqw file if all the data has been read into memory
+            obj.f_accessor_.deactivate();
+        end
     end
 
     function obj = load_first_page_if_data_empty_(obj)
@@ -543,6 +537,12 @@ methods (Access = private)
     % function flush_cache_(obj)
     %     obj.data = [];
     % end
+
+    function page_size = get_max_page_size_(obj, mem_alloc)
+        num_bytes_in_val = 8;  % pixel data stored in memory as a double
+        num_bytes_in_pixel = num_bytes_in_val*obj.PIXEL_BLOCK_COLS_;
+        page_size = floor(mem_alloc/num_bytes_in_pixel);
+    end
 
 end
 

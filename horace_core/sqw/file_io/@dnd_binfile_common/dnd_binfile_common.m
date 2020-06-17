@@ -54,14 +54,14 @@ classdef dnd_binfile_common < dnd_file_interface
         % of Horace data information and the size of this part.
         % 26 is standard position in modern sqw file format.
         data_pos_=26;
-        
+
         % signal information location (in bytes)
         s_pos_=0;
         % error information location (in bytes)
         e_pos_=0;
         % position of the npix field
         npix_pos_='undefined';
-        
+
         % end of dnd info position
         dnd_eof_pos_=0;
         % contains structure with accurate positions of all data fields
@@ -88,7 +88,7 @@ classdef dnd_binfile_common < dnd_file_interface
         % all substantial parts of appropriate sqw file
         fields_to_save_ = {'data_pos_';'s_pos_';'e_pos_';'npix_pos_';'dnd_eof_pos_';...
             'data_fields_locations_'};
-        
+
     end
     %
     properties(Dependent)
@@ -99,7 +99,7 @@ classdef dnd_binfile_common < dnd_file_interface
         data_position;
         % initial location of npix fields
         npix_position;
-        
+
     end
     %
     methods(Access = protected,Hidden=true)
@@ -225,7 +225,7 @@ classdef dnd_binfile_common < dnd_file_interface
             flds = fields_to_save@dnd_file_interface(obj);
             flds = [flds(:);obj.fields_to_save_(:)];
         end
-        
+
         %
         function obj=init_from_structure(obj,obj_structure_from_saveobj)
             % init file accessors using structure, obtained for object
@@ -257,11 +257,11 @@ classdef dnd_binfile_common < dnd_file_interface
         %
         % Check if this loader should deal with selected data stream
         [should,objinit,mess]= should_load_stream(obj,stream,fid)
-        
+
         % set filename to save sqw data and open file for write/append
         % operations
         [obj,file_exist] = set_file_to_update(obj,filename)
-        
+
         % Reopen existing file to overwrite or write new data to it
         % or open new target file to save data.
         obj = reopen_to_write(obj,filename)
@@ -269,7 +269,7 @@ classdef dnd_binfile_common < dnd_file_interface
         % initialize loader, to be ready to read or write dnd data.
         obj = init(obj,varargin);
         % ----------------------------------------------------------------
-        
+
         % read main dnd data  from properly initialized binary file.
         [dnd_data,obj] = get_data(obj,varargin);
         %
@@ -299,8 +299,8 @@ classdef dnd_binfile_common < dnd_file_interface
         % retrieve full dnd object from sqw file containing dnd or dnd and
         % sqw information
         [dnd_obj,varargout] = get_dnd(obj,varargin);
-        
-        
+
+
         %------   Mutators:
         % Save new or fully overwrite existing sqw file
         obj = put_sqw(obj,varargin);
@@ -315,12 +315,12 @@ classdef dnd_binfile_common < dnd_file_interface
         obj = put_dnd_data(obj,varargin);
         %
         obj = put_dnd(obj,varargin)
-        
+
         %------   Auxiliary methods
         % build header, which contains information on sqw/dnd object and
         % informs clients on the contents of a binary file
         header = build_app_header(obj,sqw_obj)
-        
+
         %------- Used in upgrade
         function type = get.upgrade_mode(obj)
             % return true if object is set up for upgrade
@@ -441,7 +441,7 @@ classdef dnd_binfile_common < dnd_file_interface
             if strcmp(obj.data_type,'un') % we want full data if datatype is undefined
                 argi={};
             end
-            
+
             data_form = process_format_fields_(argi{:});
         end
         %
@@ -458,7 +458,9 @@ classdef dnd_binfile_common < dnd_file_interface
         function is = is_activated(obj)
             % Check if the file-accessor is bind with open binary file
             %
-            is =  ~isempty(obj.file_closer_) && obj.file_id_ >0;
+            open_file_ids = fopen('all');
+            is =  ~isempty(obj.file_closer_) && obj.file_id_ > 0;
+            is = is && ismember(obj.file_id_, open_file_ids);
         end
         %
         function obj = deactivate(obj)
@@ -484,7 +486,7 @@ classdef dnd_binfile_common < dnd_file_interface
             if ~isempty(obj.file_closer_)
                 obj.file_closer_ = [];
             end
-            
+
             obj.file_id_ = fopen(fullfile(obj.filepath,obj.filename));
             if obj.file_id_ <=0
                 error('FILE_IO:runtime_error',...
@@ -510,7 +512,7 @@ classdef dnd_binfile_common < dnd_file_interface
         % correspondent to the structure form_fields
         [fn_start,fn_end,is_last] = extract_field_range(pos_fields,form_fields);
     end
-    
+
 end
 
 
