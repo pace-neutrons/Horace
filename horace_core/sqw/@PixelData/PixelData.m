@@ -322,12 +322,20 @@ methods
         %    >> has_more = pix.has_more();
         %
         has_more = false;
-        if ~isempty(obj.f_accessor_)
-            has_more = obj.pix_position_ + obj.page_size- 1 < obj.num_pixels;
+        if isempty(obj.f_accessor_)
+            return;
+        end
+        if obj.page_size == 0 && obj.num_pixels > obj.max_page_size_
+            % If nothing has been loaded into the cache yet (page_size == 0),
+            % the object acts as though the first page has been loaded. So
+            % return true if there's more than one page worth of pixels
+            has_more = true;
+        else
+            has_more = obj.pix_position_ + obj.page_size  <= obj.num_pixels;
         end
     end
 
-    function advance(obj)
+    function obj = advance(obj)
         % Load the next page of pixel data from the file backing the object
         %
         % An example of using this to loop over and sum all signal data in an
@@ -492,9 +500,11 @@ methods
     function page_size = get.page_size(obj)
         % The number of pixels that are held in the current page.
         %
-        % If "num_pixels in file" < "number of pixels that can fit in memory size",
-        % return num_pixels - this avoids ever reading past end of file
-        page_size = size(obj.data, 2);
+        if isempty(obj.data)
+            page_size = obj.max_page_size_;
+        else
+            page_size = size(obj.data, 2);
+        end
     end
 
 end
