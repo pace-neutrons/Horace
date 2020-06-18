@@ -369,6 +369,7 @@ methods
 
     % --- Getters / Setters ---
     function pixel_data = get.data(obj)
+        obj = obj.load_first_page_if_data_empty_();
         pixel_data = obj.data_;
     end
 
@@ -499,7 +500,6 @@ methods
 
     function page_size = get.page_size(obj)
         % The number of pixels that are held in the current page.
-        %
         if isempty(obj.data)
             page_size = obj.max_page_size_;
         else
@@ -532,14 +532,15 @@ methods (Access = private)
         end
         obj.data = obj.f_accessor_.get_pix(pix_idx_start, pix_idx_end);
         obj.pix_position_ = pix_idx_start;
-        if pix_idx_start == 1 && obj.num_pixels <= obj.max_page_size_
-            % close the sqw file if all the data has been read into memory
+        if pix_idx_start == 1 && (obj.page_size >= obj.num_pixels)
+            % close the sqw file if all the data has been read into memory on
+            % first read
             obj.f_accessor_.deactivate();
         end
     end
 
     function obj = load_first_page_if_data_empty_(obj)
-        if isempty(obj.data) && ~isempty(obj.f_accessor_)
+        if isempty(obj.data_) && ~isempty(obj.f_accessor_)
             obj = obj.load_page_(1);
         end
     end
