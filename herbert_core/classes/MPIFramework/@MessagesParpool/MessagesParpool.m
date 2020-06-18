@@ -22,10 +22,16 @@ classdef MessagesParpool < iMessagesFramework
         % another one.
         time_to_react_ = 0.1
         % holder to the class, wrapping Matlab MPI framework (parallel
-        % computing toolbox)
+        % computing toolbox, used to perform actual send/receive/probe
+        % operations
         MPI_ = [];
-        %
-        mess_cache_
+        
+        % Holder for the blocking messages, received asynchronously and
+        % to be returned as requested (synchronously or asynchronously)
+        blocking_mess_cache_
+        % Holder for the non-blocking messages, received asynchronously and
+        % to be returned as requested (synchronously or asynchronously)
+        state_mess_cache_
     end
     %----------------------------------------------------------------------
     methods
@@ -81,14 +87,17 @@ classdef MessagesParpool < iMessagesFramework
             % receive message from a task with specified id.
             %
             % Blocking  or unblocking behavior depends on requested message
-            % type.
+            % type or can be requested explicitly.
             %
             % If the requested message type is blocking, blocks until the
             % message is available
             % if it is unblocking, return empty message if appropriate message
             % is not present in system
-            % There is possibility directly ask for blocking or unblocking
-            % behavior.
+            %
+            % Asking a server for a message synchroneously, may block a
+            % client if other type of message has been send by server.
+            % Exception is FailureMessage, which, if send, will be received
+            % in any circumstances.
             %
             % Usage:
             % >>mf = MessagesFramework();
@@ -163,45 +172,62 @@ classdef MessagesParpool < iMessagesFramework
             [messages_name,task_id] = labProbe_messages_(obj,task_id,varargin{:});
         end
         %
-        function [all_messages,task_ids] = receive_all(obj,varargin)
-            % retrieve (and remove from system) all messages
-            % existing in the system for the tasks with id-s specified as input
-            % dublicated messages sent from the same task id are discarded
-            % and only the last message retained
+        function [all_messages,task_ids] = receive_all(obj,task_ids,varargin)
+            % receive messages from a task with id-s specified as array or
+            % all messages from all labs available.
             %
-            % non-blocking if used without message name and blocking if
-            % message name is provided
+            % Blocking  or unblocking behavior depends on requested message
+            % type or can be requested explicitly.
             %
+            % If the requested message type is blocking, blocks until the
+            % message is available.
+            % if it is unblocking, return empty message if appropriate message
+            % is not present in system
+            %
+            % Asking a server for a message synchroneously, may block a
+            % client if other type of message has been send by server.
+            % Exception for reveive all are FailureMessage and CanceledMessage,
+            % which, if send, will be received and returned instead of the
+            % requested message in any circumstances.
             %
             % Usage:
-            %>>[all_messages,task_ids] = pm.receive_all([task_is],[mess_name]);
-            %Input:
-            % task_ids -- array of task id-s to check messages for or empty
-            %             or 'all' to check for all messages.
-            % mess_name -- if present, the name (or tag) of the message to
-            %              receive.
-            
+            % >>mf = MessagesFramework();
+            % >>[ok,err_mess,message] = mf.receive_all(task_ids,mess_name, ...
+            %                           ['-synchronous'|'-asynchronous'])
+            % or:
+            % >>[ok,err_mess,message] = mf.receive_all(id,'any', ...
+            %                           ['-synchronous'|'-asynchronous'])
+            % or:
+            % >>[ok,err_mess,message] = mf.receive_all('all','any', ...
+            %                           ['-synchronous'|'-asynchronous'])
+            %
+            %Inputs:
+            % task_ids  - array of task id-s to check for messages or 'all' for
+            %             all labs(task-id-s)
+            % mess_name - the string, defining the message name or 'any' or
+            %             empty variable for any type of message.
+            % Optional:
+            % ['-s[ynchronous]'|'-a[synchronous]'] -- override default message
+            %              receiving rules and receive the message
+            %              block program execution if '-synchronous' keyword
+            %              is provided, or continue execution if message has
+            %              not been send ('-asynchronous' mode).
             %Return:
-            % all_messages -- cellarray of messages for the tasks requested and
-            %                have messages available in the system with empty cells.
-            %                for missing messages
-            % task_ids    -- array of task id-s for these messages with
-            %                zeros for missing messages
-            % mess_name    -- if present, receive only the messages with
-            %                 the name provided. The messages sent from the
-            %                 specified workers but with the name different
-            %                 from provided are stored in the messages
-            %                 cache, available for subsequent requests to
-            %                 the recieve_all method.
+            % all_messages - cellarray of messages for the tasks requested and
+            %                have messages available in the system.
+            %task_ids      - array of task id-s where these messages were
+            %                received from.
+            %                in asynchroneous mode, size(task_ids) at output
+            %                may be smaller then the size(task_ids) at input.
             %
             %
-            if nargin>1 && ischar(varargin{1})
-                if strcmp('any',varargin{1})
+            if nargin>1 && ischar(task_ids)
+                if strcmp('any',task_ids)
                     warning('Outdated receive all interface. Use all instead of any')
-                    varargin{1} = 'all';
+                    task_ids = 'all';
                 end
             end
-            [all_messages,task_ids] = receive_all_messages_(obj,varargin{:});
+            [all_messages,task_ids] = receive_all_messages_(obj,task_ids,varargin{:});
         end
         %
         function finalize_all(obj)
@@ -216,18 +242,18 @@ classdef MessagesParpool < iMessagesFramework
             % framework
             obj.persistent_fail_message_ = [];
             % clear cached messages
-            obj.mess_cache_.clear();
-            %             if obj.numLabs == 1
-            %                 return
-            %             end
-            % receive and reject all messages, may be present in the
-            % messages framework.
-            [mess_names,source_id] = obj.MPI_.mlabProbe([],[]);
+            obj.blocking_mess_cache_.clear();
+            obj.state_mess_cache_.clear();
+            
+            % receive and reject all messages, may be send to the lab
+            [mess_names,source_id] = obj.MPI_.mlabProbe('all','any');
             while ~isempty(mess_names)
                 for i=1:numel(source_id)
                     obj.MPI_.mlabReceive(source_id(i),mess_names(i));
                 end
-                [mess_names,source_id] = obj.MPI_.mlabProbe([],[]);
+                % just in case failed stuck somewhere.
+                obj.persistent_fail_message_ = [];                
+                [mess_names,source_id] = obj.MPI_.mlabProbe('all','any');
             end
         end
         %
@@ -237,9 +263,13 @@ classdef MessagesParpool < iMessagesFramework
             err = [];
         end
         %
-        function is = is_job_canceled(obj)
+        function is = is_job_canceled(obj,tid)
             % method verifies if job has been canceled
-            mess = obj.probe_all('all','canceled');
+            if nargin<2
+                mess = obj.probe_all('all','canceled');
+            else
+                mess = obj.probe_all(tid,'canceled');
+            end
             if ~isempty(mess)
                 is = true;
             else
@@ -247,7 +277,7 @@ classdef MessagesParpool < iMessagesFramework
             end
         end
         % ----------------------------------------------------------------
-        % Test methods
+        % Test methods:
         %
         %
         function obj = set_mpi_wrapper(obj,wrapper)

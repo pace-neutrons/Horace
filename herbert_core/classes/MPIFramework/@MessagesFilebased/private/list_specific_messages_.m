@@ -10,9 +10,10 @@ elseif ischar(task_ids_requested) && strcmpi(task_ids_requested,'all')
     task_ids_requested = 1:obj.numLabs;
 end
 % No harm in sending filebased messages to itself, especially as 
-% list_all_messages_ accepts them.
-% not_this = task_ids_requested ~= obj.labIndex;
-% task_ids_requested = task_ids_requested(not_this);
+% list_all_messages_ accepts them but better to keep the common interface
+% with other frameworks
+not_this = task_ids_requested ~= obj.labIndex;
+task_ids_requested = task_ids_requested(not_this);
 
 if ~exist('mess_name_or_tag','var')
     error('FILEBASED_MESSAGES:invalid_argument',...

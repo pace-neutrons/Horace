@@ -1,6 +1,7 @@
 classdef JETesterSendData < JobExecutor
     % Class used to test job dispatcher functionality
-    % when data messages are exchenged
+    % when data messages are exchenged doing data message-level 
+    % syncronization (messages send as ready and received when possible)
     %
     %
     
@@ -93,8 +94,6 @@ classdef JETesterSendData < JobExecutor
                         mis.do_logging(j,obj.n_steps)
                         obj.log_step_count=0;
                     end
-                    
-                    
                 end
             else
                 me = DataMessage();

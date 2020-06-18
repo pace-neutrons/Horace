@@ -308,7 +308,8 @@ classdef MESS_NAMES < handle
         %
         function is= is_blocking(mess_or_name_or_tag)
             % check if the message with the name, provided as imput is
-            % blocking message. (should be send-received synchroneously)
+            % blocking message. (should be send-received synchroneously and
+            % can not be dropped (needed for result)
             %
             % Input:
             % mess_or_name_or_tag -- a string
@@ -340,7 +341,7 @@ classdef MESS_NAMES < handle
                 mc = mni.mess_class_map_(mess_or_name_or_tag);
                 is = mc.is_blocking();
             elseif iscell(mess_or_name_or_tag)
-                is = cellfun(@(mn)MESS_NAMES.is_blocking(mn),mess_or_name_or_tag,...
+                is = cellfun(@(mn)(~isempty(mn)&& MESS_NAMES.is_blocking(mn)),mess_or_name_or_tag,...
                     'UniformOutput',true);
             end
             

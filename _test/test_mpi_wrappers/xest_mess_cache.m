@@ -1,11 +1,12 @@
-classdef test_mess_cache < TestCase
-    %
+classdef xest_mess_cache < TestCase
+    % It is not the cache, currently used by framework. 
+    % 
     
     properties
     end
     methods
         %
-        function this=test_mess_cache(name)
+        function this=xest_mess_cache(name)
             if ~exist('name','var')
                 name = 'test_mess_cache';
             end

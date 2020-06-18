@@ -29,6 +29,7 @@ classdef test_exchange_ParpoolMPI < exchange_common_tests
             %
             % get real lab-indexes, initiated in test mode.
             mpi_wrapper = mf.get_mpi_wrapper();
+            assertEqual(mpi_wrapper.n_test_messages, 0);
             
             assertTrue(mpi_wrapper.is_tested);
             assertEqual(mpi_wrapper.numLabs, 6);
@@ -40,18 +41,9 @@ classdef test_exchange_ParpoolMPI < exchange_common_tests
             mpi_wrapper.mlabSend(mess2,5);
             [mess_names,source]=mpi_wrapper.mlabProbe(5);
             assertTrue(~isempty(mess_names))
-            assertEqual(mess_names{1},mess1.mess_name);
+            assertEqual(mess_names{1},mess2.mess_name);
             assertEqual(source,5);
             [mess_names,source]=mpi_wrapper.mlabProbe([]);
-            assertTrue(~isempty(mess_names))
-            assertEqual(mess_names{1},mess1.mess_name);
-            assertEqual(source,5);
-            
-            [mess_r,tag,source]=mpi_wrapper.mlabReceive(5);
-            assertEqual(mess_r,mess1);
-            assertEqual(tag,mess1.tag);
-            assertEqual(source,5);
-            [mess_names,source]=mpi_wrapper.mlabProbe(5);
             assertTrue(~isempty(mess_names))
             assertEqual(mess_names{1},mess2.mess_name);
             assertEqual(source,5);
@@ -59,6 +51,15 @@ classdef test_exchange_ParpoolMPI < exchange_common_tests
             [mess_r,tag,source]=mpi_wrapper.mlabReceive(5);
             assertEqual(mess_r,mess2);
             assertEqual(tag,mess2.tag);
+            assertEqual(source,5);
+            [mess_names,source]=mpi_wrapper.mlabProbe(5);
+            assertTrue(~isempty(mess_names))
+            assertEqual(mess_names{1},mess1.mess_name);
+            assertEqual(source,5);
+            
+            [mess_r,tag,source]=mpi_wrapper.mlabReceive(5);
+            assertEqual(mess_r,mess1);
+            assertEqual(tag,mess1.tag);
             assertEqual(source,5);
         end
         %
@@ -78,6 +79,7 @@ classdef test_exchange_ParpoolMPI < exchange_common_tests
             assertTrue(mpi_wrapper.is_tested);
             assertEqual(mpi_wrapper.numLabs, 6);
             assertEqual(mpi_wrapper.labIndex, 2);
+            assertEqual(mpi_wrapper.n_test_messages, 0);
             
             mess = LogMessage(1,10,0);
             mpi_wrapper.mlabSend(mess,5);
@@ -88,7 +90,7 @@ classdef test_exchange_ParpoolMPI < exchange_common_tests
             %
             [mess_names,source]=mpi_wrapper.mlabProbe([]);
             assertTrue(~isempty(mess_names))
-
+            
             assertEqual(numel(mess_names),2);
             assertEqual(mess_names{1},mess.mess_name);
             assertEqual(source(1),3);
@@ -110,6 +112,8 @@ classdef test_exchange_ParpoolMPI < exchange_common_tests
             mess = InitMessage(1,10,0);
             tag = mess.tag;
             mpi_wrapper = mf.get_mpi_wrapper();
+            assertEqual(mpi_wrapper.n_test_messages, 0);
+            
             assertExceptionThrown(@()mlabReceive(mpi_wrapper,2,tag),...
                 'MESSAGES_FRAMEWORK:runtime_error',...
                 'Should throw when trying to receive non-existing blocking message from wrong tag');
@@ -159,6 +163,7 @@ classdef test_exchange_ParpoolMPI < exchange_common_tests
             assertTrue(mpi_wrapper.is_tested);
             assertEqual(mpi_wrapper.numLabs, 10);
             assertEqual(mpi_wrapper.labIndex, 1);
+            assertEqual(mpi_wrapper.n_test_messages, 0);
             
             mess = LogMessage(1,10,0);
             mpi_wrapper.mlabSend(mess,5);

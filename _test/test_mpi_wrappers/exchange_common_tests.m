@@ -149,6 +149,122 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(numel(message.payload), 3);
         end
         
+        function test_receive_all_some_from_cache(obj)
+            if obj.ignore_test
+                return
+            end
+            intercomm = feval(obj.comm_name,obj.tests_control_strcut);
+            clob_s = onCleanup(@()(finalize_all(intercomm)));
+            
+            
+            mess_l = LogMessage(0, 10, 1, '0');
+            % CPP_MPI messages in test mode are "reflected" from target node
+            [ok, err] = intercomm.send_message(2, mess_l);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            
+            mess_d = DataMessage();
+            mess_d.payload = 'a1';
+            [ok, err] = intercomm.send_message(2, mess_d);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            mess_d.payload = 'a2';
+            [ok, err] = intercomm.send_message(3, mess_d);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            
+            mess_d.payload = 'b1';
+            [ok, err] = intercomm.send_message(2, mess_d);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            mess_d.payload = 'b2';
+            [ok, err] = intercomm.send_message(3, mess_d);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            
+            %data a goes to cahce
+            [all_mess, task_ids] = intercomm.receive_all('all', 'log');
+            assertEqual(numel(all_mess), 1);
+            assertEqual(numel(task_ids), 1);
+            assertEqual(task_ids, 2);
+            
+            [all_mess, task_ids] = intercomm.receive_all('all', 'log');
+            assertTrue(isempty(all_mess));
+            assertTrue(isempty(task_ids));
+            
+            [ok, err] = intercomm.send_message(3, mess_l);
+            assertEqual(ok, MESS_CODES.ok, ['Send  Error = ', err])
+            
+            if isa(intercomm,'MessagesFilebased')
+                [all_mess, task_ids] = intercomm.receive_all('all', 'log');
+                assertEqual(numel(all_mess), 1);
+                assertEqual(numel(task_ids), 1);
+                assertEqual(task_ids, 3);
+            end
+            
+            [all_mess, task_ids] = intercomm.receive_all('all', 'log');
+            assertTrue(isempty(all_mess));
+            assertTrue(isempty(task_ids));
+            
+            
+            mess_d.payload = 'c1';
+            [ok, err] = intercomm.send_message(2, mess_d);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            mess_d.payload = 'c2';
+            [ok, err] = intercomm.send_message(3, mess_d);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            
+            [all_mess, task_ids] = intercomm.receive_all('all', 'data');
+            assertEqual(numel(all_mess), 2);
+            assertEqual(numel(task_ids), 2);
+            assertEqual(task_ids, [2,3]);
+            assertEqual(all_mess{1}.payload, 'a1');
+            assertEqual(all_mess{2}.payload, 'a2');
+            
+            [all_mess, task_ids] = intercomm.receive_all('all', 'data');
+            assertEqual(numel(all_mess), 2);
+            assertEqual(numel(task_ids), 2);
+            assertEqual(task_ids, [2,3]);
+            assertEqual(all_mess{1}.payload, 'b1');
+            assertEqual(all_mess{2}.payload, 'b2');
+            
+            mess_l = LogMessage(1, 10, 1, '0');
+            [ok, err] = intercomm.send_message(2, mess_l);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            [ok, err] = intercomm.send_message(3, mess_l);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            
+            mess_l = LogMessage(2, 10, 1, '0');
+            [ok, err] = intercomm.send_message(2, mess_l);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            [ok, err] = intercomm.send_message(3, mess_l);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            
+            
+            mess_l = LogMessage(3, 10, 1, '0');
+            [ok, err] = intercomm.send_message(2, mess_l);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            mess_l = LogMessage(4, 10, 1, '0');
+            [ok, err] = intercomm.send_message(3, mess_l);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            
+            
+            [all_mess, task_ids] = intercomm.receive_all('all', 'data');
+            assertEqual(numel(all_mess), 2);
+            assertEqual(numel(task_ids), 2);
+            assertEqual(task_ids, [2,3]);
+            assertEqual(all_mess{1}.payload, 'c1');
+            assertEqual(all_mess{2}.payload, 'c2');
+            
+            f = @()receive_all(intercomm,'all', 'data');
+            assertExceptionThrown(f,'MESSAGES_FRAMEWORK:runtime_error',...
+                'Receiving missing Blocking message should throw in test mode')
+            
+            [all_mess, task_ids] = intercomm.receive_all('all', 'log');
+            assertEqual(numel(all_mess), 2);
+            assertEqual(numel(task_ids), 2);
+            assertEqual(task_ids, [2,3]);
+            assertEqual(all_mess{1}.step, 3);
+            assertEqual(all_mess{2}.step, 4);
+            
+            
+        end
+        
         function test_receive_all_mess(obj)
             if obj.ignore_test
                 return
@@ -605,13 +721,13 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(sources(2),6);
             assertEqual(messNames{1},'log');
             assertEqual(messNames{2},'failed');
-
+            
             [messNames,sources] = m_comm.probe_all('all', 'any');
             assertEqual(numel(messNames),2);
             assertEqual(sources(1),5);
             assertEqual(sources(2),6);
             assertEqual(messNames{1},'log');
-            assertEqual(messNames{2},'failed');            
+            assertEqual(messNames{2},'failed');
             
             %-----------------------------------------------------------
             [ok, err_mess, messR] = m_comm.receive_message(6, mess1.mess_name);
@@ -681,7 +797,7 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(messNames{1},'failed');
             assertEqual(messNames{2},'failed');
             
-        end       
+        end
         %
         function test_SendReceive(obj)
             % Test communications in test mode

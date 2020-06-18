@@ -140,14 +140,18 @@ classdef MessagesFilebased < iMessagesFramework
             % receive message from a task with specified id.
             %
             % Blocking  or unblocking behavior depends on requested message
-            % type.
+            % type or can be requested explicitly.
             %
             % If the requested message type is blocking, blocks until the
             % message is available
             % if it is unblocking, return empty message if appropriate message
             % is not present in system
-            % There is possibility directly ask for blocking or unblocking
-            % behavior.
+            %
+            % Asking a server for a message synchroneously, may block a
+            % client if other type of message has been send by server.
+            % Exception is FailureMessage, which, if send, will be received
+            % in any circumstances.
+            %
             %
             % Usage:
             % >>mf = MessagesFramework();
@@ -181,7 +185,7 @@ classdef MessagesFilebased < iMessagesFramework
         end
         %
         %
-        function [all_messages_names,task_ids] = probe_all(obj,task_ids_in,varargin)
+        function [all_messages_names,task_ids] = probe_all(obj,task_ids_in,mess_name)
             % list all messages existing in the system with id-s specified as input
             % and intended for this task
             %
@@ -201,56 +205,96 @@ classdef MessagesFilebased < iMessagesFramework
             % if no messages are present in the system
             % all_messages_names and task_ids are empty
             %
-            if nargin>2 && ((ischar(varargin{1}) && ~strcmp(varargin{1},'any')) || ...
-                    (isnumeric(varargin{1}) && varargin{1} ~=-1))
+            if nargin<2
+                task_ids_in = 'all';
+            end
+            if nargin<3
+                mess_name = 'any';
+            end
+            if isempty(mess_name)
+                mess_name = 'any';
+            end
+            if ischar(task_ids_in) && strcmp(task_ids_in,'any')
+                warning('Outdated receive interface -- keyword all should be used')
+                task_ids_in = 'all';
+            end
+            
+            if ((ischar(mess_name) && ~strcmp(mess_name,'any')) || ...
+                    (isnumeric(mess_name) && mess_name ~=-1))
                 % performance boosting operation, especially important for
                 % Windows, as dir locks message files there.
-                if ischar(task_ids_in) && strcmp(task_ids_in,'any')
-                    warning('Outdated receive interface -- keyword all should be used')
-                    task_ids_in = 'all';
-                end
-                [all_messages_names,task_ids] = list_specific_messages_(obj,task_ids_in,varargin{:});
-            else
-                [all_messages_names,task_ids] = list_all_messages_(obj,task_ids_in,varargin{:});                
+                [all_messages_names,task_ids] = list_specific_messages_(obj,task_ids_in,mess_name);
+            else % any message
+                [all_messages_names,task_ids] = list_all_messages_(obj,task_ids_in,mess_name);
             end
             [mess,id_from] = obj.get_interrupt(task_ids_in);
-            % mix received messages names with old interrupt names received earlier            
-            if ~isempty(mess) 
+            % mix received messages names with old interrupt names received earlier
+            if ~isempty(mess)
                 int_names = cellfun(@(x)(x.mess_name),mess,'UniformOutput',false);
                 [all_messages_names,task_ids] = ...
                     obj.mix_messages(all_messages_names,task_ids,int_names,id_from);
             end
         end
         %
-        function [all_messages,task_ids] = receive_all(obj,varargin)
-            % retrieve (and remove from system) all messages
-            % existing in the system for the tasks with id-s specified as input
-            % Blocks execution until the all requested messages are received
-            % if the message names are provided and unblocking if they are
-            % absent
+        function [all_messages,task_ids] = receive_all(obj,task_ids,varargin)
+            % receive messages from a task with id-s specified as array or
+            % all messages from all labs available.
             %
-            %Input:
-            %task_ids  -- array of task id-s to check messages for
-            %mess_name -- if present, the name of the message to receive.
-            %             if 'any' or empty, recevie any type of message
-            
+            % Blocking  or unblocking behavior depends on requested message
+            % type or can be requested explicitly.
             %
+            % If the requested message type is blocking, blocks until the
+            % message is available.
+            % if it is unblocking, return empty message if appropriate message
+            % is not present in system
+            %
+            % Asking a server for a message synchroneously, may block a
+            % client if other type of message has been send by server.
+            % Exception for reveive all are FailureMessage and CanceledMessage,
+            % which, if send, will be received and returned instead of the
+            % requested message in any circumstances.
+            %
+            % Usage:
+            % >>mf = MessagesFramework();
+            % >>[ok,err_mess,message] = mf.receive_all(task_ids,mess_name, ...
+            %                           ['-synchronous'|'-asynchronous'])
+            % or:
+            % >>[ok,err_mess,message] = mf.receive_all(id,'any', ...
+            %                           ['-synchronous'|'-asynchronous'])
+            % or:
+            % >>[ok,err_mess,message] = mf.receive_all('all','any', ...
+            %                           ['-synchronous'|'-asynchronous'])
+            %
+            %Inputs:
+            % task_ids  - array of task id-s to check for messages or 'all' for
+            %             all labs(task-id-s)
+            % mess_name - the string, defining the message name or 'any' or
+            %             empty variable for any type of message.
+            % Optional:
+            % ['-s[ynchronous]'|'-a[synchronous]'] -- override default message
+            %              receiving rules and receive the message
+            %              block program execution if '-synchronous' keyword
+            %              is provided, or continue execution if message has
+            %              not been send ('-asynchronous' mode).
             %Return:
-            % all_messages -- cellarray of messages for the tasks requested and
-            %                 have messages available in the system .
-            % task_ids     -- array of task id-s for these messages
-            % mess_name    -- if present, receive only the messages with
-            %                 the name provided
+            % all_messages - cellarray of messages for the tasks requested and
+            %                have messages available in the system.
+            %task_ids      - array of task id-s where these messages were
+            %                received from.
+            %                in asynchroneous mode, size(task_ids) at output
+            %                may be smaller then the size(task_ids) at input.
             %
-            %
-            if nargin>1 && ischar(varargin{1})
-                if strcmp('any',varargin{1})
+            if nargin<2
+                task_ids = 'all';
+            end
+            if nargin>1 && ischar(task_ids)
+                if strcmp('any',task_ids)
                     warning('Outdated receive all interface. Use all instead of any')
-                    varargin{1} = 'all';
+                    task_ids = 'all';
                 end
             end
             
-            [all_messages,task_ids] = receive_all_messages_(obj,varargin{:});
+            [all_messages,task_ids] = receive_all_messages_(obj,task_ids,varargin{:});
         end
         %
         function finalize_all(obj)

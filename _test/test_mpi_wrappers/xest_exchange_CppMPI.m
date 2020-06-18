@@ -1,11 +1,11 @@
-classdef test_exchange_CppMPI < exchange_common_tests
+classdef xest_exchange_CppMPI < exchange_common_tests
     
     
     properties
     end
     methods
         %
-        function obj = test_exchange_CppMPI(name)
+        function obj = xest_exchange_CppMPI(name)
             if ~exist('name', 'var')
                 name = 'test_exchange_CppMPI';
             end

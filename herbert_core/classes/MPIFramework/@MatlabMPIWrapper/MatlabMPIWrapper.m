@@ -16,6 +16,8 @@ classdef MatlabMPIWrapper < handle
         
         % number of parallel workers
         numLabs
+        %
+        n_test_messages
     end
     properties(Access=protected,Hidden=true)
         is_tested_ = false;
@@ -53,6 +55,9 @@ classdef MatlabMPIWrapper < handle
                 obj.is_tested_ = false;
             else
                 obj.is_tested_ = logical(is_tested);
+                obj.messages_cache_ = containers.Map('KeyType','double',...
+                    'ValueType','any');
+                
             end
             if obj.is_tested
                 obj.labindex_ = labNum;
@@ -122,7 +127,8 @@ classdef MatlabMPIWrapper < handle
             if nargin<3
                 mess_tag = -1;
             end
-            if isempty(mess_tag)
+            
+            if isempty(mess_tag) || (ischar(mess_tag) && strcmp(mess_tag,'any'))
                 mess_tag = -1;
             end
             if nargin<2
@@ -189,7 +195,7 @@ classdef MatlabMPIWrapper < handle
             if isempty(mess_tag)
                 mess_tag = -1;
             end
-            if iscell(mess_tag)
+            if iscell(mess_tag) || ischar(mess_tag)
                 mess_tag = MESS_NAMES.mess_id(mess_tag);
             end
             if nargin<2
@@ -207,12 +213,12 @@ classdef MatlabMPIWrapper < handle
             if ~exist('is_blocking','var')
                 is_blocking = MESS_NAMES.is_blocking(mess_tag);
             end
-            [message,tag,source] = labReceive_(obj,targ_id,mess_tag,is_blocking);
+            [message,tag] = labReceive_(obj,targ_id,mess_tag,is_blocking);
             if nargout>1
                 varargout{1} = tag;
             end
             if nargout>2
-                varargout{2} = source;
+                varargout{2} = targ_id;
             end
             if obj.do_logging_
                 tag_name = num2str(tag);
@@ -275,11 +281,17 @@ classdef MatlabMPIWrapper < handle
             %
             is = obj.is_tested_;
         end
+        function ntm = get.n_test_messages(obj)
+            ntm = double(obj.messages_cache_.Count);
+        end
         % -------------------------------------------------------------
         % test methods:
         function set_labIndex(obj,num)
             % change labNumber (for testing purposes)
             obj.labindex_ = num;
+        end
+        function delete(obj)
+            obj.messages_cache_ = [];
         end
     end
 end

@@ -375,13 +375,13 @@ classdef iMessagesFramework < handle
                 messages = add_mess;
                 tid_from = tid_add_from;
             end
-            if any(size(messages)~= size(tid_from))
+            if any(numel(messages)~= numel(tid_from))
                 error('iMESSAGES_FRAMEWOR:invalid_argument',...
                     'size of messages array needs to be equal to size of source indexes')
             end
-            if any(size(add_mess)~= size(tid_add_from))
+            if any(numel(add_mess)~= numel(tid_add_from))
                 error('iMESSAGES_FRAMEWOR:invalid_argument',...
-                    'size of additional messages array needs to be equal to size of arricional source indexes')
+                    'size of additional messages array needs to be equal to size of additional source indexes')
             end
             
             
@@ -430,14 +430,17 @@ classdef iMessagesFramework < handle
         % receive message from a task with specified id.
         %
         % Blocking  or unblocking behavior depends on requested message
-        % type.
+        % type or can be requested explicitly.
         %
         % If the requested message type is blocking, blocks until the
         % message is available
         % if it is unblocking, return empty message if appropriate message
         % is not present in system
-        % There is possibility directly ask for blocking or unblocking
-        % behavior.
+        %
+        % Asking a server for a message synchroneously, may block a
+        % client if other type of message has been send by server.
+        % Exception is FailureMessage, which, if send, will be received
+        % in any circumstances.
         %
         % Usage:
         % >>mf = MessagesFramework();
@@ -445,7 +448,7 @@ classdef iMessagesFramework < handle
         %                           ['-synchronous'|'-asynchronous'])
         % or:
         % >>[ok,err_mess,message] = mf.receive_message(id,'any', ...
-        %                           ['-synchronous'|'-synchronous'])
+        %                           ['-synchronous'|'-asynchronous'])
         %
         % Inputs:
         % id        - the address of the lab to receive message from
@@ -483,18 +486,53 @@ classdef iMessagesFramework < handle
         % messages
         [all_messages_names,task_ids] = probe_all(obj,task_ids,mess_names)
         
-        % retrieve (and remove from system) all messages
-        % existing in the system directed to current node and originated
-        % from the tasks with id-s specified as input. Blocking if list of
+        % receive messages from a task with id-s specified as array or
+        % all messages from all labs available.
         %
+        % Blocking  or unblocking behavior depends on requested message
+        % type or can be requested explicitly.
         %
-        %Input:
-        %task_ids -- array of task id-s to check messages for
+        % If the requested message type is blocking, blocks until the
+        % message is available.
+        % if it is unblocking, return empty message if appropriate message
+        % is not present in system
+        %
+        % Asking a server for a message synchroneously, may block a
+        % client if other type of message has been send by server.
+        % Exception for reveive all are FailureMessage and CanceledMessage,
+        % which, if send, will be received and returned instead of the
+        % requested message in any circumstances.
+        %
+        % Usage:
+        % >>mf = MessagesFramework();
+        % >>[ok,err_mess,message] = mf.receive_all(task_ids,mess_name, ...
+        %                           ['-synchronous'|'-asynchronous'])
+        % or:
+        % >>[ok,err_mess,message] = mf.receive_all(id,'any', ...
+        %                           ['-synchronous'|'-asynchronous'])
+        % or:
+        % >>[ok,err_mess,message] = mf.receive_all('all','any', ...
+        %                           ['-synchronous'|'-asynchronous'])
+        %
+        %Inputs:
+        % task_ids  - array of task id-s to check for messages or 'all' for
+        %             all labs(task-id-s)
+        % mess_name - the string, defining the message name or 'any' or
+        %             empty variable for any type of message.
+        % Optional:
+        % ['-s[ynchronous]'|'-a[synchronous]'] -- override default message
+        %              receiving rules and receive the message
+        %              block program execution if '-synchronous' keyword
+        %              is provided, or continue execution if message has
+        %              not been send ('-asynchronous' mode).
         %Return:
-        % all_messages -- cellarray of messages for the tasks requested and
-        %                 have messages available in the system .
-        %task_ids       -- array of task id-s for these messages
-        [all_messages,task_ids] = receive_all(obj,task_ids,mess_name_or_tag)
+        % all_messages - cellarray of messages for the tasks requested and
+        %                have messages available in the system.
+        %task_ids      - array of task id-s where these messages were
+        %                received from.
+        %                in asynchroneous mode, size(task_ids) at output
+        %                may be smaller then the size(task_ids) at input.
+        [all_messages,task_ids] = receive_all(obj,task_ids,mess_name_or_tag,varargin)
         
         % wait until all workers arrive to the part of the code marked
         % by this barrier.

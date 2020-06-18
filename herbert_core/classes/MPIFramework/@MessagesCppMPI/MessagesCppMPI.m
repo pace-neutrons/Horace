@@ -221,14 +221,7 @@ classdef MessagesCppMPI < iMessagesFramework
             ok = true;
             err = [];
         end
-        
-        function set.time_to_fail(obj,val)
-            obj.time_to_fail_ = val;
-        end
-        function val = get.time_to_fail(obj)
-            val = obj.time_to_fail_ ;
-        end
-        
+                
         function is = is_job_canceled(obj)
             % method verifies if job has been canceled
             mess = obj.probe_all('all','canceled');

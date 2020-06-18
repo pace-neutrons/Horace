@@ -252,11 +252,22 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertTrue(ismember('starting', all_mess))
             assertFalse(ismember('started', all_mess))
             assertEqual(mid_from, 5);
+            [all_mess, mid_from] = mf.probe_all('all','starting');
+            assertTrue(ismember('starting', all_mess))
+            assertFalse(ismember('started', all_mess))
+            assertEqual(mid_from, 5);
+            
+            
             lock_starting = this.build_fake_lock(mf, 'starting');
             clob_lock1 = onCleanup(@()del_file(lock_starting));
             
-            all_mess = mf.probe_all();
+            [all_mess,mid_from] = mf.probe_all();
             assertTrue(isempty(all_mess));
+            assertTrue(isempty(mid_from));
+            [all_mess, mid_from] = mf.probe_all('all','starting');
+            assertTrue(isempty(all_mess));
+            assertTrue(isempty(mid_from));
+            
             
             
             % send another message to itself
@@ -310,7 +321,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
         end
         %
         function test_shared_folder(this)
-            mf = MessagesFilebased();
+            mf = MessagesFileBasedMPI_mirror_tester();
             mf.mess_exchange_folder = this.working_dir;
             mf = mf.init_framework('test_shared_folder');
             clob = onCleanup(@()mf.finalize_all());
@@ -319,13 +330,14 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             jfn = fullfile(this.working_dir, cfn, mf.exchange_folder_name, mf.job_id);
             assertEqual(exist(jfn, 'dir'), 7);
             
-            [ok, err] = mf.send_message(0, 'starting');
+            [ok, err] = mf.send_message(7, 'starting');
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
             
-            [ok, err, the_mess] = mf.receive_message(0, 'starting');
+            [ok, err, the_mess] = mf.receive_message(7, 'starting');
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
+            assertFalse(isempty(the_mess));            
             assertEqual(the_mess.mess_name, 'starting');
             
             clear clob;

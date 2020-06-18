@@ -1,6 +1,7 @@
 classdef JETesterWithData < JobExecutor
     % Class used to test job dispatcher functionality
-    % when data messages are exchenged
+    % when data messages are exchenged doing synchronized
+    % send-reduce cycle with barrier between send and reduce.
     %
     %
     
@@ -90,9 +91,9 @@ classdef JETesterWithData < JobExecutor
             end
             obj.log_step_count = obj.log_step_count+1;
             if obj.log_step_count >=obj.log_step
-            mis = MPI_State.instance();
-            mis.do_logging(obj.n_step,obj.n_steps)
-            obj.log_step_count=0;
+                mis = MPI_State.instance();
+                mis.do_logging(obj.n_step,obj.n_steps)
+                obj.log_step_count=0;
             end
         end
     end

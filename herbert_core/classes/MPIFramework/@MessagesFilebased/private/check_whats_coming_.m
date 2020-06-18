@@ -3,18 +3,15 @@ function    [receive_now,n_steps] = check_whats_coming_(obj,task_ids,mess_name,m
 % synchroneous mode
 %
 % Inputs:
-% task_ids -- all lab-nums to receive messages from.
-% mess_name-- the name of the message to check for.
-% mess_array    -- cellarray of size(task_ids) where already received
-%                  messages are stored and not-received messages are
-%                  represented by empty cells
-% mess_received -- boolean array of size task_ids, indicating if some messages
-%                  from the labs requested  have already arrived and
-%                  receieved
+% task_ids - all lab-nums to receive messages from.
+% mess_name - the name of the message to check for.
+% mess_array  - cellarray of size(task_ids) where already received
+%               messages are stored and not-received messages are
+%               represented by empty cells
 % Returns:
-% receive_now    -- boolean array of size task_ids, where true indicates
-%                   that message from correspondent task id is present and
-%                   can be read.
+% receive_now  - boolean array of size task_ids, where true indicates
+%               that message from correspondent task id is present and
+%               can be read.
 %
 
 % have it appeared?

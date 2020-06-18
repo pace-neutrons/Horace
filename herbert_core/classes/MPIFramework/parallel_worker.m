@@ -1,4 +1,4 @@
-function [ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING)
+function [ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING,DO_DEBUGGING)
 % function used as standard worker to do a job in a separate Matlab
 % session.
 %
@@ -11,6 +11,10 @@ function [ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING)
 %              folder name where the job initialization data are located on
 %              a remote system.
 % DO_LOGGING -- it true, print extensive logging information about the task progress.
+% DO_DEBUGGING-- if true, do not finish parallel worker after task execution
+%                in any case. Makes sense only for debugging Herbert
+%                framework, to see the results of a task execution on the
+%                interactive Matlab session on parallel worker.
 %
 % Returns:
 % ok       -- the task has been successfully completed
@@ -21,6 +25,9 @@ function [ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING)
 
 if ~exist('DO_LOGGING','var')
     DO_LOGGING = false;
+end
+if nargin<3
+    DO_DEBUGGING = false;
 end
 je = [];
 %
@@ -76,7 +83,9 @@ if DO_LOGGING
     clob_log = onCleanup(@()fclose(fh));
 end
 exit_at_the_end = ~is_tested;
-%exit_at_the_end = false;
+if DO_DEBUGGING
+    exit_at_the_end = false;
+end
 
 %%
 
@@ -108,8 +117,10 @@ while keep_worker_running
         %
         %
         exit_at_the_end = ~is_tested && worker_init_data.exit_on_compl;
-        %exit_at_the_end = false; % used for debugging filebased framework, to
-        %be able to view the results of a failure.
+        if DO_DEBUGGING
+            exit_at_the_end = false; % used for debugging filebased framework, to
+            %be able to view the results of a failure.
+        end
         
         %
         if DO_LOGGING; log_worker_init_received();  end
@@ -272,8 +283,10 @@ while keep_worker_running
     
     if DO_LOGGING;  fprintf(fh,'************* subtask: %s  finished\n',fbMPI.job_id); end
 end
-% disp(' Paused Parallel worker')
-% pause % for debugging filebased framework
+if DO_DEBUGGING
+    disp('************** Paused Parallel worker: Enter something to continue')
+    pause % for debugging filebased framework
+end
 if exit_at_the_end
     exit;
 end

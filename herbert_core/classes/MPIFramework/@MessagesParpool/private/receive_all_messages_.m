@@ -1,141 +1,181 @@
-function   [all_messages,tid_received_from] = receive_all_messages_(obj,task_ids,mess_name,varargin)
+function   [all_messages,tid_received_from] = receive_all_messages_(obj,tid_requested,mess_name,varargin)
 % retrieve all messages intended for jobs with task id-s  provided as input
 % if message name is also present, return only messages with the name
 % specified and wait until the messages with this name arrive from all labs
 % requested
 %
-all_messages = {};
-tid_received_from = [];
-n_labs = obj.numLabs;
-if n_labs == 1 % nothing to do -- lab can not send message to itself (shame)
+%
+if ~exist('task_ids','var') || isempty(tid_requested) || (ischar(tid_requested) && strcmpi(tid_requested,'all'))
+    tid_requested = 1:obj.numLabs;
+    all_tid_requested = true;
+else
+    all_tid_requested = false;
+end
+this_tid = tid_requested == obj.labIndex;
+if any(this_tid)
+    tid_requested = tid_requested(~this_tid);
+end
+
+
+if ~exist('mess_name','var') || isempty(mess_name)
+    mess_name = 'any';
+end
+if strcmp(mess_name,'any')
+    any_mess_requested = true;
+else
+    any_mess_requested = false;
+end
+lock_until_received = obj.check_is_blocking(mess_name,varargin);
+
+% return state messages, satisfying the receive request.
+[state_mess,tid_state]=obj.state_mess_cache_.pop_messages(tid_requested,mess_name);
+state_present= ismember(tid_requested,tid_state);
+
+% return data messages, satisfying the receive request, but received from
+% the labs where the state messages have not arrived from. These two unions
+% will intercect only if 'any' tag is provided, so normally never
+task_ids_to_receive = tid_requested(~state_present);
+if isempty(task_ids_to_receive)
+    data_mess = {};
+    tid_data = [];
+else
+    [data_mess,tid_data]=obj.blocking_mess_cache_.pop_messages(task_ids_to_receive,mess_name);
+end
+% % b for switch -- boolean variable
+% b_data_present= ismember(tid_requested,tid_data);
+
+% glue together data and state messages which can be returned according to
+% the request. Data do not overwrite the state messages as state present
+% are ignored. (Should not ask both for data and state messages except
+% mess_name = 'any' is requested)
+[all_messages,tid_received_from] = obj.mix_messages(state_mess,tid_state,data_mess,tid_data);
+if lock_until_received && (numel(all_messages) == numel(tid_requested)) % Everything has been found in cache.
+    % return result.
     return;
 end
-%
-if ~exist('task_ids','var')
-    task_ids = [];
+% check if something new has arrived. State messages can be overwritten, so
+% do not touch data messages only. Use requested mess_name as the filter.
+if all_tid_requested
+    [messages_names,tid_present] = labProbe_messages_(obj,'all','any'); % just more efficiently to use this form,
+    % as asks for all messages directly from the framework
+else
+    [messages_names,tid_present] = labProbe_messages_(obj,tid_requested,'any');
 end
-if isempty(task_ids) || (ischar(task_ids) && strcmpi(task_ids,'all'))
-    task_ids = 1:n_labs;
-end
+% b for switch -- boolean variable
+b_mess_ready     = ismember(tid_requested,tid_present); %
+b_mess_received  = ismember(tid_requested,tid_received_from);
 
-lock_until_received = true;
-if ~exist('mess_name','var')
-    mess_name = '';
-end
-if isempty(mess_name) || (ischar(mess_name) && strcmp(mess_name,'any'))
-    lock_until_received = false;
-end
+n_requested = numel(tid_requested);
+this_mess_requested = cell(1,n_requested);
+this_mess_requested(b_mess_received) = all_messages(:); % prepare to return messages, stored in cache.
+all_messages = this_mess_requested;  % fill output with cache messages, leaving spaces for
+% other messages present in system to receive, contained in the cellarray
+% of size n_requested
+% what names are actually here
+names_present = cell(1,n_requested);
+names_present(b_mess_ready) = messages_names(:);
 
-not_this_id = task_ids ~= obj.labIndex;
-tid_requested = task_ids(not_this_id);
-if size(tid_requested,2)>1
-    tid_requested  = tid_requested';
-end
-tid_received_from = tid_requested;
-
-% use cache for persistent messages
-
-%log_file_h =  obj.mess_cache_.log_file_h;
-
-[all_messages,mess_present] = obj.mess_cache_.get_cache_messages(tid_requested,mess_name,lock_until_received);
-n_requested = numel(all_messages);
-
-% check new messages received from other labs
-[mess_names,tid_from] = labProbe_messages_(obj,tid_requested);
-present_now = ismember(tid_requested,tid_from);
-
-all_received = false;
-n_calls = 0;
+% can not receive present persistent messages, which do not fit the cache.
+b_mess_ready = check_cache_space(obj,tid_requested,names_present,b_mess_ready);
 
 t0 = tic;
-is_failed = false;
+all_received = false;
 while ~all_received
-    n_cur_mess = 0;
     for i=1:n_requested % receive all existing messages in the messages queue
-        if ~present_now(i); continue;
+        if ~b_mess_ready(i); continue;
         end
-        n_cur_mess = n_cur_mess+1;
-        tid_to_ask = tid_from(n_cur_mess);
         %
-        [ok,err_exception,message]=receive_message_(obj,tid_to_ask,mess_names{n_cur_mess});
-        if ok ~= MESS_CODES.ok
-            if ok == MESS_CODES.job_canceled
-                is_failed = true;
-                message = aMessage('canceled');
-                message.payload = err_exception;
+        this_mess_requested = strcmp(names_present{i},mess_name) ||any_mess_requested;
+        %
+        message = obj.get_interrupt(tid_requested(i));
+        if isempty(message)
+            message = obj.MPI_.mlabReceive(tid_requested(i),names_present{i},true);
+            obj.set_interrupt(message,tid_requested(i));
+            interrupt_received = false;
+        else
+            interrupt_received = true;
+        end
+        if this_mess_requested % got what we asked for
+            if message.is_blocking && b_mess_received(i) % put into cache
+                % space in cache is avail. We have checked it before
+                obj.blocking_mess_cache_.push_messages(tid_requested(i),message);
             else
-                rethrow(err_exception);
-            end
-        end
-        %fprintf(log_file_h,'Received new message %s N %d from TID %d present\n',...
-        %    message.mess_name,i,tid_to_ask);
-        if strcmp(message.mess_name,'failed') || is_failed
-            % failed message is persistent.
-            % Make it ready for the next possible receive request
-            obj.mess_cache_.push_messages(tid_to_ask,message);
-            is_failed = true;
-        else
-            is_failed = false;
-        end
-        % handle received message and either store it for the future or
-        % place in outputs
-        if lock_until_received
-            if is_failed || strcmp(mess_names{n_cur_mess},mess_name)
-                %store resulting message
-                % Data messages should be retained until received, anything
-                % else would be overwritten
-                if isempty(all_messages{i})
-                    all_messages{i}  = message;
-                else
-                    if all_messages{i}.is_blocking
-                        obj.mess_cache_.push_messages(tid_to_ask,message);
-                    else
-                        all_messages{i}  = message;
-                    end
-                end
-                mess_present(i)  = true;
-            else
-                % wrong message, receive and store it for the future
-                obj.mess_cache_.push_messages(tid_to_ask,message);
-            end
-        else
-            all_messages{i}  = message;
-            mess_present(i)  = true;
-        end
-    end
-%     
-    % check if we want to wait for more messages to arrive
-    if lock_until_received
-        if all(mess_present)
-            all_received = true;
-            %fprintf(log_file_h,'all received\n');
-        else
-            t1 = toc(t0);
-            if t1>obj.time_to_fail_
-                error('PARPOOL_MESSAGES:runtime_error',...
-                    'Timeout waiting for receiving all messages')
+                all_messages{i} = message;
+                b_mess_received(i)= true;
             end
             
-            [mess_names,tid_from] = labProbe_messages_(obj,tid_requested);
-%             if numel(tid_from) > 0
-%                 fprintf(log_file_h,'more exist\n');
-%                 for j=1:numel(tid_from)
-%                     fprintf(log_file_h,'Mess %s from %d\n',mess_names{j},tid_from(j));
-%                 end
-%             end
-            present_now = ismember(tid_requested,tid_from);
-            n_calls = n_calls +1;
+        else % we received message which is not asked for now but will be
+            % requested in a future or is blocking futher messages.
+            if interrupt_received ||  strcmp(message.mess_name,'canceled')
+                all_messages{i} = message;
+                b_mess_received(i)= true;
+                if interrupt_received
+                    % Failure we may not receive anything else from any other labs, so
+                    % let's finish here.
+                    for j=i+1:n_requested
+                        all_messages{j} = message;
+                        b_mess_received(j)= true;
+                    end
+                    break;
+                end
+            else
+                if message.is_blocking
+                    obj.blocking_mess_cache_.push_messages(tid_requested(i),message);
+                else % old status messages are overwritten.
+                    obj.state_mess_cache_.push_messages(tid_requested(i),message);
+                end
+            end
         end
-        pause(0.1);
-        
-        
-    else % if not need to wait, complete loop of receiving messages
-        all_received = true;
     end
+    if lock_until_received
+        all_received = all(b_mess_received);
+        if ~all_received
+            t1 = toc(t0);
+            if t1>obj.time_to_fail_;   error('FILEBASED_MESSAGES:runtime_error',...
+                    'Timeout waiting for receiving all messages')
+            end
+            if all_tid_requested
+                [messages_avail,tid_avail] = labProbe_messages_(obj,'all','any'); % just more efficiently to use this form,
+                % as asks for all messages directly from the framework
+            else
+                [messages_avail,tid_avail] = labProbe_messages_(obj,tid_requested,'any');
+            end
+            b_mess_ready = ismember(tid_requested,tid_avail);
+            names_present(b_mess_ready) = messages_avail(:);
+            %
+            % we probably do not want to receive anything from the
+            % already received labs or labs where data are already
+            % present.
+            b_mess_ready   = b_mess_ready & ~b_mess_received;
+            b_mess_ready = check_cache_space(obj,tid_requested,names_present,b_mess_ready);
+            
+            if (obj.is_tested && ~any(b_mess_ready))
+                error('MESSAGES_FRAMEWORK:runtime_error',...
+                    'Issued request for missing blocking message in test mode');
+            end
+            pause(0.1);
+        end
+    else
+        break;
+    end
+    
 end
 
-if ~lock_until_received
-    all_messages = all_messages(mess_present);
-    tid_received_from = tid_received_from(mess_present);
-end
+% compress empty messages places if any
+all_messages = all_messages(b_mess_received);
+tid_received_from = tid_requested(b_mess_received);
 
+function b_can_be_received = check_cache_space(obj,tid_requested,names_present,b_can_be_received)
+% we can not receive blocking messages which are not requested and which
+% cache space is full (should FIFO cache just solve this problem?)
+b_are_blkng_mess = MESS_NAMES.is_blocking(names_present);
+tids_with_blocking = tid_requested(b_are_blkng_mess);
+if isempty(tids_with_blocking)
+    return;
+end
+b_non_blocking_mess = ~b_are_blkng_mess;
+
+empty_cache = obj.blocking_mess_cache_.is_empty(tids_with_blocking);
+tids_with_cache = tids_with_blocking(empty_cache);
+b_cache_available = ismember(tid_requested,tids_with_cache)|b_non_blocking_mess ;
+b_can_be_received  = b_can_be_received & b_cache_available ;
