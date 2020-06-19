@@ -25,7 +25,6 @@ if ~exist(folder_path,'dir')
     end
 else
     test_path = fullfile(folder_path,['folder_twa_',char(randi(25,1,10) + 64)]);
-    %clob = onCleanup(@()rmdir(test_path));
     [success, mess] = mkdir(test_path);
     if success
         [statrm,msg] = rmdir(test_path);
