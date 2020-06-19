@@ -33,7 +33,6 @@ function folder_path=make_config_folder(folder_name,in_folder_path)
 % usually the same for a given machine, so the path to the configurations
 % will be the same next next time the function is called.
 
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 if exist('in_folder_path','var')
     [success,folder_path,err_mess] = try_to_create_folder(in_folder_path,folder_name);
@@ -107,27 +106,3 @@ end
 
 
 %--------------------------------------------------------------------------------------------------
-function [success,folder_path,mess]=try_to_create_folder(location,folder_name)
-folder_path = [location,filesep,folder_name];
-
-ic = 0;
-if ~exist(folder_path,'dir')
-    [success, mess] = mkdir(folder_path);
-    while ~(exist(folder_path,'dir') || ic<3)
-        [success, mess] = mkdir(folder_path);
-        ic = ic + 1;
-        pause(0.1);
-    end
-else
-    test_path = fullfile(folder_path,['folder_twa_',char(randi(25,1,10) + 64)]);
-    %clob = onCleanup(@()rmdir(test_path));
-    [success, mess] = mkdir(test_path);
-    if success
-        [statrm,msg] = rmdir(test_path);
-        if ~statrm
-            warning('MAKE_CONFIG_FOLDER:runtime_error',...
-                ' Can not remove test folder %s; message: %s',test_path,msg);
-        end
-    end
-end
-
