@@ -455,12 +455,35 @@ classdef dnd_binfile_common < dnd_file_interface
             sqw_obj  = obj.sqw_holder_;
         end
         %
-        function is = is_activated(obj)
-            % Check if the file-accessor is bind with open binary file
+        function is = is_activated(obj, read_or_write)
+            % Check if the file-accessor is bound to an open binary file
             %
-            open_file_ids = fopen('all');
-            is =  ~isempty(obj.file_closer_) && obj.file_id_ > 0;
-            is = is && ismember(obj.file_id_, open_file_ids);
+            % Input
+            % -----
+            %
+            % read_or_write   Char array. If 'read' return true if file is open
+            %                 for reading. If 'write' return true if file is
+            %                 open for writing.
+            %
+            full_file_path = fullfile(obj.filepath, obj.filename);
+            [file_id_path, permission] = fopen(obj.file_id_);
+            is = ~isempty(obj.file_closer_) && strcmp(full_file_path, file_id_path);
+
+            if is && nargin == 2
+                if strcmp(read_or_write, 'read')
+                    read_mode_regex = '([ra]b\+?)|(wb\+)';
+                    open_for_reading = regexp(permission, read_mode_regex);
+                    is = open_for_reading;
+                elseif strcmp(read_or_write, 'write')
+                    write_mode_regex = '([WAaw]b\+?)|(rb\+)';
+                    open_for_writing = regexp(permission, write_mode_regex);
+                    is = open_for_writing;
+                else
+                    error('DNDBINFILECOMMON:is_activated', ...
+                          ['Invalid input for read_or_write. Must be ''read'' ', ...
+                           'or ''write'', found ''%s'''], read_or_write);
+                end
+            end
         end
         %
         function obj = deactivate(obj)
@@ -476,18 +499,21 @@ classdef dnd_binfile_common < dnd_file_interface
             obj.file_id_ = 0;
         end
         %
-        function obj = activate(obj)
+        function obj = activate(obj, permission)
             % open respective file for reading without reading any
             % supplementary file information. Assume that this information
             % is correct.
             %
             % To use for MPI transfers between workers when open file can
             % not be transferred between workers but everything else can
+            if nargin == 1
+                permission = 'rb';
+            end
             if ~isempty(obj.file_closer_)
                 obj.file_closer_ = [];
             end
 
-            obj.file_id_ = fopen(fullfile(obj.filepath,obj.filename));
+            obj.file_id_ = fopen(fullfile(obj.filepath,obj.filename), permission);
             if obj.file_id_ <=0
                 error('FILE_IO:runtime_error',...
                     'Can not open file %s at location %s',...

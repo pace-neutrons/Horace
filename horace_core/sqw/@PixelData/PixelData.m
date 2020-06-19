@@ -331,7 +331,7 @@ methods
             % return true if there's more than one page worth of pixels
             has_more = true;
         else
-            has_more = obj.pix_position_ + obj.page_size  <= obj.num_pixels;
+            has_more = obj.pix_position_ + obj.max_page_size_  <= obj.num_pixels;
         end
     end
 
@@ -500,11 +500,7 @@ methods
 
     function page_size = get.page_size(obj)
         % The number of pixels that are held in the current page.
-        if isempty(obj.data)
-            page_size = obj.max_page_size_;
-        else
-            page_size = size(obj.data, 2);
-        end
+        page_size = size(obj.data_, 2);
     end
 
 end
@@ -526,17 +522,12 @@ methods (Access = private)
         if pix_idx_end > obj.num_pixels
             pix_idx_end = obj.num_pixels;
         end
-        if ~obj.f_accessor_.is_activated()
-            % open the sqw file if it's not open
-            obj.f_accessor_.activate();
-        end
         obj.data = obj.f_accessor_.get_pix(pix_idx_start, pix_idx_end);
-        obj.pix_position_ = pix_idx_start;
-        if pix_idx_start == 1 && (obj.page_size >= obj.num_pixels)
-            % close the sqw file if all the data has been read into memory on
-            % first read
+        if obj.page_size == obj.num_pixels && obj.f_accessor_.is_activated()
+            % close the file if all pixels have been read
             obj.f_accessor_.deactivate();
         end
+        obj.pix_position_ = pix_idx_start;
     end
 
     function obj = load_first_page_if_data_empty_(obj)

@@ -116,7 +116,7 @@ classdef test_faccess_sqw_v3< TestCase
             assertTrue(isa(data.pix, 'PixelData'));
 
             raw_pix = to.get_pix(1,20);
-            assertEqual(data.pix.data, raw_pix);
+            assertEqual(data.pix.get_pixels(1:20).data, raw_pix);
         end
         %
         function obj = test_get_inst_or_sample(obj)

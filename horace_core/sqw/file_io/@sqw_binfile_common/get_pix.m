@@ -10,6 +10,10 @@ if ischar(obj.num_contrib_files)
         'get_pix method called from un-initialized loader')
 end
 
+if ~obj.is_activated('read')
+    obj = obj.activate('rb+');
+end
+
 npix_tot = obj.npixels;
 if isempty(npix_tot) % dnd object
     pix = PixelData();

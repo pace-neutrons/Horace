@@ -425,9 +425,9 @@ methods
         faccess = FakeFAccess(data);
         mem_alloc = 11*8*9;
         pix = PixelData(faccess, mem_alloc);
-        assertTrue(isempty(pix.data));
+        assertEqual(pix.page_size, 0);
         pix.u1;
-        assertFalse(isempty(pix.data));
+        assertFalse(pix.page_size == 0);
     end
 
     function test_number_of_pixels_in_page_matches_memory_usage_size(~)
@@ -521,6 +521,11 @@ methods
         assertEqual(pix.page_size, 10);
         pix.data = zeros(9, 12);
         assertEqual(pix.page_size, 12);
+    end
+
+    function test_empty_PixelData_object_has_page_size_zero(~)
+        pix = PixelData();
+        assertEqual(pix.page_size, 0);
     end
 
 end

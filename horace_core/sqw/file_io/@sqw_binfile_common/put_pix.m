@@ -22,6 +22,9 @@ if ~ok
         'SQW_BINFILE_COMMON::put_pix: %s',mess);
 end
 
+if ~obj.is_activated('write')
+    obj = obj.activate('rb+');
+end
 
 obj.check_obj_initated_properly();
 
