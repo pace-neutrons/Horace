@@ -1,0 +1,12 @@
+There are four IX_detector_array objects that you can read into a structure
+>> D = load(‘MAPS_IX_detector_array_examples.mat’)
+
+The four fields have the variable names:
+MAPS_dets                   the full MAPS detector array
+MAPS_dets_banks        the same, but composed out of 14 separate banks (to exercise how you might handle this)
+MAPS_dets_A1B1         a cut down version which holds only two of the 14 MAPS detector banks
+MAPS_dets_E1C1D1     likewise, but three different banks
+
+The bottom two examples which can be used to simulate data that come from two different instrumnets, 
+or Greg’s problem of two different calibrations of the same instrument. The numbers of detectors in the banks 
+are different in the two cases so that it should be easier to spot errors in any debugging.
