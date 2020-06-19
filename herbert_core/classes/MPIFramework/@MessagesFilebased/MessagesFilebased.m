@@ -184,7 +184,6 @@ classdef MessagesFilebased < iMessagesFramework
             [ok,err_mess,message] = receive_message_(obj,varargin{:});
         end
         %
-        %
         function [all_messages_names,task_ids] = probe_all(obj,task_ids_in,mess_name)
             % list all messages existing in the system with id-s specified as input
             % and intended for this task

@@ -20,7 +20,7 @@ end
 
 mess = LogMessage(step,n_steps,time_per_step,add_info);
 
-[~,~,fin_mess] = reduce_messages_(obj,mess,[],false);
+[~,~,fin_mess] = reduce_messages_(obj,mess,'log',[],false);
 if obj.labIndex == 1
     if isa(fin_mess,'LogMessage') % calculate average logs
         all_logs = fin_mess.payload;

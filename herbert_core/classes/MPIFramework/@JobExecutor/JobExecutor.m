@@ -1,9 +1,10 @@
 classdef JobExecutor
-    % The abstact class, responsible for running a specific task on a
+    % The abstract class, responsible for running a specific task on a
     % worker.
     %
     % Works in conjunction with the  <a href="matlab:help('parallel_worker');">worker</a>]
-    % function from admin folder.
+    % function from MPIFramework folder.
+    %
     % The script, initializing Herbert and Horace has to be placed on Matlab
     % search path before Herbert and Horace are initiated
     %
@@ -12,7 +13,7 @@ classdef JobExecutor
     % Abstract methods to overload:
     %
     % do_job       - Do chunk of the job independent on other parallel executors
-    % reduce_data  - Receive partial results from neighbours and combine them on the head worker
+    % reduce_data  - Receive partial results from neighbors and combine them on the head worker
     % is_completed - Check if the job completed and return true if it is.
     %
     %-------------------------------------
@@ -42,7 +43,7 @@ classdef JobExecutor
     %                       it to the logon node.
     % labBarrier          - synchronize parallel workers execution,
     %                       deploying MPI barrier operation of the framework,
-    %                       used for interprocess communications.
+    %                       used for inter-process communications.
     % finish_task         - Safely complete job execution and inform other
     %                       nodes about it.
     %
@@ -79,7 +80,7 @@ classdef JobExecutor
         % After worker finishes "do_job" operation, it comes to barrier,
         % waiting for all other workers to finish "do_job" operation before
         % data reduction can begin.
-        % false at this property indicates that if an exception is thrown, 
+        % false at this property indicates that if an exception is thrown,
         % the worker should wait other workers at another barrier after
         % processing exception, as the barrier after do_job have been
         % bypassed.
@@ -130,7 +131,7 @@ classdef JobExecutor
         % workers.
         this=reduce_data(this);
         
-        % the method to analyse outputs and indicate that the tasks or job
+        % the method to analyze outputs and indicate that the tasks or job
         % has been completed.
         ok = is_completed(this);
     end
@@ -176,7 +177,7 @@ classdef JobExecutor
             % FileBased for worker with labID ==  1)
             %
             % clear all possible messages stored in message cache. Should
-            % be irrelevant but may be usefil for reinitializing a job
+            % be irrelevant but may be useful for re-initializing a job
             % executor to run different task on the same parallel worker.
             if ~exist('is_tested','var')
                 synchronize = true;
@@ -230,7 +231,7 @@ classdef JobExecutor
         end
         
         %------------------------------------------------------------------
-        % Reduced convenence MPI interface, operating with all intialized
+        % convenience MPI interface, operating with all initialized
         % MPI frameworks
         %
         function [ok,mess,obj] =finish_task(obj,varargin)
@@ -262,7 +263,7 @@ classdef JobExecutor
             [ok,mess,obj] = finish_task_(obj,varargin{:});
         end
         %
-        function [ok,err,obj] = reduce_send_message(obj,mess,varargin)
+        function [ok,err,obj] = reduce_send_message(obj,mess,reduction_state_name,varargin)
             % collect similar messages send from all nodes and send final
             % message to the head node
             %usage:
@@ -270,23 +271,33 @@ classdef JobExecutor
             % where:
             % message -- either message to send or the message's to send
             %            name (from the list of acceptable names)
+            %            This is the message, containing information about
+            %            current worker state.
+            % reduction_state_name   -- the name of the message/state to process.
+            %                           This contains the information about
+            %                           desired state the call to this
+            %                           function expects.
+            %            Under normal circumstances it is equal to the mess.mess_name,
+            %            but if exception have occurred, mess contains the
+            %            information about the failure, but reduction_type_name
+            %            still informs what the state of the worker
+            %            should be processed.
             %
             % mess_process_function -- if present, and not empty, the function
             %                          is used to process the messages from
             %                          received from all except one workers
-            %                          to produce common result. If absent,
-            %                          all messages payloads
-            %                          are just combined together into
-            %                          cellarray and become the payload of
-            %                          the final message, sent to the head
-            %                          node.
+            %           to produce common result. If absent,
+            %           all messages payloads are just combined together
+            %           into cellarray and become the payload of
+            %           the final message, sent to the head node.
+            %
             % synchronize - if true or absent the the method would wait until
             %               similar messages are received from all workers in
             %               the pool. if false, the method will process only
             %               existing messages.
             %
             %
-            [ok,err,the_mess,obj] = reduce_messages_(obj,mess,varargin{:});
+            [ok,err,the_mess,obj] = reduce_messages_(obj,mess,reduction_state_name,varargin{:});
             if obj.labIndex == 1
                 [ok,err] = obj.control_node_exch.send_message(0,the_mess);
             end
@@ -369,13 +380,13 @@ classdef JobExecutor
             % ME        -- exception class, thrown by the user code
             %Optional:
             % fh        -- if present, means logging mode -- received
-            %              opened file hanldle to write log information into it
+            %              opened file handle to write log information into it
             %Performs:
             % If exception is any except 'canceled', sends 'canceled'
             % message to all neighboring nodes. If 'canceled', just returns
             % synchronize worker according to the state of the parallel job
-            % execution. 
-            % 
+            % execution.
+            %
             %
             % Returns:
             % FailedMessage of the finish_task operation
@@ -444,7 +455,7 @@ classdef JobExecutor
                 mf = mf.init_framework(control_structure);
                 % set labNum and NumLabs for filebased  MPI framework,
                 % equal to values, defined for proper MPI framework to
-                % avoid cross-taling and invalid indexising
+                % avoid cross-talking and invalid indexing
                 cntrl_node_exchange = cntrl_node_exchange.set_framework_range(mf.labIndex,mf.numLabs);
                 internode_exchange  = mf;
             end

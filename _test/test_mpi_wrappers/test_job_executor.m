@@ -492,12 +492,12 @@ classdef test_job_executor< MPI_Test_Common
             assertEqual(mess.mess_name,'started');
             
             
-            je3=je3.reduce_send_message(LogMessage(),[],false);
+            je3=je3.reduce_send_message(LogMessage(),'log',[],false);
             assertTrue(exist(fbMPIs{3}.mess_file_name(1,'log'),'file')==2);
-            je2=je2.reduce_send_message(LogMessage(),[],false);
+            je2=je2.reduce_send_message(LogMessage(),'log',[],false);
             assertTrue(exist(fbMPIs{2}.mess_file_name(1,'log'),'file')==2);
             
-            je1=je1.reduce_send_message(LogMessage(),[],false);
+            je1=je1.reduce_send_message(LogMessage(),'log',[],false);
             assertFalse(exist(fbMPIs{3}.mess_file_name(1,'log'),'file')==2);
             assertFalse(exist(fbMPIs{2}.mess_file_name(1,'log'),'file')==2);
             assertTrue(exist(fbMPIs{1}.mess_file_name(0,'log'),'file')==2);

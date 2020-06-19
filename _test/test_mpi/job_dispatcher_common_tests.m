@@ -44,7 +44,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             co = onCleanup(@()(my_delete(files{:})));
             
             jd = JobDispatcher(['test_job_', obj.framework_name, '_fail_restart']);
-            
+            %1)----------------------------------------------------------
             [outputs, n_failed, ~, jd] = jd.start_job('JETester', common_param, 36, true, 3, true, 1);
             
             function is = is_err(x)
@@ -78,6 +78,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             
             co = onCleanup(@()(my_delete(file3, file3a)));
             common_param.fail_for_labsN = 1:2;
+            %2)----------------------------------------------------------            
             [outputs, n_failed, ~, jd] = jd.restart_job('JETester', common_param, 4, true, true, 1);
             
             assertTrue(n_failed >= 1);
@@ -87,6 +88,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             
             clear co;
             % check long job cancelled due to part of the job failed
+            %3)----------------------------------------------------------                        
             [outputs, n_failed, ~, jd] = jd.restart_job('JETester', common_param, 99, true, true, 1);
             
             assertTrue(n_failed > 0);
@@ -103,6 +105,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 end
             end
             common_param.fail_for_labsN = 3;
+            %4)----------------------------------------------------------                        
             [outputs, n_failed, ~, jd] = jd.restart_job('JETester', common_param, 99, true, true, 1);
             assertTrue(n_failed >= 1);
             assertEqual(numel(outputs), 3);
@@ -137,7 +140,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             common_param = rmfield(common_param, 'fail_for_labsN');
             files = {file1, file2, file3, file3a};
             co = onCleanup(@()(my_delete(files{:})));
-            
+            %5)----------------------------------------------------------            
             [outputs, n_failed] = jd.restart_job('JETester', common_param, 4, true, false, 1);
             
             assertEqual(n_failed, 0);
