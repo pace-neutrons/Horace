@@ -16,7 +16,7 @@ if is_idaaas()
         location = getenv('HOME');
     end
     the_dir = fullfile(location,'tmp');
-    if ~exist(the_dir,'dir') == 7
+    if ~(exist(the_dir,'dir') == 7)
         [ok,the_dir,mess] = try_to_create_folder(location,'tmp');
         if ~ok
             warning('TMP_DIR:runtime_error',...
