@@ -1,4 +1,4 @@
-function [all_messages,mid_from] = list_specific_messages_(obj,task_ids_requested,mess_name_or_tag)
+function [all_messages,mid_from] = list_specific_messages_(obj,task_ids_requested,mess_name_or_tag,ignore_interrupts)
 % list all messages sent to this task and retrieve the names
 % for the lobs with id, provided as input.
 %
@@ -8,6 +8,9 @@ if ~exist('task_ids_requested','var') || isempty(task_ids_requested)
     task_ids_requested = 1:obj.numLabs; % list all available task_ids
 elseif ischar(task_ids_requested) && strcmpi(task_ids_requested,'all')
     task_ids_requested = 1:obj.numLabs;
+end
+if nargin<4
+    ignore_interrupts = false;
 end
 % No harm in sending filebased messages to itself, especially as 
 % list_all_messages_ accepts them but better to keep the common interface
@@ -35,6 +38,10 @@ if ~(exist(mess_folder,'dir')==7) % job was canceled
 end
 % find nolocked messages:
 [all_messages,mid_from] = find_messages_with_name_(obj,task_ids_requested,mess_name_or_tag,false);
+if ignore_interrupts
+    return;
+end
+
 %
 % check interrupts
 % -------------------------------------------------------------------------

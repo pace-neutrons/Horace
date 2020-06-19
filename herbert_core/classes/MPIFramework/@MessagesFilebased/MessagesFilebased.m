@@ -330,13 +330,13 @@ classdef MessagesFilebased < iMessagesFramework
         %------------------------------------------------------------------
         % Filebased framework specific properties:
         %
-        function fn = mess_file_name(obj,task_id,mess_name)
+        function fn = mess_file_name(obj,lab_to,mess_name,varargin)
             % Generates the name of the messages file.
             %
             % Inputs:
             % mess_name -- the string-name of the message, written to the
             %              file system
-            % task_id -- is the id (number) of the task this message should
+            % lab_to   -- is the id (number) of the task this message should
             % be send
             %
             % Returns:
@@ -347,11 +347,11 @@ classdef MessagesFilebased < iMessagesFramework
             % Used mainly for debugging purposes to see how messages
             % are propagated
             %
-            if ~isnumeric(task_id)
+            if ~isnumeric(lab_to)
                 error('MESSAGES_FILEBASED:invalid_argument',...
                     'first message_name argument should be the target task number');
             end
-            fn = obj.job_stat_fname_(task_id,mess_name);
+            fn = obj.job_stat_fname_(lab_to,mess_name,varargin{:});
         end
         function set_is_tested(obj,is_tested)
             % method, used in tests to set is_tested mode to framework.

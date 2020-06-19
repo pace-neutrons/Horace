@@ -337,7 +337,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             [ok, err, the_mess] = mf.receive_message(7, 'starting');
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
-            assertFalse(isempty(the_mess));            
+            assertFalse(isempty(the_mess));
             assertEqual(the_mess.mess_name, 'starting');
             
             clear clob;
@@ -409,7 +409,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             
         end
         %
-        function test_barrier_fail(this)
+        function test_barrier_ignores_failed(this)
             % To deploy barrier, init should be not in test mode!
             %
             mf = MessagesFilebased('test_barrier_fail');
@@ -447,6 +447,13 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             fbMPI2.time_to_fail = 0.1;
             [ok, err] = fbMPI2.send_message(1, FailedMessage('failed'));
             assertEqual(ok, MESS_CODES.ok, err)
+            fbMPI2.time_to_fail = 0.1;
+            try
+                fbMPI2.labBarrier(false);
+            catch ME
+                assertEqual(ME.message, ...
+                    'Timeout waiting for message "barrier" for task with id: 2');
+            end
             
             
             % will pass without delay as all other worker would reach the
@@ -464,6 +471,14 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             [ok, err, mess] = fbMPI1.receive_message(2, 'barrier');
             assertEqual(ok, MESS_CODES.ok, err)
             assertEqual(mess.mess_name, 'failed');
+            
+            [ok, err, mess] = fbMPI1.receive_message(2, 'barrier');
+            assertEqual(ok, MESS_CODES.ok, err)
+            assertEqual(mess.mess_name, 'failed'); % got it from messages cache.
+            % but barrier file exist
+            barrier_file = fbMPI1.mess_file_name(fbMPI1.labIndex,'barrier',2);
+            assertEqual(exist(barrier_file,'file'),2);
+            delete(barrier_file);
             
             [ok, err, mess] = fbMPI1.receive_message(3, 'barrier');
             assertEqual(ok, MESS_CODES.ok, err)
