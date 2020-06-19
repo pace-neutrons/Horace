@@ -44,11 +44,11 @@ end
 
 if mf.labIndex == 1
     if lock_until_received
-        all_messages = mf.receive_all('all',mess_name,'-synch');    
-        %disp([' all messages ',mess_name,' received synchronously']);        
+        all_messages = mf.receive_all('all',mess_name,'-synch');
+        %disp([' all messages ',mess_name,' received synchronously']);
     else
-        all_messages = mf.receive_all('all',mess_name,'-asynch');          
-        %disp([' all messages ',mess_name,' received asynchronously']);                
+        all_messages = mf.receive_all('all',mess_name,'-asynch');
+        %disp([' all messages ',mess_name,' received asynchronously']);
     end
     all_messages = [{the_mess},all_messages];
     %disp(all_messages);

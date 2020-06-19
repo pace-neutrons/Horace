@@ -114,9 +114,9 @@ classdef test_job_executor< MPI_Test_Common
             % start three client jobs, two should fail
             % second needs to start first as it will report its profess to
             % the lab1
-            [~,~,je1]=obj.worker_h(css3);
+            [~,~,je3]=obj.worker_h(css3);
             [~,~,je2]=obj.worker_h(css2);
-            [~,~,je3]=obj.worker_h(css1);
+            [~,~,je1]=obj.worker_h(css1);
             % all workers reply 'started' to node1 as it is cluster
             % control message
             [ok,err_mess,message] = serverfbMPI.receive_message(1,'started');
@@ -133,9 +133,9 @@ classdef test_job_executor< MPI_Test_Common
             %-------------------------------------------------------------
             % clear remaining from the previous job.
             serverfbMPI.clear_messages();
-            je1.mess_framework.clear_messages();
-            je2.mess_framework.clear_messages();
             je3.mess_framework.clear_messages();
+            je2.mess_framework.clear_messages();
+            je1.mess_framework.clear_messages();
             %--------------------------------------------------------------
             obj.send_init_messages(serverfbMPI,je_initMess,je_worker_init);
             
