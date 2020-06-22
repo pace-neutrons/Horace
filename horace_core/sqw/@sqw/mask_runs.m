@@ -35,7 +35,7 @@ end
 
 % Trivial case of empty or no mask arguments
 if nargin==1 || isempty(runno)
-    wout=win;
+    wout = copy(win);
     return
 end
 

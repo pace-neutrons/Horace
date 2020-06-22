@@ -56,7 +56,7 @@ if exist('opt','var')  % no option given
     end
 end
 
-wout = win;
+wout = copy(win);
 if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
 
 for i=1:numel(win)
