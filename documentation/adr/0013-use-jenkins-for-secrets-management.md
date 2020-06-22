@@ -1,4 +1,4 @@
-[<-previous](./0012-use-network-storage-for-large-datafiles.md) | [next->](./0014-use-jenkins-for-network-path-storage.md)
+[<-previous](0012-use-network-storage-for-large-datafiles.md) | [next->](0014-use-jenkins-for-network-path-storage.md)
 
 # 13 - Use Jenkins for Secrets Management
 
