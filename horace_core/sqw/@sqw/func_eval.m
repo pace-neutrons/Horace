@@ -77,7 +77,7 @@ else
     error('Unrecognised option')
 end
 
-wout = win;
+wout = copy(win);
 if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
 
 % Check if any objects are zero dimensional before evaluating fuction, to save on possible expensive computations

@@ -42,7 +42,7 @@ if ~is_sqw_type(win)
 end
 
 % Initialise output argument
-wout = win;
+wout = copy(win);
 
 % Trivial case of empty or no mask arguments
 if nargin==1 || isempty(mask_array)

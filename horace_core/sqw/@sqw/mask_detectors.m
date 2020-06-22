@@ -32,7 +32,7 @@ end
 
 % Trivial case of empty or no mask arguments
 if nargin==1 || isempty(det_id)
-    wout=win;
+    wout = copy(win);
     return
 end
 

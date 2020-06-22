@@ -25,7 +25,7 @@ if ~(isnumeric(reduce) && isscalar(reduce) && isfinite(reduce) && reduce>=1)
 end
 
 % Perform action using existing sqw methods for masking pixels
-wout = win;
+wout = copy(win);
 if reduce>1     % nothing to do if reduce==1
     for i=1:numel(wout)
         npix = wout.data.pix.num_pixels;

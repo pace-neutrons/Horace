@@ -12,7 +12,7 @@ for i=1:numel(win)
     end
 end
 
-wout=win;   % initalise the output
+wout = copy(win);   % initalise the output
 for i=1:numel(win)
     wout(i).data = rebunch_dnd(win(i).data,varargin{:});
 end
