@@ -78,7 +78,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             
             co = onCleanup(@()(my_delete(file3, file3a)));
             common_param.fail_for_labsN = 1:2;
-            %2)----------------------------------------------------------            
+            %2)----------------------------------------------------------
             [outputs, n_failed, ~, jd] = jd.restart_job('JETester', common_param, 4, true, true, 1);
             
             assertTrue(n_failed >= 1);
@@ -88,7 +88,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             
             clear co;
             % check long job cancelled due to part of the job failed
-            %3)----------------------------------------------------------                        
+            %3)----------------------------------------------------------
             [outputs, n_failed, ~, jd] = jd.restart_job('JETester', common_param, 99, true, true, 1);
             
             assertTrue(n_failed > 0);
@@ -105,7 +105,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 end
             end
             common_param.fail_for_labsN = 3;
-            %4)----------------------------------------------------------                        
+            %4)----------------------------------------------------------
             [outputs, n_failed, ~, jd] = jd.restart_job('JETester', common_param, 99, true, true, 1);
             assertTrue(n_failed >= 1);
             assertEqual(numel(outputs), 3);
@@ -140,8 +140,18 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             common_param = rmfield(common_param, 'fail_for_labsN');
             files = {file1, file2, file3, file3a};
             co = onCleanup(@()(my_delete(files{:})));
-            %5)----------------------------------------------------------            
+            %5)----------------------------------------------------------
             [outputs, n_failed] = jd.restart_job('JETester', common_param, 4, true, false, 1);
+            if n_failed>0
+                try
+                    jd.display_fail_job_results(outputs, n_failed,3,'DISP:error');
+                catch ME
+                    if strcmp(ME.idetifier,'DISP:error')
+                    else
+                        rethrow(ME);
+                    end
+                end
+            end
             
             assertEqual(n_failed, 0);
             assertEqual(numel(outputs), 3);
@@ -258,7 +268,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 assertEqualToTol(outputs{i},(n_steps+1)*n_steps/2);
             end
             
-
+            
             n_steps = 30;
             common_param = struct('data_buffer_size',10000000);
             [outputs, n_failed] = jd.restart_job('JETesterSendData',...

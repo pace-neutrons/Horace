@@ -115,19 +115,11 @@ while ~all_received
         if ~b_mess_ready(i); continue;
         end
         %
-        this_mess_requested = strcmp(names_present{i},mess_name) ||any_mess_requested;
+        
         %
         message = obj.get_interrupt(tid_requested(i));
         if isempty(message)
             message = obj.MPI_.mlabReceive(tid_requested(i),names_present{i},true);
-            if ~message.is_blocking
-                % receive and collapse all similar non-blocking messages
-                mess = message;
-                while ~isempty(mess)
-                    message = mess;
-                    mess = obj.MPI_.mlabReceive(tid_requested(i),names_present{i},false);
-                end
-            end
             obj.set_interrupt(message,tid_requested(i));
             interrupt_received = false;
         else
@@ -137,11 +129,19 @@ while ~all_received
             fprintf(fh,'+++ Received message %s from node %d: while requesting %s\n',...
                 message.mess_name,tid_requested(i),mess_name);
         end
+        this_mess_requested = strcmp(message.mess_name,mess_name) ||any_mess_requested;
         
         if this_mess_requested % got what we asked for
             if message.is_blocking && b_mess_received(i) % put into cache
                 % space in cache is avail. We have checked it before
-                obj.blocking_mess_cache_.push_messages(tid_requested(i),message);
+                if obj.blocking_mess_cache_.is_empty(tid_requested(i))
+                    
+                    obj.blocking_mess_cache_.push_messages(tid_requested(i),message);
+                else
+                    error('MESSAGES_FRAMEWORK:runtime_error',...
+                        'No space to store received data message')
+                    
+                end
                 if do_logging
                     fprintf(fh,'+++ Stored message %s in cahce\n',...
                         message.mess_name);
@@ -177,7 +177,13 @@ while ~all_received
                 end
             else
                 if message.is_blocking
-                    obj.blocking_mess_cache_.push_messages(tid_requested(i),message);
+                    if obj.blocking_mess_cache_.is_empty(tid_requested(i))
+                        obj.blocking_mess_cache_.push_messages(tid_requested(i),message);
+                    else
+                        error('MESSAGES_FRAMEWORK:runtime_error',...
+                            'No space to store received data message')
+                    end
+                    
                     if do_logging
                         fprintf(fh,'+++ Storing data message in cache\n');
                     end
@@ -215,7 +221,7 @@ while ~all_received
             % we probably do not want to receive anything from the
             % already received labs or labs where data are already
             % present.
-            %b_mess_ready = b_mess_ready & ~b_mess_received;
+            b_mess_ready = b_mess_ready & ~b_mess_received;
             b_mess_ready = check_cache_space(obj,tid_requested,names_present,b_mess_ready);
             if do_logging
                 fprintf(fh,'+++ Present messages are:\n');

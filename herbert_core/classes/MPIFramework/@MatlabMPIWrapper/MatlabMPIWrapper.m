@@ -30,7 +30,7 @@ classdef MatlabMPIWrapper < handle
         labindex_ = 1;
         numlabs_  = 1;
         % Variables for logging the MPI results
-        do_logging_ = true; % disable/enable logging for MPI operations,
+        do_logging_ = false; % disable/enable logging for MPI operations,
         % used for debug purposes
         log_fh_ = [];
         cl_fh_ = [];
@@ -180,6 +180,7 @@ classdef MatlabMPIWrapper < handle
             
         end
         %
+
         function [message,varargout]=mlabReceive(obj,lab_id,mess_tag,is_blocking)
             % wrapper around Matlab labReceive operation.
             % Inputs:
@@ -228,8 +229,10 @@ classdef MatlabMPIWrapper < handle
                     how,lab_name,mess_name);
             end
             [message,tag] = labReceive_(obj,lab_id,mess_tag,is_blocking);
-            if ~is_blocking && ~message.is_blocking % receive all non-blocking messages with the same tag
+            if ~is_blocking && ~(isempty(message) || message.is_blocking )
+                % receive and collapse all non-blocking messages with the same tag
                 mess = message;
+                tag = mess.tag;
                 while ~isempty(mess)
                     message = mess;
                     mess = labReceive_(obj,lab_id,tag,false);

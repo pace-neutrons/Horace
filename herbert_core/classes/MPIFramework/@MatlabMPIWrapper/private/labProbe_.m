@@ -50,51 +50,18 @@ if obj.is_tested
     end
 else % Real MPI request
     if isempty(task_id)
-        if obj.numLabs == 1 % Matlab MPI bug. Throws though should return nothing
-            source = [];
-            return;
-        end
-        % this returns only one tag, with the message from the first node. 
-        % If this message is not received, no one will be able to probe any
-        % other tag
-        [present,source,matlab_tag_present] = labProbe;
-        if present
-            tags_present = matlab_tag_present-obj.matalb_tag_shift_;
-            if mess_tag == -1;  return;  end
-            is_req = tags_present==mess_tag;
-            if any(is_req)
-                tags_present = tags_present(is_req);
-            else
-                tags_present  = [];
-                source = [];                
-            end            
-        else
-            source = [];
-        end
-    else
-        if mess_tag == -1
-            if obj.numLabs == 1 % Matlab MPI bug. Throws though should return nothing
-                source = [];
-                return;
-            end
-            [present,source,matlab_tag_present] = labProbe;
-            if present
-                tags_present = matlab_tag_present-obj.matalb_tag_shift_;
-                from_req = source ==  task_id;
-                if any(from_req)
-                    source  = source(from_req);
-                    tags_present = tags_present(from_req);
-                else
-                    source = [];
-                end
-            end
-        else
-            [are_present,all_tags] = arrayfun(@(x)check_task_id(obj,x,mess_tag),task_id,...
-                'UniformOutput',true);
-            tags_present = all_tags(are_present);
-            source = task_id(are_present);
-        end
+        task_id = 1:obj.numLabs;
     end
+    non_this = task_id ~=obj.labIndex;
+    task_id = task_id(non_this);
+    if isempty(task_id)
+        source = [];
+        return;
+    end
+    [are_present,all_tags] = arrayfun(@(x)check_task_id(obj,x,mess_tag),task_id,...
+        'UniformOutput',true);
+    tags_present = all_tags(are_present);
+    source = task_id(are_present);    
 end
 
 function [present,mess_tag]=check_task_id(obj,tid,mess_tag)
@@ -120,10 +87,14 @@ if obj.is_tested
         present = false;
     end
 else
-    matlab_tag = mess_tag+obj.matalb_tag_shift_;
-    present = labProbe(tid,matlab_tag);
+    if mess_tag == -1
+        present = labProbe(tid);
+    else
+        matlab_tag = mess_tag+obj.matalb_tag_shift_;
+        present = labProbe(tid,matlab_tag);
+    end
     if ~present
-        mess_tag = 0;
+        mess_tag = -1;
     end
 end
 
