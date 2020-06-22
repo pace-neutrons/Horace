@@ -32,8 +32,8 @@ classdef MatlabMPIWrapper < handle
         % Variables for logging the MPI results
         do_logging_ = false; % disable/enable logging for MPI operations,
         % used for debug purposes
-        log_fh_ = [];
-        cl_fh_ = [];
+        log_fh_ = []; % handle for log file in test mode
+        cl_fh_ = [];  % handle for the class to close log file when job is completed
         % shift all tags used by framework by this number to avoid negative
         % tags
         matalb_tag_shift_=10;
@@ -169,7 +169,7 @@ classdef MatlabMPIWrapper < handle
                 if ~isempty(tags_present)
                     fprintf(obj.log_fh_,'***  data present ******:\n');
                     for i=1:numel(mess_names)
-                        lab_name = num2str(tid_from);
+                        lab_name = num2str(tid_from(i));
                         fprintf(obj.log_fh_,'     Source: "%s", tag: "%s"\n',...
                             lab_name,mess_names{i});
                     end
@@ -180,7 +180,7 @@ classdef MatlabMPIWrapper < handle
             
         end
         %
-
+        
         function [message,varargout]=mlabReceive(obj,lab_id,mess_tag,is_blocking)
             % wrapper around Matlab labReceive operation.
             % Inputs:

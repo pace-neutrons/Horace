@@ -135,7 +135,6 @@ while ~all_received
             if message.is_blocking && b_mess_received(i) % put into cache
                 % space in cache is avail. We have checked it before
                 if obj.blocking_mess_cache_.is_empty(tid_requested(i))
-                    
                     obj.blocking_mess_cache_.push_messages(tid_requested(i),message);
                 else
                     error('MESSAGES_FRAMEWORK:runtime_error',...
@@ -143,7 +142,7 @@ while ~all_received
                     
                 end
                 if do_logging
-                    fprintf(fh,'+++ Stored message %s in cahce\n',...
+                    fprintf(fh,'+++ Stored second reqiested message %s in cache\n',...
                         message.mess_name);
                 end
                 
@@ -151,8 +150,8 @@ while ~all_received
                 all_messages{i} = message;
                 b_mess_received(i)= true;
                 if do_logging
-                    fprintf(fh,'+++ Setting output %d to message %s\n',...
-                        i,message.mess_name);
+                    fprintf(fh,'+++ Setting requested output %d from tid %d to message %s\n',...
+                        i,tid_requested(i),message.mess_name);
                 end
                 
             end
@@ -163,17 +162,8 @@ while ~all_received
                 all_messages{i} = message;
                 b_mess_received(i)= true;
                 if do_logging
-                    fprintf(fh,'+++ Returning change to of state message to output\n');
-                end
-                
-                if interrupt_received
-                    % Failure we may not receive anything else from any other labs, so
-                    % let's finish here.
-                    for j=i+1:n_requested
-                        all_messages{j} = message;
-                        b_mess_received(j)= true;
-                    end
-                    break;
+                    fprintf(fh,'+++ setting output %d for %d to interrupt %s\n',...
+                        i,tid_requested(i),message.mess_name);
                 end
             else
                 if message.is_blocking
@@ -255,6 +245,16 @@ end
 % compress empty messages places if any
 all_messages = all_messages(b_mess_received);
 tid_received_from = tid_requested(b_mess_received);
+if do_logging
+   fprintf(fh,'+++ Received messages:\n');
+   for i=1:numel(all_messages)
+       fprintf(fh,' tid: %d, mess "%s"\n   payload: \n %s\n',...
+       tid_received_from(i),all_messages{i}.mess_name,evalc('disp(all_messages{i}.payload)'));
+   end
+   
+     
+end
+
 
 function b_can_be_received = check_cache_space(obj,tid_requested,names_present,b_can_be_received)
 % we can not receive blocking messages which are not requested and which
