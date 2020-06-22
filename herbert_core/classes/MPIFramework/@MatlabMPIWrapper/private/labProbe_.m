@@ -50,14 +50,31 @@ if obj.is_tested
     end
 else % Real MPI request
     if isempty(task_id)
+        if obj.numLabs == 1 % Matlab MPI bug. Throws though should return nothing
+            source = [];
+            return;
+        end
         [present,source,matlab_tag_present] = labProbe;
         if present
             tags_present = matlab_tag_present-obj.matalb_tag_shift_;
+            if mess_tag == -1;  return;  end
+            is_req = tags_present==mess_tag;
+            if any(is_req)
+                tags_present = tags_present(is_req);
+                source       = source(is_req);
+            else
+                tags_present  = [];
+                source = [];
+            end
         else
             source = [];
         end
     else
         if mess_tag == -1
+            if obj.numLabs == 1 % Matlab MPI bug. Throws though should return nothing
+                source = [];
+                return;
+            end
             [present,source,matlab_tag_present] = labProbe;
             if present
                 tags_present = matlab_tag_present-obj.matalb_tag_shift_;

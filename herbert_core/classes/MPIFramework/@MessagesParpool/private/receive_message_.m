@@ -27,14 +27,8 @@ for i=1:numel(ir_tags)
     end
 end
 
-[message,tag,source] = obj.MPI_.mlabReceive(from_task_id,tag,synchroneous);
-obj.set_interrupt(message,source);
+message = obj.MPI_.mlabReceive(from_task_id,tag,synchroneous);
+obj.set_interrupt(message,from_task_id);
 
-if ~isempty(message) && (~(message.is_blocking || message.is_persistent))
-    % collapse similar status messages
-    while ~isempty(obj.MPI_.mlabProbe(source,tag))
-        [message,tag,source] = obj.MPI_.mlabReceive(from_task_id,tag);
-    end
-end
 
 

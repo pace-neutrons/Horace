@@ -411,7 +411,6 @@ classdef test_job_executor< MPI_Test_Common
         end
         %
         function test_finish_task_reduce_messages(obj)
-            
             %
             [serverfbMPI,fbMPIs,initMess]=...
                 obj.init_pseudojob('test_finish_task_reduce_messages',3);
@@ -431,9 +430,9 @@ classdef test_job_executor< MPI_Test_Common
             je3.task_outputs = {'Successfully completed task3'};
             je2.task_outputs = {'Successfully completed task2',2};
             je1.task_outputs = {'Successfully completed task1',1};
-            je3.finish_task('-asynch');
-            je2.finish_task('-asynch');
-            je1.finish_task('-asynch');
+            je3.finish_task();
+            je2.finish_task();
+            je1.finish_task();
             
             
             [ok,err,mess] = serverfbMPI.receive_message(1,'completed');
@@ -444,10 +443,10 @@ classdef test_job_executor< MPI_Test_Common
             serverfbMPI.clear_messages();
             
             
-            je3.finish_task('-asynch');
+            je3.finish_task();
             je2.task_outputs = '';
-            je2.finish_task(FailedMessage('test fail'),'-asynch');
-            je1.finish_task('-asynch');
+            je2.finish_task(FailedMessage('test fail'));
+            je1.finish_task();
             [ok,err,mess] = serverfbMPI.receive_message(1,'completed');
             assertEqual(ok,MESS_CODES.ok,err);
             assertEqual(mess.mess_name,'failed');

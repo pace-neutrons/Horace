@@ -97,7 +97,7 @@ classdef MatlabMPIWrapper < handle
                 mess_tag= message.tag;
             end
             if obj.do_logging_
-                fprintf(obj.log_fh_,'***Send-> message: %s to lab %d\n',...
+                fprintf(obj.log_fh_,'***Send-> message: "%s" to lab "%d"\n',...
                     message.mess_name,targ_id);
             end
             
@@ -143,8 +143,9 @@ classdef MatlabMPIWrapper < handle
                 else
                     lab_name = num2str(targ_id);
                 end
-                fprintf(obj.log_fh_,'***  probing  Lab: %s for tag %d\n',...
-                    lab_name,mess_tag);
+                mess_name = MESS_NAMES.mess_name(mess_tag);
+                fprintf(obj.log_fh_,'***  probing  Lab: "%s" for mess: "%s"\n',...
+                    lab_name,mess_name);
             end
             
             [tags_present,tid_from]= labProbe_(obj,targ_id,mess_tag);
@@ -158,11 +159,11 @@ classdef MatlabMPIWrapper < handle
             end
             
             if obj.do_logging_
-                if ~is_empty(tags_present)
-                    fprintf(obj.log_fh_,'***  data present ******\n');
+                if ~isempty(tags_present)
+                    fprintf(obj.log_fh_,'***  data present ******:\n');
                     for i=1:numel(mess_names)
                         lab_name = num2str(tid_from);
-                        fprintf(obj.log_fh_,'     Source: %s, tag(s) %s\n',...
+                        fprintf(obj.log_fh_,'     Source: "%s", tag: "%s"\n',...
                             lab_name,mess_names{i});
                     end
                 else
@@ -172,10 +173,10 @@ classdef MatlabMPIWrapper < handle
             
         end
         %
-        function [message,varargout]=mlabReceive(obj,targ_id,mess_tag,is_blocking)
+        function [message,varargout]=mlabReceive(obj,lab_id,mess_tag,is_blocking)
             % wrapper around Matlab labReceive operation.
             % Inputs:
-            % targ_id  - the number of the lab to ask the information from
+            % lab_id   - the number of the lab to ask the information from
             % mess_tag - the tag of the information to ask for. if it is
             %            empty, any type of information is requested.
             % Returns:
@@ -199,33 +200,50 @@ classdef MatlabMPIWrapper < handle
                 mess_tag = MESS_NAMES.mess_id(mess_tag);
             end
             if nargin<2
-                targ_id = [];
-            end
-            if obj.do_logging_
-                if isempty(targ_id)
-                    lab_name = 'any';
-                else
-                    lab_name = num2str(targ_id);
-                end
-                fprintf(obj.log_fh_,'***receving from Lab: %s Mess tag %d\n',...
-                    lab_name,targ_id);
+                lab_id = [];
             end
             if ~exist('is_blocking','var')
                 is_blocking = MESS_NAMES.is_blocking(mess_tag);
             end
-            [message,tag] = labReceive_(obj,targ_id,mess_tag,is_blocking);
+            if obj.do_logging_
+                if isempty(lab_id)
+                    lab_name = 'any';
+                else
+                    lab_name = num2str(lab_id);
+                end
+                if is_blocking
+                    how = 'synch';
+                else
+                    how = 'asynch';
+                end
+                mess_name = MESS_NAMES.mess_name(mess_tag);
+                fprintf(obj.log_fh_,'***%s asking to receive from Lab: "%s" Mess:  "%s"\n',...
+                    how,lab_name,mess_name);
+            end
+            [message,tag] = labReceive_(obj,lab_id,mess_tag,is_blocking);
+            if ~is_blocking % receive all non-blocking messages with the same tag
+                mess = message;
+                while ~isempty(mess)
+                    message = mess;
+                    mess = labReceive_(obj,lab_id,tag,false);
+                end
+            end
             if nargout>1
                 varargout{1} = tag;
             end
             if nargout>2
-                varargout{2} = targ_id;
+                varargout{2} = lab_id;
             end
             if obj.do_logging_
-                tag_name = num2str(tag);
-                source_name = num2str(source);
+                if isempty(message)
+                    mess_name = '(nothing)';
+                else
+                    mess_name = message.mess_name;
+                end
+                source_name = num2str(lab_id);
                 fprintf(obj.log_fh_,...
-                    '            Message with tag %s Received from source %s\n',...
-                    tag_name,source_name);
+                    '            Message: "%s" Received from source "%s"\n',...
+                    mess_name,source_name);
             end
             
         end
@@ -236,7 +254,7 @@ classdef MatlabMPIWrapper < handle
             % Stops lab execution until all labs reached the barrier.
             % Ignored in test mode.
             if obj.do_logging_
-                fprintf(obj.log_fh_,'*** Ariving at barrier for node %d\n',...
+                fprintf(obj.log_fh_,'*** Arriving at barrier for node %d\n',...
                     obj.labIndex);
             end
             if obj.is_tested

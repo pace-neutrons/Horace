@@ -5,9 +5,9 @@ function   [all_messages,tid_received_from] = receive_all_messages_(obj,task_ids
 if ~exist('task_ids','var') || isempty(task_ids) || (ischar(task_ids) && strcmpi(task_ids,'all'))
     task_ids = 1:obj.numLabs;
 end
-this_tid = task_ids == obj.labIndex;
-if any(this_tid)
-    task_ids = task_ids(~this_tid);
+not_this = task_ids ~= obj.labIndex;
+if ~all(not_this)
+    task_ids = task_ids(not_this);
 end
 
 

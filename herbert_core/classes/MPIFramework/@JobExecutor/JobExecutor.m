@@ -326,7 +326,7 @@ classdef JobExecutor
             [ok,err] = obj.mess_framework_.labBarrier(nothrow);
         end
         %
-        function is = is_job_canceled(obj)
+        function [is,reason] = is_job_canceled(obj)
             % check all available framework for the job cancellation state.
             %
             % Returns true if received any 'canceled' signal.
@@ -334,11 +334,24 @@ classdef JobExecutor
             if ~is
                 [mess,tids] = obj.mess_framework_.probe_all('all','canceled');
                 if ~isempty(mess)
+                    if nargout > 1
+                        reason = sprintf(' Received %d canceled messages: ',numel(mess));
+                        for i=1:numel(tids)
+                            reason = sprintf('%s ;from %d mess: %s ;',reason,tids(i),(mess{i}));
+                        end
+                    end
                     is = true;
                     mf = obj.mess_framework_;
                     for i=1:numel(tids)
                         mf.receive_message(tids(i),'canceled');
                     end
+                else
+                    reason = '';
+                end
+            else
+                if nargout>1
+                    reason = fprintf(' Job folder %s has been deleted',...
+                        obj.control_node_exch_.mess_exchange_folder);
                 end
             end
         end

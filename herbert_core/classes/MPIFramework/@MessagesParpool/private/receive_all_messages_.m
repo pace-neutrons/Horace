@@ -90,6 +90,14 @@ while ~all_received
         message = obj.get_interrupt(tid_requested(i));
         if isempty(message)
             message = obj.MPI_.mlabReceive(tid_requested(i),names_present{i},true);
+            if ~message.is_blocking 
+                % receive and collapse all similar non-blocking messages
+                mess = message;
+                while ~isempty(mess)
+                    message = mess;
+                    mess = obj.MPI_.mlabReceive(tid_requested(i),names_present{i},false);                    
+                end
+            end
             obj.set_interrupt(message,tid_requested(i));
             interrupt_received = false;
         else
