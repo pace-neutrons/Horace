@@ -146,7 +146,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 try
                     jd.display_fail_job_results(outputs, n_failed,3,'DISP:error');
                 catch ME
-                    if strcmp(ME.idetifier,'DISP:error')
+                    if strcmp(ME.identifier,'DISP:error')
                     else
                         rethrow(ME);
                     end
