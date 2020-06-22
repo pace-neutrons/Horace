@@ -42,7 +42,7 @@ if nargin > 2 && ~isempty(varargin{1})
     [messages,task_ids_from] = obj.MPI_.mlabProbe(task_ids,mess_tag);
     
 else
-    [messages,task_ids_from] = obj.MPI_.mlabProbe(task_ids,[]);
+    [messages,task_ids_from] = obj.MPI_.mlabProbe(task_ids,-1);
 end
 i_tags = MESS_NAMES.instance().interrupt_tags;
 for i=1:numel(i_tags)

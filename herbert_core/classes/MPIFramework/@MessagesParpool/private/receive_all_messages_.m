@@ -16,6 +16,13 @@ if any(this_tid)
     tid_requested = tid_requested(~this_tid);
 end
 
+fh = obj.MPI_.log_fh;
+if isempty(fh)
+    do_logging = false;
+else
+    do_logging = true;
+end
+
 
 if ~exist('mess_name','var') || isempty(mess_name)
     mess_name = 'any';
@@ -41,6 +48,10 @@ if isempty(task_ids_to_receive)
 else
     [data_mess,tid_data]=obj.blocking_mess_cache_.pop_messages(task_ids_to_receive,mess_name);
 end
+if do_logging
+    fprintf(fh,'+++ Retrieved from cach %d state messages and %d Data messages\n',...
+        numel(state_mess),numel(data_mess));
+end
 % % b for switch -- boolean variable
 % b_data_present= ismember(tid_requested,tid_data);
 
@@ -49,6 +60,16 @@ end
 % are ignored. (Should not ask both for data and state messages except
 % mess_name = 'any' is requested)
 [all_messages,tid_received_from] = obj.mix_messages(state_mess,tid_state,data_mess,tid_data);
+if do_logging
+    fprintf(fh,'+++ setting result to:\n');
+    for i=1:numel(all_messages)
+        if ~isempty(all_messages{i})
+            fprintf(fh,'   Message %s received from %d\n',...
+                all_messages{i}.mess_name,tid_received_from(i));
+        end
+    end
+end
+
 if lock_until_received && (numel(all_messages) == numel(tid_requested)) % Everything has been found in cache.
     % return result.
     return;
@@ -61,6 +82,15 @@ if all_tid_requested
 else
     [messages_names,tid_present] = labProbe_messages_(obj,tid_requested,'any');
 end
+if do_logging
+    fprintf(fh,'+++ Found %d messages send to the node %d:\n',...
+        numel(messages_names),obj.labIndex);
+    for i=1:numel(messages_names)
+        fprintf(fh,'   Message %s send from %d\n',...
+            messages_names{i},tid_present(i));
+    end
+end
+
 % b for switch -- boolean variable
 b_mess_ready     = ismember(tid_requested,tid_present); %
 b_mess_received  = ismember(tid_requested,tid_received_from);
@@ -90,12 +120,12 @@ while ~all_received
         message = obj.get_interrupt(tid_requested(i));
         if isempty(message)
             message = obj.MPI_.mlabReceive(tid_requested(i),names_present{i},true);
-            if ~message.is_blocking 
+            if ~message.is_blocking
                 % receive and collapse all similar non-blocking messages
                 mess = message;
                 while ~isempty(mess)
                     message = mess;
-                    mess = obj.MPI_.mlabReceive(tid_requested(i),names_present{i},false);                    
+                    mess = obj.MPI_.mlabReceive(tid_requested(i),names_present{i},false);
                 end
             end
             obj.set_interrupt(message,tid_requested(i));
@@ -103,13 +133,28 @@ while ~all_received
         else
             interrupt_received = true;
         end
+        if do_logging
+            fprintf(fh,'+++ Received message %s from node %d: while requesting %s\n',...
+                message.mess_name,tid_requested(i),mess_name);
+        end
+        
         if this_mess_requested % got what we asked for
             if message.is_blocking && b_mess_received(i) % put into cache
                 % space in cache is avail. We have checked it before
                 obj.blocking_mess_cache_.push_messages(tid_requested(i),message);
+                if do_logging
+                    fprintf(fh,'+++ Stored message %s in cahce\n',...
+                        message.mess_name);
+                end
+                
             else
                 all_messages{i} = message;
                 b_mess_received(i)= true;
+                if do_logging
+                    fprintf(fh,'+++ Setting output %d to message %s\n',...
+                        i,message.mess_name);
+                end
+                
             end
             
         else % we received message which is not asked for now but will be
@@ -117,6 +162,10 @@ while ~all_received
             if interrupt_received ||  strcmp(message.mess_name,'canceled')
                 all_messages{i} = message;
                 b_mess_received(i)= true;
+                if do_logging
+                    fprintf(fh,'+++ Returning change to of state message to output\n');
+                end
+                
                 if interrupt_received
                     % Failure we may not receive anything else from any other labs, so
                     % let's finish here.
@@ -129,8 +178,15 @@ while ~all_received
             else
                 if message.is_blocking
                     obj.blocking_mess_cache_.push_messages(tid_requested(i),message);
+                    if do_logging
+                        fprintf(fh,'+++ Storing data message in cache\n');
+                    end
                 else % old status messages are overwritten.
                     obj.state_mess_cache_.push_messages(tid_requested(i),message);
+                    if do_logging
+                        fprintf(fh,'+++ Storing state message in cache\n');
+                    end
+                    
                 end
             end
         end
@@ -138,6 +194,10 @@ while ~all_received
     if lock_until_received
         all_received = all(b_mess_received);
         if ~all_received
+            if do_logging
+                fprintf(fh,'+++ more messages needed\n');
+            end
+            
             t1 = toc(t0);
             if t1>obj.time_to_fail_;   error('FILEBASED_MESSAGES:runtime_error',...
                     'Timeout waiting for receiving all messages')
@@ -148,15 +208,32 @@ while ~all_received
             else
                 [messages_avail,tid_avail] = labProbe_messages_(obj,tid_requested,'any');
             end
+            
             b_mess_ready = ismember(tid_requested,tid_avail);
             names_present(b_mess_ready) = messages_avail(:);
             %
             % we probably do not want to receive anything from the
             % already received labs or labs where data are already
             % present.
-            b_mess_ready   = b_mess_ready & ~b_mess_received;
+            %b_mess_ready = b_mess_ready & ~b_mess_received;
             b_mess_ready = check_cache_space(obj,tid_requested,names_present,b_mess_ready);
-            
+            if do_logging
+                fprintf(fh,'+++ Present messages are:\n');
+                for i=1:numel(messages_avail)
+                    fprintf(fh,'   Message %s send from %d\n',...
+                        messages_avail{i},tid_avail(i));
+                end
+                fprintf(fh,'+++ will process messages:\n labs:  ');
+                for i=1:numel(b_mess_ready); fprintf(fh,'!   %d   !',tid_requested(i));
+                end
+                fprintf(fh,'\n ready: ');
+                for i=1:numel(b_mess_ready); fprintf(fh,'!   %d   !',b_mess_ready(i));
+                end
+                fprintf(fh,'\n there:  ');
+                for i=1:numel(b_mess_received); fprintf(fh,'!   %d   !',b_mess_received(i));
+                end
+                fprintf(fh,'\n');
+            end
             if (obj.is_tested && ~any(b_mess_ready))
                 error('MESSAGES_FRAMEWORK:runtime_error',...
                     'Issued request for missing blocking message in test mode');

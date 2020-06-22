@@ -16,15 +16,22 @@ classdef MatlabMPIWrapper < handle
         
         % number of parallel workers
         numLabs
-        %
+        % Test properties.
+        %-------------------------------------------------------
+        % number of test messages in test cache in test mode. 0 if running
+        % in production mode
         n_test_messages
+        % test property, providing logging filehandle if the class is
+        % initialized in the logging mode
+        log_fh
     end
     properties(Access=protected,Hidden=true)
         is_tested_ = false;
         labindex_ = 1;
         numlabs_  = 1;
         % Variables for logging the MPI results
-        do_logging_ = false; % disable/enable logging for MPI operations
+        do_logging_ = true; % disable/enable logging for MPI operations,
+        % used for debug purposes
         log_fh_ = [];
         cl_fh_ = [];
         % shift all tags used by framework by this number to avoid negative
@@ -221,7 +228,7 @@ classdef MatlabMPIWrapper < handle
                     how,lab_name,mess_name);
             end
             [message,tag] = labReceive_(obj,lab_id,mess_tag,is_blocking);
-            if ~is_blocking % receive all non-blocking messages with the same tag
+            if ~is_blocking && ~message.is_blocking % receive all non-blocking messages with the same tag
                 mess = message;
                 while ~isempty(mess)
                     message = mess;
@@ -300,6 +307,7 @@ classdef MatlabMPIWrapper < handle
             is = obj.is_tested_;
         end
         function ntm = get.n_test_messages(obj)
+            %
             ntm = double(obj.messages_cache_.Count);
         end
         % -------------------------------------------------------------
@@ -310,6 +318,14 @@ classdef MatlabMPIWrapper < handle
         end
         function delete(obj)
             obj.messages_cache_ = [];
+        end
+        function fh = get.log_fh(obj)
+            do = obj.do_logging_;
+            if do
+                fh = obj.log_fh_;
+            else
+                fh = [];
+            end
         end
     end
 end

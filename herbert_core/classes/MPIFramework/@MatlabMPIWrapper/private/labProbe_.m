@@ -54,6 +54,9 @@ else % Real MPI request
             source = [];
             return;
         end
+        % this returns only one tag, with the message from the first node. 
+        % If this message is not received, no one will be able to probe any
+        % other tag
         [present,source,matlab_tag_present] = labProbe;
         if present
             tags_present = matlab_tag_present-obj.matalb_tag_shift_;
@@ -61,11 +64,10 @@ else % Real MPI request
             is_req = tags_present==mess_tag;
             if any(is_req)
                 tags_present = tags_present(is_req);
-                source       = source(is_req);
             else
                 tags_present  = [];
-                source = [];
-            end
+                source = [];                
+            end            
         else
             source = [];
         end
