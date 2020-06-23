@@ -3,12 +3,12 @@ function tube = get_default_detector_from_detpar(detpar)
 %
 % Return a new He3 tube at 10atms, wall thickness=0.635mm
 
-pressure = 6.35e-4; % atmospheres
-thickness = 10; % mm
+PRESSURE = 6.35e-4; % atmospheres
+THICKNESS = 10; % mm
 
 tube = IX_det_He3tube( ...
     detpar.width, ...
     detpar.height, ...
-    pressure, ...
-    thickness);
+    PRESSURE, ...
+    THICKNESS);
 end
