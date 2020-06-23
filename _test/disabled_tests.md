@@ -19,3 +19,6 @@
   HACK: 
   - job_dispatcher_common_tests:test_job_fail_restart
     given 5 second interval to complete failed jobs between restarts.
+    %
+  - job_dispatcher_common_tests:test_job_fail_restart -- Disabled check for final output on linux
+    
