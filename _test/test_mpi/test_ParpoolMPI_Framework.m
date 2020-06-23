@@ -21,7 +21,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             end
             
         end
-        function start_pool(obj)
+        function pl = start_pool(obj)
             cl = parcluster();
             num_labs = cl.NumWorkers;
             if num_labs < 3
@@ -33,13 +33,13 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             if num_labs > 6
                 num_labs = 6;
             end
-
+            
             pl = gcp('nocreate'); % Get the current parallel pool
             %if ~isempty(pl)
             %    delete(pl);
             %end
             if isempty(pl) || pl.NumWorkers ~=num_labs
-                obj.cluster = cl;                
+                obj.cluster = cl;
                 delete(pl)
                 obj.pool_deleter = [];
                 pl = parpool(cl,num_labs);
@@ -62,7 +62,12 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
             end
-            obj.start_pool();
+            pl = obj.start_pool();
+            if isempty(pl)
+                warning('Problem of getting parallel pool')
+                return
+            end
+            
             
             serverfbMPI  = MessagesFilebased('test_finish_tasks_reduce_mess');
             serverfbMPI.mess_exchange_folder = obj.working_dir;
@@ -71,7 +76,6 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             % generate 3 controls to have 3 filebased MPI pseudo-workers
             css1= serverfbMPI.get_worker_init('MessagesParpool');
             
-            pl = obj.pool;
             num_labs = pl.NumWorkers;
             spmd
                 ok = finish_task_tester(css1);
@@ -99,9 +103,12 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
             end
-            obj.start_pool();
+            pl = obj.start_pool();
+            if isempty(pl)
+                warning('Problem of getting parallel pool')
+                return
+            end
             
-            pl = obj.pool;
             num_labs = pl.NumWorkers;
             
             
@@ -150,8 +157,11 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
             end
-            obj.start_pool();            
-            pl = obj.pool;
+            pl = obj.start_pool();
+            if isempty(pl)
+                warning('Problem of getting parallel pool')
+                return
+            end
             num_labs = pl.NumWorkers;
             % end of    common code ---------------------------------------
             
@@ -198,7 +208,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
         end
         %
         function test_probe_receive_all_tester(obj)
-   
+            
             
             job_param = struct('filepath',obj.working_dir,...
                 'filename_template','test_ParpoolMPI%d_nf%d.txt');
@@ -238,7 +248,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             
         end
         %
-        function test_send_receive_tester(obj)    
+        function test_send_receive_tester(obj)
             
             job_param = struct('filepath',obj.working_dir,...
                 'filename_template','test_ParpoolMPI%d_nf%d.txt');
