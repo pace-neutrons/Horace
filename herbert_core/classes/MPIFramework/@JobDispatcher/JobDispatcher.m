@@ -297,7 +297,7 @@ classdef JobDispatcher
             obj.job_destroyer_ = [];
         end
         %
-        function display_fail_job_results(obj,outputs,n_failed,n_workers,Err_code)
+        function display_fail_job_results(obj,outputs,n_failed,n_workers,varargin)
             % Display job results if the job have failed.
             % Auxiliary method.
             %
@@ -308,10 +308,11 @@ classdef JobDispatcher
             %             job
             % n_workers-- number of labs used by parallel job initially
             %
+            % if present:
             % Err_code -- the text string in the form
             %             ERROR_CLASS:error_reason to form identifier of
-            %             the exception to throw. 
-            %             If this parameter is missing, throws nothing. 
+            %             the exception to throw.
+            %             If this parameter is missing, method throws nothing.
             % Throws:
             % First exception returned from the cluster if such exceptions
             % are present or exception with Err_code as MExeption.identifier
@@ -319,6 +320,8 @@ classdef JobDispatcher
             %
             if nargin<5
                 Err_code = [];
+            else
+                Err_code = varargin{1};
             end
             display_fail_jobs_(obj,outputs,n_failed,n_workers,Err_code);
         end

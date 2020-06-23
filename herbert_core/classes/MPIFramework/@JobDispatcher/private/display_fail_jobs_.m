@@ -44,14 +44,21 @@ if iscell(outputs)
 elseif isempty(mEXceptions_outputs)
     ext_type = class(outputs);
     fprintf('Job %s have failed sending unhandled exception: %s\n',obj.job_id,ext_type);
-    error(Err_code,'Parallel job have failed throwing unhandled exception: %s',ext_type);
+    if ~isempty(Err_code)
+        error(Err_code,'Parallel job have failed throwing unhandled exception: %s',ext_type);
+    end
 else
     mEXceptions_outputs(1) = isa(outputs,'MException');
     fprintf('Job %s have failed. Output: \n',obj.job_id);
     disp(outputs);
 end
-if any(mEXceptions_outputs)
-    warning(Err_code,...
+if any(mEXceptions_outputs)  
+    if isempty(Err_code)
+        warn_code = 'DISPLAY_FAIL_JOBS:parallel_failure';        
+    else
+        warn_code = Err_code;
+    end
+    warning(warn_code ,...
         ' Number: %d parallel tasks out of total: %d tasks have failed',...
         n_failed,n_workers)
     errOutputs = outputs(mEXceptions_outputs);
