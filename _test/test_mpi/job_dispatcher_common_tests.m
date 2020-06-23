@@ -88,7 +88,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             co = onCleanup(@()(my_delete(file3, file3a)));
             common_param.fail_for_labsN = 1:2;
             if do_pause
-                pause(5) % HACK: give time to complete failied jobs.
+                pause(10) % HACK: give time to complete failied jobs.
             end
             disp('*********************************************************')
             disp('**************FAIL-2 Lab1-2 Fail  ***********************')
@@ -107,7 +107,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             
             clear co;
             if do_pause
-                pause(5) % HACK: give time to complete failied jobs.
+                pause(10) % HACK: give time to complete failied jobs.
             end
             % check long job cancelled due to part of the job failed
             disp('*********************************************************')
@@ -135,7 +135,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             end
             common_param.fail_for_labsN = 3;
             if do_pause
-                pause(5) % HACK: give time to complete failied jobs.
+                pause(10) % HACK: give time to complete failied jobs.
             end
             disp('*********************************************************')
             disp('**************FAIL 4 Lab-3 Fail, long job****************')
@@ -176,7 +176,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             files = {file1, file2, file3, file3a};
             co = onCleanup(@()(my_delete(files{:})));
             if do_pause
-                pause(5) % HACK: give time to complete failied jobs.
+                pause(10) % HACK: give time to complete failied jobs.
             end
             disp('*********************************************************')
             disp('**************RUN 5 Should finish successfully **********')
@@ -218,6 +218,9 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 clob0 = onCleanup(@()tearDown(obj));
             end
             clear mex;
+            hc = herbert_config;
+            display_ouptut = hc.log_level>0;
+            
             % overloaded to empty test -- nothing new for this JD
             % JETester specific control parameters
             common_param = struct('filepath', obj.working_dir, ...
@@ -249,6 +252,9 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 common_param,n_steps*n_workers,true, false, 1);
             assertEqual(n_failed, 0);
             for i=1:numel(outputs)
+                if display_ouptut
+                    disp(outputs{i})
+                end                
                 assertEqualToTol(outputs{i},(n_steps+1)*n_steps/2);
             end
             
@@ -265,6 +271,8 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
             end
+            hc = herbert_config;
+            display_ouptut = hc.log_level>0;
             % overloaded to empty test -- nothing new for this JD
             % JETester specific control parameters
             common_param = struct('filepath', obj.working_dir, ...
@@ -297,6 +305,9 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 common_param,n_steps*n_workers, true,true, 1);
             assertEqual(n_failed, 0);
             for i=1:numel(outputs)
+                if display_ouptut
+                    disp(outputs{i})
+                end
                 assertEqualToTol(outputs{i},(n_steps+1)*n_steps/2);
             end
             
@@ -305,6 +316,9 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 common_param,n_steps*n_workers,true, true, 1);
             assertEqual(n_failed, 0);
             for i=1:numel(outputs)
+                if display_ouptut
+                    disp(outputs{i})
+                end
                 assertEqualToTol(outputs{i},(n_steps+1)*n_steps/2);
             end
             
@@ -315,6 +329,9 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 common_param,n_steps*n_workers,true, false, 1);
             assertEqual(n_failed, 0);
             for i=1:numel(outputs)
+                if display_ouptut
+                    disp(outputs{i})
+                end
                 assertEqualToTol(outputs{i},(n_steps+1)*n_steps/2);
             end
         end
