@@ -23,5 +23,6 @@ if isempty(which('herbert_init.m'))
     catch 
     end
 end
-DO_LOGGING = false;
-[ok,err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING);
+DO_LOGGING = false; % if true, write extensive log information.
+DO_DEBUGGING = false; % if true, do not exit worker on completion (enter pause). Used for filebased framework debugging
+[ok,err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING,DO_DEBUGGING);
