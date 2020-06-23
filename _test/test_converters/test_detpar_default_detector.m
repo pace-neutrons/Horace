@@ -25,14 +25,14 @@ classdef test_detpar_default_detector < TestCase
             detector = get_default_detector_from_detpar(this.detpar_single);
             
             assertEqual(numel(detector), 1);
-            assertEqual(class(detector), 'IX_det_He3tube');
+            assertTrue(isa(detector, 'IX_det_He3tube'));
         end
         
         function this = test_single_detector_returned_from_n_element_detpar(this)
             detector = get_default_detector_from_detpar(this.detpar_multi);
             
             assertEqual(numel(detector), 1);
-            assertEqual(class(detector), 'IX_det_He3tube');
+            assertTrue(isa(detector, 'IX_det_He3tube'));
         end
         
         function this = test_detector_returned_from_n_element_detpar_is_array_valued(this)
@@ -40,7 +40,6 @@ classdef test_detpar_default_detector < TestCase
             
             assertEqual(numel(detector.dia), numel(this.detpar_multi.width));
         end
-        
         
         function this = test_sets_detector_diameter_to_width(this)
             detector = get_default_detector_from_detpar(this.detpar_single);

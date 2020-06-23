@@ -25,7 +25,7 @@ classdef test_detpar_default_detector_array < TestCase
             detector_array = get_default_detector_array_from_detpar(this.detpar_single);
             
             assertEqual(numel(detector_array), 1);
-            assertEqual(class(detector_array), 'IX_detector_array');
+            assertTrue(isa(detector_array, 'IX_detector_array'));
         end
         
         function this = test_detector_array_contains_a_single_detector(this)
@@ -38,7 +38,7 @@ classdef test_detpar_default_detector_array < TestCase
             detector_array_single = get_default_detector_array_from_detpar(this.detpar_single);
             
             assertEqual(numel(detector_array_single.det_bank), 1);
-            assertEqual(class(detector_array_single.det_bank), 'IX_detector_bank');
+            assertTrue(isa(detector_array_single.det_bank, 'IX_detector_bank'));
         end
         
         function this = test_detector_array_phi_eq_detpar_phi(this)
@@ -86,7 +86,7 @@ classdef test_detpar_default_detector_array < TestCase
             detector_array = get_default_detector_array_from_detpar(this.detpar_multi);
             
             assertEqual(numel(detector_array), 1);
-            assertEqual(class(detector_array), 'IX_detector_array');
+            assertTrue(isa(detector_array, 'IX_detector_array'));
         end
         
         function this = test_detector_array_contains_n_detector_from_n_element_detpar(this)
