@@ -28,7 +28,9 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 end
             end
             clear mex;
-            force_pause = false;
+            do_pause = is_jenkins;
+            %do_pause = true;
+            
             hc = herbert_config;
             display_fail_log = hc.log_level>0;
             
@@ -47,6 +49,9 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             co = onCleanup(@()(my_delete(files{:})));
             
             jd = JobDispatcher(['test_job_', obj.framework_name, '_fail_restart']);
+            disp('*********************************************************')
+            disp('**************FAIL-1 Lab2 Fails *************************')
+            disp('*********************************************************')
             %1)----------------------------------------------------------
             [outputs, n_failed, ~, jd] = jd.start_job('JETester', common_param, 36, true, 3, true, 1);
             if display_fail_log
@@ -82,9 +87,13 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             
             co = onCleanup(@()(my_delete(file3, file3a)));
             common_param.fail_for_labsN = 1:2;
-            if is_jenkins || force_pause
+            if do_pause
                 pause(5) % HACK: give time to complete failied jobs.
             end
+            disp('*********************************************************')
+            disp('**************FAIL-2 Lab1-2 Fail  ***********************')
+            disp('*********************************************************')
+            
             %2)----------------------------------------------------------
             [outputs, n_failed, ~, jd] = jd.restart_job('JETester', common_param, 4, true, true, 1);
             if display_fail_log
@@ -97,10 +106,14 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             assertTrue(sum(fin) >= 1)
             
             clear co;
-            if is_jenkins|| force_pause
+            if do_pause
                 pause(5) % HACK: give time to complete failied jobs.
             end
             % check long job cancelled due to part of the job failed
+            disp('*********************************************************')
+            disp('**************FAIL 3 Lab1-2 Fail -- long job*************')
+            disp('*********************************************************')
+            
             %3)----------------------------------------------------------
             [outputs, n_failed, ~, jd] = jd.restart_job('JETester', common_param, 99, true, true, 1);
             if display_fail_log
@@ -121,9 +134,13 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 end
             end
             common_param.fail_for_labsN = 3;
-            if is_jenkins || force_pause
+            if do_pause
                 pause(5) % HACK: give time to complete failied jobs.
             end
+            disp('*********************************************************')
+            disp('**************FAIL 4 Lab-3 Fail, long job****************')
+            disp('*********************************************************')
+            
             
             %4)----------------------------------------------------------
             [outputs, n_failed, ~, jd] = jd.restart_job('JETester', common_param, 99, true, true, 1);
@@ -158,15 +175,24 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             common_param = rmfield(common_param, 'fail_for_labsN');
             files = {file1, file2, file3, file3a};
             co = onCleanup(@()(my_delete(files{:})));
-            if is_jenkins || force_pause
+            if do_pause
                 pause(5) % HACK: give time to complete failied jobs.
             end
+            disp('*********************************************************')
+            disp('**************RUN 5 Should finish successfully **********')
+            disp('*********************************************************')
+            
+            
             
             %5)----------------------------------------------------------
             [outputs, n_failed,~,jd] = jd.restart_job('JETester', common_param, 4, true, false, 1);
             if n_failed>0
                 jd.display_fail_job_results(outputs, n_failed,3)
             end
+            disp('*********************************************************')
+            disp('**************RUN 5 FINISHED ****************************')
+            disp('*********************************************************')
+            
             
             assertEqual(n_failed, 0);
             assertEqual(numel(outputs), 3);

@@ -52,9 +52,9 @@ else
     fprintf('Job %s have failed. Output: \n',obj.job_id);
     disp(outputs);
 end
-if any(mEXceptions_outputs)  
+if any(mEXceptions_outputs)
     if isempty(Err_code)
-        warn_code = 'DISPLAY_FAIL_JOBS:parallel_failure';        
+        warn_code = 'DISPLAY_FAIL_JOBS:parallel_failure';
     else
         warn_code = Err_code;
     end
