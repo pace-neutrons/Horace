@@ -362,6 +362,9 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             jd = JobDispatcher(['test_', obj.framework_name, '_1worker']);
             
             [outputs, n_failed] = jd.start_job('JETester', common_param, 3, true, 1, false, 1);
+            if n_failed>0
+                jd.display_fail_job_results(outputs, n_failed,1)                
+            end
             
             assertEqual(n_failed, 0);
             assertEqual(numel(outputs), 1);
