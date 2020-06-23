@@ -27,6 +27,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             if num_labs < 3
                 warning('Can not run test_send_receive_message, not enough workers');
                 obj.ignore_test = true;
+                pl = [];
                 return;
             end
             num_labs = 3*floor(num_labs/3);
