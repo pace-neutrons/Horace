@@ -1,9 +1,7 @@
 function wlock_obj=unlock_(filename)
 % Routine used to remove lock file in background
 %
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-%
+
 wlock_obj = [];
 n_attempts_allowed = 100;
 tried = 0;
