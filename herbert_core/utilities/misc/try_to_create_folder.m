@@ -24,6 +24,7 @@ if ~exist(folder_path,'dir')
         pause(0.1);
     end
 else
+    rng('shuffle');
     test_path = fullfile(folder_path,['folder_twa_',char(randi(25,1,10) + 64)]);
     [success, mess] = mkdir(test_path);
     if success
