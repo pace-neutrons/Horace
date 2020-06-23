@@ -194,22 +194,22 @@ classdef ClusterMPI < ClusterWrapper
         %------------------------------------------------------------------
     end
     methods(Static)
-        function mpi_exec=get_mpiexec()
+        function mpi_exec = get_mpiexec()
             rootpath = fileparts(which('herbert_init'));
+            external_dll_dir = fullfile(rootpath, 'DLL', 'external');
             if ispc()
-                % only one version of mpiexec is used now. May change in a
+                % only one version of mpiexec is used now. May change in the
                 % future.
-                mpi_exec = fullfile(rootpath,'DLL','_PCWIN64','MS_MPI_R2019b','mpiexec.exe');
+                mpi_exec = fullfile(external_dll_dir, 'mpiexec.exe');
             else
-                mpi_exec = fullfile(rootpath, 'external', computer('arch'), ...
-                        'mpich-3.3a2/bin/mpiexec');
+                mpi_exec = fullfile(external_dll_dir, 'mpiexec');
 
                 if ~(exist(mpi_exec,'file')==2)
                     % use system-defined mpiexec
-                    [~,mpi_exec] = system('which mpiexec');
+                    [~, mpi_exec] = system('which mpiexec');
                     % strip non-printing characters, spaces and eol/cr-s from the
                     % end of mpiexec string.
-                    mpi_exec= regexprep(mpi_exec,'[\x00-\x20\x7F-\xFF]$','');
+                    mpi_exec = regexprep(mpi_exec,'[\x00-\x20\x7F-\xFF]$','');
                 end
             end
         end

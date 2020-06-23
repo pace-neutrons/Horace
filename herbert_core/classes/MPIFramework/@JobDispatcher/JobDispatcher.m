@@ -51,31 +51,31 @@ classdef JobDispatcher
         % shared file system and all file-based messages, related to
         % controlling this job a distributed through this folder.
         job_id
-        
+
         % the instance of the file-based messages framework used for
         % exchange between logon node and the cluster. Used for providing
         % initialization information for the job, receiving log messages
         % from node-1 and returning some calculations results
         mess_framework;
-        
+
         % Exposes read access to parallel cluster, instance of a
         % <a href="matlab:help('ClusterWrapper');">ClusterWrapper</a> class
         % to run a parallel job.
         cluster
-        
+
         % True if jobDispatcher already controls a cluster
         % so the next job can be executed on existing cluster
         % rather then after starting a new one. False if the cluster is not
         % running and needs to start-up.
         is_initialized
         % -----------------------------------------------------------------
-        
+
         % how often (in second) job dispatcher should query the task status
         task_check_time;
-        
+
         %number of times to try action until deciding the action have failed
         fail_limit
-        
+
         % time interval to wait until job which do not send any messages
         % from the cluster is considered failed (and should be terminated)
         time_to_fail
@@ -92,7 +92,7 @@ classdef JobDispatcher
         mess_framework_;
         %
         time_to_fail_  = 300; %300sec, 5 min
-        
+
         % holder for initiated cluster allowing to resubmit jobs
         cluster_ = [];
         % the holder for the object performing job clean-up operations
@@ -145,6 +145,8 @@ classdef JobDispatcher
             %                   or the number of iterations to do over
             %                   common_params (which may depend on the
             %                   iteration number defined in jobExecutor)
+            % return_results -- set to true if the job is expected to return
+            %                   some results
             % number_of_workers -- number of Matlab sessions to
             %                    process the tasks
             % return_results  --if true, job expected to return the results
@@ -252,7 +254,7 @@ classdef JobDispatcher
             end
             this.task_check_time_ =val;
             this = reset_fail_limit_(this,this.time_to_fail/val);
-            
+
         end
         %
         function time = get.time_to_fail(this)
@@ -266,7 +268,7 @@ classdef JobDispatcher
             this.time_to_fail_ =val;
             this = reset_fail_limit_(this,val/this.task_check_time);
         end
-        
+
         function mf = get.mess_framework(obj)
             % return class, used to communicate with the cluster
             mf = obj.mess_framework_;
@@ -325,7 +327,7 @@ classdef JobDispatcher
             end
             display_fail_jobs_(obj,outputs,n_failed,n_workers,Err_code);
         end
-        
+
     end
     methods(Static)
         function [task_id_list,init_mess]=split_tasks(common_par,loop_par,return_outputs,n_workers)
@@ -354,7 +356,7 @@ classdef JobDispatcher
             %                  initialization information for workers
             [task_id_list,init_mess]=split_tasks_(common_par,loop_par,return_outputs,n_workers);
         end
-        
+
     end
 end
 
