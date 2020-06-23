@@ -6,9 +6,9 @@ classdef cut_data_from_file_job < JobExecutor
     % fashion.
     %
     %
-    % $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
-    
+
     properties
         s_accum;
         e_accum;
@@ -17,16 +17,16 @@ classdef cut_data_from_file_job < JobExecutor
     properties(Access=protected)
         is_finished_ = false;
     end
-    
+
     methods
         function obj = cut_data_from_file_job()
             obj = obj@JobExecutor();
         end
-        
+
         function obj=do_job(obj)
             % Run main accumulation for a worker.
             %
-            
+
             % unpack input data transferred though MPI channels for
             % runfiles_to_sqw to understand.
             %common_par = this.common_data_;
@@ -34,10 +34,10 @@ classdef cut_data_from_file_job < JobExecutor
             for i=1:numel(sqw_loaders)
                 sqw_loaders{i} = sqw_loaders{i}.activate();
             end
-            
+
             % Do accumulation
             [obj.s_accum,obj.e_accum,obj.npix_accum] = obj.accumulate_headers(sqw_loaders);
-            
+
         end
         function  obj=reduce_data(obj)
             % method to summarize all particular data from all workers.
@@ -46,7 +46,7 @@ classdef cut_data_from_file_job < JobExecutor
                 error('ACCUMULATE_HEADERS_JOB:runtime_error',...
                     'MPI framework is not initialized');
             end
-            
+
             if mf.labIndex == 1
                 all_messages = mf.receive_all('all','data');
                 for i=1:numel(all_messages)
@@ -62,7 +62,7 @@ classdef cut_data_from_file_job < JobExecutor
                 the_mess = aMessage('data');
                 the_mess.payload = struct('s',obj.s_accum,...
                     'e',obj.e_accum,'npix',obj.npix_accum);
-                
+
                 [ok,err]=mf.send_message(1,the_mess);
                 if ok ~= MESS_CODES.ok
                     error('ACCUMULATE_HEADERS_JOB:runtime_error',err);
@@ -90,8 +90,7 @@ classdef cut_data_from_file_job < JobExecutor
             %   keep_pix        Set to true if wish to retain the information about individual pixels; set to false if not
             %   pix_tmpfile_ok  if keep_pix=false, ignore
             %                   if keep_pix=true, set buffering option:
-            %                       pix_tmpfile_ok = false: Require that output argument pix is 9xn array of u1,u2,u3,u4,irun,idet,ien,s,e
-            %                                              for each retained pixel
+            %                       pix_tmpfile_ok = false: pix is a PixelData object
             %                       pix_tmpfile_ok = true:  Buffering of pixel info to temporary files if pixels exceed a threshold
             %                                              In this case, output argument pix contains details of temporary files (see below)
             %   urange_step     [2x4] array of the ranges of the data as defined by (i) output proj. axes ranges for
@@ -111,9 +110,9 @@ classdef cut_data_from_file_job < JobExecutor
             %   e               Array of accumulated variance
             %   npix            Array of number of contributing pixels (if keep_pix==true, otherwise pix=[])
             %   urange_step_pix Actual range of contributing pixels
-            %   pix             if keep_pix=false, pix=[];
+            %   pix             if keep_pix=false, pix is an empty PixelData object;
             %                   if keep_pix==true, then contents depend on value of pix_tmpfile_ok:
-            %                       pix_tmpfile_ok = false: contains u1,u2,u3,u4,irun,idet,ien,s,e for each retained pixel
+            %                       pix_tmpfile_ok = false: contains PixelData object
             %                       pix_tmpfile_ok = true: structure with fields
             %                           pix.tmpfiles        cell array of filename(s) containing npix and pix
             %                           pix.pos_npixstart   array with position(s) from start of file(s) of array npix
@@ -125,12 +124,12 @@ classdef cut_data_from_file_job < JobExecutor
             % Note:
             % - Redundant input variables in that urange_step(2,pax)=nbin in implementation of 19 July 2007
             % - Aim to take advantage of in-place working within accumulate_cut
-            
+
             % T.G.Perring   19 July 2007 (based on earlier prototype TGP code)
             %
             [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file_(fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
                 proj,pax, nbin);
-            
+
         end
         function [s, e, npix, urange_step_pix, npix_retain, ok, ix] = accumulate_cut(s, e, npix, urange_step_pix, keep_pix, ...
                 v, proj, pax)
@@ -145,7 +144,7 @@ classdef cut_data_from_file_job < JobExecutor
             % * npix            Array of number of contributing pixels
             % * urange_step_pix Actual range of contributing pixels
             %   keep_pix        Set to true if wish to retain the information about individual pixels; set to false if not
-            %   v(9,:)          u1,u2,u3,u4,irun,idet,ien,s,e for each pixel, where ui are coords in projection axes of the pixel data in the file
+            %   v               A PixelData object
             %
             %   proj            the projection class, used to transform pixels info in
             %                   crystal cartezian coordinate sytem (as v is into the coordinate system
@@ -166,8 +165,8 @@ classdef cut_data_from_file_job < JobExecutor
             [s, e, npix, urange_step_pix, npix_retain, ok, ix] = accumulate_cut_ (s, e, npix, urange_step_pix, keep_pix, ...
                 v, proj, pax);
         end
-        
-        
+
+
         function [common_par,loop_par] = pack_job_pars(sqw_loaders)
             % Pack the the job parameters into the form, suitable
             % for division between workers and MPI transfer.

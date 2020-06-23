@@ -69,6 +69,12 @@ f2_3=read_sqw(fullfile(tmp,'f2_3.sqw'));
 % The objects were written from Horace v2.1.1, so need to add dummy instrument and sample fields
 f1_1=convert_to_v3(f1_1);
 
+f1_1.data.pix = PixelData(f1_1.data.pix);
+f2_1.data.pix = PixelData(f2_1.data.pix);
+f1_2.data.pix = PixelData(f1_2.data.pix);
+f2_2.data.pix = PixelData(f2_2.data.pix);
+f1_3.data.pix = PixelData(f1_3.data.pix);
+f2_3.data.pix = PixelData(f2_3.data.pix);
 
 save('testdata_base_objects.mat','f1_1','f2_1','f1_2','f2_2','f1_3','f2_3')
 
@@ -77,9 +83,9 @@ save('testdata_base_objects.mat','f1_1','f2_1','f1_2','f2_2','f1_3','f2_3')
 function randomdata(file)
 % Make random signal and error
 w=read_sqw(file);
-npix=size(w.data.pix,2);
-w.data.pix(8,:)=10*rand(1,npix);
-w.data.pix(9,:)=1+0.1*rand(1,npix);
+npix=w.data.pix.num_pixels;
+w.data.pix.signal=10*rand(1,npix);
+w.data.pix.variance=1+0.1*rand(1,npix);
 w=recompute_bin_data(w);
 save(w,file);
 
@@ -108,9 +114,9 @@ for i=1:nbin
 end
 
 % Accumulate signal
-s=accumarray(ind,w.data.pix(8,:),[nbin,1])./w.data.npix(:);
+s=accumarray(ind,w.data.pix.signal,[nbin,1])./w.data.npix(:);
 wout.data.s=reshape(s,size(w.data.npix));
-e=accumarray(ind,w.data.pix(9,:),[nbin,1])./(w.data.npix(:).^2);
+e=accumarray(ind,w.data.pix.variance,[nbin,1])./(w.data.npix(:).^2);
 wout.data.e=reshape(e,size(w.data.npix));
 nopix=(w.data.npix(:)==0);
 wout.data.s(nopix)=0;

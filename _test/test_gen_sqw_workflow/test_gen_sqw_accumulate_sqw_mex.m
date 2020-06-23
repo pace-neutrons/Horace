@@ -108,8 +108,8 @@ classdef test_gen_sqw_accumulate_sqw_mex < ...
             obj_m8=read_sqw(sqw_file_123_t8);
             obj_m1=read_sqw(sqw_file_123_t1);
             %
-            pix = sortrows(obj_m8.data.pix')';
-            pix1 = sortrows(obj_m1.data.pix')';
+            pix = sortrows(obj_m8.data.pix.data')';
+            pix1 = sortrows(obj_m1.data.pix.data')';
             assertEqual(pix,pix1);
             assertEqual(obj_m8.data.s,obj_m1.data.s);
             assertEqual(obj_m8.data.e,obj_m1.data.e);

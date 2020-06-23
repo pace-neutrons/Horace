@@ -26,8 +26,8 @@ bytes = [bytes,byte_sz];
 
 pos = obj.position_info_pos_;
 if old_matlab % some MATLAB problems with moving to correct eof
-    fseek(obj.file_id_,double(pos),'bof');    
-else        
+    fseek(obj.file_id_,double(pos),'bof');
+else
     fseek(obj.file_id_,pos,'bof');
 end
 check_error_report_fail_(obj,'can not move to the positions block start');
@@ -48,14 +48,14 @@ eof_ = ftell(obj.file_id_);
 if eof_ > obj.real_eof_pos_
     add_block = eof_ - obj.real_eof_pos_;
     if add_block>0
-        if add_block<4; add_block=4; end; %its not striclty necessary, as real footer 
+        if add_block<4; add_block=4; end; %its not striclty necessary, as real footer
         % size not used any more but done in case if real_eof_pos_ is
-        % used in a future. 
-        
+        % used in a future.
+
         pos = obj.real_eof_pos_+add_block-4;
         fseek(obj.file_id_,pos,'bof');
         check_error_report_fail_(obj,'Can not seek to the extended file end');
-        
+
         ext_size = uint32(sz+add_block);
         fwrite(obj.file_id_,ext_size ,'uint32');
     end

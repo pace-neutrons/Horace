@@ -4,7 +4,7 @@ function  obj = init_pix_info_(obj)
 %
 %
 %
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 
 
@@ -24,7 +24,7 @@ if isa(data.pix,'pix_combine_info') % data contains not pixels themselves but in
     obj.npixels_ = npix;
 else
     [pix_info_pos,pos]=obj.sqw_serializer_.calculate_positions(pix_form,data,pos);
-    obj.npixels_ = size(data.pix,2);
+    obj.npixels_ = data.pix.num_pixels;
 end
 
 

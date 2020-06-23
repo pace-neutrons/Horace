@@ -1,6 +1,6 @@
 // accumulate_cut.cpp : Defines the exported functions for the DLL application.
 #include "accumulate_cut_c.h"
-#include"utility/version.h"
+#include"../utility/version.h"
 
 enum InputArguments {
     Pixel_data,

@@ -22,7 +22,7 @@ function wout=symmetrise_sqw_corrected_2(win,v1,v2,v3)
 %lattice (bug in previous incarnation of the code).
 
 % Modified by SMG 22/07/12 to account for SQW objects generated from single
-% SPE file, and mis-indexing in line to 198, 199, 206 and 207 when symming 
+% SPE file, and mis-indexing in line to 198, 199, 206 and 207 when symming
 % 3D object
 
 %==============================
@@ -129,9 +129,9 @@ for i=1:3
 end
 
 %Coordinates of detector pixels, in the frame discussed above
-coords=win.data.pix([1:3],:);
+coords=win.data.pix.q_coordinates;
 
-%Note that we allow the inclusion of an offset from the origin of the 
+%Note that we allow the inclusion of an offset from the origin of the
 %reflection plane. This is specified in rlu.
 % vec3=(inv(uconv))*(v3'-win.header{1}.uoffset(1:3));
 vec3=(inv(uconv))*(v3'-uoffset);
@@ -168,7 +168,7 @@ coords_new=coords_transl.*keepit + coords_refl.*reflit;
 
 coords_new=coords_new+v3new;
 
-wout.data.pix([1:3],:)=coords_new;
+wout.data.pix.q_coordinates=coords_new;
 
 %=========================================================================
 

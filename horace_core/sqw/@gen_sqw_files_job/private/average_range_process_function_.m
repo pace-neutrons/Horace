@@ -18,9 +18,6 @@ function [all_ok,err,fin_message] = average_range_process_function_(all_messages
 % fin_message   -- class of the type aMessage, containing the results of
 %                  the function operations. This message will be send to
 %                  the server
-%
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
-%
 
 ok = cellfun(@(x)(strcmpi(x.mess_name,mess_name)),all_messages,'UniformOutput',true);
 all_ok = all(ok);

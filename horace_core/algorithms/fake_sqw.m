@@ -61,7 +61,7 @@ function [tmp_sqw, grid_size, urange] = fake_sqw (en, par_file, sqw_file, efix, 
 
 % T.G.Perring  18 May 2009
 %
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 small_bin=1e-12;
 %d2r=pi/180;
@@ -149,6 +149,7 @@ instrument_default=struct;  % default 1x1 struct
 sample_default=struct;      % default 1x1 struct
 [ok,mess,present,grid_size,urange,instrument,sample]=gen_sqw_check_optional_args(...
     nfiles,grid_default,instrument_default,sample_default,varargin{:});
+
 if ~ok, error(mess), end
 
 

@@ -84,17 +84,7 @@ function [data,obj] = get_data (obj,varargin)
 %   data.npix       No. contributing pixels to each bin of the plot axes.
 %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.urange     True range of the data along each axis [urange(2,4)]
-%   data.pix        Array containing data for eaxh pixel:
-%                  If npixtot=sum(npix), then pix(9,npixtot) contains:
-%                   u1      -|
-%                   u2       |  Coordinates of pixel in the projection axes
-%                   u3       |
-%                   u4      -|
-%                   irun        Run index in the header block from which pixel came
-%                   idet        Detector group number in the detector listing for the pixel
-%                   ien         Energy bin number for the pixel in the array in the (irun)th header
-%                   signal      Signal array
-%                   err         Error array (variance i.e. error bar squared)
+%   data.pix        A PixelData objects
 %
 %
 % NOTES:
@@ -109,7 +99,7 @@ function [data,obj] = get_data (obj,varargin)
 %
 % Original author: T.G.Perring
 %
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 % Initialise output arguments
 

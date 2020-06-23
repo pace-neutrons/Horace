@@ -18,7 +18,7 @@ function wout=join(w,wi)
 % 2015-01-20
 
 %
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 
 nfiles=length(w);
@@ -53,7 +53,7 @@ for i=1:nfiles
 end
 if ~hFNM; errstr='fields'; elseif ~hFVM; errstr='field values'; end
 if ~hFNM || ~hFVM
-    if initflag; 
+    if initflag;
         errstr=sprintf('have main_header %s that do not match those in wi',errstr);
     else
         errstr=sprintf('do not have matching main_header %s',errstr);
@@ -88,7 +88,7 @@ end
 run_contributes=true(nfiles,1);
 for i=1:nfiles
     if ~sum(abs(data{i}.s(:))) && ~sum(data{i}.e(:)) && ~sum(data{i}.npix(:)) ...
-       &&  all(isnan(data{i}.urange(:)/Inf)) && ~sum(abs(data{i}.pix(:)))
+       &&  all(isnan(data{i}.urange(:)/Inf)) && ~sum(abs(data{i}.pix.data(:)))
         % Then this data structure is a copy of 'datanull' from split.m
         run_contributes(i)=false;
     end
@@ -97,7 +97,7 @@ main_header.nfiles=sum(run_contributes); % For the output structure
 
 rc_idx = find(run_contributes);
 for i=1:length(rc_idx)
-    data{rc_idx(i)}.pix(5,:)=i; % repopulate individual run numbers
+    data{rc_idx(i)}.pix.run_idx=i; % repopulate individual run numbers
 end
 
 
@@ -114,14 +114,14 @@ sz=size(wout.data.npix); % size of contributing signal, variance, and npix array
 wout.data.s   =zeros(sz);
 wout.data.e   =zeros(sz);
 wout.data.npix=zeros(sz);
-wout.data.pix =[]; % The pix field *must* be re-intialized to empty
+wout.data.pix =PixelData(); % The pix field *must* be re-intialized to empty
 
 for i=1:nfiles
     if run_contributes(i)
         wout.data.s   = wout.data.s   + (data{i}.s).*(data{i}.npix);
         wout.data.e   = wout.data.e   + (data{i}.e).*(data{i}.npix).^2;
         wout.data.npix= wout.data.npix+ data{i}.npix;
-        wout.data.pix = [wout.data.pix,data{i}.pix];
+        wout.data.pix.data = [wout.data.pix.data,data{i}.pix.data];
     end
 end
 wout.data.s = wout.data.s ./ wout.data.npix;
@@ -131,13 +131,13 @@ wout.data.e(~wout.data.npix)=0;
 
 % It seems that sorting of the pix field is necessary, however I'm not
 % aware of an easy way of accomplishing this.
-% Re-performing a cut with 
-%   wout=cut_sqw(wout,proj,[],[],[],[]); 
+% Re-performing a cut with
+%   wout=cut_sqw(wout,proj,[],[],[],[]);
 % does the trick, but that is projection-specific and it might not be right
 % to build up a proj struct from the information present in a sqw.
 %
 % An alternative is to use the projection-axis cut form
-%   wout=cut_sqw(wout,[]...) 
+%   wout=cut_sqw(wout,[]...)
 % wrapped with commands to temporarily silence Horace.
 hc_log_level=get(hor_config,'log_level');
 set(hor_config,'log_level',-1);

@@ -34,11 +34,11 @@ classdef sqw_binfile_common < sqw_file_interface
     % upgrade_file_format - upgrade current sqw file to recent file format.
     %                       May change the sqw file and always opens it in
     %                       write or upgrade mode.
-    
+
     %
-    % $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
-    
+
     properties(Access=protected,Hidden=true)
         % position (in bytes from start of the file of the appropriate part
         % of Horace data information and the size of this part.
@@ -92,7 +92,7 @@ classdef sqw_binfile_common < sqw_file_interface
             obj.data_type_ = 'a'; % should it always be 'a'?
             obj = init_from_sqw_obj@dnd_binfile_common(obj,varargin{:});
             obj.sqw_holder_ = varargin{1};
-            
+
             obj = init_pix_info_(obj);
         end
         %
@@ -201,7 +201,7 @@ classdef sqw_binfile_common < sqw_file_interface
             error('SQW_FILE_IO:runtime_error',...
                 'put_samples is not implemented for faccess_sqw %s',...
                 obj.file_version);
-            
+
         end
         %
         function pix_pos = get.pix_position(obj)
@@ -286,17 +286,7 @@ classdef sqw_binfile_common < sqw_file_interface
             %   data.npix       No. contributing pixels to each bin of the plot axes.
             %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
             %   data.urange     True range of the data along each axis [urange(2,4)]
-            %   data.pix        Array containing data for eaxh pixel:
-            %                  If npixtot=sum(npix), then pix(9,npixtot) contains:
-            %                   u1      -|
-            %                   u2       |  Coordinates of pixel in the projection axes
-            %                   u3       |
-            %                   u4      -|
-            %                   irun        Run index in the header block from which pixel came
-            %                   idet        Detector group number in the detector listing for the pixel
-            %                   ien         Energy bin number for the pixel in the array in the (irun)th header
-            %                   signal      Signal array
-            %                   err         Error array (variance i.e. error bar squared)
+            %   data.pix        A PixelData object
             %
             data_form = get_data_form_(obj,varargin{:});
         end
@@ -314,7 +304,7 @@ classdef sqw_binfile_common < sqw_file_interface
             % caches = {'sqw_serializer_','file_closer_','sqw_holder_'};
             % struc = rmfield(struc,caches);
         end
-        
+
     end
     %
     methods(Static,Hidden=true)
@@ -406,7 +396,7 @@ classdef sqw_binfile_common < sqw_file_interface
             % this structure size
             detpar_form = get_detpar_form_(varargin{:});
         end
-        
+
     end
 end
 

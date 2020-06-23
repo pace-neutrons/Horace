@@ -25,7 +25,7 @@ classdef hpc_config < config_base
     %
     % combine_sqw_using        - what type of sub-algorithm to use for c
     %                            ombining sqw/tmp files together.
-    % combine_sqw_options        the helper property providing options,
+    % combine_sqw_options      - the helper property providing options,
     %                            available to provide for
     %                            'combine_sqw_using' property.
     %                            Currently these options are 'matlab', 'mex_code' and 'mpi_code'
@@ -42,7 +42,7 @@ classdef hpc_config < config_base
     % Type >> hpc_config  to see the list of current configuration option values.
     %
     %
-    % $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
     properties(Dependent)
         % if true, launch separate Matlab session(s) or parallel job to
@@ -53,6 +53,7 @@ classdef hpc_config < config_base
         %
         % set-up algorithm, to use for combining multiple sqw(tmp) filesL
         combine_sqw_using
+        %
         % helper read-only property, displaying possible codes to use to
         % combines sqw (combine_sqw_using) available options, namely:
         % matlab   : this mode uses initial Matlab code to combine multiple
@@ -97,6 +98,9 @@ classdef hpc_config < config_base
         % configuration. To change the parallel configuration, work with
         % this configuration class itself;
         parallel_configuration
+        % helper property, returining the list of options, which define hpc
+        % configuration. Coinsids with saved_properties_list_ 
+        hpc_options
     end
     properties(Dependent,Hidden=true)
         % DEPRECATED properties left for old parallel interface to work
@@ -125,7 +129,7 @@ classdef hpc_config < config_base
         saved_properties_list_={...
             'build_sqw_in_parallel','parallel_workers_number',...
             'combine_sqw_using',...
-            'mex_combine_thread_mode','mex_combine_buffer_size',...
+            'mex_combine_thread_mode','mex_combine_buffer_size'...
             }
         combine_sqw_options_ = {'matlab','mex_code','mpi_code'};
     end
@@ -183,6 +187,9 @@ classdef hpc_config < config_base
         end
         function config = get.parallel_configuration(obj)
             config = parallel_config();
+        end
+        function hpco = get.hpc_options(obj)
+            hpco = obj.saved_properties_list_;
         end
         %----------------------------------------------------------------
         function this = set.combine_sqw_using(this,val)

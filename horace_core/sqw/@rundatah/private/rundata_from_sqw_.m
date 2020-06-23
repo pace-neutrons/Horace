@@ -8,7 +8,7 @@ function rd=rundata_from_sqw_(sqw_obj)
 %
 %
 %
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 
 %
@@ -25,7 +25,7 @@ en     = header.en;
 ne=numel(en)-1;    % number of energy bins
 ndet0=numel(detpar.group);% number of detectors
 
-tmp=data.pix(6:9,:)';     % columns are: det number, energy bin number, signal, error
+tmp=data.pix.get_data({'detector_idx', 'energy_idx', 'signal', 'variance'})';
 tmp=sortrows(tmp,[1,2]);  % order by detector group number, then energy
 group=unique(tmp(:,1));   % unique detector group numbers in the data in numerical increasing order
 

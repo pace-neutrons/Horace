@@ -34,4 +34,4 @@ site. This does not document information about library dependencies.
 | **MPI** |    |  | |  | |  |  |
 | Windows (MSMPI) | 8.0.12438 | y | y | y | y |   | n/a |
 |                 | 5.0.12435 |   |   |   |   | y | n/a |
-| Linux (MPICH2) | 1.4.1p1 | y | y | y | y | ? | n/a |
+| Linux (MPICH2) | 3.3a2 | y | y | y | y | ? | n/a |

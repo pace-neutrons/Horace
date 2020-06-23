@@ -2,7 +2,7 @@
 //
 
 #include "hdf_mex_reader.h"
-#include "utility/version.h"
+#include "../utility/version.h"
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {

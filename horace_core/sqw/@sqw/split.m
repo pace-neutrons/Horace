@@ -14,7 +14,7 @@ function wout=split(w)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 nfiles=w.main_header.nfiles;
 
@@ -36,7 +36,7 @@ npix=w.data.npix;
 pix=w.data.pix;
 
 % Sort (an index array to) pix into increasing run number, and increasing bin number within each run
-irun=pix(5,:)';
+irun=pix.run_idx';
 ibin=replicate_array (1:numel(npix),npix);
 [runbin,ix]=sortrows([irun,ibin]);  % get index of run
 irun=runbin(:,1);
@@ -45,7 +45,7 @@ ibin=runbin(:,2);
 % Get first and last elements for each run
 nbeg=find(diff([0;irun])~=0);       % positions of first elements for each unique run
 if ~isempty(nbeg)
-    nend=[nbeg(2:end)-1;size(pix,2)];   % works even if nbeg is scalar (nb/ npixtot=size(pix,2))
+    nend=[nbeg(2:end)-1;pix.num_pixels];   % works even if nbeg is scalar (nb/ npixtot=size(pix,2))
 else
     nend=[];
 end
@@ -63,7 +63,7 @@ if sum(run_contributes)~=nfiles     % there is at least one run that does not co
     datanull.e=zeros(sz);
     datanull.npix=zeros(sz);
     datanull.urange=[Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
-    datanull.pix=zeros(9,0);
+    datanull.pix=PixelData();
 end
 for i=1:nfiles
     wout(i).main_header=main_header;
@@ -75,8 +75,8 @@ for i=1:nfiles
         npix=zeros(sz);
         npix(ib(nb))=diff([nb;numel(ib)+1]);
         data.npix=npix;
-        data.pix=pix(:,ix(nbeg(ind(i)):nend(ind(i))));
-        data.pix(5,:)=1;    % all pixels will be from run 1, by definition
+        data.pix=pix.get_pixels(ix(nbeg(ind(i)):nend(ind(i))));
+        data.pix.run_idx=1;    % all pixels will be from run 1, by definition
         wout(i).data=data;
         wout(i)=recompute_bin_data(wout(i));
     else

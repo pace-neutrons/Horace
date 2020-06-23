@@ -13,7 +13,7 @@ function [s, e, npix, urange_step_pix, npix_retain,ok, ix] = accumulate_cut_(s, 
 % * npix            Array of number of contributing pixels
 % * urange_step_pix Actual range of contributing pixels
 %   keep_pix        Set to true if wish to retain the information about individual pixels; set to false if not
-%   v(9,:)          u1,u2,u3,u4,irun,idet,ien,s,e for each pixel, where ui are coords in projection axes of the pixel data in the file
+%   v               PixelData object
 %
 %   urange_step     [2x4] array of the ranges of the data as defined by (i) output proj. axes ranges for
 %                  integration axes (or plot axes with one bin), and (ii) step range (0 to no. bins)
@@ -41,7 +41,7 @@ function [s, e, npix, urange_step_pix, npix_retain,ok, ix] = accumulate_cut_(s, 
 
 % T.G.Perring   19 July 2007
 
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 [ignore_nan,ignore_inf,use_mex,n_threads] =...
     config_store.instance().get_value('hor_config','ignore_nan','ignore_inf','use_mex','threads');
