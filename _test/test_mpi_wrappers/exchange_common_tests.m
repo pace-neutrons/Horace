@@ -8,6 +8,9 @@ classdef exchange_common_tests < MPI_Test_Common
         comm_name
         % the field, containing structure, used as input for different tests
         tests_control_strcut
+        % Temporarty property, used to compensate the fact that Matlab MPI
+        % can not return tag of the message, requested with 'any'
+        mess_name_fix
     end
     
     methods
@@ -400,16 +403,17 @@ classdef exchange_common_tests < MPI_Test_Common
             [ok, err] = intercomm.send_message(3, mess_l);
             assertEqual(ok, MESS_CODES.ok, ['Send  Error = ', err])
             
-            if isa(intercomm,'MessagesFilebased')
-                [all_mess, task_ids] = intercomm.receive_all('all', 'log');
-                assertEqual(numel(all_mess), 1);
-                assertEqual(numel(task_ids), 1);
-                assertEqual(task_ids, 3);
-            end
+            %             if isa(intercomm,'MessagesFilebased')
+            %                 [all_mess, task_ids] = intercomm.receive_all('all', 'log');
+            %                 assertEqual(numel(all_mess), 1);
+            %                 assertEqual(numel(task_ids), 1);
+            %                 assertEqual(task_ids, 3);
+            %             end
             
             [all_mess, task_ids] = intercomm.receive_all('all', 'log');
-            assertTrue(isempty(all_mess));
-            assertTrue(isempty(task_ids));
+            assertEqual(numel(all_mess), 1);
+            assertEqual(numel(task_ids), 1);
+            assertEqual(task_ids, 3);
             
             
             mess_d.payload = 'c1';
@@ -472,6 +476,75 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(all_mess{1}.step, 3);
             assertEqual(all_mess{2}.step, 4);
             
+            
+        end
+        %
+        function test_receive_all_mess_choose_special(obj)
+            if obj.ignore_test
+                return
+            end
+            intercomm = feval(obj.comm_name,obj.tests_control_strcut);
+            clob_s = onCleanup(@()(finalize_all(intercomm)));
+            intercomm  = intercomm.set_framework_range(1,10);
+            
+            % asynchroneous receive
+            mess = LogMessage(0, 10, 1, '0');
+            % CPP_MPI messages in test mode are "reflected" from target node
+            [ok, err] = intercomm.send_message(2, mess);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            [ok, err] = intercomm.send_message(5, mess);
+            assertEqual(ok, MESS_CODES.ok, ['Send  Error = ', err])
+            
+            [all_mess, task_ids] = intercomm.receive_all(2:5, 'any');
+            assertEqual(numel(all_mess), 2);
+            assertEqual(numel(task_ids), 2);
+            assertEqual(task_ids, [2,5]);
+            
+            
+            mess = LogMessage(0, 10, 1, '0');
+            % messages in test mode are "reflected" from target node
+            [ok, err] = intercomm.send_message(3, mess);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            [ok, err] = intercomm.send_message(7, mess);
+            assertEqual(ok, MESS_CODES.ok, ['Send  Error = ', err])
+            
+            [all_mess, task_ids] = intercomm.receive_all([3,7], 'any','-synch');
+            assertEqual(numel(all_mess), 2);
+            assertEqual(numel(task_ids), 2);
+            assertEqual(task_ids, [3,7]);
+            
+            
+            mess = DataMessage();
+            mess.payload = 'a';
+            [ok, err] = intercomm.send_message(3, mess);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            mess.payload = 'b';
+            [ok, err] = intercomm.send_message(7, mess);
+            assertEqual(ok, MESS_CODES.ok, ['Send  Error = ', err])
+            
+            mess = LogMessage(0, 10, 1, '0');
+            [ok, err] = intercomm.send_message(3, mess);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            [ok, err] = intercomm.send_message(7, mess);
+            assertEqual(ok, MESS_CODES.ok, ['Send  Error = ', err])
+            
+            [all_mess, task_ids] = intercomm.receive_all([3,7], 'log','-synch');
+            assertEqual(numel(all_mess), 2);
+            assertEqual(numel(task_ids), 2);
+            assertEqual(task_ids, [3,7]);
+            
+            
+            mess = DataMessage();
+            mess.payload = 'a';
+            [ok, err] = intercomm.send_message(3, mess);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            mess.payload = 'b';
+            [ok, err] = intercomm.send_message(7, mess);
+            assertEqual(ok, MESS_CODES.ok, ['Send  Error = ', err])
+            
+            [all_mess, task_ids] = intercomm.receive_all([3,7], 'log');
+            assertTrue(isempty(all_mess));
+            assertTrue(isempty(task_ids));
             
         end
         %
@@ -645,7 +718,13 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(numel(mess_names), 1);
             assertEqual(numel(source_id_s), 1);
             assertEqual(double(source_id_s(1)), (5));
-            assertEqual(mess_names{1}, mess.mess_name);
+            if isempty(obj.mess_name_fix)                
+                mess_name ='log';
+            else
+                mess_name =obj.mess_name_fix;
+            end
+            
+            assertEqual(mess_names{1},mess_name );
             
             [ok, err_mess] = m_comm.send_message(7, mess);
             assertEqual(ok, MESS_CODES.ok);
@@ -656,14 +735,14 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(numel(source_id_s), 2);
             assertEqual(double(source_id_s(1)), (5));
             assertEqual(double(source_id_s(2)), (7));
-            assertEqual(mess_names{1}, mess.mess_name);
+            assertEqual(mess_names{1}, mess_name);
             
             [mess_names, source_id_s] = m_comm.probe_all([], 'any');
             assertEqual(numel(mess_names), 2);
             assertEqual(numel(source_id_s), 2);
             assertEqual(double(source_id_s(1)), (5));
             assertEqual(double(source_id_s(2)), (7));
-            assertEqual(mess_names{1}, mess.mess_name);
+            assertEqual(mess_names{1}, mess_name);
             
         end
         %
@@ -771,8 +850,15 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(double(source_id_s(3)), 7);
             assertEqual(double(source_id_s(4)), 8);
             
-            assertEqual(mess_names{1},'log');
-            assertEqual(mess_names{2},'log');
+            if isempty(obj.mess_name_fix)
+                mess_name ='log';
+            else
+                mess_name =obj.mess_name_fix;
+            end
+            
+            
+            assertEqual(mess_names{1},mess_name );
+            assertEqual(mess_names{2},mess_name );
             assertEqual(mess_names{3},'failed');
             assertEqual(mess_names{4},'failed');
             
@@ -815,7 +901,13 @@ classdef exchange_common_tests < MPI_Test_Common
             [mess_names, source_id_s] = m_comm.probe_all(5, 'any');
             assertEqual(numel(mess_names),1);
             assertEqual(numel(source_id_s),1);
-            assertEqual(mess_names{1},'data');
+            if isempty(obj.mess_name_fix)
+                mess_name ='data';
+            else
+                mess_name =obj.mess_name_fix;  % ugly Matlab MPI issue -- all other must follow
+            end
+            
+            assertEqual(mess_names{1},mess_name);
             assertEqual(source_id_s,5);
             
             [ok, err_mess, messR] = m_comm.receive_message(5, mess.mess_name);
@@ -827,7 +919,14 @@ classdef exchange_common_tests < MPI_Test_Common
             [mess_names, source_id_s] = m_comm.probe_all(5, 'any');
             assertEqual(numel(mess_names),1);
             assertEqual(numel(source_id_s),1);
-            assertEqual(mess_names{1},'data');
+            
+            if isempty(obj.mess_name_fix)
+                mess_name ='data';
+            else
+                mess_name =obj.mess_name_fix;
+            end
+            
+            assertEqual(mess_names{1},mess_name);
             assertEqual(source_id_s,5);
             
             mess.payload = 'd';
@@ -936,7 +1035,12 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(numel(messNames),2);
             assertEqual(sources(1),5);
             assertEqual(sources(2),6);
-            assertEqual(messNames{1},'log');
+            if isempty(obj.mess_name_fix)
+                mess_name ='log';
+            else
+                mess_name =obj.mess_name_fix;
+            end
+            assertEqual(messNames{1},mess_name);
             assertEqual(messNames{2},'failed');
             
             %-----------------------------------------------------------
@@ -963,11 +1067,17 @@ classdef exchange_common_tests < MPI_Test_Common
             [messNames,sources] = m_comm.probe_all('all',[]);
             assertEqual(numel(messNames),3);
             
+            if isempty(obj.mess_name_fix)
+                mess_name ='log';
+            else
+                mess_name =obj.mess_name_fix;
+            end
+            
             assertEqual(sources(1),3);
             assertEqual(sources(2),5);
             assertEqual(sources(3),6);
             assertEqual(messNames{1},'failed');
-            assertEqual(messNames{2},'log');
+            assertEqual(messNames{2},mess_name);
             assertEqual(messNames{3},'failed');
             
             

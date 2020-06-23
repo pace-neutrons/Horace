@@ -38,6 +38,7 @@ classdef MatlabMPIWrapper < handle
         % tags
         matalb_tag_shift_=10;
     end
+    %
     properties(Access=private)
         % the variable, used as the cache for mirrored messages in test
         % mode.

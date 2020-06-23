@@ -13,7 +13,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             
             obj = obj@exchange_common_tests(name,...
                 'MessagesFileBasedMPI_mirror_tester','herbert',cs);
-            
+            obj.mess_name_fix = '';            
         end
         %
         function test_finalize_all(~)

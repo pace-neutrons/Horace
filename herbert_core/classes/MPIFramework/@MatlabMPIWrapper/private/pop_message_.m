@@ -18,27 +18,40 @@ function [message,tag_rec] = pop_message_(obj,target_id,mess_tag,is_blocking)
 
 if isKey(obj.messages_cache_,target_id)
     cont = obj.messages_cache_(target_id);
-    info = cont{1};
-    tag_rec = info.tag;
-    message = info.mess;
-    message = aMessage.loadobj(message);
-    if ~isempty(mess_tag)
-        tag = mess_tag;
-        if tag ~=-1
-            if tag ~=tag_rec
-                if is_blocking
-                    error('MESSAGES_FRAMEWORK:runtime_error',...
-                        'Attempt to issue blocking receive from lab %d, tag %d Tag present: %d',...
-                        target_id,tag,tag_rec )
-                else
-                    message = [];
-                    return;
-                end
+    
+    if isempty(mess_tag) || mess_tag == -1
+        info = cont{1};
+        tag_rec = info.tag;
+        message = info.mess;
+        message = aMessage.loadobj(message);
+        cont = cont(2:end);
+    else
+        no_tag_match = true;
+        for i=1:numel(cont)
+            info = cont{i};
+            tag_rec = info.tag;
+            if tag_rec == mess_tag
+                cont = [cont(1:i-1),cont(i+1:end)];
+                tag_rec = info.tag;
+                message = info.mess;
+                message = aMessage.loadobj(message);
+                no_tag_match = false;
+                break;
+            end
+        end
+        if no_tag_match
+            if is_blocking
+                error('MESSAGES_FRAMEWORK:runtime_error',...
+                    'Attempt to issue blocking receive from lab %d, tag %d ',...
+                    target_id,tag )
+            else
+                message = [];
+                tag_rec = [];
+                return;
             end
         end
     end
-    if numel(cont)>1
-        cont = cont(2:end);
+    if numel(cont)>0
         obj.messages_cache_(target_id) = cont;
     else
         remove(obj.messages_cache_,target_id);

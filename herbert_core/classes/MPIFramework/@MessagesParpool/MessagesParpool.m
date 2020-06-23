@@ -279,7 +279,19 @@ classdef MessagesParpool < iMessagesFramework
         % ----------------------------------------------------------------
         % Test methods:
         %
-        %
+        function obj=set_framework_range(obj,labNum,NumLabs)
+            % The function to set numLab and labId describing framework
+            % extend during testing. Will fail if used in production mode. 
+            %
+            if ~obj.is_tested
+                error('MESSAGES_FRAMEWORK:runtime_error',...
+                    'Can not setup parpool framework range in production mode')
+            end
+            obj.MPI_ = MatlabMPIWrapper(true,...
+                labNum,NumLabs);            
+        end
+
+        
         function obj = set_mpi_wrapper(obj,wrapper)
             if ~isa(wrapper,'MatlabMPIWrapper')
                 error('MESSAGES_PARPOOL:invalid_argument',...

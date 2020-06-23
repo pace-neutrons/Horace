@@ -550,12 +550,20 @@ classdef iMessagesFramework < handle
         
         % method verifies if job has been canceled
         is = is_job_canceled(obj)
+        
+        % the method, used by filebased framework to set up number of
+        % parallel workers and the worker-id or by other frameworks to set
+        % up these numbers in test mode.
+        obj = set_framework_range(obj,labNum,NumLabs);
     end
     methods(Abstract,Access=protected)
         % return the labIndex
         ind = get_lab_index_(obj);
+        % return number of parallel workers
         n_labs = get_num_labs_(obj);
+        %
         is = get_is_tested(obj);
+        %
     end
     methods(Access = protected)
         %

@@ -221,7 +221,7 @@ classdef MessagesCppMPI < iMessagesFramework
             ok = true;
             err = [];
         end
-                
+        
         function is = is_job_canceled(obj)
             % method verifies if job has been canceled
             mess = obj.probe_all('all','canceled');
@@ -237,6 +237,13 @@ classdef MessagesCppMPI < iMessagesFramework
                 cpp_communicator('finalize',obj.mpi_framework_holder_);
             end
             obj.mpi_framework_holder_ = [];
+        end
+        function obj=set_framework_range(obj,labNum,NumLabs)
+            % The function to set numLab and labId describing framework
+            % extend during testing. Will fail if used in production mode.
+            %
+            error('MESSAGES_FRAMEWORK:not_implemented',...
+                'This method has not yet been implemented for MPI framework')
         end
         %
     end

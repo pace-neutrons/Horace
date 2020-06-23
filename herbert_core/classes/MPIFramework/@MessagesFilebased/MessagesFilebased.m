@@ -302,7 +302,7 @@ classdef MessagesFilebased < iMessagesFramework
             obj.persistent_fail_message_ = [];
             delete_job_(obj);
         end
-        
+        %
         function clear_messages(obj)
             % Clear all messages directed to this lab.
             clear_all_messages_(obj);
@@ -319,8 +319,6 @@ classdef MessagesFilebased < iMessagesFramework
             end
             [ok,err]=wait_at_barrier_(obj,nothrow);
         end
-        
-        
         %
         function is = is_job_canceled(obj)
             % method verifies if job has been canceled
@@ -353,6 +351,7 @@ classdef MessagesFilebased < iMessagesFramework
             end
             fn = obj.job_stat_fname_(lab_to,mess_name,varargin{:});
         end
+        %
         function set_is_tested(obj,is_tested)
             % method, used in tests to set is_tested mode to framework.
             % In test mode, barrier operation is disabled

@@ -5,7 +5,7 @@ function   [all_messages,tid_received_from] = receive_all_messages_(obj,tid_requ
 % requested
 %
 %
-if ~exist('task_ids','var') || isempty(tid_requested) || (ischar(tid_requested) && strcmpi(tid_requested,'all'))
+if ~exist('tid_requested','var') || isempty(tid_requested) || (ischar(tid_requested) && strcmpi(tid_requested,'all'))
     tid_requested = 1:obj.numLabs;
     all_tid_requested = true;
 else
@@ -77,10 +77,10 @@ end
 % check if something new has arrived. State messages can be overwritten, so
 % do not touch data messages only. Use requested mess_name as the filter.
 if all_tid_requested
-    [messages_names,tid_present] = labProbe_messages_(obj,'all','any'); % just more efficiently to use this form,
+    [messages_names,tid_present] = labProbe_messages_(obj,'all',mess_name); % just more efficiently to use this form,
     % as asks for all messages directly from the framework
 else
-    [messages_names,tid_present] = labProbe_messages_(obj,tid_requested,'any');
+    [messages_names,tid_present] = labProbe_messages_(obj,tid_requested,mess_name);
 end
 if do_logging
     fprintf(fh,'+++ Found %d messages send to the node %d:\n',...
@@ -119,7 +119,7 @@ while ~all_received
         %
         message = obj.get_interrupt(tid_requested(i));
         if isempty(message)
-            message = obj.MPI_.mlabReceive(tid_requested(i),names_present{i},true);
+            message = obj.MPI_.mlabReceive(tid_requested(i),names_present{i});
             obj.set_interrupt(message,tid_requested(i));
             interrupt_received = false;
         else
@@ -238,21 +238,18 @@ while ~all_received
         end
     else
         break;
-    end
-    
+    end    
 end
 
 % compress empty messages places if any
 all_messages = all_messages(b_mess_received);
 tid_received_from = tid_requested(b_mess_received);
 if do_logging
-   fprintf(fh,'+++ Received messages:\n');
-   for i=1:numel(all_messages)
-       fprintf(fh,' tid: %d, mess "%s"\n   payload: \n %s\n',...
-       tid_received_from(i),all_messages{i}.mess_name,evalc('disp(all_messages{i}.payload)'));
-   end
-   
-     
+    fprintf(fh,'+++ Received messages:\n');
+    for i=1:numel(all_messages)
+        fprintf(fh,' tid: %d, mess "%s"\n   payload: \n %s\n',...
+            tid_received_from(i),all_messages{i}.mess_name,evalc('disp(all_messages{i}.payload)'));
+    end
 end
 
 
