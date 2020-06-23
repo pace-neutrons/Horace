@@ -36,14 +36,16 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             
             % overloaded to empty test -- nothing new for this JD
             % JETester specific control parameters
+            rng('shuffle');
+            FE = char(randi(25,1,5) + 64);
             common_param = struct('filepath', obj.working_dir, ...
-                'filename_template', ['test_JD_', obj.framework_name, 'L%d_nf%d.txt'], ...
+                'filename_template', ['test_JD_', obj.framework_name,FE,'L%d_nf%d.txt'], ...
                 'fail_for_labsN', 2);
             
-            file1 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name, 'L1_nf1.txt']);
-            file2 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name, 'L2_nf1.txt']);
-            file3 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name, 'L3_nf1.txt']);
-            file3a = fullfile(obj.working_dir, ['test_JD_', obj.framework_name, 'L3_nf2.txt']);
+            file1 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L1_nf1.txt']);
+            file2 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L2_nf1.txt']);
+            file3 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L3_nf1.txt']);
+            file3a = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L3_nf2.txt']);
             
             files = {file1, file3, file3a};
             co = onCleanup(@()(my_delete(files{:})));
@@ -126,7 +128,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             assertTrue(sum(fin) >= 1)
             
             for i = 1:33
-                fileN = fullfile(obj.working_dir, sprintf('test_JD_%sL3_nf%d.txt', obj.framework_name, i));
+                fileN = fullfile(obj.working_dir, sprintf('test_JD_%s%sL3_nf%d.txt', obj.framework_name,FE, i));
                 if exist(fileN, 'file') == 2
                     delete(fileN);
                 else
@@ -155,14 +157,14 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             
             
             for i = 1:33
-                fileN1 = fullfile(obj.working_dir, sprintf('test_JD_%sL1_nf%d.txt', obj.framework_name, i));
+                fileN1 = fullfile(obj.working_dir, sprintf('test_JD_%s%sL1_nf%d.txt', obj.framework_name,FE, i));
                 if exist(fileN1, 'file') == 2
                     no_file1 = false;
                     delete(fileN1);
                 else
                     no_file1 = true;
                 end
-                fileN2 = fullfile(obj.working_dir, sprintf('test_JD_%sL2_nf%d.txt', obj.framework_name, i));
+                fileN2 = fullfile(obj.working_dir, sprintf('test_JD_%s%sL2_nf%d.txt', obj.framework_name,FE,i));
                 if exist(fileN2, 'file') == 2
                     delete(fileN2);
                 else
@@ -223,12 +225,14 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             
             % overloaded to empty test -- nothing new for this JD
             % JETester specific control parameters
+            rng('shuffle');
+            FE = char(randi(25,1,5) + 64);
             common_param = struct('filepath', obj.working_dir, ...
-                'filename_template', ['test_JD_', obj.framework_name, 'L%d_nf%d.txt']);
+                'filename_template', ['test_JD_', obj.framework_name,FE,'L%d_nf%d.txt']);
             
-            file1 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name, 'L1_nf1.txt']);
-            file2 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name, 'L2_nf1.txt']);
-            file3 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name, 'L2_nf2.txt']);
+            file1 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L1_nf1.txt']);
+            file2 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L2_nf1.txt']);
+            file3 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L2_nf2.txt']);
             files = {file1, file2, file3};
             co = onCleanup(@()(delete(files{:})));
             
@@ -254,7 +258,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             for i=1:numel(outputs)
                 if display_ouptut
                     disp(outputs{i})
-                end                
+                end
                 assertEqualToTol(outputs{i},(n_steps+1)*n_steps/2);
             end
             
@@ -275,12 +279,13 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             display_ouptut = hc.log_level>0;
             % overloaded to empty test -- nothing new for this JD
             % JETester specific control parameters
+            rng('shuffle');
+            FE = char(randi(25,1,5) + 64);
             common_param = struct('filepath', obj.working_dir, ...
-                'filename_template', ['test_JD_', obj.framework_name, 'L%d_nf%d.txt']);
-            
-            file1 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name, 'L1_nf1.txt']);
-            file2 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name, 'L2_nf1.txt']);
-            file3 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name, 'L3_nf1.txt']);
+                'filename_template', ['test_JD_', obj.framework_name,FE,'L%d_nf%d.txt']);
+            file1 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L1_nf1.txt']);
+            file2 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L2_nf1.txt']);
+            file3 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L3_nf1.txt']);
             files = {file1, file2, file3};
             co = onCleanup(@()(delete(files{:})));
             
@@ -350,12 +355,14 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             
             % overloaded to empty test -- nothing new for this JD
             % JETester specific control parameters
+            rng('shuffle');
+            FE = char(randi(25,1,5) + 64);
             common_param = struct('filepath', obj.working_dir, ...
-                'filename_template', ['test_JD_', obj.framework_name, 'L%d_nf%d.txt']);
+                'filename_template', ['test_JD_', obj.framework_name,FE,'L%d_nf%d.txt']);
             
-            file1 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name, 'L1_nf1.txt']);
-            file2 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name, 'L1_nf2.txt']);
-            file3 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name, 'L1_nf3.txt']);
+            file1 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE,'L1_nf1.txt']);
+            file2 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE,'L1_nf2.txt']);
+            file3 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE,'L1_nf3.txt']);
             files = {file1, file2, file3};
             co = onCleanup(@()(delete(files{:})));
             
@@ -363,7 +370,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             
             [outputs, n_failed] = jd.start_job('JETester', common_param, 3, true, 1, false, 1);
             if n_failed>0
-                jd.display_fail_job_results(outputs, n_failed,1)                
+                jd.display_fail_job_results(outputs, n_failed,1)
             end
             
             assertEqual(n_failed, 0);

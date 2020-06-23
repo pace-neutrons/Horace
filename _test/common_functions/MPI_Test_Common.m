@@ -32,8 +32,6 @@ classdef MPI_Test_Common < TestCase
             else
                 obj.framework_name = 'parpool';
             end
-            rng('shuffle');           
-            obj.framework_name = [obj.framework_name,char(randi(25,1,5) + 64)];
 
             [pc, obj.old_parallel_config_] = set_local_parallel_config();
             opc = obj.old_parallel_config_;
