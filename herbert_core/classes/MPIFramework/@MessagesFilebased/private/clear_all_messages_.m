@@ -3,7 +3,7 @@ function clear_all_messages_(obj)
 obj.persistent_fail_message_ = [];
 %
 finished = false;
-pause(0.5); % give time to complete possible IO operations
+pause(1); % give time to complete possible IO operations
 while ~finished
     try
         [all_messages,mid_from] = list_all_messages_(obj);
@@ -21,6 +21,9 @@ while ~finished
     
     for i=1:numel(mid_from) % delete messages files
         mess_fname = obj.job_stat_fname_(obj.labIndex,all_messages{i},mid_from(i));
-        delete(mess_fname);
+        delete(mess_fname);        
+        if exist(mess_fname,'file')==2
+            unlock_(mess_fname);
+        end
     end
 end
