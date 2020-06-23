@@ -1,12 +1,12 @@
 classdef test_rundata_vs_sqw < TestCase
     % Series of tests to check work of mex files against Matlab files
-    
+
     properties
         out_dir=tmp_dir();
         % use intermediate sqw file to store test data (slower but tests IO
         % as well)
         save_file = false;
-        
+
         en=-80:8:760;
         par_file='map_4to1_dec09.par';
         sqw_file_single='test_build_rundata_from_sqw.sqw';
@@ -17,9 +17,9 @@ classdef test_rundata_vs_sqw < TestCase
         u=[1,0,0];
         v=[0,1,0];
         omega=1;dpsi=2;gl=3;gs=4;
-        
+
         psi=4;
-        
+
         sqw_obj=[];
         clob_ = [];
     end
@@ -29,9 +29,9 @@ classdef test_rundata_vs_sqw < TestCase
                 delete(filename);
             end
         end
-        
+
     end
-    
+
     methods
         function this=test_rundata_vs_sqw(varargin)
             if nargin==0
@@ -47,7 +47,7 @@ classdef test_rundata_vs_sqw < TestCase
             if this.save_file
                 fn =this.sqw_file_single;
                 this.clob_ = onCleanup(@()this.rm_sqw(fn));
-                
+
                 if ~exist(this.sqw_file_single,'file')
                     fake_sqw(this.en, this.par_file, this.sqw_file_single, this.efix,...
                         this.emode, this.alatt, this.angdeg,...
@@ -55,7 +55,7 @@ classdef test_rundata_vs_sqw < TestCase
                         [10,5,5,5]);
                 end
                 this.sqw_obj = read_sqw(this.sqw_file_single);
-                
+
             else
                 this.sqw_obj = fake_sqw(this.en, this.par_file, '', this.efix,...
                     this.emode, this.alatt, this.angdeg,...
@@ -63,18 +63,18 @@ classdef test_rundata_vs_sqw < TestCase
                     [10,5,5,5]);
                 this.sqw_obj = this.sqw_obj{1};
             end
-            
-            
-            
+
+
+
         end
-        
+
         function this=test_build_rundata(this)
-            
+
             rd = rundatah(this.sqw_obj);
-            
+
             assertEqual(rd.emode, this.emode);
             assertEqual(rd.efix, this.efix);
-            
+
             lattice = rd.lattice;
             assertElementsAlmostEqual(lattice.alatt,this.alatt,'absolute',2e-7);
             assertElementsAlmostEqual(lattice.angdeg,this.angdeg);
@@ -85,7 +85,7 @@ classdef test_rundata_vs_sqw < TestCase
             assertElementsAlmostEqual(lattice.dpsi,this.dpsi,'absolute',2e-7);
             assertElementsAlmostEqual(lattice.gl,this.gl,'absolute',2e-7);
             assertElementsAlmostEqual(lattice.gs,this.gs,'absolute',2e-7);
-            
+
             det = get_par(this.par_file);
             det_par = rd.det_par;
             %
@@ -103,28 +103,28 @@ classdef test_rundata_vs_sqw < TestCase
             % somewhere on the way, pixels become single precision, so...
             urange(1,:) = urange(1,:)*(1+2.e-7);
             urange(2,:) = urange(2,:)*(1+2.e-7);
-            
+
             sqw_rev = rd.calc_sqw(grid_size,urange);
-            
+
             proj = struct('u',lattice.u,'v',lattice.v);
             [ok,mess]=is_cut_equal(this.sqw_obj,sqw_rev,proj,0.04*(urange(2,1)-urange(1,1)),0.1*(urange(2,2)-urange(1,2)),[-Inf,Inf],[-Inf,Inf]);
             assertTrue(ok,['Combining cuts from each individual sqw file and the cut from the combined sqw file not the same ',mess]);
             %assertEqual(this.sqw_obj,sqw_rev);
-            
+
             % calculate bounding object surrounding existing data object
             bob = rd.build_bounding_obj();
             bos = bob.calc_sqw(grid_size,urange);
             assertElementsAlmostEqual(bos.data.urange,urange,'relative',1.e-6);
-            
-            pix_range =[min(bos.data.pix(1:4,:),[],2)'; max(bos.data.pix(1:4,:),[],2)'];
+
+            pix_range =[min(bos.data.pix.coordinates,[],2)'; max(bos.data.pix.coordinates,[],2)'];
             assertElementsAlmostEqual(bos.data.urange,pix_range);
         end
-        
+
         function  this=test_serialize_deserialize_rundatah(this)
             rd = rundatah(this.sqw_obj);
-            
+
             by = rd.serialize();
-            
+
             fa = rundatah.deserialize(by);
             [~,fa] = fa.get_par;
             assertTrue(isa(fa,'rundatah'));
@@ -138,7 +138,7 @@ classdef test_rundata_vs_sqw < TestCase
         end
         %
         function obj = test_send_receive_rundata(obj)
-            
+
         end
     end
 end

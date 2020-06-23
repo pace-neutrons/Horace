@@ -25,30 +25,30 @@ classdef test_fake_sqw < TestCase
         %         gen_sqw_par = {1,35,[2,2,2],[90,90,90],[1,0,0],[0,0,1],80,...
         %            0,0,0,0}; %omega, dpsi, gl, gs};
     end
-    
+
     methods
         function obj=test_fake_sqw(test_class_name)
             % The constructor fake_sqw class
-            
+
             if ~exist('test_class_name','var')
                 test_class_name = 'test_fake_sqw';
             end
-            
+
             obj = obj@TestCase(test_class_name);
             obj.working_dir = tmp_dir;
-            
+
             common_data = fullfile(fileparts(fileparts(mfilename('fullpath'))),'common_data');
             %this.par_file=fullfile(this.results_path,'96dets.par');
             obj.par_file=fullfile(common_data,'gen_sqw_96dets.nxspe');
         end
         function test_det_from_q_invalid(obj)
             f = @()build_det_from_q_range('wrong_detpar',obj.gen_sqw_par{:});
-            
+
             assertExceptionThrown(f,'FAKE_SQW:invalid_argument');
-            
+
             f = @()build_det_from_q_range(ones(3,1),obj.gen_sqw_par{:});
             assertExceptionThrown(f,'FAKE_SQW:invalid_argument');
-            
+
         end
         function test_det_from_q(obj)
             % check if build_det_from_q_range is working and producing
@@ -56,12 +56,12 @@ classdef test_fake_sqw < TestCase
             det=build_det_from_q_range([0,0.1,1],obj.gen_sqw_par{2:end});
             assertTrue(isstruct(det));
             assertEqual(numel(det.group),11*11*11)
-            
+
             det=build_det_from_q_range([0,0.1,1;0,0.2,2;0,0.3,3],...
                 obj.gen_sqw_par{2:end});
             assertTrue(isstruct(det));
             assertEqual(numel(det.group),11*11*11)
-            
+
         end
         %
         function test_build_fake_sqw(obj)
@@ -71,13 +71,13 @@ classdef test_fake_sqw < TestCase
                 obj.gen_sqw_par{2},obj.gen_sqw_par{1},...
                 obj.gen_sqw_par{3:end});
             tsqw = tsqw{1};
-            
+
             assertTrue(isa(tsqw,'sqw'));
-            
-            pix = tsqw.data.pix(1:4,:);
+
+            pix = tsqw.data.pix.coordinates;
             de0 = pix(4,:)==0;
             assertEqual(sum(de0),96);
-            
+
             q_range = pix(1:3,de0); % this is q-range in crystal catresizan
             u_to_rlu = tsqw.data.u_to_rlu(1:3,1:3);
             q_range = (u_to_rlu*q_range)' ; % convert q into hkl
@@ -87,9 +87,9 @@ classdef test_fake_sqw < TestCase
             tsqw2 = fake_sqw(-0.5:1:obj.gen_sqw_par{2}-5, q_range , '',...
                 obj.gen_sqw_par{2},obj.gen_sqw_par{1},...
                 obj.gen_sqw_par{3:end});
-            
+
             tsqw2 = tsqw2{1};
-            pix1 = tsqw2.data.pix(1:4,:);
+            pix1 = tsqw2.data.pix.coordinates;
             assertElementsAlmostEqual(pix,pix1,'absolute',1.e-7);
         end
     end

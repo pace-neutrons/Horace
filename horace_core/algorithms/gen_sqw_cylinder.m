@@ -1,11 +1,15 @@
-function gen_sqw_cylinder_test_helper (spe_file, par_file, sqw_file, efix, varargin)
+function gen_sqw_cylinder(spe_file, par_file, sqw_file, efix, varargin)
 % Read one or more spe files and a detector parameter file, and create an output sqw file.
-%
-%   >> gen_sqw_cylinder_test_helper (spe_file, par_file, sqw_file, efix, emode, clatt, omega, gl, gs)
-%
+% 
 % *** TEST ROUTINE
 %       This was created rapidly as a fix-up during an experiment. A polished version is
-%       marked for addition at a later date.
+%       marked for addition at a later date. Use on your own risk
+%
+% Look at horace_core/../_test/test_combine_cyl.m and horace_core/../_test/test_gen_sqw_cylinder.m 
+% for samples of acceptable usage
+%
+%   >> gen_sqw_cylinder(spe_file, par_file, sqw_file, efix, emode, clatt, omega, gl, gs)
+%
 %
 % Input: (in the following, nfile = number of spe files)
 % ------
@@ -34,14 +38,14 @@ function gen_sqw_cylinder_test_helper (spe_file, par_file, sqw_file, efix, varar
 % - This sqw object that is created is a 3D object, with axes (Q_inplane, Qz, eps)
 %
 % - Use cut_sqw and @sqw/cut WITHOUT the proj option. All other use may lead to
-%  unexpected behaviour. The symmetrisation routines may not work, but the only
+%  unexpected behavior. The symmetrisation routines may not work, but the only
 %  symmetrisation that is meaningful is to add +ve and -ve Qz, so this can be
 %  done by hand. Many other functions in Horace will not be meaningful.
 
 
 % Original author: T.G.Perring  2 August 2013: quick fix for LET
 %
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 % Check input arguments
@@ -100,9 +104,9 @@ end
 % Always use the Matlab ASCII loader: reading with mex can give
 % slightly different answers due to floating point errors. This
 % can result in inconsistent binning and cause this test to fail
-herbert_conf = herbert_config();
-original_herbert_conf = herbert_conf.get_data_to_store();
-herbert_conf.use_mex_C = false;
+her_conf = herbert_config();
+original_herbert_conf = her_conf.get_data_to_store();
+her_conf.use_mex = false;
 
 % Process files
 grid=[1,1,1,1];     % need to force to be one bin for the algorithm to work
@@ -165,8 +169,8 @@ for i=1:nfiles
     w=read_sqw(tmp_file{i});
     % Compute new coordinates
     data=w.data;
-    data.pix(1:2,:)=[sqrt(sum(data.pix(1:2,:).^2,1));zeros(1,size(data.pix,2))];
-    data.urange(:,1:2)=[min(data.pix(1:2,:),[],2)';max(data.pix(1:2,:),[],2)'];
+    data.pix.coordinates(1:2,:)=[sqrt(sum(data.pix.coordinates(1:2,:).^2,1));zeros(1,data.pix.num_pixels)];
+    data.urange(:,1:2)=[min(data.pix.coordinates(1:2,:),[],2)';max(data.pix.coordinates(1:2,:),[],2)'];
     data.iax=2;   % second axis becomes integration axis
     data.iint=[-Inf;Inf];
     data.pax=[1,3,4];
@@ -181,7 +185,7 @@ for i=1:nfiles
 end
 
 
-% Combne all the tmp files into the final sqw file
+% Combine all the tmp files into the final sqw file
 % ------------------------------------------------
 if nfiles==1
     % Single spe file, so no recombining needs to be done

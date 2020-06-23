@@ -1,11 +1,11 @@
 #ifndef H_ACCUMULATE_CUT
 #define H_ACCUMULATE_CUT
 
-#include "CommonCode.h"
+#include "../CommonCode.h"
 
 #define iRound(x) (int)floor((x) + 0.5)
 //
-// $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)"
+// $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)"
 //
 enum program_settings
 {

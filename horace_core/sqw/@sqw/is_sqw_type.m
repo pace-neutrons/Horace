@@ -13,11 +13,11 @@ function sqw_type = is_sqw_type(w)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 sqw_type=false(size(w));
 for i=1:numel(w)
-    if size(w(i).data.pix,1)>0
+    if w(i).data.pix.num_pixels > 0
         sqw_type(i) = true;
     else
         sqw_type(i) = false;

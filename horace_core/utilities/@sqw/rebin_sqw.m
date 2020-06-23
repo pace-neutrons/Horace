@@ -33,7 +33,7 @@ end
 
 if nargin==2
     if isa(win,'sqw') && (isa(varargin{1},'sqw') || ...
-            isa(varargin{1},'d1d') || isa(varargin{1},'d2d') || isa(varargin{1},'d3d')) 
+            isa(varargin{1},'d1d') || isa(varargin{1},'d2d') || isa(varargin{1},'d3d'))
             route=1;%rebinning using the boundaries of a template object (more tests required)
     elseif isvector(varargin{1})
         route=2;
@@ -56,7 +56,7 @@ elseif nargin==4
         route=4;
     else
         error('Horace error: check the format of input arguments');
-    end    
+    end
 else
     error('Horace error: check the format of input arguments');
 end
@@ -100,7 +100,7 @@ switch route
                 wout=cut(wtmp,xbin);
             else
                 error('Horace error: for rebin of 1-dimensional objects both must have the same axes');
-            end  
+            end
         elseif ndimsin==2
             v11=u1([1:3],win.data.pax(1)); v12=u1([1:3],win.data.pax(2));
             v21=u2([1:3],w2.data.pax(1)); v22=u2([1:3],w2.data.pax(2));
@@ -138,7 +138,7 @@ switch route
                 %steps we need to make an object that would be inconsistent
                 %with the sqw construct (e.g. number of bins inconsistent
                 %with size of signal array).
-                
+
                 %We must also ensure that the output object's u_to_rlu
                 %matrix is correct:
                 newu=win.data.u_to_rlu;
@@ -265,7 +265,7 @@ switch route
                 %work out the extent of the q co-ords direct from the pix
                 %array. The Matlab funciton "qr" will be quite useful here.
                 set1=[v11 v12 v13]; set2=[v21 v22 v23];
-                coords=win.data.pix([1:3],:);%we can do this because energy is not an axis
+                coords=win.data.pix.q_coordinates;  %we can do this because energy is not an axis
 %                 [Q1,R1]=qr(set1');
                 [Q2,R2]=qr(set2');
 %                 coords1=(Q1*inv(R1))*coords;
@@ -312,11 +312,11 @@ switch route
                 %
                 wout=cut(wout,xbins,ybins,zbins);
             end
-            
-            
+
+
         else
             error('Horace error: rebinning not yet implemented for 4-dimensional datasets. Take a cut from the raw data instead');
-        end  
+        end
     case 2
         %rebinning just the x-axis
         xbin=varargin{1};
@@ -327,7 +327,7 @@ switch route
             %specified [lo,step,hi]
             if xbin(1)>=xbin(3) || (xbin(3)-xbin(1))<xbin(2)
                 error('Horace error: problem with specified x-bins. Must be of form [step] or [lo,sttep,hi]');
-            end  
+            end
         else
             xbin=[];
         end
@@ -344,7 +344,7 @@ switch route
         else
             error('ERROR: Dimensions of dataset is not integer in the range 1 to 4');
         end
-        
+
     case 3
         %rebinning x and/or y-axes
         xbin=varargin{1}; ybin=varargin{2};
@@ -355,7 +355,7 @@ switch route
                 %lo,step,hi
                 if xbin(1)>=xbin(3) || (xbin(3)-xbin(1))<xbin(2)
                     error('Horace error: problem with specified x-bins. Must be of form [step] or [lo,sttep,hi]');
-                end   
+                end
             else
                 xbin=[];%if specified something other than [step] or [lo,step,hi] then just return input
             end
@@ -367,7 +367,7 @@ switch route
                 %lo,step,hi
                 if ybin(1)>=ybin(3) || (ybin(3)-ybin(1))<ybin(2)
                     error('Horace error: problem with specified y-bins. Must be of form [step] or [lo,sttep,hi]');
-                end 
+                end
             else
                 ybin=[];
             end
@@ -385,7 +385,7 @@ switch route
         else
             error('ERROR: Dimensions of dataset is not integer in the range 1 to 4');
         end
-        
+
     case 4
         %rebinning x and/or y and/or z axes
         xbin=varargin{1}; ybin=varargin{2}; zbin=varargin{3};
@@ -396,7 +396,7 @@ switch route
                 %lo,step,hi
                 if xbin(1)>=xbin(3) || (xbin(3)-xbin(1))<xbin(2)
                     error('Horace error: problem with specified x-bins. Must be of form [step] or [lo,sttep,hi]');
-                end  
+                end
             else
                 xbin=[];
             end
@@ -408,7 +408,7 @@ switch route
                 %lo,step,hi
                 if ybin(1)>=ybin(3) || (ybin(3)-ybin(1))<ybin(2)
                     error('Horace error: problem with specified y-bins. Must be of form [step] or [lo,sttep,hi]');
-                end 
+                end
             else
                 ybin=[];
             end
@@ -420,7 +420,7 @@ switch route
                 %lo,step,hi
                 if zbin(1)>=zbin(3) || (zbin(3)-zbin(1))<zbin(2)
                     error('Horace error: problem with specified z-bins. Must be of form [step] or [lo,sttep,hi]');
-                end 
+                end
             else
                 zbin=[];
             end
@@ -438,7 +438,7 @@ switch route
         else
             error('ERROR: Dimensions of dataset is not integer in the range 1 to 4');
         end
-        
+
 end
 
 

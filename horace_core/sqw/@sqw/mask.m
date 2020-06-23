@@ -22,7 +22,7 @@ function wout = mask (win, mask_array)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 % Initialise output argument
@@ -49,8 +49,8 @@ wout.data.npix(~mask_array) = 0;
 % Section the pix array, if sqw type, and update urange
 if is_sqw_type(win)
     mask_pix = logical(replicate_array (mask_array, win.data.npix));
-    wout.data.pix=[];   % Clear the memory of a large array that is going to be replaced - but is a field, so musst leave present
-    wout.data.pix=win.data.pix(:,mask_pix);
+    wout.data.pix=PixelData();   % Clear the memory of a large array that is going to be replaced - but is a field, so musst leave present
+    wout.data.pix=win.data.pix.get_pixels(mask_pix);
     wout.data.urange=recompute_urange(wout);
 end
 

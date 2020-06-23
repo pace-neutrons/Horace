@@ -63,14 +63,14 @@ for i=1:sz
         end
         nn=npix(i);
     end
-    
+
     %Error if npix>= total number pixels:
-    if nn>=size(win(i).data.pix,2)
+    if nn>=win(i).data.pix.num_pixels
         error('Cannot retain greater number of pixels than data contains');
     end
     % reuce the number of pixels using mask
-    mask0 = false([1 size(win(i).data.pix,2)]);
-    mask0(randperm(size(win(i).data.pix,2),nn)) = true;
+    mask0 = false([1 win(i).data.pix.num_pixels]);
+    mask0(randperm(win(i).data.pix.num_pixels, nn)) = true;
     wout(i) = mask_pixels(win(i),mask0);
 end
 

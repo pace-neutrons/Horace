@@ -3,7 +3,7 @@ function pix  = get_pix(obj,varargin)
 % sqw file information
 %
 %
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 if ischar(obj.num_contrib_files)
     error('SQW_FILE_INTERFACE:runtime_error',...
@@ -12,7 +12,7 @@ end
 
 npix_tot = obj.npixels;
 if isempty(npix_tot) % dnd object
-    pix = zeros(9,0);
+    pix = PixelData();
     return
 end
 if nargin>1
@@ -55,7 +55,7 @@ if res ~= 0
 end
 
 if size>0
-    pix = fread(obj.file_id_,[9,size],'float32');
+    pix = PixelData(fread(obj.file_id_,[9,size],'float32'));
     [mess,res] = ferror(obj.file_id_);
     if res ~= 0
         error('SQW_BINFILE_COMMON:io_error',...
@@ -63,7 +63,5 @@ if size>0
     end
 else
     % *** T.G.Perring 5 Sep 2018: allow for size=0
-    pix = zeros(9,0);
+    pix = PixelData();
 end
-
-

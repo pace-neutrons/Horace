@@ -8,7 +8,7 @@ function wout=recompute_bin_data(w)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 wout=w;
 
@@ -23,9 +23,9 @@ for i=1:nbin
 end
 
 % Accumulate signal
-wout.data.s=accumarray(ind,w.data.pix(8,:),[nbin,1])./w.data.npix(:);
+wout.data.s=accumarray(ind,w.data.pix.signal,[nbin,1])./w.data.npix(:);
 wout.data.s=reshape(wout.data.s,size(w.data.npix));
-wout.data.e=accumarray(ind,w.data.pix(9,:),[nbin,1])./(w.data.npix(:).^2);
+wout.data.e=accumarray(ind,w.data.pix.variance,[nbin,1])./(w.data.npix(:).^2);
 wout.data.e=reshape(wout.data.e,size(w.data.npix));
 nopix=(w.data.npix(:)==0);
 wout.data.s(nopix)=0;

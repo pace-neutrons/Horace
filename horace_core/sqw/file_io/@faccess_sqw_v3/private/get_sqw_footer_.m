@@ -2,7 +2,7 @@ function  obj= get_sqw_footer_(obj)
 % Read sqw object v3 structure to initialize sqw-v3 file reader
 %
 %
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 %
 obj = get_sqw_file_footer(obj);
@@ -84,7 +84,7 @@ obj.data_type_ = char(obj.data_type_);
 npixels_  = (obj.instrument_head_pos_-obj.pix_pos_)/(9*4);
 if npixels_ ~= obj.npixels
     error('FACCESS_SQW_V3:runtime_error',...
-        'number of pixes stored in the records %d do not equal to the one, calculated from the pixels size %d ',...#
+        'number of pixels stored in the records %d not equal to the calculated pixels size %d ',...
         obj.npixels,npixels_);
 end
 

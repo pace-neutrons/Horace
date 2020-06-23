@@ -25,7 +25,7 @@ function wout=signal(w,name)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 if ~is_sqw_type(w)
@@ -47,5 +47,4 @@ end
 wout=w;
 wout.data.s=svals;
 wout.data.e=svar;
-wout.data.pix=[wout.data.pix(1:7,:);spix';sdevsqr'];
-
+wout.data.pix = PixelData([wout.data.pix.data(1:7,:);spix';sdevsqr']);

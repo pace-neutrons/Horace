@@ -20,7 +20,7 @@ function qw=calculate_qw_pixels2(win)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 % Get some 'average' quantities for use in calculating transformations and bin boundaries
@@ -34,9 +34,9 @@ end
 c=neutron_constants;
 k_to_e = c.c_k_to_emev;
 
-irun = win.data.pix(5,:)';   % column vector
-idet = win.data.pix(6,:)';   % column vector
-ien  = win.data.pix(7,:)';   % column vector
+irun = win.data.pix.run_idx';   % column vector
+idet = win.data.pix.detector_idx';   % column vector
+ien  = win.data.pix.energy_idx';   % column vector
 
 if ~iscell(win.header)
     header={win.header};

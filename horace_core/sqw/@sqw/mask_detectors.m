@@ -9,7 +9,7 @@ function wout=mask_detectors(win,det_id)
 % ------
 %   win     sqw object to be masked (single object only, not array)
 %   det_id  Detector ID, or array of detector IDs, in sqw object to be
-%           masked. Information about which detector is which can be 
+%           masked. Information about which detector is which can be
 %           determined from inspection of win.detpar
 %
 % Output:
@@ -53,7 +53,7 @@ end
 
 % Do the masking calculation:
 det_id=unique(det_id);    % remove duplicates if present
-dets=win.data.pix(6,:);
+dets=win.data.pix.detector_idx;
 mask_arr=true(size(dets));
 for i=1:numel(det_id)
     mask_arr(dets==det_id(i))=false;

@@ -18,7 +18,7 @@ function [header,fid] = get_file_header(file,varargin)
 % 'num_dim'   -- number of dimensions in sqw or dnd file
 %
 %
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 %
 [header,fid,message] = read_header_(file,varargin{:});

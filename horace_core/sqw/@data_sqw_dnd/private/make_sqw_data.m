@@ -60,7 +60,7 @@ function [data,mess] = make_sqw_data (data,varargin)
 % Output:
 % -------
 %
-%   data        Output data structure which must contain the fields listed below 
+%   data        Output data structure which must contain the fields listed below
 %                       type 'b+'   fields: uoffset,...,s,e,npix
 %               [The following other valid structures are not created by this function
 %                       type 'b'    fields: uoffset,...,s,e
@@ -92,7 +92,7 @@ function [data,mess] = make_sqw_data (data,varargin)
 %                                       2D, data.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
 %   data.p          Cell array containing bin boundaries along the plot axes [column vectors]
 %                       i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
-%   data.dax        Index into data.pax of the axes for display purposes. For example we may have 
+%   data.dax        Index into data.pax of the axes for display purposes. For example we may have
 %                  data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,
 %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
 %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
@@ -102,22 +102,12 @@ function [data,mess] = make_sqw_data (data,varargin)
 %   data.npix       No. contributing pixels to each bin of the plot axes.
 %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.urange     True range of the data along each axis [urange(2,4)]
-%   data.pix        Array containing data for each pixel:
-%                  If npixtot=sum(npix), then pix(9,npixtot) contains:
-%                   u1      -|
-%                   u2       |  Coordinates of pixel in the projection axes
-%                   u3       |
-%                   u4      -|
-%                   irun        Run index in the header block from which pixel came
-%                   idet        Detector group number in the detector listing for the pixel
-%                   ien         Energy bin number for the pixel in the array in the (irun)th header
-%                   signal      Signal array
-%                   err         Error array (variance i.e. error bar squared)
+%   data.pix        A PixelData object
 
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 mess='';
@@ -141,12 +131,12 @@ if narg==0 || (narg==1 && isscalar(varargin{1}) && isnumeric(varargin{1}))
     lattice=[2*pi,2*pi,2*pi,90,90,90];
     pbin=[repmat({{[0,1]}},1,ndim),cell(1,4-ndim)];
     data = make_sqw_data_from_proj (data,lattice, projaxes, pbin{:});
-    
+
 elseif narg>=1
     % -------------------------------------------------------------------------------------
     % Call of form: make_sqw_data(u1,p1,u2,p2,...,un,pn) or make_sqw_data(proj,p1,p2,p3,p4)
     % -------------------------------------------------------------------------------------
-    
+
     % Determine if first argument is lattice parameters
     if isnumeric(varargin{1}) && isvector(varargin{1}) && numel(varargin{1})==6
         n0=1;   % position of lattice argument in list
@@ -156,7 +146,7 @@ elseif narg>=1
         latt=[2*pi,2*pi,2*pi,90,90,90];
     end
     narg=narg-n0;   % number of arguments following lattice
-    
+
     % Determine if remaining input is proj,p1,p2,p3,p4, or uoffset,[u0,]u1,p1,...
     if narg==5 && (isstruct(varargin{1+n0}) || isa(varargin{1+n0},'projaxes'))
         % Remaining input has form proj,p1,p2,p3,p4

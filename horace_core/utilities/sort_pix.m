@@ -2,8 +2,8 @@ function   pix = sort_pix(pix_retained,pix_ix_retained,npix,varargin)
 % function sorts pixels according to their indexes in n-D array npix
 %
 %input:
-% pix_retained   9xNpix array of pixels, which have to be sorted or sell array
-%       containing arrays of such pixels
+% pix_retained   PixelData object, which is to be sorted or a cell array
+%       containing arrays of PixelData objects
 %
 % ix    indexes of these pixels in n-D array or cell array of such indexes
 % npix  auxiliary array, containing numbers of pixels in each cell of
@@ -26,7 +26,7 @@ function   pix = sort_pix(pix_retained,pix_ix_retained,npix,varargin)
 %pix  array of pixels sorted into 1D array according to indexes provided
 %
 %
-% $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 
 %  Process inputs
@@ -62,11 +62,13 @@ end
 %
 if use_mex
     try
-        % TODO: make "keep type" a default behaviour!        
+        % TODO: make "keep type" a default behaviour!
         % function retrieves keep_type variable value from this file
         % so returns double or single resolution pixels depending on this
-        pix = sort_pixels_by_bins(pix_retained,pix_ix_retained,npix);
-        %pix = sort_pixels_by_bins(pix_retained,pix_ix_retained);
+        raw_pix = cellfun(@(pix_data) pix_data.data, pix_retained, ...
+                          'UniformOutput', false);
+        pix = sort_pixels_by_bins(raw_pix, pix_ix_retained, npix);
+        pix = PixelData(pix);
         clear pix_retained pix_ix_retained;  % clear big arrays
     catch ME
         use_mex=false;
@@ -92,18 +94,23 @@ if ~use_mex
     if numel(pix_retained) == 1
         pix = pix_retained{1};
     else
-        pix = cat(2,pix_retained{:});
+        pix = PixelData.cat(pix_retained{:});
     end
     clear pix_retained;
-    pix=pix(:,ind);     % reorders pix
+    if isempty(pix)  % return early if no pixels
+        pix = PixelData();
+        return;
+    end
+
+    pix=pix.get_pixels(ind);     % reorders pix
     clear ind;
     % TODO: make "keep type" a default behaviour!
     if ~keep_type
-        if ~isa(pix,'double')
-            pix = double(pix);
+        if ~isa(pix.data,'double')
+            pix = PixelData(double(pix.data));
         end
     end
-    
+
 end
 
 

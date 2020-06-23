@@ -15,7 +15,7 @@ persistent seeds_store;
 if isempty(seeds_store)
     seed_dir = fileparts(which('simulate_spe_testfunc.m'));
     seeds_file = fullfile(seed_dir,'sim_spe_testfun_seeds_file.mat');
-    
+
     if exist(seeds_file,'file')==2
         storage = load(seeds_file);
         seeds_store = storage.seeds_store;
@@ -32,7 +32,11 @@ end
 [~,seed_key] = fileparts(spe_file);
 sk = regexp(seed_key,'(\d+)','tokens');
 sk = [sk{:}];
-seed_key =['key_', [sk{:}]];
+if isempty(sk)
+    seed_key = ['key_',seed_key];
+else
+    seed_key =['key_', [sk{:}]];
+end
 if seed_defined
     if isfield(seeds_store,seed_key)
         seed = seeds_store.(seed_key);
@@ -59,7 +63,7 @@ wcalc=sqw_eval(w{1},sqwfunc,pars);
 clear w
 
 % Add random looking, but determinisitic, noise
-peak=max(abs(wcalc.data.pix(8,:)));
+peak=max(abs(wcalc.data.pix.signal));
 if peak==0
     peak=10; % Case of all signal==0
 end
@@ -73,12 +77,12 @@ else
 end
 wran=sqw_eval(wcalc,@sqw_rand_like,par); % range is -0.5 to +0.5
 %save(wran,'c:/temp/rand_sqw_new.sqw');
-wcalc.data.pix(8,:)=wcalc.data.pix(8,:)+(0.1*peak)*wran.data.pix(8,:);  % spread is 10% of peak
+wcalc.data.pix.signal=wcalc.data.pix.signal+(0.1*peak)*wran.data.pix.signal;  % spread is 10% of peak
 
 if ~seed_defined
     si = Singleton.instance();
     seeds_store.(seed_key) = si.singleton_data;
-    seed_dir = fileparts(which('simulate_spe_testfunc.m'));    
+    seed_dir = fileparts(which('simulate_spe_testfunc.m'));
     seeds_file = fullfile(seed_dir,'sim_spe_testfun_seeds_file.mat');
     save(seeds_file,'seeds_store');
     seed_defined = true;
@@ -103,13 +107,13 @@ wran=sqw_eval(wcalc,@sqw_rand_like,par);
 
 if ~seed_defined
     si = Singleton.instance();
-    seeds_store.(seed_key) = si.singleton_data;    
-    seed_dir = fileparts(which('simulate_spe_testfunc.m'));    
+    seeds_store.(seed_key) = si.singleton_data;
+    seed_dir = fileparts(which('simulate_spe_testfunc.m'));
     seeds_file = fullfile(seed_dir,'sim_spe_testfun_seeds_file.mat');
     save(seeds_file,'seeds_store');
 end
 
-wcalc.data.pix(9,:)=(0.05*peak*scale)*(1+wran.data.pix(8,:));
+wcalc.data.pix.variance=(0.05*peak*scale)*(1+wran.data.pix.signal);
 
 % Convert to equivalent spe data
 wspe=rundatah(wcalc);
