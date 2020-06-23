@@ -310,12 +310,16 @@ classdef JobDispatcher
             %
             % Err_code -- the text string in the form
             %             ERROR_CLASS:error_reason to form identifier of
-            %             the exception to throw
+            %             the exception to throw. 
+            %             If this parameter is missing, throws nothing. 
             % Throws:
             % First exception returned from the cluster if such exceptions
             % are present or exception with Err_code as MExeption.identifier
             % if no errors returned
             %
+            if nargin<5
+                Err_code = [];
+            end
             display_fail_jobs_(obj,outputs,n_failed,n_workers,Err_code);
         end
         

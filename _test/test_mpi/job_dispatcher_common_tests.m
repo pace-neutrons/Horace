@@ -46,6 +46,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             jd = JobDispatcher(['test_job_', obj.framework_name, '_fail_restart']);
             %1)----------------------------------------------------------
             [outputs, n_failed, ~, jd] = jd.start_job('JETester', common_param, 36, true, 3, true, 1);
+            jd.display_fail_job_results(outputs, n_failed,3);
             
             function is = is_err(x)
                 if isa(x, 'MException') || isa(x, 'ParallelException')
@@ -70,16 +71,18 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             else
                 assertEqual(outputs{2}.message, ...
                     'simulated failure for lab N 2');
-                
-                
             end
             % file may exist or may not -- depending on relation between
             % speed of workers
             
             co = onCleanup(@()(my_delete(file3, file3a)));
             common_param.fail_for_labsN = 1:2;
+            if is_jenkins
+                pause(5) % HACK: give time to complete failied jobs.
+            end
             %2)----------------------------------------------------------
             [outputs, n_failed, ~, jd] = jd.restart_job('JETester', common_param, 4, true, true, 1);
+            jd.display_fail_job_results(outputs, n_failed,3)            
             
             assertTrue(n_failed >= 1);
             assertEqual(numel(outputs), 3);
@@ -87,9 +90,13 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             assertTrue(sum(fin) >= 1)
             
             clear co;
+            if is_jenkins
+                pause(5) % HACK: give time to complete failied jobs.
+            end            
             % check long job cancelled due to part of the job failed
             %3)----------------------------------------------------------
             [outputs, n_failed, ~, jd] = jd.restart_job('JETester', common_param, 99, true, true, 1);
+            jd.display_fail_job_results(outputs, n_failed,3)            
             
             assertTrue(n_failed > 0);
             assertEqual(numel(outputs), 3);
@@ -105,18 +112,18 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 end
             end
             common_param.fail_for_labsN = 3;
+            if is_jenkins
+                pause(5) % HACK: give time to complete failied jobs.
+            end
+            
             %4)----------------------------------------------------------
             [outputs, n_failed, ~, jd] = jd.restart_job('JETester', common_param, 99, true, true, 1);
+            jd.display_fail_job_results(outputs, n_failed,3)            
+            
             assertTrue(n_failed >= 1);
             assertEqual(numel(outputs), 3);
             fin = cellfun(@is_err, outputs);
             assertTrue(sum(fin) >= 1)
-            %             if ~strcmp(outputs{3}.fail_reason, ...
-            %                     'Task N3 failed at jobExecutor: JETester. Reason: simulated failure for lab N 3')
-            %                  for i = 1:3
-            %                      disp(outputs{i});
-            %                  end
-            %              end
             
             
             for i = 1:33
@@ -140,17 +147,14 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             common_param = rmfield(common_param, 'fail_for_labsN');
             files = {file1, file2, file3, file3a};
             co = onCleanup(@()(my_delete(files{:})));
+            if is_jenkins
+                pause(5) % HACK: give time to complete failied jobs.
+            end
+            
             %5)----------------------------------------------------------
-            [outputs, n_failed] = jd.restart_job('JETester', common_param, 4, true, false, 1);
+            [outputs, n_failed,~,jd] = jd.restart_job('JETester', common_param, 4, true, false, 1);
             if n_failed>0
-                try
-                    jd.display_fail_job_results(outputs, n_failed,3,'DISP:error');
-                catch ME
-                    if strcmp(ME.identifier,'DISP:error')
-                    else
-                        rethrow(ME);
-                    end
-                end
+                jd.display_fail_job_results(outputs, n_failed,3)                        
             end
             
             assertEqual(n_failed, 0);
@@ -164,7 +168,6 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             assertTrue(exist(file2, 'file') == 2);
             assertTrue(exist(file3, 'file') == 2);
             assertTrue(exist(file3a, 'file') == 2);
-            
         end
         %
         function test_job_with_logs_2workers(obj, varargin)
