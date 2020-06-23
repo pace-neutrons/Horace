@@ -51,6 +51,9 @@ else
     mEXceptions_outputs(1) = isa(outputs,'MException');
     fprintf('Job %s have failed. Output: \n',obj.job_id);
     disp(outputs);
+    if numel(outputs) == 1
+        disp_exception(outputs);
+    end
 end
 if any(mEXceptions_outputs)
     if isempty(Err_code)
