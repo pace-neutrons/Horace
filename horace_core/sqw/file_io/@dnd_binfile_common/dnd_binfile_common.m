@@ -237,7 +237,7 @@ classdef dnd_binfile_common < dnd_file_interface
                     obj.(flds{i}) = obj_structure_from_saveobj.(flds{i});
                 end
             end
-            if obj.is_activated()
+            if ~isempty(obj.file_closer_) && obj.file_id_ > 0;
                 return;
             end
             if ~ischar(obj.num_dim_) && ~isempty(obj.filename_)
