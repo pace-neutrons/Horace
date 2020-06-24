@@ -29,7 +29,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             end
             clear mex;
             do_pause = is_jenkins;
-            %do_pause = true;
+            do_pause = true;
             
             hc = herbert_config;
             display_fail_log = hc.log_level>0;
@@ -295,6 +295,9 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             n_workers = 3;
             
             [outputs, n_failed,~,jd] = jd.start_job('JETester', common_param, 3, true, n_workers, true, 1);
+            if n_failed>0
+                jd.display_fail_job_results(outputs, n_failed,3)
+            end
             
             assertEqual(n_failed, 0);
             assertEqual(numel(outputs), 3);
@@ -310,6 +313,10 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             n_steps = 3;
             [outputs, n_failed,~,jd] = jd.restart_job('JETesterWithData',...
                 common_param,n_steps*n_workers, true,true, 1);
+            if n_failed>0
+                jd.display_fail_job_results(outputs, n_failed,3)
+            end
+            
             assertEqual(n_failed, 0);
             for i=1:numel(outputs)
                 if display_ouptut
@@ -321,7 +328,13 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             n_steps = 30;
             [outputs, n_failed,~,jd] = jd.restart_job('JETesterWithData',...
                 common_param,n_steps*n_workers,true, true, 1);
+            if n_failed>0
+                jd.display_fail_job_results(outputs, n_failed,3)
+            end
+            
+            
             assertEqual(n_failed, 0);
+            disp('*********** JETesterWithData: outputs: ')
             for i=1:numel(outputs)
                 if display_ouptut
                     disp(outputs{i})
@@ -334,7 +347,13 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             common_param = struct('data_buffer_size',10000000);
             [outputs, n_failed] = jd.restart_job('JETesterSendData',...
                 common_param,n_steps*n_workers,true, false, 1);
-            assertEqual(n_failed, 0);
+            if n_failed>0
+                jd.display_fail_job_results(outputs, n_failed,3)
+            end
+
+            
+            assertEqual(n_failed, 0);            
+            disp('*********** JETesterWithData: outputs: ')            
             for i=1:numel(outputs)
                 if display_ouptut
                     disp(outputs{i})

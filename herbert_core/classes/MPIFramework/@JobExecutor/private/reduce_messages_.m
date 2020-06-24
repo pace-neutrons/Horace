@@ -12,7 +12,7 @@ function [ok,err,fin_mess,obj] = reduce_messages_(obj,mess,reduction_type_name,m
 %                          but if exception have occured, mess contains the
 %                          informatiob about the failure, but reduction_mess_name
 %                          still informs what the state of the worker
-%                          should be processed.
+%                          should be processing.
 %
 % mess_process_function -- the function used to process list of similar messages to
 %                          build final message. If empty, default function
@@ -27,7 +27,8 @@ function [ok,err,fin_mess,obj] = reduce_messages_(obj,mess,reduction_type_name,m
 %                          if absent, assumed to be true.
 % Returns:
 % fin_mess    containing information about the results of the reduce
-% process.
+% process. For working nodes send state message (reduction_type_name) to the 
+% node 1, for node 1, reduces messages and return result to 
 
 if ischar(mess)
     the_mess = MESS_NAMES.instance().get_mess_class(mess);

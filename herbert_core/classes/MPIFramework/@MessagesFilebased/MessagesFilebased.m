@@ -229,6 +229,7 @@ classdef MessagesFilebased < iMessagesFramework
             [mess,id_from] = obj.get_interrupt(task_ids_in);
             % mix received messages names with old interrupt names received earlier
             if ~isempty(mess)
+                if ~iscell(mess); mess = {mess}; end
                 int_names = cellfun(@(x)(x.mess_name),mess,'UniformOutput',false);
                 [all_messages_names,task_ids] = ...
                     obj.mix_messages(all_messages_names,task_ids,int_names,id_from);

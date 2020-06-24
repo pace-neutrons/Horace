@@ -38,5 +38,5 @@ else
         all_mess = obj.persistent_fail_message_.values();
         mess = all_mess(present);
     end
-    
 end
+

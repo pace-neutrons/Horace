@@ -10,16 +10,12 @@ function  log_progress_(obj,step,n_steps,time_per_step,add_info)
 %              job log
 % Outputs:
 % Sends message of type LogMessage to the job dispatcher.
-% Throws JOB_EXECUTOR:canceled error in case the job has
+% Throws JOB_EXECUTOR:canceled error in case the job has been canceled. 
+% Throws JOB_EXECUTOR:canceled error in case the reduce_messages returned
+% Failed message. 
 %
-% This is the code for debugging issues:
-% [is_canceled,reason] = obj.is_job_canceled();
-% if is_canceled
-%     error('JOB_EXECUTOR:canceled',...
-%         'Task %d has been canceled at step %d#%d; Reason: %s',...
-%         obj.labIndex,step,n_steps,reason)
-% end
-% Normaly, above give excessive information, so its better:
+%
+
 is_canceled = obj.is_job_canceled();
 if is_canceled
     error('JOB_EXECUTOR:canceled',...
@@ -68,4 +64,6 @@ if strcmp(fin_mess.mess_name,'failed')
     error('JOB_EXECUTOR:canceled',...
         'Task N%d has been interrupted at log point at step %d#%d as other worker(s) reported failure',...
         obj.labIndex,step,n_steps);
+end
+
 end
