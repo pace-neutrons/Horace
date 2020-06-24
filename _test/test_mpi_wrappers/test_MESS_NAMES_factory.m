@@ -15,6 +15,11 @@ classdef test_MESS_NAMES_factory< TestCase
             mess = mni.get_mess_class('failed');
             assertTrue(isa(mess,'FailedMessage'));
         end
+        function test_fixture_tags(~)
+            ft = MESS_NAMES.instance().pool_fixture_tags;
+            assertTrue(isnumeric(ft));
+            assertTrue(numel(ft)>3);
+        end
         function test_persistent(~)
             is = MESS_NAMES.is_persistent('failed');
             assertTrue(is);

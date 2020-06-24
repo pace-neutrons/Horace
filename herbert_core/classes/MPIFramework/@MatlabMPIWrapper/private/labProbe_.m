@@ -11,6 +11,11 @@ function [tags_present,source]=labProbe_(obj,task_id,mess_tag)
 %               empty if no messages are present
 % source   - the lab-id-s of the tasks, where the messages are present
 
+persistent fixture_tags;
+if isempty(fixture_tags)
+    fixture_tags = MESS_NAMES.instance().pool_fixture_tags;
+    fixture_tags = fixture_tags+obj.matalb_tag_shift_;
+end
 %
 if ischar(task_id)
     if strcmp(task_id,'all') ||strcmp(task_id,'any')
@@ -32,28 +37,61 @@ if isempty(task_id)
 end
 [are_present,all_tags] = arrayfun(@(x)check_task_id(obj,x,mess_tag),task_id,...
     'UniformOutput',true);
+
 tags_present = all_tags(are_present);
 source = task_id(are_present);
+% if mess_tag requested is 'any' identify the tags of the existing
+% messages looping over all possible tags
+if mess_tag == -1 && ~isempty(tags_present)
+    all_there = false(size(tags_present));
+
+    for i=1:numel(fixture_tags)
+        the_tag = fixture_tags(i);
+        there = arrayfun(@(nlab)labProbeTag(obj,nlab,the_tag),source);
+        all_there(there) = true;
+        tags_present(there) = the_tag;
+        if all(all_there)
+            break;
+        end
+    end
+    tags_present(all_there) = tags_present(all_there)-obj.matalb_tag_shift_;
+end
+
+function present  = labProbeTag(obj,source,the_tag)
+if obj.is_tested
+    cache = obj.messages_cache_(source);
+    the_tag = the_tag - obj.matalb_tag_shift_; % do not forget, 
+    %in test mode we are looking for MESS_NAMES tags, not Matlab-shifted tags
+    present = find_tag_in_cache(cache,the_tag);
+else
+    present = labProbe(source,the_tag);
+end
+function present = find_tag_in_cache(cont,mess_tag)
+if mess_tag == -1
+    present = true; % Ugly but mimicks real Matlab MPI behaviour
+else
+    present = false;
+    for i=1:numel(cont)
+        mess_cont = cont{i};
+        tag_found = mess_cont.tag;
+        
+        if tag_found == mess_tag
+            present  = true;
+            return;
+        end
+    end
+end
 
 
 function [present,tag_found]=check_task_id(obj,tid,mess_tag)
 if obj.is_tested
     if isKey(obj.messages_cache_,tid)
-        present = true;
-        cont = obj.messages_cache_(tid);
-        if mess_tag == -1
-            tag_found = mess_tag; % Ugly but mimicks real Matlab MPI behaviour
+        cache = obj.messages_cache_(tid);
+        present = find_tag_in_cache(cache,mess_tag);
+        if present
+            tag_found  = mess_tag;
         else
-            present = false;
-            for i=1:numel(cont)
-                mess_cont = cont{i};
-                tag_found = mess_cont.tag;
-                
-                if tag_found == mess_tag
-                    present  = true;
-                    return;
-                end
-            end
+            tag_found = -1;
         end
     else
         tag_found= -1;

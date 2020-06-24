@@ -41,6 +41,9 @@ classdef MESS_NAMES < handle
         
         % The tags of the state messages
         state_mess_tags
+        % The tags of the messages, used by Matlab MPI to find Matlab MPI
+        % framework messages.
+        pool_fixture_tags;
     end
     properties(Constant,Access=private)
         % define list of the messages, known to the factory. Any new
@@ -52,6 +55,13 @@ classdef MESS_NAMES < handle
         % define state messages, which should be reacted upon receiving if
         %  waiting for any other message
         state_mess_ = {'canceled','failed'};
+        % the messages which may communicate when Matlab MPI job is running
+        % and which should be checked by probe_all for presence. The
+        % fixture is necessary because of Matlab labProbe(labIndex) command
+        % does not return tag of the message available, so check for every
+        % message is necessary to identify which one is present. Failed
+        % message can also me present but its already verified explicitly.
+        matlab_pool_fixture_ = {'completed','started','log','data','canceled'}
     end
     properties(Access = private,Hidden=true)
         %
@@ -196,6 +206,13 @@ classdef MESS_NAMES < handle
         function sm = get.state_mess_tags(obj)
             sm  = obj.state_mess_tags_;
         end
+        %
+        function ft = get.pool_fixture_tags(obj)
+            name2code_map = obj.name_to_tag_map_;
+            ft = cellfun(@(nm)(name2code_map(nm)),...
+                obj.matlab_pool_fixture_,'UniformOutput',true);
+        end
+        
     end
     
     
