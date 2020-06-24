@@ -1,5 +1,5 @@
-function wlock_obj=unlock_(filename)
-% Routine used to remove lock file in background
+function wlock_obj=unlock_(filename,file_to_rename)
+% Routine used to unlock file used as filebased message
 %
 
 wlock_obj = [];
@@ -8,9 +8,24 @@ tried = 0;
 if isempty(filename) % file is already closed
     return;
 end
-%s = warning('error', 'MATLAB:DELETE:Permission');
+if nargin > 1
+    [fp,fn,fext] = fileparts(file_to_rename);
+    f_new = fullfile(fp,[fn,'.',fext(6:end)]);
+    nok = movefile(file_to_rename,f_new);
+    while(nok)
+        pause(0.1);
+        [nok,mess,mess_id] = movefile(file_to_rename,f_new);
+        tried = tried+1;
+        if tried > n_attempts_allowed
+            warning('UNLOCK:runtime_error',...
+                ' Can not rename file %s to %s.',...
+                file_to_rename,f_new);
+            error(mess_id,mess);
+        end
+    end
+end
 
-
+tried = 0;
 ws=warning('error','MATLAB:DELETE:Permission');
 permission_denied = false;
 while exist(filename,'file')==2 || permission_denied

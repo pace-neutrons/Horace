@@ -45,9 +45,11 @@ end
 lock_(wlock_file);
 %disp(['saving message : ',mess_fname])
 %
+[fp,fn,fext] = fileparts(mess_fname);
+mess_fname = fullfile(fp,[fn,'.tmp_',fext(2:end)]);
 save(mess_fname,'message','-v7.3');
 %
-wlock_obj = unlock_(wlock_file);
+wlock_obj = unlock_(wlock_file,mess_fname);
 if ~isempty(wlock_obj)
     ok = MESS_CODES.write_lock_persists;
 end
