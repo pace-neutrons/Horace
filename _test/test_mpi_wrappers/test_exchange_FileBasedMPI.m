@@ -188,9 +188,9 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
             
-            [all_mess, mid_from] = m_host.probe_all(3);
+            [all_mess, mid_from] = m_host.probe_all(3,'started');
             assertEqual(numel(all_mess), 1);
-            assertEqual(all_mess{1}, 'log');
+            assertEqual(all_mess{1}, 'started');
             assertEqual(mid_from(1), 3);
             
             
