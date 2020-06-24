@@ -141,6 +141,14 @@ end
 if nargout > 0
     out = did_pass;
 end
+end
+
+function yes = contains_full_win_path(ddot_ind)
+% helper function to identify from presense of : signe that the path is the
+% full windows path. The dot positions are found by strfind(path,':')
+% function.
+yes =  ispc && (numel(ddot_ind) == 1) && (ddot_ind(1) == 2) ;
+end
 
 function [name_list, verbose, logfile] = getInputNames(varargin)
 name_list = {};
@@ -170,8 +178,7 @@ while k <= numel(varargin)
             name_list{end+1} = arg;
         else
             ddot_ind = strfind(arg,':');
-            if isempty(ddot_ind) || ~ispc ||...
-                    (ispc && numel(ddot_ind) == 1 && (ddot_ind(1) == 2)) % C: or other drive on Windows and full path provided.
+            if isempty(ddot_ind) || ~ispc || contains_full_win_path(ddot_ind)
                 [test_folder,test_name] = fileparts(arg);
             else
                 test_folder = '';
@@ -186,4 +193,4 @@ while k <= numel(varargin)
     end
     k = k + 1;
 end
-
+end
