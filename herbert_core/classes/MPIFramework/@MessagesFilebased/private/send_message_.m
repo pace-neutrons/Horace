@@ -28,6 +28,7 @@ mess_name = message.mess_name;
 needs_queue = message.is_blocking;
 
 mess_fname = obj.job_stat_fname_(task_id,mess_name);
+% extensions of the queue numbers will be 
 if needs_queue
     [fp,fn] = fileparts(mess_fname);
     [start_queue_num,free_queue_num] = ...

@@ -10,9 +10,9 @@ function [mess_names,mid_from,mid_to,varargout] = parse_folder_contents_(folder_
 %
 % where ext is either '.mat', '.lock[r|w]] or number or a message in a queue.
 % messages with extension .lock are treated as locks to the message names,
-%      never returned as output and, on request may suppress correspondent 
+%      never returned as output and, on request may suppress correspondent
 %      message names.
-% 
+%
 %
 % Returns:
 %
@@ -71,11 +71,11 @@ end
 if isfield(mess_files,'datenum')
     mess_date = arrayfun(@(x)(x.datenum),mess_files,'UniformOutput',true);
     %[~,ind] = sort(mess_date,'descend');
-    [~,ind] = sort(mess_date);    
+    [~,ind] = sort(mess_date);
     mess_files = mess_files(ind);
 else %  dos command sorts files with oldest coming last
     %
-   % mess_files = fliplr(mess_files);
+    % mess_files = fliplr(mess_files);
 end
 
 % identify messages sources and destinations
@@ -126,6 +126,10 @@ if file_struc.isdir
 end
 [~,fn,fext] = fileparts(file_struc.name);
 is_mess = strncmpi(mess_template,fn,len);
+%
+if strncmpi(fext,'.tmp_',5) % the message in process of writing to disk. Not a message
+    is_mess  = false;
+end
 if is_mess
     if strncmpi(fext,'.lock',5)
         is_lock = true;
