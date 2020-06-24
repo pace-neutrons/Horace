@@ -5,7 +5,7 @@ function wout = combine_sqw_same_bins (varargin)
 %
 %   >> wout = combine_sqw_same_bins (w1,w2,w3...)
 
-wout = varargin{1};
+wout = copy(varargin{1});
 % Trivial case of just one input argument
 if numel(varargin)==1
     return
@@ -14,7 +14,7 @@ end
 % More than one sqw object
 % ------------------------
 nw = numel(varargin);   % number of sqw objects
-nbin = numel(varargin{1}.data.npix);     % number of bins in each sqw object
+nbin = numel(wout.data.npix);     % number of bins in each sqw object
 
 % Total number of pixels in each sqw object
 npixtot = cellfun (@(x) x.data.pix.num_pixels, varargin);
@@ -52,7 +52,7 @@ pix = PixelData(npixtot_all);
 for i=1:nw
     pix.data(:,nbeg(i):nend(i)) = varargin{i}.data.pix.data;
 end
-wout.data.pix.data = pix.data(:,ix_all);
+wout.data.pix = PixelData(pix.data(:,ix_all));
 
 % Recompute the singal and error arrays
 wout=recompute_bin_data(wout);
