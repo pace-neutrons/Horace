@@ -79,7 +79,6 @@ classdef MException_her < MException
                 if isa(input,'MException_her')
                     if isempty(input.stack_r)
                         MEx = MException(input.identifier,input.message);
-                        return;
                     else
                         rethrow(struct('identifier',input.identifier,...
                         'message',input.message,'stack',input.stack_r));
