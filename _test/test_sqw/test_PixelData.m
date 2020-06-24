@@ -335,9 +335,9 @@ methods
 
     % --- Tests for file-backed operations ---
     function test_construction_with_file_path_sets_file_path_on_object(obj)
-        [dir_name, file_name, ext] = fileparts(obj.test_sqw_file_path);
-        expected_abs_path = fullfile(what(dir_name).path, [file_name, ext]);
-        assertEqual(obj.pix_data_from_file.file_path, expected_abs_path);
+        expected_file = java.io.File(fullfile(pwd(), obj.test_sqw_file_path));
+        expected_path = char(expected_file.getCanonicalPath());
+        assertEqual(obj.pix_data_from_file.file_path, expected_path);
     end
 
     function test_construction_with_file_path_populates_data_from_file(obj)
@@ -378,9 +378,9 @@ methods
     end
 
     function test_construction_with_faccess_sets_file_path(obj)
-        [dir_name, file_name, ext] = fileparts(obj.test_sqw_file_path);
-        expected_abs_path = fullfile(what(dir_name).path, [file_name, ext]);
-        assertEqual(obj.pix_data_from_faccess.file_path, expected_abs_path);
+        file = java.io.File(fullfile(pwd(), obj.test_sqw_file_path));
+        expected_path = char(file.getCanonicalPath());
+        assertEqual(obj.pix_data_from_faccess.file_path, expected_path);
     end
 
     function test_page_size_is_set_on_construction_when_given_as_argument(obj)
