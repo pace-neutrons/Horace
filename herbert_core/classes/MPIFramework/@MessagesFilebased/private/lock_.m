@@ -9,3 +9,5 @@ while ~present
     pause(0.1)
     present = exist(filename,'file')==2;
 end
+% HACK? wait until lock file appears on file system. 
+pause(0.1)

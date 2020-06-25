@@ -41,8 +41,23 @@ if needs_queue
     [start_queue_num,free_queue_num] = ...
         obj.list_queue_messages(mess_name,obj.labIndex,task_id,'-show_locked');
     if start_queue_num(1) >= 0
-        mess_fname = fullfile(fp,[fn,'.',num2str(free_queue_num)]);
+        mess_fname1 = fullfile(fp,[fn,'.',num2str(free_queue_num)]);
+    else
+        mess_fname1 = mess_fname;
     end
+    
+else
+    mess_fname1 = mess_fname;
+end
+if ~strcmp(mess_fname,mess_fname1)
+    unlock_(wlock_file);
+    
+    mess_fname = mess_fname1;
+    [rlock_file,wlock_file]  = build_lock_fname_(mess_fname);
+    while exist(rlock_file,'file') == 2 % previous message is reading, wait until read process completes
+        pause(obj.time_to_react_)
+    end
+    lock_(wlock_file);
 end
 
 %
