@@ -7,6 +7,6 @@ function permission = get_fopen_permission_(permission)
     else
         error('DNDBINFILECOMMON:get_fopen_permission_', ...
               ['Invalid input for read_or_write. Must be ''read'' or ''write''. ' ...
-               'Found ''%s'''], read_or_write);
+               'Found ''%s'''], permission);
     end
 end
