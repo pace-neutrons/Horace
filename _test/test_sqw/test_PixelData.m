@@ -15,6 +15,11 @@ properties
                   'variance'};
 end
 
+properties (Constant)
+    NUM_BYTES_IN_VALUE = 8;
+    NUM_COLS_IN_PIX_BLOCK = 9;
+end
+
 methods (Access = private)
 
     function pix_data = get_random_pix_data_(~, rows)
@@ -385,7 +390,8 @@ methods
 
     function test_page_size_is_set_after_getter_call_when_given_as_argument(obj)
         mem_alloc = obj.small_page_size_;  % 1Mb
-        expected_page_size = floor(mem_alloc/(8*9));  % mem_alloc/(double*num_rows)
+        expected_page_size = floor(...
+                mem_alloc/(obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK));
         % the first page is loaded on access, so this first assert which accesses
         % .variance is necessary to set pix.page_size
         assertEqual(size(obj.pix_data_small_page.variance), ...
@@ -393,19 +399,21 @@ methods
         assertEqual(obj.pix_data_small_page.page_size, expected_page_size);
     end
 
-    function test_calling_getter_returns_data_for_single_page(~)
+    function test_calling_getter_returns_data_for_single_page(obj)
         data = rand(9, 30);
         faccess = FakeFAccess(data);
-        mem_alloc = 11*8*9;  % 11 pixels held in memory at a time
+        page_size = 11;
+        mem_alloc = page_size*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
         pix = PixelData(faccess, mem_alloc);
         assertEqual(size(pix.signal), [1, pix.page_size]);
         assertEqual(pix.signal, data(8, 1:11));
     end
 
-    function test_calling_get_data_returns_data_for_single_page(~)
+    function test_calling_get_data_returns_data_for_single_page(obj)
         data = rand(9, 30);
         faccess = FakeFAccess(data);
-        mem_alloc = 11*8*9;
+        page_size = 11;
+        mem_alloc = page_size*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
         pix = PixelData(faccess, mem_alloc);
         sig_var = pix.get_data({'signal', 'variance'}, 3:8);
         assertEqual(sig_var, data(8:9, 3:8));
@@ -420,39 +428,40 @@ methods
         assertEqual(p1.u1, ones(1, n_rows));
     end
 
-    function test_file_data_not_loaded_on_init_if_page_size_lt_num_pixels(~)
+    function test_file_data_not_loaded_on_init_if_page_size_lt_num_pixels(obj)
         data = rand(9, 30);
         faccess = FakeFAccess(data);
-        mem_alloc = 11*8*9;
+        page_size = 11;
+        mem_alloc = page_size*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
         pix = PixelData(faccess, mem_alloc);
         assertEqual(pix.page_size, 0);
         pix.u1;
         assertFalse(pix.page_size == 0);
     end
 
-    function test_number_of_pixels_in_page_matches_memory_usage_size(~)
+    function test_number_of_pixels_in_page_matches_memory_usage_size(obj)
         data = rand(9, 30);
         pix_in_page = 11;
         faccess = FakeFAccess(data);
-        mem_alloc = pix_in_page*8*9;
+        mem_alloc = pix_in_page*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
         pix = PixelData(faccess, mem_alloc);
         pix.u1;
         assertEqual(size(pix.data, 2), pix_in_page);
     end
 
-    function test_has_more_rets_true_if_there_are_subsequent_pixels_in_file(~)
+    function test_has_more_rets_true_if_there_are_subsequent_pixels_in_file(obj)
         data = rand(9, 12);
         pix_in_page = 11;
-        mem_alloc = pix_in_page*8*9;
+        mem_alloc = pix_in_page*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
         faccess = FakeFAccess(data);
         pix = PixelData(faccess, mem_alloc);
         assertTrue(pix.has_more());
     end
 
-    function test_has_more_rets_false_if_all_data_in_page(~)
+    function test_has_more_rets_false_if_all_data_in_page(obj)
         data = rand(9, 11);
         pix_in_page = 11;
-        mem_alloc = pix_in_page*8*9;
+        mem_alloc = pix_in_page*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
         faccess = FakeFAccess(data);
         pix = PixelData(faccess, mem_alloc);
         assertFalse(pix.has_more());
@@ -485,7 +494,7 @@ methods
         faccess = FakeFAccess(data);
 
         pix_in_page = 11;
-        mem_alloc = pix_in_page*8*9;
+        mem_alloc = pix_in_page*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
         pix = PixelData(faccess, mem_alloc);
 
         f = @() obj.advance_pix(pix, floor(npix/pix_in_page + 1));
@@ -499,12 +508,12 @@ methods
         assertEqual(pix.data, data);
     end
 
-    function test_advance_while_loop_to_sum_signal_data(~)
+    function test_advance_while_loop_to_sum_signal_data(obj)
         data = randi([0, 99], 9, 30);
         faccess = FakeFAccess(data);
 
         pix_in_page = 11;
-        mem_alloc = pix_in_page*8*9;
+        mem_alloc = pix_in_page*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
         pix = PixelData(faccess, mem_alloc);
 
         signal_sum = sum(pix.signal);
@@ -536,17 +545,14 @@ methods
         assertTrue(new_pix.has_more());
     end
 
-end
-
-methods (Static)
-
-    function do_pixel_data_loop_with_f(func, data)
+    % -- Helpers --
+    function do_pixel_data_loop_with_f(obj, func, data)
         % func should be a function handle, it is evaluated within a
         % while-advance block over some pixel data
         faccess = FakeFAccess(data);
 
         pix_in_page = 11;
-        mem_alloc = pix_in_page*8*9;
+        mem_alloc = pix_in_page*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
         pix = PixelData(faccess, mem_alloc);
 
         func(pix, 0)
@@ -557,6 +563,10 @@ methods (Static)
             iter = iter + 1;
         end
     end
+
+end
+
+methods (Static)
 
     function advance_pix(pix, niters)
         for i = 1:niters
