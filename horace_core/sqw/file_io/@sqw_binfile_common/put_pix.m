@@ -23,7 +23,7 @@ if ~ok
 end
 
 if ~obj.is_activated('write')
-    obj = obj.activate('rb+');
+    obj = obj.activate('write');
 end
 
 obj.check_obj_initated_properly();

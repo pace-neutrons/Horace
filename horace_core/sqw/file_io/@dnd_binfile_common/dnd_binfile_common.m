@@ -237,7 +237,7 @@ classdef dnd_binfile_common < dnd_file_interface
                     obj.(flds{i}) = obj_structure_from_saveobj.(flds{i});
                 end
             end
-            if ~isempty(obj.file_closer_) && obj.file_id_ > 0;
+            if ~isempty(obj.file_closer_) && obj.file_id_ > 0
                 return;
             end
             if ~ischar(obj.num_dim_) && ~isempty(obj.filename_)
@@ -499,23 +499,27 @@ classdef dnd_binfile_common < dnd_file_interface
             obj.file_id_ = 0;
         end
         %
-        function obj = activate(obj, permission)
-            % open respective file for reading without reading any
-            % supplementary file information. Assume that this information
-            % is correct.
+        function obj = activate(obj, read_or_write)
+            % Open respective file in read or write mode without reading any
+            % supplementary file information. Assume that header information
+            % stored on this object is correct.
             %
-            % To use for MPI transfers between workers when open file can
+            % Can be used for MPI transfers between workers when open file can
             % not be transferred between workers but everything else can
             %
             % Input
             % -----
             %
-            % permission  The permissions with which to open the file.
-            %             Default is 'rb'.
+            % read_or_write   Char array. If 'read' open the file in read-only
+            %                 mode If 'write' open the file in read/write mode.
+            %                 Default is 'read'.
             %
             if nargin == 1
                 permission = 'rb';
+            else
+                permission = get_fopen_permission_(read_or_write);
             end
+
             if ~isempty(obj.file_closer_)
                 obj.file_closer_ = [];
             end
