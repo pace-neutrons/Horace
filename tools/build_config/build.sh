@@ -91,6 +91,46 @@ function run_package() {
   echo_and_run "cpack -G TGZ"
 }
 
+function print_help() {
+  help_msg="Script to build, run static analysis, test and package Herbert.
+
+https://github.com/pace-neutrons/Herbert
+
+usage:
+  ./build.sh flag1 [flag2 [flag3]...] [option1 argument1 [option2 argument2]...]
+flags:
+  -b, --build
+      Run the Herbert build commands.
+  -t, --test
+      Run all Herbert tests.
+  -a, --analyze
+      Run static analysis on Herbert C++ code.
+  -p, --package
+      Pacakge Herbert into a .zip file.
+  -v, --print_versions
+      Print the versions of libraries being used e.g. Matlab.
+  -h, --help
+      Print help message and exit
+options:
+  -X, --build_tests {\"ON\", \"OFF\"}
+      Whether to build the Herbert C++ tests and enable testing via CTest.
+      This must be \"ON\" in order to run tests with this script. [default: ON]
+  -C, --build_config {\"Release\", \"Debug\"}
+      The build configuration passed to CMake [default: Release]
+  -O, --build_dir
+      The directory to write build files into. If the directory does not exist
+      it will be created. [default: build]
+  -F, --cmake_flags
+      Flags to pass to the CMake configure step.
+  -M, --matlab_release
+      The release of Matlab to build and run tests against e.g. R2018b. This
+      Matlab release should also be on your path.
+example:
+  ./build.sh --build --test --build_config Debug
+"
+  echo -e "${help_msg}"
+}
+
 function main() {
   # set default parameter values
   local build=$FALSE
@@ -104,6 +144,12 @@ function main() {
   local cmake_flags=""
   local matlab_release=""
 
+  # If no input arguments, print the help and exit with error code
+  if [ $# -eq 0 ]; then
+    print_help
+    exit 1
+  fi
+
   # parse command line args
   while [[ $# -gt 0 ]]; do
     key="$1"
@@ -114,13 +160,14 @@ function main() {
         -a|--analyze) analyze=$TRUE; shift ;;
         -p|--package) package=$TRUE; shift ;;
         -v|--print_versions) print_versions=$TRUE; shift ;;
+        -h|--help) print_help; exit 0 ;;
         # options
         -X|--build_tests) build_tests="$2"; shift; shift ;;
         -C|--build_config) build_config="$2"; shift; shift ;;
         -O|--build_dir) build_dir="$(realpath "$2")"; shift; shift ;;
         -F|--cmake_flags) cmake_flags="$2"; shift; shift ;;
         -M|--matlab_release) matlab_release="$2"; shift; shift ;;
-        *) echo "Unrecognised argument '$key'"; exit 1 ;;
+        *) echo "Unrecognised argument '$key'. Use -h for usage."; exit 1 ;;
     esac
   done
 
