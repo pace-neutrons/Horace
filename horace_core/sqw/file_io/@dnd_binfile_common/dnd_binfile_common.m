@@ -506,6 +506,13 @@ classdef dnd_binfile_common < dnd_file_interface
             %
             % To use for MPI transfers between workers when open file can
             % not be transferred between workers but everything else can
+            %
+            % Input
+            % -----
+            %
+            % permission  The permissions with which to open the file.
+            %             Default is 'rb'.
+            %
             if nargin == 1
                 permission = 'rb';
             end
