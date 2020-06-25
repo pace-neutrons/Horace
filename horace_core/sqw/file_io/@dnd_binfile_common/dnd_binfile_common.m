@@ -467,17 +467,17 @@ classdef dnd_binfile_common < dnd_file_interface
             %
             full_file_path = fullfile(obj.filepath, obj.filename);
             [file_id_path, permission] = fopen(obj.file_id_);
-            is = ~isempty(obj.file_closer_) && strcmp(full_file_path, file_id_path);
+            is = strcmp(full_file_path, file_id_path);
 
             if is && nargin == 2
-                if strcmp(read_or_write, 'read')
+                if strcmpi(read_or_write, 'read')
                     READ_MODE_REGEX = '([ra]b\+?)|(wb\+)';
-                    open_for_reading = regexp(permission, READ_MODE_REGEX);
-                    is = open_for_reading;
-                elseif strcmp(read_or_write, 'write')
+                    open_for_reading = regexp(permission, READ_MODE_REGEX, 'once');
+                    is = ~isempty(open_for_reading);
+                elseif strcmpi(read_or_write, 'write')
                     WRITE_MODE_REGEX = '([WAaw]b\+?)|(rb\+)';
-                    open_for_writing = regexp(permission, WRITE_MODE_REGEX);
-                    is = open_for_writing;
+                    open_for_writing = regexp(permission, WRITE_MODE_REGEX, 'once');
+                    is = ~isempty(open_for_writing);
                 else
                     error('DNDBINFILECOMMON:is_activated', ...
                           ['Invalid input for read_or_write. Must be ''read'' ', ...
@@ -515,10 +515,9 @@ classdef dnd_binfile_common < dnd_file_interface
             %                 Default is 'read'.
             %
             if nargin == 1
-                permission = 'rb';
-            else
-                permission = get_fopen_permission_(read_or_write);
+                read_or_write = 'read';
             end
+            permission = get_fopen_permission_(read_or_write);
 
             if ~isempty(obj.file_closer_)
                 obj.file_closer_ = [];
