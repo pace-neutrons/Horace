@@ -106,7 +106,6 @@ classdef test_faccess_sqw_v2< TestCase
             to = faccess_sqw_v2();
             assertEqual(to.file_version,'-v2');
 
-
             [ok,initob] = to.should_load(fullfile(obj.test_folder,'w2_small_v1.sqw'));
 
             assertTrue(ok);
@@ -147,7 +146,6 @@ classdef test_faccess_sqw_v2< TestCase
             assertEqual(main_h.filename,'Fe_ei787.sqw');
             assertEqual(main_h.filepath,'c:\data\Fe\sqw\');
 
-
         end
 
         function obj = test_get_data(obj)
@@ -169,6 +167,8 @@ classdef test_faccess_sqw_v2< TestCase
             assertEqual(data.filename,data_dnd.filename)
             assertEqual(data.filepath,data_dnd.filepath)
             assertTrue(isa(data.pix, 'PixelData'));
+            assertEqual(data.pix.file_path, sample);
+            assertEqual(data.pix.num_pixels, 8031);
         end
 
         function obj = test_get_sqw(obj)

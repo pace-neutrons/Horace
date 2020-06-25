@@ -119,6 +119,8 @@ classdef test_faccess_sqw_prototype< TestCase
             assertEqual(data.filename,data_dnd.filename)
             assertEqual(data.filepath,data_dnd.filepath)
             assertTrue(isa(data.pix, 'PixelData'));
+            assertEqual(data.pix.file_path, obj.sample_file);
+            assertEqual(data.pix.num_pixels, 16);
         end
 
     end
