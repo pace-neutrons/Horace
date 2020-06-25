@@ -16,6 +16,9 @@
     - test_job_executor
   - test_init_mpiexec_mpi_fw  ! Disabled as https://github.com/pace-neutrons/Herbert/issues/155
 
+  -test_job_dispatcher_herbert:test_job_with_logs_3workers -- Asynchronous data exchange part of the test disabled on Jenkins -- FS does not like this things. 
+  -test_job_dispatcher_herbert:test_job_with_logs_2workers -- Asynchronous data exchange part of the test disabled on Jenkins -- FS does not like this things.   
+  
   HACK: 
   - job_dispatcher_common_tests:test_job_fail_restart
     given 5 second interval to complete failed jobs between restarts.

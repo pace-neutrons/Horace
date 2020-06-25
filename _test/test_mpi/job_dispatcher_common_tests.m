@@ -252,6 +252,14 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             assertTrue(exist(file2, 'file') == 2);
             assertTrue(exist(file3, 'file') == 2);
             
+            if is_jenkins && isa(obj, 'test_job_dispatcher_herbert')
+                warning('Asynchroneous filebased data exchange test is disabled ');
+                return;
+            elseif isa(obj, 'test_job_dispatcher_herbert')
+                warning('Asynchroneous filebased data exchange test is unreliable');
+            end
+            
+            
             n_steps = 30;
             common_param = struct('data_buffer_size',10000000);
             [outputs, n_failed] = jd.restart_job('JETesterSendData',...
@@ -324,6 +332,12 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 end
                 assertEqualToTol(outputs{i},(n_steps+1)*n_steps/2);
             end
+            if is_jenkins && isa(obj, 'test_job_dispatcher_herbert')
+                warning('Asynchroneous filebased data exchange test is disabled ');
+                return;
+            elseif isa(obj, 'test_job_dispatcher_herbert')
+                warning('Asynchroneous filebased data exchange test is unreliable');
+            end
             
             n_steps = 3;
             [outputs, n_failed,~,jd] = jd.restart_job('JETesterWithData',...
@@ -350,10 +364,10 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             if n_failed>0
                 jd.display_fail_job_results(outputs, n_failed,3)
             end
-
             
-            assertEqual(n_failed, 0);            
-            disp('*********** JETesterWithData: outputs: ')            
+            
+            assertEqual(n_failed, 0);
+            disp('*********** JETesterWithData: outputs: ')
             for i=1:numel(outputs)
                 if display_ouptut
                     disp(outputs{i})
