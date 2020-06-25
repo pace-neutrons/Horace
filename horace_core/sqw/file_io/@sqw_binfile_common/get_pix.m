@@ -11,7 +11,7 @@ if ischar(obj.num_contrib_files)
 end
 
 if ~obj.is_activated('read')
-    obj = obj.activate('rb+');
+    obj = obj.activate('read');
 end
 
 npix_tot = obj.npixels;
