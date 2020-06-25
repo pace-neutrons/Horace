@@ -4,6 +4,7 @@ properties
     raw_pix_data = rand(9, 10);
     small_page_size_ = 1e6;  % 1Mb
     test_sqw_file_path = '../test_sqw_file/sqw_1d_1.sqw';
+    test_sqw_file_full_path = '';
 
     pixel_data_obj;
     pix_data_from_file;
@@ -27,6 +28,9 @@ methods
 
     function obj = test_PixelData(~)
         obj = obj@TestCase('test_PixelData');
+
+        test_sqw_file = java.io.File(pwd(), obj.test_sqw_file_path);
+        obj.test_sqw_file_full_path = char(test_sqw_file.getCanonicalPath());
 
         % Construct an object from raw data
         obj.pixel_data_obj = PixelData(obj.raw_pix_data);
@@ -335,9 +339,7 @@ methods
 
     % --- Tests for file-backed operations ---
     function test_construction_with_file_path_sets_file_path_on_object(obj)
-        expected_file = java.io.File(fullfile(pwd(), obj.test_sqw_file_path));
-        expected_path = char(expected_file.getCanonicalPath());
-        assertEqual(obj.pix_data_from_file.file_path, expected_path);
+        assertEqual(obj.pix_data_from_file.file_path, obj.test_sqw_file_full_path);
     end
 
     function test_construction_with_file_path_populates_data_from_file(obj)
@@ -378,12 +380,10 @@ methods
     end
 
     function test_construction_with_faccess_sets_file_path(obj)
-        file = java.io.File(fullfile(pwd(), obj.test_sqw_file_path));
-        expected_path = char(file.getCanonicalPath());
-        assertEqual(obj.pix_data_from_faccess.file_path, expected_path);
+        assertEqual(obj.pix_data_from_faccess.file_path, obj.test_sqw_file_full_path);
     end
 
-    function test_page_size_is_set_on_construction_when_given_as_argument(obj)
+    function test_page_size_is_set_after_getter_call_when_given_as_argument(obj)
         mem_alloc = obj.small_page_size_;  % 1Mb
         expected_page_size = floor(mem_alloc/(8*9));  % mem_alloc/(double*num_rows)
         % the first page is loaded on access, so this first assert which accesses
@@ -530,9 +530,7 @@ methods
 
     function test_constructing_from_PixelData_with_valid_file_inits_faccess(obj)
         new_pix = PixelData(obj.pix_data_small_page);
-        test_file = java.io.File(pwd(), obj.test_sqw_file_path);
-        expected_file_path = char(test_file.getCanonicalPath());
-        assertEqual(new_pix.file_path, expected_file_path);
+        assertEqual(new_pix.file_path, obj.test_sqw_file_full_path);
         assertEqual(new_pix.num_pixels, obj.pix_data_small_page.num_pixels);
         assertEqual(new_pix.signal, obj.pix_data_small_page.signal);
         assertTrue(new_pix.has_more());
