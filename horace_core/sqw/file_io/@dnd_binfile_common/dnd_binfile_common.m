@@ -471,12 +471,12 @@ classdef dnd_binfile_common < dnd_file_interface
 
             if is && nargin == 2
                 if strcmp(read_or_write, 'read')
-                    read_mode_regex = '([ra]b\+?)|(wb\+)';
-                    open_for_reading = regexp(permission, read_mode_regex);
+                    READ_MODE_REGEX = '([ra]b\+?)|(wb\+)';
+                    open_for_reading = regexp(permission, READ_MODE_REGEX);
                     is = open_for_reading;
                 elseif strcmp(read_or_write, 'write')
-                    write_mode_regex = '([WAaw]b\+?)|(rb\+)';
-                    open_for_writing = regexp(permission, write_mode_regex);
+                    WRITE_MODE_REGEX = '([WAaw]b\+?)|(rb\+)';
+                    open_for_writing = regexp(permission, WRITE_MODE_REGEX);
                     is = open_for_writing;
                 else
                     error('DNDBINFILECOMMON:is_activated', ...
