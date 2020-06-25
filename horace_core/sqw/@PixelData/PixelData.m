@@ -221,8 +221,14 @@ methods
         end
         % In memory construction
         if isa(arg, 'PixelData')  % TODO make sure this works with file-backed
-            obj.data = arg.data;
-            obj.file_path_ = arg.file_path;
+            if ~isempty(arg.file_path) && exist(arg.file_path, 'file')
+                % if the file exists we can create a file-backed instance
+                obj = PixelData(arg.file_path, arg.page_memory_size_);
+                obj.pix_position_ = arg.pix_position_;
+            else
+                % if no file exists, just copy the data
+                obj.data = arg.data;
+            end
             return;
         end
         if numel(arg) == 1 && isnumeric(arg) && floor(arg) == arg
@@ -248,7 +254,7 @@ methods
             return;
         end
 
-        % input sets underlying data
+        % Input sets underlying data
         obj.data = arg;
     end
 

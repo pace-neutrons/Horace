@@ -528,6 +528,16 @@ methods
         assertEqual(pix.page_size, 0);
     end
 
+    function test_constructing_from_PixelData_with_valid_file_inits_faccess(obj)
+        new_pix = PixelData(obj.pix_data_small_page);
+        test_file = java.io.File(pwd(), obj.test_sqw_file_path);
+        expected_file_path = char(test_file.getCanonicalPath());
+        assertEqual(new_pix.file_path, expected_file_path);
+        assertEqual(new_pix.num_pixels, obj.pix_data_small_page.num_pixels);
+        assertEqual(new_pix.signal, obj.pix_data_small_page.signal);
+        assertTrue(new_pix.has_more());
+    end
+
 end
 
 methods (Static)
