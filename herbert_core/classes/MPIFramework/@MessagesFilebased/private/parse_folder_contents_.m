@@ -26,9 +26,9 @@ function [mess_names,mid_from,mid_to,varargout] = parse_folder_contents_(folder_
 
 
 if nargin > 1
-    nolocked = true;
+    nolocked_only = varargin{1};
 else
-    nolocked = false;
+    nolocked_only = true;
 end
 
 mess_template = 'mess_';
@@ -37,11 +37,11 @@ len = numel(mess_template);
 
 
 % extract only messages
-[is_mess,is_lock] = arrayfun(@(x)is_message_(x,mess_template,len),folder_contents);
+[is_mess,is_lock] = arrayfun(@(x)is_message_(x,mess_template,len,nolocked_only),folder_contents);
 
 % remove locked files from further consideration
 if any(is_lock)
-    if nolocked % remove locked files from the list
+    if nolocked_only % remove locked files from the list
         mess_files = folder_contents(is_mess);
         lock_files = folder_contents(is_lock);
         mess_names = arrayfun(@get_mat_fname,mess_files,'UniformOutput',false);
@@ -115,7 +115,7 @@ end
 end
 
 
-function [is_mess,is_lock] = is_message_(file_struc,mess_template,len)
+function [is_mess,is_lock] = is_message_(file_struc,mess_template,len,nolocked_only)
 % the functon verifies if the file structure produced by dir
 % and received as input is actually the file, with filebased
 % message or is a lock file.
@@ -127,8 +127,13 @@ end
 [~,fn,fext] = fileparts(file_struc.name);
 is_mess = strncmpi(mess_template,fn,len);
 %
-if strncmpi(fext,'.tmp_',5) % the message in process of writing to disk. Not a message
-    is_mess  = false;
+if is_mess && strncmpi(fext,'.tmp_',5) % the message in process of
+    % writing to disk. Its a locked message, whatewer lock state is
+    if nolocked_only
+        is_mess  = false;
+    else
+        is_mess = true;
+    end
 end
 if is_mess
     if strncmpi(fext,'.lock',5)

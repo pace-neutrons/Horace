@@ -449,7 +449,8 @@ classdef MessagesFilebased < iMessagesFramework
             is = obj.is_tested_;
         end
         
-        function [start_queue_num,free_queue_num]=list_queue_messages(obj,mess_name,send_from,sent_to)
+        function [start_queue_num,free_queue_num]=list_queue_messages(obj,...
+                mess_name,send_from,sent_to,varargin)
             % process list of the messages already sent from this routine and placed in
             % a queue and return the numbers of the first message in the queue and
             % the number of the  first free place in the queue
@@ -458,13 +459,19 @@ classdef MessagesFilebased < iMessagesFramework
             % mess_name   -- the name of the messages in the queue
             % send_from   -- the number of job (lab) the messages should be send
             % sent_to     -- the number of job (lab) the messages should be directed.
+            % Optional: 
+            % '-show_locked' -- the key, which allows to show messages
+            %                 currently in the process of writing by other
+            %                 workers. By default, locked messages are not
+            %                 shown. 
             % Outputs:
             % start_queue_num -- the number of the first message to pop from the queue.
             % free_queue_num  -- the number of the free space in the queue, i.e. the
             %                    next message to pop in the queue.
             
             [start_queue_num,free_queue_num]=...
-                list_queue_messages_(obj.mess_exchange_folder,obj.job_id,mess_name,send_from,sent_to);
+                list_queue_messages_(obj.mess_exchange_folder,obj.job_id,...
+                mess_name,send_from,sent_to,varargin{:});
         end
         
     end

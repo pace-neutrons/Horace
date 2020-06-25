@@ -21,7 +21,9 @@ while ~finished
     
     for i=1:numel(mid_from) % delete messages files
         mess_fname = obj.job_stat_fname_(obj.labIndex,all_messages{i},mid_from(i));
-        delete(mess_fname);        
+        if exist(mess_fname,'file') == 2
+            delete(mess_fname);        
+        end
         if exist(mess_fname,'file')==2
             unlock_(mess_fname);
         end

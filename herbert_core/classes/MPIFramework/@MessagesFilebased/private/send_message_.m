@@ -26,29 +26,36 @@ if ~isa(message,'aMessage')
 end
 mess_name = message.mess_name;
 needs_queue = message.is_blocking;
-
+%fprintf('\n Sending message to lab %d ',task_id);
 mess_fname = obj.job_stat_fname_(task_id,mess_name);
-% extensions of the queue numbers will be 
-if needs_queue
-    [fp,fn] = fileparts(mess_fname);
-    [start_queue_num,free_queue_num] = ...
-        obj.list_queue_messages(mess_name,obj.labIndex,task_id);
-    if start_queue_num(1) >= 0
-        mess_fname = fullfile(fp,[fn,'.',num2str(free_queue_num)]);
-    end
-end
 
 [rlock_file,wlock_file]  = build_lock_fname_(mess_fname);
 while exist(rlock_file,'file') == 2 % previous message is reading, wait until read process completes
     pause(obj.time_to_react_)
 end
-
 lock_(wlock_file);
-%disp(['saving message : ',mess_fname])
+
+% extensions of the queue numbers will be
+if needs_queue
+    [fp,fn] = fileparts(mess_fname);
+    [start_queue_num,free_queue_num] = ...
+        obj.list_queue_messages(mess_name,obj.labIndex,task_id,'-show_locked');
+    if start_queue_num(1) >= 0
+        mess_fname = fullfile(fp,[fn,'.',num2str(free_queue_num)]);
+    end
+end
+
 %
 [fp,fn,fext] = fileparts(mess_fname);
 mess_fname = fullfile(fp,[fn,'.tmp_',fext(2:end)]);
 save(mess_fname,'message','-v7.3');
+% check the file has been idenfitied on the filesystem (may be considered
+% just as reasonable delay timer, fir file beeing actually written)
+written = exist(mess_fname,'file') == 2;
+while ~written
+    pause(obj.time_to_react_);
+    written = exist(mess_fname,'file') == 2;
+end
 %
 wlock_obj = unlock_(wlock_file,mess_fname);
 if ~isempty(wlock_obj)

@@ -223,7 +223,10 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             
         end
         
-        function lock_file = build_fake_lock(~, mf, mess_name)
+        function lock_file = build_fake_inverse_lock(~, mf, mess_name)
+            % file write lock build when message is send , but for
+            % mirrored target i.e. when send message is actually reflacted
+            % from target and written as if send back from target.
             mess_file = fullfile(mf.mess_exchange_folder,...
                 mf.inverse_fname_f(mess_name,5,mf.labIndex));
             
@@ -232,8 +235,95 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             fh = fopen(lock_file, 'w');
             fclose(fh);
         end
+        %
+        function lock_file = build_fake_lock(~, mf, mess_name)
+            % file write lock normally build when message is written.
+            mess_file = mf.mess_file_name(5,mess_name,mf.labIndex);
+            
+            [fp, fn] = fileparts(mess_file);
+            lock_file = fullfile(fp, [fn, '.lockw']);
+            fh = fopen(lock_file, 'w');
+            fclose(fh);
+        end
         
-        function test_ignore_locked(this)
+        
+        function test_show_locked_and_queue(obj)
+            % test verifies that filebased data messages which have lock are
+            % shown on request (actually) any messages are visible
+            function del_file(fname)
+                if exist(fname, 'file') == 2
+                    delete(fname);
+                end
+            end
+            cs  = iMessagesFramework.build_worker_init(tmp_dir, ...
+                'MFT_show_locked_and_queue', 'MessagesFilebased', 1, 5,'test_mode');
+            server = MFTester(cs);
+            clob = onCleanup(@()(server.finalize_all()));
+            server.time_to_fail=1;
+            cs  = iMessagesFramework.build_worker_init(tmp_dir, ...
+                'MFT_show_locked_and_queue', 'MessagesFilebased', 5, 5,'test_mode');
+            client = MFTester(cs);
+            client.time_to_fail=1;
+            
+            
+            all_mess = client.probe_all(5);
+            assertTrue(isempty(all_mess));
+            
+            
+            mess = DataMessage();
+            mess.payload = 1;
+            % send message to itself
+            [ok, err] = server.send_message(5, mess);
+            assertEqual(ok, MESS_CODES.ok,['Error=',err])
+            
+            [start_queue_num,free_queue_num]=client.list_queue_messages_pub(...
+                'data',1,5);
+            assertEqual(start_queue_num,0)
+            assertEqual(free_queue_num,1)
+            
+            mess_file = server.mess_file_name(5,'data');
+            [fp,fn,fe]= fileparts(mess_file);
+            partialyWritten = fullfile(fp,[fn,'.tmp_',fe(2:end)]);
+            movefile(mess_file,partialyWritten);
+            [start_queue_num,free_queue_num]=client.list_queue_messages_pub(...
+                'data',1,5);
+            assertEqual(start_queue_num,-1)
+            assertEqual(free_queue_num,0)
+            
+            [start_queue_num,free_queue_num]=client.list_queue_messages_pub(...
+                'data',1,5,'-show_locked');
+            assertEqual(start_queue_num,0)
+            assertEqual(free_queue_num,1)
+            
+            % file unlocked
+            movefile(partialyWritten,mess_file);            
+            lock_starting = obj.build_fake_lock(server, 'data');
+            
+            [start_queue_num,free_queue_num]=client.list_queue_messages_pub(...
+                'data',1,5);
+            assertEqual(start_queue_num,-1)
+            assertEqual(free_queue_num,0)
+            
+            [start_queue_num,free_queue_num]=client.list_queue_messages_pub(...
+                'data',1,5,'-show_locked');
+            assertEqual(start_queue_num,0)
+            assertEqual(free_queue_num,1)
+            delete(lock_starting);
+            
+            mess.payload = 2;
+            % next message in the queue.
+            [ok, err] = server.send_message(5, mess);
+            assertEqual(ok, MESS_CODES.ok,['Error=',err])
+            
+            [start_queue_num,free_queue_num]=client.list_queue_messages_pub(...
+                'data',1,5);
+            assertEqual(start_queue_num,1)
+            assertEqual(free_queue_num,2)
+            
+            
+        end
+        
+        function test_ignore_locked(obj)
             % test verifies that filebased messages which have lock are not
             % observed by the system until unlocked.
             function del_file(fname)
@@ -267,7 +357,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertEqual(mid_from, 5);
             
             
-            lock_starting = this.build_fake_lock(mf, 'starting');
+            lock_starting = obj.build_fake_inverse_lock(mf, 'starting');
             clob_lock1 = onCleanup(@()del_file(lock_starting));
             
             [all_mess,mid_from] = mf.probe_all();
@@ -289,13 +379,13 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertEqual(mid_from, 5);
             
             % create fake lock:
-            lock_started = this.build_fake_lock(mf, 'started');
+            lock_started = obj.build_fake_inverse_lock(mf, 'started');
             clob_lock2 = onCleanup(@()del_file(lock_started));
             all_mess = mf.probe_all();
             assertTrue(isempty(all_mess));
             
             % create just lock (no file yet)
-            lock_running = this.build_fake_lock(mf, 'log');
+            lock_running = obj.build_fake_inverse_lock(mf, 'log');
             clob_lock3 = onCleanup(@()del_file(lock_running));
             
             all_mess = mf.probe_all();

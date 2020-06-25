@@ -1,6 +1,6 @@
 classdef JETesterSendData < JobExecutor
     % Class used to test job dispatcher functionality
-    % when data messages are exchenged doing data message-level 
+    % when data messages are exchenged doing data message-level
     % syncronization (messages send as ready and received when possible)
     %
     %
@@ -13,7 +13,7 @@ classdef JETesterSendData < JobExecutor
         partial_data_cache
         %
         log_step
-        log_step_count        
+        log_step_count
     end
     
     methods
@@ -79,18 +79,23 @@ classdef JETesterSendData < JobExecutor
             
             if task_num == 1
                 for j=1:obj.n_steps
+                    fprintf('******** STEP: %d\n',j)
+                    
                     all_mess = obj.mess_framework.receive_all('all','data');
                     disp(all_mess);
+                    for i=1:numel(all_mess)
+                        fprintf('%d  ',all_mess{i}.payload.step);
+                    end
+                    fprintf('\n');
                     accum = 0;
                     for i=1:numel(all_mess)
-                        accum = accum+sum(all_mess{i}.payload)/numel(all_mess{i}.payload);
+                        accum = accum+sum(all_mess{i}.payload.data)/numel(all_mess{i}.payload.data);
                     end
                     accum = accum/numel(all_mess); % should give step number as the result
                     fprintf(' step: %d; accum: %d\n',j,accum);
                     obj.partial_data_cache(j) = accum;
                     obj.log_step_count = obj.log_step_count+1;
-                    if obj.log_step_count >=obj.log_step
-                        
+                    if obj.log_step_count >=obj.log_step                        
                         mis.do_logging(j,obj.n_steps)
                         obj.log_step_count=0;
                     end
@@ -98,7 +103,8 @@ classdef JETesterSendData < JobExecutor
             else
                 me = DataMessage();
                 for i=1:obj.n_steps
-                    me.payload = obj.buffer*i;
+                    fprintf('\n******** STEP: %d\n',i)
+                    me.payload = struct('data',obj.buffer*i,'step',i);
                     obj.mess_framework.send_message(1,me);
                     obj.partial_data_cache(i) = i;
                     obj.log_step_count = obj.log_step_count+1;

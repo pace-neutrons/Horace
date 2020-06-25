@@ -310,7 +310,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             
             
             common_param = struct('data_buffer_size',10000000);
-            n_steps = 3;
+            n_steps = 30;
             [outputs, n_failed,~,jd] = jd.restart_job('JETesterWithData',...
                 common_param,n_steps*n_workers, true,true, 1);
             if n_failed>0
@@ -325,7 +325,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 assertEqualToTol(outputs{i},(n_steps+1)*n_steps/2);
             end
             
-            n_steps = 30;
+            n_steps = 3;
             [outputs, n_failed,~,jd] = jd.restart_job('JETesterWithData',...
                 common_param,n_steps*n_workers,true, true, 1);
             if n_failed>0

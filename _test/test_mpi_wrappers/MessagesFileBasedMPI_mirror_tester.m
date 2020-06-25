@@ -50,10 +50,10 @@ classdef MessagesFileBasedMPI_mirror_tester < MFTester
                 obj.mess_name_fun_(mess_name,lab_to,lab_from));
             
         end
-        function [start_queue_num,free_queue_num]=list_queue_messages(obj,mess_name,send_from,sent_to)
+        function [start_queue_num,free_queue_num]=list_queue_messages(obj,mess_name,send_from,sent_to,varargin)
             % overload list_queue_messages to do opposite transfer
             [start_queue_num,free_queue_num]=...
-                list_queue_messages@MessagesFilebased(obj,mess_name,sent_to,send_from);
+                list_queue_messages@MessagesFilebased(obj,mess_name,sent_to,send_from,varargin{:});
         end
         
     end

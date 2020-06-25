@@ -10,7 +10,7 @@ message=[];
 [from_task_id,mess_name,is_blocking]=obj.check_receive_inputs(from_task_id,varargin{:});
 %
 
-[is,err_code,err_mess] = check_job_canceled_(obj); % only framework dead 
+[is,err_code,err_mess] = check_job_canceled_(obj); % only framework dead
 %                        returns canceled, canceled message still can be
 %                        received.
 if is ; return; end
@@ -25,7 +25,7 @@ end
 
 mess_present= false;
 t0 = tic;
-while ~mess_present    
+while ~mess_present
     mess_name_present = obj.probe_all(from_task_id,mess_name);
     if ~isempty(mess_name_present )
         mess_present = true;
@@ -72,7 +72,7 @@ received = false;
 
 %deadlock_tries = 100;
 lock_(rlock_file);
-while ~received    
+while ~received
     try
         mesl = load(mess_fname);
         received = true;
@@ -96,8 +96,11 @@ obj.set_interrupt(message,from_task_id);
 from_data_queue = message.is_blocking;
 progress_queue = false;
 if from_data_queue
+    % here we use private function directly, as the class function in may be
+    % overloaded in mirror tester to change behaviour of send for test purposes.
+    % Message in receive always the same.
     first_queue_num = list_queue_messages_(obj.mess_exchange_folder,obj.job_id,...
-        message.mess_name,from_task_id,obj.labIndex);
+        message.mess_name,from_task_id,obj.labIndex,'-show_locked');
     if first_queue_num(1) >0
         progress_queue = true;
     end
@@ -105,7 +108,6 @@ end
 
 if progress_queue % prepare the next message to read -- the oldest message
     % written earlier
-    
     [fp,fn] = fileparts(mess_fname);
     next_mess_fname = fullfile(fp,[fn,'.',num2str(first_queue_num(1))]);
     
@@ -120,6 +122,13 @@ if progress_queue % prepare the next message to read -- the oldest message
         end
         lock_(rlock_fileQ);
         %
+        if ~(exist(next_mess_fname,'file')==2) % this may happen if lock
+            % has not be placed on file-system or have not been identified,
+            % but the message is still in the process of writing to. It has
+            % different extension during this process.
+            pause(obj.time_to_react_)
+            continue;
+        end
         [success,mess,mess_id]=movefile(next_mess_fname,mess_fname,'f');
         if ~success
             pause(obj.time_to_react_);
@@ -128,6 +137,11 @@ if progress_queue % prepare the next message to read -- the oldest message
                 error(mess_id,mess);
             end
             %clear target_unlocker;
+        end
+        present = exist(mess_fname,'file')==2;
+        while ~present
+            pause(obj.time_to_react_)
+            present = exist(mess_fname,'file')==2;
         end
         unlock_(rlock_fileQ);
     end

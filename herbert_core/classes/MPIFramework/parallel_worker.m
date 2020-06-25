@@ -91,7 +91,12 @@ end
 
 num_of_runs = 0;
 while keep_worker_running
-    if DO_LOGGING; num_of_runs = log_num_runs(num_of_runs); end
+    num_of_runs = num_of_runs+1;
+    if DO_LOGGING; log_num_runs(num_of_runs); end
+    fprintf('   ***************************************\n');
+    fprintf('   ******  LabN %d  : RUN N : %d  ********\n',intercomm.labIndex,num_of_runs);
+    fprintf('   ****************************************=\n');
+    
     %
     %% --------------------------------------------------------------------
     % 2) step 2 of the worker initialization.
@@ -315,14 +320,10 @@ end
         fprintf(fh,'      NumLabs        : %d:\n',intercomm.numLabs);
     end
 %
-    function num_of_runs = log_num_runs(num_of_runs)
-        num_of_runs = num_of_runs+1;
+    function log_num_runs(num_of_runs)
         fprintf(fh,'   ***************************************\n');
         fprintf(fh,'   ****** LabN %d  :  RUN N : %d  ********\n',intercomm.labIndex,num_of_runs);
         fprintf(fh,'   ****************************************=\n');
-        fprintf('   ***************************************\n');
-        fprintf('   ******  LabN %d  : RUN N : %d  ********\n',intercomm.labIndex,num_of_runs);
-        fprintf('   ****************************************=\n');
     end
 %
 %
