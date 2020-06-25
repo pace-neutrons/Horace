@@ -6,6 +6,24 @@ classdef PixelData < matlab.mixin.Copyable
 %   using the get_data() method (to retrive column data) or using the
 %   get_pixels() method (retrieve row data).
 %
+%   Construct this class with an 9 x N array, a file path to an SQW object or
+%   an instance of sqw_binfile_common.
+%
+%   >> pix_data = PixelData(data);
+%   >> pix_data = PixelData('/path/to/sqw.sqw');
+%   >> pix_data = PixelData('/path/to/sqw.sqw', mem_alloc);
+%   >> pix_data = PixelData(faccess_obj);
+%   >> pix_data = PixelData(faccess_obj, mem_alloc);
+%
+%   Constructing via a file or sqw_binfile_common will create a file-backed
+%   data object. No pixel data will be loaded from the file on construction.
+%   Data will be loaded when a getter is called e.g. pix_data.signal. Data will
+%   be loaded in pages such that the data held in memory will not exceed the
+%   size (in bytes) specified by private attribute page_memory_size_ - this can
+%   be set on construction (see mem_alloc above).
+%
+% Usage:
+%
 %   >> pix_data = PixelData(data)
 %   >> signal = pix_data.signal;
 %
@@ -25,6 +43,16 @@ classdef PixelData < matlab.mixin.Copyable
 %   >> pix_data = PixelData(data);
 %   >> pixel_subset = pix_data.get_pixels([1, 4, 10])
 %
+%  To sum the signal of a file-backed object where the page size is less than
+%  amount of data in the file:
+%
+%   >> pix = PixelData('my_data.sqw')
+%   >> signal_sum = 0;
+%   >> while pix.has_more()
+%   >>     signal_sum = signal_sum + pix.signal;
+%   >>     pix.advance();
+%   >> end
+%
 % Attributes:
 %   u1, u2, u3     The 1st, 2nd and 3rd dimension of the crystal coordinates in projection axes, units are per Angstrom (1 x n arrays)
 %   dE             The energy deltas of the pixels in meV (1 x n array)
@@ -38,6 +66,8 @@ classdef PixelData < matlab.mixin.Copyable
 %   num_pixels     The number of pixels in the data block
 %   data           The raw pixel data - usage of this attribute is discouraged, the structure
 %                  of the return value is not guaranteed
+%   page_size      The number of pixels in the currently loaded page
+%
 
 properties (Access=private)
     PIXEL_BLOCK_COLS_ = 9;
@@ -54,8 +84,8 @@ properties (Access=private)
 
     data_ = zeros(9, 0);
     f_accessor_;  % instance of faccess object to access pixel data from file
-    file_path_ = '';
-    page_memory_size_ = 1e9;  % 1Gb
+    file_path_ = '';  % the path to the file backing this object - empty string if all data in memory
+    page_memory_size_ = 3e9;  % 3Gb - the maximum amount of memory a page can use
     pix_position_ = 1;  % the pixel index in the file of the first pixel in the cache
     max_page_size_;  % the maximum number of pixels that can fie in the page memory size
 end
@@ -256,8 +286,9 @@ methods
     end
 
     function data = get_data(obj, fields, pix_indices)
-        % Retrive data for a field, or fields, for the given pixel indices. If
-        % no pixel indices are given, all pixels are returned.
+        % Retrive data for a field, or fields, for the given pixel indices in
+        % the current page. If no pixel indices are given, all pixels in the
+        % current page are returned.
         %
         % This method provides a convinient way of retrieving multiple fields
         % of data from the pixel block. When retrieving multiple fields, the
@@ -300,8 +331,8 @@ methods
     end
 
     function pixels = get_pixels(obj, pix_indices)
-        % Retrieve the pixels at the given indices, return a new PixelData
-        % object
+        % Retrieve the pixels at the given indices in the current page, return
+        % a new PixelData object
         %
         % Input:
         % ------
@@ -337,16 +368,6 @@ methods
 
     function obj = advance(obj)
         % Load the next page of pixel data from the file backing the object
-        %
-        % An example of using this to loop over and sum all signal data in an
-        % SQW file:
-        %
-        %   pix = PixelData('my_data.sqw')
-        %   signal_sum = 0
-        %   while pix.has_more()
-        %       signal_sum = signal_sum + pix.signal;
-        %       pix.advance();
-        %   end
         %
         % This function will throw a PIXELDATA:advance error if attempting to
         % advance past the final page of data in the file
@@ -515,32 +536,36 @@ methods (Access = private)
     end
 
     function obj = load_page_(obj, pix_idx_start)
+        % Load a page of data from the file starting at the given index
         if pix_idx_start >= obj.num_pixels
-            error('PIXELDATA:load_page_', 'No more pixel data to read from file');
+            error('PIXELDATA:load_page_', ...
+                  'pix_idx_start exceeds number of pixels in file. %i >= %i', ...
+                  pix_idx_start, obj.num_pixels);
         end
+        % Get the index of the final pixel to read given the maximum page size
         pix_idx_end = pix_idx_start + obj.max_page_size_ - 1;
         if pix_idx_end > obj.num_pixels
             pix_idx_end = obj.num_pixels;
         end
+
         obj.data = obj.f_accessor_.get_pix(pix_idx_start, pix_idx_end);
         if obj.page_size == obj.num_pixels && obj.f_accessor_.is_activated()
-            % close the file if all pixels have been read
+            % Close the file if all pixels have been read
             obj.f_accessor_.deactivate();
         end
         obj.pix_position_ = pix_idx_start;
     end
 
     function obj = load_first_page_if_data_empty_(obj)
+        % Check if there's any data in the current page and load a page if not
         if isempty(obj.data_) && ~isempty(obj.f_accessor_)
             obj = obj.load_page_(1);
         end
     end
 
-    % function flush_cache_(obj)
-    %     obj.data = [];
-    % end
-
     function page_size = get_max_page_size_(obj, mem_alloc)
+        % Get the maximum number of pixels that can be held in a page that's
+        % allocated 'mem_alloc' bytes
         num_bytes_in_val = 8;  % pixel data stored in memory as a double
         num_bytes_in_pixel = num_bytes_in_val*obj.PIXEL_BLOCK_COLS_;
         page_size = floor(mem_alloc/num_bytes_in_pixel);
