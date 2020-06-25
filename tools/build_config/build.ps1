@@ -3,8 +3,8 @@
   This script is used to build, test and package Herbert on Windows.
 
 .DESCRIPTION
-  This script requires Matlab, Visual Studio, CMake and CTest be installed on
-  your system and be available on the path.
+  This script requires Matlab, Visual Studio, CMake>=3.7 and CTest be installed
+  on your system and available on the path.
 
   Use "Get-Help ./build.ps1 -Detailed" for parameter descriptions.
 
@@ -78,7 +78,7 @@ if ($args) {
   throw "$error_msg"
 }
 
-if ($help) {
+if ($help -or $PSBoundParameters.Values.Count -eq 0) {
   Get-Help "$PSCommandPath"
   exit 0
 }
