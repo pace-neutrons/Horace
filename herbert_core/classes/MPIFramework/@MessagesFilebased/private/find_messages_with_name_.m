@@ -6,7 +6,7 @@ function [all_messages,mid_from] = find_messages_with_name_(obj,task_ids_request
 %
 %
 lab_num = obj.labIndex;
-mess_files_list = arrayfun(@(tid)job_stat_fname_(obj,lab_num,mess_name,tid),...
+mess_files_list = arrayfun(@(tid)job_stat_fname_(obj,lab_num,mess_name,tid,false),...
     task_ids_requested,'UniformOutput',false);
 %
 % check if the messages are indeed present

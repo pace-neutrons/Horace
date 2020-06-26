@@ -252,12 +252,12 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             assertTrue(exist(file2, 'file') == 2);
             assertTrue(exist(file3, 'file') == 2);
             
-            if is_jenkins && isa(obj, 'test_job_dispatcher_herbert')
-                warning('Asynchroneous filebased data exchange test is disabled ');
-                return;
-            elseif isa(obj, 'test_job_dispatcher_herbert')
-                warning('Asynchroneous filebased data exchange test is unreliable');
-            end
+%             if is_jenkins && isa(obj, 'test_job_dispatcher_herbert')
+%                 warning('Asynchroneous filebased data exchange test is disabled ');
+%                 return;
+%             elseif isa(obj, 'test_job_dispatcher_herbert')
+%                 warning('Asynchroneous filebased data exchange test is unreliable');
+%             end
             
             
             n_steps = 30;
@@ -332,12 +332,12 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 end
                 assertEqualToTol(outputs{i},(n_steps+1)*n_steps/2);
             end
-            if is_jenkins && isa(obj, 'test_job_dispatcher_herbert')
-                warning('Asynchroneous filebased data exchange test is disabled ');
-                return;
-            elseif isa(obj, 'test_job_dispatcher_herbert')
-                warning('Asynchroneous filebased data exchange test is unreliable');
-            end
+%             if is_jenkins && isa(obj, 'test_job_dispatcher_herbert')
+%                 warning('Asynchroneous filebased data exchange test is disabled ');
+%                 return;
+%             elseif isa(obj, 'test_job_dispatcher_herbert')
+%                 warning('Asynchroneous filebased data exchange test is unreliable');
+%             end
             
             n_steps = 3;
             [outputs, n_failed,~,jd] = jd.restart_job('JETesterWithData',...

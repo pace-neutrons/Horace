@@ -44,59 +44,6 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertTrue(ok);
         end
         %
-        function test_message(this)
-            fiis = iMessagesFramework.build_worker_init(this.working_dir, ...
-                'test_message', 'MessagesFilebased', 0, 3);
-            fii = iMessagesFramework.deserialize_par(fiis);
-            
-            %
-            job_param = struct('filepath', this.working_dir, ...
-                'filename_template', 'test_jobDispatcher%d_nf%d.txt');
-            
-            mess = aMessage('starting');
-            mess.payload = job_param;
-            
-            mf0 = MFTester(fii);
-            clob = onCleanup(@()mf0.finalize_all());
-            [ok, err] = mf0.send_message(1, mess);
-            assertEqual(ok, MESS_CODES.ok)
-            assertTrue(isempty(err));
-            
-            mess_fname = mf0.mess_file_name(1, 'starting');
-            assertTrue(exist(mess_fname, 'file') == 2);
-            %
-            fii.labID = 1;
-            mf1 = MFTester(fii);
-            [ok, err, the_mess] = mf1.receive_message(0, 'starting');
-            assertEqual(ok, MESS_CODES.ok)
-            assertTrue(isempty(err));
-            assertFalse(exist(mess_fname, 'file') == 2); % Message received
-            
-            cont = the_mess.payload;
-            assertEqual(job_param,cont);
-            
-            init_mess = InitMessage('some init info');
-            [ok,err] = mf0.send_message(1,init_mess);
-            assertEqual(ok,MESS_CODES.ok)
-            assertTrue(isempty(err));
-            
-            [ok,err,the_mess]=mf1.receive_message(0,'init');
-            assertEqual(ok,MESS_CODES.ok)
-            assertTrue(isempty(err));
-            assertEqual(the_mess.payload.common_data,'some init info');
-            
-            
-            
-            [all_messages_names,task_ids] = mf1.probe_all(0,'log');
-            assertTrue(isempty(all_messages_names));
-            assertTrue(isempty(task_ids));
-            
-            
-            job_exchange_folder = fileparts(mess_fname);
-            assertTrue(exist(job_exchange_folder, 'dir') == 7)
-            mf0.finalize_all();
-            assertFalse(exist(job_exchange_folder, 'dir') == 7)
-        end
         %
         function test_receive_all_mess_client_server(this)
             fii = iMessagesFramework.build_worker_init(this.working_dir, ...
@@ -227,8 +174,8 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             % file write lock build when message is send , but for
             % mirrored target i.e. when send message is actually reflacted
             % from target and written as if send back from target.
-            mess_file = fullfile(mf.mess_exchange_folder,...
-                mf.inverse_fname_f(mess_name,5,mf.labIndex));
+            mess_file = ...
+                mf.inverse_fname_f(mess_name,5,mf.labIndex);
             
             [fp, fn] = fileparts(mess_file);
             lock_file = fullfile(fp, [fn, '.lockw']);
@@ -247,81 +194,76 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
         end
         
         
-        function test_show_locked_and_queue(obj)
-            % test verifies that filebased data messages which have lock are
-            % shown on request (actually) any messages are visible
-            function del_file(fname)
-                if exist(fname, 'file') == 2
-                    delete(fname);
-                end
-            end
-            cs  = iMessagesFramework.build_worker_init(tmp_dir, ...
-                'MFT_show_locked_and_queue', 'MessagesFilebased', 1, 5,'test_mode');
-            server = MFTester(cs);
-            clob = onCleanup(@()(server.finalize_all()));
-            server.time_to_fail=1;
-            cs  = iMessagesFramework.build_worker_init(tmp_dir, ...
-                'MFT_show_locked_and_queue', 'MessagesFilebased', 5, 5,'test_mode');
-            client = MFTester(cs);
-            client.time_to_fail=1;
-            
-            
-            all_mess = client.probe_all(5);
-            assertTrue(isempty(all_mess));
-            
-            
-            mess = DataMessage();
-            mess.payload = 1;
-            % send message to itself
-            [ok, err] = server.send_message(5, mess);
-            assertEqual(ok, MESS_CODES.ok,['Error=',err])
-            
-            [start_queue_num,free_queue_num]=client.list_queue_messages_pub(...
-                'data',1,5);
-            assertEqual(start_queue_num,0)
-            assertEqual(free_queue_num,1)
-            
-            mess_file = server.mess_file_name(5,'data');
-            [fp,fn,fe]= fileparts(mess_file);
-            partialyWritten = fullfile(fp,[fn,'.tmp_',fe(2:end)]);
-            movefile(mess_file,partialyWritten);
-            [start_queue_num,free_queue_num]=client.list_queue_messages_pub(...
-                'data',1,5);
-            assertEqual(start_queue_num,-1)
-            assertEqual(free_queue_num,0)
-            
-            [start_queue_num,free_queue_num]=client.list_queue_messages_pub(...
-                'data',1,5,'-show_locked');
-            assertEqual(start_queue_num,0)
-            assertEqual(free_queue_num,1)
-            
-            % file unlocked
-            movefile(partialyWritten,mess_file);            
-            lock_starting = obj.build_fake_lock(server, 'data');
-            
-            [start_queue_num,free_queue_num]=client.list_queue_messages_pub(...
-                'data',1,5);
-            assertEqual(start_queue_num,-1)
-            assertEqual(free_queue_num,0)
-            
-            [start_queue_num,free_queue_num]=client.list_queue_messages_pub(...
-                'data',1,5,'-show_locked');
-            assertEqual(start_queue_num,0)
-            assertEqual(free_queue_num,1)
-            delete(lock_starting);
-            
-            mess.payload = 2;
-            % next message in the queue.
-            [ok, err] = server.send_message(5, mess);
-            assertEqual(ok, MESS_CODES.ok,['Error=',err])
-            
-            [start_queue_num,free_queue_num]=client.list_queue_messages_pub(...
-                'data',1,5);
-            assertEqual(start_queue_num,1)
-            assertEqual(free_queue_num,2)
-            
-            
-        end
+%         function test_show_locked_and_queue(obj)
+%             % test verifies that filebased data messages which have lock are
+%             % shown on request (actually) any messages are visible
+%             cs  = iMessagesFramework.build_worker_init(tmp_dir, ...
+%                 'MFT_show_locked_and_queue', 'MessagesFilebased', 1, 5,'test_mode');
+%             server = MFTester(cs);
+%             clob = onCleanup(@()(server.finalize_all()));
+%             server.time_to_fail=1;
+%             cs  = iMessagesFramework.build_worker_init(tmp_dir, ...
+%                 'MFT_show_locked_and_queue', 'MessagesFilebased', 5, 5,'test_mode');
+%             client = MFTester(cs);
+%             client.time_to_fail=1;
+%             
+%             
+%             all_mess = client.probe_all(5);
+%             assertTrue(isempty(all_mess));
+%             
+%             
+%             mess = DataMessage();
+%             mess.payload = 1;
+%             % send message to itself
+%             [ok, err] = server.send_message(5, mess);
+%             assertEqual(ok, MESS_CODES.ok,['Error=',err])
+%             
+%             [start_queue_num,free_queue_num]=client.list_queue_messages_pub(...
+%                 'data',1,5);
+%             assertEqual(start_queue_num,0)
+%             assertEqual(free_queue_num,1)
+%             
+%             mess_file = server.mess_file_name(5,'data');
+%             [fp,fn,fe]= fileparts(mess_file);
+%             partialyWritten = fullfile(fp,[fn,'.tmp_',fe(2:end)]);
+%             movefile(mess_file,partialyWritten);
+%             [start_queue_num,free_queue_num]=client.list_queue_messages_pub(...
+%                 'data',1,5);
+%             assertEqual(start_queue_num,-1)
+%             assertEqual(free_queue_num,0)
+%             
+%             [start_queue_num,free_queue_num]=client.list_queue_messages_pub(...
+%                 'data',1,5,'-show_locked');
+%             assertEqual(start_queue_num,0)
+%             assertEqual(free_queue_num,1)
+%             
+%             % file unlocked
+%             movefile(partialyWritten,mess_file);            
+%             lock_starting = obj.build_fake_lock(server, 'data');
+%             
+%             [start_queue_num,free_queue_num]=client.list_queue_messages_pub(...
+%                 'data',1,5);
+%             assertEqual(start_queue_num,-1)
+%             assertEqual(free_queue_num,0)
+%             
+%             [start_queue_num,free_queue_num]=client.list_queue_messages_pub(...
+%                 'data',1,5,'-show_locked');
+%             assertEqual(start_queue_num,0)
+%             assertEqual(free_queue_num,1)
+%             delete(lock_starting);
+%             
+%             mess.payload = 2;
+%             % next message in the queue.
+%             [ok, err] = server.send_message(5, mess);
+%             assertEqual(ok, MESS_CODES.ok,['Error=',err])
+%             
+%             [start_queue_num,free_queue_num]=client.list_queue_messages_pub(...
+%                 'data',1,5);
+%             assertEqual(start_queue_num,1)
+%             assertEqual(free_queue_num,2)
+%             
+%             
+%         end
         
         function test_ignore_locked(obj)
             % test verifies that filebased messages which have lock are not
@@ -857,6 +799,61 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertTrue(isempty(mid_from))
         end
         %
+        
+        function test_message(this)
+            fiis = iMessagesFramework.build_worker_init(this.working_dir, ...
+                'test_message', 'MessagesFilebased', 0, 3);
+            fii = iMessagesFramework.deserialize_par(fiis);
+            
+            %
+            job_param = struct('filepath', this.working_dir, ...
+                'filename_template', 'test_jobDispatcher%d_nf%d.txt');
+            
+            mess = aMessage('starting');
+            mess.payload = job_param;
+            
+            mf0 = MFTester(fii);
+            clob = onCleanup(@()mf0.finalize_all());
+            [ok, err] = mf0.send_message(1, mess);
+            assertEqual(ok, MESS_CODES.ok)
+            assertTrue(isempty(err));
+            
+            mess_fname = mf0.mess_file_name(1, 'starting');
+            assertTrue(exist(mess_fname, 'file') == 2);
+            %
+            fii.labID = 1;
+            mf1 = MFTester(fii);
+            [ok, err, the_mess] = mf1.receive_message(0, 'starting');
+            assertEqual(ok, MESS_CODES.ok)
+            assertTrue(isempty(err));
+            assertFalse(exist(mess_fname, 'file') == 2); % Message received
+            
+            cont = the_mess.payload;
+            assertEqual(job_param,cont);
+            
+            init_mess = InitMessage('some init info');
+            [ok,err] = mf0.send_message(1,init_mess);
+            assertEqual(ok,MESS_CODES.ok)
+            assertTrue(isempty(err));
+            
+            [ok,err,the_mess]=mf1.receive_message(0,'init');
+            assertEqual(ok,MESS_CODES.ok)
+            assertTrue(isempty(err));
+            assertEqual(the_mess.payload.common_data,'some init info');
+            
+            
+            
+            [all_messages_names,task_ids] = mf1.probe_all(0,'log');
+            assertTrue(isempty(all_messages_names));
+            assertTrue(isempty(task_ids));
+            
+            
+            job_exchange_folder = fileparts(mess_fname);
+            assertTrue(exist(job_exchange_folder, 'dir') == 7)
+            mf0.finalize_all();
+            assertFalse(exist(job_exchange_folder, 'dir') == 7)
+        end
+        
         function test_transfer_init_and_config(obj, varargin)
             
             if nargin > 1
@@ -952,6 +949,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             
             r_config_folder = config_store.instance().config_folder;
             assertEqual(r_config_folder, remote_config_folder);
-        end
+        end        
+        
     end
 end

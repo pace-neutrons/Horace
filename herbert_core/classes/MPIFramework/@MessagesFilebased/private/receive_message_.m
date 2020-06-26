@@ -61,14 +61,21 @@ end
 
 
 % take only the first message directed to this lab
-mess_fname = obj.job_stat_fname_(obj.labIndex,mess_name_present{1},from_task_id);
+mess_fname = obj.job_stat_fname_(obj.labIndex,mess_name_present{1},from_task_id,false);
 %
 % safeguard against message start being written up
 % but have not finished yet when other worker asks for it
 n_attempts = 0;
 try_limit = 100;
 received = false;
-[rlock_file,~] = build_lock_fname_(mess_fname);
+[rlock_file,wlock_file] = build_lock_fname_(mess_fname);
+%
+while exist(wlock_file,'file')==2 % wait until message is writing. CAN IT LOCK wlock_file deleteon?
+    % Should not be necessary as probe_all messages above should not pick up 
+    % locked files, buit in reality write_lock may appear on system after
+    % the data file, this check may be useful. 
+    pause(obj.time_to_react_);
+end
 
 %deadlock_tries = 100;
 lock_(rlock_file);
@@ -93,61 +100,11 @@ obj.set_interrupt(message,from_task_id);
 
 % check if a message is from the data queue and we need to progress the data
 % queue
-from_data_queue = message.is_blocking;
-progress_queue = false;
-if from_data_queue
-    % here we use private function directly, as the class function in may be
-    % overloaded in mirror tester to change behaviour of send for test purposes.
-    % Message in receive always the same.
-    first_queue_num = list_queue_messages_(obj.mess_exchange_folder,obj.job_id,...
-        message.mess_name,from_task_id,obj.labIndex,'-show_locked');
-    if first_queue_num(1) >0
-        progress_queue = true;
-    end
+if message.is_blocking
+   obj.receive_data_messages_count_(from_task_id+1)=obj.receive_data_messages_count_(from_task_id+1)+1;
 end
 
-if progress_queue % prepare the next message to read -- the oldest message
-    % written earlier
-    [fp,fn] = fileparts(mess_fname);
-    next_mess_fname = fullfile(fp,[fn,'.',num2str(first_queue_num(1))]);
-    
-    [rlock_fileQ,wlock_fileQ] = build_lock_fname_(next_mess_fname);
-    success = false;
-    n_attempts = 0;
-    while ~success
-        % next queue file may be in process of writing to.
-        if exist(wlock_fileQ,'file') == 2
-            pause(obj.time_to_react_)
-            continue;
-        end
-        lock_(rlock_fileQ);
-        %
-        if ~(exist(next_mess_fname,'file')==2) % this may happen if lock
-            % has not be placed on file-system or have not been identified,
-            % but the message is still in the process of writing to. It has
-            % different extension during this process.
-            pause(obj.time_to_react_)
-            continue;
-        end
-        [success,mess,mess_id]=movefile(next_mess_fname,mess_fname,'f');
-        if ~success
-            pause(obj.time_to_react_);
-            n_attempts = n_attempts+1;
-            if n_attempts > try_limit
-                error(mess_id,mess);
-            end
-            %clear target_unlocker;
-        end
-        present = exist(mess_fname,'file')==2;
-        while ~present
-            pause(obj.time_to_react_)
-            present = exist(mess_fname,'file')==2;
-        end
-        unlock_(rlock_fileQ);
-    end
-    unlock_(rlock_file);
-else
-    unlock_(mess_fname); % fancy command to delete file
-    unlock_(rlock_file);
-    %pause(0.1);
-end
+unlock_(mess_fname); % fancy command to delete file
+unlock_(rlock_file);
+%pause(0.1);
+

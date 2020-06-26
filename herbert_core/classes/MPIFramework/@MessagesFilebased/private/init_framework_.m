@@ -52,4 +52,11 @@ else % Slave node. Needs correct framework_info for initialization
 end
 
 obj.mess_exchange_folder = job_folder;
+% initialize counter of send/receive synchroneous data messages to 1; 
+% the size of counters buffer is numLabs+1 as we may want to communicate
+% with node 0;
+obj.send_data_messages_count_ = ones(1,obj.numLabs+1);
+obj.receive_data_messages_count_ = ones(1,obj.numLabs+1);
+
+
 

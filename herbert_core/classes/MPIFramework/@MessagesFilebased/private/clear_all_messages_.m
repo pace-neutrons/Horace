@@ -20,7 +20,7 @@ while ~finished
     end
     
     for i=1:numel(mid_from) % delete messages files
-        mess_fname = obj.job_stat_fname_(obj.labIndex,all_messages{i},mid_from(i));
+        mess_fname = obj.job_stat_fname_(obj.labIndex,all_messages{i},mid_from(i),false);
         if exist(mess_fname,'file') == 2
             delete(mess_fname);        
         end
@@ -29,3 +29,9 @@ while ~finished
         end
     end
 end
+% initialize counter of send/receive synchroneous data messages to 1; 
+% the size of counters buffer is numLabs+1 as we may want to communicate
+% with node 0;
+obj.send_data_messages_count_ = ones(1,obj.numLabs+1);
+obj.receive_data_messages_count_ = ones(1,obj.numLabs+1);
+

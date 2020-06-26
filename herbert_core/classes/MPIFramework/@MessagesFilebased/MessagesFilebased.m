@@ -43,6 +43,12 @@ classdef MessagesFilebased < iMessagesFramework
         % true if framework is tested, i.e. running on single session, not
         % really communicating with with independent workers.
         is_tested_ = false;
+        
+        % the buffer to count send and receive data messages, Used to keep
+        % information about number of synchronous data messages send and
+        % received.
+        send_data_messages_count_;
+        receive_data_messages_count_;
     end
     %----------------------------------------------------------------------
     methods
@@ -90,6 +96,9 @@ classdef MessagesFilebased < iMessagesFramework
             % is an MPI-based framework
             obj.task_id_ = labNum;
             obj.numLabs_ = NumLabs;
+            obj.send_data_messages_count_ = ones(1,NumLabs+1);
+            obj.receive_data_messages_count_ = ones(1,NumLabs+1);
+
         end
         %
         function set.mess_exchange_folder(obj,val)
@@ -132,6 +141,7 @@ classdef MessagesFilebased < iMessagesFramework
             % >>ok  if true, says that message have been successfully send to a
             % >>    task with id==1. (not received)
             % >>    if false, error_mess indicates reason for failure
+            %
             %
             [ok,err_mess,wlock_obj] = send_message_(obj,task_id,message);
         end
@@ -367,14 +377,28 @@ classdef MessagesFilebased < iMessagesFramework
     end
     %----------------------------------------------------------------------
     methods (Access=protected)
-        function mess_fname = job_stat_fname_(obj,lab_to,mess_name,lab_from)
+        function mess_fname = job_stat_fname_(obj,lab_to,mess_name,lab_from,varargin)
             %build filename for a specific message
+            % Inputs:
+            % lab_to    -- the address of the lab to send message to.
+            % mess_name -- the name of the message to send
+            % lab_from  -- if present, the number of the lab to send
+            %              message from, if not there, from this lab
+            %              assumed
+            % sender     -- make sence for data messages only, as they
+            %               have to be numbered, and each send must meet
+            %               its receiver.
+            %               if true, defines data message name for sender.
+            %               false - for received.
             if ~exist('lab_from','var')
                 lab_from = obj.labIndex;
             end
-            mess_fname= fullfile(obj.mess_exchange_folder,...
-                sprintf('mess_%s_FromN%d_ToN%d.mat',...
-                mess_name,lab_from,lab_to));
+            if nargin < 5
+                is_sender = true;
+            else
+                is_sender = varargin{1};
+            end
+            mess_fname = MessagesFilebased.mess_fname_(obj,lab_to,mess_name,lab_from,is_sender);
         end
         %
         function    [receive_now,n_steps] = check_whats_coming(obj,task_ids,mess_name,mess_array,n_steps)
@@ -459,11 +483,11 @@ classdef MessagesFilebased < iMessagesFramework
             % mess_name   -- the name of the messages in the queue
             % send_from   -- the number of job (lab) the messages should be send
             % sent_to     -- the number of job (lab) the messages should be directed.
-            % Optional: 
+            % Optional:
             % '-show_locked' -- the key, which allows to show messages
             %                 currently in the process of writing by other
             %                 workers. By default, locked messages are not
-            %                 shown. 
+            %                 shown.
             % Outputs:
             % start_queue_num -- the number of the first message to pop from the queue.
             % free_queue_num  -- the number of the free space in the queue, i.e. the
@@ -472,6 +496,39 @@ classdef MessagesFilebased < iMessagesFramework
             [start_queue_num,free_queue_num]=...
                 list_queue_messages_(obj.mess_exchange_folder,obj.job_id,...
                 mess_name,send_from,sent_to,varargin{:});
+        end
+        
+    end
+    methods(Static,Access=protected)
+        function mess_fname = mess_fname_(obj,lab_to,mess_name,lab_from,is_sender)
+            % Build filename for a specific message.
+            % Inputs:
+            % lab_to    -- the address of the lab to send message to.
+            % mess_name -- the name of the message to send
+            % lab_from  -- if present, the number of the lab to send
+            %              message from, if not there, from this lab
+            %              assumed
+            % is_sender     -- make sence for data messages only (blocking messages)
+            %               , as they  have to be numbered, and each send 
+            %               must meet its receiver without overtaking. 
+            %
+            %               if true, defines data message name for sender.
+            %               false - for received.
+            % Returns 
+            if MESS_NAMES.is_blocking(mess_name)
+                if is_sender
+                    mess_num = obj.send_data_messages_count_(lab_to+1);
+                else %receiving
+                    mess_num = obj.receive_data_messages_count_(lab_from+1);
+                end
+                mess_fname = fullfile(obj.mess_exchange_folder,...
+                    sprintf('mess_%s_FromN%d_ToN%d_MN%d.mat',...
+                    mess_name,lab_from,lab_to,mess_num));
+            else
+                mess_fname= fullfile(obj.mess_exchange_folder,...
+                    sprintf('mess_%s_FromN%d_ToN%d.mat',...
+                    mess_name,lab_from,lab_to));
+            end
         end
         
     end
