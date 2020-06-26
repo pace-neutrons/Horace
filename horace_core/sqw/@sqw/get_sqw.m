@@ -8,7 +8,6 @@ function [mess,main_header,header,detpar,data,position,npixtot,data_type,file_fo
 %   >> [...] = get_sqw (sqw,infile, '-hverbatim')
 %   >> [...] = get_sqw (sqw,infile, '-hisverbatim')
 %   >> [...] = get_sqw (sqw,infile, '-nopix')
-%   >> [...] = get_sqw (sqw,infile, npix_lo, npix_hi)
 %
 % Input:
 % --------
@@ -30,9 +29,6 @@ function [mess,main_header,header,detpar,data,position,npixtot,data_type,file_fo
 %                   '-nopix'        Pixel information not read (only meaningful for sqw data type 'a')
 %
 %               Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
-%
-%   npix_lo     -|- [optional] pixel number range to be read from the file
-%   npix_hi     -|
 %
 %
 % Output:
@@ -73,7 +69,7 @@ function [mess,main_header,header,detpar,data,position,npixtot,data_type,file_fo
 %
 %   npixtot     Total number of pixels written to file (=[] if pix not present in the file)
 %
-%   data_type   Type of sqw data written in the file 
+%   data_type   Type of sqw data written in the file
 %                   type 'b'    fields: filename,...,dax,s,e
 %                   type 'b+'   fields: filename,...,dax,s,e,npix
 %                   type 'a'    fields: filename,...,dax,s,e,npix,urange,pix
@@ -84,7 +80,7 @@ function [mess,main_header,header,detpar,data,position,npixtot,data_type,file_fo
 %   file_format     Format of file
 %                       Current formats:  '-v2', '-v3'
 %                       Obsolete formats: '-prototype'
-% 
+%
 %
 % NOTES:
 % ======

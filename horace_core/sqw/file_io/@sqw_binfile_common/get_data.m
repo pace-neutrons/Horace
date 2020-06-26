@@ -9,7 +9,6 @@ function [data,obj] = get_data (obj,varargin)
 %
 %   >> data = obj.get_data()
 %   >> data = obj.get_data(opt)
-%   >> data = obj.get_data(npix_lo, npix_hi)
 %
 % Input:
 % ------
@@ -29,11 +28,6 @@ function [data,obj] = get_data (obj,varargin)
 %                            going to be created. May be removed in a future.
 %
 %               Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
-%
-%   npix_lo     -|- [optional] pixel number range to be read from the file (only applies to type 'a')
-%   npix_hi     -|
-%
-
 %
 % Output:
 % -------
@@ -137,30 +131,6 @@ if header_only || noclass
 end
 data = data_sqw_dnd(data_str);
 
-if numel(argi)>0
-    if ~isnumeric(argi{1})
-        error('SQW_BINFILE_COMMON:invalid_argument',...
-            'get_data: invalid argument %s',argi{1})
-    end
-    npix_lo = argi{1};
-    if numel(argi)>1
-        if ~isnumeric(argi{2})
-            error('SQW_BINFILE_COMMON:invalid_argument',...
-                'get_data: invalid argument %s',argi{1})
-        end
-        npix_hi = argi{2};
-    end
-end
-
-
-
 if ~nopix
-    if ~exist('npix_lo','var')
-        npix_lo = 1;
-    end
-    if ~exist('npix_hi','var')
-        npix_hi = obj.npixels;
-    end
-    data.pix = obj.get_pix(npix_lo,npix_hi);
+    data.pix = PixelData(obj);
 end
-

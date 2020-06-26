@@ -22,6 +22,9 @@ if ~ok
         'SQW_BINFILE_COMMON::put_pix: %s',mess);
 end
 
+if ~obj.is_activated('write')
+    obj = obj.activate('write');
+end
 
 obj.check_obj_initated_properly();
 
@@ -168,6 +171,10 @@ else % write pixels directly
     if npix_to_write <=block_size
         if write_all
             fwrite(obj.file_id_,input_obj.pix.data,'float32');
+            while input_obj.pix.has_more()
+                input_obj.pix.advance();
+                fwrite(obj.file_id_,input_obj.pix.data,'float32');
+            end
         else
             fwrite(obj.file_id_,input_obj.pix.get_pixels(npix_lo:npix_hi).data,'float32');
         end

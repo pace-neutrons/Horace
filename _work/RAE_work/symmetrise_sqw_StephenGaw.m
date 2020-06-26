@@ -28,7 +28,7 @@ function wout=symmetrise_sqw_corrected_2(win,v1,v2,v3)
 %==============================
 %Some checks on the inputs:
 win=sqw(win);
-wout=win;
+wout = copy(win);
 
 if numel(win)~=1
     error('Horace error: symmetrisation only implemented for single sqw object, not arrays of objects. Use a for-loop to deal with arrays');

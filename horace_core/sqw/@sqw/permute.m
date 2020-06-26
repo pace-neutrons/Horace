@@ -23,7 +23,7 @@ function wout = permute (win, order)
 %
 %
 % Example: if input object is 3D
-%   >> wout = permute (win, [3,1,2]) % the current 3rd, 1st and 2nd display axes 
+%   >> wout = permute (win, [3,1,2]) % the current 3rd, 1st and 2nd display axes
 %                                    % become the 1st, 2nd and 3rd of the output object
 %
 %   >> wout = permute (win)          % equivalent to permute(win,[2,3,1])
@@ -46,7 +46,7 @@ end
 
 if ~exist('order','var')
     if ndim<=1
-        wout = win;     % nothing to permute
+        wout = copy(win);     % nothing to permute
         return
     else
         order = [linspace(2,ndim,ndim-1),1];
@@ -63,9 +63,9 @@ end
 
 % Permute data array
 if isequal(order,(1:ndim))      % order is unchanged
-    wout = win;
+    wout = copy(win);
 else
-    wout = win;
+    wout = copy(win);
     for i=1:numel(win)
         wout(i).data.dax = win(i).data.dax(order);
     end

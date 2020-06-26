@@ -29,7 +29,7 @@ if ~is_sqw_type(win);
 end
 
 % Initialise output argument
-wout = win;
+wout = copy(win);
 
 
 %Check size of input array:

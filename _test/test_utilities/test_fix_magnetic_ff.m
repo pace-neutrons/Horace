@@ -4,33 +4,31 @@ classdef test_fix_magnetic_ff< TestCase
     %
 
     properties
-        tests_folder
+        tests_folder = fileparts(fileparts(mfilename('fullpath')));
         sample_sqw;
+        sample_sqw_const;
     end
     methods
         %
         function this=test_fix_magnetic_ff(varargin)
-
             if nargin>0
                 name = varargin{1};
             else
                 name = 'test_correct_magnetif_ff';
             end
             this = this@TestCase(name);
-            this.tests_folder = fileparts(fileparts(mfilename('fullpath')));
 
-            persistent sample_sqw_;
-            if isempty(sample_sqw_)
-                en = -1:1:50;
-                par_file = fullfile(this.tests_folder,'common_data','gen_sqw_96dets.nxspe');
-
-                fsqw = fake_sqw (en, par_file, '', 51, 1,[2.8,3.86,4.86], [120,80,90],...
-                    [1,0,0],[0,1,0], 10, 1.,0.1, -0.1, 0.1, [50,50,50,50]);
-                sample_sqw_ = fsqw{1};
-
-            end
-            this.sample_sqw = sample_sqw_;
+            en = -1:1:50;
+            par_file = fullfile(this.tests_folder,'common_data','gen_sqw_96dets.nxspe');
+            fsqw = fake_sqw (en, par_file, '', 51, 1,[2.8,3.86,4.86], [120,80,90],...
+                             [1,0,0],[0,1,0], 10, 1.,0.1, -0.1, 0.1, [50,50,50,50]);
+            this.sample_sqw_const = copy(fsqw{1});
         end
+        %
+        function obj = setUp(obj)
+            obj.sample_sqw = copy(obj.sample_sqw_const);
+        end
+
         % tests themself
         function test_magnetic_Ions(this)
             mi = MagneticIons();

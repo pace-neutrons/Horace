@@ -60,7 +60,7 @@ for i=1:numel(win)
 end
 
 % Shift the energy bins
-wout = win;
+wout = copy(win);
 if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
 
 for i=1:numel(win)

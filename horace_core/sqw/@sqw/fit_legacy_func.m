@@ -423,7 +423,7 @@ args=multifit_gateway_wrap_functions (varargin,pos,func,plist,bpos,bfunc,bplist,
                                                     @func_eval,{},@func_eval,{});
 
 % Evaluate function for each element of the array of objects
-wout=win;
+wout = copy(win);
 fitdata=repmat(struct,size(wout));  % array of empty structures
 ok=false(size(wout));
 mess=cell(size(wout));
