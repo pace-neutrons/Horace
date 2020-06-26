@@ -226,7 +226,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             assertTrue(bin_file.is_activated('read'));
             assertFalse(bin_file.is_activated('write'));
 
-            [~, permission] = obj.get_file_id_from_path(file_path);
+            permission = obj.get_opened_file_permission(file_path);
             assertEqual(permission, 'rb');
         end
 
@@ -244,7 +244,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             assertTrue(bin_file.is_activated('read'));
             assertTrue(bin_file.is_activated('write'));
 
-            [~, permission] = obj.get_file_id_from_path(file_path);
+            permission = obj.get_opened_file_permission(file_path);
             assertEqual(permission, 'rb+');
 
         end
@@ -264,16 +264,14 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
 
     methods (Static)
 
-        function [fid, permission] = get_file_id_from_path(file_path)
-            % Get the fileID and permission of an open file from its path
-            %   If the file is not open the fileID and permission will be empty
-            fid = [];
+        function permission = get_opened_file_permission(file_path)
+            % Get the permission of an open file from its path
+            %   If the file is not open the permission will be empty
             permission = '';
             file_ids = fopen('all');
             for i = 1:numel(file_ids)
                 [open_file_path, open_permission] = fopen(file_ids(i));
                 if strcmp(open_file_path, file_path)
-                    fid = file_ids(i);
                     permission = open_permission;
                     return;
                 end
