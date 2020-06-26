@@ -16,7 +16,7 @@ for i=1:numel(existing_objects)
     % @axis_name
     cur_sqw=sqw(struct(ds.(existing_objects{i})));
     var_name = existing_objects{i};
-    
+
     eval(sprintf('%s = cur_sqw;', var_name));
 end
 
@@ -44,12 +44,15 @@ clob1 = onCleanup(@()delete(tmpsqwfile));
 
 % Write out to sqw files, read back in, and test they are the same
 % ----------------------------------------------------------------
-save(f1_1,tmpsqwfile); tmp=read(sqw,tmpsqwfile);
+save(f1_1,tmpsqwfile);
+tmp=read(sqw,tmpsqwfile);
 [ok,mess]=equal_to_tol(f1_1,tmp,'ignore_str',1);
 assertTrue(ok,mess);
 
-save(f1_3,tmpsqwfile); tmp=read(sqw,tmpsqwfile);
-[ok,mess]=equal_to_tol(f1_3,tmp,'ignore_str',1); assertTrue(ok,mess)
+save(f1_3,tmpsqwfile);
+tmp=read(sqw,tmpsqwfile);
+[ok,mess]=equal_to_tol(f1_3,tmp,'ignore_str',1);
+assertTrue(ok,mess)
 
 
 % Reference sqw objects with different samples

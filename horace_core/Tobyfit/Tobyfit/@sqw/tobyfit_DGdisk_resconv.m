@@ -120,7 +120,7 @@ end
 
 % Initialise output arguments
 % ---------------------------
-wout = win;
+wout = copy(win);
 state_out = cell(size(win));    % create output argument
 store_out = [];
 

@@ -140,8 +140,10 @@ else
     % if required
 
     % Test all fields except pix array
-    tmp1=struct(w1); tmp1.data.pix=PixelData();
-    tmp2=struct(w2); tmp2.data.pix=PixelData();
+    tmp1=struct(w1);
+    tmp1.data.pix=PixelData();
+    tmp2=struct(w2);
+    tmp2.data.pix=PixelData();
     [ok,mess]=equal_to_tol(tmp1,tmp2,args{:},'name_a',name_a,'name_b',name_b);
     if ~ok, return, end
 

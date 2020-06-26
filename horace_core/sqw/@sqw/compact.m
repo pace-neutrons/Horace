@@ -6,7 +6,7 @@ function wout = compact (win)
 %
 % Input:
 % ------
-%   win         Input object 
+%   win         Input object
 %
 % Output:
 % -------
@@ -19,11 +19,11 @@ function wout = compact (win)
 % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 % Initialise output argument
-wout = win;
+wout = copy(win);
 
 %Loop over the number of inputs objects:
 for n=1:numel(win)
-    
+
     % Dimension of input data structure
     ndim=length(win(n).data.p);
     if ndim==0  % no compacting needs to be done

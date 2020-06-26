@@ -27,7 +27,7 @@ function wout=symmetrise_sqw(win,v1,v2,v3)
 %==============================
 %Some checks on the inputs:
 win=sqw(win);
-wout=win;
+wout = copy(win);
 
 %New code (problem spotted by Matt Mena for case when using a single
 %contributing spe file):
