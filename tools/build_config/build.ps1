@@ -21,7 +21,7 @@
   ./build.ps1 -package
   # Packages Horace
 .EXAMPLE
-  ./build.ps1 -build -package -vs_version 2017 -matlab_release "R2019a"
+  ./build.ps1 -build -package -vs_version 2017 -matlab_release R2019a
   # Builds and packages Horace using Visual Studio 2017 and Matlab R2019a
 
 .LINK
