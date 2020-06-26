@@ -94,6 +94,9 @@ function run_package() {
 function print_help() {
   readonly local help_msg="Script to build, run static analysis, test and package Herbert.
 
+This script requires Matlab, GCC, CMake>=3.7 and CTest be installed on your
+system and available on the path.
+
 https://github.com/pace-neutrons/Herbert
 
 usage:
