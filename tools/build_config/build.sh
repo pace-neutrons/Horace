@@ -106,7 +106,7 @@ flags:
   -a, --analyze
       Run static analysis on Herbert C++ code.
   -p, --package
-      Pacakge Herbert into a .zip file.
+      Pacakge Herbert into a .tar.gz file.
   -v, --print_versions
       Print the versions of libraries being used e.g. Matlab.
   -h, --help
