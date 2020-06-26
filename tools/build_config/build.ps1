@@ -18,7 +18,7 @@
   ./build.ps1 -package
   # Packages Herbert
 .EXAMPLE
-  ./build.ps1 -build -package -vs_version 2017 -matlab_release "R2019a"
+  ./build.ps1 -build -package -vs_version 2017 -matlab_release R2019a
   # Builds and packages Herbert using Visual Studio 2017 and Matlab R2019a
 
 .LINK
