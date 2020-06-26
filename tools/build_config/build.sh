@@ -92,7 +92,7 @@ function run_package() {
 }
 
 function print_help() {
-  help_msg="Script to build, run static analysis, test and package Herbert.
+  readonly local help_msg="Script to build, run static analysis, test and package Herbert.
 
 https://github.com/pace-neutrons/Herbert
 
