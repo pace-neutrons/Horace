@@ -25,19 +25,19 @@
   https://github.com/pace-neutrons/Herbert
 #>
 param (
-  # Run the Herbert build commands
+  # Run the Herbert build commands.
   [switch][Alias("b")]$build,
-  # Run all Herbert tests
+  # Run all Herbert tests.
   [switch][Alias("t")]$test,
-  # Pacakge Herbert into a .zip file
+  # Pacakge Herbert into a .zip file.
   [switch][Alias("p")]$package,
-  # Print the versions of libraries being used e.g. Matlab
+  # Print the versions of libraries being used e.g. Matlab.
   [switch][Alias("v")]$print_versions,
-  # Call Get-Help on this script and exit
+  # Call Get-Help on this script and exit.
   [switch][Alias("h")]$help,
 
-  # The version of Visual Studio to build with (one of 2015, 2017, 2019).
-  # Other Windows compilers are not supported by this script. {2015, 2017, 2019}
+  # The version of Visual Studio to build with. Other Windows compilers are
+  # not supported by this script. {2015, 2017, 2019}
   [int][ValidateSet(2015, 2017, 2019)]
   [Alias("VS")]
   $vs_version = 2017,
