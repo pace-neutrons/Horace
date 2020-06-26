@@ -88,6 +88,12 @@ function run_package() {
 function print_help() {
   readonly local help_msg="Script to build, run static analysis, test and package Horace.
 
+This script requires Matlab, GCC, CMake>=3.7 and CTest be installed on your
+system and available on the path.
+
+This script also requires that Herbert be findable by CMake. CMake will search
+in common places for Herbert e.g. in the same directory as Horace.
+
 https://github.com/pace-neutrons/Horace
 
 usage:
