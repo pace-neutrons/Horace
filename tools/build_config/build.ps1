@@ -37,24 +37,24 @@ param (
   [switch][Alias("h")]$help,
 
   # The version of Visual Studio to build with. Other Windows compilers are
-  # not supported by this script. {2015, 2017, 2019}
+  # not supported by this script. {2015, 2017, 2019} [default: 2017]
   [int][ValidateSet(2015, 2017, 2019)]
   [Alias("VS")]
   $vs_version = 2017,
 
   # Whether to build the Herbert C++ tests and enable testing via CTest.
-  # This must be "ON" in order to run tests with this script. {"ON", "OFF"}
+  # This must be "ON" in order to run tests with this script. {ON, OFF} [default: ON]
   [string][ValidateSet("ON", "OFF")]
   [Alias("X")]
   $build_tests = "ON",
 
-  # The configuration to build with. {Release, Debug}
+  # The configuration to build with. {Release, Debug} [default: Release]
   [string][ValidateSet("Release", "Debug")]
   [Alias("C")]
   $build_config = 'Release',
 
   # The directory to write build files into. If the directory does not exist it
-  # will be created.
+  # will be created. [default: build]
   [string]
   [Alias("O")]
   $build_dir = "",
