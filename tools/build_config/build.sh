@@ -144,10 +144,10 @@ function main() {
   local cmake_flags=""
   local matlab_release=""
 
-  # If no input arguments, print the help and exit with error code
+  # If no input arguments, print the help and exit
   if [ $# -eq 0 ]; then
     print_help
-    exit 1
+    exit 0
   fi
 
   # parse command line args
