@@ -225,6 +225,9 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
 
             assertTrue(bin_file.is_activated('read'));
             assertFalse(bin_file.is_activated('write'));
+
+            [~, permission] = obj.get_file_id_from_path(file_path);
+            assertEqual(permission, 'rb');
         end
 
         function test_activate_reopens_file_in_rbplus_if_write_given(obj)
@@ -240,6 +243,10 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
 
             assertTrue(bin_file.is_activated('read'));
             assertTrue(bin_file.is_activated('write'));
+
+            [~, permission] = obj.get_file_id_from_path(file_path);
+            assertEqual(permission, 'rb+');
+
         end
 
         function test_error_raised_if_activating_file_with_bad_permission(obj)
@@ -251,6 +258,26 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
 
             f = @() bin_file.activate('not-a-permission');
             assertExceptionThrown(f, 'DNDBINFILECOMMON:get_fopen_permission_');
+        end
+
+    end
+
+    methods (Static)
+
+        function [fid, permission] = get_file_id_from_path(file_path)
+            % Get the fileID and permission of an open file from its path
+            %   If the file is not open the fileID and permission will be empty
+            fid = [];
+            permission = '';
+            file_ids = fopen('all');
+            for i = 1:numel(file_ids)
+                [open_file_path, open_permission] = fopen(file_ids(i));
+                if strcmp(open_file_path, file_path)
+                    fid = file_ids(i);
+                    permission = open_permission;
+                    return;
+                end
+            end
         end
 
     end
