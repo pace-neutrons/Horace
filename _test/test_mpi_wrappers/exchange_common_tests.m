@@ -403,13 +403,7 @@ classdef exchange_common_tests < MPI_Test_Common
             [ok, err] = intercomm.send_message(3, mess_l);
             assertEqual(ok, MESS_CODES.ok, ['Send  Error = ', err])
             
-            %             if isa(intercomm,'MessagesFilebased')
-            %                 [all_mess, task_ids] = intercomm.receive_all('all', 'log');
-            %                 assertEqual(numel(all_mess), 1);
-            %                 assertEqual(numel(task_ids), 1);
-            %                 assertEqual(task_ids, 3);
-            %             end
-            
+             
             [all_mess, task_ids] = intercomm.receive_all('all', 'log');
             assertEqual(numel(all_mess), 1);
             assertEqual(numel(task_ids), 1);
