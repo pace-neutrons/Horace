@@ -587,6 +587,17 @@ methods
         assertFalse(pix.is_file_backed());
     end
 
+    function test_editing_a_field_loads_page(obj)
+        data = rand(9, 10);
+        faccess = FakeFAccess(data);
+        for i = 1:numel(obj.pix_fields)
+            pix = PixelData(faccess);
+            assertEqual(pix.page_size, 0);
+            pix.(obj.pix_fields{i}) = 1;
+            assertEqual(pix.page_size, 10);
+        end
+    end
+
     % -- Helpers --
     function do_pixel_data_loop_with_f(obj, func, data)
         % func should be a function handle, it is evaluated within a
