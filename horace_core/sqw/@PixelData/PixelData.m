@@ -564,9 +564,9 @@ methods (Access = private)
         end
 
         obj.data = obj.f_accessor_.get_pix(pix_idx_start, pix_idx_end);
-        if obj.page_size == obj.num_pixels && obj.f_accessor_.is_activated()
-            % Close the file if all pixels have been read
-            obj.f_accessor_.deactivate();
+        if obj.page_size == obj.num_pixels
+            % Delete accessor and close the file if all pixels have been read
+            obj.f_accessor_ = [];
         end
         obj.pix_position_ = pix_idx_start;
     end
