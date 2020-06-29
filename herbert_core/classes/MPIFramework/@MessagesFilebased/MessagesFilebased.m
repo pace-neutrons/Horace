@@ -28,18 +28,12 @@ classdef MessagesFilebased < iMessagesFramework
     %----------------------------------------------------------------------
     %----------------------------------------------------------------------
     properties(Access=protected)
-        % time to wait before checking for next blocking message if
-        % previous attempt have not find it.
-        time_to_react_ = 1; % (sec)
-        %
         % equivalent to labNum in MPI
         task_id_ = 0;
         %
         numLabs_ = 1;
         %
         mess_exchange_folder_ = '';
-        % if true, enable debug printout
-        DEBUG_ = false;
         % true if framework is tested, i.e. running on single session, not
         % really communicating with with independent workers.
         is_tested_ = false;
@@ -81,6 +75,7 @@ classdef MessagesFilebased < iMessagesFramework
             % using control structure initialize operational message
             % framework
             obj = init_framework_(obj,framework_info);
+            %obj.time_to_react_ = 1;
         end
         %
         function folder = get.mess_exchange_folder(obj)
@@ -249,66 +244,6 @@ classdef MessagesFilebased < iMessagesFramework
             end
         end
         %
-        function [all_messages,task_ids] = receive_all(obj,task_ids,varargin)
-            % receive messages from a task with id-s specified as array or
-            % all messages from all labs available.
-            %
-            % Blocking  or unblocking behavior depends on requested message
-            % type or can be requested explicitly.
-            %
-            % If the requested message type is blocking, blocks until the
-            % message is available.
-            % if it is unblocking, return empty message if appropriate message
-            % is not present in system
-            %
-            % Asking a server for a message synchroneously, may block a
-            % client if other type of message has been send by server.
-            % Exception for reveive all are FailureMessage and CanceledMessage,
-            % which, if send, will be received and returned instead of the
-            % requested message in any circumstances.
-            %
-            % Usage:
-            % >>mf = MessagesFramework();
-            % >>[ok,err_mess,message] = mf.receive_all(task_ids,mess_name, ...
-            %                           ['-synchronous'|'-asynchronous'])
-            % or:
-            % >>[ok,err_mess,message] = mf.receive_all(id,'any', ...
-            %                           ['-synchronous'|'-asynchronous'])
-            % or:
-            % >>[ok,err_mess,message] = mf.receive_all('all','any', ...
-            %                           ['-synchronous'|'-asynchronous'])
-            %
-            %Inputs:
-            % task_ids  - array of task id-s to check for messages or 'all' for
-            %             all labs(task-id-s)
-            % mess_name - the string, defining the message name or 'any' or
-            %             empty variable for any type of message.
-            % Optional:
-            % ['-s[ynchronous]'|'-a[synchronous]'] -- override default message
-            %              receiving rules and receive the message
-            %              block program execution if '-synchronous' keyword
-            %              is provided, or continue execution if message has
-            %              not been send ('-asynchronous' mode).
-            %Return:
-            % all_messages - cellarray of messages for the tasks requested and
-            %                have messages available in the system.
-            %task_ids      - array of task id-s where these messages were
-            %                received from.
-            %                in asynchroneous mode, size(task_ids) at output
-            %                may be smaller then the size(task_ids) at input.
-            %
-            if nargin<2
-                task_ids = 'all';
-            end
-            if nargin>1 && ischar(task_ids)
-                if strcmp('any',task_ids)
-                    warning('Outdated receive all interface. Use all instead of any')
-                    task_ids = 'all';
-                end
-            end
-            
-            [all_messages,task_ids] = receive_all_messages_(obj,task_ids,varargin{:});
-        end
         %
         function finalize_all(obj)
             % delete all messages belonging to this instance of messages
@@ -404,32 +339,6 @@ classdef MessagesFilebased < iMessagesFramework
             mess_fname = MessagesFilebased.mess_fname_(obj,lab_to,mess_name,lab_from,is_sender);
         end
         %
-        function    [receive_now,message_names_array,n_steps] = check_whats_coming(obj,task_ids,mess_name,mess_array,n_steps)
-            % Service function to check what messages will be arriving during next step waiting in
-            % synchroneous mode
-            %
-            % part of receive_all messages function used in synchroneous messages receive operations.
-            % Extractced for unit testing as accessable only from parallel
-            % code otherwise
-            %
-            % Inputs:
-            % task_ids -- all lab-nums to receive messages from.
-            % mess_name-- the name of the message to check for.
-            % mess_array    -- cellarray of size(task_ids) where already received
-            %                  messages are stored and not-received messages are
-            %                  represented by empty cells
-            % mess_received -- boolean array of size task_ids, indicating if some messages
-            %                  from the labs requested  have already arrived and
-            %                  receieved
-            % Returns:
-            % receive_now    -- boolean array of size task_ids, where true indicates
-            %                   that message from correspondent task id is present and
-            %                   can be read.
-            % message_names_array -- cellarray of message names to read
-            %                    now. 
-            %
-            [receive_now,message_names_array,n_steps] = check_whats_coming_(obj,task_ids,mess_name,mess_array,n_steps);
-        end
         %
         function obj = set_job_id_(obj,new_job_id)
             %

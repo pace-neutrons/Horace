@@ -30,6 +30,11 @@ classdef MessagesMatlabMPI_tester < MessagesParpool
             end
             obj = obj@MessagesParpool(control_struc);
         end
+        
+        function [receive_now,mess_names,n_steps] = check_whats_coming_tester(obj,task_ids,mess_name,mess_array,n_steps)
+            [receive_now,mess_names,n_steps] = obj.check_whats_coming(task_ids,mess_name,mess_array,n_steps);
+        end
+        
     end
 end
 

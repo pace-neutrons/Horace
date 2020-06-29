@@ -1198,6 +1198,209 @@ classdef exchange_common_tests < MPI_Test_Common
             
             clear clob_r;
         end
+        function test_check_whats_coming_data_kept_fail_overrides(obj)
+%             init_struct = iMessagesFramework.build_worker_init(tmp_dir, ...
+%                 'test_check_whats_coming_1mess', 'MessagesFilebased', 1, 10,'test_mode');            
+%             
+%             m_comm = MessagesFileBasedMPI_mirror_tester(init_struct);
+%             clob_s = onCleanup(@()(finalize_all(m_comm)));
+%             m_comm.time_to_fail = 1000;
+            
+            if obj.ignore_test
+                return
+            end
+            m_comm = feval(obj.comm_name);
+            clob_s = onCleanup(@()(finalize_all(m_comm )));
+            
+            
+            
+            dm = DataMessage();
+            dm.payload = 'a';
+            % CPP_MPI messages in test mode are "reflected" from target node
+            [ok, err] = m_comm.send_message(2, dm);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            lm = LogMessage(0,10,1,[]);
+            [ok, err] = m_comm.send_message(3,lm);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            
+            task_ids = 1:m_comm.numLabs;
+            mess_array = cell(1,numel(task_ids));
+            [are_avail,mess_names]=m_comm.check_whats_coming_tester(task_ids,'log',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),1)
+            assertTrue(are_avail(3))
+            mess_array{3} = lm;
+            assertEqual(mess_names{3},lm.mess_name);
+            
+            [are_avail,mess_names]=m_comm.check_whats_coming_tester(task_ids,'data',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),1)
+            assertTrue(are_avail(2))
+            mess_array{2} = dm;
+            assertEqual(mess_names{2},dm.mess_name);
+            
+            
+            
+            [are_avail,mess_names]=m_comm.check_whats_coming_tester(task_ids,'log',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),1)
+            assertTrue(are_avail(3))
+            assertFalse(are_avail(2))
+            assertEqual(mess_names{2},'data')
+            assertEqual(mess_names{3},'log')
+            
+            [are_avail,mess_names]=m_comm.check_whats_coming_tester(task_ids,'data',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),0)
+            assertFalse(are_avail(2))
+            assertFalse(are_avail(3))
+            assertEqual(mess_names{2},'data')
+            assertEqual(mess_names{3},'log')
+            
+            
+            [ok, err] = m_comm.send_message(3,'completed');
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            
+            [are_avail,mess_names]=m_comm.check_whats_coming_tester(task_ids,'completed',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),1)
+            assertTrue(are_avail(3))
+            assertFalse(are_avail(2))
+            assertEqual(mess_names{2},'data')
+            assertEqual(mess_names{3},'completed')
+            
+            [ok, err] = m_comm.send_message(2,'completed');
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            
+            [are_avail,mess_names]=m_comm.check_whats_coming_tester(task_ids,'completed',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),1)
+            assertFalse(are_avail(2))
+            assertTrue(are_avail(3))
+            assertEqual(mess_names{2},'data')
+            assertEqual(mess_names{3},'completed')
+            
+            [ok, err] = m_comm.send_message(2,FailedMessage);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            [are_avail,mess_names] =m_comm.check_whats_coming_tester(task_ids,'data',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),1)
+            assertTrue(are_avail(2))
+            assertEqual(mess_names{2},'failed')
+            assertEqual(mess_names{3},'log') % ! beware. Though not worth changing
+            
+        end
+        %
+        function test_check_whats_coming_fail_overrides(obj)
+%             init_struct = iMessagesFramework.build_worker_init(tmp_dir, ...
+%                 'test_check_whats_coming_1mess', 'MessagesFilebased', 1, 10,'test_mode');
+%             
+%             m_comm = MessagesFileBasedMPI_mirror_tester(init_struct);
+%             clob_s = onCleanup(@()(finalize_all(m_comm)));
+%             m_comm.time_to_fail = 1000;
+            
+            if obj.ignore_test
+                return
+            end
+            m_comm = feval(obj.comm_name);
+            clob_s = onCleanup(@()(finalize_all(m_comm )));
+            
+            
+            dm = DataMessage();
+            dm.payload = 'a';
+            % CPP_MPI messages in test mode are "reflected" from target node
+            [ok, err] = m_comm.send_message(2, dm);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            [ok, err] = m_comm.send_message(4, dm);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            
+            lm = LogMessage(0,10,1,[]);
+            [ok, err] = m_comm.send_message(3,lm);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            [ok, err] = m_comm.send_message(6,lm);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            
+            
+            task_ids = 1:m_comm.numLabs;
+            mess_array = cell(1,numel(task_ids));
+            [are_avail,mess_names]=m_comm.check_whats_coming_tester(task_ids,'log',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),2)
+            assertTrue(are_avail(3))
+            assertTrue(are_avail(6))
+            mess_array{3} = lm;
+            assertEqual(mess_names{3},'log')
+            assertEqual(mess_names{6},'log')
+            
+            
+            [are_avail,mess_names]=m_comm.check_whats_coming_tester(task_ids,'data',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),2)
+            assertTrue(are_avail(2))
+            assertTrue(are_avail(4))
+            mess_array{2} = dm;
+            assertEqual(mess_names{2},'data')
+            assertEqual(mess_names{4},'data')
+            
+            
+            
+            [are_avail,mess_names]=m_comm.check_whats_coming_tester(task_ids,'log',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),2)
+            assertFalse(are_avail(2))
+            assertTrue(are_avail(3))
+            assertTrue(are_avail(6))
+            assertEqual(mess_names{2},'data')
+            assertEqual(mess_names{3},'log')
+            assertEqual(mess_names{6},'log')
+            
+            
+            [are_avail,mess_names]=m_comm.check_whats_coming_tester(task_ids,'data',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),1)
+            assertTrue(are_avail(4))
+            assertFalse(are_avail(2))
+            assertEqual(mess_names{2},'data')
+            assertEqual(mess_names{3},'log')
+            assertEqual(mess_names{4},'data')
+            
+            
+            [ok, err] = m_comm.send_message(3,'completed');
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            
+            [are_avail,mess_names]=m_comm.check_whats_coming_tester(task_ids,'completed',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),1)
+            assertTrue(are_avail(3))
+            assertEqual(mess_names{3},'completed')
+            assertEqual(mess_names{2},'data')
+            
+            
+            
+            [ok, err] = m_comm.send_message(2,'completed');
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            
+            [are_avail,mess_names]=m_comm.check_whats_coming_tester(task_ids,'completed',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),1)
+            assertFalse(are_avail(2))
+            assertTrue(are_avail(3))
+            assertEqual(mess_names{2},'data')
+            assertEqual(mess_names{3},'completed')
+            
+            [ok, err] = m_comm.send_message(2,FailedMessage);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            [are_avail,mess_names]=m_comm.check_whats_coming_tester(task_ids,'data',mess_array,0);
+            assertEqual(numel(are_avail),10)
+            assertEqual(sum(are_avail),2)
+            assertTrue(are_avail(2))
+            assertTrue(are_avail(4))
+            assertEqual(mess_names{2},'failed')
+            assertEqual(mess_names{3},'log')
+            assertEqual(mess_names{4},'data')
+            
+        end
+        
         %
         function test_Receive_fromAny_is_error(obj)
             m_comm = feval(obj.comm_name);

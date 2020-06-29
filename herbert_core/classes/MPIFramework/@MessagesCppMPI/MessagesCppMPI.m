@@ -19,10 +19,6 @@ classdef MessagesCppMPI < iMessagesFramework
     %----------------------------------------------------------------------
     %----------------------------------------------------------------------
     properties(Access=protected)
-        % time to wait before checking for next blocking message if
-        % previous attempt have not find it.
-        time_to_react_ = 1; % (sec)
-        %
         % equivalent to labNum in MPI, the number of the current running
         % MPI worker
         task_id_ = -1;
@@ -40,7 +36,6 @@ classdef MessagesCppMPI < iMessagesFramework
         % the tag for the data message, used by cpp_communicator to process
         % data messages differently
         data_message_tag_;
-        DEBUG_ = false;
         % The holder for is_tested property value
         is_tested_ = true;
     end

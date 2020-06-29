@@ -35,15 +35,22 @@ classdef iMessagesFramework < handle
     end
     properties(Access=protected)
         job_id_;
+        
         % time in seconds to waiting in blocking message until
         % unblocking or failing. Does not work for some operations in some frameworks
         % (e.g. receive_message in mpi)
         time_to_fail_ = 300; %(sec)
+        % time to wait between subsequent attempts to repeat command, related to a 
+        % a message exchange 
+        time_to_react_ = 0.1
+        
         % The holder for persistent messages, used to mark special job states
         % (e.g. completion or failure) for a particular worker (lab)
         % if the variable is not empty, a special event happened, so the
         % worker would operate differently.
-        persistent_fail_message_=[];
+        persistent_fail_message_=[];        
+        % if true, enable debug printout
+        DEBUG_ = false;        
     end
     methods
         function obj = iMessagesFramework(varargin)
@@ -196,6 +203,68 @@ classdef iMessagesFramework < handle
         function val = get.time_to_fail(obj)
             val = obj.time_to_fail_ ;
         end
+        %
+        function [all_messages,task_ids] = receive_all(obj,task_ids,varargin)
+            % receive messages from a task with id-s specified as array or
+            % all messages from all labs available.
+            %
+            % Blocking  or unblocking behavior depends on requested message
+            % type or can be requested explicitly.
+            %
+            % If the requested message type is blocking, blocks until the
+            % message is available.
+            % if it is unblocking, return empty message if appropriate message
+            % is not present in system
+            %
+            % Asking a server for a message synchroneously, may block a
+            % client if other type of message has been send by server.
+            % Exception for reveive all are FailureMessage and CanceledMessage,
+            % which, if send, will be received and returned instead of the
+            % requested message in any circumstances.
+            %
+            % Usage:
+            % >>mf = MessagesFramework();
+            % >>[ok,err_mess,message] = mf.receive_all(task_ids,mess_name, ...
+            %                           ['-synchronous'|'-asynchronous'])
+            % or:
+            % >>[ok,err_mess,message] = mf.receive_all(id,'any', ...
+            %                           ['-synchronous'|'-asynchronous'])
+            % or:
+            % >>[ok,err_mess,message] = mf.receive_all('all','any', ...
+            %                           ['-synchronous'|'-asynchronous'])
+            %
+            %Inputs:
+            % task_ids  - array of task id-s to check for messages or 'all' for
+            %             all labs(task-id-s)
+            % mess_name - the string, defining the message name or 'any' or
+            %             empty variable for any type of message.
+            % Optional:
+            % ['-s[ynchronous]'|'-a[synchronous]'] -- override default message
+            %              receiving rules and receive the message
+            %              block program execution if '-synchronous' keyword
+            %              is provided, or continue execution if message has
+            %              not been send ('-asynchronous' mode).
+            %Return:
+            % all_messages - cellarray of messages for the tasks requested and
+            %                have messages available in the system.
+            %task_ids      - array of task id-s where these messages were
+            %                received from.
+            %                in asynchroneous mode, size(task_ids) at output
+            %                may be smaller then the size(task_ids) at input.
+            %
+            if nargin<2
+                task_ids = 'all';
+            end
+            if nargin>1 && ischar(task_ids)
+                if strcmp('any',task_ids)
+                    warning('Outdated receive all interface. Use all instead of any')
+                    task_ids = 'all';
+                end
+            end
+            
+            [all_messages,task_ids] = receive_all_messages_(obj,task_ids,varargin{:});
+        end
+        
     end
     
     methods(Static)
@@ -532,7 +601,7 @@ classdef iMessagesFramework < handle
         %                received from.
         %                in asynchroneous mode, size(task_ids) at output
         %                may be smaller then the size(task_ids) at input.
-        [all_messages,task_ids] = receive_all(obj,task_ids,mess_name_or_tag,varargin)
+        %[all_messages,task_ids] = receive_all(obj,task_ids,mess_name_or_tag,varargin)
         
         % wait until all workers arrive to the part of the code marked
         % by this barrier.
@@ -620,6 +689,33 @@ classdef iMessagesFramework < handle
         end
         
 
+        function    [receive_now,message_names_array,n_steps] = check_whats_coming(obj,task_ids,mess_name,mess_array,n_steps)
+            % Service function to check what messages will be arriving during next step waiting in
+            % synchroneous mode
+            %
+            % part of receive_all messages function used in synchroneous messages receive operations.
+            % Extractced for unit testing as accessable only from parallel
+            % code otherwise
+            %
+            % Inputs:
+            % task_ids -- all lab-nums to receive messages from.
+            % mess_name-- the name of the message to check for.
+            % mess_array    -- cellarray of size(task_ids) where already received
+            %                  messages are stored and not-received messages are
+            %                  represented by empty cells
+            % mess_received -- boolean array of size task_ids, indicating if some messages
+            %                  from the labs requested  have already arrived and
+            %                  receieved
+            % Returns:
+            % receive_now    -- boolean array of size task_ids, where true indicates
+            %                   that message from correspondent task id is present and
+            %                   can be read.
+            % message_names_array -- cellarray of message names to read
+            %                    now. 
+            %
+            [receive_now,message_names_array,n_steps] = check_whats_coming_(obj,task_ids,mess_name,mess_array,n_steps);
+        end
+        
     end
     
 end
