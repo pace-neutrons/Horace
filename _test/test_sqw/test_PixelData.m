@@ -563,6 +563,30 @@ methods
         assertEqual(pix.u1, u1);
     end
 
+    function test_is_file_backed_returns_false_if_all_data_in_memory(obj)
+        data = rand(9, 30);
+        pix_in_page = 31;
+        mem_alloc = pix_in_page*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
+        faccess = FakeFAccess(data);
+        pix = PixelData(faccess, mem_alloc);
+        pix.u1;  % First getter call loads data into memory
+        assertFalse(pix.is_file_backed());
+    end
+
+    function test_is_file_backed_returns_true_if_not_all_data_in_memory(obj)
+        data = rand(9, 30);
+        pix_in_page = 11;
+        mem_alloc = pix_in_page*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
+        faccess = FakeFAccess(data);
+        pix = PixelData(faccess, mem_alloc);
+        assertTrue(pix.is_file_backed());
+    end
+
+    function test_is_file_backed_false_if_constructed_with_in_memory_data(obj)
+        pix = obj.get_random_pix_data_(30);
+        assertFalse(pix.is_file_backed());
+    end
+
     % -- Helpers --
     function do_pixel_data_loop_with_f(obj, func, data)
         % func should be a function handle, it is evaluated within a
