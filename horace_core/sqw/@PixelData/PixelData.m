@@ -394,6 +394,15 @@ methods
         end
     end
 
+    function obj = move_to_first_page(obj)
+        % Reset the object to point to the first page of pixel data in the file
+        %  This function does nothing if pixels are not file-backed
+        if ~isempty(obj.f_accessor_)
+            obj.data_ = zeros(obj.PIXEL_BLOCK_COLS_, 0);
+            obj.pix_position_ = 1;
+        end
+    end
+
     % --- Getters / Setters ---
     function pixel_data = get.data(obj)
         obj = obj.load_first_page_if_data_empty_();
