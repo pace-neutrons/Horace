@@ -88,6 +88,7 @@ properties (Access=private)
     page_memory_size_ = 3e9;  % 3Gb - the maximum amount of memory a page can use
     pix_position_ = 1;  % the pixel index in the file of the first pixel in the cache
     max_page_size_;  % the maximum number of pixels that can fie in the page memory size
+    page_dirty_ = false;  % true if page of data in memory differs from data in the file
 end
 
 properties (Dependent)
@@ -435,6 +436,7 @@ methods
     end
 
     function obj = set.u1(obj, u1)
+        obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('u1'), :) = u1;
     end
 
@@ -444,6 +446,7 @@ methods
     end
 
     function obj = set.u2(obj, u2)
+        obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('u2'), :) = u2;
     end
 
@@ -453,6 +456,7 @@ methods
     end
 
     function obj = set.u3(obj, u3)
+        obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('u3'), :) = u3;
     end
 
@@ -462,6 +466,7 @@ methods
     end
 
     function obj = set.dE(obj, dE)
+        obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('dE'), :) = dE;
     end
 
@@ -471,6 +476,7 @@ methods
     end
 
     function obj = set.coordinates(obj, coordinates)
+        obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('coordinates'), :) = coordinates;
     end
 
@@ -480,6 +486,7 @@ methods
     end
 
     function obj = set.q_coordinates(obj, q_coordinates)
+        obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('q_coordinates'), :) = q_coordinates;
     end
 
@@ -489,6 +496,7 @@ methods
     end
 
     function obj = set.run_idx(obj, iruns)
+        obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('run_idx'), :) = iruns;
     end
 
@@ -498,6 +506,7 @@ methods
     end
 
     function obj = set.detector_idx(obj, detector_indices)
+        obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('detector_idx'), :) = detector_indices;
     end
 
@@ -507,6 +516,7 @@ methods
     end
 
     function obj = set.energy_idx(obj, energies)
+        obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('energy_idx'), :) = energies;
     end
 
@@ -516,6 +526,7 @@ methods
     end
 
     function obj = set.signal(obj, signal)
+        obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('signal'), :) = signal;
     end
 
@@ -525,6 +536,7 @@ methods
     end
 
     function obj = set.variance(obj, variance)
+        obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('variance'), :) = variance;
     end
 
