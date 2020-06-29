@@ -428,6 +428,7 @@ methods
             error('PIXELDATA:data', msg, class(pixel_data));
         end
         obj.data_ = pixel_data;
+        obj.page_dirty_ = true;
     end
 
     function u1 = get.u1(obj)
@@ -438,6 +439,7 @@ methods
     function obj = set.u1(obj, u1)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('u1'), :) = u1;
+        obj.page_dirty_ = true;
     end
 
     function u2 = get.u2(obj)
@@ -448,6 +450,7 @@ methods
     function obj = set.u2(obj, u2)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('u2'), :) = u2;
+        obj.page_dirty_ = true;
     end
 
     function u3 = get.u3(obj)
@@ -458,6 +461,7 @@ methods
     function obj = set.u3(obj, u3)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('u3'), :) = u3;
+        obj.page_dirty_ = true;
     end
 
     function dE = get.dE(obj)
@@ -468,6 +472,7 @@ methods
     function obj = set.dE(obj, dE)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('dE'), :) = dE;
+        obj.page_dirty_ = true;
     end
 
     function coord_data = get.coordinates(obj)
@@ -478,6 +483,7 @@ methods
     function obj = set.coordinates(obj, coordinates)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('coordinates'), :) = coordinates;
+        obj.page_dirty_ = true;
     end
 
     function coord_data = get.q_coordinates(obj)
@@ -488,6 +494,7 @@ methods
     function obj = set.q_coordinates(obj, q_coordinates)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('q_coordinates'), :) = q_coordinates;
+        obj.page_dirty_ = true;
     end
 
     function run_index = get.run_idx(obj)
@@ -498,6 +505,7 @@ methods
     function obj = set.run_idx(obj, iruns)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('run_idx'), :) = iruns;
+        obj.page_dirty_ = true;
     end
 
     function detector_index = get.detector_idx(obj)
@@ -508,6 +516,7 @@ methods
     function obj = set.detector_idx(obj, detector_indices)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('detector_idx'), :) = detector_indices;
+        obj.page_dirty_ = true;
     end
 
     function detector_index = get.energy_idx(obj)
@@ -518,6 +527,7 @@ methods
     function obj = set.energy_idx(obj, energies)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('energy_idx'), :) = energies;
+        obj.page_dirty_ = true;
     end
 
     function signal = get.signal(obj)
@@ -528,6 +538,7 @@ methods
     function obj = set.signal(obj, signal)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('signal'), :) = signal;
+        obj.page_dirty_ = true;
     end
 
     function variance = get.variance(obj)
@@ -538,6 +549,7 @@ methods
     function obj = set.variance(obj, variance)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('variance'), :) = variance;
+        obj.page_dirty_ = true;
     end
 
     function num_pix = get.num_pixels(obj)
