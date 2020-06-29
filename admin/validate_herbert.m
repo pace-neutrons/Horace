@@ -125,7 +125,11 @@ if parallel && license('checkout', 'Distrib_Computing_Toolbox')
     tests_ok = all(test_ok);
 else
     time = bigtic();
-    tests_ok = runtests(test_folders_full{:});
+    test_ok = false(1,numel(test_folders_full));
+    for i=1:numel(test_folders_full)
+        test_ok(i) = runtests(test_folders_full{i});
+    end
+    tests_ok = all(test_ok);    
     bigtoc(time, '===COMPLETED UNIT TESTS RUN ');
     
 end

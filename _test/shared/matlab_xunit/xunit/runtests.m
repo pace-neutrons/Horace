@@ -138,9 +138,9 @@ if did_pass && num_tests_run == 0
     error('xunit:runtests:noTestCasesFound', 'No test cases were run');
 end
 
-if nargout > 0
-    out = did_pass;
-end
+
+out = did_pass;
+
 end
 
 function yes = contains_full_win_path(ddot_ind)
