@@ -342,7 +342,6 @@ methods
         assertExceptionThrown(f, 'PIXELDATA:data');
     end
 
-    % --- Tests for file-backed operations ---
     function test_construction_with_file_path_sets_file_path_on_object(obj)
         assertEqual(obj.pix_data_from_file.file_path, obj.test_sqw_file_full_path);
     end
@@ -543,6 +542,25 @@ methods
         assertEqual(new_pix.num_pixels, obj.pix_data_small_page.num_pixels);
         assertEqual(new_pix.signal, obj.pix_data_small_page.signal);
         assertTrue(new_pix.has_more());
+    end
+
+    function test_move_to_first_page_resets_to_first_page_in_file(obj)
+        data = rand(9, 30);
+        pix_in_page = 11;
+        mem_alloc = pix_in_page*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
+        faccess = FakeFAccess(data);
+        pix = PixelData(faccess, mem_alloc);
+        pix.advance();
+        assertEqual(pix.u1, data(1, 12:22));  % currently on the second page
+        pix.move_to_first_page();
+        assertEqual(pix.u1, data(1, 1:11));  % should be back to the first page
+    end
+
+    function test_move_to_first_page_keeps_data_if_pix_not_file_backed(obj)
+        pix = obj.get_random_pix_data_(30);
+        u1 = pix.u1;
+        pix.move_to_first_page();
+        assertEqual(pix.u1, u1);
     end
 
     % -- Helpers --
