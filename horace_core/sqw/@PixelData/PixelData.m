@@ -378,7 +378,7 @@ methods
         % This function will throw a PIXELDATA:advance error if attempting to
         % advance past the final page of data in the file
         %
-        if ~isempty(obj.f_accessor_)
+        if obj.is_file_backed()
             try
                 obj.load_page_(obj.pix_position_ + obj.max_page_size_);
             catch ME
@@ -397,10 +397,16 @@ methods
     function obj = move_to_first_page(obj)
         % Reset the object to point to the first page of pixel data in the file
         %  This function does nothing if pixels are not file-backed
-        if ~isempty(obj.f_accessor_)
+        if obj.is_file_backed()
             obj.data_ = zeros(obj.PIXEL_BLOCK_COLS_, 0);
             obj.pix_position_ = 1;
         end
+    end
+
+    function is = is_file_backed(obj)
+        % Return true if the pixel data is backed by a file. Returns false if
+        % all pixel data is held in memory
+        is = ~isempty(obj.f_accessor_);
     end
 
     % --- Getters / Setters ---
@@ -573,7 +579,8 @@ methods (Access = private)
 
     function obj = load_first_page_if_data_empty_(obj)
         % Check if there's any data in the current page and load a page if not
-        if isempty(obj.data_) && ~isempty(obj.f_accessor_)
+        %   This function does nothing if pixels are not file-backed
+        if isempty(obj.data_) && obj.is_file_backed()
             obj = obj.load_page_(1);
         end
     end
