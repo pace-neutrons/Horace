@@ -106,6 +106,11 @@ classdef MessagesParpool < iMessagesFramework
             % or:
             % >>[ok,err_mess,message] = mf.receive_message(id,'any', ...
             %                           ['-synchronous'|'-synchronous'])
+            % or 
+            % >>[ok,err_mess,message] = mf.receive_message(id, ...
+            %                           ['-synchronous'|'-synchronous'])
+            % which is equivalent to mf.receive_message(id,'any',___)
+
             %
             % Inputs:
             % id        - the address of the lab to receive message from

@@ -15,14 +15,14 @@ if ~exist('mess_name','var') || isempty(mess_name)
     mess_name = 'any';
 end
 lock_until_received = obj.check_is_blocking(mess_name,varargin);
+if lock_until_received
+    how = '-synchronously';
+else
+    how = '-asynchronously';
+end
 
 if obj.DEBUG_
-    if lock_until_received
-        how = ' synchronously';
-    else
-        how = ' asynchronously';
-    end
-    disp(['**********',how,'  waiting for message: ',mess_name,' to arrive from tasks: ']);
+    disp(['********** ',how,'  waiting for message: ',mess_name,' to arrive from tasks: ']);
     disp(task_ids')
 end
 
@@ -40,47 +40,40 @@ if obj.DEBUG_
     disp(' Messages present initially:');
     disp(present_now');
 end
-% % define list of special states to verify alongside with messages requested
-% special_states = MESS_NAMES.instance().state_messages;
-% interrupts     = MESS_NAMES.instance().interrupts;
-% non_interrupt  = ~ismember(special_states,interrupts);
-% special_states = special_states(non_interrupt);
-
-
+mess_names_present = all_messages;
+mess_names_present(present_now) = message_names(:);
+%
+%
 all_received = false;
 n_steps = 0;
 t0 = tic;
 while ~all_received
     for i=1:n_requested
         if present_now(i)
-            [ok,err_mess,message]=receive_message_(obj,task_ids(i),mess_name);
+            [ok,err_mess,message]=obj.receive_message(task_ids(i),mess_names_present{i},'-synch');
             if ok ~= MESS_CODES.ok
                 if ok == MESS_CODES.job_canceled
                     error('MESSAGE_FRAMEWORK:canceled',err_mess);
                 else
-                    error('FILEBASED_MESSAGES:runtime_error',...
+                    error('MESSAGE_FRAMEWORK:runtime_error',...
                         'Can not receive existing message: %s, Err: %s',...
-                        message_names{i},err_mess);
+                        mess_names_present{i},err_mess);
                 end
             end
             all_messages{i} = message;
             tid_received_from(i) = task_ids(i);
             mess_received(i) = true;
         else % check canceled message
-            [is,err_code,err_message] = check_job_canceled_(obj,task_ids(i));
-            if is
-                if err_code == MESS_CODES.job_canceled_request
-                    [ok,err_message,message]=receive_message_(obj,task_ids(i),'canceled');
-                    if ~ok
-                        error('MESSAGE_FRAMEWORK:canceled',...
-                            'Error receiving canceled message: %s',err_message);
-                    end
-                    all_messages{i} = message;
-                    tid_received_from(i) = task_ids(i);
-                    mess_received(i) = true;
-                else
-                    error('MESSAGE_FRAMEWORK:canceled',err_message);
+            mess=obj.probe_all(task_ids(i),'canceled');
+            if ~isempty(mess)
+                [ok,err_message,message]=obj.receive_message(task_ids(i),'canceled');
+                if ~ok
+                    error('MESSAGE_FRAMEWORK:canceled',...
+                        'Error receiving canceled message: %s',err_message);
                 end
+                all_messages{i} = message;
+                tid_received_from(i) = task_ids(i);
+                mess_received(i) = true;
             end
             
         end
@@ -101,14 +94,16 @@ while ~all_received
         all_received = all(mess_received);
         if ~all_received
             t1 = toc(t0);
-            if t1>obj.time_to_fail_;   error('FILEBASED_MESSAGES:runtime_error',...
+            if t1>obj.time_to_fail_; error('MESSAGES_FRAMEWORK:runtime_error',...
                     'Timeout waiting for receiving all messages')
             end
             
-            [present_now,n_steps] = obj.check_whats_coming(task_ids,mess_name,...
+            [present_now,mess_names_present,n_steps] = ...
+                obj.check_whats_coming(task_ids,mess_name,...
                 all_messages,n_steps);
             
-            if obj.is_tested;  error('MESSAGES_FRAMEWORK:runtime_error',...
+            if obj.is_tested && ~any(present_now)
+                error('MESSAGES_FRAMEWORK:runtime_error',...
                     'Issued request for missing blocking message in test mode');
             end
             pause(0.1);

@@ -22,7 +22,7 @@ classdef MessagesFileBasedMPI_mirror_tester < MFTester
             end
             obj=obj@MFTester(init_struct);
             obj.mess_name_fun_  = @(name,lab_to,lab_from,is_sender)....
-                MessagesFilebased.mess_fname_(obj,lab_to,mess_name,lab_from,is_sender);
+                MessagesFilebased.mess_fname_(obj,lab_to,name,lab_from,is_sender);
         end
         function [ok,err_mess,message] = send_message(obj,targ,varargin)
             obj.mess_name_fun_ = @(name,lab_to,lab_from,is_sender) ...
@@ -36,8 +36,8 @@ classdef MessagesFileBasedMPI_mirror_tester < MFTester
             
             
         end
-        function [receive_now,n_steps] = check_whats_coming_tester(obj,task_ids,mess_name,mess_array,n_steps)
-            [receive_now,n_steps] = obj.check_whats_coming(task_ids,mess_name,mess_array,n_steps);
+        function [receive_now,mess_names,n_steps] = check_whats_coming_tester(obj,task_ids,mess_name,mess_array,n_steps)
+            [receive_now,mess_names,n_steps] = obj.check_whats_coming(task_ids,mess_name,mess_array,n_steps);
         end
         
     end

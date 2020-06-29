@@ -1,8 +1,9 @@
 function [all_messages,mid_from] = list_specific_messages_(obj,task_ids_requested,mess_name_or_tag,ignore_interrupts)
-% list all messages sent to this task and retrieve the names
-% for the lobs with id, provided as input.
+% list messages with specific name sent to this task and retrieve the names
+% for the jobs with id, provided as input.
 %
 % if no message is returned for a job, its name cell remains empty.
+
 %
 if ~exist('task_ids_requested','var') || isempty(task_ids_requested)
     task_ids_requested = 1:obj.numLabs; % list all available task_ids

@@ -522,7 +522,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertEqual(mess.mess_name, 'canceled');
         end
         %
-        function test_check_whats_coming_1(~)
+        function test_check_whats_coming_data_kept_fail_overrides(~)
             init_struct = iMessagesFramework.build_worker_init(tmp_dir, ...
                 'test_check_whats_coming_1mess', 'MessagesFilebased', 1, 10,'test_mode');
             
@@ -542,55 +542,73 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             
             task_ids = 1:itcm.numLabs;
             mess_array = cell(1,numel(task_ids));
-            are_avail=itcm.check_whats_coming_tester(task_ids,'log',mess_array,0);
+            [are_avail,mess_names]=itcm.check_whats_coming_tester(task_ids,'log',mess_array,0);
             assertEqual(numel(are_avail),10)
             assertEqual(sum(are_avail),1)
             assertTrue(are_avail(3))
             mess_array{3} = lm;
+            assertEqual(mess_names{3},lm.mess_name);
             
-            are_avail=itcm.check_whats_coming_tester(task_ids,'data',mess_array,0);
+            [are_avail,mess_names]=itcm.check_whats_coming_tester(task_ids,'data',mess_array,0);
             assertEqual(numel(are_avail),10)
             assertEqual(sum(are_avail),1)
             assertTrue(are_avail(2))
             mess_array{2} = dm;
+            assertEqual(mess_names{2},dm.mess_name);
             
             
-            are_avail=itcm.check_whats_coming_tester(task_ids,'log',mess_array,0);
+            
+            [are_avail,mess_names]=itcm.check_whats_coming_tester(task_ids,'log',mess_array,0);
             assertEqual(numel(are_avail),10)
             assertEqual(sum(are_avail),1)
             assertTrue(are_avail(3))
+            assertFalse(are_avail(2))
+            assertEqual(mess_names{2},'data')
+            assertEqual(mess_names{3},'log')
             
-            are_avail=itcm.check_whats_coming_tester(task_ids,'data',mess_array,0);
+            [are_avail,mess_names]=itcm.check_whats_coming_tester(task_ids,'data',mess_array,0);
             assertEqual(numel(are_avail),10)
             assertEqual(sum(are_avail),0)
             assertFalse(are_avail(2))
+            assertFalse(are_avail(3))
+            assertEqual(mess_names{2},'data')
+            assertEqual(mess_names{3},'log')
+            
             
             [ok, err] = itcm.send_message(3,'completed');
             assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
             
-            are_avail=itcm.check_whats_coming_tester(task_ids,'completed',mess_array,0);
+            [are_avail,mess_names]=itcm.check_whats_coming_tester(task_ids,'completed',mess_array,0);
             assertEqual(numel(are_avail),10)
             assertEqual(sum(are_avail),1)
             assertTrue(are_avail(3))
+            assertFalse(are_avail(2))
+            assertEqual(mess_names{2},'data')
+            assertEqual(mess_names{3},'completed')
             
             [ok, err] = itcm.send_message(2,'completed');
             assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
             
-            are_avail=itcm.check_whats_coming_tester(task_ids,'completed',mess_array,0);
+            [are_avail,mess_names]=itcm.check_whats_coming_tester(task_ids,'completed',mess_array,0);
             assertEqual(numel(are_avail),10)
             assertEqual(sum(are_avail),1)
             assertFalse(are_avail(2))
             assertTrue(are_avail(3))
+            assertEqual(mess_names{2},'data')
+            assertEqual(mess_names{3},'completed')
             
             [ok, err] = itcm.send_message(2,FailedMessage);
             assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
-            are_avail=itcm.check_whats_coming_tester(task_ids,'data',mess_array,0);
+            [are_avail,mess_names] =itcm.check_whats_coming_tester(task_ids,'data',mess_array,0);
             assertEqual(numel(are_avail),10)
             assertEqual(sum(are_avail),1)
             assertTrue(are_avail(2))
+            assertEqual(mess_names{2},'failed')
+            assertEqual(mess_names{3},'log') % ! beware. Though not worth changing
+            
         end
         %
-        function test_check_whats_coming_2(~)
+        function test_check_whats_coming_fail_overrides(~)
             init_struct = iMessagesFramework.build_worker_init(tmp_dir, ...
                 'test_check_whats_coming_1mess', 'MessagesFilebased', 1, 10,'test_mode');
             
@@ -616,56 +634,82 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             
             task_ids = 1:itcm.numLabs;
             mess_array = cell(1,numel(task_ids));
-            are_avail=itcm.check_whats_coming_tester(task_ids,'log',mess_array,0);
+            [are_avail,mess_names]=itcm.check_whats_coming_tester(task_ids,'log',mess_array,0);
             assertEqual(numel(are_avail),10)
             assertEqual(sum(are_avail),2)
             assertTrue(are_avail(3))
             assertTrue(are_avail(6))
             mess_array{3} = lm;
+            assertEqual(mess_names{3},'log')
+            assertEqual(mess_names{6},'log')
             
-            are_avail=itcm.check_whats_coming_tester(task_ids,'data',mess_array,0);
+            
+            [are_avail,mess_names]=itcm.check_whats_coming_tester(task_ids,'data',mess_array,0);
             assertEqual(numel(are_avail),10)
             assertEqual(sum(are_avail),2)
             assertTrue(are_avail(2))
             assertTrue(are_avail(4))
             mess_array{2} = dm;
+            assertEqual(mess_names{2},'data')
+            assertEqual(mess_names{4},'data')
             
             
-            are_avail=itcm.check_whats_coming_tester(task_ids,'log',mess_array,0);
+            
+            [are_avail,mess_names]=itcm.check_whats_coming_tester(task_ids,'log',mess_array,0);
             assertEqual(numel(are_avail),10)
             assertEqual(sum(are_avail),2)
+            assertFalse(are_avail(2))
             assertTrue(are_avail(3))
             assertTrue(are_avail(6))
+            assertEqual(mess_names{2},'data')
+            assertEqual(mess_names{3},'log')
+            assertEqual(mess_names{6},'log')
             
-            are_avail=itcm.check_whats_coming_tester(task_ids,'data',mess_array,0);
+            
+            [are_avail,mess_names]=itcm.check_whats_coming_tester(task_ids,'data',mess_array,0);
             assertEqual(numel(are_avail),10)
             assertEqual(sum(are_avail),1)
             assertTrue(are_avail(4))
+            assertFalse(are_avail(2))
+            assertEqual(mess_names{2},'data')
+            assertEqual(mess_names{3},'log')
+            assertEqual(mess_names{4},'data')
+            
             
             [ok, err] = itcm.send_message(3,'completed');
             assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
             
-            are_avail=itcm.check_whats_coming_tester(task_ids,'completed',mess_array,0);
+            [are_avail,mess_names]=itcm.check_whats_coming_tester(task_ids,'completed',mess_array,0);
             assertEqual(numel(are_avail),10)
             assertEqual(sum(are_avail),1)
             assertTrue(are_avail(3))
+            assertEqual(mess_names{3},'completed')
+            assertEqual(mess_names{2},'data')
+            
+            
             
             [ok, err] = itcm.send_message(2,'completed');
             assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
             
-            are_avail=itcm.check_whats_coming_tester(task_ids,'completed',mess_array,0);
+            [are_avail,mess_names]=itcm.check_whats_coming_tester(task_ids,'completed',mess_array,0);
             assertEqual(numel(are_avail),10)
             assertEqual(sum(are_avail),1)
             assertFalse(are_avail(2))
             assertTrue(are_avail(3))
+            assertEqual(mess_names{2},'data')
+            assertEqual(mess_names{3},'completed')
             
             [ok, err] = itcm.send_message(2,FailedMessage);
             assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
-            are_avail=itcm.check_whats_coming_tester(task_ids,'data',mess_array,0);
+            [are_avail,mess_names]=itcm.check_whats_coming_tester(task_ids,'data',mess_array,0);
             assertEqual(numel(are_avail),10)
             assertEqual(sum(are_avail),2)
             assertTrue(are_avail(2))
             assertTrue(are_avail(4))
+            assertEqual(mess_names{2},'failed')
+            assertEqual(mess_names{3},'log')
+            assertEqual(mess_names{4},'data')
+            
         end
         %
         function test_data_queue(obj)

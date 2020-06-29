@@ -1,4 +1,4 @@
-function    [receive_now,n_steps] = check_whats_coming_(obj,task_ids,mess_name,mess_array,n_steps)
+function    [receive_now,message_names_array,n_steps] = check_whats_coming_(obj,task_ids,mess_name,mess_array,n_steps)
 % check what messages will be arriving during next step waiting in
 % synchroneous mode
 %
@@ -10,8 +10,10 @@ function    [receive_now,n_steps] = check_whats_coming_(obj,task_ids,mess_name,m
 %               represented by empty cells
 % Returns:
 % receive_now  - boolean array of size task_ids, where true indicates
-%               that message from correspondent task id is present and
-%               can be read.
+%                that message from correspondent task id is present and
+%                can be read.
+% message_names - cellarray of messages present in the system and available
+%                 to receive
 %
 
 % have it appeared?
@@ -21,7 +23,17 @@ mess_to_keep = cellfun(@to_keep,mess_array,'UniformOutput',true);
 % verify data messages already present not to force overwriting
 % existing received data messages
 receive_now = ismember(task_ids,tid_from);
+new_mess_array = cell(1,numel(receive_now));
+new_mess_array(receive_now) = message_names(:);
+
+
+
 receive_now = receive_now & ~mess_to_keep;
+
+message_names_array = cellfun(@extract_name,mess_array,'UniformOutput',false);
+message_names_array(receive_now)  = new_mess_array(receive_now);
+
+
 
 inrerrupt_names = MESS_NAMES.instance().interrupts;
 are_interrupts = ismember(message_names,inrerrupt_names);
@@ -29,6 +41,7 @@ if any(are_interrupts )
     interrupts_from = tid_from(are_interrupts);
     read_these = ismember(task_ids,interrupts_from );
     receive_now = receive_now | read_these;
+    message_names_array(read_these)  = message_names(are_interrupts);    
 end
 
 
@@ -47,3 +60,10 @@ if isempty(mess)
     return
 end
 yes = mess.is_blocking;
+
+function name = extract_name(mess)
+if isempty(mess)
+    name = '';
+else
+    name=mess.mess_name;
+end

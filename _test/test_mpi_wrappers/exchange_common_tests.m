@@ -21,6 +21,9 @@ classdef exchange_common_tests < MPI_Test_Common
         end
         %
         function test_JobExecutor_canceled(obj)
+            % the logic of jobExecutor processing canceled message is
+            % tested here. 
+            %
             serverfbMPI = MessagesFilebased(['test_JE_',obj.framework_name,'_canceled']);
             serverfbMPI.mess_exchange_folder = tmp_dir;
             
@@ -64,7 +67,7 @@ classdef exchange_common_tests < MPI_Test_Common
             
         end
         %
-        function test_JobExecutor_failed(obj)
+        function test_JobExecutor_slave_failed_master_canceled(obj)
             % Substantial part of parallel worker logic, related to jobExecutor
             % initialization and completeon operations is tested here.
             %
@@ -146,12 +149,12 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(ok, MESS_CODES.ok, ['Error = ', err])
             
             je.log_progress(5, 9, 2, '1');
-            
+            % Here is the end: node 2 completed
             mess = CompletedMessage();
             mess.payload = 'Job 2 has been completed';
             [ok, err] = intercomm.send_message(2, mess);
             assertEqual(ok, MESS_CODES.ok, ['Error = ', err])
-            
+            % Here is the end: node 3 Failed            
             mess = FailedMessage('Test Failure from Node 3');
             [ok, err] = intercomm.send_message(3, mess);
             assertEqual(ok, MESS_CODES.ok, ['Error = ', err])
@@ -1113,6 +1116,33 @@ classdef exchange_common_tests < MPI_Test_Common
             
         end
         %
+        function test_receive_sync_async_override(obj)
+            % testing that direct synchroneous/asynchroneous requests
+            % overrides default test request for message
+
+            if obj.ignore_test
+                return
+            end
+            m_comm = feval(obj.comm_name);
+            clob_s = onCleanup(@()(finalize_all(m_comm )));
+
+            assertEqual(double(m_comm.labIndex), 1);
+            assertEqual(double(m_comm.numLabs), 10);
+            
+            % blocking receive in test mode is not alowed
+            f = @()receive_message(m_comm,5, 'log','-synch');
+            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:runtime_error')
+            
+            mess = LogMessage(1, 10, 1, []);
+            [ok, err_mess] = m_comm.send_message(5, mess);
+            assertEqual(ok, MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+
+            [ok, err_mess, messR] = m_comm.receive_message(5, mess.mess_name);
+            assertEqual(ok, MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            assertEqual(mess, messR);
+        end
         function test_SendReceive(obj)
             % Test communications in test mode
             if obj.ignore_test

@@ -12,7 +12,7 @@ message=[];
 
 [is,err_code,err_mess] = check_job_canceled_(obj); % only framework dead
 %                        returns canceled, canceled message still can be
-%                        received.
+%                        received later.
 if is ; return; end
 %
 message = obj.get_interrupt(from_task_id);
@@ -70,7 +70,8 @@ try_limit = 100;
 received = false;
 [rlock_file,wlock_file] = build_lock_fname_(mess_fname);
 %
-while exist(wlock_file,'file')==2 % wait until message is writing. CAN IT LOCK wlock_file deleteon?
+while exist(wlock_file,'file')==2 % wait until message is writing. 
+    % CAN IT LOCK the wlock_file deletion?
     % Should not be necessary as probe_all messages above should not pick up 
     % locked files, buit in reality write_lock may appear on system after
     % the data file, this check may be useful. 

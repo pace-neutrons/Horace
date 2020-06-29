@@ -170,6 +170,11 @@ classdef MessagesFilebased < iMessagesFramework
             % or:
             % >>[ok,err_mess,message] = mf.receive_message(id,'any', ...
             %                           ['-synchronous'|'-synchronous'])
+            % or 
+            % >>[ok,err_mess,message] = mf.receive_message(id, ...
+            %                           ['-synchronous'|'-synchronous'])
+            % which is equivalent to mf.receive_message(id,'any',___)
+
             %
             % Inputs:
             % id        - the address of the lab to receive message from
@@ -214,6 +219,8 @@ classdef MessagesFilebased < iMessagesFramework
             % if no messages are present in the system
             % all_messages_names and task_ids are empty
             %
+            % Always return Inerrtupt message if any is present
+            %
             if nargin<2
                 task_ids_in = 'all';
             end
@@ -222,11 +229,7 @@ classdef MessagesFilebased < iMessagesFramework
             end
             if isempty(mess_name)
                 mess_name = 'any';
-            end
-            if ischar(task_ids_in) && strcmp(task_ids_in,'any')
-                warning('Outdated receive interface -- keyword all should be used')
-                task_ids_in = 'all';
-            end
+            end  
             
             if ((ischar(mess_name) && ~strcmp(mess_name,'any')) || ...
                     (isnumeric(mess_name) && mess_name ~=-1))
@@ -401,7 +404,7 @@ classdef MessagesFilebased < iMessagesFramework
             mess_fname = MessagesFilebased.mess_fname_(obj,lab_to,mess_name,lab_from,is_sender);
         end
         %
-        function    [receive_now,n_steps] = check_whats_coming(obj,task_ids,mess_name,mess_array,n_steps)
+        function    [receive_now,message_names_array,n_steps] = check_whats_coming(obj,task_ids,mess_name,mess_array,n_steps)
             % Service function to check what messages will be arriving during next step waiting in
             % synchroneous mode
             %
@@ -422,8 +425,10 @@ classdef MessagesFilebased < iMessagesFramework
             % receive_now    -- boolean array of size task_ids, where true indicates
             %                   that message from correspondent task id is present and
             %                   can be read.
+            % message_names_array -- cellarray of message names to read
+            %                    now. 
             %
-            [receive_now,n_steps] = check_whats_coming_(obj,task_ids,mess_name,mess_array,n_steps);
+            [receive_now,message_names_array,n_steps] = check_whats_coming_(obj,task_ids,mess_name,mess_array,n_steps);
         end
         %
         function obj = set_job_id_(obj,new_job_id)

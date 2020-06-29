@@ -563,7 +563,7 @@ classdef iMessagesFramework < handle
         n_labs = get_num_labs_(obj);
         %
         is = get_is_tested(obj);
-        %
+        % 
     end
     methods(Access = protected)
         %
@@ -619,6 +619,7 @@ classdef iMessagesFramework < handle
             is_blocking = obj.check_is_blocking(mess_name,varargin);
         end
         
+
     end
     
 end

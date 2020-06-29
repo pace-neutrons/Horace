@@ -65,5 +65,3 @@ if strcmp(fin_mess.mess_name,'failed')
         'Task N%d has been interrupted at log point at step %d#%d as other worker(s) reported failure',...
         obj.labIndex,step,n_steps);
 end
-
-end
