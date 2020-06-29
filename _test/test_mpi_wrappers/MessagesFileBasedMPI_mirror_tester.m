@@ -51,12 +51,7 @@ classdef MessagesFileBasedMPI_mirror_tester < MFTester
             mess_fname= obj.mess_name_fun_(mess_name,lab_to,lab_from,varargin{:});
             
         end
-        function [start_queue_num,free_queue_num]=list_queue_messages(obj,mess_name,send_from,sent_to,varargin)
-            % overload list_queue_messages to do opposite transfer
-            [start_queue_num,free_queue_num]=...
-                list_queue_messages@MessagesFilebased(obj,mess_name,sent_to,send_from,varargin{:});
-        end
-        
+
     end
     methods(Static,Access=protected)
         function mess_fname = mess_fname_rev(obj,lab_to,mess_name,lab_from,is_sender)
@@ -67,7 +62,7 @@ classdef MessagesFileBasedMPI_mirror_tester < MFTester
             % lab_from  -- if present, the number of the lab to send
             %              message from, if not there, from this lab
             %              assumed
-            % is_sender     -- make sence for data messages only (blocking messages)
+            % is_sender     -- make sense for data messages only (blocking messages)
             %               , as they  have to be numbered, and each send
             %               must meet its receiver without overtaking.
             %

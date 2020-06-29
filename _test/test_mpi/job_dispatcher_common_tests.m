@@ -29,7 +29,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             end
             clear mex;
             do_pause = is_jenkins;
-            do_pause = true;
+            do_pause = false;
             
             hc = herbert_config;
             display_fail_log = hc.log_level>0;

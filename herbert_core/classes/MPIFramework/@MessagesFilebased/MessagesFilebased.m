@@ -98,7 +98,7 @@ classdef MessagesFilebased < iMessagesFramework
             obj.numLabs_ = NumLabs;
             obj.send_data_messages_count_ = ones(1,NumLabs+1);
             obj.receive_data_messages_count_ = ones(1,NumLabs+1);
-
+            
         end
         %
         function set.mess_exchange_folder(obj,val)
@@ -472,32 +472,6 @@ classdef MessagesFilebased < iMessagesFramework
             % Matlab session)
             is = obj.is_tested_;
         end
-        
-        function [start_queue_num,free_queue_num]=list_queue_messages(obj,...
-                mess_name,send_from,sent_to,varargin)
-            % process list of the messages already sent from this routine and placed in
-            % a queue and return the numbers of the first message in the queue and
-            % the number of the  first free place in the queue
-            %
-            % Inputs:
-            % mess_name   -- the name of the messages in the queue
-            % send_from   -- the number of job (lab) the messages should be send
-            % sent_to     -- the number of job (lab) the messages should be directed.
-            % Optional:
-            % '-show_locked' -- the key, which allows to show messages
-            %                 currently in the process of writing by other
-            %                 workers. By default, locked messages are not
-            %                 shown.
-            % Outputs:
-            % start_queue_num -- the number of the first message to pop from the queue.
-            % free_queue_num  -- the number of the free space in the queue, i.e. the
-            %                    next message to pop in the queue.
-            
-            [start_queue_num,free_queue_num]=...
-                list_queue_messages_(obj.mess_exchange_folder,obj.job_id,...
-                mess_name,send_from,sent_to,varargin{:});
-        end
-        
     end
     methods(Static,Access=protected)
         function mess_fname = mess_fname_(obj,lab_to,mess_name,lab_from,is_sender)
@@ -509,12 +483,12 @@ classdef MessagesFilebased < iMessagesFramework
             %              message from, if not there, from this lab
             %              assumed
             % is_sender     -- make sence for data messages only (blocking messages)
-            %               , as they  have to be numbered, and each send 
-            %               must meet its receiver without overtaking. 
+            %               , as they  have to be numbered, and each send
+            %               must meet its receiver without overtaking.
             %
             %               if true, defines data message name for sender.
             %               false - for received.
-            % Returns 
+            % Returns
             if MESS_NAMES.is_blocking(mess_name)
                 if is_sender
                     mess_num = obj.send_data_messages_count_(lab_to+1);
