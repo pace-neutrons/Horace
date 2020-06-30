@@ -211,7 +211,7 @@ classdef MatlabMPIWrapper < handle
             if nargin<2
                 lab_id = [];
             end
-            if ~exist('is_blocking','var')
+            if ~exist('is_blocking','var') % occurs only in testing
                 is_blocking = MESS_NAMES.is_blocking(mess_tag);
             end
             if obj.do_logging_
@@ -230,7 +230,7 @@ classdef MatlabMPIWrapper < handle
                     how,lab_name,mess_name);
             end
             [message,tag] = labReceive_(obj,lab_id,mess_tag,is_blocking);
-            if ~is_blocking && ~(isempty(message) || message.is_blocking )
+            if ~isempty(message) && ~message.is_blocking
                 % receive and collapse all non-blocking messages with the same tag
                 mess = message;
                 tag = mess.tag;

@@ -18,6 +18,8 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
         %
         function test_finalize_all(~)
             mf = MFTester('test_finalize_all');
+            clon = onCleanup(@()finalize_all(mf));
+            %
             [ok, err] = mf.send_message(0, 'starting');
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
@@ -35,8 +37,6 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertTrue(isempty(all_messages_names));
             assertTrue(isempty(task_ids));
             %
-            
-            
             ok = mf.is_job_canceled();
             assertFalse(ok);
             mf.finalize_all();

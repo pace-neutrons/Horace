@@ -30,6 +30,8 @@ if nargin<3
     DO_DEBUGGING = false;
 end
 je = [];
+ok = false;
+err_mess = 'Failure in the initialization procedure';
 %
 % Check current state of mpi framework and set up deployment status
 % within Matlab code to run

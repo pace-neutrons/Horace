@@ -50,7 +50,7 @@ t0 = tic;
 while ~all_received
     for i=1:n_requested
         if present_now(i)
-            [ok,err_mess,message]=obj.receive_message(task_ids(i),mess_names_present{i});
+            [ok,err_mess,message]=obj.receive_message_internal(task_ids(i),mess_names_present{i},lock_until_received);
             if ok ~= MESS_CODES.ok
                 if ok == MESS_CODES.job_canceled
                     error('MESSAGE_FRAMEWORK:canceled',err_mess);

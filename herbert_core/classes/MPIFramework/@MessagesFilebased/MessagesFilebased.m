@@ -141,58 +141,6 @@ classdef MessagesFilebased < iMessagesFramework
             [ok,err_mess,wlock_obj] = send_message_(obj,task_id,message);
         end
         %
-        function [ok,err_mess,message] = receive_message(obj,varargin)
-            % receive message from a task with specified id.
-            %
-            % Blocking  or unblocking behavior depends on requested message
-            % type or can be requested explicitly.
-            %
-            % If the requested message type is blocking, blocks until the
-            % message is available
-            % if it is unblocking, return empty message if appropriate message
-            % is not present in system
-            %
-            % Asking a server for a message synchroneously, may block a
-            % client if other type of message has been send by server.
-            % Exception is FailureMessage, which, if send, will be received
-            % in any circumstances.
-            %
-            %
-            % Usage:
-            % >>mf = MessagesFramework();
-            % >>[ok,err_mess,message] = mf.receive_message(id,mess_name, ...
-            %                           ['-synchronous'|'-asynchronous'])
-            % or:
-            % >>[ok,err_mess,message] = mf.receive_message(id,'any', ...
-            %                           ['-synchronous'|'-synchronous'])
-            % or 
-            % >>[ok,err_mess,message] = mf.receive_message(id, ...
-            %                           ['-synchronous'|'-synchronous'])
-            % which is equivalent to mf.receive_message(id,'any',___)
-
-            %
-            % Inputs:
-            % id        - the address of the lab to receive message from
-            % mess_name - name/tag of the message to receive.
-            %             'any' means any tag.
-            % Optional:
-            % ['-s[ynchronous]'|'-a[synchronous]'] -- override default message
-            %              receiving rules and receive the message
-            %              block program execution if '-synchronous' keyword
-            %              is provided, or continue execution if message has
-            %              not been send ('-asynchronous' mode).
-            %
-            %Returns:
-            %
-            % >>ok  if MPI_err.ok, message have been successfully
-            %       received from task with the specified id.
-            % >>    if not, error_mess and error code indicates reasons for
-            %       failure.
-            % >> on success, message contains an object of class aMessage,
-            %        with the received message contents.
-            %
-            [ok,err_mess,message] = receive_message_(obj,varargin{:});
-        end
         %
         function [all_messages_names,task_ids] = probe_all(obj,task_ids_in,mess_name)
             % list all messages existing in the system with id-s specified as input
@@ -224,7 +172,7 @@ classdef MessagesFilebased < iMessagesFramework
             end
             if isempty(mess_name)
                 mess_name = 'any';
-            end  
+            end
             
             if ((ischar(mess_name) && ~strcmp(mess_name,'any')) || ...
                     (isnumeric(mess_name) && mess_name ~=-1))
@@ -386,6 +334,61 @@ classdef MessagesFilebased < iMessagesFramework
             % Matlab session)
             is = obj.is_tested_;
         end
+        %
+        function [ok,err_mess,message] = receive_message_internal(obj,...
+                from_task_id,mess_name,is_blocking)
+            % receive message from a task with specified id.
+            %
+            % Blocking  or unblocking behavior depends on requested message
+            % type or can be requested explicitly.
+            %
+            % If the requested message type is blocking, blocks until the
+            % message is available
+            % if it is unblocking, return empty message if appropriate message
+            % is not present in system
+            %
+            % Asking a server for a message synchroneously, may block a
+            % client if other type of message has been send by server.
+            % Exception is FailureMessage, which, if send, will be received
+            % in any circumstances.
+            %
+            %
+            % Usage:
+            % >>mf = MessagesFramework();
+            % >>[ok,err_mess,message] = mf.receive_message(id,mess_name, ...
+            %                           ['-synchronous'|'-asynchronous'])
+            % or:
+            % >>[ok,err_mess,message] = mf.receive_message(id,'any', ...
+            %                           ['-synchronous'|'-synchronous'])
+            % or
+            % >>[ok,err_mess,message] = mf.receive_message(id, ...
+            %                           ['-synchronous'|'-synchronous'])
+            % which is equivalent to mf.receive_message(id,'any',___)
+            
+            %
+            % Inputs:
+            % id        - the address of the lab to receive message from
+            % mess_name - name/tag of the message to receive.
+            %             'any' means any tag.
+            % Optional:
+            % ['-s[ynchronous]'|'-a[synchronous]'] -- override default message
+            %              receiving rules and receive the message
+            %              block program execution if '-synchronous' keyword
+            %              is provided, or continue execution if message has
+            %              not been send ('-asynchronous' mode).
+            %
+            %Returns:
+            %
+            % >>ok  if MESS_CODES.ok, message have been successfully
+            %       received from task with the specified id.
+            % >>    if not, error_mess and error code indicates reasons for
+            %       failure.
+            % >> on success, message contains an object of class aMessage,
+            %        with the received message contents.
+            %
+            %
+            [ok,err_mess,message] = receive_message_(obj,from_task_id,mess_name,is_blocking);
+        end
     end
     methods(Static,Access=protected)
         function mess_fname = mess_fname_(obj,lab_to,mess_name,lab_from,is_sender)
@@ -418,6 +421,7 @@ classdef MessagesFilebased < iMessagesFramework
                     mess_name,lab_from,lab_to));
             end
         end
+        
         
     end
 end

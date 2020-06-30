@@ -1,4 +1,4 @@
-function [err_code,err_mess,message] = receive_message_(obj,from_task_id,varargin)
+function [err_code,err_mess,message] = receive_message_(obj,from_task_id,mess_name,is_blocking)
 % Receive message from job with the task_id (MPI rank) specified as input
 %
 % if task_id is empty, or equal to 'any' throws
@@ -6,10 +6,6 @@ function [err_code,err_mess,message] = receive_message_(obj,from_task_id,varargi
 %
 message=[];
 %
-% call parent function to check and validate inputs
-[from_task_id,mess_name,is_blocking]=obj.check_receive_inputs(from_task_id,varargin{:});
-%
-
 [is,err_code,err_mess] = check_job_canceled_(obj); % only framework dead
 %                        returns canceled, canceled message still can be
 %                        received later.
