@@ -48,6 +48,10 @@ methods
         is = ~obj.closed;
     end
 
+    function obj = set_npixels(obj, npix)
+        obj.npixels_ = npix;
+    end
+
 end
 
 end
