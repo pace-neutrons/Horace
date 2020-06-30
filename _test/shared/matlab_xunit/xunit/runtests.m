@@ -1,4 +1,4 @@
-function out = runtests(varargin)
+function [out,suite] = runtests(varargin)
 %runtests Run unit tests
 %   runtests runs all the test cases that can be found in the current directory
 %   and summarizes the results in the Command Window.

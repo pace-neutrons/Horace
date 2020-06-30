@@ -127,7 +127,8 @@ else
     time = bigtic();
     test_ok = false(1,numel(test_folders_full));
     for i=1:numel(test_folders_full)
-        test_ok(i) = runtests(test_folders_full{i});
+        [test_ok(i),suite] = runtests(test_folders_full{i});
+        suite.delete();
     end
     tests_ok = all(test_ok);    
     bigtoc(time, '===COMPLETED UNIT TESTS RUN ');
