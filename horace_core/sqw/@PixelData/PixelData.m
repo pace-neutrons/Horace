@@ -88,7 +88,9 @@ properties (Access=private)
     page_memory_size_ = 3e9;  % 3Gb - the maximum amount of memory a page can use
     pix_position_ = 1;  % the pixel index in the file of the first pixel in the cache
     max_page_size_;  % the maximum number of pixels that can fie in the page memory size
-    page_dirty_ = false;  % true if page of data in memory differs from data in the file
+    page_dirty_ = false;  % true if page of data in memory differs from data in the page file
+    object_id_;  % random unique identifier for this object, used for tmp file names
+    page_number_ = 1;
 end
 
 properties (Dependent)
@@ -217,6 +219,7 @@ methods
         %               argument does nothing if the class is contstructed with
         %               in-memory data. (Optional)
         %
+        obj.object_id_ = polyval(randi([0, 9], 1, 5), 10);
         if nargin == 0
             return
         end
@@ -377,11 +380,16 @@ methods
         % Load the next page of pixel data from the file backing the object
         %
         % This function will throw a PIXELDATA:advance error if attempting to
-        % advance past the final page of data in the file
+        % advance past the final page of data in the file.
+        %
+        % This function does nothing if the pixel data is not file-backed.
         %
         if obj.is_file_backed()
+            if obj.page_dirty_(obj.page_number_)
+                obj.write_dirty_pix_();
+            end
             try
-                obj.load_page_(obj.pix_position_ + obj.max_page_size_);
+                obj.load_page_(obj.page_number_ + 1);
             catch ME
                 switch ME.identifier
                 case 'PIXELDATA:load_page_'
@@ -392,6 +400,10 @@ methods
                     rethrow(ME);
                 end
             end
+            obj.page_number_ = obj.page_number_ + 1;
+            if numel(obj.page_dirty_) < obj.page_number_
+                obj.set_page_dirty_(false);
+            end
         end
     end
 
@@ -401,6 +413,7 @@ methods
         if obj.is_file_backed()
             obj.data_ = zeros(obj.PIXEL_BLOCK_COLS_, 0);
             obj.pix_position_ = 1;
+            obj.page_number_ = 1;
         end
     end
 
@@ -427,8 +440,10 @@ methods
                    'numeric type, found ''%i'''];
             error('PIXELDATA:data', msg, class(pixel_data));
         end
+        if ~isempty(obj.data_)  % this is the first set call
+            obj.set_page_dirty_(true);
+        end
         obj.data_ = pixel_data;
-        obj.page_dirty_ = true;
     end
 
     function u1 = get.u1(obj)
@@ -439,7 +454,7 @@ methods
     function obj = set.u1(obj, u1)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('u1'), :) = u1;
-        obj.page_dirty_ = true;
+        obj.set_page_dirty_(true);
     end
 
     function u2 = get.u2(obj)
@@ -450,7 +465,7 @@ methods
     function obj = set.u2(obj, u2)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('u2'), :) = u2;
-        obj.page_dirty_ = true;
+        obj.set_page_dirty_(true);
     end
 
     function u3 = get.u3(obj)
@@ -461,7 +476,7 @@ methods
     function obj = set.u3(obj, u3)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('u3'), :) = u3;
-        obj.page_dirty_ = true;
+        obj.set_page_dirty_(true);
     end
 
     function dE = get.dE(obj)
@@ -472,7 +487,7 @@ methods
     function obj = set.dE(obj, dE)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('dE'), :) = dE;
-        obj.page_dirty_ = true;
+        obj.set_page_dirty_(true);
     end
 
     function coord_data = get.coordinates(obj)
@@ -483,7 +498,7 @@ methods
     function obj = set.coordinates(obj, coordinates)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('coordinates'), :) = coordinates;
-        obj.page_dirty_ = true;
+        obj.set_page_dirty_(true);
     end
 
     function coord_data = get.q_coordinates(obj)
@@ -494,7 +509,7 @@ methods
     function obj = set.q_coordinates(obj, q_coordinates)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('q_coordinates'), :) = q_coordinates;
-        obj.page_dirty_ = true;
+        obj.set_page_dirty_(true);
     end
 
     function run_index = get.run_idx(obj)
@@ -505,7 +520,7 @@ methods
     function obj = set.run_idx(obj, iruns)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('run_idx'), :) = iruns;
-        obj.page_dirty_ = true;
+        obj.set_page_dirty_(true);
     end
 
     function detector_index = get.detector_idx(obj)
@@ -516,7 +531,7 @@ methods
     function obj = set.detector_idx(obj, detector_indices)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('detector_idx'), :) = detector_indices;
-        obj.page_dirty_ = true;
+        obj.set_page_dirty_(true);
     end
 
     function detector_index = get.energy_idx(obj)
@@ -527,7 +542,7 @@ methods
     function obj = set.energy_idx(obj, energies)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('energy_idx'), :) = energies;
-        obj.page_dirty_ = true;
+        obj.set_page_dirty_(true);
     end
 
     function signal = get.signal(obj)
@@ -538,7 +553,7 @@ methods
     function obj = set.signal(obj, signal)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('signal'), :) = signal;
-        obj.page_dirty_ = true;
+        obj.set_page_dirty_(true);
     end
 
     function variance = get.variance(obj)
@@ -549,7 +564,7 @@ methods
     function obj = set.variance(obj, variance)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('variance'), :) = variance;
-        obj.page_dirty_ = true;
+        obj.set_page_dirty_(true);
     end
 
     function num_pix = get.num_pixels(obj)
@@ -580,7 +595,7 @@ methods (Access = private)
                                   obj.f_accessor_.filename);
     end
 
-    function obj = load_page_(obj, pix_idx_start)
+    function obj = load_clean_page_(obj, pix_idx_start)
         % Load a page of data from the file starting at the given index
         if pix_idx_start >= obj.num_pixels
             error('PIXELDATA:load_page_', ...
@@ -601,6 +616,15 @@ methods (Access = private)
         obj.pix_position_ = pix_idx_start;
     end
 
+    function obj = load_page_(obj, page_number)
+        if ~(page_number > numel(obj.page_dirty_)) && obj.page_dirty_(page_number)
+            obj.load_dirty_page_(page_number);
+        else
+            pix_position = (page_number - 1)*obj.max_page_size_ + 1;
+            obj.load_clean_page_(pix_position);
+        end
+    end
+
     function obj = load_first_page_if_data_empty_(obj)
         % Check if there's any data in the current page and load a page if not
         %   This function does nothing if pixels are not file-backed
@@ -615,6 +639,84 @@ methods (Access = private)
         num_bytes_in_val = 8;  % pixel data stored in memory as a double
         num_bytes_in_pixel = num_bytes_in_val*obj.PIXEL_BLOCK_COLS_;
         page_size = floor(mem_alloc/num_bytes_in_pixel);
+    end
+
+    function obj = load_dirty_page_(obj, page_number)
+        file_path = obj.generate_dirty_pix_file_path_(page_number);
+        file_id = fopen(file_path, 'rb');
+        try
+            raw_pix = fread(file_id, 'float32');
+            raw_pix = reshape(raw_pix, [9, numel(raw_pix)/9]);
+            obj.data = raw_pix;
+        catch ME
+            fclose(file_id);
+            rethrow(ME);
+        end
+        fclose(file_id);
+    end
+
+    function is_dirty = next_page_is_dirty_(obj)
+        try
+            is_dirty = obj.page_dirty_(obj.page_number_ + 1);
+        catch ME
+            switch ME.identifier
+            case 'MATLAB:badsubscript'
+                is_dirty = false;
+                return;
+            otherwise
+                rethrow(ME);
+            end
+        end
+    end
+
+    function obj = set_page_dirty_(obj, is_dirty)
+        obj.page_dirty_(obj.page_number_) = is_dirty;
+    end
+
+    function obj = write_dirty_pix_(obj)
+        tmp_file_path = obj.generate_dirty_pix_file_path_(obj.page_number_);
+        if ~exist(fileparts(tmp_file_path), 'dir')
+            mkdir(fileparts(tmp_file_path));
+        end
+
+        file_id = fopen(tmp_file_path, 'wb');
+        if file_id < 0
+            error('PIXELDATA:write_dirty_pix_', ...
+                  'Could not open file ''%s'' for writing.\n', tmp_file_path);
+        end
+
+        try
+            obj.write_pix_to_file_(file_id);
+        catch ME
+            fclose(file_id);
+            rethrow(ME);
+        end
+        fclose(file_id);
+    end
+
+    function obj = write_pix_to_file_(obj, file_id)
+        % TODO: improve this by not writing all data at once
+        try
+            fwrite(file_id, obj.data, 'float32');
+        catch ME
+            switch ME.identifier
+            case 'MATLAB:badfid_mx'
+                error('PIXELDATA:write_pix_to_file_', ...
+                  'Could not write to file with ID ''%d'':\n The file is not open', ...
+                  file_id);
+            otherwise
+                file_path = fopen(file_id);
+                error('PIXELDATA:write_pix_to_file_', ...
+                    'Could not write to file ''%s'':\n%s', ...
+                    file_path, ferror(file_id));
+            end
+        end
+    end
+
+    function file_path = generate_dirty_pix_file_path_(obj, page_number)
+        file_path = fullfile(tempdir(), ...
+                             sprintf('sqw_pix%05d', obj.object_id_), ...
+                             sprintf('%09d.tmp', page_number));
     end
 
 end
