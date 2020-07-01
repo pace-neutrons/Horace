@@ -598,6 +598,21 @@ methods
         end
     end
 
+    function test_setting_file_backed_pixels_preserves_changes_after_advance(obj)
+        data = rand(9, 30);
+        faccess = FakeFAccess(data);
+
+        npix_in_page = 11;
+        mem_alloc = npix_in_page*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
+        pix = PixelData(faccess, mem_alloc);
+
+        pix.u1 = 1;  % sets page 1 of u1 to all ones
+        pix.advance();  % move to second page
+        assertEqual(pix.u1, data(1, (npix_in_page + 1):(2*npix_in_page)));
+        pix.move_to_first_page();
+        assertEqual(pix.u1, ones(1, npix_in_page));
+    end
+
     % -- Helpers --
     function do_pixel_data_loop_with_f(obj, func, data)
         % func should be a function handle, it is evaluated within a
