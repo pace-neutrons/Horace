@@ -34,7 +34,7 @@ classdef MESS_NAMES < handle
         
         % tags of the messages, which are the interrupts messages
         interrupt_tags;
- 
+        
         % The tags of the messages, used by Matlab MPI to find Matlab MPI
         % framework messages.
         pool_fixture_tags;
@@ -46,7 +46,7 @@ classdef MESS_NAMES < handle
             {'any','completed','pending','queued','init',...
             'starting','started','log',...
             'barrier','data','canceled','failed'};
- 
+        
         % the messages which may communicate when Matlab MPI job is running
         % and which should be checked by probe_all for presence. The
         % fixture is necessary because of Matlab labProbe(labIndex) command
@@ -192,7 +192,7 @@ classdef MESS_NAMES < handle
                 error('MESS_NAMES:invalid_argument',....
                     'The name %s is not a registered message name\n',a_name{:});
             end
-        end        
+        end
         %
         function ft = get.pool_fixture_tags(obj)
             name2code_map = obj.name_to_tag_map_;
@@ -271,7 +271,7 @@ classdef MESS_NAMES < handle
             end
         end
         %
-        function name = mess_name(mess_id)
+        function name = mess_name(mess_id,varargin)
             % get message name derived from message code (tag)
             %
             % Input:
@@ -285,20 +285,25 @@ classdef MESS_NAMES < handle
                 name  = 'any';
                 return
             end
-            
+            if ~isnumeric(mess_id)
+                error('MESS_NAMES:invalid_argument',...
+                    'input has to be a numeric tag or tags. got: %s ',...
+                    fevalc('disp(mess_id)'))
+            end
             mn = MESS_NAMES.instance();
             code2name_map= mn.tag_to_name_map_;
             
-            if isnumeric(mess_id)
-                if numel(mess_id) > 1
-                    name = arrayfun(@(x)(code2name_map(x)),mess_id,...
-                        'UniformOutput',false);
-                else
-                    name = code2name_map(mess_id);
-                end
+            if nargin>1
+                f = @(x)MESS_NAMES.id_to_name_or_interrupt(x,code2name_map,varargin{1});
             else
-                error('MESS_NAMES:invalid_argument',...
-                    'name %s is not recognized as a message name',messname)
+                f = @(x)code2name_map(x);                
+            end
+            
+            if numel(mess_id) > 1
+                name = arrayfun(f,mess_id,...
+                    'UniformOutput',false);
+            else
+                name = f(mess_id);
             end
         end
         %
@@ -387,8 +392,18 @@ classdef MESS_NAMES < handle
                 is = cellfun(@(mn)MESS_NAMES.is_persistent(mn),mess_or_name_or_tag,...
                     'UniformOutput',true);
             end
-        end        
+        end
         %
     end
+    methods(Static,Access=private)
+        function name=id_to_name_or_interrupt(id,code2name_map,interrupt_chan)
+            if id == interrupt_chan
+                name = 'interrupt';
+            else
+                name = code2name_map(id);
+            end
+        end
+    end
+    
 end
 

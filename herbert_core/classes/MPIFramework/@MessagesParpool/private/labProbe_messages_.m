@@ -53,7 +53,7 @@ if ~isempty(fail_mess)
     [messages,task_ids_from] = obj.mix_messages(messages,task_ids_from,fail_mess,fail_from);
 end
 
-% this is not what is present on filebased.
+% check the interrupts, received earlier.
 [mess,id_from] = obj.get_interrupt(task_ids);
 % mix received messages names with old interrupt names received earlier and
 % hold in cache

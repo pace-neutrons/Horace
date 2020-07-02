@@ -38,5 +38,5 @@ if isempty(obj.MPI_)
     obj.MPI_ = MatlabMPIWrapper(obj.interrupt_chan_tag_,false);
 end
 
-obj.blocking_mess_cache_ = mess_cache(obj.MPI_.numLabs);
+%obj.blocking_mess_cache_ = mess_cache(obj.MPI_.numLabs);
 %obj.state_mess_cache_  = mess_cache(obj.MPI_.numLabs);

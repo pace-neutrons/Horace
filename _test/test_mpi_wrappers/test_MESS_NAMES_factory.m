@@ -20,6 +20,7 @@ classdef test_MESS_NAMES_factory< TestCase
             assertTrue(isnumeric(ft));
             assertTrue(numel(ft)>3);
         end
+        
         function test_persistent(~)
             is = MESS_NAMES.is_persistent('failed');
             assertTrue(is);
@@ -27,9 +28,9 @@ classdef test_MESS_NAMES_factory< TestCase
             is = MESS_NAMES.is_persistent(0);
             assertFalse(is);
             
-            mess = aMessage('canceled');
+            mess = CanceledMessage();
             is = MESS_NAMES.is_persistent(mess);
-            assertFalse(is);
+            assertTrue(is);
             
         end
         %
@@ -43,18 +44,7 @@ classdef test_MESS_NAMES_factory< TestCase
             assertTrue(isnumeric(itag))
         end
         %
-        function test_state_messages(~)
-            is = MESS_NAMES.is_state('failed');
-            assertTrue(is);
-            f_tag =  MESS_NAMES.instance().mess_id('failed');
-            is = MESS_NAMES.is_state(f_tag);
-            assertTrue(is);
-            is = MESS_NAMES.is_state('canceled');
-            assertTrue(is);
-            is = MESS_NAMES.is_state('log');
-            assertFalse(is);
-        end
-        %
+        
         function test_selection(~)
             name = MESS_NAMES.mess_name(8);
             assertTrue(ischar(name));
@@ -121,6 +111,15 @@ classdef test_MESS_NAMES_factory< TestCase
             assertFalse(is);
             is = MESS_NAMES.is_blocking(-1);
             assertFalse(is);
+        end
+        function test_mess_name_and_interrupt_channel_hack(~)
+            name = MESS_NAMES.mess_name(1:4);
+            assertTrue(iscell(name));
+            
+            name = MESS_NAMES.mess_name([1,3,100],100);
+            
+            assertTrue(iscell(name));
+            assertEqual(name{3},'interrupt');
         end
         
         

@@ -34,7 +34,8 @@ classdef test_exchange_ParpoolMPI < exchange_common_tests
             assertTrue(mpi_wrapper.is_tested);
             assertEqual(mpi_wrapper.numLabs, 6);
             assertEqual(mpi_wrapper.labIndex, 2);
-            
+            % wrapper sends-receives message not distinguishing between
+            % interrupts and not interrupts
             mess1 = LogMessage(1,10,0);
             mess2 = FailedMessage('test failure');
             mpi_wrapper.mlabSend(mess1,5);
@@ -49,17 +50,17 @@ classdef test_exchange_ParpoolMPI < exchange_common_tests
             assertEqual(source,5);
             
             [mess_r,tag,source]=mpi_wrapper.mlabReceive(5);
-            assertEqual(mess_r,mess2);
-            assertEqual(tag,mess2.tag);
+            assertEqual(mess_r,mess1);
+            assertEqual(tag,mess1.tag);
             assertEqual(source,5);
             [mess_names,source]=mpi_wrapper.mlabProbe(5);
             assertTrue(~isempty(mess_names))
-            assertEqual(mess_names{1},'log');
+            assertEqual(mess_names{1},'failed');
             assertEqual(source,5);
             
             [mess_r,tag,source]=mpi_wrapper.mlabReceive(5);
             assertEqual(mess_r,mess1);
-            assertEqual(tag,mess1.tag);
+            assertEqual(tag,mess2.tag);
             assertEqual(source,5);
         end
         %

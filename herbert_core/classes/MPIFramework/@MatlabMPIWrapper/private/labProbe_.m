@@ -42,16 +42,24 @@ tags_present = all_tags(are_present);
 source = task_id(are_present);
 % if mess_tag requested is 'any' identify the tags of the existing
 % messages looping over all possible tags
+%
 if mess_tag == -1 && ~isempty(tags_present)
     all_there = false(size(tags_present));
-
-    for i=1:numel(fixture_tags)
-        the_tag = fixture_tags(i);
-        there = arrayfun(@(nlab)labProbeTag(obj,nlab,the_tag),source);
-        all_there(there) = true;
-        tags_present(there) = the_tag;
-        if all(all_there)
-            break;
+    
+    % check interrupt channel first:
+    the_tag = obj.interrupt_chan_tag_ + obj.matalb_tag_shift_;
+    there = arrayfun(@(nlab)labProbeTag(obj,nlab,the_tag),source);
+    all_there(there) = true;
+    tags_present(there) = the_tag;
+    if ~all(all_there) % check other tags
+        for i=1:numel(fixture_tags)
+            the_tag = fixture_tags(i);
+            there = arrayfun(@(nlab)labProbeTag(obj,nlab,the_tag),source);
+            all_there(there) = true;
+            tags_present(there) = the_tag;
+            if all(all_there)
+                break;
+            end
         end
     end
     tags_present(all_there) = tags_present(all_there)-obj.matalb_tag_shift_;
@@ -60,14 +68,18 @@ end
 function present  = labProbeTag(obj,source,the_tag)
 if obj.is_tested
     cache = obj.messages_cache_(source);
-    the_tag = the_tag - obj.matalb_tag_shift_; % do not forget, 
+    the_tag = the_tag - obj.matalb_tag_shift_; % do not forget,
     %in test mode we are looking for MESS_NAMES tags, not Matlab-shifted tags
     present = find_tag_in_cache(cache,the_tag);
 else
     present = labProbe(source,the_tag);
 end
+%
 function present = find_tag_in_cache(cont,mess_tag)
-if mess_tag == -1
+% cache is not empty and some tags are present.
+% find special tag in the cache.
+%
+if mess_tag == -1 %if any tag there, and is requested
     present = true; % Ugly but mimicks real Matlab MPI behaviour
 else
     present = false;
@@ -81,9 +93,12 @@ else
         end
     end
 end
-
-
+%
 function [present,tag_found]=check_task_id(obj,tid,mess_tag)
+% check if single tag is present asking from single task.
+% if tag == -1, true is returned if message with any tag is present.
+%
+
 if obj.is_tested
     if isKey(obj.messages_cache_,tid)
         cache = obj.messages_cache_(tid);

@@ -25,10 +25,10 @@ classdef MessagesParpool < iMessagesFramework
         
         % Holder for the blocking messages, received asynchronously and
         % to be returned as requested (synchronously or asynchronously)
-        blocking_mess_cache_
+        %blocking_mess_cache_
         % Holder for the non-blocking messages, received asynchronously and
         % to be returned as requested (synchronously or asynchronously)
-        state_mess_cache_
+        %state_mess_cache_
     end
     %----------------------------------------------------------------------
     methods
@@ -190,10 +190,7 @@ classdef MessagesParpool < iMessagesFramework
             % Clear persistent fail message may be present in parent
             % framework
             obj.persistent_fail_message_ = [];
-            % clear cached messages
-            obj.blocking_mess_cache_.clear();
-            obj.state_mess_cache_.clear();
-            
+             
             % receive and reject all messages, may be send to the lab
             [mess_names,source_id] = obj.MPI_.mlabProbe('all','any');
             while ~isempty(mess_names)
