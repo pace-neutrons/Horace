@@ -74,7 +74,6 @@ classdef PixelData < matlab.mixin.Copyable
 %                  of the return value is not guaranteed
 %   page_size      The number of pixels in the currently loaded page
 %
-
 properties (Access=private)
     PIXEL_BLOCK_COLS_ = 9;
     FIELD_INDEX_MAP_ = containers.Map(...
@@ -88,7 +87,7 @@ properties (Access=private)
          'variance'}, ...
         {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9})
 
-    data_ = zeros(9, 0);  % the underlying data cached in the object
+    raw_data_ = zeros(9, 0);  % the underlying data cached in the object
     f_accessor_;  % instance of faccess object to access pixel data from file
     file_path_ = '';  % the path to the file backing this object - empty string if all data in memory
     page_memory_size_ = 3e9;  % 3Gb - the maximum amount of memory a page can use
@@ -99,6 +98,7 @@ properties (Access=private)
 end
 
 properties (Dependent, Access=private)
+    data_;  % points to raw_data_ but with a layer of validation for setting correct array sizes
     dirty_pix_dir_;  % the path to a directory in which to store tmp files
     pix_position_;  % the pixel index in the file of the first pixel in the cache
 end
@@ -241,13 +241,13 @@ methods
                 obj.page_number_ = arg.page_number_;
             else
                 % if no file exists, just copy the data
-                obj.data = arg.data;
+                obj.data_ = arg.data;
             end
             return;
         end
         if numel(arg) == 1 && isnumeric(arg) && floor(arg) == arg
             % input is an integer
-            obj.data = zeros(obj.PIXEL_BLOCK_COLS_, arg);
+            obj.data_ = zeros(obj.PIXEL_BLOCK_COLS_, arg);
             return;
         end
 
@@ -269,7 +269,7 @@ methods
         end
 
         % Input sets underlying data
-        obj.data = arg;
+        obj.data_ = arg;
     end
 
     function delete(obj)
@@ -449,6 +449,27 @@ methods
     end
 
     function obj = set.data(obj, pixel_data)
+        % This setter provides rules for public facing edits to the cached data
+        if size(pixel_data, 2) ~= obj.page_size
+            msg = ['Cannot set pixel data, invalid dimensions. Axis 2 ' ...
+                   'must have dimensions matching current page size (%i), ' ...
+                   'found ''%i''.', obj.page_size, size(pixel_data, 2)];
+            error('PIXELDATA:data', msg, class(pixel_data));
+        end
+        obj.data_ = pixel_data;
+        obj.set_page_dirty_(true);
+    end
+
+    function data = get.data_(obj)
+        data = obj.raw_data_;
+    end
+
+    function set.data_(obj, pixel_data)
+        % This setter provides rules for internally setting cached data
+        %  This is the only method that should ever touch obj.raw_data_
+
+        % The need for multiple layers of getters/setters for the raw data
+        % should be removed when the public facing getters/setters are removed
         if size(pixel_data, 1) ~= obj.PIXEL_BLOCK_COLS_
             msg = ['Cannot set pixel data, invalid dimensions. Axis 1 must '...
                    'have length %i, found ''%i''.'];
@@ -459,10 +480,7 @@ methods
                    'numeric type, found ''%i''.'];
             error('PIXELDATA:data', msg, class(pixel_data));
         end
-        if ~isempty(obj.data_)  % this is the first set call
-            obj.set_page_dirty_(true);
-        end
-        obj.data_ = pixel_data;
+        obj.raw_data_ = pixel_data;
     end
 
     function u1 = get.u1(obj)
@@ -669,7 +687,7 @@ methods (Access=private)
         end
         try
             raw_pix = fread(file_id, 'float32');
-            raw_pix = reshape(raw_pix, [9, numel(raw_pix)/9]);
+            raw_pix = reshape(raw_pix, [9, numel(raw_pix)/9]);  % TODO replace magic numbers
             obj.data_ = raw_pix;
         catch ME
             fclose(file_id);
