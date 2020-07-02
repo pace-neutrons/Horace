@@ -25,9 +25,16 @@ if ~isa(message,'aMessage')
         'Can only send instances of aMessage class, but attempting to send %s',...
         class(message));
 end
+
 mess_name = message.mess_name;
 is_blocking = message.is_blocking;
-%fprintf('\n Sending message to lab %d ',task_id);
+is_interrupt = message.is_persistent;
+if is_interrupt 
+    is_blocking = false;
+    mess_name = obj.interrupt_chan_name_;
+else
+
+end
 mess_fname = obj.job_stat_fname_(task_id,mess_name);
 
 

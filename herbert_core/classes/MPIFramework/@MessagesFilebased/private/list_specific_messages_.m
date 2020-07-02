@@ -13,7 +13,7 @@ end
 if nargin<4
     ignore_interrupts = false;
 end
-% No harm in sending filebased messages to itself, especially as 
+% No harm in sending filebased messages to itself, especially as
 % list_all_messages_ accepts them but better to keep the common interface
 % with other frameworks
 not_this = task_ids_requested ~= obj.labIndex;
@@ -46,21 +46,18 @@ end
 %
 % check interrupts
 % -------------------------------------------------------------------------
-interrupt_names = MESS_NAMES.instance().interrupts;
-if ~iscell(interrupt_names)
-    interrupt_names = {interrupt_names};
-end
+interrupt_name = obj.interrupt_chan_name_ ;
 
 
 any_interrupt   = false(1,max(task_ids_requested));
 interrupt_found = cell(1,max(task_ids_requested));
-for i=1:numel(interrupt_names )
-    [interrupt_messages,interrupt_present] = find_messages_with_name_(obj,task_ids_requested,interrupt_names{i},true);
-    if ~isempty(interrupt_messages)
-        any_interrupt(interrupt_present) = true;
-        interrupt_found(interrupt_present) = interrupt_messages(:);
-    end
+
+[interrupt_messages,interrupt_present] = find_messages_with_name_(obj,task_ids_requested,interrupt_name,true);
+if ~isempty(interrupt_messages)
+    any_interrupt(interrupt_present) = true;
+    interrupt_found(interrupt_present) = {interrupt_name};
 end
+
 % -------------------------------------------------------------------------
 net_range = max(task_ids_requested);
 net_range = 1:net_range;

@@ -66,7 +66,9 @@ else
     mess_reduction_function = [];
 end
 %
+obj.mess_framework.throw_on_interrupts = false;
 [ok,err_mess,obj] = obj.reduce_send_message(mess,'completed',mess_reduction_function,syncronize);
+obj.mess_framework.throw_on_interrupts = true;
 
 if ok == MESS_CODES.ok
     ok  = true;

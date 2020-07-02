@@ -182,14 +182,14 @@ classdef MessagesFilebased < iMessagesFramework
             else % any message
                 [all_messages_names,task_ids] = list_all_messages_(obj,task_ids_in,mess_name);
             end
-            [mess,id_from] = obj.get_interrupt(task_ids_in);
+            %[mess,id_from] = obj.get_interrupt(task_ids_in);
             % mix received messages names with old interrupt names received earlier
-            if ~isempty(mess)
-                if ~iscell(mess); mess = {mess}; end
-                int_names = cellfun(@(x)(x.mess_name),mess,'UniformOutput',false);
-                [all_messages_names,task_ids] = ...
-                    obj.mix_messages(all_messages_names,task_ids,int_names,id_from);
-            end
+            %             if ~isempty(mess)
+            %                 if ~iscell(mess); mess = {mess}; end
+            %                 int_names = cellfun(@(x)(x.mess_name),mess,'UniformOutput',false);
+            %                 [all_messages_names,task_ids] = ...
+            %                     obj.mix_messages(all_messages_names,task_ids,int_names,id_from);
+            %             end
         end
         %
         %
@@ -406,7 +406,12 @@ classdef MessagesFilebased < iMessagesFramework
             %               if true, defines data message name for sender.
             %               false - for received.
             % Returns
-            if MESS_NAMES.is_blocking(mess_name)
+            if strcmp(mess_name,obj.interrupt_chan_name_)
+                is_blocking = false;
+            else
+                is_blocking = MESS_NAMES.is_blocking(mess_name);
+            end
+            if is_blocking
                 if is_sender
                     mess_num = obj.send_data_messages_count_(lab_to+1);
                 else %receiving
@@ -420,6 +425,7 @@ classdef MessagesFilebased < iMessagesFramework
                     sprintf('mess_%s_FromN%d_ToN%d.mat',...
                     mess_name,lab_from,lab_to));
             end
+            
         end
         
         

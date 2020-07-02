@@ -1,4 +1,4 @@
-function   [all_messages,tid_received_from] = receive_all_messages_(obj,task_ids,mess_name,varargin)
+function [all_messages,tid_received_from] = receive_all_messages_(obj,task_ids,mess_name,varargin)
 % retrieve all messages sent from jobs with id provided. if ids are empty,
 % all messages, intended for this job.
 %
@@ -15,17 +15,6 @@ if ~exist('mess_name','var') || isempty(mess_name)
     mess_name = 'any';
 end
 lock_until_received = obj.check_is_blocking(mess_name,varargin);
-if lock_until_received
-    how = '-synchronously';
-else
-    how = '-asynchronously';
-end
-
-if obj.DEBUG_
-    disp(['********** ',how,'  waiting for message: ',mess_name,' to arrive from tasks: ']);
-    disp(task_ids')
-end
-
 
 n_requested = numel(task_ids);
 all_messages = cell(1,n_requested);
@@ -36,10 +25,6 @@ tid_received_from = zeros(1,n_requested);
 [message_names,tid_from] = obj.probe_all(task_ids,mess_name);
 %
 present_now = ismember(task_ids,tid_from);
-if obj.DEBUG_
-    disp(' Messages present initially:');
-    disp(present_now');
-end
 mess_names_present = all_messages;
 mess_names_present(present_now) = message_names(:);
 %
@@ -52,42 +37,36 @@ while ~all_received
         if present_now(i)
             [ok,err_mess,message]=obj.receive_message_internal(task_ids(i),mess_names_present{i},lock_until_received);
             if ok ~= MESS_CODES.ok
-                if ok == MESS_CODES.job_canceled
-                    error('MESSAGE_FRAMEWORK:canceled',err_mess);
-                else
-                    error('MESSAGE_FRAMEWORK:runtime_error',...
-                        'Can not receive existing message: %s, Err: %s',...
-                        mess_names_present{i},err_mess);
-                end
+                error('MESSAGE_FRAMEWORK:runtime_error',...
+                    'Can not receive existing message: %s, Err: %s',...
+                    mess_names_present{i},err_mess);
             end
-            all_messages{i} = message;
-            tid_received_from(i) = task_ids(i);
-            mess_received(i) = true;
-        else % check canceled message
-            mess=obj.probe_all(task_ids(i),'canceled');
-            if ~isempty(mess)
-                [ok,err_message,message]=obj.receive_message(task_ids(i),'canceled');
-                if ~ok
-                    error('MESSAGE_FRAMEWORK:canceled',...
-                        'Error receiving canceled message: %s',err_message);
-                end
+            if isempty(message) %message was present, but is getting 
+                % overwritten when tried to receive it. (filebased
+                % framework feature)
+                mess_received(i) = false;
+                mess_names_present{i} = '';
+                present_now(i) = false;
+            else
                 all_messages{i} = message;
                 tid_received_from(i) = task_ids(i);
                 mess_received(i) = true;
             end
-            
-        end
-    end
-    if obj.DEBUG_
-        disp(' Messages received:');
-        disp(mess_received);
-        for i=1:numel(all_messages)
-            disp(all_messages{i});
-            if ~isempty(all_messages{i})
-                disp(all_messages{i}.payload)
+            if obj.throw_on_interrupts
+                if message.is_persistent % its interrupt % The question is is it better to throw on interrupt 
+                    if ~isempty(message.fail_text)
+                        error('MESSAGE_FRAMEWORK:canceled',...
+                            'Receive operation from node %d interrupted by getting cancellation message: %s, Reason: %s',...
+                            task_ids(i),message.mess_name,message.fail_text);
+                        
+                    else
+                        error('MESSAGE_FRAMEWORK:canceled',...
+                            'Receive operation from node %d interrupted by getting cancellation message %s',...
+                            task_ids(i),message.mess_name);
+                    end
+                end
             end
         end
-        
     end
     
     if lock_until_received
@@ -106,7 +85,7 @@ while ~all_received
                 error('MESSAGES_FRAMEWORK:runtime_error',...
                     'Issued request for missing blocking message in test mode');
             end
-            pause(0.1);
+            pause(obj.time_to_react_);
         end
     else
         break;

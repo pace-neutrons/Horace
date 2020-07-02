@@ -1,4 +1,4 @@
-function [out,suite] = runtests(varargin)
+function [out,suite_out] = runtests(varargin)
 %runtests Run unit tests
 %   runtests runs all the test cases that can be found in the current directory
 %   and summarizes the results in the Command Window.
@@ -138,9 +138,12 @@ if did_pass && num_tests_run == 0
     error('xunit:runtests:noTestCasesFound', 'No test cases were run');
 end
 
-
-out = did_pass;
-
+if nargout>0
+    out = did_pass;
+end
+if nargout>1
+    suite_out = suite;
+end
 end
 
 function yes = contains_full_win_path(ddot_ind)

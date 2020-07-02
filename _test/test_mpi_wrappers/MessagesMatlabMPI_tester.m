@@ -2,12 +2,11 @@ classdef MessagesMatlabMPI_tester < MessagesParpool
     % Class to test protected methods of MessagesParpool class
     
     properties
-        
     end
     
     methods
         function obj = MessagesMatlabMPI_tester(varargin)
-            % 
+            %
             if nargin>0
                 if isnumeric(varargin{1})
                     labID = varargin{1};
@@ -37,4 +36,3 @@ classdef MessagesMatlabMPI_tester < MessagesParpool
         
     end
 end
-

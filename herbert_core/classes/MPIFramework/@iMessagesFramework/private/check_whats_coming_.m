@@ -19,7 +19,7 @@ function    [receive_now,message_names_array,n_steps] = check_whats_coming_(obj,
 % have it appeared?
 [message_names,tid_from] = obj.probe_all(task_ids,mess_name);
 
-mess_to_keep = cellfun(@to_keep,mess_array,'UniformOutput',true);
+mess_to_keep = cellfun(@(x)to_keep(x,obj.interrupt_chan_name_),mess_array,'UniformOutput',true);
 % verify data messages already present not to force overwriting
 % existing received data messages
 receive_now = ismember(task_ids,tid_from);
@@ -35,8 +35,8 @@ message_names_array(receive_now)  = new_mess_array(receive_now);
 
 
 
-inrerrupt_names = MESS_NAMES.instance().interrupts;
-are_interrupts = ismember(message_names,inrerrupt_names);
+inrerrupt_name = obj.interrupt_chan_name_;
+are_interrupts = ismember(message_names,inrerrupt_name);
 if any(are_interrupts )
     interrupts_from = tid_from(are_interrupts);
     read_these = ismember(task_ids,interrupts_from );
@@ -54,13 +54,16 @@ if obj.DEBUG_
     end
 end
 
-function yes = to_keep(mess)
+function yes = to_keep(mess,interrupt)
 if isempty(mess)
     yes = false;
     return
 end
+if strcmp(mess,interrupt)
+    yes = true;
+else
 yes = mess.is_blocking;
-
+end
 function name = extract_name(mess)
 if isempty(mess)
     name = '';

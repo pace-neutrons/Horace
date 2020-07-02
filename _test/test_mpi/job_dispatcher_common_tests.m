@@ -28,11 +28,10 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 end
             end
             clear mex;
-            do_pause = is_jenkins;
-            do_pause = false;
-            
-            hc = herbert_config;
-            display_fail_log = hc.log_level>0;
+            %
+            %             hc = herbert_config;
+            %             display_fail_log = hc.log_level>0;
+            display_fail_log = false
             
             % overloaded to empty test -- nothing new for this JD
             % JETester specific control parameters
@@ -89,9 +88,6 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             
             co = onCleanup(@()(my_delete(file3, file3a)));
             common_param.fail_for_labsN = 1:2;
-            if do_pause
-                pause(10) % HACK: give time to complete failied jobs.
-            end
             disp('*********************************************************')
             disp('**************FAIL-2 Lab1-2 Fail  ***********************')
             disp('*********************************************************')
@@ -108,9 +104,6 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             assertTrue(sum(fin) >= 1)
             
             clear co;
-            if do_pause
-                pause(10) % HACK: give time to complete failied jobs.
-            end
             % check long job cancelled due to part of the job failed
             disp('*********************************************************')
             disp('**************FAIL 3 Lab1-2 Fail -- long job*************')
@@ -136,9 +129,6 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 end
             end
             common_param.fail_for_labsN = 3;
-            if do_pause
-                pause(10) % HACK: give time to complete failied jobs.
-            end
             disp('*********************************************************')
             disp('**************FAIL 4 Lab-3 Fail, long job****************')
             disp('*********************************************************')
@@ -177,9 +167,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             common_param = rmfield(common_param, 'fail_for_labsN');
             files = {file1, file2, file3, file3a};
             co = onCleanup(@()(my_delete(files{:})));
-            if do_pause
-                pause(10) % HACK: give time to complete failied jobs.
-            end
+            
             disp('*********************************************************')
             disp('**************RUN 5 Should finish successfully **********')
             disp('*********************************************************')
@@ -196,14 +184,12 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             disp('*********************************************************')
             
             
-            if ~(is_jenkins && isunix && n_failed >0)
-                assertEqual(n_failed, 0);
-                assertEqual(numel(outputs), 3);
-                
-                assertEqual(outputs{1}, 'Job 1 generated 1 files');
-                assertEqual(outputs{2}, 'Job 2 generated 1 files');
-                assertEqual(outputs{3}, 'Job 3 generated 2 files');
-            end
+            assertEqual(n_failed, 0);
+            assertEqual(numel(outputs), 3);
+            
+            assertEqual(outputs{1}, 'Job 1 generated 1 files');
+            assertEqual(outputs{2}, 'Job 2 generated 1 files');
+            assertEqual(outputs{3}, 'Job 3 generated 2 files');
             
             assertTrue(exist(file1, 'file') == 2);
             assertTrue(exist(file2, 'file') == 2);
@@ -251,14 +237,6 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             assertTrue(exist(file1, 'file') == 2);
             assertTrue(exist(file2, 'file') == 2);
             assertTrue(exist(file3, 'file') == 2);
-            
-%             if is_jenkins && isa(obj, 'test_job_dispatcher_herbert')
-%                 warning('Asynchroneous filebased data exchange test is disabled ');
-%                 return;
-%             elseif isa(obj, 'test_job_dispatcher_herbert')
-%                 warning('Asynchroneous filebased data exchange test is unreliable');
-%             end
-            
             
             n_steps = 30;
             common_param = struct('data_buffer_size',10000000);
@@ -332,12 +310,6 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 end
                 assertEqualToTol(outputs{i},(n_steps+1)*n_steps/2);
             end
-%             if is_jenkins && isa(obj, 'test_job_dispatcher_herbert')
-%                 warning('Asynchroneous filebased data exchange test is disabled ');
-%                 return;
-%             elseif isa(obj, 'test_job_dispatcher_herbert')
-%                 warning('Asynchroneous filebased data exchange test is unreliable');
-%             end
             
             n_steps = 3;
             [outputs, n_failed,~,jd] = jd.restart_job('JETesterWithData',...

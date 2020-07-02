@@ -37,7 +37,7 @@ classdef test_iMPI_methods< TestCase
             set(pc,obj.current_config);
         end
         %
-        function test_add_persistent(obj)
+        function test_add_persistent(~)
             mf = MessagesFilebased();
             
             mf.set_interrupt(FailedMessage('bad faulure'),1);

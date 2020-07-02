@@ -32,7 +32,7 @@ else
     % provide 'canceled' message with the information about the failure to
     % ensure that if host completed its job and is reducing message,
     % correct canceled information will be processed.
-    cm = aMessage('canceled');
+    cm = CanceledMessage();
     cm.payload = ME;
     for lid=1:n_labs
         if lid ~=this_lid

@@ -34,13 +34,7 @@ classdef MESS_NAMES < handle
         
         % tags of the messages, which are the interrupts messages
         interrupt_tags;
-        
-        % list of the messages, which should be reacted upon while waiting
-        % for other type of messages
-        state_messages
-        
-        % The tags of the state messages
-        state_mess_tags
+ 
         % The tags of the messages, used by Matlab MPI to find Matlab MPI
         % framework messages.
         pool_fixture_tags;
@@ -52,9 +46,7 @@ classdef MESS_NAMES < handle
             {'any','completed','pending','queued','init',...
             'starting','started','log',...
             'barrier','data','canceled','failed'};
-        % define state messages, which should be reacted upon receiving if
-        %  waiting for any other message
-        state_mess_ = {'canceled','failed'};
+ 
         % the messages which may communicate when Matlab MPI job is running
         % and which should be checked by probe_all for presence. The
         % fixture is necessary because of Matlab labProbe(labIndex) command
@@ -66,24 +58,27 @@ classdef MESS_NAMES < handle
     properties(Access = private,Hidden=true)
         %
         mess_class_map_ = containers.Map('UniformValues',false);
+        
         % the map between message meaningful name and the message tag
         name_to_tag_map_ = containers.Map('KeyType','char','ValueType','double');
+        
         % the map between messge tag and message meaningful name
         tag_to_name_map_ = containers.Map('KeyType','double','ValueType','char');
+        
         % list of the defined and initialised messages
         interrupts_map_ = containers.Map('KeyType','double','ValueType','char')
+        
         % property containing the list or registered message names.
         % If all messages are registered properly and factory is activated,
         % all messages from mess_names_ are registered and known_messages_
         % == mess_names_. Used as helper to debug factory and as check for
         % is_initialized property.
         known_messages_ = {};
+        
         % helper property. When true, used to  disable recursive call to
         % the factory in the process of registering message classes with
         % the factory.
         initializing_ = false;
-        % tags of the state messages
-        state_mess_tags_ = {};
     end
     
     methods(Access = private)
@@ -131,7 +126,6 @@ classdef MESS_NAMES < handle
                     obj.interrupts_map_(inter_tag) = m_name;
                 end
             end
-            obj.state_mess_tags_ = MESS_NAMES.mess_id(obj.state_mess_);
             obj.initializing_ = false;
         end
     end
@@ -198,14 +192,7 @@ classdef MESS_NAMES < handle
                 error('MESS_NAMES:invalid_argument',....
                     'The name %s is not a registered message name\n',a_name{:});
             end
-        end
-        
-        function sm = get.state_messages(obj)
-            sm  = obj.state_mess_;
-        end
-        function sm = get.state_mess_tags(obj)
-            sm  = obj.state_mess_tags_;
-        end
+        end        
         %
         function ft = get.pool_fixture_tags(obj)
             name2code_map = obj.name_to_tag_map_;
@@ -400,7 +387,7 @@ classdef MESS_NAMES < handle
                 is = cellfun(@(mn)MESS_NAMES.is_persistent(mn),mess_or_name_or_tag,...
                     'UniformOutput',true);
             end
-        end
+        end        
         %
     end
 end

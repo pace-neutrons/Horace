@@ -4,24 +4,24 @@ function [err_code,err_mess,message] = receive_message_(obj,from_task_id,mess_na
 % if task_id is empty, or equal to 'any' throws
 %
 %
-message=[];
 %
-[is,err_code,err_mess] = check_job_canceled_(obj); % only framework dead
-%                        returns canceled, canceled message still can be
-%                        received later.
-if is ; return; end
-%
-message = obj.get_interrupt(from_task_id);
-if ~isempty(message)
-    err_code  =MESS_CODES.ok;
-    err_mess=[];
-    return;
+[is,~,err_mess] = check_job_canceled_(obj); % only framework dead
+%  returns canceled, canceled message still can and should be received later.
+if is; error('MESSAGE_FRAMEWORK:canceled',err_mess);
 end
+%
+% message = obj.get_interrupt(from_task_id);
+% if ~isempty(message)
+%     err_code  =MESS_CODES.ok;
+%     err_mess=[];
+%     return;
+% end
 
 
 mess_present= false;
 t0 = tic;
 while ~mess_present
+    % may return failed or canceled message
     mess_name_present = obj.probe_all(from_task_id,mess_name);
     if ~isempty(mess_name_present )
         mess_present = true;
@@ -48,15 +48,17 @@ while ~mess_present
             
         else
             pause(obj.time_to_react_);
-            [is,err_code,err_mess] = check_job_canceled_(obj);
-            if is ; return; end
-            continue;
+            [is,~,err_mess] = check_job_canceled_(obj); % only framework dead
+            %  returns canceled, canceled message still can and should be received later.
+            if is; error('MESSAGE_FRAMEWORK:canceled',err_mess);
+            end
         end
     end
 end
 
 
-% take only the first message directed to this lab
+% take only the first message directed to this lab, includin cancellation
+% message.
 mess_fname = obj.job_stat_fname_(obj.labIndex,mess_name_present{1},from_task_id,false);
 %
 % safeguard against message start being written up
@@ -66,11 +68,14 @@ try_limit = 100;
 received = false;
 [rlock_file,wlock_file] = build_lock_fname_(mess_fname);
 %
-while exist(wlock_file,'file')==2 % wait until message is writing. 
-    % CAN IT LOCK the wlock_file deletion?
-    % Should not be necessary as probe_all messages above should not pick up 
-    % locked files, buit in reality write_lock may appear on system after
-    % the data file, this check may be useful. 
+while exist(wlock_file,'file')==2 % wait until message is writing.
+    % CAN IT LOCK the wlock_file deletion by the sender? There were
+    % suspicions.
+    %
+    % Should not be necessary as probe_all messages above should not pick up
+    % locked files, but in reality write_lock may appear on system after
+    % the data file, so this check may be useful together with proper
+    % renaming of the data file.
     pause(obj.time_to_react_);
 end
 
@@ -93,12 +98,12 @@ message = mesl.message;
 err_code  =MESS_CODES.ok;
 err_mess=[];
 
-obj.set_interrupt(message,from_task_id);
+%obj.set_interrupt(message,from_task_id);
 
 % check if a message is from the data queue and we need to progress the data
 % queue
 if message.is_blocking
-   obj.receive_data_messages_count_(from_task_id+1)=obj.receive_data_messages_count_(from_task_id+1)+1;
+    obj.receive_data_messages_count_(from_task_id+1)=obj.receive_data_messages_count_(from_task_id+1)+1;
 end
 
 unlock_(mess_fname); % fancy command to delete file

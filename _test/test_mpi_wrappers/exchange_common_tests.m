@@ -22,7 +22,7 @@ classdef exchange_common_tests < MPI_Test_Common
         %
         function test_JobExecutor_canceled(obj)
             % the logic of jobExecutor processing canceled message is
-            % tested here. 
+            % tested here.
             %
             serverfbMPI = MessagesFilebased(['test_JE_',obj.framework_name,'_canceled']);
             serverfbMPI.mess_exchange_folder = tmp_dir;
@@ -154,7 +154,7 @@ classdef exchange_common_tests < MPI_Test_Common
             mess.payload = 'Job 2 has been completed';
             [ok, err] = intercomm.send_message(2, mess);
             assertEqual(ok, MESS_CODES.ok, ['Error = ', err])
-            % Here is the end: node 3 Failed            
+            % Here is the end: node 3 Failed
             mess = FailedMessage('Test Failure from Node 3');
             [ok, err] = intercomm.send_message(3, mess);
             assertEqual(ok, MESS_CODES.ok, ['Error = ', err])
@@ -165,7 +165,7 @@ classdef exchange_common_tests < MPI_Test_Common
             catch ME
                 exception_thrown = true;
                 assertEqual(ME.identifier,'JOB_EXECUTOR:canceled')
-                assertEqual(ME.message,'Task 1 has been canceled at step 6#9')
+                assertTrue(strncmp(ME.message,'Task 1 has been canceled at step 6#9',36))
             end
             assertTrue(exception_thrown,...
                 ' log progress should throw "Canceled" when failure is identified')
@@ -257,11 +257,29 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(message.mess_name, 'log');
             assertEqual(numel(message.worker_logs), 3);
             assertTrue(iscell(message.worker_logs));
-            % step covers average of all logs steps, so characterises all
+           % step covers average of all logs steps, so characterises all
             % logs received.
             assertElementsAlmostEqual(message.step,0.6667,'absolute',1.e-4)
+                         
+            %
+            mess = LogMessage(1, 10, 1, '2');
+            [ok, err] = intercomm.send_message(2, mess);
+            assertEqual(ok, MESS_CODES.ok, ['Error = ', err])
+            mess = DataMessage();
+            mess.payload = 'd2';
+            [ok, err] = intercomm.send_message(3, mess);
+            assertEqual(ok, MESS_CODES.ok, ['Error = ', err])
             
-            mess = LogMessage(5, 10, 1, '2');
+            je.log_progress(2, 9, 2, '1');            
+            
+            [ok, err_mess, message] = serverfbMPI.receive_message(1, 'log');
+            assertEqual(ok, MESS_CODES.ok, ['Error: ', err_mess]);
+            assertEqual(message.mess_name, 'log');
+            assertEqual(numel(message.worker_logs), 2);
+            assertTrue(iscell(message.worker_logs));
+            
+            
+             mess = LogMessage(5, 10, 1, '2');
             [ok, err] = intercomm.send_message(2, mess);
             assertEqual(ok, MESS_CODES.ok, ['Error = ', err])
             mess = LogMessage(5, 10, 1, '3');
@@ -406,7 +424,7 @@ classdef exchange_common_tests < MPI_Test_Common
             [ok, err] = intercomm.send_message(3, mess_l);
             assertEqual(ok, MESS_CODES.ok, ['Send  Error = ', err])
             
-             
+            
             [all_mess, task_ids] = intercomm.receive_all('all', 'log');
             assertEqual(numel(all_mess), 1);
             assertEqual(numel(task_ids), 1);
@@ -472,8 +490,6 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(task_ids, [2,3]);
             assertEqual(all_mess{1}.step, 3);
             assertEqual(all_mess{2}.step, 4);
-            
-            
         end
         %
         function test_receive_all_mess_choose_special(obj)
@@ -625,6 +641,7 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
             
             
+            intercomm.throw_on_interrupts = false;
             [all_mess, task_ids] = intercomm.receive_all('all', 'data');
             assertEqual(numel(all_mess), 2);
             assertEqual(numel(task_ids), 2);
@@ -653,12 +670,20 @@ classdef exchange_common_tests < MPI_Test_Common
             [ok, err] = intercomm.send_message(3, FailedMessage());
             assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
             
+            intercomm.throw_on_interrupts = false;
             [messr,tid_from] = intercomm.receive_all('all', 'data');
             assertEqual(numel(messr),2)
             assertEqual(numel(tid_from),2)
             
             assertEqual(messr{1}.mess_name,'data')
             assertEqual(messr{2}.mess_name,'failed')
+
+            [ok, err] = intercomm.send_message(3, FailedMessage(' Test failure'));
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])  
+            
+            intercomm.throw_on_interrupts = true;
+            assertExceptionThrown(@()receive_all(intercomm,'all', 'data'),...
+                'MESSAGE_FRAMEWORK:canceled');
         end
         %
         function test_receive_data_log_remains(obj)
@@ -715,7 +740,7 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(numel(mess_names), 1);
             assertEqual(numel(source_id_s), 1);
             assertEqual(double(source_id_s(1)), (5));
-            if isempty(obj.mess_name_fix)                
+            if isempty(obj.mess_name_fix)
                 mess_name ='log';
             else
                 mess_name =obj.mess_name_fix;
@@ -790,7 +815,7 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(double(source_id_s(2)), 8);
             
             assertEqual(mess_names{1},'log');
-            assertEqual(mess_names{2},'failed');
+            assertEqual(mess_names{2},'interrupt');
             
             [ok, err_mess] = m_comm.send_message(7, FailedMessage());
             assertEqual(ok, MESS_CODES.ok);
@@ -805,8 +830,8 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(double(source_id_s(3)), 8);
             
             assertEqual(mess_names{1},'log');
-            assertEqual(mess_names{2},'failed');
-            assertEqual(mess_names{3},'failed');
+            assertEqual(mess_names{2},'interrupt');
+            assertEqual(mess_names{3},'interrupt');
             
             % failed message supresses data message
             [mess_names, source_id_s] = m_comm.probe_all('all', 'data');
@@ -816,8 +841,8 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(double(source_id_s(1)), 7);
             assertEqual(double(source_id_s(2)), 8);
             
-            assertEqual(mess_names{1},'failed');
-            assertEqual(mess_names{2},'failed');
+            assertEqual(mess_names{1},'interrupt');
+            assertEqual(mess_names{2},'interrupt');
             
             [ok, err_mess] = m_comm.send_message(3, mess);
             assertEqual(ok, MESS_CODES.ok);
@@ -834,8 +859,8 @@ classdef exchange_common_tests < MPI_Test_Common
             
             assertEqual(mess_names{1},'log');
             assertEqual(mess_names{2},'log');
-            assertEqual(mess_names{3},'failed');
-            assertEqual(mess_names{4},'failed');
+            assertEqual(mess_names{3},'interrupt');
+            assertEqual(mess_names{4},'interrupt');
             
             
             [mess_names, source_id_s] = m_comm.probe_all('all');
@@ -856,8 +881,8 @@ classdef exchange_common_tests < MPI_Test_Common
             
             assertEqual(mess_names{1},mess_name );
             assertEqual(mess_names{2},mess_name );
-            assertEqual(mess_names{3},'failed');
-            assertEqual(mess_names{4},'failed');
+            assertEqual(mess_names{3},'interrupt');
+            assertEqual(mess_names{4},'interrupt');
             
         end
         %
@@ -1026,7 +1051,7 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(sources(1),5);
             assertEqual(sources(2),6);
             assertEqual(messNames{1},'log');
-            assertEqual(messNames{2},'failed');
+            assertEqual(messNames{2},'interrupt');
             
             [messNames,sources] = m_comm.probe_all('all', 'any');
             assertEqual(numel(messNames),2);
@@ -1038,7 +1063,7 @@ classdef exchange_common_tests < MPI_Test_Common
                 mess_name =obj.mess_name_fix;
             end
             assertEqual(messNames{1},mess_name);
-            assertEqual(messNames{2},'failed');
+            assertEqual(messNames{2},'interrupt');
             
             %-----------------------------------------------------------
             [ok, err_mess, messR] = m_comm.receive_message(6, mess1.mess_name);
@@ -1052,17 +1077,16 @@ classdef exchange_common_tests < MPI_Test_Common
             
             
             [messNames,sources] = m_comm.probe_all('all', mess1.mess_name);
-            assertEqual(numel(messNames),3);
+            assertEqual(numel(messNames),2);
             
             assertEqual(sources(1),3);
             assertEqual(sources(2),5);
-            assertEqual(sources(3),6);
-            assertEqual(messNames{1},'failed');
+            assertEqual(messNames{1},'interrupt');
             assertEqual(messNames{2},'log');
-            assertEqual(messNames{3},'failed');
+            %assertEqual(messNames{3},'interrupt');
             
             [messNames,sources] = m_comm.probe_all('all',[]);
-            assertEqual(numel(messNames),3);
+            assertEqual(numel(messNames),2);
             
             if isempty(obj.mess_name_fix)
                 mess_name ='log';
@@ -1072,17 +1096,18 @@ classdef exchange_common_tests < MPI_Test_Common
             
             assertEqual(sources(1),3);
             assertEqual(sources(2),5);
-            assertEqual(sources(3),6);
-            assertEqual(messNames{1},'failed');
+            %assertEqual(sources(3),6);
+            assertEqual(messNames{1},'interrupt');
             assertEqual(messNames{2},mess_name);
-            assertEqual(messNames{3},'failed');
+            %assertEqual(messNames{3},'interrupt');
             
             
             % percistently receiving Fail message
-            [ok, err_mess, messR] = m_comm.receive_message(6, mess1.mess_name);
-            assertEqual(ok, MESS_CODES.ok);
-            assertTrue(isempty(err_mess));
-            assertEqual(messR.mess_name,'failed');
+            % Not any more
+            %             [ok, err_mess, messR] = m_comm.receive_message(6, mess1.mess_name);
+            %             assertEqual(ok, MESS_CODES.ok);
+            %             assertTrue(isempty(err_mess));
+            %             assertEqual(messR.mess_name,'failed');
             
             [ok, err_mess, messR] = m_comm.receive_message(3, mess1.mess_name);
             assertEqual(ok, MESS_CODES.ok);
@@ -1091,14 +1116,14 @@ classdef exchange_common_tests < MPI_Test_Common
             
             
             [messNames,sources] = m_comm.probe_all('all', mess1.mess_name);
-            assertEqual(numel(messNames),3);
+            assertEqual(numel(messNames),1);
             
-            assertEqual(sources(1),3);
-            assertEqual(sources(2),5);
-            assertEqual(sources(3),6);
-            assertEqual(messNames{1},'failed');
-            assertEqual(messNames{2},'log');
-            assertEqual(messNames{3},'failed');
+            %assertEqual(sources(1),3);
+            assertEqual(sources(1),5);
+            %assertEqual(sources(3),6);
+            %assertEqual(messNames{1},'interrupt');
+            assertEqual(messNames{1},'log');
+            %assertEqual(messNames{3},'interrupt');
             
             % log message can be receved
             [ok, err_mess, messR] = m_comm.receive_message(5, mess1.mess_name);
@@ -1108,24 +1133,26 @@ classdef exchange_common_tests < MPI_Test_Common
             
             % but fail remains
             [messNames,sources] = m_comm.probe_all('all', mess1.mess_name);
-            assertEqual(numel(messNames),2);
-            assertEqual(sources(1),3);
-            assertEqual(sources(2),6);
-            assertEqual(messNames{1},'failed');
-            assertEqual(messNames{2},'failed');
+            assertTrue(isempty(messNames))
+            assertTrue(isempty(sources))
+            %             assertEqual(numel(messNames),2);
+            %             assertEqual(sources(1),3);
+            %             assertEqual(sources(2),6);
+            %             assertEqual(messNames{1},'interrupt');
+            %             assertEqual(messNames{2},'interrupt');
             
         end
         %
         function test_receive_sync_async_override(obj)
             % testing that direct synchroneous/asynchroneous requests
             % overrides default test request for message
-
+            
             if obj.ignore_test
                 return
             end
             m_comm = feval(obj.comm_name);
             clob_s = onCleanup(@()(finalize_all(m_comm )));
-
+            
             assertEqual(double(m_comm.labIndex), 1);
             assertEqual(double(m_comm.numLabs), 10);
             
@@ -1137,7 +1164,7 @@ classdef exchange_common_tests < MPI_Test_Common
             [ok, err_mess] = m_comm.send_message(5, mess);
             assertEqual(ok, MESS_CODES.ok);
             assertTrue(isempty(err_mess));
-
+            
             [ok, err_mess, messR] = m_comm.receive_message(5, mess.mess_name);
             assertEqual(ok, MESS_CODES.ok);
             assertTrue(isempty(err_mess));
@@ -1199,12 +1226,12 @@ classdef exchange_common_tests < MPI_Test_Common
             clear clob_r;
         end
         function test_check_whats_coming_data_kept_fail_overrides(obj)
-%             init_struct = iMessagesFramework.build_worker_init(tmp_dir, ...
-%                 'test_check_whats_coming_1mess', 'MessagesFilebased', 1, 10,'test_mode');            
-%             
-%             m_comm = MessagesFileBasedMPI_mirror_tester(init_struct);
-%             clob_s = onCleanup(@()(finalize_all(m_comm)));
-%             m_comm.time_to_fail = 1000;
+            %             init_struct = iMessagesFramework.build_worker_init(tmp_dir, ...
+            %                 'test_check_whats_coming_1mess', 'MessagesFilebased', 1, 10,'test_mode');
+            %
+            %             m_comm = MessagesFileBasedMPI_mirror_tester(init_struct);
+            %             clob_s = onCleanup(@()(finalize_all(m_comm)));
+            %             m_comm.time_to_fail = 1000;
             
             if obj.ignore_test
                 return
@@ -1286,18 +1313,18 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(numel(are_avail),10)
             assertEqual(sum(are_avail),1)
             assertTrue(are_avail(2))
-            assertEqual(mess_names{2},'failed')
+            assertEqual(mess_names{2},'interrupt')
             assertEqual(mess_names{3},'log') % ! beware. Though not worth changing
             
         end
         %
         function test_check_whats_coming_fail_overrides(obj)
-%             init_struct = iMessagesFramework.build_worker_init(tmp_dir, ...
-%                 'test_check_whats_coming_1mess', 'MessagesFilebased', 1, 10,'test_mode');
-%             
-%             m_comm = MessagesFileBasedMPI_mirror_tester(init_struct);
-%             clob_s = onCleanup(@()(finalize_all(m_comm)));
-%             m_comm.time_to_fail = 1000;
+            %             init_struct = iMessagesFramework.build_worker_init(tmp_dir, ...
+            %                 'test_check_whats_coming_1mess', 'MessagesFilebased', 1, 10,'test_mode');
+            %
+            %             m_comm = MessagesFileBasedMPI_mirror_tester(init_struct);
+            %             clob_s = onCleanup(@()(finalize_all(m_comm)));
+            %             m_comm.time_to_fail = 1000;
             
             if obj.ignore_test
                 return
@@ -1395,7 +1422,7 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(sum(are_avail),2)
             assertTrue(are_avail(2))
             assertTrue(are_avail(4))
-            assertEqual(mess_names{2},'failed')
+            assertEqual(mess_names{2},'interrupt')
             assertEqual(mess_names{3},'log')
             assertEqual(mess_names{4},'data')
             

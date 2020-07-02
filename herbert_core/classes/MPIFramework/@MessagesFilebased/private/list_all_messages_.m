@@ -61,7 +61,7 @@ all_messages = mess_names(to_this);
 mid_from     = mid_from(to_this);
 
 if isempty(task_ids_requested) && isempty(mess_tag_requested) % all messages we need are listed
-    [all_messages,mid_from] = select_unique_(all_messages,mid_from);
+    [all_messages,mid_from] = select_unique_(obj,all_messages,mid_from);
     return;
 end
 
@@ -69,11 +69,11 @@ if ~isempty(mess_tag_requested) % we have some particular message tags requested
     %mess_tags_present = MESS_NAMES.mess_id(all_messages);
     % allow to list fail message
     % interrupt message accepted even if not requested
-    fail_list = MESS_NAMES.instance().interrupts;
+    fail_list = obj.interrupt_chan_name_;
     if iscell(mess_names_req)
-        rec_mess = [mess_names_req(:);fail_list(:)];
+        rec_mess = [mess_names_req(:);fail_list];
     else
-        rec_mess = [mess_names_req;fail_list(:)];
+        rec_mess = {mess_names_req;fail_list};
     end
     
     is_requested  = ismember(all_messages,rec_mess);
@@ -86,11 +86,12 @@ if ~isempty(task_ids_requested)
     all_messages = all_messages(is_requested);
     mid_from     = mid_from(is_requested);
 end
-[all_messages,mid_from] = select_unique_(all_messages,mid_from);
+[all_messages,mid_from] = select_unique_(obj,all_messages,mid_from);
 
-function [all_messages,mid_from] = select_unique_(all_messages,mid_from)
+function [all_messages,mid_from] = select_unique_(obj,all_messages,mid_from)
 % from evert messages in every lab present, select only unique messages
-fail_mess = MESS_NAMES.instance().interrupts;
+fail_mess = obj.interrupt_chan_name_;
+
 
 is_fail = ismember(all_messages,fail_mess);
 if any(is_fail) % lets assume that only one fail message from one lab is possible
@@ -98,16 +99,10 @@ if any(is_fail) % lets assume that only one fail message from one lab is possibl
     fail_mess = all_messages(is_fail);
     
     all_labs = cell(1,max(mid_from));
-%     disp('all labs');
-%     disp(all_labs);
-%     disp('mid from');
-%     disp(mid_from);    
     
     [mid_from,mu]=unique(mid_from);        
-%     disp(' mu');    
-%     disp(mu);
     all_labs(mid_from) = all_messages(mu);
-    all_labs(fail_from) = fail_mess(:);
+    all_labs(fail_from) = fail_mess;
     all_messages = all_labs(mid_from);
 else
     [mid_from,mu]=unique(mid_from);    

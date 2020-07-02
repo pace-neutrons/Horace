@@ -69,7 +69,13 @@ classdef MessagesFileBasedMPI_mirror_tester < MFTester
             %               if true, defines data message name for sender.
             %               false - for received.
             % Returns
-            if MESS_NAMES.is_blocking(mess_name)
+            if strcmp(mess_name,obj.interrupt_chan_name_)
+                is_blocking = false;
+            else
+                is_blocking = MESS_NAMES.is_blocking(mess_name);
+            end
+            
+            if is_blocking
                 if is_sender
                     mess_num = obj.send_data_messages_count_(lab_from+1);
                 else %receiving

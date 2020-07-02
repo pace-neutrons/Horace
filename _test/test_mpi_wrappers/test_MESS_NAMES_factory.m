@@ -43,6 +43,18 @@ classdef test_MESS_NAMES_factory< TestCase
             assertTrue(isnumeric(itag))
         end
         %
+        function test_state_messages(~)
+            is = MESS_NAMES.is_state('failed');
+            assertTrue(is);
+            f_tag =  MESS_NAMES.instance().mess_id('failed');
+            is = MESS_NAMES.is_state(f_tag);
+            assertTrue(is);
+            is = MESS_NAMES.is_state('canceled');
+            assertTrue(is);
+            is = MESS_NAMES.is_state('log');
+            assertFalse(is);
+        end
+        %
         function test_selection(~)
             name = MESS_NAMES.mess_name(8);
             assertTrue(ischar(name));
