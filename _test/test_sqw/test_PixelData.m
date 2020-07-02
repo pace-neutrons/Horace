@@ -630,12 +630,65 @@ methods
 
             pix.u1 = 1;
             pix.advance();  % creates tmp file for first page
-            assertTrue(logical(exist(expected_tmp_dir, 'dir')));
+            assertTrue(logical(exist(expected_tmp_dir, 'dir')), ...
+                       'Temp directory not created');
         end
 
         do_pix_creation_and_delete();
-        assertFalse(logical(exist(expected_tmp_dir, 'dir')));
+        assertFalse(logical(exist(expected_tmp_dir, 'dir')), ...
+                    'Temp directory not deleted');
     end
+
+    function test_all_page_changes_saved_after_edit_advance_and_reset(obj)
+        data = zeros(9, 30);
+        faccess = FakeFAccess(data);
+
+        npix_in_page = 11;
+        mem_alloc = npix_in_page*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
+        pix = PixelData(faccess, mem_alloc);
+
+        % set all u1 values in each page to 1
+        pix.u1 = 1;
+        while pix.has_more()
+            pix.advance();  % move to second page
+            pix.u1 = 1;  % sets page 1 of u1 to all ones
+        end
+        pix.move_to_first_page();
+
+        % check all u1 values are still 1
+        assertEqual(pix.u1, ones(1, pix.page_size));
+        while pix.has_more()
+            pix.advance();
+            assertEqual(pix.u1, ones(1, pix.page_size));
+        end
+    end
+
+    function test_correct_values_returned_with_mix_of_clean_and_dirty_pages(obj)
+        data = zeros(9, 30);
+        faccess = FakeFAccess(data);
+
+        npix_in_page = 11;
+        mem_alloc = npix_in_page*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
+        pix = PixelData(faccess, mem_alloc);
+
+        % set coordinates of page 1 and 3 to all ones
+        pix.u1 = 1;
+        pix.advance();  % move to second page
+        pix.advance();  % move to third page
+        pix.u1 = 1;
+
+        pix.move_to_first_page();
+
+        assertEqual(pix.u1, ones(1, pix.page_size));
+        pix.advance();
+        assertEqual(pix.u1, zeros(1, pix.page_size));
+        pix.advance();
+        assertEqual(pix.u1, ones(1, pix.page_size));
+    end
+
+    % Deal with case of setting pixel data with size different to page size
+    % e.g. pix = PixelData(faccess)  % 9x1000 array, page size = 10
+    %      pix.data = zeros(9, 5) or pix.data = zeros(9, 100)
 
     % -- Helpers --
     function do_pixel_data_loop_with_f(obj, func, data)
