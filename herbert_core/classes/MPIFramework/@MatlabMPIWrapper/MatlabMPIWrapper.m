@@ -27,6 +27,7 @@ classdef MatlabMPIWrapper < handle
     end
     properties(Access=protected,Hidden=true)
         is_tested_ = false;
+        interrupt_chan_tag_;
         labindex_ = 1;
         numlabs_  = 1;
         % Variables for logging the MPI results
@@ -48,7 +49,7 @@ classdef MatlabMPIWrapper < handle
     
     methods
         %
-        function obj = MatlabMPIWrapper(is_tested,labNum,NumLabs)
+        function obj = MatlabMPIWrapper(interrupt_channel,is_tested,labNum,NumLabs)
             % The constructor of the wrapper around Matlab MPI operations
             %
             % in production mode -- empty constructor provides access to
@@ -59,6 +60,7 @@ classdef MatlabMPIWrapper < handle
             % labNum    -- pseudo-number of current parallel lab(worker)
             % NumLabs   -- total (pseudo)number of parallel workers
             %              "participating" in parallel pool.
+            obj.interrupt_chan_tag_ = interrupt_channel;
             if ~exist('is_tested','var')
                 obj.is_tested_ = false;
             else
@@ -103,6 +105,9 @@ classdef MatlabMPIWrapper < handle
             elseif ischar(message)
                 message = MESS_NAMES.instance().get_mess_class(message);
                 mess_tag= message.tag;
+            end
+            if message.is_persistent
+                mess_tag = obj.interrupt_chan_tag_;
             end
             if obj.do_logging_
                 fprintf(obj.log_fh_,'***Send-> message: "%s" to lab "%d"\n',...

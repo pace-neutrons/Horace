@@ -44,14 +44,16 @@ if nargin > 2 && ~isempty(varargin{1})
 else
     [messages,task_ids_from] = obj.MPI_.mlabProbe(task_ids,-1);
 end
-i_tags = MESS_NAMES.instance().interrupt_tags;
-for i=1:numel(i_tags)
-    [fail_mess,fail_from] = obj.MPI_.mlabProbe(task_ids,i_tags(i));
-    if ~isempty(fail_mess)
-        [messages,task_ids_from] = obj.mix_messages(messages,task_ids_from,fail_mess,fail_from);
-    end
+% Add to the list of present messages the messages from interrupt channel
+% if interrupt present, the message overtakes normal message from the same
+% lab.
+i_tags = obj.interrupt_chan_tag_;
+[fail_mess,fail_from] = obj.MPI_.mlabProbe(task_ids,i_tags);
+if ~isempty(fail_mess)
+    [messages,task_ids_from] = obj.mix_messages(messages,task_ids_from,fail_mess,fail_from);
 end
 
+% this is not what is present on filebased.
 [mess,id_from] = obj.get_interrupt(task_ids);
 % mix received messages names with old interrupt names received earlier and
 % hold in cache

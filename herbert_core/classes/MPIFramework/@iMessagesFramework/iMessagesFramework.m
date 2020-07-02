@@ -64,12 +64,16 @@ classdef iMessagesFramework < handle
         persistent_fail_message_=[];
         % if true, enable debug printout
         DEBUG_ = false;
-        % interrupt channel name:
-        interrupt_chan_name_ = 'interrupt';
         % it true, throws on receiving interrupt message. If false, the
         % interrupt message is received and delivered as output of
         % receive_message function.
         throw_on_interrupts_ =  true;
+        
+        % interrupt channel name:
+        interrupt_chan_name_ = 'interrupt';
+        % the tag of the interrupt channel
+        interrupt_chan_tag_ = 100; % let's take it definitively bigger then 
+        % other message tag defined in the system
     end
     methods
         function obj = iMessagesFramework(varargin)

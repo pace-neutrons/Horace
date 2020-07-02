@@ -443,11 +443,11 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             
             [ok, err, mess] = fbMPI1.receive_message(2, 'barrier');
             assertEqual(ok, MESS_CODES.ok, err)
-            assertEqual(mess.mess_name, 'barrier'); % got it from messages cache. (disabled)
+            assertEqual(mess.mess_name, 'failed'); % got it from messages cache. (disabled)
             % but barrier file exist
-%             barrier_file = fbMPI1.mess_file_name(fbMPI1.labIndex,'barrier',2);
-%             assertEqual(exist(barrier_file,'file'),2);
-%             delete(barrier_file);
+            barrier_file = fbMPI1.mess_file_name(fbMPI1.labIndex,'barrier',2);
+            assertEqual(exist(barrier_file,'file'),2);
+            delete(barrier_file);
             
             [ok, err, mess] = fbMPI1.receive_message(3, 'barrier');
             assertEqual(ok, MESS_CODES.ok, err)
@@ -476,7 +476,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             fbMPI2.set_is_tested(false); % ensure test mode is disabled
             fbMPI3 = MessagesFilebased(cs3);
             fbMPI3.set_is_tested(false); % ensure test mode is disabled
-
+            
             [ok, err] = fbMPI2.send_message(1, 'canceled');
             assertEqual(ok, MESS_CODES.ok, err)
             
@@ -520,7 +520,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             % canceled is still there
             [ok, err, mess] = fbMPI1.receive_message(2, 'barrier');
             assertEqual(ok, MESS_CODES.ok, err)
-            assertEqual(mess.mess_name, 'barrier');
+            assertEqual(mess.mess_name, 'canceled');
         end
         %
         %

@@ -14,15 +14,12 @@ message = obj.get_interrupt(from_task_id);
 if ~isempty(message)
     return;
 end
-% if fresh interrupt in the system, receive it
-ir_tags = MESS_NAMES.instance().interrupt_tags;
-for i=1:numel(ir_tags) 
-    [ir_names,ir_from]  = obj.MPI_.mlabProbe(from_task_id,ir_tags(i));
-    if ~isempty(ir_names)
-        tag = ir_tags(i);
-        is_blocking = false;
-        break
-    end
+% if fresh interrupt in the system, receive it instead of anything else
+ir_tag = obj.interrupt_chan_tag_;
+ir_names  = obj.MPI_.mlabProbe(from_task_id,ir_tag);
+if ~isempty(ir_names)
+    tag = ir_tag;
+    is_blocking = false;
 end
 
 message = obj.MPI_.mlabReceive(from_task_id,tag,is_blocking);
