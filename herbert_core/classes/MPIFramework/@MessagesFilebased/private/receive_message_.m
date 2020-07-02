@@ -10,12 +10,12 @@ function [err_code,err_mess,message] = receive_message_(obj,from_task_id,mess_na
 if is; error('MESSAGE_FRAMEWORK:canceled',err_mess);
 end
 %
-% message = obj.get_interrupt(from_task_id);
-% if ~isempty(message)
-%     err_code  =MESS_CODES.ok;
-%     err_mess=[];
-%     return;
-% end
+message = obj.get_interrupt(from_task_id);
+if ~isempty(message)
+    err_code  =MESS_CODES.ok;
+    err_mess=[];
+    return;
+end
 
 
 mess_present= false;
@@ -98,7 +98,7 @@ message = mesl.message;
 err_code  =MESS_CODES.ok;
 err_mess=[];
 
-%obj.set_interrupt(message,from_task_id);
+obj.set_interrupt(message,from_task_id);
 
 % check if a message is from the data queue and we need to progress the data
 % queue

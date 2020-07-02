@@ -59,18 +59,21 @@ if obj.labIndex == 1
         tps = tps/n_tasks_replied;
         fin_mess = LogMessage(n_steps_done ,n_steps_to_do,tps,add_info);
         fin_mess  = fin_mess.set_worker_logs(all_logs);
+        %
+        obj.control_node_exch.send_message(0,fin_mess);
     else % may be fail message if some of the workers were failed.
         % Will not be fail message if this node have failed, as it will go
-        % in other path
+        % to process_fail_state functio, which would prepare and send
+        % appropriate Fail message
+        %        
     end
-    obj.control_node_exch.send_message(0,fin_mess);
+    
 end
-if strcmp(fin_mess.mess_name,'failed')
-    disp(' ******** FAILED MESSAGE ***************')        
-    disp(fin_mess);
-    disp(fin_mess.payload);    
+if strcmp(fin_mess.mess_name,'failed') % happens when reduce_messages received unexpected
+    %(normally 'canceled') message from other nodes instead of receiving 'log' or nothing message.
+    % In this case, should finish execution
     error('JOB_EXECUTOR:canceled',...
         'Task N%d has been interrupted at log point at step %d#%d as other worker(s) reported failure.\n Info: %s',...
         obj.labIndex,step,n_steps,evalc('disp(fin_mess.payload)'));
-
+    
 end

@@ -30,8 +30,8 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             clear mex;
             %
             %             hc = herbert_config;
-            %             display_fail_log = hc.log_level>0;
-            display_fail_log = false
+
+            display_fail_log = false;
             
             % overloaded to empty test -- nothing new for this JD
             % JETester specific control parameters
@@ -55,7 +55,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             disp('*********************************************************')
             %1)----------------------------------------------------------
             [outputs, n_failed, ~, jd] = jd.start_job('JETester', common_param, 36, true, 3, true, 1);
-            if display_fail_log
+            if display_fail_log || numel(outputs) ~=3
                 jd.display_fail_job_results(outputs, n_failed,3);
             end
             
@@ -87,14 +87,14 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             % speed of workers
             
             co = onCleanup(@()(my_delete(file3, file3a)));
-            common_param.fail_for_labsN = 1:2;
+            common_param.fail_for_labsN = 1;
             disp('*********************************************************')
-            disp('**************FAIL-2 Lab1-2 Fail  ***********************')
+            disp('**************FAIL-2 Lab1 Fail  *************************')
             disp('*********************************************************')
             
             %2)----------------------------------------------------------
             [outputs, n_failed, ~, jd] = jd.restart_job('JETester', common_param, 4, true, true, 1);
-            if display_fail_log
+            if display_fail_log || numel(outputs) ~=3
                 jd.display_fail_job_results(outputs, n_failed,3)
             end
             
@@ -111,7 +111,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             
             %3)----------------------------------------------------------
             [outputs, n_failed, ~, jd] = jd.restart_job('JETester', common_param, 99, true, true, 1);
-            if display_fail_log
+            if display_fail_log || numel(outputs) ~=3
                 jd.display_fail_job_results(outputs, n_failed,3)
             end
             
@@ -136,7 +136,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             
             %4)----------------------------------------------------------
             [outputs, n_failed, ~, jd] = jd.restart_job('JETester', common_param, 99, true, true, 1);
-            if display_fail_log
+            if display_fail_log || numel(outputs) ~=3
                 jd.display_fail_job_results(outputs, n_failed,3)
             end
             

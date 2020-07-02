@@ -113,7 +113,6 @@ if ~all_ok
     err_mess = sprintf('JobExecutor: %d workers have failed',...
         n_failed);
     fin_message = FailedMessage(err_mess);
-    %all_payload(~ok) = all_messages(~ok);
     fin_message.payload = all_payload;
 else
     fin_message = all_messages{1};
