@@ -687,7 +687,8 @@ methods (Access=private)
         end
         try
             raw_pix = fread(file_id, 'float32');
-            raw_pix = reshape(raw_pix, [9, numel(raw_pix)/9]);  % TODO replace magic numbers
+            npix_cols = obj.PIXEL_BLOCK_COLS_;
+            raw_pix = reshape(raw_pix, [npix_cols, numel(raw_pix)/npix_cols]);
             obj.data_ = raw_pix;
         catch ME
             fclose(file_id);
