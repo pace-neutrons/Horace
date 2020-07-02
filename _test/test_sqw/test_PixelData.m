@@ -527,8 +527,6 @@ methods
     function test_page_size_returns_size_of_data_held_in_memory(obj)
         pix = obj.get_random_pix_data_(10);
         assertEqual(pix.page_size, 10);
-        pix.data = zeros(9, 12);
-        assertEqual(pix.page_size, 12);
     end
 
     function test_empty_PixelData_object_has_page_size_zero(~)
@@ -686,9 +684,37 @@ methods
         assertEqual(pix.u1, ones(1, pix.page_size));
     end
 
-    % Deal with case of setting pixel data with size different to page size
-    % e.g. pix = PixelData(faccess)  % 9x1000 array, page size = 10
-    %      pix.data = zeros(9, 5) or pix.data = zeros(9, 100)
+    function test_you_cannot_set_page_of_data_with_smaller_sized_array(obj)
+        data = zeros(9, 30);
+        faccess = FakeFAccess(data);
+
+        npix_in_page = 11;
+        mem_alloc = npix_in_page*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
+        pix = PixelData(faccess, mem_alloc);
+
+        function set_pix(data)
+            pix.data = data;
+        end
+
+        f = @() set_pix(ones(9, 10));
+        assertExceptionThrown(f, 'PIXELDATA:data');
+    end
+
+    function test_you_cannot_set_page_of_data_with_larger_sized_array(obj)
+        data = zeros(9, 30);
+        faccess = FakeFAccess(data);
+
+        npix_in_page = 11;
+        mem_alloc = npix_in_page*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
+        pix = PixelData(faccess, mem_alloc);
+
+        function set_pix(data)
+            pix.data = data;
+        end
+
+        f = @() set_pix(ones(9, 20));
+        assertExceptionThrown(f, 'PIXELDATA:data');
+    end
 
     % -- Helpers --
     function do_pixel_data_loop_with_f(obj, func, data)
