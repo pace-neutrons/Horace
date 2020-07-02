@@ -22,6 +22,12 @@ classdef PixelData < matlab.mixin.Copyable
 %   size (in bytes) specified by private attribute page_memory_size_ - this can
 %   be set on construction (see mem_alloc above).
 %
+%   The file-backed operations work by loading "pages" of data into memory as
+%   required. If editing pixels, to avoid losing changes, if a page has been
+%   edited and the next page is then loaded, the "dirty" page will be written
+%   to a tmp file. This class's getters will then retrieve data from the tmp
+%   file if that data is requested from the "dirty" page.
+%
 % Usage:
 %
 %   >> pix_data = PixelData(data)
@@ -82,7 +88,7 @@ properties (Access=private)
          'variance'}, ...
         {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9})
 
-    data_ = zeros(9, 0);
+    data_ = zeros(9, 0);  % the underlying data cached in the object
     f_accessor_;  % instance of faccess object to access pixel data from file
     file_path_ = '';  % the path to the file backing this object - empty string if all data in memory
     page_memory_size_ = 3e9;  % 3Gb - the maximum amount of memory a page can use
@@ -90,11 +96,11 @@ properties (Access=private)
     max_page_size_;  % the maximum number of pixels that can fie in the page memory size
     page_dirty_ = false;  % true if page of data in memory differs from data in the page file
     object_id_;  % random unique identifier for this object, used for tmp file names
-    page_number_ = 1;
+    page_number_ = 1;  % the index of the currently loaded page
 end
 
 properties (Dependent, Access=private)
-    dirty_pix_dir_;
+    dirty_pix_dir_;  % the path to a directory in which to store tmp files
 end
 
 properties (Dependent)
@@ -267,6 +273,7 @@ methods
     end
 
     function delete(obj)
+        % Class destructor to delete any temporary files
         obj.clean_up_tmp_files_();
     end
 
@@ -608,8 +615,19 @@ methods (Access=private)
                                   obj.f_accessor_.filename);
     end
 
+    function obj = load_page_(obj, page_number)
+        % Load the data for the given page index
+        if ~(page_number > numel(obj.page_dirty_)) && obj.page_dirty_(page_number)
+            obj.load_dirty_page_(page_number);
+        else
+            pix_position = (page_number - 1)*obj.max_page_size_ + 1;
+            obj.load_clean_page_(pix_position);
+        end
+    end
+
     function obj = load_clean_page_(obj, pix_idx_start)
         % Load a page of data from the file starting at the given index
+        % TODO: change argument to page_number
         if pix_idx_start >= obj.num_pixels
             error('PIXELDATA:load_page_', ...
                   'pix_idx_start exceeds number of pixels in file. %i >= %i', ...
@@ -629,13 +647,19 @@ methods (Access=private)
         obj.pix_position_ = pix_idx_start;
     end
 
-    function obj = load_page_(obj, page_number)
-        if ~(page_number > numel(obj.page_dirty_)) && obj.page_dirty_(page_number)
-            obj.load_dirty_page_(page_number);
-        else
-            pix_position = (page_number - 1)*obj.max_page_size_ + 1;
-            obj.load_clean_page_(pix_position);
+    function obj = load_dirty_page_(obj, page_number)
+        % Load a page of data from a tmp file
+        file_path = obj.generate_dirty_pix_file_path_(page_number);
+        file_id = fopen(file_path, 'rb');
+        try
+            raw_pix = fread(file_id, 'float32');
+            raw_pix = reshape(raw_pix, [9, numel(raw_pix)/9]);
+            obj.data = raw_pix;
+        catch ME
+            fclose(file_id);
+            rethrow(ME);
         end
+        fclose(file_id);
     end
 
     function obj = load_first_page_if_data_empty_(obj)
@@ -654,39 +678,14 @@ methods (Access=private)
         page_size = floor(mem_alloc/num_bytes_in_pixel);
     end
 
-    function obj = load_dirty_page_(obj, page_number)
-        file_path = obj.generate_dirty_pix_file_path_(page_number);
-        file_id = fopen(file_path, 'rb');
-        try
-            raw_pix = fread(file_id, 'float32');
-            raw_pix = reshape(raw_pix, [9, numel(raw_pix)/9]);
-            obj.data = raw_pix;
-        catch ME
-            fclose(file_id);
-            rethrow(ME);
-        end
-        fclose(file_id);
-    end
-
-    function is_dirty = next_page_is_dirty_(obj)
-        try
-            is_dirty = obj.page_dirty_(obj.page_number_ + 1);
-        catch ME
-            switch ME.identifier
-            case 'MATLAB:badsubscript'
-                is_dirty = false;
-                return;
-            otherwise
-                rethrow(ME);
-            end
-        end
-    end
-
     function obj = set_page_dirty_(obj, is_dirty)
+        % Mark the current page as "dirty" i.e. the data in the cache does not
+        % match the data in the original SQW file
         obj.page_dirty_(obj.page_number_) = is_dirty;
     end
 
     function obj = write_dirty_pix_(obj)
+        % Write the current page's pixels to a tmp file
         tmp_file_path = obj.generate_dirty_pix_file_path_(obj.page_number_);
         if ~exist(fileparts(tmp_file_path), 'dir')
             mkdir(fileparts(tmp_file_path));
@@ -708,6 +707,8 @@ methods (Access=private)
     end
 
     function obj = write_pix_to_file_(obj, file_id)
+        % Write the pixels in the current page to the file corresponding to the
+        % given file ID.
         % TODO: improve this by not writing all data at once
         try
             fwrite(file_id, obj.data, 'float32');
@@ -727,6 +728,7 @@ methods (Access=private)
     end
 
     function file_path = generate_dirty_pix_file_path_(obj, page_number)
+        % Generate the file path to the tmp directory for this object instance
         file_path = fullfile(obj.dirty_pix_dir_, ...
                              sprintf('%09d.tmp', page_number));
     end
