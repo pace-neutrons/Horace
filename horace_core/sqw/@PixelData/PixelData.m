@@ -92,15 +92,15 @@ properties (Access=private)
     f_accessor_;  % instance of faccess object to access pixel data from file
     file_path_ = '';  % the path to the file backing this object - empty string if all data in memory
     page_memory_size_ = 3e9;  % 3Gb - the maximum amount of memory a page can use
-    pix_position_ = 1;  % the pixel index in the file of the first pixel in the cache
     max_page_size_;  % the maximum number of pixels that can fie in the page memory size
-    page_dirty_ = false;  % true if page of data in memory differs from data in the page file
+    page_dirty_ = false;  % array mapping from page_number to whether that page is dirty
     object_id_;  % random unique identifier for this object, used for tmp file names
     page_number_ = 1;  % the index of the currently loaded page
 end
 
 properties (Dependent, Access=private)
     dirty_pix_dir_;  % the path to a directory in which to store tmp files
+    pix_position_;  % the pixel index in the file of the first pixel in the cache
 end
 
 properties (Dependent)
@@ -238,7 +238,7 @@ methods
             if ~isempty(arg.file_path) && exist(arg.file_path, 'file')
                 % if the file exists we can create a file-backed instance
                 obj = PixelData(arg.file_path, arg.page_memory_size_);
-                obj.pix_position_ = arg.pix_position_;
+                obj.page_number_ = arg.page_number_;
             else
                 % if no file exists, just copy the data
                 obj.data = arg.data;
@@ -415,7 +415,6 @@ methods
                     rethrow(ME);
                 end
             end
-            obj.page_number_ = obj.page_number_ + 1;
             if numel(obj.page_dirty_) < obj.page_number_
                 obj.set_page_dirty_(false);
             end
@@ -424,17 +423,22 @@ methods
 
     function obj = move_to_first_page(obj)
         % Reset the object to point to the first page of pixel data in the file
+        % and clear the current cache
         %  This function does nothing if pixels are not file-backed
+        %
         if obj.is_file_backed()
-            obj.data_ = zeros(obj.PIXEL_BLOCK_COLS_, 0);
-            obj.pix_position_ = 1;
+            if obj.page_dirty_(obj.page_number_)
+                obj.write_dirty_pix_();
+            end
             obj.page_number_ = 1;
+            obj.data_ = zeros(9, 0);
         end
     end
 
     function is = is_file_backed(obj)
         % Return true if the pixel data is backed by a file. Returns false if
         % all pixel data is held in memory
+        %
         is = ~isempty(obj.f_accessor_);
     end
 
@@ -452,7 +456,7 @@ methods
                   size(pixel_data, 1));
         elseif ~isnumeric(pixel_data)
             msg = ['Cannot set pixel data, invalid type. Data must have a '...
-                   'numeric type, found ''%i'''];
+                   'numeric type, found ''%i''.'];
             error('PIXELDATA:data', msg, class(pixel_data));
         end
         if ~isempty(obj.data_)  % this is the first set call
@@ -599,9 +603,14 @@ methods
         page_size = size(obj.data_, 2);
     end
 
+    % -- Setters for private attributes --
     function dirty_pix_dir = get.dirty_pix_dir_(obj)
         dirty_pix_dir = fullfile(tempdir(), ...
                                  sprintf('sqw_pix%05d', obj.object_id_));
+    end
+
+    function pix_position = get.pix_position_(obj)
+        pix_position = (obj.page_number_ - 1)*obj.max_page_size_ + 1;
     end
 
 end
@@ -613,21 +622,25 @@ methods (Access=private)
         obj.f_accessor_ = f_accessor;
         obj.file_path_ = fullfile(obj.f_accessor_.filepath, ...
                                   obj.f_accessor_.filename);
+        obj.page_number_ = 1;
     end
 
     function obj = load_page_(obj, page_number)
         % Load the data for the given page index
         if ~(page_number > numel(obj.page_dirty_)) && obj.page_dirty_(page_number)
+            % load page from tmp file
             obj.load_dirty_page_(page_number);
         else
-            pix_position = (page_number - 1)*obj.max_page_size_ + 1;
-            obj.load_clean_page_(pix_position);
+            % load page from sqw file
+            obj.load_clean_page_(page_number);
         end
+        obj.page_number_ = page_number;
     end
 
-    function obj = load_clean_page_(obj, pix_idx_start)
+    function obj = load_clean_page_(obj, page_number)
         % Load a page of data from the file starting at the given index
         % TODO: change argument to page_number
+        pix_idx_start = (page_number - 1)*obj.max_page_size_ + 1;
         if pix_idx_start >= obj.num_pixels
             error('PIXELDATA:load_page_', ...
                   'pix_idx_start exceeds number of pixels in file. %i >= %i', ...
@@ -639,22 +652,25 @@ methods (Access=private)
             pix_idx_end = obj.num_pixels;
         end
 
-        obj.data = obj.f_accessor_.get_pix(pix_idx_start, pix_idx_end);
+        obj.data_ = obj.f_accessor_.get_pix(pix_idx_start, pix_idx_end);
         if obj.page_size == obj.num_pixels
             % Delete accessor and close the file if all pixels have been read
             obj.f_accessor_ = [];
         end
-        obj.pix_position_ = pix_idx_start;
     end
 
     function obj = load_dirty_page_(obj, page_number)
         % Load a page of data from a tmp file
         file_path = obj.generate_dirty_pix_file_path_(page_number);
-        file_id = fopen(file_path, 'rb');
+        [file_id, err_msg] = fopen(file_path, 'rb');
+        if file_id < 0
+            error('PIXELDATA:load_dirty_page_', ...
+                  'Could not open ''%s'' for reading:\n%s', file_path, err_msg);
+        end
         try
             raw_pix = fread(file_id, 'float32');
             raw_pix = reshape(raw_pix, [9, numel(raw_pix)/9]);
-            obj.data = raw_pix;
+            obj.data_ = raw_pix;
         catch ME
             fclose(file_id);
             rethrow(ME);
