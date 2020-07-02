@@ -93,6 +93,10 @@ properties (Access=private)
     page_number_ = 1;
 end
 
+properties (Dependent, Access=private)
+    dirty_pix_dir_;
+end
+
 properties (Dependent)
     % Return the 1st, 2nd and 3rd dimension of the crystal cartestian orientation (1 x n arrays) [A^-1]
     u1; u2; u3;
@@ -260,6 +264,10 @@ methods
 
         % Input sets underlying data
         obj.data = arg;
+    end
+
+    function delete(obj)
+        obj.clean_up_tmp_files_();
     end
 
     function is_empty = isempty(obj)
@@ -584,9 +592,14 @@ methods
         page_size = size(obj.data_, 2);
     end
 
+    function dirty_pix_dir = get.dirty_pix_dir_(obj)
+        dirty_pix_dir = fullfile(tempdir(), ...
+                                 sprintf('sqw_pix%05d', obj.object_id_));
+    end
+
 end
 
-methods (Access = private)
+methods (Access=private)
 
     function obj = init_from_file_accessor_(obj, f_accessor)
         % Initialise a PixelData object from a file accessor
@@ -707,16 +720,22 @@ methods (Access = private)
             otherwise
                 file_path = fopen(file_id);
                 error('PIXELDATA:write_pix_to_file_', ...
-                    'Could not write to file ''%s'':\n%s', ...
-                    file_path, ferror(file_id));
+                      'Could not write to file ''%s'':\n%s', ...
+                      file_path, ferror(file_id));
             end
         end
     end
 
     function file_path = generate_dirty_pix_file_path_(obj, page_number)
-        file_path = fullfile(tempdir(), ...
-                             sprintf('sqw_pix%05d', obj.object_id_), ...
+        file_path = fullfile(obj.dirty_pix_dir_, ...
                              sprintf('%09d.tmp', page_number));
+    end
+
+    function clean_up_tmp_files_(obj)
+        % Delete the directory containing files holding dirty pixels
+        if exist(obj.dirty_pix_dir_, 'dir')
+            rmdir(obj.dirty_pix_dir_, 's');
+        end
     end
 
 end

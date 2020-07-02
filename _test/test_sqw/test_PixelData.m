@@ -613,6 +613,30 @@ methods
         assertEqual(pix.u1, ones(1, npix_in_page));
     end
 
+    function test_dirty_pix_tmp_files_are_deleted_when_pix_out_of_scope(obj)
+        old_rng_state = rng();
+        fixed_seed = 774015;
+        rng(fixed_seed);  % this seed gives an expected object_id_ = 54452
+        expected_tmp_dir = fullfile(tempdir(), 'sqw_pix54452');
+        clean_up = onCleanup(@() rng(old_rng_state));
+
+        data = rand(9, 30);
+        faccess = FakeFAccess(data);
+
+        function do_pix_creation_and_delete()
+            npix_in_page = 11;
+            mem_alloc = npix_in_page*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
+            pix = PixelData(faccess, mem_alloc);
+
+            pix.u1 = 1;
+            pix.advance();  % creates tmp file for first page
+            assertTrue(logical(exist(expected_tmp_dir, 'dir')));
+        end
+
+        do_pix_creation_and_delete();
+        assertFalse(logical(exist(expected_tmp_dir, 'dir')));
+    end
+
     % -- Helpers --
     function do_pixel_data_loop_with_f(obj, func, data)
         % func should be a function handle, it is evaluated within a
