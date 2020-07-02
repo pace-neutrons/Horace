@@ -679,11 +679,12 @@ methods (Access=private)
 
     function obj = load_dirty_page_(obj, page_number)
         % Load a page of data from a tmp file
-        file_path = obj.generate_dirty_pix_file_path_(page_number);
-        [file_id, err_msg] = fopen(file_path, 'rb');
+        tmp_file_path = obj.generate_dirty_pix_file_path_(page_number);
+        [file_id, err_msg] = fopen(tmp_file_path, 'rb');
         if file_id < 0
             error('PIXELDATA:load_dirty_page_', ...
-                  'Could not open ''%s'' for reading:\n%s', file_path, err_msg);
+                  'Could not open ''%s'' for reading:\n%s', tmp_file_path, ...
+                  err_msg);
         end
         try
             raw_pix = fread(file_id, 'float32');
@@ -754,18 +755,18 @@ methods (Access=private)
                   'Could not write to file with ID ''%d'':\n The file is not open', ...
                   file_id);
             otherwise
-                file_path = fopen(file_id);
+                tmp_file_path = fopen(file_id);
                 error('PIXELDATA:write_pix_to_file_', ...
                       'Could not write to file ''%s'':\n%s', ...
-                      file_path, ferror(file_id));
+                      tmp_file_path, ferror(file_id));
             end
         end
     end
 
-    function file_path = generate_dirty_pix_file_path_(obj, page_number)
+    function tmp_file_path = generate_dirty_pix_file_path_(obj, page_number)
         % Generate the file path to the tmp directory for this object instance
-        file_path = fullfile(obj.dirty_pix_dir_, ...
-                             sprintf('%09d.tmp', page_number));
+        tmp_file_path = fullfile(obj.dirty_pix_dir_, ...
+                                 sprintf('%09d.tmp', page_number));
     end
 
     function clean_up_tmp_files_(obj)
