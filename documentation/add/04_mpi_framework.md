@@ -367,7 +367,7 @@ The optimal to hardware and software cluster and message framework and other par
 | `known_frameworks` | `R` | Information method returning the list of the parallel frameworks, known to Herbert and available on the machine |
 | `known_clust_configs` | `R` | Information method returning the list of the clusters, available to run the selected framework |
 
-^1 `RW` -- read-only `(R)` or read/write `(RW)` access to the property. 
+^1 `RW` -- read-only `(R)` or read/write `(RW)` access to the property.
 
 ## MPI state helper
 
@@ -386,5 +386,16 @@ else
 	report serial job progress to user
 end
 ```
-to adapt its behaviour to a parallel environment. In addition to that  **MPI\_State** gets from the *parallel\_worker* and provides to the particular code accessors to the parallel framework, used for message exchange between workers. The usage of direct MPI methods within mainly serial code is undesirable as it makes serial code substantially parallel, but may be still necessary for the particular purposes and particular jobs. 
+to adapt its behavior to a parallel environment. In addition to that  **MPI\_State** gets from the *parallel\_worker* and provides to the particular code accessors to the parallel framework, used for message exchange between workers. The usage of direct MPI methods within mainly serial code is undesirable as it makes serial code substantially parallel, but may be still necessary for the particular purposes and particular jobs.
+
+## Some details of implementation and operations
+### Error processing
+On error, user job, performed by job executor throws appropriate exception.
+This exception is intercepted in parallel_worker and processed by **JobExecutor**'s process_fail_state method.
+The method checks exception and if this is not **PARALLEL_FRAMEWORK:canceled** exception, sends to all other workers *CanceledMessage* and finishes failing task. This message is always identified as incoming by probe_all method and received instead of any other expected message, by any framework *receive* method. If message received within **JobExecutor** *receive_all* method, the **PARALLEL_FRAMEWORK:canceled** exception is thrown by parallel worker. This exception, caught within its parallel worker, finishes approptiate task. If user receives messages using a framework *receive* method directly, or sets up framework property *throw_on_interrupts* to false, he has to organize custom processing of possible *CancelMessage* reception.
+
+### Interrupts storage
+Received interrupts are stored in cache with keys corresponding to task-id the interrupt has been received from.
+The purpose of this is to provide better diagnostics of the reason for failure, the interrupt has been issued for. The logic of the failure is that on receiving interrupt message, framework throws **PARALLEL_FRAMEWORK:canceled** exception, which is processed and arrives to *finish_task* part of **JobExecutor** instance. The *finish_task* method at normal execution synchronously waits for **completed** messages from all parallel workers. If failure, these messages are substitured by appropriate interrupt messages, received from correspondent tasks.
+The idea behind the cache is this, but for some reason it works even without the interrupt cache. May be its just random passing or may be interrupt cache is unnecessary complication.
 
