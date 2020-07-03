@@ -657,8 +657,7 @@ methods (Access=private)
     end
 
     function obj = load_clean_page_(obj, page_number)
-        % Load a page of data from the file starting at the given index
-        % TODO: change argument to page_number
+        % Load the given page of data from the sqw file backing this object
         pix_idx_start = (page_number - 1)*obj.max_page_size_ + 1;
         if pix_idx_start >= obj.num_pixels
             error('PIXELDATA:load_page_', ...
@@ -735,7 +734,7 @@ methods (Access=private)
         end
 
         try
-            obj.write_pix_to_file_(file_id);
+            obj.write_pix_to_tmp_file_(file_id);
         catch ME
             fclose(file_id);
             rethrow(ME);
@@ -743,7 +742,7 @@ methods (Access=private)
         fclose(file_id);
     end
 
-    function obj = write_pix_to_file_(obj, file_id)
+    function obj = write_pix_to_tmp_file_(obj, file_id)
         % Write the pixels in the current page to the file corresponding to the
         % given file ID.
         % TODO: improve this by not writing all data at once
@@ -752,12 +751,12 @@ methods (Access=private)
         catch ME
             switch ME.identifier
             case 'MATLAB:badfid_mx'
-                error('PIXELDATA:write_pix_to_file_', ...
+                error('PIXELDATA:write_pix_to_tmp_file_', ...
                   'Could not write to file with ID ''%d'':\n The file is not open', ...
                   file_id);
             otherwise
                 tmp_file_path = fopen(file_id);
-                error('PIXELDATA:write_pix_to_file_', ...
+                error('PIXELDATA:write_pix_to_tmp_file_', ...
                       'Could not write to file ''%s'':\n%s', ...
                       tmp_file_path, ferror(file_id));
             end
