@@ -400,7 +400,7 @@ methods
         %
         % This function does nothing if the pixel data is not file-backed.
         %
-        if obj.is_file_backed()
+        if obj.is_file_backed_()
             if obj.page_is_dirty_(obj.page_number_)
                 obj.write_dirty_pix_();
             end
@@ -424,20 +424,13 @@ methods
         % and clear the current cache
         %  This function does nothing if pixels are not file-backed
         %
-        if obj.is_file_backed()
+        if obj.is_file_backed_()
             if obj.page_is_dirty_(obj.page_number_)
                 obj.write_dirty_pix_();
             end
             obj.page_number_ = 1;
             obj.data_ = zeros(9, 0);
         end
-    end
-
-    function is = is_file_backed(obj)
-        % Return true if the pixel data is backed by a file. Returns false if
-        % all pixel data is held in memory
-        %
-        is = ~isempty(obj.f_accessor_);
     end
 
     % --- Getters / Setters ---
@@ -695,7 +688,7 @@ methods (Access=private)
     function obj = load_first_page_if_data_empty_(obj)
         % Check if there's any data in the current page and load a page if not
         %   This function does nothing if pixels are not file-backed
-        if isempty(obj.data_) && obj.is_file_backed()
+        if isempty(obj.data_) && obj.is_file_backed_()
             obj = obj.load_page_(1);
         end
     end
@@ -767,6 +760,13 @@ methods (Access=private)
         % Generate the file path to the tmp directory for this object instance
         tmp_file_path = fullfile(obj.dirty_pix_dir_, ...
                                  sprintf('%09d.tmp', page_number));
+    end
+
+    function is = is_file_backed_(obj)
+        % Return true if the pixel data is backed by a file. Returns false if
+        % all pixel data is held in memory
+        %
+        is = ~isempty(obj.f_accessor_);
     end
 
     function clean_up_tmp_files_(obj)
