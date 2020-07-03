@@ -541,26 +541,6 @@ methods
         assertEqual(pix.u1, u1);
     end
 
-    function test_is_file_backed_returns_false_if_all_data_in_memory(obj)
-        data = rand(9, 30);
-        npix_in_page = 31;
-        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-        pix.u1;  % First getter call loads data into memory
-        assertFalse(pix.is_file_backed());
-    end
-
-    function test_is_file_backed_returns_true_if_not_all_data_in_memory(obj)
-        data = rand(9, 30);
-        npix_in_page = 11;
-        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-        assertTrue(pix.is_file_backed());
-    end
-
-    function test_is_file_backed_false_if_constructed_with_in_memory_data(obj)
-        pix = obj.get_random_pix_data_(30);
-        assertFalse(pix.is_file_backed());
-    end
-
     function test_editing_a_field_loads_page(obj)
         data = rand(9, 10);
         faccess = FakeFAccess(data);
