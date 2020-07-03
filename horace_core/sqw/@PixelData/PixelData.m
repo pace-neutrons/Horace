@@ -448,7 +448,7 @@ methods
             error('PIXELDATA:data', msg, class(pixel_data));
         end
         obj.data_ = pixel_data;
-        obj.set_page_dirty_(true, obj.page_number_);
+        obj.set_page_dirty_(true);
     end
 
     function data = get.data_(obj)
@@ -482,7 +482,7 @@ methods
     function obj = set.u1(obj, u1)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('u1'), :) = u1;
-        obj.set_page_dirty_(true, obj.page_number_);
+        obj.set_page_dirty_(true);
     end
 
     function u2 = get.u2(obj)
@@ -493,7 +493,7 @@ methods
     function obj = set.u2(obj, u2)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('u2'), :) = u2;
-        obj.set_page_dirty_(true, obj.page_number_);
+        obj.set_page_dirty_(true);
     end
 
     function u3 = get.u3(obj)
@@ -504,7 +504,7 @@ methods
     function obj = set.u3(obj, u3)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('u3'), :) = u3;
-        obj.set_page_dirty_(true, obj.page_number_);
+        obj.set_page_dirty_(true);
     end
 
     function dE = get.dE(obj)
@@ -515,7 +515,7 @@ methods
     function obj = set.dE(obj, dE)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('dE'), :) = dE;
-        obj.set_page_dirty_(true, obj.page_number_);
+        obj.set_page_dirty_(true);
     end
 
     function coord_data = get.coordinates(obj)
@@ -526,7 +526,7 @@ methods
     function obj = set.coordinates(obj, coordinates)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('coordinates'), :) = coordinates;
-        obj.set_page_dirty_(true, obj.page_number_);
+        obj.set_page_dirty_(true);
     end
 
     function coord_data = get.q_coordinates(obj)
@@ -537,7 +537,7 @@ methods
     function obj = set.q_coordinates(obj, q_coordinates)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('q_coordinates'), :) = q_coordinates;
-        obj.set_page_dirty_(true, obj.page_number_);
+        obj.set_page_dirty_(true);
     end
 
     function run_index = get.run_idx(obj)
@@ -548,7 +548,7 @@ methods
     function obj = set.run_idx(obj, iruns)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('run_idx'), :) = iruns;
-        obj.set_page_dirty_(true, obj.page_number_);
+        obj.set_page_dirty_(true);
     end
 
     function detector_index = get.detector_idx(obj)
@@ -559,7 +559,7 @@ methods
     function obj = set.detector_idx(obj, detector_indices)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('detector_idx'), :) = detector_indices;
-        obj.set_page_dirty_(true, obj.page_number_);
+        obj.set_page_dirty_(true);
     end
 
     function detector_index = get.energy_idx(obj)
@@ -570,7 +570,7 @@ methods
     function obj = set.energy_idx(obj, energies)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('energy_idx'), :) = energies;
-        obj.set_page_dirty_(true, obj.page_number_);
+        obj.set_page_dirty_(true);
     end
 
     function signal = get.signal(obj)
@@ -581,7 +581,7 @@ methods
     function obj = set.signal(obj, signal)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('signal'), :) = signal;
-        obj.set_page_dirty_(true, obj.page_number_);
+        obj.set_page_dirty_(true);
     end
 
     function variance = get.variance(obj)
@@ -592,7 +592,7 @@ methods
     function obj = set.variance(obj, variance)
         obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('variance'), :) = variance;
-        obj.set_page_dirty_(true, obj.page_number_);
+        obj.set_page_dirty_(true);
     end
 
     function num_pix = get.num_pixels(obj)
@@ -710,6 +710,15 @@ methods (Access=private)
     function obj = set_page_dirty_(obj, is_dirty, page_number)
         % Mark the given page as "dirty" i.e. the data in the cache does not
         % match the data in the original SQW file
+        %
+        % Input
+        % -----
+        % is_dirty     Logical specifying if the page is dirty
+        % page_number  The page number to mark as dirty (default is current page)
+        %
+        if nargin == 2
+            page_number = obj.page_number_;
+        end
         obj.page_dirty_(page_number) = is_dirty;
     end
 
