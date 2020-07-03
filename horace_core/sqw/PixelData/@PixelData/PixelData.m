@@ -96,7 +96,7 @@ properties (Access=private)
     page_dirty_ = false;  % array mapping from page_number to whether that page is dirty
     object_id_;  % random unique identifier for this object, used for tmp file names
     page_number_ = 1;  % the index of the currently loaded page
-    tmp_io_handler;  % a PixelIO object that handles reading/writing of tmp files
+    tmp_io_handler;  % a PixelTmpFileHandler object that handles reading/writing of tmp files
 end
 
 properties (Dependent, Access=private)
@@ -627,7 +627,7 @@ methods (Access=private)
         obj.f_accessor_ = f_accessor;
         obj.file_path_ = fullfile(obj.f_accessor_.filepath, ...
                                   obj.f_accessor_.filename);
-        obj.tmp_io_handler = PixelIO(obj.object_id_);
+        obj.tmp_io_handler = PixelTmpFileHandler(obj.object_id_);
         obj.page_number_ = 1;
     end
 
