@@ -723,8 +723,8 @@ methods (Access=private)
     function obj = write_dirty_pix_(obj)
         % Write the current page's pixels to a tmp file
         tmp_file_path = obj.generate_dirty_pix_file_path_(obj.page_number_);
-        if ~exist(fileparts(tmp_file_path), 'dir')
-            mkdir(fileparts(tmp_file_path));
+        if ~exist(obj.dirty_pix_dir_, 'dir')
+            mkdir(obj.dirty_pix_dir_);
         end
 
         file_id = fopen(tmp_file_path, 'wb');
