@@ -24,7 +24,7 @@ methods
         obj.dirty_pix_dir_ = fullfile(tempdir(), dirty_pix_dir_name);
     end
 
-    function raw_pix = load_dirty_page(obj, page_number)
+    function raw_pix = load_page(obj, page_number)
         % Load a page of data from the tmp file with the given page number
         %
         % Input
@@ -34,7 +34,7 @@ methods
         tmp_file_path = obj.generate_dirty_pix_file_path_(page_number);
         [file_id, err_msg] = fopen(tmp_file_path, 'rb');
         if file_id < 0
-            error('PIXELTMPFIELHANDLER:load_dirty_page', ...
+            error('PIXELTMPFIELHANDLER:load_page', ...
                   'Could not open ''%s'' for reading:\n%s', tmp_file_path, ...
                   err_msg);
         end
@@ -47,13 +47,13 @@ methods
         fclose(file_id);
     end
 
-    function obj = write_dirty_pix(obj, page_number, pix_data)
+    function obj = write_page(obj, page_number, raw_pix)
         % Write the given pixel data to tmp file with the given page number
         %
         % Inputs
         % ------
         % page_number   The number of the page being written, this set the tmp file name
-        % pix_data      The raw data to write
+        % raw_pix       The raw pixel data array to write
         %
         tmp_file_path = obj.generate_dirty_pix_file_path_(page_number);
         if ~exist(obj.dirty_pix_dir_, 'dir')
@@ -62,12 +62,12 @@ methods
 
         file_id = fopen(tmp_file_path, 'wb');
         if file_id < 0
-            error('PIXELTMPFIELHANDLER:write_dirty_pix', ...
+            error('PIXELTMPFIELHANDLER:write_page', ...
                   'Could not open file ''%s'' for writing.\n', tmp_file_path);
         end
 
         try
-            obj.write_float_data_(file_id, pix_data);
+            obj.write_float_data_(file_id, raw_pix);
         catch ME
             fclose(file_id);
             rethrow(ME);

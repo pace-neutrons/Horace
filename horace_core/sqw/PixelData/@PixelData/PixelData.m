@@ -675,14 +675,14 @@ methods (Access=private)
 
     function obj = load_dirty_page_(obj, page_number)
         % Load a page of data from a tmp file
-        raw_pix = obj.tmp_io_handler.load_dirty_page(page_number);
+        raw_pix = obj.tmp_io_handler.load_page(page_number);
         npix_cols = obj.PIXEL_BLOCK_COLS_;
         obj.data_ = reshape(raw_pix, [npix_cols, numel(raw_pix)/npix_cols]);
     end
 
     function obj = write_dirty_page_(obj)
         % Write the current page's pixels to a tmp file
-        obj.tmp_io_handler.write_dirty_pix(obj.page_number_, obj.data);
+        obj.tmp_io_handler.write_page(obj.page_number_, obj.data);
     end
 
     function is = page_is_dirty_(obj, page_number)
