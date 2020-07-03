@@ -30,7 +30,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             clear mex;
             %
             %             hc = herbert_config;
-
+            
             display_fail_log = false;
             
             % overloaded to empty test -- nothing new for this JD
@@ -229,6 +229,14 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             
             
             [outputs, n_failed,~,jd] = jd.start_job('JETester', common_param, 3, true, n_workers, true, 1);
+            if n_failed>0
+                jd.display_fail_job_results(outputs, n_failed,2)
+            end
+            if numel(outputs) ~=2
+                disp('************* 2 workers run : failed  outputs :')
+                disp(outputs);
+            end
+            
             
             assertEqual(n_failed, 0);
             assertEqual(numel(outputs), 2);
@@ -242,6 +250,10 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             common_param = struct('data_buffer_size',10000000);
             [outputs, n_failed] = jd.restart_job('JETesterSendData',...
                 common_param,n_steps*n_workers,true, false, 1);
+            if n_failed>0
+                jd.display_fail_job_results(outputs, n_failed,2)
+            end
+            
             assertEqual(n_failed, 0);
             for i=1:numel(outputs)
                 if display_ouptut
@@ -283,6 +295,10 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             [outputs, n_failed,~,jd] = jd.start_job('JETester', common_param, 3, true, n_workers, true, 1);
             if n_failed>0
                 jd.display_fail_job_results(outputs, n_failed,3)
+            end
+            if numel(outputs) ~=3
+                disp('************* 3 workers successful run : failed  outputs :')
+                disp(outputs);
             end
             
             assertEqual(n_failed, 0);
