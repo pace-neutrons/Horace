@@ -555,6 +555,14 @@ methods
         assertEqual(class(pix.num_pixels), 'double');
     end
 
+    function test_num_pixels_is_a_double_if_data_in_memory(obj)
+        assertEqual(class(obj.pixel_data_obj.num_pixels), 'double');
+    end
+
+    function test_num_pixels_is_a_double_if_more_than_one_page_of_data(obj)
+        assertEqual(class(obj.pix_data_small_page.num_pixels), 'double');
+    end
+
     % -- Helpers --
     function do_pixel_data_loop_with_f(obj, func, data)
         % func should be a function handle, it is evaluated within a
