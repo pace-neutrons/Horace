@@ -654,6 +654,24 @@ methods
         assertExceptionThrown(f, 'PIXELDATA:data');
     end
 
+    function test_num_pixels_is_a_double_if_faccess_returns_uint(~)
+        npix = 30;
+        data = rand(9, npix);
+        faccess = FakeFAccess(data);
+        faccess = faccess.set_npixels(uint64(npix));
+
+        pix = PixelData(faccess);
+        assertEqual(class(pix.num_pixels), 'double');
+    end
+
+    function test_num_pixels_is_a_double_if_data_in_memory(obj)
+        assertEqual(class(obj.pixel_data_obj.num_pixels), 'double');
+    end
+
+    function test_num_pixels_is_a_double_if_more_than_one_page_of_data(obj)
+        assertEqual(class(obj.pix_data_small_page.num_pixels), 'double');
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);

@@ -599,7 +599,7 @@ methods
         if isempty(obj.f_accessor_)
             num_pix = size(obj.data, 2);
         else
-            num_pix = obj.f_accessor_.npixels;
+            num_pix = double(obj.f_accessor_.npixels);
         end
     end
 
