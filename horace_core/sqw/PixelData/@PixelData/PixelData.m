@@ -96,7 +96,7 @@ properties (Access=private)
     page_dirty_ = false;  % array mapping from page_number to whether that page is dirty
     object_id_;  % random unique identifier for this object, used for tmp file names
     page_number_ = 1;  % the index of the currently loaded page
-    dirty_pix_dir_ = '';  % the path to a directory in which to store tmp files
+    tmp_io_handler;  % a PixelIO object that handles reading/writing of tmp files
 end
 
 properties (Dependent, Access=private)
@@ -275,7 +275,9 @@ methods
 
     function delete(obj)
         % Class destructor to delete any temporary files
-        obj.clean_up_tmp_files_();
+        if ~isempty(obj.tmp_io_handler)
+            obj.tmp_io_handler.delete_tmp_files();
+        end
     end
 
     function is_empty = isempty(obj)
@@ -402,7 +404,7 @@ methods
         %
         if obj.is_file_backed_()
             if obj.page_is_dirty_(obj.page_number_)
-                obj.write_dirty_pix_();
+                obj.write_dirty_page_();
             end
             try
                 obj.load_page_(obj.page_number_ + 1);
@@ -426,7 +428,7 @@ methods
         %
         if obj.is_file_backed_()
             if obj.page_is_dirty_(obj.page_number_)
-                obj.write_dirty_pix_();
+                obj.write_dirty_page_();
             end
             obj.page_number_ = 1;
             obj.data_ = zeros(9, 0);
@@ -625,8 +627,7 @@ methods (Access=private)
         obj.f_accessor_ = f_accessor;
         obj.file_path_ = fullfile(obj.f_accessor_.filepath, ...
                                   obj.f_accessor_.filename);
-        dirty_pix_dir_name = sprintf(obj.DIRTY_PIX_DIR_NAME_, obj.object_id_);
-        obj.dirty_pix_dir_ = fullfile(tempdir(), dirty_pix_dir_name);
+        obj.tmp_io_handler = PixelIO(obj.object_id_);
         obj.page_number_ = 1;
     end
 
@@ -666,23 +667,9 @@ methods (Access=private)
 
     function obj = load_dirty_page_(obj, page_number)
         % Load a page of data from a tmp file
-        tmp_file_path = obj.generate_dirty_pix_file_path_(page_number);
-        [file_id, err_msg] = fopen(tmp_file_path, 'rb');
-        if file_id < 0
-            error('PIXELDATA:load_dirty_page_', ...
-                  'Could not open ''%s'' for reading:\n%s', tmp_file_path, ...
-                  err_msg);
-        end
-        try
-            raw_pix = fread(file_id, 'float32');
-            npix_cols = obj.PIXEL_BLOCK_COLS_;
-            raw_pix = reshape(raw_pix, [npix_cols, numel(raw_pix)/npix_cols]);
-            obj.data_ = raw_pix;
-        catch ME
-            fclose(file_id);
-            rethrow(ME);
-        end
-        fclose(file_id);
+        raw_pix = obj.tmp_io_handler.load_dirty_page(page_number);
+        npix_cols = obj.PIXEL_BLOCK_COLS_;
+        obj.data_ = reshape(raw_pix, [npix_cols, numel(raw_pix)/npix_cols]);
     end
 
     function obj = load_first_page_if_data_empty_(obj)
@@ -722,53 +709,9 @@ methods (Access=private)
         obj.page_dirty_(page_number) = is_dirty;
     end
 
-    function obj = write_dirty_pix_(obj)
+    function obj = write_dirty_page_(obj)
         % Write the current page's pixels to a tmp file
-        tmp_file_path = obj.generate_dirty_pix_file_path_(obj.page_number_);
-        if ~exist(obj.dirty_pix_dir_, 'dir')
-            mkdir(obj.dirty_pix_dir_);
-        end
-
-        file_id = fopen(tmp_file_path, 'wb');
-        if file_id < 0
-            error('PIXELDATA:write_dirty_pix_', ...
-                  'Could not open file ''%s'' for writing.\n', tmp_file_path);
-        end
-
-        try
-            obj.write_pix_to_tmp_file_(file_id);
-        catch ME
-            fclose(file_id);
-            rethrow(ME);
-        end
-        fclose(file_id);
-    end
-
-    function obj = write_pix_to_tmp_file_(obj, file_id)
-        % Write the pixels in the current page to the file corresponding to the
-        % given file ID.
-        % TODO: improve this by not writing all data at once
-        try
-            fwrite(file_id, obj.data, 'float32');
-        catch ME
-            switch ME.identifier
-            case 'MATLAB:badfid_mx'
-                error('PIXELDATA:write_pix_to_tmp_file_', ...
-                  'Could not write to file with ID ''%d'':\n The file is not open', ...
-                  file_id);
-            otherwise
-                tmp_file_path = fopen(file_id);
-                error('PIXELDATA:write_pix_to_tmp_file_', ...
-                      'Could not write to file ''%s'':\n%s', ...
-                      tmp_file_path, ferror(file_id));
-            end
-        end
-    end
-
-    function tmp_file_path = generate_dirty_pix_file_path_(obj, page_number)
-        % Generate the file path to the tmp directory for this object instance
-        tmp_file_path = fullfile(obj.dirty_pix_dir_, ...
-                                 sprintf('%09d.tmp', page_number));
+        obj.tmp_io_handler.write_dirty_pix(obj.page_number_, obj.data);
     end
 
     function is = is_file_backed_(obj)
@@ -776,13 +719,6 @@ methods (Access=private)
         % all pixel data is held in memory
         %
         is = ~isempty(obj.f_accessor_);
-    end
-
-    function clean_up_tmp_files_(obj)
-        % Delete the directory containing files holding dirty pixels
-        if exist(obj.dirty_pix_dir_, 'dir')
-            rmdir(obj.dirty_pix_dir_, 's');
-        end
     end
 
 end
