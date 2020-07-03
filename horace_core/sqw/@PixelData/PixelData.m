@@ -401,7 +401,7 @@ methods
         % This function does nothing if the pixel data is not file-backed.
         %
         if obj.is_file_backed()
-            if obj.page_dirty_(obj.page_number_)
+            if obj.page_is_dirty_(obj.page_number_)
                 obj.write_dirty_pix_();
             end
             try
@@ -425,7 +425,7 @@ methods
         %  This function does nothing if pixels are not file-backed
         %
         if obj.is_file_backed()
-            if obj.page_dirty_(obj.page_number_)
+            if obj.page_is_dirty_(obj.page_number_)
                 obj.write_dirty_pix_();
             end
             obj.page_number_ = 1;
@@ -639,7 +639,7 @@ methods (Access=private)
 
     function obj = load_page_(obj, page_number)
         % Load the data for the given page index
-        if ~(page_number > numel(obj.page_dirty_)) && obj.page_dirty_(page_number)
+        if obj.page_is_dirty_(page_number)
             % load page from tmp file
             obj.load_dirty_page_(page_number);
         else
@@ -706,6 +706,12 @@ methods (Access=private)
         num_bytes_in_val = 8;  % pixel data stored in memory as a double
         num_bytes_in_pixel = num_bytes_in_val*obj.PIXEL_BLOCK_COLS_;
         page_size = floor(mem_alloc/num_bytes_in_pixel);
+    end
+
+    function is = page_is_dirty_(obj, page_number)
+        % Return true if the given page is dirty
+        is = ~(page_number > numel(obj.page_dirty_));
+        is = is && obj.page_dirty_(page_number);
     end
 
     function obj = set_page_dirty_(obj, is_dirty, page_number)
