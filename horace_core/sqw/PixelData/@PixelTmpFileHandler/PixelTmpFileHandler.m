@@ -1,4 +1,4 @@
-classdef PixelIO
+classdef PixelTmpFileHandler
 
 properties (Constant, Access=private)
     DIRTY_PIX_DIR_NAME_ = 'sqw_pix%05d';
@@ -11,8 +11,8 @@ end
 
 methods
 
-    function obj = PixelIO(pix_id)
-        % Construct a PixelIO object
+    function obj = PixelTmpFileHandler(pix_id)
+        % Construct a PixelTmpFileHandler object
         %
         % Input
         % -----
