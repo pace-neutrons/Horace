@@ -75,6 +75,7 @@ classdef PixelData < matlab.mixin.Copyable
 %   page_size      The number of pixels in the currently loaded page
 %
 properties (Access=private)
+    DIRTY_PIX_DIR_NAME_ = 'sqw_pix%05d';
     PIXEL_BLOCK_COLS_ = 9;
     FIELD_INDEX_MAP_ = containers.Map(...
         {'u1', 'u2', 'u3', 'dE', ...
@@ -623,8 +624,8 @@ methods
 
     % -- Setters for private attributes --
     function dirty_pix_dir = get.dirty_pix_dir_(obj)
-        dirty_pix_dir = fullfile(tempdir(), ...
-                                 sprintf('sqw_pix%05d', obj.object_id_));
+        dir_name = sprintf(obj.DIRTY_PIX_DIR_NAME_, obj.object_id_);
+        dirty_pix_dir = fullfile(tempdir(), dir_name);
     end
 
     function pix_position = get.pix_position_(obj)
