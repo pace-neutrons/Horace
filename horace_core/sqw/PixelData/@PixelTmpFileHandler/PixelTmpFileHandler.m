@@ -38,13 +38,9 @@ methods
                   'Could not open ''%s'' for reading:\n%s', tmp_file_path, ...
                   err_msg);
         end
-        try
-            raw_pix = fread(file_id, 'float32');
-        catch ME
-            fclose(file_id);
-            rethrow(ME);
-        end
-        fclose(file_id);
+        clean_up = onCleanup(@() fclose(file_id));
+
+        raw_pix = fread(file_id, 'float32');
     end
 
     function obj = write_page(obj, page_number, raw_pix)
@@ -52,7 +48,7 @@ methods
         %
         % Inputs
         % ------
-        % page_number   The number of the page being written, this set the tmp file name
+        % page_number   The number of the page being written, this sets the tmp file name
         % raw_pix       The raw pixel data array to write
         %
         tmp_file_path = obj.generate_dirty_pix_file_path_(page_number);
@@ -65,14 +61,9 @@ methods
             error('PIXELTMPFIELHANDLER:write_page', ...
                   'Could not open file ''%s'' for writing.\n', tmp_file_path);
         end
+        clean_up = onCleanup(@() fclose(file_id));
 
-        try
-            obj.write_float_data_(file_id, raw_pix);
-        catch ME
-            fclose(file_id);
-            rethrow(ME);
-        end
-        fclose(file_id);
+        obj.write_float_data_(file_id, raw_pix);
     end
 
     function delete_tmp_files(obj)
