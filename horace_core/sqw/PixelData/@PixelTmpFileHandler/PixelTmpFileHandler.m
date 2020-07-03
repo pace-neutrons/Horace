@@ -1,7 +1,8 @@
 classdef PixelTmpFileHandler
 
 properties (Constant, Access=private)
-    DIRTY_PIX_DIR_NAME_ = 'sqw_pix%05d';
+    DIRTY_PIX_DIR_BASE_NAME_ = 'sqw_pix%05d';
+    FILE_DATA_FORMAT_ = 'float32';
 end
 
 properties (Access=private)
@@ -20,7 +21,7 @@ methods
         %          This sets the tmp directory name
         %
         obj.pix_id_ = pix_id;
-        dirty_pix_dir_name = sprintf(obj.DIRTY_PIX_DIR_NAME_, obj.pix_id_);
+        dirty_pix_dir_name = sprintf(obj.DIRTY_PIX_DIR_BASE_NAME_, obj.pix_id_);
         obj.dirty_pix_dir_ = fullfile(tempdir(), dirty_pix_dir_name);
     end
 
@@ -40,7 +41,7 @@ methods
         end
         clean_up = onCleanup(@() fclose(file_id));
 
-        raw_pix = fread(file_id, 'float32');
+        raw_pix = fread(file_id, obj.FILE_DATA_FORMAT_);
     end
 
     function obj = write_page(obj, page_number, raw_pix)
@@ -82,7 +83,7 @@ methods (Access=private)
         % in float32
         % TODO: improve this by writing data in chunks to sustain write speeds
         try
-            fwrite(file_id, pix_data, 'float32');
+            fwrite(file_id, pix_data, obj.FILE_DATA_FORMAT_);
         catch ME
             switch ME.identifier
             case 'MATLAB:badfid_mx'
