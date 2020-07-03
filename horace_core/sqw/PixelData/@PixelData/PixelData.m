@@ -631,6 +631,14 @@ methods (Access=private)
         obj.page_number_ = 1;
     end
 
+    function obj = load_first_page_if_data_empty_(obj)
+        % Check if there's any data in the current page and load a page if not
+        %   This function does nothing if pixels are not file-backed
+        if isempty(obj.data_) && obj.is_file_backed_()
+            obj = obj.load_page_(1);
+        end
+    end
+
     function obj = load_page_(obj, page_number)
         % Load the data for the given page index
         if obj.page_is_dirty_(page_number)
@@ -672,20 +680,9 @@ methods (Access=private)
         obj.data_ = reshape(raw_pix, [npix_cols, numel(raw_pix)/npix_cols]);
     end
 
-    function obj = load_first_page_if_data_empty_(obj)
-        % Check if there's any data in the current page and load a page if not
-        %   This function does nothing if pixels are not file-backed
-        if isempty(obj.data_) && obj.is_file_backed_()
-            obj = obj.load_page_(1);
-        end
-    end
-
-    function page_size = get_max_page_size_(obj, mem_alloc)
-        % Get the maximum number of pixels that can be held in a page that's
-        % allocated 'mem_alloc' bytes
-        num_bytes_in_val = 8;  % pixel data stored in memory as a double
-        num_bytes_in_pixel = num_bytes_in_val*obj.PIXEL_BLOCK_COLS_;
-        page_size = floor(mem_alloc/num_bytes_in_pixel);
+    function obj = write_dirty_page_(obj)
+        % Write the current page's pixels to a tmp file
+        obj.tmp_io_handler.write_dirty_pix(obj.page_number_, obj.data);
     end
 
     function is = page_is_dirty_(obj, page_number)
@@ -709,9 +706,12 @@ methods (Access=private)
         obj.page_dirty_(page_number) = is_dirty;
     end
 
-    function obj = write_dirty_page_(obj)
-        % Write the current page's pixels to a tmp file
-        obj.tmp_io_handler.write_dirty_pix(obj.page_number_, obj.data);
+    function page_size = get_max_page_size_(obj, mem_alloc)
+        % Get the maximum number of pixels that can be held in a page that's
+        % allocated 'mem_alloc' bytes
+        num_bytes_in_val = 8;  % pixel data stored in memory as a double
+        num_bytes_in_pixel = num_bytes_in_val*obj.PIXEL_BLOCK_COLS_;
+        page_size = floor(mem_alloc/num_bytes_in_pixel);
     end
 
     function is = is_file_backed_(obj)
