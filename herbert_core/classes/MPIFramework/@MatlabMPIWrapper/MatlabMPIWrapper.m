@@ -27,7 +27,7 @@ classdef MatlabMPIWrapper < handle
     end
     properties(Access=protected,Hidden=true)
         is_tested_ = false;
-        interrupt_chan_tag_;
+        
         labindex_ = 1;
         numlabs_  = 1;
         % Variables for logging the MPI results
@@ -38,6 +38,8 @@ classdef MatlabMPIWrapper < handle
         % shift all tags used by framework by this number to avoid negative
         % tags
         matalb_tag_shift_=10;
+        % the tag of the channel to transmit interrupt messages
+        interrupt_chan_tag_;
     end
     %
     properties(Access=private)
@@ -49,18 +51,26 @@ classdef MatlabMPIWrapper < handle
     
     methods
         %
-        function obj = MatlabMPIWrapper(interrupt_channel,is_tested,labNum,NumLabs)
+        function obj = MatlabMPIWrapper(intrpt_chnl,is_tested,labNum,NumLabs)
             % The constructor of the wrapper around Matlab MPI operations
             %
-            % in production mode -- empty constructor provides access to
+            % in production mode -- the constructor provides access to
             % Matlab MPI operations
-            % In test mode:
-            % is_tested -- true and two other parameters need to be
-            %              provided.
+            %
+            % Inputs:
+            % intrpt_chnl      -- the tag of the channel interrupts are
+            %                      distributed through
+            %
+            % In test mode, additional parameters are needed:
+            %
+            % is_tested -- if true, the script is being tested rather then
+            %              interfacing real MPI and two following
+            %              parameters have to be provided.
             % labNum    -- pseudo-number of current parallel lab(worker)
             % NumLabs   -- total (pseudo)number of parallel workers
             %              "participating" in parallel pool.
-            obj.interrupt_chan_tag_ = interrupt_channel;
+            obj.interrupt_chan_tag_ = intrpt_chnl;
+            
             if ~exist('is_tested','var')
                 obj.is_tested_ = false;
             else
@@ -156,7 +166,7 @@ classdef MatlabMPIWrapper < handle
                 else
                     lab_name = num2str(targ_id);
                 end
-                mess_name = MESS_NAMES.mess_name(mess_tag);
+                mess_name = MESS_NAMES.mess_name(mess_tag,obj.interrupt_chan_tag_);
                 fprintf(obj.log_fh_,'***  probing  Lab: "%s" for mess: "%s"\n',...
                     lab_name,mess_name);
             end
@@ -165,7 +175,7 @@ classdef MatlabMPIWrapper < handle
             if isempty(tags_present)
                 mess_names = {};
             else
-                mess_names = MESS_NAMES.mess_name(tags_present);
+                mess_names = MESS_NAMES.mess_name(tags_present,obj.interrupt_chan_tag_);
             end
             if ~iscell(mess_names )
                 mess_names  = {mess_names};
@@ -211,13 +221,17 @@ classdef MatlabMPIWrapper < handle
                 mess_tag = -1;
             end
             if iscell(mess_tag) || ischar(mess_tag)
-                mess_tag = MESS_NAMES.mess_id(mess_tag);
+                mess_tag = MESS_NAMES.mess_id(mess_tag,obj.interrupt_chan_tag_);
             end
             if nargin<2
                 lab_id = [];
             end
             if ~exist('is_blocking','var') % occurs only in testing
-                is_blocking = MESS_NAMES.is_blocking(mess_tag);
+                if mess_tag ~= obj.interrupt_chan_tag_
+                    is_blocking = MESS_NAMES.is_blocking(mess_tag);
+                else
+                    is_blocking = false;
+                end
             end
             if obj.do_logging_
                 if isempty(lab_id)
@@ -230,12 +244,12 @@ classdef MatlabMPIWrapper < handle
                 else
                     how = 'asynch';
                 end
-                mess_name = MESS_NAMES.mess_name(mess_tag);
+                mess_name = MESS_NAMES.mess_name(mess_tag,obj.interrupt_chan_tag_);
                 fprintf(obj.log_fh_,'***%s asking to receive from Lab: "%s" Mess:  "%s"\n',...
                     how,lab_name,mess_name);
             end
             [message,tag] = labReceive_(obj,lab_id,mess_tag,is_blocking);
-            if ~isempty(message) && ~message.is_blocking
+            if ~isempty(message) && ~(message.is_blocking||message.is_persistent)
                 % receive and collapse all non-blocking messages with the same tag
                 mess = message;
                 tag = mess.tag;

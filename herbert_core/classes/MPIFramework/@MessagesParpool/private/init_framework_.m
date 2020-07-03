@@ -21,7 +21,8 @@ if exist('framework_info','var')
     if isstruct(framework_info) && isfield(framework_info,'job_id')
         obj.job_id = framework_info.job_id;
         if isfield(framework_info,'labID') % init Parpool framework in test mode
-            obj.MPI_ = MatlabMPIWrapper(obj.interrupt_chan_tag_,true,...
+            obj.MPI_ = MatlabMPIWrapper(obj.interrupt_chan_tag_,...
+                true,...
                 framework_info.labID,framework_info.numLabs);
         end
     elseif(is_string(framework_info))
@@ -38,5 +39,3 @@ if isempty(obj.MPI_)
     obj.MPI_ = MatlabMPIWrapper(obj.interrupt_chan_tag_,false);
 end
 
-%obj.blocking_mess_cache_ = mess_cache(obj.MPI_.numLabs);
-%obj.state_mess_cache_  = mess_cache(obj.MPI_.numLabs);

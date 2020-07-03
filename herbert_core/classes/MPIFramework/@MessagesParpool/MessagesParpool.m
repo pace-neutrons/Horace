@@ -22,18 +22,11 @@ classdef MessagesParpool < iMessagesFramework
         % computing toolbox, used to perform actual send/receive/probe
         % operations
         MPI_ = [];
-        
-        % Holder for the blocking messages, received asynchronously and
-        % to be returned as requested (synchronously or asynchronously)
-        %blocking_mess_cache_
-        % Holder for the non-blocking messages, received asynchronously and
-        % to be returned as requested (synchronously or asynchronously)
-        %state_mess_cache_
     end
     %----------------------------------------------------------------------
     methods
         %
-        function jd = MessagesParpool(varargin)
+        function mf = MessagesParpool(varargin)
             % Initialize Messages framework for particular job
             % If provided with parameters, the first parameter should be
             % the sting-prefix of the job control files, used to
@@ -55,10 +48,11 @@ classdef MessagesParpool < iMessagesFramework
             %
             %   - numLabs -- number of fake 'Virtual nodes' surrounding
             %                this node in the test mode
-            jd = jd@iMessagesFramework();
-            jd.MPI_ = [];
+            mf = mf@iMessagesFramework();
+            mf.interrupt_chan_name_ = MESS_NAMES.interrupt_channel_name;
+            mf.MPI_ = [];
             if nargin>0
-                jd = jd.init_framework(varargin{1});
+                mf = mf.init_framework(varargin{1});
             end
         end
         %------------------------------------------------------------------
@@ -120,65 +114,7 @@ classdef MessagesParpool < iMessagesFramework
             %
             [messages_name,task_id] = labProbe_messages_(obj,task_id,varargin{:});
         end
-        %         %
-        %         function [all_messages,task_ids] = receive_all(obj,task_ids,varargin)
-        %             % receive messages from a task with id-s specified as array or
-        %             % all messages from all labs available.
-        %             %
-        %             % Blocking  or unblocking behavior depends on requested message
-        %             % type or can be requested explicitly.
-        %             %
-        %             % If the requested message type is blocking, blocks until the
-        %             % message is available.
-        %             % if it is unblocking, return empty message if appropriate message
-        %             % is not present in system
-        %             %
-        %             % Asking a server for a message synchroneously, may block a
-        %             % client if other type of message has been send by server.
-        %             % Exception for reveive all are FailureMessage and CanceledMessage,
-        %             % which, if send, will be received and returned instead of the
-        %             % requested message in any circumstances.
-        %             %
-        %             % Usage:
-        %             % >>mf = MessagesFramework();
-        %             % >>[ok,err_mess,message] = mf.receive_all(task_ids,mess_name, ...
-        %             %                           ['-synchronous'|'-asynchronous'])
-        %             % or:
-        %             % >>[ok,err_mess,message] = mf.receive_all(id,'any', ...
-        %             %                           ['-synchronous'|'-asynchronous'])
-        %             % or:
-        %             % >>[ok,err_mess,message] = mf.receive_all('all','any', ...
-        %             %                           ['-synchronous'|'-asynchronous'])
-        %             %
-        %             %Inputs:
-        %             % task_ids  - array of task id-s to check for messages or 'all' for
-        %             %             all labs(task-id-s)
-        %             % mess_name - the string, defining the message name or 'any' or
-        %             %             empty variable for any type of message.
-        %             % Optional:
-        %             % ['-s[ynchronous]'|'-a[synchronous]'] -- override default message
-        %             %              receiving rules and receive the message
-        %             %              block program execution if '-synchronous' keyword
-        %             %              is provided, or continue execution if message has
-        %             %              not been send ('-asynchronous' mode).
-        %             %Return:
-        %             % all_messages - cellarray of messages for the tasks requested and
-        %             %                have messages available in the system.
-        %             %task_ids      - array of task id-s where these messages were
-        %             %                received from.
-        %             %                in asynchroneous mode, size(task_ids) at output
-        %             %                may be smaller then the size(task_ids) at input.
-        %             %
-        %             %
-        %             if nargin>1 && ischar(task_ids)
-        %                 if strcmp('any',task_ids)
-        %                     warning('Outdated receive all interface. Use all instead of any')
-        %                     task_ids = 'all';
-        %                 end
-        %             end
-        %             [all_messages,task_ids] = receive_all_messages_(obj,task_ids,varargin{:});
-        %         end
-        %         %
+        %  
         function finalize_all(obj)
             obj.clear_messages();
         end
@@ -233,7 +169,7 @@ classdef MessagesParpool < iMessagesFramework
                 error('MESSAGES_FRAMEWORK:runtime_error',...
                     'Can not setup parpool framework range in production mode')
             end
-            obj.MPI_ = MatlabMPIWrapper(true,...
+            obj.MPI_ = MatlabMPIWrapper(obj.interrupt_chan_tag_,true,...
                 labNum,NumLabs);
         end
         

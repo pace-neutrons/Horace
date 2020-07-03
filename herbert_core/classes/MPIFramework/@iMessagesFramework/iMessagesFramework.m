@@ -70,7 +70,7 @@ classdef iMessagesFramework < handle
         throw_on_interrupts_ =  true;
         
         % interrupt channel name:
-        interrupt_chan_name_ = 'interrupt';
+        interrupt_chan_name_;
         % the tag of the interrupt channel
         interrupt_chan_tag_ = 100; % let's take it definitively bigger then 
         % other message tag defined in the system

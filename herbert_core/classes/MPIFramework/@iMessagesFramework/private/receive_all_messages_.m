@@ -1,6 +1,7 @@
 function [all_messages,tid_received_from] = receive_all_messages_(obj,task_ids,mess_name,varargin)
 % retrieve all messages sent from jobs with id provided. if ids are empty,
-% all messages, intended for this job.
+% grab all messages, intended for this job.
+%
 %
 if ~exist('task_ids','var') || isempty(task_ids) || (ischar(task_ids) && strcmpi(task_ids,'all'))
     task_ids = 1:obj.numLabs;
@@ -9,18 +10,16 @@ not_this = task_ids ~= obj.labIndex;
 if ~all(not_this)
     task_ids = task_ids(not_this);
 end
-
-
 if ~exist('mess_name','var') || isempty(mess_name)
     mess_name = 'any';
 end
+% if it is blocking channel we are using or not.
 lock_until_received = obj.check_is_blocking(mess_name,varargin);
 
 n_requested = numel(task_ids);
 all_messages = cell(1,n_requested);
 mess_received = false(1,n_requested);
 tid_received_from = zeros(1,n_requested);
-%mess_name = arrayfun(@(x)(mess_name),mess_received,'UniformOutput',false);
 
 [message_names,tid_from] = obj.probe_all(task_ids,mess_name);
 %
@@ -41,9 +40,10 @@ while ~all_received
                     'Can not receive existing message: %s, Err: %s',...
                     mess_names_present{i},err_mess);
             end
-            if isempty(message) %message was present, but is getting 
+            if isempty(message) %message was present, but is getting
                 % overwritten when tried to receive it. (filebased
-                % framework feature)
+                % framework feature) Making it non-present (it will come
+                % next time)
                 mess_received(i) = false;
                 mess_names_present{i} = '';
                 present_now(i) = false;
@@ -53,16 +53,15 @@ while ~all_received
                 mess_received(i) = true;
             end
             if obj.throw_on_interrupts
-                if message.is_persistent % its interrupt % The question is is it better to throw on interrupt 
+                if message.is_persistent % its interrupt % The question is is it better to throw on interrupt
                     if ~isempty(message.fail_text)
                         error('MESSAGE_FRAMEWORK:canceled',...
-                            'Receive operation from node %d interrupted by getting cancellation message: %s, Reason: %s',...
-                            task_ids(i),message.mess_name,message.fail_text);
-                        
+                            'Node %d: interrupted receive from node %d by cancellation message: %s, Reason: %s',...
+                            obj.labIndex,task_ids(i),message.mess_name,message.fail_text);
                     else
                         error('MESSAGE_FRAMEWORK:canceled',...
-                            'Receive operation from node %d interrupted by getting cancellation message %s',...
-                            task_ids(i),message.mess_name);
+                            'Node %d: interrupted receive from node %d by cancellation message %s',...
+                            obj.labIndex.task_ids(i),message.mess_name);
                     end
                 end
             end

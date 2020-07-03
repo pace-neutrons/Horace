@@ -112,6 +112,7 @@ classdef test_MESS_NAMES_factory< TestCase
             is = MESS_NAMES.is_blocking(-1);
             assertFalse(is);
         end
+        
         function test_mess_name_and_interrupt_channel_hack(~)
             name = MESS_NAMES.mess_name(1:4);
             assertTrue(iscell(name));
@@ -121,6 +122,34 @@ classdef test_MESS_NAMES_factory< TestCase
             assertTrue(iscell(name));
             assertEqual(name{3},'interrupt');
         end
+        %
+        function test_mess_id_and_interrupt_channel_hack(~)
+            ids = MESS_NAMES.mess_id({'completed','pending','queued'});
+            assertTrue(isnumeric(ids));
+            assertEqual(numel(ids),3);
+            
+            ids = MESS_NAMES.mess_id({'completed','pending','interrupt'},1000);
+            
+            assertTrue(isnumeric(ids));
+            assertEqual(numel(ids),3);
+            assertEqual(ids(3),1000);
+            
+            ids2 = MESS_NAMES.mess_id('interrupt',1000);
+            assertTrue(isnumeric(ids2));
+            assertEqual(numel(ids2),1);
+            assertEqual(ids2,1000);
+            
+            ids1 = MESS_NAMES.mess_id('completed');
+            assertTrue(isnumeric(ids1));
+            assertEqual(numel(ids1),1);
+            assertEqual(ids1,ids(1));
+            
+            ids1 = MESS_NAMES.mess_id('completed',100);
+            assertTrue(isnumeric(ids1));
+            assertEqual(numel(ids1),1);
+            assertEqual(ids1,ids(1));            
+        end
+        
         
         
         function test_specialized_classes(obj)

@@ -688,10 +688,7 @@ classdef exchange_common_tests < MPI_Test_Common
             
             assertEqual(messr{1}.mess_name,'data')
             assertEqual(messr{2}.mess_name,'failed')
-            
-            %             [ok, err] = intercomm.send_message(3, FailedMessage(' Test failure'));
-            %             assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
-            
+           
             intercomm.throw_on_interrupts = true;
             assertExceptionThrown(@()receive_all(intercomm,'all', 'data'),...
                 'MESSAGE_FRAMEWORK:canceled');

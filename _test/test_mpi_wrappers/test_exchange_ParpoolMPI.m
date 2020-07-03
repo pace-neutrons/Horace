@@ -42,11 +42,11 @@ classdef test_exchange_ParpoolMPI < exchange_common_tests
             mpi_wrapper.mlabSend(mess2,5);
             [mess_names,source]=mpi_wrapper.mlabProbe(5);
             assertTrue(~isempty(mess_names))
-            assertEqual(mess_names{1},'log');
+            assertEqual(mess_names{1},'interrupt');
             assertEqual(source,5);
             [mess_names,source]=mpi_wrapper.mlabProbe([]);
             assertTrue(~isempty(mess_names))
-            assertEqual(mess_names{1},'log');
+            assertEqual(mess_names{1},'interrupt');
             assertEqual(source,5);
             
             [mess_r,tag,source]=mpi_wrapper.mlabReceive(5);
@@ -55,11 +55,11 @@ classdef test_exchange_ParpoolMPI < exchange_common_tests
             assertEqual(source,5);
             [mess_names,source]=mpi_wrapper.mlabProbe(5);
             assertTrue(~isempty(mess_names))
-            assertEqual(mess_names{1},'failed');
+            assertEqual(mess_names{1},'interrupt');
             assertEqual(source,5);
             
             [mess_r,tag,source]=mpi_wrapper.mlabReceive(5);
-            assertEqual(mess_r,mess1);
+            assertEqual(mess_r,mess2);
             assertEqual(tag,mess2.tag);
             assertEqual(source,5);
         end

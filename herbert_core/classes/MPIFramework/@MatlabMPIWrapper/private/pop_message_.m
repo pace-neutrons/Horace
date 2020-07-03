@@ -21,9 +21,9 @@ if isKey(obj.messages_cache_,target_id)
     
     if isempty(mess_tag) || mess_tag == -1
         info = cont{1};
-        tag_rec = info.tag;
         message = info.mess;
         message = aMessage.loadobj(message);
+        tag_rec = message.tag;
         cont = cont(2:end);
     else
         no_tag_match = true;
@@ -32,9 +32,9 @@ if isKey(obj.messages_cache_,target_id)
             tag_rec = info.tag;
             if tag_rec == mess_tag
                 cont = [cont(1:i-1),cont(i+1:end)];
-                tag_rec = info.tag;
                 message = info.mess;
                 message = aMessage.loadobj(message);
+                tag_rec = message.tag;                
                 no_tag_match = false;
                 break;
             end

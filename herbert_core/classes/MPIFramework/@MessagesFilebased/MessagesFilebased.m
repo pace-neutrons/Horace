@@ -47,7 +47,7 @@ classdef MessagesFilebased < iMessagesFramework
     %----------------------------------------------------------------------
     methods
         %
-        function jd = MessagesFilebased(varargin)
+        function mf = MessagesFilebased(varargin)
             % Initialize Messages framework for particular job
             % If provided with parameters, the first parameter should be
             % the sting-prefix of the job control files, used to
@@ -62,9 +62,10 @@ classdef MessagesFilebased < iMessagesFramework
             % the filename specified as input.
             %
             % Initialise folder path
-            jd = jd@iMessagesFramework();
+            mf = mf@iMessagesFramework();
+            mf.interrupt_chan_name_ = MESS_NAMES.interrupt_channel_name;
             if nargin>0
-                jd = jd.init_framework(varargin{:});
+                mf = mf.init_framework(varargin{:});
             end
             
         end

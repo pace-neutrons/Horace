@@ -692,7 +692,7 @@ classdef test_job_executor< MPI_Test_Common
             assertTrue(ok)
             assertTrue(isempty(err_mess))
             
-            assertTrue(exist(fbMPIs{2}.mess_file_name(1,'failed'),'file')==2);
+            assertTrue(exist(fbMPIs{2}.mess_file_name(1,'interrupt'),'file')==2);
             try
                 je1.log_progress(2,10,3,[]);
             catch ERRm

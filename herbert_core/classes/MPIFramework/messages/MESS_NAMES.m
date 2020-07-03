@@ -38,7 +38,13 @@ classdef MESS_NAMES < handle
         % The tags of the messages, used by Matlab MPI to find Matlab MPI
         % framework messages.
         pool_fixture_tags;
+        
     end
+    properties(Constant,Access=public)    
+        % define the name of the persistent messages channel
+        interrupt_channel_name = 'interrupt';
+    end
+    
     properties(Constant,Access=private)
         % define list of the messages, known to the factory. Any new
         % message to use in system needs to be added here.
@@ -79,6 +85,8 @@ classdef MESS_NAMES < handle
         % the factory in the process of registering message classes with
         % the factory.
         initializing_ = false;
+        
+
     end
     
     methods(Access = private)
@@ -156,6 +164,7 @@ classdef MESS_NAMES < handle
             tgs = obj.interrupts_map_.keys;
             tgs = [tgs{:}];
         end
+        %   
         %----------------------------------------------------------------
         function is = is_registered(obj,name)
             % return true, if message with the name, provided as input
@@ -244,7 +253,7 @@ classdef MESS_NAMES < handle
             
         end
         
-        function id = mess_id(varargin)
+        function id = mess_id(mess_names,varargin)
             % get message id (tag) corresponding to the message name
             %
             % Input:
@@ -255,19 +264,30 @@ classdef MESS_NAMES < handle
             % usage:
             % id = MESS_NAMES.mess_id('completed')
             % or
-            % ids = MESS_NAMES.mess_id('completed','log','started')
+            % ids = MESS_NAMES.mess_id({'completed','log','started'})
+            % ids = MESS_NAMES.mess_id({'completed','log','started'},interrupt_channel)            
             %
             mn = MESS_NAMES.instance();
             name2code_map = mn.name_to_tag_map_;
-            
-            if iscell(varargin{1})
-                id = cellfun(@(nm)(name2code_map(nm)),...
-                    varargin{1},'UniformOutput',true);
-            elseif nargin > 1
-                id = cellfun(@(nm)(name2code_map(nm)),...
-                    varargin,'UniformOutput',true);
+            if nargin>1
+                if ~isnumeric(varargin{1})
+                    error('MESS_NAMES:invalid_argument',...
+                        'Second parameter (if any) for mess_id function should be number of interrupt channel. Got: %s',...
+                    evalc('disp(varargin{1})'));                        
+                end
+                f = @(x)MESS_NAMES.name_to_id_or_interrupt(x,name2code_map,varargin{1});
             else
-                id = name2code_map(varargin{1});
+                f = @(x)name2code_map(x);                
+            end
+            
+            if iscell(mess_names)
+                id = cellfun(f, mess_names,'UniformOutput',true);
+            elseif ischar(mess_names)
+                id = f(mess_names);
+            else
+                error('MESS_NAMES:invalid_argument',...
+                    'input for mess_id should be a name or cellarray of names. Got: %s',...
+                    evalc('disp(mess_names)'));
             end
         end
         %
@@ -398,11 +418,19 @@ classdef MESS_NAMES < handle
     methods(Static,Access=private)
         function name=id_to_name_or_interrupt(id,code2name_map,interrupt_chan)
             if id == interrupt_chan
-                name = 'interrupt';
+                name = MESS_NAMES.interrupt_channel_name;
             else
                 name = code2name_map(id);
             end
         end
+        function id=name_to_id_or_interrupt(name,name2code_map,interrupt_chan)
+            if strcmp(name,MESS_NAMES.interrupt_channel_name)
+                id  = interrupt_chan;
+            else
+                id = name2code_map(name);
+            end
+        end
+        
     end
     
 end
