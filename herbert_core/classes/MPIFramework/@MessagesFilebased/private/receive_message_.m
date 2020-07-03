@@ -77,6 +77,11 @@ while exist(wlock_file,'file')==2 % wait until message is writing.
     % the data file, so this check may be useful together with proper
     % renaming of the data file.
     pause(obj.time_to_react_);
+    n_attempts = n_attempts +1;
+    if n_attempts > try_limit
+        warning('write lock %s ignored',wlock_file);
+        break; %
+    end
 end
 
 %deadlock_tries = 100;
