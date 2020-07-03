@@ -17,14 +17,15 @@ methods
         % Input
         % -----
         % pix_id   The ID of the PixelData instance this object is linked to.
-        %          This allows this sets the tmp directory name.
+        %          This sets the tmp directory name
+        %
         obj.pix_id_ = pix_id;
         dirty_pix_dir_name = sprintf(obj.DIRTY_PIX_DIR_NAME_, obj.pix_id_);
         obj.dirty_pix_dir_ = fullfile(tempdir(), dirty_pix_dir_name);
     end
 
     function raw_pix = load_dirty_page(obj, page_number)
-        % Load a page of data from a tmp file
+        % Load a page of data from the tmp file with the given page number
         %
         % Input
         % -----
@@ -47,7 +48,7 @@ methods
     end
 
     function obj = write_dirty_pix(obj, page_number, pix_data)
-        % Write the current page's pixels to a tmp file
+        % Write the given pixel data to tmp file with the given page number
         %
         % Inputs
         % ------
@@ -66,7 +67,7 @@ methods
         end
 
         try
-            obj.write_pix_to_tmp_file_(file_id, pix_data);
+            obj.write_float_data_(file_id, pix_data);
         catch ME
             fclose(file_id);
             rethrow(ME);
@@ -85,21 +86,21 @@ end
 
 methods (Access=private)
 
-    function obj = write_pix_to_tmp_file_(obj, file_id, pix_data)
-        % Write the pixels in the current page to the file corresponding to the
-        % given file ID.
-        % TODO: improve this by not writing all data at once
+    function obj = write_float_data_(obj, file_id, pix_data)
+        % Write the given data to the file corresponding to the given file ID
+        % in float32
+        % TODO: improve this by writing data in chunks to sustain write speeds
         try
             fwrite(file_id, pix_data, 'float32');
         catch ME
             switch ME.identifier
             case 'MATLAB:badfid_mx'
-                error('PIXELTMPFIELHANDLER:write_pix_to_tmp_file_', ...
+                error('PIXELTMPFIELHANDLER:write_float_data_', ...
                   'Could not write to file with ID ''%d'':\n The file is not open', ...
                   file_id);
             otherwise
                 tmp_file_path = fopen(file_id);
-                error('PIXELTMPFIELHANDLER:write_pix_to_tmp_file_', ...
+                error('PIXELTMPFIELHANDLER:write_float_data_', ...
                       'Could not write to file ''%s'':\n%s', ...
                       tmp_file_path, ferror(file_id));
             end
