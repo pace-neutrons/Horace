@@ -619,7 +619,7 @@ methods
         page_size = size(obj.data_, 2);
     end
 
-    % -- Setters for private attributes --
+    % -- Getters for private attributes --
     function dirty_pix_dir = get.dirty_pix_dir_(obj)
         dir_name = sprintf(obj.DIRTY_PIX_DIR_NAME_, obj.object_id_);
         dirty_pix_dir = fullfile(tempdir(), dir_name);
