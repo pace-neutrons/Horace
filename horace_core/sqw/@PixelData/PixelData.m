@@ -96,11 +96,11 @@ properties (Access=private)
     page_dirty_ = false;  % array mapping from page_number to whether that page is dirty
     object_id_;  % random unique identifier for this object, used for tmp file names
     page_number_ = 1;  % the index of the currently loaded page
+    dirty_pix_dir_ = '';  % the path to a directory in which to store tmp files
 end
 
 properties (Dependent, Access=private)
     data_;  % points to raw_data_ but with a layer of validation for setting correct array sizes
-    dirty_pix_dir_;  % the path to a directory in which to store tmp files
     pix_position_;  % the pixel index in the file of the first pixel in the cache
 end
 
@@ -619,12 +619,6 @@ methods
         page_size = size(obj.data_, 2);
     end
 
-    % -- Getters for private attributes --
-    function dirty_pix_dir = get.dirty_pix_dir_(obj)
-        dir_name = sprintf(obj.DIRTY_PIX_DIR_NAME_, obj.object_id_);
-        dirty_pix_dir = fullfile(tempdir(), dir_name);
-    end
-
     function pix_position = get.pix_position_(obj)
         pix_position = (obj.page_number_ - 1)*obj.max_page_size_ + 1;
     end
@@ -638,6 +632,8 @@ methods (Access=private)
         obj.f_accessor_ = f_accessor;
         obj.file_path_ = fullfile(obj.f_accessor_.filepath, ...
                                   obj.f_accessor_.filename);
+        dirty_pix_dir_name = sprintf(obj.DIRTY_PIX_DIR_NAME_, obj.object_id_);
+        obj.dirty_pix_dir_ = fullfile(tempdir(), dirty_pix_dir_name);
         obj.page_number_ = 1;
     end
 
