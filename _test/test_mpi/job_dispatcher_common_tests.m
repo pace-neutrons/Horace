@@ -58,6 +58,11 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             if display_fail_log || numel(outputs) ~=3
                 jd.display_fail_job_results(outputs, n_failed,3);
             end
+            if numel(outputs) ~=3
+                disp('************* 3 workers run : failed  outputs :')
+                disp(outputs);
+            end
+            
             
             function is = is_err(x)
                 if isa(x, 'MException') || isa(x, 'ParallelException')
@@ -97,6 +102,11 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             if display_fail_log || numel(outputs) ~=3
                 jd.display_fail_job_results(outputs, n_failed,3)
             end
+            if numel(outputs) ~=3
+                disp('************* 3 workers run : failed  outputs :')
+                disp(outputs);
+            end
+            
             
             assertTrue(n_failed >= 1);
             assertEqual(numel(outputs), 3);
@@ -114,6 +124,11 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             if display_fail_log || numel(outputs) ~=3
                 jd.display_fail_job_results(outputs, n_failed,3)
             end
+            if numel(outputs) ~=3
+                disp('************* 3 workers run : failed  outputs :')
+                disp(outputs);
+            end
+            
             
             assertTrue(n_failed > 0);
             assertEqual(numel(outputs), 3);
@@ -139,6 +154,11 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             if display_fail_log || numel(outputs) ~=3
                 jd.display_fail_job_results(outputs, n_failed,3)
             end
+            if numel(outputs) ~=3
+                disp('************* 3 workers run : failed  outputs :')
+                disp(outputs);
+            end
+            
             
             assertTrue(n_failed >= 1);
             assertEqual(numel(outputs), 3);
@@ -182,6 +202,10 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             disp('*********************************************************')
             disp('**************RUN 5 FINISHED ****************************')
             disp('*********************************************************')
+            if numel(outputs) ~=3
+                disp('************* 3 workers run : failed  outputs :')
+                disp(outputs);
+            end
             
             
             assertEqual(n_failed, 0);
