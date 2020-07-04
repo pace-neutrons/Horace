@@ -64,10 +64,11 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
                 clob0 = onCleanup(@()tearDown(obj));
             end
             pl = obj.start_pool();
-            if isempty(pl)
-                warning('Problem of getting parallel pool')
-                return
-            end
+            assertFalse(isempty(pl),'problem getting access to parallel pool')
+%             if isempty(pl)
+%                 warning('Problem of getting parallel pool')
+%                 return
+%             end
             
             
             serverfbMPI  = MessagesFilebased('test_finish_tasks_reduce_mess');
@@ -105,10 +106,11 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
                 clob0 = onCleanup(@()tearDown(obj));
             end
             pl = obj.start_pool();
-            if isempty(pl)
-                warning('Problem of getting parallel pool')
-                return
-            end
+            assertFalse(isempty(pl),'problem getting access to parallel pool')            
+%             if isempty(pl)
+%                 warning('Problem of getting parallel pool')
+%                 return
+%             end
             
             num_labs = pl.NumWorkers;
             
@@ -159,10 +161,11 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
                 clob0 = onCleanup(@()tearDown(obj));
             end
             pl = obj.start_pool();
-            if isempty(pl)
-                warning('Problem of getting parallel pool')
-                return
-            end
+            assertFalse(isempty(pl),'problem getting access to parallel pool')            
+%             if isempty(pl)
+%                 warning('Problem of getting parallel pool')
+%                 return
+%             end
             num_labs = pl.NumWorkers;
             % end of    common code ---------------------------------------
             
