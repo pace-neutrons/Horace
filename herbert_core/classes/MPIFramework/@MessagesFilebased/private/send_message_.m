@@ -1,6 +1,6 @@
 function [ok,err_mess,wlock_obj] = send_message_(obj,task_id,message)
-%Send message to a job with specified ID
-
+% Send message to a job with specified ID
+%
 ok = MESS_CODES.ok;
 err_mess=[];
 wlock_obj =[];
@@ -16,7 +16,7 @@ if task_id<0 || task_id>obj.numLabs
         task_id,obj.numLabs);
 end
 
-
+%
 if is_string(message) && ~isempty(message)
     message = MESS_NAMES.instance().get_mess_class(message);
 end
@@ -39,8 +39,8 @@ mess_fname = obj.job_stat_fname_(task_id,mess_name);
 max_tries = 100;
 
 if is_blocking
-    can not be read-locked, read can not start reading non-existing
-    data messages
+    % can not be read-locked, read can not start reading non-existing
+    % data messages
     [~,wlock_file]  = build_lock_fname_(mess_fname);
     obj.send_data_messages_count_(task_id+1)=obj.send_data_messages_count_(task_id+1)+1;
     
@@ -54,7 +54,7 @@ else
         t_r = tr*1.05;
         if n_attempts > max_tries
             warning(' Can not wait unitl read lock is removed. Incoherent filesystem view?')
-            error('MESSAGES_FRAMEWORK:runtime_error','Can wait until read loc %s removed',rlock_file);
+            error('MESSAGES_FRAMEWORK:runtime_error','Can not save message file %s',mess_fname);
         end
     end
 end
@@ -63,8 +63,8 @@ lock_(wlock_file);
 [fp,fn,fext] = fileparts(mess_fname);
 mess_fname = fullfile(fp,[fn,'.tmp_',fext(2:end)]);
 save(mess_fname,'message','-v7.3');
-check the file has been idenfitied on the filesystem (may be considered
-just as reasonable delay timer, fir file beeing actually written)
+% check the file has been idenfitied on the filesystem (may be considered
+% just as reasonable delay timer, fir file beeing actually written)
 written = exist(mess_fname,'file') == 2;
 t_r = obj.time_to_react_;
 n_attempts = 0;
@@ -78,7 +78,7 @@ while ~written
     end
     
 end
-
+%
 wlock_obj = unlock_(wlock_file,mess_fname);
 if ~isempty(wlock_obj)
     ok = MESS_CODES.write_lock_persists;
