@@ -1,5 +1,5 @@
 function [ok,err_mess,wlock_obj] = send_message_(obj,task_id,message)
-Send message to a job with specified ID
+%Send message to a job with specified ID
 
 ok = MESS_CODES.ok;
 err_mess=[];
