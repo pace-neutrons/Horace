@@ -5,9 +5,17 @@ fclose(fh);
 
 % either smart move or delay timer to wait until FS recognises file
 present = exist(filename,'file')==2;
+n_attempts = 0;
+n_tries = 100;
 while ~present
     pause(0.1)
     present = exist(filename,'file')==2;
+    n_attempts = n_attempts+1;
+    if n_attempts > n_tries
+        warning('can not find write lock %s on the file system. Proceeding regardless',...
+            filename);
+        break
+    end
 end
-% HACK? wait until lock file appears on file system. 
-pause(0.1)
+
+

@@ -39,8 +39,8 @@ mess_fname = obj.job_stat_fname_(task_id,mess_name);
 max_tries = 100;
 
 if is_blocking
-    % can not be read-locked, read can not start reading non-existing
-    % data messages
+    % can not be read-locked, read can look for but can not start reading non-existing
+    % data messages. synchronous data messages are never overwritten.
     [~,wlock_file]  = build_lock_fname_(mess_fname);
     obj.send_data_messages_count_(task_id+1)=obj.send_data_messages_count_(task_id+1)+1;
     
