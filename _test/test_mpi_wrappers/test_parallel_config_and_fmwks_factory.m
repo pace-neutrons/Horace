@@ -1,8 +1,6 @@
 classdef test_parallel_config_and_fmwks_factory < TestCase
-    % Test running using the parpool job dispatcher.
-    %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
-    %
+    % Test is using the parpool job dispatcher so will not run if one is
+    % not available.
     properties
     end
     
@@ -13,6 +11,7 @@ classdef test_parallel_config_and_fmwks_factory < TestCase
             end
             obj = obj@TestCase(name);
         end
+        %
         function test_fmwks_set_get(obj)
             pc = parallel_config;
             % define current config data to return it after testing
@@ -98,7 +97,7 @@ classdef test_parallel_config_and_fmwks_factory < TestCase
                 
             end
         end
-        
+        %
         function test_parallel_config(obj)
             pc = parallel_config;
             if strcmpi(pc.parallel_framework,'none')

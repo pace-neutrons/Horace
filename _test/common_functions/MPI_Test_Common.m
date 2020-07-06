@@ -11,38 +11,43 @@ classdef MPI_Test_Common < TestCase
         % available, test should be counted as  passed but ignored.
         % Warning is necessary.
         ignore_test = false;
-          % current name of the framework to test
+        % current name of the framework to test
         framework_name;
         % current worker used in tests
         worker='worker_4tests'
     end
     properties(Access=private)
-        current_config_folder;
-        parallel_config_;
         old_parallel_config_;
-        parallel_config_restore_; 
+        parallel_config_restore_ = '';
     end
     
     methods
         function obj = MPI_Test_Common(name,varargin)
             obj = obj@TestCase(name);
+            persistent old_parallel_config;
             
             if nargin > 1
                 obj.framework_name = varargin{1};
             else
                 obj.framework_name = 'parpool';
             end
-
-            [pc, obj.old_parallel_config_] = set_local_parallel_config();
-            opc = obj.old_parallel_config_;
+            
+            [pc, opc] = set_local_parallel_config();
+            if isempty(old_parallel_config)
+                old_parallel_config = opc;
+            else
+                opc = old_parallel_config ;
+            end
+            obj.old_parallel_config_ = opc;
             obj.parallel_config_restore_ = onCleanup(@()set(parallel_config,opc));
+            
+            
             if strcmpi(pc.parallel_framework,'none')
                 obj.ignore_test = true;
                 warning('MPI_Test_Common:not_available',...
                     'unit test to check parallel framework is not available as framework is not installed properly')
                 return;
             end
-            obj.parallel_config_ = pc;
             %pc.saveable = false;
             obj.working_dir = pc.working_directory;
             try
@@ -77,21 +82,21 @@ classdef MPI_Test_Common < TestCase
             end
             
         end
+        %
         function setUp(obj)
             if obj.ignore_test
                 return;
             end
-            pc = obj.parallel_config_;
-            pc.saveable = false;
+            pc = parallel_config;
             pc.parallel_framework = obj.framework_name;
             pc.worker = obj.worker;
         end
+        %
         function tearDown(obj)
             if obj.ignore_test
                 return;
             end
             set(parallel_config,obj.old_parallel_config_);
-            obj.parallel_config_.saveable = true;
         end
         function delete(obj)
             obj.tearDown();

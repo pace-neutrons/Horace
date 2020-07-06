@@ -24,7 +24,6 @@ classdef test_iMPI_methods< TestCase
             obj.current_config_folder = cs.config_folder;
             
             pc = parallel_config;
-            
             obj.current_config = pc.get_data_to_store;
         end
         %
@@ -157,8 +156,6 @@ classdef test_iMPI_methods< TestCase
             
             pc = parallel_config;
             pc.saveable = false;
-            cur_data = pc.get_data_to_store();
-            clobC = onCleanup(@()set(pc,cur_data));
             
             pc.shared_folder_on_local = obj.working_dir;
             

@@ -10,17 +10,19 @@ classdef test_MESS_NAMES_factory< TestCase
             end
             obj = obj@TestCase(name);
         end
+        %
         function test_get_mess_class(~)
             mni = MESS_NAMES.instance();
             mess = mni.get_mess_class('failed');
             assertTrue(isa(mess,'FailedMessage'));
         end
+        %
         function test_fixture_tags(~)
             ft = MESS_NAMES.instance().pool_fixture_tags;
             assertTrue(isnumeric(ft));
             assertTrue(numel(ft)>3);
         end
-        
+        %
         function test_persistent(~)
             is = MESS_NAMES.is_persistent('failed');
             assertTrue(is);
@@ -43,8 +45,7 @@ classdef test_MESS_NAMES_factory< TestCase
             assertTrue(numel(itag)>=1)
             assertTrue(isnumeric(itag))
         end
-        %
-        
+        %        
         function test_selection(~)
             name = MESS_NAMES.mess_name(8);
             assertTrue(ischar(name));
@@ -112,7 +113,7 @@ classdef test_MESS_NAMES_factory< TestCase
             is = MESS_NAMES.is_blocking(-1);
             assertFalse(is);
         end
-        
+        %
         function test_mess_name_and_interrupt_channel_hack(~)
             name = MESS_NAMES.mess_name(1:4);
             assertTrue(iscell(name));
@@ -149,9 +150,7 @@ classdef test_MESS_NAMES_factory< TestCase
             assertEqual(numel(ids1),1);
             assertEqual(ids1,ids(1));            
         end
-        
-        
-        
+        %            
         function test_specialized_classes(obj)
             try
                 mc = aMessage('nont_exist');

@@ -1,8 +1,6 @@
 classdef test_cluster_wrapper < TestCase
     % Test running using the parpool job dispatcher.
-    %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
-    %
+    
     properties
     end
     

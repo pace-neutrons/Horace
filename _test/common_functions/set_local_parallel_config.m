@@ -11,17 +11,12 @@ function [new_config, old_parallel_conf] = set_local_parallel_config()
 %   old_config      The old parallel_config data. This can be used to restore
 %                   the settings to the previous state.
 %
-%CONFIG_FOLDER = fullfile(tempdir());
-SHARED_LOCAL_DIR = fullfile(tempdir());
-SHARED_REMOTE_DIR = fullfile(tempdir());
+SHARED_LOCAL_DIR = fullfile(tmp_dir());
+SHARED_REMOTE_DIR = fullfile(tmp_dir());
 
-old_parallel_conf = parallel_config().get_data_to_store();
+pc = parallel_config;
+old_parallel_conf = pc.get_data_to_store();
 
-
-% that will clear all configuration for workers -- not what we want to
-% achieve
-%config_store.set_config_folder(CONFIG_FOLDER);
-
-new_config = parallel_config;
+new_config = pc;
 new_config.shared_folder_on_local = SHARED_LOCAL_DIR;
 new_config.shared_folder_on_remote = SHARED_REMOTE_DIR;
