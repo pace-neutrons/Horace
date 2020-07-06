@@ -38,10 +38,11 @@ for i=1:numel(n_workers)
     if isempty(per) || force_perf
         try
             perf_rez = hor_tes.test_gensqw_performance(n_workers(i),'gen_sqw');
-        catch
+        catch ME
             perf_graph = perf_graph(1:i-1,:);
             plot(perf_graph(:,1),perf_graph(:,2),'o-');
-            return
+            getReport(ME)
+            rethrow(ME);
         end
         per = perf_rez.(test_name);
     end
