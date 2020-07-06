@@ -675,6 +675,8 @@ methods
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
+        % give it a real file path to trick code into thinking it exists
+        faccess = faccess.set_filepath(obj.test_sqw_file_full_path);
         mem_alloc = npix_in_page*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
         pix = PixelData(faccess, mem_alloc);
     end
