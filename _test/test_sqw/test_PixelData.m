@@ -672,6 +672,77 @@ methods
         assertEqual(class(obj.pix_data_small_page.num_pixels), 'double');
     end
 
+    function test_copy_creates_new_version_on_same_page_as_previous(obj)
+        data = rand(9, 30);
+        npix_in_page = 11;
+        pix_original = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+        pix_original.signal = 1;
+        pix_original.advance();
+
+        pix_copy = copy(pix_original);
+
+        assertEqual(pix_copy.data, pix_original.data);
+        while pix_original.has_more()
+            pix_original.advance();
+            pix_copy.advance();
+            assertEqual(pix_copy.data, pix_original.data);
+        end
+
+        pix_copy.move_to_first_page();
+        pix_original.move_to_first_page();
+        assertEqual(pix_copy.data, pix_original.data);
+    end
+
+    function test_changes_to_copy_have_no_affect_on_original_after_advance(obj)
+        data = zeros(9, 30);
+        npix_in_page = 11;
+        pix_original = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        pix_original.signal = 1;
+        pix_original.advance();
+
+        pix_copy = copy(pix_original);
+        pix_copy.move_to_first_page();
+        pix_copy.signal = 2;
+        pix_copy.advance();
+
+        pix_original.move_to_first_page();
+        assertEqual(pix_original.signal, ones(1, numel(pix_original.signal)));
+
+        pix_copy.move_to_first_page();
+        assertEqual(pix_copy.signal, 2*ones(1, numel(pix_copy.signal)));
+
+    end
+
+    function test_changes_to_original_before_copy_are_reflected_in_copies(obj)
+        data = zeros(9, 30);
+        npix_in_page = 11;
+        pix_original = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        pix_original.signal = 1;
+        pix_original.advance();
+
+        pix_copy = copy(pix_original);
+        pix_copy.move_to_first_page();
+
+        assertEqual(pix_copy.signal, ones(1, numel(pix_copy.signal)));
+    end
+
+    function test_change_to_orig_post_copy_does_not_affect_copy_post_advance(obj)
+        data = zeros(9, 30);
+        npix_in_page = 11;
+        pix_original = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        pix_copy = copy(pix_original);
+
+        pix_copy.signal = 1;
+        pix_copy.advance();
+
+        pix_original.signal = 2;
+        pix_original.advance();
+
+        pix_copy.move_to_first_page();
+        assertEqual(pix_copy.signal, ones(1, numel(pix_copy.signal)));
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
