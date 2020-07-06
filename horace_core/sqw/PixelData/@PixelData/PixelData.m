@@ -242,10 +242,8 @@ methods
                 obj.page_number_ = arg.page_number_;
                 obj.page_dirty_ = arg.page_dirty_;
                 arg.tmp_io_handler_.copy_tmp_folder(obj.object_id_);
-            else
-                % if no file exists, just copy the data
-                obj.data_ = arg.data;
             end
+            obj.data_ = arg.data;
             return;
         end
         if numel(arg) == 1 && isnumeric(arg) && floor(arg) == arg

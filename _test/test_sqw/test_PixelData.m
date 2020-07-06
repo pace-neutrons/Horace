@@ -691,6 +691,20 @@ methods
         assertEqual(pix_copy.data, pix_original.data);
     end
 
+    function test_copy_on_same_pg_as_original_when_more_than_1_pg_no_advance(obj)
+        pix_original = PixelData(obj.test_sqw_file_path, 1e6);
+        pix_original.signal = 1;
+
+        pix_copy = copy(pix_original);
+
+        assertEqual(pix_copy.data, pix_original.data);
+        while pix_original.has_more()
+            pix_original.advance();
+            pix_copy.advance();
+            assertEqual(pix_copy.data, pix_original.data);
+        end
+    end
+
     function test_changes_to_original_persistent_in_copy_if_1_page_in_file(obj)
         pix_original = PixelData(obj.test_sqw_file_path, 1e9);
         pix_original.signal = 1;
@@ -712,6 +726,22 @@ methods
         assertEqual(pix_copy.data, pix_original.data);
     end
 
+    function test_changes_to_orig_persistent_in_copy_if_1_pg_in_file_no_adv(obj)
+        pix_original = PixelData(obj.test_sqw_file_path, 1e9);
+        pix_original.signal = 1;
+
+        pix_copy = copy(pix_original);
+
+        assertEqual(pix_copy.data, pix_original.data);
+        while pix_original.has_more()
+            % we shouldn't enter here, but we should check the same API for
+            % data with > 1 page works for single page
+            pix_original.advance();
+            pix_copy.advance();
+            assertEqual(pix_copy.data, pix_original.data);
+        end
+    end
+
     function test_changes_to_copy_have_no_affect_on_original_after_advance(obj)
         data = zeros(9, 30);
         npix_in_page = 11;
@@ -729,7 +759,20 @@ methods
 
         pix_copy.move_to_first_page();
         assertEqual(pix_copy.signal, 2*ones(1, numel(pix_copy.signal)));
+    end
 
+    function test_changes_to_copy_have_no_affect_on_original_no_advance(obj)
+        data = zeros(9, 30);
+        npix_in_page = 11;
+        pix_original = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        pix_original.signal = 1;
+
+        pix_copy = copy(pix_original);
+        pix_copy.move_to_first_page();
+        pix_copy.signal = 2;
+
+        assertEqual(pix_original.signal, ones(1, numel(pix_original.signal)));
+        assertEqual(pix_copy.signal, 2*ones(1, numel(pix_copy.signal)));
     end
 
     function test_changes_to_original_before_copy_are_reflected_in_copies(obj)
@@ -742,6 +785,17 @@ methods
         pix_copy = copy(pix_original);
         pix_copy.move_to_first_page();
 
+        assertEqual(pix_copy.signal, ones(1, numel(pix_copy.signal)));
+    end
+
+    function test_changes_to_original_kept_in_copy_after_advance(obj)
+        pix_original = PixelData(obj.test_sqw_file_path, 1e2);
+        pix_original.signal = 1;
+
+        pix_copy = copy(pix_original);
+        pix_copy.advance();
+
+        pix_copy.move_to_first_page();
         assertEqual(pix_copy.signal, ones(1, numel(pix_copy.signal)));
     end
 
