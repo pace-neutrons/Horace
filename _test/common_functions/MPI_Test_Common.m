@@ -25,6 +25,9 @@ classdef MPI_Test_Common < TestCase
         function obj = MPI_Test_Common(name,varargin)
             obj = obj@TestCase(name);
             persistent old_parallel_config;
+            ni = MPI_Test_Common.num_instances();
+            MPI_Test_Common.num_instances(ni+1);
+
             
             if nargin > 1
                 obj.framework_name = varargin{1};
@@ -33,7 +36,7 @@ classdef MPI_Test_Common < TestCase
             end
             
             [pc, opc] = set_local_parallel_config();
-            if isempty(old_parallel_config)
+            if isempty(old_parallel_config) || ni == 1
                 old_parallel_config = opc;
             else
                 opc = old_parallel_config ;
@@ -99,8 +102,25 @@ classdef MPI_Test_Common < TestCase
             set(parallel_config,obj.old_parallel_config_);
         end
         function delete(obj)
+            ni = MPI_Test_Common.num_instances();
+            ni = ni-1;
+            MPI_Test_Common.num_instances(ni);
             obj.tearDown();
         end
+    end
+    methods(Static)
+        function ni = num_instances(set_value)
+            persistent num_instances;            
+            if exist('set_value','var')
+                num_instances = set_value;
+            else
+                if isempty(num_instances)
+                    num_instances = 1;
+                end
+            end
+            ni = num_instances;
+        end
+        
     end
 end
 
