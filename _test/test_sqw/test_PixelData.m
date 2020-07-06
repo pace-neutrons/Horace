@@ -672,11 +672,8 @@ methods
         assertEqual(class(obj.pix_data_small_page.num_pixels), 'double');
     end
 
-    function test_copy_creates_new_version_on_same_page_as_previous(obj)
-        data = rand(9, 30);
-        npix_in_page = 11;
-        pix_original = obj.get_pix_with_fake_faccess(data, npix_in_page);
-
+    function test_copy_on_same_page_as_original_when_more_than_1_page(obj)
+        pix_original = PixelData(obj.test_sqw_file_path, 1e6);
         pix_original.signal = 1;
         pix_original.advance();
 
@@ -684,6 +681,27 @@ methods
 
         assertEqual(pix_copy.data, pix_original.data);
         while pix_original.has_more()
+            pix_original.advance();
+            pix_copy.advance();
+            assertEqual(pix_copy.data, pix_original.data);
+        end
+
+        pix_copy.move_to_first_page();
+        pix_original.move_to_first_page();
+        assertEqual(pix_copy.data, pix_original.data);
+    end
+
+    function test_changes_to_original_persistent_in_copy_if_1_page_in_file(obj)
+        pix_original = PixelData(obj.test_sqw_file_path, 1e9);
+        pix_original.signal = 1;
+        pix_original.advance();
+
+        pix_copy = copy(pix_original);
+
+        assertEqual(pix_copy.data, pix_original.data);
+        while pix_original.has_more()
+            % we shouldn't enter here, but we should check the same API for
+            % data with > 1 page works for single page
             pix_original.advance();
             pix_copy.advance();
             assertEqual(pix_copy.data, pix_original.data);
@@ -727,7 +745,7 @@ methods
         assertEqual(pix_copy.signal, ones(1, numel(pix_copy.signal)));
     end
 
-    function test_change_to_orig_post_copy_does_not_affect_copy_post_advance(obj)
+    function test_change_to_original_after_copy_does_not_affect_copy(obj)
         data = zeros(9, 30);
         npix_in_page = 11;
         pix_original = obj.get_pix_with_fake_faccess(data, npix_in_page);
