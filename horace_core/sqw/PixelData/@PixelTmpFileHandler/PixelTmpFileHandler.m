@@ -1,14 +1,14 @@
 classdef PixelTmpFileHandler
 
 properties (Constant, Access=private)
-    DIRTY_PIX_DIR_BASE_NAME_ = 'sqw_pix%05d';
-    DIRTY_PIX_FILE_BASE_NAME_ = '%09d.tmp';
+    TMP_DIR_BASE_NAME_ = 'sqw_pix%05d';
+    TMP_FILE_BASE_NAME_ = '%09d.tmp';
     FILE_DATA_FORMAT_ = 'float32';
 end
 
 properties (Access=private)
-    dirty_pix_dir_ = '';
-    pix_id_ = -1;
+    tmp_dir_path_ = '';  % The path to the directory in which to write the tmp files
+    pix_id_ = -1;        % The ID of the PixelData instance linked to this object
 end
 
 methods
@@ -22,8 +22,8 @@ methods
         %          This sets the tmp directory name
         %
         obj.pix_id_ = pix_id;
-        dirty_pix_dir_name = sprintf(obj.DIRTY_PIX_DIR_BASE_NAME_, obj.pix_id_);
-        obj.dirty_pix_dir_ = fullfile(tempdir(), dirty_pix_dir_name);
+        tmp_dir_name = sprintf(obj.TMP_DIR_BASE_NAME_, obj.pix_id_);
+        obj.tmp_dir_path_ = fullfile(tempdir(), tmp_dir_name);
     end
 
     function raw_pix = load_page(obj, page_number, ncols)
@@ -32,8 +32,9 @@ methods
         % Input
         % -----
         % page_number   The number of the page to read data from
+        % ncols         The number of columns in the page, used for reshaping
         %
-        tmp_file_path = obj.generate_dirty_pix_file_path_(page_number);
+        tmp_file_path = obj.generate_tmp_pix_file_path_(page_number);
         [file_id, err_msg] = fopen(tmp_file_path, 'rb');
         if file_id < 0
             error('PIXELTMPFIELHANDLER:load_page', ...
@@ -54,9 +55,9 @@ methods
         % page_number   The number of the page being written, this sets the tmp file name
         % raw_pix       The raw pixel data array to write
         %
-        tmp_file_path = obj.generate_dirty_pix_file_path_(page_number);
-        if ~exist(obj.dirty_pix_dir_, 'dir')
-            mkdir(obj.dirty_pix_dir_);
+        tmp_file_path = obj.generate_tmp_pix_file_path_(page_number);
+        if ~exist(obj.tmp_dir_path_, 'dir')
+            mkdir(obj.tmp_dir_path_);
         end
 
         file_id = fopen(tmp_file_path, 'wb');
@@ -70,9 +71,9 @@ methods
     end
 
     function delete_tmp_files(obj)
-        % Delete the directory containing files holding dirty pixels
-        if exist(obj.dirty_pix_dir_, 'dir')
-            rmdir(obj.dirty_pix_dir_, 's');
+        % Delete the directory containing the tmp files
+        if exist(obj.tmp_dir_path_, 'dir')
+            rmdir(obj.tmp_dir_path_, 's');
         end
     end
 
@@ -101,10 +102,10 @@ methods (Access=private)
         end
     end
 
-    function tmp_file_path = generate_dirty_pix_file_path_(obj, page_number)
+    function tmp_file_path = generate_tmp_pix_file_path_(obj, page_number)
         % Generate the file path to the tmp directory for this object instance
-        file_name = sprintf(obj.DIRTY_PIX_FILE_BASE_NAME_, page_number);
-        tmp_file_path = fullfile(obj.dirty_pix_dir_, file_name);
+        file_name = sprintf(obj.TMP_FILE_BASE_NAME_, page_number);
+        tmp_file_path = fullfile(obj.tmp_dir_path_, file_name);
     end
 
 end
