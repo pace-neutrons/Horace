@@ -2,6 +2,7 @@ classdef PixelTmpFileHandler
 
 properties (Constant, Access=private)
     DIRTY_PIX_DIR_BASE_NAME_ = 'sqw_pix%05d';
+    DIRTY_PIX_FILE_BASE_NAME_ = '%09d.tmp';
     FILE_DATA_FORMAT_ = 'float32';
 end
 
@@ -101,8 +102,8 @@ methods (Access=private)
 
     function tmp_file_path = generate_dirty_pix_file_path_(obj, page_number)
         % Generate the file path to the tmp directory for this object instance
-        tmp_file_path = fullfile(obj.dirty_pix_dir_, ...
-                                 sprintf('%09d.tmp', page_number));
+        file_name = sprintf(obj.DIRTY_PIX_FILE_BASE_NAME_, page_number);
+        tmp_file_path = fullfile(obj.dirty_pix_dir_, file_name);
     end
 
 end
