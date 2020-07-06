@@ -76,7 +76,6 @@ classdef PixelData < handle
 %
 properties (Access=private)
     DIRTY_PIX_DIR_NAME_ = 'sqw_pix%05d';
-    PIXEL_BLOCK_COLS_ = 9;
     FIELD_INDEX_MAP_ = containers.Map(...
         {'u1', 'u2', 'u3', 'dE', ...
          'coordinates', ...
@@ -86,16 +85,17 @@ properties (Access=private)
          'energy_idx', ...
          'signal', ...
          'variance'}, ...
-        {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9})
+        {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9});
+    PIXEL_BLOCK_COLS_ = 9;
 
-    raw_data_ = zeros(9, 0);  % the underlying data cached in the object
     f_accessor_;  % instance of faccess object to access pixel data from file
     file_path_ = '';  % the path to the file backing this object - empty string if all data in memory
-    page_memory_size_ = 3e9;  % 3Gb - the maximum amount of memory a page can use
     max_page_size_;  % the maximum number of pixels that can fie in the page memory size
-    page_dirty_ = false;  % array mapping from page_number to whether that page is dirty
     object_id_;  % random unique identifier for this object, used for tmp file names
+    page_dirty_ = false;  % array mapping from page_number to whether that page is dirty
+    page_memory_size_ = 3e9;  % 3Gb - the maximum amount of memory a page can use
     page_number_ = 1;  % the index of the currently loaded page
+    raw_data_ = zeros(9, 0);  % the underlying data cached in the object
     tmp_io_handler_;  % a PixelTmpFileHandler object that handles reading/writing of tmp files
 end
 
