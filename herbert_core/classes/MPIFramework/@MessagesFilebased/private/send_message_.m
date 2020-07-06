@@ -51,7 +51,7 @@ else
     while exist(rlock_file,'file') == 2 % previous message is reading, wait until read process completes
         pause(t_r)
         n_attempts = n_attempts +1;
-        t_r = tr*1.05;
+        t_r = t_r*1.05;
         if n_attempts > max_tries
             warning(' Can not wait unitl read lock is removed. Incoherent filesystem view?')
             error('MESSAGES_FRAMEWORK:runtime_error','Can not save message file %s',mess_fname);
