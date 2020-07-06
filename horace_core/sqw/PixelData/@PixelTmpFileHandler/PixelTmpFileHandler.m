@@ -94,7 +94,7 @@ methods
         end
     end
 
-    function delete_tmp_files(obj)
+    function delete_files(obj)
         % Delete the directory containing the tmp files
         if exist(obj.tmp_dir_path_, 'dir')
             rmdir(obj.tmp_dir_path_, 's');

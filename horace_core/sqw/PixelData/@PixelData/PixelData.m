@@ -276,7 +276,7 @@ methods
     function delete(obj)
         % Class destructor to delete any temporary files
         if ~isempty(obj.tmp_io_handler_)
-            obj.tmp_io_handler_.delete_tmp_files();
+            obj.tmp_io_handler_.delete_files();
         end
     end
 
