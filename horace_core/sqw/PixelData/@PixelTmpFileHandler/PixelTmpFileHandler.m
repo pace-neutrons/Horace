@@ -74,7 +74,7 @@ methods
         obj.write_float_data_(file_id, raw_pix);
     end
 
-    function copy_tmp_folder(obj, new_pix_id)
+    function copy_folder(obj, new_pix_id)
         % Copy the temporary files managed by this class instance to a new folder
         %
         % Input
