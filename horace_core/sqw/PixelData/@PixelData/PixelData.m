@@ -236,7 +236,7 @@ methods
         end
         % In memory construction
         if isa(arg, 'PixelData')  % TODO make sure this works with file-backed
-            if ~isempty(arg.file_path) && exist(arg.file_path, 'file')
+            if arg.is_file_backed_() && exist(arg.file_path, 'file')
                 % if the file exists we can create a file-backed instance
                 obj = PixelData(arg.file_path, arg.page_memory_size_);
                 obj.page_number_ = arg.page_number_;
@@ -343,7 +343,7 @@ methods
         if ~isa(fields, 'cell')
             fields = {fields};
         end
-        obj = obj.load_first_page_if_data_empty_();
+        obj = obj.load_current_page_if_data_empty_();
         try
             field_indices = cell2mat(obj.FIELD_INDEX_MAP_.values(fields));
         catch ME
@@ -376,7 +376,7 @@ methods
         % -------
         %   pixels      PixelData object containing a subset of pixels
         %
-        obj = obj.load_first_page_if_data_empty_();
+        obj = obj.load_current_page_if_data_empty_();
         pixels = PixelData(obj.data(:, pix_indices));
     end
 
@@ -443,7 +443,7 @@ methods
 
     % --- Getters / Setters ---
     function pixel_data = get.data(obj)
-        obj = obj.load_first_page_if_data_empty_();
+        obj = obj.load_current_page_if_data_empty_();
         pixel_data = obj.data_;
     end
 
@@ -483,122 +483,122 @@ methods
     end
 
     function u1 = get.u1(obj)
-        obj = obj.load_first_page_if_data_empty_();
+        obj = obj.load_current_page_if_data_empty_();
         u1 = obj.data(obj.FIELD_INDEX_MAP_('u1'), :);
     end
 
     function obj = set.u1(obj, u1)
-        obj = obj.load_first_page_if_data_empty_();
+        obj = obj.load_current_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('u1'), :) = u1;
         obj.set_page_dirty_(true);
     end
 
     function u2 = get.u2(obj)
-        obj = obj.load_first_page_if_data_empty_();
+        obj = obj.load_current_page_if_data_empty_();
         u2 = obj.data(obj.FIELD_INDEX_MAP_('u2'), :);
     end
 
     function obj = set.u2(obj, u2)
-        obj = obj.load_first_page_if_data_empty_();
+        obj = obj.load_current_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('u2'), :) = u2;
         obj.set_page_dirty_(true);
     end
 
     function u3 = get.u3(obj)
-        obj = obj.load_first_page_if_data_empty_();
+        obj = obj.load_current_page_if_data_empty_();
         u3 = obj.data(obj.FIELD_INDEX_MAP_('u3'), :);
     end
 
     function obj = set.u3(obj, u3)
-        obj = obj.load_first_page_if_data_empty_();
+        obj = obj.load_current_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('u3'), :) = u3;
         obj.set_page_dirty_(true);
     end
 
     function dE = get.dE(obj)
-        obj = obj.load_first_page_if_data_empty_();
+        obj = obj.load_current_page_if_data_empty_();
         dE = obj.data(obj.FIELD_INDEX_MAP_('dE'), :);
     end
 
     function obj = set.dE(obj, dE)
-        obj = obj.load_first_page_if_data_empty_();
+        obj = obj.load_current_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('dE'), :) = dE;
         obj.set_page_dirty_(true);
     end
 
     function coord_data = get.coordinates(obj)
-        obj = obj.load_first_page_if_data_empty_();
+        obj = obj.load_current_page_if_data_empty_();
         coord_data = obj.data(obj.FIELD_INDEX_MAP_('coordinates'), :);
     end
 
     function obj = set.coordinates(obj, coordinates)
-        obj = obj.load_first_page_if_data_empty_();
+        obj = obj.load_current_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('coordinates'), :) = coordinates;
         obj.set_page_dirty_(true);
     end
 
     function coord_data = get.q_coordinates(obj)
-        obj = obj.load_first_page_if_data_empty_();
+        obj = obj.load_current_page_if_data_empty_();
         coord_data = obj.data(obj.FIELD_INDEX_MAP_('q_coordinates'), :);
     end
 
     function obj = set.q_coordinates(obj, q_coordinates)
-        obj = obj.load_first_page_if_data_empty_();
+        obj = obj.load_current_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('q_coordinates'), :) = q_coordinates;
         obj.set_page_dirty_(true);
     end
 
     function run_index = get.run_idx(obj)
-        obj = obj.load_first_page_if_data_empty_();
+        obj = obj.load_current_page_if_data_empty_();
         run_index = obj.data(obj.FIELD_INDEX_MAP_('run_idx'), :);
     end
 
     function obj = set.run_idx(obj, iruns)
-        obj = obj.load_first_page_if_data_empty_();
+        obj = obj.load_current_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('run_idx'), :) = iruns;
         obj.set_page_dirty_(true);
     end
 
     function detector_index = get.detector_idx(obj)
-        obj = obj.load_first_page_if_data_empty_();
+        obj = obj.load_current_page_if_data_empty_();
         detector_index = obj.data(obj.FIELD_INDEX_MAP_('detector_idx'), :);
     end
 
     function obj = set.detector_idx(obj, detector_indices)
-        obj = obj.load_first_page_if_data_empty_();
+        obj = obj.load_current_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('detector_idx'), :) = detector_indices;
         obj.set_page_dirty_(true);
     end
 
     function detector_index = get.energy_idx(obj)
-        obj = obj.load_first_page_if_data_empty_();
+        obj = obj.load_current_page_if_data_empty_();
         detector_index = obj.data(obj.FIELD_INDEX_MAP_('energy_idx'), :);
     end
 
     function obj = set.energy_idx(obj, energies)
-        obj = obj.load_first_page_if_data_empty_();
+        obj = obj.load_current_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('energy_idx'), :) = energies;
         obj.set_page_dirty_(true);
     end
 
     function signal = get.signal(obj)
-        obj = obj.load_first_page_if_data_empty_();
+        obj = obj.load_current_page_if_data_empty_();
         signal = obj.data(obj.FIELD_INDEX_MAP_('signal'), :);
     end
 
     function obj = set.signal(obj, signal)
-        obj = obj.load_first_page_if_data_empty_();
+        obj = obj.load_current_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('signal'), :) = signal;
         obj.set_page_dirty_(true);
     end
 
     function variance = get.variance(obj)
-        obj = obj.load_first_page_if_data_empty_();
+        obj = obj.load_current_page_if_data_empty_();
         variance = obj.data(obj.FIELD_INDEX_MAP_('variance'), :);
     end
 
     function obj = set.variance(obj, variance)
-        obj = obj.load_first_page_if_data_empty_();
+        obj = obj.load_current_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('variance'), :) = variance;
         obj.set_page_dirty_(true);
     end
@@ -637,11 +637,11 @@ methods (Access=private)
         obj.page_number_ = 1;
     end
 
-    function obj = load_first_page_if_data_empty_(obj)
+    function obj = load_current_page_if_data_empty_(obj)
         % Check if there's any data in the current page and load a page if not
         %   This function does nothing if pixels are not file-backed
         if isempty(obj.data_) && obj.is_file_backed_()
-            obj = obj.load_page_(1);
+            obj = obj.load_page_(obj.page_number_);
         end
     end
 
