@@ -1,4 +1,4 @@
-classdef PixelData < matlab.mixin.Copyable
+classdef PixelData < handle
 % PixelData Provides an interface for access to pixel data
 %
 %   This class provides getters and setters for each data column in an SQW
@@ -240,6 +240,8 @@ methods
                 % if the file exists we can create a file-backed instance
                 obj = PixelData(arg.file_path, arg.page_memory_size_);
                 obj.page_number_ = arg.page_number_;
+                obj.page_dirty_ = arg.page_dirty_;
+                arg.tmp_io_handler_.copy_tmp_folder(obj.object_id_);
             else
                 % if no file exists, just copy the data
                 obj.data_ = arg.data;
@@ -311,6 +313,10 @@ methods
         %   If the data is file backed, this returns the number of values in
         %   the file
         nel = obj.PIXEL_BLOCK_COLS_*obj.num_pixels;
+    end
+
+    function pix_copy = copy(obj)
+        pix_copy = PixelData(obj);
     end
 
     function data = get_data(obj, fields, pix_indices)
