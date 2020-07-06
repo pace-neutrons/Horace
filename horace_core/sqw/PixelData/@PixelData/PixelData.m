@@ -96,7 +96,7 @@ properties (Access=private)
     page_dirty_ = false;  % array mapping from page_number to whether that page is dirty
     object_id_;  % random unique identifier for this object, used for tmp file names
     page_number_ = 1;  % the index of the currently loaded page
-    tmp_io_handler;  % a PixelTmpFileHandler object that handles reading/writing of tmp files
+    tmp_io_handler_;  % a PixelTmpFileHandler object that handles reading/writing of tmp files
 end
 
 properties (Dependent, Access=private)
@@ -142,7 +142,7 @@ properties (Dependent)
     % The file that the pixel data has been read from, empty if no file
     file_path;
 
-    % The maximum number of pixels to be stored in memory at one time
+    % The number of pixels in the current page
     page_size;
 end
 
@@ -179,7 +179,7 @@ methods (Static)
         % Output:
         % -------
         %   obj     An instance of this object
-
+        %
         obj = PixelData(S);
     end
 
@@ -275,8 +275,8 @@ methods
 
     function delete(obj)
         % Class destructor to delete any temporary files
-        if ~isempty(obj.tmp_io_handler)
-            obj.tmp_io_handler.delete_tmp_files();
+        if ~isempty(obj.tmp_io_handler_)
+            obj.tmp_io_handler_.delete_tmp_files();
         end
     end
 
@@ -627,7 +627,7 @@ methods (Access=private)
         obj.f_accessor_ = f_accessor;
         obj.file_path_ = fullfile(obj.f_accessor_.filepath, ...
                                   obj.f_accessor_.filename);
-        obj.tmp_io_handler = PixelTmpFileHandler(obj.object_id_);
+        obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_);
         obj.page_number_ = 1;
     end
 
@@ -675,14 +675,14 @@ methods (Access=private)
 
     function obj = load_dirty_page_(obj, page_number)
         % Load a page of data from a tmp file
-        raw_pix = obj.tmp_io_handler.load_page(page_number);
+        raw_pix = obj.tmp_io_handler_.load_page(page_number);
         npix_cols = obj.PIXEL_BLOCK_COLS_;
         obj.data_ = reshape(raw_pix, [npix_cols, numel(raw_pix)/npix_cols]);
     end
 
     function obj = write_dirty_page_(obj)
         % Write the current page's pixels to a tmp file
-        obj.tmp_io_handler.write_page(obj.page_number_, obj.data);
+        obj.tmp_io_handler_.write_page(obj.page_number_, obj.data);
     end
 
     function is = page_is_dirty_(obj, page_number)
