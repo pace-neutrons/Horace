@@ -241,7 +241,7 @@ methods
                 obj = PixelData(arg.file_path, arg.page_memory_size_);
                 obj.page_number_ = arg.page_number_;
                 obj.page_dirty_ = arg.page_dirty_;
-                arg.tmp_io_handler_.copy_tmp_folder(obj.object_id_);
+                arg.tmp_io_handler_.copy_folder(obj.object_id_);
             end
             obj.data_ = arg.data;
             return;
