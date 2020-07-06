@@ -26,7 +26,7 @@ methods
         obj.dirty_pix_dir_ = fullfile(tempdir(), dirty_pix_dir_name);
     end
 
-    function raw_pix = load_page(obj, page_number)
+    function raw_pix = load_page(obj, page_number, ncols)
         % Load a page of data from the tmp file with the given page number
         %
         % Input
@@ -42,7 +42,8 @@ methods
         end
         clean_up = onCleanup(@() fclose(file_id));
 
-        raw_pix = fread(file_id, obj.FILE_DATA_FORMAT_);
+        page_shape = [ncols, inf];
+        raw_pix = fread(file_id, page_shape, obj.FILE_DATA_FORMAT_);
     end
 
     function obj = write_page(obj, page_number, raw_pix)
