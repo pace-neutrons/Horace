@@ -5,6 +5,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
         pool_deleter = [];
         pool
         cluster
+        n_max_workers = 6
     end
     methods
         %
@@ -25,14 +26,16 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             cl = parcluster();
             num_labs = cl.NumWorkers;
             if num_labs < 3
-                warning('Can not run test_send_receive_message, not enough workers');
-                obj.ignore_test = true;
-                pl = [];
-                return;
+                warning('May not be possible to run parpool tests, not enough workers');
+                %obj.ignore_test = true;
+                %pl = [];
+                %return;
+                obj.n_max_workers = 3;
+                num_labs = 3;
             end
             num_labs = 3*floor(num_labs/3);
-            if num_labs > 6
-                num_labs = 6;
+            if num_labs > obj.n_max_workers
+                num_labs = obj.n_max_workers;
             end
             
             pl = gcp('nocreate'); % Get the current parallel pool
@@ -65,10 +68,10 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             end
             pl = obj.start_pool();
             assertFalse(isempty(pl),'problem getting access to parallel pool')
-%             if isempty(pl)
-%                 warning('Problem of getting parallel pool')
-%                 return
-%             end
+            %             if isempty(pl)
+            %                 warning('Problem of getting parallel pool')
+            %                 return
+            %             end
             
             
             serverfbMPI  = MessagesFilebased('test_finish_tasks_reduce_mess');
@@ -106,11 +109,11 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
                 clob0 = onCleanup(@()tearDown(obj));
             end
             pl = obj.start_pool();
-            assertFalse(isempty(pl),'problem getting access to parallel pool')            
-%             if isempty(pl)
-%                 warning('Problem of getting parallel pool')
-%                 return
-%             end
+            assertFalse(isempty(pl),'problem getting access to parallel pool')
+            %             if isempty(pl)
+            %                 warning('Problem of getting parallel pool')
+            %                 return
+            %             end
             
             num_labs = pl.NumWorkers;
             
@@ -161,11 +164,11 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
                 clob0 = onCleanup(@()tearDown(obj));
             end
             pl = obj.start_pool();
-            assertFalse(isempty(pl),'problem getting access to parallel pool')            
-%             if isempty(pl)
-%                 warning('Problem of getting parallel pool')
-%                 return
-%             end
+            assertFalse(isempty(pl),'problem getting access to parallel pool')
+            %             if isempty(pl)
+            %                 warning('Problem of getting parallel pool')
+            %                 return
+            %             end
             num_labs = pl.NumWorkers;
             % end of    common code ---------------------------------------
             
