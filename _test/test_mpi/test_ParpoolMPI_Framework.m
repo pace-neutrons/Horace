@@ -32,6 +32,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
                 %return;
                 obj.n_max_workers = 3;
                 num_labs = 3;
+                cl.NumWorkers = 3;
             end
             num_labs = 3*floor(num_labs/3);
             if num_labs > obj.n_max_workers
