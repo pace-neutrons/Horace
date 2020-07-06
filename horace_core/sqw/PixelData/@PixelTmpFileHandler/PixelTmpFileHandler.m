@@ -22,8 +22,7 @@ methods
         %          This sets the tmp directory name
         %
         obj.pix_id_ = pix_id;
-        tmp_dir_name = sprintf(obj.TMP_DIR_BASE_NAME_, obj.pix_id_);
-        obj.tmp_dir_path_ = fullfile(tempdir(), tmp_dir_name);
+        obj.tmp_dir_path_ = obj.generate_tmp_dir_path_(obj.pix_id_);
     end
 
     function raw_pix = load_page(obj, page_number, ncols)
@@ -75,6 +74,26 @@ methods
         obj.write_float_data_(file_id, raw_pix);
     end
 
+    function copy_tmp_folder(obj, new_pix_id)
+        % Copy the temporary files managed by this class instance to a new folder
+        %
+        % Input
+        % -----
+        % new_pix_id   The ID of the PixelData instance the new tmp folder will
+        %              be linked to
+        %
+        if ~exist(obj.tmp_dir_path_, 'dir')
+            return;
+        end
+
+        new_dir_path = obj.generate_tmp_dir_path_(new_pix_id);
+        [status, err_msg] = copyfile(obj.tmp_dir_path_, new_dir_path);
+        if status == 0
+            error('Could not copy tmp files from ''%s'' to ''%s'':\n%s', ...
+                    obj.tmp_dir_path_, new_dir_path, err_msg);
+        end
+    end
+
     function delete_tmp_files(obj)
         % Delete the directory containing the tmp files
         if exist(obj.tmp_dir_path_, 'dir')
@@ -111,6 +130,11 @@ methods (Access=private)
         % Generate the file path to the tmp directory for this object instance
         file_name = sprintf(obj.TMP_FILE_BASE_NAME_, page_number);
         tmp_file_path = fullfile(obj.tmp_dir_path_, file_name);
+    end
+
+    function tmp_dir_path = generate_tmp_dir_path_(obj, pix_id)
+        tmp_dir_name = sprintf(obj.TMP_DIR_BASE_NAME_, pix_id);
+        tmp_dir_path = fullfile(tempdir(), tmp_dir_name);
     end
 
 end
