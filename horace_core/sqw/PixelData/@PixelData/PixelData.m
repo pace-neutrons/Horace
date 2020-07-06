@@ -22,6 +22,12 @@ classdef PixelData < matlab.mixin.Copyable
 %   size (in bytes) specified by private attribute page_memory_size_ - this can
 %   be set on construction (see mem_alloc above).
 %
+%   The file-backed operations work by loading "pages" of data into memory as
+%   required. If editing pixels, to avoid losing changes, if a page has been
+%   edited and the next page is then loaded, the "dirty" page will be written
+%   to a tmp file. This class's getters will then retrieve data from the tmp
+%   file if that data is requested from the "dirty" page.
+%
 % Usage:
 %
 %   >> pix_data = PixelData(data)
@@ -68,8 +74,8 @@ classdef PixelData < matlab.mixin.Copyable
 %                  of the return value is not guaranteed
 %   page_size      The number of pixels in the currently loaded page
 %
-
 properties (Access=private)
+    DIRTY_PIX_DIR_NAME_ = 'sqw_pix%05d';
     PIXEL_BLOCK_COLS_ = 9;
     FIELD_INDEX_MAP_ = containers.Map(...
         {'u1', 'u2', 'u3', 'dE', ...
@@ -82,12 +88,20 @@ properties (Access=private)
          'variance'}, ...
         {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9})
 
-    data_ = zeros(9, 0);
+    raw_data_ = zeros(9, 0);  % the underlying data cached in the object
     f_accessor_;  % instance of faccess object to access pixel data from file
     file_path_ = '';  % the path to the file backing this object - empty string if all data in memory
     page_memory_size_ = 3e9;  % 3Gb - the maximum amount of memory a page can use
-    pix_position_ = 1;  % the pixel index in the file of the first pixel in the cache
     max_page_size_;  % the maximum number of pixels that can fie in the page memory size
+    page_dirty_ = false;  % array mapping from page_number to whether that page is dirty
+    object_id_;  % random unique identifier for this object, used for tmp file names
+    page_number_ = 1;  % the index of the currently loaded page
+    tmp_io_handler_;  % a PixelTmpFileHandler object that handles reading/writing of tmp files
+end
+
+properties (Dependent, Access=private)
+    data_;  % points to raw_data_ but with a layer of validation for setting correct array sizes
+    pix_position_;  % the pixel index in the file of the first pixel in the cache
 end
 
 properties (Dependent)
@@ -128,7 +142,7 @@ properties (Dependent)
     % The file that the pixel data has been read from, empty if no file
     file_path;
 
-    % The maximum number of pixels to be stored in memory at one time
+    % The number of pixels in the current page
     page_size;
 end
 
@@ -165,7 +179,7 @@ methods (Static)
         % Output:
         % -------
         %   obj     An instance of this object
-
+        %
         obj = PixelData(S);
     end
 
@@ -216,6 +230,7 @@ methods
         %               argument does nothing if the class is contstructed with
         %               in-memory data. (Optional)
         %
+        obj.object_id_ = polyval(randi([0, 9], 1, 5), 10);
         if nargin == 0
             return
         end
@@ -224,16 +239,16 @@ methods
             if ~isempty(arg.file_path) && exist(arg.file_path, 'file')
                 % if the file exists we can create a file-backed instance
                 obj = PixelData(arg.file_path, arg.page_memory_size_);
-                obj.pix_position_ = arg.pix_position_;
+                obj.page_number_ = arg.page_number_;
             else
                 % if no file exists, just copy the data
-                obj.data = arg.data;
+                obj.data_ = arg.data;
             end
             return;
         end
         if numel(arg) == 1 && isnumeric(arg) && floor(arg) == arg
             % input is an integer
-            obj.data = zeros(obj.PIXEL_BLOCK_COLS_, arg);
+            obj.data_ = zeros(obj.PIXEL_BLOCK_COLS_, arg);
             return;
         end
 
@@ -255,7 +270,14 @@ methods
         end
 
         % Input sets underlying data
-        obj.data = arg;
+        obj.data_ = arg;
+    end
+
+    function delete(obj)
+        % Class destructor to delete any temporary files
+        if ~isempty(obj.tmp_io_handler_)
+            obj.tmp_io_handler_.delete_tmp_files();
+        end
     end
 
     function is_empty = isempty(obj)
@@ -376,11 +398,16 @@ methods
         % Load the next page of pixel data from the file backing the object
         %
         % This function will throw a PIXELDATA:advance error if attempting to
-        % advance past the final page of data in the file
+        % advance past the final page of data in the file.
         %
-        if ~isempty(obj.f_accessor_)
+        % This function does nothing if the pixel data is not file-backed.
+        %
+        if obj.is_file_backed_()
+            if obj.page_is_dirty_(obj.page_number_)
+                obj.write_dirty_page_();
+            end
             try
-                obj.load_page_(obj.pix_position_ + obj.max_page_size_);
+                obj.load_page_(obj.page_number_ + 1);
             catch ME
                 switch ME.identifier
                 case 'PIXELDATA:load_page_'
@@ -394,6 +421,20 @@ methods
         end
     end
 
+    function obj = move_to_first_page(obj)
+        % Reset the object to point to the first page of pixel data in the file
+        % and clear the current cache
+        %  This function does nothing if pixels are not file-backed
+        %
+        if obj.is_file_backed_()
+            if obj.page_is_dirty_(obj.page_number_)
+                obj.write_dirty_page_();
+            end
+            obj.page_number_ = 1;
+            obj.data_ = zeros(9, 0);
+        end
+    end
+
     % --- Getters / Setters ---
     function pixel_data = get.data(obj)
         obj = obj.load_first_page_if_data_empty_();
@@ -401,6 +442,27 @@ methods
     end
 
     function obj = set.data(obj, pixel_data)
+        % This setter provides rules for public facing edits to the cached data
+        if size(pixel_data, 2) ~= obj.page_size
+            msg = ['Cannot set pixel data, invalid dimensions. Axis 2 ' ...
+                   'must have dimensions matching current page size (%i), ' ...
+                   'found ''%i''.', obj.page_size, size(pixel_data, 2)];
+            error('PIXELDATA:data', msg, class(pixel_data));
+        end
+        obj.data_ = pixel_data;
+        obj.set_page_dirty_(true);
+    end
+
+    function data = get.data_(obj)
+        data = obj.raw_data_;
+    end
+
+    function set.data_(obj, pixel_data)
+        % This setter provides rules for internally setting cached data
+        %  This is the only method that should ever touch obj.raw_data_
+
+        % The need for multiple layers of getters/setters for the raw data
+        % should be removed when the public facing getters/setters are removed
         if size(pixel_data, 1) ~= obj.PIXEL_BLOCK_COLS_
             msg = ['Cannot set pixel data, invalid dimensions. Axis 1 must '...
                    'have length %i, found ''%i''.'];
@@ -408,10 +470,10 @@ methods
                   size(pixel_data, 1));
         elseif ~isnumeric(pixel_data)
             msg = ['Cannot set pixel data, invalid type. Data must have a '...
-                   'numeric type, found ''%i'''];
+                   'numeric type, found ''%i''.'];
             error('PIXELDATA:data', msg, class(pixel_data));
         end
-        obj.data_ = pixel_data;
+        obj.raw_data_ = pixel_data;
     end
 
     function u1 = get.u1(obj)
@@ -420,7 +482,9 @@ methods
     end
 
     function obj = set.u1(obj, u1)
+        obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('u1'), :) = u1;
+        obj.set_page_dirty_(true);
     end
 
     function u2 = get.u2(obj)
@@ -429,7 +493,9 @@ methods
     end
 
     function obj = set.u2(obj, u2)
+        obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('u2'), :) = u2;
+        obj.set_page_dirty_(true);
     end
 
     function u3 = get.u3(obj)
@@ -438,7 +504,9 @@ methods
     end
 
     function obj = set.u3(obj, u3)
+        obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('u3'), :) = u3;
+        obj.set_page_dirty_(true);
     end
 
     function dE = get.dE(obj)
@@ -447,7 +515,9 @@ methods
     end
 
     function obj = set.dE(obj, dE)
+        obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('dE'), :) = dE;
+        obj.set_page_dirty_(true);
     end
 
     function coord_data = get.coordinates(obj)
@@ -456,7 +526,9 @@ methods
     end
 
     function obj = set.coordinates(obj, coordinates)
+        obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('coordinates'), :) = coordinates;
+        obj.set_page_dirty_(true);
     end
 
     function coord_data = get.q_coordinates(obj)
@@ -465,7 +537,9 @@ methods
     end
 
     function obj = set.q_coordinates(obj, q_coordinates)
+        obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('q_coordinates'), :) = q_coordinates;
+        obj.set_page_dirty_(true);
     end
 
     function run_index = get.run_idx(obj)
@@ -474,7 +548,9 @@ methods
     end
 
     function obj = set.run_idx(obj, iruns)
+        obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('run_idx'), :) = iruns;
+        obj.set_page_dirty_(true);
     end
 
     function detector_index = get.detector_idx(obj)
@@ -483,7 +559,9 @@ methods
     end
 
     function obj = set.detector_idx(obj, detector_indices)
+        obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('detector_idx'), :) = detector_indices;
+        obj.set_page_dirty_(true);
     end
 
     function detector_index = get.energy_idx(obj)
@@ -492,7 +570,9 @@ methods
     end
 
     function obj = set.energy_idx(obj, energies)
+        obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('energy_idx'), :) = energies;
+        obj.set_page_dirty_(true);
     end
 
     function signal = get.signal(obj)
@@ -501,7 +581,9 @@ methods
     end
 
     function obj = set.signal(obj, signal)
+        obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('signal'), :) = signal;
+        obj.set_page_dirty_(true);
     end
 
     function variance = get.variance(obj)
@@ -510,7 +592,9 @@ methods
     end
 
     function obj = set.variance(obj, variance)
+        obj = obj.load_first_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('variance'), :) = variance;
+        obj.set_page_dirty_(true);
     end
 
     function num_pix = get.num_pixels(obj)
@@ -530,19 +614,47 @@ methods
         page_size = size(obj.data_, 2);
     end
 
+    function pix_position = get.pix_position_(obj)
+        pix_position = (obj.page_number_ - 1)*obj.max_page_size_ + 1;
+    end
+
 end
 
-methods (Access = private)
+methods (Access=private)
 
     function obj = init_from_file_accessor_(obj, f_accessor)
         % Initialise a PixelData object from a file accessor
         obj.f_accessor_ = f_accessor;
         obj.file_path_ = fullfile(obj.f_accessor_.filepath, ...
                                   obj.f_accessor_.filename);
+        obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_);
+        obj.page_number_ = 1;
     end
 
-    function obj = load_page_(obj, pix_idx_start)
-        % Load a page of data from the file starting at the given index
+    function obj = load_first_page_if_data_empty_(obj)
+        % Check if there's any data in the current page and load a page if not
+        %   This function does nothing if pixels are not file-backed
+        if isempty(obj.data_) && obj.is_file_backed_()
+            obj = obj.load_page_(1);
+        end
+    end
+
+    function obj = load_page_(obj, page_number)
+        % Load the data for the given page index
+        if obj.page_is_dirty_(page_number)
+            % load page from tmp file
+            obj.load_dirty_page_(page_number);
+        else
+            % load page from sqw file
+            obj.load_clean_page_(page_number);
+            obj.set_page_dirty_(false, page_number);
+        end
+        obj.page_number_ = page_number;
+    end
+
+    function obj = load_clean_page_(obj, page_number)
+        % Load the given page of data from the sqw file backing this object
+        pix_idx_start = (page_number - 1)*obj.max_page_size_ + 1;
         if pix_idx_start >= obj.num_pixels
             error('PIXELDATA:load_page_', ...
                   'pix_idx_start exceeds number of pixels in file. %i >= %i', ...
@@ -554,19 +666,43 @@ methods (Access = private)
             pix_idx_end = obj.num_pixels;
         end
 
-        obj.data = obj.f_accessor_.get_pix(pix_idx_start, pix_idx_end);
-        if obj.page_size == obj.num_pixels && obj.f_accessor_.is_activated()
-            % Close the file if all pixels have been read
-            obj.f_accessor_.deactivate();
+        obj.data_ = obj.f_accessor_.get_pix(pix_idx_start, pix_idx_end);
+        if obj.page_size == obj.num_pixels
+            % Delete accessor and close the file if all pixels have been read
+            obj.f_accessor_ = [];
         end
-        obj.pix_position_ = pix_idx_start;
     end
 
-    function obj = load_first_page_if_data_empty_(obj)
-        % Check if there's any data in the current page and load a page if not
-        if isempty(obj.data_) && ~isempty(obj.f_accessor_)
-            obj = obj.load_page_(1);
+    function obj = load_dirty_page_(obj, page_number)
+        % Load a page of data from a tmp file
+        obj.data_ = obj.tmp_io_handler_.load_page(page_number, ...
+                                                  obj.PIXEL_BLOCK_COLS_);
+    end
+
+    function obj = write_dirty_page_(obj)
+        % Write the current page's pixels to a tmp file
+        obj.tmp_io_handler_.write_page(obj.page_number_, obj.data);
+    end
+
+    function is = page_is_dirty_(obj, page_number)
+        % Return true if the given page is dirty
+        is = ~(page_number > numel(obj.page_dirty_));
+        is = is && obj.page_dirty_(page_number);
+    end
+
+    function obj = set_page_dirty_(obj, is_dirty, page_number)
+        % Mark the given page as "dirty" i.e. the data in the cache does not
+        % match the data in the original SQW file
+        %
+        % Input
+        % -----
+        % is_dirty     Logical specifying if the page is dirty
+        % page_number  The page number to mark as dirty (default is current page)
+        %
+        if nargin == 2
+            page_number = obj.page_number_;
         end
+        obj.page_dirty_(page_number) = is_dirty;
     end
 
     function page_size = get_max_page_size_(obj, mem_alloc)
@@ -575,6 +711,13 @@ methods (Access = private)
         num_bytes_in_val = 8;  % pixel data stored in memory as a double
         num_bytes_in_pixel = num_bytes_in_val*obj.PIXEL_BLOCK_COLS_;
         page_size = floor(mem_alloc/num_bytes_in_pixel);
+    end
+
+    function is = is_file_backed_(obj)
+        % Return true if the pixel data is backed by a file. Returns false if
+        % all pixel data is held in memory
+        %
+        is = ~isempty(obj.f_accessor_);
     end
 
 end

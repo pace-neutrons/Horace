@@ -121,7 +121,7 @@ pixfull=[w1.data.pix.data w2.data.pix.data]';%(n1+n2)-by-9 array
 pixfull=unique(pixfull,'rows');%keeps only non-repeated rows
 
 %Now make this unique set of combined pixels the output pix array:
-wout.data.pix.data=pixfull';
+wout.data.pix=PixelData(pixfull');
 
 %We need to fiddle the integration ranges so that all of the data for the
 %combined dataset is included. Can do this by looking at the minima and
