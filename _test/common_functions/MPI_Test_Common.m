@@ -41,6 +41,13 @@ classdef MPI_Test_Common < TestCase
             else
                 opc = old_parallel_config ;
             end
+            if is_idaaas && ~isempty(which('worker_4tests_idaaas'))
+                warning(' Setting parallel worker to special value: %s',...
+                    which('worker_4tests_idaaas'));
+                pc.worker = 'worker_4tests_idaaas';
+                obj.worker = 'worker_4tests_idaaas';
+            end
+            
             obj.old_parallel_config_ = opc;
             obj.parallel_config_restore_ = onCleanup(@()set(parallel_config,opc));
             
