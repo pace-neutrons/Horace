@@ -74,19 +74,19 @@ methods
         obj.write_float_data_(file_id, raw_pix);
     end
 
-    function copy_folder(obj, new_pix_id)
+    function copy_folder(obj, target_pix_id)
         % Copy the temporary files managed by this class instance to a new folder
         %
         % Input
         % -----
-        % new_pix_id   The ID of the PixelData instance the new tmp folder will
-        %              be linked to
+        % target_pix_id   The ID of the PixelData instance the new tmp folder
+        %                 will be linked to
         %
         if ~exist(obj.tmp_dir_path_, 'dir')
             return;
         end
 
-        new_dir_path = obj.generate_tmp_dir_path_(new_pix_id);
+        new_dir_path = obj.generate_tmp_dir_path_(target_pix_id);
         [status, err_msg] = copyfile(obj.tmp_dir_path_, new_dir_path);
         if status == 0
             error('Could not copy tmp files from ''%s'' to ''%s'':\n%s', ...
