@@ -33,7 +33,12 @@ methods
         % -----
         % page_number   The number of the page to read data from
         % ncols         The number of columns in the page, used for reshaping
+        %               (default = 1)
         %
+        if nargin == 2
+            ncols = 1;
+        end
+
         tmp_file_path = obj.generate_tmp_pix_file_path_(page_number);
         [file_id, err_msg] = fopen(tmp_file_path, 'rb');
         if file_id < 0
