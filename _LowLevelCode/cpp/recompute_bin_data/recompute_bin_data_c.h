@@ -8,7 +8,7 @@
 enum InputArguments { Npix_data, Pixel_data, Num_threads, N_INPUT_Arguments };
 enum OutputArguments { // unique output arguments,
   Signal,
-  Error,
+  Variance,
   N_OUTPUT_Arguments
 };
 
@@ -87,12 +87,12 @@ double *get_output_signal_ptr(mwSize &num_dims, const mwSize *dims,
   return (double *)mxGetPr(plhs[Signal]);
 }
 
-double *get_output_error_ptr(mwSize &num_dims, const mwSize *dims,
-                             mxArray *plhs[]) {
-  plhs[Error] = mxCreateNumericArray(num_dims, dims, mxDOUBLE_CLASS, mxREAL);
-  if (!plhs[Error]) {
+double *get_output_variance_ptr(mwSize &num_dims, const mwSize *dims,
+                                mxArray *plhs[]) {
+  plhs[Variance] = mxCreateNumericArray(num_dims, dims, mxDOUBLE_CLASS, mxREAL);
+  if (!plhs[Variance]) {
     mexErrMsgTxt("ERROR::recompute_bin_data_c-> can not allocate memory for "
-                 "output error array");
+                 "output variance array");
   }
-  return (double *)mxGetPr(plhs[Error]);
+  return (double *)mxGetPr(plhs[Variance]);
 }
