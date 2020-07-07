@@ -41,7 +41,31 @@ The release tag will be an anchor for any subsequently needed release branch and
 
 The version number is stored in a text file (`VERSION`) in the root of the Herbert and Horace source. This will follow [semantic versioning](https://semver.org/) and is used in the build process to set the version number in the MATLAB and compiled C++ components.
 
+### Deployment on ISIS computational services machines
+To provide rapid response to user request, bug-fixes and all advantages of constant deployment process, the release code is rapidly available to users who uses ISIS computational resources to process the results of their experiments. The services, providing these resources are currently iDaaaS and ISISCOMPUTE services. These services provide to users pool of virtual (iDaaaS) or real (ISISCOMPUTE) Linux machines, connected to the common parallel file system.
+
+By agreement, each machine of the pool has `/usr/locam/mprogs` area containing symbolic links to the repository with Herbert and Horace code, available to users. Currently users have read access to Horace/Herbert code through symbolic links `/usr/local/mprogs/Horace` referring to `/internal_changable_location/Horace_git/horace_core` location and  `/usr/local/mprogs/Herbert` referring to `/internal_changable_location/Herbert_git/herbert_core` location, where `/internal_changable_location/Horace_git\Herbert_git` are the places where the relese version of the repository is checked out. Currently `/internal_changable_location` on ISISCOMPUTE referes to `/home/isis_direct_soft` and is mounted in `/media/` area of iDaaaS VM-s. In addition to that, `/usr/local/mprogs/` contains reference to `Users` folder, where Horace/Herbert and parallel worker initialization scripts are located. (see [Installation with Horace not initialized by default](http://horace.isis.rl.ac.uk/Download_and_setup#Installation_with_Horace_not_initialized_by_default_on_starting_Matlab) for the contents of these scripts)
+*Startup.m* script auto-generated on all service machines intended for the users of inelastic experiments, enables Herbert/Horace code when Matlab starts.
+
+The members of **mslice** group on ISISCOMPUTE and the same group of peoples, assigned by iDaaaS support team has write access to these code areas. New people are added to this list on request from iDaaaS support team. (Relies on good communication between iDaaaS team and the PACE team.) Alex Buts or FBU IT support team can currently add users to **mslice** group on ISISCOMPUTE.
+
+As soon as release branch is tagged and created in the repository, manual build/release process is preformed in the private area of an ISISCOMPUTE or iDaaaS machine to obtain release artifacts for the computational service. This will be automated in a future, as [iDaaaS testing pipeline](https://github.com/pace-neutrons/Horace/issues/271) is implemented. The releaser then manually checks out the release branch into `Herbert_git/Horace_git` areas above and copies the release artifacts into appropriate places of the code tree.
+
+The similar operation is performed in `Herbert_bugfix/Horace_bugfix` areas described below.
+
+The script which automates these operations and performs internal releases as one-click operation will be developed in the nearest future.
+
+
 ### Patch releases
+
+The experience shows that the main reasons for the bugs, identified by users is small changes in user configuration, specific for a user, and correct but unexpected users actions. This is why, the bugfix process in ISIS normally starts from user sharing screen with the member of the support team and demonstration of the issue to the support.
+
+As soon as the issue is confirmed and is obvious that the bug fixing needs changes in code base, the member of the support team should switch user to the code tree, where the changes would not affect other users.
+To achieve this, two additional symbolic links are available in  `/usr/local/mprigs` area, namely  `/usr/local/mprogs/Horace_bugfix` and `/usr/local/mprogs/Herbert_bugfix`, which point to separate clones of git repository. At release, they are pointing to the same location as regular Horace/Herbert branches.
+
+
+To switch user to these branches, one issues `herbert_on(/usr/local/mprogs/Herbert_bugfix/herbert_core)` and `horace_on(/usr/local/mprogs/Horace_bugfix/horace_core)` command.
+
 
 Patch releases will be made to release branches to resolve specific bugs identified. These should be tested and built through the same build pipeline as the initial production releases.
 
@@ -74,7 +98,7 @@ Disadvantages:
 
 ### Hot-fix Releases
 
-If a particular fix is required quickly on a target system, the full build and test process can be bypassed so that facility users do not lose critical machine time. 
+If a particular fix is required quickly on a target system, the full build and test process can be bypassed so that facility users do not lose critical machine time.
 
 Quick modifications to the software, with only partial testing, carry the risks of breaking other parts of the software, so this is an exceptional use-case. Non-time critical issues should be resolved through the standard Patch Release process.
 
@@ -104,5 +128,5 @@ Advantages::
 
 Disadvantages:
 
-- not fully tested code released to production systems
-- slower than build/deploy directly on the target platform
+- not fully tested code released to part of the production system, alleviated by the fact that affected user experienced issue anyway.
+
