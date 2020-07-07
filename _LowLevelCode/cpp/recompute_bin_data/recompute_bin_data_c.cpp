@@ -21,27 +21,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
   // npix can be 1-D to 4D double array
   const double *const pNpix = get_npix_array(prhs);
 
-  mwSize num_of_dims = mxGetNumberOfDimensions(prhs[Npix_data]);
-  const mwSize *dims = mxGetDimensions(prhs[Npix_data]);
-
   // Get pixels array
-  // this one can be either float or double one day. But not yet
-  bool pixAreDouble(true);
-  mxClassID category = mxGetClassID(prhs[Pixel_data]);
-  if (category == mxSINGLE_CLASS) {
-    pixAreDouble = false;
-  }
-  // if (category == mxDOUBLE_CLASS or )
-  //***********************************
-  double const *const pPixelData = (double *)mxGetPr(prhs[Pixel_data]);
-  if (!pPixelData)
-    mexErrMsgTxt(
-        "ERROR::recompute_bin_data_c-> undefined or empty pixels array");
+  const double *const pPixelData = get_pixel_array(prhs);
+
   size_t nPixels = mxGetN(prhs[Pixel_data]);
-  size_t nPixDataCols = mxGetM(prhs[Pixel_data]);
-  if (nPixDataCols != pix_fields::PIX_WIDTH)
-    mexErrMsgTxt("ERROR::recompute_bin_data_c-> the pixel data have to be a "
-                 "9*num_of_pixels array");
 
   double *pThreads = (double *)mxGetPr(prhs[Num_threads]);
   int n_threads = int(*pThreads);
@@ -53,6 +36,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
   /********************************************************************************/
   /* Define output*/
+  mwSize num_of_dims = mxGetNumberOfDimensions(prhs[Npix_data]);
+  const mwSize *dims = mxGetDimensions(prhs[Npix_data]);
+
   plhs[Signal] =
       mxCreateNumericArray(num_of_dims, dims, mxDOUBLE_CLASS, mxREAL);
   if (!plhs[Signal])
@@ -70,9 +56,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
   for (size_t i = 0; i < num_of_dims; i++) {
     distr_size *= size_t(dims[i]);
   }
+
   // do main calculations
+  mxClassID pix_class = mxGetClassID(prhs[Pixel_data]);
+  const bool pix_are_double{pix_class != mxSINGLE_CLASS};
   try {
-    if (pixAreDouble) {
+    if (pix_are_double) {
       recompute_pix_sums<double>(pSignal, pError, distr_size, pNpix, pPixelData,
                                  nPixels, n_threads);
     } else {
@@ -116,6 +105,23 @@ const double *const get_npix_array(const mxArray *prhs[]) {
   const double *const p_pixel_data =
       (double *)mxGetPr(prhs[InputArguments::Npix_data]);
 
+  if (!p_pixel_data) {
+    mexErrMsgTxt(
+        "ERROR::recompute_bin_data_c-> undefined or empty pixels array");
+  }
+
+  return p_pixel_data;
+}
+
+const double *const get_pixel_array(const mxArray *prhs[]) {
+  // Validate number of pixel data columns
+  std::size_t nPixDataCols = mxGetM(prhs[Pixel_data]);
+  if (nPixDataCols != pix_fields::PIX_WIDTH) {
+    mexErrMsgTxt("ERROR::recompute_bin_data_c-> the pixel data should be a "
+                 "9*num_of_pixels array");
+  }
+
+  double const *const p_pixel_data = (double *)mxGetPr(prhs[Pixel_data]);
   if (!p_pixel_data) {
     mexErrMsgTxt(
         "ERROR::recompute_bin_data_c-> undefined or empty pixels array");
