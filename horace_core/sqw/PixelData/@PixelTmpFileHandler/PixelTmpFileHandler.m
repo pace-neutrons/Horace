@@ -108,20 +108,28 @@ methods (Access=private)
     function obj = write_float_data_(obj, file_id, pix_data)
         % Write the given data to the file corresponding to the given file ID
         % in float32
-        % TODO: improve this by writing data in chunks to sustain write speeds
-        try
-            fwrite(file_id, pix_data, obj.FILE_DATA_FORMAT_);
-        catch ME
-            switch ME.identifier
-            case 'MATLAB:badfid_mx'
-                error('PIXELTMPFIELHANDLER:write_float_data_', ...
-                  'Could not write to file with ID ''%d'':\n The file is not open', ...
-                  file_id);
-            otherwise
-                tmp_file_path = fopen(file_id);
-                error('PIXELTMPFIELHANDLER:write_float_data_', ...
-                      'Could not write to file ''%s'':\n%s', ...
-                      tmp_file_path, ferror(file_id));
+        SIZE_OF_FLOAT = 4;
+        chunk_idx_length = hor_config().mem_chunk_size/SIZE_OF_FLOAT;
+        data_size = SIZE_OF_FLOAT*numel(pix_data);  % in bytes
+        num_chunks = ceil(data_size/hor_config().mem_chunk_size);
+
+        for i = 1:num_chunks
+            start_idx = (i - 1)*chunk_idx_length + 1;
+            end_idx = min(i*chunk_idx_length, numel(pix_data));
+            try
+                fwrite(file_id, pix_data(start_idx:end_idx), obj.FILE_DATA_FORMAT_);
+            catch ME
+                switch ME.identifier
+                case 'MATLAB:badfid_mx'
+                    error('PIXELTMPFIELHANDLER:write_float_data_', ...
+                    'Could not write to file with ID ''%d'':\n The file is not open', ...
+                    file_id);
+                otherwise
+                    tmp_file_path = fopen(file_id);
+                    error('PIXELTMPFIELHANDLER:write_float_data_', ...
+                        'Could not write to file ''%s'':\n%s', ...
+                        tmp_file_path, ferror(file_id));
+                end
             end
         end
     end

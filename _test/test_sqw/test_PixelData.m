@@ -815,6 +815,32 @@ methods
         assertEqual(pix_copy.signal, ones(1, numel(pix_copy.signal)));
     end
 
+    function test_page_written_correctly_when_page_size_gt_mem_chunk_size(obj)
+        warning('off', 'HOR_CONFIG:set_mem_chunk_size');
+        hc = hor_config;
+        old_config = hc.get_data_to_store();
+        npix_to_write = 28;
+        size_of_float = 4;
+        hc.mem_chunk_size = npix_to_write*size_of_float;
+
+        function clean_up_func(conf_to_restore)
+            set(hor_config, conf_to_restore);
+            warning('on', 'HOR_CONFIG:set_mem_chunk_size');
+        end
+
+        clean_up = onCleanup(@() clean_up_func(old_config));
+
+        npix_in_page = 90;
+        data = zeros(obj.NUM_COLS_IN_PIX_BLOCK, npix_in_page + 10);
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+        pix.data = ones(obj.NUM_COLS_IN_PIX_BLOCK, npix_in_page);
+        pix.advance();
+        pix.move_to_first_page();
+
+        assertEqual(pix.data, ones(obj.NUM_COLS_IN_PIX_BLOCK, npix_in_page));
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
