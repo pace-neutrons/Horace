@@ -231,33 +231,35 @@ Main Messages Framework methods are provided in the **Table 7**
 **Table 7** Main message framework methods and properties.
 
 | Method or Property| M/P |Description |
-| :--- | :---: | :--- | 
+| :--- | :---: | :--- |
 | `job_id` | P | The string, providing unique identifier(name) for the running cluster and the job running on this cluster. The same ID as the one used in **ClusterWrapper** (it picks up the value from the messages framework) and **JobExecutor** (synchronized through **JobDispatcher**) |
 | `labIndex` | P | The number of parallel process, used to identify the particular parallel worker. |
 | `NumLabs` | P | Total number of workers in the parallel pool. |
+| `time_to_fail` | P |   Time in seconds a system waits for blocking message until returning "not-received" (and normally throwing error) |
+| `throw_on_interrupts` | P |  The property defines framework behavior in case when interrupt message (canceled or failed) received through the network. Normally this means that all processing would be completed and worker shut-down so exception would be thrown. When the framework is gathering information on exceptions to report issue to user, interrupt messages are received to be processed by framework to return the diagnostics to users. The property in this case is set to false. |
 | **Common service methods:** | :: | *Methods, used by all frameworks regardless of the framework type:* |
 |`build_worker_init` | M | Generate ASCII string, used for initialization of all workers. See **Common initialization**
 | `get_interrupt` | M | Check if an interrupt message was received before and return it. See **Interrupts** below.
 | `set_interrupt` | M | Check if the input message is an interrupt message and store interrupt message in the interrupt buffer. See the chapter **Interrupts** below. |
 | `retrieve_interrupt` | M | Helper method used to add interrupt messages to the list of the messages, received from other labs if interrupt message has been received before. Wrapper around `get_interrupt`. See the chapter **Interrupts** below.
-| **Abstract methods:** | :: | *The methods, exposing interface to MPI communications. Implementation is specific for each framework:* | 
-| `init_framework` | M | Given input data, necessary for framework initialization, make framework operational. E.g. for file-based framework it may be name of the folder and the id of the current parallel worker when for MPI framework, this command wraps C++ *MPI_init* command, which defines the worker ID and number of workers (MPI rank and MPI pool size). 
-|`send_message`| M | send message to a specified worker. Unblocking or pretends to be unblocking. 
-|`receive_message`| M | Receive message from the specified task. Depending on the requested message type it can be blocking, unblocking or persistent message (see **Messages types** below). See also **Note [^1]**|
+| **Abstract methods:** | :: | *The methods, exposing interface to MPI communications. Implementation is specific for each framework:* |
+| `init_framework` | M | Given input data, necessary for framework initialization, make framework operational. E.g. for file-based framework it may be name of the folder and the id of the current parallel worker when for MPI framework, this command wraps C++ *MPI_init* command, which defines the worker ID and number of workers (MPI rank and MPI pool size).
+|`send_message`| M | send message to a specified worker. Unblocking or pretends to be unblocking.
+|`receive_message`| M | Receive message from the specified task. Depending on the requested message type it can be blocking, unblocking or persistent message (see **Messages types** below). The user can explicitly request synchronous or asynchronous operation providing appropriate option ['-synchronous'!'-asynchronous'] See also **Note [^1]**|
 |`probe_all`| M | list all messages existing in the system from the tasks requested. Non-blocking
-|`receive_all`| M | receive all messages directed to current node and originated from the tasks with id-s specified as input. Non-blocking if issued without any message name or with keyword *any* and blocking if a requested message name is specified.
-|`labBarrier` | M | synchronize parallel worker execution and wait until all independent workers arrive at the barrier. | 
-| `clear_all` | M | receive and reject all messages, directed to the current node including interrupt messages. Used to finish current **JobExecutor** task, and prepare cluster to run another job. 
+|`receive_all`| M | receive all messages directed to current node and originated from the tasks with id-s specified as input. Non-blocking if issued without any message name or with keyword *any* and blocking if a requested message name is specified. The user can explicitly request synchronous or asynchronous operation providing appropriate option ['-synchronous'!'-asynchronous']
+|`labBarrier` | M | synchronize parallel worker execution and wait until all independent workers arrive at the barrier. |
+| `clear_all` | M | receive and reject all messages, directed to the current node including interrupt messages. Used to finish current **JobExecutor** task, and prepare cluster to run another job.
 |`finalize_all`|M | shut down parallel framework and parallel cluster.
 
-A Horace job uses the particular implementation of  **iMessageFramework** and deploys the methods, defined in the interface above to communicate with neighbouring workers when it becomes necessary according to the algorithm logic. Some coarse logic, providing basic communications and synchronization is implemented in *worker* script.
+A Horace job uses the particular implementation of  **iMessageFramework** and deploys the methods, defined in the interface above to communicate with neighboring workers when it becomes necessary according to the algorithm logic. Some coarse logic, providing basic communications and synchronization is implemented in *worker* script.
 
-[^1]: The developer should expect that error may happen during a worker execution, and the *Fail* message or *Canceled* message can be send from the client instead of expected message. If the client expect a persistent message with a specific tag, it may not be able to recieve such message, so hand-up woild occur. This means that the *receive_message* should not be used directly in the production code. *receive_all* method which, would deal with such situation, should be used instead.
+[^1]: The developer should expect that error may happen during a worker execution, and the *Fail* message or *Canceled* message can be send from the client instead of expected message. The *receive_message* may return cancellation message instead and developer should build the code, which deals with this situation. *receive_all* method will throw appropriate exception which, would dealt with appropriately by the *parallel_worker*.
 
 
 #### Common initialization.
 
-Different frameworks launch different types of parallel processes but each process should know what sub-task it needs to perform. The job description can be very different in size, so it is better to provide such description by writing appropriate description files. Command line arguments are used to provide each parallel worker with information about the location of a folder, where the job initialization information is placed on a shared file system plus some auxiliary information. Currently auxiliary information contains the name of the *message framework* used for communications between workers and worker number (*labNum*) for file-based messages framework. To avoid issues when different frameworks and different operating systems processing non-ASCII characters in a command line differently, the location information is encoded into single ASCII-128 string using standard Java base64 encoder. The *build_worker_init* method of **iMessagesFramework** performs the encoding of the input initialization information for further transfer of this information to parallel workers using command line arguments of correspondent job. 
+Different frameworks launch different types of parallel processes but each process should know what sub-task it needs to perform. The job description can be very different in size, so it is better to provide such description by writing appropriate description files. Command line arguments are used to provide each parallel worker with information about the location of a folder, where the job initialization information is placed on a shared file system plus some auxiliary information. Currently auxiliary information contains the name of the *message framework* used for communications between workers and worker number (*labNum*) for file-based messages framework. To avoid issues when different frameworks and different operating systems processing non-ASCII characters in a command line differently, the location information is encoded into single ASCII-128 string using standard Java base64 encoder. The *build_worker_init* method of **iMessagesFramework** performs the encoding of the input initialization information for further transfer of this information to parallel workers using command line arguments of correspondent job.
 
 #### Interrupts or Persistent messages.
 Independent workers may need to report to the other workers some special conditions occurring during their execution. Such conditions currently is a failure (an interrupt is risen at code execution). We use Persistent messages aka Interrupt messages to distribute information about such states of the system as parallel interrupts, as MPI interrupts used for these purposes in standard MPI frameworks are not available in all parallel frameworks. Such message, received by a worker from other worker, block all future communications with this worker. All requests for information from this worker result in the persistent message (*failure*). This state holds until special command (*clear_all* above) is executed by the receiving worker.
@@ -293,7 +295,7 @@ The appropriate processing of messages data (see the **Messages types** above) i
 
 **Fig 6** Existing family of messages classes
 
-All additional properties and methods of the overloaded classes needs to be just a convenience methods to get or change appropriate parts of the *payload* property below. 
+All additional properties and methods of the overloaded classes needs to be just a convenience methods to get or change appropriate parts of the *payload* property below.
 
 **Table 8** describes the main properties of the message class:
 
@@ -322,14 +324,14 @@ Where *any* is not a message but the name, related to the tag, referring to any 
 
 There is agreement within the frameworks code, that 'any' message has tag -1.  As Matlab MPI does not accepts negative tags, the Herbert framework tags are shifhted internaly to get valid Matlab tags and Matlab tags are shifted back at receive to get constitent Herbert framework tags.
 
-The messages which do not have defined message class are created as the instances of **aMessage** class with the specific message name. For example, messages, which identify task initialization process and the end of a task initialization are **aMessage** classes instances with the names *starting* and *started*. These messages are instantiated by calling **aMessage** class with the appropriate name, namely **aMessage(`starting`)**  or **aMessage(`started`)** while *log* message contains more advanced information about the progress of the job needs to be initialized by its own constructor **LogMessage(step,n\_steps,step\_time,add\_info)** (see the class documentation describing the log message parameters meaning). As the class for *log* message exist, log messages can not be instantiated by simply calling **aMessage('log')** class. **MESS\_NAMES** factory, called within **aMessage** class constructor, would throw error on such attempt. 
+The messages which do not have defined message class are created as the instances of **aMessage** class with the specific message name. For example, messages, which identify task initialization process and the end of a task initialization are **aMessage** classes instances with the names *starting* and *started*. These messages are instantiated by calling **aMessage** class with the appropriate name, namely **aMessage(`starting`)**  or **aMessage(`started`)** while *log* message contains more advanced information about the progress of the job needs to be initialized by its own constructor **LogMessage(step,n\_steps,step\_time,add\_info)** (see the class documentation describing the log message parameters meaning). As the class for *log* message exist, log messages can not be instantiated by simply calling **aMessage('log')** class. **MESS\_NAMES** factory, called within **aMessage** class constructor, would throw error on such attempt.
 
 Main methods, defined by Messages factory are summarized in the **Table 8** All methods of the factory are static methods.
 
 **Table 9** Main methods and properties of the **MESS\_NAMES** factory.
 
 | Method or Property| M/P |Description |
-| :--- | :---: | :--- | 
+| :--- | :---: | :--- |
 | *Properties* | - | *Read-only class properties accessible through the instances of* **MESS\_NAMES**  *factory:*
 | `known_messages` | P | list of the messages, registered with the factory. |
 | `is_initialized` | P | true when messages factory is initialized. Used by factory initialization algorithm. |
@@ -341,11 +343,11 @@ Main methods, defined by Messages factory are summarized in the **Table 8** All 
 | `get_mess_class` | M | get empty message class instance for the message name, provided as input. |
 | *Static methods* | - |
 |`instance` | M | get access to a single unique instance of the  **MESS\_NAMES** class |
-| `get_class_name` | M | returns message class name, corresponding to the message name provided. (Either specialized class name **NameMessage** if available or name: **aMessage**) 
+| `get_class_name` | M | returns message class name, corresponding to the message name provided. (Either specialized class name **NameMessage** if available or name: **aMessage**)
 | `mess_id`   | M | returns the message tag from the input message name |
 | `mess_name` | M | returns the message name from the input message tag |
 | `tag_valid` | M | verify if the tag provided as input is a valid message tag. |
-| `is_blocking` | M | true if the message, described by the input message name is a blocking message | 
+| `is_blocking` | M | true if the message, described by the input message name is a blocking message |
 | `is_persistent` | M | true if the message described by the input message name is a persistent message |
 
 
@@ -356,14 +358,14 @@ The optimal to hardware and software cluster and message framework and other par
 **Table 10** Parallel configuration settings.
 
 | Property| R/W^1 |Description |
-| :--- | :---: | :--- | 
+| :--- | :---: | :--- |
 |`worker`| `RW` | The name of the script or program to run  on cluster in parallel using parallel workers. |
 |  `is_compiled` | `R` | false if the worker is a Matlab script and true if this script is compiled using Matlab applications compiler. |
 | `parallel_framework` | `RW`| The name of a parallel framework to use. Currently available are **`h[erbert]`**, **`p[arpool]`** and  **`m[pi_cluster]`** frameworks. |
 | `cluster_config` | `RW` | The configuration class describing parallel cluster, running selected framework |
 | `shared_folder_on_local` |`RW`| The folder on your working machine containing the job input and output data |
 |`shared_folder_on_remote`|`RW` |The folder where shared data should be found on a remote worker as accessed by remote worker itself |
-| `working_directory` | `RW` | The folder, containing input data for the job and tmp and output results should be stored. Needs to have the same view from the local and remote workers *(inconsistency?)* | 
+| `working_directory` | `RW` | The folder, containing input data for the job and tmp and output results should be stored. Needs to have the same view from the local and remote workers *(inconsistency?)* |
 | `known_frameworks` | `R` | Information method returning the list of the parallel frameworks, known to Herbert and available on the machine |
 | `known_clust_configs` | `R` | Information method returning the list of the clusters, available to run the selected framework |
 
@@ -391,11 +393,23 @@ to adapt its behavior to a parallel environment. In addition to that  **MPI\_Sta
 ## Some details of implementation and operations
 ### Error processing
 On error, user job, performed by job executor throws appropriate exception.
-This exception is intercepted in parallel_worker and processed by **JobExecutor**'s process_fail_state method.
-The method checks exception and if this is not **PARALLEL_FRAMEWORK:canceled** exception, sends to all other workers *CanceledMessage* and finishes failing task. This message is always identified as incoming by probe_all method and received instead of any other expected message, by any framework *receive* method. If message received within **JobExecutor** *receive_all* method, the **PARALLEL_FRAMEWORK:canceled** exception is thrown by parallel worker. This exception, caught within its parallel worker, finishes approptiate task. If user receives messages using a framework *receive* method directly, or sets up framework property *throw_on_interrupts* to false, he has to organize custom processing of possible *CancelMessage* reception.
+This exception is intercepted in parallel_worker and processed by **JobExecutor**'s *process_fail_state* method.
+The method checks exception and if this is not **PARALLEL_FRAMEWORK:canceled** exception, sends to all other workers *CanceledMessage* and finishes failing task. The cancellation message is always identified as incoming by *probe_all* method and received instead of any other expected message, by any framework *receive* method. If message received within **JobExecutor** *receive_all* method, the **PARALLEL_FRAMEWORK:canceled** exception is thrown by parallel worker. This exception, caught within its parallel worker, finishes approptiate task. If user receives messages using a framework *receive* method directly, or sets up framework property *throw_on_interrupts* to false, he has to organize custom processing of possible *CancelMessage* reception.
 
 ### Interrupts storage
 Received interrupts are stored in cache with keys corresponding to task-id the interrupt has been received from.
-The purpose of this is to provide better diagnostics of the reason for failure, the interrupt has been issued for. The logic of the failure is that on receiving interrupt message, framework throws **PARALLEL_FRAMEWORK:canceled** exception, which is processed and arrives to *finish_task* part of **JobExecutor** instance. The *finish_task* method at normal execution synchronously waits for **completed** messages from all parallel workers. If failure, these messages are substitured by appropriate interrupt messages, received from correspondent tasks.
-The idea behind the cache is this, but for some reason it works even without the interrupt cache. May be its just random passing or may be interrupt cache is unnecessary complication.
+The purpose of this is to provide better diagnostics of the reason for failure, the interrupt has been issued for. 
+The logic of the failure is that on receiving interrupt message, framework throws **PARALLEL_FRAMEWORK:canceled** exception,
+ which is processed and arrives to *finish_task* part of **JobExecutor** instance. 
+ The *finish_task* method at normal execution synchronously waits for **completed** messages from all parallel workers. 
+ If failure, these messages are substituted by appropriate interrupt messages, received from correspondent tasks.
+The idea behind the cache is this, but for some reason it works even without the interrupt cache. 
+May be its just random passing or may be interrupt cache is unnecessary complication.
+
+### Messages channels
+To understand framework operation is convenient to assume that the framework implicitly organizes message propagation using three channels, 
+namely synchronous, asynchronous and interrupt channel. Any receive operation  scans appropriate 
+(synchronous or asynchronous depending on message type) channel in turn with interrupt channel and returns information, 
+available on a channel first. Synchronous receive waits for a message to appear, where asynchronous returns empty if nothing 
+is available at the moment when the request has been issued.
 
