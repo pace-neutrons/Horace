@@ -309,7 +309,7 @@ methods
     function nel = numel(obj)
         % Return the number of data points in the pixel data block
         %   If the data is file backed, this returns the number of values in
-        %   the file
+        %   the file.
         nel = obj.PIXEL_BLOCK_COLS_*obj.num_pixels;
     end
 
@@ -433,7 +433,7 @@ methods
     function obj = move_to_first_page(obj)
         % Reset the object to point to the first page of pixel data in the file
         % and clear the current cache
-        %  This function does nothing if pixels are not file-backed
+        %  This function does nothing if pixels are not file-backed.
         %
         if obj.is_file_backed_()
             if obj.page_is_dirty_(obj.page_number_)
@@ -471,7 +471,7 @@ methods
         %  This is the only method that should ever touch obj.raw_data_
 
         % The need for multiple layers of getters/setters for the raw data
-        % should be removed when the public facing getters/setters are removed
+        % should be removed when the public facing getters/setters are removed.
         if size(pixel_data, 1) ~= obj.PIXEL_BLOCK_COLS_
             msg = ['Cannot set pixel data, invalid dimensions. Axis 1 must '...
                    'have length %i, found ''%i''.'];
@@ -642,7 +642,7 @@ methods (Access=private)
 
     function obj = load_current_page_if_data_empty_(obj)
         % Check if there's any data in the current page and load a page if not
-        %   This function does nothing if pixels are not file-backed
+        %   This function does nothing if pixels are not file-backed.
         if isempty(obj.data_) && obj.is_file_backed_()
             obj = obj.load_page_(obj.page_number_);
         end
