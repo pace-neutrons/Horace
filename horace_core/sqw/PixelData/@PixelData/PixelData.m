@@ -452,10 +452,17 @@ methods
 
     function obj = set.data(obj, pixel_data)
         % This setter provides rules for public facing edits to the cached data
-        if size(pixel_data, 2) ~= obj.page_size
+        if obj.page_size == 0
+            % no pixels loaded, get our expected page size
+            required_page_size = min(obj.max_page_size_, obj.num_pixels);
+        else
+            required_page_size = obj.page_size;
+        end
+
+        if size(pixel_data, 2) ~= required_page_size
             msg = ['Cannot set pixel data, invalid dimensions. Axis 2 ' ...
                    'must have dimensions matching current page size (%i), ' ...
-                   'found ''%i''.', obj.page_size, size(pixel_data, 2)];
+                   'found ''%i''.', required_page_size, size(pixel_data, 2)];
             error('PIXELDATA:data', msg, class(pixel_data));
         end
         obj.data_ = pixel_data;
