@@ -69,12 +69,11 @@ warning('off', 'MATLAB:class:DestructorError');
 %  may be due to a poor choice by the user of configuration parameters)
 hc = herbert_config();
 current_conf = hc.get_data_to_store();
-hc.saveable = false; % equivalent to older '-buffer' option for all setters below
 hc.init_tests = 1; % initialize unit tests
 hc.log_level = 1;
+%
 pcf = parallel_config();
 par_config = pcf.get_data_to_store();
-pcf.saveable = false;
 pcf.shared_folder_on_local = tmp_dir;
 
 % Generate full test paths to unit tests:
