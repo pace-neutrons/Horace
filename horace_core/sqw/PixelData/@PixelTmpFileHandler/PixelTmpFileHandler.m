@@ -127,12 +127,13 @@ methods (Access=private)
     end
 
     function tmp_file_path = generate_tmp_pix_file_path_(obj, page_number)
-        % Generate the file path to the tmp directory for this object instance
+        % Generate the file path to a tmp file with the given page number
         file_name = sprintf(obj.TMP_FILE_BASE_NAME_, page_number);
         tmp_file_path = fullfile(obj.tmp_dir_path_, file_name);
     end
 
     function tmp_dir_path = generate_tmp_dir_path_(obj, pix_id)
+        % Generate the file path to the tmp directory for this object instance
         tmp_dir_name = sprintf(obj.TMP_DIR_BASE_NAME_, pix_id);
         tmp_dir_path = fullfile(tempdir(), tmp_dir_name);
     end
