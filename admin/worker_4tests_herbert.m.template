@@ -17,7 +17,7 @@ function [ok,err_mess,je]=worker_4tests(worker_controls_string)
 err_mess = [];
 exit_at_the_end = true;
 if isempty(which('herbert_init.m'))
-    horace_on();
+    herbert_on();
     % Set up non-default herbert or Horace path to test them
     % herbert_on('/home/isis_direct_soft/Herbert_bugfix/herbert_core');
     % horace_on('/home/isis_direct_soft/Horace_bugfix/horace_core');

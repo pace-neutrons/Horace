@@ -58,34 +58,34 @@ classdef test_job_dispatcher_parpool< job_dispatcher_common_tests
             delete(cjob)
         end
         function test_job_fail_restart(obj, varargin)
-            if isunix && is_jenkins
-                warning(' This test is disabled on Jenkins Linux')
-                return
-            end
+%             if isunix && is_jenkins
+%                 warning(' This test is disabled on Jenkins Linux')
+%                 return
+%             end
             
             test_job_fail_restart@job_dispatcher_common_tests(obj, varargin{:})
         end
         function test_job_with_logs_3workers(obj, varargin)
-            if isunix && is_jenkins
-                warning(' This test is disabled on Jenkins Linux')
-                return
-            end
+%             if isunix && is_jenkins
+%                 warning(' This test is disabled on Jenkins Linux')
+%                 return
+%             end
             
             test_job_with_logs_3workers@job_dispatcher_common_tests(obj, varargin{:})
         end
         function test_job_with_logs_2workers(obj,varargin)
-            if isunix && is_jenkins
-                warning(' This test is disabled on Jenkins Linux')
-                return
-            end
+%             if isunix && is_jenkins
+%                 warning(' This test is disabled on Jenkins Linux')
+%                 return
+%             end
             
             test_job_with_logs_2workers@job_dispatcher_common_tests(obj, varargin{:})
         end
         function test_job_with_logs_worker(obj, varargin)            
-            if isunix && is_jenkins
-                warning(' This test is disabled on Jenkins Linux')
-                return
-            end
+%             if isunix && is_jenkins
+%                 warning(' This test is disabled on Jenkins Linux')
+%                 return
+%             end
             
             test_job_with_logs_worker@job_dispatcher_common_tests(obj, varargin{:})
         end
