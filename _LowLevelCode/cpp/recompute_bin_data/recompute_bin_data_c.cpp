@@ -1,7 +1,6 @@
 #include "../utility/version.h"
 #include "recompute_bin_data.h"
 
-
 enum InputArguments { Npix_data, Pixel_data, Num_threads, N_INPUT_Arguments };
 enum OutputArguments { // unique output arguments,
   Signal,
@@ -15,32 +14,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     return;
   }
 
-  //* Check for proper number of arguments. */
-  {
-    if (nrhs != N_INPUT_Arguments && nrhs != N_INPUT_Arguments - 1) {
-      std::stringstream buf;
-      buf << "ERROR::recompute_bin_data_c needs " << (short)N_INPUT_Arguments
-          << " but got " << (short)nrhs << " input arguments and "
-          << (short)nlhs << " output argument(s)\n";
-      mexErrMsgTxt(buf.str().c_str());
-    }
-    if (nlhs != N_OUTPUT_Arguments) {
-      std::stringstream buf;
-      buf << "ERROR::recompute_bin_data_c needs " << (short)N_OUTPUT_Arguments
-          << " outputs but requested to return" << (short)nlhs
-          << " arguments\n";
-      mexErrMsgTxt(buf.str().c_str());
-    }
+  // Check for proper number of arguments
+  validate_inputs(nlhs, plhs, nrhs, prhs);
 
-    for (int i = 0; i < nrhs - 1; i++) {
-      if (prhs[i] == NULL) {
-        std::stringstream buf;
-        buf << "ERROR::recompute_bin_data_c => argument N" << i
-            << " undefined\n";
-        mexErrMsgTxt(buf.str().c_str());
-      }
-    }
-  }
   /********************************************************************************/
   /* retrieve input parameters */
   // get npix -- can be 1-D to 4D double array
@@ -110,5 +86,31 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
   } catch (const char *err) {
     mexErrMsgTxt(err);
+  }
+}
+
+void validate_inputs(const int &nlhs, mxArray *plhs[], const int &nrhs,
+                     const mxArray *prhs[]) {
+  if (nrhs != N_INPUT_Arguments && nrhs != N_INPUT_Arguments - 1) {
+    std::stringstream buf;
+    buf << "ERROR::recompute_bin_data_c needs " << (short)N_INPUT_Arguments
+        << " but got " << (short)nrhs << " input arguments and " << (short)nlhs
+        << " output argument(s)\n";
+    mexErrMsgTxt(buf.str().c_str());
+  }
+
+  if (nlhs != N_OUTPUT_Arguments) {
+    std::stringstream buf;
+    buf << "ERROR::recompute_bin_data_c needs " << (short)N_OUTPUT_Arguments
+        << " outputs but requested to return" << (short)nlhs << " arguments\n";
+    mexErrMsgTxt(buf.str().c_str());
+  }
+
+  for (int i = 0; i < nrhs - 1; i++) {
+    if (prhs[i] == NULL) {
+      std::stringstream buf;
+      buf << "ERROR::recompute_bin_data_c => argument N" << i << " undefined\n";
+      mexErrMsgTxt(buf.str().c_str());
+    }
   }
 }

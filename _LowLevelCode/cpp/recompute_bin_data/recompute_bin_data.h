@@ -9,6 +9,9 @@
 // $Revision:: 1758 ($Date:: 2019-12-16 18:18:50 +0000 (Mon, 16 Dec 2019) $)"
 //
 
+void validate_inputs(const int &nlhs, mxArray *plhs[], const int &nrhs,
+                     const mxArray *prhs[]);
+
 template<class T>
 void recompute_pix_sums(double *const pSignal, double *const pError, size_t distr_size,
     double const *const pNpix, T const *const pPixelData, size_t nPixels, int num_OMP_Threads)
