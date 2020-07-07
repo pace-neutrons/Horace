@@ -52,6 +52,11 @@ methods
         obj.npixels_ = npix;
     end
 
+    function obj = set_filepath(obj, file_path)
+        [obj.filepath_, file_name, ext] = fileparts(file_path);
+        obj.filename_ = [file_name, ext];
+    end
+
 end
 
 end
