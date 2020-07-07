@@ -16,13 +16,3 @@
   - test_job_executor
   - test_init_mpiexec_mpi_fw  ! Disabled as https://github.com/pace-neutrons/Herbert/issues/155
 
-  
-  Disabled on Linux Jenkins -- something with Jenkins configuration:
-  - test_job_dispatcher_herbert::test_job_with_logs_3workers  https://github.com/pace-neutrons/Herbert/issues/182
-  
-  Disabled on Linux Jenkins -- something with Jenkins configuration:
-  https://github.com/pace-neutrons/Herbert/issues/183
-    test_job_dispatcher_parpool:test_job_with_logs_worker
-    test_job_dispatcher_parpool:test_job_with_logs_2workers
-    test_job_dispatcher_parpool:test_job_with_logs_3workers
-    test_job_dispatcher_parpool:test_job_fail_restart

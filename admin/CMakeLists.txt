@@ -2,9 +2,9 @@
 set(WORKER_CONFIG_DIR "${CMAKE_BINARY_DIR}/local_init")
 file(MAKE_DIRECTORY ${WORKER_CONFIG_DIR})
 if(${BUILD_TESTS})
-    configure_file("worker_4tests_herbert.m.template" "${WORKER_CONFIG_DIR}/worker_4tests.m")
+    configure_file("worker_4tests.m.template" "${WORKER_CONFIG_DIR}/worker_4tests.m")
 endif()
-configure_file("worker_v2_herbert.m.template" "${WORKER_CONFIG_DIR}/worker_v2.m")
+configure_file("worker_v2.m.template" "${WORKER_CONFIG_DIR}/worker_v2.m")
 
 set(_path_regex "[a-zA-Z0-9/\\\\_\\-\\.: ]+")
 
@@ -37,7 +37,7 @@ install(
     FILES
         "herbert_on.m.template"
         "validate_herbert.m"
-        "worker_4tests_herbert.m.template"
-        "worker_v2_herbert.m.template"
+        "worker_4tests.m.template"
+        "worker_v2.m.template"
     DESTINATION "Herbert/admin/"
 )
