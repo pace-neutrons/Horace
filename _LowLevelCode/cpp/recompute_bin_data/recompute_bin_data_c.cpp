@@ -2,7 +2,6 @@
 #include "recompute_bin_data/recompute_pix_sums.h"
 #include "utility/version.h"
 
-
 enum InputArguments { Npix_data, Pixel_data, Num_threads, N_INPUT_Arguments };
 enum OutputArguments { // unique output arguments,
   Signal,
@@ -19,12 +18,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
   // Check for proper number of arguments
   validate_inputs(nlhs, plhs, nrhs, prhs);
 
-  /********************************************************************************/
-  /* retrieve input parameters */
-  // get npix -- can be 1-D to 4D double array
-  double const *const pNpix = (double *)mxGetPr(prhs[Npix_data]);
-  if (!pNpix)
-    mexErrMsgTxt("ERROR::recompute_bin_data_c-> undefined or empty npix array");
+  // npix can be 1-D to 4D double array
+  const double *const pNpix = get_npix_array(prhs);
 
   mwSize num_of_dims = mxGetNumberOfDimensions(prhs[Npix_data]);
   const mwSize *dims = mxGetDimensions(prhs[Npix_data]);
@@ -115,4 +110,16 @@ void validate_inputs(const int &nlhs, mxArray *plhs[], const int &nrhs,
       mexErrMsgTxt(buf.str().c_str());
     }
   }
+}
+
+const double *const get_npix_array(const mxArray *prhs[]) {
+  const double *const p_pixel_data =
+      (double *)mxGetPr(prhs[InputArguments::Npix_data]);
+
+  if (!p_pixel_data) {
+    mexErrMsgTxt(
+        "ERROR::recompute_bin_data_c-> undefined or empty pixels array");
+  }
+
+  return p_pixel_data;
 }
