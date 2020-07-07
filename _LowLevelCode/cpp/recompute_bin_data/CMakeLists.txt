@@ -6,7 +6,8 @@ set(
 set(
     HDR_FILES
     "../CommonCode.h"
-    "recompute_bin_data.h"
+    "recompute_bin_data_c.h"
+    "recompute_pix_sums.h"
 )
 
 set(MEX_NAME "recompute_bin_data_c")
