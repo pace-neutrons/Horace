@@ -392,24 +392,11 @@ to adapt its behavior to a parallel environment. In addition to that  **MPI\_Sta
 
 ## Some details of implementation and operations
 ### Error processing
-On error, user job, performed by job executor throws appropriate exception.
-This exception is intercepted in parallel_worker and processed by **JobExecutor**'s *process_fail_state* method.
-The method checks exception and if this is not **PARALLEL_FRAMEWORK:canceled** exception, sends to all other workers *CanceledMessage* and finishes failing task. The cancellation message is always identified as incoming by *probe_all* method and received instead of any other expected message, by any framework *receive* method. If message received within **JobExecutor** *receive_all* method, the **PARALLEL_FRAMEWORK:canceled** exception is thrown by parallel worker. This exception, caught within its parallel worker, finishes approptiate task. If user receives messages using a framework *receive* method directly, or sets up framework property *throw_on_interrupts* to false, he has to organize custom processing of possible *CancelMessage* reception.
+On error, user job, performed by job executor throws appropriate exception. This exception is intercepted in parallel_worker and processed by **JobExecutor**'s *process_fail_state* method. The method checks exception and if this is not **PARALLEL_FRAMEWORK:canceled** exception, sends to all other workers *CanceledMessage* and finishes failing task. The cancellation message is always identified as incoming by *probe_all* method and received instead of any other expected message, by any framework *receive* method. If message received within **JobExecutor** *receive_all* method, the **PARALLEL_FRAMEWORK:canceled** exception is thrown by parallel worker. This exception, caught within its parallel worker, finishes approptiate task. If user receives messages using a framework *receive* method directly, or sets up framework property *throw_on_interrupts* to false, he has to organize custom processing of possible *CancelMessage* reception.
 
 ### Interrupts storage
-Received interrupts are stored in cache with keys corresponding to task-id the interrupt has been received from.
-The purpose of this is to provide better diagnostics of the reason for failure, the interrupt has been issued for. 
-The logic of the failure is that on receiving interrupt message, framework throws **PARALLEL_FRAMEWORK:canceled** exception,
- which is processed and arrives to *finish_task* part of **JobExecutor** instance. 
- The *finish_task* method at normal execution synchronously waits for **completed** messages from all parallel workers. 
- If failure, these messages are substituted by appropriate interrupt messages, received from correspondent tasks.
-The idea behind the cache is this, but for some reason it works even without the interrupt cache. 
-May be its just random passing or may be interrupt cache is unnecessary complication.
+Received interrupts are stored in cache with keys corresponding to task-id the interrupt has been received from. The purpose of this is to provide better diagnostics of the reason for failure, the interrupt has been issued for. The logic of the failure is that on receiving interrupt message, framework throws **PARALLEL_FRAMEWORK:canceled** exception,  which is processed and arrives to *finish_task* part of **JobExecutor** instance. The *finish_task* method at normal execution synchronously waits for **completed** messages from all parallel workers. If failure, these messages are substituted by appropriate interrupt messages, received from correspondent tasks. The idea behind the cache is this, but for some reason it works even without the interrupt cache. May be its just random passing or may be interrupt cache is unnecessary complication.
 
 ### Messages channels
-To understand framework operation is convenient to assume that the framework implicitly organizes message propagation using three channels, 
-namely synchronous, asynchronous and interrupt channel. Any receive operation  scans appropriate 
-(synchronous or asynchronous depending on message type) channel in turn with interrupt channel and returns information, 
-available on a channel first. Synchronous receive waits for a message to appear, where asynchronous returns empty if nothing 
-is available at the moment when the request has been issued.
+To understand framework operation is convenient to assume that the framework implicitly organizes message propagation using three channels, namely synchronous, asynchronous and interrupt channel. Any receive operation  scans appropriate (synchronous or asynchronous depending on message type) channel in turn with interrupt channel and returns information, available on a channel first. Synchronous receive waits for a message to appear, where asynchronous returns empty if nothing is available at the moment when the request has been issued.
 
