@@ -1,7 +1,7 @@
 #pragma once
 
 template <class T>
-void recompute_pix_sums(double *const pSignal, double *const pError,
+void recompute_pix_sums(double *const pSignal, double *const pVariance,
                         size_t distr_size, double const *const pNpix,
                         T const *const pPixelData, size_t nPixels,
                         int num_OMP_Threads) {
@@ -24,7 +24,7 @@ void recompute_pix_sums(double *const pSignal, double *const pError,
 #pragma omp for
     for (long i = 0; i < distr_size; i++) {
       pSignal[i] = 0;
-      pError[i] = 0;
+      pVariance[i] = 0;
     }
 #pragma omp for
     for (long i = 0; i < distr_size; i++) {
@@ -39,7 +39,7 @@ void recompute_pix_sums(double *const pSignal, double *const pError,
       for (size_t ip = 0; ip < npixels; ip++) {
         size_t index = (pix0 + ip) * pix_fields::PIX_WIDTH;
         pSignal[i] += pPixelData[index + pix_fields::iSign];
-        pError[i] += pPixelData[index + pix_fields::iErr];
+        pVariance[i] += pPixelData[index + pix_fields::iErr];
       }
     }
 #pragma omp for
@@ -47,7 +47,7 @@ void recompute_pix_sums(double *const pSignal, double *const pError,
       double nPix = pNpix[i];
       if (nPix > 0) {
         pSignal[i] /= nPix;
-        pError[i] /= (nPix * nPix);
+        pVariance[i] /= (nPix * nPix);
       }
     }
   } // end parallel block

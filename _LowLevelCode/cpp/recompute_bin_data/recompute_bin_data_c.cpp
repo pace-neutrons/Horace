@@ -30,7 +30,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
   const mwSize *p_dims = mxGetDimensions(prhs[Npix_data]);
 
   double *pSignal = get_output_signal_ptr(num_of_dims, p_dims, plhs);
-  double *pError = get_output_error_ptr(num_of_dims, p_dims, plhs);
+  double *pVariance = get_output_variance_ptr(num_of_dims, p_dims, plhs);
 
   /***************************************************************************/
   /* Do calculations */
@@ -41,11 +41,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
   try {
     if (pix_data_class == mxDOUBLE_CLASS) {
-      recompute_pix_sums<double>(pSignal, pError, distr_size, pNpix, pPixelData,
-                                 nPixels, n_threads);
+      recompute_pix_sums<double>(pSignal, pVariance, distr_size, pNpix,
+                                 pPixelData, nPixels, n_threads);
     } else if (pix_data_class == mxSINGLE_CLASS) {
       float const *const fPixData = (float *)pPixelData;
-      recompute_pix_sums<float>(pSignal, pError, distr_size, pNpix, fPixData,
+      recompute_pix_sums<float>(pSignal, pVariance, distr_size, pNpix, fPixData,
                                 nPixels, n_threads);
     } else {
       throw("Invalid data type for pixel array. Must be float or double.");
