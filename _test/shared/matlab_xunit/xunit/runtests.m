@@ -166,7 +166,7 @@ while k <= numel(varargin)
             warning('runtests:unrecognizedOption', 'Unrecognized option: %s', arg);
         end
     else
-        if isfolder(arg)
+        if exist(arg,'dir') == 7
             name_list{end+1} = arg;
         else
             ddot_ind = strfind(arg,':');

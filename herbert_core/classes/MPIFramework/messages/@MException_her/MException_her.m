@@ -5,7 +5,7 @@ classdef MException_her < MException
     properties
         % holder for stack variable, which can not be set up on MException
         % class.
-        stack_r=struct([]);
+        stack_r=struct(zeros(0,1));
     end
     
     methods
@@ -77,8 +77,14 @@ classdef MException_her < MException
             end
             try
                 if isa(input,'MException_her')
-                    rethrow(struct('identifier',input.identifier,...
+                    if isempty(input.stack_r)
+                        rethrow(struct('identifier',input.identifier,...
+                        'message',input.message));
+                    else
+                        rethrow(struct('identifier',input.identifier,...
                         'message',input .message,'stack',input.stack_r));
+                        
+                    end
                 else % its already MException
                    rethrow(input);
                 end
