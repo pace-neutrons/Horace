@@ -10,66 +10,53 @@ enum OutputArguments { // unique output arguments,
 };
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
+  // Return version if no arguments
   if (nrhs == 0 && (nlhs == 0 || nlhs == 1)) {
     plhs[0] = mxCreateString(Horace::VERSION);
     return;
   }
 
-  // Check for proper number of arguments
+  /***************************************************************************/
+  /* Handle inputs */
   validate_inputs(nlhs, plhs, nrhs, prhs);
 
   // npix can be 1-D to 4D double array
   const double *const pNpix = get_npix_array(prhs);
 
-  // Get pixels array
   const double *const pPixelData = get_pixel_array(prhs);
 
-  size_t nPixels = mxGetN(prhs[Pixel_data]);
+  const int n_threads = get_num_threads(prhs);
 
-  double *pThreads = (double *)mxGetPr(prhs[Num_threads]);
-  int n_threads = int(*pThreads);
-  // Check wrong n_threads
-  if (n_threads > 128)
-    n_threads = 8;
-  if (n_threads <= 0)
-    n_threads = 1;
+  mxClassID pix_data_class{mxGetClassID(prhs[Pixel_data])};
 
-  /********************************************************************************/
-  /* Define output*/
+  const std::size_t nPixels = mxGetN(prhs[Pixel_data]);
+
+  /***************************************************************************/
+  /* Define outputs */
   mwSize num_of_dims = mxGetNumberOfDimensions(prhs[Npix_data]);
-  const mwSize *dims = mxGetDimensions(prhs[Npix_data]);
+  const mwSize *p_dims = mxGetDimensions(prhs[Npix_data]);
 
-  plhs[Signal] =
-      mxCreateNumericArray(num_of_dims, dims, mxDOUBLE_CLASS, mxREAL);
-  if (!plhs[Signal])
-    mexErrMsgTxt("ERROR::recompute_bin_data_c-> can not allocate memory for "
-                 "output signal array");
-  plhs[Error] = mxCreateNumericArray(num_of_dims, dims, mxDOUBLE_CLASS, mxREAL);
-  if (!plhs[Error])
-    mexErrMsgTxt("ERROR::recompute_bin_data_c-> can not allocate memory for "
-                 "output error array");
+  double *pSignal = get_output_signal_ptr(num_of_dims, p_dims, plhs);
+  double *pError = get_output_error_ptr(num_of_dims, p_dims, plhs);
 
-  double *pSignal = (double *)mxGetPr(plhs[Signal]);
-  double *pError = (double *)mxGetPr(plhs[Error]);
-
-  size_t distr_size(1);
-  for (size_t i = 0; i < num_of_dims; i++) {
-    distr_size *= size_t(dims[i]);
+  /***************************************************************************/
+  /* Do calculations */
+  std::size_t distr_size{1};
+  for (std::size_t i = 0; i < num_of_dims; i++) {
+    distr_size *= std::size_t(p_dims[i]);
   }
 
-  // do main calculations
-  mxClassID pix_class = mxGetClassID(prhs[Pixel_data]);
-  const bool pix_are_double{pix_class != mxSINGLE_CLASS};
   try {
-    if (pix_are_double) {
+    if (pix_data_class == mxDOUBLE_CLASS) {
       recompute_pix_sums<double>(pSignal, pError, distr_size, pNpix, pPixelData,
                                  nPixels, n_threads);
-    } else {
+    } else if (pix_data_class == mxSINGLE_CLASS) {
       float const *const fPixData = (float *)pPixelData;
       recompute_pix_sums<float>(pSignal, pError, distr_size, pNpix, fPixData,
                                 nPixels, n_threads);
+    } else {
+      throw("Invalid data type for pixel array. Must be float or double.");
     }
-
   } catch (const char *err) {
     mexErrMsgTxt(err);
   }
@@ -128,4 +115,34 @@ const double *const get_pixel_array(const mxArray *prhs[]) {
   }
 
   return p_pixel_data;
+}
+
+int get_num_threads(const mxArray *prhs[]) {
+  int n_threads{(int)*mxGetPr(prhs[Num_threads])};
+  if (n_threads > 128) {
+    n_threads = 8;
+  } else if (n_threads <= 0) {
+    n_threads = 1;
+  }
+  return n_threads;
+}
+
+double *get_output_signal_ptr(mwSize &num_dims, const mwSize *dims,
+                              mxArray *plhs[]) {
+  plhs[Signal] = mxCreateNumericArray(num_dims, dims, mxDOUBLE_CLASS, mxREAL);
+  if (!plhs[Signal]) {
+    mexErrMsgTxt("ERROR::recompute_bin_data_c-> can not allocate memory for "
+                 "output signal array");
+  }
+  return (double *)mxGetPr(plhs[Signal]);
+}
+
+double *get_output_error_ptr(mwSize &num_dims, const mwSize *dims,
+                             mxArray *plhs[]) {
+  plhs[Error] = mxCreateNumericArray(num_dims, dims, mxDOUBLE_CLASS, mxREAL);
+  if (!plhs[Error]) {
+    mexErrMsgTxt("ERROR::recompute_bin_data_c-> can not allocate memory for "
+                 "output error array");
+  }
+  return (double *)mxGetPr(plhs[Error]);
 }
