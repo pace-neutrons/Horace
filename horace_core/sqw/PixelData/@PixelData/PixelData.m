@@ -314,6 +314,11 @@ methods
     end
 
     function pix_copy = copy(obj)
+        % Make an independent copy of this object
+        %  This method simply constructs a new PixelData instance by calling
+        %  the constructor with the input object as an argument. Because of
+        %  this, any properties that need to be explicitly copied must be
+        %  copied within this classes "copy-constructor".
         pix_copy = PixelData(obj);
     end
 
