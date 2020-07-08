@@ -2,10 +2,6 @@ classdef ClusterWrapper
     % The class-wrapper containing common code for any Matlab cluster,
     % and job progress logging operations supported by Herbert
     %
-    %
-    %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-    %
     %----------------------------------------------------------------------
     properties(Dependent)   %
         % The string, providing unique identifier(name) for the job and cluster.
@@ -359,6 +355,7 @@ classdef ClusterWrapper
             % by check_progress method
             obj = generate_log_(obj,varargin{:});
         end
+        %
         function obj = set_cluster_config_(obj,val)
             if ~strcmpi(val,obj.cluster_config_)
                 warning('CLUSTER_WRAPPER:invalid_argument',...
@@ -367,7 +364,7 @@ classdef ClusterWrapper
             end
             
         end
-        
+        %
         function obj = set_cluster_status(obj,mess)
             % protected set status function, necessary to be able to
             % overload set.status method.
@@ -386,6 +383,7 @@ classdef ClusterWrapper
             end
             
         end
+        %
         function ex = exit_worker_when_job_ends_(obj)
             % function defines desired completion of the workers.
             % should be true for java-controlled worker and false for parallel
