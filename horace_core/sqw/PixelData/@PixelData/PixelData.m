@@ -431,7 +431,7 @@ methods
         % and clear the current cache
         %  This function does nothing if pixels are not file-backed
         %
-        if obj.is_file_backed_()
+        if obj.is_file_backed_() && obj.page_number_ ~= 1
             if obj.page_is_dirty_(obj.page_number_)
                 obj.write_dirty_page_();
             end
