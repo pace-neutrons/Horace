@@ -22,8 +22,5 @@
 
 - test_gen_sqw_workflow:
 
-   - test_gen_sqw_accumulate_sqw_herbert: 
+   - test_gen_sqw_accumulate_sqw_herbert:  % Extreamly slow? May be need further testing on how often it actually fails (not at all locally)
         Disabled combine_job using file-based exchange on Jenkins: due to random failures write_nsqw2_sqw
-   - test_gen_sqw_accumulate_sqw_parpool:   
-        Disabled combine_job using MPI exchange on Jenkins Windows: due to random failures write_nsqw2_sqw,(random failure) 
-          
