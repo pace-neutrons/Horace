@@ -20,7 +20,8 @@ if use_mex
         if isempty(w.data.pix)
             return;
         end
-        [wout.data.s,wout.data.e]=recompute_bin_data_c(w.data.npix,w.data.pix.data,n_threads);
+        [wout.data.s, wout.data.e] = recompute_bin_data_c(....
+                w.data.npix, w.data.pix.data, n_threads);
     catch ME
         use_mex = false;
         if log_level>0
