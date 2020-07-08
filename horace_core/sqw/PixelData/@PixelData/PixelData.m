@@ -273,6 +273,7 @@ methods
         obj.data_ = arg;
     end
 
+    % --- Operator overrides ---
     function delete(obj)
         % Class destructor to delete any temporary files
         if ~isempty(obj.tmp_io_handler_)
@@ -313,6 +314,10 @@ methods
         nel = obj.PIXEL_BLOCK_COLS_*obj.num_pixels;
     end
 
+    % --- Pixel operations ---
+    [mean_signal, mean_variance] = compute_bin_data(obj, npix)
+
+    % --- Data management ---
     function data = get_data(obj, fields, pix_indices)
         % Retrive data for a field, or fields, for the given pixel indices in
         % the current page. If no pixel indices are given, all pixels in the
