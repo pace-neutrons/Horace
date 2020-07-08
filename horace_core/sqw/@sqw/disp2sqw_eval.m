@@ -15,7 +15,7 @@ function wout=disp2sqw_eval(win,dispreln,pars,fwhh,opt)
 %               where
 %                   qh,qk,ql    Arrays containing the coordinates of a set of points
 %                              in reciprocal lattice units
-%                   p           Vector of parameters needed by dispersion function 
+%                   p           Vector of parameters needed by dispersion function
 %                              e.g. [A,js,gam] as intensity, exchange, lifetime
 %                   w           Array of corresponding energies, or, if more than
 %                              one dispersion relation, a cell array of arrays.
@@ -25,7 +25,7 @@ function wout=disp2sqw_eval(win,dispreln,pars,fwhh,opt)
 %              More general form is:
 %                   [w,s] = dispreln (qh,qk,ql,p,c1,c2,..)
 %                 where
-%                   p           Typically a vector of parameters that we might want 
+%                   p           Typically a vector of parameters that we might want
 %                              to fit in a least-squares algorithm
 %                   c1,c2,...   Other constant parameters e.g. file name for look-up
 %                              table.
@@ -39,7 +39,7 @@ function wout=disp2sqw_eval(win,dispreln,pars,fwhh,opt)
 %   fwhh       Parametrizes the resolution function. There are three
 %              possible input values of fwhh:
 %
-%       double              A single FWHM value determines the FWHM of the 
+%       double              A single FWHM value determines the FWHM of the
 %                           Gaussian resolution function
 %       function_handle     A function that produces the FWHM value as a
 %                           function of energy transfer, it has to have the
@@ -71,7 +71,7 @@ function wout=disp2sqw_eval(win,dispreln,pars,fwhh,opt)
 %
 % Output:
 % -------
-%   wout        Output dataset or array of datasets 
+%   wout        Output dataset or array of datasets
 
 
 % Check optional argument
@@ -86,8 +86,8 @@ if exist('opt','var')  % no option given
         error('Unrecognised option')
     end
 end
-    
-wout = win;
+
+wout = copy(win);
 if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
 
 for i=1:numel(win)

@@ -32,5 +32,3 @@ function wout=correct_mag_ff(self,win)
 sqw_magFF = self.calc_mag_ff(win);
 %
 wout=mrdivide(win,sqw_magFF);
-
-

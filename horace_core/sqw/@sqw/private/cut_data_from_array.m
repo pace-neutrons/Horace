@@ -75,7 +75,7 @@ cut_pix_data = PixelData(npix_read);
 ibeg = cumsum([1;range(1:end-1)]);
 iend = cumsum(range);
 for i=1:length(range)
-    cut_pix_data.data(:,ibeg(i):iend(i)) = pix_in.data(:,nstart(i):nend(i));
+    cut_pix_data.data(:,ibeg(i):iend(i)) = pix_in.get_pixels(nstart(i):nend(i)).data;
 end
 if hor_log_level>=1, t_read = bigtoc(1); end
 if hor_log_level>=2

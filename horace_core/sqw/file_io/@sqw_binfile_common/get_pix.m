@@ -10,6 +10,10 @@ if ischar(obj.num_contrib_files)
         'get_pix method called from un-initialized loader')
 end
 
+if ~obj.is_activated('read')
+    obj = obj.activate('read');
+end
+
 npix_tot = obj.npixels;
 if isempty(npix_tot) % dnd object
     pix = PixelData();
@@ -55,7 +59,7 @@ if res ~= 0
 end
 
 if size>0
-    pix = PixelData(fread(obj.file_id_,[9,size],'float32'));
+    pix = fread(obj.file_id_,[9,size],'float32');
     [mess,res] = ferror(obj.file_id_);
     if res ~= 0
         error('SQW_BINFILE_COMMON:io_error',...
@@ -63,5 +67,5 @@ if size>0
     end
 else
     % *** T.G.Perring 5 Sep 2018: allow for size=0
-    pix = PixelData();
+    pix = [];
 end
