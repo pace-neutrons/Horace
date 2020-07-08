@@ -64,7 +64,7 @@ classdef herbert_config<config_base
         % these values provide defaults for the properties above
         use_mex_              = false;
         force_mex_if_use_mex_ = false;
-        log_level_            = 0;
+        log_level_            = 1;
         init_tests_           = false;
     end
     methods

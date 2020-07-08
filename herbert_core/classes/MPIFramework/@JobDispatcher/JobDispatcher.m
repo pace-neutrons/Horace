@@ -51,31 +51,31 @@ classdef JobDispatcher
         % shared file system and all file-based messages, related to
         % controlling this job a distributed through this folder.
         job_id
-
+        
         % the instance of the file-based messages framework used for
         % exchange between logon node and the cluster. Used for providing
         % initialization information for the job, receiving log messages
         % from node-1 and returning some calculations results
         mess_framework;
-
+        
         % Exposes read access to parallel cluster, instance of a
         % <a href="matlab:help('ClusterWrapper');">ClusterWrapper</a> class
         % to run a parallel job.
         cluster
-
+        
         % True if jobDispatcher already controls a cluster
         % so the next job can be executed on existing cluster
         % rather then after starting a new one. False if the cluster is not
         % running and needs to start-up.
         is_initialized
         % -----------------------------------------------------------------
-
+        
         % how often (in second) job dispatcher should query the task status
         task_check_time;
-
+        
         %number of times to try action until deciding the action have failed
         fail_limit
-
+        
         % time interval to wait until job which do not send any messages
         % from the cluster is considered failed (and should be terminated)
         time_to_fail
@@ -92,7 +92,7 @@ classdef JobDispatcher
         mess_framework_;
         %
         time_to_fail_  = 300; %300sec, 5 min
-
+        
         % holder for initiated cluster allowing to resubmit jobs
         cluster_ = [];
         % the holder for the object performing job clean-up operations
@@ -149,6 +149,12 @@ classdef JobDispatcher
             %                   some results
             % number_of_workers -- number of Matlab sessions to
             %                    process the tasks
+            % return_results  --if true, job expected to return the results
+            %                   of calculations i.e. the contents assigned
+            %                   to
+            %                   JobExecutor.task_outputs
+            %                   field
+            %
             %
             % Optional:
             % keep_workers_running -- true if workers should not finish
@@ -187,7 +193,7 @@ classdef JobDispatcher
             % Usage:
             % [n_failed,outputs,task_ids,this] = ...
             %     this.restart_job(this,job_class_name,common_params,loop_params,...
-            %    ,[job_query_time]])
+            %    ,[keep_workers_running,[job_query_time]])
             %
             %Where:
             % job_class_name -- name of the class - child of jobExecutor,
@@ -199,6 +205,12 @@ classdef JobDispatcher
             %                   or the number of iterations to do over
             %                   common_params (which may depend on the
             %                   iteration number)
+            % return_results  --if true, job expected to return the results
+            %                   of calculations i.e. the contents assigned
+            %                   to
+            %                   JobExecutor.task_outputs
+            %                   field
+            %
             %
             % Optional:
             % keep_workers_running -- true if workers should not finish
@@ -209,10 +221,11 @@ classdef JobDispatcher
             %                    check if tasks are completed. By default,
             %                    check every 4 seconds
             %
-            % Returns
-            % n_failed  -- number of tasks that have failed.
+            % Returns:
             % outputs   -- cellarray of outputs from each task.
             %              Empty if tasks do not return anything
+            % n_failed  -- number of tasks that have failed.
+            %
             % task_ids   -- cellarray containing relation between task_id
             %              (task number) and task parameters from
             %               tasks_param_list, assigned to this task
@@ -241,7 +254,7 @@ classdef JobDispatcher
             end
             this.task_check_time_ =val;
             this = reset_fail_limit_(this,this.time_to_fail/val);
-
+            
         end
         %
         function time = get.time_to_fail(this)
@@ -255,7 +268,7 @@ classdef JobDispatcher
             this.time_to_fail_ =val;
             this = reset_fail_limit_(this,val/this.task_check_time);
         end
-
+        
         function mf = get.mess_framework(obj)
             % return class, used to communicate with the cluster
             mf = obj.mess_framework_;
@@ -267,7 +280,7 @@ classdef JobDispatcher
         function is = get.is_initialized(obj)
             % Return true if job dispatcher is initialized i.e. controls
             % a parallel cluster
-
+            
             is = ~isempty(obj.cluster_);
         end
         function cl = get.cluster(obj)
@@ -286,7 +299,7 @@ classdef JobDispatcher
             obj.job_destroyer_ = [];
         end
         %
-        function display_fail_job_results(obj,outputs,n_failed,n_workers,Err_code)
+        function display_fail_job_results(obj,outputs,n_failed,n_workers,varargin)
             % Display job results if the job have failed.
             % Auxiliary method.
             %
@@ -297,17 +310,24 @@ classdef JobDispatcher
             %             job
             % n_workers-- number of labs used by parallel job initially
             %
+            % if present:
             % Err_code -- the text string in the form
             %             ERROR_CLASS:error_reason to form identifier of
-            %             the exception to throw
+            %             the exception to throw.
+            %             If this parameter is missing, method throws nothing.
             % Throws:
             % First exception returned from the cluster if such exceptions
             % are present or exception with Err_code as MExeption.identifier
             % if no errors returned
             %
+            if nargin<5
+                Err_code = [];
+            else
+                Err_code = varargin{1};
+            end
             display_fail_jobs_(obj,outputs,n_failed,n_workers,Err_code);
         end
-
+        
     end
     methods(Static)
         function [task_id_list,init_mess]=split_tasks(common_par,loop_par,return_outputs,n_workers)
@@ -336,7 +356,7 @@ classdef JobDispatcher
             %                  initialization information for workers
             [task_id_list,init_mess]=split_tasks_(common_par,loop_par,return_outputs,n_workers);
         end
-
+        
     end
 end
 

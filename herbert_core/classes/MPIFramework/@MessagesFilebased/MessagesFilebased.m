@@ -5,21 +5,15 @@ classdef MessagesFilebased < iMessagesFramework
     % The framework's functionality is similar to parfor
     % but does not required parallel toolbox and works by starting
     % separate Matlab sessions to do separate tasks.
+    %
     % Works in conjunction with worker function from admin folder,
     % The worker has to be placed on Matlab search path
     % defined before Herbert is initiated
     %
-    %
     % This class provides physical mechanism to exchange messages between tasks.
     %
     %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-    %
-    %
     properties(Dependent)
-        % Time in seconds a system waits for blocking message until
-        % returning "not-received"
-        time_to_fail;
         % The folder located on a parallel file system and used for storing
         % initial job info and message exchange between tasks if job uses
         % filebased messages.
@@ -34,23 +28,26 @@ classdef MessagesFilebased < iMessagesFramework
     %----------------------------------------------------------------------
     %----------------------------------------------------------------------
     properties(Access=protected)
-        % time to wait before checking for next blocking message if
-        % previous attempt have not find it.
-        time_to_react_ = 1; % (sec)
-        %
         % equivalent to labNum in MPI
         task_id_ = 0;
         %
         numLabs_ = 1;
         %
         mess_exchange_folder_ = '';
-        % if true, enable debug printout
-        DEBUG_ = false;
+        % true if framework is tested, i.e. running on single session, not
+        % really communicating with with independent workers.
+        is_tested_ = false;
+        
+        % the buffer to count send and receive data messages, Used to keep
+        % information about number of synchronous data messages send and
+        % received.
+        send_data_messages_count_;
+        receive_data_messages_count_;
     end
     %----------------------------------------------------------------------
     methods
         %
-        function jd = MessagesFilebased(varargin)
+        function mf = MessagesFilebased(varargin)
             % Initialize Messages framework for particular job
             % If provided with parameters, the first parameter should be
             % the sting-prefix of the job control files, used to
@@ -65,9 +62,10 @@ classdef MessagesFilebased < iMessagesFramework
             % the filename specified as input.
             %
             % Initialise folder path
-            jd = jd@iMessagesFramework();
+            mf = mf@iMessagesFramework();
+            mf.interrupt_chan_name_ = MESS_NAMES.interrupt_channel_name;
             if nargin>0
-                jd = jd.init_framework(varargin{:});
+                mf = mf.init_framework(varargin{:});
             end
             
         end
@@ -78,6 +76,7 @@ classdef MessagesFilebased < iMessagesFramework
             % using control structure initialize operational message
             % framework
             obj = init_framework_(obj,framework_info);
+            %obj.time_to_react_ = 1;
         end
         %
         function folder = get.mess_exchange_folder(obj)
@@ -93,6 +92,9 @@ classdef MessagesFilebased < iMessagesFramework
             % is an MPI-based framework
             obj.task_id_ = labNum;
             obj.numLabs_ = NumLabs;
+            obj.send_data_messages_count_ = ones(1,NumLabs+1);
+            obj.receive_data_messages_count_ = ones(1,NumLabs+1);
+            
         end
         %
         function set.mess_exchange_folder(obj,val)
@@ -107,7 +109,7 @@ classdef MessagesFilebased < iMessagesFramework
             end
             
             if isempty(obj.mess_exchange_folder)
-                obj=construct_me_folder_(obj,val);
+                construct_me_folder_(obj,val);
                 return;
             end
             
@@ -118,7 +120,7 @@ classdef MessagesFilebased < iMessagesFramework
             if exist(obj.mess_exchange_folder,'dir') == 7
                 rmdir(obj.mess_exchange_folder,'s');
             end
-            obj=construct_me_folder_(obj,val);
+            construct_me_folder_(obj,val);
             
         end
         %------------------------------------------------------------------
@@ -136,31 +138,17 @@ classdef MessagesFilebased < iMessagesFramework
             % >>    task with id==1. (not received)
             % >>    if false, error_mess indicates reason for failure
             %
+            %
             [ok,err_mess,wlock_obj] = send_message_(obj,task_id,message);
         end
         %
-        function [ok,err_mess,message] = receive_message(obj,varargin)
-            % receive message from a task with specified task_id
-            % Blocking until the message is received.
-            %
-            %Usage
-            % >>[ok,err_mess,message] = mf.receive_message([from_task_id,mess_name])
-            % >>ok  if true, says that message have been successfully
-            %       received from task with from_task_id.
-            % >>   if false, error_mess indicates reason for failure
-            % >>   on success, message contains an object of class aMessage,
-            %      with message contents
-            %
-            [ok,err_mess,message] = receive_message_(obj,varargin{:});
-        end
         %
-        %
-        function [all_messages_names,task_ids] = probe_all(obj,varargin)
+        function [all_messages_names,task_ids] = probe_all(obj,task_ids_in,mess_name)
             % list all messages existing in the system with id-s specified as input
             % and intended for this task
             %
             %Usage:
-            %>> [mess_names,task_ids] = obj.probe_all([task_ids],[{mess_name,mess_tag}]);
+            %>> [mess_names,task_ids] = obj.probe_all(task_ids,[mess_name|mess_tag]);
             %Where:
             % task_ids -- array of task id-s to check messages for or all
             %             messages if this is empty
@@ -175,94 +163,76 @@ classdef MessagesFilebased < iMessagesFramework
             % if no messages are present in the system
             % all_messages_names and task_ids are empty
             %
-            [all_messages_names,task_ids] = list_all_messages_(obj,varargin{:});
+            % Always return Inerrtupt message if any is present
+            %
+            if nargin<2
+                task_ids_in = 'all';
+            end
+            if nargin<3
+                mess_name = 'any';
+            end
+            if isempty(mess_name)
+                mess_name = 'any';
+            end
+            
+            if ((ischar(mess_name) && ~strcmp(mess_name,'any')) || ...
+                    (isnumeric(mess_name) && mess_name ~=-1))
+                % performance boosting operation, especially important for
+                % Windows, as dir locks message files there.
+                [all_messages_names,task_ids] = list_specific_messages_(obj,task_ids_in,mess_name);
+            else % any message
+                [all_messages_names,task_ids] = list_all_messages_(obj,task_ids_in,mess_name);
+            end
+            [mess,id_from] = obj.get_interrupt(task_ids_in);
+            %mix received messages names with old interrupt names received earlier
+            if ~isempty(mess)
+                if ~iscell(mess); mess = {mess}; end
+                int_names = cellfun(@(x)(x.mess_name),mess,'UniformOutput',false);
+                [all_messages_names,task_ids] = ...
+                    obj.mix_messages(all_messages_names,task_ids,int_names,id_from);
+            end
         end
         %
-        function [all_messages,task_ids] = receive_all(obj,varargin)
-            % retrieve (and remove from system) all messages
-            % existing in the system for the tasks with id-s specified as input
-            % Blocks execution until the all requested messages are received
-            % if the message names are provided and unblocking if they are
-            % absent
-            %
-            %Input:
-            %task_ids -- array of task id-s to check messages for
-            %Return:
-            % all_messages -- cellarray of messages for the tasks requested and
-            %                 have messages available in the system .
-            % task_ids     -- array of task id-s for these messages
-            % mess_name    -- if present, receive only the messages with
-            %                 the name provided
-            %
-            %
-            [all_messages,task_ids] = receive_all_messages_(obj,varargin{:});
-        end
         %
         function finalize_all(obj)
             % delete all messages belonging to this instance of messages
             % framework and delete the framework itself
             obj.persistent_fail_message_ = [];
-            
             delete_job_(obj);
         end
+        %
         function clear_messages(obj)
             % Clear all messages directed to this lab.
-            obj.persistent_fail_message_ = [];
-            %
-            finished = false;
-            pause(0.5); % give time to complete possible IO operations
-            while ~finished
-                try
-                    [all_messages,mid_from] = list_all_messages_(obj);
-                catch ME
-                    if strcmp(ME.identifier,'MESSAGE_FRAMEWORK:canceled')
-                        return;
-                    else
-                        rethrow(ME);
-                    end
-                end
-                if isempty(all_messages)
-                    finished = true;
-                    continue;
-                end
-                
-                for i=1:numel(mid_from) % delete messages files
-                    mess_fname = obj.job_stat_fname_(obj.labIndex,all_messages{i},mid_from(i));
-                    delete(mess_fname);
-                end
-            end
+            clear_all_messages_(obj);
         end
         %
         function [ok,err]=labBarrier(obj,nothrow)
             if ~exist('nothrow','var')
                 nothrow = false;
             end
+            if obj.is_tested % no blocking in testing mode
+                ok = true;
+                err = [];
+                return;
+            end
             [ok,err]=wait_at_barrier_(obj,nothrow);
-        end
-        
-        
-        function set.time_to_fail(obj,val)
-            obj.time_to_fail_ = val;
-        end
-        function val = get.time_to_fail(obj)
-            val = obj.time_to_fail_ ;
         end
         %
         function is = is_job_canceled(obj)
             % method verifies if job has been canceled
             is = ~exist(obj.mess_exchange_folder_,'dir') || ...
-                ~isempty(obj.probe_all('any','canceled'));
+                ~isempty(obj.probe_all('all','canceled'));
         end
         %------------------------------------------------------------------
         % Filebased framework specific properties:
         %
-        function fn = mess_file_name(obj,task_id,mess_name)
+        function fn = mess_file_name(obj,lab_to,mess_name,varargin)
             % Generates the name of the messages file.
             %
             % Inputs:
             % mess_name -- the string-name of the message, written to the
             %              file system
-            % task_id -- is the id (number) of the task this message should
+            % lab_to   -- is the id (number) of the task this message should
             % be send
             %
             % Returns:
@@ -273,25 +243,51 @@ classdef MessagesFilebased < iMessagesFramework
             % Used mainly for debugging purposes to see how messages
             % are propagated
             %
-            if ~isnumeric(task_id)
+            if ~isnumeric(lab_to)
                 error('MESSAGES_FILEBASED:invalid_argument',...
                     'first message_name argument should be the target task number');
             end
-            fn = obj.job_stat_fname_(task_id,mess_name);
+            fn = obj.job_stat_fname_(lab_to,mess_name,varargin{:});
+        end
+        %
+        function set_is_tested(obj,is_tested)
+            % method, used in tests to set is_tested mode to framework.
+            % In test mode, barrier operation is disabled
+            %
+            % Inputs:
+            % is_tested  logical value, setting test mode on (true) or off
+            %            (false)
+            %
+            %
+            obj.is_tested_ = logical(is_tested);
         end
     end
     %----------------------------------------------------------------------
     methods (Access=protected)
-        function mess_fname = job_stat_fname_(obj,lab_to,mess_name,lab_from)
+        function mess_fname = job_stat_fname_(obj,lab_to,mess_name,lab_from,varargin)
             %build filename for a specific message
+            % Inputs:
+            % lab_to    -- the address of the lab to send message to.
+            % mess_name -- the name of the message to send
+            % lab_from  -- if present, the number of the lab to send
+            %              message from, if not there, from this lab
+            %              assumed
+            % sender     -- make sence for data messages only, as they
+            %               have to be numbered, and each send must meet
+            %               its receiver.
+            %               if true, defines data message name for sender.
+            %               false - for received.
             if ~exist('lab_from','var')
                 lab_from = obj.labIndex;
             end
-            mess_fname= fullfile(obj.mess_exchange_folder,...
-                sprintf('mess_%s_FromN%d_ToN%d.mat',...
-                mess_name,lab_from,lab_to));
-            
+            if nargin < 5
+                is_sender = true;
+            else
+                is_sender = varargin{1};
+            end
+            mess_fname = MessagesFilebased.mess_fname_(obj,lab_to,mess_name,lab_from,is_sender);
         end
+        %
         %
         function obj = set_job_id_(obj,new_job_id)
             %
@@ -317,6 +313,7 @@ classdef MessagesFilebased < iMessagesFramework
                     'MPI job id has to be a string');
             end
         end
+        %
         function [top_exchange_folder,mess_subfolder] = build_exchange_folder_name(obj,top_exchange_folder )
             % build the name of the folder used to exchange messages
             % between the base node and the MPI framework and, if
@@ -326,15 +323,112 @@ classdef MessagesFilebased < iMessagesFramework
             end
             [top_exchange_folder,mess_subfolder] = constr_exchange_folder_name_(obj,top_exchange_folder);
         end
-        
+        %
         function ind = get_lab_index_(obj)
             ind = obj.task_id_;
         end
         function ind = get_num_labs_(obj)
             ind = obj.numLabs_;
         end
+        function is = get_is_tested(obj)
+            % return true if the framework is tested (Running on single
+            % Matlab session)
+            is = obj.is_tested_;
+        end
+        %
+        function [ok,err_mess,message] = receive_message_internal(obj,...
+                from_task_id,mess_name,is_blocking)
+            % receive message from a task with specified id.
+            %
+            % Blocking  or unblocking behavior depends on requested message
+            % type or can be requested explicitly.
+            %
+            % If the requested message type is blocking, blocks until the
+            % message is available
+            % if it is unblocking, return empty message if appropriate message
+            % is not present in system
+            %
+            % Asking a server for a message synchroneously, may block a
+            % client if other type of message has been send by server.
+            % Exception is FailureMessage, which, if send, will be received
+            % in any circumstances.
+            %
+            %
+            % Usage:
+            % >>mf = MessagesFramework();
+            % >>[ok,err_mess,message] = mf.receive_message(id,mess_name, ...
+            %                           ['-synchronous'|'-asynchronous'])
+            % or:
+            % >>[ok,err_mess,message] = mf.receive_message(id,'any', ...
+            %                           ['-synchronous'|'-synchronous'])
+            % or
+            % >>[ok,err_mess,message] = mf.receive_message(id, ...
+            %                           ['-synchronous'|'-synchronous'])
+            % which is equivalent to mf.receive_message(id,'any',___)
+            
+            %
+            % Inputs:
+            % id        - the address of the lab to receive message from
+            % mess_name - name/tag of the message to receive.
+            %             'any' means any tag.
+            % Optional:
+            % ['-s[ynchronous]'|'-a[synchronous]'] -- override default message
+            %              receiving rules and receive the message
+            %              block program execution if '-synchronous' keyword
+            %              is provided, or continue execution if message has
+            %              not been send ('-asynchronous' mode).
+            %
+            %Returns:
+            %
+            % >>ok  if MESS_CODES.ok, message have been successfully
+            %       received from task with the specified id.
+            % >>    if not, error_mess and error code indicates reasons for
+            %       failure.
+            % >> on success, message contains an object of class aMessage,
+            %        with the received message contents.
+            %
+            %
+            [ok,err_mess,message] = receive_message_(obj,from_task_id,mess_name,is_blocking);
+        end
+    end
+    methods(Static,Access=protected)
+        function mess_fname = mess_fname_(obj,lab_to,mess_name,lab_from,is_sender)
+            % Build filename for a specific message.
+            % Inputs:
+            % lab_to    -- the address of the lab to send message to.
+            % mess_name -- the name of the message to send
+            % lab_from  -- if present, the number of the lab to send
+            %              message from, if not there, from this lab
+            %              assumed
+            % is_sender     -- make sence for data messages only (blocking messages)
+            %               , as they  have to be numbered, and each send
+            %               must meet its receiver without overtaking.
+            %
+            %               if true, defines data message name for sender.
+            %               false - for received.
+            % Returns
+            if strcmp(mess_name,obj.interrupt_chan_name_)
+                is_blocking = false;
+            else
+                is_blocking = MESS_NAMES.is_blocking(mess_name);
+            end
+            if is_blocking
+                if is_sender
+                    mess_num = obj.send_data_messages_count_(lab_to+1);
+                else %receiving
+                    mess_num = obj.receive_data_messages_count_(lab_from+1);
+                end
+                mess_fname = fullfile(obj.mess_exchange_folder,...
+                    sprintf('mess_%s_FromN%d_ToN%d_MN%d.mat',...
+                    mess_name,lab_from,lab_to,mess_num));
+            else
+                mess_fname= fullfile(obj.mess_exchange_folder,...
+                    sprintf('mess_%s_FromN%d_ToN%d.mat',...
+                    mess_name,lab_from,lab_to));
+            end
+            
+        end
+        
         
     end
 end
-
-

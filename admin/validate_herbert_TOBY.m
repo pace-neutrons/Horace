@@ -9,10 +9,10 @@ function err=validate_herbert(varargin)
 %
 % '-parallel'   Enables parallel execution of unit tests if the parallel
 %              computer toolbox is available. Needs large memory as some
-%              tests satart its own version of parallel computing toolbox.
+%              tests start its own version of parallel computing toolbox.
 %
 % '-talkative' prints output of the tests and
-%              varioud herbert log messages (log_level  in configurations
+%              various herbert log messages (log_level  in configurations
 %              is set to default, not quiet as default)
 %
 % '-exit_on_completeon'  exit Matlab when the tests are completed.

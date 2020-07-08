@@ -2,13 +2,12 @@ function obj = init_workers_(obj,je_init_message,task_init_mess,log_prefix)
 % send initialization information to each worker in the cluster and receive
 % response informing that the job has started
 %
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-%
+
 
 
 me = obj.mess_exchange_;
 n_workers = obj.n_workers;
+me = me.set_framework_range(0,n_workers);
 % clear up interactive pool if exist as this method will start
 % batch job.
 %
