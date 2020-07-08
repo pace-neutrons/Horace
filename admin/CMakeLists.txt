@@ -32,15 +32,13 @@ string(REGEX REPLACE
     "${_herbert_on_template}"
 )
 file(WRITE "${LOCAL_INIT_DIR}/herbert_on.m" "${_herbert_on_script}")
-#
+
+# Copy Horace worker templates
 if(${BUILD_TESTS})
     configure_file("worker_4tests.m.template" "${LOCAL_INIT_DIR}/worker_4tests.m")
 endif()
 configure_file("worker_v2.m.template" "${LOCAL_INIT_DIR}/worker_v2.m")
 
-
-# Copy Herbert's worker template
-#configure_file("${Herbert_WORKER_TEMPLATE}" "${LOCAL_INIT_DIR}/worker_v2.m")
 
 # A warning to add to the top of CMake generated files to warn users
 set(Horace_AUTO_GENERATED_FILE_WARNING
