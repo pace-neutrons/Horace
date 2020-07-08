@@ -33,7 +33,7 @@ function wout = section (win,varargin)
 
 % Trivial case of no section arguments
 if nargin==1
-    wout = win;
+    wout = copy(win);
     return
 end
 
@@ -55,7 +55,7 @@ if nargs~=ndim
 end
 
 % Initialise output argument
-wout = win;
+wout = copy(win);
 
 tol=4*eps('single');    % acceptable tolerance: bin centres deemed contained in new boundaries
 

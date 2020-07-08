@@ -173,7 +173,6 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             %
             %   >> data = obj.get_sqw_data()
             %   >> data = obj.get_sqw_data(opt)
-            %   >> data = obj.get_sqw_data(npix_lo, npix_hi)
             %
             % Input:
             % ------
@@ -191,14 +190,9 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             %
             %               Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
             %
-            %   npix_lo     -|- [optional] pixel number range to be read from the file (only applies to type 'a')
-            %   npix_hi     -|
-            %
-
-            %
             % Output:
             % -------
-
+            %
             %   data        Output data structure actually read from the file. Will be one of:
             %                   type 'h'    fields: fields: uoffset,...,dax[,urange]
             %                   type 'b'    fields: filename,...,dax,s,e

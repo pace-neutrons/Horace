@@ -30,7 +30,7 @@ if numel(win)~=1
 end
 
 % Initialise output argument
-wout = win;
+wout = copy(win);
 % Trivial case of empty or no mask arguments
 if nargin==1 || isempty(runno)
     return

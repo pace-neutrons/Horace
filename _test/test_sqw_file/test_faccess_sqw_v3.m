@@ -110,18 +110,15 @@ classdef test_faccess_sqw_v3< TestCase
             assertTrue(isa(data_dnd,'data_sqw_dnd'));
             assertEqual(data_dnd.filename,'test_sqw_file_read_write_v3.sqw');
 
-            data = to.get_data('-ver',1,20);
+            data = to.get_data('-ver');
             assertEqual(data.filename,data_dnd.filename)
             assertEqual(data.filepath,data_dnd.filepath)
-            assertEqual(size(data.pix),[9,20]);
+            assertTrue(isa(data.pix, 'PixelData'));
+            assertEqual(data.pix.file_path, obj.sample_file);
+            assertEqual(data.pix.num_pixels, 7680);
 
-            pix = to.get_pix(1,20);
-            assertEqual(data.pix.data,pix.data);
-        end
-        %
-        function test_get_pix_returns_a_PixelData_object(obj)
-            to = faccess_sqw_v3(obj.sample_file);
-            assertTrue(isa(to.get_pix(1, 20), 'PixelData'))
+            raw_pix = to.get_pix(1,20);
+            assertEqual(data.pix.get_pixels(1:20).data, raw_pix);
         end
         %
         function obj = test_get_inst_or_sample(obj)

@@ -71,7 +71,7 @@ function wout=resol_conv_tobyfit_mc(win,sqwfunc,pars,mc_contrib,mc_npoints,xtal,
 %   yvec(10,...):  z_d      z-coordinate of point of detection in detector frame
 %   yvec(11,...):  t_d      deviation in detection time of neutron
 
-wout = win;
+wout = copy(win);
 if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
 
 % Unpack lookup tables and other pre-computed parameters
