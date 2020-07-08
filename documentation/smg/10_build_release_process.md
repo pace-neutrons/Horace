@@ -66,7 +66,7 @@ To achieve this, two additional symbolic links are available in  `/usr/local/mpr
 
 To switch user to these branches, one issues `herbert_on(/usr/local/mprogs/Herbert_bugfix/herbert_core)` and `horace_on(/usr/local/mprogs/Horace_bugfix/horace_core)` command.
 
-If parallel execution is necessary, the support needs to do similar changes in worker_4tests script available in the **User** folder above. herbert_on/horace_on commands within this script should be modifued to point to the bugfix code. The parallel config worker field should then assigned `worker_4tests` value. The default value of this field is worker_v2 where default Horace/Herbert code base is initialized.
+If parallel execution is necessary, the support needs to do similar changes in worker_4tests script available in the **User** folder above. `herbert_on/horace_on` commands within this script should be modifued to point to the bugfix code. The parallel config worker field should then assigned `worker_4tests` value. The default value of this field is worker_v2 where default Horace/Herbert code base is initialized.
 
 
 Patch releases will be made to release branches to resolve specific bugs identified. These should be tested and built through the same build pipeline as the initial production releases.
