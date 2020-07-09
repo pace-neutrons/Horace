@@ -3,9 +3,6 @@ classdef ClusterParpoolWrapper < ClusterWrapper
     % job submission/execution routines providing the same interface as Herbert
     % custom parallel classes.
     %
-    %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-    %
     %----------------------------------------------------------------------
     properties(Access = protected)
         cluster_ =[];
@@ -191,13 +188,27 @@ classdef ClusterParpoolWrapper < ClusterWrapper
                             [completed, obj] = check_progress@ClusterWrapper(obj);
                         end
                         if isempty(obj.current_status_) || ~strcmpi(obj.current_status_.mess_name,'completed')
-                            if ~completed
-                                completed = true;
-                                fm = FailedMessage('Cluster reports job completed but results have not been returned to host');
+                            % has Matlab MPI job been completed before status message has
+                            % been delivered?
+                            mess = obj.mess_exchange_.probe_all(1,'completed');
+                            if isempty(mess)
+                                if ~completed
+                                    completed = true;
+                                    fm = FailedMessage('Cluster reports job completed but results have not been returned to host');
+                                else
+                                    fm = FailedMessage('Cluster reports job completed but the final completed message has not been received');
+                                end
+                                obj.current_status_  = fm;
                             else
-                                fm = FailedMessage('Cluster reports job completed but the final completed message has not been received');
+                                completed = true;
+                                [ok,err,mess] = obj.mess_exchange_.receive_message(1,mess{1},'-synch');
+                                if ok ~= MESS_CODES.ok
+                                    error('CLUSTER_WRAPPER:runtime_error',...
+                                        'Error %s receiving existing message: %s from job %s',...
+                                        err,mess{1},obj.job_id);
+                                end
+                                obj.status= mess;
                             end
-                            obj.current_status_  = fm;
                         end
                     end
                 else
@@ -272,9 +283,5 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             end
             
         end
-        
-        
     end
 end
-
-

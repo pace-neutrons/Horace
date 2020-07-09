@@ -34,7 +34,7 @@ classdef test_MException_her < TestCase
         end
        %
         function test_zero_stack_r(~)
-            % Exception with zero stack does not conain much information.
+            % Exception with zero stack does not contain much information.
             %
             ME = MException('TESTEXC:zero_stack','test zero stack exceptions');
             myExc = MException_her(ME);
@@ -112,7 +112,7 @@ classdef test_MException_her < TestCase
             assertEqual(rep1(ind1:ind1+7)',rep3(1:8)')
             assertEqual(rep2(1:8)',rep3(1:8)')
         end
-        
+        %
         function test_get_report(~)
             % get exception
             try
@@ -127,7 +127,7 @@ classdef test_MException_her < TestCase
             rep_std = getReport(css);
             assertEqual(err_text,rep_std);
         end
-        
+        %
         function test_FailWithMexc(~)
             try
                 mex_Thrower(3)
@@ -141,7 +141,7 @@ classdef test_MException_her < TestCase
             me.payload.error = MException_her(me.payload.error);
             assertEqual(me,mer);
         end
-        
+        %
         function test_aMessageWithStructure(~)
             add_info = struct('bla_bla',1);
             add_info.something = {'1','2';'aa','bb'};

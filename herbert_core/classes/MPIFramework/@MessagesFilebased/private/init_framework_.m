@@ -21,6 +21,9 @@ if isstruct(framework_info) && isfield(framework_info,'job_id')
     if isfield(framework_info,'labID')
         obj = obj.set_framework_range(framework_info.labID,framework_info.numLabs);
     end
+    if isfield(framework_info,'test_mode')
+        obj.is_tested_ = framework_info.test_mode;
+    end
 elseif(is_string(framework_info))
     % Add framework info to the unique framework id to improve user
     % experience
@@ -49,4 +52,11 @@ else % Slave node. Needs correct framework_info for initialization
 end
 
 obj.mess_exchange_folder = job_folder;
+% initialize counter of send/receive synchroneous data messages to 1; 
+% the size of counters buffer is numLabs+1 as we may want to communicate
+% with node 0;
+obj.send_data_messages_count_ = ones(1,obj.numLabs+1);
+obj.receive_data_messages_count_ = ones(1,obj.numLabs+1);
+
+
 

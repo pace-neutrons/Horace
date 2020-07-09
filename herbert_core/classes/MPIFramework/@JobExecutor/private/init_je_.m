@@ -31,7 +31,9 @@ obj.loop_data_     = InitMessage.loop_data;
 obj.return_results_= InitMessage.return_results;
 obj.n_first_iteration_= InitMessage.n_first_step;
 %
-[~,err,obj]=obj.reduce_send_message('started',[],synchronize);
+obj.mess_framework.throw_on_interrupts = false;
+[~,err,obj]=obj.reduce_send_message('started','started',[],synchronize);
+obj.mess_framework.throw_on_interrupts = true;
 
 % initialize loggers for messages frameworks to print debug information 
 if ~isempty(obj.ext_log_fh) && isnumeric(obj.ext_log_fh)

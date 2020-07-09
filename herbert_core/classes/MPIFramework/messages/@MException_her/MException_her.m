@@ -83,7 +83,6 @@ classdef MException_her < MException
                     else
                         rethrow(struct('identifier',input.identifier,...
                         'message',input .message,'stack',input.stack_r));
-                        
                     end
                 else % its already MException
                    rethrow(input);

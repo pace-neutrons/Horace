@@ -140,7 +140,7 @@ while keep_worker_running
         % step 2 of the worker initialization completed. a jobExecutor is
         % initialized and worker knows what to do when it finishes or
         % fails.
-        %% --------------------------------------------------------------------
+        %----------------------------------------------------------------------
         %
         %----------------------------------------------------------------------
         % 3) step 3 of the worker initialization. Initializing the particular

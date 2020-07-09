@@ -5,6 +5,7 @@ classdef MessagesCppMPI < iMessagesFramework
     % The framework's functionality is similar to parfor
     % but does not required parallel toolbox and works by starting
     % separate Matlab sessions to do separate tasks.
+    %
     % Works in conjunction with worker function from admin folder,
     % The worker has to be placed on Matlab search path
     % defined before Herbert is initiated
@@ -13,21 +14,11 @@ classdef MessagesCppMPI < iMessagesFramework
     % This class provides physical mechanism to exchange messages between tasks
     % using MPICH on Unix or MS MPI on Windows.
     %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-    %
-    %
     properties(Dependent)
-        % Time in seconds a system waits for blocking message until
-        % returning "not-received"
-        time_to_fail;
     end
     %----------------------------------------------------------------------
     %----------------------------------------------------------------------
     properties(Access=protected)
-        % time to wait before checking for next blocking message if
-        % previous attempt have not find it.
-        time_to_react_ = 1; % (sec)
-        %
         % equivalent to labNum in MPI, the number of the current running
         % MPI worker
         task_id_ = -1;
@@ -45,7 +36,8 @@ classdef MessagesCppMPI < iMessagesFramework
         % the tag for the data message, used by cpp_communicator to process
         % data messages differently
         data_message_tag_;
-        DEBUG_ = false;
+        % The holder for is_tested property value
+        is_tested_ = true;
     end
     %----------------------------------------------------------------------
     methods
@@ -105,19 +97,48 @@ classdef MessagesCppMPI < iMessagesFramework
             [ok,err_mess] = send_message_(obj,task_id,message);
         end
         %
-        function [ok,err_mess,message] = receive_message(obj,varargin)
-            % receive message from a task with specified task_id
-            % Blocking until the message is received.
+        function [ok,err_mess,message] = receive_message(obj,task_id,varargin)
+            % receive message from a task with specified id.
             %
-            %Usage
-            % >>[ok,err_mess,message] = mf.receive_message([from_task_id,mess_name])
-            % >>ok  if true, says that message have been successfully
-            %       received from task with from_task_id.
-            % >>   if false, error_mess indicates reason for failure
-            % >>   on success, message contains an object of class aMessage,
-            %      with message contents
+            % Blocking  or unblocking behavior depends on requested message
+            % type.
             %
-            [ok,err_mess,message] = receive_message_(obj,varargin{:});
+            % If the requested message type is blocking, blocks until the
+            % message is available
+            % if it is unblocking, return empty message if appropriate message
+            % is not present in system
+            % There is possibility directly ask for blocking or unblocking
+            % behavior.
+            %
+            % Usage:
+            % >>mf = MessagesFramework();
+            % >>[ok,err_mess,message] = mf.receive_message(id,mess_name, ...
+            %                           ['-synchronous'|'-asynchronous'])
+            % or:
+            % >>[ok,err_mess,message] = mf.receive_message(id,'any', ...
+            %                           ['-synchronous'|'-synchronous'])
+            %
+            % Inputs:
+            % id        - the address of the lab to receive message from
+            % mess_name - name/tag of the message to receive.
+            %             'any' means any tag.
+            % Optional:
+            % ['-s[ynchronous]'|'-a[synchronous]'] -- override default message
+            %              receiving rules and receive the message
+            %              block program execution if '-synchronous' keyword
+            %              is provided, or continue execution if message has
+            %              not been send ('-asynchronous' mode).
+            %
+            %Returns:
+            %
+            % >>ok  if MPI_err.ok, message have been successfully
+            %       received from task with the specified id.
+            % >>    if not, error_mess and error code indicates reasons for
+            %       failure.
+            % >> on success, message contains an object of class aMessage,
+            %        with the received message contents.
+            %
+            [ok,err_mess,message] = receive_message_(obj,task_id,varargin{:});
         end
         %
         %
@@ -160,6 +181,13 @@ classdef MessagesCppMPI < iMessagesFramework
             %                 the name provided
             %
             %
+            if nargin>1 && ischar(varargin{1})
+                if strcmp('any',varargin{1})
+                    warning('Outdated receive all interface. Use all instead of any')
+                    varargin{1} = 'all';
+                end
+            end
+            
             [all_messages,task_ids] = receive_all_messages_(obj,varargin{:});
         end
         %
@@ -189,29 +217,30 @@ classdef MessagesCppMPI < iMessagesFramework
             err = [];
         end
         
-        function set.time_to_fail(obj,val)
-            obj.time_to_fail_ = val;
-        end
-        function val = get.time_to_fail(obj)
-            val = obj.time_to_fail_ ;
-        end
-        
         function is = is_job_canceled(obj)
             % method verifies if job has been canceled
-            mess = obj.probe_all('any','canceled');
+            mess = obj.probe_all('all','canceled');
             if ~isempty(mess)
                 is = true;
             else
                 is=false;
             end
         end
+        %
         function delete(obj)
             if ~isempty(obj.mpi_framework_holder_)
                 cpp_communicator('finalize',obj.mpi_framework_holder_);
             end
             obj.mpi_framework_holder_ = [];
         end
-        %   
+        function obj=set_framework_range(obj,labNum,NumLabs)
+            % The function to set numLab and labId describing framework
+            % extend during testing. Will fail if used in production mode.
+            %
+            error('MESSAGES_FRAMEWORK:not_implemented',...
+                'This method has not yet been implemented for MPI framework')
+        end
+        %
     end
     %----------------------------------------------------------------------
     methods (Access=protected)
@@ -231,6 +260,11 @@ classdef MessagesCppMPI < iMessagesFramework
             obj.task_id_ = labNum;
             obj.numLabs_ = numLabs;
         end
+        function is = get_is_tested(obj)
+            % return true if the framework is tested (not real MPI)
+            is = obj.is_tested_;
+        end
+        
     end
 end
 

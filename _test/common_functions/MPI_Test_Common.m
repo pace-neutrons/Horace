@@ -11,40 +11,55 @@ classdef MPI_Test_Common < TestCase
         % available, test should be counted as  passed but ignored.
         % Warning is necessary.
         ignore_test = false;
-        %
-        old_config;
         % current name of the framework to test
-        framework_name ;
+        framework_name;
         % current worker used in tests
         worker='worker_4tests'
     end
     properties(Access=private)
-        current_config_folder;
-        parallel_config_;
         old_parallel_config_;
+        parallel_config_restore_ = '';
     end
     
     methods
         function obj = MPI_Test_Common(name,varargin)
             obj = obj@TestCase(name);
+            persistent old_parallel_config;
+            ni = MPI_Test_Common.num_instances();
+            MPI_Test_Common.num_instances(ni+1);
+
             
             if nargin > 1
                 obj.framework_name = varargin{1};
             else
                 obj.framework_name = 'parpool';
             end
-
-            [pc, obj.old_parallel_config_] = set_local_parallel_config();
+            
+            [pc, opc] = set_local_parallel_config();
+            if isempty(old_parallel_config) || ni == 1
+                old_parallel_config = opc;
+            else
+                opc = old_parallel_config ;
+            end
+            if is_idaaas && ~isempty(which('worker_4tests_idaaas'))
+                warning(' Setting parallel worker to special value: %s',...
+                    which('worker_4tests_idaaas'));
+                pc.worker = 'worker_4tests_idaaas';
+                obj.worker = 'worker_4tests_idaaas';
+            end
+            
+            obj.old_parallel_config_ = opc;
+            obj.parallel_config_restore_ = onCleanup(@()set(parallel_config,opc));
+            
+            
             if strcmpi(pc.parallel_framework,'none')
                 obj.ignore_test = true;
                 warning('MPI_Test_Common:not_available',...
                     'unit test to check parallel framework is not available as framework is not installed properly')
                 return;
             end
-            obj.parallel_config_ = pc;
             %pc.saveable = false;
             obj.working_dir = pc.working_directory;
-            obj.old_config  = pc.get_data_to_store();
             try
                 pc.parallel_framework = obj.framework_name;
                 if strcmpi(pc.parallel_framework,obj.framework_name)
@@ -77,25 +92,42 @@ classdef MPI_Test_Common < TestCase
             end
             
         end
+        %
         function setUp(obj)
             if obj.ignore_test
                 return;
             end
-            pc = obj.parallel_config_;
-            pc.saveable = false;
+            pc = parallel_config;
             pc.parallel_framework = obj.framework_name;
             pc.worker = obj.worker;
         end
+        %
         function tearDown(obj)
             if obj.ignore_test
                 return;
             end
             set(parallel_config,obj.old_parallel_config_);
-            obj.parallel_config_.saveable = true;
         end
         function delete(obj)
+            ni = MPI_Test_Common.num_instances();
+            ni = ni-1;
+            MPI_Test_Common.num_instances(ni);
             obj.tearDown();
         end
+    end
+    methods(Static)
+        function ni = num_instances(set_value)
+            persistent num_instances;            
+            if exist('set_value','var')
+                num_instances = set_value;
+            else
+                if isempty(num_instances)
+                    num_instances = 1;
+                end
+            end
+            ni = num_instances;
+        end
+        
     end
 end
 

@@ -8,7 +8,7 @@ this_id  = obj.labIndex;
 num_labs = obj.numLabs;
 if exist('mess_addr_requested','var')
     if ischar(mess_addr_requested)
-        if strcmpi(mess_addr_requested,'any')
+        if strcmpi(mess_addr_requested,'all')
             mess_addr_requested = 1:num_labs;
         else
             error('MESSAGES_MPI:invalid_argument',...

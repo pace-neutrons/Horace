@@ -1,10 +1,10 @@
-classdef test_job_dispatcher_mpiexec < job_dispatcher_common_tests
+classdef xest_job_dispatcher_mpiexec < job_dispatcher_common_tests
 
     properties
     end
     methods
         %
-        function this=test_job_dispatcher_mpiexec(name)
+        function this=xest_job_dispatcher_mpiexec(name)
             if ~exist('name','var')
                 name = 'test_job_dispatcher_herbert';
             end

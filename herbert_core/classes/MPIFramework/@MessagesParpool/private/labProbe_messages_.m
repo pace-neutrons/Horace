@@ -1,23 +1,25 @@
-function [messages,task_ids_from] = labProbe_messages_(obj,task_nums,varargin)
-% list all messages belonging to the job and retrieve all their names
-% for the labs with id, provided as input.
-% if no message is returned for a job, its name cell remains empty.
+function [messages,task_ids_from] = labProbe_messages_(obj,task_ids,varargin)
+% probe messages send to this lab and retrieve their names. 
+% 
+% Return list of the message names and array of task id-s which sent
+% messages. 
 %
-if ~exist('task_nums','var')
-    task_nums = [];
+% Will check if interrupt is available and if it is, return interrupt name 
+% instead of any other message.
+%
+if ~exist('task_ids','var')
+    task_ids = [];
 end
-n_labs = obj.numLabs;
+%n_labs = obj.numLabs;
+if isnumeric(task_ids) && ~isempty(task_ids) || ...
+        ischar(task_ids) && strcmp(task_ids,'all')
+    not_this  = task_ids ~= obj.labIndex;
+    task_ids  = task_ids(not_this);
+end
 
-if n_labs == 1
-    messages = {};
-    task_ids_from = [];
-    % add persistent messages names to the messages, received from other labs
-    [messages,task_ids_from] = obj.retrieve_interrupt(messages,task_ids_from,task_nums);
-    return;
-end
-if isempty(task_nums) || (ischar(task_nums) && strcmpi(task_nums,'any'))
-    task_nums = 1:n_labs;
-end
+
+
+
 % check if specific message name is requested
 if nargin > 2 && ~isempty(varargin{1})
     mess_name = varargin{1};
@@ -31,7 +33,6 @@ if nargin > 2 && ~isempty(varargin{1})
             error('PARPOOL_MESSAGES:invalid_argument',...
                 'invalid message tag %d requested in labProbe',...
                 mess_name);
-            
         end
     else
         error('PARPOOL_MESSAGES:invalid_argument',...
@@ -41,51 +42,27 @@ if nargin > 2 && ~isempty(varargin{1})
         error('PARPOOL_MESSAGES:invalid_argument',...
             'labprobe with tag accepts only one message type')
     end
-    lab_prober = @(nlab)(lab_prober_tag(obj,nlab,mess_tag));
+    [messages,task_ids_from] = obj.MPI_.mlabProbe(task_ids,mess_tag);
+    
 else
-    lab_prober = @(nlab)(lab_prober_all_tags(obj,nlab));
+    [messages,task_ids_from] = obj.MPI_.mlabProbe(task_ids,-1);
 end
-not_this  = task_nums ~= obj.labIndex;
-task_nums = task_nums(not_this);
-%
-[avail,res_tags] = arrayfun(lab_prober,task_nums);
-task_ids_from  = task_nums (avail);
-res_tags       = res_tags(avail);
-%
-messages       = MESS_NAMES.mess_name(res_tags);
-if ~isempty(messages) && ~iscell(messages)
-    messages = {messages};
-end
-% add persistent messages names to the messages, received from other labs
-[messages,task_ids_from] = obj.retrieve_interrupt(messages,task_ids_from,task_nums);
-
-
-function [avail,tag] = lab_prober_all_tags(obj,lab_num)
-
-[avail,tag] = obj.MPI_.mlabProbe(lab_num,[]);
-if ~avail
-    tag = -1;
+% Add to the list of present messages the messages from interrupt channel
+% if interrupt present, the message overtakes normal message from the same
+% lab.
+i_tags = obj.interrupt_chan_tag_;
+[fail_mess,fail_from] = obj.MPI_.mlabProbe(task_ids,i_tags);
+if ~isempty(fail_mess)
+    [messages,task_ids_from] = obj.mix_messages(messages,task_ids_from,fail_mess,fail_from);
 end
 
-function [avail,tag_res] = lab_prober_tag(obj,lab_num,tag)
-%
-% check requested message
-[mess_avail,tag_req] = obj.MPI_.mlabProbe(lab_num,tag);
-% check if fail message has been send from the lab specified
-i_tags = MESS_NAMES.instance().interrupt_tags;
-for i=1:numel(i_tags)
-    [fail_avail,tag_fail] = obj.MPI_.mlabProbe(lab_num,i_tags(i));
-    if fail_avail
-        break;
-    end
+% check the interrupts, received earlier.
+[mess,id_from] = obj.get_interrupt(task_ids);
+% mix received messages names with old interrupt names received earlier and
+% hold in cache
+if ~isempty(mess)
+    int_names = cellfun(@(x)(x.mess_name),mess,'UniformOutput',false);
+    [messages,task_ids_from] = ...
+        obj.mix_messages(messages,task_ids_from,int_names,id_from);
 end
-avail = mess_avail | fail_avail;
-
-tag_res = -1;
-if fail_avail
-    tag_res = tag_fail;
-elseif mess_avail
-    tag_res = tag_req;
-end
-
 
