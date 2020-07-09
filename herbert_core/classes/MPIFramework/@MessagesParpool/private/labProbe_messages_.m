@@ -3,6 +3,7 @@ function [messages,task_ids_from] = labProbe_messages_(obj,task_nums,varargin)
 % for the labs with id, provided as input.
 % if no message is returned for a job, its name cell remains empty.
 %
+% Will check if interupt is availabe and if it is, return info about the interrupt
 if ~exist('task_nums','var')
     task_nums = [];
 end
@@ -15,7 +16,7 @@ if n_labs == 1
     [messages,task_ids_from] = obj.retrieve_interrupt(messages,task_ids_from,task_nums);
     return;
 end
-if isempty(task_nums) || (ischar(task_nums) && strcmpi(task_nums,'any'))
+if isempty(task_nums) || (ischar(task_nums) && strcmpi(task_nums,'all'))
     task_nums = 1:n_labs;
 end
 % check if specific message name is requested
