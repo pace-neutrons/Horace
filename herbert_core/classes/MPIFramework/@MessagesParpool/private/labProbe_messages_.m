@@ -4,8 +4,8 @@ function [messages,task_ids_from] = labProbe_messages_(obj,task_ids,varargin)
 % Return list of the message names and array of task id-s which sent
 % messages. 
 %
-% Will check if interrupt is availabe and if it is, return interrupt name 
-% interrupt instead of any other message.
+% Will check if interrupt is available and if it is, return interrupt name 
+% instead of any other message.
 %
 if ~exist('task_ids','var')
     task_ids = [];
