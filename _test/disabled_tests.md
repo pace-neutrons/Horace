@@ -20,7 +20,3 @@
 	- test_spher_caption (no ticket)
 	- test_spher_caption2D (no ticket)
 
-- test_gen_sqw_workflow:
-
-   - test_gen_sqw_accumulate_sqw_herbert:  % Extreamly slow? May be need further testing on how often it actually fails (not at all locally)
-        Disabled combine_job using file-based exchange on Jenkins: due to random failures write_nsqw2_sqw
