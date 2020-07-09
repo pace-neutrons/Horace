@@ -53,12 +53,6 @@ find_file(Herbert_ON_TEMPLATE
 )
 mark_as_advanced(Herbert_ON_TEMPLATE)
 
-find_file(Herbert_WORKER_TEMPLATE
-    NAMES "worker_v2.m.template"
-    PATHS ${Herbert_ROOT} ${Herbert_ROOT}/admin ${Herbert_ROOT}/../admin
-    NO_DEFAULT_PATH
-)
-mark_as_advanced(Herbert_WORKER_TEMPLATE)
 
 find_path(Herbert_CMAKE_DIR
     NAMES ".cmake-find"

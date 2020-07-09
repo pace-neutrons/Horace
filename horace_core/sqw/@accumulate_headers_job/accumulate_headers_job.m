@@ -44,7 +44,7 @@ classdef accumulate_headers_job < JobExecutor
             end
             
             if mf.labIndex == 1
-                all_messages = mf.receive_all('any','data');
+                all_messages = mf.receive_all('all','data');
                 for i=1:numel(all_messages)
                     obj.s_accum = obj.s_accum + all_messages{i}.payload.s;
                     obj.e_accum = obj.e_accum + all_messages{i}.payload.e;
