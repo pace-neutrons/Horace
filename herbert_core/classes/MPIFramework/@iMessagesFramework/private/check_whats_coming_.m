@@ -18,6 +18,16 @@ function    [receive_now,message_names_array,n_steps] = check_whats_coming_(obj,
 if ~exist('task_ids','var') || isempty(task_ids) ||...
         (ischar(task_ids) && strcmpi(task_ids,'all'))
     task_ids = 1:obj.numLabs;
+    if numel(mess_array) ~= numel(task_ids) %
+        not_this = task_id ~= obj.labIndex;
+        if ~all(not_this);  task_ids = task_ids(not_this);
+        end
+    end
+end
+if numel(mess_array) ~= numel(task_ids) %
+    error('CHECK_WHATS_COMING:invalid_argument',...
+        ' size of messages array (%d) must be equal to size of task_id-s requested (%d)',...
+        numel(mess_array),numel(task_ids))
 end
 
 
@@ -68,7 +78,7 @@ end
 if strcmp(mess,interrupt)
     yes = true;
 else
-yes = mess.is_blocking;
+    yes = mess.is_blocking;
 end
 function name = extract_name(mess)
 if isempty(mess)
