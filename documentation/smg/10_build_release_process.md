@@ -42,16 +42,15 @@ The release tag will be an anchor for any subsequently needed release branch and
 The version number is stored in a text file (`VERSION`) in the root of the Herbert and Horace source. This will follow [semantic versioning](https://semver.org/) and is used in the build process to set the version number in the MATLAB and compiled C++ components.
 
 ### Deployment on ISIS computational services machines
-To provide rapid response to user request, bug-fixes and all advantages of constant deployment process, the release code is rapidly available to users who uses ISIS computational resources to process the results of their experiments. The services, providing these resources are currently iDaaaS and ISISCOMPUTE services. These services provide to users pool of virtual (iDaaaS) or real (ISISCOMPUTE) Linux machines, connected to the common parallel file system.
+To provide rapid response to user request, bug-fixes and all advantages of constant deployment process, the release code is rapidly available to users who uses ISIS computational resources to process the results of their experiments. The services, providing these resources are currently iDaaaS and ISISCOMPUTE services. These services provide users with pool of virtual (iDaaaS) or real (ISISCOMPUTE) Linux machines, connected to the common parallel file system.
 
-By agreement, each machine of the pool has folder `/usr/locam/mprogs/` containing number of symbolic links to  `Horace`, `Herbert`, `Horace_bugfix` and `Herbert_bugfix` clones of github repositorues of the appropriate packages.  In addition to that, it contains also reference  `/usr/locam/mprogs/User` pointing to the folder containing Horace, Herbert and parallel MPI workers initialization scripts.
-*Startup.m* script auto-generated on all service machines intended for the users of inelastic experiments, enables Herbert/Horace code when Matlab starts. The details of the packages installation and deoployment on the ISIS machines are provided in [](http://)
+By agreement, each machine of the pool has folder `/usr/locam/mprogs/` containing number of symbolic links to  `Horace`, `Herbert`, `Horace_bugfix` and `Herbert_bugfix` clones of the github repositorues of the appropriate packages.  In addition to that, it contains also reference  `/usr/local/mprogs/User` pointing to the folder containing Horace, Herbert and parallel MPI workers initialization scripts.
+*Startup.m* script auto-generated on all service machines intended for the users of inelastic experiments, enables Herbert/Horace code when Matlab starts.
 
-As soon as release branch is tagged and created in the repository, manual build/release process is preformed in the private area of an ISISCOMPUTE or iDaaaS machine to obtain release artifacts for the computational service. This will be automated in a future, as [iDaaaS testing pipeline](https://github.com/pace-neutrons/Horace/issues/271) is implemented. The releaser then manually checks out the release branch into `Herbert_git/Horace_git` areas referenced by links above and copies the release artifacts into appropriate places of the code tree.
+The details of the packages installation and deoployment on the ISIS machines are provided in [ISIS Release Process documentation](11_ISIS_release.md)
 
-The similar release operation is performed for `Herbert_bugfix/Horace_bugfix` areas described below.
+As soon as release branch is tagged and created in the repository according to the release  process, the code, exposed through the links above is checked out and switched to the recently released, so users can user the released version of the code.
 
-The script which automates these operations and performs internal releases as one-click operation will be developed in the nearest future.
 
 
 ### Patch releases
@@ -64,7 +63,7 @@ The symbolic links to `Horace_bugfix` and `Herbert_bugfix` pointing to separate 
 
 To switch user to these branches, one issues `herbert_on(/usr/local/mprogs/Herbert_bugfix/herbert_core)` and `horace_on(/usr/local/mprogs/Horace_bugfix/horace_core)` commands.
 
-If parallel execution is necessary for bugfixing, the supporter also needs to do similar changes in worker_4tests script available in the **User** folder above. `herbert_on/horace_on` commands within this script should be modifued to point to the bugfix code. The **parallel_config** class `worker` field should then be assigned with `worker_4tests` value. The default value of this field is `worker_v2` where default Horace/Herbert code base is initialized. The `worker_v2` script will continue to be used by other users for their data processing.
+If parallel execution is necessary for bugfixing, the supporter also needs to do similar changes in worker_4tests script available in the **User** folder above. `herbert_on/horace_on` commands within this script should be modifued to point to the bugfix version of the code. The user's **parallel_config** class `worker` field should then be assigned with `worker_4tests` value. The default value of this field is `worker_v2` which initializes default Horace/Herbert code base. The `worker_v2` script will continue to be used by other users for their data processing, until bugfixing is completed and merged into the code base.
 
 
 Patch releases will be made to release branches to resolve specific bugs identified. These should be tested and built through the same build pipeline as the initial production releases.
