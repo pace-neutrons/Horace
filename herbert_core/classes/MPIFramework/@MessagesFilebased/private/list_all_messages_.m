@@ -38,7 +38,7 @@ end
 
 mess_folder = obj.mess_exchange_folder;
 if ~(exist(mess_folder,'dir')==7) % job was canceled
-    error('FILEBASED_MESSAGES:runtime_error',...
+    error('MESSAGE_FRAMEWORK:canceled',...
         'Job with id %s has been canceled. No messages folder exist',obj.job_id)
 end
 
@@ -100,12 +100,12 @@ if any(is_fail) % lets assume that only one fail message from one lab is possibl
     
     all_labs = cell(1,max(mid_from));
     
-    [mid_from,mu]=unique(mid_from);        
+    [mid_from,mu]=unique(mid_from);
     all_labs(mid_from) = all_messages(mu);
     all_labs(fail_from) = fail_mess;
     all_messages = all_labs(mid_from);
 else
-    [mid_from,mu]=unique(mid_from);    
+    [mid_from,mu]=unique(mid_from);
     all_messages = all_messages(mu);
 end
 

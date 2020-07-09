@@ -48,7 +48,7 @@ if isempty(mess) % Job completed successfully
     if obj.return_results_
         mess.payload = obj.task_results_holder_;
     end
-else % 
+else %
     %disp(['in finish task, got message with id: ',mess.mess_name]);
     if obj.return_results_  && ~isempty(obj.task_results_holder_)
         if isempty(mess.payload)
@@ -76,11 +76,16 @@ else
     ok  = false;
 end
 
-% clear all previous messages may be left in the message cache
-% (especially 'failed' message which is never popped in normal way)
-obj.mess_framework.clear_messages();
-% Also clear data messes counters, to restart data messages queue from the
-% beginning
-obj.control_node_exch.clear_messages();
+try
+    % clear all previous messages may be left in the message cache
+    % (especially 'failed' message which is never popped in normal way)
+    obj.mess_framework.clear_messages();
+    % Also clear data messes counters, to restart data messages queue from the
+    % beginning
+    obj.control_node_exch.clear_messages();
+catch ME
+    ok = false;
+    err_mess = ME.message;
+end
 % clear task results holder
 obj.task_results_holder_ = {};
