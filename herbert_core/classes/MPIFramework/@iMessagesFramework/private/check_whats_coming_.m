@@ -15,12 +15,9 @@ function    [receive_now,message_names_array,n_steps] = check_whats_coming_(obj,
 % message_names - cellarray of messages present in the system and available
 %                 to receive
 %
-if ~exist('task_ids','var') || isempty(task_ids) || (ischar(task_ids) && strcmpi(task_ids,'all'))
+if ~exist('task_ids','var') || isempty(task_ids) ||...
+        (ischar(task_ids) && strcmpi(task_ids,'all'))
     task_ids = 1:obj.numLabs;
-end
-not_this = task_ids ~= obj.labIndex;
-if ~all(not_this)
-    task_ids = task_ids(not_this);
 end
 
 
@@ -50,7 +47,7 @@ if any(are_interrupts )
     interrupts_from = tid_from(are_interrupts);
     read_these = ismember(task_ids,interrupts_from );
     receive_now = receive_now | read_these;
-    message_names_array(read_these)  = message_names(are_interrupts);    
+    message_names_array(read_these)  = message_names(are_interrupts);
 end
 
 

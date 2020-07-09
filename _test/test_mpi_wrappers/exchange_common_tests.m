@@ -688,7 +688,7 @@ classdef exchange_common_tests < MPI_Test_Common
             
             assertEqual(messr{1}.mess_name,'data')
             assertEqual(messr{2}.mess_name,'failed')
-           
+            
             intercomm.throw_on_interrupts = true;
             assertExceptionThrown(@()receive_all(intercomm,'all', 'data'),...
                 'MESSAGE_FRAMEWORK:canceled');
@@ -1324,13 +1324,6 @@ classdef exchange_common_tests < MPI_Test_Common
         end
         %
         function test_check_whats_coming_fail_overrides(obj)
-            %             init_struct = iMessagesFramework.build_worker_init(tmp_dir, ...
-            %                 'test_check_whats_coming_1mess', 'MessagesFilebased', 1, 10,'test_mode');
-            %
-            %             m_comm = MessagesFileBasedMPI_mirror_tester(init_struct);
-            %             clob_s = onCleanup(@()(finalize_all(m_comm)));
-            %             m_comm.time_to_fail = 1000;
-            
             if obj.ignore_test
                 return
             end
@@ -1365,7 +1358,7 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(mess_names{6},'log')
             
             
-            [are_avail,mess_names]=m_comm.check_whats_coming_tester(task_ids,'data',mess_array,0);
+            [are_avail,mess_names]=m_comm.check_whats_coming_tester('all','data',mess_array,0);
             assertEqual(numel(are_avail),10)
             assertEqual(sum(are_avail),2)
             assertTrue(are_avail(2))
