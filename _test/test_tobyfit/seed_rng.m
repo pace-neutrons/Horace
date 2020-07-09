@@ -7,5 +7,5 @@ old_state = rng();
 if nargin < 1
     seed = mod(posixtime(datetime('now'))*1e3, 1e6);
 end
-rng(seed);
+rng(seed, 'twister');
 state = rng();
