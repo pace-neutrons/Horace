@@ -567,7 +567,7 @@ methods
     function test_dirty_pix_tmp_files_are_deleted_when_pix_out_of_scope(obj)
         old_rng_state = rng();
         fixed_seed = 774015;
-        rng(fixed_seed);  % this seed gives an expected object_id_ = 54452
+        rng(fixed_seed, 'twister');  % this seed gives an expected object_id_ = 54452
         expected_tmp_dir = fullfile(tempdir(), 'sqw_pix54452');
         clean_up = onCleanup(@() rng(old_rng_state));
 
