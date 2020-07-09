@@ -142,6 +142,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             assertTrue(ok==MESS_CODES.ok,err);
             
             res = mes.payload;
+            res = res{1};
             assertEqual(res.grid_size,[50 50 50 50]);
             assertElementsAlmostEqual(res.urange,...
                 [-1.5000 -2.1000 -0.5000 0;0 0 0.5000 35.0000]);
@@ -300,9 +301,10 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             assertEqual(ok,MESS_CODES.ok,err);
             
             res = mes.payload;
+            res = res{1};
             assertEqual(res.grid_size,[50 50 50 50]);
             assertElementsAlmostEqual(res.urange,...
-                [-2,-3, -3,-20; 2, 3, 3 15]);
+                [-1,-2,-3,-20;1,2,3,10]);
             
         end
         %------------------------------------------------------------------
