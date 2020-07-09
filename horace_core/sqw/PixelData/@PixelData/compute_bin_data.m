@@ -15,14 +15,12 @@ function [mean_signal, mean_variance] = compute_bin_data(obj, npix)
 % mean_variance   The average variance for each plot axis bin.
 %                 size(mean_variance) = size(npix)
 %
-[use_mex, n_threads] = ...
-    config_store.instance().get_value('hor_config','use_mex','threads');
-log_level = ...
-    config_store.instance().get_value('herbert_config','log_level');
+use_mex = config_store.instance().get_value('hor_config','use_mex');
+log_level = config_store.instance().get_value('herbert_config','log_level');
 
 if use_mex
     try
-        [mean_signal, mean_variance] = compute_bin_data_mex_(obj, npix, n_threads);
+        [mean_signal, mean_variance] = compute_bin_data_mex_(obj, npix);
     catch ME
         use_mex = false;
         if log_level>0
