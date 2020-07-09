@@ -567,7 +567,7 @@ methods
     function test_dirty_pix_tmp_files_are_deleted_when_pix_out_of_scope(obj)
         old_rng_state = rng();
         fixed_seed = 774015;
-        rng(fixed_seed);  % this seed gives an expected object_id_ = 54452
+        rng(fixed_seed, 'twister');  % this seed gives an expected object_id_ = 54452
         expected_tmp_dir = fullfile(tempdir(), 'sqw_pix54452');
         clean_up = onCleanup(@() rng(old_rng_state));
 
@@ -672,9 +672,180 @@ methods
         assertEqual(class(obj.pix_data_small_page.num_pixels), 'double');
     end
 
+    function test_copy_on_same_page_as_original_when_more_than_1_page(obj)
+        pix_original = PixelData(obj.test_sqw_file_path, 1e6);
+        pix_original.signal = 1;
+        pix_original.advance();
+
+        pix_copy = copy(pix_original);
+
+        assertEqual(pix_copy.data, pix_original.data);
+        while pix_original.has_more()
+            pix_original.advance();
+            pix_copy.advance();
+            assertEqual(pix_copy.data, pix_original.data);
+        end
+
+        pix_copy.move_to_first_page();
+        pix_original.move_to_first_page();
+        assertEqual(pix_copy.data, pix_original.data);
+    end
+
+    function test_copy_on_same_pg_as_original_when_more_than_1_pg_no_advance(obj)
+        pix_original = PixelData(obj.test_sqw_file_path, 1e6);
+        pix_original.signal = 1;
+
+        pix_copy = copy(pix_original);
+
+        assertEqual(pix_copy.data, pix_original.data);
+        while pix_original.has_more()
+            pix_original.advance();
+            pix_copy.advance();
+            assertEqual(pix_copy.data, pix_original.data);
+        end
+    end
+
+    function test_changes_to_original_persistent_in_copy_if_1_page_in_file(obj)
+        pix_original = PixelData(obj.test_sqw_file_path, 1e9);
+        pix_original.signal = 1;
+        pix_original.advance();
+
+        pix_copy = copy(pix_original);
+
+        assertEqual(pix_copy.data, pix_original.data);
+        while pix_original.has_more()
+            % we shouldn't enter here, but we should check the same API for
+            % data with > 1 page works for single page
+            pix_original.advance();
+            pix_copy.advance();
+            assertEqual(pix_copy.data, pix_original.data);
+        end
+
+        pix_copy.move_to_first_page();
+        pix_original.move_to_first_page();
+        assertEqual(pix_copy.data, pix_original.data);
+    end
+
+    function test_changes_to_orig_persistent_in_copy_if_1_pg_in_file_no_adv(obj)
+        pix_original = PixelData(obj.test_sqw_file_path, 1e9);
+        pix_original.signal = 1;
+
+        pix_copy = copy(pix_original);
+
+        assertEqual(pix_copy.data, pix_original.data);
+        while pix_original.has_more()
+            % we shouldn't enter here, but we should check the same API for
+            % data with > 1 page works for single page
+            pix_original.advance();
+            pix_copy.advance();
+            assertEqual(pix_copy.data, pix_original.data);
+        end
+    end
+
+    function test_changes_to_copy_have_no_affect_on_original_after_advance(obj)
+        data = zeros(9, 30);
+        npix_in_page = 11;
+        pix_original = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        pix_original.signal = 1;
+        pix_original.advance();
+
+        pix_copy = copy(pix_original);
+        pix_copy.move_to_first_page();
+        pix_copy.signal = 2;
+        pix_copy.advance();
+
+        pix_original.move_to_first_page();
+        assertEqual(pix_original.signal, ones(1, numel(pix_original.signal)));
+
+        pix_copy.move_to_first_page();
+        assertEqual(pix_copy.signal, 2*ones(1, numel(pix_copy.signal)));
+    end
+
+    function test_changes_to_copy_have_no_affect_on_original_no_advance(obj)
+        data = zeros(9, 30);
+        npix_in_page = 11;
+        pix_original = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        pix_original.signal = 1;
+
+        pix_copy = copy(pix_original);
+        pix_copy.move_to_first_page();
+        pix_copy.signal = 2;
+
+        assertEqual(pix_original.signal, ones(1, numel(pix_original.signal)));
+        assertEqual(pix_copy.signal, 2*ones(1, numel(pix_copy.signal)));
+    end
+
+    function test_changes_to_original_before_copy_are_reflected_in_copies(obj)
+        data = zeros(9, 30);
+        npix_in_page = 11;
+        pix_original = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        pix_original.signal = 1;
+        pix_original.advance();
+
+        pix_copy = copy(pix_original);
+        pix_copy.move_to_first_page();
+
+        assertEqual(pix_copy.signal, ones(1, numel(pix_copy.signal)));
+    end
+
+    function test_changes_to_original_kept_in_copy_after_advance(obj)
+        pix_original = PixelData(obj.test_sqw_file_path, 1e2);
+        pix_original.signal = 1;
+
+        pix_copy = copy(pix_original);
+        pix_copy.advance();
+
+        pix_copy.move_to_first_page();
+        assertEqual(pix_copy.signal, ones(1, numel(pix_copy.signal)));
+    end
+
+    function test_change_to_original_after_copy_does_not_affect_copy(obj)
+        data = zeros(9, 30);
+        npix_in_page = 11;
+        pix_original = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        pix_copy = copy(pix_original);
+
+        pix_copy.signal = 1;
+        pix_copy.advance();
+
+        pix_original.signal = 2;
+        pix_original.advance();
+
+        pix_copy.move_to_first_page();
+        assertEqual(pix_copy.signal, ones(1, numel(pix_copy.signal)));
+    end
+
+    function test_page_written_correctly_when_page_size_gt_mem_chunk_size(obj)
+        warning('off', 'HOR_CONFIG:set_mem_chunk_size');
+        hc = hor_config;
+        old_config = hc.get_data_to_store();
+        npix_to_write = 28;
+        size_of_float = 4;
+        hc.mem_chunk_size = npix_to_write*size_of_float;
+
+        function clean_up_func(conf_to_restore)
+            set(hor_config, conf_to_restore);
+            warning('on', 'HOR_CONFIG:set_mem_chunk_size');
+        end
+
+        clean_up = onCleanup(@() clean_up_func(old_config));
+
+        npix_in_page = 90;
+        data = zeros(obj.NUM_COLS_IN_PIX_BLOCK, npix_in_page + 10);
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+        pix.data = ones(obj.NUM_COLS_IN_PIX_BLOCK, npix_in_page);
+        pix.advance();
+        pix.move_to_first_page();
+
+        assertEqual(pix.data, ones(obj.NUM_COLS_IN_PIX_BLOCK, npix_in_page));
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
+        % give it a real file path to trick code into thinking it exists
+        faccess = faccess.set_filepath(obj.test_sqw_file_full_path);
         mem_alloc = npix_in_page*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
         pix = PixelData(faccess, mem_alloc);
     end

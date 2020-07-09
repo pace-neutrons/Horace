@@ -22,8 +22,7 @@ methods
         %          This sets the tmp directory name
         %
         obj.pix_id_ = pix_id;
-        tmp_dir_name = sprintf(obj.TMP_DIR_BASE_NAME_, obj.pix_id_);
-        obj.tmp_dir_path_ = fullfile(tempdir(), tmp_dir_name);
+        obj.tmp_dir_path_ = obj.generate_tmp_dir_path_(obj.pix_id_);
     end
 
     function raw_pix = load_page(obj, page_number, ncols)
@@ -75,7 +74,27 @@ methods
         obj.write_float_data_(file_id, raw_pix);
     end
 
-    function delete_tmp_files(obj)
+    function copy_folder(obj, target_pix_id)
+        % Copy the temporary files managed by this class instance to a new folder
+        %
+        % Input
+        % -----
+        % target_pix_id   The ID of the PixelData instance the new tmp folder
+        %                 will be linked to
+        %
+        if ~exist(obj.tmp_dir_path_, 'dir')
+            return;
+        end
+
+        new_dir_path = obj.generate_tmp_dir_path_(target_pix_id);
+        [status, err_msg] = copyfile(obj.tmp_dir_path_, new_dir_path);
+        if status == 0
+            error('Could not copy tmp files from ''%s'' to ''%s'':\n%s', ...
+                    obj.tmp_dir_path_, new_dir_path, err_msg);
+        end
+    end
+
+    function delete_files(obj)
         % Delete the directory containing the tmp files
         if exist(obj.tmp_dir_path_, 'dir')
             rmdir(obj.tmp_dir_path_, 's');
@@ -89,15 +108,20 @@ methods (Access=private)
     function obj = write_float_data_(obj, file_id, pix_data)
         % Write the given data to the file corresponding to the given file ID
         % in float32
-        % TODO: improve this by writing data in chunks to sustain write speeds
+        SIZE_OF_FLOAT = 4;
+        chunk_size = hor_config().mem_chunk_size/SIZE_OF_FLOAT;
+
         try
-            fwrite(file_id, pix_data, obj.FILE_DATA_FORMAT_);
+            for start_idx = 1:chunk_size:numel(pix_data)
+                end_idx = min(start_idx + chunk_size - 1, numel(pix_data));
+                fwrite(file_id, pix_data(start_idx:end_idx), obj.FILE_DATA_FORMAT_);
+            end
         catch ME
             switch ME.identifier
             case 'MATLAB:badfid_mx'
                 error('PIXELTMPFIELHANDLER:write_float_data_', ...
-                  'Could not write to file with ID ''%d'':\n The file is not open', ...
-                  file_id);
+                      'Could not write to file with ID ''%d'':\n The file is not open', ...
+                      file_id);
             otherwise
                 tmp_file_path = fopen(file_id);
                 error('PIXELTMPFIELHANDLER:write_float_data_', ...
@@ -108,9 +132,15 @@ methods (Access=private)
     end
 
     function tmp_file_path = generate_tmp_pix_file_path_(obj, page_number)
-        % Generate the file path to the tmp directory for this object instance
+        % Generate the file path to a tmp file with the given page number
         file_name = sprintf(obj.TMP_FILE_BASE_NAME_, page_number);
         tmp_file_path = fullfile(obj.tmp_dir_path_, file_name);
+    end
+
+    function tmp_dir_path = generate_tmp_dir_path_(obj, pix_id)
+        % Generate the file path to the tmp directory for this object instance
+        tmp_dir_name = sprintf(obj.TMP_DIR_BASE_NAME_, pix_id);
+        tmp_dir_path = fullfile(tempdir(), tmp_dir_name);
     end
 
 end
