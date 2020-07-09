@@ -22,6 +22,9 @@ if use_mex
     try
         [mean_signal, mean_variance] = compute_bin_data_mex_(obj, npix);
     catch ME
+        if hor_config().force_mex_if_use_mex
+            rethrow(ME);
+        end
         use_mex = false;
         if log_level>0
             warning('SQW:mex_code_problem', ...
