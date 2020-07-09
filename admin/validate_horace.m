@@ -23,8 +23,6 @@ function err = validate_horace(varargin)
 %   >> validate_horace (...'-exit_on_completion') % Exit Matlab when test suite ends.
 % Exits with non-zero error code if any tests failed
 
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
 err = -1;
 
 if isempty(which('horace_init'))
@@ -73,7 +71,7 @@ end
 horace_path = horace_root();
 test_path = fullfile(horace_path,  '_test');
 test_folders_full = cellfun(@(x)fullfile(test_path, x), test_folders, ...
-                            'UniformOutput', false);
+    'UniformOutput', false);
 
 hec = herbert_config();
 hoc = hor_config();
@@ -89,9 +87,6 @@ clear config_store;
 cur_herbert_conf = hec.get_data_to_store();
 cur_horace_config = hoc.get_data_to_store(); % only get the public i.e. not sealed, fields
 cur_hpc_config = hpc.get_data_to_store();
-hec.saveable = false;
-hoc.saveable = false;
-hpc.saveable = false;
 
 % Create cleanup object (*** MUST BE DONE BEFORE ANY CHANGES TO CONFIGURATIONS)
 cleanup_obj = onCleanup(@() ...
@@ -121,11 +116,11 @@ if parallel && license('checkout',  'Distrib_Computing_Toolbox')
     cores = feature('numCores');
     if verLessThan('matlab',  '8.4')
         if matlabpool('SIZE') == 0
-
+            
             if cores > 12
                 cores = 12;
             end
-
+            
             matlabpool(cores);
         end
     else
@@ -136,21 +131,21 @@ if parallel && license('checkout',  'Distrib_Computing_Toolbox')
             parpool(cores);
         end
     end
-
+    
     test_ok = false(1, numel(test_folders_full));
     time = bigtic();
-
+    
     parfor i = 1:numel(test_folders_full)
         test_ok(i) = runtests(test_folders_full{i})
     end
-
+    
     bigtoc(time,  '===COMPLETED UNIT TESTS IN PARALLEL');
     tests_ok = all(test_ok);
 else
     time = bigtic();
     tests_ok = runtests(test_folders_full{:});
     bigtoc(time,  '===COMPLETED UNIT TESTS RUN ');
-
+    
 end
 
 close all
@@ -166,15 +161,15 @@ end
 
 %=================================================================================================================
 function validate_horace_cleanup(cur_herbert_config, cur_horace_config, cur_hpc_config, test_folders)
-    warn = warning('off',  'all'); % avoid warning on deleting non-existent path
-    % Reset the configurations, and remove unit test folders from the path
-    set(herbert_config, cur_herbert_config);
-    set(hor_config, cur_horace_config);
-    set(hpc_config, cur_hpc_config);
+warn = warning('off',  'all'); % avoid warning on deleting non-existent path
+% Reset the configurations, and remove unit test folders from the path
+set(herbert_config, cur_herbert_config);
+set(hor_config, cur_horace_config);
+set(hpc_config, cur_hpc_config);
 
-    % Clear up the test folders, previously placed on the path
-    for i = 1:numel(test_folders)
-        rmpath(test_folders{i});
-    end
+% Clear up the test folders, previously placed on the path
+for i = 1:numel(test_folders)
+    rmpath(test_folders{i});
+end
 
-    warning(warn);
+warning(warn);
