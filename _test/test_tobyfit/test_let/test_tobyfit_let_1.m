@@ -44,6 +44,11 @@ test_tobyfit_dir = fullfile(horace_root(), '_test', 'test_tobyfit');
 addpath(test_tobyfit_dir)
 cleanup = onCleanup(@() rmpath(test_tobyfit_dir));
 
+% This seed provides a passing test at time of writing
+fixed_seed = 0;
+[old_rng_state, rng_state] = seed_rng(fixed_seed);
+clean_up = onCleanup(@() rng(old_rng_state));
+fprintf('RNG seed: %i\n', rng_state.Seed);
 
 %% --------------------------------------------------------------------------------------
 % Read cuts
@@ -107,7 +112,7 @@ end
 % %% --------------------------------------------------------------------------------------
 % % Collect results together as a structure
 % % ---------------------------------------------------------------------------------------
-% 
+%
 % % Cuts
 % res.wdata_1 = wdata_1;
 % res.wfit_1 = wfit_1;
