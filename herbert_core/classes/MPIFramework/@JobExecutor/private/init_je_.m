@@ -33,3 +33,12 @@ obj.n_first_iteration_= InitMessage.n_first_step;
 %
 [~,err,obj]=obj.reduce_send_message('started',[],synchronize);
 
+% initialize loggers for messages frameworks to print debug information 
+if ~isempty(obj.ext_log_fh) && isnumeric(obj.ext_log_fh)
+    fn = fopen(obj.ext_log_fh);
+    if ~isempty(fn)
+        obj.control_node_exch_.ext_log_fh = obj.ext_log_fh;
+        obj.mess_framework_.ext_log_fh = obj.ext_log_fh;
+    end
+end
+

@@ -76,6 +76,12 @@ classdef JobExecutor
         % needed to verify barrier in case of some worker failed
         % while some finished do_job but some failed before that.
         do_job_completed
+        %
+    end
+    properties(Hidden=true)
+        % in debug mode, parallel worker assigns to this property 
+        % open file handle to do logging.
+        ext_log_fh;
     end
     %
     properties(Access=protected, Hidden = true)

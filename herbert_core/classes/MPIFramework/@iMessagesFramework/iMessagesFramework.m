@@ -14,6 +14,7 @@ classdef iMessagesFramework < handle
         % name is created in shared location to keep initial job settings
         % and transfer progress messages from cluster to the user's node.
         job_id;
+        
         % returns the index of the worker currently executing the function.
         % labIndex is assigned to each worker when a job begins execution,
         % and applies only for the duration of that job.
@@ -21,21 +22,65 @@ classdef iMessagesFramework < handle
         % workers running the current job, defined by numlabs. Index 0
         % reserved for interactive user's node.
         labIndex;
+        
         % Number of independent workers used by the framework
         numLabs;
+        
+        % return true if the framework is tested
+        is_tested
+        
+        % Time in seconds a system waits for blocking message until
+        % returning "not-received" (and normally throwing error)
+        time_to_fail;
+        %
+        % The property defines framework behavior in case when interrupt
+        % message (canceled or failed) received through the network.
+        % Normally this means that
+        % all processing would be completed and worker shut-down so
+        % exception would be thrown. When the framework is gathering
+        % information on exceptions to report issue to user,
+        % interrupt messages are received to be processed by framework to
+        % return the diagnostics to users.
+        % The property in this case is set to false.
+        throw_on_interrupts
+        
     end
-    properties(Access=protected)
+    properties(Access=protected,Hidden=true)
+        % The string, uniquely identifying the running job.
         job_id_;
+        
         % time in seconds to waiting in blocking message until
         % unblocking or failing. Does not work for some operations in some frameworks
         % (e.g. receive_message in mpi)
         time_to_fail_ = 300; %(sec)
+        % time to wait between subsequent attempts to repeat command, related to a
+        % a message exchange
+        time_to_react_ = 0.1
+        
         % The holder for persistent messages, used to mark special job states
         % (e.g. completion or failure) for a particular worker (lab)
         % if the variable is not empty, a special event happened, so the
         % worker would operate differently.
         persistent_fail_message_=[];
+        % if true, enable debug printout
+        DEBUG_ = false;
+        % it true, throws on receiving interrupt message. If false, the
+        % interrupt message is received and delivered as output of
+        % receive_message function.
+        throw_on_interrupts_ =  true;
+        
+        % interrupt channel name:
+        interrupt_chan_name_;
+        % the tag of the interrupt channel
+        interrupt_chan_tag_ = 100; % let's take it definitively bigger then 
+        % other message tag defined in the system
     end
+    properties(Hidden=true)
+        % in debug mode, parallel worker assigns to this property 
+        % open file handle to do logging.
+        ext_log_fh;
+    end
+
     methods
         function obj = iMessagesFramework(varargin)
             % default prefix is 5 digits of processID+3 digits of current number of seconds
@@ -45,11 +90,13 @@ classdef iMessagesFramework < handle
                 obj.job_id_ = iMessagesFramework.get_framework_id();
             end
         end
+        %------------------------------------------------------------------
+        % SETTERS/GETTERS       *****
+        %------------------------------------------------------------------
         %
         function id = get.job_id(obj)
             id = obj.job_id_;
         end
-        %
         function set.job_id(obj,val)
             % set the string uniquely defining job name.
             set_job_id_(obj,val);
@@ -62,8 +109,26 @@ classdef iMessagesFramework < handle
         function ind = get.numLabs(obj)
             ind = get_num_labs_(obj);
         end
+        function is = get.is_tested(obj)
+            is = get_is_tested(obj);
+        end
         %
-        function cs = get_worker_init(obj,intercom_name,labID,numLabs)
+        function set.time_to_fail(obj,val)
+            obj.time_to_fail_ = val;
+        end
+        function val = get.time_to_fail(obj)
+            val = obj.time_to_fail_ ;
+        end
+        %
+        function set.throw_on_interrupts(obj,val)
+            obj.throw_on_interrupts_ = logical(val);
+        end
+        function do = get.throw_on_interrupts(obj)
+            do = obj.throw_on_interrupts_;
+        end
+        %------------------------------------------------------------------
+        %
+        function cs = get_worker_init(obj,intercom_name,labID,numLabs,varargin)
             % Generate slave MPI worker init info, using static
             % build_worker_init method and information, retrieved from
             % the initialized control node.
@@ -74,10 +139,22 @@ classdef iMessagesFramework < handle
             % established.
             %
             % Usage:
-            % cs = obj.get_worker_init1(intercom_name) % -- for real MPI worker
+            % cs = obj.get_worker_init(intercom_name) % -- for real MPI worker
             % or
-            % cs = obj.get_worker_init1(intercom_name,labId,numLabs) % for Herbert MPI
+            % cs = obj.get_worker_init(intercom_name,labId,numLabs) % for Herbert MPI
             %                                          worker
+            % cs = obj.get_worker_init(intercom_name,labId,numLabs,test_mode)
+            %                                          % for Herbert MPI
+            %                                          worker, initialized
+            %                                          in test mode, i.e.
+            %                                          barrier is not
+            %                                          deployed
+            % if test_mode is character string, testing is enabled and the
+            % output is serialized. If its Boolean, testing is enabled but
+            % if the output is serialized defined if its true (serialized)
+            % or false (initialization structure is returned)
+            %
+            %
             % where
             % obj          --  an initiated instance of message exchange
             %                  framework on a head-node and
@@ -91,8 +168,19 @@ classdef iMessagesFramework < handle
             %
             datapath = fileparts(fileparts(fileparts(obj.mess_exchange_folder)));
             if exist('labID','var') % Herbert MPI worker. numlabs and labNum are defined by configuration
-                cs = obj.build_worker_init(...
-                    datapath,obj.job_id,intercom_name,labID,numLabs);
+                if nargin> 4
+                    if ischar(varargin{1})
+                        test_with_serialation = false;
+                    else
+                        test_with_serialation = logical(varargin{1});
+                    end
+                    cs = obj.build_worker_init(...
+                        datapath,obj.job_id,intercom_name,labID,numLabs,test_with_serialation);
+                    
+                else
+                    cs = obj.build_worker_init(...
+                        datapath,obj.job_id,intercom_name,labID,numLabs);
+                end
             else  % real MPI worker (numLabs and labNum are defined by MPIexec
                 cs = obj.build_worker_init(...
                     datapath,obj.job_id,intercom_name);
@@ -101,7 +189,7 @@ classdef iMessagesFramework < handle
         %
         function set_interrupt(obj,mess,source_address)
             % check if the input message is an interrupt message
-            % and if the message is an interrupt, 
+            % and if the message is an interrupt,
             % set it as framework output until the task is completed
             % or aborted.
             %
@@ -134,7 +222,7 @@ classdef iMessagesFramework < handle
         %
         function [all_messages,mid_from] = retrieve_interrupt(obj,...
                 all_messages,mid_from,mes_addr_to_check)
-            % Helper method used to add interrupt (persistent) messages 
+            % Helper method used to add interrupt (persistent) messages
             % to the list of the messages, received from other labs.
             %
             % If both messages are received from the same worker, override
@@ -153,6 +241,113 @@ classdef iMessagesFramework < handle
             %
             [all_messages,mid_from] = retrieve_interrupt_(obj,...
                 all_messages,mid_from,mes_addr_to_check);
+        end
+        %
+        function [all_messages,task_ids] = receive_all(obj,task_ids,varargin)
+            % receive messages from a task with id-s specified as array or
+            % all messages from all labs available.
+            %
+            % Blocking  or unblocking behavior depends on requested message
+            % type or can be requested explicitly.
+            %
+            % If the requested message type is blocking, blocks until the
+            % message is available.
+            % if it is unblocking, return empty message if appropriate message
+            % is not present in system
+            %
+            % Asking a server for a message synchronously, blocks the
+            % client until this message is send by server.
+            %
+            % FailureMessage and CanceledMessage (is_persistent=true)
+            % if send, are received and returned instead of the
+            % requested message in any circumstances.
+            %
+            % Usage:
+            % >>mf = MessagesFramework();
+            % >>[ok,err_mess,message] = mf.receive_all(task_ids,mess_name, ...
+            %                           ['-synchronous'|'-asynchronous'])
+            % or:
+            % >>[ok,err_mess,message] = mf.receive_all(id,'any', ...
+            %                           ['-synchronous'|'-asynchronous'])
+            % or:
+            % >>[ok,err_mess,message] = mf.receive_all('all','any', ...
+            %                           ['-synchronous'|'-asynchronous'])
+            %
+            %Inputs:
+            % task_ids  - array of task id-s to check for messages or 'all' for
+            %             all labs(task-id-s)
+            % mess_name - the string, defining the message name or 'any' or
+            %             empty variable for any type of message.
+            % Optional:
+            % ['-s[ynchronous]'|'-a[synchronous]'] -- override default message
+            %              receiving rules and receive the message.
+            %              block program execution if '-synchronous' keyword
+            %              is provided, or continue execution if message has
+            %              not been send ('-asynchronous' mode).
+            %Return:
+            % all_messages - cellarray of messages for the tasks requested and
+            %                have messages available in the system.
+            %task_ids      - array of task id-s where these messages were
+            %                received from.
+            %                in asynchronous mode, size(task_ids) at output
+            %                may be smaller then the size(task_ids) at input.
+            %
+            if nargin<2
+                task_ids = 'all';
+            end
+            [all_messages,task_ids] = receive_all_messages_(obj,task_ids,varargin{:});
+        end
+        %
+        function [ok,err_mess,message] = receive_message(obj,from_task_id,varargin)
+            %
+            % receive message from a task with specified id.
+            %
+            % Blocking  or unblocking behavior depends on requested message
+            % type or can be requested explicitly.
+            %
+            % If the requested message type is blocking, blocks until the
+            % message is available
+            % if it is unblocking, return empty message if appropriate message
+            % is not present in system
+            %
+            % Asking a server for a message synchronously, may block a
+            % client if other type of message has been send by server.
+            % Exception are interrupt messages (is_persistent==true), which, if send,
+            % will be received in any circumstances.
+            %
+            % Usage:
+            % >>mf = MessagesFramework();
+            % >>[ok,err_mess,message] = mf.receive_message(id,mess_name, ...
+            %                           ['-synchronous'|'-asynchronous'])
+            % or:
+            % >>[ok,err_mess,message] = mf.receive_message(id,'any', ...
+            %                           ['-synchronous'|'-asynchronous'])
+            %
+            % Inputs:
+            % id        - the address of the lab to receive message from
+            % mess_name - name/tag of the message to receive.
+            %             'any' means any tag.
+            % Optional:
+            % ['-s[ynchronous]'|'-a[synchronous]'] -- override default message
+            %              receiving rules and receive the message
+            %              block program execution if '-synchronous' keyword
+            %              is provided, or continue execution if message has
+            %              not been send ('-asynchronous' mode).
+            %
+            %Returns:
+            %
+            % >>ok  if MPI_err.ok, message have been successfully
+            %       received from task with the specified id.
+            % >>    if not, error_mess and error code indicates reasons for
+            %       failure.
+            % >> on success, message contains an object of class aMessage,
+            %        with the received message contents.
+            %
+            
+            % call common function to check and validate inputs
+            [from_task_id,mess_name,is_blocking]=obj.check_receive_inputs(from_task_id,varargin{:});
+            %
+            [ok,err_mess,message] = obj.receive_message_internal(from_task_id,mess_name,is_blocking);
         end
     end
     
@@ -274,11 +469,64 @@ classdef iMessagesFramework < handle
             % between processes
             id = sprintf('%08i', feature('getpid')*1.e+5+round(datetime('now').Second*10));
         end
-        
+        %
+        function is_blocking = check_is_blocking(mess_name,options)
+            % helper function used to check if the requested message should
+            % be processed synchronously or asynchronously.
+            %
+            %
+            if isempty(options)
+                is_blocking = MESS_NAMES.is_blocking(mess_name);
+                return
+            end
+            [ok,mess,synch,asynch]=parse_char_options(options,{'-synchronous','-asynchronous'});
+            if ~ok
+                error('MESSAGES_FRAMEWORK:invalid_argument',mess);
+            end
+            if synch && asynch
+                error('MESSAGES_FRAMEWORK:invalid_argument',...
+                    'Both -synchronous and -asynchronous options are provided as input. Only one is allowed');
+            end
+            if synch
+                is_blocking = true;
+            elseif asynch
+                is_blocking = false;
+            else
+                is_blocking = MESS_NAMES.is_blocking(mess_name);
+            end
+        end
+        %
+        function [messages,tid_from] = mix_messages(messages,tid_from,add_mess,tid_add_from)
+            % helper function to add more messages to the list of existing messages
+            %
+            % Used to add interrupts to list of existing messages.
+            % the additional messages overwrite the old one if have the same task id-s
+            % Inputs:
+            % messages -- cellarray of objects
+            % tid_from -- numeric array of indexes, indicating where the
+            %             objects are obtained from.
+            %             Requested size(messages) == size(tid_from);
+            % add_mess -- cellarray of additional objects
+            % tid_add_from -- array of indexes, inticating where additional
+            %                 objects have arrived from. The values may
+            %                 coinside withsome or all indexes from
+            %                 tid_from.
+            %             Requested size(add_mess) == size(tid_add_from);
+            % Returns
+            % messages  -- cellarray of objects, combined from messages and
+            %              add_mess celarrays
+            % tid_from  -- unique indexes, sources of objects in messaves
+            %              celarray
+            % if some indexes in tid_from coinside with indexes from
+            % tid_add_from, the values in correspondent cells of outipt messages
+            % are replaced by correspondent values from  add_mess;
+            %
+            [messages,tid_from] = mix_messages_(messages,tid_from,add_mess,tid_add_from);
+        end
     end
     methods(Abstract)
         %------------------------------------------------------------------
-        % HERBERT Job control interface
+        % Job control interface
         %
         % initialize message framework
         % framework_info -- data, necessary for framework to operate and
@@ -299,21 +547,6 @@ classdef iMessagesFramework < handle
         %       information for the failure
         [ok,err_mess] = send_message(obj,task_id,message)
         
-        % receive message from a task with specified id.
-        % Blocking until message is received.
-        %
-        % Usage:
-        % >>mf = MessagesFramework();
-        % >>[ok,err_mess,message] = mf.receive_message(id,mess_name)
-        %
-        % >>ok  if MPI_err.ok, message have been successfully
-        %       received from task with the specified id.
-        % >>    if not, error_mess and error code indicates reasons for
-        %       failure.
-        % >> on success, message contains an object of class aMessage,
-        %        with message contents
-        [is_ok,err_mess,message] = receive_message(obj,task_id,mess_name)
-        
         
         % list all messages existing in the system from the tasks
         % with id-s specified as input
@@ -328,22 +561,58 @@ classdef iMessagesFramework < handle
         % messages
         [all_messages_names,task_ids] = probe_all(obj,task_ids,mess_names)
         
-        % retrieve (and remove from system) all messages
-        % existing in the system directed to current node and originated 
-        % from the tasks with id-s specified as input. Blocking if list of 
+        % receive messages from a task with id-s specified as array or
+        % all messages from all labs available.
         %
+        % Blocking  or unblocking behavior depends on requested message
+        % type or can be requested explicitly.
         %
-        %Input:
-        %task_ids -- array of task id-s to check messages for
+        % If the requested message type is blocking, blocks until the
+        % message is available.
+        % if it is unblocking, return empty message if appropriate message
+        % is not present in system
+        %
+        % Asking a server for a message synchronously will block a
+        % client if other type of message has been send by the server.
+        %
+        % Exception is FailureMessage and CanceledMessage,
+        % which, if send, will be received and returned instead of the
+        % requested message in any circumstances.
+        %
+        % Usage:
+        % >>mf = MessagesFramework();
+        % >>[ok,err_mess,message] = mf.receive_all(task_ids,mess_name, ...
+        %                           ['-synchronous'|'-asynchronous'])
+        % or:
+        % >>[ok,err_mess,message] = mf.receive_all(id,'any', ...
+        %                           ['-synchronous'|'-asynchronous'])
+        % or:
+        % >>[ok,err_mess,message] = mf.receive_all('all','any', ...
+        %                           ['-synchronous'|'-asynchronous'])
+        %
+        %Inputs:
+        % task_ids  - array of task id-s to check for messages or 'all' for
+        %             all labs(task-id-s)
+        % mess_name - the string, defining the message name or 'any' or
+        %             empty variable for any type of message.
+        % Optional:
+        % ['-s[ynchronous]'|'-a[synchronous]'] -- override default message
+        %              receiving rules and receive the message
+        %              block program execution if '-synchronous' keyword
+        %              is provided, or continue execution if message has
+        %              not been send ('-asynchronous' mode).
         %Return:
-        % all_messages -- cellarray of messages for the tasks requested and
-        %                 have messages available in the system .
-        %task_ids       -- array of task id-s for these messages
-        [all_messages,task_ids] = receive_all(obj,task_ids,mess_name_or_tag)
-
-        % wait until all workers arrive to the part of the code marked 
+        % all_messages - cellarray of messages for the tasks requested and
+        %                have messages available in the system.
+        %task_ids      - array of task id-s where these messages were
+        %                received from.
+        %                in asynchronous mode, size(task_ids) at output
+        %                may be smaller then the size(task_ids) at input.
+        %[all_messages,task_ids] = receive_all(obj,task_ids,mess_name_or_tag,varargin)
+        
+        % wait until all workers arrive to the part of the code marked
         % by this barrier.
-        [ok,err]=labBarrier(obj,nothrow);        
+        [ok,err]=labBarrier(obj,nothrow);
         %------------------------------------------------------------------
         % delete all messages belonging to this instance of messages
         % framework and shut the framework down.
@@ -356,14 +625,41 @@ classdef iMessagesFramework < handle
         clear_messages(obj);
         
         % method verifies if job has been canceled
-        is = is_job_canceled(obj)               
+        is = is_job_canceled(obj)
+        
+        % the method, used by filebased framework to set up number of
+        % parallel workers and the worker-id or by other frameworks to set
+        % up these numbers in test mode.
+        obj = set_framework_range(obj,labNum,NumLabs);
     end
     methods(Abstract,Access=protected)
         % return the labIndex
         ind = get_lab_index_(obj);
+        % return number of parallel workers
         n_labs = get_num_labs_(obj);
+        %
+        is = get_is_tested(obj);
+        %
+        % Internal receive messages function, which depends on physical
+        % implementation of the receive mechanism
+        % Inputs:
+        % task_id -- the address of the host to receive message from
+        % mess_name -- the name of the message to receive (may be 'any')
+        % is_blocking -- should one receive the message synchronously
+        % (wait until message appears in the system) or asynchronously --
+        % return if the message is absent)
+        % Outputs:
+        % >>ok  if MESS_CODES.ok, message have been successfully
+        %       received from task with the specified id.
+        % >>    if not, error_mess and error code indicates reasons for
+        %       failure.
+        % >> on success, message contains an object of class aMessage,
+        %        with the received message contents.
+        
+        [is_ok,err_mess,message] = receive_message_internal(obj,task_id,mess_name,is_blocking)
     end
     methods(Access = protected)
+        %
         function set_job_id_(obj,new_job_id)
             % Set a string, which defines unique job.
             if is_string(new_job_id) && ~isempty(new_job_id)
@@ -373,6 +669,77 @@ classdef iMessagesFramework < handle
                     'MPI job id has to be a string');
             end
         end
+        %
+        function [from_task_id,mess_name,is_blocking]=check_receive_inputs(obj,from_task_id,mess_name,varargin)
+            % Helper function to check if receive message inputs are correct
+            %
+            % Returns the receive function various form of inputs converted in the standard form:
+            %
+            % from_task_id -- the index(number) of the worker(lab) to
+            %                 receive message from.
+            % mess_name    -- the name of the message to receive. May be
+            %                 'any' if any message is requested.
+            % is_blocking  -- if the receiving should be blocking(synchronous)
+            %                 or unblocking (asynchronous)
+            %
+            %
+            if ~exist('from_task_id','var') || isempty(from_task_id) ||...
+                    (isnumeric(from_task_id ) && from_task_id < 0) || ...
+                    ischar(from_task_id)
+                %receive message from any task
+                error('MESSAGES_FRAMEWORK:invalid_argument',...
+                    'Requesting receive message from undefined lab is not currently supported');
+            end
+            if ~isnumeric(from_task_id)
+                error('MESSAGES_FRAMEWORK:invalid_argument',...
+                    'Task_id to receive message should be a number');
+            elseif numel(from_task_id)>1
+                error('MESSAGES_FRAMEWORK:invalid_argument',...
+                    'Receiving only one message from one lab may be requested. Asked for: %d',...
+                    numel(from_task_id));
+            end
+            if ~exist('mess_name','var') %receive any message for this task
+                mess_name = 'any';
+            end
+            if isnumeric(mess_name)
+                mess_name = MESS_NAMES.mess_name(mess_name);
+            end
+            if ~ischar(mess_name)
+                error('MESSAGES_FRAMEWORK:invalid_argument',...
+                    'mess_name in recive_message command should be a message name (e.g. "starting")');
+            end
+            
+            % check if the message should be received synchronously or asynchronously
+            is_blocking = obj.check_is_blocking(mess_name,varargin);
+        end
+        %
+        function [receive_now,message_names_array,n_steps] = check_whats_coming(obj,task_ids,mess_name,mess_array,n_steps)
+            % Service function to check what messages will be arriving during next step waiting in
+            % synchronous mode.
+            %
+            % part of receive_all messages function used in synchronous messages receive operations.
+            % Extracted for unit testing as accessible only from parallel
+            % code otherwise
+            %
+            % Inputs:
+            % task_ids -- all lab-nums to receive messages from.
+            % mess_name-- the name of the message to check for.
+            % mess_array    -- cellarray of size(task_ids) where already received
+            %                  messages are stored and not-received messages are
+            %                  represented by empty cells
+            % mess_received -- Boolean array of size task_ids, indicating if some messages
+            %                  from the labs requested  have already arrived and
+            %                  received
+            % Returns:
+            % receive_now    -- Boolean array of size task_ids, where true indicates
+            %                   that message from correspondent task id is present and
+            %                   can be read.
+            % message_names_array -- cellarray of message names to read
+            %                    now.
+            %
+            [receive_now,message_names_array,n_steps] = check_whats_coming_(obj,task_ids,mess_name,mess_array,n_steps);
+        end
+        %
     end
     
 end
