@@ -15,9 +15,5 @@ function [ok,err_mess,je]=worker_v2(worker_controls_string)
 %              a remote system.
 if isempty(which('herbert_init.m'))
     herbert_on();
-    try
-        horace_on();
-    catch 
-    end
 end
 [ok, err_mess,je] = parallel_worker(worker_controls_string);

@@ -38,6 +38,10 @@ classdef LogMessage<aMessage
                 step_time =0;
                 add_info = '';
             end
+            if nargin<3
+                step_time =0;
+                add_info = '';
+            end
             if ~exist('add_info','var')
                 add_info = '';
             end

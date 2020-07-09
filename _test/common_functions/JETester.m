@@ -1,8 +1,6 @@
 classdef JETester < JobExecutor
     % Class used to test job dispatcher functionality
     %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
-    %
     %
     
     properties(Access = private)
@@ -28,13 +26,15 @@ classdef JETester < JobExecutor
             % this particular implementation writes files according to template,
             % provided in test_job_dispatcher.m file
             %aa= input('enter_something')
+            
             n_steps = obj.n_iterations_;
+            
             task_num = obj.labIndex;
+            job_par = obj.common_data_;
+            
             disp('****************************************************');
             disp(['labN: ',num2str(task_num),' generating n_files: ',num2str(n_steps)]);
-            %fh = mess_cache.instance().log_file_h;
-            %fprintf(fh,'entering do-job loop\n');
-            job_par = obj.common_data_;
+            
             if isfield(job_par,'fail_for_labsN')
                 labnums2fail = job_par.fail_for_labsN;
                 if any(obj.labIndex==labnums2fail)
@@ -46,6 +46,17 @@ classdef JETester < JobExecutor
                         'simulated failure for lab N %d',obj.labIndex);
                 end
             end
+            obj=obj.write_files(job_par,task_num,n_steps);
+        end
+        function  obj=reduce_data(obj)
+            obj.is_finished_ = true;
+        end
+        function ok = is_completed(obj)
+            ok = obj.is_finished_;
+        end
+        function obj=write_files(obj,job_par,task_num,n_steps)
+            % write test files
+            %
             n0 = obj.n_first_iteration_;
             n1 = n0+n_steps-1;
             t0 = tic;
@@ -61,8 +72,8 @@ classdef JETester < JobExecutor
                 disp(['finished test job generating test file: ',filename]);
                 disp('****************************************************');
                 %fprintf(fh,'logging progress for step %d ',ji);
-                obj.log_progress(n_steps_done,n_steps,toc(t0)/n_steps_done,'');
-                disp(['log message about file',filename,' sent *']);                
+                obj.log_progress(n_steps_done,n_steps,toc(t0),'');
+                disp(['log message about file',filename,' sent *']);
                 %fprintf(fh,'completed\n');
             end
             disp(['labN: ',num2str(task_num),' do_job completed successfully']);
@@ -71,12 +82,6 @@ classdef JETester < JobExecutor
                 out_str = sprintf('Job %d generated %d files',task_num,n_steps);
                 obj.task_results_holder_ = out_str;
             end
-        end
-        function  obj=reduce_data(obj)
-            obj.is_finished_ = true;
-        end
-        function ok = is_completed(obj)
-            ok = obj.is_finished_;
         end
     end
     

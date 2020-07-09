@@ -1,8 +1,6 @@
 classdef test_cluster_wrapper < TestCase
     % Test running using the parpool job dispatcher.
-    %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
-    %
+    
     properties
     end
     
@@ -13,9 +11,11 @@ classdef test_cluster_wrapper < TestCase
             end
             obj = obj@TestCase(name);
         end
-        function test_cluster_init(obj)
-            
-            mf = MessagesFilebased('test_cluster_init');
+        function test_cluster_init(~)
+            fii = iMessagesFramework.build_worker_init(tmp_dir, ...
+                'test_cluster_init', 'MessagesFilebased', 0, 3,'test_mode');
+               
+            mf = MessagesFilebased(fii);
             cluster = ClusterWrapper(3,mf);
             clob = onCleanup(@()finalize_all(cluster));
             

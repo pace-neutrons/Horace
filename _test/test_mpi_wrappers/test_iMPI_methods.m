@@ -24,7 +24,6 @@ classdef test_iMPI_methods< TestCase
             obj.current_config_folder = cs.config_folder;
             
             pc = parallel_config;
-            
             obj.current_config = pc.get_data_to_store;
         end
         %
@@ -37,7 +36,7 @@ classdef test_iMPI_methods< TestCase
             set(pc,obj.current_config);
         end
         %
-        function test_add_persistent(obj)
+        function test_add_persistent(~)
             mf = MessagesFilebased();
             
             mf.set_interrupt(FailedMessage('bad faulure'),1);
@@ -80,6 +79,7 @@ classdef test_iMPI_methods< TestCase
             me = mf.get_interrupt(2);
             assertTrue(isempty(me));
         end
+        %
         function test_persistent_present(~)
             mf = MessagesFilebased();
             assertTrue(isempty(mf.get_interrupt(1)));
@@ -105,6 +105,7 @@ classdef test_iMPI_methods< TestCase
             assertEqual(numel(me),2);
             assertEqual(id,int32([1,4]));
         end
+        %
         function test_persistent_get_from_empty(~)
             mf = MessagesFilebased();
             assertTrue(isempty(mf.get_interrupt(1)));
@@ -127,8 +128,6 @@ classdef test_iMPI_methods< TestCase
             assertEqual(numel(me),2);
             assertEqual(id,int32([1,4]));
         end
-        
-        
         %
         function test_serialize_deserialize(~)
             mf = MFTester('test_ser_deser');
@@ -157,8 +156,6 @@ classdef test_iMPI_methods< TestCase
             
             pc = parallel_config;
             pc.saveable = false;
-            cur_data = pc.get_data_to_store();
-            clobC = onCleanup(@()set(pc,cur_data));
             
             pc.shared_folder_on_local = obj.working_dir;
             

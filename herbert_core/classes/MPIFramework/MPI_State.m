@@ -27,6 +27,8 @@ classdef MPI_State<handle
         % exchange.
         mpi_framework;
         %        
+        labIndex;
+        numLabs;
     end
     properties(Access=protected)
         is_deployed_=false;
@@ -75,6 +77,21 @@ classdef MPI_State<handle
         function flog = get.logger(obj)
             flog = obj.logger_;
         end
+        function  li = get.labIndex(obj)
+            if isempty(obj.mpi_framework_)
+                li = 0;
+            else
+                li = obj.mpi_framework_.labIndex;
+            end
+        end
+        function  nl = get.numLabs(obj)
+            if isempty(obj.mpi_framework_)
+                nl = 0;
+            else
+                nl = obj.mpi_framework_.numLabs;
+            end
+        end
+        
         %------------------------------------------------------
         function set.is_deployed(obj,val)
             obj.is_deployed_=val;

@@ -11,6 +11,7 @@ function    display_fail_jobs_(obj,outputs,n_failed,n_workers,Err_code)
 % Err_code -- the text string in the form
 %             ERROR_CLASS:error_reason to form identifier of
 %             the exception to throw
+%             If this paraemter is empty, it does not throw anything.
 % Throws:
 % First exception returned from the cluster if such exceptions
 % are present or exception with Err_code as MExeption.identifier
@@ -43,14 +44,24 @@ if iscell(outputs)
 elseif isempty(mEXceptions_outputs)
     ext_type = class(outputs);
     fprintf('Job %s have failed sending unhandled exception: %s\n',obj.job_id,ext_type);
-    error(Err_code,'Parallel job have failed throwing unhandled exception: %s',ext_type);
+    if ~isempty(Err_code)
+        error(Err_code,'Parallel job have failed throwing unhandled exception: %s',ext_type);
+    end
 else
     mEXceptions_outputs(1) = isa(outputs,'MException');
     fprintf('Job %s have failed. Output: \n',obj.job_id);
     disp(outputs);
+    if numel(outputs) == 1
+        disp_exception(outputs);
+    end
 end
 if any(mEXceptions_outputs)
-    warning(Err_code,...
+    if isempty(Err_code)
+        warn_code = 'DISPLAY_FAIL_JOBS:parallel_failure';
+    else
+        warn_code = Err_code;
+    end
+    warning(warn_code ,...
         ' Number: %d parallel tasks out of total: %d tasks have failed',...
         n_failed,n_workers)
     errOutputs = outputs(mEXceptions_outputs);
@@ -62,11 +73,15 @@ if any(mEXceptions_outputs)
     else
         disp_exception(errOutputs);
     end
-    error(Err_code,'Parallel job have failed, producing errors above.');
+    if ~isempty(Err_code)
+        error(Err_code,'Parallel job have failed, producing errors above.');
+    end
 else
-    error(Err_code,...
-        ' Number: %d parallel tasks out of total: %d tasks have failed without returning the reason',...
-        n_failed,n_workers)
+    if ~isempty(Err_code)
+        error(Err_code,...
+            ' Number: %d parallel tasks out of total: %d tasks have failed without returning the reason',...
+            n_failed,n_workers)
+    end
 end
 
 function disp_exception(errOutput)

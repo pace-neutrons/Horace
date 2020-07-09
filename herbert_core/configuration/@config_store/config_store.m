@@ -5,9 +5,6 @@ classdef config_store < handle
     % it stores/restores the classes, inheriting from config_base class
     %
     %
-    %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-    %
     properties(Dependent)
         % the full path to the folder where the configuration is stored
         config_folder;

@@ -36,10 +36,6 @@ function [outputs,n_failed,task_ids,obj]=...
 %              number) and task parameters from
 %              task_param_list, assigned to this job
 %
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-%
-%
 if ~exist('keep_workers_running','var')
     keep_workers_running = false;
 end

@@ -2,16 +2,22 @@ function fc = get_folder_contents_(obj,mess_folder)
 % Utility function to retrieve folder contents under Windows
 % trying not to open and block message files.
 %
+%fc = get_folder_contents_DOS_(mess_folder);
 if obj.task_id_ > 0 && ispc()
+    % on windows, filebased messages self-lock sometimes when MPI job is
+    % started. This is to start separate process, which should finish and
+    % not lock 
     fc = get_folder_contents_DOS_(mess_folder);
+    %fc = dir(mess_folder);
 else
     fc = dir(mess_folder);
 end
 
 
 function fc = get_folder_contents_DOS_(mess_folder)
-% Actually 
-command = ['Dir ',mess_folder];
+% Actually
+%command = ['Dir /TW /o-d ',mess_folder];
+command = ['Dir /TW /od ',mess_folder];
 if exist(mess_folder,'dir') ~= 7
     fc = [];
     return
@@ -39,6 +45,7 @@ for i=1:numel(fcc)
     fa(:,i) = fcc{i}(:);
 end
 fc = cell2struct(fa,fields,1);
+
 
 
 function file_info=select_files(file_string,folder)

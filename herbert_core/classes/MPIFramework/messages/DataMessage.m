@@ -4,9 +4,6 @@ classdef DataMessage < aMessage
     % Usually, data are big, so copying efficiency is important.
     %
     %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-    %
-    %
     methods
         function obj = DataMessage(payload)
             % Construct the data message

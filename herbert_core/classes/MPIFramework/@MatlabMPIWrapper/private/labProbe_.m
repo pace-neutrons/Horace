@@ -1,4 +1,4 @@
-function [present,tag_present,source]=labProbe_(obj,task_id,mess_tag)
+function [tags_present,source]=labProbe_(obj,task_id,mess_tag)
 % Wrapper around Matlab labProbe command.
 % Checks if specific message is available on the system
 %
@@ -7,71 +7,122 @@ function [present,tag_present,source]=labProbe_(obj,task_id,mess_tag)
 %            if empty, any task_id
 % mess_tag - if ~=-1, check for specific message tag
 % Returns:
-% present  - true if requested information is available
-% tag_present - the tag of the present information block or
-%            empty if present is false
-% source   - in most cases equal to task id, but if any task
-%            id, the information on where the data are present
+% tags_present - the tag of the present information block or
+%               empty if no messages are present
+% source   - the lab-id-s of the tasks, where the messages are present
+
+persistent fixture_tags;
+if isempty(fixture_tags)
+    fixture_tags = MESS_NAMES.instance().pool_fixture_tags;
+    fixture_tags = fixture_tags+obj.matalb_tag_shift_;
+end
 %
-source = task_id;
-tag_present = [];
-if obj.is_tested
-    if isempty(task_id)
-        if obj.messages_cache_.Count==0
-            present = false;
-            return
-        end
-        kk = obj.messages_cache_.keys;
-        present = true;
-        tag_present = zeros(1,numel(kk));
-        source      = zeros(1,numel(kk));
-        for i=1:numel(kk)
-            cont = obj.messages_cache_(kk{i});
-            mess_cont = cont{1};
-            source(i) = kk{i};
-            tag_present(i) = mess_cont.tag;
-        end
+if ischar(task_id)
+    if strcmp(task_id,'all') ||strcmp(task_id,'any')
+        task_id = [];
     else
-        if isKey(obj.messages_cache_,task_id)
-            present = true;
-            cont = obj.messages_cache_(task_id);
-            mess_cont = cont{1};
-            tag_present = mess_cont.tag;
-            if mess_tag ~= -1
-                if tag_present == mess_tag
-                    return;
-                else
-                    present = false;
-                end
+        error('MESSAGES_FRAMEWORK:invalid_argument',...
+            'Unknown source address %s',task_id)
+    end
+end
+tags_present = [];
+if isempty(task_id)
+    task_id = 1:obj.numLabs;
+end
+non_this = task_id ~=obj.labIndex;
+task_id = task_id(non_this);
+if isempty(task_id)
+    source = [];
+    return;
+end
+[are_present,all_tags] = arrayfun(@(x)check_task_id(obj,x,mess_tag),task_id,...
+    'UniformOutput',true);
+
+tags_present = all_tags(are_present);
+source = task_id(are_present);
+% if mess_tag requested is 'any' identify the tags of the existing
+% messages looping over all possible tags
+%
+if mess_tag == -1 && ~isempty(tags_present)
+    all_there = false(size(tags_present));
+    
+    % check interrupt channel first:
+    the_tag = obj.interrupt_chan_tag_ + obj.matalb_tag_shift_;
+    there = arrayfun(@(nlab)labProbeTag(obj,nlab,the_tag),source);
+    all_there(there) = true;
+    tags_present(there) = the_tag;
+    if ~all(all_there) % check other tags
+        for i=1:numel(fixture_tags)
+            the_tag = fixture_tags(i);
+            there = arrayfun(@(nlab)labProbeTag(obj,nlab,the_tag),source);
+            all_there(there) = true;
+            tags_present(there) = the_tag;
+            if all(all_there)
+                break;
             end
-        else
-            present = false;
         end
     end
-else % Real MPI request
-    if isempty(task_id)
-        [present,source,matlab_tag_present] = labProbe;
-        tag_present = matlab_tag_present-obj.matalb_tag_shift_;
-    else
-        if mess_tag == -1
-            [present,source,matlab_tag_present] = labProbe;
-            if present
-                tag_present = matlab_tag_present-obj.matalb_tag_shift_;
-                from_req = source ==  task_id;
-                if any(from_req)
-                    present = true;
-                    source  = source(from_req);
-                    tag_present = tag_present(from_req);
-                else
-                    present = false;
-                end
-            end
+    tags_present(all_there) = tags_present(all_there)-obj.matalb_tag_shift_;
+end
+
+function present  = labProbeTag(obj,source,the_tag)
+if obj.is_tested
+    cache = obj.messages_cache_(source);
+    the_tag = the_tag - obj.matalb_tag_shift_; % do not forget,
+    %in test mode we are looking for MESS_NAMES tags, not Matlab-shifted tags
+    present = find_tag_in_cache(cache,the_tag);
+else
+    present = labProbe(source,the_tag);
+end
+%
+function present = find_tag_in_cache(cont,mess_tag)
+% cache is not empty and some tags are present.
+% find special tag in the cache.
+%
+if mess_tag == -1 %if any tag there, and is requested
+    present = true; % Ugly but mimicks real Matlab MPI behaviour
+else
+    present = false;
+    for i=1:numel(cont)
+        mess_cont = cont{i};
+        tag_found = mess_cont.tag;
+        
+        if tag_found == mess_tag
+            present  = true;
+            return;
+        end
+    end
+end
+%
+function [present,tag_found]=check_task_id(obj,tid,mess_tag)
+% check if single tag is present asking from single task.
+% if tag == -1, true is returned if message with any tag is present.
+%
+
+if obj.is_tested
+    if isKey(obj.messages_cache_,tid)
+        cache = obj.messages_cache_(tid);
+        present = find_tag_in_cache(cache,mess_tag);
+        if present
+            tag_found  = mess_tag;
         else
-            matlab_tag = mess_tag+obj.matalb_tag_shift_;
-            present = labProbe(task_id,matlab_tag);
-            if present
-                tag_present = mess_tag;
-            end
+            tag_found = -1;
+        end
+    else
+        tag_found= -1;
+        present = false;
+    end
+else
+    if mess_tag == -1
+        present = labProbe(tid);
+        tag_found = -1;
+    else
+        matlab_tag = mess_tag+obj.matalb_tag_shift_;
+        present = labProbe(tid,matlab_tag);
+        if present
+            tag_found = mess_tag;
+        else
+            tag_found = -1;
         end
     end
 end

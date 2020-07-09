@@ -12,9 +12,7 @@ function ok=finish_task_tester(worker_controls_string,varargin)
 % varargin(n-neighbour) -- if present, defines number of "virtual"
 %             neighboring workers, used as sources of messages to
 %             test cpp_mpi communications.
-%
-% $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
-%
+
 
 if isempty(which('herbert_init.m'))
     herbert_on();
@@ -28,7 +26,7 @@ mis.is_deployed = true;
 % other unit tests. The production job finishes Matlab and clean-up is not necessary
 % though doing no harm.
 clot = onCleanup(@()(setattr(mis,'is_deployed',false)));
-
+%
 control_struct = iMessagesFramework.deserialize_par(worker_controls_string);
 % Initialize config files to use on remote session. Needs to be initialized
 % first as may be used by message framework.
@@ -55,7 +53,7 @@ try
     % initiate file-based framework to exchange messages between head node and
     % the pool of workers
     init_message =  InitMessage('dummy_not_used',3,true,1);
-
+    
     je = JETester();
     [je,mess] = je.init(fbMPI,intercomm,init_message);
     labind = intercomm.labIndex();
@@ -75,7 +73,11 @@ try
             intercomm.send_message(i,'completed');
         end
     end
-    ok=je.finish_task();
+    if mis.is_tested % serial execution
+        ok=je.finish_task('-asynch');
+    else
+        ok=je.finish_task();
+    end
 catch ME
     intercomm.clear_messages();
     rethrow(ME);
