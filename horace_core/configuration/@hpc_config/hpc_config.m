@@ -219,6 +219,8 @@ classdef hpc_config < config_base
             end
             if use_mpi
                 pc = parallel_config;
+                pc.saveable = false;
+                old_framework = pc.parallel_framework;
                 try % only MATLAB MPI can be enabled now.
                     % TODO: check what should be used when C++ mpi is
                     % ready.
@@ -229,6 +231,7 @@ classdef hpc_config < config_base
                         errmsg)
                     return
                 end
+                pc.parallel_framework = old_framework;
                 config_store.instance().store_config(this,'combine_sqw_using','mpi_code');
             end
         end
