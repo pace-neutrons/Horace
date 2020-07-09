@@ -80,12 +80,21 @@ try
     % clear all previous messages may be left in the message cache
     % (especially 'failed' message which is never popped in normal way)
     obj.mess_framework.clear_messages();
+catch ME
+    ok = false;
+    err_mess = ['JE Message framework clear messages: ' ME.message];
+end
+try
     % Also clear data messes counters, to restart data messages queue from the
     % beginning
     obj.control_node_exch.clear_messages();
 catch ME
-    ok = false;
-    err_mess = ME.message;
+    if ~ok
+        err_mess = [err_mess, ' and JE control node exchange: ' ME.message];
+    else
+        ok = false;
+        err_mess = ME.message;
+    end
 end
 % clear task results holder
 obj.task_results_holder_ = {};
