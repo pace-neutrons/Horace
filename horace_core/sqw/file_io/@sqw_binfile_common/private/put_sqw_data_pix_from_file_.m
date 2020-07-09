@@ -101,15 +101,16 @@ elseif strcmp(combine_algorithm,'mpi_code')
         [outputs,n_failed,~,jd] = jd.start_job('combine_sqw_pix_job',...
             common_par,loop_par,true,n_workers,false);
     end
-    pix_num_exchanged = [outputs{:}];
-    if sum(pix_num_exchanged) ~= 2*pix_num_exchanged(1)
-        warning('COMBINE_SQW_PIX_JOB:runtime_error',... 
-            ' Number of pixels sent by parallel workers sum(outputs(2:end)) not equal to the number of pixels, written to hdd outputs{1}');
-        disp(pix_num_exchanged);
-    end
     if n_failed > 0
         jd.display_fail_job_results(outputs,n_failed,n_workers,'WRITE_NSQW_TO_SQW:runtime_error');
     else
+        pix_num_exchanged = [outputs{:}];
+        if sum(pix_num_exchanged) ~= 2*pix_num_exchanged(1)
+            warning('COMBINE_SQW_PIX_JOB:runtime_error',... 
+                ' Number of pixels sent by parallel workers sum(outputs(2:end)) not equal to the number of pixels, written to hdd outputs{1}');
+            disp(pix_num_exchanged);
+        end
+        
         obj = obj.reopen_to_write();
     end
 else % MATLAB
