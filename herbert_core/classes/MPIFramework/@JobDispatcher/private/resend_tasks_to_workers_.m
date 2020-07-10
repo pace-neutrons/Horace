@@ -59,6 +59,8 @@ obj.job_is_starting_ = false;
 % take the old cluster
 cluster_wrp = obj.cluster_;
 %
+pause(5) % wait for some time to complete previous task IO operations.
+% something ugly happens between job restarts?
 %
 [outputs,n_failed,task_ids,obj] = submit_and_run_job_(obj,task_class_name,...
     common_params,loop_params,return_results,...

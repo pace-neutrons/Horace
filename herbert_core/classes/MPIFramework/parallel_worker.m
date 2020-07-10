@@ -134,7 +134,7 @@ while keep_worker_running
         % instantiate job executor class.
         je = feval(worker_init_data.JobExecutorClassName);
         if DO_LOGGING; je.ext_log_fh = fh;
-        end        
+        end
         je.do_job_completed = false; % do 2 barriers on exception (one at process failure)
         % ---------------------------------------------------------------------
         % step 2 of the worker initialization completed. a jobExecutor is
@@ -175,8 +175,11 @@ while keep_worker_running
             control_struct.job_id,ME.message);
         fbMPI.send_message(0,FailedMessage(err_mess,ME));
         
-        if exit_at_the_end;     exit;
-        else;                   return;
+        if keep_worker_running
+            fbMPI.clear_messages();
+            continue;
+        else
+            break;
         end
     end
     %
@@ -271,6 +274,8 @@ while keep_worker_running
             je.finish_task(mess,finish_mode);
             
             if keep_worker_running
+                % is it instance different from JE instance now?
+                fbMPI.clear_messages();
                 continue;
             else
                 break;
@@ -289,6 +294,8 @@ while keep_worker_running
     if DO_LOGGING;  fprintf(fh,'************* finishing subtask: %s \n',...
             fbMPI.job_id); end
     [ok,err_mess] = je.finish_task();
+    % is it instance different from JE instance now?
+    fbMPI.clear_messages();
     
     if DO_LOGGING;  fprintf(fh,'************* subtask: %s  finished\n',fbMPI.job_id); end
 end
