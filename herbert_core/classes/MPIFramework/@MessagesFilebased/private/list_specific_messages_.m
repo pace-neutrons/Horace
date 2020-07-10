@@ -40,7 +40,7 @@ end
 
 mess_folder = obj.mess_exchange_folder;
 if ~(exist(mess_folder,'dir')==7) % job was canceled
-    error('FILEBASED_MESSAGES:runtime_error',...
+    error('MESSAGES_FRAMEWORK:canceled',...
         'Job with id %s has been canceled. No messages folder exist',obj.job_id)
 end
 % find nolocked messages:

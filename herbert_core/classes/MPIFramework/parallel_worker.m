@@ -171,17 +171,11 @@ while keep_worker_running
         % something wrong with the code. We can not process interrupt
         % properly, but filebased framework should still be
         % available.
+        if DO_LOGGING; log_input_message_exception_caught();  end        
         err_mess = sprintf('job N%s failed. Error during job initialization %s:',...
             control_struct.job_id,ME.message);
         fbMPI.send_message(0,FailedMessage(err_mess,ME));
-        
-        if keep_worker_running            
-            fbMPI.clear_messages();
-            intercomm.clear_messages();
-            continue;
-        else
-            break;
-        end
+        break;
     end
     %
     try
@@ -279,7 +273,6 @@ while keep_worker_running
                 fbMPI = je.control_node_exch;
                 % is framework instance different from JE instance now?
                 intercomm= je.mess_framework;
-                
                 continue;
             else
                 break;
@@ -369,6 +362,20 @@ end
         disp('WORKER_4TESTS: worker has been initialized ************************')
     end
 %
+    function log_input_message_exception_caught()
+        fprintf(fh,'Receiving Init messages exception caught, ErrMessage: %s, ID: %s;| job_completed: %d \n',...
+            ME.message,ME.identifier,je.do_job_completed);
+        ss =numel(ME.stack);
+        for i=1:ss
+            fprintf(fh,'%s\n',ME.stack(i).file);
+            fprintf(fh,'%s\n',ME.stack(i).name);
+            fprintf(fh,'%s\n',num2str(ME.stack(i).line));
+            fprintf(fh,'%s\n','***************************');
+        end
+        disp(['WORKER_4TESTS: failing at receiving message: ',ME.identifier])
+        
+    end
+
     function log_exception_caught()
         fprintf(fh,'je exception caught, Message: %s, ID: %s;| job_completed: %d \n',...
             ME.message,ME.identifier,je.do_job_completed);
