@@ -16,4 +16,5 @@ function [ok,err_mess,je]=worker_v2(worker_controls_string)
 if isempty(which('herbert_init.m'))
     herbert_on();
 end
-[ok, err_mess,je] = parallel_worker(worker_controls_string);
+DO_LOGGING = true; % if true, write extensive log information.
+[ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING);
