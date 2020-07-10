@@ -17,6 +17,7 @@ include(PACE_AddCppUnitTest)
 
 set(TEST_DIRECTORIES
     "combine_sqw.tests"
+    "recompute_bin_data.tests"
     "utility.tests"
 )
 
