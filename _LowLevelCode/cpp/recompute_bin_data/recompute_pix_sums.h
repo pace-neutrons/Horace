@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CommonCode.h"
+
 template <class T>
 void recompute_pix_sums(double *const pSignal, double *const pVariance,
                         size_t distr_size, double const *const pNpix,
@@ -40,14 +42,6 @@ void recompute_pix_sums(double *const pSignal, double *const pVariance,
         size_t index = (pix0 + ip) * pix_fields::PIX_WIDTH;
         pSignal[i] += pPixelData[index + pix_fields::iSign];
         pVariance[i] += pPixelData[index + pix_fields::iErr];
-      }
-    }
-#pragma omp for
-    for (long i = 0; i < distr_size; i++) {
-      double nPix = pNpix[i];
-      if (nPix > 0) {
-        pSignal[i] /= nPix;
-        pVariance[i] /= (nPix * nPix);
       }
     }
   } // end parallel block

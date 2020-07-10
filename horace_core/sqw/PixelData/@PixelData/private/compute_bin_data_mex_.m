@@ -13,3 +13,5 @@ if nargin < 3
 end
 
 [mean_signal, mean_variance] = recompute_bin_data_c(npix, obj.data, n_threads);
+mean_signal = mean_signal./npix(:);
+mean_variance = mean_variance./npix(:).^2;
