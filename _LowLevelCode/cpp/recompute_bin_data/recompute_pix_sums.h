@@ -28,15 +28,15 @@ void recompute_pix_sums(double *const pSignal, double *const pVariance,
     }
 #pragma omp for
     for (long i = 0; i < distr_size; i++) {
-      size_t npixels = (size_t)pNpix[i];
+      size_t npix_in_bin = (size_t)pNpix[i];
       size_t pix0;
       if (multithreaded) { // multithreaded mode
         pix0 = cumSumData[i];
       } else { // single threaded mode
         pix0 = pixProcessed;
-        pixProcessed += npixels;
+        pixProcessed += npix_in_bin;
       }
-      for (size_t ip = 0; ip < npixels; ip++) {
+      for (size_t ip = 0; ip < npix_in_bin; ip++) {
         size_t index = (pix0 + ip) * pix_fields::PIX_WIDTH;
         pSignal[i] += pPixelData[index + pix_fields::iSign];
         pVariance[i] += pPixelData[index + pix_fields::iErr];
