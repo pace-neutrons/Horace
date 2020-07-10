@@ -3,7 +3,7 @@ function clear_all_messages_(obj)
 obj.persistent_fail_message_ = [];
 %
 finished = false;
-pause(1); % give time to complete possible IO operations
+pause(0.1); % give time to complete possible IO operations
 while ~finished
     try
         [all_messages,mid_from] = list_all_messages_(obj,'all');

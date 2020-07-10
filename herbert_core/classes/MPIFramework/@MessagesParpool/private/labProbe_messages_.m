@@ -16,6 +16,11 @@ if isnumeric(task_ids) && ~isempty(task_ids) || ...
     not_this  = task_ids ~= obj.labIndex;
     task_ids  = task_ids(not_this);
 end
+if ischar(task_ids)
+    error('LABPROBE_MESSAGES:invalid_argument',...
+        ' Function accepts only one form of task_ids input argument: "all" but received unknown request %s',...
+        evalc('disp(task_ids)'));
+end
 
 
 

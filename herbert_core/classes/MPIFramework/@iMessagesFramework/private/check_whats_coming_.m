@@ -29,6 +29,11 @@ if numel(mess_array) ~= numel(task_ids) %
         ' size of messages array (%d) must be equal to size of task_id-s requested (%d)',...
         numel(mess_array),numel(task_ids))
 end
+if ischar(task_ids)
+    error('CHECK_WHATS_COMING:invalid_argument',...
+        ' Function accepts only one form of task_ids input argument: "all" but received unknown request %s',...
+        evalc('disp(task_ids)'));
+end
 
 
 

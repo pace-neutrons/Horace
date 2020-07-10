@@ -82,7 +82,7 @@ try
     obj.mess_framework.clear_messages();
 catch ME
     ok = false;
-    err_mess = ['JE Message framework clear messages: ' ME.message];
+    err_mess = ['JE Message framework Error clearing messages: ' ME.message];
 end
 try
     % Also clear data messes counters, to restart data messages queue from the
@@ -93,7 +93,7 @@ catch ME
         err_mess = [err_mess, ' and JE control node exchange: ' ME.message];
     else
         ok = false;
-        err_mess = ME.message;
+        err_mess = ['JE control note exchange framework Error clearing messages: ' ME.message];
     end
 end
 % clear task results holder

@@ -13,6 +13,12 @@ end
 if nargin<4
     ignore_interrupts = false;
 end
+if ischar(task_ids_requested)
+    error('LIST_MESSAGES:invalid_argument',...
+        ' Function accepts only one form of task_ids input argument: "all" but received unknown request %s',...
+        evalc('disp(task_ids_requested)'));
+end
+
 % No harm in sending filebased messages to itself, especially as
 % list_all_messages_ accepts them but better to keep the common interface
 % with other frameworks

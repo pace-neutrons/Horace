@@ -9,6 +9,12 @@ if ~exist('task_ids_requested','var')
 elseif ischar(task_ids_requested) && strcmpi(task_ids_requested,'all')
     task_ids_requested = [];
 end
+if ischar(task_ids_requested)
+    error('LIST_MESSAGES:invalid_argument',...
+        ' Function accepts only one form of task_ids input argument: "all" but received unknown request %s',...
+        evalc('disp(task_ids_requested)'));
+end
+
 if ~exist('mess_name_or_tag','var')
     mess_tag_requested = [];
     mess_names_req = {};
