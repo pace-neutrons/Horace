@@ -6,6 +6,12 @@ function [all_messages,tid_received_from] = receive_all_messages_(obj,task_ids,m
 if ~exist('task_ids','var') || isempty(task_ids) || (ischar(task_ids) && strcmpi(task_ids,'all'))
     task_ids = 1:obj.numLabs;
 end
+if ischar(task_ids)
+    error('MESSAGES_FRAMEWORK:invalid_argument',...
+        ' Function accepts only one form of task_ids input argument: "all" but received unknown request %s',...
+        task_ids);
+end
+
 not_this = task_ids ~= obj.labIndex;
 if ~all(not_this)
     task_ids = task_ids(not_this);

@@ -10,20 +10,10 @@ function [messages,task_ids_from] = labProbe_messages_(obj,task_ids,varargin)
 if ~exist('task_ids','var')
     task_ids = [];
 end
-%n_labs = obj.numLabs;
-if isnumeric(task_ids) && ~isempty(task_ids) || ...
-        ischar(task_ids) && strcmp(task_ids,'all')
+if isnumeric(task_ids) && ~isempty(task_ids)
     not_this  = task_ids ~= obj.labIndex;
     task_ids  = task_ids(not_this);
 end
-if ischar(task_ids)
-    error('LABPROBE_MESSAGES:invalid_argument',...
-        ' Function accepts only one form of task_ids input argument: "all" but received unknown request %s',...
-        evalc('disp(task_ids)'));
-end
-
-
-
 
 % check if specific message name is requested
 if nargin > 2 && ~isempty(varargin{1})

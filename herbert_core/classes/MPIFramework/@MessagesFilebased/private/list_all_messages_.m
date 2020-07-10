@@ -10,7 +10,7 @@ elseif ischar(task_ids_requested) && strcmpi(task_ids_requested,'all')
     task_ids_requested = [];
 end
 if ischar(task_ids_requested)
-    error('LIST_MESSAGES:invalid_argument',...
+    error('MESSAGES_FRAMEWORK:invalid_argument',...
         ' Function accepts only one form of task_ids input argument: "all" but received unknown request %s',...
         evalc('disp(task_ids_requested)'));
 end
@@ -32,7 +32,7 @@ elseif isnumeric(mess_name_or_tag)
         mess_tag_requested = mess_name_or_tag;
         mess_names_req  = MESS_NAMES.mess_name(mess_tag_requested);
     else
-        error('FILEBASED_MESSAGES:invalid_argument',...
+        error('MESSAGES_FRAMEWORK:invalid_argument',...
             'one all of the tags among the tags provided in tags list is not recognized')
     end
 else

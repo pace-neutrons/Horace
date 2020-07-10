@@ -1230,14 +1230,7 @@ classdef exchange_common_tests < MPI_Test_Common
             
             clear clob_r;
         end
-        function test_check_whats_coming_data_kept_fail_overrides(obj)
-            %             init_struct = iMessagesFramework.build_worker_init(tmp_dir, ...
-            %                 'test_check_whats_coming_1mess', 'MessagesFilebased', 1, 10,'test_mode');
-            %
-            %             m_comm = MessagesFileBasedMPI_mirror_tester(init_struct);
-            %             clob_s = onCleanup(@()(finalize_all(m_comm)));
-            %             m_comm.time_to_fail = 1000;
-            
+        function test_check_whats_coming_data_kept_fail_overrides(obj)            
             if obj.ignore_test
                 return
             end
@@ -1423,6 +1416,36 @@ classdef exchange_common_tests < MPI_Test_Common
             assertEqual(mess_names{3},'log')
             assertEqual(mess_names{4},'data')
             
+        end
+        %
+        function test_probe_wrong_char_name_throws(obj)
+            if obj.ignore_test
+                return
+            end
+            m_comm = feval(obj.comm_name);
+            clob_s = onCleanup(@()(finalize_all(m_comm )));
+            
+            
+            
+            dm = DataMessage();
+            dm.payload = 'a';
+            % CPP_MPI messages in test mode are "reflected" from target node
+            [ok, err] = m_comm.send_message(2, dm);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+            lm = LogMessage(0,10,1,[]);
+            [ok, err] = m_comm.send_message(3,lm);
+            assertEqual(ok, MESS_CODES.ok, ['Send Error = ', err])
+
+            mess_array = cell(1,5);            
+            f = @()check_whats_coming_tester(m_comm,'wrong','log',mess_array,0);
+            assertExceptionThrown(f,'MESSAGES_FRAMEWORK:invalid_argument');
+            
+            f = @()probe_all(m_comm,'wrong','any');
+            assertExceptionThrown(f,'MESSAGES_FRAMEWORK:invalid_argument');            
+            
+            
+            f = @()receive_all(m_comm,'wrong','log');
+            assertExceptionThrown(f,'MESSAGES_FRAMEWORK:invalid_argument');                        
         end
         %
         function test_Receive_fromAny_is_error(obj)
