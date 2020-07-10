@@ -23,7 +23,7 @@ elseif ischar(mess_name_or_tag)
         mess_tag_requested = [];
         mess_names_req = {};
     else
-        mess_tag_requested = MESS_NAMES.mess_id(mess_name_or_tag);
+        mess_tag_requested = MESS_NAMES.mess_id(mess_name_or_tag,obj.interrupt_chan_tag_);
         mess_names_req = mess_name_or_tag;
     end
 elseif isnumeric(mess_name_or_tag)
