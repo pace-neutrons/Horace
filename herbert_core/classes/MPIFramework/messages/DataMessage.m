@@ -7,6 +7,10 @@ classdef DataMessage < aMessage
     methods
         function obj = DataMessage(payload)
             % Construct the data message
+            % Inputs:
+            % payload  -- if not empty, assigns the value, provided as
+            %             input to payload property.
+            % 
             obj = obj@aMessage('data');
             if exist('payload','var')
                 obj.payload = payload;

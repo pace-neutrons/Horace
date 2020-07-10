@@ -35,3 +35,12 @@ obj.mess_framework.throw_on_interrupts = false;
 [~,err,obj]=obj.reduce_send_message('started','started',[],synchronize);
 obj.mess_framework.throw_on_interrupts = true;
 
+% initialize loggers for messages frameworks to print debug information 
+if ~isempty(obj.ext_log_fh) && isnumeric(obj.ext_log_fh)
+    fn = fopen(obj.ext_log_fh);
+    if ~isempty(fn)
+        obj.control_node_exch_.ext_log_fh = obj.ext_log_fh;
+        obj.mess_framework_.ext_log_fh = obj.ext_log_fh;
+    end
+end
+

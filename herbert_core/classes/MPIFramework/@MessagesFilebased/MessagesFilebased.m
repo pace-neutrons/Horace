@@ -428,7 +428,5 @@ classdef MessagesFilebased < iMessagesFramework
             end
             
         end
-        
-        
     end
 end

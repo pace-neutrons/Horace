@@ -75,6 +75,12 @@ classdef iMessagesFramework < handle
         interrupt_chan_tag_ = 100; % let's take it definitively bigger then 
         % other message tag defined in the system
     end
+    properties(Hidden=true)
+        % in debug mode, parallel worker assigns to this property 
+        % open file handle to do logging.
+        ext_log_fh;
+    end
+
     methods
         function obj = iMessagesFramework(varargin)
             % default prefix is 5 digits of processID+3 digits of current number of seconds
@@ -133,16 +139,14 @@ classdef iMessagesFramework < handle
             % established.
             %
             % Usage:
-            % cs = obj.get_worker_init1(intercom_name) % -- for real MPI worker
+            % cs = obj.get_worker_init(intercom_name) % -- for real MPI worker
             % or
-            % cs = obj.get_worker_init1(intercom_name,labId,numLabs) % for Herbert MPI
+            % cs = obj.get_worker_init(intercom_name,labId,numLabs) % for Herbert MPI
             %                                          worker
-            % cs = obj.get_worker_init1(intercom_name,labId,numLabs,test_mode)
-            %                                          % for Herbert MPI
-            %                                          worker, initialized
-            %                                          in test mode, i.e.
-            %                                          barrier is not
-            %                                          deployed
+            % cs = obj.get_worker_init(___,test_mode)
+            %                     for MPI worker, initialized
+            %                     in test mode, i.e. barrier is not deployed.
+            %                                          
             % if test_mode is character string, testing is enabled and the
             % output is serialized. If its Boolean, testing is enabled but
             % if the output is serialized defined if its true (serialized)

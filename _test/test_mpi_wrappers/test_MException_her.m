@@ -32,15 +32,15 @@ classdef test_MException_her < TestCase
             assertTrue(isa(MER,'MException_her'));
             assertEqual(myExc,MER);
         end
-        %
+       %
         function test_zero_stack_r(~)
-            % Exception with zero stack does not conain much information.
+            % Exception with zero stack does not contain much information.
             %
             ME = MException('TESTEXC:zero_stack','test zero stack exceptions');
             myExc = MException_her(ME);
             
             rep = getReport(myExc);
-            assertEqual(rep,'test zero stack exceptions');
+            assertTrue(strncmp(rep,'test zero stack exceptions',26));
         end
         %
         function test_convert_to_Exception(~)

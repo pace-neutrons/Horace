@@ -104,7 +104,7 @@ while keep_worker_running
     % 2) step 2 of the worker initialization.
     %----------------------------------------------------------------------
     %
-    if DO_LOGGING; log_disp_message(' Entereing JE loop: receiving "starting" message'); end
+    if DO_LOGGING; log_disp_message(' Entering JE loop: receiving "starting" message'); end
     %
     try
         [ok,err,mess]= fbMPI.receive_message(0,'starting','-synch');
@@ -133,12 +133,14 @@ while keep_worker_running
         if DO_LOGGING; log_worker_init_received();  end
         % instantiate job executor class.
         je = feval(worker_init_data.JobExecutorClassName);
+        if DO_LOGGING; je.ext_log_fh = fh;
+        end        
         je.do_job_completed = false; % do 2 barriers on exception (one at process failure)
         % ---------------------------------------------------------------------
         % step 2 of the worker initialization completed. a jobExecutor is
         % initialized and worker knows what to do when it finishes or
         % fails.
-        %% --------------------------------------------------------------------
+        %----------------------------------------------------------------------
         %
         %----------------------------------------------------------------------
         % 3) step 3 of the worker initialization. Initializing the particular
@@ -165,9 +167,9 @@ while keep_worker_running
         if DO_LOGGING; log_init_je_started();  end
         % node 1 is waiting here until all tasks report "started" to it
         [je,mess] = je.init(fbMPI,intercomm,init_message,is_tested);
-    catch ME % JE init have probably not inititialized propertly or
+    catch ME % JE init have probably not initialized properly or
         % something wrong with the code. We can not process interrupt
-        % propertly, but filebased framework shoule still be
+        % properly, but filebased framework should still be
         % available.
         err_mess = sprintf('job N%s failed. Error during job initialization %s:',...
             control_struct.job_id,ME.message);
@@ -214,7 +216,7 @@ while keep_worker_running
             is_canceled = je.is_job_canceled();
             if is_canceled
                 error('JOB_EXECUTOR:canceled',...
-                    'Job canceled before synchronization after do_job')
+                    'Job cancelled before synchronization after do_job')
             end
             
             if DO_LOGGING; log_disp_message('Got to barrier for all chunks do_job completion'); end
@@ -231,7 +233,7 @@ while keep_worker_running
             is_canceled = je.is_job_canceled();
             if is_canceled
                 error('JOB_EXECUTOR:canceled',...
-                    'Job canceled before recuding data')
+                    'Job cancelled before reducing data')
             end
             je = je.reduce_data();
         end
@@ -273,7 +275,7 @@ while keep_worker_running
             else
                 break;
             end
-        catch ME1 % the only exception should happen here is "job canceled"
+        catch ME1 % the only exception should happen here is "job cancelled"
             disp(getReport(ME1))
             if exit_at_the_end
                 exit;
@@ -371,6 +373,6 @@ end
 function f_canc(job_executor)
 if job_executor.is_job_canceled()
     error('MESSAGE_FRAMEWORK:canceled',...
-        'Messages framework has been canceled or is not initialized any more')
+        'Messages framework has been cancelled or is not initialized any more')
 end
 end

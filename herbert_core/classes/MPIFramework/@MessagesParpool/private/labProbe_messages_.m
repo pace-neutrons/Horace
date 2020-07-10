@@ -1,15 +1,18 @@
 function [messages,task_ids_from] = labProbe_messages_(obj,task_ids,varargin)
-% list all messages belonging to the job and retrieve all their names
-% for the labs with id, provided as input.
-% if no message is returned for a job, its name cell remains empty.
+% probe messages send to this lab and retrieve their names. 
+% 
+% Return list of the message names and array of task id-s which sent
+% messages. 
 %
-% Will check if interupt is availabe and if it is,
+% Will check if interrupt is available and if it is, return interrupt name 
+% instead of any other message.
 %
 if ~exist('task_ids','var')
     task_ids = [];
 end
 %n_labs = obj.numLabs;
-if isnumeric(task_ids) && ~isempty(task_ids)
+if isnumeric(task_ids) && ~isempty(task_ids) || ...
+        ischar(task_ids) && strcmp(task_ids,'all')
     not_this  = task_ids ~= obj.labIndex;
     task_ids  = task_ids(not_this);
 end

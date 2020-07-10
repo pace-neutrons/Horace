@@ -85,6 +85,12 @@ classdef JobExecutor
         % processing exception, as the barrier after do_job have been
         % bypassed.
         do_job_completed
+        %
+    end
+    properties(Hidden=true)
+        % in debug mode, parallel worker assigns to this property 
+        % open file handle to do logging.
+        ext_log_fh;
     end
     %
     properties(Access=protected, Hidden = true)
