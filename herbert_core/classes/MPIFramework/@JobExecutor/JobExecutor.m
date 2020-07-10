@@ -343,7 +343,7 @@ classdef JobExecutor
                     if nargout > 1
                         reas = sprintf(' Received %d cancellation messages: ',numel(mess));
                         for i=1:numel(tids)
-                            reas = sprintf('%s mess: %s; from node %d',reas,tids(i),(mess{i}));
+                            reas = sprintf('%s name: %s; from node %d',reas,mess{i},tids(i));
                         end
                     end
                     is = true;
@@ -440,8 +440,7 @@ classdef JobExecutor
                 'JobExecutorClassName',JE_className,...
                 'exit_on_compl',exit_on_completion ,...
                 'keep_worker_running',keep_worker_running);
-            initMessage  = aMessage('starting');
-            initMessage.payload = info;
+            initMessage  = StartingMessage(info);
         end
         %
         function [cntrl_node_exchange,internode_exchange]=init_frameworks(control_structure)

@@ -10,15 +10,10 @@ function [messages,task_ids_from] = labProbe_messages_(obj,task_ids,varargin)
 if ~exist('task_ids','var')
     task_ids = [];
 end
-%n_labs = obj.numLabs;
-if isnumeric(task_ids) && ~isempty(task_ids) || ...
-        ischar(task_ids) && strcmp(task_ids,'all')
+if isnumeric(task_ids) && ~isempty(task_ids)
     not_this  = task_ids ~= obj.labIndex;
     task_ids  = task_ids(not_this);
 end
-
-
-
 
 % check if specific message name is requested
 if nargin > 2 && ~isempty(varargin{1})

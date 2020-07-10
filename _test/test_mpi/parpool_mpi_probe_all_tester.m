@@ -72,7 +72,7 @@ else %sender
         return;
     end
     if lab_receiver < li
-        mess1 = aMessage('starting');
+        mess1 = aMessage('queued');
         mess2 = aMessage('started');
     else
         mess1 = LogMessage();

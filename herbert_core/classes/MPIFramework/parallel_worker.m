@@ -134,7 +134,7 @@ while keep_worker_running
         % instantiate job executor class.
         je = feval(worker_init_data.JobExecutorClassName);
         if DO_LOGGING; je.ext_log_fh = fh;
-        end        
+        end
         je.do_job_completed = false; % do 2 barriers on exception (one at process failure)
         % ---------------------------------------------------------------------
         % step 2 of the worker initialization completed. a jobExecutor is
@@ -171,13 +171,11 @@ while keep_worker_running
         % something wrong with the code. We can not process interrupt
         % properly, but filebased framework should still be
         % available.
+        if DO_LOGGING; log_input_message_exception_caught();  end        
         err_mess = sprintf('job N%s failed. Error during job initialization %s:',...
             control_struct.job_id,ME.message);
         fbMPI.send_message(0,FailedMessage(err_mess,ME));
-        
-        if exit_at_the_end;     exit;
-        else;                   return;
-        end
+        break;
     end
     %
     try
@@ -271,6 +269,10 @@ while keep_worker_running
             je.finish_task(mess,finish_mode);
             
             if keep_worker_running
+                % is framework instance different from JE instance now?
+                fbMPI = je.control_node_exch;
+                % is framework instance different from JE instance now?
+                intercomm= je.mess_framework;
                 continue;
             else
                 break;
@@ -289,6 +291,11 @@ while keep_worker_running
     if DO_LOGGING;  fprintf(fh,'************* finishing subtask: %s \n',...
             fbMPI.job_id); end
     [ok,err_mess] = je.finish_task();
+    % is framework instance different from JE instance now?
+    fbMPI = je.control_node_exch;
+    % is framework instance different from JE instance now?
+    intercomm= je.mess_framework;
+    
     
     if DO_LOGGING;  fprintf(fh,'************* subtask: %s  finished\n',fbMPI.job_id); end
 end
@@ -355,6 +362,20 @@ end
         disp('WORKER_4TESTS: worker has been initialized ************************')
     end
 %
+    function log_input_message_exception_caught()
+        fprintf(fh,'Receiving Init messages exception caught, ErrMessage: %s, ID: %s;| job_completed: %d \n',...
+            ME.message,ME.identifier,je.do_job_completed);
+        ss =numel(ME.stack);
+        for i=1:ss
+            fprintf(fh,'%s\n',ME.stack(i).file);
+            fprintf(fh,'%s\n',ME.stack(i).name);
+            fprintf(fh,'%s\n',num2str(ME.stack(i).line));
+            fprintf(fh,'%s\n','***************************');
+        end
+        disp(['WORKER_4TESTS: failing at receiving message: ',ME.identifier])
+        
+    end
+
     function log_exception_caught()
         fprintf(fh,'je exception caught, Message: %s, ID: %s;| job_completed: %d \n',...
             ME.message,ME.identifier,je.do_job_completed);

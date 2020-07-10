@@ -52,13 +52,20 @@ end
 if ~keep_workers_running
     clob = onCleanup(@()finalize_all(obj));
 end
-% clear all messages may remain from the previous job
+%
+pause(10) % wait for some time to complete previous task IO operations.
+% something ugly happens between job restarts -- messages are not written
+% to the file system and appeared randoml time after the next job is
+% running. Need proper fix.
+%
+% clear all messages may be send to JD from the previous job.
 obj.mess_framework.clear_messages();
 % indicate old cluster reused
 obj.job_is_starting_ = false;
 % take the old cluster
 cluster_wrp = obj.cluster_;
-
+%
+%
 [outputs,n_failed,task_ids,obj] = submit_and_run_job_(obj,task_class_name,...
     common_params,loop_params,return_results,...
     cluster_wrp,keep_workers_running);

@@ -13,6 +13,12 @@ end
 if nargin<4
     ignore_interrupts = false;
 end
+if ischar(task_ids_requested)
+    error('LIST_MESSAGES:invalid_argument',...
+        ' Function accepts only one form of task_ids input argument: "all" but received unknown request %s',...
+        evalc('disp(task_ids_requested)'));
+end
+
 % No harm in sending filebased messages to itself, especially as
 % list_all_messages_ accepts them but better to keep the common interface
 % with other frameworks
@@ -34,7 +40,7 @@ end
 
 mess_folder = obj.mess_exchange_folder;
 if ~(exist(mess_folder,'dir')==7) % job was canceled
-    error('FILEBASED_MESSAGES:runtime_error',...
+    error('MESSAGES_FRAMEWORK:canceled',...
         'Job with id %s has been canceled. No messages folder exist',obj.job_id)
 end
 % find nolocked messages:

@@ -20,7 +20,7 @@ if isempty(which('herbert_init.m'))
     % herbert_on('/home/isis_direct_soft/Herbert_bugfix/herbert_core');
     % horace_on('/home/isis_direct_soft/Horace_bugfix/horace_core');
 end
-DO_LOGGING = false; % if true, write extensive log information.
+DO_LOGGING = true; % if true, write extensive log information.
 DO_DEBUGGING = false; % if true, do not exit worker on completion (enter pause).
 % Used for filebased framework debugging on windows, when one can get access to the terminal of running worker.
 [ok,err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING,DO_DEBUGGING);

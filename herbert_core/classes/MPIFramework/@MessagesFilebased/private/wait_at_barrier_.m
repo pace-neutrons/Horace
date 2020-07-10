@@ -6,7 +6,17 @@ ok = true;
 err = [];
 if obj.labIndex == 1
     tasks = 2:obj.numLabs;
-    [~,task_present] = list_specific_messages_(obj,tasks,'barrier',true);
+    try
+        [~,task_present] = list_specific_messages_(obj,tasks,'barrier',true);
+    catch ME
+        if nothrow
+            ok=false;
+            err = ME.message;
+            return
+        else
+            rethrow(ME);
+        end
+    end
     all_present = all(ismember(tasks,task_present));
     t0 = tic;
     % wait unill all barrier messages from slaves would appear
@@ -28,7 +38,7 @@ if obj.labIndex == 1
             end
         end
     end
-    % dicard all existing barrier messages to clear the file system    
+    % dicard all existing barrier messages to clear the file system
     for i=1:numel(tasks)
         reply = obj.mess_file_name(obj.labIndex,'barrier',tasks(i));
         delete(reply);
@@ -44,14 +54,23 @@ if obj.labIndex == 1
 else
     % send barrier message to master;
     obj.send_message(1,'barrier');
-    % wait for master replying with barrier message 
+    % wait for master replying with barrier message
     [~,task_present] = list_specific_messages_(obj,1,'barrier',true);
     reply_present = ~isempty(task_present);
     t0 = tic;
     while ~reply_present
         pause(obj.time_to_react_);
-        
-        [~,task_present] = list_specific_messages_(obj,1,'barrier',true);
+        try
+            [~,task_present] = list_specific_messages_(obj,1,'barrier',true);
+        catch ME
+            if nothrow
+                ok=false;
+                err = ME.message;
+                return
+            else
+                rethrow(ME);
+            end
+        end
         reply_present = ~isempty(task_present);
         if ~reply_present
             ttl = toc(t0);
@@ -69,7 +88,18 @@ else
         end
     end
     reply = obj.mess_file_name(obj.labIndex,'barrier',1);
-    delete(reply);
+    try
+        delete(reply);
+    catch ME
+        if nothrow
+            ok=false;
+            err = ME.message;
+            return
+        else
+            rethrow(ME);
+        end
+        
+    end
     all_present = true;
 end
 
