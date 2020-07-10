@@ -64,13 +64,10 @@ classdef test_gen_sqw_accumulate_sqw_parpool <  ...
             test_gen_sqw@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
         end
         function test_accumulate_sqw14(obj,varargin)
-            
             test_accumulate_sqw14@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
         end
         function test_accumulate_and_combine1to4(obj,varargin)
-            
             test_accumulate_and_combine1to4@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
-            
         end
         function test_accumulate_sqw1456(obj,varargin)
             
