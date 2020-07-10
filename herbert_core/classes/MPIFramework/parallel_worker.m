@@ -175,8 +175,9 @@ while keep_worker_running
             control_struct.job_id,ME.message);
         fbMPI.send_message(0,FailedMessage(err_mess,ME));
         
-        if keep_worker_running
+        if keep_worker_running            
             fbMPI.clear_messages();
+            intercomm.clear_messages();
             continue;
         else
             break;
@@ -274,8 +275,11 @@ while keep_worker_running
             je.finish_task(mess,finish_mode);
             
             if keep_worker_running
-                % is it instance different from JE instance now?
-                fbMPI.clear_messages();
+                % is framework instance different from JE instance now?
+                fbMPI = je.control_node_exch;
+                % is framework instance different from JE instance now?
+                intercomm= je.mess_framework;
+                
                 continue;
             else
                 break;
@@ -294,8 +298,11 @@ while keep_worker_running
     if DO_LOGGING;  fprintf(fh,'************* finishing subtask: %s \n',...
             fbMPI.job_id); end
     [ok,err_mess] = je.finish_task();
-    % is it instance different from JE instance now?
-    fbMPI.clear_messages();
+    % is framework instance different from JE instance now?
+    fbMPI = je.control_node_exch;
+    % is framework instance different from JE instance now?
+    intercomm= je.mess_framework;
+    
     
     if DO_LOGGING;  fprintf(fh,'************* subtask: %s  finished\n',fbMPI.job_id); end
 end
