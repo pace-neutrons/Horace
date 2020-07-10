@@ -59,11 +59,7 @@ obj.job_is_starting_ = false;
 % take the old cluster
 cluster_wrp = obj.cluster_;
 %
-pause(10) % allow remote workes to complete their clean-up operations
-% receiving and rejecting all their messages, sent to them during previous job.
-% If this operation is incomplete, the init messages, sent below, will be
-% rejected too.
-
+%
 [outputs,n_failed,task_ids,obj] = submit_and_run_job_(obj,task_class_name,...
     common_params,loop_params,return_results,...
     cluster_wrp,keep_workers_running);

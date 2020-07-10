@@ -266,7 +266,7 @@ classdef ClusterWrapper
             % retrieve parallel job results
             [outputs,n_failed,obj] = get_job_results_(obj);
         end
-        function check_availability(obj)
+        function check_availability(~)
             % verify the availability of a particular type of framework
             % (cluster)
             %

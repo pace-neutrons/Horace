@@ -20,14 +20,14 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             mf = MFTester('test_finalize_all');
             clon = onCleanup(@()finalize_all(mf));
             %
-            [ok, err] = mf.send_message(0, 'starting');
+            [ok, err] = mf.send_message(0, 'queued');
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
             [ok, err] = mf.send_message(0, LogMessage());
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
             %
-            ok = mf.receive_message(0, 'starting');
+            ok = mf.receive_message(0, 'queued');
             assertEqual(ok, MESS_CODES.ok)
             ok = mf.receive_message(0, 'log');
             assertEqual(ok, MESS_CODES.ok)
@@ -58,7 +58,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             mf3 = MessagesFilebased(fii);
             
             
-            mess = aMessage('starting');
+            mess = StartingMessage();
             [ok, err] = mf0.send_message(2, mess);
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
@@ -114,7 +114,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertTrue(isempty(all_mess));
             
             
-            mess = aMessage('starting');
+            mess = StartingMessage();
             % send message to itself
             [ok, err] = m_host.send_message(3, mess);
             assertEqual(ok, MESS_CODES.ok)
@@ -211,28 +211,28 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertTrue(isempty(all_mess));
             
             
-            mess = aMessage('starting');
+            mess = aMessage('queued');
             % send message to itself
             [ok, err] = mf.send_message(5, mess);
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
             [all_mess, mid_from] = mf.probe_all();
-            assertTrue(ismember('starting', all_mess))
+            assertTrue(ismember('queued', all_mess))
             assertFalse(ismember('started', all_mess))
             assertEqual(mid_from, 5);
-            [all_mess, mid_from] = mf.probe_all('all','starting');
-            assertTrue(ismember('starting', all_mess))
+            [all_mess, mid_from] = mf.probe_all('all','queued');
+            assertTrue(ismember('queued', all_mess))
             assertFalse(ismember('started', all_mess))
             assertEqual(mid_from, 5);
             
             
-            lock_starting = obj.build_fake_inverse_lock(mf, 'starting');
-            clob_lock1 = onCleanup(@()del_file(lock_starting));
+            lock_queued = obj.build_fake_inverse_lock(mf, 'queued');
+            clob_lock1 = onCleanup(@()del_file(lock_queued));
             
             [all_mess,mid_from] = mf.probe_all();
             assertTrue(isempty(all_mess));
             assertTrue(isempty(mid_from));
-            [all_mess, mid_from] = mf.probe_all('all','starting');
+            [all_mess, mid_from] = mf.probe_all('all','queued');
             assertTrue(isempty(all_mess));
             assertTrue(isempty(mid_from));
             
@@ -261,10 +261,10 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertTrue(isempty(all_mess));
             
             
-            delete(lock_starting);
+            delete(lock_queued);
             
             all_mess = mf.probe_all();
-            assertTrue(ismember('starting', all_mess))
+            assertTrue(ismember('queued', all_mess))
             assertEqual(mid_from, 5);
             
             delete(lock_started);
@@ -280,7 +280,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             all_mess = mf.probe_all();
             assertEqual(numel(all_mess), 1);
             
-            [ok, err] = mf.receive_message(5, 'starting');
+            [ok, err] = mf.receive_message(5, 'queued');
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
             
@@ -298,15 +298,15 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             jfn = fullfile(this.working_dir, cfn, mf.exchange_folder_name, mf.job_id);
             assertEqual(exist(jfn, 'dir'), 7);
             
-            [ok, err] = mf.send_message(7, 'starting');
+            [ok, err] = mf.send_message(7, 'queued');
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
             
-            [ok, err, the_mess] = mf.receive_message(7, 'starting');
+            [ok, err, the_mess] = mf.receive_message(7, 'queued');
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
             assertFalse(isempty(the_mess));
-            assertEqual(the_mess.mess_name, 'starting');
+            assertEqual(the_mess.mess_name, 'queued');
             
             clear clob;
             assertTrue(exist(jfn, 'dir') == 0);
@@ -590,7 +590,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             job_param = struct('filepath', this.working_dir, ...
                 'filename_template', 'test_jobDispatcher%d_nf%d.txt');
             
-            mess = aMessage('starting');
+            mess = aMessage('started');
             mess.payload = job_param;
             
             mf0 = MFTester(fii);
@@ -599,12 +599,12 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
             
-            mess_fname = mf0.mess_file_name(1, 'starting');
+            mess_fname = mf0.mess_file_name(1, 'started');
             assertTrue(exist(mess_fname, 'file') == 2);
             %
             fii.labID = 1;
             mf1 = MFTester(fii);
-            [ok, err, the_mess] = mf1.receive_message(0, 'starting');
+            [ok, err, the_mess] = mf1.receive_message(0, 'started');
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
             assertFalse(exist(mess_fname, 'file') == 2); % Message received
@@ -613,15 +613,18 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertEqual(job_param,cont);
             
             init_mess = InitMessage('some init info');
+            mess_fname = mf0.mess_file_name(1, 'init'); % name must be calculated before message send as it will be the next name otherwise
+            
             [ok,err] = mf0.send_message(1,init_mess);
             assertEqual(ok,MESS_CODES.ok)
             assertTrue(isempty(err));
+            %
+            assertTrue(exist(mess_fname, 'file') == 2);
             
             [ok,err,the_mess]=mf1.receive_message(0,'init');
             assertEqual(ok,MESS_CODES.ok)
             assertTrue(isempty(err));
             assertEqual(the_mess.payload.common_data,'some init info');
-            
             
             
             [all_messages_names,task_ids] = mf1.probe_all(0,'log');
@@ -634,6 +637,6 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             mf0.finalize_all();
             assertFalse(exist(job_exchange_folder, 'dir') == 7)
         end
-        %        
+        %
     end
 end
