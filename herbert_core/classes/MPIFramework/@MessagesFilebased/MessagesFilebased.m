@@ -351,7 +351,20 @@ classdef MessagesFilebased < iMessagesFramework
                     if strcmpi(fs,old_id)
                         obj.mess_exchange_folder_ = fullfile(fp,new_job_id);
                         if delete_old_folder && (exist(old_exchange,'dir') == 7)
-                            rmdir(old_exchange,'s');
+                            [ok,msg]=rmdir(old_exchange,'s');
+                            n_allowed = 1000;
+                            n_tries = 0;
+                            while ~ok
+                                pause(obj.time_to_react_)
+                                [ok,msg]=rmdir(old_exchange,'s');                                
+                                n_tries = n_tries +1;                                
+                                if n_tries > n_allowed
+                                    warning(' Can not delete old message exchange folder %s, because of %s. Continuing regardless',...
+                                        old_exchange,msg);
+                                end
+                                
+                                
+                            end
                         end
                     end
                 end
