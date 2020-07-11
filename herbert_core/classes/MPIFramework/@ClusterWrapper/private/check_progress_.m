@@ -22,16 +22,25 @@ else
                     'Error %s receiving existing message: %s from job %s',...
                     err,mess_names{i},obj.job_id);
             end
-            if tid_from(i) ~=1
-                if isa(mess,'FailedMessage')
+            if tid_from(i) ~=1 % display messages received from other nodes.
+                % its probably status messages, indicating different
+                % problems.
+                disp('*****************************************************************');
+                fprintf('***** Task: %s initialization/completeon error.\n',me.job_id);
+                disp('*****************************************************************');
+                
+                if isa(mess,'FailedMessage') || isa(mess,'CanceledMessage')
                     disp(mess.fail_text);
                     if ~isempty(mess.exception)
                         mess.exception.getReport()
                     end
+                    % clear interrupt not to return this diagnostics all
+                    % the time
+                    me.clear_interrupt(tid_from(i));
                 else
                     disp(mess);
                 end
-            else
+            else % only messages from node 1 are proper information messages
                 tag = mess.tag;
                 completed = check_completed(tag);
                 obj.status = mess;
@@ -42,7 +51,6 @@ else
             end
         end
     end
-    
 end
 %
 function completed = check_completed(tag)

@@ -118,6 +118,7 @@ else
     fin_message = all_messages{1};
     fin_message.payload = all_payload;
 end
+%
 function is = is_the_same(mess,mess_name)
 if isa(mess,'aMessage')
     is = strcmpi(mess.mess_name,mess_name);

@@ -96,7 +96,7 @@ while keep_worker_running
     num_of_runs = num_of_runs+1;
     if DO_LOGGING; log_num_runs(num_of_runs); end
     fprintf('   ***************************************\n');
-    fprintf('   ******  LabN %d  : RUN N : %d  ********\n',intercomm.labIndex,num_of_runs);
+    fprintf('   ******  LabN %d  : RUN N : %d  Task: %s *\n',intercomm.labIndex,num_of_runs,fbMPI.job_id);
     fprintf('   ****************************************=\n');
     
     %
@@ -165,7 +165,11 @@ while keep_worker_running
         %%
         
         if DO_LOGGING; log_init_je_started();  end
-        % node 1 is waiting here until all tasks report "started" to it
+        % to decrease probability of other job started their tasks and
+        % failed before node 1 is initialized -- let's set this barrier.
+        intercomm.labBarrier();
+        % node 1 is waiting here until all tasks report "started" to it. If
+        % some send failed, it will be unrecoverable failure
         [je,mess] = je.init(fbMPI,intercomm,init_message,is_tested);
     catch ME % JE init have probably not initialized properly or
         % something wrong with the code. We can not process interrupt
@@ -177,7 +181,7 @@ while keep_worker_running
         fbMPI.send_message(0,FailedMessage(err_mess,ME));
         break;
     end
-    %
+    %----------------------------------------------------------------------
     try
         if DO_LOGGING; log_init_je_finished();  end
         if ~isempty(mess)
@@ -199,7 +203,7 @@ while keep_worker_running
         % send first "running" log message and set-up starting time. Runs
         % asynchronously.
         n_steps = je.n_steps;
-        if DO_LOGGING; log_disp_message('Logging start and checking for job cancellation before loop je.is_completed loop'); end
+        if DO_LOGGING; log_disp_message('Logging start and checking for job cancellation before loop je.is_completed loop\n'); end
         mis.do_logging(0,n_steps);
         %%
         
@@ -257,7 +261,7 @@ while keep_worker_running
             if DO_LOGGING; log_disp_message(' Completed processing JE fail state'); end
             if DO_LOGGING; log_disp_message('arriving at Process_fail_state end of task barrier'); end
             
-            je.labBarrier(false);
+            je.labBarrier(true);
             je.do_job_completed = true;
             
             if DO_LOGGING; log_disp_message('--->Arrived at finish task at failure\n'); end
@@ -266,30 +270,27 @@ while keep_worker_running
             else
                 finish_mode = '-synch';
             end
-            je.finish_task(mess,finish_mode);
+            [ok,err_mess,je] = je.finish_task(mess,finish_mode);
             
             if keep_worker_running
-                % is framework instance different from JE instance now?
-                fbMPI = je.control_node_exch;
-                % is framework instance different from JE instance now?
-                intercomm= je.mess_framework;
                 % migrate job folder for message exchange without deleting the old
                 % one
+                if DO_LOGGING; log_disp_message('--->start migrating log folder\n'); end
                 je.migrate_job_folder(false);
                 continue;
             else
                 break;
             end
-        catch ME1 % the only exception happen is due to error in JE completeon
-            % procedure.
-            if DO_LOGGING; fprintf(fh,'************* Error in JE finalize code\n');  end
+        catch ME1 % the only exception happen is due to error in JE system
+            % code. (or user-oveloaded code) Unrecoverable failure
+            if DO_LOGGING; log_disp_message('************* Error in JE finalize code\n');  end
             err_mess = sprintf('job N%s critical failure. JE processing failure error %s:',...
                 control_struct.job_id,ME1.message);
             fbMPI.send_message(0,FailedMessage(err_mess,ME1));
             
             disp(getReport(ME1))
             if exit_at_the_end
-                exit;
+                break;
             else
                 rethrow(ME1);
             end
@@ -299,11 +300,7 @@ while keep_worker_running
     %%
     if DO_LOGGING;  fprintf(fh,'************* finishing subtask: %s \n',...
             fbMPI.job_id); end
-    [ok,err_mess] = je.finish_task();
-    % is framework instance different from JE instance now?
-    fbMPI = je.control_node_exch;
-    % is framework instance different from JE instance now?
-    intercomm= je.mess_framework;
+    [ok,err_mess,je] = je.finish_task();
     % migrate job folder for message exchange without deleting the old
     % one
     je.migrate_job_folder(false);
@@ -344,7 +341,7 @@ end
 %
     function log_num_runs(num_of_runs)
         fprintf(fh,'   ***************************************\n');
-        fprintf(fh,'   ****** LabN %d  :  RUN N : %d  ********\n',intercomm.labIndex,num_of_runs);
+        fprintf(fh,'   ******  LabN %d  : RUN N : %d  Task: %s *\n',intercomm.labIndex,num_of_runs,fbMPI.job_id);
         fprintf(fh,'   ****************************************=\n');
     end
 %
@@ -374,8 +371,8 @@ end
     end
 %
     function log_input_message_exception_caught()
-        fprintf(fh,'Receiving Init messages exception caught, ErrMessage: %s, ID: %s;| job_completed: %d \n',...
-            ME.message,ME.identifier,je.do_job_completed);
+        fprintf(fh,'Receiving Init messages exception caught, ErrMessage: %s, ID: %s;\n',...
+            ME.message,ME.identifier);
         ss =numel(ME.stack);
         for i=1:ss
             fprintf(fh,'%s\n',ME.stack(i).file);

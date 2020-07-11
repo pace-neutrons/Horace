@@ -254,7 +254,6 @@ classdef JobDispatcher
             end
             this.task_check_time_ =val;
             this = reset_fail_limit_(this,this.time_to_fail/val);
-            
         end
         %
         function time = get.time_to_fail(this)
@@ -327,6 +326,7 @@ classdef JobDispatcher
             end
             display_fail_jobs_(obj,outputs,n_failed,n_workers,Err_code);
         end
+        %
         function obj= migrate_exchange_folder(obj)
             % the function user to change location of message exchane
             % folder when task is completed and new task should start.
@@ -340,7 +340,7 @@ classdef JobDispatcher
             
             if ~isempty(obj.cluster_)
                 obj.cluster_ = obj.cluster_.set_mess_exchange(obj.mess_framework_);
-            end            
+            end
         end
         
     end

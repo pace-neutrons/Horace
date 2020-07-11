@@ -72,15 +72,15 @@ classdef iMessagesFramework < handle
         % interrupt channel name:
         interrupt_chan_name_;
         % the tag of the interrupt channel
-        interrupt_chan_tag_ = 100; % let's take it definitively bigger then 
+        interrupt_chan_tag_ = 100; % let's take it definitively bigger then
         % other message tag defined in the system
     end
     properties(Hidden=true)
-        % in debug mode, parallel worker assigns to this property 
+        % in debug mode, parallel worker assigns to this property
         % open file handle to do logging.
-        ext_log_fh;
+        ext_log_fh=[];
     end
-
+    
     methods
         function obj = iMessagesFramework(varargin)
             % default prefix is 5 digits of processID+3 digits of current number of seconds
@@ -146,7 +146,7 @@ classdef iMessagesFramework < handle
             % cs = obj.get_worker_init(___,test_mode)
             %                     for MPI worker, initialized
             %                     in test mode, i.e. barrier is not deployed.
-            %                                          
+            %
             % if test_mode is character string, testing is enabled and the
             % output is serialized. If its Boolean, testing is enabled but
             % if the output is serialized defined if its true (serialized)
@@ -239,6 +239,16 @@ classdef iMessagesFramework < handle
             %
             [all_messages,mid_from] = retrieve_interrupt_(obj,...
                 all_messages,mid_from,mes_addr_to_check);
+        end
+        function clear_interrupt(obj,task_id)
+            % method clears interrupt, receved from task_id specified
+            if isempty(obj.persistent_fail_message_)
+                return;
+            end
+            if isKey(obj.persistent_fail_message_,int32(task_id))
+                remove(obj.persistent_fail_message_,int32(task_id));
+            end
+            
         end
         %
         function [all_messages,task_ids] = receive_all(obj,task_ids,varargin)

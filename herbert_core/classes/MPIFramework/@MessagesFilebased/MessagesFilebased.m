@@ -127,48 +127,6 @@ classdef MessagesFilebased < iMessagesFramework
             construct_me_folder_(obj,val);
         end
         %
-        function new_folder_name = next_message_folder_name(obj)
-            % function returns the name of the folder,which will become new
-            % message exchange folder after job migration is completed.
-            %
-            %
-            old_job_id= obj.job_id;
-            number_pos = regexp(old_job_id,'\d');
-            if isempty(number_pos)
-                job_num = str2double(obj.get_framework_id());
-            else
-                job_num = str2double(old_job_id(number_pos));
-            end
-            job_num = job_num+obj.folder_migration_shift;
-            new_job_id = [old_job_id(1:end-numel(number_pos)),num2str(job_num)];
-            
-            path = fileparts(obj.mess_exchange_folder_);
-            new_folder_name = fullfile(path,new_job_id);
-        end
-        %
-        function migrate_message_folder(obj,delete_old_folder)
-            % the function user to change location of message exchane
-            % folder when task is completed and new task should start.
-            %
-            % used to bypass issues with NFS caching when changing subtasks
-            % Inputs:
-            % delete_old_folder  -- if true or absend, old folder is deleted
-            %                       if false, old folder remains intact
-            %
-            if nargin<2
-                delete_old_folder = true;
-            end
-            new_folder = obj.next_message_folder_name;
-            %
-            [status,mess,mess_id]=mkdir(new_folder);
-            if ~status
-                error(mess_id,' Can not create new exchange folder for migration: %s, Reason: %s',...
-                    new_folder,mess);
-            end
-            [~,new_job_id] = fileparts(new_folder);
-            % this will set new job ID and delete old exchange folder
-            set_job_id_(obj,new_job_id,delete_old_folder);
-        end
         %------------------------------------------------------------------
         % MPI interface
         %
@@ -251,6 +209,8 @@ classdef MessagesFilebased < iMessagesFramework
         end
         %
         function [ok,err]=labBarrier(obj,nothrow)
+            %  if nothrow == true, do not throw on errors in message
+            %  propagation
             if ~exist('nothrow','var')
                 nothrow = false;
             end
@@ -305,6 +265,50 @@ classdef MessagesFilebased < iMessagesFramework
             %
             obj.is_tested_ = logical(is_tested);
         end
+        %
+        function new_folder_name = next_message_folder_name(obj)
+            % function returns the name of the folder,which will become new
+            % message exchange folder after job migration is completed.
+            %
+            %
+            old_job_id= obj.job_id;
+            number_pos = regexp(old_job_id,'\d');
+            if isempty(number_pos)
+                job_num = str2double(obj.get_framework_id());
+            else
+                job_num = str2double(old_job_id(number_pos));
+            end
+            job_num = job_num+obj.folder_migration_shift;
+            new_job_id = [old_job_id(1:end-numel(number_pos)),num2str(job_num)];
+            
+            path = fileparts(obj.mess_exchange_folder_);
+            new_folder_name = fullfile(path,new_job_id);
+        end
+        
+        %
+        function migrate_message_folder(obj,delete_old_folder)
+            % the function user to change location of message exchane
+            % folder when task is completed and new task should start.
+            %
+            % used to bypass issues with NFS caching when changing subtasks
+            % Inputs:
+            % delete_old_folder  -- if true or absend, old folder is deleted
+            %                       if false, old folder remains intact
+            %
+            if nargin<2
+                delete_old_folder = true;
+            end
+            new_folder = obj.next_message_folder_name;
+            %
+            [status,mess,mess_id]=mkdir(new_folder);
+            if ~status
+                error(mess_id,' Can not create new exchange folder for migration: %s, Reason: %s',...
+                    new_folder,mess);
+            end
+            [~,new_job_id] = fileparts(new_folder);
+            % this will set new job ID and delete old exchange folder
+            set_job_id_(obj,new_job_id,delete_old_folder);
+        end
     end
     %----------------------------------------------------------------------
     methods (Access=protected)
@@ -334,7 +338,12 @@ classdef MessagesFilebased < iMessagesFramework
         %
         %
         function obj = set_job_id_(obj,new_job_id,delete_old_folder)
-            %
+            % Function to set the string, uniquely identifying the job
+            % Input:
+            % new_job_id -- the string for the future job id
+            % delete_old_folder -- if true or missing -- if old job folder
+            %                      was present, it should be deleted. If
+            %                      false, leave it alone.
             if nargin<3
                 delete_old_folder = true;
             end
