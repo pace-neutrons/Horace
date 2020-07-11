@@ -16,7 +16,7 @@ classdef ClusterWrapper
         % configuration is not necessary so this field contains 'local'
         % info. If one wants to run e.g. mpi job using mpiexec, the cluster
         % configuration should refer to the appropriate hosts file
-        cluster_config        
+        cluster_config
         
         % the current cluster status, usually defined by status message,
         % e.g. The string which describes the current status
@@ -24,7 +24,7 @@ classdef ClusterWrapper
         % short abbreviation of the status property.
         status_name;
         % the property identifies that wrapper received the message that
-        % the cluster status have changed.        
+        % the cluster status have changed.
         status_changed;
         % the string to display to user the current state of the cluster
         log_value
@@ -154,9 +154,9 @@ classdef ClusterWrapper
             end
             if log_level > -1
                 fprintf(obj.starting_info_message_,n_workers);
-            end            
+            end
             obj = obj.set_mess_exchange(mess_exchange_framework);
-
+            
             obj.n_workers_   = n_workers;
             
             
@@ -266,6 +266,10 @@ classdef ClusterWrapper
             % and complete parallel job
             if ~isempty(obj.mess_exchange_)
                 obj.mess_exchange_.finalize_all();
+                new_mess_exchange_folder = obj.mess_exchange_.next_message_folder_name;
+                if exist(new_mess_exchange_folder,'dir')==7
+                    rmdir(new_mess_exchange_folder,'s');
+                end
                 obj.mess_exchange_ = [];
             end
         end
