@@ -288,6 +288,56 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertTrue(isempty(all_mess));
         end
         %
+        function test_folder_migration(this)
+            mf = MessagesFileBasedMPI_mirror_tester();
+            mf.mess_exchange_folder = this.working_dir;
+            mf = mf.init_framework('test_shared_folder');
+            clob = onCleanup(@()mf.finalize_all());
+            
+            cfn = config_store.instance().config_folder_name;
+            jfn = fullfile(this.working_dir, cfn, mf.exchange_folder_name, mf.job_id);
+            assertEqual(exist(jfn, 'dir'), 7);
+            
+            [ok, err] = mf.send_message(7, 'queued');
+            assertEqual(ok, MESS_CODES.ok)
+            assertTrue(isempty(err));
+            
+            [ok, err, the_mess] = mf.receive_message(7, 'queued');
+            assertEqual(ok, MESS_CODES.ok)
+            assertTrue(isempty(err));
+            assertFalse(isempty(the_mess));
+            assertEqual(the_mess.mess_name, 'queued');
+            
+            [ok, err] = mf.send_message(7, 'queued');
+            assertEqual(ok, MESS_CODES.ok)
+            assertTrue(isempty(err));            
+                        
+            mf.migrate_message_folder();
+            assertFalse(exist(jfn, 'dir')==7);            
+            jnf = fullfile(this.working_dir, cfn, mf.exchange_folder_name, mf.job_id);            
+            assertEqual(exist(jnf, 'dir'), 7);            
+            
+            % message have gone
+            [ok, err, the_mess] = mf.receive_message(7, 'queued');
+            assertEqual(ok, MESS_CODES.ok)
+            assertTrue(isempty(err));
+            assertTrue(isempty(the_mess));
+
+            [ok, err] = mf.send_message(7, 'queued');
+            assertEqual(ok, MESS_CODES.ok)
+            assertTrue(isempty(err));            
+
+            [ok, err, the_mess] = mf.receive_message(7, 'queued');
+            assertEqual(ok, MESS_CODES.ok)
+            assertTrue(isempty(err));
+            assertFalse(isempty(the_mess));
+            assertEqual(the_mess.mess_name, 'queued');
+            
+            clear clob;
+            assertTrue(exist(jnf, 'dir') == 0);
+        end
+        
+        %
         function test_shared_folder(this)
             mf = MessagesFileBasedMPI_mirror_tester();
             mf.mess_exchange_folder = this.working_dir;
@@ -311,6 +361,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             clear clob;
             assertTrue(exist(jfn, 'dir') == 0);
         end
+        
         %
         function test_barrier(this)
             mf = MessagesFilebased('test_barrier');

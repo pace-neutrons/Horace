@@ -327,6 +327,21 @@ classdef JobDispatcher
             end
             display_fail_jobs_(obj,outputs,n_failed,n_workers,Err_code);
         end
+        function obj= migrate_exchange_folder(obj)
+            % the function user to change location of message exchane
+            % folder when task is completed and new task should start.
+            %
+            % used to bypass issues with NFS caching when changing subtasks
+            %
+            if isempty(obj.mess_framework_)
+                return;
+            end
+            obj.mess_framework_.migrate_message_folder();
+            
+            if ~isempty(obj.cluster_)
+                obj.cluster_ = obj.cluster_.set_mess_exchange(obj.mess_framework_);
+            end            
+        end
         
     end
     methods(Static)

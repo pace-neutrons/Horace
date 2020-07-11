@@ -171,7 +171,7 @@ while keep_worker_running
         % something wrong with the code. We can not process interrupt
         % properly, but filebased framework should still be
         % available.
-        if DO_LOGGING; log_input_message_exception_caught();  end        
+        if DO_LOGGING; log_input_message_exception_caught();  end
         err_mess = sprintf('job N%s failed. Error during job initialization %s:',...
             control_struct.job_id,ME.message);
         fbMPI.send_message(0,FailedMessage(err_mess,ME));
@@ -273,6 +273,9 @@ while keep_worker_running
                 fbMPI = je.control_node_exch;
                 % is framework instance different from JE instance now?
                 intercomm= je.mess_framework;
+                if ~is_tested
+                    je.migrate_job_folder();
+                end
                 continue;
             else
                 break;
@@ -295,7 +298,9 @@ while keep_worker_running
     fbMPI = je.control_node_exch;
     % is framework instance different from JE instance now?
     intercomm= je.mess_framework;
-    
+    if ~is_tested
+        je.migrate_job_folder();
+    end
     
     if DO_LOGGING;  fprintf(fh,'************* subtask: %s  finished\n',fbMPI.job_id); end
 end

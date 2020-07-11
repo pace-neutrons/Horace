@@ -408,6 +408,15 @@ classdef JobExecutor
             %
             mess_with_err = process_fail_state_(obj,ME,varargin{:});
         end
+        
+        function migrate_job_folder(obj)
+            % the function user to change location of message exchane
+            % folder when task is completed and new task should start.
+            %
+            % used to bypass issues with NFS caching when changing subtasks
+            %
+            obj.control_node_exch.migrate_message_folder();            
+        end
     end
     methods(Static)
         function initMessage = build_worker_init(JE_className,exit_on_completion,...

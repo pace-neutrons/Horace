@@ -129,6 +129,14 @@ classdef ClusterWrapper
             
             obj = obj.init(n_workers,mess_exchange_framework,log_level);
         end
+        function obj = set_mess_exchange(obj,mess_exchange)
+            if ~isa(mess_exchange,'iMessagesFramework')
+                error('CLUSTER_WRAPPER:invalid_argument',...
+                    ' can set only instance of message exchange framework but setting %s',...
+                    evalc('disp(mess_exchange)'));
+            end
+            obj.mess_exchange_ = mess_exchange;
+        end
         function obj = init(obj,n_workers,mess_exchange_framework,log_level)
             % The method to initiate the cluster wrapper
             %
@@ -146,9 +154,9 @@ classdef ClusterWrapper
             end
             if log_level > -1
                 fprintf(obj.starting_info_message_,n_workers);
-            end
-            
-            obj.mess_exchange_ = mess_exchange_framework;
+            end            
+            obj = obj.set_mess_exchange(mess_exchange_framework);
+
             obj.n_workers_   = n_workers;
             
             

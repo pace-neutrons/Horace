@@ -34,6 +34,11 @@ obj.n_first_iteration_= InitMessage.n_first_step;
 obj.mess_framework.throw_on_interrupts = false;
 [~,err,obj]=obj.reduce_send_message('started','started',[],synchronize);
 obj.mess_framework.throw_on_interrupts = true;
+%
+% set up message exchange framewor to be available in all places of the 
+% jobExecutor
+mis = MPI_State.instance();
+mis.mpi_framework = intercomm;
 
 % initialize loggers for messages frameworks to print debug information 
 if ~isempty(obj.ext_log_fh) && isnumeric(obj.ext_log_fh)
