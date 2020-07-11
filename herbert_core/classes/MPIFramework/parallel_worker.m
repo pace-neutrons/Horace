@@ -273,9 +273,9 @@ while keep_worker_running
                 fbMPI = je.control_node_exch;
                 % is framework instance different from JE instance now?
                 intercomm= je.mess_framework;
-                if ~is_tested
-                    je.migrate_job_folder();
-                end
+                % migrate job folder for message exchange without deleting the old
+                % one
+                je.migrate_job_folder(false);
                 continue;
             else
                 break;
@@ -298,9 +298,9 @@ while keep_worker_running
     fbMPI = je.control_node_exch;
     % is framework instance different from JE instance now?
     intercomm= je.mess_framework;
-    if ~is_tested
-        je.migrate_job_folder();
-    end
+    % migrate job folder for message exchange without deleting the old
+    % one
+    je.migrate_job_folder(false);
     
     if DO_LOGGING;  fprintf(fh,'************* subtask: %s  finished\n',fbMPI.job_id); end
 end
