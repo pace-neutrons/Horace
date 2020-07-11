@@ -280,7 +280,13 @@ while keep_worker_running
             else
                 break;
             end
-        catch ME1 % the only exception should happen here is "job cancelled"
+        catch ME1 % the only exception happen is due to error in JE completeon
+            % procedure.
+            if DO_LOGGING; fprintf(fh,'************* Error in JE finalize code\n');  end
+            err_mess = sprintf('job N%s critical failure. JE processing failure error %s:',...
+                control_struct.job_id,ME1.message);
+            fbMPI.send_message(0,FailedMessage(err_mess,ME1));
+            
             disp(getReport(ME1))
             if exit_at_the_end
                 exit;
