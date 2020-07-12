@@ -32,9 +32,8 @@ is_interrupt = message.is_persistent;
 if is_interrupt
     is_blocking = false;
     mess_name = obj.interrupt_chan_name_;
-else
-    
 end
+%
 mess_fname = obj.job_stat_fname_(task_id,mess_name);
 max_tries = 100;
 
@@ -58,6 +57,7 @@ else
         end
     end
 end
+
 lock_(wlock_file);
 
 [fp,fn,fext] = fileparts(mess_fname);

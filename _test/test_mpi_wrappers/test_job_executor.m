@@ -72,7 +72,7 @@ classdef test_job_executor< MPI_Test_Common
                 'filename_template','test_jobDispatcherL%d_nf%d.txt',...
                 'fail_for_labsN',1:2);
             in_data = iMessagesFramework.build_worker_init(tmp_dir,...
-                'test_worker_some_fail','MessagesFilebased',0,3,'test_mode');
+                'test_worker_some_fail_0','MessagesFilebased',0,3,'test_mode');
             
             % initiate exchange class which would work on a client(worker's) side
             serverfbMPI  = MessagesFilebased(in_data );
@@ -116,20 +116,31 @@ classdef test_job_executor< MPI_Test_Common
             % the lab1
             [~,~,je3]=obj.worker_h(css3);
             [~,~,je2]=obj.worker_h(css2);
+            % defer receving the interrupt message befor je1 initialized
+            % propertly. If it does not, it is unrecoverable failure, but
+            % probability for this to happen in real life is low. 
+            interrupt_generated = je2.mess_framework.mess_file_name(1,'interrupt'); 
+            [fp] = fileparts(interrupt_generated);
+            tmp_dest = fullfile(fp,'test_worker_fails_tmp_interrupt.mat');
+            movefile(interrupt_generated ,tmp_dest);
+            % end defer.
             [~,~,je1]=obj.worker_h(css1);
+            % return interrupt back 
+            movefile(tmp_dest,interrupt_generated);            
+            %
             % all workers reply 'started' to node1 as it is cluster
-            % control message
+            % control message            
             [ok,err_mess,message] = serverfbMPI.receive_message(1,'started');
             assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
             assertEqual(message.mess_name,'failed')
-            assertEqual(numel(message.payload),3);
+            assertEqual(numel(message.payload),2);
             
             assertTrue(exist(file3,'file')==2);
             assertTrue(exist(file3a,'file')==2);
             
             assertTrue(isa(message.payload{1}.error,'MException'))
-            assertTrue(isa(message.payload{2}.error,'MException'))
-            assertEqual(message.payload{3},'Job 3 generated 2 files')
+            %assertTrue(isa(message.payload{2}.error,'MException'))
+            assertEqual(message.payload{2},'Job 3 generated 2 files')
             %-------------------------------------------------------------
             % clear remaining from the previous job.
             serverfbMPI.clear_messages();
@@ -159,6 +170,10 @@ classdef test_job_executor< MPI_Test_Common
             % as the fail message was sent first and in asynchronous mode,
             % only first worker reported failure
             assertEqual(numel(message.payload),1);
+            
+            next_exch = serverfbMPI.next_message_folder_name;
+            assertTrue(exist(next_exch,'dir')==7)
+            rmdir(next_exch,'s');
         end
         %
         function test_worker(obj)

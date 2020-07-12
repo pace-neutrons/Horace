@@ -23,9 +23,9 @@ mess = FailedMessage(err_text,ME);
 % send canceled message to all other workers to finish their
 % current job at log point.
 if is_canceled
-    if DO_LOGGING ; fprintf(log_file_h,'---> Job received "canceled" message\n'); end
+    if DO_LOGGING ; log_disp_message(log_file_h,'---> Job received "canceled" message\n'); end
 else
-    if DO_LOGGING ; fprintf(log_file_h,'---> Sending "canceled" message to neighbours\n'); end
+    if DO_LOGGING ; log_disp_message(log_file_h,'---> Sending "canceled" message to neighbours\n'); end
     mf = obj.mess_framework;
     n_labs = mf.numLabs;
     this_lid = mf.labIndex;
@@ -54,10 +54,16 @@ end
 % job has been interrupted before the barrier in the job
 % loop has been reached, so wait here for completed jobs to finish
 if obj.do_job_completed
-    if DO_LOGGING ; fprintf(log_file_h,'--->Failing job not waiting for others\n'); end
+    if DO_LOGGING ; log_disp_message(log_file_h,'--->Failing job not waiting for others\n'); end
 else
-    if DO_LOGGING ; fprintf(log_file_h,'--->Arriving at Incompleted job barrier\n'); end
-    obj.labBarrier(false);
+    if DO_LOGGING ; log_disp_message(log_file_h,'--->Arriving at Incompleted job barrier\n'); end
+    obj.labBarrier(true);
 end
+
+function log_disp_message(fh,mess)
+fprintf('**PROCESS_FAIL_STATE: %s ****************************\n',mess);
+fprintf(fh,'**PROCESS_FAIL_STATE: %s ****************************\n',mess);
+
+
 
 

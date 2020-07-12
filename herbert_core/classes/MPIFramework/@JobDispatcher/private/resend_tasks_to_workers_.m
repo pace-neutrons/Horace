@@ -53,13 +53,11 @@ if ~keep_workers_running
     clob = onCleanup(@()finalize_all(obj));
 end
 %
-pause(10) % wait for some time to complete previous task IO operations.
-% something ugly happens between job restarts -- messages are not written
-% to the file system and appeared randoml time after the next job is
-% running. Need proper fix.
-%
 % clear all messages may be send to JD from the previous job.
 obj.mess_framework.clear_messages();
+% and change data exchange folder to avoid issue with caching and to work
+% together with parallel worker who also changes this folder
+obj = obj.migrate_exchange_folder();
 % indicate old cluster reused
 obj.job_is_starting_ = false;
 % take the old cluster

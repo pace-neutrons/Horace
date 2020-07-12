@@ -35,17 +35,6 @@ classdef JETester < JobExecutor
             disp('****************************************************');
             disp(['labN: ',num2str(task_num),' generating n_files: ',num2str(n_steps)]);
             
-            if isfield(job_par,'fail_for_labsN')
-                labnums2fail = job_par.fail_for_labsN;
-                if any(obj.labIndex==labnums2fail)
-                    disp('****************************************************');
-                    fprintf('simulated failure for lab N %d\n',obj.labIndex);
-                    disp('****************************************************');
-                    pause(0.1)
-                    error('JETester:runtime_error',...
-                        'simulated failure for lab N %d',obj.labIndex);
-                end
-            end
             obj=obj.write_files(job_par,task_num,n_steps);
         end
         function  obj=reduce_data(obj)
@@ -75,6 +64,18 @@ classdef JETester < JobExecutor
                 obj.log_progress(n_steps_done,n_steps,toc(t0),'');
                 disp(['log message about file',filename,' sent *']);
                 %fprintf(fh,'completed\n');
+                if isfield(job_par,'fail_for_labsN')
+                    labnums2fail = job_par.fail_for_labsN;
+                    if any(obj.labIndex==labnums2fail)
+                        disp('****************************************************');
+                        fprintf('simulated failure for lab N %d\n',obj.labIndex);
+                        disp('****************************************************');
+                        pause(0.1)
+                        error('JETester:runtime_error',...
+                            'simulated failure for lab N %d',obj.labIndex);
+                    end
+                end
+                
             end
             disp(['labN: ',num2str(task_num),' do_job completed successfully']);
             disp('****************************************************');

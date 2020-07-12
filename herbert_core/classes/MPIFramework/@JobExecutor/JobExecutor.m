@@ -88,7 +88,7 @@ classdef JobExecutor
         %
     end
     properties(Hidden=true)
-        % in debug mode, parallel worker assigns to this property 
+        % in debug mode, parallel worker assigns to this property
         % open file handle to do logging.
         ext_log_fh;
     end
@@ -407,6 +407,18 @@ classdef JobExecutor
             % FailedMessage of the finish_task operation
             %
             mess_with_err = process_fail_state_(obj,ME,varargin{:});
+        end
+        
+        function migrate_job_folder(obj,delete_old_folder)
+            % the function user to change location of message exchane
+            % folder when task is completed and new task should start.
+            %
+            % used to bypass issues with NFS caching when changing subtasks
+            %
+            if nargin<2
+                delete_old_folder = true;
+            end
+            obj.control_node_exch.migrate_message_folder(delete_old_folder);
         end
     end
     methods(Static)
