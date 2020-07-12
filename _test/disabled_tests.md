@@ -20,3 +20,6 @@
 	- test_spher_caption (no ticket)
 	- test_spher_caption2D (no ticket)
 
+- test_gen_sqw_accumulate_sqw_herbert
+    - write_nxsqw_to_sqw -- tmp files combine procedure using parpool framework is replaced by mex_code
+                            it passes but slow and nobody will use it in real life anyway
