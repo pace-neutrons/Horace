@@ -1,12 +1,13 @@
 set(
     SRC_FILES
     "recompute_bin_data_c.cpp"
+    "recompute_bin_data_helpers.cpp"
 )
 
 set(
     HDR_FILES
     "../CommonCode.h"
-    "recompute_bin_data_c.h"
+    "recompute_bin_data_helpers.h"
     "recompute_pix_sums.h"
 )
 

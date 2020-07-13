@@ -1,4 +1,4 @@
-#include "recompute_bin_data/recompute_bin_data_c.h"
+#include "recompute_bin_data/recompute_bin_data_helpers.h"
 #include "recompute_bin_data/recompute_pix_sums.h"
 #include "utility/version.h"
 
