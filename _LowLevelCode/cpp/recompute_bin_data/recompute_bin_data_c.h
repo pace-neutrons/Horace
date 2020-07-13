@@ -39,15 +39,14 @@ void validate_inputs(const int &nlhs, mxArray *plhs[], const int &nrhs,
 }
 
 const double *const get_npix_array(const mxArray *prhs[]) {
-  const double *const p_pixel_data =
+  const double *const p_npix_data =
       (double *)mxGetPr(prhs[InputArguments::Npix_data]);
-
-  if (!p_pixel_data) {
+  if (!p_npix_data) {
     mexErrMsgTxt(
-        "ERROR::recompute_bin_data_c-> undefined or empty pixels array");
+        "ERROR::recompute_bin_data_c-> undefined or empty npix array");
   }
 
-  return p_pixel_data;
+  return p_npix_data;
 }
 
 const double *const get_pixel_array(const mxArray *prhs[]) {
@@ -58,7 +57,7 @@ const double *const get_pixel_array(const mxArray *prhs[]) {
                  "9*num_of_pixels array");
   }
 
-  double const *const p_pixel_data = (double *)mxGetPr(prhs[Pixel_data]);
+  const double *const p_pixel_data = (double *)mxGetPr(prhs[Pixel_data]);
   if (!p_pixel_data) {
     mexErrMsgTxt(
         "ERROR::recompute_bin_data_c-> undefined or empty pixels array");
