@@ -632,7 +632,13 @@ methods
 
     function page_size = get.page_size(obj)
         % The number of pixels that are held in the current page.
-        page_size = size(obj.data_, 2);
+        if obj.num_pixels > 0 && obj.is_file_backed_() && isempty(obj.data)
+            % No pixels currently loaded, show the number that will be loaded
+            % when a getter is called
+            page_size = min(obj.max_page_size_, obj.num_pixels);
+        else
+            page_size = size(obj.data_, 2);
+        end
     end
 
     function pix_position = get.pix_position_(obj)
