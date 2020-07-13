@@ -21,6 +21,7 @@ npix_cum_sum = cumsum(npix);
 signal_sum = zeros(size(npix));
 variance_sum = zeros(size(npix));
 
+% loop over pages of data
 while true
     % find the index of the first bin to allocate pixels to
     % we subtract allocated pixels from the cumulative sum later, so the first
@@ -32,7 +33,7 @@ while true
 
     % subtrack allocated pixels from the npix cumulative sum
     npix_cum_sum = npix_cum_sum - obj.page_size;
-    % find the index of the final bin to allocate pixels to given current page size
+    % find the index of the last bin to allocate pixels to
     end_idx = find(npix_cum_sum > 0, 1);
     if isempty(end_idx)
         % no end index found, must be at the end of the npix array
