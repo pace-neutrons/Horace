@@ -72,27 +72,47 @@ classdef gen_sqw_files_job < JobExecutor
         end
         %
         function  obj=reduce_data(obj)
+            mf = obj.mess_framework;
+            if isempty(mf) % something wrong, framework deleted
+                error('GEN_SQW_FILES_JOB:runtime_error',...
+                    'MPI framework is not initialized');
+            end
+            if mf.labIndex == 1
+                [all_messages,tid_from] = mf.receive_all('all','data');
+                urange = obj.task_outputs.urange;
+                grid_size = obj.task_outputs.grid_size;
+                
+                for i=1:numel(all_messages)
+                    urange_tmp = all_messages{i}.payload.urange;
+                    grid_size_tmp = all_messages{i}.payload.grid_size;
+                    urange = [min(urange(1,:),urange_tmp(1,:));...
+                        max(urange(2,:),urange_tmp(2,:))];
+                    if any(grid_size ~=grid_size_tmp )
+                        error('GEN_SQW_FILES_JOB:runtime_error',...
+                            'a worker N%d calculates files with grid different from worker N1',...
+                            tid_from(i))
+                    end
+                end
+                % return results
+                obj.task_outputs = struct('grid_size',grid_size,...
+                    'urange',urange);
+            else
+                %
+                the_mess = DataMessage(obj.task_outputs);
+                %
+                [ok,err]=mf.send_message(1,the_mess);
+                if ok ~= MESS_CODES.ok
+                    error('ACCUMULATE_HEADERS_JOB:runtime_error',err);
+                end
+                obj.task_outputs = [];
+            end
+            
             obj.is_finished_ = true;
         end
         %
         function ok = is_completed(obj)
             ok = obj.is_finished_;
         end
-        function [ok,mess] =finish_task(obj,varargin)
-            % overloaded finish_task function, which calculates common
-            % urange among the uranges, processed by each worker
-            % instead of simply returning message, containing cellarray of
-            % ranges for each worker.
-            
-            if nargin > 1
-                [ok,mess] = finish_task@JobExecutor(obj,...
-                    varargin{:},@average_range_process_function_);
-            else
-                [ok,mess] = finish_task@JobExecutor(obj,...
-                    [],@average_range_process_function_);
-            end
-        end
-        
     end
     methods(Static)
         function [common_par,loop_par] = pack_job_pars(runfiles,tmp_files,...

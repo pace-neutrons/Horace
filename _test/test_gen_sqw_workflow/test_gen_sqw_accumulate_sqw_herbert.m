@@ -50,7 +50,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
                 test_name = mfilename('class');
             end
             combine_algorithm = 'mpi_code'; % this is what should be tested
-            if is_jenkins
+            if is_jenkins && ispc
                 combine_algorithm = 'mex_code'; % disable mpi combine on Jenkins. It is extreamly slow.
             end
             %
@@ -142,6 +142,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             assertTrue(ok==MESS_CODES.ok,err);
             
             res = mes.payload;
+            res = res{1};
             assertEqual(res.grid_size,[50 50 50 50]);
             assertElementsAlmostEqual(res.urange,...
                 [-1.5000 -2.1000 -0.5000 0;0 0 0.5000 35.0000]);
@@ -300,19 +301,14 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             assertEqual(ok,MESS_CODES.ok,err);
             
             res = mes.payload;
+            res = res{1};
             assertEqual(res.grid_size,[50 50 50 50]);
             assertElementsAlmostEqual(res.urange,...
-                [-2,-3, -3,-20; 2, 3, 3 15]);
+                [-1,-2,-3,-20;1,2,3,10]);
             
         end
         %------------------------------------------------------------------
         % Block of code to disable some tests for debugging Jenkins jobs
-        function test_gen_sqw(obj,varargin)
-            test_gen_sqw@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
-        end
-        function test_accumulate_sqw14(obj,varargin)
-            test_accumulate_sqw14@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
-        end
         function test_accumulate_and_combine1to4(obj,varargin)
             test_accumulate_and_combine1to4@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
         end
@@ -322,5 +318,12 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
         function test_accumulate_sqw11456(obj,varargin)
             test_accumulate_sqw11456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
         end
+        function test_gen_sqw(obj,varargin)
+            test_gen_sqw@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
+        end
+        function test_accumulate_sqw14(obj,varargin)
+            test_accumulate_sqw14@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
+        end
+        
     end
 end
