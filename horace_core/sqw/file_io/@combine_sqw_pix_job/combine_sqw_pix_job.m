@@ -86,9 +86,11 @@ classdef combine_sqw_pix_job < JobExecutor
             end
             
             if obj.labIndex == 1 % writer lab
-                [fout,data_providers,data_remain,clob] = init_writer_job_(obj,pix_comb_info);
+                [fout,data_providers,data_remain] = init_writer_job_(obj,pix_comb_info);
+                clob = onCleanup(@()fclose(fout));
                 
-                receive_data_write_output_(obj,common_par,fout,data_providers,data_remain,h_log_fl);
+                n_received = receive_data_write_output_(obj,common_par,fout,data_providers,data_remain,h_log_fl);
+                obj.task_outputs = n_received;
                 
             else  % reader labs
                 % Get number of files
@@ -96,7 +98,8 @@ classdef combine_sqw_pix_job < JobExecutor
                 % Always close opened files on the procedure completion
                 clob = onCleanup(@()fcloser_(fid));  %
                 
-                read_inputs_send_to_writer_(obj,common_par,pix_comb_info,fid,h_log_fl)
+                n_sent = read_inputs_send_to_writer_(obj,common_par,pix_comb_info,fid,h_log_fl);
+                obj.task_outputs = n_sent;
             end
             clear clob;
             obj.is_finished_ = true;
