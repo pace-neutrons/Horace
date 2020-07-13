@@ -45,4 +45,4 @@ void recompute_pix_sums(double *const pSignal, double *const pVariance,
       }
     }
   } // end parallel block
-};
+}
