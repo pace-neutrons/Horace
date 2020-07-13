@@ -14,7 +14,6 @@ end
 
 obj.move_to_first_page();
 
-pg_size = min(obj.max_page_size_, obj.num_pixels);
 npix_cum_sum = cumsum(npix);
 signal_sum = zeros(size(npix));
 variance_sum = zeros(size(npix));
@@ -23,17 +22,17 @@ while true
     start_idx = find(npix_cum_sum > 0, 1);
     leftover_begin = npix_cum_sum(start_idx);
 
-    npix_cum_sum = npix_cum_sum - pg_size;
+    npix_cum_sum = npix_cum_sum - obj.page_size;
     end_idx = find(npix_cum_sum > 0, 1);
     if isempty(end_idx)
         end_idx = numel(npix);
     end
 
     if start_idx == end_idx
-        npix_chunk = min(pg_size, npix(start_idx) - leftover_end);
+        npix_chunk = min(obj.page_size, npix(start_idx) - leftover_end);
     else
-        leftover_end = pg_size - (leftover_begin + sum(npix(start_idx + 1:end_idx - 1)));
-        leftover_end = min(leftover_end, npix(end_idx));
+        leftover_end = ...
+            obj.page_size - (leftover_begin + sum(npix(start_idx + 1:end_idx - 1)));
         npix_chunk = [leftover_begin, npix(start_idx + 1:end_idx - 1)', leftover_end];
     end
 
