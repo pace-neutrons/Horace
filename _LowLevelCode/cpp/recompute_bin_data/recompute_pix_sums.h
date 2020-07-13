@@ -32,9 +32,9 @@ void recompute_pix_sums(double *const pSignal, double *const pVariance,
     for (long i = 0; i < distr_size; i++) {
       size_t npix_in_bin = (size_t)pNpix[i];
       size_t pix0;
-      if (multithreaded) { // multithreaded mode
+      if (multithreaded) {  // multithreaded mode
         pix0 = cumSumData[i];
-      } else { // single threaded mode
+      } else {  // single threaded mode
         pix0 = pixProcessed;
         pixProcessed += npix_in_bin;
       }
