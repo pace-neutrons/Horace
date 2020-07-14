@@ -1,14 +1,7 @@
-#include "CommonCode.h"
+#include "recompute_bin_data/recompute_bin_data_helpers.h"
 
 #include <memory>
 #include <sstream>
-
-enum InputArguments { Npix_data, Pixel_data, Num_threads, N_INPUT_Arguments };
-enum OutputArguments { // unique output arguments,
-  Signal,
-  Variance,
-  N_OUTPUT_Arguments
-};
 
 void validate_inputs(const int &nlhs, mxArray *plhs[], const int &nrhs,
                      const mxArray *prhs[]) {
@@ -37,11 +30,9 @@ void validate_inputs(const int &nlhs, mxArray *plhs[], const int &nrhs,
 }
 
 const double *const get_npix_array(const mxArray *prhs[]) {
-  const double *const p_npix_data =
-      (double *)mxGetPr(prhs[Npix_data]);
+  const double *const p_npix_data = (double *)mxGetPr(prhs[Npix_data]);
   if (!p_npix_data) {
-    mexErrMsgTxt(
-        "ERROR::recompute_bin_data_c-> undefined or empty npix array");
+    mexErrMsgTxt("ERROR::recompute_bin_data_c-> undefined or empty npix array");
   }
 
   return p_npix_data;
