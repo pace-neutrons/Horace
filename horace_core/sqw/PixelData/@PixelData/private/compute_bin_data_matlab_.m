@@ -4,6 +4,7 @@ function [mean_signal, mean_variance] = compute_bin_data_matlab_(obj, npix, log_
 % See compute_bin_data for algorithm details
 %
 nbin = numel(npix);
+npix_shape = size(npix);
 
 try
     bin_indices = int64(1:nbin);
@@ -66,9 +67,9 @@ while true
     end
 end
 mean_signal = signal_sum ./ npix(:);
-mean_signal = reshape(mean_signal, size(npix));
+mean_signal = reshape(mean_signal, npix_shape);
 mean_variance = variance_sum ./ (npix(:).^2);
-mean_variance = reshape(mean_variance, size(npix));
+mean_variance = reshape(mean_variance, npix_shape);
 
 nopix = (npix(:) == 0);
 mean_signal(nopix) = 0;
