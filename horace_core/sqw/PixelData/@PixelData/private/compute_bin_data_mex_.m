@@ -41,6 +41,9 @@ while true
 
     if start_idx == end_idx
         % All pixels in page
+        if ~exist('leftover_end', 'var')
+            leftover_end = 0;
+        end
         npix_chunk = min(obj.page_size, npix(start_idx) - leftover_end);
     else
         % Leftover_end = number of pixels to allocate to final bin n,
