@@ -17,9 +17,8 @@ obj.move_to_first_page();
 % Get a cumulative sum to track which pixels have been processed
 npix_cum_sum = cumsum(npix);
 
-% Pre-allocate the signal and variance arrays
-signal_sum = zeros(size(npix));
-variance_sum = zeros(size(npix));
+signal_sum = zeros(1, numel(npix));
+variance_sum = zeros(1, numel(npix));
 
 % Loop over pages of data
 while true
@@ -44,17 +43,18 @@ while true
         % All pixels in page
         npix_chunk = min(obj.page_size, npix(start_idx) - leftover_end);
     else
-        % Leftover_end = number of pixels to allocate to final bin n, there will
-        % be more pixels to allocated to bin n in the next iteration
+        % Leftover_end = number of pixels to allocate to final bin n,
+        % there will be more pixels to allocated to bin n in the next iteration
         leftover_end = ...
             obj.page_size - (leftover_begin + sum(npix(start_idx + 1:end_idx - 1)));
-        npix_chunk = [leftover_begin, npix(start_idx + 1:end_idx - 1)', leftover_end];
+        npix_chunk = npix(start_idx + 1:end_idx - 1);
+        npix_chunk = [leftover_begin, npix_chunk(:).', leftover_end];
     end
 
     % Calculate and accumulate signal/variance sums
     [sig, variance] = recompute_bin_data_c(npix_chunk, obj.data, n_threads);
-    signal_sum(start_idx:end_idx) = signal_sum(start_idx:end_idx) + sig';
-    variance_sum(start_idx:end_idx) = variance_sum(start_idx:end_idx) + variance';
+    signal_sum(start_idx:end_idx) = signal_sum(start_idx:end_idx) + sig;
+    variance_sum(start_idx:end_idx) = variance_sum(start_idx:end_idx) + variance;
 
     if obj.has_more()
         obj.advance();
@@ -62,6 +62,8 @@ while true
         break
     end
 end
+signal_sum = reshape(signal_sum, size(npix));
+variance_sum = reshape(variance_sum, size(npix));
 
-mean_signal = signal_sum./npix(:);
-mean_variance = variance_sum./npix(:).^2;
+mean_signal = signal_sum./npix;
+mean_variance = variance_sum./npix.^2;
