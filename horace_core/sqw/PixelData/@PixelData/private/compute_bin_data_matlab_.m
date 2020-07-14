@@ -9,7 +9,7 @@ try
     bin_indices = int64(1:nbin);
     npix = reshape(npix, numel(npix), 1);
     allocatable = npix(bin_indices) ~= 0;
-    % list of indices of bins for which pixels can be allocated
+    % List of indices of bins for which pixels can be allocated
     bin_indices = bin_indices(allocatable);
 
     if isempty(bin_indices)
