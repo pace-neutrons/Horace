@@ -51,14 +51,19 @@ end
 obj.move_to_first_page();  % make sure we're at the first page of data
 base_page_size = min(obj.max_page_size_, obj.num_pixels);
 
-signal_sum = accumarray(ind(1:base_page_size), obj.signal, [nbin, 1]);
-variance_sum = accumarray(ind(1:base_page_size), obj.variance, [nbin, 1]);
-while obj.has_more()
-    obj.advance();
+signal_sum = zeros(size(npix));
+variance_sum = zeros(size(npix));
+while true
     start_idx = (obj.page_number_ - 1)*base_page_size + 1;
     end_idx = min(start_idx + base_page_size - 1, obj.num_pixels);
     signal_sum = signal_sum + accumarray(ind(start_idx:end_idx), obj.signal, [nbin, 1]);
     variance_sum = variance_sum + accumarray(ind(start_idx:end_idx), obj.variance, [nbin, 1]);
+
+    if obj.has_more()
+        obj.advance();
+    else
+        break;
+    end
 end
 mean_signal = signal_sum ./ npix(:);
 mean_signal = reshape(mean_signal, size(npix));
