@@ -26,7 +26,7 @@ classdef MessagesFilebased < iMessagesFramework
     end
     properties(Constant=true,Access=protected,Hidden=true)
         % The number, used in folder name and Job ID to define folder migration.
-        folder_migration_shift =  0011100001;
+        folder_migration_shift =  0000000001;
     end
     
     %----------------------------------------------------------------------
