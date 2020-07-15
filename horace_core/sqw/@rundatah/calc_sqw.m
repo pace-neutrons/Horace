@@ -1,4 +1,4 @@
-function [w,grid_size,urange,detchn] = calc_sqw(obj,grid_size_in,urange_in,varargin)
+function [w,grid_size,urange,detdcn] = calc_sqw(obj,grid_size_in,urange_in,varargin)
 % Generate single sqw file from given rundata class.
 %
 % Usage:
@@ -44,9 +44,6 @@ function [w,grid_size,urange,detchn] = calc_sqw(obj,grid_size_in,urange_in,varar
 %                  where there is zero range of the data points)
 %   urange          Actual range of grid - the specified range if it was given,
 %                  or the range of the data if not.
-%
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 keys_recognized = {'-cache_detectors','-qspec'};
 [ok,mess,cache_detectors,cache_q_vectors] = parse_char_options(varargin,keys_recognized);
