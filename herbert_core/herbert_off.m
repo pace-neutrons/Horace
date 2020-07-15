@@ -11,11 +11,16 @@ function herbert_off
 
 % root directory is assumed to be that in which this function resides
 rootpath = fileparts(fileparts(which('herbert_init')));
+on_path = fileparts(which('herbert_on'));
 
 % turn off warnings (so we don't get errors if we remove non-existent paths)
 warn_state=warning('off','all');
 try
     paths = genpath(rootpath);
+    % make sure we are not removing the path to herbert_on
+    if ~isempty(on_path)
+        paths = strrep(paths,[on_path,pathsep],'');
+    end
     rmpath(paths);
     warning(warn_state);  % return warnings to initial state
 catch

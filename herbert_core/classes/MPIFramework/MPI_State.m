@@ -5,9 +5,9 @@ classdef MPI_State<handle
     % status, including access to messages framework to exchange messages
     % between various tasks.
     %
-    % 'MPI-deployed' state is set up in worker.m (.template file is provided in
-    % admin folder, to rename to the file with .m extension and
-    % place to Matlab search path). The state should be checked by the client,
+    % 'MPI-deployed' state is set up in parallel_worker functiom, which is 
+    % executed by all parallel jobs.
+    % The state should be checked by the client,
     % inheriting from JobExecutor within the loop executed within do_job method.
     %
     % Implemented as classical singleton.
@@ -15,18 +15,21 @@ classdef MPI_State<handle
     properties(Dependent)
         % report if the Matlab session is deployed on a remote worker
         is_deployed
-        % logger function to deploy to log activities
+        % logger function to use to log activities of an mpi worker
         logger
         % the function to run verifying if job has been canceled
         check_canceled;
         % method helps to identify that the framework is tested and to
-        % disable some framework capability, which should be used in this
+        % disable some framework capabilities, which should be used in this
         % situation
         is_tested
         % current active message exchange framework for advanced messages
         % exchange.
         mpi_framework;
-        %        
+        % index of the running lab
+        labIndex;
+        % Total number of labs in parallel pool.
+        numLabs;
     end
     properties(Access=protected)
         is_deployed_=false;
@@ -75,6 +78,21 @@ classdef MPI_State<handle
         function flog = get.logger(obj)
             flog = obj.logger_;
         end
+        function  li = get.labIndex(obj)
+            if isempty(obj.mpi_framework_)
+                li = 0;
+            else
+                li = obj.mpi_framework_.labIndex;
+            end
+        end
+        function  nl = get.numLabs(obj)
+            if isempty(obj.mpi_framework_)
+                nl = 0;
+            else
+                nl = obj.mpi_framework_.numLabs;
+            end
+        end
+        
         %------------------------------------------------------
         function set.is_deployed(obj,val)
             obj.is_deployed_=val;

@@ -1,4 +1,4 @@
-function out = runtests(varargin)
+function [out,suite_out] = runtests(varargin)
 %runtests Run unit tests
 %   runtests runs all the test cases that can be found in the current directory
 %   and summarizes the results in the Command Window.
@@ -138,8 +138,19 @@ if did_pass && num_tests_run == 0
     error('xunit:runtests:noTestCasesFound', 'No test cases were run');
 end
 
-if nargout > 0
+if nargout>0
     out = did_pass;
+end
+if nargout>1
+    suite_out = suite;
+end
+end
+
+function yes = contains_full_win_path(ddot_ind)
+% helper function to identify from presense of : signe that the path is the
+% full windows path. The dot positions are found by strfind(path,':')
+% function.
+yes =  ispc && (numel(ddot_ind) == 1) && (ddot_ind(1) == 2) ;
 end
 
 function [name_list, verbose, logfile] = getInputNames(varargin)
@@ -166,10 +177,16 @@ while k <= numel(varargin)
             warning('runtests:unrecognizedOption', 'Unrecognized option: %s', arg);
         end
     else
-        if isfolder(arg)
+        if exist(arg,'dir') == 7
             name_list{end+1} = arg;
         else
-            [test_folder,test_name] = fileparts(arg);
+            ddot_ind = strfind(arg,':');
+            if isempty(ddot_ind) || ~ispc || contains_full_win_path(ddot_ind)
+                [test_folder,test_name] = fileparts(arg);
+            else
+                test_folder = '';
+                test_name = arg;
+            end
             if isempty(test_folder)
                 name_list{end+1} = test_name;
             else
@@ -179,4 +196,4 @@ while k <= numel(varargin)
     end
     k = k + 1;
 end
-
+end

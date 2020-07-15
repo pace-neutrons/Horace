@@ -8,11 +8,15 @@ if ischar(message)
     mess = aMessage(message);
 elseif isa(message,'aMessage')
     mess = message;
+else
+    error('MESSAGESCPPMPI:send_message', ...
+          'Message must be of type ''char'' or ''aMessage''. Found ''%s''.', ...
+          class(message));
 end
 % convert types into defined types to transfer to cpp_communicator
 is_blocking = logical(mess.is_blocking);
 if (task_id<1 || task_id > obj.numLabs)
-    error('MESSAGES_CPP_MPI:invalid_argument',...
+    error('MESSAGES_FRAMEWORK:invalid_argument',...
         'The message is directed to %d but can be only sent to workers in range [1:%d]',...
         task_id,obj.numLabs);
 end
@@ -26,7 +30,7 @@ try
             'blocking comminications are not yet implemented')
     else
         contents = hlp_serialize(mess);
-        
+
         obj.mpi_framework_holder_ = cpp_communicator('labSend',...
             obj.mpi_framework_holder_,...
             task_id,tag,uint8(is_blocking),contents);

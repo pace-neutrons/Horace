@@ -56,7 +56,7 @@ if receiver
     res = set_results(li,res,task_ids_from,mess_names);
     
     
-    [all_messages,task_ids_from] = pm.receive_all(lab_senders,'started');
+    [all_messages,task_ids_from] = pm.receive_all(lab_senders,'started','-synch');
     for i=1:n_senders
         res(i).mess = all_messages{i};
         res(i).rec_mess_id =task_ids_from(i);
@@ -72,7 +72,7 @@ else %sender
         return;
     end
     if lab_receiver < li
-        mess1 = aMessage('starting');
+        mess1 = aMessage('queued');
         mess2 = aMessage('started');
     else
         mess1 = LogMessage();

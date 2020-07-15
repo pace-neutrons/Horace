@@ -6,9 +6,6 @@ classdef mess_cache < handle
     % message from a lab overwrites all previous messages, received from this
     % lab.
     properties(Dependent)
-        % when the class is initialized, this should be set to the number of
-        % workers in the pool.
-        cache_capacity
         % a handle for worker-specific text log file used for debugging
         % purposes. When the property is accessed first time, the file is
         % opened and is closed when the class is destroyed in the worker.
@@ -16,8 +13,7 @@ classdef mess_cache < handle
     end
     
     properties(Access=private)
-        mess_cache_
-        cache_capacity_ = 0;
+        cache_
         log_file_h_ = []
     end
     
@@ -31,127 +27,112 @@ classdef mess_cache < handle
         end
         %
         function init(obj,num_labs)
-            obj.mess_cache_ = cell(1,num_labs);
-            obj.cache_capacity_ = num_labs;
-            for i=1:num_labs
-                obj.mess_cache_{i} = copy(single_tid_mess_queue);
-            end
+            keys = 1;
+            val   = cell(1,1);
+            obj.cache_ = containers.Map(keys,val,'UniformValues',false);
+            remove(obj.cache_,{1});
         end
         
         function push_messages(obj,task_ids,mess)
             % place message into messages cache
-            % 
-            if iscell(mess) %list of messages
-                if numel(task_ids) ~= numel(mess)
-                    error('MESS_cache:invalid_argument',...
-                        'size of messages array has to be equal to the size of index array')
-                end
-                
-                if islogical(task_ids)
-                    mess = mess(task_ids);
-                    task_ids = find(task_ids);
-                end
-                for i=1:numel(task_ids)
-                    obj.push_messages(task_ids(i),mess{i});
-                end
-            elseif isa(mess,'aMessage') %single message
-                if task_ids>obj.cache_capacity_
-                    error('MESS_cache:invalid_argument',...
-                        'messages cache initialized for %d workers, but attempting to store message from the worker N%d',...
-                        obj.cache_capacity_,task_ids);
-                end
-                mc = obj.mess_cache_{task_ids};
-                mc.push(mess);
-                obj.mess_cache_{task_ids} = mc;
-            else
-                error('MESS_cache:invalid_argument',...
-                    'input for push messages must be either cellarray of messages or single message')
+            %
+            if ~iscell(mess)
+                mess = {mess};
             end
+            for i=1:numel(task_ids)
+                obj.cache_(task_ids(i)) = mess{i};
+            end
+        end
+        %
+        function is = is_empty(obj,tid)
+            % check if the cache place for the particular task is empty.
+            if numel(tid)> 1 && ~iscell(tid)
+                tid = num2cell(tid);
+            end
+            is = ~isKey(obj.cache_,tid);
         end
         %
         function [mess_list,task_ids] = pop_messages(obj,tid_requested,mess_name)
             % return list of the requested messages and delete returned
             % messages from the cache.
             
-            if ~exist('tid_requested','var') || isempty(tid_requested)
-                task_ids = 1:numel(obj.mess_cache_);
+            if ~exist('tid_requested','var') || isempty(tid_requested)...
+                    || strcmp(tid_requested,'all')
+                tid_requested = 1:obj.cache_.Count;
+            end
+            if ~exist('mess_name','var')
+                mess_name = 'any';
+            end
+            if strcmp(mess_name,'any')
+                choose_by_name = false;
             else
-                mess_exist = cellfun(@(x)(x.length ~=0),obj.mess_cache_,'UniformOutput',true);
-                ind_exist = find(mess_exist);
-                is_requested = ismember(tid_requested,ind_exist);
-                task_ids  = tid_requested(is_requested);
+                choose_by_name = true;
             end
-            
-            if exist('mess_name','var')
-                select_by_name = true;
-            else
-                select_by_name = false;
-            end
-            
-            n_mess_max = numel(task_ids);
-            mess_list = cell(n_mess_max,1);
-            mess_exist = false(n_mess_max,1);
-            for i=1:n_mess_max
-                if select_by_name
-                    [present,key] = obj.mess_cache_{task_ids(i)}.check(mess_name);
-                    if present
-                        mess_exist(i) = true;
-                        mess_list{i}  = obj.mess_cache_{task_ids(i)}.pop(mess_name,key);
-                    end
-                else
-                    mess_list{i} = obj.mess_cache_{task_ids(i)}.pop();
-                    if ~isempty(mess_list{i})
-                        mess_exist(i) = true;
-                    end
-                end
-            end
-            mess_list = mess_list(mess_exist);
-            task_ids  = task_ids(mess_exist);
-        end
-        %
-        function [all_messages,mess_present] = get_cache_messages(obj,tid_requested,mess_name,lock_until_received)
-            % Restore old messages, previously stored in the cache in the
-            % order, spefified by tid_requested
             %
-            % prepare outputs
-            n_requested = numel(tid_requested);
-            all_messages = cell(n_requested ,1);
-            if lock_until_received
-                [old_mess,old_tids]= obj.pop_messages(tid_requested,mess_name);
-            else
-                [old_mess,old_tids]= obj.pop_messages(tid_requested);
+            all_keys = obj.cache_.keys;
+            if isempty(all_keys)
+                mess_list = {};
+                task_ids = [];
+                return;
             end
-            mess_present = ismember(tid_requested,old_tids);
-            if any(mess_present)
-                
-                n_message = 0;
-                for i=1:n_requested
-                    if mess_present(i)
-                        n_message = n_message+1;
-                        all_messages{i} = old_mess{n_message};
-                    end
-                end
-            end            
+            all_keys = [all_keys{:}];
+            is_requested = ismember(all_keys,tid_requested);
+            task_ids = all_keys(is_requested);
+            
+            [mess_list,selected] = arrayfun(...
+                @(x)(mess_selector(obj,x,mess_name,choose_by_name,false)),...
+                task_ids,'UniformOutput',false);
+            selected = [selected{:}];
+            task_ids = task_ids(selected);
+            mess_list = mess_list(selected);
+            if ~isempty(task_ids )
+                remove(obj.cache_,num2cell(task_ids));
+            end
+            
         end
         %
-        function sz = get.cache_capacity(obj)
-            sz = obj.cache_capacity_;
+        function [mess_names_list,tid_received] = probe_all(obj,tid_requested,mess_name)
+            % check if the messages from the labs with the name specified are present in
+            % the cache.
+            % if message name is provided, and is not 'any', only messages
+            % names,
+            % with the name equal to the name specified are returned.
+            if ~exist('tid_requested','var') || isempty(tid_requested)...
+                    || strcmp(tid_requested,'all')
+                tid_requested = 1:obj.cache_.Count;
+            end
+            if ~exist('mess_name','var')
+                mess_name = 'any';
+            end
+            if strcmp(mess_name,'any')
+                choose_by_name = false;
+            else
+                choose_by_name = true;
+            end
+            %
+            all_keys = obj.cache_.keys;
+            is_requested = ismember(all_mess,tid_requested);
+            task_ids = all_keys(is_requested);
+            
+            [mess_names_list,selected] = arrayfun(...
+                @(x)(mess_selector(obj,x,mess_name,choose_by_name,true)),...
+                task_ids,'UniformOutput',false);
+            selected = [selected{:}];
+            tid_received = task_ids(selected);
+            mess_names_list = mess_names_list(selected);
+            
         end
         %
-        function noc = get_n_occupied(obj)
-            noc = sum(cellfun(@(x)(x.length~=0),obj.mess_cache_,'UniformOutput',true));
-        end
+        %         function sz = get.cache_capacity(obj)
+        %             sz = obj.cache_capacity_;
+        %         end
+        %
         %
         function clear(obj)
             % clear cache contents without changing the cache capacity
             %
-            
-            num_labs= obj.cache_capacity_;
-            obj.mess_cache_ = cell(1,num_labs);
-            for i=1:num_labs
-                obj.mess_cache_{i} = copy(single_tid_mess_queue);
-            end
-            
+            keys = obj.cache_.keys;
+            remove(obj.cache_,keys);
         end
         %
         function fh = get.log_file_h(obj)
@@ -169,6 +150,27 @@ classdef mess_cache < handle
             end
             obj.init(1);
         end
+    end
+    methods(Access=private)
+        function [mess,is_selected]= mess_selector(obj,tid,mess_name,choose_by_name,get_name)
+            % select message from cache according to the selection criteria
+            %
+            mess = obj.cache_(tid);
+            the_name = mess.mess_name;
+            if choose_by_name
+                if strcmp(the_name,mess_name)
+                    is_selected = true;
+                else
+                    is_selected = false;
+                end
+            else
+                is_selected = true;
+            end
+            if get_name
+                mess = the_name;
+            end
+        end
+        
     end
 end
 

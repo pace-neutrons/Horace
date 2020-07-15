@@ -1,9 +1,11 @@
-function [id,tag] = get_mess_id_(tid_requested,message_id)
+function [id,tag,is_blocking] = get_mess_id_(obj,tid_requested,message_id,varargin)
 % convert any format message id into the format, accepted by standard mpi
 % command
 %
+
+
 id = [];
-tag = [];
+tag = 'any';
 if nargin == 0
     return;
 end
@@ -19,14 +21,12 @@ if exist('message_id','var')
         tag  = check_tag(message_id);
     else
         error('PARPOOL_MESSAGES:invalid_argument',...
-            'unrecognized message labIndex should be numeric')
+            'unrecognized message labIndex should be numeric tag correspondent to message or ')
     end
 end
-% if nargin == 3
-%     labReceiveSimulator = varargin{1};
-% else
-%
-% end
+% check if the message should be received synchroneously or asynchroneously
+is_blocking = obj.check_is_blocking(tag,varargin);
+
 
 function id = check_id(input)
 if ischar(input) && strcmpi(input,'any')

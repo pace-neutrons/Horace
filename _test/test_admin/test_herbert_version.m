@@ -5,6 +5,14 @@ properties
 end
 
 methods 
+    function obj = test_herbert_version(varargin)
+        if nargin == 0
+            name = 'test_herbert_version';            
+        else
+            name = varargin{1};            
+        end
+        obj = obj@TestCase(name);
+    end
     function obj = test_full_version_string_returned_if_nargout_is_1(obj)
         version_string = herbert_version();
         match_start = regexp(version_string, obj.VERSION_REGEX, 'ONCE');

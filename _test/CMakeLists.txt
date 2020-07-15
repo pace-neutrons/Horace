@@ -9,15 +9,15 @@ set(TEST_DIRECTORIES
     "test_instrument_classes"
     "test_docify"
     "test_admin"
-    "test_mpi/test_job_dispatcher_herbert"
-    #"test_mpi/test_job_dispatcher_mpiexec"
-    "test_mpi/test_job_dispatcher_parpool"
-    "test_mpi/test_ParpoolMPI_Framework"
     "test_mpi_wrappers"
-)
-# The MPI tests require that `herbert_on.m` be on the path for all workers
-# when Matlab starts up: add the local_init directory - which contains
-# these files - to the MATLABPATH environment variable when tests are run.
+    "test_mpi/test_job_dispatcher_herbert"
+    # "test_mpi/test_job_dispatcher_mpiexec"
+    "test_mpi/test_job_dispatcher_parpool"
+    "test_mpi/test_ParpoolMPI_Framework")
+
+# The MPI tests require that `herbert_on.m` be on the path for all workers when
+# Matlab starts up: add the local_init directory - which contains these files -
+# to the MATLABPATH environment variable when tests are run.
 set(LOCAL_INIT_DIR "${CMAKE_BINARY_DIR}/local_init")
 
 file(TO_CMAKE_PATH "$ENV{MATLABPATH}" MATLAB_PATH)
@@ -31,23 +31,22 @@ set(ENV_VARIABLES
     # paths automatically added to Matlab path
     "MATLABPATH=${MATLAB_PATH}"
     # temporary directory for Matlab - prevents read/write collisions on Jenkins
-    "TMP=${CMAKE_BINARY_DIR}/tests"
-)
+    "TMP=${CMAKE_BINARY_DIR}/tests")
 
-set(TEST_TIMEOUT_LENGTH "600")  # 10 minutes
+set(TEST_TIMEOUT_LENGTH "600") # 10 minutes
 foreach(_test_dir ${TEST_DIRECTORIES})
     set(TEST_NAME "Matlab.${_test_dir}")
     matlab_add_unit_test(
-        NAME "${TEST_NAME}"
+        NAME
+        "${TEST_NAME}"
         CUSTOM_TEST_COMMAND
-            "validate_herbert ${_test_dir} -talkative -exit_on_completion"
-        ADDITIONAL_PATH "${CMAKE_SOURCE_DIR}/admin"
-        TIMEOUT ${TEST_TIMEOUT_LENGTH}
-    )
-    set_tests_properties("${TEST_NAME}"
-        PROPERTIES
-            ENVIRONMENT "${ENV_VARIABLES}"
-    )
+        "validate_herbert ${_test_dir} -talkative -exit_on_completion"
+        ADDITIONAL_PATH
+        "${CMAKE_SOURCE_DIR}/admin"
+        TIMEOUT
+        ${TEST_TIMEOUT_LENGTH})
+    set_tests_properties("${TEST_NAME}" PROPERTIES ENVIRONMENT
+                                                   "${ENV_VARIABLES}")
 endforeach()
 
 # =============================================================================
@@ -58,5 +57,4 @@ install(
     DESTINATION "Herbert/_test"
     USE_SOURCE_PERMISSIONS
     PATTERN "*.m~" EXCLUDE
-    PATTERN "*.asv" EXCLUDE
-)
+    PATTERN "*.asv" EXCLUDE)

@@ -11,6 +11,6 @@ set(MEX_NAME "get_ascii_file")
 pace_add_mex(
     NAME "${MEX_NAME}"
     SRC "${SRC_FILES}" "${HDR_FILES}"
-    COPY_TO "${CMAKE_SOURCE_DIR}/herbert_core/DLL"
+    COPY_TO "${Herbert_DLL_DIR}"
 )
 target_include_directories("${MEX_NAME}" PRIVATE "${CXX_SOURCE_DIR}")

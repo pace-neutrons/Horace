@@ -39,9 +39,6 @@ function [outputs,n_failed,task_ids,obj]=...
 %              task_param_list, assigned to this job
 %
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-%
-%
 if ~exist('keep_workers_running','var')
     keep_workers_running = false;
 end
@@ -55,13 +52,18 @@ end
 if ~keep_workers_running
     clob = onCleanup(@()finalize_all(obj));
 end
-% clear all messages may remain from the previous job
+%
+% clear all messages may be send to JD from the previous job.
 obj.mess_framework.clear_messages();
+% and change data exchange folder to avoid issue with caching and to work
+% together with parallel worker who also changes this folder
+obj = obj.migrate_exchange_folder();
 % indicate old cluster reused
 obj.job_is_starting_ = false;
 % take the old cluster
 cluster_wrp = obj.cluster_;
-
+%
+%
 [outputs,n_failed,task_ids,obj] = submit_and_run_job_(obj,task_class_name,...
     common_params,loop_params,return_results,...
     cluster_wrp,keep_workers_running);

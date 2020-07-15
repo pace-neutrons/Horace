@@ -29,7 +29,7 @@ end
 
 version_numbers = split(VERSION, '.');
 if nargout > numel(version_numbers)
-    error("Too many output arguments requested.") ;
+    error('Too many output arguments requested.') ;
 end
 
 % Return as many version numbers as requested

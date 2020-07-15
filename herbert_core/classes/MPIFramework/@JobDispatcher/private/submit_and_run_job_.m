@@ -54,6 +54,7 @@ while(~completed)
     [completed,cluster_wrp]=cluster_wrp.check_progress();
     cluster_wrp = cluster_wrp.display_progress();
 end
+%
 % retrieve final results
 [outputs,n_failed]=  cluster_wrp.retrieve_results();
 % retrieve and reject all messages may left after the job was completed

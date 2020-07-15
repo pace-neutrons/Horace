@@ -1,29 +1,70 @@
-param (
-  [switch][Alias("b")]$build,
-  [switch][Alias("t")]$test,
-  [switch][Alias("p")]$package,
-  [switch][Alias("v")]$print_versions,
+<#
+.SYNOPSIS
+  This script is used to build, test and package Herbert on Windows.
 
+.DESCRIPTION
+  This script requires Matlab, Visual Studio, CMake>=3.7 and CTest be installed
+  on your system and available on the path.
+
+  Use "Get-Help ./build.ps1 -Detailed" for parameter descriptions.
+
+.EXAMPLE
+  ./build.ps1 -build
+  # Builds Herbert
+.EXAMPLE
+  ./build.ps1 -test
+  # Runs all Herbert tests
+.EXAMPLE
+  ./build.ps1 -package
+  # Packages Herbert
+.EXAMPLE
+  ./build.ps1 -build -package -vs_version 2017 -matlab_release R2019a
+  # Builds and packages Herbert using Visual Studio 2017 and Matlab R2019a
+
+.LINK
+  https://github.com/pace-neutrons/Herbert
+#>
+param (
+  # Run the Herbert build commands.
+  [switch][Alias("b")]$build,
+  # Run all Herbert tests.
+  [switch][Alias("t")]$test,
+  # Pacakge Herbert into a .zip file.
+  [switch][Alias("p")]$package,
+  # Print the versions of libraries being used e.g. Matlab.
+  [switch][Alias("v")]$print_versions,
+  # Call Get-Help on this script and exit.
+  [switch][Alias("h")]$help,
+
+  # The version of Visual Studio to build with. Other Windows compilers are
+  # not supported by this script. {2015, 2017, 2019} [default: 2017]
   [int][ValidateSet(2015, 2017, 2019)]
   [Alias("VS")]
   $vs_version = 2017,
 
+  # Whether to build the Herbert C++ tests and enable testing via CTest.
+  # This must be "ON" in order to run tests with this script. {ON, OFF} [default: ON]
   [string][ValidateSet("ON", "OFF")]
   [Alias("X")]
   $build_tests = "ON",
 
+  # The configuration to build with. {Release, Debug} [default: Release]
   [string][ValidateSet("Release", "Debug")]
   [Alias("C")]
   $build_config = 'Release',
 
+  # The directory to write build files into. If the directory does not exist it
+  # will be created. [default: build]
   [string]
   [Alias("O")]
   $build_dir = "",
 
+  # Flags to pass to the CMake configure step.
   [string]
   [Alias("F")]
   $cmake_flags = "",
 
+  # The release of Matlab to build and run tests against e.g. R2018b.
   [string][ValidatePattern("R[0-9]{4}[ab]")]
   [Alias("M")]
   $matlab_release = ""
@@ -35,6 +76,11 @@ if ($args) {
     $error_msg += "`n    $arg"
   }
   throw "$error_msg"
+}
+
+if ($help -or $PSBoundParameters.Values.Count -eq 0) {
+  Get-Help "$PSCommandPath"
+  exit 0
 }
 
 # Mapping from year to Visual Studio version

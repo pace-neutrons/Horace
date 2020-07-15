@@ -31,5 +31,24 @@ obj.loop_data_     = InitMessage.loop_data;
 obj.return_results_= InitMessage.return_results;
 obj.n_first_iteration_= InitMessage.n_first_step;
 %
-[~,err,obj]=obj.reduce_send_message('started',[],synchronize);
+% initialize loggers for messages frameworks to print debug information 
+if ~isempty(obj.ext_log_fh) && isnumeric(obj.ext_log_fh)
+    fn = fopen(obj.ext_log_fh);
+    if ~isempty(fn)
+        obj.control_node_exch_.ext_log_fh = obj.ext_log_fh;
+        obj.mess_framework_.ext_log_fh = obj.ext_log_fh;
+    end
+end
+
+% set up message exchange framewor to be available in all places of the 
+% jobExecutor
+mis = MPI_State.instance();
+mis.mpi_framework = intercomm;
+
+% inform that job have started.
+obj.mess_framework.throw_on_interrupts = true; % if the interrupt received 
+%  at this stage, its the problem we can not currently handle properly
+[~,err,obj]=obj.reduce_send_message('started','started',[],synchronize);
+
+%
 

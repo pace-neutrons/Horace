@@ -3,10 +3,7 @@ classdef ClusterHerbert < ClusterWrapper
     %
     % of Matlab workers, controlled by Java
     % runtime, and exchanging filebased messages.
-    %
-    %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-    %
+    % 
     %----------------------------------------------------------------------
     properties(Access = protected)
         

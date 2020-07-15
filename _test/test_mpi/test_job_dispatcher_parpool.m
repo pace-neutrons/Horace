@@ -18,50 +18,6 @@ classdef test_job_dispatcher_parpool< job_dispatcher_common_tests
         end
         %
         
-        function test_finish_tasks_reduce_messages(obj,varargin)
-            if obj.ignore_test
-                return;
-            end
-            if nargin>1
-                obj.setUp();
-                clob0 = onCleanup(@()tearDown(obj));
-            end
-            
-            serverfbMPI  = MessagesFilebased('test_finish_tasks_reduce_mess');
-            serverfbMPI.mess_exchange_folder = obj.working_dir;
-            
-            clob = onCleanup(@()finalize_all(serverfbMPI));
-            % generate 3 controls to have 3 filebased MPI pseudo-workers
-            css1= serverfbMPI.get_worker_init('MessagesParpool');
-            
-            cl = parcluster();
-            num_labs = cl.NumWorkers;
-            if num_labs < 4
-                return;
-            end
-            num_labs = 4;
-            pl = gcp('nocreate'); % Get the current parallel pool
-            if isempty(pl) || pl.NumWorkers ~=num_labs
-                delete(pl)
-                pl = parpool(cl,num_labs);
-            end
-            
-            spmd
-                ok = finish_task_tester(css1);
-            end
-            
-            
-            assertEqual(numel(ok),num_labs);
-            all_ok = arrayfun(@(x)(x{1}),ok,'UniformOutput',true);
-            assertTrue(all(all_ok));
-            [ok,err,mess] = serverfbMPI.receive_message(1,'started');
-            assertEqual(ok,MESS_CODES.ok,err);
-            assertEqual(mess.mess_name,'started');
-            [ok,err,mess] = serverfbMPI.receive_message(1,'completed');
-            assertEqual(ok,MESS_CODES.ok,err);
-            assertEqual(mess.mess_name,'completed');
-            
-        end
         function xest_job_submittion(obj)
             % test to debug job submission on cluster. It's not usually run
             % as all logic is tested elsewhere but kept to help identifying
@@ -101,15 +57,20 @@ classdef test_job_dispatcher_parpool< job_dispatcher_common_tests
             assertTrue(exist(file3,'file') == 2);
             delete(cjob)
         end
+        %
         function test_job_fail_restart(obj, varargin)
             test_job_fail_restart@job_dispatcher_common_tests(obj, varargin{:})
         end
+        %
         function test_job_with_logs_3workers(obj, varargin)
+            
             test_job_with_logs_3workers@job_dispatcher_common_tests(obj, varargin{:})
         end
+        %
         function test_job_with_logs_2workers(obj,varargin)
             test_job_with_logs_2workers@job_dispatcher_common_tests(obj, varargin{:})
         end
+        %
         function test_job_with_logs_worker(obj, varargin)
             test_job_with_logs_worker@job_dispatcher_common_tests(obj, varargin{:})
         end

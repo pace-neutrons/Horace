@@ -10,9 +10,9 @@ function [mess_names,mid_from,mid_to,varargout] = parse_folder_contents_(folder_
 %
 % where ext is either '.mat', '.lock[r|w]] or number or a message in a queue.
 % messages with extension .lock are treated as locks to the message names,
-%      never returned as output and, on request may suppress correspondent 
+%      never returned as output and, on request may suppress correspondent
 %      message names.
-% 
+%
 %
 % Returns:
 %
@@ -23,15 +23,12 @@ function [mess_names,mid_from,mid_to,varargout] = parse_folder_contents_(folder_
 % ext       -- message extensions (except locks), used to organize the messages
 %              queue.
 %
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-%
-%
+
 
 if nargin > 1
-    nolocked = true;
+    nolocked_only = varargin{1};
 else
-    nolocked = false;
+    nolocked_only = true;
 end
 
 mess_template = 'mess_';
@@ -40,11 +37,11 @@ len = numel(mess_template);
 
 
 % extract only messages
-[is_mess,is_lock] = arrayfun(@(x)is_message(x,mess_template,len),folder_contents);
+[is_mess,is_lock] = arrayfun(@(x)is_message_(x,mess_template,len,nolocked_only),folder_contents);
 
 % remove locked files from further consideration
 if any(is_lock)
-    if nolocked % remove locked files from the list
+    if nolocked_only % remove locked files from the list
         mess_files = folder_contents(is_mess);
         lock_files = folder_contents(is_lock);
         mess_names = arrayfun(@get_mat_fname,mess_files,'UniformOutput',false);
@@ -69,6 +66,16 @@ if numel(mess_files) ==0
         varargout{1}  = {};
     end
     return;
+end
+% Sort messages according to their access date, the most recent come first
+if isfield(mess_files,'datenum')
+    mess_date = arrayfun(@(x)(x.datenum),mess_files,'UniformOutput',true);
+    %[~,ind] = sort(mess_date,'descend');
+    [~,ind] = sort(mess_date);
+    mess_files = mess_files(ind);
+else %  dos command sorts files with oldest coming last
+    %
+    % mess_files = fliplr(mess_files);
 end
 
 % identify messages sources and destinations
@@ -108,7 +115,7 @@ end
 end
 
 
-function [is_mess,is_lock] = is_message(file_struc,mess_template,len)
+function [is_mess,is_lock] = is_message_(file_struc,mess_template,len,nolocked_only)
 % the functon verifies if the file structure produced by dir
 % and received as input is actually the file, with filebased
 % message or is a lock file.
@@ -119,6 +126,15 @@ if file_struc.isdir
 end
 [~,fn,fext] = fileparts(file_struc.name);
 is_mess = strncmpi(mess_template,fn,len);
+%
+if is_mess && strncmpi(fext,'.tmp_',5) % the message in process of
+    % writing to disk. Its a locked message, whatewer lock state is
+    if nolocked_only
+        is_mess  = false;
+    else
+        is_mess = true;
+    end
+end
 if is_mess
     if strncmpi(fext,'.lock',5)
         is_lock = true;

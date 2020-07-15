@@ -69,12 +69,11 @@ warning('off', 'MATLAB:class:DestructorError');
 %  may be due to a poor choice by the user of configuration parameters)
 hc = herbert_config();
 current_conf = hc.get_data_to_store();
-hc.saveable = false; % equivalent to older '-buffer' option for all setters below
 hc.init_tests = 1; % initialize unit tests
 hc.log_level = 1;
+%
 pcf = parallel_config();
 par_config = pcf.get_data_to_store();
-pcf.saveable = false;
 pcf.shared_folder_on_local = tmp_dir;
 
 % Generate full test paths to unit tests:
@@ -125,7 +124,12 @@ if parallel && license('checkout', 'Distrib_Computing_Toolbox')
     tests_ok = all(test_ok);
 else
     time = bigtic();
-    tests_ok = runtests(test_folders_full{:});
+    test_ok = false(1,numel(test_folders_full));
+    for i=1:numel(test_folders_full)
+        [test_ok(i),suite] = runtests(test_folders_full{i});
+        suite.delete();
+    end
+    tests_ok = all(test_ok);    
     bigtoc(time, '===COMPLETED UNIT TESTS RUN ');
     
 end

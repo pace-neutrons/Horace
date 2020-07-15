@@ -2,10 +2,6 @@ classdef ClusterWrapper
     % The class-wrapper containing common code for any Matlab cluster,
     % and job progress logging operations supported by Herbert
     %
-    %
-    %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-    %
     %----------------------------------------------------------------------
     properties(Dependent)   %
         % The string, providing unique identifier(name) for the job and cluster.
@@ -20,7 +16,7 @@ classdef ClusterWrapper
         % configuration is not necessary so this field contains 'local'
         % info. If one wants to run e.g. mpi job using mpiexec, the cluster
         % configuration should refer to the appropriate hosts file
-        cluster_config        
+        cluster_config
         
         % the current cluster status, usually defined by status message,
         % e.g. The string which describes the current status
@@ -28,7 +24,7 @@ classdef ClusterWrapper
         % short abbreviation of the status property.
         status_name;
         % the property identifies that wrapper received the message that
-        % the cluster status have changed.        
+        % the cluster status have changed.
         status_changed;
         % the string to display to user the current state of the cluster
         log_value
@@ -133,6 +129,14 @@ classdef ClusterWrapper
             
             obj = obj.init(n_workers,mess_exchange_framework,log_level);
         end
+        function obj = set_mess_exchange(obj,mess_exchange)
+            if ~isa(mess_exchange,'iMessagesFramework')
+                error('CLUSTER_WRAPPER:invalid_argument',...
+                    ' can set only instance of message exchange framework but setting %s',...
+                    evalc('disp(mess_exchange)'));
+            end
+            obj.mess_exchange_ = mess_exchange;
+        end
         function obj = init(obj,n_workers,mess_exchange_framework,log_level)
             % The method to initiate the cluster wrapper
             %
@@ -151,8 +155,8 @@ classdef ClusterWrapper
             if log_level > -1
                 fprintf(obj.starting_info_message_,n_workers);
             end
+            obj = obj.set_mess_exchange(mess_exchange_framework);
             
-            obj.mess_exchange_ = mess_exchange_framework;
             obj.n_workers_   = n_workers;
             
             
@@ -262,6 +266,14 @@ classdef ClusterWrapper
             % and complete parallel job
             if ~isempty(obj.mess_exchange_)
                 obj.mess_exchange_.finalize_all();
+                new_mess_exchange_folder = obj.mess_exchange_.next_message_folder_name;
+                if exist(new_mess_exchange_folder,'dir')==7
+                    [ok,mess]=rmdir(new_mess_exchange_folder,'s');
+                    if ~ok
+                        warning(' can not clean-up prospective message exchange folder %s Reason %s',...
+                            new_mess_exchange_folder,mess);
+                    end
+                end
                 obj.mess_exchange_ = [];
             end
         end
@@ -270,7 +282,7 @@ classdef ClusterWrapper
             % retrieve parallel job results
             [outputs,n_failed,obj] = get_job_results_(obj);
         end
-        function check_availability(obj)
+        function check_availability(~)
             % verify the availability of a particular type of framework
             % (cluster)
             %
@@ -359,6 +371,7 @@ classdef ClusterWrapper
             % by check_progress method
             obj = generate_log_(obj,varargin{:});
         end
+        %
         function obj = set_cluster_config_(obj,val)
             if ~strcmpi(val,obj.cluster_config_)
                 warning('CLUSTER_WRAPPER:invalid_argument',...
@@ -367,7 +380,7 @@ classdef ClusterWrapper
             end
             
         end
-        
+        %
         function obj = set_cluster_status(obj,mess)
             % protected set status function, necessary to be able to
             % overload set.status method.
@@ -386,6 +399,7 @@ classdef ClusterWrapper
             end
             
         end
+        %
         function ex = exit_worker_when_job_ends_(obj)
             % function defines desired completion of the workers.
             % should be true for java-controlled worker and false for parallel
