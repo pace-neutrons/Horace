@@ -315,6 +315,59 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             obj.save_or_test_variables(w1a,w1b);
             
         end
+        function test_gen_sqw_sym(obj,varargin)
+            %-------------------------------------------------------------
+            if obj.skip_test
+                return
+            end
+            if nargin> 1
+                % running in single test method mode.
+                obj.setUp();
+                co1 = onCleanup(@()obj.tearDown());
+            end
+            %-------------------------------------------------------------
+            
+            
+            % build test files if they have not been build
+            obj=build_test_files(obj);
+            % generate the names of the output sqw files
+            
+            file_pref = obj.test_pref;
+            wkdir = obj.working_dir;
+            
+            
+            sqw_file_base=fullfile(wkdir ,['sqw_sym_base_',file_pref,'.sqw']);             % output sqw file
+            sqw_file_sym =fullfile(wkdir ,['sqw_sym_reflected_',file_pref,'.sqw']);             % output sqw file
+            if ~obj.save_output
+                cleanup_obj1=onCleanup(@()obj.delete_files(sqw_file_base,sqw_file_sym));
+            end
+            %% ---------------------------------------
+            % Test symetrisation ---------------------------------------
+            
+            [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
+            
+            gen_sqw (obj.spe_file, '', sqw_file_base,...
+                efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs); %,...
+            % symetrise in memory
+            v1=[0,1,0]; v2=[0,0,1]; v3=[0,0,0];
+            win = read_sqw(sqw_file_base);
+            w_mem_sym=symmetrise_sqw(win,v1,v2,v3);
+            
+            gen_sqw (obj.spe_file, '', sqw_file_sym,...
+                efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs,...
+                'transform_sqw',@(x)symmetrise_sqw(x,v1,v2,v3));
+            
+            
+            w1_f_sym=cut_sqw(sqw_file_sym,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
+            w1_m_sym=cut_sqw(w_mem_sym,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
+            plot(w1_f_sym)
+            pd(w1_m_sym)
+            
+            [ok,mess]=is_cut_equal(sqw_file_sym,w_mem_sym,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
+            assertTrue(ok,[' Cuts are not equal Error: ',mess]);
+            
+        end
+        
         %
         function test_accumulate_sqw14(obj,varargin)
             %-------------------------------------------------------------
