@@ -445,7 +445,7 @@ methods
                 obj.write_dirty_page_();
             end
             obj.page_number_ = 1;
-            obj.data_ = zeros(9, 0);
+            obj.data_ = zeros(obj.PIXEL_BLOCK_COLS_, 0);
         end
     end
 
