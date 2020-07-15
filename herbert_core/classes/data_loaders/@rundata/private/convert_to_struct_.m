@@ -50,3 +50,6 @@ end
 if ~isempty(obj.sample)
     out_struct.sample = obj.sample;
 end
+if isprop(obj,'transform_sqw') && ~isempty(obj.transform_sqw)
+    out_struct.transform_sqw = obj.transform_sqw;
+end
