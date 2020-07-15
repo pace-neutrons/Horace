@@ -28,3 +28,15 @@ TEST_F(TestRecomputePixSums, test_correct_sum_returned_with_1_thread) {
   ASSERT_THAT(signal_sum, ::testing::ElementsAre(1, 8, 4, 9));
   ASSERT_THAT(variance_sum, ::testing::ElementsAre(2, 16, 8, 18));
 }
+
+TEST_F(TestRecomputePixSums, test_correct_sum_returned_with_4_threads) {
+  std::vector<double> signal_sum(distr_size);
+  std::vector<double> variance_sum(distr_size);
+  const int n_threads{4};
+
+  recompute_pix_sums(signal_sum.data(), variance_sum.data(), distr_size,
+                     npix.data(), pix_data.data(), num_pix, n_threads);
+
+  ASSERT_THAT(signal_sum, ::testing::ElementsAre(1, 8, 4, 9));
+  ASSERT_THAT(variance_sum, ::testing::ElementsAre(2, 16, 8, 18));
+}

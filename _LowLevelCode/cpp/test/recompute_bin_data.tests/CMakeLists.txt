@@ -11,6 +11,6 @@ set(TEST_NAME "recompute_pix_sums.test")
 pace_add_cpp_unit_test(
     NAME "${TEST_NAME}"
     SOURCES "${TEST_SRC_FILES}" "${HDR_FILES}"
-    LIBRARIES gmock
+    LIBRARIES gmock OpenMP::OpenMP_CXX
     MEX_TEST
 )
