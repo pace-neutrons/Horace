@@ -90,7 +90,7 @@ properties (Access=private)
 
     f_accessor_;  % instance of faccess object to access pixel data from file
     file_path_ = '';  % the path to the file backing this object - empty string if all data in memory
-    max_page_size_;  % the maximum number of pixels that can fie in the page memory size
+    % max_page_size_ = inf;  % the maximum number of pixels that can fit in the page memory size
     object_id_;  % random unique identifier for this object, used for tmp file names
     page_dirty_ = false;  % array mapping from page_number to whether that page is dirty
     page_memory_size_ = 3e9;  % 3Gb - the maximum amount of memory a page can use
@@ -102,6 +102,7 @@ end
 properties (Dependent, Access=private)
     data_;  % points to raw_data_ but with a layer of validation for setting correct array sizes
     pix_position_;  % the pixel index in the file of the first pixel in the cache
+    max_page_size_;  % the maximum number of pixels that can fit in the page memory size
 end
 
 properties (Dependent)
@@ -256,7 +257,6 @@ methods
         if nargin == 2
             obj.page_memory_size_ = mem_alloc;
         end
-        obj.max_page_size_ = obj.get_max_page_size_(obj.page_memory_size_);
         if ischar(arg)
             % input is a file path
             f_accessor = sqw_formats_factory.instance().get_loader(arg);
@@ -641,8 +641,19 @@ methods
         end
     end
 
+    % -- Private getters --
     function pix_position = get.pix_position_(obj)
         pix_position = (obj.page_number_ - 1)*obj.max_page_size_ + 1;
+    end
+
+    function page_size = get.max_page_size_(obj)
+        if obj.is_file_backed_()
+            num_bytes_in_val = 8;  % pixel data stored in memory as a double
+            num_bytes_in_pixel = num_bytes_in_val*obj.PIXEL_BLOCK_COLS_;
+            page_size = floor(obj.page_memory_size_/num_bytes_in_pixel);
+        else
+            page_size = obj.num_pixels;
+        end
     end
 
 end
@@ -730,14 +741,6 @@ methods (Access=private)
             page_number = obj.page_number_;
         end
         obj.page_dirty_(page_number) = is_dirty;
-    end
-
-    function page_size = get_max_page_size_(obj, mem_alloc)
-        % Get the maximum number of pixels that can be held in a page that's
-        % allocated 'mem_alloc' bytes
-        num_bytes_in_val = 8;  % pixel data stored in memory as a double
-        num_bytes_in_pixel = num_bytes_in_val*obj.PIXEL_BLOCK_COLS_;
-        page_size = floor(mem_alloc/num_bytes_in_pixel);
     end
 
     function is = is_file_backed_(obj)
