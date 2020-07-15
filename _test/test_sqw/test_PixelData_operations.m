@@ -22,7 +22,8 @@ methods
         obj.ref_s_data = sqw_test_obj.data.s;
         obj.ref_e_data = sqw_test_obj.data.e;
 
-        obj.page_size = dir(obj.test_sqw_file_path).bytes/6;  % Gives us 6 pages
+        file_info = dir(obj.test_sqw_file_path);
+        obj.page_size = file_info.bytes/6;  % Gives us 6 pages
     end
 
     function setUp(obj)
@@ -81,7 +82,8 @@ methods
         obj.config.use_mex = true;
         obj.config.threads = 1;
 
-        pg_size = dir(obj.test_sqw_file_path).bytes/5;
+        file_info = dir(obj.test_sqw_file_path);
+        pg_size = file_info.bytes/5;
         pix = PixelData(obj.test_sqw_file_path, pg_size);
         [s, e] = pix.compute_bin_data(obj.ref_npix_data);
 
