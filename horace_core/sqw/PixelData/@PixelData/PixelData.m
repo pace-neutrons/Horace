@@ -632,7 +632,7 @@ methods
 
     function page_size = get.page_size(obj)
         % The number of pixels that are held in the current page.
-        if obj.num_pixels > 0 && obj.is_file_backed_() && isempty(obj.data)
+        if obj.num_pixels > 0 && obj.cache_is_empty_()
             % No pixels currently loaded, show the number that will be loaded
             % when a getter is called
             page_size = min(obj.max_page_size_, obj.num_pixels);
@@ -661,7 +661,7 @@ methods (Access=private)
     function obj = load_current_page_if_data_empty_(obj)
         % Check if there's any data in the current page and load a page if not
         %   This function does nothing if pixels are not file-backed.
-        if isempty(obj.data_) && obj.is_file_backed_()
+        if obj.cache_is_empty_() && obj.is_file_backed_()
             obj = obj.load_page_(obj.page_number_);
         end
     end
@@ -745,6 +745,11 @@ methods (Access=private)
         % all pixel data is held in memory
         %
         is = ~isempty(obj.f_accessor_);
+    end
+
+    function is = cache_is_empty_(obj)
+        % Return true if no pixels are currently held in memory
+        is = isempty(obj.data_);
     end
 
 end
