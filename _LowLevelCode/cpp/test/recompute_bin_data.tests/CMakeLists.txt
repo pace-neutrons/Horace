@@ -4,6 +4,7 @@ set(TEST_SRC_FILES
 
 set(HDR_FILES
     "${CXX_SOURCE_DIR}/recompute_bin_data/recompute_pix_sums.h"
+    "${CXX_SOURCE_DIR}/test/recompute_bin_data.tests/recompute_pix_sums.test.h"
 )
 
 set(TEST_NAME "recompute_pix_sums.test")
