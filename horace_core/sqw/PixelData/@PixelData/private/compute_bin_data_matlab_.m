@@ -70,6 +70,7 @@ mean_signal = reshape(mean_signal, npix_shape);
 mean_variance = variance_sum ./ (npix(:).^2);
 mean_variance = reshape(mean_variance, npix_shape);
 
+% Convert NaNs to zeros (bins where we divide by zero have pixel contributions)
 nopix = (npix(:) == 0);
 mean_signal(nopix) = 0;
 mean_variance(nopix) = 0;

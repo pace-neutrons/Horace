@@ -70,3 +70,8 @@ variance_sum = reshape(variance_sum, size(npix));
 
 mean_signal = signal_sum./npix;
 mean_variance = variance_sum./npix.^2;
+
+% Convert NaNs to zeros (bins where we divide by zero have pixel contributions)
+nopix = (npix(:) == 0);
+mean_signal(nopix) = 0;
+mean_variance(nopix) = 0;
