@@ -284,7 +284,7 @@ while keep_worker_running
         catch ME1 % the only exception happen is due to error in JE system
             % code. (or user-oveloaded code) Unrecoverable failure
             if DO_LOGGING; log_disp_message('************* Error in JE finalize code\n');  end
-            err_mess = sprintf('job N%s critical failure. JE processing failure error %s:',...
+            err_mess = sprintf('job ID: "%s"; critical failure. JE processing failure error %s:',...
                 control_struct.job_id,ME1.message);
             fbMPI.send_message(0,FailedMessage(err_mess,ME1));
             
