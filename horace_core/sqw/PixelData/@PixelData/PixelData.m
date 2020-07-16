@@ -100,8 +100,8 @@ end
 
 properties (Dependent, Access=private)
     data_;  % points to raw_data_ but with a layer of validation for setting correct array sizes
-    pix_position_;  % the pixel index in the file of the first pixel in the cache
     max_page_size_;  % the maximum number of pixels that can fie in the page memory size
+    pix_position_;  % the pixel index in the file of the first pixel in the cache
 end
 
 properties (Dependent)
