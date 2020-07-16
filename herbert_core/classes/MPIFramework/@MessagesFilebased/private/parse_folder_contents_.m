@@ -69,7 +69,7 @@ if numel(mess_files) ==0
 end
 % Sort messages according to their access date, the most recent come first
 if isfield(mess_files,'datenum')
-    mess_date = arrayfun(@(x)(x.datenum),mess_files,'UniformOutput',true);
+    mess_date = arrayfun(@extract_datenum,mess_files,'UniformOutput',true);
     %[~,ind] = sort(mess_date,'descend');
     [~,ind] = sort(mess_date);
     mess_files = mess_files(ind);
@@ -93,6 +93,12 @@ mid_from   = arrayfun(@(x)(sscanf(x{1}{3},'FromN%d')),mess_fnames,'UniformOutput
 mid_to     = arrayfun(@(x)(sscanf(x{1}{4},'ToN%d')),mess_fnames,'UniformOutput',true);
 if nargout > 3
     varargout{1} = arrayfun(@get_fext,mess_files,'UniformOutput',false);
+end
+end
+function dn = extract_datenum(f_info)
+dn = f_info.datenum;
+if ~isnumeric(dn)
+    dn = NaN;
 end
 end
 

@@ -88,6 +88,14 @@ function disp_exception(errOutput)
 %
 if isa(errOutput,'MException')
     disp(getReport(errOutput))
+elseif iscell(errOutput)
+    disp('***************************************************************');
+    disp(errOutput);
+    for i=1:numel(errOutput)
+        sprintf(' Cell %d, contins: %s\n',i,fevalc('disp(errOutput{i}'));
+        disp_exception(errOutput{i});
+    end
+    disp('***************************************************************');
 elseif isfield(errOutput,'error') && isa(errOutput.error,'MException')
     disp(getReport(errOutput.error));
 else
