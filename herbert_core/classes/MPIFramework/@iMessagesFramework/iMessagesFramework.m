@@ -475,7 +475,13 @@ classdef iMessagesFramework < handle
             % get random ID for messaging framework
             % use process ID and time as job ID. This prevents clashes
             % between processes
-            id = sprintf('%08i', feature('getpid')*1.e+5+round(datetime('now').Second*10));
+            % get 10 digit pid
+            pid = feature('getpid');
+            mod = round(log10(pid))+1;
+            delta =10-mod;
+            pid  = round(pid*10^delta);
+            
+            id = sprintf('%10i',pid+round(datetime('now').Second*10));
         end
         %
         function is_blocking = check_is_blocking(mess_name,options)

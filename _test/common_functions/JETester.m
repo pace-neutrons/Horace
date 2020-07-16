@@ -31,6 +31,13 @@ classdef JETester < JobExecutor
             
             task_num = obj.labIndex;
             job_par = obj.common_data_;
+            wd = pwd();
+            pp = which('test_ParpoolMPI_Framework');
+            if ~isempty(obj.ext_log_fh)
+                fprintf(obj.ext_log_fh,' **** working directory %s\n',wd);
+                fprintf(obj.ext_log_fh,' **** test file location %s\n',pp);
+            end
+            
             
             disp('****************************************************');
             disp(['labN: ',num2str(task_num),' generating n_files: ',num2str(n_steps)]);

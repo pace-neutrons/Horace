@@ -695,6 +695,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             jobID = mf.job_id;
             [~,name] = fileparts(mf.next_message_folder_name());
             
+
             nums = str2double(jobID(end-9:end));
             nm = nums+1;
             
@@ -720,14 +721,12 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             clObj = onCleanup(@()finalize_all(mf));
             
             [~,name] = fileparts(mf.next_message_folder_name());
-            digit_pos = regexp(name,'\d');
-            ndig = numel(digit_pos);
-            head = name(1:end-ndig );
+            head = name(1:end-10);
             assertEqual(head ,'test_next_job_nonum_');
-            tail = name(end-ndig+1:end);
+            tail = name(end-9:end);
             digit_pos = regexp(tail,'\d');
             
-            assertEqual(1:ndig ,digit_pos)
+            assertEqual(1:10 ,digit_pos)
         end
         %
     end
