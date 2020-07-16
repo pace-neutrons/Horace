@@ -15,6 +15,6 @@ pace_add_mex(
     SRC "${SRC_FILES}" "${HDR_FILES}"
     COPY_TO "${CMAKE_SOURCE_DIR}/horace_core/DLL"
 )
-if(OpenMP_CXX_FOUND)
-    target_link_libraries("${MEX_NAME}" OpenMP::OpenMP_CXX)
+if (${OPENMP_FOUND})
+    target_compile_options("${MEX_NAME}" PRIVATE ${OpenMP_CXX_FLAGS})
 endif()
