@@ -85,7 +85,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 assertEqual(outputs{2}.fail_reason, ...
                     'Task N2 failed at jobExecutor: JETester. Reason: simulated failure for lab N 2');
             else
-                ok = strcmi(outputs{2}.message,'simulated failure for lab N 2');
+                ok = strcmp(outputs{2}.message,'simulated failure for lab N 2');
                 if ~ok
                     jd.display_fail_job_results(outputs, n_failed,3);
                 end
