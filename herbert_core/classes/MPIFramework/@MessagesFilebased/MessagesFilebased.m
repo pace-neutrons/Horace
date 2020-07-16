@@ -273,14 +273,18 @@ classdef MessagesFilebased < iMessagesFramework
             %
             old_job_id= obj.job_id;
             number_pos = regexp(old_job_id,'\d');
+            non_number = regexp(old_job_id,'\D');
+            last_nn = max(non_number);
+            num_tail = number_pos>last_nn;
+            number_pos  = number_pos(num_tail);
             if isempty(number_pos)
                 job_num = str2double(obj.get_framework_id());
+                new_job_id = [old_job_id,'_',num2str(job_num)];
             else
                 job_num = str2double(old_job_id(number_pos));
+                job_num = job_num+obj.folder_migration_shift;
+                new_job_id = [old_job_id(1:end-numel(number_pos)),num2str(job_num)];
             end
-            job_num = job_num+obj.folder_migration_shift;
-            new_job_id = [old_job_id(1:end-numel(number_pos)),num2str(job_num)];
-            
             path = fileparts(obj.mess_exchange_folder_);
             new_folder_name = fullfile(path,new_job_id);
         end

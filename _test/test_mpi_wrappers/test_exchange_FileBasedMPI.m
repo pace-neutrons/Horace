@@ -688,6 +688,47 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             mf0.finalize_all();
             assertFalse(exist(job_exchange_folder, 'dir') == 7)
         end
+        function test_next_job_id_text(~)
+           mf = MessagesFilebased('test_next_job_id');
+           clObj = onCleanup(@()finalize_all(mf));
+           
+           jobID = mf.job_id;
+           [~,name] = fileparts(mf.next_message_folder_name());
+           
+           nums = str2double(jobID(end-9:end));
+           nm = nums+1;
+           
+           assertEqual(name,['test_next_job_id_',num2str(nm)]);           
+        end
+        
+        function test_next_job_id_num1(~)
+           mf = MessagesFilebased();
+           mf.job_id = 'test_next_job1_id_num_1';
+           clObj = onCleanup(@()finalize_all(mf));
+           
+           jobID = mf.job_id;
+           [~,name] = fileparts(mf.next_message_folder_name());
+           
+           nums = str2double(jobID(end:end));
+           nm = nums+1;
+           assertEqual(name,['test_next_job1_id_num_',num2str(nm)]);           
+        end
+        function test_next_job_id_no_num(~)
+           mf = MessagesFilebased();
+           mf.job_id = 'test_next_job_nonum';
+           clObj = onCleanup(@()finalize_all(mf));
+           
+           [~,name] = fileparts(mf.next_message_folder_name());
+           
+           head = name(1:end-10);           
+           assertEqual(head ,'test_next_job_nonum_');
+           tail = name(end-9:end);           
+           digit_pos = regexp(tail,'\d');
+           
+            assertEqual(1:10,digit_pos)
+        end
+        
+        
         %
     end
 end
