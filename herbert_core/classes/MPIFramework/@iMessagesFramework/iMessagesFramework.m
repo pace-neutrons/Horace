@@ -481,7 +481,7 @@ classdef iMessagesFramework < handle
             delta =10-mod;
             pid  = round(pid*10^delta);
             
-            id = sprintf('%10i',pid+round(datetime('now').Second*10));
+            id = sprintf('%i',pid+round(datetime('now').Second*10));
         end
         %
         function is_blocking = check_is_blocking(mess_name,options)
