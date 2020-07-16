@@ -310,23 +310,23 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             
             [ok, err] = mf.send_message(7, 'queued');
             assertEqual(ok, MESS_CODES.ok)
-            assertTrue(isempty(err));            
-                        
+            assertTrue(isempty(err));
+            
             mf.migrate_message_folder();
-            assertFalse(exist(jfn, 'dir')==7);            
-            jnf = fullfile(this.working_dir, cfn, mf.exchange_folder_name, mf.job_id);            
-            assertEqual(exist(jnf, 'dir'), 7);            
+            assertFalse(exist(jfn, 'dir')==7);
+            jnf = fullfile(this.working_dir, cfn, mf.exchange_folder_name, mf.job_id);
+            assertEqual(exist(jnf, 'dir'), 7);
             
             % message have gone
             [ok, err, the_mess] = mf.receive_message(7, 'queued');
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
             assertTrue(isempty(the_mess));
-
+            
             [ok, err] = mf.send_message(7, 'queued');
             assertEqual(ok, MESS_CODES.ok)
-            assertTrue(isempty(err));            
-
+            assertTrue(isempty(err));
+            
             [ok, err, the_mess] = mf.receive_message(7, 'queued');
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
@@ -689,46 +689,46 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertFalse(exist(job_exchange_folder, 'dir') == 7)
         end
         function test_next_job_id_text(~)
-           mf = MessagesFilebased('test_next_job_id');
-           clObj = onCleanup(@()finalize_all(mf));
-           
-           jobID = mf.job_id;
-           [~,name] = fileparts(mf.next_message_folder_name());
-           
-           nums = str2double(jobID(end-9:end));
-           nm = nums+1;
-           
-           assertEqual(name,['test_next_job_id_',num2str(nm)]);           
+            mf = MessagesFilebased('test_next_job_id');
+            clObj = onCleanup(@()finalize_all(mf));
+            
+            jobID = mf.job_id;
+            [~,name] = fileparts(mf.next_message_folder_name());
+            
+            nums = str2double(jobID(end-9:end));
+            nm = nums+1;
+            
+            assertEqual(name,['test_next_job_id_',num2str(nm)]);
         end
         
         function test_next_job_id_num1(~)
-           mf = MessagesFilebased();
-           mf.job_id = 'test_next_job1_id_num_1';
-           clObj = onCleanup(@()finalize_all(mf));
-           
-           jobID = mf.job_id;
-           [~,name] = fileparts(mf.next_message_folder_name());
-           
-           nums = str2double(jobID(end:end));
-           nm = nums+1;
-           assertEqual(name,['test_next_job1_id_num_',num2str(nm)]);           
+            mf = MessagesFilebased();
+            mf.job_id = 'test_next_job1_id_num_1';
+            clObj = onCleanup(@()finalize_all(mf));
+            
+            jobID = mf.job_id;
+            [~,name] = fileparts(mf.next_message_folder_name());
+            
+            nums = str2double(jobID(end:end));
+            nm = nums+1;
+            assertEqual(name,['test_next_job1_id_num_',num2str(nm)]);
         end
+        %
         function test_next_job_id_no_num(~)
-           mf = MessagesFilebased();
-           mf.job_id = 'test_next_job_nonum';
-           clObj = onCleanup(@()finalize_all(mf));
-           
-           [~,name] = fileparts(mf.next_message_folder_name());
-           
-           head = name(1:end-10);           
-           assertEqual(head ,'test_next_job_nonum_');
-           tail = name(end-9:end);           
-           digit_pos = regexp(tail,'\d');
-           
-            assertEqual(1:10,digit_pos)
+            mf = MessagesFilebased();
+            mf.job_id = 'test_next_job_nonum';
+            clObj = onCleanup(@()finalize_all(mf));
+            
+            [~,name] = fileparts(mf.next_message_folder_name());
+            digit_pos = regexp(name,'\d');
+            ndig = numel(digit_pos);
+            head = name(1:end-ndig );
+            assertEqual(head ,'test_next_job_nonum_');
+            tail = name(end-ndig+1:end);
+            digit_pos = regexp(tail,'\d');
+            
+            assertEqual(1:ndig ,digit_pos)
         end
-        
-        
         %
     end
 end
