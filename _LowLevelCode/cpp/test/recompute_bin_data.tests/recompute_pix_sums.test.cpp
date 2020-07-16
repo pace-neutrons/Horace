@@ -7,6 +7,8 @@
 
 void TestRecomputePixSums::SetUpTestSuite() {
   // Generate some pixel data. All signals = 1 and all variance = 2
+  distr_size = 4;      // number of bins
+  npix = {1, 8, 4, 9}; // number of pixels contributing to each bin
   num_pix =
       static_cast<std::size_t>(std::accumulate(npix.begin(), npix.end(), 0.0));
   pix_data.resize(num_pix * NUM_PIX_COLS);
