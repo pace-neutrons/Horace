@@ -92,7 +92,6 @@ try
 catch ME0 %unhandled exception during init procedure
     ok = false;
     err_mess = ME0;
-    je = 1;
     return;
 end
 %%
@@ -184,11 +183,13 @@ while keep_worker_running
 
         if ~strcmp(ME.identifier,'MESSAGE_FRAMEWORK:canceled')  
             % if job is canceled, we can recover further, as it will throw
-            % lower on the code. 
+            % below at first call to log progress. Any other exception is unhandled one
             if DO_LOGGING; log_input_message_exception_caught();  end
-            err_mess = sprintf('job N%s failed. Error during job initialization %s:',...
+            err_mess = sprintf('job "%s" failed. Error during job initialization: %s',...
                 control_struct.job_id,ME.message);
             fbMPI.send_message(0,FailedMessage(err_mess,ME));
+            ok = false;
+            err_mess = ME;
             break;
         end
     end
@@ -310,7 +311,6 @@ while keep_worker_running
     
     
     %%
-    try
     if DO_LOGGING;  fprintf(fh,'************* finishing subtask: %s \n',...
             fbMPI.job_id); end
     [ok,err_mess,je] = je.finish_task();
@@ -319,8 +319,6 @@ while keep_worker_running
     je.migrate_job_folder(false);
     
     if DO_LOGGING;  fprintf(fh,'************* subtask: %s  finished\n',fbMPI.job_id); end
-    catch ME2 
-    end
 end
 if DO_DEBUGGING
     disp('************** Paused Parallel worker: Enter something to continue')

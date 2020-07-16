@@ -13,14 +13,40 @@ function [ok,err_mess,je]=worker_4tests(worker_controls_string)
 %              contains only minimal initialization information, namely the
 %              folder name where the job initialization data are located on
 %              a remote system.
-
+je = [];
 if isempty(which('herbert_init.m'))
-    herbert_on();
-    % Set up non-default herbert or Horace path to test them
-    % herbert_on('/home/isis_direct_soft/Herbert_bugfix/herbert_core');
-    % horace_on('/home/isis_direct_soft/Horace_bugfix/horace_core');
+    horace_on()
+    %herbert_on();
+    %horace_on('c:\Users\abuts\Documents\developing_soft\Horace_3_4\horace_core');
 end
-DO_LOGGING = true; % if true, write extensive log information.
-DO_DEBUGGING = false; % if true, do not exit worker on completion (enter pause).
-% Used for filebased framework debugging on windows, when one can get access to the terminal of running worker.
-[ok,err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING,DO_DEBUGGING);
+DO_LOGGING = false;
+DO_DEBUGGING = false;
+try
+    [ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING,DO_DEBUGGING);
+catch ME1 % intercepted exception in processing failure or some odd bug indeed
+    ok = false;
+    if exist('je','var') && isa(je,'JobExecutor') %exception thrown but JE is defined
+        if isnumeric(je.labIndex) && ~isempty(je.labIndex)
+            log_file = fullfile(tempdir,sprintf('WORKER_V2_Node#%d_failure.log',je.labIndex));
+        else
+            log_file = fullfile(tempdir,sprintf('WORKER_V2_Node_JE_common_failure.log'));
+        end
+    else
+        log_file = fullfile(tempdir,'WORKER_V2_JE_FAIL_PROCESSING_failure.log');
+    end
+    err_mess = ME1;
+end
+if ~ok && isa(err_mess,'MException')
+    if isa(je,'JobExecutor')
+        log_file = fullfile(tempdir,sprintf('WORKER_V2_Node#%d_failure.log',je.labIndex));        
+    elseif isempty(je)
+        log_file = fullfile(tempdir,'WORKER_V2_INIT_failure.log');
+    end
+    
+    fh = fopen(log_file,'w');
+    fprintf(fh,'******* Unhandled exception during initialization procedure\n');
+    fprintf(fh,'******** ERROR: \n');
+    fprintf(fh,'%s',getReport(err_mess));
+    fclose(fh);
+end
+
