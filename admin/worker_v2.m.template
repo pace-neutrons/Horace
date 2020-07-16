@@ -15,8 +15,7 @@ function [ok,err_mess,je]=worker_v2(worker_controls_string)
 %              a remote system.
 je = [];
 if isempty(which('herbert_init.m'))
-    horace_on()
-    %herbert_on();
+    herbert_on();
     %horace_on('c:\Users\abuts\Documents\developing_soft\Horace_3_4\horace_core');
 end
 DO_LOGGING = false;
