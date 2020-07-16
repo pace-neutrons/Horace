@@ -11,9 +11,7 @@ function store_internal(this,config_class,force_save,varargin)
 % configuration, other values for config class are taken fron config_class
 % defaults. 
 %
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-%
+
 if isa(config_class,'config_base')
     class_name = config_class.class_name;
 elseif(is_string(config_class))
