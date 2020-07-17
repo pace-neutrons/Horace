@@ -107,6 +107,7 @@ classdef MessagesFilebased < iMessagesFramework
             % and copy Herbert/Horace configurations to new configuration
             % folder if this folder location differs from the default configuration
             % location (for using on remote machines)
+            %
             if ~ischar(val)
                 error('iMessagesFramework:invalid_argument',...
                     'message exchange folder should be a string');
@@ -270,17 +271,30 @@ classdef MessagesFilebased < iMessagesFramework
             % function returns the name of the folder,which will become new
             % message exchange folder after job migration is completed.
             %
+            % The message folder name is constructed by extracting random
+            % numeric part of current job_id and adding a number to it
+            % (currently 1)
+            %
             %
             old_job_id= obj.job_id;
             number_pos = regexp(old_job_id,'\d');
-            if isempty(number_pos)
+            non_number = regexp(old_job_id,'\D');
+            last_nn = max(non_number);
+            num_tail = number_pos>last_nn;
+            number_pos  = number_pos(num_tail);
+            npos = numel(number_pos);
+            if npos  > 10
+                number_pos = number_pos(end-9:end);
+            end
+            if isempty(number_pos) % build new random numeric
+                % extension
                 job_num = str2double(obj.get_framework_id());
+                new_job_id = [old_job_id,'_',num2str(job_num)];
             else
                 job_num = str2double(old_job_id(number_pos));
+                job_num = job_num+obj.folder_migration_shift;
+                new_job_id = [old_job_id(1:end-npos),num2str(job_num)];
             end
-            job_num = job_num+obj.folder_migration_shift;
-            new_job_id = [old_job_id(1:end-numel(number_pos)),num2str(job_num)];
-            
             path = fileparts(obj.mess_exchange_folder_);
             new_folder_name = fullfile(path,new_job_id);
         end
@@ -312,6 +326,7 @@ classdef MessagesFilebased < iMessagesFramework
     end
     %----------------------------------------------------------------------
     methods (Access=protected)
+        %
         function mess_fname = job_stat_fname_(obj,lab_to,mess_name,lab_from,varargin)
             %build filename for a specific message
             % Inputs:
@@ -335,7 +350,6 @@ classdef MessagesFilebased < iMessagesFramework
             end
             mess_fname = MessagesFilebased.mess_fname_(obj,lab_to,mess_name,lab_from,is_sender);
         end
-        %
         %
         function obj = set_job_id_(obj,new_job_id,delete_old_folder)
             % Function to set the string, uniquely identifying the job
@@ -384,7 +398,11 @@ classdef MessagesFilebased < iMessagesFramework
         function [top_exchange_folder,mess_subfolder] = build_exchange_folder_name(obj,top_exchange_folder )
             % build the name of the folder used to exchange messages
             % between the base node and the MPI framework and, if
-            % necessary, filebased messages
+            % necessary, filebased messages.
+            %
+            % The exchange folder name is equal to job_id and located
+            % within the configuration folder.
+            
             if ~exist('top_exchange_folder','var')
                 top_exchange_folder = config_store.instance().config_folder;
             end

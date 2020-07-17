@@ -118,18 +118,18 @@ classdef test_job_executor< MPI_Test_Common
             [~,~,je2]=obj.worker_h(css2);
             % defer receving the interrupt message befor je1 initialized
             % propertly. If it does not, it is unrecoverable failure, but
-            % probability for this to happen in real life is low. 
-            interrupt_generated = je2.mess_framework.mess_file_name(1,'interrupt'); 
+            % probability for this to happen in real life is low.
+            interrupt_generated = je2.mess_framework.mess_file_name(1,'interrupt');
             [fp] = fileparts(interrupt_generated);
             tmp_dest = fullfile(fp,'test_worker_fails_tmp_interrupt.mat');
             movefile(interrupt_generated ,tmp_dest);
             % end defer.
             [~,~,je1]=obj.worker_h(css1);
-            % return interrupt back 
-            movefile(tmp_dest,interrupt_generated);            
+            % return interrupt back
+            movefile(tmp_dest,interrupt_generated);
             %
             % all workers reply 'started' to node1 as it is cluster
-            % control message            
+            % control message
             [ok,err_mess,message] = serverfbMPI.receive_message(1,'started');
             assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
             assertEqual(message.mess_name,'failed')
@@ -772,7 +772,5 @@ classdef test_job_executor< MPI_Test_Common
             assertEqual(mess.mess_name,'failed');
             
         end
-        
     end
-    
 end

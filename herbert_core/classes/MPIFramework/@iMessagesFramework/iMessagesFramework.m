@@ -83,7 +83,9 @@ classdef iMessagesFramework < handle
     
     methods
         function obj = iMessagesFramework(varargin)
-            % default prefix is 5 digits of processID+3 digits of current number of seconds
+            % default prefix is srting build from the number consisting of
+            % 10 digits processID + 3 digits integer, build from
+            % current number of seconds
             if nargin>0
                 obj.job_id = varargin{1};
             else
@@ -97,6 +99,7 @@ classdef iMessagesFramework < handle
         function id = get.job_id(obj)
             id = obj.job_id_;
         end
+        %
         function set.job_id(obj,val)
             % set the string uniquely defining job name.
             set_job_id_(obj,val);
@@ -109,6 +112,7 @@ classdef iMessagesFramework < handle
         function ind = get.numLabs(obj)
             ind = get_num_labs_(obj);
         end
+        %
         function is = get.is_tested(obj)
             is = get_is_tested(obj);
         end
@@ -116,6 +120,7 @@ classdef iMessagesFramework < handle
         function set.time_to_fail(obj,val)
             obj.time_to_fail_ = val;
         end
+        %
         function val = get.time_to_fail(obj)
             val = obj.time_to_fail_ ;
         end
@@ -123,6 +128,7 @@ classdef iMessagesFramework < handle
         function set.throw_on_interrupts(obj,val)
             obj.throw_on_interrupts_ = logical(val);
         end
+        %
         function do = get.throw_on_interrupts(obj)
             do = obj.throw_on_interrupts_;
         end
@@ -240,8 +246,10 @@ classdef iMessagesFramework < handle
             [all_messages,mid_from] = retrieve_interrupt_(obj,...
                 all_messages,mid_from,mes_addr_to_check);
         end
+        %
         function clear_interrupt(obj,task_id)
-            % method clears interrupt, receved from task_id specified
+            % method clears interrupt, receved from task_id (labIndex)
+            % provided as input
             if isempty(obj.persistent_fail_message_)
                 return;
             end
@@ -474,8 +482,19 @@ classdef iMessagesFramework < handle
         function id = get_framework_id()
             % get random ID for messaging framework
             % use process ID and time as job ID. This prevents clashes
-            % between processes
-            id = sprintf('%08i', feature('getpid')*1.e+5+round(datetime('now').Second*10));
+            % between processes.
+            % the id is a string representation of 10 digit-pid
+            % + added 3 digit number of current seconds.
+            %
+            % Ensure pid contans 10 digits. Complement it with 0 at the end
+            % if it contans less digits  or trunkate extra digits if has
+            % more
+            pid = feature('getpid');
+            mod = round(log10(pid))+1;
+            delta =10-mod;
+            pid  = round(pid*10^delta);
+            
+            id = sprintf('%i',pid+round(datetime('now').Second*10));
         end
         %
         function is_blocking = check_is_blocking(mess_name,options)
@@ -640,6 +659,7 @@ classdef iMessagesFramework < handle
         % up these numbers in test mode.
         obj = set_framework_range(obj,labNum,NumLabs);
     end
+    %
     methods(Abstract,Access=protected)
         % return the labIndex
         ind = get_lab_index_(obj);
@@ -666,6 +686,7 @@ classdef iMessagesFramework < handle
         
         [is_ok,err_mess,message] = receive_message_internal(obj,task_id,mess_name,is_blocking)
     end
+    %
     methods(Access = protected)
         %
         function set_job_id_(obj,new_job_id)
