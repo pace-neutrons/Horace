@@ -1,6 +1,8 @@
 classdef test_PixelData_operations < TestCase
 
 properties
+    FLOAT_TOLERANCE = 4.75e-4;
+
     test_sqw_file_path = '../test_sqw_file/sqw_1d_1.sqw';
     ref_npix_data = [];
     ref_s_data = [];
@@ -46,8 +48,8 @@ methods
 
         [s, e] = obj.pix_in_memory.compute_bin_data(obj.ref_npix_data);
 
-        assertEqual(s, obj.ref_s_data, '', 4.75e-4);
-        assertEqual(e, obj.ref_e_data, '', 4.75e-4);
+        assertEqual(s, obj.ref_s_data, '', obj.FLOAT_TOLERANCE);
+        assertEqual(e, obj.ref_e_data, '', obj.FLOAT_TOLERANCE);
     end
 
     function test_compute_bin_data_correct_output_in_memory_mex_4_threads(obj)
@@ -56,8 +58,8 @@ methods
 
         [s, e] = obj.pix_in_memory.compute_bin_data(obj.ref_npix_data);
 
-        assertEqual(s, obj.ref_s_data, '', 4.75e-4);
-        assertEqual(e, obj.ref_e_data, '', 4.75e-4);
+        assertEqual(s, obj.ref_s_data, '', obj.FLOAT_TOLERANCE);
+        assertEqual(e, obj.ref_e_data, '', obj.FLOAT_TOLERANCE);
     end
 
     function test_compute_bin_data_correct_output_all_data_in_memory_mex_off(obj)
@@ -65,8 +67,8 @@ methods
 
         [s, e] = obj.pix_in_memory.compute_bin_data(obj.ref_npix_data);
 
-        assertEqual(s, obj.ref_s_data, '', 4.75e-4);
-        assertEqual(e, obj.ref_e_data, '', 4.75e-4);
+        assertEqual(s, obj.ref_s_data, '', obj.FLOAT_TOLERANCE);
+        assertEqual(e, obj.ref_e_data, '', obj.FLOAT_TOLERANCE);
     end
 
     function test_compute_bin_data_correct_output_file_backed_mex_1_thread(obj)
@@ -75,8 +77,8 @@ methods
 
         [s, e] = obj.pix_with_pages.compute_bin_data(obj.ref_npix_data);
 
-        assertEqual(s, obj.ref_s_data, '', 4.75e-4);
-        assertEqual(e, obj.ref_e_data, '', 4.75e-4);
+        assertEqual(s, obj.ref_s_data, '', obj.FLOAT_TOLERANCE);
+        assertEqual(e, obj.ref_e_data, '', obj.FLOAT_TOLERANCE);
     end
 
     function test_compute_bin_data_correct_output_5_pages_mex_1_thread(obj)
@@ -88,8 +90,8 @@ methods
         pix = PixelData(obj.test_sqw_file_path, pg_size);
         [s, e] = pix.compute_bin_data(obj.ref_npix_data);
 
-        assertEqual(s, obj.ref_s_data, '', 4.75e-4);
-        assertEqual(e, obj.ref_e_data, '', 4.75e-4);
+        assertEqual(s, obj.ref_s_data, '', obj.FLOAT_TOLERANCE);
+        assertEqual(e, obj.ref_e_data, '', obj.FLOAT_TOLERANCE);
     end
 
     function test_compute_bin_data_correct_output_file_backed_mex_4_threads(obj)
@@ -98,8 +100,8 @@ methods
 
         [s, e] = obj.pix_with_pages.compute_bin_data(obj.ref_npix_data);
 
-        assertEqual(s, obj.ref_s_data, '', 4.75e-4);
-        assertEqual(e, obj.ref_e_data, '', 4.75e-4);
+        assertEqual(s, obj.ref_s_data, '', obj.FLOAT_TOLERANCE);
+        assertEqual(e, obj.ref_e_data, '', obj.FLOAT_TOLERANCE);
     end
 
     function test_compute_bin_data_correct_output_file_backed_mex_off(obj)
