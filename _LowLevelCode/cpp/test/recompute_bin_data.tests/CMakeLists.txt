@@ -7,11 +7,17 @@ set(HDR_FILES
     "${CXX_SOURCE_DIR}/test/recompute_bin_data.tests/recompute_pix_sums.test.h"
 )
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # On GCC you must pass OpenMP_CXX_FLAGS to the linker
+    set(LIBS "${OpenMP_CXX_FLAGS}")
+endif()
+set(LIBS "${LIBS}" gmock)
+
 set(TEST_NAME "recompute_pix_sums.test")
 pace_add_cpp_unit_test(
     NAME "${TEST_NAME}"
     SOURCES "${TEST_SRC_FILES}" "${HDR_FILES}"
-    LIBRARIES gmock "${OpenMP_CXX_FLAGS}"
+    LIBRARIES "${LIBS}"
     MEX_TEST
 )
 if (${OPENMP_FOUND})
