@@ -780,14 +780,16 @@ classdef test_job_executor< MPI_Test_Common
             end
             
             worker_name = obj.worker;
-            ok = feval(worker_name,'invalid_input');
+            [ok,err] = feval(worker_name,'invalid_input');
             assertFalse(ok);
+            assertTrue(isa(err,'MException'));
             
-            log_file = fullfile(tempdir,'WORKER_V2_INIT_failure.log');
+            pid = int64(feature('getpid'));
+            log_file = fullfile(getuserdir,...
+                sprintf('WORKER_V2_pid%i_INIT_failure.log',pid));
             assertTrue(exist(log_file,'file')==2);
             delete(log_file);
         end
-        
         function test_unhandled_error_in_init(obj)
             if obj.ignore_test
                 return;
@@ -829,10 +831,14 @@ classdef test_job_executor< MPI_Test_Common
             % the lab1
             
             worker_name = obj.worker;
-            [ok,err]=feval(worker_name,css1);
+            [ok,err,je]=feval(worker_name,css1);
             assertFalse(ok);
             assertTrue(isa(err,'MException'));
-            log_file = fullfile(tempdir,'WORKER_V2_Node#-1_failure.log');
+            
+            pid = int64(feature('getpid'));
+            log_file = fullfile(getuserdir,...
+                sprintf('WORKER_V2_pid%i_Node#%d_failure.log',pid,je.labIndex));
+            
             assertTrue(exist(log_file,'file')==2)
             delete(log_file)
             % all worker_v1s reply 'started' to node1 and node 1 reduces this
@@ -843,6 +849,5 @@ classdef test_job_executor< MPI_Test_Common
         end
         
     end
-    
     
 end

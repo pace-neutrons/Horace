@@ -100,9 +100,9 @@ num_of_runs = 0;
 while keep_worker_running
     num_of_runs = num_of_runs+1;
     if DO_LOGGING; log_num_runs(num_of_runs); end
-    fprintf('   ***************************************\n');
+    fprintf('   *******************************************\n');
     fprintf('   ******  LabN %d  : RUN N : %d  Task: %s *\n',intercomm.labIndex,num_of_runs,fbMPI.job_id);
-    fprintf('   ****************************************=\n');
+    fprintf('   *******************************************\n');
     
     %
     %% --------------------------------------------------------------------
@@ -296,7 +296,7 @@ while keep_worker_running
         catch ME1 % the only exception happen is due to error in JE system
             % code. (or user-oveloaded code) Unrecoverable failure
             if DO_LOGGING; log_disp_message('************* Error in JE finalize code\n');  end
-            err_mess = sprintf('job N%s critical failure. JE processing failure error %s:',...
+            err_mess = sprintf('job ID: "%s"; critical failure. JE processing failure error %s:',...
                 control_struct.job_id,ME1.message);
             fbMPI.send_message(0,FailedMessage(err_mess,ME1));
             
