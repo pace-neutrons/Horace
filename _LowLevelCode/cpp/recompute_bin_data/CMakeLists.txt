@@ -11,12 +11,17 @@ set(
     "recompute_pix_sums.h"
 )
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # On GCC you must pass OpenMP_CXX_FLAGS to the linker
+    set(LIBS "${OpenMP_CXX_FLAGS}")
+endif()
+
 set(MEX_NAME "recompute_bin_data_c")
 pace_add_mex(
     NAME "${MEX_NAME}"
     SRC "${SRC_FILES}" "${HDR_FILES}"
     COPY_TO "${CMAKE_SOURCE_DIR}/horace_core/DLL"
-    LINK_TO "${OpenMP_CXX_FLAGS}"
+    LINK_TO "${LIBS}"
 )
 if(${OPENMP_FOUND})
     target_compile_options("${MEX_NAME}" PUBLIC "${OpenMP_CXX_FLAGS}")
