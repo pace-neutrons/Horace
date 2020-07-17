@@ -16,6 +16,9 @@ option(BUILD_TESTS "Build the C++ tests" ON)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake"
      "${CMAKE_SOURCE_DIR}/cmake/external" "${CMAKE_SOURCE_DIR}/cmake/shared")
 
+# This sets the destination for mex build artifacts (used in PACE_AddMex)
+set(Herbert_DLL_DIRECTORY "${CMAKE_SOURCE_DIR}/herbert_core/DLL")
+
 # Look for packages early so we can exit if they're not found
 include(herbert_FindMPI)
 include(PACE_FindMatlab)
@@ -26,10 +29,6 @@ if(${BUILD_TESTS})
     include(PACE_FindGTest)
     enable_testing()
 endif()
-
-# Set the destination of our build artifacts
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 add_subdirectory("_LowLevelCode")
 if(${BUILD_TESTS})

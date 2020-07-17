@@ -85,15 +85,11 @@ function(pace_add_mex)
         DOCUMENTATION "${${prefix}_DOCUMENTATION}"
         LINK_TO "${${prefix}_LINK_TO}"
     )
-
-    if(${prefix}_COPY_TO)
-        set(_target_file "$<TARGET_FILE:${${prefix}_NAME}>")
-        set(_dest_file "${${prefix}_COPY_TO}/$<TARGET_FILE_NAME:${${prefix}_NAME}>")
-        add_custom_command(TARGET "${${prefix}_NAME}"
-            POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy "${_target_file}" "${_dest_file}"
-            COMMENT "Copying ${${prefix}_NAME}.${Matlab_MEX_EXTENSION} into ${${prefix}_COPY_TO}"
+    set_target_properties("${${prefix}_NAME}"
+        PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY_RELEASE "${${PROJECT_NAME}_DLL_DIRECTORY}"
+            RUNTIME_OUTPUT_DIRECTORY_DEBUG "${${PROJECT_NAME}_DLL_DIRECTORY}"
+            LIBRARY_OUTPUT_DIRECTORY_RELEASE "${${PROJECT_NAME}_DLL_DIRECTORY}"
+            LIBRARY_OUTPUT_DIRECTORY_DEBUG "${${PROJECT_NAME}_DLL_DIRECTORY}"
         )
-    endif()
-
 endfunction()
