@@ -15,37 +15,60 @@ function [ok,err_mess,je]=worker_4tests(worker_controls_string)
 %              a remote system.
 je = [];
 if isempty(which('herbert_init.m'))
-    herbert_on();
-    %horace_on('c:\Users\abuts\Documents\developing_soft\Horace_3_4\horace_core');
+    try
+        herbert_on()
+    catch ME
+        ok = false;
+        err_mess = ME;
+        pid = int64(feature('getpid'));
+        log_file = sprintf('WORKER_V2_pid%i_PackageInit_failure.log',pid);
+        write_fail_log(log_file,err_mess)
+        return;
+    end
 end
 DO_LOGGING = false;
 DO_DEBUGGING = false;
 try
     [ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING,DO_DEBUGGING);
 catch ME1 % intercepted exception in processing failure or some odd bug indeed
+    pid = int64(feature('getpid'));
     ok = false;
     if exist('je','var') && isa(je,'JobExecutor') %exception thrown but JE is defined
         if isnumeric(je.labIndex) && ~isempty(je.labIndex)
-            log_file = fullfile(tempdir,sprintf('WORKER_V2_Node#%d_failure.log',je.labIndex));
+            log_file = sprintf('WORKER_V2_pid%i_Node#%d_failure.log',pid,je.labIndex);
         else
-            log_file = fullfile(tempdir,sprintf('WORKER_V2_Node_JE_common_failure.log'));
+            log_file = sprintf('WORKER_V2_pid%i_JE_common_failure.log',pid);
         end
     else
-        log_file = fullfile(tempdir,'WORKER_V2_JE_FAIL_PROCESSING_failure.log');
+        log_file = sprintf('WORKER_V2_pid%i_JE_FAIL_PROCESSING_failure.log',pid);
     end
     err_mess = ME1;
 end
 if ~ok && isa(err_mess,'MException')
+    pid = int64(feature('getpid'));
     if isa(je,'JobExecutor')
-        log_file = fullfile(tempdir,sprintf('WORKER_V2_Node#%d_failure.log',je.labIndex));        
+        log_file = sprintf('WORKER_V2_pid%i_Node#%d_failure.log',pid,je.labIndex);
     elseif isempty(je)
-        log_file = fullfile(tempdir,'WORKER_V2_INIT_failure.log');
+        log_file = sprintf('WORKER_V2_pid%i_INIT_failure.log',pid);
     end
-    
-    fh = fopen(log_file,'w');
-    fprintf(fh,'******* Unhandled exception during initialization procedure\n');
+    write_fail_log(log_file,err_mess);
+end
+
+function write_fail_log(log_file,err_mess)
+
+log_file = fullfile(getuserdir,log_file);
+fh = fopen(log_file,'w');
+if fh<1
+    warning('Can not open log file %s for writing',log_file);
+    return; % well, can not write log file, sorry but logs can be available trough Matlab logs.
+end
+try
+    fprintf(fh,'******* Unhandled exception\n');
     fprintf(fh,'******** ERROR: \n');
     fprintf(fh,'%s',getReport(err_mess));
-    fclose(fh);
+    stat = fclose(fh);    
+catch ERR % again, may be log will clarify the situation
+    warning('Can not write log file %s; Reason %s',log_file,getReport(ERR));
 end
+
 
