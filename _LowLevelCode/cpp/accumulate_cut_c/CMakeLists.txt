@@ -13,5 +13,4 @@ set(MEX_NAME "accumulate_cut_c")
 pace_add_mex(
     NAME "${MEX_NAME}"
     SRC "${SRC_FILES}" "${HDR_FILES}"
-    COPY_TO "${CMAKE_SOURCE_DIR}/horace_core/DLL"
 )
