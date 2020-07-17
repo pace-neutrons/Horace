@@ -686,16 +686,13 @@ methods (Access=private)
     function obj = load_clean_page_(obj, page_number)
         % Load the given page of data from the sqw file backing this object
         pix_idx_start = (page_number - 1)*obj.max_page_size_ + 1;
-        if pix_idx_start >= obj.num_pixels
+        if pix_idx_start > obj.num_pixels
             error('PIXELDATA:load_page_', ...
                   'pix_idx_start exceeds number of pixels in file. %i >= %i', ...
                   pix_idx_start, obj.num_pixels);
         end
         % Get the index of the final pixel to read given the maximum page size
-        pix_idx_end = pix_idx_start + obj.max_page_size_ - 1;
-        if pix_idx_end > obj.num_pixels
-            pix_idx_end = obj.num_pixels;
-        end
+        pix_idx_end = min(pix_idx_start + obj.max_page_size_ - 1, obj.num_pixels);
 
         obj.data_ = obj.f_accessor_.get_pix(pix_idx_start, pix_idx_end);
         if obj.page_size == obj.num_pixels
