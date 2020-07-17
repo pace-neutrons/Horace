@@ -28,12 +28,11 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 end
             end
             clear mex;
-            %
-            %             hc = herbert_config;
             
             display_fail_log = false;
             
             % overloaded to empty test -- nothing new for this JD
+            
             % JETester specific control parameters
             rng('shuffle');
             FE = char(randi(25,1,5) + 64);
@@ -77,23 +76,27 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 end
             end
             assertTrue(n_failed > 0);
-            %assertEqual(numel(outputs), 3);
+            
             fin = cellfun(@is_err, outputs);
             assertTrue(sum(fin) >= 1)
             
             if isstruct(outputs{2})
-                assertEqual(outputs{2}.fail_reason, ...
+                ok = strcmp(outputs{2}.fail_reason,...
                     'Task N2 failed at jobExecutor: JETester. Reason: simulated failure for lab N 2');
+                if ~ok
+                    jd.display_fail_job_results(outputs, n_failed,3);
+                end
+                assertTrue(ok,['Invalid result:', outputs{2}.fail_reason]);
             else
                 ok = strcmp(outputs{2}.message,'simulated failure for lab N 2');
                 if ~ok
                     jd.display_fail_job_results(outputs, n_failed,3);
                 end
-                assertTrue(ok,['Invalid output:', outputs{2}.message]);
+                assertTrue(ok,['Invalid result:', outputs{2}.message]);
             end
-            % file may exist or may not -- depending on relation between
-            % speed of workers
             
+            % file may exist or may not -- depending on relation between
+            % speed of workers            
             co = onCleanup(@()(my_delete(file3, file3a)));
             common_param.fail_for_labsN = 1;
             disp('*********************************************************')
@@ -112,7 +115,6 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             
             
             assertTrue(n_failed >= 1);
-            %assertEqual(numel(outputs), 3);
             fin = cellfun(@is_err, outputs);
             assertTrue(sum(fin) >= 1)
             
@@ -134,7 +136,6 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             
             
             assertTrue(n_failed > 0);
-            %assertEqual(numel(outputs), 3);
             fin = cellfun(@is_err, outputs);
             assertTrue(sum(fin) >= 1)
             
@@ -164,7 +165,6 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             
             
             assertTrue(n_failed >= 1);
-            %assertEqual(numel(outputs), 3);
             fin = cellfun(@is_err, outputs);
             assertTrue(sum(fin) >= 1)
             
