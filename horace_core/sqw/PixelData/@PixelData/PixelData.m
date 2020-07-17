@@ -324,6 +324,7 @@ methods
 
     % --- Pixel operations ---
     [mean_signal, mean_variance] = compute_bin_data(obj, npix)
+    obj = do_unary_op(obj, unary_op);
 
     % --- Data management ---
     function data = get_data(obj, fields, pix_indices)

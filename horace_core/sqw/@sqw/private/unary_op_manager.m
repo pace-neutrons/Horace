@@ -14,10 +14,8 @@ function w = unary_op_manager (w1, unary_op)
 w = w1;
 for i=1:numel(w1)
     if is_sqw_type(w1(i))
-        result = unary_op(sigvar(w1(i).data.pix.signal, w1(i).data.pix.variance));   % Apply operation to pixel data
-        w(i).data.pix.signal = result.s;
-        w(i).data.pix.variance = result.e;
-        w(i) = recompute_bin_data (w(i));
+        w(i).data.pix = w(i).data.pix.do_unary_op(unary_op);
+        w(i) = recompute_bin_data(w(i));
     else
         result = unary_op(sigvar(w1(i)));
         w(i) = sigvar_set(w(i),result);
