@@ -80,11 +80,9 @@ function(pace_add_mex)
     )
     set_target_properties("${${prefix}_NAME}"
         PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY "${${PROJECT_NAME}_DLL_DIRECTORY}"
-            RUNTIME_OUTPUT_DIRECTORY_RELEASE "${${PROJECT_NAME}_DLL_DIRECTORY}"
-            RUNTIME_OUTPUT_DIRECTORY_DEBUG "${${PROJECT_NAME}_DLL_DIRECTORY}"
-            LIBRARY_OUTPUT_DIRECTORY "${${PROJECT_NAME}_DLL_DIRECTORY}"
-            LIBRARY_OUTPUT_DIRECTORY_RELEASE "${${PROJECT_NAME}_DLL_DIRECTORY}"
-            LIBRARY_OUTPUT_DIRECTORY_DEBUG "${${PROJECT_NAME}_DLL_DIRECTORY}"
+            # Appending the $<0:> generator expression prevents MSVC outputing
+            # mex files in Release/Debug sub-folders
+            RUNTIME_OUTPUT_DIRECTORY "${${PROJECT_NAME}_DLL_DIRECTORY}$<0:>"
+            LIBRARY_OUTPUT_DIRECTORY "${${PROJECT_NAME}_DLL_DIRECTORY}$<0:>"
         )
 endfunction()
