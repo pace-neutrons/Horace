@@ -7,9 +7,9 @@ set(
     "bin_pixels_c"
     "calc_projections_c"
     "combine_sqw"
+    "compute_pix_sums"
     "hdf_mex_reader"
     "mtimesx_horace"
-    "recompute_bin_data"
     "sort_pixels_by_bins"
 )
 

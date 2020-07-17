@@ -55,7 +55,7 @@ while true
     end
 
     % Calculate and accumulate signal/variance sums
-    [sig, variance] = recompute_bin_data_c(npix_chunk, obj.data, n_threads);
+    [sig, variance] = compute_pix_sums_c(npix_chunk, obj.data, n_threads);
     signal_sum(start_idx:end_idx) = signal_sum(start_idx:end_idx) + sig;
     variance_sum(start_idx:end_idx) = variance_sum(start_idx:end_idx) + variance;
 

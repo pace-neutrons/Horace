@@ -1,7 +1,7 @@
 function horace_mex
 % Usage:
 % horace_mex;
-% Create mex files for all the Horace C(++) routines assuming that proper mex 
+% Create mex files for all the Horace C(++) routines assuming that proper mex
 % file compilers are configured for Matlab
 %
 % to configure a gcc compiler (version >= 4.3 requested)  to produce omp
@@ -59,7 +59,7 @@ try % mex C++
         out_rel_dir = fullfile('horace_core','DLL',OSdirname,VerFolderName);
         out_hdf_dir = out_rel_dir;
     end
-    
+
     if(~exist(out_rel_dir,'dir'))
         mkdir(out_rel_dir);
     end
@@ -68,22 +68,22 @@ try % mex C++
     mex_single([cpp_in_rel_dir 'bin_pixels_c'], out_rel_dir,'bin_pixels_c.cpp');
     mex_single([cpp_in_rel_dir 'calc_projections_c'], out_rel_dir,'calc_projections_c.cpp');
     mex_single([cpp_in_rel_dir 'sort_pixels_by_bins'], out_rel_dir,'sort_pixels_by_bins.cpp');
-    mex_single([cpp_in_rel_dir 'recompute_bin_data'], out_rel_dir,'recompute_bin_data_c.cpp');
+    mex_single([cpp_in_rel_dir 'recompute_bin_data'], out_rel_dir,'compute_pix_sums_c.cpp');
     mex_single([cpp_in_rel_dir 'mtimesx_horace'], out_rel_dir,'mtimesx_mex.cpp');
-    
+
     % create the procedured to access hdf files
     cof = {'hdf_mex_reader.cpp','hdf_pix_accessor.cpp','input_parser.cpp',...
         'pix_block_processor.cpp'};
     mex_hdf([cpp_in_rel_dir 'hdf_mex_reader'], out_hdf_dir,hdf_root_dir,cof{:} );
-    
-    
+
+
     disp('**********> Successfully created required mex files from C++')
     C_compiled=true;
     add_version_foloder(out_rel_dir);
 catch ME
     message=ME.message;
     warning('**********> Can not create C++ mex files, reason: %s. Please try to do it manually.',message);
-    
+
 end
 try
     cof = {'combine_sqw.cpp','exchange_buffer.cpp','fileParameters.cpp',...
@@ -219,7 +219,7 @@ function str = cell2str(c)
 
 
 if ~iscell(c)
-    
+
     if ischar(c)
         str = c;
     elseif isnumeric(c)
@@ -227,9 +227,9 @@ if ~iscell(c)
     else
         error('Illegal array in input.')
     end
-    
+
 else
-    
+
     N = length(c);
     if N > 0
         if ischar(c{1})
@@ -246,7 +246,7 @@ else
     else
         str = '';
     end
-    
+
 end
 
 function copy_get_ascii_to_herbert()
