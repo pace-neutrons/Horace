@@ -22,82 +22,87 @@ function [ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING,D
 % je       -- instance of a job executor, used to run the particular
 %             task after the task completion.
 %%
-
-if ~exist('DO_LOGGING','var')
-    DO_LOGGING = false;
-end
-if nargin<3
-    DO_DEBUGGING = false;
-end
 je = [];
 ok = false;
 err_mess = 'Failure in the initialization procedure';
-%
-% Check current state of mpi framework and set up deployment status
-% within Matlab code to run
-mis = MPI_State.instance();
-mis.is_deployed = true;
-is_tested = mis.is_tested; % set up to tested state within unit tests.
-%
-% for testing we need to recover 'not-deployed' state to avoid clashes with
-% other unit tests. The production job finishes Matlab and clean-up is not necessary
-% though doing no harm.
-clot = onCleanup(@()(setattr(mis,'is_deployed',false)));
-%% ------------------------------------------------------------------------
-% 1) step 1 of the worker initialization.
-%--------------------------------------------------------------------------
-% There was some issue in testing mpiexec mpi, when this string, provided in command line,
-% was converted into UTF or something similar. Then the failure was occurring,
-% so this command deals with this issue.
-worker_controls_string = char(worker_controls_string);
-% Deserialize control string and convert it into a control structure.
-control_struct = iMessagesFramework.deserialize_par(worker_controls_string);
 
-
-% Initialize config files to use on remote session. Needs to be initialized
-% first as may be used by message framework.
-%
-%
-% remove configurations, may be loaded in memory while Horace was
-% initialized.
-config_store.instance('clear');
-% Place where config files are stored:
-cfn = config_store.instance().config_folder_name;
-config_exchange_folder = fullfile(control_struct.data_path,cfn);
-
-% set path to the config sources:
-config_store.set_config_folder(config_exchange_folder);
-% Initialize the frameworks, responsible for communications within the
-% cluster and between the cluster and the headnode.
-[fbMPI,intercomm] = JobExecutor.init_frameworks(control_struct);
-% initiate file-based framework to exchange messages between head node and
-% the pool of workers
-%--------------------------------------------------------------------------
-% step 1 the initialization has been completed providing the
-% communicator for exchange between control node and the cluster and
-% between the clusters nodes. The control node communicator knows the
-% folder for communications
-%--------------------------------------------------------------------------
-
-keep_worker_running = true;
-if DO_LOGGING
-    fh = log_inputs_level1();
-    clob_log = onCleanup(@()fclose(fh));
+try
+    if ~exist('DO_LOGGING','var')
+        DO_LOGGING = false;
+    end
+    if nargin<3
+        DO_DEBUGGING = false;
+    end
+    %
+    % Check current state of mpi framework and set up deployment status
+    % within Matlab code to run
+    mis = MPI_State.instance();
+    mis.is_deployed = true;
+    is_tested = mis.is_tested; % set up to tested state within unit tests.
+    %
+    % for testing we need to recover 'not-deployed' state to avoid clashes with
+    % other unit tests. The production job finishes Matlab and clean-up is not necessary
+    % though doing no harm.
+    clot = onCleanup(@()(setattr(mis,'is_deployed',false)));
+    %% ------------------------------------------------------------------------
+    % 1) step 1 of the worker initialization.
+    %--------------------------------------------------------------------------
+    % There was some issue in testing mpiexec mpi, when this string, provided in command line,
+    % was converted into UTF or something similar. Then the failure was occurring,
+    % so this command deals with this issue.
+    worker_controls_string = char(worker_controls_string);
+    % Deserialize control string and convert it into a control structure.
+    control_struct = iMessagesFramework.deserialize_par(worker_controls_string);
+    
+    
+    % Initialize config files to use on remote session. Needs to be initialized
+    % first as may be used by message framework.
+    %
+    %
+    % remove configurations, may be loaded in memory while Horace was
+    % initialized.
+    config_store.instance('clear');
+    % Place where config files are stored:
+    cfn = config_store.instance().config_folder_name;
+    config_exchange_folder = fullfile(control_struct.data_path,cfn);
+    
+    % set path to the config sources:
+    config_store.set_config_folder(config_exchange_folder);
+    % Initialize the frameworks, responsible for communications within the
+    % cluster and between the cluster and the headnode.
+    [fbMPI,intercomm] = JobExecutor.init_frameworks(control_struct);
+    % initiate file-based framework to exchange messages between head node and
+    % the pool of workers
+    %--------------------------------------------------------------------------
+    % step 1 the initialization has been completed providing the
+    % communicator for exchange between control node and the cluster and
+    % between the clusters nodes. The control node communicator knows the
+    % folder for communications
+    %--------------------------------------------------------------------------
+    
+    keep_worker_running = true;
+    if DO_LOGGING
+        fh = log_inputs_level1();
+        clob_log = onCleanup(@()fclose(fh));
+    end
+    exit_at_the_end = ~is_tested;
+    if DO_DEBUGGING
+        exit_at_the_end = false;
+    end
+catch ME0 %unhandled exception during init procedure
+    ok = false;
+    err_mess = ME0;
+    return;
 end
-exit_at_the_end = ~is_tested;
-if DO_DEBUGGING
-    exit_at_the_end = false;
-end
-
 %%
 
 num_of_runs = 0;
 while keep_worker_running
     num_of_runs = num_of_runs+1;
     if DO_LOGGING; log_num_runs(num_of_runs); end
-    fprintf('   ***************************************\n');
+    fprintf('   *******************************************\n');
     fprintf('   ******  LabN %d  : RUN N : %d  Task: %s *\n',intercomm.labIndex,num_of_runs,fbMPI.job_id);
-    fprintf('   ****************************************=\n');
+    fprintf('   *******************************************\n');
     
     %
     %% --------------------------------------------------------------------
@@ -175,11 +180,18 @@ while keep_worker_running
         % something wrong with the code. We can not process interrupt
         % properly, but filebased framework should still be
         % available.
-        if DO_LOGGING; log_input_message_exception_caught();  end
-        err_mess = sprintf('job N%s failed. Error during job initialization %s:',...
-            control_struct.job_id,ME.message);
-        fbMPI.send_message(0,FailedMessage(err_mess,ME));
-        break;
+
+        if ~strcmp(ME.identifier,'MESSAGE_FRAMEWORK:canceled')  
+            % if job is canceled, we can recover further, as it will throw
+            % below at first call to log progress. Any other exception is unhandled one
+            if DO_LOGGING; log_input_message_exception_caught();  end
+            err_mess = sprintf('job "%s" failed. Error during job initialization: %s',...
+                control_struct.job_id,ME.message);
+            fbMPI.send_message(0,FailedMessage(err_mess,ME));
+            ok = false;
+            err_mess = ME;
+            break;
+        end
     end
     %----------------------------------------------------------------------
     try
@@ -296,6 +308,7 @@ while keep_worker_running
             end
         end
     end %Exception
+    
     
     %%
     if DO_LOGGING;  fprintf(fh,'************* finishing subtask: %s \n',...

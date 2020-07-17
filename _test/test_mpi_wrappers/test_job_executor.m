@@ -15,6 +15,16 @@ classdef test_job_executor< MPI_Test_Common
             this = this@MPI_Test_Common(name,'herbert');
             this.working_dir = tmp_dir;
         end
+        function setUp(~)
+            mis = MPI_State.instance();
+            mis.is_tested = true;
+            
+        end
+        function tearDown(~)
+            mis = MPI_State.instance();
+            mis.is_deployed = false;
+            mis.is_tested= false;
+        end
         %
         function [serverfbMPI,fbMPIs,initMess]=...
                 init_pseudojob(obj,test_folder_name,n_workers)
@@ -63,9 +73,7 @@ classdef test_job_executor< MPI_Test_Common
         end
         %
         function test_worker_fails(obj)
-            mis = MPI_State.instance();
-            mis.is_tested = true;
-            clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));
+            
             
             % build jobs data, stating that labs 1 and 2 should fail.
             common_job_param = struct('filepath',obj.working_dir,...
@@ -177,10 +185,6 @@ classdef test_job_executor< MPI_Test_Common
         end
         %
         function test_worker(obj)
-            mis = MPI_State.instance();
-            mis.is_tested = true;
-            clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));
-            
             % build jobs data
             common_job_param = struct('filepath',obj.working_dir,...
                 'filename_template','test_jobDispatcher%d_nf%d.txt');
@@ -579,9 +583,6 @@ classdef test_job_executor< MPI_Test_Common
         end
         %
         function test_finish_task_tester(obj)
-            mis = MPI_State.instance();
-            mis.is_tested = true;
-            clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));
             
             serverfbMPI  = MessagesFilebased('test_finish_task_tester');
             serverfbMPI.mess_exchange_folder = obj.working_dir;
@@ -770,7 +771,83 @@ classdef test_job_executor< MPI_Test_Common
             assertEqual(MESS_CODES.ok,ok);
             assertTrue(isempty(err));
             assertEqual(mess.mess_name,'failed');
-            
         end
+        
+        %
+        function test_invalid_input(obj)
+            if obj.ignore_test
+                return;
+            end
+            
+            worker_name = obj.worker;
+            [ok,err] = feval(worker_name,'invalid_input');
+            assertFalse(ok);
+            assertTrue(isa(err,'MException'));
+            
+            pid = int64(feature('getpid'));
+            log_file = fullfile(getuserdir,...
+                sprintf('WORKER_V2_pid%i_INIT_failure.log',pid));
+            assertTrue(exist(log_file,'file')==2);
+            delete(log_file);
+        end
+        function test_unhandled_error_in_init(obj)
+            if obj.ignore_test
+                return;
+            end
+            % build jobs data
+            
+            %cs  = iMessagesFramework.deserialize_par(css1);
+            % initiate exchange class which would work on a client(worker's) side
+            in_data = iMessagesFramework.build_worker_init(tmp_dir,...
+                'test_worker','MessagesFilebased',0,2,'test_mode');
+            
+            serverfbMPI  = MessagesFilebased(in_data);
+            serverfbMPI.mess_exchange_folder = obj.working_dir;
+            %
+            clob = onCleanup(@()finalize_all(serverfbMPI));
+            css1= serverfbMPI.get_worker_init('MessagesFilebased',1,2,'test_mode');
+            
+            
+            je_initMess = JobExecutor.build_worker_init('JETester');
+            job1_initMess = InitMessage();
+            job1_initMess.payload = 'invalid_initialization_info';
+            
+            
+            % Prepare control sequences for two jobs:
+            % job 1
+            [ok,err_mess] = serverfbMPI.send_message(1,je_initMess);
+            assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
+            [ok,err_mess] = serverfbMPI.send_message(1,job1_initMess);
+            assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
+            
+            % workers change config folder to its own value so ensure it
+            % will be reverted to the initial value
+            cs = config_store.instance();
+            obj.current_config_folder = cs.config_folder;
+            clob1 = onCleanup(@()(set_config_path(cs,obj.current_config_folder)));
+            
+            % start  client job to fail
+            % second needs to start first as it will report its profess to
+            % the lab1
+            
+            worker_name = obj.worker;
+            [ok,err,je]=feval(worker_name,css1);
+            assertFalse(ok);
+            assertTrue(isa(err,'MException'));
+            
+            pid = int64(feature('getpid'));
+            log_file = fullfile(getuserdir,...
+                sprintf('WORKER_V2_pid%i_Node#%d_failure.log',pid,je.labIndex));
+            
+            assertTrue(exist(log_file,'file')==2)
+            delete(log_file)
+            % all worker_v1s reply 'started' to node1 and node 1 reduces this
+            % message to message from node 1 to node 0
+            [ok,err_mess,message] = serverfbMPI.receive_message(1,'started');
+            assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
+            assertEqual(message.mess_name,'failed')
+        end
+        
     end
+    
 end

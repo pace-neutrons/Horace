@@ -13,14 +13,62 @@ function [ok,err_mess,je]=worker_4tests(worker_controls_string)
 %              contains only minimal initialization information, namely the
 %              folder name where the job initialization data are located on
 %              a remote system.
-
+je = [];
 if isempty(which('herbert_init.m'))
-    herbert_on();
-    % Set up non-default herbert or Horace path to test them
-    % herbert_on('/home/isis_direct_soft/Herbert_bugfix/herbert_core');
-    % horace_on('/home/isis_direct_soft/Horace_bugfix/horace_core');
+    try
+        herbert_on()
+    catch ME
+        ok = false;
+        err_mess = ME;
+        pid = int64(feature('getpid'));
+        log_file = sprintf('WORKER_V2_pid%i_PackageInit_failure.log',pid);
+        write_fail_log(log_file,err_mess)
+        return;
+    end
 end
-DO_LOGGING = true; % if true, write extensive log information.
-DO_DEBUGGING = false; % if true, do not exit worker on completion (enter pause).
-% Used for filebased framework debugging on windows, when one can get access to the terminal of running worker.
-[ok,err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING,DO_DEBUGGING);
+DO_LOGGING = false;
+DO_DEBUGGING = false;
+try
+    [ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING,DO_DEBUGGING);
+catch ME1 % intercepted exception in processing failure or some odd bug indeed
+    pid = int64(feature('getpid'));
+    ok = false;
+    if exist('je','var') && isa(je,'JobExecutor') %exception thrown but JE is defined
+        if isnumeric(je.labIndex) && ~isempty(je.labIndex)
+            log_file = sprintf('WORKER_V2_pid%i_Node#%d_failure.log',pid,je.labIndex);
+        else
+            log_file = sprintf('WORKER_V2_pid%i_JE_common_failure.log',pid);
+        end
+    else
+        log_file = sprintf('WORKER_V2_pid%i_JE_FAIL_PROCESSING_failure.log',pid);
+    end
+    err_mess = ME1;
+end
+if ~ok && isa(err_mess,'MException')
+    pid = int64(feature('getpid'));
+    if isa(je,'JobExecutor')
+        log_file = sprintf('WORKER_V2_pid%i_Node#%d_failure.log',pid,je.labIndex);
+    elseif isempty(je)
+        log_file = sprintf('WORKER_V2_pid%i_INIT_failure.log',pid);
+    end
+    write_fail_log(log_file,err_mess);
+end
+
+function write_fail_log(log_file,err_mess)
+
+log_file = fullfile(getuserdir,log_file);
+fh = fopen(log_file,'w');
+if fh<1
+    warning('Can not open log file %s for writing',log_file);
+    return; % well, can not write log file, sorry but logs can be available trough Matlab logs.
+end
+try
+    fprintf(fh,'******* Unhandled exception\n');
+    fprintf(fh,'******** ERROR: \n');
+    fprintf(fh,'%s',getReport(err_mess));
+    stat = fclose(fh);    
+catch ERR % again, may be log will clarify the situation
+    warning('Can not write log file %s; Reason %s',log_file,getReport(ERR));
+end
+
+
