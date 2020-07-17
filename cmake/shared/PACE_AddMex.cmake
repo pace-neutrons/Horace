@@ -16,7 +16,6 @@ function is defined.
         [OUTPUT_NAME output_name]
         [DOCUMENTATION file.txt]
         [LINK_TO target1 target2 ...]
-        [COPY_TO directory]
         [...]
     )
 
@@ -47,19 +46,13 @@ in Matlab prints the documentation contained in this file.
 created. ``EXECUTABLE`` may be given to create an executable instead of
 a library. If no type is given explicitly, the type is ``SHARED``.
 
-Additional:
-
-``COPY_TO``
-The directory to copy the mex library into after compilation. If not specified
-the library is not copied.
-
 #]=======================================================================]
 function(pace_add_mex)
 
     # Parse the arguments
     set(prefix "MEX")
     set(noValues "EXECUTABLE" "MODULE" "SHARED")
-    set(singleValues "NAME" "OUTPUT_NAME" "DOCUMENTATION" "COPY_TO")
+    set(singleValues "NAME" "OUTPUT_NAME" "DOCUMENTATION")
     set(multiValues "SRC" "LINK_TO")
     cmake_parse_arguments(
         "${prefix}"
