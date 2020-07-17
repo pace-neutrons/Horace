@@ -19,7 +19,6 @@ set(MEX_NAME "hdf_mex_reader")
 pace_add_mex(
     NAME "${MEX_NAME}"
     SRC "${SRC_FILES}" "${HDR_FILES}"
-    COPY_TO "${CMAKE_SOURCE_DIR}/horace_core/DLL"
 )
 target_include_directories("${MEX_NAME}" PUBLIC "${HDF5_INCLUDE_DIRS}")
 target_link_libraries("${MEX_NAME}" "${HDF5_LIBRARIES}")
