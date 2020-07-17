@@ -1,5 +1,5 @@
-#include "test/recompute_bin_data.tests/recompute_pix_sums.test.h"
-#include "recompute_bin_data/recompute_pix_sums.h"
+#include "test/compute_pix_sums.tests/compute_pix_sums.test.h"
+#include "compute_pix_sums/compute_pix_sums.h"
 
 #include <gmock/gmock.h>
 
@@ -24,7 +24,7 @@ TEST_F(TestRecomputePixSums, test_correct_sum_returned_with_1_thread) {
   std::vector<double> variance_sum(distr_size);
   const int n_threads{1};
 
-  recompute_pix_sums(signal_sum.data(), variance_sum.data(), distr_size,
+  compute_pix_sums(signal_sum.data(), variance_sum.data(), distr_size,
                      npix.data(), pix_data.data(), num_pix, n_threads);
 
   ASSERT_THAT(signal_sum, ::testing::ElementsAre(1, 8, 4, 9));
@@ -36,7 +36,7 @@ TEST_F(TestRecomputePixSums, test_correct_sum_returned_with_4_threads) {
   std::vector<double> variance_sum(distr_size);
   const int n_threads{4};
 
-  recompute_pix_sums(signal_sum.data(), variance_sum.data(), distr_size,
+  compute_pix_sums(signal_sum.data(), variance_sum.data(), distr_size,
                      npix.data(), pix_data.data(), num_pix, n_threads);
 
   ASSERT_THAT(signal_sum, ::testing::ElementsAre(1, 8, 4, 9));

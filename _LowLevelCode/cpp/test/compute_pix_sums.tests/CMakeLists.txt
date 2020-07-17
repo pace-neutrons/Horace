@@ -1,10 +1,10 @@
 set(TEST_SRC_FILES
-    "recompute_pix_sums.test.cpp"
+    "compute_pix_sums.test.cpp"
 )
 
 set(HDR_FILES
-    "${CXX_SOURCE_DIR}/recompute_bin_data/recompute_pix_sums.h"
-    "${CXX_SOURCE_DIR}/test/recompute_bin_data.tests/recompute_pix_sums.test.h"
+    "${CXX_SOURCE_DIR}/compute_pix_sums/compute_pix_sums.h"
+    "${CXX_SOURCE_DIR}/test/compute_pix_sums.tests/compute_pix_sums.test.h"
 )
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -13,7 +13,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif()
 set(LIBS "${LIBS}" gmock)
 
-set(TEST_NAME "recompute_pix_sums.test")
+set(TEST_NAME "compute_pix_sums.test")
 pace_add_cpp_unit_test(
     NAME "${TEST_NAME}"
     SOURCES "${TEST_SRC_FILES}" "${HDR_FILES}"

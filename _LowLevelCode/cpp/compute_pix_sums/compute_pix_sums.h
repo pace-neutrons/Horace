@@ -3,7 +3,7 @@
 #include "CommonCode.h"
 
 template <class T>
-void recompute_pix_sums(double *const pSignal, double *const pVariance,
+void compute_pix_sums(double *const pSignal, double *const pVariance,
                         size_t distr_size, double const *const pNpix,
                         T const *const pPixelData, size_t nPixels,
                         int num_OMP_Threads) {

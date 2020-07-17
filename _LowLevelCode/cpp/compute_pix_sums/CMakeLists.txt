@@ -1,14 +1,14 @@
 set(
     SRC_FILES
-    "recompute_bin_data_c.cpp"
-    "recompute_bin_data_helpers.cpp"
+    "compute_pix_sums_c.cpp"
+    "compute_pix_sums_helpers.cpp"
 )
 
 set(
     HDR_FILES
     "../CommonCode.h"
-    "recompute_bin_data_helpers.h"
-    "recompute_pix_sums.h"
+    "compute_pix_sums_helpers.h"
+    "compute_pix_sums.h"
 )
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -16,7 +16,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(LIBS "${OpenMP_CXX_FLAGS}")
 endif()
 
-set(MEX_NAME "recompute_bin_data_c")
+set(MEX_NAME "compute_pix_sums_c")
 pace_add_mex(
     NAME "${MEX_NAME}"
     SRC "${SRC_FILES}" "${HDR_FILES}"
