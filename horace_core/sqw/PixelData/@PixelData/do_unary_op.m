@@ -1,5 +1,5 @@
 function obj = do_unary_op(obj, unary_op)
-% Perform a unary operation on this object's signal and variance array
+% Perform a unary operation on this object's signal and variance arrays
 %
 % Input:
 % -----
