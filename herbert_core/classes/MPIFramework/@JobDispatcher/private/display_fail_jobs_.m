@@ -97,7 +97,9 @@ elseif iscell(errOutput)
     end
     disp('***************************************************************');
 elseif isfield(errOutput,'error') && isa(errOutput.error,'MException')
-    disp(getReport(errOutput.error));
+    for i=1:numel(errOutput.error)
+        disp(getReport(errOutput.error(i)));
+    end
 else
     disp('unknown type of error returned')
 end
