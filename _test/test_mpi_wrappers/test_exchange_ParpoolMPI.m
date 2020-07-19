@@ -121,9 +121,9 @@ classdef test_exchange_ParpoolMPI < exchange_common_tests
             
             
             % return nothing requesting missing non-blocking message
-            [mess_r,tag,source]=mpi_wrapper.mlabReceive(2,tag+2);
+            [mess_r,tag,source]=mpi_wrapper.mlabReceive(2,tag+1);
             assertTrue(isempty(mess_r));
-            assertEqual(tag,mess.tag+2);
+            assertEqual(tag,mess.tag+1);
             assertEqual(source,2);
             
             mpi_wrapper.mlabSend(mess,2);

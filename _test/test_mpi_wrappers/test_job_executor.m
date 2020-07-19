@@ -163,18 +163,34 @@ classdef test_job_executor< MPI_Test_Common
             %--------------------------------------------------------------
             obj.send_init_messages(serverfbMPI,je_initMess,je_worker_init);
             
+            % folder migrated!
+            css1= serverfbMPI.get_worker_init('MessagesFilebased',1,3,'test_mode');
+            css2= serverfbMPI.get_worker_init('MessagesFilebased',2,3,'test_mode');
+            css3= serverfbMPI.get_worker_init('MessagesFilebased',3,3,'test_mode');
+            
+            % now its necessary otherwise worker v1 will wait for this
+            % message
+            me = aMessage('ready');
+            me.payload = 3;
+            je3.mess_framework.send_message(1,me);
+            me.payload = 2;
+            je2.mess_framework.send_message(1,me);
             [~,~,je1]=obj.worker_h(css1);
             [~,~,je2]=obj.worker_h(css2);
+            
             % receive message which je1 should wait for when running in
             % parallel
-            started_mess = je2.mess_framework.mess_file_name(1,'started');
-            assertTrue(exist(started_mess,'file')==2);
-            %
-            [ok,err_mess,messs] = je1.mess_framework.receive_message(2,'started');
-            delete(started_mess); % this should be done by synchronous je1
+            mess_folder = serverfbMPI.mess_exchange_folder;
+            started_mess_file = je2.mess_framework.mess_file_name(1,'started');
+            [~,fn,fe] = fileparts(started_mess_file); % folder migrated;
+            started_mess_file = fullfile(mess_folder,[fn,fe]);
+            assertTrue(exist(started_mess_file,'file')==2);
+            delete(started_mess_file); % this should be done by synchronous je1
             
-            assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
-            assertEqual(messs.mess_name,'failed');
+            %
+            %             [ok,err_mess,messs] = je1.mess_framework.receive_message(2,'started');
+            %             assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
+            %             assertEqual(messs.mess_name,'failed');
             [~,~,je3]=obj.worker_h(css3);
             
             [ok,err_mess,message] = serverfbMPI.receive_message(1,'started');
@@ -248,13 +264,13 @@ classdef test_job_executor< MPI_Test_Common
             % start two client jobs
             % second needs to start first as it will report its profess to
             % the lab1
-            obj.worker_h(css2);
+            [~,~,je]=obj.worker_h(css2);
             obj.worker_h(css1);
             
             [ok,err_mess,mess]=serverfbMPI.receive_message(1,'ready');
             assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
             assertFalse(isempty(mess));
-            assertEqual(mess.payload,[1;2;3]);
+            assertEqual(mess.payload,[1;2]);
             
             % all worker_v1s reply 'started' to node1 and node 1 reduces this
             % message to message from node 1 to node 0
@@ -275,6 +291,11 @@ classdef test_job_executor< MPI_Test_Common
             assertEqual(message.payload{1},'Job 1 generated 2 files')
             assertEqual(message.payload{2},'Job 2 generated 1 files')
             
+            % this will delete the message folder where workers have
+            % migrated to 
+            % the clean-up should clear the rest.
+            rmdir(je.mess_framework.mess_exchange_folder,'s');
+            %rmdir(serverfbMPI.next_message_folder_name,'s');
             
         end
         %
@@ -818,6 +839,11 @@ classdef test_job_executor< MPI_Test_Common
             clob = onCleanup(@()finalize_all(serverfbMPI));
             css1= serverfbMPI.get_worker_init('MessagesFilebased',1,2,'test_mode');
             
+            css2 = serverfbMPI.get_worker_init('MessagesFilebased',2,2,'test_mode');
+            csr2 = serverfbMPI.deserialize_par(css2);
+            fbMPIs2 = MessagesFilebased(csr2);
+            
+            
             
             je_initMess = JobExecutor.build_worker_init('JETester');
             job1_initMess = InitMessage();
@@ -840,6 +866,11 @@ classdef test_job_executor< MPI_Test_Common
             % start  client job to fail
             % second needs to start first as it will report its profess to
             % the lab1
+            
+            % prepare ready message from other nodes for worker N1
+            ms = aMessage('ready');
+            ms.payload = 2;
+            fbMPIs2.send_message(1,ms);
             
             worker_name = obj.worker;
             [ok,err,je]=feval(worker_name,css1);

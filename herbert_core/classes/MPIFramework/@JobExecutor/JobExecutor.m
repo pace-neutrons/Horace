@@ -409,7 +409,7 @@ classdef JobExecutor
             mess_with_err = process_fail_state_(obj,ME,varargin{:});
         end
         
-        function migrate_job_folder(obj,delete_old_folder)
+        function obj=migrate_job_folder(obj,delete_old_folder)
             % the function user to change location of message exchane
             % folder when task is completed and new task should start.
             %

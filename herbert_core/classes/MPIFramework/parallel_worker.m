@@ -291,11 +291,11 @@ while keep_worker_running
                 % migrate job folder for message exchange without deleting the old
                 % one
                 if DO_LOGGING; log_disp_message('--->start migrating log folder\n'); end
-                je.migrate_job_folder(false);
+                je=je.migrate_job_folder(false);
                 continue;
             else
                 % useful for testing only
-                je.migrate_job_folder(false);                
+                je=je.migrate_job_folder(false);                
                 break;
             end
         catch ME1 % the only exception happen is due to error in JE system
@@ -321,7 +321,7 @@ while keep_worker_running
     [ok,err_mess,je] = je.finish_task();
     % migrate job folder for message exchange without deleting the old
     % one
-    je.migrate_job_folder(false);
+    je=je.migrate_job_folder(false);
     
     if DO_LOGGING;  fprintf(fh,'************* subtask: %s  finished\n',fbMPI.job_id); end
 end
