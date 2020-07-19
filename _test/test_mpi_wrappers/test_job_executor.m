@@ -73,8 +73,6 @@ classdef test_job_executor< MPI_Test_Common
         end
         %
         function test_worker_fails(obj)
-            
-            
             % build jobs data, stating that labs 1 and 2 should fail.
             common_job_param = struct('filepath',obj.working_dir,...
                 'filename_template','test_jobDispatcherL%d_nf%d.txt',...
@@ -107,6 +105,7 @@ classdef test_job_executor< MPI_Test_Common
                     return
                 end
             end
+            mess_folder = serverfbMPI.mess_exchange_folder;
             % workers change config folder to its own value so ensure it
             % will be reverted to the initial value
             cs = config_store.instance();
@@ -128,11 +127,16 @@ classdef test_job_executor< MPI_Test_Common
             % propertly. If it does not, it is unrecoverable failure, but
             % probability for this to happen in real life is low.
             interrupt_generated = je2.mess_framework.mess_file_name(1,'interrupt');
-            [fp] = fileparts(interrupt_generated);
-            tmp_dest = fullfile(fp,'test_worker_fails_tmp_interrupt.mat');
+            [~,fn,fe] = fileparts(interrupt_generated);
+            interrupt_generated = fullfile(mess_folder,[fn,fe]); % folder have been migrated
+            % so need to refer to the previous folder
+            assertTrue(exist(interrupt_generated,'file')==2)
+            
+            tmp_dest = fullfile(mess_folder,'test_worker_fails_tmp_interrupt.mat');
             movefile(interrupt_generated ,tmp_dest);
             % end defer.
             [~,~,je1]=obj.worker_h(css1);
+            
             % return interrupt back
             movefile(tmp_dest,interrupt_generated);
             %
@@ -155,6 +159,7 @@ classdef test_job_executor< MPI_Test_Common
             je3.mess_framework.clear_messages();
             je2.mess_framework.clear_messages();
             je1.mess_framework.clear_messages();
+            serverfbMPI.migrate_message_folder();
             %--------------------------------------------------------------
             obj.send_init_messages(serverfbMPI,je_initMess,je_worker_init);
             
@@ -245,6 +250,12 @@ classdef test_job_executor< MPI_Test_Common
             % the lab1
             obj.worker_h(css2);
             obj.worker_h(css1);
+            
+            [ok,err_mess,mess]=serverfbMPI.receive_message(1,'ready');
+            assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
+            assertFalse(isempty(mess));
+            assertEqual(mess.payload,[1;2;3]);
+            
             % all worker_v1s reply 'started' to node1 and node 1 reduces this
             % message to message from node 1 to node 0
             [ok,err_mess,message] = serverfbMPI.receive_message(1,'started');
@@ -772,7 +783,6 @@ classdef test_job_executor< MPI_Test_Common
             assertTrue(isempty(err));
             assertEqual(mess.mess_name,'failed');
         end
-        
         %
         function test_invalid_input(obj)
             if obj.ignore_test
@@ -790,6 +800,7 @@ classdef test_job_executor< MPI_Test_Common
             assertTrue(exist(log_file,'file')==2);
             delete(log_file);
         end
+        %
         function test_unhandled_error_in_init(obj)
             if obj.ignore_test
                 return;
@@ -847,7 +858,7 @@ classdef test_job_executor< MPI_Test_Common
             assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
             assertEqual(message.mess_name,'failed')
         end
-        
+        %
     end
     
 end
