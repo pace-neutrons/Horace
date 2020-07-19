@@ -180,7 +180,7 @@ classdef MessagesFilebased < iMessagesFramework
             end
             
             if ((ischar(mess_name) && ~strcmp(mess_name,'any')) || ...
-                    (isnumeric(mess_name) && mess_name ~=-1)) && ~ispc % exist on Windows locks files.
+                    (isnumeric(mess_name) && mess_name ~=-1)) %&& ~ispc % exist on Windows locks files.
                 % performance boosting operation, especially important for
                 % Windows, as dir locks message files there.
                 [all_messages_names,task_ids] = list_specific_messages_(obj,task_ids_in,mess_name);

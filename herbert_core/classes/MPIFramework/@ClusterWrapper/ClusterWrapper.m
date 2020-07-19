@@ -144,7 +144,7 @@ classdef ClusterWrapper
             % if not ready for some reason, report the failure and
             % diagnostics.
             %
-            info = [ 'Starting parallel cluster: ',class(obj)];
+            info = [ 'Initializing parallel cluster: ',class(obj)];
             state = StartingMessage();
             state.payload = info;
             obj.status = state;
@@ -304,8 +304,7 @@ classdef ClusterWrapper
                 end
             end
             if display_log
-                log_codes = uint8(obj.log_value);
-                if any(log_codes < 0x1F)
+                if numel(obj.log_value) > 4*obj.LOG_MESSAGE_LENGHT
                     disp(obj.log_value)
                 else
                     fprintf(obj.log_value);
