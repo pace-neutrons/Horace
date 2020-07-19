@@ -121,7 +121,7 @@
       </hpc_config>
       <parallel_config>
          <worker>worker_v2</worker>
-         <parallel_framework>herbert</parallel_framework>
+         <parallel_framework>parpool</parallel_framework>
          <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
