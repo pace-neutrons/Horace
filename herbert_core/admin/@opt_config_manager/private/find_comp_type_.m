@@ -34,8 +34,8 @@ if ispc
     end
 elseif isunix
     
-    [ok,mem_string] = system('free | grep Mem');
-    if ~ok
+    [stat,mem_string] = system('free | grep Mem');
+    if stat ~=0
         mem_size = 16*Gb;
     else
         mem_size = parse_mem_string(mem_string);
