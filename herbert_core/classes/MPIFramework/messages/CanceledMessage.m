@@ -1,17 +1,28 @@
 classdef CanceledMessage < aMessage
-    % Helper class defines a Failure message, used to inform
-    % head-node and (possibly) other nodes that the job have failed.
+    % Helper class defines a Cancellation message, used to inform
+    % head-node and possibly other nodes that the job have been cancelled.
     %
+    % Construct the "Canceled" message
+    %
+    % Inputs:
+    % fail_text  -- the text which describes the error
+    % error_exception -- the class of the Matlab exception type,
+    %                    which  contains the information about the
+    %                    problem.
+    % If no arguments are provided, default text and MException are
+    % used, though they do not contain any useful information about
+    % the problem.
+    
     properties(Dependent)
         % The custon text, containig custom information about the failure
-        fail_text        
+        fail_text
     end
     properties(Access = protected)
     end
     
     methods
         function obj = CanceledMessage(varargin)
-            % Construct the initialization message
+            % Construct the Canceled message
             %
             % Inputs:
             % fail_text  -- the text which describes the error
@@ -19,10 +30,10 @@ classdef CanceledMessage < aMessage
             %                    which  contains the information about the
             %                    problem.
             % If no arguments are provided, default text and MException are
-            % used, though they not contain any useful information about
-            % the problem. 
+            % used, though they do not contain any useful information about
+            % the problem.
             %
-            obj = obj@aMessage('canceled');            
+            obj = obj@aMessage('canceled');
             if nargin>0
                 obj.payload     = varargin{1};
             end
@@ -33,10 +44,10 @@ classdef CanceledMessage < aMessage
                 text = '';
                 return
             end
-            if isa(obj.payload,'MException')                
+            if isa(obj.payload,'MException')
                 text =obj.payload_.message;
             else
-                text = evalc('disp(obj.payload)');  
+                text = evalc('disp(obj.payload)');
             end
         end
         

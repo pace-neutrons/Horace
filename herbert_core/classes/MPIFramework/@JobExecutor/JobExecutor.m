@@ -486,7 +486,24 @@ classdef JobExecutor
                 internode_exchange  = mf;
             end
         end
-        
+        %
+        function report_cluster_ready(fbMPI, intercomm)
+            % When MPI framework was initialized, collect starting messages
+            % from all neighboring nodes and inform the server that the
+            % cluster have started.
+            %
+            %Inputs:
+            %fbMPI -- fully initialized file-based messages exchange
+            %         framework, used for communicating between cluster and
+            %         the Matlab session, which lounching it.
+            % intercomm -- fully initalized MPI framework, used for
+            %          communications between cluster's nodes
+            %
+            % Throws if all messages were not received within the time-out
+            % period
+            %
+            report_cluster_ready_(fbMPI, intercomm);
+        end
     end
     
 end

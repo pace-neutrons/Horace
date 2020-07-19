@@ -11,10 +11,44 @@ classdef test_cluster_wrapper < TestCase
             end
             obj = obj@TestCase(name);
         end
+        function test_init_failed_canceled(~)
+            fii = iMessagesFramework.build_worker_init(tmp_dir, ...
+                'test_init_failed_timeout', 'MessagesFilebased', 0, 3,'test_mode');
+            
+            mf = MessagesFilebased(fii);
+            cluster = ClusterWrapper(3,mf);
+            clob = onCleanup(@()finalize_all(cluster));
+            
+            % build message framework to respond instead of a worker
+            cs = mf.get_worker_init('MessagesParpool',1,3);
+            css = mf.deserialize_par(cs);
+            meR1 = MessagesFilebased(css);
+            mc  = CanceledMessage('Test cancellation',...
+                MException('MESSAGES_FRAMEWORK:canceled','test cancellation'));
+            meR1.send_message(0,mc );
+            
+            cluster = cluster.wait_started_and_report();
+            assertEqual(cluster.status_name,'canceled');
+        end
+        
+        function test_init_failed_timeout(~)
+            fii = iMessagesFramework.build_worker_init(tmp_dir, ...
+                'test_init_failed_timeout', 'MessagesFilebased', 0, 3,'test_mode');
+            
+            mf = MessagesFilebased(fii);
+            cluster = ClusterWrapper(3,mf);
+            clob = onCleanup(@()finalize_all(cluster));
+            
+            mf.time_to_fail =0;
+            
+            cluster = cluster.wait_started_and_report();
+            assertEqual(cluster.status_name,'failed');
+        end
+        
         function test_cluster_init(~)
             fii = iMessagesFramework.build_worker_init(tmp_dir, ...
                 'test_cluster_init', 'MessagesFilebased', 0, 3,'test_mode');
-               
+            
             mf = MessagesFilebased(fii);
             cluster = ClusterWrapper(3,mf);
             clob = onCleanup(@()finalize_all(cluster));
@@ -39,6 +73,9 @@ classdef test_cluster_wrapper < TestCase
             worker_init_mess{1}.payload = 'a';
             worker_init_mess{2}.payload = 'b';
             worker_init_mess{3}.payload = 'c';
+            %
+            meR1.send_message(0,'ready');
+            cluster = cluster.wait_started_and_report();
             
             %--------------------------------------------------------------
             cluster = cluster.init_workers(jeInit,worker_init_mess);
@@ -165,16 +202,16 @@ classdef test_cluster_wrapper < TestCase
                 % If no extra logical cores available, this test can do nothing
                 return
             end
-            msg_framework = MessagesFilebased('logical_cores_when_n_workers_gt');            
+            msg_framework = MessagesFilebased('logical_cores_when_n_workers_gt');
             clust = ClusterParpoolWrapper();
-
+            
             n_workers = physical_cores + 1;
             clust = clust.init(n_workers, msg_framework, ...
                 herbert_config().log_level);
-            clob = onCleanup(@()finalize_all(clust));            
+            clob = onCleanup(@()finalize_all(clust));
             
             assertEqual(clust.n_workers, n_workers);
-
+            
         end
         
         function test_num_workers_set_when_n_workers_lt_num_physical_cores(obj)

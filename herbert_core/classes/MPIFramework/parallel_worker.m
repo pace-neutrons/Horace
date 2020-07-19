@@ -89,6 +89,9 @@ try
     if DO_DEBUGGING
         exit_at_the_end = false;
     end
+    % inform the control node that the cluster have been started and ready
+    % to accept jobs
+    JobExecutor.report_cluster_ready(fbMPI,intercomm);
 catch ME0 %unhandled exception during init procedure
     ok = false;
     err_mess = ME0;
@@ -291,6 +294,8 @@ while keep_worker_running
                 je.migrate_job_folder(false);
                 continue;
             else
+                % useful for testing only
+                je.migrate_job_folder(false);                
                 break;
             end
         catch ME1 % the only exception happen is due to error in JE system
