@@ -136,6 +136,7 @@ methods
             original_variance = data(obj.VARIANCE_IDX, start_idx:end_idx);
 
             expected_data = data;
+            % Use the formulas used in sqw.cos to get the expected sig/var data
             expected_data(obj.SIGNAL_IDX, start_idx:end_idx) = ...
                     cos(original_signal);
             expected_data(obj.VARIANCE_IDX, start_idx:end_idx) = ...
@@ -200,15 +201,17 @@ methods
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             pix = pix.do_unary_op(unary_op);
 
-            transformed_data = obj.concatenate_pixel_pages(pix);
+            file_backed_data = obj.concatenate_pixel_pages(pix);
 
             pix_in_mem = PixelData(data);
             pix_in_mem = pix_in_mem.do_unary_op(unary_op);
-            expected_transformed_data = pix_in_mem.data;
+            in_memory_data = pix_in_mem.data;
 
-            assertEqual(transformed_data, expected_transformed_data, ...
-                        sprintf('Failure calculating ''%s''', char(unary_op)), ...
-                        obj.FLOAT_TOLERANCE);
+            assertEqual( ...
+                file_backed_data, in_memory_data, ...
+                sprintf(['In-memory and file-backed data do not match after ' ...
+                         'operation: ''%s''.'], char(unary_op)), ...
+                obj.FLOAT_TOLERANCE);
         end
     end
 
