@@ -215,24 +215,6 @@ methods
         end
     end
 
-    function test_do_unary_op_returns_correct_output_with_cosine_1_page(obj)
-        data = rand(9, 50);
-        npix_in_page = 50;
-        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-
-        pix = pix.do_unary_op(@cos);
-
-        original_signal = data(obj.SIGNAL_IDX, :);
-        original_variance = data(obj.VARIANCE_IDX, :);
-
-        expected_data = data;
-        expected_data(obj.SIGNAL_IDX, :) = cos(original_signal);
-        expected_data(obj.VARIANCE_IDX, :) = ...
-                abs(1 - pix.signal.^2).*original_variance;
-
-        assertEqual(pix.data, expected_data);
-    end
-
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
