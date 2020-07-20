@@ -46,7 +46,7 @@ function [w,grid_size,urange,detdcn] = calc_sqw(obj,grid_size_in,urange_in,varar
 %                  or the range of the data if not.
 %  detdcn          [3 x ndet] array of unit vectors, poinitng to the detector's
 %                  positions in the spectrometer coordinate system (X-axis
-%                  along the beam direction). ndet -- number of detectors 
+%                  along the beam direction). ndet -- number of detectors
 %                  Can be later assigned to the next rundata object
 %                  property "detdcn_cache" to accelerate calculations. (not
 %                  fully implemented and currently workis with Matlab code
@@ -97,7 +97,7 @@ else
     if isempty(grid_size_in)
         grid_size_in = [50,50,50,50];
     else
-        if ~all(size(grid_size_in) == [1,4])
+        if ~all(size(grid_size_in) == [1,4]) && ~all(size(grid_size_in) == [1,1])
             if all(size(grid_size_in) == [4,1])
                 grid_size_in = grid_size_in';
             else
