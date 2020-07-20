@@ -24,10 +24,9 @@ classdef test_hpc_works< TestCase
             assertEqual(old_dte,data_2restore);
             
             pc.build_sqw_in_parallel = false;
-            pc.combine_sqw_using     = 'matlab';
             
-            hpc('on');                       
-            assertFalse(strcmpi(pc.combine_sqw_using,'matlab'));
+            hpc('off');                       
+            assertEqual(pc.build_sqw_in_parallel,false);
 
             new_config = pc.get_data_to_store();
             assertEqual(new_hpc_config,new_config);
