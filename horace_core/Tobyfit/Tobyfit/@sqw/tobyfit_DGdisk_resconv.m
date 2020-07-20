@@ -120,7 +120,7 @@ end
 
 % Initialise output arguments
 % ---------------------------
-wout = win;
+wout = copy(win);
 state_out = cell(size(win));    % create output argument
 store_out = [];
 
@@ -152,11 +152,11 @@ if refine_moderator
     % searlier on so that here all moderators are replaced by a single one
     % derived from the first object in the lookup table.
     moderator = mod_shape_mono_table.object_store(1).moderator;
-    
+
     % Strip out moderator refinement parameters and update moderator
     [moderator, pars{1}] = refine_moderator_strip_pars...
         (moderator, modshape, pars{1});
-    
+
     % Replace moderator(s) in object lookup with updated moderator
     mod_shape_mono = mod_shape_mono_table.object_store;
     for i=1:numel(mod_shape_mono)
@@ -178,7 +178,7 @@ for i=1:numel(ind)
     else
         state_out{i} = rng;     % capture the random number generator state
     end
-    
+
     % Create pointers to parts of lookup structure for the current dataset
     xa=lookup.xa{iw};
     x1=lookup.x1{iw};
@@ -193,12 +193,12 @@ for i=1:numel(ind)
     dt=lookup.dt{iw};
     qw=lookup.qw{iw};
     dq_mat=lookup.dq_mat{iw};
-    
+
     % Run and detector for each pixel
-    irun = win(i).data.pix(5,:)';   % column vector
-    idet = win(i).data.pix(6,:)';   % column vector
-    npix = size(win(i).data.pix,2);
-    
+    irun = win(i).data.pix.run_idx';   % column vector
+    idet = win(i).data.pix.detector_idx';   % column vector
+    npix = win(i).data.pix.num_pixels;
+
     % Catch case of refining crystal orientation or moderator parameters
     if refine_crystal
         % Strip out crystal refinement parameters and reorientate datasets
@@ -210,43 +210,43 @@ for i=1:numel(ind)
 
         % Recompute Q because crystal orientation will have changed (dont need to update qw{4})
         qw(1:3) = calculate_q (ki(irun), kf, detdcn(:,idet), spec_to_rlu(:,:,irun));
-        
+
         % Recompute (Q,w) deviations matrix for same reason
         dq_mat{i} = dq_matrix_DGdisk (ki(irun), kf,...
             xa(irun), x1(irun), x2(idet),...
             s_mat(:,:,irun), f_mat(:,:,idet), d_mat(:,:,idet),...
             spec_to_rlu(:,:,irun), k_to_v, k_to_e);
     end
-    
+
     % Find out if the crystal has a mosaic spread
     % -------------------------------------------
     mosaic_spread = mosaic_crystal(sample_table.object_elements(iw).eta);
-    
+
     % Simulate the signal for the data set
     % ------------------------------------
     for imc=1:mc_points
         yvec=zeros(11,1,npix);
-        
+
         % Deviations at the shaping and monochromating choppers
         tchop_av = mod_shape_mono_table.func_eval(iw,irun,@mean,mc_mod_shape_mono);
         yvec([1,4],1,:) = 1e-6 * ...
             (mod_shape_mono_table.rand_ind(iw,irun,'options','mc',mc_mod_shape_mono) - tchop_av);
         debugtools(@debug_histogram_array, (10^6)*yvec(1,1,:), 't_shape', 'microseconds')
-     
+
         % Divergence
         if mc_contributions.horiz_divergence
             yvec(2,1,:) = horiz_div_table.rand_ind(iw,irun);
         end
-        
+
         if mc_contributions.vert_divergence
             yvec(3,1,:) = vert_div_table.rand_ind(iw,irun);
         end
-        
+
         % Sample deviations
         if mc_contributions.sample
             yvec(5:7,1,:) = sample_table.func_eval(iw,@rand,[1,npix]);
         end
-        
+
         % Detector deviations
         if mc_contributions.detector_depth || mc_contributions.detector_area
             det_points = detector_table.func_eval(iw,@rand,idet,kf);
@@ -258,12 +258,12 @@ for i=1:numel(ind)
                 yvec(8:10,1,:) = det_points;
             end
         end
-        
+
         % Energy bin
         if mc_contributions.energy_bin
             yvec(11,1,:)=dt'.*(rand(1,npix)-0.5);
         end
-        
+
         % Calculate the deviations in Q and energy, and then the S(Q,w) intensity
         % -----------------------------------------------------------------------
         dq = mtimesx_horace(dq_mat,yvec);
@@ -275,13 +275,14 @@ for i=1:numel(ind)
             q(1:3,:,:) = mtimesx_horace(Rrlu, q(1:3,:,:));
         end
         q = squeeze(q);    % 4 x 1 x npix ==> 4 x npix
-        
+
         if imc==1
             stmp=sqwfunc(q(1,:)',q(2,:)',q(3,:)',q(4,:)',pars{:});
         else
             stmp=stmp+sqwfunc(q(1,:)',q(2,:)',q(3,:)',q(4,:)',pars{:});
         end
     end
-    wout(i).data.pix(8:9,:)=[stmp(:)'/mc_points;zeros(1,numel(stmp))];
+    wout(i).data.pix.signal = stmp(:)'/mc_points;
+    wout(i).data.pix.variance = zeros(1,numel(stmp));
     wout(i)=recompute_bin_data(wout(i));
 end

@@ -18,7 +18,8 @@ if is_sqw_type(w)
     % RAE spotted error 8/12/2010: should only create pix field if sqw object
     stmp = replicate_array(w.data.s, w.data.npix)';
     etmp = replicate_array(w.data.e, w.data.npix)';
-    w.data.pix(8:9,:) = [stmp;etmp]; % propagate signal into the pixel data
+    w.data.pix.signal = stmp;  % propagate signal into the pixel data
+    w.data.pix.variance = etmp;
 end
 
 % If no pixels, then our convention is that signal and error set to zero

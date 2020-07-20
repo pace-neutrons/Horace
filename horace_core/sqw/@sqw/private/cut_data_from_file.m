@@ -14,8 +14,7 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_2read] = cut_data_
 %   keep_pix        Set to true if wish to retain the information about individual pixels; set to false if not
 %   pix_tmpfile_ok  if keep_pix=false, ignore
 %                   if keep_pix=true, set buffering option:
-%                       pix_tmpfile_ok = false: Require that output argument pix is 9xn array of u1,u2,u3,u4,irun,idet,ien,s,e
-%                                              for each retained pixel
+%                       pix_tmpfile_ok = false: Require pix is a PixelData object
 %                       pix_tmpfile_ok = true:  Buffering of pixel info to temporary files if pixels exceed a threshold
 %                                              In this case, output argument pix contains details of temporary files (see below)
 %   urange_step     [2x4] array of the ranges of the data as defined by (i) output proj. axes ranges for
@@ -37,7 +36,7 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_2read] = cut_data_
 %   urange_step_pix Actual range of contributing pixels
 %   pix             if keep_pix=false, pix=[];
 %                   if keep_pix==true, then contents depend on value of pix_tmpfile_ok:
-%                       pix_tmpfile_ok = false: contains u1,u2,u3,u4,irun,idet,ien,s,e for each retained pixel
+%                       pix_tmpfile_ok = false: contains PixelData object
 %                       pix_tmpfile_ok = true: structure with fields
 %                           pix.tmpfiles        cell array of filename(s) containing npix and pix
 %                           pix.pos_npixstart   array with position(s) from start of file(s) of array npix
@@ -94,7 +93,7 @@ if keep_pix
         % pix is pix_combine info class
         pix = init_pix_combine_info(nsteps,numel(s));
     else
-        pix = zeros(ndatpix,0);   % changed 17/11/08 from pix = [];
+        pix = PixelData();
     end
 else
     pix = [];   % pix is a return argument, so must give it a value
@@ -151,13 +150,13 @@ try
                 pix = accumulate_pix_to_file(pix,false,v,ok,ix_add,npix,pmax,del_npix_retain);
             else
                 n_blocks=n_blocks+1;
-                pix_retained{n_blocks} = v(:,ok);    % accumulate pixels into buffer array
+                pix_retained{n_blocks} = v.get_pixels(ok);    % accumulate pixels into buffer array
                 pix_ix_retained{n_blocks} = ix_add;
             end
             if hor_log_level>=1, t_sort = t_sort + bigtoc(3); end
         end
         % -------------
-        
+
         if hor_log_level>=1, bigtic(1), end
         % if program runs as mpi worker, check if it has been
         % cancelled and throw if it was.
@@ -183,7 +182,7 @@ if hor_log_level>=1, t_read = t_read + bigtoc(1); end
 if ~isempty(pix_retained) || pix_tmpfile_ok  % prepare the output pix array
     % or file combine info
     if hor_log_level>=1, bigtic(3), end
-    
+
     clear v ok ix_add; % clear big arrays
     if pix_tmpfile_ok % this time pix is pix_combine_info class. del_npix_retain not used
         v = [];ok=[];ix_add=[];
@@ -192,7 +191,7 @@ if ~isempty(pix_retained) || pix_tmpfile_ok  % prepare the output pix array
         pix = sort_pix(pix_retained,pix_ix_retained,npix);
     end
     if hor_log_level>=1, t_sort = t_sort + bigtoc(3); end
-    
+
 end
 
 
@@ -216,7 +215,7 @@ if hor_log_level>=1
         disp('-----------------------------')
         fprintf(' Cut data from file finished at:  %4d;%02d;%02d|%02d;%02d;%02d\n',fix(clock));
     end
-    
+
     disp('-----------------------------')
     disp(' ')
 end
@@ -265,7 +264,7 @@ for i=1:n_blocks
         fclose(fid);
         error('SQW:io_error','Unrecoverable read error %s',mess);
     end
-    
+
 end
 % seems much faster then copying sub-blocks into preallocated storage.
 % Certainly faster if blocks are big
@@ -303,7 +302,7 @@ end
 npix_now = npix; % npix is accumulated
 if del_npix_retain>0
     n_mem_blocks = n_mem_blocks + 1;
-    pix_mem_retained{n_mem_blocks} = v(:,ok);    % accumulate pixels into buffer array
+    pix_mem_retained{n_mem_blocks} = v.get_pixels(ok);    % accumulate pixels into buffer array
     pix_mem_ix_retained{n_mem_blocks} = ix_add;
 end
 
@@ -314,7 +313,7 @@ end
 if finish_accum
     pix_comb_info= save_pixels_to_file(pix_comb_info);
     pix_comb_info.npix_cumsum = cumsum(npix(:));
-    
+
     pix_comb_info  = pix_comb_info.trim_nfiles(n_writ_files);
     clear npix_prev pix_mem_retained pix_mem_ix_retained;
 end
@@ -331,7 +330,7 @@ end
         % clear current memory buffer state;
         n_mem_blocks = 0;
         clear pix_mem_retained pix_mem_ix_retained;
-        
+
         n_writ_files  = n_writ_files+1;
         file_name = pix_comb_info.infiles{n_writ_files};
         [mess,position] = put_sqw_data_npix_and_pix_to_file(file_name,npix_in_mem,pix_2write);
@@ -375,7 +374,7 @@ for i=1:nblocks
     if i>1
         block_ind_from(i) = block_ind_to(i-1)+1;
     end
-    
+
     run_sum = tot_pix(ind)+buf_size;
 end
 %

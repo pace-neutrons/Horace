@@ -10,9 +10,13 @@ if ischar(obj.num_contrib_files)
         'get_pix method called from un-initialized loader')
 end
 
+if ~obj.is_activated('read')
+    obj = obj.activate('read');
+end
+
 npix_tot = obj.npixels;
 if isempty(npix_tot) % dnd object
-    pix = zeros(9,0);
+    pix = PixelData();
     return
 end
 if nargin>1
@@ -63,7 +67,5 @@ if size>0
     end
 else
     % *** T.G.Perring 5 Sep 2018: allow for size=0
-    pix = zeros(9,0);
+    pix = [];
 end
-
-

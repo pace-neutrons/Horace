@@ -71,7 +71,7 @@ function wout=resol_conv_tobyfit_mc(win,sqwfunc,pars,mc_contrib,mc_npoints,xtal,
 %   yvec(10,...):  z_d      z-coordinate of point of detection in detector frame
 %   yvec(11,...):  t_d      deviation in detection time of neutron
 
-wout = win;
+wout = copy(win);
 if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
 
 % Unpack lookup tables and other pre-computed parameters
@@ -124,7 +124,7 @@ for i=1:numel(ind)
         rlu_corr=ub\rotmat*xtal.ub0;
         % Reorient workspace
         win(i)=change_crystal(win(i),rlu_corr);
-        
+
     elseif modshape.refine
         % Strip out moderator refinement parameters
         npmod=numel(modshape.pp);
@@ -136,15 +136,15 @@ for i=1:numel(ind)
                                             (modshape.pulse_model,pp,modshape.ei);
         ind_mod_refine=ones(size(ind_mod{iw}));
     end
-    
+
     qw = calculate_qw_pixels(win(i));   % get qw *after* changing crystal orientation
-    npix = size(win(i).data.pix,2);
-    irun = win(i).data.pix(5,:);
-    idet = win(i).data.pix(6,:);
-    
+    npix = win(i).data.pix.num_pixels;
+    irun = win(i).data.pix.run_idx;
+    idet = win(i).data.pix.detector_idx;
+
     for imc=1:mc_npoints
         yvec=zeros(11,1,npix);
-        
+
         % Fill time deviations for moderator
         if mc_contrib.moderator
             if ~modshape.refine
@@ -153,38 +153,38 @@ for i=1:numel(ind)
                 yvec(1,1,:)=moderator_times(mod_table_refine,t_av_refine',ind_mod_refine,irun');
             end
         end
-        
+
         % Aperture deviations
         if mc_contrib.aperture
             yvec(2,1,:)=wa{iw}(irun).*(rand(1,npix)-0.5);
             yvec(3,1,:)=ha{iw}(irun).*(rand(1,npix)-0.5);
         end
-        
+
         % Fermi chopper deviations
         if mc_contrib.chopper
             yvec(4,1,:)=fermi_times(fermi_table,ind_fermi{iw},irun');
         end
-        
+
         % Sample deviations
         if mc_contrib.sample
             yvec(5:7,1,:)=random_points(lookup.sample(iw),npix);
         end
-        
+
         % Detector deviations
         if mc_contrib.detector_depth
             yvec(8,1,:)=0.015*(rand(1,npix)-0.5);     % approx dets as 25mm diameter, and take full width of 0.6 of diameter; 0.6*0.025=0.015
         end
-        
+
         if mc_contrib.detector_area
             yvec(9,1,:) =win(i).detpar.width(idet).*(rand(1,npix)-0.5);
             yvec(10,1,:)=win(i).detpar.height(idet).*(rand(1,npix)-0.5);
         end
-        
+
         % Energy bin
         if mc_contrib.energy_bin
             yvec(11,1,:)=lookup.dt{iw}.*(rand(1,npix)-0.5);
         end
-        
+
         dq=squeeze(mtimesx_horace(lookup.dq_mat{iw},yvec))';
         if imc==1
             stmp=sqwfunc(qw{1}+dq(:,1),qw{2}+dq(:,2),qw{3}+dq(:,3),qw{4}+dq(:,4),pars{:});
@@ -192,7 +192,8 @@ for i=1:numel(ind)
             stmp=stmp+sqwfunc(qw{1}+dq(:,1),qw{2}+dq(:,2),qw{3}+dq(:,3),qw{4}+dq(:,4),pars{:});
         end
     end
-    wout(i).data.pix(8:9,:)=[stmp(:)'/mc_npoints;zeros(1,numel(stmp))];
+    wout(i).data.pix.signal=stmp(:)'/mc_npoints;
+    wout(i).data.pix.variance=zeros(1,numel(stmp));
     wout(i)=recompute_bin_data(wout(i));
 end
 

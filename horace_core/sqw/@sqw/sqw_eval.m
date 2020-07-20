@@ -13,14 +13,14 @@ function wout=sqw_eval(win,sqwfunc,pars,opt)
 %                   weight = sqwfunc (qh,qk,ql,en,p)
 %                where
 %                   qh,qk,ql,en Arrays containing the coordinates of a set of points
-%                   p           Vector of parameters needed by dispersion function 
+%                   p           Vector of parameters needed by dispersion function
 %                              e.g. [A,js,gam] as intensity, exchange, lifetime
 %                   weight      Array containing calculated spectral weight
 %
 %               More general form is:
 %                   weight = sqwfunc (qh,qk,ql,en,p,c1,c2,..)
 %                 where
-%                   p           Typically a vector of parameters that we might want 
+%                   p           Typically a vector of parameters that we might want
 %                              to fit in a least-squares algorithm
 %                   c1,c2,...   Other constant parameters e.g. file name for look-up
 %                              table
@@ -46,7 +46,7 @@ function wout=sqw_eval(win,sqwfunc,pars,opt)
 %
 % Output:
 % -------
-%   wout        Output dataset or array of datasets 
+%   wout        Output dataset or array of datasets
 
 
 % Check optional argument
@@ -61,8 +61,8 @@ if exist('opt','var')  % no option given
         error('Unrecognised option')
     end
 end
-    
-wout = win;
+
+wout = copy(win);
 if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
 
 for i=1:numel(win)
@@ -71,7 +71,8 @@ for i=1:numel(win)
             %qw = calculate_qw_pixels2(win(i));
             qw = calculate_qw_pixels(win(i));
             stmp=sqwfunc(qw{:},pars{:});
-            wout(i).data.pix(8:9,:)=[stmp(:)';zeros(1,numel(stmp))];
+            wout(i).data.pix.signal=stmp(:)';
+            wout(i).data.pix.variance=zeros(1,numel(stmp));
             wout(i)=recompute_bin_data(wout(i));
         else
             % Get average h,k,l,e for the bin, compute sqw for that average, and fill pixels with the average signal for the bin that contains them
@@ -80,7 +81,8 @@ for i=1:numel(win)
             qw_ave=average_bin_data(win(i),qw);
             stmp=sqwfunc(qw_ave{:},pars{:});
             stmp=replicate_array(stmp,win(i).data.npix);
-            wout(i).data.pix(8:9,:)=[stmp(:)';zeros(1,numel(stmp))];
+            wout(i).data.pix.signal=stmp(:)';
+            wout(i).data.pix.variance=zeros(1,numel(stmp));
             wout(i)=recompute_bin_data(wout(i));
         end
     else

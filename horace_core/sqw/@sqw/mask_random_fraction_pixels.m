@@ -29,7 +29,7 @@ if ~is_sqw_type(win);
 end
 
 % Initialise output argument
-wout = win;
+wout = copy(win);
 
 
 %Check size of input array:
@@ -53,19 +53,19 @@ for i=1:sz
         end
         nn=npix(i);
     end
-    
+
     %Error if npix>1:
     if nn>1
         error('Cannot retain greater number of pixels than data contains, ensure npix_frac<=1');
     end
-    
+
     %Determine number of pixels to keep:
-    n=nn.*size(win(i).data.pix,2);
+    n=nn.*win(i).data.pix.num_pixels;
     nn=round(n);%ensure integer number of pixels retained
-    
+
     % reuce the number of pixels using mask
-    mask0 = false([1 size(win(i).data.pix,2)]);
-    mask0(randperm(size(win(i).data.pix,2),nn)) = true;
+    mask0 = false([1 win(i).data.pix.num_pixels]);
+    mask0(randperm(win(i).data.pix.num_pixels, nn)) = true;
     wout(i) = mask_pixels(win(i),mask0);
 end
 

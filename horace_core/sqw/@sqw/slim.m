@@ -25,10 +25,10 @@ if ~(isnumeric(reduce) && isscalar(reduce) && isfinite(reduce) && reduce>=1)
 end
 
 % Perform action using existing sqw methods for masking pixels
-wout = win;
+wout = copy(win);
 if reduce>1     % nothing to do if reduce==1
     for i=1:numel(wout)
-        npix = size(wout.data.pix,2);
+        npix = wout.data.pix.num_pixels;
         npix_keep = round(npix/reduce);
         mask_arr = randi_unique(npix,npix_keep);
         wout(i) = mask_pixels(win(i),mask_arr);
