@@ -8,9 +8,7 @@ function obj=put_dnd_metadata(obj,varargin)
 %>> put_dnd_metadata(obj,dnd_obj)
 %>> put_dnd_metadata(obj,sqw_obj)
 %
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
+
 
 % ignore nopix if it comes as input
 [ok,mess,update,~,argi]=parse_char_options(varargin,{'-update','-nopix'});

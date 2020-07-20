@@ -2,8 +2,6 @@ function    obj = put_sqw(obj,varargin)
 % Save sqw data into new binary file or fully overwrite an existing file
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
 %
 %
 [ok,mess,update,argi]=parse_char_options(varargin,{'-update'});

@@ -53,6 +53,7 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             obj.test_souce_files = temp_files;
             obj.cleanup_obl = onCleanup(@()delete(temp_files{:},targ_file));
         end
+        %
         function [pix_comb,pix_out_pos]=get_pix_comb_info(obj)
             %
             infiles = obj.test_souce_files;
