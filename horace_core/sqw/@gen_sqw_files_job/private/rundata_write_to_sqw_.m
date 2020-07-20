@@ -19,7 +19,7 @@ function [grid_size, urange] = rundata_write_to_sqw_(run_files, sqw_file, ...
 % Output:
 % -------
 %   grid_size       Actual grid size used (size is unity along dimensions
-%                  where there is zero range of the data points)
+%                   where there is zero range of the data points)
 %   urange          Actual range of grid
 
 

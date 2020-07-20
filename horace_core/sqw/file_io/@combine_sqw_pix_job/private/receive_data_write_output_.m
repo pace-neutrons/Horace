@@ -1,4 +1,4 @@
-function receive_data_write_output_(obj,common_par,fout,data_providers,data_remain,h_log_file)
+function n_pix_written = receive_data_write_output_(obj,common_par,fout,data_providers,data_remain,h_log_file)
 % common_par     -- the job info common for all parallel processes.
 % fout           -- initialized handle for opened binary file to write data
 % data_providers -- list of the lab nums will be sending data to the writer

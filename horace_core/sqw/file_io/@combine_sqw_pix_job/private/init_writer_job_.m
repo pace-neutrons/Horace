@@ -1,4 +1,4 @@
-function [fout,data_providers,data_remain,clob] = init_writer_job_(obj,pix_comb_info)
+function [fout,data_providers,data_remain] = init_writer_job_(obj,pix_comb_info)
 % process job inputs and return initial information for writer job
 %
 %Returns:
@@ -7,8 +7,6 @@ function [fout,data_providers,data_remain,clob] = init_writer_job_(obj,pix_comb_
 %                   job
 % data_remain    -- array of logical, indicating if a correspondent data
 %                   provider is active (true at the beginning)
-% clob           -- clean up object responsible for closing ouptut file at 
-%                   the end of operation or in case of an error
  
 
 filename = pix_comb_info.fout_name;
@@ -17,7 +15,6 @@ if fout<=0
     error('COMBINE_PIX_JOB:runtime_error',...
         'Can not open target file %s for writing',filename);
 end
-clob = onCleanup(@()fcloser_(fout));  %
 
 pix_out_position = pix_comb_info.pix_out_pos;
 fseek(fout,pix_out_position,'bof');

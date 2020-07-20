@@ -41,7 +41,30 @@ The release tag will be an anchor for any subsequently needed release branch and
 
 The version number is stored in a text file (`VERSION`) in the root of the Herbert and Horace source. This will follow [semantic versioning](https://semver.org/) and is used in the build process to set the version number in the MATLAB and compiled C++ components.
 
+### Deployment on ISIS computational services machines
+To provide rapid response to user request, bug-fixes and all advantages of constant deployment process, the release code is rapidly available to users who uses ISIS computational resources to process the results of their experiments. The services, providing these resources are currently iDaaaS and ISISCOMPUTE services. These services provide users with pool of virtual (iDaaaS) or real (ISISCOMPUTE) Linux machines, connected to the common parallel file system.
+
+By agreement, each machine of the pool has folder `/usr/locam/mprogs/` containing number of symbolic links to  `Horace`, `Herbert`, `Horace_bugfix` and `Herbert_bugfix` clones of the github repositorues of the appropriate packages.  In addition to that, it contains also reference  `/usr/local/mprogs/User` pointing to the folder containing Horace, Herbert and parallel MPI workers initialization scripts.
+*Startup.m* script auto-generated on all service machines intended for the users of inelastic experiments, enables Herbert/Horace code when Matlab starts.
+
+The details of the packages installation and deoployment on the ISIS machines are provided in [ISIS Release Process documentation](11_ISIS_release.md)
+
+As soon as release branch is tagged and created in the repository according to the release  process, the code, exposed through the links above is checked out and switched to the recently released, so users can user the released version of the code.
+
+
+
 ### Patch releases
+
+The experience shows that the main reasons for the bugs, identified by users is small changes in user configuration, specific for a user, and correct but unexpected users operations with the code. This is why, the bugfix process in ISIS normally starts from user sharing screen with the member of the support team and the demonstration of the issue to a memeber of the support team.
+
+As soon as the issue is confirmed and is obvious that the bug fixing needs changes in code base, the member of the support team should switch user to the code tree, where the changes would not affect other users.
+The symbolic links to `Horace_bugfix` and `Herbert_bugfix` pointing to separate clones of git repository are provided for this purpose. At release, they are pointing to the same location as regular Horace/Herbert branches.
+
+
+To switch user to these branches, one issues `herbert_on(/usr/local/mprogs/Herbert_bugfix/herbert_core)` and `horace_on(/usr/local/mprogs/Horace_bugfix/horace_core)` commands.
+
+If parallel execution is necessary for bugfixing, the supporter also needs to do similar changes in worker_4tests script available in the **User** folder above. `herbert_on/horace_on` commands within this script should be modifued to point to the bugfix version of the code. The user's **parallel_config** class `worker` field should then be assigned with `worker_4tests` value. The default value of this field is `worker_v2` which initializes default Horace/Herbert code base. The `worker_v2` script will continue to be used by other users for their data processing, until bugfixing is completed and merged into the code base.
+
 
 Patch releases will be made to release branches to resolve specific bugs identified. These should be tested and built through the same build pipeline as the initial production releases.
 
@@ -74,7 +97,7 @@ Disadvantages:
 
 ### Hot-fix Releases
 
-If a particular fix is required quickly on a target system, the full build and test process can be bypassed so that facility users do not lose critical machine time. 
+If a particular fix is required quickly on a target system, the full build and test process can be bypassed so that facility users do not lose critical machine time.
 
 Quick modifications to the software, with only partial testing, carry the risks of breaking other parts of the software, so this is an exceptional use-case. Non-time critical issues should be resolved through the standard Patch Release process.
 
@@ -104,5 +127,5 @@ Advantages::
 
 Disadvantages:
 
-- not fully tested code released to production systems
-- slower than build/deploy directly on the target platform
+- not fully tested code released to part of the production system, alleviated by the fact that affected user experienced issue anyway.
+
