@@ -26,7 +26,10 @@ classdef PixelData < handle
 %   required. If editing pixels, to avoid losing changes, if a page has been
 %   edited and the next page is then loaded, the "dirty" page will be written
 %   to a tmp file. This class's getters will then retrieve data from the tmp
-%   file if that data is requested from the "dirty" page.
+%   file if that data is requested from the "dirty" page. Note that "dirty"
+%   pages are written to tmp files as floats, but stored in memory as double.
+%   This means data is truncated when moving pages, hence pixel data should not
+%   be relied upon being accurate to double precision.
 %
 % Usage:
 %
