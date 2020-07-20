@@ -90,7 +90,6 @@ properties (Access=private)
 
     f_accessor_;  % instance of faccess object to access pixel data from file
     file_path_ = '';  % the path to the file backing this object - empty string if all data in memory
-    max_page_size_;  % the maximum number of pixels that can fie in the page memory size
     object_id_;  % random unique identifier for this object, used for tmp file names
     page_dirty_ = false;  % array mapping from page_number to whether that page is dirty
     page_memory_size_ = 3e9;  % 3Gb - the maximum amount of memory a page can use
@@ -101,6 +100,7 @@ end
 
 properties (Dependent, Access=private)
     data_;  % points to raw_data_ but with a layer of validation for setting correct array sizes
+    max_page_size_;  % the maximum number of pixels that can fie in the page memory size
     pix_position_;  % the pixel index in the file of the first pixel in the cache
 end
 
@@ -256,7 +256,6 @@ methods
         if nargin == 2
             obj.page_memory_size_ = mem_alloc;
         end
-        obj.max_page_size_ = obj.get_max_page_size_(obj.page_memory_size_);
         if ischar(arg)
             % input is a file path
             f_accessor = sqw_formats_factory.instance().get_loader(arg);
@@ -273,6 +272,7 @@ methods
         obj.data_ = arg;
     end
 
+    % --- Operator overrides ---
     function delete(obj)
         % Class destructor to delete any temporary files
         if ~isempty(obj.tmp_io_handler_)
@@ -322,6 +322,10 @@ methods
         pix_copy = PixelData(obj);
     end
 
+    % --- Pixel operations ---
+    [mean_signal, mean_variance] = compute_bin_data(obj, npix)
+
+    % --- Data management ---
     function data = get_data(obj, fields, pix_indices)
         % Retrive data for a field, or fields, for the given pixel indices in
         % the current page. If no pixel indices are given, all pixels in the
@@ -435,12 +439,12 @@ methods
         % and clear the current cache
         %  This function does nothing if pixels are not file-backed.
         %
-        if obj.is_file_backed_()
+        if obj.is_file_backed_() && obj.page_number_ ~= 1
             if obj.page_is_dirty_(obj.page_number_)
                 obj.write_dirty_page_();
             end
             obj.page_number_ = 1;
-            obj.data_ = zeros(9, 0);
+            obj.data_ = zeros(obj.PIXEL_BLOCK_COLS_, 0);
         end
     end
 
@@ -627,11 +631,21 @@ methods
 
     function page_size = get.page_size(obj)
         % The number of pixels that are held in the current page.
-        page_size = size(obj.data_, 2);
+        if obj.num_pixels > 0 && obj.cache_is_empty_()
+            % No pixels currently loaded, show the number that will be loaded
+            % when a getter is called
+            page_size = min(obj.get_max_page_size_(), obj.num_pixels);
+        else
+            page_size = size(obj.data_, 2);
+        end
     end
 
     function pix_position = get.pix_position_(obj)
         pix_position = (obj.page_number_ - 1)*obj.max_page_size_ + 1;
+    end
+
+    function page_size = get.max_page_size_(obj)
+        page_size = obj.get_max_page_size_();
     end
 
 end
@@ -650,7 +664,7 @@ methods (Access=private)
     function obj = load_current_page_if_data_empty_(obj)
         % Check if there's any data in the current page and load a page if not
         %   This function does nothing if pixels are not file-backed.
-        if isempty(obj.data_) && obj.is_file_backed_()
+        if obj.cache_is_empty_() && obj.is_file_backed_()
             obj = obj.load_page_(obj.page_number_);
         end
     end
@@ -721,12 +735,12 @@ methods (Access=private)
         obj.page_dirty_(page_number) = is_dirty;
     end
 
-    function page_size = get_max_page_size_(obj, mem_alloc)
+    function page_size = get_max_page_size_(obj)
         % Get the maximum number of pixels that can be held in a page that's
-        % allocated 'mem_alloc' bytes
+        % allocated 'obj.page_memory_size_' bytes
         num_bytes_in_val = 8;  % pixel data stored in memory as a double
         num_bytes_in_pixel = num_bytes_in_val*obj.PIXEL_BLOCK_COLS_;
-        page_size = floor(mem_alloc/num_bytes_in_pixel);
+        page_size = floor(obj.page_memory_size_/num_bytes_in_pixel);
     end
 
     function is = is_file_backed_(obj)
@@ -734,6 +748,11 @@ methods (Access=private)
         % all pixel data is held in memory
         %
         is = ~isempty(obj.f_accessor_);
+    end
+
+    function is = cache_is_empty_(obj)
+        % Return true if no pixels are currently held in memory
+        is = isempty(obj.data_);
     end
 
 end

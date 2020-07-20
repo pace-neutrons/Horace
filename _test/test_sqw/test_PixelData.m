@@ -423,15 +423,6 @@ methods
         assertEqual(p1.u1, ones(1, n_rows));
     end
 
-    function test_file_data_not_loaded_on_init_if_page_size_lt_num_pixels(obj)
-        data = rand(9, 30);
-        npix_in_page = 11;
-        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-        assertEqual(pix.page_size, 0);
-        pix.u1;
-        assertFalse(pix.page_size == 0);
-    end
-
     function test_number_of_pixels_in_page_matches_memory_usage_size(obj)
         data = rand(9, 30);
         npix_in_page = 11;
@@ -541,12 +532,18 @@ methods
         assertEqual(pix.u1, u1);
     end
 
+    function test_instance_has_page_size_after_construction(~)
+        data = rand(9, 10);
+        faccess = FakeFAccess(data);
+        pix = PixelData(faccess);
+        assertEqual(pix.page_size, 10);
+    end
+
     function test_editing_a_field_loads_page(obj)
         data = rand(9, 10);
         faccess = FakeFAccess(data);
         for i = 1:numel(obj.pix_fields)
             pix = PixelData(faccess);
-            assertEqual(pix.page_size, 0);
             pix.(obj.pix_fields{i}) = 1;
             assertEqual(pix.page_size, 10);
         end
