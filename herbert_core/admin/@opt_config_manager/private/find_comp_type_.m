@@ -34,8 +34,8 @@ if ispc
     end
 elseif isunix
     
-    [ok,mem_string] = system('free | grep Mem');
-    if ~ok
+    [nok,mem_string] = system('free | grep Mem');
+    if nok
         mem_size = 16*Gb;
     else
         mem_size = parse_mem_string(mem_string);
@@ -61,7 +61,14 @@ elseif isunix
     end
     is_virtual = is_idaaas();
     if is_virtual
-        n_profile = 6; %verid iDaaaS machine
+        cpu_pos = strfind(mess,'CPU(s)');
+        mess = strsplit(mess(cpu_pos(1):end));
+        n_cpu = str2double(mess{2});
+        if n_cpu <10        
+            n_profile = 6; %small iDaaaS machine
+        else
+            n_profile = 7; %large iDaaaS machine            
+        end
     else
         n_profile = 4; % normal unix machine
     end
