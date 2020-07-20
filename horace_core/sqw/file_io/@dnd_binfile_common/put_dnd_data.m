@@ -11,9 +11,6 @@ function obj=put_dnd_data(obj,varargin)
 %
 % if only -update key is specified, the class has to be initialized by appropriate dnd object.
 
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
 
 % ignore nopix if it come as input
 [ok,mess,update,~,argi]=parse_char_options(varargin,{'-update','-nopix'});
