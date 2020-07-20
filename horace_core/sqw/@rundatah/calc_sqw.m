@@ -97,7 +97,7 @@ else
     if isempty(grid_size_in)
         grid_size_in = [50,50,50,50];
     else
-        if any(size(grid_size_in) ~= [1,4])
+        if ~all(size(grid_size_in) == [1,4])
             if all(size(grid_size_in) == [4,1])
                 grid_size_in = grid_size_in';
             else
