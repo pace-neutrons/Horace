@@ -11,11 +11,9 @@ set(HDR_FILES
 )
 
 set(MEX_NAME "cpp_communicator")
-set(COPY_DESTINATION "${Herbert_DLL_DIR}")
 pace_add_mex(
     NAME "${MEX_NAME}"
     SRC "${SRC_FILES}" "${HDR_FILES}"
-    COPY_TO "${COPY_DESTINATION}"
 )
 target_include_directories("${MEX_NAME}"
     PRIVATE "${CXX_SOURCE_DIR}"

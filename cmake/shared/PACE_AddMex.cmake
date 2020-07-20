@@ -16,7 +16,6 @@ function is defined.
         [OUTPUT_NAME output_name]
         [DOCUMENTATION file.txt]
         [LINK_TO target1 target2 ...]
-        [COPY_TO directory]
         [...]
     )
 
@@ -47,19 +46,13 @@ in Matlab prints the documentation contained in this file.
 created. ``EXECUTABLE`` may be given to create an executable instead of
 a library. If no type is given explicitly, the type is ``SHARED``.
 
-Additional:
-
-``COPY_TO``
-The directory to copy the mex library into after compilation. If not specified
-the library is not copied.
-
 #]=======================================================================]
 function(pace_add_mex)
 
     # Parse the arguments
     set(prefix "MEX")
     set(noValues "EXECUTABLE" "MODULE" "SHARED")
-    set(singleValues "NAME" "OUTPUT_NAME" "DOCUMENTATION" "COPY_TO")
+    set(singleValues "NAME" "OUTPUT_NAME" "DOCUMENTATION")
     set(multiValues "SRC" "LINK_TO")
     cmake_parse_arguments(
         "${prefix}"
@@ -85,15 +78,11 @@ function(pace_add_mex)
         DOCUMENTATION "${${prefix}_DOCUMENTATION}"
         LINK_TO "${${prefix}_LINK_TO}"
     )
-
-    if(${prefix}_COPY_TO)
-        set(_target_file "$<TARGET_FILE:${${prefix}_NAME}>")
-        set(_dest_file "${${prefix}_COPY_TO}/$<TARGET_FILE_NAME:${${prefix}_NAME}>")
-        add_custom_command(TARGET "${${prefix}_NAME}"
-            POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy "${_target_file}" "${_dest_file}"
-            COMMENT "Copying ${${prefix}_NAME}.${Matlab_MEX_EXTENSION} into ${${prefix}_COPY_TO}"
+    set_target_properties("${${prefix}_NAME}"
+        PROPERTIES
+            # Appending the $<0:> generator expression outputs the mex file to
+            # the *_DLL_DIRECTORY, omitting Release/Debug sub-folders
+            RUNTIME_OUTPUT_DIRECTORY "${${PROJECT_NAME}_DLL_DIRECTORY}$<0:>"
+            LIBRARY_OUTPUT_DIRECTORY "${${PROJECT_NAME}_DLL_DIRECTORY}$<0:>"
         )
-    endif()
-
 endfunction()
