@@ -26,43 +26,9 @@ if ~isa(w1,'double') && ~isa(w2,'double')
 
         if n1 == n2 && all(sz1 == sz2)
             if any(w1.data.npix(:) ~= w2.data.npix(:))
-                % npix for both sqw objects have to be equal
-                npix1 = sum(w1.data.npix(:));
-                npix2 = sum(w2.data.npix(:));
-                nelmts = numel(w2.data.npix);
-                idiff = find(w1.data.npix(:) ~= w2.data.npix(:));
-                ndiff = numel(idiff);
-
-                % number of elements to be printed if the data are different
-                ndiff_to_print = 3;
-                disp('ERROR in binary operations:')
-                disp(['  sqw type objects have ', num2str(nelmts), ...
-                      ' bins and ', num2str(ndiff), ...
-                      ' of them have a different number of pixels'])
-                for i = 1:min(ndiff, ndiff_to_print)
-                    disp(['  Element of npix with index ', num2str(idiff(i)), ...
-                          ' for left operand equals: ', ...
-                          num2str(w1.data.npix(idiff(i))), ...
-                          ' and for right operand: ', ...
-                          num2str(w2.data.npix(idiff(i)))]);
-                end
-
-                if ndiff > ndiff_to_print
-                    disp(['  ...and ', num2str(ndiff - ndiff_to_print), ' others']);
-                end
-
-                disp(['  Total number of pixels in left operand is ', ...
-                      num2str(npix1), ' and in right operand is ', num2str(npix2)])
-                error('Two sqw objects have different npix numbers ')
+                throw_npix_mismatch_error(w1, w2);
             end
-
-            wout = w1;
-            result = binary_op(...
-                sigvar(w1.data.pix.signal, w1.data.pix.variance), ...
-                sigvar(w2.data.pix.signal, w2.data.pix.variance));
-            wout.data.pix.signal = result.s;
-            wout.data.pix.variance = result.e;
-            wout = recompute_bin_data(wout);
+            wout = do_binary_op_2_sqw(w1, w2, binary_op);
         else
             error(['sqw type objects must have commensurate array dimensions ' ...
                    'for binary operations']);
@@ -229,4 +195,54 @@ elseif isa(w1, 'double') && ~isa(w2, 'double')
 
 else
     error('binary operations between objects and doubles only defined')
+end
+
+end
+
+% =============================================================================
+% Helpers
+%
+function wout = do_binary_op_2_sqw(w1, w2, binary_op)
+    % Perform a binary operation between two SQW objects, returning the
+    % resulting SQW object
+    wout = copy(w1);
+    result = binary_op(...
+        sigvar(w1.data.pix.signal, w1.data.pix.variance), ...
+        sigvar(w2.data.pix.signal, w2.data.pix.variance));
+    wout.data.pix.signal = result.s;
+    wout.data.pix.variance = result.e;
+    wout = recompute_bin_data(wout);
+end
+
+
+function throw_npix_mismatch_error(w1, w2)
+    % Throw an error caused by by an npix data mismatch between the two input
+    % sqw objects. npix for both sqw objects must be equal
+    npix1 = sum(w1.data.npix(:));
+    npix2 = sum(w2.data.npix(:));
+    nelmts = numel(w2.data.npix);
+    idiff = find(w1.data.npix(:) ~= w2.data.npix(:));
+    ndiff = numel(idiff);
+
+    % number of elements to be printed if the data are different
+    ndiff_to_print = 3;
+    disp('ERROR in binary operations:')
+    disp(['  sqw type objects have ', num2str(nelmts), ...
+          ' bins and ', num2str(ndiff), ...
+          ' of them have a different number of pixels'])
+    for i = 1:min(ndiff, ndiff_to_print)
+        disp(['  Element of npix with index ', num2str(idiff(i)), ...
+              ' for left operand equals: ', ...
+              num2str(w1.data.npix(idiff(i))), ...
+              ' and for right operand: ', ...
+              num2str(w2.data.npix(idiff(i)))]);
+    end
+
+    if ndiff > ndiff_to_print
+        disp(['  ...and ', num2str(ndiff - ndiff_to_print), ' others']);
+    end
+
+    disp(['  Total number of pixels in left operand is ', ...
+          num2str(npix1), ' and in right operand is ', num2str(npix2)])
+    error('Two sqw objects have different npix numbers ')
 end
