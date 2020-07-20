@@ -47,5 +47,4 @@ end
 wout=w;
 wout.data.s=svals;
 wout.data.e=svar;
-wout.data.pix=[wout.data.pix(1:7,:);spix';sdevsqr'];
-
+wout.data.pix = PixelData([wout.data.pix.data(1:7,:);spix';sdevsqr']);

@@ -1,7 +1,7 @@
 // calc_projections_c.cpp : Defines the exported functions for the DLL application.
 //
 #include "calc_projections_c.h"
-#include "utility/version.h"
+#include "../utility/version.h"
 //
 // enumerate input parameters for easy references.
 enum inPar {

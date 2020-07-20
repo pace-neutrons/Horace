@@ -57,12 +57,12 @@ classdef faccess_sqw_prototype < sqw_binfile_common
                     'FACCESS_SQW_PROTOTYOE::init_from_sqw_file: IO error locating number of contributing files field: Reason %s',mess)
             end
             obj.main_header_pos_ = 0;
-            
+
             obj = init_from_sqw_file@sqw_binfile_common(obj,varargin{:});
             obj.sqw_type_ = true;
         end
     end
-    
+
     methods
         function obj=faccess_sqw_prototype(varargin)
             % constructor, to build sqw reader for prototype file format
@@ -100,7 +100,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             %              the file header.
             % fid       :: file identifier of already opened binary sqw/dnd file where
             %              head_struct has been read from
-            
+
             %
             % Returns:
             % should  :: boolean equal to true if the loader can load these data,
@@ -110,15 +110,15 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             % message :: if false, contains detailed information on the reason why this
             %            file should not be loaded by this loader. Empty, if should ==
             %            true.
-            
+
             if header.version == 0 && strcmp(header.name,'horace')
                 if header.uncertain
                     fseek(fid,0,'bof');
                     header = dnd_file_interface.get_file_header(fid,4098+22);
                 end
             end
-            
-            
+
+
             [should,initob,mess]= should_load_stream@dnd_binfile_common(obj,header,fid);
             if should
                 warning('SQW_FILE_IO:legacy_data',...
@@ -131,7 +131,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             % it is written on hdd.
             % Fields in the structure are:
             %
-            
+
             % ------------------------------
             %   data.uoffset    Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
             %   data.u_to_rlu   Matrix (4x4) of projection axes in hkle representation
@@ -159,18 +159,8 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             %   data.npix       No. contributing pixels to each bin of the plot axes.
             %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
             %   data.urange     True range of the data along each axis [urange(2,4)]
-            %   data.pix        Array containing data for eaxh pixel:
-            %                  If npixtot=sum(npix), then pix(9,npixtot) contains:
-            %                   u1      -|
-            %                   u2       |  Coordinates of pixel in the projection axes
-            %                   u3       |
-            %                   u4      -|
-            %                   irun        Run index in the header block from which pixel came
-            %                   idet        Detector group number in the detector listing for the pixel
-            %                   ien         Energy bin number for the pixel in the array in the (irun)th header
-            %                   signal      Signal array
-            %                   err         Error array (variance i.e. error bar squared)
-            
+            %   data.pix        A PixelData object
+
             %
             data_form = get_dnd_form@dnd_binfile_common(obj,varargin{:});
             data_form = rmfield(data_form,{'filename','filepath','title','alatt','angdeg'});
@@ -179,11 +169,10 @@ classdef faccess_sqw_prototype < sqw_binfile_common
         function sqw_data = get_data(obj,varargin)
             % get prototype sqw data converting it in modern file format if
             % possible
-            
+
             %
             %   >> data = obj.get_sqw_data()
             %   >> data = obj.get_sqw_data(opt)
-            %   >> data = obj.get_sqw_data(npix_lo, npix_hi)
             %
             % Input:
             % ------
@@ -201,14 +190,9 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             %
             %               Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
             %
-            %   npix_lo     -|- [optional] pixel number range to be read from the file (only applies to type 'a')
-            %   npix_hi     -|
-            %
-            
-            %
             % Output:
             % -------
-            
+            %
             %   data        Output data structure actually read from the file. Will be one of:
             %                   type 'h'    fields: fields: uoffset,...,dax[,urange]
             %                   type 'b'    fields: filename,...,dax,s,e
@@ -255,17 +239,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             %   data.npix       No. contributing pixels to each bin of the plot axes.
             %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
             %   data.urange     True range of the data along each axis [urange(2,4)]
-            %   data.pix        Array containing data for eaxh pixel:
-            %                  If npixtot=sum(npix), then pix(9,npixtot) contains:
-            %                   u1      -|
-            %                   u2       |  Coordinates of pixel in the projection axes
-            %                   u3       |
-            %                   u4      -|
-            %                   irun        Run index in the header block from which pixel came
-            %                   idet        Detector group number in the detector listing for the pixel
-            %                   ien         Energy bin number for the pixel in the array in the (irun)th header
-            %                   signal      Signal array
-            %                   err         Error array (variance i.e. error bar squared)
+            %   data.pix        A PixelData object
             %
             %
             % NOTES:
@@ -273,22 +247,22 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             % Supported file Formats
             % ----------------------
             % The current sqw file format comes in two variants:
-            
+
             % Get prototype sqw data
             if obj.data_type == 'b'
                 error('SQW_FILE_IO:runtime_error',...
                     'FACCESS_SQW_PROTOTYPE:get_data File does not contain number of pixels for each bin - unable to convert old format data')
             end
-            
+
             sqw_data = get_data@sqw_binfile_common(obj,varargin{:});
             [path,name,ext]=fileparts(fopen(obj.file_id_));
             sqw_data.filename=[name,ext];
             sqw_data.filepath=[path,filesep];
-            
+
             sqw_data.title = '';
             sqw_data.alatt = zeros(1,3);
             sqw_data.angdeg = zeros(1,3);
-            
+
         end
         %
         function sqw_data = get_se_npix(obj,varargin)
@@ -297,16 +271,16 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             [sqw_data.s,sqw_data.e] = ...
                 convert_signal_error_(sqw_data.s,sqw_data.e,sqw_data.npix);
         end
-        
+
         %
         function new_obj = upgrade_file_format(obj)
             error('SQW_FILE_IO:legacy_data',...
                 ['FACCESS_SQW_PROTOTYPE::upgrade_file_format: can not upgrade file from prototype to other file format.\n',...
                 'Load prototype, set up correct alatt and angdeg parameters and save it into one of the new file formats']);
-            
+
         end
     end
-    
+
 end
 
 

@@ -9,7 +9,7 @@ function wout=symmetrise_sqw_multi(win,v1,v2,v3)
 % v1 and v2 are two vectors which lie in the plane of the reflection plane.
 % v3 is a vector connecting the plane to the origin (i.e. specifies an
 % offset).
-% 
+%
 % For multiple folds v1, v2 and v3 are cell arrays of vectors. The folds
 % are then done one after another
 %
@@ -25,7 +25,7 @@ function wout=symmetrise_sqw_multi(win,v1,v2,v3)
 %==============================
 %Some checks on the inputs:
 win=sqw(win);
-wout=win;
+wout = copy(win);
 
 %New code (problem spotted by Matt Mena for case when using a single
 %contributing spe file):
@@ -164,11 +164,11 @@ for nn=1:numel(v1)
     end
 
     %Coordinates of detector pixels, in the frame discussed above
-    coords=@() wout.data.pix([1:3],:); % MP: emulate a pointer / lazy data copy
+    coords=@() wout.data.pix.q_coordinates; % MP: emulate a pointer / lazy data copy
 
     num_pixels=size(wout.data.pix, 2); % MP, num_pixels=numel(coords)/3
 
-    %Note that we allow the inclusion of an offset from the origin of the 
+    %Note that we allow the inclusion of an offset from the origin of the
     %reflection plane. This is specified in rlu.
     vec3=(inv(uconv))*(v3{nn}'-header.uoffset(1:3));
     %Ensure v3 is a column vector:
@@ -196,9 +196,9 @@ for nn=1:numel(v1)
     clear 'side_dot'; % MP: not needed anymore
     coords_new=bsxfun(@plus, coords_new, vec3); % MP
 
-    wout.data.pix([1:3],:)=coords_new;
+    wout.data.pix.q_coordinates=coords_new;
     clear 'coords_new';
-    coords_new = @() wout.data.pix([1:3],:); % MP: 'pointer'
+    coords_new = @() wout.data.pix.q_coordinates; % MP: 'pointer'
 
 
     %=========================================================================
@@ -218,7 +218,7 @@ for nn=1:numel(v1)
     clear 'tmp';
 
     %Extra line required here to include energy in coords_cut (needed below):
-    epix=@() wout.data.pix(4,:);%energy is never reflected, of course % MP: only accessed once
+    epix=@() wout.data.pix.dE;%energy is never reflected, of course % MP: only accessed once
     coords_cut=[coords_cut;epix()]; % MP: (TODO) horzcat needs quite some memory, could reduced by resizing coords_cut first and then assigning last row
 
     ndims=dimensions(wout);

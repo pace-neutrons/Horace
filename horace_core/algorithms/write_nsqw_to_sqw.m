@@ -37,7 +37,7 @@ function urange=write_nsqw_to_sqw (infiles, outfile,varargin)
 % T.G.Perring   27 June 2007
 % T.G.Perring   22 March 2013  Modified to enable sqw files with more than one spe file to be combined.
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
+
 accepted_options = {'allow_equal_headers','drop_subzones_headers','parallel'};
 
 if nargin<2
@@ -229,8 +229,8 @@ if combine_in_parallel
     else
         job_disp.display_fail_job_results(outputs,n_failed,n_workers,'WRITE_NSQW_TO_SQW:runtime_error');
     end
-    
-    
+
+
 else
     % read arrays and accumulate headers directly
     [s_accum,e_accum,npix_accum] = accumulate_headers_job.accumulate_headers(ldrs);

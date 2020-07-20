@@ -25,7 +25,7 @@ function wout = func_eval (win, func_handle, pars, opt)
 %               e.g. y=gauss2d(x1,x2,[ht,x0,sig])
 %                    y=gauss4d(x1,x2,x3,x4,[ht,x1_0,x2_0,x3_0,x4_0,sig1,sig2,sig3,sig4])
 %
-%   pars        Arguments needed by the function. 
+%   pars        Arguments needed by the function.
 %                - Most commonly just a numeric array of parameters
 %                - If a more general set of parameters is needed by the function, then
 %                  wrap as a cell array {pars, c1, c2, ...}
@@ -39,7 +39,7 @@ function wout = func_eval (win, func_handle, pars, opt)
 %
 % Output:
 % =======
-%   wout        Output objects or array of objects 
+%   wout        Output objects or array of objects
 %
 % e.g.
 %   >> wout = func_eval (w, @gauss4d, [ht,x1_0,x2_0,x3_0,x4_0,sig1,sig2,sig3,sig4])
@@ -76,8 +76,8 @@ elseif ischar(opt) && ~isempty(strmatch(lower(opt),'all'))    % option 'all' giv
 else
     error('Unrecognised option')
 end
-    
-wout = win;
+
+wout = copy(win);
 if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
 
 % Check if any objects are zero dimensional before evaluating fuction, to save on possible expensive computations
@@ -116,7 +116,8 @@ for i = 1:numel(win)    % use numel so no assumptions made about shape of input 
     % If sqw object, fill every pixel with the value of its corresponding bin
     if sqw_type
         s = replicate_array(wout(i).data.s, win(i).data.npix)';
-        wout(i).data.pix(8:9,:) = [s;zeros(size(s))];
+        wout(i).data.pix.signal = s;
+        wout(i).data.pix.variance = zeros(size(s));
     elseif all_bins
         wout(i).data.npix=ones(size(wout(i).data.npix));    % in this case, must set npix>0 to be plotted.
     end

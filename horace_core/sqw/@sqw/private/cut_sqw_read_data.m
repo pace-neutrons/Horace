@@ -37,7 +37,7 @@ if ischar(data_source)
     if hor_log_level>=1
         bigtic;
     end
-    
+
     ld = sqw_formats_factory.instance().get_loader(data_source);
     data_type = ld.data_type;
     if ~strcmpi(data_type,'a')
@@ -58,12 +58,12 @@ if ischar(data_source)
     npixtot = ld.npixels;
     pix_position = ld.pix_position;
     ld.delete();
-    
+
     if hor_log_level>=1
         bigtoc('Time to read header information:',hor_log_level)
         disp(' ')
-    end 
-    
+    end
+
 else
     % Data source is an sqw object in memory
     % For convenience, unpack the fields that themselves are major data structures
@@ -73,11 +73,11 @@ else
     header = data_source.header;
     detpar = data_source.detpar;
     data   = data_source.data;
-    npixtot= size(data.pix,2);
+    npixtot= data.pix.num_pixels;
     pix_position = [];
 
     if hor_log_level>=1
         disp(' ')
-    end 
-    
+    end
+
 end

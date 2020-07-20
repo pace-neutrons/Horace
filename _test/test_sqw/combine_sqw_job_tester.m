@@ -17,10 +17,5 @@ classdef combine_sqw_job_tester < combine_sqw_pix_job
             end
             pos_pixstart = pos_pixstart+npix2read;
         end
-%         function [npix_section,npix_in_bins,ibin_end]=get_npix_section(fid,pos_npixstart,ibin_start,ibin_max)
-%             
-%             [npix_section,ibin_end]=get_npix_section_(fid,pos_npixstart,ibin_start,ibin_max);
-%             npix_in_bins = cumsum(sum(npix_section,2));
-%         end
     end
 end

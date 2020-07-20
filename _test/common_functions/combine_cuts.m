@@ -19,7 +19,7 @@ nfiles=zeros(1,nw);
 npixtot=zeros(1,nw);
 for i=1:nw
     nfiles(i)=w(i).main_header.nfiles;
-    npixtot(i)=size(w(i).data.pix,2);
+    npixtot(i)=w(i).data.pix.num_pixels;
 end
 
 % Construct main header
@@ -45,16 +45,16 @@ nbin=size(w(1).data.npix,1);
 npix=zeros(nbin,1);
 nend=cumsum(npixtot);
 nbeg=nend-npixtot+1;
-pix=zeros(9,nend(end));
+pix=PixelData(zeros(9,nend(end)));
 ibin=zeros(1,nend(end));
 for i=1:numel(w)
     npix=npix+w(i).data.npix;
-    pix(:,nbeg(i):nend(i))=w(i).data.pix;
-    pix(5,nbeg(i):nend(i))=pix(5,nbeg(i):nend(i))+(nbeg_f(i)-1);
+    pix.data(:,nbeg(i):nend(i))=w(i).data.pix.data;
+    pix.signal(nbeg(i):nend(i))=pix.signal(nbeg(i):nend(i))+(nbeg_f(i)-1);
     ibin(nbeg(i):nend(i))=replicate_array(1:nbin,w(i).data.npix);
 end
 [~,ix]=sort(ibin);
-pix=pix(:,ix);
+pix=pix.get_pixels(ix);
 
 data=w(1).data;
 data.npix=npix;
@@ -121,9 +121,9 @@ for i=1:nbin
 end
 
 % Accumulate signal
-wout.data.s=accumarray(ind,w.data.pix(8,:),[nbin,1])./w.data.npix(:);
+wout.data.s=accumarray(ind,w.data.pix.signal,[nbin,1])./w.data.npix(:);
 wout.data.s=reshape(wout.data.s,size(w.data.npix));
-wout.data.e=accumarray(ind,w.data.pix(9,:),[nbin,1])./(w.data.npix(:).^2);
+wout.data.e=accumarray(ind,w.data.pix.variance,[nbin,1])./(w.data.npix(:).^2);
 wout.data.e=reshape(wout.data.e,size(w.data.npix));
 nopix=(w.data.npix(:)==0);
 wout.data.s(nopix)=0;

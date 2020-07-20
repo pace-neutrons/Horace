@@ -5,7 +5,7 @@ function wout=horace_convert_legacy_sqw(win)
 %
 % If not an sqw object, leave unchanged
 
-wout=win;
+wout = copy(win);
 for i=1:numel(win)
     if isa(win,'sqw') && is_sqw_type(win(i))
         hnew=win(i).header;

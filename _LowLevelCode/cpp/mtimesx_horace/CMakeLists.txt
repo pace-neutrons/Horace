@@ -9,12 +9,18 @@ set(
     "MatMultiply.h"
 )
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # On GCC you must pass OpenMP_CXX_FLAGS to the linker, doing the same with
+    # MSVC generates warnings, so this "if" block is necessary
+    set(LIBS "${OpenMP_CXX_FLAGS}")
+endif()
+
 set(MEX_NAME "mtimesx_mex")
 pace_add_mex(
     NAME "${MEX_NAME}"
     SRC "${SRC_FILES}" "${HDR_FILES}"
-    COPY_TO "${CMAKE_SOURCE_DIR}/horace_core/DLL"
+    LINK_TO "${LIBS}"
 )
-if(OpenMP_CXX_FOUND)
-    target_link_libraries("${MEX_NAME}" OpenMP::OpenMP_CXX)
+if(${OPENMP_FOUND})
+    target_compile_options("${MEX_NAME}" PRIVATE "${OpenMP_CXX_FLAGS}")
 endif()

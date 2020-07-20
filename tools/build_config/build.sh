@@ -85,6 +85,52 @@ function run_package() {
   echo_and_run "cpack -G TGZ"
 }
 
+function print_help() {
+  readonly local help_msg="Script to build, run static analysis, test and package Horace.
+
+This script requires Matlab, GCC, CMake>=3.7 and CTest be installed on your
+system and available on the path.
+
+This script also requires that Herbert be findable by CMake. CMake will search
+in common places for Herbert e.g. in the same directory as Horace.
+
+https://github.com/pace-neutrons/Horace
+
+usage:
+  ./build.sh flag1 [flag2 [flag3]...] [option1 argument1 [option2 argument2]...]
+flags:
+  -b, --build
+      Run the Horace build commands.
+  -t, --test
+      Run all Horace tests.
+  -a, --analyze
+      Run static analysis on Horace C++ code.
+  -p, --package
+      Pacakge Horace into a .tar.gz file.
+  -v, --print_versions
+      Print the versions of libraries being used e.g. Matlab.
+  -h, --help
+      Print help message and exit.
+options:
+  -X, --build_tests {\"ON\", \"OFF\"}
+      Whether to build the Horace C++ tests and enable testing via CTest.
+      This must be \"ON\" in order to run tests with this script. [default: ON]
+  -C, --build_config {\"Release\", \"Debug\"}
+      The build configuration passed to CMake [default: Release]
+  -O, --build_dir
+      The directory to write build files into. If the directory does not exist
+      it will be created. [default: build]
+  -F, --cmake_flags
+      Flags to pass to the CMake configure step.
+  -M, --matlab_release
+      The release of Matlab to build and run tests against e.g. R2018b. This
+      Matlab release should also be on your path.
+example:
+  ./build.sh --build --test --build_config Debug
+"
+  echo -e "${help_msg}"
+}
+
 function main() {
   # set default parameter values
   local build=$FALSE
@@ -108,6 +154,7 @@ function main() {
         -a|--analyze) analyze=$TRUE; shift ;;
         -p|--package) package=$TRUE; shift ;;
         -v|--print_versions) print_versions=$TRUE; shift ;;
+        -h|--help) print_help; exit 0 ;;
         # options
         -X|--build_tests) build_tests="$2"; shift; shift ;;
         -C|--build_config) build_config="$2"; shift; shift ;;

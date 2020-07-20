@@ -49,11 +49,11 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             if ~exist('test_name','var')
                 test_name = mfilename('class');
             end
-            if is_jenkins
-                combine_algorithm = 'mex_code'; % disable mpi combine on Jenkins windows
-            else
-                combine_algorithm = 'mpi_code'; % this is what should be tested
+            combine_algorithm = 'mpi_code'; % this is what should be tested
+            if is_jenkins && ispc
+                combine_algorithm = 'mex_code'; % disable mpi combine on Jenkins. It is extreamly slow.
             end
+            %
             obj = obj@gen_sqw_common_config(-1,1,combine_algorithm,'herbert');
             obj = obj@gen_sqw_accumulate_sqw_tests_common(test_name,'herbert');
             obj.print_running_tests = true;
@@ -112,6 +112,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             [task_id_list,init_mess]=JobDispatcher.split_tasks(common_par,loop_par,true,1);
             
             serverfbMPI  = MessagesFilebased('test_gen_sqw_worker');
+            serverfbMPI.set_framework_range(0,2)
             serverfbMPI.mess_exchange_folder = tmp_dir;
             clobm = onCleanup(@()finalize_all(serverfbMPI));
             
@@ -141,6 +142,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             assertTrue(ok==MESS_CODES.ok,err);
             
             res = mes.payload;
+            res = res{1};
             assertEqual(res.grid_size,[50 50 50 50]);
             assertElementsAlmostEqual(res.urange,...
                 [-1.5000 -2.1000 -0.5000 0;0 0 0.5000 35.0000]);
@@ -172,8 +174,8 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             [ok,err]=serverfbMPI.send_message(2,taskInitMessages{2});
             assertEqual(ok,MESS_CODES.ok,err);
             
-            wk_init1= serverfbMPI.get_worker_init('MessagesFilebased',1,2);
-            wk_init2= serverfbMPI.get_worker_init('MessagesFilebased',2,2);
+            wk_init1= serverfbMPI.get_worker_init('MessagesFilebased',1,2,false);
+            wk_init2= serverfbMPI.get_worker_init('MessagesFilebased',2,2,false);
             
             
             [ok,error_mess]=worker_h(wk_init2);
@@ -265,8 +267,8 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             clob1 = onCleanup(@()finalize_all(serverfbMPI));
             
             
-            css1= serverfbMPI.get_worker_init('MessagesFilebases',1,2);
-            css2= serverfbMPI.get_worker_init('MessagesFilebases',2,2);
+            css1= serverfbMPI.get_worker_init('MessagesFilebases',1,2,false);
+            css2= serverfbMPI.get_worker_init('MessagesFilebases',2,2,false);
             % create response filebased framework as would on worker
             
             
@@ -299,40 +301,29 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             assertEqual(ok,MESS_CODES.ok,err);
             
             res = mes.payload;
+            res = res{1};
             assertEqual(res.grid_size,[50 50 50 50]);
             assertElementsAlmostEqual(res.urange,...
-                [-2,-3, -3,-20; 2, 3, 3 15]);
+                [-1,-2,-3,-20;1,2,3,10]);
             
         end
         %------------------------------------------------------------------
-        %         %         % Block of code to disable some tests for debugging Jenkins jobs
-        function test_gen_sqw(obj,varargin)
-            if is_jenkins && ispc
-                warning('test_gen_sqw disabled')
-            else
-                test_gen_sqw@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
-            end
-            
+        % Block of code to disable some tests for debugging Jenkins jobs
+        function test_accumulate_and_combine1to4(obj,varargin)
+            test_accumulate_and_combine1to4@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
         end
-        %         %         function test_accumulate_sqw14(obj,varargin)
-        %         %         end
-        %         %         function test_accumulate_and_combine1to4(obj,varargin)
-        %         %         end
         function test_accumulate_sqw1456(obj,varargin)
-            if is_jenkins && ispc
-                warning('test_accumulate_sqw1456 disabled')
-            else
-                test_accumulate_sqw1456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
-            end
-            
+            test_accumulate_sqw1456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
         end
         function test_accumulate_sqw11456(obj,varargin)
-            if is_jenkins && ispc
-                warning('test_accumulate_sqw11456 disabled')
-            else
-                test_accumulate_sqw11456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
-            end
-            
+            test_accumulate_sqw11456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
         end
+        function test_gen_sqw(obj,varargin)
+            test_gen_sqw@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
+        end
+        function test_accumulate_sqw14(obj,varargin)
+            test_accumulate_sqw14@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
+        end
+        
     end
 end
