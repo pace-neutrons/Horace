@@ -24,14 +24,16 @@ npix_tot =0;
 niter = 0;
 prev_step=0;
 while ibin_end<nbin
-    [messages,task_ids] = mess_exch.receive_all(data_providers,'data');
+    [messages,task_ids] = mess_exch.receive_all(data_providers,'data');    
     if h_log_file
         niter = niter+1;
         npix_received = 0;
-        fprintf(h_log_file,'receiving:\n');
+        fprintf(h_log_file,...
+            '******************** receiving:\n');
         for i=1:numel(messages)
             pl =  messages{i}.payload;
-            fprintf(h_log_file,' lab %d mess N %d, npixels: %d; tid %d\n',...
+            fprintf(h_log_file,...
+                '******************** lab %d mess N %d, npixels: %d; tid %d\n',...
                 pl.lab,pl.messN,pl.npix,task_ids(i));
             
             npix_received = npix_received + pl.npix;
@@ -39,7 +41,9 @@ while ibin_end<nbin
         end
         npix_tot = npix_tot+npix_received;
         
-        fprintf(h_log_file,'************* Step %d Npix received: %d. Total received: %d\n',niter,npix_received,npix_tot);
+        fprintf(h_log_file,...
+            '******************** Step %d Npix received: %d. Total received: %d\n',...
+            niter,npix_received,npix_tot);
     end
     
     if ~all(data_remain) % add empty providers to the list of messages
@@ -54,7 +58,7 @@ while ibin_end<nbin
         end
         messages= exp_messages;
     end
-    [obj,pix_section] = process_messages_fill_cache_(obj,messages);
+    [obj,pix_section] = process_messages_fill_cache_(obj,messages,h_log_file);
     n_pix_written =obj.write_pixels(fout,pix_section,n_pix_written);
     
     ibin_end = obj.pix_cache_.last_bin_processed;
@@ -72,13 +76,15 @@ while ibin_end<nbin
     data_providers = find(data_remain)+1;
     %
     if h_log_file
-        fprintf(h_log_file,' Total npix written %d; ibinend:%d#out of %d\n',...
+        fprintf(h_log_file,...
+            '********************  Total npix written %d; ibinend:%d#out of %d\n',...
             n_pix_written,ibin_end,nbin);
         br = obj.pix_cache_.all_bin_range;
         
-        fprintf(h_log_file,' bin ranges in cache:\n');
+        fprintf(h_log_file,...
+            '********************  bin ranges in cache:\n');
         for j=1:numel(data_remain)
-            fprintf(h_log_file,' %d %d\n',br(1,j),br(2,j));
+            fprintf(h_log_file,'********************  %d %d\n',br(1,j),br(2,j));
         end
     end
     mess_completion(n_pix_written);
