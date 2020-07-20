@@ -240,6 +240,20 @@ methods
             end
         end
     end
+
+    % -- Test helper tests --
+    function test_concatenate_pixel_pages(obj)
+        % This test gives confidence in 'concatenate_pixel_pages' which
+        % 'test_paged_data_returns_same_unary_op_result_as_all_in_memory'
+        % depends upon
+        data = rand(9, 30);
+        npix_in_page = 11;
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        pix.advance();
+
+        joined_pix_array = obj.concatenate_pixel_pages(pix);
+        assertEqual(joined_pix_array, data);
+    end
 end
 
 methods (Static)
