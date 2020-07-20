@@ -41,9 +41,6 @@ classdef hpc_config < config_base
     %
     % Type >> hpc_config  to see the list of current configuration option values.
     %
-    %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-    %
     properties(Dependent)
         % if true, launch separate Matlab session(s) or parallel job to
         % generate tmp files
@@ -218,20 +215,6 @@ classdef hpc_config < config_base
                 end
             end
             if use_mpi
-                pc = parallel_config;
-                pc.saveable = false;
-                old_framework = pc.parallel_framework;
-                try % only MATLAB MPI can be enabled now.
-                    % TODO: check what should be used when C++ mpi is
-                    % ready.
-                    pc.parallel_framework = 'parpool';
-                catch ME
-                    warning('HPC_CONFIG:invalid_argument',...
-                        'can not enable Parallel Computing Toolbox. Error: %s. Ho changes in hpc_config',...
-                        errmsg)
-                    return
-                end
-                pc.parallel_framework = old_framework;
                 config_store.instance().store_config(this,'combine_sqw_using','mpi_code');
             end
         end

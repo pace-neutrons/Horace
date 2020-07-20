@@ -761,6 +761,7 @@ if use_separate_matlab
         common_par,loop_par,true,num_matlab_sessions,keep_parallel_pool_running);
     %
     if n_failed == 0
+        outputs   = outputs{1};
         grid_size = outputs.grid_size;
         urange    = outputs.urange;
     else

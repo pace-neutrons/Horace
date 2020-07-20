@@ -1,4 +1,4 @@
-function  read_inputs_send_to_writer_(obj,common_par,pix_comb_info,fid,h_log_file)
+function  npix_tot = read_inputs_send_to_writer_(obj,common_par,pix_comb_info,fid,h_log_file)
 
 
 % Unpack input structures
@@ -41,10 +41,10 @@ while ibin_end<nbin
     n_pix_2process = npix_in_bins(end);
     if n_pix_2process ==0 % send empty pix section message
         niter = niter+1;
-
+        
         payload = struct('lab',obj.labIndex,'messN',niter,'npix',0,...
             'bin_range',[ibin_start,ibin_end],'pix_tb',[],...
-            'filled_bin_ind',[]);        
+            'filled_bin_ind',[]);
         pix_section_mess  = DataMessage(payload);
         [ok,err_mess]=mess_exch.send_message(1,pix_section_mess);
         if ok ~= MESS_CODES.ok
@@ -72,9 +72,9 @@ while ibin_end<nbin
             filenum,run_label,change_fileno,relabel_with_fnum);
         nbins_end = nbins_start+n_last_fit_bin-1;
         pix_section_mess.payload.bin_range = [nbins_start,nbins_end];
+        npix_tot = npix_tot+pix_section_mess.payload.npix;
         if h_log_file
             pix_section_mess.payload.messN = niter;
-            npix_tot = npix_tot+pix_section_mess.payload.npix;
             fprintf(h_log_file,'**** Processed ranges : [%d , %d], npix: %d#of%d\n',...
                 nbins_start,nbins_end,npix_processed,n_pix_2process);
             fprintf(h_log_file,'     Step %d Sending pixels: %d; Total Sent: ************* %d\n',...
