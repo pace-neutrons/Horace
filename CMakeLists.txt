@@ -23,8 +23,10 @@ list(APPEND CMAKE_MODULE_PATH
 )
 
 # Set some useful global variables
-# this will hold herbert/horace_on.m and worker_v2.m
+# This will hold herbert/horace_on.m and worker_v2.m
 set(LOCAL_INIT_DIR "${CMAKE_BINARY_DIR}/local_init")
+# This sets the destination for mex build artifacts (used in PACE_AddMex)
+set(Horace_DLL_DIRECTORY "${CMAKE_SOURCE_DIR}/horace_core/DLL")
 
 # Set our options
 option(BUILD_TESTS "Build the C++ tests" ON)
@@ -41,10 +43,6 @@ if(${BUILD_TESTS})
     include(PACE_FindGTest)
     enable_testing()
 endif()
-
-# Set the destination of our build artifacts
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 add_subdirectory("_LowLevelCode")
 if(${BUILD_TESTS})
