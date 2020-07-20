@@ -44,6 +44,8 @@ classdef test_change_crystal_1a < TestCase
             dat2recover = hpc.get_data_to_store;
             hpc_restore = onCleanup(@()set(hpc,dat2recover));
             hpc.build_sqw_in_parallel=0;
+            hpc.combine_sqw_using = 'mex_code';
+            
             % -----------------------------------------------------------------------------
             % Add common functions folder to path, and get location of common data
             hor_root = horace_root();

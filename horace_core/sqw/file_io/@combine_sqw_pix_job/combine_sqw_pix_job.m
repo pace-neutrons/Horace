@@ -78,17 +78,18 @@ classdef combine_sqw_pix_job < JobExecutor
             common_par      = obj.common_data_;
             % receive block of the, specific for the given workers
             pix_comb_info   = obj.loop_data_{1};
-            
-            if obj.DEBUG
-                h_log_fl = obj.h_log_file;
-            else
-                h_log_fl = false;
+
+            h_log_fl = obj.ext_log_fh;            
+            if isempty(h_log_fl)
+                h_log_fl  = false;
             end
             
             if obj.labIndex == 1 % writer lab
                 [fout,data_providers,data_remain] = init_writer_job_(obj,pix_comb_info);
                 clob = onCleanup(@()fclose(fout));
                 
+                disp(' DATA PROVIDERS:');
+                disp(data_providers);
                 n_received = receive_data_write_output_(obj,common_par,fout,data_providers,data_remain,h_log_fl);
                 obj.task_outputs = n_received;
                 
