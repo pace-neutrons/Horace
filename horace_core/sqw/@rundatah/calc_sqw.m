@@ -2,9 +2,9 @@ function [w,grid_size,urange,detdcn] = calc_sqw(obj,grid_size_in,urange_in,varar
 % Generate single sqw file from given rundata class.
 %
 % Usage:
-%>>[w,grid_size,urange] = rundata_obj.calc_sqw(grid_size_in,urange_in,varargin);
+%>>[w,grid_size,urange,detdcn] = rundata_obj.calc_sqw(grid_size_in,urange_in,varargin);
 % or
-%>>[w,grid_size,urange] = rundata_obj.calc_sqw(varargin);
+%>>[w,grid_size,urange,detdcn] = rundata_obj.calc_sqw(varargin);
 %
 % Where:
 % rundata_obj -- fully defined rundata object
@@ -44,6 +44,13 @@ function [w,grid_size,urange,detdcn] = calc_sqw(obj,grid_size_in,urange_in,varar
 %                  where there is zero range of the data points)
 %   urange          Actual range of grid - the specified range if it was given,
 %                  or the range of the data if not.
+%  detdcn          [3 x ndet] array of unit vectors, poinitng to the detector's
+%                  positions in the spectrometer coordinate system (X-axis
+%                  along the beam direction). ndet -- number of detectors 
+%                  Can be later assigned to the next rundata object
+%                  property "detdcn_cache" to accelerate calculations. (not
+%                  fully implemented and currently workis with Matlab code
+%                  only)
 %
 keys_recognized = {'-cache_detectors','-qspec'};
 [ok,mess,cache_detectors,cache_q_vectors] = parse_char_options(varargin,keys_recognized);
@@ -90,8 +97,8 @@ else
     if isempty(grid_size_in)
         grid_size_in = [50,50,50,50];
     else
-        if size(grid_size_in) ~= [1,4]
-            if size(grid_size_in) == [4,1]
+        if any(size(grid_size_in) ~= [1,4])
+            if all(size(grid_size_in) == [4,1])
                 grid_size_in = grid_size_in';
             else
                 error('RUNDATA:invalid_argument',...
