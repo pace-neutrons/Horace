@@ -409,7 +409,7 @@ classdef JobExecutor
             mess_with_err = process_fail_state_(obj,ME,varargin{:});
         end
         
-        function migrate_job_folder(obj,delete_old_folder)
+        function obj=migrate_job_folder(obj,delete_old_folder)
             % the function user to change location of message exchane
             % folder when task is completed and new task should start.
             %
@@ -486,7 +486,24 @@ classdef JobExecutor
                 internode_exchange  = mf;
             end
         end
-        
+        %
+        function report_cluster_ready(fbMPI, intercomm)
+            % When MPI framework was initialized, collect starting messages
+            % from all neighboring nodes and inform the server that the
+            % cluster have started.
+            %
+            %Inputs:
+            %fbMPI -- fully initialized file-based messages exchange
+            %         framework, used for communicating between cluster and
+            %         the Matlab session, which lounching it.
+            % intercomm -- fully initalized MPI framework, used for
+            %          communications between cluster's nodes
+            %
+            % Throws if all messages were not received within the time-out
+            % period
+            %
+            report_cluster_ready_(fbMPI, intercomm);
+        end
     end
     
 end

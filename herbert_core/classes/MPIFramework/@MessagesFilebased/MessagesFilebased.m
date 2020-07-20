@@ -180,7 +180,7 @@ classdef MessagesFilebased < iMessagesFramework
             end
             
             if ((ischar(mess_name) && ~strcmp(mess_name,'any')) || ...
-                    (isnumeric(mess_name) && mess_name ~=-1)) && ~ispc % exist on Windows locks files.
+                    (isnumeric(mess_name) && mess_name ~=-1)) %&& ~ispc % exist on Windows locks files.
                 % performance boosting operation, especially important for
                 % Windows, as dir locks message files there.
                 [all_messages_names,task_ids] = list_specific_messages_(obj,task_ids_in,mess_name);
@@ -286,10 +286,10 @@ classdef MessagesFilebased < iMessagesFramework
             if npos  > 10
                 number_pos = number_pos(end-9:end);
             end
-            if isempty(number_pos) % build new random numeric
-                % extension
-                job_num = str2double(obj.get_framework_id());
-                new_job_id = [old_job_id,'_',num2str(job_num)];
+            if isempty(number_pos) % build defined! numeric extension
+                % as independent workers would migrate into different
+                % folders otherwise
+                new_job_id = [old_job_id,'_01'];
             else
                 job_num = str2double(old_job_id(number_pos));
                 job_num = job_num+obj.folder_migration_shift;

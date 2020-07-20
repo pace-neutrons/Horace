@@ -35,7 +35,7 @@ classdef ClusterWrapper
         % Matlab workers should finish when parallel job ends.
         exit_worker_when_job_ends;
         % The name of the framework, used for message exchange within the
-        % cluster
+        % cluster. Property used in debugging to change default framework
         pool_exchange_frmwk_name
     end
     properties(Access = protected)
@@ -129,6 +129,7 @@ classdef ClusterWrapper
             
             obj = obj.init(n_workers,mess_exchange_framework,log_level);
         end
+        %
         function obj = set_mess_exchange(obj,mess_exchange)
             if ~isa(mess_exchange,'iMessagesFramework')
                 error('CLUSTER_WRAPPER:invalid_argument',...
@@ -136,6 +137,52 @@ classdef ClusterWrapper
                     evalc('disp(mess_exchange)'));
             end
             obj.mess_exchange_ = mess_exchange;
+        end
+        %
+        function obj=wait_started_and_report(obj,varargin)
+            % check for 'ready' message and report cluster ready to user.
+            % if not ready for some reason, report the failure and
+            % diagnostics.
+            %
+            info = [ 'Initializing parallel cluster: ',class(obj)];
+            state = StartingMessage();
+            state.payload = info;
+            obj.status = state;
+            obj = obj.display_progress(info ,varargin{:});
+            try
+                [ok,err,mess]=obj.mess_exchange_.receive_message(1,'ready','-synch');
+            catch ME
+                info = sprintf('Parallel cluster: %s initialization have failed.',...
+                    class(obj));
+                obj.status = FailedMessage(info,ME);
+                info = sprintf('%s\n     Reason:\n\n %s',info,ME.getReport());
+                obj = obj.display_progress(info,varargin{:});
+                return;
+            end
+            
+            if ok ~= MESS_CODES.ok
+                error('CLUSTER_WRAPPER:runtine_error',...
+                    'Can not receive message "ready". Readon: %s',...
+                    err);
+            end
+            [completed,obj] = obj.check_progress(mess);
+            if completed
+                info = sprintf('Parallel cluster: %s initialization have failed',...
+                    class(obj));
+                if isa(mess.payload,'MException')
+                    info = sprintf('%s\n     Reason: %s',...
+                        info,mess.payload.getReport());
+                elseif ~isempty(mess.fail_text)
+                    info = sprintf('%s\n     Reason: %s',...
+                        info,mess.fail_text);
+                end
+                obj = obj.display_progress(info,varargin{:});
+            else
+                obj.status = 'ready';
+                info = sprintf('Parallel cluster %s is ready to accept jobs',...
+                    class(obj));
+                obj = obj.display_progress(info,varargin{:});
+            end
         end
         function obj = init(obj,n_workers,mess_exchange_framework,log_level)
             % The method to initiate the cluster wrapper
@@ -257,7 +304,11 @@ classdef ClusterWrapper
                 end
             end
             if display_log
-                fprintf(obj.log_value);
+                if numel(obj.log_value) > 4*obj.LOG_MESSAGE_LENGHT
+                    disp(obj.log_value)
+                else
+                    fprintf(obj.log_value);
+                end
             end
         end
         %
@@ -282,6 +333,7 @@ classdef ClusterWrapper
             % retrieve parallel job results
             [outputs,n_failed,obj] = get_job_results_(obj);
         end
+        %
         function check_availability(~)
             % verify the availability of a particular type of framework
             % (cluster)
@@ -362,6 +414,11 @@ classdef ClusterWrapper
         %
         function name = get.pool_exchange_frmwk_name(obj)
             name = obj.pool_exchange_frmwk_name_;
+        end
+        function frmwk = get_exchange_framework(obj)
+            % get framework used for data exchange between running cluster
+            % and control node.
+            frmwk = obj.mess_exchange_;
         end
     end
     
