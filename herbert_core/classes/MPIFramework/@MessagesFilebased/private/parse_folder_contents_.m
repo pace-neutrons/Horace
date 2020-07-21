@@ -97,8 +97,8 @@ end
 end
 function dn = extract_datenum(f_info)
 dn = f_info.datenum;
-if ~isnumeric(dn)
-    warning(' Non-numeric datenum for file %s in folder %s; Contains: %s',...
+if ~isnumeric(dn) || numel(dn) > 1
+    warning(' Non-numeric or non-scalar datenum for file %s in folder %s; Contains: %s',...
         fevalc('disp(f_info.name)'),fevalc('disp(f_info.folder)'),fevalc('disp(f_info.datenum)'));
     dn = NaN;
 end

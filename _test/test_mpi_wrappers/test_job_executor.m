@@ -264,8 +264,10 @@ classdef test_job_executor< MPI_Test_Common
             % start two client jobs
             % second needs to start first as it will report its profess to
             % the lab1
-            [~,~,je]=obj.worker_h(css2);
-            obj.worker_h(css1);
+            [~,~,je2]=obj.worker_h(css2);
+            assertFalse(isempty(je2))
+            [~,~,je1]=obj.worker_h(css1);
+            assertFalse(isempty(je1))            
             
             [ok,err_mess,mess]=serverfbMPI.receive_message(1,'ready');
             assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
@@ -294,7 +296,7 @@ classdef test_job_executor< MPI_Test_Common
             % this will delete the message folder where workers have
             % migrated to 
             % the clean-up should clear the rest.
-            rmdir(je.mess_framework.mess_exchange_folder,'s');
+            rmdir(je2.mess_framework.mess_exchange_folder,'s');
             %rmdir(serverfbMPI.next_message_folder_name,'s');
             
         end
@@ -817,7 +819,7 @@ classdef test_job_executor< MPI_Test_Common
             
             pid = int64(feature('getpid'));
             log_file = fullfile(getuserdir,...
-                sprintf('WORKER_V2_pid%i_INIT_failure.log',pid));
+                sprintf('WORKER_V2_Process_%d_failure.log',pid));
             assertTrue(exist(log_file,'file')==2);
             delete(log_file);
         end
@@ -874,12 +876,13 @@ classdef test_job_executor< MPI_Test_Common
             
             worker_name = obj.worker;
             [ok,err,je]=feval(worker_name,css1);
+            assertFalse(isempty(je));
             assertFalse(ok);
             assertTrue(isa(err,'MException'));
             
             pid = int64(feature('getpid'));
             log_file = fullfile(getuserdir,...
-                sprintf('WORKER_V2_pid%i_Node#%d_failure.log',pid,je.labIndex));
+                sprintf('WORKER_V2_Process_%d_failure.log',pid));
             
             assertTrue(exist(log_file,'file')==2)
             delete(log_file)

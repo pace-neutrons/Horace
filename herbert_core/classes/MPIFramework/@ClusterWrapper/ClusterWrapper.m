@@ -152,7 +152,7 @@ classdef ClusterWrapper
             try
                 [ok,err,mess]=obj.mess_exchange_.receive_message(1,'ready','-synch');
             catch ME
-                info = sprintf('Parallel cluster: %s initialization have failed.',...
+                info = sprintf('Parallel cluster: "%s" initialization have failed.',...
                     class(obj));
                 obj.status = FailedMessage(info,ME);
                 info = sprintf('%s\n     Reason:\n\n %s',info,ME.getReport());
@@ -167,7 +167,7 @@ classdef ClusterWrapper
             end
             [completed,obj] = obj.check_progress(mess);
             if completed
-                info = sprintf('Parallel cluster: %s initialization have failed',...
+                info = sprintf('Parallel cluster: "%s" initialization have failed',...
                     class(obj));
                 if isa(mess.payload,'MException')
                     info = sprintf('%s\n     Reason: %s',...
@@ -179,7 +179,7 @@ classdef ClusterWrapper
                 obj = obj.display_progress(info,varargin{:});
             else
                 obj.status = 'ready';
-                info = sprintf('Parallel cluster %s is ready to accept jobs',...
+                info = sprintf('Parallel cluster "%s" is ready to accept jobs',...
                     class(obj));
                 obj = obj.display_progress(info,varargin{:});
             end
