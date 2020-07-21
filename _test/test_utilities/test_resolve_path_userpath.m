@@ -26,7 +26,11 @@ classdef test_resolve_path_userpath< TestCase
             
             home = getuserdir();
             home2 = resolve_path('~');
-            
+            if ~strcmp(home,home2)
+                file=java.io.File(home );
+                home = [char(file.getCanonicalPath()),filesep];
+            end
+            assertEqual(home,home2, [' non-equal dirs: ',home,' and ', home2]);
         end
 
         

@@ -10,11 +10,11 @@ end
 
 file=java.io.File(filename);
 fullpath = char(file.getCanonicalPath());
-if fullpath(end) == '~'
+if isunix && fullpath(end) == '~'
     fullpath = fullpath(1:end-1);
 end
 
-if file.exists()
+if exist(fullpath,'file') > 0
     return
 else
     error('RESOLVE_PATH:runtime_error',...
