@@ -6,7 +6,7 @@ function [pc_type,nproc,mem_size] = find_comp_type_(obj)
 % Does not currently identify number of processors properly. Only rough
 % estimate or no estimate at all. (Dealt with this issue elsewhere, but future
 % improvements/merging may be necessary to address this)
-% 
+%
 
 types = obj.known_pc_types_;
 Gb = 1024*1024*1024;
@@ -59,15 +59,12 @@ elseif isunix
     if numel(rez)>2; hpc_computer = true;
     else;          hpc_computer = false;
     end
-    is_virtual = is_idaaas();
+    [is_virtual,type] = is_idaaas();
     if is_virtual
-        cpu_pos = strfind(mess,'CPU(s)');
-        mess = strsplit(mess(cpu_pos(1):end));
-        n_cpu = str2double(mess{2});
-        if n_cpu <10        
-            n_profile = 6; %small iDaaaS machine
+        if strcmpi(type,'idaas_large')
+            n_profile = 7; % iDaaaS large
         else
-            n_profile = 7; %large iDaaaS machine            
+            n_profile = 6; % iDaaaS small
         end
     else
         n_profile = 4; % normal unix machine
