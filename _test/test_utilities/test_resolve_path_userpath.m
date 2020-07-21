@@ -10,6 +10,16 @@ classdef test_resolve_path_userpath< TestCase
             end
             obj = obj@TestCase(name);
         end
+        function test_options_resolve_local(~)
+            this_test = 'test_resolve_path_userpath.m';
+            expected = mfilename('fullpath');
+            
+            actual = resolve_path(this_test);
+            
+            assertEqual(actual, expected);
+            
+        end
+        
         
         function test_options_resolve_substr(~)
             this_test = fileparts(mfilename('fullpath'));
@@ -27,6 +37,10 @@ classdef test_resolve_path_userpath< TestCase
             
             expected = getuserdir();
             actual = resolve_path('~');
+            if ~strcmp(expected,actual) % resolve simulink, referred by expected
+                file = java.io.File(expected);
+                expected = [char(file.getCanonicalPath()),filesep];
+            end
             assertEqual(expected, actual, [' non-equal dirs: ',expected, ' and ', actual]);
         end
 
