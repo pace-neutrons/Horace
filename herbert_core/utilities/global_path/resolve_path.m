@@ -1,6 +1,10 @@
-function fullpath = resolve_path(filename)
+function [fullpath,ok] = resolve_path(filename)
 % Function to resolve full path to a file or a folder
 %
+% Returns:
+% Full path to the file
+% ok -- if file exist and can be resolved, ok==true
+%       if false, file not exist
 %
 if ~ischar(filename)
     error('RESOLVE_PATH:invalid_argument',...
@@ -30,9 +34,14 @@ end
 fullpath = char(file.getCanonicalPath());
 
 if exist(fullpath,'file') > 0
+    ok = true;
     return
 else
-    error('RESOLVE_PATH:runtime_error',...
-        'Does not exist or failed to resolve absolute path for "%s"',...
-        filename);
+    if nargout<2
+        error('RESOLVE_PATH:runtime_error',...
+            'Does not exist or failed to resolve absolute path for "%s"',...
+            filename);
+    else
+        ok = false;
+    end
 end
