@@ -20,7 +20,12 @@ if isunix
         end
     end
 else
-    file = java.io.File(filename);
+    if exist(fullfile(pwd(),filename),'file') > 0
+        fullpath = fullfile(pwd(),filename);
+        file = java.io.File(fullpath);
+    else
+        file = java.io.File(filename);
+    end
 end
 fullpath = char(file.getCanonicalPath());
 
