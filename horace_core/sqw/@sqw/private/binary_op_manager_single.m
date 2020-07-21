@@ -201,10 +201,6 @@ elseif isa(w1, 'double') && ~isa(w2, 'double')
                    'with same size as object signal']);
         end
     end
-
-else
-    error('SQW:binary_op_manager_single', ...
-          'Binary operations between objects and doubles only defined')
 end
 
 end
