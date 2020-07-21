@@ -148,9 +148,10 @@ if tf && ~isempty(strtrim(sqw_file))
 else
     ok=false; mess='sqw file name must be a non-empty string'; return
 end
+[sqw_file_out,file_exist] = resolve_path(sqw_file_out);
 
 % Check sqw file exist
-if ~exist(sqw_file_out,'file')
+if ~file_exist
     sqw_exist=false;
     if require_sqw_exist
         ok=false; mess=['sqw file: ',sqw_file_out,' does not exist']; return
