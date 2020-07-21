@@ -31,8 +31,9 @@ if ~isa(w1, 'double') && ~isa(w2, 'double')
             end
             wout = do_binary_op_2_sqw(w1, w2, binary_op);
         else
-            error(['sqw type objects must have commensurate array dimensions ' ...
-                   'for binary operations']);
+            error('SQW:binary_op_manager_single', ...
+                  ['sqw type objects must have commensurate array ' ...
+                   'dimensions for binary operations']);
         end
 
     elseif (isa(w1, classname) && is_sqw_type(w1))
@@ -66,8 +67,9 @@ if ~isa(w1, 'double') && ~isa(w2, 'double')
             wout.data.pix.variance = result.e;
             wout = recompute_bin_data(wout);
         else
-            error(['Check that the numeric variable is scalar or array with ' ...
-                   'same size as object signal']);
+            error('SQW:binary_op_manager_single', ...
+                  ['Check that the numeric variable is scalar or array ' ...
+                   'with same size as object signal']);
         end
 
     elseif (isa(w2, classname) && is_sqw_type(w2))
@@ -101,8 +103,9 @@ if ~isa(w1, 'double') && ~isa(w2, 'double')
             wout.data.pix.variance = result.e;
             wout = recompute_bin_data(wout);
         else
-            error(['Check that the numeric variable is scalar or array with ' ...
-                   'same size as object signal']);
+            error('SQW:binary_op_manager_single', ...
+                  ['Check that the numeric variable is scalar or array ' ...
+                   'with same size as object signal']);
         end
 
     else % one or both are dnd-type
@@ -124,7 +127,8 @@ if ~isa(w1, 'double') && ~isa(w2, 'double')
             result = binary_op(sigvar(w1), sigvar(w2));
             wout = sigvar_set(wout, result);
         else
-            error('Sizes of signal arrays in the objects are different')
+            error('SQW:binary_op_manager_single', ...
+                  'Sizes of signal arrays in the objects are different')
         end
 
     end
@@ -147,8 +151,9 @@ elseif ~isa(w1, 'double') && isa(w2, 'double')
             wout.data.pix.variance = result.e;
             wout = recompute_bin_data(wout);
         else
-            error(['Check that the numeric variable is scalar or array with ' ...
-                   'same size as object signal']);
+            error('SQW:binary_op_manager_single', ...
+                  ['Check that the numeric variable is scalar or array ' ...
+                   'with same size as object signal']);
         end
 
     else
@@ -157,8 +162,9 @@ elseif ~isa(w1, 'double') && isa(w2, 'double')
             result = binary_op(sigvar(w1), sigvar(w2, []));
             wout = sigvar_set(wout, result);
         else
-            error(['Check that the numeric variable is scalar or array with ' ...
-                   'same size as object signal']);
+            error('SQW:binary_op_manager_single', ...
+                  ['Check that the numeric variable is scalar or array ' ...
+                   'with same size as object signal']);
         end
     end
 
@@ -179,8 +185,9 @@ elseif isa(w1, 'double') && ~isa(w2, 'double')
             wout.data.pix.variance = result.e;
             wout = recompute_bin_data(wout);
         else
-            error(['Check that the numeric variable is scalar or array with ' ...
-                   'same size as object signal']);
+            error('SQW:binary_op_manager_single', ...
+                  ['Check that the numeric variable is scalar or array ' ...
+                   'with same size as object signal']);
         end
 
     else
@@ -189,13 +196,15 @@ elseif isa(w1, 'double') && ~isa(w2, 'double')
             result = binary_op(sigvar(w1, []), sigvar(w2));
             wout = sigvar_set(wout, result);
         else
-            error(['Check that the numeric variable is scalar or array with ' ...
-                   'same size as object signal']);
+            error('SQW:binary_op_manager_single', ...
+                  ['Check that the numeric variable is scalar or array '
+                   'with same size as object signal']);
         end
     end
 
 else
-    error('binary operations between objects and doubles only defined')
+    error('SQW:binary_op_manager_single', ...
+          'Binary operations between objects and doubles only defined')
 end
 
 end
@@ -245,5 +254,6 @@ function throw_npix_mismatch_error(w1, w2)
 
     disp(['  Total number of pixels in left operand is ', ...
           num2str(npix1), ' and in right operand is ', num2str(npix2)])
-    error('Two sqw objects have different npix numbers ')
+    error('SQW:binary_op_manager_single', ...
+          'Two sqw objects have different npix numbers.')
 end
