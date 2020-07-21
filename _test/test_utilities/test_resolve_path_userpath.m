@@ -12,7 +12,7 @@ classdef test_resolve_path_userpath< TestCase
         end
         function test_options_resolve_local(~)
             this_test = 'test_resolve_path_userpath.m';
-            expected = mfilename('fullpath');
+            expected = [mfilename('fullpath'),'.m'];
             
             actual = resolve_path(this_test);
             
@@ -39,7 +39,7 @@ classdef test_resolve_path_userpath< TestCase
             actual = resolve_path('~');
             if ~strcmp(expected,actual) % resolve simulink, referred by expected
                 file = java.io.File(expected);
-                expected = [char(file.getCanonicalPath()),filesep];
+                expected = char(file.getCanonicalPath());
             end
             assertEqual(expected, actual, [' non-equal dirs: ',expected, ' and ', actual]);
         end
