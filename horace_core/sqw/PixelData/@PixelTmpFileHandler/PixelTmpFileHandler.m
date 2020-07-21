@@ -89,8 +89,9 @@ methods
         new_dir_path = obj.generate_tmp_dir_path_(target_pix_id);
         [status, err_msg] = copyfile(obj.tmp_dir_path_, new_dir_path);
         if status == 0
-            error('Could not copy tmp files from ''%s'' to ''%s'':\n%s', ...
-                    obj.tmp_dir_path_, new_dir_path, err_msg);
+            error('PIXELDATA:copy_folder', ...
+                  'Could not copy PixelData tmp files from ''%s'' to ''%s'':\n%s', ...
+                  obj.tmp_dir_path_, new_dir_path, err_msg);
         end
     end
 

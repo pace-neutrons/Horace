@@ -26,7 +26,10 @@ classdef PixelData < handle
 %   required. If editing pixels, to avoid losing changes, if a page has been
 %   edited and the next page is then loaded, the "dirty" page will be written
 %   to a tmp file. This class's getters will then retrieve data from the tmp
-%   file if that data is requested from the "dirty" page.
+%   file if that data is requested from the "dirty" page. Note that "dirty"
+%   pages are written to tmp files as floats, but stored in memory as double.
+%   This means data is truncated when moving pages, hence pixel data should not
+%   be relied upon being accurate to double precision.
 %
 % Usage:
 %
@@ -324,6 +327,7 @@ methods
 
     % --- Pixel operations ---
     [mean_signal, mean_variance] = compute_bin_data(obj, npix)
+    obj = do_unary_op(obj, unary_op);
 
     % --- Data management ---
     function data = get_data(obj, fields, pix_indices)
@@ -685,16 +689,13 @@ methods (Access=private)
     function obj = load_clean_page_(obj, page_number)
         % Load the given page of data from the sqw file backing this object
         pix_idx_start = (page_number - 1)*obj.max_page_size_ + 1;
-        if pix_idx_start >= obj.num_pixels
+        if pix_idx_start > obj.num_pixels
             error('PIXELDATA:load_page_', ...
                   'pix_idx_start exceeds number of pixels in file. %i >= %i', ...
                   pix_idx_start, obj.num_pixels);
         end
         % Get the index of the final pixel to read given the maximum page size
-        pix_idx_end = pix_idx_start + obj.max_page_size_ - 1;
-        if pix_idx_end > obj.num_pixels
-            pix_idx_end = obj.num_pixels;
-        end
+        pix_idx_end = min(pix_idx_start + obj.max_page_size_ - 1, obj.num_pixels);
 
         obj.data_ = obj.f_accessor_.get_pix(pix_idx_start, pix_idx_end);
         if obj.page_size == obj.num_pixels

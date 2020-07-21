@@ -838,6 +838,20 @@ methods
         assertEqual(pix.data, ones(obj.NUM_COLS_IN_PIX_BLOCK, npix_in_page));
     end
 
+    function test_pixels_read_correctly_if_final_pg_has_1_pixel(obj)
+        data = rand(9, 10);
+        npix_in_page = 3;
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+        assertEqual(pix.data, data(:, 1:3));
+        pix.advance();
+        assertEqual(pix.data, data(:, 4:6));
+        pix.advance();
+        assertEqual(pix.data, data(:, 7:9));
+        pix.advance();
+        assertEqual(pix.data, data(:, 10));
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
