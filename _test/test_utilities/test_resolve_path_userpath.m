@@ -15,22 +15,19 @@ classdef test_resolve_path_userpath< TestCase
             this_test = fileparts(mfilename('fullpath'));
             
             one_up = fileparts(this_test);
+            actual = resolve_path([this_test, filesep, '..']);
             
-            assertEqual(resolve_path([this_test,filesep,'..']),one_up);
+            assertEqual(actual, one_up);
             
         end
-        function test_resolve_home(~)
+        function test_resolve_home_dir(~)
             if ~isunix
                 return;                
             end
             
-            home = getuserdir();
-            home2 = resolve_path('~');
-            if ~strcmp(home,home2)
-                file=java.io.File(home );
-                home = [char(file.getCanonicalPath()),filesep];
-            end
-            assertEqual(home,home2, [' non-equal dirs: ',home,' and ', home2]);
+            expected = getuserdir();
+            actual = resolve_path('~');
+            assertEqual(expected, actual, [' non-equal dirs: ',expected, ' and ', actual]);
         end
 
         

@@ -8,11 +8,16 @@ if ~ischar(filename)
         fevalc('disp(filename)'))
 end
 
-file=java.io.File(filename);
-fullpath = char(file.getCanonicalPath());
-if isunix && fullpath(end) == '~'
-    fullpath = fullpath(1:end-1);
+if isunix
+    if filename(1) == '~'  % homedir
+        file = java.io.File(getuserdir(), filename(2:end));
+    else
+        file = java.io.File(pwd(), filename);
+    end
+else
+  file = java.io.File(filename);
 end
+fullpath = char(file.getCanonicalPath());
 
 if exist(fullpath,'file') > 0
     return
