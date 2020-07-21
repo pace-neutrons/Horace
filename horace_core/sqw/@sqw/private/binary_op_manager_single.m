@@ -18,8 +18,9 @@ if ~ismember(class(w1), allowed_types) || ~ismember(class(w2), allowed_types)
            '''%s'' and ''%s''.'], class(w1), class(w2));
 end
 
-if ~isa(w1,'double') && ~isa(w2,'double')
-    if (isa(w1,classname) && is_sqw_type(w1)) && (isa(w2,classname) && is_sqw_type(w2))
+if ~isa(w1, 'double') && ~isa(w2, 'double')
+    if (isa(w1, classname) && is_sqw_type(w1)) ...
+            && (isa(w2, classname) && is_sqw_type(w2))
         % w1 and w2 are both sqw-type sqw objects
         [n1, sz1] = dimensions(w1);
         [n2, sz2] = dimensions(w2);
