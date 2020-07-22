@@ -108,7 +108,7 @@ if ~isempty(par_file)
     else
         ok=false; mess='If given, par filename  must be a non-empty string'; return
     end
-    if det_par_file        
+    if det_par_file
         % Check par file exists
         [~,~,ext]=fileparts(par_file_out);
         if any(strcmpi(ext,[ext_horace,'.spe']))
@@ -123,7 +123,7 @@ if ~isempty(par_file)
     else
         pf = {'filename','filepath','group','x2','phi','azim','width','height'};
         if ~all(isfield(par_file,pf))
-            ok=false; mess='Detector parameter information should be in Horace par_file format'; return            
+            ok=false; mess='Detector parameter information should be in Horace par_file format'; return
         end
         par_file_out = par_file.filename;
     end
@@ -159,6 +159,13 @@ if ~file_exist
     pathsqw=fileparts(sqw_file_out);
     if ~isempty(pathsqw) && ~exist(pathsqw,'dir')
         ok=false; mess='Cannot find folder into which to output the sqw file'; return
+    end
+    fh = fopen(sqw_file_out,'w');
+    if fh>0
+        fclose(fh);
+        delete(sqw_file_out);
+    else
+        ok = false; mess= sprintf('Cannot open file %s for writing',sqw_file_out'); return
     end
 else
     sqw_exist=true;
