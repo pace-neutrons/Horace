@@ -97,6 +97,7 @@ if (version<7.1)
   error('Your MATLAB version is too old. You need version 7.1 or newer.');
 end
 
+
 %% read user preferences
 if (nargin>1)
   if (isfield(Pref, 'TableName')), DPref.TableName = Pref.TableName; end
@@ -112,13 +113,14 @@ if (nargin>1)
   if (isfield(Pref, 'Debug'    )), Debug           = Pref.Debug   ;  end
   if (isfield(Pref, 'PreserveSpace')), DPref.PreserveSpace = Pref.PreserveSpace; end
 end
-if ischar(DPref.Str2Num), % convert from character description to numbers
+if ischar(DPref.Str2Num) % convert from character description to numbers
   DPref.Str2Num = find(strcmpi(DPref.Str2Num, {'never', 'smart', 'always'}))-1;
   if isempty(DPref.Str2Num), DPref.Str2Num=1; end % 1-smart by default
 end
 
+
 %% read xml file using Matlab function
-if isa(xmlfile, 'org.apache.xerces.dom.DeferredDocumentImpl');
+if isa(xmlfile, 'org.apache.xerces.dom.DeferredDocumentImpl')
   % if xmlfile is a DOMnode than skip the call to xmlread
   try
     try
@@ -137,7 +139,8 @@ else         % we assume xmlfile is a filename
       try
         DOMnode = xmlread(xmlfile);
       catch ME
-        error('Failed to read XML file %s: \n%s',xmlfile, getReport(ME));
+          disp(getReport(ME))
+          error('Failed to read XML file %s: \n',xmlfile);
       end
     catch %#ok<CTCH> catch for mablab versions prior to 7.5
       error('Failed to read XML file %s\n',xmlfile);

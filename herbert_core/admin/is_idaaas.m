@@ -35,8 +35,14 @@ if nargout>1 && is_daas
         return;
     end
     
-    rez=strfind(mess,'NUMA node');
-    if numel(rez)>2; size_suffix = 'idaas_large';
-    else;            size_suffix = 'idaas_small';
-    end        
+    cpu_pos = strfind(mess,'CPU(s)');
+    mess = strsplit(mess(cpu_pos(1):end));
+    n_cpu = str2double(mess{2});
+    if n_cpu <10
+        size_suffix = 'idaas_small';
+    else
+        size_suffix = 'idaas_large';
+    end
 end
+
+
