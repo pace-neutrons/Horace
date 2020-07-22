@@ -96,7 +96,7 @@ if combine_in_parallel && isempty(job_disp) % define name of new parallel job an
     if numel(fn) > 8
         fn = fn(1:8);
     end
-    job_name = ['N_sqw_to_sqw_',fn];
+    job_name = ['job_nsqw2sqw_',fn];
     %
     job_disp = JobDispatcher(job_name);
 end
@@ -248,6 +248,22 @@ sqw_data.npix=uint64(npix_accum);
 
 clear nopix
 
+[outfile,file_exist] = resolve_path(outfile);
+if ~file_exist % file not exist or path to file can not be resolved
+    file_path = fileparts(outfile);
+    if ~isempty(file_path) && ~(exist(file_path,'dir') == 7)
+        error('WRITE_NSQW_TO_SQW:invalid_argument',....
+            'Can not find folder to write file %s',outfile);
+    end
+    fh = fopen(outfile,'w');
+    if fh>0
+        fclose(fh);
+        delete(outfile);
+    else
+        error('WRITE_NSQW_TO_SQW:runtime_error',....
+            'Cannot open file %s for writing',outfile);
+    end
+end
 
 
 % Write to output file
