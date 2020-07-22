@@ -47,7 +47,7 @@ foreach(_test_dir ${TEST_DIRECTORIES})
     set(TEST_NAME "Matlab.${_test_dir}")
     if("${_test_dir}" STREQUAL "test_sqw")
         set(TEST_TIMEOUT_LENGTH "1500")  # 25 minutes
-    elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow ")
+    elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow")
         set(TEST_TIMEOUT_LENGTH "1500")  # 25 minutes
     elseif("${_test_dir}" STREQUAL "test_tobyfit")
         set(TEST_TIMEOUT_LENGTH "3000")  # 50 minutes ?
