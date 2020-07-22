@@ -19,94 +19,20 @@ if ~ismember(class(w1), allowed_types) || ~ismember(class(w2), allowed_types)
 end
 
 if ~isa(w1, 'double') && ~isa(w2, 'double')
-    if (isa(w1, classname) && is_sqw_type(w1)) ...
-            && (isa(w2, classname) && is_sqw_type(w2))
-        % w1 and w2 are both sqw-type sqw objects
-        [n1, sz1] = dimensions(w1);
-        [n2, sz2] = dimensions(w2);
 
-        if n1 == n2 && all(sz1 == sz2)
-            if any(w1.data.npix(:) ~= w2.data.npix(:))
-                throw_npix_mismatch_error(w1, w2);
-            end
-            wout = do_binary_op_2_sqw(w1, w2, binary_op);
-        else
-            error('SQW:binary_op_manager_single', ...
-                  ['sqw type objects must have commensurate array ' ...
-                   'dimensions for binary operations']);
-        end
+    if isa(w1, 'sqw') && isa(w2, 'sqw')
+        % Both inputs SQW objects
+        wout = do_binary_op_2_sqw(w1, w2, binary_op);
 
     elseif (isa(w1, classname) && is_sqw_type(w1))
         % w1 is sqw-type, but w2 could be anything that is not a double e.g.
         % dnd-type sqw object, or a d2d object, or sigvar object etc.
-        sz = sigvar_size(w2);
-        if isequal([1, 1], sz) || isequal(size(w1.data.npix), sz)
-            wout = w1;
-            % Need to remove bins with npix=0 in the non-sqw object in the
-            % binary operation
-            if isa(w2, classname) || isa(w2, 'd0d') || isa(w2, 'd1d') || ...
-                    isa(w2, 'd2d') || isa(w2, 'd3d') || isa(w2, 'd4d')
-                if isa(w2, classname)% must be a dnd-type sqw object
-                    omit = logical(w2.data.npix);
-                else % must be a d0d,d1d...
-                    omit = logical(w2.npix);
-                end
-                wout = mask(wout, omit);
-            end
-
-            wtmp = sigvar(w2);
-            if ~isequal([1, 1], sz)
-                stmp = replicate_array(wtmp.s, wout.data.npix)';
-                etmp = replicate_array(wtmp.e, wout.data.npix)';
-                wtmp = sigvar(stmp, etmp);
-            end
-
-            result = binary_op( ...
-                sigvar(wout.data.pix.signal, wout.data.pix.variance), wtmp);
-            wout.data.pix.signal = result.s;
-            wout.data.pix.variance = result.e;
-            wout = recompute_bin_data(wout);
-        else
-            error('SQW:binary_op_manager_single', ...
-                  ['Check that the numeric variable is scalar or array ' ...
-                   'with same size as object signal']);
-        end
+        wout = do_binary_op_sqw_and_non_double(w1, w2, binary_op);
 
     elseif (isa(w2, classname) && is_sqw_type(w2))
         % w2 is sqw-type, but w1 could be anything that is not a double e.g.
         % dnd-type sqw object, or a d2d object, or sigvar object etc.
-        sz = sigvar_size(w1);
-        if isequal([1, 1], sz) || isequal(size(w2.data.npix), sz)
-            wout = w2;
-            % Need to remove bins with npix=0 in the non-sqw object in the
-            % binary operation
-            if isa(w1, classname) || isa(w1, 'd0d') || isa(w1, 'd1d') || ...
-                    isa(w1, 'd2d') || isa(w1, 'd3d') || isa(w1, 'd4d')
-                if isa(w1, classname)% must be a dnd-type sqw object
-                    omit = logical(w1.data.npix);
-                else % must be a d0d,d1d...
-                    omit = logical(w1.npix);
-                end
-                wout = mask(wout, omit);
-            end
-
-            wtmp = sigvar(w1);
-            if ~isequal([1, 1], sz)
-                stmp = replicate_array(wtmp.s, wout.data.npix)';
-                etmp = replicate_array(wtmp.e, wout.data.npix)';
-                wtmp = sigvar(stmp, etmp);
-            end
-
-            result = binary_op(wtmp, sigvar(wout.data.pix.signal, ...
-                                            wout.data.pix.variance));
-            wout.data.pix.signal = result.s;
-            wout.data.pix.variance = result.e;
-            wout = recompute_bin_data(wout);
-        else
-            error('SQW:binary_op_manager_single', ...
-                  ['Check that the numeric variable is scalar or array ' ...
-                   'with same size as object signal']);
-        end
+        wout = do_binary_op_sqw_and_non_double(w2, w1, binary_op);
 
     else % one or both are dnd-type
         %This block of code can be changed in the same manner as the dnds.
@@ -211,15 +137,69 @@ end
 function wout = do_binary_op_2_sqw(w1, w2, binary_op)
     % Perform a binary operation between two SQW objects, returning the
     % resulting SQW object
-    wout = copy(w1);
-    result = binary_op(...
-        sigvar(w1.data.pix.signal, w1.data.pix.variance), ...
-        sigvar(w2.data.pix.signal, w2.data.pix.variance));
+    [n1, sz1] = dimensions(w1);
+    [n2, sz2] = dimensions(w2);
+
+    if n1 == n2 && all(sz1 == sz2)
+        if any(w1.data.npix(:) ~= w2.data.npix(:))
+            throw_npix_mismatch_error(w1, w2);
+        end
+        sigvar_1 = sigvar(w1.data.pix.signal, w1.data.pix.variance);
+        sigvar_2 = sigvar(w2.data.pix.signal, w2.data.pix.variance);
+        wout = do_binary_op_sigvar_sigvar(binary_op, w1, sigvar_1, sigvar_2);
+    else
+        error('SQW:binary_op_manager_single', ...
+              ['sqw type objects must have commensurate array dimensions ' ...
+               'for binary operations']);
+    end
+end
+
+function wout = do_binary_op_sigvar_sigvar(binary_op, sqw_obj, sigvar_1, sigvar_2)
+    % Perform a binary operation between two sigvar objects, assigning the
+    % result to the given SQW object and recomputing the bin data
+    wout = copy(sqw_obj);
+    result = binary_op(sigvar_1, sigvar_2);
     wout.data.pix.signal = result.s;
     wout.data.pix.variance = result.e;
     wout = recompute_bin_data(wout);
 end
 
+function wout = do_binary_op_sqw_and_non_double(w1, w2, binary_op)
+    % Perform a binary operation between an SQW object and another object that
+    % is not a double.
+    sz = sigvar_size(w2);
+    if isequal([1, 1], sz) || isequal(size(w1.data.npix), sz)
+        wout = w1;
+        % Need to remove bins with npix=0 in the non-sqw object in the
+        % binary operation
+        if isa(w2, classname) || isa(w2, 'd0d') || isa(w2, 'd1d') || ...
+                isa(w2, 'd2d') || isa(w2, 'd3d') || isa(w2, 'd4d')
+            if isa(w2, classname)% must be a dnd-type sqw object
+                omit = logical(w2.data.npix);
+            else % must be a d0d,d1d...
+                omit = logical(w2.npix);
+            end
+            wout = mask(wout, omit);
+        end
+
+        wtmp = sigvar(w2);
+        if ~isequal([1, 1], sz)
+            stmp = replicate_array(wtmp.s, wout.data.npix)';
+            etmp = replicate_array(wtmp.e, wout.data.npix)';
+            wtmp = sigvar(stmp, etmp);
+        end
+
+        result = binary_op( ...
+            sigvar(wout.data.pix.signal, wout.data.pix.variance), wtmp);
+        wout.data.pix.signal = result.s;
+        wout.data.pix.variance = result.e;
+        wout = recompute_bin_data(wout);
+    else
+        error('SQW:binary_op_manager_single', ...
+                ['Check that the numeric variable is scalar or array ' ...
+                'with same size as object signal']);
+    end
+end
 
 function throw_npix_mismatch_error(w1, w2)
     % Throw an error caused by by an npix data mismatch between the two input
