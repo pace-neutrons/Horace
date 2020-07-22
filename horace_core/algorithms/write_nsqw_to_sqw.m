@@ -201,7 +201,6 @@ if hor_log_level>-1
     disp(' ')
     disp('Reading and accumulating binning information of input file(s)...')
 end
-[]
 
 if combine_in_parallel
     %TODO:  check config for appropriate ways of combining the tmp and what
@@ -255,6 +254,14 @@ if ~file_exist % file not exist or path to file can not be resolved
     if ~isempty(file_path) && ~(exist(file_path,'dir') == 7)
         error('WRITE_NSQW_TO_SQW:invalid_argument',....
             'Can not find folder to write file %s',outfile);
+    end
+    fh = fopen(outfile,'w');
+    if fh>0
+        fclose(fh);
+        delete(outfile);
+    else
+        error('WRITE_NSQW_TO_SQW:runtime_error',....
+            'Cannot open file %s for writing',outfile);
     end
 end
 
