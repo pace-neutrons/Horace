@@ -31,9 +31,9 @@ classdef test_resolve_path_userpath< TestCase
             
             new_file = tempname(getuserdir());
                         
-            [ok,exist,file_name,err_mess] = check_file_writable(new_file);
+            [ok,file_exist,file_name,err_mess] = check_file_writable(new_file);
             assertTrue(ok)
-            assertFalse(exist);
+            assertFalse(file_exist);
             file = java.io.File(new_file);
             new_file_canonical= char(file.getCanonicalPath());
             
