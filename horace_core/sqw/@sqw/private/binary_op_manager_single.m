@@ -33,30 +33,6 @@ if ~isa(w1, 'double') && ~isa(w2, 'double')
         % w2 is sqw-type, but w1 could be anything that is not a double e.g.
         % dnd-type sqw object, or a d2d object, or sigvar object etc.
         wout = do_binary_op_sqw_and_non_double(w2, w1, binary_op);
-
-    else % one or both are dnd-type
-        %This block of code can be changed in the same manner as the dnds.
-        sz1 = sigvar_size(w1);
-        sz2 = sigvar_size(w2);
-        if isequal(sz1, sz2)
-            if isa(w1, classname)
-                wout = w1;
-            else
-                wout = w2;
-            end
-
-            if isa(w1, classname) && isa(w2, classname)
-                % ensures that empty bins in either w1 or w2 result in an empty bin
-                wout.data.npix(w2.data.npix == 0) = 0;
-            end
-
-            result = binary_op(sigvar(w1), sigvar(w2));
-            wout = sigvar_set(wout, result);
-        else
-            error('SQW:binary_op_manager_single', ...
-                  'Sizes of signal arrays in the objects are different')
-        end
-
     end
 
 elseif ~isa(w1, 'double') && isa(w2, 'double')
