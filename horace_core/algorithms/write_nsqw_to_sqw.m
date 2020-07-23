@@ -247,22 +247,13 @@ sqw_data.e=e_accum;
 sqw_data.npix=uint64(npix_accum);
 
 clear nopix
-
-[outfile,file_exist] = resolve_path(outfile);
-if ~file_exist % file not exist or path to file can not be resolved
-    file_path = fileparts(outfile);
-    if ~isempty(file_path) && ~(exist(file_path,'dir') == 7)
-        error('WRITE_NSQW_TO_SQW:invalid_argument',....
-            'Can not find folder to write file %s',outfile);
-    end
-    fh = fopen(outfile,'w');
-    if fh>0
-        fclose(fh);
-        delete(outfile);
-    else
-        error('WRITE_NSQW_TO_SQW:runtime_error',....
-            'Cannot open file %s for writing',outfile);
-    end
+[ok,sqw_exist,outfile,err_mess] = check_file_writable(outfile);
+if ~ok
+   error('WRITE_NSQW_TO_SQW:invalid_argument',....
+            err_mess);
+end
+if sqw_exist          % init may want to upgrade the file and this
+    delete(outfile);  %  is not the option we want to do here
 end
 
 
@@ -298,9 +289,6 @@ data_sum.header = header_combined;
 ds = sqw(data_sum);
 wrtr = sqw_formats_factory.instance().get_pref_access(ds);
 
-if exist(outfile,'file') == 2 % init may want to upgrade the file and this
-    delete(outfile);  %  is not the option we want to do here
-end
 % initialize sqw writer algorithm with sqw file to write, containing a normal sqw
 % object with pix field containing information about the way to assemble the
 % pixels
