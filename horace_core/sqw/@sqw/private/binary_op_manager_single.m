@@ -32,33 +32,17 @@ if ~isa(w1, 'double') && ~isa(w2, 'double')
     elseif (isa(w2, classname) && is_sqw_type(w2))
         % w2 is sqw-type, but w1 could be anything that is not a double e.g.
         % dnd-type sqw object, or a d2d object, or sigvar object etc.
-        wout = do_binary_op_sqw_and_non_double(w2, w1, binary_op);
+        wout = do_binary_op_sqw_and_non_double(w2, w1, binary_op, true);
     end
 
-elseif ~isa(w1, 'double') && isa(w2, 'double')
+elseif isa(w2, 'double')
+
     if is_sqw_type(w1)
-        if isscalar(w2) || isequal(size(w1.data.npix), size(w2))
-            wout = w1;
-
-            if ~isscalar(w2)
-                s_tmp = replicate_array(w2, w1.data.npix)';
-            else
-                s_tmp = w2;
-            end
-
-            result = binary_op( ...
-                sigvar(w1.data.pix.signal, w1.data.pix.variance), ...
-                sigvar(s_tmp, []));
-            wout.data.pix.signal = result.s;
-            wout.data.pix.variance = result.e;
-            wout = recompute_bin_data(wout);
-        else
-            error('SQW:binary_op_manager_single', ...
-                  ['Check that the numeric variable is scalar or array ' ...
-                   'with same size as object signal']);
-        end
+        % first input is an sqw object and second input is a double
+        wout = do_binary_op_sqw_double(w1, w2, binary_op);
 
     else
+        % w2 is an sqw object that contains no pixel data and w1 is a double
         if isscalar(w2) || isequal(size(w1.s), size(w2))
             wout = w1;
             result = binary_op(sigvar(w1), sigvar(w2, []));
@@ -70,29 +54,14 @@ elseif ~isa(w1, 'double') && isa(w2, 'double')
         end
     end
 
-elseif isa(w1, 'double') && ~isa(w2, 'double')
-    if is_sqw_type(w2)
-        if isscalar(w1) || isequal(size(w2.data.npix), size(w1))
-            wout = w2;
-            if ~isscalar(w1)
-                s_tmp = replicate_array(w1, w2.data.npix)';
-            else
-                s_tmp = w1;
-            end
+elseif isa(w1, 'double')
 
-            result = binary_op( ...
-                sigvar(s_tmp, []), ...
-                sigvar(w2.data.pix.signal, w2.data.pix.variance));
-            wout.data.pix.signal = result.s;
-            wout.data.pix.variance = result.e;
-            wout = recompute_bin_data(wout);
-        else
-            error('SQW:binary_op_manager_single', ...
-                  ['Check that the numeric variable is scalar or array ' ...
-                   'with same size as object signal']);
-        end
+    if is_sqw_type(w2)
+        % w1 input is a double and w2 is an sqw object
+        wout = do_binary_op_sqw_double(w2, w1, binary_op, true);
 
     else
+        % w1 is a double and w2 is an sqw object that contains no pixel data
         if isscalar(w1) || isequal(size(w2.s), size(w1))
             wout = w2;
             result = binary_op(sigvar(w1, []), sigvar(w2));
@@ -109,7 +78,36 @@ end
 
 % =============================================================================
 % Helpers
-%
+% =============================================================================
+function wout = do_binary_op_sqw_double(w1, w2, binary_op, flip)
+    % Perform a binary operation between an SQW object and a double scalar or
+    % array, returning the resulting SQW object
+    %
+    % Input
+    % -----
+    % w1    An SQW object
+    % w2    A double scalar or array of doubles
+    % flip  Flip the order of the operands e.g. if flip = false do sqw - double
+    %       if flip = true, do double - sqw (default = false)
+    %
+    if isscalar(w2) || isequal(size(w1.data.npix), size(w2))
+        if ~isscalar(w2)
+            w2 = replicate_array(w2, w1.data.npix)';
+        end
+        sigvar_1 = sigvar(w1.data.pix.signal, w1.data.pix.variance);
+        sigvar_2 = sigvar(w2, []);
+        if exist('flip', 'var') && flip
+            wout = do_binary_op_sigvar_sigvar(binary_op, w1, sigvar_2, sigvar_1);
+        else
+            wout = do_binary_op_sigvar_sigvar(binary_op, w1, sigvar_1, sigvar_2);
+        end
+    else
+        error('SQW:binary_op_manager_single', ...
+              ['Check that the numeric variable is scalar or array with ' ...
+               'same size as object signal']);
+    end
+end
+
 function wout = do_binary_op_2_sqw(w1, w2, binary_op)
     % Perform a binary operation between two SQW objects, returning the
     % resulting SQW object
@@ -140,9 +138,15 @@ function wout = do_binary_op_sigvar_sigvar(binary_op, sqw_obj, sigvar_1, sigvar_
     wout = recompute_bin_data(wout);
 end
 
-function wout = do_binary_op_sqw_and_non_double(w1, w2, binary_op)
+function wout = do_binary_op_sqw_and_non_double(w1, w2, binary_op, flip)
     % Perform a binary operation between an SQW object and another object that
     % is not a double.
+    %
+    % Input
+    % -----
+    % w1    An SQW object
+    % w2    An instance of dnd or sigvar
+    %
     sz = sigvar_size(w2);
     if isequal([1, 1], sz) || isequal(size(w1.data.npix), sz)
         wout = w1;
@@ -158,18 +162,21 @@ function wout = do_binary_op_sqw_and_non_double(w1, w2, binary_op)
             wout = mask(wout, omit);
         end
 
-        wtmp = sigvar(w2);
+        sigvar_1 = sigvar(wout.data.pix.signal, wout.data.pix.variance);
+
+        sigvar_2 = sigvar(w2);
         if ~isequal([1, 1], sz)
-            stmp = replicate_array(wtmp.s, wout.data.npix)';
-            etmp = replicate_array(wtmp.e, wout.data.npix)';
-            wtmp = sigvar(stmp, etmp);
+            stmp = replicate_array(sigvar_2.s, wout.data.npix)';
+            etmp = replicate_array(sigvar_2.e, wout.data.npix)';
+            sigvar_2 = sigvar(stmp, etmp);
         end
 
-        result = binary_op( ...
-            sigvar(wout.data.pix.signal, wout.data.pix.variance), wtmp);
-        wout.data.pix.signal = result.s;
-        wout.data.pix.variance = result.e;
-        wout = recompute_bin_data(wout);
+        if exist('flip', 'var') && flip
+            wout = do_binary_op_sigvar_sigvar(binary_op, w1, sigvar_2, sigvar_1);
+        else
+            wout = do_binary_op_sigvar_sigvar(binary_op, w1, sigvar_1, sigvar_2);
+        end
+
     else
         error('SQW:binary_op_manager_single', ...
                 ['Check that the numeric variable is scalar or array ' ...
