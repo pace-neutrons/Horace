@@ -1,8 +1,12 @@
-function wout = func_eval (win, func_handle, pars, opt)
+function wout = func_eval (win, func_handle, pars, varargin)
 % Evaluate a function at the plotting bin centres of sqw object or array of sqw object
 % Syntax:
 %   >> wout = func_eval (win, func_handle, pars)
-%   >> wout = func_eval (win, func_handle, pars, 'all')
+%   >> wout = func_eval (win, func_handle, pars, ['all'])
+%   >> wout = func_eval (win, func_handle, pars, ['all','keep_shape'])
+%
+% If function is called on sqw-type object, the pixels signal is also
+% modified and evaluated
 %
 % Input:
 % ======
@@ -29,13 +33,20 @@ function wout = func_eval (win, func_handle, pars, opt)
 %                - Most commonly just a numeric array of parameters
 %                - If a more general set of parameters is needed by the function, then
 %                  wrap as a cell array {pars, c1, c2, ...}
-%
-%   'all'       [option] Requests that the calculated function be returned over
+% Additional allowed options:
+%   'all'      Requests that the calculated function be returned over
 %              the whole of the domain of the input dataset. If not given, then
 %              the function will be returned only at those points of the dataset
 %              that contain data.
 %               Applies only to input with no pixel information - this option is ignored if
 %              the input is a full sqw object.
+%  'keep_shape' Normally, the user function receives input values 
+%               as 1-dimentional arrays of size [numel(s),1], where s is
+%               the size of the signal array. If this option is provided, 
+%               the user function will receive input coordinates in the
+%               shape of signal array, i.e. 1,2,3 or 4 dimensional arrays
+%               as the shape of input sqw or dnd object
+%               
 %
 % Output:
 % =======
@@ -69,12 +80,10 @@ function wout = func_eval (win, func_handle, pars, opt)
 %
 
 % Check optional argument
-if ~exist('opt','var')  % no option given
-    all_bins=false;
-elseif ischar(opt) && ~isempty(strmatch(lower(opt),'all'))    % option 'all' given
-    all_bins=true;
-else
-    error('Unrecognised option')
+options = {'all'};
+[ok,mess,all_bins]=parse_char_options(varargin,options);
+if ~ok
+    error('FUNC_EVAL:invalid_argument',mess);
 end
 
 wout = copy(win);
