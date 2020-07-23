@@ -108,7 +108,7 @@ if ~isempty(par_file)
     else
         ok=false; mess='If given, par filename  must be a non-empty string'; return
     end
-    if det_par_file        
+    if det_par_file
         % Check par file exists
         [~,~,ext]=fileparts(par_file_out);
         if any(strcmpi(ext,[ext_horace,'.spe']))
@@ -123,7 +123,7 @@ if ~isempty(par_file)
     else
         pf = {'filename','filepath','group','x2','phi','azim','width','height'};
         if ~all(isfield(par_file,pf))
-            ok=false; mess='Detector parameter information should be in Horace par_file format'; return            
+            ok=false; mess='Detector parameter information should be in Horace par_file format'; return
         end
         par_file_out = par_file.filename;
     end
@@ -135,33 +135,11 @@ end
 
 % Check sqw file
 % ---------------
-
+[ok,sqw_exist,sqw_file_out,mess] = check_file_writable(sqw_file,require_sqw_exist);
+if ~ok
+    return;
+end
 %See above (RAE)
-%try
-tf=is_string(sqw_file);
-%catch
-%    tf=isstring(sqw_file);
-%end
-
-if tf && ~isempty(strtrim(sqw_file))
-    sqw_file_out=strtrim(sqw_file);
-else
-    ok=false; mess='sqw file name must be a non-empty string'; return
-end
-
-% Check sqw file exist
-if ~exist(sqw_file_out,'file')
-    sqw_exist=false;
-    if require_sqw_exist
-        ok=false; mess=['sqw file: ',sqw_file_out,' does not exist']; return
-    end
-    pathsqw=fileparts(sqw_file_out);
-    if ~isempty(pathsqw) && ~exist(pathsqw,'dir')
-        ok=false; mess='Cannot find folder into which to output the sqw file'; return
-    end
-else
-    sqw_exist=true;
-end
 
 
 % Check that spe, par and sqw file names do not match

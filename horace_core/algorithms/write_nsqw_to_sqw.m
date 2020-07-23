@@ -96,7 +96,7 @@ if combine_in_parallel && isempty(job_disp) % define name of new parallel job an
     if numel(fn) > 8
         fn = fn(1:8);
     end
-    job_name = ['N_sqw_to_sqw_',fn];
+    job_name = ['job_nsqw2sqw_',fn];
     %
     job_disp = JobDispatcher(job_name);
 end
@@ -247,7 +247,14 @@ sqw_data.e=e_accum;
 sqw_data.npix=uint64(npix_accum);
 
 clear nopix
-
+[ok,sqw_exist,outfile,err_mess] = check_file_writable(outfile);
+if ~ok
+   error('WRITE_NSQW_TO_SQW:invalid_argument',....
+            err_mess);
+end
+if sqw_exist          % init may want to upgrade the file and this
+    delete(outfile);  %  is not the option we want to do here
+end
 
 
 % Write to output file
@@ -282,9 +289,6 @@ data_sum.header = header_combined;
 ds = sqw(data_sum);
 wrtr = sqw_formats_factory.instance().get_pref_access(ds);
 
-if exist(outfile,'file') == 2 % init may want to upgrade the file and this
-    delete(outfile);  %  is not the option we want to do here
-end
 % initialize sqw writer algorithm with sqw file to write, containing a normal sqw
 % object with pix field containing information about the way to assemble the
 % pixels
