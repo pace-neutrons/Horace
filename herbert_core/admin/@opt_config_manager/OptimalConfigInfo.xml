@@ -145,7 +145,7 @@
          <delete_tmp>[true]</delete_tmp>
       </hor_config>
       <hpc_config>
-         <build_sqw_in_parallel>[true]</build_sqw_in_parallel>
+         <build_sqw_in_parallel>[false]</build_sqw_in_parallel>
          <parallel_workers_number>6</parallel_workers_number>
          <combine_sqw_using>mex_code</combine_sqw_using>
          <mex_combine_thread_mode>1</mex_combine_thread_mode>
@@ -209,7 +209,7 @@
          <delete_tmp>[true]</delete_tmp>
       </hor_config>
       <hpc_config>
-         <build_sqw_in_parallel>[true]</build_sqw_in_parallel>
+         <build_sqw_in_parallel>[false]</build_sqw_in_parallel>
          <parallel_workers_number>10</parallel_workers_number>
          <combine_sqw_using>mex_code</combine_sqw_using>
          <mex_combine_thread_mode>1</mex_combine_thread_mode>
