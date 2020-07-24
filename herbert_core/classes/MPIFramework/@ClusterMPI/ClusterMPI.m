@@ -2,9 +2,6 @@ classdef ClusterMPI < ClusterWrapper
     % The class to support cluster of Matlab workers, communicating over
     % MPI interface started by by mpiexec.
     %
-    %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-    %
     %----------------------------------------------------------------------
     properties(Access = protected)
 

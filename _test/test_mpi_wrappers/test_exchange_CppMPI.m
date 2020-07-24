@@ -36,13 +36,15 @@ classdef test_exchange_CppMPI < exchange_common_tests
             
             
             f = @()send_message(mf, 0, mess);
-            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument')
+            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument',...
+                'CPP Messages framework can not communicate with lab 0' )
             
             f = @()send_message(mf, 11, mess);
             assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument')
             
             f = @()receive_message(mf, 0, mess.mess_name);
-            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument')
+            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument',...
+                    'CPP Messages framework can not communicate with lab 0' )
             
             f = @()receive_message(mf, 11, mess.mess_name);
             assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument')
@@ -67,13 +69,15 @@ classdef test_exchange_CppMPI < exchange_common_tests
             assertEqual(labNum, uint64(1));
             assertEqual(nLabs, uint64(1));
         end
+        %-----------------------------------------------------------------
+        % CURRENTLY DISABLED
+        %
         function test_receive_all_some_from_cache(obj)
             if obj.ignore_test
                 return
             end
             warning('test_receive_all_some_from_cache test for CPP MPI is currently disabled')
         end
-        
         function test_receive_all_mess_choose_special(obj)
             if obj.ignore_test
                 return

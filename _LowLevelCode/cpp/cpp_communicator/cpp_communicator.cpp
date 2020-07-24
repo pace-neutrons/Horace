@@ -59,10 +59,10 @@ Outputs:
 
 *** "labProbe"  executes asynchronous MPI_Iprobe operation
 Inputs:
-  1  -- mode_name  -- the string 'labSend' identifies send mode
+  1  -- mode_name  -- the string 'labProbe' identifies labprobe mode
   2  -- pointer to MPI initialized framework,
-  3  -- dest_id address (number) of the worker who should receive the message
-  4  -- tag -- the message tag (id)
+  3  -- dest_id address (number) of the worker which is asked for message
+  4  -- tag -- the message tag (id) or array of message tags to ask for
 Outputs:
   1     -- pointer to  new the MPI framework, performing asynchronous operation
   2     -- 2-elements array with address and tag of the first existing message present in the queue

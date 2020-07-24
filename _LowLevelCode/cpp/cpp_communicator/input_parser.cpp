@@ -218,7 +218,6 @@ class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray* prhs[
         for (size_t i = 0; i < n_tags; i++) {
             data_tag[i] = pData_tag[i];
         }
-
         work_mode = labProbe;
     }
     else if (mex_mode.compare("barrier") == 0) {
