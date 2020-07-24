@@ -3,7 +3,6 @@ function wout = func_eval (win, func_handle, pars, varargin)
 % Syntax:
 %   >> wout = func_eval (win, func_handle, pars)
 %   >> wout = func_eval (win, func_handle, pars, ['all'])
-%   >> wout = func_eval (win, func_handle, pars, ['all','keep_shape'])
 %
 % If function is called on sqw-type object, the pixels signal is also
 % modified and evaluated
@@ -40,13 +39,6 @@ function wout = func_eval (win, func_handle, pars, varargin)
 %              that contain data.
 %               Applies only to input with no pixel information - this option is ignored if
 %              the input is a full sqw object.
-%  'keep_shape' Normally, the user function receives input values 
-%               as 1-dimentional arrays of size [numel(s),1], where s is
-%               the size of the signal array. If this option is provided, 
-%               the user function will receive input coordinates in the
-%               shape of signal array, i.e. 1,2,3 or 4 dimensional arrays
-%               as the shape of input sqw or dnd object
-%               
 %
 % Output:
 % =======
