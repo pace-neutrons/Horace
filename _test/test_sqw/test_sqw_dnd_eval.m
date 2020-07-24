@@ -26,7 +26,7 @@ classdef test_sqw_dnd_eval < TestCase
                 set_instrument(obj.sqw_4_test, @maps_instrument,'-efix',800,'S');
             obj.sqw_4_test = ...
                 set_sample(obj.sqw_4_test,sample);
-
+            
             
             kk = tobyfit(obj.sqw_4_test);
             kk = kk.set_fun (@obj.sqw_eval_tester);
@@ -63,8 +63,6 @@ classdef test_sqw_dnd_eval < TestCase
             err_message = '';
             try
                 ds = dispersion(obj.sqw_4_test,@obj.sqw_disp_tester,[]);
-                %[my_fitted_data,a] = kk.fit; % do not fit-- will not
-                %converge
                 failed = false;
             catch ME
                 failed = true;
@@ -185,8 +183,8 @@ classdef test_sqw_dnd_eval < TestCase
             assertEqual(sig(1),numel(sig));
             
             pix = ds.data.pix;
-            assertEqual(pix.signal(2),1);
-            assertEqual(size(pix,1),pix.signal(1));
+            assertEqual(pix.signal(2),numel(sig));
+            assertEqual(pix.signal(1),numel(sig));
             
         end
         function test_func_eval_dnd(obj)
@@ -201,7 +199,7 @@ classdef test_sqw_dnd_eval < TestCase
             end
             assertFalse(failed,err_message);
             
-            sig = ds.data.s;
+            sig = ds.s;
             assertEqual(sig(2),1);
             assertEqual(sig(1),numel(sig));
         end
