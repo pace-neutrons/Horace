@@ -1175,6 +1175,7 @@ classdef exchange_common_tests < MPI_Test_Common
             assertTrue(isempty(err_mess));
             assertEqual(mess, messR);
         end
+        %
         function test_SendReceive(obj)
             % Test communications in test mode
             if obj.ignore_test
@@ -1230,7 +1231,8 @@ classdef exchange_common_tests < MPI_Test_Common
             
             clear clob_r;
         end
-        function test_check_whats_coming_data_kept_fail_overrides(obj)            
+        %
+        function test_check_whats_coming_data_kept_fail_overrides(obj)
             if obj.ignore_test
                 return
             end
