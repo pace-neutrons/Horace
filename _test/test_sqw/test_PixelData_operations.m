@@ -15,7 +15,9 @@ properties
     ref_s_data = [];
     ref_e_data = [];
 
+    pix_in_memory_base;
     pix_in_memory;
+    pix_with_pages_base;
     pix_with_pages;
     page_size;
 
@@ -49,8 +51,8 @@ methods
         file_info = dir(obj.test_sqw_file_path);
         obj.page_size = file_info.bytes/6;
 
-        obj.pix_in_memory = sqw_test_obj.data.pix;
-        obj.pix_with_pages = PixelData(obj.test_sqw_file_path, obj.page_size);
+        obj.pix_in_memory_base = sqw_test_obj.data.pix;
+        obj.pix_with_pages_base = PixelData(obj.test_sqw_file_path, obj.page_size);
 
         % Load 2D SQW file
         sqw_2d_test_object = sqw(obj.test_sqw_2d_file_path);
@@ -73,6 +75,9 @@ methods
     function setUp(obj)
         obj.config = hor_config;
         obj.old_config = obj.config.get_data_to_store();
+
+        obj.pix_in_memory = copy(obj.pix_in_memory_base);
+        obj.pix_with_pages = copy(obj.pix_with_pages_base);
     end
 
     function tearDown(obj)
@@ -399,6 +404,30 @@ methods
         end
 
         assertExceptionThrown(@() f(), 'MATLAB:minrhs');
+    end
+
+    function test_binary_op_plus_with_scalar_returns_correct_data_1_page(obj)
+        pix = obj.pix_in_memory;
+        operand = 3;
+
+        pix_result = pix.do_binary_op(operand, @plus_single);
+
+        assertEqual(pix_result.signal, operand + pix.signal);
+        assertEqual(pix_result.data([1:7, 9], :), pix.data([1:7, 9], :));
+    end
+
+    function test_binary_op_plus_with_scalar_returns_correct_data_gt_1_page(obj)
+        pix = obj.pix_with_pages;
+        operand = 3;
+
+        pix_result = pix.do_binary_op(operand, @plus_single);
+        new_pix_data = obj.concatenate_pixel_pages(pix_result);
+
+        assertEqual(new_pix_data(8, :), operand + obj.pix_in_memory.signal, ...
+                    '', obj.FLOAT_TOLERANCE);
+        assertEqual(new_pix_data([1:7, 9], :), ...
+                    obj.pix_in_memory.data([1:7, 9], :), ...
+                    '', obj.FLOAT_TOLERANCE);
     end
 
     % -- Helpers --
