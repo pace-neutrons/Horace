@@ -1,7 +1,9 @@
 classdef test_binary_ops < TestCase
-
+%% TEST_BINARY_OPS tests for behaviour of binary operations between SQW and
+% and other type of objects e.g. scalars, dnd and other SQW objects
+%
 properties (Constant)
-    DOUBLE_REL_TOLERANCE = 5e-7;
+    DOUBLE_REL_TOLERANCE = 10e-6;
 end
 
 properties
@@ -17,11 +19,11 @@ methods
         obj = obj@TestCase('test_binary_ops');
 
         obj.base_sqw_obj = sqw(obj.test_sqw_file_path);
-        obj.dnd_obj = d2d(obj.base_sqw_obj);
     end
 
     function obj = setUp(obj)
         obj.sqw_obj = copy(obj.base_sqw_obj);
+        obj.dnd_obj = d2d(obj.base_sqw_obj);
     end
 
     function test_SQW_error_if_first_input_is_int64(obj)
@@ -55,6 +57,46 @@ methods
         assertTrue(isa(out, 'sqw'));
 
         expected_signal = obj.sqw_obj.data.s + obj.dnd_obj.s;
+        assertElementsAlmostEqual(out.data.s, expected_signal, 'relative', ...
+                                  obj.DOUBLE_REL_TOLERANCE);
+    end
+
+    function test_subtracting_sqw_from_dnd_returns_sqw_equal_image_data(obj)
+        out = obj.dnd_obj - obj.sqw_obj;
+
+        assertTrue(isa(out, 'sqw'));
+
+        % Scale the difference to account for floating point errors
+        scaled_diff = out.data.s./max(obj.dnd_obj.s, obj.sqw_obj.data.s);
+        scaled_diff(isnan(scaled_diff)) = 0;
+
+        expected_signal = zeros(size(obj.sqw_obj.data.s));
+        assertElementsAlmostEqual(scaled_diff, expected_signal, 'absolute', ...
+                                  1e-7);
+    end
+
+    function test_subtracting_dnd_from_sqw_returns_sqw_equal_image_data(obj)
+        out = obj.sqw_obj - obj.dnd_obj;
+
+        assertTrue(isa(out, 'sqw'));
+
+        % Scale the difference to account for floating point errors
+        scaled_diff = out.data.s./max(obj.dnd_obj.s, obj.sqw_obj.data.s);
+        scaled_diff(isnan(scaled_diff)) = 0;
+
+        expected_signal = zeros(size(obj.sqw_obj.data.s));
+        assertElementsAlmostEqual(scaled_diff, expected_signal, 'absolute', ...
+                                  1e-7);
+    end
+
+    function test_subtracting_dnd_from_sqw_returns_sqw_non_equal_image_data(obj)
+        obj.dnd_obj.s = ones(size(obj.dnd_obj.npix));
+        out = obj.sqw_obj - obj.dnd_obj;
+
+        assertTrue(isa(out, 'sqw'));
+
+        expected_signal = obj.sqw_obj.data.s - 1;
+        expected_signal(obj.sqw_obj.data.npix == 0) = 0;
         assertElementsAlmostEqual(out.data.s, expected_signal, 'relative', ...
                                   obj.DOUBLE_REL_TOLERANCE);
     end
