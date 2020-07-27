@@ -26,19 +26,32 @@ methods
         obj.dnd_obj = d2d(obj.base_sqw_obj);
     end
 
-    function test_SQW_error_if_first_input_is_int64(obj)
-        f = @() int64(ones(size(obj.sqw_obj.data.npix))) + obj.sqw_obj;
-        assertExceptionThrown(f, 'SQW:binary_op_manager_single');
-    end
-
-    function test_SQW_error_if_first_input_is_char(obj)
+    function test_SQW_error_if_operand_is_char(obj)
         f = @() 'some char' + obj.sqw_obj;
+        ff = @()  obj.sqw_obj + 'some char';
         assertExceptionThrown(f, 'SQW:binary_op_manager_single');
+        assertExceptionThrown(ff, 'SQW:binary_op_manager_single');
     end
 
-    function test_SQW_error_if_second_input_not_supported_type(obj)
-        f = @() obj.sqw_obj + int64(ones(size(obj.sqw_obj.data.npix)));
+    function test_SQW_error_if_operand_is_cell_array(obj)
+        f = @() {1, 2, 3} + obj.sqw_obj;
+        ff = @() obj.sqw_obj + {0};
         assertExceptionThrown(f, 'SQW:binary_op_manager_single');
+        assertExceptionThrown(ff, 'SQW:binary_op_manager_single');
+    end
+
+    function test_SQW_error_if_operand_is_numeric_but_not_double(obj)
+        unsupported_types = {@single, @int8, @int16, @int32, @int64, ...
+                             @uint8, @uint16, @uint32, @uint64};
+
+        for i = 1:numel(unsupported_types)
+            type_func = unsupported_types{i};
+            numeric_array = type_func(ones(size(obj.sqw_obj.data.npix)));
+            f = @() obj.sqw_obj + numeric_array;
+            ff = @() numeric_array + obj.sqw_obj;
+            assertExceptionThrown(f, 'SQW:binary_op_manager_single');
+            assertExceptionThrown(ff, 'SQW:binary_op_manager_single');
+        end
     end
 
     function test_adding_sqw_and_dnd_objects_1st_operand_is_sqw_returns_sqw(obj)
