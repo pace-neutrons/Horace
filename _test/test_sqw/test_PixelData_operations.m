@@ -430,6 +430,94 @@ methods
                     '', obj.FLOAT_TOLERANCE);
     end
 
+    function test_binary_minus_with_scalar_returns_correct_data_1_page(obj)
+        pix = obj.pix_in_memory;
+        operand = 3;
+
+        flip = true;
+        pix_result = pix.do_binary_op(operand, @minus_single, flip);
+
+        assertEqual(pix_result.signal, operand - pix.signal);
+        assertEqual(pix_result.data([1:7, 9], :), pix.data([1:7, 9], :));
+    end
+
+    function test_binary_minus_with_scalar_returns_correct_data_gt_1_page(obj)
+        pix = obj.pix_with_pages;
+        operand = 3;
+
+        pix_result = pix.do_binary_op(operand, @minus_single);
+        new_pix_data = obj.concatenate_pixel_pages(pix_result);
+
+        assertEqual(new_pix_data(8, :), obj.pix_in_memory.signal - operand, ...
+                    '', obj.FLOAT_TOLERANCE);
+        assertEqual(new_pix_data([1:7, 9], :), ...
+                    obj.pix_in_memory.data([1:7, 9], :), ...
+                    '', obj.FLOAT_TOLERANCE);
+    end
+
+    function test_binary_mtimes_with_scalar_returns_correct_data_1_page(obj)
+        pix = obj.pix_in_memory;
+        operand = 1.5;
+
+        flip = true;
+        pix_result = pix.do_binary_op(operand, @mtimes_single, flip);
+
+        assertEqual(pix_result.signal, operand*pix.signal);
+        assertEqual(pix_result.variance, (operand.^2).*pix.variance);
+        assertEqual(pix_result.data(1:7, :), pix.data(1:7, :));
+    end
+
+    function test_binary_mtimes_with_scalar_returns_correct_data_gt_1_page(obj)
+        pix = obj.pix_with_pages;
+        operand = 1.5;
+
+        pix_result = pix.do_binary_op(operand, @mtimes_single);
+        new_pix_data = obj.concatenate_pixel_pages(pix_result);
+
+        assertElementsAlmostEqual(new_pix_data(8, :), ...
+                                  obj.pix_in_memory.signal*operand, ...
+                                  'relative', obj.FLOAT_TOLERANCE);
+        assertElementsAlmostEqual(new_pix_data(9, :), ...
+                                  (operand.^2).*obj.pix_in_memory.variance, ...
+                                  'relative', obj.FLOAT_TOLERANCE);
+        assertEqual(new_pix_data(1:7, :), obj.pix_in_memory.data(1:7, :), ...
+                    '', obj.FLOAT_TOLERANCE);
+    end
+
+    function test_binary_mrdivide_with_scalar_returns_correct_data_1_page(obj)
+        pix = obj.pix_in_memory;
+        operand = 1.5;
+
+        flip = true;
+        pix_result = pix.do_binary_op(operand, @mrdivide_single, flip);
+
+        assertEqual(pix_result.signal, operand./pix.signal);
+        expected_var = pix.variance.*((pix_result.signal./pix.signal).^2);
+        assertEqual(pix_result.variance, expected_var);
+        assertEqual(pix_result.data(1:7, :), pix.data(1:7, :));
+    end
+
+    function test_binary_mrdivide_with_scalar_returns_correct_data_gt_1_page(obj)
+        pix = obj.pix_with_pages;
+        operand = 1.5;
+
+        pix_result = pix.do_binary_op(operand, @mrdivide_single);
+        new_pix_data = obj.concatenate_pixel_pages(pix_result);
+
+        assertElementsAlmostEqual(new_pix_data(8, :), ...
+                                  obj.pix_in_memory.signal./operand, ...
+                                  'relative', obj.FLOAT_TOLERANCE);
+
+        original_variance = obj.pix_in_memory.data(9, :);
+        expected_var = original_variance/(operand^2);
+        expected_var(isnan(expected_var)) = 0;
+        assertElementsAlmostEqual(new_pix_data(9, :), expected_var, ...
+                                  'relative', obj.FLOAT_TOLERANCE);
+
+        assertEqual(new_pix_data(1:7, :), obj.pix_in_memory.data(1:7, :), ...
+                    '', obj.FLOAT_TOLERANCE);
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
