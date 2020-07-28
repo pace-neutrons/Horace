@@ -91,6 +91,7 @@ properties (Access=private)
         {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9});
     PIXEL_BLOCK_COLS_ = 9;
 
+    dirty_page_edited_ = false;  % true if a dirty page has been edited since it was loaded
     f_accessor_;  % instance of faccess object to access pixel data from file
     file_path_ = '';  % the path to the file backing this object - empty string if all data in memory
     object_id_;  % random unique identifier for this object, used for tmp file names
@@ -244,6 +245,7 @@ methods
                 obj = PixelData(arg.file_path, arg.page_memory_size_);
                 obj.page_number_ = arg.page_number_;
                 obj.page_dirty_ = arg.page_dirty_;
+                obj.dirty_page_edited_ = arg.dirty_page_edited_;
                 arg.tmp_io_handler_.copy_folder(obj.object_id_);
             end
             obj.data_ = arg.data;
@@ -420,7 +422,7 @@ methods
         % This function does nothing if the pixel data is not file-backed.
         %
         if obj.is_file_backed_()
-            if obj.page_is_dirty_(obj.page_number_)
+            if obj.page_is_dirty_(obj.page_number_) && obj.dirty_page_edited_
                 obj.write_dirty_page_();
             end
             try
@@ -448,6 +450,7 @@ methods
                 obj.write_dirty_page_();
             end
             obj.page_number_ = 1;
+            obj.dirty_page_edited_ = false;
             obj.data_ = zeros(obj.PIXEL_BLOCK_COLS_, 0);
         end
     end
@@ -684,6 +687,7 @@ methods (Access=private)
             obj.set_page_dirty_(false, page_number);
         end
         obj.page_number_ = page_number;
+        obj.dirty_page_edited_ = false;
     end
 
     function obj = load_clean_page_(obj, page_number)
@@ -734,6 +738,7 @@ methods (Access=private)
             page_number = obj.page_number_;
         end
         obj.page_dirty_(page_number) = is_dirty;
+        obj.dirty_page_edited_ = true;
     end
 
     function page_size = get_max_page_size_(obj)
