@@ -877,10 +877,12 @@ methods
         pix.signal;  % make sure there's data in memory
         pix.advance();  % no writing should happen here
 
+        pause(0.2)  % let the file system catch up
         % get most recent timestamp
-        new_timestamp = java.io.File(tmp_file_path).lastModified();;
+        new_timestamp = java.io.File(tmp_file_path).lastModified();
 
-        assertEqual(new_timestamp, original_timestamp);
+        assertEqual(new_timestamp, original_timestamp, ...
+                    'Temporary file timestamps are not equal.');
     end
 
     % -- Helpers --
