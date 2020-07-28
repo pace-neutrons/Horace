@@ -852,6 +852,37 @@ methods
         assertEqual(pix.data, data(:, 10));
     end
 
+    function test_unedited_dirty_pages_are_not_rewritten(obj)
+        old_rng_state = rng();
+        fixed_seed = 774015;  % this seed gives an expected object_id_ = 06706
+        rng(fixed_seed, 'twister');
+        expected_tmp_dir = fullfile(tempdir(), 'sqw_pix06706');
+        clean_up = onCleanup(@() rng(old_rng_state));
+
+        data = rand(9, 10);
+        npix_in_page = 3;
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+        % edit a page such that it must be written to a file
+        pix.signal = 1;
+        pix = pix.advance();
+        tmp_file_path = fullfile(expected_tmp_dir, '000000001.tmp');
+        assertTrue(logical(exist(tmp_file_path, 'file')));
+
+        % record the temp file's original timestamp
+        original_timestamp = java.io.File(tmp_file_path).lastModified();
+
+        % move to first page and advance again
+        pix = pix.move_to_first_page();
+        pix.signal;  % make sure there's data in memory
+        pix.advance();  % no writing should happen here
+
+        % get most recent timestamp
+        new_timestamp = java.io.File(tmp_file_path).lastModified();;
+
+        assertEqual(new_timestamp, original_timestamp);
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
