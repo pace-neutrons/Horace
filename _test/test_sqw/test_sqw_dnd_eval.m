@@ -203,6 +203,23 @@ classdef test_sqw_dnd_eval < TestCase
             assertEqual(sig(2),1);
             assertEqual(sig(1),numel(sig));
         end
+        function test_sqw_eval_aver(obj)
+            %
+            err_message = '';
+            try
+                ds = sqw_eval(obj.sqw_4_test,@test_sqw_dnd_eval.sqw_eval_tester,[],'av');
+                failed = false;
+            catch ME
+                failed = true;
+                err_message = ME.message;
+            end
+            assertFalse(failed,err_message);
+            sig = ds.data.s;            
+            assertEqual(sig(1),numel(sig));            
+            pix = ds.data.pix;
+            assertEqual(pix.signal(2),sig(1));
+            assertEqual(sig(1),pix.signal(1));
+        end
         
         
         function test_sqw_eval(obj)
@@ -246,7 +263,7 @@ classdef test_sqw_dnd_eval < TestCase
                 error('SQW_EVAL:runtime_error','incorrect shape of input arrays');
             end
             if size(h,2) ~=1
-                dis = zeros(size(h));
+                error('SQW_EVAL:runtime_error','incorrect shape of input arrays');
             else
                 dis = ones(size(h));
             end
@@ -259,7 +276,7 @@ classdef test_sqw_dnd_eval < TestCase
                 error('SQW_EVAL:runtime_error','incorrect shape of input arrays');
             end
             if size(h,2) ~=1
-                dis = zeros(size(h));
+                error('SQW_EVAL:runtime_error','incorrect shape of input arrays');
             else
                 dis = ones(size(h));
             end
@@ -272,7 +289,7 @@ classdef test_sqw_dnd_eval < TestCase
                 error('FUNC_EVAL:runtime_error','incorrect shape of input arrays');
             end
             if size(x,2) ~=1
-                dis = zeros(size(x));
+                error('FUNC_EVAL:runtime_error','incorrect shape of input arrays');
             else
                 dis = ones(size(x));
             end
