@@ -446,7 +446,7 @@ methods
         %  This function does nothing if pixels are not file-backed.
         %
         if obj.is_file_backed_() && obj.page_number_ ~= 1
-            if obj.page_is_dirty_(obj.page_number_)
+            if obj.page_is_dirty_(obj.page_number_) && obj.dirty_page_edited_
                 obj.write_dirty_page_();
             end
             obj.page_number_ = 1;
@@ -738,7 +738,7 @@ methods (Access=private)
             page_number = obj.page_number_;
         end
         obj.page_dirty_(page_number) = is_dirty;
-        obj.dirty_page_edited_ = true;
+        obj.dirty_page_edited_ = is_dirty;
     end
 
     function page_size = get_max_page_size_(obj)
