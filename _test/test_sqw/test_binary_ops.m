@@ -74,7 +74,7 @@ methods
                                   obj.DOUBLE_REL_TOLERANCE);
     end
 
-    function test_subtracting_sqw_from_dnd_returns_sqw_equal_image_data(obj)
+    function test_dnd_minus_equivalent_sqw_returns_sqw_with_zero_image_data(obj)
         out = obj.dnd_obj - obj.sqw_obj;
 
         assertTrue(isa(out, 'sqw'));
@@ -88,7 +88,7 @@ methods
                                   1e-7);
     end
 
-    function test_subtracting_dnd_from_sqw_returns_sqw_equal_image_data(obj)
+    function test_sqw_minus_equivalent_dnd_returns_sqw_with_zero_image_data(obj)
         out = obj.sqw_obj - obj.dnd_obj;
 
         assertTrue(isa(out, 'sqw'));
@@ -102,7 +102,7 @@ methods
                                   1e-7);
     end
 
-    function test_subtracting_dnd_from_sqw_returns_sqw_non_equal_image_data(obj)
+    function test_subtracting_dnd_from_sqw_returns_sqw(obj)
         obj.dnd_obj.s = ones(size(obj.dnd_obj.npix));
         out = obj.sqw_obj - obj.dnd_obj;
 
