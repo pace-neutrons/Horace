@@ -31,7 +31,7 @@ function wout=sqw_eval(win,sqwfunc,pars,varargin)
 %              package these into a cell array and pass that as pars. In the example
 %              above then pars = {p, c1, c2, ...}
 %
-% Optional parameter:
+% Optional string parameters:
 %   'all'      Requests that the calculated sqw be returned over
 %              the whole of the domain of the input dataset. If not given, then
 %              the function will be returned only at those points of the dataset
@@ -45,8 +45,10 @@ function wout=sqw_eval(win,sqwfunc,pars,varargin)
 %              Applies only to the case of sqw object with pixel information 
 %             - it is ignored if dnd type object.
 %
-% Note: all inptut parameters can be truncated up to minal difference
-%       between them e.g. 'al' and 'av', 'ave' or 'aver' would work. 
+% Note: all optional string input parameters can be truncated up to minal 
+%       difference between them e.g. routine would accept 'al' and
+%       'av', 'ave', 'aver' etc....
+%
 %
 % Output:
 % -------
