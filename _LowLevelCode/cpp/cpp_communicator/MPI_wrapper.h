@@ -19,7 +19,7 @@ public:
     int destination;
     // vector of the message contents, used as the buffer of the message contents until the message is received
     std::vector<uint8_t> mess_body;
-      //SendMessHolder(SendMessHolder&& other) noexcept;
+    //SendMessHolder(SendMessHolder&& other) noexcept;
     SendMessHolder() :
         mess_tag(-1), destination(-1) {
         this->theRequest = (MPI_Request)(-1);
@@ -34,14 +34,14 @@ class MPI_wrapper {
 public:
 
     MPI_wrapper() :
-        labIndex(-1), numProcs(0), isTested(false),
+        labIndex(-1), numLabs(0), isTested(false),
         async_queue_max_len_(10) {}
-    int init(bool isTested = false, int assynch_queue_max_len = 10, int data_mess_tag=5);
+    int init(const InitParamHolder &init_par);
     void close();
     void barrier();
     void clearAll();
     void labSend(int data_address, int data_tag, bool is_synchroneous, uint8_t* data_buffer, size_t nbytes_to_transfer);
-    void labProbe(const std::vector<int32_t> &data_address, const std::vector<int32_t> &data_tag, 
+    void labProbe(const std::vector<int32_t> &data_address, const std::vector<int32_t> &data_tag,
         std::vector<int32_t> & addres_present, std::vector<int32_t> & tag_present);
     void labReceive(int source_address, int source_data_tag, bool isSynchronous, mxArray* plhs[], int nlhs);
     ~MPI_wrapper() {
@@ -50,7 +50,7 @@ public:
     // index of the current MPI lab (worker)
     int labIndex;
     // total  number of MPI labs (workers)
-    int numProcs;
+    int numLabs;
     // test mode used to run various test operations over MPI_wrapper in single process, 
     // when no real mpi exchange is initiated.
     bool isTested;
@@ -60,6 +60,9 @@ public:
     }
     // the tag of message, containing data (processed differently, not yet implemented.)
     static int data_mess_tag;
+    // the tag of message, containing interrupts. Organizes independent channel to check for interrupts
+    static int interrupt_mess_tag;
+
 
     //----------------------------------------------------------------------------------
     // The methods used in unit tests -- have no meaning in real communications
@@ -75,7 +78,7 @@ public:
     }
     // check if any message present in test mode
     bool any_message_present() {
-        if (SyncMessHolder.theRequest==0) 
+        if (SyncMessHolder.theRequest == 0)
             return true;
         for (auto it = asyncMessList.rbegin(); it != asyncMessList.rend(); it++) {
             if (it->theRequest == 0) {

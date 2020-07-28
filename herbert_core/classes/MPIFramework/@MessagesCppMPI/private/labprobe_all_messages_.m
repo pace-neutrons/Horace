@@ -8,7 +8,7 @@ this_id  = obj.labIndex;
 num_labs = obj.numLabs;
 if exist('mess_addr_requested','var')
     if ischar(mess_addr_requested)
-        if strcmpi(mess_addr_requested,'all')
+        if strcmpi(mess_addr_requested,'all') || isempty(mess_addr_requested)
             mess_addr_requested = 1:num_labs;
         else
             error('MESSAGES_MPI:invalid_argument',...
@@ -19,6 +19,9 @@ if exist('mess_addr_requested','var')
         error('MESSAGES_MPI:invalid_argument',...
             'Unrecognized type of the task id: %s requested to ask for message',...
             fevalc('disp(mess_addr_requested)'));
+    end
+    if isempty(mess_addr_requested)
+        mess_addr_requested = 1:num_labs;
     end
 else
     mess_addr_requested = 1:num_labs; % take any message
@@ -94,4 +97,9 @@ if ~isempty(mess)
     [mess_names,tid_from] = ...
         obj.mix_messages(mess_names,tid_from,int_names,id_from);
 end
-
+if numel(tid_from) == 1
+    if ischar(mess_names)
+        mess_names = {mess_names};
+    end
+end
+tid_from = double(tid_from);

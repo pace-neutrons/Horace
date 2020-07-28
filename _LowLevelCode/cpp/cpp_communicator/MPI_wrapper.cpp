@@ -3,26 +3,35 @@
 #include <tuple> 
 
 // static data message tag, used by MPI wrapper to distinguish data messages and process them differently.
-int MPI_wrapper::data_mess_tag = 0;
+int MPI_wrapper::data_mess_tag = 5;
+// static interrupt message tag, used by MPI wrappert to distinguish interrupts and process them differently.
+int MPI_wrapper::interrupt_mess_tag = 100;
+// auxiliary property to help with running unit tests
 bool MPI_wrapper::MPI_wrapper_gtested = false;
 
-/** Initialize MPI communications framework */
-int MPI_wrapper::init(bool isTested, int async_messages_queue_len, int data_mess_tag) {
+/** Initialize MPI communications framework
+* Inputs:
+* init_param - the structure, containing the parameters, necessary for initialization.
+*/
+int MPI_wrapper::init(const InitParamHolder &init_param) {
+    //%int const * const isTestedInfo, int async_messages_queue_len,
+    //int data_mess_tag, int interrupt_mess_tag) {
 
-    MPI_wrapper::data_mess_tag = data_mess_tag;
+    MPI_wrapper::data_mess_tag = init_param.data_message_tag;
+    MPI_wrapper::interrupt_mess_tag = init_param.interrupt_tag;
 
     int* argc(nullptr);
     char*** argv(nullptr);
     int err(-1);
     // initiate the assynchroneous messages queue.
-    this->async_queue_max_len_ = async_messages_queue_len;
+    this->async_queue_max_len_ = init_param.async_queue_length;
     this->asyncMessList.clear();
     //
-    if (isTested) {
+    if (init_param.is_tested) {
         // set up test values and return without initializeing the framework
         this->isTested = true;
-        this->numProcs = 1;
-        this->labIndex = 0;
+        this->labIndex = (int)init_param.debug_frmwk_param[0];
+        this->numLabs = (int)init_param.debug_frmwk_param[1];
         return 0;
     }
     try {
@@ -35,7 +44,7 @@ int MPI_wrapper::init(bool isTested, int async_messages_queue_len, int data_mess
             "Can not initialize MPI framework");
     }
 
-    MPI_Comm_size(MPI_COMM_WORLD, &this->numProcs);
+    MPI_Comm_size(MPI_COMM_WORLD, &this->numLabs);
     MPI_Comm_rank(MPI_COMM_WORLD, &this->labIndex);
 
     return 0;
@@ -317,7 +326,7 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
         }
 
         // find last requested message
-        SendMessHolder* pMess(nullptr), * pPrevMess(nullptr);
+        SendMessHolder* pMess(nullptr), *pPrevMess(nullptr);
         if (check_address_tag_requsted(SyncMessHolder, source_address, source_data_tag)) {
             pMess = &this->SyncMessHolder;
         }

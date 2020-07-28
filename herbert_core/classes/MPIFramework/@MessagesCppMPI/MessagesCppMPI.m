@@ -122,31 +122,6 @@ classdef MessagesCppMPI < iMessagesFramework
             [all_messages_names,task_ids] = labprobe_all_messages_(obj,varargin{:});
         end
         %
-        function [all_messages,task_ids] = receive_all(obj,varargin)
-            % retrieve (and remove from system) all messages
-            % existing in the system for the tasks with id-s specified as input
-            % Blocks execution until all messages are received.
-            %
-            %
-            %Input:
-            %task_ids -- array of task id-s to check messages for
-            %Return:
-            % all_messages -- cellarray of messages for the tasks requested and
-            %                 have messages available in the system .
-            % task_ids     -- array of task id-s for these messages
-            % mess_name    -- if present, receive only the messages with
-            %                 the name provided
-            %
-            %
-            if nargin>1 && ischar(varargin{1})
-                if strcmp('any',varargin{1})
-                    warning('Outdated receive all interface. Use all instead of any')
-                    varargin{1} = 'all';
-                end
-            end
-            
-            [all_messages,task_ids] = receive_all_messages_(obj,varargin{:});
-        end
         %
         function obj=finalize_all(obj)
             % delete all messages belonging to this instance of messages
@@ -190,12 +165,21 @@ classdef MessagesCppMPI < iMessagesFramework
             end
             obj.mpi_framework_holder_ = [];
         end
-        function obj=set_framework_range(obj,labNum,NumLabs)
-            % The function to set numLab and labId describing framework
-            % extend during testing. Will fail if used in production mode.
+        function obj=set_framework_range(obj,labIndex,NumLabs)
+            % The function to set numLabs and labIndex describing framework
+            % extend and node number during testing. Will fail if used in production mode.
             %
-            error('MESSAGES_FRAMEWORK:not_implemented',...
-                'This method has not yet been implemented for MPI framework')
+            if ~obj.is_tested_
+                error('MESSAGES_FRAMEWORK:invalid_argument',...
+                    'Can not set up framework range in production mode');
+            end
+            obj.mpi_framework_holder_ = ...
+                cpp_communicator('finalize',obj.mpi_framework_holder_);
+            
+            obj.mpi_framework_holder_ = ...
+                cpp_communicator('init_test_mode',....
+                obj.assync_messages_queue_length_,obj.data_message_tag_,...
+                obj.interrupt_chan_tag_,int32([labIndex,NumLabs]));
         end
         %
     end
@@ -214,8 +198,8 @@ classdef MessagesCppMPI < iMessagesFramework
             [obj.mpi_framework_holder_,labNum,numLabs]= ...
                 cpp_communicator('labIndex',obj.mpi_framework_holder_);
             %
-            obj.task_id_ = labNum;
-            obj.numLabs_ = numLabs;
+            obj.task_id_ = double(labNum);
+            obj.numLabs_ = double(numLabs);
         end
         function is = get_is_tested(obj)
             % return true if the framework is tested (not real MPI)
@@ -239,8 +223,6 @@ classdef MessagesCppMPI < iMessagesFramework
             %        with the received message contents.
             [ok,err_mess,message] = receive_message_(obj,task_id,mess_name,is_blocking);
         end
-        
-        
     end
 end
 

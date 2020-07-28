@@ -104,6 +104,7 @@ void retrieve_string(const mxArray* param, std::string& result, const char* Erro
 /** Helper method to process initialization mode
 Inputs:
 ModeName -- pointer to string, indicating mode name if error occurs
+is_test_mode -- boolean string, indicating that the init is done in test mode
 prhs     -- array of input array of pointers to the right hand parameters, recevied from Matlab
 nrgs     -- size of  input array of pointers
 Outputs:
@@ -111,20 +112,33 @@ AddPar   -- the reference to structure, containing additional information about 
 Returns:
 pointer to handle, containing MPI communicator.
 */
-class_handle<MPI_wrapper>* process_init_mode(const char* ModeName, const mxArray* prhs[], int nrhs, AdditionalParamHolder& AddPar) {
-    if (nrhs > 3 || nrhs < 1) {
+class_handle<MPI_wrapper>* process_init_mode(const char* ModeName, bool is_test_mode, const mxArray* prhs[], int nrhs,
+    InitParamHolder& init_par) {
+    if (nrhs > 5 || nrhs < 1) {
         std::stringstream err;
-        err << ModeName << "  mode takes from 1 to 3 inputs but got : "
+        err << ModeName << "  mode takes from 1 to 5 inputs but got : "
             << nrhs << " input parameters";
         throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", err.str().c_str());
     }
     class_handle<MPI_wrapper>* pCommunicator = new class_handle<MPI_wrapper>();
-    if (nrhs == 2) {
-        AddPar.async_queue_length = (int)retrieve_value<double>(ModeName, prhs[(int)InitInputs::async_queue_len]);
+    init_par.is_tested = is_test_mode;
+
+    if (nrhs >= 2) {
+        init_par.async_queue_length = (int)retrieve_value<double>(ModeName, prhs[(int)InitInputs::async_queue_len]);
     }
-    if (nrhs == 3) {
-        AddPar.data_message_tag = (int)retrieve_value<double>(ModeName, prhs[(int)InitInputs::data_mess_tag]);
+    if (nrhs >= 3) {
+        init_par.data_message_tag = (int)retrieve_value<double>(ModeName, prhs[(int)InitInputs::data_mess_tag]);
     }
+    if (nrhs >= 4) {
+        init_par.interrupt_tag = (int)retrieve_value<double>(ModeName, prhs[(int)InitInputs::interrupt_tag]);
+    }
+    if (is_test_mode && nrhs == 5) {
+        size_t data_size(0), vec_size_vytes;
+        int32_t *labInfo = retrieve_vector<int32_t>(ModeName, prhs[(int)InitInputs::lab_info], data_size, vec_size_vytes);
+        init_par.debug_frmwk_param[0] = labInfo[0]-1; // Matlab labIndex is 1 higher then C++
+        init_par.debug_frmwk_param[1] = labInfo[1];  // numLabs
+    }
+
 
     return pCommunicator;
 
@@ -154,7 +168,7 @@ pointer to cpp_communicator class handler to share with Matlab
 class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray* prhs[],
     input_types& work_mode, std::vector<int>& data_addresses, std::vector<int>& data_tag, bool& is_synchronous,
     uint8_t*& data_buffer, size_t& nbytes_to_transfer,
-    AdditionalParamHolder& AddPar)
+    InitParamHolder& AddPar)
 {
 
     // get correct file name and the group name
@@ -225,11 +239,11 @@ class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray* prhs[
     }
     else if (mex_mode.compare("init") == 0) {
         work_mode = init_mpi;
-        return process_init_mode("Init", prhs, nrhs, AddPar);
+        return process_init_mode("Init", false, prhs, nrhs, AddPar);
     }
     else if (mex_mode.compare("init_test_mode") == 0) {
         work_mode = init_test_mode;
-        return process_init_mode("Init_test_mode", prhs, nrhs, AddPar);
+        return process_init_mode("Init_test_mode", true, prhs, nrhs, AddPar);
     }
     else if (mex_mode.compare("finalize") == 0) {
         work_mode = close_mpi;
@@ -238,7 +252,7 @@ class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray* prhs[
 
         return pCommunicator;
     }
-    else if(mex_mode.compare("clearAll") == 0){
+    else if (mex_mode.compare("clearAll") == 0) {
         work_mode = clearAll;
     }
     else {

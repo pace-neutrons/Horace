@@ -13,11 +13,27 @@ using namespace Herbert::Utility;
 TEST(TestCPPCommunicator, send_assynchroneous) {
 
     MPI_wrapper::MPI_wrapper_gtested = true;
+
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 4;
+    init_par.data_message_tag = 9;
+    init_par.interrupt_tag = 1010;
+
+
+    init_par.debug_frmwk_param[0] = 1;
+    init_par.debug_frmwk_param[1] = 10;
+
+
     auto wrap = MPI_wrapper();
-    wrap.init(true,4,9);
+    wrap.init(init_par);
     ASSERT_TRUE(wrap.isTested);
 
     EXPECT_EQ(MPI_wrapper::data_mess_tag, 9);
+    EXPECT_EQ(MPI_wrapper::interrupt_mess_tag, 1010);
+
+    EXPECT_EQ(wrap.labIndex, 1);
+    EXPECT_EQ(wrap.numLabs, 10);
 
     std::vector<uint8_t> test_mess;
     test_mess.assign(10, 1);
@@ -76,8 +92,18 @@ TEST(TestCPPCommunicator, send_assynchroneous) {
 TEST(TestCPPCommunicator, send_assynch_random_receive1) {
 
     MPI_wrapper::MPI_wrapper_gtested = true;
+
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 6;
+    init_par.data_message_tag = 9;
+
+    init_par.debug_frmwk_param[0] = 1;
+    init_par.debug_frmwk_param[1] = 10;
+
+
     auto wrap = MPI_wrapper();
-    wrap.init(true, 6, 9);
+    wrap.init(init_par);
     ASSERT_TRUE(wrap.isTested);
 
     EXPECT_EQ(MPI_wrapper::data_mess_tag, 9);
@@ -105,11 +131,23 @@ TEST(TestCPPCommunicator, send_assynch_random_receive1) {
     }
 
 }
+//
 TEST(TestCPPCommunicator, send_assynch_random_receive2) {
 
     MPI_wrapper::MPI_wrapper_gtested = true;
+
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 6;
+    init_par.data_message_tag = 9;
+    init_par.interrupt_tag = 1010;
+
+    init_par.debug_frmwk_param[0] = 1;
+    init_par.debug_frmwk_param[1] = 10;
+
+
     auto wrap = MPI_wrapper();
-    wrap.init(true, 6, 9);
+    wrap.init(init_par);
     ASSERT_TRUE(wrap.isTested);
 
     EXPECT_EQ(MPI_wrapper::data_mess_tag, 9);
@@ -137,11 +175,22 @@ TEST(TestCPPCommunicator, send_assynch_random_receive2) {
     }
 
 }
+//
 TEST(TestCPPCommunicator, lab_probe_single) {
 
     MPI_wrapper::MPI_wrapper_gtested = true;
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 4;
+    init_par.data_message_tag = 9;
+    init_par.interrupt_tag = 1010;
+
+    init_par.debug_frmwk_param[0] = 1;
+    init_par.debug_frmwk_param[1] = 10;
+
+
     auto wrap = MPI_wrapper();
-    wrap.init(true, 4);
+    wrap.init(init_par);
     ASSERT_TRUE(wrap.isTested);
 
     std::vector<int32_t> req_address(1,-1);
@@ -219,9 +268,20 @@ TEST(TestCPPCommunicator, lab_probe_single) {
 TEST(TestCPPCommunicator, lab_probe_multi) {
 
     MPI_wrapper::MPI_wrapper_gtested = true;
+
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 4;
+    init_par.data_message_tag = 10;
+
+    init_par.debug_frmwk_param[0] = 1;
+    init_par.debug_frmwk_param[1] = 10;
+
+
     auto wrap = MPI_wrapper();
-    wrap.init(true, 4);
+    wrap.init(init_par);
     ASSERT_TRUE(wrap.isTested);
+
 
     std::vector<int32_t> req_address(2, -1);
     std::vector<int32_t> req_tag(1, -1);
@@ -276,9 +336,18 @@ TEST(TestCPPCommunicator, lab_probe_multi) {
 TEST(TestCPPCommunicator, lab_receive_as_send) {
 
     MPI_wrapper::MPI_wrapper_gtested = true;
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 4;
+    init_par.data_message_tag = 9;
+    init_par.interrupt_tag = 1010;
+
+    init_par.debug_frmwk_param[0] = 1;
+    init_par.debug_frmwk_param[1] = 10;
+
 
     auto wrap = MPI_wrapper();
-    wrap.init(true, 4);
+    wrap.init(init_par);
     ASSERT_TRUE(wrap.isTested);
 
     mxArray* plhs[5];
@@ -366,9 +435,17 @@ TEST(TestCPPCommunicator, receive_sequence_ignore_same_tag) {
     // when asynchronously receving list of the same tag non-data messages retain only the last one
 
     MPI_wrapper::MPI_wrapper_gtested = true;
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 4;
+    init_par.data_message_tag = 10;
+
+    init_par.debug_frmwk_param[0] = 1;
+    init_par.debug_frmwk_param[1] = 10;
+
 
     auto wrap = MPI_wrapper();
-    wrap.init(true, 4,10);
+    wrap.init(init_par);
     ASSERT_TRUE(wrap.isTested);
 
     mxArray* plhs[4];
@@ -428,11 +505,21 @@ TEST(TestCPPCommunicator, receive_sequence_ignore_same_tag) {
     ASSERT_EQ(pAddress[0], 5);
     ASSERT_EQ(pAddress[1], 2);
 }
+
 TEST(TestCPPCommunicator, clear_all) {
     MPI_wrapper::MPI_wrapper_gtested = true;
 
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 4;
+    init_par.data_message_tag = 10;
+
+    init_par.debug_frmwk_param[0] =1;
+    init_par.debug_frmwk_param[1] = 10;
+
+
     auto wrap = MPI_wrapper();
-    wrap.init(true, 4, 10);
+    wrap.init(init_par);
     ASSERT_TRUE(wrap.isTested);
 
     std::vector<uint8_t> test_mess;
