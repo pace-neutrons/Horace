@@ -14,6 +14,7 @@ properties
     ref_npix_data = [];
     ref_s_data = [];
     ref_e_data = [];
+    ref_raw_pix_data = [];
 
     pix_in_memory_base;
     pix_in_memory;
@@ -47,6 +48,7 @@ methods
         obj.ref_npix_data = sqw_test_obj.data.npix;
         obj.ref_s_data = sqw_test_obj.data.s;
         obj.ref_e_data = sqw_test_obj.data.e;
+        obj.ref_raw_pix_data = sqw_test_obj.data.pix.data;
 
         file_info = dir(obj.test_sqw_file_path);
         obj.page_size = file_info.bytes/6;
@@ -516,6 +518,30 @@ methods
 
         assertEqual(new_pix_data(1:7, :), obj.pix_in_memory.data(1:7, :), ...
                     '', obj.FLOAT_TOLERANCE);
+    end
+
+    function test_binary_op_with_double_array_with_size_eq_to_num_pixels(obj)
+        pix = obj.pix_with_pages;
+        operand = ones(1, pix.num_pixels);
+
+        flip = true;
+        pix_result = pix.do_binary_op(operand, @minus_single, flip);
+        full_pix_array = obj.concatenate_pixel_pages(pix_result);
+
+        expected_signal = 1 - obj.pix_in_memory.signal;
+        assertElementsAlmostEqual(full_pix_array(8, :), expected_signal, ...
+                                  'relative', obj.FLOAT_TOLERANCE);
+        assertElementsAlmostEqual(full_pix_array([1:7, 9], :), ...
+                                  obj.ref_raw_pix_data([1:7, 9], :), ...
+                                  'relative', obj.FLOAT_TOLERANCE);
+    end
+
+    function test_binary_op_error_adding_double_with_length_neq_num_pixels(obj)
+        pix = obj.pix_with_pages;
+        operand = ones(1, pix.num_pixels - 1);
+
+        f = @() pix.do_binary_op(operand, @plus_single);
+        assertExceptionThrown(f, 'PIXELDATA:do_binary_op');
     end
 
     % -- Helpers --
