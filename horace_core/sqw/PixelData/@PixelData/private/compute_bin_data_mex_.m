@@ -17,6 +17,7 @@ obj.move_to_first_page();
 % Get a cumulative sum to track which pixels have been processed
 npix_cum_sum = cumsum(npix(:));
 
+end_idx = 1;
 signal_sum = zeros(1, numel(npix));
 variance_sum = zeros(1, numel(npix));
 
