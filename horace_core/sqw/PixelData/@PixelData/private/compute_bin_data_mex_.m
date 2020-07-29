@@ -30,9 +30,10 @@ while true
     % the last iteration
     leftover_begin = npix_cum_sum(start_idx);
 
-    % Subtrack allocated pixels from the npix cumulative sum
+    % Subtract allocated pixels from the npix cumulative sum
     npix_cum_sum = npix_cum_sum - obj.page_size;
     % Find the index of the last bin to allocate pixels to
+    % could optimise here by searching from the last end_idx
     end_idx = find(npix_cum_sum > 0, 1);
     if isempty(end_idx)
         % No end index found, must be at the end of the npix array
