@@ -37,7 +37,6 @@ function varargout = multifit_func (varargin)
 %   class_name = 'd3d'
 %   dim = '3'
 %   method_name = 'multifit_func'
-%   method_name_legacy = 'multifit_legacy_func'
 %   mfclass_name = 'mfclass_Horace'
 %   function_tag = ''
 %
@@ -47,7 +46,6 @@ function varargout = multifit_func (varargin)
 %
 %   doc_multifit_header = fullfile(multifit_doc,'doc_multifit_header.m')
 %   doc_fit_functions = fullfile(sqw_doc,'doc_multifit_fit_functions_for_dnd.m')
-%   doc_multifit_legacy_footnote = fullfile(multifit_doc,'doc_multifit_legacy_footnote.m')
 %
 %-------------------------------------------------------------------------------
 % <#doc_beg:> multifit
@@ -56,15 +54,8 @@ function varargout = multifit_func (varargin)
 %   <#file:>  <doc_fit_functions>  <dim>
 %
 % See also multifit_sqw multifit_sqw_sqw
-%
-%   <#file:>  <doc_multifit_legacy_footnote>  <class_name>/<method_name_legacy>
 % <#doc_end:>
 %-------------------------------------------------------------------------------
 
-
-if ~mfclass.legacy(varargin{:})
-    mf_init = mfclass_wrapfun (@func_eval, [], @func_eval, []);
-    varargout{1} = mfclass_Horace (varargin{:}, 'd1d', mf_init);
-else
-    [varargout{1:nargout}] = mfclass.legacy_call (@multifit_legacy_func, varargin{:});
-end
+mf_init = mfclass_wrapfun (@func_eval, [], @func_eval, []);
+varargout{1} = mfclass_Horace (varargin{:}, 'd1d', mf_init);
