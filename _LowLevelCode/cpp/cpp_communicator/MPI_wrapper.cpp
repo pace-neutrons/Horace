@@ -32,6 +32,8 @@ int MPI_wrapper::init(const InitParamHolder &init_param) {
         this->isTested = true;
         this->labIndex = (int)init_param.debug_frmwk_param[0];
         this->numLabs = (int)init_param.debug_frmwk_param[1];
+        this->SyncMessHolder.resize(this->numLabs);
+        this->InterruptHolder.resize(this->numLabs);
         return 0;
     }
     try {
@@ -46,6 +48,8 @@ int MPI_wrapper::init(const InitParamHolder &init_param) {
 
     MPI_Comm_size(MPI_COMM_WORLD, &this->numLabs);
     MPI_Comm_rank(MPI_COMM_WORLD, &this->labIndex);
+    this->SyncMessHolder.resize(this->numLabs);
+    this->InterruptHolder.resize(this->numLabs);
 
     return 0;
 }
@@ -80,9 +84,48 @@ void MPI_wrapper::barrier() {
 void MPI_wrapper::labSend(int dest_address, int data_tag, bool is_synchroneous, uint8_t* data_buffer, size_t nbytes_to_transfer) {
 
     SendMessHolder* pSendMessage(nullptr);
+    MPI_Status status;
+    if (data_tag == MPI_wrapper::interrupt_mess_tag) { // send message to special interrupt channel
+        if (!this->InterruptHolder[dest_address].is_delivered(this->isTested)) { // how should we handle such situation?
+            // not sure. two interrupts in a row to the same address is a problem. Let's assume that 
+            // proper barriers will be in place not to allow such situation.:
+            if (this->isTested) {
+                std::stringstream buf;
+                buf << " Attempt to send next interrupt message to Worker N: "
+                    << dest_address + 1
+                    << " unitl the previous one is delivered is not allowed\n";
+                throw_error("MPI_MEX_COMMUNICATOR:runtime_error", buf.str().c_str(), MPI_wrapper::MPI_wrapper_gtested);
+
+            }
+            else
+            {
+                auto err = MPI_Wait(&this->InterruptHolder[dest_address].theRequest, &status);
+                if (err != MPI_SUCCESS) {
+                    std::stringstream buf;
+                    buf << " The MPI_Wait until previous interrupt message in the queue for Worker N"
+                        << dest_address + 1
+                        << "is delivered have failed with Error, code= "
+                        << err << std::endl;
+                    throw_error("MPI_MEX_COMMUNICATOR:runtime_error", buf.str().c_str(), MPI_wrapper::MPI_wrapper_gtested);
+                }
+
+            }
+
+        }
+        this->InterruptHolder[dest_address].init(data_buffer, nbytes_to_transfer, dest_address, data_tag);
+        if (this->isTested) {
+            // set testing request state to 0 (false) send but not delivered
+            this->InterruptHolder[dest_address].theRequest = 0;
+        }
+        else {
+            int mess_size = static_cast<int>(nbytes_to_transfer);
+            auto err = MPI_Issend(data_buffer, mess_size, MPI_CHAR, dest_address, data_tag, MPI_COMM_WORLD,
+                &(InterruptHolder[dest_address].theRequest));
+        }
+        return;
+    }
     if (is_synchroneous)
         pSendMessage = this->set_sync_transfer(data_buffer, nbytes_to_transfer, dest_address, data_tag);
-
     else
         pSendMessage = this->add_to_async_queue(data_buffer, nbytes_to_transfer, dest_address, data_tag);
 
@@ -116,22 +159,12 @@ SendMessHolder* MPI_wrapper::add_to_async_queue(uint8_t* pBuffer, size_t n_bytes
 
     //
     int isDelivered;
-    MPI_Status status; // not clear what to do about it.
     auto pMess = this->asyncMessList.begin();
     while (pMess != this->asyncMessList.end()) {
-        if (this->isTested)
-            isDelivered = bool(pMess->theRequest);
-        else {
-            auto err = MPI_Test(&pMess->theRequest, &isDelivered, &status);
-            if (err != MPI_SUCCESS) {
-                std::stringstream buf;
-                buf << " The MPI_Test for messages in the queue for Worker N" << this->labIndex + 1 << "have failed with Error, code= "
-                    << err << std::endl;
-                throw_error("MPI_MEX_COMMUNICATOR:runtime_error", buf.str().c_str());
-            }
-        }
 
-        if (isDelivered) { // pick current delivered message for reuswe
+        isDelivered = pMess->is_delivered(this->isTested);
+
+        if (isDelivered) { // pick current delivered message for reuse
             pPrevMess = pMessToSend;
             pMessToSend = pMess;
             messToSend = &(*pMessToSend);
@@ -169,7 +202,11 @@ SendMessHolder* MPI_wrapper::set_sync_transfer(uint8_t* pBuffer, size_t n_bytes,
 
 }
 
-/* in test mode, verify if data source and data tag for message correspond data source and data tag requested */
+/* in test mode, verify if data source and data tag for message correspond data source and data tag requested
+*
+* Non-send message has negative destination address and delvered message has theRequest tag == 0 so only
+* valid queue messages are verified and returned
+*/
 bool check_address_tag_requsted(SendMessHolder const& Mess, int addr_requested, int tag_requested) {
     if (Mess.theRequest == 0) {// Assume that in test mode, request==0 means message is sent but not delivered, so it is present in the queue
         if (addr_requested >= 0) {
@@ -213,9 +250,19 @@ void MPI_wrapper::labProbe(const std::vector<int32_t>& data_address, const std::
     for (size_t i = 0; i < data_address.size(); i++) {
 
         for (size_t j = 0; j < data_tag.size(); j++) {
-            if (this->isTested) { // As there is only one host there, treat send message as the present message
-                if (check_address_tag_requsted(this->SyncMessHolder, data_address[i], data_tag[j])) {
-                    addres_tmp.push_back(std::make_tuple(this->SyncMessHolder.destination, this->SyncMessHolder.mess_tag));
+            if (this->isTested) {
+                //interrupt tag must be in the data_tag list to provide the same interface as matlan/parpool MPI
+                if (data_tag[j] == MPI_wrapper::interrupt_mess_tag &&
+                    check_address_tag_requsted(this->InterruptHolder[data_address[i]], data_address[i], MPI_wrapper::interrupt_mess_tag)) {
+                    addres_tmp.push_back(std::make_tuple(this->InterruptHolder[data_address[i]].destination,
+                        MPI_wrapper::interrupt_mess_tag));
+                    break;
+                }
+
+                if (data_tag[j] == MPI_wrapper::data_mess_tag &&
+                    check_address_tag_requsted(this->SyncMessHolder[data_address[i]], data_address[i], MPI_wrapper::data_mess_tag)) {
+                    addres_tmp.push_back(std::make_tuple(this->SyncMessHolder[data_address[i]].destination,
+                        this->SyncMessHolder[data_address[i]].mess_tag));
                     break;
                 }
 
@@ -307,7 +354,10 @@ mxArray* plhs[]   -- on input array of Matlab pointers to output parameters of m
 void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSynchronous, mxArray* plhs[], int nlhs) {
 
     if (source_data_tag == -1)source_data_tag = MPI_ANY_TAG;
-    if (source_address == -1)source_address = MPI_ANY_SOURCE;
+    if (source_address == -1) { // not allowed in our framework
+        throw_error("MPI_MEX_COMMUNICATOR:runtime_error",
+            "LabReceive from any address is not alowed", MPI_wrapper::MPI_wrapper_gtested);
+    }
     int message_size(0);
     std::tuple<char*, void*, int32_t*> outPtrs;
 
@@ -318,6 +368,12 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
 
 
     if (this->isTested) {
+        SendMessHolder* pMess(nullptr), *pPrevMess(nullptr);
+
+        if (check_address_tag_requsted(InterruptHolder[source_address], source_address, source_data_tag)) {
+            pMess = &this->InterruptHolder[source_address];
+        }
+
         if (isSynchronous) {
             if (!this->any_message_present()) {
                 throw_error("MPI_MEX_COMMUNICATOR:runtime_error",
@@ -326,9 +382,8 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
         }
 
         // find last requested message
-        SendMessHolder* pMess(nullptr), *pPrevMess(nullptr);
-        if (check_address_tag_requsted(SyncMessHolder, source_address, source_data_tag)) {
-            pMess = &this->SyncMessHolder;
+        if (!pMess && check_address_tag_requsted(SyncMessHolder[source_address], source_address, source_data_tag)) {
+            pMess = &this->SyncMessHolder[source_address];
         }
         if (!pMess) {
             // look through the queue and find message to receive
@@ -336,7 +391,7 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
                 if (check_address_tag_requsted(*it, source_address, source_data_tag)) {
                     pPrevMess = pMess;
                     pMess = &(*it);
-                    if (bool(pPrevMess) & (source_data_tag != MPI_ANY_TAG)) {
+                    if (bool(pPrevMess) && (source_data_tag != MPI_ANY_TAG)) {
                         if (pPrevMess->mess_tag == pMess->mess_tag) {
                             pPrevMess->theRequest = (MPI_Request)1; // Mark prevoius message delivered and ignore it.
                         }
@@ -348,12 +403,14 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
                 }
             }
         }
+
         // if no message exist, return empty matrices.
         if (!pMess) {
             create_plhs_for_labReceive(plhs, nlhs, 0, 0);
             return;
         }
         pMess->theRequest = (MPI_Request)1; // mark the message as received
+
         message_size = (int)pMess->mess_body.size();
         outPtrs = create_plhs_for_labReceive(plhs, nlhs, message_size, 0);
         char* pBuff = std::get<0>(outPtrs);
@@ -362,6 +419,8 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
         }
         source_address = pMess->destination;
         source_data_tag = pMess->mess_tag;
+        //
+        pMess->destination = -1; // mark the message pointer pointing to non-send message
     }
     else {  // real receive
         MPI_Status status;
@@ -396,7 +455,7 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
                 "Error receiving message");
             int mess_exist;
             MPI_Iprobe(source_address, source_data_tag, MPI_COMM_WORLD, &mess_exist, &status);
-            while (mess_exist & (status.MPI_TAG == source_data_tag)) {
+            while (mess_exist && (status.MPI_TAG == source_data_tag)) {
                 MPI_Get_count(&status, MPI_CHAR, &message_size);
                 Buf.resize(message_size);
                 pBuff = &Buf[0];
@@ -420,14 +479,21 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
 
 
 }
-/** Receive and discard all messages, directed to this lab. In test mode clears all messages. */
+/** Receive and discard all messages, directed to this lab.
+* In test mode marks all messages as not send and delivered.
+*/
 void MPI_wrapper::clearAll() {
 
     if (this->isTested) {
-        this->SyncMessHolder.theRequest = 0;
+        for (size_t i = 0; i < this->SyncMessHolder.size(); i++) {
+            SyncMessHolder[i].theRequest = -1;
+            SyncMessHolder[i].destination = -1;
+            InterruptHolder[i].theRequest = -1;
+            InterruptHolder[i].destination = -1;
+        }
         this->asyncMessList.clear();
     }
-    else {  // real receive
+    else {  // real receive and ignore the results
         MPI_Status status;
         int mess_exist, message_size;
         std::vector <uint8_t> buf;
@@ -442,7 +508,6 @@ void MPI_wrapper::clearAll() {
             MPI_Recv(pBuf, message_size, MPI_CHAR, source_address, source_data_tag, MPI_COMM_WORLD, &status);
 
             MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &mess_exist, &status);
-
         }
     }
 }
@@ -486,3 +551,48 @@ void SendMessHolder::init(uint8_t* pBuffer, size_t n_bytes, int dest_address, in
     }
 
 }
+/** Check if the non-empty message, asigned to message holder has been delivered.
+ * Inputs:
+ * is_tested -- boolean to check if the framework works in test mode
+ * Returns:
+  int value > 0 if the message was delivered or 0 if it is not.
+  Throws if MPI_Tests fails
+  Message never sent never delivered
+*/
+int SendMessHolder::is_delivered(bool is_tested) {
+    int isDelivered;
+    MPI_Status status; // not clear what to do about this status.
+
+    if (is_tested)
+        isDelivered = bool(this->theRequest);
+    else {
+        if (this->destination == -1) { // message was never sent so never delivered
+            return 0;
+        }
+        auto err = MPI_Test(&this->theRequest, &isDelivered, &status);
+        if (err != MPI_SUCCESS) {
+            std::stringstream buf;
+            buf << " The MPI_Test for messages in the queue for Worker N" << this->destination + 1 << "have failed with Error, code= "
+                << err << std::endl;
+            throw_error("MPI_MEX_COMMUNICATOR:runtime_error", buf.str().c_str(), MPI_wrapper::MPI_wrapper_gtested);
+        }
+    }
+    return isDelivered;
+}
+/** Check if the messag holder is responsible for send message (e.g. non-empty message)
+
+ * Inputs:
+ * is_tested -- boolean to check if the framework works in test mode
+ * Returns:
+    true if the message has been send and false if it is not
+  Message never sent never delivered
+*/
+
+bool SendMessHolder::is_send() {
+
+    if (this->destination > -1)
+        return true;
+    else
+        return false;
+}
+

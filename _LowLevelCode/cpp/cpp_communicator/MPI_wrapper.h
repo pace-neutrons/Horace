@@ -27,6 +27,11 @@ public:
     SendMessHolder(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag);
 
     void init(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag);
+
+    // method checks if the message was delivered to the target worker
+    int is_delivered(bool is_tested);
+    // method checks if the message has been send.
+    bool is_send();
 };
 
 /* The class which describes a block of information necessary to process block of pixels */
@@ -73,13 +78,21 @@ public:
         return &this->asyncMessList;
     }
     // get access to the synchroneous messages holder.
-    SendMessHolder* get_sync_queue() {
-        return &this->SyncMessHolder;
+    SendMessHolder* get_sync_queue(int dest_address = 0) {
+        return &this->SyncMessHolder[dest_address];
+    }
+    // get access to the interrupt holder
+    SendMessHolder *get_interrupt_queue(int dest_address = 0) {
+        return &this->InterruptHolder[dest_address];
     }
     // check if any message present in test mode
     bool any_message_present() {
-        if (SyncMessHolder.theRequest == 0)
-            return true;
+        for (auto it = InterruptHolder.begin(); it != InterruptHolder.end(); it++) {
+            if (it->theRequest == 0)  return true;
+        }
+        for (auto it = SyncMessHolder.begin(); it != SyncMessHolder.end(); it++) {
+            if (it->theRequest == 0)  return true;
+        }
         for (auto it = asyncMessList.rbegin(); it != asyncMessList.rend(); it++) {
             if (it->theRequest == 0) {
                 return true;
@@ -95,7 +108,8 @@ private:
     // the list of assyncroneous messages, stored until delivered
     std::list<SendMessHolder> asyncMessList;
 
-    SendMessHolder SyncMessHolder;
+    std::vector<SendMessHolder> SyncMessHolder;
+    std::vector<SendMessHolder> InterruptHolder;
 
     // add message to the asynchroneous messages queue and check if the queue is exceeded
     SendMessHolder* add_to_async_queue(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag);

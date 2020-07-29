@@ -9,6 +9,39 @@
 
 using namespace Herbert::Utility;
 
+TEST(TestCPPCommunicator, send_probe_receive_interrupt) {
+    // when asynchronously receving list of the same tag non-data messages retain only the last one
+
+    MPI_wrapper::MPI_wrapper_gtested = true;
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 4;
+    init_par.data_message_tag = 10;
+    init_par.interrupt_tag = 100;
+
+    init_par.debug_frmwk_param[0] = 1;
+    init_par.debug_frmwk_param[1] = 10;
+
+
+    auto wrap = MPI_wrapper();
+    wrap.init(init_par);
+    ASSERT_TRUE(wrap.isTested);
+
+    auto pInterrupt = wrap.get_interrupt_queue(5);
+    ASSERT_FALSE(pInterrupt->is_send());
+    ASSERT_TRUE(pInterrupt->is_delivered(true));
+
+    std::vector<uint8_t> test_mess;
+    test_mess.assign(10, 1);
+
+    wrap.labSend(5, init_par.interrupt_tag, false, &test_mess[0], test_mess.size());
+    ASSERT_TRUE(pInterrupt->is_send());
+    ASSERT_FALSE(pInterrupt->is_delivered(true));
+
+
+}
+
+
 
 TEST(TestCPPCommunicator, send_assynchroneous) {
 
@@ -343,7 +376,7 @@ TEST(TestCPPCommunicator, lab_receive_as_send) {
     init_par.interrupt_tag = 1010;
 
     init_par.debug_frmwk_param[0] = 1;
-    init_par.debug_frmwk_param[1] = 10;
+    init_par.debug_frmwk_param[1] = 11;
 
 
     auto wrap = MPI_wrapper();
@@ -374,8 +407,9 @@ TEST(TestCPPCommunicator, lab_receive_as_send) {
     wrap.labSend(10, 2, false, &test_mess[0], test_mess.size());
     ASSERT_EQ(1, wrap.async_queue_len());
 
-    wrap.labReceive(-1, -1, false, plhs,5);
+    ASSERT_ANY_THROW(wrap.labReceive(-1, -1, false, plhs,5));
 
+    wrap.labReceive(10, -1, false, plhs, 5);
     out = plhs[(int)labReceive_Out::mess_contents];
     ASSERT_EQ(mxGetM(out), 1);
     ASSERT_EQ(mxGetN(out), 10);
@@ -441,7 +475,7 @@ TEST(TestCPPCommunicator, receive_sequence_ignore_same_tag) {
     init_par.data_message_tag = 10;
 
     init_par.debug_frmwk_param[0] = 1;
-    init_par.debug_frmwk_param[1] = 10;
+    init_par.debug_frmwk_param[1] = 11;
 
 
     auto wrap = MPI_wrapper();
