@@ -1,4 +1,4 @@
-function test_tobyfit_mosaic (option, version)
+    function test_tobyfit_mosaic (option, version)
 % Test mosaic spread in Tobyfit
 %
 % Perform tests:
@@ -14,10 +14,6 @@ function test_tobyfit_mosaic (option, version)
 %
 %   >> test_tobyfit_mosaic ('-notest')% Run without testing against previously stored results.
 %                                   % For performing visual checks or debugging the tests!
-%
-%
-% Do any of the above, run with the legacy version of Tobyfit:
-%   >> test_tobyfit_mosaic (...,'-legacy')
 
 
 % ----------------------------------------------------------------------------
@@ -46,7 +42,6 @@ nlist = 0;  % set to 1 or 2 for listing during fit
 save_data = false;
 save_output = false;
 test_output = true;
-legacy = false;
 
 if exist('option','var')
     if ischar(option) && isequal(lower(option),'-setup')
@@ -64,18 +59,6 @@ if exist('option','var')
             error('Invalid option')
         end
     end
-end
-
-if exist('version','var')
-    if ischar(version) && isequal(lower(version),'-legacy')
-        legacy = true;
-    else
-        error('Invalid option(s)')
-    end
-end
-
-if legacy
-    disp('Legacy Tobyfit...')
 end
 
 
