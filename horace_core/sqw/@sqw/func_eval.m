@@ -1,8 +1,11 @@
-function wout = func_eval (win, func_handle, pars, opt)
+function wout = func_eval (win, func_handle, pars, varargin)
 % Evaluate a function at the plotting bin centres of sqw object or array of sqw object
 % Syntax:
 %   >> wout = func_eval (win, func_handle, pars)
-%   >> wout = func_eval (win, func_handle, pars, 'all')
+%   >> wout = func_eval (win, func_handle, pars, ['all'])
+%
+% If function is called on sqw-type object, the pixels signal is also
+% modified and evaluated
 %
 % Input:
 % ======
@@ -29,8 +32,8 @@ function wout = func_eval (win, func_handle, pars, opt)
 %                - Most commonly just a numeric array of parameters
 %                - If a more general set of parameters is needed by the function, then
 %                  wrap as a cell array {pars, c1, c2, ...}
-%
-%   'all'       [option] Requests that the calculated function be returned over
+% Additional allowed options:
+%   'all'      Requests that the calculated function be returned over
 %              the whole of the domain of the input dataset. If not given, then
 %              the function will be returned only at those points of the dataset
 %              that contain data.
@@ -69,12 +72,10 @@ function wout = func_eval (win, func_handle, pars, opt)
 %
 
 % Check optional argument
-if ~exist('opt','var')  % no option given
-    all_bins=false;
-elseif ischar(opt) && ~isempty(strmatch(lower(opt),'all'))    % option 'all' given
-    all_bins=true;
-else
-    error('Unrecognised option')
+options = {'all'};
+[ok,mess,all_bins]=parse_char_options(varargin,options);
+if ~ok
+    error('FUNC_EVAL:invalid_argument',mess);
 end
 
 wout = copy(win);
