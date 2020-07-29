@@ -10,6 +10,13 @@ function wout = binary_op_manager_single(w1,w2,binary_op)
 %           >> nd = dimensions(obj)
 %   (3) have private function that returns class name
 %           >> name = classname     % no argument - gets called by its association with the class
+%
+allowed_types = {'double', 'd0d', 'd1d', 'd2d', 'd3d', 'd4d', 'sqw', 'sigvar'};
+if ~ismember(class(w1), allowed_types) || ~ismember(class(w2), allowed_types)
+    error('SQW:binary_op_manager_single', ...
+          ['Cannot perform binary operation between types ' ...
+           '''%s'' and ''%s''.'], class(w1), class(w2));
+end
 
 if ~isa(w1,'double') && ~isa(w2,'double')
     if (isa(w1,classname) && is_sqw_type(w1)) && (isa(w2,classname) && is_sqw_type(w2))
