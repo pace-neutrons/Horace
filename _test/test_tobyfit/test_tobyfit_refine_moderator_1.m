@@ -15,10 +15,6 @@ function test_tobyfit_refine_moderator_1 (option, version)
 %   >> test_tobyfit_refine_moderator_1 ('-notest')  % Run without testing against previously stored results.
 %                                                   % For performing visual checks or debugging the tests!
 %
-%
-% Do any of the above, run with the legacy version of Tobyfit:
-%   >> test_tobyfit_1 (...,'-legacy')
-
 
 % ----------------------------------------------------------------------------
 % Setup (should only have to do in extremis - assumes data on Toby Perring's computer
@@ -39,7 +35,6 @@ nlist = 1;  % set to 1 or 2 for listing during fit
 save_data = false;
 save_output = false;
 test_output = true;
-legacy = false;
 
 if exist('option','var')
     if ischar(option) && isequal(lower(option),'-setup')
@@ -58,19 +53,6 @@ if exist('option','var')
         end
     end
 end
-
-if exist('version','var')
-    if ischar(version) && isequal(lower(version),'-legacy')
-        legacy = true;
-    else
-        error('Invalid option(s)')
-    end
-end
-
-if legacy
-    disp('Legacy Tobyfit...')
-end
-
 
 %% ================================================================================================
 % Setup
@@ -131,45 +113,22 @@ w1inc = set_mod_pulse(w1inc,pulse_model,ppmod);
 % Tobyfitting proper
 % ------------------
 mc=2;
-if legacy
-    % We can see that the model is 'ikcarp' and it has three parameters; we are only going to refine the first one
-    mod_opts=tobyfit_refine_moderator_options([1,0,0]);   % take default moderator parameters as starting point
-    
-    % Could equally well have set the options explicity from the previously extracted values, or
-    % a different model altogether
-    mod_opts=tobyfit_refine_moderator_options(pulse_model,ppmod,[1,0,0]);
-    
-    % Check we have good starting parameters
-    amp=100;  en0=0;   fwhh=0.25;
-    wtmp=tobyfit(w1inc,@testfunc_sqw_van,[amp,en0,fwhh],[1,1,0],'mc_npoints',mc,'refine_mod',mod_opts,'eval');
-    acolor b; dd(w1inc); acolor k; pl(wtmp)
-    
-    % Good choice of parameters, so start the fit
-    [w1fit,pfit,ok,mess,pmodel,ppfit]=tobyfit(w1inc,@testfunc_sqw_van,[amp,en0,fwhh],[1,1,0],'mc_npoints',mc,'refine_mod',mod_opts,'list',nlist);
-    acolor r; pl(w1fit)
-    
-    % Happy with the fit (ppfit(1)=10.35 +/- 0.28)
-    
-else
-    % Equivalent with new tobyfit
-    
-    kk = tobyfit (w1inc);
-    kk = kk.set_refine_moderator (pulse_model,ppmod,[1,0,0]);
-    kk = kk.set_mc_points (mc);
-    
-    amp=100;  en0=0;   fwhh=0.25;
-    kk = kk.set_fun (@testfunc_sqw_van, [amp,en0,fwhh], [1,1,0]);
-    
-    % Simulate
-    wtmp = kk.simulate;
-    acolor b; dd(w1inc); acolor k; pl(wtmp)
-    
-    % Fit
-    kk = kk.set_options('list',nlist);
-    [w1fit,pfit,ok,mess,pmodel,ppfit,psigfit] = kk.fit;
-    acolor r; pl(w1fit)
-    
-end
+
+kk = tobyfit (w1inc);
+kk = kk.set_refine_moderator (pulse_model,ppmod,[1,0,0]);
+kk = kk.set_mc_points (mc);
+
+amp=100;  en0=0;   fwhh=0.25;
+kk = kk.set_fun (@testfunc_sqw_van, [amp,en0,fwhh], [1,1,0]);
+
+% Simulate
+wtmp = kk.simulate;
+acolor b; dd(w1inc); acolor k; pl(wtmp)
+
+% Fit
+kk = kk.set_options('list',nlist);
+[w1fit,pfit,ok,mess,pmodel,ppfit,psigfit] = kk.fit;
+acolor r; pl(w1fit)
 
 if test_output
     disp('Comparing with stored fit')

@@ -14,11 +14,6 @@ function test_tobyfit_1 (option, version)
 %
 %   >> test_tobyfit_1 ('-notest')   % Run without testing against previously stored results.
 %                                   % For performing visual checks or debugging the tests!
-%
-%
-% Do any of the above, run with the legacy version of Tobyfit:
-%   >> test_tobyfit_1 (...,'-legacy')
-
 
 % ----------------------------------------------------------------------------
 % Setup (should only have to do in extremis - assumes data on Toby Perring's computer
@@ -37,7 +32,6 @@ nlist = 0;  % set to 1 or 2 for listing during fit
 save_data = false;
 save_output = false;
 test_output = true;
-legacy = false;
 
 if exist('option','var')
     if ischar(option) && isequal(lower(option),'-setup')
@@ -56,19 +50,6 @@ if exist('option','var')
         end
     end
 end
-
-if exist('version','var')
-    if ischar(version) && isequal(lower(version),'-legacy')
-        legacy = true;
-    else
-        error('Invalid option(s)')
-    end
-end
-
-if legacy
-    disp('Legacy Tobyfit...')
-end
-
 
 %% --------------------------------------------------------------------------------------
 % Setup
@@ -152,16 +133,12 @@ acolor k; dd(w110a_eval)
 pause(1)
 
 % Tobyfit simulation
-if legacy
-    w110a_sim=tobyfit(w110a,@testfunc_sqw_bcc_hfm,[amp,sj,fwhh],'eval','mc_npoints',10);
-else
-    kk=tobyfit(w110a);
-    kk=kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh]);
-    kk=kk.set_mc_points(10);
-    w110a_sim=kk.simulate;
-end
-acolor b; pd(w110a_sim)
+kk=tobyfit(w110a);
+kk=kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh]);
+kk=kk.set_mc_points(10);
+w110a_sim=kk.simulate;
 
+acolor b; pd(w110a_sim)
 pause(2)
 
 % ---------------------------------------------------------------------------------------
@@ -174,14 +151,11 @@ acolor k; dd(w110b_eval)
 pause(1)
 
 % Tobyfit simulation
-if legacy
-    w110b_sim=tobyfit(w110b,@testfunc_sqw_bcc_hfm,[amp,sj,fwhh],'eval','mc_npoints',10);
-else
-    kk=tobyfit(w110b);
-    kk=kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh]);
-    kk=kk.set_mc_points(10);
-    w110b_sim=kk.simulate;
-end
+kk=tobyfit(w110b);
+kk=kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh]);
+kk=kk.set_mc_points(10);
+w110b_sim=kk.simulate;
+
 acolor b; pd(w110b_sim)
 
 pause(2)
@@ -196,28 +170,21 @@ pause(2)
 
 amp=50;  sj=40;   fwhh=50;   const=0.1;  grad=0;
 
-if legacy
-    w110a1_sim=tobyfit(w110a,@testfunc_sqw_bcc_hfm_bkgd,[amp,sj,fwhh,const,grad],'eval','mc_npoints',10);
-else
-    kk = tobyfit(w110a);
-    kk = kk.set_fun(@testfunc_sqw_bcc_hfm_bkgd,[amp,sj,fwhh,const,grad]);
-    kk = kk.set_mc_points(10);
-    w110a1_sim=kk.simulate;
-end
+kk = tobyfit(w110a);
+kk = kk.set_fun(@testfunc_sqw_bcc_hfm_bkgd,[amp,sj,fwhh,const,grad]);
+kk = kk.set_mc_points(10);
+w110a1_sim=kk.simulate;
+
 acolor b; dd(w110a); acolor k; pl(w110a1_sim); ly 0 0.4
 pause(1)
 
-if legacy
-    [w110a1_tf,fp110a1]=tobyfit(w110a,@testfunc_sqw_bcc_hfm_bkgd,[amp,sj,fwhh,const,grad],[1,0,0,1,0],'list',nlist,'mc_npoints',10);
-else
-    kk = tobyfit(w110a);
-    kk = kk.set_fun(@testfunc_sqw_bcc_hfm_bkgd,[amp,sj,fwhh,const,grad],[1,0,0,1,0]);
-    kk = kk.set_mc_points(10);
-    kk = kk.set_options('listing',nlist);
-    [w110a1_tf,fp110a1]=kk.fit;
-end
-acolor r; pl(w110a1_tf); ly 0 0.4
+kk = tobyfit(w110a);
+kk = kk.set_fun(@testfunc_sqw_bcc_hfm_bkgd,[amp,sj,fwhh,const,grad],[1,0,0,1,0]);
+kk = kk.set_mc_points(10);
+kk = kk.set_options('listing',nlist);
+[w110a1_tf,fp110a1]=kk.fit;
 
+acolor r; pl(w110a1_tf); ly 0 0.4
 pause(2)
 
 if test_output
@@ -231,28 +198,21 @@ end
 % From a poor starting position
 amp=100;  sj=40;   fwhh=50;   const=0;  grad=0;
 
-if legacy
-    w110a2_sim=tobyfit(w110a,@testfunc_sqw_bcc_hfm_bkgd,[amp,sj,fwhh,const,grad],'eval','mc_npoints',10);
-else
-    kk = tobyfit(w110a);
-    kk = kk.set_fun(@testfunc_sqw_bcc_hfm_bkgd,[amp,sj,fwhh,const,grad]);
-    kk = kk.set_mc_points(10);
-    w110a2_sim=kk.simulate;
-end
+kk = tobyfit(w110a);
+kk = kk.set_fun(@testfunc_sqw_bcc_hfm_bkgd,[amp,sj,fwhh,const,grad]);
+kk = kk.set_mc_points(10);
+w110a2_sim=kk.simulate;
+
 acolor b; dd(w110a); acolor k; pl(w110a2_sim); ly 0 0.4
 pause(1)
 
-if legacy
-    [w110a2_tf,fp110a2]=tobyfit(w110a,@testfunc_sqw_bcc_hfm_bkgd,[amp,sj,fwhh,const,grad],[1,0,0,1,0],'list',nlist,'mc_npoints',10);
-else
-    kk = tobyfit(w110a);
-    kk = kk.set_fun(@testfunc_sqw_bcc_hfm_bkgd,[amp,sj,fwhh,const,grad],[1,0,0,1,0]);
-    kk = kk.set_mc_points(10);
-    kk = kk.set_options('listing',nlist);
-    [w110a2_tf,fp110a2]=kk.fit;
-end
-acolor r; pl(w110a2_tf); ly 0 0.4
+kk = tobyfit(w110a);
+kk = kk.set_fun(@testfunc_sqw_bcc_hfm_bkgd,[amp,sj,fwhh,const,grad],[1,0,0,1,0]);
+kk = kk.set_mc_points(10);
+kk = kk.set_options('listing',nlist);
+[w110a2_tf,fp110a2]=kk.fit;
 
+acolor r; pl(w110a2_tf); ly 0 0.4
 pause(2)
 
 if test_output
@@ -266,32 +226,25 @@ end
 % Decouple foreground and background - get same result, so good!
 amp=100;  sj=40;   fwhh=50;   const=0;  grad=0;
 
-if legacy
-    w110a3_sim=tobyfit(w110a,@testfunc_sqw_bcc_hfm,[amp,sj,fwhh],@testfunc_bkgd,[const,grad],'eval','mc_npoints',10);
-else
-    kk = tobyfit(w110a);
-    kk = kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh,const,grad]);
-    kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
-    kk = kk.set_mc_points(10);
-    w110a3_sim=kk.simulate;
-end
+kk = tobyfit(w110a);
+kk = kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh,const,grad]);
+kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
+kk = kk.set_mc_points(10);
+w110a3_sim=kk.simulate;
+
 acolor b; dd(w110a); acolor k; pl(w110a3_sim); ly 0 0.4
 pause(1)
 
-if legacy
-    [w110a3_tf,fp110a3]=tobyfit(w110a,@testfunc_sqw_bcc_hfm,[amp,sj,fwhh],[1,0,0],@testfunc_bkgd,[const,grad],[1,0],'list',nlist,'mc_npoints',10);
-else
-    kk = tobyfit(w110a);
-    kk = kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh]);
-    kk = kk.set_free([1,0,0]);
-    kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
-    kk = kk.set_bfree([1,0]);
-    kk = kk.set_mc_points(10);
-    kk = kk.set_options('listing',nlist);
-    [w110a3_tf,fp110a3]=kk.fit;
-end
-acolor r; pl(w110a3_tf); ly 0 0.4
+kk = tobyfit(w110a);
+kk = kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh]);
+kk = kk.set_free([1,0,0]);
+kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
+kk = kk.set_bfree([1,0]);
+kk = kk.set_mc_points(10);
+kk = kk.set_options('listing',nlist);
+[w110a3_tf,fp110a3]=kk.fit;
 
+acolor r; pl(w110a3_tf); ly 0 0.4
 pause(2)
 
 if test_output
@@ -305,30 +258,23 @@ end
 % Allow all parameters to vary
 amp=100;  sj=40;   fwhh=50;   const=0;  grad=0;
 
-if legacy
-    w110a4_sim=tobyfit(w110a,@testfunc_sqw_bcc_hfm,[amp,sj,fwhh],@testfunc_bkgd,[const,grad],'eval','mc_npoints',10);
-else
-    kk = tobyfit(w110a);
-    kk = kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh,const,grad]);
-    kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
-    kk = kk.set_mc_points(10);
-    w110a4_sim=kk.simulate;
-end
+kk = tobyfit(w110a);
+kk = kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh,const,grad]);
+kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
+kk = kk.set_mc_points(10);
+w110a4_sim=kk.simulate;
+
 acolor b; dd(w110a); acolor k; pl(w110a4_sim); ly 0 0.4
 pause(1)
 
-if legacy
-    [w110a4_tf,fp110a4]=tobyfit(w110a,@testfunc_sqw_bcc_hfm,[amp,sj,fwhh],@testfunc_bkgd,[const,grad],'list',nlist,'mc_npoints',10);
-else
-    kk = tobyfit(w110a);
-    kk = kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh]);
-    kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
-    kk = kk.set_mc_points(10);
-    kk = kk.set_options('listing',nlist);
-    [w110a4_tf,fp110a4]=kk.fit;
-end
-acolor r; pl(w110a4_tf); ly 0 0.4
+kk = tobyfit(w110a);
+kk = kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh]);
+kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
+kk = kk.set_mc_points(10);
+kk = kk.set_options('listing',nlist);
+[w110a4_tf,fp110a4]=kk.fit;
 
+acolor r; pl(w110a4_tf); ly 0 0.4
 pause(2)
 
 if test_output
@@ -346,34 +292,27 @@ end
 % Global foreground; allow all parameters to vary
 amp=100;  sj=40;   fwhh=50;   const=0;  grad=0;
 
-if legacy
-    w110arr1_sim=tobyfit(w110arr,@testfunc_sqw_bcc_hfm,[amp,sj,fwhh],@testfunc_bkgd,[const,grad],'eval');
-else
-    kk = tobyfit(w110arr);
-    kk = kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh]);
-    kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
-    kk = kk.set_mc_points(10);
-    w110arr1_sim=kk.simulate;
-end
+
+kk = tobyfit(w110arr);
+kk = kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh]);
+kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
+kk = kk.set_mc_points(10);
+w110arr1_sim=kk.simulate;
+
 acolor k b r; dp(w110arr); pl(w110arr1_sim); ly 0 0.8
 pause(1)
 
+kk = tobyfit(w110arr);
+kk = kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh]);
+kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
+kk = kk.set_mc_points(10);
+kk = kk.set_options('listing',nlist);
+[w110arr1_tf,fp110arr1]=kk.fit;
 
-if legacy
-    [w110arr1_tf,fp110arr1]=tobyfit(w110arr,@testfunc_sqw_bcc_hfm,[amp,sj,fwhh],[1,1,1],@testfunc_bkgd,[const,grad],[1,1],'list',nlist);
-else
-    kk = tobyfit(w110arr);
-    kk = kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh]);
-    kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
-    kk = kk.set_mc_points(10);
-    kk = kk.set_options('listing',nlist);
-    [w110arr1_tf,fp110arr1]=kk.fit;
-    
-    fback = kk.simulate(fp110arr1,'back');
-    pl(fback)
-end
+fback = kk.simulate(fp110arr1,'back');
+pl(fback)
+
 acolor k b r; pl(w110arr1_tf); ly 0 0.4
-
 pause(2)
 
 if test_output
@@ -387,37 +326,27 @@ end
 % Local foreground; constrain SJ as global but allow amplitude and gamma to vary locally
 amp=100;  sj=40;   fwhh=50;   const=0;  grad=0;
 
-if legacy
-    w110arr2_sim=tobyfit(w110arr,@testfunc_sqw_bcc_hfm,[amp,sj,fwhh],@testfunc_bkgd,[const,grad],'eval');
-else
-    kk = tobyfit(w110arr);
-    kk = kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh]);
-    kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
-    kk = kk.set_mc_points(10);
-    w110arr2_sim=kk.simulate;
-end
+kk = tobyfit(w110arr);
+kk = kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh]);
+kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
+kk = kk.set_mc_points(10);
+w110arr2_sim=kk.simulate;
+
 acolor k b r; dp(w110arr); pl(w110arr2_sim); ly 0 0.8
 pause(1)
 
-if legacy
-    pbind = multifit_bind_local_pars_as_global (size(w110arr), [0,1,0], true);
-    [w110arr2_tf,fp110arr2]=tobyfit(w110arr,@testfunc_sqw_bcc_hfm,[amp,sj,fwhh],[],pbind,...
-        @testfunc_bkgd,[const,grad],'local_fore','list',nlist,'mc_npoints',10);
-    acolor k b r; pl(w110arr2_tf); ly 0 0.4
-else
-    kk = tobyfit(w110arr);
-    kk = kk.set_local_foreground;
-    kk = kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh]);
-    kk = kk.set_bind({2,[2,1]});
-    kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
-    kk = kk.set_mc_points(10);
-    kk = kk.set_options('listing',nlist);
-    [w110arr2_tf,fp110arr2]=kk.fit;
-    
-    acolor k b r; pl(w110arr2_tf); ly 0 0.4
-    fback = kk.simulate(fp110arr2,'back');
-    pl(fback)
-end
+kk = tobyfit(w110arr);
+kk = kk.set_local_foreground;
+kk = kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh]);
+kk = kk.set_bind({2,[2,1]});
+kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
+kk = kk.set_mc_points(10);
+kk = kk.set_options('listing',nlist);
+[w110arr2_tf,fp110arr2]=kk.fit;
+
+acolor k b r; pl(w110arr2_tf); ly 0 0.4
+fback = kk.simulate(fp110arr2,'back');
+pl(fback)
 
 pause(2)
 
