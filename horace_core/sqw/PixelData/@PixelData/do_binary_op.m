@@ -19,9 +19,9 @@ pix_out = copy(obj);
 
 if isscalar(operand)
     do_op_func = @do_binary_op_scalar_;
-elseif is_sqw_type(operand)
+elseif isa(operand, 'sqw') && is_sqw_type(operand)
     do_op_func = @do_binary_op_sqw_;
-elseif isprop(operand, 's') && isprop(operand, 'e')
+elseif is_property(operand, 's') && is_property(operand, 'e')
     do_op_func = @do_binary_op_dnd_;
 elseif isa(operand, 'double')
     do_op_func = @do_binary_op_array_;
@@ -63,7 +63,6 @@ end
 
 function [signal, variance] = do_binary_op_array_(pix_sigvar, double_array, ...
                                                   binary_op, flip)
-
 end
 
 function [signal, variance] = do_binary_op_sqw_(pix_sigvar, other_sqw, ...
@@ -72,6 +71,17 @@ function [signal, variance] = do_binary_op_sqw_(pix_sigvar, other_sqw, ...
 end
 
 function [signal, variance] = do_binary_op_dnd_(pix_sigvar, dnd_obj, ...
-    binary_op, flip)
+                                                binary_op, flip)
 
+end
+
+function is = is_property(object, property)
+    is = true;
+    try
+        object.(property);
+    catch ME
+        if strcmp(ME.identifier, 'MATLAB:nonExistentField')
+            is = false;
+        end
+    end
 end
