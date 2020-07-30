@@ -9,6 +9,143 @@
 
 using namespace Herbert::Utility;
 
+TEST(TestCPPCommunicator, send_interrupt_overrides_message) {
+    // when asynchronously receving list of the same tag non-data messages retain only the last one
+
+    MPI_wrapper::MPI_wrapper_gtested = true;
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 4;
+    init_par.data_message_tag = 10;
+    init_par.interrupt_tag = 100;
+
+    init_par.debug_frmwk_param[0] = 1;
+    init_par.debug_frmwk_param[1] = 10;
+
+
+    auto wrap = MPI_wrapper();
+    wrap.init(init_par);
+    ASSERT_TRUE(wrap.isTested);
+
+    std::vector<uint8_t> test_mess;
+    test_mess.assign(10, 1);
+
+    wrap.labSend(5, 4, false, &test_mess[0], test_mess.size());
+
+    std::vector<uint8_t> interrupt_mess;
+    interrupt_mess.assign(10, 10);
+    wrap.labSend(5, init_par.interrupt_tag, false, &interrupt_mess[0], test_mess.size());
+
+    mxArray* plhs[5];
+    // ask message
+    wrap.labReceive(5, 4, false, plhs, (int)labReceive_Out::N_OUTPUT_Arguments);
+    // got interrupt
+    auto addrOut = plhs[(int)labReceive_Out::real_source_address];
+    ASSERT_EQ(mxGetM(addrOut), 1);
+    ASSERT_EQ(mxGetN(addrOut), 2);
+    auto pAddress = reinterpret_cast<int32_t *>(mxGetData(addrOut));
+    ASSERT_EQ(pAddress[0], 5);
+    ASSERT_EQ(pAddress[1], init_par.interrupt_tag);
+
+    auto out = plhs[(int)labReceive_Out::mess_contents];
+    ASSERT_EQ(mxGetM(out), 1);
+    ASSERT_EQ(mxGetN(out), 10);
+    auto mess_data = reinterpret_cast<uint8_t *>(mxGetData(out));
+    for (int i = 0; i < 10; i++) {
+        EXPECT_EQ(interrupt_mess[i], mess_data[i]);
+    }
+
+
+
+    //  message still has to be received (and can be received)
+    wrap.labReceive(5, 4, false, plhs, (int)labReceive_Out::N_OUTPUT_Arguments);
+    // got interrupt
+    out = plhs[(int)labReceive_Out::mess_contents];
+    ASSERT_EQ(mxGetM(out), 1);
+    ASSERT_EQ(mxGetN(out), 10);
+    mess_data = reinterpret_cast<uint8_t *>(mxGetData(out));
+    for (int i = 0; i < 10; i++) {
+        EXPECT_EQ(test_mess[i], mess_data[i]);
+    }
+
+    addrOut = plhs[(int)labReceive_Out::real_source_address];
+    ASSERT_EQ(mxGetM(addrOut), 1);
+    ASSERT_EQ(mxGetN(addrOut), 2);
+    pAddress = reinterpret_cast<int32_t *>(mxGetData(addrOut));
+    ASSERT_EQ(pAddress[0], 5);
+    ASSERT_EQ(pAddress[1], 4);
+
+
+
+    // message is taken in the cache, but its place kept for the following messages
+    auto queue = wrap.get_async_queue();
+    ASSERT_EQ(queue->size(), 1); // place in the queue is retained for the following messages
+    auto contents = queue->begin();
+    ASSERT_EQ(contents->destination, 5);
+    ASSERT_TRUE(contents->is_delivered(true));
+
+}
+
+
+TEST(TestCPPCommunicator, send_probe_interrupt_overrides) {
+    // when asynchronously receving list of the same tag non-data messages retain only the last one
+
+    MPI_wrapper::MPI_wrapper_gtested = true;
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 4;
+    init_par.data_message_tag = 10;
+    init_par.interrupt_tag = 100;
+
+    init_par.debug_frmwk_param[0] = 1;
+    init_par.debug_frmwk_param[1] = 10;
+
+
+    auto wrap = MPI_wrapper();
+    wrap.init(init_par);
+    ASSERT_TRUE(wrap.isTested);
+
+    auto pInterrupt = wrap.get_interrupt_queue(5);
+    ASSERT_FALSE(pInterrupt->is_send());
+    ASSERT_FALSE(pInterrupt->is_delivered(true));
+
+    std::vector<uint8_t> test_mess;
+    test_mess.assign(10, 1);
+
+    wrap.labSend(5, 4, false, &test_mess[0], test_mess.size());
+    std::vector<int32_t> req_address(1,5);
+    std::vector<int32_t> req_tag(1, 4);
+    std::vector<int32_t> got_address;
+    std::vector<int32_t> got_tag;
+
+    wrap.labProbe(req_address, req_tag, got_address, got_tag);
+    ASSERT_EQ(got_address.size(),1);
+    ASSERT_EQ(got_tag.size(), 1);
+    ASSERT_EQ(got_address[0], 5);
+    ASSERT_EQ(got_tag[0], 4);
+
+    wrap.labSend(5, init_par.interrupt_tag, false, &test_mess[0], test_mess.size());
+    ASSERT_TRUE(pInterrupt->is_send());
+    ASSERT_FALSE(pInterrupt->is_delivered(true));
+
+
+    wrap.labProbe(req_address, req_tag, got_address, got_tag);
+    ASSERT_EQ(got_address.size(), 1);
+    ASSERT_EQ(got_tag.size(), 1);
+    ASSERT_EQ(got_address[0], 5);
+    ASSERT_EQ(got_tag[0], init_par.interrupt_tag);
+
+    // but normal message is sitting in the cache somewhere
+    auto queue = wrap.get_async_queue();
+    ASSERT_EQ(queue->size(), 1);
+    auto contents = queue->begin();
+    ASSERT_EQ(contents->destination, 5);
+    ASSERT_FALSE(contents->is_delivered(true));
+
+
+}
+
+
 TEST(TestCPPCommunicator, send_probe_interrupt) {
     // when asynchronously receving list of the same tag non-data messages retain only the last one
 
@@ -62,7 +199,6 @@ TEST(TestCPPCommunicator, send_probe_interrupt) {
     ASSERT_EQ(got_tag[0], init_par.interrupt_tag);
 
 }
-
 
 
 TEST(TestCPPCommunicator, send_assynchroneous) {

@@ -63,7 +63,8 @@ end
 mes_addr_to_check = uint32(mess_addr_requested);
 mes_tag_to_check = int32(mess_tag_requested);
 %
-% will also check for interrupt messages
+% will also check for interrupt messages internally and return them instead
+% requested if any available.
 [obj.mpi_framework_holder_,addr_block] = cpp_communicator('labProbe',...
     obj.mpi_framework_holder_,mes_addr_to_check,mes_tag_to_check);
 %
