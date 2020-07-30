@@ -47,7 +47,7 @@ public:
     void clearAll();
     void labSend(int data_address, int data_tag, bool is_synchroneous, uint8_t* data_buffer, size_t nbytes_to_transfer);
     void labProbe(const std::vector<int32_t> &data_address, const std::vector<int32_t> &data_tag,
-        std::vector<int32_t> & addres_present, std::vector<int32_t> & tag_present);
+        std::vector<int32_t> & addres_present, std::vector<int32_t> & tag_present, bool interrupt_only=false);
     void labReceive(int source_address, int source_data_tag, bool isSynchronous, mxArray* plhs[], int nlhs);
     ~MPI_wrapper() {
         this->close();

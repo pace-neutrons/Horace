@@ -9,7 +9,7 @@
 
 using namespace Herbert::Utility;
 
-TEST(TestCPPCommunicator, send_probe_receive_interrupt) {
+TEST(TestCPPCommunicator, send_probe_interrupt) {
     // when asynchronously receving list of the same tag non-data messages retain only the last one
 
     MPI_wrapper::MPI_wrapper_gtested = true;
@@ -29,7 +29,7 @@ TEST(TestCPPCommunicator, send_probe_receive_interrupt) {
 
     auto pInterrupt = wrap.get_interrupt_queue(5);
     ASSERT_FALSE(pInterrupt->is_send());
-    ASSERT_TRUE(pInterrupt->is_delivered(true));
+    ASSERT_FALSE(pInterrupt->is_delivered(true));
 
     std::vector<uint8_t> test_mess;
     test_mess.assign(10, 1);
@@ -38,6 +38,28 @@ TEST(TestCPPCommunicator, send_probe_receive_interrupt) {
     ASSERT_TRUE(pInterrupt->is_send());
     ASSERT_FALSE(pInterrupt->is_delivered(true));
 
+    std::vector<int32_t> req_address(1, 1);
+    std::vector<int32_t> req_tag(1, -1);
+    std::vector<int32_t> got_address;
+    std::vector<int32_t> got_tag;
+
+    wrap.labProbe(req_address, req_tag, got_address, got_tag);
+    ASSERT_EQ(got_address.size(), 0);
+    ASSERT_EQ(got_tag.size(), 0);
+
+    req_address[0] = 5;
+    wrap.labProbe(req_address, req_tag, got_address, got_tag);
+    ASSERT_EQ(got_address.size(), 1);
+    ASSERT_EQ(got_address[0], 5);
+    ASSERT_EQ(got_tag[0], init_par.interrupt_tag);
+
+    // ask for 1, got interrupt
+    req_tag[0] = 1;
+    req_address[0] = 5;
+    wrap.labProbe(req_address, req_tag, got_address, got_tag);
+    ASSERT_EQ(got_address.size(), 1);
+    ASSERT_EQ(got_address[0], 5);
+    ASSERT_EQ(got_tag[0], init_par.interrupt_tag);
 
 }
 
@@ -231,7 +253,13 @@ TEST(TestCPPCommunicator, lab_probe_single) {
     std::vector<int32_t> got_address;
     std::vector<int32_t> got_tag;
 
+    ASSERT_ANY_THROW(wrap.labProbe(req_address, req_tag, got_address, got_tag));
+    req_address.resize(10);
+    for (auto i = 0; i < 10; i++) {
+        req_address[i] = i;
+    }
     wrap.labProbe(req_address, req_tag, got_address, got_tag);
+
     ASSERT_EQ(got_address.size(), 0);
     ASSERT_EQ(got_tag.size(),0);
 
@@ -239,39 +267,40 @@ TEST(TestCPPCommunicator, lab_probe_single) {
     std::vector<uint8_t> test_mess(10,1);
     test_mess[0] = 0; // sent but not delivered
 
-    wrap.labSend(10, 1, false, &test_mess[0], test_mess.size());
+    wrap.labSend(9, 1, false, &test_mess[0], test_mess.size());
     ASSERT_EQ(1, wrap.async_queue_len());
 
     wrap.labProbe(req_address, req_tag, got_address, got_tag);
-    ASSERT_EQ(got_address[0], 10);
+    ASSERT_EQ(got_address[0], 9);
     ASSERT_EQ(got_tag[0], 1);
 
-    req_address[0] = 9;
+    req_address.resize(1);
+    req_address[0] = 8;
     req_tag[0] = -1;
     wrap.labProbe(req_address, req_tag, got_address, got_tag);
     ASSERT_EQ(got_address.size(), 0);
     ASSERT_EQ(got_tag.size(), 0);
 
-    req_address[0] = 10;
+    req_address[0] = 9;
     req_tag[0] = -1;
     wrap.labProbe(req_address, req_tag, got_address, got_tag);
-    ASSERT_EQ(got_address[0], 10);
+    ASSERT_EQ(got_address[0], 9);
     ASSERT_EQ(got_tag[0], 1);
 
-    req_address[0] = 10;
+    req_address[0] = 9;
     req_tag[0] = 2;
     wrap.labProbe(req_address, req_tag, got_address, got_tag);
     ASSERT_EQ(got_address.size(), 0);
     ASSERT_EQ(got_tag.size(), 0);
 
-    req_address[0] = 10;
+    req_address[0] = 9;
     req_tag[0] = 1;
     wrap.labProbe(req_address, req_tag, got_address, got_tag);
-    ASSERT_EQ(got_address[0], 10);
+    ASSERT_EQ(got_address[0],9);
     ASSERT_EQ(got_tag[0], 1);
 
     //
-    wrap.labSend(9, 2, false, &test_mess[0], test_mess.size());
+    wrap.labSend(8, 2, false, &test_mess[0], test_mess.size());
     ASSERT_EQ(wrap.async_queue_len(),2);
 
     // Mark last messages as delivered
@@ -279,22 +308,25 @@ TEST(TestCPPCommunicator, lab_probe_single) {
     auto lastMess = MessCache->rbegin();
     lastMess->theRequest = (MPI_Request)1;
 
-    req_address[0] = -1;
+    req_address[0] = 9;
     req_tag[0] = -1;
     wrap.labProbe(req_address, req_tag, got_address, got_tag);
-    ASSERT_EQ(got_address[0], 9);
-    ASSERT_EQ(got_tag[0], 2);
+    ASSERT_EQ(got_address.size(), 0);
+    ASSERT_EQ(got_tag.size(), 0);
 
-    req_address[0] = 10;
+
+    req_address[0] = 8;
     req_tag[0] = 1;
     wrap.labProbe(req_address, req_tag, got_address, got_tag);
     ASSERT_EQ(got_address.size(), 0);
     ASSERT_EQ(got_tag.size(), 0);
 
-    req_address[0] = 9;
+    req_address[0] = 8;
     req_tag[0] = 2;
     wrap.labProbe(req_address, req_tag, got_address, got_tag);
-    ASSERT_EQ(got_address[0], 9);
+    ASSERT_EQ(got_address.size(), 1);
+    ASSERT_EQ(got_tag.size(), 1);
+    ASSERT_EQ(got_address[0], 8);
     ASSERT_EQ(got_tag[0], 2);
 }
 
@@ -316,10 +348,13 @@ TEST(TestCPPCommunicator, lab_probe_multi) {
     ASSERT_TRUE(wrap.isTested);
 
 
-    std::vector<int32_t> req_address(2, -1);
+    std::vector<int32_t> req_address(10, -1);
+    for (auto i = 0; i < 10; i++)req_address[i] = i;
+
     std::vector<int32_t> req_tag(1, -1);
     std::vector<int32_t> got_address;
     std::vector<int32_t> got_tag;
+
 
     wrap.labProbe(req_address, req_tag, got_address, got_tag);
     ASSERT_EQ(got_address.size(), 0);
@@ -333,6 +368,7 @@ TEST(TestCPPCommunicator, lab_probe_multi) {
     wrap.labSend(5, 3, false, &test_mess[0], test_mess.size());
     ASSERT_EQ(2, wrap.async_queue_len());
 
+    req_address.resize(2);
     req_address[0] = 8;
     req_address[1] = 3;
 
@@ -394,7 +430,7 @@ TEST(TestCPPCommunicator, lab_receive_as_send) {
     ASSERT_EQ(mxGetM(addrOut), 1);
     ASSERT_EQ(mxGetN(addrOut), 0);
 
-
+    // synchronous message absent in test mode
     ASSERT_ANY_THROW(wrap.labReceive(10, 1, true, plhs,5));
 
     std::vector<uint8_t> test_mess;

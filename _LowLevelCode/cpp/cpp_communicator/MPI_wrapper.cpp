@@ -77,18 +77,20 @@ void MPI_wrapper::barrier() {
 * Inputs:
 * dest_address    -- the  address of the worker to send data to
 * data_tag        -- the MPI messages tag
-* is_synchroneous -- should the message to be send synchronously or not.
+* is_synchronous -- should the message to be send synchronously or not.
 * data_buffer     -- pointer to the begining of the buffer containing the data
 * nbytes_to_transfer -- amount of bytes of data to transfer.
 */
-void MPI_wrapper::labSend(int dest_address, int data_tag, bool is_synchroneous, uint8_t* data_buffer, size_t nbytes_to_transfer) {
+void MPI_wrapper::labSend(int dest_address, int data_tag, bool is_synchronous, uint8_t* data_buffer, size_t nbytes_to_transfer) {
 
     SendMessHolder* pSendMessage(nullptr);
     MPI_Status status;
     if (data_tag == MPI_wrapper::interrupt_mess_tag) { // send message to special interrupt channel
-        if (!this->InterruptHolder[dest_address].is_delivered(this->isTested)) { // how should we handle such situation?
-            // not sure. two interrupts in a row to the same address is a problem. Let's assume that 
-            // proper barriers will be in place not to allow such situation.:
+        if (this->InterruptHolder[dest_address].is_send() && 
+            !this->InterruptHolder[dest_address].is_delivered(this->isTested)) { // how should we handle such situation?
+            // not sure. two interrupts in a row to the same address is a problem. Let's assume that
+            // proper barriers will be in place not to allow such situation.
+            // Meanwhile, wait until the previous interrupt is delivered
             if (this->isTested) {
                 std::stringstream buf;
                 buf << " Attempt to send next interrupt message to Worker N: "
@@ -99,14 +101,14 @@ void MPI_wrapper::labSend(int dest_address, int data_tag, bool is_synchroneous, 
             }
             else
             {
-                auto err = MPI_Wait(&this->InterruptHolder[dest_address].theRequest, &status);
+                auto err = MPI_Wait(&(this->InterruptHolder[dest_address].theRequest), &status);
                 if (err != MPI_SUCCESS) {
                     std::stringstream buf;
                     buf << " The MPI_Wait until previous interrupt message in the queue for Worker N"
                         << dest_address + 1
                         << "is delivered have failed with Error, code= "
                         << err << std::endl;
-                    throw_error("MPI_MEX_COMMUNICATOR:runtime_error", buf.str().c_str(), MPI_wrapper::MPI_wrapper_gtested);
+                    throw_error("MPI_MEX_COMMUNICATOR:runtime_error", buf.str().c_str());
                 }
 
             }
@@ -124,7 +126,7 @@ void MPI_wrapper::labSend(int dest_address, int data_tag, bool is_synchroneous, 
         }
         return;
     }
-    if (is_synchroneous)
+    if (is_synchronous)
         pSendMessage = this->set_sync_transfer(data_buffer, nbytes_to_transfer, dest_address, data_tag);
     else
         pSendMessage = this->add_to_async_queue(data_buffer, nbytes_to_transfer, dest_address, data_tag);
@@ -232,71 +234,89 @@ bool check_address_tag_requsted(SendMessHolder const& Mess, int addr_requested, 
         return false; // no correct message
 }
 
-/** try for a message intended for this worker is present
+/** Probe for a message(s) intended for this worker is present
 Inputs:
-data_address -- the vector of addresses of a workers to ask for a message. -1 -- any worker
-data_tag     -- the tags of the messages to ask for. -1 -- to ask for any tag
+data_address   -- the vector of addresses of a workers to ask for a message.
+data_tag       -- the vector of tags of the messages to ask for. -1 -- to ask for any tag
+interrupt_only -- if true, check only for interrupts
 Outputs:
-addres_present -- if message present, the address the message has been sent from. -1 if no message for the address(es) requested is present.
-tag_presnet    -- if message present, the tag of the message present, -1 if no message with the requested tag is present.
+addres_present -- vector, containing the addresses of the labs, who have sent messages. Empty if no messages
+tag_presnet    -- vector, containing the tags of the present messages
 */
 void MPI_wrapper::labProbe(const std::vector<int32_t>& data_address, const std::vector<int32_t>& data_tag,
-    std::vector<int32_t>& addres_present, std::vector<int32_t>& tag_present) {
+    std::vector<int32_t>& addres_present, std::vector<int32_t>& tag_present, bool interrupt_only) {
 
     typedef std::tuple<int32_t, int32_t> address;
     std::vector<address> addres_tmp;
     addres_tmp.reserve(data_address.size()); // most probable request is one tag per address
     bool any_mess_present = false;
     for (size_t i = 0; i < data_address.size(); i++) {
+        if (data_address[i] < 0) { // it is not allowed now
+            std::stringstream buf;
+            buf << "labProbe issued for any worker. This mode  is not supported \n";
+            throw_error("MPI_MEX_COMMUNICATOR:runtime_error", buf.str().c_str(), MPI_wrapper::MPI_wrapper_gtested);
 
-        for (size_t j = 0; j < data_tag.size(); j++) {
-            if (this->isTested) {
-                //interrupt tag must be in the data_tag list to provide the same interface as matlan/parpool MPI
-                if (data_tag[j] == MPI_wrapper::interrupt_mess_tag &&
-                    check_address_tag_requsted(this->InterruptHolder[data_address[i]], data_address[i], MPI_wrapper::interrupt_mess_tag)) {
-                    addres_tmp.push_back(std::make_tuple(this->InterruptHolder[data_address[i]].destination,
-                        MPI_wrapper::interrupt_mess_tag));
-                    break;
+        }
+        //*********  Check interrupt channel
+        bool interrupt_present(false);
+        if (this->isTested) {
+            if (check_address_tag_requsted(this->InterruptHolder[data_address[i]], data_address[i], MPI_wrapper::interrupt_mess_tag)) {
+                addres_tmp.push_back(std::make_tuple(this->InterruptHolder[data_address[i]].destination,
+                    MPI_wrapper::interrupt_mess_tag));
+                interrupt_present = true;
+            }
+        }
+        else {
+            int flag;
+            MPI_Status status;
+            MPI_Iprobe(data_address[i], MPI_wrapper::interrupt_mess_tag, MPI_COMM_WORLD, &flag, &status);
+            if (flag) {
+                addres_tmp.push_back(std::make_tuple(status.MPI_SOURCE, status.MPI_TAG));
+                interrupt_present = true;
+            }
+        }
+        //*********  End interrupt check
+        // 
+        //*********  Check other requested messages from the lab specified as input
+        if (!(interrupt_present || interrupt_only)) {
+            for (size_t j = 0; j < data_tag.size(); j++) {
+                if (this->isTested) {
+
+                    if ((data_tag[j] == MPI_wrapper::data_mess_tag || data_tag[j] == -1) &&
+                        check_address_tag_requsted(this->SyncMessHolder[data_address[i]], data_address[i], MPI_wrapper::data_mess_tag)) {
+                        addres_tmp.push_back(std::make_tuple(this->SyncMessHolder[data_address[i]].destination,
+                            this->SyncMessHolder[data_address[i]].mess_tag));
+                        break;
+                    }
+
+                    auto pAsynchMess = this->asyncMessList.rbegin();
+                    for (pAsynchMess; pAsynchMess != this->asyncMessList.rend(); pAsynchMess++) {
+
+                        if (check_address_tag_requsted(*pAsynchMess, data_address[i], data_tag[j])) {
+                            addres_tmp.push_back(std::make_tuple(pAsynchMess->destination, pAsynchMess->mess_tag));
+                            break;
+                        }
+                    }
                 }
+                else { // real MPI asynchronous probe
+                    int search_tag;
 
-                if (data_tag[j] == MPI_wrapper::data_mess_tag &&
-                    check_address_tag_requsted(this->SyncMessHolder[data_address[i]], data_address[i], MPI_wrapper::data_mess_tag)) {
-                    addres_tmp.push_back(std::make_tuple(this->SyncMessHolder[data_address[i]].destination,
-                        this->SyncMessHolder[data_address[i]].mess_tag));
-                    break;
-                }
+                    if (data_tag[j] < 0)
+                        search_tag = MPI_ANY_TAG;
+                    else
+                        search_tag = data_tag[j];
 
-                auto pAsynchMess = this->asyncMessList.rbegin();
-                for (pAsynchMess; pAsynchMess != this->asyncMessList.rend(); pAsynchMess++) {
-
-                    if (check_address_tag_requsted(*pAsynchMess, data_address[i], data_tag[j])) {
-                        addres_tmp.push_back(std::make_tuple(pAsynchMess->destination, pAsynchMess->mess_tag));
+                    int flag;
+                    MPI_Status status;
+                    MPI_Iprobe(data_address[i], search_tag, MPI_COMM_WORLD, &flag, &status);
+                    if (flag) {
+                        addres_tmp.push_back(std::make_tuple(status.MPI_SOURCE, status.MPI_TAG));
                         break;
                     }
                 }
-            }
-            else { // real MPI asynchroneous probe
-                int search_address, search_tag;
-                if (data_address[i] < 0)
-                    search_address = MPI_ANY_SOURCE;
-                else
-                    search_address = data_address[i];
-
-                if (data_tag[j] < 0)
-                    search_tag = MPI_ANY_TAG;
-                else
-                    search_tag = data_tag[j];
-
-                int flag;
-                MPI_Status status;
-                MPI_Iprobe(search_address, search_tag, MPI_COMM_WORLD, &flag, &status);
-                if (flag) {
-                    addres_tmp.push_back(std::make_tuple(status.MPI_SOURCE, status.MPI_TAG));
-                    break;
-                }
-            }
-        } // j
-    } //i
+            } // j
+        } //********* End of Check for other messages
+    } //i -- all sources
     addres_present.resize(0);
     tag_present.resize(0);
 
@@ -338,9 +358,9 @@ std::tuple<char*, void*, int32_t*> create_plhs_for_labReceive(mxArray* plhs[], i
 
 /** receive message from another MPI worker
 Inputs:
-source_address  -- where ask for message. If -1, from any address
+source_address  -- where ask for message
 source_data_tag -- the requested data tag, If -1, any tag.
-isSynchroneous  -- if true, blok the program execution until requested message is received.
+isSynchronous   -- if true, blok the program execution until requested message is received.
                    If false and message is not present, return emtpy result
 nlhs            -- The number of output arguments. Should be larger or equal than
                    labReceive_Out::N_OUTPUT_Arguments -1
@@ -365,6 +385,18 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
         throw_error("MPI_MEX_COMMUNICATOR:not_implemented",
             "large data transfer is not implemented", MPI_wrapper::MPI_wrapper_gtested);
     }
+    if (source_data_tag != MPI_wrapper::interrupt_mess_tag) { 
+        // if interrupt is present, receive interrupt instead of 
+        // message initially asked for
+        std::vector<int32_t> address(1, source_address);
+        std::vector<int32_t> tag(1, MPI_wrapper::interrupt_mess_tag);
+        std::vector<int32_t> out_address, out_tag;
+        this->labProbe(address, tag, out_address, out_tag,true);
+        if (out_address.size() > 0) {
+            source_data_tag = MPI_wrapper::interrupt_mess_tag; 
+        }
+    }
+
 
 
     if (this->isTested) {
@@ -420,11 +452,10 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
         source_address = pMess->destination;
         source_data_tag = pMess->mess_tag;
         //
-        pMess->destination = -1; // mark the message pointer pointing to non-send message
     }
     else {  // real receive
         MPI_Status status;
-        if (isSynchronous) {
+        if (isSynchronous) { // get messages parameters
             MPI_Probe(source_address, source_data_tag, MPI_COMM_WORLD, &status);
         }
         else {
@@ -564,7 +595,7 @@ int SendMessHolder::is_delivered(bool is_tested) {
     MPI_Status status; // not clear what to do about this status.
 
     if (is_tested)
-        isDelivered = bool(this->theRequest);
+        isDelivered = bool(this->theRequest) && is_send();
     else {
         if (this->destination == -1) { // message was never sent so never delivered
             return 0;

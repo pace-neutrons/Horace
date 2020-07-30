@@ -135,7 +135,7 @@ class_handle<MPI_wrapper>* process_init_mode(const char* ModeName, bool is_test_
     if (is_test_mode && nrhs == 5) {
         size_t data_size(0), vec_size_vytes;
         int32_t *labInfo = retrieve_vector<int32_t>(ModeName, prhs[(int)InitInputs::lab_info], data_size, vec_size_vytes);
-        init_par.debug_frmwk_param[0] = labInfo[0]-1; // Matlab labIndex is 1 higher then C++
+        init_par.debug_frmwk_param[0] = labInfo[0] - 1; // Matlab labIndex is 1 higher then C++
         init_par.debug_frmwk_param[1] = labInfo[1];  // numLabs
     }
 
@@ -271,8 +271,10 @@ class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray* prhs[
 
 }
 
-/* throws Matlab error. If the routine is g-tested, matlab mexUnlock should not be deployed*/
-void throw_error(char const* const MESS_ID, char const* const error_message, bool is_tested) {
-    if (!is_tested) mexUnlock();
+/* throws Matlab error.  There are two tested modes: one calling the framework from Matlab in single process without
+ deploying MPI, and the second one -- unit tests for the framework.
+ If the routine is g-tested, matlab mexUnlock should not be deployed*/
+void throw_error(char const* const MESS_ID, char const* const error_message, bool is_g_tested) {
+    if (!is_g_tested) mexUnlock();
     mexErrMsgIdAndTxt(MESS_ID, error_message);
 };
