@@ -504,7 +504,7 @@ classdef ClusterWrapper
                     %                        end
                 else
                     failed = true;
-                    mess = fprintf('Java run error with ID: %d\n',term);
+                    mess = sprintf('Java run error with ID: %d\n',term);
                     ok = false;
                 end
             catch Err

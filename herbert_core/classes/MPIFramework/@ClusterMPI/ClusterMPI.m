@@ -109,11 +109,13 @@ classdef ClusterMPI < ClusterWrapper
             runtime = java.lang.ProcessBuilder(task_info);
             pause(0.1);
             obj.mpiexec_handle_ = runtime.start();
+            pause(1);
+            
             [ok,failed,mess] = obj.is_running();
             if ~ok && failed
                 error('CLUSTER_MPI:runtime_error',...
                     ' Can not start mpiexec with %d workers, Error: %s',...
-                    mess);
+                    n_workers,mess);
             end
 
             %
