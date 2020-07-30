@@ -35,10 +35,10 @@ if isempty(mess_addr_requested ) %
 end
 
 
-if ~exist('mess_name_or_tag','var')
+if ~exist('mess_name_or_tag','var') || isempty(mess_name_or_tag)
     mess_tag_requested = -1;
 elseif ischar(mess_name_or_tag)
-    if isempty(mess_name_or_tag) || strcmp(mess_name_or_tag,'any')
+    if strcmp(mess_name_or_tag,'any')
         mess_tag_requested = -1;
     else
         mess_tag_requested = MESS_NAMES.mess_id(mess_name_or_tag,obj.interrupt_chan_tag_);
@@ -80,6 +80,9 @@ else
     % first in the responce array. Only interrups will be selected
     tags  = addr_block(2,itu);
     mess_names = MESS_NAMES.mess_name(tags,obj.interrupt_chan_tag_);
+    if ~iscell(mess_names)
+        mess_names  = {mess_names};
+    end
 end
 
 % add persistent messages names already received to the messages,

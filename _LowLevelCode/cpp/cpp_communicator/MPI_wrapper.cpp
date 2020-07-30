@@ -280,6 +280,8 @@ void MPI_wrapper::labProbe(const std::vector<int32_t>& data_address, const std::
         //*********  Check other requested messages from the lab specified as input
         if (!(interrupt_present || interrupt_only)) {
             for (size_t j = 0; j < data_tag.size(); j++) {
+                if (data_tag[j] == MPI_wrapper::interrupt_mess_tag)continue; // have already checked
+
                 if (this->isTested) {
 
                     if ((data_tag[j] == MPI_wrapper::data_mess_tag || data_tag[j] == -1) &&

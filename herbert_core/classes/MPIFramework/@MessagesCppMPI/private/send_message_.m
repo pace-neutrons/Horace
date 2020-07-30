@@ -30,6 +30,9 @@ try
             'blocking comminications are not yet implemented')
     else
         contents = hlp_serialize(mess);
+        if mess.is_persistent % use interrupt channel to transfer message
+            tag = int32(obj.interrupt_chan_tag_);
+        end
 
         obj.mpi_framework_holder_ = cpp_communicator('labSend',...
             obj.mpi_framework_holder_,...
