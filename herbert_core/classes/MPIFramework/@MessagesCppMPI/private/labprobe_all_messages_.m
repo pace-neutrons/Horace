@@ -63,13 +63,7 @@ end
 mes_addr_to_check = uint32(mess_addr_requested);
 mes_tag_to_check = int32(mess_tag_requested);
 %
-% mix with interrupt, if interrupt is not requested directly
-i_tag = int32(obj.interrupt_chan_tag_);
-if mes_tag_to_check ~= i_tag && mes_tag_to_check~=int32(-1)
-    mes_tag_to_check  = [i_tag,mes_tag_to_check ];
-end
-
-
+% will also check for interrupt messages
 [obj.mpi_framework_holder_,addr_block] = cpp_communicator('labProbe',...
     obj.mpi_framework_holder_,mes_addr_to_check,mes_tag_to_check);
 %
