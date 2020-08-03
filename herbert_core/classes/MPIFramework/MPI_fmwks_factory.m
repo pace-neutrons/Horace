@@ -112,7 +112,7 @@ classdef MPI_fmwks_factory<handle
         end
         
         %-----------------------------------------------------------------
-        function controller = get_running_cluster(obj,n_workers,cluster_to_host_exch_fmwork)
+        function controller = get_initialized_cluster(obj,n_workers,cluster_to_host_exch_fmwork)
             % return the initialized and running MPI cluster, selected as default
             % Inputs:
             % n_workers -- number of running workers

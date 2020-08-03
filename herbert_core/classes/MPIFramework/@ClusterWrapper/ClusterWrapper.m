@@ -139,51 +139,6 @@ classdef ClusterWrapper
             obj.mess_exchange_ = mess_exchange;
         end
         %
-        function obj=wait_started_and_report(obj,varargin)
-            % check for 'ready' message and report cluster ready to user.
-            % if not ready for some reason, report the failure and
-            % diagnostics.
-            %
-            info = [ 'Initializing parallel cluster: ',class(obj)];
-            state = StartingMessage();
-            state.payload = info;
-            obj.status = state;
-            obj = obj.display_progress(info ,varargin{:});
-            try
-                [ok,err,mess]=obj.mess_exchange_.receive_message(1,'ready','-synch');
-            catch ME
-                info = sprintf('Parallel cluster: "%s" initialization have failed.',...
-                    class(obj));
-                obj.status = FailedMessage(info,ME);
-                info = sprintf('%s\n     Reason:\n\n %s',info,ME.getReport());
-                obj = obj.display_progress(info,varargin{:});
-                return;
-            end
-            
-            if ok ~= MESS_CODES.ok
-                error('CLUSTER_WRAPPER:runtine_error',...
-                    'Can not receive message "ready". Readon: %s',...
-                    err);
-            end
-            [completed,obj] = obj.check_progress(mess);
-            if completed
-                info = sprintf('Parallel cluster: "%s" initialization have failed',...
-                    class(obj));
-                if isa(mess.payload,'MException')
-                    info = sprintf('%s\n     Reason: %s',...
-                        info,mess.payload.getReport());
-                elseif ~isempty(mess.fail_text)
-                    info = sprintf('%s\n     Reason: %s',...
-                        info,mess.fail_text);
-                end
-                obj = obj.display_progress(info,varargin{:});
-            else
-                obj.status = 'ready';
-                info = sprintf('Parallel cluster "%s" is ready to accept jobs',...
-                    class(obj));
-                obj = obj.display_progress(info,varargin{:});
-            end
-        end
         function obj = init(obj,n_workers,mess_exchange_framework,log_level)
             % The method to initiate the cluster wrapper
             %
@@ -267,6 +222,14 @@ classdef ClusterWrapper
             
             
             obj = init_workers_(obj,je_init_message,task_init_mess,log_message_prefix );
+        end
+        %
+        function obj=wait_started_and_report(obj,check_time,varargin)
+            % check for 'ready' message and report cluster ready to user.
+            % if not ready for some reason, report the failure and
+            % diagnostics.
+            %
+            obj = wait_started_and_report_(obj,check_time,varargin{:});
         end
         %
         function [completed, obj] = check_progress(obj,varargin)

@@ -10,8 +10,8 @@ elseif isa(message,'aMessage')
     mess = message;
 else
     error('MESSAGES_FRAMEWORK:invalid_argument', ...
-          'Message must be of type ''char'' or ''aMessage''. Found ''%s''.', ...
-          class(message));
+        'Message must be of type ''char'' or ''aMessage''. Found ''%s''.', ...
+        class(message));
 end
 % convert types into defined types to transfer to cpp_communicator
 is_blocking = logical(mess.is_blocking);
@@ -33,7 +33,7 @@ try
         if mess.is_persistent % use interrupt channel to transfer message
             tag = int32(obj.interrupt_chan_tag_);
         end
-
+        
         obj.mpi_framework_holder_ = cpp_communicator('labSend',...
             obj.mpi_framework_holder_,...
             task_id,tag,uint8(is_blocking),contents);

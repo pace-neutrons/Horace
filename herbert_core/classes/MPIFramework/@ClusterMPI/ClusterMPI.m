@@ -195,11 +195,12 @@ classdef ClusterMPI < ClusterWrapper
     methods(Static)
         function mpi_exec = get_mpiexec()
             rootpath = fileparts(which('herbert_init'));
-            external_dll_dir = fullfile(rootpath, 'DLL', 'external');
+            %external_dll_dir = fullfile(rootpath, 'DLL', 'external');
+            external_dll_dir = fullfile(rootpath, 'DLL');            
             if ispc()
                 % only one version of mpiexec is used now. May change in the
                 % future.
-                mpi_exec = fullfile(external_dll_dir, 'mpiexec.exe');
+                mpi_exec = fullfile(external_dll_dir,'_PCWIN64','MS_MPI_R2019b', 'mpiexec.exe');
             else
                 mpi_exec = fullfile(external_dll_dir, 'mpiexec');
 

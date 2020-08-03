@@ -49,7 +49,6 @@ classdef MessagesParpool < iMessagesFramework
             %   - numLabs -- number of fake 'Virtual nodes' surrounding
             %                this node in the test mode
             mf = mf@iMessagesFramework();
-            mf.interrupt_chan_name_ = MESS_NAMES.interrupt_channel_name;
             mf.MPI_ = [];
             if nargin>0
                 mf = mf.init_framework(varargin{1});

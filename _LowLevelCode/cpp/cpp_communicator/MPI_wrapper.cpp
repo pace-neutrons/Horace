@@ -121,7 +121,7 @@ void MPI_wrapper::labSend(int dest_address, int data_tag, bool is_synchronous, u
         }
         else {
             int mess_size = static_cast<int>(nbytes_to_transfer);
-            auto err = MPI_Issend(data_buffer, mess_size, MPI_CHAR, dest_address, data_tag, MPI_COMM_WORLD,
+            auto err = MPI_Isend(data_buffer, mess_size, MPI_CHAR, dest_address, data_tag, MPI_COMM_WORLD,
                 &(InterruptHolder[dest_address].theRequest));
         }
         return;

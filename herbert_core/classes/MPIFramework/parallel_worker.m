@@ -70,9 +70,9 @@ try
     config_store.set_config_folder(config_exchange_folder);
     % Initialize the frameworks, responsible for communications within the
     % cluster and between the cluster and the headnode.
-    [fbMPI,intercomm] = JobExecutor.init_frameworks(control_struct);
     % initiate file-based framework to exchange messages between head node and
-    % the pool of workers
+    % the pool of workers    
+    [fbMPI,intercomm] = JobExecutor.init_frameworks(control_struct);
     %--------------------------------------------------------------------------
     % step 1 the initialization has been completed providing the
     % communicator for exchange between control node and the cluster and
@@ -91,6 +91,7 @@ try
     end
     % inform the control node that the cluster have been started and ready
     % to accept jobs
+
     JobExecutor.report_cluster_ready(fbMPI,intercomm);
 catch ME0 %unhandled exception during init procedure
     ok = false;
@@ -347,14 +348,20 @@ end
         fh = fopen(flog_name,'w');
         fprintf(fh,'Log file %s :\n',log_name);
         fprintf(fh,'FB MPI settings:\n');
+        fprintf(fh,'      Communicator:  : %s:\n',class(fbMPI));
         fprintf(fh,'      Job ID         : %s:\n',fbMPI.job_id);
         fprintf(fh,'      Exchange folder: %s:\n',config_exchange_folder);
         fprintf(fh,'      LabNum         : %d:\n',fbMPI.labIndex);
         fprintf(fh,'      NumLabs        : %d:\n',fbMPI.numLabs);
         fprintf(fh,'Real MPI settings:\n');
+        fprintf(fh,'      Communicator:  : %s:\n',class(intercomm));        
         fprintf(fh,'      Job ID         : %s:\n',intercomm.job_id);
         fprintf(fh,'      LabNum         : %d:\n',intercomm.labIndex);
         fprintf(fh,'      NumLabs        : %d:\n',intercomm.numLabs);
+        % assing logging file-handle to the available frameworks to allow
+        % internal logging
+        fbMPI.ext_log_fh = fh;
+        intercomm.ext_log_fh = fh;
     end
 %
     function log_num_runs(num_of_runs)

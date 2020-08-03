@@ -19,7 +19,7 @@ if exist('framework_info','var')
         obj.job_id = framework_info.job_id;
         if isfield(framework_info,'test_mode')
             test_mode = true;
-        end        
+        end
         if isfield(framework_info,'labID')
             cluster_range = int32([framework_info.labID,...
                 framework_info.numLabs]);
@@ -67,8 +67,6 @@ if test_mode
         obj.assync_messages_queue_length_,obj.data_message_tag_,...
         obj.interrupt_chan_tag_,cluster_range);
     obj.is_tested_ = true;
-    obj.task_id_  = double(obj.task_id_);
-    obj.numLabs_  = double(obj.numLabs_);
 else
     [obj.mpi_framework_holder_,obj.task_id_,obj.numLabs_]= ...
         cpp_communicator('init',...
@@ -76,3 +74,6 @@ else
         obj.interrupt_chan_tag_);
     obj.is_tested_ = false;
 end
+obj.task_id_  = double(obj.task_id_);
+obj.numLabs_  = double(obj.numLabs_);
+

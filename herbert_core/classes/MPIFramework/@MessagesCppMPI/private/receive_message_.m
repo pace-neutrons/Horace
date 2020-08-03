@@ -1,10 +1,9 @@
-function [err_code,err_mess,mess] = receive_message_(obj,from_task_id,mess_name,is_blocking)
+function [err_code,err_mess,mess] = receive_message_(obj,from_task_id,mess_name,varargin)
 % Receive message from job with the task_id (MPI rank) specified as input
 % if mess_name == 'any', receive any tag.
 %
 err_code = MESS_CODES.ok;
 err_mess = [];
-message  = [];
 
 if any(from_task_id==0)
     error('MESSAGES_FRAMEWORK:invalid_argument',...
@@ -18,16 +17,14 @@ if ~isempty(mess)
     return;
 end
 %
-% if fresh interrupt in the system, receive it instead of anything else
-ir_tag = obj.interrupt_chan_tag_;
-ir_names  = labprobe_all_messages_(obj,from_task_id,ir_tag);
-if isempty(ir_names)
-    mess_tag = MESS_NAMES.mess_id(mess_name,obj.interrupt_chan_name_);
-else
-    mess_tag  = ir_tag;
-    is_blocking = false;
-end
+mess_tag = MESS_NAMES.mess_id(mess_name,obj.interrupt_chan_tag_);
+% only data messages are received by C++ framework synchronously. 
+% it waits (and do synchroneous receive) for non-blocking messages in 
+% receive_all loop
+is_blocking = MESS_NAMES.is_blocking(mess_name);
 
+% C++ code checks for interrupt internaly, so no checks in Matlab code is
+% necessary
 try
     [obj.mpi_framework_holder_,mess_data]=cpp_communicator('labReceive',...
         obj.mpi_framework_holder_,int32(from_task_id),int32(mess_tag),...

@@ -91,6 +91,7 @@ classdef iMessagesFramework < handle
             else
                 obj.job_id_ = iMessagesFramework.get_framework_id();
             end
+            obj.interrupt_chan_name_ = MESS_NAMES.interrupt_channel_name;
         end
         %------------------------------------------------------------------
         % SETTERS/GETTERS       *****
