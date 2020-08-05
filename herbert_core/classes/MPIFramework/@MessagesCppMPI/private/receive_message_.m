@@ -21,7 +21,11 @@ mess_tag = MESS_NAMES.mess_id(mess_name,obj.interrupt_chan_tag_);
 % only data messages are received by C++ framework synchronously. 
 % it waits (and do synchroneous receive) for non-blocking messages in 
 % receive_all loop
-is_blocking = MESS_NAMES.is_blocking(mess_name);
+if mess_tag == obj.interrupt_chan_tag_
+    is_blocking = false;
+else
+    is_blocking = MESS_NAMES.is_blocking(mess_name);
+end
 
 % C++ code checks for interrupt internaly, so no checks in Matlab code is
 % necessary

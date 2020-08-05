@@ -11,6 +11,8 @@ if(UNIX)
 else()
     set(Herbert_MSMPI_DIR "${CMAKE_CURRENT_LIST_DIR}/win64/MSMPI-8.0.12")
     set(Herbert_MPIEXEC_EXE "${Herbert_MSMPI_DIR}/Bin/mpiexec.exe")
+    set(Herbert_MPIEXEC_EXE "${Herbert_MSMPI_DIR}/Bin/smpd.exe")
+    set(Herbert_MPIEXEC_EXE "${Herbert_MSMPI_DIR}/Bin/msmpilaunchsvc.exe")
     set(Herbert_MPI_LICENSE_FILE "${Herbert_MSMPI_DIR}/License/license.rtf")
 endif()
 

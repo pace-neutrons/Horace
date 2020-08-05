@@ -43,9 +43,9 @@ classdef ClusterMPI < ClusterWrapper
             %              operations over the framework
             obj = obj@ClusterWrapper();
             obj.starting_info_message_ = ...
-                ':mpiexec MPI job configured: *** Starting MPI job  with %d workers ***\n';
+                '**** mpiexec MPI job configured,  Starting MPI job  with %d workers ****\n';
             obj.started_info_message_  = ...
-                '*** mpiexec MPI job started                                ***\n';
+                '**** mpiexec MPI job started                                         ****\n';
             %
             obj.pool_exchange_frmwk_name_ ='MessagesCppMPI';
             % define config folder containing cluster configurations
@@ -200,7 +200,7 @@ classdef ClusterMPI < ClusterWrapper
             if ispc()
                 % only one version of mpiexec is used now. May change in the
                 % future.
-                mpi_exec = fullfile(external_dll_dir,'_PCWIN64','MS_MPI_R2019b', 'mpiexec.exe');
+                mpi_exec = fullfile(external_dll_dir,'external', 'mpiexec.exe');
             else
                 mpi_exec = fullfile(external_dll_dir, 'mpiexec');
 
