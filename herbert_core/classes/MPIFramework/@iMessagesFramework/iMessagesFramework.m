@@ -733,7 +733,6 @@ classdef iMessagesFramework < handle
                     error('MESSAGES_FRAMEWORK:invalid_argument',...
                         'Receiving message from one lab N%d out of framework range: %d',...
                         from_task_id,obj.numLabs)
-                    
                 end
             end
             if ~exist('mess_name','var') %receive any message for this task

@@ -13,12 +13,6 @@ classdef test_exchange_CppMPI < exchange_common_tests
                 'test_mode',true);
             obj = obj@exchange_common_tests(name,...
                 'MessagesCppMPI_tester','mpiexec_mpi',cs);
-            
-            obj.ignore_test = isempty(which('cpp_communicator'));
-            if obj.ignore_test
-                warning('test_exchange_CppMPI:test_disabled',...
-                    'CPP MPI tests disabled -- no access to cpp_communicator');
-            end
         end
         %
         %
@@ -44,7 +38,7 @@ classdef test_exchange_CppMPI < exchange_common_tests
             
             f = @()receive_message(mf, 0, mess.mess_name);
             assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument',...
-                    'CPP Messages framework can not communicate with lab 0' )
+                'CPP Messages framework can not communicate with lab 0' )
             
             f = @()receive_message(mf, 11, mess.mess_name);
             assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument')
@@ -88,7 +82,7 @@ classdef test_exchange_CppMPI < exchange_common_tests
             if obj.ignore_test
                 return
             end
-            warning('test_receive_data_mess test for CPP MPI is currently disabled')            
+            warning('test_receive_data_mess test for CPP MPI is currently disabled')
         end
         function test_receive_missing_data_blocking(obj)
             if obj.ignore_test

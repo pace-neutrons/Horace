@@ -19,9 +19,9 @@ The allowed operations and their parameters are:
 Inputs:  -- optional,
   2     --  length of asynchronous messages queue. The framework fails if this length is exceeded.
   3     --  data_messages_tag: the tag of the channel, used to transmit blocking messages. Default is 8
-  4     -- interrupt_messages_tagL the tag of the channel used to transmint interrupt messages. Default is 100
-  5     -- in test mode 2-element containing labIndex and numLabs for cluster under investigation.
-           ignored in produciton mode.
+  4     -- interrupt_messages_tag: the tag of the channel used to transmint interrupt messages. Default is 100
+  5     -- Ignored in this mode. In test mode its 2-element array, containing labIndex and numLabs for cluster under investigation.
+           
 
 Outputs:
   1     -- pointer to  new initialized MPI framework.
@@ -30,10 +30,12 @@ Outputs:
 
 *** 'init_test_mode'  Initializes MPI wrapper with fake MPI values, which run within a single process.
 Inputs:
-  2     --  3-elemets integer array containing elements
-            1 length of asynchronous messages queue. The framework fails if this length is exceeded.
-            2 labID number of this worker
-            3 total number of test workers in the pool
+  2     -- length of asynchronous messages queue. The framework fails if this length is exceeded.
+  3     -- data_messages_tag: the tag of the channel, used to transmit blocking messages. Default is 8
+  4     -- interrupt_messages_tag: the tag of the channel used to transmint interrupt messages. Default is 100
+  5     -- in test mode 2-element array, containing labIndex and numLabs for cluster under investigation.
+           Ignored in produciton mode.
+
 Outputs:
   1     -- pointer to  fake MPI framework.
   2     -- Index (number) of current MPI process:             always 1
