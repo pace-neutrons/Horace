@@ -18,13 +18,19 @@ if ~isempty(mess)
 end
 %
 mess_tag = MESS_NAMES.mess_id(mess_name,obj.interrupt_chan_tag_);
-% only data messages are received by C++ framework synchronously. 
-% it waits (and do synchroneous receive) for non-blocking messages in 
-% receive_all loop
+% identify the way of receiving message. Like MessagesParpool, if 
+% interrupts appears after the framework starts waiting for data message 
+% synchronously, the framework hangs up, so Receive_all should be used to 
+% avoid such hang ups. From other side, this situation is not important as
+% MPI framerowk will fail on parallel interrupt
 if mess_tag == obj.interrupt_chan_tag_
     is_blocking = false;
 else
-    is_blocking = MESS_NAMES.is_blocking(mess_name);
+    if nargin>3
+        is_blocking = varargin{1};
+    else
+        is_blocking = MESS_NAMES.is_blocking(mess_name);
+    end
 end
 
 % C++ code checks for interrupt internaly, so no checks in Matlab code is

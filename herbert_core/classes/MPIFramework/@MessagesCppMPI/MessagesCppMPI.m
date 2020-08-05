@@ -221,6 +221,16 @@ classdef MessagesCppMPI < iMessagesFramework
             %       failure.
             % >> on success, message contains an object of class aMessage,
             %        with the received message contents.
+            %NOTE:
+            % When synchronous receive is selected, receive waits for
+            % the specific message with specific data tag to be send.
+            % If interrupt message appears after the framework starts
+            % waiting for a synchronous message, the framework hangs up.
+            % Receive_all should be used to avoid such hang ups.
+            % From other side, this situation is not so important as
+            % MPI framerowk will fail on parallel interrupt caused by other
+            % workers failing
+            
             [ok,err_mess,message] = receive_message_(obj,task_id,mess_name,is_blocking);
         end
     end

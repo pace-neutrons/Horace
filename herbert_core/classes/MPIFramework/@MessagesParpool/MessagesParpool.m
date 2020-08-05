@@ -113,7 +113,7 @@ classdef MessagesParpool < iMessagesFramework
             %
             [messages_name,task_id] = labProbe_messages_(obj,task_id,varargin{:});
         end
-        %  
+        %
         function finalize_all(obj)
             obj.clear_messages();
         end
@@ -125,7 +125,7 @@ classdef MessagesParpool < iMessagesFramework
             % Clear persistent fail message may be present in parent
             % framework
             obj.persistent_fail_message_ = [];
-             
+            
             % receive and reject all messages, may be send to the lab
             [mess_names,source_id] = obj.MPI_.mlabProbe('all','any');
             while ~isempty(mess_names)
@@ -248,6 +248,15 @@ classdef MessagesParpool < iMessagesFramework
             % >> on success, message contains an object of class aMessage,
             %        with the received message contents.
             %
+            %NOTE:
+            % When synchronous receive is selected, receive waits for
+            % the specific message with specific data tag to be send.
+            % If interrupt message appears after the framework starts
+            % waiting for a synchronous message, the framework hangs up.
+            % Receive_all should be used to avoid such hang ups.
+            % From other side, this situation is not so important as
+            % MPI framerowk will fail on parallel interrupt caused by other
+            % workers failing
             %
             [ok,err_mess,message] = receive_message_(obj,from_task_id,mess_name,is_blocking);
         end
