@@ -10,11 +10,17 @@ obj.status = state;
 obj = obj.display_progress(info ,varargin{:});
 [obj,mess]=check_receive(obj);
 started = ~isempty(mess);
+t0 = tic();
 while(~started)
     pause(check_time);
     [obj,mess] =check_receive(obj);
     obj = obj.display_progress();
     started = ~isempty(mess);
+    t_pass = toc(t0);
+    if t_pass> obj.cluster_startup_time        
+        mess= FailedMessage('Time-out waiting for cluster to reply "ready"');
+        break;
+    end
 end
 
 [completed,obj] = obj.check_progress(mess);

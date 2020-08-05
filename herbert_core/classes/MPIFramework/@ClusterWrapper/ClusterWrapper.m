@@ -3,6 +3,12 @@ classdef ClusterWrapper
     % and job progress logging operations supported by Herbert
     %
     %----------------------------------------------------------------------
+    properties
+        % The time to wait for cluster to start (in sec). If this time is
+        % exceeded,
+        % the cluster reports failure and parallel job will not start.
+        cluster_startup_time = 180 % 3min
+    end
     properties(Dependent)   %
         % The string, providing unique identifier(name) for the job and cluster.
         % accessor for mess_exchange_framework.job_id if mess exchange
@@ -229,6 +235,9 @@ classdef ClusterWrapper
             % if not ready for some reason, report the failure and
             % diagnostics.
             %
+            if ~exist('check_time','var')
+                check_time = 4;
+            end
             obj = wait_started_and_report_(obj,check_time,varargin{:});
         end
         %
