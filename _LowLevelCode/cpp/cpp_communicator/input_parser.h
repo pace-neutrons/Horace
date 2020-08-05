@@ -66,9 +66,7 @@ enum class CloseOrInfoInputs : int { // all input arguments for close IO procedu
     N_INPUT_Arguments
 };
 
-//--------------   Outputs;
-
-
+//--------------   Outputs:
 enum class labReceive_Out :int { // output arguments for labReceive procedure
     comm_ptr,   // the pointer to class responsible for MPI communications
     mess_contents, //the pointer to the array of serialized message contents
@@ -139,7 +137,7 @@ private:
     const std::string _name;
 
 };
-//
+
 template<class T>
 mxArray * class_handle<T>::export_hanlder_toMatlab()
 {
@@ -152,7 +150,8 @@ mxArray * class_handle<T>::export_hanlder_toMatlab()
     *pData = reinterpret_cast<uint64_t>(this);
     return out;
 }
-//
+
+
 template<class T>
 void class_handle<T>::clear_mex_locks()
 {

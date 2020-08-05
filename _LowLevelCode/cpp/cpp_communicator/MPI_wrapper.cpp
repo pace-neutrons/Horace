@@ -86,7 +86,7 @@ void MPI_wrapper::labSend(int dest_address, int data_tag, bool is_synchronous, u
     SendMessHolder* pSendMessage(nullptr);
     MPI_Status status;
     if (data_tag == MPI_wrapper::interrupt_mess_tag) { // send message to special interrupt channel
-        if (this->InterruptHolder[dest_address].is_send() && 
+        if (this->InterruptHolder[dest_address].is_send() &&
             !this->InterruptHolder[dest_address].is_delivered(this->isTested)) { // how should we handle such situation?
             // not sure. two interrupts in a row to the same address is a problem. Let's assume that
             // proper barriers will be in place not to allow such situation.
@@ -150,7 +150,7 @@ void MPI_wrapper::labSend(int dest_address, int data_tag, bool is_synchronous, u
 }
 
 /** Place message in assynchoneous messages queue preparing it for sending and verify if any previous messages were received
-   Thow if the allocate queue slpace is overfilled
+   Thow if the allocate queue space is overfilled
 */
 SendMessHolder* MPI_wrapper::add_to_async_queue(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag) {
 
@@ -387,15 +387,15 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
         throw_error("MPI_MEX_COMMUNICATOR:not_implemented",
             "large data transfer is not implemented", MPI_wrapper::MPI_wrapper_gtested);
     }
-    if (source_data_tag != MPI_wrapper::interrupt_mess_tag) { 
+    if (source_data_tag != MPI_wrapper::interrupt_mess_tag) {
         // if interrupt is present, receive interrupt instead of 
         // message initially asked for
         std::vector<int32_t> address(1, source_address);
         std::vector<int32_t> tag(1, MPI_wrapper::interrupt_mess_tag);
         std::vector<int32_t> out_address, out_tag;
-        this->labProbe(address, tag, out_address, out_tag,true);
+        this->labProbe(address, tag, out_address, out_tag, true);
         if (out_address.size() > 0) {
-            source_data_tag = MPI_wrapper::interrupt_mess_tag; 
+            source_data_tag = MPI_wrapper::interrupt_mess_tag;
         }
     }
 
@@ -584,7 +584,7 @@ void SendMessHolder::init(uint8_t* pBuffer, size_t n_bytes, int dest_address, in
     }
 
 }
-/** Check if the non-empty message, asigned to message holder has been delivered.
+/** Check if the non-empty message, asigned to the message holder has been delivered.
  * Inputs:
  * is_tested -- boolean to check if the framework works in test mode
  * Returns:

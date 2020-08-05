@@ -87,16 +87,14 @@ public:
     }
     // check if any message present in test mode
     bool any_message_present() {
-        for (auto &&it : InterruptHolder) {
-            if (it.theRequest == 0)  return true;
+        for (const auto &msg : InterruptHolder) {
+            if (msg.theRequest == 0)  return true;
         }
-        for (auto &&it : SyncMessHolder) {
-            if (it.theRequest == 0)  return true;
+        for (const auto &msg : SyncMessHolder) {
+            if (msg.theRequest == 0)  return true;
         }
         for (auto it = asyncMessList.rbegin(); it != asyncMessList.rend(); it++) {
-            if (it->theRequest == 0) {
-                return true;
-            }
+            if (it->theRequest == 0)  return true;
         }
         return false;
     }
