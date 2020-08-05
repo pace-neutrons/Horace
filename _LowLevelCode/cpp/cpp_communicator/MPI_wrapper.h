@@ -87,11 +87,11 @@ public:
     }
     // check if any message present in test mode
     bool any_message_present() {
-        for (auto it = InterruptHolder.begin(); it != InterruptHolder.end(); it++) {
-            if (it->theRequest == 0)  return true;
+        for (auto &&it : InterruptHolder) {
+            if (it.theRequest == 0)  return true;
         }
-        for (auto it = SyncMessHolder.begin(); it != SyncMessHolder.end(); it++) {
-            if (it->theRequest == 0)  return true;
+        for (auto &&it : SyncMessHolder) {
+            if (it.theRequest == 0)  return true;
         }
         for (auto it = asyncMessList.rbegin(); it != asyncMessList.rend(); it++) {
             if (it->theRequest == 0) {

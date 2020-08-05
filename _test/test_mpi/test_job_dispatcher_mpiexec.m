@@ -18,28 +18,14 @@ classdef test_job_dispatcher_mpiexec < job_dispatcher_common_tests
         end
 
         function test_job_fail_restart(obj, varargin)
-            % DISABLED on Windows -- random hang-up of one or another
-%             if ispc
-%                 warning('test_job_fail_restart disabled on Windows')
-%                 return;
-%             end
             test_job_fail_restart@job_dispatcher_common_tests(obj, varargin{:})
         end
 
         function test_job_with_logs_3workers(obj, varargin)
-            % DISABLED on Windows -- random hang-up of one or another
-%             if ispc && is_jenkins
-%                 warning('test_job_with_logs_3workers disabled on jenkins')
-%                 return;
-%             end
             test_job_with_logs_3workers@job_dispatcher_common_tests(obj, varargin{:})
         end
 
         function test_job_with_logs_2workers(obj,varargin)
-%             if is_jenkins
-%                 warning('test_job_with_logs_2workers disabled on Jenkins')
-%                 return;
-%             end
             test_job_with_logs_2workers@job_dispatcher_common_tests(obj, varargin{:})
         end
 
