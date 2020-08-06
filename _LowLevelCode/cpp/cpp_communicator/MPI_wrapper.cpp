@@ -101,6 +101,7 @@ void MPI_wrapper::labSend(int dest_address, int data_tag, bool is_synchronous, u
             }
             else
             {
+                // wait until the previous interrupt message is delivered
                 auto err = MPI_Wait(&(this->InterruptHolder[dest_address].theRequest), &status);
                 if (err != MPI_SUCCESS) {
                     std::stringstream buf;
@@ -142,7 +143,7 @@ void MPI_wrapper::labSend(int dest_address, int data_tag, bool is_synchronous, u
     if (err != MPI_SUCCESS) {
         std::stringstream buf;
         buf << " The MPI_Issend for Worker N" << this->labIndex + 1 << "have failed with Error, code= "
-            << labIndex << std::endl;
+            << err << std::endl;
         throw_error("MPI_MEX_COMMUNICATOR:runtime_error", buf.str().c_str());
 
     }
@@ -150,7 +151,7 @@ void MPI_wrapper::labSend(int dest_address, int data_tag, bool is_synchronous, u
 }
 
 /** Place message in assynchoneous messages queue preparing it for sending and verify if any previous messages were received
-   Thow if the allocate queue space is overfilled
+    Throw if the allowed queue space is exceeded
 */
 SendMessHolder* MPI_wrapper::add_to_async_queue(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag) {
 
@@ -189,8 +190,7 @@ SendMessHolder* MPI_wrapper::add_to_async_queue(uint8_t* pBuffer, size_t n_bytes
         }
 
         // add new message
-        SendMessHolder mess(pBuffer, n_bytes, dest_address, data_tag);
-        this->asyncMessList.push_front(mess);
+        this->asyncMessList.push_front(SendMessHolder(pBuffer, n_bytes, dest_address, data_tag));
         messToSend = &(*asyncMessList.begin());
 
     }
@@ -199,8 +199,34 @@ SendMessHolder* MPI_wrapper::add_to_async_queue(uint8_t* pBuffer, size_t n_bytes
 }
 
 SendMessHolder* MPI_wrapper::set_sync_transfer(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag) {
-    // Not implemented -- do nothing
-    return new SendMessHolder();
+    MPI_Status status;
+    SendMessHolder* pMessHolder(nullptr);
+    if (this->SyncMessHolder[dest_address].is_send() && !this->SyncMessHolder[dest_address].is_delivered(this->isTested)) {
+        if (this->isTested) {
+            this->SyncMessHolder[dest_address]
+                .test_sync_mess_list
+                .push_back(SendMessHolder(pBuffer, n_bytes, dest_address, data_tag));
+            pMessHolder = &(this->SyncMessHolder[dest_address].test_sync_mess_list.back());
+        }
+        else { // wait until previous synchronous message is delivered, then use the holder for 
+            // the next message
+            auto err = MPI_Wait(&(this->SyncMessHolder[dest_address].theRequest), &status);
+            if (err != MPI_SUCCESS) {
+                std::stringstream buf;
+                buf << " The MPI_Wait for deslivery of synchronous message from Worker N" << this->labIndex + 1 << "have failed with Error, code= "
+                    << err << std::endl;
+                throw_error("MPI_MEX_COMMUNICATOR:runtime_error", buf.str().c_str());
+            }
+            this->SyncMessHolder[dest_address].init(pBuffer, n_bytes, dest_address, data_tag);
+            pMessHolder = &SyncMessHolder[dest_address];
+        }
+    }
+    else {
+        this->SyncMessHolder[dest_address].init(pBuffer, n_bytes, dest_address, data_tag);
+        pMessHolder = &SyncMessHolder[dest_address];
+    }
+
+    return pMessHolder;
 
 }
 
@@ -411,7 +437,7 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
         if (isSynchronous) {
             if (!this->any_message_present()) {
                 throw_error("MPI_MEX_COMMUNICATOR:runtime_error",
-                    "Synchronized wating in test mode is not alowed", MPI_wrapper::MPI_wrapper_gtested);
+                    "Synchronous wating in test mode is not alowed", MPI_wrapper::MPI_wrapper_gtested);
             }
         }
 
@@ -453,11 +479,17 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
         }
         source_address = pMess->destination;
         source_data_tag = pMess->mess_tag;
-        //
+        // we buffer data messages in test mode, so synchronous message is the only case when this can happen
+        if (!pMess->test_sync_mess_list.empty()) {
+            auto nextMess = std::move(pMess->test_sync_mess_list.front());
+            pMess->test_sync_mess_list.pop_front();
+            nextMess.test_sync_mess_list.swap(pMess->test_sync_mess_list);
+            SyncMessHolder[source_address] = std::move(nextMess);
+        }
     }
     else {  // real receive
         MPI_Status status;
-        if (isSynchronous) { // get messages parameters
+        if (isSynchronous) { // get messages parameters. Wait until it appears
             MPI_Probe(source_address, source_data_tag, MPI_COMM_WORLD, &status);
         }
         else {
@@ -546,17 +578,6 @@ void MPI_wrapper::clearAll() {
 }
 
 //
-///** Move constructor for send message
-//    to avoid copying vector contents*/
-//SendMessHolder::SendMessHolder(SendMessHolder&& other) noexcept {
-//    if (&other == this)return;
-//
-//    this->theRequest = other.theRequest;
-//    this->mess_tag = other.mess_tag;
-//    this->destination = other.destination;
-//    this->mess_body.swap(other.mess_body);
-//
-//}
 /** Construtor building message from message holder*/
 SendMessHolder::SendMessHolder(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag) :
     mess_tag(-1), destination(-1) {
@@ -597,7 +618,7 @@ int SendMessHolder::is_delivered(bool is_tested) {
     MPI_Status status; // not clear what to do about this status.
 
     if (is_tested)
-        isDelivered = bool(this->theRequest) && is_send();
+        isDelivered = (this->theRequest == 1) && is_send();
     else {
         if (this->destination == -1) { // message was never sent so never delivered
             return 0;
@@ -628,4 +649,51 @@ bool SendMessHolder::is_send() {
     else
         return false;
 }
+
+SendMessHolder  &SendMessHolder::operator=(SendMessHolder &&other) {
+    if (this == &other)return *this;
+
+    this->theRequest = other.theRequest;
+    this->mess_tag = other.mess_tag;
+    this->destination = other.destination;
+
+    this->mess_body.swap(other.mess_body);
+    this->test_sync_mess_list.swap(other.test_sync_mess_list);
+
+    return *this;
+}
+///** Move constructor for send message
+//    to avoid copying vector contents*/
+SendMessHolder::SendMessHolder(SendMessHolder&& other) noexcept {
+    if (&other == this)return;
+
+    this->theRequest = other.theRequest;
+    this->mess_tag = other.mess_tag;
+    this->destination = other.destination;
+    this->mess_body.swap(other.mess_body);
+    this->test_sync_mess_list.swap(other.test_sync_mess_list);
+}
+// copy assignment
+SendMessHolder & SendMessHolder::operator=(const SendMessHolder & other) {
+    if (this == &other)return *this;
+
+    this->theRequest = other.theRequest;
+    this->mess_tag = other.mess_tag;
+    this->destination = other.destination;
+
+    this->mess_body.assign(other.mess_body.begin(), other.mess_body.end());
+    this->test_sync_mess_list.assign(other.test_sync_mess_list.begin(), other.test_sync_mess_list.end());
+    return *this;
+
+}
+SendMessHolder::SendMessHolder(const SendMessHolder& other) {
+    this->theRequest = other.theRequest;
+    this->mess_tag = other.mess_tag;
+    this->destination = other.destination;
+
+    this->mess_body.assign(other.mess_body.begin(), other.mess_body.end());
+    this->test_sync_mess_list.assign(other.test_sync_mess_list.begin(), other.test_sync_mess_list.end());
+}
+
+
 
