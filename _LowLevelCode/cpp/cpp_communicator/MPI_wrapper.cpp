@@ -409,10 +409,6 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
     int message_size(0);
     std::tuple<char*, void*, int32_t*> outPtrs;
 
-    if (source_data_tag == MPI_wrapper::data_mess_tag) {
-        throw_error("MPI_MEX_COMMUNICATOR:not_implemented",
-            "large data transfer is not implemented", MPI_wrapper::MPI_wrapper_gtested);
-    }
     if (source_data_tag != MPI_wrapper::interrupt_mess_tag) {
         // if interrupt is present, receive interrupt instead of 
         // message initially asked for

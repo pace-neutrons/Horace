@@ -8,6 +8,7 @@
 #include <vector>
 
 using namespace Herbert::Utility;
+
 TEST(TestCPPCommunicator, send_sync_multi_receive_sync_multi) {
     // testing test mode. It works this way only in test mode, while
     // real MPI should wait before delivering next data
