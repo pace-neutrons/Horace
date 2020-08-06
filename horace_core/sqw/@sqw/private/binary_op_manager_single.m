@@ -91,16 +91,12 @@ function wout = do_binary_op_sqw_double(w1, w2, binary_op, flip)
     %       if flip = true, do double - sqw (default = false)
     %
     if isscalar(w2) || isequal(size(w1.data.npix), size(w2))
-        if ~isscalar(w2)
-            w2 = replicate_array(w2, w1.data.npix)';
+        if ~exist('flip', 'var')
+            flip = false;
         end
-        sigvar_1 = sigvar(w1.data.pix.signal, w1.data.pix.variance);
-        sigvar_2 = sigvar(w2, []);
-        if exist('flip', 'var') && flip
-            wout = do_binary_op_sigvar_sigvar(binary_op, w1, sigvar_2, sigvar_1);
-        else
-            wout = do_binary_op_sigvar_sigvar(binary_op, w1, sigvar_1, sigvar_2);
-        end
+        wout = copy(w1);
+        wout.data.pix = wout.data.pix.do_binary_op(w2, binary_op, flip);
+        wout = recompute_bin_data(wout);
     else
         error('SQW:binary_op_manager_single', ...
               ['Check that the numeric variable is scalar or array with ' ...
