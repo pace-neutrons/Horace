@@ -22,6 +22,7 @@ if ~exist('flip', 'var')
 end
 pix_out = copy(obj);
 
+iter = 1;
 pix_out = pix_out.move_to_first_page();
 base_page_size = pix_out.page_size;
 while true
@@ -30,6 +31,7 @@ while true
     if isscalar(operand) && isa(operand, 'double')
         [pix_out.signal, pix_out.variance] = do_binary_op_double_( ...
                 pix_sigvar, operand, binary_op, flip);
+
     elseif isa(operand, 'double')
         if ~isequal(size(operand), [1, obj.num_pixels])
             required_size = sprintf('[1, %i]', obj.num_pixels);
@@ -44,10 +46,21 @@ while true
         end_idx = min(start_idx + base_page_size - 1, obj.num_pixels);
         [pix_out.signal, pix_out.variance] = do_binary_op_double_( ...
                 pix_sigvar, operand(start_idx:end_idx), binary_op, flip);
+
+    elseif isa(operand, 'PixelData')
+        if iter == 1
+            operand.move_to_first_page();
+        end
+        [pix_out.signal, pix_out.variance] = do_binary_op_pixel_data_(...
+                pix_out, operand, binary_op);
+        if operand.has_more()
+            operand = operand.advance();
+        end
     end
 
     if pix_out.has_more()
         pix_out = pix_out.advance();
+        iter = iter + 1;
     else
         break;
     end
@@ -60,7 +73,7 @@ function [signal, variance] = do_binary_op_double_(pix_sigvar, scalar_value, ...
                                                    binary_op, flip)
     operand_sigvar = sigvar(scalar_value, []);
 
-    if exist('flip', 'var') && flip
+    if flip
         result = binary_op(operand_sigvar, pix_sigvar);
     else
         result = binary_op(pix_sigvar, operand_sigvar);
@@ -69,9 +82,22 @@ function [signal, variance] = do_binary_op_double_(pix_sigvar, scalar_value, ...
     variance = result.e;
 end
 
-function [signal, variance] = do_binary_op_sqw_(pix_sigvar, other_sqw, ...
-                                                binary_op, flip)
-
+function [signal, variance] = do_binary_op_pixel_data_(pix, other_pix, ...
+                                                       binary_op)
+    if pix.num_pixels ~= other_pix.num_pixels
+        error('PIXELDATA:do_binary_op_pixel_data_', ...
+              ['Cannot perform binary operation. PixelData objects ' ...
+               'must have equal number of pixels.\nFound ''%i'' pixels ' ...
+               'in second operand, ''%i'' pixels required.'], ...
+              other_pix.num_pixels, pix.num_pixels);
+    end
+    % TODO: deal with case of one PixelData object not being paged whilst the
+    % other is
+    this_sigvar = sigvar(pix.signal, pix.variance);
+    other_sigvar = sigvar(other_pix.signal, other_pix.variance);
+    result = binary_op(this_sigvar, other_sigvar);
+    signal = result.s;
+    variance = result.e;
 end
 
 function [signal, variance] = do_binary_op_dnd_(pix_sigvar, dnd_obj, ...

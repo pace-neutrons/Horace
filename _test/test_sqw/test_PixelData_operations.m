@@ -544,6 +544,56 @@ methods
         assertExceptionThrown(f, 'PIXELDATA:do_binary_op');
     end
 
+    function test_error_binary_op_two_PixelData_with_different_num_pixels(~)
+        pix1 = PixelData(rand(9, 10));
+        pix2 = PixelData(rand(9, 11));
+        f = @() pix1.do_binary_op(pix2, @plus_single);
+        assertExceptionThrown(f, 'PIXELDATA:do_binary_op_pixel_data_');
+    end
+
+    function test_binary_op_minus_two_in_memory_PixelData_objects(~)
+        data1 = rand(9, 10);
+        pix1 = PixelData(data1);
+        data2 = rand(9, 10);
+        pix2 = PixelData(data2);
+
+        pix_diff = pix1.do_binary_op(pix2, @minus_single);
+
+        expected_diff = data1;
+        expected_diff(8, :) = pix1.signal - pix2.signal;
+        expected_diff(9, :) = pix1.variance + pix2.variance;
+
+        assertElementsAlmostEqual(pix_diff.data, expected_diff);
+    end
+
+    function test_binary_op_minus_two_PixelData_objects_with_gt_1_pages(obj)
+        pix1 = obj.pix_with_pages;
+        pix2 = copy(obj.pix_with_pages);
+        % make sure we can deal with case where operand not on first page
+        pix2.advance();
+
+        pix_diff = pix1.do_binary_op(pix2, @minus_single);
+        full_pix_diff = obj.concatenate_pixel_pages(pix_diff);
+
+        expected_diff = obj.ref_raw_pix_data;
+        expected_diff(8, :) = 0;
+        expected_diff(9, :) = 2*obj.ref_raw_pix_data(9, :);
+        assertEqual(full_pix_diff, expected_diff);
+    end
+
+    function test_binary_op_minus_2_PixelData_objects_1_in_mem_1_with_pages(obj)
+        pix1 = obj.pix_with_pages;
+        pix2 = obj.pix_in_memory;
+
+        pix_diff = pix1.do_binary_op(pix2, @minus_single);
+        full_pix_diff = obj.concatenate_pixel_pages(pix_diff);
+
+        expected_diff = obj.ref_raw_pix_data;
+        expected_diff(8, :) = 0;
+        expected_diff(9, :) = 2*obj.ref_raw_pix_data(9, :);
+        assertEqual(full_pix_diff, expected_diff);
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
