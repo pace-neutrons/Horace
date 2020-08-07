@@ -656,6 +656,9 @@ SendMessHolder  &SendMessHolder::operator=(SendMessHolder &&other) {
     this->mess_body.swap(other.mess_body);
     this->test_sync_mess_list.swap(other.test_sync_mess_list);
 
+    other.theRequest = (MPI_Request)(-1);
+    other.destination = -1;
+
     return *this;
 }
 ///** Move constructor for send message
@@ -668,6 +671,9 @@ SendMessHolder::SendMessHolder(SendMessHolder&& other) noexcept {
     this->destination = other.destination;
     this->mess_body.swap(other.mess_body);
     this->test_sync_mess_list.swap(other.test_sync_mess_list);
+    other.theRequest = (MPI_Request)(-1);
+    other.destination = -1;
+
 }
 // copy assignment
 SendMessHolder & SendMessHolder::operator=(const SendMessHolder & other) {
@@ -679,6 +685,7 @@ SendMessHolder & SendMessHolder::operator=(const SendMessHolder & other) {
 
     this->mess_body.assign(other.mess_body.begin(), other.mess_body.end());
     this->test_sync_mess_list.assign(other.test_sync_mess_list.begin(), other.test_sync_mess_list.end());
+
     return *this;
 
 }
