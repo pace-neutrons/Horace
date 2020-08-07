@@ -1,45 +1,40 @@
-function [err_code,err_mess,message] = receive_message_(obj,from_task_id,mess_name,varargin)
-% Receive message from job with the task_id (MPI rank) specified
-% if task_id is empty, or directly requests 'any', receive message from any task.
-%
+function [err_code,err_mess,mess] = receive_message_(obj,from_task_id,mess_name,varargin)
+% Receive message from job with the task_id (MPI rank) specified as input
+% if mess_name == 'any', receive any tag.
 %
 err_code = MESS_CODES.ok;
 err_mess = [];
-if ~exist('from_task_id','var') || ...
-        (ischar(from_task_id) && strcmpi(from_task_id,'any')) || ...
-        isempty(from_task_id)
-    %receive message from any task
+
+if any(from_task_id==0)
     error('MESSAGES_FRAMEWORK:invalid_argument',...
-        'Requesting receive message from undefined lab is not currently supported');
-end
-if ~isnumeric(from_task_id)
-    error('MESSAGES_FRAMEWORK:invalid_argument',...
-        'Task_id to receive message should be a number');
+        'CPP messages framework can not communicate with lab 0')
 end
 
-if ~exist('mess_name','var') %receive any message for this task
-    mess_name = 'any';
+mess = obj.get_interrupt(from_task_id);
+if ~isempty(mess)
+    err_code  =MESS_CODES.ok;
+    err_mess=[];
+    return;
 end
-if ~ischar(mess_name)
-    error('MESSAGES_FRAMEWORK:invalid_argument',...
-        'mess_name in recive_message command should be a message name (e.g. "starting")');
-    
+%
+mess_tag = MESS_NAMES.mess_id(mess_name,obj.interrupt_chan_tag_);
+% identify the way of receiving message. Like MessagesParpool, if 
+% interrupts appears after the framework starts waiting for data message 
+% synchronously, the framework hangs up, so Receive_all should be used to 
+% avoid such hang ups. From other side, this situation is not important as
+% MPI framerowk will fail on parallel interrupt
+if mess_tag == obj.interrupt_chan_tag_
+    is_blocking = false;
+else
+    if nargin>3
+        is_blocking = varargin{1};
+    else
+        is_blocking = MESS_NAMES.is_blocking(mess_name);
+    end
 end
-if (from_task_id<1 || from_task_id > obj.numLabs)
-    error('MESSAGES_FRAMEWORK:invalid_argument',...
-        'The message requested from worker N%d but can be only received from workers in range [1:%d]',...
-        from_task_id,obj.numLabs);
-end
 
-message = obj.get_interrupt(from_task_id);
-if ~isempty(message);   return; end
-
-
-mess_tag = MESS_NAMES.mess_id(mess_name);
-% check if the message should be received synchroneously or asynchroneously
-is_blocking = obj.check_is_blocking(mess_name,varargin);
-
-
+% C++ code checks for interrupt internaly, so no checks in Matlab code is
+% necessary
 try
     [obj.mpi_framework_holder_,mess_data]=cpp_communicator('labReceive',...
         obj.mpi_framework_holder_,int32(from_task_id),int32(mess_tag),...
@@ -47,14 +42,14 @@ try
 catch ERR
     if strcmpi(ERR.identifier,'MPI_MEX_COMMUNICATOR:runtime_error')
         error('MESSAGES_FRAMEWORK:runtime_error',...
-            'synchroneous waiting in test mode is not allowed')        
+            'synchroneous waiting in test mode is not allowed')
     else
         rethrow(ERR);
     end
 end
 if isempty(mess_data) % no message present at asynchronous receive.
-    message  = [];
+    mess  = [];
 else
-    message = hlp_deserialize(mess_data);
+    mess = hlp_deserialize(mess_data);
 end
-obj.set_interrupt(message,from_task_id);
+obj.set_interrupt(mess,from_task_id);

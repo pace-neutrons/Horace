@@ -54,10 +54,11 @@ n_workers = check_loop_param(loop_params,n_workers);
 obj.job_is_starting_ = true;
 % initialize cluster, defined by current configuration
 par_fc = MPI_fmwks_factory.instance();
-cluster_wrp = par_fc.get_running_cluster(n_workers,mf);
+%
+cluster_wrp = par_fc.get_initialized_cluster(n_workers,mf);
 %
 % verify if the cluster have started and report it was. 
-cluster_wrp = cluster_wrp.wait_started_and_report();
+cluster_wrp = cluster_wrp.wait_started_and_report(obj.task_check_time);
 
 if keep_workers_running % store cluster pointer for job resubmission
     obj.cluster_       = cluster_wrp;

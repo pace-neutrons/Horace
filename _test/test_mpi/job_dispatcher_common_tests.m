@@ -272,6 +272,13 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             assertTrue(exist(file1, 'file') == 2);
             assertTrue(exist(file2, 'file') == 2);
             assertTrue(exist(file3, 'file') == 2);
+            %-------------------------------------------------------------
+            %
+            % 
+            if strcmp(obj.framework_name,'mpiexec_mpi')
+                warning('Tests with data messages is currently disabled')
+                return
+            end
             
             n_steps = 30;
             common_param = struct('data_buffer_size',10000000);
@@ -336,6 +343,11 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             assertTrue(exist(file1, 'file') == 2);
             assertTrue(exist(file2, 'file') == 2);
             assertTrue(exist(file3, 'file') == 2);
+            
+            if strcmp(obj.framework_name,'mpiexec_mpi')
+                warning('Tests with data messages is currently disabled')
+                return
+            end
             
             
             common_param = struct('data_buffer_size',10000000);

@@ -4,16 +4,13 @@ function [rez, n_errors] = check_herbert_mex()
 %
 % Usage:
 %
-%   >>[rez,n_errors]=check_horace_mex();
+%   >>[rez,n_errors]=check_herbert_mex();
 %
 % If some mex files are can not be launched,the function returns the number of
 % files not launched as n_errors. mex-files versions strings become empty.
 %
 % rez is cellarray, which contains reply from mex files queried about their
 % version
-%
-%
-% $Revision: 1526 $    $Date: 2017-09-28 18:57:17 +0100 (Thu, 28 Sep 2017) $
 %
 
 % list of the function names used in nice formatted messages formed by the
