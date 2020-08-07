@@ -46,7 +46,7 @@ end
 
 mf = obj.mess_framework_;
 
-% if loop param defines less loop parameters then there are workers requested, 
+% if loop param defines less loop parameters then there are workers requested,
 % the number of workers will be decreased.
 n_workers = check_loop_param(loop_params,n_workers);
 
@@ -57,8 +57,37 @@ par_fc = MPI_fmwks_factory.instance();
 %
 cluster_wrp = par_fc.get_initialized_cluster(n_workers,mf);
 %
-% verify if the cluster have started and report it was. 
-cluster_wrp = cluster_wrp.wait_started_and_report(obj.task_check_time);
+% verify if the cluster have started and report it was.
+[cluster_wrp,ok] = cluster_wrp.wait_started_and_report(obj.task_check_time);
+if ~ok
+    n_restart_attempts = 5;
+    ic = 0;
+    pc = parallel_config;
+    
+    while ~ok && ic <n_restart_attempts
+        cluster_wrp.display_progress(...
+            sprintf(' Trying to restart parallel cluster for the %d time',ic+1));
+        
+        job_info = mf.initial_framework_info;
+        cluster_wrp.finalize_all(); % will destroy current mf
+        % Reinitialize mf and create job folder
+        mf = MessagesFilebased(job_info);
+        if ~isempty(pc.shared_folder_on_local)
+            mf.mess_exchange_folder = pc.shared_folder_on_local;
+        end
+        
+        obj.mess_framework_ = mf;
+        %
+        cluster_wrp = par_fc.get_initialized_cluster(n_workers,mf);
+        [cluster_wrp,ok] = cluster_wrp.wait_started_and_report(obj.task_check_time);
+        ic= ic+1;
+    end
+    if ~ok
+        error('PARALLEL_FRAMEWORK:runtime_error',...
+            ' Can not start parallel cluster %s after %d attempts. Parallel job aborted',...
+            class(cluster_wrp),n_restart_attempts+1);
+    end
+end
 
 if keep_workers_running % store cluster pointer for job resubmission
     obj.cluster_       = cluster_wrp;
