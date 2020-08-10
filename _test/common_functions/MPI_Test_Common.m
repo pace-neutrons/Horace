@@ -12,7 +12,7 @@ classdef MPI_Test_Common < TestCase
         % Warning is necessary.
         ignore_test = false;
         % current name of the framework to test
-        framework_name;
+        cluster_name;
         % current worker used in tests
         worker='worker_4tests'
     end
@@ -30,9 +30,9 @@ classdef MPI_Test_Common < TestCase
 
             
             if nargin > 1
-                obj.framework_name = varargin{1};
+                obj.cluster_name = varargin{1};
             else
-                obj.framework_name = 'parpool';
+                obj.cluster_name = 'parpool';
             end
             
             [pc, opc] = set_local_parallel_config();
@@ -52,7 +52,7 @@ classdef MPI_Test_Common < TestCase
             obj.parallel_config_restore_ = onCleanup(@()set(parallel_config,opc));
             
             
-            if strcmpi(pc.parallel_framework,'none')
+            if strcmpi(pc.parallel_cluster,'none')
                 obj.ignore_test = true;
                 warning('MPI_Test_Common:not_available',...
                     'unit test to check parallel framework is not available as framework is not installed properly')
@@ -61,8 +61,8 @@ classdef MPI_Test_Common < TestCase
             %pc.saveable = false;
             obj.working_dir = pc.working_directory;
             try
-                pc.parallel_framework = obj.framework_name;
-                if strcmpi(pc.parallel_framework,obj.framework_name)
+                pc.parallel_cluster = obj.cluster_name;
+                if strcmpi(pc.parallel_cluster,obj.cluster_name)
                     set_framework = true;
                 else
                     set_framework = false;
@@ -84,7 +84,7 @@ classdef MPI_Test_Common < TestCase
                 hc = herbert_config;
                 if hc.log_level>0
                     warning('MPI_TEST_COMMON:not_availible',...
-                        ['The framework: ', obj.framework_name, ...
+                        ['The framework: ', obj.cluster_name, ...
                         ' can not be enabled so is not tested'])
                 end
             else
@@ -98,7 +98,7 @@ classdef MPI_Test_Common < TestCase
                 return;
             end
             pc = parallel_config;
-            pc.parallel_framework = obj.framework_name;
+            pc.parallel_cluster = obj.cluster_name;
             pc.worker = obj.worker;
         end
         %

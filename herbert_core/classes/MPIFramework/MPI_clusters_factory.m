@@ -1,4 +1,4 @@
-classdef MPI_fmwks_factory<handle
+classdef MPI_clusters_factory<handle
     % The class, providing the subscription factory for
     % various type of MPI frameworks, available to users.
     %
@@ -9,13 +9,13 @@ classdef MPI_fmwks_factory<handle
     properties(Dependent)
         % current active cluster and message exchange framework
         % used for messages exchange between cluster's workers.
-        parallel_framework;
+        parallel_cluster;
         %
         % Information method returning the list of names of the parallel
         % frameworks, known to Herbert. You can not add or change a framework
         % using this method, The framework has to be defined and subscribed
         % via the algorithms factory.
-        known_frmwks_names
+        known_cluster_names
         %
     end
     properties(Access=protected)
@@ -23,18 +23,18 @@ classdef MPI_fmwks_factory<handle
     properties(Constant, Access=protected)
         % Subscription factory:
         % the list of the known framework names.
-        known_frmwks_names_ = {'herbert','parpool','mpiexec_mpi'};
+        known_cluster_names_ = {'herbert','parpool','mpiexec_mpi'};
         % The map to existing parallel frameworks clusters
-        known_frameworks_ = containers.Map(MPI_fmwks_factory.known_frmwks_names_,...
+        known_clusters_ = containers.Map(MPI_clusters_factory.known_cluster_names_,...
             {ClusterHerbert(),ClusterParpoolWrapper(),ClusterMPI()});
         % the map of the framework indexes
-        frmwk_ids_ = containers.Map(MPI_fmwks_factory.known_frmwks_names_,...
+        cluster_ids_ = containers.Map(MPI_clusters_factory.known_cluster_names_,...
             {1,2,3});
         
     end
     %----------------------------------------------------------------------
     methods(Access=private)
-        function obj=MPI_fmwks_factory()
+        function obj=MPI_clusters_factory()
         end
     end
     %----------------------------------------------------------------------
@@ -42,7 +42,7 @@ classdef MPI_fmwks_factory<handle
         function obj = instance(varargin)
             persistent obj_state;
             if isempty(obj_state)
-                obj_state = MPI_fmwks_factory();
+                obj_state = MPI_clusters_factory();
             end
             obj=obj_state;
         end
@@ -50,11 +50,11 @@ classdef MPI_fmwks_factory<handle
     %----------------------------------------------------------------------
     methods
         %------------------------------------------------------
-        function fw = get.parallel_framework(obj)
+        function fw = get.parallel_cluster(~)
             fw = config_store.instance.get_config_field(...
-                'parallel_config','parallel_framework');
+                'parallel_config','parallel_cluster');
         end
-        function set.parallel_framework(obj,val)
+        function set.parallel_cluster(obj,val)
             % Set up MPI framework to use. Available options are:
             % h[erbert], p[arpool] or m[pi_cluster]
             % (can be defined by single symbol) or by a framework number
@@ -63,28 +63,28 @@ classdef MPI_fmwks_factory<handle
             % No protection against invalid input key is provided here so
             % use parallel_config to get this protection, or organize it
             % before the call. Throws invalid_key for unknown framework
-            % names. Throws PARALLEL_CONFIG:not_available or 
+            % names. Throws PARALLEL_CONFIG:not_available or
             % PARALLEL_CONFIG:invalid_configuration if the cluster is not
-            % available on the current system. 
+            % available on the current system.
             %
-            [cl,fmwk_name]= obj.get_cluster(val);
+            [cl,cluster_name]= obj.get_cluster(val);
             % will throw PARALLEL_CONFIG:invalid_configuration if the
             % particular cluster is not available on current system
             cl.check_availability();
             %
             config_store.instance().store_config(...
-                'parallel_config','parallel_framework',fmwk_name);
+                'parallel_config','parallel_cluster',cluster_name);
         end
-        function [cl,fmwk_name] = get_cluster(obj,val)
+        function [cl,cluster_name] = get_cluster(obj,val)
             % return non-initialized cluster wrapper for the framework with
             % the name provided as input.
             %
-            fmwk_name = parallel_config.select_option(...
-                obj.known_frmwks_names_,val);
-            cl = obj.known_frameworks_(fmwk_name);
+            cluster_name = parallel_config.select_option(...
+                obj.known_cluster_names_,val);
+            cl = obj.known_clusters_(cluster_name);
             
         end
-        function cfg = get_all_configs(obj,frmw_name)
+        function cfg = get_all_configs(obj,cluster_name)
             % return all known configurations for the selected framework.
             %
             % frmw_name - if provided, return configuration for this
@@ -92,23 +92,23 @@ classdef MPI_fmwks_factory<handle
             %             taken for the framework, selected current in
             %             parallel_config
             %
-            if exist('frmw_name','var')
-                frmw_name = parallel_config.select_option(...
-                    obj.known_frmwks_names_,frmw_name);
+            if exist('cluster_name','var')
+                cluster_name = parallel_config.select_option(...
+                    obj.known_cluster_names_,cluster_name);
             else
-                frmw_name = obj.parallel_framework;
+                cluster_name = obj.parallel_cluster;
             end
-            if strcmpi(frmw_name,'none')
+            if strcmpi(cluster_name,'none')
                 cfg = {'none'};
             else
-                controller = obj.known_frameworks_(frmw_name);
+                controller = obj.known_clusters_(cluster_name);
                 cfg = controller.get_cluster_configs_available();
             end
         end
         
         
-        function fmwks = get.known_frmwks_names(obj)
-            fmwks = obj.known_frmwks_names_;
+        function clusters = get.known_cluster_names(obj)
+            clusters = obj.known_cluster_names_;
         end
         
         %-----------------------------------------------------------------
@@ -127,12 +127,12 @@ classdef MPI_fmwks_factory<handle
             %               other using the method, chosen for the
             %               cluster.
             log_level = config_store.instance().get_value('herbert_config','log_level');
-            fram      = obj.parallel_framework;
+            fram      = obj.parallel_cluster;
             if strcmpi(fram,'none')
                 error('PARALLEL_CONFIG:not_available',...
                     ' Can not run jobs in parallel. Any parallel framework is not available. Worker may be not installed.')
             else
-                controller= obj.known_frameworks_(fram);
+                controller= obj.known_clusters_(fram);
             end
             %
             controller = controller.init(n_workers,cluster_to_host_exch_fmwork,log_level);
