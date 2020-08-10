@@ -5,7 +5,7 @@ function [ok,err_mess] = send_message_(obj,task_id,message)
 ok = MESS_CODES.ok;
 err_mess = [];
 if ischar(message)
-    mess = aMessage(message);
+    mess = MESS_NAMES.instance().get_mess_class(message);
 elseif isa(message,'aMessage')
     mess = message;
 else
@@ -25,19 +25,14 @@ task_id = uint32(task_id);
 tag =int32(mess.tag);
 %
 try
-    if is_blocking
-        error('MESSAGES_CPP_MPI:not_implemented',...
-            'blocking comminications are not yet implemented')
-    else
-        contents = hlp_serialize(mess);
-        if mess.is_persistent % use interrupt channel to transfer message
-            tag = int32(obj.interrupt_chan_tag_);
-        end
-        
-        obj.mpi_framework_holder_ = cpp_communicator('labSend',...
-            obj.mpi_framework_holder_,...
-            task_id,tag,uint8(is_blocking),contents);
+    contents = hlp_serialize(mess);
+    if mess.is_persistent % use interrupt channel to transfer message
+        tag = int32(obj.interrupt_chan_tag_);
     end
+    
+    obj.mpi_framework_holder_ = cpp_communicator('labSend',...
+        obj.mpi_framework_holder_,...
+        task_id,tag,uint8(is_blocking),contents);   
 catch ME
     if strncmpi(ME.identifier,'MPI_MEX_COMMUNICATOR:',numel('MPI_MEX_COMMUNICATOR:'))
         ok = MESS_CODES.a_send_error;

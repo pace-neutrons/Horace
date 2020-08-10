@@ -658,7 +658,6 @@ classdef exchange_common_tests < MPI_Test_Common
             [ok,err_mess,message]= intercomm.receive_message(3,'canceled');
             assertEqual(ok, MESS_CODES.ok, ['Received Error = ', err_mess])
             assertEqual(message.mess_name,'canceled');
-            
         end
         %
         function test_receive_data_fail_comes(obj)

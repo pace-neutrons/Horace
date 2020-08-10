@@ -45,7 +45,7 @@ classdef ClusterMPI < ClusterWrapper
             obj.starting_info_message_ = ...
                 '**** mpiexec MPI job configured,  Starting MPI job  with %d workers ****\n';
             obj.started_info_message_  = ...
-                '**** mpiexec MPI job started                                         ****\n';
+                '**** mpiexec MPI job submitted                                     ****\n';
             %
             obj.pool_exchange_frmwk_name_ ='MessagesCppMPI';
             % define config folder containing cluster configurations

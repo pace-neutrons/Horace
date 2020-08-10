@@ -224,81 +224,6 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             assertTrue(exist(file3a, 'file') == 2);
         end
         %
-        function test_job_with_logs_2workers(obj, varargin)
-            if obj.ignore_test
-                return;
-            end
-            fprintf('test_job_dispatcher_%s:test_job_with_logs_2workers\n', ...
-                obj.framework_name)
-            if nargin > 1
-                obj.setUp();
-                clob0 = onCleanup(@()tearDown(obj));
-            end
-            clear mex;
-            hc = herbert_config;
-            display_ouptut = hc.log_level>0;
-            
-            % overloaded to empty test -- nothing new for this JD
-            % JETester specific control parameters
-            rng('shuffle');
-            FE = char(randi(25,1,5) + 64);
-            common_param = struct('filepath', obj.working_dir, ...
-                'filename_template', ['test_JD_', obj.framework_name,FE,'L%d_nf%d.txt']);
-            
-            file1 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L1_nf1.txt']);
-            file2 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L2_nf1.txt']);
-            file3 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L2_nf2.txt']);
-            files = {file1, file2, file3};
-            co = onCleanup(@()(delete(files{:})));
-            
-            jd = JobDispatcher(['test_', obj.framework_name, '_2workers']);
-            n_workers = 2;
-            
-            
-            [outputs, n_failed,~,jd] = jd.start_job('JETester', common_param, 3, true, n_workers, true, 1);
-            if n_failed>0
-                jd.display_fail_job_results(outputs, n_failed,2)
-            end
-            if numel(outputs) ~=2
-                disp('************* 2 workers run : failed  outputs :')
-                disp(outputs);
-            end
-            
-            
-            assertEqual(n_failed, 0);
-            assertEqual(numel(outputs), 2);
-            assertEqual(outputs{1}, 'Job 1 generated 1 files');
-            assertEqual(outputs{2}, 'Job 2 generated 2 files');
-            assertTrue(exist(file1, 'file') == 2);
-            assertTrue(exist(file2, 'file') == 2);
-            assertTrue(exist(file3, 'file') == 2);
-            %-------------------------------------------------------------
-            %
-            % 
-            if strcmp(obj.framework_name,'mpiexec_mpi')
-                warning('Tests with data messages is currently disabled')
-                return
-            end
-            
-            n_steps = 30;
-            common_param = struct('data_buffer_size',10000000);
-            [outputs, n_failed] = jd.restart_job('JETesterSendData',...
-                common_param,n_steps*n_workers,true, false, 1);
-            if n_failed>0
-                jd.display_fail_job_results(outputs, n_failed,2)
-            end
-            
-            assertEqual(n_failed, 0);
-            for i=1:numel(outputs)
-                if display_ouptut
-                    disp(outputs{i})
-                end
-                assertEqualToTol(outputs{i},(n_steps+1)*n_steps/2);
-            end
-            
-            
-        end
-        %
         function test_job_with_logs_3workers(obj, varargin)
             if obj.ignore_test
                 return;
@@ -342,13 +267,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             assertEqual(outputs{3}, 'Job 3 generated 1 files');
             assertTrue(exist(file1, 'file') == 2);
             assertTrue(exist(file2, 'file') == 2);
-            assertTrue(exist(file3, 'file') == 2);
-            
-            if strcmp(obj.framework_name,'mpiexec_mpi')
-                warning('Tests with data messages is currently disabled')
-                return
-            end
-            
+            assertTrue(exist(file3, 'file') == 2);                        
             
             common_param = struct('data_buffer_size',10000000);
             n_steps = 30;
@@ -402,6 +321,77 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 assertEqualToTol(outputs{i},(n_steps+1)*n_steps/2);
             end
         end
+        %
+        function test_job_with_logs_2workers(obj, varargin)
+            if obj.ignore_test
+                return;
+            end
+            fprintf('test_job_dispatcher_%s:test_job_with_logs_2workers\n', ...
+                obj.framework_name)
+            if nargin > 1
+                obj.setUp();
+                clob0 = onCleanup(@()tearDown(obj));
+            end
+            clear mex;
+            hc = herbert_config;
+            display_ouptut = hc.log_level>0;
+            
+            % overloaded to empty test -- nothing new for this JD
+            % JETester specific control parameters
+            rng('shuffle');
+            FE = char(randi(25,1,5) + 64);
+            common_param = struct('filepath', obj.working_dir, ...
+                'filename_template', ['test_JD_', obj.framework_name,FE,'L%d_nf%d.txt']);
+            
+            file1 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L1_nf1.txt']);
+            file2 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L2_nf1.txt']);
+            file3 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L2_nf2.txt']);
+            files = {file1, file2, file3};
+            co = onCleanup(@()(delete(files{:})));
+            
+            jd = JobDispatcher(['test_', obj.framework_name, '_2workers']);
+            n_workers = 2;
+            
+            
+            [outputs, n_failed,~,jd] = jd.start_job('JETester', common_param, 3, true, n_workers, true, 1);
+            if n_failed>0
+                jd.display_fail_job_results(outputs, n_failed,2)
+            end
+            if numel(outputs) ~=2
+                disp('************* 2 workers run : failed  outputs :')
+                disp(outputs);
+            end
+            
+            
+            assertEqual(n_failed, 0);
+            assertEqual(numel(outputs), 2);
+            assertEqual(outputs{1}, 'Job 1 generated 1 files');
+            assertEqual(outputs{2}, 'Job 2 generated 2 files');
+            assertTrue(exist(file1, 'file') == 2);
+            assertTrue(exist(file2, 'file') == 2);
+            assertTrue(exist(file3, 'file') == 2);
+            %-------------------------------------------------------------
+            %
+            n_steps = 30;
+            common_param = struct('data_buffer_size',10000000);
+            [outputs, n_failed] = jd.restart_job('JETesterSendData',...
+                common_param,n_steps*n_workers,true, false, 1);
+            if n_failed>0
+                jd.display_fail_job_results(outputs, n_failed,2)
+            end
+            
+            assertEqual(n_failed, 0);
+            for i=1:numel(outputs)
+                if display_ouptut
+                    disp(outputs{i})
+                end
+                assertEqualToTol(outputs{i},(n_steps+1)*n_steps/2);
+            end
+            
+            
+        end
+        %
+        
         %
         function test_job_with_logs_worker(obj, varargin)
             if obj.ignore_test

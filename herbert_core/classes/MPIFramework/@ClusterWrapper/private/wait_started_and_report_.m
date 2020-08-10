@@ -1,4 +1,4 @@
-function obj=wait_started_and_report_(obj,check_time,varargin)
+function [obj,ok]=wait_started_and_report_(obj,check_time,varargin)
 % check for 'ready' message and report cluster ready to user.
 % if not ready for some reason, report the failure and
 % diagnostics.
@@ -25,6 +25,7 @@ end
 
 [completed,obj] = obj.check_progress(mess);
 if completed
+    ok = false;    
     info = sprintf('Parallel cluster: "%s" initialization have failed',...
         class(obj));
     if isa(mess.payload,'MException')
@@ -36,6 +37,7 @@ if completed
     end
     obj = obj.display_progress(info,varargin{:});
 else
+    ok = true;
     obj.status = 'ready';
     info = sprintf('Parallel cluster "%s" is ready to accept jobs',...
         class(obj));

@@ -19,7 +19,7 @@ public:
     int destination;
     // vector of the message contents, used as the buffer of the message contents until the message is received
     std::vector<uint8_t> mess_body;
-    //SendMessHolder(SendMessHolder&& other) noexcept;
+
     SendMessHolder() :
         mess_tag(-1), destination(-1) {
         this->theRequest = (MPI_Request)(-1);
@@ -32,6 +32,16 @@ public:
     int is_delivered(bool is_tested);
     // method checks if the message has been send.
     bool is_send();
+
+    // the container to keep subsequend synchronous messages in test mode. Not used in production
+    std::list<SendMessHolder> test_sync_mess_list;
+
+    SendMessHolder(SendMessHolder&& other) noexcept;
+    SendMessHolder(const SendMessHolder& other);
+    SendMessHolder &operator=(SendMessHolder &&other);
+    SendMessHolder & operator=(const SendMessHolder & other);
+
+
 };
 
 /* The class which describes a block of information necessary to process block of pixels */

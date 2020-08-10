@@ -7,7 +7,7 @@ classdef ClusterWrapper
         % The time to wait for cluster to start (in sec). If this time is
         % exceeded,
         % the cluster reports failure and parallel job will not start.
-        cluster_startup_time = 180 % 3min
+        cluster_startup_time = 120 % 2min
     end
     properties(Dependent)   %
         % The string, providing unique identifier(name) for the job and cluster.
@@ -230,15 +230,20 @@ classdef ClusterWrapper
             obj = init_workers_(obj,je_init_message,task_init_mess,log_message_prefix );
         end
         %
-        function obj=wait_started_and_report(obj,check_time,varargin)
+        function [obj,ok]=wait_started_and_report(obj,check_time,varargin)
             % check for 'ready' message and report cluster ready to user.
+            %
             % if not ready for some reason, report the failure and
             % diagnostics.
+            % Returns:
+            % initialized cluster object with appropriate status set.
+            % ok -- true if cluster started successfully and false if it
+            % does not
             %
             if ~exist('check_time','var')
                 check_time = 4;
             end
-            obj = wait_started_and_report_(obj,check_time,varargin{:});
+            [obj,ok] = wait_started_and_report_(obj,check_time,varargin{:});
         end
         %
         function [completed, obj] = check_progress(obj,varargin)
