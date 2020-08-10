@@ -34,7 +34,8 @@ classdef hpc_config < config_base
     %                             combining sqw files using mex code.
     %---
     % parallel_framework        - what parallel framework use to perform
-    %                             parallel  tasks. Possibilities are 'herbert' or 'parpool'
+    %                             parallel  tasks. Possibilities are 'herbert', 'parpool'
+    %                             or mpiexec
     % mex_combine_buffer_size   - size of buffer used by mex code while
     %                             combining files per each contributing file.
     %
@@ -88,15 +89,15 @@ classdef hpc_config < config_base
         %
         remote_folder;
         % what parallel framework to use for parallel  tasks. Available
-        % options are: matlab, partool. Actually defined in parqallel_config and
+        % options are: matlab, partool, mpiexec. Defined in parallel_config and
         % exposed here for clarity.
         parallel_framework;
         % immutable reference to the class, which describes the parallel
         % configuration. To change the parallel configuration, work with
         % this configuration class itself;
         parallel_configuration
-        % helper property, returining the list of options, which define hpc
-        % configuration. Coinsids with saved_properties_list_ 
+        % helper read-only property, returining the list of options, which
+        % define hpc configuration. Coinsides with saved_properties_list_ 
         hpc_options
     end
     properties(Dependent,Hidden=true)
@@ -176,13 +177,13 @@ classdef hpc_config < config_base
         function accum = get.parallel_workers_number(this)
             accum = get_or_restore_field(this,'parallel_workers_number');
         end
-        function framework = get.parallel_framework(obj)
+        function framework = get.parallel_framework(~)
             framework = config_store.instance.get_value('parallel_config','parallel_framework');
         end
-        function rem_f = get.remote_folder(obj)
+        function rem_f = get.remote_folder(~)
             rem_f = config_store.instance.get_value('parallel_config','remote_folder');
         end
-        function config = get.parallel_configuration(obj)
+        function config = get.parallel_configuration(~)
             config = parallel_config();
         end
         function hpco = get.hpc_options(obj)
@@ -330,5 +331,4 @@ classdef hpc_config < config_base
         
     end
 end
-
 
