@@ -19,7 +19,7 @@ public:
     int destination;
     // vector of the message contents, used as the buffer of the message contents until the message is received
     std::vector<uint8_t> mess_body;
-      //SendMessHolder(SendMessHolder&& other) noexcept;
+
     SendMessHolder() :
         mess_tag(-1), destination(-1) {
         this->theRequest = (MPI_Request)(-1);
@@ -27,6 +27,21 @@ public:
     SendMessHolder(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag);
 
     void init(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag);
+
+    // method checks if the message was delivered to the target worker
+    int is_delivered(bool is_tested);
+    // method checks if the message has been send.
+    bool is_send();
+
+    // the container to keep subsequend synchronous messages in test mode. Not used in production
+    std::list<SendMessHolder> test_sync_mess_list;
+
+    SendMessHolder(SendMessHolder&& other) noexcept;
+    SendMessHolder(const SendMessHolder& other);
+    SendMessHolder &operator=(SendMessHolder &&other);
+    SendMessHolder & operator=(const SendMessHolder & other);
+
+
 };
 
 /* The class which describes a block of information necessary to process block of pixels */
@@ -34,15 +49,15 @@ class MPI_wrapper {
 public:
 
     MPI_wrapper() :
-        labIndex(-1), numProcs(0), isTested(false),
+        labIndex(-1), numLabs(0), isTested(false),
         async_queue_max_len_(10) {}
-    int init(bool isTested = false, int assynch_queue_max_len = 10, int data_mess_tag=5);
+    int init(const InitParamHolder &init_par);
     void close();
     void barrier();
     void clearAll();
     void labSend(int data_address, int data_tag, bool is_synchroneous, uint8_t* data_buffer, size_t nbytes_to_transfer);
-    void labProbe(const std::vector<int32_t> &data_address, const std::vector<int32_t> &data_tag, 
-        std::vector<int32_t> & addres_present, std::vector<int32_t> & tag_present);
+    void labProbe(const std::vector<int32_t> &data_address, const std::vector<int32_t> &data_tag,
+        std::vector<int32_t> & addres_present, std::vector<int32_t> & tag_present, bool interrupt_only=false);
     void labReceive(int source_address, int source_data_tag, bool isSynchronous, mxArray* plhs[], int nlhs);
     ~MPI_wrapper() {
         this->close();
@@ -50,7 +65,7 @@ public:
     // index of the current MPI lab (worker)
     int labIndex;
     // total  number of MPI labs (workers)
-    int numProcs;
+    int numLabs;
     // test mode used to run various test operations over MPI_wrapper in single process, 
     // when no real mpi exchange is initiated.
     bool isTested;
@@ -60,6 +75,9 @@ public:
     }
     // the tag of message, containing data (processed differently, not yet implemented.)
     static int data_mess_tag;
+    // the tag of message, containing interrupts. Organizes independent channel to check for interrupts
+    static int interrupt_mess_tag;
+
 
     //----------------------------------------------------------------------------------
     // The methods used in unit tests -- have no meaning in real communications
@@ -70,17 +88,23 @@ public:
         return &this->asyncMessList;
     }
     // get access to the synchroneous messages holder.
-    SendMessHolder* get_sync_queue() {
-        return &this->SyncMessHolder;
+    SendMessHolder* get_sync_queue(int dest_address = 0) {
+        return &this->SyncMessHolder[dest_address];
+    }
+    // get access to the interrupt holder
+    SendMessHolder *get_interrupt_queue(int dest_address = 0) {
+        return &this->InterruptHolder[dest_address];
     }
     // check if any message present in test mode
     bool any_message_present() {
-        if (SyncMessHolder.theRequest==0) 
-            return true;
+        for (const auto &msg : InterruptHolder) {
+            if (msg.theRequest == 0)  return true;
+        }
+        for (const auto &msg : SyncMessHolder) {
+            if (msg.theRequest == 0)  return true;
+        }
         for (auto it = asyncMessList.rbegin(); it != asyncMessList.rend(); it++) {
-            if (it->theRequest == 0) {
-                return true;
-            }
+            if (it->theRequest == 0)  return true;
         }
         return false;
     }
@@ -92,7 +116,8 @@ private:
     // the list of assyncroneous messages, stored until delivered
     std::list<SendMessHolder> asyncMessList;
 
-    SendMessHolder SyncMessHolder;
+    std::vector<SendMessHolder> SyncMessHolder;
+    std::vector<SendMessHolder> InterruptHolder;
 
     // add message to the asynchroneous messages queue and check if the queue is exceeded
     SendMessHolder* add_to_async_queue(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag);

@@ -24,6 +24,9 @@ enum class InitInputs : int {
     mode_name,
     async_queue_len,
     data_mess_tag,
+    interrupt_tag,
+    lab_info,  // in test mode this parameter contains vector defining labIndex and numLabs for "pseudo-cluster" to test
+    // ignored in production mode
     N_INPUT_Arguments
 };
 
@@ -63,9 +66,7 @@ enum class CloseOrInfoInputs : int { // all input arguments for close IO procedu
     N_INPUT_Arguments
 };
 
-//--------------   Outputs;
-
-
+//--------------   Outputs:
 enum class labReceive_Out :int { // output arguments for labReceive procedure
     comm_ptr,   // the pointer to class responsible for MPI communications
     mess_contents, //the pointer to the array of serialized message contents
@@ -83,24 +84,28 @@ enum class labIndex_Out :int { // output arguments for labIndex procedure
     N_OUTPUT_Arguments
 };
 
-enum class labProbe_Out:int { // output arguments of labProbe procedure
+enum class labProbe_Out :int { // output arguments of labProbe procedure
     comm_ptr,   // the pointer to class responsible for MPI communications
     addr_tag_array,     // 2-element array with the results of lab-probe operation
 
     N_OUTPUT_Arguments
 
 };
-/** The structure contains additional parameters, different call may need to transfer to MPI_Wrapper*/
-struct AdditionalParamHolder {
+/** The structure contains additional parameters, different init calls may need to transfer to MPI_Wrapper*/
+struct InitParamHolder {
+    bool is_tested;
     int async_queue_length; // how many asynchronous messages could be placed into asynchronous queue
     int data_message_tag;    // the tag of a data message, to process synchronously.
+    int interrupt_tag;    // the tag of an interrupt message, to process intermittently with any other type of messages.
+    int32_t debug_frmwk_param[2] = { 0,1 }; // in debug mode, this array contains fake labIndex and numLabs, 
+                              // used for testing framework in serial mode.
 
-    AdditionalParamHolder():
-        async_queue_length(10), data_message_tag(8)
+    InitParamHolder() :
+        is_tested(false), async_queue_length(10), data_message_tag(8), interrupt_tag(100)
     {}
 };
 
-void throw_error(char const * const MESS_ID, char const * const error_message,bool is_tested =false);
+void throw_error(char const * const MESS_ID, char const * const error_message, bool is_tested = false);
 
 class MPI_wrapper;
 //
@@ -110,9 +115,9 @@ template<class T> class class_handle
 {
 public:
     class_handle(T *ptr) : _signature(CLASS_HANDLE_SIGNATURE), _name(typeid(T).name()), class_ptr(ptr),
-         num_locks(0) {}
+        num_locks(0) {}
     class_handle() : _signature(CLASS_HANDLE_SIGNATURE), _name(typeid(T).name()), class_ptr(new T()),
-          num_locks(0) {}
+        num_locks(0) {}
 
     ~class_handle() {
         _signature = 0;
@@ -120,7 +125,7 @@ public:
     }
     bool isValid() { return ((_signature == CLASS_HANDLE_SIGNATURE) && std::strcmp(_name.c_str(), typeid(T).name()) == 0); }
 
-    
+
 
     T* const class_ptr;
     int num_locks;
@@ -132,6 +137,7 @@ private:
     const std::string _name;
 
 };
+
 template<class T>
 mxArray * class_handle<T>::export_hanlder_toMatlab()
 {
@@ -145,16 +151,17 @@ mxArray * class_handle<T>::export_hanlder_toMatlab()
     return out;
 }
 
+
 template<class T>
 void class_handle<T>::clear_mex_locks()
 {
-    while(this->num_locks>0){
+    while (this->num_locks > 0) {
         this->num_locks--;
         mexUnlock();
     }
 }
 
-template<class T> inline class_handle<T> *get_handler_fromMatlab(const mxArray *in,bool throw_on_invalid = true)
+template<class T> inline class_handle<T> *get_handler_fromMatlab(const mxArray *in, bool throw_on_invalid = true)
 {
     if (!in)
         throw_error("MPI_MEX_COMMUNICATOR:runtime_error", "cpp_communicator received from Matlab evaluated to null pointer");
@@ -174,8 +181,7 @@ template<class T> inline class_handle<T> *get_handler_fromMatlab(const mxArray *
 
 
 
-
 class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray* prhs[],
     input_types& work_mode, std::vector<int32_t> &data_addresses, std::vector<int32_t> &data_tag, bool& is_synchroneous,
-    uint8_t*& data_buffer,  size_t &nbytes_to_transfer,
-    AdditionalParamHolder & addPar);
+    uint8_t*& data_buffer, size_t &nbytes_to_transfer,
+    InitParamHolder & addPar);

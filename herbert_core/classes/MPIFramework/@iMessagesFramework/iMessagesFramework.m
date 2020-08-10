@@ -91,6 +91,7 @@ classdef iMessagesFramework < handle
             else
                 obj.job_id_ = iMessagesFramework.get_framework_id();
             end
+            obj.interrupt_chan_name_ = MESS_NAMES.interrupt_channel_name;
         end
         %------------------------------------------------------------------
         % SETTERS/GETTERS       *****
@@ -722,16 +723,23 @@ classdef iMessagesFramework < handle
             if ~isnumeric(from_task_id)
                 error('MESSAGES_FRAMEWORK:invalid_argument',...
                     'Task_id to receive message should be a number');
-            elseif numel(from_task_id)>1
-                error('MESSAGES_FRAMEWORK:invalid_argument',...
-                    'Receiving only one message from one lab may be requested. Asked for: %d',...
-                    numel(from_task_id));
+            else
+                if numel(from_task_id)>1
+                    error('MESSAGES_FRAMEWORK:invalid_argument',...
+                        'Receiving only one message from one lab may be requested. Asked for: %d',...
+                        numel(from_task_id));
+                end
+                if from_task_id>obj.numLabs
+                    error('MESSAGES_FRAMEWORK:invalid_argument',...
+                        'Receiving message from one lab N%d out of framework range: %d',...
+                        from_task_id,obj.numLabs)
+                end
             end
             if ~exist('mess_name','var') %receive any message for this task
                 mess_name = 'any';
             end
             if isnumeric(mess_name)
-                mess_name = MESS_NAMES.mess_name(mess_name);
+                mess_name = MESS_NAMES.mess_name(mess_name,obj.interrupt_chan_tag_);
             end
             if ~ischar(mess_name)
                 error('MESSAGES_FRAMEWORK:invalid_argument',...

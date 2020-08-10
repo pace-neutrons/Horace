@@ -9,20 +9,512 @@
 
 using namespace Herbert::Utility;
 
-
-TEST(TestCPPCommunicator, send_assynchroneous) {
-
+TEST(TestCPPCommunicator, send_sync_multi_receive_sync_multi) {
+    // testing test mode. It works this way only in test mode, while
+    // real MPI should wait before delivering next data
     MPI_wrapper::MPI_wrapper_gtested = true;
+
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 4;
+    init_par.data_message_tag = 9;
+    init_par.interrupt_tag = 1010;
+
+
+    init_par.debug_frmwk_param[0] = 1;
+    init_par.debug_frmwk_param[1] = 10;
+
+
     auto wrap = MPI_wrapper();
-    wrap.init(true,4,9);
+    wrap.init(init_par);
     ASSERT_TRUE(wrap.isTested);
 
-    EXPECT_EQ(MPI_wrapper::data_mess_tag, 9);
+
+    std::vector<uint8_t> test_mess(10, 1);
+
+    wrap.labSend(9, 2, true, &test_mess[0], test_mess.size());
+
+    test_mess.assign(10, 2);
+    wrap.labSend(9, 2, true, &test_mess[0], test_mess.size());
+
+    test_mess.assign(10, 3);
+    wrap.labSend(9, 2, true, &test_mess[0], test_mess.size());
+
+
+    // Receive first message and check it received correctly
+    mxArray *plhs[(int)labReceive_Out::N_OUTPUT_Arguments];
+    wrap.labReceive(9, 2, false, plhs, (int)labReceive_Out::N_OUTPUT_Arguments);
+
+    auto addrOut = plhs[(int)labReceive_Out::real_source_address];
+    ASSERT_EQ(mxGetM(addrOut), 1);
+    ASSERT_EQ(mxGetN(addrOut), 2);
+    auto pAddress = reinterpret_cast<int32_t*>(mxGetData(addrOut));
+    ASSERT_EQ(pAddress[0], 9);
+    ASSERT_EQ(pAddress[1], 2);
+
+    auto out = plhs[(int)labReceive_Out::mess_contents];
+    ASSERT_EQ(mxGetM(out), 1);
+    ASSERT_EQ(mxGetN(out), 10);
+    auto pData = reinterpret_cast<uint8_t*>(mxGetData(out));
+    for (int i = 0; i < 10; i++) {
+        EXPECT_EQ(pData[i], 1);
+    }
+    // Receive second message and check it received correctly
+    wrap.labReceive(9, 2, false, plhs, (int)labReceive_Out::N_OUTPUT_Arguments);
+
+    addrOut = plhs[(int)labReceive_Out::real_source_address];
+    ASSERT_EQ(mxGetM(addrOut), 1);
+    ASSERT_EQ(mxGetN(addrOut), 2);
+    pAddress = reinterpret_cast<int32_t*>(mxGetData(addrOut));
+    ASSERT_EQ(pAddress[0], 9);
+    ASSERT_EQ(pAddress[1], 2);
+
+    out = plhs[(int)labReceive_Out::mess_contents];
+    ASSERT_EQ(mxGetM(out), 1);
+    ASSERT_EQ(mxGetN(out), 10);
+    pData = reinterpret_cast<uint8_t*>(mxGetData(out));
+    for (int i = 0; i < 10; i++) {
+        EXPECT_EQ(pData[i], 2);
+    }
+
+    // Receive third message and check it received correctly
+    wrap.labReceive(9, 2, false, plhs, (int)labReceive_Out::N_OUTPUT_Arguments);
+
+    addrOut = plhs[(int)labReceive_Out::real_source_address];
+    ASSERT_EQ(mxGetM(addrOut), 1);
+    ASSERT_EQ(mxGetN(addrOut), 2);
+    pAddress = reinterpret_cast<int32_t*>(mxGetData(addrOut));
+    ASSERT_EQ(pAddress[0], 9);
+    ASSERT_EQ(pAddress[1], 2);
+
+    out = plhs[(int)labReceive_Out::mess_contents];
+    ASSERT_EQ(mxGetM(out), 1);
+    ASSERT_EQ(mxGetN(out), 10);
+    pData = reinterpret_cast<uint8_t*>(mxGetData(out));
+    for (int i = 0; i < 10; i++) {
+        EXPECT_EQ(pData[i], 3);
+    }
+
+
+
+    ASSERT_FALSE(wrap.any_message_present());
+}
+
+
+
+TEST(TestCPPCommunicator, send_sync_receive_async) {
+
+    MPI_wrapper::MPI_wrapper_gtested = true;
+
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 4;
+    init_par.data_message_tag = 9;
+    init_par.interrupt_tag = 1010;
+
+
+    init_par.debug_frmwk_param[0] = 1;
+    init_par.debug_frmwk_param[1] = 10;
+
+
+    auto wrap = MPI_wrapper();
+    wrap.init(init_par);
+    ASSERT_TRUE(wrap.isTested);
+
+
+    std::vector<uint8_t> test_mess(10, 3);
+
+    wrap.labSend(9, 2, true, &test_mess[0], test_mess.size());
+
+    // Receive this message and check it received correctly
+    mxArray *plhs[(int)labReceive_Out::N_OUTPUT_Arguments];
+    wrap.labReceive(9, 2, false, plhs, (int)labReceive_Out::N_OUTPUT_Arguments);
+
+    auto addrOut = plhs[(int)labReceive_Out::real_source_address];
+    ASSERT_EQ(mxGetM(addrOut), 1);
+    ASSERT_EQ(mxGetN(addrOut), 2);
+    auto pAddress = reinterpret_cast<int32_t*>(mxGetData(addrOut));
+    ASSERT_EQ(pAddress[0], 9);
+    ASSERT_EQ(pAddress[1], 2);
+
+    auto out = plhs[(int)labReceive_Out::mess_contents];
+    ASSERT_EQ(mxGetM(out), 1);
+    ASSERT_EQ(mxGetN(out), 10);
+    auto pData = reinterpret_cast<uint8_t*>(mxGetData(out));
+    for (int i = 0; i < 10; i++) {
+        EXPECT_EQ(pData[i], 3);
+    }
+
+    ASSERT_FALSE(wrap.any_message_present());
+}
+
+
+TEST(TestCPPCommunicator, send_async_receive_sync) {
+
+    MPI_wrapper::MPI_wrapper_gtested = true;
+
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 4;
+    init_par.data_message_tag = 9;
+    init_par.interrupt_tag = 1010;
+
+
+    init_par.debug_frmwk_param[0] = 1;
+    init_par.debug_frmwk_param[1] = 10;
+
+
+    auto wrap = MPI_wrapper();
+    wrap.init(init_par);
+    ASSERT_TRUE(wrap.isTested);
+
+
+    std::vector<uint8_t> test_mess(10, 3);
+
+    wrap.labSend(9, 2, false, &test_mess[0], test_mess.size());
+
+    // Receive this message and check it received correctly
+    mxArray *plhs[(int)labReceive_Out::N_OUTPUT_Arguments];
+    wrap.labReceive(9, 2, true, plhs, (int)labReceive_Out::N_OUTPUT_Arguments);
+
+    auto addrOut = plhs[(int)labReceive_Out::real_source_address];
+    ASSERT_EQ(mxGetM(addrOut), 1);
+    ASSERT_EQ(mxGetN(addrOut), 2);
+    auto pAddress = reinterpret_cast<int32_t*>(mxGetData(addrOut));
+    ASSERT_EQ(pAddress[0], 9);
+    ASSERT_EQ(pAddress[1], 2);
+
+    auto out = plhs[(int)labReceive_Out::mess_contents];
+    ASSERT_EQ(mxGetM(out), 1);
+    ASSERT_EQ(mxGetN(out), 10);
+    auto pData = reinterpret_cast<uint8_t*>(mxGetData(out));
+    for (int i = 0; i < 10; i++) {
+        EXPECT_EQ(pData[i], 3);
+    }
+
+    ASSERT_FALSE(wrap.any_message_present());
+}
+
+
+TEST(TestCPPCommunicator, send_receive_synchronous) {
+
+    MPI_wrapper::MPI_wrapper_gtested = true;
+
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 4;
+    init_par.data_message_tag = 9;
+    init_par.interrupt_tag = 1010;
+
+
+    init_par.debug_frmwk_param[0] = 1;
+    init_par.debug_frmwk_param[1] = 10;
+
+
+    auto wrap = MPI_wrapper();
+    wrap.init(init_par);
+    ASSERT_TRUE(wrap.isTested);
+
+
+    std::vector<uint8_t> test_mess(10, 1);
+
+    wrap.labSend(9, 2, true, &test_mess[0], test_mess.size());
+    auto pMess = wrap.get_sync_queue(9);
+
+    ASSERT_EQ(pMess->mess_tag, 2);
+    ASSERT_EQ(pMess->destination, 9);
+    ASSERT_EQ(pMess->mess_body[0], 1);
+
+    // "Deliver" message
+    pMess->theRequest = (MPI_Request)1;
+    ASSERT_FALSE(wrap.any_message_present());
+
+    // send another message
+    test_mess.assign(10, 2);
+    wrap.labSend(9, 3, true, &test_mess[0], test_mess.size());
+    pMess = wrap.get_sync_queue(9);
+    ASSERT_EQ(pMess->mess_tag, 3);
+    ASSERT_EQ(pMess->destination, 9);
+    ASSERT_EQ(pMess->mess_body[0], 2);
+
+    // Receive this message and check it received correctly
+    mxArray *plhs[(int)labReceive_Out::N_OUTPUT_Arguments];
+    wrap.labReceive(9, 3, true, plhs, (int)labReceive_Out::N_OUTPUT_Arguments);
+
+    auto addrOut = plhs[(int)labReceive_Out::real_source_address];
+    ASSERT_EQ(mxGetM(addrOut), 1);
+    ASSERT_EQ(mxGetN(addrOut), 2);
+    auto pAddress = reinterpret_cast<int32_t*>(mxGetData(addrOut));
+    ASSERT_EQ(pAddress[0], 9);
+    ASSERT_EQ(pAddress[1], 3);
+
+    auto out = plhs[(int)labReceive_Out::mess_contents];
+    ASSERT_EQ(mxGetM(out), 1);
+    ASSERT_EQ(mxGetN(out), 10);
+    auto pData = reinterpret_cast<uint8_t*>(mxGetData(out));
+    for (int i = 0; i < 10; i++) {
+        EXPECT_EQ(pData[i], 2);
+    }
+
+
+    ASSERT_FALSE(wrap.any_message_present());
+}
+
+
+TEST(TestCPPCommunicator, send_message_holder_methods_send_delivered) {
+    // check is_received and is_delivered methods
+
+    SendMessHolder aHolder;
+    ASSERT_FALSE(aHolder.is_send());
+    ASSERT_FALSE(aHolder.is_delivered(true));
+
+    std::vector<uint8_t> mess_data(10, 1);
+    aHolder.init(&mess_data[0], 10, 10, 1);
+
+    // in test mode it is considered send, in production mode
+    // this parameter should be checked up by MPI_Wait or MPI_Test
+    aHolder.theRequest = 0;
+    ASSERT_TRUE(aHolder.is_send());
+    ASSERT_FALSE(aHolder.is_delivered(true));
+
+    // in test mode it is considered delivered, in production mode
+    // it processed by MPI_Test operation
+    aHolder.theRequest = (MPI_Request)1;
+    ASSERT_TRUE(aHolder.is_send());
+    ASSERT_TRUE(aHolder.is_delivered(true));
+
+
+    aHolder.init(&mess_data[0], 10, 10, 1);
+    ASSERT_TRUE(aHolder.is_send());
+    ASSERT_FALSE(aHolder.is_delivered(true));
+
+}
+
+
+TEST(TestCPPCommunicator, send_interrupt_overrides_message) {
+    // check interrupt is received if present instead of
+    // requested message
+
+    MPI_wrapper::MPI_wrapper_gtested = true;
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 4;
+    init_par.data_message_tag = 10;
+    init_par.interrupt_tag = 100;
+
+    init_par.debug_frmwk_param[0] = 1;
+    init_par.debug_frmwk_param[1] = 10;
+
+
+    auto wrap = MPI_wrapper();
+    wrap.init(init_par);
+    ASSERT_TRUE(wrap.isTested);
 
     std::vector<uint8_t> test_mess;
     test_mess.assign(10, 1);
 
-    wrap.labSend(10,1,false, &test_mess[0], test_mess.size());
+    wrap.labSend(5, 4, false, &test_mess[0], test_mess.size());
+
+    std::vector<uint8_t> interrupt_mess;
+    interrupt_mess.assign(10, 10);
+    wrap.labSend(5, init_par.interrupt_tag, false, &interrupt_mess[0], test_mess.size());
+
+    mxArray* plhs[5];
+    // ask message
+    wrap.labReceive(5, 4, false, plhs, (int)labReceive_Out::N_OUTPUT_Arguments);
+    // got interrupt
+    auto addrOut = plhs[(int)labReceive_Out::real_source_address];
+    ASSERT_EQ(mxGetM(addrOut), 1);
+    ASSERT_EQ(mxGetN(addrOut), 2);
+    auto pAddress = reinterpret_cast<int32_t *>(mxGetData(addrOut));
+    ASSERT_EQ(pAddress[0], 5);
+    ASSERT_EQ(pAddress[1], init_par.interrupt_tag);
+
+    auto out = plhs[(int)labReceive_Out::mess_contents];
+    ASSERT_EQ(mxGetM(out), 1);
+    ASSERT_EQ(mxGetN(out), 10);
+    auto mess_data = reinterpret_cast<uint8_t *>(mxGetData(out));
+    for (int i = 0; i < 10; i++) {
+        EXPECT_EQ(interrupt_mess[i], mess_data[i]);
+    }
+
+
+
+    //  message still has to be received (and can be received)
+    wrap.labReceive(5, 4, false, plhs, (int)labReceive_Out::N_OUTPUT_Arguments);
+    // got interrupt
+    out = plhs[(int)labReceive_Out::mess_contents];
+    ASSERT_EQ(mxGetM(out), 1);
+    ASSERT_EQ(mxGetN(out), 10);
+    mess_data = reinterpret_cast<uint8_t *>(mxGetData(out));
+    for (int i = 0; i < 10; i++) {
+        EXPECT_EQ(test_mess[i], mess_data[i]);
+    }
+
+    addrOut = plhs[(int)labReceive_Out::real_source_address];
+    ASSERT_EQ(mxGetM(addrOut), 1);
+    ASSERT_EQ(mxGetN(addrOut), 2);
+    pAddress = reinterpret_cast<int32_t *>(mxGetData(addrOut));
+    ASSERT_EQ(pAddress[0], 5);
+    ASSERT_EQ(pAddress[1], 4);
+
+
+
+    // message is taken in the cache, but its place kept for the following messages
+    auto queue = wrap.get_async_queue();
+    ASSERT_EQ(queue->size(), 1); // place in the queue is retained for the following messages
+    auto contents = queue->begin();
+    ASSERT_EQ(contents->destination, 5);
+    ASSERT_TRUE(contents->is_delivered(true));
+
+}
+
+
+TEST(TestCPPCommunicator, send_probe_interrupt_overrides) {
+    // check interrupt is reported if present instead of
+    // the probed message
+
+
+    MPI_wrapper::MPI_wrapper_gtested = true;
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 4;
+    init_par.data_message_tag = 10;
+    init_par.interrupt_tag = 100;
+
+    init_par.debug_frmwk_param[0] = 1;
+    init_par.debug_frmwk_param[1] = 10;
+
+
+    auto wrap = MPI_wrapper();
+    wrap.init(init_par);
+    ASSERT_TRUE(wrap.isTested);
+
+    auto pInterrupt = wrap.get_interrupt_queue(5);
+    ASSERT_FALSE(pInterrupt->is_send());
+    ASSERT_FALSE(pInterrupt->is_delivered(true));
+
+    std::vector<uint8_t> test_mess;
+    test_mess.assign(10, 1);
+
+    wrap.labSend(5, 4, false, &test_mess[0], test_mess.size());
+    std::vector<int32_t> req_address(1, 5);
+    std::vector<int32_t> req_tag(1, 4);
+    std::vector<int32_t> got_address;
+    std::vector<int32_t> got_tag;
+
+    wrap.labProbe(req_address, req_tag, got_address, got_tag);
+    ASSERT_EQ(got_address.size(), 1);
+    ASSERT_EQ(got_tag.size(), 1);
+    ASSERT_EQ(got_address[0], 5);
+    ASSERT_EQ(got_tag[0], 4);
+
+    wrap.labSend(5, init_par.interrupt_tag, false, &test_mess[0], test_mess.size());
+    ASSERT_TRUE(pInterrupt->is_send());
+    ASSERT_FALSE(pInterrupt->is_delivered(true));
+
+
+    wrap.labProbe(req_address, req_tag, got_address, got_tag);
+    ASSERT_EQ(got_address.size(), 1);
+    ASSERT_EQ(got_tag.size(), 1);
+    ASSERT_EQ(got_address[0], 5);
+    ASSERT_EQ(got_tag[0], init_par.interrupt_tag);
+
+    // but normal message is sitting in the cache somewhere
+    auto queue = wrap.get_async_queue();
+    ASSERT_EQ(queue->size(), 1);
+    auto contents = queue->begin();
+    ASSERT_EQ(contents->destination, 5);
+    ASSERT_FALSE(contents->is_delivered(true));
+
+
+}
+
+
+TEST(TestCPPCommunicator, send_probe_interrupt) {
+    // when asynchronously receving list of the same tag non-data messages retain only the last one
+
+    MPI_wrapper::MPI_wrapper_gtested = true;
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 4;
+    init_par.data_message_tag = 10;
+    init_par.interrupt_tag = 100;
+
+    init_par.debug_frmwk_param[0] = 1;
+    init_par.debug_frmwk_param[1] = 10;
+
+
+    auto wrap = MPI_wrapper();
+    wrap.init(init_par);
+    ASSERT_TRUE(wrap.isTested);
+
+    auto pInterrupt = wrap.get_interrupt_queue(5);
+    ASSERT_FALSE(pInterrupt->is_send());
+    ASSERT_FALSE(pInterrupt->is_delivered(true));
+
+    std::vector<uint8_t> test_mess;
+    test_mess.assign(10, 1);
+
+    wrap.labSend(5, init_par.interrupt_tag, false, &test_mess[0], test_mess.size());
+    ASSERT_TRUE(pInterrupt->is_send());
+    ASSERT_FALSE(pInterrupt->is_delivered(true));
+
+    std::vector<int32_t> req_address(1, 1);
+    std::vector<int32_t> req_tag(1, -1);
+    std::vector<int32_t> got_address;
+    std::vector<int32_t> got_tag;
+
+    wrap.labProbe(req_address, req_tag, got_address, got_tag);
+    ASSERT_EQ(got_address.size(), 0);
+    ASSERT_EQ(got_tag.size(), 0);
+
+    req_address[0] = 5;
+    wrap.labProbe(req_address, req_tag, got_address, got_tag);
+    ASSERT_EQ(got_address.size(), 1);
+    ASSERT_EQ(got_address[0], 5);
+    ASSERT_EQ(got_tag[0], init_par.interrupt_tag);
+
+    // ask for 1, got interrupt
+    req_tag[0] = 1;
+    req_address[0] = 5;
+    wrap.labProbe(req_address, req_tag, got_address, got_tag);
+    ASSERT_EQ(got_address.size(), 1);
+    ASSERT_EQ(got_address[0], 5);
+    ASSERT_EQ(got_tag[0], init_par.interrupt_tag);
+
+}
+
+
+TEST(TestCPPCommunicator, send_assynchroneous) {
+
+    MPI_wrapper::MPI_wrapper_gtested = true;
+
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 4;
+    init_par.data_message_tag = 9;
+    init_par.interrupt_tag = 1010;
+
+
+    init_par.debug_frmwk_param[0] = 1;
+    init_par.debug_frmwk_param[1] = 10;
+
+
+    auto wrap = MPI_wrapper();
+    wrap.init(init_par);
+    ASSERT_TRUE(wrap.isTested);
+
+    EXPECT_EQ(MPI_wrapper::data_mess_tag, 9);
+    EXPECT_EQ(MPI_wrapper::interrupt_mess_tag, 1010);
+
+    EXPECT_EQ(wrap.labIndex, 1);
+    EXPECT_EQ(wrap.numLabs, 10);
+
+    std::vector<uint8_t> test_mess;
+    test_mess.assign(10, 1);
+
+    wrap.labSend(10, 1, false, &test_mess[0], test_mess.size());
     ASSERT_EQ(1, wrap.async_queue_len());
     // "Deliver" message
     auto queue = wrap.get_async_queue();
@@ -76,8 +568,18 @@ TEST(TestCPPCommunicator, send_assynchroneous) {
 TEST(TestCPPCommunicator, send_assynch_random_receive1) {
 
     MPI_wrapper::MPI_wrapper_gtested = true;
+
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 6;
+    init_par.data_message_tag = 9;
+
+    init_par.debug_frmwk_param[0] = 1;
+    init_par.debug_frmwk_param[1] = 10;
+
+
     auto wrap = MPI_wrapper();
-    wrap.init(true, 6, 9);
+    wrap.init(init_par);
     ASSERT_TRUE(wrap.isTested);
 
     EXPECT_EQ(MPI_wrapper::data_mess_tag, 9);
@@ -105,11 +607,23 @@ TEST(TestCPPCommunicator, send_assynch_random_receive1) {
     }
 
 }
+//
 TEST(TestCPPCommunicator, send_assynch_random_receive2) {
 
     MPI_wrapper::MPI_wrapper_gtested = true;
+
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 6;
+    init_par.data_message_tag = 9;
+    init_par.interrupt_tag = 1010;
+
+    init_par.debug_frmwk_param[0] = 1;
+    init_par.debug_frmwk_param[1] = 10;
+
+
     auto wrap = MPI_wrapper();
-    wrap.init(true, 6, 9);
+    wrap.init(init_par);
     ASSERT_TRUE(wrap.isTested);
 
     EXPECT_EQ(MPI_wrapper::data_mess_tag, 9);
@@ -137,96 +651,131 @@ TEST(TestCPPCommunicator, send_assynch_random_receive2) {
     }
 
 }
+//
 TEST(TestCPPCommunicator, lab_probe_single) {
 
     MPI_wrapper::MPI_wrapper_gtested = true;
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 4;
+    init_par.data_message_tag = 9;
+    init_par.interrupt_tag = 1010;
+
+    init_par.debug_frmwk_param[0] = 1;
+    init_par.debug_frmwk_param[1] = 10;
+
+
     auto wrap = MPI_wrapper();
-    wrap.init(true, 4);
+    wrap.init(init_par);
     ASSERT_TRUE(wrap.isTested);
 
-    std::vector<int32_t> req_address(1,-1);
-    std::vector<int32_t> req_tag(1,-1);
+    std::vector<int32_t> req_address(1, -1);
+    std::vector<int32_t> req_tag(1, -1);
     std::vector<int32_t> got_address;
     std::vector<int32_t> got_tag;
 
+    ASSERT_ANY_THROW(wrap.labProbe(req_address, req_tag, got_address, got_tag));
+    req_address.resize(10);
+    for (auto i = 0; i < 10; i++) {
+        req_address[i] = i;
+    }
     wrap.labProbe(req_address, req_tag, got_address, got_tag);
+
     ASSERT_EQ(got_address.size(), 0);
-    ASSERT_EQ(got_tag.size(),0);
+    ASSERT_EQ(got_tag.size(), 0);
 
 
-    std::vector<uint8_t> test_mess(10,1);
+    std::vector<uint8_t> test_mess(10, 1);
     test_mess[0] = 0; // sent but not delivered
 
-    wrap.labSend(10, 1, false, &test_mess[0], test_mess.size());
+    wrap.labSend(9, 1, false, &test_mess[0], test_mess.size());
     ASSERT_EQ(1, wrap.async_queue_len());
 
     wrap.labProbe(req_address, req_tag, got_address, got_tag);
-    ASSERT_EQ(got_address[0], 10);
+    ASSERT_EQ(got_address[0], 9);
     ASSERT_EQ(got_tag[0], 1);
 
-    req_address[0] = 9;
+    req_address.resize(1);
+    req_address[0] = 8;
     req_tag[0] = -1;
     wrap.labProbe(req_address, req_tag, got_address, got_tag);
     ASSERT_EQ(got_address.size(), 0);
     ASSERT_EQ(got_tag.size(), 0);
 
-    req_address[0] = 10;
+    req_address[0] = 9;
     req_tag[0] = -1;
     wrap.labProbe(req_address, req_tag, got_address, got_tag);
-    ASSERT_EQ(got_address[0], 10);
+    ASSERT_EQ(got_address[0], 9);
     ASSERT_EQ(got_tag[0], 1);
 
-    req_address[0] = 10;
+    req_address[0] = 9;
     req_tag[0] = 2;
     wrap.labProbe(req_address, req_tag, got_address, got_tag);
     ASSERT_EQ(got_address.size(), 0);
     ASSERT_EQ(got_tag.size(), 0);
 
-    req_address[0] = 10;
+    req_address[0] = 9;
     req_tag[0] = 1;
     wrap.labProbe(req_address, req_tag, got_address, got_tag);
-    ASSERT_EQ(got_address[0], 10);
+    ASSERT_EQ(got_address[0], 9);
     ASSERT_EQ(got_tag[0], 1);
 
     //
-    wrap.labSend(9, 2, false, &test_mess[0], test_mess.size());
-    ASSERT_EQ(wrap.async_queue_len(),2);
+    wrap.labSend(8, 2, false, &test_mess[0], test_mess.size());
+    ASSERT_EQ(wrap.async_queue_len(), 2);
 
     // Mark last messages as delivered
     auto MessCache = wrap.get_async_queue();
     auto lastMess = MessCache->rbegin();
     lastMess->theRequest = (MPI_Request)1;
 
-    req_address[0] = -1;
+    req_address[0] = 9;
     req_tag[0] = -1;
     wrap.labProbe(req_address, req_tag, got_address, got_tag);
-    ASSERT_EQ(got_address[0], 9);
-    ASSERT_EQ(got_tag[0], 2);
+    ASSERT_EQ(got_address.size(), 0);
+    ASSERT_EQ(got_tag.size(), 0);
 
-    req_address[0] = 10;
+
+    req_address[0] = 8;
     req_tag[0] = 1;
     wrap.labProbe(req_address, req_tag, got_address, got_tag);
     ASSERT_EQ(got_address.size(), 0);
     ASSERT_EQ(got_tag.size(), 0);
 
-    req_address[0] = 9;
+    req_address[0] = 8;
     req_tag[0] = 2;
     wrap.labProbe(req_address, req_tag, got_address, got_tag);
-    ASSERT_EQ(got_address[0], 9);
+    ASSERT_EQ(got_address.size(), 1);
+    ASSERT_EQ(got_tag.size(), 1);
+    ASSERT_EQ(got_address[0], 8);
     ASSERT_EQ(got_tag[0], 2);
 }
 
 TEST(TestCPPCommunicator, lab_probe_multi) {
 
     MPI_wrapper::MPI_wrapper_gtested = true;
+
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 4;
+    init_par.data_message_tag = 10;
+
+    init_par.debug_frmwk_param[0] = 1;
+    init_par.debug_frmwk_param[1] = 10;
+
+
     auto wrap = MPI_wrapper();
-    wrap.init(true, 4);
+    wrap.init(init_par);
     ASSERT_TRUE(wrap.isTested);
 
-    std::vector<int32_t> req_address(2, -1);
+
+    std::vector<int32_t> req_address(10, -1);
+    for (auto i = 0; i < 10; i++)req_address[i] = i;
+
     std::vector<int32_t> req_tag(1, -1);
     std::vector<int32_t> got_address;
     std::vector<int32_t> got_tag;
+
 
     wrap.labProbe(req_address, req_tag, got_address, got_tag);
     ASSERT_EQ(got_address.size(), 0);
@@ -240,6 +789,7 @@ TEST(TestCPPCommunicator, lab_probe_multi) {
     wrap.labSend(5, 3, false, &test_mess[0], test_mess.size());
     ASSERT_EQ(2, wrap.async_queue_len());
 
+    req_address.resize(2);
     req_address[0] = 8;
     req_address[1] = 3;
 
@@ -276,24 +826,33 @@ TEST(TestCPPCommunicator, lab_probe_multi) {
 TEST(TestCPPCommunicator, lab_receive_as_send) {
 
     MPI_wrapper::MPI_wrapper_gtested = true;
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 4;
+    init_par.data_message_tag = 9;
+    init_par.interrupt_tag = 1010;
+
+    init_par.debug_frmwk_param[0] = 1;
+    init_par.debug_frmwk_param[1] = 11;
+
 
     auto wrap = MPI_wrapper();
-    wrap.init(true, 4);
+    wrap.init(init_par);
     ASSERT_TRUE(wrap.isTested);
 
     mxArray* plhs[5];
-    wrap.labReceive(10, 1, false, plhs,5);
+    wrap.labReceive(10, 1, false, plhs, 5);
 
     auto out = plhs[(int)labReceive_Out::mess_contents];
-    ASSERT_EQ(mxGetM(out),1);
+    ASSERT_EQ(mxGetM(out), 1);
     ASSERT_EQ(mxGetN(out), 0);
 
     auto addrOut = plhs[(int)labReceive_Out::real_source_address];
     ASSERT_EQ(mxGetM(addrOut), 1);
     ASSERT_EQ(mxGetN(addrOut), 0);
 
-
-    ASSERT_ANY_THROW(wrap.labReceive(10, 1, true, plhs,5));
+    // synchronous message absent in test mode
+    ASSERT_ANY_THROW(wrap.labReceive(10, 1, true, plhs, 5));
 
     std::vector<uint8_t> test_mess;
     test_mess.assign(10, 1);
@@ -305,8 +864,9 @@ TEST(TestCPPCommunicator, lab_receive_as_send) {
     wrap.labSend(10, 2, false, &test_mess[0], test_mess.size());
     ASSERT_EQ(1, wrap.async_queue_len());
 
-    wrap.labReceive(-1, -1, false, plhs,5);
+    ASSERT_ANY_THROW(wrap.labReceive(-1, -1, false, plhs, 5));
 
+    wrap.labReceive(10, -1, false, plhs, 5);
     out = plhs[(int)labReceive_Out::mess_contents];
     ASSERT_EQ(mxGetM(out), 1);
     ASSERT_EQ(mxGetN(out), 10);
@@ -366,9 +926,17 @@ TEST(TestCPPCommunicator, receive_sequence_ignore_same_tag) {
     // when asynchronously receving list of the same tag non-data messages retain only the last one
 
     MPI_wrapper::MPI_wrapper_gtested = true;
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 4;
+    init_par.data_message_tag = 10;
+
+    init_par.debug_frmwk_param[0] = 1;
+    init_par.debug_frmwk_param[1] = 11;
+
 
     auto wrap = MPI_wrapper();
-    wrap.init(true, 4,10);
+    wrap.init(init_par);
     ASSERT_TRUE(wrap.isTested);
 
     mxArray* plhs[4];
@@ -428,11 +996,21 @@ TEST(TestCPPCommunicator, receive_sequence_ignore_same_tag) {
     ASSERT_EQ(pAddress[0], 5);
     ASSERT_EQ(pAddress[1], 2);
 }
+
 TEST(TestCPPCommunicator, clear_all) {
     MPI_wrapper::MPI_wrapper_gtested = true;
 
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 4;
+    init_par.data_message_tag = 10;
+
+    init_par.debug_frmwk_param[0] = 1;
+    init_par.debug_frmwk_param[1] = 10;
+
+
     auto wrap = MPI_wrapper();
-    wrap.init(true, 4, 10);
+    wrap.init(init_par);
     ASSERT_TRUE(wrap.isTested);
 
     std::vector<uint8_t> test_mess;

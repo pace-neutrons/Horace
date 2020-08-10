@@ -48,8 +48,8 @@ while ~all_received
             end
             if isempty(message) %message was present, but is getting
                 % overwritten when tried to receive it. (filebased
-                % framework feature) Making it non-present (it will come
-                % next time)
+                % framework feature) Making it non-present (it will be 
+                % received next attempt)
                 mess_received(i) = false;
                 mess_names_present{i} = '';
                 present_now(i) = false;

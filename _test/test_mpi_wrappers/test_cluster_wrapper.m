@@ -27,7 +27,7 @@ classdef test_cluster_wrapper < TestCase
                 MException('MESSAGES_FRAMEWORK:canceled','test cancellation'));
             meR1.send_message(0,mc );
             
-            cluster = cluster.wait_started_and_report();
+            cluster = cluster.wait_started_and_report(1);
             assertEqual(cluster.status_name,'canceled');
         end
         
@@ -39,9 +39,9 @@ classdef test_cluster_wrapper < TestCase
             cluster = ClusterWrapper(3,mf);
             clob = onCleanup(@()finalize_all(cluster));
             
-            mf.time_to_fail =0;
+            cluster.cluster_startup_time =0;
             
-            cluster = cluster.wait_started_and_report();
+            cluster = cluster.wait_started_and_report(0);
             assertEqual(cluster.status_name,'failed');
         end
         
@@ -75,7 +75,7 @@ classdef test_cluster_wrapper < TestCase
             worker_init_mess{3}.payload = 'c';
             %
             meR1.send_message(0,'ready');
-            cluster = cluster.wait_started_and_report();
+            cluster = cluster.wait_started_and_report(1);
             
             %--------------------------------------------------------------
             cluster = cluster.init_workers(jeInit,worker_init_mess);

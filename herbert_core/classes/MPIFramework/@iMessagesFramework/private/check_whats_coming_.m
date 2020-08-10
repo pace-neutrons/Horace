@@ -43,6 +43,7 @@ end
 mess_to_keep = cellfun(@(x)to_keep(x,obj.interrupt_chan_name_),mess_array,'UniformOutput',true);
 % verify data messages already present not to force overwriting
 % existing received data messages
+
 receive_now = ismember(task_ids,tid_from);
 new_mess_array = cell(1,numel(receive_now));
 new_mess_array(receive_now) = message_names(:);
@@ -50,6 +51,7 @@ new_mess_array(receive_now) = message_names(:);
 
 
 receive_now = receive_now & ~mess_to_keep;
+
 
 message_names_array = cellfun(@extract_name,mess_array,'UniformOutput',false);
 message_names_array(receive_now)  = new_mess_array(receive_now);

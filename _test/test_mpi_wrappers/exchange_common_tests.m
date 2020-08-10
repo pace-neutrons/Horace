@@ -658,7 +658,6 @@ classdef exchange_common_tests < MPI_Test_Common
             [ok,err_mess,message]= intercomm.receive_message(3,'canceled');
             assertEqual(ok, MESS_CODES.ok, ['Received Error = ', err_mess])
             assertEqual(message.mess_name,'canceled');
-            
         end
         %
         function test_receive_data_fail_comes(obj)
@@ -1175,62 +1174,8 @@ classdef exchange_common_tests < MPI_Test_Common
             assertTrue(isempty(err_mess));
             assertEqual(mess, messR);
         end
-        function test_SendReceive(obj)
-            % Test communications in test mode
-            if obj.ignore_test
-                return
-            end
-            m_comm = feval(obj.comm_name);
-            clob_s = onCleanup(@()(finalize_all(m_comm )));
-            
-            
-            assertEqual(double(m_comm.labIndex), 1);
-            assertEqual(double(m_comm.numLabs), 10);
-            
-            mess = LogMessage(1, 10, 1, []);
-            [ok, err_mess] = m_comm.send_message(5, mess);
-            assertEqual(ok, MESS_CODES.ok);
-            assertTrue(isempty(err_mess));
-            
-            [ok, err_mess, messR] = m_comm.receive_message(5, mess.mess_name);
-            assertEqual(ok, MESS_CODES.ok);
-            assertTrue(isempty(err_mess));
-            assertEqual(mess, messR);
-            %-----------------------------------------------------------
-            [ok, err_mess, messR] = m_comm.receive_message(5, mess.mess_name);
-            assertEqual(ok, MESS_CODES.ok);
-            assertTrue(isempty(err_mess));
-            assertTrue(isempty(messR));
-            %--------------------------------------------------------------
-            %
-            % blocking receive in test mode is not alowed
-            f = @()receive_message(m_comm,5, 'init');
-            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:runtime_error')
-            
-            
-            [ok, err_mess] = m_comm.send_message(4, mess);
-            assertEqual(ok, MESS_CODES.ok);
-            assertTrue(isempty(err_mess));
-            
-            [ok, err_mess, messR] = m_comm.receive_message(5, 'any');
-            assertEqual(ok, MESS_CODES.ok);
-            assertTrue(isempty(err_mess));
-            assertTrue(isempty(messR));
-            
-            [ok, err_mess, messR] = m_comm.receive_message(4, 'any');
-            assertEqual(ok, MESS_CODES.ok);
-            assertTrue(isempty(err_mess));
-            assertEqual(mess, messR);
-            
-            
-            % out-of range
-            f = @()send_message(m_comm, 11, mess);
-            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument',...
-                'Should throw invalid argument on out-of range message but got something else')
-            
-            clear clob_r;
-        end
-        function test_check_whats_coming_data_kept_fail_overrides(obj)            
+        %
+        function test_check_whats_coming_data_kept_fail_overrides(obj)
             if obj.ignore_test
                 return
             end
@@ -1448,6 +1393,63 @@ classdef exchange_common_tests < MPI_Test_Common
             assertExceptionThrown(f,'MESSAGES_FRAMEWORK:invalid_argument');                        
         end
         %
+        function test_SendReceive(obj)
+            % Test communications in test mode
+            if obj.ignore_test
+                return
+            end
+            m_comm = feval(obj.comm_name);
+            clob_s = onCleanup(@()(finalize_all(m_comm )));
+            
+            
+            assertEqual(double(m_comm.labIndex), 1);
+            assertEqual(double(m_comm.numLabs), 10);
+            
+            mess = LogMessage(1, 10, 1, []);
+            [ok, err_mess] = m_comm.send_message(5, mess);
+            assertEqual(ok, MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            
+            [ok, err_mess, messR] = m_comm.receive_message(5, mess.mess_name);
+            assertEqual(ok, MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            assertEqual(mess, messR);
+            %-----------------------------------------------------------
+            [ok, err_mess, messR] = m_comm.receive_message(5, mess.mess_name);
+            assertEqual(ok, MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            assertTrue(isempty(messR));
+            %--------------------------------------------------------------
+            %
+            % blocking receive in test mode is not alowed
+            f = @()receive_message(m_comm,5, 'init');
+            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:runtime_error')
+            
+            
+            [ok, err_mess] = m_comm.send_message(4, mess);
+            assertEqual(ok, MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            
+            [ok, err_mess, messR] = m_comm.receive_message(5, 'any');
+            assertEqual(ok, MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            assertTrue(isempty(messR));
+            
+            [ok, err_mess, messR] = m_comm.receive_message(4, 'any');
+            assertEqual(ok, MESS_CODES.ok);
+            assertTrue(isempty(err_mess));
+            assertEqual(mess, messR);
+            
+            
+            % out-of range
+            f = @()send_message(m_comm, 11, mess);
+            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument',...
+                'Should throw invalid argument on out-of range message but got something else')
+            
+            clear clob_r;
+        end
+        
+        %
         function test_Receive_fromAny_is_error(obj)
             m_comm = feval(obj.comm_name);
             clob_r = onCleanup(@()(finalize_all(m_comm )));
@@ -1485,6 +1487,8 @@ classdef exchange_common_tests < MPI_Test_Common
             
             clear clob_r;
         end
+        
+        
     end
 end
 

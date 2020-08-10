@@ -20,10 +20,17 @@ if exist('framework_info','var')
         if isfield(framework_info,'test_mode')
             test_mode = true;
         end
+        if isfield(framework_info,'labID')
+            cluster_range = int32([framework_info.labID,...
+                framework_info.numLabs]);
+        else
+            cluster_range =int32([1,10]);
+        end
     elseif(is_string(framework_info))
         obj.job_id = framework_info;
         if strcmpi(framework_info,'test_mode')
             test_mode = true;
+            cluster_range =int32([1,10]);
         end
     else
         error('MPI_MESSAGES:invalid_argument',...
@@ -57,11 +64,16 @@ end
 if test_mode
     [obj.mpi_framework_holder_,obj.task_id_,obj.numLabs_]= ...
         cpp_communicator('init_test_mode',...
-        obj.assync_messages_queue_length_,obj.data_message_tag_);
+        obj.assync_messages_queue_length_,obj.data_message_tag_,...
+        obj.interrupt_chan_tag_,cluster_range);
     obj.is_tested_ = true;
 else
     [obj.mpi_framework_holder_,obj.task_id_,obj.numLabs_]= ...
         cpp_communicator('init',...
-        obj.assync_messages_queue_length_,obj.data_message_tag_);
+        obj.assync_messages_queue_length_,obj.data_message_tag_,...
+        obj.interrupt_chan_tag_);
     obj.is_tested_ = false;
 end
+obj.task_id_  = double(obj.task_id_);
+obj.numLabs_  = double(obj.numLabs_);
+

@@ -296,6 +296,12 @@ classdef MESS_NAMES < handle
             %
             % Input:
             % mess_id -- array of message id(s)
+            % Optional
+            %  Interrupt_channel_tag -- the number of the channel to transfer
+            %                           interrupt messages.
+            %                           Should be present if this channel 
+            %                           name can occur
+            %                           as input of mess_name function. 
             % Returns:
             % name    -- cellarray of message names in case of array of
             %            message id-s or single name(char) for single
@@ -316,7 +322,7 @@ classdef MESS_NAMES < handle
             if nargin>1
                 f = @(x)MESS_NAMES.id_to_name_or_interrupt(x,code2name_map,varargin{1});
             else
-                f = @(x)code2name_map(x);                
+                f = @(x)code2name_map(x);
             end
             
             if numel(mess_id) > 1
@@ -434,4 +440,3 @@ classdef MESS_NAMES < handle
     end
     
 end
-

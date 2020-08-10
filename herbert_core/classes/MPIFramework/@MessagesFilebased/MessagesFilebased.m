@@ -18,7 +18,10 @@ classdef MessagesFilebased < iMessagesFramework
         % initial job info and message exchange between tasks if job uses
         % filebased messages.
         mess_exchange_folder;
-        
+        % The property, containing information used at filebased framework
+        % initialization process. Used for subesequent cluster restarts if
+        % initial cluster start-up have failed.
+        initial_framework_info;
     end
     properties(Constant=true)
         % the name of the sub-folder where the remote jobs information is stored;
@@ -47,7 +50,8 @@ classdef MessagesFilebased < iMessagesFramework
         % received.
         send_data_messages_count_;
         receive_data_messages_count_;
-        %
+        % Holder for initial framework information
+        initial_framework_info_
     end
     %----------------------------------------------------------------------
     methods
@@ -79,6 +83,7 @@ classdef MessagesFilebased < iMessagesFramework
         function  obj = init_framework(obj,framework_info)
             % using control structure initialize operational message
             % framework
+            obj.initial_framework_info_ = framework_info;
             obj = init_framework_(obj,framework_info);
             %obj.time_to_react_ = 1;
         end
@@ -323,6 +328,12 @@ classdef MessagesFilebased < iMessagesFramework
             % this will set new job ID and delete old exchange folder
             set_job_id_(obj,new_job_id,delete_old_folder);
         end
+        %
+        function fin = get.initial_framework_info(obj)
+            %
+            fin = obj.initial_framework_info_;
+        end
+        
     end
     %----------------------------------------------------------------------
     methods (Access=protected)
