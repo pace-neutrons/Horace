@@ -63,9 +63,5 @@ classdef test_exchange_CppMPI < exchange_common_tests
             assertEqual(labNum, int32(1));
             assertEqual(nLabs, int32(10));
         end
-        %-----------------------------------------------------------------
-        % CURRENTLY DISABLED
-        %
-        
     end
 end
