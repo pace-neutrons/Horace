@@ -5,8 +5,8 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
     end
     methods
         %
-        function this = job_dispatcher_common_tests(test_name, framework_name)
-            this = this@MPI_Test_Common(test_name, framework_name);
+        function this = job_dispatcher_common_tests(test_name, cluster_name)
+            this = this@MPI_Test_Common(test_name, cluster_name);
         end
         %
         function test_job_fail_restart(obj, varargin)
@@ -14,7 +14,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 return;
             end
             fprintf('test_job_dispatcher_%s:test_job_fail_restart\n', ...
-                obj.framework_name)
+                obj.cluster_name)
             if nargin > 1
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
@@ -27,7 +27,6 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                     end
                 end
             end
-            clear mex;
             
             display_fail_log = false;
             
@@ -37,18 +36,18 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             rng('shuffle');
             FE = char(randi(25,1,5) + 64);
             common_param = struct('filepath', obj.working_dir, ...
-                'filename_template', ['test_JD_', obj.framework_name,FE,'L%d_nf%d.txt'], ...
+                'filename_template', ['test_JD_', obj.cluster_name,FE,'L%d_nf%d.txt'], ...
                 'fail_for_labsN', 2);
             
-            file1 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L1_nf1.txt']);
-            file2 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L2_nf1.txt']);
-            file3 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L3_nf1.txt']);
-            file3a = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L3_nf2.txt']);
+            file1 = fullfile(obj.working_dir, ['test_JD_', obj.cluster_name,FE, 'L1_nf1.txt']);
+            file2 = fullfile(obj.working_dir, ['test_JD_', obj.cluster_name,FE, 'L2_nf1.txt']);
+            file3 = fullfile(obj.working_dir, ['test_JD_', obj.cluster_name,FE, 'L3_nf1.txt']);
+            file3a = fullfile(obj.working_dir, ['test_JD_', obj.cluster_name,FE, 'L3_nf2.txt']);
             
             files = {file1, file3, file3a};
             co = onCleanup(@()(my_delete(files{:})));
             
-            jd = JobDispatcher(['test_job_', obj.framework_name, '_fail_restart']);
+            jd = JobDispatcher(['test_job_', obj.cluster_name, '_fail_restart']);
             disp('*********************************************************')
             disp('**************FAIL-1 Lab2 Fails *************************')
             disp('*********************************************************')
@@ -96,7 +95,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             end
             
             % file may exist or may not -- depending on relation between
-            % speed of workers            
+            % speed of workers
             co = onCleanup(@()(my_delete(file3, file3a)));
             common_param.fail_for_labsN = 1;
             disp('*********************************************************')
@@ -140,7 +139,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             assertTrue(sum(fin) >= 1)
             
             for i = 1:33
-                fileN = fullfile(obj.working_dir, sprintf('test_JD_%s%sL3_nf%d.txt', obj.framework_name,FE, i));
+                fileN = fullfile(obj.working_dir, sprintf('test_JD_%s%sL3_nf%d.txt', obj.cluster_name,FE, i));
                 if exist(fileN, 'file') == 2
                     delete(fileN);
                 else
@@ -170,14 +169,14 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             
             
             for i = 1:33
-                fileN1 = fullfile(obj.working_dir, sprintf('test_JD_%s%sL1_nf%d.txt', obj.framework_name,FE, i));
+                fileN1 = fullfile(obj.working_dir, sprintf('test_JD_%s%sL1_nf%d.txt', obj.cluster_name,FE, i));
                 if exist(fileN1, 'file') == 2
                     no_file1 = false;
                     delete(fileN1);
                 else
                     no_file1 = true;
                 end
-                fileN2 = fullfile(obj.working_dir, sprintf('test_JD_%s%sL2_nf%d.txt', obj.framework_name,FE,i));
+                fileN2 = fullfile(obj.working_dir, sprintf('test_JD_%s%sL2_nf%d.txt', obj.cluster_name,FE,i));
                 if exist(fileN2, 'file') == 2
                     delete(fileN2);
                 else
@@ -229,7 +228,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 return;
             end
             fprintf('test_job_dispatcher_%s:test_job_with_logs_3workers\n', ...
-                obj.framework_name)
+                obj.cluster_name)
             if nargin > 1
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
@@ -241,14 +240,14 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             rng('shuffle');
             FE = char(randi(25,1,5) + 64);
             common_param = struct('filepath', obj.working_dir, ...
-                'filename_template', ['test_JD_', obj.framework_name,FE,'L%d_nf%d.txt']);
-            file1 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L1_nf1.txt']);
-            file2 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L2_nf1.txt']);
-            file3 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L3_nf1.txt']);
+                'filename_template', ['test_JD_', obj.cluster_name,FE,'L%d_nf%d.txt']);
+            file1 = fullfile(obj.working_dir, ['test_JD_', obj.cluster_name,FE, 'L1_nf1.txt']);
+            file2 = fullfile(obj.working_dir, ['test_JD_', obj.cluster_name,FE, 'L2_nf1.txt']);
+            file3 = fullfile(obj.working_dir, ['test_JD_', obj.cluster_name,FE, 'L3_nf1.txt']);
             files = {file1, file2, file3};
             co = onCleanup(@()(delete(files{:})));
             
-            jd = JobDispatcher(['test_', obj.framework_name, '_3workers']);
+            jd = JobDispatcher(['test_', obj.cluster_name, '_3workers']);
             n_workers = 3;
             
             [outputs, n_failed,~,jd] = jd.start_job('JETester', common_param, 3, true, n_workers, true, 1);
@@ -267,7 +266,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             assertEqual(outputs{3}, 'Job 3 generated 1 files');
             assertTrue(exist(file1, 'file') == 2);
             assertTrue(exist(file2, 'file') == 2);
-            assertTrue(exist(file3, 'file') == 2);                        
+            assertTrue(exist(file3, 'file') == 2);
             
             common_param = struct('data_buffer_size',10000000);
             n_steps = 30;
@@ -327,7 +326,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 return;
             end
             fprintf('test_job_dispatcher_%s:test_job_with_logs_2workers\n', ...
-                obj.framework_name)
+                obj.cluster_name)
             if nargin > 1
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
@@ -341,15 +340,15 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             rng('shuffle');
             FE = char(randi(25,1,5) + 64);
             common_param = struct('filepath', obj.working_dir, ...
-                'filename_template', ['test_JD_', obj.framework_name,FE,'L%d_nf%d.txt']);
+                'filename_template', ['test_JD_', obj.cluster_name,FE,'L%d_nf%d.txt']);
             
-            file1 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L1_nf1.txt']);
-            file2 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L2_nf1.txt']);
-            file3 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE, 'L2_nf2.txt']);
+            file1 = fullfile(obj.working_dir, ['test_JD_', obj.cluster_name,FE, 'L1_nf1.txt']);
+            file2 = fullfile(obj.working_dir, ['test_JD_', obj.cluster_name,FE, 'L2_nf1.txt']);
+            file3 = fullfile(obj.working_dir, ['test_JD_', obj.cluster_name,FE, 'L2_nf2.txt']);
             files = {file1, file2, file3};
             co = onCleanup(@()(delete(files{:})));
             
-            jd = JobDispatcher(['test_', obj.framework_name, '_2workers']);
+            jd = JobDispatcher(['test_', obj.cluster_name, '_2workers']);
             n_workers = 2;
             
             
@@ -398,27 +397,26 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 return;
             end
             fprintf('test_job_dispatcher_%s:test_job_with_logs_worker\n', ...
-                obj.framework_name)
+                obj.cluster_name)
             if nargin > 1
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
             end
-            clear mex;
             
             % overloaded to empty test -- nothing new for this JD
             % JETester specific control parameters
             rng('shuffle');
             FE = char(randi(25,1,5) + 64);
             common_param = struct('filepath', obj.working_dir, ...
-                'filename_template', ['test_JD_', obj.framework_name,FE,'L%d_nf%d.txt']);
+                'filename_template', ['test_JD_', obj.cluster_name,FE,'L%d_nf%d.txt']);
             
-            file1 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE,'L1_nf1.txt']);
-            file2 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE,'L1_nf2.txt']);
-            file3 = fullfile(obj.working_dir, ['test_JD_', obj.framework_name,FE,'L1_nf3.txt']);
+            file1 = fullfile(obj.working_dir, ['test_JD_', obj.cluster_name,FE,'L1_nf1.txt']);
+            file2 = fullfile(obj.working_dir, ['test_JD_', obj.cluster_name,FE,'L1_nf2.txt']);
+            file3 = fullfile(obj.working_dir, ['test_JD_', obj.cluster_name,FE,'L1_nf3.txt']);
             files = {file1, file2, file3};
             co = onCleanup(@()(delete(files{:})));
             
-            jd = JobDispatcher(['test_', obj.framework_name, '_1worker']);
+            jd = JobDispatcher(['test_', obj.cluster_name, '_1worker']);
             
             [outputs, n_failed] = jd.start_job('JETester', common_param, 3, true, 1, false, 1);
             if n_failed>0
