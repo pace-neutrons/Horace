@@ -194,6 +194,13 @@ methods
         end
     end
 
+    function test_do_unary_op_with_nargout_1_doesnt_affect_called_instance(obj)
+        data = rand(9, 10);
+        pix = PixelData(data);
+        sin_pix = pix.do_unary_op(@sin);
+        assertEqual(pix.data, data);
+    end
+
     function test_paged_data_returns_same_unary_op_result_as_all_in_memory(obj)
         % the unary operation and the range the data it acts on should take
         unary_ops = {
@@ -239,7 +246,7 @@ methods
             data = obj.get_random_data_in_range(obj.NUM_COLS_IN_PIX_BLOCK, ...
                                                 num_pix, data_range);
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            pix = pix.do_unary_op(unary_op);
+            pix.do_unary_op(unary_op);
 
             file_backed_data = obj.concatenate_pixel_pages(pix);
 
