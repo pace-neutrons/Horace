@@ -13,17 +13,10 @@ classdef gen_sqw_common_config < TestCase
     properties(Access=protected)
         old_configuration_=[];
         
-        change_mex_=false;
         new_mex_  = false;
-        
-        change_mpi_=false;
         new_mpi_ = false;
-        
-        change_combine_=false;
         new_combine_ = 'mex_code'
-        
-        change_framework_ = false;
-        new_framework_ = 'herbert';
+        new_cluster_ = 'herbert';
         
         worker = 'worker_v2'
         % Store the name of the worker, currently used by Horace parallel
@@ -33,7 +26,7 @@ classdef gen_sqw_common_config < TestCase
     
     methods
         
-        function obj = gen_sqw_common_config(use_mex,use_MPI,combine_sqw_using,parallel_framework)
+        function obj = gen_sqw_common_config(use_mex,use_MPI,combine_sqw_using,parallel_cluster)
             % class constructor, which defines necessary test configuration
             % options. The option can be defined by one of three numbers:
             % -1 -- ignore this option for test, leave it as in current configuration.
@@ -47,7 +40,7 @@ classdef gen_sqw_common_config < TestCase
             %             mex code, matlab code or mpi code/
             %             the possible options here are:
             %             -1,'matlab','mex_code','mpi_code'
-            %parallel_framework -- which parallel framework to deploy.
+            %parallel_cluster -- which parallel framework to deploy.
             %           the possible values here are:
             %           -1, 'herbert' or 'parpool'
             obj = obj@TestCase('nop');
@@ -56,9 +49,9 @@ classdef gen_sqw_common_config < TestCase
             log_level = hc.log_level;
             
             
-            [obj.change_mex_,obj.new_mex_ ] = gen_sqw_common_config.check_change...
+            [~,obj.new_mex_ ] = gen_sqw_common_config.check_change...
                 ('use_mex',use_mex,obj.old_configuration_.hc);
-            if obj.change_mex_ && obj.new_mex_ % check mex can be enabled
+            if obj.new_mex_ % check mex can be enabled
                 [~,n_errors]=check_horace_mex();
                 if n_errors>0
                     use_mex = 0;
@@ -75,37 +68,35 @@ classdef gen_sqw_common_config < TestCase
                 end
             end
             
-            [obj.change_mpi_,obj.new_mpi_ ] = gen_sqw_common_config.check_change...
+            [~,obj.new_mpi_ ] = gen_sqw_common_config.check_change...
                 ('build_sqw_in_parallel',use_MPI,obj.old_configuration_.hpc);
             
-            [obj.change_combine_,obj.new_combine_ ] = gen_sqw_common_config.check_change...
+            [~,obj.new_combine_ ] = gen_sqw_common_config.check_change...
                 ('combine_sqw_using',combine_sqw_using,obj.old_configuration_.hpc);
             
-            [obj.change_framework_,obj.new_framework_ ] = gen_sqw_common_config.check_change...
-                ('parallel_framework',parallel_framework,obj.old_configuration_.parc);
+            [change_framework,obj.new_cluster_ ] = gen_sqw_common_config.check_change...
+                ('parallel_cluster',parallel_cluster,obj.old_configuration_.parc);
+            if ~change_framework
+                obj.new_cluster_  =obj.old_configuration_.parc.parallel_cluster;
+            end
             [jen,job_folder] = is_jenkins();
             if jen
-                if ~obj.change_framework_
-                    obj.new_framework_  =obj.old_configuration_.parc.parallel_framework;
-                end
-                obj.change_framework_ = true;
                 [~,job_folder] = fileparts(job_folder);
                 obj.new_working_folder = fullfile(tmp_dir(),job_folder);
             end
             
-            if obj.change_framework_ && ~isnumeric(parallel_framework) % check parallel framework can be enabled
-                cl = MPI_fmwks_factory.instance().get_cluster(parallel_framework);
+            if ~isnumeric(parallel_cluster) % check parallel framework can be enabled
+                cl = MPI_clusters_factory.instance().get_cluster(parallel_cluster);
                 try
                     cl.check_availability()
                     obj.skip_test = false;
                 catch ME
                     if strcmpi(ME.identifier,'PARALLEL_CONFIG:not_available')
                         obj.skip_test = true;
-                        obj.change_framework_ = false;
                         if log_level>0
                             warning('GEN_SQW_TEST_CONFIG:not_available',...
                                 'Can not initiate framework: %s because %s. This mode will not be tested',...
-                                parallel_framework,ME.message)
+                                parallel_cluster,ME.message)
                         end
                     else
                         rethrow(ME);
@@ -115,50 +106,24 @@ classdef gen_sqw_common_config < TestCase
         end
         
         function setUp(obj)
-            if obj.change_mex_
-                hc = hor_config;
-                hc.use_mex = obj.new_mex_;
-            end
-            if obj.change_mpi_
-                hpc = hpc_config;
-                hpc.build_sqw_in_parallel = obj.new_mpi_;
-            end
-            if obj.change_combine_
-                hpc = hpc_config;
-                hpc.combine_sqw_using = obj.new_combine_;
-            end
+            hc = hor_config;
+            hc.use_mex = obj.new_mex_;
+            hpc = hpc_config;
+            hpc.build_sqw_in_parallel = obj.new_mpi_;
+            hpc.combine_sqw_using = obj.new_combine_;
             parc = parallel_config;
-            if obj.change_framework_
-                parc.parallel_framework = obj.new_framework_;
-                if ~isempty(obj.new_working_folder)
-                    parc.working_directory = obj.new_working_folder;
-                end
+            parc.parallel_cluster = obj.new_cluster_;
+            if ~isempty(obj.new_working_folder)
+                parc.working_directory = obj.new_working_folder;
             end
+            
             obj.current_worker_cache_ = parc.worker;
             parc.worker = obj.worker;
             
         end
         %
         function tearDown(obj)
-            if obj.change_mex_
-                hc = hor_config;
-                hc.use_mex = ~obj.new_mex_;
-            end
-            if obj.change_mpi_
-                hpc = hpc_config;
-                hpc.build_sqw_in_parallel = ~obj.new_mpi_;
-            end
-            if obj.change_combine_
-                hpc = hpc_config;
-                hpc.combine_sqw_using = obj.old_configuration_.hpc.combine_sqw_using;
-            end
-            parc = parallel_config;
-            if obj.change_framework_
-                parc.parallel_framework = obj.old_configuration_.parc.parallel_framework;
-            end
-            parc.worker = obj.current_worker_cache_;
-            
-            
+            obj.restore_initial_config();
         end
         %
         function delete(obj)
