@@ -53,14 +53,34 @@ while true
                 pix_sigvar, operand(start_idx:end_idx), binary_op, flip);
 
     elseif isa(operand, 'PixelData')
-        if iter == 1
-            operand.move_to_first_page();
+
+        if obj.num_pixels ~= operand.num_pixels
+            error('PIXELDATA:do_binary_op', ...
+                  ['Cannot perform binary operation. PixelData objects ' ...
+                   'must have equal number of pixels.\nFound ''%i'' pixels ' ...
+                   'in second operand, ''%i'' pixels required.'], ...
+                  operand.num_pixels, obj.num_pixels);
         end
-        [pix_out.signal, pix_out.variance] = do_binary_op_pixel_data_(...
-                pix_out, operand, binary_op);
-        if operand.has_more()
-            operand = operand.advance();
+
+        if operand.is_file_backed_()
+            if iter == 1
+                operand.move_to_first_page();
+            end
+            [pix_out.signal, pix_out.variance] = do_binary_op_pixel_data_(...
+                    pix_out, operand, binary_op, flip);
+            if operand.has_more()
+                operand = operand.advance();
+            end
+        else
+            pg_size = pix_out.max_page_size_;
+            start_idx = (iter - 1)*pg_size + 1;
+            end_idx = min(iter*pg_size, obj.num_pixels);
+            % TODO: avoid copying data here
+            pix_chunk = PixelData(operand.data(:, start_idx:end_idx));
+            [pix_out.signal, pix_out.variance] = do_binary_op_pixel_data_(...
+                    pix_out, pix_chunk, binary_op, flip);
         end
+
     end
 
     if pix_out.has_more()
@@ -88,19 +108,16 @@ function [signal, variance] = do_binary_op_double_(pix_sigvar, scalar_value, ...
 end
 
 function [signal, variance] = do_binary_op_pixel_data_(pix, other_pix, ...
-                                                       binary_op)
-    if pix.num_pixels ~= other_pix.num_pixels
-        error('PIXELDATA:do_binary_op_pixel_data_', ...
-              ['Cannot perform binary operation. PixelData objects ' ...
-               'must have equal number of pixels.\nFound ''%i'' pixels ' ...
-               'in second operand, ''%i'' pixels required.'], ...
-              other_pix.num_pixels, pix.num_pixels);
-    end
+                                                       binary_op, flip)
     % TODO: deal with case of one PixelData object not being paged whilst the
     % other is
     this_sigvar = sigvar(pix.signal, pix.variance);
     other_sigvar = sigvar(other_pix.signal, other_pix.variance);
-    result = binary_op(this_sigvar, other_sigvar);
+    if flip
+        result = binary_op(other_sigvar, this_sigvar);
+    else
+        result = binary_op(this_sigvar, other_sigvar);
+    end
     signal = result.s;
     variance = result.e;
 end
@@ -124,7 +141,7 @@ end
 function [flip, npix] = parse_args(varargin)
     parser = inputParser();
     addRequired(parser, 'obj', @(x) isa(x, 'PixelData'));
-    addRequired(parser, 'operand');
+    addRequired(parser, 'operand', @(x) isa(x, 'PixelData') || isnumeric(x));
     addRequired(parser, 'binary_op', @(x) isa(x, 'function_handle'));
     addParameter(parser, 'flip', false, @(x) isa(x, 'logical'));
     addParameter(parser, 'npix', [], @isnumeric);

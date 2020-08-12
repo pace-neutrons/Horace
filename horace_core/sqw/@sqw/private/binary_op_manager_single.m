@@ -104,9 +104,11 @@ function wout = do_binary_op_sqw_double(w1, w2, binary_op, flip)
     end
 end
 
-function wout = do_binary_op_2_sqw(w1, w2, binary_op)
+function wout = do_binary_op_2_sqw(w1, w2, binary_op, flip)
     % Perform a binary operation between two SQW objects, returning the
     % resulting SQW object
+    flip = exist('flip', 'var') && flip;
+
     [n1, sz1] = dimensions(w1);
     [n2, sz2] = dimensions(w2);
 
@@ -114,9 +116,10 @@ function wout = do_binary_op_2_sqw(w1, w2, binary_op)
         if any(w1.data.npix(:) ~= w2.data.npix(:))
             throw_npix_mismatch_error(w1, w2);
         end
-        sigvar_1 = sigvar(w1.data.pix.signal, w1.data.pix.variance);
-        sigvar_2 = sigvar(w2.data.pix.signal, w2.data.pix.variance);
-        wout = do_binary_op_sigvar_sigvar(binary_op, w1, sigvar_1, sigvar_2);
+
+        wout = copy(w1);
+        wout.data.pix = w1.data.pix.do_binary_op(w2.data.pix, binary_op, 'flip', flip);
+        wout = recompute_bin_data(wout);
     else
         error('SQW:binary_op_manager_single', ...
               ['sqw type objects must have commensurate array dimensions ' ...
