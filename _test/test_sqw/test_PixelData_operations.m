@@ -436,8 +436,7 @@ methods
         pix = obj.pix_in_memory;
         operand = 3;
 
-        flip = true;
-        pix_result = pix.do_binary_op(operand, @minus_single, flip);
+        pix_result = pix.do_binary_op(operand, @minus_single, 'flip', true);
 
         assertEqual(pix_result.signal, operand - pix.signal);
         assertEqual(pix_result.data([1:7, 9], :), pix.data([1:7, 9], :));
@@ -461,8 +460,7 @@ methods
         pix = obj.pix_in_memory;
         operand = 1.5;
 
-        flip = true;
-        pix_result = pix.do_binary_op(operand, @mtimes_single, flip);
+        pix_result = pix.do_binary_op(operand, @mtimes_single, 'flip', true);
 
         assertEqual(pix_result.signal, operand*pix.signal);
         assertEqual(pix_result.variance, (operand.^2).*pix.variance);
@@ -490,8 +488,7 @@ methods
         pix = obj.pix_in_memory;
         operand = 1.5;
 
-        flip = true;
-        pix_result = pix.do_binary_op(operand, @mrdivide_single, flip);
+        pix_result = pix.do_binary_op(operand, @mrdivide_single, 'flip', true);
 
         assertEqual(pix_result.signal, operand./pix.signal);
         expected_var = pix.variance.*((pix_result.signal./pix.signal).^2);
@@ -524,8 +521,7 @@ methods
         pix = obj.pix_with_pages;
         operand = ones(1, pix.num_pixels);
 
-        flip = true;
-        pix_result = pix.do_binary_op(operand, @minus_single, flip);
+        pix_result = pix.do_binary_op(operand, @minus_single, 'flip', true);
         full_pix_array = obj.concatenate_pixel_pages(pix_result);
 
         expected_signal = 1 - obj.pix_in_memory.signal;

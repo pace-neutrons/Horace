@@ -1,4 +1,4 @@
-function pix_out = do_binary_op(obj, operand, binary_op, flip)
+function pix_out = do_binary_op(obj, operand, binary_op, varargin)
 %% DO_BINARY_OP perform a binary operation between this object and the given
 %  operand
 %
@@ -14,12 +14,17 @@ function pix_out = do_binary_op(obj, operand, binary_op, flip)
 % binary_op  Function handle pointing to the desired binary operation. The
 %            function should take 2 objects with '.s' and '.e' attributes, e.g.
 %            a sigvar object
+%
+% Named arguments
+% ---------------
 % flip       Flip the order of the operands, e.g. perform "this - operand" if
 %            flip is false, perform "operand - this" if flip is true.
+% npix       An array giving number of pixels in each bin. This argument should
+%            have equal size to operand (assuming operand is numeric) and
+%            sum(npix, [], 'all') must be equal to obj.num_pixels
 %
-if ~exist('flip', 'var')
-    flip = false;
-end
+[flip, npix] = parse_args(obj, operand, binary_op, varargin{:});
+
 pix_out = copy(obj);
 
 iter = 1;
@@ -114,4 +119,17 @@ function is = is_property(object, property)
             is = false;
         end
     end
+end
+
+function [flip, npix] = parse_args(varargin)
+    parser = inputParser();
+    addRequired(parser, 'obj', @(x) isa(x, 'PixelData'));
+    addRequired(parser, 'operand');
+    addRequired(parser, 'binary_op', @(x) isa(x, 'function_handle'));
+    addParameter(parser, 'flip', false, @(x) isa(x, 'logical'));
+    addParameter(parser, 'npix', [], @isnumeric);
+    parse(parser, varargin{:});
+
+    flip = parser.Results.flip;
+    npix = parser.Results.npix;
 end

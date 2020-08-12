@@ -219,7 +219,7 @@ methods
 
     % --- Pixel operations ---
     [mean_signal, mean_variance] = compute_bin_data(obj, npix)
-    obj = do_binary_op(obj, operand, binary_op, flip);
+    pix_out = do_binary_op(obj, operand, binary_op, flip);
     pix_out = do_unary_op(obj, unary_op);
     pix_out = append(obj, pix);
     pix_out = mask(obj, mask_array, npix);
