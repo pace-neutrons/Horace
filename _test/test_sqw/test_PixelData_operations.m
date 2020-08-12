@@ -544,7 +544,7 @@ methods
         pix1 = PixelData(rand(9, 10));
         pix2 = PixelData(rand(9, 11));
         f = @() pix1.do_binary_op(pix2, @plus_single);
-        assertExceptionThrown(f, 'PIXELDATA:do_binary_op_pixel_data_');
+        assertExceptionThrown(f, 'PIXELDATA:do_binary_op');
     end
 
     function test_binary_op_minus_two_in_memory_PixelData_objects(~)
