@@ -9,7 +9,8 @@ function wout = binary_op_manager_single(w1, w2, binary_op)
 %   (2) have dimensions method that gives the dimensionality of the double array
 %           >> nd = dimensions(obj)
 %   (3) have private function that returns class name
-%           >> name = classname     % no argument - gets called by its association with the class
+%           >> name = classname     % no argument - gets called by its association
+%                                     with the class
 %
 allowed_types = {'double', 'd0d', 'd1d', 'd2d', 'd3d', 'd4d', 'sqw', 'sigvar'};
 if ~ismember(class(w1), allowed_types) || ~ismember(class(w2), allowed_types)
@@ -91,11 +92,16 @@ function wout = do_binary_op_sqw_double(w1, w2, binary_op, flip)
     %       if flip = true, do double - sqw (default = false)
     %
     if isscalar(w2) || isequal(size(w1.data.npix), size(w2))
-        if ~exist('flip', 'var')
-            flip = false;
-        end
+        flip = exist('flip', 'var') && flip;
         wout = copy(w1);
-        wout.data.pix = wout.data.pix.do_binary_op(w2, binary_op, flip);
+        if ~isscalar(w2)
+            wout.data.pix = wout.data.pix.do_binary_op(...
+                w2, binary_op, 'flip', flip, 'npix', w1.data.npix);
+        else
+            wout.data.pix = wout.data.pix.do_binary_op(...
+                w2, binary_op, 'flip', flip);
+        end
+
         wout = recompute_bin_data(wout);
     else
         error('SQW:binary_op_manager_single', ...

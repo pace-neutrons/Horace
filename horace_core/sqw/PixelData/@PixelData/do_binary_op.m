@@ -32,7 +32,7 @@ function pix_out = do_binary_op(obj, operand, binary_op, varargin)
 if isscalar(operand) && isa(operand, 'double')
     pix_out = binary_op_scalar_(obj, operand, binary_op, flip);
 elseif isa(operand, 'double')
-    pix_out = binary_op_double_(obj, operand, binary_op, flip);
+    pix_out = binary_op_double_(obj, operand, binary_op, flip, npix);
 elseif isa(operand, 'PixelData')
     pix_out = binary_op_pixels_(obj, operand, binary_op, flip);
 end

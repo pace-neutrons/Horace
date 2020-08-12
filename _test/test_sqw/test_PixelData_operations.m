@@ -599,20 +599,21 @@ methods
         sig_array = npix*rand(3);
 
         new_pix = pix.do_binary_op(sig_array, @plus_single, 'npix', npix);
-
+        new_pix_data = obj.concatenate_pixel_pages(new_pix);
+        
         expected_pix = data;
         start_idx = 1;
         for i = 1:numel(npix)
             end_idx = start_idx + npix(i);
-            expected_pix(start_idx:end_idx) = ...
-                    expected_pix(start_idx:end_idx) + sig_array(i);
+            expected_pix(8, start_idx:end_idx - 1) = ...
+                    expected_pix(8, start_idx:end_idx - 1) + sig_array(i);
             start_idx = end_idx;
         end
 
-        assertEqual(new_pix.data, expected_pix);
+        assertEqual(new_pix_data, expected_pix, '', obj.FLOAT_TOLERANCE);
     end
 
-    function test_binary_plus_with_signal_array_and_npix_1_page(obj)
+    function test_binary_plus_with_signal_array_and_npix_1_page(~)
         data = rand(9, 10);
         pix = PixelData(data);
 
@@ -625,8 +626,8 @@ methods
         start_idx = 1;
         for i = 1:numel(npix)
             end_idx = start_idx + npix(i);
-            expected_pix(start_idx:end_idx) = ...
-                    expected_pix(start_idx:end_idx) + sig_array(i);
+            expected_pix(8, start_idx:end_idx - 1) = ...
+                    expected_pix(8, start_idx:end_idx - 1) + sig_array(i);
             start_idx = end_idx;
         end
 
