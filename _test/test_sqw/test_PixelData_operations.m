@@ -577,7 +577,7 @@ methods
         assertEqual(full_pix_diff, expected_diff);
     end
 
-    function test_binary_op_minus_2_PixelData_objects_1_in_mem_1_with_pages(obj)
+    function test_binary_minus_2_PixelData_objects_1_in_mem_1_with_pages(obj)
         pix1 = obj.pix_with_pages;
         pix2 = obj.pix_in_memory;
 
@@ -588,6 +588,49 @@ methods
         expected_diff(8, :) = 0;
         expected_diff(9, :) = 2*obj.ref_raw_pix_data(9, :);
         assertEqual(full_pix_diff, expected_diff);
+    end
+
+    function test_binary_plus_with_signal_array_and_npix_multiple_pages(obj)
+        data = rand(9, 10);
+        npix_in_page = 3;
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+        npix = [1, 3, 0; 1, 1, 2; 0, 1, 1];
+        sig_array = npix*rand(3);
+
+        new_pix = pix.do_binary_op(sig_array, @plus_single, 'npix', npix);
+
+        expected_pix = data;
+        start_idx = 1;
+        for i = 1:numel(npix)
+            end_idx = start_idx + npix(i);
+            expected_pix(start_idx:end_idx) = ...
+                    expected_pix(start_idx:end_idx) + sig_array(i);
+            start_idx = end_idx;
+        end
+
+        assertEqual(new_pix.data, expected_pix);
+    end
+
+    function test_binary_plus_with_signal_array_and_npix_1_page(obj)
+        data = rand(9, 10);
+        pix = PixelData(data);
+
+        npix = [1, 3, 0; 1, 1, 2; 0, 1, 1];
+        sig_array = npix*rand(3);
+
+        new_pix = pix.do_binary_op(sig_array, @plus_single, 'npix', npix);
+
+        expected_pix = data;
+        start_idx = 1;
+        for i = 1:numel(npix)
+            end_idx = start_idx + npix(i);
+            expected_pix(start_idx:end_idx) = ...
+                    expected_pix(start_idx:end_idx) + sig_array(i);
+            start_idx = end_idx;
+        end
+
+        assertEqual(new_pix.data, expected_pix);
     end
 
     % -- Helpers --
