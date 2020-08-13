@@ -28,12 +28,18 @@ if isempty(npix)
     end
 else
 
+    npix_cum_sum = cumsum(npix(:));
+    if npix_cum_sum(end) ~= pix_out.num_pixels
+        error('PIXELDATA:binary_op_double_', ...
+              ['Cannot perform binary operation. Sum of ''npix'' must be ' ...
+               'equal to the number of pixels in the PixelData object.\n' ...
+               'Found ''%i'' pixels in npix but ''%i'' in PixelData.'], ...
+              npix_cum_sum(end), pix_out.num_pixels);
+    end
+
     end_idx = 1;
     leftover_end = 0;
     pg_size = pix_out.max_page_size_;
-    npix_cum_sum = cumsum(npix(:));
-    if npix_cum_sum(end) ~= pix_out.num_pixels, error('a:b', 'c'); end
-
     while true
 
         start_idx = find(npix_cum_sum > 0, 1);
