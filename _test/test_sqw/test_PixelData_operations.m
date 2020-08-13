@@ -9,6 +9,7 @@ properties
     FLOAT_TOLERANCE = 4.75e-4;
 
     test_sqw_file_path = '../test_sqw_file/sqw_1d_1.sqw';
+    test_sqw_2d_file_path = '../test_sqw_file/sqw_2d_1.sqw';
     ref_npix_data = [];
     ref_s_data = [];
     ref_e_data = [];
@@ -16,6 +17,12 @@ properties
     pix_in_memory;
     pix_with_pages;
     page_size;
+
+    pix_with_pages_2d;
+    page_size_2d;
+    ref_npix_data_2d;
+    ref_s_data_2d;
+    ref_e_data_2d;
 
     config;
     old_config;
@@ -26,16 +33,29 @@ methods
     function obj = test_PixelData_operations(~)
         obj = obj@TestCase('test_PixelData_operations');
 
+        % Load a 1D SQW file
         sqw_test_obj = sqw(obj.test_sqw_file_path);
         obj.ref_npix_data = sqw_test_obj.data.npix;
         obj.ref_s_data = sqw_test_obj.data.s;
         obj.ref_e_data = sqw_test_obj.data.e;
 
         file_info = dir(obj.test_sqw_file_path);
-        obj.page_size = file_info.bytes/6;  % Gives us 6 pages
+        obj.page_size = file_info.bytes/6;
 
         obj.pix_in_memory = sqw_test_obj.data.pix;
         obj.pix_with_pages = PixelData(obj.test_sqw_file_path, obj.page_size);
+
+        % Load 2D SQW file
+        sqw_2d_test_object = sqw(obj.test_sqw_2d_file_path);
+        obj.ref_npix_data_2d = sqw_2d_test_object.data.npix;
+        obj.ref_s_data_2d = sqw_2d_test_object.data.s;
+        obj.ref_e_data_2d = sqw_2d_test_object.data.e;
+
+        file_info = dir(obj.test_sqw_2d_file_path);
+        obj.page_size_2d = file_info.bytes/6;
+
+        obj.pix_with_pages_2d = PixelData(obj.test_sqw_2d_file_path, ...
+                                          obj.page_size_2d);
     end
 
     function setUp(obj)
@@ -109,6 +129,26 @@ methods
         assertEqual(e, obj.ref_e_data, '', obj.FLOAT_TOLERANCE);
     end
 
+    function test_compute_bin_data_file_backed_2d_data_mex_4_threads(obj)
+        obj.config.use_mex = true;
+        obj.config.threads = 1;
+
+        [s, e] = obj.pix_with_pages_2d.compute_bin_data(obj.ref_npix_data_2d);
+
+        % Scale the signal and error to account for rounding errors
+        max_s = max(s, [], 'all');
+        scaled_s = s/max_s;
+        scaled_ref_s = obj.ref_s_data_2d/max_s;
+
+        max_e = max(e, [], 'all');
+        scaled_e = e/max_e;
+        scaled_ref_e = obj.ref_e_data_2d/max_e;
+
+        assertEqual(scaled_s, scaled_ref_s, '', obj.FLOAT_TOLERANCE);
+        assertEqual(scaled_e, scaled_ref_e, '', obj.FLOAT_TOLERANCE);
+
+    end
+
     function test_compute_bin_data_correct_output_file_backed_mex_off(obj)
         obj.config.use_mex = false;
 
@@ -152,6 +192,13 @@ methods
                 break;
             end
         end
+    end
+
+    function test_do_unary_op_with_nargout_1_doesnt_affect_called_instance(obj)
+        data = rand(9, 10);
+        pix = PixelData(data);
+        sin_pix = pix.do_unary_op(@sin);
+        assertEqual(pix.data, data);
     end
 
     function test_paged_data_returns_same_unary_op_result_as_all_in_memory(obj)
@@ -199,7 +246,7 @@ methods
             data = obj.get_random_data_in_range(obj.NUM_COLS_IN_PIX_BLOCK, ...
                                                 num_pix, data_range);
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            pix = pix.do_unary_op(unary_op);
+            pix.do_unary_op(unary_op);
 
             file_backed_data = obj.concatenate_pixel_pages(pix);
 

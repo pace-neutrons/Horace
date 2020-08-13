@@ -1,4 +1,4 @@
-function obj = do_unary_op(obj, unary_op)
+function pix_out = do_unary_op(obj, unary_op)
 % Perform a unary operation on this object's signal and variance arrays
 %
 % Input:
@@ -6,14 +6,22 @@ function obj = do_unary_op(obj, unary_op)
 % unary_op   Function handle pointing to the operation to perform. This
 %            operation should take a sigvar object as an argument.
 %
-obj.move_to_first_page();
-while true
-    pg_result = unary_op(sigvar(obj.signal, obj.variance));
-    obj.signal = pg_result.s;
-    obj.variance = pg_result.e;
+if nargout == 1
+    % Only do a copy if a return argument exists, otherwise perform the
+    % operation on obj
+    pix_out = copy(obj);
+else
+    pix_out = obj;
+end
 
-    if obj.has_more()
-        obj = obj.advance();
+pix_out.move_to_first_page();
+while true
+    pg_result = unary_op(sigvar(pix_out.signal, pix_out.variance));
+    pix_out.signal = pg_result.s;
+    pix_out.variance = pg_result.e;
+
+    if pix_out.has_more()
+        pix_out = pix_out.advance();
     else
         break;
     end
