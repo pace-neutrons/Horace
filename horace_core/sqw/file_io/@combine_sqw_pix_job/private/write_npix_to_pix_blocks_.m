@@ -27,9 +27,7 @@ function write_npix_to_pix_blocks_(obj,fout,pix_out_position,pix_comb_info)
 %                       be offset to give the run indices into the collective list of run parameters
 %
 % As the result -- writes combined pixels block to the ouput sqw file.
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
+
 
 log_level = config_store.instance().get_value('herbert_config','log_level');
 pmax = config_store.instance().get_value('hor_config','mem_chunk_size');

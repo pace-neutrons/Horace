@@ -10,6 +10,10 @@ classdef combine_sqw_pix_job < JobExecutor
         is_finished_  = false;
         finalizer_ =[];
         open_files_id_ = [];
+        % The number of auxiliary worker, not participating in reading data
+        % It can be 1 single writer-combiner/mutliple readers
+        % or 2 (1 writer, 1 combiner/multiple readers)
+        reader_id_shift_ = 1;
         
         % property to store pixels, which have not yet received information
         % from all contributed bins (files)
@@ -178,7 +182,7 @@ classdef combine_sqw_pix_job < JobExecutor
             
         end
         %
-        function n_pix_written=write_pixels(obj,fout,pix_section,n_pix_written)
+        function n_pix_written=write_pixels(~,fout,pix_section,n_pix_written)
             % Write properly formed pixels block to the output file
             
             %pix_buff = [pix_section{:}];
@@ -208,7 +212,7 @@ classdef combine_sqw_pix_job < JobExecutor
             %
             % Output:
             % -------
-            %   npix_section    npix_section{i} is the section npix(ibin_start:ibin_end) for the ith input file
+            %   npix_section    npix_section(:,i) is the section npix(ibin_start:ibin_end) for the ith input file
             %   npix_in_bins    cumsum of the number of pixels
             %   ibin_end        Last bin number in the buffer - it is determined either by the maximum size of nbin in the
             %                  files (as given by ibin_max), or by the largest permitted size of the buffer
@@ -224,13 +228,13 @@ classdef combine_sqw_pix_job < JobExecutor
             % buffer and recalculate the number of pixels to read from every
             % contributing file.
             % Inputs:
-            % npix_per_bins -- 2D array containing the section of numbers of
-            %                  pixels per bin per file
-            % npix_in_bins  -- cumulative sum of pixels in bins of all files
-            % bin_start     -- first bin to analyze from the npix_section
-            %                 and npix_in_bins
-            % pix_buf_size -- the size of pixels buffer intended for
-            %                 writing
+            % npix_per_bins  -- 2D array containing the section of numbers of
+            %                   pixels per bin per file
+            % npix_in_bins   -- cumulative sum of pixels in bins of all files
+            % npix_processed -- first bin to analyze from the npix_section
+            %                   and npix_in_bins
+            % pix_buf_size   -- the size of pixels buffer intended for
+            %                   writing
             % Outputs:
             % npix_2_read  --  2D array, containing the number of pixels
             %                  in bins to read per file.

@@ -13,9 +13,9 @@ function [npix_section,ibin_end]=get_npix_section_(fid,pos_npixstart,ibin_start,
 %
 % Output:
 % -------
-%   npix_section    npix_section{i} is the section npix(ibin_start:ibin_end) for the ith input file
+%   npix_section    npix_section(:,i) is the section npix(ibin_start:ibin_end) for the ith input file
 %   ibin_end        Last bin number in the buffer - it is determined either by the maximum size of nbin in the
-%                  files (as given by ibin_max), or by the largest permitted size of the buffer
+%                   files (as given by ibin_max), or by the largest permitted size of the buffer
 %   mess            Error message: if all OK will be empty, if not OK will contain a message
 
 % buffer size (in bytes) for holding section of npix arrays
