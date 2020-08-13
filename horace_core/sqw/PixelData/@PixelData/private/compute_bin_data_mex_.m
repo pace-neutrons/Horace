@@ -49,7 +49,7 @@ while true
         npix_chunk = min(obj.page_size, npix(start_idx) - leftover_end);
     else
         % Leftover_end = number of pixels to allocate to final bin n,
-        % there will be more pixels to allocated to bin n in the next iteration
+        % there will be more pixels to allocate to bin n in the next iteration
         leftover_end = ...
             obj.page_size - (leftover_begin + sum(npix(start_idx + 1:end_idx - 1)));
         npix_chunk = npix(start_idx + 1:end_idx - 1);
