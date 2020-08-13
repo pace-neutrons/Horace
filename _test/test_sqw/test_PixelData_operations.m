@@ -634,6 +634,16 @@ methods
         assertEqual(new_pix.data, expected_pix);
     end
 
+    function test_PIXELDATA_error_on_binary_op_where_npix_ne_num_pixels(obj)
+        num_pixels = 11;
+        pix = PixelData(obj.NUM_COLS_IN_PIX_BLOCK, num_pixels);
+        npix = [3, 4, 3];
+        sig = [0.5, 0.6, 0.7];
+
+        f = @() pix.do_binary_op(sig, @plus_single, 'npix', npix);
+        assertExceptionThrown(f, 'PIXELDATA:binary_op_double_');
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
