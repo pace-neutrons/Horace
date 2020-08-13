@@ -43,9 +43,7 @@ else
     while true
 
         start_idx = find(npix_cum_sum > 0, 1);
-
         leftover_begin = npix_cum_sum(start_idx);
-
         npix_cum_sum = npix_cum_sum - pg_size;
 
         end_idx = end_idx + find(npix_cum_sum(end_idx:end) > 0, 1) - 1;
@@ -56,10 +54,12 @@ else
         if start_idx == end_idx
             npix_chunk = min(pix_out.page_size, npix(start_idx) - leftover_end);
         else
-            leftover_end = ...
-                pix_out.page_size - (leftover_begin + sum(npix(start_idx + 1:end_idx - 1)));
-            npix_chunk = npix(start_idx + 1:end_idx - 1);
-            npix_chunk = [leftover_begin, npix_chunk(:).', leftover_end];
+            npix_chunk = [leftover_begin, ...
+                          reshape(npix(start_idx + 1:end_idx - 1), 1, []), ...
+                          0];
+            pix_in_chunk = sum(npix_chunk);
+            leftover_end = pix_out.page_size - pix_in_chunk;
+            npix_chunk(end) = leftover_end;
         end
 
         sig_chunk = replicate_array(double_array(start_idx:end_idx), npix_chunk);

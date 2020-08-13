@@ -600,7 +600,7 @@ methods
 
         new_pix = pix.do_binary_op(sig_array, @plus_single, 'npix', npix);
         new_pix_data = obj.concatenate_pixel_pages(new_pix);
-        
+
         expected_pix = data;
         start_idx = 1;
         for i = 1:numel(npix)
