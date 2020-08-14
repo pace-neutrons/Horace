@@ -644,6 +644,13 @@ methods
         assertExceptionThrown(f, 'PIXELDATA:binary_op_double_');
     end
 
+    function test_PIXELDATA_error_on_binary_op_with_dnd_of_wrong_size(obj)
+        dnd_obj = d1d(obj.test_sqw_file_path);
+        pix = PixelData(zeros(9, 2));
+        f = @() pix.do_binary_op(dnd_obj, @plus_single);
+        assertExceptionThrown(f, 'PIXELDATA:do_binary_op');
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
