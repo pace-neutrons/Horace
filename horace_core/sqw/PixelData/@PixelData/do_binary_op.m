@@ -35,6 +35,8 @@ elseif isa(operand, 'double')
     pix_out = binary_op_double_(obj, operand, binary_op, flip, npix);
 elseif isa(operand, 'PixelData')
     pix_out = binary_op_pixels_(obj, operand, binary_op, flip);
+elseif regexp(class(operand), '^d[0-4]d$')
+    pix_out = binary_op_dnd_(obj, operand, binary_op, flip, npix);
 end
 
 end  % function
@@ -43,7 +45,7 @@ end  % function
 function [flip, npix] = parse_args(varargin)
     parser = inputParser();
     addRequired(parser, 'obj', @(x) isa(x, 'PixelData'));
-    addRequired(parser, 'operand', @(x) isa(x, 'PixelData') || isnumeric(x));
+    addRequired(parser, 'operand', @(x) valid_operand(x));
     addRequired(parser, 'binary_op', @(x) isa(x, 'function_handle'));
     addParameter(parser, 'flip', false, @(x) isa(x, 'logical'));
     addParameter(parser, 'npix', [], @isnumeric);
@@ -51,4 +53,11 @@ function [flip, npix] = parse_args(varargin)
 
     flip = parser.Results.flip;
     npix = parser.Results.npix;
+end
+
+
+function is = valid_operand(operand)
+    is = isa(operand, 'PixelData') || ...
+         isnumeric(operand) || ...
+         logical(regexp(class(operand), '^d[0-4]d$'));
 end
