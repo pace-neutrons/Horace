@@ -94,6 +94,7 @@ properties (Access=private)
     dirty_page_edited_ = false;  % true if a dirty page has been edited since it was loaded
     f_accessor_;  % instance of faccess object to access pixel data from file
     file_path_ = '';  % the path to the file backing this object - empty string if all data in memory
+    num_pixels_ = 0;  % the number of pixels in the object
     object_id_;  % random unique identifier for this object, used for tmp file names
     page_dirty_ = false;  % array mapping from page_number to whether that page is dirty
     page_memory_size_ = 3e9;  % 3Gb - the maximum amount of memory a page can use
@@ -247,6 +248,8 @@ methods
                 obj.page_dirty_ = arg.page_dirty_;
                 obj.dirty_page_edited_ = arg.dirty_page_edited_;
                 arg.tmp_io_handler_.copy_folder(obj.object_id_);
+            else
+                obj.num_pixels_ = size(arg.data, 2);
             end
             obj.data_ = arg.data;
             return;
@@ -254,6 +257,7 @@ methods
         if numel(arg) == 1 && isnumeric(arg) && floor(arg) == arg
             % input is an integer
             obj.data_ = zeros(obj.PIXEL_BLOCK_COLS_, arg);
+            obj.num_pixels_ = arg;
             return;
         end
 
@@ -275,6 +279,7 @@ methods
 
         % Input sets underlying data
         obj.data_ = arg;
+        obj.num_pixels_ = size(arg, 2);
     end
 
     % --- Operator overrides ---
@@ -625,11 +630,7 @@ methods
     end
 
     function num_pix = get.num_pixels(obj)
-        if isempty(obj.f_accessor_)
-            num_pix = size(obj.data, 2);
-        else
-            num_pix = double(obj.f_accessor_.npixels);
-        end
+        num_pix = obj.num_pixels_;
     end
 
     function file_path = get.file_path(obj)
@@ -666,6 +667,7 @@ methods (Access=private)
                                   obj.f_accessor_.filename);
         obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_);
         obj.page_number_ = 1;
+        obj.num_pixels_ = double(obj.f_accessor_.npixels);
     end
 
     function obj = load_current_page_if_data_empty_(obj)
