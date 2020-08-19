@@ -192,7 +192,7 @@ end
 
 methods
 
-    obj = append_pixels(obj, pix)
+    obj = append(obj, pix)
 
     function obj = PixelData(arg, mem_alloc)
         % Construct a PixelData object from the given data. Default

@@ -893,11 +893,11 @@ methods
         data = ones(obj.NUM_COLS_IN_PIX_BLOCK, 11);
         pix_to_append = PixelData(data);
 
-        f = @() pix.append_pixels(pix_to_append);
-        assertExceptionThrown(f, 'PIXELDATA:append_pixels');
+        f = @() pix.append(pix_to_append);
+        assertExceptionThrown(f, 'PIXELDATA:append');
     end
 
-    function test_you_can_append_pixels_to_empty_PixelData_object(obj)
+    function test_you_can_append_to_empty_PixelData_object(obj)
         npix_in_page = 11;
         mem_alloc = npix_in_page*obj.NUM_COLS_IN_PIX_BLOCK*obj.NUM_BYTES_IN_VALUE;
         pix = PixelData(zeros(9, 0), mem_alloc);
@@ -905,11 +905,11 @@ methods
         data = ones(obj.NUM_COLS_IN_PIX_BLOCK, npix_in_page);
         pix_to_append = PixelData(data);
 
-        pix.append_pixels(pix_to_append);
+        pix.append(pix_to_append);
         assertEqual(pix.data, data);
     end
 
-    function test_you_can_append_pixels_to_partially_full_PixelData_page(obj)
+    function test_you_can_append_to_partially_full_PixelData_page(obj)
         npix_in_page = 11;
         nexisting_pix = 5;
         mem_alloc = npix_in_page*obj.NUM_COLS_IN_PIX_BLOCK*obj.NUM_BYTES_IN_VALUE;
@@ -923,7 +923,7 @@ methods
         expected_pg_1_data = horzcat(existing_data, data(:, 1:pg_offset));
         expected_pg_2_data = data(:, (pg_offset + 1):end);
 
-        pix.append_pixels(pix_to_append);
+        pix.append(pix_to_append);
 
         pix.move_to_first_page();
         assertEqual(pix.data, expected_pg_1_data, '', 1e-7);
@@ -932,7 +932,7 @@ methods
         assertEqual(pix.data, expected_pg_2_data, '', 1e-7);
     end
 
-    function test_you_can_append_pixels_to_PixelData_with_full_page(obj)
+    function test_you_can_append_to_PixelData_with_full_page(obj)
         npix_in_page = 11;
         nexisting_pix = 11;
         mem_alloc = npix_in_page*obj.NUM_COLS_IN_PIX_BLOCK*obj.NUM_BYTES_IN_VALUE;
@@ -942,7 +942,7 @@ methods
         appended_data = ones(obj.NUM_COLS_IN_PIX_BLOCK, npix_in_page);
         pix_to_append = PixelData(appended_data);
 
-        pix.append_pixels(pix_to_append);
+        pix.append(pix_to_append);
 
         pix.move_to_first_page();
         assertEqual(pix.data, existing_data, '', 1e-7);
@@ -964,7 +964,7 @@ methods
         for i = 2:ceil(num_pix/npix_in_page)
             start_idx = (i - 1)*npix_in_page + 1;
             end_idx = min(start_idx + npix_in_page - 1, num_pix);
-            pix.append_pixels(PixelData(original_data(:, start_idx:end_idx)));
+            pix.append(PixelData(original_data(:, start_idx:end_idx)));
             assertEqual(pix.data, original_data(:, start_idx:end_idx));
         end
 
@@ -974,7 +974,7 @@ methods
         assertEqual(pix.data, expected_pg_1_data, '', 1e-7);
     end
 
-    function test_you_can_append_pixels_to_file_backed_PixelData(obj)
+    function test_you_can_append_to_file_backed_PixelData(obj)
         npix_in_page = 11;
         data = rand(9, 25);
         pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
@@ -982,7 +982,7 @@ methods
         data_to_append = rand(9, 8);
         pix_to_append = PixelData(data_to_append);
 
-        pix.append_pixels(pix_to_append);
+        pix.append(pix_to_append);
 
         expected_final_pg = horzcat(data(:, 23:end), data_to_append);
         assertEqual(pix.data, expected_final_pg);
@@ -998,10 +998,10 @@ methods
         assertEqual(pix.data, expected_final_pg, '', 1e-7);
     end
 
-    function test_error_if_append_pixels_called_with_non_PixelData_object(~)
+    function test_error_if_append_called_with_non_PixelData_object(~)
         pix = PixelData(rand(9, 1));
-        f = @() pix.append_pixels(rand(9, 1));
-        assertExceptionThrown(f, 'PIXELDATA:append_pixels');
+        f = @() pix.append(rand(9, 1));
+        assertExceptionThrown(f, 'PIXELDATA:append');
     end
 
     % -- Helpers --

@@ -1,4 +1,4 @@
-function obj = append_pixels(obj, pix)
+function obj = append(obj, pix)
 % Join the pixels in the given PixelData object to the end of this
 % object
 %
@@ -7,7 +7,7 @@ function obj = append_pixels(obj, pix)
 % pix    A PixelData object containing the pixels to append
 %
 if ~isa(pix, 'PixelData')
-    error('PIXELDATA:append_pixels', ...
+    error('PIXELDATA:append', ...
             'Input object must be of class ''PixelData''. Found ''%s''', ...
             class(pix));
 end
@@ -15,7 +15,7 @@ if isempty(pix)
     return;
 end
 if pix.num_pixels > obj.max_page_size_
-    error('PIXELDATA:append_pixels', ...
+    error('PIXELDATA:append', ...
             ['Cannot append more pixels than allowed in a single page\n ' ...
             'Found ''%i'' pixels, ''%i'' allowed.'], pix.num_pixels, ...
             obj.max_page_size_);
