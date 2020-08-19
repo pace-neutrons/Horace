@@ -998,6 +998,12 @@ methods
         assertEqual(pix.data, expected_final_pg, '', 1e-7);
     end
 
+    function test_error_if_append_pixels_called_with_non_PixelData_object(~)
+        pix = PixelData(rand(9, 1));
+        f = @() pix.append_pixels(rand(9, 1));
+        assertExceptionThrown(f, 'PIXELDATA:append_pixels');
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
