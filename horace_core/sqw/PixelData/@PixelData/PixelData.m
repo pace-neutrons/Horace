@@ -262,7 +262,7 @@ methods
         end
 
         % File-backed construction
-        if nargin == 2
+        if exist('mem_alloc', 'var')
             obj.page_memory_size_ = mem_alloc;
         end
         if ischar(arg)
@@ -278,8 +278,15 @@ methods
         end
 
         % Input sets underlying data
+        if exist('mem_alloc', 'var') && ...
+                (obj.calculate_page_size_(mem_alloc) < size(arg, 2))
+            error('PIXELDATA:PixelData', ...
+                    ['The size of the input array cannot exceed the given ' ...
+                    'memory_allocation.']);
+        end
         obj.data_ = arg;
         obj.num_pixels_ = size(arg, 2);
+        obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_);
     end
 
     % --- Operator overrides ---
@@ -418,6 +425,48 @@ methods
         end
     end
 
+    function obj = append_pixels(obj, pix)
+        if pix.num_pixels > obj.max_page_size_
+            error('PIXELDATA:append_pixels', ...
+                  ['Cannot append more pixels than allowed in a single page\n ' ...
+                   'Found ''%i'' pixels, ''%i'' allowed.'], pix.num_pixels, ...
+                   obj.max_page_size_);
+        end
+
+        if ~(obj.get_num_pages_() == obj.page_number_)
+            if obj.page_is_dirty_(obj.page_number_) && obj.dirty_page_edited_
+                obj.write_dirty_page_();
+            end
+            obj.load_page_(obj.get_num_pages_());
+        end
+
+        if isempty(obj)
+            obj.data_ = pix.data;
+            obj.set_page_dirty_(true);
+        else
+            if obj.page_size < obj.max_page_size_
+                num_to_allocate_to_pg = obj.max_page_size_ - obj.page_size;
+                obj.data_ = horzcat(obj.data, pix.data(:, 1:num_to_allocate_to_pg));
+                obj.set_page_dirty_(true);
+                obj.write_dirty_page_();
+
+                obj.data_ = pix.data(:, (num_to_allocate_to_pg + 1):end);
+                obj.page_number_ = obj.page_number_ + 1;
+
+            elseif obj.page_size == obj.max_page_size_
+                obj.set_page_dirty_(true);
+                if obj.dirty_page_edited_
+                    obj.write_dirty_page_();
+                end
+                obj.data_ = pix.data;
+                obj.page_number_ = obj.page_number_ + 1;
+            end
+        end
+
+        obj.num_pixels_ = obj.num_pixels_ + pix.num_pixels;
+        obj.set_page_dirty_(true);
+    end
+
     function obj = advance(obj)
         % Load the next page of pixel data from the file backing the object
         %
@@ -477,9 +526,9 @@ methods
 
         if size(pixel_data, 2) ~= required_page_size
             msg = ['Cannot set pixel data, invalid dimensions. Axis 2 ' ...
-                   'must have dimensions matching current page size (%i), ' ...
-                   'found ''%i''.', required_page_size, size(pixel_data, 2)];
-            error('PIXELDATA:data', msg, class(pixel_data));
+                   'must have num elements matching current page size (%i), ' ...
+                   'found ''%i''.'];
+            error('PIXELDATA:data', msg, required_page_size, size(pixel_data, 2));
         end
         obj.data_ = pixel_data;
         obj.set_page_dirty_(true);
@@ -502,7 +551,7 @@ methods
                   size(pixel_data, 1));
         elseif ~isnumeric(pixel_data)
             msg = ['Cannot set pixel data, invalid type. Data must have a '...
-                   'numeric type, found ''%i''.'];
+                   'numeric type, found ''%s''.'];
             error('PIXELDATA:data', msg, class(pixel_data));
         end
         obj.raw_data_ = pixel_data;
@@ -746,21 +795,30 @@ methods (Access=private)
     function page_size = get_max_page_size_(obj)
         % Get the maximum number of pixels that can be held in a page that's
         % allocated 'obj.page_memory_size_' bytes
+        page_size = obj.calculate_page_size_(obj.page_memory_size_);
+    end
+
+    function page_size = calculate_page_size_(obj, mem_alloc)
+        % Calculate number of pixels that fit in the given memory allocation
         num_bytes_in_val = 8;  % pixel data stored in memory as a double
         num_bytes_in_pixel = num_bytes_in_val*obj.PIXEL_BLOCK_COLS_;
-        page_size = floor(obj.page_memory_size_/num_bytes_in_pixel);
+        page_size = floor(mem_alloc/num_bytes_in_pixel);
     end
 
     function is = is_file_backed_(obj)
-        % Return true if the pixel data is backed by a file. Returns false if
-        % all pixel data is held in memory
+        % Return true if the pixel data is backed by a file or files. Returns
+        % false if all pixel data is held in memory
         %
-        is = ~isempty(obj.f_accessor_);
+        is = ~isempty(obj.f_accessor_) || obj.get_num_pages_() > 1;
     end
 
     function is = cache_is_empty_(obj)
         % Return true if no pixels are currently held in memory
         is = isempty(obj.data_);
+    end
+
+    function num_pages = get_num_pages_(obj)
+        num_pages = max(ceil(obj.num_pixels/obj.max_page_size_), 1);
     end
 
 end
