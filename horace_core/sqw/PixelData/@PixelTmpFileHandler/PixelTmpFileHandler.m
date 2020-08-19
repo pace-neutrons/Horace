@@ -41,7 +41,7 @@ methods
         tmp_file_path = obj.generate_tmp_pix_file_path_(page_number);
         [file_id, err_msg] = fopen(tmp_file_path, 'rb');
         if file_id < 0
-            error('PIXELTMPFIELHANDLER:load_page', ...
+            error('PIXELTMPFILEHANDLER:load_page', ...
                   'Could not open ''%s'' for reading:\n%s', tmp_file_path, ...
                   err_msg);
         end
@@ -100,6 +100,17 @@ methods
         if exist(obj.tmp_dir_path_, 'dir')
             rmdir(obj.tmp_dir_path_, 's');
         end
+    end
+
+    function num_tmp_files = get_num_tmp_files(obj)
+        if exist(obj.tmp_dir_path_, 'dir')
+            num_tmp_files = numel(dir(obj.tmp_dir_path_)) - 2;
+        end
+    end
+
+    function pg_exists = page_exists(obj, page_number)
+        expected_file_path = obj.generate_tmp_pix_file_path_(page_number);
+        pg_exists = logical(exist(expected_file_path, 'file'));
     end
 
 end
