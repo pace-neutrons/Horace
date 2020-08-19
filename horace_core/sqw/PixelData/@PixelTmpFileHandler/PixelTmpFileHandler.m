@@ -102,17 +102,6 @@ methods
         end
     end
 
-    function num_tmp_files = get_num_tmp_files(obj)
-        if exist(obj.tmp_dir_path_, 'dir')
-            num_tmp_files = numel(dir(obj.tmp_dir_path_)) - 2;
-        end
-    end
-
-    function pg_exists = page_exists(obj, page_number)
-        expected_file_path = obj.generate_tmp_pix_file_path_(page_number);
-        pg_exists = logical(exist(expected_file_path, 'file'));
-    end
-
 end
 
 methods (Access=private)
