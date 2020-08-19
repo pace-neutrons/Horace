@@ -974,6 +974,30 @@ methods
         assertEqual(pix.data, expected_pg_1_data, '', 1e-7);
     end
 
+    function test_you_can_append_pixels_to_file_backed_PixelData(obj)
+        npix_in_page = 11;
+        data = rand(9, 25);
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+        data_to_append = rand(9, 8);
+        pix_to_append = PixelData(data_to_append);
+
+        pix.append_pixels(pix_to_append);
+
+        expected_final_pg = horzcat(data(:, 23:end), data_to_append);
+        assertEqual(pix.data, expected_final_pg);
+
+        pix.move_to_first_page();
+        assertEqual(pix.data, data(:, 1:npix_in_page), '', 1e-7);
+
+        pix.advance();
+        assertEqual(pix.data, data(:, (npix_in_page + 1):(2*npix_in_page)), ...
+                    '', 1e-7);
+
+        pix.advance();
+        assertEqual(pix.data, expected_final_pg, '', 1e-7);
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);

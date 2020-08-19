@@ -448,10 +448,13 @@ methods
                 num_to_allocate_to_pg = obj.max_page_size_ - obj.page_size;
                 obj.data_ = horzcat(obj.data, pix.data(:, 1:num_to_allocate_to_pg));
                 obj.set_page_dirty_(true);
-                obj.write_dirty_page_();
 
-                obj.data_ = pix.data(:, (num_to_allocate_to_pg + 1):end);
-                obj.page_number_ = obj.page_number_ + 1;
+                if num_to_allocate_to_pg ~= pix.num_pixels
+                    obj.write_dirty_page_();
+
+                    obj.data_ = pix.data(:, (num_to_allocate_to_pg + 1):end);
+                    obj.page_number_ = obj.page_number_ + 1;
+                end
 
             elseif obj.page_size == obj.max_page_size_
                 obj.set_page_dirty_(true);
