@@ -1014,6 +1014,19 @@ methods
         assertExceptionThrown(f, 'PIXELDATA:append');
     end
 
+    function test_append_does_not_edit_calling_instance_if_nargout_eq_1(obj)
+        data = rand(9, 30);
+        npix_in_page = 11;
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        pix_to_append = PixelData(rand(9, 5));
+
+        out_pix = pix.append(pix_to_append);
+
+        assertEqual(pix.num_pixels, size(data, 2));
+        pix_data = obj.concatenate_pix_pages(pix);
+        assertEqual(pix_data, data);
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
