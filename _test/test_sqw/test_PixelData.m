@@ -1004,6 +1004,16 @@ methods
         assertExceptionThrown(f, 'PIXELDATA:append');
     end
 
+    function test_error_if_appending_pix_with_multiple_pages(obj)
+        npix_in_page = 11;
+        mem_alloc = npix_in_page*obj.NUM_COLS_IN_PIX_BLOCK*obj.NUM_BYTES_IN_VALUE;
+        pix = PixelData(rand(9, 5), mem_alloc);
+
+        pix_to_append = obj.get_pix_with_fake_faccess(rand(9, 23), npix_in_page);
+        f = @() pix.append(pix_to_append);
+        assertExceptionThrown(f, 'PIXELDATA:append');
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
