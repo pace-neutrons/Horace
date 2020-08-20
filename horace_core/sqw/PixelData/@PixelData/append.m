@@ -45,27 +45,26 @@ end
 if isempty(pix_out)
     pix_out.data_ = pix.data;
     pix_out.set_page_dirty_(true);
-else
-    if pix_out.page_size < pix_out.max_page_size_
-        num_to_allocate_to_pg = pix_out.max_page_size_ - pix_out.page_size;
-        pix_out.data_ = horzcat(pix_out.data, pix.data(:, 1:num_to_allocate_to_pg));
-        pix_out.set_page_dirty_(true);
 
-        if num_to_allocate_to_pg ~= pix.num_pixels
-            pix_out.write_dirty_page_();
+elseif pix_out.page_size < pix_out.max_page_size_
+    num_to_allocate_to_pg = pix_out.max_page_size_ - pix_out.page_size;
+    pix_out.data_ = horzcat(pix_out.data, pix.data(:, 1:num_to_allocate_to_pg));
+    pix_out.set_page_dirty_(true);
 
-            pix_out.data_ = pix.data(:, (num_to_allocate_to_pg + 1):end);
-            pix_out.page_number_ = pix_out.page_number_ + 1;
-        end
+    if num_to_allocate_to_pg ~= pix.num_pixels
+        pix_out.write_dirty_page_();
 
-    elseif pix_out.page_size == pix_out.max_page_size_
-        pix_out.set_page_dirty_(true);
-        if pix_out.dirty_page_edited_
-            pix_out.write_dirty_page_();
-        end
-        pix_out.data_ = pix.data;
+        pix_out.data_ = pix.data(:, (num_to_allocate_to_pg + 1):end);
         pix_out.page_number_ = pix_out.page_number_ + 1;
     end
+
+elseif pix_out.page_size == pix_out.max_page_size_
+    pix_out.set_page_dirty_(true);
+    if pix_out.dirty_page_edited_
+        pix_out.write_dirty_page_();
+    end
+    pix_out.data_ = pix.data;
+    pix_out.page_number_ = pix_out.page_number_ + 1;
 end
 
 pix_out.num_pixels_ = pix_out.num_pixels_ + pix.num_pixels;
