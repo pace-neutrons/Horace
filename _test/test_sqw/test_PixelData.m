@@ -1034,6 +1034,18 @@ methods
         assertEqual(appended_pix.data, pix.data);
     end
 
+    function test_copied_pix_that_has_been_appended_to_has_correct_num_pix(~)
+        data = rand(9, 30);
+        pix = PixelData(data);
+        num_appended_pix = 5;
+        pix_to_append = PixelData(rand(9, num_appended_pix));
+        pix.append(pix_to_append);
+
+        pix_copy = copy(pix);
+        assertEqual(pix.num_pixels, size(data, 2) + num_appended_pix);
+        assertEqual(pix_copy.num_pixels, size(data, 2) + num_appended_pix);
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
@@ -1066,12 +1078,15 @@ end
 methods (Static)
 
     function advance_pix(pix, niters)
+        % Advance the pixel pages by 'niters'
         for i = 1:niters
             pix.advance();
         end
     end
 
     function data = concatenate_pix_pages(pix)
+        % Combine all pages of data in the given pixel object into one array
+        % Returns the raw pixel array.
         pix.move_to_first_page();
         data = zeros(9, pix.num_pixels);
         data(:, 1:pix.page_size) = pix.data(:, 1:pix.page_size);
