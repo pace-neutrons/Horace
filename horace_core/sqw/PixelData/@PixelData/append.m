@@ -47,7 +47,8 @@ if isempty(pix_out)
     pix_out.set_page_dirty_(true);
 
 elseif pix_out.page_size < pix_out.max_page_size_
-    num_to_allocate_to_pg = pix_out.max_page_size_ - pix_out.page_size;
+    num_to_allocate_to_pg = min(pix_out.max_page_size_ - pix_out.page_size, ...
+                                pix.num_pixels);
     pix_out.data_ = horzcat(pix_out.data, pix.data(:, 1:num_to_allocate_to_pg));
     pix_out.set_page_dirty_(true);
 
