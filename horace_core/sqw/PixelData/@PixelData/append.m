@@ -56,16 +56,21 @@ elseif pix_out.page_size < pix_out.max_page_size_
 
         pix_out.data_ = pix.data(:, (num_to_allocate_to_pg + 1):end);
         pix_out.page_number_ = pix_out.page_number_ + 1;
+        pix_out.set_page_dirty_(true);
     end
 
 elseif pix_out.page_size == pix_out.max_page_size_
-    pix_out.set_page_dirty_(true);
+    if ~pix_out.is_file_backed_()
+        % If data is not file-backed the exisiting data must be saved to a tmp
+        % file after page is changed - so mark it dirty
+        pix_out.set_page_dirty_(true);
+    end
     if pix_out.dirty_page_edited_
         pix_out.write_dirty_page_();
     end
     pix_out.data_ = pix.data;
     pix_out.page_number_ = pix_out.page_number_ + 1;
+    pix_out.set_page_dirty_(true);
 end
 
 pix_out.num_pixels_ = pix_out.num_pixels_ + pix.num_pixels;
-pix_out.set_page_dirty_(true);
