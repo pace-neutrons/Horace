@@ -1027,6 +1027,13 @@ methods
         assertEqual(pix_data, data);
     end
 
+    function test_calling_append_with_empty_pixel_data_does_nothing(~)
+        pix = PixelData(rand(9, 5));
+        pix_to_append = PixelData();
+        appended_pix = pix.append(pix_to_append);
+        assertEqual(appended_pix.data, pix.data);
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
@@ -1061,6 +1068,18 @@ methods (Static)
     function advance_pix(pix, niters)
         for i = 1:niters
             pix.advance();
+        end
+    end
+
+    function data = concatenate_pix_pages(pix)
+        pix.move_to_first_page();
+        data = zeros(9, pix.num_pixels);
+        data(:, 1:pix.page_size) = pix.data(:, 1:pix.page_size);
+        start_idx = 1;
+        while pix.has_more()
+            start_idx = start_idx + pix.page_size;
+            pix.advance();
+            data(:, start_idx:(start_idx + pix.page_size - 1)) = pix.data;
         end
     end
 
