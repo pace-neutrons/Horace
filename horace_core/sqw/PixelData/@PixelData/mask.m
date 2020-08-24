@@ -4,8 +4,11 @@ function pix_out = mask(obj, mask_array, npix)
 % Input:
 % ------
 % mask_array   A logical array specifying which pixels should be kept/removed
-%              from the PixelData object; of length equal to the number of pixels in obj
-%              or equal to the current page size of obj.
+%              from the PixelData object. Must be of length equal to the number
+%              of pixels in 'obj' or equal in size to the 'npix' argument. A
+%              true/1 in the array indicates that the pixel at that index
+%              should be retained, a false/0 indicates the pixel should be
+%              removed.
 %
 % npix         Array of integers that specify how many times each value in
 %              mask_array should be replicated. This is useful for when masking
@@ -16,7 +19,7 @@ function pix_out = mask(obj, mask_array, npix)
 %               full_mask  = [0, 0, 0,  1, 1,  1, 1,  0,  1, 1]
 %
 if nargout ~= 1
-    error('PIXELDATA:mask', ['Bad number of output arguments.\n''mask'' must be' ...
+    error('PIXELDATA:mask', ['Bad number of output arguments.\n''mask'' must be ' ...
                              'called with exactly one output argument.']);
 end
 
@@ -34,23 +37,7 @@ end
 
 if numel(mask_array) == obj.num_pixels
     if obj.is_file_backed_()
-        obj.move_to_first_page();
-
-        pix_out = PixelData();
-        end_idx = 0;
-        while true
-            start_idx = end_idx + 1;
-            end_idx = start_idx + obj.page_size - 1;
-            mask_array_chunk = mask_array(start_idx:end_idx);
-
-            pix_out.append(obj.get_pixels(mask_array_chunk));
-
-            if obj.has_more()
-                obj = obj.advance();
-            else
-                break;
-            end
-        end
+        pix_out = do_mask_file_backed_with_full_mask_array(obj, mask_array);
     else
         pix_out = obj.get_pixels(mask_array);
     end
@@ -66,47 +53,10 @@ elseif exist('npix', 'var')
     end
 
     if obj.is_file_backed_()
-        pix_out = PixelData();
-
-        npix_cum_sum = cumsum(npix(:));
-        while true
-            start_idx = find(npix_cum_sum > 0, 1);
-            leftover_begin = npix_cum_sum(start_idx);
-            npix_cum_sum = npix_cum_sum - obj.page_size;
-            end_idx = find(npix_cum_sum > 0, 1);
-            if isempty(end_idx)
-                end_idx = numel(npix);
-            end
-
-            if start_idx == end_idx
-                % All pixels in page
-                if ~exist('leftover_end', 'var')
-                    leftover_end = 0;
-                end
-                npix_chunk = min(obj.page_size, npix(start_idx) - leftover_end);
-            else
-                % Leftover_end = number of pixels to allocate to final bin n,
-                % there will be more pixels to allocated to bin n in the next iteration
-                leftover_end = ...
-                    obj.page_size - (leftover_begin + sum(npix(start_idx + 1:end_idx - 1)));
-                npix_chunk = npix(start_idx + 1:end_idx - 1);
-                npix_chunk = [leftover_begin, npix_chunk(:).', leftover_end];
-            end
-
-            mask_array_chunk = repelem(mask_array(start_idx:end_idx), npix_chunk);
-
-            pix_out.append(obj.get_pixels(mask_array_chunk));
-
-            if obj.has_more()
-                obj.advance();
-            else
-                break;
-            end
-        end
-
+        pix_out = do_mask_file_backed_with_npix(obj, mask_array, npix);
     else
         full_mask_array = repelem(mask_array, npix);
-        pix_out = obj.get_pixels(full_mask_array);
+        pix_out = do_mask_in_memory_with_full_mask_array(obj, full_mask_array);
     end
 
 else
@@ -116,4 +66,73 @@ else
            'accompanied by the npix argument. Found ''%i'' elements, ''%i'' or '...
            '''%i'' elements required.'], numel(mask_array), obj.num_pixels, ...
            obj.page_size);
+end
+
+end
+
+
+% -----------------------------------------------------------------------------
+function pix_out = do_mask_in_memory_with_full_mask_array(obj, mask_array)
+    pix_out = obj.get_pixels(mask_array);
+end
+
+function pix_out = do_mask_file_backed_with_full_mask_array(obj, mask_array)
+    obj.move_to_first_page();
+
+    pix_out = PixelData();
+    end_idx = 0;
+    while true
+        start_idx = end_idx + 1;
+        end_idx = start_idx + obj.page_size - 1;
+        mask_array_chunk = mask_array(start_idx:end_idx);
+
+        pix_out.append(obj.get_pixels(mask_array_chunk));
+
+        if obj.has_more()
+            obj = obj.advance();
+        else
+            break;
+        end
+    end
+end
+
+function pix_out = do_mask_file_backed_with_npix(obj, mask_array, npix)
+    obj.move_to_first_page();
+    pix_out = PixelData();
+
+    npix_cum_sum = cumsum(npix(:));
+    while true
+        start_idx = find(npix_cum_sum > 0, 1);
+        leftover_begin = npix_cum_sum(start_idx);
+        npix_cum_sum = npix_cum_sum - obj.page_size;
+        end_idx = find(npix_cum_sum > 0, 1);
+        if isempty(end_idx)
+            end_idx = numel(npix);
+        end
+
+        if start_idx == end_idx
+            % All pixels in page
+            if ~exist('leftover_end', 'var')
+                leftover_end = 0;
+            end
+            npix_chunk = min(obj.page_size, npix(start_idx) - leftover_end);
+        else
+            % Leftover_end = number of pixels to allocate to final bin n,
+            % there will be more pixels to allocated to bin n in the next iteration
+            leftover_end = ...
+                obj.page_size - (leftover_begin + sum(npix(start_idx + 1:end_idx - 1)));
+            npix_chunk = npix(start_idx + 1:end_idx - 1);
+            npix_chunk = [leftover_begin, npix_chunk(:).', leftover_end];
+        end
+
+        mask_array_chunk = repelem(mask_array(start_idx:end_idx), npix_chunk);
+
+        pix_out.append(obj.get_pixels(mask_array_chunk));
+
+        if obj.has_more()
+            obj.advance();
+        else
+            break;
+        end
+    end
 end
