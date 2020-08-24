@@ -7,6 +7,14 @@ function pix_out = mask(obj, mask_array, npix)
 %              from the PixelData object; of length equal to the number of pixels in obj
 %              or equal to the current page size of obj.
 %
+% npix         Array of integers that specify how many times each value in
+%              mask_array should be replicated. This is useful for when masking
+%              all pixels contributing to a bin. Size must be equal to that of
+%              'mask_array'. E.g.:
+%               mask_array = [      0,     1,     1,  0,     1]
+%               npix       = [      3,     2,     2,  1,     2]
+%               full_mask  = [0, 0, 0,  1, 1,  1, 1,  0,  1, 1]
+%
 if nargout ~= 1
     error('PIXELDATA:mask', ['Bad number of output arguments.\n''mask'' must be' ...
                              'called with exactly one output argument.']);
@@ -47,11 +55,65 @@ if numel(mask_array) == obj.num_pixels
         pix_out = obj.get_pixels(mask_array);
     end
 
+elseif exist('npix', 'var')
+    if any(size(npix) ~= size(mask_array))
+        error('PIXELDATA:mask', 'Size of mask_array and npix must be equal.');
+    elseif sum(npix) ~= obj.num_pixels
+        error('PIXELDATA:mask', ...
+              ['The sum of npix must be equal to number of pixels.\n' ...
+               'Found sum(npix) = %i, %i pixels required.'], ...
+              sum(npix), obj.num_pixels);
+    end
+
+    if obj.is_file_backed_()
+        pix_out = PixelData();
+
+        npix_cum_sum = cumsum(npix(:));
+        while true
+            start_idx = find(npix_cum_sum > 0, 1);
+            leftover_begin = npix_cum_sum(start_idx);
+            npix_cum_sum = npix_cum_sum - obj.page_size;
+            end_idx = find(npix_cum_sum > 0, 1);
+            if isempty(end_idx)
+                end_idx = numel(npix);
+            end
+
+            if start_idx == end_idx
+                % All pixels in page
+                if ~exist('leftover_end', 'var')
+                    leftover_end = 0;
+                end
+                npix_chunk = min(obj.page_size, npix(start_idx) - leftover_end);
+            else
+                % Leftover_end = number of pixels to allocate to final bin n,
+                % there will be more pixels to allocated to bin n in the next iteration
+                leftover_end = ...
+                    obj.page_size - (leftover_begin + sum(npix(start_idx + 1:end_idx - 1)));
+                npix_chunk = npix(start_idx + 1:end_idx - 1);
+                npix_chunk = [leftover_begin, npix_chunk(:).', leftover_end];
+            end
+
+            mask_array_chunk = repelem(mask_array(start_idx:end_idx), npix_chunk);
+
+            pix_out.append(obj.get_pixels(mask_array_chunk));
+
+            if obj.has_more()
+                obj.advance();
+            else
+                break;
+            end
+        end
+
+    else
+        full_mask_array = repelem(mask_array, npix);
+        pix_out = obj.get_pixels(full_mask_array);
+    end
+
 else
     error('PIXELDATA:mask', ...
           ['Error masking pixel data.\nThe input mask_array must have ' ...
-           'number of elements equal to the number of pixels or page size ' ...
-           'of the PixelData object. Found ''%i'' elements, ''%i'' or '...
+           'number of elements equal to the number of pixels or must be ' ...
+           'accompanied by the npix argument. Found ''%i'' elements, ''%i'' or '...
            '''%i'' elements required.'], numel(mask_array), obj.num_pixels, ...
            obj.page_size);
 end

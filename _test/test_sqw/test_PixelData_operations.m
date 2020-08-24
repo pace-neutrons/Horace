@@ -305,7 +305,7 @@ methods
 
     function test_pixels_deleted_on_mask_call_with_nargout_eq_1(obj)
         data = rand(9, 30);
-        npix_in_page = 15;
+        npix_in_page = 13;
         pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
         mask_array = ones(1, size(data, 2), 'logical');
@@ -324,6 +324,46 @@ methods
     function test_mask_throws_PIXELDATA_if_called_with_no_output_args(~)
         pix = PixelData(5);
         f = @() pix.mask(zeros(1, pix.num_pixels), 'logical');
+        assertExceptionThrown(f, 'PIXELDATA:mask');
+    end
+
+    function test_mask_deletes_pixels_when_given_npix_argument_pix_in_pages(obj)
+        data = rand(9, 20);
+        npix_in_page = 11;
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+        mask_array = [0, 1, 1, 0, 1, 0];
+        npix = [4, 5, 1, 2, 3, 5];
+
+        pix = pix.mask(mask_array, npix);
+
+        full_mask_array = repelem(mask_array, npix);
+        expected_data = data(:, logical(full_mask_array));
+
+        actual_data = obj.concatenate_pixel_pages(pix);
+        assertEqual(actual_data, expected_data);
+    end
+
+    function test_mask_deletes_pixels_when_given_npix_argument_pix_in_mem(obj)
+        data = rand(9, 20);
+        pix = PixelData(data);
+
+        mask_array = [0, 1, 1, 0, 1, 0];
+        npix = [4, 5, 1, 2, 3, 5];
+
+        pix = pix.mask(mask_array, npix);
+
+        full_mask_array = repelem(mask_array, npix);
+        expected_data = data(:, logical(full_mask_array));
+
+        actual_data = obj.concatenate_pixel_pages(pix);
+        assertEqual(actual_data, expected_data);
+    end
+
+    function test_PIXELDATA_thrown_if_sum_of_npix_ne_to_num_pixels(~)
+        pix = PixelData(5);
+        npix = [1, 2];
+        f = @() pix.mask([0, 1], npix);
         assertExceptionThrown(f, 'PIXELDATA:mask');
     end
 
