@@ -262,6 +262,71 @@ methods
         end
     end
 
+    function test_mask_does_nothing_if_mask_array_eq_ones_when_pix_in_memory(~)
+        data = rand(9, 11);
+        pix = PixelData(data);
+        mask_array = ones(1, pix.num_pixels);
+        pix_out = pix.mask(mask_array);
+        assertEqual(pix_out.data, data);
+    end
+
+    function test_mask_returns_empty_PixelData_if_mask_array_all_zeros(~)
+        data = rand(9, 11);
+        pix = PixelData(data);
+        mask_array = zeros(1, pix.num_pixels);
+        pix_out = pix.mask(mask_array);
+        assertTrue(isa(pix_out, 'PixelData'));
+        assertTrue(isempty(pix_out));
+    end
+
+    function test_mask_raises_if_mask_array_neq_to_pg_size_or_num_pixels(obj)
+        data = rand(9, 30);
+        npix_in_page = 10;
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        mask_array = zeros(5);
+        f = @() pix.mask(mask_array);
+        assertExceptionThrown(f, 'PIXELDATA:mask');
+    end
+
+    function test_mask_removes_in_memory_pix_if_len_mask_array_eq_num_pixels(~)
+        data = rand(9, 11);
+        pix = PixelData(data);
+        mask_array = ones(1, pix.num_pixels);
+        pix_to_remove = [3, 6, 7];
+        mask_array(pix_to_remove) = 0;
+
+        pix = pix.mask(mask_array);
+
+        assertEqual(pix.num_pixels, size(data, 2) - numel(pix_to_remove));
+        expected_data = data;
+        expected_data(:, pix_to_remove) = [];
+        assertEqual(pix.data, expected_data);
+    end
+
+    function test_pixels_deleted_on_mask_call_with_nargout_eq_1(obj)
+        data = rand(9, 30);
+        npix_in_page = 15;
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+        mask_array = ones(1, size(data, 2), 'logical');
+        pix_to_remove = [5, 11, 19, 23];
+        mask_array(pix_to_remove) = 0;
+
+        pix = pix.mask(mask_array);
+
+        assertEqual(pix.num_pixels, size(data, 2) - numel(pix_to_remove));
+
+        expected_data = data(:, mask_array);
+        actual_data = obj.concatenate_pixel_pages(pix);
+        assertEqual(actual_data, expected_data);
+    end
+
+    function test_mask_throws_PIXELDATA_if_called_with_no_output_args(~)
+        pix = PixelData(5);
+        f = @() pix.mask(zeros(1, pix.num_pixels), 'logical');
+        assertExceptionThrown(f, 'PIXELDATA:mask');
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
@@ -308,5 +373,6 @@ methods (Static)
         data = data_range(1) + (data_range(2) - data_range(1)).*rand(cols, rows);
     end
 end
+
 
 end
