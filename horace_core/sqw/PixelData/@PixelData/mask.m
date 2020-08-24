@@ -45,11 +45,11 @@ if numel(mask_array) == obj.num_pixels
 elseif exist('npix', 'var')
     if any(size(npix) ~= size(mask_array))
         error('PIXELDATA:mask', 'Size of mask_array and npix must be equal.');
-    elseif sum(npix) ~= obj.num_pixels
+    elseif sum(npix, 'all') ~= obj.num_pixels
         error('PIXELDATA:mask', ...
               ['The sum of npix must be equal to number of pixels.\n' ...
                'Found sum(npix) = %i, %i pixels required.'], ...
-              sum(npix), obj.num_pixels);
+              sum(npix, 'all'), obj.num_pixels);
     end
 
     if obj.is_file_backed_()
