@@ -1027,6 +1027,19 @@ methods
         assertEqual(pix_data, data);
     end
 
+    function test_append_returns_editied_pix_if_nargout_eq_1(obj)
+        pix = PixelData(obj.test_sqw_file_path);
+        npix_to_append = 5;
+        pix_to_append = PixelData(rand(9, npix_to_append));
+
+        out_pix = pix.append(pix_to_append);
+
+        assertEqual(out_pix.num_pixels, pix.num_pixels + pix_to_append.num_pixels);
+        original_pix_data = obj.concatenate_pix_pages(pix);
+        out_pix_data = obj.concatenate_pix_pages(out_pix);
+        assertEqual(out_pix_data, horzcat(original_pix_data, pix_to_append.data));
+    end
+
     function test_calling_append_with_empty_pixel_data_does_nothing(~)
         pix = PixelData(rand(9, 5));
         pix_to_append = PixelData();
