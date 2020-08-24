@@ -344,6 +344,23 @@ methods
         assertEqual(actual_data, expected_data);
     end
 
+    function test_mask_deletes_pix_with_npix_argument_all_pages_full(obj)
+        data = rand(9, 20);
+        npix_in_page = 10;
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+        mask_array = [0, 1, 1, 0, 1, 0];
+        npix = [4, 5, 1, 2, 3, 5];
+
+        pix = pix.mask(mask_array, npix);
+
+        full_mask_array = repelem(mask_array, npix);
+        expected_data = data(:, logical(full_mask_array));
+
+        actual_data = obj.concatenate_pixel_pages(pix);
+        assertEqual(actual_data, expected_data);
+    end
+
     function test_mask_deletes_pixels_when_given_npix_argument_pix_in_mem(obj)
         data = rand(9, 20);
         pix = PixelData(data);
