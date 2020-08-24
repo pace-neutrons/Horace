@@ -192,7 +192,11 @@ end
 
 methods
 
-    obj = append(obj, pix)
+    % --- Pixel operations ---
+    [mean_signal, mean_variance] = compute_bin_data(obj, npix)
+    pix_out = do_unary_op(obj, unary_op);
+    pix_out = append(obj, pix);
+    pix_out = mask(obj, mask_array, npix);
 
     function obj = PixelData(arg, mem_alloc)
         % Construct a PixelData object from the given data. Default
@@ -340,10 +344,6 @@ methods
         %  copied within this classes "copy-constructor".
         pix_copy = PixelData(obj);
     end
-
-    % --- Pixel operations ---
-    [mean_signal, mean_variance] = compute_bin_data(obj, npix)
-    obj = do_unary_op(obj, unary_op);
 
     % --- Data management ---
     function data = get_data(obj, fields, pix_indices)
