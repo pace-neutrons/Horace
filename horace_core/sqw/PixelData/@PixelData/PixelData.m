@@ -414,7 +414,7 @@ methods
         %    >> has_more = pix.has_more();
         %
         has_more = false;
-        if isempty(obj.f_accessor_)
+        if ~obj.is_file_backed_()
             return;
         end
         if obj.page_size == 0 && obj.num_pixels > obj.max_page_size_

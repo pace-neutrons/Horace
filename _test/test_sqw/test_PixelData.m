@@ -1059,6 +1059,20 @@ methods
         assertEqual(pix_copy.num_pixels, size(data, 2) + num_appended_pix);
     end
 
+    function test_has_more_true_after_appending_to_non_file_backed(obj)
+        num_pix = 10;
+        mem_alloc = (num_pix + 1)*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
+        pix = PixelData(rand(9, 10), mem_alloc);
+
+        pix_to_append = PixelData(rand(9, 5));
+        pix.append(pix_to_append);
+
+        pix.move_to_first_page();
+        assertTrue(pix.has_more());
+        pix.advance();
+        assertFalse(pix.has_more());
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
