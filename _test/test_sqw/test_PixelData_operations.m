@@ -279,7 +279,7 @@ methods
         assertTrue(isempty(pix_out));
     end
 
-    function test_mask_raises_if_mask_array_neq_to_pg_size_or_num_pixels(obj)
+    function test_mask_raises_if_mask_array_len_neq_to_pg_size_or_num_pixels(obj)
         data = rand(9, 30);
         npix_in_page = 10;
         pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
