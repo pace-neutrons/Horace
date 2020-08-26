@@ -210,7 +210,7 @@ methods
             @acoth, [10, 15], ...
             @acsc, [1, 3], ...
             @acsch, [1, 3], ...
-            @asec, [1.5, 3], ...
+            @asec, [2, 3], ...
             @asech, [0, 1], ...
             @asin, [0, 1], ...
             @asinh, [1, 3], ...
@@ -364,6 +364,29 @@ methods
         npix = [1, 2];
         f = @() pix.mask([0, 1], npix);
         assertExceptionThrown(f, 'PIXELDATA:mask');
+    end
+
+    function test_error_if_passing_mask_npix_and_num_pix_len_mask_array(~)
+
+        function out = f()
+            num_pix = 10;
+            pix = PixelData(rand(9, num_pix));
+            mask_array = randi([0, 1], [1, num_pix]);
+            npix = rand(1, 4);
+            out = pix.mask(mask_array, npix);
+        end
+
+        assertExceptionThrown(@() f(), 'PIXELDATA:mask');
+    end
+
+    function test_not_enough_args_error_if_calling_mask_with_no_args(~)
+
+        function pix = f()
+            pix = PixelData(rand(9, 10));
+            pix = pix.mask();
+        end
+
+        assertExceptionThrown(@() f(), 'MATLAB:minrhs');
     end
 
     % -- Helpers --
