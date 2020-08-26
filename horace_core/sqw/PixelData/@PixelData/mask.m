@@ -21,7 +21,14 @@ function pix_out = mask(obj, mask_array, npix)
 if nargout ~= 1
     error('PIXELDATA:mask', ['Bad number of output arguments.\n''mask'' must be ' ...
                              'called with exactly one output argument.']);
+else
+    if exist('npix', 'var')
+        validate_input_args(obj, mask_array, npix);
+    else
+        validate_input_args(obj, mask_array);
+    end
 end
+
 
 if numel(mask_array) == obj.num_pixels && all(mask_array)
     pix_out = obj;
@@ -36,6 +43,7 @@ if ~isa(mask_array, 'logical')
 end
 
 if numel(mask_array) == obj.num_pixels
+
     if obj.is_file_backed_()
         pix_out = do_mask_file_backed_with_full_mask_array(obj, mask_array);
     else
@@ -43,14 +51,6 @@ if numel(mask_array) == obj.num_pixels
     end
 
 elseif exist('npix', 'var')
-    if any(size(npix) ~= size(mask_array))
-        error('PIXELDATA:mask', 'Size of mask_array and npix must be equal.');
-    elseif sum(npix, 'all') ~= obj.num_pixels
-        error('PIXELDATA:mask', ...
-              ['The sum of npix must be equal to number of pixels.\n' ...
-               'Found sum(npix) = %i, %i pixels required.'], ...
-              sum(npix, 'all'), obj.num_pixels);
-    end
 
     if obj.is_file_backed_()
         pix_out = do_mask_file_backed_with_npix(obj, mask_array, npix);
@@ -59,13 +59,6 @@ elseif exist('npix', 'var')
         pix_out = do_mask_in_memory_with_full_mask_array(obj, full_mask_array);
     end
 
-else
-    error('PIXELDATA:mask', ...
-          ['Error masking pixel data.\nThe input mask_array must have ' ...
-           'number of elements equal to the number of pixels or must be ' ...
-           'accompanied by the npix argument. Found ''%i'' elements, ''%i'' or '...
-           '''%i'' elements required.'], numel(mask_array), obj.num_pixels, ...
-           obj.page_size);
 end
 
 end
@@ -134,6 +127,26 @@ function pix_out = do_mask_file_backed_with_npix(obj, mask_array, npix)
             obj.advance();
         else
             break;
+        end
+    end
+end
+
+function validate_input_args(obj, mask_array, npix)
+    if nargin == 2 && numel(mask_array) ~= obj.num_pixels
+        error('PIXELDATA:mask', ...
+            ['Error masking pixel data.\nThe input mask_array must have ' ...
+            'number of elements equal to the number of pixels or must be ' ...
+            'accompanied by the npix argument. Found ''%i'' elements, ''%i'' or '...
+            '''%i'' elements required.'], numel(mask_array), obj.num_pixels, ...
+            obj.page_size);
+    elseif nargin == 3
+        if any(size(npix) ~= size(mask_array))
+            error('PIXELDATA:mask', 'Size of mask_array and npix must be equal.');
+        elseif sum(npix, 'all') ~= obj.num_pixels
+            error('PIXELDATA:mask', ...
+                ['The sum of npix must be equal to number of pixels.\n' ...
+                'Found sum(npix) = %i, %i pixels required.'], ...
+                sum(npix, 'all'), obj.num_pixels);
         end
     end
 end
