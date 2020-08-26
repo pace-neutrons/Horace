@@ -100,12 +100,13 @@ function pix_out = do_mask_file_backed_with_npix(obj, mask_array, npix)
     obj.move_to_first_page();
     pix_out = PixelData();
 
+    end_idx = 1;
     npix_cum_sum = cumsum(npix(:));
     while true
-        start_idx = find(npix_cum_sum > 0, 1);
+        start_idx = (end_idx - 1) + find(npix_cum_sum(end_idx:end) > 0, 1);
         leftover_begin = npix_cum_sum(start_idx);
         npix_cum_sum = npix_cum_sum - obj.page_size;
-        end_idx = find(npix_cum_sum > 0, 1);
+        end_idx = (start_idx - 1) + find(npix_cum_sum(start_idx:end) > 0, 1);
         if isempty(end_idx)
             end_idx = numel(npix);
         end
