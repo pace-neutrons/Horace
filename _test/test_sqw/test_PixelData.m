@@ -1059,7 +1059,7 @@ methods
         assertEqual(pix_copy.num_pixels, size(data, 2) + num_appended_pix);
     end
 
-    function test_has_more_true_after_appending_to_non_file_backed(obj)
+    function test_has_more_is_true_after_appending_page_to_non_file_backed(obj)
         num_pix = 10;
         mem_alloc = (num_pix + 1)*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
         pix = PixelData(rand(9, 10), mem_alloc);
