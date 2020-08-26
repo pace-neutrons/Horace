@@ -303,24 +303,6 @@ methods
         assertEqual(pix.data, expected_data);
     end
 
-    function test_pixels_deleted_on_mask_call_with_nargout_eq_1(obj)
-        data = rand(9, 30);
-        npix_in_page = 13;
-        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-
-        mask_array = ones(1, size(data, 2), 'logical');
-        pix_to_remove = [5, 11, 19, 23];
-        mask_array(pix_to_remove) = 0;
-
-        pix = pix.mask(mask_array);
-
-        assertEqual(pix.num_pixels, size(data, 2) - numel(pix_to_remove));
-
-        expected_data = data(:, mask_array);
-        actual_data = obj.concatenate_pixel_pages(pix);
-        assertEqual(actual_data, expected_data);
-    end
-
     function test_mask_throws_PIXELDATA_if_called_with_no_output_args(~)
         pix = PixelData(5);
         f = @() pix.mask(zeros(1, pix.num_pixels), 'logical');
