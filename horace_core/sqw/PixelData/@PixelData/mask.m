@@ -29,7 +29,6 @@ else
     end
 end
 
-
 if numel(mask_array) == obj.num_pixels && all(mask_array)
     pix_out = obj;
     return;
