@@ -199,11 +199,12 @@ classdef hor_config < config_base
         end
 
         function this = set.pixel_page_size(this, val)
-            if val < 8*9
+            MIN_RECOMMENDED_PG_SIZE = 100e6;
+            if val < PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS
                 error('HOR_CONFIG:set_pixel_page_size', ...
                       ['Error setting pixel page size. Cannot set page '...
                        'size less than 72 bytes, as this is less than one pixel.']);
-            elseif val < 100e6
+            elseif val < MIN_RECOMMENDED_PG_SIZE
                 warning('HOR_CONFIG:set_pixel_page_size', ...
                         ['A pixel page size of less than 100MB is not ' ...
                          'recommended. This may degrade performance.']);
@@ -213,10 +214,6 @@ classdef hor_config < config_base
                 error('HOR_CONFIG:set_pixel_page_size', ...
                       ['Error setting pixel page size. Cannot set page ' ...
                        'size greater or equal to maximum possible array size.']);
-            elseif val > 3e9
-                warning('HOR_CONFIG:set_pixel_page_size', ...
-                        ['A pixel page size of more than 3GB is not ' ...
-                         'recommended. This may degrade performance.']);
             end
 
             config_store.instance().store_config(this, 'pixel_page_size', val);
@@ -326,4 +323,3 @@ classdef hor_config < config_base
 
     end
 end
-
