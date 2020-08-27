@@ -88,7 +88,7 @@ properties (Access=private)
          'signal', ...
          'variance'}, ...
         {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9});
-    PIXEL_BLOCK_COLS_ = 9;
+    PIXEL_BLOCK_COLS_ = PixelData.DEFAULT_NUM_PIX_FIELDS;
 
     dirty_page_edited_ = false;  % true if a dirty page has been edited since it was loaded
     f_accessor_;  % instance of faccess object to access pixel data from file
@@ -100,6 +100,11 @@ properties (Access=private)
     page_number_ = 1;  % the index of the currently loaded page
     raw_data_ = zeros(9, 0);  % the underlying data cached in the object
     tmp_io_handler_;  % a PixelTmpFileHandler object that handles reading/writing of tmp files
+end
+
+properties (Constant)
+    DEFAULT_NUM_PIX_FIELDS = 9;
+    DATA_POINT_SIZE = 8;  % num bytes in a float
 end
 
 properties (Dependent, Access=private)
