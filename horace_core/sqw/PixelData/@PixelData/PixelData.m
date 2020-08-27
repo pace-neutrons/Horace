@@ -97,7 +97,7 @@ properties (Access=private)
     num_pixels_ = 0;  % the number of pixels in the object
     object_id_;  % random unique identifier for this object, used for tmp file names
     page_dirty_ = false;  % array mapping from page_number to whether that page is dirty
-    page_memory_size_ = 3e9;  % 3Gb - the maximum amount of memory a page can use
+    page_memory_size_;  % the maximum amount of memory a page can use
     page_number_ = 1;  % the index of the currently loaded page
     raw_data_ = zeros(9, 0);  % the underlying data cached in the object
     tmp_io_handler_;  % a PixelTmpFileHandler object that handles reading/writing of tmp files
@@ -238,6 +238,7 @@ methods
         %               in-memory data. (Optional)
         %
         obj.object_id_ = polyval(randi([0, 9], 1, 5), 10);
+        obj.page_memory_size_ = get(hor_config, 'pixel_page_size');
         if nargin == 0
             return
         end
