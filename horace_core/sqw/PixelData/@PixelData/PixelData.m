@@ -192,7 +192,11 @@ end
 
 methods
 
-    obj = append(obj, pix)
+    % --- Pixel operations ---
+    [mean_signal, mean_variance] = compute_bin_data(obj, npix)
+    pix_out = do_unary_op(obj, unary_op);
+    pix_out = append(obj, pix);
+    pix_out = mask(obj, mask_array, npix);
 
     function obj = PixelData(arg, mem_alloc)
         % Construct a PixelData object from the given data. Default
@@ -341,10 +345,6 @@ methods
         pix_copy = PixelData(obj);
     end
 
-    % --- Pixel operations ---
-    [mean_signal, mean_variance] = compute_bin_data(obj, npix)
-    obj = do_unary_op(obj, unary_op);
-
     % --- Data management ---
     function data = get_data(obj, fields, pix_indices)
         % Retrive data for a field, or fields, for the given pixel indices in
@@ -414,7 +414,7 @@ methods
         %    >> has_more = pix.has_more();
         %
         has_more = false;
-        if isempty(obj.f_accessor_)
+        if ~obj.is_file_backed_()
             return;
         end
         if obj.page_size == 0 && obj.num_pixels > obj.max_page_size_

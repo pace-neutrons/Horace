@@ -20,12 +20,13 @@ npix_cum_sum = cumsum(npix(:));
 signal_sum = zeros(1, numel(npix));
 variance_sum = zeros(1, numel(npix));
 
+end_idx = 1;
 % Loop over pages of data
 while true
     % Find the index of the first bin to allocate pixels to.
     % We subtract allocated pixels from the cumulative sum later, so the first
     % bin to allocate pixels to will be the first bin with cumulative sum > 0
-    start_idx = find(npix_cum_sum > 0, 1);
+    start_idx = (end_idx - 1) + find(npix_cum_sum(end_idx:end) > 0, 1);
     % Get number of pixels to allocate to bin n, that weren't allocated on
     % the last iteration
     leftover_begin = npix_cum_sum(start_idx);
@@ -33,8 +34,7 @@ while true
     % Subtract allocated pixels from the npix cumulative sum
     npix_cum_sum = npix_cum_sum - obj.page_size;
     % Find the index of the last bin to allocate pixels to
-    % could optimise here by searching from the last end_idx
-    end_idx = find(npix_cum_sum > 0, 1);
+    end_idx = (start_idx - 1) + find(npix_cum_sum(start_idx:end) > 0, 1);
     if isempty(end_idx)
         % No end index found, must be at the end of the npix array
         end_idx = numel(npix);
