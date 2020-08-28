@@ -759,14 +759,19 @@ methods (Access=private)
 
     function page_size = get_max_page_size_(obj)
         % Get the maximum number of pixels that can be held in a page that's
-        % allocated 'obj.page_memory_size_' bytes
+        % allocated 'obj.page_memory_size_' bytes of memory
+        if isempty(obj.page_memory_size_)
+            % This if statement is a bit of hack so we can load old PixelData
+            % objects that were saved in .mat files that do not have the
+            % 'page_memory_size_' property
+            obj.page_memory_size_ = get(hor_config, 'pixel_page_size');
+        end
         page_size = obj.calculate_page_size_(obj.page_memory_size_);
     end
 
     function page_size = calculate_page_size_(obj, mem_alloc)
         % Calculate number of pixels that fit in the given memory allocation
-        num_bytes_in_val = 8;  % pixel data stored in memory as a double
-        num_bytes_in_pixel = num_bytes_in_val*obj.PIXEL_BLOCK_COLS_;
+        num_bytes_in_pixel = obj.DATA_POINT_SIZE*obj.PIXEL_BLOCK_COLS_;
         page_size = floor(mem_alloc/num_bytes_in_pixel);
     end
 
