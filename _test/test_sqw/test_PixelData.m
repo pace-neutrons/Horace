@@ -36,6 +36,9 @@ methods
     function obj = test_PixelData(~)
         obj = obj@TestCase('test_PixelData');
 
+        % Swallow any warnings for when pixel page size set too small
+        obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
+
         test_sqw_file = java.io.File(pwd(), obj.test_sqw_file_path);
         obj.test_sqw_file_full_path = char(test_sqw_file.getCanonicalPath());
 
@@ -48,9 +51,6 @@ methods
         obj.pix_data_from_faccess = PixelData(f_accessor);
         % Construct an object from file accessor with small page size
         obj.pix_data_small_page = PixelData(f_accessor, obj.small_page_size_);
-
-        % Swallow any warnings for when pixel page size set too small
-        obj.old_warn_state = warning('OFF', 'HOR_CONFIG:set_pixel_page_size');
     end
 
     function delete(obj)
@@ -1080,6 +1080,13 @@ methods
         expected_page_size = floor(new_pix_page_size/bytes_in_pixel);
         pix = PixelData(obj.test_sqw_file_path);
         assertEqual(pix.page_size, expected_page_size);
+    end
+
+    function test_error_when_setting_mem_alloc_lt_one_pixel(~)
+        pix_size = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
+
+        f = @() PixelData(rand(9, 10), pix_size - 1);
+        assertExceptionThrown(f, 'PIXELDATA:validate_mem_alloc');
     end
 
     % -- Helpers --

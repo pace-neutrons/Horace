@@ -198,6 +198,21 @@ methods (Static)
         obj = PixelData(S);
     end
 
+    function validate_mem_alloc(mem_alloc)
+        MIN_RECOMMENDED_PG_SIZE = 100e6;
+        bytes_in_pix = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
+        if mem_alloc < bytes_in_pix
+            error('PIXELDATA:validate_mem_alloc', ...
+                  ['Error setting pixel page size. Cannot set page '...
+                   'size less than %i bytes, as this is less than one pixel.'], ...
+                  bytes_in_pix);
+        elseif mem_alloc < MIN_RECOMMENDED_PG_SIZE
+            warning('PIXELDATA:validate_mem_alloc', ...
+                    ['A pixel page size of less than 100MB is not ' ...
+                     'recommended. This may degrade performance.']);
+        end
+    end
+
 end
 
 methods
@@ -248,6 +263,13 @@ methods
         %               in-memory data. (Optional)
         %
         obj.object_id_ = polyval(randi([0, 9], 1, 5), 10);
+        if exist('mem_alloc', 'var')
+            obj.validate_mem_alloc(mem_alloc);
+            obj.page_memory_size_ = mem_alloc;
+        else
+            obj.page_memory_size_ = get(hor_config, 'pixel_page_size');
+        end
+
         if nargin == 0
             return
         end
@@ -266,12 +288,6 @@ methods
             obj.data_ = arg.data;
             obj.page_memory_size_ = arg.page_memory_size_;
             return;
-        end
-
-        if exist('mem_alloc', 'var')
-            obj.page_memory_size_ = mem_alloc;
-        else
-            obj.page_memory_size_ = get(hor_config, 'pixel_page_size');
         end
 
         if numel(arg) == 1 && isnumeric(arg) && floor(arg) == arg
