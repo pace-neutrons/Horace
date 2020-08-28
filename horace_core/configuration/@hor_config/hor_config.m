@@ -209,12 +209,6 @@ classdef hor_config < config_base
                         ['A pixel page size of less than 100MB is not ' ...
                          'recommended. This may degrade performance.']);
             end
-            mem = memory();
-            if val >= mem.MaxPossibleArrayBytes
-                error('HOR_CONFIG:set_pixel_page_size', ...
-                      ['Error setting pixel page size. Cannot set page ' ...
-                       'size greater or equal to maximum possible array size.']);
-            end
 
             config_store.instance().store_config(this, 'pixel_page_size', val);
         end
