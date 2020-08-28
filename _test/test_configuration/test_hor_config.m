@@ -20,12 +20,12 @@ methods
         set(hor_config, obj.old_config);
     end
 
-    function test_HOR_CONFIG_error_if_pixel_page_size_set_lt_one_pixel(obj)
+    function test_PIXELDATA_error_if_pixel_page_size_set_lt_one_pixel(obj)
         pix_size = PixelData.DEFAULT_NUM_PIX_FIELDS*PixelData.DATA_POINT_SIZE;
         lt_pix_size = floor(pix_size) - 1;
 
         f = @() set(hor_config, obj.PIXEL_PAGE_SIZE_OPT, lt_pix_size);
-        assertExceptionThrown(f, 'HOR_CONFIG:set_pixel_page_size');
+        assertExceptionThrown(f, 'PIXELDATA:validate_mem_alloc');
     end
 
 end
