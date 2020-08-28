@@ -189,6 +189,12 @@ methods (Static)
         % -------
         %   obj     An instance of this object
         %
+        if isempty(S.page_memory_size_)
+            % This if statement allows us to load old PixelData objects that
+            % were saved in .mat files that do not have the 'page_memory_size_'
+            % property
+            S.page_memory_size_ = get(hor_config, 'pixel_page_size');
+        end
         obj = PixelData(S);
     end
 
@@ -242,7 +248,6 @@ methods
         %               in-memory data. (Optional)
         %
         obj.object_id_ = polyval(randi([0, 9], 1, 5), 10);
-        obj.page_memory_size_ = get(hor_config, 'pixel_page_size');
         if nargin == 0
             return
         end
@@ -259,8 +264,16 @@ methods
                 obj.num_pixels_ = size(arg.data, 2);
             end
             obj.data_ = arg.data;
+            obj.page_memory_size_ = arg.page_memory_size_;
             return;
         end
+
+        if exist('mem_alloc', 'var')
+            obj.page_memory_size_ = mem_alloc;
+        else
+            obj.page_memory_size_ = get(hor_config, 'pixel_page_size');
+        end
+
         if numel(arg) == 1 && isnumeric(arg) && floor(arg) == arg
             % input is an integer
             obj.data_ = zeros(obj.PIXEL_BLOCK_COLS_, arg);
@@ -269,9 +282,6 @@ methods
         end
 
         % File-backed construction
-        if exist('mem_alloc', 'var')
-            obj.page_memory_size_ = mem_alloc;
-        end
         if ischar(arg)
             % input is a file path
             f_accessor = sqw_formats_factory.instance().get_loader(arg);
@@ -760,12 +770,6 @@ methods (Access=private)
     function page_size = get_max_page_size_(obj)
         % Get the maximum number of pixels that can be held in a page that's
         % allocated 'obj.page_memory_size_' bytes of memory
-        if isempty(obj.page_memory_size_)
-            % This if statement is a bit of hack so we can load old PixelData
-            % objects that were saved in .mat files that do not have the
-            % 'page_memory_size_' property
-            obj.page_memory_size_ = get(hor_config, 'pixel_page_size');
-        end
         page_size = obj.calculate_page_size_(obj.page_memory_size_);
     end
 
