@@ -28,14 +28,6 @@ methods
         assertExceptionThrown(f, 'HOR_CONFIG:set_pixel_page_size');
     end
 
-    function test_HOR_CONFIG_error_if_pixel_pg_size_gt_max_array_size(obj)
-        mem = memory();
-        gt_max_array_size = mem.MaxPossibleArrayBytes + 1;
-
-        f = @() set(hor_config, obj.PIXEL_PAGE_SIZE_OPT, gt_max_array_size);
-        assertExceptionThrown(f, 'HOR_CONFIG:set_pixel_page_size');
-    end
-
 end
 
 end
