@@ -44,6 +44,13 @@ elseif numel(mask_array) == obj.num_pixels && ~any(mask_array)
     return;
 end
 
+if ~isvector(npix)
+    npix = npix(:);
+end
+if ~isvector(mask_array)
+    mask_array = logical(mask_array(:));
+end
+
 if ~isa(mask_array, 'logical')
     mask_array = logical(mask_array);
 end
