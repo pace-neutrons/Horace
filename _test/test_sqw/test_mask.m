@@ -24,13 +24,13 @@ methods
         obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
 
         obj.sqw_2d = sqw(obj.sqw_2d_file_path);
-        obj.sqw_2d_paged = obj.get_paged_data();
+        obj.sqw_2d_paged = obj.get_paged_sqw();
 
         obj.idxs_to_mask = [2, 46, 91, 93, 94, 107, 123, 166];
         obj.mask_array_2d = ones(size(obj.sqw_2d.data.npix), 'logical');
         obj.mask_array_2d(obj.idxs_to_mask) = 0;
-        obj.masked_2d = mask(obj.sqw_2d, obj.mask_array_2d);
 
+        obj.masked_2d = mask(obj.sqw_2d, obj.mask_array_2d);
         obj.masked_2d_paged = mask(obj.sqw_2d_paged, obj.mask_array_2d);
     end
 
@@ -118,7 +118,7 @@ methods
     end
 
     % -- Helpers --
-    function paged_sqw = get_paged_data(obj)
+    function paged_sqw = get_paged_sqw(obj)
         old_pg_size = get(hor_config, 'pixel_page_size');
         clean_up = onCleanup(@() set(hor_config, 'pixel_page_size', old_pg_size));
 
