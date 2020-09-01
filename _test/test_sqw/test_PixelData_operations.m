@@ -8,6 +8,7 @@ properties
 
     FLOAT_TOLERANCE = 4.75e-4;
 
+    this_dir = fileparts(mfilename('fullpath'));
     test_sqw_file_path = '../test_sqw_file/sqw_1d_1.sqw';
     test_sqw_2d_file_path = '../test_sqw_file/sqw_2d_1.sqw';
     ref_npix_data = [];
@@ -33,6 +34,8 @@ methods
     function obj = test_PixelData_operations(~)
         obj = obj@TestCase('test_PixelData_operations');
 
+        addpath(fullfile(obj.this_dir, 'utils'));
+
         % Load a 1D SQW file
         sqw_test_obj = sqw(obj.test_sqw_file_path);
         obj.ref_npix_data = sqw_test_obj.data.npix;
@@ -56,6 +59,10 @@ methods
 
         obj.pix_with_pages_2d = PixelData(obj.test_sqw_2d_file_path, ...
                                           obj.page_size_2d);
+    end
+
+    function delete(obj)
+        rmpath(fullfile(obj.this_dir, 'utils'));
     end
 
     function setUp(obj)
@@ -248,7 +255,7 @@ methods
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             pix.do_unary_op(unary_op);
 
-            file_backed_data = obj.concatenate_pixel_pages(pix);
+            file_backed_data = concatenate_pixel_pages(pix);
 
             pix_in_mem = PixelData(data);
             pix_in_mem = pix_in_mem.do_unary_op(unary_op);
@@ -322,7 +329,7 @@ methods
         full_mask_array = repelem(mask_array, npix);
         expected_data = data(:, logical(full_mask_array));
 
-        actual_data = obj.concatenate_pixel_pages(pix);
+        actual_data = concatenate_pixel_pages(pix);
         assertEqual(actual_data, expected_data);
     end
 
@@ -339,7 +346,7 @@ methods
         full_mask_array = repelem(mask_array, npix);
         expected_data = data(:, logical(full_mask_array));
 
-        actual_data = obj.concatenate_pixel_pages(pix);
+        actual_data = concatenate_pixel_pages(pix);
         assertEqual(actual_data, expected_data);
     end
 
@@ -355,7 +362,7 @@ methods
         full_mask_array = repelem(mask_array, npix);
         expected_data = data(:, logical(full_mask_array));
 
-        actual_data = obj.concatenate_pixel_pages(pix);
+        actual_data = concatenate_pixel_pages(pix);
         assertEqual(actual_data, expected_data);
     end
 
@@ -417,9 +424,8 @@ methods
 
     % -- Test helper tests --
     function test_concatenate_pixel_pages(obj)
-        % This test gives confidence in 'concatenate_pixel_pages' which
-        % 'test_paged_data_returns_same_unary_op_result_as_all_in_memory'
-        % depends upon
+        % This test gives confidence in 'concatenate_pixel_pages' which several
+        % other tests depend upon
         data = rand(9, 30);
         npix_in_page = 11;
         pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
