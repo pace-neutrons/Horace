@@ -32,7 +32,7 @@ if nargin==1 || isempty(mask_array)
 end
 
 % Check mask is OK
-if ~(isnumeric(mask_array) || islogical(mask_array)) || numel(mask_array)~=numel(win.data.s)
+if ~(isnumeric(mask_array) || islogical(mask_array)) || numel(mask_array) ~= numel(win.data.s)
     error('SQW:mask', ['Mask must provide a numeric or logical array with ' ...
                        'same number of elements as the image data']);
 end
