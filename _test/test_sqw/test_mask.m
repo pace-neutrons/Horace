@@ -127,6 +127,9 @@ methods
         set(hor_config, 'pixel_page_size', new_pg_size);
 
         paged_sqw = sqw(obj.sqw_2d_file_path);
+
+        % make sure we're actually paging the pixel data
+        assertTrue(paged_sqw.data.pix.page_size < paged_sqw.data.pix.num_pixels);
     end
 
 end
