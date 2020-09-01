@@ -12,7 +12,8 @@ function pix_out = mask(obj, mask_array, npix)
 %              should be retained, a false/0 indicates the pixel should be
 %              removed.
 %
-% npix         Array of integers that specify how many times each value in
+% npix         (Optional)
+%              Array of integers that specify how many times each value in
 %              mask_array should be replicated. This is useful for when masking
 %              all pixels contributing to a bin. Size must be equal to that of
 %              'mask_array'. E.g.:
@@ -30,9 +31,9 @@ if nargout ~= 1
                              'called with exactly one output argument.']);
 else
     if exist('npix', 'var')
-        validate_input_args(obj, mask_array, npix);
+        [mask_array, npix] = validate_input_args(obj, mask_array, npix);
     else
-        validate_input_args(obj, mask_array);
+        mask_array = validate_input_args(obj, mask_array);
     end
 end
 
@@ -42,17 +43,6 @@ if numel(mask_array) == obj.num_pixels && all(mask_array)
 elseif numel(mask_array) == obj.num_pixels && ~any(mask_array)
     pix_out = PixelData();
     return;
-end
-
-if ~isvector(npix)
-    npix = npix(:);
-end
-if ~isvector(mask_array)
-    mask_array = logical(mask_array(:));
-end
-
-if ~isa(mask_array, 'logical')
-    mask_array = logical(mask_array);
 end
 
 if numel(mask_array) == obj.num_pixels
@@ -156,7 +146,7 @@ function pix_out = do_mask_file_backed_with_npix(obj, mask_array, npix)
     end
 end
 
-function validate_input_args(obj, mask_array, npix)
+function varargout = validate_input_args(obj, mask_array, npix)
     if nargin == 2 && numel(mask_array) ~= obj.num_pixels
         error('PIXELDATA:mask', ...
             ['Error masking pixel data.\nThe input mask_array must have ' ...
@@ -173,5 +163,17 @@ function validate_input_args(obj, mask_array, npix)
                 'Found sum(npix) = %i, %i pixels required.'], ...
                 sum(npix, 'all'), obj.num_pixels);
         end
+    end
+
+    if ~isvector(mask_array)
+        mask_array = mask_array(:);
+    end
+    if ~isa(mask_array, 'logical')
+        mask_array = logical(mask_array);
+    end
+    varargout{1} = mask_array;
+
+    if exist('npix', 'var') && ~isvector(npix)
+        varargout{2} = npix(:);
     end
 end
