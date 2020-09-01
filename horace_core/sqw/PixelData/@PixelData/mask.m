@@ -1,4 +1,4 @@
-function pix_out = mask(obj, mask_array, npix)
+function pix_out = mask(obj, mask_array, varargin)
 %% MASK remove the pixels specified by the input logical array
 %
 % You must specify exactly one return argument when calling this function.
@@ -30,11 +30,7 @@ if nargout ~= 1
     error('PIXELDATA:mask', ['Bad number of output arguments.\n''mask'' must be ' ...
                              'called with exactly one output argument.']);
 else
-    if exist('npix', 'var')
-        [mask_array, npix] = validate_input_args(obj, mask_array, npix);
-    else
-        mask_array = validate_input_args(obj, mask_array);
-    end
+    [mask_array, npix] = validate_input_args(obj, mask_array, varargin{:});
 end
 
 if numel(mask_array) == obj.num_pixels && all(mask_array)
@@ -53,7 +49,7 @@ if numel(mask_array) == obj.num_pixels
         pix_out = obj.get_pixels(mask_array);
     end
 
-elseif exist('npix', 'var')
+elseif ~isempty(npix)
 
     if obj.is_file_backed_()
         pix_out = do_mask_file_backed_with_npix(obj, mask_array, npix);
@@ -146,17 +142,28 @@ function pix_out = do_mask_file_backed_with_npix(obj, mask_array, npix)
     end
 end
 
-function varargout = validate_input_args(obj, mask_array, npix)
-    if nargin == 2 && numel(mask_array) ~= obj.num_pixels
+function [mask_array, npix] = validate_input_args(obj, mask_array, varargin)
+    parser = inputParser();
+    parser.addRequired('obj');
+    parser.addRequired('mask_array');
+    parser.addOptional('npix', []);
+    parser.parse(obj, mask_array, varargin{:});
+
+    mask_array = parser.Results.mask_array;
+    npix = parser.Results.npix;
+
+    if numel(mask_array) ~= obj.num_pixels && isempty(npix)
         error('PIXELDATA:mask', ...
-            ['Error masking pixel data.\nThe input mask_array must have ' ...
-            'number of elements equal to the number of pixels or must be ' ...
-            'accompanied by the npix argument. Found ''%i'' elements, ''%i'' or '...
-            '''%i'' elements required.'], numel(mask_array), obj.num_pixels, ...
-            obj.page_size);
-    elseif nargin == 3
-        if any(size(npix) ~= size(mask_array))
-            error('PIXELDATA:mask', 'Size of mask_array and npix must be equal.');
+              ['Error masking pixel data.\nThe input mask_array must have ' ...
+               'number of elements equal to the number of pixels or must ' ...
+               ' be accompanied by the npix argument. Found ''%i'' ' ...
+               'elements, ''%i'' or ''%i'' elements required.'], ...
+              numel(mask_array), obj.num_pixels, obj.page_size);
+    elseif ~isempty(npix)
+        if any(numel(npix) ~= numel(mask_array))
+            error('PIXELDATA:mask', ...
+                  ['Number of elements in mask_array and npix must be equal.' ...
+                   '\nFound %i and %i elements'], numel(mask_array), numel(npix));
         elseif sum(npix, 'all') ~= obj.num_pixels
             error('PIXELDATA:mask', ...
                 ['The sum of npix must be equal to number of pixels.\n' ...
@@ -171,9 +178,8 @@ function varargout = validate_input_args(obj, mask_array, npix)
     if ~isa(mask_array, 'logical')
         mask_array = logical(mask_array);
     end
-    varargout{1} = mask_array;
 
-    if exist('npix', 'var') && ~isvector(npix)
-        varargout{2} = npix(:);
+    if ~isempty(npix) && ~isvector(npix)
+        npix = npix(:);
     end
 end
