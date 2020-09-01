@@ -35,17 +35,17 @@ pix0 = h_ave.uoffset;               % pix offset
 u_to_rlu=w.data.u_to_rlu(1:3,1:3);  % proj to rlu
 u0 = w.data.uoffset;                % proj offset
 
+pix_to_proj = u_to_rlu\pix_to_rlu;
+
 min_uq = realmax*ones(size(w.data.pix.q_coordinates));
 max_uq = -realmax*ones(size(w.data.pix.q_coordinates));
 min_dE = realmax;
 max_dE = -realmax;
 while true  % loop through pages of pixel data
-    u_q = (u_to_rlu\pix_to_rlu)*(w.data.pix.q_coordinates) ...
-            + u_to_rlu\(pix0(1:3) - u0(1:3));
+    u_q = pix_to_proj*(w.data.pix.q_coordinates);
 
     min_uq = min(min(u_q, min_uq), [], 2);
     max_uq = max(max(u_q, max_uq), [], 2);
-
     min_dE = min(min_dE, min(w.data.pix.dE));
     max_dE = max(max_dE, max(w.data.pix.dE));
 
@@ -56,8 +56,11 @@ while true  % loop through pages of pixel data
     end
 end
 
+proj_offset = u_to_rlu\(pix0(1:3) - u0(1:3));
+dE_offset = pix0(4) - u0(4);
+
 urange=zeros(2, 4);
-urange(1, 1:3) = min_uq';
-urange(2, 1:3) = max_uq';
-urange(1, 4) = min_dE + (pix0(4)-u0(4));
-urange(2, 4) = max_dE + (pix0(4)-u0(4));
+urange(1, 1:3) = (min_uq + proj_offset)';
+urange(2, 1:3) = (max_uq + proj_offset)';
+urange(1, 4) = min_dE + dE_offset;
+urange(2, 4) = max_dE + dE_offset;
