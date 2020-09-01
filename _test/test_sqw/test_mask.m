@@ -117,6 +117,11 @@ methods
         assertTrue(all(urange_diff(2:end) < 0.001));
     end
 
+    function test_paged_and_non_paged_sqw_have_equivalent_pixels_after_mask(obj)
+        raw_paged_pix = concatenate_pixel_pages(obj.masked_2d_paged.data.pix);
+        assertEqual(raw_paged_pix, obj.masked_2d.data.pix.data);
+    end
+
     % -- Helpers --
     function paged_sqw = get_paged_sqw(obj)
         old_pg_size = get(hor_config, 'pixel_page_size');
