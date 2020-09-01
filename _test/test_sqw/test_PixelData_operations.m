@@ -27,6 +27,7 @@ properties
 
     config;
     old_config;
+    old_warn_state;
 end
 
 methods
@@ -35,6 +36,9 @@ methods
         obj = obj@TestCase('test_PixelData_operations');
 
         addpath(fullfile(obj.this_dir, 'utils'));
+
+        % Swallow any warnings for when pixel page size set too small
+        obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
 
         % Load a 1D SQW file
         sqw_test_obj = sqw(obj.test_sqw_file_path);
@@ -63,6 +67,7 @@ methods
 
     function delete(obj)
         rmpath(fullfile(obj.this_dir, 'utils'));
+        warning(obj.old_warn_state);
     end
 
     function setUp(obj)
