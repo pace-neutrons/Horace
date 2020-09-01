@@ -1,6 +1,8 @@
 function pix_out = mask(obj, mask_array, npix)
 %% MASK remove the pixels specified by the input logical array
 %
+% You must specify exactly one return argument when calling this function.
+%
 % Input:
 % ------
 % mask_array   A logical array specifying which pixels should be kept/removed
@@ -17,6 +19,11 @@ function pix_out = mask(obj, mask_array, npix)
 %               mask_array = [      0,     1,     1,  0,     1]
 %               npix       = [      3,     2,     2,  1,     2]
 %               full_mask  = [0, 0, 0,  1, 1,  1, 1,  0,  1, 1]
+%
+%              The npix array must account for all pixels in the PixelData
+%              object i.e. sum(npix, 'all') == obj.num_pixels. It must also be
+%              the same dimensions as 'mask_array' i.e.
+%              all(size(mask_array) == size(npix)).
 %
 if nargout ~= 1
     error('PIXELDATA:mask', ['Bad number of output arguments.\n''mask'' must be ' ...
@@ -65,10 +72,16 @@ end
 
 % -----------------------------------------------------------------------------
 function pix_out = do_mask_in_memory_with_full_mask_array(obj, mask_array)
+    % Perform a mask of an all in-memory PixelData object with a mask array as
+    % long as the PixelData array i.e. numel(mask_array) == pix.num_pixels
+    %
     pix_out = obj.get_pixels(mask_array);
 end
 
 function pix_out = do_mask_file_backed_with_full_mask_array(obj, mask_array)
+    % Perfrom a mask of a file-backed PixelData object with a mask array as
+    % long as the full PixelData array i.e. numel(mask_array) == pix.num_pixels
+    %
     obj.move_to_first_page();
 
     pix_out = PixelData();
@@ -89,6 +102,12 @@ function pix_out = do_mask_file_backed_with_full_mask_array(obj, mask_array)
 end
 
 function pix_out = do_mask_file_backed_with_npix(obj, mask_array, npix)
+    % Perform a mask of a file-backed PixelData object with a mask array and
+    % an npix array. The npix array should account for the full range of pixels
+    % in the PixelData instance i.e. sum(npix) == pix.num_pixels.
+    %
+    % The mask_array and npix array should have equal dimensions.
+    %
     obj.move_to_first_page();
     pix_out = PixelData();
 
@@ -111,7 +130,7 @@ function pix_out = do_mask_file_backed_with_npix(obj, mask_array, npix)
             npix_chunk = min(obj.page_size, npix(start_idx) - leftover_end);
         else
             % Leftover_end = number of pixels to allocate to final bin n,
-            % there will be more pixels to allocated to bin n in the next iteration
+            % there will be more pixels to allocate to bin n in the next iteration
             leftover_end = ...
                 obj.page_size - (leftover_begin + sum(npix(start_idx + 1:end_idx - 1)));
             npix_chunk = npix(start_idx + 1:end_idx - 1);
