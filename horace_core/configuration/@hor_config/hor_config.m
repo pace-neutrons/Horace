@@ -1,4 +1,4 @@
-classdef hor_config<config_base
+classdef hor_config < config_base
     % Create the Horace configuration that sets memory options and some other defaults.
     %
     % To see the list of current configuration option values:
@@ -47,6 +47,8 @@ classdef hor_config<config_base
         % not provide obvious performance benefits) but on older machines
         % with ~4Gb it has to be reduced to 10^6
         mem_chunk_size
+        % PixelData page size in bytes
+        pixel_page_size
         % Number of threads to use in mex files. No more then number
         % of processors but value higher then 8 do not provide obvious
         % performance benefits for given mem_chink_size.
@@ -94,39 +96,48 @@ classdef hor_config<config_base
         % See log_level for more details.
         horace_info_level
     end
-    
-    properties(Access=protected,Hidden = true)
+
+    properties(Access=protected, Hidden=true)
         % private properties behind public interface
-        mem_chunk_size_=10000000;
+        mem_chunk_size_ = 10000000;
+        pixel_page_size_ = 3e9;  % default is 3GB
         threads_ =1;
-        
+
         ignore_nan_ = true;
         ignore_inf_ = false;
-        
+
         use_mex_ = true;
         delete_tmp_ = true;
     end
-    
-    properties(Constant,Access=private)
+
+    properties(Constant, Access=private)
         % change this list if saveable fields have changed or redefine
         % get_storage_field_names function below
-        saved_properties_list_={'mem_chunk_size','threads','ignore_nan',...
-            'ignore_inf', 'use_mex',...
+        saved_properties_list_ = {...
+            'mem_chunk_size', ...
+            'pixel_page_size', ...
+            'threads', ...
+            'ignore_nan',...
+            'ignore_inf', ...
+            'use_mex',...
             'delete_tmp'}
     end
-    
+
     methods
         function this=hor_config()
             %
             this=this@config_base(mfilename('class'));
-            
+
             this.threads_ = find_nproc_to_use(this);
         end
-        
+
         %-----------------------------------------------------------------
         % overloaded getters
         function use = get.mem_chunk_size(this)
             use = get_or_restore_field(this,'mem_chunk_size');
+        end
+        function page_size = get.pixel_page_size(this)
+            page_size = get_or_restore_field(this, 'pixel_page_size');
         end
         function n_threads=get.threads(this)
             n_threads = get_or_restore_field(this,'threads');
@@ -158,7 +169,7 @@ classdef hor_config<config_base
             if isempty(work_dir)
                 work_dir = tmp_dir;
             end
-            
+
         end
         function is = wkdir_is_default(this)
             % return true if working directory has not been set and refers
@@ -186,6 +197,12 @@ classdef hor_config<config_base
             end
             config_store.instance().store_config(this,'mem_chunk_size',val);
         end
+
+        function this = set.pixel_page_size(this, val)
+            PixelData.validate_mem_alloc(val);
+            config_store.instance().store_config(this, 'pixel_page_size', val);
+        end
+
         function this = set.threads(this,val)
             if val<1
                 warning('HOR_CONFIG:set_threads',...
@@ -242,10 +259,10 @@ classdef hor_config<config_base
                 if ~can_combine_with_mex
                     config_store.instance().store_config(this,'combine_sqw_using','matlab');
                 end
-                
+
             end
             config_store.instance().store_config(this,'use_mex',use);
-            
+
         end
         %
         function this = set.force_mex_if_use_mex(this,val)
@@ -268,9 +285,9 @@ classdef hor_config<config_base
             hc = parallel_config;
             hc.working_directory = val;
         end
-        
+
         %--------------------------------------------------------------------
-        
+
         %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED
         %------------------------------------------------------------------
@@ -287,7 +304,6 @@ classdef hor_config<config_base
             % field has a private field with name different by underscore
             value = this.([field_name,'_']);
         end
-        
+
     end
 end
-

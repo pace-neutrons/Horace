@@ -78,7 +78,6 @@ classdef PixelData < handle
 %   page_size      The number of pixels in the currently loaded page
 %
 properties (Access=private)
-    DIRTY_PIX_DIR_NAME_ = 'sqw_pix%05d';
     FIELD_INDEX_MAP_ = containers.Map(...
         {'u1', 'u2', 'u3', 'dE', ...
          'coordinates', ...
@@ -89,7 +88,7 @@ properties (Access=private)
          'signal', ...
          'variance'}, ...
         {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9});
-    PIXEL_BLOCK_COLS_ = 9;
+    PIXEL_BLOCK_COLS_ = PixelData.DEFAULT_NUM_PIX_FIELDS;
 
     dirty_page_edited_ = false;  % true if a dirty page has been edited since it was loaded
     f_accessor_;  % instance of faccess object to access pixel data from file
@@ -97,10 +96,15 @@ properties (Access=private)
     num_pixels_ = 0;  % the number of pixels in the object
     object_id_;  % random unique identifier for this object, used for tmp file names
     page_dirty_ = false;  % array mapping from page_number to whether that page is dirty
-    page_memory_size_ = 3e9;  % 3Gb - the maximum amount of memory a page can use
+    page_memory_size_;  % the maximum amount of memory a page can use
     page_number_ = 1;  % the index of the currently loaded page
     raw_data_ = zeros(9, 0);  % the underlying data cached in the object
     tmp_io_handler_;  % a PixelTmpFileHandler object that handles reading/writing of tmp files
+end
+
+properties (Constant)
+    DEFAULT_NUM_PIX_FIELDS = 9;
+    DATA_POINT_SIZE = 8;  % num bytes in a float
 end
 
 properties (Dependent, Access=private)
@@ -185,7 +189,28 @@ methods (Static)
         % -------
         %   obj     An instance of this object
         %
+        if isempty(S.page_memory_size_)
+            % This if statement allows us to load old PixelData objects that
+            % were saved in .mat files that do not have the 'page_memory_size_'
+            % property
+            S.page_memory_size_ = get(hor_config, 'pixel_page_size');
+        end
         obj = PixelData(S);
+    end
+
+    function validate_mem_alloc(mem_alloc)
+        MIN_RECOMMENDED_PG_SIZE = 100e6;
+        bytes_in_pix = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
+        if mem_alloc < bytes_in_pix
+            error('PIXELDATA:validate_mem_alloc', ...
+                  ['Error setting pixel page size. Cannot set page '...
+                   'size less than %i bytes, as this is less than one pixel.'], ...
+                  bytes_in_pix);
+        elseif mem_alloc < MIN_RECOMMENDED_PG_SIZE
+            warning('PIXELDATA:validate_mem_alloc', ...
+                    ['A pixel page size of less than 100MB is not ' ...
+                     'recommended. This may degrade performance.']);
+        end
     end
 
 end
@@ -242,6 +267,13 @@ methods
         %               in-memory data. (Optional)
         %
         obj.object_id_ = polyval(randi([0, 9], 1, 5), 10);
+        if exist('mem_alloc', 'var')
+            obj.validate_mem_alloc(mem_alloc);
+            obj.page_memory_size_ = mem_alloc;
+        else
+            obj.page_memory_size_ = get(hor_config, 'pixel_page_size');
+        end
+
         if nargin == 0
             return
         end
@@ -258,8 +290,10 @@ methods
                 obj.num_pixels_ = size(arg.data, 2);
             end
             obj.data_ = arg.data;
+            obj.page_memory_size_ = arg.page_memory_size_;
             return;
         end
+
         if numel(arg) == 1 && isnumeric(arg) && floor(arg) == arg
             % input is an integer
             obj.data_ = zeros(obj.PIXEL_BLOCK_COLS_, arg);
@@ -268,9 +302,6 @@ methods
         end
 
         % File-backed construction
-        if exist('mem_alloc', 'var')
-            obj.page_memory_size_ = mem_alloc;
-        end
         if ischar(arg)
             % input is a file path
             f_accessor = sqw_formats_factory.instance().get_loader(arg);
@@ -754,14 +785,13 @@ methods (Access=private)
 
     function page_size = get_max_page_size_(obj)
         % Get the maximum number of pixels that can be held in a page that's
-        % allocated 'obj.page_memory_size_' bytes
+        % allocated 'obj.page_memory_size_' bytes of memory
         page_size = obj.calculate_page_size_(obj.page_memory_size_);
     end
 
     function page_size = calculate_page_size_(obj, mem_alloc)
         % Calculate number of pixels that fit in the given memory allocation
-        num_bytes_in_val = 8;  % pixel data stored in memory as a double
-        num_bytes_in_pixel = num_bytes_in_val*obj.PIXEL_BLOCK_COLS_;
+        num_bytes_in_pixel = obj.DATA_POINT_SIZE*obj.PIXEL_BLOCK_COLS_;
         page_size = floor(mem_alloc/num_bytes_in_pixel);
     end
 
