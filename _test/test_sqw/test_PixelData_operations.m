@@ -636,7 +636,7 @@ methods
 
     function test_PIXELDATA_error_on_binary_op_where_npix_ne_num_pixels(obj)
         num_pixels = 11;
-        pix = PixelData(obj.NUM_COLS_IN_PIX_BLOCK, num_pixels);
+        pix = PixelData(num_pixels);
         npix = [3, 4, 3];
         sig = [0.5, 0.6, 0.7];
 
