@@ -29,6 +29,7 @@ pix0 = h_ave.uoffset;                  % pix offset
 u_to_rlu = w.data.u_to_rlu(1:3, 1:3);  % proj to rlu
 u0 = w.data.uoffset;                   % proj offset
 
+% matrix to transform pixel coordinates to projection frame
 pix_to_proj = u_to_rlu \ pix_to_rlu;
 
 min_uq = realmax*ones(size(w.data.pix.q_coordinates));
