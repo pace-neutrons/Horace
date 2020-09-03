@@ -1,107 +1,104 @@
-function [messages,npix1,npix2,last_bin_completed] = split_to_messages_for_testing(test_pix_block,...
-    nbin_start,nbin_end,n_files,fileind,buf_size,npix1)
+function [messages,npix_end,nbin_end] = split_to_messages_for_testing(pix_file_data,...
+    npix_start,nbin_start,buf_size,nbin_total)
 % split pix block into messages block. e.g prepare n_files messages, whith
 % pixels, contributing into these bins.
 %
 % inputs:
-% test_pix_block -- array with test information for splitting pixels (see
-%                   build_pix_block_for_testing for the details)
-% nbin_start     -- first bin to prepare for messages
-% nbin_end       -- last bin to prepaste for messages
-% n_files        -- number of messages to split pix_block into (the info
-%                   about splitting mess position is stored in the second
-%                   column of the pix_block)
-% fileind        -- auxiliary information, specifying the indexes of files
-%                   to process messages (numel(fileind)== n_files)
-% Optional:
-% buf_size       -- if present, constrain the number of pixels, moved to
-%                   messages by this number
-% npix1          -- if present, the first pixel to use to define the range
-%                   instead of the first bin number
+% pix_file_data -- cellarray, containing pix info separated into "files as in
+%                  build_pix_block_for_testing for the details)
+% npix_start     -- first pixel to read for messages
+% nbin_start     -- first bin to use for messages (defines bin range)
+% buf_size       -- the number of pixels to process per split operation
 %
 % Output:
 % messages       -- cellarray of messages containing pix information. See
 %                   pix_cache about the format of these messages
-%
-%npix1 - number of the first pixel, contributing into the first bin
-%        requested
-%npix2 - number of the last pixel, contributing into the bins requested
-%
-% last_bin_completed -- if true, the messages contain full bins. If false,
-% some pixels from the bin are not fitting the buffer and will be placed in
-% messages later.
 
-if ~exist('fileind','var')
-    fileind = 1:n_files;
-end
-if nargin<6
-    npix1 = find(test_pix_block(1,:)>=nbin_start,1);
-end
 
-npix2 = find(test_pix_block(1,:)<=nbin_end,1,'last');
-npix_to_split = npix2-npix1+1;
-if nargin<5
-    last_bin_completed = true;
-else
-    if buf_size>=npix_to_split
-        last_bin_completed = true;
+n_files = numel(pix_file_data);
+
+if numel(nbin_start)==1
+    nbin_start = ones(n_files,1)*nbin_start;
+end
+if numel(npix_start)==1
+    npix_start = ones(n_files,1)*npix_start;
+end
+npix_end = npix_start;
+nbin_end = nbin_start;
+
+
+payload = struct('npix',[],'n_source',0,'bin_range',[0,0],'pix_data',[],...
+    'bin_edges',[],'flld_bin_ind',[],'last_bin_completed',true);
+
+
+messages = cell(n_files,1);
+
+for i=1:n_files
+    data = pix_file_data{i};
+    messages{i} = DataMessage();
+    npix1 = npix_start(i);
+    npix_end(i) = npix1+buf_size-1;
+    npix_start(i) = npix_end(i)+1;
+    
+    if npix_end(i) >size(data,2)
+        npix_end(i) = size(data,2);
+        npix_start(i) = npix_end(i)+1;        
+    end
+    npix2 = npix_end(i);
+    if npix1>npix2
+        messages{i} = [];
+        continue;
+    end
+    pix_tb = data(:,npix1:npix2);
+
+    nbin_end_i   = pix_tb(1,end);
+    payload.bin_range = [nbin_start(i),nbin_end_i];
+    
+    
+    %
+    payload.n_source = i;        % last bin
+    if (npix2 == size(data,2) || data(1,npix2)~=data(1,npix2+1))
+        payload.last_bin_completed =true;
+        if (npix2 == size(data,2))
+            payload.bin_range(2) =  nbin_total;
+            nbin_end_i = nbin_total;
+        end
+        nbin_end(i) = nbin_end_i+1;        
     else
-        npix2 = npix1+buf_size-1;
-        nbin_end = test_pix_block(1,npix2);
-        if npix2>=size(test_pix_block,2)
-            npix2 = size(test_pix_block,2);
-            last_bin_completed = true;
-        else
-            nbin_next = test_pix_block(1,npix2+1);
-            if nbin_next == nbin_end
-                last_bin_completed = false;
-            else
-                last_bin_completed = true;
+        payload.last_bin_completed =false;
+        nbin_end(i) = nbin_end_i;
+    end
+    payload.npix = size(pix_tb,2);
+    
+    [flld_bin_ind,bin_edges] = unique(pix_tb(1,:));
+    bin_edges  = [bin_edges;payload.npix+1] ;    
+    
+    bin_sequence = nbin_start(i):nbin_end_i;
+    if numel(bin_sequence)>numel(flld_bin_ind)
+        % expand bin edges with zero bins
+        bin_edges_expanded = zeros(numel(bin_sequence)+1,1);
+
+        n_bin = 1;
+        for j=1:numel(bin_sequence)
+%             if n_bin > numel(flld_bin_ind)
+%                 warning(' wrong bin edges');
+%             end
+            
+            bin_edges_expanded(j) = bin_edges(n_bin);            
+            if n_bin<=numel(flld_bin_ind) && bin_sequence(j)==flld_bin_ind(n_bin)
+                n_bin = n_bin+1;
             end
         end
+        bin_edges_expanded(end) = bin_edges(end);
+        
+        bin_edges = bin_edges_expanded;
     end
-end
-
-
-
-payload = struct('npix',[],'n_source',0,'bin_range',[nbin_start,nbin_end],'pix_tb',[],...
-    'filled_bin_ind',[],'last_bin_completed',true);
-
-proc_pix = test_pix_block(:,npix1:npix2);
-if ~last_bin_completed
-    bin_edge  = find(test_pix_block(1,:)<=nbin_end,1,'last');
-    pix_tail = test_pix_block(:,npix2:bin_edge);
-end
-messages = cell(n_files,1);
-all_fpix_in_bin = true;
-for i=1:n_files
-    messages{i} = DataMessage();
-    file_ind = proc_pix(2,:)==fileind(i);
-    file_pix  = proc_pix(:,file_ind);
-    payload.n_source = i;
-    %
-    if ~last_bin_completed
-        pix_left = pix_tail(2,:)==fileind(i);
-        if any(pix_left)
-            all_fpix_in_bin  = false;
-        end
-    end
-    payload.last_bin_completed = all_fpix_in_bin;
     
-    payload.last_bin_completed = true;
-    payload.npix = size(file_pix,2);
-    
-    filled_bin_nums = unique(file_pix(1,:));
-    filled_bin_ind  = filled_bin_nums - nbin_start+1;
-    
-    
-    n_bin_filled = numel(filled_bin_ind);
-    pix_tb = cell(1,n_bin_filled);
-    for j=1:n_bin_filled
-        pix_pos = file_pix(1,:)== filled_bin_nums(j);
-        pix_tb{j} = file_pix(:,pix_pos);
-    end
-    payload.filled_bin_ind = filled_bin_ind;
-    payload.pix_tb         = pix_tb;
+    payload.bin_edges      = bin_edges;
+    %payload.flld_bin_ind   = flld_bin_ind;
+    payload.pix_data       = pix_tb;
     messages{i}.payload    = payload;
 end
+
+non_empty = cellfun(@(ms)(~isempty(ms)),messages,'UniformOutput',true);
+messages = messages(non_empty);

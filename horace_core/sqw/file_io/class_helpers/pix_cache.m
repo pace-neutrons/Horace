@@ -16,22 +16,21 @@ classdef pix_cache
     % npix      -- number of pixels, attached to the message.
     % n_source  -- the ID(number) of the contributing reader, who sends this
     %              particular message
-    % bin_range -- 2 elements array, containing min-max number of bins,
-    %              these pixels contribute to
+    % bin_range -- 2 elements array, containing min-max indexes of bins,
+    %              these pixels contribute to.
     % last_bin_completed (true, false)
     %           -- boolean, indicating that all pixels of the last
     %              bin are provided in last pix_tb cell or some of them
     %              have not fit the buffer and will be send in the
     %              following message
-    % pix_tb    -- cellarray with each cell containing pixels, contributed
-    %              to a bin.
-    % filled_bin_ind -- the indexes of the bins, the pixels from pix_tb
-    %              contribute to. I.e. if message contains
-    %              pixels from bins 10-20, where bins 12 and 15 are empty,
-    %              the message will contain
-    %              pix_tb == cell(9,8) (with pix blocks),  bin_range==[10,20]
-    %              and  filled_bin_ind==[1,2,4,5,7,8,9,10]
+    % pix_tb    -- array, containing pix data sorted according to bins
     %
+    % bin_edges -- the indexes of each first pixel in a bin.
+    %              contribute to. I.e. if message contains
+    %              pixels from bins 10-20,with one bin per pixels but
+    %              bins 12 and 15 are empty, bin_edges will contains:
+    %              1  2  3  3  4  5  5  6  7  8  9
+    %              10 11 12 13 14 15 16 17 18 19 20 -- bin numbers
     properties(Dependent)
         % number of parallel readers providing the data.
         n_readers
@@ -40,6 +39,8 @@ classdef pix_cache
         last_bin_processed
         %
         all_bin_range
+        %
+        npix_in_cache
     end
     
     properties(Access=protected)
@@ -56,9 +57,9 @@ classdef pix_cache
         % pixels contributing to each non-empty bin currently in the cache
         read_pix_cache_       = {};
         
-        % the indexes of the bins, caching non-empty pixel data
+        % the indexes of
         % (in read_pix_cache_ above)
-        filled_bin_ind_ ={};
+        bin_edges_ ={};
         
         % the number of the first bin to process when pop_pixels command is
         % invoked.
@@ -73,7 +74,7 @@ classdef pix_cache
         function obj = pix_cache(n_readers)
             obj.n_readers_      = n_readers;
             obj.bin_range_      =  zeros(2,n_readers);
-            obj.filled_bin_ind_ =  cell(n_readers,1);
+            obj.bin_edges_      =  cell(n_readers,1);
             obj.read_pix_cache_ =  cell(n_readers,1);
             obj.last_bin_completed_ =true(n_readers,1);
         end
@@ -104,6 +105,9 @@ classdef pix_cache
         function nwk = get.n_readers(obj)
             nwk = obj.n_readers_;
         end
+        function npc = get.npix_in_cache(obj)
+            npc = sum(cellfun(@(x)(size(x,2)),obj.read_pix_cache_));
+        end
         %
         function[obj,npix_received] = push_messages(obj,mess_list,h_log)
             % retrieve pixel and bin information from messages and store
@@ -114,7 +118,7 @@ classdef pix_cache
             % obj           - with filled bin and pixels cache
             % npix_received - number of pixels, containing in the messages
             %
-            if ~exist('h_log','var')
+            if ~exist('h_log','var') || isempty(h_log)
                 h_log = false;
             end
             
@@ -145,38 +149,38 @@ classdef pix_cache
                     obj.bin_range_(1,n_source)    =   obj.first_bin_to_process;
                     obj.bin_range_(2,n_source)    =   pl.bin_range(2);
                 else
+                    %[n_source,cell_data] =  obj.split_data_to_cells(pl);
                     if isempty(obj.read_pix_cache_{n_source})
-                        obj.filled_bin_ind_{n_source}   = pl.filled_bin_ind;
-                        obj.read_pix_cache_{n_source}   = pl.pix_tb;
-                        obj.bin_range_(:,n_source)      = pl.bin_range;
+                        obj.read_pix_cache_{n_source}    = pl.pix_data;
+                        obj.bin_edges_{n_source}         = pl.bin_edges;
+                        obj.bin_range_(:,n_source)       = pl.bin_range;
                     else
-                        range_existing_bins = obj.bin_range_(2,n_source )-obj.bin_range_(1,n_source )+1;
                         if h_log
                             npix_stored = npix_stored + sum(cellfun(@(x)numel(x),obj.read_pix_cache_{n_source }));
                         end
+                        % pixels left in cache
+                        pc = obj.read_pix_cache_{n_source};
                         % combine pixel caches and bin ranges of all
                         % messages
-                        pix_cache_exist = obj.filled_bin_ind_{n_source};
-                        bin_ind_exist = obj.filled_bin_ind_{n_source };
-                        if obj.last_bin_completed_(n_source)
-                            bin_ind_add = pl.filled_bin_ind+range_existing_bins;
-                            pix_cache_add =  pl.pix_tb;
+                        bin_edges_exist = obj.bin_edges_{n_source};
+                        bin_range = obj.bin_range_(:,n_source);
+                        bin_edges_end   = bin_edges_exist(end);
+                        if bin_range(2) == pl.bin_range(1) % two parts of the same bin are combined
+                            bin_edges       = [bin_edges_exist(1:end-1);pl.bin_edges(2:end)+bin_edges_end-1];
                         else
-                            % bins of the last message
-                            if numel(pl.filled_bin_ind)>1
-                                bin_ind_add = pl.filled_bin_ind(2:end)+range_existing_bins;
-                            else
-                                bin_ind_add =[];
-                            end
-                            % combine last existing pix cell and first cell
-                            % of the new message.
-                            pix_cache_exist{end} = [pix_cache_exist{end},pl.pix_tb{1}];
-                            pix_cache_add =  pl.pix_tb{2:end};
+                            bin_edges       = [bin_edges_exist(1:end-1);pl.bin_edges+bin_edges_end-1];
                         end
+                        obj.bin_edges_{n_source}      = bin_edges;
                         
-                        obj.filled_bin_ind_{n_source } = [bin_ind_exist,bin_ind_add];
-                        obj.read_pix_cache_{n_source } = [pix_cache_exist,pix_cache_add];
-                        obj.bin_range_(2,n_source)     = pl.bin_range(2);
+                        
+                        obj.read_pix_cache_{n_source} =[pc,pl.pix_data];
+                        
+                        obj.bin_range_(2,n_source)    = pl.bin_range(2);
+                        if numel(bin_edges)-1 ~= obj.bin_range_(2,n_source)-obj.bin_range_(1,n_source)+1
+                            % its a bug
+                            error('PIX_CAHE:runtime_error',...
+                                'inconsistency between number of bin edges and bin range for source %d',n_source);
+                        end
                     end
                     obj.last_bin_completed_(n_source) = pl.last_bin_completed;
                 end
@@ -203,67 +207,94 @@ classdef pix_cache
             % clear cache from this information and keep only the
             % pixels for bin without full pixel information.
             
-            if ~exist('h_log','var')
+            if ~exist('h_log','var')  || isempty(h_log)
                 h_log = false;
             end
-            n_files = size(obj.bin_range_,2);
-            first_bin_to_proc = obj.bin_range_(1,1); % they must be all equal;
+            n_mess = size(obj.bin_range_,2);
+            first_bin_to_proc   = min(obj.bin_range_(1,:)); %
             last_bin_to_process = min(obj.bin_range_(2,:));
             
-            % number of bins in cache, containing full pixels information
-            n_bins = last_bin_to_process  - first_bin_to_proc +1;
+            
+            % indexes of bins in cache, containing full pixels information:            
+            bins_proc   = first_bin_to_proc:last_bin_to_process;
+            n_bins_proc = numel(bins_proc);
             
             
-            % expanded index of the bins, containing any pixels
-            %
-            % assume that no bins are currently filled
-            bin_has_pixels = false(n_bins,1);
-            bin_indexes= 1:n_bins;
+            pix_tb = cell(n_mess,n_bins_proc);
             
-            pix_tb = cell(n_files,n_bins);
-            npix_left = 0;
-            for i=1:n_files
-                bic = obj.filled_bin_ind_{i};
-                if isempty(bic)
+            next_bin_to_proc = last_bin_to_process+1;
+            for i=1:n_mess
+                edges = obj.bin_edges_{i};
+                if isempty(edges)
+                    % if this happens, we assume no pixels for this bin range
+                    % will be received from this source any more. We
+                    % progress the bin range counter.
+                    obj.bin_range_(:,i) = next_bin_to_proc;
                     continue;
                 end
-                bin_filled = ismember(bin_indexes,bic);
-                pic = obj.read_pix_cache_{i};
-                %
-                bins_selected = ismember(bic,bin_indexes);
-                
-                pix_tb(i,bin_filled ) = pic(bins_selected);
-                if ~all(bins_selected)%obj.bin_range_(2,i) > last_bin_to_process % store remaining bin and pixel info for future analysis
-                    % last processed bin number
-                    
-                    obj.filled_bin_ind_{i} = bic(~bins_selected)-n_bins;
-                    obj.read_pix_cache_{i} = pic(~bins_selected);
-                    if h_log
-                        npix_left = npix_left + sum(cellfun(@(x)numel(x),obj.read_pix_cache_{i}));
-                    end
-                else
-                    obj.filled_bin_ind_{i} = [];
-                    obj.read_pix_cache_{i}  = {};
+                if size(edges,2)>1
+                    edges = edges';
                 end
-                obj.bin_range_(1,i)    = last_bin_to_process+1;
                 
-                bin_has_pixels(bin_filled) = true;
+                nbin = obj.bin_range_(1,i):obj.bin_range_(2,i);
+                select = ismember(nbin,bins_proc);
+                nbin_selected = nbin(select);
+                pix_ind = nbin_selected  -(first_bin_to_proc-1);
+                bin_ind = nbin_selected -(obj.bin_range_(1,i)-1);
+                
+                
+                pic   = obj.read_pix_cache_{i};
+                %
+                left  = edges(bin_ind);
+                if last_bin_to_process<obj.bin_range_(2,i) % some bins should be left in cache
+                    right = edges(bin_ind+1)-1;
+                    % last processed bin number
+                    last_bin_num = last_bin_to_process+1;
+                    obj.bin_range_(1,i)    = last_bin_num;
+                    % select remaining bins
+                    last_sel_edge_ind = numel(bin_ind)+1;
+                    obj.bin_edges_{i} = edges(last_sel_edge_ind:end)-(edges(last_sel_edge_ind)-1);
+                    obj.read_pix_cache_{i} = pic(:,right(end)+1:end);
+                    
+                else
+                    right = edges(2:end)-1;
+                    last_bin_num = nbin(end);
+                    if obj.last_bin_completed_(i)
+                        obj.bin_range_(1,i)    = last_bin_num + 1;
+                    else
+                        obj.bin_range_(1,i)    = last_bin_num;
+                    end
+                    
+                    obj.bin_edges_{i} = [];
+                    obj.read_pix_cache_{i}  = [];
+                    obj.last_bin_completed_(i) = true;
+                end
+                if obj.bin_range_(2,i)< obj.bin_range_(1,i)
+                    obj.bin_range_(2,i) =obj.bin_range_(1,i);
+                end
+                
+                
+                
+                pix_tb(i,pix_ind) = arrayfun(@(x)(pic(:,left(x):right(x))),...
+                    bin_ind,'UniformOutput',false);
+                
+                %
+                next_bin_to_proc = min(next_bin_to_proc,obj.bin_range_(1,i));
             end
             
-            pix_tb = pix_tb(:,bin_has_pixels); % accelerate combining by removing empty cells
             % combine pix from all files according to the bin
             pix_section = cat(2,pix_tb{:});
-            obj.first_bin_to_process_ = last_bin_to_process+1;
+            obj.first_bin_to_process_ = next_bin_to_proc;
             
-            if h_log
-                fprintf(h_log,' will save bins: [%d , %d]; ****** saving pixels: %d, pix left: %d\n',...
-                    first_bin_to_proc,last_bin_to_process,size(pix_section,2),npix_left);
-                fprintf(h_log,' cache contains: \n');
-                for j=1:n_files
-                    fprintf(h_log,'file %d; bin-range: [%d, %d] n full bins: %d\n',...
-                        j,obj.bin_range_(1,j),obj.bin_range_(2,j),numel(obj.filled_bin_ind_{j}));
-                end
-            end
+            %             if h_log
+            %                 fprintf(h_log,' will save bins: [%d , %d]; ****** saving pixels: %d, pix left: %d\n',...
+            %                     first_bin_to_proc,last_bin_to_process,size(pix_section,2),npix_left);
+            %                 fprintf(h_log,' cache contains: \n');
+            %                 for j=1:n_mess
+            %                     fprintf(h_log,'file %d; bin-range: [%d, %d] n full bins: %d\n',...
+            %                         j,obj.bin_range_(1,j),obj.bin_range_(2,j),numel(obj.filled_bin_ind_{j}));
+            %                 end
+            %             end
             
         end
         
