@@ -33,18 +33,17 @@ methods
 
         % 2D case setup
         obj.sqw_2d = sqw(obj.sqw_2d_file_path);
-        obj.sqw_2d_paged = obj.get_paged_sqw(obj.sqw_2d_file_path);
 
         obj.idxs_to_mask = [2, 46, 91, 93, 94, 107, 123, 166];
         obj.mask_array_2d = ones(size(obj.sqw_2d.data.npix), 'logical');
         obj.mask_array_2d(obj.idxs_to_mask) = 0;
 
         obj.masked_2d = mask(obj.sqw_2d, obj.mask_array_2d);
-        obj.masked_2d_paged = mask(obj.sqw_2d_paged, obj.mask_array_2d);
+        [obj.sqw_2d_paged, obj.masked_2d_paged] = ...
+                obj.get_paged_sqw(obj.sqw_2d_file_path, obj.mask_array_2d);
 
         % 3D case setup
         obj.sqw_3d = sqw(obj.sqw_3d_file_path);
-        obj.sqw_3d_paged = obj.get_paged_sqw(obj.sqw_3d_file_path);
 
         num_bins = numel(obj.sqw_3d.data.npix);
         obj.idxs_to_mask_3d = linspace(1, num_bins/2, num_bins/2);
@@ -52,7 +51,8 @@ methods
         obj.mask_array_3d(obj.idxs_to_mask_3d) = 0;
 
         obj.masked_3d = mask(obj.sqw_3d, obj.mask_array_3d);
-        obj.masked_3d_paged = mask(obj.sqw_3d_paged, obj.mask_array_3d);
+        [obj.sqw_3d_paged, obj.masked_3d_paged] = ...
+                obj.get_paged_sqw(obj.sqw_3d_file_path, obj.mask_array_3d);
     end
 
     function delete(obj)
@@ -126,16 +126,28 @@ methods
 
     function test_urange_recalculated_after_mask(obj)
         original_urange = obj.sqw_2d.data.urange;
-        urange_diff = abs(original_urange - obj.masked_2d.data.urange);
+        new_urange = obj.masked_2d.data.urange;
+
+        urange_diff = abs(original_urange - new_urange);
         assertTrue(urange_diff(1) > 0.001);
-        assertTrue(all(urange_diff(2:end) < 0.001));
+        assertElementsAlmostEqual(original_urange(2:end), new_urange(2:end), ...
+                                  'absolute', 0.001);
     end
 
     function test_urange_recalculated_after_mask_with_paged_pix(obj)
         original_urange = obj.sqw_2d.data.urange;
-        urange_diff = abs(original_urange - obj.masked_2d_paged.data.urange);
+        new_urange = obj.masked_2d_paged.data.urange;
+
+        urange_diff = abs(original_urange - new_urange);
         assertTrue(urange_diff(1) > 0.001);
-        assertTrue(all(urange_diff(2:end) < 0.001));
+        assertElementsAlmostEqual(original_urange(2:end), new_urange(2:end), ...
+                                  'absolute', 0.001);
+    end
+
+    function test_urange_equal_for_paged_and_non_paged_sqw_after_mask(obj)
+        paged_urange = obj.masked_2d_paged.data.urange;
+        mem_urange = obj.masked_2d.data.urange;
+        assertElementsAlmostEqual(mem_urange, paged_urange, 'absolute', 0.001);
     end
 
     function test_paged_and_non_paged_sqw_have_equivalent_pixels_after_mask(obj)
@@ -224,12 +236,18 @@ methods
         assertEqual(raw_paged_pix, obj.masked_3d.data.pix.data);
     end
 
+    function test_urange_equal_for_paged_and_non_paged_sqw_after_mask_3d(obj)
+        paged_urange = obj.masked_3d_paged.data.urange;
+        mem_urange = obj.masked_3d.data.urange;
+        assertElementsAlmostEqual(mem_urange, paged_urange, 'absolute', 0.001);
+    end
+
 end
 
 methods (Static)
 
     % -- Helpers --
-    function paged_sqw = get_paged_sqw(file_path)
+    function [paged_sqw, masked_sqw] = get_paged_sqw(file_path, mask_array)
         old_pg_size = get(hor_config, 'pixel_page_size');
         clean_up = onCleanup(@() set(hor_config, 'pixel_page_size', old_pg_size));
 
@@ -238,6 +256,7 @@ methods (Static)
         set(hor_config, 'pixel_page_size', new_pg_size);
 
         paged_sqw = sqw(file_path);
+        masked_sqw = mask(paged_sqw, mask_array);
 
         % make sure we're actually paging the pixel data
         assertTrue(paged_sqw.data.pix.page_size < paged_sqw.data.pix.num_pixels);
