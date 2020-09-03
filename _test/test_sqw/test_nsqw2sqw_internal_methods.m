@@ -207,100 +207,131 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             assertTrue(ok,mess);
             
         end
+        
+        function test_pix_cache_sparce_bins(~,varargin)
+            % testing the situation that push/pop sorts messages by bins
+            % partial messages remain at the end
+            n_files  = 10;
+            n_pixels = 5000;
+            
+            n_bins   = 1000;
+            for i=1:100
+                if nargin>1
+                    test_pix_block = varargin{1};
+                    file_pix       = varargin{2};
+                else
+                    [test_pix_block,file_pix] =  build_pix_block_for_testing(n_pixels,n_bins,n_files);
+                end
+                
+                npix_start = 1;
+                nbin_start = 1;
+                [mess_list,npix_end,nbin_end] = split_to_messages_for_testing(file_pix,npix_start,nbin_start,100,n_bins);
+                
+                pc = pix_cache(n_files);
+                [pc,npix_received] =pc.push_messages(mess_list);
+                assertEqual(pc.npix_in_cache,100*n_files);
+                
+                
+                pb = [];
+                npr = npix_received;
+                while size(pb,2)<n_pixels && ~all(cellfun(@isempty,mess_list))
+                    [pc,pix_block] = pc.pop_pixels();
+                    pb = [pb,pix_block];
+                    
+                    [mess_list,npix_end,nbin_end] = split_to_messages_for_testing(file_pix,npix_end+1,nbin_end,100,n_bins);
+                    
+                    [pc,npix_received] =pc.push_messages(mess_list);
+                    npr =npr+npix_received;
+                end
+                assertEqual(npr,n_pixels);                
+                assertEqual(test_pix_block(1,:)',pb(1,:)',sprintf(' Step N %d',i));
+                assertEqual(sort(test_pix_block'),sort(pb'))
+            end
+        end
+        
+        function test_pix_cache_parial_bins(~,varargin)
+            % testing the situation that push/pop sorts messages by bins
+            % partial messages remain at the end
+            n_files  = 10;
+            n_pixels = 5000;
+            
+            n_bins   = 4;
+            for i=1:100
+                
+                if nargin>1
+                    test_pix_block = varargin{1};
+                    file_pix       = varargin{2};
+                else
+                    [test_pix_block,file_pix] =  build_pix_block_for_testing(n_pixels,n_bins,n_files);
+                end
+                
+                npix_start = 1;
+                nbin_start = 1;
+                [mess_list,npix_end,nbin_end] = split_to_messages_for_testing(file_pix,npix_start,nbin_start,100,n_bins);
+                
+                pc = pix_cache(n_files);
+                [pc,npix_received] =pc.push_messages(mess_list);
+                assertEqual(pc.npix_in_cache,100*n_files);
+                
+                
+                pb = [];
+                npr = npix_received;
+                while size(pb,2)<n_pixels && ~all(cellfun(@isempty,mess_list))
+                    [pc,pix_block] = pc.pop_pixels();
+                    pb = [pb,pix_block];
+                    
+                    [mess_list,npix_end,nbin_end] = split_to_messages_for_testing(file_pix,npix_end+1,nbin_end,100,n_bins);
+                    
+                    [pc,npix_received] =pc.push_messages(mess_list);
+                    npr =npr+npix_received;
+                end
+                assertEqual(npr,n_pixels);
+                assertEqual(test_pix_block(1,:)',pb(1,:)',sprintf(' Step N %d',i));
+                assertEqual(sort(test_pix_block'),sort(pb'))
+            end
+        end
         %
         function test_pix_cache(~)
             n_files  = 10;
             n_pixels = 4023;
             n_bins   = 100;
-            test_pix_block =  build_pix_block_for_testing(n_pixels,n_bins,n_files);
-            nbin_start = 1;
-            nbin_end   = 10;
-            [mess_list,npix1,npix2] = split_to_messages_for_testing(test_pix_block,nbin_start,nbin_end,n_files);
-            
-            pc = pix_cache(n_files);
-            [pc,npix_received] =pc.push_messages(mess_list);
-            assertEqual(npix_received,npix2-npix1+1);
-            
-            [pc,pix_block] = pc.pop_pixels();
-            
-            
-            assertEqual(test_pix_block(1,npix1:npix2)',pix_block(1,:)')
-            assertEqual(sort(test_pix_block(:,npix1:npix2)'),sort(pix_block'))
-            assertEqual(pc.last_bin_processed,10);
+            for i=1:100
+                [test_pix_block,file_pix] =  build_pix_block_for_testing(n_pixels,n_bins,n_files);
+                
+                pix_block_sizes = cellfun(@(fp)(size(fp,2)),...
+                    file_pix,'UniformOutput',true);
+                
+                
+                npix_start = 1;
+                nbin_start = 1;
+                [mess_list,npix_end,nbin_end] = split_to_messages_for_testing(file_pix,npix_start,nbin_start,1000,n_bins);
+                
+                
+                nbinsp_in_pix = cellfun(@(ms)(max(ms.payload.pix_data(1,:))+1),...
+                    mess_list,'UniformOutput',true);
+                
+                assertTrue(all(nbin_end>=nbinsp_in_pix));
+                assertEqual(sum(npix_end),n_pixels);
+                
+                pc = pix_cache(n_files);
+                [pc,npix_received] =pc.push_messages(mess_list);
+                assertEqual(npix_received,n_pixels);
+                
+                
+                [pc,pix_block] = pc.pop_pixels();
+                while pc.first_bin_to_process <= n_bins
+                    [pc,pix_block2] = pc.pop_pixels();
+                    pix_block= [pix_block,pix_block2];
+                end
+                
+                assertEqual(test_pix_block(1,:)',pix_block(1,:)')
+                assertEqual(sort(test_pix_block(:,:)'),sort(pix_block'))
+                assertEqual(pc.last_bin_processed,100);
+            end
         end
         %
-        function test_pix_cache_sparce(~)
-            n_files  = 10;
-            n_pixels = 4023;
-            
-            n_bins   = 1000;
-            test_pix_block =  build_pix_block_for_testing(n_pixels,n_bins,n_files);
-            nbin_start = 1;
-            nbin_end   = 10;
-            [mess_list,npix1,npix2] = split_to_messages_for_testing(test_pix_block,nbin_start,nbin_end,n_files);
-            
-            pc = pix_cache(n_files);
-            
-            [pc,npix_received] =pc.push_messages(mess_list);
-            assertEqual(npix_received,npix2-npix1+1);
-            [pc,pix_block] = pc.pop_pixels();
-            
-            assertEqual(test_pix_block(1,npix1:npix2)',pix_block(1,:)')
-            assertEqual(sort(test_pix_block(:,npix1:npix2)'),sort(pix_block'))
-            assertEqual(pc.last_bin_processed,10);
-        end
         
-        function test_pix_cache_partial_bins(~)
-            n_files  = 10;
-            n_pixels = 4023;
-            
-            n_bins   = 1000;
-            test_pix_block =  build_pix_block_for_testing(n_pixels,n_bins,n_files);
-            %
-            function np=npix_in_mess(mess)
-                if isempty(mess)
-                    np = 0;
-                else
-                    np = mess.payload.npix;
-                end
-            end
-            
-            
-            [mess_list1,npix_l1,npix_r1] = split_to_messages_for_testing(test_pix_block,10,20,5,1:5);
-            npix_send1 = sum(cellfun(@npix_in_mess,mess_list1,'UniformOutput',true));
-            [mess_list2,npix_l2,npix_r2] = split_to_messages_for_testing(test_pix_block,10,15,5,6:10);
-            npix_send2 = sum(cellfun(@npix_in_mess,mess_list2,'UniformOutput',true));
-            
-            assertEqual(npix_l1,npix_l2);
-            assertTrue(npix_r1>npix_r2);
-            
-            bin_covered = zeros(2,10);
-            bin_covered(1,:) = 10;
-            bin_covered(2,1:5) = 20;
-            bin_covered(2,6:10) = 15;
-            
-            mess_list = [mess_list1(:);mess_list2(:)];
-            pc = pix_cache(n_files);
-            pc.first_bin_to_process = 10;
-            
-            [pc,npix_received] =pc.push_messages(mess_list);
-            assertEqual(npix_received,(npix_send1+npix_send2));
-            assertEqual(pc.all_bin_range,bin_covered);
-            [pc,pix_block] = pc.pop_pixels();
-            assertEqual(sort(test_pix_block(:,npix_l2:npix_r2)'),sort(pix_block'))
-            
-            [mess_list2,npix_l2,npix_r2] = split_to_messages_for_testing(test_pix_block,16,20,5,6:10);
-            
-            mess_list1 = cell(2,1);
-            mess_list = [mess_list1(:);mess_list2(:)];
-            
-            pc =pc.push_messages(mess_list);
-            [pc,pix_block] = pc.pop_pixels();
-            assertEqual(pc.last_bin_processed,20);
-            assertEqual(test_pix_block(1,npix_l2:npix_r2)',pix_block(1,:)')
-            assertEqual(sort(test_pix_block(:,npix_l2:npix_r2)'),sort(pix_block'))
-            
-        end
+        
         %
         function test_nbin_for_pixels(~)
             
