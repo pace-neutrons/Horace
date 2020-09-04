@@ -22,17 +22,39 @@ In addition, the extra information and raw data contained on the SQW object allo
 
 ## Main Classes
 
+![Class Overview](../diagrams/sqw-dnd.png)
+
+
+
+### aSQWDNDBase
+
+Abstract base class for the SQW and DND objects.
+
+This includes the image data and main header information, available in both the `SQW` and `DnD` classes.
+
+This class will also include common methods, in particular the large number of unary and binary operations which are implemented as calls to operations managers which will be defined in the implementing classes.
+
 ### SQW
 
 The `SQW` object is the providing the public API to data. Data manipulations are performed on the `PixelBlock` and `Image` is recalculated.
 
+This class includes the full experiment data including the raw pixel data and details of the instrument and detectors.
+
 ![SQW Class Overview](../diagrams/sqw.png)
 
-### DND
+### aDND, DnD
 
-The `DND` object is a "cut-down SQW" object containing only `Image` data. The `PixelBlock`,  `IX_Instr`and `IX_DetectorArray` information is NOT included, and any data manipulation operations are performed directly on the `Image` data.
+The `DnD` object is a "cut-down SQW" object containing only `Image` data.  
+
+This exists in n-dimensional forms, with each class extending an abstract base class The `PixelBlock`,  `IX_Instr`and `IX_DetectorArray` information is NOT included, and any data manipulation operations are performed directly on the `Image` data.
+
+The `aDND` base class is an abstract class holding the common code, including the operation manager which is responsible for matching dimensions between the specific `DnD` objects before executing.
+
+
 
 ![DND Class Overview](../diagrams/dnd.png)
+
+
 
 ### Main Header
 
