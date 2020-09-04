@@ -26,7 +26,7 @@ In addition, the extra information and raw data contained on the SQW object allo
 
 
 
-### aSQWDNDBase
+### SQWDnDBase
 
 Abstract base class for the SQW and DND objects.
 
@@ -36,25 +36,19 @@ This class will also include common methods, in particular the large number of u
 
 ### SQW
 
-The `SQW` object is the providing the public API to data. Data manipulations are performed on the `PixelBlock` and `Image` is recalculated.
+The `SQW` object is the providing the public API to data. Data manipulations are performed on the `PixelData` and `Image` is recalculated.
 
 This class includes the full experiment data including the raw pixel data and details of the instrument and detectors.
 
 ![SQW Class Overview](../diagrams/sqw.png)
 
-### aDND, DnD
+### DnDBase, DnD
 
-The `DnD` object is a "cut-down SQW" object containing only `Image` data.  
+The `DnD` object is a "cut-down SQW" object containing only `Image` data. This exists in n-dimensional forms, with each class extending an abstract base class. The `PixelData`, `IX_Instr`and `IX_DetectorArray` information is NOT included, and any data manipulation operations are performed directly on the `Image` data.
 
-This exists in n-dimensional forms, with each class extending an abstract base class The `PixelBlock`,  `IX_Instr`and `IX_DetectorArray` information is NOT included, and any data manipulation operations are performed directly on the `Image` data.
-
-The `aDND` base class is an abstract class holding the common code, including the operation manager which is responsible for matching dimensions between the specific `DnD` objects before executing.
-
-
+The `DnDBase` base class is an abstract class holding the common code, including the operation manager which is responsible for matching dimensions between the specific `DnD` objects before executing.
 
 ![DND Class Overview](../diagrams/dnd.png)
-
-
 
 ### Main Header
 
@@ -97,7 +91,7 @@ Notes:
 
 #### Header
 
-The `Header` object contains the mapping from the `PixelBlock` to the appropriate array elements of the instrument, detector, experiment and sample arrays specific to each contributing neutron measurement. This configuration supports recalibration of detectors and changing experiment conditions to be handled.
+The `Header` object contains the mapping from the `PixelData` to the appropriate array elements of the instrument, detector, experiment and sample arrays specific to each contributing neutron measurement. This configuration supports recalibration of detectors and changing experiment conditions to be handled.
 
 ### Pixel Block
 
@@ -129,7 +123,7 @@ The same `get_data(name)` method can be used to provide access to the "standard"
 ### Image
 
 Represents the n-dimensional array of image pixel data with associated axis information. 
-Image pixel data is generated from the PixelBlock via one or more projections.
+Image pixel data is generated from the `PixelData` via one or more projections.
 
 |  | Description | Notes |
 |-----|---------|---|
@@ -168,8 +162,7 @@ Responsible for all image projections - this includes symmetrization and simpler
 - spherical cuts
 - cylindrical cuts
 
-Operations result in the creation of a new SQW/DND object and are performed to the Image Pixels using data from the backing `PixelBlock`.
-
+Operations result in the creation of a new SQW/DND object and are performed to the Image Pixels using data from the backing `PixelData`.
 
 
 ### Operations
@@ -200,7 +193,6 @@ Combine multiple experiment [data files](http://horace.isis.rl.ac.uk/Input_file_
 - Basic arithmetic operations on object data. 
 - Cut -- extract a N-dimensional subset of pixels
 - Projection -- aggregate pixel data onto an M-dimensional surface (M &le; N). This should support projections onto planes and spherical shells (TBI) and spiral slices (TBI) as well as reorientations.
-
 - Symmetrization -- enhance signal-to-noise utilizing symmetries within the data
 
 The operations are performed on the pixel data and the image recalculated from that. If the pixel-data is not available (a DND object) the operations are performed directly on the image with reduced functionality but higher speed.
@@ -222,7 +214,7 @@ Note: future extensions may add support for projections for which `M > N`. These
 
 1. Ensure system tests exist that cover the major end-to-end paths through the system (`gen_sqw`,`tobyfit`, `multifit`, `cut`, `symmetrize` etc.) and that these run and pass
 2. Extract small data and utility classes from existing SQW object updating APIs across Horace and Herbert code  where appropriate. New classes should be "new style" MATLAB classes.
-3. Extract `PixelBlock` into new class. All associated APIs updated.
+3. Extract `PixelData` into new class. All associated APIs updated.
 4. Migrate `SQW` and `DND` objects to new style classes.
 5. Review API and data in `SQW` and `DND`classes with a view to removing unrequired methods and data.
 6. Migrate save-data object to HDF format
@@ -298,9 +290,9 @@ all_poss_pix = old_sqw.get_pix(contributing_bins);
 the_pix = new_proj.cut_pix(all_poss_pix);
 ```
 
-### PixelBlock
+### PixelData
 
-Existing `PixelBlock` read/write from the `SQW` object are to slices, e.g. in `tobyfit_DGdisk_resconv`
+Existing `PixelData` read/write from the `SQW` object are to slices, e.g. in `tobyfit_DGdisk_resconv`
 
 ```matlab
 % Run and detector for each pixel
@@ -332,7 +324,7 @@ end
 
 #### Proposed API
 
-The new `PixelBlock` will wrap this access to the full array with a `getPixels()` if there is a need, e.g. for writing, or via a set of helper `getX`/`setX` functions. These shield users from knowledge of the arrangement of data in the pixel array supporting a radical restructuring of the data in the HDF5 file if that is needed.
+The new `PixelData` will wrap this access to the full array with a `getPixels()` if there is a need, e.g. for writing, or via a set of helper `getX`/`setX` functions. These shield users from knowledge of the arrangement of data in the pixel array supporting a radical restructuring of the data in the HDF5 file if that is needed.
 
 So the example in  `tobyfit_DGdisk_resconv` becomes
 
@@ -549,9 +541,9 @@ Object supports storage of custom data in addition to the standard 9-columns of 
 | -------- | ----------- | ----- |
 | filepath | string | Source `.nxspe` location |
 | filename | string | Source `.nxspe` filename |
-| detector_blocks | int[] | Map of `PixelBlock.detector_id` and `PixelBlock.energy_id` to `Experiment.detector` index |
-| instrument_blocks | int[] | Map of `PixelBlock.run_id` and `PixelBlock.energy_id` to `Experiment.instrument` index |
-| sample_blocks | int[] | Map of `PixelBlock.run_id` and `PixelBlock.energy_id` to `Experiment.sample` index |
+| detector_blocks | int[] | Map of `PixelData.detector_id` and `PixelData.energy_id` to `Experiment.detector` index |
+| instrument_blocks | int[] | Map of `PixelData.run_id` and `PixelData.energy_id` to `Experiment.instrument` index |
+| sample_blocks | int[] | Map of `PixelData.run_id` and `PixelData.energy_id` to `Experiment.sample` index |
 
 ### IX_Experiment
 
