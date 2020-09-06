@@ -35,9 +35,17 @@ classdef pix_cache
         % number of parallel readers providing the data.
         n_readers
         %
-        first_bin_to_process;
-        last_bin_processed
+        % total number of bins the pixels are sorted into
+        n_bins;
         %
+        first_bin_to_process;
+        %
+        last_bin_processed
+        
+        % the array of containing the min and max bin numbers,
+        % for the pixels, present in cache. size or the array is == [2,n_readers]
+        % where the n_readers== n_workers -1 or n_workers -2 is the
+        % number of workers, used to read data from the partial files.
         all_bin_range
         %
         npix_in_cache
@@ -46,7 +54,8 @@ classdef pix_cache
     properties(Access=protected)
         % number of parallel readers, providing data for combining
         n_readers_
-        
+        % total number of bins the pixels are sorted into
+        n_bins_
         % the array of containing the min and max bin numbers,
         % for the pixels, present in cache. size or the array is == [2,n_readers]
         % where the n_readers== n_workers -1 or n_workers -2 is the
@@ -71,25 +80,38 @@ classdef pix_cache
     end
     
     methods
-        function obj = pix_cache(n_readers)
+        function obj = pix_cache(n_readers,n_bins)
             obj.n_readers_      = n_readers;
+            obj.n_bins_         = n_bins;
             obj.bin_range_      =  zeros(2,n_readers);
             obj.bin_edges_      =  cell(n_readers,1);
             obj.read_pix_cache_ =  cell(n_readers,1);
             obj.last_bin_completed_ =true(n_readers,1);
         end
-        function dr = data_remain(obj,n_bins)
-            dr = obj.bin_range_(2,:)<n_bins;
+        %
+        function ds = data_surces_remain(obj,n_bins)
+            % return list of data sources, which still have not presented all
+            % appropriate pixels to cache.
+            
+            % indexes of incompleted sources. Either not all bin range
+            % processed or las bin in the range is incomplete
+            t_incompl = obj.bin_range_(2,:)< n_bins |...
+                ~obj.last_bin_completed_';
+            ds = 1:obj.n_readers;
+            ds  = ds(t_incompl);
         end
         function lbp=get.last_bin_processed(obj)
             lbp = obj.first_bin_to_process_ -1;
         end
+        %
         function ran = get.all_bin_range(obj)
             ran = obj.bin_range_ ;
         end
+        %
         function nbin = get.first_bin_to_process(obj)
             nbin = obj.first_bin_to_process_;
         end
+        %
         function obj = set.first_bin_to_process(obj,nbin)
             if ~isnumeric(nbin)
                 error('PIX_CACHE:invalid_argument',...
@@ -101,10 +123,15 @@ classdef pix_cache
             end
             obj.first_bin_to_process_= nbin;
         end
-        
+        %
         function nwk = get.n_readers(obj)
             nwk = obj.n_readers_;
         end
+        %
+        function nbin = get.n_bins(obj)
+            nbin = obj.n_bins_;
+        end
+        %
         function npc = get.npix_in_cache(obj)
             npc = sum(cellfun(@(x)(size(x,2)),obj.read_pix_cache_));
         end
@@ -215,7 +242,7 @@ classdef pix_cache
             last_bin_to_process = min(obj.bin_range_(2,:));
             
             
-            % indexes of bins in cache, containing full pixels information:            
+            % indexes of bins in cache, containing full pixels information:
             bins_proc   = first_bin_to_proc:last_bin_to_process;
             n_bins_proc = numel(bins_proc);
             
@@ -246,7 +273,13 @@ classdef pix_cache
                 pic   = obj.read_pix_cache_{i};
                 %
                 left  = edges(bin_ind);
-                if last_bin_to_process<obj.bin_range_(2,i) % some bins should be left in cache
+                if isempty(left)% unbalanced bins and this file does not
+                    %contribute to current combined bin
+                    continue;
+                end
+                
+                if last_bin_to_process<obj.bin_range_(2,i) % some bins info
+                    % should remain in cache
                     right = edges(bin_ind+1)-1;
                     % last processed bin number
                     last_bin_num = last_bin_to_process+1;
@@ -255,7 +288,6 @@ classdef pix_cache
                     last_sel_edge_ind = numel(bin_ind)+1;
                     obj.bin_edges_{i} = edges(last_sel_edge_ind:end)-(edges(last_sel_edge_ind)-1);
                     obj.read_pix_cache_{i} = pic(:,right(end)+1:end);
-                    
                 else
                     right = edges(2:end)-1;
                     last_bin_num = nbin(end);
@@ -267,12 +299,16 @@ classdef pix_cache
                     
                     obj.bin_edges_{i} = [];
                     obj.read_pix_cache_{i}  = [];
-                    obj.last_bin_completed_(i) = true;
                 end
                 if obj.bin_range_(2,i)< obj.bin_range_(1,i)
                     obj.bin_range_(2,i) =obj.bin_range_(1,i);
+                    if obj.last_bin_completed_(i) && ...
+                            obj.bin_range_(2,i)<=obj.n_bins_ % we have not actually had
+                        % last bin the next bin data have never been placed
+                        % in cache
+                        obj.last_bin_completed_(i) = false;
+                    end
                 end
-                
                 
                 
                 pix_tb(i,pix_ind) = arrayfun(@(x)(pic(:,left(x):right(x))),...
@@ -297,7 +333,6 @@ classdef pix_cache
             %             end
             
         end
-        
     end
 end
 

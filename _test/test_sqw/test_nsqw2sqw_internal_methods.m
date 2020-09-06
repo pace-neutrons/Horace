@@ -208,6 +208,65 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             
         end
         
+        function test_pix_cache_unbalanced_bins(~,varargin)
+            % testing the situation that push/pop sorts messages by bins
+            % partial messages remain at the end
+            n_files  = 5;
+            n_pixels = 5000;
+            
+            n_bins   = 100;
+            for i=1:100
+                fmp = fake_mess_provider(n_pixels,n_bins,...
+                    n_files,100);
+                if nargin>1
+                    fmp.pix_block  = varargin{1};
+                    fmp.file_blocks    = varargin{2};
+                else
+                    fl_blck = fmp.file_blocks{2};
+                    % lets assume that file 2 contains only bins 2 and 3
+                    fl_blck(1,:) = floor(2+2*rand(1,size(fl_blck,2)));
+                    [~,ind] = sort(fl_blck(1,:));
+                    fl_blck = fl_blck(:,ind);
+                    % synchronize initial data with the modified data
+                    px_blck = fmp.pix_block;
+                    px_blck(:,fl_blck(3,:)) = fl_blck;
+                    fmp.file_blocks{2} = fl_blck;
+                    [~,ind] = sort(px_blck(1,:));
+                    fmp.pix_block = px_blck(:,ind);
+                end
+                
+                mess_list = fmp.receive_all();
+                
+                pc = pix_cache(n_files,n_bins);
+                [pc,npix_received] =pc.push_messages(mess_list);
+                assertEqual(pc.npix_in_cache,100*n_files);
+                npix_in_cache = pc.npix_in_cache;
+                
+                
+                pb = [];
+                npr = npix_received;
+                data_sources = pc.data_surces_remain(n_bins);
+                while ~isempty(data_sources)|| pc.npix_in_cache ~= 0
+                    [pc,pix_block] = pc.pop_pixels();
+                    pb = [pb,pix_block];
+                    assertEqual(npix_in_cache,pc.npix_in_cache+size(pix_block,2));
+                    
+                    [mess_list,task_ids] = fmp.receive_all();
+                    data_sources = pc.data_surces_remain(n_bins);
+                    assertEqual(task_ids,data_sources');
+                    
+                    [pc,npix_received] =pc.push_messages(mess_list);
+                    npix_in_cache = pc.npix_in_cache;
+                    npr =npr+npix_received;
+                end
+                assertEqual(npr,n_pixels);
+                
+                tpb = fmp.pix_block;
+                assertEqual(tpb(1,:)',pb(1,:)',sprintf(' Step N %d',i));
+                assertEqual(sort(tpb'),sort(pb'))
+            end
+        end
+        
         function test_pix_cache_sparce_bins(~,varargin)
             % testing the situation that push/pop sorts messages by bins
             % partial messages remain at the end
@@ -216,36 +275,46 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             
             n_bins   = 1000;
             for i=1:100
+                fmp = fake_mess_provider(n_pixels,n_bins,...
+                    n_files,100);
                 if nargin>1
-                    test_pix_block = varargin{1};
-                    file_pix       = varargin{2};
-                else
-                    [test_pix_block,file_pix] =  build_pix_block_for_testing(n_pixels,n_bins,n_files);
+                    fmp.pix_block  = varargin{1};
+                    fmp.file_blocks    = varargin{2};
                 end
                 
-                npix_start = 1;
-                nbin_start = 1;
-                [mess_list,npix_end,nbin_end] = split_to_messages_for_testing(file_pix,npix_start,nbin_start,100,n_bins);
+                mess_list = fmp.receive_all();
                 
-                pc = pix_cache(n_files);
+                
+                pc = pix_cache(n_files,n_bins);
                 [pc,npix_received] =pc.push_messages(mess_list);
-                assertEqual(pc.npix_in_cache,100*n_files);
+                npix_in_cache = pc.npix_in_cache;
+                assertEqual(npix_in_cache,100*n_files);
+                
                 
                 
                 pb = [];
                 npr = npix_received;
-                while size(pb,2)<n_pixels && ~all(cellfun(@isempty,mess_list))
+                %
+                data_sources = pc.data_surces_remain(n_bins);
+                while ~isempty(data_sources)|| pc.npix_in_cache ~= 0
+                    
                     [pc,pix_block] = pc.pop_pixels();
+                    assertEqual(npix_in_cache,pc.npix_in_cache+size(pix_block,2));
+                    
                     pb = [pb,pix_block];
                     
-                    [mess_list,npix_end,nbin_end] = split_to_messages_for_testing(file_pix,npix_end+1,nbin_end,100,n_bins);
+                    [mess_list,task_ids] = fmp.receive_all();
+                    data_sources = pc.data_surces_remain(n_bins);
+                    assertEqual(task_ids,data_sources');
                     
                     [pc,npix_received] =pc.push_messages(mess_list);
+                    npix_in_cache = pc.npix_in_cache;
                     npr =npr+npix_received;
                 end
-                assertEqual(npr,n_pixels);                
-                assertEqual(test_pix_block(1,:)',pb(1,:)',sprintf(' Step N %d',i));
-                assertEqual(sort(test_pix_block'),sort(pb'))
+                assertEqual(npr,n_pixels);
+                tpb = fmp.pix_block;
+                assertEqual(tpb(1,:)',pb(1,:)',sprintf(' Step N %d',i));
+                assertEqual(sort(tpb'),sort(pb'))
             end
         end
         
@@ -257,81 +326,97 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             
             n_bins   = 4;
             for i=1:100
-                
+                fmp = fake_mess_provider(n_pixels,n_bins,...
+                    n_files,100);
                 if nargin>1
-                    test_pix_block = varargin{1};
-                    file_pix       = varargin{2};
-                else
-                    [test_pix_block,file_pix] =  build_pix_block_for_testing(n_pixels,n_bins,n_files);
+                    fmp.pix_block  = varargin{1};
+                    fmp.file_blocks    = varargin{2};
                 end
                 
-                npix_start = 1;
-                nbin_start = 1;
-                [mess_list,npix_end,nbin_end] = split_to_messages_for_testing(file_pix,npix_start,nbin_start,100,n_bins);
+                mess_list = fmp.receive_all();
                 
-                pc = pix_cache(n_files);
+                
+                pc = pix_cache(n_files,n_bins);
                 [pc,npix_received] =pc.push_messages(mess_list);
-                assertEqual(pc.npix_in_cache,100*n_files);
+                npix_in_cache = pc.npix_in_cache;
+                assertEqual(npix_in_cache,100*n_files);
+                
                 
                 
                 pb = [];
                 npr = npix_received;
-                while size(pb,2)<n_pixels && ~all(cellfun(@isempty,mess_list))
+                %
+                data_sources = pc.data_surces_remain(n_bins);
+                while ~isempty(data_sources)|| pc.npix_in_cache ~= 0
+                    
                     [pc,pix_block] = pc.pop_pixels();
+                    assertEqual(npix_in_cache,pc.npix_in_cache+size(pix_block,2));                    
+                                        
                     pb = [pb,pix_block];
                     
-                    [mess_list,npix_end,nbin_end] = split_to_messages_for_testing(file_pix,npix_end+1,nbin_end,100,n_bins);
+                    % in real life we will receive only from DS identified
+                    % here
+                    data_sources = pc.data_surces_remain(n_bins);                                        
+                    [mess_list,task_ids] = fmp.receive_all();
+                    if numel(data_sources) ~= numel(task_ids)
+                        assignin('base','pix_block',fmp.pix_block);
+                        assignin('base','file_blocks',fmp.file_blocks);                        
+                    end
+                    assertEqual(task_ids,data_sources');
                     
                     [pc,npix_received] =pc.push_messages(mess_list);
+                    
+                    npix_in_cache = pc.npix_in_cache;
                     npr =npr+npix_received;
                 end
                 assertEqual(npr,n_pixels);
-                assertEqual(test_pix_block(1,:)',pb(1,:)',sprintf(' Step N %d',i));
-                assertEqual(sort(test_pix_block'),sort(pb'))
+                tpb = fmp.pix_block;
+                assertEqual(tpb(1,:)',pb(1,:)',sprintf(' Step N %d',i));
+                assertEqual(sort(tpb'),sort(pb'))
             end
         end
         %
-        function test_pix_cache(~)
+        function test_pix_cache(~,varargin)
             n_files  = 10;
             n_pixels = 4023;
             n_bins   = 100;
             for i=1:100
-                [test_pix_block,file_pix] =  build_pix_block_for_testing(n_pixels,n_bins,n_files);
                 
-                pix_block_sizes = cellfun(@(fp)(size(fp,2)),...
-                    file_pix,'UniformOutput',true);
+                fmp = fake_mess_provider(n_pixels,n_bins,...
+                    n_files,1000);
+                if nargin>1
+                    fmp.test_pix_block  = varargin{1};
+                    fmp.file_pix       = varargin{2};
+                end
                 
-                
-                npix_start = 1;
-                nbin_start = 1;
-                [mess_list,npix_end,nbin_end] = split_to_messages_for_testing(file_pix,npix_start,nbin_start,1000,n_bins);
-                
+                mess_list = fmp.receive_all();
                 
                 nbinsp_in_pix = cellfun(@(ms)(max(ms.payload.pix_data(1,:))+1),...
                     mess_list,'UniformOutput',true);
                 
-                assertTrue(all(nbin_end>=nbinsp_in_pix));
-                assertEqual(sum(npix_end),n_pixels);
+                assertTrue(all(fmp.nbin_start>=nbinsp_in_pix));
+                assertEqual(sum(fmp.npix_start),n_pixels+n_files); % npix start exceeds npixels by 1 so 1*n_files
                 
-                pc = pix_cache(n_files);
+                pc = pix_cache(n_files,n_bins);
                 [pc,npix_received] =pc.push_messages(mess_list);
                 assertEqual(npix_received,n_pixels);
                 
                 
                 [pc,pix_block] = pc.pop_pixels();
-                while pc.first_bin_to_process <= n_bins
+                data_sources = pc.data_surces_remain(n_bins);
+                while ~isempty(data_sources)|| pc.npix_in_cache ~= 0
                     [pc,pix_block2] = pc.pop_pixels();
                     pix_block= [pix_block,pix_block2];
+                    data_sources = pc.data_surces_remain(n_bins);
                 end
+                tpb = fmp.pix_block;
+                assertEqual(tpb(1,:)',pix_block(1,:)',sprintf(' Step N %d',i));
+                assertEqual(sort(tpb'),sort(pix_block'))
                 
-                assertEqual(test_pix_block(1,:)',pix_block(1,:)')
-                assertEqual(sort(test_pix_block(:,:)'),sort(pix_block'))
                 assertEqual(pc.last_bin_processed,100);
             end
         end
         %
-        
-        
         %
         function test_nbin_for_pixels(~)
             
