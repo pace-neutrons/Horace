@@ -3,6 +3,7 @@ set(TEST_DIRECTORIES
     "test_ascii_column_data"
     "test_change_crystal"
     "test_combine"
+    "test_configuration"
     "test_dnd"
     "test_gen_sqw_for_powders"
     "test_herbert_utilites"
