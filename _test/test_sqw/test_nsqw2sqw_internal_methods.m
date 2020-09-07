@@ -245,14 +245,14 @@ classdef test_nsqw2sqw_internal_methods < TestCase
                 
                 pb = [];
                 npr = npix_received;
-                data_sources = pc.data_surces_remain(n_bins);
+                data_sources = pc.data_surces_remain();
                 while ~isempty(data_sources)|| pc.npix_in_cache ~= 0
                     [pc,pix_block] = pc.pop_pixels();
                     pb = [pb,pix_block];
                     assertEqual(npix_in_cache,pc.npix_in_cache+size(pix_block,2));
                     
                     [mess_list,task_ids] = fmp.receive_all();
-                    data_sources = pc.data_surces_remain(n_bins);
+                    data_sources = pc.data_surces_remain();
                     assertEqual(task_ids,data_sources');
                     
                     [pc,npix_received] =pc.push_messages(mess_list);
@@ -295,7 +295,7 @@ classdef test_nsqw2sqw_internal_methods < TestCase
                 pb = [];
                 npr = npix_received;
                 %
-                data_sources = pc.data_surces_remain(n_bins);
+                data_sources = pc.data_surces_remain();
                 while ~isempty(data_sources)|| pc.npix_in_cache ~= 0
                     
                     [pc,pix_block] = pc.pop_pixels();
@@ -304,7 +304,7 @@ classdef test_nsqw2sqw_internal_methods < TestCase
                     pb = [pb,pix_block];
                     
                     [mess_list,task_ids] = fmp.receive_all();
-                    data_sources = pc.data_surces_remain(n_bins);
+                    data_sources = pc.data_surces_remain();
                     assertEqual(task_ids,data_sources');
                     
                     [pc,npix_received] =pc.push_messages(mess_list);
@@ -346,21 +346,21 @@ classdef test_nsqw2sqw_internal_methods < TestCase
                 pb = [];
                 npr = npix_received;
                 %
-                data_sources = pc.data_surces_remain(n_bins);
+                data_sources = pc.data_surces_remain();
                 while ~isempty(data_sources)|| pc.npix_in_cache ~= 0
                     
                     [pc,pix_block] = pc.pop_pixels();
-                    assertEqual(npix_in_cache,pc.npix_in_cache+size(pix_block,2));                    
-                                        
+                    assertEqual(npix_in_cache,pc.npix_in_cache+size(pix_block,2));
+                    
                     pb = [pb,pix_block];
                     
                     % in real life we will receive only from DS identified
                     % here
-                    data_sources = pc.data_surces_remain(n_bins);                                        
+                    data_sources = pc.data_surces_remain();
                     [mess_list,task_ids] = fmp.receive_all();
                     if numel(data_sources) ~= numel(task_ids)
                         assignin('base','pix_block',fmp.pix_block);
-                        assignin('base','file_blocks',fmp.file_blocks);                        
+                        assignin('base','file_blocks',fmp.file_blocks);
                     end
                     assertEqual(task_ids,data_sources');
                     
@@ -403,11 +403,11 @@ classdef test_nsqw2sqw_internal_methods < TestCase
                 
                 
                 [pc,pix_block] = pc.pop_pixels();
-                data_sources = pc.data_surces_remain(n_bins);
+                data_sources = pc.data_surces_remain();
                 while ~isempty(data_sources)|| pc.npix_in_cache ~= 0
                     [pc,pix_block2] = pc.pop_pixels();
                     pix_block= [pix_block,pix_block2];
-                    data_sources = pc.data_surces_remain(n_bins);
+                    data_sources = pc.data_surces_remain();
                 end
                 tpb = fmp.pix_block;
                 assertEqual(tpb(1,:)',pix_block(1,:)',sprintf(' Step N %d',i));
