@@ -89,13 +89,13 @@ classdef pix_cache
             obj.last_bin_completed_ =true(n_readers,1);
         end
         %
-        function ds = data_surces_remain(obj,n_bins)
+        function ds = data_surces_remain(obj)
             % return list of data sources, which still have not presented all
             % appropriate pixels to cache.
             
             % indexes of incompleted sources. Either not all bin range
             % processed or las bin in the range is incomplete
-            t_incompl = obj.bin_range_(2,:)< n_bins |...
+            t_incompl = obj.bin_range_(2,:)< obj.n_bins |...
                 ~obj.last_bin_completed_';
             ds = 1:obj.n_readers;
             ds  = ds(t_incompl);
