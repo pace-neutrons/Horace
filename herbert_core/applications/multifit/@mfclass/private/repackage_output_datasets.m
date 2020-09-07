@@ -49,9 +49,9 @@ function data_out = repackage_output_datasets(data, w, msk, keep_only_unmasked)
 
 
 if numel(w)==1 && numel(data)==3
-    % x,y,e supplied as separate arguments
+    % x,y,e supplied as separate arguments. Return only the y values.
     tmp = is_cell_xye ({data}, w, msk, keep_only_unmasked);
-    data_out = tmp{1};
+    data_out = tmp{1}{2};
     
 else
     % All other cases
