@@ -73,8 +73,8 @@ classdef test_multifit_horace_2 < TestCaseWithSave
 
             % Test against saved output or store to save later
             assertEqualToTolWithSave (this, wfit_1, 'tol', tol)
-            assertEqualToTolWithSave (this, fitpar_1, 'tol', tol)
             assertEqualToTolWithSave (this, wfit_1_locfore, 'tol', tol)
+            assertEqualToTolWithSave (this, fitpar_1, 'tol', tol)
             assertEqualToTolWithSave (this, fitpar_1_locfore, 'tol', tol)
         end        
         

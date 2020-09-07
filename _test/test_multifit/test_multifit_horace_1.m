@@ -6,7 +6,7 @@ classdef test_multifit_horace_1 < TestCaseWithSave
     %                                       % test_multifit_horace_1_output.mat
     %                                       % in the same folder as this function
     %
-    %   >> test_multifit_horace_1('-save)   % Save to test_multifit_horace_1_output.mat
+    %   >> test_multifit_horace_1('-save')  % Save to test_multifit_horace_1_output.mat
     %                                       % in the Matlab temporary folder (copy to
     %                                       % the same folder as this function after)
     %
