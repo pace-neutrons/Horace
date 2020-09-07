@@ -1,6 +1,8 @@
 classdef test_PixelData < TestCase
 
 properties
+    old_warn_state;
+
     raw_pix_data = rand(9, 10);
     small_page_size_ = 1e6;  % 1Mb
     test_sqw_file_path = '../test_sqw_file/sqw_1d_1.sqw';
@@ -34,6 +36,9 @@ methods
     function obj = test_PixelData(~)
         obj = obj@TestCase('test_PixelData');
 
+        % Swallow any warnings for when pixel page size set too small
+        obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
+
         test_sqw_file = java.io.File(pwd(), obj.test_sqw_file_path);
         obj.test_sqw_file_full_path = char(test_sqw_file.getCanonicalPath());
 
@@ -46,6 +51,10 @@ methods
         obj.pix_data_from_faccess = PixelData(f_accessor);
         % Construct an object from file accessor with small page size
         obj.pix_data_small_page = PixelData(f_accessor, obj.small_page_size_);
+    end
+
+    function delete(obj)
+        warning(obj.old_warn_state);
     end
 
     % --- Tests for in-memory operations ---
@@ -885,6 +894,215 @@ methods
                     'Temporary file timestamps are not equal.');
     end
 
+    function test_cannot_append_more_pixels_than_can_fit_in_page(obj)
+        npix_in_page = 5;
+        mem_alloc = npix_in_page*obj.NUM_COLS_IN_PIX_BLOCK*obj.NUM_BYTES_IN_VALUE;
+        pix = PixelData(zeros(9, 0), mem_alloc);
+
+        data = ones(obj.NUM_COLS_IN_PIX_BLOCK, 11);
+        pix_to_append = PixelData(data);
+
+        f = @() pix.append(pix_to_append);
+        assertExceptionThrown(f, 'PIXELDATA:append');
+    end
+
+    function test_you_can_append_to_empty_PixelData_object(obj)
+        npix_in_page = 11;
+        mem_alloc = npix_in_page*obj.NUM_COLS_IN_PIX_BLOCK*obj.NUM_BYTES_IN_VALUE;
+        pix = PixelData(zeros(9, 0), mem_alloc);
+
+        data = ones(obj.NUM_COLS_IN_PIX_BLOCK, npix_in_page);
+        pix_to_append = PixelData(data);
+
+        pix.append(pix_to_append);
+        assertEqual(pix.data, data);
+    end
+
+    function test_you_can_append_to_partially_full_PixelData_page(obj)
+        npix_in_page = 11;
+        nexisting_pix = 5;
+        mem_alloc = npix_in_page*obj.NUM_COLS_IN_PIX_BLOCK*obj.NUM_BYTES_IN_VALUE;
+        existing_data = rand(9, nexisting_pix);
+        pix = PixelData(existing_data, mem_alloc);
+
+        data = ones(obj.NUM_COLS_IN_PIX_BLOCK, npix_in_page);
+        pix_to_append = PixelData(data);
+
+        pg_offset = npix_in_page - nexisting_pix;
+        expected_pg_1_data = horzcat(existing_data, data(:, 1:pg_offset));
+        expected_pg_2_data = data(:, (pg_offset + 1):end);
+
+        pix.append(pix_to_append);
+
+        pix.move_to_first_page();
+        assertEqual(pix.data, expected_pg_1_data, '', 1e-7);
+
+        pix.advance();
+        assertEqual(pix.data, expected_pg_2_data, '', 1e-7);
+    end
+
+    function test_you_can_append_to_PixelData_with_full_page(obj)
+        npix_in_page = 11;
+        nexisting_pix = 11;
+        mem_alloc = npix_in_page*obj.NUM_COLS_IN_PIX_BLOCK*obj.NUM_BYTES_IN_VALUE;
+        existing_data = rand(9, nexisting_pix);
+        pix = PixelData(existing_data, mem_alloc);
+
+        appended_data = ones(obj.NUM_COLS_IN_PIX_BLOCK, npix_in_page);
+        pix_to_append = PixelData(appended_data);
+
+        pix.append(pix_to_append);
+
+        pix.move_to_first_page();
+        assertEqual(pix.data, existing_data, '', 1e-7);
+
+        pix.advance();
+        assertEqual(pix.data, appended_data, '', 1e-7);
+    end
+
+    function test_appending_pixels_after_page_edited_preserves_changes(obj)
+        npix_in_page = 11;
+        num_pix = 24;
+        mem_alloc = npix_in_page*obj.NUM_COLS_IN_PIX_BLOCK*obj.NUM_BYTES_IN_VALUE;
+        original_data = rand(9, num_pix);
+
+        pix = PixelData(original_data(:, 1:npix_in_page), mem_alloc);
+        assertEqual(pix.data, original_data(:, 1:npix_in_page));
+        pix.signal = ones(1, npix_in_page);
+
+        for i = 2:ceil(num_pix/npix_in_page)
+            start_idx = (i - 1)*npix_in_page + 1;
+            end_idx = min(start_idx + npix_in_page - 1, num_pix);
+            pix.append(PixelData(original_data(:, start_idx:end_idx)));
+            assertEqual(pix.data, original_data(:, start_idx:end_idx));
+        end
+
+        pix.move_to_first_page();
+        expected_pg_1_data = original_data(:, 1:npix_in_page);
+        expected_pg_1_data(8, :) = 1;
+        assertEqual(pix.data, expected_pg_1_data, '', 1e-7);
+    end
+
+    function test_you_can_append_to_file_backed_PixelData(obj)
+        npix_in_page = 11;
+        data = rand(9, 25);
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+        data_to_append = rand(9, 8);
+        pix_to_append = PixelData(data_to_append);
+
+        pix.append(pix_to_append);
+
+        expected_final_pg = horzcat(data(:, 23:end), data_to_append);
+        assertEqual(pix.data, expected_final_pg);
+
+        pix.move_to_first_page();
+        assertEqual(pix.data, data(:, 1:npix_in_page), '', 1e-7);
+
+        pix.advance();
+        assertEqual(pix.data, data(:, (npix_in_page + 1):(2*npix_in_page)), ...
+                    '', 1e-7);
+
+        pix.advance();
+        assertEqual(pix.data, expected_final_pg, '', 1e-7);
+    end
+
+    function test_error_if_append_called_with_non_PixelData_object(~)
+        pix = PixelData(rand(9, 1));
+        f = @() pix.append(rand(9, 1));
+        assertExceptionThrown(f, 'PIXELDATA:append');
+    end
+
+    function test_error_if_appending_pix_with_multiple_pages(obj)
+        npix_in_page = 11;
+        mem_alloc = npix_in_page*obj.NUM_COLS_IN_PIX_BLOCK*obj.NUM_BYTES_IN_VALUE;
+        pix = PixelData(rand(9, 5), mem_alloc);
+
+        pix_to_append = obj.get_pix_with_fake_faccess(rand(9, 23), npix_in_page);
+        f = @() pix.append(pix_to_append);
+        assertExceptionThrown(f, 'PIXELDATA:append');
+    end
+
+    function test_append_does_not_edit_calling_instance_if_nargout_eq_1(obj)
+        data = rand(9, 30);
+        npix_in_page = 11;
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        pix_to_append = PixelData(rand(9, 5));
+
+        out_pix = pix.append(pix_to_append);
+
+        assertEqual(pix.num_pixels, size(data, 2));
+        pix_data = obj.concatenate_pix_pages(pix);
+        assertEqual(pix_data, data);
+    end
+
+    function test_append_returns_editied_pix_if_nargout_eq_1(obj)
+        pix = PixelData(obj.test_sqw_file_path);
+        npix_to_append = 5;
+        pix_to_append = PixelData(rand(9, npix_to_append));
+
+        out_pix = pix.append(pix_to_append);
+
+        assertEqual(out_pix.num_pixels, pix.num_pixels + pix_to_append.num_pixels);
+        original_pix_data = obj.concatenate_pix_pages(pix);
+        out_pix_data = obj.concatenate_pix_pages(out_pix);
+        assertEqual(out_pix_data, horzcat(original_pix_data, pix_to_append.data));
+    end
+
+    function test_calling_append_with_empty_pixel_data_does_nothing(~)
+        pix = PixelData(rand(9, 5));
+        pix_to_append = PixelData();
+        appended_pix = pix.append(pix_to_append);
+        assertEqual(appended_pix.data, pix.data);
+    end
+
+    function test_copied_pix_that_has_been_appended_to_has_correct_num_pix(~)
+        data = rand(9, 30);
+        pix = PixelData(data);
+        num_appended_pix = 5;
+        pix_to_append = PixelData(rand(9, num_appended_pix));
+        pix.append(pix_to_append);
+
+        pix_copy = copy(pix);
+        assertEqual(pix.num_pixels, size(data, 2) + num_appended_pix);
+        assertEqual(pix_copy.num_pixels, size(data, 2) + num_appended_pix);
+    end
+
+    function test_has_more_is_true_after_appending_page_to_non_file_backed(obj)
+        num_pix = 10;
+        mem_alloc = (num_pix + 1)*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
+        pix = PixelData(rand(9, 10), mem_alloc);
+
+        pix_to_append = PixelData(rand(9, 5));
+        pix.append(pix_to_append);
+
+        pix.move_to_first_page();
+        assertTrue(pix.has_more());
+        pix.advance();
+        assertFalse(pix.has_more());
+    end
+
+    function test_max_page_size_set_by_pixel_page_size_config_option(obj)
+        hc = hor_config();
+        old_config = hc.get_data_to_store();
+        clean_up = onCleanup(@() set(hor_config, old_config));
+
+        new_pix_page_size = 1000;  % bytes
+        hc.pixel_page_size = new_pix_page_size;
+
+        bytes_in_pixel = obj.NUM_COLS_IN_PIX_BLOCK*obj.NUM_BYTES_IN_VALUE;
+        expected_page_size = floor(new_pix_page_size/bytes_in_pixel);
+        pix = PixelData(obj.test_sqw_file_path);
+        assertEqual(pix.page_size, expected_page_size);
+    end
+
+    function test_error_when_setting_mem_alloc_lt_one_pixel(~)
+        pix_size = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
+
+        f = @() PixelData(rand(9, 10), pix_size - 1);
+        assertExceptionThrown(f, 'PIXELDATA:validate_mem_alloc');
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
@@ -917,8 +1135,23 @@ end
 methods (Static)
 
     function advance_pix(pix, niters)
+        % Advance the pixel pages by 'niters'
         for i = 1:niters
             pix.advance();
+        end
+    end
+
+    function data = concatenate_pix_pages(pix)
+        % Combine all pages of data in the given pixel object into one array
+        % Returns the raw pixel array.
+        pix.move_to_first_page();
+        data = zeros(9, pix.num_pixels);
+        data(:, 1:pix.page_size) = pix.data(:, 1:pix.page_size);
+        start_idx = 1;
+        while pix.has_more()
+            start_idx = start_idx + pix.page_size;
+            pix.advance();
+            data(:, start_idx:(start_idx + pix.page_size - 1)) = pix.data;
         end
     end
 

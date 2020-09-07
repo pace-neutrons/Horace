@@ -78,7 +78,6 @@ classdef PixelData < handle
 %   page_size      The number of pixels in the currently loaded page
 %
 properties (Access=private)
-    DIRTY_PIX_DIR_NAME_ = 'sqw_pix%05d';
     FIELD_INDEX_MAP_ = containers.Map(...
         {'u1', 'u2', 'u3', 'dE', ...
          'coordinates', ...
@@ -89,17 +88,23 @@ properties (Access=private)
          'signal', ...
          'variance'}, ...
         {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9});
-    PIXEL_BLOCK_COLS_ = 9;
+    PIXEL_BLOCK_COLS_ = PixelData.DEFAULT_NUM_PIX_FIELDS;
 
     dirty_page_edited_ = false;  % true if a dirty page has been edited since it was loaded
     f_accessor_;  % instance of faccess object to access pixel data from file
     file_path_ = '';  % the path to the file backing this object - empty string if all data in memory
+    num_pixels_ = 0;  % the number of pixels in the object
     object_id_;  % random unique identifier for this object, used for tmp file names
     page_dirty_ = false;  % array mapping from page_number to whether that page is dirty
-    page_memory_size_ = 3e9;  % 3Gb - the maximum amount of memory a page can use
+    page_memory_size_;  % the maximum amount of memory a page can use
     page_number_ = 1;  % the index of the currently loaded page
     raw_data_ = zeros(9, 0);  % the underlying data cached in the object
     tmp_io_handler_;  % a PixelTmpFileHandler object that handles reading/writing of tmp files
+end
+
+properties (Constant)
+    DEFAULT_NUM_PIX_FIELDS = 9;
+    DATA_POINT_SIZE = 8;  % num bytes in a float
 end
 
 properties (Dependent, Access=private)
@@ -184,12 +189,39 @@ methods (Static)
         % -------
         %   obj     An instance of this object
         %
+        if isempty(S.page_memory_size_)
+            % This if statement allows us to load old PixelData objects that
+            % were saved in .mat files that do not have the 'page_memory_size_'
+            % property
+            S.page_memory_size_ = get(hor_config, 'pixel_page_size');
+        end
         obj = PixelData(S);
+    end
+
+    function validate_mem_alloc(mem_alloc)
+        MIN_RECOMMENDED_PG_SIZE = 100e6;
+        bytes_in_pix = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
+        if mem_alloc < bytes_in_pix
+            error('PIXELDATA:validate_mem_alloc', ...
+                  ['Error setting pixel page size. Cannot set page '...
+                   'size less than %i bytes, as this is less than one pixel.'], ...
+                  bytes_in_pix);
+        elseif mem_alloc < MIN_RECOMMENDED_PG_SIZE
+            warning('PIXELDATA:validate_mem_alloc', ...
+                    ['A pixel page size of less than 100MB is not ' ...
+                     'recommended. This may degrade performance.']);
+        end
     end
 
 end
 
 methods
+
+    % --- Pixel operations ---
+    [mean_signal, mean_variance] = compute_bin_data(obj, npix)
+    pix_out = do_unary_op(obj, unary_op);
+    pix_out = append(obj, pix);
+    pix_out = mask(obj, mask_array, npix);
 
     function obj = PixelData(arg, mem_alloc)
         % Construct a PixelData object from the given data. Default
@@ -235,6 +267,13 @@ methods
         %               in-memory data. (Optional)
         %
         obj.object_id_ = polyval(randi([0, 9], 1, 5), 10);
+        if exist('mem_alloc', 'var')
+            obj.validate_mem_alloc(mem_alloc);
+            obj.page_memory_size_ = mem_alloc;
+        else
+            obj.page_memory_size_ = get(hor_config, 'pixel_page_size');
+        end
+
         if nargin == 0
             return
         end
@@ -247,20 +286,22 @@ methods
                 obj.page_dirty_ = arg.page_dirty_;
                 obj.dirty_page_edited_ = arg.dirty_page_edited_;
                 arg.tmp_io_handler_.copy_folder(obj.object_id_);
+            else
+                obj.num_pixels_ = size(arg.data, 2);
             end
             obj.data_ = arg.data;
+            obj.page_memory_size_ = arg.page_memory_size_;
             return;
         end
+
         if numel(arg) == 1 && isnumeric(arg) && floor(arg) == arg
             % input is an integer
             obj.data_ = zeros(obj.PIXEL_BLOCK_COLS_, arg);
+            obj.num_pixels_ = arg;
             return;
         end
 
         % File-backed construction
-        if nargin == 2
-            obj.page_memory_size_ = mem_alloc;
-        end
         if ischar(arg)
             % input is a file path
             f_accessor = sqw_formats_factory.instance().get_loader(arg);
@@ -274,7 +315,15 @@ methods
         end
 
         % Input sets underlying data
+        if exist('mem_alloc', 'var') && ...
+                (obj.calculate_page_size_(mem_alloc) < size(arg, 2))
+            error('PIXELDATA:PixelData', ...
+                    ['The size of the input array cannot exceed the given ' ...
+                    'memory_allocation.']);
+        end
         obj.data_ = arg;
+        obj.num_pixels_ = size(arg, 2);
+        obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_);
     end
 
     % --- Operator overrides ---
@@ -326,10 +375,6 @@ methods
         %  copied within this classes "copy-constructor".
         pix_copy = PixelData(obj);
     end
-
-    % --- Pixel operations ---
-    [mean_signal, mean_variance] = compute_bin_data(obj, npix)
-    obj = do_unary_op(obj, unary_op);
 
     % --- Data management ---
     function data = get_data(obj, fields, pix_indices)
@@ -400,7 +445,7 @@ methods
         %    >> has_more = pix.has_more();
         %
         has_more = false;
-        if isempty(obj.f_accessor_)
+        if ~obj.is_file_backed_()
             return;
         end
         if obj.page_size == 0 && obj.num_pixels > obj.max_page_size_
@@ -472,9 +517,9 @@ methods
 
         if size(pixel_data, 2) ~= required_page_size
             msg = ['Cannot set pixel data, invalid dimensions. Axis 2 ' ...
-                   'must have dimensions matching current page size (%i), ' ...
-                   'found ''%i''.', required_page_size, size(pixel_data, 2)];
-            error('PIXELDATA:data', msg, class(pixel_data));
+                   'must have num elements matching current page size (%i), ' ...
+                   'found ''%i''.'];
+            error('PIXELDATA:data', msg, required_page_size, size(pixel_data, 2));
         end
         obj.data_ = pixel_data;
         obj.set_page_dirty_(true);
@@ -497,7 +542,7 @@ methods
                   size(pixel_data, 1));
         elseif ~isnumeric(pixel_data)
             msg = ['Cannot set pixel data, invalid type. Data must have a '...
-                   'numeric type, found ''%i''.'];
+                   'numeric type, found ''%s''.'];
             error('PIXELDATA:data', msg, class(pixel_data));
         end
         obj.raw_data_ = pixel_data;
@@ -625,11 +670,7 @@ methods
     end
 
     function num_pix = get.num_pixels(obj)
-        if isempty(obj.f_accessor_)
-            num_pix = size(obj.data, 2);
-        else
-            num_pix = double(obj.f_accessor_.npixels);
-        end
+        num_pix = obj.num_pixels_;
     end
 
     function file_path = get.file_path(obj)
@@ -666,6 +707,7 @@ methods (Access=private)
                                   obj.f_accessor_.filename);
         obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_);
         obj.page_number_ = 1;
+        obj.num_pixels_ = double(obj.f_accessor_.npixels);
     end
 
     function obj = load_current_page_if_data_empty_(obj)
@@ -743,22 +785,30 @@ methods (Access=private)
 
     function page_size = get_max_page_size_(obj)
         % Get the maximum number of pixels that can be held in a page that's
-        % allocated 'obj.page_memory_size_' bytes
-        num_bytes_in_val = 8;  % pixel data stored in memory as a double
-        num_bytes_in_pixel = num_bytes_in_val*obj.PIXEL_BLOCK_COLS_;
-        page_size = floor(obj.page_memory_size_/num_bytes_in_pixel);
+        % allocated 'obj.page_memory_size_' bytes of memory
+        page_size = obj.calculate_page_size_(obj.page_memory_size_);
+    end
+
+    function page_size = calculate_page_size_(obj, mem_alloc)
+        % Calculate number of pixels that fit in the given memory allocation
+        num_bytes_in_pixel = obj.DATA_POINT_SIZE*obj.PIXEL_BLOCK_COLS_;
+        page_size = floor(mem_alloc/num_bytes_in_pixel);
     end
 
     function is = is_file_backed_(obj)
-        % Return true if the pixel data is backed by a file. Returns false if
-        % all pixel data is held in memory
+        % Return true if the pixel data is backed by a file or files. Returns
+        % false if all pixel data is held in memory
         %
-        is = ~isempty(obj.f_accessor_);
+        is = ~isempty(obj.f_accessor_) || obj.get_num_pages_() > 1;
     end
 
     function is = cache_is_empty_(obj)
         % Return true if no pixels are currently held in memory
         is = isempty(obj.data_);
+    end
+
+    function num_pages = get_num_pages_(obj)
+        num_pages = max(ceil(obj.num_pixels/obj.max_page_size_), 1);
     end
 
 end
