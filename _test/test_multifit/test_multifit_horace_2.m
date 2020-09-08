@@ -71,11 +71,12 @@ classdef test_multifit_horace_2 < TestCaseWithSave
             assertTrue(equal_to_tol(p1sig, p1sig_alt, tol),...
                 'local background and local foreground equivalent fitting give different answers')
 
-            % Test against saved output or store to save later
-            assertEqualToTolWithSave (this, wfit_1, 'tol', tol)
-            assertEqualToTolWithSave (this, wfit_1_locfore, 'tol', tol)
-            assertEqualToTolWithSave (this, fitpar_1, 'tol', tol)
-            assertEqualToTolWithSave (this, fitpar_1_locfore, 'tol', tol)
+            % Test against saved or store to save later; ingnore string
+            % changes - these are filepaths
+            assertEqualToTolWithSave (this, wfit_1, 'tol', tol, 'ignore_str', 1)
+            assertEqualToTolWithSave (this, wfit_1_locfore, 'tol', tol, 'ignore_str', 1)
+            assertEqualToTolWithSave (this, fitpar_1, 'tol', tol, 'ignore_str', 1)
+            assertEqualToTolWithSave (this, fitpar_1_locfore, 'tol', tol,  'ignore_str', 1)
         end        
         
     end
