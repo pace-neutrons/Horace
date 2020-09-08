@@ -286,8 +286,13 @@ for i=1:numel(w)
                 mess=[message_opening(w,i),'signal and error array sizes do not match coordinate array size'];
                 return
             end
-            ndim=sz(end);
-            wout{i}.x=num2cell(w(i).x,1:ndim-1); % separate the dimensions into cells
+            %----------------
+            % This new code (TGPerring, 20/8/2020)
+            wout{i}.x=num2cell(w(i).x,1:numel(szy));    % separate the dimensions into cells
+            % replaced:
+            %ndim=sz(end);
+            %wout{i}.x=num2cell(w(i).x,1:ndim-1); % separate the dimensions into cells
+            %----------------
         else
             wout{i}.x={w(i).x};     % make a cell array with a single element
         end
