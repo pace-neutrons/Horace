@@ -1,7 +1,7 @@
 #!groovy
 
 def get_matlab_release(String job_name) {
-  return job_name[-5..-1]
+  return 'R' + job_name[-5..-1]
 }
 
 def get_build_type(String job_name) {
@@ -72,7 +72,7 @@ properties([
     ),
     string(
       defaultValue: get_matlab_release(env.JOB_BASE_NAME),
-      description: 'The release number of the Matlab to load.',
+      description: 'The release number of the Matlab to load e.g. R2019b.',
       name: 'MATLAB_VERSION', trim: true
     ),
     string(
