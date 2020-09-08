@@ -55,11 +55,12 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             % And now fit
             [wfit_1,fitpar_1] = mss.fit();
             
-            % Test against saved or store to save later
+            % Test against saved or store to save later; ingnore string
+            % changes - these are filepaths
             tol = [1e-10,1e-8];
-            assertEqualToTolWithSave (this, wsim_1, 'tol', tol)
-            assertEqualToTolWithSave (this, wfit_1, 'tol', tol)
-            assertEqualToTolWithSave (this, fitpar_1, 'tol', tol)
+            assertEqualToTolWithSave (this, wsim_1, 'tol', tol, 'ignore_str', 1)
+            assertEqualToTolWithSave (this, wfit_1, 'tol', tol, 'ignore_str', 1)
+            assertEqualToTolWithSave (this, fitpar_1, 'tol', tol, 'ignore_str', 1)
         end
         
         % ------------------------------------------------------------------------------------------------
@@ -81,11 +82,12 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             % And now fit
             [wfit_2,fitpar_2] = mss.fit();
             
-            % Test against saved or store to save later
+            % Test against saved or store to save later; ingnore string
+            % changes - these are filepaths
             tol = [1e-10,1e-8];
-            assertEqualToTolWithSave (this, wsim_2, 'tol', tol)
-            assertEqualToTolWithSave (this, wfit_2, 'tol', tol)
-            assertEqualToTolWithSave (this, fitpar_2, 'tol', tol)           
+            assertEqualToTolWithSave (this, wsim_2, 'tol', tol, 'ignore_str', 1)
+            assertEqualToTolWithSave (this, wfit_2, 'tol', tol, 'ignore_str', 1)
+            assertEqualToTolWithSave (this, fitpar_2, 'tol', tol, 'ignore_str', 1)
         end
         
         % ------------------------------------------------------------------------------------------------
