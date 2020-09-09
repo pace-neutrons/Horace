@@ -25,18 +25,24 @@ classdef combine_sqw_pix_job < JobExecutor
         % the initial information about the bins and pixels to process
         pix_combine_info_;
         
-        % array of open file handles, used in combining process. different
-        % workers use it differently
+        % array of open file handles, for source files
         fid_
         %
         %  the holder of the procedure, used to close the input
         %  files at job completeon/class destruction
         fid_closer_
+        % open file handle, for target file
+        fout_
+        %
+        %  the holder of the procedure, used to close the input
+        %  files at job completeon/class destruction
+        fout_closer_
+        
         %
         % the structure, used as the payload for a data messages
-        % transmitted between jobs and containing pixels and bins 
+        % transmitted between jobs and containing pixels and bins
         % information used in combining
-        mess_struct_ 
+        mess_struct_
     end
     
     methods
@@ -46,8 +52,8 @@ classdef combine_sqw_pix_job < JobExecutor
             obj.mess_struct_ = struct(...
                 'npix',0,... % number of pixels in message
                 'n_source',0 ,...  % number of reader in the list or readers prepared data message
-                'bin_range',[0,0],... % number of bins this pixel 
-                'pix_data',[],...     % 
+                'bin_range',[0,0],... % number of bins this pixel
+                'pix_data',[],...     %
                 'bin_edges',[],'last_bin_completed',true);
         end
         function [obj,mess]=init(obj,fbMPI,intercom_class,InitMessage,varargin)
@@ -90,7 +96,8 @@ classdef combine_sqw_pix_job < JobExecutor
                 obj.h_log_file = false;
             end
         end
-        function obj = init_reader_job(obj)
+        %
+        function obj = init_reader_task(obj)
             % initialize reader job, namely
             % open or reopen all input files and
             % specify the procedure to close these files at the end of the
@@ -100,10 +107,10 @@ classdef combine_sqw_pix_job < JobExecutor
             obj.fid_ = verify_and_reopen_input_files_(obj);
             
             % Always close opened files on the procedure completion
-            obj.fid_closer_  =  onCleanup(@()fcloser_(obj.fid_));  %            
+            obj.fid_closer_  =  onCleanup(@()fcloser_(obj.fid_));  %
         end
         %
-        function obj = init_writer_job(obj)
+        function obj = init_writer_task(obj)
             % initialize writer job, namely
             % open target sqw file, define pixel combine cache for
             % 1w-Nr configuration and
@@ -111,10 +118,10 @@ classdef combine_sqw_pix_job < JobExecutor
             % job.
             %
             % open target file for writing
-            obj = init_writer_job_(obj);            
+            obj = init_writer_job_(obj);
             
             % Always close opened files on the procedure completion
-            obj.fid_closer_  =  onCleanup(@()fcloser_(obj.fid_));  %            
+            obj.fout_closer_  =  onCleanup(@()fcloser_(obj.fout_));  %
         end
         
         
@@ -132,19 +139,20 @@ classdef combine_sqw_pix_job < JobExecutor
             end
             
             if obj.labIndex == 1 % writer lab
-                obj = obj.init_writer_job();
+                obj = obj.init_writer_task();
                 
                 n_received = receive_data_write_output_(obj,common_par,h_log_fl);
                 obj.task_outputs = n_received;
                 
+                obj.fout_closer_ = [];
             else  % reader labs
-                obj = obj.init_reader_job();
+                obj = obj.init_reader_task();
                 
                 n_sent = read_inputs_send_to_writer_(obj,common_par,h_log_fl);
                 obj.task_outputs = n_sent;
+                % close all open files
+                obj.fid_closer_ = [];
             end
-            % close all open files
-            obj.fid_closer_ = []; 
             %
             obj.is_finished_ = true;
         end
@@ -160,7 +168,9 @@ classdef combine_sqw_pix_job < JobExecutor
         %------------------------------------------------------------------
         function write_npix_to_pix_blocks(obj,fout,pix_out_position,pix_comb_info)
             % take pixels from the contributing files and place them into final sqw
-            % file pixels block
+            % file pixels block.
+            %
+            % Serial implementation of parallel job
             %
             % Inputs:
             % fout             -- filehandle or filename of target sqw file
@@ -217,14 +227,6 @@ classdef combine_sqw_pix_job < JobExecutor
             
         end
         %
-        function n_pix_written=write_pixels(~,fout,pix_section,n_pix_written)
-            % Write properly formed pixels block to the output file
-            
-            %pix_buff = [pix_section{:}];
-            %pix_buff  = reshape(pix_buff,numel(pix_buff),1);
-            fwrite(fout,pix_section,'float32');    % write to output file
-            n_pix_written = n_pix_written+size(pix_section,2);
-        end
         %
         function [npix_section,npix_in_bins,ibin_end]=get_npix_section(obj,ibin_start,ibin_max,varargin)
             % Fill a structure with sections of the npix arrays for all the input files. The positions of the
@@ -251,7 +253,7 @@ classdef combine_sqw_pix_job < JobExecutor
             %                  in case of problem with read operations.
             [npix_section,ibin_end]=get_npix_section_(obj,ibin_start,ibin_max,varargin{:});
             npix_in_bins = cumsum(sum(npix_section,2));
-        end        
+        end
     end
     
     methods(Static)
@@ -292,7 +294,7 @@ classdef combine_sqw_pix_job < JobExecutor
             [npix_2_read,npix_processed,npix_per_bins_left,npix_in_bins_left,last_fit_bin] = ...
                 nbin_for_pixels_(npix_per_bins,npix_in_bins,npix_processed,pix_buf_size);
         end
-        %
+        %        
         function [pix_buffer,pos_pixstart] = read_pixels(fid,pos_pixstart,npix2read)
             % read pixel block of the appropriate size and move read
             % pointer to the next position
@@ -315,6 +317,15 @@ classdef combine_sqw_pix_job < JobExecutor
             end
             pos_pixstart = ftell(fid); %set up next read position
         end
+        function n_pix_written=write_pixels(fout,pix_section,n_pix_written)
+            % Write properly formed pixels block to the output file
+            
+            %pix_buff = [pix_section{:}];
+            %pix_buff  = reshape(pix_buff,numel(pix_buff),1);
+            fwrite(fout,pix_section,'float32');    % write to output file
+            n_pix_written = n_pix_written+size(pix_section,2);
+        end
+        
         %
         function [common_par,loop_par ] = pack_job_pars(pix_comb_info,fout_name,pix_out_pos,n_workers)
             % prepare job parameter in the form, suitable for splitting them between jobs and sending them

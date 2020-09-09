@@ -10,7 +10,7 @@ mpis = MPI_State.instance();
 is_deployed = mpis.is_deployed;
 
 % fout           -- initialized handle for opened binary file to write data
-fout = obj.fid_;
+fout = obj.fout_;
 %
 n_bins = common_par.nbin;     % total number of bins
 npix = common_par.npixels;  % total number of pixels
