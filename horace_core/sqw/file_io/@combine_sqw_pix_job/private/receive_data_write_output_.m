@@ -1,15 +1,17 @@
-function n_pix_written = receive_data_write_output_(obj,common_par,fout,h_log)
+function n_pix_written = receive_data_write_output_(obj,common_par,h_log)
 % common_par     -- the job info common for all parallel processes.
-% fout           -- initialized handle for opened binary file to write data
 % h_log          -- if > 0 - the open handle to an opened log file
 %                   to report information about the job progress.
 % Returns
-% n_pix_written  -- number of pixels written 
-
+% n_pix_written  -- number of pixels written to the file
+%
 
 mpis = MPI_State.instance();
 is_deployed = mpis.is_deployed;
 
+% fout           -- initialized handle for opened binary file to write data
+fout = obj.fid_;
+%
 n_bins = common_par.nbin;     % total number of bins
 npix = common_par.npixels;  % total number of pixels
 if h_log
@@ -33,7 +35,7 @@ end
 
 while ~isempty(data_providers)|| pix_cache.npix_in_cache ~= 0
     %
-    if isempy(data_providers)
+    if isempty(data_providers)
         messages = {};
     else
         messages = mess_exch.receive_all(data_providers,'data');
