@@ -43,13 +43,16 @@ fseek(fout,pix_out_position,'bof');
 check_error_report_fail_(fout,...
     ['Unable to move to the start of the pixel record in THE target file ',...
     filename ,' starting matlab-combine']);
+obj.fout_ = fout;
 
 
+obj.pix_combine_info_ = pix_comb_info;
 
+obj=obj.init_reader_task();
 % Get number of files
-fid = verify_and_reopen_input_files_(pix_comb_info);
+%fid = verify_and_reopen_input_files_(obj);
 % Always close opened files on the procedure completion
-clob = onCleanup(@()fcloser_(fid));  %
+%clob = onCleanup(@()fcloser_(fid));  %
 
 
 % Write the pixel information to the file
@@ -65,11 +68,6 @@ clob = onCleanup(@()fcloser_(fid));  %
 
 %profile on
 
-% Unpack input structures
-relabel_with_fnum= pix_comb_info.relabel_with_fnum;
-change_fileno    = pix_comb_info.change_fileno;
-run_label        = pix_comb_info.run_label;
-filenum          = pix_comb_info.filenum;
 
 % time counters
 t_io_total  = 0;
@@ -88,7 +86,8 @@ while ibin_end<nbin
     
     % Refill buffer with next section of npix arrays from the input files
     ibin_start = ibin_end+1;
-    [npix_per_bins,npix_in_bins,ibin_end]=obj.get_npix_section(fid,pix_comb_info.pos_npixstart,ibin_start,nbin);
+    %[npix_per_bins,npix_in_bins,ibin_end]=obj.get_npix_section(fid,pix_comb_info.pos_npixstart,ibin_start,nbin);
+    [npix_per_bins,npix_in_bins,ibin_end]=obj.get_npix_section(ibin_start,nbin);    
     npix_per_bins = npix_per_bins';
     
     % Get the largest bin index such that the pixel information can be put in buffer
@@ -108,8 +107,8 @@ while ibin_end<nbin
             tr = tic;
         end
         [pix_section,pos_pixstart]=...
-            obj.read_pix_for_nbins_block(fid,pos_pixstart,npix_per_bin2_read,...
-            filenum,run_label,change_fileno,relabel_with_fnum);
+            obj.read_pix_for_nbins_block(pos_pixstart,npix_per_bin2_read);
+        
         if (log_level>1)
             t_read=toc(tr);
             disp(['   ***time to read subcells from files: ',num2str(t_read),' speed: ',num2str(npix_processed*4*9/t_read/(1024*1024)),'MB/sec'])
@@ -137,7 +136,7 @@ end
 
 %profile off
 %profile viewer
-clear clob;
+obj.fid_closer_ = [];
 mess_completion
 if (log_level>1)
     file_size = n_pix_written*9*4/(1024*1024);

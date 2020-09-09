@@ -548,8 +548,12 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             filenums = 1:10;
             
             rd =combine_sqw_job_tester();
+            rd.pix_combine_info = struct('filenum',filenums,'run_label',run_label,...
+                'change_fileno',true,'relabel_with_fnum',false);
+            rd.fid = fid;
+
             [pix_section,pos_pixstart]=rd.read_pix_for_nbins_block(...
-                fid,pos_pixstart,npix_per_bin,filenums,run_label,true,false);
+                pos_pixstart,npix_per_bin);
             
             assertEqual( pos_pixstart,sum(npix_per_bin,2));
             assertEqual(size(pix_section),[9,sum(sum(npix_per_bin))]);
