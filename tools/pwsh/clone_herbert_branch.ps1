@@ -16,7 +16,6 @@ param(
 $HERBERT_URL = "https://github.com/pace-neutrons/Herbert.git"
 $HERBERT_DIR = "$($(Get-Location).Path)/Herbert"
 
-Write-Output "Building Herbert branch '$branch'..."
 if (Test-Path -Path "$HERBERT_DIR") {
   Write-And-Invoke "git -C $HERBERT_DIR fetch origin"
   Write-And-Invoke "git -C $HERBERT_DIR reset --hard origin/$branch"
@@ -24,6 +23,7 @@ if (Test-Path -Path "$HERBERT_DIR") {
   Write-And-Invoke "git clone $HERBERT_URL --depth 1 --branch $branch $HERBERT_DIR"
 }
 
+Write-Output "`nBuilding Herbert revision $(git -C $HERBERT_DIR rev-parse HEAD)..."
 $build_cmd = "$HERBERT_DIR/tools/build_config/build.ps1 -build"
 $build_cmd += " -build_tests OFF"
 $build_cmd += " $build_args"
