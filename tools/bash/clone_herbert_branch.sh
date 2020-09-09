@@ -25,11 +25,11 @@ if [ "${herbert_branch}" = "" ]; then
 fi
 
 if [[ -d "${HERBERT_DIR}" ]]; then
-    echo_and_run "git -C ${HERBERT_DIR} fetch origin" &&
-    echo_and_run "git -C ${HERBERT_DIR} reset --hard origin/${herbert_branch}"
+    echo_and_run "git -C ${HERBERT_DIR} fetch -all --tags" &&
+    echo_and_run "git -C ${HERBERT_DIR} reset --hard \"${herbert_branch}\""
 else
     git_clone_cmd="git clone ${HERBERT_URL} --depth 1"
-    git_clone_cmd+=" --branch ${herbert_branch} ${HERBERT_DIR}"
+    git_clone_cmd+=" --branch \"${herbert_branch}\" ${HERBERT_DIR}"
     echo_and_run "${git_clone_cmd}"
 fi
 

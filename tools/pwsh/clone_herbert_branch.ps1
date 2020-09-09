@@ -17,10 +17,10 @@ $HERBERT_URL = "https://github.com/pace-neutrons/Herbert.git"
 $HERBERT_DIR = "$($(Get-Location).Path)/Herbert"
 
 if (Test-Path -Path "$HERBERT_DIR") {
-  Write-And-Invoke "git -C $HERBERT_DIR fetch origin"
-  Write-And-Invoke "git -C $HERBERT_DIR reset --hard origin/$branch"
+  Write-And-Invoke "git -C $HERBERT_DIR fetch --all --tags"
+  Write-And-Invoke "git -C $HERBERT_DIR reset --hard ""$branch"""
 } else {
-  Write-And-Invoke "git clone $HERBERT_URL --depth 1 --branch $branch $HERBERT_DIR"
+  Write-And-Invoke "git clone $HERBERT_URL --depth 1 --branch ""$branch"" $HERBERT_DIR"
 }
 
 Write-Output "`nBuilding Herbert revision $(git -C $HERBERT_DIR rev-parse HEAD)..."
