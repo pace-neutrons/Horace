@@ -82,7 +82,7 @@ properties([
     ),
     string(
       defaultValue: get_default_herbert_branch(env.JOB_BASE_NAME),
-      description: 'The name of the branch of Herbert to use.',
+      description: 'The name of the branch or tag of Herbert to use.',
       name: 'HERBERT_BRANCH_NAME',
       trim: true
     ),
