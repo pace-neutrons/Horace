@@ -24,7 +24,6 @@ if [ "${herbert_branch}" = "" ]; then
     herbert_branch="${DEFAULT_BRANCH}"
 fi
 
-echo "Building Herbert branch '${herbert_branch}'..."
 if [[ -d "${HERBERT_DIR}" ]]; then
     echo_and_run "git -C ${HERBERT_DIR} fetch origin" &&
     echo_and_run "git -C ${HERBERT_DIR} reset --hard origin/${herbert_branch}"
@@ -34,6 +33,7 @@ else
     echo_and_run "${git_clone_cmd}"
 fi
 
+echo -e "\nBuilding Herbert revision $(git -C ${HERBERT_DIR} rev-parse HEAD)..."
 build_cmd="${HERBERT_DIR}/tools/build_config/build.sh --build"
 build_cmd+=" --build_tests OFF ${build_args}"
 echo_and_run "${build_cmd}"
