@@ -251,6 +251,8 @@ classdef pix_cache
             
             next_bin_to_proc = last_bin_to_process+1;
             for i=1:n_mess
+                % array of size(bins)+1 numbering the ranges of the pixels
+                % belonging to each bin
                 edges = obj.bin_edges_{i};
                 if isempty(edges)
                     % if this happens, we assume no pixels for this bin range

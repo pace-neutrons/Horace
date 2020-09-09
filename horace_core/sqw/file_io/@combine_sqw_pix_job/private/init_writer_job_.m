@@ -1,9 +1,11 @@
-function [fout] = init_writer_job_(obj,pix_comb_info)
+function [obj] = init_writer_job_(obj)
 % process job inputs and return initial information for writer job
 %
 %Returns:
+% obj  -- JobExecutor instance, with initialized messages cache
 % fout -- initialized handle for opened binary file to write data
- 
+
+pix_comb_info = obj.pix_combine_info_;
 
 filename = pix_comb_info.fout_name;
 fout = fopen(filename,'rb+');
@@ -20,3 +22,8 @@ check_error_report_fail_(fout,...
     'to start writing combined pixels'],...
     filename));
 
+obj.pix_cache_ = pix_cache(...
+    obj.mess_framework.numLabs-obj.reader_id_shift_,...
+    obj.common_data_.nbin);
+
+obj.fid_ = fout;
