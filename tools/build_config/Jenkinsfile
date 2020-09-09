@@ -17,7 +17,6 @@ def get_build_type(String job_name) {
 }
 
 def get_agent(String job_name) {
-  def agent = ''
   if (job_name.contains('Scientific-Linux-7')) {
     return 'sl7'
   } else if (job_name.contains('Windows-10')) {
