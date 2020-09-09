@@ -221,9 +221,11 @@ pipeline {
        * master build.
        *
        * For PR and Branch builds, we clone and build the Herbert master
-       * source from GitHub
+       * source from GitHub.
+       *
+       * For release builds, we clone and build a manually specified Herbert
+       * branch.
       */
-
       steps {
         script {
           if (env.RELEASE_TYPE == "nightly") {
@@ -252,15 +254,19 @@ pipeline {
                 module load cmake/\$CMAKE_VERSION &&
                 module load matlab/\$MATLAB_VERSION &&
                 module load gcc/\$GCC_VERSION &&
-                ./tools/bash/clone_herbert_branch.sh --build_args \
+                ./tools/bash/clone_herbert_branch.sh\
+                  --branch \$HERBERT_BRANCH_NAME\
+                  --build_args \
                     \"--cmake_flags \\\"-DHerbert_RELEASE_TYPE=\$RELEASE_TYPE\\\" \
                     --matlab_release \$MATLAB_VERSION\"
               '''
             } else {
               powershell '''
-                ./tools/pwsh/clone_herbert_branch.ps1 -build_args \
-                  \"-cmake_flags \"\"-DHerbert_RELEASE_TYPE=\$env:RELEASE_TYPE\"\" \
-                  -matlab_release \$env:MATLAB_VERSION\"
+                ./tools/pwsh/clone_herbert_branch.ps1\
+                  -branch \$env:HERBERT_BRANCH_NAME\
+                  -build_args\
+                    \"-cmake_flags \"\"-DHerbert_RELEASE_TYPE=\$env:RELEASE_TYPE\"\" \
+                    -matlab_release \$env:MATLAB_VERSION\"
               '''
             }
           }
