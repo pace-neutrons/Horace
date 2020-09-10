@@ -86,7 +86,6 @@ while ibin_end<nbin
     
     % Refill buffer with next section of npix arrays from the input files
     ibin_start = ibin_end+1;
-    %[npix_per_bins,npix_in_bins,ibin_end]=obj.get_npix_section(fid,pix_comb_info.pos_npixstart,ibin_start,nbin);
     [npix_per_bins,npix_in_bins,ibin_end]=obj.get_npix_section(ibin_start,nbin);    
     npix_per_bins = npix_per_bins';
     

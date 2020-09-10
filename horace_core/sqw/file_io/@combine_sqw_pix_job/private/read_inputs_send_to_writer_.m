@@ -16,6 +16,9 @@ pix_buf_size=common_par.pix_buf_size;
 mess_exch = obj.mess_framework;
 npix_tot =0;
 niter = 0;
+% by chance, the number of the target worker which collects messages
+% coincide with the combine mode number
+targ_worker = obj.combine_mode;
 
 while ibin_end<nbin
     
@@ -47,7 +50,7 @@ while ibin_end<nbin
 %             'bin_range',[ibin_start,ibin_end],'pix_tb',[],...
 %             'filled_bin_ind',[]);
         pix_section_mess  = DataMessage(payload);
-        [ok,err_mess]=mess_exch.send_message(1,pix_section_mess);
+        [ok,err_mess]=mess_exch.send_message(targ_worker,pix_section_mess);
         if ok ~= MESS_CODES.ok
             error('COMBINE_SQW_PIX_JOB:runtime_error',err_mess);
         end
@@ -71,7 +74,12 @@ while ibin_end<nbin
         [pix_section_mess,pos_pixstart]=...
             obj.read_pix_for_nbins_block(pos_pixstart,npix_per_bin2_read);
         %
-        nbins_end = nbins_start+n_last_fit_bin-1;
+        if n_last_fit_bin == 0
+            nbins_end = nbins_start;
+            pix_section_mess.payload.last_bin_completed = false;
+        else
+            nbins_end = nbins_start+n_last_fit_bin-1;
+        end
         pix_section_mess.payload.bin_range = [nbins_start,nbins_end];
         npix_tot = npix_tot+pix_section_mess.payload.npix;
         %
@@ -83,7 +91,7 @@ while ibin_end<nbin
                 niter,pix_section_mess.payload.npix,npix_tot);
         end
         %
-        [ok,err_mess]=mess_exch.send_message(1,pix_section_mess);
+        [ok,err_mess]=mess_exch.send_message(targ_worker,pix_section_mess);
         if ok ~= MESS_CODES.ok
             error('COMBINE_SQW_PIX_JOB:runtime_error',err_mess);
         end
