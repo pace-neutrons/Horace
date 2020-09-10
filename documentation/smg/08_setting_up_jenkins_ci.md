@@ -116,19 +116,6 @@ and should be prefixed with `PR-` if the pipeline is building pull requests, e.g
 `PR-Scientific-Linux-7-2018b`.
 - Enter the GitHub project URL e.g. `http:/pace-neutrons.github.com/horace`
 (this creates a link to the GitHub from the pipeline).
-- Select the `This project is parameterised` option:
-
-  - Create the following string parameters:
-
-    - `AGENT`: The label of the agent to run the job on
-    - `CMAKE_VERSION`: The version of CMake to load
-    - `MATLAB_VERSION`: The (release) version of Matlab to load
-    - `GCC_VERSION`: The version of GCC to use (Linux only)
-    - `CPPCHECK_VERSION`: The version of CppCheck to use (Linux only)
-
-    The list of required parameters are noted in the docstring for the pipeline
-    within the Jenkinsfile, and should be added with descriptions through the
-    Jenkins job GUI.
 
 #### Nightly builds
 
@@ -138,7 +125,10 @@ The nightly build should run if there have been any code changes to the `master`
 - Set the schedule to run overnight (e.g. between 1am and 2am `H 1 * * *`)
 - Add a `RELEASE_TYPE` string parameters and set to `nightly`
 
-Note: the Herbert build will trigger the downstream Horace build. To ensure the latest build artifacts are used the Horace build must be scheduled to trigger *after the Herbert build will have completed*.
+Note: the Herbert build will trigger the downstream Horace build.
+To ensure the latest build artifacts are used,
+the Horace build must be scheduled to trigger *after the Herbert build will
+have completed*.
 
 #### Pull requests
 
@@ -181,6 +171,14 @@ left and enter the name of the branch they want to build.
 The `Jenkinksfile` script is the entry point for Jenkins.
 This loads the required versions of libraries, calls the build scripts,
 and notifies GitHub of the build's status.
+
+The `Jenkinsfile` can be used to declare pipeline parameters,
+rather than needing to set them in the GUI.
+Be aware that these parameters will _not_ be set the first time you run the
+Jenkinsfile.
+However, the pipeline parameters will have been updated for the next time the
+pipeline is run.
+This moves more of the pipeline definition into code rather than in the GUI.
 
 There are two build scripts, one written in Bash and one in PowerShell. The
 scripts are named `build.<sh/ps1>` and have a similar API.
