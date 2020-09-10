@@ -250,7 +250,6 @@ fieldnames_comments.m
 header_average.m
 ind_from_nrange.m
 is_horace_data_object.m
-permute_pix_array.m
 rebunch_dnd.m
 recompute_bin_data.m
 recompute_urange.m
