@@ -52,8 +52,8 @@ So that Horace builds are run against an up-to-date Herbert,
 pull request and branch builds will checkout and build the latest Herbert master from GitHub.
 This means that Horace is run against Herbert source,
 instead of a Herbert package.
-There also exists a parameter that allows one to build a particular branch or
-tag of Herbert.
+There also exists a parameter `HERBERT_BRANCH_NAME` that allows one to build a
+particular branch or tag of Herbert.
 
 Nightly builds should be equivalent to production releases, so Horace will use a
 packaged version of Herbert. This will ensure that our Herbert and Horace packages
