@@ -5,14 +5,16 @@ classdef combine_sqw_pix_job < JobExecutor
     %
     % Given range of tmp files with pixels distributed in bins
     %
+    properties(Dependent)
+        % the way of splitting combine job among workers.
+        % Two modes are available: 1 -- Single writer/combiner and multiple
+        % readers and 2 - writer-combiner-multiple readers
+        combine_mode
+    end
     properties(Access = protected)
         is_finished_  = false;
         finalizer_ =[];
         open_files_id_ = [];
-        % The number of auxiliary worker, not participating in reading data
-        % It can be 1 single writer-combiner/mutliple readers
-        % or 2 (1 writer, 1 combiner/multiple readers)
-        reader_id_shift_ = 1;
         
         % property to store pixels, which have not yet received information
         % from all contributed bins (files)
@@ -43,6 +45,14 @@ classdef combine_sqw_pix_job < JobExecutor
         % transmitted between jobs and containing pixels and bins
         % information used in combining
         mess_struct_
+        %
+        combine_mode_ = 1;
+        %
+        % The number of auxiliary workers, not participating in reading data
+        % It can be 1 single writer-combiner/mutliple readers
+        % or 2 (1 writer, 1 combiner/multiple readers)
+        reader_id_shift_ = 1;
+        
     end
     
     methods
@@ -123,6 +133,13 @@ classdef combine_sqw_pix_job < JobExecutor
             % Always close opened files on the procedure completion
             obj.fout_closer_  =  onCleanup(@()fcloser_(obj.fout_));  %
         end
+        function obj = init_combiner_task(obj)
+            % initialize job, which sorts and combines pixels according to
+            % bins
+            % open target file for writing
+            obj = init_combiner_job_(obj);
+        end
+        
         
         
         function obj=do_job(obj)
@@ -132,6 +149,7 @@ classdef combine_sqw_pix_job < JobExecutor
             common_par      = obj.common_data_;
             % receive block of the, specific for the given workers
             obj.pix_combine_info_ = obj.loop_data_{1};
+            obj.combine_mode = common_par.combine_mode;
             
             h_log_fl = obj.ext_log_fh;
             if isempty(h_log_fl)
@@ -141,17 +159,30 @@ classdef combine_sqw_pix_job < JobExecutor
             if obj.labIndex == 1 % writer lab
                 obj = obj.init_writer_task();
                 
-                n_received = receive_data_write_output_(obj,common_par,h_log_fl);
+                if obj.combine_mode ==2
+                    n_received = receive_combined_write_output_(obj,common_par,h_log_fl);                    
+                else
+                    n_received = receive_data_write_output_(obj,common_par,h_log_fl);
+                end
                 obj.task_outputs = n_received;
                 
                 obj.fout_closer_ = [];
-            else  % reader labs
-                obj = obj.init_reader_task();
-                
-                n_sent = read_inputs_send_to_writer_(obj,common_par,h_log_fl);
-                obj.task_outputs = n_sent;
-                % close all open files
-                obj.fid_closer_ = [];
+            else
+                if obj.combine_mode ==2 && obj.labIndex == 2
+                    % combiner lab
+                    obj = obj.init_combiner_task();
+                    n_combined = receive_combine_send_to_writer_(obj,common_par,h_log_fl);
+                    
+                    obj.task_outputs = n_combined;
+                else
+                    % reader labs
+                    obj = obj.init_reader_task();
+                    
+                    n_sent = read_inputs_send_to_writer_(obj,common_par,h_log_fl);
+                    obj.task_outputs = n_sent;
+                    % close all open files
+                    obj.fid_closer_ = [];
+                end
             end
             %
             obj.is_finished_ = true;
@@ -163,6 +194,22 @@ classdef combine_sqw_pix_job < JobExecutor
         %
         function ok = is_completed(obj)
             ok = obj.is_finished_;
+        end
+        function cm = get.combine_mode(obj)
+            cm = obj.combine_mode_;
+        end
+        function obj = set.combine_mode(obj,val)
+            if ~isnumeric(val) || val<1 || val>2
+                error('COMBIME_SQW:invalid_argument',...
+                    ' combine mode has to be numeric value 1 or 2. Got %s',...
+                    (evalc('disp(val)')));
+            end
+            obj.combine_mode_ = val;
+            if obj.combine_mode_ == 1
+                obj.reader_id_shift_ = 1;
+            else
+                obj.reader_id_shift_ = 2;
+            end
         end
         % submethods necessary for main workflow
         %------------------------------------------------------------------
@@ -294,7 +341,7 @@ classdef combine_sqw_pix_job < JobExecutor
             [npix_2_read,npix_processed,npix_per_bins_left,npix_in_bins_left,last_fit_bin] = ...
                 nbin_for_pixels_(npix_per_bins,npix_in_bins,npix_processed,pix_buf_size);
         end
-        %        
+        %
         function [pix_buffer,pos_pixstart] = read_pixels(fid,pos_pixstart,npix2read)
             % read pixel block of the appropriate size and move read
             % pointer to the next position
@@ -317,6 +364,7 @@ classdef combine_sqw_pix_job < JobExecutor
             end
             pos_pixstart = ftell(fid); %set up next read position
         end
+        %
         function n_pix_written=write_pixels(fout,pix_section,n_pix_written)
             % Write properly formed pixels block to the output file
             
@@ -327,13 +375,30 @@ classdef combine_sqw_pix_job < JobExecutor
         end
         
         %
-        function [common_par,loop_par ] = pack_job_pars(pix_comb_info,fout_name,pix_out_pos,n_workers)
+        function [common_par,loop_par ] = pack_job_pars(pix_comb_info,...
+                fout_name,pix_out_pos,n_workers,combine_mode)
             % prepare job parameter in the form, suitable for splitting them between jobs and sending them
             % to parallel workers.
+            %
+            % Inputs:
+            % pix_comb_info -- the structure, containing the information
+            %                  about pixel amd nbin blocks locations
+            %                  within all input files
+            % fout_name     -- full name (with path) of ouptup sqw file
+            % pix_out_pos   -- the location of the pixel block within
+            %                  binary output sqw file
+            % n_workers     -- number of parallel workers to do the job
+            % combine_mode  -- 1 or 2 depending on the parallel combine job
+            %                  separation, namely 1 -- 1 writer multiple
+            %                  readers job or 2 -- 1 writer, 1 combiner and
+            %                  other threads -- data readers.
             if n_workers < 2
                 error('COMBINE_SQW_PIX_JOB:invalid_argument',...
                     'this parallel job needs at least 2 MPI workers, while provided with %d',...
                     n_workers);
+            end
+            if ~exist('combine_mode','var')
+                combine_mode = 1;
             end
             writer_job_par = struct();
             writer_job_par.fout_name   = fout_name;
@@ -342,15 +407,32 @@ classdef combine_sqw_pix_job < JobExecutor
             common_par = struct();
             common_par.nbin     = pix_comb_info.nbins;
             common_par.npixels  = pix_comb_info.npixels;
+            if n_workers<3 && combine_mode>1
+                warning('COMBINE_SQW_PIX_JOB:invalid_argument',...
+                    ' combine mode 2 can be enabled for more then 3 workers only. Switching to combine mode 1')
+                combine_mode = 1;
+            end
+            common_par.combine_mode = combine_mode;
             
             whole_buffer = config_store.instance().get_value('hor_config','mem_chunk_size');
+            if combine_mode == 1
+                n_readers = n_workers-1;
+            else
+                n_readers = n_workers-2;
+            end
+            
             % the reader buffers together should be equal to the write buffer
-            common_par.pix_buf_size = ceil(whole_buffer/(n_workers-1));
+            common_par.pix_buf_size = ceil(whole_buffer/(n_readers));
             % less workers as one worker will hold the write job
-            loop_par = pix_comb_info.split_into_parts(n_workers-1);
+            loop_par = pix_comb_info.split_into_parts(n_readers);
             % add special loop par for the first worker as the first worker
             % will write rather than read
-            loop_par = [{writer_job_par},loop_par];
+            if combine_mode == 1
+                loop_par = [{writer_job_par},loop_par];
+            else
+                % also add empty loop par for combine job worker
+                loop_par = [{writer_job_par},{''},loop_par];
+            end
         end
     end
 end

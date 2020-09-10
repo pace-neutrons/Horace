@@ -132,6 +132,91 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             wrtr.delete();
         end
         %
+        function   test_do_combine_sqw_pix_write_separate_job(obj)
+            mis = MPI_State.instance('clear');
+            mis.is_tested = true;
+            mis.is_deployed = true;
+            clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));
+            %
+            % to make careful and consistent testing, decrease the size of the pixel
+            % access buffer to make multiple IO operations
+            hc = hor_config;
+            pix_buf_size = hc.mem_chunk_size;
+            clob1 = onCleanup(@()(set(hc,'mem_chunk_size',pix_buf_size)));
+            hc.mem_chunk_size = 10000000;
+            
+            serverfbMPI  = MessagesFilebased('combine_sqw_pix_write_separate_job');
+            serverfbMPI.mess_exchange_folder = tmp_dir();
+            clob2 = onCleanup(@()finalize_all(serverfbMPI));
+            
+            fout_name = obj.test_targ_file;
+            clob3 = onCleanup(@()delete(fout_name ));
+            % this is the main part of write_nsqw_procedure, and actually
+            % should be taken from there
+            [pix_comb_info,pix_out_pos] = obj.get_pix_comb_info();
+
+            
+            [common_par,loop_par ] = ...
+                combine_sqw_pix_job.pack_job_pars(...
+                pix_comb_info,fout_name,pix_out_pos,4,2);
+            
+            css1= serverfbMPI.get_worker_init('MessagesFilebased',1,4);
+            css2= serverfbMPI.get_worker_init('MessagesFilebased',2,4);
+            css3= serverfbMPI.get_worker_init('MessagesFilebased',3,4);
+            css4= serverfbMPI.get_worker_init('MessagesFilebased',4,4);            
+            % create response filebased framework as would on worker
+            control_struct = iMessagesFramework.deserialize_par(css1);
+            fbMPI1 = MessagesFilebased(control_struct);
+            control_struct = iMessagesFramework.deserialize_par(css2);
+            fbMPI2 = MessagesFilebased(control_struct);
+            control_struct = iMessagesFramework.deserialize_par(css3);
+            fbMPI3 = MessagesFilebased(control_struct);
+            control_struct = iMessagesFramework.deserialize_par(css4);
+            fbMPI4 = MessagesFilebased(control_struct);
+            
+            
+            [task_id_list,init_mess]=JobDispatcher.split_tasks(common_par,loop_par,true,4);
+            
+            je1 = combine_sqw_pix_job();
+            je4 = je1.init(fbMPI4,fbMPI4,init_mess{4});            
+            je3 = je1.init(fbMPI3,fbMPI3,init_mess{3});
+            je2 = je1.init(fbMPI2,fbMPI2,init_mess{2});
+            je1 = je1.init(fbMPI1,fbMPI1,init_mess{1});
+            
+            mis.logger = @(step,n_steps,time,add_info)...
+                (je1.log_progress(step,n_steps,time,add_info));
+            
+            [ok,err,mess] = serverfbMPI.receive_message(1,'started');
+            assertEqual(ok,MESS_CODES.ok,err);
+            assertTrue(strcmp(mess.mess_name,'started'));
+            
+            while ~je1.is_completed()
+                je4.do_job();
+                je4=je4.reduce_data();                
+                je3.do_job();
+                je3=je3.reduce_data();
+                je2.do_job();
+                je2=je2.reduce_data();
+                je1.do_job();
+                je1=je1.reduce_data();
+            end
+            
+            assertTrue(je1.is_completed);
+            assertTrue(exist(fout_name,'file')==2);
+            [ok,err]=serverfbMPI.receive_message(1,'log');
+            assertEqual(ok,MESS_CODES.ok,err);
+            
+            [ok,mess] = is_cut_equal(obj.test_sample_file,fout_name,projaxes,[-1,0.1,5],[-0.4,0.4],[-0.4,0.4],[10,20]);
+            assertTrue(ok,mess);
+            [ok,mess] = is_cut_equal(obj.test_sample_file,fout_name,projaxes,[-0.4,0.4],[-6.5,0.3,6.5],[-0.4,0.4],[10,20]);
+            assertTrue(ok,mess);
+            [ok,mess] = is_cut_equal(obj.test_sample_file,fout_name,projaxes,[-0.4,0.4],[-0.4,0.4],[-6.5,0.3,6.5],[10,20]);
+            assertTrue(ok,mess);
+            [ok,mess] = is_cut_equal(obj.test_sample_file,fout_name,projaxes,[-0.4,0.4],[-0.4,0.4],[-0.4,0.4],[2,5,145]);
+            assertTrue(ok,mess);
+            
+        end
+        %
         function   test_do_combine_sqw_pix_job(obj)
             mis = MPI_State.instance('clear');
             mis.is_tested = true;
@@ -207,7 +292,7 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             assertTrue(ok,mess);
             
         end
-        
+        %
         function test_pix_cache_unbalanced_bins(~,varargin)
             % testing the situation that push/pop sorts messages by bins
             % partial messages remain at the end
@@ -266,7 +351,7 @@ classdef test_nsqw2sqw_internal_methods < TestCase
                 assertEqual(sort(tpb'),sort(pb'))
             end
         end
-        
+        %
         function test_pix_cache_sparce_bins(~,varargin)
             % testing the situation that push/pop sorts messages by bins
             % partial messages remain at the end
@@ -317,7 +402,7 @@ classdef test_nsqw2sqw_internal_methods < TestCase
                 assertEqual(sort(tpb'),sort(pb'))
             end
         end
-        
+        %
         function test_pix_cache_parial_bins(~,varargin)
             % testing the situation that push/pop sorts messages by bins
             % partial messages remain at the end
@@ -416,8 +501,7 @@ classdef test_nsqw2sqw_internal_methods < TestCase
                 assertEqual(pc.last_bin_processed,100);
             end
         end
-        %
-        %
+        %      
         function test_nbin_for_pixels(~)
             
             rd =combine_sqw_job_tester();
@@ -427,7 +511,8 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             npix_processed = 0;
             npix_per_bins = ones(n_files,n_bins);
             npix_in_bins = cumsum(sum(npix_per_bins,1));
-            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] = rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,100);
+            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] =...
+                rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,100);
             assertEqual(npix_processed,100);
             assertEqual(size(npix_2_read),[10,10]);
             assertEqual(size(npix_per_bins),[10,31]);
@@ -435,7 +520,8 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             assertEqual(last_fit_bin,10);
             %
             
-            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] = rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,100);
+            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] =...
+                rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,100);
             assertEqual(npix_processed,200);
             assertEqual(size(npix_2_read),[10,10]);
             assertEqual(size(npix_per_bins),[10,21]);
@@ -443,14 +529,16 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             assertEqual(last_fit_bin,10);
             
             
-            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] = rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,200);
+            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] =...
+                rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,200);
             assertEqual(npix_processed,400);
             assertEqual(size(npix_2_read),[10,20]);
             assertEqual(size(npix_per_bins),[10,1]);
             assertEqual(numel(npix_in_bins),1);
             assertEqual(last_fit_bin,20);
             
-            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] = rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,200);
+            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] = ...
+                rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,200);
             assertEqual(npix_processed,410);
             assertEqual(size(npix_2_read),[10,1]);
             assertEqual(size(npix_per_bins),[10,0]);
@@ -461,7 +549,8 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             npix_per_bins = 10*ones(n_files,n_bins);
             npix_in_bins = cumsum(sum(npix_per_bins,1));
             npix_processed = 0;
-            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] = rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,100);
+            [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] =...
+                rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,100);
             assertEqual(npix_processed,100);
             assertEqual(size(npix_2_read),[10,1]);
             assertEqual(size(npix_per_bins),[10,40]);
@@ -537,7 +626,7 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             assertEqual(npix_2_read(4),110);
             assertEqual(last_fit_bin,1);
         end
-        
+        %
         function test_read_pix(obj)
             
             n_files = 10;
