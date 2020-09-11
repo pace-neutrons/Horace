@@ -44,7 +44,7 @@ while npix>n_pix_written
     if h_log
         fprintf(h_log,' Saving n_pixels: %d\n',size(pix_section,2));
     end
-    n_pix_written =obj.write_pixels(fout,pix_section,n_pix_written);
+    n_pix_written =obj.write_pixels(pix_section,n_pix_written);
     
 
     if is_deployed
