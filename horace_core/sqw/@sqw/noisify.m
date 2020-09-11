@@ -14,13 +14,17 @@ function wout = noisify (w,varargin)
 %           Add noise with Poisson distribution, where the mean value at
 %           a point is the value of pixel signal.
 %
+% Modified to use the object paging functionality. The "noisify" overload
+% required here is the one in Herbert taking separate signal and error
+% arguments before varargin. I *think* this overload is resolved at call
+% time and consequently further specification at this point is not needed.
 wout=w;
 for i=1:numel(w)
     if is_sqw_type(w(i))   % determine if sqw or dnd type
-        [wout(i).data.pix.signal,wout(i).data.pix.variance] = ...
-                noisify(w(i).data.pix.signal,w(i).data.pix.variance,varargin{:});
+        wout(i).data.pix = w(i).data.pix.do_sigvar_pair_va_op(noisify, varargin{:})
         wout(i)=recompute_bin_data(wout(i));
     else
         [wout(i).data.s,wout(i).data.e]=noisify(w(i).data.s,w(i).data.e,varargin{:});
     end
 end
+
