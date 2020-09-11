@@ -82,5 +82,3 @@ else % partial buffer fit. Constrain number of bins to fill the buffer
     npix_in_bins   = npix_in_bins(~fit_the_buffer)-npix_processed_now;
     npix_processed = npix_processed+npix_processed_now;
 end
-
-

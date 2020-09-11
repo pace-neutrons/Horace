@@ -26,7 +26,7 @@ while ibin_end<nbin
     ibin_start = ibin_end+1;
     [npix_per_bins,npix_in_bins,ibin_end]=...
         obj.get_npix_section(ibin_start,nbin,pix_buf_size);
-    npix_per_bins = npix_per_bins';
+    npix_section  = npix_section';    
     if h_log
         fprintf(h_log,'-------- npix_per_bins %d, bin_range: [%d, %d]; npix2process: %d\n',...
             numel(npix_per_bins ),ibin_start,ibin_end,npix_in_bins(end));

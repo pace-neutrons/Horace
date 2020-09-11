@@ -9,6 +9,13 @@ function npix_section = read_npix_block_(obj,ibin_start,nbin_buf_size)
 % Uses pix_combine info, containing locations of the npix blocks in all
 % input files and defined as property of the cobine_pix job
 %
+% Output:
+% -------
+
+% 2D array of size [nbin x n_files] with every column
+% containing npix info i.e. the numbers of pixels per bin in
+% the bin ragne specified as input
+
 fid = obj.fid_;
 pos_npixstart = obj.pix_combine_info_.pos_npixstart;
 
@@ -16,7 +23,7 @@ nfiles = numel(fid);
 npix_section = int64(zeros(nbin_buf_size,nfiles));
 
 for i=1:nfiles
-    status=fseek(fid(i),pos_npixstart(i)+8*(ibin_start-1),'bof'); % location of npix for bin number ibin_start 
+    status=fseek(fid(i),pos_npixstart(i)+8*(ibin_start-1),'bof'); % location of npix for bin number ibin_start
     % (recall written as int64)
     if status<0
         filename = fopen(fid);
