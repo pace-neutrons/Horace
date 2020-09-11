@@ -11,10 +11,7 @@ function [pix_section,pos_pixstart]=...
 mpis = MPI_State.instance();
 is_deployed = mpis.is_deployed;
 
-% fid -- array of open file identifiers.
 % pos_pixstart -- binary positions of the start of the pixels
-
-fid = obj.fid_;
 pix_comb_info = obj.pix_combine_info_;
 % relabel_with_fnum -- boolean specifies if pixel info should
 %                 be relabelled by runlabel or filenum depending
@@ -45,7 +42,7 @@ bin_filled = false(n_bin2_process,1);
 for i=1:nfiles
     if npix_per_file(i)>0
         [pix_buf,pos_pixstart(i)] = ...
-            obj.read_pixels(fid(i),pos_pixstart(i),npix_per_file(i));
+            obj.read_pixels(i,pos_pixstart(i),npix_per_file(i));
         [bin_cell,filled_bin_ind] = split_pix_per_bin_(pix_buf,npix_per_bin(i,:),...
             filenum(i),run_label(i),change_fileno,relabel_with_fnum);
         pix_tb(i,filled_bin_ind) = bin_cell(:);

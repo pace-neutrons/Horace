@@ -301,6 +301,40 @@ classdef combine_sqw_pix_job < JobExecutor
             [npix_section,ibin_end]=get_npix_section_(obj,ibin_start,ibin_max,varargin{:});
             npix_in_bins = cumsum(sum(npix_section,2));
         end
+        %
+        function [pix_buffer,pos_pixstart] = read_pixels(obj,n_file,pos_pixstart,npix2read)
+            % read pixel block of the appropriate size and move read
+            % pointer to the next position
+            %Inputs:
+            % fid          -- the file identified of an opened file
+            % pos_pixstart -- the initial position of the pix block to read
+            % npix2read    -- number of pixels to read
+            %
+            fid = obj.fid_(n_file);
+            
+            fseek(fid,pos_pixstart,'bof');
+            [pix_buffer,count_out] = fread(fid,[9,npix2read],'*float32');
+            if count_out ~=9*npix2read
+                error('SQW_FILE_IO:runtime_error',...
+                    ' Number of pixels read %d is smaller then the number requested: %d',...
+                    count_out/9,npix2read);
+            end
+            [f_message,f_errnum] = ferror(fid);
+            if f_errnum ~=0
+                error('SQW_FILE_IO:runtime_error',...
+                    'Error N%d during IO operation: %s',f_errnum,f_message);
+            end
+            pos_pixstart = ftell(fid); %set up next read position
+        end
+        %
+        function n_pix_written=write_pixels(obj,pix_section,n_pix_written)
+            % Write properly formed pixels block to the output file
+            
+            fout = obj.fout_;
+            fwrite(fout,pix_section,'float32');    % write to output file
+            n_pix_written = n_pix_written+size(pix_section,2);
+        end
+        
     end
     
     methods(Static)
@@ -342,37 +376,6 @@ classdef combine_sqw_pix_job < JobExecutor
                 nbin_for_pixels_(npix_per_bins,npix_in_bins,npix_processed,pix_buf_size);
         end
         %
-        function [pix_buffer,pos_pixstart] = read_pixels(fid,pos_pixstart,npix2read)
-            % read pixel block of the appropriate size and move read
-            % pointer to the next position
-            %Inputs:
-            % fid          -- the file identified of an opened file
-            % pos_pixstart -- the initial position of the pix block to read
-            % npix2read    -- number of pixels to read
-            %
-            fseek(fid,pos_pixstart,'bof');
-            [pix_buffer,count_out] = fread(fid,[9,npix2read],'*float32');
-            if count_out ~=9*npix2read
-                error('SQW_FILE_IO:runtime_error',...
-                    ' Number of pixels read %d is smaller then the number requested: %d',...
-                    count_out/9,npix2read);
-            end
-            [f_message,f_errnum] = ferror(fid);
-            if f_errnum ~=0
-                error('SQW_FILE_IO:runtime_error',...
-                    'Error N%d during IO operation: %s',f_errnum,f_message);
-            end
-            pos_pixstart = ftell(fid); %set up next read position
-        end
-        %
-        function n_pix_written=write_pixels(fout,pix_section,n_pix_written)
-            % Write properly formed pixels block to the output file
-            
-            %pix_buff = [pix_section{:}];
-            %pix_buff  = reshape(pix_buff,numel(pix_buff),1);
-            fwrite(fout,pix_section,'float32');    % write to output file
-            n_pix_written = n_pix_written+size(pix_section,2);
-        end
         
         %
         function [common_par,loop_par ] = pack_job_pars(pix_comb_info,...

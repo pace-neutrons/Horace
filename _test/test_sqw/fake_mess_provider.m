@@ -7,6 +7,10 @@ classdef fake_mess_provider < handle
     properties
         pix_block;
         file_blocks;
+        pix_combined;
+        
+        combined_pix_data=[]; 
+        
         
         % the number of pixels to use as fake "cache"
         buf_size = 100;
@@ -80,7 +84,6 @@ classdef fake_mess_provider < handle
             % messages       -- cellarray of messages containing pix information. See
             %
             %                   pix_cache about the format of these messages
-            
             
             np_start = obj.npix_start;
             nb_start = obj.nbin_start;

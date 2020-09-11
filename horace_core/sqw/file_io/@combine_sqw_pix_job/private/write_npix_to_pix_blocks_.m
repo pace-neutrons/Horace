@@ -117,7 +117,7 @@ while ibin_end<nbin
         if (log_level>1)
             t_w = tic;
         end
-        n_pix_written =obj.write_pixels(fout,pix_section,n_pix_written);
+        n_pix_written =obj.write_pixels(pix_section,n_pix_written);
         
         if (log_level>1)
             t_write = toc(t_w);

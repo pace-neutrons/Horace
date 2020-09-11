@@ -154,7 +154,7 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             % this is the main part of write_nsqw_procedure, and actually
             % should be taken from there
             [pix_comb_info,pix_out_pos] = obj.get_pix_comb_info();
-
+            
             
             [common_par,loop_par ] = ...
                 combine_sqw_pix_job.pack_job_pars(...
@@ -163,7 +163,7 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             css1= serverfbMPI.get_worker_init('MessagesFilebased',1,4);
             css2= serverfbMPI.get_worker_init('MessagesFilebased',2,4);
             css3= serverfbMPI.get_worker_init('MessagesFilebased',3,4);
-            css4= serverfbMPI.get_worker_init('MessagesFilebased',4,4);            
+            css4= serverfbMPI.get_worker_init('MessagesFilebased',4,4);
             % create response filebased framework as would on worker
             control_struct = iMessagesFramework.deserialize_par(css1);
             fbMPI1 = MessagesFilebased(control_struct);
@@ -178,7 +178,7 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             [task_id_list,init_mess]=JobDispatcher.split_tasks(common_par,loop_par,true,4);
             
             je1 = combine_sqw_pix_job();
-            je4 = je1.init(fbMPI4,fbMPI4,init_mess{4});            
+            je4 = je1.init(fbMPI4,fbMPI4,init_mess{4});
             je3 = je1.init(fbMPI3,fbMPI3,init_mess{3});
             je2 = je1.init(fbMPI2,fbMPI2,init_mess{2});
             je1 = je1.init(fbMPI1,fbMPI1,init_mess{1});
@@ -192,7 +192,7 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             
             while ~je1.is_completed()
                 je4.do_job();
-                je4=je4.reduce_data();                
+                je4=je4.reduce_data();
                 je3.do_job();
                 je3=je3.reduce_data();
                 je2.do_job();
@@ -501,7 +501,7 @@ classdef test_nsqw2sqw_internal_methods < TestCase
                 assertEqual(pc.last_bin_processed,100);
             end
         end
-        %      
+        %
         function test_nbin_for_pixels(~)
             
             rd =combine_sqw_job_tester();
@@ -627,27 +627,50 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             assertEqual(last_fit_bin,1);
         end
         %
-        function test_read_pix(obj)
+        function test_read_pix(~)
             
             n_files = 10;
             fid = 1:n_files;
             run_label = 2*(1:n_files);
-            pos_pixstart = zeros(n_files,1);
-            npix_per_bin = randi(10,n_files,5)-1;
+            pos_pixstart = ones(n_files,1);
             filenums = 1:10;
             
             rd =combine_sqw_job_tester();
             rd.pix_combine_info = struct('filenum',filenums,'run_label',run_label,...
-                'change_fileno',true,'relabel_with_fnum',false);
+                'change_fileno',true,'relabel_with_fnum',false,...
+                'pos_npixstart',ones(n_files,1));
             rd.fid = fid;
-
-            [pix_section,pos_pixstart]=rd.read_pix_for_nbins_block(...
-                pos_pixstart,npix_per_bin);
             
-            assertEqual( pos_pixstart,sum(npix_per_bin,2));
-            assertEqual(size(pix_section),[9,sum(sum(npix_per_bin))]);
-            %assertEqual(size(pix_section{2}),[9,sum(npix_per_bin(:,2))]);
-            %assertEqual(size(pix_section{3}),[9,sum(npix_per_bin(:,3))]);
+            n_bins = 50;
+            pix_buf_size = 2000;
+            n_pixels = 100;
+            
+            
+            rd = rd.init_fake_mpi(n_files,pix_buf_size,n_pixels,n_bins);
+            
+            [npix_per_bins,npix_in_bins,ibin_end]=...
+                rd.get_npix_section(1,n_bins,pix_buf_size);
+            npix_per_bins  = npix_per_bins';
+            npix_processed = 0;
+            assertEqual(ibin_end,n_bins);
+            
+            [npix_per_bin2_read,npix_processed,npix_per_bins,npix_in_bins,n_last_fit_bin] = ...
+                rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,pix_buf_size);
+            
+            assertEqual(n_last_fit_bin,n_bins);
+            assertEqual(npix_processed,n_pixels);
+            assertEqual(size(npix_per_bins),[10,0]);
+            assertTrue(isempty(npix_in_bins));
+            
+            [pix_section,pos_pixstart]=rd.read_pix_for_nbins_block(...
+                pos_pixstart,npix_per_bin2_read);
+            
+            assertEqual(pos_pixstart-1,sum(npix_per_bin2_read,2));
+            assertEqual(size(pix_section),[9,sum(sum(npix_per_bin2_read))]);
+            
+            tpb = rd.mess_framework.pix_block;
+            assertEqual(tpb(1,:)',pix_section(1,:)');
+            assertEqual(sort(tpb(1:3,:)'),sort(pix_section(1:3,:)'));
         end
         
     end
