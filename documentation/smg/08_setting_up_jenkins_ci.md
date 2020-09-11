@@ -44,6 +44,54 @@ For all:
 - The `Jenkinsfile` script runs the platform specific build script and updates
 GitHub about the status of the build.
 
+## Naming conventions
+
+The pipelines are split into folders `Herbert` and `Horace`,
+each containing pipelines for their namesake's code.
+All pipelines should follow the stated naming convention
+and the majority of pipelines should exist in both Herbert and Horace folders.
+
+The convention is:
+
+```txt
+[pipeline-type]-[os/platform]-[matlab-year-release]
+```
+
+Examples of `pipeline-type`:
+
+- `PR` for pull requests
+- `Branch` for builds of a user specified branch
+- `Release` for pipelines creating Herbert/Horace releases
+- an empty string for nightly master builds
+
+The pipeline type defines the "type" of package that the pipeline will generate.
+For example, the `PR` type will create a package whose version number contains
+a Git SHA.
+The `Release` type will generate a package meant for public release and the
+version number will not contain a Git SHA.
+
+Examples of `os/platform`:
+
+- `Windows-10`
+- `Scientific-Linux-7`
+
+These names map to labels for ANVIL Jenkins agents.
+This mappings are defined using the
+[credentials plugin](https://www.jenkins.io/doc/book/using/using-credentials/).
+
+Examples of `matlab-year-release`:
+
+- 2018b
+- 2019b
+
+For example, a pipeline that builds PRs on Windows 10 using Matlab R2018b must
+be called `PR-Windows-10-2018b`
+
+It may also be useful to define _trigger_ pipelines.
+These pipelines can be used to trigger a set of pipelines.
+For example you may wish to trigger nightly builds for all platforms.
+The naming convention for these should be `[pipeline-type]-Trigger`.
+
 ## Managing Herbert Dependency
 
 In order to build and run, Horace requires that Herbert also be present in the
@@ -111,9 +159,8 @@ Allows GitHub to trigger builds
 ### Setting Up the Pipeline
 
 - Create a new "Pipeline" job.
-- The pipeline should follow the naming convention: `<operating-system>-<Matlab-release>`
-and should be prefixed with `PR-` if the pipeline is building pull requests, e.g.
-`PR-Scientific-Linux-7-2018b`.
+- The pipeline should follow the naming convention defined above.
+E.g. `PR-Scientific-Linux-7-2018b`.
 - Enter the GitHub project URL e.g. `http:/pace-neutrons.github.com/horace`
 (this creates a link to the GitHub from the pipeline).
 
