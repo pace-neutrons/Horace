@@ -1,4 +1,4 @@
-classdef test_nsqw2sqw_internal_methods < TestCase
+classdef test_nsqw2sqw_combine_job < TestCase
     % Series of tests to check write_nsqw_to_sqw combining
     
     properties
@@ -12,12 +12,12 @@ classdef test_nsqw2sqw_internal_methods < TestCase
     end
     
     methods
-        function obj=test_nsqw2sqw_internal_methods(name)
+        function obj=test_nsqw2sqw_combine_job(name)
             if ~exist('name','var')
-                name = 'test_nsqw2sqw_internal_methods';
+                name = 'test_nsqw2sqw_combine_job';
             end
             obj = obj@TestCase(name);
-            class_dir = fileparts(which('test_nsqw2sqw_internal_methods.m'));
+            class_dir = fileparts(which('test_nsqw2sqw_combine_job.m'));
             obj.this_tests_dir = fileparts(class_dir);
             
             source_test_dir = fullfile(horace_root(),'_test','common_data');
