@@ -17,18 +17,17 @@ def get_build_type(String job_name) {
 }
 
 def get_agent(String job_name) {
+  def agent = ''
   if (job_name.contains('Scientific-Linux-7')) {
     withCredentials([string(credentialsId: 'sl7_agent', variable: 'agent')]) {
-      return "${agent}"
+      agent = "${agent}"
     }
   } else if (job_name.contains('Windows-10')) {
     withCredentials([string(credentialsId: 'win10_agent', variable: 'agent')]) {
-      return "${agent}"
+      agent = "${agent}"
     }
-  } else {
-    // This else block is required or the below statement will always execute
-    return '';
   }
+  return agent
 }
 
 def get_release_type(String job_name) {
