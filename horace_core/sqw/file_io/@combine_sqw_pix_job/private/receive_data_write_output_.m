@@ -51,7 +51,7 @@ while ~isempty(data_providers)|| pix_cache.npix_in_cache ~= 0
     if h_log
         fprintf(h_log,' Saving n_pixels: %d\n',size(pix_section,2));
     end
-    n_pix_written =obj.write_pixels(fout,pix_section,n_pix_written);
+    n_pix_written =obj.write_pixels(pix_section,n_pix_written);
     
     ibin_end = pix_cache.last_bin_processed;
     if is_deployed
