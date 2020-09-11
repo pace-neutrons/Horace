@@ -292,6 +292,7 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             assertTrue(ok,mess);
             
         end
+        
         %
         function test_pix_cache_unbalanced_bins(~,varargin)
             % testing the situation that push/pop sorts messages by bins
@@ -632,7 +633,7 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             n_files = 10;
             fid = 1:n_files;
             run_label = 2*(1:n_files);
-            pos_pixstart = ones(n_files,1);
+
             filenums = 1:10;
             
             rd =combine_sqw_job_tester();
@@ -645,32 +646,34 @@ classdef test_nsqw2sqw_internal_methods < TestCase
             pix_buf_size = 2000;
             n_pixels = 100;
             
-            
-            rd = rd.init_fake_mpi(n_files,pix_buf_size,n_pixels,n_bins);
-            
-            [npix_per_bins,npix_in_bins,ibin_end]=...
-                rd.get_npix_section(1,n_bins,pix_buf_size);
-            npix_per_bins  = npix_per_bins';
-            npix_processed = 0;
-            assertEqual(ibin_end,n_bins);
-            
-            [npix_per_bin2_read,npix_processed,npix_per_bins,npix_in_bins,n_last_fit_bin] = ...
-                rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,pix_buf_size);
-            
-            assertEqual(n_last_fit_bin,n_bins);
-            assertEqual(npix_processed,n_pixels);
-            assertEqual(size(npix_per_bins),[10,0]);
-            assertTrue(isempty(npix_in_bins));
-            
-            [pix_section,pos_pixstart]=rd.read_pix_for_nbins_block(...
-                pos_pixstart,npix_per_bin2_read);
-            
-            assertEqual(pos_pixstart-1,sum(npix_per_bin2_read,2));
-            assertEqual(size(pix_section),[9,sum(sum(npix_per_bin2_read))]);
-            
-            tpb = rd.mess_framework.pix_block;
-            assertEqual(tpb(1,:)',pix_section(1,:)');
-            assertEqual(sort(tpb(1:3,:)'),sort(pix_section(1:3,:)'));
+            for i=1:100
+                pos_pixstart = ones(n_files,1);                
+                rd = rd.init_fake_mpi(n_files,pix_buf_size,n_pixels,n_bins);
+                
+                [npix_per_bins,npix_in_bins,ibin_end]=...
+                    rd.get_npix_section(1,n_bins,pix_buf_size);
+                npix_per_bins  = npix_per_bins';
+                npix_processed = 0;
+                assertEqual(ibin_end,n_bins);
+                
+                [npix_per_bin2_read,npix_processed,npix_per_bins,npix_in_bins,n_last_fit_bin] = ...
+                    rd.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,pix_buf_size);
+                
+                assertEqual(n_last_fit_bin,n_bins);
+                assertEqual(npix_processed,n_pixels);
+                assertEqual(size(npix_per_bins),[10,0]);
+                assertTrue(isempty(npix_in_bins));
+                
+                [pix_section,pos_pixstart]=rd.read_pix_for_nbins_block(...
+                    pos_pixstart,npix_per_bin2_read);
+                
+                assertEqual(pos_pixstart-1,sum(npix_per_bin2_read,2));
+                assertEqual(size(pix_section),[9,sum(sum(npix_per_bin2_read))]);
+                
+                tpb = rd.mess_framework.pix_block;
+                assertEqual(tpb(1,:)',pix_section(1,:)');
+                assertEqual(sort(tpb(1:3,:)'),sort(pix_section(1:3,:)'));
+            end
         end
         
     end
