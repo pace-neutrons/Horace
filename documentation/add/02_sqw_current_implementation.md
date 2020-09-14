@@ -20,7 +20,7 @@
 |`cut.m`  | y | |projects n-dimensions down onto a m-dimensional plane defined by the argument vectors|
 |`cut_sym.m`  | y | |cut with symmetrization|
 |`to_cut.m`| y | ||
-|`to_slice.m`| y | | plot routine|
+|~~to_slice.m~~| y | | plot routine (deleted) |
 |`join.m`| y | ||
 |`disp2sqw_eval.m` | y | y ||
 |`dispersion.m` | y | y ||
@@ -250,7 +250,7 @@ fieldnames_comments.m
 header_average.m
 ind_from_nrange.m
 is_horace_data_object.m
-permute_pix_array.m
+~~permute_pix_array.m~~ (deleted)
 rebunch_dnd.m
 recompute_bin_data.m
 recompute_urange.m
