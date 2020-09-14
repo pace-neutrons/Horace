@@ -292,7 +292,6 @@ classdef test_nsqw2sqw_combine_job < TestCase
             assertTrue(ok,mess);
             
         end
-        
         %
         function test_pix_cache_unbalanced_bins(~,varargin)
             % testing the situation that push/pop sorts messages by bins
@@ -355,7 +354,7 @@ classdef test_nsqw2sqw_combine_job < TestCase
         %
         function test_pix_cache_sparce_bins(~,varargin)
             % testing the situation that push/pop sorts messages by bins
-            % partial messages remain at the end
+            % a lot of small and empty bins
             n_files  = 10;
             n_pixels = 5000;
             
@@ -406,7 +405,7 @@ classdef test_nsqw2sqw_combine_job < TestCase
         %
         function test_pix_cache_parial_bins(~,varargin)
             % testing the situation that push/pop sorts messages by bins
-            % partial messages remain at the end
+            % all bins are usually full
             n_files  = 10;
             n_pixels = 5000;
             
@@ -463,6 +462,7 @@ classdef test_nsqw2sqw_combine_job < TestCase
         end
         %
         function test_pix_cache(~,varargin)
+            % testing pixel cache for most common operations
             n_files  = 10;
             n_pixels = 4023;
             n_bins   = 100;

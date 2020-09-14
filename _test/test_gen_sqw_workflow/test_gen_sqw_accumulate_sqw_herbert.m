@@ -50,9 +50,9 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
                 test_name = mfilename('class');
             end
             combine_algorithm = 'mpi_code'; % this is what should be tested
-            %if is_jenkins && ispc
-            %    combine_algorithm = 'mex_code'; % disable mpi combine on Jenkins. It is extreamly slow.
-            %end
+            if is_jenkins && ispc
+                combine_algorithm = 'mex_code'; % disable mpi combine on Jenkins. It is extreamly slow.
+            end
             %
             obj = obj@gen_sqw_common_config(-1,1,combine_algorithm,'herbert');
             obj = obj@gen_sqw_accumulate_sqw_tests_common(test_name,'herbert');

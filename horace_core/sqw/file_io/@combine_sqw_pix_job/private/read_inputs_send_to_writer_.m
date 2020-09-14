@@ -33,22 +33,18 @@ while ibin_end<nbin
     end
     
     
-    
     % Get the largest bin index such that the pixel information can be put in buffer
     % (We hold data for many bins in a buffer, as there is an overhead from reading each bin from each file separately;
     % only read when the bin index fills as much of the buffer as possible, or if reaches the end of the array of buffered npix)
     n_pix_2process = npix_in_bins(end);
     if n_pix_2process ==0 % send empty pix section message
         niter = niter+1;
-
+        
         n_source = obj.labIndex-obj.reader_id_shift_;
         payload = obj.mess_struct_;
         payload.n_source = n_source;
         payload.bin_range= [ibin_start,ibin_end];
         
-%         payload = struct('lab',obj.labIndex,'messN',niter,'npix',0,...
-%             'bin_range',[ibin_start,ibin_end],'pix_tb',[],...
-%             'filled_bin_ind',[]);
         pix_section_mess  = DataMessage(payload);
         [ok,err_mess]=mess_exch.send_message(targ_worker,pix_section_mess);
         if ok ~= MESS_CODES.ok
