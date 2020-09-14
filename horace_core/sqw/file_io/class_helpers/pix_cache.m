@@ -324,15 +324,16 @@ classdef pix_cache
             pix_section = cat(2,pix_tb{:});
             obj.first_bin_to_process_ = next_bin_to_proc;
             
-            %             if h_log
-            %                 fprintf(h_log,' will save bins: [%d , %d]; ****** saving pixels: %d, pix left: %d\n',...
-            %                     first_bin_to_proc,last_bin_to_process,size(pix_section,2),npix_left);
-            %                 fprintf(h_log,' cache contains: \n');
-            %                 for j=1:n_mess
-            %                     fprintf(h_log,'file %d; bin-range: [%d, %d] n full bins: %d\n',...
-            %                         j,obj.bin_range_(1,j),obj.bin_range_(2,j),numel(obj.filled_bin_ind_{j}));
-            %                 end
-            %             end
+            if h_log
+                npix_left = obj.npix_in_cache;
+                fprintf(h_log,' will save bins: [%d , %d]; ****** saving pixels: %d, pix left in cahce: %d\n',...
+                    first_bin_to_proc,last_bin_to_process,size(pix_section,2),npix_left);
+                fprintf(h_log,' cache contains: \n');
+                for j=1:n_mess
+                    fprintf(h_log,'file %d; bin-range: [%d, %d], last bin completed: %u\n',...
+                        j,obj.bin_range_(1,j),obj.bin_range_(2,j),obj.last_bin_completed_{j});
+                end
+            end
             
         end
     end

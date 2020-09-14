@@ -49,10 +49,6 @@ obj.fout_ = fout;
 obj.pix_combine_info_ = pix_comb_info;
 
 obj=obj.init_reader_task();
-% Get number of files
-%fid = verify_and_reopen_input_files_(obj);
-% Always close opened files on the procedure completion
-%clob = onCleanup(@()fcloser_(fid));  %
 
 
 % Write the pixel information to the file
