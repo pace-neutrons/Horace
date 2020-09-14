@@ -4,8 +4,9 @@ function [messages,npix_end,nbin_end] = split_to_messages_for_testing(pix_file_d
 % pixels, contributing into these bins.
 %
 % inputs:
-% pix_file_data -- cellarray, containing pix info separated into "files as in
-%                  build_pix_block_for_testing for the details)
+% pix_file_data -- cellarray, containing pix info separated into "files" as
+%                  in build_pix_block_for_testing. See this routine for the
+%                  details.
 % npix_start     -- first pixel to read for messages
 % nbin_start     -- first bin to use for messages (defines bin range)
 % buf_size       -- the number of pixels to process per split operation
@@ -42,7 +43,7 @@ for i=1:n_files
     
     if npix_end(i) >size(data,2)
         npix_end(i) = size(data,2);
-        npix_start(i) = npix_end(i)+1;        
+        npix_start(i) = npix_end(i)+1;
     end
     npix2 = npix_end(i);
     if npix1>npix2
@@ -50,7 +51,7 @@ for i=1:n_files
         continue;
     end
     pix_tb = data(:,npix1:npix2);
-
+    
     nbin_end_i   = pix_tb(1,end);
     payload.bin_range = [nbin_start(i),nbin_end_i];
     
@@ -63,7 +64,7 @@ for i=1:n_files
             payload.bin_range(2) =  nbin_total;
             nbin_end_i = nbin_total;
         end
-        nbin_end(i) = nbin_end_i+1;        
+        nbin_end(i) = nbin_end_i+1;
     else
         payload.last_bin_completed =false;
         nbin_end(i) = nbin_end_i;
@@ -71,20 +72,17 @@ for i=1:n_files
     payload.npix = size(pix_tb,2);
     
     [flld_bin_ind,bin_edges] = unique(pix_tb(1,:));
-    bin_edges  = [bin_edges;payload.npix+1] ;    
+    bin_edges  = [bin_edges;payload.npix+1] ;
     
     bin_sequence = nbin_start(i):nbin_end_i;
     if numel(bin_sequence)>numel(flld_bin_ind)
+        
         % expand bin edges with zero bins
         bin_edges_expanded = zeros(numel(bin_sequence)+1,1);
-
         n_bin = 1;
         for j=1:numel(bin_sequence)
-%             if n_bin > numel(flld_bin_ind)
-%                 warning(' wrong bin edges');
-%             end
             
-            bin_edges_expanded(j) = bin_edges(n_bin);            
+            bin_edges_expanded(j) = bin_edges(n_bin);
             if n_bin<=numel(flld_bin_ind) && bin_sequence(j)==flld_bin_ind(n_bin)
                 n_bin = n_bin+1;
             end
@@ -95,7 +93,6 @@ for i=1:n_files
     end
     
     payload.bin_edges      = bin_edges;
-    %payload.flld_bin_ind   = flld_bin_ind;
     payload.pix_data       = pix_tb;
     messages{i}.payload    = payload;
 end
