@@ -102,10 +102,15 @@ You may already have done this to get email etc.
 MATLAB can be found at STFC RAL IT Support (Knowledge Base/MATLAB) at www.facilities.rl.ac.uk/itsupport/KnowledgeBase/Matlab.aspx.
 This should set up an account with Matlab with your STFC email as id and a password of your choice.
 A license is obtainable from the link on this page. For STFC staff members, this should be an individual license.
-For other users e.g. contractors, please use the concurrent license by following the instructions.
 You can then go to the Matlab download page for STFC and download;
 choose R2018b or R2019b, which are the current versions supported at the time of writing.
 Or update to more recent if we have changed. This will give you an installation .exe.
+For other users e.g. contractors, please use the concurrent license by following the instructions.
+If these are unavailable due to insufficient access, please ask a colleague staff member
+for the relevant instructions from that page - location from which to mount the ISO,
+which also provides the temporary license for use in the installation,
+and the installation key for your chosen version.
+Emailing the FIT helpdesk will provide this information if a colleague cannot do so.
 
 Running the .exe will download the files and install.
 You may be asked for activation details from Matlab.
