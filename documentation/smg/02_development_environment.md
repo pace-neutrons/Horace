@@ -99,8 +99,10 @@ You may already have done this to get email etc.
 
 ### Getting MATLAB
 
-MATLAB can be found at STFC RAL IT Support (Knowledge Base/MATLAB) at www.facilities.rl.ac.uk/support/KnowledgeBase/Matlab.aspx.
+MATLAB can be found at STFC RAL IT Support (Knowledge Base/MATLAB) at www.facilities.rl.ac.uk/itsupport/KnowledgeBase/Matlab.aspx.
 This should set up an account with Matlab with your STFC email as id and a password of your choice.
+A license is obtainable from the link on this page. For STFC staff members, this should be an individual license.
+For other users e.g. contractors, please use the concurrent license by following the instructions.
 You can then go to the Matlab download page for STFC and download;
 choose R2018b or R2019b, which are the current versions supported at the time of writing.
 Or update to more recent if we have changed. This will give you an installation .exe.
@@ -109,8 +111,8 @@ Running the .exe will download the files and install.
 You may be asked for activation details from Matlab.
 This will be your id and password as above.
 You are getting an academic individual STFC licence.
-Activation may also be required on first launch. I
-deally you will be logged in as you with appropriate privileges.
+Activation may also be required on first launch.
+Ideally you will be logged in as you with appropriate privileges.
 If not, you may need to run as administrator;
 not doing so puts you in an infinite loop of activate, launch, activate, launch.....
 
