@@ -18,9 +18,9 @@ end
 
 pix_out.move_to_first_page();
 while true
-    pg_result = svpair_op(pix_out.signal, pix_out.variance, varargin{:});
-    pix_out.signal = pg_result.s;
-    pix_out.variance = pg_result.e;
+    [pg_result_s, pg_result_e] = svpair_op(pix_out.signal, pix_out.variance, varargin{:});
+    pix_out.signal = pg_result_s;
+    pix_out.variance = pg_result_e;
 
     if pix_out.has_more()
         pix_out = pix_out.advance();

@@ -21,7 +21,7 @@ function wout = noisify (w,varargin)
 wout=w;
 for i=1:numel(w)
     if is_sqw_type(w(i))   % determine if sqw or dnd type
-        wout(i).data.pix = w(i).data.pix.do_sigvar_pair_va_op(noisify, varargin{:})
+        wout(i).data.pix = w(i).data.pix.do_sigvar_pair_va_op(@noisify, varargin{:});
         wout(i)=recompute_bin_data(wout(i));
     else
         [wout(i).data.s,wout(i).data.e]=noisify(w(i).data.s,w(i).data.e,varargin{:});
