@@ -4,7 +4,7 @@
 
 This document describes setting up a Horace/Herbert environment for new starters at STFC/ISIS.
 
-This is version 1 by Chris Marooney.
+This is version 1 by Chris Marooney. Composition date 15/9/2020.
 At the time of writing, my available hardware was a personal laptop;
 an STFC laptop will not be available for some weeks.
 This affects my choice of environment.
@@ -14,7 +14,7 @@ This affects my choice of environment.
 The following system requirements are detailed individually below as they are used,
 but are summarized here for convenience:
 - cmake (3.7 or greater)
-- Visual Studio (2017 or greater;for Windows)
+- Visual Studio (2017 or greater; for Windows)
 - g++ (for Linux)
 - Matlab (R2018b or R2019b,from the STFC-specific page.)
 
@@ -30,9 +30,10 @@ please select appropriately.
 
 ## Getting Horace and Herbert
 
-Horace lives in two separate code-bases.
-Horace is the main code-base.
-Herbert provides utilities which enable Horace to run. 
+The overall Horace application lives in two separate repos.
+Horace is the main repo for Horace application functionality.
+It has a runtime dependency on Herbert, which provides utilities which enable Horace to run.
+Note that there are some Herbert runtime dependencies on Horace; there are open tickets to deal with this.
 
 Developers should obtain the code from the git repos: 
 
@@ -104,7 +105,7 @@ This should set up an account with Matlab with your STFC email as id and a passw
 A license is obtainable from the link on this page. For STFC staff members, this should be an individual license.
 You can then go to the Matlab download page for STFC and download;
 choose R2018b or R2019b, which are the current versions supported at the time of writing.
-Or update to more recent if we have changed. This will give you an installation .exe.
+Or update to more recent if we have changed. This will give you an installation executable.
 For other users e.g. contractors, please use the concurrent license by following the instructions.
 If these are unavailable due to insufficient access, please ask a colleague staff member
 for the relevant instructions from that page - location from which to mount the ISO,
@@ -112,7 +113,7 @@ which also provides the temporary license for use in the installation,
 and the installation key for your chosen version.
 Emailing the FIT helpdesk will provide this information if a colleague cannot do so.
 
-Running the .exe will download the files and install.
+Running the executable will download the files and install.
 You may be asked for activation details from Matlab.
 This will be your id and password as above.
 You are getting an academic individual STFC licence.
@@ -138,7 +139,9 @@ there is a minimum version but all current versions should be OK for this.
 Select that `cmake` is on the path.
 * You need to install the Visual Studio SDK.
 This can be the actual SDK or a working VS installation.
-I installed Visual Studio 16 2019 community edition (it's free).
+I installed Visual Studio 16 2019 community edition (it's free). You can download this at https://visualstudio.microsoft.com/downloads.
+It is not clear how the C++ SDK is currently accessible from Microsoft - this appears to be a moving target over the years.
+But it is available as the VS 2017 version from "Chocolatey" on https://chocolatey.org/packages/visualcpp-build-tools. NB I have not tried this.
 At the time of writing, running `build` with compiler defaults will expect to find a VS2017 compiler,
 and will fail even if a more recent compiler is present but not 2017.
 Ensure that your compiler is explicitly selected as in the next instruction.
@@ -201,8 +204,7 @@ This should run and produce some output. Type `s.data` to see the properties cre
 
 There will be an initial warning that the class `hor_config` is outdated and the default will be picked up - this is not a problem.
 A new configuration can be loaded with `hc = hor_config`
-and the values of `hc` will be printed. T
-he pixel page size in particular may be of use to modify conditions for file backing.
+and the values of `hc` will be printed. The pixel page size in particular may be of use to modify conditions for file backing.
 
 The demo is available from the IDaaS VM by copying the directory `/mnt/babylon/Scratch/Perring/PACE_Tessella` to your home directory.
 The subdirectory `user_area`in this contains data (`.sqw` file - may be zipped, use unzip at the command prompt),
