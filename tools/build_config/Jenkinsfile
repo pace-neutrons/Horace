@@ -281,8 +281,10 @@ pipeline {
             }
 
           } else {
-            def herbert_ref = get_herbert_ref_from_labels(env.PR_LABELS,
-                                                          env.HERBERT_BRANCH_NAME)
+            def herbert_ref = get_herbert_ref_from_labels(
+              env.PR_LABELS,
+              env.HERBERT_BRANCH_NAME
+            )
             if (herbert_ref.startsWith('Error: ')) {
               error(herbert_ref)
             }
