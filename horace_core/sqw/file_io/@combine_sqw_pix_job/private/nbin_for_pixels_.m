@@ -7,8 +7,8 @@ function [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] = 
 % npix_per_bins -- 2D array containing the section of numbers of
 %                  pixels per bin per file
 % npix_in_bins  -- cumulative sum of pixels in bins of all files
-% bin_start     -- first bin to analyze from the npix_section
-%                 and npix_in_bins
+% npix_processed-- first bin to analyze from the npix_section
+%                  and npix_in_bins
 % pix_buf_size -- the size of pixels buffer intended for
 %                 writing
 % Outputs:
@@ -29,9 +29,6 @@ function [npix_2_read,npix_processed,npix_per_bins,npix_in_bins,last_fit_bin] = 
 %
 % See: test_sqw/test_nsqw2sqw_internal_methods for the details
 % of the method functionality
-%
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 
 % Calculate number of pixels to be read from all the files
@@ -85,5 +82,3 @@ else % partial buffer fit. Constrain number of bins to fill the buffer
     npix_in_bins   = npix_in_bins(~fit_the_buffer)-npix_processed_now;
     npix_processed = npix_processed+npix_processed_now;
 end
-
-
