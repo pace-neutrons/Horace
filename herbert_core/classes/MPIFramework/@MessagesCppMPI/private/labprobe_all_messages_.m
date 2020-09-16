@@ -18,7 +18,7 @@ if exist('mess_addr_requested','var')
     elseif ~isnumeric(mess_addr_requested)
         error('MESSAGES_FRAMEWORK:invalid_argument',...
             'Unrecognized type of the task id: %s requested to ask for message',...
-            fevalc('disp(mess_addr_requested)'));
+            evalc('disp(mess_addr_requested)'));
     end
     if isempty(mess_addr_requested)
         mess_addr_requested = 1:num_labs;

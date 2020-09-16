@@ -273,11 +273,11 @@ classdef MESS_NAMES < handle
                 if ~isnumeric(varargin{1})
                     error('MESS_NAMES:invalid_argument',...
                         'Second parameter (if any) for mess_id function should be number of interrupt channel. Got: %s',...
-                    evalc('disp(varargin{1})'));                        
+                    evalc('disp(varargin{1})'));
                 end
                 f = @(x)MESS_NAMES.name_to_id_or_interrupt(x,name2code_map,varargin{1});
             else
-                f = @(x)name2code_map(x);                
+                f = @(x)name2code_map(x);
             end
             
             if iscell(mess_names)

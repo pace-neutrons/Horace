@@ -44,6 +44,7 @@ if nargin>1
         addpath(system_admin);
         if ~isempty(hor_uproot)
             addpath(fullfile(hor_uproot,'admin'));
+            addpath(fullfile(hor_uproot,'_test','common_functions'));
         end
     else
         warn_state=warning('off','all');    % turn of warnings (so don't get errors if remove non-existent path)
@@ -54,6 +55,7 @@ if nargin>1
         rmpath(system_admin);
         if ~isempty(hor_uproot)
             rmpath(fullfile(hor_uproot,'admin'));
+            rmpath(fullfile(hor_uproot,'_test','common_functions'));
         end
         warning(warn_state);    % return warnings to initial state
         tests_path  = [];
