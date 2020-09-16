@@ -75,6 +75,16 @@ def get_default_herbert_branch(String job_name) {
   }
 }
 
+def get_herbert_ref_from_labels(String labels, String herbert_branch) {
+  /* Parse the string of Git issue labels for a label that matches Herbert_*.
+     If a match is found, build using the Herbert branch of that name. */
+  def match = (label_names =~ "Herbert_([a-zA-Z0-9_-]+)")
+  try {
+    return match[0][1]
+  } catch (IndexOutOfBoundsException) {
+    return env.HERBERT_BRANCH_NAME
+  }
+}
 
 properties([
   parameters([
@@ -252,26 +262,28 @@ pipeline {
             }
 
           } else {
+            def herbert_ref = get_herbert_ref_from_labels(env.PR_LABELS,
+                                                          env.HERBERT_BRANCH_NAME)
             // Get Herbert from GitHub and call the build script
             if (isUnix()) {
-              sh '''
+              sh """
                 module load cmake/\$CMAKE_VERSION &&
                 module load matlab/\$MATLAB_VERSION &&
                 module load gcc/\$GCC_VERSION &&
                 ./tools/bash/clone_herbert_branch.sh\
-                  --branch \$HERBERT_BRANCH_NAME\
+                  --branch ${herbert_ref}\
                   --build_args \
                     \"--cmake_flags \\\"-DHerbert_RELEASE_TYPE=\$RELEASE_TYPE\\\" \
                     --matlab_release \$MATLAB_VERSION\"
-              '''
+              """
             } else {
-              powershell '''
+              powershell """
                 ./tools/pwsh/clone_herbert_branch.ps1\
-                  -branch \$env:HERBERT_BRANCH_NAME\
+                  -branch ${herbert_ref}\
                   -build_args\
                     \"-cmake_flags \"\"-DHerbert_RELEASE_TYPE=\$env:RELEASE_TYPE\"\" \
                     -matlab_release \$env:MATLAB_VERSION\"
-              '''
+              """
             }
           }
         }
