@@ -80,9 +80,15 @@ def get_herbert_ref_from_labels(String labels, String herbert_branch) {
      If a match is found, build using the Herbert branch of that name. */
   def match = (labels =~ "Herbert_([a-zA-Z0-9_-]+)")
   try {
-    return match[0][1]
+    match[1]
+    return("Error: Found two Herbert branch labels on the pull request: " +
+           "'${match[0][1]}' and '${match[1][1]}'")
   } catch (IndexOutOfBoundsException) {
-    return env.HERBERT_BRANCH_NAME
+    try {
+      return match[0][1]
+    } catch (IndexOutOfBoundsException) {
+      return herbert_branch
+    }
   }
 }
 
@@ -264,6 +270,9 @@ pipeline {
           } else {
             def herbert_ref = get_herbert_ref_from_labels(env.PR_LABELS,
                                                           env.HERBERT_BRANCH_NAME)
+            if (herbert_ref.startsWith('Error: ')) {
+              error(herbert_ref)
+            }
             // Get Herbert from GitHub and call the build script
             if (isUnix()) {
               sh """
