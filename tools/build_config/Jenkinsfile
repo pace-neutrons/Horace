@@ -83,10 +83,10 @@ def get_herbert_ref_from_labels(String labels, String herbert_branch) {
     match[1]
     return("Error: Found two Herbert branch labels on the pull request: " +
            "'${match[0][1]}' and '${match[1][1]}'")
-  } catch (IndexOutOfBoundsException) {
+  } catch (IndexOutOfBoundsException e1) {
     try {
       return match[0][1]
-    } catch (IndexOutOfBoundsException) {
+    } catch (IndexOutOfBoundsException e2) {
       return herbert_branch
     }
   }
