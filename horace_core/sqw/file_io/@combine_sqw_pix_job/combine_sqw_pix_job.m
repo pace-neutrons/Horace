@@ -61,10 +61,13 @@ classdef combine_sqw_pix_job < JobExecutor
             % the data message payload, containing pixel information
             obj.mess_struct_ = struct(...
                 'npix',0,... % number of pixels in message
-                'n_source',0 ,...  % number of reader in the list or readers prepared data message
-                'bin_range',[0,0],... % number of bins this pixel
-                'pix_data',[],...     %
-                'bin_edges',[],'last_bin_completed',true);
+                'n_source',0 ,...     % number of reader in the list or readers prepared data message
+                'bin_range',[0,0],... % min-max numbers of bins the pixel data contributes to
+                'pix_data',[],...     % the pixel data block itself.
+                'bin_edges',[],...    % array of bin edges, every number pointing to the postion in the pix_data, where this bin data are located
+                'last_bin_completed',true); % boolean, indicating if the
+            % message contains all data for last bin in its range,
+            % or next message will bring additional data for this bin.
         end
         function [obj,mess]=init(obj,fbMPI,intercom_class,InitMessage,varargin)
             % Overloads parent's init by adding the initialization
@@ -160,7 +163,7 @@ classdef combine_sqw_pix_job < JobExecutor
                 obj = obj.init_writer_task();
                 
                 if obj.combine_mode ==2
-                    n_received = receive_combined_write_output_(obj,common_par,h_log_fl);                    
+                    n_received = receive_combined_write_output_(obj,common_par,h_log_fl);
                 else
                     n_received = receive_data_write_output_(obj,common_par,h_log_fl);
                 end
