@@ -1,13 +1,11 @@
-function [fout,data_providers,data_remain] = init_writer_job_(obj,pix_comb_info)
+function [obj] = init_writer_job_(obj)
 % process job inputs and return initial information for writer job
 %
 %Returns:
+% obj  -- JobExecutor instance, with initialized messages cache
 % fout -- initialized handle for opened binary file to write data
-% data_providers -- list of the lab nums will be sending data to the writer
-%                   job
-% data_remain    -- array of logical, indicating if a correspondent data
-%                   provider is active (true at the beginning)
- 
+
+pix_comb_info = obj.pix_combine_info_;
 
 filename = pix_comb_info.fout_name;
 fout = fopen(filename,'rb+');
@@ -23,6 +21,12 @@ check_error_report_fail_(fout,...
     ' record to write the target file %s '...
     'to start writing combined pixels'],...
     filename));
-% all other labs will send the pixel data to the writer
-data_providers = 2:obj.mess_framework.numLabs;
-data_remain    = true(size(data_providers ));
+
+obj.fout_ = fout;
+
+if obj.reader_id_shift_ == 1
+    obj.pix_cache_ = pix_cache(...
+        obj.mess_framework.numLabs-obj.reader_id_shift_,...
+        obj.common_data_.nbin);
+end
+
