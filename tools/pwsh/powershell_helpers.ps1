@@ -39,8 +39,6 @@ function Invoke-In-Dir {
     The directory to execute the command in.
   .PARAMETER command
     Command to execute.
-  .PARAMETER noPrint
-    Do not print the command, only execute it
 
   .EXAMPLE
     cd C:\Users\Public\
@@ -57,11 +55,7 @@ function Invoke-In-Dir {
   param([string]$directory, [string]$command, [switch]$noPrint)
   Push-Location -Path $directory
   try {
-    if ($noPrint) {
-      Invoke-Expression "$command"
-    } else {
-      Write-And-Invoke "$command"
-    }
+    Write-And-Invoke "$command"
   }
   finally {
     Pop-Location
