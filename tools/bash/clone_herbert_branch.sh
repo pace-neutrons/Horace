@@ -25,20 +25,16 @@ if [ "${herbert_branch}" = "" ]; then
 fi
 
 if [[ -d "${HERBERT_DIR}" ]]; then
-    pushd "${HERBERT_DIR}" || exit 1
-    echo_and_run "git fetch -all --tags" &&
-    echo_and_run "git reset --hard \"${herbert_branch}\""
-    popd || exit 1
-
+    run_in_dir "git fetch --all --tags && git reset --hard \"${herbert_branch}\"" \
+               "${HERBERT_DIR}"
 else
     git_clone_cmd="git clone ${HERBERT_URL} --depth 1"
     git_clone_cmd+=" --branch \"${herbert_branch}\" ${HERBERT_DIR}"
     echo_and_run "${git_clone_cmd}"
 fi
 
-pushd "${HERBERT_DIR}" || exit 1
-echo -e "\nBuilding Herbert revision $(git rev-parse HEAD)..."
-popd || exit 1
+run_in_dir "echo -e \"\nBuilding Herbert revision \$(git rev-parse HEAD)...\"" \
+           "${HERBERT_DIR}"
 
 build_cmd="${HERBERT_DIR}/tools/build_config/build.sh --build"
 build_cmd+=" --build_tests OFF ${build_args}"
