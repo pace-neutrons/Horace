@@ -25,8 +25,9 @@ if [ "${herbert_branch}" = "" ]; then
 fi
 
 if [[ -d "${HERBERT_DIR}" ]]; then
-    run_in_dir "git fetch --all --tags && git reset --hard \"${herbert_branch}\"" \
-               "${HERBERT_DIR}"
+    git_set_branch_cmd="git fetch --all --tags &&"
+    git_set_branch_cmd+=" git reset --hard \"${herbert_branch}\""
+    run_in_dir "${git_set_branch_cmd}" "${HERBERT_DIR}"
 else
     git_clone_cmd="git clone ${HERBERT_URL} --depth 1"
     git_clone_cmd+=" --branch \"${herbert_branch}\" ${HERBERT_DIR}"
