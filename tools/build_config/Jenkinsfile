@@ -68,7 +68,7 @@ def get_default_herbert_branch(String job_name) {
           return ''
 
       case 'Nightly':
-        'None'
+        return 'None'
 
       default:
           return 'master'
