@@ -52,7 +52,7 @@ function Invoke-In-Dir {
         C:\Users\Public\Documents
         C:\Users\Public\
 #>
-  param([string]$directory, [string]$command, [switch]$noPrint)
+  param([string]$directory, [string]$command)
   Push-Location -Path $directory
   try {
     Write-And-Invoke "$command"
