@@ -281,6 +281,10 @@ pipeline {
             }
 
           } else {
+            if (env.PR_LABELS && "${env.PR_LABELS}" != "[]") {
+              echo "Found PR labels: ${env.PR_LABELS}"
+            }
+
             def herbert_ref = get_herbert_ref_from_labels(
               env.PR_LABELS,
               env.HERBERT_BRANCH_NAME
@@ -288,6 +292,7 @@ pipeline {
             if (herbert_ref.startsWith('Error: ')) {
               error(herbert_ref)
             }
+
             // Get Herbert from GitHub and call the build script
             if (isUnix()) {
               sh """
