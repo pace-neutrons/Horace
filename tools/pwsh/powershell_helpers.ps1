@@ -52,10 +52,14 @@ function Invoke-In-Dir {
         C:\Users\Public\Documents
         C:\Users\Public\
 #>
-  param([string]$directory, [string]$command)
+  param([string]$directory, [string]$command, [switch]$noPrint)
   Push-Location -Path $directory
   try {
-    Write-And-Invoke "$command"
+    if ($noPrint) {
+      Invoke-Expression "$command"
+    } else {
+      Write-And-Invoke "$command"
+    }
   }
   finally {
     Pop-Location
