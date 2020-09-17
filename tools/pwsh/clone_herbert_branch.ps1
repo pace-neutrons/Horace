@@ -23,9 +23,10 @@ if (Test-Path -Path "$HERBERT_DIR") {
   Write-And-Invoke "git clone $HERBERT_URL --depth 1 --branch ""$branch"" $HERBERT_DIR"
 }
 
-Push-Location "$HERBERT_DIR"
-Write-Output "`nBuilding Herbert revision $(git rev-parse HEAD)..."
-Pop-Location
+Invoke-In-Dir `
+    -directory $HERBERT_DIR `
+    -command "Write-Output ""`nBuilding Herbert revision $(git rev-parse HEAD)...""" `
+    -noPrint
 
 $build_cmd = "$HERBERT_DIR/tools/build_config/build.ps1 -build"
 $build_cmd += " -build_tests OFF"
