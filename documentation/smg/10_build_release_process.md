@@ -6,7 +6,7 @@ source.
 All users should be using a build that has been built, tested and packaged
 using the build pipelines.
 
-### Master
+## Master
 
 The `master` branch should always be 'releasable' with all tests passing.
 Builds are run on all target platforms to create `.zip`/`.tar.gz` release
@@ -24,7 +24,7 @@ platform.
 This is equivalent to the artifact created by the legacy MATLAB create release
 process.
 
-### Features
+## Features
 
 Feature development and bug fixes should be performed on branches and reviewed
 using a GitHub Pull Request (PR).
@@ -41,7 +41,7 @@ Horace PR must not be merged until the Herbert PR has been merged
 5. If the build/test of the PR against the Release branch succeeds on all
 platforms, and the code has been reviewed, the PR can be merged.
 
-### Releases
+## Releases
 
 The Jenkins build artifacts are are not accessible outside of STFC.
 End users will be directed to GitHub to access packaged releases.
@@ -62,7 +62,7 @@ Herbert and Horace source. This will follow
 [semantic versioning](https://semver.org/) and is used in the build process to
 set the version number in the MATLAB and compiled C++ components.
 
-### Deployment on ISIS computational services machines
+## Deployment on ISIS computational services machines
 
 To provide rapid response to user requests,
 bug-fixes and all advantages of constant deployment process,
@@ -91,7 +91,7 @@ the release  process,
 the code, exposed through the links above is checked out and switched to the
 recently released, so users can user the released version of the code.
 
-### Patch releases
+## Patch releases
 
 The experience shows that the main reasons for the bugs,
 identified by users is small changes in user configuration,
@@ -165,7 +165,7 @@ Disadvantages:
 
 - slower; have to wait for full build and test pipeline to execute
 
-### Hot-fix Releases
+## Hot-fix Releases
 
 If a particular fix is required quickly on a target system, the full build and
 test process can be bypassed so that facility users do not lose critical
