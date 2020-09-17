@@ -6,7 +6,7 @@ function echo_and_run {
 }
 
 function run_in_dir {
-  (cd "$2" && eval "$1")
+  (cd "$2" && echo_and_run "$1")
 }
 
 function warning {
