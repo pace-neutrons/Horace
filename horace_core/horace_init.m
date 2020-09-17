@@ -94,6 +94,7 @@ if hec.init_tests
     % add path to folders, which responsible for administrative operations
     up_root = fileparts(rootpath);
     addpath_message(1,fullfile(up_root,'admin'))
+    addpath(fullfile(up_root,'_test','common_functions'));    
 end
 % Beta version: Suppress warning occurring when old instrument is stored in
 % an sqw file and is automatically converted into MAPS
