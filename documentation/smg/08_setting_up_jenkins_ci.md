@@ -190,10 +190,8 @@ have completed*.
   - `pull_request.labels[*].name`:
     The names of labels attached to the pull request ticket.
     This will be in the form `["label1", "label2"].
-    These can be used to trigger different behaviors depending on labels
-    attached to a pull request.
-    In particular, these are used to specify a particular version of Herbert to
-    use in the build.
+    These are used to specify a particular branch of Herbert to use in the
+    build.
 
    <img src="./images/08_commit_sha.png">
 
