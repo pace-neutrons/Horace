@@ -187,11 +187,13 @@ have completed*.
   - `pull_request.statuses_url`: The url to send build statuses to.
   - `pull_request.head.sha`: The HEAD sha of the pull request branch.
   - `pull_request.base.ref`: The name of the base branch of the pull request.
-  - `pull_request.labels[*].name`: The names of labels attached to the pull
-    request ticket. This will be in the form `["label1", "label2"]. These can
-    be used to trigger different behaviors depending on labels attached to a
-    pull request. In particular, these are used to specify a particular version
-    of Herbert to use in the build.
+  - `pull_request.labels[*].name`:
+    The names of labels attached to the pull request ticket.
+    This will be in the form `["label1", "label2"].
+    These can be used to trigger different behaviors depending on labels
+    attached to a pull request.
+    In particular, these are used to specify a particular version of Herbert to
+    use in the build.
 
    <img src="./images/08_commit_sha.png">
 
