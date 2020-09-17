@@ -1,7 +1,7 @@
-function fid = verify_and_reopen_input_files_(pix_comb_info)
+function fid = verify_and_reopen_input_files_(obj)
 % reopens input files for reading or verify if these files are opened.
-% Inputs:
-% pix_comb_info    -- the class containing the information about the input
+% Inputs:          (comes from protected obj.pix_comb_info_ field)
+%  pix_comb_info    -- the class containing the information about the input
 %                     files to combine, namely the fields:
 %
 %   infiles         Cell array of file names, or array of file identifiers of open files, from
@@ -23,7 +23,9 @@ function fid = verify_and_reopen_input_files_(pix_comb_info)
 %
 % Output:
 % fid            array of handles of files open for read operations.
-
+% Throws SQW_FILE:runtime_error if files were not opened sucessfully
+%
+pix_comb_info = obj.pix_combine_info_;
 nfiles = pix_comb_info.nfiles;
 
 % Open all input files and move to the start of the pixel information
