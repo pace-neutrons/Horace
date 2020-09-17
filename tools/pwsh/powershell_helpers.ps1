@@ -33,12 +33,14 @@ function Invoke-In-Dir {
     Changes directory before executing the command. It uses a try-finally block
     so that the original directory is returned to even if the given command
     exits the script. The command is executed using Write-And-Invoke, so it is
-    written to the terminal with a preceeding '+ ' before being executed
+    written to the terminal with a preceeding '+ ' before being executed.
 
   .PARAMETER directory
     The directory to execute the command in.
   .PARAMETER command
     Command to execute.
+  .PARAMETER noPrint
+    Do not print the command, only execute it
 
   .EXAMPLE
     cd C:\Users\Public\
