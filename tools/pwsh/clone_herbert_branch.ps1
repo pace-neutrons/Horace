@@ -25,8 +25,7 @@ if (Test-Path -Path "$HERBERT_DIR") {
 
 Invoke-In-Dir `
     -directory $HERBERT_DIR `
-    -command "Write-Output ""`nBuilding Herbert revision $(git rev-parse HEAD)...""" `
-    -noPrint
+    -command "Write-Output ""``nBuilding Herbert revision `$(git rev-parse HEAD)...""" `
 
 $build_cmd = "$HERBERT_DIR/tools/build_config/build.ps1 -build"
 $build_cmd += " -build_tests OFF"
