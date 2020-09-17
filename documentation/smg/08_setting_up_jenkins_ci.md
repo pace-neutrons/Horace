@@ -110,8 +110,10 @@ Herbert nightly build.
 
 ## GitHub
 
-The only job required on GitHub is to set up webhooks to notify Jenkins of pull requests. These can be created by GitHub repository admins by opening the settings tab
-in the [main repo](https://github.com/pace-neutrons/Horace).
+The only job required on GitHub is to set up webhooks to notify Jenkins of pull
+requests.
+These can be created by GitHub repository admins by opening the settings tab in
+the [main repo](https://github.com/pace-neutrons/Horace).
 
 <img src="./images/08_github_settings.png">
 
@@ -180,10 +182,16 @@ have completed*.
 #### Pull requests
 
 - Select the `Generic Webhook Trigger` option and retrieve the json values:
-  - `action`: The type of pull request event this is
-  - `pull_request.number`: The pull request number on GitHub
-  - `pull_request.statuses_url`: The url to send build statuses to
-  - `pull_request.head.sha`: The HEAD sha of the pull request branch
+  - `action`: The type of pull request event this is.
+  - `pull_request.number`: The pull request number on GitHub.
+  - `pull_request.statuses_url`: The url to send build statuses to.
+  - `pull_request.head.sha`: The HEAD sha of the pull request branch.
+  - `pull_request.base.ref`: The name of the base branch of the pull request.
+  - `pull_request.labels[*].name`:
+    The names of labels attached to the pull request ticket.
+    This will be in the form `["label1", "label2"].
+    These are used to specify a particular branch of Herbert to use in the
+    build.
 
    <img src="./images/08_commit_sha.png">
 
@@ -195,7 +203,7 @@ action retrieved from GitHub matches the regex `(opened|synchronize)`.
   <img src="./images/08_action_trigger.png">
 
 - Set up the `Pipeline` section as shown below to have Jenkins pull the PR
-branch and merge it into master before building.
+branch and merge it into the pull request's base branch before building.
 
   <img src="./images/08_git_pipeline.png">
 

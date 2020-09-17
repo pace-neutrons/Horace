@@ -75,6 +75,31 @@ def get_default_herbert_branch(String job_name) {
   }
 }
 
+ /* Parse the string of Git issue labels for a label that matches Herbert_*.
+  * If a match is found, build using the Herbert branch of that name.
+  *
+  * This function will return a message beginning 'Error: ' if more than one
+  * matching Herbert branch label is found. Throwing an error directly inside
+  * this function will not fail the pipeline build.
+  */
+def get_herbert_ref_from_labels(String labels, String herbert_branch) {
+  def match = (labels =~ "Herbert_([a-zA-Z0-9_-]+)")
+  try {
+    match[1]
+    // Return an error here as there must be, at most, one Herbert branch label
+    // on the pull request. If the above line does not error, then there must
+    // be at least two.
+    return("Error: Found more than one Herbert branch label on the pull request.")
+  } catch (IndexOutOfBoundsException e1) {
+    try {
+      // There is exactly one matching label on the pull request
+      return match[0][1]
+    } catch (IndexOutOfBoundsException e2) {
+      // We get here if there are no matching labels on the pull request
+      return herbert_branch
+    }
+  }
+}
 
 properties([
   parameters([
@@ -224,8 +249,12 @@ pipeline {
       /* For nightly builds, we use the last successful archived Herbert
        * master build.
        *
-       * For PR and Branch builds, we clone and build the Herbert master
-       * source from GitHub.
+       * For PR builds we check for the existence of a Herbert branch label on
+       * the pull request and clone and build that branch, else we clone and
+       * build master.
+       *
+       * For branch builds, we clone and build the Herbert master source from
+       * GitHub.
        *
        * For release builds, we clone and build a manually specified Herbert
        * branch.
@@ -252,26 +281,38 @@ pipeline {
             }
 
           } else {
+            if (env.PR_LABELS) {
+              echo "Found PR labels: ${env.PR_LABELS}"
+            }
+
+            def herbert_ref = get_herbert_ref_from_labels(
+              env.PR_LABELS,
+              env.HERBERT_BRANCH_NAME
+            )
+            if (herbert_ref.startsWith('Error: ')) {
+              error(herbert_ref)
+            }
+
             // Get Herbert from GitHub and call the build script
             if (isUnix()) {
-              sh '''
+              sh """
                 module load cmake/\$CMAKE_VERSION &&
                 module load matlab/\$MATLAB_VERSION &&
                 module load gcc/\$GCC_VERSION &&
                 ./tools/bash/clone_herbert_branch.sh\
-                  --branch \$HERBERT_BRANCH_NAME\
+                  --branch ${herbert_ref}\
                   --build_args \
                     \"--cmake_flags \\\"-DHerbert_RELEASE_TYPE=\$RELEASE_TYPE\\\" \
                     --matlab_release \$MATLAB_VERSION\"
-              '''
+              """
             } else {
-              powershell '''
+              powershell """
                 ./tools/pwsh/clone_herbert_branch.ps1\
-                  -branch \$env:HERBERT_BRANCH_NAME\
+                  -branch ${herbert_ref}\
                   -build_args\
                     \"-cmake_flags \"\"-DHerbert_RELEASE_TYPE=\$env:RELEASE_TYPE\"\" \
                     -matlab_release \$env:MATLAB_VERSION\"
-              '''
+              """
             }
           }
         }
@@ -287,13 +328,13 @@ pipeline {
               module load matlab/\$MATLAB_VERSION &&
               module load gcc/\$GCC_VERSION &&
               ./tools/build_config/build.sh --build \
-                  --cmake_flags \"-DHorace_RELEASE_TYPE=\$RELEASE_TYPE\" \
-                  --matlab_release \$MATLAB_VERSION
+                --cmake_flags \"-DHorace_RELEASE_TYPE=\$RELEASE_TYPE\" \
+                --matlab_release \$MATLAB_VERSION
             '''
           }
           else {
             powershell '''
-            ./tools/build_config/build.ps1 -build \
+              ./tools/build_config/build.ps1 -build \
                 -cmake_flags \"-DHorace_RELEASE_TYPE=\$env:RELEASE_TYPE\" \
                 -matlab_release \$env:MATLAB_VERSION
             '''
