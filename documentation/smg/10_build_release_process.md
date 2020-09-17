@@ -75,7 +75,7 @@ These services provide users with pool of virtual (iDaaaS) or real
 
 By agreement, each machine of the pool has folder `/usr/locam/mprogs/`
 containing number of symbolic links to  `Horace`, `Herbert`, `Horace_bugfix`
-and `Herbert_bugfix` clones of the github repositorues of the appropriate
+and `Herbert_bugfix` clones of the github repositories of the appropriate
 packages.
 In addition to that, it contains also reference  `/usr/local/mprogs/User`
 pointing to the folder containing Horace,
@@ -83,7 +83,7 @@ Herbert and parallel MPI workers initialization scripts.
 *Startup.m* script auto-generated on all service machines intended for the
 users of inelastic experiments, enables Herbert/Horace code when Matlab starts.
 
-The details of the packages installation and deoployment on the ISIS machines
+The details of the packages installation and deployment on the ISIS machines
 are provided in [ISIS Release Process documentation](11_ISIS_release.md)
 
 As soon as release branch is tagged and created in the repository according to
@@ -98,7 +98,7 @@ identified by users is small changes in user configuration,
 specific for a user, and correct but #unexpected users operations with the code.
 This is why, the bugfix process in ISIS normally starts from user sharing
 screen with the member of the support team and the demonstration of the issue
-to a memeber of the support team.
+to a member of the support team.
 
 As soon as the issue is confirmed and is obvious that the bug fixing needs
 changes in code base,
@@ -113,7 +113,7 @@ To switch user to these branches, one issues
 `herbert_on(/usr/local/mprogs/Herbert_bugfix/herbert_core)` and
 `horace_on(/usr/local/mprogs/Horace_bugfix/horace_core)` commands.
 
-If parallel execution is necessary for bugfixing,
+If parallel execution is necessary for bug-fixing,
 the supporter also needs to do similar changes in worker_4tests script
 available in the **User** folder above.
 `herbert_on/horace_on` commands within this script should be modifued to point
@@ -122,8 +122,7 @@ to the bugfix version of the code. The user's **parallel_config** class
 The default value of this field is `worker_v2` which initializes default
 Horace/Herbert code base.
 The `worker_v2` script will continue to be used by other users for their data
-processing, until bugfixing is completed and merged into the code base.
-
+processing, until bug-fixing is completed and merged into the code base.
 
 Patch releases will be made to release branches to resolve specific bugs
 identified.
@@ -145,7 +144,7 @@ If this is the first release patch, the branch will need to be created
 platforms, that build artifact can be released to the target platform as
 version `m.n.o+1`
 
-If the hotfix is being done out-of-hours the PR can be merged by the developer
+If the hot-fix is being done out-of-hours the PR can be merged by the developer
 WITHOUT review provided all tests pass,
 but the branch should not be deleted and should be reviewed at the earliest
 opportunity.
