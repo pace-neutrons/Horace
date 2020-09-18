@@ -84,7 +84,7 @@ obj.data_type_ = char(obj.data_type_);
 npixels_  = (obj.instrument_head_pos_-obj.pix_pos_)/(9*4);
 if npixels_ ~= obj.npixels
     error('FACCESS_SQW_V3:runtime_error',...
-        'number of pixes stored in the records %d do not equal to the one, calculated from the pixels size %d ',...#
+        'number of pixels stored in the records %d not equal to the calculated pixels size %d ',...
         obj.npixels,npixels_);
 end
 

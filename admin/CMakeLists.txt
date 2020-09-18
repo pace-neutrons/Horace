@@ -2,7 +2,8 @@
 # LOCAL_INIT_DIR is defined in the top-level CMakeLists
 file(MAKE_DIRECTORY ${LOCAL_INIT_DIR})
 
-# Regex to match a standard Unix/Windwows path - especially the default paths
+
+# Regex to match a standard Unix/Windows path - especially the default paths
 # in herbert_on.m.template and horace_on.m.template
 set(_path_regex "[a-zA-Z0-9/\\\\_\\-\\.: ]+")
 
@@ -32,8 +33,12 @@ string(REGEX REPLACE
 )
 file(WRITE "${LOCAL_INIT_DIR}/herbert_on.m" "${_herbert_on_script}")
 
-# Copy Herbert's worker template
-configure_file("${Herbert_WORKER_TEMPLATE}" "${LOCAL_INIT_DIR}/worker_v2.m")
+# Copy Horace worker templates
+if(${BUILD_TESTS})
+    configure_file("worker_4tests.m.template" "${LOCAL_INIT_DIR}/worker_4tests.m")
+endif()
+configure_file("worker_v2.m.template" "${LOCAL_INIT_DIR}/worker_v2.m")
+
 
 # A warning to add to the top of CMake generated files to warn users
 set(Horace_AUTO_GENERATED_FILE_WARNING
@@ -66,8 +71,10 @@ endfunction()
 
 set(TEMPLATE_FILES
     "horace_on.m.template"
+    "worker_v2.m.template"
+    "worker_4tests.m.template"
     "${Herbert_ON_TEMPLATE}"
-    "${Herbert_WORKER_TEMPLATE}"
+ 
 )
 foreach(_template_file ${TEMPLATE_FILES})
     install_template_file("${_template_file}")

@@ -5,6 +5,10 @@ function echo_and_run {
   eval "$1"
 }
 
+function run_in_dir {
+  (cd "$2" && echo_and_run "$1")
+}
+
 function warning {
   echo -e "\e[33m$1\e[0m"
 }

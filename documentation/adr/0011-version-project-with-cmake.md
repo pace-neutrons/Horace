@@ -1,4 +1,4 @@
-[<-previous](0010-package-dependencies-in-repo.md) | [next->](./0012-use-network-storage-for-large-datafiles.md)
+[<-previous](0010-package-dependencies-in-repo.md) | [next->](0012-use-network-storage-for-large-datafiles.md)
 
 # 11 - Version project using CMake
 

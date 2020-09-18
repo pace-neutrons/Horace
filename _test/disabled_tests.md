@@ -12,7 +12,10 @@
 
 - test_multifit_horace_1.m
 	- test_fit_single_or_array2 https://github.com/pace-neutrons/Horace/issues/111
-
+    - test_fit_array_of_datasets (no ticket)
+    - test_fit_test_fit_array_of_datasets_2 (no ticket)
+    - test_fit_array_of_datasets_3 (no ticket)
+ 
 - test_symmetrisation
 	- test_symm_equivalent_zones (Optimize Symmetrization #24 : https://github.com/pace-neutrons/Horace/issues/24 -- but is the part of the refactoring
 
@@ -20,24 +23,9 @@
 	- test_spher_caption (no ticket)
 	- test_spher_caption2D (no ticket)
 
-- test_gen_sqw_workflow:
-   - test_gen_sqw_accumulate_sqw_herbert: Disabled combine_job using file-based exchange on Jenkins:
-          due to random failures write_nsqw2_sqw, can not read mess_data_FromN2_ToN1 (2 workers) (unix too)
-       random hangups in accumulate_headers_job: disabled on Windows jenkins
-   - test_gen_sqw
-   - test_accumulate_sqw11456
-          
-   - test_gen_sqw_accumulate_sqw_parpool:   
-        Disabled combine_job using MPI exchange on Jenkins Windows:  due to random failures write_nsqw2_sqw,(time-out)+ 
-        for:
-        -test_gen_sqw
-        -test_accumulate_and_combine1to4
-        -test_accumulate_sqw14
-        -test_accumulate_sqw1456;
-        -test_accumulate_sqw11456;
-        Additionally disabled on Windows Jenkins due to random failures:
-        -test_gen_sqw
-        -test_accumulate_and_combine1to4
-        -test_accumulate_sqw14
-        -test_accumulate_sqw1456
-          
+- test_gen_sqw_accumulate_sqw_herbert
+    - write_nxsqw_to_sqw -- tmp files combine procedure using parpool framework is replaced by mex_code
+                            it passes but slow and nobody will use it in real life anyway
+                            
+- test_rebin.m
+    - test_rebin_d1d (no ticket)

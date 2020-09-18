@@ -30,11 +30,11 @@ function wout=symmetrise_sqw_pikulski_code(win,v1,v2,v3)
 %                 s1 = symmetrise_sqw_pikulski(s, v1, v2, v3);
 %             Monitoring vsz (approx. measure of allocated memory):
 %                 watch ps -C MATLAB -o pid,pcpu,pmem,size,rsz,vsz
-%             Then, step through the code using MATLAB debugger 
+%             Then, step through the code using MATLAB debugger
 %             and monitor memory consumption.
 %
 %   The memory used right after reading the SQW into memory was ~22 GB.
-%   
+%
 %   With the original code, the peak memory consumption, excluding the call
 %   to the sqw/cut method on line 257 was ~43 GB. Including the cut()
 %   method, it was 56 GB.
@@ -60,7 +60,7 @@ function wout=symmetrise_sqw_pikulski_code(win,v1,v2,v3)
 %==============================
 %Some checks on the inputs:
 win=sqw(win);
-wout=win;
+wout = copy(win);
 
 % MP: Old code would fail the checks done at check_sqw_header.m:56 if
 % called from outside the class.
@@ -149,11 +149,11 @@ for i=1:3
 end
 
 %Coordinates of detector pixels, in the frame discussed above
-coords=@() win.data.pix([1:3],:); % MP: emulate a pointer / lazy data copy
+coords=@() win.data.pix.q_coordinates; % MP: emulate a pointer / lazy data copy
 
 num_pixels=size(win.data.pix, 2); % MP, num_pixels=numel(coords)/3
 
-%Note that we allow the inclusion of an offset from the origin of the 
+%Note that we allow the inclusion of an offset from the origin of the
 %reflection plane. This is specified in rlu.
 vec3=(inv(uconv))*(v3'-header.uoffset(1:3));
 %Ensure v3 is a column vector:
@@ -181,9 +181,9 @@ coords_new([1:3], idx) = Reflec*coords_new([1:3], idx); % MP: (TODO) could poten
 clear 'side_dot'; % MP: not needed anymore
 coords_new=bsxfun(@plus, coords_new, vec3); % MP
 
-wout.data.pix([1:3],:)=coords_new;
+wout.data.pix.q_coordinates=coords_new;
 clear 'coords_new';
-coords_new = @() wout.data.pix([1:3],:); % MP: 'pointer'
+coords_new = @() wout.data.pix.q_coordinates; % MP: 'pointer'
 
 %=========================================================================
 
@@ -205,7 +205,7 @@ coords_cut=bsxfun(@plus, tmp, win.data.uoffset(1:3)); % MP: replaced repmat
 clear 'tmp';
 
 %Extra line required here to include energy in coords_cut (needed below):
-epix=@() win.data.pix(4,:);%energy is never reflected, of course % MP: only accessed once
+epix=@() win.data.pix.dE;%energy is never reflected, of course % MP: only accessed once
 coords_cut=[coords_cut;epix()]; % MP: (TODO) horzcat needs quite some memory, could reduced by resizing coords_cut first and then assigning last row
 
 ndims=dimensions(win);
@@ -220,7 +220,7 @@ ndims=dimensions(win);
 %     min_unref{i}=min(win.data.p{win.data.pax(i)});
 %     max_unref{i}=max(win.data.p{win.data.pax(i)});
 % end
-% 
+%
 % %Extent of data after symmetrisation:
 % for i=1:ndims
 %     min_ref{i}=min(coords_cut(win.data.pax(i),:));

@@ -1,5 +1,8 @@
-function [pix_cellarray,nonempty_bin_ind] = split_pix_per_bin_(pix_buf,pix_per_bin,n_file,run_label,change_fileno,relabel_with_fnum)
-% divide pixels block read from a file into cell
+function [pix_cellarray,nonempty_bin_ind] = split_pix_per_bin_(pix_buf,...
+    pix_per_bin,n_file,run_label,change_fileno,relabel_with_fnum)
+% divide pixels block read from a file into cells, containing pixels
+% belonging to bins,
+%
 if nargin > 2
     if change_fileno
         if(numel(pix_buf) > 0)

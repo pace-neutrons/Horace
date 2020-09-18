@@ -1,8 +1,5 @@
 function obj = put_app_header(obj)
 % store binary data block, which describes object as sqw or dnd object
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
 obj.check_obj_initated_properly();
 %
 % store sqw file header
