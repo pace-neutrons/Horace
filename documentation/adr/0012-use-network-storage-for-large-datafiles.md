@@ -1,4 +1,4 @@
-[<-previous](0011-version-project-with-cmake.md) | next->
+[<-previous](0011-version-project-with-cmake.md) | [next->](0013-use-jenkins-for-secrets-management.md)
 
 # 12 - Use network storage for large data files
 

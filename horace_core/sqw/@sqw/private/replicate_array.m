@@ -3,6 +3,9 @@ function vout = replicate_array (v, npix)
 %
 %   >> vout = replicate_array (v, n)
 %
+% Used to spread signal, calculated on dnd object's grid into all
+% contributed pixels
+%
 % Input:
 % ------
 %   v       Array of values
@@ -14,8 +17,6 @@ function vout = replicate_array (v, npix)
 %               vout=[v(1)*ones(1:n(1)), v(2)*ones(1:n(2), ...)]'
 
 % Original author: T.G.Perring
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 if numel(npix)==numel(v)
     % Get the bin index for each pixel

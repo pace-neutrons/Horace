@@ -10,7 +10,7 @@ function [message, obj] = check_and_set_opt_fields_(obj,p)
 %           wout can be an altered version of the input structure or object that must
 %           have the same fields. For example, if a column array is provided for a field
 %           value, but one wants the array to be a row, then checkfields could take the
-%           transpose. If the facility is not wanted, simply include the line wout=win.
+%           transpose. If the facility is not wanted, simply include the line wout = copy(win).
 %
 %     Because checkfields must be in the folder defining the class, it
 %     can change fields of an object without calling set.m, which means
@@ -78,7 +78,7 @@ if isfield(p,'lab')
     obj.lab = p.lab;
 else
     obj.lab={'\zeta','\xi','\eta','E'};
-    
+
     if isfield(p,'lab1')
         if ischar(p.lab1) && size(p.lab1,1)==1
             obj.lab{1}=p.lab1;
@@ -87,7 +87,7 @@ else
             return
         end
     end
-    
+
     if isfield(p,'lab2')
         if ischar(p.lab2) && size(p.lab2,1)==1
             obj.lab{2}=p.lab2;
@@ -96,7 +96,7 @@ else
             return
         end
     end
-    
+
     if isfield(p,'lab3')
         if ischar(p.lab3) && size(p.lab3,1)==1
             obj.lab{3}=p.lab3;
@@ -105,7 +105,7 @@ else
             return
         end
     end
-    
+
     if isfield(p,'lab4')
         if ischar(p.lab4) && size(p.lab4,1)==1
             obj.lab{4}=p.lab4;

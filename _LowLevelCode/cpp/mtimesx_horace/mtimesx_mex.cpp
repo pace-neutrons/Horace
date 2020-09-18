@@ -1,41 +1,37 @@
-/*************************************************************************************
- * Highly simplified and reduced mtimesx routine, used to multiply matrices, used in Tobyfit
+/******************************************************************************
+ * Parallel mex matrix multiplication implementation used in Tobyfit.
+ *
+ * Highly simplified and reduced implementation of the mtimesx function
+ * developed by James Tursa, available at:
+ * https://uk.mathworks.com/matlabcentral/fileexchange/25977-mtimesx-fast-matrix-multiply-with-multi-dimensional-support
  *
  * The usage is as follows (arguments in brackets [] are optional):
  *
  * Syntax
  *
-  * C = mtimesx(A ,B [,n_omp_threads])
+  * C = mtimesx_horace(A ,B [,n_omp_threads])
  *
  * Description
  *
- * mtimesx performs the matrix calculation C = A * B, where:
+ * mtimesx_horace performs the matrix calculation C = A * B, where:
  *    A = A single or double or integer scalar, matrix, or array.
  *    B = A single or double or integer scalar, matrix, or array.
- *
- *  M = mtimesx returns a string with the current calculation mode. The string
- *      will  be 'SPEEDOMP'.
- *
- *  M = mtimesx(mode) sets the calculation mode to mode. The mode variable
- *      must be either the string 'MATLAB' or the string 'SPEED'. The return
- *      variable M is the previous mode setting prior to setting the new mode.
- *      The mode is case insensitive (lower or upper case is OK). You can also
- *      set one of the OMP modes if you have compiled with an OpenMP compiler.
- *
- *
+ *    n_omp_threads = Number of threads to use in omp parallelization
+ * *
  * Examples:
  *
- *  C = mtimesx(A,B)         % performs the calculation C = A * B
+ *  C = mtimesx_horace(A, B)    % performs the calculation C = A * B
+ *  C = mtimesx_horace(A, B, 6) % performs the calculation C = A * B using 6 threads
 
  *
- * mtimesx supports nD inputs. For these cases, the first two dimensions specify the
- * matrix multiply involved. The remaining dimensions are duplicated and specify the
- * number of individual matrix multiplies to perform for the result. i.e., mtimesx
- * treats these cases as arrays of 2D matrices and performs the operation on the
- * associated parings. For example:
+ * mtimesx_horace supports nD inputs. For these cases, the first two dimensions
+ * specify the matrix multiply involved. The remaining dimensions are duplicated
+ * and specify the number of individual matrix multiplies to perform for the
+ * result. i.e., mtimesx_horace treats these cases as arrays of 2D matrices and
+ * performs the operation on the associated parings. For example:
  *
  *     If A is (2,3,4,5) and B is (3,6,4,5), then
- *     mtimesx(A,B) would result in C(2,6,4,5)
+ *     mtimesx_horace(A,B) would result in C(2,6,4,5)
  *     where C(:,:,i,j) = A(:,:,i,j) * B(:,:,i,j), i=1:4, j=1:5
  *
  *     which would be equivalent to the MATLAB m-code:
@@ -54,7 +50,7 @@
  * copy). For example:
  *
  *     If A is (2,3,4,5) and B is (3,6,1,5), then
- *     mtimesx(A,B) would result in C(2,6,4,5)
+ *     mtimesx_horace(A,B) would result in C(2,6,4,5)
  *     where C(:,:,i,j) = A(:,:,i,j) * B(:,:,1,j), i=1:4, j=1:5
  *
  *     which would be equivalent to the MATLAB m-code:
@@ -70,7 +66,7 @@
  *
  */
 #include "MatMultiply.h"
-#include "utility/version.h"
+#include "../utility/version.h"
 
 #include <string>
 #include <map>
@@ -96,22 +92,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     }
 
     /*-------------------------------------------------------------------------
-     * Compatibility with mtimesx: If no inputs, just return the current (and the only existing) mode
-     *------------------------------------------------------------------------- */
-    if (nrhs == 0) {
-        plhs[0] = mxCreateString("LOOPSOMP");
-        return;
-    }
-
-    /*-------------------------------------------------------------------------
      * Find out if any input is unsupported directive
      *------------------------------------------------------------------------- */
     for (int i = 0; i < nrhs; i++) {
-        if (mxIsChar(prhs[i])) {
-            mexErrMsgTxt("Modes of operation are not supported by mtimexs_horace. Use original mtimesx function if you need them");
-        }
         if (mxIsComplex(prhs[i])) {
-            mexErrMsgTxt("Complex arrays multiplication is not yet supported by mtimexs_horace. Use original mtimesx function if you need them");
+            mexErrMsgTxt("Complex arrays multiplication are not supported by mtimexs_horace. Use Matlab");
         }
         if (mxIsSparse(prhs[i])) {
             mexErrMsgTxt("Sparse arrays multiplication is not yet supported by mtimexs_horace. Use Matlab");
@@ -201,9 +186,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     }
 
-
     return;
-
 }
 
 /* The map of containing the types of operations which are currently supported */
@@ -298,7 +281,5 @@ void calc_output_size(mwSize const *const dimsA, size_t ndimsA, mwSize const *co
             rez_dim_sizes[i] = dimsB[i];
         }
     }
-
-
 }
 

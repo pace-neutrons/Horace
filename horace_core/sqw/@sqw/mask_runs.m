@@ -35,7 +35,7 @@ end
 
 % Trivial case of empty or no mask arguments
 if nargin==1 || isempty(runno)
-    wout=win;
+    wout = copy(win);
     return
 end
 
@@ -56,7 +56,7 @@ end
 
 % Do the masking calculation:
 runno=unique(runno);    % remove duplicates if present
-runs=win.data.pix(5,:);
+runs=win.data.pix.run_idx;
 mask_arr=true(size(runs));
 for i=1:numel(runno)
     mask_arr(runs==runno(i))=false;

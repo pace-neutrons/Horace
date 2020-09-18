@@ -21,3 +21,4 @@ cmake-build-debug/*
 
 # Compiled MEX binaries (all platforms)
 # *.mex*  # commented out for now - uncomment when distribution channel is up
+/_test/test_spinw_integration

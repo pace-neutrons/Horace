@@ -9,7 +9,6 @@ function [data,obj] = get_data (obj,varargin)
 %
 %   >> data = obj.get_data()
 %   >> data = obj.get_data(opt)
-%   >> data = obj.get_data(npix_lo, npix_hi)
 %
 % Input:
 % ------
@@ -29,11 +28,6 @@ function [data,obj] = get_data (obj,varargin)
 %                            going to be created. May be removed in a future.
 %
 %               Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
-%
-%   npix_lo     -|- [optional] pixel number range to be read from the file (only applies to type 'a')
-%   npix_hi     -|
-%
-
 %
 % Output:
 % -------
@@ -84,17 +78,7 @@ function [data,obj] = get_data (obj,varargin)
 %   data.npix       No. contributing pixels to each bin of the plot axes.
 %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.urange     True range of the data along each axis [urange(2,4)]
-%   data.pix        Array containing data for eaxh pixel:
-%                  If npixtot=sum(npix), then pix(9,npixtot) contains:
-%                   u1      -|
-%                   u2       |  Coordinates of pixel in the projection axes
-%                   u3       |
-%                   u4      -|
-%                   irun        Run index in the header block from which pixel came
-%                   idet        Detector group number in the detector listing for the pixel
-%                   ien         Energy bin number for the pixel in the array in the (irun)th header
-%                   signal      Signal array
-%                   err         Error array (variance i.e. error bar squared)
+%   data.pix        A PixelData objects
 %
 %
 % NOTES:
@@ -147,30 +131,6 @@ if header_only || noclass
 end
 data = data_sqw_dnd(data_str);
 
-if numel(argi)>0
-    if ~isnumeric(argi{1})
-        error('SQW_BINFILE_COMMON:invalid_argument',...
-            'get_data: invalid argument %s',argi{1})
-    end
-    npix_lo = argi{1};
-    if numel(argi)>1
-        if ~isnumeric(argi{2})
-            error('SQW_BINFILE_COMMON:invalid_argument',...
-                'get_data: invalid argument %s',argi{1})
-        end
-        npix_hi = argi{2};
-    end
-end
-
-
-
 if ~nopix
-    if ~exist('npix_lo','var')
-        npix_lo = 1;
-    end
-    if ~exist('npix_hi','var')
-        npix_hi = obj.npixels;
-    end
-    data.pix = obj.get_pix(npix_lo,npix_hi);
+    data.pix = PixelData(obj);
 end
-

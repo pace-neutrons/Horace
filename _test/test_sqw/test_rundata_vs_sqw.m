@@ -116,7 +116,7 @@ classdef test_rundata_vs_sqw < TestCase
             bos = bob.calc_sqw(grid_size,urange);
             assertElementsAlmostEqual(bos.data.urange,urange,'relative',1.e-6);
             
-            pix_range =[min(bos.data.pix(1:4,:),[],2)'; max(bos.data.pix(1:4,:),[],2)'];
+            pix_range =[min(bos.data.pix.coordinates,[],2)'; max(bos.data.pix.coordinates,[],2)'];
             assertElementsAlmostEqual(bos.data.urange,pix_range);
         end
         
@@ -136,6 +136,33 @@ classdef test_rundata_vs_sqw < TestCase
             fa = fa.unload();
             assertEqual(rd,fa);
         end
+        function sqw_build = rd_convert_checker(~,rundata_to_test,grid_size,urange)
+            % function used in test_serialize_deserialize_rundatah_with_op
+            % test to ensure that imput parameters of the serialized function
+            % are not picked up from the same variables subspace;
+            sqw_build  = rundata_to_test.calc_sqw(grid_size,urange);
+        end
+        %
+        function  test_serialize_deserialize_rundatah_with_op(obj)
+            % test checks if transofrmation is serialized/recovered correctly.
+            rd = rundatah(obj.sqw_obj);
+            v1=[0,1,0]; v2=[0,0,1]; v3=[0,0,0];
+            rd.transform_sqw = @(x)symmetrise_sqw(x,v1,v2,v3);
+            
+            by = rd.serialize();
+            
+            fa = rundatah.deserialize(by);
+            
+            grid_size = size(obj.sqw_obj.data.s);
+            urange = obj.sqw_obj.data.urange;
+            
+            sqw_o = rd.calc_sqw(grid_size,urange);
+            sqw_r = obj.rd_convert_checker(fa,grid_size,urange);
+            
+            assertEqual(sqw_o,sqw_r);
+            
+        end
+        
         %
         function obj = test_send_receive_rundata(obj)
             

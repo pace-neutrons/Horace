@@ -25,7 +25,7 @@ classdef hpc_config < config_base
     %
     % combine_sqw_using        - what type of sub-algorithm to use for c
     %                            ombining sqw/tmp files together.
-    % combine_sqw_options        the helper property providing options,
+    % combine_sqw_options      - the helper property providing options,
     %                            available to provide for
     %                            'combine_sqw_using' property.
     %                            Currently these options are 'matlab', 'mex_code' and 'mpi_code'
@@ -33,16 +33,14 @@ classdef hpc_config < config_base
     % mex_combine_thread_mode   - various thread modes deployed when
     %                             combining sqw files using mex code.
     %---
-    % parallel_framework        - what parallel framework use to perform
-    %                             parallel  tasks. Possibilities are 'herbert' or 'parpool'
+    % parallel_cluster          - what parallel cluster type to use to perform
+    %                             parallel  tasks. Possibilities currenlty are
+    %                             'herbert', 'parpool' or mpiexec_mpi
     % mex_combine_buffer_size   - size of buffer used by mex code while
     %                             combining files per each contributing file.
     %
     %
     % Type >> hpc_config  to see the list of current configuration option values.
-    %
-    %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
     properties(Dependent)
         % if true, launch separate Matlab session(s) or parallel job to
@@ -53,6 +51,7 @@ classdef hpc_config < config_base
         %
         % set-up algorithm, to use for combining multiple sqw(tmp) filesL
         combine_sqw_using
+        %
         % helper read-only property, displaying possible codes to use to
         % combines sqw (combine_sqw_using) available options, namely:
         % matlab   : this mode uses initial Matlab code to combine multiple
@@ -90,15 +89,15 @@ classdef hpc_config < config_base
         %
         remote_folder;
         % what parallel framework to use for parallel  tasks. Available
-        % options are: matlab, partool. Actually defined in parqallel_config and
+        % options are: matlab, partool, mpiexec. Defined in parallel_config and
         % exposed here for clarity.
-        parallel_framework;
+        parallel_cluster;
         % immutable reference to the class, which describes the parallel
         % configuration. To change the parallel configuration, work with
         % this configuration class itself;
         parallel_configuration
-        % helper property, returining the list of options, which define hpc
-        % configuration. Coinsids with saved_properties_list_ 
+        % helper read-only property, returining the list of options, which
+        % define hpc configuration. Coinsides with saved_properties_list_
         hpc_options
     end
     properties(Dependent,Hidden=true)
@@ -178,13 +177,13 @@ classdef hpc_config < config_base
         function accum = get.parallel_workers_number(this)
             accum = get_or_restore_field(this,'parallel_workers_number');
         end
-        function framework = get.parallel_framework(obj)
-            framework = config_store.instance.get_value('parallel_config','parallel_framework');
+        function framework = get.parallel_cluster(~)
+            framework = config_store.instance.get_value('parallel_config','parallel_cluster');
         end
-        function rem_f = get.remote_folder(obj)
+        function rem_f = get.remote_folder(~)
             rem_f = config_store.instance.get_value('parallel_config','remote_folder');
         end
-        function config = get.parallel_configuration(obj)
+        function config = get.parallel_configuration(~)
             config = parallel_config();
         end
         function hpco = get.hpc_options(obj)
@@ -217,17 +216,6 @@ classdef hpc_config < config_base
                 end
             end
             if use_mpi
-                pc = parallel_config;
-                try % only MATLAB MPI can be enabled now.
-                    % TODO: check what should be used when C++ mpi is
-                    % ready.
-                    pc.parallel_framework = 'parpool';
-                catch ME
-                    warning('HPC_CONFIG:invalid_argument',...
-                        'can not enable Parallel Computing Toolbox. Error: %s. Ho changes in hpc_config',...
-                        errmsg)
-                    return
-                end
                 config_store.instance().store_config(this,'combine_sqw_using','mpi_code');
             end
         end
@@ -314,9 +302,9 @@ classdef hpc_config < config_base
             config_store.instance().store_config(this,'parallel_workers_number',nproc);
         end
         
-        function obj = set.parallel_framework(obj,val)
+        function obj = set.parallel_cluster(obj,val)
             pf = parallel_config;
-            pf.parallel_framework = val;
+            pf.parallel_cluster = val;
         end
         function obj = set.remote_folder(obj,val)
             pf = parallel_config;
@@ -343,5 +331,4 @@ classdef hpc_config < config_base
         
     end
 end
-
 

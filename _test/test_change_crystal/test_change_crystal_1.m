@@ -17,6 +17,9 @@ common_data_dir=fullfile(HORACE_ROOT,'_test','common_data');
 dir_out=tmp_dir;
 sim_sqw_file=fullfile(dir_out,'test_change_crystal_1sim.sqw');           % output file for simulation in reference lattice
 sim_sqw_file_corr=fullfile(dir_out,'test_change_crystal_1sim_corr.sqw'); % output file for correction
+hp = hpc_config;
+hpc_config_data = hp.get_data_to_store();
+hp.combine_sqw_using = 'mex_code';
 
 
 % Data for creation of test sqw file
@@ -56,7 +59,7 @@ for i=1:numel(psi)
     save(wtmp,sqw_file{i});
 end
 
-cleanup_obj=onCleanup(@()test_change_crystal_1_cleanup(sqw_file,sim_sqw_file,sim_sqw_file_corr));
+cleanup_obj=onCleanup(@()test_change_crystal_1_cleanup(sqw_file,sim_sqw_file,sim_sqw_file_corr,hpc_config_data));
 
 
 
@@ -96,7 +99,10 @@ end
 
 banner_to_screen([mfilename,': Test(s) passed (matches are within requested tolerances)'],'bot')
 
-function test_change_crystal_1_cleanup(sqw_file,sim_sqw_file,sim_sqw_file_corr)
+function test_change_crystal_1_cleanup(sqw_file,sim_sqw_file,sim_sqw_file_corr,hpc_config_data)
+%
+% restore old hpc configuration
+set(hpc_config,hpc_config_data)
 
 ws = warning('off','MATLAB:DELETE:Permission');
 
@@ -118,6 +124,3 @@ for i=1:numel(sqw_file)
     end
 end
 warning(ws);
-
-
-

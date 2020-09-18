@@ -65,47 +65,47 @@ if grid_is_unity && data_in_range   % the most work we have to do is just change
         sqw_data.p{id}=[urange(1,id);urange(2,id)];
     end
     grid_size = grid_size_in;
-    
+
 else
     if hor_log_level>-1
         disp('Sorting pixels ...')
     end
-    
+
     [use_mex,nThreads]=config_store.instance().get_value('hor_config','use_mex','threads');
     if use_mex
         try
             % Verify the grid consistency and build axes along the grid dimensions,
             % c-program does not check the grid consistency;
             [grid_size,sqw_data.p]=construct_grid_size(grid_size_in,urange);
-            
+
             sqw_fields   =cell(1,4);
             sqw_fields{1}=nThreads;
             %sqw_fields{1}=8;
             sqw_fields{2}=urange;
             sqw_fields{3}=grid_size;
-            sqw_fields{4}=sqw_data.pix;
+            sqw_fields{4}=sqw_data.pix.data;
             clear sqw_data.s sqw_data.e sqw_data.npix;
-            
+
             out_fields=bin_pixels_c(sqw_fields);
-            
+
             sqw_data.s   = out_fields{1};
             sqw_data.e   = out_fields{2};
             sqw_data.npix= out_fields{3};
-            sqw_data.pix = out_fields{4};
-            
+            sqw_data.pix = PixelData(out_fields{4});
+
         catch
             warning('HORACE:using_mex','calc_sqw->Error: ''%s'' received from C-routine to rebin data, using matlab functions',lasterr());
             use_mex=false;
         end
     end
     if ~use_mex
-        [ix,npix,p,grid_size,ibin]=sort_pixels(sqw_data.pix(1:4,:),urange,grid_size_in);
-        
+        [ix,npix,p,grid_size,ibin]=sort_pixels(sqw_data.pix.coordinates,urange,grid_size_in);
+
         sqw_data.p=p;   % added by RAE 10/6/11 to avoid crash when doing non-mex generation of sqw files
-        sqw_data.pix=sqw_data.pix(:,ix);
-        
-        sqw_data.s=reshape(accumarray(ibin,sqw_data.pix(8,:),[prod(grid_size),1]),grid_size);
-        sqw_data.e=reshape(accumarray(ibin,sqw_data.pix(9,:),[prod(grid_size),1]),grid_size);
+        sqw_data.pix=sqw_data.pix.get_pixels(ix);
+
+        sqw_data.s=reshape(accumarray(ibin,sqw_data.pix.signal,[prod(grid_size),1]),grid_size);
+        sqw_data.e=reshape(accumarray(ibin,sqw_data.pix.variance,[prod(grid_size),1]),grid_size);
         sqw_data.npix=reshape(npix,grid_size);      % All we do is write to file, but reshape for consistency with definition of sqw data structure
         sqw_data.s=sqw_data.s./sqw_data.npix;       % normalise data
         sqw_data.e=sqw_data.e./(sqw_data.npix).^2;  % normalise variance
@@ -113,14 +113,14 @@ else
         nopix=(sqw_data.npix==0);
         sqw_data.s(nopix)=0;
         sqw_data.e(nopix)=0;
-        
+
         clear nopix     % biggish array no longer needed
     end
-    
+
     % If changed urange to something less than the range of the data, then must update true range
     if ~data_in_range
-        sqw_data.urange(1,:)=min(sqw_data.pix(1:4,:),[],2)';
-        sqw_data.urange(2,:)=max(sqw_data.pix(1:4,:),[],2)';
+        sqw_data.urange(1,:)=min(sqw_data.pix.coordinates,[],2)';
+        sqw_data.urange(2,:)=max(sqw_data.pix.coordinates,[],2)';
     end
 end
 
@@ -218,9 +218,7 @@ sqw_data.pax=[1,2,3,4];
 sqw_data.p=p;
 sqw_data.dax=[1,2,3,4];
 sqw_data.s=sum(obj.S(:));
-sqw_data.e=sum(pix(9,:));   % take advantage of the squaring that has already been done for pix array
+sqw_data.e=sum(pix.variance);   % take advantage of the squaring that has already been done for pix array
 sqw_data.npix=ne*ndet;
 sqw_data.urange=urange;
-sqw_data.pix=pix;
-
-
+sqw_data.pix=PixelData(pix);

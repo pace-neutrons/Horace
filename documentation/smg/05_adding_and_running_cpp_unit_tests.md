@@ -64,7 +64,7 @@ set(
 pace_add_cpp_unit_test(
     NAME "my_module.test"
     SOURCES "${TEST_SRC_FILES}" "${SRC_FILES}" "${HDR_FILES}"
-    LIBS OpenMP::OpenMP_CXX gmock
+    LIBS gmock
     MEX_TEST
 )
 ```
