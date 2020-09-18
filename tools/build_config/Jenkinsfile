@@ -1,13 +1,117 @@
 #!groovy
-/**
- * The following parameters must be provided by the Jenkins build job and must match available application
- * on the build target machine
- *
- *  - CMAKE_VERSION: The version of CMake to run the build with
- *  - GCC_VERSION: The version of GCC to build with
- *  - MATLAB_VERSION: The release number of the Matlab to load
- *  - CPPCHECK_VERSION: The version of CppCheck tooling to load to provide the code-style checks
- */
+
+def get_matlab_release(String job_name) {
+  return 'R' + job_name[-5..-1]
+}
+
+def get_build_type(String job_name) {
+  if (job_name.startsWith('Release-')) {
+    return 'Release'
+  } else if (job_name.startsWith('Branch-')) {
+    return 'Branch'
+  } else if(job_name.startsWith('PR-')) {
+    return 'Pull-request'
+  } else {
+    return 'Nightly'
+  }
+}
+
+def get_agent(String job_name) {
+  def agent = ''
+  if (job_name.contains('Scientific-Linux-7')) {
+    withCredentials([string(credentialsId: 'sl7_agent', variable: 'agent')]) {
+      agent = "${agent}"
+    }
+  } else if (job_name.contains('Windows-10')) {
+    withCredentials([string(credentialsId: 'win10_agent', variable: 'agent')]) {
+      agent = "${agent}"
+    }
+  }
+  return agent
+}
+
+def get_release_type(String job_name) {
+  String build_type = get_build_type(job_name);
+
+  switch(build_type) {
+    case 'Release':
+      return 'release'
+
+    case 'Pull-request':
+      return 'pull_request'
+
+    case 'Nightly':
+      return 'nightly'
+
+    default:
+      return ''
+  }
+}
+
+def get_branch_name(String job_name) {
+  String build_type = get_build_type(job_name);
+
+  switch(build_type) {
+    case 'Nightly':
+      return 'master'
+
+    default:
+      return ''
+  }
+}
+
+properties([
+  parameters([
+    string(
+      defaultValue: get_branch_name(env.JOB_BASE_NAME),
+      description: 'The name of the branch to build.',
+      name: 'BRANCH_NAME',
+      trim: true
+    ),
+    string(
+      defaultValue: get_release_type(env.JOB_BASE_NAME),
+      description: 'The type of the build e.g. "nightly", "release", "pull_request".',
+      name: 'RELEASE_TYPE',
+      trim: true
+    ),
+    string(
+      defaultValue: get_agent(env.JOB_BASE_NAME),
+      description: 'The agent to execute the pipeline on.',
+      name: 'AGENT',
+      trim: true
+    ),
+    string(
+      defaultValue: get_matlab_release(env.JOB_BASE_NAME),
+      description: 'The release number of the Matlab to load e.g. R2019b.',
+      name: 'MATLAB_VERSION', trim: true
+    ),
+    string(
+      defaultValue: '3.7.2',
+      description: 'The version of CMake to run the build with.',
+      name: 'CMAKE_VERSION',
+      trim: true
+    ),
+    string(
+      defaultValue: '6.3.0',
+      description: 'The version of GCC to build with.',
+      name: 'GCC_VERSION',
+      trim: true
+    ),
+    string(
+      defaultValue: '2017',
+      description: 'The year of the version of Visual Studio to build with.',
+      name: 'VS_VERSION',
+      trim: true
+    ),
+    string(
+      defaultValue: '1.77',
+      description: 'The version of CppCheck tooling to load to provide the code-style checks.',
+      name: 'CPPCHECK_VERSION',
+      trim: true
+    )
+  ])
+])
+
 
 def post_github_status(String state, String message) {
   // Non-PR builds will not set PR_STATUSES_URL - in which case we do not
@@ -48,16 +152,6 @@ def post_github_status(String state, String message) {
   }
 }
 
-/* Required pipeline parameters:
- *   All platforms:
- *     AGENT (e.g. 'sl7', 'PACE Windows (Private)', 'osx')
- *     MATLAB_VERSION (e.g R2018b)
- *     RELEASE_TYPE ('nightly', 'release' - optional)
- *   Unix only:
- *     CMAKE_VERSION  (e.g. 3.7.2)
- *     GCC_VERSION (e.g. 6.3.0)
- *     CPPCHECK_VERSION (e.g. 1.77)
-*/
 pipeline {
   agent {
     label env.AGENT

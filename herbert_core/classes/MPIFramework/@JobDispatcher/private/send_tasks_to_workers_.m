@@ -53,7 +53,7 @@ n_workers = check_loop_param(loop_params,n_workers);
 % indicate new cluster created
 obj.job_is_starting_ = true;
 % initialize cluster, defined by current configuration
-par_fc = MPI_fmwks_factory.instance();
+par_fc = MPI_clusters_factory.instance();
 %
 cluster_wrp = par_fc.get_initialized_cluster(n_workers,mf);
 %

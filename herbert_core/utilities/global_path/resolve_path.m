@@ -9,7 +9,7 @@ function [fullpath,ok] = resolve_path(filename)
 if ~ischar(filename)
     error('RESOLVE_PATH:invalid_argument',...
         'input should be a string, identifying file or path to a file. Got: %s',...
-        fevalc('disp(filename)'))
+        evalc('disp(filename)'))
 end
 
 if isunix
