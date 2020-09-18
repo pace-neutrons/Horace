@@ -66,6 +66,21 @@ methods
     function tearDown(obj)
         set(hor_config, obj.old_config);
     end
+    
+    function test_noisify_with_paging_draft(obj)
+        % Test function to compare the output between 2 noisify
+        % implementations.
+        % This one is hard wired to use the test below.
+        % The random number generator is re-seeded before each call
+        % of noisify to ensure that nosify uses the same random sequence
+        % for both calls.
+        s = sqw('_test\test_sqw_file\sqw_1d_1.sqw');
+        rng(0);
+        s1 = noisify(s);
+        rng(0);
+        s2 = noisify(s);
+        assertEqual(s1, s2, '', 5e-4);
+    end
 
     function test_compute_bin_data_correct_output_in_memory_mex_1_thread(obj)
         obj.config.use_mex = true;
