@@ -46,21 +46,24 @@ platforms, and the code has been reviewed, the PR can be merged.
 The Jenkins build artifacts are are not accessible outside of STFC.
 End users will be directed to GitHub to access packaged releases.
 
-A 'deploy' pipeline will be created
-([Horace #73](https://github.com/pace-neutrons/Horace/issues/73)).
+Release pipelines have been created on ANVIL,
+these are to be used to create release candidates.
+
+Deploy pipelines have also been created to push release candidates to GitHub.
 
 This will:
 
-- tag the `master` branch with the release number (`Rm.n.o`)
-- copy the built artifact to GitHub
+- tag the Git revision with the release number (`vm.n.o`)
+- copy the built artifact to the corresponding GitHub release
 
 The release tag will be an anchor for any subsequently needed release branch
 and patch branches.
 
 The version number is stored in a text file (`VERSION`) in the root of the
-Herbert and Horace source. This will follow
-[semantic versioning](https://semver.org/) and is used in the build process to
-set the version number in the MATLAB and compiled C++ components.
+Herbert and Horace source.
+This will follow [semantic versioning](https://semver.org/)
+and is used in the build process to set the version number in the MATLAB
+and compiled C++ components.
 
 ## Deployment on ISIS computational services machines
 
