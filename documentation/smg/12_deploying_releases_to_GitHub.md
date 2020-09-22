@@ -42,7 +42,8 @@ This is a multiline string parameter whose input should have the form:
   where, for example,
   `<pipeline name> <build number>` = `Release-Windows-10-2019b 12`.
 
-  This allows the deploy pipeline to copy release artifacts from those builds.
+  This gives the pipeline the information required to copy release artifacts
+  from those builds.
 
 - `release_body`: The description of the release to show on GitHub.
 This will usually be release notes.
