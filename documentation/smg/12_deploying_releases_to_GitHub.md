@@ -5,7 +5,8 @@
 A repository
 [ci-release-deploy](https://github.com/pace-neutrons/ci-release-deploy)
 has been created to hold the code that implements the deployment pipeline.
-This decision was made so that code is not duplicated between Herbert and Horace
+The additional repository ensures that
+code is not duplicated between Herbert and Horace,
 and to provide fast checkout times for the deploy pipelines.
 
 ## Release Pipelines
