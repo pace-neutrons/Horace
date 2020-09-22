@@ -28,7 +28,7 @@ be used in the generated release.
 
 The deploy pipelines created on ANVIL's Jenkins server should be used to deploy
 release candidates to GitHub.
-Horace and Herbert each have their own deploy pipeline name `Deploy`.
+Horace and Herbert each have their own deploy pipeline named `Deploy`.
 When triggered, this pipeline takes the following parameters:
 
 - `tag_sha`: The SHA of the Git revision on which to create the release tag
@@ -95,5 +95,5 @@ Again, ensure the release is a draft.
 7. Smoke test the new release candidates in the draft release.
 
 8. After smoke tests are complete and developers are happy with the package,
-the draft release can be manually published from within the GitHub releases
-page.
+the draft release can be manually published from within the GitHub releases page.
+This creates the tag in Git and the release artifacts made public.
