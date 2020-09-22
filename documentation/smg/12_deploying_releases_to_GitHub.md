@@ -20,6 +20,10 @@ This flag ensures the package is created with the correct version semantics,
 i.e. `3.4.1` rather than `3.4.1.<git-revision>`.
 It also keeps release candidates separate from the nightly master builds.
 
+The release pipelines in Horace have a second parameter `HERBERT_BRANCH_NAME`,
+which must be specified. A Herbert branch/tag/revision matching this name will
+be used in the generated release.
+
 ## Deploy Pipelines
 
 The deploy pipelines created on ANVIL's Jenkins server should be used to deploy
@@ -77,7 +81,8 @@ In this ticket, provide a link to the draft release
 the repository).
 From here developers can download the release candidates.
 
-5. Developers should perform manual testing of the release candidates.
+5. Developers should perform manual testing of the release candidates
+on all target platforms.
 They should download and install release candidates from the draft release.
 An issue must be created for any bug or problem found with the release candidate.
 Any such issues should be labelled with the name of the release.
@@ -90,4 +95,5 @@ Again, ensure the release is a draft.
 7. Smoke test the new release candidates in the draft release.
 
 8. After smoke tests are complete and developers are happy with the package,
-the draft release can be manually published.
+the draft release can be manually published from within the GitHub releases
+page.
