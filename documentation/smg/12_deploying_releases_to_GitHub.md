@@ -16,6 +16,8 @@ candidates.
 These pipelines have a `Release-` prefix.
 The pipelines differ from the master builds in that they ensure the
 `-DHORACE_RELEASE_TYPE=release` is passed to CMake.
+This flag ensures the package is created with the correct version semantics,
+i.e. `3.4.1` rather than `3.4.1.<git-revision>`.
 It also keeps release candidates separate from the nightly master builds.
 
 ## Deploy Pipelines
