@@ -22,7 +22,7 @@ It also keeps release candidates separate from the nightly master builds.
 
 The release pipelines in Horace have a second parameter `HERBERT_BRANCH_NAME`,
 which must be specified. A Herbert branch/tag/revision matching this name will
-be used in the generated release.
+be used in testing and bundled in the generated release.
 
 ## Deploy Pipelines
 
