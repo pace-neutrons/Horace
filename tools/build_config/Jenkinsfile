@@ -81,19 +81,6 @@ pipeline {
 
     stage('Notify') {
       steps {
-        script {
-          // Archive a file containing the git revision being built. This
-          // enables the Deploy pipelines to validate against this SHA, and
-          // ensure the correct revision is tagged in Git.
-          if (get_build_type(env.JOB_BASE_NAME) == "Release") {
-            def git_rev_file_name = "${env.JOB_BASE_NAME}-git-revision.txt"
-            write_git_revision_to_file(git_rev_file_name)
-            archiveArtifacts(
-              artifacts: git_rev_file_name,
-              followSymlinks: false
-            )
-          }
-        }
         post_github_status("pending", "The build is running")
       }
     }
@@ -179,11 +166,18 @@ pipeline {
               ./tools/build_config/build.ps1 -package
             '''
           }
+          // Create a file containing the git revision being built. This
+          // enables the Deploy pipelines to validate against this SHA, and
+          // ensure the correct revision is tagged in Git.
+          if (get_build_type(env.JOB_BASE_NAME) == "Release") {
+            def git_rev_file_name = "${env.JOB_BASE_NAME}-git-revision.sha"
+            write_git_revision_to_file(git_rev_file_name)
+          }
         }
 
-        // Archive the release package
+        // Archive the release package and Git SHA file (if it exists)
         archiveArtifacts(
-          artifacts: 'build/Herbert-*',
+          artifacts: "build/Herbert-*,${git_rev_file_name}",
           fingerprint: true
         )
       }
