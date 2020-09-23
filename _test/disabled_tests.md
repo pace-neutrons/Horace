@@ -15,7 +15,7 @@
     - test_fit_array_of_datasets (no ticket)
     - test_fit_test_fit_array_of_datasets_2 (no ticket)
     - test_fit_array_of_datasets_3 (no ticket)
- 
+
 - test_symmetrisation
 	- test_symm_equivalent_zones (Optimize Symmetrization #24 : https://github.com/pace-neutrons/Horace/issues/24 -- but is the part of the refactoring
 
@@ -26,6 +26,9 @@
 - test_gen_sqw_accumulate_sqw_herbert
     - write_nxsqw_to_sqw -- tmp files combine procedure using parpool framework is replaced by mex_code
                             it passes but slow and nobody will use it in real life anyway
-                            
+
 - test_rebin.m
     - test_rebin_d1d (no ticket)
+
+test_gen_sqw_accumulate_sqw_parpool.m (https://github.com/pace-neutrons/Horace/issues/380)
+	- test_accumulate_sqw1456
