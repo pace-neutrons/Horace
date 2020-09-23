@@ -201,6 +201,13 @@ def post_github_status(String state, String message) {
 
 def base_job_name = "${env.JOB_BASE_NAME}".replace("PR-", "").replace("Branch-", "")
 
+if (env.BRANCH_NAME) {
+  currentBuild.description = "Branch: ${env.BRANCH_NAME}"
+} else if (env.PR_NUMBER) {
+  currentBuild.displayName = "#${env.BUILD_NUMBER} PR-${env.PR_NUMBER}"
+  currentBuild.description = "Git-SHA: ${env.PR_COMMIT_SHA.take(7)}"
+}
+
 
 pipeline {
   agent {
@@ -211,14 +218,6 @@ pipeline {
 
     stage('Notify') {
       steps {
-        script {
-          if (env.BRANCH_NAME) {
-            currentBuild.description = "Branch: ${env.BRANCH_NAME}"
-          } else if (env.PR_NUMBER) {
-            currentBuild.displayName = "#${env.BUILD_NUMBER} PR-${env.PR_NUMBER}"
-            currentBuild.description = "Git-SHA: ${env.PR_COMMIT_SHA.take(7)}"
-          }
-        }
         post_github_status("pending", "The build is running")
       }
     }
