@@ -51,6 +51,7 @@ def post_github_status(String state, String message) {
 def write_git_revision_to_file(String file_name) {
   script {
     def git_rev_cmd = "git rev-parse HEAD"
+    echo "Writing Git revision to ${file_name}..."
     if (isUnix()) {
       sh """
         echo "\$(${git_rev_cmd})" > ${file_name}
