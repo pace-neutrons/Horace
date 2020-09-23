@@ -199,6 +199,23 @@ def post_github_status(String state, String message) {
   }
 }
 
+def write_git_revision_to_file(String file_name) {
+  script {
+    def git_rev_cmd = "git rev-parse HEAD"
+    echo "Writing Git revision to ${file_name}..."
+    if (isUnix()) {
+      sh """
+        echo "\$(${git_rev_cmd})" > ${file_name}
+      """
+    } else {
+      powershell """
+        Write-Output "\$(${git_rev_cmd})" > ${file_name}
+      """
+    }
+  }
+}
+
+
 def base_job_name = "${env.JOB_BASE_NAME}".replace("PR-", "").replace("Branch-", "")
 
 if (env.BRANCH_NAME) {
@@ -218,6 +235,19 @@ pipeline {
 
     stage('Notify') {
       steps {
+        script {
+          // Archive a file containing the git revision being built. This
+          // enables the Deploy pipelines to validate against this SHA, and
+          // ensure the correct revision is tagged in Git.
+          if (get_build_type(env.JOB_BASE_NAME) == "Release") {
+            def git_rev_file_name = "${env.JOB_BASE_NAME}-git-revision.txt"
+            write_git_revision_to_file(git_rev_file_name)
+            archiveArtifacts(
+              artifacts: git_rev_file_name,
+              followSymlinks: false
+            )
+          }
+        }
         post_github_status("pending", "The build is running")
       }
     }
