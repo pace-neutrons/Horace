@@ -18,13 +18,14 @@ function [yout,eout] = noisify (y,e,varargin)
 %           Add noise with Poisson distribution, where the mean value at
 %           a point is the value y.
 %
-%   >> [yout, eout] = noisify(y,e,factor,maxval)
+%   >> [yout, eout] = noisify(y,e,[factor,]'maxval',maxval)
 %           Add noise with Gaussian distribution, calculating the standard
 %           deviation by an externally provided maximum y value.
-%           Typically this will be the overall maximum value if the
+%           The max value is preceded by a keyword string 'maxval'.
+%           Typically this value will be the overall maximum value if the
 %           data is processed page by page and the maximum must be
 %           extracted before this processing.
-%           Setting factor<0.0 will use the default value 0.1.
+%           Omitting factor will use the default value 0.1.
 %
 %   If no input errors, e, just set e=[]
 
