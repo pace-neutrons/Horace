@@ -28,39 +28,54 @@ function [yout,eout] = noisify (y,e,varargin)
 %
 %   If no input errors, e, just set e=[]
 
-if nargin==3 && ischar(varargin{1})
-    if is_stringmatchi(varargin{1},'poisson')
+% Use Poisson distribution and ignore other arguments
+if nargin==3 && ischar(varargin{1}) && is_stringmatchi(varargin{1},'poisson')
         yout=zeros(size(y));
         for i=1:numel(y)
             yout(i)=randpoisson(abs(y(i)));
         end
         eout=abs(y);  % the input y is the mean and variance of the Poisson distribution
+        return % RETURN here as the poisson route is independent of the other argument options
+end
+
+% If not return, use normal distribution with or without an input maximum signal:
+default_fac = 0.1;
+ymax = [];
+fac = default_fac;
+if nargin>=3
+    % Check for maxval keyword and set ymax, else calc ymax locally below
+    pos = find(strcmp(varargin,'maxval')==1);
+    if ~isempty(pos) && pos<size(varargin,2)
+        ymax = varargin{pos+1};
     else
-        error('Unrecognised random sampling distribution')
+        error('Could not find maxval value arg with maxval specified')
     end
-else % 3rd arg did not exist or was not a distribution name
-    default_fac = 0.1;
-    if nargin>=3 % 3 args for fac or 4 args for fac and maxval
+    % Check for input of fac as 3rd arg, set to default otherwise
+    if isempty(pos) || pos ~= 1
         if isnumeric(varargin{1}) && isscalar(varargin{1})
             fac = varargin{1};
-            if fac < 0.0 % default option if 4th arg is needed
-                fac = default_fac;
-            end
         else
             error('Noise as fraction of peak signal must be real scalar')
         end
     else
         fac = default_fac;
     end
-    if nargin==4 % means the maxval arg has been used
-        ymax = varargin{2};             % use max value previously extracted
-    else
-        ymax = max(abs(y(:)));          % find maximum magnitude of y for arbitrary dimensions
-    end
-    dy=(fac*ymax)*randn(size(y));   % st. dev. of randn is sigma=1
-    yout=y+dy;
-    eout=ones(size(y))*(fac*ymax)^2;
 end
+
+% Check for any other distribution in arg #3
+if nargin>=3 && ischar(varargin{1}) && ~is_stringmatchi(varargin{1},'maxval')
+    error('Unrecognised random sampling distribution')
+end
+
+% if ymax was not set by an argument, set from max of |y|
+if isempty(ymax)
+    ymax = max(abs(y(:)));
+end
+    
+% make noise dy and add to y for output; make error bar for noise    
+dy=(fac*ymax)*randn(size(y));   % st. dev. of randn is sigma=1
+yout=y+dy;
+eout=ones(size(y))*(fac*ymax)^2;
 
 % this code now outputs a variance to be consistent between the use of eout
 % in the Poisson distribution section, the input definition for e and this
