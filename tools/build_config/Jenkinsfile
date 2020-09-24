@@ -48,6 +48,18 @@ def post_github_status(String state, String message) {
   }
 }
 
+def get_build_type(String job_name) {
+  if (job_name.startsWith('Release-')) {
+    return 'Release'
+  } else if (job_name.startsWith('Branch-')) {
+    return 'Branch'
+  } else if(job_name.startsWith('PR-')) {
+    return 'Pull-request'
+  } else {
+    return 'Nightly'
+  }
+}
+
 def write_git_revision_to_file(String file_name) {
   script {
     def git_rev_cmd = "git rev-parse HEAD"
