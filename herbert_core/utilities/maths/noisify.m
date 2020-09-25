@@ -1,7 +1,6 @@
 function [yout,eout] = noisify (y,e,varargin)
 % Adds noise to y values and associated error bars. The arrays y, e must
-% have same size. y is the signal and e is its variance (not standard
-% deviation)
+% have same size. y is the signal and e is its variance.
 %
 % Syntax:
 %   >> yout = noisify (y)
@@ -82,8 +81,8 @@ eout=ones(size(y))*(fac*ymax)^2;
 % in the Poisson distribution section, the input definition for e and this
 % output.
 %
-% this code now adds e (an input *variance* rather than std deviation) to
-% eout if it exists rather than if it does not.
+% adds e (the input variance) to eout if it exists 
+% (it may not,see @sqw/nosify)
 if exist('e','var') && ~isempty(e)
     if isequal(size(e),size(eout))
         eout=eout+e;
