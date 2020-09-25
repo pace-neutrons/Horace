@@ -376,4 +376,5 @@ function print_rng()
     line = s(2).line;
     fprintf('\nLine number %i:\n\n', line)
     disp(rng)
-    disp([rng().State(1:5); rng().State(end-5:end)]')
+    state = rng();
+    disp([state.State(1:5); state.State(end-5:end)]')
