@@ -43,8 +43,6 @@ function obj = put_sqw_data_pix_from_file_(obj, pix_comb_info,jobDispatcher)
 % Original author: T.G.Perring
 
 
-
-
 % size of buffer to hold pixel information, the log level and if use mex to
 % build the result
 

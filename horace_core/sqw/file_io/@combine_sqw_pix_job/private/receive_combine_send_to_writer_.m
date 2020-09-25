@@ -1,4 +1,4 @@
-function n_pix_written = receive_data_write_output_(obj,common_par,h_log)
+function npix_combined = receive_combine_send_to_writer_(obj,common_par,h_log)
 % common_par     -- the job info common for all parallel processes.
 % h_log          -- if > 0 - the open handle to an opened log file
 %                   to report information about the job progress.
@@ -9,8 +9,6 @@ function n_pix_written = receive_data_write_output_(obj,common_par,h_log)
 mpis = MPI_State.instance();
 is_deployed = mpis.is_deployed;
 
-% fout           -- initialized handle for opened binary file to write data
-fout = obj.fout_;
 %
 n_bins = common_par.nbin;     % total number of bins
 npix = common_par.npixels;  % total number of pixels
@@ -18,7 +16,7 @@ if h_log
     disp('***************** data writer: ');
 end
 mess_completion(npix,5,1);   % initialize completion message reporting - only if exceeds time threshold
-n_pix_written = 0;
+npix_combined = 0;
 
 
 mess_exch = obj.mess_framework;
@@ -33,6 +31,7 @@ if h_log
     disp(data_providers);
 end
 
+outMess  = DataMessage();
 while ~isempty(data_providers)|| pix_cache.npix_in_cache ~= 0
     %
     if isempty(data_providers)
@@ -49,13 +48,20 @@ while ~isempty(data_providers)|| pix_cache.npix_in_cache ~= 0
     [pix_cache,pix_section] = pix_cache.pop_pixels(h_log);
     %
     if h_log
-        fprintf(h_log,' Saving n_pixels: %d\n',size(pix_section,2));
+        fprintf(h_log,' Sending %d Pixels: \n',size(pix_section,2));
     end
-    n_pix_written =obj.write_pixels(pix_section,n_pix_written);
+    %
+    outMess.payload = pix_section;
+    [ok,err] = mess_exch.send_message(1,outMess);
+    if ok ~= MESS_CODES.ok
+        error('COMBINE:runtime_error','Send error %s',err);
+    end
+    %
+    npix_combined  = npix_combined + size(pix_section,2);
     
     ibin_end = pix_cache.last_bin_processed;
     if is_deployed
-        step = 100*n_pix_written/npix;
+        step = 100*npix_combined /npix;
         if floor(step)> prev_step
             prev_step =floor(step);
             mpis.do_logging(step,100,[],[]);
@@ -68,8 +74,8 @@ while ~isempty(data_providers)|| pix_cache.npix_in_cache ~= 0
     %
     if h_log
         fprintf(h_log,...
-            '********************  Total npix written %d; ibinend:%d#out of %d\n',...
-            n_pix_written,ibin_end,n_bins);
+            '********************  Total npix transferred %d; ibinend:%d#out of %d\n',...
+            npix_combined,ibin_end,n_bins);
         br = pix_cache.all_bin_range;
         
         fprintf(h_log,...
@@ -78,7 +84,7 @@ while ~isempty(data_providers)|| pix_cache.npix_in_cache ~= 0
             fprintf(h_log,'********************  %d %d\n',br(1,j),br(2,j));
         end
     end
-    mess_completion(n_pix_written);
+    mess_completion(npix_combined);
 end
 obj.pix_cache_ = pix_cache;
 

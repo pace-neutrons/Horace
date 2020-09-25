@@ -241,8 +241,12 @@ if opt.fix_orientation
     pfree(7:9)=[0,0,0];
 end
 
-[distance,fitpar] = multifit(vcryst0_3, zeros(3*nv,1), 0.01*ones(3*nv,1),...
-    @reciprocal_space_deviation, {pars,rlu}, pfree, pbind,'list',0,'fit',[1e-4,50,-1e-6]);
+kk = multifit (vcryst0_3, zeros(3*nv,1), 0.01*ones(3*nv,1));
+kk = kk.set_fun (@reciprocal_space_deviation, {pars,rlu}, pfree, pbind);
+kk = kk.set_options ('list', 0);
+kk = kk.set_options ('fit',[1e-4,50,-1e-6]);
+[distance,fitpar] = kk.fit();
+
 
 % Had a problem when refining RbMnF3 that the fit parameters ended up have complex
 % component that was less than the intrinsic eps. Catch this case and ignore
