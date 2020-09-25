@@ -34,7 +34,7 @@ end
 % Check mask is OK
 if ~(isnumeric(mask_array) || islogical(mask_array)) || numel(mask_array) ~= numel(win.data.s)
     error('SQW:mask', ['Mask must provide a numeric or logical array with ' ...
-                       'same number of elements as the image data']);
+                       'same number of elements as the image data.']);
 end
 if ~islogical(mask_array)
     mask_array=logical(mask_array);
