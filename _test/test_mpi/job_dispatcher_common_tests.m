@@ -34,7 +34,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
 
             % JETester specific control parameters
             old_rng_state = rng('shuffle');
-            cleanup = onCleanup(old_rng_state);
+            cleanup = onCleanup(@() rng(old_rng_state));
             FE = char(randi(25,1,5) + 64);
             common_param = struct('filepath', obj.working_dir, ...
                 'filename_template', ['test_JD_', obj.cluster_name,FE,'L%d_nf%d.txt'], ...
@@ -239,7 +239,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             % overloaded to empty test -- nothing new for this JD
             % JETester specific control parameters
             old_rng_state = rng('shuffle');
-            cleanup = onCleanup(old_rng_state);
+            cleanup = onCleanup(@() rng(old_rng_state));
             FE = char(randi(25,1,5) + 64);
             common_param = struct('filepath', obj.working_dir, ...
                 'filename_template', ['test_JD_', obj.cluster_name,FE,'L%d_nf%d.txt']);
@@ -340,7 +340,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             % overloaded to empty test -- nothing new for this JD
             % JETester specific control parameters
             old_rng_state = rng('shuffle');
-            cleanup = onCleanup(old_rng_state);
+            cleanup = onCleanup(@() rng(old_rng_state));
             FE = char(randi(25,1,5) + 64);
             common_param = struct('filepath', obj.working_dir, ...
                 'filename_template', ['test_JD_', obj.cluster_name,FE,'L%d_nf%d.txt']);
@@ -409,7 +409,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             % overloaded to empty test -- nothing new for this JD
             % JETester specific control parameters
             old_rng_state = rng('shuffle');
-            cleanup = onCleanup(old_rng_state);
+            cleanup = onCleanup(@() rng(old_rng_state));
             FE = char(randi(25,1,5) + 64);
             common_param = struct('filepath', obj.working_dir, ...
                 'filename_template', ['test_JD_', obj.cluster_name,FE,'L%d_nf%d.txt']);
