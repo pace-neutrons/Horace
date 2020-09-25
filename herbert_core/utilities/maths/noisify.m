@@ -37,7 +37,7 @@ if nargin>=2
     p = inputParser;
     addRequired(p,'y');   % y compulsory
     addRequired(p,'e');   % e compulsory if any of remaining optional/parameter arguments present
-    numeric_or_string = @(x) isnumeric(x) || ischar(x)
+    numeric_or_string = @(x) isnumeric(x) || ischar(x);
     addOptional(p,'dist_or_factor',fac, numeric_or_string);  % fac (numeric) or distribution ('poisson') optional, default to fac=0.1
     addParameter(p,'maximum_value',-999,@isnumeric);  % ymax, as parameter 'maximum_value'. Default to highly visible negative value.
     parse(p,y,e,varargin{:});
