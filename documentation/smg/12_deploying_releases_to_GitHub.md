@@ -89,8 +89,12 @@ Any such issues should be labelled with the name of the release.
 Any pull requests must be opened to merge into the release branch created in 1.
 
 6. After testing has been performed and bug fixes have been merged,
-repeat step 2 with the updated release branch.
+repeat steps 2-3 with the updated release branch.
 Again, ensure the release is a draft.
+You can have more than one equivalent GitHub draft release at once.
+So, once the new release candidates have been created,
+a new draft release can be pushed to GitHub and the hold draft deleted.
+You can delete the draft from the "Releases" page on GitHub.
 
 7. Smoke test the new release candidates in the draft release.
 
