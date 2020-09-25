@@ -97,6 +97,7 @@ a new draft release can be pushed to GitHub and the hold draft deleted.
 You can delete the draft from the "Releases" page on GitHub.
 
 7. Smoke test the new release candidates in the draft release.
+A set of smoke tests is given in the [smoke_testing SMG](./13_smoke_testing.md).
 
 8. After smoke tests are complete and developers are happy with the package,
 the draft release can be manually published from within the GitHub releases page.
