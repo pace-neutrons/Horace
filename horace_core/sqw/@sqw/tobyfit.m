@@ -11,10 +11,10 @@ function varargout = tobyfit (varargin)
 %       'fermi'     Direct geometry fermi chopper instrument e.g. MAPS, MERLIN
 %       'disk'      Direct geometry disk chopper instrument e.g. LET
 %
-% This creates a fitting object of class mfclass_Tobyfit with the provided
+% This creates a fitting object of class mfclass_tobyfit with the provided
 % data, which can then be manipulated to add further data, set the fitting
 % functions, initial parameter values etc. and fit or simulate the data.
-% For details on how to do this <a href="matlab:help('mfclass_Tobyfit');">Click here</a>
+% For details on how to do this <a href="matlab:help('mfclass_tobyfit');">Click here</a>
 %
 % Tobyfit fits model(s) for S(Q,w) as the foreground function(s), and
 % function(s) of the plot axes as the background function(s)
@@ -28,13 +28,6 @@ function varargout = tobyfit (varargin)
 % <a href="matlab:edit('example_1d_function');">example_1d_function</a>
 % <a href="matlab:edit('example_2d_function');">example_2d_function</a>
 % <a href="matlab:edit('example_3d_function');">example_3d_function</a>
-%
-%
-%
-%[Help for legacy use (2017 and earlier):
-%   If you are still using the legacy version then it is strongly recommended
-%   that you change to the new operation. Help for the legacy operation can
-%   be <a href="matlab:help('sqw/tobyfit_legacy');">found here</a>]
 
 
 % Original author: T.G.Perring
@@ -108,8 +101,10 @@ if ~mfclass.legacy(varargin{:})
     % ------------------------------------------------------------------------------
     
 else
-    % Legacy Tobyfit (the standard version until 31 Dec 2017)
-    % -------------------------------------------------------
-    [varargout{1:nargout}] = mfclass.legacy_call (@tobyfit_legacy, varargin{:});
+    % Attempt to use the now obsolete Tobyfit syntax (the standard version until 31 Dec 2017)
+    mess = ['\nLikely use of obsolete Tobyfit syntax detected.',...
+        '\nPlease migrate to the new syntax supported since January 2018',...
+        '\nFor details of the new syntax:  <a href="matlab:doc(''sqw/tobyfit'');">Click here</a>']; 
+    error('Tobyfit:obsoleteSyntax',mess)
 end
 
