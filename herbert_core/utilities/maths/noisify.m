@@ -33,9 +33,8 @@ function [yout,eout] = noisify(y,e,varargin)
 % deal with optional arguments
 is_poisson = false;
 fac = 0.1;
-USE_LOCAL_MAX = -999; % set default ymax to distinctive negative value
 if nargin>=2 % avoids the case where the only paramemter is y; for >=2 e will not be optional
-    [fac, is_poisson, ymax] = parse_args(y, e, fac, is_poisson, USE_LOCAL_MAX, varargin{:});
+    [fac, is_poisson, ymax] = parse_args(y, e, fac, is_poisson, varargin{:});
 end
 
 % Use Poisson distribution and ignore other arguments
@@ -47,8 +46,8 @@ if is_poisson
     eout=abs(y);  % the input y is the mean and variance of the Poisson distribution
 else
     % if ymax was not set by an argument, set from max of |y|
-    if ymax == USE_LOCAL_MAX
-        ymax = max(abs(y(:)));
+    if ymax == get_maximum_signal_value('default')
+        ymax = get_maximum_signal_value(y);
     end
 
     % make noise dy and add to y for output; make error bar for noise    
@@ -68,13 +67,13 @@ if exist('e','var') && ~isempty(e)
 end
 end
 
-function [fac, is_poisson, ymax] = parse_args(y, e, fac, is_poisson, use_local_max, varargin)
+function [fac, is_poisson, ymax] = parse_args(y, e, fac, is_poisson, varargin)
     p = inputParser;
     addRequired(p, 'y', @isnumeric);   % y compulsory
     addRequired(p, 'e', @isnumeric);   % e compulsory if any of remaining optional/parameter arguments present
     numeric_or_poisson = @(x) isnumeric(x) || strcmpi(x,'poisson');
     addOptional(p, 'dist_or_factor', fac, numeric_or_poisson);  % fac (numeric) or distribution ('poisson') optional, default to fac=0.1
-    addParameter(p,'maximum_value', use_local_max, @isnumeric);  % ymax, as parameter 'maximum_value'. Default to highly visible named negative value.
+    addParameter(p,'maximum_value', get_maximum_signal_value('default'), @isnumeric);  % ymax, as parameter 'maximum_value'. Default to internally set negative value.
     parse(p,y,e,varargin{:});
 
     % pick up signal max value as either default or input
@@ -87,5 +86,14 @@ function [fac, is_poisson, ymax] = parse_args(y, e, fac, is_poisson, use_local_m
         is_poisson = true;
     else
         error('HERBERT:noisify', '3rd argument cannot be interpreted as a Gaussian factor or legal probability distribution')
+    end
+end
+
+function ymax = get_maximum_signal_value(y)
+    USE_LOCAL_MAX = -inf; % should ensure that no actual y values can be confused with this
+    if ischar(y) && strcmpi(y,'default')
+        ymax = USE_LOCAL_MAX
+    else
+        ymax = max(abs(y(:)))
     end
 end
