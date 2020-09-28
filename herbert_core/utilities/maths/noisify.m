@@ -30,56 +30,55 @@ function [yout,eout] = noisify(y,e,varargin)
 %   regardless of whether e is present, so the first overload output is
 %   probably incomplete.
 
-% deal with optional arguments
-is_poisson = false;
-fac = 0.1;
-if nargin>=2 % avoids the case where the only paramemter is y; for >=2 e will not be optional
-    [fac, is_poisson, ymax] = parse_args(y, e, fac, is_poisson, varargin{:});
-end
-
-% Use Poisson distribution and ignore other arguments
-if is_poisson
-    yout=zeros(size(y));
-    for i=1:numel(y)
-        yout(i)=randpoisson(abs(y(i)));
-    end
-    eout=abs(y);  % the input y is the mean and variance of the Poisson distribution
-else
-    % if ymax was not set by an argument, set from max of |y|
-    if ymax == get_maximum_signal_value('default')
-        ymax = get_maximum_signal_value(y);
+    % deal with optional arguments
+    fac = 0.1
+    is_poisson = false;
+    ymax_calculated = false;
+    if nargin>=2 % avoids the case where the only paramemter is y; for >=2 e will not be optional
+        [fac, is_poisson, ymax] = parse_args(y, e, fac, varargin{:});
+        ymax_calculated = true;
     end
 
-    % make noise dy and add to y for output; make error bar for noise    
-    dy=(fac*ymax)*randn(size(y));   % st. dev. of randn is sigma=1
-    yout=y+dy;
-    eout=ones(size(y))*(fac*ymax)^2;
-end
-
-% adds e (the input variance) to eout if it exists 
-% (it may not,see @sqw/nosify)
-if exist('e','var') && ~isempty(e)
-    if isequal(size(e),size(eout))
-        eout=eout+e;
+    % Use Poisson distribution and ignore other arguments
+    if is_poisson
+        yout=zeros(size(y));
+        for i=1:numel(y)
+            yout(i)=randpoisson(abs(y(i)));
+        end
+        eout=abs(y);  % the input y is the mean and variance of the Poisson distribution
     else
-        error('HERBERT:noisify', 'Input array of error bars must have same size as input y array')
+        if ~ymax_calculated
+            ymax = max(abs(y(:)))
+        end
+        % make noise dy and add to y for output; make error bar for noise    
+        dy=(fac*ymax)*randn(size(y));   % st. dev. of randn is sigma=1
+        yout=y+dy;
+        eout=ones(size(y))*(fac*ymax)^2;
+    end
+
+    % adds e (the input variance) to eout if it exists 
+    % (it may not,see @sqw/nosify)
+    if exist('e','var') && ~isempty(e)
+        if isequal(size(e),size(eout))
+            eout=eout+e;
+        else
+            error('HERBERT:noisify', 'Input array of error bars must have same size as input y array')
+        end
     end
 end
-end
 
-function [fac, is_poisson, ymax] = parse_args(y, e, fac, is_poisson, varargin)
+function [fac, is_poisson, ymax] = parse_args(y, e, fac, varargin)
+    USE_LOCAL_MAX = -inf;
     p = inputParser;
     addRequired(p, 'y', @isnumeric);   % y compulsory
     addRequired(p, 'e', @isnumeric);   % e compulsory if any of remaining optional/parameter arguments present
     numeric_or_poisson = @(x) isnumeric(x) || strcmpi(x,'poisson');
     addOptional(p, 'dist_or_factor', fac, numeric_or_poisson);  % fac (numeric) or distribution ('poisson') optional, default to fac=0.1
-    addParameter(p,'maximum_value', get_maximum_signal_value('default'), @isnumeric);  % ymax, as parameter 'maximum_value'. Default to internally set negative value.
+    addParameter(p,'maximum_value', USE_LOCAL_MAX, @isnumeric);  % ymax, as parameter 'maximum_value'. Default to internally set negative value.
     parse(p,y,e,varargin{:});
 
-    % pick up signal max value as either default or input
-    ymax = p.Results.maximum_value;
-
     % vary if 'poisson' or fac present
+    is_poisson = false;
     if isnumeric(p.Results.dist_or_factor)
         fac = p.Results.dist_or_factor;
     elseif strcmpi(p.Results.dist_or_factor, 'poisson')
@@ -87,13 +86,10 @@ function [fac, is_poisson, ymax] = parse_args(y, e, fac, is_poisson, varargin)
     else
         error('HERBERT:noisify', '3rd argument cannot be interpreted as a Gaussian factor or legal probability distribution')
     end
-end
-
-function ymax = get_maximum_signal_value(y)
-    USE_LOCAL_MAX = -inf; % should ensure that no actual y values can be confused with this
-    if ischar(y) && strcmpi(y,'default')
-        ymax = USE_LOCAL_MAX
-    else
-        ymax = max(abs(y(:)))
-    end
+    
+    % pick up signal max value as either default or input
+    ymax = p.Results.maximum_value;
+    if ~is_poisson && ymax == USE_LOCAL_MAX
+        ymax = max(abs(y(:)));
+    end 
 end
