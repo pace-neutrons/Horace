@@ -78,7 +78,6 @@ FIXED_SEED = 101;
 clean_up = onCleanup(@() rng(old_rng_state));
 fprintf('RNG seed: %i\n', rng_state.Seed);
 
-print_rng
 
 %% --------------------------------------------------------------------------------------
 % Read or create sqw file for refinement test
@@ -173,7 +172,7 @@ if test_output
     tmp=load(savefile);
 end
 
-print_rng
+
 
 %% --------------------------------------------------------------------------------------
 %  Refine crystal using bragg_positions
@@ -222,7 +221,6 @@ else    % delete file
     delete_temp_file (sqw_file_res_corr)
 end
 
-print_rng
 
 %% --------------------------------------------------------------------------------------
 %  Refine crystal using Tobyfit
@@ -272,8 +270,6 @@ w=[w110_r,w110_t,w110_v; w111_r,w111_t,w111_v; w00m1_r,w00m1_t,w00m1_v; w220_r,w
 
 mc = 2;
 
-print_rng
-
 % Fit a global function
 % ---------------------
 kk = tobyfit (w);
@@ -299,7 +295,6 @@ if test_output
     end
 end
 
-print_rng
 
 % Fit local foreground functions (independent widths)
 % ---------------------------------------------------
@@ -326,7 +321,6 @@ if test_output
     end
 end
 
-print_rng
 
 % %% --------------------------------------------------------------------------------------
 % % Collect results together as a structure
@@ -369,12 +363,3 @@ for i=1:numel(flname)
     end
 end
 
-
-function print_rng()
-    % Print the current state of Matlab's RNG and print the line being executed
-    s = dbstack;
-    line = s(2).line;
-    fprintf('\nLine number %i:\n\n', line)
-    disp(rng)
-    state = rng();
-    disp([state.State(1:5); state.State(end-5:end)]')
