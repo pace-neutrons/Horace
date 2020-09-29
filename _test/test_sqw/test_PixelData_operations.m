@@ -423,7 +423,7 @@ methods
         operand = 3;
 
         pix_result = pix.do_binary_op(operand, @plus_single);
-        new_pix_data = obj.concatenate_pixel_pages(pix_result);
+        new_pix_data = concatenate_pixel_pages(pix_result);
 
         assertEqual(new_pix_data(8, :), operand + obj.pix_in_memory.signal, ...
                     '', obj.FLOAT_TOLERANCE);
@@ -447,7 +447,7 @@ methods
         operand = 3;
 
         pix_result = pix.do_binary_op(operand, @minus_single);
-        new_pix_data = obj.concatenate_pixel_pages(pix_result);
+        new_pix_data = concatenate_pixel_pages(pix_result);
 
         assertEqual(new_pix_data(8, :), obj.pix_in_memory.signal - operand, ...
                     '', obj.FLOAT_TOLERANCE);
@@ -472,7 +472,7 @@ methods
         operand = 1.5;
 
         pix_result = pix.do_binary_op(operand, @mtimes_single);
-        new_pix_data = obj.concatenate_pixel_pages(pix_result);
+        new_pix_data = concatenate_pixel_pages(pix_result);
 
         assertElementsAlmostEqual(new_pix_data(8, :), ...
                                   obj.pix_in_memory.signal*operand, ...
@@ -501,7 +501,7 @@ methods
         operand = 1.5;
 
         pix_result = pix.do_binary_op(operand, @mrdivide_single);
-        new_pix_data = obj.concatenate_pixel_pages(pix_result);
+        new_pix_data = concatenate_pixel_pages(pix_result);
 
         assertElementsAlmostEqual(new_pix_data(8, :), ...
                                   obj.pix_in_memory.signal./operand, ...
@@ -522,7 +522,7 @@ methods
         operand = ones(1, pix.num_pixels);
 
         pix_result = pix.do_binary_op(operand, @minus_single, 'flip', true);
-        full_pix_array = obj.concatenate_pixel_pages(pix_result);
+        full_pix_array = concatenate_pixel_pages(pix_result);
 
         expected_signal = 1 - obj.pix_in_memory.signal;
         assertElementsAlmostEqual(full_pix_array(8, :), expected_signal, ...
@@ -569,7 +569,7 @@ methods
         pix2.advance();
 
         pix_diff = pix1.do_binary_op(pix2, @minus_single);
-        full_pix_diff = obj.concatenate_pixel_pages(pix_diff);
+        full_pix_diff = concatenate_pixel_pages(pix_diff);
 
         expected_diff = obj.ref_raw_pix_data;
         expected_diff(8, :) = 0;
@@ -582,7 +582,7 @@ methods
         pix2 = obj.pix_in_memory;
 
         pix_diff = pix1.do_binary_op(pix2, @minus_single);
-        full_pix_diff = obj.concatenate_pixel_pages(pix_diff);
+        full_pix_diff = concatenate_pixel_pages(pix_diff);
 
         expected_diff = obj.ref_raw_pix_data;
         expected_diff(8, :) = 0;
@@ -599,7 +599,7 @@ methods
         sig_array = npix*rand(3);
 
         new_pix = pix.do_binary_op(sig_array, @plus_single, 'npix', npix);
-        new_pix_data = obj.concatenate_pixel_pages(new_pix);
+        new_pix_data = concatenate_pixel_pages(new_pix);
 
         expected_pix = data;
         start_idx = 1;
@@ -659,6 +659,7 @@ methods
                                    'npix', dnd_obj.npix);
 
         expected_signal = zeros(1, sum(dnd_obj.npix));
+        expected_variance = zeros(1, sum(dnd_obj.npix));
         pix_processed = 0;
         for i = 1:numel(dnd_obj.s)
             npix_val = dnd_obj.npix(i);
@@ -666,6 +667,8 @@ methods
             end_idx = pix_processed + npix_val;
             expected_signal(start_idx:end_idx) = ...
                 pix.signal(start_idx:end_idx) + dnd_obj.s(i);
+            expected_variance(start_idx:end_idx) = ...
+                pix.variance(start_idx:end_idx) + dnd_obj.e(i);
             pix_processed = pix_processed + npix_val;
         end
         assertEqual(new_pix.signal, expected_signal);
@@ -713,38 +716,6 @@ methods
         faccess = FakeFAccess(data);
         mem_alloc = npix_in_page*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
         pix = PixelData(faccess, mem_alloc);
-    end
-
-    function data = concatenate_pixel_pages(obj, pix)
-        pix = pix.move_to_first_page();
-        base_pg_size = pix.page_size;
-        data = zeros(obj.NUM_COLS_IN_PIX_BLOCK, pix.num_pixels);
-        iter = 0;
-        while true
-            start_idx = (iter*base_pg_size) + 1;
-            end_idx = min(start_idx + base_pg_size - 1, pix.num_pixels);
-            data(:, start_idx:end_idx) = pix.data;
-            iter = iter + 1;
-
-            if pix.has_more()
-                pix.advance();
-            else
-                break;
-            end
-        end
-    end
-
-    % -- Test helper tests --
-    function test_concatenate_pixel_pages(obj)
-        % This test gives confidence in 'concatenate_pixel_pages' which several
-        % other tests depend upon
-        data = rand(9, 30);
-        npix_in_page = 11;
-        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-        pix.advance();
-
-        joined_pix_array = obj.concatenate_pixel_pages(pix);
-        assertEqual(joined_pix_array, data);
     end
 end
 
