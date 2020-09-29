@@ -59,5 +59,5 @@ end
 function is = valid_operand(operand)
     is = isa(operand, 'PixelData') || ...
          isnumeric(operand) || ...
-         logical(regexp(class(operand), '^d[0-4]d$'));
+         ~isempty(regexp(class(operand), '^d[0-4]d$', 'ONCE'));
 end
