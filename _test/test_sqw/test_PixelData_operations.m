@@ -651,6 +651,52 @@ methods
         assertExceptionThrown(f, 'PIXELDATA:do_binary_op');
     end
 
+    function test_binary_op_with_1d_dnd_returns_correct_pix_with_single_page(obj)
+        dnd_obj = d1d(obj.test_sqw_file_path);
+        pix = PixelData(ones(9, sum(dnd_obj.npix)));
+
+        new_pix = pix.do_binary_op(dnd_obj, @plus_single, 'flip', false, ...
+                                   'npix', dnd_obj.npix);
+
+        expected_signal = zeros(1, sum(dnd_obj.npix));
+        pix_processed = 0;
+        for i = 1:numel(dnd_obj.s)
+            npix_val = dnd_obj.npix(i);
+            start_idx = pix_processed + 1;
+            end_idx = pix_processed + npix_val;
+            expected_signal(start_idx:end_idx) = ...
+                pix.signal(start_idx:end_idx) + dnd_obj.s(i);
+            pix_processed = pix_processed + npix_val;
+        end
+        assertEqual(new_pix.signal, expected_signal);
+    end
+
+    function test_binary_op_with_sigvar_returns_correct_pix_with_single_page(obj)
+        dnd_obj = d1d(obj.test_sqw_file_path);
+        svar = sigvar(dnd_obj.s, dnd_obj.e);
+
+        pix = PixelData(ones(9, sum(dnd_obj.npix)));
+
+        new_pix = pix.do_binary_op(svar, @plus_single, 'flip', false, ...
+                                   'npix', dnd_obj.npix);
+
+        expected_signal = zeros(1, sum(dnd_obj.npix));
+        expected_variance = zeros(1, sum(dnd_obj.npix));
+        pix_processed = 0;
+        for i = 1:numel(svar.s)
+            npix_val = dnd_obj.npix(i);
+            start_idx = pix_processed + 1;
+            end_idx = pix_processed + npix_val;
+            expected_signal(start_idx:end_idx) = ...
+                pix.signal(start_idx:end_idx) + svar.s(i);
+            expected_variance(start_idx:end_idx) = ...
+                pix.variance(start_idx:end_idx) + svar.e(i);
+            pix_processed = pix_processed + npix_val;
+        end
+        assertEqual(new_pix.signal, expected_signal);
+        assertEqual(new_pix.variance, expected_variance);
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
