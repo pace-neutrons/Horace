@@ -222,6 +222,7 @@ methods
     pix_out = do_unary_op(obj, unary_op);
     pix_out = append(obj, pix);
     pix_out = mask(obj, mask_array, npix);
+    pix_out = noisify(obj, varargin);
 
     function obj = PixelData(arg, mem_alloc)
         % Construct a PixelData object from the given data. Default
