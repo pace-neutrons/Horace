@@ -16,6 +16,15 @@ if ~isequal(dnd_size, [1, 1]) && ~isequal(dnd_size, size(npix))
            iarray_to_matstr(dnd_size), iarray_to_matstr(size(npix)));
 end
 
+npix_cum_sum = cumsum(npix(:));
+if npix_cum_sum(end) ~= pix_out.num_pixels
+    error('PIXELDATA:binary_op_sigvar_', ...
+          ['Cannot perform binary operation. Sum of ''npix'' must be ' ...
+          'equal to the number of pixels in the PixelData object.\n' ...
+          'Found ''%i'' pixels in npix but ''%i'' in PixelData.'], ...
+          npix_cum_sum(end), pix_out.num_pixels);
+end
+
 sigvar_pix = sigvar(obj.signal, obj.variance);
 
 if ~isequal(size(npix), [1, 1])

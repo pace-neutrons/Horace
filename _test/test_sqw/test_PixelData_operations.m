@@ -697,6 +697,17 @@ methods
         assertEqual(new_pix.variance, expected_variance);
     end
 
+    function test_PIXELDATA_error_in_binary_op_sigvar_if_sum_npix_ne_num_pix(obj)
+        dnd_obj = d1d(obj.test_sqw_file_path);
+        svar = sigvar(dnd_obj.s, dnd_obj.e);
+
+        pix = PixelData(ones(9, sum(dnd_obj.npix) + 1));
+
+        f = @() pix.do_binary_op(svar, @plus_single, 'flip', false, ...
+                                 'npix', dnd_obj.npix);
+        assertExceptionThrown(f, 'PIXELDATA:binary_op_sigvar_');
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
