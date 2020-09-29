@@ -758,6 +758,9 @@ methods (Access=private)
 
     function obj = write_dirty_page_(obj)
         % Write the current page's pixels to a tmp file
+        if isempty(obj.tmp_io_handler_)
+            obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_);
+        end
         obj.tmp_io_handler_.write_page(obj.page_number_, obj.data);
     end
 
