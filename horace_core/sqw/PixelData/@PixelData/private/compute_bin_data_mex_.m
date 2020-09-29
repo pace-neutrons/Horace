@@ -22,7 +22,6 @@ leftover_end = 0;
 signal_sum = zeros(1, numel(npix));
 variance_sum = zeros(1, numel(npix));
 
-end_idx = 1;
 % Loop over pages of data
 while true
     % Find the index of the first bin to allocate pixels to.
