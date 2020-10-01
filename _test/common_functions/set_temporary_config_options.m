@@ -11,11 +11,10 @@ if nargout ~= 1
 end
 
 original_config = config_instance.get_data_to_store();
+cleanup_handle = onCleanup(@() set(config_instance, original_config));
 
 for i = 1:2:numel(varargin)
     config_field = varargin{i};
     value = varargin{i + 1};
     set(config_instance, config_field, value);
 end
-
-cleanup_handle = onCleanup(@() set(config_instance, original_config));
