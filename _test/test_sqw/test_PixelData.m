@@ -1107,6 +1107,12 @@ methods
         assertExceptionThrown(f, 'PIXELDATA:validate_mem_alloc');
     end
 
+    function test_PIXELDATA_raised_if_mem_alloc_argument_is_not_scalar(~)
+        mem_alloc = 200e6*ones(1, 2);
+        f = @() PixelData(zeros(9, 1), mem_alloc);
+        assertExceptionThrown(f, 'PIXELDATA:validate_mem_alloc');
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);

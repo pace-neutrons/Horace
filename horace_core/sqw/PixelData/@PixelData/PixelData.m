@@ -199,6 +199,11 @@ methods (Static)
     end
 
     function validate_mem_alloc(mem_alloc)
+        if ~isscalar(mem_alloc)
+            error('PIXELDATA:validate_mem_alloc', ...
+                  ['Invalid mem_alloc. ''mem_alloc'' must be a scalar, ' ...
+                   'found size ''%s''.'], mat2str(size(mem_alloc)));
+        end
         MIN_RECOMMENDED_PG_SIZE = 100e6;
         bytes_in_pix = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
         if mem_alloc < bytes_in_pix
