@@ -1,4 +1,4 @@
-function cleanup_handle = set_config_option(config_instance, varargin)
+function cleanup_handle = set_temporary_config_options(config_instance, varargin)
 %% SET_CONFIG_OPTION set some config options and return an onCleanup object that
 % will reset the config when it goes out of scope
 %

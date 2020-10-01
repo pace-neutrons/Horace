@@ -80,7 +80,8 @@ methods
     end
 
     function test_compute_bin_data_correct_output_in_memory_mex_1_thread(obj)
-        cleanup = set_config_option(hor_config(), 'use_mex', true, 'threads', 1);
+        cleanup_handle = ...
+            set_temporary_config_options(hor_config(), 'use_mex', true, 'threads', 1);
 
         [s, e] = obj.pix_in_memory.compute_bin_data(obj.ref_npix_data);
 
@@ -89,7 +90,9 @@ methods
     end
 
     function test_compute_bin_data_correct_output_in_memory_mex_4_threads(obj)
-        cleanup = set_config_option(hor_config(), 'use_mex', true, 'threads', 4);
+        cleanup_handle = ...
+            set_temporary_config_options(hor_config(), 'use_mex', true, 'threads', 4);
+
         [s, e] = obj.pix_in_memory.compute_bin_data(obj.ref_npix_data);
 
         assertEqual(s, obj.ref_s_data, '', obj.FLOAT_TOLERANCE);
@@ -97,7 +100,8 @@ methods
     end
 
     function test_compute_bin_data_correct_output_all_data_in_memory_mex_off(obj)
-        cleanup = set_config_option(hor_config(), 'use_mex', false);
+        cleanup_handle = ...
+            set_temporary_config_options(hor_config(), 'use_mex', false);
 
         [s, e] = obj.pix_in_memory.compute_bin_data(obj.ref_npix_data);
 
@@ -106,7 +110,8 @@ methods
     end
 
     function test_compute_bin_data_correct_output_file_backed_mex_1_thread(obj)
-        cleanup = set_config_option(hor_config(), 'use_mex', true, 'threads', 1);
+        cleanup_handle = ...
+            set_temporary_config_options(hor_config(), 'use_mex', true, 'threads', 1);
 
         [s, e] = obj.pix_with_pages.compute_bin_data(obj.ref_npix_data);
 
@@ -115,8 +120,8 @@ methods
     end
 
     function test_compute_bin_data_correct_output_5_pages_mex_1_thread(obj)
-        cleanup = set_config_option(hor_config(), 'use_mex', true, 'threads', 1);
-        hor_config()
+        cleanup_handle = ...
+            set_temporary_config_options(hor_config(), 'use_mex', true, 'threads', 1);
 
         file_info = dir(obj.test_sqw_file_path);
         pg_size = file_info.bytes/5;
@@ -128,7 +133,8 @@ methods
     end
 
     function test_compute_bin_data_correct_output_file_backed_mex_4_threads(obj)
-        cleanup = set_config_option(hor_config(), 'use_mex', true, 'threads', 4);
+        cleanup_handle = ...
+            set_temporary_config_options(hor_config(), 'use_mex', true, 'threads', 4);
 
         [s, e] = obj.pix_with_pages.compute_bin_data(obj.ref_npix_data);
 
@@ -137,7 +143,8 @@ methods
     end
 
     function test_compute_bin_data_file_backed_2d_data_mex_4_threads(obj)
-        cleanup = set_config_option(hor_config(), 'use_mex', true, 'threads', 4);
+        cleanup_handle = ...
+            set_temporary_config_options(hor_config(), 'use_mex', true, 'threads', 4);
 
         [s, e] = obj.pix_with_pages_2d.compute_bin_data(obj.ref_npix_data_2d);
 
@@ -156,7 +163,8 @@ methods
     end
 
     function test_compute_bin_data_correct_output_file_backed_mex_off(obj)
-        cleanup = set_config_option(hor_config(), 'use_mex', false);
+        cleanup_handle = ...
+            set_temporary_config_options(hor_config(), 'use_mex', false);
 
         [s, e] = obj.pix_with_pages.compute_bin_data(obj.ref_npix_data);
 
