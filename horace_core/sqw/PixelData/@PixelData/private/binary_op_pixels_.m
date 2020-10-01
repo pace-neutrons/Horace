@@ -2,6 +2,7 @@ function obj = binary_op_pixels_(obj, pixel_data, binary_op, flip)
 %% BINARY_OP_PIXELS_ do a binary operation between PixelData objects 'obj' and
 % 'pixel_data'
 %
+obj.move_to_first_page();
 pixel_data.move_to_first_page();
 while true
 
