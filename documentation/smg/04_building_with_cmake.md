@@ -89,27 +89,34 @@ ships with a script to aid in compiling Matlab mex libraries.
 
 1. After cloning the Horace repository, open the CMake GUI and select the root
 of the repository as the source.
+
 2. Select `<Horace Root>/build/` as the binary directory.
 Create this directory if it does not exist.
+
 3. Click configure.
 When the dialogue appears select your desired generator.
 You should pick a compiler that is compatible with your Matlab version,
 see the [version compatibility matrix](./09_version_compatibility.md)
 (whilst the version compatibility matrix is a good guide,
 the mex libraries will likely work if built using newer compiler versions).
-4. Make sure to also select your platform/architecture, this should also match
-your Matlab version: if you installed a 64-bit version of Matlab choose x64 as
-the platform.
-5. Now click finish in the dialogue. CMake will find the Matlab compiler and
-various libraries.
-6. Now click generate. The build files should be generated inside the DLL
-directory. On Windows you can open the `<Horace Root>/build/Horace.sln` file in
-Visual Studio and build the targets. On linux you can `cd` into the
-`<Horace Root>/build/` directory and run `make` depending on the generator you
-selected.
-7. The mex files will be written into `horace_core/DLL`.
 
-To do steps 2-6 using the command line you can use the following commands (for
+4. Make sure to also select your platform/architecture,
+this should also match your Matlab version:
+if you installed a 64-bit version of Matlab choose x64 as the platform.
+
+5. Now click finish in the dialogue.
+CMake will find the Matlab compiler and various libraries.
+
+6. Now click generate.
+The build files should be generated inside the DLL directory.
+On Windows you can open the `<Horace Root>/build/Horace.sln` file in Visual
+Studio and build the targets.
+On linux, if you've chosen `Unix Makefiles` as your generator,
+you can `cd` into the `<Horace Root>/build/` directory and run `make`.
+
+7. The built mex files will be written into `horace_core/DLL`.
+
+To do steps 2-6 using the command line you can use the following commands (on
 linux use `-G "Unix Makefiles"`):
 
 `$ cmake -S <Horace Root> -B <Horace Root>/build -G "Visual Studio 15 2017 Win64"`
