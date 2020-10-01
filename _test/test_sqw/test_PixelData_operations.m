@@ -590,8 +590,8 @@ methods
         npix = [1, 3, 0; 1, 1, 2; 0, 1, 1];
         sig_array = npix*rand(3);
 
-        new_pix = pix.do_binary_op(sig_array, @plus_single, 'npix', npix);
-        new_pix_data = concatenate_pixel_pages(new_pix);
+        pix.do_binary_op(sig_array, @plus_single, 'npix', npix);
+        new_pix_data = concatenate_pixel_pages(pix);
 
         expected_pix = data;
         start_idx = 1;
