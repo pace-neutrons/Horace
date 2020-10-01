@@ -1,20 +1,14 @@
-function pix_out = binary_op_sigvar_(obj, operand, binary_op, flip, npix)
+function obj = binary_op_sigvar_(obj, operand, binary_op, flip, npix)
 %% BINARY_OP_SIGVAR_ perform a binary operation between this and a sigvar or
 % sigvar-like object (e.g. dnd)
 %
 npix_cum_sum = validate_inputs(obj, operand, npix);
 
-if nargout == 0
-    pix_out = obj;
-else
-    pix_out = copy(obj);
-end
-
-pix_out.move_to_first_page();
+obj.move_to_first_page();
 
 end_idx = 1;
 leftover_end = 0;
-pg_size = pix_out.page_size;
+pg_size = obj.page_size;
 while true
 
     start_idx = (end_idx - 1) + find(npix_cum_sum(end_idx:end) > 0, 1);
@@ -27,18 +21,18 @@ while true
     end
 
     if start_idx == end_idx
-        npix_chunk = min(pix_out.page_size, npix(start_idx) - leftover_end);
+        npix_chunk = min(obj.page_size, npix(start_idx) - leftover_end);
     else
         npix_chunk = [ ...
             leftover_begin, ...
             reshape(npix(start_idx + 1:end_idx - 1), 1, []), ...
             0 ...
         ];
-        leftover_end = pix_out.page_size - sum(npix_chunk);
+        leftover_end = obj.page_size - sum(npix_chunk);
         npix_chunk(end) = leftover_end;
     end
 
-    sigvar_pix = sigvar(pix_out.signal, pix_out.variance);
+    sigvar_pix = sigvar(obj.signal, obj.variance);
     if ~isequal(size(npix), [1, 1])
         sigvar_dnd = sigvar(...
             replicate_array(operand.s(start_idx:end_idx), npix_chunk(:))', ...
@@ -46,11 +40,11 @@ while true
         );
     end
 
-    [pix_out.signal, pix_out.variance] = ...
+    [obj.signal, obj.variance] = ...
             sigvar_binary_op_(sigvar_pix, sigvar_dnd, binary_op, flip);
 
-    if pix_out.has_more()
-        pix_out.advance();
+    if obj.has_more()
+        obj.advance();
     else
         break;
     end

@@ -1,26 +1,24 @@
-function pix_out = binary_op_double_(obj, double_array, binary_op, flip, npix)
+function obj = binary_op_double_(obj, double_array, binary_op, flip, npix)
 %% BINARY_OP_DOUBLE_ perform a binary operation between this PixelData object
 % and an array
 %
 validate_input_array(obj, double_array, npix);
 
-pix_out = obj;
-
 if isempty(npix)
-    base_page_size = pix_out.max_page_size_;
+    base_page_size = obj.max_page_size_;
     while true
 
-        pix_sigvar = sigvar(pix_out.signal, pix_out.variance);
+        pix_sigvar = sigvar(obj.signal, obj.variance);
 
-        start_idx = (pix_out.page_number_ - 1)*base_page_size + 1;
+        start_idx = (obj.page_number_ - 1)*base_page_size + 1;
         end_idx = min(start_idx + base_page_size - 1, obj.num_pixels);
 
         double_sigvar = sigvar(double_array(start_idx:end_idx), []);
-        [pix_out.signal, pix_out.variance] = ...
+        [obj.signal, obj.variance] = ...
                 sigvar_binary_op_(pix_sigvar, double_sigvar, binary_op, flip);
 
-        if pix_out.has_more()
-            pix_out = pix_out.advance();
+        if obj.has_more()
+            obj = obj.advance();
         else
             break;
         end
@@ -29,17 +27,17 @@ if isempty(npix)
 else
 
     npix_cum_sum = cumsum(npix(:));
-    if npix_cum_sum(end) ~= pix_out.num_pixels
+    if npix_cum_sum(end) ~= obj.num_pixels
         error('PIXELDATA:binary_op_double_', ...
               ['Cannot perform binary operation. Sum of ''npix'' must be ' ...
                'equal to the number of pixels in the PixelData object.\n' ...
                'Found ''%i'' pixels in npix but ''%i'' in PixelData.'], ...
-              npix_cum_sum(end), pix_out.num_pixels);
+              npix_cum_sum(end), obj.num_pixels);
     end
 
     end_idx = 1;
     leftover_end = 0;
-    pg_size = pix_out.max_page_size_;
+    pg_size = obj.max_page_size_;
     while true
 
         start_idx = find(npix_cum_sum > 0, 1);
@@ -52,25 +50,25 @@ else
         end
 
         if start_idx == end_idx
-            npix_chunk = min(pix_out.page_size, npix(start_idx) - leftover_end);
+            npix_chunk = min(obj.page_size, npix(start_idx) - leftover_end);
         else
             npix_chunk = [leftover_begin, ...
                           reshape(npix(start_idx + 1:end_idx - 1), 1, []), ...
                           0];
             pix_in_chunk = sum(npix_chunk);
-            leftover_end = pix_out.page_size - pix_in_chunk;
+            leftover_end = obj.page_size - pix_in_chunk;
             npix_chunk(end) = leftover_end;
         end
 
         sig_chunk = replicate_array(double_array(start_idx:end_idx), npix_chunk);
 
-        this_sigvar = sigvar(pix_out.signal, pix_out.variance);
+        this_sigvar = sigvar(obj.signal, obj.variance);
         double_sigvar = sigvar(sig_chunk', []);
-        [pix_out.signal, pix_out.variance] = ...
+        [obj.signal, obj.variance] = ...
             sigvar_binary_op_(this_sigvar, double_sigvar, binary_op, flip);
 
-        if pix_out.has_more()
-            pix_out = pix_out.advance();
+        if obj.has_more()
+            obj = obj.advance();
         else
             break;
         end
