@@ -18,7 +18,6 @@ obj.move_to_first_page();
 npix_cum_sum = cumsum(npix(:));
 
 end_idx = 1;
-leftover_end = 0;
 signal_sum = zeros(1, numel(npix));
 variance_sum = zeros(1, numel(npix));
 
