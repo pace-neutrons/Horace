@@ -754,6 +754,47 @@ methods
         assertExceptionThrown(f, 'PIXELDATA:binary_op_sigvar_');
     end
 
+    function test_binary_op_with_2Dsigvar_returns_correct_pix_with_gt_1_page(obj)
+        dnd_obj = d2d(obj.test_sqw_2d_file_path);
+        npix = dnd_obj.npix;
+        svar = sigvar(dnd_obj.s, dnd_obj.e);
+
+        pix_per_page = floor(sum(npix(:)/6));
+        mem_alloc = pix_per_page*PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
+        pix = PixelData(obj.test_sqw_2d_file_path, mem_alloc);
+
+        new_pix = pix.do_binary_op(svar, @plus_single, 'flip', false, ...
+                                   'npix', npix);
+
+        original_pix_data = concatenate_pixel_pages(pix);
+        new_pix_data = concatenate_pixel_pages(new_pix);
+
+        expected_pix = original_pix_data;
+        expected_pix(8, :) = expected_pix(8, :) + repelem(svar.s(:), npix(:))';
+        expected_pix(9, :) = expected_pix(9, :) + repelem(svar.e(:), npix(:))';
+        assertElementsAlmostEqual(new_pix_data, expected_pix, 'relative', 1e-7);
+    end
+
+    function test_binary_op_with_2D_dnd_returns_correct_pix_with_gt_1_page(obj)
+        dnd_obj = d2d(obj.test_sqw_2d_file_path);
+        npix = dnd_obj.npix;
+
+        pix_per_page = floor(sum(npix(:)/6));
+        mem_alloc = pix_per_page*PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
+        pix = PixelData(obj.test_sqw_2d_file_path, mem_alloc);
+
+        new_pix = pix.do_binary_op(dnd_obj, @plus_single, 'flip', false, ...
+                                   'npix', npix);
+
+        original_pix_data = concatenate_pixel_pages(pix);
+        new_pix_data = concatenate_pixel_pages(new_pix);
+
+        expected_pix = original_pix_data;
+        expected_pix(8, :) = expected_pix(8, :) + repelem(dnd_obj.s(:), npix(:))';
+        expected_pix(9, :) = expected_pix(9, :) + repelem(dnd_obj.e(:), npix(:))';
+        assertElementsAlmostEqual(new_pix_data, expected_pix, 'relative', 1e-7);
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
