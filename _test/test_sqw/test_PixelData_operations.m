@@ -75,20 +75,13 @@ methods
     end
 
     function setUp(obj)
-        obj.config = hor_config;
-        obj.old_config = obj.config.get_data_to_store();
-
         obj.pix_in_memory = copy(obj.pix_in_memory_base);
         obj.pix_with_pages = copy(obj.pix_with_pages_base);
     end
 
-    function tearDown(obj)
-        set(hor_config, obj.old_config);
-    end
-
     function test_compute_bin_data_correct_output_in_memory_mex_1_thread(obj)
-        obj.config.use_mex = true;
-        obj.config.threads = 1;
+        cleanup = set_config_option(hor_config(), {'use_mex', 'threads'}, ...
+                                    {true, 1});
 
         [s, e] = obj.pix_in_memory.compute_bin_data(obj.ref_npix_data);
 
@@ -97,9 +90,8 @@ methods
     end
 
     function test_compute_bin_data_correct_output_in_memory_mex_4_threads(obj)
-        obj.config.use_mex = true;
-        obj.config.threads = 4;
-
+        cleanup = set_config_option(hor_config(), {'use_mex', 'threads'}, ...
+                                    {true, 4});
         [s, e] = obj.pix_in_memory.compute_bin_data(obj.ref_npix_data);
 
         assertEqual(s, obj.ref_s_data, '', obj.FLOAT_TOLERANCE);
@@ -107,7 +99,7 @@ methods
     end
 
     function test_compute_bin_data_correct_output_all_data_in_memory_mex_off(obj)
-        obj.config.use_mex = false;
+        cleanup = set_config_option(hor_config(), 'use_mex', false);
 
         [s, e] = obj.pix_in_memory.compute_bin_data(obj.ref_npix_data);
 
@@ -116,8 +108,8 @@ methods
     end
 
     function test_compute_bin_data_correct_output_file_backed_mex_1_thread(obj)
-        obj.config.use_mex = true;
-        obj.config.threads = 1;
+        cleanup = set_config_option(hor_config(), {'use_mex', 'threads'}, ...
+                                    {true, 1});
 
         [s, e] = obj.pix_with_pages.compute_bin_data(obj.ref_npix_data);
 
@@ -126,8 +118,8 @@ methods
     end
 
     function test_compute_bin_data_correct_output_5_pages_mex_1_thread(obj)
-        obj.config.use_mex = true;
-        obj.config.threads = 1;
+        cleanup = set_config_option(hor_config(), {'use_mex', 'threads'}, ...
+                                    {true, 1});
 
         file_info = dir(obj.test_sqw_file_path);
         pg_size = file_info.bytes/5;
@@ -139,8 +131,8 @@ methods
     end
 
     function test_compute_bin_data_correct_output_file_backed_mex_4_threads(obj)
-        obj.config.use_mex = true;
-        obj.config.threads = 4;
+        cleanup = set_config_option(hor_config(), {'use_mex', 'threads'}, ...
+                                    {true, 4});
 
         [s, e] = obj.pix_with_pages.compute_bin_data(obj.ref_npix_data);
 
@@ -149,8 +141,8 @@ methods
     end
 
     function test_compute_bin_data_file_backed_2d_data_mex_4_threads(obj)
-        obj.config.use_mex = true;
-        obj.config.threads = 1;
+        cleanup = set_config_option(hor_config(), {'use_mex', 'threads'}, ...
+                                    {true, 4});
 
         [s, e] = obj.pix_with_pages_2d.compute_bin_data(obj.ref_npix_data_2d);
 
@@ -169,7 +161,7 @@ methods
     end
 
     function test_compute_bin_data_correct_output_file_backed_mex_off(obj)
-        obj.config.use_mex = false;
+        cleanup = set_config_option(hor_config(), 'use_mex', false);
 
         [s, e] = obj.pix_with_pages.compute_bin_data(obj.ref_npix_data);
 
