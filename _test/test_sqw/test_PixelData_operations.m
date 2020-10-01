@@ -717,7 +717,8 @@ methods
         expected_pix = original_pix_data;
         expected_pix(8, :) = expected_pix(8, :) + repelem(dnd_obj.s(:), npix(:))';
         expected_pix(9, :) = expected_pix(9, :) + repelem(dnd_obj.e(:), npix(:))';
-        assertEqual(new_pix_data, expected_pix, 'relative', obj.FLOAT_TOLERANCE);
+        assertElementsAlmostEqual(new_pix_data, expected_pix, 'relative', ...
+                                  obj.FLOAT_TOLERANCE);
     end
 
     function test_binary_op_with_sigvar_returns_correct_pix_with_gt_1_page(obj)
@@ -738,7 +739,8 @@ methods
         expected_pix = original_pix_data;
         expected_pix(8, :) = expected_pix(8, :) + repelem(dnd_obj.s(:), npix(:))';
         expected_pix(9, :) = expected_pix(9, :) + repelem(dnd_obj.e(:), npix(:))';
-        assertEqual(new_pix_data, expected_pix, 'relative', obj.FLOAT_TOLERANCE);
+        assertElementsAlmostEqual(new_pix_data, expected_pix, 'relative', ...
+                                  obj.FLOAT_TOLERANCE);
     end
 
     function test_PIXELDATA_error_in_binary_op_sigvar_if_sum_npix_ne_num_pix(obj)
