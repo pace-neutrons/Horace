@@ -1,8 +1,8 @@
-function pix_out = binary_op_sigvar_(obj, dnd_obj, binary_op, flip, npix)
+function pix_out = binary_op_sigvar_(obj, operand, binary_op, flip, npix)
 %% BINARY_OP_SIGVAR_ perform a binary operation between this and a sigvar or
 % sigvar-like object (e.g. dnd)
 %
-npix_cum_sum = validate_inputs(obj, dnd_obj, npix);
+npix_cum_sum = validate_inputs(obj, operand, npix);
 
 if nargout == 0
     pix_out = obj;
@@ -41,8 +41,8 @@ while true
     sigvar_pix = sigvar(pix_out.signal, pix_out.variance);
     if ~isequal(size(npix), [1, 1])
         sigvar_dnd = sigvar(...
-            replicate_array(dnd_obj.s(start_idx:end_idx), npix_chunk(:))', ...
-            replicate_array(dnd_obj.e(start_idx:end_idx), npix_chunk(:))' ...
+            replicate_array(operand.s(start_idx:end_idx), npix_chunk(:))', ...
+            replicate_array(operand.e(start_idx:end_idx), npix_chunk(:))' ...
         );
     end
 
@@ -59,8 +59,8 @@ end
 end % function
 
 % -----------------------------------------------------------------------------
-function npix_cum_sum = validate_inputs(pix, dnd_obj, npix)
-    dnd_size = sigvar_size(dnd_obj);
+function npix_cum_sum = validate_inputs(pix, operand, npix)
+    dnd_size = sigvar_size(operand);
     if ~isequal(dnd_size, [1, 1]) && ~isequal(dnd_size, size(npix))
         error('PIXELDATA:do_binary_op', ...
             ['dnd operand must have size [1,1] or size equal to the inputted ' ...
