@@ -27,11 +27,13 @@ A developer can build using default options with the `[-]-build` flag.
 From Herbert/Horace's root directory:
 
 PowerShell:
+
 ```powershell
 ./tools/build_config/build.ps1 -build
 ```
 
 Bash:
+
 ```bash
 ./tools/build_config/build.sh --build
 ```
@@ -67,7 +69,7 @@ at https:/go.microsoft.com/fwlink/?LinkID=135170.
 
 PowerShell's execution policy needs to be updated to allow `.ps1` scripts to be
 run.
-To do this, in an elevated PowerShell prompt, run:
+To do this, run the following in an elevated PowerShell prompt:
 
 ```powershell
 Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
@@ -77,7 +79,7 @@ If admin privileges are not available,
 the script can be run using the following command:
 
 ```powershell
-powershell.exe -ExecutionPolicy Bypass -File ./tools/build_config/build.ps1
+powershell.exe -ExecutionPolicy Bypass -File ./tools/build_config/build.ps1 -build
 ```
 
 ## Using CMake directly
@@ -88,9 +90,13 @@ ships with a script to aid in compiling Matlab mex libraries.
 1. After cloning the Horace repository, open the CMake GUI and select the root
 of the repository as the source.
 2. Select `<Horace Root>/build/` as the binary directory.
-3. Click configure. When the dialogue appears select your desired generator.
-You should pick a compiler that is compatible with your Matlab version, e.g.
-Matlab R2017b is not compatible with Visual Studio 2019, so choose Visual Studio 2017.
+Create this directory if it does not exist.
+3. Click configure.
+When the dialogue appears select your desired generator.
+You should pick a compiler that is compatible with your Matlab version,
+see the [version compatibility matrix](./09_version_compatibility.md)
+(whilst the version compatibility matrix is a good guide,
+the mex libraries will likely work if built using newer compiler versions).
 4. Make sure to also select your platform/architecture, this should also match
 your Matlab version: if you installed a 64-bit version of Matlab choose x64 as
 the platform.
@@ -101,20 +107,17 @@ directory. On Windows you can open the `<Horace Root>/build/Horace.sln` file in
 Visual Studio and build the targets. On linux you can `cd` into the
 `<Horace Root>/build/` directory and run `make` depending on the generator you
 selected.
+7. The mex files will be written into `horace_core/DLL`.
 
-To do steps 3-6 using the command line you can use the following commands (for
+To do steps 2-6 using the command line you can use the following commands (for
 linux use `-G "Unix Makefiles"`):
 
 `$ cmake -S <Horace Root> -B <Horace Root>/build -G "Visual Studio 15 2017 Win64"`
 
-`$ cmake --build <Horace Root>/build`
+`$ cmake --build <Horace Root>/build --config Release`
 
-7. The mex files will be written within `<Horace Root>/build/bin/` and copied to `horace_core/DLL`.
-
-At the moment you need to manually copy mex files into `horace_core/DLL/_{$ARH}/_{$version}`
-folder where {$ARH} is the value, returned by Matlab ***computer*** command (e.g. `PCWIN64`) and {$version} is the MATLAB release (e.g. R2018b), returned as part of the Matlab ***version*** command.
-
-There's a known issue with running the compiled mex with newer versions of
-Matlab, if they were compiled using an older version of CMake. If you get an
-error like `Invalid MEX-file: Gateway function is missing`, try updating your
-CMake. CMake v3.14 has been confirmed to work for Matlab R2019b.
+There are known issues running mex files compiled using old versions of CMake
+on new Matlab versions.
+If you get an error like `Invalid MEX-file: Gateway function is missing`,
+try updating CMake.
+CMake v3.14 has been confirmed to work for Matlab R2019b.
