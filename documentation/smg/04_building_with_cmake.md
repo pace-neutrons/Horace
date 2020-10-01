@@ -1,5 +1,87 @@
 # Building with CMake
 
+## Build dependencies
+
+A developer building Herbert/Horace will need to install:
+
+- [Matlab](https://www.mathworks.com/products/matlab.html) >= 2018b
+  - on Linux the desired Matlab version must be on the path when running the
+  script
+  - on Windows, by default, the latest version is found via the registry
+- [CMake](https://cmake.org/download/) >= 3.7
+  - must be on the path for both Windows and Linux
+- System compiler:
+  - Linux: [GCC](https://gcc.gnu.org/) >= 6.3.0
+  - Windows:
+  [Visual Studio](https://visualstudio.microsoft.com/downloads/) >= 2017
+
+## Using build scripts
+
+Horace and Herbert contain PowerShell and Bash scripts named `build.[ps1|sh]`.
+These scripts provide an easy way to build Herbert/Horace on Windows or Linux.
+Theses same scripts are used to build Horace and Herbert on the CI servers,
+so they are tested regularly.
+
+A developer can build using default options with the `[-]-build` flag.
+
+From Herbert/Horace's root directory:
+
+PowerShell:
+```powershell
+./tools/build_config/build.ps1 -build
+```
+
+Bash:
+```bash
+./tools/build_config/build.sh --build
+```
+
+_(Note Bash uses two dashes (`--`) whilst PowerShell uses one.)_
+
+Generally, the default build options will be sufficient,
+but there are several configurable parameters.
+Both scripts have a `help` flag which display the available actions:
+
+PowerShell:
+
+```powershell
+./tools/build_config/build.ps1 -help
+```
+
+Bash:
+
+```bash
+./tools/build_config/build.sh --help
+```
+
+### Notes
+
+If, when running the PowerShell script,
+an error such as the following is thrown:
+
+```txt
+File ...\tools\build_config\build.ps1 cannot be loaded because running scripts
+is disabled on this system. For more information, see about_Execution_Policies
+at https:/go.microsoft.com/fwlink/?LinkID=135170.
+```
+
+PowerShell's execution policy needs to be updated to allow `.ps1` scripts to be
+run.
+To do this, in an elevated PowerShell prompt, run:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+```
+
+If admin privileges are not available,
+the script can be run using the following command:
+
+```powershell
+powershell.exe -ExecutionPolicy Bypass -File ./tools/build_config/build.ps1
+```
+
+## Using CMake directly
+
 CMake provides a way to generate build files across multiple platforms. It also
 ships with a script to aid in compiling Matlab mex libraries.
 
@@ -30,7 +112,7 @@ linux use `-G "Unix Makefiles"`):
 7. The mex files will be written within `<Horace Root>/build/bin/` and copied to `horace_core/DLL`.
 
 At the moment you need to manually copy mex files into `horace_core/DLL/_{$ARH}/_{$version}`
-folder where {$ARH} is the value, returned by Matlab ***computer*** command (e.g. `PCWIN64`) and {$version} is the MATLAB release (e.g. R2018b), returned as part of the Matlab ***version*** command. 
+folder where {$ARH} is the value, returned by Matlab ***computer*** command (e.g. `PCWIN64`) and {$version} is the MATLAB release (e.g. R2018b), returned as part of the Matlab ***version*** command.
 
 There's a known issue with running the compiled mex with newer versions of
 Matlab, if they were compiled using an older version of CMake. If you get an
