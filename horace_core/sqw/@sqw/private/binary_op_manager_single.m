@@ -23,7 +23,7 @@ if ~isa(w1, 'double') && ~isa(w2, 'double')
 
     if isa(w1, 'sqw') && isa(w2, 'sqw')
         % Both inputs SQW objects
-        wout = do_binary_op_2_sqw(w1, w2, binary_op);
+        wout = do_binary_op_sqw_sqw(w1, w2, binary_op);
 
     elseif (isa(w1, classname) && is_sqw_type(w1))
         % w1 is sqw-type, but w2 could be anything that is not a double e.g.
@@ -110,7 +110,7 @@ function wout = do_binary_op_sqw_double(w1, w2, binary_op, flip)
     end
 end
 
-function wout = do_binary_op_2_sqw(w1, w2, binary_op, flip)
+function wout = do_binary_op_sqw_sqw(w1, w2, binary_op, flip)
     % Perform a binary operation between two SQW objects, returning the
     % resulting SQW object
     flip = exist('flip', 'var') && flip;
