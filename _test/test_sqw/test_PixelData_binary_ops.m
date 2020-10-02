@@ -1,6 +1,7 @@
 classdef test_PixelData_binary_ops < TestCase
 
 properties
+    BYTES_PER_PIX = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
     SIGNAL_IDX = 8;
     VARIANCE_IDX = 9;
 
@@ -33,9 +34,7 @@ methods
         sqw_test_obj = sqw(obj.test_sqw_file_path);
         obj.ref_raw_pix_data = sqw_test_obj.data.pix.data;
 
-        file_info = dir(obj.test_sqw_file_path);
-        page_size = file_info.bytes/6;
-
+        page_size = floor(sqw_test_obj.data.pix.num_pixels/6)*obj.BYTES_PER_PIX;
         obj.pix_in_memory_base = sqw_test_obj.data.pix;
         obj.pix_with_pages_base = PixelData(obj.test_sqw_file_path, page_size);
     end
@@ -50,7 +49,7 @@ methods
         obj.pix_with_pages = copy(obj.pix_with_pages_base);
     end
 
-    function test_plus_with_scalar_returns_correct_data_1_page(obj)
+    function test_plus_with_scalar_adds_operand_to_signal_with_unpaged_pix(obj)
         pix = obj.pix_in_memory;
         operand = 3;
 
@@ -60,21 +59,26 @@ methods
         assertEqual(pix_result.data([1:7, 9], :), pix.data([1:7, 9], :));
     end
 
-    function test_binary_op_plus_with_scalar_returns_correct_data_gt_1_page(obj)
+    function test_plus_with_scalar_adds_operand_to_signal_with_paged_pix(obj)
         pix = obj.pix_with_pages;
         operand = 3;
 
         pix_result = pix.do_binary_op(operand, @plus_single);
         new_pix_data = concatenate_pixel_pages(pix_result);
 
-        assertEqual(new_pix_data(obj.SIGNAL_IDX, :), operand + obj.pix_in_memory.signal, ...
-                    '', obj.FLOAT_TOLERANCE);
-        assertEqual(new_pix_data([1:7, 9], :), ...
-                    obj.ref_raw_pix_data([1:7, 9], :), ...
-                    '', obj.FLOAT_TOLERANCE);
+        assertEqual( ...
+            new_pix_data(obj.SIGNAL_IDX, :), ...
+            operand + obj.pix_in_memory.signal, ...
+            '', obj.FLOAT_TOLERANCE ...
+        );
+        assertEqual( ...
+            new_pix_data([1:7, 9], :), ...
+            obj.ref_raw_pix_data([1:7, 9], :), ...
+            '', obj.FLOAT_TOLERANCE ...
+        );
     end
 
-    function test_binary_minus_with_scalar_returns_correct_data_1_page(obj)
+    function test_scalar_minus_subtracts_signal_from_operand_unpaged_pix(obj)
         pix = obj.pix_in_memory;
         operand = 3;
 
@@ -84,7 +88,7 @@ methods
         assertEqual(pix_result.data([1:7, 9], :), pix.data([1:7, 9], :));
     end
 
-    function test_binary_minus_with_scalar_returns_correct_data_gt_1_page(obj)
+    function test_scalar_minus_subtracts_operand_from_signal_with_paged_pix(obj)
         pix = obj.pix_with_pages;
         operand = 3;
 
@@ -98,7 +102,7 @@ methods
                     '', obj.FLOAT_TOLERANCE);
     end
 
-    function test_binary_mtimes_with_scalar_returns_correct_data_1_page(obj)
+    function test_mtimes_with_scalar_returns_correct_data_1_page(obj)
         pix = obj.pix_in_memory;
         operand = 1.5;
 
@@ -109,7 +113,7 @@ methods
         assertEqual(pix_result.data(1:7, :), pix.data(1:7, :));
     end
 
-    function test_binary_mtimes_with_scalar_returns_correct_data_gt_1_page(obj)
+    function test_mtimes_with_scalar_returns_correct_data_gt_1_page(obj)
         pix = obj.pix_with_pages;
         operand = 1.5;
 
@@ -126,7 +130,7 @@ methods
                     '', obj.FLOAT_TOLERANCE);
     end
 
-    function test_binary_mrdivide_with_scalar_returns_correct_data_1_page(obj)
+    function test_mrdivide_with_scalar_returns_correct_data_1_page(obj)
         pix = obj.pix_in_memory;
         operand = 1.5;
 
@@ -138,7 +142,7 @@ methods
         assertEqual(pix_result.data(1:7, :), pix.data(1:7, :));
     end
 
-    function test_binary_mrdivide_with_scalar_returns_correct_data_gt_1_page(obj)
+    function test_mrdivide_with_scalar_returns_correct_data_gt_1_page(obj)
         pix = obj.pix_with_pages;
         operand = 1.5;
 
@@ -159,7 +163,7 @@ methods
                     '', obj.FLOAT_TOLERANCE);
     end
 
-    function test_binary_op_with_double_array_with_size_eq_to_num_pixels(obj)
+    function test_with_double_array_with_size_eq_to_num_pixels(obj)
         pix = obj.pix_with_pages;
         operand = ones(1, pix.num_pixels);
 
@@ -174,7 +178,7 @@ methods
                                 'relative', obj.FLOAT_TOLERANCE);
     end
 
-    function test_binary_op_error_adding_double_with_length_neq_num_pixels(obj)
+    function test_error_adding_double_with_length_neq_num_pixels(obj)
         pix = obj.pix_with_pages;
         operand = ones(1, pix.num_pixels - 1);
 
@@ -182,14 +186,14 @@ methods
         assertExceptionThrown(f, 'PIXELDATA:do_binary_op');
     end
 
-    function test_error_binary_op_two_PixelData_with_different_num_pixels(~)
+    function test_error_two_PixelData_with_different_num_pixels(~)
         pix1 = PixelData(rand(9, 10));
         pix2 = PixelData(rand(9, 11));
         f = @() pix1.do_binary_op(pix2, @plus_single);
         assertExceptionThrown(f, 'PIXELDATA:do_binary_op');
     end
 
-    function test_binary_op_minus_two_in_memory_PixelData_objects(obj)
+    function test_minus_two_in_memory_PixelData_objects(obj)
         data1 = rand(9, 10);
         pix1 = PixelData(data1);
         data2 = rand(9, 10);
@@ -204,7 +208,7 @@ methods
         assertElementsAlmostEqual(pix_diff.data, expected_diff);
     end
 
-    function test_binary_op_minus_two_PixelData_objects_with_gt_1_pages(obj)
+    function test_subtracting_two_PixelData_objects_with_multiple_pages(obj)
         pix1 = obj.pix_with_pages;
         pix2 = copy(obj.pix_with_pages);
         % make sure we can deal with case where operand not on first page
@@ -219,7 +223,7 @@ methods
         assertEqual(full_pix_diff, expected_diff);
     end
 
-    function test_binary_minus_2_PixelData_objects_1_in_mem_1_with_pages(obj)
+    function test_minus_2_PixelData_objects_1_in_mem_1_with_pages(obj)
         pix1 = obj.pix_with_pages;
         pix2 = obj.pix_in_memory;
 
@@ -232,7 +236,7 @@ methods
         assertEqual(full_pix_diff, expected_diff);
     end
 
-    function test_binary_plus_with_signal_array_and_npix_multiple_pages(obj)
+    function test_plus_with_signal_array_and_npix_multiple_pages(obj)
         data = rand(obj.VARIANCE_IDX, 10);
         npix_in_page = 3;
         pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
@@ -255,7 +259,7 @@ methods
         assertEqual(new_pix_data, expected_pix, '', obj.FLOAT_TOLERANCE);
     end
 
-    function test_binary_plus_with_signal_array_and_npix_1_page(obj)
+    function test_plus_with_signal_array_and_npix_1_page(obj)
         data = rand(9, 10);
         pix = PixelData(data);
 
@@ -276,7 +280,7 @@ methods
         assertEqual(new_pix.data, expected_pix);
     end
 
-    function test_PIXELDATA_error_on_binary_op_where_npix_ne_num_pixels(obj)
+    function test_PIXELDATA_error_on_where_npix_ne_num_pixels(obj)
         num_pixels = 11;
         pix = PixelData(num_pixels);
         npix = [3, 4, 3];
@@ -286,14 +290,14 @@ methods
         assertExceptionThrown(f, 'PIXELDATA:binary_op_double_');
     end
 
-    function test_PIXELDATA_error_on_binary_op_with_dnd_of_wrong_size(obj)
+    function test_PIXELDATA_error_on_with_dnd_of_wrong_size(obj)
         dnd_obj = d1d(obj.test_sqw_file_path);
         pix = PixelData(zeros(9, 2));
         f = @() pix.do_binary_op(dnd_obj, @plus_single);
         assertExceptionThrown(f, 'PIXELDATA:do_binary_op');
     end
 
-    function test_binary_op_with_1d_dnd_returns_correct_pix_with_single_page(obj)
+    function test_with_1d_dnd_returns_correct_pix_with_single_page(obj)
         dnd_obj = d1d(obj.test_sqw_file_path);
         npix = dnd_obj.npix;
         pix = PixelData(ones(9, sum(npix)));
@@ -305,12 +309,14 @@ methods
         new_pix_data = concatenate_pixel_pages(new_pix);
 
         expected_pix = original_pix_data;
-        expected_pix(obj.SIGNAL_IDX, :) = expected_pix(obj.SIGNAL_IDX, :) + repelem(dnd_obj.s(:), npix(:))';
-        expected_pix(obj.VARIANCE_IDX, :) = expected_pix(obj.VARIANCE_IDX, :) + repelem(dnd_obj.e(:), npix(:))';
+        expected_pix(obj.SIGNAL_IDX, :) = ...
+            expected_pix(obj.SIGNAL_IDX, :) + repelem(dnd_obj.s(:), npix(:))';
+        expected_pix(obj.VARIANCE_IDX, :) = ...
+            expected_pix(obj.VARIANCE_IDX, :) + repelem(dnd_obj.e(:), npix(:))';
         assertEqual(new_pix_data, expected_pix);
     end
 
-    function test_binary_op_with_sigvar_returns_correct_pix_with_single_page(obj)
+    function test_with_sigvar_returns_correct_pix_with_single_page(obj)
         dnd_obj = d1d(obj.test_sqw_file_path);
         npix = dnd_obj.npix;
         svar = sigvar(dnd_obj.s, dnd_obj.e);
@@ -324,18 +330,19 @@ methods
         new_pix_data = concatenate_pixel_pages(new_pix);
 
         expected_pix = original_pix_data;
-        expected_pix(obj.SIGNAL_IDX, :) = expected_pix(obj.SIGNAL_IDX, :) + repelem(svar.s(:), npix(:))';
-        expected_pix(obj.VARIANCE_IDX, :) = expected_pix(obj.VARIANCE_IDX, :) + repelem(svar.e(:), npix(:))';
+        expected_pix(obj.SIGNAL_IDX, :) = ...
+            expected_pix(obj.SIGNAL_IDX, :) + repelem(svar.s(:), npix(:))';
+        expected_pix(obj.VARIANCE_IDX, :) = ...
+            expected_pix(obj.VARIANCE_IDX, :) + repelem(svar.e(:), npix(:))';
         assertEqual(new_pix_data, expected_pix);
     end
 
-    function test_binary_op_with_1d_dnd_returns_correct_pix_with_gt_1_page(obj)
+    function test_with_1d_dnd_returns_correct_pix_with_gt_1_page(obj)
         dnd_obj = d1d(obj.test_sqw_file_path);
         npix = dnd_obj.npix;
 
         pix_per_page = floor(sum(npix)/6);
-        mem_alloc = pix_per_page*PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
-        pix = PixelData(obj.test_sqw_file_path, mem_alloc);
+        pix = PixelData(obj.test_sqw_file_path, pix_per_page*obj.BYTES_PER_PIX);
 
         new_pix = pix.do_binary_op(dnd_obj, @plus_single, 'flip', false, ...
                                 'npix', npix);
@@ -344,19 +351,21 @@ methods
         new_pix_data = concatenate_pixel_pages(new_pix);
 
         expected_pix = original_pix_data;
-        expected_pix(obj.SIGNAL_IDX, :) = expected_pix(obj.SIGNAL_IDX, :) + repelem(dnd_obj.s(:), npix(:))';
-        expected_pix(obj.VARIANCE_IDX, :) = expected_pix(obj.VARIANCE_IDX, :) + repelem(dnd_obj.e(:), npix(:))';
+        expected_pix(obj.SIGNAL_IDX, :) = ...
+            expected_pix(obj.SIGNAL_IDX, :) + repelem(dnd_obj.s(:), npix(:))';
+        expected_pix(obj.VARIANCE_IDX, :) = ...
+            expected_pix(obj.VARIANCE_IDX, :) + repelem(dnd_obj.e(:), npix(:))';
         assertElementsAlmostEqual(new_pix_data, expected_pix, 'relative', ...
-                                obj.FLOAT_TOLERANCE);
+                                  obj.FLOAT_TOLERANCE);
     end
 
-    function test_binary_op_with_sigvar_returns_correct_pix_with_gt_1_page(obj)
+    function test_with_sigvar_returns_correct_pix_with_gt_1_page(obj)
         dnd_obj = d1d(obj.test_sqw_file_path);
         npix = dnd_obj.npix;
         svar = sigvar(dnd_obj.s, dnd_obj.e);
 
         pix_per_page = floor(sum(npix)/6);
-        mem_alloc = pix_per_page*PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
+        mem_alloc = pix_per_page*obj.BYTES_PER_PIX;
         pix = PixelData(obj.test_sqw_file_path, mem_alloc);
 
         new_pix = pix.do_binary_op(svar, @plus_single, 'flip', false, ...
@@ -372,24 +381,24 @@ methods
                                 obj.FLOAT_TOLERANCE);
     end
 
-    function test_PIXELDATA_error_in_binary_op_sigvar_if_sum_npix_ne_num_pix(obj)
+    function test_PIXELDATA_error_in_sigvar_if_sum_npix_ne_num_pix(obj)
         dnd_obj = d1d(obj.test_sqw_file_path);
         svar = sigvar(dnd_obj.s, dnd_obj.e);
 
         pix = PixelData(ones(9, sum(dnd_obj.npix) + 1));
 
         f = @() pix.do_binary_op(svar, @plus_single, 'flip', false, ...
-                                'npix', dnd_obj.npix);
+                                 'npix', dnd_obj.npix);
         assertExceptionThrown(f, 'PIXELDATA:binary_op_sigvar_');
     end
 
-    function test_binary_op_with_2Dsigvar_returns_correct_pix_with_gt_1_page(obj)
+    function test_adding_2Dsigvar_returns_correct_pix_with_gt_1_page(obj)
         dnd_obj = d2d(obj.test_sqw_2d_file_path);
         npix = dnd_obj.npix;
         svar = sigvar(dnd_obj.s, dnd_obj.e);
 
         pix_per_page = floor(sum(npix(:)/6));
-        mem_alloc = pix_per_page*PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
+        mem_alloc = pix_per_page*obj.BYTES_PER_PIX;
         pix = PixelData(obj.test_sqw_2d_file_path, mem_alloc);
 
         new_pix = pix.do_binary_op(svar, @plus_single, 'flip', false, ...
@@ -399,17 +408,19 @@ methods
         new_pix_data = concatenate_pixel_pages(new_pix);
 
         expected_pix = original_pix_data;
-        expected_pix(obj.SIGNAL_IDX, :) = expected_pix(obj.SIGNAL_IDX, :) + repelem(svar.s(:), npix(:))';
-        expected_pix(obj.VARIANCE_IDX, :) = expected_pix(obj.VARIANCE_IDX, :) + repelem(svar.e(:), npix(:))';
+        expected_pix(obj.SIGNAL_IDX, :) = ...
+            expected_pix(obj.SIGNAL_IDX, :) + repelem(svar.s(:), npix(:))';
+        expected_pix(obj.VARIANCE_IDX, :) = ...
+            expected_pix(obj.VARIANCE_IDX, :) + repelem(svar.e(:), npix(:))';
         assertElementsAlmostEqual(new_pix_data, expected_pix, 'relative', 1e-7);
     end
 
-    function test_binary_op_with_2D_dnd_returns_correct_pix_with_gt_1_page(obj)
+    function test_with_2D_dnd_returns_correct_pix_with_gt_1_page(obj)
         dnd_obj = d2d(obj.test_sqw_2d_file_path);
         npix = dnd_obj.npix;
 
         pix_per_page = floor(sum(npix(:)/6));
-        mem_alloc = pix_per_page*PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
+        mem_alloc = pix_per_page*obj.BYTES_PER_PIX;
         pix = PixelData(obj.test_sqw_2d_file_path, mem_alloc);
 
         new_pix = pix.do_binary_op(dnd_obj, @plus_single, 'flip', false, ...
@@ -419,19 +430,17 @@ methods
         new_pix_data = concatenate_pixel_pages(new_pix);
 
         expected_pix = original_pix_data;
-        expected_pix(obj.SIGNAL_IDX, :) = expected_pix(obj.SIGNAL_IDX, :) + repelem(dnd_obj.s(:), npix(:))';
-        expected_pix(obj.VARIANCE_IDX, :) = expected_pix(obj.VARIANCE_IDX, :) + repelem(dnd_obj.e(:), npix(:))';
+        expected_pix(obj.SIGNAL_IDX, :) = ...
+            expected_pix(obj.SIGNAL_IDX, :) + repelem(dnd_obj.s(:), npix(:))';
+        expected_pix(obj.VARIANCE_IDX, :) = ...
+            expected_pix(obj.VARIANCE_IDX, :) + repelem(dnd_obj.e(:), npix(:))';
         assertElementsAlmostEqual(new_pix_data, expected_pix, 'relative', 1e-7);
     end
 
-end
-
-methods (Static)
-
     % -- Helpers --
-    function pix = get_pix_with_fake_faccess(data, npix_in_page)
+    function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
-        pix_size = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
+        pix_size = obj.BYTES_PER_PIX;
         pix = PixelData(faccess, npix_in_page*pix_size);
     end
 
