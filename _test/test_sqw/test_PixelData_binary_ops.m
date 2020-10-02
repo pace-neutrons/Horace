@@ -78,13 +78,23 @@ methods
         );
     end
 
-    function test_scalar_minus_subtracts_signal_from_operand_unpaged_pix(obj)
+    function test_scalar_minus_pix_subtracts_signal_from_operand_unpaged_pix(obj)
         pix = obj.pix_in_memory;
         operand = 3;
 
         pix_result = pix.do_binary_op(operand, @minus_single, 'flip', true);
 
         assertEqual(pix_result.signal, operand - pix.signal);
+        assertEqual(pix_result.data([1:7, 9], :), pix.data([1:7, 9], :));
+    end
+
+    function test_pix_minus_scalar_subtracts_operand_from_pix_unpaged_pix(obj)
+        pix = obj.pix_in_memory;
+        operand = 3;
+
+        pix_result = pix.do_binary_op(operand, @minus_single);
+
+        assertEqual(pix_result.signal, pix.signal - operand);
         assertEqual(pix_result.data([1:7, 9], :), pix.data([1:7, 9], :));
     end
 
