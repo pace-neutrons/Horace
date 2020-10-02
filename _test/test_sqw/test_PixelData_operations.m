@@ -163,7 +163,7 @@ methods
     end
 
     function test_do_unary_op_returns_correct_output_with_cosine_gt_1_page(obj)
-        data = rand(9, 50);
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 50);
         npix_in_page = 11;
         pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
@@ -199,7 +199,7 @@ methods
     end
 
     function test_do_unary_op_with_nargout_1_doesnt_affect_called_instance(obj)
-        data = rand(9, 10);
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
         pix = PixelData(data);
         sin_pix = pix.do_unary_op(@sin);
         assertEqual(pix.data, data);
@@ -267,7 +267,7 @@ methods
     end
 
     function test_mask_does_nothing_if_mask_array_eq_ones_when_pix_in_memory(~)
-        data = rand(9, 11);
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 11);
         pix = PixelData(data);
         mask_array = ones(1, pix.num_pixels);
         pix_out = pix.mask(mask_array);
@@ -275,7 +275,7 @@ methods
     end
 
     function test_mask_returns_empty_PixelData_if_mask_array_all_zeros(~)
-        data = rand(9, 11);
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 11);
         pix = PixelData(data);
         mask_array = zeros(1, pix.num_pixels);
         pix_out = pix.mask(mask_array);
@@ -284,7 +284,7 @@ methods
     end
 
     function test_mask_raises_if_mask_array_len_neq_to_pg_size_or_num_pixels(obj)
-        data = rand(9, 30);
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 30);
         npix_in_page = 10;
         pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
         mask_array = zeros(5);
@@ -293,7 +293,7 @@ methods
     end
 
     function test_mask_removes_in_memory_pix_if_len_mask_array_eq_num_pixels(~)
-        data = rand(9, 11);
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 11);
         pix = PixelData(data);
         mask_array = ones(1, pix.num_pixels);
         pix_to_remove = [3, 6, 7];
@@ -314,7 +314,7 @@ methods
     end
 
     function test_mask_deletes_pixels_when_given_npix_argument_pix_in_pages(obj)
-        data = rand(9, 20);
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
         npix_in_page = 11;
         pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
@@ -331,7 +331,7 @@ methods
     end
 
     function test_mask_deletes_pix_with_npix_argument_all_pages_full(obj)
-        data = rand(9, 20);
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
         npix_in_page = 10;
         pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
@@ -348,7 +348,7 @@ methods
     end
 
     function test_mask_deletes_pixels_when_given_npix_argument_pix_in_mem(obj)
-        data = rand(9, 20);
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
         pix = PixelData(data);
 
         mask_array = [0, 1, 1, 0, 1, 0];
@@ -374,7 +374,7 @@ methods
 
         function out = f()
             num_pix = 10;
-            pix = PixelData(rand(9, num_pix));
+            pix = PixelData(rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix));
             mask_array = randi([0, 1], [1, num_pix]);
             npix = rand(1, 4);
             out = pix.mask(mask_array, npix);
@@ -386,7 +386,7 @@ methods
     function test_not_enough_args_error_if_calling_mask_with_no_args(~)
 
         function pix = f()
-            pix = PixelData(rand(9, 10));
+            pix = PixelData(rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 10));
             pix = pix.mask();
         end
 

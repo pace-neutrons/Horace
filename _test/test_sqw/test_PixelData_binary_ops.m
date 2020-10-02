@@ -197,16 +197,16 @@ methods
     end
 
     function test_error_two_PixelData_with_different_num_pixels(~)
-        pix1 = PixelData(rand(9, 10));
-        pix2 = PixelData(rand(9, 11));
+        pix1 = PixelData(rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 10));
+        pix2 = PixelData(rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 11));
         f = @() pix1.do_binary_op(pix2, @plus_single);
         assertExceptionThrown(f, 'PIXELDATA:do_binary_op');
     end
 
     function test_minus_two_in_memory_PixelData_objects(obj)
-        data1 = rand(9, 10);
+        data1 = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
         pix1 = PixelData(data1);
-        data2 = rand(9, 10);
+        data2 = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
         pix2 = PixelData(data2);
 
         pix_diff = pix1.do_binary_op(pix2, @minus_single);
@@ -270,7 +270,7 @@ methods
     end
 
     function test_plus_with_signal_array_and_npix_1_page(obj)
-        data = rand(9, 10);
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
         pix = PixelData(data);
 
         npix = [1, 3, 0; 1, 1, 2; 0, 1, 1];
