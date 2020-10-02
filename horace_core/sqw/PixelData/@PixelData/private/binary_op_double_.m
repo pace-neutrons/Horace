@@ -83,13 +83,12 @@ end  % function
 % -----------------------------------------------------------------------------
 function validate_input_array(obj, double_array, npix)
     if ~isequal(size(double_array), [1, obj.num_pixels]) && isempty(npix)
-        required_size = sprintf('[1, %i]', obj.num_pixels);
-        actual_size = strjoin(repmat({'%i'}, 1, ndims(double_array)), ', ');
-        actual_size = sprintf(['[', actual_size, ']'], size(double_array));
+        required_size = sprintf('[1 %i]', obj.num_pixels);
+        actual_size = num2str(size(double_array));
         error('PIXELDATA:do_binary_op', ...
               ['Cannot perform binary operation. Double array must ' ...
-               'have size equal to number of pixels.\nFound size ''%s'', ' ...
-               '''%s'' required.'], actual_size, required_size);
+               'have size equal to number of pixels.\nFound size ''[%s]'', ' ...
+               '''[%s]'' required.'], actual_size, required_size);
     end
 end
 
