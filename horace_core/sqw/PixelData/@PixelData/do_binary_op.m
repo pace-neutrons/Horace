@@ -6,6 +6,8 @@ function pix_out = do_binary_op(obj, operand, binary_op, varargin)
 %
 %  >> pix_sum = obj.do_binary_op(signal_array, @plus_single, 'npix', npix)
 %
+%  >> pix_sum = obj.do_binary_op(signal_array, @plus_single, 'npix', npix, 'flip', true)
+%
 % Input
 % -----
 % operand    The second operand to use in the binary operation.
