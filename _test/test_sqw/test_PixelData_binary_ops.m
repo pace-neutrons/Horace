@@ -131,11 +131,11 @@ methods
         new_pix_data = concatenate_pixel_pages(pix_result);
 
         assertElementsAlmostEqual(new_pix_data(obj.SIGNAL_IDX, :), ...
-                                obj.pix_in_memory.signal*operand, ...
-                                'relative', obj.FLOAT_TOLERANCE);
+                                  obj.pix_in_memory.signal*operand, ...
+                                  'relative', obj.FLOAT_TOLERANCE);
         assertElementsAlmostEqual(new_pix_data(obj.VARIANCE_IDX, :), ...
-                                (operand.^2).*obj.pix_in_memory.variance, ...
-                                'relative', obj.FLOAT_TOLERANCE);
+                                  (operand.^2).*obj.pix_in_memory.variance, ...
+                                  'relative', obj.FLOAT_TOLERANCE);
         assertEqual(new_pix_data(1:7, :), obj.ref_raw_pix_data(1:7, :), ...
                     '', obj.FLOAT_TOLERANCE);
     end
@@ -258,14 +258,8 @@ methods
         new_pix_data = concatenate_pixel_pages(pix);
 
         expected_pix = data;
-        start_idx = 1;
-        for i = 1:numel(npix)
-            end_idx = start_idx + npix(i);
-            expected_pix(obj.SIGNAL_IDX, start_idx:end_idx - 1) = ...
-                    expected_pix(obj.SIGNAL_IDX, start_idx:end_idx - 1) + sig_array(i);
-            start_idx = end_idx;
-        end
-
+        expected_pix(obj.SIGNAL_IDX, :) = ...
+            expected_pix(obj.SIGNAL_IDX, :) + repelem(sig_array(:), npix(:))';
         assertEqual(new_pix_data, expected_pix, '', obj.FLOAT_TOLERANCE);
     end
 
@@ -279,14 +273,8 @@ methods
         new_pix = pix.do_binary_op(sig_array, @plus_single, 'npix', npix);
 
         expected_pix = data;
-        start_idx = 1;
-        for i = 1:numel(npix)
-            end_idx = start_idx + npix(i);
-            expected_pix(obj.SIGNAL_IDX, start_idx:end_idx - 1) = ...
-                    expected_pix(obj.SIGNAL_IDX, start_idx:end_idx - 1) + sig_array(i);
-            start_idx = end_idx;
-        end
-
+        expected_pix(obj.SIGNAL_IDX, :) = ...
+            expected_pix(obj.SIGNAL_IDX, :) + repelem(sig_array(:), npix(:))';
         assertEqual(new_pix.data, expected_pix);
     end
 
