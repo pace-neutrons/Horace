@@ -60,7 +60,7 @@ else
             npix_chunk(end) = leftover_end;
         end
 
-        sig_chunk = replicate_array(double_array(start_idx:end_idx), npix_chunk);
+        sig_chunk = repelem(double_array(start_idx:end_idx), npix_chunk)';
 
         this_sigvar = sigvar(obj.signal, obj.variance);
         double_sigvar = sigvar(sig_chunk', []);
@@ -89,21 +89,5 @@ function validate_input_array(obj, double_array, npix)
               ['Cannot perform binary operation. Double array must ' ...
                'have size equal to number of pixels.\nFound size ''[%s]'', ' ...
                '''[%s]'' required.'], actual_size, required_size);
-    end
-end
-
-function vout = replicate_array(v, npix)
-    if numel(npix)==numel(v)
-        % Get the bin index for each pixel
-        nend=cumsum(npix(:));
-        nbeg=nend-npix(:)+1;    % nbeg(i)=nend(i)+1 if npix(i)==0, but that's OK below
-        nbin=numel(npix);
-        npixtot=nend(end);
-        vout=zeros(npixtot,1);
-        for i=1:nbin
-            vout(nbeg(i):nend(i))=v(i);     % if npix(i)=0, this assignment does nothing
-        end
-    else
-        error('Number of elements in input array(s) incompatible')
     end
 end
