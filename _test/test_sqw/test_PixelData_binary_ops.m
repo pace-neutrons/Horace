@@ -413,7 +413,7 @@ methods
         assertElementsAlmostEqual(new_pix_data, expected_pix, 'relative', 1e-7);
     end
 
-    function test_with_2D_dnd_returns_correct_pix_with_gt_1_page(obj)
+    function test_multiplying_with_2D_dnd_returns_correct_pix_with_gt_1_page(obj)
         dnd_obj = d2d(obj.test_sqw_2d_file_path);
         npix = dnd_obj.npix;
 
@@ -421,17 +421,24 @@ methods
         mem_alloc = pix_per_page*obj.BYTES_PER_PIX;
         pix = PixelData(obj.test_sqw_2d_file_path, mem_alloc);
 
-        new_pix = pix.do_binary_op(dnd_obj, @plus_single, 'flip', false, ...
-                                'npix', npix);
+        new_pix = pix.do_binary_op(dnd_obj, @mtimes_single, 'flip', false, ...
+                                   'npix', npix);
 
         original_pix_data = concatenate_pixel_pages(pix);
         new_pix_data = concatenate_pixel_pages(new_pix);
 
+        s_dnd = repelem(dnd_obj.s(:), npix(:))';
+        e_dnd = repelem(dnd_obj.e(:), npix(:))';
+        s_pix = original_pix_data(obj.SIGNAL_IDX, :);
+        e_pix = original_pix_data(obj.VARIANCE_IDX, :);
+
         expected_pix = original_pix_data;
-        expected_pix(obj.SIGNAL_IDX, :) = ...
-            expected_pix(obj.SIGNAL_IDX, :) + repelem(dnd_obj.s(:), npix(:))';
-        expected_pix(obj.VARIANCE_IDX, :) = ...
-            expected_pix(obj.VARIANCE_IDX, :) + repelem(dnd_obj.e(:), npix(:))';
+        expected_pix(obj.SIGNAL_IDX, :) = s_pix.*s_dnd;
+
+        % See mtimes_single for variance calculation
+        expected_variance = (s_dnd.^2).*e_pix + (s_pix.^2).*e_dnd;
+        expected_pix(obj.VARIANCE_IDX, :) = expected_variance;
+
         assertElementsAlmostEqual(new_pix_data, expected_pix, 'relative', 1e-7);
     end
 
