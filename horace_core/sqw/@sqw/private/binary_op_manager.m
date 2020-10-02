@@ -41,7 +41,9 @@ if ~isa(w1, 'double')
     size1 = size(w1);
 elseif ~isempty(w1)
     [inner_section1, size1, mess] = array_split(dimensions(w2(1)), size(w1));
-    if ~isempty(mess), error(mess), end
+    if ~isempty(mess)
+        error('SQW:binary_op_manager', mess);
+    end
 else
     error('SQW:binary_op_manager', ...
           ['Invalid argument to binary operation - a double array argument ' ...
@@ -55,7 +57,7 @@ if ~isa(w2, 'double')
 elseif ~isempty(w2)
     [inner_section2, size2, mess] = array_split(dimensions(w1(1)), size(w2));
     if ~isempty(mess)
-        error(mess);
+        error('SQW:binary_op_manager', mess);
     end
 
 else
