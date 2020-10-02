@@ -1,8 +1,6 @@
 classdef test_PixelData_operations < TestCase
 
 properties
-    NUM_BYTES_IN_VALUE = 8;
-    NUM_COLS_IN_PIX_BLOCK = 9;
     SIGNAL_IDX = 8;
     VARIANCE_IDX = 9;
 
@@ -14,22 +12,17 @@ properties
     ref_npix_data = [];
     ref_s_data = [];
     ref_e_data = [];
-    ref_raw_pix_data = [];
 
     pix_in_memory_base;
     pix_in_memory;
     pix_with_pages_base;
     pix_with_pages;
-    page_size;
 
     pix_with_pages_2d;
-    page_size_2d;
     ref_npix_data_2d;
     ref_s_data_2d;
     ref_e_data_2d;
 
-    config;
-    old_config;
     old_warn_state;
 end
 
@@ -48,13 +41,12 @@ methods
         obj.ref_npix_data = sqw_test_obj.data.npix;
         obj.ref_s_data = sqw_test_obj.data.s;
         obj.ref_e_data = sqw_test_obj.data.e;
-        obj.ref_raw_pix_data = sqw_test_obj.data.pix.data;
 
         file_info = dir(obj.test_sqw_file_path);
-        obj.page_size = file_info.bytes/6;
+        page_size = file_info.bytes/6;
 
         obj.pix_in_memory_base = sqw_test_obj.data.pix;
-        obj.pix_with_pages_base = PixelData(obj.test_sqw_file_path, obj.page_size);
+        obj.pix_with_pages_base = PixelData(obj.test_sqw_file_path, page_size);
 
         % Load 2D SQW file
         sqw_2d_test_object = sqw(obj.test_sqw_2d_file_path);
@@ -63,10 +55,10 @@ methods
         obj.ref_e_data_2d = sqw_2d_test_object.data.e;
 
         file_info = dir(obj.test_sqw_2d_file_path);
-        obj.page_size_2d = file_info.bytes/6;
+        page_size_2d = file_info.bytes/6;
 
         obj.pix_with_pages_2d = PixelData(obj.test_sqw_2d_file_path, ...
-                                          obj.page_size_2d);
+                                          page_size_2d);
     end
 
     function delete(obj)
@@ -257,8 +249,8 @@ methods
             unary_op = unary_ops{2*i - 1};
             data_range = unary_ops{2*i};
 
-            data = obj.get_random_data_in_range(obj.NUM_COLS_IN_PIX_BLOCK, ...
-                                                num_pix, data_range);
+            data = obj.get_random_data_in_range( ...
+                PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix, data_range);
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             pix.do_unary_op(unary_op);
 
