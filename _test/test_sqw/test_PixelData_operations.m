@@ -1,6 +1,7 @@
 classdef test_PixelData_operations < TestCase
 
 properties
+    BYTES_PER_PIX = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
     SIGNAL_IDX = 8;
     VARIANCE_IDX = 9;
 
@@ -42,9 +43,7 @@ methods
         obj.ref_s_data = sqw_test_obj.data.s;
         obj.ref_e_data = sqw_test_obj.data.e;
 
-        file_info = dir(obj.test_sqw_file_path);
-        page_size = file_info.bytes/6;
-
+        page_size = floor(sqw_test_obj.data.pix.num_pixels/6)*obj.BYTES_PER_PIX;
         obj.pix_in_memory_base = sqw_test_obj.data.pix;
         obj.pix_with_pages_base = PixelData(obj.test_sqw_file_path, page_size);
 
@@ -54,9 +53,8 @@ methods
         obj.ref_s_data_2d = sqw_2d_test_object.data.s;
         obj.ref_e_data_2d = sqw_2d_test_object.data.e;
 
-        file_info = dir(obj.test_sqw_2d_file_path);
-        page_size_2d = file_info.bytes/6;
-
+        num_pix = sqw_2d_test_object.data.pix.num_pixels;
+        page_size_2d = floor(num_pix/6)*obj.BYTES_PER_PIX;
         obj.pix_with_pages_2d = PixelData(obj.test_sqw_2d_file_path, ...
                                           page_size_2d);
     end
@@ -395,22 +393,20 @@ methods
         assertExceptionThrown(@() f(), 'MATLAB:minrhs');
     end
 
+    % -- Helpers --
+    function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
+        faccess = FakeFAccess(data);
+        pix = PixelData(faccess, npix_in_page*obj.BYTES_PER_PIX);
+    end
+
 end
 
 methods (Static)
-
-    % -- Helpers --
-    function pix = get_pix_with_fake_faccess(data, npix_in_page)
-        faccess = FakeFAccess(data);
-        pix_size = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
-        pix = PixelData(faccess, npix_in_page*pix_size);
-    end
 
     function data = get_random_data_in_range(cols, rows, data_range)
         data = data_range(1) + (data_range(2) - data_range(1)).*rand(cols, rows);
     end
 
 end
-
 
 end
