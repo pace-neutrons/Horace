@@ -4,8 +4,10 @@ function obj = binary_op_double_(obj, double_array, binary_op, flip, npix)
 %
 validate_input_array(obj, double_array, npix);
 
+obj.move_to_first_page();
+
 if isempty(npix)
-    base_page_size = obj.max_page_size_;
+    base_page_size = obj.page_size;
     while true
 
         pix_sigvar = sigvar(obj.signal, obj.variance);
@@ -37,7 +39,7 @@ else
 
     end_idx = 1;
     leftover_end = 0;
-    pg_size = obj.max_page_size_;
+    pg_size = obj.page_size;
     while true
 
         start_idx = find(npix_cum_sum > 0, 1);
