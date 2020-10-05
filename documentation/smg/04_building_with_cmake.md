@@ -62,6 +62,8 @@ Bash:
 CMake provides a way to generate build files across multiple platforms. It also
 ships with a script to aid in compiling Matlab mex libraries.
 
+The following process is roughly what the build scripts automate.
+
 1. After cloning the Horace repository, open the CMake GUI and select the root
 of the repository as the source.
 
@@ -86,8 +88,6 @@ CMake will find the Matlab compiler and various libraries.
 The build files should be generated inside the DLL directory.
 On Windows you can open the `<Horace Root>/build/Horace.sln` file in Visual
 Studio and build the targets.
-On linux, if you've chosen `Unix Makefiles` as your generator,
-you can `cd` into the `<Horace Root>/build/` directory and run `make`.
 
 7. The built mex files will be written into `horace_core/DLL`.
 
@@ -105,6 +105,24 @@ try updating CMake.
 CMake v3.14 has been confirmed to work for Matlab R2019b.
 
 ### Troubleshooting
+
+#### Invalid MEX-file
+
+If, when running mex files built using one of the above processes,
+you get an error like `Invalid MEX-file: Gateway function is missing`,
+this means the mex library is not exporting the correct symbols.
+On Windows the mex library (a DLL) should export `mexFunction` and only that.
+On Linux, Matlab provides a `.map` file that dictates what symbols to export
+from the shared library.
+If Matlab was installed in the standard directory on a 64-bit system,
+the path to this file will be
+`/usr/local/MATLAB/R2018b/extern/lib/glnxa64/mexFunction.map`.
+
+CMake's `matlab_add_mex` function should take care of exporting the symbols,
+however there were issues with older versions of CMake on Windows.
+This issue should be fixed by
+[5638006d67](https://github.com/pace-neutrons/Herbert/commit/5638006d67d538d8b45003d15d957a4369be81e2#diff-34c4edd4cab03f6c20f2e8c75eb90c6b)
+, however if you see this error, updating CMake could help.
 
 #### PowerShell execution policy error
 
