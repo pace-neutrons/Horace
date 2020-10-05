@@ -134,7 +134,7 @@ function [inner_section, outer_dims, mess] = array_split(class_nd, sz)
     %                   (assume class_nd >= 0)
     %   sz              Matlab intrinsic SIZE of the double array
     %
-    %   inner_section   Cell array of calss_nd repeats of ':' for array
+    %   inner_section   Cell array of class_nd repeats of ':' for array
     %                   sectioning
     %   outer_dims     Outer dimensions that are left over in the double array.
     %                  If consider that the double array is an array of arrays,
