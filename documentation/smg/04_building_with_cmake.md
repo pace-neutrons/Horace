@@ -57,32 +57,6 @@ Bash:
 ./tools/build_config/build.sh --help
 ```
 
-### Notes
-
-If, when running the PowerShell script,
-an error such as the following is thrown:
-
-```txt
-File ...\tools\build_config\build.ps1 cannot be loaded because running scripts
-is disabled on this system. For more information, see about_Execution_Policies
-at https:/go.microsoft.com/fwlink/?LinkID=135170.
-```
-
-PowerShell's execution policy needs to be updated to allow `.ps1` scripts to be
-run.
-To do this, run the following in an elevated PowerShell prompt:
-
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
-```
-
-If admin privileges are not available,
-the script can be run using the following command:
-
-```powershell
-powershell.exe -ExecutionPolicy Bypass -File ./tools/build_config/build.ps1 -build
-```
-
 ## Using CMake directly
 
 CMake provides a way to generate build files across multiple platforms. It also
@@ -129,3 +103,31 @@ on new Matlab versions.
 If you get an error like `Invalid MEX-file: Gateway function is missing`,
 try updating CMake.
 CMake v3.14 has been confirmed to work for Matlab R2019b.
+
+### Troubleshooting
+
+#### PowerShell execution policy error
+
+If, when running the PowerShell script,
+an error such as the following is thrown:
+
+```txt
+File ...\tools\build_config\build.ps1 cannot be loaded because running scripts
+is disabled on this system. For more information, see about_Execution_Policies
+at https:/go.microsoft.com/fwlink/?LinkID=135170.
+```
+
+PowerShell's execution policy needs to be updated to allow `.ps1` scripts to be
+run.
+To do this, run the following in an elevated PowerShell prompt:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+```
+
+If admin privileges are not available,
+the script can be run using the following command:
+
+```powershell
+powershell.exe -ExecutionPolicy Bypass -File ./tools/build_config/build.ps1 -build
+```
