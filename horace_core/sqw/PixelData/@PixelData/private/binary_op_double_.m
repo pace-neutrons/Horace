@@ -7,6 +7,20 @@ validate_input_array(obj, double_array, npix);
 obj.move_to_first_page();
 
 if isempty(npix)
+    obj = do_op_with_no_npix(obj, double_array, binary_op, flip);
+else
+    obj = do_op_with_npix(obj, double_array, binary_op, flip, npix);
+end
+
+end  % function
+
+
+% -----------------------------------------------------------------------------
+function obj = do_op_with_no_npix(obj, double_array, binary_op, flip)
+    % Perform the given binary operation between the given double array and
+    % PixelData object with no npix array.
+    % The double array must have length equal to the number of pixels.
+    %
     base_page_size = obj.page_size;
     while true
 
@@ -24,10 +38,24 @@ if isempty(npix)
         else
             break;
         end
-
     end
-else
+end
 
+
+function obj = do_op_with_npix(obj, double_array, binary_op, flip, npix)
+    % Perform the given binary op between the given PixelData object and the
+    % given double array replicated uses npix.
+    % An example operation with the "plus" operator is given below:
+    %   obj.signal                  = [1, 3, 5, 6, 2, 7, 4, 6]
+    %   double_array                = [2,       1,    4]
+    %   npix                        = [3,       2,    3]
+    %    -> replicated_double_array = [2, 2, 2, 1, 1, 4, 4, 4]
+    %       result.signal = replicated_double_array + obj.signal
+    %                     = [3, 5, 7, 7, 3, 11, 8, 10]
+    %
+    % The operation is performed whilst looping over the pages in the PixelData
+    % object.
+    %
     npix_cum_sum = cumsum(npix(:));
     if npix_cum_sum(end) ~= obj.num_pixels
         error('PIXELDATA:binary_op_double_', ...
@@ -76,13 +104,9 @@ else
         end
 
     end
-
 end
 
-end  % function
 
-
-% -----------------------------------------------------------------------------
 function validate_input_array(obj, double_array, npix)
     if ~isequal(size(double_array), [1, obj.num_pixels]) && isempty(npix)
         required_size = sprintf('[1 %i]', obj.num_pixels);
