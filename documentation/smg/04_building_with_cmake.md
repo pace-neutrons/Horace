@@ -39,7 +39,7 @@ Bash:
 ./tools/build_config/build.sh --build
 ```
 
-_(Note Bash uses two dashes (`--`) whilst PowerShell uses one.)_
+_(Note that Bash uses two dashes (`--`) whilst PowerShell uses one.)_
 
 Generally, the default build options will be sufficient,
 but there are several configurable parameters.
