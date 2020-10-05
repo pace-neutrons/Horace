@@ -133,15 +133,6 @@ function wout = do_binary_op_sqw_sqw(w1, w2, binary_op, flip)
     end
 end
 
-function wout = do_binary_op_sigvar_sigvar(binary_op, sqw_obj, sigvar_1, sigvar_2)
-    % Perform a binary operation between two sigvar objects, assigning the
-    % result to the given SQW object and recomputing the bin data
-    wout = copy(sqw_obj);
-    result = binary_op(sigvar_1, sigvar_2);
-    wout.data.pix.signal = result.s;
-    wout.data.pix.variance = result.e;
-    wout = recompute_bin_data(wout);
-end
 
 function wout = do_binary_op_sqw_and_non_double(w1, w2, binary_op, flip)
     % Perform a binary operation between an SQW object and another object that
