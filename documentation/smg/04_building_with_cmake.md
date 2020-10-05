@@ -23,7 +23,7 @@ These scripts provide an easy way to build Herbert/Horace on Windows or Linux.
 Theses same scripts are used to build Horace and Herbert on the CI servers,
 so they are tested regularly.
 
-A developer can build using default options with the `[-]-build` flag.
+A developer can build using default options with the `--build` flag.
 
 From Herbert/Horace's root directory:
 
