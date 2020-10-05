@@ -166,8 +166,9 @@ methods
         original_variance = obj.ref_raw_pix_data(obj.VARIANCE_IDX, :);
         expected_var = original_variance/(operand^2);
         expected_var(isnan(expected_var)) = 0;
-        assertElementsAlmostEqual(new_pix_data(obj.VARIANCE_IDX, :), expected_var, ...
-                                'relative', obj.FLOAT_TOLERANCE);
+        assertElementsAlmostEqual(new_pix_data(obj.VARIANCE_IDX, :), ...
+                                  expected_var, ...
+                                  'relative', obj.FLOAT_TOLERANCE);
 
         assertEqual(new_pix_data(1:7, :), obj.ref_raw_pix_data(1:7, :), ...
                     '', obj.FLOAT_TOLERANCE);
@@ -181,11 +182,12 @@ methods
         full_pix_array = concatenate_pixel_pages(pix_result);
 
         expected_signal = 1 - obj.pix_in_memory.signal;
-        assertElementsAlmostEqual(full_pix_array(obj.SIGNAL_IDX, :), expected_signal, ...
-                                'relative', obj.FLOAT_TOLERANCE);
+        assertElementsAlmostEqual(full_pix_array(obj.SIGNAL_IDX, :), ...
+                                  expected_signal, ...
+                                  'relative', obj.FLOAT_TOLERANCE);
         assertElementsAlmostEqual(full_pix_array([1:7, 9], :), ...
-                                obj.ref_raw_pix_data([1:7, 9], :), ...
-                                'relative', obj.FLOAT_TOLERANCE);
+                                  obj.ref_raw_pix_data([1:7, 9], :), ...
+                                  'relative', obj.FLOAT_TOLERANCE);
     end
 
     function test_error_adding_double_with_length_neq_num_pixels(obj)
@@ -278,7 +280,7 @@ methods
         assertEqual(new_pix.data, expected_pix);
     end
 
-    function test_PIXELDATA_error_on_where_npix_ne_num_pixels(obj)
+    function test_PIXELDATA_error_on_where_npix_ne_num_pixels(~)
         num_pixels = 11;
         pix = PixelData(num_pixels);
         npix = [3, 4, 3];
@@ -301,7 +303,7 @@ methods
         pix = PixelData(ones(9, sum(npix)));
 
         new_pix = pix.do_binary_op(dnd_obj, @plus_single, 'flip', false, ...
-                                'npix', npix);
+                                   'npix', npix);
 
         original_pix_data = concatenate_pixel_pages(pix);
         new_pix_data = concatenate_pixel_pages(new_pix);
@@ -322,7 +324,7 @@ methods
         pix = PixelData(ones(9, sum(dnd_obj.npix)));
 
         new_pix = pix.do_binary_op(svar, @plus_single, 'flip', false, ...
-                                'npix', npix);
+                                   'npix', npix);
 
         original_pix_data = concatenate_pixel_pages(pix);
         new_pix_data = concatenate_pixel_pages(new_pix);
@@ -373,10 +375,12 @@ methods
         new_pix_data = concatenate_pixel_pages(new_pix);
 
         expected_pix = original_pix_data;
-        expected_pix(obj.SIGNAL_IDX, :) = expected_pix(obj.SIGNAL_IDX, :) + repelem(dnd_obj.s(:), npix(:))';
-        expected_pix(obj.VARIANCE_IDX, :) = expected_pix(obj.VARIANCE_IDX, :) + repelem(dnd_obj.e(:), npix(:))';
+        expected_pix(obj.SIGNAL_IDX, :) = ...
+            expected_pix(obj.SIGNAL_IDX, :) + repelem(dnd_obj.s(:), npix(:))';
+        expected_pix(obj.VARIANCE_IDX, :) = ...
+            expected_pix(obj.VARIANCE_IDX, :) + repelem(dnd_obj.e(:), npix(:))';
         assertElementsAlmostEqual(new_pix_data, expected_pix, 'relative', ...
-                                obj.FLOAT_TOLERANCE);
+                                  obj.FLOAT_TOLERANCE);
     end
 
     function test_PIXELDATA_error_in_sigvar_if_sum_npix_ne_num_pix(obj)
@@ -400,7 +404,7 @@ methods
         pix = PixelData(obj.test_sqw_2d_file_path, mem_alloc);
 
         new_pix = pix.do_binary_op(svar, @plus_single, 'flip', false, ...
-                                'npix', npix);
+                                   'npix', npix);
 
         original_pix_data = concatenate_pixel_pages(pix);
         new_pix_data = concatenate_pixel_pages(new_pix);
