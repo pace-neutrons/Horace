@@ -13,7 +13,8 @@ A developer building Herbert/Horace will need to install:
 - System compiler:
   - Linux: [GCC](https://gcc.gnu.org/) >= 6.3.0
   - Windows:
-  [Visual Studio](https://visualstudio.microsoft.com/downloads/) >= 2017
+  [Visual Studio build tools](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019)
+  \>= 2017
 
 ## Using build scripts
 
