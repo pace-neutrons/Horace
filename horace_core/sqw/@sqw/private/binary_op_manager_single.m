@@ -203,5 +203,5 @@ function throw_npix_mismatch_error(w1, w2)
     disp(['  Total number of pixels in left operand is ', ...
           num2str(npix1), ' and in right operand is ', num2str(npix2)])
     error('SQW:binary_op_manager_single', ...
-          'Two sqw objects have different npix numbers.')
+          'The two SQW objects have different npix arrays.')
 end
