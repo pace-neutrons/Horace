@@ -2,29 +2,29 @@
 
 ## Build dependencies
 
-A developer building Herbert/Horace will need to install:
+To build Herbert/Horace the following will need to be installed:
 
 - [Matlab](https://www.mathworks.com/products/matlab.html) >= 2018b
   - on Linux the desired Matlab version must be on the path when running the
   script
   - on Windows, by default, the latest version is found via the registry
   - STFC staff should see the
-  [development environment guide](./02_development_environment.md#getting-matlab)
-  for how to obtain Matlab.
+    [development environment guide](./02_development_environment.md#getting-matlab)
+    for how to obtain Matlab.
 - [CMake](https://cmake.org/download/) >= 3.7
   - must be on the path for both Windows and Linux
 - System compiler:
   - Linux: [GCC](https://gcc.gnu.org/) >= 6.3.0
   - Windows:
-  [Visual Studio build tools](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019)
-  \>= 2017
+    [Visual Studio build tools](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019)
+    \>= 2017
 
 ## Using build scripts
 
 Horace and Herbert contain PowerShell and Bash scripts named `build.[ps1|sh]`.
 These scripts provide an easy way to build Herbert/Horace on Windows or Linux.
 
-A developer can build with default options using the `--build` flag.
+Building with just the `--build` flag will build with default options.
 
 From Herbert/Horace's root directory:
 
