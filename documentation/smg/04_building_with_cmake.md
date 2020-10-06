@@ -113,7 +113,9 @@ CMake v3.14 has been confirmed to work for Matlab R2019b.
 If, when running mex files built using one of the above processes,
 you get an error like `Invalid MEX-file: Gateway function is missing`,
 this means the mex library is not exporting the correct symbols.
+
 On Windows the mex library (a DLL) should export `mexFunction` and only that.
+
 On Linux, Matlab provides a `.map` file that dictates what symbols to export
 from the shared library.
 If Matlab was installed in the standard directory on a 64-bit system,
