@@ -130,7 +130,7 @@ This issue should be fixed by
 
 #### PowerShell execution policy error
 
-If, when running the PowerShell script,
+If, when running the PowerShell build script,
 an error such as the following is thrown:
 
 ```txt
