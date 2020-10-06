@@ -23,8 +23,6 @@ A developer building Herbert/Horace will need to install:
 
 Horace and Herbert contain PowerShell and Bash scripts named `build.[ps1|sh]`.
 These scripts provide an easy way to build Herbert/Horace on Windows or Linux.
-Theses same scripts are used to build Horace and Herbert on the CI servers,
-so they are tested regularly.
 
 A developer can build with default options using the `--build` flag.
 
