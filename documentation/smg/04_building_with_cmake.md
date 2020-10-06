@@ -31,13 +31,13 @@ From Herbert/Horace's root directory:
 PowerShell:
 
 ```powershell
-./tools/build_config/build.ps1 -build
+>> ./tools/build_config/build.ps1 -build
 ```
 
 Bash:
 
 ```bash
-./tools/build_config/build.sh --build
+>> ./tools/build_config/build.sh --build
 ```
 
 _(Note that Bash uses two dashes (`--`) whilst PowerShell uses one.)_
@@ -49,13 +49,13 @@ Both scripts have a `help` flag which display the available actions:
 PowerShell:
 
 ```powershell
-./tools/build_config/build.ps1 -help
+>> ./tools/build_config/build.ps1 -help
 ```
 
 Bash:
 
 ```bash
-./tools/build_config/build.sh --help
+>> ./tools/build_config/build.sh --help
 ```
 
 ## Using CMake directly
@@ -96,9 +96,9 @@ Studio and build the targets.
 To do steps 2-6 using the command line you can use the following commands (on
 linux use `-G "Unix Makefiles"`):
 
-`$ cmake -S <Horace Root> -B <Horace Root>/build -G "Visual Studio 15 2017 Win64"`
+`>> cmake -S <Horace Root> -B <Horace Root>/build -G "Visual Studio 15 2017 Win64"`
 
-`$ cmake --build <Horace Root>/build --config Release`
+`>> cmake --build <Horace Root>/build --config Release`
 
 There are known issues running mex files compiled using old versions of CMake
 on new Matlab versions.
