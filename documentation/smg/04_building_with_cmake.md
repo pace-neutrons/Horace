@@ -8,6 +8,9 @@ A developer building Herbert/Horace will need to install:
   - on Linux the desired Matlab version must be on the path when running the
   script
   - on Windows, by default, the latest version is found via the registry
+  - STFC staff should see the
+  [development environment guide](./02_development_environment.md#getting-matlab)
+  for how to obtain Matlab.
 - [CMake](https://cmake.org/download/) >= 3.7
   - must be on the path for both Windows and Linux
 - System compiler:
