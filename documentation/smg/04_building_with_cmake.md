@@ -63,7 +63,8 @@ Bash:
 CMake provides a way to generate build files across multiple platforms. It also
 ships with a script to aid in compiling Matlab mex libraries.
 
-The following process is roughly what the build scripts automate.
+The following process is roughly what the build scripts described above
+automate.
 
 1. After cloning the Horace repository, open the CMake GUI and select the root
 of the repository as the source.
