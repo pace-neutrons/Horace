@@ -53,6 +53,9 @@ else
 end
 
 if return_array
+    if isstruct(par)
+        par = get_hor_format(par,'');    
+    end
     if getphx
         par = a_detpar_loader_interface.convert_par2phx(par);
     end
