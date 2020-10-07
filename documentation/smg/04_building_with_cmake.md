@@ -107,12 +107,6 @@ linux use `-G "Unix Makefiles"`):
 
 `>> cmake --build <Horace Root>/build --config Release`
 
-There are known issues running mex files compiled using old versions of CMake
-on new Matlab versions.
-If you get an error like `Invalid MEX-file: Gateway function is missing`,
-try updating CMake.
-CMake v3.14 has been confirmed to work for Matlab R2019b.
-
 ### Troubleshooting
 
 #### Invalid MEX-file
