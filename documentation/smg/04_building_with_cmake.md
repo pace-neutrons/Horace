@@ -18,6 +18,13 @@ To build Herbert/Horace the following will need to be installed:
   - Windows:
     [Visual Studio build tools](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019)
     \>= 2017
+- [Herbert](https://github.com/pace-neutrons/Herbert)
+  - CMake will search for a local copy of Herbert in the same directory as
+    Horace is in.
+  - It will also search using the environment variable `HERBERT_ROOT`,
+    so this can be set to point to a copy of Herbert.
+  - For the logic that dictates where Herbert is searched for,
+    see [FindHerbert.cmake](../../cmake/FindHerbert.cmake).
 
 ## Using build scripts
 
