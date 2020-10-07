@@ -41,7 +41,7 @@ param (
 
   # The version of Visual Studio to build with. Other Windows compilers are
   # not supported by this script. {2015, 2017, 2019}
-  # [default: 0 (use latest found version)]
+  # [default: 0 (use latest installed version)]
   [int][ValidateSet(2015, 2017, 2019)]
   [Alias("VS")]
   $vs_version = 0,
@@ -121,9 +121,9 @@ function New-CMake-Generator-Command {
   if ($vs_version -eq 0) {
     $generator_cmd = ""
   } elseif ($vs_version -ge 2019) {
-    $generator_cmd += "-G ""$cmake_generator"" -A x64"
+    $generator_cmd = "-G ""$cmake_generator"" -A x64"
   } else {
-    $generator_cmd += "-G ""$cmake_generator Win64"""
+    $generator_cmd = "-G ""$cmake_generator Win64"""
   }
   return $generator_cmd
 }
