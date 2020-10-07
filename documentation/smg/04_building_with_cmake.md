@@ -106,7 +106,7 @@ This will generate the projects/Makefiles required to compile the C++ code.
 
     The built mex files will be written into `horace_core/DLL`.
 
-To perform steps 2-7 using the command line you can use the following commands
+To perform steps 2-6 using the command line you can use the following commands
 (on linux use `-G "Unix Makefiles"`):
 
 `>> cmake -S <Horace Root> -B <Horace Root>/build -G "Visual Studio 15 2017 Win64"`
