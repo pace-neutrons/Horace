@@ -4,6 +4,7 @@ set(TEST_DIRECTORIES
     "test_change_crystal"
     "test_combine"
     "test_configuration"
+    "test_converters"
     "test_dnd"
     "test_gen_sqw_for_powders"
     "test_herbert_utilites"
