@@ -90,23 +90,24 @@ the mex libraries will likely work if built using newer compiler versions).
 this should also match your Matlab version:
 if you installed a 64-bit version of Matlab choose x64 as the platform.
 
-    ![alt text](./images/04_cmake_configure_options.png "CMake configure options")
+    ![alt text](./images/04_cmake_configure_options.png
+                "Windows CMake configure options")
 
-5. Now click finish in the dialogue.
-CMake will find the Matlab compiler and various libraries.
+    Click finish in the dialogue.
+    CMake will find the Matlab compiler and various libraries.
 
-6. Now click generate.
+5. Now click generate.
 This will generate the projects/Makefiles required to compile the C++ code.
 
-7. To build the generated targets:
-    - on Windows open the `<Horace Root>/build/Horace.sln` file in Visual
+6. To build the generated targets:
+    - on Windows, open the `<Horace Root>/build/Horace.sln` file in Visual
       Studio and build the targets.
     - on Linux, from the terminal, `cd` into the build directory and run `make`.
 
     The built mex files will be written into `horace_core/DLL`.
 
-To do steps 2-6 using the command line you can use the following commands (on
-linux use `-G "Unix Makefiles"`):
+To perform steps 2-7 using the command line you can use the following commands
+(on linux use `-G "Unix Makefiles"`):
 
 `>> cmake -S <Horace Root> -B <Horace Root>/build -G "Visual Studio 15 2017 Win64"`
 
