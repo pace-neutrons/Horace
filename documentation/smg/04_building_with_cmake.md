@@ -90,6 +90,8 @@ the mex libraries will likely work if built using newer compiler versions).
 this should also match your Matlab version:
 if you installed a 64-bit version of Matlab choose x64 as the platform.
 
+    ![alt text](./images/04_cmake_configure_options.png "CMake configure options")
+
 5. Now click finish in the dialogue.
 CMake will find the Matlab compiler and various libraries.
 
