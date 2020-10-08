@@ -394,6 +394,21 @@ methods
         assertExceptionThrown(@() f(), 'MATLAB:minrhs');
     end
 
+    function test_PixelData_and_raw_arrays_are_not_equal_to_tol(~)
+        raw_array = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
+        pix = PixelData(raw_array);
+        [ok, ~] = pix.equal_to_tol(raw_array);
+        assertFalse(ok);
+    end
+
+    function test_equal_to_tol_err_msg_contains_argument_classes(~)
+        raw_array = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
+        pix = PixelData(raw_array);
+        [~, mess] = pix.equal_to_tol(raw_array);
+        assertTrue(contains(mess, 'PixelData'));
+        assertTrue(contains(mess, 'double'));
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
