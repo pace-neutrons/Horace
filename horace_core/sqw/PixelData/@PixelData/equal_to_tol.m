@@ -15,3 +15,13 @@ if obj.num_pixels ~= other_pix.num_pixels
                    obj.num_pixels, other_pix.num_pixels);
     return
 end
+
+obj = obj.move_to_first_page();
+other_pix = other_pix.move_to_first_page();
+
+[ok, mess] = equal_to_tol(obj.data, other_pix.data, varargin{:});
+while ok && obj.has_more()
+    obj = obj.advance();
+    other_pix = other_pix.advance();
+    [ok, mess] = equal_to_tol(obj.data, other_pix.data, varargin{:});
+end

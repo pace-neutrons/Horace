@@ -416,6 +416,45 @@ methods
         assertFalse(pix1.equal_to_tol(pix2));
     end
 
+    function test_equal_to_tol_true_if_PixelData_objects_contain_same_data(~)
+        data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
+        pix1 = PixelData(data);
+        pix2 = PixelData(data);
+        assertTrue(pix1.equal_to_tol(pix2));
+        assertTrue(pix2.equal_to_tol(pix1));
+    end
+
+    function test_equal_to_tol_true_if_pixels_paged_and_contain_same_data(obj)
+        data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
+        npix_in_page = 10;
+        pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        pix2 = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        assertTrue(pix1.equal_to_tol(pix2));
+        assertTrue(pix2.equal_to_tol(pix1));
+    end
+
+    function test_equal_to_tol_true_if_pixels_differ_less_than_tolerance(obj)
+        data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
+        npix_in_page = 10;
+        tol = 0.1;
+        pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        pix2 = obj.get_pix_with_fake_faccess(data - (tol - 0.01), npix_in_page);
+        assertTrue(pix1.equal_to_tol(pix2, tol));
+        assertTrue(pix2.equal_to_tol(pix1, tol));
+    end
+
+    function test_equal_to_tol_false_if_pix_paged_and_contain_unequal_data(obj)
+        data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
+        data2 = data;
+        data2(11) = 0.9;
+        npix_in_page = 10;
+
+        pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        pix2 = obj.get_pix_with_fake_faccess(data2, npix_in_page);
+        assertFalse(pix1.equal_to_tol(pix2));
+        assertFalse(pix2.equal_to_tol(pix1));
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
