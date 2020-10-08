@@ -7,3 +7,11 @@ if ~(isa(other_pix, 'PixelData'))
                    class(obj), class(other_pix));
     return
 end
+
+if obj.num_pixels ~= other_pix.num_pixels
+    ok = false;
+    mess = sprintf(['PixelData objects are not equal. '...
+                    'Argument 1 has ''%i'' pixels, argument 2 has ''%i'''], ...
+                   obj.num_pixels, other_pix.num_pixels);
+    return
+end

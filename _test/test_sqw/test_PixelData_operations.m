@@ -409,6 +409,13 @@ methods
         assertTrue(contains(mess, 'double'));
     end
 
+    function test_equal_to_tol_is_false_for_objects_with_unequal_num_pixels(~)
+        data = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
+        pix1 = PixelData(data);
+        pix2 = PixelData(data(:, 1:9));
+        assertFalse(pix1.equal_to_tol(pix2));
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
