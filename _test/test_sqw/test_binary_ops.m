@@ -7,6 +7,8 @@ properties (Constant)
 end
 
 properties
+    old_config;
+
     test_sqw_file_path = '../test_sqw_file/sqw_2d_1.sqw';
     base_sqw_obj;
     sqw_obj;
@@ -18,7 +20,16 @@ methods
     function obj = test_binary_ops(varargin)
         obj = obj@TestCase('test_binary_ops');
 
+        conf = hor_config();
+        obj.old_config = conf.get_data_to_store();
+        % Tests assume all pix fit in memory by default
+        conf.pixel_page_size = 1e12;
+
         obj.base_sqw_obj = sqw(obj.test_sqw_file_path);
+    end
+
+    function delete(obj)
+        set(hor_config, obj.old_config);
     end
 
     function obj = setUp(obj)
