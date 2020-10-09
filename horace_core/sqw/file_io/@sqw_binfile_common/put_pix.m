@@ -167,6 +167,7 @@ else % write pixels directly
     npix_to_write = npix_hi-npix_lo+1;
     if npix_to_write <=block_size
         if write_all
+            input_obj.pix.move_to_first_page();
             fwrite(obj.file_id_,input_obj.pix.data,'float32');
             while input_obj.pix.has_more()
                 input_obj.pix.advance();
