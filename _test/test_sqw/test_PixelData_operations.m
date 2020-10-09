@@ -475,6 +475,17 @@ methods
         assertFalse(pix2.equal_to_tol(pix1));
     end
 
+    function test_equal_to_tol_throws_if_paged_pix_but_page_sizes_not_equal(obj)
+        data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
+        data2 = data;
+        npix_in_page = 10;
+
+        pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        pix2 = obj.get_pix_with_fake_faccess(data2, npix_in_page - 1);
+        f = @() pix1.equal_to_tol(pix2);
+        assertExceptionThrown(f, 'PIXELDATA:equal_to_tol');
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
