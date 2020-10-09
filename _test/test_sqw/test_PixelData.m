@@ -1,6 +1,7 @@
 classdef test_PixelData < TestCase
 
 properties
+    old_config;
     old_warn_state;
 
     raw_pix_data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
@@ -43,6 +44,11 @@ methods
 
         addpath(fullfile(obj.this_dir, 'utils'));
 
+        conf = hor_config();
+        obj.old_config = conf.get_data_to_store();
+        % Tests assume all pix fit in memory by default
+        conf.pixel_page_size = 1e12;
+
         % Swallow any warnings for when pixel page size set too small
         obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
 
@@ -62,6 +68,7 @@ methods
 
     function delete(obj)
         rmpath(fullfile(obj.this_dir, 'utils'));
+        set(hor_config, obj.old_config);
         warning(obj.old_warn_state);
     end
 
