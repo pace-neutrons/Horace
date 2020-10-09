@@ -8,11 +8,11 @@ if ~(isa(other_pix, 'PixelData'))
     return
 end
 
-if obj.num_pixels ~= other_pix.num_pixels
+if ~all(size(obj) == size(other_pix))
     ok = false;
-    mess = sprintf(['PixelData objects are not equal. '...
-                    'Argument 1 has ''%i'' pixels, argument 2 has ''%i'''], ...
-                   obj.num_pixels, other_pix.num_pixels);
+    mess = sprintf(['PixelData objects are not equal. ' ...
+                    'Argument 1 has size [%s] , argument 2 has size [%s]'], ...
+                   num2str(size(obj)), num2str(size(other_pix)));
     return
 end
 
