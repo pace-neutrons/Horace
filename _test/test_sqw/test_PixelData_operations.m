@@ -43,7 +43,8 @@ methods
         obj.ref_s_data = sqw_test_obj.data.s;
         obj.ref_e_data = sqw_test_obj.data.e;
 
-        page_size = floor(sqw_test_obj.data.pix.num_pixels/6)*obj.BYTES_PER_PIX;
+        num_pix_pages = 6;
+        page_size = floor(sqw_test_obj.data.pix.num_pixels/num_pix_pages)*obj.BYTES_PER_PIX;
         obj.pix_in_memory_base = sqw_test_obj.data.pix;
         obj.pix_with_pages_base = PixelData(obj.test_sqw_file_path, page_size);
 
@@ -54,7 +55,7 @@ methods
         obj.ref_e_data_2d = sqw_2d_test_object.data.e;
 
         num_pix = sqw_2d_test_object.data.pix.num_pixels;
-        page_size_2d = floor(num_pix/6)*obj.BYTES_PER_PIX;
+        page_size_2d = floor(num_pix/num_pix_pages)*obj.BYTES_PER_PIX;
         obj.pix_with_pages_2d = PixelData(obj.test_sqw_2d_file_path, ...
                                           page_size_2d);
     end
