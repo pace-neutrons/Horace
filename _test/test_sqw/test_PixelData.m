@@ -7,6 +7,7 @@ properties
     small_page_size_ = 1e6;  % 1Mb
     test_sqw_file_path = '../test_sqw_file/sqw_1d_1.sqw';
     test_sqw_file_full_path = '';
+    this_dir = fileparts(mfilename('fullpath'));
 
     pixel_data_obj;
     pix_data_from_file;
@@ -36,6 +37,8 @@ methods
     function obj = test_PixelData(~)
         obj = obj@TestCase('test_PixelData');
 
+        addpath(fullfile(obj.this_dir, 'utils'));
+
         % Swallow any warnings for when pixel page size set too small
         obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
 
@@ -54,6 +57,7 @@ methods
     end
 
     function delete(obj)
+        rmpath(fullfile(obj.this_dir, 'utils'));
         warning(obj.old_warn_state);
     end
 
@@ -1032,7 +1036,7 @@ methods
         out_pix = pix.append(pix_to_append);
 
         assertEqual(pix.num_pixels, size(data, 2));
-        pix_data = obj.concatenate_pix_pages(pix);
+        pix_data = concatenate_pixel_pages(pix);
         assertEqual(pix_data, data);
     end
 
@@ -1044,8 +1048,8 @@ methods
         out_pix = pix.append(pix_to_append);
 
         assertEqual(out_pix.num_pixels, pix.num_pixels + pix_to_append.num_pixels);
-        original_pix_data = obj.concatenate_pix_pages(pix);
-        out_pix_data = obj.concatenate_pix_pages(out_pix);
+        original_pix_data = concatenate_pixel_pages(pix);
+        out_pix_data = concatenate_pixel_pages(out_pix);
         assertEqual(out_pix_data, horzcat(original_pix_data, pix_to_append.data));
     end
 
@@ -1103,6 +1107,12 @@ methods
         assertExceptionThrown(f, 'PIXELDATA:validate_mem_alloc');
     end
 
+    function test_PIXELDATA_raised_if_mem_alloc_argument_is_not_scalar(~)
+        mem_alloc = 200e6*ones(1, 2);
+        f = @() PixelData(zeros(9, 1), mem_alloc);
+        assertExceptionThrown(f, 'PIXELDATA:validate_mem_alloc');
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
@@ -1138,20 +1148,6 @@ methods (Static)
         % Advance the pixel pages by 'niters'
         for i = 1:niters
             pix.advance();
-        end
-    end
-
-    function data = concatenate_pix_pages(pix)
-        % Combine all pages of data in the given pixel object into one array
-        % Returns the raw pixel array.
-        pix.move_to_first_page();
-        data = zeros(9, pix.num_pixels);
-        data(:, 1:pix.page_size) = pix.data(:, 1:pix.page_size);
-        start_idx = 1;
-        while pix.has_more()
-            start_idx = start_idx + pix.page_size;
-            pix.advance();
-            data(:, start_idx:(start_idx + pix.page_size - 1)) = pix.data;
         end
     end
 

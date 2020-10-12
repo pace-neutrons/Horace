@@ -4,26 +4,26 @@ set(TEST_DIRECTORIES
     "test_change_crystal"
     "test_combine"
     "test_configuration"
+    "test_converters"
     "test_dnd"
     "test_gen_sqw_for_powders"
+    "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_herbert"
+    "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_mex"
+    "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_nomex"
+    "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_parpool"
     "test_herbert_utilites"
     "test_mex_nomex"
     "test_multifit"
     "test_rebin"
-    # "test_spinw_integration"
     "test_sqw_file"
-    "test_symmetrisation"
+    "test_sqw"
     "test_sym_op"
+    "test_symmetrisation"
     "test_tobyfit"
     "test_tobyfit/test_let"
     "test_tobyfit/test_refine_crystal"
     "test_transformation"
     "test_utilities"
-    "test_sqw"
-    "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_nomex"
-    "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_mex"
-    "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_herbert"
-    "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_parpool"
 )
 # The MPI tests require that the `[herbert|horace]_on` and `worker_v2`scripts
 # be on the path for all workers when Matlab starts up: add the path of the
@@ -45,16 +45,17 @@ set(ENV_VARIABLES
 )
 
 foreach(_test_dir ${TEST_DIRECTORIES})
-    set(TEST_NAME "Matlab.${_test_dir}")
     if("${_test_dir}" STREQUAL "test_sqw")
         set(TEST_TIMEOUT_LENGTH "1500")  # 25 minutes
-    elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow")
+    elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_parpool")
         set(TEST_TIMEOUT_LENGTH "1500")  # 25 minutes
     elseif("${_test_dir}" STREQUAL "test_tobyfit")
-        set(TEST_TIMEOUT_LENGTH "3000")  # 50 minutes ?
+        set(TEST_TIMEOUT_LENGTH "3000")  # 50 minutes
     else()
         set(TEST_TIMEOUT_LENGTH "960")  # 16 minutes
     endif()
+
+    set(TEST_NAME "Matlab.${_test_dir}")
     matlab_add_unit_test(
         NAME "${TEST_NAME}"
         CUSTOM_TEST_COMMAND
