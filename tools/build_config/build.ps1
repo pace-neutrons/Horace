@@ -38,7 +38,8 @@ param (
 
   # The version of Visual Studio to build with. Other Windows compilers are
   # not supported by this script. {2015, 2017, 2019}
-  # [default: 0 (use latest installed version)]
+  # [default: use latest installed version or, if rebuilding, the version used
+  # in the previous build]
   [int][ValidateSet(2015, 2017, 2019)]
   [Alias("VS")]
   $vs_version = 0,
