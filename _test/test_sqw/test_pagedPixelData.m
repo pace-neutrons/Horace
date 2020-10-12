@@ -41,21 +41,11 @@ methods
 
         test_sqw_file = java.io.File(pwd(), obj.test_sqw_file_path);
         obj.test_sqw_file_full_path = char(test_sqw_file.getCanonicalPath());
-
-        % Construct an object from raw data
-        obj.pixel_data_obj = PixelData(obj.raw_pix_data);
-        % Construct an object from a file
-        obj.pix_data_from_file = PixelData(obj.test_sqw_file_path);
-        % Construct an object from a file accessor
-        f_accessor = sqw_formats_factory.instance().get_loader(obj.test_sqw_file_path);
-        obj.pix_data_from_faccess = PixelData(f_accessor);
-        % Construct an object from file accessor with small page size
-        obj.pix_data_small_page = PixelData(f_accessor, obj.small_page_size_);
     end
     
     function test_put_pixel_paged(obj)
         hc = hor_config();
-        hc.pixel_page_size = 100000;
+        hc.pixel_page_size = 1e5;
         sqw_obj1 = sqw(obj.test_sqw_file_full_path);
         % and we save it
         save(sqw_obj1,'../test_sqw_file/paged_deterministic_1e5.sqw');
@@ -75,20 +65,30 @@ methods
         sqw_obj3.data.filename = sqw_obj2.data.filename;
         % and we compare against the large-page-sized sqw
         assertEqual(sqw_obj2,sqw_obj3,'',5e-4);
-        assertEqual(sqw_obj1,sqw_obj3,'',5e-4);
+        addpath('.\utils');
+        concpix = concatenate_pixel_pages(sqw_obj1(1).data.pix);
+        rmpath('.\utils');
+        assertEqual(concpix,sqw_obj3.data.pix.data,'',5e-4);
     end
-
 
     function delete(obj)
         warning(obj.old_warn_state);
     end
-
-    % --- Tests for in-memory operations ---
-    function test_def(~)
-        pix_data = PixelData();
-        num_cols = 9;
-        assertEqual(pix_data.data, zeros(num_cols, 0));
+    
+    function data = concatenate_pix_pages(~,pix)
+    % Combine all pages of data in the given pixel object into one array
+    % Returns the raw pixel array.
+    pix.move_to_first_page();
+    data = zeros(9, pix.num_pixels);
+    data(:, 1:pix.page_size) = pix.data(:, 1:pix.page_size);
+    start_idx = 1;
+    while pix.has_more()
+        start_idx = start_idx + pix.page_size;
+        pix.advance();
+        data(:, start_idx:(start_idx + pix.page_size - 1)) = pix.data;
     end
+end
+
 
 end
 
