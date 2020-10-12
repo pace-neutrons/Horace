@@ -76,7 +76,8 @@ try
         end
     end
 catch
-    error(['Reference to non-existent field ' index(1).subs '.']);
+    error('MATLAB:nonExistentField', ...
+          ['Reference to non-existent field ' index(1).subs '.']);
 end
 
 [ok,message]=isvalid(this);
