@@ -2,6 +2,7 @@ classdef test_equal_to_tol < TestCase
 
 properties
     old_config;
+    old_warn_state;
 
     test_sqw_file_path = '../test_sqw_file/sqw_2d_1.sqw';
     sqw_2d;
@@ -12,6 +13,10 @@ methods
 
     function obj = test_equal_to_tol(~)
         obj = obj@TestCase('test_equal_to_tol');
+
+        % Swallow any warnings for when pixel page size set too small
+        obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
+
         hc = hor_config();
         obj.old_config = hc.get_data_to_store();
 
@@ -25,6 +30,7 @@ methods
 
     function delete(obj)
         set(hor_config, obj.old_config);
+        warning(obj.old_warn_state);
     end
 
     function test_the_same_sqw_objects_are_equal(obj)
