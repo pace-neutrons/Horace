@@ -100,7 +100,7 @@ classdef hor_config < config_base
     properties(Access=protected, Hidden=true)
         % private properties behind public interface
         mem_chunk_size_ = 10000000;
-        pixel_page_size_ = 3e9;  % default is 3GB
+        pixel_page_size_ = floor(realmax);  % we never want to page at the moment
         threads_ =1;
 
         ignore_nan_ = true;
