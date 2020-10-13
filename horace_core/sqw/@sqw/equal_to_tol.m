@@ -133,7 +133,16 @@ end
 % Perform comparison
 if (~opt.reorder && opt.fraction==1) || ~is_sqw_type(w1)
     % Test strict equality of all pixels; pass structures to get to the generic equal_to_tol
-    [ok,mess]=equal_to_tol(struct(w1),struct(w2),args{:},'name_a',name_a,'name_b',name_b);
+    tmp1 = struct(w1);
+    tmp1.data.pix = PixelData();
+    tmp2 = struct(w1);
+    tmp2.data.pix = PixelData();
+
+    [ok,mess]=equal_to_tol(tmp1,tmp2,args{:},'name_a',name_a,'name_b',name_b);
+    if ok
+        [ok, mess] = equal_to_tol(w1.data.pix, w2.data.pix, args{:}, ...
+                                  'name_a', name_a, 'name_b', name_b);
+    end
 
 else
     % Test pixels in a fraction of non-empty bins, accounting for reordering of pixels
