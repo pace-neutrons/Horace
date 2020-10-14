@@ -22,15 +22,9 @@ if lam<12
     g=exp(-lam);
     if nargin==1
         y=-1; t=1;
-        % The following loop has been corrected to a do-while loop
-        % in line with the code in Numerical Recipes and now gives
-        % the correct answer (0) for randpoisson(0).
-        while 1
+        while t>g
             y=y+1;
             t=t*rand;
-            if t<g
-                break
-            end
         end
     else
         size_arr=parse_array_size(varargin{:});
