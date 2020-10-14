@@ -3,7 +3,7 @@ classdef test_PixelData < TestCase
 properties
     old_warn_state;
 
-    raw_pix_data = rand(9, 10);
+    raw_pix_data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
     small_page_size_ = 1e6;  % 1Mb
     test_sqw_file_path = '../test_sqw_file/sqw_1d_1.sqw';
     test_sqw_file_full_path = '';
@@ -19,14 +19,15 @@ properties
 end
 
 properties (Constant)
-    NUM_BYTES_IN_VALUE = 8;
-    NUM_COLS_IN_PIX_BLOCK = 9;
+    NUM_BYTES_IN_VALUE = PixelData.DATA_POINT_SIZE;
+    NUM_COLS_IN_PIX_BLOCK = PixelData.DEFAULT_NUM_PIX_FIELDS;
+    BYTES_IN_PIXEL = test_PixelData.NUM_BYTES_IN_VALUE*test_PixelData.NUM_COLS_IN_PIX_BLOCK;
 end
 
 methods (Access = private)
 
     function pix_data = get_random_pix_data_(~, rows)
-        data = rand(9, rows);
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, rows);
         pix_data = PixelData(data);
     end
 
@@ -1180,6 +1181,25 @@ methods
         pix = PixelData();
         f = @() pix.get_abs_pix_range(1.5, 10);
         assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
+    end
+
+    function test_get_abs_pix_range_pages_pixels_if_page_size_is_exceeded(obj)
+        num_pix = 30;
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+        npix_in_page = 11;
+
+        config_cleanup = set_temporary_config_options(...
+            hor_config(), 'pixel_page_size', obj.BYTES_IN_PIXEL*npix_in_page);
+
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        pix_chunk = pix.get_abs_pix_range(2, num_pix - 1);
+
+        assertTrue(pix_chunk.page_size < pix_chunk.num_pixels);
+
+        raw_original_pix = concatenate_pixel_pages(pix);
+        raw_pix_chunk = concatenate_pixel_pages(pix_chunk);
+        assertElementsAlmostEqual(...
+            raw_pix_chunk, raw_original_pix(:, 2:num_pix - 1), 'relative', 1e-7);
     end
 
     % -- Helpers --
