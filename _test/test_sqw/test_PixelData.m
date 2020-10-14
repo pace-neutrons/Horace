@@ -1129,6 +1129,59 @@ methods
         end
     end
 
+    function test_get_abs_pix_range_retrieves_data_at_absolute_index(obj)
+        num_pix = 30;
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+        npix_in_page = 11;
+
+        start_idx = 9;
+        end_idx = 23;
+
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        pix_chunk = pix.get_abs_pix_range(start_idx, end_idx);
+
+        assertEqual(pix_chunk.data, data(:, start_idx:end_idx));
+    end
+
+    function test_get_abs_pix_range_retrieves_correct_data_at_page_boundary(obj)
+        num_pix = 30;
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+        npix_in_page = 10;
+
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        pix_chunk1 = pix.get_abs_pix_range(1, 3);
+        assertEqual(pix_chunk1.data, data(:, 1:3));
+
+        pix_chunk2 = pix.get_abs_pix_range(20, 20);
+        assertEqual(pix_chunk2.data, data(:, 20));
+
+        pix_chunk3 = pix.get_abs_pix_range(1, 1);
+        assertEqual(pix_chunk3.data, data(:, 1));
+    end
+
+    function test_get_abs_pix_range_gets_all_data_if_full_range_requested(obj)
+        num_pix = 30;
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+        npix_in_page = 11;
+
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        pix_chunk = pix.get_abs_pix_range(1, num_pix);
+
+        assertEqual(pix_chunk.data, concatenate_pixel_pages(pix));
+    end
+
+    function test_get_abs_pix_range_throws_if_end_idx_lt_start_idx(~)
+        pix = PixelData();
+        f = @() pix.get_abs_pix_range(10, 9);
+        assertExceptionThrown(f, 'PIXELDATA:get_abs_pix_range');
+    end
+
+    function test_get_abs_pix_range_throws_invalid_arg_if_args_not_int_gt_0(~)
+        pix = PixelData();
+        f = @() pix.get_abs_pix_range(1.5, 10);
+        assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
