@@ -228,6 +228,7 @@ methods
     pix_out = do_unary_op(obj, unary_op);
     pix_out = append(obj, pix);
     pix_out = mask(obj, mask_array, npix);
+    pix_out = get_abs_pix_range(obj, start_idx, end_idx);
 
     function obj = PixelData(arg, mem_alloc)
         % Construct a PixelData object from the given data. Default
