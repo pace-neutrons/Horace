@@ -31,11 +31,12 @@ function [yout,eout] = noisify(y,e,varargin)
 %   probably incomplete.
 
     % deal with optional arguments
-    fac = 0.1
+    fac = 0.1;
     is_poisson = false;
     ymax_calculated = false;
+    randfunc = @randn;
     if nargin>=2 % avoids the case where the only paramemter is y; for >=2 e will not be optional
-        [fac, is_poisson, ymax] = parse_args(y, e, fac, varargin{:});
+        [fac, is_poisson, ymax, randfunc] = parse_args(y, e, fac, varargin{:});
         ymax_calculated = true;
     end
 
@@ -51,7 +52,7 @@ function [yout,eout] = noisify(y,e,varargin)
             ymax = max(abs(y(:)))
         end
         % make noise dy and add to y for output; make error bar for noise    
-        dy=(fac*ymax)*randn(size(y));   % st. dev. of randn is sigma=1
+        dy=(fac*ymax)*randfunc(size(y));% default: randn(size(y)); % st. dev. of randn is sigma=1
         yout=y+dy;
         eout=ones(size(y))*(fac*ymax)^2;
     end
@@ -67,7 +68,7 @@ function [yout,eout] = noisify(y,e,varargin)
     end
 end
 
-function [fac, is_poisson, ymax] = parse_args(y, e, fac, varargin)
+function [fac, is_poisson, ymax, randfun] = parse_args(y, e, fac, varargin)
     USE_LOCAL_MAX = -inf;
     p = inputParser;
     addRequired(p, 'y', @isnumeric);   % y compulsory
@@ -75,7 +76,13 @@ function [fac, is_poisson, ymax] = parse_args(y, e, fac, varargin)
     numeric_or_poisson = @(x) isnumeric(x) || strcmpi(x,'poisson');
     addOptional(p, 'dist_or_factor', fac, numeric_or_poisson);  % fac (numeric) or distribution ('poisson') optional, default to fac=0.1
     addParameter(p,'maximum_value', USE_LOCAL_MAX, @isnumeric);  % ymax, as parameter 'maximum_value'. Default to internally set negative value.
-    parse(p,y,e,varargin{:});
+    check_function_handle = @(x) isa(x,'function_handle');
+    addParameter(p,'random_number_function', @randn, check_function_handle); 
+    try
+        parse(p,y,e,varargin{:});
+    catch ME
+        disp(ME);
+    end
 
     % vary if 'poisson' or fac present
     is_poisson = false;
@@ -86,6 +93,8 @@ function [fac, is_poisson, ymax] = parse_args(y, e, fac, varargin)
     else
         error('HERBERT:noisify', '3rd argument cannot be interpreted as a Gaussian factor or legal probability distribution')
     end
+    
+    randfun = p.Results.random_number_function;
     
     % pick up signal max value as either default or input
     ymax = p.Results.maximum_value;
