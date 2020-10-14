@@ -496,11 +496,19 @@ methods
         % and clear the current cache
         %  This function does nothing if pixels are not file-backed.
         %
-        if obj.is_file_backed_() && obj.page_number_ ~= 1
+        obj.move_to_page(1);
+    end
+
+    function obj = move_to_page(obj, page_number)
+        % Set the object to point at the given page number
+        %   This function does nothing if the object is not file-backed or is
+        %   already on the given page
+        %
+        if obj.is_file_backed_() && obj.page_number_ ~= page_number
             if obj.page_is_dirty_(obj.page_number_) && obj.dirty_page_edited_
                 obj.write_dirty_page_();
             end
-            obj.page_number_ = 1;
+            obj.page_number_ = page_number;
             obj.dirty_page_edited_ = false;
             obj.data_ = zeros(obj.PIXEL_BLOCK_COLS_, 0);
         end

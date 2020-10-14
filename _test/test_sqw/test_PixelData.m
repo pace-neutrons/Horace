@@ -1113,6 +1113,22 @@ methods
         assertExceptionThrown(f, 'PIXELDATA:validate_mem_alloc');
     end
 
+    function test_move_to_page_loads_given_page_into_memory(obj)
+        num_pix = 30;
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+
+        npix_in_page = 9;
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+        for pg_num = [2, 4, 3, 1]
+            pg_idx_start = (pg_num - 1)*npix_in_page + 1;
+            pg_idx_end = min(pg_num*npix_in_page, num_pix);
+
+            pix.move_to_page(pg_num);
+            assertEqual(pix.data, data(:, pg_idx_start:pg_idx_end));
+        end
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
