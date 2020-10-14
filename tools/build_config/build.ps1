@@ -40,10 +40,12 @@ param (
   [switch][Alias("h")]$help,
 
   # The version of Visual Studio to build with. Other Windows compilers are
-  # not supported by this script. {2015, 2017, 2019} [default: 2017]
+  # not supported by this script. {2015, 2017, 2019}
+  # [default: use latest installed version or, if rebuilding, the version used
+  # in the previous build]
   [int][ValidateSet(2015, 2017, 2019)]
   [Alias("VS")]
-  $vs_version = 2017,
+  $vs_version = 0,
 
   # Whether to build the Horace C++ tests and enable testing via CTest.
   # This must be "ON" in order to run tests with this script. {ON, OFF} [default: ON]
@@ -117,11 +119,12 @@ function New-Build-Directory {
 function New-CMake-Generator-Command {
   param([int]$vs_version)
   $cmake_generator = "$($VS_VERSION_MAP[$vs_version])"
-  if ($vs_version -eq '2019') {
-    $generator_cmd += "-G ""$cmake_generator"" -A x64"
-  }
-  else {
-    $generator_cmd += "-G ""$cmake_generator Win64"""
+  if ($vs_version -eq 0) {
+    $generator_cmd = ""
+  } elseif ($vs_version -ge 2019) {
+    $generator_cmd = "-G ""$cmake_generator"" -A x64"
+  } else {
+    $generator_cmd = "-G ""$cmake_generator Win64"""
   }
   return $generator_cmd
 }
