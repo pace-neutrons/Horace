@@ -1130,6 +1130,54 @@ methods
         end
     end
 
+    function test_move_to_page_throws_if_arg_exceeds_number_of_pages(obj)
+        num_pix = 30;
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+        npix_in_page = 11;
+
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+        f = @() pix.move_to_page(ceil(num_pix/npix_in_page) + 1);
+        assertExceptionThrown(f, 'PIXELDATA:move_to_page');
+    end
+
+    function test_move_to_page_throws_if_arg_less_than_1(obj)
+        num_pix = 30;
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+        npix_in_page = 11;
+
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+        f = @() pix.move_to_page(0);
+        assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
+
+        f = @() pix.move_to_page(-1);
+        assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
+    end
+
+    function test_move_to_page_throws_if_arg_is_non_scalar(obj)
+        num_pix = 30;
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+        npix_in_page = 11;
+
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+        f = @() pix.move_to_page([1, 2]);
+        assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
+    end
+
+    function test_move_to_page_throws_if_arg_is_not_an_int(obj)
+        num_pix = 30;
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+        npix_in_page = 11;
+
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+        f = @() pix.move_to_page(1.5);
+        assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
+    end
+
+
     function test_get_pixels_retrieves_data_at_absolute_index(obj)
         num_pix = 30;
         data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
