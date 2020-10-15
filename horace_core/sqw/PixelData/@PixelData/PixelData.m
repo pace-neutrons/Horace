@@ -478,7 +478,7 @@ methods
                 obj.write_dirty_page_();
             end
             try
-                obj.load_page_(obj.page_number_ + 1);
+                obj.move_to_page(obj.page_number_ + 1);
             catch ME
                 switch ME.identifier
                 case 'PIXELDATA:load_page_'
@@ -506,6 +506,11 @@ methods
         %   already on the given page
         %
         if obj.is_file_backed_() && obj.page_number_ ~= page_number
+            if page_number > obj.get_num_pages_
+                error('PIXELDATA:move_to_page', ...
+                      'Cannot advance to page %i only %i pages of data found.', ...
+                      page_number, obj.get_num_pages_);
+            end
             if obj.page_is_dirty_(obj.page_number_) && obj.dirty_page_edited_
                 obj.write_dirty_page_();
             end
