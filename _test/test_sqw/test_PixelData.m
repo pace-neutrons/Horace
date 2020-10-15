@@ -1200,6 +1200,40 @@ methods
         assertExceptionThrown(f, 'PIXELDATA:get_abs_pix_range');
     end
 
+    function test_get_abs_pix_range_throws_if_an_idx_lt_1_with_paged_pix(obj)
+        num_pix = 30;
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+        npix_in_page = 11;
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+        idx_array = -1:20;
+        f = @() pix.get_abs_pix_range(idx_array);
+        assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
+    end
+
+    function test_paged_pix_get_abs_pix_range_can_be_called_with_a_logical(obj)
+        num_pix = 30;
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+        npix_in_page = 11;
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+        logical_array = logical(randi([0, 1], [1, 10]));
+        pix_out = pix.get_abs_pix_range(logical_array);
+
+        assertEqual(pix_out.data, data(:, logical_array));
+    end
+
+    function test_in_mem_pix_get_abs_pix_range_can_be_called_with_a_logical(obj)
+        num_pix = 30;
+        pix = PixelData(rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix));
+
+        logical_array = logical(randi([0, 1], [1, 10]));
+        pix_out = pix.get_abs_pix_range(logical_array);
+
+        assertEqual(pix_out.data, pix.data(:, logical_array));
+    end
+
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);

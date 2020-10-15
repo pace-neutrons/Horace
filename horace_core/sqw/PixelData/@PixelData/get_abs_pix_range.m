@@ -20,7 +20,7 @@ try
             pix_out.data(:, global_idxs) = obj.data(:, pg_idxs);
         end
     else
-        pix_out = obj.data(:, pix_indices);
+        pix_out = PixelData(obj.data(:, pix_indices));
     end
 catch ME
     switch ME.identifier
@@ -39,10 +39,17 @@ end  % function
 % -----------------------------------------------------------------------------
 function pix_indices = parse_args(varargin)
     parser = inputParser();
-    parser.addRequired('pix_indices', @isvector);
+    parser.addRequired('pix_indices', @is_positive_int_vector_or_logical_vector);
     parser.parse(varargin{:});
 
     pix_indices = parser.Results.pix_indices;
+    if islogical(pix_indices)
+        pix_indices = find(pix_indices);
+    end
+end
+
+function is = is_positive_int_vector_or_logical_vector(vec)
+    is = isvector(vec) && (islogical(vec) || (all(vec > 0 & all(floor(vec) == vec))));
 end
 
 function [idx_in_pg, global_idx] = get_idxs_in_current_pg(obj, abs_indices)
