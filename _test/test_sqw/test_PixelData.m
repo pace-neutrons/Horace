@@ -487,7 +487,7 @@ methods
         pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
         f = @() obj.advance_pix(pix, floor(npix/npix_in_page + 1));
-        assertExceptionThrown(f, 'PIXELDATA:advance')
+        assertExceptionThrown(f, 'PIXELDATA:move_to_page')
     end
 
     function test_advance_does_nothing_if_PixelData_not_file_backed(~)
