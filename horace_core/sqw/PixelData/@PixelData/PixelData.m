@@ -228,7 +228,7 @@ methods
     pix_out = do_unary_op(obj, unary_op);
     pix_out = append(obj, pix);
     pix_out = mask(obj, mask_array, npix);
-    pix_out = get_abs_pix_range(obj, start_idx, end_idx);
+    pix_out = get_pixels(obj, pix_indices);
 
     function obj = PixelData(arg, mem_alloc)
         % Construct a PixelData object from the given data. Default
@@ -427,22 +427,6 @@ methods
         else
             data = obj.data(field_indices, pix_indices);
         end
-    end
-
-    function pixels = get_pixels(obj, pix_indices)
-        % Retrieve the pixels at the given indices in the current page, return
-        % a new PixelData object
-        %
-        % Input:
-        % ------
-        %   pix_indices     1-D array of pixel indices to retrieve
-        %
-        % Output:
-        % -------
-        %   pixels      PixelData object containing a subset of pixels
-        %
-        obj = obj.load_current_page_if_data_empty_();
-        pixels = PixelData(obj.data(:, pix_indices));
     end
 
     function has_more = has_more(obj)
