@@ -1171,35 +1171,22 @@ methods
         assertEqual(pix_chunk.data, concatenate_pixel_pages(pix));
     end
 
-    % function test_get_abs_pix_range_throws_if_end_idx_lt_start_idx(~)
-    %     pix = PixelData();
-    %     f = @() pix.get_abs_pix_range(10, 9);
-    %     assertExceptionThrown(f, 'PIXELDATA:get_abs_pix_range');
-    % end
-
-    % function test_get_abs_pix_range_throws_invalid_arg_if_args_not_int_gt_0(~)
-    %     pix = PixelData();
-    %     f = @() pix.get_abs_pix_range(1.5, 10);
-    %     assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
-    % end
-
-    function test_get_abs_pix_range_pages_pixels_if_page_size_is_exceeded(obj)
+    function test_get_abs_pix_range_reorders_output_according_to_indices(obj)
         num_pix = 30;
         data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
         npix_in_page = 11;
-
-        config_cleanup = set_temporary_config_options(...
-            hor_config(), 'pixel_page_size', obj.BYTES_IN_PIXEL*npix_in_page);
-
         pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-        pix_chunk = pix.get_abs_pix_range(2:num_pix - 1);
 
-        assertTrue(pix_chunk.page_size < pix_chunk.num_pixels);
+        rand_order = randperm(num_pix);
+        pix_out = pix.get_abs_pix_range(rand_order);
 
-        raw_original_pix = concatenate_pixel_pages(pix);
-        raw_pix_chunk = concatenate_pixel_pages(pix_chunk);
-        assertElementsAlmostEqual(...
-            raw_pix_chunk, raw_original_pix(:, 2:num_pix - 1), 'relative', 1e-7);
+        assertEqual(pix_out.data, data(:, rand_order));
+    end
+
+    function test_get_abs_pix_range_throws_invalid_arg_if_indices_not_vector(~)
+        pix = PixelData();
+        f = @() pix.get_abs_pix_range(ones(2, 2));
+        assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
     end
 
     % -- Helpers --
