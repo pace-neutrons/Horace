@@ -1,9 +1,26 @@
 function pix_out = get_abs_pix_range(obj, pix_indices)
-%% GET_ABS_PIX_RANGE get the given range of pixels by absolute index into the
-% .sqw file backing the given PixelData object
+%% GET_ABS_PIX_RANGE get the given set of pixels by absolute index.
+%
+% The function attempts to mimic the behaviour you would see when indexing into
+% an Matlab array. The difference being the returned object is a PixelData
+% object and not an array.
 %
 % This function may be useful if you want to extract data for a particular
 % image bin.
+%
+% Input:
+% ------
+%   pix_indices    A vector of positive inegers or a vector of logicals.
+%                  If a vector of integers, include the pixels with those
+%                  indices, in the given order, in the returned PixelData
+%                  object.
+%                  If a vector of logicals keep pixels where the logical array
+%                  index is 1 and remove pixels where it's 0.
+%
+% Output:
+% -------
+%   pix_out        Another PixelData object containing only the pixels
+%                  specified in the pix_indices argument.
 %
 pix_indices = parse_args(pix_indices);
 
