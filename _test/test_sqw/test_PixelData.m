@@ -1230,7 +1230,7 @@ methods
         assertEqual(pix_out.data, data(:, logical_array));
     end
 
-    function test_in_mem_pix_get_abs_pix_range_can_be_called_with_a_logical(obj)
+    function test_in_mem_pix_get_abs_pix_range_can_be_called_with_a_logical(~)
         num_pix = 30;
         pix = PixelData(rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix));
 
@@ -1240,6 +1240,17 @@ methods
         assertEqual(pix_out.data, pix.data(:, logical_array));
     end
 
+    function test_get_abs_pix_range_can_handle_repeated_indices(obj)
+        num_pix = 30;
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+        npix_in_page = 11;
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+        idx_array = cat(2, randperm(num_pix), randperm(num_pix));
+
+        pix_chunk = pix.get_abs_pix_range(idx_array);
+        assertEqual(pix_chunk.data, data(:, idx_array));
+    end
 
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
