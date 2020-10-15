@@ -1189,6 +1189,17 @@ methods
         assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
     end
 
+    function test_get_abs_pix_range_throws_if_range_out_of_bounds(obj)
+        num_pix = 30;
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+        npix_in_page = 11;
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+        idx_array = 25:35;
+        f = @() pix.get_abs_pix_range(idx_array);
+        assertExceptionThrown(f, 'PIXELDATA:get_abs_pix_range');
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);

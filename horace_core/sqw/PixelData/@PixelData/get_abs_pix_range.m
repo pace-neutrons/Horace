@@ -6,21 +6,31 @@ function pix_out = get_abs_pix_range(obj, pix_indices)
 % image bin.
 %
 pix_indices = parse_args(pix_indices);
+try
+    if obj.is_file_backed_()
+        obj.move_to_first_page();
 
-if obj.is_file_backed_()
-    obj.move_to_first_page();
+        pix_out = PixelData(numel(pix_indices));
 
-    pix_out = PixelData(numel(pix_indices));
-
-    [pg_idxs, global_idxs] = get_idxs_in_current_pg(obj, pix_indices);
-    pix_out.data(:, global_idxs) = obj.data(:, pg_idxs);
-    while obj.has_more()
-        obj.advance();
         [pg_idxs, global_idxs] = get_idxs_in_current_pg(obj, pix_indices);
         pix_out.data(:, global_idxs) = obj.data(:, pg_idxs);
+        while obj.has_more()
+            obj.advance();
+            [pg_idxs, global_idxs] = get_idxs_in_current_pg(obj, pix_indices);
+            pix_out.data(:, global_idxs) = obj.data(:, pg_idxs);
+        end
+    else
+        pix_out = obj.data(:, pix_indices);
     end
-else
-    pix_out = obj.data(:, pix_indices);
+catch ME
+    switch ME.identifier
+        case 'MATLAB:badsubscript'
+            error('PIXELDATA:get_abs_pix_range', ...
+                  'Pixel index out of range. Index must not exceed %i.', ...
+                  obj.num_pixels);
+        otherwise
+            rethrow(ME);
+    end
 end
 
 end  % function
