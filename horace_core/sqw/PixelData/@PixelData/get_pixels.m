@@ -27,7 +27,7 @@ function pix_out = get_pixels(obj, pix_indices)
 %   pix_out        Another PixelData object containing only the pixels
 %                  specified in the pix_indices argument.
 %
-pix_indices = parse_args(pix_indices);
+[pix_indices, max_idx] = parse_args(obj, pix_indices);
 
 if obj.is_file_backed_()
     first_required_page = ceil(min(pix_indices)/obj.max_page_size_);
@@ -53,7 +53,7 @@ end  % function
 
 
 % -----------------------------------------------------------------------------
-function pix_indices = parse_args(varargin)
+function [pix_indices, max_idx] = parse_args(obj, varargin)
     parser = inputParser();
     parser.addRequired('pix_indices', @is_positive_int_vector_or_logical_vector);
     parser.parse(varargin{:});
@@ -71,9 +71,11 @@ function pix_indices = parse_args(varargin)
     end
 end
 
+
 function is = is_positive_int_vector_or_logical_vector(vec)
     is = isvector(vec) && (islogical(vec) || (all(vec > 0 & all(floor(vec) == vec))));
 end
+
 
 function [idx_in_pg, global_idx] = get_idxs_in_current_pg(obj, abs_indices)
     % Extract the indices from abs_indices that lie within the bounds of the
