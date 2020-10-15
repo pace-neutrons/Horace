@@ -1130,7 +1130,7 @@ methods
         end
     end
 
-    function test_get_abs_pix_range_retrieves_data_at_absolute_index(obj)
+    function test_get_pixels_retrieves_data_at_absolute_index(obj)
         num_pix = 30;
         data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
         npix_in_page = 11;
@@ -1139,108 +1139,108 @@ methods
         end_idx = 23;
 
         pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-        pix_chunk = pix.get_abs_pix_range(start_idx:end_idx);
+        pix_chunk = pix.get_pixels(start_idx:end_idx);
 
         assertEqual(pix_chunk.data, data(:, start_idx:end_idx));
     end
 
-    function test_get_abs_pix_range_retrieves_correct_data_at_page_boundary(obj)
+    function test_get_pixels_retrieves_correct_data_at_page_boundary(obj)
         num_pix = 30;
         data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
         npix_in_page = 10;
 
         pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-        pix_chunk1 = pix.get_abs_pix_range(1:3);
+        pix_chunk1 = pix.get_pixels(1:3);
         assertEqual(pix_chunk1.data, data(:, 1:3));
 
-        pix_chunk2 = pix.get_abs_pix_range(20);
+        pix_chunk2 = pix.get_pixels(20);
         assertEqual(pix_chunk2.data, data(:, 20));
 
-        pix_chunk3 = pix.get_abs_pix_range(1:1);
+        pix_chunk3 = pix.get_pixels(1:1);
         assertEqual(pix_chunk3.data, data(:, 1));
     end
 
-    function test_get_abs_pix_range_gets_all_data_if_full_range_requested(obj)
+    function test_get_pixels_gets_all_data_if_full_range_requested(obj)
         num_pix = 30;
         data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
         npix_in_page = 11;
 
         pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-        pix_chunk = pix.get_abs_pix_range(1:num_pix);
+        pix_chunk = pix.get_pixels(1:num_pix);
 
         assertEqual(pix_chunk.data, concatenate_pixel_pages(pix));
     end
 
-    function test_get_abs_pix_range_reorders_output_according_to_indices(obj)
+    function test_get_pixels_reorders_output_according_to_indices(obj)
         num_pix = 30;
         data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
         npix_in_page = 11;
         pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
         rand_order = randperm(num_pix);
-        pix_out = pix.get_abs_pix_range(rand_order);
+        pix_out = pix.get_pixels(rand_order);
 
         assertEqual(pix_out.data, data(:, rand_order));
     end
 
-    function test_get_abs_pix_range_throws_invalid_arg_if_indices_not_vector(~)
+    function test_get_pixels_throws_invalid_arg_if_indices_not_vector(~)
         pix = PixelData();
-        f = @() pix.get_abs_pix_range(ones(2, 2));
+        f = @() pix.get_pixels(ones(2, 2));
         assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
     end
 
-    function test_get_abs_pix_range_throws_if_range_out_of_bounds(obj)
+    function test_get_pixels_throws_if_range_out_of_bounds(obj)
         num_pix = 30;
         data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
         npix_in_page = 11;
         pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
         idx_array = 25:35;
-        f = @() pix.get_abs_pix_range(idx_array);
-        assertExceptionThrown(f, 'PIXELDATA:get_abs_pix_range');
+        f = @() pix.get_pixels(idx_array);
+        assertExceptionThrown(f, 'PIXELDATA:get_pixels');
     end
 
-    function test_get_abs_pix_range_throws_if_an_idx_lt_1_with_paged_pix(obj)
+    function test_get_pixels_throws_if_an_idx_lt_1_with_paged_pix(obj)
         num_pix = 30;
         data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
         npix_in_page = 11;
         pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
         idx_array = -1:20;
-        f = @() pix.get_abs_pix_range(idx_array);
+        f = @() pix.get_pixels(idx_array);
         assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
     end
 
-    function test_get_abs_pix_range_throws_if_indices_not_positive_int(~)
+    function test_get_pixels_throws_if_indices_not_positive_int(~)
         pix = PixelData();
         idx_array = 1:0.1:5;
-        f = @() pix.get_abs_pix_range(idx_array);
+        f = @() pix.get_pixels(idx_array);
         assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
     end
 
-    function test_paged_pix_get_abs_pix_range_can_be_called_with_a_logical(obj)
+    function test_paged_pix_get_pixels_can_be_called_with_a_logical(obj)
         num_pix = 30;
         data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
         npix_in_page = 11;
         pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
         logical_array = logical(randi([0, 1], [1, 10]));
-        pix_out = pix.get_abs_pix_range(logical_array);
+        pix_out = pix.get_pixels(logical_array);
 
         assertEqual(pix_out.data, data(:, logical_array));
     end
 
-    function test_in_mem_pix_get_abs_pix_range_can_be_called_with_a_logical(~)
+    function test_in_mem_pix_get_pixels_can_be_called_with_a_logical(~)
         num_pix = 30;
         pix = PixelData(rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix));
 
         logical_array = logical(randi([0, 1], [1, 10]));
-        pix_out = pix.get_abs_pix_range(logical_array);
+        pix_out = pix.get_pixels(logical_array);
 
         assertEqual(pix_out.data, pix.data(:, logical_array));
     end
 
-    function test_get_abs_pix_range_can_handle_repeated_indices(obj)
+    function test_get_pixels_can_handle_repeated_indices(obj)
         num_pix = 30;
         data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
         npix_in_page = 11;
@@ -1248,7 +1248,7 @@ methods
 
         idx_array = cat(2, randperm(num_pix), randperm(num_pix));
 
-        pix_chunk = pix.get_abs_pix_range(idx_array);
+        pix_chunk = pix.get_pixels(idx_array);
         assertEqual(pix_chunk.data, data(:, idx_array));
     end
 

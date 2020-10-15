@@ -1,5 +1,10 @@
-function pix_out = get_abs_pix_range(obj, pix_indices)
-%% GET_ABS_PIX_RANGE get the given set of pixels by absolute index.
+function pix_out = get_pixels(obj, pix_indices)
+% GET_PIXELS Retrieve the pixels at the given indices in the current page, return
+% a new PixelData object
+%
+%  >> pix_out = pix.get_pixels(1:100)  % retrieve pixels at index 1-100
+%
+%  >> pix_out = pix.get_pixels([1, 0, 1])
 %
 % The function attempts to mimic the behaviour you would see when indexing into
 % an Matlab array. The difference being the returned object is a PixelData
@@ -26,7 +31,7 @@ pix_indices = parse_args(pix_indices);
 
 max_idx = max(pix_indices);
 if max_idx > obj.num_pixels
-    error('PIXELDATA:get_abs_pix_range', ...
+    error('PIXELDATA:get_pixels', ...
           'Pixel index out of range. Index must not exceed %i.', ...
           obj.num_pixels);
 end
