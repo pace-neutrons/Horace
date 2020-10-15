@@ -29,13 +29,6 @@ function pix_out = get_pixels(obj, pix_indices)
 %
 pix_indices = parse_args(pix_indices);
 
-max_idx = max(pix_indices);
-if max_idx > obj.num_pixels
-    error('PIXELDATA:get_pixels', ...
-          'Pixel index out of range. Index must not exceed %i.', ...
-          obj.num_pixels);
-end
-
 if obj.is_file_backed_()
     first_required_page = ceil(min(pix_indices)/obj.max_page_size_);
     obj.move_to_page(first_required_page);
@@ -68,6 +61,13 @@ function pix_indices = parse_args(varargin)
     pix_indices = parser.Results.pix_indices;
     if islogical(pix_indices)
         pix_indices = find(pix_indices);
+    end
+
+    max_idx = max(pix_indices);
+    if max_idx > obj.num_pixels
+        error('PIXELDATA:get_pixels', ...
+            'Pixel index out of range. Index must not exceed %i.', ...
+            obj.num_pixels);
     end
 end
 
