@@ -60,6 +60,15 @@ function [pix_indices, max_idx] = parse_args(obj, varargin)
 
     pix_indices = parser.Results.pix_indices;
     if islogical(pix_indices)
+        if numel(pix_indices) > obj.num_pixels
+            if any(pix_indices(obj.num_pixels + 1:end))
+                error('PIXELDATA:get_pixels', ...
+                      ['The logical indices contain a true value outside of ' ...
+                       'the array bounds.']);
+            else
+                pix_indices = pix_indices(1:obj.num_pixels);
+            end
+        end
         pix_indices = find(pix_indices);
     end
 
