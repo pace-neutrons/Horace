@@ -1259,6 +1259,12 @@ methods
         assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
     end
 
+    function test_get_pixels_throws_if_an_idx_lt_1_with_in_memory_pix(obj)
+        in_mem_pix = PixelData(5);
+        f = @() in_mem_pix.get_pixels(-1:3);
+        assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
+    end
+
     function test_get_pixels_throws_if_indices_not_positive_int(~)
         pix = PixelData();
         idx_array = 1:0.1:5;
