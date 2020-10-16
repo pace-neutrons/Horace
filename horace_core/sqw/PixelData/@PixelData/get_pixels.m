@@ -2,12 +2,12 @@ function pix_out = get_pixels(obj, abs_pix_indices)
 % GET_PIXELS Retrieve the pixels at the given indices in the current page, return
 % a new PixelData object
 %
-%  >> pix_out = pix.get_pixels(1:100)  % retrieve pixels at index 1-100
+%  >> pix_out = pix.get_pixels(1:100)  % retrieve pixels at indices 1 to 100
 %
-%  >> pix_out = pix.get_pixels([1, 0, 1])
+%  >> pix_out = pix.get_pixels([1, 0, 1])  % retrieve pixels at indices 1 and 3
 %
 % The function attempts to mimic the behaviour you would see when indexing into
-% an Matlab array. The difference being the returned object is a PixelData
+% a Matlab array. The difference being the returned object is a PixelData
 % object and not an array.
 %
 % This function may be useful if you want to extract data for a particular
@@ -26,6 +26,8 @@ function pix_out = get_pixels(obj, abs_pix_indices)
 % -------
 %   pix_out        Another PixelData object containing only the pixels
 %                  specified in the abs_pix_indices argument.
+%                  This PixelData object will hold all its pixels in memory and
+%                  ignore the pixel_page_size config option.
 %
 [abs_pix_indices, max_idx] = parse_args(obj, abs_pix_indices);
 
