@@ -46,6 +46,17 @@ these APIs distinguish between the two types of indexing.
     pixels.get_data(100:200, {'signal', 'variance'})
     ```
 
+    At time of writing, there are no plans to implement similar `set_`
+    methods with absolute indexing.
+    If there becomes a requirement for setters with absolute indexing,
+    these should follow a similar syntax.
+    For example, the following should set signal and variance from absolute
+    index 100 to 200, to zero:
+
+    ```matlab
+    set_data({'signal', 'variance'}, 100:200, zeros(2, 101));
+    ```
+
 2. **Perform relative indexing using attribute:**
 
     Obtaining pixel data using an attribute will return just the data for the
@@ -56,6 +67,15 @@ these APIs distinguish between the two types of indexing.
 
     ```matlab
     pixels.signal(10:20)
+    ```
+
+    Setting of pixel data will be possible using attributes and relative
+    indexing.
+    For example the following will set pixels 1 to 20 on the current page to
+    zero:
+
+    ```matlab
+    pixels.signal(1:20) = 0
     ```
 
 ## Consequences
