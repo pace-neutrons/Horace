@@ -1284,6 +1284,30 @@ methods
         assertEqual(pix_out.data, data(:, logical_array));
     end
 
+    function test_get_pixels_throws_if_logical_1_index_out_of_range(obj)
+        num_pix = 30;
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+        npix_in_page = 11;
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+        logical_array = cat(2, logical(randi([0, 1], [1, num_pix])), true);
+        f = @() pix.get_pixels(logical_array);
+
+        assertExceptionThrown(f, 'PIXELDATA:get_pixels');
+    end
+
+    function test_get_pixels_ignores_out_of_range_logical_0_indices(obj)
+        num_pix = 30;
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+        npix_in_page = 11;
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+        logical_array = cat(2, logical(randi([0, 1], [1, num_pix])), false);
+        pix_out = pix.get_pixels(logical_array);
+
+        assertEqual(pix_out.data, data(:, logical_array));
+    end
+
     function test_in_mem_pix_get_pixels_can_be_called_with_a_logical(~)
         num_pix = 30;
         pix = PixelData(rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix));
