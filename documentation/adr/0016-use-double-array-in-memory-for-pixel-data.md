@@ -25,7 +25,8 @@ Long chains of function calls are executed within some algorithms (e.g. TobyFit)
 
 Significant performance improvements can be seen in some algorithms when performed on `single` precision rather than `double` data..
 
-Pixel binning is performed in both the MATLAB and C++ code. These routines do not create a consistent binning resulting from rounding errors in calculated data.
+Pixel binning can be performed in both MATLAB and C++ code.
+The two routines can result in inconsistent binning due to rounding errors.
 
 ## Decision
 
