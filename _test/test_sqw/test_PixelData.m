@@ -1330,7 +1330,7 @@ methods
         assertEqual(pix_chunk.data, data(:, idx_array));
     end
 
-    function test_pg_size_is_correct_after_advance(obj)
+    function test_pg_size_reports_size_of_partially_filled_pg_after_advance(obj)
         num_pix = 30;
         data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
         npix_in_page = 11;
