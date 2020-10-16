@@ -1,4 +1,4 @@
-function pix_out = get_pixels(obj, pix_indices)
+function pix_out = get_pixels(obj, abs_pix_indices)
 % GET_PIXELS Retrieve the pixels at the given indices in the current page, return
 % a new PixelData object
 %
@@ -15,64 +15,64 @@ function pix_out = get_pixels(obj, pix_indices)
 %
 % Input:
 % ------
-%   pix_indices    A vector of positive inegers or a vector of logicals.
-%                  If a vector of integers, include the pixels with those
-%                  indices, in the given order, in the returned PixelData
-%                  object.
-%                  If a vector of logicals keep pixels where the logical array
-%                  index is 1 and remove pixels where it's 0.
+%   abs_pix_indices  A vector of positive inegers or a vector of logicals.
+%                    If a vector of integers, include the pixels with those
+%                    indices, in the given order, in the returned PixelData
+%                    object.
+%                    If a vector of logicals, keep pixels where the logical
+%                    array index is 1 and remove pixels where it's 0.
 %
 % Output:
 % -------
 %   pix_out        Another PixelData object containing only the pixels
-%                  specified in the pix_indices argument.
+%                  specified in the abs_pix_indices argument.
 %
-[pix_indices, max_idx] = parse_args(obj, pix_indices);
+[abs_pix_indices, max_idx] = parse_args(obj, abs_pix_indices);
 
 if obj.is_file_backed_()
-    first_required_page = ceil(min(pix_indices)/obj.max_page_size_);
+    first_required_page = ceil(min(abs_pix_indices)/obj.max_page_size_);
     obj.move_to_page(first_required_page);
 
-    pix_out = PixelData(numel(pix_indices));
+    pix_out = PixelData(numel(abs_pix_indices));
 
-    [pg_idxs, global_idxs] = get_idxs_in_current_pg(obj, pix_indices);
+    [pg_idxs, global_idxs] = get_idxs_in_current_pg(obj, abs_pix_indices);
     pix_out.data(:, global_idxs) = obj.data(:, pg_idxs);
     while obj.has_more()
         obj.advance();
         if (obj.page_number_ - 1)*obj.max_page_size_ + 1 > max_idx
             break;
         end
-        [pg_idxs, global_idxs] = get_idxs_in_current_pg(obj, pix_indices);
+        [pg_idxs, global_idxs] = get_idxs_in_current_pg(obj, abs_pix_indices);
         pix_out.data(:, global_idxs) = obj.data(:, pg_idxs);
     end
 else
-    pix_out = PixelData(obj.data(:, pix_indices));
+    pix_out = PixelData(obj.data(:, abs_pix_indices));
 end
 
 end  % function
 
 
 % -----------------------------------------------------------------------------
-function [pix_indices, max_idx] = parse_args(obj, varargin)
+function [abs_pix_indices, max_idx] = parse_args(obj, varargin)
     parser = inputParser();
-    parser.addRequired('pix_indices', @is_positive_int_vector_or_logical_vector);
+    parser.addRequired('abs_pix_indices', @is_positive_int_vector_or_logical_vector);
     parser.parse(varargin{:});
 
-    pix_indices = parser.Results.pix_indices;
-    if islogical(pix_indices)
-        if numel(pix_indices) > obj.num_pixels
-            if any(pix_indices(obj.num_pixels + 1:end))
+    abs_pix_indices = parser.Results.abs_pix_indices;
+    if islogical(abs_pix_indices)
+        if numel(abs_pix_indices) > obj.num_pixels
+            if any(abs_pix_indices(obj.num_pixels + 1:end))
                 error('PIXELDATA:get_pixels', ...
                       ['The logical indices contain a true value outside of ' ...
                        'the array bounds.']);
             else
-                pix_indices = pix_indices(1:obj.num_pixels);
+                abs_pix_indices = abs_pix_indices(1:obj.num_pixels);
             end
         end
-        pix_indices = find(pix_indices);
+        abs_pix_indices = find(abs_pix_indices);
     end
 
-    max_idx = max(pix_indices);
+    max_idx = max(abs_pix_indices);
     if max_idx > obj.num_pixels
         error('PIXELDATA:get_pixels', ...
             'Pixel index out of range. Index must not exceed %i.', ...
