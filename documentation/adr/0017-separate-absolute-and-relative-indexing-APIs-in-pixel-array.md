@@ -43,7 +43,7 @@ these APIs distinguish between the two types of indexing.
     Similarly, to retrieve a range of data from particular pixel array fields:
 
     ```matlab
-    pixels.get_data(100:200, {'signal', 'variance'})
+    pixels.get_data({'signal', 'variance'}, 100:200)
     ```
 
     At time of writing, there are no plans to implement similar `set_`
