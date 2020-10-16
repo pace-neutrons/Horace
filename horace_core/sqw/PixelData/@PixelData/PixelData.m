@@ -228,7 +228,7 @@ methods
     pix_out = do_unary_op(obj, unary_op);
     pix_out = append(obj, pix);
     pix_out = mask(obj, mask_array, npix);
-    pix_out = get_pixels(obj, pix_indices);
+    pix_out = get_pixels(obj, abs_pix_indices);
     obj = move_to_page(obj, page_number);
 
     function obj = PixelData(arg, mem_alloc)
