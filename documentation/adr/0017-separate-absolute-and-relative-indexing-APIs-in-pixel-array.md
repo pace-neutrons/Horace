@@ -87,4 +87,5 @@ This should be done through documentation.
 - When using attributes (e.g. `.signal`),
 it should usually be accompanied by a `while has_more()` loop,
 looping through pages.
-The `get_` methods however, will usually not require a `while` loop.
+At the point of calling a `get_` method,
+a `while has_more()` loop will usually not be necessary.
