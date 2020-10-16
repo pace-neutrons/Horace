@@ -13,7 +13,8 @@ Accepted
 
 Pixel data will be stored on disk as single precision (float32) data.
 
-MATLAB's default numeric data type is `double` (float64). Mixing `single` and `double` data in calculations typically produces as `single` result.
+MATLAB's default numeric data type is `double` (float64).
+Mixing `single` and `double` data in calculations produces a `single` result.
 
 Options are to:
 
