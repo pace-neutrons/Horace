@@ -1300,6 +1300,22 @@ methods
         assertEqual(pix_chunk.data, data(:, idx_array));
     end
 
+    function test_pg_size_is_correct_after_advance(obj)
+        num_pix = 30;
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+        npix_in_page = 11;
+        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+        assertEqual(pix.page_size, npix_in_page);
+
+        pix.advance();
+        assertEqual(pix.page_size, npix_in_page);
+
+        pix.advance();
+        num_pix_in_final_pg = 8;
+        assertEqual(pix.page_size, num_pix_in_final_pg);
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);

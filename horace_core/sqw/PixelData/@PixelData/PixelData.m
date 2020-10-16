@@ -667,7 +667,14 @@ methods
         if obj.num_pixels > 0 && obj.cache_is_empty_()
             % No pixels currently loaded, show the number that will be loaded
             % when a getter is called
-            page_size = min(obj.get_max_page_size_(), obj.num_pixels);
+            base_pg_size = obj.max_page_size_;
+            if base_pg_size*obj.page_number_ > obj.num_pixels
+                % In this case we're on the final page and there are fewer
+                % lefotver pixels than would be in a full-size page
+                page_size = obj.num_pixels - base_pg_size*(obj.page_number_ - 1);
+            else
+                page_size = min(base_pg_size, obj.num_pixels);
+            end
         else
             page_size = size(obj.data_, 2);
         end
