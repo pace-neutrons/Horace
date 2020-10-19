@@ -27,7 +27,7 @@ function pix_out = get_pixels(obj, abs_pix_indices)
 %   pix_out        Another PixelData object containing only the pixels
 %                  specified in the abs_pix_indices argument.
 %
-[abs_pix_indices, max_idx] = parse_args(obj, abs_pix_indices);
+abs_pix_indices = parse_args(obj, abs_pix_indices);
 
 if obj.is_file_backed_()
     first_required_page = ceil(min(abs_pix_indices)/obj.max_page_size_);
@@ -39,9 +39,6 @@ if obj.is_file_backed_()
     pix_out.data(:, global_idxs) = obj.data(:, pg_idxs);
     while obj.has_more()
         obj.advance();
-        if (obj.page_number_ - 1)*obj.max_page_size_ + 1 > max_idx
-            break;
-        end
         [pg_idxs, global_idxs] = get_idxs_in_current_pg(obj, abs_pix_indices);
         pix_out.data(:, global_idxs) = obj.data(:, pg_idxs);
     end
@@ -53,7 +50,7 @@ end  % function
 
 
 % -----------------------------------------------------------------------------
-function [abs_pix_indices, max_idx] = parse_args(obj, varargin)
+function abs_pix_indices = parse_args(obj, varargin)
     parser = inputParser();
     parser.addRequired('abs_pix_indices', @is_positive_int_vector_or_logical_vector);
     parser.parse(varargin{:});
