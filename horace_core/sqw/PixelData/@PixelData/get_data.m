@@ -1,4 +1,4 @@
-function data = get_data(obj, pix_fields, pix_indices)
+function data = get_data(obj, pix_fields, abs_pix_indices)
 % Retrive data for a field, or fields, for the given pixel indices in
 % the current page. If no pixel indices are given, all pixels in the
 % current page are returned.
@@ -16,8 +16,8 @@ function data = get_data(obj, pix_fields, pix_indices)
 %
 % Input:
 % ------
-%   pix_fields   The name of a field, or a cell array of field names
-%   pix_indices  The pixel indices to retrieve, if not given, get full range
+%   pix_fields       The name of a field, or a cell array of field names
+%   abs_pix_indices  The pixel indices to retrieve, if not given, get full range
 %
 if ~isa(pix_fields, 'cell')
     pix_fields = {pix_fields};
@@ -39,7 +39,7 @@ if nargin < 3
     % No pixel indices given, return them all
     data = obj.data(field_indices, :);
 else
-    data = obj.data(field_indices, pix_indices);
+    data = obj.data(field_indices, abs_pix_indices);
 end
 
 end  % function
