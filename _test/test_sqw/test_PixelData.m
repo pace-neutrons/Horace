@@ -472,14 +472,6 @@ methods
         obj.do_pixel_data_loop_with_f(f, data);
     end
 
-    function test_advance_loads_next_page_of_data_into_memory_for_get_data(obj)
-        data = rand(9, 30);
-        f = @(pix, iter) assertEqual(pix.get_data('signal'), ...
-                data(8, (iter*11 + 1):((iter*11 + 1) + pix.page_size - 1)));
-
-        obj.do_pixel_data_loop_with_f(f, data);
-    end
-
     function test_advance_raises_PIXELDATA_if_at_end_of_data(obj)
         npix = 30;
         data = rand(9, npix);
