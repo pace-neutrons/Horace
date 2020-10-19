@@ -223,14 +223,14 @@ end
 methods
 
     % --- Pixel operations ---
+    pix_out = append(obj, pix);
     [mean_signal, mean_variance] = compute_bin_data(obj, npix)
     pix_out = do_binary_op(obj, operand, binary_op, varargin);
     pix_out = do_unary_op(obj, unary_op);
-    pix_out = append(obj, pix);
-    pix_out = mask(obj, mask_array, npix);
-    pix_out = get_pixels(obj, abs_pix_indices);
-    obj = move_to_page(obj, page_number);
     pix_out = get_data(obj, fields, abs_indices);
+    pix_out = get_pixels(obj, abs_pix_indices);
+    pix_out = mask(obj, mask_array, npix);
+    obj = move_to_page(obj, page_number);
 
     function obj = PixelData(arg, mem_alloc)
         % Construct a PixelData object from the given data. Default
