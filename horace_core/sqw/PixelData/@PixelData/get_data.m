@@ -19,7 +19,7 @@ function data_out = get_data(obj, pix_fields, varargin)
 %   pix_fields       The name of a field, or a cell array of field names
 %   abs_pix_indices  The pixel indices to retrieve, if not given, get full range
 %
-[pix_fields, abs_pix_indices, max_idx] = parse_args(obj, pix_fields, varargin{:});
+[pix_fields, abs_pix_indices] = parse_args(obj, pix_fields, varargin{:});
 field_indices = cell2mat(obj.FIELD_INDEX_MAP_.values(pix_fields));
 
 if obj.is_file_backed_()
@@ -27,25 +27,18 @@ if obj.is_file_backed_()
     base_pg_size = obj.max_page_size_;
     if abs_pix_indices == -1
         first_required_page = 1;
-    else
-        first_required_page = ceil(min(abs_pix_indices)/base_pg_size);
-    end
-    obj.move_to_page(first_required_page);
-
-    if abs_pix_indices == -1
-        max_idx = inf;
         data_out = zeros(numel(pix_fields), obj.num_pixels);
     else
+        first_required_page = ceil(min(abs_pix_indices)/base_pg_size);
         data_out = zeros(numel(pix_fields), numel(abs_pix_indices));
     end
+
+    obj.move_to_page(first_required_page);
 
     data_out = assign_page_values(...
             obj, data_out, abs_pix_indices, field_indices, base_pg_size);
     while obj.has_more()
         obj.advance();
-        if (obj.page_number_ - 1)*base_pg_size + 1 > max_idx
-            break;
-        end
         data_out = assign_page_values(...
                 obj, data_out, abs_pix_indices, field_indices, base_pg_size);
     end
@@ -65,7 +58,7 @@ end  % function
 
 
 % -----------------------------------------------------------------------------
-function [pix_fields, abs_pix_indices, max_idx] = parse_args(obj, varargin)
+function [pix_fields, abs_pix_indices] = parse_args(obj, varargin)
     parser = inputParser();
     parser.addRequired('pix_fields', @(x) ischar(x) || iscell(x));
     parser.addOptional('abs_pix_indices', -1, @is_positive_int_vector_or_logical_vector);
@@ -76,24 +69,26 @@ function [pix_fields, abs_pix_indices, max_idx] = parse_args(obj, varargin)
 
     pix_fields = validate_pix_fields(obj, pix_fields);
 
-    if islogical(abs_pix_indices)
-        if numel(abs_pix_indices) > obj.num_pixels
-            if any(abs_pix_indices(obj.num_pixels + 1:end))
-                error('PIXELDATA:get_data', ...
-                      ['The logical indices contain a true value outside of ' ...
-                       'the array bounds.']);
-            else
-                abs_pix_indices = abs_pix_indices(1:obj.num_pixels);
+    if abs_pix_indices ~= -1
+        if islogical(abs_pix_indices)
+            if numel(abs_pix_indices) > obj.num_pixels
+                if any(abs_pix_indices(obj.num_pixels + 1:end))
+                    error('PIXELDATA:get_data', ...
+                          ['The logical indices contain a true value ' ...
+                           'outside of the array bounds.']);
+                else
+                    abs_pix_indices = abs_pix_indices(1:obj.num_pixels);
+                end
             end
+            abs_pix_indices = find(abs_pix_indices);
         end
-        abs_pix_indices = find(abs_pix_indices);
-    end
 
-    max_idx = max(abs_pix_indices);
-    if max_idx > obj.num_pixels
-        error('PIXELDATA:get_data', ...
-            'Pixel index out of range. Index must not exceed %i.', ...
-            obj.num_pixels);
+        max_idx = max(abs_pix_indices);
+        if max_idx > obj.num_pixels
+            error('PIXELDATA:get_data', ...
+                  'Pixel index out of range. Index must not exceed %i.', ...
+                  obj.num_pixels);
+        end
     end
 end
 
