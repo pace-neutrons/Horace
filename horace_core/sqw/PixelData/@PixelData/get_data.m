@@ -58,6 +58,20 @@ end  % function
 
 
 % -----------------------------------------------------------------------------
+function data_out = assign_page_values(...
+        obj, data_out, abs_pix_indices, field_indices, base_pg_size ...
+    )
+    start_idx = (obj.page_number_ - 1)*base_pg_size + 1;
+    end_idx = min(obj.page_number_*base_pg_size, obj.num_pixels);
+    if abs_pix_indices == -1
+        data_out(:, start_idx:end_idx) = obj.data(field_indices, 1:end);
+    else
+        [pg_idxs, global_idxs] = get_idxs_in_current_page_(obj, abs_pix_indices);
+        data_out(:, global_idxs) = obj.data(field_indices, pg_idxs);
+    end
+end
+
+
 function [pix_fields, abs_pix_indices] = parse_args(obj, varargin)
     parser = inputParser();
     parser.addRequired('pix_fields', @(x) ischar(x) || iscell(x));
@@ -93,6 +107,11 @@ function [pix_fields, abs_pix_indices] = parse_args(obj, varargin)
 end
 
 
+function is = is_positive_int_vector_or_logical_vector(vec)
+    is = isvector(vec) && (islogical(vec) || (all(vec > 0 & all(floor(vec) == vec))));
+end
+
+
 function pix_fields = validate_pix_fields(obj, pix_fields)
     if ~isa(pix_fields, 'cell')
         pix_fields = {pix_fields};
@@ -107,24 +126,5 @@ function pix_fields = validate_pix_fields(obj, pix_fields)
                    'Valid fields are: [''%s'']'], ...
                   strip(evalc('disp(field)')), strjoin(valid_fields, ''', '''));
         end
-    end
-end
-
-
-function is = is_positive_int_vector_or_logical_vector(vec)
-    is = isvector(vec) && (islogical(vec) || (all(vec > 0 & all(floor(vec) == vec))));
-end
-
-
-function data_out = assign_page_values(...
-        obj, data_out, abs_pix_indices, field_indices, base_pg_size ...
-    )
-    start_idx = (obj.page_number_ - 1)*base_pg_size + 1;
-    end_idx = min(obj.page_number_*base_pg_size, obj.num_pixels);
-    if abs_pix_indices == -1
-        data_out(:, start_idx:end_idx) = obj.data(field_indices, 1:end);
-    else
-        [pg_idxs, global_idxs] = get_idxs_in_current_page_(obj, abs_pix_indices);
-        data_out(:, global_idxs) = obj.data(field_indices, pg_idxs);
     end
 end
