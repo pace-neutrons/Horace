@@ -1,4 +1,4 @@
-function data = get_data(obj, fields, pix_indices)
+function data = get_data(obj, pix_fields, pix_indices)
 % Retrive data for a field, or fields, for the given pixel indices in
 % the current page. If no pixel indices are given, all pixels in the
 % current page are returned.
@@ -16,15 +16,15 @@ function data = get_data(obj, fields, pix_indices)
 %
 % Input:
 % ------
-%   fields      The name of a field, or a cell array of field names
-%   pix_indices The pixel indices to retrieve, if not given, get full range
+%   pix_fields   The name of a field, or a cell array of field names
+%   pix_indices  The pixel indices to retrieve, if not given, get full range
 %
-if ~isa(fields, 'cell')
-    fields = {fields};
+if ~isa(pix_fields, 'cell')
+    pix_fields = {pix_fields};
 end
 obj = obj.load_current_page_if_data_empty_();
 try
-    field_indices = cell2mat(obj.FIELD_INDEX_MAP_.values(fields));
+    field_indices = cell2mat(obj.FIELD_INDEX_MAP_.values(pix_fields));
 catch ME
     switch ME.identifier
     case 'MATLAB:Containers:Map:NoKey'
@@ -41,3 +41,5 @@ if nargin < 3
 else
     data = obj.data(field_indices, pix_indices);
 end
+
+end  % function
