@@ -116,19 +116,6 @@ function is = is_positive_int_vector_or_logical_vector(vec)
 end
 
 
-function [idx_in_pg, global_idx] = get_idxs_in_current_pg(obj, abs_indices)
-    % Extract the indices from abs_indices that lie within the bounds of the
-    % currently cached page of data.
-    % Get the corresponding absolute indices as well.
-    %
-    pg_start_idx = (obj.page_number_ - 1)*obj.max_page_size_ + 1;
-    pg_end_idx = pg_start_idx + obj.max_page_size_ - 1;
-
-    global_idx = find((abs_indices >= pg_start_idx) & (abs_indices <= pg_end_idx));
-    idx_in_pg = abs_indices(global_idx) - (obj.page_number_ - 1)*obj.max_page_size_;
-end
-
-
 function data_out = assign_page_values(...
         obj, data_out, abs_pix_indices, field_indices, base_pg_size ...
     )
@@ -137,7 +124,7 @@ function data_out = assign_page_values(...
     if abs_pix_indices == -1
         data_out(:, start_idx:end_idx) = obj.data(field_indices, 1:end);
     else
-        [pg_idxs, global_idxs] = get_idxs_in_current_pg(obj, abs_pix_indices);
+        [pg_idxs, global_idxs] = get_idxs_in_current_page_(obj, abs_pix_indices);
         data_out(:, global_idxs) = obj.data(field_indices, pg_idxs);
     end
 end
