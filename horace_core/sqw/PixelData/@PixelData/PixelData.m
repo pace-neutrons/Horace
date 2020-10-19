@@ -228,6 +228,8 @@ methods
     pix_out = do_unary_op(obj, unary_op);
     pix_out = append(obj, pix);
     pix_out = mask(obj, mask_array, npix);
+    pix_out = get_pixels(obj, abs_pix_indices);
+    obj = move_to_page(obj, page_number);
 
     function obj = PixelData(arg, mem_alloc)
         % Construct a PixelData object from the given data. Default
@@ -428,22 +430,6 @@ methods
         end
     end
 
-    function pixels = get_pixels(obj, pix_indices)
-        % Retrieve the pixels at the given indices in the current page, return
-        % a new PixelData object
-        %
-        % Input:
-        % ------
-        %   pix_indices     1-D array of pixel indices to retrieve
-        %
-        % Output:
-        % -------
-        %   pixels      PixelData object containing a subset of pixels
-        %
-        obj = obj.load_current_page_if_data_empty_();
-        pixels = PixelData(obj.data(:, pix_indices));
-    end
-
     function has_more = has_more(obj)
         % Returns true if there are subsequent pixels stored in the file that
         % are not held in the current page
@@ -477,7 +463,7 @@ methods
                 obj.write_dirty_page_();
             end
             try
-                obj.load_page_(obj.page_number_ + 1);
+                obj = obj.move_to_page(obj.page_number_ + 1);
             catch ME
                 switch ME.identifier
                 case 'PIXELDATA:load_page_'
@@ -496,14 +482,7 @@ methods
         % and clear the current cache
         %  This function does nothing if pixels are not file-backed.
         %
-        if obj.is_file_backed_() && obj.page_number_ ~= 1
-            if obj.page_is_dirty_(obj.page_number_) && obj.dirty_page_edited_
-                obj.write_dirty_page_();
-            end
-            obj.page_number_ = 1;
-            obj.dirty_page_edited_ = false;
-            obj.data_ = zeros(obj.PIXEL_BLOCK_COLS_, 0);
-        end
+        obj.move_to_page(1);
     end
 
     % --- Getters / Setters ---
@@ -688,7 +667,14 @@ methods
         if obj.num_pixels > 0 && obj.cache_is_empty_()
             % No pixels currently loaded, show the number that will be loaded
             % when a getter is called
-            page_size = min(obj.get_max_page_size_(), obj.num_pixels);
+            base_pg_size = obj.max_page_size_;
+            if base_pg_size*obj.page_number_ > obj.num_pixels
+                % In this case we're on the final page and there are fewer
+                % lefotver pixels than would be in a full-size page
+                page_size = obj.num_pixels - base_pg_size*(obj.page_number_ - 1);
+            else
+                page_size = min(base_pg_size, obj.num_pixels);
+            end
         else
             page_size = size(obj.data_, 2);
         end
