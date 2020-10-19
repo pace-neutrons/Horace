@@ -1226,9 +1226,10 @@ methods
         pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
         rand_order = randperm(num_pix);
+        shuffled_pix = data(:, rand_order);
         pix_out = pix.get_pixels(rand_order);
 
-        assertEqual(pix_out.data, data(:, rand_order));
+        assertEqual(pix_out.data, shuffled_pix);
     end
 
     function test_get_pixels_throws_invalid_arg_if_indices_not_vector(~)
