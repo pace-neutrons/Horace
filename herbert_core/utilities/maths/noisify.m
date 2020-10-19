@@ -26,6 +26,11 @@ function [yout,eout] = noisify(y,e,varargin)
 %           extracted before this processing.
 %           Omitting factor will use the default value 0.1.
 %
+%   >> [yout, eout] = noisify(...{as above}..., 'random_number_function', rnd)
+%            Developer option only. Choose rnd as an alternative to the
+%            normal Horance choice of randn as the random number
+%            distribution. Only for testing. More notes below at the call.
+%
 %   If no input errors, e, just set e=[]. Note that eout will be created
 %   regardless of whether e is present, so the first overload output is
 %   probably incomplete.
@@ -51,8 +56,13 @@ function [yout,eout] = noisify(y,e,varargin)
         if ~ymax_calculated
             ymax = max(abs(y(:)))
         end
-        % make noise dy and add to y for output; make error bar for noise    
-        dy=(fac*ymax)*randfunc(size(y));% default: randn(size(y)); % st. dev. of randn is sigma=1
+        % make noise dy and add to y for output; make error bar for noise.  
+        % randfunc generates the random numbers producing the noise;
+        % its standard and default implementation is randn - gaussian of std.dev=1
+        % but other choices may be appropriate including a non-random
+        % sequence to check functionality. Not using randn may cause
+        % unexpected behaviour from the user point of view
+        dy=(fac*ymax)*randfunc(size(y));
         yout=y+dy;
         eout=ones(size(y))*(fac*ymax)^2;
     end
