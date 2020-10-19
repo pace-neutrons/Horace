@@ -26,8 +26,6 @@ function pix_out = get_pixels(obj, abs_pix_indices)
 % -------
 %   pix_out        Another PixelData object containing only the pixels
 %                  specified in the abs_pix_indices argument.
-%                  This PixelData object will hold all its pixels in memory and
-%                  ignore the pixel_page_size config option.
 %
 [abs_pix_indices, max_idx] = parse_args(obj, abs_pix_indices);
 
