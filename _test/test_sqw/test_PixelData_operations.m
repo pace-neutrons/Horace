@@ -486,6 +486,24 @@ methods
         assertExceptionThrown(f, 'PIXELDATA:equal_to_tol');
     end
 
+    function test_equal_to_tol_true_when_comparing_NaNs_if_nan_equal_true(~)
+        data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
+        data(:, [5, 10, 15]) = nan;
+        pix1 = PixelData(data);
+        pix2 = PixelData(data);
+
+        assertTrue(pix1.equal_to_tol(pix2, 'nan_equal', true));
+    end
+
+    function test_equal_to_tol_false_when_comparing_NaNs_if_nan_equal_false(~)
+        data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
+        data(:, [5, 10, 15]) = nan;
+        pix1 = PixelData(data);
+        pix2 = PixelData(data);
+
+        assertFalse(pix1.equal_to_tol(pix2, 'nan_equal', false));
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
