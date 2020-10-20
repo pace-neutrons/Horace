@@ -14,20 +14,23 @@ The codebase includes two different `cut()` methods:
  - one in the SQW object API which operates on the in-memory SQW data
  - one is a function that takes a `.sqw` filename and operates directly on that (on-disk)
 
-The on-disk implementation is significantly slower and users are aware of this. If a 'too large' file is operated on in-memory an OutOfMemory Error will be thrown by the MATLAB UI and the process fail. The typical use-case for cut is that a initial cut is made from the complete dataset in a file into an object which is small and fits in memory. Subsequent cuts are in-memory object to in-memory object.
+The on-disk implementation is significantly slower and users are aware of this.
+If a 'too large' file is operated on in-memory an OutOfMemory Error will be thrown by the MATLAB UI or backend and the process fail. 
+The typical use-case for cut is that a initial cut is made from the complete dataset in a file into an object which is small and fits in memory.
+Subsequent cuts are in-memory object to in-memory object.
 
 As a consequence:
-
  - users are required to develop (and test) separate scripts for each API
  - users make a conscious choice between “in memory (fast)” and “on disk (slow)” operation.
 
-Mantid have (multiple times) attempted to present seamless in-memory/on-disk operation to their users (for a slightly different use case). Each time this either failed for technical reasons or because users did not embrace it, and the attempts were abandoned.
+Mantid have (multiple times) attempted to present seamless in-memory/on-disk operation to their users (for a slightly different use case).
+Each time this either failed for technical reasons or because users did not embrace it,
+and the attempts were abandoned.
 
-
-
-One of driving forces for the current PACE project is the support of large datasets, which are expected to be increasingly common and of increasing size.
-
-The new SQW object hides all choice between in-memory and on-disk operation through the use of a paged `PixelData` object
+One of driving forces for the current PACE project is the support of large datasets,
+which are expected to be increasingly common and of increasing size.
+The new SQW object hides all choice between in-memory and on-disk operation through
+the use of a paged `PixelData` object.
 
  - provides identical API for small and large datasets on small and large computers
  - the switch between in-memory and on-disk (paged) operation is automatic as dataset grows
@@ -35,17 +38,22 @@ The new SQW object hides all choice between in-memory and on-disk operation thro
     - a large page size will offer better performance if the whole dataset fits in a single page, 
     - a moderate page size appears optimal for datasets too large for system RAM
     - it is hard / impossible / undesirable to calculate optimal page size on a per-machine/per-file basis
+- implementation of a single `cut()` method (or function) that operates on an SQW object (either `this` or one passed as an argument) operating through the public API and agnostic to the size of the datasets.
 
--     Implementation of a single cut() method (or function) that operates on an SQW object (either `this` or one passed as an argument) operating through the public API and agnostic to the size of the datasets.
-
-There are several algorithms that need to be updated to support large datasets. Any update must be made in such a way that algorithms that the whole of Horace continues to function as currently (on "small" datasets)  until a point at which all algorithms are updated. During the migration it is also necessary that scripts using a subset of the updated algorithms can be created to perform end-to-end testing. These should not require code changes or alternate APIs.
-
+There are several algorithms that need to be updated to support large datasets.
+Any update must be made in such a way that algorithms that the whole of Horace continues to function as it currently does on "small" datasets
+until a point at which all algorithms are updated.
+During the migration it is also necessary that scripts using a subset of the updated algorithms
+can be created to perform end-to-end testing.
+These should not require code changes or alternate APIs.
 
 
 ## Decision
 
-- A new API for SQW object
-   will be created. The SQW class will to default to no-paging if a page size is not passed explicitly to the constructor until all code has been updated to support paged operation
+- A new API for SQW object will be created.
+The SQW class will to default to in memory operation (i.e. no paging)
+if a page size is not passed explicitly to the constructor
+until all code has been updated to support paged operation
 
 ```matlab
 % unpaged: default page size is 0/inf
@@ -54,18 +62,17 @@ s = sqw(filename)
 % paged with specified page size
 s = sqw(filename, page_size)
 ```
-
-- a warning message will be output when operations are performed on dataset that require paging to enable a user to understand the performance drop
-
-- all algorithms will be created with a common API pattern; they two API will share a common implementation, the filename variant creating a (paged) SQW object
-
-  o  `algorithm(filename, outfilename)` perform operation on a new SQW object which will be explicitly created as paged
-
-  o  `algorithm(sqw, [outfilename])` perform operation on existing SQW object (may be paged or unpaged)
-
+- a warning message will be output when operations are performed
+on dataset that require paging to enable a user to understand the performance drop
+- all algorithms will be created with a common API pattern.
+The two APIs will share a common implementation,
+the filename variant creating a (paged) SQW object
+	- `algorithm(filename, outfilename)`
+perform operation on a new SQW object that  will be explicitly created as paged
+	- `algorithm(sqw, [outfilename])`
+perform operation on existing SQW object (may be paged or unpaged)
 
 The example APIs for `cut` would be:
-
 ```matlab
 % Pure in-memory operation (small file only)
 s = sqw(infile) 
@@ -81,17 +88,28 @@ cut(infile, outfile) % disk => disk
 ```
 
 
-
 ## Consequences
 
-- The internal switch between in-memory and disk operations means the performance drop will happen at the point the dataset exceeds page size. This switch will present as a sudden, unexpected performance drop, mitigated by the console message.
-- Paging will not be generally enabled so all SQW object will continue to work with existing (unmodified) algorithms
+- The internal switch between in-memory and disk operations means
+the performance drop will happen at the point the dataset exceeds page size.
+This switch will present as a sudden, unexpected performance drop.
+Display of a console message will aid users in understanding the change.
+- Paging will not be generally enabled.
+All SQW object will continue to work with existing (unmodified) algorithms
 - Paging can be switched “on” simply supporting developer activity
-- If paging is enabled, i.e. the filename API used, and the SQW file is less that page sized, the operation will be performed in memory giving improved performance
-- A single implementation of each algorithm will be create that will work for paged data, this will then work for in-memory or file backed use-cases
-- The paged SQW file created by the filename API must not be returned from the algorithm call to prevent "page leakage" and unexpected failures elsewhere in the application
-- Existing algorithms will continue to work on **unpaged data**. The behaviour if executed on **paged** data is undefined (should this throw an error?)
-- Once all algorithms are updated the default behaviour of SQW will be updated from unpaged to paged and custom code in the wrapper methods removing paged intermediate objects can be dropped
-- Memory errors will be raised if a cut is larger than available RAM is made and no `outfilename` is specified
+- If paging is enabled, i.e. the filename API used, and the SQW file is less that page sized,
+the operation will be performed in memory giving improved performance
+- A single implementation of each algorithm will be create that will work for paged data,
+this will then work for in-memory or file backed use-cases
+- The paged SQW file created by the filename API must not be returned from the algorithm call
+to prevent "page leakage" and unexpected failures elsewhere in the application
+- Existing algorithms will continue to work on **unpaged data**.
+The behaviour if executed on **paged** data is undefined (should this throw an error?)
+- Once all algorithms are updated the default behaviour of SQW will be updated
+from unpaged to paged and custom code in the wrapper methods
+removing paged intermediate objects may be dropped
+- Memory errors will be raised if a cut is larger than available RAM is made
+and no `outfilename` is specified
 - Memory errors will be raised if a SQW object is created from a file larger than available RAM
-- Specific algorithms will be revisited to resolve specific performance issues once the update is completed.
+- Specific algorithms will be revisited to resolve specific performance issues
+once the update is completed.
