@@ -1,5 +1,9 @@
 function wout = noisify(w,varargin)
-% Adds random noise to an sqw object or array of sqw objects
+%=========================================================================
+% Adds random noise to the signal(s) of an sqw object or array of sqw
+% objects, together with an additional fixed error bar. Sqw objects are
+% noisified through their paged PixelData sub-objects. Alternatively 
+% noisifies a dnd object or array of such objects directly.
 %
 % Syntax:
 %   >> wout = noisify (w)
@@ -14,16 +18,21 @@ function wout = noisify(w,varargin)
 %           Add noise with Poisson distribution, where the mean value at
 %           a point is the value of pixel signal.
 %
-% Modified to use the object paging functionality. The "noisify" overload
-% required here is the one in PixelData which in turn will call the Herbert 
-% noisify which has been modified to use paging. For dnd type data the same
-% Herbert noisify is called directly.
+% Additional developer options are possible in varargin to test this
+% functionality. See the PixelData noisify paging method (called below)
+% and the Herbert noisify function which implements the noise addition.
+%=========================================================================
+
 wout=w;
 for i=1:numel(w)
     if is_sqw_type(w(i))   % determine if sqw or dnd type
+        
+        % Delegate to PixelData to noisify that object on a page-by-page
+        % basis using the Herbert noisify.
         wout(i).data.pix = w(i).data.pix.noisify(varargin{:});
         wout(i)=recompute_bin_data(wout(i));
     else
+        % Noisify the dnd data directly with the Herbert noisify.
         [wout(i).data.s,wout(i).data.e]=noisify(w(i).data.s,w(i).data.e,varargin{:});
     end
 end
