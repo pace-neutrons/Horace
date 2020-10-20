@@ -27,7 +27,7 @@ function pix_out = get_pixels(obj, abs_pix_indices)
 %   pix_out        Another PixelData object containing only the pixels
 %                  specified in the abs_pix_indices argument.
 %
-[abs_pix_indices, max_idx] = parse_args(obj, abs_pix_indices);
+abs_pix_indices = parse_args(obj, abs_pix_indices);
 
 if obj.is_file_backed_()
     first_required_page = ceil(min(abs_pix_indices)/obj.max_page_size_);
@@ -35,14 +35,11 @@ if obj.is_file_backed_()
 
     pix_out = PixelData(numel(abs_pix_indices));
 
-    [pg_idxs, global_idxs] = get_idxs_in_current_pg(obj, abs_pix_indices);
+    [pg_idxs, global_idxs] = get_idxs_in_current_page_(obj, abs_pix_indices);
     pix_out.data(:, global_idxs) = obj.data(:, pg_idxs);
     while obj.has_more()
         obj.advance();
-        if (obj.page_number_ - 1)*obj.max_page_size_ + 1 > max_idx
-            break;
-        end
-        [pg_idxs, global_idxs] = get_idxs_in_current_pg(obj, abs_pix_indices);
+        [pg_idxs, global_idxs] = get_idxs_in_current_page_(obj, abs_pix_indices);
         pix_out.data(:, global_idxs) = obj.data(:, pg_idxs);
     end
 else
@@ -53,7 +50,7 @@ end  % function
 
 
 % -----------------------------------------------------------------------------
-function [abs_pix_indices, max_idx] = parse_args(obj, varargin)
+function abs_pix_indices = parse_args(obj, varargin)
     parser = inputParser();
     parser.addRequired('abs_pix_indices', @is_positive_int_vector_or_logical_vector);
     parser.parse(varargin{:});
@@ -83,17 +80,4 @@ end
 
 function is = is_positive_int_vector_or_logical_vector(vec)
     is = isvector(vec) && (islogical(vec) || (all(vec > 0 & all(floor(vec) == vec))));
-end
-
-
-function [idx_in_pg, global_idx] = get_idxs_in_current_pg(obj, abs_indices)
-    % Extract the indices from abs_indices that lie within the bounds of the
-    % currently cached page of data.
-    % Get the corresponding absolute indices as well.
-    %
-    pg_start_idx = (obj.page_number_ - 1)*obj.max_page_size_ + 1;
-    pg_end_idx = pg_start_idx + obj.max_page_size_ - 1;
-
-    global_idx = find((abs_indices >= pg_start_idx) & (abs_indices <= pg_end_idx));
-    idx_in_pg = abs_indices(global_idx) - (obj.page_number_ - 1)*obj.max_page_size_;
 end
