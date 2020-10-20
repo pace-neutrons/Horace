@@ -19,6 +19,8 @@ function data_out = get_data(obj, pix_fields, varargin)
 %   pix_fields       The name of a field, or a cell array of field names
 %   abs_pix_indices  The pixel indices to retrieve, if not given, get full range
 %
+NO_INPUT_INDICES = -1;
+
 [pix_fields, abs_pix_indices] = parse_args(obj, pix_fields, varargin{:});
 field_indices = cell2mat(obj.FIELD_INDEX_MAP_.values(pix_fields));
 
@@ -45,7 +47,7 @@ if obj.is_file_backed_()
 
 else
 
-    if abs_pix_indices == -1
+    if abs_pix_indices == NO_INPUT_INDICES
         % No pixel indices given, return them all
         data_out = obj.data(field_indices, :);
     else
@@ -61,9 +63,11 @@ end  % function
 function data_out = assign_page_values(...
         obj, data_out, abs_pix_indices, field_indices, base_pg_size ...
     )
+    NO_INPUT_INDICES = -1;
+
     start_idx = (obj.page_number_ - 1)*base_pg_size + 1;
     end_idx = min(obj.page_number_*base_pg_size, obj.num_pixels);
-    if abs_pix_indices == -1
+    if abs_pix_indices == NO_INPUT_INDICES
         data_out(:, start_idx:end_idx) = obj.data(field_indices, 1:end);
     else
         [pg_idxs, global_idxs] = get_idxs_in_current_page_(obj, abs_pix_indices);
@@ -73,9 +77,12 @@ end
 
 
 function [pix_fields, abs_pix_indices] = parse_args(obj, varargin)
+    NO_INPUT_INDICES = -1;
+
     parser = inputParser();
     parser.addRequired('pix_fields', @(x) ischar(x) || iscell(x));
-    parser.addOptional('abs_pix_indices', -1, @is_positive_int_vector_or_logical_vector);
+    parser.addOptional('abs_pix_indices', NO_INPUT_INDICES, ...
+                       @is_positive_int_vector_or_logical_vector);
     parser.parse(varargin{:});
 
     pix_fields = parser.Results.pix_fields;
@@ -83,7 +90,7 @@ function [pix_fields, abs_pix_indices] = parse_args(obj, varargin)
 
     pix_fields = validate_pix_fields(obj, pix_fields);
 
-    if abs_pix_indices ~= -1
+    if abs_pix_indices ~= NO_INPUT_INDICES
         if islogical(abs_pix_indices)
             if numel(abs_pix_indices) > obj.num_pixels
                 if any(abs_pix_indices(obj.num_pixels + 1:end))
