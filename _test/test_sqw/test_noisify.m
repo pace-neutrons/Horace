@@ -40,8 +40,8 @@ methods
         obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
 
         % Process the file path
-        test_sqw_file = 'c:\boobly6.sqw';%java.io.File('c:\', obj.test_sqw_file_path);
-        obj.test_sqw_file_full_path = 'c:\boobly6.sqw';%char(test_sqw_file.getCanonicalPath());
+        test_sqw_file = java.io.File(pwd(), obj.test_sqw_file_path);
+        obj.test_sqw_file_full_path = char(test_sqw_file.getCanonicalPath());
 
         % Tests use a number of different input streams:
         % Construct an object from raw data
@@ -62,10 +62,17 @@ methods
     % --- Tests for in-memory operations ---
     
     function test_how_noisify_works(obj)
-        % Thinking aloud here:
         % obj is the test case object
         % what we want to do is call noisify here on different kinds of
         % data
+        
+        % add path for concatenate-pixel_pages
+        addpath('./utils')
+        cleanup1 = onCleanup( @() rmpath('./utils') );
+        % add path for deterministic psuedorandom sequence
+        addpath('../../../Herbert/_test/shared');
+        cleanup2 = onCleanup( @() rmpath('../../../Herbert/_test/shared') );
+
         % step 1 we reduce the page size
         hc = hor_config();
         hc.pixel_page_size = 10000;
@@ -75,19 +82,17 @@ methods
         factor =1/999;
         % We make an sqw object with the above page size
         sqw_obj1 = sqw(obj.test_sqw_file_full_path);
-        % and we noisify it
-        rng(0) % don't need seed as it's not the proper rng but left in in
-        % case we change our mind
-        % instead set the flag to initialize the test "random" sequence
-        global testrand_init;
-        testrand_init = true;
-        % add the noise to object 1
         
-        addpath('./utils')
-        addpath('../../../Herbert/_test/test_utilities');
-        addpath('../../../Herbert/_test/shared');
+        % and we noisify it
+        % here using a regular sequence (disguised as pseudorandom)
+        % to make testing by eye easier:
         a=deterministic_pseudorandom_sequence();
         myrng=@a.myrand;
+        % if the standard MATLAB rng were used then we would need to 
+        % initialise that to a repeatable state by:
+        % rng(0) 
+        % add the noise to object 1 using myrng (myrng could be left out
+        % to get the default randn behaviour, used with rng(0)
         noisy_obj1 = noisify(sqw_obj1,factor,'random_number_function',myrng);
         % step 2 we increase the page size again to the notional max
         hc = hor_config();
@@ -95,8 +100,10 @@ methods
         % We make another sqw objectfrom the same file
         sqw_obj2 = sqw(obj.test_sqw_file_full_path);
         % and we noisify it
-        rng(0)
-        testrand_init = true;
+        % - reset pseudorandom number distribution. If this reverted to
+        %   standard MATLAB rng, with myrng=any rnd using rng e.g. randn,
+        %   then the reset should be done with
+        %   rng(0);
         a.reset();
         noisy_obj2 = noisify(sqw_obj2,factor,'random_number_function',myrng);
         % as the page test whether the 2 paged versions are equal
@@ -113,9 +120,9 @@ methods
         assertEqual(nconcpix(8,:),noisy_obj2.data.pix.data(8,:),'',5e-4);
         assertEqual(nconcpix(9,:),noisy_obj2.data.pix.data(9,:),'',5e-4);
         assertEqual(nconcpix,noisy_obj2.data.pix.data,'',5e-4);
-        rmpath('./utils')
-        rmpath('../../../Herbert/_test/test_utilities');
-        rmpath('../../../Herbert/_test/shared');
+        % moved to onCleanup objects above
+        %rmpath('./utils')
+        %rmpath('../../../Herbert/_test/shared');
    end
 
     function test_error_raised_if_setting_coordinates_with_wrong_num_cols(obj)
