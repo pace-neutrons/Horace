@@ -5,8 +5,7 @@ properties
 
     raw_pix_data = rand(9, 10);
     small_page_size_ = 1e6;  % 1Mb
-    %test_sqw_file_path = '../test_sqw_file/sqw_1d_1.sqw';
-    test_sqw_file_path = 'c:\boobly6.sqw';
+    test_sqw_file_path = '../test_sqw_file/deterministic_sqw_fake_data_for_testing.sqw';
     test_sqw_file_full_path = '';
 
     pixel_data_obj;
