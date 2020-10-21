@@ -116,6 +116,7 @@ function [tol, nan_equal] = parse_args(varargin)
     parser.addParameter('nan_equal', true, @(x) isscalar(x) && islogical(x));
     parser.addParameter('name_a', 'input_1', @ischar);
     parser.addParameter('name_b', 'input_2', @ischar);
+    parser.KeepUnmatched = true;  % ignore unmatched parameters
     parser.parse(varargin{:});
 
     tol = parser.Results.tol;
