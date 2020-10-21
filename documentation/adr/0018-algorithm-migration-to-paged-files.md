@@ -64,14 +64,14 @@ s = sqw(filename)
 s = sqw(filename, page_size)
 ```
 - a warning message will be output when operations are performed
-on dataset that require paging to enable a user to understand the performance drop
-- all algorithms will be created with a common API pattern.
-The two APIs will share a common implementation,
-the filename variant creating a (paged) SQW object
-	- `algorithm(filename, outfilename)`
-perform operation on a new SQW object that will be explicitly created as paged
-	- `algorithm(sqw, [outfilename])`
-perform operation on existing SQW object (may be paged or unpaged)
+  on dataset that require paging to enable a user to understand the performance drop
+
+- all algorithms will be created following a common API pattern:
+
+  1. `obj = algorithm(filename, ...)`: internally create a paged SQW object from the given file and execute the algorithm on the paged object. The SQW will returned will be a smaller, in-memory object,
+  2. `algorithm(filename, out_filename, ...)`: equivalent to (1) except the resulting SQW object will be saved to file instead of returned as an object. This provides a method to perform an algorithm that maps a large SQW file to another large SQW file,
+3. `obj = algorithm(sqw_obj, ...)`: execute the algorithm on the input object. Note that if a paged SQW object is passed in the return object will also be paged, so this must be used with caution during the migration,
+  4. `algorithm(sqw_obj, out_filename, ...)`: equivalent to (3) except the resulting SQW object will be saved to file instead of returned as an object.
 
 The example APIs for `cut` would be:
 ```matlab
@@ -106,7 +106,7 @@ Doing so would "leak" paged data objects and result in unexpected failures elsew
 - Existing algorithms will continue to work on **unpaged data**.
 The behaviour if they are executed on **paged** data is undefined.
 
-This situation will only arise if a paged `sqw` object is explicitly created by a user
+This situation will only arise if a paged `sqw` object is explicitly created by a user
 and passed in, or as a result of page "leakage" resulting from
 an error in the implementation of an algorithm.
 - Once all algorithms are updated, the default behaviour of SQW will be changed
