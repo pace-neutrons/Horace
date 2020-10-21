@@ -5,7 +5,7 @@ function [ftimes, varargout] = benchmark_function(...
 )
 %% BENCHMARK_FUNCTION time the given function handle
 % The function will be run `niters` times between the timing points and
-% `nprepitions` times will be generated.
+% `nrepititions` times will be generated.
 %
 % Input:
 % ------
