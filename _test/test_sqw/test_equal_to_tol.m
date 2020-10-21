@@ -179,11 +179,12 @@ methods
         num_iters = 1;
 
         f = @() equal_to_tol(sqw_copy, obj.sqw_2d);
-        [~, median_time_full] = benchmark_function(f, num_iters, num_reps);
+        times_taken = benchmark_function(f, num_iters, num_reps);
+        median_time_full = median(times_taken);
 
         f_partial = @() equal_to_tol(sqw_copy, obj.sqw_2d, 'fraction', 0.2);
-        [~, median_time_partial] = benchmark_function(f_partial, num_iters, ...
-                                                      num_reps);
+        times_taken_partial = benchmark_function(f_partial, num_iters, num_reps);
+        median_time_partial = median(times_taken_partial);
 
         assertTrue(median_time_full > median_time_partial);
     end
