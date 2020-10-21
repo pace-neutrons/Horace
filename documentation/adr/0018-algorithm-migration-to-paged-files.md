@@ -51,10 +51,10 @@ These should not require code changes or the use of alternate APIs.
 
 ## Decision
 
-- A new `page_size` argument for will be added to the SQW object will be created.
+- A new `page_size` argument for will be added to the SQW object.
 The SQW class will to default to in memory operation (i.e. no paging)
 if a page size is not passed explicitly to the constructor
-until all code has been updated to support paged operation
+until all code has been updated to support paged operation,
 
 ```matlab
 % unpaged: default page size is 0/inf
@@ -64,7 +64,7 @@ s = sqw(filename)
 s = sqw(filename, page_size)
 ```
 - a warning message will be output when operations are performed
-  on dataset that require paging to enable a user to understand the performance drop
+  on dataset that requires paging to enable a user to understand the performance drop,
 
 - all algorithms will be created following a common API pattern:
 
@@ -94,9 +94,11 @@ cut(infile, outfile) % disk => disk
 - The internal switch between in-memory and disk operations means
 the performance drop will happen at the point the dataset exceeds page size.
 This switch will present as a sudden, unexpected performance drop.
-Display of a console message will aid users in understanding the change.
 - Paging will not be generally enabled.
 All SQW object will continue to work with existing (unmodified) algorithms.
+- Performance drops associated with paged will only occur if the user has called a filename API
+or passed an SQW object they have explicitly created as with a page size.
+The display of a console message will aid users in understanding the change. 
 - Paging can be switched “on” simply supporting developer activity.
 - If paging is enabled, i.e. the filename API used, and the SQW file is less that page sized,
 the operation will be performed in memory giving improved performance.
