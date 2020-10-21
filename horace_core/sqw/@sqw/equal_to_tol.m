@@ -102,7 +102,9 @@ if isa(w1, 'sqw') && isa(w2, 'sqw')
             other = varargin;
         end
         [ok, mess] = equal_to_tol_internal(w1(i), w2(i), in_name{1}, in_name{2}, other{:});
-        if ~ok, return, end
+        if ~ok
+            return
+        end
     end
 else
     ok = false;
@@ -158,7 +160,9 @@ else
     tmp2 = struct(w2);
     tmp2.data.pix = PixelData();
     [ok, mess] = equal_to_tol(tmp1, tmp2, args{:}, 'name_a', name_a, 'name_b', name_b);
-    if ~ok, return, end
+    if ~ok
+        return
+    end
 
     % Check a subset of the bins with reordering
     npix = w1.data.npix(:);
