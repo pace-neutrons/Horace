@@ -1,6 +1,42 @@
 function [ok, mess] = equal_to_tol(obj, other_pix, varargin)
 %% EQUAL_TO_TOL Check if two PixelData objects are equal to a given tolerance
 %
+% Input:
+% ------
+% pix        The first pixel data object to compare.
+%
+% other_pix  The second pixel data object to compare.
+%
+% tol        Tolerance criterion for numeric arrays (Default: [0,0] i.e. equality)
+%            It has the form: [abs_tol, rel_tol] where
+%               abs_tol     absolute tolerance (>=0; if =0 equality required)
+%               rel_tol     relative tolerance (>=0; if =0 equality required)
+%            If either criterion is satified then equality within tolerance
+%            is accepted.
+%             Examples:
+%               [1e-4, 1e-6]    absolute 1e-4 or relative 1e-6 required
+%               [1e-4, 0]       absolute 1e-4 required
+%               [0, 1e-6]       relative 1e-6 required
+%               [0, 0]          equality required
+%               0               equivalent to [0,0]
+%
+% Keyword Input:
+% ---------------
+% nan_equal  Treat NaNs as equal (true or false; default=true).
+%
+% name_a     Explicit name of variable a for use in messages
+%            Usually not required, as the name of a variable will
+%            be discovered. However, if the input argument is an array
+%            element e.g. my_variable{3}  then the name is not
+%            discoverable in Matlab, and default 'input_1' will be
+%            used unless a different value is given with the keyword 'name_a'.
+%            (default = 'input_1').
+%
+% name_b     Explicit name of variable b for use in messages.
+%            The same comments apply as for 'name_a' except the default is
+%            'input_2'.
+%            (default = 'input_2').
+%
 [tol, nan_equal] = parse_args(varargin{:});
 
 [ok, mess] = validate_other_pix(obj, other_pix);
