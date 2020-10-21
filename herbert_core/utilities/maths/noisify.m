@@ -88,11 +88,7 @@ function [fac, is_poisson, ymax, randfun] = parse_args(y, e, fac, varargin)
     addParameter(p,'maximum_value', USE_LOCAL_MAX, @isnumeric);  % ymax, as parameter 'maximum_value'. Default to internally set negative value.
     check_function_handle = @(x) isa(x,'function_handle');
     addParameter(p,'random_number_function', @randn, check_function_handle); 
-    try
-        parse(p,y,e,varargin{:});
-    catch ME
-        disp(ME);
-    end
+    parse(p,y,e,varargin{:});
 
     % vary if 'poisson' or fac present
     is_poisson = false;
