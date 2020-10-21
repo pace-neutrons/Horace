@@ -78,6 +78,8 @@ function [tol, nan_equal] = parse_args(varargin)
     parser = inputParser();
     parser.addOptional('tol', [0, 0], @(x) (numel(x) <= 2) && all(x >= 0));
     parser.addParameter('nan_equal', true, @(x) isscalar(x) && islogical(x));
+    parser.addParameter('name_a', 'input_1', @ischar);
+    parser.addParameter('name_b', 'input_2', @ischar);
     parser.parse(varargin{:});
 
     tol = parser.Results.tol;
