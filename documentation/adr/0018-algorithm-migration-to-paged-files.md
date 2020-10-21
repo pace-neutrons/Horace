@@ -1,4 +1,4 @@
-[<-previous](0015-store-pixel-data-in-single-precision.md) | next->
+[<-previous](0017-separate-absolute-and-relative-indexing-APIs-in-pixel-array.md) | next->
 
 # 18 - Algorithm migration to paged implementations
 
@@ -16,8 +16,9 @@ The codebase includes two different `cut()` methods:
 
 The on-disk implementation is significantly slower and users are aware of this.
 If a 'too large' file is operated on in-memory, an OutOfMemory Error will be thrown and the process will fail.
-The typical use-case for cut is that a initial cut is made from the complete dataset in a file into an object which is small and fits in memory.
-Subsequent cuts are in-memory object to in-memory object.
+A typical use-case for `cut` consists of taking an initial cut from a large dataset held in a file
+and storing this cut in memory as an `sqw` or `dnd` object.
+Subsequent cuts are in-memory object to the in-memory object.
 
 As a consequence:
  - users are required to develop (and test) separate scripts for each API
@@ -29,10 +30,9 @@ and the attempts were abandoned.
 
 One of driving forces for the current PACE project is the support of large datasets,
 which are expected to be increasingly common and of increasing size.
-The new SQW object hides all choice between in-memory and on-disk operation through
-the use of a paged `PixelData` object.
+The new SQW object has been designed around a paged `PixelData` object which holds data in memory, up to a configurable page size, and pages additional data from disk as it is required. Under this model:
 
- - provides identical API for small and large datasets on small and large computers
+ - an identical API is available for large and small datasets on small and large computers
  - the switch between in-memory and on-disk (paged) operation is automatic as dataset grows
  - the page size is a configuration parameter that is intended to be user configurable for the machines and datasets they’re using:
     - a large page size will offer better performance if the whole dataset fits in a single page, 
@@ -41,16 +41,17 @@ the use of a paged `PixelData` object.
 - implementation of a single `cut()` method (or function) that operates on an SQW object (either `this` or one passed as an argument) operating through the public API and agnostic to the size of the datasets.
 
 There are several algorithms that need to be updated to support large datasets.
-Any updates must be made in such a way that algorithms function as they currently do on "small" datasets
-until a point at which all algorithms are updated.
-During the migration it is also necessary that scripts using a subset of the updated algorithms
-can be created to perform end-to-end testing.
-These should not require code changes or alternate APIs.
+Any updates must be made in such a way that algorithms function
+as they currently do on "small" datasets.
+
+During the migration scripts which make use of a
+subset of the updated algorithms may be required to perform end-to-end testing with paged data.
+These should not require code changes or the use of alternate APIs.
 
 
 ## Decision
 
-- A new API for SQW object will be created.
+- A new `page_size` argument for will be added to the SQW object will be created.
 The SQW class will to default to in memory operation (i.e. no paging)
 if a page size is not passed explicitly to the constructor
 until all code has been updated to support paged operation
@@ -95,15 +96,19 @@ the performance drop will happen at the point the dataset exceeds page size.
 This switch will present as a sudden, unexpected performance drop.
 Display of a console message will aid users in understanding the change.
 - Paging will not be generally enabled.
-All SQW object will continue to work with existing (unmodified) algorithms
-- Paging can be switched “on” simply supporting developer activity
+All SQW object will continue to work with existing (unmodified) algorithms.
+- Paging can be switched “on” simply supporting developer activity.
 - If paging is enabled, i.e. the filename API used, and the SQW file is less that page sized,
-the operation will be performed in memory giving improved performance
+the operation will be performed in memory giving improved performance.
 - A single implementation of each algorithm will be created that will work for paged and in-memory data.
-- The paged SQW file created by the filename API must not be returned from the algorithm call
-to prevent "page leakage" and unexpected failures elsewhere in the application
+- The paged SQW file created internally by an algorithm's filename API must not be returned from the algorithm call.
+Doing so would "leak" paged data objects and result in unexpected failures elsewhere in the application.
 - Existing algorithms will continue to work on **unpaged data**.
-The behaviour if executed on **paged** data is undefined (should this throw an error?)
+The behaviour if they are executed on **paged** data is undefined.
+
+This situation will only arise if a paged `sqw` object is explicitly created by a user
+and passed in, or as a result of page "leakage" resulting from
+an error in the implementation of an algorithm.
 - Once all algorithms are updated, the default behaviour of SQW will be changed
 from unpaged to paged. 
 Any code in the wrapper methods removing paged intermediate objects may be dropped.
