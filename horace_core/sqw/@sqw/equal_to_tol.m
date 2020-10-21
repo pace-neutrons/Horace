@@ -61,11 +61,7 @@ function [ok, mess] = equal_to_tol(w1, w2, varargin)
 %   pixels within the pix array for a given bin is unimportant. Reordering
 %   takes time, however, so the option to test on a few bins is given.
 
-
 % Original author: T.G.Perring
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
 
 if isa(w1, 'sqw') && isa(w2, 'sqw')
     % Check array sizes match
