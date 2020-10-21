@@ -93,7 +93,7 @@ function [ok, mess] = validate_other_pix(obj, other_pix)
     ok = true;
     mess = '';
 
-    if ~(isa(other_pix, 'PixelData'))
+    if ~isa(other_pix, 'PixelData')
         ok = false;
         mess = sprintf('Objects of class ''%s'' and ''%s'' cannot be equal.', ...
                        class(obj), class(other_pix));
