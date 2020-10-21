@@ -98,7 +98,7 @@ properties (Access=private)
     page_dirty_ = false;  % array mapping from page_number to whether that page is dirty
     page_memory_size_;  % the maximum amount of memory a page can use
     page_number_ = 1;  % the index of the currently loaded page
-    raw_data_ = zeros(9, 0);  % the underlying data cached in the object
+    raw_data_ = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, 0);  % the underlying data cached in the object
     tmp_io_handler_;  % a PixelTmpFileHandler object that handles reading/writing of tmp files
 end
 
