@@ -7,7 +7,8 @@ function [ok, mess] = equal_to_tol(obj, other_pix, varargin)
 %
 % other_pix  The second pixel data object to compare.
 %
-% tol        Tolerance criterion for numeric arrays (Default: [0,0] i.e. equality)
+% tol        Tolerance criterion for numeric arrays
+%            (default = [0, 0] i.e. equality)
 %            It has the form: [abs_tol, rel_tol] where
 %               abs_tol     absolute tolerance (>=0; if =0 equality required)
 %               rel_tol     relative tolerance (>=0; if =0 equality required)
@@ -37,7 +38,7 @@ function [ok, mess] = equal_to_tol(obj, other_pix, varargin)
 %            'input_2'.
 %            (default = 'input_2').
 %
-[tol, nan_equal] = parse_args(varargin{:});
+parse_args(varargin{:});
 
 [ok, mess] = validate_other_pix(obj, other_pix);
 if ~ok
@@ -48,20 +49,16 @@ obj = obj.move_to_first_page();
 other_pix = other_pix.move_to_first_page();
 
 if obj.page_size == other_pix.page_size
-    [ok, mess] = equal_to_tol(...
-            obj.data, other_pix.data, tol, 'nan_equal', nan_equal);
+    [ok, mess] = equal_to_tol(obj.data, other_pix.data, varargin{:});
     while ok && obj.has_more()
         obj = obj.advance();
         other_pix = other_pix.advance();
-        [ok, mess] = equal_to_tol(...
-                obj.data, other_pix.data, tol, 'nan_equal', nan_equal);
+        [ok, mess] = equal_to_tol(obj.data, other_pix.data, varargin{:});
     end
 elseif ~obj.is_file_backed_()
-    [ok, mess] = pix_paged_and_in_mem_equal_to_tol(...
-            other_pix, obj, tol, 'nan_equal', nan_equal);
+    [ok, mess] = pix_paged_and_in_mem_equal_to_tol(other_pix, obj, varargin{:});
 elseif ~other_pix.is_file_backed_()
-    [ok, mess] = pix_paged_and_in_mem_equal_to_tol(...
-            obj, other_pix, tol, 'nan_equal', nan_equal);
+    [ok, mess] = pix_paged_and_in_mem_equal_to_tol(obj, other_pix, varargin{:});
 else
     error('PIXELDATA:equal_to_tol', ...
           ['Cannot compare PixelData objects that have different page ' ...
@@ -110,15 +107,14 @@ function [ok, mess] = validate_other_pix(obj, other_pix)
 end
 
 
-function [tol, nan_equal] = parse_args(varargin)
+function parse_args(varargin)
     parser = inputParser();
+    % these params are used for validation only, they will be passed to
+    % Herbert's equal_to_tol via varargin
     parser.addOptional('tol', [0, 0], @(x) (numel(x) <= 2) && all(x >= 0));
     parser.addParameter('nan_equal', true, @(x) isscalar(x) && islogical(x));
     parser.addParameter('name_a', 'input_1', @ischar);
     parser.addParameter('name_b', 'input_2', @ischar);
     parser.KeepUnmatched = true;  % ignore unmatched parameters
     parser.parse(varargin{:});
-
-    tol = parser.Results.tol;
-    nan_equal = parser.Results.nan_equal;
 end
