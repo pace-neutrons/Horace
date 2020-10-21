@@ -74,7 +74,8 @@ if isa(w1, 'sqw') && isa(w2, 'sqw')
     for i = 1:numel(w1)
         if is_sqw_type(w1(i)) ~= is_sqw_type(w2(i))
             elmtstr = '';
-            if numel(w1) > 1, elmtstr = ['(element ', num2str(i), ')'];
+            if numel(w1) > 1
+                elmtstr = ['(element ', num2str(i), ')'];
             end
             ok = false;
             mess = ['Objects being compared are not both sqw-type or both dnd-type ', elmtstr];
