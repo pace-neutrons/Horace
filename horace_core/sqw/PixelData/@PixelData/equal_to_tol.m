@@ -56,10 +56,10 @@ if obj.page_size == other_pix.page_size
         [ok, mess] = equal_to_tol(...
                 obj.data, other_pix.data, tol, 'nan_equal', nan_equal);
     end
-elseif obj.page_size == obj.num_pixels
+elseif ~obj.is_file_backed_()
     [ok, mess] = pix_paged_and_in_mem_equal_to_tol(...
             other_pix, obj, tol, 'nan_equal', nan_equal);
-elseif other_pix.page_size == other_pix.num_pixels
+elseif ~other_pix.is_file_backed_()
     [ok, mess] = pix_paged_and_in_mem_equal_to_tol(...
             obj, other_pix, tol, 'nan_equal', nan_equal);
 else
