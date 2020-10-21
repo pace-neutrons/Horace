@@ -46,7 +46,7 @@ if numel(mask_array) == obj.num_pixels
     if obj.is_file_backed_()
         pix_out = do_mask_file_backed_with_full_mask_array(obj, mask_array);
     else
-        pix_out = obj.get_pixels(mask_array);
+        pix_out = do_mask_in_memory_with_full_mask_array(obj, mask_array);
     end
 
 elseif ~isempty(npix)
@@ -84,7 +84,7 @@ function pix_out = do_mask_file_backed_with_full_mask_array(obj, mask_array)
         end_idx = start_idx + obj.page_size - 1;
         mask_array_chunk = mask_array(start_idx:end_idx);
 
-        pix_out.append(obj.get_pixels(mask_array_chunk));
+        pix_out.append(PixelData(obj.data(:, mask_array_chunk)));
 
         if obj.has_more()
             obj = obj.advance();
@@ -132,7 +132,7 @@ function pix_out = do_mask_file_backed_with_npix(obj, mask_array, npix)
 
         mask_array_chunk = repelem(mask_array(start_idx:end_idx), npix_chunk);
 
-        pix_out.append(obj.get_pixels(mask_array_chunk));
+        pix_out.append(PixelData(obj.data(:, mask_array_chunk)));
 
         if obj.has_more()
             obj.advance();
