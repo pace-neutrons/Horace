@@ -134,17 +134,23 @@ methods
     end
 
     function test_using_fraction_argument_only_tests_fraction_of_the_bins(obj)
+        % Here we test that only a fraction of the pixels are compared when
+        % using the 'fraction' argument.
+        % A fraction value of 0.5 means that every other bin will be tested for
+        % equality of pixels. So, in one of the sqw objects, we zero out all
+        % the bins we do not intend to compare. This way, if we do compare any
+        % of those bins, there will be a mismatch.
         original_sqw = copy(obj.sqw_2d_paged);
         npix = [10, 5, 6, 3, 6];
-        bin_end_idxs = cumsum(npix);
-        bin_start_idxs = bin_end_idxs - npix + 1;
-
-        fraction = 0.5;
-
         data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 30);
         edited_data = data;
+
+        fraction = 0.5;
+        % get the bins to zero out
         bins_to_edit = round(2:(1/fraction):numel(npix));
 
+        bin_end_idxs = cumsum(npix);
+        bin_start_idxs = bin_end_idxs - npix + 1;
         for i = 1:numel(bins_to_edit)
             bin_num = bins_to_edit(i);
             edited_data(:, bin_start_idxs(bin_num):bin_end_idxs(bin_num)) = 0;
@@ -160,7 +166,9 @@ methods
         edited_sqw = copy(original_sqw);
         edited_sqw.data.pix = edited_pix;
 
+        % check equal_to_tol false when comparing all bins
         assertFalse(equal_to_tol(edited_sqw, original_sqw, 'fraction', 1));
+        % check equal_to_tol true when comparing a fraction of the bins
         assertTrue(equal_to_tol(edited_sqw, original_sqw, 'fraction', fraction));
     end
 
