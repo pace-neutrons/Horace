@@ -1,7 +1,7 @@
-function ftimes = benchmark_function(fhandle, niters, nrepititions)
+function ftimes = benchmark_function(fhandle, niters, nrepetitions)
 %% BENCHMARK_FUNCTION time the given function handle
 % The function will be run `niters` times between the timing points and
-% `nrepititions` times will be generated.
+% `nrepetitions` times will be generated.
 %
 % Input:
 % ------
@@ -11,15 +11,15 @@ function ftimes = benchmark_function(fhandle, niters, nrepititions)
 %
 % nrepitions  The number of times to repeat the benchmark, this differs from
 %             niters in that each repitition has its own time. In affect, the
-%             function `fhandle` is run niters*nrepititions times.
+%             function `fhandle` is run niters*nrepetitions times.
 %
 % Output:
 % -------
 % ftimes   A list of the times taken to run the given function.
 %          size(ftimes) = [1, nprepetitions].
 %
-ftimes = zeros(1, nrepititions);
-for rep = 1:nrepititions
+ftimes = zeros(1, nrepetitions);
+for rep = 1:nrepetitions
     tic;
     for iter = 1:niters
         fhandle();
