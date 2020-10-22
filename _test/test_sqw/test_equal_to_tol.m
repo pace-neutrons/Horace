@@ -200,6 +200,27 @@ methods
             ) ...
         );
     end
+
+    function test_equal_to_tol_can_be_called_with_negative_tol_for_rel_tol(obj)
+        sqw_copy = copy(obj.sqw_2d_paged);
+        rel_tol = 1e-5;
+        assertTrue(equal_to_tol(sqw_copy, obj.sqw_2d_paged, -rel_tol));
+
+        % find first non-zero signal value
+        sig_idx = find(sqw_copy.data.s > 0, 1);
+
+        % increase the difference in the value by 1% more than rel_tol
+        value_diff = 1.01*rel_tol*obj.sqw_2d_paged.data.s(sig_idx);
+        sqw_copy.data.s(sig_idx) = obj.sqw_2d_paged.data.s(sig_idx) + value_diff;
+
+        assertFalse(equal_to_tol(sqw_copy, obj.sqw_2d_paged, -rel_tol));
+
+        % check increasing the rel_tol by 1% returns true
+        assertTrue(equal_to_tol(sqw_copy, obj.sqw_2d_paged, -rel_tol*1.01))
+
+        % check absolute tolerance still true
+        assertTrue(equal_to_tol(sqw_copy, obj.sqw_2d_paged, value_diff + 1e-8));
+    end
 end
 
 methods (Static)
