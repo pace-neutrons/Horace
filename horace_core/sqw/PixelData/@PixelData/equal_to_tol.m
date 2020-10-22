@@ -12,7 +12,7 @@ function [ok, mess] = equal_to_tol(obj, other_pix, varargin)
 %            It has the form: [abs_tol, rel_tol] where
 %               abs_tol     absolute tolerance (>=0; if =0 equality required)
 %               rel_tol     relative tolerance (>=0; if =0 equality required)
-%            If either criterion is satified then equality within tolerance
+%            If either criterion is satisfied then equality within tolerance
 %            is accepted.
 %             Examples:
 %               [1e-4, 1e-6]    absolute 1e-4 or relative 1e-6 required
@@ -20,6 +20,14 @@ function [ok, mess] = equal_to_tol(obj, other_pix, varargin)
 %               [0, 1e-6]       relative 1e-6 required
 %               [0, 0]          equality required
 %               0               equivalent to [0,0]
+%
+%            A scalar tolerance can be given where the sign determines if
+%            the tolerance is absolute or relative:
+%               +ve : absolute tolerance  abserr = abs(a-b)
+%               -ve : relative tolerance  relerr = abs(a-b)/max(abs(a),abs(b))
+%            Examples:
+%               1e-4            absolute tolerance, equivalent to [1e-4, 0]
+%               -1e-6           relative tolerance, equivalent to [0, 1e-6]
 %
 % Keyword Input:
 % ---------------
@@ -111,7 +119,7 @@ function parse_args(varargin)
     parser = inputParser();
     % these params are used for validation only, they will be passed to
     % Herbert's equal_to_tol via varargin
-    parser.addOptional('tol', [0, 0], @(x) (numel(x) <= 2) && all(x >= 0));
+    parser.addOptional('tol', [0, 0], @(x) (numel(x) <= 2));
     parser.addParameter('nan_equal', true, @(x) isscalar(x) && islogical(x));
     parser.addParameter('name_a', 'input_1', @ischar);
     parser.addParameter('name_b', 'input_2', @ischar);
