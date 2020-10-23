@@ -13,7 +13,7 @@ classdef test_deterministic_pseudorandom_sequence < TestCase
         % Current path for noisify_test_rand.
         % Needs to be added and removed from the path to make the
         % test function
-        deterministic_pseudorandom_sequence_path = '..\shared';
+        deterministic_pseudorandom_sequence_path = '../shared';
     end
     methods
         
