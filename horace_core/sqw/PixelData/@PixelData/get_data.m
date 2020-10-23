@@ -1,7 +1,7 @@
 function data_out = get_data(obj, pix_fields, varargin)
 % Retrieve data for a field, or fields, for the given pixel indices in
-% the current page. If no pixel indices are given, all pixels in the
-% current page are returned.
+% the full pixel block. If no pixel indices are given, the full range of pixels
+% is returned.
 %
 % This method provides a convenient way of retrieving multiple fields
 % of data from the pixel block. When retrieving multiple fields, the
