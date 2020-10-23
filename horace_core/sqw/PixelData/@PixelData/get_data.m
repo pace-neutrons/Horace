@@ -1,18 +1,18 @@
 function data_out = get_data(obj, pix_fields, varargin)
-% Retrive data for a field, or fields, for the given pixel indices in
+% Retrieve data for a field, or fields, for the given pixel indices in
 % the current page. If no pixel indices are given, all pixels in the
 % current page are returned.
 %
-% This method provides a convinient way of retrieving multiple fields
+% This method provides a convenient way of retrieving multiple fields
 % of data from the pixel block. When retrieving multiple fields, the
 % columns of data will be ordered corresponding to the order the fields
 % appear in the inputted cell array.
 %
 %   >> sig_and_err = pix.get_data({'signal', 'variance'})
-%        retrives the signal and variance over the whole range of pixels
+%        retrieves the signal and variance over the whole range of pixels
 %
 %   >> run_det_id_range = pix.get_data({'run_idx', 'detector_idx'}, 4:10);
-%        retrives the run and detector IDs for pixels 4 to 10
+%        retrieves the run and detector IDs for pixels 4 to 10
 %
 % Input:
 % ------
