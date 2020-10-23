@@ -11,8 +11,8 @@ function data_out = get_data(obj, pix_fields, varargin)
 %   >> sig_and_err = pix.get_data({'signal', 'variance'})
 %        retrieves the signal and variance over the whole range of pixels
 %
-%   >> run_det_id_range = pix.get_data({'run_idx', 'detector_idx'}, 4:10);
-%        retrieves the run and detector IDs for pixels 4 to 10
+%   >> run_det_id_range = pix.get_data({'run_idx', 'detector_idx'}, 15640:19244);
+%        retrieves the run and detector IDs for pixels 15640 to 19244
 %
 % Input:
 % ------
