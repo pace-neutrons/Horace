@@ -43,19 +43,15 @@ methods
         test_sqw_file = java.io.File(pwd(), obj.test_sqw_file_path);
         obj.test_sqw_file_full_path = char(test_sqw_file.getCanonicalPath());
 
-        % Tests use a number of different input streams:
-        % Construct an object from raw data
-        obj.pixel_data_obj = PixelData(obj.raw_pix_data);
-        % Construct an object from a file
-        obj.pix_data_from_file = PixelData(obj.test_sqw_file_path);
-        % Construct an object from a file accessor
-        f_accessor = sqw_formats_factory.instance().get_loader(obj.test_sqw_file_path);
-        obj.pix_data_from_faccess = PixelData(f_accessor);
-        % Construct an object from file accessor with small page size
-        obj.pix_data_small_page = PixelData(f_accessor, obj.small_page_size_);
+        % add path for concatenate-pixel_pages
+        addpath('./utils')
+        % add path for deterministic psuedorandom sequence
+        addpath('../../../Herbert/_test/shared');
     end
 
     function delete(obj)
+        rmpath('./utils')
+        rmpath('../../../Herbert/_test/shared');
         warning(obj.old_warn_state);
     end
 
@@ -66,13 +62,6 @@ methods
         % what we want to do is call noisify here on different kinds of
         % data
         
-        % add path for concatenate-pixel_pages
-        addpath('./utils')
-        cleanup1 = onCleanup( @() rmpath('./utils') );
-        % add path for deterministic psuedorandom sequence
-        addpath('../../../Herbert/_test/shared');
-        cleanup2 = onCleanup( @() rmpath('../../../Herbert/_test/shared') );
-
         % step 1 we reduce the page size
         hc = hor_config();
         hc.pixel_page_size = 10000;
@@ -120,23 +109,7 @@ methods
         assertEqual(nconcpix(8,:),noisy_obj2.data.pix.data(8,:),'',5e-4);
         assertEqual(nconcpix(9,:),noisy_obj2.data.pix.data(9,:),'',5e-4);
         assertEqual(nconcpix,noisy_obj2.data.pix.data,'',5e-4);
-        % moved to onCleanup objects above
-        %rmpath('./utils')
-        %rmpath('../../../Herbert/_test/shared');
    end
-
-    function test_error_raised_if_setting_coordinates_with_wrong_num_cols(obj)
-        num_rows = 10;
-        pix_data_obj = obj.get_random_pix_data_(num_rows);
-
-        function set_coordinates(data)
-            pix_data_obj.coordinates = data;
-        end
-
-        new_coord_data = ones(3, num_rows);
-        f = @() set_coordinates(new_coord_data);
-        assertExceptionThrown(f, 'MATLAB:subsassigndimmismatch')
-    end
 
 
     % -- Helpers --
