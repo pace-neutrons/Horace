@@ -1,8 +1,8 @@
 function pix_out = get_pixels(obj, abs_pix_indices)
-% GET_PIXELS Retrieve the pixels at the given indices in the current page, return
-% a new PixelData object
+% GET_PIXELS Retrieve the pixels at the given indices relative to the full
+% pixel block, return a new PixelData object.
 %
-%  >> pix_out = pix.get_pixels(1:100)  % retrieve pixels at indices 1 to 100
+%  >> pix_out = pix.get_pixels(15640:19244)  % retrieve pixels at indices 15640 to 19244
 %
 %  >> pix_out = pix.get_pixels([1, 0, 1])  % retrieve pixels at indices 1 and 3
 %
@@ -15,7 +15,7 @@ function pix_out = get_pixels(obj, abs_pix_indices)
 %
 % Input:
 % ------
-%   abs_pix_indices  A vector of positive inegers or a vector of logicals.
+%   abs_pix_indices  A vector of positive integers or a vector of logicals.
 %                    If a vector of integers, include the pixels with those
 %                    indices, in the given order, in the returned PixelData
 %                    object.
