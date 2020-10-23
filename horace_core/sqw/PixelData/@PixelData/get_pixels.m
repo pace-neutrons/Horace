@@ -1,6 +1,6 @@
 function pix_out = get_pixels(obj, abs_pix_indices)
-% GET_PIXELS Retrieve the pixels at the given indices relative to the full
-% pixel block, return a new PixelData object.
+% GET_PIXELS Retrieve the pixels at the given indices in the full pixel block,
+% return a new PixelData object.
 %
 %  >> pix_out = pix.get_pixels(15640:19244)  % retrieve pixels at indices 15640 to 19244
 %
