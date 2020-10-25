@@ -26,16 +26,22 @@ function [yout,eout] = noisify(y,e,varargin)
 %           extracted before this processing.
 %           Omitting factor will use the default value 0.1.
 %
+%   >> [yout, eout] = noisify(...{as above}..., 'random_number_function', rnd)
+%            Developer option only. Choose rnd as an alternative to the
+%            normal Horance choice of randn as the random number
+%            distribution. Only for testing. More notes below at the call.
+%
 %   If no input errors, e, just set e=[]. Note that eout will be created
 %   regardless of whether e is present, so the first overload output is
 %   probably incomplete.
 
     % deal with optional arguments
-    fac = 0.1
+    fac = 0.1;
     is_poisson = false;
     ymax_calculated = false;
+    randfunc = @randn;
     if nargin>=2 % avoids the case where the only paramemter is y; for >=2 e will not be optional
-        [fac, is_poisson, ymax] = parse_args(y, e, fac, varargin{:});
+        [fac, is_poisson, ymax, randfunc] = parse_args(y, e, fac, varargin{:});
         ymax_calculated = true;
     end
 
@@ -50,8 +56,13 @@ function [yout,eout] = noisify(y,e,varargin)
         if ~ymax_calculated
             ymax = max(abs(y(:)))
         end
-        % make noise dy and add to y for output; make error bar for noise    
-        dy=(fac*ymax)*randn(size(y));   % st. dev. of randn is sigma=1
+        % make noise dy and add to y for output; make error bar for noise.  
+        % randfunc generates the random numbers producing the noise;
+        % its standard and default implementation is randn - gaussian of std.dev=1
+        % but other choices may be appropriate including a non-random
+        % sequence to check functionality. Not using randn may cause
+        % unexpected behaviour from the user point of view
+        dy=(fac*ymax)*randfunc(size(y));
         yout=y+dy;
         eout=ones(size(y))*(fac*ymax)^2;
     end
@@ -67,7 +78,7 @@ function [yout,eout] = noisify(y,e,varargin)
     end
 end
 
-function [fac, is_poisson, ymax] = parse_args(y, e, fac, varargin)
+function [fac, is_poisson, ymax, randfun] = parse_args(y, e, fac, varargin)
     USE_LOCAL_MAX = -inf;
     p = inputParser;
     addRequired(p, 'y', @isnumeric);   % y compulsory
@@ -75,6 +86,8 @@ function [fac, is_poisson, ymax] = parse_args(y, e, fac, varargin)
     numeric_or_poisson = @(x) isnumeric(x) || strcmpi(x,'poisson');
     addOptional(p, 'dist_or_factor', fac, numeric_or_poisson);  % fac (numeric) or distribution ('poisson') optional, default to fac=0.1
     addParameter(p,'maximum_value', USE_LOCAL_MAX, @isnumeric);  % ymax, as parameter 'maximum_value'. Default to internally set negative value.
+    check_function_handle = @(x) isa(x,'function_handle');
+    addParameter(p,'random_number_function', @randn, check_function_handle); 
     parse(p,y,e,varargin{:});
 
     % vary if 'poisson' or fac present
@@ -86,6 +99,8 @@ function [fac, is_poisson, ymax] = parse_args(y, e, fac, varargin)
     else
         error('HERBERT:noisify', '3rd argument cannot be interpreted as a Gaussian factor or legal probability distribution')
     end
+    
+    randfun = p.Results.random_number_function;
     
     % pick up signal max value as either default or input
     ymax = p.Results.maximum_value;
