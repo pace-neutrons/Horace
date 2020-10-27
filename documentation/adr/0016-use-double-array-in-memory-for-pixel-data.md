@@ -1,4 +1,5 @@
-[<-previous](0015-store-pixel-data-in-single-precision.md) | next->
+[<-previous](0015-store-pixel-data-in-single-precision.md) |
+[next->](0017-separate-absolute-and-relative-indexing-APIs-in-pixel-array.md)
 
 # 16 - Use double array for in-memory Pixel data
 
@@ -12,7 +13,8 @@ Accepted
 
 Pixel data will be stored on disk as single precision (float32) data.
 
-MATLAB's default numeric data type is `double` (float64). Mixing `single` and `double` data in calculations typically produces as `single` result.
+MATLAB's default numeric data type is `double` (float64).
+Mixing `single` and `double` data in calculations produces a `single` result.
 
 Options are to:
 
@@ -24,17 +26,14 @@ Long chains of function calls are executed within some algorithms (e.g. TobyFit)
 
 Significant performance improvements can be seen in some algorithms when performed on `single` precision rather than `double` data..
 
-Pixel binning is performed in both the MATLAB and C++ code. These routines do not create a consistent binning resulting from rounding errors in calculated data.
-
-
+Pixel binning can be performed in both MATLAB and C++ code.
+The two routines can result in inconsistent binning due to rounding errors.
 
 ## Decision
 
-Pixel data will stored internally as an array of MATLAB doubles and converted on read or write. 
+Pixel data will stored internally as an array of MATLAB doubles and converted on read or write.
 
 Access to the data through the PixelData class API will return `double` values.
-
- 
 
 ## Consequences
 
@@ -43,4 +42,3 @@ Access to the data through the PixelData class API will return `double` values.
 - Calculated data values will be truncated when written to file.
 - The recomputation of pixel coordinates by different routines in `TobyFit` and `gen_sqw` means rounding errors may result in pixels to be binned differently -- these differences should be considered and if possible eliminated.
 - There is no requirement to maintain `single` and `double` precision implementations of most toolkit functions.
-
