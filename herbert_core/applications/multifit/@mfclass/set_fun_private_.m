@@ -50,6 +50,9 @@ if ~ok, return, end
 % First deal with functions structure
 % -----------------------------------
 % Now check validity of input
+if ischar(ifun) && strcmp(ifun,'all')
+    nfun = numel(fun);
+end
 [ok,mess,ifun] = indicies_parse (ifun, nfun, 'Function');
 if ~ok, return, end
 

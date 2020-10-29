@@ -50,13 +50,13 @@ Scon = Scon_in;
 
 % Parse input
 if ischar(ind) && strcmpi(ind,'all')
-    ind = 1:numel(np_);
+    ind = (1:numel(np_));
 elseif ~isnumeric(ind)
     error('Logic error. Contact developers')
 end
     
 if ischar(indb) && strcmpi(indb,'all')
-    indb = 1:numel(nbp_);
+    indb = (1:numel(nbp_));
 elseif ~isnumeric(ind)
     error('Logic error. Contact developers')
 end
@@ -105,17 +105,17 @@ function indpar_new = indpar_remove (indpar, np, nbp, ind, indb)
 
 % Foreground functions to keep
 nf = numel(np);
-keep=true(nf,1);
+keep=true(1,nf);
 keep(ind)=false;
 
 % Background functions to keep
 nbf = numel(nbp);
-bkeep=true(nbf,1);
+bkeep=true(1,nbf);
 bkeep(indb)=false;
 
 % Function indicies after removal
 ifunlook = zeros(nf+nbf,1);
-ifunlook([keep;bkeep]) = (1:nf+nbf-numel(ind)-numel(indb))';
+ifunlook([keep,bkeep]) = (1:nf+nbf-numel(ind)-numel(indb))';
 ifun_new = ifunlook(ifun);
 
 % Recompute linear parameter indicies
