@@ -49,8 +49,7 @@ classdef mfclass
     %   clear_bbind  - Clear parameter bindings for one or more background functions
     %
     % To set functions as operating globally or local to a single dataset
-    %   set_global_foreground - Specify that there will be a global foreground fit function
-    %   set_local_foreground  - Specify that there will be local foreground fit function(s)
+    %   set_local_foreground  - Specify that there will be local foreground fit function(s) instead of global_foreground
     %
     %   set_global_background - Specify that there will be a global background fit function
     %   set_local_background  - Specify that there will be local background fit function(s)
@@ -117,8 +116,6 @@ classdef mfclass
 
 
     % Original author: T.G.Perring
-    %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 
     % Notes on inheriting mfclass for use by particular classes:
@@ -308,9 +305,6 @@ classdef mfclass
         % Foreground is local if true, or global if false
         local_foreground
 
-        % Foreground is global if true, or local if false
-        global_foreground
-
         % Foreground function handle or cell array of function handles (row vector)
         % If the foreground fit function is global, fun is a single function handle
         % If the foreground fit function(s) are local there is one function handle
@@ -366,9 +360,6 @@ classdef mfclass
         %
         % See also set_fun set_bind
         bind
-
-        % Background is local if true, or global if false
-        local_background
 
         % Background is global if true, or local if false
         global_background
@@ -439,6 +430,16 @@ classdef mfclass
         %                          data where data is masked or not fittable
         options
 
+    end
+    properties(Dependent,Hidden) % 
+        % Hide excessive interface to avoid confusion but keep it if
+        % some external programs use it
+        %
+        % Foreground is local if true, or global if false
+        global_foreground 
+        % Background is local if true, or global if false
+        local_background
+        
     end
 
     methods
@@ -584,17 +585,16 @@ classdef mfclass
             isfore = true;
             obj = set_scope_private_ (obj, isfore, val);
         end
+        function obj = set.global_foreground(obj,val)
+            if ~islognumscalar(val), error('global_foreground must be a logical scalar'), end
+            isfore = true;
+            obj = set_scope_private_ (obj, isfore, ~val);
+        end
 
         function obj = set.local_background(obj,val)
             if ~islognumscalar(val), error('local_background must be a logical scalar'), end
             isfore = false;
             obj = set_scope_private_ (obj, isfore, val);
-        end
-
-        function obj = set.global_foreground(obj,val)
-            if ~islognumscalar(val), error('global_foreground must be a logical scalar'), end
-            isfore = true;
-            obj = set_scope_private_ (obj, isfore, ~val);
         end
 
         function obj = set.global_background(obj,val)
