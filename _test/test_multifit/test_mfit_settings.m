@@ -26,9 +26,7 @@ classdef test_mfit_settings < TestCase
             ds1 = IX_dataset_1d();
             ds2 = IX_dataset_1d();
             mfc=mfclass(ds1,ds2);
-            fun1 = {@(x,p)(1+p*x),@(x,p)(p+x.^2)};
-            fun2 = {@(x,p)(1+p*x),@(x,p)(p+x.^2)};
-            funs = {fun1,fun2};
+            funs = {@(x,p)(1+p*x),@(x,p)(p+x.^2)};
             
             mfc = mfc.set_fun(funs);
             assertTrue(mfc.local_foreground);
