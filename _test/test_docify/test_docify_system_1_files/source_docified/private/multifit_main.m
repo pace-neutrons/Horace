@@ -226,8 +226,6 @@ function [ok,mess,parsing,output] = multifit_main(varargin)
 %                      (ignored if 'evaluate' not set).
 %
 %     Control if foreground and background functions are global or local:
-%   *   'global_foreground' Foreground function applies to all datasets
-%                          [Default: true]
 %   *   'local_foreground'  Foreground function(s) apply to each dataset
 %                          independently [Default: false]
 %   *   'local_background'  Background function(s) apply to each dataset
@@ -666,7 +664,7 @@ function [ok,mess,parsing,output] = multifit_main(varargin)
 %                or, in the case of foreground function(s):
 %                       ind = -1        The foreground function for the first
 %                                      data set (or the global foreground
-%                                      function, if 'global_foreground' is true)
+%                                      function, if 'local_foreground' is false)
 %                       ind = -3        The foreground function for the third
 %                                      data set (an index other than -1 is
 %                                      only valid if 'local_foreground')
@@ -768,8 +766,6 @@ function [ok,mess,parsing,output] = multifit_main(varargin)
 %               (ignored if 'evaluate' not set).
 %
 % Control if foreground and background functions are global or local:
-% * 'global_foreground' Foreground function applies to all datasets
-%                      [Default: true]
 % * 'local_foreground'  Foreground function(s) apply to each dataset
 %                      independently [Default: false]
 % * 'local_background'  Background function(s) apply to each dataset

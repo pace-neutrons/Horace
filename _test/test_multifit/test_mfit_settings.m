@@ -10,7 +10,7 @@ classdef test_mfit_settings < TestCase
             this = this@TestCase(name);
         end
         
-        function test_set_multifun(this)
+        function test_set_multifun(~)
             ds1 = IX_dataset_1d();
             ds2 = IX_dataset_1d();
             mfc=mfclass(ds1,ds2);
@@ -22,7 +22,7 @@ classdef test_mfit_settings < TestCase
             assertTrue(mfc.local_foreground);
         end
         
-        function test_set_multi_fun(this)
+        function test_set_multi_fun(~)
             ds1 = IX_dataset_1d();
             ds2 = IX_dataset_1d();
             mfc=mfclass(ds1,ds2);
@@ -30,6 +30,11 @@ classdef test_mfit_settings < TestCase
             
             mfc = mfc.set_fun(funs);
             assertTrue(mfc.local_foreground);
+            assertTrue(iscell(mfc.fun))
+            setfun = mfc.fun;
+            assertEqual(setfun{1},funs{1})
+            assertEqual(setfun{2},funs{2})            
+            
         end
         
         

@@ -14,8 +14,7 @@
 %   bbind        - binding of foreground parameters to free parameters
 %
 % To set functions as operating globally or local to a single dataset
-%   global_foreground - true if a global foreground fit function
-%   local_foreground  - true if a local foreground fit functions
+%   local_foreground  - true if a local foreground fit functions, false if global
 %   global_background - true if a global background fit function
 %   local_background  - true if a local background fit function(s)
 %
