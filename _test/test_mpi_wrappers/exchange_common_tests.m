@@ -24,7 +24,7 @@ classdef exchange_common_tests < MPI_Test_Common
             % the logic of jobExecutor processing canceled message is
             % tested here.
             %
-            serverfbMPI = MessagesFilebased(['test_JE_',obj.framework_name,'_canceled']);
+            serverfbMPI = MessagesFilebased(['test_JE_',obj.cluster_name,'_canceled']);
             serverfbMPI.mess_exchange_folder = tmp_dir;
             
             [data_exchange_folder, JOB_id] = fileparts(serverfbMPI.mess_exchange_folder);
@@ -76,7 +76,7 @@ classdef exchange_common_tests < MPI_Test_Common
             end
             
             
-            serverfbMPI = MessagesFilebased(['test_JE_',obj.framework_name]);
+            serverfbMPI = MessagesFilebased(['test_JE_',obj.cluster_name]);
             serverfbMPI.mess_exchange_folder = tmp_dir;
             
             [data_exchange_folder, JOB_id] = fileparts(serverfbMPI.mess_exchange_folder);
@@ -196,7 +196,7 @@ classdef exchange_common_tests < MPI_Test_Common
             end
             
             
-            serverfbMPI = MessagesFilebased(['test_JE_',obj.framework_name]);
+            serverfbMPI = MessagesFilebased(['test_JE_',obj.cluster_name]);
             serverfbMPI.mess_exchange_folder = tmp_dir;
             
             [data_exchange_folder, JOB_id] = fileparts(serverfbMPI.mess_exchange_folder);

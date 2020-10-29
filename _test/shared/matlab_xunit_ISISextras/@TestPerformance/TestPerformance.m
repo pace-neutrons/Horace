@@ -259,16 +259,16 @@ classdef TestPerformance < TestCaseWithSave
             % name of a field in a structure.
             %
             hpc = parallel_config;
-            framework_name = hpc.parallel_framework;
+            cluster_name = hpc.parallel_cluster;
             comp_name = getComputerName();
             p_pos = strfind(comp_name,'.');
             if ~isempty(p_pos)
                 comp_name = comp_name(1:p_pos-1);
             end
-            if strcmp(framework_name,'herbert')
+            if strcmp(cluster_name,'herbert')
                 test_name = comp_name;
             else
-                test_name = [comp_name,'_',framework_name];
+                test_name = [comp_name,'_',cluster_name];
             end
             test_name = regexprep(test_name,'[/\\]','_');
             if exist('addinfo','var')

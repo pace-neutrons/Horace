@@ -71,13 +71,9 @@ classdef test_multifit_1< TestCaseWithSave
             % Test it or store to save later
             this=save_or_test_variables(this,y1_fref, wstruct1_fref, w1_fref, p1_fref);
             
-            % Slow convergence, print output
-            list = 2;
-            if get(herbert_config,'log_level')<0
-                list=0;
-            end
+            % Slow convergence
             [y1_fslow, wstruct1_fslow, w1_fslow, p1_fslow] = mftest_mf_and_f_single_dataset (...
-                this.sd.x1,this.sd.y1,this.sd.e1,this.sd.wstruct1,this.sd.w1, @mftest_gauss_bkgd, this.pin, [1,0,1,0,0], 'list',list);
+                this.sd.x1,this.sd.y1,this.sd.e1,this.sd.wstruct1,this.sd.w1, @mftest_gauss_bkgd, this.pin, [1,0,1,0,0]);
             % Test against saved or store to save later
             this=save_or_test_variables(this,y1_fslow, wstruct1_fslow, w1_fslow, p1_fslow);
             

@@ -25,7 +25,7 @@
       </hpc_config>
       <parallel_config>
          <worker>worker_v2</worker>
-         <parallel_framework>herbert</parallel_framework>
+         <parallel_cluster>herbert</parallel_cluster>
          <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
@@ -57,7 +57,7 @@
       </hpc_config>
       <parallel_config>
          <worker>worker_v2</worker>
-         <parallel_framework>herbert</parallel_framework>
+         <parallel_cluster>herbert</parallel_cluster>
          <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
@@ -89,7 +89,7 @@
       </hpc_config>
       <parallel_config>
          <worker>worker_v2</worker>
-         <parallel_framework>herbert</parallel_framework>
+         <parallel_cluster>herbert</parallel_cluster>
          <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
@@ -121,7 +121,7 @@
       </hpc_config>
       <parallel_config>
          <worker>worker_v2</worker>
-         <parallel_framework>parpool</parallel_framework>
+         <parallel_cluster>parpool</parallel_cluster>
          <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
@@ -153,7 +153,7 @@
       </hpc_config>
       <parallel_config>
          <worker>worker_v2</worker>
-         <parallel_framework>parpool</parallel_framework>
+         <parallel_cluster>parpool</parallel_cluster>
          <cluster_config>default</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
@@ -185,7 +185,7 @@
       </hpc_config>
       <parallel_config>
          <worker>worker_v2</worker>
-         <parallel_framework>herbert</parallel_framework>
+         <parallel_cluster>herbert</parallel_cluster>
          <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
@@ -217,7 +217,7 @@
       </hpc_config>
       <parallel_config>
          <worker>worker_v2</worker>
-         <parallel_framework>parpool</parallel_framework>
+         <parallel_cluster>parpool</parallel_cluster>
          <cluster_config>default</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
@@ -249,7 +249,7 @@
       </hpc_config>
       <parallel_config>
          <worker>worker_v2</worker>
-         <parallel_framework>herbert</parallel_framework>
+         <parallel_cluster>herbert</parallel_cluster>
          <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
@@ -281,7 +281,7 @@
       </hpc_config>
       <parallel_config>
          <worker>worker_v2</worker>
-         <parallel_framework>mpiexec_mpi</parallel_framework>
+         <parallel_cluster>mpiexec_mpi</parallel_cluster>
          <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>

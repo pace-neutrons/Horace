@@ -1,5 +1,5 @@
 function [ww_f,pp_f,ok,mess] = mftest_mf_and_f_multiple_datasets (ww,varargin)
-% Test equivalence of fit and loop of multifit for array datasets
+% Test equivalence of fit and loop over multifit for array datasets
 %
 %   [ww_f,pp_f,ok,mess] = mftest_mf_and_f_multiple_datasets (ww,varargin)
 %
@@ -16,6 +16,8 @@ function [ww_f,pp_f,ok,mess] = mftest_mf_and_f_multiple_datasets (ww,varargin)
 %
 % Author: T.G.Perring
 
+% *** NEEDS TO BE REWRITTEN ONCE FIT IS RE-IMPLEMENTED
+
 % Call to fit
 [ww_f,pp_f,ok,mess]=fit(ww, varargin{:});
 if ~ok, return, end
@@ -28,9 +30,9 @@ else
 end
 for i=1:numel(ww)
     if iscell(ww)
-        [ww_fref{i},pp_fref(i),ok,mess]=fit(ww{i}, varargin{:});
+        [ww_fref{i},pp_fref(i),ok,mess]=multifit(ww{i}, varargin{:});
     else
-        [ww_fref(i),pp_fref(i),ok,mess]=fit(ww(i), varargin{:});
+        [ww_fref(i),pp_fref(i),ok,mess]=multifit(ww(i), varargin{:});
     end
     if i==1, pp_fref=repmat(pp_fref,size(ww)); end
 end

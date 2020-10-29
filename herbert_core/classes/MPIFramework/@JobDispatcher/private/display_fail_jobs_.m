@@ -92,7 +92,7 @@ elseif iscell(errOutput)
     disp('***************************************************************');
     disp(errOutput);
     for i=1:numel(errOutput)
-        sprintf(' Cell %d, contains: %s\n',i,fevalc('disp(errOutput{i}'));
+        sprintf(' Cell %d, contains: %s\n',i,evalc('disp(errOutput{i}'));
         disp_exception(errOutput{i});
     end
     disp('***************************************************************');

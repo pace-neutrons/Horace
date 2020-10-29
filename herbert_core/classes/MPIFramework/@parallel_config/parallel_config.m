@@ -1,6 +1,6 @@
 classdef parallel_config<config_base
     %The config class contains the information about the parallel cluster
-    %and the parallel framework available to run parallel Horace/Herbert
+    %and the parallel cluster available to run parallel Horace/Herbert
     %jobs
     %
     % To see the list of current configuration option values type:
@@ -28,12 +28,12 @@ classdef parallel_config<config_base
     %                        true if this script is compiled using Matlab
     %                        applications compiler.
     %
-    % parallel_framework   - The name of a framework to use. Currently
+    % parallel_cluster   - The name of a cluster to use. Currently
     %                        available are h[erbert], p[arpool] and
-    %                        [m]pi_cluster, frameworks
+    %                        [m]pi_cluster, clusters
     %
     % cluster_config       - The configuration class describing parallel
-    %                        cluster, running selected framework.
+    %                        cluster, running selected cluster.
     %
     % shared_folder_on_local - The folder on your working machine containing
     %                          the job input and output data.
@@ -46,11 +46,11 @@ classdef parallel_config<config_base
     %                        and tmp and output results should be stored. 
     %                        View from a remote worker. 
     % ---------------------------------------------------------------------
-    % known_frameworks     - Information method returning the list of
-    %                        the parallel frameworks, known to Herbert.
+    % known_clusters     - Information method returning the list of
+    %                        the parallel clusters, known to Herbert.
     % known_clust_configs  -  Information method returning the list of
     %                        the clusters, available to run the selected
-    %                        framework.
+    %                        cluster.
     % ---------------------------------------------------------------------
     % Type:
     %>>parallel_config  to see the list of current configuration option values.
@@ -69,14 +69,14 @@ classdef parallel_config<config_base
         % redistributable installed to run this application.
         is_compiled;
         
-        % The name of a framework to use for messages exchange. . Currently
-        % available are h[erbert], p[arpool] and [m]pi_cluster frameworks.
+        % The name of a cluster to use for messages exchange. . Currently
+        % available are h[erbert], p[arpool] and [m]pi_cluster-s .
         % where:
-        %    [h]erbert --stands for Poor man MPI framework, which runs on a single
+        %    [h]erbert --stands for Poor man MPI cluster, which runs on a single
         %              node only and is actually not uses MPI, but launches
         %              separate Matlab sessions using Java Launcher.
         %              The sessions exchange information between each other using
-        %              file-based messages (.mat files), so this framework is
+        %              file-based messages (.mat files), so this cluster is
         %              not suitable for any tasks, demanding heavy interprocess
         %              communications.
         %    [p]arpool --Uses Matlab parallel computing toolbox and it parallel
@@ -87,20 +87,20 @@ classdef parallel_config<config_base
         %              On Windows these libraries are provided with Herbert and
         %              configured for running the parallel jobs on a working node,
         %              but a Linux machine needs these libraries installed and
-        %              the framework compiled using herbert_mex_mpi script
+        %              the cluster compiled using herbert_mex_mpi script
         %              If the jobs are expected to run on more then
         %              one node, the nodes should be configured for MPI
         %              communications (running mpiexec).
-        %              Current framework is build and tested using MPICH v3.
+        %              Current cluster is build and tested using MPICH v3.
         %    none      -- not available. If worker can not be found on a
-        %              path, any parallel framework should be not
+        %              path, any parallel cluster should be not
         %              available. Parallel extensions will not work.
-        parallel_framework;
+        parallel_cluster;
         
         % The configuration class describing parallel cluster, running
-        % selected framework.
-        % For herbert framework, the configuration name can only be 'local'
-        % as herbert frameworks runs on a single node only. A parpool
+        % selected cluster.
+        % For herbert cluster, the configuration name can only be 'local'
+        % as herbert clusters runs on a single node only. A parpool
         % cluster accepts only 'default' configuration and actual configuration
         % is set up as default on Dsitributed computing toolbox GUI.
         % 'mpi_cluster' can accept 'local' configuration for jobs, running
@@ -153,27 +153,27 @@ classdef parallel_config<config_base
         % true, if working directory have not ever been set
         wkdir_is_default
         
-        % Information method returning the list of the parallel frameworks,
-        % known to Herbert. You can not add or change a framework
-        % using this method, The framework has to be defined and subscribed
-        % via the frameworks factory.
-        known_frameworks
+        % Information method returning the list of the parallel clusters,
+        % known to Herbert. You can not add or change a cluster
+        % using this method, The cluster has to be defined and subscribed
+        % via the clusters factory.
+        known_clusters
         
         % Information method returning list of the known clusters,
-        % available to run the selected framework.
-        % For mpiexec_mpi framework, the cluster is defined
+        % available to run the selected cluster.
+        % For mpiexec_mpi cluster, the cluster is defined
         % by a host file used as input for mpiexec (-f option).
         % These host files should be present in admin/mpi_cluster_configs
         % folder.
-        % herbert framework runs only on a local cluster.
-        % The cluster used by parpool framework is the default cluster,
+        % herbert cluster runs only on a local cluster.
+        % The cluster used by parpool cluster is the default cluster,
         % selected in parallel computing toolbox GUI
         known_clust_configs
     end
     %
     properties(Constant,Access=private)
         saved_properties_list_={'worker',...
-            'parallel_framework','cluster_config',...
+            'parallel_cluster','cluster_config',...
             'shared_folder_on_local','shared_folder_on_remote','working_directory'};
         %-------------------------------------------------------------------
     end
@@ -181,7 +181,7 @@ classdef parallel_config<config_base
         worker_ = 'worker_v2'
         is_compiled_ = false;
         % these values provide defaults for the properties above
-        parallel_framework_   = 'herbert';
+        parallel_cluster_   = 'herbert';
         % the configuration, used as default
         cluster_config_ = 'local';
         % default remote folder is unset
@@ -205,8 +205,8 @@ classdef parallel_config<config_base
             wrkr= obj.is_compiled_;
         end
         
-        function frmw =get.parallel_framework(obj)
-            frmw = get_or_restore_field(obj,'parallel_framework');
+        function frmw =get.parallel_cluster(obj)
+            frmw = get_or_restore_field(obj,'parallel_cluster');
         end
         function conf = get.cluster_config(obj)
             conf = get_or_restore_field(obj,'cluster_config');
@@ -261,19 +261,19 @@ classdef parallel_config<config_base
             
         end
         %------------------------------------------------------------------
-        function frmw = get.known_frameworks(obj)
-            % Return list of frameworks, known to Herbert
-            frmw = MPI_fmwks_factory.instance().known_frmwks_names;
+        function frmw = get.known_clusters(obj)
+            % Return list of clusters, known to Herbert
+            frmw = MPI_clusters_factory.instance().known_clusters_names;
         end
         
         function clust_names = get.known_clust_configs(obj)
-            % information about clusters (framework configurations),
-            % available for the selected framework
-            fram = obj.parallel_framework;
+            % information about clusters (cluster configurations),
+            % available for the selected cluster
+            fram = obj.parallel_cluster;
             if strcmpi(fram,'none')
                 clust_names = {'none'};
             else
-                clust_names = MPI_fmwks_factory.instance().get_all_configs();
+                clust_names = MPI_clusters_factory.instance().get_all_configs();
             end
         end
         %
@@ -287,16 +287,16 @@ classdef parallel_config<config_base
             obj = check_and_set_worker_(obj,new_wrkr);
         end
         %
-        function obj=set.parallel_framework(obj,frmwk_name)
-            % Set up MPI framework to use.
+        function obj=set.parallel_cluster(obj,cluster_name)
+            % Set up MPI cluster  to use.
             %
-            % Available options defined by known_frameworks and are
-            % defined in MPI_fmwks_factory
+            % Available options defined by known_clusters and are
+            % defined in MPI_clusters_factory
             %
-            % The framework name (can be defined by single symbol)
-            % or by a framework number in the list of frameworks
+            % The cluster name (can be defined by single symbol)
+            % or by a cluster number in the list of clusters
             %
-            obj = check_and_set_frmwk_(obj,frmwk_name);
+            obj = check_and_set_cluster_(obj,cluster_name);
         end
         %
         function obj = set.cluster_config(obj,val)
