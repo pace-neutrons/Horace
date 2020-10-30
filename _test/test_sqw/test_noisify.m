@@ -15,6 +15,8 @@ properties
     pix_fields = {'u1', 'u2', 'u3', 'dE', 'coordinates', 'q_coordinates', ...
                   'run_idx', 'detector_idx', 'energy_idx', 'signal', ...
                   'variance'};
+              
+    search_path_herbert_shared = [herbert_root '/_test/shared'];
 end
 
 properties (Constant)
@@ -46,12 +48,12 @@ methods
         % add path for concatenate-pixel_pages
         addpath('./utils')
         % add path for deterministic psuedorandom sequence
-        addpath('../../../Herbert/_test/shared');
+        addpath(obj.search_path_herbert_shared);
     end
 
     function delete(obj)
         rmpath('./utils')
-        rmpath('../../../Herbert/_test/shared');
+        rmpath(obj.search_path_herbert_shared);
         warning(obj.old_warn_state);
     end
 
