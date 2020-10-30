@@ -15,8 +15,6 @@ function [ok, mess, obj] = set_fun_private_ (obj, isfore, args)
 
 
 % Original author: T.G.Perring
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 
 if isfore
