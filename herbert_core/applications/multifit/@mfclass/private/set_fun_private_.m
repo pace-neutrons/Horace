@@ -18,10 +18,10 @@ function [ok, mess, obj] = set_fun_private_ (obj, isfore, args)
 
 
 if isfore
-    fun_type = 'fore';
+    %fun_type = 'fore';
     nfun = numel(obj.fun_);
 else
-    fun_type = 'back';
+    %fun_type = 'back';
     nfun = numel(obj.bfun_);
 end
 
@@ -31,14 +31,6 @@ if numel(args)==0
     mess = '';
     return
 end
-
-% % Check there is data
-% % -------------------
-% if isempty(obj.data_)
-%     ok = false;
-%     mess = ['Cannot set ', fun_type, 'ground function(s) before data has been set.'];
-%     return
-% end
 
 % Parse input arguments
 % ---------------------
