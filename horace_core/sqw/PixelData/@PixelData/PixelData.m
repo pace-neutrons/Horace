@@ -230,6 +230,7 @@ methods
     pix_out = get_data(obj, fields, abs_pix_indices);
     pix_out = get_pixels(obj, abs_pix_indices);
     pix_out = mask(obj, mask_array, npix);
+    pix_out = noisify(obj, varargin);
     obj = move_to_page(obj, page_number);
 
     function obj = PixelData(arg, mem_alloc)
