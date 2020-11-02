@@ -22,7 +22,9 @@ methods
 
         hc.log_level = 0;  % hide the (quite verbose) equal_to_tol output
 
-        hc.pixel_page_size = 100e3;
+        % sqw_2d_1.sqw has ~1.8 MB of pixels, a 400 kB page size gives us 5
+        % pages of pixel data
+        hc.pixel_page_size = 400e3;
         obj.sqw_2d_paged = sqw(obj.test_sqw_file_path);
 
         % set a large pixel page size so we're all in memory by default
