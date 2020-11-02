@@ -7,7 +7,7 @@ function [diag,type]=test_symmetrisation_plane_digaonal(win,v1,v2,v3)
 % RAE 13/1/10
 %
 
-win=sqw(win);
+win=sqw_old(win);
 
 %declare output:
 diag=false; type=0;

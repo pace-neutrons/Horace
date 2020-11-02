@@ -391,9 +391,9 @@ function [wout, fitdata, ok, mess] = fit_legacy_func(win, varargin)
 % Work via sqw class type
 
 if nargout<3
-    [wout,fitdata]=fit_func(sqw(win), varargin{:});  % forces failure if there is an error, as is the convention for fit when no ok argument
+    [wout,fitdata]=fit_func(sqw_old(win), varargin{:});  % forces failure if there is an error, as is the convention for fit when no ok argument
 else
-    [wout,fitdata,ok,mess]=fit_func(sqw(win), varargin{:});
+    [wout,fitdata,ok,mess]=fit_func(sqw_old(win), varargin{:});
 end
 wout=dnd(wout);
 

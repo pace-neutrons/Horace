@@ -169,7 +169,7 @@ sz = cellfun(@(x)max(size(x,1),1),pbin);     % size of array of cuts (note: nume
 if return_cut
     sz_squeeze = [sz(sz>1),ones(1,max(2-sum(sz>1),0))];
     if opt.keep_pix
-        wout = repmat(sqw,sz_squeeze);
+        wout = repmat(sqw_old,sz_squeeze);
     else
         wout = eval(['repmat(d',num2str(ndims),'d,sz_squeeze)']);
     end

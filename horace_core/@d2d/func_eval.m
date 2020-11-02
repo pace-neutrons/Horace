@@ -55,5 +55,5 @@ function wout = func_eval (win, varargin)
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------
 % Work via sqw class type
 
-wout=dnd(func_eval(sqw(win),varargin{:}));
+wout=dnd(func_eval(sqw_old(win),varargin{:}));
 

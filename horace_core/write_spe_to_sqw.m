@@ -49,7 +49,7 @@ function [grid_size, urange] = write_spe_to_sqw (varargin)
 
 
 % Gateway routine that calls sqw method
-[grid_size,urange] = write_spe_to_sqw (sqw, varargin{:});
+[grid_size,urange] = write_spe_to_sqw (sqw_old, varargin{:});
 
 % Clear output arguments if nargout==0 to have a silent return
 if nargout==0

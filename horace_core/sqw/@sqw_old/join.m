@@ -36,7 +36,7 @@ if nargin >1 && ~isempty(wi) && isa(wi,'sqw') ...
 end
 
 % Default output
-if initflag; wout=sqw(wi); else wout=sqw(); end
+if initflag; wout=sqw_old(wi); else wout=sqw_old(); end
 
 % Check for identical main_headers
 if initflag; main_header=wi.main_header; else main_header=w(1).main_header; end

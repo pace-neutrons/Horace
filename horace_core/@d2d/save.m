@@ -40,5 +40,5 @@ if numel(file_internal)~=numel(w)
 end
 
 % Write data to file. TODO: OOM violation -- use local method to save. 
-save(sqw(w),file_internal)
+save(sqw_old(w),file_internal)
 

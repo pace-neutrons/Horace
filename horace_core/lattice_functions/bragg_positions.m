@@ -97,7 +97,7 @@ function [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu,...
 
 % Check input arguments
 if ischar(w)    % assume a file name
-    file_type_ok=is_sqw_type_file(sqw,w);
+    file_type_ok=is_sqw_type_file(sqw_old,w);
     if ~isscalar(file_type_ok) || ~file_type_ok
         error('File must be sqw type')
     end

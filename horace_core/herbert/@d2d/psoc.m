@@ -10,7 +10,7 @@ function [figureHandle, axesHandle, plotHandle] = psoc(w,varargin)
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = psoc(w)
 
-[figureHandle_, axesHandle_, plotHandle_] = psoc(sqw(w),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = psoc(sqw_old(w),varargin{:});
 
 % Output only if requested
 if nargout>=1, figureHandle=figureHandle_; end

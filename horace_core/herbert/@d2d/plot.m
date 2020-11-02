@@ -6,7 +6,7 @@ function [figureHandle, axesHandle, plotHandle] = plot(w,varargin)
 % Equivalent to:
 %   >> da(w)
 
-[figureHandle_, axesHandle_, plotHandle_] = plot(sqw(w),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = plot(sqw_old(w),varargin{:});
 
 % Output only if requested
 if nargout>=1, figureHandle=figureHandle_; end

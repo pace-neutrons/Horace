@@ -187,7 +187,7 @@ sz = cellfun(@(x)max(size(x,1),1),pbin);    % size of array of cuts (note: numel
 sz_squeeze = [sz(sz>1),ones(1,max(2-sum(sz>1),0))];
 if return_cut
     if opt.keep_pix
-        wout = sqw;
+        wout = sqw_old;
     else
         wout = eval(sprintf('d%dd',ndims)); % construct a d0d, d1d, d2d, d3d, d4d, ...
     end    

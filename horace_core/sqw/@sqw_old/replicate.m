@@ -50,12 +50,12 @@ end
 % Otherwise, could be any sort of object, so check it is an sqw or dnd object, and convert to dnd-type sqw object
 if isscalar(wref) && isa(wref,'sqw')
     if is_sqw_type(wref)
-        wref_dnd_type=sqw(dnd(wref));
+        wref_dnd_type=sqw_old(dnd(wref));
     else
         wref_dnd_type=wref;
     end
 elseif isscalar(wref) && (isa(wref,'d0d')||isa(wref,'d1d')||isa(wref,'d2d')||isa(wref,'d3d')||isa(wref,'d4d'))
-    wref_dnd_type=sqw(wref);
+    wref_dnd_type=sqw_old(wref);
 else
     error('Check input argument types - the second argument must be a scalar dnd or sqw object')
 end
@@ -70,7 +70,7 @@ if isa(win,'sqw')
     end
 else
     for i=1:numel(win)
-        tmp=sqw(win(i));
+        tmp=sqw_old(win(i));
         wout(i).data = replicate_dnd(tmp.data,wref_dnd_type.data);
     end
 end

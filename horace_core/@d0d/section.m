@@ -15,6 +15,6 @@ function wout = section (win, varargin)
 if nargin==1
     wout = win; % trivial case of no sectioning being required
 else
-    wout = dnd(section(sqw(win),varargin{:}));
+    wout = dnd(section(sqw_old(win),varargin{:}));
 end
 

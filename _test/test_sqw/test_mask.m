@@ -32,7 +32,7 @@ methods
         obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
 
         % 2D case setup
-        obj.sqw_2d = sqw(obj.sqw_2d_file_path);
+        obj.sqw_2d = sqw_old(obj.sqw_2d_file_path);
 
         obj.idxs_to_mask = [2, 46, 91, 93, 94, 107, 123, 166];
         obj.mask_array_2d = ones(size(obj.sqw_2d.data.npix), 'logical');
@@ -43,7 +43,7 @@ methods
                 obj.get_paged_sqw(obj.sqw_2d_file_path, obj.mask_array_2d);
 
         % 3D case setup
-        obj.sqw_3d = sqw(obj.sqw_3d_file_path);
+        obj.sqw_3d = sqw_old(obj.sqw_3d_file_path);
 
         num_bins = numel(obj.sqw_3d.data.npix);
         obj.idxs_to_mask_3d = linspace(1, num_bins/2, num_bins/2);
@@ -255,7 +255,7 @@ methods (Static)
         new_pg_size = file_info.bytes/6;
         set(hor_config, 'pixel_page_size', new_pg_size);
 
-        paged_sqw = sqw(file_path);
+        paged_sqw = sqw_old(file_path);
         masked_sqw = mask(paged_sqw, mask_array);
 
         % make sure we're actually paging the pixel data

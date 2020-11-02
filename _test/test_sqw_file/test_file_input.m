@@ -149,16 +149,16 @@ classdef  test_file_input < TestCase
 
            
             cut(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp0_file);
-            tmp0=read(sqw,tmp0_file);
+            tmp0=read(sqw_old,tmp0_file);
             
             cut_horace(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp_file);
-            tmp=read(sqw,tmp_file); if ~equal_to_tol(tmp0,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
+            tmp=read(sqw_old,tmp_file); if ~equal_to_tol(tmp0,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
             
             cut_sqw(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp_file);
-            tmp=read(sqw,tmp_file); if ~equal_to_tol(tmp0,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
+            tmp=read(sqw_old,tmp_file); if ~equal_to_tol(tmp0,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
             
             cut_horace(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp_file);
-            tmp=read(sqw,tmp_file);
+            tmp=read(sqw_old,tmp_file);
             [ok,mess]=equal_to_tol(tmp0,tmp,'ignore_str',1); assertTrue(ok,['test_file_input: Error in functionality',mess]);
             
             % looks like waste of time?
@@ -239,7 +239,7 @@ classdef  test_file_input < TestCase
             % Reading data
             % =================================================================================================
             
-            tmp=read(sqw,obj.sqw2d_name{2});
+            tmp=read(sqw_old,obj.sqw2d_name{2});
             if ~equal_to_tol(obj.sqw2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
             
             tmp=read_sqw(obj.sqw2d_name{2});

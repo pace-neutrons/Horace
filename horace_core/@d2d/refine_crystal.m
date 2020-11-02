@@ -36,7 +36,7 @@ if ~isempty(mess), error(mess); end
 % Perform operations
 % ------------------
 % Now call sqw cut routine. Output (if any), is a cell array, as method is passed a data source structure
-argout=refine_crystal(sqw,w,args{:});
+argout=refine_crystal(sqw_old,w,args{:});
 
 % Package output arguments
 % ------------------------

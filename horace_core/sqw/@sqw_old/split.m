@@ -25,7 +25,7 @@ if nfiles==1
 end
 
 % Default output
-wout=repmat(sqw,[nfiles,1]);
+wout=repmat(sqw_old,[nfiles,1]);
 
 % Get pointers to components of w:
 main_header=w.main_header;

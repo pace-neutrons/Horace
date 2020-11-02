@@ -118,15 +118,15 @@ for i=1:numel(win)
 
     % Package up as a dnd-type sqw object in the output array
     if nd_out==0
-        wout_disp(i)=sqw(d0d(data));
+        wout_disp(i)=sqw_old(d0d(data));
     elseif nd_out==1
-        wout_disp(i)=sqw(d1d(data));
+        wout_disp(i)=sqw_old(d1d(data));
     elseif nd_out==2
-        wout_disp(i)=sqw(d2d(data));
+        wout_disp(i)=sqw_old(d2d(data));
     elseif nd_out==3
-        wout_disp(i)=sqw(d3d(data));
+        wout_disp(i)=sqw_old(d3d(data));
     elseif nd_out==4
-        wout_disp(i)=sqw(d4d(data));
+        wout_disp(i)=sqw_old(d4d(data));
     end
     if nargout==2
         wout_weight=wout_disp;

@@ -142,7 +142,7 @@ if narg>=2 && is_filename(varargin{2}) && (is_horace_data_file_opt(varargin{1}) 
     %  - if dnd object: All files must have the same dimensionality as the dummy object.
     %                  The files will be read as dnd data; any pixel information is ignored.
     try
-        [sqw_type,ndims,nfiles,filename,mess,ld] = is_sqw_type_file(sqw,varargin{2});
+        [sqw_type,ndims,nfiles,filename,mess,ld] = is_sqw_type_file(sqw_old,varargin{2});
     catch
         mess = 'Unable to read data file(s) - check file(s) exist and are Horace data file(s) (sqw or dnd type binary file)';
     end
@@ -213,7 +213,7 @@ elseif narg>=2 && is_horace_data_object(varargin{1}) && (isstruct(varargin{2}) &
         % Dummy object is sqw object
         data_source=varargin{2};
         if ~data_source.source_is_file && ~isa(data_source.data,'sqw')
-            data_source.data=sqw(data_source.data);     % turn dnd object into dnd-type sqw object
+            data_source.data=sqw_old(data_source.data);     % turn dnd object into dnd-type sqw object
         end
     end
     if isempty(mess)

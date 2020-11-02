@@ -31,4 +31,4 @@ function save_xye (w,varargin)
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------
 % Work via sqw class type
 
-save_xye(sqw(w),varargin{:});
+save_xye(sqw_old(w),varargin{:});
