@@ -21,7 +21,7 @@ if ndims~=1
 end
 
 if nargin==2
-    if isa(win,'d1d') && (isa(varargin{1},'d1d') || isa(varargin{1},'sqw'))
+    if isa(win,'d1d') && (isa(varargin{1},'d1d') || isa(varargin{1},'sqw_old'))
         [ndims2,sz]=dimensions(varargin{1});
         if ndims2~=1
             error('Horace error: can only rebin a d1d object with another d1d or a 1-dimensional sqw');

@@ -152,7 +152,7 @@ if narg>=2 && is_filename(varargin{2}) && (is_horace_data_file_opt(varargin{1}) 
             sqw_obj=false;
             dnd_obj=false;
         else
-            sqw_obj=isa(varargin{1},'sqw');
+            sqw_obj=isa(varargin{1},'sqw_old');
             dnd_obj=~sqw_obj;
         end
         if (sqw_obj||opt_sqw) && ~all(sqw_type(:))
@@ -194,7 +194,7 @@ elseif narg>=2 && is_horace_data_object(varargin{1}) && (isstruct(varargin{2}) &
     % We 'round down' the sqw type if file data source structure; or use dnd() or sqw() according
     % to class(dummy_obj) if object data source structure.
     mess='';
-    if ~isa(varargin{1},'sqw')
+    if ~isa(varargin{1},'sqw_old')
         % Dummy object is d0d, d1d,... or d4d
         % If file or object data, must do the following:
         if any(varargin{2}.ndims~=dimensions(varargin{1}(1)))
@@ -204,7 +204,7 @@ elseif narg>=2 && is_horace_data_object(varargin{1}) && (isstruct(varargin{2}) &
             data_source.sqw_type=false(size(data_source.sqw_type));
         end
         % If object data, must convert (only do if different, to avoid overheads)
-        if ~data_source.source_is_file && isa(data_source.data,'sqw')
+        if ~data_source.source_is_file && isa(data_source.data,'sqw_old')
             data_source.data=dnd(data_source.data);
         end
         % Make sure the nfiles is zet to zero
@@ -212,7 +212,7 @@ elseif narg>=2 && is_horace_data_object(varargin{1}) && (isstruct(varargin{2}) &
     else
         % Dummy object is sqw object
         data_source=varargin{2};
-        if ~data_source.source_is_file && ~isa(data_source.data,'sqw')
+        if ~data_source.source_is_file && ~isa(data_source.data,'sqw_old')
             data_source.data=sqw_old(data_source.data);     % turn dnd object into dnd-type sqw object
         end
     end
@@ -227,7 +227,7 @@ elseif narg>=1 && is_horace_data_object(varargin{1})
     % contain pixel information (to be consistent with how file data is handled).
     % That is, a dnd-tpye sqw object is not permitted.
     mess='';
-    if isa(varargin{1},'sqw')
+    if isa(varargin{1},'sqw_old')
         sqw_type=true(size(varargin{1}));
         ndims=zeros(size(varargin{1}));
         nfiles=zeros(size(varargin{1}));

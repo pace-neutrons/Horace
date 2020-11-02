@@ -41,23 +41,23 @@ classdef test_read_all< TestCase
             tobj = {sqw_old(),sqw_old()};
             out = test_read_all.interface2tst(tobj);
             assertTrue(iscell(out))
-            assertTrue(isa(out{1},'sqw'));
+            assertTrue(isa(out{1},'sqw_old'));
             assertEqual(numel(out),2);
             
             out = test_read_all.interface2tst(tobj{:});
             assertFalse(iscell(out))
             assertEqual(numel(out),2)
-            assertTrue(isa(out,'sqw'));
+            assertTrue(isa(out,'sqw_old'));
             
             [out1,out2] = test_read_all.interface2tst(tobj{:});
-            assertTrue(isa(out1,'sqw'));
-            assertTrue(isa(out2,'sqw'));
+            assertTrue(isa(out1,'sqw_old'));
+            assertTrue(isa(out2,'sqw_old'));
             
             tobj = {sqw_old(),d1d(),sqw_old()};
             [out1,out2,out3] = test_read_all.interface2tst(tobj{:});
-            assertTrue(isa(out1,'sqw'));
+            assertTrue(isa(out1,'sqw_old'));
             assertTrue(isa(out2,'d1d'));
-            assertTrue(isa(out3,'sqw'));
+            assertTrue(isa(out3,'sqw_old'));
             
             out = test_read_all.interface2tst(tobj{:});
             assertTrue(iscell(out))
@@ -87,7 +87,7 @@ classdef test_read_all< TestCase
             
             assertEqual(numel(out),2);
             assertFalse(iscell(out));
-            assertTrue(isa(out,'sqw'));
+            assertTrue(isa(out,'sqw_old'));
             
             
             files = {fullfile(obj.sample_dir,'test_sqw_file','test_sqw_file_read_write_v3_1.sqw'),...
@@ -97,7 +97,7 @@ classdef test_read_all< TestCase
             
             assertEqual(numel(out),3);
             assertTrue(iscell(out));
-            assertTrue(isa(out{1},'sqw'));
+            assertTrue(isa(out{1},'sqw_old'));
             assertTrue(isa(out{3},'d2d'));
         end
         function obj = test_head(obj)

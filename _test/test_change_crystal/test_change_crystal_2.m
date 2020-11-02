@@ -123,10 +123,10 @@ change_crystal_test(rlu_corr, w2_2_file, 'hor', true, w2c_2_file)
 change_crystal_test(rlu_corr, w1_1_file, 'hor', true, w1c_1_file)
 change_crystal_test(rlu_corr, w1_2_file, 'hor', true, w1c_2_file)
 if(log_level>-1); disp('Testing...'); end
-change_crystal_test(rlu_corr, w2_1_file, 'sqw', true, w2c_1_file)
-change_crystal_test(rlu_corr, w2_2_file, 'sqw', true, w2c_2_file)
-change_crystal_test(rlu_corr, w1_1_file, 'sqw', true, w1c_1_file)
-change_crystal_test(rlu_corr, w1_2_file, 'sqw', true, w1c_2_file)
+change_crystal_test(rlu_corr, w2_1_file, 'sqw_old', true, w2c_1_file)
+change_crystal_test(rlu_corr, w2_2_file, 'sqw_old', true, w2c_2_file)
+change_crystal_test(rlu_corr, w1_1_file, 'sqw_old', true, w1c_1_file)
+change_crystal_test(rlu_corr, w1_2_file, 'sqw_old', true, w1c_2_file)
 if(log_level>-1); disp('Testing...'); end
 change_crystal_test(rlu_corr, w2_1_file, 'dnd', true, w2c_1_file)
 change_crystal_test(rlu_corr, w2_2_file, 'dnd', true, w2c_2_file)
@@ -138,10 +138,10 @@ change_crystal_test(rlu_corr, d2_1_file, 'hor', true, d2c_1_file)
 change_crystal_test(rlu_corr, d2_2_file, 'hor', true, d2c_2_file)
 change_crystal_test(rlu_corr, d1_1_file, 'hor', true, d1c_1_file)
 change_crystal_test(rlu_corr, d1_2_file, 'hor', true, d1c_2_file)
-change_crystal_test(rlu_corr, d2_1_file, 'sqw', false, d2c_1_file)
-change_crystal_test(rlu_corr, d2_2_file, 'sqw', false, d2c_2_file)
-change_crystal_test(rlu_corr, d1_1_file, 'sqw', false, d1c_1_file)
-change_crystal_test(rlu_corr, d1_2_file, 'sqw', false, d1c_2_file)
+change_crystal_test(rlu_corr, d2_1_file, 'sqw_old', false, d2c_1_file)
+change_crystal_test(rlu_corr, d2_2_file, 'sqw_old', false, d2c_2_file)
+change_crystal_test(rlu_corr, d1_1_file, 'sqw_old', false, d1c_1_file)
+change_crystal_test(rlu_corr, d1_2_file, 'sqw_old', false, d1c_2_file)
 change_crystal_test(rlu_corr, d2_1_file, 'dnd', true, d2c_1_file)
 change_crystal_test(rlu_corr, d2_2_file, 'dnd', true, d2c_2_file)
 change_crystal_test(rlu_corr, d1_1_file, 'dnd', true, d1c_1_file)
@@ -194,7 +194,7 @@ try
         copyfile(input,tmpfile);
         if strcmpi(type,'hor')
             change_crystal_horace(tmpfile,rlu_corr);
-        elseif strcmpi(type,'sqw')
+        elseif strcmpi(type,'sqw_old')
             change_crystal_sqw(tmpfile,rlu_corr);
         elseif strcmpi(type,'dnd')
             change_crystal_dnd(tmpfile,rlu_corr);

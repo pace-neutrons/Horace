@@ -8,5 +8,5 @@ function name = classname
 
 % Generic function
 
-name = 'sqw';
+name = 'sqw_old';
 

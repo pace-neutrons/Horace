@@ -12,7 +12,7 @@ function wout = binary_op_manager_single(w1, w2, binary_op)
 %           >> name = classname     % no argument - gets called by its association
 %                                     with the class
 %
-allowed_types = {'double', 'd0d', 'd1d', 'd2d', 'd3d', 'd4d', 'sqw', 'sigvar'};
+allowed_types = {'double', 'd0d', 'd1d', 'd2d', 'd3d', 'd4d', 'sqw_old', 'sigvar'};
 if ~ismember(class(w1), allowed_types) || ~ismember(class(w2), allowed_types)
     error('SQW:binary_op_manager_single', ...
           ['Cannot perform binary operation between types ' ...
@@ -21,7 +21,7 @@ end
 
 if ~isa(w1, 'double') && ~isa(w2, 'double')
 
-    if isa(w1, 'sqw') && isa(w2, 'sqw')
+    if isa(w1, 'sqw_old') && isa(w2, 'sqw_old')
         % Both inputs SQW objects
         wout = do_binary_op_sqw_sqw(w1, w2, binary_op);
 

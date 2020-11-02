@@ -29,7 +29,7 @@ end
 % -----------------------------------------------------------------------------
 function [obj, exclude_pix] = parse_args(obj, varargin)
     parser = inputParser();
-    parser.addRequired('obj', @(x) isa(x, 'sqw'));
+    parser.addRequired('obj', @(x) isa(x, 'sqw_old'));
     parser.addParameter('exclude_pix', false, @(x) islogical(x));
     parser.parse(obj, varargin{:});
 

@@ -28,7 +28,7 @@ if ndims1~=2 || ndims2~=2
     error('Horace error: ensure both objects have the same dimensionality')   
 end
 
-if isa(w1,'sqw') && isa(w2,'sqw')
+if isa(w1,'sqw_old') && isa(w2,'sqw_old')
     if is_sqw_type(sqw_old(w1)) && is_sqw_type(sqw_old(w2))
         error('Horace error: d1d method cannot be used for 2 sqw objects with pixel info. Logic flaw');
     end

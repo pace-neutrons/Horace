@@ -18,7 +18,7 @@ function [inst, all_inst] = get_inst_class (varargin)
 
 
 % Check data
-sqw_objects = cellfun(@(x)isa(x,'sqw'), varargin);
+sqw_objects = cellfun(@(x)isa(x,'sqw_old'), varargin);
 if ~all(sqw_objects(:))
     error('All inputs must be sqw objects or sqw object arrays')
 end

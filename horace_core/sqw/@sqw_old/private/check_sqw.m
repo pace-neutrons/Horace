@@ -16,7 +16,7 @@ function [ok, mess, type, dout] = check_sqw (d, type_in)
 %   ok      ok=true if valid, =false if not
 %   mess    Message if not a valid sqw object, empty string if is valid.
 %   type    type='b+' if no pixel information (i.e. 'dnd' case);
-%           type='a' if full pixel information (i.e. 'sqw' type)
+%           type='a' if full pixel information (i.e. 'sqw_old' type)
 %               If not OK, then type=''
 %   dout    Output data structure with valid fields
 %           - Empty fields that are valid are converted to required form

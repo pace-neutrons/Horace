@@ -14,8 +14,8 @@ function [ok,mess,w1tot,w2tot]=is_cut_equal(f1,f2,varargin)
 
 if ischar(f1), f1={f1}; end
 if ischar(f2), f2={f2}; end
-if isa(f1,'sqw'), f1={f1}; end
-if isa(f2,'sqw'), f2={f2}; end
+if isa(f1,'sqw_old'), f1={f1}; end
+if isa(f2,'sqw_old'), f2={f2}; end
 
 w1=repmat(sqw_old,1,numel(f1));
 w2=repmat(sqw_old,1,numel(f2));

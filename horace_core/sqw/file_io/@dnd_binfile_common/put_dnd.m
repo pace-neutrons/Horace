@@ -22,12 +22,12 @@ end
 if ~isempty(argi)
     input = argi{1};
     type = class(input);
-    if ~(ismember(type,{'d0d','d1d','d2d','d3d','d4d','sqw'}) || is_sqw_struct(input))
+    if ~(ismember(type,{'d0d','d1d','d2d','d3d','d4d','sqw_old'}) || is_sqw_struct(input))
         error('SQW_FILE_IO:invalid_artgument',...
             'put_sqw: this function can accept only sqw or dnd-type object, and got %s',type)
     end
     storage = obj.sqw_holder_;
-    if isa(input,'sqw')
+    if isa(input,'sqw_old')
         obj.sqw_holder_ = input.data;
     else
         obj.sqw_holder_ = input;

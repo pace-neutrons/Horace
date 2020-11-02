@@ -99,7 +99,7 @@ else
             main_header, header, detpar, data, npixtot, pix_position,...
             proj_trans, pbin_trans, pin, en, opt_tmp, hor_log_level);
         % Transform pixels
-        if isa(wtmp{i},'sqw') && numel(wtmp{i}.data.pix.data)>0
+        if isa(wtmp{i},'sqw_old') && numel(wtmp{i}.data.pix.data)>0
             wtmp{i}.data.pix.q_coordinates = transform_pix (sym{i-1},...
                 upix_to_rlu, upix_offset, wtmp{i}.data.pix.q_coordinates);
         end
@@ -114,7 +114,7 @@ else
         disp('Combining symmetry related cuts...')
     end
 
-    if isa(wtmp{1},'sqw')
+    if isa(wtmp{1},'sqw_old')
         wout = combine_sqw_same_bins (wtmp{:});
     else
         wout = combine_dnd_same_bins (wtmp{:});
@@ -145,7 +145,7 @@ end
 % % Reverse engineer the projection and binning of a cut. Works for dnd and sqw
 % % objects
 %
-% if isa(w,'sqw')
+% if isa(w,'sqw_old')
 %     data = w.data;
 % else
 %     data = w;

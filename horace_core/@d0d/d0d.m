@@ -57,7 +57,7 @@ function w = d0d (varargin)
 
 ndim_request = 0;
 class_type = 'd0d';
-inferiorto('sqw');
+inferiorto('sqw_old');
 
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------
 % Work via sqw class type

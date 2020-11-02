@@ -25,7 +25,7 @@ function [figureHandle, axesHandle, plotHandle] = ps2(w,varargin)
 
 
 % Check input arguments (must allow for the two cases of one or two plotting input arguments)
-if ~isa(w,'sqw')
+if ~isa(w,'sqw_old')
     error('Object to plot must be an sqw object or array of objects')
 end
 

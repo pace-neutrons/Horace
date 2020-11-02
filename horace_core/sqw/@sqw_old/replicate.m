@@ -35,7 +35,7 @@ function wout = replicate (win,wref)
 % -----------------------------
 % If came from replicate method of a dnd class, then win will be dnd-type sqw object
 % Otherwise, could be any sort of object, so check it is an sqw or dnd object
-if isa(win,'sqw')
+if isa(win,'sqw_old')
     ndim=dimensions(win(1));
     for i=2:numel(win)
         if dimensions(win(i))~=ndim
@@ -48,7 +48,7 @@ end
 
 % If came from replicate method of a dnd class, then wref will be dnd-type sqw object
 % Otherwise, could be any sort of object, so check it is an sqw or dnd object, and convert to dnd-type sqw object
-if isscalar(wref) && isa(wref,'sqw')
+if isscalar(wref) && isa(wref,'sqw_old')
     if is_sqw_type(wref)
         wref_dnd_type=sqw_old(dnd(wref));
     else
@@ -64,7 +64,7 @@ end
 % Perform replication
 % -------------------
 wout = repmat(wref_dnd_type,size(win));  % wout will be a dnd-type sqw object
-if isa(win,'sqw')
+if isa(win,'sqw_old')
     for i=1:numel(win)
         wout(i).data = replicate_dnd(win(i).data,wref_dnd_type.data);
     end

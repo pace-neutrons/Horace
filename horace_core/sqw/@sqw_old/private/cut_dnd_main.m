@@ -49,7 +49,7 @@ if iscellstr(data_source)
     source_is_file=true;
 elseif ischar(data_source)
     source_is_file=true;
-elseif isa(data_source,'sqw')
+elseif isa(data_source,'sqw_old')
     source_is_file=false;
 else
     error('Logic problem in chain of cut methods. See T.G.Perring')

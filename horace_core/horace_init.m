@@ -24,7 +24,7 @@ addpath(rootpath)  % MUST have rootpath so that horace_init, horace_off included
 % Add admin functions to the path first
 addpath(fullfile(rootpath,'admin'));
 % add sqw immediately after dnd classes
-addpath_message (1,rootpath,'sqw');
+addpath_message (1,rootpath,'sqw_old');
 addpath_message (1,rootpath,'algorithms');
 
 % Add support package
