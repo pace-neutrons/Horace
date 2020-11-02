@@ -4,6 +4,8 @@ properties
     old_config;
     old_warn_state;
 
+    ALL_IN_MEM_PG_SIZE = 1e12;
+
     test_sqw_file_path = '../test_sqw_file/sqw_2d_1.sqw';
     sqw_2d;
     sqw_2d_paged;
@@ -28,7 +30,7 @@ methods
         obj.sqw_2d_paged = sqw(obj.test_sqw_file_path);
 
         % set a large pixel page size so we're all in memory by default
-        hc.pixel_page_size = 1e12;
+        hc.pixel_page_size = obj.ALL_IN_MEM_PG_SIZE;
         obj.sqw_2d = sqw(obj.test_sqw_file_path);
     end
 
@@ -108,7 +110,7 @@ methods
         assertTrue(equal_to_tol(obj.sqw_2d_paged, sqw_copy));
     end
 
-    function test_the_same_sqw_objs_eq_if_fraction_of_pix_and_pix_paged(obj)
+    function test_the_same_sqw_objs_eq_if_fraction_of_pix_and_pix_are_paged(obj)
         sqw_copy = obj.sqw_2d_paged;
         assertTrue(equal_to_tol(obj.sqw_2d_paged, sqw_copy, 'fraction', 0.5));
     end
@@ -243,8 +245,8 @@ methods (Static)
             shuffled_bin_pix = pix_in_bin(:, randperm(size(pix_in_bin, 2)));
             shuffled_pix.data(:, bin_start:bin_end) = shuffled_bin_pix;
 
-            % Checksum to ensure the bin's columns contain the same values
-            assertEqual(sum(shuffled_bin_pix, 2), sum(pix_in_bin, 2), '', [0, 1e-8]);
+            % Checksum to ensure the bins' columns contain the same values
+            assertEqual(sum(shuffled_bin_pix, 2), sum(pix_in_bin, 2), '', 1e-8);
         end
     end
 
