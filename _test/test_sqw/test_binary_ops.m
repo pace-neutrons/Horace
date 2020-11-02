@@ -57,7 +57,7 @@ methods
     function test_adding_sqw_and_dnd_objects_1st_operand_is_sqw_returns_sqw(obj)
         out = obj.sqw_obj + obj.dnd_obj;
 
-        assertTrue(isa(out, 'sqw'));
+        assertTrue(isa(out, 'sqw_old'));
 
         expected_signal = obj.sqw_obj.data.s + obj.dnd_obj.s;
         assertElementsAlmostEqual(out.data.s, expected_signal, 'relative', ...
@@ -67,7 +67,7 @@ methods
     function test_adding_sqw_and_dnd_objects_2nd_operand_is_sqw_returns_sqw(obj)
         out = obj.dnd_obj + obj.sqw_obj;
 
-        assertTrue(isa(out, 'sqw'));
+        assertTrue(isa(out, 'sqw_old'));
 
         expected_signal = obj.sqw_obj.data.s + obj.dnd_obj.s;
         assertElementsAlmostEqual(out.data.s, expected_signal, 'relative', ...
@@ -77,7 +77,7 @@ methods
     function test_dnd_minus_equivalent_sqw_returns_sqw_with_zero_image_data(obj)
         out = obj.dnd_obj - obj.sqw_obj;
 
-        assertTrue(isa(out, 'sqw'));
+        assertTrue(isa(out, 'sqw_old'));
 
         % Scale the difference to account for floating point errors
         scaled_diff = out.data.s./max(obj.dnd_obj.s, obj.sqw_obj.data.s);
@@ -91,7 +91,7 @@ methods
     function test_sqw_minus_equivalent_dnd_returns_sqw_with_zero_image_data(obj)
         out = obj.sqw_obj - obj.dnd_obj;
 
-        assertTrue(isa(out, 'sqw'));
+        assertTrue(isa(out, 'sqw_old'));
 
         % Scale the difference to account for floating point errors
         scaled_diff = out.data.s./max(obj.dnd_obj.s, obj.sqw_obj.data.s);
@@ -106,7 +106,7 @@ methods
         obj.dnd_obj.s = ones(size(obj.dnd_obj.npix));
         out = obj.sqw_obj - obj.dnd_obj;
 
-        assertTrue(isa(out, 'sqw'));
+        assertTrue(isa(out, 'sqw_old'));
 
         expected_signal = obj.sqw_obj.data.s - 1;
         expected_signal(obj.sqw_obj.data.npix == 0) = 0;
@@ -118,7 +118,7 @@ methods
         scalar_operand = 1.3;
         out = obj.sqw_obj - scalar_operand;
 
-        assertTrue(isa(out, 'sqw'));
+        assertTrue(isa(out, 'sqw_old'));
 
         expected_signal = obj.sqw_obj.data.s - scalar_operand;
         expected_signal(obj.sqw_obj.data.npix == 0) = 0;
@@ -130,7 +130,7 @@ methods
         scalar_operand = 0.3;
         out = scalar_operand - obj.sqw_obj;
 
-        assertTrue(isa(out, 'sqw'));
+        assertTrue(isa(out, 'sqw_old'));
 
         expected_signal = scalar_operand - obj.sqw_obj.data.s;
         expected_signal(obj.sqw_obj.data.npix == 0) = 0;
@@ -141,7 +141,7 @@ methods
     function test_subtracting_two_sqw_objects_returns_sqw(obj)
         out = obj.sqw_obj - obj.sqw_obj;
 
-        assertTrue(isa(out, 'sqw'));
+        assertTrue(isa(out, 'sqw_old'));
         assertElementsAlmostEqual(out.data.s, zeros(size(out.data.s)));
     end
 
@@ -150,7 +150,7 @@ methods
         variance = 1e5 * (1 + rand(size(obj.sqw_obj.data.s)));
         out = obj.sqw_obj + sigvar(signal, variance);
 
-        assertTrue(isa(out, 'sqw'));
+        assertTrue(isa(out, 'sqw_old'));
 
         expected_signal = obj.sqw_obj.data.s + signal;
         expected_signal(obj.sqw_obj.data.npix == 0) = 0;

@@ -43,7 +43,7 @@ if isstruct(head_struc) && all(isfield(head_struc,{'sqw_type','version'}))
     else
         should = false;
         if obj.sqw_type
-            type = 'sqw';
+            type = 'sqw_old';
         else
             type = 'dnd';
         end

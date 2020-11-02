@@ -123,7 +123,7 @@ classdef test_nsqw2sqw_combine_job < TestCase
             data_sum.header = header_combined;
             
             ds = sqw_old(data_sum);
-            wrtr = sqw_formats_factory.instance().get_pref_access('sqw');
+            wrtr = sqw_formats_factory.instance().get_pref_access('sqw_old');
             wrtr = wrtr.init(ds,obj.test_targ_file);
             % write all sqw data except pixels
             wrtr = wrtr.put_sqw('-nopix','-reserve');

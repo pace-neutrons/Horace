@@ -30,7 +30,7 @@ if nfiles==1
 end
 
 initflag=false;
-if nargin >1 && ~isempty(wi) && isa(wi,'sqw') ...
+if nargin >1 && ~isempty(wi) && isa(wi,'sqw_old') ...
    && wi.main_header.nfiles==nfiles
 	initflag=true;
 end

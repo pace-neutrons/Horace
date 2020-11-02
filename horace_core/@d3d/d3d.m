@@ -68,7 +68,7 @@ function w = d3d (varargin)
 
 ndim_request = 3;
 class_type = 'd3d';
-inferiorto('sqw');
+inferiorto('sqw_old');
 
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------
 % Work via sqw class type

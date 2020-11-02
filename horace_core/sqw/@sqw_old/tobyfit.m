@@ -47,7 +47,7 @@ if ~mfclass.legacy(varargin{:})
     % We demand that the leading argument is an sqw object.
     % The input could be any number of sqw object arrays, followed by other arguments
     % hence the slightly involved procedure
-    is_sqw_object = cellfun(@(x)isa(x,'sqw'), varargin);
+    is_sqw_object = cellfun(@(x)isa(x,'sqw_old'), varargin);
     ind = find(~is_sqw_object,1);
     if isempty(ind)
         nsqw = numel(varargin);
@@ -96,7 +96,7 @@ if ~mfclass.legacy(varargin{:})
     end
     
     % Construct
-    varargout{1} = mfclass_tobyfit (varargin{1:nsqw}, 'sqw', mf_init);
+    varargout{1} = mfclass_tobyfit (varargin{1:nsqw}, 'sqw_old', mf_init);
     
     % ------------------------------------------------------------------------------
     

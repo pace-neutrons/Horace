@@ -53,7 +53,7 @@ if iscellstr(data_source_in)
     data_source=data_source_in{1};
 elseif ischar(data_source_in)
     data_source=data_source_in;
-elseif isa(data_source_in,'sqw')
+elseif isa(data_source_in,'sqw_old')
     data_source=data_source_in;
 else
     error('CUT_SQW:runtime_error',...

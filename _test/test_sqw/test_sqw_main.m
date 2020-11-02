@@ -27,7 +27,7 @@ classdef test_sqw_main < TestCase
             cleanup_obj=onCleanup(@()delete(out_dnd_file));
             
             sqw_data = read_sqw(test_data);
-            assertTrue(isa(sqw_data,'sqw'))
+            assertTrue(isa(sqw_data,'sqw_old'))
             
             assertElementsAlmostEqual(sqw_data.data.alatt,[2.8700 2.8700 2.8700],'absolute',1.e-4);
             assertElementsAlmostEqual(size(sqw_data.data.npix),[21,20]);

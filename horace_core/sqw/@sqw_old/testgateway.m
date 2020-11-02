@@ -16,7 +16,7 @@ function varargout = testgateway (dummy, func_name, varargin)
 % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
-if ~isa(dummy,'sqw')
+if ~isa(dummy,'sqw_old')
     error('First argument must be an sqw object (whcih will be ignored)')
 end
 

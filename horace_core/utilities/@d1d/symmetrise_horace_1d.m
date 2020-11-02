@@ -21,7 +21,7 @@ if ndims~=1
     error('Horace error: ensure input object is 1-dimensional')   
 end
 
-if isa(win,'sqw')
+if isa(win,'sqw_old')
     if is_sqw_type(sqw_old(win))
         error('Horace error: d1d method cannot be used for sqw objects with pixel info. Logic flaw');
     end

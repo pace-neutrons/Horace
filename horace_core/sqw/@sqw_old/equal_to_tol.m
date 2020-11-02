@@ -67,7 +67,7 @@ function [ok,mess]=equal_to_tol(w1,w2,varargin)
 % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
-if isa(w1,'sqw') && isa(w2,'sqw')
+if isa(w1,'sqw_old') && isa(w2,'sqw_old')
     % Check array sizes match
     if ~isequal(size(w1),size(w2))
         ok=false; mess='Sizes of sqw object arrays being compared are not equal'; return

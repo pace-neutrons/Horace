@@ -41,7 +41,7 @@ end
 %------------------------------------------------------------------------------------------------------------
 function [wout,mess]=recover_object(w)
 % Squeeze the Horace object (assumes it is a Horace object)
-if isa(w,'sqw')
+if isa(w,'sqw_old')
     if all(is_sqw_type(w))
         wout=w;
     elseif ~any(is_sqw_type(w))

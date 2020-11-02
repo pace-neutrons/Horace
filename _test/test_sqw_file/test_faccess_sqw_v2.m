@@ -180,12 +180,12 @@ classdef test_faccess_sqw_v2< TestCase
 
             sqw_obj = fo.get_sqw();
 
-            assertTrue(isa(sqw_obj,'sqw'));
+            assertTrue(isa(sqw_obj,'sqw_old'));
             assertEqual(sqw_obj.main_header.filename,fo.filename)
             assertEqual(sqw_obj.main_header.filepath,fo.filepath)
 
             sqw_obj1 = fo.get_sqw('-hverbatim');
-            assertTrue(isa(sqw_obj1,'sqw'));
+            assertTrue(isa(sqw_obj1,'sqw_old'));
             assertEqual(sqw_obj1.main_header.filename,'ei140.sqw')
             assertEqual(sqw_obj1.main_header.filepath,...
                 'C:\Russell\PCMO\ARCS_Oct10\Data\SQW\')
@@ -375,7 +375,7 @@ classdef test_faccess_sqw_v2< TestCase
             % important! -verbatim is critical here! without it we should
             % reinitialize object to write!
             sq_obj = ttob.get_sqw('-verbatim');
-            assertTrue(isa(sq_obj,'sqw'));
+            assertTrue(isa(sq_obj,'sqw_old'));
 
             test_f = fullfile(tmp_dir,'test_sqw_reopen_to_wrire.sqw');
             clob = onCleanup(@()delete(test_f));

@@ -47,7 +47,7 @@ if type~=1
     end
 end
 
-if ~isa(win,'sqw')
+if ~isa(win,'sqw_old')
     error('Symmetrise error: input object must be of sqw type');
 end
   
