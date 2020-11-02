@@ -55,4 +55,4 @@ function wout=disp2sqw_eval(win,varargin)
 % -------
 %   wout        Output dataset or array of datasets 
 
-wout=dnd(disp2sqw_eval(sqw(win),varargin{:}));
+wout=dnd(disp2sqw_eval(sqw_old(win),varargin{:}));

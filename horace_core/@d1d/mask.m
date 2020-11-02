@@ -33,6 +33,6 @@ function wout = mask (win, varargin)
 if nargin==1
     wout = win; % trivial case of no sectioning being required
 else
-    wout = dnd(mask(sqw(win),varargin{:}));
+    wout = dnd(mask(sqw_old(win),varargin{:}));
 end
 

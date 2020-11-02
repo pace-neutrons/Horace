@@ -101,7 +101,7 @@ for i=1:nobj
     if source_is_file
         ld = ld.upgrade_file_format(); % if file was old version one, upgrade to new, 
         % if not, opens for writing
-        tt = sqw();
+        tt = sqw_old();
         tt.header = tmp;
         ld = ld.put_instruments(tt);
     else

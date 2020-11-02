@@ -172,7 +172,7 @@ qbin = opt.qbin;
 qwidth = opt.qwidth;
 ebin = opt.ebin;
 rlp = args{1};
-sqw = args{2};
+sqw_old = args{2};
 
 if numel(qwidth)==1
     qwidth = [1 1]*qwidth;

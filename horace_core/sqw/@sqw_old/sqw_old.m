@@ -1,4 +1,4 @@
-function w = sqw (varargin)
+function w = sqw_old (varargin)
 % Create an sqw object
 %
 % Syntax:

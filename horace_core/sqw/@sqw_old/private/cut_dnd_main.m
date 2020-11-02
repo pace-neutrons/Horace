@@ -277,6 +277,6 @@ end
 % Create output argument if requested
 % -----------------------------------
 if nargout~=0
-    wout=sqw(w);
+    wout=sqw_old(w);
 end
 

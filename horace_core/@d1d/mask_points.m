@@ -57,5 +57,5 @@ function [sel,ok,mess] = mask_points (win, varargin)
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------
 % Work via sqw class type
 
-[sel,ok,mess] = mask_points (sqw(win), varargin{:});
+[sel,ok,mess] = mask_points (sqw_old(win), varargin{:});
 

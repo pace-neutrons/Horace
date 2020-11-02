@@ -15,7 +15,7 @@ function [figureHandle, axesHandle, plotHandle] = da(w,varargin)
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = da(w,...) 
 
-[figureHandle_, axesHandle_, plotHandle_] = da(sqw(w),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = da(sqw_old(w),varargin{:});
 
 % Output only if requested
 if nargout>=1, figureHandle=figureHandle_; end

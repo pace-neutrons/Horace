@@ -9,7 +9,7 @@ function [R,trans] = calculate_transformation_matrix(win,v1,v2,v3)
 % RAE 12/1/10
 
 
-win=sqw(win);%ensure input has sqw format
+win=sqw_old(win);%ensure input has sqw format
 
 % conversion=2*pi./win.data.alatt;
 % 

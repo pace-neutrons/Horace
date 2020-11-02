@@ -36,5 +36,5 @@ function wout = smooth_units (win,varargin)
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------
 % Work via sqw class type
 
-wout=dnd(smooth_units(sqw(win),varargin{:}));
+wout=dnd(smooth_units(sqw_old(win),varargin{:}));
 

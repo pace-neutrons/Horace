@@ -11,7 +11,7 @@ function [figureHandle, axesHandle, plotHandle] = dp(win,varargin)
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = dp(w,...) 
 
-[figureHandle_, axesHandle_, plotHandle_] = dp(sqw(win),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = dp(sqw_old(win),varargin{:});
 
 % Output only if requested
 if nargout>=1, figureHandle=figureHandle_; end

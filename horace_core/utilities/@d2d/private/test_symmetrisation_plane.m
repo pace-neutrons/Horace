@@ -3,7 +3,7 @@ function [ok,mess]=test_symmetrisation_plane(win,v1,v2,v3)
 % Fnction to test whether specified symmetrisation plane is actually
 % perpendicular to the plane of a d2d object. If not, ok=false.
 
-win=sqw(win);
+win=sqw_old(win);
 
 ok=false;%declare outputs
 mess='Horace error: symmetrisation plane specified is not perpendicular to the data plane';

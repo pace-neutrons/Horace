@@ -6,7 +6,7 @@ function [figureHandle, axesHandle, plotHandle] = phoc(win,varargin)
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = phoc(w) 
 
-[figureHandle_, axesHandle_, plotHandle_] = phoc(sqw(win),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = phoc(sqw_old(win),varargin{:});
 
 % Output only if requested
 if nargout>=1, figureHandle=figureHandle_; end

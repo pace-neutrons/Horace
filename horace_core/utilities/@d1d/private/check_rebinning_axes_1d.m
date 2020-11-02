@@ -5,7 +5,7 @@ function [ok,same_axes,mess]=check_rebinning_axes_1d(w1,w2)
 
 ok=false; same_axes=false; mess='';
 
-w1=sqw(w1); w2=sqw(w2);
+w1=sqw_old(w1); w2=sqw_old(w2);
 
 %We decide to throw an error message if the sample is different (i.e. we
 %try to rebin the data on to a grid associated with different lattice

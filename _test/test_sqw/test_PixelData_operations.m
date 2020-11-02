@@ -38,7 +38,7 @@ methods
         obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
 
         % Load a 1D SQW file
-        sqw_test_obj = sqw(obj.test_sqw_file_path);
+        sqw_test_obj = sqw_old(obj.test_sqw_file_path);
         obj.ref_npix_data = sqw_test_obj.data.npix;
         obj.ref_s_data = sqw_test_obj.data.s;
         obj.ref_e_data = sqw_test_obj.data.e;
@@ -49,7 +49,7 @@ methods
         obj.pix_with_pages_base = PixelData(obj.test_sqw_file_path, page_size);
 
         % Load 2D SQW file
-        sqw_2d_test_object = sqw(obj.test_sqw_2d_file_path);
+        sqw_2d_test_object = sqw_old(obj.test_sqw_2d_file_path);
         obj.ref_npix_data_2d = sqw_2d_test_object.data.npix;
         obj.ref_s_data_2d = sqw_2d_test_object.data.s;
         obj.ref_e_data_2d = sqw_2d_test_object.data.e;

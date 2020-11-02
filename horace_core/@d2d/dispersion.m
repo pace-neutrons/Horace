@@ -71,9 +71,9 @@ function [wdisp,weight]=dispersion(win,varargin)
 % Work via sqw class type
 
 if nargout==1
-    wdisp=dnd(dispersion(sqw(win),varargin{:}));
+    wdisp=dnd(dispersion(sqw_old(win),varargin{:}));
 else
-    [wdisp,weight]=dispersion(sqw(win),varargin{:});
+    [wdisp,weight]=dispersion(sqw_old(win),varargin{:});
     wdisp=dnd(wdisp);
     weight=dnd(weight);
 end

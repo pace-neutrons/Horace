@@ -18,7 +18,7 @@ methods
     function obj = test_binary_ops(varargin)
         obj = obj@TestCase('test_binary_ops');
 
-        obj.base_sqw_obj = sqw(obj.test_sqw_file_path);
+        obj.base_sqw_obj = sqw_old(obj.test_sqw_file_path);
     end
 
     function obj = setUp(obj)

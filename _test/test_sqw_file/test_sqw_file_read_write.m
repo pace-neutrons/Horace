@@ -14,7 +14,7 @@ existing_objects=fieldnames(ds);
 for i=1:numel(existing_objects)
     % HACK ! deal with old style sqw objects, which have not stored
     % @axis_name
-    cur_sqw=sqw(struct(ds.(existing_objects{i})));
+    cur_sqw=sqw_old(struct(ds.(existing_objects{i})));
     var_name = existing_objects{i};
 
     eval(sprintf('%s = cur_sqw;', var_name));
@@ -45,12 +45,12 @@ clob1 = onCleanup(@()delete(tmpsqwfile));
 % Write out to sqw files, read back in, and test they are the same
 % ----------------------------------------------------------------
 save(f1_1,tmpsqwfile);
-tmp=read(sqw,tmpsqwfile);
+tmp=read(sqw_old,tmpsqwfile);
 [ok,mess]=equal_to_tol(f1_1,tmp,'ignore_str',1);
 assertTrue(ok,mess);
 
 save(f1_3,tmpsqwfile);
-tmp=read(sqw,tmpsqwfile);
+tmp=read(sqw_old,tmpsqwfile);
 [ok,mess]=equal_to_tol(f1_3,tmp,'ignore_str',1);
 assertTrue(ok,mess)
 
@@ -77,7 +77,7 @@ assertTrue(ok,mess)
 delete(tmpsqwfile);
 try
     save(f1_1_s1,tmpsqwfile);
-    tmp=read(sqw,tmpsqwfile);
+    tmp=read(sqw_old,tmpsqwfile);
 catch err
     warning('test_sqw_file_read_write:io','Error reading/writing sqw object')
     rethrow(err);
@@ -94,7 +94,7 @@ assertTrue(ok,mess)
 
 % Write and read back in
 try
-    save(f1_1_s0,tmpsqwfile); tmp=read(sqw,tmpsqwfile);
+    save(f1_1_s0,tmpsqwfile); tmp=read(sqw_old,tmpsqwfile);
 catch err
     warning('test_sqw_file_read_write:io1','Error reading/writing sqw object')
     rethrow(err);

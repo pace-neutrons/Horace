@@ -17,8 +17,8 @@ if ischar(f2), f2={f2}; end
 if isa(f1,'sqw'), f1={f1}; end
 if isa(f2,'sqw'), f2={f2}; end
 
-w1=repmat(sqw,1,numel(f1));
-w2=repmat(sqw,1,numel(f2));
+w1=repmat(sqw_old,1,numel(f1));
+w2=repmat(sqw_old,1,numel(f2));
 for i=1:numel(f1)
     w1(i)=cut_sqw(f1{i},varargin{:});
 end

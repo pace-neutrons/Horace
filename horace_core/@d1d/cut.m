@@ -49,7 +49,7 @@ if ~isempty(mess), error(mess); end
 % Perform operations
 % ------------------
 % Now call sqw cut routine. Output (if any), is a cell array, as method is passed a data source structure
-argout=cut(sqw,w,args{:});
+argout=cut(sqw_old,w,args{:});
 if ~isempty(argout)
     argout{1}=dnd(argout{1});   % as return argument is sqw object of dnd-type
 end

@@ -16,7 +16,7 @@ classdef test_sqw_main < TestCase
         function this=test_sqw_constructor (name)
             %
             data=data_sqw_dnd();
-            sqw_obj=sqw(data);
+            sqw_obj=sqw_old(data);
             assertTrue(sqw_obj.data.dnd_type)
             
         end

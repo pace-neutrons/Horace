@@ -38,7 +38,7 @@ classdef test_read_all< TestCase
         
         % tests
         function obj = test_outputs(obj)
-            tobj = {sqw(),sqw()};
+            tobj = {sqw_old(),sqw_old()};
             out = test_read_all.interface2tst(tobj);
             assertTrue(iscell(out))
             assertTrue(isa(out{1},'sqw'));
@@ -53,7 +53,7 @@ classdef test_read_all< TestCase
             assertTrue(isa(out1,'sqw'));
             assertTrue(isa(out2,'sqw'));
             
-            tobj = {sqw(),d1d(),sqw()};
+            tobj = {sqw_old(),d1d(),sqw_old()};
             [out1,out2,out3] = test_read_all.interface2tst(tobj{:});
             assertTrue(isa(out1,'sqw'));
             assertTrue(isa(out2,'d1d'));
@@ -134,7 +134,7 @@ classdef test_read_all< TestCase
             assertEqual(numel(fields(out4)),14)
             assertEqual(out,out4);
             
-            tsw = sqw();
+            tsw = sqw_old();
             files = {fullfile(obj.sample_dir,'test_sqw_file','test_sqw_file_read_write_v3_1.sqw'),...
                 fullfile(obj.sample_dir,'test_sqw_file','test_sqw_file_read_write_v3.sqw')};
             
