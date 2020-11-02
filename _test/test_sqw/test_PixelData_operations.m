@@ -5,6 +5,7 @@ properties
     SIGNAL_IDX = 8;
     VARIANCE_IDX = 9;
 
+    ALL_IN_MEM_PG_SIZE = 1e12;
     FLOAT_TOLERANCE = 4.75e-4;
 
     this_dir = fileparts(mfilename('fullpath'));
@@ -350,7 +351,7 @@ methods
 
     function test_mask_deletes_pixels_when_given_npix_argument_pix_in_mem(obj)
         data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
-        pix = PixelData(data, 1e12);
+        pix = PixelData(data, obj.ALL_IN_MEM_PG_SIZE);
 
         mask_array = [0, 1, 1, 0, 1, 0];
         npix = [4, 5, 1, 2, 3, 5];
