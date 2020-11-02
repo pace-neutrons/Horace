@@ -5,7 +5,7 @@ function [Sfun, cleared] = fun_alter (Sfun_in, isfore, indfun, fun)
 %   >> Sfun = fun_alter (Sfun_in, isfore, indfun, fun)
 %
 % If the a function handle replaced with a different function handle or
-% empty function (recall [] means 'no function'), then the parameter list 
+% empty function (recall [] means 'no function'), then the parameter list
 % and float status are set to the default empty values.
 % If a function handle is set to the same value, then the parameters and
 % float status are left unchanged.
@@ -32,10 +32,10 @@ function [Sfun, cleared] = fun_alter (Sfun_in, isfore, indfun, fun)
 %               background_is_local_, bfun_, bpin_, nbp_, bfree_
 %   cleared Logical array of which functions in indfun were actually altered
 %          The corresponding parameter lists and float status will have been
-%          cleared (row vector) 
+%          cleared (row vector)
 %           Note: numel(cleared)=numel(indfun)
 %           Note: cleared is also true if and only if the number of parameters
-%                 has been changed or was already zero. It is therefore 
+%                 has been changed or was already zero. It is therefore
 %                 useful to determine if the constraints structure needs to be
 %                 updated
 %
@@ -64,13 +64,23 @@ end
 % Replace functions, clearing the parameters and free/fixed status
 % parameters where the function handle is empty
 if isfore
-    clear = ~cellfun(@(x,y)isequal(x,y),fun,Sfun.fun_(indfun));
+    if numel(fun) == numel(Sfun.fun_)
+        clear = ~cellfun(@(x,y)isequal(x,y),fun,Sfun.fun_(indfun));
+    else % replace all
+        clear = true(size(fun));
+    end
     Sfun.fun_(indfun) = fun;
     Sfun.pin_(indfun(clear)) = mfclass_plist();
     Sfun.np_(indfun(clear)) = 0;
     Sfun.free_(indfun(clear)) = {true(1,0)};
+    
 else
-    clear = ~cellfun(@(x,y)isequal(x,y),fun,Sfun.bfun_(indfun));
+    if numel(fun) == numel(Sfun.fun_)
+        clear = ~cellfun(@(x,y)isequal(x,y),fun,Sfun.bfun_(indfun));
+    else % replace all
+        clear = true(size(fun));
+    end
+    
     Sfun.bfun_(indfun) = fun;
     Sfun.bpin_(indfun(clear)) = mfclass_plist();
     Sfun.nbp_(indfun(clear)) = 0;

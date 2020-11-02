@@ -46,8 +46,6 @@
 %
 <MULTIFIT:>
 %     Control if foreground and background functions are global or local:
-%   *   'global_foreground' Foreground function applies to all datasets
-%                          [Default: true]
 %   *   'local_foreground'  Foreground function(s) apply to each dataset
 %                          independently [Default: false]
 %   *   'local_background'  Background function(s) apply to each dataset

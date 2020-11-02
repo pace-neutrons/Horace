@@ -40,7 +40,6 @@
 %   clear_bbind  - Clear parameter bindings for one or more background functions
 %
 % To set functions as operating globally or local to a single dataset
-%   set_global_foreground - Specify that there will be a global foreground fit function
 %   set_local_foreground  - Specify that there will be local foreground fit function(s)
 %
 %   set_global_background - Specify that there will be a global background fit function

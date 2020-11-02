@@ -264,11 +264,15 @@ function obj = set_fun(obj,varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 
 % Process input
 isfore = true;
+
 [ok, mess, obj] = set_fun_private_ (obj, isfore, varargin);
 if ~ok, error(mess), end
+%
+if numel(varargin{1})>1
+    obj.foreground_is_local_ = true;
+end
 

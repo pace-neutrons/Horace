@@ -15,15 +15,13 @@ function [ok, mess, obj] = set_fun_private_ (obj, isfore, args)
 
 
 % Original author: T.G.Perring
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 
 if isfore
-    fun_type = 'fore';
+    %fun_type = 'fore';
     nfun = numel(obj.fun_);
 else
-    fun_type = 'back';
+    %fun_type = 'back';
     nfun = numel(obj.bfun_);
 end
 
@@ -34,14 +32,6 @@ if numel(args)==0
     return
 end
 
-% % Check there is data
-% % -------------------
-% if isempty(obj.data_)
-%     ok = false;
-%     mess = ['Cannot set ', fun_type, 'ground function(s) before data has been set.'];
-%     return
-% end
-
 % Parse input arguments
 % ---------------------
 [ok,mess,ifun,fun,present,pin,free,bind] = args_parse_set_fun (args{:});
@@ -50,6 +40,9 @@ if ~ok, return, end
 % First deal with functions structure
 % -----------------------------------
 % Now check validity of input
+if ischar(ifun) && strcmp(ifun,'all')
+    nfun = max(numel(fun),nfun);
+end
 [ok,mess,ifun] = indicies_parse (ifun, nfun, 'Function');
 if ~ok, return, end
 

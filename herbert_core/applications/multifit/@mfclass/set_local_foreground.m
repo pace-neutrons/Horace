@@ -8,7 +8,7 @@ function obj = set_local_foreground(obj,set_local)
 % then the foreground fit functions and any previously set constraints are
 % cleared
 %
-% See also: set_global_foreground set_local_background set_global_background
+% See also: set_local_background set_global_background
 
 % -----------------------------------------------------------------------------
 % <#doc_def:>
@@ -22,7 +22,7 @@ function obj = set_local_foreground(obj,set_local)
 % <#doc_beg:> multifit
 %   <#file:> <doc_set_scope_intro> <type> <scope>
 %
-% See also: set_global_foreground set_local_background set_global_background
+% See also: set_local_background set_global_background
 % <#doc_end:>
 % -----------------------------------------------------------------------------
 
