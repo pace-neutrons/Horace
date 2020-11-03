@@ -1,4 +1,4 @@
-function wout = sqw (win)
+function wout = sqw_old (win)
 % Convert input dnd-type object into sqw object
 %
 %   >> wout = sqw (win)
@@ -11,11 +11,11 @@ function wout = sqw (win)
 % Work via sqw class type
 
 if numel(win)==1
-    wout=sqw('$dnd',struct(win));
+    wout=sqw_old('$dnd',struct(win));
 else
-    wout=repmat(sqw,size(win));
+    wout=repmat(sqw_old,size(win));
     for i=1:numel(win)
-        wout(i)=sqw('$dnd',struct(win(i)));
+        wout(i)=sqw_old('$dnd',struct(win(i)));
     end
 end
 
