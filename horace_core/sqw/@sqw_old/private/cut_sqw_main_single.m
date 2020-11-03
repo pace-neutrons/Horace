@@ -213,9 +213,9 @@ end
 % Create output argument if requested
 % -----------------------------------
 if return_cut
-    wout=sqw(w);
+    wout=sqw_old(w);
     if ~opt.keep_pix
-        wout=dnd(sqw(w));
+        wout=dnd(sqw_old(w));
     end
 end
 
