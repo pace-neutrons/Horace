@@ -38,6 +38,7 @@ classdef test_nxspepar_loader< TestCase
             
             assertEqual(par,al2.det_par);
         end
+        %
         function test_set_par_file(this)
             par_file = fullfile(this.test_data_path,'MAP11014v2.nxspe');
             %
@@ -96,6 +97,22 @@ classdef test_nxspepar_loader< TestCase
             [~,fname,fext] = fileparts(al.par_file_name);
             assertEqual([fname,fext],'MAP11014v2.nxspe');
         end
+        %
+        function test_par_fron_cache_in_correct_format(this)
+            al=nxspepar_loader();
+            par_file = fullfile(this.test_data_path,'MAP11014v2.nxspe');
+            
+            [par,al]=al.load_par(par_file,'-nohor');
+            assertEqual([6,28160],size(par));
+            
+            [~,fname,fext] = fileparts(al.par_file_name);
+            assertEqual([fname,fext],'MAP11014v2.nxspe');
+            % here we are loading data from cache, not reading the file
+            % itself.
+            [par,al]=al.load_par(par_file,'-nohor');
+            assertEqual([6,28160],size(par));
+        end
+        
         %
         function test_get_par_info(this)
             

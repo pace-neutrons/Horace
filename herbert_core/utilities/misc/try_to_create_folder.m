@@ -29,7 +29,8 @@ if ~exist(folder_path,'dir')
         pause(0.1);
     end
 else
-    rng('shuffle','simdTwister');
+    old_rng_state = rng('shuffle', 'simdTwister');
+    cleanup = onCleanup(@() rng(old_rng_state));
     test_path = fullfile(folder_path,['folder_twa_',ext,char(randi(25,1,10) + 64)]);
     [success, mess] = mkdir(test_path);
     if success

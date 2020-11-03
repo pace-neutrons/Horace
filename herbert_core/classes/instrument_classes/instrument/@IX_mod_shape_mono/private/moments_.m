@@ -147,8 +147,8 @@ end
 
 % =================================================================================================
 function [t_cov,t_av] = moments_2D (obj, alf)
-% General case of finite non-zero widths of moderator, shaping and 
-% monochromating choppers. Have a two-dimensional integral to perform, which 
+% General case of finite non-zero widths of moderator, shaping and
+% monochromating choppers. Have a two-dimensional integral to perform, which
 % can be pathological in the case of markedly different widths for the
 % different components.
 % For this reason, there are different regimes which use different methods
@@ -175,32 +175,32 @@ if (alf*t_m_av) > fac*thi_shape
     % Zeroth moment
     area = integral2 (@(x,y)(fun_shaped(x, y, moderator, shaping_chopper, mono_chopper,...
         alf, t_m_offset, [0,0])), tlo_shape, thi_shape, tlo_mono, thi_mono);
-    
+
     % First moments
     t_av = zeros(1,2);
     t_av(1) = integral2 (@(x,y)(fun_shaped(x, y, moderator, shaping_chopper, mono_chopper,...
         alf, t_m_offset, [1,0])), tlo_shape, thi_shape, tlo_mono, thi_mono) / area;
-    
+
     t_av(2) = integral2 (@(x,y)(fun_shaped(x, y, moderator, shaping_chopper, mono_chopper,...
         alf, t_m_offset, [0,1])), tlo_shape, thi_shape, tlo_mono, thi_mono) / area;
-    
+
     % Second moments
     t_cov = zeros(2,2);
     t_cov(1,1) = integral2 (@(x,y)(fun_shaped(x, y, moderator, shaping_chopper, mono_chopper,...
         alf, t_m_offset, [2,0])), tlo_shape, thi_shape, tlo_mono, thi_mono) / area;
-    
+
     t_cov(1,2) = integral2 (@(x,y)(fun_shaped(x, y, moderator, shaping_chopper, mono_chopper,...
         alf, t_m_offset, [1,1])), tlo_shape, thi_shape, tlo_mono, thi_mono) / area;
-    
+
     t_cov(2,2) = integral2 (@(x,y)(fun_shaped(x, y, moderator, shaping_chopper, mono_chopper,...
         alf, t_m_offset, [0,2])), tlo_shape, thi_shape, tlo_mono, thi_mono) / area;
-        
+
     % Correct covariance matrix for non-zero first moments
     t_cov(1,1) = t_cov(1,1) - t_av(1)^2;
     t_cov(1,2) = t_cov(1,2) - t_av(1)*t_av(2);
     t_cov(2,2) = t_cov(2,2) - t_av(2)^2;
     t_cov(2,1) = t_cov(1,2);
-    
+
 else
     % Random sampling with 10^6 points seems to get the covariance to about 0.5%
     % and seems to be very robust, unlike using the Matlab functions integral
@@ -208,11 +208,10 @@ else
     % cases of widely different widths.
     % For reproducibility, reset the seed for random number generation, but
     % reset to incoming state afterwards.
-    npnt = 1e6;     
-    state = rng;        % get current state of erandom number generators
-    rng(0,'twister');   % set particular state
+    npnt = 1e6;
+    old_rng_state = rng(0,'twister');   % set particular state
+    cleanup = onCleanup(@() rng(old_rng_state));
     X = obj.rand([npnt,1]);
-    rng(state);         % return to original state
     t_cov = cov(X');
     t_av = mean(X,2)';
 end
