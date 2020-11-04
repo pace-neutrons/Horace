@@ -1509,6 +1509,19 @@ methods
         assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
     end
 
+    function test_pix_from_2_get_pixels_calls_valid_if_pg_size_config_small(obj)
+        % Tests bug where
+        cleanup = set_temporary_config_options(...
+            hor_config(), 'pixel_page_size', obj.SMALL_PG_SIZE);
+        pix = PixelData(obj.test_sqw_file_full_path);
+
+        new_pix = pix.get_pixels(1:pix.num_pixels);
+        new_pix2 = new_pix.get_pixels(1:30);
+
+        pix.move_to_first_page();
+        assertEqual(new_pix2.data, pix.data(:, 1:30));
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
