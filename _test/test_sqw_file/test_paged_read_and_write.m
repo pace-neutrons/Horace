@@ -66,6 +66,43 @@ methods
         assertTrue(equal_to_tol(saved_sqw, sqw_obj, 'ignore_str', true));
     end
 
+    function test_sqw_w_paged_pix_saved_correctly_with_small_mem_chunk_size(obj)
+        num_pix_in_file = 100337;
+        conf_cleanup = set_temporary_config_options(...
+            hor_config(), ...
+            'pixel_page_size', obj.small_page_size, ...
+            'mem_chunk_size', floor(num_pix_in_file/2) ...
+        );
+        sqw_obj = sqw(obj.test_sqw_file_path);
+
+        dbst = dbstack;
+        test_name = dbst.name;
+        out_file_path = fullfile(tmp_dir, test_name);
+        file_cleanup = obj.save_temp_file(sqw_obj, out_file_path);
+
+        saved_sqw = sqw(out_file_path);
+        assertTrue(equal_to_tol(saved_sqw, sqw_obj, 'ignore_str', true));
+    end
+
+    function test_sqw_w_pix_on_2nd_pg_saved_right_with_small_mem_chunk_size(obj)
+        num_pix_in_file = 100337;
+        conf_cleanup = set_temporary_config_options(...
+            hor_config(), ...
+            'pixel_page_size', obj.small_page_size, ...
+            'mem_chunk_size', floor(num_pix_in_file/2) ...
+        );
+        sqw_obj = sqw(obj.test_sqw_file_path);
+        sqw_obj.data.pix.advance();
+
+        dbst = dbstack;
+        test_name = dbst.name;
+        out_file_path = fullfile(tmp_dir, test_name);
+        file_cleanup = obj.save_temp_file(sqw_obj, out_file_path);
+
+        saved_sqw = sqw(out_file_path);
+        assertTrue(equal_to_tol(saved_sqw, sqw_obj, 'ignore_str', true));
+    end
+
 end
 
 methods (Static)
