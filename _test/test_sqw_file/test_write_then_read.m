@@ -118,16 +118,13 @@ methods (Static)
         function del_temp_file(tmp_file_path)
             if exist(tmp_file_path, 'file')
                 open_fids = fopen('all');
-                if ~isempty(open_fids)
-                    for i = 1:numel(open_fids)
-                        fpath = fopen(open_fids(i));
-                        if strcmp(fpath, tmp_file_path)
-                            fclose(open_fids(i));
-                        end
+                for i = 1:numel(open_fids)
+                    fpath = fopen(open_fids(i));
+                    if strcmp(fpath, tmp_file_path)
+                        fclose(open_fids(i));
                     end
-                else
-                    delete(tmp_file_path);
                 end
+                delete(tmp_file_path);
             end
         end
 
