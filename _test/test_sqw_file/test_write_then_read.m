@@ -1,4 +1,4 @@
-classdef test_paged_read_and_write < TestCase
+classdef test_write_then_read < TestCase
 
 properties
     old_warn_state;
@@ -9,8 +9,8 @@ end
 
 methods
 
-    function obj = test_paged_read_and_write(~)
-        obj = obj@TestCase('test_pagedPixelData');
+    function obj = test_write_then_read(~)
+        obj = obj@TestCase('test_write_then_read');
 
         % Swallow any warnings for when pixel page size set too small
         obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
