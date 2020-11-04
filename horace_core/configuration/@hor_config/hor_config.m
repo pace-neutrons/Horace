@@ -100,7 +100,10 @@ classdef hor_config < config_base
     properties(Access=protected, Hidden=true)
         % private properties behind public interface
         mem_chunk_size_ = 10000000;
-        pixel_page_size_ = 3e9;  % default is 3GB
+
+        % set page size very large to effectively disable paging of pixels as
+        % the implementation is not complete
+        pixel_page_size_ = floor(realmax);
         threads_ =1;
 
         ignore_nan_ = true;

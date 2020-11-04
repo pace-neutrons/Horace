@@ -17,10 +17,10 @@ obj.move_to_first_page();
 % Get a cumulative sum to track which pixels have been processed
 npix_cum_sum = cumsum(npix(:));
 
+end_idx = 1;
 signal_sum = zeros(1, numel(npix));
 variance_sum = zeros(1, numel(npix));
 
-end_idx = 1;
 % Loop over pages of data
 while true
     % Find the index of the first bin to allocate pixels to.
@@ -47,12 +47,15 @@ while true
         end
         npix_chunk = min(obj.page_size, npix(start_idx) - leftover_end);
     else
-        % Leftover_end = number of pixels to allocate to final bin n,
-        % there will be more pixels to allocated to bin n in the next iteration
-        leftover_end = ...
-            obj.page_size - (leftover_begin + sum(npix(start_idx + 1:end_idx - 1)));
-        npix_chunk = npix(start_idx + 1:end_idx - 1);
-        npix_chunk = [leftover_begin, npix_chunk(:).', leftover_end];
+        % get the number of pixels in the page to allocate to each bin
+        % lefover_begin = number of pixels remaining from last iteration
+        npix_chunk = [leftover_begin, ...
+                      reshape(npix(start_idx + 1:end_idx - 1), 1, []), ...
+                      0];
+        pix_in_chunk = sum(npix_chunk);
+        % get the number of pixels left in the page to allocate
+        leftover_end = obj.page_size - pix_in_chunk;
+        npix_chunk(end) = leftover_end;
     end
 
     % Calculate and accumulate signal/variance sums

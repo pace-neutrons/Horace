@@ -1,31 +1,31 @@
 classdef test_PixelData_operations < TestCase
 
 properties
-    NUM_BYTES_IN_VALUE = 8;
-    NUM_COLS_IN_PIX_BLOCK = 9;
+    BYTES_PER_PIX = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
     SIGNAL_IDX = 8;
     VARIANCE_IDX = 9;
 
+    ALL_IN_MEM_PG_SIZE = 1e12;
     FLOAT_TOLERANCE = 4.75e-4;
 
+    this_dir = fileparts(mfilename('fullpath'));
     test_sqw_file_path = '../test_sqw_file/sqw_1d_1.sqw';
     test_sqw_2d_file_path = '../test_sqw_file/sqw_2d_1.sqw';
     ref_npix_data = [];
     ref_s_data = [];
     ref_e_data = [];
 
+    pix_in_memory_base;
     pix_in_memory;
+    pix_with_pages_base;
     pix_with_pages;
-    page_size;
 
     pix_with_pages_2d;
-    page_size_2d;
     ref_npix_data_2d;
     ref_s_data_2d;
     ref_e_data_2d;
 
-    config;
-    old_config;
+    old_warn_state;
 end
 
 methods
@@ -33,17 +33,21 @@ methods
     function obj = test_PixelData_operations(~)
         obj = obj@TestCase('test_PixelData_operations');
 
+        addpath(fullfile(obj.this_dir, 'utils'));
+
+        % Swallow any warnings for when pixel page size set too small
+        obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
+
         % Load a 1D SQW file
         sqw_test_obj = sqw(obj.test_sqw_file_path);
         obj.ref_npix_data = sqw_test_obj.data.npix;
         obj.ref_s_data = sqw_test_obj.data.s;
         obj.ref_e_data = sqw_test_obj.data.e;
 
-        file_info = dir(obj.test_sqw_file_path);
-        obj.page_size = file_info.bytes/6;
-
-        obj.pix_in_memory = sqw_test_obj.data.pix;
-        obj.pix_with_pages = PixelData(obj.test_sqw_file_path, obj.page_size);
+        num_pix_pages = 6;
+        page_size = floor(sqw_test_obj.data.pix.num_pixels/num_pix_pages)*obj.BYTES_PER_PIX;
+        obj.pix_in_memory_base = sqw_test_obj.data.pix;
+        obj.pix_with_pages_base = PixelData(obj.test_sqw_file_path, page_size);
 
         % Load 2D SQW file
         sqw_2d_test_object = sqw(obj.test_sqw_2d_file_path);
@@ -51,25 +55,25 @@ methods
         obj.ref_s_data_2d = sqw_2d_test_object.data.s;
         obj.ref_e_data_2d = sqw_2d_test_object.data.e;
 
-        file_info = dir(obj.test_sqw_2d_file_path);
-        obj.page_size_2d = file_info.bytes/6;
-
+        num_pix = sqw_2d_test_object.data.pix.num_pixels;
+        page_size_2d = floor(num_pix/num_pix_pages)*obj.BYTES_PER_PIX;
         obj.pix_with_pages_2d = PixelData(obj.test_sqw_2d_file_path, ...
-                                          obj.page_size_2d);
+                                          page_size_2d);
+    end
+
+    function delete(obj)
+        rmpath(fullfile(obj.this_dir, 'utils'));
+        warning(obj.old_warn_state);
     end
 
     function setUp(obj)
-        obj.config = hor_config;
-        obj.old_config = obj.config.get_data_to_store();
-    end
-
-    function tearDown(obj)
-        set(hor_config, obj.old_config);
+        obj.pix_in_memory = copy(obj.pix_in_memory_base);
+        obj.pix_with_pages = copy(obj.pix_with_pages_base);
     end
 
     function test_compute_bin_data_correct_output_in_memory_mex_1_thread(obj)
-        obj.config.use_mex = true;
-        obj.config.threads = 1;
+        cleanup_handle = ...
+            set_temporary_config_options(hor_config(), 'use_mex', true, 'threads', 1);
 
         [s, e] = obj.pix_in_memory.compute_bin_data(obj.ref_npix_data);
 
@@ -78,8 +82,8 @@ methods
     end
 
     function test_compute_bin_data_correct_output_in_memory_mex_4_threads(obj)
-        obj.config.use_mex = true;
-        obj.config.threads = 4;
+        cleanup_handle = ...
+            set_temporary_config_options(hor_config(), 'use_mex', true, 'threads', 4);
 
         [s, e] = obj.pix_in_memory.compute_bin_data(obj.ref_npix_data);
 
@@ -88,7 +92,8 @@ methods
     end
 
     function test_compute_bin_data_correct_output_all_data_in_memory_mex_off(obj)
-        obj.config.use_mex = false;
+        cleanup_handle = ...
+            set_temporary_config_options(hor_config(), 'use_mex', false);
 
         [s, e] = obj.pix_in_memory.compute_bin_data(obj.ref_npix_data);
 
@@ -97,8 +102,8 @@ methods
     end
 
     function test_compute_bin_data_correct_output_file_backed_mex_1_thread(obj)
-        obj.config.use_mex = true;
-        obj.config.threads = 1;
+        cleanup_handle = ...
+            set_temporary_config_options(hor_config(), 'use_mex', true, 'threads', 1);
 
         [s, e] = obj.pix_with_pages.compute_bin_data(obj.ref_npix_data);
 
@@ -107,8 +112,8 @@ methods
     end
 
     function test_compute_bin_data_correct_output_5_pages_mex_1_thread(obj)
-        obj.config.use_mex = true;
-        obj.config.threads = 1;
+        cleanup_handle = ...
+            set_temporary_config_options(hor_config(), 'use_mex', true, 'threads', 1);
 
         file_info = dir(obj.test_sqw_file_path);
         pg_size = file_info.bytes/5;
@@ -120,8 +125,8 @@ methods
     end
 
     function test_compute_bin_data_correct_output_file_backed_mex_4_threads(obj)
-        obj.config.use_mex = true;
-        obj.config.threads = 4;
+        cleanup_handle = ...
+            set_temporary_config_options(hor_config(), 'use_mex', true, 'threads', 4);
 
         [s, e] = obj.pix_with_pages.compute_bin_data(obj.ref_npix_data);
 
@@ -130,8 +135,8 @@ methods
     end
 
     function test_compute_bin_data_file_backed_2d_data_mex_4_threads(obj)
-        obj.config.use_mex = true;
-        obj.config.threads = 1;
+        cleanup_handle = ...
+            set_temporary_config_options(hor_config(), 'use_mex', true, 'threads', 4);
 
         [s, e] = obj.pix_with_pages_2d.compute_bin_data(obj.ref_npix_data_2d);
 
@@ -150,7 +155,8 @@ methods
     end
 
     function test_compute_bin_data_correct_output_file_backed_mex_off(obj)
-        obj.config.use_mex = false;
+        cleanup_handle = ...
+            set_temporary_config_options(hor_config(), 'use_mex', false);
 
         [s, e] = obj.pix_with_pages.compute_bin_data(obj.ref_npix_data);
 
@@ -159,7 +165,7 @@ methods
     end
 
     function test_do_unary_op_returns_correct_output_with_cosine_gt_1_page(obj)
-        data = rand(9, 50);
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 50);
         npix_in_page = 11;
         pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
@@ -195,7 +201,7 @@ methods
     end
 
     function test_do_unary_op_with_nargout_1_doesnt_affect_called_instance(obj)
-        data = rand(9, 10);
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
         pix = PixelData(data);
         sin_pix = pix.do_unary_op(@sin);
         assertEqual(pix.data, data);
@@ -243,12 +249,12 @@ methods
             unary_op = unary_ops{2*i - 1};
             data_range = unary_ops{2*i};
 
-            data = obj.get_random_data_in_range(obj.NUM_COLS_IN_PIX_BLOCK, ...
-                                                num_pix, data_range);
+            data = obj.get_random_data_in_range( ...
+                PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix, data_range);
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             pix.do_unary_op(unary_op);
 
-            file_backed_data = obj.concatenate_pixel_pages(pix);
+            file_backed_data = concatenate_pixel_pages(pix);
 
             pix_in_mem = PixelData(data);
             pix_in_mem = pix_in_mem.do_unary_op(unary_op);
@@ -263,7 +269,7 @@ methods
     end
 
     function test_mask_does_nothing_if_mask_array_eq_ones_when_pix_in_memory(~)
-        data = rand(9, 11);
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 11);
         pix = PixelData(data);
         mask_array = ones(1, pix.num_pixels);
         pix_out = pix.mask(mask_array);
@@ -271,7 +277,7 @@ methods
     end
 
     function test_mask_returns_empty_PixelData_if_mask_array_all_zeros(~)
-        data = rand(9, 11);
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 11);
         pix = PixelData(data);
         mask_array = zeros(1, pix.num_pixels);
         pix_out = pix.mask(mask_array);
@@ -280,7 +286,7 @@ methods
     end
 
     function test_mask_raises_if_mask_array_len_neq_to_pg_size_or_num_pixels(obj)
-        data = rand(9, 30);
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 30);
         npix_in_page = 10;
         pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
         mask_array = zeros(5);
@@ -289,7 +295,7 @@ methods
     end
 
     function test_mask_removes_in_memory_pix_if_len_mask_array_eq_num_pixels(~)
-        data = rand(9, 11);
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 11);
         pix = PixelData(data);
         mask_array = ones(1, pix.num_pixels);
         pix_to_remove = [3, 6, 7];
@@ -310,7 +316,7 @@ methods
     end
 
     function test_mask_deletes_pixels_when_given_npix_argument_pix_in_pages(obj)
-        data = rand(9, 20);
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
         npix_in_page = 11;
         pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
@@ -322,12 +328,12 @@ methods
         full_mask_array = repelem(mask_array, npix);
         expected_data = data(:, logical(full_mask_array));
 
-        actual_data = obj.concatenate_pixel_pages(pix);
+        actual_data = concatenate_pixel_pages(pix);
         assertEqual(actual_data, expected_data);
     end
 
     function test_mask_deletes_pix_with_npix_argument_all_pages_full(obj)
-        data = rand(9, 20);
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
         npix_in_page = 10;
         pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
@@ -339,13 +345,13 @@ methods
         full_mask_array = repelem(mask_array, npix);
         expected_data = data(:, logical(full_mask_array));
 
-        actual_data = obj.concatenate_pixel_pages(pix);
+        actual_data = concatenate_pixel_pages(pix);
         assertEqual(actual_data, expected_data);
     end
 
     function test_mask_deletes_pixels_when_given_npix_argument_pix_in_mem(obj)
-        data = rand(9, 20);
-        pix = PixelData(data);
+        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
+        pix = PixelData(data, obj.ALL_IN_MEM_PG_SIZE);
 
         mask_array = [0, 1, 1, 0, 1, 0];
         npix = [4, 5, 1, 2, 3, 5];
@@ -355,7 +361,7 @@ methods
         full_mask_array = repelem(mask_array, npix);
         expected_data = data(:, logical(full_mask_array));
 
-        actual_data = obj.concatenate_pixel_pages(pix);
+        actual_data = concatenate_pixel_pages(pix);
         assertEqual(actual_data, expected_data);
     end
 
@@ -370,7 +376,7 @@ methods
 
         function out = f()
             num_pix = 10;
-            pix = PixelData(rand(9, num_pix));
+            pix = PixelData(rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix));
             mask_array = randi([0, 1], [1, num_pix]);
             npix = rand(1, 4);
             out = pix.mask(mask_array, npix);
@@ -382,59 +388,137 @@ methods
     function test_not_enough_args_error_if_calling_mask_with_no_args(~)
 
         function pix = f()
-            pix = PixelData(rand(9, 10));
+            pix = PixelData(rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 10));
             pix = pix.mask();
         end
 
         assertExceptionThrown(@() f(), 'MATLAB:minrhs');
     end
 
+    function test_PixelData_and_raw_arrays_are_not_equal_to_tol(~)
+        raw_array = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
+        pix = PixelData(raw_array);
+        [ok, ~] = pix.equal_to_tol(raw_array);
+        assertFalse(ok);
+    end
+
+    function test_equal_to_tol_err_msg_contains_argument_classes(~)
+        raw_array = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
+        pix = PixelData(raw_array);
+        [~, mess] = pix.equal_to_tol(raw_array);
+        assertTrue(contains(mess, 'PixelData'));
+        assertTrue(contains(mess, 'double'));
+    end
+
+    function test_equal_to_tol_is_false_for_objects_with_unequal_num_pixels(~)
+        data = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
+        pix1 = PixelData(data);
+        pix2 = PixelData(data(:, 1:9));
+        assertFalse(pix1.equal_to_tol(pix2));
+    end
+
+    function test_equal_to_tol_true_if_PixelData_objects_contain_same_data(~)
+        data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
+        pix1 = PixelData(data);
+        pix2 = PixelData(data);
+        assertTrue(pix1.equal_to_tol(pix2));
+        assertTrue(pix2.equal_to_tol(pix1));
+    end
+
+    function test_equal_to_tol_true_if_pixels_paged_and_contain_same_data(obj)
+        data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
+        npix_in_page = 10;
+        pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        pix2 = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        assertTrue(pix1.equal_to_tol(pix2));
+        assertTrue(pix2.equal_to_tol(pix1));
+    end
+
+    function test_equal_to_tol_true_if_pixels_differ_less_than_tolerance(obj)
+        data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
+        npix_in_page = 10;
+        tol = 0.1;
+        pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        pix2 = obj.get_pix_with_fake_faccess(data - (tol - 0.01), npix_in_page);
+        assertTrue(pix1.equal_to_tol(pix2, tol));
+        assertTrue(pix2.equal_to_tol(pix1, tol));
+    end
+
+    function test_equal_to_tol_false_if_pix_paged_and_contain_unequal_data(obj)
+        data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
+        data2 = data;
+        data2(11) = 0.9;
+        npix_in_page = 10;
+
+        pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        pix2 = obj.get_pix_with_fake_faccess(data2, npix_in_page);
+        assertFalse(pix1.equal_to_tol(pix2));
+        assertFalse(pix2.equal_to_tol(pix1));
+    end
+
+    function test_equal_to_tol_true_if_only_1_arg_paged_but_data_is_equal(obj)
+        data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
+        npix_in_page = 6;
+
+        pix1 = PixelData(data);
+        pix2 = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        assertTrue(pix1.equal_to_tol(pix2));
+        assertTrue(pix2.equal_to_tol(pix1));
+    end
+
+    function test_equal_to_tol_false_if_only_1_arg_paged_and_data_not_equal(obj)
+        data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
+        npix_in_page = 6;
+
+        pix1 = PixelData(data);
+        pix2 = obj.get_pix_with_fake_faccess(data - 1, npix_in_page);
+        assertFalse(pix1.equal_to_tol(pix2));
+        assertFalse(pix2.equal_to_tol(pix1));
+    end
+
+    function test_equal_to_tol_throws_if_paged_pix_but_page_sizes_not_equal(obj)
+        data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
+        data2 = data;
+        npix_in_page = 10;
+
+        pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
+        pix2 = obj.get_pix_with_fake_faccess(data2, npix_in_page - 1);
+        f = @() pix1.equal_to_tol(pix2);
+        assertExceptionThrown(f, 'PIXELDATA:equal_to_tol');
+    end
+
+    function test_equal_to_tol_true_when_comparing_NaNs_if_nan_equal_true(~)
+        data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
+        data(:, [5, 10, 15]) = nan;
+        pix1 = PixelData(data);
+        pix2 = PixelData(data);
+
+        assertTrue(pix1.equal_to_tol(pix2, 'nan_equal', true));
+    end
+
+    function test_equal_to_tol_false_when_comparing_NaNs_if_nan_equal_false(~)
+        data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
+        data(:, [5, 10, 15]) = nan;
+        pix1 = PixelData(data);
+        pix2 = PixelData(data);
+
+        assertFalse(pix1.equal_to_tol(pix2, 'nan_equal', false));
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
-        mem_alloc = npix_in_page*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
-        pix = PixelData(faccess, mem_alloc);
+        pix = PixelData(faccess, npix_in_page*obj.BYTES_PER_PIX);
     end
 
-    function data = concatenate_pixel_pages(obj, pix)
-        pix = pix.move_to_first_page();
-        base_pg_size = pix.page_size;
-        data = zeros(obj.NUM_COLS_IN_PIX_BLOCK, pix.num_pixels);
-        iter = 0;
-        while true
-            start_idx = (iter*base_pg_size) + 1;
-            end_idx = min(start_idx + base_pg_size - 1, pix.num_pixels);
-            data(:, start_idx:end_idx) = pix.data;
-            iter = iter + 1;
-
-            if pix.has_more()
-                pix.advance();
-            else
-                break;
-            end
-        end
-    end
-
-    % -- Test helper tests --
-    function test_concatenate_pixel_pages(obj)
-        % This test gives confidence in 'concatenate_pixel_pages' which
-        % 'test_paged_data_returns_same_unary_op_result_as_all_in_memory'
-        % depends upon
-        data = rand(9, 30);
-        npix_in_page = 11;
-        pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-        pix.advance();
-
-        joined_pix_array = obj.concatenate_pixel_pages(pix);
-        assertEqual(joined_pix_array, data);
-    end
 end
 
 methods (Static)
+
     function data = get_random_data_in_range(cols, rows, data_range)
         data = data_range(1) + (data_range(2) - data_range(1)).*rand(cols, rows);
     end
-end
 
+end
 
 end

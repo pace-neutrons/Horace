@@ -199,7 +199,31 @@ def post_github_status(String state, String message) {
   }
 }
 
+def write_git_revision_to_file(String file_name) {
+  script {
+    def git_rev_cmd = "git rev-parse HEAD"
+    echo "Writing Git revision to ${file_name}..."
+    if (isUnix()) {
+      sh """
+        echo "\$(${git_rev_cmd})" > ${file_name}
+      """
+    } else {
+      powershell """
+        Write-Output "\$(${git_rev_cmd})" > ${file_name}
+      """
+    }
+  }
+}
+
+
 def base_job_name = "${env.JOB_BASE_NAME}".replace("PR-", "").replace("Branch-", "")
+
+if (env.BRANCH_NAME) {
+  currentBuild.description = "Branch: ${env.BRANCH_NAME}"
+} else if (env.PR_NUMBER) {
+  currentBuild.displayName = "#${env.BUILD_NUMBER} PR-${env.PR_NUMBER}"
+  currentBuild.description = "Git-SHA: ${env.PR_COMMIT_SHA.take(7)}"
+}
 
 
 pipeline {
@@ -211,14 +235,6 @@ pipeline {
 
     stage('Notify') {
       steps {
-        script {
-          if (env.BRANCH_NAME) {
-            currentBuild.description = "Branch: ${env.BRANCH_NAME}"
-          } else if (env.PR_NUMBER) {
-            currentBuild.displayName = "#${env.BUILD_NUMBER} PR-${env.PR_NUMBER}"
-            currentBuild.description = "Git-SHA: ${env.PR_COMMIT_SHA.take(7)}"
-          }
-        }
         post_github_status("pending", "The build is running")
       }
     }
@@ -369,6 +385,14 @@ pipeline {
           }
           else {
             powershell './tools/build_config/build.ps1 -package'
+          }
+          // Archive a file containing the git revision being built. This
+          // enables the Deploy pipelines to validate against this SHA, and
+          // ensure the correct revision is tagged in Git.
+          if (get_build_type(env.JOB_BASE_NAME) == 'Release') {
+            def git_rev_file_name = "${env.JOB_BASE_NAME}-git-revision.sha"
+            write_git_revision_to_file(git_rev_file_name)
+            archiveArtifacts(artifacts: git_rev_file_name, fingerprint: true)
           }
         }
 

@@ -18,7 +18,7 @@ The **communicator/controller** [[1]](https://en.wikipedia.org/wiki/Message_Pass
  
 Additional controller will be necessary to use Horace parallelization on a public cluster. This controller wraps around and interfaces the cluster job submission mechanism (e.g. *qsub* or *bsub*)
 
-The option 1) suits the users who do not want to compile C++ code on a Unix system and do not have Matlab parallel computing toolbox installed, option 2) is best for the people, who has Matlab parallel computing toolbox and 3) -- for experienced users who can compile C++ code and set up MPI framework.
+The option 1) suits the users who do not want to compile C\++ code on a Unix system and do not have Matlab parallel computing toolbox installed, option 2) is best for the people, who has Matlab parallel computing toolbox and 3) -- for experienced users who can compile C++ code and set up MPI framework.
 
 To provide simple switching between different frameworks, the common wrappers are written around the libraries and programs controlling parallel processes and transferring the messages. The wrappers provide common interface to users job. A Horace parallel job tasks are controlled and communicate with each other using this interface, which makes them oblivious to the actual mechanism used for the communications.
 
