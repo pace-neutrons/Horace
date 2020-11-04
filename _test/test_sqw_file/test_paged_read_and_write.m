@@ -36,6 +36,23 @@ methods
         assertTrue(equal_to_tol(saved_sqw, sqw_obj, 'ignore_str', true));
     end
 
+    function test_sqw_with_paged_pix_not_on_1st_pg_saved_correctly_(obj)
+        conf_cleanup = obj.set_temp_pix_page_size(obj.small_page_size);
+        sqw_obj = sqw(obj.test_sqw_file_path);
+        sqw_obj.data.pix.advance();
+
+        dbst = dbstack;
+        test_name = dbst.name;
+        out_file_path = fullfile(tmp_dir, test_name);
+        file_cleanup = obj.save_temp_file(sqw_obj, out_file_path);
+
+        % reset the config so we read the whole of the pixel array in one go
+        clear conf_cleanup
+
+        saved_sqw = sqw(out_file_path);
+        assertTrue(equal_to_tol(saved_sqw, sqw_obj, 'ignore_str', true));
+    end
+
     function test_saved_sqw_with_paged_pix_equal_to_original_sqw(obj)
         conf_cleanup = obj.set_temp_pix_page_size(obj.small_page_size);
         sqw_obj = sqw(obj.test_sqw_file_path);
