@@ -5,6 +5,7 @@ properties
 
     small_page_size = 1e6;  % 1Mb, chosen since the file below is ~1.8 MB.
     test_sqw_file_path = '../test_sqw_file/sqw_2d_1.sqw';
+    npixels_in_file = 24689;
 end
 
 methods
@@ -58,11 +59,10 @@ methods
     end
 
     function test_sqw_w_paged_pix_saved_correctly_with_small_mem_chunk_size(obj)
-        num_pix_in_file = 100337;
         conf_cleanup = set_temporary_config_options(...
             hor_config(), ...
             'pixel_page_size', obj.small_page_size, ...
-            'mem_chunk_size', floor(num_pix_in_file/2) ...
+            'mem_chunk_size', floor(obj.npixels_in_file/2) ...
         );
         sqw_obj = sqw(obj.test_sqw_file_path);
 
@@ -73,18 +73,18 @@ methods
     end
 
     function test_sqw_w_pix_on_2nd_pg_saved_right_with_small_mem_chunk_size(obj)
-        num_pix_in_file = 100337;
-        conf_cleanup = set_temporary_config_options(...
-            hor_config(), ...
-            'pixel_page_size', obj.small_page_size, ...
-            'mem_chunk_size', floor(num_pix_in_file/2) ...
-        );
+        pg_size_conf_cleanup = obj.set_temp_pix_page_size(obj.small_page_size);
+
         sqw_obj = sqw(obj.test_sqw_file_path);
         sqw_obj.data.pix.advance();
 
         % reset the config so we read the whole of the pixel array in one go
-        clear conf_cleanup
+        clear pg_size_conf_cleanup
 
+        mem_chunk_conf_cleanup = set_temporary_config_options(...
+            hor_config(), ...
+            'mem_chunk_size', floor(obj.npixels_in_file/2) ...
+        );
         [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
 
         saved_sqw = sqw(out_file_path);
