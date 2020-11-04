@@ -24,10 +24,7 @@ methods
         conf_cleanup = obj.set_temp_pix_page_size(obj.small_page_size);
         sqw_obj = sqw(obj.test_sqw_file_path);
 
-        dbst = dbstack;
-        test_name = dbst.name;
-        out_file_path = fullfile(tmp_dir, test_name);
-        file_cleanup = obj.save_temp_file(sqw_obj, out_file_path);
+        [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
 
         % reset the config so we read the whole of the pixel array in one go
         clear conf_cleanup
@@ -41,10 +38,7 @@ methods
         sqw_obj = sqw(obj.test_sqw_file_path);
         sqw_obj.data.pix.advance();
 
-        dbst = dbstack;
-        test_name = dbst.name;
-        out_file_path = fullfile(tmp_dir, test_name);
-        file_cleanup = obj.save_temp_file(sqw_obj, out_file_path);
+        [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
 
         % reset the config so we read the whole of the pixel array in one go
         clear conf_cleanup
@@ -57,10 +51,7 @@ methods
         conf_cleanup = obj.set_temp_pix_page_size(obj.small_page_size);
         sqw_obj = sqw(obj.test_sqw_file_path);
 
-        dbst = dbstack;
-        test_name = dbst.name;
-        out_file_path = fullfile(tmp_dir, test_name);
-        file_cleanup = obj.save_temp_file(sqw_obj, out_file_path);
+        [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
 
         saved_sqw = sqw(out_file_path);
         assertTrue(equal_to_tol(saved_sqw, sqw_obj, 'ignore_str', true));
@@ -75,10 +66,7 @@ methods
         );
         sqw_obj = sqw(obj.test_sqw_file_path);
 
-        dbst = dbstack;
-        test_name = dbst.name;
-        out_file_path = fullfile(tmp_dir, test_name);
-        file_cleanup = obj.save_temp_file(sqw_obj, out_file_path);
+        [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
 
         saved_sqw = sqw(out_file_path);
         assertTrue(equal_to_tol(saved_sqw, sqw_obj, 'ignore_str', true));
@@ -94,10 +82,10 @@ methods
         sqw_obj = sqw(obj.test_sqw_file_path);
         sqw_obj.data.pix.advance();
 
-        dbst = dbstack;
-        test_name = dbst.name;
-        out_file_path = fullfile(tmp_dir, test_name);
-        file_cleanup = obj.save_temp_file(sqw_obj, out_file_path);
+        % reset the config so we read the whole of the pixel array in one go
+        clear conf_cleanup
+
+        [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
 
         saved_sqw = sqw(out_file_path);
         assertTrue(equal_to_tol(saved_sqw, sqw_obj, 'ignore_str', true));
@@ -112,7 +100,11 @@ methods (Static)
             hor_config(), 'pixel_page_size', pg_size);
     end
 
-    function cleanup = save_temp_file(obj_to_save, file_path)
+    function [cleanup, file_path] = save_temp_sqw(obj_to_save)
+        dbst = dbstack();
+        % get the name of the function that called this one
+        test_name = dbst(2).name;
+        file_path = fullfile(tmp_dir(), [test_name, '.sqw']);
         save(obj_to_save, file_path);
 
         function del_temp_file(tmp_file_path)
