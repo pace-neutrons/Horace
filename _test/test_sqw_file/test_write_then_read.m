@@ -3,8 +3,8 @@ classdef test_write_then_read < TestCase
 properties
     old_warn_state;
 
-    small_page_size = 1e6;  % 1Mb
-    test_sqw_file_path = '../test_sqw_file/sqw_1d_1.sqw';
+    small_page_size = 1e6;  % 1Mb, chosen since the file below is ~1.8 MB.
+    test_sqw_file_path = '../test_sqw_file/sqw_2d_1.sqw';
 end
 
 methods
