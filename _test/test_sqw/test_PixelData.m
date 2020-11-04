@@ -1,10 +1,13 @@
 classdef test_PixelData < TestCase
 
 properties
+    old_config;
     old_warn_state;
 
+    SMALL_PG_SIZE = 1e6;  % 1Mb
+    ALL_IN_MEM_PG_SIZE = 1e12;
+
     raw_pix_data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
-    small_page_size_ = 1e6;  % 1Mb
     test_sqw_file_path = '../test_sqw_file/sqw_1d_1.sqw';
     test_sqw_file_full_path = '';
     this_dir = fileparts(mfilename('fullpath'));
@@ -43,6 +46,11 @@ methods
 
         addpath(fullfile(obj.this_dir, 'utils'));
 
+        conf = hor_config();
+        obj.old_config = conf.get_data_to_store();
+        % Tests assume all pix fit in memory by default
+        conf.pixel_page_size = obj.ALL_IN_MEM_PG_SIZE;
+
         % Swallow any warnings for when pixel page size set too small
         obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
 
@@ -57,11 +65,12 @@ methods
         f_accessor = sqw_formats_factory.instance().get_loader(obj.test_sqw_file_path);
         obj.pix_data_from_faccess = PixelData(f_accessor);
         % Construct an object from file accessor with small page size
-        obj.pix_data_small_page = PixelData(f_accessor, obj.small_page_size_);
+        obj.pix_data_small_page = PixelData(f_accessor, obj.SMALL_PG_SIZE);
     end
 
     function delete(obj)
         rmpath(fullfile(obj.this_dir, 'utils'));
+        set(hor_config, obj.old_config);
         warning(obj.old_warn_state);
     end
 
@@ -405,7 +414,7 @@ methods
     end
 
     function test_page_size_is_set_after_getter_call_when_given_as_argument(obj)
-        mem_alloc = obj.small_page_size_;  % 1Mb
+        mem_alloc = obj.SMALL_PG_SIZE;  % 1Mb
         expected_page_size = floor(...
                 mem_alloc/(obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK));
         % the first page is loaded on access, so this first assert which accesses
