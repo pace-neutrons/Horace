@@ -98,7 +98,7 @@ properties (Access=private)
     page_dirty_ = false;  % array mapping from page_number to whether that page is dirty
     page_memory_size_;  % the maximum amount of memory a page can use
     page_number_ = 1;  % the index of the currently loaded page
-    raw_data_ = zeros(9, 0);  % the underlying data cached in the object
+    raw_data_ = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, 0);  % the underlying data cached in the object
     tmp_io_handler_;  % a PixelTmpFileHandler object that handles reading/writing of tmp files
 end
 
@@ -227,6 +227,7 @@ methods
     [mean_signal, mean_variance] = compute_bin_data(obj, npix)
     pix_out = do_binary_op(obj, operand, binary_op, varargin);
     pix_out = do_unary_op(obj, unary_op);
+    [ok, mess] = equal_to_tol(obj, other_pix, varargin);
     pix_out = get_data(obj, fields, abs_pix_indices);
     pix_out = get_pixels(obj, abs_pix_indices);
     pix_out = mask(obj, mask_array, npix);
