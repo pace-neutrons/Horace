@@ -2,7 +2,7 @@ function varargout = get(this, index)
 % Get a named field from an object, or a structure with all
 % fields.
 %
-%   >> val = get(object)           % returns structure of object contents 
+%   >> val = get(object)           % returns structure of object contents
 %   >> val = get(object, 'field')  % returns named field, or an array of values
 %                                  % if input is an array
 
@@ -44,7 +44,8 @@ try
         varargout = {this.(index(1).subs)};
     end
 catch
-    error(['Reference to non-existent field ' index(1).subs '.']);
+    error('MATLAB:nonExistentField', ...
+          ['Reference to non-existent field ' index(1).subs '.']);
 end
 
 if length(varargout) > 1 && nargout <= 1

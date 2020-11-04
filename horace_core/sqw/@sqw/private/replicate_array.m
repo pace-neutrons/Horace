@@ -29,6 +29,8 @@ if numel(npix)==numel(v)
         vout(nbeg(i):nend(i))=v(i);     % if npix(i)=0, this assignment does nothing
     end
 else
-    error('Number of elements in input array(s) incompatible')
+    error('SQW:replicate_array', ...
+          ['Number of elements in v must be equal to number of elements in ' ...
+           'npix. Found ''%i'' and ''%i'''], numel(v), numel(npix));
 end
 

@@ -63,7 +63,7 @@ sqw_file_res=fullfile(dir_out,'tobyfit_refine_crystal_res.sqw');            % ou
 sqw_file_res_corr=fullfile(dir_out,'tobyfit_refine_crystal_res_corr.sqw');  % output file for correction
 
 % Save file with simulated data to be corrected
-datafile='test_tobyfit_refine_crystal_1_data.mat';      
+datafile='test_tobyfit_refine_crystal_1_data.mat';
 
 % File to which to save results of refinement
 savefile='test_tobyfit_refine_crystal_1_out.mat';   % filename where saved results are written
@@ -73,8 +73,8 @@ addpath(test_tobyfit_dir)
 cleanup = onCleanup(@() rmpath(test_tobyfit_dir));
 
 % This seed provides a passing test at time of writing
-fixed_seed = 774015;
-[rng_state, old_rng_state] = seed_rng(fixed_seed);
+FIXED_SEED = 101;
+[rng_state, old_rng_state] = seed_rng(FIXED_SEED);
 clean_up = onCleanup(@() rng(old_rng_state));
 fprintf('RNG seed: %i\n', rng_state.Seed);
 
@@ -114,7 +114,7 @@ if save_data
     % Full output file names
     urange = calc_sqw_urange (efix, emode, en(1), en(end), par_file,...
         alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
-    
+
     % Create simulations for individual spe files
     sqw_file_res_tmp=cell(size(psi));
     disp('--------------------------------------------------------------------------')
@@ -122,10 +122,10 @@ if save_data
     for i=1:numel(psi)
         disp(' ')
         disp(['Creating file for orientation ',num2str(i),' of ',num2str(numel(psi))])
-        
+
         wtmp = fake_sqw (en, par_file,'', efix, emode, alatt, angdeg,...
             u, v, psi(i), omega, dpsi, gl, gs, [10,10,10,10], urange);
-        
+
         % Tobyfit simulation to account for resolution
         wtmp{1}=set_sample_and_inst(wtmp{1},sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
 
@@ -135,28 +135,28 @@ if save_data
         kk = kk.set_mc_points(10);
         wsim = kk.simulate;
         wsim = noisify(wsim,0.01);
-        
+
         wsim=set_sample_and_inst(wsim,struct(),struct());   % get rid of sample information again
         sqw_file_res_tmp{i}=fullfile(dir_out,['dummy_tobyfit_refine_crystal_1_res_',num2str(i),'.sqw']);
         save(wsim,sqw_file_res_tmp{i});
     end
-    
+
     % Combine simulations
     disp('--------------------------------------------------------------------------')
     write_nsqw_to_sqw(sqw_file_res_tmp,sqw_file_res);
     delete_temp_file (sqw_file_res_tmp)
-    
+
     % Now take a cut that gets the .mat file under 100MB but still contains the Bragg peaks we'll fit
     wsim=cut_sqw(sqw_file_res,projaxes([1,1,0],[0,0,1]),[-0.5,0.02,2.5],[-1.5,0.02,1.5],...
         [-0.25,0.25],[-Inf,Inf]);
     delete_temp_file (sqw_file_res)
-    
+
     % Save cut for future use
     datafile_full = fullfile(dir_out,datafile);
     save(datafile_full,'wsim');
     disp(['Saved data for future use in',datafile_full])
     return
-    
+
 else
     % Read in data
     data = load(datafile);          % load from .mat file
@@ -325,16 +325,16 @@ end
 % %% --------------------------------------------------------------------------------------
 % % Collect results together as a structure
 % % ---------------------------------------------------------------------------------------
-% 
+%
 % res.rlu_corr = rlu_corr;
 % res.rotmat_fit = rotmat_fit;
-% 
+%
 % res.w = w;
-% 
+%
 % res.w_tf_a = w_tf_a;
 % res.fitpar_tf_a = fitpar_tf_a;
 % res.rlu_corr_tf_a = rlu_corr_tf_a;
-% 
+%
 % res.w_tf_b = w_tf_b;
 % res.fitpar_tf_b = fitpar_tf_b;
 % res.rlu_corr_tf_b = rlu_corr_tf_b;
@@ -362,4 +362,4 @@ for i=1:numel(flname)
         disp(['Unable to delete temporary file: ',flname{i}])
     end
 end
-    
+
