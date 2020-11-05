@@ -115,7 +115,10 @@ if save_data
     
 else
     % Read in data
-    load(datafile);
+    load(datafile, 'w110a', 'w110b', 'w110arr');
+    w110a = preprocess(w110a);
+    w110b = preprocess(w110b);
+    w110arr = preprocess(w110arr);
 end
 
 % Add instrumnet and sample information to cuts

@@ -114,7 +114,8 @@ if save_data
     
 else
     % Read in data
-    load(datafile);
+    load(datafile, 'w1');
+    w1 = preprocess(w1);
 end
 
 

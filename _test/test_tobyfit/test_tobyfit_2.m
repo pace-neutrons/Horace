@@ -99,7 +99,12 @@ if save_data
     
 else
     % Read in data
-    load(datafile);
+    load(datafile, 'fe_1','fe_2','fe_arr','rb_1','rb_arr');
+    fe_1 = preprocess(fe_1);
+    fe_2 = preprocess(fe_2);
+    fe_arr = preprocess(fe_arr);
+    rb_1 = preprocess(rb_1);
+    rb_arr = preprocess(rb_arr);
 end
 
 % Add instrument and sample information to cuts
