@@ -78,9 +78,9 @@ if save_data
 else
     % Read in data
     load(datafile,'w2a','wce','w2b');
-    w2a = preprocess(w2a);
-    wce = preprocess(wce);
-    w2b = preprocess(w2b);
+    w2a = manage_legacy_sqw_class_rename(w2a);
+    wce = manage_legacy_sqw_class_rename(wce);
+    w2b = manage_legacy_sqw_class_rename(w2b);
 end
 
 % Add instrument and sample information to cuts
