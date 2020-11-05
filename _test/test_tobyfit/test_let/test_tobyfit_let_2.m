@@ -115,7 +115,7 @@ if save_data
 else
     % Read in data
     load(datafile, 'w1');
-    w1 = preprocess(w1);
+    w1 = manage_legacy_sqw_class_rename(w1);
 end
 
 
