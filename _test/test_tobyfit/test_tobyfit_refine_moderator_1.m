@@ -98,7 +98,8 @@ if save_data
     
 else
     % Read in data
-    load(datafile);
+    load(datafile, 'w1inc');
+    w1inc = preprocess(w1inc);
 end
 
 % Add instrumnet and sample information to cuts

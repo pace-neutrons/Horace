@@ -59,7 +59,12 @@ classdef test_dnd_constructors< TestCase
             this_path = fileparts(which(mfilename));
             test_file = fullfile(this_path,'old_sqw_test.mat');
             ld = load(test_file);
-            old_sqw = ld.QE_35_10;
+
+            % This is a temporary step to manage reengineering of the `sqw` object
+            % during which the old class is renamed as `sqw_old`, and will load as
+            % a struct rather than class instance.
+            old_sqw = sqw_old(ld.QE_35_10);
+
             old_dnd = dnd(old_sqw);
             assertEqual(old_sqw(1).data.s,old_dnd(1).s);
             assertEqual(old_sqw(1).data.e,old_dnd(1).e);

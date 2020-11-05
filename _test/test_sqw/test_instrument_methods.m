@@ -14,9 +14,13 @@ classdef test_instrument_methods < TestCaseWithSave
             
             % load data
             load('test_instrument_methods_data.mat','w_fe','w_rb')
-            self.w_fe = w_fe;     % iron dataset
-            self.w_rb = w_rb;     % RbMnF3 dataset
-            
+
+            % This is a temporary step to manage reengineering of the `sqw` object
+            % during which the old class is renamed as `sqw_old`, and will load as
+            % a struct rather than class instance.
+            self.w_fe = sqw_old(w_fe);     % iron dataset
+            self.w_rb = sqw_old(w_rb);     % RbMnF3 dataset
+
             % Make an instrument(distance,frequency,radius,curvature,slit_width
             mod_1 = IX_moderator(10,11,'ikcarp',[11,111,0.1]);
             mod_2 = IX_moderator(20,22,'ikcarp',[20,222,0.2]);
