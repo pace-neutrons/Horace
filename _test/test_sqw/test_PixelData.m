@@ -1510,7 +1510,6 @@ methods
     end
 
     function test_pix_from_2_get_pixels_calls_valid_if_pg_size_config_small(obj)
-        % Tests bug where
         cleanup = set_temporary_config_options(...
             hor_config(), 'pixel_page_size', obj.SMALL_PG_SIZE);
         pix = PixelData(obj.test_sqw_file_full_path);
