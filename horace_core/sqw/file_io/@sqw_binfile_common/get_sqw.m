@@ -32,6 +32,10 @@ function [sqw_object,varargout] = get_sqw (obj,varargin)
 %
 %               Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
 %
+% Keyword options:
+%   pix_pg_size   [optional] The page size to pass to the PixelData constructor
+%                 when initialising the sqw object's pixels.
+%
 % Output:
 % --------
 %  fully formed sqw object
@@ -48,26 +52,44 @@ function [sqw_object,varargout] = get_sqw (obj,varargin)
 %
 % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
-opt = {'-head','-his','-hverbatim','-verbatim','-nopix','-legacy'};
 if nargin>1
     % replace single '-h' with head
     argi = cellfun(@replace_h,varargin,'UniformOutput',false);
 else
     argi = {};
 end
-[ok,mess,opt_h,opt_his,hverbatim,verbatim,opt_nopix,legacy,argi] = parse_char_options(argi,opt);
-if ~ok
-    error('SQW_FILE_IO:invalid_argument',mess);
-end
-verbatim = verbatim||hverbatim;
-if numel(argi)>0
-    error('SQW_BINFILE_COMMON:invalid_argument',...
-        'Unrecognised options %s to get_sqw',argi{:});
-end
 
+key_val_def = struct( ...
+    'head', false, ...
+    'his', false, ...
+    'verbatim', false, ...
+    'hverbatim', false, ...
+    'hisverbatim', false, ...
+    'nopix', false, ...
+    'legacy', false, ...
+    'pix_pg_size', realmax);
+flag_names = { ...
+    'head', ...
+    'his', ...
+    'verbatim', ...
+    'hverbatim', ...
+    'hisverbatim', ...
+    'nopix', ...
+    'legacy'};
+
+parser_opts = struct('prefix', '-', 'prefix_req', false);
+[~, args, ~, ~, ok, mess] = parse_arguments(argi, key_val_def, flag_names, ...
+                                            parser_opts);
+if ~ok
+    error('SQW_FILE_IO:invalid_argument', mess);
+end
+opt_h = args.head;
+opt_his = args.his;
+verbatim = args.verbatim || args.hverbatim;
+opt_nopix = args.nopix;
+legacy = args.legacy;
 
 sqw_struc = struct('main_header',[],'header',[],'detpar',[],'data',[]);
-
 
 % Get main header
 % ---------------
@@ -127,4 +149,3 @@ if strcmp(inp,'-h')
 else
     out  = inp;
 end
-
