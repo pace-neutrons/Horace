@@ -132,10 +132,9 @@ classdef test_config_classes< TestCase
             
             pc.worker = 'non_existing_worker';
             assertEqual(pc.worker,'non_existing_worker');
-            assertEqual(pc.parallel_cluster,'none');            
-            assertEqual(pc.cluster_config,'none');                        
+            assertEqual(pc.parallel_cluster,'none');
+            assertEqual(pc.cluster_config,'none');
         end
-        
         %
         function this=test_parallel_config_missing_worker(this)
             pc = parallel_config;
