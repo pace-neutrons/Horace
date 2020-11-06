@@ -41,7 +41,11 @@ if ~this.save_output
     
     % Read in stored data, if there is a pre-existing test results file
     if exist(filename,'file')
-        this.ref_data_ = load(filename);
+        data = load(filename);
+
+        % temporary pre-processing of the loaded data is required to
+        % manage migration from old-sqw and dnd objects to the new classes
+        this.ref_data_ = manage_legacy_sqw_class_rename(data);
     end
     
 else
