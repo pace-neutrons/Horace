@@ -116,7 +116,7 @@ end
 data_str.urange = fread(obj.file_id_,[2,4],'float32');
 
 % parse all arguments, including those that weren't passed to the parent method
-opts = parse_args(varargin);
+opts = parse_args(varargin{:});
 
 if opts.header || opts.hverbatim || noclass
     data  = data_str;
