@@ -15,7 +15,7 @@ properties
     pix_fields = {'u1', 'u2', 'u3', 'dE', 'coordinates', 'q_coordinates', ...
                   'run_idx', 'detector_idx', 'energy_idx', 'signal', ...
                   'variance'};
-              
+
     search_path_herbert_shared = [herbert_root '/_test/shared'];
 end
 
@@ -58,36 +58,40 @@ methods
     end
 
     % --- Tests for in-memory operations ---
-    
+
     function test_how_noisify_works(obj)
         % obj is the test case object
         % what we want to do is call noisify here on different kinds of
         % data
-        
+
         % step 1 we reduce the page size
-        hc = hor_config();
-        hc.pixel_page_size = 10000;
+        pixel_page_size = 1e5;
         % we set up the test "random number generator" which is actually
         % a deterministic set of numbers 1:999 repeated. Use factor to make
         % them in range 0:1
-        factor =1/999;
+        factor = 1/999;
         % We make an sqw object with the above page size
-        sqw_obj1 = sqw(obj.test_sqw_file_full_path);
-        
+        sqw_obj1 = sqw(obj.test_sqw_file_full_path, 'pix_pg_size', pixel_page_size);
+
+        % ensure we're actually paging data
+        pix = sqw_obj1.data.pix;
+        assertTrue(pix.num_pixels > pix.page_size);
+
         % and we noisify it
         % here using a regular sequence (disguised as pseudorandom)
         % to make testing by eye easier:
         a=deterministic_pseudorandom_sequence();
         myrng=@a.myrand;
-        % if the standard MATLAB rng were used then we would need to 
+
+        % if the standard MATLAB rng were used then we would need to
         % initialise that to a repeatable state by:
-        % rng(0) 
+        % rng(0)
+
         % add the noise to object 1 using myrng (myrng could be left out
         % to get the default randn behaviour, used with rng(0)
         noisy_obj1 = noisify(sqw_obj1,factor,'random_number_function',myrng);
+
         % step 2 we increase the page size again to the notional max
-        hc = hor_config();
-        hc.pixel_page_size = 3e9;
         % We make another sqw objectfrom the same file
         sqw_obj2 = sqw(obj.test_sqw_file_full_path);
         % and we noisify it
@@ -101,23 +105,9 @@ methods
         concpix = concatenate_pixel_pages(sqw_obj1(1).data.pix);
         assertEqual(concpix,sqw_obj2.data.pix.data,'',5e-4);
         nconcpix = concatenate_pixel_pages(noisy_obj1(1).data.pix);
-        assertEqual(nconcpix(1,:),noisy_obj2.data.pix.data(1,:),'',5e-4);
-        assertEqual(nconcpix(2,:),noisy_obj2.data.pix.data(2,:),'',5e-4);
-        assertEqual(nconcpix(3,:),noisy_obj2.data.pix.data(3,:),'',5e-4);
-        assertEqual(nconcpix(4,:),noisy_obj2.data.pix.data(4,:),'',5e-4);
-        assertEqual(nconcpix(5,:),noisy_obj2.data.pix.data(5,:),'',5e-4);
-        assertEqual(nconcpix(6,:),noisy_obj2.data.pix.data(6,:),'',5e-4);
-        assertEqual(nconcpix(7,:),noisy_obj2.data.pix.data(7,:),'',5e-4);
-        assertEqual(nconcpix(8,:),noisy_obj2.data.pix.data(8,:),'',5e-4);
-        assertEqual(nconcpix(9,:),noisy_obj2.data.pix.data(9,:),'',5e-4);
         assertEqual(nconcpix,noisy_obj2.data.pix.data,'',5e-4);
    end
 
-
-    % -- Helpers --
 end
 
-methods (Static)
-
-end
 end
