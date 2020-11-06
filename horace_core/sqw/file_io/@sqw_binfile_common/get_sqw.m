@@ -1,4 +1,4 @@
-function [sqw_object,varargout] = get_sqw (obj,varargin)
+function [sqw_object,varargout] = get_sqw (obj, varargin)
 % Load an sqw file from disk
 %
 %   >> sqw_object = obj.get_sqw()
@@ -79,11 +79,10 @@ if opts.verbatim
 else
     opt1 = {};
 end
-
-if (opts.head||opts.his)
+if (opts.head || opts.his)
     opt2 = {'-head'};
 else
-    opt2= {};
+    opt2 = {};
 end
 if opts.nopix
     opt3={'-nopix'};
@@ -91,8 +90,8 @@ else
     opt3={};
 end
 
-data_opt={opt1{:},opt2{:},opt3{:}};
-sqw_struc.data = obj.get_data(data_opt{:});
+data_opt= [opt1, opt2, opt3];
+sqw_struc.data = obj.get_data(data_opt{:}, 'pix_pg_size', opts.pix_pg_size);
 
 sqw_struc.header = headers;
 if opts.legacy
@@ -127,12 +126,12 @@ function opts = parse_args(varargin)
         'nopix', ...
         'legacy' ...
     };
-    kwarg_args = struct('pix_pg_size', realmax);
+    kwargs = struct('pix_pg_size', realmax);
     for flag_idx = 1:numel(flags)
-        kwarg_args.(flags{flag_idx}) = false;
+        kwargs.(flags{flag_idx}) = false;
     end
     parser_opts = struct('prefix', '-', 'prefix_req', false);
-    [~, opts, ~, ~, ok, mess] = parse_arguments(argi, kwarg_args, flags, ...
+    [~, opts, ~, ~, ok, mess] = parse_arguments(argi, kwargs, flags, ...
                                                 parser_opts);
     if ~ok
         error('SQW_FILE_IO:invalid_argument', mess);
