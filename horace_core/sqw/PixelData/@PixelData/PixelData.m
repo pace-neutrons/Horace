@@ -283,7 +283,7 @@ methods
             obj.validate_mem_alloc(mem_alloc);
             obj.page_memory_size_ = mem_alloc;
         else
-            obj.page_memory_size_ = get(hor_config, 'pixel_page_size');
+            obj.page_memory_size_ = PixelData.DEFAULT_PAGE_SIZE;
         end
 
         if nargin == 0
