@@ -3,7 +3,7 @@ classdef PixelData < handle
 %
 %   This class provides getters and setters for each data column in an SQW
 %   pixel array. You can access the data using the attributes listed below,
-%   using the get_data() method (to retrive column data) or using the
+%   using the get_data() method (to retrieve column data) or using the
 %   get_pixels() method (retrieve row data).
 %
 %   Construct this class with an 9 x N array, a file path to an SQW object or
@@ -114,10 +114,10 @@ properties (Dependent, Access=private)
 end
 
 properties (Dependent)
-    % Return the 1st, 2nd and 3rd dimension of the crystal cartestian orientation (1 x n arrays) [A^-1]
+    % Return the 1st, 2nd and 3rd dimension of the crystal cartesian orientation (1 x n arrays) [A^-1]
     u1; u2; u3;
 
-    % Return the spatial dimensions of the crystal cartestian orientation (3 x n array)
+    % Return the spatial dimensions of the crystal cartesian orientation (3 x n array)
     q_coordinates;
 
     % Returns the array of energy deltas of the pixels (1 x n array) [meV]
@@ -158,7 +158,7 @@ end
 methods (Static)
 
     function obj = cat(varargin)
-        % Concatentate the given PixelData objects' pixels. This function performs
+        % Concatenate the given PixelData objects' pixels. This function performs
         % a straight-forward data concatenation.
         %
         %   >> joined_pix = PixelData.cat(pix_data1, pix_data2);
@@ -274,7 +274,7 @@ methods
         %               data in bytes. If pixels cannot all be held in memory
         %               at one time, they will be loaded from the file
         %               (specified by 'arg') when they are required. This
-        %               argument does nothing if the class is contstructed with
+        %               argument does nothing if the class is constructed with
         %               in-memory data. (Optional)
         %
         obj.object_id_ = polyval(randi([0, 9], 1, 5), 10);
@@ -628,7 +628,7 @@ methods
             base_pg_size = obj.max_page_size_;
             if base_pg_size*obj.page_number_ > obj.num_pixels
                 % In this case we're on the final page and there are fewer
-                % lefotver pixels than would be in a full-size page
+                % leftover pixels than would be in a full-size page
                 page_size = obj.num_pixels - base_pg_size*(obj.page_number_ - 1);
             else
                 page_size = min(base_pg_size, obj.num_pixels);
@@ -643,7 +643,7 @@ methods
     end
 
     function page_size = get.max_page_size_(obj)
-        page_size = obj.get_max_page_size_();
+        page_size = obj.calculate_page_size_(obj.page_memory_size_);
     end
 
 end
@@ -736,16 +736,11 @@ methods (Access=private)
         obj.dirty_page_edited_ = is_dirty;
     end
 
-    function page_size = get_max_page_size_(obj)
-        % Get the maximum number of pixels that can be held in a page that's
-        % allocated 'obj.page_memory_size_' bytes of memory
-        page_size = obj.calculate_page_size_(obj.page_memory_size_);
-    end
-
     function page_size = calculate_page_size_(obj, mem_alloc)
         % Calculate number of pixels that fit in the given memory allocation
         num_bytes_in_pixel = obj.DATA_POINT_SIZE*obj.PIXEL_BLOCK_COLS_;
         page_size = floor(mem_alloc/num_bytes_in_pixel);
+        page_size = max(page_size, size(obj.raw_data_, 2));
     end
 
     function is = is_file_backed_(obj)
