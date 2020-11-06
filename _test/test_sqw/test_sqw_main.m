@@ -59,5 +59,12 @@ classdef test_sqw_main < TestCase
             assertEqual(sqw_pg_size, expected_pg_size);
         end
 
+        function test_error_setting_invalid_pix_page_size_in_constructor(obj)
+            fpath = fullfile(obj.tests_dir, 'test_sqw_file', 'sqw_1d_2.sqw');
+            page_size_bytes = -1000;
+            f = @() sqw(fpath, 'pix_pg_size', page_size_bytes);
+            assertExceptionThrown(f, 'PIXELDATA:validate_mem_alloc');
+        end
+
     end
 end
