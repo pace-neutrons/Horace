@@ -44,13 +44,16 @@ classdef test_sqw_main < TestCase
         end
 
         function test_setting_pix_page_size_in_constructor_pages_pixels(obj)
-            cleanup = set_temporary_warning_off('PIXELDATA:validate_mem_alloc');
+            % hide warnings when setting pixel page size very small
+            old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
+            cleanup = onCleanup(@() warning(old_warn_state));
+
             fpath = fullfile(obj.tests_dir, 'test_sqw_file', 'sqw_1d_2.sqw');
             page_size_bytes = 7.8e4;
             sqw_obj = sqw(fpath, 'pix_pg_size', page_size_bytes);
             sqw_pg_size = sqw_obj.data.pix.page_size;
 
-            % check we have paging
+            % check we're actually paging pixels
             assertTrue(sqw_obj.data.pix.num_pixels > sqw_pg_size);
 
             % check the page size is what we set it to
