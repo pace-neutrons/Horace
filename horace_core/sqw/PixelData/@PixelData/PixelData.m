@@ -264,7 +264,7 @@ methods
         %             col 9: variance
         %
         %  arg    An integer specifying the desired number of pixels. The underlying
-        %         data will be filled with zeros
+        %         data will be filled with zeros.
         %
         %  arg    A path to an SQW file.
         %
