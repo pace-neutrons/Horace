@@ -5,7 +5,7 @@ function [xright,yright,sright,eright,nright]=discard_lhs(x,y,s,e,n,win,v1,v2,v3
 %
 % RAE 12/1/10
 
-win=sqw(win);
+win=sqw_old(win);
 
 xright=x; yright=y; sright=s; eright=e; nright=n;
 

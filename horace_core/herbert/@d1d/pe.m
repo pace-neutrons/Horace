@@ -10,7 +10,7 @@ function [figureHandle, axesHandle, plotHandle] = pe(win,varargin)
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = pe(w,...) 
 
-[figureHandle_, axesHandle_, plotHandle_] = pe(sqw(win),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = pe(sqw_old(win),varargin{:});
 
 % Output only if requested
 if nargout>=1, figureHandle=figureHandle_; end

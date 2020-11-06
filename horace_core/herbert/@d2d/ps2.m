@@ -27,7 +27,7 @@ if ~isa(w,'d2d')
     error('Object to plot must be a d2d object or array of objects')
 end
 
-[figureHandle_, axesHandle_, plotHandle_] = ps2(sqw(w),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = ps2(sqw_old(w),varargin{:});
 
 % Output only if requested
 if nargout>=1, figureHandle=figureHandle_; end

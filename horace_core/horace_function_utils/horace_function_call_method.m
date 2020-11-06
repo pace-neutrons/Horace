@@ -93,7 +93,7 @@ else
 end
 
 if all(w.sqw_type)
-    dummy_obj=sqw;
+    dummy_obj=sqw_old;
 else
     ndims=w.ndims(1);
     if ndims==0

@@ -97,12 +97,12 @@ function [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu,...
 
 % Check input arguments
 if ischar(w)    % assume a file name
-    file_type_ok=is_sqw_type_file(sqw,w);
+    file_type_ok=is_sqw_type_file(sqw_old,w);
     if ~isscalar(file_type_ok) || ~file_type_ok
         error('File must be sqw type')
     end
     hdr=head_sqw(w);    % get header information as extracted from the 'data' field
-elseif isa(w,'sqw') && is_sqw_type(w(1))
+elseif isa(w,'sqw_old') && is_sqw_type(w(1))
     if numel(w)~=1
         error('Data must be a single sqw object, not an array (or empty)')
     end

@@ -118,7 +118,7 @@ if legacy
 elseif opt_h || opt_his
     sqw_object  = sqw_struc;
 else
-    sqw_object = sqw(sqw_struc);
+    sqw_object = sqw_old(sqw_struc);
 end
 
 function out = replace_h(inp)

@@ -42,7 +42,7 @@ classdef sqw_formats_factory < handle
         % Old class interface:
         % classes to load/save
         % sqw2 corresponds to sqw file in indirect mode with varying efixed
-        written_types_ = {'sqw','sqw2','dnd','d0d','d1d','d2d','d3d','d4d'};
+        written_types_ = {'sqw_old','sqw2','dnd','d0d','d1d','d2d','d3d','d4d'};
         % number of loader in the list of loaders to use with correspondent class
         access_to_type_ind_ = {1,2,4,4,4,4,4,4};
         types_map_ ;
@@ -167,7 +167,7 @@ classdef sqw_formats_factory < handle
             %           -- returns default accessor suitable for most files.
             %>>loader = sqw_formats_factory.instance().get_pref_access('dnd')
             % or
-            %>>loader = sqw_formats_factory.instance().get_pref_access('sqw')
+            %>>loader = sqw_formats_factory.instance().get_pref_access('sqw_old')
             %         -- returns preferred accessor for dnd or sqw object
             %            correspondingly
             %
@@ -186,7 +186,7 @@ classdef sqw_formats_factory < handle
                 the_type = varargin{1};
             else
                 the_type = class(varargin{1});
-                if isa(varargin{1},'sqw')
+                if isa(varargin{1},'sqw_old')
                     sobj = varargin{1};
                     header =sobj.header;
                     if iscell(header)

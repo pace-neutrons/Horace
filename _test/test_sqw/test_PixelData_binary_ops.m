@@ -31,7 +31,7 @@ methods
         obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
 
         % Load a 1D SQW file
-        sqw_test_obj = sqw(obj.test_sqw_file_path);
+        sqw_test_obj = sqw_old(obj.test_sqw_file_path);
         obj.ref_raw_pix_data = sqw_test_obj.data.pix.data;
 
         page_size = floor(sqw_test_obj.data.pix.num_pixels/6)*obj.BYTES_PER_PIX;

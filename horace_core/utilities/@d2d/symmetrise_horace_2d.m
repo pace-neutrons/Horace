@@ -34,11 +34,11 @@ if ndims~=2
     error('Horace error: symmetrise_horace_2d only works for 2-dimensional data');
 end
 
-if isa(win,'sqw') && is_sqw_type(win)
+if isa(win,'sqw_old') && is_sqw_type(win)
     error('Horace error: symmetrise_horace_2d method is for d2d-type data only');
 end
 
-win=sqw(win);
+win=sqw_old(win);
 
 %First determine what kind of symmetrisation we are doing:
 if nargin==2
@@ -124,7 +124,7 @@ switch route
                     getout.data.s=sout; getout.data.e=eout; getout.data.npix=nout;
                     getout.data.p{1}=xout(:,1);
                     getout.data.p{2}=yout(1,:)';
-                    wout=d2d(sqw(getout));
+                    wout=d2d(sqw_old(getout));
                     %
                 else
                     %get bin boundaries in shoelace format

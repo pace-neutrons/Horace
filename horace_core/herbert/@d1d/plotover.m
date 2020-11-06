@@ -12,7 +12,7 @@ function [figureHandle, axesHandle, plotHandle] = plotover(w,varargin)
 %
 % Synonym for dp(...)
 
-[figureHandle_, axesHandle_, plotHandle_] = plotover(sqw(w),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = plotover(sqw_old(w),varargin{:});
 
 % Output only if requested
 if nargout>=1, figureHandle=figureHandle_; end

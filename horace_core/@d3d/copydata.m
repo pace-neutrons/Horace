@@ -45,5 +45,5 @@ function wout = copydata (win,varargin)
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------
 % Work via sqw class type
 
-wout=dnd(copydata(sqw(win),varargin{:}));
+wout=dnd(copydata(sqw_old(win),varargin{:}));
 

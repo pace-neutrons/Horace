@@ -33,4 +33,4 @@ function wout = permute (win,varargin)
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------
 % Work via sqw class type
 
-wout=dnd(permute(sqw(win),varargin{:}));
+wout=dnd(permute(sqw_old(win),varargin{:}));
