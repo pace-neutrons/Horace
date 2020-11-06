@@ -14,4 +14,4 @@ function [proj, pbin] = get_proj_and_pbin (w)
 %          sqw object
 
 
-[proj, pbin] = get_proj_and_pbin (sqw(w));
+[proj, pbin] = get_proj_and_pbin (sqw_old(w));

@@ -84,7 +84,7 @@ classdef test_main_mex < TestCase
 
             %check matlab-part
             set(hor_config,'use_mex',0,'-buffer');
-            dummy  = sqw();
+            dummy  = sqw_old();
             dummy.data = data;
             [s_m, e_m, npix_m, urange_step_pix_m, npix_retain_m,ok_m, ix_m] = accumulate_cut_tester(dummy,urange_step_pix, true,...
                 proj, [1,2,3,4]);
@@ -162,7 +162,7 @@ classdef test_main_mex < TestCase
             [cur_mex,log_level,n_threads] = get(hor_config,'use_mex','log_level','threads');
             cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex,'log_level',log_level,'threads',n_threads));
 
-            test_sqw = sqw();
+            test_sqw = sqw_old();
             pix=PixelData(ones(9,40000));
             xs = 0.1:1:10;
             xp = 0.1:0.5:10;

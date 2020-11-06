@@ -99,7 +99,12 @@ if save_data
     
 else
     % Read in data
-    load(datafile);
+    load(datafile, 'fe_1','fe_2','fe_arr','rb_1','rb_arr');
+    fe_1 = manage_legacy_sqw_class_rename(fe_1);
+    fe_2 = manage_legacy_sqw_class_rename(fe_2);
+    fe_arr = manage_legacy_sqw_class_rename(fe_arr);
+    rb_1 = manage_legacy_sqw_class_rename(rb_1);
+    rb_arr = manage_legacy_sqw_class_rename(rb_arr);
 end
 
 % Add instrument and sample information to cuts

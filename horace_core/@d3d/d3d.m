@@ -68,7 +68,7 @@ function w = d3d (varargin)
 
 ndim_request = 3;
 class_type = 'd3d';
-inferiorto('sqw');
+inferiorto('sqw_old');
 
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------
 % Work via sqw class type
@@ -79,9 +79,9 @@ if nargin==1 && isa(varargin{1},class_type)     % already object of class
 end
 
 if nargin==0
-    w = sqw('$dnd',ndim_request); % default constructor
+    w = sqw_old('$dnd',ndim_request); % default constructor
 else
-    w = sqw('$dnd',varargin{:});
+    w = sqw_old('$dnd',varargin{:});
     if dimensions(w)~=ndim_request
         error(['Input arguments inconsistent with requested dimensionality ',num2str(ndim_request)])
     end

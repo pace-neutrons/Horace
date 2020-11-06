@@ -156,7 +156,7 @@ catch
     sqwfile = 0;
 end
 
-if isa(args{2},'sqw')
+if isa(args{2},'sqw_old')
     header = struct(args{2}).data;
 elseif sqwfile
     header = head_sqw(args{2});
@@ -172,7 +172,7 @@ qbin = opt.qbin;
 qwidth = opt.qwidth;
 ebin = opt.ebin;
 rlp = args{1};
-sqw = args{2};
+sqw_old = args{2};
 
 if numel(qwidth)==1
     qwidth = [1 1]*qwidth;

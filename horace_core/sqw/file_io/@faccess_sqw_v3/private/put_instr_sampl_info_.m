@@ -61,7 +61,7 @@ if has_object
 else
     if strcmp(obj_name,default_name)
         if numel(argi) > 0
-            if isa(argi{1},'sqw')
+            if isa(argi{1},'sqw_old')
                 return;
             else
                 the_obj =  argi{1};

@@ -45,7 +45,7 @@ end
 
 function sq = make_pseudo_sqw(nfiles)
 % if header is a class, the issue would be much better
-sq = sqw();
+sq = sqw_old();
 head = sqw_binfile_common.get_header_form();
 head.emode = 1;
 head.uoffset = zeros(4,1);

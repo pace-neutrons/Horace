@@ -6,7 +6,7 @@ function [figureHandle, axesHandle, plotHandle] = pdoc(win,varargin)
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = pdoc(w) 
 
-[figureHandle_, axesHandle_, plotHandle_] = pdoc(sqw(win),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = pdoc(sqw_old(win),varargin{:});
 
 % Output only if requested
 if nargout>=1, figureHandle=figureHandle_; end

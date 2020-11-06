@@ -22,5 +22,5 @@ function wout = compact (win)
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------
 % Work via sqw class type
 
-wout=dnd(compact(sqw(win)));
+wout=dnd(compact(sqw_old(win)));
 

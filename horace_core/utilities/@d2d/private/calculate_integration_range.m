@@ -9,7 +9,7 @@ function [irange,uoff]=calculate_integration_range(w1,w2)
 % RAE 22/1/10
 %
 
-w1=sqw(w1); w2=sqw(w2); %double check to ensure data in sqw format.
+w1=sqw_old(w1); w2=sqw_old(w2); %double check to ensure data in sqw format.
 
 iax11=w1.data.u_to_rlu(:,w1.data.iax(1));
 iax12=w1.data.u_to_rlu(:,w1.data.iax(2));

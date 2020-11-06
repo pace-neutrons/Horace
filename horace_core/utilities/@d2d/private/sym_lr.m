@@ -19,7 +19,7 @@ for i=1:numel(win)
         wout(i).npix = wtemp.npix .* win(i).npix;%gets the zeros in the right place.
         %npix otherwise has no meaning
 
-    elseif isa(win,'sqw') && ndims(win.data.s)==2
+    elseif isa(win,'sqw_old') && ndims(win.data.s)==2
         error('Cannot symmetrise sqw data. Convert to d2d, then symmetrise');
     else
         error('Input must be a d2d');

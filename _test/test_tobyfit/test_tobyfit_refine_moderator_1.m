@@ -98,7 +98,8 @@ if save_data
     
 else
     % Read in data
-    load(datafile);
+    load(datafile, 'w1inc');
+    w1inc = manage_legacy_sqw_class_rename(w1inc);
 end
 
 % Add instrumnet and sample information to cuts

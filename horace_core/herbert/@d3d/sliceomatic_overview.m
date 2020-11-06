@@ -30,7 +30,7 @@ function [figureHandle, axesHandle, plotHandle] = sliceomatic_overview(w,varargi
 
 % RAE 25/3/2010
 
-[figureHandle_, axesHandle_, plotHandle_] = sliceomatic_overview(sqw(w),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = sliceomatic_overview(sqw_old(w),varargin{:});
 
 % Output only if requested
 if nargout>=1, figureHandle=figureHandle_; end

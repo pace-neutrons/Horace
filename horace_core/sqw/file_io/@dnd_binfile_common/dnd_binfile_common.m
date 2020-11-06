@@ -135,7 +135,7 @@ classdef dnd_binfile_common < dnd_file_interface
                 error('SQW_FILE_IO:runtime_error',...
                     'dnd_binfile_common:init_from_sqw_obj method should be invoked with at least an existing sqw or dnd object provided');
             end
-            if isa(varargin{1},'sqw') || is_sqw_struct(varargin{1})
+            if isa(varargin{1},'sqw_old') || is_sqw_struct(varargin{1})
                 inobj = obj.extract_correct_subobj('data',varargin{:});
             else % dnd (the common logic verified that it is dnd)
                 inobj  = varargin{1};
@@ -185,7 +185,7 @@ classdef dnd_binfile_common < dnd_file_interface
                 inobj = varargin{1};
                 external = true;
             end
-            if isa(inobj,'sqw')
+            if isa(inobj,'sqw_old')
                 sub_obj = inobj.(obj_name);
             else % dnd object and this has been verified in calling function
                 sub_obj = inobj;

@@ -5,7 +5,7 @@ function [speedup,midpoint]=compare_sym_axes(win,v1,v2,v3)
 % axes (i.e. the reflection required is up/down or right/left).
 %
 
-win=sqw(win); midpoint=[]; speedup=false;
+win=sqw_old(win); midpoint=[]; speedup=false;
 %getin=get(win);%for debug.
 
 if size(v1)==[1,3]

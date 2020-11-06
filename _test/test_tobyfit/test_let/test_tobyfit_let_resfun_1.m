@@ -49,6 +49,7 @@ cleanup = onCleanup(@() rmpath(test_tobyfit_dir));
 % Create cuts to save as input data
 % --------------------------------------------------------------------------------------
 S=load(datafile);
+S = manage_legacy_sqw_class_rename(S);
 
 % Add instrument and sample information to cuts
 efix = 8.04;

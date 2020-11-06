@@ -115,7 +115,10 @@ if save_data
     
 else
     % Read in data
-    load(datafile);
+    load(datafile, 'w110a', 'w110b', 'w110arr');
+    w110a = manage_legacy_sqw_class_rename(w110a);
+    w110b = manage_legacy_sqw_class_rename(w110b);
+    w110arr = manage_legacy_sqw_class_rename(w110arr);
 end
 
 % Add instrumnet and sample information to cuts

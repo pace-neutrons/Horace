@@ -32,5 +32,5 @@ function wout = rebunch (win,varargin)
 % ----- The following should be independent of d0d, d1d,...d4d ------------
 % Work via sqw class type
 
-wout=dnd(rebunch(sqw(win),varargin{:}));
+wout=dnd(rebunch(sqw_old(win),varargin{:}));
 

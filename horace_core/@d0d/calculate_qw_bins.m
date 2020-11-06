@@ -24,5 +24,5 @@ function qw=calculate_qw_bins(win)
 if numel(win)~=1
     error('Only a single input dataset is valid - cannot take an array of datasets')
 end
-qw=calculate_qw_bins(sqw(win));
+qw=calculate_qw_bins(sqw_old(win));
 

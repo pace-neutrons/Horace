@@ -12,5 +12,5 @@ function display_single (w)
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------
 % Work via sqw class type
 
-display(sqw(w))
+display(sqw_old(w))
 

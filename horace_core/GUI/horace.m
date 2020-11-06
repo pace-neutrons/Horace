@@ -82,7 +82,7 @@ for i=1:numel(vars)
     test_el=vars(i);
     if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
             strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+            strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -201,7 +201,7 @@ for i=1:numel(vars)
     test_el=vars(i);
     if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
             strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+            strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -245,10 +245,10 @@ guidata(gcbo,handles);
 ndim=dimensions(w_in);
 
 %Get the plot title info:
-[title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = plot_titles (sqw(w_in));
+[title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = plot_titles (sqw_old(w_in));
 
 %Get the info about the object:
-if is_sqw_type(sqw(w_in))
+if is_sqw_type(sqw_old(w_in))
     getit=get(w_in);
     gg=getit.data;
 else
@@ -500,7 +500,7 @@ for i=1:numel(vars)
     test_el=vars(i);
     if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
             strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+            strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -937,7 +937,7 @@ for i=1:numel(vars)
     test_el=vars(i);
     if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
             strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+            strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -1005,7 +1005,7 @@ for i=1:numel(vars)
     test_el=vars(i);
     if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
             strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+            strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -1094,7 +1094,7 @@ for i=1:numel(vars)
     test_el=vars(i);
     if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
             strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+            strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -1507,7 +1507,7 @@ end
 %Also need to deal with the case where we specify a scalar as one of the
 %binning arguments (i.e. just a step size) but the object is dnd, since
 %otherwise we get an error message from the cut routine.
-if ~is_sqw_type(sqw(win))
+if ~is_sqw_type(sqw_old(win))
     if (numel(a1new)==1 && a1new~=0) || (numel(a2new)==1 && a2new~=0) || ...
             (numel(a3new)==1 && a3new~=0) || (numel(a4new)==1 && a4new~=0)
         mess1='Object is dnd -- cannot use scalar input to rebin along an axis.';
@@ -1565,13 +1565,13 @@ end
 %We now have to deal explicitly with the cases for the 4 possible
 %dimensionalities of cut, plus whether keeping pixels is valid or not. The
 %latter is not so difficult to deal with.
-if keeppix && ~is_sqw_type(sqw(win))
+if keeppix && ~is_sqw_type(sqw_old(win))
     mess='Selected object has no pixel info -- proceeding with cut, but no pixel info retained';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     keeppix=true;%bizarrely, this is what we need to do (so there is no '-nopix' argument)
     extra_flag=true;
-elseif ~is_sqw_type(sqw(win))
+elseif ~is_sqw_type(sqw_old(win))
     keeppix=true;
 end
 
@@ -1581,7 +1581,7 @@ end
 %based on what is/isn't greyed out.
 a1old=a1; a2old=a2; a3old=a3; a4old=a4;
 getit=get(win);
-if is_sqw_type(sqw(win))
+if is_sqw_type(sqw_old(win))
     gg=getit.data;
 else
     gg=getit;
@@ -1732,7 +1732,7 @@ for i=1:numel(vars)
     test_el=vars(i);
     if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
             strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+            strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -2052,7 +2052,7 @@ if ~ismanual && isfield(handles,'w_in2') && (ndims1 ~= ndims2)
 end
 
 %Work out which of the rebin functions is required:
-if is_sqw_type(sqw(win1))
+if is_sqw_type(sqw_old(win1))
     funcstr='rebin_sqw';
 elseif ndims1==1
     funcstr='rebin_horace_1d';
@@ -2479,7 +2479,7 @@ end
 %====
 
 %Work out which of the symmetrise functions is required:
-if is_sqw_type(sqw(win))
+if is_sqw_type(sqw_old(win))
     funcstr='symmetrise_sqw';
 elseif ndims==1
     funcstr='symmetrise_horace_1d';
@@ -2494,7 +2494,7 @@ end
 
 %====
 %Recall we cannot use the midpoint arg in for sqw-type data:
-if is_sqw_type(sqw(win)) && ismid
+if is_sqw_type(sqw_old(win)) && ismid
     mess='For sqw objects you can only use a specified plane to symmetrise, not a midpoint';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
@@ -2598,7 +2598,7 @@ for i=1:numel(vars)
     test_el=vars(i);
     if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
             strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+            strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -2885,9 +2885,9 @@ if (ndims1 ~= ndims2)
 end
 
 %Work out which of the combine functions is required:
-if is_sqw_type(sqw(win1)) && is_sqw_type(sqw(win2))
+if is_sqw_type(sqw_old(win1)) && is_sqw_type(sqw_old(win2))
     funcstr='combine_sqw';
-elseif is_sqw_type(sqw(win1)) && ~is_sqw_type(sqw(win2))
+elseif is_sqw_type(sqw_old(win1)) && ~is_sqw_type(sqw_old(win2))
     mess='1st object is sqw type, but second is not -- cannot do combine operation';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
@@ -2992,7 +2992,7 @@ for i=1:numel(vars)
     test_el=vars(i);
     if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
             strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+            strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -3191,7 +3191,7 @@ if saveafile && isempty(outfilename)
 end
 %===
 sqw_flag=false;
-if is_sqw_type(sqw(win1))
+if is_sqw_type(sqw_old(win1))
     sqw_flag=true;
     if ndims1==0
         obj_to_cut_dnd=d0d(win1);
@@ -3587,7 +3587,7 @@ for i=1:numel(vars)
     test_el=vars(i);
     if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
             strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+            strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -4693,7 +4693,7 @@ for i=1:numel(vars)
     test_el=vars(i);
     if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
             strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+            strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -4764,7 +4764,7 @@ if isfield(handles,'w_in');
         return;
     end
     ndims=dimensions(win);
-    if is_sqw_type(sqw(win))
+    if is_sqw_type(sqw_old(win))
         mess='Object selected is sqw type -- converted to dnd to smooth';
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         drawnow;

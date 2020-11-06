@@ -74,7 +74,7 @@ for i=1:numel(vars)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
-    elseif strcmp(test_el.class,'sqw')
+    elseif strcmp(test_el.class,'sqw_old')
         myvar=evalin('base',test_el.name);
         if dimensions(myvar)==1
             cellofnames{counter}=test_el.name;
@@ -143,7 +143,7 @@ for i=1:numel(vars)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
-    elseif strcmp(test_el.class,'sqw')
+    elseif strcmp(test_el.class,'sqw_old')
         myvar=evalin('base',test_el.name);
         if dimensions(myvar)==1
             cellofnames{counter}=test_el.name;
@@ -214,7 +214,7 @@ for i=1:numel(vars)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
-    elseif strcmp(test_el.class,'sqw')
+    elseif strcmp(test_el.class,'sqw_old')
         myvar=evalin('base',test_el.name);
         if dimensions(myvar)==1
             cellofnames{counter}=test_el.name;

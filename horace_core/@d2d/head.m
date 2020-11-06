@@ -47,7 +47,7 @@ if ~isempty(mess), error(mess); end
 % Perform operations
 % ------------------
 % Now call sqw cut routine. Output (if any), is a cell array, as method is passed a data source structure
-argout=head(sqw,w,args{:});
+argout=head(sqw_old,w,args{:});
 
 % Package output arguments
 % ------------------------

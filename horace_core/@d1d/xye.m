@@ -31,4 +31,4 @@ else
     end
 end
 
-S=xye(sqw(w),null_value);
+S=xye(sqw_old(w),null_value);
