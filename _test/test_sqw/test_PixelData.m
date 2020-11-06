@@ -69,7 +69,9 @@ methods
     end
 
     function delete(obj)
-        rmpath(fullfile(obj.this_dir, 'utils'));
+        if ismember(fullfile(obj.this_dir, 'utils'), split(path, {':', ';'}))
+            rmpath(fullfile(obj.this_dir, 'utils'));
+        end
         set(hor_config, obj.old_config);
         warning(obj.old_warn_state);
     end
@@ -1091,20 +1093,6 @@ methods
         assertFalse(pix.has_more());
     end
 
-    function test_max_page_size_set_by_pixel_page_size_config_option(obj)
-        hc = hor_config();
-        old_config = hc.get_data_to_store();
-        clean_up = onCleanup(@() set(hor_config, old_config));
-
-        new_pix_page_size = 1000;  % bytes
-        hc.pixel_page_size = new_pix_page_size;
-
-        bytes_in_pixel = obj.NUM_COLS_IN_PIX_BLOCK*obj.NUM_BYTES_IN_VALUE;
-        expected_page_size = floor(new_pix_page_size/bytes_in_pixel);
-        pix = PixelData(obj.test_sqw_file_path);
-        assertEqual(pix.page_size, expected_page_size);
-    end
-
     function test_error_when_setting_mem_alloc_lt_one_pixel(~)
         pix_size = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
 
@@ -1496,7 +1484,7 @@ methods
         assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
     end
 
-    function test_get_daata_throws_if_an_idx_lt_1_with_in_memory_pix(~)
+    function test_get_data_throws_if_an_idx_lt_1_with_in_memory_pix(~)
         in_mem_pix = PixelData(5);
         f = @() in_mem_pix.get_data('signal', -1:3);
         assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
