@@ -103,7 +103,7 @@ classdef hor_config < config_base
 
         % set page size very large to effectively disable paging of pixels as
         % the implementation is not complete
-        pixel_page_size_ = floor(realmax);
+        pixel_page_size_ = PixelData.DEFAULT_PAGE_SIZE;
         threads_ =1;
 
         ignore_nan_ = true;
