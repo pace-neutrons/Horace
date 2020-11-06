@@ -3,34 +3,9 @@ classdef test_noisify < TestCase
 properties
     old_warn_state;
 
-    raw_pix_data = rand(9, 10);
-    small_page_size_ = 1e6;  % 1Mb
     test_sqw_file_path = '../test_sqw_file/deterministic_sqw_fake_data_for_testing.sqw';
     test_sqw_file_full_path = '';
-
-    pixel_data_obj;
-    pix_data_from_file;
-    pix_data_from_faccess;
-    pix_data_small_page;
-    pix_fields = {'u1', 'u2', 'u3', 'dE', 'coordinates', 'q_coordinates', ...
-                  'run_idx', 'detector_idx', 'energy_idx', 'signal', ...
-                  'variance'};
-
-    search_path_herbert_shared = [herbert_root '/_test/shared'];
-end
-
-properties (Constant)
-    NUM_BYTES_IN_VALUE = 8;
-    NUM_COLS_IN_PIX_BLOCK = 9;
-end
-
-methods (Access = private)
-
-    function pix_data = get_random_pix_data_(~, rows)
-        data = rand(9, rows);
-        pix_data = PixelData(data);
-    end
-
+    search_path_herbert_shared = fullfile(herbert_root, '_test/shared');
 end
 
 methods
@@ -45,7 +20,7 @@ methods
         test_sqw_file = java.io.File(pwd(), obj.test_sqw_file_path);
         obj.test_sqw_file_full_path = char(test_sqw_file.getCanonicalPath());
 
-        % add path for concatenate-pixel_pages
+        % add path for concatenate_pixel_pages
         addpath('./utils')
         % add path for deterministic psuedorandom sequence
         addpath(obj.search_path_herbert_shared);
@@ -56,8 +31,6 @@ methods
         rmpath(obj.search_path_herbert_shared);
         warning(obj.old_warn_state);
     end
-
-    % --- Tests for in-memory operations ---
 
     function test_how_noisify_works(obj)
         % obj is the test case object
