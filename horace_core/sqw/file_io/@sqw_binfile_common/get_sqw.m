@@ -50,79 +50,42 @@ function [sqw_object,varargout] = get_sqw (obj,varargin)
 %
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
-if nargin>1
-    % replace single '-h' with head
-    argi = cellfun(@replace_h,varargin,'UniformOutput',false);
-else
-    argi = {};
-end
-
-key_val_def = struct( ...
-    'head', false, ...
-    'his', false, ...
-    'verbatim', false, ...
-    'hverbatim', false, ...
-    'hisverbatim', false, ...
-    'nopix', false, ...
-    'legacy', false, ...
-    'pix_pg_size', realmax);
-flag_names = { ...
-    'head', ...
-    'his', ...
-    'verbatim', ...
-    'hverbatim', ...
-    'hisverbatim', ...
-    'nopix', ...
-    'legacy'};
-
-parser_opts = struct('prefix', '-', 'prefix_req', false);
-[~, args, ~, ~, ok, mess] = parse_arguments(argi, key_val_def, flag_names, ...
-                                            parser_opts);
-if ~ok
-    error('SQW_FILE_IO:invalid_argument', mess);
-end
-opt_h = args.head;
-opt_his = args.his;
-verbatim = args.verbatim || args.hverbatim;
-opt_nopix = args.nopix;
-legacy = args.legacy;
+opts = parse_args(obj, varargin{:});
 
 sqw_struc = struct('main_header',[],'header',[],'detpar',[],'data',[]);
 
 % Get main header
 % ---------------
-if verbatim
+if opts.verbatim
     sqw_struc.main_header =  obj.get_main_header('-verbatim');
 else
     sqw_struc.main_header =  obj.get_main_header();
 end
-%
-% Get cellarray of headers for each contributing spe file
+
+% Get cell array of headers for each contributing spe file
 % ------------------------------------------
 headers  = obj.get_header('-all');
-%
+
 % Get detector parameters
 % -----------------------
-if ~(opt_h||opt_his)
+if ~(opts.head||opts.his)
     sqw_struc.detpar = obj.get_detpar();
 end
 
 % Get data
 % --------
-if verbatim
+if opts.verbatim
     opt1 = {'-verbatim'};
 else
     opt1 = {};
 end
 
-if (opt_h||opt_his)
+if (opts.head||opts.his)
     opt2 = {'-head'};
 else
     opt2= {};
 end
-if opt_nopix
+if opts.nopix
     opt3={'-nopix'};
 else
     opt3={};
@@ -132,20 +95,56 @@ data_opt={opt1{:},opt2{:},opt3{:}};
 sqw_struc.data = obj.get_data(data_opt{:});
 
 sqw_struc.header = headers;
-if legacy
+if opts.legacy
     sqw_object = sqw_struc.main_header;
     varargout{1} = sqw_struc.header;
     varargout{2} = sqw_struc.detpar;
     varargout{3} = sqw_struc.data;
-elseif opt_h || opt_his
+elseif opts.head || opts.his
     sqw_object  = sqw_struc;
 else
     sqw_object = sqw(sqw_struc);
 end
 
+end  % function
+
+
+% -----------------------------------------------------------------------------
+function opts = parse_args(varargin)
+    if nargin > 1
+        % replace single '-h' with head
+        argi = cellfun(@replace_h, varargin, 'UniformOutput', false);
+    else
+        argi = {};
+    end
+
+    flags = { ...
+        'head', ...
+        'his', ...
+        'verbatim', ...
+        'hverbatim', ...
+        'hisverbatim', ...
+        'nopix', ...
+        'legacy' ...
+    };
+    kwarg_args = struct('pix_pg_size', realmax);
+    for flag_idx = 1:numel(flags)
+        kwarg_args.(flags{flag_idx}) = false;
+    end
+    parser_opts = struct('prefix', '-', 'prefix_req', false);
+    [~, opts, ~, ~, ok, mess] = parse_arguments(argi, kwarg_args, flags, ...
+                                                parser_opts);
+    if ~ok
+        error('SQW_FILE_IO:invalid_argument', mess);
+    end
+    opts.verbatim = opts.verbatim || opts.hverbatim;
+end
+
+
 function out = replace_h(inp)
-if strcmp(inp,'-h')
-    out = '-his';
-else
-    out  = inp;
+    if strcmp(inp,'-h')
+        out = '-his';
+    else
+        out  = inp;
+    end
 end
