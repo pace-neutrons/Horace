@@ -34,7 +34,7 @@ methods
         assertTrue(equal_to_tol(saved_sqw, sqw_obj, 'ignore_str', true));
     end
 
-    function test_sqw_with_paged_pix_not_on_1st_pg_saved_correctly_(obj)
+    function test_sqw_with_paged_pix_not_on_1st_pg_saved_correctly(obj)
         conf_cleanup = obj.set_temp_pix_page_size(obj.small_page_size);
         sqw_obj = sqw(obj.test_sqw_file_path);
         sqw_obj.data.pix.advance();
