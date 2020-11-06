@@ -134,7 +134,7 @@ end  % function
 % -----------------------------------------------------------------------------
 function opts = parse_args(varargin)
     flags = {'header','verbatim','hverbatim','nopix'};
-    kwargs = struct('pix_pg_size', realmax);
+    kwargs = struct('pix_pg_size', PixelData.DEFAULT_PAGE_SIZE);
     for flag_idx = 1:numel(flags)
         kwargs.(flags{flag_idx}) = false;
     end
