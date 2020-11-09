@@ -82,7 +82,7 @@ methods
    end
 
    function test_noisify_adds_gaussian_noise_to_data_with_given_stddev(obj)
-        if ~license('test', 'statistics_toolbox') && exist('fitdist', 'file')
+        if ~license('test', 'statistics_toolbox') || ~exist('fitdist', 'file')
             % fitdist requires the statistics toolbox
             return;
         end
