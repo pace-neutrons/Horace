@@ -1,7 +1,6 @@
 classdef test_PixelData < TestCase
 
 properties
-    old_config;
     old_warn_state;
 
     SMALL_PG_SIZE = 1e6;  % 1Mb
@@ -46,11 +45,6 @@ methods
 
         addpath(fullfile(obj.this_dir, 'utils'));
 
-        conf = hor_config();
-        obj.old_config = conf.get_data_to_store();
-        % Tests assume all pix fit in memory by default
-        conf.pixel_page_size = obj.ALL_IN_MEM_PG_SIZE;
-
         % Swallow any warnings for when pixel page size set too small
         obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
 
@@ -72,7 +66,6 @@ methods
         if ismember(fullfile(obj.this_dir, 'utils'), split(path, {':', ';'}))
             rmpath(fullfile(obj.this_dir, 'utils'));
         end
-        set(hor_config, obj.old_config);
         warning(obj.old_warn_state);
     end
 
@@ -1495,18 +1488,6 @@ methods
         idx_array = 1:0.1:5;
         f = @() pix.get_data('signal', idx_array);
         assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
-    end
-
-    function test_pix_from_2_get_pixels_calls_valid_if_pg_size_config_small(obj)
-        cleanup = set_temporary_config_options(...
-            hor_config(), 'pixel_page_size', obj.SMALL_PG_SIZE);
-        pix = PixelData(obj.test_sqw_file_full_path);
-
-        new_pix = pix.get_pixels(1:pix.num_pixels);
-        new_pix2 = new_pix.get_pixels(1:30);
-
-        pix.move_to_first_page();
-        assertEqual(new_pix2.data, pix.data(:, 1:30));
     end
 
     % -- Helpers --
