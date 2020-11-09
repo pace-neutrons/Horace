@@ -33,8 +33,8 @@ function [sqw_object,varargout] = get_sqw (obj, varargin)
 %               Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
 %
 % Keyword options:
-%   pix_pg_size   [optional] The page size to pass to the PixelData constructor
-%                 when initialising the sqw object's pixels.
+%   pixel_page_size   [optional] The page size to pass to the PixelData
+%                     constructor when initialising the sqw object's pixels.
 %
 % Output:
 % --------
@@ -91,7 +91,7 @@ else
 end
 
 data_opt= [opt1, opt2, opt3];
-sqw_struc.data = obj.get_data(data_opt{:}, 'pix_pg_size', opts.pix_pg_size);
+sqw_struc.data = obj.get_data(data_opt{:}, 'pixel_page_size', opts.pixel_page_size);
 
 sqw_struc.header = headers;
 if opts.legacy
@@ -126,7 +126,7 @@ function opts = parse_args(varargin)
         'nopix', ...
         'legacy' ...
     };
-    kwargs = struct('pix_pg_size', PixelData.DEFAULT_PAGE_SIZE);
+    kwargs = struct('pixel_page_size', PixelData.DEFAULT_PAGE_SIZE);
     for flag_idx = 1:numel(flags)
         kwargs.(flags{flag_idx}) = false;
     end

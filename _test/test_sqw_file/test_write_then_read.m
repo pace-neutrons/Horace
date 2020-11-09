@@ -22,7 +22,8 @@ methods
     end
 
     function test_sqw_with_paged_pix_saved_is_eq_to_original_with_all_pix(obj)
-        sqw_obj = sqw(obj.test_sqw_file_path, 'pix_pg_size', obj.small_page_size);
+        sqw_obj = sqw(obj.test_sqw_file_path, ...
+                      'pixel_page_size', obj.small_page_size);
 
         [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
 
@@ -31,7 +32,8 @@ methods
     end
 
     function test_sqw_with_paged_pix_not_on_1st_pg_saved_correctly(obj)
-        sqw_obj = sqw(obj.test_sqw_file_path, 'pix_pg_size', obj.small_page_size);
+        sqw_obj = sqw(obj.test_sqw_file_path, ...
+                      'pixel_page_size', obj.small_page_size);
         sqw_obj.data.pix.advance();
 
         [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
@@ -41,7 +43,8 @@ methods
     end
 
     function test_saved_sqw_with_paged_pix_equal_to_original_sqw(obj)
-        sqw_obj = sqw(obj.test_sqw_file_path, 'pix_pg_size', obj.small_page_size);
+        sqw_obj = sqw(obj.test_sqw_file_path, ...
+                      'pixel_page_size', obj.small_page_size);
 
         [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
 
@@ -54,7 +57,8 @@ methods
             hor_config(), ...
             'mem_chunk_size', floor(obj.npixels_in_file/2) ...
         );
-        sqw_obj = sqw(obj.test_sqw_file_path, 'pix_pg_size', obj.small_page_size);
+        sqw_obj = sqw(obj.test_sqw_file_path, ...
+                      'pixel_page_size', obj.small_page_size);
 
         [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
 
@@ -63,7 +67,8 @@ methods
     end
 
     function test_sqw_w_pix_on_2nd_pg_saved_right_with_small_mem_chunk_size(obj)
-        sqw_obj = sqw(obj.test_sqw_file_path, 'pix_pg_size', obj.small_page_size);
+        sqw_obj = sqw(obj.test_sqw_file_path, ...
+                      'pixel_page_size', obj.small_page_size);
         sqw_obj.data.pix.advance();
 
         mem_chunk_conf_cleanup = set_temporary_config_options(...

@@ -251,7 +251,7 @@ methods (Static)
         file_info = dir(file_path);
         new_pg_size = file_info.bytes/6;
 
-        paged_sqw = sqw(file_path, 'pix_pg_size', new_pg_size);
+        paged_sqw = sqw(file_path, 'pixel_page_size', new_pg_size);
         masked_sqw = mask(paged_sqw, mask_array);
 
         % make sure we're actually paging the pixel data

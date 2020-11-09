@@ -44,7 +44,7 @@ methods
         % We make an sqw object with the a pixel page size smaller than the
         % total pixel size
         pixel_page_size = 1e5;
-        sqw_obj1 = sqw(obj.test_sqw_file_full_path, 'pix_pg_size', ...
+        sqw_obj1 = sqw(obj.test_sqw_file_full_path, 'pixel_page_size', ...
                        pixel_page_size);
 
         % ensure we're actually paging pixel data
