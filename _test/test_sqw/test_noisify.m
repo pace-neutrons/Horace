@@ -82,6 +82,10 @@ methods
    end
 
    function test_noisify_adds_gaussian_noise_to_data_with_given_stddev(obj)
+        if ~license('test', 'statistics_toolbox')
+            % fitdist requires the statistics toolbox
+            return;
+        end
         [~, old_rng_state] = seed_rng(0);
         cleanup = onCleanup(@() rng(old_rng_state));
 
