@@ -20,27 +20,20 @@ methods
         test_sqw_file = java.io.File(pwd(), obj.test_sqw_file_path);
         obj.test_sqw_file_full_path = char(test_sqw_file.getCanonicalPath());
 
-        % add path for concatenate_pixel_pages
-        addpath('./utils')
         % add path for deterministic psuedorandom sequence
         addpath(obj.search_path_herbert_shared);
     end
 
     function delete(obj)
-        rmpath('./utils')
         rmpath(obj.search_path_herbert_shared);
         warning(obj.old_warn_state);
     end
 
-    function test_how_noisify_works(obj)
-        % obj is the test case object
-        % what we want to do is call noisify here on different kinds of
-        % data
-
+    function test_noisify_returns_equivalent_sqw_for_paged_pixel_data(obj)
         % we set up the test "random number generator" which is actually
         % a deterministic set of numbers 1:999 repeated. Use factor to make
         % them in range 0:1
-        factor = 1/999;
+        noise_factor = 1/999;
         % We make an sqw object with the a pixel page size smaller than the
         % total pixel size
         pixel_page_size = 1e5;
@@ -63,7 +56,7 @@ methods
 
         % add the noise to object 1 using myrng (myrng could be left out
         % to get the default randn behaviour, used with rng(0)
-        noisy_obj1 = noisify(sqw_obj1,factor,'random_number_function',myrng);
+        noisy_obj1 = noisify(sqw_obj1,noise_factor,'random_number_function',myrng);
 
         % step 2 we increase the page size again to the notional max
         % We make another sqw objectfrom the same file
@@ -74,12 +67,18 @@ methods
         %   then the reset should be done with
         %   rng(0);
         a.reset();
-        noisy_obj2 = noisify(sqw_obj2,factor,'random_number_function',myrng);
+        noisy_obj2 = noisify(sqw_obj2,noise_factor,'random_number_function',myrng);
         % as the page test whether the 2 paged versions are equal
-        concpix = concatenate_pixel_pages(sqw_obj1(1).data.pix);
-        assertEqual(concpix,sqw_obj2.data.pix.data,'',5e-4);
-        nconcpix = concatenate_pixel_pages(noisy_obj1(1).data.pix);
-        assertEqual(nconcpix,noisy_obj2.data.pix.data,'',5e-4);
+        assertEqual(sqw_obj1, sqw_obj2, '', 5e-4);
+        assertEqual(noisy_obj1, noisy_obj2, '', 5e-4);
+
+        % test noisify updates data
+        assertFalse(equal_to_tol(sqw_obj1, noisy_obj1, 5e-4));
+        assertFalse(equal_to_tol(sqw_obj2, noisy_obj2, 5e-4));
+
+        % checks that image data is updated
+        assertFalse(equal_to_tol(sqw_obj1.data.s, noisy_obj1.data.s, 5e-4));
+        assertFalse(equal_to_tol(sqw_obj2.data.s, noisy_obj2.data.s, 5e-4));
    end
 
 end
