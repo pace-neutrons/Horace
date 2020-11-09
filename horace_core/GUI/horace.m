@@ -3194,7 +3194,7 @@ sqw_flag=false;
 if is_sqw_type(sqw_old(win1))
     sqw_flag=true;
     if ndims1==0
-        obj_to_cut_dnd=d0d(win1);
+        obj_to_cut_dnd=d0d_old(win1);
     elseif ndims1==1
         obj_to_cut_dnd=d1d(win1);
     elseif ndims1==2

@@ -1,4 +1,4 @@
-function wout = d0d (win)
+function wout = d0d_old (win)
 % Convert input 0-dimensional sqw object into corresponding d0d object
 %
 %   >> wout = d0d (win)

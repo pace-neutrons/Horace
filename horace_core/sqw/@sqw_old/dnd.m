@@ -32,7 +32,7 @@ for i=1:numel(win)
 
     if i==1
         if nd==0
-            wout=d0d(din);
+            wout=d0d_old(din);
         elseif nd==1
             wout=d1d(din);
         elseif nd==2
@@ -47,7 +47,7 @@ for i=1:numel(win)
         end
     else
         if nd==0
-            wout(i)=d0d(din);
+            wout(i)=d0d_old(din);
         elseif nd==1
             wout(i)=d1d(din);
         elseif nd==2
