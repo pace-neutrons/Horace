@@ -66,7 +66,7 @@ warning('off','MATLAB:structOnObject');
 clob = onCleanup(@()warning('on','MATLAB:structOnObject'));
 switch ndim %TODO: the dnd constructor should deal with this switch.
     case 0
-        res = d0d(dat);
+        res = d0d_old(dat);
     case 1
         res = d1d(dat);
     case 2

@@ -36,7 +36,7 @@ function wout = replicate (win, wref)
 % called, because the sqw class has been defined as superior to dnd classes.
 
 if isa(win,classname)
-    if isscalar(wref) && (isa(wref,'d0d')||isa(wref,'d1d')||isa(wref,'d2d')||isa(wref,'d3d')||isa(wref,'d4d'))
+    if isscalar(wref) && (isa(wref,'d0d_old')||isa(wref,'d1d')||isa(wref,'d2d')||isa(wref,'d3d')||isa(wref,'d4d'))
         wout=replicate(sqw_old(win),sqw_old(wref));
     else
         error('Check input argument type - the second argument must be a scalar dnd object')

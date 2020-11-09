@@ -118,7 +118,7 @@ for i=1:numel(win)
 
     % Package up as a dnd-type sqw object in the output array
     if nd_out==0
-        wout_disp(i)=sqw_old(d0d(data));
+        wout_disp(i)=sqw_old(d0d_old(data));
     elseif nd_out==1
         wout_disp(i)=sqw_old(d1d(data));
     elseif nd_out==2
