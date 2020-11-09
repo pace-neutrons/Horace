@@ -37,16 +37,17 @@ methods
         % what we want to do is call noisify here on different kinds of
         % data
 
-        % step 1 we reduce the page size
-        pixel_page_size = 1e5;
         % we set up the test "random number generator" which is actually
         % a deterministic set of numbers 1:999 repeated. Use factor to make
         % them in range 0:1
         factor = 1/999;
-        % We make an sqw object with the above page size
-        sqw_obj1 = sqw(obj.test_sqw_file_full_path, 'pix_pg_size', pixel_page_size);
+        % We make an sqw object with the a pixel page size smaller than the
+        % total pixel size
+        pixel_page_size = 1e5;
+        sqw_obj1 = sqw(obj.test_sqw_file_full_path, 'pix_pg_size', ...
+                       pixel_page_size);
 
-        % ensure we're actually paging data
+        % ensure we're actually paging pixel data
         pix = sqw_obj1.data.pix;
         assertTrue(pix.num_pixels > pix.page_size);
 
