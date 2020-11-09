@@ -33,6 +33,14 @@ function w = sqw (varargin)
 %   lattice Defines crystal lattice: [a,b,c,alpha,beta,gamma]
 %
 %   ndim    Number of dimensions
+%
+% Keyword Arguments:
+% ------------------
+%   pixel_page_size    The maximum amount of memory to allocate to holding
+%                      pixel data. This argument is passed to the PixelData
+%                      constructor's 'mem_alloc' argument.
+%                      The value should have units of bytes.
+%
 
 % Original author: T.G.Perring
 %
