@@ -24,8 +24,8 @@ function [idx_in_pg, global_idx] = get_idxs_in_current_page_(obj, abs_indices)
 %  global_idx   The absolute indices that exist within the current page. This
 %               will be a subset of `abs_indices`.
 %
-pg_start_idx = (obj.page_number_ - 1)*obj.max_page_size_ + 1;
-pg_end_idx = pg_start_idx + obj.max_page_size_ - 1;
+pg_start_idx = (obj.page_number_ - 1)*obj.base_page_size + 1;
+pg_end_idx = pg_start_idx + obj.base_page_size - 1;
 
 global_idx = find((abs_indices >= pg_start_idx) & (abs_indices <= pg_end_idx));
-idx_in_pg = abs_indices(global_idx) - (obj.page_number_ - 1)*obj.max_page_size_;
+idx_in_pg = abs_indices(global_idx) - (obj.page_number_ - 1)*obj.base_page_size;

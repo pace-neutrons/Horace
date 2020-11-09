@@ -1490,6 +1490,13 @@ methods
         assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
     end
 
+    function test_base_page_size_is_DEFAULT_PAGE_SIZE_by_default(~)
+        pix = PixelData();
+        bytes_in_pixel = PixelData.DEFAULT_NUM_PIX_FIELDS*PixelData.DATA_POINT_SIZE;
+        expected_num_pix = floor(PixelData.DEFAULT_PAGE_SIZE/bytes_in_pixel);
+        assertEqual(pix.base_page_size, expected_num_pix);
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
