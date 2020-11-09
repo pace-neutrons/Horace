@@ -26,7 +26,7 @@ clob4 = onCleanup(@()set(hpcc,hpcc_c));
 %
 cm = opt_config_manager();
 % Generic settings:--------------------------------------------------------
-parc.parallel_framework ='herbert';
+parc.parallel_cluster ='herbert';
 parc.shared_folder_on_local = '';
 parc.shared_folder_on_remote = '';
 parc.working_directory = '';

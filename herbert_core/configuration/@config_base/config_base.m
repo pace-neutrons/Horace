@@ -34,11 +34,7 @@ classdef config_base
     %       config_store.instance().store_config(this,'stored_poperty',val);
     %end
     %
-    %
-    %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-    %
-    
+    %   
     properties(Dependent)
         % property defines the name of the derived storage class. The
         % storage knows the stored configuration under this name.

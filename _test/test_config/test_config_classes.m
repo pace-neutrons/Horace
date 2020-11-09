@@ -122,6 +122,28 @@ classdef test_config_classes< TestCase
             assertFalse(found_when_init_tests_off,' folder was not removed from search path properly');
             assertTrue(found_when_init_tests_on);
         end
+        %
+        function this=test_parallel_config_fake_worker(this)
+            pc = parallel_config_tester;
+            old_config = pc.get_data_to_store();
+            clob = onCleanup(@()set(pc,old_config));
+            
+            pc = pc.set_worker('non_existing_worker');
+            
+            pc.worker = 'non_existing_worker';
+            assertEqual(pc.worker,'non_existing_worker');
+            assertEqual(pc.parallel_cluster,'none');
+            assertEqual(pc.cluster_config,'none');
+        end
+        %
+        function this=test_parallel_config_missing_worker(this)
+            pc = parallel_config;
+            old_config = pc.get_data_to_store();
+            clob = onCleanup(@()set(pc,old_config));
+            
+            f = @()set(pc,'worker','non_existing_worker');
+            assertExceptionThrown(f,'PARALLEL_CONFIG:invalid_argument')
+        end
         
     end
 end
