@@ -27,7 +27,7 @@ methods
         % sqw_2d_1.sqw has ~1.8 MB of pixels, a 400 kB page size gives us 5
         % pages of pixel data
         pixel_page_size = 400e3;
-        obj.sqw_2d_paged = sqw(obj.test_sqw_file_path, 'pix_pg_size', ...
+        obj.sqw_2d_paged = sqw(obj.test_sqw_file_path, 'pixel_page_size', ...
                                pixel_page_size);
         pix = obj.sqw_2d_paged.data.pix;
         assertTrue(pix.num_pixels > pix.page_size);

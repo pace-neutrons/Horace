@@ -148,9 +148,9 @@ function w = from_file_name(file_name, dnd_type, class_type, varargin)
     if ~dnd_type
         parser = inputParser();
         parser.KeepUnmatched = true;  % ignore unmatched parameters
-        parser.addParameter('pix_pg_size', PixelData.DEFAULT_PAGE_SIZE);
+        parser.addParameter('pixel_page_size', PixelData.DEFAULT_PAGE_SIZE);
         parser.parse(varargin{:});
-        pix_pg_size = parser.Results.pix_pg_size;
+        pixel_page_size = parser.Results.pixel_page_size;
     end
 
     ldr = sqw_formats_factory.instance().get_loader(file_name);
@@ -161,7 +161,7 @@ function w = from_file_name(file_name, dnd_type, class_type, varargin)
 
         w=struct();
         [w.main_header, w.header, w.detpar, w.data] = ...
-                 ldr.get_sqw('-legacy', 'pix_pg_size', pix_pg_size);
+                 ldr.get_sqw('-legacy', 'pixel_page_size', pixel_page_size);
     else  % insist on dnd type
         if ~(strcmpi(ldr.data_type, 'a') || strcmpi(ldr.data_type, 'b+'))
             % not a valid sqw or dnd structure

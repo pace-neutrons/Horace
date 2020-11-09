@@ -50,7 +50,7 @@ classdef test_sqw_main < TestCase
 
             fpath = fullfile(obj.tests_dir, 'test_sqw_file', 'sqw_1d_2.sqw');
             page_size_bytes = 7.8e4;
-            sqw_obj = sqw(fpath, 'pix_pg_size', page_size_bytes);
+            sqw_obj = sqw(fpath, 'pixel_page_size', page_size_bytes);
             sqw_pg_size = sqw_obj.data.pix.page_size;
 
             % check we're actually paging pixels
@@ -65,7 +65,7 @@ classdef test_sqw_main < TestCase
         function test_error_setting_invalid_pix_page_size_in_constructor(obj)
             fpath = fullfile(obj.tests_dir, 'test_sqw_file', 'sqw_1d_2.sqw');
             page_size_bytes = -1000;
-            f = @() sqw(fpath, 'pix_pg_size', page_size_bytes);
+            f = @() sqw(fpath, 'pixel_page_size', page_size_bytes);
             assertExceptionThrown(f, 'PIXELDATA:validate_mem_alloc');
         end
 
