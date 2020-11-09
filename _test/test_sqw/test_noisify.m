@@ -82,7 +82,7 @@ methods
    end
 
    function test_noisify_adds_gaussian_noise_to_data_with_given_stddev(obj)
-        if ~license('test', 'statistics_toolbox')
+        if ~license('test', 'statistics_toolbox') && exist('fitdist', 'file')
             % fitdist requires the statistics toolbox
             return;
         end
@@ -113,7 +113,7 @@ methods
         expected_stddev = noise_factor*max(original_signal);
         assertTrue(sigma_interval(2) - sigma_interval(1) < expected_stddev/10);
         assertTrue((sigma_interval(1) <= expected_stddev) ...
-                && (sigma_interval(2) >= expected_stddev));
+                   && (sigma_interval(2) >= expected_stddev));
     end
 
 end
