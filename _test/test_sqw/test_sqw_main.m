@@ -59,7 +59,7 @@ classdef test_sqw_main < TestCase
             % check the page size is what we set it to
             pix_size = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
             expected_pg_size = floor(page_size_bytes/pix_size);
-            assertEqual(sqw_pg_size, expected_pg_size);
+            assertEqual(sqw_pix_pg_size, expected_pg_size);
         end
 
         function test_pixels_not_paged_if_pixel_page_size_arg_not_given(obj)
