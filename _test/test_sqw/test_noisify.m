@@ -81,6 +81,37 @@ methods
         assertFalse(equal_to_tol(sqw_obj2.data.s, noisy_obj2.data.s, 5e-4));
    end
 
+   function test_noisify_adds_gaussian_noise_to_data_with_given_stddev(obj)
+        [~, old_rng_state] = seed_rng(0);
+        cleanup = onCleanup(@() rng(old_rng_state));
+
+        sqw_obj = sqw(obj.test_sqw_file_full_path);
+        % ensure we're not paging pixel data
+        pix = sqw_obj.data.pix;
+        assertEqual(pix.page_size, pix.num_pixels);
+
+        noise_factor = 0.01;
+        noisy_obj = noisify(sqw_obj, noise_factor);
+
+        original_signal = sqw_obj.data.pix.signal;
+        noisy_signal = noisy_obj.data.pix.signal;
+        signal_diff = original_signal - noisy_signal;
+
+        % Fit the signal differences and check that the expected mu and sigma
+        % for the normal distribution fall within the 95% confidence interval
+        % using paramci
+        pd = fitdist(signal_diff(:), 'normal');
+        mu_interval = paramci(pd, 'parameter', 'mu');
+        assertTrue(mu_interval(2) - mu_interval(1) < 2);
+        assertTrue((mu_interval(1) <= 0) && (mu_interval(2) >= 0));
+
+        sigma_interval = paramci(pd, 'parameter', 'sigma');
+        expected_stddev = noise_factor*max(original_signal);
+        assertTrue(sigma_interval(2) - sigma_interval(1) < expected_stddev/10);
+        assertTrue((sigma_interval(1) <= expected_stddev) ...
+                && (sigma_interval(2) >= expected_stddev));
+    end
+
 end
 
 end
