@@ -194,7 +194,7 @@ methods (Static)
             % This if statement allows us to load old PixelData objects that
             % were saved in .mat files that do not have the 'page_memory_size_'
             % property
-            S.page_memory_size_ = get(hor_config, 'pixel_page_size');
+            S.page_memory_size_ = PixelData.DEFAULT_PAGE_SIZE;
         end
         obj = PixelData(S);
     end
