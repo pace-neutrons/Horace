@@ -94,7 +94,8 @@ Set `HERBERT_BRANCH_NAME` to the relevant Herbert branch/revision.
 3. When the pipelines have run and created the release artifacts,
 pass the name and numbers of the release's build jobs to the `Deploy` pipeline.
 You must also specify the Git SHA revision to tag on GitHub,
-this should be the SHA of the Git revision at the head of the release branch.
+this should be the full SHA of the Git revision built in the release pipelines
+(usually the head of the release branch).
 The Git SHA is used to validate that all the packages being pushed to GitHub
 are the same revision and that that revision matches the revision to be
 tagged.
