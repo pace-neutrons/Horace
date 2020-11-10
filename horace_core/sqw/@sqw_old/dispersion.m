@@ -126,7 +126,7 @@ for i=1:numel(win)
     elseif nd_out==3
         wout_disp(i)=sqw_old(d3d_old(data));
     elseif nd_out==4
-        wout_disp(i)=sqw_old(d4d(data));
+        wout_disp(i)=sqw_old(d4d_old(data));
     end
     if nargout==2
         wout_weight=wout_disp;

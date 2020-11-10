@@ -42,7 +42,7 @@ if isa(win,'sqw_old')
             error('Check first input argument - an array of sqw objects must all have the same dimensionality')
         end
     end
-elseif ~(isa(win,'d0d_old')||isa(win,'d1d_old')||isa(win,'d2d_old')||isa(win,'d3d_old')||isa(win,'d4d'))
+elseif ~(isa(win,'d0d_old')||isa(win,'d1d_old')||isa(win,'d2d_old')||isa(win,'d3d_old')||isa(win,'d4d_old'))
     error('Check input argument types - the first argument must be a dnd or sqw object (scalar or array)')
 end
 
@@ -54,7 +54,7 @@ if isscalar(wref) && isa(wref,'sqw_old')
     else
         wref_dnd_type=wref;
     end
-elseif isscalar(wref) && (isa(wref,'d0d_old')||isa(wref,'d1d_old')||isa(wref,'d2d_old')||isa(wref,'d3d_old')||isa(wref,'d4d'))
+elseif isscalar(wref) && (isa(wref,'d0d_old')||isa(wref,'d1d_old')||isa(wref,'d2d_old')||isa(wref,'d3d_old')||isa(wref,'d4d_old'))
     wref_dnd_type=sqw_old(wref);
 else
     error('Check input argument types - the second argument must be a scalar dnd or sqw object')

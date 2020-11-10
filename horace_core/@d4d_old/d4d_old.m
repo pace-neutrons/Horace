@@ -1,4 +1,4 @@
-function w = d4d (varargin)
+function w = d4d_old (varargin)
 % Create a 4D Horace dataset ('d4d')
 %
 % Create from file or structure:
@@ -68,7 +68,7 @@ function w = d4d (varargin)
 
 
 ndim_request = 4;
-class_type = 'd4d';
+class_type = 'd4d_old';
 inferiorto('sqw_old');
 
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------

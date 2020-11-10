@@ -74,7 +74,7 @@ switch ndim %TODO: the dnd constructor should deal with this switch.
     case 3
         res = d3d_old(dat);
     case 4
-        res = d4d(dat);
+        res = d4d_old(dat);
     otherwise
         error('SQW_FILE_IO:runtime_error',...
             'get_sqw: unsupported number of dimensions (%d) read from binary file',ndim)
