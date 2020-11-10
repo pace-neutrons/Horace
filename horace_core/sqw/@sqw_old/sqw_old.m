@@ -39,7 +39,7 @@ function w = sqw_old (varargin)
 % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 class_type = 'sqw_old';
-superiorto('d0d_old','d1d_old','d2d_old','d3d_old','d4d');  % other Horace classes
+superiorto('d0d_old','d1d_old','d2d_old','d3d_old','d4d_old');  % other Horace classes
 
 
 % Will normally insist that we definitely require sqw-type object unless we explicitly demand

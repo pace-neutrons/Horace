@@ -1,4 +1,4 @@
-function wout = d4d (win)
+function wout = d4d_old (win)
 % Convert input 4-dimensional sqw object into corresponding d4d object
 %
 %   >> wout = d4d (win)

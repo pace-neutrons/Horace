@@ -42,7 +42,7 @@ classdef sqw_formats_factory < handle
         % Old class interface:
         % classes to load/save
         % sqw2 corresponds to sqw file in indirect mode with varying efixed
-        written_types_ = {'sqw_old','sqw2','dnd','d0d_old','d1d_old','d2d_old','d3d_old','d4d'};
+        written_types_ = {'sqw_old','sqw2','dnd','d0d_old','d1d_old','d2d_old','d3d_old','d4d_old'};
         % number of loader in the list of loaders to use with correspondent class
         access_to_type_ind_ = {1,2,4,4,4,4,4,4};
         types_map_ ;
