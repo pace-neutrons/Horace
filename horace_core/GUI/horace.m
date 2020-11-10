@@ -81,7 +81,7 @@ counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
     if strcmp(test_el.class,'d1d_old') || strcmp(test_el.class,'d2d_old') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
+            strcmp(test_el.class,'d3d_old') || strcmp(test_el.class,'d4d') ||...
             strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
@@ -200,7 +200,7 @@ counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
     if strcmp(test_el.class,'d1d_old') || strcmp(test_el.class,'d2d_old') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
+            strcmp(test_el.class,'d3d_old') || strcmp(test_el.class,'d4d') ||...
             strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
@@ -499,7 +499,7 @@ counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
     if strcmp(test_el.class,'d1d_old') || strcmp(test_el.class,'d2d_old') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
+            strcmp(test_el.class,'d3d_old') || strcmp(test_el.class,'d4d') ||...
             strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
@@ -936,7 +936,7 @@ counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
     if strcmp(test_el.class,'d1d_old') || strcmp(test_el.class,'d2d_old') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
+            strcmp(test_el.class,'d3d_old') || strcmp(test_el.class,'d4d') ||...
             strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
@@ -1004,7 +1004,7 @@ counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
     if strcmp(test_el.class,'d1d_old') || strcmp(test_el.class,'d2d_old') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
+            strcmp(test_el.class,'d3d_old') || strcmp(test_el.class,'d4d') ||...
             strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
@@ -1093,7 +1093,7 @@ counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
     if strcmp(test_el.class,'d1d_old') || strcmp(test_el.class,'d2d_old') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
+            strcmp(test_el.class,'d3d_old') || strcmp(test_el.class,'d4d') ||...
             strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
@@ -1731,7 +1731,7 @@ counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
     if strcmp(test_el.class,'d1d_old') || strcmp(test_el.class,'d2d_old') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
+            strcmp(test_el.class,'d3d_old') || strcmp(test_el.class,'d4d') ||...
             strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
@@ -2597,7 +2597,7 @@ counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
     if strcmp(test_el.class,'d1d_old') || strcmp(test_el.class,'d2d_old') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
+            strcmp(test_el.class,'d3d_old') || strcmp(test_el.class,'d4d') ||...
             strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
@@ -2991,7 +2991,7 @@ counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
     if strcmp(test_el.class,'d1d_old') || strcmp(test_el.class,'d2d_old') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
+            strcmp(test_el.class,'d3d_old') || strcmp(test_el.class,'d4d') ||...
             strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
@@ -3200,7 +3200,7 @@ if is_sqw_type(sqw_old(win1))
     elseif ndims1==2
         obj_to_cut_dnd=d2d_old(win1);
     elseif ndims1==3
-        obj_to_cut_dnd=d3d(win1);
+        obj_to_cut_dnd=d3d_old(win1);
     else
         mess='Object #1 is 4-dimensional -- cannot replicate';
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
@@ -3586,7 +3586,7 @@ counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
     if strcmp(test_el.class,'d1d_old') || strcmp(test_el.class,'d2d_old') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
+            strcmp(test_el.class,'d3d_old') || strcmp(test_el.class,'d4d') ||...
             strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
@@ -4692,7 +4692,7 @@ counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
     if strcmp(test_el.class,'d1d_old') || strcmp(test_el.class,'d2d_old') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
+            strcmp(test_el.class,'d3d_old') || strcmp(test_el.class,'d4d') ||...
             strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
@@ -4807,7 +4807,7 @@ if isfield(handles,'w_in');
         else
             smoothing=[1 1 1];%default choice
         end
-        [fig_handle,axis_handle,plot_handle]=plot(smooth(d3d(win),smoothing,'hat'));
+        [fig_handle,axis_handle,plot_handle]=plot(smooth(d3d_old(win),smoothing,'hat'));
         drawnow;
         handles.horacefig=fig_handle;
         set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));

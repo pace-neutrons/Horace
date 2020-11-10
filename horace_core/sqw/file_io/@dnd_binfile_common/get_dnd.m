@@ -72,7 +72,7 @@ switch ndim %TODO: the dnd constructor should deal with this switch.
     case 2
         res = d2d_old(dat);
     case 3
-        res = d3d(dat);
+        res = d3d_old(dat);
     case 4
         res = d4d(dat);
     otherwise

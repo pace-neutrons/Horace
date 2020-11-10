@@ -12,7 +12,7 @@ function wout = binary_op_manager_single(w1, w2, binary_op)
 %           >> name = classname     % no argument - gets called by its association
 %                                     with the class
 %
-allowed_types = {'double', 'd0d_old', 'd1d_old', 'd2d_old', 'd3d', 'd4d', 'sqw_old', 'sigvar'};
+allowed_types = {'double', 'd0d_old', 'd1d_old', 'd2d_old', 'd3d_old', 'd4d', 'sqw_old', 'sigvar'};
 if ~ismember(class(w1), allowed_types) || ~ismember(class(w2), allowed_types)
     error('SQW:binary_op_manager_single', ...
           ['Cannot perform binary operation between types ' ...
@@ -153,7 +153,7 @@ function wout = do_binary_op_sqw_and_non_double(w1, w2, binary_op, flip)
         % Need to remove bins with npix=0 in the non-sqw object in the
         % binary operation
         if isa(w2, classname) || isa(w2, 'd0d_old') || isa(w2, 'd1d_old') || ...
-                isa(w2, 'd2d_old') || isa(w2, 'd3d') || isa(w2, 'd4d')
+                isa(w2, 'd2d_old') || isa(w2, 'd3d_old') || isa(w2, 'd4d')
             if isa(w2, classname)% must be a dnd-type sqw object
                 omit = logical(w2.data.npix);
             else % must be a d0d,d1d...

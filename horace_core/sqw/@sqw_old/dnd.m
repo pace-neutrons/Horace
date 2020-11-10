@@ -38,7 +38,7 @@ for i=1:numel(win)
         elseif nd==2
             wout=d2d_old(din);
         elseif nd==3
-            wout=d3d(din);
+            wout=d3d_old(din);
         elseif nd==4
             wout=d4d(din);
         end
@@ -53,7 +53,7 @@ for i=1:numel(win)
         elseif nd==2
             wout(i)=d2d_old(din);
         elseif nd==3
-            wout(i)=d3d(din);
+            wout(i)=d3d_old(din);
         elseif nd==4
             wout(i)=d4d(din);
         end

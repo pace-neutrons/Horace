@@ -35,7 +35,7 @@ classdef test_rebin < TestCase
             errs=w3d_sqw.data.pix.signal;
             w3d_sqw.data.pix.variance=errs;
             w3d_sqw=cut(w3d_sqw,[-1,0.025,1],[-1,0.025,1],[0,1.4,100]);
-            w3d_d3d=d3d(w3d_sqw);
+            w3d_d3d=d3d_old(w3d_sqw);
             
             % Two-dimensional data sets
             w2d_qe_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-0.1,0.1],[-Inf,Inf],[0,1.4,100]);

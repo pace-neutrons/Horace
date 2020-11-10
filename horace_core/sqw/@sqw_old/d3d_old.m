@@ -1,4 +1,4 @@
-function wout = d3d (win)
+function wout = d3d_old (win)
 % Convert input 3-dimensional sqw object into corresponding d3d object
 %
 %   >> wout = d3d (win)

@@ -1,4 +1,4 @@
-function w = d3d (varargin)
+function w = d3d_old (varargin)
 % Create a 3D Horace dataset ('d3d')
 %
 % Create from file or structure:
@@ -67,7 +67,7 @@ function w = d3d (varargin)
 
 
 ndim_request = 3;
-class_type = 'd3d';
+class_type = 'd3d_old';
 inferiorto('sqw_old');
 
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------
