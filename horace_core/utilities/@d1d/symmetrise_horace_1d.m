@@ -34,9 +34,9 @@ sin=win.data.s; ein=win.data.e; nin=win.data.npix;
 
 [xout,sout,eout,nout]=symmetrise_1d(xin,sin,ein,nin,midpoint);
 
-wout=d1d(win);
+wout=d1d_old(win);
 getout=get(wout);
 getout.p{1}=xout(:,1);
 getout.s=sout; getout.e=eout; getout.npix=nout;
 getout.title=[wout.title,' SYMMETRISED '];
-wout=d1d(getout);
+wout=d1d_old(getout);

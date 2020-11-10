@@ -64,7 +64,7 @@ function varargout = multifit_func (varargin)
 
 if ~mfclass.legacy(varargin{:})
     mf_init = mfclass_wrapfun (@func_eval, [], @func_eval, []);
-    varargout{1} = mfclass_Horace (varargin{:}, 'd1d', mf_init);
+    varargout{1} = mfclass_Horace (varargin{:}, 'd1d_old', mf_init);
 else
     [varargout{1:nargout}] = mfclass.legacy_call (@multifit_legacy_func, varargin{:});
 end

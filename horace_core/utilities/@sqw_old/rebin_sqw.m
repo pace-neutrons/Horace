@@ -33,7 +33,7 @@ end
 
 if nargin==2
     if isa(win,'sqw_old') && (isa(varargin{1},'sqw_old') || ...
-            isa(varargin{1},'d1d') || isa(varargin{1},'d2d_old') || isa(varargin{1},'d3d'))
+            isa(varargin{1},'d1d_old') || isa(varargin{1},'d2d_old') || isa(varargin{1},'d3d'))
             route=1;%rebinning using the boundaries of a template object (more tests required)
     elseif isvector(varargin{1})
         route=2;

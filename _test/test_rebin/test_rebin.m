@@ -58,7 +58,7 @@ classdef test_rebin < TestCase
             errs=w1d_sqw.data.pix.signal;
             w1d_sqw.data.pix.variance=errs;
             w1d_sqw=cut(w1d_sqw,[-1,0.025,1]);
-            w1d_d1d=d1d(w1d_sqw);
+            w1d_d1d=d1d_old(w1d_sqw);
             
             w2d_qq_small_sqw=cut_sqw(data_source,proj,[0,0.025,0.4],[0,0.025,0.4],[-Inf,Inf],[30,40]);
             w2d_qq_small_d2d=d2d_old(w2d_qq_small_sqw);

@@ -8,5 +8,5 @@ function name = classname
 
 % Generic function
 
-name = 'd1d';
+name = 'd1d_old';
 

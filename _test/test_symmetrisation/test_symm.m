@@ -60,7 +60,7 @@ classdef test_symm < TestCase
             errs=w1d_sqw.data.pix.signal;
             w1d_sqw.data.pix.variance=errs;
             w1d_sqw=cut(w1d_sqw,[-1,0.025,1]);
-            w1d_d1d=d1d(w1d_sqw);
+            w1d_d1d=d1d_old(w1d_sqw);
 
             % Save data
             save(w3d_sqw,[this.testdir,filesep,'w3d_sqw.sqw']);

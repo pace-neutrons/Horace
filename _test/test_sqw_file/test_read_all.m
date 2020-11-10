@@ -53,22 +53,22 @@ classdef test_read_all< TestCase
             assertTrue(isa(out1,'sqw_old'));
             assertTrue(isa(out2,'sqw_old'));
             
-            tobj = {sqw_old(),d1d(),sqw_old()};
+            tobj = {sqw_old(),d1d_old(),sqw_old()};
             [out1,out2,out3] = test_read_all.interface2tst(tobj{:});
             assertTrue(isa(out1,'sqw_old'));
-            assertTrue(isa(out2,'d1d'));
+            assertTrue(isa(out2,'d1d_old'));
             assertTrue(isa(out3,'sqw_old'));
             
             out = test_read_all.interface2tst(tobj{:});
             assertTrue(iscell(out))
             assertEqual(numel(out),3);
-            assertTrue(isa(out{2},'d1d'));
+            assertTrue(isa(out{2},'d1d_old'));
             
             
             out = test_read_all.interface2tst(tobj);
             assertTrue(iscell(out))
             assertEqual(numel(out),3);
-            assertTrue(isa(out{2},'d1d'));
+            assertTrue(isa(out{2},'d1d_old'));
         end
         
         function obj = test_read_horace(obj)

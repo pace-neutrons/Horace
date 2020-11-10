@@ -120,7 +120,7 @@ for i=1:numel(win)
     if nd_out==0
         wout_disp(i)=sqw_old(d0d_old(data));
     elseif nd_out==1
-        wout_disp(i)=sqw_old(d1d(data));
+        wout_disp(i)=sqw_old(d1d_old(data));
     elseif nd_out==2
         wout_disp(i)=sqw_old(d2d_old(data));
     elseif nd_out==3

@@ -99,7 +99,7 @@ else
     if ndims==0
         dummy_obj=d0d_old;
     elseif ndims==1
-        dummy_obj=d1d;
+        dummy_obj=d1d_old;
     elseif ndims==2
         dummy_obj=d2d_old;
     elseif ndims==3

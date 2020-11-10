@@ -1,7 +1,7 @@
-function varargout = multifit_func (varargin)
+function varargout = multifit (varargin)
 % Simultaneously fit function(s) to one or more d1d objects
 %
-%   >> myobj = multifit_func (w1, w2, ...)      % w1, w2 objects or arrays of objects
+%   >> myobj = multifit (w1, w2, ...)      % w1, w2 objects or arrays of objects
 %
 % This creates a fitting object of class mfclass_Horace with the provided data,
 % which can then be manipulated to add further data, set the fitting
@@ -10,7 +10,7 @@ function varargout = multifit_func (varargin)
 %
 % For example:
 %
-%   >> myobj = multifit_func (w1, w2, ...); % set the data
+%   >> myobj = multifit (w1, w2, ...); % set the data
 %       :
 %   >> myobj = myobj.set_fun (@function_name, pars);  % set forgraound function(s)
 %   >> myobj = myobj.set_bfun (@function_name, pars); % set background function(s)
@@ -30,14 +30,14 @@ function varargout = multifit_func (varargin)
 %[Help for legacy use (2017 and earlier):
 %   If you are still using the legacy version then it is strongly recommended
 %   that you change to the new operation. Help for the legacy operation can
-%   be <a href="matlab:help('d1d/multifit_legacy_func');">found here</a>]
+%   be <a href="matlab:help('d1d/multifit_legacy');">found here</a>]
 
 %-------------------------------------------------------------------------------
 % <#doc_def:>
 %   class_name = 'd1d'
 %   dim = '1'
-%   method_name = 'multifit_func'
-%   method_name_legacy = 'multifit_legacy_func'
+%   method_name = 'multifit'
+%   method_name_legacy = 'multifit_legacy'
 %   mfclass_name = 'mfclass_Horace'
 %   function_tag = ''
 %
@@ -64,7 +64,7 @@ function varargout = multifit_func (varargin)
 
 if ~mfclass.legacy(varargin{:})
     mf_init = mfclass_wrapfun (@func_eval, [], @func_eval, []);
-    varargout{1} = mfclass_Horace (varargin{:}, 'd1d', mf_init);
+    varargout{1} = mfclass_Horace (varargin{:}, 'd1d_old', mf_init);
 else
-    [varargout{1:nargout}] = mfclass.legacy_call (@multifit_legacy_func, varargin{:});
+    [varargout{1:nargout}] = mfclass.legacy_call (@multifit_legacy, varargin{:});
 end
