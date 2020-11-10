@@ -13,7 +13,7 @@ function [ok, mess] = checkfields (d)
 % Non-ideal routine:
 % Because we go via sqw objects to make d0d,d1d... the only
 % way we have to check the fields is to try to construct the dnd.
-tmp=d3d(d);
+tmp=d3d_old(d);
 ok=true;
 mess='';
 

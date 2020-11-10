@@ -124,7 +124,7 @@ for i=1:numel(win)
     elseif nd_out==2
         wout_disp(i)=sqw_old(d2d_old(data));
     elseif nd_out==3
-        wout_disp(i)=sqw_old(d3d(data));
+        wout_disp(i)=sqw_old(d3d_old(data));
     elseif nd_out==4
         wout_disp(i)=sqw_old(d4d(data));
     end

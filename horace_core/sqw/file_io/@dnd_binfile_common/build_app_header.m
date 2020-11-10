@@ -33,7 +33,7 @@ elseif  is_sqw_struct(obj_to_save)
     [~,ndim] = calc_proper_ndim_(obj_to_save.data);
 else
     type    = class(obj_to_save);
-    classes = {'d0d_old','d1d_old','d2d_old','d3d','d4d','data_sqw_dnd'};
+    classes = {'d0d_old','d1d_old','d2d_old','d3d_old','d4d','data_sqw_dnd'};
     ind = ismember(classes,type);
     if ~any(ind)
         error('SQW_FILE_IO:invalid_argument',...
