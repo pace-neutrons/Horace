@@ -43,14 +43,14 @@ classdef test_rebin < TestCase
             errs=w2d_qe_sqw.data.pix.signal;
             w2d_qe_sqw.data.pix.variance=errs;
             w2d_qe_sqw=cut(w2d_qe_sqw,[-1,0.025,1],[0,1.4,100]);
-            w2d_qe_d2d=d2d(w2d_qe_sqw);
+            w2d_qe_d2d=d2d_old(w2d_qe_sqw);
             
             w2d_qq_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-1,0.025,1],[-Inf,Inf],[30,40]);
             w2d_qq_sqw=sqw_eval(w2d_qq_sqw,@fake_cross_sec,[this.stiffness,this.gam,this.amp]);
             errs=w2d_qq_sqw.data.pix.signal;
             w2d_qq_sqw.data.pix.variance=errs;
             w2d_qq_sqw=cut(w2d_qq_sqw,[-1,0.025,1],[-1,0.025,1]);
-            w2d_qq_d2d=d2d(w2d_qq_sqw);
+            w2d_qq_d2d=d2d_old(w2d_qq_sqw);
             
             % One-dimensional data sets
             w1d_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-0.1,0.1],[-Inf,Inf],[30,40]);
@@ -61,7 +61,7 @@ classdef test_rebin < TestCase
             w1d_d1d=d1d(w1d_sqw);
             
             w2d_qq_small_sqw=cut_sqw(data_source,proj,[0,0.025,0.4],[0,0.025,0.4],[-Inf,Inf],[30,40]);
-            w2d_qq_small_d2d=d2d(w2d_qq_small_sqw);
+            w2d_qq_small_d2d=d2d_old(w2d_qq_small_sqw);
             
             % Save data
             save(w3d_sqw,[this.testdir,filesep,'w3d_sqw.sqw']);

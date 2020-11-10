@@ -20,7 +20,7 @@ function [figureHandle, axesHandle, plotHandle] = ps2oc(w,varargin)
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = ps2oc(w) 
 
-if ~isa(w,'d2d')
+if ~isa(w,'d2d_old')
     error('Object to plot must be a d2d object or array of objects')
 end
 

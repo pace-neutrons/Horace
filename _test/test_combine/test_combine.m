@@ -34,13 +34,13 @@ classdef test_combine < TestCase
             errs=w2d_qq_sqw.data.pix.signal;
             w2d_qq_sqw.data.pix.variance=errs;
             w2d_qq_sqw=cut(w2d_qq_sqw,[-1,0.025,1],[-1,0.025,1]);
-            w2d_qq_d2d=d2d(w2d_qq_sqw);
+            w2d_qq_d2d=d2d_old(w2d_qq_sqw);
             
             w2d_qq_sqw_plus=cut(w2d_qq_sqw,[-1,0.025,1],[0,0.025,1]);
-            w2d_qq_d2d_plus=d2d(w2d_qq_sqw_plus);
+            w2d_qq_d2d_plus=d2d_old(w2d_qq_sqw_plus);
             
             w2d_qq_sqw_minus=cut(w2d_qq_sqw,[-1,0.025,1],[-1,0.025,0]);
-            w2d_qq_d2d_minus=d2d(w2d_qq_sqw_minus);
+            w2d_qq_d2d_minus=d2d_old(w2d_qq_sqw_minus);
             
             % One-dimensional datasets
             w1d_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-0.1,0.1],[-Inf,Inf],[30,40]);

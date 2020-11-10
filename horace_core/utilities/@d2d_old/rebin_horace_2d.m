@@ -32,7 +32,7 @@ if ndims~=2
 end
 
 if nargin==2
-    if isa(win,'d2d') && (isa(varargin{1},'d2d') || isa(varargin{1},'sqw_old'))
+    if isa(win,'d2d_old') && (isa(varargin{1},'d2d_old') || isa(varargin{1},'sqw_old'))
         [ndims2,sz]=dimensions(varargin{1});
         if ndims2~=2
             error('Horace error: can only rebin a d2d object with another d2d or a 2-dimensional sqw');
@@ -89,7 +89,7 @@ inmax_x=max(xin_vec); inmax_y=max(yin_vec);
 switch route
     case 1
         %
-        w2=d2d(varargin{1});%ensure we have d2d format. If was already d2d then nothing happens,
+        w2=d2d_old(varargin{1});%ensure we have d2d format. If was already d2d then nothing happens,
         %if varargin{1} was sqw then it is converted to d2d.
         [ok,same_axes,mess]=check_rebinning_axes(win,w2);
         if ~ok
@@ -116,7 +116,7 @@ switch route
                 getout.p{1}=xnew(:,1); getout.p{2}=ynew(1,:)';
                 getout.s=sout; getout.e=eout; getout.npix=nout;
                 getout.title=[wout.title,' REBINNED '];
-                wout=d2d(getout);
+                wout=d2d_old(getout);
             else
                 xout=w2.p{1}; yout=w2.p{2};%the x-axis of win is the y-axis of w2, and vice versa
                 %Now check that the output range fully encompasses the input data.
@@ -135,7 +135,7 @@ switch route
                 getout.p{1}=xnew(:,1); getout.p{2}=ynew(1,:)';
                 getout.s=sout; getout.e=eout; getout.npix=nout;
                 getout.title=[win.title,' REBINNED '];
-                wout=d2d(getout);
+                wout=d2d_old(getout);
             end
         else
             %Need to use the shoelace algorithm
@@ -196,7 +196,7 @@ switch route
             get3.p{1}=xnew'; get3.p{2}=ynew';
             get3.s=zeros(length(xnew)-1,length(ynew)-1);
             get3.e=ones(size(get3.s)); get3.npix=ones(size(get3.s));
-            w3=d2d(get3);
+            w3=d2d_old(get3);
             %
             [xref_sh,yref_sh,sref_sh,eref_sh,nref_sh]=convert_bins_for_shoelace(w3,[]);
             
@@ -217,7 +217,7 @@ switch route
             end
             getout.s=sout; getout.e=eout; getout.npix=nout;
             getout.title=[win.title,' REBINNED '];
-            wout=d2d(getout);
+            wout=d2d_old(getout);
             
             
         end
@@ -235,7 +235,7 @@ switch route
         getout.p{1}=xnew(:,1);
         getout.s=sout; getout.e=eout; getout.npix=nout;
         getout.title=[wout.title,' REBINNED '];
-        wout=d2d(getout);
+        wout=d2d_old(getout);
     case 3
         xout=[(varargin{1}(1) - eps):varargin{1}(2):(varargin{1}(3)+eps)];
         [xnew,ynew,sout,eout,nout]=rebin_2d(xin,yin,win.s,win.e,win.npix,xout,[]);
@@ -244,7 +244,7 @@ switch route
         getout.p{1}=xnew(:,1);
         getout.s=sout; getout.e=eout; getout.npix=nout;
         getout.title=[wout.title,' REBINNED '];
-        wout=d2d(getout);
+        wout=d2d_old(getout);
     case 4
         xout=[(inmin_x-eps):varargin{1}:(inmax_x+eps)]';
         yout=[(inmin_y-eps):varargin{2}:(inmax_y+eps)]';
@@ -262,7 +262,7 @@ switch route
         getout.p{1}=xnew(:,1); getout.p{2}=ynew(1,:)';
         getout.s=sout; getout.e=eout; getout.npix=nout;
         getout.title=[wout.title,' REBINNED '];
-        wout=d2d(getout);
+        wout=d2d_old(getout);
     case 5
         xout=[(varargin{1}(1) -eps):varargin{1}(2):(varargin{1}(3)+eps)];
         yout=[(varargin{2}(1)-eps):varargin{2}(2):(varargin{2}(3)+eps)];
@@ -272,7 +272,7 @@ switch route
         getout.p{1}=xnew(:,1); getout.p{2}=ynew(1,:)';
         getout.s=sout; getout.e=eout; getout.npix=nout;
         getout.title=[wout.title,' REBINNED '];
-        wout=d2d(getout);
+        wout=d2d_old(getout);
     case 6
         yout=[(varargin{2}(1)-eps):varargin{2}(2):(varargin{2}(3)+eps)];
         xout=[(inmin_x-eps):varargin{1}:(inmax_x+eps)]';
@@ -285,7 +285,7 @@ switch route
         getout.p{1}=xnew(:,1); getout.p{2}=ynew(1,:)';
         getout.s=sout; getout.e=eout; getout.npix=nout;
         getout.title=[wout.title,' REBINNED '];
-        wout=d2d(getout);
+        wout=d2d_old(getout);
     case 7
         xout=[(varargin{1}(1) -eps):varargin{1}(2):(varargin{1}(3)+eps)];
         yout=[(inmin_y-eps):varargin{2}:(inmax_y+eps)]';
@@ -298,7 +298,7 @@ switch route
         getout.p{1}=xnew(:,1); getout.p{2}=ynew(1,:)';
         getout.s=sout; getout.e=eout; getout.npix=nout;
         getout.title=[wout.title,' REBINNED '];
-        wout=d2d(getout);
+        wout=d2d_old(getout);
     case 8
         yout=[(varargin{2}(1)-eps):varargin{2}(2):(varargin{2}(3)+eps)];
         [xnew,ynew,sout,eout,nout]=rebin_2d(xin,yin,win.s,win.e,win.npix,[],yout);
@@ -307,7 +307,7 @@ switch route
         getout.p{2}=ynew(1,:)';
         getout.s=sout; getout.e=eout; getout.npix=nout;
         getout.title=[wout.title,' REBINNED '];
-        wout=d2d(getout);
+        wout=d2d_old(getout);
     case 9
         yout=[(inmin_y-eps):varargin{2}:(inmax_y+eps)]';
         %Need to check that this does cover full range, i.e. no rounding
@@ -321,6 +321,6 @@ switch route
         getout.p{2}=ynew(1,:)';
         getout.s=sout; getout.e=eout; getout.npix=nout;
         getout.title=[wout.title,' REBINNED '];
-        wout=d2d(getout);
+        wout=d2d_old(getout);
 end
 

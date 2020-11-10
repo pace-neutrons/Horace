@@ -1,4 +1,4 @@
-function wout = d2d (win)
+function wout = d2d_old (win)
 % Convert input 2-dimensional sqw object or array of 2D sqw objects into d2d object or d2d object array
 %
 %   >> wout = d2d (win)

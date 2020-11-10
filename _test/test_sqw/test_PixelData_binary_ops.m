@@ -395,7 +395,7 @@ methods
     end
 
     function test_adding_2Dsigvar_returns_correct_pix_with_gt_1_page(obj)
-        dnd_obj = d2d(obj.test_sqw_2d_file_path);
+        dnd_obj = d2d_old(obj.test_sqw_2d_file_path);
         npix = dnd_obj.npix;
         svar = sigvar(dnd_obj.s, dnd_obj.e);
 
@@ -418,7 +418,7 @@ methods
     end
 
     function test_multiplying_with_2D_dnd_returns_correct_pix_with_gt_1_page(obj)
-        dnd_obj = d2d(obj.test_sqw_2d_file_path);
+        dnd_obj = d2d_old(obj.test_sqw_2d_file_path);
         npix = dnd_obj.npix;
 
         pix_per_page = floor(sum(npix(:)/6));

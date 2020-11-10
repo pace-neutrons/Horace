@@ -12,7 +12,7 @@ function [xout,yout,sout,eout,nout]=convert_bins_for_shoelace(win,wref)
 %matrices in the correct format. At present sig etc are arranged to correspond to
 %points on an ndgrid.
 
-win=d2d(win);
+win=d2d_old(win);
 
 xin=win.p{1}'; yin=win.p{2}';
 
