@@ -334,9 +334,9 @@ classdef test_faccess_sqw_v2< TestCase
 
             sqw2 = to.get_sqw();
             to.delete();
-            assertTrue(isa(sqw2,'d2d'));
+            assertTrue(isa(sqw2,'d2d_old'));
 
-            [ok,mess]=equal_to_tol(d2d(sqwob),sqw2,'ignore_str',true);
+            [ok,mess]=equal_to_tol(d2d_old(sqwob),sqw2,'ignore_str',true);
             assertTrue(ok,mess)
             %
         end
@@ -360,7 +360,7 @@ classdef test_faccess_sqw_v2< TestCase
 
             dn2 = to.get_sqw();
             to.delete();
-            assertTrue(isa(dn2,'d2d'));
+            assertTrue(isa(dn2,'d2d_old'));
 
             [ok,mess]=equal_to_tol(dn2,dnob,'ignore_str',true);
             assertTrue(ok,mess)

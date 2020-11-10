@@ -103,7 +103,7 @@ backgroundcut=cut(cc2,[-0.05,0.05],[]);%keep the binning the same in 2nd axis, b
 %plotting on the screen, we have to throw the pixel info away. We do this
 %by converting from an sqw object to a d2d / d1d object:
 backgroundcut=d1d(backgroundcut);
-dd2=d2d(cc2);
+dd2=d2d_old(cc2);
 wback = replicate(backgroundcut,dd2);  %NB the replicate method has not yet been implemented for SQW
 plot(wback);
 

@@ -9,7 +9,7 @@ for i=1:numel(win)
 
     wtemp=win(i);
 
-    if isa(win,'d2d')
+    if isa(win,'d2d_old')
         wtemp.s=flipud(win(i).s);
         wtemp.e=flipud(win(i).e);
         wtemp.npix=flipud(win(i).npix);

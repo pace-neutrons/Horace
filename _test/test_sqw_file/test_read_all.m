@@ -76,7 +76,7 @@ classdef test_read_all< TestCase
             clob = onCleanup(@()warning('on','SQW_FILE_IO:legacy_data'));
             
             out = read_horace(obj.sample_file);
-            assertTrue(isa(out,'d2d'));
+            assertTrue(isa(out,'d2d_old'));
             assertFalse(iscell(out));
             assertEqual(numel(out),1);
             
@@ -98,7 +98,7 @@ classdef test_read_all< TestCase
             assertEqual(numel(out),3);
             assertTrue(iscell(out));
             assertTrue(isa(out{1},'sqw_old'));
-            assertTrue(isa(out{3},'d2d'));
+            assertTrue(isa(out{3},'d2d_old'));
         end
         function obj = test_head(obj)
             warning('off','SQW_FILE_IO:legacy_data');

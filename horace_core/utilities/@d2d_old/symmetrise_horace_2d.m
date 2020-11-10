@@ -75,11 +75,11 @@ switch route
         [xin,yin]=ndgrid(win.data.p{1},win.data.p{2});
         [xout,yout,sout,eout,nout]=symmetrise_2d(xin,yin,win.data.s,...
             win.data.e,win.data.npix,midpoint);
-        wout=d2d(win);
+        wout=d2d_old(win);
         getout=get(wout);
         getout.p{1}=xout(:,1); getout.p{2}=yout(1,:)';
         getout.s=sout; getout.e=eout; getout.npix=nout;
-        wout=d2d(getout);
+        wout=d2d_old(getout);
     case 2
         %We need to check here whether the symmetrisation plane specified
         %actually correpsonds to the above case. If it does then we can
@@ -90,11 +90,11 @@ switch route
             [xin,yin]=ndgrid(win.data.p{1},win.data.p{2});
             [xout,yout,sout,eout,nout]=symmetrise_2d(xin,yin,win.data.s,...
                 win.data.e,win.data.npix,midpoint);
-            wout=d2d(win);
+            wout=d2d_old(win);
             getout=get(wout);
             getout.p{1}=xout(:,1); getout.p{2}=yout(1,:)';
             getout.s=sout; getout.e=eout; getout.npix=nout;
-            wout=d2d(getout);
+            wout=d2d_old(getout);
         else
             %realise that we have to restrict ourselves to symmetrisation
             %planes that are pendicular to the data plane, so that the
@@ -107,8 +107,8 @@ switch route
             %cannot cope with such situations very well. There should
             %therefore be an extra case where we check if the symm plane is
             %a diagonal, and if so we can deal with it differently.
-            [ok,mess]=test_symmetrisation_plane(d2d(win),varargin{1},varargin{2},varargin{3});
-            [diag,type]=test_symmetrisation_plane_digaonal(d2d(win),varargin{1},varargin{2},varargin{3});
+            [ok,mess]=test_symmetrisation_plane(d2d_old(win),varargin{1},varargin{2},varargin{3});
+            [diag,type]=test_symmetrisation_plane_digaonal(d2d_old(win),varargin{1},varargin{2},varargin{3});
             if ok
                 if diag
                     %the symmetrisation plane was a diagonal. This means
@@ -124,7 +124,7 @@ switch route
                     getout.data.s=sout; getout.data.e=eout; getout.data.npix=nout;
                     getout.data.p{1}=xout(:,1);
                     getout.data.p{2}=yout(1,:)';
-                    wout=d2d(sqw_old(getout));
+                    wout=d2d_old(sqw_old(getout));
                     %
                 else
                     %get bin boundaries in shoelace format
@@ -150,7 +150,7 @@ switch route
                     yinhi=max(max(yinright)); yrhi=max(max(yrright));
                     xstep=win.data.p{1}(2)- win.data.p{1}(1);
                     ystep=win.data.p{2}(2) - win.data.p{2}(1);
-                    getout=get(d2d(win));
+                    getout=get(d2d_old(win));
                     xoutbin=[min([xinlo xrlo]):xstep:(max([xinhi xrhi])+xstep-eps)];%extra bit to avoid
                     %problems with rounding errors
                     youtbin=[min([yinlo yrlo]):ystep:(max([yinhi yrhi])+ystep-eps)];
@@ -195,7 +195,7 @@ switch route
                     getout.p{1}=getout.p{1}';
                     getout.p{2}=getout.p{2}';
                     getout.title=[getout.title,' SYMMETRISED '];
-                    wout=d2d(getout);
+                    wout=d2d_old(getout);
                 end
             else
                 error(mess);

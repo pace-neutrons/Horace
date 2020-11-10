@@ -36,12 +36,12 @@ classdef test_dnd_constructors< TestCase
             
             
             
-            t2 = d2d();
-            assertTrue(isa(t2,'d2d'))
-            t2 = d2d([0,0,0,0],[1,0,0],[-2,0.05,2],[0,1,0],[-2,0.05,2]);
-            assertTrue(isa(t2,'d2d'))
-            t2 = d2d(fullfile(this.test_data,'w2d_qq_d2d.sqw'));
-            assertTrue(isa(t2,'d2d'))
+            t2 = d2d_old();
+            assertTrue(isa(t2,'d2d_old'))
+            t2 = d2d_old([0,0,0,0],[1,0,0],[-2,0.05,2],[0,1,0],[-2,0.05,2]);
+            assertTrue(isa(t2,'d2d_old'))
+            t2 = d2d_old(fullfile(this.test_data,'w2d_qq_d2d.sqw'));
+            assertTrue(isa(t2,'d2d_old'))
         end
         function this = test_dnd_from_sqw(this)
             par_file = fullfile(this.common_data,'96dets.par');

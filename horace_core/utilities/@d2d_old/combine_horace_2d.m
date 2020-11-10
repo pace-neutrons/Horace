@@ -71,14 +71,14 @@ switch route
                 n1=w1.data.npix; n2=w2.data.npix;
                 [xout,yout,sout,eout,nout]=combine_2d(x1,y1,s1,e1,n1,x2,y2,s2,e2,n2,[]);
                 %Now need to construct the output d2d:
-                wout=d2d(w1);
+                wout=d2d_old(w1);
                 getout=get(wout);
                 getout.p{1}=xout(:,1); getout.p{2}=yout(1,:)';
                 getout.s=sout; getout.e=eout; getout.npix=nout;
                 getout.title=[wout.title,' COMBINED '];
                 getout.iint=irange;
                 getout.uoffset=uoff;
-                wout=d2d(getout);
+                wout=d2d_old(getout);
             else
                 %have same axes, but y-axis of w1 is x-axis of w2, and v.v.
                 [x1,y1]=ndgrid(w1.data.p{1},w1.data.p{2});
@@ -88,14 +88,14 @@ switch route
                 n1=w1.data.npix; n2=w2.data.npix';
                 [xout,yout,sout,eout,nout]=combine_2d(x1,y1,s1,e1,n1,x2,y2,s2,e2,n2,[]);
                 %Now need to construct the output d2d:
-                wout=d2d(w1);
+                wout=d2d_old(w1);
                 getout=get(wout);
                 getout.p{1}=xout(:,1); getout.p{2}=yout(1,:)';
                 getout.s=sout; getout.e=eout; getout.npix=nout;
                 getout.title=[wout.title,' COMBINED '];
                 getout.iint=irange;
                 getout.uoffset=uoff;
-                wout=d2d(getout);
+                wout=d2d_old(getout);
                 %
             end
         else
@@ -103,8 +103,8 @@ switch route
             %data plane is the same, but the axes are different. So need
             %shoelace rebin. Require an object that has the data plane of
             %w1, but the full range of both datasets.
-            w2tmp=rebin_horace_2d(d2d(w2),d2d(w1));
-            w1tmp=rebin_horace_2d(d2d(w1),w2tmp);
+            w2tmp=rebin_horace_2d(d2d_old(w2),d2d_old(w1));
+            w1tmp=rebin_horace_2d(d2d_old(w1),w2tmp);
             %now have 2 objects that have the same data range
             %can add the signals and errors in the appropriate way.
             s1=w1tmp.s; e1=w1tmp.e; n1=w1tmp.npix;
@@ -150,14 +150,14 @@ switch route
                 n1=w1.data.npix; n2=w2.data.npix;
                 [xout,yout,sout,eout,nout]=combine_2d(x1,y1,s1,e1,n1,x2,y2,s2,e2,n2,tol);
                 %Now need to construct the output d2d:
-                wout=d2d(w1);
+                wout=d2d_old(w1);
                 getout=get(wout);
                 getout.p{1}=xout(:,1); getout.p{2}=yout(1,:)';
                 getout.s=sout; getout.e=eout; getout.npix=nout;
                 getout.title=[wout.title,' COMBINED '];
                 getout.iint=irange;
                 getout.uoffset=uoff;
-                wout=d2d(getout);
+                wout=d2d_old(getout);
             else
                 %y-axis of w1 is x-axis of w2, and v.v.
                 [x1,y1]=ndgrid(w1.data.p{1},w1.data.p{2});
@@ -167,14 +167,14 @@ switch route
                 n1=w1.data.npix; n2=w2.data.npix';
                 [xout,yout,sout,eout,nout]=combine_2d(x1,y1,s1,e1,n1,x2,y2,s2,e2,n2,tol);
                 %Now need to construct the output d2d:
-                wout=d2d(w1);
+                wout=d2d_old(w1);
                 getout=get(wout);
                 getout.p{1}=xout(:,1); getout.p{2}=yout(1,:)';
                 getout.s=sout; getout.e=eout; getout.npix=nout;
                 getout.title=[wout.title,' COMBINED '];
                 getout.iint=irange;
                 getout.uoffset=uoff;
-                wout=d2d(getout);
+                wout=d2d_old(getout);
                 %
             end
         else
@@ -183,8 +183,8 @@ switch route
             %shoelace rebin. This has the extra compication of requiring
             %tolerance. Must work out the the full data range of the
             %combined dataset in terms of the axes of w1.
-            w2tmp=rebin_horace_2d(d2d(w2),d2d(w1));
-            w1tmp=rebin_horace_2d(d2d(w1),w2tmp);
+            w2tmp=rebin_horace_2d(d2d_old(w2),d2d_old(w1));
+            w1tmp=rebin_horace_2d(d2d_old(w1),w2tmp);
             %now have 2 objects that have the same data range
             %can add the signals and errors in the appropriate way.
             tolx=tol(1); toly=tol(2);

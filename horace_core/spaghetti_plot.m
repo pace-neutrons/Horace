@@ -120,7 +120,7 @@ flags = {'noplot','logscale'};
 [args,opt,present] = parse_arguments(varargin,arglist,flags);
 
 if numel(args)~=2
-    if length(args{1})>1 && (isa((args{1}(1)),'d2d') || isa((args{1}(1)),'IX_dataset_2d'))
+    if length(args{1})>1 && (isa((args{1}(1)),'d2d_old') || isa((args{1}(1)),'IX_dataset_2d'))
         plot_dispersion(args{1},opt);
         return
     else
@@ -160,7 +160,7 @@ if isa(args{2},'sqw_old')
     header = struct(args{2}).data;
 elseif sqwfile
     header = head_sqw(args{2});
-elseif length(args{2})>1 && isa(args{2}(1),'d2d')
+elseif length(args{2})>1 && isa(args{2}(1),'d2d_old')
     plot_dispersion(args{2},opt);
     return;
 else
@@ -234,7 +234,7 @@ end
 % Loop over rlp, determines the projections and make the cuts
 %------------------------------------------------------------
 xrlp = 0;
-wdisp = repmat(d2d,1,nseg);
+wdisp = repmat(d2d_out,1,nseg);
 for i=1:nseg
     % Choose u1 along the user desired q-direction
     u1rlp = rlp(i+1,:)-rlp(i,:);

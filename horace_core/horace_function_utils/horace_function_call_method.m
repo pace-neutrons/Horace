@@ -101,7 +101,7 @@ else
     elseif ndims==1
         dummy_obj=d1d;
     elseif ndims==2
-        dummy_obj=d2d;
+        dummy_obj=d2d_old;
     elseif ndims==3
         dummy_obj=d3d;
     elseif ndims==4
