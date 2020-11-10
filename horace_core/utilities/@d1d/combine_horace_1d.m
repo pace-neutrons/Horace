@@ -61,12 +61,12 @@ switch route
                 n1=w1.data.npix; n2=w2.data.npix;
                 [xout,sout,eout,nout]=combine_1d(x1,s1,e1,n1,x2,s2,e2,n2,[]);
                 %Now need to construct the output d1d:
-                wout=d1d(w1);
+                wout=d1d_old(w1);
                 getout=get(wout);
                 getout.p{1}=xout(:,1);
                 getout.s=sout; getout.e=eout; getout.npix=nout;
                 getout.title=[wout.title,' COMBINED '];
-                wout=d1d(getout);
+                wout=d1d_old(getout);
             else
                 error('Horace error: 1d objects must have the same x-axis');
             end
@@ -88,12 +88,12 @@ switch route
                 n1=w1.data.npix; n2=w2.data.npix;
                 [xout,sout,eout,nout]=combine_1d(x1,s1,e1,n1,x2,s2,e2,n2,tol);
                 %Now need to construct the output d1d:
-                wout=d1d(w1);
+                wout=d1d_old(w1);
                 getout=get(wout);
                 getout.p{1}=xout(:,1);
                 getout.s=sout; getout.e=eout; getout.npix=nout;
                 getout.title=[wout.title,' COMBINED '];
-                wout=d1d(getout);
+                wout=d1d_old(getout);
             else
                 error('Horace error: 1d objects must have the same x-axis');
             end

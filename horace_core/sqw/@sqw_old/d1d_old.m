@@ -1,4 +1,4 @@
-function wout = d1d (win)
+function wout = d1d_old (win)
 % Convert input 1-dimensional sqw object into corresponding d1d object
 %
 %   >> wout = d1d (win)

@@ -21,7 +21,7 @@ if ndims~=1
 end
 
 if nargin==2
-    if isa(win,'d1d') && (isa(varargin{1},'d1d') || isa(varargin{1},'sqw_old'))
+    if isa(win,'d1d_old') && (isa(varargin{1},'d1d_old') || isa(varargin{1},'sqw_old'))
         [ndims2,sz]=dimensions(varargin{1});
         if ndims2~=1
             error('Horace error: can only rebin a d1d object with another d1d or a 1-dimensional sqw');
@@ -52,7 +52,7 @@ inmax_x=max(xin_vec);
 switch route
     case 1
         %
-        w2=d1d(varargin{1});%if varargin{1} is already d1d then this does nothing.
+        w2=d1d_old(varargin{1});%if varargin{1} is already d1d then this does nothing.
         %If it is an sqw then we convert to the equivalent d1d;
         [ok,same_axes,mess]=check_rebinning_axes_1d(win,w2);
         if ~ok
@@ -76,7 +76,7 @@ switch route
                 getout.p{1}=xout(:,1);
                 getout.s=sout; getout.e=eout; getout.npix=nout;
                 getout.title=[wout.title,' REBINNED '];
-                wout=d1d(getout);
+                wout=d1d_old(getout);
             else
                 error('Horace error: 1d objects must have the same x-axis');
             end
@@ -98,7 +98,7 @@ switch route
         getout.p{1}=xout(:,1);
         getout.s=sout; getout.e=eout; getout.npix=nout;
         getout.title=[wout.title,' REBINNED '];
-        wout=d1d(getout);
+        wout=d1d_old(getout);
     case 3
         xout=[(varargin{1}(1)-varargin{1}(2)-eps):varargin{1}(2):(varargin{1}(3)+varargin{1}(2)-eps)]';
         [sout,eout,nout]=rebin_1d_general(xin_vec,xout,win.s,win.e,win.npix);
@@ -107,6 +107,6 @@ switch route
         getout.p{1}=xout(:,1);
         getout.s=sout; getout.e=eout; getout.npix=nout;
         getout.title=[wout.title,' REBINNED '];
-        wout=d1d(getout);
+        wout=d1d_old(getout);
     
 end

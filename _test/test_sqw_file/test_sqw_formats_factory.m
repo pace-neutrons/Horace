@@ -98,7 +98,7 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             ld1 = sqw_formats_factory.instance().get_pref_access(dob);
             assertTrue(isa(ld1,'faccess_sqw_v3'));
             
-            dob = d1d();
+            dob = d1d_old();
             ld2 = sqw_formats_factory.instance().get_pref_access(dob);
             assertTrue(isa(ld2,'faccess_dnd_v2'));
             

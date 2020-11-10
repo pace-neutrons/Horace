@@ -291,14 +291,14 @@ methods
     end
 
     function test_PIXELDATA_error_on_with_dnd_of_wrong_size(obj)
-        dnd_obj = d1d(obj.test_sqw_file_path);
+        dnd_obj = d1d_old(obj.test_sqw_file_path);
         pix = PixelData(zeros(9, 2));
         f = @() pix.do_binary_op(dnd_obj, @plus_single);
         assertExceptionThrown(f, 'PIXELDATA:do_binary_op');
     end
 
     function test_with_1d_dnd_returns_correct_pix_with_single_page(obj)
-        dnd_obj = d1d(obj.test_sqw_file_path);
+        dnd_obj = d1d_old(obj.test_sqw_file_path);
         npix = dnd_obj.npix;
         pix = PixelData(ones(9, sum(npix)));
 
@@ -317,7 +317,7 @@ methods
     end
 
     function test_with_sigvar_returns_correct_pix_with_single_page(obj)
-        dnd_obj = d1d(obj.test_sqw_file_path);
+        dnd_obj = d1d_old(obj.test_sqw_file_path);
         npix = dnd_obj.npix;
         svar = sigvar(dnd_obj.s, dnd_obj.e);
 
@@ -338,7 +338,7 @@ methods
     end
 
     function test_with_1d_dnd_returns_correct_pix_with_gt_1_page(obj)
-        dnd_obj = d1d(obj.test_sqw_file_path);
+        dnd_obj = d1d_old(obj.test_sqw_file_path);
         npix = dnd_obj.npix;
 
         pix_per_page = floor(sum(npix)/6);
@@ -360,7 +360,7 @@ methods
     end
 
     function test_with_sigvar_returns_correct_pix_with_gt_1_page(obj)
-        dnd_obj = d1d(obj.test_sqw_file_path);
+        dnd_obj = d1d_old(obj.test_sqw_file_path);
         npix = dnd_obj.npix;
         svar = sigvar(dnd_obj.s, dnd_obj.e);
 
@@ -384,7 +384,7 @@ methods
     end
 
     function test_PIXELDATA_error_in_sigvar_if_sum_npix_ne_num_pix(obj)
-        dnd_obj = d1d(obj.test_sqw_file_path);
+        dnd_obj = d1d_old(obj.test_sqw_file_path);
         svar = sigvar(dnd_obj.s, dnd_obj.e);
 
         pix = PixelData(ones(9, sum(dnd_obj.npix) + 1));

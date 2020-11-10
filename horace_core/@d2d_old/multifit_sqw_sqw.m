@@ -65,7 +65,7 @@ function varargout = multifit_sqw_sqw (varargin)
 
 if ~mfclass.legacy(varargin{:})
     mf_init = mfclass_wrapfun (@sqw_eval, [], @sqw_eval, []);
-    varargout{1} = mfclass_Horace_sqw_sqw (varargin{:}, 'd1d', mf_init);
+    varargout{1} = mfclass_Horace_sqw_sqw (varargin{:}, 'd1d_old', mf_init);
 else
     [varargout{1:nargout}] = mfclass.legacy_call (@multifit_legacy_sqw_sqw, varargin{:});
 end
