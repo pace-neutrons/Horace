@@ -1,4 +1,4 @@
-function processed = manage_legacy_sqw_class_rename(data)
+function processed = manage_legacy_sqw_class_rename(in_data)
 % Perform pre-processing on data loaded from .mat files
 %
 % Called as part of the TestCaseWithSave workflow or after `load(file, vars...)`
@@ -30,12 +30,28 @@ function processed = manage_legacy_sqw_class_rename(data)
 
 
 % input data is a sqw-like structure
-if isfield(data, 'main_header') && isfield(data, 'header') && isfield(data, 'detpar')
-    processed = sqw_old(data);
-
+if isfield(in_data, 'main_header') && isfield(in_data, 'header') && isfield(in_data, 'detpar')
+    if isfield(in_data, 'data') % it's SQW object
+        processed = sqw_old(in_data);
+    else
+        switch size(in_data.s, 2)
+            case 4
+                processed = d4d_old(in_data);
+            case 3
+                processed = d3d_old(in_data);
+            case 2
+                processed = d2d_old(in_data);
+            case 1
+                processed = d1d_old(in_data);
+            case 0
+                processed = d0d_old(in_data);
+            otherwise
+                processed = in_data;
+        end
+    end
 % input is a struct or array-of-structs
-elseif isstruct(data)
-    field_names = fields(data);
+elseif isstruct(in_data)
+    field_names = fields(in_data);
 
     % loop over the fields of the struct. In the array case these will be the
     % same for every element and array-index or field-name may be iterated first
@@ -44,26 +60,26 @@ elseif isstruct(data)
 
         % if field value is a struct or an array-of-struct we need to recursively
         % call this function
-        if (isstruct(data.(field_name)))
+        if (isstruct(in_data.(field_name)))
             % cache the array dimensions
-            initial_size = size(data.(field_name));
+            initial_size = size(in_data.(field_name));
 
             % loop over each element of the array, recursively calling this function with the fields
             % structure. If the value is not an array, numel is 1 and this will execute exactly once
-            for inner_idx = 1:numel(data.(field_name))
-                processed.(field_name)(inner_idx) = manage_legacy_sqw_class_rename(data.(field_name)(inner_idx));
+            for inner_idx = 1:numel(in_data.(field_name))
+                processed.(field_name)(inner_idx) = manage_legacy_sqw_class_rename(in_data.(field_name)(inner_idx));
             end
 
             % restore the initial array shape the loop will have constructed a [1, n] array
             processed.(field_name) = reshape(processed.(field_name), initial_size);
         else
             % copy any non-struct values into the return value unchanged
-            processed.(field_name) = data.(field_name);
+            processed.(field_name) = in_data.(field_name);
         end
     end
 
 % value is neither a struct or sqw-like object so return input unchanged
 else
-    processed = data;
+    processed = in_data;
 end
 end
