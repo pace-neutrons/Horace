@@ -34,7 +34,7 @@ classdef test_symm < TestCase
             errs=w3d_sqw.data.pix.signal;
             w3d_sqw.data.pix.variance=errs;
             w3d_sqw=cut(w3d_sqw,[-1,0.025,1],[-1,0.025,1],[0,1.4,100]);
-            w3d_d3d=d3d(w3d_sqw);
+            w3d_d3d=d3d_old(w3d_sqw);
 
             % Two-dimensional data sets
             w2d_qe_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-0.1,0.1],[-Inf,Inf],[0,1.4,100]);
@@ -42,17 +42,17 @@ classdef test_symm < TestCase
             errs=w2d_qe_sqw.data.pix.signal;
             w2d_qe_sqw.data.pix.variance=errs;
             w2d_qe_sqw=cut(w2d_qe_sqw,[-1,0.025,1],[0,1.4,100]);
-            w2d_qe_d2d=d2d(w2d_qe_sqw);
+            w2d_qe_d2d=d2d_old(w2d_qe_sqw);
 
             w2d_qq_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-1,0.025,1],[-Inf,Inf],[30,40]);
             w2d_qq_sqw=sqw_eval(w2d_qq_sqw,@fake_cross_sec,[this.stiffness,this.gam,this.amp]);
             errs=w2d_qq_sqw.data.pix.signal;
             w2d_qq_sqw.data.pix.variance=errs;
             w2d_qq_sqw=cut(w2d_qq_sqw,[-1,0.025,1],[-1,0.025,1]);
-            w2d_qq_d2d=d2d(w2d_qq_sqw);
+            w2d_qq_d2d=d2d_old(w2d_qq_sqw);
 
             w2d_qq_small_sqw=cut_sqw(data_source,proj,[0,0.025,0.4],[0,0.025,0.4],[-Inf,Inf],[30,40]);
-            w2d_qq_small_d2d=d2d(w2d_qq_small_sqw);
+            w2d_qq_small_d2d=d2d_old(w2d_qq_small_sqw);
 
             % One-dimensional data sets
             w1d_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-0.1,0.1],[-Inf,Inf],[30,40]);
@@ -60,7 +60,7 @@ classdef test_symm < TestCase
             errs=w1d_sqw.data.pix.signal;
             w1d_sqw.data.pix.variance=errs;
             w1d_sqw=cut(w1d_sqw,[-1,0.025,1]);
-            w1d_d1d=d1d(w1d_sqw);
+            w1d_d1d=d1d_old(w1d_sqw);
 
             % Save data
             save(w3d_sqw,[this.testdir,filesep,'w3d_sqw.sqw']);
@@ -92,7 +92,7 @@ classdef test_symm < TestCase
             cc1=cut(w3d_sqw_sym,[0.2,0.025,1],[-0.1,0.1],[0,1.4,99.8]);
             cc2=cut(w3d_sqw_sym3,[0.2,0.025,1],[-0.1,0.1],[0,1.4,99.8]);
 
-            [ok,mess]=equal_to_tol(d2d(cc1),d2d(cc2),-1e-6,'ignore_str', 1);
+            [ok,mess]=equal_to_tol(d2d_old(cc1),d2d_old(cc2),-1e-6,'ignore_str', 1);
             assertTrue(ok,['sqw symmetrisation fails, most likely due to cut rounding problem: ',mess])
         end
 
@@ -118,7 +118,7 @@ classdef test_symm < TestCase
             % different...
             % Diagonal symm axis
             w2d_qq_sqw=read_sqw(fullfile(this.testdir,'w2d_qq_sqw.sqw'));
-            w2_2b_s=d2d(symmetrise_sqw(w2d_qq_sqw,[0,0,1],[0,1,0],[0,0,0]));
+            w2_2b_s=d2d_old(symmetrise_sqw(w2d_qq_sqw,[0,0,1],[0,1,0],[0,0,0]));
             w2_2b_s=cut(w2_2b_s,[-1.0125,0.025+3.5e-8,1],[-1.0167,0.025+3.5e-8,1.0333]);
 
             w2d_qq_d2d=read_dnd(fullfile(this.testdir,'w2d_qq_d2d.sqw'));

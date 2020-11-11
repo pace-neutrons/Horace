@@ -171,7 +171,7 @@ if return_cut
     if opt.keep_pix
         wout = repmat(sqw_old,sz_squeeze);
     else
-        wout = eval(['repmat(d',num2str(ndims),'d,sz_squeeze)']);
+        wout = eval(['repmat(d',num2str(ndims),'d_old,sz_squeeze)']);
     end
 end
 for i=1:prod(sz)
@@ -182,7 +182,7 @@ for i=1:prod(sz)
     if ~isempty(pbin{2}), pbin_tmp{2}=pbin{2}(i2,:); else, pbin_tmp{2}=pbin{2}; end
     if ~isempty(pbin{3}), pbin_tmp{3}=pbin{3}(i3,:); else, pbin_tmp{3}=pbin{3}; end
     if ~isempty(pbin{4}), pbin_tmp{4}=pbin{4}(i4,:); else, pbin_tmp{4}=pbin{4}; end
-    
+
     % Make cut
     if return_cut
         wout(i) = cut_sqw_main_single (data_source,...

@@ -70,7 +70,7 @@ vars = evalin('base','whos');%gives a structure array with all of the workspace 
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d')
+    if strcmp(test_el.class,'d1d_old')
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -139,7 +139,7 @@ vars = evalin('base','whos');%gives a structure array with all of the workspace 
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d')
+    if strcmp(test_el.class,'d1d_old')
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -210,7 +210,7 @@ vars = evalin('base','whos');%gives a structure array with all of the workspace 
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d')
+    if strcmp(test_el.class,'d1d_old')
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;

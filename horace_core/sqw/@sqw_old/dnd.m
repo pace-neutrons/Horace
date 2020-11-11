@@ -32,30 +32,30 @@ for i=1:numel(win)
 
     if i==1
         if nd==0
-            wout=d0d(din);
+            wout=d0d_old(din);
         elseif nd==1
-            wout=d1d(din);
+            wout=d1d_old(din);
         elseif nd==2
-            wout=d2d(din);
+            wout=d2d_old(din);
         elseif nd==3
-            wout=d3d(din);
+            wout=d3d_old(din);
         elseif nd==4
-            wout=d4d(din);
+            wout=d4d_old(din);
         end
         if numel(win)>1
             wout=repmat(wout,size(win));
         end
     else
         if nd==0
-            wout(i)=d0d(din);
+            wout(i)=d0d_old(din);
         elseif nd==1
-            wout(i)=d1d(din);
+            wout(i)=d1d_old(din);
         elseif nd==2
-            wout(i)=d2d(din);
+            wout(i)=d2d_old(din);
         elseif nd==3
-            wout(i)=d3d(din);
+            wout(i)=d3d_old(din);
         elseif nd==4
-            wout(i)=d4d(din);
+            wout(i)=d4d_old(din);
         end
     end
 end

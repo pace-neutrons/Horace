@@ -248,13 +248,13 @@ classdef  test_file_input < TestCase
             tmp=read_horace(obj.sqw2d_name{2});
             if ~equal_to_tol(obj.sqw2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
             
-            tmp=read(d2d,obj.sqw2d_name{2});
+            tmp=read(d2d_old,obj.sqw2d_name{2});
             if ~equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
             
             tmp=read_dnd(obj.sqw2d_name{2});
             if ~equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
             
-            tmp=read(d2d,obj.d2d_name{2});
+            tmp=read(d2d_old,obj.d2d_name{2});
             if ~equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
             
             try

@@ -23,7 +23,7 @@ methods
 
     function obj = setUp(obj)
         obj.sqw_obj = copy(obj.base_sqw_obj);
-        obj.dnd_obj = d2d(obj.base_sqw_obj);
+        obj.dnd_obj = d2d_old(obj.base_sqw_obj);
     end
 
     function test_SQW_error_if_operand_is_char(obj)
