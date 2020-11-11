@@ -35,11 +35,11 @@ classdef test_sqw_main < TestCase
             assertElementsAlmostEqual(sqw_data.data.iax,[1,3]);
             
             
-            test_dnd = d2d(sqw_data);
+            test_dnd = d2d_old(sqw_data);
             [targ_path,targ_file,fext] = fileparts(out_dnd_file);
             save(test_dnd,out_dnd_file)
             loaded_dnd = read_dnd(out_dnd_file);
-            assertTrue(isa(loaded_dnd,'d2d'))
+            assertTrue(isa(loaded_dnd,'d2d_old'))
             %
             test_dnd.filename = [targ_file,fext];
             test_dnd.filepath = [targ_path,filesep];

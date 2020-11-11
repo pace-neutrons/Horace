@@ -66,15 +66,15 @@ warning('off','MATLAB:structOnObject');
 clob = onCleanup(@()warning('on','MATLAB:structOnObject'));
 switch ndim %TODO: the dnd constructor should deal with this switch.
     case 0
-        res = d0d(dat);
+        res = d0d_old(dat);
     case 1
-        res = d1d(dat);
+        res = d1d_old(dat);
     case 2
-        res = d2d(dat);
+        res = d2d_old(dat);
     case 3
-        res = d3d(dat);
+        res = d3d_old(dat);
     case 4
-        res = d4d(dat);
+        res = d4d_old(dat);
     otherwise
         error('SQW_FILE_IO:runtime_error',...
             'get_sqw: unsupported number of dimensions (%d) read from binary file',ndim)

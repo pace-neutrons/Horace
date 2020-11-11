@@ -9,7 +9,9 @@ function test_sqw_file_read_write
 % These objects were read from an sqw file during the creation process, so we should not
 % have any subsequent problems with writing to and reading from disk.
 
-ds=load('testdata_base_objects.mat');
+ds_struct=load('testdata_base_objects.mat');
+ds = manage_legacy_sqw_class_rename(ds_struct);
+
 existing_objects=fieldnames(ds);
 for i=1:numel(existing_objects)
     % HACK ! deal with old style sqw objects, which have not stored

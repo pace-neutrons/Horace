@@ -80,8 +80,8 @@ vars = evalin('base','whos');%gives a structure array with all of the workspace 
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
+    if strcmp(test_el.class,'d1d_old') || strcmp(test_el.class,'d2d_old') ||...
+            strcmp(test_el.class,'d3d_old') || strcmp(test_el.class,'d4d_old') ||...
             strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
@@ -199,8 +199,8 @@ vars = evalin('base','whos');%gives a structure array with all of the workspace 
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
+    if strcmp(test_el.class,'d1d_old') || strcmp(test_el.class,'d2d_old') ||...
+            strcmp(test_el.class,'d3d_old') || strcmp(test_el.class,'d4d_old') ||...
             strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
@@ -498,8 +498,8 @@ vars = evalin('base','whos');%gives a structure array with all of the workspace 
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
+    if strcmp(test_el.class,'d1d_old') || strcmp(test_el.class,'d2d_old') ||...
+            strcmp(test_el.class,'d3d_old') || strcmp(test_el.class,'d4d_old') ||...
             strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
@@ -935,8 +935,8 @@ vars = evalin('base','whos');%gives a structure array with all of the workspace 
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
+    if strcmp(test_el.class,'d1d_old') || strcmp(test_el.class,'d2d_old') ||...
+            strcmp(test_el.class,'d3d_old') || strcmp(test_el.class,'d4d_old') ||...
             strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
@@ -1003,8 +1003,8 @@ vars = evalin('base','whos');%gives a structure array with all of the workspace 
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
+    if strcmp(test_el.class,'d1d_old') || strcmp(test_el.class,'d2d_old') ||...
+            strcmp(test_el.class,'d3d_old') || strcmp(test_el.class,'d4d_old') ||...
             strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
@@ -1092,8 +1092,8 @@ vars = evalin('base','whos');%gives a structure array with all of the workspace 
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
+    if strcmp(test_el.class,'d1d_old') || strcmp(test_el.class,'d2d_old') ||...
+            strcmp(test_el.class,'d3d_old') || strcmp(test_el.class,'d4d_old') ||...
             strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
@@ -1730,8 +1730,8 @@ vars = evalin('base','whos');%gives a structure array with all of the workspace 
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
+    if strcmp(test_el.class,'d1d_old') || strcmp(test_el.class,'d2d_old') ||...
+            strcmp(test_el.class,'d3d_old') || strcmp(test_el.class,'d4d_old') ||...
             strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
@@ -2596,8 +2596,8 @@ vars = evalin('base','whos');%gives a structure array with all of the workspace 
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
+    if strcmp(test_el.class,'d1d_old') || strcmp(test_el.class,'d2d_old') ||...
+            strcmp(test_el.class,'d3d_old') || strcmp(test_el.class,'d4d_old') ||...
             strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
@@ -2990,8 +2990,8 @@ vars = evalin('base','whos');%gives a structure array with all of the workspace 
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
+    if strcmp(test_el.class,'d1d_old') || strcmp(test_el.class,'d2d_old') ||...
+            strcmp(test_el.class,'d3d_old') || strcmp(test_el.class,'d4d_old') ||...
             strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
@@ -3194,13 +3194,13 @@ sqw_flag=false;
 if is_sqw_type(sqw_old(win1))
     sqw_flag=true;
     if ndims1==0
-        obj_to_cut_dnd=d0d(win1);
+        obj_to_cut_dnd=d0d_old(win1);
     elseif ndims1==1
-        obj_to_cut_dnd=d1d(win1);
+        obj_to_cut_dnd=d1d_old(win1);
     elseif ndims1==2
-        obj_to_cut_dnd=d2d(win1);
+        obj_to_cut_dnd=d2d_old(win1);
     elseif ndims1==3
-        obj_to_cut_dnd=d3d(win1);
+        obj_to_cut_dnd=d3d_old(win1);
     else
         mess='Object #1 is 4-dimensional -- cannot replicate';
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
@@ -3585,8 +3585,8 @@ vars = evalin('base','whos');%gives a structure array with all of the workspace 
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
+    if strcmp(test_el.class,'d1d_old') || strcmp(test_el.class,'d2d_old') ||...
+            strcmp(test_el.class,'d3d_old') || strcmp(test_el.class,'d4d_old') ||...
             strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
@@ -4691,8 +4691,8 @@ vars = evalin('base','whos');%gives a structure array with all of the workspace 
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
+    if strcmp(test_el.class,'d1d_old') || strcmp(test_el.class,'d2d_old') ||...
+            strcmp(test_el.class,'d3d_old') || strcmp(test_el.class,'d4d_old') ||...
             strcmp(test_el.class,'sqw_old');
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
@@ -4783,7 +4783,7 @@ if isfield(handles,'w_in');
         else
             smoothing=1;%default choice
         end
-        [fig_handle,axis_handle,plot_handle]=dp(smooth(d1d(win),smoothing,'hat'));
+        [fig_handle,axis_handle,plot_handle]=dp(smooth(d1d_old(win),smoothing,'hat'));
         drawnow;
         handles.horacefig=fig_handle;
         set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
@@ -4807,7 +4807,7 @@ if isfield(handles,'w_in');
         else
             smoothing=[1 1 1];%default choice
         end
-        [fig_handle,axis_handle,plot_handle]=plot(smooth(d3d(win),smoothing,'hat'));
+        [fig_handle,axis_handle,plot_handle]=plot(smooth(d3d_old(win),smoothing,'hat'));
         drawnow;
         handles.horacefig=fig_handle;
         set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));

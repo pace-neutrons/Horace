@@ -22,53 +22,53 @@ classdef test_combine < TestCase
             % for validation by others.
             data_source='C:\Russell\PCMO\ARCS_Oct10\Data\SQW\ei140.sqw';
             proj.u=[1,1,0]; proj.v=[-1,1,0]; proj.type='rrr';
-            
+
             % To ensure some of the catches for dnd symmetrisation work properly, need
             % to add some errorbars to all of the data points as well. Take from the
             % original data. Errorbars are rescaled to be appropriate size for new
             % signal array
-            
+
             % Two-dimensional data sets
             w2d_qq_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-1,0.025,1],[-Inf,Inf],[30,40]);
             w2d_qq_sqw=sqw_eval(w2d_qq_sqw,@fake_cross_sec,[this.stiffness,this.gam,this.amp]);
             errs=w2d_qq_sqw.data.pix.signal;
             w2d_qq_sqw.data.pix.variance=errs;
             w2d_qq_sqw=cut(w2d_qq_sqw,[-1,0.025,1],[-1,0.025,1]);
-            w2d_qq_d2d=d2d(w2d_qq_sqw);
-            
+            w2d_qq_d2d=d2d_old(w2d_qq_sqw);
+
             w2d_qq_sqw_plus=cut(w2d_qq_sqw,[-1,0.025,1],[0,0.025,1]);
-            w2d_qq_d2d_plus=d2d(w2d_qq_sqw_plus);
-            
+            w2d_qq_d2d_plus=d2d_old(w2d_qq_sqw_plus);
+
             w2d_qq_sqw_minus=cut(w2d_qq_sqw,[-1,0.025,1],[-1,0.025,0]);
-            w2d_qq_d2d_minus=d2d(w2d_qq_sqw_minus);
-            
+            w2d_qq_d2d_minus=d2d_old(w2d_qq_sqw_minus);
+
             % One-dimensional datasets
             w1d_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-0.1,0.1],[-Inf,Inf],[30,40]);
             w1d_sqw=sqw_eval(w1d_sqw,@fake_cross_sec,[this.stiffness,this.gam,this.amp]);
             errs=w1d_sqw.data.pix.signal;
             w1d_sqw.data.pix.variance=errs;
             w1d_sqw=cut(w1d_sqw,[-1,0.025,1]);
-            w1d_d1d=d1d(w1d_sqw);
-            
+            w1d_d1d=d1d_old(w1d_sqw);
+
             w1d_sqw_minus=cut(w1d_sqw,[-1,0.025,0]);
-            w1d_d1d_minus=d1d(w1d_sqw_minus);
-            
+            w1d_d1d_minus=d1d_old(w1d_sqw_minus);
+
             w1d_sqw_plus=cut(w1d_sqw,[0,0.025,1]);
-            w1d_d1d_plus=d1d(w1d_sqw_plus);
-            
+            w1d_d1d_plus=d1d_old(w1d_sqw_plus);
+
             % Save data
             save(w2d_qq_sqw,[this.testdir,filesep,'w2d_qq_sqw.sqw']);
             save(w2d_qq_sqw_minus,[this.testdir,filesep,'w2d_qq_sqw_minus.sqw']);
-            save(w2d_qq_sqw_plus,[this.testdir,filesep,'w2d_qq_sqw_plus.sqw']);            
+            save(w2d_qq_sqw_plus,[this.testdir,filesep,'w2d_qq_sqw_plus.sqw']);
             save(w2d_qq_d2d,[this.testdir,filesep,'w2d_qq_d2d.sqw']);
-            
+
             save(w2d_qq_d2d_minus,[this.testdir,filesep,'w2d_qq_d2d_minus.sqw']);
             save(w2d_qq_d2d_plus,[this.testdir,filesep,'w2d_qq_d2d_plus.sqw']);
-            
+
             save(w1d_sqw,[this.testdir,filesep,'w1d_sqw.sqw']);
             save(w1d_sqw_minus,[this.testdir,filesep,'w1d_sqw_minus.sqw']);
             save(w1d_sqw_plus,[this.testdir,filesep,'w1d_sqw_plus.sqw']);
-            
+
             save(w1d_d1d,[this.testdir,filesep,'w1d_d1d.sqw']);
             save(w1d_d1d_minus,[this.testdir,filesep,'w1d_d1d_minus.sqw']);
             save(w1d_d1d_plus,[this.testdir,filesep,'w1d_d1d_plus.sqw']);
