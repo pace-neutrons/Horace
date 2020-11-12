@@ -275,9 +275,9 @@ an error will be thrown
 
 In order to create merge commits and to post build statuses to GitHub some
 credentials must be provided within the Jenkins GUI.
-For this, the `pace.builder` GitHub account has been created and given write
+For this, the `pace-builder` GitHub account has been created and given write
 permissions to the Horace and Herbert repository.
-The email for this account is `pace.buider.stfc@gmail.co.uk`.
+The email for this account is `pace.builder.stfc@gmail.com`.
 
 Credentials are saved in the Jenkins PACE area providing an API token linked
 to the account.
