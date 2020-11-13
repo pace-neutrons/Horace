@@ -5,7 +5,7 @@ classdef sqw < SQWDnDBase
     % Syntax:
     %   >> w = sqw (filename)       % Create an sqw object from a file
     %   >> w = sqw (sqw_object)     % Create a new SQW object from a existing one
-    %   >> w = sqw (struct)         % Create from a structure with valid fields
+    %   >> w = sqw (struct)         % Create from a structure with valid fields (internal use)
     %   >> w = sqw ()               % Create a default, zero-dimensional SQW object
 
     properties
@@ -18,7 +18,7 @@ classdef sqw < SQWDnDBase
     methods
         function obj = sqw(varargin)
             % Constructors
-            % i) struct
+            % i) struct (internal)
             % ii) filename
             % iii) copy
             obj = obj@SQWDnDBase();
