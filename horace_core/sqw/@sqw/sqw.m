@@ -31,14 +31,7 @@ classdef sqw < SQWDnDBase
 
             % ii) filename
             elseif ~isempty(args.filename)
-                ldr = sqw_formats_factory.instance().get_loader(varargin{1});
-                if ~strcmpi(ldr.data_type,'a')   % not a valid sqw-type structure
-                    error('Data file does not contain valid sqw-type object');
-                end
-
-                w=struct();
-                [w.main_header,w.header,w.detpar,w.data] = ldr.get_sqw('-legacy');
-                obj = obj.init_from_loader_struct(w);
+               obj = obj.init_from_file(args.filename);
 
             % iii) struct
             elseif ~isempty(args.data_struct)
@@ -84,7 +77,21 @@ classdef sqw < SQWDnDBase
         end
     end
 
-    methods (Access ='private')
+    methods (Access = 'private')
+        function obj = init_from_file(obj, in_filename)
+            % Parse SQW from file
+            %
+            % An error is raised if the data file is identified not a SQW object
+            ldr = sqw_formats_factory.instance().get_loader(in_filename);
+            if ~strcmpi(ldr.data_type,'a')   % not a valid sqw-type structure
+                error('SQW:sqw', 'Data file does not contain valid sqw-type object');
+            end
+
+            w=struct();
+            [w.main_header, w.header, w.detpar, w.data] = ldr.get_sqw('-legacy');
+            obj = obj.init_from_loader_struct(w);
+        end
+
         function obj = init_from_loader_struct(obj, data_struct)
             obj.main_header = data_struct.main_header;
             obj.header = data_struct.header;
