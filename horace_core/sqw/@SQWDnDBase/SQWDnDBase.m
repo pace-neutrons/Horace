@@ -7,7 +7,7 @@ classdef (Abstract) SQWDnDBase
       %  abstract_prop
     end
 
-    properties (Access = ?SQWDnDBase)  % Protected members
+    properties (Access = protected)
         % base_property
     end
 
@@ -23,7 +23,7 @@ classdef (Abstract) SQWDnDBase
         % end
     end
 
-    methods (Access = ?SQWDnDBase)  % Protected members
+    methods (Access = protected)
         % w = binary_op_manager (w1, w2, binary_op)
         % w = unary_op_manager (w1, unary_op)
 
