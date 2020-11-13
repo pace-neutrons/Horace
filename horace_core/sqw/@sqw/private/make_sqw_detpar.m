@@ -22,11 +22,6 @@ function data = make_sqw_detpar
 %                 (West bank=0 deg, North bank=90 deg etc.)
 %   data.width      Row vector of detector widths (m)
 %   data.height     Row vector of detector heights (m)
-%
-
-% Original author: T.G.Perring
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 data = struct([]);  % empty structure
 
