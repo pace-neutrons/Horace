@@ -61,10 +61,11 @@ classdef sqw < SQWDnDBase
 
             input = parser.Results.input;
             args = struct('sqw_obj', [], 'filename', [], 'data_struct', []);
-            if isa(input, 'sqw')
-               if isa(input, 'DnDBase')
-                    error('SQW cannot be constructed from a DnD object');
-               end
+
+            if isa(input, 'SQWDnDBase')
+                if isa(input, 'DnDBase')
+                    error('SQW:sqw', 'SQW cannot be constructed from a DnD object');
+                end
                 args.sqw_obj = input;
             elseif is_string(parser.Results.input)
                 args.filename = input;
