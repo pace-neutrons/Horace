@@ -1,4 +1,4 @@
-function [iax, iint, pax, p, urange, pbin_out] = calc_ubins (proj,urange_in,pbin, pin, en)
+function [iax, iint, pax, p, urange_out] = calc_ubins (proj,urange_in,pbin, pin, en)
 % Create bin boundaries for integration and plot axes from requested limits and step sizes
 % Uses knowledge of the range of the data and energy bins of the data to set values for those
 % not provided.
@@ -55,10 +55,8 @@ function [iax, iint, pax, p, urange, pbin_out] = calc_ubins (proj,urange_in,pbin
 %                   e.g. if data is 3D, data.pax=[1,3,4] means u1, u3, u4 axes are x,y,z in any plotting
 %   p           Call array containing bin boundaries along the plot axes [column vectors]
 %                   i.e. data.p{1}, data.p{2} ... (for as many plot axes as given by length of data.pax)
-%   urange      Array of limits of data that can possibly contribute to the output data structure in the
+%   urange_out  Array of limits of data that can possibly contribute to the output data structure in the
 %               coordinate frame of the output structure [2x4].
-%   pbin_out    Cell array of limits and binning descriptors for integration and plot axes, that will
-%               reproduce the contents of p
 
 
 % T.G.Perring   15/07/2007
@@ -161,29 +159,29 @@ iax = iax(1:niax);
 % Get range in output projection axes from the 8 points defined in momentum space by urange_in:
 % This gives the maximum extent of the data pixels that can possibly contribute to the output data.
 % third coordinate is not used.
-urange_out = proj.find_max_data_range(urange_in);
+urange_real = proj.find_max_data_range(urange_in);
 
 % Compute plot bin boundaries and range that fully encloses the requested output plot axes
 iint=zeros(2,niax);
 p   =cell(1,npax);
-urange=zeros(2,4);
-pbin_out = cell(1,4);
+urange_out=zeros(2,4);
+%pbin_out = cell(1,4);
 
 for i=1:npax
     ipax = pax(i);
     if pbin_from_pin(ipax)
         % Use default input bins
         p{i}=pin{ipax};
-        pbin_out{ipax} = make_const_bin_boundaries_descr_(p{i});
+        %pbin_out{ipax} = make_const_bin_boundaries_descr_(p{i});
     else
         pbin_tmp=[vlims(ipax,1),vstep(ipax),vlims(ipax,2)];
         if ipax<4 || (ipax==4 && vstep(ipax)>0)
             % Q axes, and also treat energy axis like other axes if provided with energy bin greater than zero
-            p{i}=make_const_bin_boundaries_(pbin_tmp,urange_out(:,ipax));
+            p{i}=make_const_bin_boundaries_(pbin_tmp,urange_real(:,ipax));
         else
             % Only reaches here if energy axis and requested energy bin width is explicity or implicitly zero
             % Handle this case differently to above, because we ensure bin boundaries synchronised to boundaries in array en
-            p{i}=make_const_bin_boundaries_(pbin_tmp,urange_out(:,ipax),en,true);
+            p{i}=make_const_bin_boundaries_(pbin_tmp,urange_real(:,ipax),en,true);
         end
         % No bins
         if isempty(p{i})
@@ -196,26 +194,39 @@ for i=1:npax
             mess=['Only one bin in range [',str,'] - cannot make this a plot axis'];
             error('aPROJECTION:invalid_arguments',mess)
         end
-        pbin_out{ipax} = pbin_tmp;
+        %pbin_out{ipax} = pbin_tmp;
     end
-    urange(:,ipax)=[p{i}(1);p{i}(end)];
+    urange_out(:,ipax)=[p{i}(1);p{i}(end)];
+end
+if nargout < 5
+    return;
 end
 
-% Compute integration ranges. We keep the requested ranges, but also fill array with ranges that enclose the actual data.
+% Compute integration ranges. We fill array with ranges that enclose and extend the actual data.
 for i=1:niax
     iiax = iax(i);
     iint(1,i)=vlims(iiax,1);
     iint(2,i)=vlims(iiax,2);
-    urange(1,iiax)=max(vlims(iiax,1),urange_out(1,iiax));
-    urange(2,iiax)=min(vlims(iiax,2),urange_out(2,iiax));
-    if urange(1,iiax)>urange(2,iiax)
+    [urange_out(1,iiax),urange_out(2,iiax)] =...
+        min_max_range(vlims(iiax,1),urange_real(1,iiax),...
+        vlims(iiax,2),urange_real(2,iiax));
+    
+    if urange_out(1,iiax)>urange_out(2,iiax)
         % *** T.G.Perring 28 Sep 2018:********************
-        urange(2,iiax) = urange(1,iiax);    % do not want to stop the cutting - just want to ensure no unnecessary read from input object or cut
+        urange_out(2,iiax) = urange_out(1,iiax);    % do not want to stop the cutting - just want to ensure no unnecessary read from input object or cut
         %         iax=[]; iint=[]; pax=[]; p=[]; urange=[];
         %         ok = false;
         %         mess = sprintf('Integration range outside extent of data for projection axis %d (integration axis %d)',iiax,i);
         %         return
         % ************************************************
     end
-    pbin_out{iiax} = vlims(iiax,:)';
+    %pbin_out{iiax} = vlims(iiax,:)';
 end
+
+function [a_min,a_max]=min_max_range(min_range1,min_range2,max_range1,max_range2)
+% calculate maximal enclosing range
+center = 0.5*(min_range1+max_range1);
+
+a_min = min(min_range1-center,min_range2-center)+center;
+a_max = max(max_range1-center,max_range2-center)+center;
+
