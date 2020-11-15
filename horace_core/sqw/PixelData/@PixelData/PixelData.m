@@ -595,7 +595,7 @@ methods
         signal = obj.data(obj.FIELD_INDEX_MAP_('signal'), :);
     end
 
-    function obj = set.signal(obj, signal)
+    function set.signal(obj, signal)
         obj = obj.load_current_page_if_data_empty_();
         obj.data(obj.FIELD_INDEX_MAP_('signal'), :) = signal;
         obj.set_page_dirty_(true);

@@ -1,8 +1,8 @@
-function this = set_proj_binning_(this,urange,pax,iax,p)
+function this = set_proj_binning_(this,new_bin_range,pax,iax,p)
 
 % Check input arguments
 %
-this.urange_ = urange;
+this.urange_ = new_bin_range;
 %---------------------------------------------------
 % Get matrix, and offset in pixel proj. axes, that convert from coords in pixel proj. axes to multiples of step from lower point of range
 % ---------------------------------------------------------------------------------------------------------------------------------------------
@@ -28,12 +28,12 @@ for i=1:length(pax)
 end
 % Set range and step size for plot axes with two or more bins to be the permitted range in multiples of the bin width
 % Treat other axes as unit step length, range in units of output proj. axes
-urange_step=urange;             % range expressed as steps/length of output ui
+urange_step=new_bin_range;      % range expressed as steps/length of output ui
 urange_offset = zeros(1,4);     % offset for start of measurement as lower left corner/origin as defined by uoffset
 ustep = ones(1,4);              % step as multiple of unit ui/unity
 if ~isempty(pax_gt1)
     urange_step(:,pax_gt1)=[zeros(1,length(pax_gt1));nbin_gt1];
-    urange_offset(pax_gt1)=urange(1,pax_gt1);
+    urange_offset(pax_gt1)=new_bin_range(1,pax_gt1);
     ustep(pax_gt1)=ustep_gt1;
 end
 
