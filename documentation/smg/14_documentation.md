@@ -1,6 +1,6 @@
 # Documentation
 
-This document will outline the process surrounding the documentation currently housed in the `horace-docs` repository. It assumes a basic knowledge of Restructured Text (ReST) format (https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html) especially the subset of the sphinx-doc toolset (https://www.sphinx-doc.org/en/master/)
+This document will outline the process surrounding the documentation currently housed in the `horace-docs` repository. It assumes a basic knowledge of reStructured text (reST) format (https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html) especially the subset of the sphinx-doc toolset (https://www.sphinx-doc.org/en/master/)
 
 ## Documentation style guide
 
@@ -11,14 +11,14 @@ This document will outline the process surrounding the documentation currently h
 The first job to add a new document is to create it. 
 
 * The file should be added into the `docs` folder, preferably with the `.rst` suffix. 
-   * For ease the filename of the document should be the title with spaces replaced by underscores. 
+   * For ease of reference and consistency, the filename of the document should be the title with spaces replaced by underscores. 
 * It should be written using the sphinx-doc style, including interfile references through:
 
     ```
     :ref:`link-label <link_file:link_location>`
     ```
     
- * External references are written in the usual ReST format:
+ * External references are written in the usual reST format:
 
     ```
     `link-label <https:\\link-to-elsewhere>`
@@ -34,7 +34,11 @@ The TOC tree describes all child rst files to be loaded for the purpose of refer
 
 To include a document and include it in the side bar, simply add the new filename (without file extension) to the toctree. 
 
-To include a document for reference, but not in the sidebar
+To include a document for reference, but not in the sidebar add the element to the TOCTree via:
+
+    ```
+    [NULL] <file-name>
+    ```
 
 #### Main contents list
 
