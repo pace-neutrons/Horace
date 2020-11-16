@@ -16,14 +16,9 @@ function new_sqw = copy(obj, varargin)
 
 new_sqw = obj;
 for i = 1:numel(obj)
-    new_sqw(i).main_header = obj(i).main_header;
-    new_sqw(i).header = obj(i).header;
-    new_sqw(i).detpar = obj(i).detpar;
-    new_sqw(i).data = obj(i).data;
-
-    if isa(obj, 'sqw') && ~exclude_pix
+    if ~exclude_pix
         new_sqw(i).data.pix = copy(obj(i).data.pix);
-    elseif exclude_pix
+    else
         new_sqw(i).data.pix = PixelData();
     end
 end
@@ -35,7 +30,7 @@ end
 function [obj, exclude_pix] = parse_args(obj, varargin)
     parser = inputParser();
     parser.addRequired('obj', @(x) isa(x, 'sqw'));
-    parser.addParameter('exclude_pix', false, @(x) islogical(x));
+    parser.addParameter('exclude_pix', false, @islogical);
     parser.parse(obj, varargin{:});
 
     exclude_pix = parser.Results.exclude_pix;
