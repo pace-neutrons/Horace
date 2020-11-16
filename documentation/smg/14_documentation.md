@@ -1,9 +1,42 @@
 # Documentation
 
-This document will outline the process surrounding the documentation currently housed in the `horace-docs` repository. It assumes a basic knowledge of reStructured text (reST) format (https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html) especially the subset of the sphinx-doc toolset (https://www.sphinx-doc.org/en/master/)
+This document will outline the process surrounding the documentation currently housed in the `horace-docs` repository. 
+It assumes a basic knowledge of reStructured text (reST) format (https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html)
+especially the subset of the sphinx-doc toolset (https://www.sphinx-doc.org/en/master/)
 
 ## Documentation style guide
 
+TBD
+
+## Building Docs
+
+### Requirements
+The documentation requires the following to be installed:
+* Python (3.5+)
+* Sphinx
+* Sphinx RTD theme
+
+On Linux (Optional):
+* Make
+
+### Building Locally
+Once you have cloned the documentation repository (https://github.com/pace-neutrons/horace-docs)
+
+    git clone https://github.com/pace-neutrons/horace-docs.git
+
+#### Windows
+With a command terminal in the root folder of the horace-docs project run:
+    
+    make.bat html
+
+#### Linux
+With `make` installed simply run:
+
+    make html
+    
+If you do not have `make` installed, run:
+
+    sphinx-build -M html "docs" "build" 
 
 ## Adding new documents
 ### Create new `.rst`
@@ -21,7 +54,7 @@ The first job to add a new document is to create it.
  * External references are written in the usual reST format:
 
     ```
-    `link-label <https:\\link-to-elsewhere>`
+    `link-label <https://link-to-elsewhere>`
     ```
 
 ### Update index
