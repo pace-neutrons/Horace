@@ -139,7 +139,6 @@ else
     % Test pixels in a fraction of non-empty bins, accounting for reordering of pixels
     % if required
 
-
     % Test all fields except the PixelArray
     class_fields = properties(w1);
     for idx = 1:numel(class_fields)
@@ -150,53 +149,55 @@ else
            tmp1.pix=PixelData();
            tmp2.pix=PixelData();
        end
-       [ok, msss] = equal_to_tol(tmp1, tmp2, args{:}, 'name_a',name_a,'name_b',name_b);
+       [ok, mess] = equal_to_tol(tmp1, tmp2, args{:}, 'name_a',name_a,'name_b',name_b);
        if ~ok, return, end
     end
 
     % Check a subset of the bins with reordering
-    npix=w1.data.npix(:);
-    nend=cumsum(npix);  % we already know that w1.data.npix and w2.data.npix are equal
-    nbeg=nend-npix+1;
+    npix = w1.data.npix(:);
+    nend = cumsum(npix); % we already know that w1.data.npix and w2.data.npix are equal
+    nbeg = nend - npix + 1;
 
-    if opt.fraction>0 && any(npix~=0)
+    if opt.fraction > 0 && any(npix ~= 0)
         % Testing of bins requested and there is least one bin with more than one pixel
         % Get indices of bins to test
-        ibin=find(npix>0);
+        ibin = find(npix > 0);
         num_non_empty = numel(ibin);
-        if opt.fraction<1
-            ind=round(1:1/opt.fraction:numel(ibin))';   % Test only a fraction of the non-empty bins
-            ibin=ibin(ind);
+        if opt.fraction < 1
+            ind = round(1:(1/opt.fraction):numel(ibin))'; % Test only a fraction of the non-empty bins
+            ibin = ibin(ind);
         end
-        if horace_info_level>=1
-            disp(['                       Number of bins = ',num2str(numel(npix))])
-            disp(['             Number of non-empty bins = ',num2str(num_non_empty)])
-            disp(['Number of bins that will be reordered = ',num2str(numel(ibin))])
+        if horace_info_level >= 1
+            disp(['                       Number of bins = ', num2str(numel(npix))])
+            disp(['             Number of non-empty bins = ', num2str(num_non_empty)])
+            disp(['Number of bins that will be reordered = ', num2str(numel(ibin))])
             disp(' ')
         end
         % Get the pixel indicies
-        ipix = replicate_iarray(nbeg(ibin),npix(ibin)) + sawtooth_iarray(npix(ibin)) - 1;
-        ibinarr = replicate_iarray(ibin,npix(ibin));    % bin index for each retained pixel
+        ipix = replicate_iarray(nbeg(ibin), npix(ibin)) + sawtooth_iarray(npix(ibin)) - 1;
+        ibinarr = replicate_iarray(ibin, npix(ibin)); % bin index for each retained pixel
         % Now test contents for equality
-        pix1=w1.data.pix;
-        pix2=w2.data.pix;
-        name_a = [name_a,'.pix'];
-        name_b = [name_b,'.pix'];
+        pix1 = w1.data.pix;
+        pix2 = w2.data.pix;
+        name_a = [name_a, '.pix'];
+        name_b = [name_b, '.pix'];
         if opt.reorder
             % Sort retained pixels by bin and then run,det,energy bin indicies
-            fields = {'run_idx', 'detector_idx', 'energy_idx'};
-            [~,ix]=sortrows([ibinarr, pix1.get_data(fields, ipix)']);
-            s1=pix1.get_pixels(ipix).data';
-            s1=s1(ix,:);
-            [~,ix]=sortrows([ibinarr, pix2.get_data(fields, ipix)']);
-            s2=pix2.get_pixels(ipix).data';
-            s2=s2(ix,:);
+            sort_by = {'run_idx', 'detector_idx', 'energy_idx'};
+            [~, ix] = sortrows([ibinarr, pix1.get_data(sort_by, ipix)']);
+            s1 = pix1.get_pixels(ipix);
+            s1 = s1.get_pixels(ix);
+
+            [~, ix] = sortrows([ibinarr, pix2.get_data(sort_by, ipix)']);
+            s2 = pix2.get_pixels(ipix);
+            s2 = s2.get_pixels(ix);
+
             % Now compare retained pixels
-            [ok,mess]=equal_to_tol(s1,s2,args{:},'name_a',name_a,'name_b',name_b );
+            [ok, mess] = equal_to_tol(s1, s2, args{:}, 'name_a', name_a, 'name_b', name_b);
         else
-            s1=pix1.get_pixels(ipix).data;
-            s2=pix2.get_pixels(ipix).data;
-            [ok,mess]=equal_to_tol(s1,s2,args{:},'name_a',name_a,'name_b',name_b);
+            s1 = pix1.get_pixels(ipix);
+            s2 = pix2.get_pixels(ipix);
+            [ok, mess] = equal_to_tol(s1, s2, args{:}, 'name_a', name_a, 'name_b', name_b);
         end
     end
 
