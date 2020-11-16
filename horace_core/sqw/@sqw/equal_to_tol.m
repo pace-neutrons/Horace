@@ -125,14 +125,26 @@ if ~isnumeric(opt.fraction) || opt.fraction<0 || opt.fraction>1
 end
 
 % Perform comparison
-if (~opt.reorder && opt.fraction==1) || ~isa(w1, 'sqw')
+if (~opt.reorder && opt.fraction==1) || isempty(w1.data.pix)
 
     % Test strict equality of all pixels; pass members as structures to get to the generic equal_to_tol
     class_fields = properties(w1);
     for idx = 1:numel(class_fields)
-       field_name = class_fields(idx);
-       [ok, msss] = equal_to_tol(w1.(field_name), w2.(field_name), args{:}, 'name_a',name_a,'name_b',name_b);
-       if ~ok, return, end
+       field_name = class_fields{idx};
+       tmp1 = w1.(field_name);
+       tmp2 = w2.(field_name);
+       if strcmp(field_name, 'data') && isa(tmp1.pix, 'PixelData')
+           %pixel data equality checked below
+           tmp1.pix=PixelData();
+           tmp2.pix=PixelData();
+       end
+       [ok, mess] = equal_to_tol(tmp1, tmp2, args{:}, ...
+           'name_a', name_a, 'name_b', name_b);
+    end
+
+    if ok
+       [ok, mess] = equal_to_tol(w1.data.pix, w2.data.pix, args{:}, ...
+           'name_a', name_a, 'name_b', name_b);
     end
 
 else
