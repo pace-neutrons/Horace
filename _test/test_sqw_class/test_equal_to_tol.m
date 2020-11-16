@@ -225,6 +225,15 @@ methods
         % check absolute tolerance still true
         assertTrue(equal_to_tol(sqw_copy, obj.sqw_2d_paged, value_diff + 1e-8));
     end
+
+    function test_objects_are_not_equal_if_one_has_empty_pixeldata(obj)
+        non_empty_sqw = obj.sqw_2d;
+        empty_sqw = obj.sqw_2d;
+        empty_sqw.data.pix = PixelData();
+
+        assertFalse(equal_to_tol(empty_sqw, non_empty_sqw));
+        assertFalse(equal_to_tol(non_empty_sqw, empty_sqw));
+    end
 end
 
 methods (Static)
