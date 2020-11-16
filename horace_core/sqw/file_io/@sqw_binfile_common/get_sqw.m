@@ -32,9 +32,12 @@ function [sqw_object,varargout] = get_sqw (obj, varargin)
 %
 %               Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
 %
-% Keyword options:
-%   pixel_page_size   [optional] The page size to pass to the PixelData
-%                     constructor when initialising the sqw object's pixels.
+% Keyword Arguments:
+% ------------------
+%   pixel_page_size    The maximum amount of memory to allocate to holding
+%                      pixel data. This argument is passed to the PixelData
+%                      constructor's 'mem_alloc' argument.
+%                      The value should have units of bytes.
 %
 % Output:
 % --------
