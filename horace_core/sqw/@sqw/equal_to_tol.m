@@ -141,13 +141,13 @@ for idx = 1:numel(class_fields)
 end
 
 % Return if failed before expensive or unnecessary PixelData tests
-if ~ok || isempty(w1.data.pix)
+if ~ok
     return
 end
 
 % Perform pixel comparisons
-if (~opt.reorder && opt.fraction==1)
-    % Test strict equality of all pixels
+if (~opt.reorder && opt.fraction==1) || isempty(w1.data.pix) || isempty(w2.data.pix)
+    % Test strict equality of all pixels including cases where one PixelData is empty
     [ok, mess] = equal_to_tol(w1.data.pix, w2.data.pix, args{:}, 'name_a', name_a, 'name_b', name_b);
 else
     % Test pixels in a fraction of non-empty bins, accounting for reordering of pixels
