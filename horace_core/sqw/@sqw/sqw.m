@@ -156,7 +156,8 @@ function w = from_file_name(file_name, dnd_type, class_type, varargin)
     if ~dnd_type
         parser = inputParser();
         parser.KeepUnmatched = true;  % ignore unmatched parameters
-        parser.addParameter('pixel_page_size', PixelData.DEFAULT_PAGE_SIZE);
+        parser.addParameter('pixel_page_size', PixelData.DEFAULT_PAGE_SIZE, ...
+                            @PixelData.validate_mem_alloc);
         parser.parse(varargin{:});
         pixel_page_size = parser.Results.pixel_page_size;
     end
