@@ -30,12 +30,13 @@ methods
     function test_filename_constructor_returns_populated_class(obj)
         sqw_obj = sqw(obj.test_sqw_1d_fullpath);
 
+        % expected data populated from instance of test object
         assertTrue(isa(sqw_obj, 'sqw'));
         assertEqual(sqw_obj.main_header.nfiles, 85)
         assertEqual(numel(sqw_obj.header), 85)
         assertEqual(numel(sqw_obj.detpar.group), 36864);
         assertEqual(numel(sqw_obj.data.pax), 1);
-        assertEqual(sqw_obj.data.pix.page_size, 100337);
+        assertEqual(sqw_obj.data.pix.num_pixels, 100337);
     end
 
     function test_copy_constructor_clones_object(obj)
@@ -43,12 +44,7 @@ methods
         sqw_copy = sqw(sqw_obj);
 
         assertTrue(isa(sqw_obj, 'sqw'));
-        assertEqual(sqw_copy.main_header, sqw_obj.main_header)
-        assertEqual(sqw_copy.header, sqw_obj.header)
-        assertEqual(sqw_copy.data.pax, sqw_obj.data.pax);
-        assertEqual(sqw_copy.detpar, sqw_obj.detpar);
-
-        assertTrue(equal_to_tol(sqw_copy, sqw_obj))
+        assertEqualToTol(sqw_copy, sqw_obj);
     end
 
     function test_copy_constructor_returns_distinct_object(obj)
@@ -58,10 +54,17 @@ methods
         sqw_copy.main_header.title = 'test_copy';
         sqw_copy.header = struct([]);
         sqw_copy.detpar.azim(1:10) = 0;
+        sqw_copy.data.dax = [2 1];
         sqw_copy.data.pix.signal = 1;
 
         % changed data is not mirrored in initial
-        assertFalse(equal_to_tol(sqw_copy, sqw_obj))
+        assertFalse(equal_to_tol(sqw_copy.main_header, sqw_obj.main_header));
+        assertFalse(equal_to_tol(sqw_copy.header, sqw_obj.header));
+        assertFalse(equal_to_tol(sqw_copy.detpar, sqw_obj.detpar));
+        assertFalse(equal_to_tol(sqw_copy.data, sqw_obj.data));
+        assertFalse(equal_to_tol(sqw_copy.data.pix, sqw_obj.data.pix));
+
+        assertFalse(equal_to_tol(sqw_copy, sqw_obj));
     end
 
 %TODO: disabled until full functionality is implemeneted in new class;
@@ -74,7 +77,7 @@ methods
         sqw_obj = sqw(obj.test_sqw_1d_fullpath);
         save(tmp_filename, 'sqw_obj');
         from_file = load(tmp_filename);
-        assertTrue(equal_to_tol(from_file.sqw_obj, sqw_obj))
+        assertEqualToTol(from_file.sqw_obj, sqw_obj);
     end
 
 end
