@@ -1,6 +1,5 @@
 classdef sqw < SQWDnDBase
-
-    %SQW_NEW reate an sqw object
+    %SQW Create an sqw object
     %
     % Syntax:
     %   >> w = sqw (filename)       % Create an sqw object from a file
@@ -37,6 +36,24 @@ classdef sqw < SQWDnDBase
             elseif ~isempty(args.data_struct)
                 obj = obj.init_from_loader_struct(args.data_struct);
             end
+        end
+    end
+
+    methods (Static)
+        function obj = loadobj(S)
+            % Load a sqw object from a .mat file
+            %
+            %   >> obj = loadobj(S)
+            %
+            % Input:
+            % ------
+            %   S       An instance of this object or struct
+            %
+            % Output:
+            % -------
+            %   obj     An instance of this object
+            %
+               obj = sqw(S);
         end
     end
 

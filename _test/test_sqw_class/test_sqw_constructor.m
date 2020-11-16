@@ -12,7 +12,7 @@ methods
     function obj = test_sqw_constructor(~)
         obj = obj@TestCase('test_sqw_constructor');
 
-        test_sqw_file = java.io.File(pwd(),fullfile(obj.sqw_files_path, obj.sqw_file_1d_name));
+        test_sqw_file = java.io.File(pwd(), fullfile(obj.sqw_files_path, obj.sqw_file_1d_name));
         obj.test_sqw_1d_fullpath = char(test_sqw_file.getCanonicalPath());
     end
 
@@ -63,5 +63,16 @@ methods
         % changed data is not mirrored in initial
         assertFalse(equal_to_tol(sqw_copy, sqw_obj))
     end
+
+    function test_save_load_returns_identical_object(obj)
+        tmp_filename=fullfile(tmp_dir, 'sqw_loadobj_test.mat');
+        cleanup_obj=onCleanup(@() delete(tmp_filename));
+
+        sqw_obj = sqw(obj.test_sqw_1d_fullpath);
+        save(tmp_filename, 'sqw_obj');
+        from_file = load(tmp_filename);
+        assertTrue(equal_to_tol(from_file.sqw_obj, sqw_obj))
+    end
+
 end
 end
