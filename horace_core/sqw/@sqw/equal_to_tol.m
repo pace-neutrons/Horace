@@ -124,46 +124,34 @@ if ~isnumeric(opt.fraction) || opt.fraction<0 || opt.fraction>1
     error('''fraction'' must lie in the range 0 to 1 inclusive')
 end
 
-% Perform comparison
-if (~opt.reorder && opt.fraction==1) || isempty(w1.data.pix)
 
-    % Test strict equality of all pixels; pass members as structures to get to the generic equal_to_tol
-    class_fields = properties(w1);
-    for idx = 1:numel(class_fields)
-       field_name = class_fields{idx};
-       tmp1 = w1.(field_name);
-       tmp2 = w2.(field_name);
-       if strcmp(field_name, 'data') && isa(tmp1.pix, 'PixelData')
-           %pixel data equality checked below
-           tmp1.pix=PixelData();
-           tmp2.pix=PixelData();
-       end
-       [ok, mess] = equal_to_tol(tmp1, tmp2, args{:}, ...
-           'name_a', name_a, 'name_b', name_b);
-    end
+% Test equality of sqw class fields, excluding the raw pixels which is performed
+% below. Pass class fields to the generic equal_to_tol.
+class_fields = properties(w1);
+for idx = 1:numel(class_fields)
+   field_name = class_fields{idx};
+   tmp1 = w1.(field_name);
+   tmp2 = w2.(field_name);
+   if strcmp(field_name, 'data') && isa(tmp1.pix, 'PixelData')
+       % pixel data equality is checked below
+       tmp1.pix = PixelData();
+       tmp2.pix = PixelData();
+   end
+   [ok, mess] = equal_to_tol(tmp1, tmp2, args{:}, 'name_a', name_a, 'name_b', name_b);
+end
 
-    if ok
-       [ok, mess] = equal_to_tol(w1.data.pix, w2.data.pix, args{:}, ...
-           'name_a', name_a, 'name_b', name_b);
-    end
+% Return if failed before expensive or unnecessary PixelData tests
+if ~ok || isempty(w1.data.pix)
+    return
+end
 
+% Perform pixel comparisons
+if (~opt.reorder && opt.fraction==1)
+    % Test strict equality of all pixels
+    [ok, mess] = equal_to_tol(w1.data.pix, w2.data.pix, args{:}, 'name_a', name_a, 'name_b', name_b);
 else
     % Test pixels in a fraction of non-empty bins, accounting for reordering of pixels
     % if required
-
-    % Test all fields except the PixelArray
-    class_fields = properties(w1);
-    for idx = 1:numel(class_fields)
-       field_name = class_fields{idx};
-       tmp1 = w1.(field_name);
-       tmp2 = w2.(field_name);
-       if strcmp(field_name, 'data') && isa(tmp1.pix, 'PixelData')
-           tmp1.pix=PixelData();
-           tmp2.pix=PixelData();
-       end
-       [ok, mess] = equal_to_tol(tmp1, tmp2, args{:}, 'name_a',name_a,'name_b',name_b);
-       if ~ok, return, end
-    end
 
     % Check a subset of the bins with reordering
     npix = w1.data.npix(:);
