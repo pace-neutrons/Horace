@@ -36,9 +36,7 @@ To include a document and include it in the side bar, simply add the new filenam
 
 To include a document for reference, but not in the sidebar add the element to the TOCTree via:
 
-    ```
     [NULL] <file-name>
-    ```
 
 #### Main contents list
 
