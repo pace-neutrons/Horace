@@ -68,7 +68,7 @@ s = sqw(filename, page_size)
 
 - all algorithms will be created following a common API pattern:
 
-  1. `obj = algorithm(filename, ...)`: internally create a paged SQW object from the given file and execute the algorithm on the paged object. The SQW will returned will be a smaller, in-memory object,
+  1. `obj = algorithm(filename, ...)`: internally create a paged SQW object from the given file and execute the algorithm on the paged object. The SQW returned will be a smaller, in-memory object,
   2. `algorithm(filename, out_filename, ...)`: equivalent to (1) except the resulting SQW object will be saved to file instead of returned as an object. This provides a method to perform an algorithm that maps a large SQW file to another large SQW file,
 3. `obj = algorithm(sqw_obj, ...)`: execute the algorithm on the input object. Note that if a paged SQW object is passed in the return object will also be paged, so this must be used with caution during the migration,
   4. `algorithm(sqw_obj, out_filename, ...)`: equivalent to (3) except the resulting SQW object will be saved to file instead of returned as an object.
@@ -81,7 +81,7 @@ slice = cut(s)
 
 % Paged operation (in-memory for small file, paged for large file)
 s = sqw(infile, page_size)
-slice = cut(x) 		 % object => object
+slice = cut(s) 		 % object => object
 
 % Filename based API
 slice = cut(infile)  % disk => object
