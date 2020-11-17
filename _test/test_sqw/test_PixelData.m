@@ -63,7 +63,7 @@ methods
     end
 
     function delete(obj)
-        if ismember(fullfile(obj.this_dir, 'utils'), split(path, {':', ';'}))
+        if ismember(fullfile(obj.this_dir, 'utils'), split(path, pathsep))
             rmpath(fullfile(obj.this_dir, 'utils'));
         end
         warning(obj.old_warn_state);
