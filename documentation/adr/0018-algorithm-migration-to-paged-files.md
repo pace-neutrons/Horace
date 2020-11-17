@@ -70,8 +70,9 @@ s = sqw(filename, 'pixel_page_size', page_size)
 
   1. `obj = algorithm(filename, ...)`: internally create a paged SQW object from the given file and execute the algorithm on the paged object. The SQW returned will be a smaller, in-memory object,
   2. `algorithm(filename, out_filename, ...)`: equivalent to (1) except the resulting SQW object will be saved to file instead of returned as an object. This provides a method to perform an algorithm that maps a large SQW file to another large SQW file,
-3. `obj = algorithm(sqw_obj, ...)`: execute the algorithm on the input object. Note that if a paged SQW object is passed in the return object will also be paged, so this must be used with caution during the migration,
+  3. `obj = algorithm(sqw_obj, ...)`: execute the algorithm on the input object. Note that if a paged SQW object is passed in the return object will also be paged, so this must be used with caution during the migration,
   4. `algorithm(sqw_obj, out_filename, ...)`: equivalent to (3) except the resulting SQW object will be saved to file instead of returned as an object.
+- All algorithm APIs will support additional optional arguments necessary for execution through the MPI Framework (e.g. an instance of a pre-initialized and started `ClusterWrapper`)
 
 The example APIs for `cut` would be:
 ```matlab
@@ -92,29 +93,42 @@ cut(infile, outfile) % disk => disk
 ## Consequences
 
 - The internal switch between in-memory and disk operations means
-the performance drop will happen at the point the dataset exceeds page size.
-This switch will present as a sudden, unexpected performance drop.
-- Paging will not be generally enabled.
-All SQW object will continue to work with existing (unmodified) algorithms.
-- Performance drops associated with paged will only occur if the user has called a filename API
-or passed an SQW object they have explicitly created as with a page size.
-The display of a console message will aid users in understanding the change. 
-- Paging can be switched “on” simply supporting developer activity.
-- If paging is enabled, i.e. the filename API used, and the SQW file is less that page sized,
-the operation will be performed in memory giving improved performance.
-- A single implementation of each algorithm will be created that will work for paged and in-memory data.
-- The paged SQW file created internally by an algorithm's filename API must not be returned from the algorithm call.
-Doing so would "leak" paged data objects and result in unexpected failures elsewhere in the application.
-- Existing algorithms will continue to work on **unpaged data**.
-The behaviour if they are executed on **paged** data is undefined.
+  the performance drop will happen at the point the dataset exceeds page size.
+  This switch will present as a sudden, unexpected performance drop.
 
-This situation will only arise if a paged `sqw` object is explicitly created by a user
-and passed in, or as a result of page "leakage" resulting from
-an error in the implementation of an algorithm.
+- Paging will not be generally enabled.
+  All SQW object will continue to work with existing (unmodified) algorithms.
+
+- Performance drops associated with paged will only occur if the user has called a filename API
+  or passed an SQW object they have explicitly created as with a page size.
+  The display of a console message will aid users in understanding the change.
+
+- Paging can be switched “on” simply supporting developer activity.
+
+- If paging is enabled, i.e. the filename API used, and the SQW file is less that page sized,
+  the operation will be performed in memory giving improved performance.
+
+- A single implementation of each algorithm will be created that will work for paged and in-memory data.
+
+- The paged SQW file created internally by an algorithm's filename API must not be returned from the algorithm call.
+  Doing so would "leak" paged data objects and result in unexpected failures elsewhere in the application.
+
+- Existing algorithms will continue to work on **unpaged data**.
+  The behaviour if they are executed on **paged** data is undefined.
+
+  This situation will only arise if a paged `sqw` object is explicitly created by a user
+  and passed in, or as a result of page "leakage" resulting from
+  an error in the implementation of an algorithm.
+
 - Once all algorithms are updated, the default behaviour of SQW will be changed
-from unpaged to paged. 
-Any code in the wrapper methods removing paged intermediate objects may be dropped.
-- Memory errors will be raised if a cut is larger than available RAM and no `outfilename` is specified
-- Memory errors will be raised if a SQW object is created from a file larger than available RAM
+  from unpaged to paged.
+  Any code in the wrapper methods removing paged intermediate objects may be dropped.
+
+- Memory errors will be raised if a cut is larger than available RAM and no `outfilename` is specified.
+
+- Memory errors will be raised if a SQW object is created from a file larger than available RAM.
+
 - Specific algorithms will be revisited to resolve specific performance issues
-once the update is completed.
+  once the update is completed.
+
+- Interaction with chunked MPI jobs will need to be managed. There is no requirement that default page-size and chunk-size are equal.
