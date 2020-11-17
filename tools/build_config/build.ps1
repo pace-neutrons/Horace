@@ -92,7 +92,7 @@ $VS_VERSION_MAP = @{
   2019 = 'Visual Studio 16 2019';
 }
 # Herbert's root directory is two levels above this script
-$HERBERT_ROOT = Resolve-Path (Join-Path -Path $PSScriptRoot -ChildPath '/../..')
+$HERBERT_ROOT = Resolve-Path (Join-Path -Path "$PSScriptRoot" -ChildPath "/../..")
 $MAX_CTEST_SUCCESS_OUTPUT_LENGTH = 10000 # 10kB
 
 function Write-And-Invoke([string]$command) {
@@ -102,7 +102,7 @@ function Write-And-Invoke([string]$command) {
 
 function Invoke-In-Dir {
   param([string]$directory, [string]$command)
-  Push-Location -Path $directory
+  Push-Location -Path "$directory"
   try {
     Write-And-Invoke "$command"
   }
@@ -114,8 +114,8 @@ function Invoke-In-Dir {
 function New-Build-Directory {
   param([string]$build_dir)
   try {
-    Write-Output "Creating build directory: $build_dir"
-    $mkdir_cmd = "New-Item -Path $build_dir -ItemType Directory -ErrorAction Stop | Out-Null"
+    Write-Output "Creating build directory: ""$build_dir"""
+    $mkdir_cmd = "New-Item -Path ""$build_dir"" -ItemType Directory -ErrorAction Stop | Out-Null"
     Write-And-Invoke "$mkdir_cmd"
   }
   catch [System.IO.IOException] {
@@ -152,13 +152,13 @@ function Invoke-Configure {
     [string]$cmake_flags
   )
   Write-Output "`nRunning CMake configure step..."
-  $cmake_cmd = "cmake $HERBERT_ROOT"
-  $cmake_cmd += " $(New-CMake-Generator-Command -vs_version $vs_version)"
+  $cmake_cmd = "cmake ""$HERBERT_ROOT"""
+  $cmake_cmd += " $(New-CMake-Generator-Command -vs_version "$vs_version")"
   $cmake_cmd += " -DBUILD_TESTS=$build_tests"
   $cmake_cmd += " -DMatlab_RELEASE=$matlab_release"
   $cmake_cmd += " $cmake_flags"
 
-  Invoke-In-Dir -directory $build_dir -command $cmake_cmd
+  Invoke-In-Dir -directory "$build_dir" -command "$cmake_cmd"
   if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
   }
@@ -167,7 +167,7 @@ function Invoke-Configure {
 function Invoke-Build {
   param([string]$build_dir, [string]$build_config)
   Write-Output "`nRunning CMake build step..."
-  Write-And-Invoke "cmake --build $build_dir --config $build_config"
+  Write-And-Invoke "cmake --build ""$build_dir"" --config ""$build_config"""
   if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
   }
@@ -180,7 +180,7 @@ function Invoke-Test {
   $test_cmd += " -T Test --no-compress-output"
   $test_cmd += " --output-on-failure"
   $test_cmd += " --test-output-size-passed $MAX_CTEST_SUCCESS_OUTPUT_LENGTH"
-  Invoke-In-Dir -directory $build_dir -command $test_cmd
+  Invoke-In-Dir -directory "$build_dir" -command "$test_cmd"
   if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
   }
@@ -189,7 +189,7 @@ function Invoke-Test {
 function Invoke-Package {
   param([string]$build_dir)
   Write-Output "`nRunning package step..."
-  Invoke-In-Dir -directory $build_dir -command "cpack -G ZIP"
+  Invoke-In-Dir -directory "$build_dir" -command "cpack -G ZIP"
   if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
   }
@@ -197,7 +197,7 @@ function Invoke-Package {
 
 # Resolve/set default parameters
 if ($build_dir -eq "") {
-  $build_dir = Join-Path -Path $HERBERT_ROOT -ChildPath 'build'
+  $build_dir = Join-Path -Path "$HERBERT_ROOT" -ChildPath "build"
 }
 
 if ($print_versions -eq $true) {
@@ -205,21 +205,21 @@ if ($print_versions -eq $true) {
 }
 
 if ($build -eq $true) {
-  New-Build-Directory -build_dir $build_dir
+  New-Build-Directory -build_dir "$build_dir"
   Invoke-Configure `
     -vs_version $vs_version `
-    -build_dir $build_dir `
+    -build_dir "$build_dir" `
     -build_config $build_config `
     -build_tests $build_tests `
     -cmake_flags $cmake_flags `
     -matlab_release $matlab_release
-  Invoke-Build -build_dir $build_dir -build_config $build_config
+  Invoke-Build -build_dir "$build_dir" -build_config "$build_config"
 }
 
 if ($test -eq $true) {
-  Invoke-Test -build_dir $build_dir -build_config $build_config
+  Invoke-Test -build_dir "$build_dir" -build_config "$build_config"
 }
 
 if ($package -eq $true) {
-  Invoke-Package -build_dir $build_dir
+  Invoke-Package -build_dir "$build_dir"
 }
