@@ -207,12 +207,12 @@ if ($print_versions -eq $true) {
 if ($build -eq $true) {
   New-Build-Directory -build_dir "$build_dir"
   Invoke-Configure `
-    -vs_version $vs_version `
+    -vs_version "$vs_version" `
     -build_dir "$build_dir" `
-    -build_config $build_config `
-    -build_tests $build_tests `
-    -cmake_flags $cmake_flags `
-    -matlab_release $matlab_release
+    -build_config "$build_config" `
+    -build_tests "$build_tests" `
+    -cmake_flags "$cmake_flags" `
+    -matlab_release "$matlab_release"
   Invoke-Build -build_dir "$build_dir" -build_config "$build_config"
 }
 
