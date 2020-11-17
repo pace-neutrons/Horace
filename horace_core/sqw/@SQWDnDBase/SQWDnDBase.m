@@ -11,8 +11,9 @@ classdef (Abstract) SQWDnDBase
         % base_property
     end
 
-    methods (Abstract)
+    methods (Abstract, Access = protected)
        % x = abstract_method(obj)
+        s = unary_op_manager(obj, operation_handle);
     end
 
     methods  % Public
