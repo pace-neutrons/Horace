@@ -202,10 +202,10 @@ if ($build -eq $true) {
   Invoke-Configure `
     -vs_version $vs_version `
     -build_dir "$build_dir" `
-    -build_config $build_config `
-    -build_tests $build_tests `
-    -matlab_release $matlab_release `
-    -cmake_flags $cmake_flags
+    -build_config "$build_config" `
+    -build_tests "$build_tests" `
+    -matlab_release "$matlab_release" `
+    -cmake_flags "$cmake_flags"
   Invoke-Build -build_dir "$build_dir" -build_config "$build_config"
 }
 
