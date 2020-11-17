@@ -51,7 +51,7 @@ These should not require code changes or the use of alternate APIs.
 
 ## Decision
 
-- A new `page_size` argument for will be added to the SQW object.
+- A new `pixel_page_size` argument for will be added to the SQW object.
 The SQW class will to default to in memory operation (i.e. no paging)
 if a page size is not passed explicitly to the constructor
 until all code has been updated to support paged operation,
@@ -61,7 +61,7 @@ until all code has been updated to support paged operation,
 s = sqw(filename)
 
 % paged with specified page size
-s = sqw(filename, page_size)
+s = sqw(filename, 'pixel_page_size', page_size)
 ```
 - a warning message will be output when operations are performed
   on dataset that requires paging to enable a user to understand the performance drop,
