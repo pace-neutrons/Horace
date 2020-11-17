@@ -17,7 +17,7 @@ for i=1:numel(w1)
         w(i).data.pix = w(i).data.pix.do_unary_op(unary_op);
         w(i) = recompute_bin_data(w(i));
     else
-        result = unary_op(sigvar(w1(i)));
+        result = unary_op(sigvar(w1(i).data.s, w1(i).data.e));
         w(i) = sigvar_set(w(i),result);
     end
 end
