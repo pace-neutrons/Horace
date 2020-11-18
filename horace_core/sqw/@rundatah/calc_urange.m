@@ -1,9 +1,9 @@
-function [urange,u_to_rlu]=calc_urange(obj,varargin)
+function [img_range,u_to_rlu]=calc_urange(obj,varargin)
 % Method calculates q-dE range, this rundata object has
 %
 %Usage:
-%>>[urange,u_to_rlu]=obj.calc_urange()  Calculate urange for fully defined
-%                                      rundatah object
+%>>[urange,u_to_rlu]=obj.calc_urange()  Calculate crystal cartesian range 
+%                                      for fully defined rundatah object
 %>>[urange,u_to_rlu]=obj.calc_urange('-cache_detectors')
 %                           Calculate urange for fully defined
 %                           rundatah object, using precacluated
@@ -38,7 +38,7 @@ else
     detdcn = [];
 end
 if isempty(obj.transform_sqw) % minor optimization not worth deploying ?
-    [u_to_rlu, urange] = b_obj.calc_projections_(detdcn,[],0);
+    [u_to_rlu, img_range] = b_obj.calc_projections_(detdcn,[],0);
 else
-    [~,~,urange] = b_obj.calc_sqw(3,[],varargin{:});
+    [~,~,img_range] = b_obj.calc_sqw(3,[],varargin{:});
 end

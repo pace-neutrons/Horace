@@ -36,6 +36,12 @@ if ~isempty(pax_gt1)
     urange_offset(pax_gt1)=new_bin_range(1,pax_gt1);
     ustep(pax_gt1)=ustep_gt1;
 end
+% % set unit ranges for integration axis
+% for i=1:numel(iax)
+%     urange_offset(iax(i)) = new_bin_range(1,iax(i));
+%     ustep(iax(i)) = (new_bin_range(2,iax(i))-new_bin_range(1,iax(i)));
+%     urange_step(:,iax(i)) = [0;1];
+% end
 
 
 this.targ_pax_  = pax;
