@@ -103,13 +103,14 @@ properties (Access=private)
 end
 
 properties (Constant)
-    DEFAULT_NUM_PIX_FIELDS = 9;
     DATA_POINT_SIZE = 8;  % num bytes in a float
+    DEFAULT_NUM_PIX_FIELDS = 9;
+    DEFAULT_PAGE_SIZE = realmax;  % this gives no paging by default
 end
 
 properties (Dependent, Access=private)
     data_;  % points to raw_data_ but with a layer of validation for setting correct array sizes
-    max_page_size_;  % the maximum number of pixels that can fie in the page memory size
+
     pix_position_;  % the pixel index in the file of the first pixel in the cache
 end
 
@@ -153,6 +154,9 @@ properties (Dependent)
 
     % The number of pixels in the current page
     page_size;
+
+    % The number of pixels that can fit in one page of data
+    base_page_size;
 end
 
 methods (Static)
@@ -193,13 +197,17 @@ methods (Static)
             % This if statement allows us to load old PixelData objects that
             % were saved in .mat files that do not have the 'page_memory_size_'
             % property
-            S.page_memory_size_ = get(hor_config, 'pixel_page_size');
+            S.page_memory_size_ = PixelData.DEFAULT_PAGE_SIZE;
         end
         obj = PixelData(S);
     end
 
     function validate_mem_alloc(mem_alloc)
-        if ~isscalar(mem_alloc)
+        if ~isnumeric(mem_alloc)
+            error('PIXELDATA:validate_mem_alloc', ...
+                  ['Invalid mem_alloc. ''mem_alloc'' must be numeric, ' ...
+                   'found class ''%s''.'], class(mem_alloc));
+        elseif ~isscalar(mem_alloc)
             error('PIXELDATA:validate_mem_alloc', ...
                   ['Invalid mem_alloc. ''mem_alloc'' must be a scalar, ' ...
                    'found size ''%s''.'], mat2str(size(mem_alloc)));
@@ -264,7 +272,7 @@ methods
         %             col 9: variance
         %
         %  arg    An integer specifying the desired number of pixels. The underlying
-        %         data will be filled with zeros
+        %         data will be filled with zeros.
         %
         %  arg    A path to an SQW file.
         %
@@ -282,7 +290,7 @@ methods
             obj.validate_mem_alloc(mem_alloc);
             obj.page_memory_size_ = mem_alloc;
         else
-            obj.page_memory_size_ = get(hor_config, 'pixel_page_size');
+            obj.page_memory_size_ = PixelData.DEFAULT_PAGE_SIZE;
         end
 
         if nargin == 0
@@ -398,13 +406,13 @@ methods
         if ~obj.is_file_backed_()
             return;
         end
-        if obj.page_size == 0 && obj.num_pixels > obj.max_page_size_
+        if obj.page_size == 0 && obj.num_pixels > obj.base_page_size
             % If nothing has been loaded into the cache yet (page_size == 0),
             % the object acts as though the first page has been loaded. So
             % return true if there's more than one page worth of pixels
             has_more = true;
         else
-            has_more = obj.pix_position_ + obj.max_page_size_  <= obj.num_pixels;
+            has_more = obj.pix_position_ + obj.base_page_size  <= obj.num_pixels;
         end
     end
 
@@ -453,7 +461,7 @@ methods
         % This setter provides rules for public facing edits to the cached data
         if obj.page_size == 0
             % no pixels loaded, get our expected page size
-            required_page_size = min(obj.max_page_size_, obj.num_pixels);
+            required_page_size = min(obj.base_page_size, obj.num_pixels);
         else
             required_page_size = obj.page_size;
         end
@@ -625,7 +633,7 @@ methods
         if obj.num_pixels > 0 && obj.cache_is_empty_()
             % No pixels currently loaded, show the number that will be loaded
             % when a getter is called
-            base_pg_size = obj.max_page_size_;
+            base_pg_size = obj.base_page_size;
             if base_pg_size*obj.page_number_ > obj.num_pixels
                 % In this case we're on the final page and there are fewer
                 % leftover pixels than would be in a full-size page
@@ -639,10 +647,10 @@ methods
     end
 
     function pix_position = get.pix_position_(obj)
-        pix_position = (obj.page_number_ - 1)*obj.max_page_size_ + 1;
+        pix_position = (obj.page_number_ - 1)*obj.base_page_size + 1;
     end
 
-    function page_size = get.max_page_size_(obj)
+    function page_size = get.base_page_size(obj)
         page_size = obj.calculate_page_size_(obj.page_memory_size_);
     end
 
@@ -684,14 +692,14 @@ methods (Access=private)
 
     function obj = load_clean_page_(obj, page_number)
         % Load the given page of data from the sqw file backing this object
-        pix_idx_start = (page_number - 1)*obj.max_page_size_ + 1;
+        pix_idx_start = (page_number - 1)*obj.base_page_size + 1;
         if pix_idx_start > obj.num_pixels
             error('PIXELDATA:load_page_', ...
                   'pix_idx_start exceeds number of pixels in file. %i >= %i', ...
                   pix_idx_start, obj.num_pixels);
         end
         % Get the index of the final pixel to read given the maximum page size
-        pix_idx_end = min(pix_idx_start + obj.max_page_size_ - 1, obj.num_pixels);
+        pix_idx_end = min(pix_idx_start + obj.base_page_size - 1, obj.num_pixels);
 
         obj.data_ = obj.f_accessor_.get_pix(pix_idx_start, pix_idx_end);
         if obj.page_size == obj.num_pixels
@@ -756,7 +764,7 @@ methods (Access=private)
     end
 
     function num_pages = get_num_pages_(obj)
-        num_pages = max(ceil(obj.num_pixels/obj.max_page_size_), 1);
+        num_pages = max(ceil(obj.num_pixels/obj.base_page_size), 1);
     end
 
 end

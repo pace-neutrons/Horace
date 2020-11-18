@@ -26,7 +26,7 @@ field_indices = cell2mat(obj.FIELD_INDEX_MAP_.values(pix_fields));
 
 if obj.is_file_backed_()
 
-    base_pg_size = obj.max_page_size_;
+    base_pg_size = obj.base_page_size;
     if abs_pix_indices == -1
         first_required_page = 1;
         data_out = zeros(numel(pix_fields), obj.num_pixels);
