@@ -209,9 +209,13 @@ for i=1:niax
     %urange_out(1,iiax) =vlims(iiax,1);
     %urange_out(2,iiax) =vlims(iiax,2);
     % Select the range - union between image range and the requested cut range
-    [urange_out(1,iiax),urange_out(2,iiax)] =...
+    [urange_out(1,iiax),urange_out(2,iiax),inf_removed] =...
         min_max_range(vlims(iiax,1),urange_real(1,iiax),...
         vlims(iiax,2),urange_real(2,iiax));
+    if inf_removed
+        iint(1,i)=urange_out(1,iiax);
+        iint(2,i)=urange_out(2,iiax);
+    end
     
     if urange_out(1,iiax)>urange_out(2,iiax)
         % *** T.G.Perring 28 Sep 2018:********************
@@ -225,13 +229,16 @@ for i=1:niax
     %pbin_out{iiax} = vlims(iiax,:)';
 end
 
-function [a_min,a_max]=min_max_range(min_range1,min_range2,max_range1,max_range2)
+function [a_min,a_max,inf_removed]=min_max_range(min_range1,min_range2,max_range1,max_range2)
 % calculate minimal enclosing range -- intersect of two overlapping ranges
+inf_removed = false;
 if isinf(min_range1)
     min_range1 = min_range2;
+    inf_removed = true;
 end
 if isinf(max_range1)
     max_range1 = max_range2;
+    inf_removed = true;
 end
 center = 0.5*(min(min_range1,min_range2)+max(max_range1,max_range2));
 
