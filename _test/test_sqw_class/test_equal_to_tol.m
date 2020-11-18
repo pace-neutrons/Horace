@@ -179,7 +179,7 @@ methods
     function test_using_fraction_argument_is_faster_than_comparing_all_pix(obj)
         sqw_copy = copy(obj.sqw_2d);
 
-        num_reps = 5;
+        num_reps = 10;
         num_iters = 1;
 
         f = @() equal_to_tol(sqw_copy, obj.sqw_2d);
