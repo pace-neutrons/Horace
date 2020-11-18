@@ -1,11 +1,7 @@
 function [indx,ok]=get_contributing_pix_ind_(this,v)
 
 [rot_ustep,trans_bott_left,ebin,trans_elo,urange_step] = this.get_pix_transf_();
-sig_step = sign(urange_step);
-min_border = 1-4*eps*sig_step(1,:);
-max_border = 1+4*eps*sig_step(2,:);
-border = [min_border;max_border];
-urange_step = urange_step.*border;
+
 
 % Transform the coordinates u1-u4 into the new projection axes, if necessary
 % *** TGP 9 Dec 2012: this looks as if the case of energy being a plot axis that rounding errors will in general be a problem.

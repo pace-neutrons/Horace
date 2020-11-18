@@ -23,3 +23,10 @@ end
 ebin=this.usteps(4);                 % plays role of rot_ustep for energy
 trans_elo = this.urange_offset(1,4); % plays role of trans_bott_left for energy
 urange_step = this.urange_step;
+
+% Add border to cut limits to avoud round-off errors
+sig_step = sign(urange_step);
+min_border = 1-4*eps*sig_step(1,:);
+max_border = 1+4*eps*sig_step(2,:);
+border = [min_border;max_border];
+urange_step = urange_step.*border;
