@@ -41,9 +41,9 @@ methods
 
         % For each unary operator, perform the operation on some data
         num_pix = 7;
-        for i = 1:numel(unary_ops)/2
-            unary_op = unary_ops{2*i - 1};
-            data_range = unary_ops{2*i};
+        for i = 1:2:numel(unary_ops)
+            unary_op = unary_ops{i};
+            data_range = unary_ops{i+1};
 
             data = obj.get_random_data_in_range( ...
                 PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix, data_range);
