@@ -1,4 +1,4 @@
-function w = unary_op_manager(w1, unary_op)
+function wout = unary_op_manager(w, unary_op)
 % Implement unary arithmetic operations for objects containing a signal and variance arrays.
 
 % Generic method edited for sqw class. Must have
@@ -11,13 +11,13 @@ function w = unary_op_manager(w1, unary_op)
 %   (3) have private function that returns class name
 %           >> name = classname     % no argument - gets called by its association with the class
 
-w = w1;
-for i=1:numel(w1)
-    if ~isempty(w1(i).data.pix)
-        w(i).data.pix = w(i).data.pix.do_unary_op(unary_op);
-        w(i) = recompute_bin_data(w(i));
+wout = w;
+for i=1:numel(w)
+    if ~isempty(w(i).data.pix)
+        wout(i).data.pix = w(i).data.pix.do_unary_op(unary_op);
+        wout(i) = recompute_bin_data(wout(i));
     else
-        result = unary_op(sigvar(w1(i).data.s, w1(i).data.e));
-        w(i) = sigvar_set(w(i),result);
+        result = unary_op(sigvar(w(i).data.s, w(i).data.e));
+        wout(i) = sigvar_set(wout(i), result);
     end
 end
