@@ -198,15 +198,17 @@ for i=1:npax
     end
     urange_out(:,ipax)=[p{i}(1);p{i}(end)];
 end
-if nargout < 5
-    return;
-end
 
-% Compute integration ranges. We fill array with ranges that enclose and extend the actual data.
+% Compute integration ranges.
 for i=1:niax
     iiax = iax(i);
     iint(1,i)=vlims(iiax,1);
     iint(2,i)=vlims(iiax,2);
+    % force new binning ranges for integration axis regardless to actual
+    % data range
+    %urange_out(1,iiax) =vlims(iiax,1);
+    %urange_out(2,iiax) =vlims(iiax,2);
+    % Select the range - union between image range and the requested cut range
     [urange_out(1,iiax),urange_out(2,iiax)] =...
         min_max_range(vlims(iiax,1),urange_real(1,iiax),...
         vlims(iiax,2),urange_real(2,iiax));
@@ -224,9 +226,15 @@ for i=1:niax
 end
 
 function [a_min,a_max]=min_max_range(min_range1,min_range2,max_range1,max_range2)
-% calculate maximal enclosing range
-center = 0.5*(min_range1+max_range1);
+% calculate minimal enclosing range -- intersect of two overlapping ranges
+if isinf(min_range1)
+    min_range1 = min_range2;
+end
+if isinf(max_range1)
+    max_range1 = max_range2;
+end
+center = 0.5*(min(min_range1,min_range2)+max(max_range1,max_range2));
 
-a_min = min(min_range1-center,min_range2-center)+center;
-a_max = max(max_range1-center,max_range2-center)+center;
+a_min = max(min_range1-center,min_range2-center)+center;
+a_max = min(max_range1-center,max_range2-center)+center;
 

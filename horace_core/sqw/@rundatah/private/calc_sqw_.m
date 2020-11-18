@@ -1,4 +1,4 @@
-function [w, grid_size, urange] = calc_sqw_(obj,detdcn, det0, grid_size_in, urange_in)
+function [w, grid_size, img_range] = calc_sqw_(obj,detdcn, det0, grid_size_in, urange_in)
 % Create an sqw object, optionally keeping only those data points within a defined data range.
 %
 %   >> [w, grid_size, urange] = obj.calc_sqw(detdch, det0,grid_size_in,
@@ -20,10 +20,10 @@ function [w, grid_size, urange] = calc_sqw_(obj,detdcn, det0, grid_size_in, uran
 %
 % Output:
 % --------
-%   w               Output sqw object
-%   grid_size       Actual size of grid used (size is unity along dimensions
+%   w              Output sqw object
+%   grid_size      Actual size of grid used (size is unity along dimensions
 %                  where there is zero range of the data points)
-%   urange          Actual range of grid - the specified range if it was given,
+%   pix_range      Actual range of grid - the specified range if it was given,
 %                  or the range of the data if not.
 
 
@@ -49,11 +49,11 @@ grid_is_unity = (isscalar(grid_size_in)&&grid_size_in==1)||(isvector(grid_size_i
 
 % Set urange, and determine if all the data is on the surface or within the box defined by the ranges
 if isempty(urange_in)
-    urange = sqw_data.urange;   % range of the data
+    img_range = sqw_data.urange;   % range of the data
     data_in_range = true;
 else
-    urange = urange_in;         % use input urange
-    if any(urange(1,:)>sqw_data.urange(1,:)) || any(urange(2,:)<sqw_data.urange(2,:))
+    img_range = urange_in;         % use input urange
+    if any(img_range(1,:)>sqw_data.urange(1,:)) || any(img_range(2,:)<sqw_data.urange(2,:))
         data_in_range = false;
     else
         data_in_range = true;
@@ -62,7 +62,7 @@ end
 % If grid that is other than 1x1x1x1, or range was given, then sort pixels
 if grid_is_unity && data_in_range   % the most work we have to do is just change the bin boundary fields
     for id=1:4
-        sqw_data.p{id}=[urange(1,id);urange(2,id)];
+        sqw_data.p{id}=[img_range(1,id);img_range(2,id)];
     end
     grid_size = grid_size_in;
 
@@ -76,12 +76,12 @@ else
         try
             % Verify the grid consistency and build axes along the grid dimensions,
             % c-program does not check the grid consistency;
-            [grid_size,sqw_data.p]=construct_grid_size(grid_size_in,urange);
+            [grid_size,sqw_data.p]=construct_grid_size(grid_size_in,img_range);
 
             sqw_fields   =cell(1,4);
             sqw_fields{1}=nThreads;
             %sqw_fields{1}=8;
-            sqw_fields{2}=urange;
+            sqw_fields{2}=img_range;
             sqw_fields{3}=grid_size;
             sqw_fields{4}=sqw_data.pix.data;
             clear sqw_data.s sqw_data.e sqw_data.npix;
@@ -99,7 +99,7 @@ else
         end
     end
     if ~use_mex
-        [ix,npix,p,grid_size,ibin]=sort_pixels(sqw_data.pix.coordinates,urange,grid_size_in);
+        [ix,npix,p,grid_size,ibin]=sort_pixels(sqw_data.pix.coordinates,img_range,grid_size_in);
 
         sqw_data.p=p;   % added by RAE 10/6/11 to avoid crash when doing non-mex generation of sqw files
         sqw_data.pix=sqw_data.pix.get_pixels(ix);
@@ -151,9 +151,6 @@ function [header,sqw_data] = calc_sqw_data_and_header (obj,detdcn)
 %   sqw_data    Data structure suitable for put_sqw_data
 
 % Original author: T.G.Perring
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
 
 % Perform calculations
 % -----------------------
@@ -161,11 +158,13 @@ function [header,sqw_data] = calc_sqw_data_and_header (obj,detdcn)
 [ne,ndet]=size(obj.S);
 
 % Calculate projections
-[u_to_rlu,urange,pix] = obj.calc_projections_(detdcn,obj.qpsecs_cache);
+[u_to_rlu,pix_range,pix] = obj.calc_projections_(detdcn,obj.qpsecs_cache);
+%hkl_range = [u_to_rlu*pix_range(:,1:3)';pix_range(:,4)']';
 
 p=cell(1,4);
 for id=1:4
-    p{id}=[urange(1,id);urange(2,id)];
+ 	p{id}=[pix_range(1,id);pix_range(2,id)];
+    %p{id}=[hkl_range(1,id);hkl_range(2,id)];
 end
 
 
@@ -220,5 +219,7 @@ sqw_data.dax=[1,2,3,4];
 sqw_data.s=sum(obj.S(:));
 sqw_data.e=sum(pix.variance);   % take advantage of the squaring that has already been done for pix array
 sqw_data.npix=ne*ndet;
-sqw_data.urange=urange;
+% pix range expressed in Crystal Cartesian coordinate system
+sqw_data.urange=pix_range;
+%
 sqw_data.pix=PixelData(pix);
