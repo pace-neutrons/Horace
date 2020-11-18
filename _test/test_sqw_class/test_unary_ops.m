@@ -54,12 +54,12 @@ methods
             sqw_obj.data.s = -99;
             sqw_obj.data.e = -99;
 
-            % exception thrown if method not implemented
+            % exception will be thrown if method not implemented
             result = unary_op(sqw_obj);
 
             % confirm the raw pixel data has changed
             assertFalse(equal_to_tol(result.data.pix.signal, sqw_obj.data.pix.signal))
-            
+
             % confirm the (previously unset) image data (s, e) has been
             % calculated correctly from the updated raw pixels
             assertEqualToTol(result.data.s, mean(result.data.pix.signal));
@@ -67,39 +67,41 @@ methods
         end
     end
 
-
     function test_unary_op_updates_image_signal_and_error_if_no_pixeldata(~)
-
         sqw_obj = sqw();
         sqw_obj.data.pix = PixelData();
-        sqw_obj.data.s = 2;
+        sqw_obj.data.s = 2; % simple single pixel dataset for ease of testing
         sqw_obj.data.e = 1.5;
 
+        % arbitrary unary op for test
         result = log10(sqw_obj);
 
         % explicit calculation test
+        % reference value calculation match implementation: log10_single
         expected_signal = log10(sqw_obj.data.s);
         expected_var = sqw_obj.data.e./(sqw_obj.data.s*log(10)).^2;
-        
+
         assertEqualToTol(result.data.s, expected_signal);
         assertEqualToTol(result.data.e, expected_var);
     end
 
     function test_unary_op_updates_image_signal_and_error(obj)
-
-        num_pix = 23;
+        num_pix = 23; % create small, single bin dataset for test
         data = obj.get_random_data_in_range( ...
             PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix, [1, 3]);
 
         sqw_obj = sqw();
         sqw_obj.data.pix = PixelData(data);
-        sqw_obj.data.npix = [ num_pix ];
-        sqw_obj.data.s = -99;
+        sqw_obj.data.npix = num_pix;
+        sqw_obj.data.s = -99; % fake data that will be overwritten
         sqw_obj.data.e = -99;
 
+        % arbitrary unary op for test
         result = log10(sqw_obj);
 
-        % explicit calculation test
+        % explicit calculation test - the values should be calculated
+        % from the pixel data not from the inconsistent image data
+        % reference value calculation match implementation: compute_bin_data_mex_
         expected_signal =  mean(result.data.pix.signal);
         expected_var = sum(result.data.pix.variance)./num_pix^2;
 
@@ -108,20 +110,21 @@ methods
     end
 
     function test_unary_op_updates_pixel_signal_and_variance(obj)
-
-        num_pix = 23;
+        num_pix = 23; % create small, single bin dataset for test
         data = obj.get_random_data_in_range( ...
             PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix, [1, 3]);
 
         sqw_obj = sqw();
         sqw_obj.data.pix = PixelData(data);
-        sqw_obj.data.npix = [num_pix];
-        sqw_obj.data.s = -99;
+        sqw_obj.data.npix = num_pix;
+        sqw_obj.data.s = -99; % fake data that will be overwritten
         sqw_obj.data.e = -99;
 
+        % arbitrary unary op for test
         result = log10(sqw_obj);
 
         % explicit calculation test
+        % reference value calculation match implementation: log10_single
         expected_signal = log10(sqw_obj.data.pix.signal);
         expected_var = sqw_obj.data.pix.variance./(sqw_obj.data.pix.signal * log(10)).^2;
 
