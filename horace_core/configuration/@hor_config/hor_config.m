@@ -21,6 +21,8 @@ classdef hor_config < config_base
     % -----------
     %   mem_chunk_size    - Maximum length of buffer array to accumulate pixels
     %                       from an input file.
+    %   pixel_page_size   - Maximum memory size of pixel data array in
+    %                       file-backed algorithms (units of bytes).
     %   threads           - How many computational threads to use in mex files
     %   ignore_nan        - Ignore NaN data when making cuts
     %   ignore_inf        - Ignore Inf data when making cuts.
@@ -103,7 +105,7 @@ classdef hor_config < config_base
 
         % set page size very large to effectively disable paging of pixels as
         % the implementation is not complete
-        pixel_page_size_ = floor(realmax);
+        pixel_page_size_ = PixelData.DEFAULT_PAGE_SIZE;
         threads_ =1;
 
         ignore_nan_ = true;

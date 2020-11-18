@@ -3,34 +3,9 @@ classdef test_noisify < TestCase
 properties
     old_warn_state;
 
-    raw_pix_data = rand(9, 10);
-    small_page_size_ = 1e6;  % 1Mb
     test_sqw_file_path = '../test_sqw_file/deterministic_sqw_fake_data_for_testing.sqw';
     test_sqw_file_full_path = '';
-
-    pixel_data_obj;
-    pix_data_from_file;
-    pix_data_from_faccess;
-    pix_data_small_page;
-    pix_fields = {'u1', 'u2', 'u3', 'dE', 'coordinates', 'q_coordinates', ...
-                  'run_idx', 'detector_idx', 'energy_idx', 'signal', ...
-                  'variance'};
-              
-    search_path_herbert_shared = [herbert_root '/_test/shared'];
-end
-
-properties (Constant)
-    NUM_BYTES_IN_VALUE = 8;
-    NUM_COLS_IN_PIX_BLOCK = 9;
-end
-
-methods (Access = private)
-
-    function pix_data = get_random_pix_data_(~, rows)
-        data = rand(9, rows);
-        pix_data = PixelData(data);
-    end
-
+    search_path_herbert_shared = fullfile(herbert_root, '_test/shared');
 end
 
 methods
@@ -45,49 +20,45 @@ methods
         test_sqw_file = java.io.File(pwd(), obj.test_sqw_file_path);
         obj.test_sqw_file_full_path = char(test_sqw_file.getCanonicalPath());
 
-        % add path for concatenate-pixel_pages
-        addpath('./utils')
         % add path for deterministic psuedorandom sequence
         addpath(obj.search_path_herbert_shared);
     end
 
     function delete(obj)
-        rmpath('./utils')
         rmpath(obj.search_path_herbert_shared);
         warning(obj.old_warn_state);
     end
 
-    % --- Tests for in-memory operations ---
-    
-    function test_how_noisify_works(obj)
-        % obj is the test case object
-        % what we want to do is call noisify here on different kinds of
-        % data
-        
-        % step 1 we reduce the page size
-        hc = hor_config();
-        hc.pixel_page_size = 10000;
+    function test_noisify_returns_equivalent_sqw_for_paged_pixel_data(obj)
         % we set up the test "random number generator" which is actually
         % a deterministic set of numbers 1:999 repeated. Use factor to make
         % them in range 0:1
-        factor =1/999;
-        % We make an sqw object with the above page size
-        sqw_obj1 = sqw(obj.test_sqw_file_full_path);
-        
+        noise_factor = 1/999;
+        % We make an sqw object with the a pixel page size smaller than the
+        % total pixel size
+        pixel_page_size = 1e5;
+        sqw_obj1 = sqw(obj.test_sqw_file_full_path, 'pixel_page_size', ...
+                       pixel_page_size);
+
+        % ensure we're actually paging pixel data
+        pix = sqw_obj1.data.pix;
+        assertTrue(pix.num_pixels > pix.page_size);
+
         % and we noisify it
         % here using a regular sequence (disguised as pseudorandom)
         % to make testing by eye easier:
         a=deterministic_pseudorandom_sequence();
         myrng=@a.myrand;
-        % if the standard MATLAB rng were used then we would need to 
+
+        % if the standard MATLAB rng were used then we would need to
         % initialise that to a repeatable state by:
-        % rng(0) 
+        % rng(0)
+
         % add the noise to object 1 using myrng (myrng could be left out
         % to get the default randn behaviour, used with rng(0)
-        noisy_obj1 = noisify(sqw_obj1,factor,'random_number_function',myrng);
+        noisy_obj1 = noisify(sqw_obj1,noise_factor,'random_number_function',myrng);
+
         % step 2 we increase the page size again to the notional max
-        hc = hor_config();
-        hc.pixel_page_size = 3e9;
         % We make another sqw objectfrom the same file
         sqw_obj2 = sqw(obj.test_sqw_file_full_path);
         % and we noisify it
@@ -96,28 +67,55 @@ methods
         %   then the reset should be done with
         %   rng(0);
         a.reset();
-        noisy_obj2 = noisify(sqw_obj2,factor,'random_number_function',myrng);
+        noisy_obj2 = noisify(sqw_obj2,noise_factor,'random_number_function',myrng);
         % as the page test whether the 2 paged versions are equal
-        concpix = concatenate_pixel_pages(sqw_obj1(1).data.pix);
-        assertEqual(concpix,sqw_obj2.data.pix.data,'',5e-4);
-        nconcpix = concatenate_pixel_pages(noisy_obj1(1).data.pix);
-        assertEqual(nconcpix(1,:),noisy_obj2.data.pix.data(1,:),'',5e-4);
-        assertEqual(nconcpix(2,:),noisy_obj2.data.pix.data(2,:),'',5e-4);
-        assertEqual(nconcpix(3,:),noisy_obj2.data.pix.data(3,:),'',5e-4);
-        assertEqual(nconcpix(4,:),noisy_obj2.data.pix.data(4,:),'',5e-4);
-        assertEqual(nconcpix(5,:),noisy_obj2.data.pix.data(5,:),'',5e-4);
-        assertEqual(nconcpix(6,:),noisy_obj2.data.pix.data(6,:),'',5e-4);
-        assertEqual(nconcpix(7,:),noisy_obj2.data.pix.data(7,:),'',5e-4);
-        assertEqual(nconcpix(8,:),noisy_obj2.data.pix.data(8,:),'',5e-4);
-        assertEqual(nconcpix(9,:),noisy_obj2.data.pix.data(9,:),'',5e-4);
-        assertEqual(nconcpix,noisy_obj2.data.pix.data,'',5e-4);
+        assertEqual(sqw_obj1, sqw_obj2, '', 5e-4);
+        assertEqual(noisy_obj1, noisy_obj2, '', 5e-4);
+
+        % test noisify updates data
+        assertFalse(equal_to_tol(sqw_obj1, noisy_obj1, 5e-4));
+        assertFalse(equal_to_tol(sqw_obj2, noisy_obj2, 5e-4));
+
+        % checks that image data is updated
+        assertFalse(equal_to_tol(sqw_obj1.data.s, noisy_obj1.data.s, 5e-4));
+        assertFalse(equal_to_tol(sqw_obj2.data.s, noisy_obj2.data.s, 5e-4));
    end
 
+   function test_noisify_adds_gaussian_noise_to_data_with_given_stddev(obj)
+        if ~license('test', 'statistics_toolbox') || ~exist('fitdist', 'file')
+            % fitdist requires the statistics toolbox
+            return;
+        end
+        [~, old_rng_state] = seed_rng(0);
+        cleanup = onCleanup(@() rng(old_rng_state));
 
-    % -- Helpers --
+        sqw_obj = sqw(obj.test_sqw_file_full_path);
+        % ensure we're not paging pixel data
+        pix = sqw_obj.data.pix;
+        assertEqual(pix.page_size, pix.num_pixels);
+
+        noise_factor = 0.01;
+        noisy_obj = noisify(sqw_obj, noise_factor);
+
+        original_signal = sqw_obj.data.pix.signal;
+        noisy_signal = noisy_obj.data.pix.signal;
+        signal_diff = original_signal - noisy_signal;
+
+        % Fit the signal differences and check that the expected mu and sigma
+        % for the normal distribution fall within the 95% confidence interval
+        % using paramci
+        pd = fitdist(signal_diff(:), 'normal');
+        mu_interval = paramci(pd, 'parameter', 'mu');
+        assertTrue(mu_interval(2) - mu_interval(1) < 2);
+        assertTrue((mu_interval(1) <= 0) && (mu_interval(2) >= 0));
+
+        sigma_interval = paramci(pd, 'parameter', 'sigma');
+        expected_stddev = noise_factor*max(original_signal);
+        assertTrue(sigma_interval(2) - sigma_interval(1) < expected_stddev/10);
+        assertTrue((sigma_interval(1) <= expected_stddev) ...
+                   && (sigma_interval(2) >= expected_stddev));
+    end
+
 end
 
-methods (Static)
-
-end
 end

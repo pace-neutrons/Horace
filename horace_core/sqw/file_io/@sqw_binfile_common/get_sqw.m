@@ -1,4 +1,4 @@
-function [sqw_object,varargout] = get_sqw (obj,varargin)
+function [sqw_object,varargout] = get_sqw (obj, varargin)
 % Load an sqw file from disk
 %
 %   >> sqw_object = obj.get_sqw()
@@ -32,6 +32,13 @@ function [sqw_object,varargout] = get_sqw (obj,varargin)
 %
 %               Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
 %
+% Keyword Arguments:
+% ------------------
+%   pixel_page_size    The maximum amount of memory to allocate to holding
+%                      pixel data. This argument is passed to the PixelData
+%                      constructor's 'mem_alloc' argument.
+%                      The value should have units of bytes.
+%
 % Output:
 % --------
 %  fully formed sqw object
@@ -46,85 +53,100 @@ function [sqw_object,varargout] = get_sqw (obj,varargin)
 %
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
-opt = {'-head','-his','-hverbatim','-verbatim','-nopix','-legacy'};
-if nargin>1
-    % replace single '-h' with head
-    argi = cellfun(@replace_h,varargin,'UniformOutput',false);
-else
-    argi = {};
-end
-[ok,mess,opt_h,opt_his,hverbatim,verbatim,opt_nopix,legacy,argi] = parse_char_options(argi,opt);
-if ~ok
-    error('SQW_FILE_IO:invalid_argument',mess);
-end
-verbatim = verbatim||hverbatim;
-if numel(argi)>0
-    error('SQW_BINFILE_COMMON:invalid_argument',...
-        'Unrecognised options %s to get_sqw',argi{:});
-end
-
+opts = parse_args(obj, varargin{:});
 
 sqw_struc = struct('main_header',[],'header',[],'detpar',[],'data',[]);
 
-
 % Get main header
 % ---------------
-if verbatim
+if opts.verbatim
     sqw_struc.main_header =  obj.get_main_header('-verbatim');
 else
     sqw_struc.main_header =  obj.get_main_header();
 end
-%
-% Get cellarray of headers for each contributing spe file
+
+% Get cell array of headers for each contributing spe file
 % ------------------------------------------
 headers  = obj.get_header('-all');
-%
+
 % Get detector parameters
 % -----------------------
-if ~(opt_h||opt_his)
+if ~(opts.head||opts.his)
     sqw_struc.detpar = obj.get_detpar();
 end
 
 % Get data
 % --------
-if verbatim
+if opts.verbatim
     opt1 = {'-verbatim'};
 else
     opt1 = {};
 end
-
-if (opt_h||opt_his)
+if (opts.head || opts.his)
     opt2 = {'-head'};
 else
-    opt2= {};
+    opt2 = {};
 end
-if opt_nopix
+if opts.nopix
     opt3={'-nopix'};
 else
     opt3={};
 end
 
-data_opt={opt1{:},opt2{:},opt3{:}};
-sqw_struc.data = obj.get_data(data_opt{:});
+data_opt= [opt1, opt2, opt3];
+sqw_struc.data = obj.get_data(data_opt{:}, 'pixel_page_size', opts.pixel_page_size);
 
 sqw_struc.header = headers;
-if legacy
+if opts.legacy
     sqw_object = sqw_struc.main_header;
     varargout{1} = sqw_struc.header;
     varargout{2} = sqw_struc.detpar;
     varargout{3} = sqw_struc.data;
-elseif opt_h || opt_his
+elseif opts.head || opts.his
     sqw_object  = sqw_struc;
 else
     sqw_object = sqw(sqw_struc);
 end
 
-function out = replace_h(inp)
-if strcmp(inp,'-h')
-    out = '-his';
-else
-    out  = inp;
+end  % function
+
+
+% -----------------------------------------------------------------------------
+function opts = parse_args(varargin)
+    if nargin > 1
+        % replace single '-h' with head
+        argi = cellfun(@replace_h, varargin, 'UniformOutput', false);
+    else
+        argi = {};
+    end
+
+    flags = { ...
+        'head', ...
+        'his', ...
+        'verbatim', ...
+        'hverbatim', ...
+        'hisverbatim', ...
+        'nopix', ...
+        'legacy' ...
+    };
+    kwargs = struct('pixel_page_size', PixelData.DEFAULT_PAGE_SIZE);
+    for flag_idx = 1:numel(flags)
+        kwargs.(flags{flag_idx}) = false;
+    end
+    parser_opts = struct('prefix', '-', 'prefix_req', false);
+    [~, opts, ~, ~, ok, mess] = parse_arguments(argi, kwargs, flags, ...
+                                                parser_opts);
+    if ~ok
+        error('SQW_FILE_IO:invalid_argument', mess);
+    end
+    opts.verbatim = opts.verbatim || opts.hverbatim;
 end
 
+
+function out = replace_h(inp)
+    if strcmp(inp,'-h')
+        out = '-his';
+    else
+        out  = inp;
+    end
+end
