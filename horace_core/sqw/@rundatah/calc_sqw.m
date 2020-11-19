@@ -107,7 +107,7 @@ else
         end
     end
 end
-if ~exist('urange_in','var')
+if ~exist('pix_range_in','var')
     pix_range_in = [];
 end
 
