@@ -13,6 +13,7 @@ classdef (Abstract) SQWDnDBase
 
     methods (Abstract, Access = protected)
         wout = unary_op_manager(w, operation_handle);
+        wout = binary_op_manager_single(w1,w2,binary_op);
     end
 
     methods  % Public
@@ -24,9 +25,7 @@ classdef (Abstract) SQWDnDBase
     end
 
     methods (Access = protected)
-        % w = binary_op_manager (w1, w2, binary_op)
-        % w = unary_op_manager (w1, unary_op)
-
+        wout = binary_op_manager(w1, w2, binary_op);
         % function obj = untitled(inputArg1,inputArg2)
         % % UNTITLED Construct an instance of this class
         % %   Detailed explanation goes here
