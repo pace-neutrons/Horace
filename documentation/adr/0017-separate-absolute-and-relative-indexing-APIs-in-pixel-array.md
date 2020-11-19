@@ -1,5 +1,5 @@
 [<-previous](./0016-use-double-array-in-memory-for-pixel-data.md) |
-next->
+[next->](0018-update-release-notes-every-pr.md)
 
 # 17 - Separate absolute and relative indexing APIs in pixel array
 
