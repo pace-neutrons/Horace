@@ -1,13 +1,13 @@
-function w = sigvar_set(obj, sigvar_obj)
+function w = sigvar_set(win, sigvar_obj)
 % Set output object signal and variance fields from input sigvar object
 %
-%   >> w = sigvar_set(obj, sigvar_obj)
+%   >> w = sigvar_set(win, sigvar_obj)
 
-if ~isequal(size(obj.data.s),size(sigvar_obj.s))
+if ~isequal(size(win.data.s), size(sigvar_obj.s))
     error('sqw object and sigvar object have inconsistent sizes')
 end
 
-w = obj;
+w = win;
 
 w.data.s = sigvar_obj.s;
 w.data.e = sigvar_obj.e;
