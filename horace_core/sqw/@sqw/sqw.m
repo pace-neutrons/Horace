@@ -15,6 +15,12 @@ classdef sqw < SQWDnDBase
     end
 
     methods
+        wout = recompute_bin_data(w);
+        [nd, sz] = dimensions(w);
+        wout = sigvar(w);
+        w = sigvar_set(win, sigvar_obj);
+        sz = sigvar_size(w);
+
         function obj = sqw(varargin)
             % Constructors
             % i) struct (internal)
@@ -28,11 +34,11 @@ classdef sqw < SQWDnDBase
             if ~isempty(args.sqw_obj)
                 obj = copy(args.sqw_obj);
 
-                % ii) filename
+            % ii) filename
             elseif ~isempty(args.filename)
                 obj = obj.init_from_file(args.filename);
 
-                % iii) struct
+            % iii) struct
             elseif ~isempty(args.data_struct)
                 obj = obj.init_from_loader_struct(args.data_struct);
             end
@@ -61,7 +67,8 @@ classdef sqw < SQWDnDBase
     end
 
     methods(Access = protected)
-        s = unary_op_manager(obj, operation_handle);
+        wout = unary_op_manager(obj, operation_handle);
+        wout = binary_op_manager_single(w1,w2,binary_op);
     end
 
     methods(Static, Access = private)
@@ -70,7 +77,6 @@ classdef sqw < SQWDnDBase
         detpar_struct = make_sqw_detpar();
         header = make_sqw_header();
         main_header = make_sqw_main_header();
-        wout = recompute_bin_data(w);
 
         function args = parse_args(varargin)
             % Parse a single argument passed to the SQW constructor
