@@ -135,7 +135,6 @@ function wout = do_binary_op_sqw_sqw(w1, w2, binary_op, flip)
     end
 end
 
-
 function wout = do_binary_op_sqw_and_non_double(w1, w2, binary_op, flip)
     % Perform a binary operation between an SQW object and another object that
     % is not a double.
