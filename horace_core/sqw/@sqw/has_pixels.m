@@ -11,12 +11,4 @@ function pixels = has_pixels(w)
 % -------
 %   pixels    =true or =false (array)
 
-pixels = false(size(w));
-for i=1:numel(w)
-    if w(i).data.pix.num_pixels > 0
-        pixels(i) = true;
-    else
-        pixels(i) = false;
-    end
-end
-
+pixels = arrayfun(@(x) x.data.pix.num_pixels > 0, w);
