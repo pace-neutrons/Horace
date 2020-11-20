@@ -15,7 +15,6 @@ classdef sqw < SQWDnDBase
     end
 
     methods
-        wout = recompute_bin_data(w);
         [nd, sz] = dimensions(w);
         wout = sigvar(w);
         w = sigvar_set(win, sigvar_obj);
@@ -77,6 +76,7 @@ classdef sqw < SQWDnDBase
         detpar_struct = make_sqw_detpar();
         header = make_sqw_header();
         main_header = make_sqw_main_header();
+        wout = recompute_bin_data(w);
 
         function args = parse_args(varargin)
             % Parse a single argument passed to the SQW constructor
