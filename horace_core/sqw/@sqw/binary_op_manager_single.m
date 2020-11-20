@@ -21,14 +21,14 @@ if ~isa(w1, 'double') && ~isa(w2, 'double')
         % Both inputs SQW objects with pixels
         wout = do_binary_op_sqw_sqw(w1, w2, binary_op);
 
-    elseif (isa(w1, 'SQWDnDBase') && has_pixels(w1))
-        % w1 is sqw-type, but w2 could be anything that is not a double e.g.
-        % dnd-type sqw object, or a d2d object, or sigvar object etc.
+    elseif isa(w1, 'sqw') && has_pixels(w1)
+        % w1 is sqw-type (with pixels), but w2 could be anything that is not
+        % a double e.g. sqw object with no pixels, a d2d object, or sigvar object etc.
         wout = do_binary_op_sqw_and_non_double(w1, w2, binary_op);
 
-    elseif (isa(w2, 'SQWDnDBase') && has_pixels(w2))
-        % w2 is sqw-type, but w1 could be anything that is not a double e.g.
-        % dnd-type sqw object, or a d2d object, or sigvar object etc.
+    elseif isa(w2, 'sqw') && has_pixels(w2)
+        % w2 is sqw-type (with pixels), but w2 could be anything that is not
+        % a double e.g. sqw object with no pixels, a d2d object, or sigvar object etc.
         wout = do_binary_op_sqw_and_non_double(w2, w1, binary_op, true);
 
     elseif isa(w1, 'sqw') &&  isa(w2, 'sqw')
@@ -159,9 +159,9 @@ function wout = do_binary_op_sqw_and_non_double(w1, w2, binary_op, flip)
         % Need to remove bins with npix=0 in the non-sqw object in the
         % binary operation
         if isa(w2, 'SQWDnDBase')
-            if ~has_pixels(w2)% must be a dnd-type sqw object
+            if isa(w2, 'sqw') && ~has_pixels(w2) % pixel-less SQW
                 omit = logical(w2.data.npix);
-            else % must be a d0d,d1d...
+            else % must be a DnDBase
                 omit = logical(w2.npix);
             end
             wout = mask(wout, omit);
