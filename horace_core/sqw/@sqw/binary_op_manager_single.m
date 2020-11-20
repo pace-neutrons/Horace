@@ -17,8 +17,8 @@ end
 
 if ~isa(w1, 'double') && ~isa(w2, 'double')
 
-    if isa(w1, 'SQWDnDBase') && isa(w2, 'SQWDnDBase')
-        % Both inputs SQW objects
+    if isa(w1, 'sqw') && has_pixels(w1) && isa(w2, 'sqw') && has_pixels(w2)
+        % Both inputs SQW objects with pixels
         wout = do_binary_op_sqw_sqw(w1, w2, binary_op);
 
     elseif (isa(w1, 'SQWDnDBase') && has_pixels(w1))
@@ -30,6 +30,11 @@ if ~isa(w1, 'double') && ~isa(w2, 'double')
         % w2 is sqw-type, but w1 could be anything that is not a double e.g.
         % dnd-type sqw object, or a d2d object, or sigvar object etc.
         wout = do_binary_op_sqw_and_non_double(w2, w1, binary_op, true);
+
+    elseif isa(w1, 'sqw') &&  isa(w2, 'sqw')
+        % Both inputs are SQW objects with NO pixels
+        error('SQW:binary_op_manager_single', ...
+              ['Cannot perform binary operation between two SQW objects containing no PixelData']);
     end
 
 elseif isa(w2, 'double')
