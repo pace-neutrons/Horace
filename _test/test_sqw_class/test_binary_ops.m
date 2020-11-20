@@ -54,6 +54,13 @@ methods
         end
     end
 
+    function test_SQW_error_if_both_objects_are_sqw_with_no_pixel_data(obj)
+        obj.sqw_obj.data.pix = PixelData();
+
+        f = @()  obj.sqw_obj - obj.sqw_obj;
+        assertExceptionThrown(f, 'SQW:binary_op_manager_single');
+    end
+
     function DISABLED_test_adding_sqw_and_dnd_objects_1st_operand_is_sqw_returns_sqw(obj)
         out = obj.sqw_obj + obj.dnd_obj;
 
