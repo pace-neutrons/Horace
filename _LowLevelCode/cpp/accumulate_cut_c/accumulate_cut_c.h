@@ -235,9 +235,13 @@ mwSize accumulate_cut(double *s, double *e, double *npix,
             mwSize indE = (mwSize)floor(Ett - cut_range[6]);
 
             mwSize il = indX * nDimX + indY * nDimY + indZ * nDimZ + indE * nDimE;
+            // check for round-off errors; assure the errors are not bring pixel outside of the histogram
+            // range
+            if (il >= distribution_size)
+                il = distribution_size - 1;
             ok[i] = true;
             ind[i] = il;
-            //	i0=nPixel_retained*OUT_PIXEL_DATA_WIDTH;    // transformed pixels;
+            // i0=nPixel_retained*OUT_PIXEL_DATA_WIDTH;    // transformed pixels;
             //
             //
             //    actual_pix_range = [min(actual_pix_range(1,:),min(indx,[],1));max(actual_pix_range(2,:),max(indx,[],1))];  % true range of data
