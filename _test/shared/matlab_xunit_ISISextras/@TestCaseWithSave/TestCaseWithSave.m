@@ -641,6 +641,8 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
                         strncmpi(cont{end},'test',4)
                     test_name = cont{end};
                     break
+                else
+                    test_name = cont{end};
                 end
             end
             
