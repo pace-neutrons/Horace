@@ -40,6 +40,7 @@ and with user documentation.
 
 - Developers will be required to update the release notes document for every
   user-facing change.
-- Reviewers will arbitrate whether a pull request requires release notes.
+  Reviewers will also be responsible for ensuring release notes are created
+  when required.
 - A comprehensive list of changes for each release is kept.
 - Merge conflicts may become common as the release notes file is updated often.
