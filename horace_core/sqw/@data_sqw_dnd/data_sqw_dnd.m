@@ -224,10 +224,10 @@ classdef data_sqw_dnd
             [ok, type, mess]=obj.check_sqw_data_(type_in);
         end
         function npix= get.num_pixels(obj)
-            if isempty(obj.pix)
-                npix  = [];
-            else
+            if isa(obj.pix,'PixelData')
                 npix = obj.pix.num_pixels;
+            else
+                npix  = [];
             end
         end
 
