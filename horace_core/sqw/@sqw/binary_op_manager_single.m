@@ -95,9 +95,13 @@ function wout = do_binary_op_sqw_double(w1, w2, binary_op, flip)
     % -----
     % w1    An SQW object
     % w2    A double scalar or array of doubles
+    % binary_op Function handle of binary operation to execute
     % flip  Flip the order of the operands e.g. if flip = false do sqw - double
     %       if flip = true, do double - sqw (default = false)
     %
+    % Return
+    % ------
+    % wout  An SQW object
     if isscalar(w2) || isequal(size(w1.data.npix), size(w2))
         flip = exist('flip', 'var') && flip;
         wout = copy(w1);
@@ -120,6 +124,18 @@ end
 function wout = do_binary_op_sqw_sqw(w1, w2, binary_op, flip)
     % Perform a binary operation between two SQW objects, returning the
     % resulting SQW object
+    %
+    % Input
+    % -----
+    % w1    An SQW object
+    % w2    An SQW object
+    % binary_op Function handle of binary operation to execute
+    % flip  Flip the order of the operands e.g. if flip = false do sqw - double
+    %       if flip = true, do double - sqw (default = false)
+    %
+    % Return
+    % ------
+    % wout  An SQW object
     flip = exist('flip', 'var') && flip;
 
     [n1, sz1] = dimensions(w1);
@@ -148,11 +164,13 @@ function wout = do_binary_op_sqw_and_non_double(w1, w2, binary_op, flip)
     % -----
     % w1    An SQW object
     % w2    An instance of dnd or sigvar
+    % binary_op Function handle of binary operation to execute
+    % flip  Flip the order of the operands e.g. if flip = false do sqw - double
+    %       if flip = true, do double - sqw (default = false)
     %
     % Return
     % ------
     % wout  An SQW object
-    %
     sz = sigvar_size(w2);
     if isequal([1, 1], sz) || isequal(size(w1.data.npix), sz)
         wout = w1;
