@@ -13,7 +13,7 @@ function wout = unary_op_manager(w, unary_op)
 
 wout = w;
 for i=1:numel(w)
-    if ~isempty(w(i).data.pix)
+    if has_pixels(w(i))
         wout(i).data.pix = w(i).data.pix.do_unary_op(unary_op);
         wout(i) = recompute_bin_data(wout(i));
     else

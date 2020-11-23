@@ -2,10 +2,10 @@ classdef sqw < SQWDnDBase
     %SQW Create an sqw object
     %
     % Syntax:
+    %   >> w = sqw ()               % Create a default, zero-dimensional SQW object
+    %   >> w = sqw (struct)         % Create from a structure with valid fields (internal use)
     %   >> w = sqw (filename)       % Create an sqw object from a file
     %   >> w = sqw (sqw_object)     % Create a new SQW object from a existing one
-    %   >> w = sqw (struct)         % Create from a structure with valid fields (internal use)
-    %   >> w = sqw ()               % Create a default, zero-dimensional SQW object
 
     properties
         main_header
@@ -15,11 +15,12 @@ classdef sqw < SQWDnDBase
     end
 
     methods
+        [nd, sz] = dimensions(w);
+        wout = sigvar(w);
+        w = sigvar_set(win, sigvar_obj);
+        sz = sigvar_size(w);
+
         function obj = sqw(varargin)
-            % Constructors
-            % i) struct (internal)
-            % ii) filename
-            % iii) copy
             obj = obj@SQWDnDBase();
 
             [args] = obj.parse_args(varargin{:});
@@ -28,11 +29,11 @@ classdef sqw < SQWDnDBase
             if ~isempty(args.sqw_obj)
                 obj = copy(args.sqw_obj);
 
-                % ii) filename
+            % ii) filename
             elseif ~isempty(args.filename)
                 obj = obj.init_from_file(args.filename);
 
-                % iii) struct
+            % iii) struct
             elseif ~isempty(args.data_struct)
                 obj = obj.init_from_loader_struct(args.data_struct);
             end
@@ -61,7 +62,8 @@ classdef sqw < SQWDnDBase
     end
 
     methods(Access = protected)
-        s = unary_op_manager(obj, operation_handle);
+        wout = unary_op_manager(obj, operation_handle);
+        wout = binary_op_manager_single(w1,w2,binary_op);
     end
 
     methods(Static, Access = private)
