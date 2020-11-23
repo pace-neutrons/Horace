@@ -12,9 +12,7 @@ On Linux (Optional):
 * Make
 
 ### Building Locally
-First, clone the documentation repository (https://github.com/pace-neutrons/horace-docs)
-
-    git clone https://github.com/pace-neutrons/horace-docs.git
+To build the docs locally:
 
 * Windows
 
