@@ -38,7 +38,8 @@ and with user documentation.
 
 ## Consequences
 
-- Developers must update the release notes document for each pull request.
-- Reviewers will have to arbitrate if a pull request requires release notes.
-- A comprehensive list of changes for each release is kept,
-  making writing release notes easier.
+- Developers will be required to update the release notes document for every
+  user-facing change.
+- Reviewers will arbitrate whether a pull request requires release notes.
+- A comprehensive list of changes for each release is kept.
+- Merge conflicts may become common as the release notes file is updated often.
