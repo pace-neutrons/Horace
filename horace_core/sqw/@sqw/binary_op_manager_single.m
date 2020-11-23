@@ -96,8 +96,9 @@ function wout = do_binary_op_sqw_double(w1, w2, binary_op, flip)
     % w1    An SQW object
     % w2    A double scalar or array of doubles
     % binary_op Function handle of binary operation to execute
-    % flip  Flip the order of the operands e.g. if flip = false do sqw - double
-    %       if flip = true, do double - sqw (default = false)
+    % flip  Flip the order of the operands: (default = false)
+    %       if flip = false calculate (w1 .op. w2) e.g. sqw - double
+    %       if flip = true, calculate (w2 .op. w1) e.g. double - sqw
     %
     % Return
     % ------
@@ -130,8 +131,9 @@ function wout = do_binary_op_sqw_sqw(w1, w2, binary_op, flip)
     % w1    An SQW object
     % w2    An SQW object
     % binary_op Function handle of binary operation to execute
-    % flip  Flip the order of the operands e.g. if flip = false do sqw - double
-    %       if flip = true, do double - sqw (default = false)
+    % flip  Flip the order of the operands: (default = false)
+    %       if flip = false calculate (w1 .op. w2)
+    %       if flip = true, calculate (w2 .op. w1)
     %
     % Return
     % ------
@@ -165,8 +167,9 @@ function wout = do_binary_op_sqw_and_non_double(w1, w2, binary_op, flip)
     % w1    An SQW object
     % w2    An instance of dnd or sigvar
     % binary_op Function handle of binary operation to execute
-    % flip  Flip the order of the operands e.g. if flip = false do sqw - double
-    %       if flip = true, do double - sqw (default = false)
+    % flip  Flip the order of the operands: (default = false)
+    %       if flip = false calculate (w1 .op. w2) e.g. sqw - non-sqw
+    %       if flip = true, calculate (w2 .op. w1) e.g. non-sqw - sqw
     %
     % Return
     % ------
