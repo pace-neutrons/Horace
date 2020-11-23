@@ -30,5 +30,12 @@
 - test_rebin.m
     - test_rebin_d1d (no ticket)
 
-test_gen_sqw_accumulate_sqw_parpool.m (https://github.com/pace-neutrons/Horace/issues/380)
-	- test_accumulate_sqw1456
+- test_gen_sqw_accumulate_sqw_parpool.m (https://github.com/pace-neutrons/Horace/issues/380)
+    - test_accumulate_sqw1456
+
+- test_sqw_class/test_binary_ops.m -- DnD tests disabled pending code implementation
+    - test_adding_sqw_and_dnd_objects_1st_operand_is_sqw_returns_sqw
+    - test_adding_sqw_and_dnd_objects_2nd_operand_is_sqw_returns_sqw
+    - test_dnd_minus_equivalent_sqw_returns_sqw_with_zero_image_data
+    - test_sqw_minus_equivalent_dnd_returns_sqw_with_zero_image_data
+    - test_subtracting_dnd_from_sqw_returns_sqw
