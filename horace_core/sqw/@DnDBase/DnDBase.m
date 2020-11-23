@@ -1,20 +1,20 @@
-classdef DnDBase < SQWDnDBase
-    
-    %DNDBASE Summary of this class goes here
-    %   Detailed explanation goes here
-    
+classdef (Abstract)  DnDBase < SQWDnDBase
+    % DnDBase Abstract base class for n-dimensional DnD object
+
     properties
         Property1
     end
-    
+
+    methods(Abstract)
+
+    end
+
     methods
         function obj = DnDBase(varargin)
-            %DNDBASE Construct an instance of this class
-            %   Detailed explanation goes here
-            obj = obj@SQWDnDBase(varargin{1});
-            
+            obj = obj@SQWDnDBase(varargin{:});
+
         end
-        
+
         function outputArg = method1(obj,inputArg)
             %METHOD1 Summary of this method goes here
             %   Detailed explanation goes here
