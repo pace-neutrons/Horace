@@ -109,7 +109,7 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             wpow = read_sqw(obj.sqw_pow_file);
             
             %cuts_list= containers.Map();
-            w2 = cut_sqw(wpow, [0, 0.032, 7], 0, '-nopix');
+            w2 = cut_sqw(wpow, [0, 0.031, 7], 0, '-nopix');
             w1 = cut_sqw(wpow, [2, 0.03, 6.5], [53, 57], '-nopix');
             
             plot(w2)
@@ -120,7 +120,7 @@ classdef test_gen_sqw_powder < TestCaseWithSave
         end
         function test_rings_cut(obj)
             %--------------------------------------------------------------------------------------------------
-                        
+            
             % Plot the same slice and cut from the sqw file created using the rings map
             % Slightly different - as expected, because of the summing of a ring of pixels
             % onto a single pixel in the rings map.
@@ -136,10 +136,12 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             obj.assertEqualToTolWithSave(w1rings,'ignore_str',true,'reltol',1.e-5)
             
         end
-        
+        function delete(obj)
+            obj.cleanup_obj = [];
+        end
     end
     
-    methods (Static)        
+    methods (Static)
         function rm_files(varargin)
             % simple function which removes files from the list without issuing warning
             % if the file is not present
