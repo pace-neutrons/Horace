@@ -316,7 +316,6 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             w1a=cut_sqw(sqw_file_123456,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             % Test against saved or store to save later
             obj.assertEqualToTolWithSave(w1a,'ignore_str',true,'tol',1.e-7);
-            
         end
         %
         function test_gen_sqw_sym(obj,varargin)
