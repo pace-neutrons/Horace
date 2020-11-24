@@ -1,8 +1,8 @@
-function [u_to_rlu, img_range, pix] = calc_projections_(obj, detdcn,qspec,proj_mode)
+function [u_to_rlu, pix_range, pix] = calc_projections_(obj, detdcn,qspec,proj_mode)
 % Label pixels in an spe file with coords in the 4D space defined by crystal Cartesian coordinates and energy transfer.
 % Allows for correction scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
 %
-%   >> [u_to_rlu, ucoords] = obj.calc_projections_(detdcn,qspec,proj_mode)
+%   >> [u_to_rlu,pix_range, pix] = obj.calc_projections_(detdcn,qspec,proj_mode)
 %
 % Optional inputs:
 % ------
@@ -81,7 +81,7 @@ if use_mex
             emode = obj.emode;
             %proj_mode = 2;
             %nThreads = 1;
-            [img_range,pix] =calc_projections_c(spec_to_u, data, det, efix, k_to_e, emode, nThreads,proj_mode);
+            [pix_range,pix] =calc_projections_c(spec_to_u, data, det, efix, k_to_e, emode, nThreads,proj_mode);
             pix = PixelData(pix);
         catch  ERR % use Matlab routine
             warning('HORACE:using_mex','Problem with C-code: %s, using Matlab',ERR.message);
@@ -102,7 +102,7 @@ if ~use_mex
         qspec_provided = true;
     end
 
-    img_range=[min(ucoords,[],2)';max(ucoords,[],2)'];
+    pix_range=[min(ucoords,[],2)';max(ucoords,[],2)'];
 
     % Return without filling the pixel array if urange only is requested
     if nargout==2
