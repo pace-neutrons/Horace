@@ -58,6 +58,11 @@ if ~use_mex
    [ncol,ndet]=size(phx);
 end
 
+% round-off parameters to 5 significant digits for consistency
+% as the real accuracy is even lower but different OS interpret
+% missing digits differently
+phx = round(phx,5);
+
 group=unique(round(phx(6,:)));
 if numel(group)==1      % all group numbers were the same (when rounded to the nearest integer)
     phx(6,:) =1:ndet;

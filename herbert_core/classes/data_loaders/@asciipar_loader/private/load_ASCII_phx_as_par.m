@@ -52,10 +52,13 @@ end
 if ~use_mex
    phx=get_phx_matlab(filename);
 end
+
 % convert phx to par (not implemented)
-par = phx;
-
-
+%
+% round-off parameters to 5 significant digits for consistency
+% as the real accuracy is even lower but different OS interpret
+% missing digits differently
+par  = round(phx,5);
 
 function phx= get_phx_matlab(file_tmp)
 % Read file (use matlab)
