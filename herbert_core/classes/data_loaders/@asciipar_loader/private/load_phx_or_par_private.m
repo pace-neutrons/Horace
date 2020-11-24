@@ -17,9 +17,6 @@ function [det,obj]=load_phx_or_par_private(obj,return_array,force_reload,getphx,
 %                   full filename in this structure coincides with the one,
 %                   provided for file to load from.
 %
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-%
 if ~isempty(obj.det_par_) &&(~force_reload)
     sample = obj.par_file_name;
     [par_path,par_file,pext] = fileparts(sample);

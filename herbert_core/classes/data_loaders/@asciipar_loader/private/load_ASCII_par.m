@@ -54,6 +54,10 @@ if ~use_mex
 end
 
 par(3,:) = -par(3,:);
+% round-off parameters to 5 significant digits for consistency
+% as the real accuracy is even lower but different OS interpret
+% missing digits differently
+par = round(par,5);
 
 
 
@@ -62,7 +66,7 @@ function par=get_par_matlab(filename)
 % Load data from ASCII Tobyfit .par file using matlab
 
 fid=fopen(filename,'rt');
-if fid==-1,
+if fid==-1
     error('A_LOADER:get_par_matlab','Error opening file %s\n',filename);
 end
 
