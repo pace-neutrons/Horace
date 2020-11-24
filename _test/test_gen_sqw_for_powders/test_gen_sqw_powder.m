@@ -17,7 +17,7 @@ classdef test_gen_sqw_powder < TestCaseWithSave
     
     methods
         
-        function this = test_gen_sqw_powder(varargin)
+        function obj = test_gen_sqw_powder(varargin)
             if nargin > 0
                 name = varargin{1};
             else
@@ -27,7 +27,7 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             % Set up paths:
             rootpath = fileparts(mfilename('fullpath'));
             sample_file = fullfile(rootpath, 'test_gen_sqw_powder_output.mat');
-            this = this@TestCaseWithSave(name, sample_file);
+            obj = obj@TestCaseWithSave(name, sample_file);
             
             % -----------------------------------------------------------------------------
             % Add common functions folder to path, and get location of common data
@@ -61,17 +61,18 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             
             % clean up
             tmp = tmp_dir;
-            this.sqw_pow_file = fullfile(tmp, 'test_pow_4to1.sqw');
+            obj.sqw_pow_file = fullfile(tmp, 'test_pow_4to1.sqw');
             spe_pow_file = fullfile(tmp, 'test_pow_rings.spe');
             pow_par_file = fullfile(tmp, 'test_pow_rings.par');
             pow_phx_file = fullfile(tmp, 'test_pow_rings.phx');
-            this.sqw_pow_rings_file = fullfile(tmp, 'test_pow_rings.sqw');
+            obj.sqw_pow_rings_file = fullfile(tmp, 'test_pow_rings.sqw');
             %
-            cleanup_obj = onCleanup(@()this.rm_files(spe_pow_file, pow_par_file, pow_phx_file));
+            loc_cleanup_obj = onCleanup(@()obj.rm_files(spe_pow_file, ...
+                pow_par_file, pow_phx_file));
             
             %--------------------------------------------------------------------------------------------------
             % Perform a powder average in Horace
-            gen_sqw_powder(spe_file, par_file, this.sqw_pow_file, efix, emode);
+            gen_sqw_powder(spe_file, par_file, obj.sqw_pow_file, efix, emode);
             
             % Create a simple powder file for Horace to compare with
             [powmap, powpar] = powder_map(parObject(par_file), [3, 0.2626, 60], 'squeeze');
@@ -88,55 +89,57 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             save(spe_pow, spe_pow_file)
             
             % Create sqw file from the powder map
-            gen_sqw_powder(spe_pow_file, pow_par_file, this.sqw_pow_rings_file, efix, emode);
+            gen_sqw_powder(spe_pow_file, pow_par_file, obj.sqw_pow_rings_file, efix, emode);
+            
+            obj.cleanup_obj = onCleanup(@()obj.rm_files(...
+                obj.sqw_pow_file,obj.sqw_pow_rings_file));
             
         end
-        function test_powder_cuts(this)
+        function test_powder_cuts(obj)
             %--------------------------------------------------------------------------------------------------
-            clob = onCleanup(@()this.rm_files(this.sqw_pow_file, this.sqw_pow_rings_file));
-            hc = hor_config;
-            conf = hc.get_data_to_store();
-            clob1 = onCleanup(@()set(hc,conf));
-            % disable mex check for mex -- it is 1 pixel different with mex at the
-            % moment and no point to fix that as expected implementation will change
-            hc.use_mex=0;
+            %            clob = onCleanup(@()this.rm_files(this.sqw_pow_file, this.sqw_pow_rings_file));
+            %             hc = hor_config;
+            %             conf = hc.get_data_to_store();
+            %             clob1 = onCleanup(@()set(hc,conf));
+            %             % disable mex check for mex -- it is 1 pixel different with mex at the
+            %             % moment and no point to fix that as expected implementation will change
+            %             hc.use_mex=0;
             % Visual inspection
             % Plot the powder averaged sqw data
-            wpow = read_sqw(this.sqw_pow_file);
+            wpow = read_sqw(obj.sqw_pow_file);
             
             %cuts_list= containers.Map();
-            w2 = cut_sqw(wpow, [0, 0.03, 7], 0, '-nopix');
+            w2 = cut_sqw(wpow, [0, 0.032, 7], 0, '-nopix');
             w1 = cut_sqw(wpow, [2, 0.03, 6.5], [53, 57], '-nopix');
             
             plot(w2)
             lz 0 0.5
             dd(w1)
-            
+            obj.assertEqualToTolWithSave(w1,'ignore_str',true,'reltol',1.e-5)
+            obj.assertEqualToTolWithSave(w2,'ignore_str',true,'reltol',1.e-5)
+        end
+        function test_rings_cut(obj)
+            %--------------------------------------------------------------------------------------------------
+                        
             % Plot the same slice and cut from the sqw file created using the rings map
             % Slightly different - as expected, because of the summing of a ring of pixels
             % onto a single pixel in the rings map.
-            wpowrings = read_sqw(this.sqw_pow_rings_file);
+            wpowrings = read_sqw(obj.sqw_pow_rings_file);
             
-            w2rings = cut_sqw(wpow, [0, 0.03, 7], 0, '-nopix');
+            w2rings = cut_sqw(wpowrings, [0, 0.03, 7], 0, '-nopix');
             w1rings = cut_sqw(wpowrings, [2, 0.03, 6.5], [53, 57], '-nopix');
             plot(w2rings)
             lz 0 0.5
             dd(w1rings)
-            
             %--------------------------------------------------------------------------------------------------
-            
-            %--------------------------------------------------------------------------------------------------
-            this.assertEqualToTolWithSave(w1,'ignore_str',true,'reltol',1.e-5)
-            this.assertEqualToTolWithSave(w2,'ignore_str',true,'reltol',1.e-5)
-            this.assertEqualToTolWithSave(w2rings,'ignore_str',true,'reltol',1.e-5)
-            this.assertEqualToTolWithSave(w1rings,'ignore_str',true,'reltol',1.e-5)
+            obj.assertEqualToTolWithSave(w2rings,'ignore_str',true,'reltol',1.e-5)
+            obj.assertEqualToTolWithSave(w1rings,'ignore_str',true,'reltol',1.e-5)
             
         end
         
     end
     
-    methods (Static)
-        
+    methods (Static)        
         function rm_files(varargin)
             % simple function which removes files from the list without issuing warning
             % if the file is not present
