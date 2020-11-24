@@ -196,7 +196,7 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
     
     % Original author A. Buts, rewritten T.G.Perring
     %
-
+    
     
     properties(Dependent)
         % Filename from which to read previously stored test results
@@ -630,12 +630,11 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             call_struct = dbstack(1);
             for i=numel(call_struct):-1:2
                 cont=regexp(call_struct(i).name,'\.','split');
+                test_name = cont{end};
+                
                 if strcmp(cont{1},class_name) && ~strcmp(cont{end},class_name) &&...
                         strncmpi(cont{end},'test',4)
-                    test_name = cont{end};
                     break
-                else
-                    test_name = cont{end};
                 end
             end
             
