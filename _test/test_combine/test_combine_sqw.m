@@ -63,7 +63,7 @@ classdef test_combine_sqw < TestCase
             
         end
         %
-        function xest_combine1D(obj)
+        function DISABLED_test_combine1D(obj)
             % this is to fix in a future. There is problem with orhtogonal
             % coordinate system
             
