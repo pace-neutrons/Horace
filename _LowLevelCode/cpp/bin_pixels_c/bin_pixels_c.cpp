@@ -284,23 +284,19 @@ bool bin_pixels(double* s, double* e, double* npix,
             ok[i] = false;
             if (xt < cut_range[0] || xt >= cut_range[1]) {
                 if (xt == cut_range[1])xt *= (1. - FLT_EPSILON);
-                else 
-                    continue;
+                else continue;
             }
-            if (yt<cut_range[2] || yt>=cut_range[3]) {
+            if (yt < cut_range[2] || yt >= cut_range[3]) {
                 if (yt == cut_range[3])yt *= (1. - FLT_EPSILON);
-                else
-                    continue;
+                else  continue;
             }
-            if (zt<cut_range[4] || zt>=cut_range[5]) {
+            if (zt < cut_range[4] || zt >= cut_range[5]) {
                 if (zt == cut_range[5])zt *= (1. - FLT_EPSILON);
-                else
-                    continue;
+                else continue;
             }
             if (Et<cut_range[6] || Et>cut_range[7]) {
                 if (Et == cut_range[7])Et *= (1. - FLT_EPSILON);
-                else
-                    continue;
+                else continue;
             }
 
 
@@ -411,11 +407,11 @@ bool bin_pixels(double* s, double* e, double* npix,
 
 // where to place new pixels
         if (data_size == nPixel_retained) {
-//#pragma omp single
+            //#pragma omp single
             PixelSorted = tPixelSorted;
         }
         else {
-//#pragma omp single // barrier exist, no other threads will enter region
+            //#pragma omp single // barrier exist, no other threads will enter region
             {
                 try {
                     PixelSorted = mxCreateDoubleMatrix(pix_fields::PIX_WIDTH, nPixel_retained, mxREAL);
@@ -432,10 +428,10 @@ bool bin_pixels(double* s, double* e, double* npix,
             for (long i = 0; i < nPixel_retained * pix_fields::PIX_WIDTH; i++) {
                 pPixels[i] = pPixelSorted[i];
             }
-//#pragma omp barrier
-//#pragma omp single
+            //#pragma omp barrier
+            //#pragma omp single
             {
-                if (tPixelSorted){
+                if (tPixelSorted) {
                     mxDestroyArray(tPixelSorted);
                     tPixelSorted = nullptr;
                 }
