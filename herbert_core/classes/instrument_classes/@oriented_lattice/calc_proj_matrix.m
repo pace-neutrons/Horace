@@ -37,12 +37,10 @@ function [spec_to_u, u_to_rlu, spec_to_rlu] = calc_proj_matrix (obj)
 %   gs          Small goniometer arc angle (rad)
 
 % T.G.Perring 15/6/07
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 
 % Get matrix to convert from rlu to orthonormal frame defined by u,v; and
-b_matrix  = obj.bmatrix();       % bmat takes Vrlu to Vxtal_cart
+b_matrix  = obj.bmatrix();       % bmat takes Vrlu to V_crystal_Cart
 [~,u_matrix] = obj.ubmatrix(b_matrix);     % ubmat takes Vrlu to V in orthonormal frame defined by u, v
 %u_matrix  = ub_matrix / b_matrix;         % u matrix takes V in crystal Cartesian coordinates to orthonormal frame defined by u, v
 
