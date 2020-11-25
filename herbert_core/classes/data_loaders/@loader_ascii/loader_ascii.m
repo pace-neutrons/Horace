@@ -2,9 +2,8 @@ classdef loader_ascii < a_loader
     % helper class to provide loading experiment data from
     % ASCII spe file and  ASCII par file
     %
-    % $Author: Alex Buts; 20/10/2011
+    % $Author: AB; 20/10/2011
     %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
     %
     
     methods(Static)
