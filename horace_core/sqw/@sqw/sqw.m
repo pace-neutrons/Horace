@@ -64,6 +64,7 @@ classdef sqw < SQWDnDBase
     methods(Access = protected)
         wout = unary_op_manager(obj, operation_handle);
         wout = binary_op_manager_single(w1,w2,binary_op);
+        [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
     end
 
     methods(Static, Access = private)

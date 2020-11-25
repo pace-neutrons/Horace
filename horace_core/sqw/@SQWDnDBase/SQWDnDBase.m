@@ -26,6 +26,7 @@ classdef (Abstract) SQWDnDBase
 
     methods (Access = protected)
         wout = binary_op_manager(w1, w2, binary_op);
+        [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
         % function obj = untitled(inputArg1,inputArg2)
         % % UNTITLED Construct an instance of this class
         % %   Detailed explanation goes here

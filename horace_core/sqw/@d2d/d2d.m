@@ -4,17 +4,26 @@ classdef d2d < DnDBase
     % Syntax:
     %   >> w = d2d()               % Create a default, zero-dimensional SQW object
     %   >> w = d2d(struct)         % Create from a structure with valid fields (internal use)
+    %   >> w = d2d(filename)       % Create an sqw object from a file
 
+    properties (Constant, Access = protected)
+       NUM_DIMS = 2;
+    end
 
     methods
         function obj = d2d(varargin)
             obj = obj@DnDBase(varargin{:});
             [args] = obj.parse_args(varargin{:});
 
-
+            % i) copy
+            if ~isempty(args.dnd_obj)
+                obj = copy(args.dnd_obj);
             % ii) struct
-            if ~isempty(args.data_struct)
+            elseif ~isempty(args.data_struct)
                 obj = obj.init_from_loader_struct(args.data_struct);
+            % iii) filename
+            elseif ~isempty(args.filename)
+                obj = obj.init_from_file(args.filename);
             end
         end
     end
@@ -52,7 +61,7 @@ classdef d2d < DnDBase
                 args.data_struct = input;
             else
                 % create struct holding default instance
-                args.data_struct = data_sqw_dnd(2);
+                args.data_struct = data_sqw_dnd(d2d.NUM_DIMS);
             end
         end
     end
@@ -60,6 +69,22 @@ classdef d2d < DnDBase
     methods(Access = 'private')
         function obj = init_from_loader_struct(obj, data_struct)
             obj.data = data_struct;
+        end
+
+        function obj = init_from_file(obj, in_filename)
+            % Parse DnD from file
+            %
+            % An error is raised if the data file is identified not a D2D object
+            ldr = sqw_formats_factory.instance().get_loader(in_filename);
+            if ~strcmpi(ldr.data_type, 'b+') % not a valid dnd-type structure
+                error('D2D:d2d', 'Data file does not contain valid dnd-type object');
+            end
+            if ldr.num_dim ~= d2d.NUM_DIMS
+                error('D2D:d2d', 'Data file does not contain 2d dnd-type object');
+            end
+
+            [~, ~, ~, dnd_data] = ldr.get_dnd('-legacy');
+            obj = obj.init_from_loader_struct(dnd_data);
         end
     end
 end
