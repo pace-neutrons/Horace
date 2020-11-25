@@ -9,18 +9,18 @@ function [S,ERR,en] = read_spe_(filename)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-%
 % Based on Radu coldea routine load_spe in mslice
+%
 
 filename=strtrim(filename); % Remove blanks from beginning and end of filename
-if isempty(filename),
+if isempty(filename)
    error('Filename is empty')
 end
 fid=fopen(filename,'rt');
-if fid==-1,
+if fid==-1
    error(['Error opening file ',filename]);
 end
+clob = onCleanup(@()fclose(fid));
 
 % Read number of detectors and energy bins
 ndet=fscanf(fid,'%d',1);
@@ -35,7 +35,7 @@ en=fscanf(fid,'%10f',ne+1); % read energy grid
 % Read data
 S=zeros(ne,ndet);
 ERR=zeros(ne,ndet);
-for i=1:ndet,
+for i=1:ndet
     temp=fgetl(fid);        % read eol character
     temp=fgetl(fid);        % get rid of line ### S(Phi,w)
     S(:,i)=fscanf(fid,'%10f',ne);
@@ -43,5 +43,8 @@ for i=1:ndet,
     temp=fgetl(fid);        % get rid of line ### Errors
     ERR(:,i)=fscanf(fid,'%10f',ne);
 end
-fclose(fid);
+accuracy = loader_ascii.ASCII_DATA_ACCURACY;
+S = round(S,accuracy);
+ERR = round(ERR,accuracy);
+en  = round(en,accuracy);
 
