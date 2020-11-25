@@ -1,6 +1,13 @@
-function par=load_ASCII_par(filename)
+function par=load_ASCII_par(filename,accuracy)
 % Load data from ASCII Tobyfit .par file
 %   >> par = load_ASCII_par(filename)
+%   >> par = load_ASCII_par(filename,accuracy)
+% Inputs:
+% filename -- name of the par file to read
+% accuracy -- if provided, the number of digits to keep
+%             after decimal point. If not provided, the
+%             accuracy is equal to asciipar_loader.ASCII_PARAM_ACCURACY
+%
 %
 % data has following fields:
 %
@@ -25,6 +32,9 @@ function par=load_ASCII_par(filename)
 if ~exist('filename','var')
     help load_ASCII_par;
     return
+end
+if ~exist('accuracy','var')
+    accuracy = asciipar_loader.ASCII_PARAM_ACCURACY;
 end
 % Remove blanks from beginning and end of filename
 filename=strtrim(filename);
@@ -54,10 +64,10 @@ if ~use_mex
 end
 
 par(3,:) = -par(3,:);
-% round-off parameters to 5 significant digits for consistency
+% round-off parameters to 'accuracy' digits after dot for consistency
 % as the real accuracy is even lower but different OS interpret
 % missing digits differently
-par = round(par,5);
+par = round(par,accuracy);
 
 
 
