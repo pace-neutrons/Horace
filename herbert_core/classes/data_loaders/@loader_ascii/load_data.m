@@ -56,26 +56,26 @@ ERR(nans) = 0;
 % Fill output argument(s)
 if nargout == 1
     % set also all dependent on S variables
-    this.S_  =S;
-    this.ERR_=ERR;
-    this.en_ =en;
+    this.S_  =round(S,5);
+    this.ERR_=round(ERR,5);
+    this.en_ =round(en,5);
     
     varargout{1}=this;
 elseif nargout ==2
-    varargout{1}=S;
-    varargout{2}=ERR;
+    varargout{1}=round(S,5);
+    varargout{2}=round(ERR,5);
 elseif nargout == 3
-    varargout{1}=S;
-    varargout{2}=ERR;
-    varargout{3}=en;
+    varargout{1}=round(S,5);
+    varargout{2}=round(ERR,5);
+    varargout{3}=round(en,5);
 elseif nargout == 4
-    this.S_  =S;
-    this.ERR_=ERR;
-    this.en_ =en;
+    this.S_  =round(S,5);
+    this.ERR_=round(ERR,5);
+    this.en_ =round(en,5);
     
-    varargout{1}=S;
-    varargout{2}=ERR;
-    varargout{3}=en;
+    varargout{1}=this.S_ ;
+    varargout{2}=this.ERR_;
+    varargout{3}=this.en_;
     varargout{4}=this;
 end
 
