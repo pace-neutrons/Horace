@@ -5,6 +5,10 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         data % dnd_sqw_data instance
     end
 
+    properties(Constant, Abstract, Access = protected)
+       NUM_DIMS
+    end
+
     properties(Dependent)
         filename
         filepath
@@ -25,17 +29,18 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         npix
     end
 
-    methods(Abstract)
-
+    methods (Access = protected)
+        [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
     end
 
     methods
         % function signatures
-        [nd, sz] = dimensions(w);
+        [nd, sz] = dimensions(w)
+        wout = copy(w)
 
 
         function obj = DnDBase(varargin)
-            obj = obj@SQWDnDBase(varargin{:});
+            obj = obj@SQWDnDBase();
         end
 
         % Wrapped data attributes
