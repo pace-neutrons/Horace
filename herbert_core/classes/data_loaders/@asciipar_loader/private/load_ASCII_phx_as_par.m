@@ -1,7 +1,14 @@
-function par=load_ASCII_phx_as_par(filename)
+function par=load_ASCII_phx_as_par(filename,accuracy)
 % Load data from ASCII mslice .phx file
 %   >> par = load_ASCII_phx_as_par(filename)
+%   >> par = load_ASCII_phx_as_par(filename,accuracy)
 %
+% Inputs:
+% filename -- name of the par file to read
+% accuracy -- if provided, the number of digits to keep
+%             after decimal point. If not provided, the
+%             accuracy is equal to asciipar_loader.ASCII_PARAM_ACCURACY
+
 % data has following fields:
 %
 %     par(6,ndet)   contents of array
@@ -29,6 +36,10 @@ if ~exist('filename','var')
     help get_par;
     return
 end
+if ~exist('accuracy','var')
+    accuracy = asciipar_loader.ASCII_PARAM_ACCURACY;
+end
+
 
 filename=strtrim(filename);
 
@@ -50,15 +61,16 @@ if use_mex
 end
 
 if ~use_mex
-   phx=get_phx_matlab(filename);
+    phx=get_phx_matlab(filename);
 end
 
-% convert phx to par (not implemented)
 %
-% round-off parameters to 5 significant digits for consistency
+% round-off parameters to 'accuracy' digits after decimal pointfor consistency
 % as the real accuracy is even lower but different OS interpret
 % missing digits differently
-par  = round(phx,5);
+%
+% convert phx to par (not implemented)
+par  = round(phx,accuracy);
 
 function phx= get_phx_matlab(file_tmp)
 % Read file (use matlab)
@@ -99,5 +111,5 @@ end
 %     phx.azim=arr(4,:);
 %     phx.dphi=arr(5,:);
 %     phx.danght=arr(6,:);
-    
+
 

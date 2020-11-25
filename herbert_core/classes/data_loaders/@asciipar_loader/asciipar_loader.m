@@ -26,6 +26,12 @@ classdef asciipar_loader < a_detpar_loader_interface
         % The data fields an ascii par loader defines
         par_can_define_ = {'det_par','n_det_in_par'};
     end
+    properties(Constant)
+        % when read ascii parameters, keep the specified number of digits after
+        % decimal point to obtain consitent results on different operating
+        % systen
+        ASCII_PARAM_ACCURACY = 4;
+    end
     methods
         % constructor;
         function this=asciipar_loader(varargin)

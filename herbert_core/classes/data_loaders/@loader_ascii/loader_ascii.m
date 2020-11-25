@@ -5,6 +5,13 @@ classdef loader_ascii < a_loader
     % $Author: AB; 20/10/2011
     %
     %
+    properties(Constant)
+        % when read ascii data, keep the specified number of digits after
+        % decimal point to obtain consitent results on different operating
+        % systems
+        ASCII_DATA_ACCURACY = 4;
+    end
+    
     
     methods(Static)
         function fext=get_file_extension()
@@ -104,7 +111,7 @@ classdef loader_ascii < a_loader
             % The run_data structure fields which become defined if proper spe file is provided
             
             obj=obj@a_loader(varargin{:});
-            obj.loader_define_ ={'S','ERR','en','n_detectors'};            
+            obj.loader_define_ ={'S','ERR','en','n_detectors'};
             if exist('full_spe_file_name','var')
                 obj = obj.init(full_spe_file_name);
             else
