@@ -35,7 +35,11 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             addpath(fullfile(hor_root, '_test', 'common_functions'))
             common_data_dir = fullfile(hor_root, '_test', 'common_data');
             % -----------------------------------------------------------------------------
-            
+            hcfg=herbert_config();
+            current = hcfg.use_mex;
+            clob = onCleanup(@()set(hcfg,'use_mex',current));
+            hcfg.use_mex = false;
+             
             % =====================================================================================================================
             % Create sqw file:
             en = 0:1:90;
@@ -97,21 +101,14 @@ classdef test_gen_sqw_powder < TestCaseWithSave
         end
         function test_powder_cuts(obj)
             %--------------------------------------------------------------------------------------------------
-            %            clob = onCleanup(@()this.rm_files(this.sqw_pow_file, this.sqw_pow_rings_file));
-            %             hc = hor_config;
-            %             conf = hc.get_data_to_store();
-            %             clob1 = onCleanup(@()set(hc,conf));
-            %             % disable mex check for mex -- it is 1 pixel different with mex at the
-            %             % moment and no point to fix that as expected implementation will change
-            %             hc.use_mex=0;
-            % Visual inspection
-            % Plot the powder averaged sqw data
             wpow = read_sqw(obj.sqw_pow_file);
             
             %cuts_list= containers.Map();
             w2 = cut_sqw(wpow, [0, 0.031, 7], 0, '-nopix');
             w1 = cut_sqw(wpow, [2, 0.03, 6.5], [53, 57], '-nopix');
-            
+
+            % Visual inspection
+            % Plot the powder averaged sqw data
             plot(w2)
             lz 0 0.5
             dd(w1)
@@ -120,14 +117,15 @@ classdef test_gen_sqw_powder < TestCaseWithSave
         end
         function test_rings_cut(obj)
             %--------------------------------------------------------------------------------------------------
-            
-            % Plot the same slice and cut from the sqw file created using the rings map
-            % Slightly different - as expected, because of the summing of a ring of pixels
-            % onto a single pixel in the rings map.
             wpowrings = read_sqw(obj.sqw_pow_rings_file);
             
             w2rings = cut_sqw(wpowrings, [0, 0.03, 7], 0, '-nopix');
             w1rings = cut_sqw(wpowrings, [2, 0.03, 6.5], [53, 57], '-nopix');
+
+            
+            % Plot the same slice and cut from the sqw file created using the rings map
+            % Slightly different - as expected, because of the summing of a ring of pixels
+            % onto a single pixel in the rings map.
             plot(w2rings)
             lz 0 0.5
             dd(w1rings)
