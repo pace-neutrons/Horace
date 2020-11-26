@@ -46,14 +46,14 @@ To get help concerning a Horace function there are two options, in addition to r
 
 ::
 
-   >> help function_name
+   help function_name
 
 
 where ``function_name`` is the name of the function you wish to get help with, usually works. For some functions the help given by this method is rather terse. For more detailed help you can type
 
 ::
 
-   >>horace_help function_name
+   horace_help function_name
 
 
 If a more detailed help message is available then it will be printed in the Matlab command window. If more detailed information is not available then an error is returned.
@@ -144,7 +144,7 @@ The header cell array itself contains more structure arrays, one for each of the
 ::
 
    filename 'map11014.spe'
-   filepath 'C:\\mprogs\\demo\\
+   filepath 'C:\\mprogs\\demo\\'
    efix 787
    emode 1
    alatt [2.87 2.87 2.87]
@@ -168,7 +168,7 @@ The detpar structure array contains information about all of the detectors, incl
 ::
 
    filename '9cards_4_4to1.par'
-   filepath 'C:\\mprogs\\Horace\\demo\\
+   filepath 'C:\\mprogs\\Horace\\demo\\'
    group <1x36864 double>
    x2 <1x36864 double>
    phi <1x36864 double>

@@ -18,8 +18,11 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Horace'
-copyright = '2020, Alex Buts, Toby Perring, Nick Battam, Harry Saunders, Duc Le, Chris Marooney'
-author = 'Alex Buts, Toby Perring, Nick Battam, Harry Saunders, Duc Le, Chris Marooney'
+copyright = '2020, STFC RAL'
+authors = ['A. Buts','T.G. Perring','N. Battam','H. Saunders','M.D. Le','C. Marooney','J. Wilkins', 'R.A. Ewings', 'J. van Duijn', 'I. Bustinduy', 'G. Tucker', 'R. Fair']
+
+author = ', '.join(sorted(authors,key=lambda x: x.split()[-1])) # Authors by surname
+
 
 # The full version, including alpha/beta/rc tags
 release = '3.5.0'
@@ -33,6 +36,14 @@ release = '3.5.0'
 extensions = [
     "sphinx.ext.autosectionlabel",
 ]
+
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.txt': 'restructuredtext',
+    '.md': 'markdown',
+}
+
+highlight_language = "matlab"
 
 autosectionlabel_prefix_document = True
 
@@ -56,3 +67,4 @@ html_theme = 'sphinx_rtd_theme'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+html_last_updated_fmt = "%c"
