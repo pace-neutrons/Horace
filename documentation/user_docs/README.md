@@ -33,9 +33,13 @@ To build the docs locally:
       sphinx-build -M html "docs" "build"
 
 
-Built documents will be put in the `/build/html` folder, the main file is the `index.rst` file.
+Built documents will be put in the `/build/html` folder, the main file is the `index.html` file.
 
 ## Online documentation
 Horace documentation is also available from:
+
+https://pace-neutrons.github.io/horace-docs/latest
+
+For this version, see:
 
 https://pace-neutrons.github.io/horace-docs/3.5.0/ 
