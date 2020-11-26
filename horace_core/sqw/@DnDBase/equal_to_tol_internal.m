@@ -24,9 +24,8 @@ for idx = 1:numel(class_fields)
     tmp1 = w1.(field_name);
     tmp2 = w2.(field_name);
     [ok, mess] = equal_to_tol(tmp1, tmp2, args{:}, 'name_a', name_a, 'name_b', name_b);
-end
-
-% Return if failed before expensive or unnecessary PixelData tests
-if ~ok
-    return
+    
+    if ~ok
+        return; % break on first failure
+    end
 end
