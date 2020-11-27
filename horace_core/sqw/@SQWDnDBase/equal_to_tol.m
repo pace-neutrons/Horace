@@ -68,17 +68,26 @@ if isa(w1, 'SQWDnDBase') && isa(w2, 'SQWDnDBase')
         mess = 'Sizes of sqw object arrays being compared are not equal';
         return
     end
+
     % Check that corresponding objects in the array have the same type
+    base_message = 'Objects being compared are not both sqw-type or both dnd-type';
     for i = 1:numel(w1)
         if class(w1(i)) ~= class(w2(i))
             elmtstr = '';
-            if numel(w1) > 1, elmtstr = ['(element ', num2str(i), ')'];
+            if numel(w1) > 1
+                elmtstr = ['(element ', num2str(i), ')'];
             end
+
             ok = false;
-            mess = ['Objects being compared are not both sqw-type or both dnd-type ', elmtstr];
+            if numel(w1) > 1
+                mess = [base_message, ' ', elmtstr];
+            else
+                mess = base_message;
+            end
             return
         end
     end
+
     % Perform comparison
     sz = size(w1);
     for i = 1:numel(w1)
@@ -98,12 +107,14 @@ if isa(w1, 'SQWDnDBase') && isa(w2, 'SQWDnDBase')
         else
             other = varargin;
         end
+
         [ok, mess] = equal_to_tol_internal(w1(i), w2(i), in_name{1}, in_name{2}, other{:});
-        if ~ok, return, end
+        if ~ok
+            return
+        end
     end
 else
     ok = false;
     mess = 'One of the objects to be compared is not an sqw object';
-    return
 end
 
