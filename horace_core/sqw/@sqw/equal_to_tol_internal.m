@@ -92,5 +92,4 @@ else
             [ok, mess] = equal_to_tol(s1, s2, args{:}, 'name_a', name_a, 'name_b', name_b);
         end
     end
-
 end
