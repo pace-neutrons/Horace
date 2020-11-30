@@ -1,7 +1,7 @@
-[<-previous](./0017-separate-absolute-and-relative-indexing-APIs-in-pixel-array.md) |
+[<-previous](./0018-algorithm-migration-to-paged-files.md) |
 next->
 
-# 18 - Update Release Notes on Every Pull Request
+# 19 - Update Release Notes on Every Pull Request
 
 Date: 2020-Nov-19
 
