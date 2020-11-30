@@ -1,4 +1,5 @@
-[<-previous](0017-separate-absolute-and-relative-indexing-APIs-in-pixel-array.md) | next->
+[<-previous](0017-separate-absolute-and-relative-indexing-APIs-in-pixel-array.md) |
+[next->](0019-update-release-notes-every-pr.md)
 
 # 18 - Algorithm migration to paged implementations
 
@@ -35,7 +36,7 @@ The new SQW object has been designed around a paged `PixelData` object which hol
  - an identical API is available for large and small datasets on small and large computers
  - the switch between in-memory and on-disk (paged) operation is automatic as dataset grows
  - the page size is a configuration parameter that is intended to be user configurable for the machines and datasets they’re using:
-    - a large page size will offer better performance if the whole dataset fits in a single page, 
+    - a large page size will offer better performance if the whole dataset fits in a single page,
     - a moderate page size appears optimal for datasets too large for system RAM
     - it is hard / impossible / undesirable to calculate optimal page size on a per-machine/per-file basis
 - implementation of a single `cut()` method (or function) that operates on an SQW object (either `this` or one passed as an argument) operating through the public API and agnostic to the size of the datasets.
@@ -77,7 +78,7 @@ s = sqw(filename, 'pixel_page_size', page_size)
 The example APIs for `cut` would be:
 ```matlab
 % Pure in-memory operation (small file only)
-s = sqw(infile) 
+s = sqw(infile)
 slice = cut(s)
 
 % Paged operation (in-memory for small file, paged for large file)
