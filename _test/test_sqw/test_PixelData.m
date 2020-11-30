@@ -89,6 +89,7 @@ methods
     function test_coordinates_returns_empty_array_if_pixel_data_empty(~)
         pix_data = PixelData();
         assertTrue(isempty(pix_data.coordinates));
+        assertEqual(pix_data.pix_range,zeros(2,4));
     end
 
     function test_pixel_data_is_set_to_input_data_on_construction(obj)
