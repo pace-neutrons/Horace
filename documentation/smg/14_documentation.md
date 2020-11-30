@@ -1,6 +1,7 @@
 # Documentation
 
-This document will outline the process surrounding the documentation currently housed in the `horace-docs` repository. 
+This document will outline the process surrounding the documentation currently housed in the `documentation/user_docs` folder and 
+available separately as a download with release from (URL TBD)
 It assumes a basic knowledge of reStructuredText (reST) format (https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html)
 especially the subset of the sphinx-doc toolset (https://www.sphinx-doc.org/en/master/)
 
@@ -20,9 +21,7 @@ On Linux (Optional):
 * Make
 
 ### Building Locally
-First, clone the documentation repository (https://github.com/pace-neutrons/horace-docs)
-
-    git clone https://github.com/pace-neutrons/horace-docs.git
+First, with a clone of the `Horace` repository, go to the `documentation/user_docs` folder.
 
 * Windows
   
@@ -45,12 +44,16 @@ First, clone the documentation repository (https://github.com/pace-neutrons/hora
 
 Built documents will be put in the `/build/html` folder, the main file is the `index.rst` file.
 
+#### Differences between a local and online build
+
+Currently any local build will not strip the `[NULL]` lines from the documentation sidebar, this will be updated in a later release.
+
 ## Adding new documents
 ### Create new `.rst`
 
 The first job to add a new document is to create it. 
 
-* The file should be added into the `docs` folder, preferably with the `.rst` suffix. 
+* The file should be added into the `docs` folder within `documentation/user_docs`, preferably with the `.rst` suffix. 
    * For ease of reference and consistency, the filename of the document should be the title with spaces replaced by underscores. 
 * It should be written using the sphinx-doc style, including interfile references through:
 
@@ -87,4 +90,5 @@ The contents list is a manual table of contents linking to main documentation wh
 
 ## Deploying documentation
 
-TBD
+The documentation will be deployed automatically on a nightly build to the `latest` page of the GitHub pages. 
+On release, documentation will be deployed to the folder corresponding to the version number of the relase and redirected to by the `stable` page of the GitHub pages
