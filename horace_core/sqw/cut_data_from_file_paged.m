@@ -89,13 +89,12 @@ pix_indices = get_values_in_ranges(bin_starts, bin_ends);
 cut_pix_data = PixelData();
 for block_start = 1:block_size:numel(pix_indices)
     block_end = min(block_start + block_size - 1, numel(pix_indices));
-    cut_pix_data.append(sqw_obj.data.pix.get_pixels(pix_indices(block_start:block_end)));
+    cut_pix_data = sqw_obj.data.pix.get_pixels(pix_indices(block_start:block_end));
 
     %% Start: cut_data_from_file_job.accumulate_cut -------------------------------
 
     keep_pix = true;
 
-    % if proj.can_mex_cut && get(hor_config, 'use_mex')
     [ ...
         s, ...
         e, ...
@@ -115,16 +114,14 @@ for block_start = 1:block_size:numel(pix_indices)
             targ_pax ...
     );
 
-    npix_sum = sum(npix(:))
-
     %% End: cut_data_from_file_job.accumulate_cut ---------------------------------
 
 
     %% Continue: cut_data_from_array ----------------------------------------------
 
     if keep_pix
-        cut_pix_data = cut_pix_data.get_pixels(ok);
-        cut_pix_data = sort_pix(cut_pix_data, ix, npix);
+        pix = sqw_obj.data.pix.get_pixels(ok);
+        pix = sort_pix(pix, ix, npix);
     else
         cut_pix_data = PixelData();
     end
