@@ -16,4 +16,3 @@ sz = zeros(1, nd);
 for i = 1:nd
     sz(i) = length(w.data.p{i}) - 1;
 end
-
