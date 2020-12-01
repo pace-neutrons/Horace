@@ -1469,7 +1469,7 @@ classdef test_PixelData < TestCase
             num_pix = 30;
             data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix,pix_range] = obj.get_pix_with_fake_faccess(data, npix_in_page);
             
             rand_order = randperm(num_pix);
             shuffled_pix = data(:, rand_order);
@@ -1477,6 +1477,7 @@ classdef test_PixelData < TestCase
             
             assertEqual(sig_var, ...
                 shuffled_pix([obj.SIGNAL_IDX, obj.VARIANCE_IDX], :));
+            assertEqual(pix.pix_range,pix_range);
         end
         
         function test_get_data_throws_invalid_arg_if_indices_not_vector(~)
@@ -1528,7 +1529,8 @@ classdef test_PixelData < TestCase
         end
         
         % -- Helpers --
-        function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
+        function [pix,pix_range] = get_pix_with_fake_faccess(obj, data, npix_in_page)
+            pix_range = [min(data(1:4,:),[],2),max(data(1:4,:),[],2)]';
             faccess = FakeFAccess(data);
             % give it a real file path to trick code into thinking it exists
             faccess = faccess.set_filepath(obj.test_sqw_file_full_path);
