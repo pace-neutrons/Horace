@@ -23,7 +23,7 @@ function [ok, mess] = equal_to_tol(w1, w2, varargin)
 %           It has the form: [abs_tol, rel_tol] where
 %               abs_tol     absolute tolerance (>=0; if =0 equality required)
 %               rel_tol     relative tolerance (>=0; if =0 equality required)
-%           If either criterion is satified then equality within tolerance
+%           If either criterion is satisfied then equality within tolerance
 %           is accepted.
 %             Examples:
 %               [1e-4, 1e-6]    absolute 1e-4 or relative 1e-6 required

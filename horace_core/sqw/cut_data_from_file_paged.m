@@ -86,12 +86,21 @@ block_size = sqw_obj.data.pix.base_page_size;
 % Get pixels that will likely contribute to the cut
 pix_indices = get_values_in_ranges(bin_starts, bin_ends);
 
-cut_pix_data = PixelData();
-for block_start = 1:block_size:numel(pix_indices)
-    block_end = min(block_start + block_size - 1, numel(pix_indices));
-    cut_pix_data = sqw_obj.data.pix.get_pixels(pix_indices(block_start:block_end));
+i = 1;
+pix_retained = {};
+pix_ix_retained = {};
 
-    %% Start: cut_data_from_file_job.accumulate_cut -------------------------------
+
+for block_start = 1:block_size:numel(pix_indices)
+% for bin_num = 1:numel(bin_starts)
+    % bin_start = bin_starts(bin_num);
+    % bin_end = bin_ends(bin_num);
+    disp(['Iter ', num2str(i)]);
+
+    block_end = min(block_start + block_size - 1, numel(pix_indices));
+    candidate_pix = sqw_obj.data.pix.get_pixels(pix_indices(block_start:block_end));
+
+    % candidate_pix = sqw_obj.data.pix.get_pixels_in_range(bin_start, bin_end);
 
     keep_pix = true;
 
@@ -109,24 +118,28 @@ for block_start = 1:block_size:numel(pix_indices)
             npix, ...
             urange_step_pix, ...
             keep_pix, ...
-            PixelData(cut_pix_data.data), ...
+            candidate_pix, ...
             proj, ...
             targ_pax ...
     );
 
-    %% End: cut_data_from_file_job.accumulate_cut ---------------------------------
-
-
     %% Continue: cut_data_from_array ----------------------------------------------
 
     if keep_pix
-        pix = sqw_obj.data.pix.get_pixels(ok);
-        pix = sort_pix(pix, ix, npix);
+        % pix = sqw_obj.data.pix.get_pixels(ok);
+        pix = candidate_pix.get_pixels(ok);
+        pix_retained{i} = pix;
+        pix_ix_retained{i} = ix;
+        i = i + 1;
     else
         cut_pix_data = PixelData();
     end
 
+    disp('')
+
 end  % loop over pixel blocks
+
+pix_out = sort_pix(pix_retained, pix_ix_retained, npix);
 
 %% End: cut_data_from_array ---------------------------------------------------
 
@@ -134,8 +147,7 @@ end  % loop over pixel blocks
 %% Continue: cut_sqw_main_single ----------------------------------------------
 
 % Convert range from steps to actual range with respect to output uoffset
-urange_pix = repmat(proj.usteps, [2, 1]) + repmat(proj.urange_offset, [2, 1]);
-urange_pix = urange_step_pix.*urange_pix;
+urange_pix = urange_step_pix.*repmat(proj.usteps, [2, 1]) + repmat(proj.urange_offset, [2, 1]);
 
 ppax = bounds.plot_ax_bounds(1:length(bounds.plot_ax_idx));
 if isempty(ppax)
@@ -177,11 +189,8 @@ data_out.e(no_pix) = 0;
 
 if keep_pix
     data_out.urange = urange_pix;
-    data_out.pix = PixelData(cut_pix_data);
+    data_out.pix = pix_out;
 
-    % sqw_obj.main_header = main_header;
-    % sqw_obj.header = header;
-    % sqw_obj.detpar = detpar;
     sqw_obj.data = data_out;
 else
     [sqw_obj, mess] = make_sqw(true, data_out);  % make dnd-type structure
@@ -236,12 +245,12 @@ end
 
 
 function out = get_values_in_ranges(range_starts, range_ends)
-    % Get an array containing the values of between the given ranges
+    % Get an array containing the values between the given ranges
     % e.g.
     %   >> range_starts = [1, 15, 12]
     %   >> range_ends = [4, 17, 14]
     %   >> get_values_in_range(range_starts, range_ends)
-    %       ans = [1, 2, 3, 4, 15, 16, 17, 9, 12, 13, 14]
+    %       ans = [1, 2, 3, 4, 15, 16, 17, 12, 13, 14]
 
     % Find the indexes of the boundaries of each range
     range_bounds_idxs = cumsum([1; range_ends(:) - range_starts(:) + 1]);

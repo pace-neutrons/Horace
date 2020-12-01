@@ -109,23 +109,29 @@ properties (Constant)
 end
 
 properties (Dependent, Access=private)
-    data_;  % points to raw_data_ but with a layer of validation for setting correct array sizes
-
-    pix_position_;  % the pixel index in the file of the first pixel in the cache
+    % Points to raw_data_ but with a layer of validation for setting correct array sizes
+    data_;
+    % The pixel index in the file of the first pixel in the cache
+    pix_position_;
 end
 
 properties (Dependent)
-    % Return the 1st, 2nd and 3rd dimension of the crystal cartesian orientation (1 x n arrays) [A^-1]
-    u1; u2; u3;
+    % The 1st dimension of the crystal cartesian orientation (1 x n array) [A^-1]
+    u1;
 
-    % Return the spatial dimensions of the crystal cartesian orientation (3 x n array)
+    % The 2nd dimension of the crystal cartesian orientation (1 x n array) [A^-1]
+    u2;
+
+    % The 3rd dimension of the crystal cartesian orientation (1 x n array) [A^-1]
+    u3;
+
+    % The spatial dimensions of the crystal cartesian orientation (3 x n array)
     q_coordinates;
 
-    % Returns the array of energy deltas of the pixels (1 x n array) [meV]
+    % The array of energy deltas of the pixels (1 x n array) [meV]
     dE;
 
-    % Returns the coordinates of the pixels in the projection axes, i.e.: u1,
-    % u2, u3 and dE (4 x n array)
+    % The coordinates of the pixels in, i.e.: u1, u2, u3 and dE (4 x n array)
     coordinates;
 
     % The run index the pixel originated from (1 x n array)
@@ -241,6 +247,13 @@ methods
     pix_out = mask(obj, mask_array, npix);
     pix_out = noisify(obj, varargin);
     obj = move_to_page(obj, page_number);
+
+    function pix = get_pixels_in_range(obj, abs_start_idx, abs_end_idx)
+
+
+
+         pix = PixelData(obj.f_accessor_.get_pix(abs_start_idx, abs_end_idx));
+    end
 
     function obj = PixelData(arg, mem_alloc)
         % Construct a PixelData object from the given data. Default
@@ -668,6 +681,23 @@ methods (Access=private)
         obj.num_pixels_ = double(obj.f_accessor_.npixels);
     end
 
+    % function pix = load_pixels_(obj, abs_pix_indices)
+    %     pix = PixelData(numel(abs_pix_indices));
+
+    %     % if ~obj.cache_is_empty_()
+    %     %     % retrieve any values already in cache
+    %     % end
+
+    %     if obj.page_is_dirty_(obj.page_number_)
+    %         % [pg_idxs, global_idxs] = obj.get_idxs_in_current_page_(abs_pix_indices);
+    %         error('PIXELDATA:not_implemented', ...
+    %               'Loading pixel range from temp files not yet implemented.')
+    %     else
+    %         obj.f_accessor.get_pix()
+    %     end
+
+    % end
+
     function obj = load_current_page_if_data_empty_(obj)
         % Check if there's any data in the current page and load a page if not
         %   This function does nothing if pixels are not file-backed.
@@ -683,6 +713,7 @@ methods (Access=private)
             obj.load_dirty_page_(page_number);
         else
             % load page from sqw file
+            disp(['Page number: ', num2str(obj.page_number_)]);
             obj.load_clean_page_(page_number);
             obj.set_page_dirty_(false, page_number);
         end
@@ -702,6 +733,7 @@ methods (Access=private)
         pix_idx_end = min(pix_idx_start + obj.base_page_size - 1, obj.num_pixels);
 
         obj.data_ = obj.f_accessor_.get_pix(pix_idx_start, pix_idx_end);
+        disp(['pix_start: ', num2str(pix_idx_start), ' pix_end: ', num2str(pix_idx_end)]);
         if obj.page_size == obj.num_pixels
             % Delete accessor and close the file if all pixels have been read
             obj.f_accessor_ = [];
