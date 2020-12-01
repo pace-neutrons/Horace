@@ -104,13 +104,15 @@ classdef PixelData < handle
         page_number_ = 1;  % the index of the currently loaded page
         raw_data_ = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, 0);  % the underlying data cached in the object
         tmp_io_handler_;  % a PixelTmpFileHandler object that handles reading/writing of tmp files
-        pix_range_=[inf,inf,inf,inf;-inf,-inf,-inf,-inf]; % range of pixels in Crystal cartesian coordinate system
+        pix_range_=PixelData.EMPTY_RANGE_; % range of pixels in Crystal cartesian coordinate system
     end
     
     properties (Constant)
         DATA_POINT_SIZE = 8;  % num bytes in a float
         DEFAULT_NUM_PIX_FIELDS = 9;
         DEFAULT_PAGE_SIZE = realmax;  % this gives no paging by default
+        % the range, an empty pixel class has
+        EMPTY_RANGE_ = [inf,inf,inf,inf;-inf,-inf,-inf,-inf];
     end
     
     properties (Dependent, Access=private)
@@ -328,6 +330,7 @@ classdef PixelData < handle
                 end
                 obj.data_ = arg.data;
                 obj.page_memory_size_ = arg.page_memory_size_;
+                obj.reset_changed_coord_range('coordinates')                                
                 return;
             end
             
@@ -336,6 +339,7 @@ classdef PixelData < handle
                 obj.data_ = zeros(obj.PIXEL_BLOCK_COLS_, arg);
                 obj.num_pixels_ = arg;
                 obj.pix_range_ = zeros(2,4);
+                obj.local_range_ = zeros(2,4);
                 return;
             end
             
@@ -360,6 +364,7 @@ classdef PixelData < handle
                     'memory_allocation.']);
             end
             obj.data_ = arg;
+            obj.reset_changed_coord_range('coordinates')                            
             obj.num_pixels_ = size(arg, 2);
             obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_);
         end
@@ -492,6 +497,7 @@ classdef PixelData < handle
                 error('PIXELDATA:data', msg, required_page_size, size(pixel_data, 2));
             end
             obj.data_ = pixel_data;
+            obj.reset_changed_coord_range('coordinates');
             obj.set_page_dirty_(true);
         end
         
@@ -516,7 +522,6 @@ classdef PixelData < handle
                 error('PIXELDATA:data', msg, class(pixel_data));
             end
             obj.raw_data_ = pixel_data;
-            obj.reset_changed_coord_range('coordinates');
         end
         
         function u1 = get.u1(obj)
@@ -823,7 +828,13 @@ classdef PixelData < handle
             % Returns the range of the block of pixels, beeing set up
             % at current iteration
             %
+            if isempty(obj.raw_data_)
+                obj.pix_range_   = PixelData.EMPTY_RANGE_;
+                obj.local_range_ = PixelData.EMPTY_RANGE_;            
+                return
+            end
             ind = obj.FIELD_INDEX_MAP_(field_name);
+            
             local_range = [min(obj.raw_data_(ind,:),[],2),max(obj.raw_data_(ind,:),[],2)]';
             if obj.is_file_backed_()
                 % this may break things down, as the range only expands
