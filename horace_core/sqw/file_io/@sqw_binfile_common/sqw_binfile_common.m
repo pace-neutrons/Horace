@@ -34,11 +34,11 @@ classdef sqw_binfile_common < sqw_file_interface
     % upgrade_file_format - upgrade current sqw file to recent file format.
     %                       May change the sqw file and always opens it in
     %                       write or upgrade mode.
-
+    
     %
     % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
-
+    
     properties(Access=protected,Hidden=true)
         % position (in bytes from start of the file of the appropriate part
         % of Horace data information and the size of this part.
@@ -92,7 +92,7 @@ classdef sqw_binfile_common < sqw_file_interface
             obj.data_type_ = 'a'; % should it always be 'a'?
             obj = init_from_sqw_obj@dnd_binfile_common(obj,varargin{:});
             obj.sqw_holder_ = varargin{1};
-
+            
             obj = init_pix_info_(obj);
         end
         %
@@ -173,6 +173,21 @@ classdef sqw_binfile_common < sqw_file_interface
         det = get_detpar(obj);
         % read main sqw data  from properly initialized binary file.
         [sqw_data,obj] = get_data(obj,varargin);
+        
+        function pix_range = get_pix_range(obj)
+            % get [2x4] array of min/max ranges of the pixels contributing
+            % into an object. Empty for DND object
+            %
+            fseek(obj.file_id_,obj.urange_pos_,'bof');
+            [mess,res] = ferror(obj.file_id_);
+            if res ~= 0
+                error('SQW_BINILE_COMMON:io_error',...
+                    'Can not move to the urange start position, Reason: %s',mess);
+            end
+            
+            pix_range = fread(obj.file_id_,[2,4],'float32');
+        end
+        
         % read pixels information
         pix    = get_pix(obj,varargin);
         % retrieve the whole sqw object from properly initialized sqw file
@@ -201,7 +216,7 @@ classdef sqw_binfile_common < sqw_file_interface
             error('SQW_FILE_IO:runtime_error',...
                 'put_samples is not implemented for faccess_sqw %s',...
                 obj.file_version);
-
+            
         end
         %
         function pix_pos = get.pix_position(obj)
@@ -304,7 +319,7 @@ classdef sqw_binfile_common < sqw_file_interface
             % caches = {'sqw_serializer_','file_closer_','sqw_holder_'};
             % struc = rmfield(struc,caches);
         end
-
+        
     end
     %
     methods(Static,Hidden=true)
@@ -396,7 +411,7 @@ classdef sqw_binfile_common < sqw_file_interface
             % this structure size
             detpar_form = get_detpar_form_(varargin{:});
         end
-
+        
     end
 end
 

@@ -516,7 +516,7 @@ classdef PixelData < handle
                 error('PIXELDATA:data', msg, class(pixel_data));
             end
             obj.raw_data_ = pixel_data;
-            obj.set_coord_range('coordinates',pixel_data);
+            obj.reset_changed_coord_range('coordinates');
         end
         
         function u1 = get.u1(obj)
@@ -527,7 +527,7 @@ classdef PixelData < handle
         function set.u1(obj, u1)
             obj = obj.load_current_page_if_data_empty_();
             obj.data(obj.FIELD_INDEX_MAP_('u1'), :) = u1;
-            obj.set_coord_range('u1',u1);
+            obj.reset_changed_coord_range('u1');
             obj.set_page_dirty_(true);
         end
         
@@ -539,7 +539,7 @@ classdef PixelData < handle
         function set.u2(obj, u2)
             obj = obj.load_current_page_if_data_empty_();
             obj.data(obj.FIELD_INDEX_MAP_('u2'), :) = u2;
-            obj.set_coord_range('u2',u2);
+            obj.reset_changed_coord_range('u2');
             obj.set_page_dirty_(true);
         end
         
@@ -551,7 +551,7 @@ classdef PixelData < handle
         function set.u3(obj, u3)
             obj = obj.load_current_page_if_data_empty_();
             obj.data(obj.FIELD_INDEX_MAP_('u3'), :) = u3;
-            obj.set_coord_range('u3',u3);
+            obj.reset_changed_coord_range('u3');
             obj.set_page_dirty_(true);
         end
         
@@ -563,7 +563,7 @@ classdef PixelData < handle
         function set.dE(obj, dE)
             obj = obj.load_current_page_if_data_empty_();
             obj.data(obj.FIELD_INDEX_MAP_('dE'), :) = dE;
-            obj.set_coord_range('dE',dE);
+            obj.reset_changed_coord_range('dE');
             obj.set_page_dirty_(true);
         end
         
@@ -576,7 +576,7 @@ classdef PixelData < handle
             % ret
             obj = obj.load_current_page_if_data_empty_();
             obj.data(obj.FIELD_INDEX_MAP_('coordinates'), :) = coordinates;
-            obj.set_coord_range('coordinates',coordinates);
+            obj.reset_changed_coord_range('coordinates');
             obj.set_page_dirty_(true);
         end
         
@@ -588,7 +588,7 @@ classdef PixelData < handle
         function set.q_coordinates(obj, q_coordinates)
             obj = obj.load_current_page_if_data_empty_();
             obj.data(obj.FIELD_INDEX_MAP_('q_coordinates'), :) = q_coordinates;
-            obj.set_coord_range('q_coordinates',q_coordinates);
+            obj.reset_changed_coord_range('q_coordinates');
             obj.set_page_dirty_(true);
         end
         
@@ -688,7 +688,7 @@ classdef PixelData < handle
             % Function allows to set the pixels range. 
             %
             % Use with caution!!! No checks that the set range is correct
-            % pixels range are
+            % range for pixels, holded by the class are
             % performed, and the subsequent algorithms rely on pix range 
             % to be correct.
             % 
@@ -714,6 +714,7 @@ classdef PixelData < handle
             obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_);
             obj.page_number_ = 1;
             obj.num_pixels_ = double(obj.f_accessor_.npixels);
+            obj.pix_range_ = f_accessor.get_pix_range();
         end
         
         function obj = load_current_page_if_data_empty_(obj)
@@ -815,7 +816,7 @@ classdef PixelData < handle
             num_pages = max(ceil(obj.num_pixels/obj.base_page_size), 1);
         end
         
-        function set_coord_range(obj,field_name,data)
+        function reset_changed_coord_range(obj,field_name)
             % set appropriate range of pixel coordinates.
             % The coordinates are defined by the selected field
             %
@@ -823,15 +824,15 @@ classdef PixelData < handle
             % at current iteration
             %
             ind = obj.FIELD_INDEX_MAP_(field_name);
-            local_range = [min(data(ind,:),[],2),max(data(ind,:),[],2)]';
+            local_range = [min(obj.raw_data_(ind,:),[],2),max(obj.raw_data_(ind,:),[],2)]';
             if obj.is_file_backed_()
-                % this may break things down, as the range only expangs
+                % this may break things down, as the range only expands
                 range = [min(obj.pix_range_(1,ind),local_range(1,:));...
                     max(obj.pix_range_(2,ind),local_range(2,:))];
             else
                 range = local_range;
             end
-            obj.pix_range_(:,ind) = range;
+            obj.pix_range_(:,ind)   = range;
             obj.local_range_(:,ind) = local_range;            
         end
     end
