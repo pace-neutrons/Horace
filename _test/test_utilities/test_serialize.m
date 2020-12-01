@@ -13,7 +13,7 @@ classdef test_serialize< TestCase
         end
 
 
-                %------------------------------------------------------------------
+        %------------------------------------------------------------------
         function test_ser_sample(this)
             sam1=IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);
 
@@ -99,7 +99,7 @@ classdef test_serialize< TestCase
 
 
         %% Test null
-        function test_ser_size_array_null(this)
+        function test_ser_array_null(this)
             test_obj = [];
             ser =  hlp_serialize(test_obj);
             test_obj_rec = hlp_deserialize(ser);
@@ -109,7 +109,7 @@ classdef test_serialize< TestCase
 
         %% Test Logicals
         %------------------------------------------------------------------
-        function test_ser_size_logical_scalar(this)
+        function test_ser_logical_scalar(this)
             test_obj = true;
             ser =  hlp_serialize(test_obj);
             test_obj_rec = hlp_deserialize(ser);
@@ -117,7 +117,7 @@ classdef test_serialize< TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_size_logical_array(this)
+        function test_ser_logical_array(this)
             test_obj = [true, true, true];
             ser =  hlp_serialize(test_obj);
             test_obj_rec = hlp_deserialize(ser);
@@ -126,7 +126,7 @@ classdef test_serialize< TestCase
 
         %% Test Characters
         %------------------------------------------------------------------
-        function test_ser_size_chararray_null(this)
+        function test_ser_chararray_null(this)
             test_obj = '';
             ser =  hlp_serialize(test_obj);
             test_obj_rec = hlp_deserialize(ser);
@@ -134,7 +134,7 @@ classdef test_serialize< TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_size_chararray_scalar(this)
+        function test_ser_chararray_scalar(this)
             test_obj = 'BEEP';
             ser =  hlp_serialize(test_obj);
             test_obj_rec = hlp_deserialize(ser);
@@ -142,7 +142,7 @@ classdef test_serialize< TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_size_chararray_array(this)
+        function test_ser_chararray_array(this)
             test_obj = ['BEEP','BOOP'; 'BLORP', 'BOP'];
             ser =  hlp_serialize(test_obj);
             test_obj_rec = hlp_deserialize(ser);
@@ -151,7 +151,7 @@ classdef test_serialize< TestCase
 
         %% Test Doubles
         %------------------------------------------------------------------
-        function test_ser_size_double_scalar(this)
+        function test_ser_double_scalar(this)
             test_obj = 10;
             ser =  hlp_serialize(test_obj);
             test_obj_rec = hlp_deserialize(ser);
@@ -159,7 +159,7 @@ classdef test_serialize< TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_size_double_list(this)
+        function test_ser_double_list(this)
             test_obj = [1:10];
             ser =  hlp_serialize(test_obj);
             test_obj_rec = hlp_deserialize(ser);
@@ -167,7 +167,7 @@ classdef test_serialize< TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_size_double_array(this)
+        function test_ser_double_array(this)
             test_obj = [1:10;1:10];
             ser =  hlp_serialize(test_obj);
             test_obj_rec = hlp_deserialize(ser);
@@ -176,7 +176,7 @@ classdef test_serialize< TestCase
 
         %% Test Complexes
         %------------------------------------------------------------------
-        function test_ser_size_complex_scalar(this)
+        function test_ser_complex_scalar(this)
             test_obj = 3+4i;
             ser =  hlp_serialize(test_obj);
             test_obj_rec = hlp_deserialize(ser);
@@ -184,7 +184,7 @@ classdef test_serialize< TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_size_complex_array(this)
+        function test_ser_complex_array(this)
             test_obj = [3+4i, 5+7i; 2+i, 1-i];
             ser =  hlp_serialize(test_obj);
             test_obj_rec = hlp_deserialize(ser);
@@ -193,7 +193,7 @@ classdef test_serialize< TestCase
 
         %% Test Structs
         %------------------------------------------------------------------
-        function test_ser_size_struct_scalar(this)
+        function test_ser_struct_scalar(this)
             test_struct = struct('Hello', 13, 'Goodbye', 7, 'Beef', {{1, 2, 3}});
             ser =  hlp_serialize(test_struct);
             test_struct_rec = hlp_deserialize(ser);
@@ -201,7 +201,7 @@ classdef test_serialize< TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_size_struct_array(this)
+        function test_ser_struct_array(this)
             test_struct = struct('HonkyTonk', {1, 2, 3});
             ser =  hlp_serialize(test_struct);
             test_struct_rec = hlp_deserialize(ser);
@@ -211,7 +211,7 @@ classdef test_serialize< TestCase
 
         %% Test Sparse
         %------------------------------------------------------------------
-        function test_ser_size_real_sparse(this)
+        function test_ser_real_sparse(this)
             test_sparse = sparse(eye(1));
             ser =  hlp_serialize(test_sparse);
             test_sparse_rec = hlp_deserialize(ser);
@@ -219,7 +219,7 @@ classdef test_serialize< TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_size_complex_sparse(this)
+        function test_ser_complex_sparse(this)
             test_sparse = sparse([1:10],[1], i);
             ser =  hlp_serialize(test_sparse);
             test_sparse_rec = hlp_deserialize(ser);
@@ -227,7 +227,7 @@ classdef test_serialize< TestCase
         end
 
         %% Test Function handle
-        function test_ser_size_function_handle(this)
+        function test_ser_function_handle(this)
             test_func = @(x, y) (x^2 + y^2);
             ser = hlp_serialize(test_func);
             test_func_rec = hlp_deserialize(ser);
@@ -236,7 +236,7 @@ classdef test_serialize< TestCase
 
         %% Test Cell Array
         %------------------------------------------------------------------
-        function test_ser_size_cell_null(this)
+        function test_ser_cell_null(this)
             test_cell = {};
             ser =  hlp_serialize(test_cell);
             test_cell_rec = hlp_deserialize(ser);
@@ -244,7 +244,7 @@ classdef test_serialize< TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_size_cell_homo_numeric(this)
+        function test_ser_cell_homo_numeric(this)
             test_cell = {1 2 3 4};
             ser =  hlp_serialize(test_cell);
             test_cell_rec = hlp_deserialize(ser);
@@ -252,7 +252,7 @@ classdef test_serialize< TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_size_cell_homo_complex(this)
+        function test_ser_cell_homo_complex(this)
             test_cell = {1+2i 2+3i 3+1i 4+10i};
             ser =  hlp_serialize(test_cell);
             test_cell_rec = hlp_deserialize(ser);
@@ -260,7 +260,7 @@ classdef test_serialize< TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_size_cell_homo_mixed_complex(this)
+        function test_ser_cell_homo_mixed_complex(this)
             test_cell = {1+2i 2 3+1i 4};
             ser =  hlp_serialize(test_cell);
             test_cell_rec = hlp_deserialize(ser);
@@ -268,7 +268,7 @@ classdef test_serialize< TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_size_cell_homo_cell(this)
+        function test_ser_cell_homo_cell(this)
             test_cell = {{1 2} {3 4} {4 5} {6 7}};
             ser =  hlp_serialize(test_cell);
             test_cell_rec = hlp_deserialize(ser);
@@ -276,7 +276,7 @@ classdef test_serialize< TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_size_cell_homo_bool(this)
+        function test_ser_cell_homo_bool(this)
             test_cell = {true false false true false};
             ser =  hlp_serialize(test_cell);
             test_cell_rec = hlp_deserialize(ser);
@@ -284,7 +284,7 @@ classdef test_serialize< TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_size_cell_homo_string(this)
+        function test_ser_cell_homo_string(this)
             test_cell = {'Hello' 'is' 'it' 'me' 'youre' 'looking' 'for'};
             ser =  hlp_serialize(test_cell);
             test_cell_rec = hlp_deserialize(ser);
@@ -292,7 +292,7 @@ classdef test_serialize< TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_size_cell_homo_function_handles(this)
+        function test_ser_cell_homo_function_handles(this)
             test_cell = {@(x,y) (x+y^2), @(a,b) (b-a)};
             ser =  hlp_serialize(test_cell);
             test_cell_rec = hlp_deserialize(ser);
@@ -300,13 +300,12 @@ classdef test_serialize< TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_size_cell_hetero(this)
+        function test_ser_cell_hetero(this)
             test_cell = {1, 'a', 1+2i, true, struct('boop', 1), {'Hello'}, @(x,y) (x+y^2)};
             ser =  hlp_serialize(test_cell);
             test_cell_rec = hlp_deserialize(ser);
             assertEqual(test_cell, test_cell_rec)
         end
-
 
     end
 end
