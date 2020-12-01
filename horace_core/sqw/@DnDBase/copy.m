@@ -3,5 +3,5 @@ function wout = copy(w)
 %
 %   >> wout = copy(w);
 
-    wout = w;
+wout = w;
 end
