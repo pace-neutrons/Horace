@@ -229,7 +229,7 @@ classdef test_serialize_size< TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_size_struct_array(this)
+        function DISABLED_test_ser_size_struct_array(this)
             test_struct = struct('HonkyTonk', {1, 2, 3});
             ser =  hlp_serialize(test_struct);
             ser_siz = hlp_serial_size(test_struct);
