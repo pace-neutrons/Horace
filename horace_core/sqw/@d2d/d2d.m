@@ -24,6 +24,9 @@ classdef d2d < DnDBase
             % iii) filename
             elseif ~isempty(args.filename)
                 obj = obj.init_from_file(args.filename);
+            % iv) from sqw
+            elseif ~isempty(args.sqw_obj)
+                obj = obj.init_from_sqw(args.sqw_obj);
             end
         end
     end
@@ -48,13 +51,17 @@ classdef d2d < DnDBase
             parser.parse(varargin{:});
 
             input = parser.Results.input;
-            args = struct('dnd_obj', [], 'filename', [], 'data_struct', []);
+            args = struct('dnd_obj', [], 'sqw_obj', [], 'filename', [], 'data_struct', []);
 
             if isa(input, 'SQWDnDBase')
-                if ~isa(input, 'd2d') % relax this in future updates
-                    error('D2D:d2d', 'D2D cannot be constructed from a non-D2D object');
+                if isa(input, 'd2d')
+                    args.dnd_obj = input;
+                elseif isa(input, 'sqw')
+                    args.sqw_obj = input;
+                else
+                    error('D2D:d2d', ...
+                        ['D2D cannot be constructed from an instance of this object "' class(input) '"']);
                 end
-                args.dnd_obj = input;
             elseif is_string(parser.Results.input)
                 args.filename = input;
             elseif isstruct(input) && ~isempty(input)
@@ -69,6 +76,14 @@ classdef d2d < DnDBase
     methods(Access = 'private')
         function obj = init_from_loader_struct(obj, data_struct)
             obj.data = data_struct;
+        end
+
+        function obj = init_from_sqw(obj, sqw_obj)
+            sqw_dim = sqw_obj.dimensions();
+            if sqw_dim ~= d2d.NUM_DIMS
+                error('D2D:d2d', 'SQW object cannot be converted to a 2d dnd-type object');
+            end
+            obj.data = sqw_obj.data;
         end
 
         function obj = init_from_file(obj, in_filename)
