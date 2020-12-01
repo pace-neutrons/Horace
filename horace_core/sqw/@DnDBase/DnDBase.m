@@ -10,23 +10,27 @@ classdef (Abstract)  DnDBase < SQWDnDBase
     end
 
     properties(Dependent)
-        filename
-        filepath
-        title
-        alatt
-        angdeg
-        uoffset
-        u_to_rlu
-        ulen
-        ulabel
-        iax
-        iint
-        pax
-        p
-        dax
-        s
-        e
-        npix
+        filename % Name of source sqw file that is being read, excluding path
+        filepath % Path to sqw file that is being read, including terminating file separator
+        title % Title of data structure
+        alatt % Lattice parameters for data field (Ang^-1)
+        angdeg % Lattice angles for data field (degrees)
+        uoffset % Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
+        u_to_rlu % Matrix (4x4) of projection axes in hkle representation
+                 %     u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
+        ulen % Length of projection axes vectors in Ang^-1 or meV [row vector]
+        ulabel  % Labels of the projection axes [1x4 cell array of character strings]
+        iax % Index of integration axes into the projection axes  [row vector]
+            %     Always in increasing numerical order, data.iax=[1,3] means summation has been performed along u1 and u3 axes
+        iint % Integration range along each of the integration axes. [iint(2,length(iax))]
+             %     e.g. in 2D case above, is the matrix vector [u1_lo, u3_lo; u1_hi, u3_hi]
+        dax %Index into data.pax of the axes for display purposes. [row vector]
+        p % Cell array containing bin boundaries along the plot axes [column vectors]
+          %                       i.e. row cell array{data.p{1}, data.p{2} ...}
+        pax % Index of plot axes into the projection axes  [row vector]
+        s % Cumulative signal
+        e % Cumulative variance
+        npix % Number of contributing pixels to each bin of the plot axes
     end
 
     methods (Access = protected)
