@@ -20,15 +20,22 @@ methods
         dnd_obj = d2d();
 
         assertTrue(isa(dnd_obj, 'd2d'));
-        assertTrue(isa(dnd_obj, 'DnDBase'));;
+        assertTrue(isa(dnd_obj, 'DnDBase'));
         assertTrue(isa(dnd_obj, 'SQWDnDBase'));
+    end
+
+    function test_constructor_returns_2d_instance(obj)
+        dnd_obj = d2d();
+
+        assertTrue(isa(dnd_obj, 'd2d'));
+        assertEqual(numel(dnd_obj.pax), 2);
     end
 
     function test_default_constructor_returns_empty_instance(obj)
         dnd_obj = d2d();
 
-        assertTrue(isa(dnd_obj, 'd2d'));
-        assertEqual(numel(dnd_obj.pax), 2);
+        assertEqualToTol(dnd_obj.s, 0, 1e-6);
+        assertEqualToTol(dnd_obj.e, 0, 1e-6);
     end
 
     function test_d2d_contains_expected_properties(obj)
