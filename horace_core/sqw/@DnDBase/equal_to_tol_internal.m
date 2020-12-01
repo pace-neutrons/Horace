@@ -11,10 +11,12 @@ if ~ok
     error(mess);
 end
 if ~islognumscalar(opt.reorder)
-    error('''reorder'' must be a logical scalar (or 0 or 1)')
+    error('DNDBASE:equal_to_tol_internal', ...
+        '''reorder'' must be a logical scalar (or 0 or 1)')
 end
 if ~isnumeric(opt.fraction) || opt.fraction < 0 || opt.fraction > 1
-    error('''fraction'' must lie in the range 0 to 1 inclusive')
+    error('DNDBASE:equal_to_tol_internal', ...
+        '''fraction'' must lie in the range 0 to 1 inclusive')
 end
 
 % Test equality of DnD class fields. Pass class fields to the generic equal_to_tol.
@@ -24,7 +26,7 @@ for idx = 1:numel(class_fields)
     tmp1 = w1.(field_name);
     tmp2 = w2.(field_name);
     [ok, mess] = equal_to_tol(tmp1, tmp2, args{:}, 'name_a', name_a, 'name_b', name_b);
-    
+
     if ~ok
         return; % break on first failure
     end
