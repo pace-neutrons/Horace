@@ -1,10 +1,14 @@
 classdef test_dnd_constructor < TestCase
 
 properties
-    dnd_2d_filename = 'dnd_2d.sqw';
-    dnd_files_path = '../test_sqw_file/';
+    dnd_file_2d_name = 'dnd_2d.sqw';
+    sqw_file_1d_name = 'sqw_1d_1.sqw';
+    sqw_file_2d_name = 'sqw_2d_1.sqw';
+    test_files_path = '../test_sqw_file/';
 
     test_dnd_2d_fullpath = '';
+    test_sqw_1d_fullpath = '';
+    test_sqw_2d_fullpath = '';
 end
 
 methods
@@ -12,7 +16,13 @@ methods
     function obj = test_dnd_constructor(~)
         obj = obj@TestCase('test_dnd_constructor');
 
-        test_dnd_2d_file = java.io.File(pwd(), fullfile(obj.dnd_files_path, obj.dnd_2d_filename));
+        test_sqw_1d_file = java.io.File(pwd(), fullfile(obj.test_files_path, obj.sqw_file_1d_name));
+        obj.test_sqw_1d_fullpath = char(test_sqw_1d_file.getCanonicalPath());
+
+        test_sqw_2d_file = java.io.File(pwd(), fullfile(obj.test_files_path, obj.sqw_file_2d_name));
+        obj.test_sqw_2d_fullpath = char(test_sqw_2d_file.getCanonicalPath());
+
+        test_dnd_2d_file = java.io.File(pwd(), fullfile(obj.test_files_path, obj.dnd_file_2d_name));
         obj.test_dnd_2d_fullpath = char(test_dnd_2d_file.getCanonicalPath());
     end
 
@@ -111,5 +121,23 @@ methods
         assertEqualToTol(d2d_obj.ulen, expected_ulen, 'tol', 1e-5);
         assertEqual(d2d_obj.u_to_rlu, expected_u_to_rlu, 'tol', 1e-5);
     end
+
+    function test_sqw_constuctor_raises_error_if_not_2d(obj)
+        sqw_obj = sqw(obj.test_sqw_1d_fullpath);
+        f = @() d2d(sqw_obj);
+
+        assertExceptionThrown(f, 'D2D:d2d');
+    end
+
+    function test_sqw_constuctor_creates_obj_with_sqw_data(obj)
+        sqw_obj = sqw(obj.test_sqw_2d_fullpath);
+        d2d_obj = d2d(sqw_obj);
+
+        assertEqual(sqw_obj.data.s, d2d_obj.s);
+        assertEqual(sqw_obj.data.e, d2d_obj.e);
+        assertEqual(sqw_obj.data.p, d2d_obj.p);
+        assertEqual(sqw_obj.data.ulabel, d2d_obj.ulabel);
+    end
+
 end
 end
