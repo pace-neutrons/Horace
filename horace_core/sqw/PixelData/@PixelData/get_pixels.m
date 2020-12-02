@@ -36,12 +36,22 @@ if obj.is_file_backed_()
     pix_out = PixelData(numel(abs_pix_indices));
 
     [pg_idxs, global_idxs] = get_idxs_in_current_page_(obj, abs_pix_indices);
-    pix_out.data(:, global_idxs) = obj.data(:, pg_idxs);
+    data_to_set = obj.data(:, pg_idxs);
+    pix_out.data(:, global_idxs) =data_to_set;
+    glob_range = [min(data_to_set(1:4,:),[],2),max(data_to_set(1:4,:),[],2)]';
     while obj.has_more()
         obj.advance();
         [pg_idxs, global_idxs] = get_idxs_in_current_page_(obj, abs_pix_indices);
-        pix_out.data(:, global_idxs) = obj.data(:, pg_idxs);
+        if isempty(global_idxs)
+            continue;
+        end
+        data_to_set = obj.data(:, pg_idxs);        
+        loc_range = [min(data_to_set(1:4,:),[],2),max(data_to_set(1:4,:),[],2)]';        
+        pix_out.data(:, global_idxs) = data_to_set;
+        glob_range = [min(glob_range(1,:),loc_range(1,:));...
+                    max(glob_range(2,:),loc_range(2,:))];
     end
+    pix_out.set_range(glob_range);
 else
     pix_out = PixelData(obj.data(:, abs_pix_indices));
 end
