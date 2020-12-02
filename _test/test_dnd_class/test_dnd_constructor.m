@@ -122,14 +122,14 @@ methods
         assertEqual(d2d_obj.u_to_rlu, expected_u_to_rlu, 'tol', 1e-5);
     end
 
-    function test_sqw_constuctor_raises_error_if_not_2d(obj)
+    function test_d2d_sqw_constuctor_raises_error_from_1d_sqw_object(obj)
         sqw_obj = sqw(obj.test_sqw_1d_fullpath);
         f = @() d2d(sqw_obj);
 
         assertExceptionThrown(f, 'D2D:d2d');
     end
 
-    function test_sqw_constuctor_creates_obj_with_sqw_data(obj)
+    function test_d2d_sqw_constuctor_creates_d2d_from_2d_sqw_object(obj)
         sqw_obj = sqw(obj.test_sqw_2d_fullpath);
         d2d_obj = d2d(sqw_obj);
 
