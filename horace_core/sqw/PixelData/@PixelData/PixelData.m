@@ -173,10 +173,10 @@ classdef PixelData < handle
         base_page_size;
     end
     properties(Access=public,Hidden)
-        % the property contains the range of a block of pixels, changed 
+        % the property contains the range of a block of pixels, changed
         % by set.pixels methods. Exposed to be used in algorithms, looping
         % over the paged pixels and changing them in conjunction with set_
-        local_range_;
+        page_range;
     end
     
     methods (Static)
@@ -330,7 +330,7 @@ classdef PixelData < handle
                 end
                 obj.data_ = arg.data;
                 obj.page_memory_size_ = arg.page_memory_size_;
-                obj.reset_changed_coord_range('coordinates')                                
+                obj.reset_changed_coord_range('coordinates')
                 return;
             end
             
@@ -339,7 +339,7 @@ classdef PixelData < handle
                 obj.data_ = zeros(obj.PIXEL_BLOCK_COLS_, arg);
                 obj.num_pixels_ = arg;
                 obj.pix_range_ = zeros(2,4);
-                obj.local_range_ = zeros(2,4);
+                obj.page_range = zeros(2,4);
                 return;
             end
             
@@ -364,7 +364,7 @@ classdef PixelData < handle
                     'memory_allocation.']);
             end
             obj.data_ = arg;
-            obj.reset_changed_coord_range('coordinates')                            
+            obj.reset_changed_coord_range('coordinates')
             obj.num_pixels_ = size(arg, 2);
             obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_);
         end
@@ -690,14 +690,14 @@ classdef PixelData < handle
             range  = obj.pix_range_;
         end
         function set_range(obj,pix_range)
-            % Function allows to set the pixels range. 
+            % Function allows to set the pixels range.
             %
             % Use with caution!!! No checks that the set range is correct
             % range for pixels, holded by the class are
-            % performed, and the subsequent algorithms rely on pix range 
+            % performed, and the subsequent algorithms rely on pix range
             % to be correct.
-            % 
-            % Necessary to set up the pixel range when filebased 
+            %
+            % Necessary to set up the pixel range when filebased
             % pixels are modified by algorithm and correct range
             % calculations are expensive
             %
@@ -830,21 +830,21 @@ classdef PixelData < handle
             %
             if isempty(obj.raw_data_)
                 obj.pix_range_   = PixelData.EMPTY_RANGE_;
-                obj.local_range_ = PixelData.EMPTY_RANGE_;            
+                obj.page_range = PixelData.EMPTY_RANGE_;
                 return
             end
             ind = obj.FIELD_INDEX_MAP_(field_name);
             
-            local_range = [min(obj.raw_data_(ind,:),[],2),max(obj.raw_data_(ind,:),[],2)]';
+            loc_range = [min(obj.raw_data_(ind,:),[],2),max(obj.raw_data_(ind,:),[],2)]';
             if obj.is_file_backed_()
                 % this may break things down, as the range only expands
-                range = [min(obj.pix_range_(1,ind),local_range(1,:));...
-                    max(obj.pix_range_(2,ind),local_range(2,:))];
+                range = [min(obj.pix_range_(1,ind),loc_range(1,:));...
+                    max(obj.pix_range_(2,ind),loc_range(2,:))];
             else
-                range = local_range;
+                range = loc_range;
             end
-            obj.pix_range_(:,ind)   = range;
-            obj.local_range_(:,ind) = local_range;            
+            obj.pix_range_(:,ind) = range;
+            obj.page_range(:,ind) = loc_range;
         end
     end
     
