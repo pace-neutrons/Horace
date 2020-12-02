@@ -35,7 +35,6 @@ methods
         % set a large pixel page size so we're all in memory by default
         hc.pixel_page_size = obj.ALL_IN_MEM_PG_SIZE;
         obj.sqw_2d = sqw(obj.test_sqw_file_path);
-        obj.dnd_2d = d2d(obj.test_dnd_file_path);
     end
 
     function delete(obj)
@@ -48,23 +47,19 @@ methods
         assertEqualToTol(obj.sqw_2d, sqw_copy);
     end
 
-    function test_the_same_d2d_objects_are_equal(obj)
-        dnd_copy = obj.dnd_2d;
-        assertEqualToTol(obj.dnd_2d, dnd_copy);
-    end
-
-    function test_the_sqw_and_d2d_objects_are_not_equal(obj)
-        [ok, mess] = equal_to_tol(obj.dnd_2d, obj.sqw_2d);
+    function test_sqw_and_d2d_objects_are_not_equal(obj)
+        dnd_2d = d2d(obj.test_dnd_file_path);
+        [ok, mess] = equal_to_tol(obj.sqw_2d, dnd_2d);
         assertFalse(ok);
         assertEqual(mess, 'Objects being compared are not both sqw-type or both dnd-type');
     end
 
-    function test_the_different_sqw_objects_are_not_equal(obj)
-        sqw_copy = obj.sqw_2d;
-        class_fields = properties(sqw_copy);
+    function test_different_sqw_objects_are_not_equal(obj)
+        class_fields = properties(obj.sqw_2d);
         for idx = 1:numel(class_fields)
+            sqw_copy = obj.sqw_2d;
             field_name = class_fields{idx};
-            
+
             if isstruct(sqw_copy.(field_name))
                 sqw_copy.(field_name).test_field = 'test_value';
             elseif isstring(sqw_copy.(field_name))
@@ -72,35 +67,10 @@ methods
             else
                 sqw_copy.(field_name) = [];
             end
-            
+
             [ok, mess] = equal_to_tol(obj.sqw_2d, sqw_copy);
             assertFalse(ok, ['Expected ', field_name, ' to be not equal']);
         end
-    end
-
-    function test_the_different_d2d_objects_are_not_equal(obj)
-        dnd_copy = obj.dnd_2d;
-        class_fields = properties(dnd_copy);
-        for idx = 1:numel(class_fields)
-            field_name = class_fields{idx};
-            if isstruct(dnd_copy.(field_name))
-                dnd_copy.(field_name).test_field = 'test_value';
-            elseif isstring(dnd_copy.(field_name))
-                dnd_copy.(field_name) = 'test_value';
-            else
-                dnd_copy.(field_name) = [];
-            end
-            
-            [ok, mess] = equal_to_tol(obj.dnd_2d, dnd_copy);
-            assertFalse(ok, ['Expected ', field_name, ' to be not equal']);
-        end
-    end
-
-    function test_the_different_d2d_objects_not_equal(obj)
-        dnd_copy = obj.dnd_2d;
-        dnd_copy.p = [];
-        assertFalse(equal_to_tol(obj.dnd_2d, dnd_copy));
-    end
 
     function test_the_same_sqw_objects_are_equal_with_no_pix_reorder(obj)
         sqw_copy = obj.sqw_2d;
