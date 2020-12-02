@@ -27,7 +27,7 @@ classdef test_dnd_copy < TestCase
             d2d_obj = d2d(obj.test_dnd_2d_fullpath);
             d2d_copy = copy(d2d_obj);
 
-            d2d_copy.s(1:10) = 1e1000;
+            d2d_copy.s(1:10) = inf;  % data is O(10^5)
             d2d_copy.e = [];
             d2d_copy.ulabel = {'test'};
 
