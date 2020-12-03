@@ -30,17 +30,12 @@ function pix_out = get_pixels(obj, abs_pix_indices)
 abs_pix_indices = parse_args(obj, abs_pix_indices);
 
 if obj.is_file_backed_()
-    first_required_page = ceil(min(abs_pix_indices)/obj.base_page_size);
-    obj.move_to_page(first_required_page);
-
-    pix_out = PixelData(numel(abs_pix_indices));
-
-    [pg_idxs, global_idxs] = get_idxs_in_current_page_(obj, abs_pix_indices);
-    pix_out.data(:, global_idxs) = obj.data(:, pg_idxs);
-    while obj.has_more()
-        obj.advance();
-        [pg_idxs, global_idxs] = get_idxs_in_current_page_(obj, abs_pix_indices);
-        pix_out.data(:, global_idxs) = obj.data(:, pg_idxs);
+    if any(obj.page_dirty_)
+        error('PIXELDATA:get_pixels', ...
+              ['PixelData.get_pixels not implemented if the object ' ...
+               'contains temporary files.']);
+    else
+        pix_out = PixelData(obj.f_accessor_.get_pix_at_indices(abs_pix_indices));
     end
 else
     pix_out = PixelData(obj.data(:, abs_pix_indices));
@@ -67,13 +62,6 @@ function abs_pix_indices = parse_args(obj, varargin)
             end
         end
         abs_pix_indices = find(abs_pix_indices);
-    end
-
-    max_idx = max(abs_pix_indices);
-    if max_idx > obj.num_pixels
-        error('PIXELDATA:get_pixels', ...
-            'Pixel index out of range. Index must not exceed %i.', ...
-            obj.num_pixels);
     end
 end
 
