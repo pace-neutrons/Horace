@@ -11,14 +11,14 @@ function [w,grid_size,urange,detdcn] = calc_sqw(obj,grid_size_in,pix_range_in,va
 %
 % grid_size_in   Scalar or [1x4] vector of grid dimensions in each direction
 %                for sqw object to build from given rundata object.
-%   pix_range_in Range of data grid for output given as a [2x4] matrix:
+% pix_range_in   Range of data grid for output given as a [2x4] matrix:
 %                [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
 %                If [] then uses the smallest hypercuboid that encloses the
 %                whole data range.
 %                The ranges have to be provided in crystal Cartesian
-%                coordinate system
-% If the form without grid_size_in and urange_in is used, grid_size_in is
-% assumed to be equal to [50,50,50,50] and urange_in = [].
+%                coordinate system, A^-1 scale
+% If the form without grid_size_in and pix_range_in is used, grid_size_in is
+% assumed to be equal to [50,50,50,50] and pix_range_in = [].
 %
 % Optional inputs:
 %
@@ -39,18 +39,18 @@ function [w,grid_size,urange,detdcn] = calc_sqw(obj,grid_size_in,pix_range_in,va
 %                  q-dE vector values from detectors positions
 %
 % Outputs:
-%   w               Output sqw object
-%   grid_size       Actual size of grid used (size is unity along dimensions
-%                  where there is zero range of the data points)
-%   urange          Actual range of grid - the specified range if it was given,
-%                  or the range of the data if not.
-%  detdcn          [3 x ndet] array of unit vectors, poinitng to the detector's
-%                  positions in the spectrometer coordinate system (X-axis
-%                  along the beam direction). ndet -- number of detectors
-%                  Can be later assigned to the next rundata object
-%                  property "detdcn_cache" to accelerate calculations. (not
-%                  fully implemented and currently workis with Matlab code
-%                  only)
+% w               Output sqw object
+% grid_size       Actual size of grid used (size is unity along dimensions
+%                 where there is zero range of the data points)
+% urange          Actual range of grid - the specified range if it was given,
+%                 or the range of the data if not.
+%  detdcn        [3 x ndet] array of unit vectors, poinitng to the detector's
+%                positions in the spectrometer coordinate system (X-axis
+%                along the beam direction). ndet -- number of detectors
+%                Can be later assigned to the next rundata object
+%                property "detdcn_cache" to accelerate calculations. (not
+%                fully implemented and currently workis with Matlab code
+%                only)
 %
 keys_recognized = {'-cache_detectors','-qspec'};
 [ok,mess,cache_detectors,cache_q_vectors] = parse_char_options(varargin,keys_recognized);
