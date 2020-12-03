@@ -9,6 +9,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase
        NUM_DIMS
     end
 
+    % The depdendent props here have been created solely to retain the (old) DnD object API during the refactor.
+    % These will be updated/removed at a later phase of the refactor when the class API is modified.
     properties(Dependent)
         filename % Name of source sqw file that is being read, excluding path
         filepath % Path to sqw file that is being read, including terminating file separator
@@ -47,7 +49,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
             obj = obj@SQWDnDBase();
         end
 
-        % Wrapped data attributes
+        %% Public getters/setters expose all wrapped data attributes
         function val = get.filename(obj)
             val = '';
             if ~isempty(obj.data)
