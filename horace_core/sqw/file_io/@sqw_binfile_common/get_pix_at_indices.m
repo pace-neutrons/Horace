@@ -6,7 +6,7 @@ function pix = get_pix_at_indices(obj, indices)
 NUM_BYTES_IN_FLOAT = 4;
 PIXEL_SIZE = NUM_BYTES_IN_FLOAT*PixelData.DEFAULT_NUM_PIX_FIELDS;  % bytes
 
-[read_sizes, seek_sizes] = get_read_and_seek_sizes(indices);
+[read_sizes, seek_sizes] = get_read_and_seek_sizes(indices(:)');
 
 % Pre-allocate output array
 pix = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, sum(read_sizes));
@@ -43,13 +43,13 @@ function [read_sizes, seek_sizes] = get_read_and_seek_sizes(indices)
 
     % Get the difference between neighboring array elements, a difference of
     % more than one suggests we should seek by that many pixels, consecutive 1s
-    % means we read that many pixels.
+    % means we read as many pixels as there are 1s.
     ind_diff = diff(indices);
     seek_sizes = [indices(1), ind_diff(ind_diff > 1)] - 1;
 
-    % The read blocks ends where we find we need to start seeking
+    % The read blocks end where we find we need to start seeking
     read_ends = [indices(ind_diff ~= 1), indices(end)];
-    % The read blocks start where where the last seek blocks end
+    % The read blocks start where the last seek blocks end
     read_starts = [seek_sizes(1), seek_sizes(2:end) + read_ends(1:(end - 1))];
     read_sizes = (read_ends - read_starts);
 end
@@ -69,7 +69,6 @@ end
 function pix = do_fread(fid, num_pix)
     pix = fread(fid, [PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix], 'float32');
     [mess, ok] = ferror(fid);
-
     if ok ~= 0
         error('SQW_BINFILE_COMMON:get_pix_at_indices', ...
             'Cannot read requested range in file:\n  %s', ...
