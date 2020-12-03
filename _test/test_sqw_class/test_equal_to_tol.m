@@ -71,6 +71,7 @@ methods
             [ok, mess] = equal_to_tol(obj.sqw_2d, sqw_copy);
             assertFalse(ok, ['Expected ', field_name, ' to be not equal']);
         end
+    end
 
     function test_the_same_sqw_objects_are_equal_with_no_pix_reorder(obj)
         sqw_copy = obj.sqw_2d;
