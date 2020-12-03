@@ -65,7 +65,7 @@ if isa(w1, 'SQWDnDBase') && isa(w2, 'SQWDnDBase')
     % Check array sizes match
     if ~isequal(size(w1), size(w2))
         ok = false;
-        mess = 'Sizes of sqw object arrays being compared are not equal';
+        mess = 'Sizes of object arrays being compared are not equal';
         return
     end
 
@@ -115,6 +115,6 @@ if isa(w1, 'SQWDnDBase') && isa(w2, 'SQWDnDBase')
     end
 else
     ok = false;
-    mess = 'One of the objects to be compared is not an sqw object';
+    mess = 'One of the objects to be compared is not an sqw or dnd object';
 end
 

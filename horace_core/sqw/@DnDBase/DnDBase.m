@@ -39,8 +39,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase
 
     methods
         % function signatures
-        [nd, sz] = dimensions(w)
-        wout = copy(w)
+        [nd, sz] = dimensions(w);
+        wout = copy(w);
 
 
         function obj = DnDBase(varargin)
