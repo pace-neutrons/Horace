@@ -3,6 +3,10 @@ function pix = get_pix_at_indices(obj, indices)
 % The "indices" array must be monotonically increasing.
 %
 
+if ~obj.is_activated('read')
+    obj = obj.activate('read');
+end
+
 NUM_BYTES_IN_FLOAT = 4;
 PIXEL_SIZE = NUM_BYTES_IN_FLOAT*PixelData.DEFAULT_NUM_PIX_FIELDS;  % bytes
 
@@ -51,7 +55,7 @@ function [read_sizes, seek_sizes] = get_read_and_seek_sizes(indices)
     read_ends = [indices(ind_diff ~= 1), indices(end)];
     % The read blocks start where the last seek blocks end
     read_starts = [seek_sizes(1), seek_sizes(2:end) + read_ends(1:(end - 1))];
-    read_sizes = (read_ends - read_starts);
+    read_sizes = read_ends - read_starts;
 end
 
 
@@ -60,8 +64,8 @@ function do_fseek(fid, offset, origin)
     if ok ~= 0
         [mess, ~] = ferror(fid);
         error('SQW_BINFILE_COMMON:get_pix_at_indices', ...
-            'Cannot move to requested position in file:\n  %s', ...
-            mess);
+              'Cannot move to requested position in file:\n  %s', ...
+              mess);
     end
 end
 
@@ -71,7 +75,7 @@ function pix = do_fread(fid, num_pix)
     [mess, ok] = ferror(fid);
     if ok ~= 0
         error('SQW_BINFILE_COMMON:get_pix_at_indices', ...
-            'Cannot read requested range in file:\n  %s', ...
-            mess);
+              'Cannot read requested range in file:\n  %s', ...
+              mess);
     end
 end
