@@ -2,9 +2,10 @@ classdef d2d < DnDBase
     %D2D Create an 2-dimensional DnD object
     %
     % Syntax:
-    %   >> w = d2d()               % Create a default, zero-dimensional SQW object
+    %   >> w = d2d()               % Create a default, empty, D2D object
+    %   >> w = d2d(sqw)            % Create an D2D object from a file
+    %   >> w = d2d(filename)       % Create a D2D object from a file
     %   >> w = d2d(struct)         % Create from a structure with valid fields (internal use)
-    %   >> w = d2d(filename)       % Create an sqw object from a file
 
     properties (Constant, Access = protected)
        NUM_DIMS = 2;
@@ -39,11 +40,12 @@ classdef d2d < DnDBase
     methods(Static, Access = private)
 
         function args = parse_args(varargin)
-            % Parse a single argument passed to the SQW constructor
+            % Parse a single argument passed to the D2D constructor
             %
             % Return struct with the data set to the appropriate element:
             % args.filename  % string, presumed to be filename
-            % args.sqw_obj   % D2D class instance
+            % args.dnd_obj   % D2D class instance
+            % args.sqw_obj   % SQW class instance
             % args.data_struct % generic struct, presumed to represent D2D
             parser = inputParser();
             parser.addOptional('input', [], @(x) (isa(x, 'SQWDnDBase') || is_string(x) || isstruct(x)));
