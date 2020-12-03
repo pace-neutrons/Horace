@@ -268,12 +268,14 @@ classdef test_PixelData_operations < TestCase
             end
         end
         
-        function test_mask_does_nothing_if_mask_array_eq_ones_when_pix_in_memory(~)
+        function test_mask_does_nothing_if_mask_array_eq_ones_when_pix_in_memory(obj)
             data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 11);
+            ref_range = obj.get_ref_range(data);
             pix = PixelData(data);
             mask_array = ones(1, pix.num_pixels);
             pix_out = pix.mask(mask_array);
             assertEqual(pix_out.data, data);
+            assertEqual(pix_out.pix_range,ref_range);
         end
         
         function test_mask_returns_empty_PixelData_if_mask_array_all_zeros(~)
@@ -283,6 +285,7 @@ classdef test_PixelData_operations < TestCase
             pix_out = pix.mask(mask_array);
             assertTrue(isa(pix_out, 'PixelData'));
             assertTrue(isempty(pix_out));
+            assertEqual(pix_out.pix_range,PixelData.EMPTY_RANGE_);            
         end
         
         function test_mask_raises_if_mask_array_len_neq_to_pg_size_or_num_pixels(obj)
@@ -294,12 +297,15 @@ classdef test_PixelData_operations < TestCase
             assertExceptionThrown(f, 'PIXELDATA:mask');
         end
         
-        function test_mask_removes_in_memory_pix_if_len_mask_array_eq_num_pixels(~)
+        function test_mask_removes_in_memory_pix_if_len_mask_array_eq_num_pixels(obj)
             data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 11);
             pix = PixelData(data);
+            
             mask_array = ones(1, pix.num_pixels);
             pix_to_remove = [3, 6, 7];
             mask_array(pix_to_remove) = 0;
+            ref_ds = data(:,logical(mask_array));
+            ref_range = obj.get_ref_range(ref_ds);
             
             pix = pix.mask(mask_array);
             
@@ -307,6 +313,7 @@ classdef test_PixelData_operations < TestCase
             expected_data = data;
             expected_data(:, pix_to_remove) = [];
             assertEqual(pix.data, expected_data);
+            assertEqual(pix.pix_range, ref_range);
         end
         
         function test_mask_throws_PIXELDATA_if_called_with_no_output_args(~)
@@ -327,9 +334,11 @@ classdef test_PixelData_operations < TestCase
             
             full_mask_array = repelem(mask_array, npix);
             expected_data = data(:, logical(full_mask_array));
+            ref_range = obj.get_ref_range(expected_data);
             
             actual_data = concatenate_pixel_pages(pix);
             assertEqual(actual_data, expected_data);
+            assertEqual(pix.pix_range, ref_range);
         end
         
         function test_mask_deletes_pix_with_npix_argument_all_pages_full(obj)
@@ -344,9 +353,11 @@ classdef test_PixelData_operations < TestCase
             
             full_mask_array = repelem(mask_array, npix);
             expected_data = data(:, logical(full_mask_array));
+            ref_range = obj.get_ref_range(expected_data);
             
             actual_data = concatenate_pixel_pages(pix);
             assertEqual(actual_data, expected_data);
+            assertEqual(pix.pix_range, ref_range);            
         end
         
         function test_mask_deletes_pixels_when_given_npix_argument_pix_in_mem(obj)
@@ -360,9 +371,13 @@ classdef test_PixelData_operations < TestCase
             
             full_mask_array = repelem(mask_array, npix);
             expected_data = data(:, logical(full_mask_array));
+            ref_range = obj.get_ref_range(expected_data);
+            
             
             actual_data = concatenate_pixel_pages(pix);
             assertEqual(actual_data, expected_data);
+            assertEqual(pix.pix_range, ref_range);            
+            
         end
         
         function test_PIXELDATA_thrown_if_sum_of_npix_ne_to_num_pixels(~)
@@ -518,6 +533,11 @@ classdef test_PixelData_operations < TestCase
         function data = get_random_data_in_range(cols, rows, data_range)
             data = data_range(1) + (data_range(2) - data_range(1)).*rand(cols, rows);
         end
+        function ref_range = get_ref_range(data)
+            ref_range = [min(data(1:4, :),[],2),...
+                max(data(1:4, :),[],2)]';
+        end
+        
         
     end
     
