@@ -175,7 +175,9 @@ classdef PixelData < handle
     properties(Access=public,Hidden)
         % the property contains the range of a block of pixels, changed
         % by set.pixels methods. Exposed to be used in algorithms, looping
-        % over the paged pixels and changing them in conjunction with set_
+        % over the paged pixels and changing object using coordinate setters
+        % to calculate and set-up correct pixels range
+        % in conjunction with set_range method at the end of the loop.
         page_range;
     end
     

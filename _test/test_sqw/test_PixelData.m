@@ -41,7 +41,6 @@ classdef test_PixelData < TestCase
         function ref_range = get_ref_range(~,data)
             ref_range = [min(data(1:4, :),[],2),...
                 max(data(1:4, :),[],2)]';
-            
         end
         
     end
@@ -1096,6 +1095,20 @@ classdef test_PixelData < TestCase
         
         function test_append_returns_editied_pix_if_nargout_eq_1(obj)
             pix = PixelData(obj.test_sqw_file_path);
+            npix_to_append = 5;
+            pix_to_append = PixelData(rand(9, npix_to_append));
+            
+            out_pix = pix.append(pix_to_append);
+            
+            assertEqual(out_pix.num_pixels, pix.num_pixels + pix_to_append.num_pixels);
+            original_pix_data = concatenate_pixel_pages(pix);
+            out_pix_data = concatenate_pixel_pages(out_pix);
+            assertEqual(out_pix_data, horzcat(original_pix_data, pix_to_append.data));
+        end
+        %
+        function DISABLED_test_append_returns_editied_pix_if_nargout_eq_1(obj)
+            % test for filebased urange. Has a problem
+            pix = PixelData(obj.test_sqw_file_path);
             range1 = pix.pix_range;
             npix_to_append = 5;
             pix_to_append = PixelData(rand(9, npix_to_append));
@@ -1106,13 +1119,14 @@ classdef test_PixelData < TestCase
             out_pix = pix.append(pix_to_append);
             % TODO: urange, stored in the file is different from
             % pix(min/max)
-            %assertEqual(ref_range,out_pix.pix_range);
+            assertEqual(ref_range,out_pix.pix_range);
             
             assertEqual(out_pix.num_pixels, pix.num_pixels + pix_to_append.num_pixels);
             original_pix_data = concatenate_pixel_pages(pix);
             out_pix_data = concatenate_pixel_pages(out_pix);
             assertEqual(out_pix_data, horzcat(original_pix_data, pix_to_append.data));
         end
+        
         
         function test_calling_append_with_empty_pixel_data_does_nothing(~)
             pix = PixelData(rand(9, 5));
