@@ -1539,7 +1539,7 @@ methods
         assertEqualToTol(new_pix, expected_pix);
     end
 
-    function test_get_pixels_can_load_clean_and_dirty_pix_out_of_order(obj)#
+    function test_get_pixels_can_load_clean_and_dirty_pix_out_of_order(obj)
         % See test_get_pixels_can_load_from_mix_of_dirty_and_clean_pages for
         % relevant test explanation
         pix = PixelData(obj.test_sqw_file_path, obj.SMALL_PG_SIZE);
