@@ -7,6 +7,9 @@ properties
     ALL_IN_MEM_PG_SIZE = 1e12;
 
     test_sqw_file_path = '../test_sqw_file/sqw_2d_1.sqw';
+    test_dnd_file_path = '../test_sqw_file/dnd_2d.sqw';
+
+    dnd_2d;
     sqw_2d;
     sqw_2d_paged;
 end
@@ -41,7 +44,33 @@ methods
 
     function test_the_same_sqw_objects_are_equal(obj)
         sqw_copy = obj.sqw_2d;
-        assertTrue(equal_to_tol(obj.sqw_2d, sqw_copy));
+        assertEqualToTol(obj.sqw_2d, sqw_copy);
+    end
+
+    function test_sqw_and_d2d_objects_are_not_equal(obj)
+        dnd_2d = d2d(obj.test_dnd_file_path);
+        [ok, mess] = equal_to_tol(obj.sqw_2d, dnd_2d);
+        assertFalse(ok);
+        assertEqual(mess, 'Objects being compared are not both sqw-type or both dnd-type');
+    end
+
+    function test_different_sqw_objects_are_not_equal(obj)
+        class_fields = properties(obj.sqw_2d);
+        for idx = 1:numel(class_fields)
+            sqw_copy = obj.sqw_2d;
+            field_name = class_fields{idx};
+
+            if isstruct(sqw_copy.(field_name))
+                sqw_copy.(field_name).test_field = 'test_value';
+            elseif isstring(sqw_copy.(field_name))
+                sqw_copy.(field_name) = 'test_value';
+            else
+                sqw_copy.(field_name) = [];
+            end
+
+            [ok, mess] = equal_to_tol(obj.sqw_2d, sqw_copy);
+            assertFalse(ok, ['Expected ', field_name, ' to be not equal']);
+        end
     end
 
     function test_the_same_sqw_objects_are_equal_with_no_pix_reorder(obj)

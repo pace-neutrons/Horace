@@ -16,6 +16,13 @@ methods
         obj.test_sqw_1d_fullpath = char(test_sqw_file.getCanonicalPath());
     end
 
+    function test_sqw_class_follows_expected_class_heirarchy(obj)
+        sqw_obj = sqw();
+
+        assertTrue(isa(sqw_obj, 'sqw'));
+        assertTrue(isa(sqw_obj, 'SQWDnDBase'));
+    end
+
     function test_default_constructor_returns_empty_instance(obj)
         sqw_obj = sqw();
 
