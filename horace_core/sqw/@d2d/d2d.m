@@ -3,7 +3,7 @@ classdef d2d < DnDBase
     %
     % Syntax:
     %   >> w = d2d()               % Create a default, empty, D2D object
-    %   >> w = d2d(sqw)            % Create an D2D object from a file
+    %   >> w = d2d(sqw)            % Create a D2D object from a 2-dimensional SQW object
     %   >> w = d2d(filename)       % Create a D2D object from a file
     %   >> w = d2d(struct)         % Create from a structure with valid fields (internal use)
 
