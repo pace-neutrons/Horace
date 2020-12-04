@@ -31,13 +31,62 @@ abs_pix_indices = parse_args(obj, abs_pix_indices);
 
 if obj.is_file_backed_()
     if any(obj.page_dirty_)
-        error('PIXELDATA:get_pixels', ...
-              ['PixelData.get_pixels not implemented if the object ' ...
-               'contains temporary files.']);
+        % At least some pixels sit in temporary files
+
+        % Allocate output array
+        pix_out = PixelData(numel(abs_pix_indices));
+
+        % Logical index into abs_pix_indices of all pixels on dirty pages
+        % This is used to track the positions of dirty pixels. After the
+        % following loop, this is used to remove dirty pixel indices from
+        % abs_pix_indices, so we're just left with the "clean" pixels.
+        dirty_pg_mask = zeros(size(abs_pix_indices));
+
+        dirty_pages = find(obj.page_dirty_);  % page number of dirty pages
+        for i = 1:numel(dirty_pages)
+            pg_num = dirty_pages(i);
+
+            % Get the min/max absolute index of the dirty page
+            min_idx = (pg_num - 1)*obj.base_page_size + 1;
+            max_idx = min_idx + obj.base_page_size;
+
+            % Logical array tracking indices of abs_pix_indices that are in pg_num
+            pix_pg_mask = abs_pix_indices >= min_idx & abs_pix_indices < max_idx;
+
+            if ~any(pix_pg_mask)
+                continue;
+            end
+
+            % Update logical array tracking indexes of dirty pixels
+            dirty_pg_mask = dirty_pg_mask | pix_pg_mask;
+
+            % pixels = obj.load_dirty_idxs(dirty_pages(i), abs_pix_indices(pix_pg_mask));
+            raw_dirty_pix = obj.tmp_io_handler_.load_page(pg_num, ...
+                                                          obj.PIXEL_BLOCK_COLS_);
+            pg_idxs = get_pg_idx_from_absolute_idx(obj, abs_pix_indices(pix_pg_mask), ...
+                                                   pg_num);
+            pixels = raw_dirty_pix(:, pg_idxs);
+
+            pix_out.data(:, pix_pg_mask) = pixels;
+        end
+
+        [unique_sorted, ~, idx_map] = unique(abs_pix_indices(~dirty_pg_mask));
+        raw_pix = obj.f_accessor_.get_pix_at_indices(unique_sorted);
+
+        pix_out.data(:, ~dirty_pg_mask) = raw_pix(:, idx_map);
+
     else
-        pix_out = PixelData(obj.f_accessor_.get_pix_at_indices(abs_pix_indices));
+        % All pixels in file
+        if issorted(abs_pix_indices, 'strictascend')
+            pix_out = PixelData(obj.f_accessor_.get_pix_at_indices(abs_pix_indices));
+        else
+            [unique_sorted, ~, idx_map] = unique(abs_pix_indices);
+            raw_pix = obj.f_accessor_.get_pix_at_indices(unique_sorted);
+            pix_out = PixelData(raw_pix(:, idx_map));
+        end
     end
 else
+    % All pixels in memory
     pix_out = PixelData(obj.data(:, abs_pix_indices));
 end
 
@@ -63,9 +112,25 @@ function abs_pix_indices = parse_args(obj, varargin)
         end
         abs_pix_indices = find(abs_pix_indices);
     end
+
+    max_idx = max(abs_pix_indices);
+    if max_idx > obj.num_pixels
+        error('PIXELDATA:get_pixels', ...
+            'Pixel index out of range. Index must not exceed %i.', ...
+            obj.num_pixels);
+    end
 end
 
 
 function is = is_positive_int_vector_or_logical_vector(vec)
     is = isvector(vec) && (islogical(vec) || (all(vec > 0 & all(floor(vec) == vec))));
+end
+
+
+function pg_idxs = get_pg_idx_from_absolute_idx(obj, abs_pix_indices, page_number)
+    pg_start_idx = (page_number - 1)*obj.base_page_size + 1;
+    pg_end_idx = pg_start_idx + obj.base_page_size - 1;
+    pg_idxs = abs_pix_indices( ...
+        (abs_pix_indices >= pg_start_idx) & (abs_pix_indices <= pg_end_idx)) - ...
+        (page_number - 1)*obj.base_page_size;
 end
