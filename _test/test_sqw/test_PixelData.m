@@ -1316,6 +1316,19 @@ methods
         assertEqual(pix_chunk.data, data(:, idx_array));
     end
 
+    function test_get_pixels_on_file_backed_can_handle_repeated_indices(obj)
+        pix = PixelData(obj.test_sqw_file_path, obj.SMALL_PG_SIZE);
+        num_pix = pix.num_pixels;
+        data = concatenate_pixel_pages(pix);
+
+        % Concatenate random permutation of linspaces up to num_pix, this means
+        % each index is repeated twice
+        idx_array = cat(2, randperm(num_pix), randperm(num_pix));
+
+        pix_chunk = pix.get_pixels(idx_array);
+        assertEqual(pix_chunk.data, data(:, idx_array));
+    end
+
     function test_pg_size_reports_size_of_partially_filled_pg_after_advance(obj)
         num_pix = 30;
         data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
@@ -1495,6 +1508,57 @@ methods
         bytes_in_pixel = PixelData.DEFAULT_NUM_PIX_FIELDS*PixelData.DATA_POINT_SIZE;
         expected_num_pix = floor(PixelData.DEFAULT_PAGE_SIZE/bytes_in_pixel);
         assertEqual(pix.base_page_size, expected_num_pix);
+    end
+
+    function test_get_pixels_can_load_from_mix_of_dirty_and_clean_pages(obj)
+        pix = PixelData(obj.test_sqw_file_path, obj.SMALL_PG_SIZE);
+        pix.advance();
+        % Set all signals in page 2 to 11
+        pix.signal = 11;
+        pix.advance();
+        pix.advance();
+        % Set all signals in page 4 to 12
+        pix.signal = 12;
+        pix.advance();  % advance to save pixels to tmp file
+
+        pg_size = pix.base_page_size;
+        % Set a range that spanning into the first and second page and half of
+        % the 4th page
+        pix_range = [5:(pg_size + 100), ...
+                     (3*pg_size + 4):(3*pg_size + floor(pg_size/2))];
+        new_pix = pix.get_pixels(pix_range);
+
+        % Load the whole file into a PixelData object, set the corresponding
+        % pixels to 11 and 12 as above and verify the .get_pixels return the
+        % same thing.
+        in_mem_pix = PixelData(obj.test_sqw_file_path);
+        in_mem_pix.signal((pg_size + 1):(2*pg_size)) = 11;
+        in_mem_pix.signal((3*pg_size + 1):(4*pg_size)) = 12;
+        expected_pix = in_mem_pix.get_pixels(pix_range);
+
+        assertEqualToTol(new_pix, expected_pix);
+    end
+
+    function test_get_pixels_can_load_clean_and_dirty_pix_out_of_order(obj)#
+        % See test_get_pixels_can_load_from_mix_of_dirty_and_clean_pages for
+        % relevant test explanation
+        pix = PixelData(obj.test_sqw_file_path, obj.SMALL_PG_SIZE);
+        pix.advance();
+        pix.signal = 11;
+        pix.advance();
+        pix.signal = 12;
+        pix.advance();
+
+        pg_size = pix.base_page_size;
+        pix_range = pix.num_pixels:-1:1;
+        new_pix = pix.get_pixels(pix_range);
+
+        in_mem_pix = PixelData(obj.test_sqw_file_path);
+        in_mem_pix.signal(pg_size + 1:2*pg_size) = 11;
+        in_mem_pix.signal(2*pg_size + 1:3*pg_size) = 12;
+        expected_pix = PixelData(in_mem_pix.data(:, pix_range));
+
+        assertEqualToTol(new_pix, expected_pix);
     end
 
     % -- Helpers --
