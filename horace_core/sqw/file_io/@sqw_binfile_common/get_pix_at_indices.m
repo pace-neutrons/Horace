@@ -1,7 +1,14 @@
 function pix = get_pix_at_indices(obj, indices)
-%GET_PIX_AT_INDICES Read pixels from file at the given indices.
-% The "indices" array must be monotonically increasing.
+%GET_PIX_AT_INDICES Read pixels from file at the given pixel indices.
+% The "indices" array must contain integers greater than 0 and be monotonically
+% increasing.
 %
+if indices(end) > obj.npixels
+    error('SQW_BINFILE_COMMON:get_pix_at_indices', ...
+          ['Cannot retrieve given pixel indices. ' ...
+           'Maximum index (%i) greater than number of pixels (%i).'], ...
+           indices(end), obj.npixels);
+end
 
 if ~obj.is_activated('read')
     obj = obj.activate('read');
@@ -13,7 +20,7 @@ PIXEL_SIZE = NUM_BYTES_IN_FLOAT*PixelData.DEFAULT_NUM_PIX_FIELDS;  % bytes
 [read_sizes, seek_sizes] = get_read_and_seek_sizes(indices(:)');
 
 % Pre-allocate output array
-pix = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, sum(read_sizes));
+pix = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, numel(indices));
 
 % Position file reader at start of pixel array
 do_fseek(obj.file_id_, obj.pix_pos_, 'bof');
@@ -41,9 +48,9 @@ function [read_sizes, seek_sizes] = get_read_and_seek_sizes(indices)
     %  >> indices = [3:7, 10:15, 40:41]
     %      -> read_sizes = [5, 5, 1]
     %      -> seek_sizes = [2, 2, 24]
-    % For this example, we need to seek 2 pixels, and then read 4 in order to
-    % read the 3:4 block of pixels. Then we seek 2 and read 5 to read in the
-    % 10:15 block, and so on.
+    % For this example, we need to seek 2 pixels, and then read 5 in order to
+    % read pixels 3-7. Then we seek 2 (skipping over pixels 8 and 9) and read 5
+    % more pixels to get 10-15, and so on.
 
     % Get the difference between neighboring array elements, a difference of
     % more than one suggests we should seek by that many pixels, consecutive 1s
