@@ -70,8 +70,8 @@ methods
     function test_unary_op_updates_image_signal_and_error_if_no_pixeldata(~)
         sqw_obj = sqw();
         sqw_obj.data.pix = PixelData();
-        sqw_obj.data.s = 2; % simple single pixel dataset for ease of testing
-        sqw_obj.data.e = 1.5;
+        dnd_obj.s = [2, 21951]; % simple dataset for ease of testing
+        dnd_obj.e = [1.5, 4123];
 
         % arbitrary unary op for test
         result = log10(sqw_obj);
