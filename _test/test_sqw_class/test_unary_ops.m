@@ -45,7 +45,7 @@ methods
             unary_op = unary_ops{i};
             data_range = unary_ops{i+1};
 
-            data = obj.get_random_data_in_range( ...
+            data = get_random_data_in_range( ...
                 PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix, data_range);
 
             sqw_obj = sqw();
@@ -87,7 +87,7 @@ methods
 
     function test_unary_op_updates_image_signal_and_error(obj)
         num_pix = 23; % create small, single bin dataset for test
-        data = obj.get_random_data_in_range( ...
+        data = get_random_data_in_range( ...
             PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix, [1, 3]);
 
         sqw_obj = sqw();
@@ -111,7 +111,7 @@ methods
 
     function test_unary_op_updates_pixel_signal_and_variance(obj)
         num_pix = 23; % create small, single bin dataset for test
-        data = obj.get_random_data_in_range( ...
+        data = get_random_data_in_range( ...
             PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix, [1, 3]);
 
         sqw_obj = sqw();
@@ -130,14 +130,6 @@ methods
 
         assertEqualToTol(result.data.pix.signal, expected_signal);
         assertEqualToTol(result.data.pix.variance, expected_var);
-    end
-
-end
-
-methods (Static)
-
-    function data = get_random_data_in_range(cols, rows, data_range)
-        data = data_range(1) + (data_range(2) - data_range(1)).*rand(cols, rows);
     end
 
 end

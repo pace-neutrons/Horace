@@ -39,21 +39,17 @@ methods
             @tanh, [0, 3], ...
         };
 
-        % For each unary operator, perform the operation on some data
-        num_pix = 7;
+        % For each unary operator, perform the operation on some random data
+        % generated with the valid range for that function input
+        num_rows = 29;
+        num_cols = 7;
         for i = 1:2:numel(unary_ops)
             unary_op = unary_ops{i};
             data_range = unary_ops{i+1};
 
-            data.s = obj.get_random_data_in_range( ...
-                PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix, data_range);
-            data.e = obj.get_random_data_in_range( ...
-                PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix, data_range);
-
             dnd_obj = d2d();
-            dnd_obj.npix = [num_pix];
-            dnd_obj.s = data.s;
-            dnd_obj.e = data.e;
+            dnd_obj.s = get_random_data_in_range(num_rows, num_cols, data_range);
+            dnd_obj.e = get_random_data_in_range(num_rows, num_cols, data_range);
 
             % exception will be thrown if method not implemented
             result = unary_op(dnd_obj);
@@ -79,14 +75,6 @@ methods
 
         assertEqualToTol(result.s, expected_signal);
         assertEqualToTol(result.e, expected_var);
-    end
-
-end
-
-methods (Static)
-
-    function data = get_random_data_in_range(cols, rows, data_range)
-        data = data_range(1) + (data_range(2) - data_range(1)).*rand(cols, rows);
     end
 
 end
