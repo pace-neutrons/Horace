@@ -68,23 +68,23 @@ classdef test_serialize< TestCase
         function test_ser_datamessage(this)
             my_struc = struct('clc',true(1,3),'a',1,'ba',single(2),'ce',[1,2,3],...
                               'dee',struct('a',10),'ei',int32([9;8;7]));
-            test_struc = DataMessage(my_struc);
+            test_obj = DataMessage(my_struc);
 
-            ser = hlp_serialize(test_struc);
-            test_struc_rec = hlp_deserialize(ser);
-            assertEqual(test_struc, test_struc_rec);
+            ser = hlp_serialize(test_obj);
+            test_obj_rec = hlp_deserialize(ser);
+            assertEqual(test_obj, test_obj_rec);
 
-            test_struc = DataMessage(123456789);
+            test_obj = DataMessage(123456789);
 
-            ser = hlp_serialize(test_struc);
-            test_struc_rec = hlp_deserialize(ser);
-            assertEqual(test_struc, test_struc_rec);
+            ser = hlp_serialize(test_obj);
+            test_obj_rec = hlp_deserialize(ser);
+            assertEqual(test_obj, test_obj_rec);
 
-            test_struc = DataMessage('This is a test message');
+            test_obj = DataMessage('This is a test message');
 
-            ser = hlp_serialize(test_struc);
-            test_struc_rec = hlp_deserialize(ser);
-            assertEqual(test_struc, test_struc_rec);
+            ser = hlp_serialize(test_obj);
+            test_obj_rec = hlp_deserialize(ser);
+            assertEqual(test_obj, test_obj_rec);
         end
 
         function test_ser_datamessage_array(this)
