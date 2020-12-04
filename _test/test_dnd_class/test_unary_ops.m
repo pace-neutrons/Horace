@@ -62,8 +62,8 @@ methods
 
     function test_unary_op_updates_image_signal_and_error(~)
         dnd_obj = d2d();
-        dnd_obj.s = 2; % simple single pixel dataset for ease of testing
-        dnd_obj.e = 1.5;
+        dnd_obj.s = [2, 10245]; % simple dataset for ease of testing
+        dnd_obj.e = [1.5, 1021];
 
         % arbitrary unary op for test
         result = log10(dnd_obj);
