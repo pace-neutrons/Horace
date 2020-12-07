@@ -1,4 +1,4 @@
-classdef test_rundata_vs_sqw < TestCase
+classdef test_rundata_vs_sqw < TestCaseWithSave
     % Series of tests to check work of mex files against Matlab files
     
     properties
@@ -39,7 +39,7 @@ classdef test_rundata_vs_sqw < TestCase
             else
                 name = varargin{1};
             end
-            this = this@TestCase(name);
+            this = this@TestCaseWithSave(name,'rundata_vs_sqw_refdata');
             root_dir = horace_root();
             data_dir = fullfile(root_dir,'_test','common_data');
             this.sqw_file_single = fullfile(this.out_dir,this.sqw_file_single);
@@ -162,10 +162,25 @@ classdef test_rundata_vs_sqw < TestCase
             assertEqual(sqw_o,sqw_r);
             
         end
-        
-        %
-        function obj = test_send_receive_rundata(obj)
+        function test_rundata_sqw(obj)
+            test_file = fullfile(herbert_root(),...
+                '_test','common_data','MAP11014.nxspe');
+            ds = struct('alatt',[2.63,2.63,2.63],'angdeg',[90,90,90],...
+                'u',[1,0,0],'v',[0,1,0]);
+            
+            rd = rundatah(test_file,ds);
+            rd = rd.load();
+            [sq4,grid,pix_range] = rd.calc_sqw();
+            assertEqual(grid,[50,50,50,50]);
+            ref_range = [0.0576   -6.6475   -6.6475    2.5000;...
+                3.8615    6.6475    6.6475  147.5000];
+            assertElementsAlmostEqual(pix_range,ref_range,'relative',3.e-4);
+            assertEqualToTolWithSave(obj,sq4,'ignore_str',true,'tol',1.e-7);
+
+            rdr = rundatah(sq4);
+            assertEqualToTol(rdr.saveobj(),rd.saveobj(),'ignore_str',true,'tol',1.e-7);
             
         end
+        
     end
 end
