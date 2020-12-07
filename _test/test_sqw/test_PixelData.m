@@ -1581,6 +1581,27 @@ methods
         assertEqualToTol(new_pix, expected_pix);
     end
 
+    function test_get_pixels_can_load_clean_and_dirty_pix_cached_page_dirty(obj)
+        % See test_get_pixels_can_load_from_mix_of_dirty_and_clean_pages for
+        % relevant test explanation
+        pix = PixelData(obj.test_sqw_file_path, obj.SMALL_PG_SIZE);
+        assertTrue(pix.page_size < pix.num_pixels);  % make sure we're paging
+        pix.advance();
+        pix.signal = 11;
+        % Do not advance past edited page, changes only exist in cache and not
+        % in temporary files
+
+        pg_size = pix.base_page_size;
+        % Repeat each index from 1 to the page size 3 times
+        pix_range = repelem(1:3*pg_size, 3);
+        new_pix = pix.get_pixels(pix_range);
+
+        in_mem_pix = PixelData(obj.test_sqw_file_path);
+        in_mem_pix.signal(pg_size + 1:2*pg_size) = 11;
+        expected_pix = PixelData(in_mem_pix.data(:, pix_range));
+
+        assertEqualToTol(new_pix, expected_pix);
+    end
 
     function test_get_pixels_correct_if_all_pages_dirty(~)
         data = rand(9, 45);
