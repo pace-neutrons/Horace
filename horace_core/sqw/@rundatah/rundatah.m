@@ -73,16 +73,14 @@ classdef rundatah < rundata
             end
         end
         
-        function deserialise(bytes)
-        end
     end
     
     methods
         %
         % method to create sqw object from rundata object
-        [w,grid_size,urange,varargout] = calc_sqw(rd,grid_size_in,urange_in,varargin);
+        [w,grid_size,pix_range,varargout] = calc_sqw(rd,grid_size_in,pix_range_in,varargin);
         %Method calculates q-dE range, this rundata file contributes into.
-        [u_to_rlu,urange,varargout]=calc_urange(obj,varargin);
+        [u_to_rlu,pix_range,varargout]=calc_pix_range(obj,varargin);
         % build rundata object, which can be used for estimating sqw ranges
         bound_obj = build_bounding_obj(obj,varargin);
         
@@ -118,7 +116,7 @@ classdef rundatah < rundata
             
         end
         
-        function [urange,u_to_rlu,pix,obj] = calc_projections(obj)
+        function [pix_range,u_to_rlu,pix,obj] = calc_projections(obj)
             % main function to transform rundatah information into
             % crystal Cartesian coordinate system
             %
@@ -126,11 +124,11 @@ classdef rundatah < rundata
             %                         set up too)
             %
             % Usage:
-            %>> [urange,u_to_rlu,pix,obj] = rh.calc_projections()
+            %>> [pix_range,u_to_rlu,pix,obj] = rh.calc_projections()
             %                           where rh is fully defined rundata object
             % Returns:
-            %urange --  q-dE range of pixels in crystal Cartesian coordinate
-            %           system
+            % pix_range --  q-dE range of pixels in crystal Cartesian coordinate
+            %             system
             % u_to_rlu -- martix to use when converting crystal Cartesian
             %             coordinate systen into rlu coordinate system
             % pix      -- [9 x npix] array of sqw pixel's information
@@ -156,7 +154,7 @@ classdef rundatah < rundata
                 proj_mode = 2;
             end
             % Calculate projections            
-            [u_to_rlu,urange,pix] = obj.calc_projections_(obj.detdcn_cache,[],proj_mode);
+            [u_to_rlu,pix_range,pix] = obj.calc_projections_(obj.detdcn_cache,[],proj_mode);
         end
     end
     

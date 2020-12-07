@@ -187,7 +187,7 @@ end
 if isempty(img_range)
     img_range = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
     for i=1:numel(run_files)
-        urange_l = run_files{i}.calc_urange(en_lo(i),en_hi(i),cache_opt{:});
+        urange_l = run_files{i}.calc_pix_range(en_lo(i),en_hi(i),cache_opt{:});
         img_range = [min(urange_l(1,:),img_range(1,:));max(urange_l(2,:),img_range(2,:))];
     end
     %urange=calc_urange(efix,emode,en_lo,en_hi,det,alatt,angdeg,...

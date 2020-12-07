@@ -1,10 +1,10 @@
-function [w,grid_size,urange,detdcn] = calc_sqw(obj,grid_size_in,pix_range_in,varargin)
+function [w,grid_size,pix_range,detdcn] = calc_sqw(obj,grid_size_in,pix_range_in,varargin)
 % Generate single sqw file from given rundata class.
 %
 % Usage:
-%>>[w,grid_size,urange,detdcn] = rundata_obj.calc_sqw(grid_size_in,urange_in,varargin);
+%>>[w,grid_size,pix_range,detdcn] = rundata_obj.calc_sqw(grid_size_in,pix_range_in,varargin);
 % or
-%>>[w,grid_size,urange,detdcn] = rundata_obj.calc_sqw(varargin);
+%>>[w,grid_size,pix_range,detdcn] = rundata_obj.calc_sqw(varargin);
 %
 % Where:
 % rundata_obj -- fully defined rundata object
@@ -42,7 +42,7 @@ function [w,grid_size,urange,detdcn] = calc_sqw(obj,grid_size_in,pix_range_in,va
 % w               Output sqw object
 % grid_size       Actual size of grid used (size is unity along dimensions
 %                 where there is zero range of the data points)
-% urange          Actual range of grid - the specified range if it was given,
+% pix_range          Actual range of grid - the specified range if it was given,
 %                 or the range of the data if not.
 %  detdcn        [3 x ndet] array of unit vectors, poinitng to the detector's
 %                positions in the spectrometer coordinate system (X-axis
@@ -55,7 +55,7 @@ function [w,grid_size,urange,detdcn] = calc_sqw(obj,grid_size_in,pix_range_in,va
 keys_recognized = {'-cache_detectors','-qspec'};
 [ok,mess,cache_detectors,cache_q_vectors] = parse_char_options(varargin,keys_recognized);
 if ~ok
-    error('RUNDATAH:invalid_arguments',['calc_urange: ',mess])
+    error('RUNDATAH:invalid_arguments',['calc_pix_range: ',mess])
 end
 detdcn_provided  = false;
 qspec_provided = false;
@@ -128,15 +128,15 @@ if ~(detdcn_provided || cache_q_vectors)
     end
 end
 %
-% if transformation is provided, it will recalculate urange, and probably
-% into something different from non-transformed object urange, so here we
-% use native sqw object urange and account for input urange later.
+% if transformation is provided, it will recalculate pix_range, and probably
+% into something different from non-transformed object pix_range, so here we
+% use native sqw object pix_range and account for input pix_range later.
 if ~isempty(obj.transform_sqw)
     pix_range_sqw = [];
 else
     pix_range_sqw = pix_range_in;
 end
-[w, grid_size, urange]=obj.calc_sqw_(detdcn, det0, grid_size_in, pix_range_sqw);
+[w, grid_size, pix_range]=obj.calc_sqw_(detdcn, det0, grid_size_in, pix_range_sqw);
 
 
 if hor_log_level>-1
@@ -145,14 +145,14 @@ if hor_log_level>-1
 end
 
 if ~isempty(obj.transform_sqw_f_)
-    % we should assume that transformation maintains correct data urange
-    % and correct sqw structure, though this urange and grid_size-s do not
+    % we should assume that transformation maintains correct data pix_range
+    % and correct sqw structure, though this pix_range and grid_size-s do not
     % always coincide with initial range and sizes
     w = obj.transform_sqw_f_(w);
-    urange = w.data.urange;
+    pix_range = w.data.urange;
     grid_size = size(w.data.s);
     if ~isempty(pix_range_in) % expand ranges to include urange_in
-        urange = [min([pix_range_in(1,:);urange(1,:)]);max([pix_range_in(2,:);urange(2,:)])];
+        pix_range = [min([pix_range_in(1,:);pix_range(1,:)]);...
+            max([pix_range_in(2,:);pix_range(2,:)])];
     end
 end
-
