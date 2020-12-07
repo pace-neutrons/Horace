@@ -2,7 +2,7 @@ classdef data_sqw_dnd
     % Class defines structure of the data, used by sqw&dnd objects
     %
     % Trivial implementation, wrapping around a structure
-
+    
     % Original author: T.G.Perring
     %
     properties
@@ -36,7 +36,7 @@ classdef data_sqw_dnd
         e=[]          %Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
         npix=[]       %No. contributing pixels to each bin of the plot axes.
         %             [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-        urange=[Inf,Inf,Inf,Inf;... %True range of the data along each axis [urange(2,4)]
+        img_range=[Inf,Inf,Inf,Inf;... %True range of the data along each axis [urange(2,4)]
             -Inf,-Inf,-Inf,-Inf] % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf] -- convention if no pixels
         pix = PixelData()      % Object containing data for each pixel
         axis_caption=an_axis_caption(); %  Reference to class, which define axis captions
@@ -44,7 +44,10 @@ classdef data_sqw_dnd
         % returns number of pixels, stored within the PixelData class
         num_pixels
     end
-
+    properties(Constant)
+        version = 1.0;
+    end
+    
     methods
         %------------------------------------------------------------------
         % Determine data type of the data field of an sqw data structure
@@ -55,7 +58,8 @@ classdef data_sqw_dnd
         % return binning range of existing data object
         range = get_bin_range(obj);
         % convert sqw_dnd object into structure
-        struc = to_struct(obj,varargin);
+        struc = struct(obj,varargin);
+        %
         %------------------------------------------------------------------
         function obj = data_sqw_dnd(varargin)
             % constructor || copy-constructor:
@@ -162,13 +166,17 @@ classdef data_sqw_dnd
             %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
             %   data.urange     True range of the data along each axis [urange(2,4)]
             %   data.pix        A PixelData object
-
-            if nargin>0 && isa(varargin{1},'data_sqw_dnd') % handle shallow copy constructor
-                obj =varargin{1};                          % its COW for Matlab anyway
-            else
-                [obj,mess]=make_sqw_data(obj,varargin{:});
-                if ~isempty(mess)
-                    error('DATA_SQW_DND:invalid_argument',mess);
+            
+            if nargin>0
+                if isa(varargin{1},'data_sqw_dnd') % handle shallow copy constructor
+                    obj =varargin{1};                          % its COW for Matlab anyway
+                elseif nargin==1 && isstruct(varargin{1})
+                    obj = from_struct_(obj,varargin{1});
+                else
+                    [obj,mess]=make_sqw_data_(obj,varargin{:});
+                    if ~isempty(mess)
+                        error('DATA_SQW_DND:invalid_argument',mess);
+                    end
                 end
             end
         end
@@ -193,7 +201,7 @@ classdef data_sqw_dnd
                 type = 'b';
             else
                 type = 'b+';
-                if ~isempty(obj.urange)
+                if ~isempty(obj.img_range)
                     type = 'a-';
                 end
                 if ~isempty(obj.pix)
@@ -221,7 +229,7 @@ classdef data_sqw_dnd
             % varargin may contain 'field_names_only' which in fact
             % disables validation
             %
-            [ok, type, mess]=obj.check_sqw_data_(type_in);
+            [ok, type, mess]=check_sqw_data_(obj,type_in);
         end
         function npix= get.num_pixels(obj)
             if isa(obj.pix,'PixelData')
@@ -230,7 +238,19 @@ classdef data_sqw_dnd
                 npix  = [];
             end
         end
-
+    end
+    methods(Static)
+        function obj = loadobj(input)
+            if isa(input,'data_sqw_dnd')
+                obj = input;
+            elseif isstruct(input)
+                obj = data_sqw_dnd(input);
+            else
+                error('DATA_SQW_DND:invalid_argument',...
+                    'loadobj can not process input of type: %s',...
+                    class(input));
+            end
+        end
     end
 end
 
