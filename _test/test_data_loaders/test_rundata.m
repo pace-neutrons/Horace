@@ -1,8 +1,5 @@
 classdef test_rundata< TestCase
-    %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
-    %
-    
+    %    
     properties
         log_level;
         test_data_path;
