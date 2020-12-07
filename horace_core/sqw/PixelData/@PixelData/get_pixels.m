@@ -60,12 +60,10 @@ if obj.is_file_backed_()
             % Update logical array tracking indexes of dirty pixels
             dirty_pg_mask = dirty_pg_mask | pix_pg_mask;
 
-            % pixels = obj.load_dirty_idxs(dirty_pages(i), abs_pix_indices(pix_pg_mask));
-            raw_dirty_pix = obj.tmp_io_handler_.load_page(pg_num, ...
-                                                          obj.PIXEL_BLOCK_COLS_);
             pg_idxs = get_pg_idx_from_absolute_idx(obj, abs_pix_indices(pix_pg_mask), ...
                                                    pg_num);
-            pixels = raw_dirty_pix(:, pg_idxs);
+            pixels = obj.tmp_io_handler_.load_pixels_at_indices( ...
+                pg_num, pg_idxs, obj.PIXEL_BLOCK_COLS_);
 
             pix_out.data(:, pix_pg_mask) = pixels;
         end
@@ -80,6 +78,7 @@ if obj.is_file_backed_()
         if issorted(abs_pix_indices, 'strictascend')
             pix_out = PixelData(obj.f_accessor_.get_pix_at_indices(abs_pix_indices));
         else
+            % get_pix_at_indices requires monotonically increasing indices
             [unique_sorted, ~, idx_map] = unique(abs_pix_indices);
             raw_pix = obj.f_accessor_.get_pix_at_indices(unique_sorted);
             pix_out = PixelData(raw_pix(:, idx_map));
