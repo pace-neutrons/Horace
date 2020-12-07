@@ -1549,7 +1549,7 @@ methods
         pix.advance();
 
         pg_size = pix.base_page_size;
-        pix_range = pix.num_pixels:-1:1;
+        pix_range = pix.num_pixels:-1:1;  % pix range in reverse order
         new_pix = pix.get_pixels(pix_range);
 
         in_mem_pix = PixelData(obj.test_sqw_file_path);
