@@ -1,21 +1,21 @@
-function [data,mess] = make_sqw_data (data,varargin)
+function [data,mess] = make_sqw_data_(data,varargin)
 % Make a valid data structure
 % Create a valid structure for an sqw object
 %
 % Simplest constructor
-%   >> [data,mess] = make_sqw_data          % assumes ndim=0
-%   >> [data,mess] = make_sqw_data (ndim)   % sets dimensionality
+%   >> [data,mess] = make_sqw_data_          % assumes ndim=0
+%   >> [data,mess] = make_sqw_data_(ndim)   % sets dimensionality
 %
 % Old style syntax:
-%   >> [data,mess] = make_sqw_data (u1,p1,u2,p2,...,un,pn)  % Define plot axes
-%   >> [data,mess] = make_sqw_data (u0,...)
-%   >> [data,mess] = make_sqw_data (lattice,...)
-%   >> [data,mess] = make_sqw_data (lattice,u0,...)
-%   >> [data,mess] = make_sqw_data (...,'nonorthogonal')    % permit non-orthogonal axes
+%   >> [data,mess] = make_sqw_data_(u1,p1,u2,p2,...,un,pn)  % Define plot axes
+%   >> [data,mess] = make_sqw_data_(u0,...)
+%   >> [data,mess] = make_sqw_data_(lattice,...)
+%   >> [data,mess] = make_sqw_data_(lattice,u0,...)
+%   >> [data,mess] = make_sqw_data_(...,'nonorthogonal')    % permit non-orthogonal axes
 %
 % New style syntax:
-%   >> [data,mess] = make_sqw_data (proj, p1_bin, p2_bin, p3_bin, p4_bin)
-%   >> [data,mess] = make_sqw_data (lattice,...)
+%   >> [data,mess] = make_sqw_data_(proj, p1_bin, p2_bin, p3_bin, p4_bin)
+%   >> [data,mess] = make_sqw_data_(lattice,...)
 %
 %
 % Input:
@@ -107,8 +107,6 @@ function [data,mess] = make_sqw_data (data,varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
 
 mess='';
 define_axis_caption=true;
@@ -167,7 +165,7 @@ if define_axis_caption
 end
 if isempty(mess)
     type_in = data.data_type();
-    [ok, type, mess,data]=data.check_sqw_data_(type_in);
+    [ok, ~, mess,data]=data.check_sqw_data_(type_in);
     if ~ok
         error('DATA_SQW_DND:invalid_arguments',mess);
     end
