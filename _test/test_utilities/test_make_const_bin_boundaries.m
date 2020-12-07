@@ -57,6 +57,7 @@ classdef test_make_const_bin_boundaries < TestCase
             assertEqual(numel(p),11);
             assertEqual(p',0.5:1:10.5)
             
+            % p_des should be equal to pbin_initial (to within rounding errors)
             p_des = make_const_bin_boundaries_descr(p);
             assertEqual(p_des,pbin);
         end
