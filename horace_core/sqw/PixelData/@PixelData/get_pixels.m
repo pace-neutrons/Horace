@@ -36,9 +36,24 @@ if obj.is_file_backed_()
         % Allocate output array
         pix_out = PixelData(numel(abs_pix_indices));
 
+        % Logical index into abs_pix_indices of all pixels on dirty pages
+        % This is used to track the positions of assigned pixels. We can use
+        % this to remove pixel indices from abs_pix_indices, so we're just left
+        % with the unassigned pixels.
+        dirty_pg_mask = zeros(size(abs_pix_indices));
+
+        % Deal with currently cached page
+        if ~obj.cache_is_empty_()
+            [pg_idxs, global_idx] = get_pg_idx_from_absolute_( ...
+                obj, abs_pix_indices, obj.page_number_);
+            pix_out.data(:, global_idx) = obj.data(:, pg_idxs);
+
+            dirty_pg_mask = get_pix_pg_mask(obj, abs_pix_indices, obj.page_number_);
+        end
+
         % Deal with dirty pixels
         [pix_out, dirty_pg_mask] = ...
-            assign_dirty_pixels(obj, pix_out, abs_pix_indices);
+            assign_dirty_pixels(obj, pix_out, abs_pix_indices, dirty_pg_mask);
 
         if ~all(dirty_pg_mask)
             % Now assign the clean pixels
@@ -100,7 +115,7 @@ function is = is_positive_int_vector_or_logical_vector(vec)
 end
 
 
-function [pix, dirty_pg_mask] = assign_dirty_pixels(obj, pix, abs_pix_indices)
+function [pix, dirty_pg_mask] = assign_dirty_pixels(obj, pix, abs_pix_indices, dirty_pg_mask)
     % Assign dirty pixels to the given pixel data object.
     %
     % Inputs:
@@ -110,26 +125,19 @@ function [pix, dirty_pg_mask] = assign_dirty_pixels(obj, pix, abs_pix_indices)
     %                      will be filtered such that only the dirty pixels are
     %                      assigned - the clean pixel indices are discarded.
     %
-
-    % Logical index into abs_pix_indices of all pixels on dirty pages
-    % This is used to track the positions of dirty pixels. After the
-    % following loop, this is used to remove dirty pixel indices from
-    % abs_pix_indices, so we're just left with the "clean" pixels.
-    dirty_pg_mask = zeros(size(abs_pix_indices));
-
     dirty_pages = find(obj.page_dirty_);  % page number of dirty pages
     for i = 1:numel(dirty_pages)
         pg_num = dirty_pages(i);
 
-        % Get the min/max absolute index of the dirty page
-        min_idx = (pg_num - 1)*obj.base_page_size + 1;
-        max_idx = min_idx + obj.base_page_size;
+        if (pg_num == obj.page_number_) && ~obj.cache_is_empty_()
+            % pix in cached page so we ignore temp files and use the cache
+            continue
+        end
 
         % Logical array tracking indices of abs_pix_indices that are in pg_num
-        pix_pg_mask = abs_pix_indices >= min_idx & abs_pix_indices < max_idx;
-
+        pix_pg_mask = get_pix_pg_mask(obj, abs_pix_indices, pg_num);
         if ~any(pix_pg_mask)
-            continue;
+            continue
         end
 
         % Update logical array tracking indexes of dirty pixels
@@ -145,4 +153,14 @@ function [pix, dirty_pg_mask] = assign_dirty_pixels(obj, pix, abs_pix_indices)
 
         pix.data(:, pix_pg_mask) = pixels;
     end
+end
+
+
+function pix_pg_mask = get_pix_pg_mask(obj, abs_pix_indices, page_number)
+    % Get the min/max absolute index of the dirty page
+    min_idx = (page_number - 1)*obj.base_page_size + 1;
+    max_idx = min_idx + obj.base_page_size;
+
+    % Logical array tracking indices of abs_pix_indices that are in page_number
+    pix_pg_mask = abs_pix_indices >= min_idx & abs_pix_indices < max_idx;
 end
