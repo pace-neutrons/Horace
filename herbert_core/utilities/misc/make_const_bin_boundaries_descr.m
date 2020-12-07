@@ -1,5 +1,13 @@
 function pbin = make_const_bin_boundaries_descr(p)
-% Make a constant bin boundaries descriptor from the bin boundaries
+% Make a constant bin boundaries descriptor from the bin boundaries.
+% 
+% The function is the opposite to make_const_bin_boundaries, written with
+% intention for the pair of 
+% >>bb= make_const_bin_boundaries(input)
+% >>descr = make_const_bin_boundaries_descr(bb) produce consistent results
+% e.g. 
+% (input == descr) is true;
+% Usage:
 %
 %   >> pbin = make_const_bin_boundaries_descr_(p)
 %
@@ -9,8 +17,8 @@ function pbin = make_const_bin_boundaries_descr(p)
 %
 % Output:
 % -------
-%   pbin    Bin boundary descriptor [pbeg, pstep, pend] where
-%          pbeg in the forst bin centre, pstep is the bin width, and
+%   pbin   Bin boundary descriptor [pbeg, pstep, pend] where
+%          pbeg in the first bin centre, pstep is the bin width, and
 %          pend is the last bin centre.
 %
 % *** Really this should be made to guarantee consistency in all edge cases with 
