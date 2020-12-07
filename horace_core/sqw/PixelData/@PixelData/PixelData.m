@@ -580,7 +580,6 @@ classdef PixelData < handle
         end
         
         function set.coordinates(obj, coordinates)
-            % ret
             obj = obj.load_current_page_if_data_empty_();
             obj.data(obj.FIELD_INDEX_MAP_('coordinates'), :) = coordinates;
             obj.reset_changed_coord_range('coordinates');
