@@ -36,41 +36,13 @@ if obj.is_file_backed_()
         % Allocate output array
         pix_out = PixelData(numel(abs_pix_indices));
 
-        % Logical index into abs_pix_indices of all pixels on dirty pages
-        % This is used to track the positions of dirty pixels. After the
-        % following loop, this is used to remove dirty pixel indices from
-        % abs_pix_indices, so we're just left with the "clean" pixels.
-        dirty_pg_mask = zeros(size(abs_pix_indices));
+        % Deal with dirty pixels
+        [pix_out, dirty_pg_mask] = ...
+            assign_dirty_pixels(obj, pix_out, abs_pix_indices);
 
-        dirty_pages = find(obj.page_dirty_);  % page number of dirty pages
-        for i = 1:numel(dirty_pages)
-            pg_num = dirty_pages(i);
-
-            % Get the min/max absolute index of the dirty page
-            min_idx = (pg_num - 1)*obj.base_page_size + 1;
-            max_idx = min_idx + obj.base_page_size;
-
-            % Logical array tracking indices of abs_pix_indices that are in pg_num
-            pix_pg_mask = abs_pix_indices >= min_idx & abs_pix_indices < max_idx;
-
-            if ~any(pix_pg_mask)
-                continue;
-            end
-
-            % Update logical array tracking indexes of dirty pixels
-            dirty_pg_mask = dirty_pg_mask | pix_pg_mask;
-
-            pg_idxs = get_pg_idx_from_absolute_idx(obj, abs_pix_indices(pix_pg_mask), ...
-                                                   pg_num);
-            pixels = obj.tmp_io_handler_.load_pixels_at_indices( ...
-                pg_num, pg_idxs, obj.PIXEL_BLOCK_COLS_);
-
-            pix_out.data(:, pix_pg_mask) = pixels;
-        end
-
+        % Now assign the clean pixels
         [unique_sorted, ~, idx_map] = unique(abs_pix_indices(~dirty_pg_mask));
         raw_pix = obj.f_accessor_.get_pix_at_indices(unique_sorted);
-
         pix_out.data(:, ~dirty_pg_mask) = raw_pix(:, idx_map);
 
     else
@@ -132,4 +104,52 @@ function pg_idxs = get_pg_idx_from_absolute_idx(obj, abs_pix_indices, page_numbe
     pg_idxs = abs_pix_indices( ...
         (abs_pix_indices >= pg_start_idx) & (abs_pix_indices <= pg_end_idx)) - ...
         (page_number - 1)*obj.base_page_size;
+end
+
+
+function [pix, dirty_pg_mask] = assign_dirty_pixels(obj, pix, abs_pix_indices)
+    % Assign dirty pixels to the given pixel data object.
+    %
+    % Inputs:
+    % -------
+    %   pix                The PixelData object to assign the dirty data to.
+    %   abs_pix_indices    The absolute indices of the required pixels. These
+    %                      will be filtered such that only the dirty pixels are
+    %                      assigned - the clean pixel indices are discarded.
+    %
+
+    % Logical index into abs_pix_indices of all pixels on dirty pages
+    % This is used to track the positions of dirty pixels. After the
+    % following loop, this is used to remove dirty pixel indices from
+    % abs_pix_indices, so we're just left with the "clean" pixels.
+    dirty_pg_mask = zeros(size(abs_pix_indices));
+
+    dirty_pages = find(obj.page_dirty_);  % page number of dirty pages
+    for i = 1:numel(dirty_pages)
+        pg_num = dirty_pages(i);
+
+        % Get the min/max absolute index of the dirty page
+        min_idx = (pg_num - 1)*obj.base_page_size + 1;
+        max_idx = min_idx + obj.base_page_size;
+
+        % Logical array tracking indices of abs_pix_indices that are in pg_num
+        pix_pg_mask = abs_pix_indices >= min_idx & abs_pix_indices < max_idx;
+
+        if ~any(pix_pg_mask)
+            continue;
+        end
+
+        % Update logical array tracking indexes of dirty pixels
+        dirty_pg_mask = dirty_pg_mask | pix_pg_mask;
+
+        % Convert absolute indices into indices relative to the dirty page
+        pg_idxs = get_pg_idx_from_absolute_idx( ...
+            obj, abs_pix_indices(pix_pg_mask), pg_num);
+
+        % Load required pixels from temporary files
+        pixels = obj.tmp_io_handler_.load_pixels_at_indices( ...
+            pg_num, pg_idxs, obj.PIXEL_BLOCK_COLS_);
+
+        pix.data(:, pix_pg_mask) = pixels;
+    end
 end
