@@ -98,15 +98,6 @@ function is = is_positive_int_vector_or_logical_vector(vec)
 end
 
 
-function pg_idxs = get_pg_idx_from_absolute_idx(obj, abs_pix_indices, page_number)
-    pg_start_idx = (page_number - 1)*obj.base_page_size + 1;
-    pg_end_idx = pg_start_idx + obj.base_page_size - 1;
-    pg_idxs = abs_pix_indices( ...
-        (abs_pix_indices >= pg_start_idx) & (abs_pix_indices <= pg_end_idx)) - ...
-        (page_number - 1)*obj.base_page_size;
-end
-
-
 function [pix, dirty_pg_mask] = assign_dirty_pixels(obj, pix, abs_pix_indices)
     % Assign dirty pixels to the given pixel data object.
     %
@@ -143,7 +134,7 @@ function [pix, dirty_pg_mask] = assign_dirty_pixels(obj, pix, abs_pix_indices)
         dirty_pg_mask = dirty_pg_mask | pix_pg_mask;
 
         % Convert absolute indices into indices relative to the dirty page
-        pg_idxs = get_pg_idx_from_absolute_idx( ...
+        pg_idxs = get_pg_idx_from_absolute_( ...
             obj, abs_pix_indices(pix_pg_mask), pg_num);
 
         % Load required pixels from temporary files
