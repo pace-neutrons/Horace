@@ -201,6 +201,22 @@ classdef test_serialise< TestCase
 
         %% Test Structs
         %------------------------------------------------------------------
+        function test_ser_struct_null(this)
+            test_struct = struct([]);
+            ser =  hlp_serialise(test_struct);
+            test_struct_rec = hlp_deserialise(ser);
+            assertEqual(test_struct, test_struct_rec)
+        end
+
+        %------------------------------------------------------------------
+        function test_ser_struct_empty(this)
+            test_struct = struct();
+            ser =  hlp_serialise(test_struct);
+            test_struct_rec = hlp_deserialise(ser);
+            assertEqual(test_struct, test_struct_rec)
+        end
+
+        %------------------------------------------------------------------
         function test_ser_struct_scalar(this)
             test_struct = struct('Hello', 13, 'Goodbye', 7, 'Beef', {{1, 2, 3}});
             ser =  hlp_serialise(test_struct);
@@ -209,13 +225,20 @@ classdef test_serialise< TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_struct_array(this)
+        function test_ser_struct_list(this)
             test_struct = struct('HonkyTonk', {1, 2, 3});
             ser =  hlp_serialise(test_struct);
             test_struct_rec = hlp_deserialise(ser);
             assertEqual(test_struct, test_struct_rec)
         end
 
+        %------------------------------------------------------------------
+        function test_ser_struct_array(this)
+            test_struct = struct('HonkyTonk', {1, 2, 3; 4, 5, 6; 7, 8, 9});
+            ser = hlp_serialise(test_struct);
+            test_struct_rec = hlp_deserialise(ser);
+            assertEqual(test_struct, test_struct_rec)
+        end
 
         %% Test Sparse
         %------------------------------------------------------------------
@@ -308,6 +331,14 @@ classdef test_serialise< TestCase
         end
 
         %------------------------------------------------------------------
+        function test_ser_cell_homo_numeric_array(this)
+            test_cell = {1 2 3; 4 5 6; 7 8 9};
+            ser =  hlp_serialise(test_cell);
+            test_cell_rec = hlp_deserialise(ser);
+            assertEqual(test_cell, test_cell_rec)
+        end
+
+        %------------------------------------------------------------------
         function test_ser_cell_homo_complex(this)
             test_cell = {1+2i 2+3i 3+1i 4+10i};
             ser =  hlp_serialise(test_cell);
@@ -342,6 +373,14 @@ classdef test_serialise< TestCase
         %------------------------------------------------------------------
         function test_ser_cell_homo_string(this)
             test_cell = {'Hello' 'is' 'it' 'me' 'youre' 'looking' 'for'};
+            ser =  hlp_serialise(test_cell);
+            test_cell_rec = hlp_deserialise(ser);
+            assertEqual(test_cell, test_cell_rec)
+        end
+
+        %------------------------------------------------------------------
+        function test_ser_cell_homo_structs(this)
+            test_cell = {struct('Hello', 5), struct('Goodbye', 'Chicken')};
             ser =  hlp_serialise(test_cell);
             test_cell_rec = hlp_deserialise(ser);
             assertEqual(test_cell, test_cell_rec)

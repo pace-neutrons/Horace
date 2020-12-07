@@ -71,7 +71,7 @@ function siz = serial_sise_struct(v, type)
     nFields = numel(fieldNames);
 
     % Content.
-    fn_siz = 4*(nFields+1) + sum(cellfun('length', fieldNames));
+    fn_siz = 4*(nFields+1) + sum(cellfun('length', fieldNames))
 
     if numel(v) > length(fieldNames)
         % more records than field names; serialise each field as a cell array to expose homogenous content
@@ -101,6 +101,7 @@ function siz = serial_sise_struct(v, type)
         siz = 1 + 4*nDims + fn_siz + data_siz;
         % m = [uint8(bitshift(nDims, 5) + type.tag); typecast(uint32(size(v)), 'uint8'); fnInfo; data];
     end
+    [fn_siz, data_siz]
 end
 
 function siz = serial_sise_cell(v, type)

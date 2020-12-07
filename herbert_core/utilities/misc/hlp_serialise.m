@@ -101,15 +101,13 @@ function m = serialise_struct(v, type)
     % dims = [ndims(v) size(v)];
 
     % Content.
-    fnInfo = [typecast(uint32(fnLengths(:)).','uint8').'; uint8(fnChars(:));];
+    fnInfo = [typecast(uint32(fnLengths(:)).','uint8').'; uint8(fnChars(:))];
 
-    if numel(v) > length(fieldNames)
-        % more records than field names; serialise each field as a cell array to expose homogenous content
-        data = cellfun(@(f)serialise_cell({v.(f)}, type_mapping({})),fieldNames,'UniformOutput',false);
-        data = [uint8(0); vertcat(data{:})];
+    % more field names (or equal) than records; use struct2cell
+    if ~isempty(fieldNames)
+        data = serialise_cell(struct2cell(v), type_mapping({}));
     else
-        % more field names (or equal) than records; use struct2cell
-        data = [uint8(1); serialise_cell(struct2cell(v), type_mapping({}))];
+        data = [];
     end
 
     nElem = numel(v);
@@ -122,7 +120,7 @@ function m = serialise_struct(v, type)
     elseif nDims == 2 && size(v,1) == 1 % List
         m = [uint8(32 + type.tag); typecast(uint32(nElem), 'uint8').'; fnInfo; data];
     else % General array
-        m = [uint8(bitshift(nDims, 5) + type.tag); typecast(uint32(size(v)), 'uint8'); fnInfo; data];
+        m = [uint8(bitshift(nDims, 5) + type.tag); typecast(uint32(size(v)), 'uint8').'; fnInfo; data];
     end
 end
 
@@ -188,7 +186,6 @@ end
 function m = serialise_function_handle(v, type)
     global type_details;
 
-
     % get the representation
     rep = functions(v);
     switch rep.type
@@ -197,11 +194,7 @@ function m = serialise_function_handle(v, type)
         m = [uint8(32+type.tag); serialise_simple_data(rep.function, type_details(2))];
       case 'anonymous'
         % anonymous function: Tag, Code, and reduced workspace
-        if ~isempty(rep.workspace)
-            m = [uint8(64+type.tag); serialise_simple_data(char(v), type_details(2)); serialise_struct(rep.workspace{1}, type_details(25))];
-        else
-            m = [uint8(64+type.tag); serialise_simple_data(char(v), type_details(2)); serialise_struct(struct(), type_details(25))];
-        end
+        m = [uint8(64+type.tag); serialise_simple_data(char(v), type_details(2)); serialise_struct(rep.workspace{1}, type_details(25))];
       case {'scopedfunction','nested'}
         % scoped function: Tag and Parentage
         m = [uint8(96+type.tag); serialise_cell(rep.parentage, type_details(24))];

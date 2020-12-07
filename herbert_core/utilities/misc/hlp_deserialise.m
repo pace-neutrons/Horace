@@ -164,21 +164,27 @@ end
 
 function [v, pos] = deserialise_struct(m, pos)
     [~, nDims] = get_tag_data(m, pos);
-
     if nDims == 0
         v = struct();
+        pos = pos + 1;
     elseif nDims == 1
         nElems = typecast(m(pos+1:pos+4*nDims), 'uint32').';
-        pos = pos + 4*nDims;
-        v = reshape(struct(), [1 nElems]);
+        pos = pos + 4*nDims+1;
+
+        if nElems == 0
+            v = struct([]);
+            return
+        else
+            v = reshape(struct(), [1 nElems]);
+        end
     else
         nElems = typecast(m(pos+1:pos+4*nDims), 'uint32').';
-        pos = pos + 4*nDims;
+        pos = pos + 4*nDims+1;
         v = reshape(struct(), [nElems 1 1]);
     end
 
-    pos = pos + 1;
     % Number of field names.
+    %    pos, m(pos)
     nfields = double(typecast(m(pos:pos+3),'uint32'));
     pos = pos + 4;
     if nfields == 0
@@ -196,19 +202,9 @@ function [v, pos] = deserialise_struct(m, pos)
     for k=1:length(splits)-1
         fieldNames{k} = fnChars(splits(k)+1:splits(k+1));
     end
-    if m(pos)
-        % using struct2cell
-        pos = pos + 1;
-        [contents,pos] = deserialise_value(m,pos);
-        v = cell2struct(contents,fieldNames,1);
-    else
-        % using per-field cell arrays
-        pos = pos + 1;
-        for ff = 1:nfields
-            [contents,pos] = deserialise_cell(m,pos);
-            [v.(fieldNames{ff})] = deal(contents{:});
-        end
-    end
+    % using struct2cell
+    [contents,pos] = deserialise_value(m,pos);
+    v = cell2struct(contents,fieldNames,1);
 end
 
 function [v, pos] = deserialise_function_handle(m, pos)
@@ -220,7 +216,7 @@ function [v, pos] = deserialise_function_handle(m, pos)
         v = str2func(name);
       case 2 % Anonymous
         [code, pos] = deserialise_simple_data(m, pos+1);
-        [workspace, pos] = deserialise_struct(m, pos+1);
+        [workspace, pos] = deserialise_struct(m, pos);
         v = restore_functionise(code, workspace);
       case 3 % Scoped/Nested
         [parentage, pos] = deserialise_cell(m, pos+1);
@@ -237,7 +233,6 @@ function [v, pos] = deserialise_function_handle(m, pos)
 end
 
 function [v, pos] = deserialise_object(m, pos)
-    global type_details;
     [~, nDims] = get_tag_data(m, pos);
 
     if nDims == 0

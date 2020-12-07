@@ -208,13 +208,20 @@ classdef test_serialize< TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_struct_array(this)
+        function test_ser_struct_list(this)
             test_struct = struct('HonkyTonk', {1, 2, 3});
             ser =  hlp_serialize(test_struct);
             test_struct_rec = hlp_deserialize(ser);
             assertEqual(test_struct, test_struct_rec)
         end
 
+        %------------------------------------------------------------------
+        function test_ser_struct_array(this)
+            test_struct = struct('HonkyTonk', {1, 2, 3; 4, 5, 6; 7, 8, 9});
+            ser = hlp_serialize(test_struct);
+            test_struct_rec = hlp_deserialize(ser);
+            assertEqual(test_struct, test_struct_rec)
+        end
 
         %% Test Sparse
         %------------------------------------------------------------------
