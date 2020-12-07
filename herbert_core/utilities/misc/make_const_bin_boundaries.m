@@ -6,7 +6,7 @@ function p=make_const_bin_boundaries(pbin,range,pref,inside)
 %   pbin    Binning argument: [plo, pstep, phi].
 %
 %           If pstep>0: defines bin centres and bin size
-%               If plo and phi both finite, then bin centre alignment is to plo, and phi is 
+%               If plo and phi both finite, then bin centre alignment is to plo, and phi is
 %                   interpreted as the data limit to be included in the bins
 %               If plo=-Inf, then bin centre alignment is to phi, and lowest bin boundary
 %                   set to include lowest data point given by min(range) (below)
@@ -18,7 +18,7 @@ function p=make_const_bin_boundaries(pbin,range,pref,inside)
 %           If pstep=0: bin size and alignment will be determined from optional input argument
 %               pref (below), and plo, phi will be interpreted as ranges of data to be covered by bins.
 %               If either plo=-Inf or phi=+Inf, then corresponding range will be taken from range (below).
-%           
+%
 % Optional input:
 % ---------------
 %   range   Range of data to be covered by bins.
@@ -46,20 +46,23 @@ function p=make_const_bin_boundaries(pbin,range,pref,inside)
 % Check input arguments
 % -----------------------
 if ~isnumeric(pbin) || numel(pbin)~=3
-    error('Binning argument is invalid data type or length')
+    error('UTILITIES:invalid_argument',...
+        'Binning argument is invalid data type or length')
 else
     plo=pbin(1);
     phi=pbin(3);
     pstep=pbin(2);
     if pstep<0 || (~isfinite(plo) && plo~=-Inf) || (~isfinite(phi) && phi~=Inf) || plo>phi
-        error('Binning argument values invalid')
+        error('UTILITIES:invalid_argument',...
+            'Binning argument values invalid')
     end
 end
 
 if exist('range','var') && ~isempty(range)
     range_exist=true;
     if ~isnumeric(range) || isempty(range)
-        error('Argument ''range'' must be a numeric array if present')
+        error('UTILITIES:invalid_argument',...
+            'Argument ''range'' must be a numeric array if present')
     end
 else
     range_exist=false;
@@ -68,14 +71,16 @@ end
 if exist('pref','var') && ~isempty(pref)
     pref_exist=true;
     if ~isnumeric(pref)
-        error('Argument ''pref'' must be a numeric vector length at least 1 if present')
+        error('UTILITIES:invalid_argument',...
+            'Argument ''pref'' must be a numeric vector length at least 1 if present')
     end
     if numel(pref)==1
         if pref>0
             pstep_ref=pref;
             p0_ref=pstep_ref/2;
         else
-            error('Argument ''pref'' must be >0 if scalar')
+            error('UTILITIES:invalid_argument',...
+                'Argument ''pref'' must be >0 if scalar')
         end
     else
         pstep_ref=pref(2)-pref(1);
@@ -89,7 +94,8 @@ if exist('inside','var') && ~isempty(inside)
     if isnumeric(inside)||islogical(inside) && numel(inside)==1
         inside=logical(inside);
     else
-        error('Argument ''inside'' must be logical 0 or 1')
+        error('UTILITIES:invalid_argument',...
+            'Argument ''inside'' must be logical 0 or 1')
     end
 else
     inside=false;
@@ -117,7 +123,8 @@ if pstep>0
         xmin=range(1);
         xmax=range(end);
     else
-        error('One or more of bin centre positions in ''pbin'' are infinite, but no finite default value given')
+        error('UTILITIES:invalid_argument',...
+            'One or more of bin centre positions in ''pbin'' are infinite, but no finite default value given')
     end
 else
     pstep_from_pbin=false;
@@ -125,7 +132,8 @@ else
         pstep=pstep_ref;
         p0=p0_ref;
     else
-        error('Bin size = 0 but no default bin boundary data provided from which to take a default')
+        error('UTILITIES:invalid_argument',...
+            'Bin size = 0 but no default bin boundary data provided from which to take a default')
     end
     
     if isfinite(plo) && isfinite(phi)
@@ -141,7 +149,8 @@ else
         xmin=range(1);
         xmax=range(end);
     else
-        error('One or more of data limits in ''pbin'' are infinite, but no finite default value given')
+        error('UTILITIES:invalid_argument',...
+            'One or more of data limits in ''pbin'' are infinite, but no finite default value given')
     end
 end
 

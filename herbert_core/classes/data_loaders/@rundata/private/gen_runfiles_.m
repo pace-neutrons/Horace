@@ -51,7 +51,7 @@ function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,varargin)
 % Notes:
 % ^1    This parameter is optional for some formats of spe files. If
 %       provided, overides the information contained in the the "spe" file.
-% ^2    Optional parameter. If absent, the default value defined by
+% ^2    Optional parameter. If absent, the default value defined by class
 %       is used instead;
 
 %
