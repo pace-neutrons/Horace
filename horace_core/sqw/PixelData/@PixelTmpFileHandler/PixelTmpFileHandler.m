@@ -51,6 +51,48 @@ methods
         raw_pix = fread(file_id, page_shape, obj.FILE_DATA_FORMAT_);
     end
 
+    function raw_pix = load_pixels_at_indices(obj, page_number, indices, ncols)
+        if nargin == 2
+            ncols = 1;
+        end
+
+        NUM_BYTES_IN_FLOAT = 4;
+        PIXEL_SIZE = NUM_BYTES_IN_FLOAT*ncols;  % bytes
+
+        tmp_file_path = obj.generate_tmp_pix_file_path_(page_number);
+        [file_id, err_msg] = fopen(tmp_file_path, 'rb');
+        if file_id < 0
+            error('PIXELTMPFILEHANDLER:load_page', ...
+                  'Could not open ''%s'' for reading:\n%s', tmp_file_path, ...
+                  err_msg);
+        end
+        clean_up = onCleanup(@() fclose(file_id));
+
+        indices_monotonic = issorted(indices, 'strictascend');
+        if ~indices_monotonic
+            [indices, ~, idx_map] = unique(indices);
+        end
+
+        [read_sizes, seek_sizes] = obj.get_read_and_seek_sizes(indices);
+
+        raw_pix = zeros(ncols, numel(indices));
+
+        num_pix_read = 0;
+        for block_num = 1:numel(read_sizes)
+            fseek(file_id, seek_sizes(block_num)*PIXEL_SIZE, 'cof');
+
+            out_pix_start = num_pix_read + 1;
+            out_pix_end = out_pix_start + read_sizes(block_num) - 1;
+            read_pix = fread(file_id, [ncols, read_sizes(block_num)], obj.FILE_DATA_FORMAT_);
+            raw_pix(:, out_pix_start:out_pix_end) = read_pix;
+
+            num_pix_read = num_pix_read + read_sizes(block_num);
+        end
+        if ~indices_monotonic
+            raw_pix = raw_pix(:, idx_map);
+        end
+    end
+
     function obj = write_page(obj, page_number, raw_pix)
         % Write the given pixel data to tmp file with the given page number
         %
@@ -142,6 +184,30 @@ methods (Access=private)
         % Generate the file path to the tmp directory for this object instance
         tmp_dir_name = sprintf(obj.TMP_DIR_BASE_NAME_, pix_id);
         tmp_dir_path = fullfile(tempdir(), tmp_dir_name);
+    end
+
+    function [read_sizes, seek_sizes] = get_read_and_seek_sizes(~, indices)
+        % Get the consecutive read and seek sizes (in terms of no. of pixels)
+        % needed to read in the pixels at the given indices.
+        %
+        %  >> indices = [3:7, 10:15, 40:41]
+        %      -> read_sizes = [5, 5, 1]
+        %      -> seek_sizes = [2, 2, 24]
+        % For this example, we need to seek 2 pixels, and then read 5 in order to
+        % read pixels 3-7. Then we seek 2 (skipping over pixels 8 and 9) and read 5
+        % more pixels to get 10-15, and so on.
+
+        % Get the difference between neighboring array elements, a difference of
+        % more than one suggests we should seek by that many pixels, consecutive 1s
+        % means we read as many pixels as there are 1s.
+        ind_diff = diff(indices);
+        seek_sizes = [indices(1), ind_diff(ind_diff > 1)] - 1;
+
+        % The read blocks end where we find we need to start seeking
+        read_ends = [indices(ind_diff ~= 1), indices(end)];
+        % The read blocks start where the last seek blocks end
+        read_starts = [seek_sizes(1), seek_sizes(2:end) + read_ends(1:(end - 1))];
+        read_sizes = read_ends - read_starts;
     end
 
 end

@@ -1512,29 +1512,28 @@ methods
 
     function test_get_pixels_can_load_from_mix_of_dirty_and_clean_pages(obj)
         pix = PixelData(obj.test_sqw_file_path, obj.SMALL_PG_SIZE);
-        pix.advance();
+        pix.advance();  % pg 1 is clean
         % Set all signals in page 2 to 11
         pix.signal = 11;
-        pix.advance();
-        pix.advance();
+        pix.advance();  % pg 2 is dirty
+        pix.advance();  % pg 3 is clean
         % Set all signals in page 4 to 12
         pix.signal = 12;
-        pix.advance();  % advance to save pixels to tmp file
+        pix.advance();  % advance to save pixels to tmp file (pg 4 is dirty)
 
         pg_size = pix.base_page_size;
-        % Set a range that spanning into the first and second page and half of
-        % the 4th page
+        % Set a range spanning into the first and second page and half of the
+        % 4th page
         pix_range = [5:(pg_size + 100), ...
                      (3*pg_size + 4):(3*pg_size + floor(pg_size/2))];
         new_pix = pix.get_pixels(pix_range);
 
         % Load the whole file into a PixelData object, set the corresponding
-        % pixels to 11 and 12 as above and verify the .get_pixels return the
-        % same thing.
+        % pixels to 11 and 12 as above
         in_mem_pix = PixelData(obj.test_sqw_file_path);
         in_mem_pix.signal((pg_size + 1):(2*pg_size)) = 11;
         in_mem_pix.signal((3*pg_size + 1):(4*pg_size)) = 12;
-        expected_pix = in_mem_pix.get_pixels(pix_range);
+        expected_pix = PixelData(in_mem_pix.data(:, pix_range));
 
         assertEqualToTol(new_pix, expected_pix);
     end
@@ -1556,6 +1555,27 @@ methods
         in_mem_pix = PixelData(obj.test_sqw_file_path);
         in_mem_pix.signal(pg_size + 1:2*pg_size) = 11;
         in_mem_pix.signal(2*pg_size + 1:3*pg_size) = 12;
+        expected_pix = PixelData(in_mem_pix.data(:, pix_range));
+
+        assertEqualToTol(new_pix, expected_pix);
+    end
+
+    function test_get_pixels_can_load_clean_and_dirty_pix_with_duplicates(obj)
+        % See test_get_pixels_can_load_from_mix_of_dirty_and_clean_pages for
+        % relevant test explanation
+        pix = PixelData(obj.test_sqw_file_path, obj.SMALL_PG_SIZE);
+        assertTrue(pix.page_size < pix.num_pixels);  % make sure we're paging
+        pix.advance();
+        pix.signal = 11;
+        pix.advance();
+
+        pg_size = pix.base_page_size;
+        % Repeat each index from 1 to the page size 3 times
+        pix_range = repelem(1:3*pg_size, 3);
+        new_pix = pix.get_pixels(pix_range);
+
+        in_mem_pix = PixelData(obj.test_sqw_file_path);
+        in_mem_pix.signal(pg_size + 1:2*pg_size) = 11;
         expected_pix = PixelData(in_mem_pix.data(:, pix_range));
 
         assertEqualToTol(new_pix, expected_pix);
