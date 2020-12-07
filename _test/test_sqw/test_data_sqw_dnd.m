@@ -1,4 +1,4 @@
-classdef test_data_sqw_dnd < TestCase
+classdef test_data_sqw_dnd < TestCaseWithSave
     % Series of tests to check work of mex files against Matlab files
     
     properties
@@ -13,7 +13,7 @@ classdef test_data_sqw_dnd < TestCase
             else
                 name = varargin{1};
             end
-            this = this@TestCase(name);
+            this = this@TestCaseWithSave(name,'data_sqw_dnd_ref_data');
         end
         
         function this=test_get_q_qaxes(this)
@@ -85,7 +85,6 @@ classdef test_data_sqw_dnd < TestCase
             assertEqual(qk(2),1.00);
             assertEqual(ql(1),0);
             assertEqual(ql(2),1);
-            
         end
     end
 end

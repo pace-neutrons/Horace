@@ -28,6 +28,6 @@ nfiles = numel(run_files);
 % Get the maximum limits along the projection axes across all spe files
 urange=[Inf, Inf, Inf, Inf;-Inf,-Inf,-Inf,-Inf];
 for i=1:nfiles
-    urange1=run_files{i}.calc_urange(varargin{:});
+    urange1=run_files{i}.calc_pix_range(varargin{:});
     urange = [min(urange(1,:),urange1(1,:)); max(urange(2,:),urange1(2,:))];
 end
