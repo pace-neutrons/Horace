@@ -172,16 +172,16 @@ for i=1:npax
     if pbin_from_pin(ipax)
         % Use default input bins
         p{i}=pin{ipax};
-        %pbin_out{ipax} = make_const_bin_boundaries_descr_(p{i});
+        %pbin_out{ipax} = make_const_bin_boundaries_descr(p{i});
     else
         pbin_tmp=[vlims(ipax,1),vstep(ipax),vlims(ipax,2)];
         if ipax<4 || (ipax==4 && vstep(ipax)>0)
             % Q axes, and also treat energy axis like other axes if provided with energy bin greater than zero
-            p{i}=make_const_bin_boundaries_(pbin_tmp,urange_real(:,ipax));
+            p{i}=make_const_bin_boundaries(pbin_tmp,urange_real(:,ipax));
         else
             % Only reaches here if energy axis and requested energy bin width is explicity or implicitly zero
             % Handle this case differently to above, because we ensure bin boundaries synchronised to boundaries in array en
-            p{i}=make_const_bin_boundaries_(pbin_tmp,urange_real(:,ipax),en,true);
+            p{i}=make_const_bin_boundaries(pbin_tmp,urange_real(:,ipax),en,true);
         end
         % No bins
         if isempty(p{i})

@@ -42,7 +42,6 @@ classdef dnd_file_interface
     % There is also range of auxiliary less important methods.
     % ----------------------------------------------------------------
     %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
     properties(Access=protected,Hidden=true)
         filename_=''
@@ -277,6 +276,13 @@ classdef dnd_file_interface
         %                                           nothing is stored. Always empty for dnd objects.
         [sqw_obj,varargout] = get_sqw(obj,varargin); % retrieve the whole sqw or dnd object from properly initialized sqw file
         [dnd_obj,varargout] = get_dnd(obj,varargin); % retrieve any sqw/dnd object as dnd object
+        
+        % get [2x4] array of min/max ranges of the pixels contributing into
+        % an object
+        pix_range = get_pix_range(obj);
+        % get [2x4] array of min/max ranges of the image contributing into
+        % an object
+        img_range = get_img_range(obj);
         %
         % ----------------------------------------------------------------
         % save sqw object stored in memory into binary sqw file. Depending
