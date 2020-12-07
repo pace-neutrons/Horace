@@ -128,6 +128,8 @@ A set of smoke tests is given in the [smoke_testing SMG](./13_smoke_testing.md).
 
 8. After smoke tests are complete and developers are happy with the package,
 the draft release can be manually published from within the GitHub releases page.
-This creates the tag in Git and the release artifacts made public.
+This creates the tag in Git and makes the release artifacts public.
+
+### Release process flowchart
 
 ![image](images/release_cycle.svg)
