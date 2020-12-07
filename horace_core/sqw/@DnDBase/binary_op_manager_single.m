@@ -28,22 +28,22 @@ if ~isa(w1,'double') && ~isa(w2,'double')
     end
 
 elseif ~isa(w1,'double') && isa(w2,'double')
-%    if isscalar(w2) || isequal(sigvar_size(w1),size(w2))
-%        wout = w1;
-%        result = binary_op(sigvar(w1), sigvar(w2,[]));
-%        wout = sigvar_set(wout,result);
-%    else
+    if isscalar(w2) || isequal(sigvar_size(w1),size(w2))
+        wout = w1;
+        result = binary_op(sigvar(w1), sigvar(w2,[]));
+        wout = sigvar_set(wout,result);
+    else
         error ('Check that the numeric variable is scalar or array with same size as object signal')
-%    end
+    end
 
 elseif isa(w1,'double') && ~isa(w2,'double')
-%    if isscalar(w1) || isequal(sigvar_size(w2),size(w1))
-%        wout = w2;
-%        result = binary_op(sigvar(w1,[]), sigvar(w2));
-%        wout = sigvar_set(wout,result);
-%    else
+    if isscalar(w1) || isequal(sigvar_size(w2),size(w1))
+        wout = w2;
+        result = binary_op(sigvar(w1,[]), sigvar(w2));
+        wout = sigvar_set(wout,result);
+    else
         error ('Check that the numeric variable is scalar or array with same size as object signal')
-%    end
+    end
 
 else
     error ('binary operations between objects and doubles only defined')
