@@ -1581,6 +1581,24 @@ methods
         assertEqualToTol(new_pix, expected_pix);
     end
 
+
+    function test_get_pixels_correct_if_all_pages_dirty(~)
+        data = rand(9, 45);
+        mem_alloc = 8*9*15;
+        pix = PixelData(zeros(9, 0), mem_alloc);
+        for i = 1:3
+            a = (i - 1)*15 + 1;
+            b = i*15;
+            pix.append(PixelData(data(:, a:b)));
+        end
+
+        pix_idx = [12:17, 28:33, 44];
+        new_pix = pix.get_pixels(pix_idx);
+
+        expected_pix = PixelData(data(:, pix_idx));
+        assertEqualToTol(new_pix, expected_pix, 'reltol', 1e-5);
+    end
+
     % -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);

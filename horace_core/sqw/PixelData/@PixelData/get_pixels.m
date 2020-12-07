@@ -40,10 +40,12 @@ if obj.is_file_backed_()
         [pix_out, dirty_pg_mask] = ...
             assign_dirty_pixels(obj, pix_out, abs_pix_indices);
 
-        % Now assign the clean pixels
-        [unique_sorted, ~, idx_map] = unique(abs_pix_indices(~dirty_pg_mask));
-        raw_pix = obj.f_accessor_.get_pix_at_indices(unique_sorted);
-        pix_out.data(:, ~dirty_pg_mask) = raw_pix(:, idx_map);
+        if ~all(dirty_pg_mask)
+            % Now assign the clean pixels
+            [unique_sorted, ~, idx_map] = unique(abs_pix_indices(~dirty_pg_mask));
+            raw_pix = obj.f_accessor_.get_pix_at_indices(unique_sorted);
+            pix_out.data(:, ~dirty_pg_mask) = raw_pix(:, idx_map);
+        end
 
     else
         % All pixels in file
