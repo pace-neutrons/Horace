@@ -73,7 +73,7 @@ methods
             [indices, ~, idx_map] = unique(indices);
         end
 
-        [read_sizes, seek_sizes] = obj.get_read_and_seek_sizes(indices);
+        [read_sizes, seek_sizes] = get_read_and_seek_sizes(indices);
 
         raw_pix = zeros(ncols, numel(indices));
 
@@ -184,30 +184,6 @@ methods (Access=private)
         % Generate the file path to the tmp directory for this object instance
         tmp_dir_name = sprintf(obj.TMP_DIR_BASE_NAME_, pix_id);
         tmp_dir_path = fullfile(tempdir(), tmp_dir_name);
-    end
-
-    function [read_sizes, seek_sizes] = get_read_and_seek_sizes(~, indices)
-        % Get the consecutive read and seek sizes (in terms of no. of pixels)
-        % needed to read in the pixels at the given indices.
-        %
-        %  >> indices = [3:7, 10:15, 40:41]
-        %      -> read_sizes = [5, 5, 1]
-        %      -> seek_sizes = [2, 2, 24]
-        % For this example, we need to seek 2 pixels, and then read 5 in order to
-        % read pixels 3-7. Then we seek 2 (skipping over pixels 8 and 9) and read 5
-        % more pixels to get 10-15, and so on.
-
-        % Get the difference between neighboring array elements, a difference of
-        % more than one suggests we should seek by that many pixels, consecutive 1s
-        % means we read as many pixels as there are 1s.
-        ind_diff = diff(indices);
-        seek_sizes = [indices(1), ind_diff(ind_diff > 1)] - 1;
-
-        % The read blocks end where we find we need to start seeking
-        read_ends = [indices(ind_diff ~= 1), indices(end)];
-        % The read blocks start where the last seek blocks end
-        read_starts = [seek_sizes(1), seek_sizes(2:end) + read_ends(1:(end - 1))];
-        read_sizes = read_ends - read_starts;
     end
 
 end
