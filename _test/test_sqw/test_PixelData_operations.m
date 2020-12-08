@@ -248,7 +248,7 @@ methods
             unary_op = unary_ops{2*i - 1};
             data_range = unary_ops{2*i};
 
-            data = obj.get_random_data_in_range( ...
+            data = get_random_data_in_range( ...
                 PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix, data_range);
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             pix.do_unary_op(unary_op);
@@ -401,13 +401,4 @@ methods
     end
 
 end
-
-methods (Static)
-
-    function data = get_random_data_in_range(cols, rows, data_range)
-        data = data_range(1) + (data_range(2) - data_range(1)).*rand(cols, rows);
-    end
-
-end
-
 end

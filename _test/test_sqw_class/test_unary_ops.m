@@ -45,7 +45,7 @@ methods
             unary_op = unary_ops{i};
             data_range = unary_ops{i+1};
 
-            data = obj.get_random_data_in_range( ...
+            data = get_random_data_in_range( ...
                 PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix, data_range);
 
             sqw_obj = sqw();
@@ -70,14 +70,14 @@ methods
     function test_unary_op_updates_image_signal_and_error_if_no_pixeldata(~)
         sqw_obj = sqw();
         sqw_obj.data.pix = PixelData();
-        sqw_obj.data.s = 2; % simple single pixel dataset for ease of testing
-        sqw_obj.data.e = 1.5;
+        dnd_obj.s = [2, 21951]; % simple dataset for ease of testing
+        dnd_obj.e = [1.5, 4123];
 
         % arbitrary unary op for test
         result = log10(sqw_obj);
 
         % explicit calculation test
-        % reference value calculation match implementation: log10_single
+        % calculate reference values using code matching implmentation in 'log10_single'
         expected_signal = log10(sqw_obj.data.s);
         expected_var = sqw_obj.data.e./(sqw_obj.data.s*log(10)).^2;
 
@@ -87,7 +87,7 @@ methods
 
     function test_unary_op_updates_image_signal_and_error(obj)
         num_pix = 23; % create small, single bin dataset for test
-        data = obj.get_random_data_in_range( ...
+        data = get_random_data_in_range( ...
             PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix, [1, 3]);
 
         sqw_obj = sqw();
@@ -101,7 +101,7 @@ methods
 
         % explicit calculation test - the values should be calculated
         % from the pixel data not from the inconsistent image data
-        % reference value calculation match implementation: compute_bin_data_mex_
+        % calculate reference values using code matching implmentation in 'compute_bin_data_mex_'
         expected_signal =  mean(result.data.pix.signal);
         expected_var = sum(result.data.pix.variance)./num_pix^2;
 
@@ -111,7 +111,7 @@ methods
 
     function test_unary_op_updates_pixel_signal_and_variance(obj)
         num_pix = 23; % create small, single bin dataset for test
-        data = obj.get_random_data_in_range( ...
+        data = get_random_data_in_range( ...
             PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix, [1, 3]);
 
         sqw_obj = sqw();
@@ -124,20 +124,12 @@ methods
         result = log10(sqw_obj);
 
         % explicit calculation test
-        % reference value calculation match implementation: log10_single
+        % calculate reference values using code matching implmentation in 'log10_single'
         expected_signal = log10(sqw_obj.data.pix.signal);
         expected_var = sqw_obj.data.pix.variance./(sqw_obj.data.pix.signal * log(10)).^2;
 
         assertEqualToTol(result.data.pix.signal, expected_signal);
         assertEqualToTol(result.data.pix.variance, expected_var);
-    end
-
-end
-
-methods (Static)
-
-    function data = get_random_data_in_range(cols, rows, data_range)
-        data = data_range(1) + (data_range(2) - data_range(1)).*rand(cols, rows);
     end
 
 end

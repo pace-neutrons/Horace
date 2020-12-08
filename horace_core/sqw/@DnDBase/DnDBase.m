@@ -35,12 +35,14 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         npix % Number of contributing pixels to each bin of the plot axes
     end
 
-    methods (Access = protected)
+    methods(Access = protected)
+        wout = unary_op_manager(obj, operation_handle);
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
     end
 
     methods
         % function signatures
+        w = sigvar_set(win, sigvar_obj);
         [nd, sz] = dimensions(w);
         wout = copy(w);
 
