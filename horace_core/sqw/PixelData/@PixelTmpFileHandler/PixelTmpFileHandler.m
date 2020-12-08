@@ -79,7 +79,7 @@ methods
 
         num_pix_read = 0;
         for block_num = 1:numel(read_sizes)
-            fseek(file_id, seek_sizes(block_num)*PIXEL_SIZE, 'cof');
+            do_fseek(file_id, seek_sizes(block_num)*PIXEL_SIZE, 'cof');
 
             out_pix_start = num_pix_read + 1;
             out_pix_end = out_pix_start + read_sizes(block_num) - 1;
