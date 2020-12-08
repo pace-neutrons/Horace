@@ -9,6 +9,12 @@ function wout = binary_op_manager_single(w1,w2,binary_op)
 %   (2) have dimensions method that gives the dimensionality of the double array
 %           >> nd = dimensions(obj)
 
+if ~is_allowed_type(w1) || ~is_allowed_type(w2)
+    error('DNDBASE:binary_op_manager_single', ...
+          ['Cannot perform binary operation between types ' ...
+           '''%s'' and ''%s''.'], class(w1), class(w2));
+end
+
 if ~isa(w1,'double') && ~isa(w2,'double')
     if isequal(sigvar_size(w1), sigvar_size(w2))
         if isa(w1,'DnDBase')
@@ -24,7 +30,8 @@ if ~isa(w1,'double') && ~isa(w2,'double')
         result = binary_op(sigvar(w1), sigvar(w2));
         wout = sigvar_set(wout, result);
     else
-        error ('Sizes of signal arrays in the objects are different')
+        error('DNDBASE:binary_op_manager_single', ...
+            'Sizes of signal arrays in the objects are different')
     end
 
 elseif ~isa(w1,'double') && isa(w2,'double')
@@ -33,7 +40,8 @@ elseif ~isa(w1,'double') && isa(w2,'double')
         result = binary_op(sigvar(w1), sigvar(w2,[]));
         wout = sigvar_set(wout,result);
     else
-        error ('Check that the numeric variable is scalar or array with same size as object signal')
+        error('DNDBASE:binary_op_manager_single', ...
+            'Check that the numeric variable is scalar or array with same size as object signal')
     end
 
 elseif isa(w1,'double') && ~isa(w2,'double')
@@ -42,10 +50,13 @@ elseif isa(w1,'double') && ~isa(w2,'double')
         result = binary_op(sigvar(w1,[]), sigvar(w2));
         wout = sigvar_set(wout,result);
     else
-        error ('Check that the numeric variable is scalar or array with same size as object signal')
+        error('DNDBASE:binary_op_manager_single', ...
+            'Check that the numeric variable is scalar or array with same size as object signal')
     end
-
-else
-    error ('binary operations between objects and doubles only defined')
+end
 end
 
+function allowed = is_allowed_type(obj)
+    allowed_types = {'double', 'SQWDnDBase', 'sigvar'};
+    allowed = any(cellfun(@(t) isa(obj, t), allowed_types));
+end
