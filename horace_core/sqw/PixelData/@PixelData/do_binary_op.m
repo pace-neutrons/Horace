@@ -43,7 +43,7 @@ elseif isa(operand, 'double')
     pix_out = binary_op_double_(pix_out, operand, binary_op, flip, npix);
 elseif isa(operand, 'PixelData')
     pix_out = binary_op_pixels_(pix_out, operand, binary_op, flip);
-elseif ~isempty(regexp(class(operand), '^d[0-4]d_old$', 'ONCE')) || isa(operand, 'sigvar')
+elseif ~isempty(regexp(class(operand), '^d[0-4]d_old$', 'ONCE')) || isa(operand, 'DnDBase') || isa(operand, 'sigvar')
     pix_out = binary_op_sigvar_(pix_out, operand, binary_op, flip, npix);
 end
 
@@ -67,6 +67,7 @@ end
 function is = valid_operand(operand)
     is = isa(operand, 'PixelData') || ...
          isnumeric(operand) || ...
+         isa(operand, 'DnDBase') || ...
          ~isempty(regexp(class(operand), '^d[0-4]d_old$', 'ONCE')) || ...
          isa(operand, 'sigvar');
 end
