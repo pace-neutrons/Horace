@@ -39,15 +39,3 @@ for block_num = 1:numel(read_sizes)
 end
 
 end
-
-
-% -----------------------------------------------------------------------------
-function do_fseek(fid, offset, origin)
-    ok = fseek(fid, offset, origin);
-    if ok ~= 0
-        [mess, ~] = ferror(fid);
-        error('SQW_BINFILE_COMMON:get_pix_at_indices', ...
-              'Cannot move to requested position in file:\n  %s', ...
-              mess);
-    end
-end
