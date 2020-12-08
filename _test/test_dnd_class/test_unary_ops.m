@@ -69,7 +69,7 @@ methods
         result = log10(dnd_obj);
 
         % explicit calculation test
-        % reference value calculation match implementation: log10_single
+        % calculate reference values using code matching implmentation in 'log10_single'
         expected_signal = log10(dnd_obj.s);
         expected_var = dnd_obj.e./(dnd_obj.s*log(10)).^2;
 

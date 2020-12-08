@@ -77,7 +77,7 @@ methods
         result = log10(sqw_obj);
 
         % explicit calculation test
-        % reference value calculation match implementation: log10_single
+        % calculate reference values using code matching implmentation in 'log10_single'
         expected_signal = log10(sqw_obj.data.s);
         expected_var = sqw_obj.data.e./(sqw_obj.data.s*log(10)).^2;
 
@@ -101,7 +101,7 @@ methods
 
         % explicit calculation test - the values should be calculated
         % from the pixel data not from the inconsistent image data
-        % reference value calculation match implementation: compute_bin_data_mex_
+        % calculate reference values using code matching implmentation in 'compute_bin_data_mex_'
         expected_signal =  mean(result.data.pix.signal);
         expected_var = sum(result.data.pix.variance)./num_pix^2;
 
@@ -124,7 +124,7 @@ methods
         result = log10(sqw_obj);
 
         % explicit calculation test
-        % reference value calculation match implementation: log10_single
+        % calculate reference values using code matching implmentation in 'log10_single'
         expected_signal = log10(sqw_obj.data.pix.signal);
         expected_var = sqw_obj.data.pix.variance./(sqw_obj.data.pix.signal * log(10)).^2;
 
