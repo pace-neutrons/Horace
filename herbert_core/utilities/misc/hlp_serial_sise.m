@@ -71,18 +71,13 @@ function siz = serial_sise_struct(v, type)
     nFields = numel(fieldNames);
 
     % Content.
-    fn_siz = 4*(nFields+1) + sum(cellfun('length', fieldNames))
+    fn_siz = 4*(nFields+1) + sum(cellfun('length', fieldNames));
 
-    if numel(v) > length(fieldNames)
-        % more records than field names; serialise each field as a cell array to expose homogenous content
-        data_siz = cellfun(@(f)serial_sise_cell({v.(f)}, type_mapping({})),fieldNames,'UniformOutput',false);
-        data_siz = sum([data_siz{:}]) + 1;
-        % data = cellfun(@(f)serialise_cell({v.(f)}, type_mapping({})),fieldNames,'UniformOutput',false);
-        % data = [uint8(0); vertcat(data{:})];
+    if ~isempty(fieldNames)
+        data_siz = serial_sise_cell(struct2cell(v), type_mapping({}));
+        % data = [serialise_cell(struct2cell(v), type_mapping({}))];
     else
-        % more field names (or equal) than records; use struct2cell
-        data_siz = 1 + serial_sise_cell(struct2cell(v), type_mapping({}));
-        % data = [uint8(1); serialise_cell(struct2cell(v), type_mapping({}))];
+        data_siz = 0;
     end
 
     nElem = numel(v);
@@ -101,7 +96,6 @@ function siz = serial_sise_struct(v, type)
         siz = 1 + 4*nDims + fn_siz + data_siz;
         % m = [uint8(bitshift(nDims, 5) + type.tag); typecast(uint32(size(v)), 'uint8'); fnInfo; data];
     end
-    [fn_siz, data_siz]
 end
 
 function siz = serial_sise_cell(v, type)

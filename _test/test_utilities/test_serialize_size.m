@@ -219,7 +219,7 @@ classdef test_serialize_size< TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_size_struct_array(this)
+        function test_ser_size_struct_list(this)
             skipTest('Old serialiser cannot handle struct arrays')
             test_struct = struct('HonkyTonk', {1, 2, 3});
             ser =  hlp_serialize(test_struct);
@@ -227,6 +227,13 @@ classdef test_serialize_size< TestCase
             assertEqual(numel(ser), ser_siz)
         end
 
+        %------------------------------------------------------------------
+        function test_ser_size_struct_array(this)
+            test_struct = struct('HonkyTonk', {1, 2, 3; 4, 5, 6; 7, 8, 9});
+            ser = hlp_serialize(test_struct);
+            ser_siz = hlp_serial_size(test_struct);
+            assertEqual(numel(ser), ser_siz)
+        end
 
         %% Test Sparse
         %------------------------------------------------------------------

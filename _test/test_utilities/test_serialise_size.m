@@ -209,7 +209,31 @@ classdef test_serialise_size< TestCase
             assertEqual(numel(ser), ser_siz)
         end
 
+        %------------------------------------------------------------------
+        function test_ser_mixed_complex_array(this)
+            test_obj = [3+4i, 2; 3+5i, 0];
+            ser =  hlp_serialise(test_obj);
+            ser_siz = hlp_serial_sise(test_obj);
+            assertEqual(numel(ser), ser_siz)
+        end
+
         %% Test Structs
+        %------------------------------------------------------------------
+        function test_ser_struct_null(this)
+            test_struct = struct([]);
+            ser =  hlp_serialise(test_struct);
+            ser_siz = hlp_serial_sise(test_struct);
+            assertEqual(numel(ser), ser_siz)
+        end
+
+        %------------------------------------------------------------------
+        function test_ser_struct_empty(this)
+            test_struct = struct();
+            ser =  hlp_serialise(test_struct);
+            ser_siz = hlp_serial_sise(test_struct);
+            assertEqual(numel(ser), ser_siz)
+        end
+
         %------------------------------------------------------------------
         function test_ser_sise_struct_scalar(this)
             test_struct = struct('Hello', 13, 'Goodbye', 7, 'Beef', {{1, 2, 3}});
@@ -219,17 +243,40 @@ classdef test_serialise_size< TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_struct_array(this)
+        function test_ser_sise_struct_list(this)
             test_struct = struct('HonkyTonk', {1, 2, 3});
             ser =  hlp_serialise(test_struct);
             ser_siz = hlp_serial_sise(test_struct);
             assertEqual(numel(ser), ser_siz)
         end
 
+        %------------------------------------------------------------------
+        function test_ser_sise_struct_array(this)
+            test_struct = struct('HonkyTonk', {1, 2, 3; 4, 5, 6; 7, 8, 9});
+            ser = hlp_serialise(test_struct);
+            ser_siz = hlp_serial_sise(test_struct);
+            assertEqual(numel(ser), ser_siz)
+        end
 
         %% Test Sparse
         %------------------------------------------------------------------
-        function test_ser_sise_real_sparse(this)
+        function test_ser_real_sparse_null(this)
+            test_sparse = sparse([],[],[]);
+            ser =  hlp_serialise(test_sparse);
+            ser_siz = hlp_serial_sise(test_sparse);
+            assertEqual(numel(ser), ser_siz)
+        end
+
+        %------------------------------------------------------------------
+        function test_ser_real_sparse_empty(this)
+            test_sparse = sparse([],[],[],10,10);
+            ser =  hlp_serialise(test_sparse);
+            ser_siz = hlp_serial_sise(test_sparse);
+            assertEqual(numel(ser), ser_siz)
+        end
+
+        %------------------------------------------------------------------
+        function test_ser_real_sparse_single(this)
             test_sparse = sparse(eye(1));
             ser =  hlp_serialise(test_sparse);
             ser_siz = hlp_serial_sise(test_sparse);
@@ -237,7 +284,39 @@ classdef test_serialise_size< TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_complex_sparse(this)
+        function test_ser_real_sparse_array(this)
+            test_sparse = sparse(eye(10));
+            ser =  hlp_serialise(test_sparse);
+            ser_siz = hlp_serial_sise(test_sparse);
+            assertEqual(numel(ser), ser_siz)
+        end
+
+        %------------------------------------------------------------------
+        function test_ser_complex_sparse_null(this)
+            test_sparse = sparse([],[], complex([],[]));
+            ser =  hlp_serialise(test_sparse);
+            ser_siz = hlp_serial_sise(test_sparse);
+            assertEqual(numel(ser), ser_siz)
+        end
+
+        %------------------------------------------------------------------
+        function test_ser_complex_sparse_empty(this)
+            test_sparse = sparse([],[],complex([],[]),10,10);
+            ser =  hlp_serialise(test_sparse);
+            ser_siz = hlp_serial_sise(test_sparse);
+            assertEqual(numel(ser), ser_siz)
+        end
+
+        %------------------------------------------------------------------
+        function test_ser_complex_sparse_single(this)
+            test_sparse = sparse([1],[1], [i]);
+            ser =  hlp_serialise(test_sparse);
+            ser_siz = hlp_serial_sise(test_sparse);
+            assertEqual(numel(ser), ser_siz)
+        end
+
+        %------------------------------------------------------------------
+        function test_ser_complex_sparse_array(this)
             test_sparse = sparse([1:10],[1], i);
             ser =  hlp_serialise(test_sparse);
             ser_siz = hlp_serial_sise(test_sparse);
@@ -264,6 +343,14 @@ classdef test_serialise_size< TestCase
         %------------------------------------------------------------------
         function test_ser_sise_cell_homo_numeric(this)
             test_cell = {1 2 3 4};
+            ser =  hlp_serialise(test_cell);
+            ser_siz = hlp_serial_sise(test_cell);
+            assertEqual(numel(ser), ser_siz)
+        end
+
+        %------------------------------------------------------------------
+        function test_ser_cell_homo_numeric_array(this)
+            test_cell = {1 2 3; 4 5 6; 7 8 9};
             ser =  hlp_serialise(test_cell);
             ser_siz = hlp_serial_sise(test_cell);
             assertEqual(numel(ser), ser_siz)
@@ -304,6 +391,14 @@ classdef test_serialise_size< TestCase
         %------------------------------------------------------------------
         function test_ser_sise_cell_homo_string(this)
             test_cell = {'Hello' 'is' 'it' 'me' 'youre' 'looking' 'for'};
+            ser =  hlp_serialise(test_cell);
+            ser_siz = hlp_serial_sise(test_cell);
+            assertEqual(numel(ser), ser_siz)
+        end
+
+        %------------------------------------------------------------------
+        function test_ser_cell_homo_structs(this)
+            test_cell = {struct('Hello', 5), struct('Goodbye', 'Chicken')};
             ser =  hlp_serialise(test_cell);
             ser_siz = hlp_serial_sise(test_cell);
             assertEqual(numel(ser), ser_siz)

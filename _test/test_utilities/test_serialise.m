@@ -192,6 +192,7 @@ classdef test_serialise< TestCase
             assertEqual(test_obj, test_obj_rec)
         end
 
+        %------------------------------------------------------------------
         function test_ser_mixed_complex_array(this)
             test_obj = [3+4i, 2; 3+5i, 0];
             ser =  hlp_serialise(test_obj);

@@ -103,7 +103,6 @@ function m = serialise_struct(v, type)
     % Content.
     fnInfo = [typecast(uint32(fnLengths(:)).','uint8').'; uint8(fnChars(:))];
 
-    % more field names (or equal) than records; use struct2cell
     if ~isempty(fieldNames)
         data = serialise_cell(struct2cell(v), type_mapping({}));
     else
