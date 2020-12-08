@@ -31,8 +31,9 @@ for block_num = 1:numel(read_sizes)
 
     out_pix_start = num_pix_read + 1;
     out_pix_end = out_pix_start + read_sizes(block_num) - 1;
+    read_size = [PixelData.DEFAULT_NUM_PIX_FIELDS, read_sizes(block_num)];
     pix(:, out_pix_start:out_pix_end) = ...
-        do_fread(obj.file_id_, read_sizes(block_num));
+        do_fread(obj.file_id_, read_size, 'float32');
 
     num_pix_read = num_pix_read + read_sizes(block_num);
 end
@@ -47,17 +48,6 @@ function do_fseek(fid, offset, origin)
         [mess, ~] = ferror(fid);
         error('SQW_BINFILE_COMMON:get_pix_at_indices', ...
               'Cannot move to requested position in file:\n  %s', ...
-              mess);
-    end
-end
-
-
-function pix = do_fread(fid, num_pix)
-    pix = fread(fid, [PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix], 'float32');
-    [mess, ok] = ferror(fid);
-    if ok ~= 0
-        error('SQW_BINFILE_COMMON:get_pix_at_indices', ...
-              'Cannot read requested range in file:\n  %s', ...
               mess);
     end
 end

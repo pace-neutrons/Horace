@@ -47,8 +47,8 @@ methods
         end
         clean_up = onCleanup(@() fclose(file_id));
 
-        page_shape = [ncols, inf];
-        raw_pix = fread(file_id, page_shape, obj.FILE_DATA_FORMAT_);
+        page_shape = [ncols, Inf];
+        raw_pix = do_fread(file_id, page_shape, obj.FILE_DATA_FORMAT_);
     end
 
     function raw_pix = load_pixels_at_indices(obj, page_number, indices, ncols)
@@ -83,7 +83,8 @@ methods
 
             out_pix_start = num_pix_read + 1;
             out_pix_end = out_pix_start + read_sizes(block_num) - 1;
-            read_pix = fread(file_id, [ncols, read_sizes(block_num)], obj.FILE_DATA_FORMAT_);
+            read_size = [ncols, read_sizes(block_num)];
+            read_pix = do_fread(file_id, read_size, obj.FILE_DATA_FORMAT_);
             raw_pix(:, out_pix_start:out_pix_end) = read_pix;
 
             num_pix_read = num_pix_read + read_sizes(block_num);
