@@ -63,7 +63,7 @@ if obj.is_file_backed_()
         end
 
     else
-        % All pixels in file
+        % All pixels in .sqw file
         if issorted(abs_pix_indices, 'strictascend')
             pix_out = PixelData(obj.f_accessor_.get_pix_at_indices(abs_pix_indices));
         else
