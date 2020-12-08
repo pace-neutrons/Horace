@@ -52,8 +52,8 @@ if obj.is_file_backed_()
         end
 
         % Deal with dirty pixels
-        [pix_out, pix_assigned] = ...
-            assign_dirty_pixels(obj, pix_out, abs_pix_indices, pix_assigned);
+        [pix_out, pix_assigned] = read_and_assign_dirty_pixels( ...
+            obj, pix_out, abs_pix_indices, pix_assigned);
 
         % If there are pixels left to assign, load them from .sqw file
         if ~all(pix_assigned)
@@ -106,7 +106,8 @@ function is = is_positive_int_vector_or_logical_vector(vec)
 end
 
 
-function [pix, pix_assigned] = assign_dirty_pixels(obj, pix, abs_pix_indices, pix_assigned)
+function [pix, pix_assigned] = read_and_assign_dirty_pixels( ...
+        obj, pix, abs_pix_indices, pix_assigned)
     % Assign dirty pixels to the given pixel data object.
     %
     % Inputs:
