@@ -19,23 +19,17 @@ PIXEL_SIZE = NUM_BYTES_IN_FLOAT*PixelData.DEFAULT_NUM_PIX_FIELDS;  % bytes
 
 [read_sizes, seek_sizes] = get_read_and_seek_sizes(indices(:)');
 
-% Pre-allocate output array
-pix = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, numel(indices));
-
 % Position file reader at start of pixel array
 do_fseek(obj.file_id_, obj.pix_pos_, 'bof');
 
-num_pix_read = 0;
+% Assigning pixel blocks to a cell array and combining after appears to be
+% marginally faster than pre-allocating a large array and assigning to it
+blocks = cell(1, numel(read_sizes));
 for block_num = 1:numel(read_sizes)
     do_fseek(obj.file_id_, seek_sizes(block_num)*PIXEL_SIZE, 'cof');
-
-    out_pix_start = num_pix_read + 1;
-    out_pix_end = out_pix_start + read_sizes(block_num) - 1;
     read_size = [PixelData.DEFAULT_NUM_PIX_FIELDS, read_sizes(block_num)];
-    pix(:, out_pix_start:out_pix_end) = ...
-        do_fread(obj.file_id_, read_size, 'float32');
-
-    num_pix_read = num_pix_read + read_sizes(block_num);
+    blocks{block_num} = do_fread(obj.file_id_, read_size, 'float32');
 end
+pix = [blocks{:}];
 
 end
