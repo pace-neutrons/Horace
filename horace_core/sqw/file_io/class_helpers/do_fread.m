@@ -2,9 +2,11 @@ function A = do_fread(fid, varargin)
 %%DO_FREAD Call Matlab's fread and throw an error if something goes wrong
 % See help for builtin 'fread' for argument descriptions.
 %
-[fid, sizeA, precision, skip, machineformat] = parse_args(fid, varargin{:});
+if nargin >= 2
+    sizeA = varargin{1};
+end
 
-[A, vals_read] = fread(fid, sizeA, precision, skip, machineformat);
+[A, vals_read] = fread(fid, varargin{:});
 [mess, err_code] = ferror(fid);
 
 eof_file_req = any(sizeA == Inf);
@@ -18,24 +20,4 @@ if err_code ~= 0 && (eof_reached && ~eof_file_req)
     error('HORACE:do_fread', mess);
 end
 
-end
-
-
-% -----------------------------------------------------------------------------
-function [fid, sizeA, precision, skip, machineformat] = parse_args(varargin)
-    parser = inputParser();
-    % Leave 'fread' to validate most of the args later
-    parser.addRequired('fid');
-    parser.addOptional('sizeA', Inf);
-    % we must add @ischar validator so arg is not mistaken for keyword argument
-    parser.addOptional('precision', 'uint8=>double', @ischar);
-    parser.addOptional('skip', 0);
-    parser.addOptional('machineformat', 'n', @ischar);
-    parser.parse(varargin{:});
-
-    fid = parser.Results.fid;
-    sizeA = parser.Results.sizeA;
-    precision = parser.Results.precision;
-    skip = parser.Results.skip;
-    machineformat = parser.Results.machineformat;
 end
