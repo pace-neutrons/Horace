@@ -32,9 +32,29 @@ classdef d2d < DnDBase
         end
     end
 
+    methods(Static)
+        %TODO: disabled until full functionality is implemeneted in new class;
+        % The addition of this method causes sqw_old tests to incorrectly load data from .mat files
+        % as new-DnD class objects
+        %        function obj = loadobj(S)
+        %            % Load a sqw object from a .mat file
+        %            %
+        %            %   >> obj = loadobj(S)
+        %            %
+        %            % Input:
+        %            % ------
+        %            %   S       An instance of this object or struct
+        %            %
+        %            % Output:
+        %            % -------
+        %            %   obj     An instance of this object
+        %            %
+        %               obj = sqw(S);
+        %        end
+    end
+
     methods(Access = protected)
-        wout = unary_op_manager(obj, operation_handle);
-        wout = binary_op_manager_single(w1,w2,binary_op);
+        wout = binary_op_manager_single(w1, w2, binary_op);
     end
 
     methods(Static, Access = private)

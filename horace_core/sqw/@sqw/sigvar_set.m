@@ -4,7 +4,15 @@ function w = sigvar_set(win, sigvar_obj)
 %   >> w = sigvar_set(win, sigvar_obj)
 
 if ~isequal(size(win.data.s), size(sigvar_obj.s))
-    error('sqw object and sigvar object have inconsistent sizes')
+    error('SQW:sigvar_set', ...
+        'sqw object and sigvar object signal have inconsistent sizes: [%s] and [%s]', ...
+        num2str(size(win.data.s)), num2str(size(sigvar_obj.s)));
+end
+
+if ~isequal(size(win.data.e), size(sigvar_obj.e))
+    error('SQW:sigvar_set', ...
+        'sqw object and sigvar object variance have inconsistent sizes: [%s] and [%s]', ...
+        num2str(size(win.data.e)), num2str(size(sigvar_obj.e)));
 end
 
 w = win;
