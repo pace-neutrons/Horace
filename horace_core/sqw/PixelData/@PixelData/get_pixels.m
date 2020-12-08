@@ -40,7 +40,7 @@ if obj.is_file_backed_()
         % This is used to track the positions of assigned pixels. We can use
         % this to remove pixel indices from abs_pix_indices, so we're just left
         % with the unassigned pixels.
-        dirty_pg_mask = zeros(size(abs_pix_indices));
+        pix_assigned = zeros(size(abs_pix_indices));
 
         % Deal with currently cached page
         if ~obj.cache_is_empty_()
@@ -48,16 +48,17 @@ if obj.is_file_backed_()
                 obj, abs_pix_indices, obj.page_number_);
             pix_out.data(:, global_idx) = obj.data(:, pg_idxs);
 
-            dirty_pg_mask = get_pix_pg_mask(obj, abs_pix_indices, obj.page_number_);
+            pix_assigned = get_pix_pg_mask(obj, abs_pix_indices, obj.page_number_);
         end
 
         % Deal with dirty pixels
-        [pix_out, dirty_pg_mask] = ...
-            assign_dirty_pixels(obj, pix_out, abs_pix_indices, dirty_pg_mask);
+        [pix_out, pix_assigned] = ...
+            assign_dirty_pixels(obj, pix_out, abs_pix_indices, pix_assigned);
 
-        if ~all(dirty_pg_mask)
-            pix_out.data(:, ~dirty_pg_mask) = ...
-                read_clean_pix(obj, abs_pix_indices(~dirty_pg_mask));
+        % If there are pixels left to assign, load them from .sqw file
+        if ~all(pix_assigned)
+            pix_out.data(:, ~pix_assigned) = ...
+                read_clean_pix(obj, abs_pix_indices(~pix_assigned));
         end
 
     else
@@ -105,7 +106,7 @@ function is = is_positive_int_vector_or_logical_vector(vec)
 end
 
 
-function [pix, dirty_pg_mask] = assign_dirty_pixels(obj, pix, abs_pix_indices, dirty_pg_mask)
+function [pix, pix_assigned] = assign_dirty_pixels(obj, pix, abs_pix_indices, pix_assigned)
     % Assign dirty pixels to the given pixel data object.
     %
     % Inputs:
@@ -114,6 +115,8 @@ function [pix, dirty_pg_mask] = assign_dirty_pixels(obj, pix, abs_pix_indices, d
     %   abs_pix_indices    The absolute indices of the required pixels. These
     %                      will be filtered such that only the dirty pixels are
     %                      assigned - the clean pixel indices are discarded.
+    %  pix_assigned        Logical array with true where the pixel at that
+    %                      index has already been assigned to 'pix'.
     %
     dirty_pages = find(obj.page_dirty_);  % page number of dirty pages
     for i = 1:numel(dirty_pages)
@@ -131,7 +134,7 @@ function [pix, dirty_pg_mask] = assign_dirty_pixels(obj, pix, abs_pix_indices, d
         end
 
         % Update logical array tracking indexes of dirty pixels
-        dirty_pg_mask = dirty_pg_mask | pix_pg_mask;
+        pix_assigned = pix_assigned | pix_pg_mask;
 
         % Convert absolute indices into indices relative to the dirty page
         pg_idxs = get_pg_idx_from_absolute_( ...
