@@ -3,8 +3,7 @@ function obj=init_from_sqw_(obj,varargin)
 % using  data part of sqw object, stored in memory.
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
+
 %
 dnd_2save = varargin{1};
 %

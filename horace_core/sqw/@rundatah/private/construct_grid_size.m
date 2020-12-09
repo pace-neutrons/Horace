@@ -1,5 +1,5 @@
 function [grid_size,p]=construct_grid_size(grid_size_in,pix_range)
-% Return grid_size and boin boundaries from initial grid size specification and data ranges
+% Return grid_size and bin boundaries from initial grid size specification and data ranges
 %
 %   >> [grid_size,p]=construct_grid_size(grid_size_in,pix_range)
 %

@@ -3,9 +3,7 @@ function  obj = init_pix_info_(obj)
 % using sqw object, stored in memory.
 %
 %
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
+
 
 
 data  = obj.sqw_holder_.data;

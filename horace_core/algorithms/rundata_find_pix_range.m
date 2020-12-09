@@ -1,7 +1,7 @@
-function urange = rundata_find_urange(run_files,varargin)
+function pix_range = rundata_find_pix_range(run_files,varargin)
 % Find range of data in crystal Cartesian coordinates
 %
-%   >> urange = rundata_find_urange(run_files)
+%   >> pix_range = rundata_find_pix_range(run_files)
 %
 % Input:
 % ------
@@ -10,13 +10,13 @@ function urange = rundata_find_urange(run_files,varargin)
 %
 % Output:
 % -------
-%   urange    	2x4 array, describing min-max values in momentum/energy
+%   pix_range  2x4 array, describing min-max values in momentum/energy
 %              transfer, in crystal Cartesian coordinates and meV. Uses bin centres.
 %
 
 
 
-% Suppress log messages while calculating urange, as it should be very
+% Suppress log messages while calculating pix_range, as it should be very
 % quick by design.
 hc = hor_config();
 log_level = hc.log_level;
@@ -26,8 +26,9 @@ hc.log_level = -1;
 %
 nfiles = numel(run_files);
 % Get the maximum limits along the projection axes across all spe files
-urange=[Inf, Inf, Inf, Inf;-Inf,-Inf,-Inf,-Inf];
+pix_range=[Inf, Inf, Inf, Inf;-Inf,-Inf,-Inf,-Inf];
 for i=1:nfiles
-    urange1=run_files{i}.calc_pix_range(varargin{:});
-    urange = [min(urange(1,:),urange1(1,:)); max(urange(2,:),urange1(2,:))];
+    pix_range1=run_files{i}.calc_pix_range(varargin{:});
+    pix_range = [min(pix_range(1,:),pix_range1(1,:));...
+        max(pix_range(2,:),pix_range1(2,:))];
 end

@@ -64,8 +64,8 @@ function [data,mess] = make_sqw_data_(data,varargin)
 %                       type 'b+'   fields: uoffset,...,s,e,npix
 %               [The following other valid structures are not created by this function
 %                       type 'b'    fields: uoffset,...,s,e
-%                       type 'a'    uoffset,...,s,e,npix,urange,pix
-%                       type 'a-'   uoffset,...,s,e,npix,urange         ]
+%                       type 'a'    uoffset,...,s,e,npix,img_range,pix
+%                       type 'a-'   uoffset,...,s,e,npix,img_range   ]
 %
 %   mess        Message; ='' if no problems, otherwise contains error message
 %
@@ -101,8 +101,8 @@ function [data,mess] = make_sqw_data_(data,varargin)
 %   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.npix       No. contributing pixels to each bin of the plot axes.
 %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-%   data.urange     True range of the data along each axis [urange(2,4)]
-%   data.pix        A PixelData object
+%   data.img_range True range of the data along each axis [img_range(2,4)]
+%   data.pix       A PixelData object
 
 
 % Original author: T.G.Perring
@@ -170,4 +170,3 @@ if isempty(mess)
         error('DATA_SQW_DND:invalid_arguments',mess);
     end
 end
-

@@ -36,7 +36,7 @@ classdef data_sqw_dnd
         e=[]          %Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
         npix=[]       %No. contributing pixels to each bin of the plot axes.
         %             [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-        img_range=[Inf,Inf,Inf,Inf;... %True range of the data along each axis [urange(2,4)]
+        img_range=[Inf,Inf,Inf,Inf;... %True range of the data along each axis [img_range(2,4)]
             -Inf,-Inf,-Inf,-Inf] % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf] -- convention if no pixels
         pix = PixelData()      % Object containing data for each pixel
         axis_caption=an_axis_caption(); %  Reference to class, which define axis captions
@@ -127,8 +127,8 @@ classdef data_sqw_dnd
             %                       type 'b+'   fields: uoffset,...,s,e,npix
             %               [The following other valid structures are not created by this function
             %                       type 'b'    fields: uoffset,...,s,e
-            %                       type 'a'    uoffset,...,s,e,npix,urange,pix
-            %                       type 'a-'   uoffset,...,s,e,npix,urange         ]
+            %                       type 'a'    uoffset,...,s,e,npix,img_range,pix
+            %                       type 'a-'   uoffset,...,s,e,npix,img_range         ]
             %
             %   mess        Message; ='' if no problems, otherwise contains error message
             %
@@ -164,7 +164,7 @@ classdef data_sqw_dnd
             %   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
             %   data.npix       No. contributing pixels to each bin of the plot axes.
             %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-            %   data.urange     True range of the data along each axis [urange(2,4)]
+            %   data.img_range     True range of the data along each axis [img_range(2,4)]
             %   data.pix        A PixelData object
             
             if nargin>0
@@ -182,7 +182,7 @@ classdef data_sqw_dnd
         end
         %
         function isit=dnd_type(obj)
-            if isempty(obj.pix) || isempty(obj.urange)
+            if isempty(obj.pix) || isempty(obj.img_range)
                 isit = true;
             else
                 isit = false;
@@ -195,8 +195,8 @@ classdef data_sqw_dnd
             %          type 'b+'   fields: uoffset,...,s,e,npix
             %          [The following other valid structures are not created by this function
             %          type 'b'    fields: uoffset,...,s,e
-            %          type 'a'    uoffset,...,s,e,npix,urange,pix
-            %          type 'a-'   uoffset,...,s,e,npix,urange
+            %          type 'a'    uoffset,...,s,e,npix,img_range,pix
+            %          type 'a-'   uoffset,...,s,e,npix,img_range
             if isempty(obj.npix)
                 type = 'b';
             else
@@ -213,13 +213,12 @@ classdef data_sqw_dnd
         function dnd_struct=get_dnd_data(obj,varargin)
             %function retrieves dnd structure from the sqw_dnd_data class
             % if additional argument provided (+), the resulting structure  also includes
-            % urange.
+            % img_range.
             dnd_struct = obj.get_dnd_data_(varargin{:});
         end
         %
         function obj=clear_sqw_data(obj)
             obj.pix = PixelData();
-            obj.urange=[];
         end
         %
         function [ok, type, mess]=check_sqw_data(obj, type_in, varargin)

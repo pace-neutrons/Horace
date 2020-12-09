@@ -49,11 +49,11 @@ grid_is_unity = (isscalar(grid_size_in)&&grid_size_in==1)||(isvector(grid_size_i
 
 % Set pix_range, and determine if all the data is on the surface or within the box defined by the ranges
 if isempty(pix_range_in)
-    pix_range = sqw_datstr.pix_range;   % range of the data
+    pix_range = sqw_datstr.img_range;   % range of the data
     data_in_range = true;
 else
     pix_range = pix_range_in;         % use input pix_range
-    if any(pix_range(1,:)>sqw_datstr.pix_range(1,:)) || any(pix_range(2,:)<sqw_datstr.pix_range(2,:))
+    if any(pix_range(1,:)>sqw_datstr.img_range(1,:)) || any(pix_range(2,:)<sqw_datstr.img_range(2,:))
         data_in_range = false;
     else
         data_in_range = true;
@@ -119,8 +119,8 @@ else
     
     % If changed pix_range to something less than the range of the data, then must update true range
     if ~data_in_range
-        sqw_datstr.pix_range(1,:)=min(sqw_datstr.pix.coordinates,[],2)';
-        sqw_datstr.pix_range(2,:)=max(sqw_datstr.pix.coordinates,[],2)';
+        sqw_datstr.img_range(1,:)=min(sqw_datstr.pix.coordinates,[],2)';
+        sqw_datstr.img_range(2,:)=max(sqw_datstr.pix.coordinates,[],2)';
     end
 end
 
@@ -219,8 +219,8 @@ sqw_datstr.dax=[1,2,3,4];
 sqw_datstr.s=sum(obj.S(:));
 sqw_datstr.e=sum(pix.variance);   % take advantage of the squaring that has already been done for pix array
 sqw_datstr.npix=ne*ndet;
-% pix range expressed in Crystal Cartesian coordinate system
-sqw_datstr.pix_range=pix_range;
+% img range expressed in Crystal Cartesian coordinate system
+sqw_datstr.img_range=pix_range;
 %
 % this will set up pix_range in Crystal Cartesian.
 sqw_datstr.pix=PixelData(pix);
