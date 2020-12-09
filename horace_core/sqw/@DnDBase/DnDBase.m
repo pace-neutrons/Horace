@@ -47,7 +47,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         [nd, sz] = dimensions(w);
         wout = copy(w);
 
-
         function obj = DnDBase(varargin)
             obj = obj@SQWDnDBase();
         end
