@@ -95,12 +95,15 @@ for block_start = 1:block_size:numel(pix_indices)
 % for bin_num = 1:numel(bin_starts)
     % bin_start = bin_starts(bin_num);
     % bin_end = bin_ends(bin_num);
-    disp(['Iter ', num2str(i)]);
-
     block_end = min(block_start + block_size - 1, numel(pix_indices));
     candidate_pix = sqw_obj.data.pix.get_pixels(pix_indices(block_start:block_end));
 
     % candidate_pix = sqw_obj.data.pix.get_pixels_in_range(bin_start, bin_end);
+
+    if get(hor_config, 'log_level') >= 0
+        fprintf(['Step %3d; Have read data for %d pixels -- ' ...
+                 'now processing data...'], i, candidate_pix.num_pixels);
+    end
 
     keep_pix = true;
 
@@ -123,10 +126,13 @@ for block_start = 1:block_size:numel(pix_indices)
             targ_pax ...
     );
 
+    if get(hor_config, 'log_level') >= 0
+        fprintf(' ----->  retained  %d pixels\n',del_npix_retain);
+    end
+
     %% Continue: cut_data_from_array ----------------------------------------------
 
     if keep_pix
-        % pix = sqw_obj.data.pix.get_pixels(ok);
         pix = candidate_pix.get_pixels(ok);
         pix_retained{i} = pix;
         pix_ix_retained{i} = ix;

@@ -713,7 +713,6 @@ methods (Access=private)
             obj.load_dirty_page_(page_number);
         else
             % load page from sqw file
-            disp(['Page number: ', num2str(obj.page_number_)]);
             obj.load_clean_page_(page_number);
             obj.set_page_dirty_(false, page_number);
         end
@@ -733,7 +732,6 @@ methods (Access=private)
         pix_idx_end = min(pix_idx_start + obj.base_page_size - 1, obj.num_pixels);
 
         obj.data_ = obj.f_accessor_.get_pix(pix_idx_start, pix_idx_end);
-        disp(['pix_start: ', num2str(pix_idx_start), ' pix_end: ', num2str(pix_idx_end)]);
         if obj.page_size == obj.num_pixels
             % Delete accessor and close the file if all pixels have been read
             obj.f_accessor_ = [];
