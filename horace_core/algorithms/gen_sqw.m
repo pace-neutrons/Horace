@@ -1,4 +1,4 @@
-function [tmp_file,grid_size,urange] = gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+function [tmp_file,grid_size,pix_range] = gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
     u, v, psi, omega, dpsi, gl, gs, varargin)
 % Read one or more spe files and a detector parameter file, and create an output sqw file.
 %
@@ -9,13 +9,13 @@ function [tmp_file,grid_size,urange] = gen_sqw (spe_file, par_file, sqw_file, ef
 %                                               u, v, psi, omega, dpsi, gl, gs, 'key1', 'key2'...)
 %
 % Optionally (before any keywords):
-%   >> gen_sqw (..., instrument, sample)        % instrument and sample information
-%   >> gen_sqw (..., grid_size_in, urange_in)   % grid size and range of data to retain
-%   >> gen_sqw (..., grid_size_in, urange_in, instrument, sample)
+%   >> gen_sqw (..., instrument,   sample)    % instrument and sample information
+%   >> gen_sqw (..., grid_size_in, pix_range_in) % grid size and range of data to retain
+%   >> gen_sqw (..., grid_size_in, pix_range_in, instrument, sample)
 %
 %
 % If want output diagnostics:
-%   >> [tmp_file,grid_size,urange] = gen_sqw (...)
+%   >> [tmp_file,grid_size,pix_range] = gen_sqw (...)
 %
 %
 % Input: (in the following, nfile = number of spe files)
@@ -40,7 +40,7 @@ function [tmp_file,grid_size,urange] = gen_sqw (spe_file, par_file, sqw_file, ef
 %
 %   grid_size_in    [Optional] Scalar or row vector of grid dimensions
 %                   Default if not given or [] is is [50,50,50,50]
-%   urange_in       [Optional] Range of data grid for output as a 2x4 matrix:
+%   pix_range_in   [Optional] Range of data grid for output as a 2x4 matrix:
 %                              [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
 %                   Default if not given or [] is the smallest hypercuboid that encloses the whole data range.
 %   instrument      Structure or object containing instrument information [scalar or array length nfile]
@@ -88,7 +88,7 @@ function [tmp_file,grid_size,urange] = gen_sqw (spe_file, par_file, sqw_file, ef
 %                  is an empty cell array.
 %   grid_size       Actual size of grid used (size is unity along dimensions
 %                  where there is zero range of the data points)
-%   urange          Actual range of grid
+%   pix_range      Actual range of grid
 
 
 % T.G.Perring  14 August 2007
@@ -213,16 +213,16 @@ end
 if ~ok, error('GEN_SQW:invalid_argument',mess), end
 
 
-% Check optional arguments (grid, urange, instrument, sample) for size, type and validity
+% Check optional arguments (grid, pix_range, instrument, sample) for size, type and validity
 grid_default=[];
 instrument_default=struct;  % default 1x1 struct
 sample_default=struct;      % default 1x1 struct
-[ok,mess,present,grid_size_in,urange_in,instrument,sample]=gen_sqw_check_optional_args(...
+[ok,mess,present,grid_size_in,pix_range_in,instrument,sample]=gen_sqw_check_optional_args(...
     n_all_spe_files,grid_default,instrument_default,sample_default,args{:});
 if ~ok, error('GEN_SQW:invalid_argument',mess), end
-if accumulate_old_sqw && (present.grid||present.urange)
+if accumulate_old_sqw && (present.grid||present.pix_range)
     error('GEN_SQW:invalid_argument',...
-        'If data is being accumulated to an existing sqw file, then you cannot specify the grid or urange.')
+        'If data is being accumulated to an existing sqw file, then you cannot specify the grid or pix_range.')
 end
 
 
@@ -234,7 +234,7 @@ if accumulate_old_sqw    % combine with existing sqw file
         if log_level>0
             disp(' Analysing headers of existing tmp files:')
         end
-        [header_sqw,grid_size_sqw,urange_sqw,ind_tmp_files_present] = get_tmp_file_headers(all_tmp_files);
+        [header_sqw,grid_size_sqw,img_range_sqw,ind_tmp_files_present] = get_tmp_file_headers(all_tmp_files);
         if sum(ind_tmp_files_present) == 0
             accumulate_old_sqw = false;
             if log_level>0
@@ -248,7 +248,7 @@ if accumulate_old_sqw    % combine with existing sqw file
         
     else
         % Check that the sqw file has the correct type to which to accumulate
-        [ok,mess,header_sqw,grid_size_sqw,urange_sqw]=gen_sqw_check_sqwfile_valid(sqw_file);
+        [ok,mess,header_sqw,grid_size_sqw,img_range_sqw]=gen_sqw_check_sqwfile_valid(sqw_file);
         % Check that the input spe data are distinct
         if ~ok, error(mess), end
     end
@@ -282,7 +282,8 @@ if accumulate_old_sqw    % combine with existing sqw file
             end
             tmp_file={};
         end
-        grid_size=grid_size_sqw; urange=urange_sqw;
+        grid_size=grid_size_sqw; 
+        pix_range=img_range_sqw;
         return
     end
     ix=(spe_exist & spe_only);    % the spe data that needs to be processed
@@ -363,17 +364,17 @@ end
 if ~accumulate_old_sqw
     %NOTE: because of && numel(run_files)>1, Masked detectors would be removed
     % from the range of a single converted run file.
-    if isempty(urange_in) && numel(run_files)>1
+    if isempty(pix_range_in) && numel(run_files)>1
         if numel(run_files)==1
-            urange_in =[];
+            pix_range_in =[];
         else
-            urange_in = find_urange(run_files,efix,emode,ix,indx,log_level); %calculate urange from all runfiles
+            pix_range_in = find_pix_range(run_files,efix,emode,ix,indx,log_level); %calculate pix_range from all runfiles
         end
         
     end
     run_files = run_files(ix); % select only existing runfiles for further processing
 elseif accumulate_old_sqw
-    urange_in=urange_sqw;
+    pix_range_in=img_range_sqw;
 end
 
 
@@ -389,10 +390,10 @@ if ~accumulate_old_sqw && nindx==1
     if ~isempty(opt.transform_sqw)
         run_files{1}.transform_sqw = opt.transform_sqw;
     end
-    [w,grid_size,urange] = run_files{1}.calc_sqw(grid_size_in,urange_in); %.rundata_write_to_sqw (run_files,{sqw_file},...
+    [w,grid_size,pix_range] = run_files{1}.calc_sqw(grid_size_in,pix_range_in); %.rundata_write_to_sqw (run_files,{sqw_file},...
     save(w,sqw_file);
     
-    %grid_size_in,urange_in,write_banner,opt);
+    %grid_size_in,pix_range_in,write_banner,opt);
     tmp_file={};    % empty cell array to indicate no tmp_files created
     
     if log_level>-1
@@ -422,8 +423,8 @@ else
     end
     
     % Generate unique temporary sqw files, one for each of the spe files
-    [grid_size,urange,tmp_file,parallel_job_dispatcher]=convert_to_tmp_files(run_files,sqw_file,...
-        instrument,sample,urange_in,grid_size_in,opt.tmp_only);
+    [grid_size,pix_range,tmp_file,parallel_job_dispatcher]=convert_to_tmp_files(run_files,sqw_file,...
+        instrument,sample,pix_range_in,grid_size_in,opt.tmp_only);
     
     if use_partial_tmp
         delete_tmp = false;
@@ -480,7 +481,7 @@ end
 % Clear output arguments if nargout==0 to have a silent return
 % ------------------------------------------------------------
 if nargout==0
-    clear tmp_file grid_size urange
+    clear tmp_file grid_size pix_range
 end
 % clear cached detectors information and detectors directions
 rundatah.clear_det_cache();
@@ -526,7 +527,7 @@ else
 end
 
 %------------------------------------------------------------------------------------------------
-function [header_sqw,grid_size_sqw,urange_sqw,tmp_present] = get_tmp_file_headers(tmp_file_names)
+function [header_sqw,grid_size_sqw,img_range_sqw,tmp_present] = get_tmp_file_headers(tmp_file_names)
 % get sqw header for prospective sqw file from range of tmp files
 %
 % Input:
@@ -536,7 +537,7 @@ function [header_sqw,grid_size_sqw,urange_sqw,tmp_present] = get_tmp_file_header
 % header_sqw -- list of partial tmp files headers combined in the form,
 %               used by sqw file
 % grid_size_sqw -- tmp files binning (has to be equal for all input files)
-% urange_sqw   -- q-range of input tmp files (has to be equal for all existing files)
+% img_range_sqw -- range of input tmp files image (has to be equal for all existing files)
 % tmp_present  -- logical array containing true for all tmp_file_names
 %                 found on hdd and false otherwise
 %
@@ -546,7 +547,7 @@ files_to_check = tmp_file_names(tmp_present);
 header_sqw = cell(numel(files_to_check),1);
 multiheaders = false;
 ic = 1;
-urange_sqw = [];
+img_range_sqw = [];
 grid_size_sqw = [];
 for i=1:numel(files_to_check)
     try
@@ -570,23 +571,23 @@ for i=1:numel(files_to_check)
     % --------------------------------------------
     header = ldr.get_header('-all');
     data   = ldr.get_data('-head');
+
+    %TODO: this will be the field of the data
+    img_range_l=[data.p{1}(1) data.p{2}(1) data.p{3}(1) data.p{4}(1); ...
+            data.p{1}(end) data.p{2}(end) data.p{3}(end) data.p{4}(end)];        
+    grid_size_l = [numel(data.p{1})-1,numel(data.p{2})-1,...
+        numel(data.p{3})-1,numel(data.p{4})-1];
     
-    if isempty(urange_sqw)
-        urange_sqw=[data.p{1}(1) data.p{2}(1) data.p{3}(1) data.p{4}(1); ...
-            data.p{1}(end) data.p{2}(end) data.p{3}(end) data.p{4}(end)];
-        grid_size_sqw = [numel(data.p{1})-1,numel(data.p{2})-1,...
-            numel(data.p{3})-1,numel(data.p{4})-1];
+    if isempty(img_range_sqw)
+        img_range_sqw = ing_range_l;
+        grid_size_sqw = grid_size_l;
         data_ref = data;
     else
-        urange_l=[data.p{1}(1) data.p{2}(1) data.p{3}(1) data.p{4}(1); ...
-            data.p{1}(end) data.p{2}(end) data.p{3}(end) data.p{4}(end)];
-        grid_size_l = [numel(data.p{1})-1,numel(data.p{2})-1,...
-            numel(data.p{3})-1,numel(data.p{4})-1];
         
         tol=2e-7;    % test number to define equality allowing for rounding errors (recall fields were saved only as float32)
         % TGP (15/5/2015) I am not sure if this is necessary: both the header and data sections are saved as float32, so
         % should be rounded identically.
-        if ~equal_to_relerr(urange_sqw, urange_l, tol, 1)
+        if ~equal_to_relerr(img_range_sqw, img_range_l, tol, 1)
             error('GEN_SQW:invalid_argument',...
                 'the tmp file to combine: %s does not have the same range as first tmp file',...
                 ldr.filename)
@@ -627,7 +628,7 @@ for i=1:numel(files_to_check)
     
 end
 %-------------------------------------------------------------------------
-function  urange_in = find_urange(run_files,efix,emode,ief,indx,log_level)
+function  pix_range_in = find_pix_range(run_files,efix,emode,ief,indx,log_level)
 % Calculate ranges of all runfiles provided including missing files
 % where only parameters are provided
 % inputs:
@@ -638,7 +639,7 @@ function  urange_in = find_urange(run_files,efix,emode,ief,indx,log_level)
 %             exist and false -- not
 % indx     -- indexes of existing runfiles in array of all runfiles
 %Output:
-% urange_in -- q-dE range of all input data
+% pix_range_in -- q-dE range of all input data
 %
 use_mex = ...
     config_store.instance().get_value('hor_config','use_mex');
@@ -657,7 +658,7 @@ else
 end
 
 bigtic
-urange_in = rundata_find_urange(run_files(ief),cache_det{:});
+pix_range_in = rundata_find_pix_range(run_files(ief),cache_det{:});
 
 % process missing files
 if ~all(ief)
@@ -677,13 +678,13 @@ if ~all(ief)
         missing_rf{i}.en = [eps_lo(i);eps_hi(i)];
     end
     
-    urange_est = rundata_find_urange(missing_rf,cache_det{:});
+    pix_range_est = rundata_find_pix_range(missing_rf,cache_det{:});
     
-    % Expand range to include urange_est, if necessary
-    urange_in=[min(urange_in(1,:),urange_est(1,:)); max(urange_in(2,:),urange_est(2,:))];
+    % Expand range to include pix_range_est, if necessary
+    pix_range_in=[min(pix_range_in(1,:),pix_range_est(1,:)); max(pix_range_in(2,:),pix_range_est(2,:))];
 end
 % Add a border
-urange_in=range_add_border(urange_in,-1e-6);
+pix_range_in=range_add_border(pix_range_in,-1e-6);
 
 if log_level>-1
     bigtoc('Time to compute limits:',log_level);
@@ -701,8 +702,8 @@ else
 end
 disp('--------------------------------------------------------------------------------')
 %---------------------------------------------------------------------------------------
-function  [grid_size,urange,tmp_file,jd]=convert_to_tmp_files(run_files,sqw_file,...
-    instrument,sample,urange_in,grid_size_in,gen_tmp_files_only)
+function  [grid_size,pix_range,tmp_file,jd]=convert_to_tmp_files(run_files,sqw_file,...
+    instrument,sample,pix_range_in,grid_size_in,gen_tmp_files_only)
 %
 log_level = ...
     config_store.instance().get_value('herbert_config','log_level');
@@ -753,7 +754,7 @@ if use_separate_matlab
     % aggregate the conversion parameters into array of structures,
     % suitable for splitting jobs between workers
     [common_par,loop_par]=gen_sqw_files_job.pack_job_pars(run_files',tmp_file,...
-        instrument,sample,grid_size_in,urange_in);
+        instrument,sample,grid_size_in,pix_range_in);
     %
     [outputs,n_failed,~,jd] = jd.start_job('gen_sqw_files_job',...
         common_par,loop_par,true,num_matlab_sessions,keep_parallel_pool_running);
@@ -761,7 +762,7 @@ if use_separate_matlab
     if n_failed == 0
         outputs   = outputs{1};
         grid_size = outputs.grid_size;
-        urange    = outputs.urange;
+        pix_range = outputs.pix_range;
     else
         jd.display_fail_job_results(outputs,n_failed,num_matlab_sessions,'GEN_SQW:runtime_error');
     end
@@ -773,15 +774,15 @@ else
     %---------------------------------------------------------------------
     % serial rundata to sqw transformation
     % equivalent of:
-    %[grid_size,urange] = rundata_write_to_sqw (run_files,tmp_file,...
-    %    grid_size_in,urange_in,instrument,sample,write_banner,opt);
+    %[grid_size,pix_range] = rundata_write_to_sqw (run_files,tmp_file,...
+    %    grid_size_in,pix_range_in,instrument,sample,write_banner,opt);
     %
     % make it look like a parallel transformation. A bit less
     % effective but much easier to identify problem with
     % failing parallel job
     
-    [grid_size,urange]=gen_sqw_files_job.runfiles_to_sqw(run_files,tmp_file,...
-        grid_size_in,urange_in,true);
+    [grid_size,pix_range]=gen_sqw_files_job.runfiles_to_sqw(run_files,tmp_file,...
+        grid_size_in,pix_range_in,true);
     %---------------------------------------------------------------------
 end
 if log_level>-1

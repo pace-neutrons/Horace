@@ -4,7 +4,6 @@ function obj = init_sqw_structure_field_by_field_(obj)
 % file
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 fseek(obj.file_id_,obj.main_header_pos_,'bof');
 check_and_throw_error(obj,'Error moving to main data header position');

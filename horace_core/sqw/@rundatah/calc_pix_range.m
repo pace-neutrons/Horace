@@ -5,7 +5,7 @@ function [pix_range,u_to_rlu]=calc_pix_range(obj,varargin)
 %>>[pix_range,u_to_rlu]=obj.calc_pix_range()  Calculate crystal cartesian range 
 %                                      for fully defined rundatah object
 %>>[pix_range,u_to_rlu]=obj.calc_pix_range('-cache_detectors')
-%                           Calculate urange for fully defined
+%                           Calculate pix_range for fully defined
 %                           rundatah object, using precacluated
 %                           vectors, pointing detectors positons
 %

@@ -36,8 +36,6 @@ classdef sqw_binfile_common < sqw_file_interface
     %                       write or upgrade mode.
     
     %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-    %
     
     properties(Access=protected,Hidden=true)
         % position (in bytes from start of the file of the appropriate part
@@ -182,7 +180,7 @@ classdef sqw_binfile_common < sqw_file_interface
             [mess,res] = ferror(obj.file_id_);
             if res ~= 0
                 error('SQW_BINILE_COMMON:io_error',...
-                    'Can not move to the urange start position, Reason: %s',mess);
+                    'Can not move to the pix_range start position, Reason: %s',mess);
             end
             
             pix_range = fread(obj.file_id_,[2,4],'float32');
@@ -300,7 +298,7 @@ classdef sqw_binfile_common < sqw_file_interface
             %   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
             %   data.npix       No. contributing pixels to each bin of the plot axes.
             %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-            %   data.urange     True range of the data along each axis [urange(2,4)]
+            %   data.img_range     True range of the data along each axis [img_range(2,4)]
             %   data.pix        A PixelData object
             %
             data_form = get_data_form_(obj,varargin{:});
