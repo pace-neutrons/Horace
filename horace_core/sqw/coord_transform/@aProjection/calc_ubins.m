@@ -1,16 +1,16 @@
-function [iax, iint, pax, p, urange_out] = calc_ubins (proj,urange_in,pbin, pin, en)
+function [iax, iint, pax, p, img_range_out] = calc_ubins (proj,img_range_in,pbin, pin, en)
 % Create bin boundaries for integration and plot axes from requested limits and step sizes
 % Uses knowledge of the range of the data and energy bins of the data to set values for those
 % not provided.
 %
-%   >> [iax, iint, pax, p, urange, pbin_out] =  proj.calc_ubins(urange_in, pbin, pin, en)
+%   >> [iax, iint, pax, p, img_range, pbin_out] =  proj.calc_ubins(img_range_in, pbin, pin, en)
 %
 %      Throws aPROJECTION:invalid_arguments if input parameters are
 %      inconsistent or incorrect
 %
 % Input:
 % ------
-%   urange_in   [2x4] array of range of data along the input projection axes (elements must all be finite)
+%   img_range_in   [2x4] array of range of data along the input projection axes (elements must all be finite)
 %
 %   proj        The class which defines the projection
 %
@@ -29,7 +29,7 @@ function [iax, iint, pax, p, urange_out] = calc_ubins (proj,urange_in,pbin, pin,
 %               - [pstep]           Plot axis: sets step size; plot limits taken from extent of the data
 %                                  If pstep=0 then use bin size of energy bins in array en (below) and synchronise
 %                                  the output bin boundaries with the reference boundaries. The overall range is
-%                                  chosen to ensure that the energy range in urange_in is contained within
+%                                  chosen to ensure that the energy range in img_range_in is contained within
 %                                  the bin boundaries.
 %               - [plo, phi]        Integration axis: range of integration
 %           	- [plo, pstep, phi]	Plot axis: minimum and maximum bin centres and step size;
@@ -55,7 +55,7 @@ function [iax, iint, pax, p, urange_out] = calc_ubins (proj,urange_in,pbin, pin,
 %                   e.g. if data is 3D, data.pax=[1,3,4] means u1, u3, u4 axes are x,y,z in any plotting
 %   p           Call array containing bin boundaries along the plot axes [column vectors]
 %                   i.e. data.p{1}, data.p{2} ... (for as many plot axes as given by length of data.pax)
-%   urange_out  Array of limits of data that can possibly contribute to the output data structure in the
+%   img_range_out  Array of limits of data that can possibly contribute to the output data structure in the
 %               coordinate frame of the output structure [2x4].
 
 
@@ -156,15 +156,15 @@ iax = iax(1:niax);
 
 % Compute plot bin boundaries and integration ranges
 % ------------------------------------------------------------------------
-% Get range in output projection axes from the 8 points defined in momentum space by urange_in:
+% Get range in output projection axes from the 8 points defined in momentum space by img_range_in:
 % This gives the maximum extent of the data pixels that can possibly contribute to the output data.
 % third coordinate is not used.
-urange_real = proj.find_max_data_range(urange_in);
+img_range_real = proj.find_max_data_range(img_range_in);
 
 % Compute plot bin boundaries and range that fully encloses the requested output plot axes
 iint=zeros(2,niax);
 p   =cell(1,npax);
-urange_out=zeros(2,4);
+img_range_out=zeros(2,4);
 %pbin_out = cell(1,4);
 
 for i=1:npax
@@ -177,11 +177,11 @@ for i=1:npax
         pbin_tmp=[vlims(ipax,1),vstep(ipax),vlims(ipax,2)];
         if ipax<4 || (ipax==4 && vstep(ipax)>0)
             % Q axes, and also treat energy axis like other axes if provided with energy bin greater than zero
-            p{i}=make_const_bin_boundaries(pbin_tmp,urange_real(:,ipax));
+            p{i}=make_const_bin_boundaries(pbin_tmp,img_range_real(:,ipax));
         else
             % Only reaches here if energy axis and requested energy bin width is explicity or implicitly zero
             % Handle this case differently to above, because we ensure bin boundaries synchronised to boundaries in array en
-            p{i}=make_const_bin_boundaries(pbin_tmp,urange_real(:,ipax),en,true);
+            p{i}=make_const_bin_boundaries(pbin_tmp,img_range_real(:,ipax),en,true);
         end
         % No bins
         if isempty(p{i})
@@ -196,7 +196,7 @@ for i=1:npax
         end
         %pbin_out{ipax} = pbin_tmp;
     end
-    urange_out(:,ipax)=[p{i}(1);p{i}(end)];
+    img_range_out(:,ipax)=[p{i}(1);p{i}(end)];
 end
 
 % Compute integration ranges.
@@ -206,21 +206,21 @@ for i=1:niax
     iint(2,i)=vlims(iiax,2);
     % force new binning ranges for integration axis regardless to actual
     % data range
-    %urange_out(1,iiax) =vlims(iiax,1);
-    %urange_out(2,iiax) =vlims(iiax,2);
+    %img_range_out(1,iiax) =vlims(iiax,1);
+    %img_range_out(2,iiax) =vlims(iiax,2);
     % Select the range - union between image range and the requested cut range
-    [urange_out(1,iiax),urange_out(2,iiax),inf_removed] =...
-        min_max_range(vlims(iiax,1),urange_real(1,iiax),...
-        vlims(iiax,2),urange_real(2,iiax));
+    [img_range_out(1,iiax),img_range_out(2,iiax),inf_removed] =...
+        min_max_range(vlims(iiax,1),img_range_real(1,iiax),...
+        vlims(iiax,2),img_range_real(2,iiax));
     if inf_removed
-        iint(1,i)=urange_out(1,iiax);
-        iint(2,i)=urange_out(2,iiax);
+        iint(1,i)=img_range_out(1,iiax);
+        iint(2,i)=img_range_out(2,iiax);
     end
     
-    if urange_out(1,iiax)>urange_out(2,iiax)
+    if img_range_out(1,iiax)>img_range_out(2,iiax)
         % *** T.G.Perring 28 Sep 2018:********************
-        urange_out(2,iiax) = urange_out(1,iiax);    % do not want to stop the cutting - just want to ensure no unnecessary read from input object or cut
-        %         iax=[]; iint=[]; pax=[]; p=[]; urange=[];
+        img_range_out(2,iiax) = img_range_out(1,iiax);    % do not want to stop the cutting - just want to ensure no unnecessary read from input object or cut
+        %         iax=[]; iint=[]; pax=[]; p=[]; img_range=[];
         %         ok = false;
         %         mess = sprintf('Integration range outside extent of data for projection axis %d (integration axis %d)',iiax,i);
         %         return

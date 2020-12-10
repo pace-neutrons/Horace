@@ -1,4 +1,4 @@
-function urange=write_nsqw_to_sqw (infiles, outfile,varargin)
+function pix_range=write_nsqw_to_sqw (infiles, outfile,varargin)
 % Read a collection of sqw files with a common grid and write to a single sqw file.
 %
 %   >> write_nsqw_to_sqw (infiles, outfiles,varargin)
@@ -30,7 +30,7 @@ function urange=write_nsqw_to_sqw (infiles, outfile,varargin)
 %
 % Output:
 % -------
-%  urange           -- the limits of the internal coordinates contained in
+%  pix_range           -- the limits of the internal coordinates contained in
 %                      the combined fil
 
 
@@ -152,9 +152,9 @@ end
 [header_combined,nspe] = sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers);
 
 
-urange=datahdr{1}.urange;
+pix_range=datahdr{1}.pix_range;
 for i=2:nfiles
-    urange=[min(urange(1,:),datahdr{i}.urange(1,:));max(urange(2,:),datahdr{i}.urange(2,:))];
+    pix_range=[min(pix_range(1,:),datahdr{i}.pix_range(1,:));max(pix_range(2,:),datahdr{i}.pix_range(2,:))];
 end
 
 
@@ -187,8 +187,8 @@ sqw_data.iint=datahdr{1}.iint;
 sqw_data.pax=datahdr{1}.pax;
 sqw_data.p=datahdr{1}.p;
 sqw_data.dax=datahdr{1}.dax;    % take the display axes from first file, for sake of choosing something
-% store urange
-sqw_data.urange=urange;
+% store pix_range
+sqw_data.pix_range=pix_range;
 
 % Now read in binning information
 % ---------------------------------

@@ -6,7 +6,6 @@ function wout = cut_sqw_main_single (data_source,...
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 % Initialise output
@@ -79,7 +78,7 @@ if ischar(data_source)
             s    = outputs{1}.s;
             e    = outputs{1}.e;
             npix = outputs{1}.npix;
-            urange_step_pix = outputs{1}.urange_step_pix;
+            pix_range_step = outputs{1}.pix_range_step;
             pix = outputs{1}.pix;
             npix_retain = outputs{1}.npix_retain;
         else
@@ -100,7 +99,7 @@ if ischar(data_source)
             error('CUT_SQW:runtime_error',...
                 ['Error finding location of pixel data in file ',data_source]);
         end
-        [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = ...
+        [s, e, npix, pix_range_step, pix, npix_retain, npix_read] = ...
             cut_data_from_file_job.cut_data_from_file (fid, nstart, nend,...
             opt.keep_pix, pix_tmpfile_ok, proj, targ_pax, targ_nbin);
         clear clobInput;
@@ -108,7 +107,7 @@ if ischar(data_source)
 
 else
     % Pixel information taken from object
-    [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_array...
+    [s, e, npix, pix_range_step, pix, npix_retain, npix_read] = cut_data_from_array...
         (data.pix, nstart, nend, opt.keep_pix, proj, targ_pax, targ_nbin);
 end
 
@@ -122,7 +121,7 @@ else
 end
 
 % Convert range from steps to actual range with respect to output uoffset:
-urange_pix = urange_step_pix.*repmat(proj.usteps,[2,1]) + repmat(proj.urange_offset,[2,1]);
+urange_pix = pix_range_step.*repmat(proj.usteps,[2,1]) + repmat(proj.urange_offset,[2,1]);
 
 % Get size of output signal, error and npix arrays
 % (Account for singleton dimensions i.e. plot axes with just one bin, and look after case

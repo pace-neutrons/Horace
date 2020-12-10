@@ -104,7 +104,7 @@ else
                 if is_sqw_type(w.data(i))
                     h=rmfield(h,'pix');
                 else
-                    if isfield(h,'urange'), h=rmfield(h,'urange'); end  % if, for some reason, there is a urange field, remove it.
+                    if isfield(h,'pix_range'), h=rmfield(h,'pix_range'); end  % if, for some reason, there is a pix_range field, remove it.
                 end
             end
             if nw==1

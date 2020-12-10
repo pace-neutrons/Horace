@@ -84,7 +84,7 @@ function [data,obj] = get_data(obj,varargin)
 %   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.npix       No. contributing pixels to each bin of the plot axes.
 %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-%   data.urange     True range of the data along each axis [urange(2,4)]
+%   data.pix_range     True range of the data along each axis [pix_range(2,4)]
 %   data.pix        A PixelData objects
 %
 %
@@ -118,8 +118,9 @@ if res ~= 0
     error('SQW_BINILE_COMMON:io_error',...
           'Can not move to the urange start position, Reason: %s',mess);
 end
-
-data_str.urange = fread(obj.file_id_,[2,4],'float32');
+% old format. Pix range is stored in urange field
+data_str.pix_range = fread(obj.file_id_,[2,4],'float32');
+data_str.img_range = obj.get_img_range();
 
 % parse all arguments, including those that weren't passed to the parent method
 opts = parse_args(varargin{:});
@@ -132,6 +133,8 @@ data = data_sqw_dnd(data_str);
 
 if ~opts.nopix
     data.pix = PixelData(obj, opts.pixel_page_size);
+    % 
+    data.pix.set_range(data_str.pix_range);
 end
 
 end  % function

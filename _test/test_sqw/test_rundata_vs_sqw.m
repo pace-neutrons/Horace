@@ -99,25 +99,25 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
             %assertEqual(det_par.filepath,det.filepath)
             %assertEqual(det_par,det);
             grid_size = size(this.sqw_obj.data.s);
-            urange    = this.sqw_obj.data.urange;
+            img_range    = this.sqw_obj.data.img_range;
             % somewhere on the way, pixels become single precision, so...
-            urange(1,:) = urange(1,:)*(1+2.e-7);
-            urange(2,:) = urange(2,:)*(1+2.e-7);
+            img_range(1,:) = img_range(1,:)*(1+2.e-7);
+            img_range(2,:) = img_range(2,:)*(1+2.e-7);
             
-            sqw_rev = rd.calc_sqw(grid_size,urange);
+            sqw_rev = rd.calc_sqw(grid_size,img_range);
             
             proj = struct('u',lattice.u,'v',lattice.v);
-            [ok,mess]=is_cut_equal(this.sqw_obj,sqw_rev,proj,0.04*(urange(2,1)-urange(1,1)),0.1*(urange(2,2)-urange(1,2)),[-Inf,Inf],[-Inf,Inf]);
+            [ok,mess]=is_cut_equal(this.sqw_obj,sqw_rev,proj,0.04*(img_range(2,1)-img_range(1,1)),0.1*(img_range(2,2)-img_range(1,2)),[-Inf,Inf],[-Inf,Inf]);
             assertTrue(ok,['Combining cuts from each individual sqw file and the cut from the combined sqw file not the same ',mess]);
             %assertEqual(this.sqw_obj,sqw_rev);
             
             % calculate bounding object surrounding existing data object
             bob = rd.build_bounding_obj();
-            bos = bob.calc_sqw(grid_size,urange);
-            assertElementsAlmostEqual(bos.data.urange,urange,'relative',1.e-6);
+            bos = bob.calc_sqw(grid_size,img_range);
+            assertElementsAlmostEqual(bos.data.img_range,img_range,'relative',1.e-6);
             
             pix_range =[min(bos.data.pix.coordinates,[],2)'; max(bos.data.pix.coordinates,[],2)'];
-            assertElementsAlmostEqual(bos.data.urange,pix_range);
+            assertElementsAlmostEqual(bos.data.img_range,pix_range);
         end
         
         function  this=test_serialize_deserialize_rundatah(this)
@@ -136,11 +136,11 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
             fa = fa.unload();
             assertEqual(rd,fa);
         end
-        function sqw_build = rd_convert_checker(~,rundata_to_test,grid_size,urange)
+        function sqw_build = rd_convert_checker(~,rundata_to_test,grid_size,img_range)
             % function used in test_serialize_deserialize_rundatah_with_op
             % test to ensure that imput parameters of the serialized function
             % are not picked up from the same variables subspace;
-            sqw_build  = rundata_to_test.calc_sqw(grid_size,urange);
+            sqw_build  = rundata_to_test.calc_sqw(grid_size,img_range);
         end
         %
         function  test_serialize_deserialize_rundatah_with_op(obj)
@@ -154,10 +154,10 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
             fa = rundatah.deserialize(by);
             
             grid_size = size(obj.sqw_obj.data.s);
-            urange = obj.sqw_obj.data.urange;
+            img_range = obj.sqw_obj.data.img_range;
             
-            sqw_o = rd.calc_sqw(grid_size,urange);
-            sqw_r = obj.rd_convert_checker(fa,grid_size,urange);
+            sqw_o = rd.calc_sqw(grid_size,img_range);
+            sqw_r = obj.rd_convert_checker(fa,grid_size,img_range);
             
             assertEqual(sqw_o,sqw_r);
             
