@@ -33,17 +33,53 @@ methods
         w_axis_lims = [-0.1, 0.1];
         en_axis_lims = [105, 1, 114];
 
-        sqw_cut = cut_data_from_file_paged(...
+        sqw_cut = cut(...
             obj.sqw_file, proj, u_axis_lims, v_axis_lims, w_axis_lims, en_axis_lims);
-
-        % sqw_cut = cut_sqw(...
-        %     obj.sqw_file, proj, u_axis_lims, v_axis_lims, w_axis_lims, en_axis_lims);
 
         ref_sqw = sqw('test_cut_ref_sqw.sqw');
         assertEqualToTol(sqw_cut, ref_sqw, 1e-5, 'ignore_str', true);
     end
 
     function test_taking_cut_from_a_larger_file(obj)
+        conf = hor_config();
+        old_conf = conf.get_data_to_store();
+        conf.pixel_page_size = 128e6;
+        cleanup = onCleanup(@() set(hor_config, old_conf));
+        file_path = ['C:\Users\ejo73213\PACE\tutorial\Horace_for_Tessella\' ...
+                     'data_sqw\iron_data.sqw'];
+
+        proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [0, 0, 0, 0], 'type', 'rrr');
+
+        u_axis_lims = [-3, 0.05, 3];
+        v_axis_lims = [-3, 0.05, 3];
+        w_axis_lims = [-0.1, 0.1];
+        en_axis_lims = [0, 4, 360];
+
+        sqw_cut = cut(...
+            file_path, proj, u_axis_lims, v_axis_lims, w_axis_lims, en_axis_lims);
+
+        % ref_sqw = sqw('C:\Users\ejo73213\PACE\Horace\hscratch\ref_large_cut_matlab.sqw');
+        ref_sqw = sqw('C:\Users\ejo73213\PACE\Horace\hscratch\ref_large_cut_mex.sqw');
+        assertEqualToTol(sqw_cut, ref_sqw, [0, 1e-4], 'ignore_str', true);
+    end
+
+    function test_you_can_take_a_cut_from_an_sqw_object(obj)
+        sqw_obj = sqw(obj.sqw_file);
+
+        proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
+
+        u_axis_lims = [-0.1, 0.025, 0.1];
+        v_axis_lims = [-0.1, 0.025, 0.1];
+        w_axis_lims = [-0.1, 0.1];
+        en_axis_lims = [105, 1, 114];
+
+        sqw_cut = cut(sqw_obj, proj, u_axis_lims, v_axis_lims, w_axis_lims, en_axis_lims);
+
+        ref_sqw = sqw('test_cut_ref_sqw.sqw');
+        assertEqualToTol(sqw_cut, ref_sqw, 1e-4, 'ignore_str', true);
+    end
+
+    function test_you_can_take_a_cut_from_a_larger_sqw_object(obj)
         conf = hor_config();
         old_conf = conf.get_data_to_store();
         conf.pixel_page_size = 256e6;
@@ -58,22 +94,20 @@ methods
         w_axis_lims = [-0.1, 0.1];
         en_axis_lims = [0, 4, 360];
 
-        tic;
-        sqw_cut = cut_data_from_file_paged(...
-            file_path, proj, u_axis_lims, v_axis_lims, w_axis_lims, en_axis_lims);
-        toc;
+        sqw_obj = sqw(file_path);
 
-        % tic;
-        % sqw_cut = cut_sqw(...
-        %     file_path, proj, u_axis_lims, v_axis_lims, w_axis_lims, en_axis_lims);
-        % toc;
+        sqw_cut = cut(...
+            sqw_obj, proj, u_axis_lims, v_axis_lims, w_axis_lims, en_axis_lims);
 
-        ref_sqw = sqw('ref_large.sqw');
+        ref_sqw = sqw('C:\Users\ejo73213\PACE\Horace\hscratch\ref_large_cut_mex.sqw');
         assertEqualToTol(sqw_cut, ref_sqw, [0, 1e-4], 'ignore_str', true);
     end
 
-    function test_you_can_take_a_cut_from_an_sqw_object(obj)
-        sqw_obj = sqw(obj.sqw_file);
+    function test_you_can_take_a_cut_with_nopix_argument(obj)
+        conf = hor_config();
+        old_conf = conf.get_data_to_store();
+        conf.pixel_page_size = 5e5;
+        cleanup = onCleanup(@() set(hor_config, old_conf));
 
         proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
 
@@ -82,11 +116,13 @@ methods
         w_axis_lims = [-0.1, 0.1];
         en_axis_lims = [105, 1, 114];
 
-        sqw_cut = cut_data_from_file_paged(...
-            sqw_obj, proj, u_axis_lims, v_axis_lims, w_axis_lims, en_axis_lims);
+        sqw_cut = cut(...
+            obj.sqw_file, proj, u_axis_lims, v_axis_lims, w_axis_lims, en_axis_lims, ...
+            '-nopix' ...
+        );
 
-        ref_sqw = sqw('test_cut_ref_sqw.sqw');
-        assertEqualToTol(sqw_cut, ref_sqw, 1e-4, 'ignore_str', true);
+        ref_sqw = d3d('test_cut_ref_sqw.sqw');
+        assertEqualToTol(sqw_cut, ref_sqw, 1e-5, 'ignore_str', true);
     end
 
     function test_you_can_take_a_cut_from_an_sqw_file_to_another_sqw_file(~)
