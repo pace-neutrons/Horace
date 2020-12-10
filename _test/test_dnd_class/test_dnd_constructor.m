@@ -26,20 +26,46 @@ methods
         obj.test_dnd_2d_fullpath = char(test_dnd_2d_file.getCanonicalPath());
     end
 
-    function test_d2d_class_follows_expected_class_heirarchy(obj)
-        dnd_obj = d2d();
-
-        assertTrue(isa(dnd_obj, 'd2d'));
-        assertTrue(isa(dnd_obj, 'DnDBase'));
-        assertTrue(isa(dnd_obj, 'SQWDnDBase'));
+    function test_dnd_classes_follow_expected_class_heirarchy(obj)
+        dnd_objects = { d0d(), d1d(), d2d(), d3d(), d4d() };
+        for idx = 1:numel(dnd_objects)
+            dnd_obj = dnd_objects{idx};
+            assertTrue(isa(dnd_obj, 'DnDBase'));
+            assertTrue(isa(dnd_obj, 'SQWDnDBase'));
+        end
     end
 
-    function test_constructor_returns_2d_instance(obj)
-        dnd_obj = d2d();
+    function test_d0d_constructor_returns_zero_d_instance(obj)
+        dnd_obj = d0d();
 
-        assertTrue(isa(dnd_obj, 'd2d'));
-        assertEqual(numel(dnd_obj.pax), 2);
+        assertEqual(numel(dnd_obj.pax), 0);
+        assertEqual(dnd_obj.dimensions(), 0);
     end
+    function test_d1d_constructor_returns_1d_instance(obj)
+        dnd_obj = d1d();
+
+        assertEqual(numel(dnd_obj.pax), 1);
+        assertEqual(dnd_obj.dimensions(), 1);
+    end
+    function test_d2d_constructor_returns_2d_instance(obj)
+          dnd_obj = d2d();
+
+          assertEqual(numel(dnd_obj.pax), 2);
+          assertEqual(dnd_obj.dimensions(), 2);
+    end
+    function test_d3d_constructor_returns_3d_instance(obj)
+        dnd_obj = d3d();
+
+        assertEqual(numel(dnd_obj.pax), 3);
+        assertEqual(dnd_obj.dimensions(), 3);
+    end
+    function test_d4d_constructor_returns_4d_instance(obj)
+        dnd_obj = d4d();
+
+        assertEqual(numel(dnd_obj.pax), 4);
+        assertEqual(dnd_obj.dimensions(), 4);
+    end
+
 
     function test_default_constructor_returns_empty_instance(obj)
         dnd_obj = d2d();
@@ -80,13 +106,20 @@ methods
         end
     end
 
-  function test_copy_constructor_clones_object(obj)
+  function test_copy_constructor_clones_d2d_object(obj)
         dnd_obj = d2d(obj.test_dnd_2d_fullpath);
         dnd_copy = d2d(dnd_obj);
 
         assertTrue(isa(dnd_obj, 'd2d'));
         assertEqualToTol(dnd_copy, dnd_obj);
-    end
+  end
+    function test_copy_constructor_clones_d4d_object(obj)
+          dnd_obj = d4d();
+          dnd_copy = d4d(dnd_obj);
+
+          assertTrue(isa(dnd_obj, 'd4d'));
+          assertEqualToTol(dnd_copy, dnd_obj);
+      end
 
     function test_copy_constructor_returns_distinct_object(obj)
         dnd_obj = d2d(obj.test_dnd_2d_fullpath);
@@ -127,6 +160,16 @@ methods
         f = @() d2d(sqw_obj);
 
         assertExceptionThrown(f, 'D2D:d2d');
+    end
+
+    function test_d1d_sqw_constuctor_creates_d1d_from_1d_sqw_object(obj)
+        sqw_obj = sqw(obj.test_sqw_1d_fullpath);
+        d1d_obj = d1d(sqw_obj);
+
+        assertEqual(sqw_obj.data.s, d1d_obj.s);
+        assertEqual(sqw_obj.data.e, d1d_obj.e);
+        assertEqual(sqw_obj.data.p, d1d_obj.p);
+        assertEqual(sqw_obj.data.ulabel, d1d_obj.ulabel);
     end
 
     function test_d2d_sqw_constuctor_creates_d2d_from_2d_sqw_object(obj)
