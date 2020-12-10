@@ -1107,7 +1107,7 @@ classdef test_PixelData < TestCase
         end
         %
         function DISABLED_test_append_returns_editied_pix_if_nargout_eq_1(obj)
-            % test for filebased urange. Has a problem
+            % test for filebased pix_range. Has a problem
             pix = PixelData(obj.test_sqw_file_path);
             range1 = pix.pix_range;
             npix_to_append = 5;

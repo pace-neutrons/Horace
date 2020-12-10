@@ -112,7 +112,7 @@ if save_data
     % Create sqw file for refinement testing
     % ---------------------------------------
     % Full output file names
-    urange = calc_sqw_urange (efix, emode, en(1), en(end), par_file,...
+    pix_range = calc_sqw_pix_range (efix, emode, en(1), en(end), par_file,...
         alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
 
     % Create simulations for individual spe files
@@ -124,7 +124,7 @@ if save_data
         disp(['Creating file for orientation ',num2str(i),' of ',num2str(numel(psi))])
 
         wtmp = fake_sqw (en, par_file,'', efix, emode, alatt, angdeg,...
-            u, v, psi(i), omega, dpsi, gl, gs, [10,10,10,10], urange);
+            u, v, psi(i), omega, dpsi, gl, gs, [10,10,10,10], pix_range);
 
         % Tobyfit simulation to account for resolution
         wtmp{1}=set_sample_and_inst(wtmp{1},sample,@maps_instrument_obj_for_tests,'-efix',300,'S');

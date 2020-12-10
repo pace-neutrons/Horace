@@ -6,7 +6,6 @@ classdef aProjection
     % Also defines generic operations on sqw object, which may be useful
     % and can be used by any projection class.
     %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
     properties(Dependent)
         % is special mex routines, written for performance reason and as such
@@ -105,7 +104,7 @@ classdef aProjection
         % Create bin boundaries for integration and plot axes from requested limits and step sizes
         % Uses knowledge of the range of the data and energy bins of the data to set values for those
         % not provided.
-        [iax, iint, pax, p, urange, pbin_out] = calc_ubins(proj,urange_in,pbin, pin, en)
+        [iax, iint, pax, p, img_range, pbin_out] = calc_ubins(proj,img_range_in,pbin, pin, en)
         
         % Check that the binning arguments are valid, and update the projection
         % with the current bin values
@@ -113,7 +112,7 @@ classdef aProjection
         % Check binning descriptors are valid, and resolve multiple integration axes
         % using limits and bin widths from the input data.
         
-        [ pbin_out, ndims] = calc_pbins(proj, urange_in, pbin, pin, en)
+        [ pbin_out, ndims] = calc_pbins(proj, img_range_in, pbin, pin, en)
         %------------------------------------------------------------------
         % accessors
         %------------------------------------------------------------------

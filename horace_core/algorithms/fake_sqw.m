@@ -6,7 +6,7 @@ function [tmp_sqw, grid_size, img_range] = fake_sqw (en, par_file, sqw_file, efi
 %                    u, v, psi, omega, dpsi, gl, gs)
 %
 %   >> fake_sqw (sqw, en, par_file, sqw_file, efix, emode, alatt, angdeg,...
-%                    u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
+%                    u, v, psi, omega, dpsi, gl, gs, grid_size_in, pix_range_in)
 %
 %   >> [tmp_file, grid_size, img_range] = fake_sqw (...)
 %
@@ -43,7 +43,7 @@ function [tmp_sqw, grid_size, img_range] = fake_sqw (en, par_file, sqw_file, efi
 %   grid_size_in    [Optional] Scalar or row vector of grid dimensions. The default
 %                  size will depend on the product of energy bins and detector elements
 %                  summed across all the spe files.
-%   urange_in       [Optional] Range of data grid for output. If not given, then uses smallest hypercuboid
+%   pix_range_in       [Optional] Range of data grid for output. If not given, then uses smallest hypercuboid
 %                                       that encloses the whole data range.
 %
 % Output:
@@ -141,7 +141,7 @@ if nfiles>1 && numel(en)==1
     en_hi=en_hi*ones(1,nfiles);
 end
 
-% Check optional arguments (grid, urange, instument, sample) for size, type and validity
+% Check optional arguments (grid, pix_range, instument, sample) for size, type and validity
 grid_default=[];
 instrument_default=struct;  % default 1x1 struct
 sample_default=struct;      % default 1x1 struct
@@ -183,15 +183,13 @@ else
 end
 
 
-% Determine urange
+% Determine pix_range
 if isempty(img_range)
     img_range = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
     for i=1:numel(run_files)
-        urange_l = run_files{i}.calc_pix_range(en_lo(i),en_hi(i),cache_opt{:});
-        img_range = [min(urange_l(1,:),img_range(1,:));max(urange_l(2,:),img_range(2,:))];
+        pix_range_l = run_files{i}.calc_pix_range(en_lo(i),en_hi(i),cache_opt{:});
+        img_range = [min(pix_range_l(1,:),img_range(1,:));max(pix_range_l(2,:),img_range(2,:))];
     end
-    %urange=calc_urange(efix,emode,en_lo,en_hi,det,alatt,angdeg,...
-    %    u,v,psi*d2r,omega*d2r,dpsi*d2r,gl*d2r,gs*d2r);
     img_range=range_add_border(img_range,-1e-6);     % add a border to account for Matlab matrix multiplication bug
 end
 

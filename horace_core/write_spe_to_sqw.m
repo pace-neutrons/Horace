@@ -33,15 +33,15 @@ function [grid_size, pix_range] = write_spe_to_sqw (varargin)
 %   dpsi            Correction to psi (rad)
 %   gl              Large goniometer arc angle (rad)
 %   gs              Small goniometer arc angle (rad)
-%   grid_size_in    [Optional] Scalar or row vector of grid dimensions. Default is [1x1x1x1]
-%   pix_range_in       [Optional] Range of data grid for output. If not given, then uses smallest hypercuboid
+%   grid_size_in   [Optional] Scalar or row vector of grid dimensions. Default is [1x1x1x1]
+%   pix_range_in   [Optional] Range of data grid for output. If not given, then uses smallest hypercuboid
 %                  that encloses the whole data range
 %
 % Output:
 % -------
-%   grid_size       Actual grid size used (size is unity along dimensions
+%   grid_size      Actual grid size used (size is unity along dimensions
 %                  where there is zero range of the data points)
-%   pix_range          Actual range of grid
+%   pix_range      Actual range of grid
 
 % Original author: T.G.Perring
 

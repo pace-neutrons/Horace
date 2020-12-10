@@ -1,7 +1,7 @@
-function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_array (pix_in, nstart, nend, keep_pix, ...
+function [s, e, npix, pix_range_step, pix, npix_retain, npix_read] = cut_data_from_array (pix_in, nstart, nend, keep_pix, ...
     proj, pax, nbin)
 
-%function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_array (pix_in, nstart, nend, keep_pix, ...
+%function [s, e, npix, pix_range_step, pix, npix_retain, npix_read] = cut_data_from_array (pix_in, nstart, nend, keep_pix, ...
 %    urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, nbin)
 % Accumulates pixels into bins defined by cut parameters
 %
@@ -27,7 +27,7 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 %   s               Array of accumulated signal from all contributing pixels (dimensions match the plot axes)
 %   e               Array of accumulated variance
 %   npix            Array of number of contributing pixels (if keep_pix==true, otherwise pix.num_pixels = 0)
-%   urange_step_pix Actual range of contributing pixels
+%   pix_range_step Actual range of contributing pixels
 %   pix             if keep_pix==true: contains full PixelData object; otherwise an empty PixelData object
 %   npix_retain     Number of pixels that contribute to the cut
 %   npix_read       Number of pixels read from file
@@ -39,7 +39,6 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 
 % T.G.Perring   31 July 2007
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 
 hor_log_level=config_store.instance().get_value('herbert_config','log_level');
@@ -52,7 +51,7 @@ if isempty(nbin); nbin_as_size=[1,1]; elseif length(nbin)==1; nbin_as_size=[nbin
 s = zeros(nbin_as_size);
 e = zeros(nbin_as_size);
 npix = zeros(nbin_as_size);
-urange_step_pix = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
+pix_range_step = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
 
 % *** T.G.Perring 5 Sep 2018:*********************
 % Catch case of nstart and nend being empty - this corresponds to no data in the boxes that
@@ -86,8 +85,8 @@ end
 % Accumulate pixels
 if hor_log_level>=1, bigtic(2), end
 if hor_log_level>=0, disp(['Have data from ',num2str(npix_read),' pixels - now processing data...']), end
-[s, e, npix, urange_step_pix, npix_retain, ok, ix] = ...
-    cut_data_from_file_job.accumulate_cut(s, e, npix, urange_step_pix, keep_pix, ...
+[s, e, npix, pix_range_step, npix_retain, ok, ix] = ...
+    cut_data_from_file_job.accumulate_cut(s, e, npix, pix_range_step, keep_pix, ...
     cut_pix_data, proj, pax);
 if hor_log_level>=1, t_accum = bigtoc(2); end
 

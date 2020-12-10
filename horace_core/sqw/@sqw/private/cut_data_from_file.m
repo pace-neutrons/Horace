@@ -1,6 +1,6 @@
-function [s, e, npix, urange_step_pix, pix, npix_retain, npix_2read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
+function [s, e, npix, pix_range_step, pix, npix_retain, npix_2read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
     proj,pax, nbin)
-%function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
+%function [s, e, npix, pix_range_step, pix, npix_retain, npix_read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
 %    urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, nbin)
 % Accumulates pixels into bins defined by cut parameters
 %
@@ -33,7 +33,7 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_2read] = cut_data_
 %   s               Array of accumulated signal from all contributing pixels (dimensions match the plot axes)
 %   e               Array of accumulated variance
 %   npix            Array of number of contributing pixels (if keep_pix==true, otherwise pix=[])
-%   urange_step_pix Actual range of contributing pixels
+%   pix_range_step Actual range of contributing pixels
 %   pix             if keep_pix=false, pix=[];
 %                   if keep_pix==true, then contents depend on value of pix_tmpfile_ok:
 %                       pix_tmpfile_ok = false: contains PixelData object
@@ -68,7 +68,7 @@ if isempty(nbin); nbin_as_size=[1,1]; elseif length(nbin)==1; nbin_as_size=[nbin
 s = zeros(nbin_as_size);
 e = zeros(nbin_as_size);
 npix = zeros(nbin_as_size);
-urange_step_pix = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
+pix_range_step = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
 npix_retain = 0;
 %------------------------------------------------
 pmax = 2*buf_size;                       % maximum length of array in which to buffer retained pixels (pmax>=vmax)
@@ -136,7 +136,7 @@ try
         end
         %
         % -- cut
-        [s, e, npix, urange_step_pix, del_npix_retain, ok, ix_add] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
+        [s, e, npix, pix_range_step, del_npix_retain, ok, ix_add] = accumulate_cut (s, e, npix, pix_range_step, keep_pix, ...
             v, proj, pax);
         if hor_log_level>=0; fprintf(' ----->  retained  %d pixels\n',del_npix_retain); end
         if hor_log_level>=1; t_accum = t_accum + bigtoc(2); end

@@ -121,22 +121,22 @@ set(herbert_config, original_herbert_conf);
 % -----------------------------------------------------------------------------------------------------
 % Get range of data (is an overestimate, but will certainly contain all the data)
 head=cell(1,nfiles);
-urange=zeros(2,4,nfiles);
+pix_range=zeros(2,4,nfiles);
 for i=1:nfiles
     head{i}=head_sqw(tmp_file{i});
-    urange(:,:,i)=head{i}.urange;
+    pix_range(:,:,i)=head{i}.pix_range;
 end
-sgn=sign(urange(1,:,:).*urange(2,:,:)); % +1 if range does not include zero
-abs_urange_min=min(abs(urange),[],1);
-abs_urange_min(sgn<1)=0;
-abs_urange=[abs_urange_min;max(abs(urange),[],1)];
-abs_urange(:,1,:)=sqrt(abs_urange(:,1,:).^2 + abs_urange(:,2,:).^2);
-Qip_min=min(abs_urange(1,1,:));
-Qip_max=max(abs_urange(2,1,:));
-Qz_min=min(urange(1,3,:));
-Qz_max=max(urange(2,3,:));
-eps_min=min(urange(1,4,:));
-eps_max=max(urange(2,4,:));
+sgn=sign(pix_range(1,:,:).*pix_range(2,:,:)); % +1 if range does not include zero
+abs_pix_range_min=min(abs(pix_range),[],1);
+abs_pix_range_min(sgn<1)=0;
+abs_pix_range=[abs_pix_range_min;max(abs(pix_range),[],1)];
+abs_pix_range(:,1,:)=sqrt(abs_pix_range(:,1,:).^2 + abs_pix_range(:,2,:).^2);
+Qip_min=min(abs_pix_range(1,1,:));
+Qip_max=max(abs_pix_range(2,1,:));
+Qz_min=min(pix_range(1,3,:));
+Qz_max=max(pix_range(2,3,:));
+eps_min=min(pix_range(1,4,:));
+eps_max=max(pix_range(2,4,:));
 
 % Choose suitable rebinning for the final sqw file
 nQbin_def=33;
@@ -170,11 +170,11 @@ for i=1:nfiles
     % Compute new coordinates
     data=w.data;
     data.pix.coordinates(1:2,:)=[sqrt(sum(data.pix.coordinates(1:2,:).^2,1));zeros(1,data.pix.num_pixels)];
-    data.urange(:,1:2)=[min(data.pix.coordinates(1:2,:),[],2)';max(data.pix.coordinates(1:2,:),[],2)'];
+    data.img_range(:,1:2)=data.pix.pix_range(:,1:2);
     data.iax=2;   % second axis becomes integration axis
     data.iint=[-Inf;Inf];
     data.pax=[1,3,4];
-    data.p=[{data.urange(:,1)},data.p([3,4])];
+    data.p=[{data.img_range(:,1)},data.p([3,4])];
     data.dax=[1,2,3];
     data.ulabel={'Q_{ip}','dummy','Q_z','E'};
     w.data=data;
@@ -226,7 +226,7 @@ end
 % Clear output arguments if nargout==0 to have a silent return
 % ------------------------------------------------------------
 if nargout==0
-    clear tmp_file grid_size urange
+    clear tmp_file grid_size img_range
 end
 
 %==================================================================================================

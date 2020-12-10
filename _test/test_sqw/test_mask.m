@@ -124,30 +124,30 @@ methods
         assertEqual(obj.masked_2d_paged.data.pix.num_pixels, expected_num_pix);
     end
 
-    function test_urange_recalculated_after_mask(obj)
-        original_urange = obj.sqw_2d.data.urange;
-        new_urange = obj.masked_2d.data.urange;
+    function test_img_range_recalculated_after_mask(obj)
+        original_img_range = obj.sqw_2d.data.img_range;
+        new_img_range = obj.masked_2d.data.img_range;
 
-        urange_diff = abs(original_urange - new_urange);
-        assertTrue(urange_diff(1) > 0.001);
-        assertElementsAlmostEqual(original_urange(2:end), new_urange(2:end), ...
+        img_range_diff = abs(original_img_range - new_img_range);
+        assertTrue(img_range_diff(1) > 0.001);
+        assertElementsAlmostEqual(original_img_range(2:end), new_img_range(2:end), ...
                                   'absolute', 0.001);
     end
 
-    function test_urange_recalculated_after_mask_with_paged_pix(obj)
-        original_urange = obj.sqw_2d.data.urange;
-        new_urange = obj.masked_2d_paged.data.urange;
+    function test_img_range_recalculated_after_mask_with_paged_pix(obj)
+        original_img_range = obj.sqw_2d.data.img_range;
+        new_img_range = obj.masked_2d_paged.data.img_range;
 
-        urange_diff = abs(original_urange - new_urange);
-        assertTrue(urange_diff(1) > 0.001);
-        assertElementsAlmostEqual(original_urange(2:end), new_urange(2:end), ...
+        img_range_diff = abs(original_img_range - new_img_range);
+        assertTrue(img_range_diff(1) > 0.001);
+        assertElementsAlmostEqual(original_img_range(2:end), new_img_range(2:end), ...
                                   'absolute', 0.001);
     end
 
-    function test_urange_equal_for_paged_and_non_paged_sqw_after_mask(obj)
-        paged_urange = obj.masked_2d_paged.data.urange;
-        mem_urange = obj.masked_2d.data.urange;
-        assertElementsAlmostEqual(mem_urange, paged_urange, 'absolute', 0.001);
+    function test_img_range_equal_for_paged_and_non_paged_sqw_after_mask(obj)
+        paged_img_range = obj.masked_2d_paged.data.img_range;
+        mem_img_range = obj.masked_2d.data.img_range;
+        assertElementsAlmostEqual(mem_img_range, paged_img_range, 'absolute', 0.001);
     end
 
     function test_paged_and_non_paged_sqw_have_equivalent_pixels_after_mask(obj)
@@ -219,16 +219,16 @@ methods
         assertEqual(obj.masked_3d_paged.data.pix.num_pixels, expected_num_pix);
     end
 
-    function test_urange_recalculated_after_mask_3d(obj)
-        original_urange = obj.sqw_3d.data.urange;
-        urange_diff = abs(original_urange - obj.masked_3d.data.urange);
-        assertTrue(~all(urange_diff < 0.001, 'all'));
+    function test_img_range_recalculated_after_mask_3d(obj)
+        original_img_range = obj.sqw_3d.data.img_range;
+        img_range_diff = abs(original_img_range - obj.masked_3d.data.img_range);
+        assertTrue(~all(img_range_diff < 0.001, 'all'));
     end
 
-    function test_urange_recalculated_after_mask_with_paged_pix_3d(obj)
-        original_urange = obj.sqw_3d.data.urange;
-        urange_diff = abs(original_urange - obj.masked_3d_paged.data.urange);
-        assertTrue(~all(urange_diff < 0.001, 'all'));
+    function test_img_range_recalculated_after_mask_with_paged_pix_3d(obj)
+        original_img_range = obj.sqw_3d.data.img_range;
+        img_range_diff = abs(original_img_range - obj.masked_3d_paged.data.img_range);
+        assertTrue(~all(img_range_diff < 0.001, 'all'));
     end
 
     function test_paged_and_non_paged_sqw_have_same_pixels_after_mask_3d(obj)
@@ -236,10 +236,10 @@ methods
         assertEqual(raw_paged_pix, obj.masked_3d.data.pix.data);
     end
 
-    function test_urange_equal_for_paged_and_non_paged_sqw_after_mask_3d(obj)
-        paged_urange = obj.masked_3d_paged.data.urange;
-        mem_urange = obj.masked_3d.data.urange;
-        assertElementsAlmostEqual(mem_urange, paged_urange, 'absolute', 0.001);
+    function test_img_range_equal_for_paged_and_non_paged_sqw_after_mask_3d(obj)
+        paged_img_range = obj.masked_3d_paged.data.img_range;
+        mem_img_range = obj.masked_3d.data.img_range;
+        assertElementsAlmostEqual(mem_img_range, paged_img_range, 'absolute', 0.001);
     end
 
 end

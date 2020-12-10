@@ -40,8 +40,8 @@ function obj = get_sqw_file_footer(obj)
 %   data_type               Type of sqw data contained in the file: will be one of
 %                               type 'b'    fields: filename,...,uoffset,...,dax,s,e
 %                               type 'b+'   fields: filename,...,uoffset,...,dax,s,e,npix
-%                               type 'a'    fields: filename,...,uoffset,...,dax,s,e,npix,urange,pix
-%                               type 'a-'   fields: filename,...,uoffset,...,dax,s,e,npix,urange
+%                               type 'a'    fields: filename,...,uoffset,...,dax,s,e,npix,pix_range,pix
+%                               type 'a-'   fields: filename,...,uoffset,...,dax,s,e,npix,pix_range
 %   position                Position of the file footer in the file
 
 
