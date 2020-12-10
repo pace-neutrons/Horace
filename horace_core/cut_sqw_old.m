@@ -1,4 +1,4 @@
-function varargout = cut_sqw(varargin)
+function varargout = cut_sqw_old(varargin)
 % Take a cut from a file or files containing sqw data
 %
 %   >> w=cut_sqw (file, arg1, arg2, ...)
@@ -14,6 +14,6 @@ function varargout = cut_sqw(varargin)
 % Original author: T.G.Perring
 
 
-[varargout,mess] = horace_function_call_method (nargout, @cut, '$sqw', varargin{:});
+[varargout,mess] = horace_function_call_method (nargout, @cut_old, '$sqw', varargin{:});
 if ~isempty(mess), error(mess), end
 
