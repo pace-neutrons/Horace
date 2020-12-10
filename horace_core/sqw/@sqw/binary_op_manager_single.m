@@ -165,7 +165,7 @@ function wout = do_binary_op_sqw_and_non_double(w1, w2, binary_op, flip)
     % Input
     % -----
     % w1    An SQW object
-    % w2    An instance of dnd or sigvar
+    % w2    An instance of DnD or sigvar or no-pixel SQW object
     % binary_op Function handle of binary operation to execute
     % flip  Flip the order of the operands: (default = false)
     %       if flip = false calculate (w1 .op. w2) e.g. sqw - non-sqw
@@ -174,23 +174,30 @@ function wout = do_binary_op_sqw_and_non_double(w1, w2, binary_op, flip)
     % Return
     % ------
     % wout  An SQW object
-    sz = sigvar_size(w2);
-    if isequal([1, 1], sz) || isequal(size(w1.data.npix), sz)
+    w2_size = sigvar_size(w2);
+    if isequal([1, 1], w2_size) || isequal(size(w1.data.npix), w2_size)
         wout = w1;
-        % Need to remove bins with npix=0 in the non-sqw object in the
-        % binary operation
-        if isa(w2, 'SQWDnDBase')
-            if isa(w2, 'sqw') && ~has_pixels(w2) % pixel-less SQW
-                omit = logical(w2.data.npix);
-            else % must be a DnDBase
+        flip = exist('flip', 'var') && flip;
+
+
+        if isa(w2, 'SQWDnDBase') 
+            % Need to remove bins with npix=0 in the object for the
+            % binary operation
+            if isa(w2, 'DnDBase')
                 omit = logical(w2.npix);
+                % cast the DnD object to a sigvar for processing
+                operand = w2.sigvar();
+            elseif isa(w2, 'sqw') && ~has_pixels(w2) % pixel-less SQW
+                omit = logical(w2.data.npix);
+                operand = w2;
             end
             wout = mask(wout, omit);
+        else % sigvar
+            operand = w2;
         end
-
-        flip = exist('flip', 'var') && flip;
-        wout.data.pix = wout.data.pix.do_binary_op(w2, binary_op, 'flip', flip, ...
-                                                  'npix', wout.data.npix);
+        
+        wout.data.pix = wout.data.pix.do_binary_op( ...
+            operand, binary_op, 'flip', flip, 'npix', wout.data.npix);
         wout = recompute_bin_data(wout);
     else
         error('SQW:binary_op_manager_single', ...
