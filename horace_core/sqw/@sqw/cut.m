@@ -182,8 +182,7 @@ end  % function
 % -----------------------------------------------------------------------------
 function [proj, pbin, num_dims, pin, en] = update_projection_bins( ...
         proj, wout, pbin)
-    % header_av = header_average(wout.header);
-    header_av = testgateway(sqw, 'header_average', wout.header);
+    header_av = header_average(wout.header);
     [proj, pbin, num_dims, pin, en] = proj.update_pbins( ...
             header_av, wout.data, pbin);
 end
