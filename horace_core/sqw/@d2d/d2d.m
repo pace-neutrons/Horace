@@ -54,7 +54,6 @@ classdef d2d < DnDBase
     end
 
     methods(Access = protected)
-        wout = binary_op_manager_single(w1, w2, binary_op);
     end
 
     methods(Static, Access = private)

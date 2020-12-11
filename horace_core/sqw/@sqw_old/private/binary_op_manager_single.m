@@ -156,14 +156,19 @@ function wout = do_binary_op_sqw_and_non_double(w1, w2, binary_op, flip)
                 isa(w2, 'd2d_old') || isa(w2, 'd3d_old') || isa(w2, 'd4d_old')
             if isa(w2, classname)% must be a dnd-type sqw object
                 omit = logical(w2.data.npix);
+                operand = w2;
             else % must be a d0d,d1d...
                 omit = logical(w2.npix);
+                % cast the DnD object to a sigvar for processing
+                operand = sigvar(w2);
             end
             wout = mask(wout, omit);
+        else % sigvar
+            operand = w2;
         end
 
         flip = exist('flip', 'var') && flip;
-        wout.data.pix = wout.data.pix.do_binary_op(w2, binary_op, 'flip', flip, ...
+        wout.data.pix = wout.data.pix.do_binary_op(operand, binary_op, 'flip', flip, ...
                                                   'npix', wout.data.npix);
         wout = recompute_bin_data(wout);
     else

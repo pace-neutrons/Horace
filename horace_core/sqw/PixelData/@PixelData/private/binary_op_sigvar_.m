@@ -1,6 +1,5 @@
 function obj = binary_op_sigvar_(obj, operand, binary_op, flip, npix)
-%% BINARY_OP_SIGVAR_ perform a binary operation between this and a sigvar or
-% sigvar-like object (e.g. dnd)
+%% BINARY_OP_SIGVAR_ perform a binary operation between this and a sigvar
 %
 npix_cum_sum = validate_inputs(obj, operand, npix);
 
@@ -34,14 +33,14 @@ while true
 
     sigvar_pix = sigvar(obj.signal, obj.variance);
     if ~isequal(size(npix), [1, 1])
-        sigvar_dnd = sigvar(...
+        sigvar_obj = sigvar(...
             replicate_array(operand.s(start_idx:end_idx), npix_chunk(:))', ...
             replicate_array(operand.e(start_idx:end_idx), npix_chunk(:))' ...
         );
     end
 
     [obj.signal, obj.variance] = ...
-            sigvar_binary_op_(sigvar_pix, sigvar_dnd, binary_op, flip);
+            sigvar_binary_op_(sigvar_pix, sigvar_obj, binary_op, flip);
 
     if obj.has_more()
         obj.advance();
@@ -54,12 +53,12 @@ end % function
 
 % -----------------------------------------------------------------------------
 function npix_cum_sum = validate_inputs(pix, operand, npix)
-    dnd_size = sigvar_size(operand);
-    if ~isequal(dnd_size, [1, 1]) && ~isequal(dnd_size, size(npix))
+    operand_size = sigvar_size(operand);
+    if ~isequal(operand_size, [1, 1]) && ~isequal(operand_size, size(npix))
         error('PIXELDATA:do_binary_op', ...
-            ['dnd operand must have size [1,1] or size equal to the inputted ' ...
-            'npix array.\nFound dnd size %s, and npix size %s'], ...
-            iarray_to_matstr(dnd_size), iarray_to_matstr(size(npix)));
+            ['sigvar operand must have size [1,1] or size equal to the inputted ' ...
+            'npix array.\nFound sigvar size %s, and npix size %s'], ...
+            iarray_to_matstr(operand_size), iarray_to_matstr(size(npix)));
     end
 
     npix_cum_sum = cumsum(npix(:));

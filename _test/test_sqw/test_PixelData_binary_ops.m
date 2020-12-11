@@ -290,32 +290,6 @@ methods
         assertExceptionThrown(f, 'PIXELDATA:binary_op_double_');
     end
 
-    function test_PIXELDATA_error_on_with_dnd_of_wrong_size(obj)
-        dnd_obj = d1d_old(obj.test_sqw_file_path);
-        pix = PixelData(zeros(9, 2));
-        f = @() pix.do_binary_op(dnd_obj, @plus_single);
-        assertExceptionThrown(f, 'PIXELDATA:do_binary_op');
-    end
-
-    function test_with_1d_dnd_returns_correct_pix_with_single_page(obj)
-        dnd_obj = d1d_old(obj.test_sqw_file_path);
-        npix = dnd_obj.npix;
-        pix = PixelData(ones(9, sum(npix)));
-
-        new_pix = pix.do_binary_op(dnd_obj, @plus_single, 'flip', false, ...
-                                   'npix', npix);
-
-        original_pix_data = concatenate_pixel_pages(pix);
-        new_pix_data = concatenate_pixel_pages(new_pix);
-
-        expected_pix = original_pix_data;
-        expected_pix(obj.SIGNAL_IDX, :) = ...
-            expected_pix(obj.SIGNAL_IDX, :) + repelem(dnd_obj.s(:), npix(:))';
-        expected_pix(obj.VARIANCE_IDX, :) = ...
-            expected_pix(obj.VARIANCE_IDX, :) + repelem(dnd_obj.e(:), npix(:))';
-        assertEqual(new_pix_data, expected_pix);
-    end
-
     function test_with_sigvar_returns_correct_pix_with_single_page(obj)
         dnd_obj = d1d_old(obj.test_sqw_file_path);
         npix = dnd_obj.npix;
@@ -335,28 +309,6 @@ methods
         expected_pix(obj.VARIANCE_IDX, :) = ...
             expected_pix(obj.VARIANCE_IDX, :) + repelem(svar.e(:), npix(:))';
         assertEqual(new_pix_data, expected_pix);
-    end
-
-    function test_with_1d_dnd_returns_correct_pix_with_gt_1_page(obj)
-        dnd_obj = d1d_old(obj.test_sqw_file_path);
-        npix = dnd_obj.npix;
-
-        pix_per_page = floor(sum(npix)/6);
-        pix = PixelData(obj.test_sqw_file_path, pix_per_page*obj.BYTES_PER_PIX);
-
-        new_pix = pix.do_binary_op(dnd_obj, @plus_single, 'flip', false, ...
-                                'npix', npix);
-
-        original_pix_data = concatenate_pixel_pages(pix);
-        new_pix_data = concatenate_pixel_pages(new_pix);
-
-        expected_pix = original_pix_data;
-        expected_pix(obj.SIGNAL_IDX, :) = ...
-            expected_pix(obj.SIGNAL_IDX, :) + repelem(dnd_obj.s(:), npix(:))';
-        expected_pix(obj.VARIANCE_IDX, :) = ...
-            expected_pix(obj.VARIANCE_IDX, :) + repelem(dnd_obj.e(:), npix(:))';
-        assertElementsAlmostEqual(new_pix_data, expected_pix, 'relative', ...
-                                  obj.FLOAT_TOLERANCE);
     end
 
     function test_with_sigvar_returns_correct_pix_with_gt_1_page(obj)
@@ -414,35 +366,6 @@ methods
             expected_pix(obj.SIGNAL_IDX, :) + repelem(svar.s(:), npix(:))';
         expected_pix(obj.VARIANCE_IDX, :) = ...
             expected_pix(obj.VARIANCE_IDX, :) + repelem(svar.e(:), npix(:))';
-        assertElementsAlmostEqual(new_pix_data, expected_pix, 'relative', 1e-7);
-    end
-
-    function test_multiplying_with_2D_dnd_returns_correct_pix_with_gt_1_page(obj)
-        dnd_obj = d2d_old(obj.test_sqw_2d_file_path);
-        npix = dnd_obj.npix;
-
-        pix_per_page = floor(sum(npix(:)/6));
-        mem_alloc = pix_per_page*obj.BYTES_PER_PIX;
-        pix = PixelData(obj.test_sqw_2d_file_path, mem_alloc);
-
-        new_pix = pix.do_binary_op(dnd_obj, @mtimes_single, 'flip', false, ...
-                                   'npix', npix);
-
-        original_pix_data = concatenate_pixel_pages(pix);
-        new_pix_data = concatenate_pixel_pages(new_pix);
-
-        s_dnd = repelem(dnd_obj.s(:), npix(:))';
-        e_dnd = repelem(dnd_obj.e(:), npix(:))';
-        s_pix = original_pix_data(obj.SIGNAL_IDX, :);
-        e_pix = original_pix_data(obj.VARIANCE_IDX, :);
-
-        expected_pix = original_pix_data;
-        expected_pix(obj.SIGNAL_IDX, :) = s_pix.*s_dnd;
-
-        % See mtimes_single for variance calculation
-        expected_variance = (s_dnd.^2).*e_pix + (s_pix.^2).*e_dnd;
-        expected_pix(obj.VARIANCE_IDX, :) = expected_variance;
-
         assertElementsAlmostEqual(new_pix_data, expected_pix, 'relative', 1e-7);
     end
 

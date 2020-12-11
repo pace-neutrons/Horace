@@ -10,7 +10,7 @@ properties
     test_sqw_file_path = '../test_sqw_file/sqw_2d_1.sqw';
     base_sqw_obj;
     sqw_obj;
-%    dnd_obj;
+    dnd_obj;
 end
 
 methods
@@ -23,7 +23,7 @@ methods
 
     function obj = setUp(obj)
         obj.sqw_obj = copy(obj.base_sqw_obj);
-%        obj.dnd_obj = d2d_old(obj.base_sqw_obj);
+        obj.dnd_obj = d2d(obj.base_sqw_obj);
     end
 
     function test_SQW_error_if_operand_is_char(obj)
@@ -61,7 +61,7 @@ methods
         assertExceptionThrown(f, 'SQW:binary_op_manager_single');
     end
 
-    function DISABLED_test_adding_sqw_and_dnd_objects_1st_operand_is_sqw_returns_sqw(obj)
+    function test_adding_sqw_and_dnd_objects_1st_operand_is_sqw_returns_sqw(obj)
         out = obj.sqw_obj + obj.dnd_obj;
 
         assertTrue(isa(out, 'sqw'));
@@ -71,31 +71,8 @@ methods
                                   obj.DOUBLE_REL_TOLERANCE);
     end
 
-    function DISABLED_test_adding_sqw_and_dnd_objects_2nd_operand_is_sqw_returns_sqw(obj)
-        out = obj.dnd_obj + obj.sqw_obj;
 
-        assertTrue(isa(out, 'sqw'));
-
-        expected_signal = obj.sqw_obj.data.s + obj.dnd_obj.s;
-        assertElementsAlmostEqual(out.data.s, expected_signal, 'relative', ...
-                                  obj.DOUBLE_REL_TOLERANCE);
-    end
-
-    function DISABLED_test_dnd_minus_equivalent_sqw_returns_sqw_with_zero_image_data(obj)
-        out = obj.dnd_obj - obj.sqw_obj;
-
-        assertTrue(isa(out, 'sqw'));
-
-        % Scale the difference to account for floating point errors
-        scaled_diff = out.data.s./max(obj.dnd_obj.s, obj.sqw_obj.data.s);
-        scaled_diff(isnan(scaled_diff)) = 0;
-
-        expected_signal = zeros(size(obj.sqw_obj.data.s));
-        assertElementsAlmostEqual(scaled_diff, expected_signal, 'absolute', ...
-                                  1e-7);
-    end
-
-    function DISABLED_test_sqw_minus_equivalent_dnd_returns_sqw_with_zero_image_data(obj)
+    function test_sqw_minus_equivalent_dnd_returns_sqw_with_zero_image_data(obj)
         out = obj.sqw_obj - obj.dnd_obj;
 
         assertTrue(isa(out, 'sqw'));
@@ -109,7 +86,7 @@ methods
                                   1e-7);
     end
 
-    function DISABLED_test_subtracting_dnd_from_sqw_returns_sqw(obj)
+    function test_subtracting_dnd_from_sqw_returns_sqw(obj)
         obj.dnd_obj.s = ones(size(obj.dnd_obj.npix));
         out = obj.sqw_obj - obj.dnd_obj;
 
@@ -181,5 +158,4 @@ methods
     end
 
 end
-
 end
