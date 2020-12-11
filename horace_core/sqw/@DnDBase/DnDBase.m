@@ -39,6 +39,73 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         wout = unary_op_manager(obj, operation_handle);
         wout = binary_op_manager_single(w1, w2, binary_op);
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
+
+        function args = parse_args(obj, varargin)
+            % Parse a single argument passed to the DnD constructor
+            %
+            % Return struct with the data set to the appropriate element:
+            % args.filename  % string, presumed to be filename
+            % args.dnd_obj   % DnD class instance
+            % args.sqw_obj   % SQW class instance
+            % args.data_struct % generic struct, presumed to represent DnD
+            parser = inputParser();
+            parser.addOptional('input', [], @(x) (isa(x, 'SQWDnDBase') || is_string(x) || isstruct(x)));
+            parser.KeepUnmatched = true;
+            parser.parse(varargin{:});
+
+            input = parser.Results.input;
+            args = struct('dnd_obj', [], 'sqw_obj', [], 'filename', [], 'data_struct', []);
+
+            if isa(input, 'SQWDnDBase')
+                if isa(input, class(obj))
+                    args.dnd_obj = input;
+                elseif isa(input, 'sqw')
+                    args.sqw_obj = input;
+                else
+                    error([upper(class(obj)), ':' class(obj)], ...
+                        [upper(class(obj)) ' cannot be constructed from an instance of this object "' class(input) '"']);
+                end
+            elseif is_string(parser.Results.input)
+                args.filename = input;
+            elseif isstruct(input) && ~isempty(input)
+                args.data_struct = input;
+            else
+                % create struct holding default instance
+                args.data_struct = data_sqw_dnd(obj.NUM_DIMS);
+            end
+        end
+
+        function obj = init_from_sqw(obj, sqw_obj)
+            sqw_dim = sqw_obj.dimensions();
+            if sqw_dim ~= obj.NUM_DIMS
+                error([upper(class(obj)), ':' class(obj)], ...
+                    ['SQW object cannot be converted to a ' num2str(obj.NUM_DIMS) 'd dnd-type object']);
+            end
+            obj.data = sqw_obj.data;
+        end
+
+        function obj = init_from_loader_struct(obj, data_struct)
+            obj.data = data_struct;
+        end
+
+        function obj = init_from_file(obj, in_filename)
+            % Parse DnD from file
+            %
+            % An error is raised if the data file is identified not a correctly
+            % dimensioned DnD object
+            ldr = sqw_formats_factory.instance().get_loader(in_filename);
+            if ~strcmpi(ldr.data_type, 'b+') % not a valid dnd-type structure
+                error([upper(class(obj)), ':' class(obj)], ...
+                    'Data file does not contain valid dnd-type object');
+            end
+            if ldr.num_dim ~= obj.NUM_DIMS
+                error([upper(class(obj)), ':' class(obj)], ...
+                    ['Data file does not contain ' num2str(obj.NUM_DIMS) 'd dnd-type object']);
+            end
+
+            [~, ~, ~, dnd_data] = ldr.get_dnd('-legacy');
+            obj = obj.init_from_loader_struct(dnd_data);
+        end
     end
 
     methods

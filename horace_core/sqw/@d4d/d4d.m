@@ -1,18 +1,18 @@
-classdef d2d < DnDBase
-    %D2D Create an 2-dimensional DnD object
+classdef d4d < DnDBase
+    %D4D Create an 2-dimensional DnD object
     %
     % Syntax:
-    %   >> w = d2d()               % Create a default, empty, D2D object
-    %   >> w = d2d(sqw)            % Create a D2D object from a 2-dimensional SQW object
-    %   >> w = d2d(filename)       % Create a D2D object from a file
-    %   >> w = d2d(struct)         % Create from a structure with valid fields (internal use)
+    %   >> w = d4d()               % Create a default, empty, D4D object
+    %   >> w = d4d(sqw)            % Create a D4D object from a 4-dimensional SQW object
+    %   >> w = d4d(filename)       % Create a D4D object from a file
+    %   >> w = d4d(struct)         % Create from a structure with valid fields (internal use)
 
     properties (Constant, Access = protected)
-       NUM_DIMS = 2;
+       NUM_DIMS = 4;
     end
 
     methods
-        function obj = d2d(varargin)
+        function obj = d4d(varargin)
             obj = obj@DnDBase(varargin{:});
             [args] = obj.parse_args(varargin{:});
 
