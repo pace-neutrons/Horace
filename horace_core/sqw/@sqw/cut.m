@@ -1,9 +1,9 @@
-function sqw_obj = cut(obj, varargin)
+function wout = cut(obj, varargin)
 %%CUT
 %
-sqw_obj = copy(obj);
+wout = copy(obj);
 
-ndims_source = numel(sqw_obj.data.pax);
+ndims_source = numel(wout(1).data.pax);
 return_cut = true;
 
 [ok, mess, ~, proj, pbin, args, opt] = cut_sqw_check_input_args(obj, ndims_source, return_cut, varargin{:});
@@ -17,7 +17,7 @@ if numel(args)~=0
 end
 
 % Process projection
-[proj, pbin, ~, pin, en] = update_projection_bins(proj, sqw_obj, pbin);
+[proj, pbin, ~, pin, en] = update_projection_bins(proj, wout, pbin);
 
 % TODO: add loop here when cutting more than one sqw
 %   get size of array of cuts
@@ -27,14 +27,14 @@ end
 
 %% Start: cut_sqw_main_single -------------------------------------------------
 
-bounds = get_bin_boundaries(proj, sqw_obj.data.urange, pbin, pin, en);
+bounds = get_bin_boundaries(proj, wout.data.urange, pbin, pin, en);
 proj = proj.set_proj_binning( ...
     bounds.urange, ...
     bounds.plot_ax_idx, ...
     bounds.integration_axis_idx, ...
     bounds.plot_ax_bounds ...
 );
-[bin_starts, bin_ends] = proj.get_nbin_range(sqw_obj.data.npix);
+[bin_starts, bin_ends] = proj.get_nbin_range(wout.data.npix);
 
 targ_pax = proj.target_pax;
 targ_nbin = proj.target_nbin;
@@ -53,12 +53,12 @@ urange_step_pix = [Inf(1, 4); -Inf(1, 4)];
 pix_indices = get_values_in_ranges(bin_starts, bin_ends);
 
 iter = 1;
-block_size = sqw_obj.data.pix.base_page_size;
+block_size = wout.data.pix.base_page_size;
 pix_retained = cell(1, ceil(numel(pix_indices)/block_size));
 pix_ix_retained = cell(1, ceil(numel(pix_indices)/block_size));
 for block_start = 1:block_size:numel(pix_indices)
     block_end = min(block_start + block_size - 1, numel(pix_indices));
-    candidate_pix = sqw_obj.data.pix.get_pixels(pix_indices(block_start:block_end));
+    candidate_pix = wout.data.pix.get_pixels(pix_indices(block_start:block_end));
 
     if get(hor_config, 'log_level') >= 0
         fprintf(['Step %3d of %3d; Have read data for %d pixels -- ' ...
@@ -123,7 +123,7 @@ else
 end
 
 % Prepare output data
-data_out = sqw_obj.data;
+data_out = wout.data;
 s = reshape(s, nbin_as_size);
 e = reshape(e, nbin_as_size);
 npix = reshape(npix, nbin_as_size);
@@ -135,7 +135,7 @@ npix = reshape(npix, nbin_as_size);
     data_out.u_to_rlu, ...
     data_out.ulen, ...
     axis_caption ...
-] = proj.get_proj_param(sqw_obj.data, bounds.plot_ax_idx);
+] = proj.get_proj_param(wout.data, bounds.plot_ax_idx);
 
 data_out.axis_caption = axis_caption;
 
@@ -155,19 +155,23 @@ if opt.keep_pix
     data_out.urange = urange_pix;
     data_out.pix = pix_out;
 
-    sqw_obj.data = data_out;
+    wout.data = data_out;
 else
     switch numel(data_out.pax)
     case 0
-        sqw_obj = d0d(data_out);
+        wout = d0d(data_out);
     case 1
-        sqw_obj = d1d(data_out);
+        wout = d1d(data_out);
     case 2
-        sqw_obj = d2d(data_out);
+        wout = d2d(data_out);
     case 3
-        sqw_obj = d3d(data_out);
+        wout = d3d(data_out);
     case 4
-        sqw_obj = d4d(data_out);
+        wout = d4d(data_out);
+    otherwise
+        error('SQW:cut', ...
+              ['data_sqw_dnd has invalid number of projection axis.\n' ...
+               '''pax'' must be integer in [0, 4], found ''%d'''], data_out.pax)
     end
 end
 
@@ -176,17 +180,12 @@ end  % function
 
 
 % -----------------------------------------------------------------------------
-function sqw_obj = get_sqw_obj(file_path)
-    pixel_page_size = get(hor_config, 'pixel_page_size');
-    sqw_obj = sqw(file_path, 'pixel_page_size', pixel_page_size);
-end
-
 function [proj, pbin, num_dims, pin, en] = update_projection_bins( ...
-        proj, sqw_obj, pbin)
-    % header_av = header_average(sqw_obj.header);
-    header_av = testgateway(sqw, 'header_average', sqw_obj.header);
+        proj, wout, pbin)
+    % header_av = header_average(wout.header);
+    header_av = testgateway(sqw, 'header_average', wout.header);
     [proj, pbin, num_dims, pin, en] = proj.update_pbins( ...
-            header_av, sqw_obj.data, pbin);
+            header_av, wout.data, pbin);
 end
 
 
