@@ -11,12 +11,6 @@ classdef d1d < DnDBase
        NUM_DIMS = 1;
     end
 
-    methods
-        function obj = d1d(varargin)
-            obj = obj@DnDBase(varargin{:});
-        end
-    end
-
     methods(Static)
         %TODO: disabled until full functionality is implemeneted in new class;
         % The addition of this method causes sqw_old tests to incorrectly load data from .mat files
