@@ -13,18 +13,6 @@ classdef d0d < DnDBase
     methods
         function obj = d0d(varargin)
             obj = obj@DnDBase(varargin{:});
-            [args] = obj.parse_args(varargin{:});
-
-            % i) copy
-            if ~isempty(args.dnd_obj)
-                obj = copy(args.dnd_obj);
-            % ii) struct
-            elseif ~isempty(args.data_struct)
-                obj = obj.init_from_loader_struct(args.data_struct);
-            % iii) filename
-            elseif ~isempty(args.filename)
-                obj = obj.init_from_file(args.filename);
-            end
         end
     end
 

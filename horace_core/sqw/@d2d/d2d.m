@@ -14,21 +14,6 @@ classdef d2d < DnDBase
     methods
         function obj = d2d(varargin)
             obj = obj@DnDBase(varargin{:});
-            [args] = obj.parse_args(varargin{:});
-
-            % i) copy
-            if ~isempty(args.dnd_obj)
-                obj = copy(args.dnd_obj);
-            % ii) struct
-            elseif ~isempty(args.data_struct)
-                obj = obj.init_from_loader_struct(args.data_struct);
-            % iii) filename
-            elseif ~isempty(args.filename)
-                obj = obj.init_from_file(args.filename);
-            % iv) from sqw
-            elseif ~isempty(args.sqw_obj)
-                obj = obj.init_from_sqw(args.sqw_obj);
-            end
         end
     end
 
@@ -36,20 +21,20 @@ classdef d2d < DnDBase
         %TODO: disabled until full functionality is implemeneted in new class;
         % The addition of this method causes sqw_old tests to incorrectly load data from .mat files
         % as new-DnD class objects
-        %        function obj = loadobj(S)
-        %            % Load a sqw object from a .mat file
-        %            %
-        %            %   >> obj = loadobj(S)
-        %            %
-        %            % Input:
-        %            % ------
-        %            %   S       An instance of this object or struct
-        %            %
-        %            % Output:
-        %            % -------
-        %            %   obj     An instance of this object
-        %            %
-        %               obj = sqw(S);
-        %        end
+%        function obj = loadobj(S)
+%            % Load a sqw object from a .mat file
+%            %
+%            %   >> obj = loadobj(S)
+%            %
+%            % Input:
+%            % ------
+%            %   S       An instance of this object or struct
+%            %
+%            % Output:
+%            % -------
+%            %   obj     An instance of this object
+%            %
+%            %   obj = d2d(S);
+%        end
     end
 end
