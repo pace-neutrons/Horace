@@ -70,20 +70,33 @@ for cut_num = 1:numel(obj)
     npix = zeros(nbin_as_size);
     urange_step_pix = [Inf(1, 4); -Inf(1, 4)];
 
-    % Get pixels that will likely contribute to the cut
-    pix_indices = get_values_in_ranges(bin_starts, bin_ends);
+    cum_bin_sizes = cumsum(bin_ends - bin_starts);
 
-    iter = 1;
     block_size = obj(cut_num).data.pix.base_page_size;
-    pix_retained = cell(1, ceil(numel(pix_indices)/block_size));
-    pix_ix_retained = cell(1, ceil(numel(pix_indices)/block_size));
-    for block_start = 1:block_size:numel(pix_indices)
-        block_end = min(block_start + block_size - 1, numel(pix_indices));
-        candidate_pix = obj(cut_num).data.pix.get_pixels(pix_indices(block_start:block_end));
+    num_blocks = ceil(cum_bin_sizes(end)/block_size);
+
+    block_end_idx = 0;
+    pix_retained = cell(1, num_blocks);
+    pix_ix_retained = cell(1, num_blocks);
+    for iter = 1:num_blocks
+        block_start_idx = block_end_idx + 1;
+        block_end_idx = block_end_idx + find(cum_bin_sizes(block_start_idx:end) > block_size, 1) - 1;
+        if isempty(block_end_idx)
+            block_end_idx = numel(cum_bin_sizes);
+        end
+        cum_bin_sizes = cum_bin_sizes - block_size;
+
+        pix_indices = get_values_in_ranges( ...
+            bin_starts(block_start_idx:block_end_idx), ...
+            bin_ends(block_start_idx:block_end_idx) ...
+        );
+
+        % Get pixels that will likely contribute to the cut
+        candidate_pix = obj(cut_num).data.pix.get_pixels(pix_indices);
 
         if get(hor_config, 'log_level') >= 0
             fprintf(['Step %3d of %3d; Have read data for %d pixels -- ' ...
-                    'now processing data...'], iter, numel(pix_retained), ...
+                    'now processing data...'], iter, num_blocks, ...
                     candidate_pix.num_pixels);
         end
 
@@ -117,8 +130,6 @@ for cut_num = 1:numel(obj)
             pix_retained{iter} = pix;
             pix_ix_retained{iter} = ix;
         end
-
-        iter = iter + 1;
 
     end  % loop over pixel blocks
 
@@ -189,11 +200,6 @@ for cut_num = 1:numel(obj)
             wout(cut_num) = d3d(data_out);
         case 4
             wout(cut_num) = d4d(data_out);
-        otherwise
-            error('SQW:cut', ...
-                  ['data_sqw_dnd has invalid number of projection axis.\n' ...
-                   '''pax'' must be integer in [0, 4], found ''%d'''], ...
-                  data_out.pax)
         end
     end
 end
