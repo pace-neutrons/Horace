@@ -52,4 +52,4 @@ else
     
 end
 
-[pbin_update, ndims] = proj_update.calc_pbins (data.urange, pbin_update, pin, en);
+[pbin_update, ndims] = proj_update.calc_pbins (data.pix_range, pbin_update, pin, en);

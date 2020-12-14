@@ -60,7 +60,7 @@ if nargin==2 && (isstruct(varargin{2}))
                 d.data = data_sqw_dnd(d.data);
             end
         else
-            d=struct([]);   % there was a problem
+            d=struct([]);   % there was a problem-
             mess='Fields of structure not compatible with sqw type structure';
         end
     elseif dnd_type  % try to interpret as dnd type

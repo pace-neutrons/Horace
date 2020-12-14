@@ -1,17 +1,17 @@
-function [irange,inside,outside] = get_irange_(urange,varargin)
+function [irange,inside,outside] = get_irange_(pix_range,varargin)
 % Get ranges of bins that partially or wholly lie inside an n-dimensional rectangle
 %
-%   >> irange = get_irange(urange,p1,p2,p3,...pndim)
-%   >> [irange,inside,outside] = get_irange(urange,p1,p2,p3,...pndim)
+%   >> irange = get_irange(pix_range,p1,p2,p3,...pndim)
+%   >> [irange,inside,outside] = get_irange(pix_range,p1,p2,p3,...pndim)
 %
 % Works for an arbitrary number of dimensions ndim (ndim>0), and with
 % non-uniformly spaced bin boundaries.
 %
 % Input:
 % ------
-%   urange  Range to cover: array size [2,ndim] of [urange_lo; urange_hi]
+%   pix_range  Range to cover: array size [2,ndim] of [pix_range_lo; pix_range_hi]
 %          where ndim is the number of dimensions. It is required that
-%          urange_lo <=urange_hi for each dimension
+%          pix_range_lo <=pix_range_hi for each dimension
 %   p1      Bin boundaries along first axis (column vector)
 %   p2      Similarly axis 2
 %   p3      Similarly axis 3
@@ -24,36 +24,35 @@ function [irange,inside,outside] = get_irange_(urange,varargin)
 % Output:
 % -------
 %   irange  Bin index range: array size [2,ndim]. If the region defined by
-%          urange lies fully outside the bins, then irange is set to zeros(0,ndim)
+%          pix_range lies fully outside the bins, then irange is set to zeros(0,ndim)
 %          i.e. isempty(irange)==true.
-%   inside  If the range defined by urange is fully contained within
+%   inside  If the range defined by pix_range is fully contained within
 %          the bin boundaries, then contained==true. Otherwise,
 %          inside==false.
-%   outside If the range defined by urange is fully outside the bin
+%   outside If the range defined by pix_range is fully outside the bin
 %          boundaries i.e. there is no interstcion of the two volumes,
 %          then outside=true;
 
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 ndim=numel(varargin);
 if ndim==0
     error('Must give bin boundary array(s)')
-elseif numel(size(urange))~=2 || size(urange,1)~=2 || size(urange,2)~=ndim
-    error('Check urange is a 2 x ndim array where ndim is the number of bin boundary arrays')
-elseif any(urange(1,:)>urange(2,:))
-    error('Must have urange_lo <= urange_hi for all dimensions')
+elseif numel(size(pix_range))~=2 || size(pix_range,1)~=2 || size(pix_range,2)~=ndim
+    error('Check pix_range is a 2 x ndim array where ndim is the number of bin boundary arrays')
+elseif any(pix_range(1,:)>pix_range(2,:))
+    error('Must have pix_range_lo <= pix_range_hi for all dimensions')
 end
 
 irange = zeros(2,ndim);
 inside=true;
 outside=false;
 for idim=1:ndim
-    blo = upper_index(varargin{idim},urange(1,idim));
-    bhi = lower_index(varargin{idim},urange(2,idim));
+    blo = upper_index(varargin{idim},pix_range(1,idim));
+    bhi = lower_index(varargin{idim},pix_range(2,idim));
     bmax=numel(varargin{idim});
     irange(1,idim) = max(1,blo);
     irange(2,idim) = min(bmax,bhi)-1;
