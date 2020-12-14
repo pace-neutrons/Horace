@@ -24,7 +24,7 @@ if numel(args) ~= 0
 end
 
 if opt.keep_pix
-    wout = copy(obj);
+    wout = copy(obj, 'exclude_pix', true);  % pix assigned later
 else
     switch get_num_output_dims(pbin)
     case 0
