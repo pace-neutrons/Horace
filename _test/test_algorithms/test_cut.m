@@ -79,6 +79,25 @@ methods
         assertEqualToTol(sqw_cut, ref_sqw, 1e-4, 'ignore_str', true);
     end
 
+    function test_you_can_take_a_cut_from_an_array_of_sqw_objects(obj)
+        sqw_obj1 = sqw(obj.sqw_file);
+        sqw_obj2 = sqw(obj.sqw_file);
+
+        proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
+
+        u_axis_lims = [-0.1, 0.025, 0.1];
+        v_axis_lims = [-0.1, 0.025, 0.1];
+        w_axis_lims = [-0.1, 0.1];
+        en_axis_lims = [105, 1, 114];
+
+        sqw_cuts = cut([sqw_obj1, sqw_obj2], proj, u_axis_lims, v_axis_lims, ...
+                       w_axis_lims, en_axis_lims);
+
+        ref_sqw = sqw('test_cut_ref_sqw.sqw');
+        assertEqualToTol(sqw_cuts(1), ref_sqw, 1e-4, 'ignore_str', true);
+        assertEqualToTol(sqw_cuts(2), ref_sqw, 1e-4, 'ignore_str', true);
+    end
+
     function test_you_can_take_a_cut_from_a_larger_sqw_object(obj)
         conf = hor_config();
         old_conf = conf.get_data_to_store();
