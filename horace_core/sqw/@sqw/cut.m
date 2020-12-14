@@ -2,28 +2,31 @@ function wout = cut(obj, varargin)
 %%CUT
 %
 
+% Do we need to support cellarray of file names as input?
+
 ndims_source = arrayfun(@(x) numel(x.data.pax), obj);
 if ~all(ndims_source(1) == ndims_source)
     error('SQW:cut', ...
-          ['Cannot cut sqw with different dimensionality using the same ' ...
-           'projection axis.']);
+          ['Cannot cut sqw object with different dimensionality using ' ...
+           'the same projection axis.']);
 end
-return_cut = nargin > 0;
+return_cut = nargout > 0;
 
-[ok, mess, ~, proj, pbin, args, opt] = cut_sqw_check_input_args(obj, ndims_source, return_cut, varargin{:});
+[ok, mess, ~, proj, pbin, args, opt] = cut_sqw_check_input_args( ...
+    obj, ndims_source, return_cut, varargin{:});
 if ~ok
     error ('CUT_SQW:invalid_arguments', mess)
 end
 
 % Ensure there are no excess input arguments
-if numel(args)~=0
+if numel(args) ~= 0
     error ('CUT_SQW:invalid_arguments', 'Check the number and type of input arguments')
 end
 
 if opt.keep_pix
     wout = copy(obj);
 else
-    switch ndims_source(1)
+    switch get_num_output_dims(pbin)
     case 0
         dnd_constructor = @d0d;
     case 1
@@ -35,7 +38,7 @@ else
     case 4
         dnd_constructor = @d4d;
     end
-    wout = arrayfun(@(x) dnd_constructor(x), obj);
+    wout = arrayfun(@(x) dnd_constructor(), obj);
 end
 
 for cut_num = 1:numel(obj)
@@ -250,4 +253,15 @@ function out = get_values_in_ranges(range_starts, range_ends)
     ];
     % Take a cumulative sum
     out = cumsum(z);
+end
+
+
+function num_dims = get_num_output_dims(pbin)
+    % Get the number of dimensions in the output cut from the projection axis
+    % binning.
+
+    % pbin axes being integrated over will be an array with two elements - the
+    % integration range - else the pbin element will have 1 or 3 elements
+    non_integrated_axis = cellfun(@(x) numel(x) ~= 2, pbin);
+    num_dims = sum(non_integrated_axis);
 end

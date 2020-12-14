@@ -144,6 +144,53 @@ methods
         assertEqualToTol(sqw_cut, ref_sqw, 1e-5, 'ignore_str', true);
     end
 
+    function test_you_can_take_an_array_of_cuts_with_nopix_argument(obj)
+        conf = hor_config();
+        old_conf = conf.get_data_to_store();
+        conf.pixel_page_size = 5e5;
+        cleanup = onCleanup(@() set(hor_config, old_conf));
+
+        proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
+
+        u_axis_lims = [-0.1, 0.025, 0.1];
+        v_axis_lims = [-0.1, 0.025, 0.1];
+        w_axis_lims = [-0.1, 0.1];
+        en_axis_lims = [105, 1, 114];
+
+        sqw_obj = sqw(obj.sqw_file);
+        dnd_cut = cut(...
+            [sqw_obj, sqw_obj], proj, u_axis_lims, v_axis_lims, w_axis_lims, ...
+            en_axis_lims, '-nopix' ...
+        );
+
+        ref_dnd = d3d('test_cut_ref_sqw.sqw');
+        assertEqual(numel(dnd_cut), 2);
+        assertTrue(isa(dnd_cut, 'd3d'));
+        assertEqualToTol(dnd_cut(1), ref_dnd, 1e-5, 'ignore_str', true);
+        assertEqualToTol(dnd_cut(2), ref_dnd, 1e-5, 'ignore_str', true);
+    end
+
+    function test_you_can_take_a_cut_integrating_over_more_than_1_axis(obj)
+        conf = hor_config();
+        old_conf = conf.get_data_to_store();
+        conf.pixel_page_size = 5e5;
+        cleanup = onCleanup(@() set(hor_config, old_conf));
+
+        proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
+
+        u_axis_lims = [-0.1, 0.025, 0.1];
+        v_axis_lims = [-0.1, 0.1];
+        w_axis_lims = [-0.1, 0.1];
+        en_axis_lims = [105, 1, 114];
+
+        dnd_cut = cut(...
+            obj.sqw_file, proj, u_axis_lims, v_axis_lims, w_axis_lims, ...
+            en_axis_lims, '-nopix' ...
+        );
+
+        assertEqual(numel(dnd_cut.pax), 2);
+    end
+
     function test_you_can_take_a_cut_from_an_sqw_file_to_another_sqw_file(~)
     end
 
