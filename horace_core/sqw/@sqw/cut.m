@@ -3,6 +3,7 @@ function wout = cut(obj, varargin)
 %
 
 % Do we need to support cellarray of file names as input?
+DND_CONSTRUCTORS = {@d0d, @d1d, @d2d, @d3d, @d4d};
 
 ndims_source = arrayfun(@(x) numel(x.data.pax), obj);
 if ~all(ndims_source(1) == ndims_source)
@@ -26,18 +27,8 @@ end
 if opt.keep_pix
     wout = copy(obj, 'exclude_pix', true);  % pix assigned later
 else
-    switch get_num_output_dims(pbin)
-    case 0
-        dnd_constructor = @d0d;
-    case 1
-        dnd_constructor = @d1d;
-    case 2
-        dnd_constructor = @d2d;
-    case 3
-        dnd_constructor = @d3d;
-    case 4
-        dnd_constructor = @d4d;
-    end
+
+    dnd_constructor = DND_CONSTRUCTORS{get_num_output_dims(pbin) + 1};
     wout = arrayfun(@(x) dnd_constructor(), obj);
 end
 
@@ -73,18 +64,35 @@ for cut_num = 1:numel(obj)
     cum_bin_sizes = cumsum(bin_ends - bin_starts);
 
     block_size = obj(cut_num).data.pix.base_page_size;
-    num_blocks = ceil(cum_bin_sizes(end)/block_size);
+    max_num_iters = ceil(cum_bin_sizes(end)/block_size);
 
     block_end_idx = 0;
-    pix_retained = cell(1, num_blocks);
-    pix_ix_retained = cell(1, num_blocks);
-    for iter = 1:num_blocks
+    pix_retained = cell(1, max_num_iters);
+    pix_ix_retained = cell(1, max_num_iters);
+    for iter = 1:max_num_iters
         block_start_idx = block_end_idx + 1;
-        block_end_idx = block_end_idx + find(cum_bin_sizes(block_start_idx:end) > block_size, 1) - 1;
+        if block_start_idx > numel(cum_bin_sizes)
+            % if start index has reached end of bin sizes, we've reached the end
+            break
+        end
+
+        next_idx_end = find(cum_bin_sizes(block_start_idx:end) > block_size, 1);
+        block_end_idx = block_end_idx + next_idx_end - 1;
         if isempty(block_end_idx)
             block_end_idx = numel(cum_bin_sizes);
         end
-        cum_bin_sizes = cum_bin_sizes - block_size;
+
+        if block_start_idx > block_end_idx
+            % occurs where bin size greater than block size, just read in the
+            % whole bin
+            block_end_idx = block_start_idx;
+            pix_in_bin = bin_ends(block_end_idx) - bin_starts(block_start_idx);
+            pix_assigned = pix_in_bin;
+        else
+            pix_assigned = block_size;
+        end
+
+        cum_bin_sizes = cum_bin_sizes - pix_assigned;
 
         pix_indices = get_values_in_ranges( ...
             bin_starts(block_start_idx:block_end_idx), ...
@@ -95,8 +103,8 @@ for cut_num = 1:numel(obj)
         candidate_pix = obj(cut_num).data.pix.get_pixels(pix_indices);
 
         if get(hor_config, 'log_level') >= 0
-            fprintf(['Step %3d of %3d; Have read data for %d pixels -- ' ...
-                    'now processing data...'], iter, num_blocks, ...
+            fprintf(['Step %3d of maximum %3d; Have read data for %d pixels -- ' ...
+                     'now processing data...'], iter, max_num_iters, ...
                     candidate_pix.num_pixels);
         end
 
@@ -126,8 +134,7 @@ for cut_num = 1:numel(obj)
         %% Continue: cut_data_from_array ----------------------------------------------
 
         if opt.keep_pix
-            pix = candidate_pix.get_pixels(ok);
-            pix_retained{iter} = pix;
+            pix_retained{iter} = candidate_pix.get_pixels(ok);
             pix_ix_retained{iter} = ix;
         end
 
@@ -189,18 +196,8 @@ for cut_num = 1:numel(obj)
 
         wout(cut_num).data = data_out;
     else
-        switch numel(data_out.pax)
-        case 0
-            wout(cut_num) = d0d(data_out);
-        case 1
-            wout(cut_num) = d1d(data_out);
-        case 2
-            wout(cut_num) = d2d(data_out);
-        case 3
-            wout(cut_num) = d3d(data_out);
-        case 4
-            wout(cut_num) = d4d(data_out);
-        end
+        dnd_constructor = DND_CONSTRUCTORS{numel(data_out.pax) + 1};
+        wout(cut_num) = dnd_constructor(data_out);
     end
 end
 
