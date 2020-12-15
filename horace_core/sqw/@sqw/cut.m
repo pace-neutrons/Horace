@@ -5,41 +5,16 @@ function wout = cut(obj, varargin)
 DND_CONSTRUCTORS = {@d0d, @d1d, @d2d, @d3d, @d4d};
 log_level = get(hor_config, 'log_level');
 
-ndims_source = arrayfun(@(x) numel(x.data.pax), obj);
-if ~all(ndims_source(1) == ndims_source)
-    error('SQW:cut', ...
-          ['Cannot cut sqw object with different dimensionality using ' ...
-           'the same projection axis.']);
-end
 return_cut = nargout > 0;
+[proj, pbin, opt] = validate_args(obj, return_cut, varargin{:});
 
-[ok, mess, ~, proj, pbin, args, opt] = cut_sqw_check_input_args( ...
-    obj, ndims_source, return_cut, varargin{:});
-if ~ok
-    error ('CUT_SQW:invalid_arguments', mess)
-end
-
-if numel(obj) > 1 && ~isempty(opt.outfile)
-    error('CUT_SQW:invalid_arguments', ...
-          'You cannot make multiple cuts when specifying to output to a file.');
-end
-
-% Ensure there are no excess input arguments
-if numel(args) ~= 0
-    error ('CUT_SQW:invalid_arguments', 'Check the number and type of input arguments')
-end
-
-if opt.keep_pix
-    wout = copy(obj, 'exclude_pix', true);  % pix assigned later
-else
-    dnd_constructor = DND_CONSTRUCTORS{get_num_output_dims(pbin) + 1};
-    wout = arrayfun(@(x) dnd_constructor(), obj);
-end
+wout = allocate_output(obj, opt.keep_pix, DND_CONSTRUCTORS, pbin);
 
 for cut_num = 1:numel(obj)
     % Process projection
     [proj, pbin, ~, pin, en] = update_projection_bins( ...
-        proj, obj(cut_num).header, obj(cut_num).data, pbin);
+        proj, obj(cut_num).header, obj(cut_num).data, pbin ...
+    );
 
     %% Start: cut_sqw_main_single -------------------------------------------------
 
@@ -52,14 +27,10 @@ for cut_num = 1:numel(obj)
     );
     [bin_starts, bin_ends] = proj.get_nbin_range(obj(cut_num).data.npix);
 
-    targ_pax = proj.target_pax;
-    targ_nbin = proj.target_nbin;
-
-
     %% Start: cut_data_from_array -------------------------------------------------
 
     % Pre-allocate image data
-    nbin_as_size = get_nbin_as_size(targ_nbin);
+    nbin_as_size = get_nbin_as_size(proj.target_nbin);
     s = zeros(nbin_as_size);
     e = zeros(nbin_as_size);
     npix = zeros(nbin_as_size);
@@ -128,7 +99,7 @@ for cut_num = 1:numel(obj)
                 opt.keep_pix, ...
                 candidate_pix, ...
                 proj, ...
-                targ_pax ...
+                proj.target_pax ...
         );
 
         if log_level >= 0
@@ -222,6 +193,43 @@ end  % function
 
 
 % -----------------------------------------------------------------------------
+function out = allocate_output(obj, keep_pix, dnd_constructors, pbin)
+    if keep_pix
+        out = copy(obj, 'exclude_pix', true);  % pix assigned later
+    else
+        dnd_constructor = dnd_constructors{get_num_output_dims(pbin) + 1};
+        out = arrayfun(@(x) dnd_constructor(), obj);
+    end
+end
+
+
+function [proj, pbin, opt] = validate_args(obj, return_cut, varargin)
+    ndims_source = arrayfun(@(x) numel(x.data.pax), obj);
+    if ~all(ndims_source(1) == ndims_source)
+        error('SQW:cut', ...
+            ['Cannot cut sqw object with different dimensionality using ' ...
+            'the same projection axis.']);
+    end
+
+    [ok, mess, ~, proj, pbin, args, opt] = cut_sqw_check_input_args( ...
+        obj, ndims_source, return_cut, varargin{:} ...
+    );
+    if ~ok
+        error ('CUT_SQW:invalid_arguments', mess)
+    end
+
+    if numel(obj) > 1 && ~isempty(opt.outfile)
+        error('CUT_SQW:invalid_arguments', ...
+            'You cannot make multiple cuts when specifying to output to a file.');
+    end
+
+    % Ensure there are no excess input arguments
+    if numel(args) ~= 0
+        error ('CUT_SQW:invalid_arguments', 'Check the number and type of input arguments')
+    end
+end
+
+
 function save_sqw(sqw_obj, file_path)
     loader = sqw_formats_factory.instance().get_pref_access();
     loader = loader.init(sqw_obj, file_path);
