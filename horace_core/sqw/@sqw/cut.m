@@ -16,8 +16,7 @@ for cut_num = 1:numel(obj)
         proj, obj(cut_num).header, obj(cut_num).data, pbin ...
     );
 
-    %% Start: cut_sqw_main_single -------------------------------------------------
-
+    % Get bin boundaries, projection and pix bin ranges
     bounds = get_bin_boundaries(proj, obj(cut_num).data.urange, pbin, pin, en);
     proj = proj.set_proj_binning( ...
         bounds.urange, ...
@@ -36,37 +35,43 @@ for cut_num = 1:numel(obj)
     npix = zeros(nbin_as_size);
     urange_step_pix = [Inf(1, 4); -Inf(1, 4)];
 
+    % Get the cumulative sum of pixel bin sizes and work out how many
+    % iterations we're going to need
     cum_bin_sizes = cumsum(bin_ends - bin_starts);
-
     block_size = obj(cut_num).data.pix.base_page_size;
     max_num_iters = ceil(cum_bin_sizes(end)/block_size);
 
-    block_end_idx = 0;
+    % Pre-allocate cell arrays to hold PixelData chunks
     pix_retained = cell(1, max_num_iters);
     pix_ix_retained = cell(1, max_num_iters);
+
+    block_end_idx = 0;
     for iter = 1:max_num_iters
         block_start_idx = block_end_idx + 1;
         if block_start_idx > numel(cum_bin_sizes)
-            % if start index has reached end of bin sizes, we've reached the end
+            % If start index has reached end of bin sizes, we've reached the end
             break
         end
 
+        % Work out how many full bins we can load given we only want to load
+        % a block_size number of pixels
         next_idx_end = find(cum_bin_sizes(block_start_idx:end) > block_size, 1);
         block_end_idx = block_end_idx + next_idx_end - 1;
         if isempty(block_end_idx)
+            % There are less than block_size no. of pixels in the remaining bins
             block_end_idx = numel(cum_bin_sizes);
         end
 
         if block_start_idx > block_end_idx
-            % occurs where bin size greater than block size, just read in the
+            % Occurs where bin size greater than block size, just read in the
             % whole bin
             block_end_idx = block_start_idx;
-            pix_in_bin = bin_ends(block_end_idx) - bin_starts(block_start_idx);
-            pix_assigned = pix_in_bin;
+            pix_assigned = bin_ends(block_end_idx) - bin_starts(block_start_idx);
         else
             pix_assigned = block_size;
         end
 
+        % Subtract the number of pixels we've assigned from our cumulative sum
         cum_bin_sizes = cum_bin_sizes - pix_assigned;
 
         pix_indices = get_values_in_ranges( ...
@@ -198,7 +203,7 @@ function out = allocate_output(obj, keep_pix, dnd_constructors, pbin)
         out = copy(obj, 'exclude_pix', true);  % pix assigned later
     else
         dnd_constructor = dnd_constructors{get_num_output_dims(pbin) + 1};
-        out = arrayfun(@(x) dnd_constructor(), obj);
+        out = repmat(dnd_constructor(), size(obj));
     end
 end
 
