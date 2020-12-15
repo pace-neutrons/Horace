@@ -17,7 +17,7 @@ if hor_log_level>=1
 end
 
 % Get bin boundaries for plot axes and integration ranges
-[iax, iint, pax, p, new_bin_range] = proj.calc_ubins (data.urange, pbin, pin, en);
+[iax, iint, pax, p, new_bin_range] = proj.calc_ubins (data.pix.pix_range, pbin, pin, en);
 
 % Set matrix and translation vector to express plot axes with two or more bins
 % as multiples of step size from lower limits
@@ -165,8 +165,8 @@ no_pix = (npix==0);     % true where there are no pixels contributing to the bin
 data_out.s(no_pix)=0;   % want signal to be zero where there are no contributing pixels, not +/- Inf
 data_out.e(no_pix)=0;
 
+data_out.img_range = urange_pix*data_out.u_to_rlu;
 if opt.keep_pix
-    data_out.urange = urange_pix;
     data_out.pix = PixelData(pix);
 end
 
