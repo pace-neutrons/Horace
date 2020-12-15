@@ -103,7 +103,7 @@ properties (Access=private)
 end
 
 properties (Constant)
-    DATA_POINT_SIZE = 8;  % num bytes in a float
+    DATA_POINT_SIZE = 8;  % num bytes in a double
     DEFAULT_NUM_PIX_FIELDS = 9;
     DEFAULT_PAGE_SIZE = realmax;  % this gives no paging by default
 end
