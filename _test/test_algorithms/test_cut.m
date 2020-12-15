@@ -191,7 +191,42 @@ methods
         assertEqual(numel(dnd_cut.pax), 2);
     end
 
-    function test_you_can_take_a_cut_from_an_sqw_file_to_another_sqw_file(~)
+    function test_you_can_take_a_cut_from_an_sqw_file_to_another_sqw_file(obj)
+        proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
+        u_axis_lims = [-0.1, 0.05, 0.1];
+        v_axis_lims = [-0.1, 0.1];
+        w_axis_lims = [-0.1, 0.1];
+        en_axis_lims = [106, 2, 114];
+
+        outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
+
+        ret_sqw = cut(...
+            obj.sqw_file, proj, u_axis_lims, v_axis_lims, w_axis_lims, ...
+            en_axis_lims, outfile ...
+        );
+        cleanup = onCleanup(@() delete(outfile));
+
+        loaded_cut = sqw(outfile);
+
+        assertEqualToTol(ret_sqw, loaded_cut, 1e-5, 'ignore_str', true);
+
+        % clear to ensure PixelData objects are not holding on to temp the file
+        clear loaded_cut ret_sqw
+    end
+
+    function test_CUT_SQW_error_when_cutting_multiple_objects_to_1_file(obj)
+        sqw_objects = [obj.sqw_4d, obj.sqw_4d];
+
+        proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
+
+        u_axis_lims = [-0.1, 0.025, 0.1];
+        v_axis_lims = [-0.1, 0.025, 0.1];
+        w_axis_lims = [-0.1, 0.1];
+        en_axis_lims = [105, 1, 114];
+
+        f = @() cut(sqw_objects, proj, u_axis_lims, v_axis_lims, ....
+                    w_axis_lims, en_axis_lims, 'outfile.sqw');
+        assertExceptionThrown(f, 'CUT_SQW:invalid_arguments');
     end
 
     function test_you_can_take_a_cut_from_an_sqw_object_to_an_sqw_file(~)
