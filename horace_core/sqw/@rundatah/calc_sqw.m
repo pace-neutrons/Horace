@@ -149,7 +149,7 @@ if ~isempty(obj.transform_sqw_f_)
     % and correct sqw structure, though this pix_range and grid_size-s do not
     % always coincide with initial range and sizes
     w = obj.transform_sqw_f_(w);
-    pix_range = w.data.pix_range;
+    pix_range = w.data.pix.pix_range;
     grid_size = size(w.data.s);
     if ~isempty(pix_range_in) % expand ranges to include pix_range_in
         pix_range = [min([pix_range_in(1,:);pix_range(1,:)]);...
