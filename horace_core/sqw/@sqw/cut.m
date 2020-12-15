@@ -2,8 +2,8 @@ function wout = cut(obj, varargin)
 %%CUT
 %
 
-% Do we need to support cellarray of file names as input?
 DND_CONSTRUCTORS = {@d0d, @d1d, @d2d, @d3d, @d4d};
+log_level = get(hor_config, 'log_level');
 
 ndims_source = arrayfun(@(x) numel(x.data.pax), obj);
 if ~all(ndims_source(1) == ndims_source)
@@ -19,6 +19,11 @@ if ~ok
     error ('CUT_SQW:invalid_arguments', mess)
 end
 
+if numel(obj) > 1 && ~isempty(opt.outfile)
+    error('CUT_SQW:invalid_arguments', ...
+          'You cannot make multiple cuts when specifying to output to a file.');
+end
+
 % Ensure there are no excess input arguments
 if numel(args) ~= 0
     error ('CUT_SQW:invalid_arguments', 'Check the number and type of input arguments')
@@ -27,7 +32,6 @@ end
 if opt.keep_pix
     wout = copy(obj, 'exclude_pix', true);  % pix assigned later
 else
-
     dnd_constructor = DND_CONSTRUCTORS{get_num_output_dims(pbin) + 1};
     wout = arrayfun(@(x) dnd_constructor(), obj);
 end
@@ -102,7 +106,7 @@ for cut_num = 1:numel(obj)
         % Get pixels that will likely contribute to the cut
         candidate_pix = obj(cut_num).data.pix.get_pixels(pix_indices);
 
-        if get(hor_config, 'log_level') >= 0
+        if log_level >= 0
             fprintf(['Step %3d of maximum %3d; Have read data for %d pixels -- ' ...
                      'now processing data...'], iter, max_num_iters, ...
                     candidate_pix.num_pixels);
@@ -127,7 +131,7 @@ for cut_num = 1:numel(obj)
                 targ_pax ...
         );
 
-        if get(hor_config, 'log_level') >= 0
+        if log_level >= 0
             fprintf(' ----->  retained  %d pixels\n', del_npix_retain);
         end
 
@@ -201,10 +205,31 @@ for cut_num = 1:numel(obj)
     end
 end
 
+if ~isempty(opt.outfile)
+    if log_level >= 0
+        disp(['Writing cut to output file ', opt.outfile, '...']);
+    end
+    try
+        save_sqw(wout, opt.outfile);
+    catch ME
+        warning('CUT_SQW:io_error', ...
+                'Error writing to file ''%s''.\n%s: %s', ...
+                opt.outfile, ME.identifier, ME.message);
+    end
+end
+
 end  % function
 
 
 % -----------------------------------------------------------------------------
+function save_sqw(sqw_obj, file_path)
+    loader = sqw_formats_factory.instance().get_pref_access();
+    loader = loader.init(sqw_obj, file_path);
+    loader.put_sqw();
+    loader.delete();
+end
+
+
 function [proj, pbin, num_dims, pin, en] = update_projection_bins( ...
         proj, sqw_header, data, pbin)
     header_av = header_average(sqw_header);
