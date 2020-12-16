@@ -40,8 +40,8 @@
     - test_sqw_minus_equivalent_dnd_returns_sqw_with_zero_image_data
     - test_subtracting_dnd_from_sqw_returns_sqw
 
-test_gen_sqw_accumulate_sqw_parpool.m (https://github.com/pace-neutrons/Horace/issues/380)
+- test_gen_sqw_accumulate_sqw_parpool.m (https://github.com/pace-neutrons/Horace/issues/380)
 	- test_accumulate_sqw1456
     
-test_combine_sqw.m  (https://github.com/pace-neutrons/Horace/issues/464)
+- test_combine_sqw.m  (https://github.com/pace-neutrons/Horace/issues/464)
     - _test_combine1D
