@@ -239,6 +239,55 @@ classdef data_sqw_dnd
         end
     end
     methods(Static)
+        function img_range = calc_img_range(ds)
+            % function used to retrieve 4D range of a horace image, used
+            % for display purposes and as keys to pixels database
+            %
+            % TODO: replace this function
+            % Transistonal function until img_range field is implemented
+            % and supported properly
+            %
+            % Inputs: either data_sqw_dnd instance or a structure
+            % containing:
+            % The relevant data structure used as source of image range is as follows:
+            %
+            %   ds.iax        Index of integration axes into the projection axes  [row vector]
+            %                  Always in increasing numerical order
+            %                       e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
+            %   ds.iint       Integration range along each of the integration axes. [iint(2,length(iax))]
+            %                       e.g. in 2D case above, is the matrix vector [u1_lo, u3_lo; u1_hi, u3_hi]
+            %   ds.pax        Index of plot axes into the projection axes  [row vector]
+            %                  Always in increasing numerical order
+            %                       e.g. if data is 3D, data.pax=[1,2,4] means u1, u2, u4 axes are x,y,z in any plotting
+            %                                       2D, data.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
+            %   ds.p          Cell array containing bin boundaries along the plot axes [column vectors]
+            %                       i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
+            %   ds.dax        Index into data.pax of the axes for display purposes. For example we may have
+            %                  data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,
+            %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
+            %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
+            %
+            
+            
+            % NOT IMPLEMENTED!
+            %
+            %if isfield(ds,'pix_range')
+            %    img_range = ds.pix_range*ds.u_to_rlu;
+            %else
+            
+            img_range = zeros(2,4);
+            img_range(:,ds.iax) = ds.iint;
+            
+            npax = numel(ds.p);
+            pax_range = zeros(2,npax);
+            for i=1:npax
+                pax_range(:,i) = [0.5*(ds.p{i}(1)+ds.p{i}(2));...
+                    0.5*(ds.p{i}(end-1)+ds.p{i}(end))];
+            end
+            img_range(:,ds.dax) = pax_range;
+            %end
+        end
+        %
         function obj = loadobj(input)
             if isa(input,'data_sqw_dnd')
                 obj = input;

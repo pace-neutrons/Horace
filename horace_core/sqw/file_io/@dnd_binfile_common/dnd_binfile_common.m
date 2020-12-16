@@ -305,10 +305,10 @@ classdef dnd_binfile_common < dnd_file_interface
             
             pix_range = double.empty(0,4);
         end
-        function img_range = get_img_range(obj)
+        function img_range = get_img_range(obj,varargin)
             % get [2x4] array of min/max ranges of the image contributing
             % into an object
-            img_range = get_img_range_(obj);
+            img_range = get_img_range_(obj,varargin{:});
         end
         
         %------   Mutators:

@@ -4,8 +4,6 @@ function  obj = init_pix_info_(obj)
 %
 %
 
-
-
 data  = obj.sqw_holder_.data;
 %
 pix_form = obj.get_data_form('-pix_only');
@@ -27,7 +25,7 @@ end
 
 
 
-obj.urange_pos_  = pix_info_pos.urange_pos_;
+obj.pix_range_pos_  = pix_info_pos.pix_range_pos_;
 obj.pix_pos_     = pix_info_pos.pix_pos_+8; % serializer calculates pix position
 % at the position of the npix as it is part of the pix field.
 % As we access pixels directly via its position, here we adjust this value

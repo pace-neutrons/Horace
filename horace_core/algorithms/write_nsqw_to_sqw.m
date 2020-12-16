@@ -187,8 +187,9 @@ sqw_data.iint=datahdr{1}.iint;
 sqw_data.pax=datahdr{1}.pax;
 sqw_data.p=datahdr{1}.p;
 sqw_data.dax=datahdr{1}.dax;    % take the display axes from first file, for sake of choosing something
-% store pix_range
-sqw_data.pix_range=pix_range;
+% TODO: disentangle!!!
+% img_range at this stage is equal to pix_range
+sqw_data.img_range=pix_range;
 
 % Now read in binning information
 % ---------------------------------

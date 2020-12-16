@@ -112,7 +112,7 @@ end
 
 [data_str,obj] = obj.get_data@dnd_binfile_common(obj,argi{:});
 
-fseek(obj.file_id_,obj.urange_pos_,'bof');
+fseek(obj.file_id_,obj.pix_range_pos_,'bof');
 [mess,res] = ferror(obj.file_id_);
 if res ~= 0
     error('SQW_BINILE_COMMON:io_error',...
@@ -120,7 +120,7 @@ if res ~= 0
 end
 % old format. Pix range is stored in urange field
 data_str.pix_range = fread(obj.file_id_,[2,4],'float32');
-data_str.img_range = obj.get_img_range();
+data_str.img_range = obj.get_img_range(data_str);
 
 % parse all arguments, including those that weren't passed to the parent method
 opts = parse_args(varargin{:});
@@ -134,7 +134,6 @@ data = data_sqw_dnd(data_str);
 if ~opts.nopix
     data.pix = PixelData(obj, opts.pixel_page_size);
     % 
-    data.pix.set_range(data_str.pix_range);
 end
 
 end  % function
