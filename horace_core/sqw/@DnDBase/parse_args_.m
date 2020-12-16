@@ -24,7 +24,7 @@ if isa(input, 'SQWDnDBase')
         error([upper(class(obj)), ':' class(obj)], ...
             [upper(class(obj)) ' cannot be constructed from an instance of this object "' class(input) '"']);
     end
-elseif is_string(parser.Results.input)
+elseif is_string(input)
     args.filename = input;
 elseif isstruct(input) && ~isempty(input)
     args.data_struct = input;
