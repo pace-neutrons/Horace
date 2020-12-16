@@ -232,7 +232,16 @@ methods
     function test_you_can_take_a_cut_from_an_sqw_object_to_an_sqw_file(~)
     end
 
-    function test_you_can_take_a_cut_from_a_dnd_object(~)
+    function test_you_can_take_a_cut_from_a_dnd_object(obj)
+        dnd_obj = d4d(obj.sqw_file);
+
+        u_axis_lims = [-0.1, 0.024, 0.1];
+        v_axis_lims = [-0.1, 0.024, 0.1];
+        w_axis_lims = [-0.1, 0.1];
+        en_axis_lims = [105, 1, 114];
+
+        res = cut(dnd_obj, u_axis_lims, v_axis_lims, w_axis_lims, en_axis_lims);
+        assertEqual(size(res.s), [9, 9, 10]);
     end
 
     function test_you_can_take_a_cut_from_a_dnd_object_to_an_sqw_file(~)

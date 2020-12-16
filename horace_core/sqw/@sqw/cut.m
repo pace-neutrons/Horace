@@ -2,11 +2,23 @@ function wout = cut(obj, varargin)
 %%CUT
 %
 
+dnd_type = arrayfun(@(x) x.data.pix.num_pixels == 0, obj);
+ndims_source = arrayfun(@(x) numel(x.data.pax), obj);
+
+if all(dnd_type)
+    wout = cell(1, numel(obj));
+    for cut_num = 1:numel(obj)
+        wout{cut_num} = cut_dnd_main(obj(cut_num), ndims_source(cut_num), varargin{:});
+    end
+    wout = [wout{:}];
+    return
+end
+
 DND_CONSTRUCTORS = {@d0d, @d1d, @d2d, @d3d, @d4d};
 log_level = get(hor_config, 'log_level');
 
 return_cut = nargout > 0;
-[proj, pbin, opt] = validate_args(obj, return_cut, varargin{:});
+[proj, pbin, opt] = validate_args(obj, return_cut, ndims_source, varargin{:});
 
 wout = allocate_output(obj, opt.keep_pix, DND_CONSTRUCTORS, pbin);
 
@@ -208,8 +220,7 @@ function out = allocate_output(obj, keep_pix, dnd_constructors, pbin)
 end
 
 
-function [proj, pbin, opt] = validate_args(obj, return_cut, varargin)
-    ndims_source = arrayfun(@(x) numel(x.data.pax), obj);
+function [proj, pbin, opt] = validate_args(obj, return_cut, ndims_source, varargin)
     if ~all(ndims_source(1) == ndims_source)
         error('SQW:cut', ...
             ['Cannot cut sqw object with different dimensionality using ' ...
