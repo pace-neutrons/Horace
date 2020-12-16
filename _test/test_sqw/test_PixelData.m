@@ -3,8 +3,10 @@ classdef test_PixelData < TestCase
 properties
     old_warn_state;
 
+    SMALL_PG_SIZE = 1e6;  % 1Mb
+    ALL_IN_MEM_PG_SIZE = 1e12;
+
     raw_pix_data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
-    small_page_size_ = 1e6;  % 1Mb
     test_sqw_file_path = '../test_sqw_file/sqw_1d_1.sqw';
     test_sqw_file_full_path = '';
     this_dir = fileparts(mfilename('fullpath'));
@@ -57,11 +59,13 @@ methods
         f_accessor = sqw_formats_factory.instance().get_loader(obj.test_sqw_file_path);
         obj.pix_data_from_faccess = PixelData(f_accessor);
         % Construct an object from file accessor with small page size
-        obj.pix_data_small_page = PixelData(f_accessor, obj.small_page_size_);
+        obj.pix_data_small_page = PixelData(f_accessor, obj.SMALL_PG_SIZE);
     end
 
     function delete(obj)
-        rmpath(fullfile(obj.this_dir, 'utils'));
+        if ismember(fullfile(obj.this_dir, 'utils'), split(path, pathsep))
+            rmpath(fullfile(obj.this_dir, 'utils'));
+        end
         warning(obj.old_warn_state);
     end
 
@@ -405,7 +409,7 @@ methods
     end
 
     function test_page_size_is_set_after_getter_call_when_given_as_argument(obj)
-        mem_alloc = obj.small_page_size_;  % 1Mb
+        mem_alloc = obj.SMALL_PG_SIZE;  % 1Mb
         expected_page_size = floor(...
                 mem_alloc/(obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK));
         % the first page is loaded on access, so this first assert which accesses
@@ -1082,20 +1086,6 @@ methods
         assertFalse(pix.has_more());
     end
 
-    function test_max_page_size_set_by_pixel_page_size_config_option(obj)
-        hc = hor_config();
-        old_config = hc.get_data_to_store();
-        clean_up = onCleanup(@() set(hor_config, old_config));
-
-        new_pix_page_size = 1000;  % bytes
-        hc.pixel_page_size = new_pix_page_size;
-
-        bytes_in_pixel = obj.NUM_COLS_IN_PIX_BLOCK*obj.NUM_BYTES_IN_VALUE;
-        expected_page_size = floor(new_pix_page_size/bytes_in_pixel);
-        pix = PixelData(obj.test_sqw_file_path);
-        assertEqual(pix.page_size, expected_page_size);
-    end
-
     function test_error_when_setting_mem_alloc_lt_one_pixel(~)
         pix_size = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
 
@@ -1487,7 +1477,7 @@ methods
         assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
     end
 
-    function test_get_daata_throws_if_an_idx_lt_1_with_in_memory_pix(~)
+    function test_get_data_throws_if_an_idx_lt_1_with_in_memory_pix(~)
         in_mem_pix = PixelData(5);
         f = @() in_mem_pix.get_data('signal', -1:3);
         assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
@@ -1498,6 +1488,13 @@ methods
         idx_array = 1:0.1:5;
         f = @() pix.get_data('signal', idx_array);
         assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
+    end
+
+    function test_base_page_size_is_DEFAULT_PAGE_SIZE_by_default(~)
+        pix = PixelData();
+        bytes_in_pixel = PixelData.DEFAULT_NUM_PIX_FIELDS*PixelData.DATA_POINT_SIZE;
+        expected_num_pix = floor(PixelData.DEFAULT_PAGE_SIZE/bytes_in_pixel);
+        assertEqual(pix.base_page_size, expected_num_pix);
     end
 
     % -- Helpers --

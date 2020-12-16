@@ -50,7 +50,7 @@ foreach(_test_dir ${TEST_DIRECTORIES})
     if("${_test_dir}" STREQUAL "test_sqw")
         set(TEST_TIMEOUT_LENGTH "1500")  # 25 minutes
     elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_parpool")
-        set(TEST_TIMEOUT_LENGTH "1500")  # 25 minutes
+        set(TEST_TIMEOUT_LENGTH "2100")  # 35 minutes
     elseif("${_test_dir}" STREQUAL "test_tobyfit")
         set(TEST_TIMEOUT_LENGTH "3000")  # 50 minutes
     else()

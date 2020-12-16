@@ -1,8 +1,8 @@
-function [u_to_rlu, urange, pix] = calc_projections_(obj, detdcn,qspec,proj_mode)
+function [u_to_rlu, pix_range, pix] = calc_projections_(obj, detdcn,qspec,proj_mode)
 % Label pixels in an spe file with coords in the 4D space defined by crystal Cartesian coordinates and energy transfer.
 % Allows for correction scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
 %
-%   >> [u_to_rlu, ucoords] = obj.calc_projections_(detdcn,qspec,proj_mode)
+%   >> [u_to_rlu,pix_range, pix] = obj.calc_projections_(detdcn,qspec,proj_mode)
 %
 % Optional inputs:
 % ------
@@ -26,7 +26,7 @@ function [u_to_rlu, urange, pix] = calc_projections_(obj, detdcn,qspec,proj_mode
 %              This matrix can be used to convert components of a vector in
 %              crystal Cartesian axes to r.l.u.: v_rlu = u_to_rlu * v_crystal_Cart
 %              (Same as inv(B) in Busing and Levy convention)
-%   urange      [2 x 4] array containing the full extent of the data in crystal Cartesian
+%   pix_range  [2 x 4] array containing the full extent of the data in crystal Cartesian
 %              coordinates and energy transfer; first row the minima, second row the
 %              maxima.
 %   pix         PixelData object
@@ -39,7 +39,6 @@ function [u_to_rlu, urange, pix] = calc_projections_(obj, detdcn,qspec,proj_mode
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 % Check input parameters
@@ -82,7 +81,7 @@ if use_mex
             emode = obj.emode;
             %proj_mode = 2;
             %nThreads = 1;
-            [urange,pix] =calc_projections_c(spec_to_u, data, det, efix, k_to_e, emode, nThreads,proj_mode);
+            [pix_range,pix] =calc_projections_c(spec_to_u, data, det, efix, k_to_e, emode, nThreads,proj_mode);
             pix = PixelData(pix);
         catch  ERR % use Matlab routine
             warning('HORACE:using_mex','Problem with C-code: %s, using Matlab',ERR.message);
@@ -103,7 +102,7 @@ if ~use_mex
         qspec_provided = true;
     end
 
-    urange=[min(ucoords,[],2)';max(ucoords,[],2)'];
+    pix_range=[min(ucoords,[],2)';max(ucoords,[],2)'];
 
     % Return without filling the pixel array if urange only is requested
     if nargout==2

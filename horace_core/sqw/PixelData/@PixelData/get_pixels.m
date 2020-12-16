@@ -30,7 +30,7 @@ function pix_out = get_pixels(obj, abs_pix_indices)
 abs_pix_indices = parse_args(obj, abs_pix_indices);
 
 if obj.is_file_backed_()
-    first_required_page = ceil(min(abs_pix_indices)/obj.max_page_size_);
+    first_required_page = ceil(min(abs_pix_indices)/obj.base_page_size);
     obj.move_to_page(first_required_page);
 
     pix_out = PixelData(numel(abs_pix_indices));
