@@ -32,6 +32,19 @@ methods
         end
     end
 
+    function data = get_pix_at_indices(obj, indices)
+        try
+            data = obj.fake_data(:, indices);
+        catch ME
+            switch ME.identifier
+            case 'MATLAB:badsubscript'
+                error('FAKEFACCESS:get_pix', 'Pixel indices out of bounds');
+            otherwise
+                rethrow(ME);
+            end
+        end
+    end
+
     function new_obj = upgrade_file_format(obj)
         new_obj = [];
     end
