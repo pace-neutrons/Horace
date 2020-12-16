@@ -106,20 +106,21 @@ methods
         end
     end
 
-  function test_copy_constructor_clones_d2d_object(obj)
+    function test_copy_constructor_clones_d2d_object(obj)
         dnd_obj = d2d(obj.test_dnd_2d_fullpath);
         dnd_copy = d2d(dnd_obj);
 
         assertTrue(isa(dnd_obj, 'd2d'));
         assertEqualToTol(dnd_copy, dnd_obj);
-  end
-    function test_copy_constructor_clones_d4d_object(obj)
-          dnd_obj = d4d();
-          dnd_copy = d4d(dnd_obj);
+    end
 
-          assertTrue(isa(dnd_obj, 'd4d'));
-          assertEqualToTol(dnd_copy, dnd_obj);
-      end
+    function test_copy_constructor_clones_d4d_object(obj)
+        dnd_obj = d4d();
+        dnd_copy = d4d(dnd_obj);
+
+        assertTrue(isa(dnd_obj, 'd4d'));
+        assertEqualToTol(dnd_copy, dnd_obj);
+    end
 
     function test_copy_constructor_returns_distinct_object(obj)
         dnd_obj = d2d(obj.test_dnd_2d_fullpath);
@@ -138,7 +139,6 @@ methods
 
         assertFalse(equal_to_tol(dnd_copy, dnd_obj));
     end
-
 
     function test_filename_constructor_returns_populated_class(obj)
         d2d_obj = d2d(obj.test_dnd_2d_fullpath);
