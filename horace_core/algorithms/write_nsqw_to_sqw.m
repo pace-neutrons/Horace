@@ -278,13 +278,14 @@ end
 % instead of the real pixels to place in target sqw file, place in pix field the
 % information about the way to get the contributing pixels
 sqw_data.pix = pix_combine_info(infiles,numel(sqw_data.npix),pos_npixstart,pos_pixstart,npixtot,run_label);
+sqw_data.pix.pix_range = pix_range;
 
 [fp,fn,fe] = fileparts(outfile);
 main_header_combined.filename = [fn,fe];
 main_header_combined.filepath = [fp,filesep];
 %
-data_sum= struct('main_header',main_header_combined,...
-    'header',[],'detpar',det,'data',sqw_data);
+data_sum= struct('main_header',main_header_combined,'header',[],'detpar',det);
+data_sum.data = sqw_data;
 data_sum.header = header_combined;
 
 ds = sqw(data_sum);
