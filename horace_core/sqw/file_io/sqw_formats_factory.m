@@ -132,10 +132,12 @@ classdef sqw_formats_factory < handle
                         loader=loader.init(objinit);
                         return
                     catch ME
-                        error('SQW_FILE_IO:runtime_error',...
+                        err = MException('SQW_FILE_IO:runtime_error',...
                             ['get_loader: Error initializing selected loader: %s : %s\n',...
                             'invalid file format or damaged file?'],...
-                            class(loader),ME.message)
+                            class(loader),ME.message);
+                        err = addCause(ME,err);
+                        rethrow(err);
                     end
                     return
                 end

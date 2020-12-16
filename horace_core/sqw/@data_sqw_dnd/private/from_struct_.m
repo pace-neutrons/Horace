@@ -1,20 +1,34 @@
 function  obj = from_struct_(obj,input)
-% set up sqw_dnd_data object from the input structure
+% set up sqw_dnd_data object from the input structure,
 %
+% maintaining changes in structure according to version.
 %
-flds = fieldnames(input);
+
 if ~isfield(input,'version')
-    for i=1:numel(flds )
-        fldn = flds{i};
-        if strcmp(fldn,'urange')
-            fldn = 'img_range';
+    if isfield(input,'urange')
+        % urange contents in new file types is unreliable
+        if isfield(input,'pix') && isa(input.pix,'PixelData')
+            input.pix_range = input.pix.pix_range;
+        else
+            % no info, need to use existing urange in hope its pix_range
+            input.pix_range = input.urange;
         end
-        obj.(fldn) = input.(flds{i});
+        input = rmfield(input,'urange');
+        input.img_range = data_sqw_dnd.calc_img_range(input);
     end
 elseif input.version == 1
     input = rmfield(input,'version');
-    for i=1:numel(flds )
-        obj.(flds{i}) = input.(flds{i});
-    end
 end
+if isfield(input,'pix_range')
+    obj.pix.set_range(input.pix_range)
+    input = rmfield(input,'pix_range');
+end
+
+%
+flds = fieldnames(input);
+for i=1:numel(flds )
+    obj.(flds{i}) = input.(flds{i});
+end
+
+
 

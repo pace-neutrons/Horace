@@ -47,7 +47,7 @@ classdef sqw_binfile_common < sqw_file_interface
         header_pos_info_ =[];
         detpar_pos_=0;
         detpar_pos_info_ =[];
-        urange_pos_ = 0;
+        pix_range_pos_ = 0;
         %
         pix_pos_=  'undefined';
         %
@@ -64,7 +64,7 @@ classdef sqw_binfile_common < sqw_file_interface
         % all substantial parts of appropriate sqw file
         data_fields_to_save_ = {'main_header_pos_';'main_head_pos_info_';'header_pos_';...
             'header_pos_info_';'detpar_pos_';'detpar_pos_info_'};
-        pixel_fields_to_save_ = {'urange_pos_';...
+        pixel_fields_to_save_ = {'pix_range_pos_';...
             'pix_pos_';'eof_pix_pos_'};
     end
     %
@@ -176,7 +176,7 @@ classdef sqw_binfile_common < sqw_file_interface
             % get [2x4] array of min/max ranges of the pixels contributing
             % into an object. Empty for DND object
             %
-            fseek(obj.file_id_,obj.urange_pos_,'bof');
+            fseek(obj.file_id_,obj.pix_range_pos_,'bof');
             [mess,res] = ferror(obj.file_id_);
             if res ~= 0
                 error('SQW_BINILE_COMMON:io_error',...
@@ -298,7 +298,7 @@ classdef sqw_binfile_common < sqw_file_interface
             %   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
             %   data.npix       No. contributing pixels to each bin of the plot axes.
             %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-            %   data.img_range     True range of the data along each axis [img_range(2,4)]
+            %   data.pix_range  The range of the data along each axis [pix_range(2,4)]
             %   data.pix        A PixelData object
             %
             data_form = get_data_form_(obj,varargin{:});
