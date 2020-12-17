@@ -44,37 +44,41 @@ methods
         end
     end
 
+    %% Dimension
     function test_d0d_constructor_returns_zero_d_instance(obj)
         dnd_obj = d0d();
 
         assertEqual(numel(dnd_obj.pax), 0);
         assertEqual(dnd_obj.dimensions(), 0);
     end
+
     function test_d1d_constructor_returns_1d_instance(obj)
         dnd_obj = d1d();
 
         assertEqual(numel(dnd_obj.pax), 1);
         assertEqual(dnd_obj.dimensions(), 1);
     end
+
     function test_d2d_constructor_returns_2d_instance(obj)
           dnd_obj = d2d();
 
           assertEqual(numel(dnd_obj.pax), 2);
           assertEqual(dnd_obj.dimensions(), 2);
     end
+
     function test_d3d_constructor_returns_3d_instance(obj)
         dnd_obj = d3d();
 
         assertEqual(numel(dnd_obj.pax), 3);
         assertEqual(dnd_obj.dimensions(), 3);
     end
+
     function test_d4d_constructor_returns_4d_instance(obj)
         dnd_obj = d4d();
 
         assertEqual(numel(dnd_obj.pax), 4);
         assertEqual(dnd_obj.dimensions(), 4);
     end
-
 
     function test_default_constructor_returns_empty_instance(obj)
         dnd_obj = d2d();
@@ -83,23 +87,27 @@ methods
         assertEqualToTol(dnd_obj.e, 0, 1e-6);
     end
 
-
+    %% Class properties
     function test_d0d_contains_expected_properties(obj)
         dnd_obj = d0d();
         obj.assert_dnd_contains_expected_properties(dnd_obj);
     end
+
     function test_d1d_contains_expected_properties(obj)
         dnd_obj = d1d();
         obj.assert_dnd_contains_expected_properties(dnd_obj);
     end
+
     function test_d2d_contains_expected_properties(obj)
         dnd_obj = d2d();
         obj.assert_dnd_contains_expected_properties(dnd_obj);
     end
+
     function test_d3d_contains_expected_properties(obj)
         dnd_obj = d3d();
         obj.assert_dnd_contains_expected_properties(dnd_obj);
     end
+
     function test_d4d_contains_expected_properties(obj)
         dnd_obj = d4d();
         obj.assert_dnd_contains_expected_properties(dnd_obj);
@@ -121,26 +129,32 @@ methods
         end
     end
 
+    %% getters/setters
     function test_d0d_get_returns_set_properties(obj)
         dnd_obj = d0d();
         obj.assert_dnd_get_returns_set_properties(dnd_obj);
     end
+
     function test_d1d_get_returns_set_properties(obj)
         dnd_obj = d1d();
         obj.assert_dnd_get_returns_set_properties(dnd_obj);
     end
+
     function test_d2d_get_returns_set_properties(obj)
         dnd_obj = d2d();
         obj.assert_dnd_get_returns_set_properties(dnd_obj);
     end
+
     function test_d3d_get_returns_set_properties(obj)
         dnd_obj = d3d();
         obj.assert_dnd_get_returns_set_properties(dnd_obj);
     end
+
     function test_d4d_get_returns_set_properties(obj)
         dnd_obj = d4d();
         obj.assert_dnd_get_returns_set_properties(dnd_obj);
     end
+
     function assert_dnd_get_returns_set_properties(obj, dnd_obj)
         class_props = fieldnames(dnd_obj);
 
@@ -155,6 +169,7 @@ methods
         end
     end
 
+    %% Copy
     function test_copy_constructor_clones_d2d_object(obj)
         dnd_obj = d2d(obj.test_dnd_2d_fullpath);
         dnd_copy = d2d(dnd_obj);
@@ -189,6 +204,7 @@ methods
         assertFalse(equal_to_tol(dnd_copy, dnd_obj));
     end
 
+    %% Filename
     function test_filename_constructor_returns_populated_class(obj)
         d2d_obj = d2d(obj.test_dnd_2d_fullpath);
 
@@ -204,6 +220,7 @@ methods
         assertEqual(d2d_obj.u_to_rlu, expected_u_to_rlu, 'tol', 1e-5);
     end
 
+    %% SQW and dimensions checks
     function test_d2d_sqw_constuctor_raises_error_from_1d_sqw_object(obj)
         sqw_obj = sqw(obj.test_sqw_1d_fullpath);
         f = @() d2d(sqw_obj);
