@@ -243,6 +243,7 @@ methods
     pix_out = do_unary_op(obj, unary_op);
     [ok, mess] = equal_to_tol(obj, other_pix, varargin);
     pix_out = get_data(obj, fields, abs_pix_indices);
+    pix_out = get_pix_in_ranges(obj, abs_indices_starts, abs_indices_ends);
     pix_out = get_pixels(obj, abs_pix_indices);
     pix_out = mask(obj, mask_array, npix);
     pix_out = noisify(obj, varargin);
