@@ -1,14 +1,26 @@
 classdef test_dnd_constructor < TestCase
 
-properties
-    dnd_file_2d_name = 'dnd_2d.sqw';
-    sqw_file_1d_name = 'sqw_1d_1.sqw';
-    sqw_file_2d_name = 'sqw_2d_1.sqw';
-    test_files_path = '../test_sqw_file/';
+properties (Constant)
+    DND_FILE_2D_NAME = 'dnd_2d.sqw';
+    SQW_FILE_1D_NAME = 'sqw_1d_1.sqw';
+    SQW_FILE_2D_NAME = 'sqw_2d_1.sqw';
+    SQW_FILE_4D_NAME = 'sqw_4d.sqw';
 
+    TEST_FILES_PATH = '../test_sqw_file/';
+end
+
+properties
     test_dnd_2d_fullpath = '';
     test_sqw_1d_fullpath = '';
     test_sqw_2d_fullpath = '';
+    test_sqw_4d_fullpath = '';
+end
+
+methods(Static)
+   function fullpath = build_full_path(file_relative_path, filename)
+        filepath = java.io.File(pwd(), fullfile(file_relative_path, filename));
+        fullpath = char(filepath.getCanonicalPath());
+   end
 end
 
 methods
@@ -16,14 +28,11 @@ methods
     function obj = test_dnd_constructor(~)
         obj = obj@TestCase('test_dnd_constructor');
 
-        test_sqw_1d_file = java.io.File(pwd(), fullfile(obj.test_files_path, obj.sqw_file_1d_name));
-        obj.test_sqw_1d_fullpath = char(test_sqw_1d_file.getCanonicalPath());
+        obj.test_sqw_1d_fullpath = obj.build_full_path(obj.TEST_FILES_PATH, obj.SQW_FILE_1D_NAME);
+        obj.test_sqw_2d_fullpath = obj.build_full_path(obj.TEST_FILES_PATH, obj.SQW_FILE_2D_NAME);
+        obj.test_sqw_4d_fullpath = obj.build_full_path(obj.TEST_FILES_PATH, obj.SQW_FILE_4D_NAME);
 
-        test_sqw_2d_file = java.io.File(pwd(), fullfile(obj.test_files_path, obj.sqw_file_2d_name));
-        obj.test_sqw_2d_fullpath = char(test_sqw_2d_file.getCanonicalPath());
-
-        test_dnd_2d_file = java.io.File(pwd(), fullfile(obj.test_files_path, obj.dnd_file_2d_name));
-        obj.test_dnd_2d_fullpath = char(test_dnd_2d_file.getCanonicalPath());
+        obj.test_dnd_2d_fullpath = obj.build_full_path(obj.TEST_FILES_PATH, obj.DND_FILE_2D_NAME);
     end
 
     function test_dnd_classes_follow_expected_class_heirarchy(obj)
@@ -74,13 +83,34 @@ methods
         assertEqualToTol(dnd_obj.e, 0, 1e-6);
     end
 
+
+    function test_d0d_contains_expected_properties(obj)
+        dnd_obj = d0d();
+        obj.assert_dnd_contains_expected_properties(dnd_obj);
+    end
+    function test_d1d_contains_expected_properties(obj)
+        dnd_obj = d1d();
+        obj.assert_dnd_contains_expected_properties(dnd_obj);
+    end
     function test_d2d_contains_expected_properties(obj)
+        dnd_obj = d2d();
+        obj.assert_dnd_contains_expected_properties(dnd_obj);
+    end
+    function test_d3d_contains_expected_properties(obj)
+        dnd_obj = d3d();
+        obj.assert_dnd_contains_expected_properties(dnd_obj);
+    end
+    function test_d4d_contains_expected_properties(obj)
+        dnd_obj = d4d();
+        obj.assert_dnd_contains_expected_properties(dnd_obj);
+    end
+
+    function assert_dnd_contains_expected_properties(obj, dnd_obj)
         expected_props = { ...
             'filename', 'filepath', 'title', 'alatt', 'angdeg', ...
             'uoffset', 'u_to_rlu', 'ulen', 'ulabel', 'iax', ...
              'iint', 'pax', 'p', 'dax', 's', 'e', 'npix'};
 
-        dnd_obj = d2d();
         actual_props = fieldnames(dnd_obj);
 
         assertEqual(numel(actual_props), numel(expected_props));
@@ -91,8 +121,27 @@ methods
         end
     end
 
+    function test_d0d_get_returns_set_properties(obj)
+        dnd_obj = d0d();
+        obj.assert_dnd_get_returns_set_properties(dnd_obj);
+    end
+    function test_d1d_get_returns_set_properties(obj)
+        dnd_obj = d1d();
+        obj.assert_dnd_get_returns_set_properties(dnd_obj);
+    end
     function test_d2d_get_returns_set_properties(obj)
         dnd_obj = d2d();
+        obj.assert_dnd_get_returns_set_properties(dnd_obj);
+    end
+    function test_d3d_get_returns_set_properties(obj)
+        dnd_obj = d3d();
+        obj.assert_dnd_get_returns_set_properties(dnd_obj);
+    end
+    function test_d4d_get_returns_set_properties(obj)
+        dnd_obj = d4d();
+        obj.assert_dnd_get_returns_set_properties(dnd_obj);
+    end
+    function assert_dnd_get_returns_set_properties(obj, dnd_obj)
         class_props = fieldnames(dnd_obj);
 
         % properties are mapped to an internal data structure; verify the getters and
@@ -122,7 +171,7 @@ methods
         assertEqualToTol(dnd_copy, dnd_obj);
     end
 
-    function test_copy_constructor_returns_distinct_object(obj)
+    function assert_constructor_returns_distinct_object(obj)
         dnd_obj = d2d(obj.test_dnd_2d_fullpath);
         dnd_copy = d2d(dnd_obj);
 
@@ -166,20 +215,29 @@ methods
         sqw_obj = sqw(obj.test_sqw_1d_fullpath);
         d1d_obj = d1d(sqw_obj);
 
-        assertEqual(sqw_obj.data.s, d1d_obj.s);
-        assertEqual(sqw_obj.data.e, d1d_obj.e);
-        assertEqual(sqw_obj.data.p, d1d_obj.p);
-        assertEqual(sqw_obj.data.ulabel, d1d_obj.ulabel);
+        obj.assert_dnd_sqw_constructor_creates_dnd_from_sqw(sqw_obj, d1d_obj);
     end
 
     function test_d2d_sqw_constuctor_creates_d2d_from_2d_sqw_object(obj)
         sqw_obj = sqw(obj.test_sqw_2d_fullpath);
         d2d_obj = d2d(sqw_obj);
 
-        assertEqual(sqw_obj.data.s, d2d_obj.s);
-        assertEqual(sqw_obj.data.e, d2d_obj.e);
-        assertEqual(sqw_obj.data.p, d2d_obj.p);
-        assertEqual(sqw_obj.data.ulabel, d2d_obj.ulabel);
+        obj.assert_dnd_sqw_constructor_creates_dnd_from_sqw(sqw_obj, d2d_obj);
+    end
+
+    function test_d4d_sqw_constuctor_creates_d4d_from_4d_sqw_object(obj)
+        sqw_obj = sqw(obj.test_sqw_4d_fullpath);
+        d4d_obj = d4d(sqw_obj);
+
+        obj.assert_dnd_sqw_constructor_creates_dnd_from_sqw(sqw_obj, d4d_obj);
+    end
+
+    function assert_dnd_sqw_constructor_creates_dnd_from_sqw(obj, sqw_obj, dnd_obj)
+        assertEqual(sqw_obj.data.s, dnd_obj.s);
+        assertEqual(sqw_obj.data.e, dnd_obj.e);
+        assertEqual(sqw_obj.data.p, dnd_obj.p);
+        assertEqual(sqw_obj.data.npix, dnd_obj.npix)
+        assertEqual(sqw_obj.data.ulabel, dnd_obj.ulabel);
     end
 
 end
