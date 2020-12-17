@@ -1,8 +1,11 @@
-function wout = cut_single(w, proj, pbin, opt, log_level, outfile)
+function wout = cut_single(w, proj, pbin, keep_pix, outfile)
 %%CUT_SINGLE
 %
 
+% Add check that we can write to output file at beginning of algorithm
+
 DND_CONSTRUCTORS = {@d0d, @d1d, @d2d, @d3d, @d4d};
+log_level = get(hor_config, 'log_level');
 
 wout = copy(w, 'exclude_pix', true);
 
@@ -96,7 +99,7 @@ for iter = 1:max_num_iters
             e, ...
             npix, ...
             urange_step_pix, ...
-            opt.keep_pix, ...
+            keep_pix, ...
             candidate_pix, ...
             proj, ...
             proj.target_pax ...
@@ -108,14 +111,14 @@ for iter = 1:max_num_iters
 
     %% Continue: cut_data_from_array ----------------------------------------------
 
-    if opt.keep_pix
+    if keep_pix
         pix_retained{iter} = candidate_pix.get_pixels(ok);
         pix_ix_retained{iter} = ix;
     end
 
 end  % loop over pixel blocks
 
-if opt.keep_pix
+if keep_pix
     pix_out = sort_pix(pix_retained, pix_ix_retained, npix);
 end
 
@@ -165,7 +168,7 @@ no_pix = (npix == 0);  % true where no pixels contribute to given bin
 data_out.s(no_pix) = 0;
 data_out.e(no_pix) = 0;
 
-if opt.keep_pix
+if keep_pix
     data_out.urange = urange_pix;
     data_out.pix = pix_out;
 
@@ -177,14 +180,14 @@ end
 
 if exist('outfile', 'var') && ~isempty(outfile)
     if log_level >= 0
-        disp(['Writing cut to output file ', opt.outfile, '...']);
+        disp(['Writing cut to output file ', outfile, '...']);
     end
     try
-        save_sqw(wout, opt.outfile);
+        save_sqw(wout, outfile);
     catch ME
         warning('CUT_SQW:io_error', ...
                 'Error writing to file ''%s''.\n%s: %s', ...
-                opt.outfile, ME.identifier, ME.message);
+                outfile, ME.identifier, ME.message);
     end
 end
 
