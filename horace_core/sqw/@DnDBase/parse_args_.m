@@ -12,22 +12,22 @@ parser.addOptional('input', [], @(x) (isa(x, 'SQWDnDBase') || is_string(x) || is
 parser.KeepUnmatched = true;
 parser.parse(varargin{:});
 
-input = parser.Results.input;
+input_data = parser.Results.input;
 args = struct('dnd_obj', [], 'sqw_obj', [], 'filename', [], 'data_struct', []);
 
-if isa(input, 'SQWDnDBase')
-    if isa(input, class(obj))
-        args.dnd_obj = input;
-    elseif isa(input, 'sqw')
-        args.sqw_obj = input;
+if isa(input_data, 'SQWDnDBase')
+    if isa(input_data, class(obj))
+        args.dnd_obj = input_data;
+    elseif isa(input_data, 'sqw')
+        args.sqw_obj = input_data;
     else
         error([upper(class(obj)), ':' class(obj)], ...
-            [upper(class(obj)) ' cannot be constructed from an instance of this object "' class(input) '"']);
+            [upper(class(obj)) ' cannot be constructed from an instance of this object "' class(input_data) '"']);
     end
-elseif is_string(input)
-    args.filename = input;
-elseif isstruct(input) && ~isempty(input)
-    args.data_struct = input;
+elseif is_string(input_data)
+    args.filename = input_data;
+elseif isstruct(input_data) && ~isempty(input_data)
+    args.data_struct = input_data;
 else
     % create struct holding default instance
     args.data_struct = data_sqw_dnd(obj.NUM_DIMS);
