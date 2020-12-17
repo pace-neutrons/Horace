@@ -79,26 +79,26 @@ methods
         assertEqualToTol(sqw_cut, ref_sqw, 1e-4, 'ignore_str', true);
     end
 
-    function test_you_can_take_a_cut_from_an_array_of_sqw_objects(obj)
-        sqw_obj1 = sqw(obj.sqw_file);
-        sqw_obj2 = sqw(obj.sqw_file);
+    % function test_you_can_take_a_cut_from_an_array_of_sqw_objects(obj)
+        % sqw_obj1 = sqw(obj.sqw_file);
+        % sqw_obj2 = sqw(obj.sqw_file);
 
-        proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
+        % proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
 
-        u_axis_lims = [-0.1, 0.025, 0.1];
-        v_axis_lims = [-0.1, 0.025, 0.1];
-        w_axis_lims = [-0.1, 0.1];
-        en_axis_lims = [105, 1, 114];
+        % u_axis_lims = [-0.1, 0.025, 0.1];
+        % v_axis_lims = [-0.1, 0.025, 0.1];
+        % w_axis_lims = [-0.1, 0.1];
+        % en_axis_lims = [105, 1, 114];
 
-        sqw_cuts = cut([sqw_obj1, sqw_obj2], proj, u_axis_lims, v_axis_lims, ...
-                       w_axis_lims, en_axis_lims);
+        % sqw_cuts = cut([sqw_obj1, sqw_obj2], proj, u_axis_lims, v_axis_lims, ...
+        %                w_axis_lims, en_axis_lims);
 
-        ref_sqw = sqw('test_cut_ref_sqw.sqw');
-        assertEqualToTol(sqw_cuts(1), ref_sqw, 1e-4, 'ignore_str', true);
-        assertEqualToTol(sqw_cuts(2), ref_sqw, 1e-4, 'ignore_str', true);
-    end
+    %     ref_sqw = sqw('test_cut_ref_sqw.sqw');
+    %     assertEqualToTol(sqw_cuts(1), ref_sqw, 1e-4, 'ignore_str', true);
+    %     assertEqualToTol(sqw_cuts(2), ref_sqw, 1e-4, 'ignore_str', true);
+    % end
 
-    function test_you_can_take_a_cut_from_a_larger_sqw_object(obj)
+    function test_you_can_take_a_cut_from_a_larger_sqw_object(~)
         conf = hor_config();
         old_conf = conf.get_data_to_store();
         conf.pixel_page_size = 256e6;
@@ -144,11 +144,9 @@ methods
         assertEqualToTol(sqw_cut, ref_sqw, 1e-5, 'ignore_str', true);
     end
 
-    function test_you_can_take_an_array_of_cuts_with_nopix_argument(obj)
-        conf = hor_config();
-        old_conf = conf.get_data_to_store();
-        conf.pixel_page_size = 5e5;
-        cleanup = onCleanup(@() set(hor_config, old_conf));
+    function test_SQW_error_raised_taking_cut_of_array_of_sqw(obj)
+        sqw_obj1 = sqw(obj.sqw_file);
+        sqw_obj2 = sqw(obj.sqw_file);
 
         proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
 
@@ -157,17 +155,9 @@ methods
         w_axis_lims = [-0.1, 0.1];
         en_axis_lims = [105, 1, 114];
 
-        sqw_obj = sqw(obj.sqw_file);
-        dnd_cut = cut(...
-            [sqw_obj, sqw_obj], proj, u_axis_lims, v_axis_lims, w_axis_lims, ...
-            en_axis_lims, '-nopix' ...
-        );
-
-        ref_dnd = d3d('test_cut_ref_sqw.sqw');
-        assertEqual(numel(dnd_cut), 2);
-        assertTrue(isa(dnd_cut, 'd3d'));
-        assertEqualToTol(dnd_cut(1), ref_dnd, 1e-5, 'ignore_str', true);
-        assertEqualToTol(dnd_cut(2), ref_dnd, 1e-5, 'ignore_str', true);
+        f = @() cut([sqw_obj1, sqw_obj2], proj, u_axis_lims, v_axis_lims, ...
+                    w_axis_lims, en_axis_lims);
+        assertExceptionThrown(f, 'SQW:cut');
     end
 
     function test_you_can_take_a_cut_integrating_over_more_than_1_axis(obj)
@@ -193,10 +183,10 @@ methods
 
     function test_you_can_take_a_cut_from_an_sqw_file_to_another_sqw_file(obj)
         proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
-        u_axis_lims = [-0.1, 0.05, 0.1];
+        u_axis_lims = [-0.1, 0.2, 0.1];
         v_axis_lims = [-0.1, 0.1];
         w_axis_lims = [-0.1, 0.1];
-        en_axis_lims = [106, 2, 114];
+        en_axis_lims = [106, 4, 114];
 
         outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
 
@@ -204,29 +194,17 @@ methods
             obj.sqw_file, proj, u_axis_lims, v_axis_lims, w_axis_lims, ...
             en_axis_lims, outfile ...
         );
+        % Write a cleanup_tmp_file function in _test/common that checks the file exists first
+        % also check that the file is not open elsewhere and close it.
+        % Pretty sure I wrote this function somewhere already
         cleanup = onCleanup(@() delete(outfile));
 
         loaded_cut = sqw(outfile);
 
         assertEqualToTol(ret_sqw, loaded_cut, 1e-5, 'ignore_str', true);
 
-        % clear to ensure PixelData objects are not holding on to temp the file
+        % clear to ensure PixelData objects are not holding on to the temp file
         clear loaded_cut ret_sqw
-    end
-
-    function test_CUT_SQW_error_when_cutting_multiple_objects_to_1_file(obj)
-        sqw_objects = [obj.sqw_4d, obj.sqw_4d];
-
-        proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
-
-        u_axis_lims = [-0.1, 0.025, 0.1];
-        v_axis_lims = [-0.1, 0.025, 0.1];
-        w_axis_lims = [-0.1, 0.1];
-        en_axis_lims = [105, 1, 114];
-
-        f = @() cut(sqw_objects, proj, u_axis_lims, v_axis_lims, ....
-                    w_axis_lims, en_axis_lims, 'outfile.sqw');
-        assertExceptionThrown(f, 'CUT_SQW:invalid_arguments');
     end
 
     function test_you_can_take_a_cut_from_an_sqw_object_to_an_sqw_file(~)

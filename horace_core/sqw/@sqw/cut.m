@@ -3,17 +3,18 @@ function wout = cut(obj, varargin)
 %
 
 % Add check that we can write to output file at beginning of algorithm
+if numel(obj) > 1
+    error('SQW:cut', ...
+          ['You cannot take a cut from an array, or cell array, of sqw or ' ...
+           'dnd object.\nConsider cutting the objects in a loop.']);
+end
 
-dnd_type = arrayfun(@(x) x.data.pix.num_pixels == 0, obj);
-ndims_source = arrayfun(@(x) numel(x.data.pax), obj);
+dnd_type = obj.data.pix.num_pixels == 0;
+ndims_source = numel(obj.data.pax);
 
 % If inputs have no pixels, delegate to cut_dnd
-if all(dnd_type)
-    wout = cell(1, numel(obj));
-    for cut_num = 1:numel(obj)
-        wout{cut_num} = cut_dnd_main(obj(cut_num), ndims_source(cut_num), varargin{:});
-    end
-    wout = [wout{:}];
+if dnd_type
+    wout = cut_dnd_main(obj, ndims_source, varargin{:});
     return
 end
 
@@ -27,25 +28,10 @@ if return_cut
     wout = allocate_output(opt.keep_pix, DND_CONSTRUCTORS, pbin);
 end
 
-for cut_num = 1:numel(obj)
-    if return_cut
-        wout(cut_num) = cut_single(obj(cut_num), proj, pbin, opt, log_level);
-    else
-        cut_single(obj(cut_num), proj, pbin, opt, log_level);
-    end
-end
-
-if ~isempty(opt.outfile)
-    if log_level >= 0
-        disp(['Writing cut to output file ', opt.outfile, '...']);
-    end
-    try
-        save_sqw(wout, opt.outfile);
-    catch ME
-        warning('CUT_SQW:io_error', ...
-                'Error writing to file ''%s''.\n%s: %s', ...
-                opt.outfile, ME.identifier, ME.message);
-    end
+if return_cut
+    wout = cut_single(obj, proj, pbin, opt, log_level, opt.outfile);
+else
+    cut_single(obj, proj, pbin, opt, log_level, opt.outfile);
 end
 
 end  % function
@@ -89,14 +75,6 @@ function [proj, pbin, opt] = validate_args(obj, return_cut, ndims_source, vararg
     if numel(args) ~= 0
         error ('CUT_SQW:invalid_arguments', 'Check the number and type of input arguments')
     end
-end
-
-
-function save_sqw(sqw_obj, file_path)
-    loader = sqw_formats_factory.instance().get_pref_access();
-    loader = loader.init(sqw_obj, file_path);
-    loader.put_sqw();
-    loader.delete();
 end
 
 

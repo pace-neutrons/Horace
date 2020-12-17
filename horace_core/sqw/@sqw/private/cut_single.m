@@ -1,4 +1,4 @@
-function wout = cut_single(w, proj, pbin, opt, log_level)
+function wout = cut_single(w, proj, pbin, opt, log_level, outfile)
 %%CUT_SINGLE
 %
 
@@ -175,6 +175,19 @@ else
     wout = dnd_constructor(data_out);
 end
 
+if exist('outfile', 'var') && ~isempty(outfile)
+    if log_level >= 0
+        disp(['Writing cut to output file ', opt.outfile, '...']);
+    end
+    try
+        save_sqw(wout, opt.outfile);
+    catch ME
+        warning('CUT_SQW:io_error', ...
+                'Error writing to file ''%s''.\n%s: %s', ...
+                opt.outfile, ME.identifier, ME.message);
+    end
+end
+
 end  % function
 
 
@@ -229,4 +242,12 @@ function out = get_values_in_ranges(range_starts, range_ends)
     ];
     % Take a cumulative sum
     out = cumsum(z);
+end
+
+
+function save_sqw(sqw_obj, file_path)
+    loader = sqw_formats_factory.instance().get_pref_access();
+    loader = loader.init(sqw_obj, file_path);
+    loader.put_sqw();
+    loader.delete();
 end
