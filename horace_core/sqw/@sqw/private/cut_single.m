@@ -1,4 +1,4 @@
-function wout = cut_single(w, proj, pbin, keep_pix, outfile)
+function wout = cut_single(w, proj, pbin, pin, en, keep_pix, outfile)
 %%CUT_SINGLE
 %
 
@@ -8,11 +8,6 @@ DND_CONSTRUCTORS = {@d0d, @d1d, @d2d, @d3d, @d4d};
 log_level = get(hor_config, 'log_level');
 
 wout = copy(w, 'exclude_pix', true);
-
-% Process projection
-[proj, pbin, ~, pin, en] = update_projection_bins( ...
-    proj, w.header, w.data, pbin ...
-);
 
 % Get bin boundaries, projection and pix bin ranges
 bounds = get_bin_boundaries(proj, w.data.urange, pbin, pin, en);
@@ -33,95 +28,100 @@ e = zeros(nbin_as_size);
 npix = zeros(nbin_as_size);
 urange_step_pix = [Inf(1, 4); -Inf(1, 4)];
 
-% Get the cumulative sum of pixel bin sizes and work out how many
-% iterations we're going to need
-cum_bin_sizes = cumsum(bin_ends - bin_starts);
-block_size = w.data.pix.base_page_size;
-max_num_iters = ceil(cum_bin_sizes(end)/block_size);
+if ~isempty(bin_starts)
 
-% Pre-allocate cell arrays to hold PixelData chunks
-pix_retained = cell(1, max_num_iters);
-pix_ix_retained = cell(1, max_num_iters);
+    % Get the cumulative sum of pixel bin sizes and work out how many
+    % iterations we're going to need
+    cum_bin_sizes = cumsum(bin_ends - bin_starts);
+    block_size = w.data.pix.base_page_size;
+    max_num_iters = ceil(cum_bin_sizes(end)/block_size);
 
-block_end_idx = 0;
-for iter = 1:max_num_iters
-    block_start_idx = block_end_idx + 1;
-    if block_start_idx > numel(cum_bin_sizes)
-        % If start index has reached end of bin sizes, we've reached the end
-        break
-    end
+    % Pre-allocate cell arrays to hold PixelData chunks
+    pix_retained = cell(1, max_num_iters);
+    pix_ix_retained = cell(1, max_num_iters);
 
-    % Work out how many full bins we can load given we only want to load
-    % a block_size number of pixels
-    next_idx_end = find(cum_bin_sizes(block_start_idx:end) > block_size, 1);
-    block_end_idx = block_end_idx + next_idx_end - 1;
-    if isempty(block_end_idx)
-        % There are less than block_size no. of pixels in the remaining bins
-        block_end_idx = numel(cum_bin_sizes);
-    end
+    block_end_idx = 0;
+    for iter = 1:max_num_iters
+        block_start_idx = block_end_idx + 1;
+        if block_start_idx > numel(cum_bin_sizes)
+            % If start index has reached end of bin sizes, we've reached the end
+            break
+        end
 
-    if block_start_idx > block_end_idx
-        % Occurs where bin size greater than block size, just read in the
-        % whole bin
-        block_end_idx = block_start_idx;
-        pix_assigned = bin_ends(block_end_idx) - bin_starts(block_start_idx);
-    else
-        pix_assigned = block_size;
-    end
+        % Work out how many full bins we can load given we only want to load
+        % a block_size number of pixels
+        next_idx_end = find(cum_bin_sizes(block_start_idx:end) > block_size, 1);
+        block_end_idx = block_end_idx + next_idx_end - 1;
+        if isempty(block_end_idx)
+            % There are less than block_size no. of pixels in the remaining bins
+            block_end_idx = numel(cum_bin_sizes);
+        end
 
-    % Subtract the number of pixels we've assigned from our cumulative sum
-    cum_bin_sizes = cum_bin_sizes - pix_assigned;
+        if block_start_idx > block_end_idx
+            % Occurs where bin size greater than block size, just read in the
+            % whole bin
+            block_end_idx = block_start_idx;
+            pix_assigned = bin_ends(block_end_idx) - bin_starts(block_start_idx);
+        else
+            pix_assigned = block_size;
+        end
 
-    pix_indices = get_values_in_ranges( ...
-        bin_starts(block_start_idx:block_end_idx), ...
-        bin_ends(block_start_idx:block_end_idx) ...
-    );
+        % Subtract the number of pixels we've assigned from our cumulative sum
+        cum_bin_sizes = cum_bin_sizes - pix_assigned;
 
-    % Get pixels that will likely contribute to the cut
-    candidate_pix = w.data.pix.get_pixels(pix_indices);
+        pix_indices = get_values_in_ranges( ...
+            bin_starts(block_start_idx:block_end_idx), ...
+            bin_ends(block_start_idx:block_end_idx) ...
+        );
 
-    if log_level >= 0
-        fprintf(['Step %3d of maximum %3d; Have read data for %d pixels -- ' ...
-                    'now processing data...'], iter, max_num_iters, ...
-                candidate_pix.num_pixels);
-    end
+        % Get pixels that will likely contribute to the cut
+        candidate_pix = w.data.pix.get_pixels(pix_indices);
 
-    [ ...
-        s, ...
-        e, ...
-        npix, ...
-        urange_step_pix, ...
-        del_npix_retain, ...
-        ok, ...
-        ix ...
-    ] = cut_data_from_file_job.accumulate_cut( ...
+        if log_level >= 0
+            fprintf(['Step %3d of maximum %3d; Have read data for %d pixels -- ' ...
+                        'now processing data...'], iter, max_num_iters, ...
+                    candidate_pix.num_pixels);
+        end
+
+        [ ...
             s, ...
             e, ...
             npix, ...
             urange_step_pix, ...
-            keep_pix, ...
-            candidate_pix, ...
-            proj, ...
-            proj.target_pax ...
-    );
+            del_npix_retain, ...
+            ok, ...
+            ix ...
+        ] = cut_data_from_file_job.accumulate_cut( ...
+                s, ...
+                e, ...
+                npix, ...
+                urange_step_pix, ...
+                keep_pix, ...
+                candidate_pix, ...
+                proj, ...
+                proj.target_pax ...
+        );
 
-    if log_level >= 0
-        fprintf(' ----->  retained  %d pixels\n', del_npix_retain);
-    end
+        if log_level >= 0
+            fprintf(' ----->  retained  %d pixels\n', del_npix_retain);
+        end
 
-    %% Continue: cut_data_from_array ----------------------------------------------
+        %% Continue: cut_data_from_array ----------------------------------------------
+
+        if keep_pix
+            pix_retained{iter} = candidate_pix.get_pixels(ok);
+            pix_ix_retained{iter} = ix;
+        end
+
+    end  % loop over pixel blocks
 
     if keep_pix
-        pix_retained{iter} = candidate_pix.get_pixels(ok);
-        pix_ix_retained{iter} = ix;
+        pix_out = sort_pix(pix_retained, pix_ix_retained, npix);
     end
+else
+    pix_out = PixelData();
 
-end  % loop over pixel blocks
-
-if keep_pix
-    pix_out = sort_pix(pix_retained, pix_ix_retained, npix);
 end
-
 %% End: cut_data_from_array ---------------------------------------------------
 
 
@@ -195,14 +195,6 @@ end  % function
 
 
 % -----------------------------------------------------------------------------
-function [proj, pbin, num_dims, pin, en] = update_projection_bins( ...
-        proj, sqw_header, data, pbin)
-    header_av = header_average(sqw_header);
-    [proj, pbin, num_dims, pin, en] = proj.update_pbins( ...
-            header_av, data, pbin);
-end
-
-
 function bounds = get_bin_boundaries(proj, urange, pbin, pin, en)
     [iax, iint, pax, p, urange] = proj.calc_ubins(urange, pbin, pin, en);
     bounds.integration_axis_idx = iax;

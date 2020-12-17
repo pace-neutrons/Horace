@@ -79,25 +79,6 @@ methods
         assertEqualToTol(sqw_cut, ref_sqw, 1e-4, 'ignore_str', true);
     end
 
-    % function test_you_can_take_a_cut_from_an_array_of_sqw_objects(obj)
-        % sqw_obj1 = sqw(obj.sqw_file);
-        % sqw_obj2 = sqw(obj.sqw_file);
-
-        % proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
-
-        % u_axis_lims = [-0.1, 0.025, 0.1];
-        % v_axis_lims = [-0.1, 0.025, 0.1];
-        % w_axis_lims = [-0.1, 0.1];
-        % en_axis_lims = [105, 1, 114];
-
-        % sqw_cuts = cut([sqw_obj1, sqw_obj2], proj, u_axis_lims, v_axis_lims, ...
-        %                w_axis_lims, en_axis_lims);
-
-    %     ref_sqw = sqw('test_cut_ref_sqw.sqw');
-    %     assertEqualToTol(sqw_cuts(1), ref_sqw, 1e-4, 'ignore_str', true);
-    %     assertEqualToTol(sqw_cuts(2), ref_sqw, 1e-4, 'ignore_str', true);
-    % end
-
     function test_you_can_take_a_cut_from_a_larger_sqw_object(~)
         conf = hor_config();
         old_conf = conf.get_data_to_store();
@@ -219,10 +200,59 @@ methods
         en_axis_lims = [105, 1, 114];
 
         res = cut(dnd_obj, u_axis_lims, v_axis_lims, w_axis_lims, en_axis_lims);
+        assertTrue(isa(res, 'd3d'));
         assertEqual(size(res.s), [9, 9, 10]);
     end
 
     function test_you_can_take_a_cut_from_a_dnd_object_to_an_sqw_file(~)
+    end
+
+    function test_you_can_take_multiple_cuts_on_proj_axes(obj)
+        proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
+
+        u_axis_lims = [-0.1, 0.025, 0.1];
+        v_axis_lims = [-0.1, 0.025, 0.1];
+        w_axis_lims = [-0.1, 0.1];
+        en_axis_lims = [106, 4, 114, 4];
+
+        sqw_obj = sqw(obj.sqw_file);
+        res = cut(...
+            sqw_obj, proj, u_axis_lims, v_axis_lims, w_axis_lims, ...
+            en_axis_lims ...
+        );
+
+        assertTrue(isa(res, 'sqw'));
+        assertEqual(size(res), [3, 1]);
+        for i = 1:numel(res)
+            assertEqual(size(res(i).data.s), [9, 9]);
+        end
+    end
+
+    function test_you_can_take_multiple_cuts_on_proj_axes_with_nopix(obj)
+        proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
+
+        u_axis_lims = [-0.1, 0.025, 0.1];
+        v_axis_lims = [-0.1, 0.025, 0.1];
+        w_axis_lims = [-0.1, 0.1];
+        en_axis_lims = [106, 4, 114, 4];
+
+        sqw_obj = sqw(obj.sqw_file);
+        res = cut(...
+            sqw_obj, proj, u_axis_lims, v_axis_lims, w_axis_lims, ...
+            en_axis_lims, '-nopix' ...
+        );
+
+        assertTrue(isa(res, 'd2d'));
+        assertEqual(size(res), [3, 1]);
+        for i = 1:numel(res)
+            assertEqual(size(res(i).s), [9, 9]);
+        end
+        % First two cuts are in range of data, final cut is out of range so
+        % should have no pixel contributions
+        assertFalse(all(res(1).s(:) == 0));
+        assertFalse(all(res(2).s(:) == 0));
+        assertEqual(res(3).s, zeros(9, 9));
+        assertEqual(res(3).e, zeros(9, 9));
     end
 
 end
