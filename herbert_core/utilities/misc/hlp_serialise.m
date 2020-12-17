@@ -88,7 +88,7 @@ function m = serialise_sparse_data(v, type)
     dims = size(v);
     nElem = nnz(v);
 
-    m = [uint8(64 + type.tag); typecast(uint32(dims), 'uint8').'; typecast(uint32(nElem), 'uint8').'; typecast(i(:).', 'uint8').'; typecast(j(:).', 'uint8').'; typecast(data(:).', 'uint8').'];
+    m = [uint8(64 + type.tag); typecast(uint32(dims), 'uint8').'; typecast(uint32(nElem), 'uint8').'; typecast(uint64(i(:)-1).', 'uint8').'; typecast(uint64(j(:)-1).', 'uint8').'; typecast(data(:).', 'uint8').'];
 end
 
 

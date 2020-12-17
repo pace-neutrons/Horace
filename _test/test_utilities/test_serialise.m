@@ -62,10 +62,10 @@ classdef test_serialise< TestCase
             inst3rec = hlp_deserialise(bytes);
             assertEqual(inst3,inst3rec );
 
-            %------------------------------------------------------------------
         end
 
 
+        %------------------------------------------------------------------
         function test_ser_datamessage(this)
             my_struc = struct('clc',true(1,3),'a',1,'ba',single(2),'ce',[1,2,3],...
                               'dee',struct('a',10),'ei',int32([9;8;7]));
@@ -88,6 +88,7 @@ classdef test_serialise< TestCase
             assertEqual(test_obj, test_obj_rec);
         end
 
+        %------------------------------------------------------------------
         function test_ser_datamessage_array(this)
             my_struc = struct('clc',true(1,3),'a',1,'ba',single(2),'ce',[1,2,3],...
                               'dee',struct('a',10),'ei',int32([9;8;7]));
@@ -98,15 +99,24 @@ classdef test_serialise< TestCase
             assertEqual(test_obj, test_obj_rec)
         end
 
+        %------------------------------------------------------------------
+        function test_ser_pixdata(this)
+            test_obj = PixelData();
+
+            ser = hlp_serialise(test_obj);
+            test_obj_rec = hlp_deserialise(ser);
+            assertEqual(test_obj, test_obj_rec)
+        end
 
         %% Test null
         function test_ser_array_null(this)
             test_obj = [];
             ser =  hlp_serialise(test_obj);
+            cpp_ser =  hlp_serialise(test_obj);
             test_obj_rec = hlp_deserialise(ser);
+
             assertEqual(test_obj, test_obj_rec)
         end
-
 
         %% Test Logicals
         %------------------------------------------------------------------
