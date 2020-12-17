@@ -69,13 +69,11 @@ if ~isempty(bin_starts)
         % Subtract the number of pixels we've assigned from our cumulative sum
         cum_bin_sizes = cum_bin_sizes - pix_assigned;
 
-        pix_indices = get_values_in_ranges( ...
+        % Get pixels that will likely contribute to the cut
+        candidate_pix = w.data.pix.get_pix_in_ranges( ...
             bin_starts(block_start_idx:block_end_idx), ...
             bin_ends(block_start_idx:block_end_idx) ...
         );
-
-        % Get pixels that will likely contribute to the cut
-        candidate_pix = w.data.pix.get_pixels(pix_indices);
 
         if log_level >= 0
             fprintf(['Step %3d of maximum %3d; Have read data for %d pixels -- ' ...
@@ -218,25 +216,6 @@ function nbin_as_size = get_nbin_as_size(nbin)
     else
         nbin_as_size = nbin;
     end
-end
-
-function out = get_values_in_ranges(range_starts, range_ends)
-    % Get an array containing the values between the given ranges
-    % e.g.
-    %   >> range_starts = [1, 15, 12]
-    %   >> range_ends = [4, 17, 14]
-    %   >> get_values_in_range(range_starts, range_ends)
-    %       ans = [1, 2, 3, 4, 15, 16, 17, 12, 13, 14]
-
-    % Find the indexes of the boundaries of each range
-    range_bounds_idxs = cumsum([1; range_ends(:) - range_starts(:) + 1]);
-    z = ones(range_bounds_idxs(end) - 1, 1);
-    % Insert size of the difference between boundaries in each boundary index
-    z(range_bounds_idxs(1:end - 1)) = [ ...
-        range_starts(1); range_starts(2:end) - range_ends(1:end - 1) ...
-    ];
-    % Take a cumulative sum
-    out = cumsum(z);
 end
 
 
