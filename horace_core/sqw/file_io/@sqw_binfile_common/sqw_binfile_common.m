@@ -153,6 +153,9 @@ classdef sqw_binfile_common < sqw_file_interface
             for i=1:numel(flds)
                 if isfield(obj_structure_from_saveobj,flds{i})
                     obj.(flds{i}) = obj_structure_from_saveobj.(flds{i});
+                else
+                    warning('sqw_binfile_common field %s is not in the structure, restored from the file',...
+                        flds{i});
                 end
             end
             if isempty(obj.sqw_serializer_) && ~ischar(obj.num_dim)

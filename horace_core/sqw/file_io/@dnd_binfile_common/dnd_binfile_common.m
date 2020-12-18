@@ -234,6 +234,9 @@ classdef dnd_binfile_common < dnd_file_interface
             for i=1:numel(flds)
                 if isfield(obj_structure_from_saveobj,flds{i})
                     obj.(flds{i}) = obj_structure_from_saveobj.(flds{i});
+                else
+                    warning('dnd_binfile_common field %s is not in the structure, restored from the file',...
+                        flds{i});
                 end
             end
             if ~isempty(obj.file_closer_) && obj.file_id_ > 0

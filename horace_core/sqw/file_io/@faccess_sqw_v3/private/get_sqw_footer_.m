@@ -2,7 +2,7 @@ function  obj= get_sqw_footer_(obj)
 % Read sqw object v3 structure to initialize sqw-v3 file reader
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
+%
 %
 %
 obj = get_sqw_file_footer(obj);
@@ -70,6 +70,11 @@ test_error(obj.file_id_,'Unable to read sqw_v3 file descriptor');
 %
 descr_format = obj.get_si_form();
 fd_struct = obj.sqw_serializer_.deserialize_bytes(bytes,descr_format,1);
+% old style urange corresponds now to pix_range
+if isfield(fd_struct,'urange_pos_')
+    fd_struct.pix_range_pos_ = fd_struct.urange_pos_;
+    fd_struct = rmfield(fd_struct,'urange_pos_');
+end
 
 % special and calculated fields
 obj.position_info_pos_ = pos_info_location;
