@@ -28,7 +28,7 @@ classdef const_blocks_map
             {{'detpar_pos_info_','ndet_pos_'},'data_pos_'},...      % detpar
             {{'data_fields_locations_','alatt_pos_'},'s_pos_'},...  % metadata block positions
             {'s_pos_','dnd_eof_pos_'},...                           % data block positions
-            {'pix_range_pos_','eof_pix_pos_'},...                   % pix block position
+            {'pix_pos_','eof_pix_pos_'},...                % pix block position
             {'instrument_head_pos_','instrument_pos_'},... % instrument header | -- these four are not
             {'instrument_pos_','sample_head_pos_'},...     % instrument block  |
             {'sample_head_pos_','sample_pos_'},...         % sample header     | strictly necessary, but provided

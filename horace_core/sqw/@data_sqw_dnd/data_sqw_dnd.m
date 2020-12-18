@@ -230,6 +230,7 @@ classdef data_sqw_dnd
             %
             [ok, type, mess]=check_sqw_data_(obj,type_in);
         end
+        %
         function npix= get.num_pixels(obj)
             if isa(obj.pix,'PixelData')
                 npix = obj.pix.num_pixels;
