@@ -48,6 +48,6 @@ wout.data.npix(~mask_array) = 0;
 % Section the pix array, if sqw type, and update pix_range
 if is_sqw_type(win)
     wout.data.pix = win.data.pix.mask(mask_array, win.data.npix);
-    %TODO: Do we actually need this? is this a suitable algorithm?
+    %TODO: is this a suitable algorithm? 
     wout.data.img_range = recompute_img_range(wout);
 end

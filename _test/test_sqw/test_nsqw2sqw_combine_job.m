@@ -99,6 +99,7 @@ classdef test_nsqw2sqw_combine_job < TestCase
             sqw_data.pax=datahdr{1}.pax;
             sqw_data.p=datahdr{1}.p;
             sqw_data.dax=datahdr{1}.dax;    % take the display axes from first file, for sake of choosing something
+            %TODO: check it -- gen_sqw may use pix_range here
             % store img_range
             sqw_data.img_range=img_range;
             
@@ -109,6 +110,7 @@ classdef test_nsqw2sqw_combine_job < TestCase
             
             run_label = 0:nfiles-1;
             pix_comb = pix_combine_info(infiles,numel(sqw_data.npix),pos_npixstart,pos_pixstart,npixtot,run_label);
+            pix_comb.pix_range = img_range;
             sqw_data.pix = pix_comb;
             [fp,fn,fe] = fileparts(obj.test_targ_file);
             main_header_combined.filename = [fn,fe];
@@ -116,11 +118,10 @@ classdef test_nsqw2sqw_combine_job < TestCase
             
             
             data_sum= struct('main_header',main_header_combined,...
-                'header',[],'detpar',det,'data',sqw_data);
-            
-            
-            
+                'header',[],'detpar',det);
+            data_sum.data = sqw_data;                                    
             data_sum.header = header_combined;
+            
             
             ds = sqw(data_sum);
             wrtr = sqw_formats_factory.instance().get_pref_access('sqw');
