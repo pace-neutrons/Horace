@@ -1,14 +1,14 @@
-classdef d2d < DnDBase
-    %D2D Create an 2-dimensional DnD object
+classdef d3d < DnDBase
+    %D3D Create an 2-dimensional DnD object
     %
     % Syntax:
-    %   >> w = d2d()               % Create a default, empty, D2D object
-    %   >> w = d2d(sqw)            % Create a D2D object from a 2-dimensional SQW object
-    %   >> w = d2d(filename)       % Create a D2D object from a file
-    %   >> w = d2d(struct)         % Create from a structure with valid fields (internal use)
+    %   >> w = d3d()               % Create a default, empty, D3D object
+    %   >> w = d3d(sqw)            % Create a D3D object from a 3-dimensional SQW object
+    %   >> w = d3d(filename)       % Create a D3D object from a file
+    %   >> w = d3d(struct)         % Create from a structure with valid fields (internal use)
 
     properties (Constant, Access = protected)
-       NUM_DIMS = 2;
+       NUM_DIMS = 3;
     end
 
     methods(Static)
