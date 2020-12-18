@@ -39,6 +39,11 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         wout = unary_op_manager(obj, operation_handle);
         wout = binary_op_manager_single(w1, w2, binary_op);
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
+
+        args = parse_args_(obj, varargin);
+        obj = init_from_sqw_(obj, sqw_obj);
+        obj = init_from_file_(obj, in_filename);
+        obj = init_from_loader_struct_(obj, data_struct);
     end
 
     methods
@@ -49,6 +54,22 @@ classdef (Abstract)  DnDBase < SQWDnDBase
 
         function obj = DnDBase(varargin)
             obj = obj@SQWDnDBase();
+
+            [args] = obj.parse_args_(varargin{:});
+
+            % i) copy
+            if ~isempty(args.dnd_obj)
+                obj = copy(args.dnd_obj);
+            % ii) struct
+            elseif ~isempty(args.data_struct)
+                obj = obj.init_from_loader_struct_(args.data_struct);
+            % iii) filename
+            elseif ~isempty(args.filename)
+                obj = obj.init_from_file_(args.filename);
+            % iv) from sqw
+            elseif ~isempty(args.sqw_obj)
+                obj = obj.init_from_sqw_(args.sqw_obj);
+            end
         end
 
         %% Public getters/setters expose all wrapped data attributes
