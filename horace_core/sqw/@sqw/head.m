@@ -97,10 +97,10 @@ else
         for i=1:nw
             if is_sqw_type(w.data(i)) && hfull
                 h=w.data(i);
-                h.data=rmfield(h.data.to_struct(),{'s','e','npix','pix'});
+                h.data=rmfield(h.data.struct(),{'s','e','npix','pix'});
             else
                 %w.data(i).
-                h=rmfield(w.data(i).data.to_struct(),{'s','e','npix'});
+                h=rmfield(w.data(i).data.struct(),{'s','e','npix'});
                 if is_sqw_type(w.data(i))
                     h=rmfield(h,'pix');
                 else

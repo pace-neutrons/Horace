@@ -125,6 +125,17 @@ check_error_report_fail_(obj,...
 data_form = obj.get_dnd_form('-header');
 data_str = obj.sqw_serializer_.deserialize_bytes(bytes,data_form,1);
 clear bytes;
+% Compartibility with new(01/12/2020) data_sqw_dnd constructor
+if isempty(data_str.iax)
+    data_str.iax = zeros(1,0);
+end
+if isempty(data_str.iint)
+    data_str.iint = zeros(2,0);
+end
+if isempty(data_str.p)
+    data_str.p = cell(1,0);
+end
+% End compartibility block
 
 if ~verbatim
     data_str.filepath = obj.filepath;
