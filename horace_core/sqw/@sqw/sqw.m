@@ -1,4 +1,4 @@
-classdef (InferiorClasses = {?d2d}) sqw < SQWDnDBase
+classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
     %SQW Create an sqw object
     %
     % Syntax:
