@@ -303,6 +303,7 @@ classdef sqw_binfile_common < sqw_file_interface
             %
             data_form = get_data_form_(obj,varargin{:});
         end
+        %
         function struc = saveobj(obj)
             % method used to convert object into structure
             % for saving it to disc.
@@ -316,8 +317,7 @@ classdef sqw_binfile_common < sqw_file_interface
             % % construction. Should not be stored
             % caches = {'sqw_serializer_','file_closer_','sqw_holder_'};
             % struc = rmfield(struc,caches);
-        end
-        
+        end        
     end
     %
     methods(Static,Hidden=true)
