@@ -26,7 +26,7 @@ field_indices = cell2mat(obj.FIELD_INDEX_MAP_.values(pix_fields));
 
 if obj.is_file_backed_()
 
-    base_pg_size = obj.max_page_size_;
+    base_pg_size = obj.base_page_size;
     if abs_pix_indices == -1
         first_required_page = 1;
         data_out = zeros(numel(pix_fields), obj.num_pixels);
@@ -70,7 +70,8 @@ function data_out = assign_page_values(...
     if abs_pix_indices == NO_INPUT_INDICES
         data_out(:, start_idx:end_idx) = obj.data(field_indices, 1:end);
     else
-        [pg_idxs, global_idxs] = get_idxs_in_current_page_(obj, abs_pix_indices);
+        [pg_idxs, global_idxs] = ...
+            get_pg_idx_from_absolute_(obj, abs_pix_indices, obj.page_number_);
         data_out(:, global_idxs) = obj.data(field_indices, pg_idxs);
     end
 end

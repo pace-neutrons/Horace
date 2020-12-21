@@ -96,7 +96,7 @@ classdef test_main_mex < TestCase
                 proj, [1,2,3,4]);
 
             % verify results against each other.
-            assertElementsAlmostEqual(urange_step_pix_m,urange_step_pix_c);
+            assertElementsAlmostEqual(urange_step_pix_m,urange_step_pix_c,'relative',1.e-7);
             assertElementsAlmostEqual(s_m,s_c);
             assertElementsAlmostEqual(e_m,e_c);
             assertElementsAlmostEqual(npix_m,npix_c,'absolute',1.e-12);
