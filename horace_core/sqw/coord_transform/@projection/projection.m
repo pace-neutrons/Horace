@@ -104,19 +104,19 @@ classdef projection<aProjection
         %------------------------------------------------------------------
         % Particular implementation of aProjection abstract interface
         %------------------------------------------------------------------
-        function urange_out = find_max_data_range(this,urange_in)
+        function img_range_out = find_max_data_range(this,img_range_in)
             % find the whole range of input data which may contribute
             % into the result.
-            % urange_in -- the range of the data in the initial coordinate
+            % img_range_in -- the range of the data in the initial coordinate
             % system.
-            urange_out  = find_ranges_(this,urange_in);
+            img_range_out  = find_ranges_(this,img_range_in);
         end
         
-        function [istart,iend,irange,inside,outside] =get_irange_proj(this,pix_range,varargin)
+        function [istart,iend,irange,inside,outside] =get_irange_proj(this,img_range,varargin)
             % Get ranges of bins that partially or wholly lie inside an n-dimensional rectangle,
             % where the first three dimensions can be rotated and translated w.r.t. the
             % cuboid that is split into bins.
-            [istart,iend,irange,inside,outside] = get_irange_rot(this,pix_range,varargin{:});
+            [istart,iend,irange,inside,outside] = get_irange_rot(this,img_range,varargin{:});
         end
         %
         function [indx,ok] = get_contributing_pix_ind(this,v)

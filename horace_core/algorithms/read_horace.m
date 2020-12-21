@@ -30,11 +30,6 @@ function varargout = read_horace(files,varargin)
 % Perform operations
 % ------------------
 % Check number of arguments
-if ~exist('files','var')
-    error('SQW_FILE_IO:invalid_argument',...
-    'read_horace neads files list to be a first input argument')
-end
-
 n_outputs = nargout;
 if n_outputs>nargin
     error('SQW_FILE_IO:invalid_argument',...
@@ -52,26 +47,7 @@ if get_dnd && force_sqw
 end
 
 %
-loaders_provided = false;
-if ~iscell(files) % may be in strange way ivoked from a class. TODO: OOP violation!
-    if is_sqw_input_struct(files)
-        loaders_provided = true;
-    else
-        files = {files};
-    end
-end
-%
-if ~loaders_provided
-    all_fnames = cellfun(@ischar,files,'UniformOutput',true);
-    if ~any(all_fnames)
-        error('SQW_FILE_IO:invalid_argument',...
-            'read_horace: not all input arguments represent filenames')
-    end
-    %-------------------------------------------------------------------------
-    loaders = sqw_formats_factory.instance.get_loader(files);
-else
-    loaders = files.loaders_list;
-end
+loaders = get_loaders(files);
 %
 n_inputs = numel(loaders);
 if force_sqw
@@ -103,19 +79,4 @@ for i=1:n_files2read
 end
 
 varargout = pack_io_outputs(trez,n_inputs,n_outputs);
-
-function is = is_sqw_input_struct(obj)
-% check if object appears to be legacy input Horace structure geneated by
-% sqw object accessors
-%
-if ~isstruct(obj)
-    is = false;
-    return;
-end
-fnames = fieldnames(obj);
-if all(ismember({'source_is_file','data','sqw_type','ndims','loaders_list'},fnames))
-    is = true;
-else
-    is = false;
-end
 

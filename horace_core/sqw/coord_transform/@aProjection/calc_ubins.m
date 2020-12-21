@@ -10,7 +10,7 @@ function [iax, iint, pax, p, img_range_out] = calc_ubins (proj,img_range_in,pbin
 %
 % Input:
 % ------
-%   img_range_in   [2x4] array of range of data along the input projection axes (elements must all be finite)
+%   pix_range_in   [2x4] array of range of pixels along the initial projection axes (elements must all be finite)
 %
 %   proj        The class which defines the projection
 %
@@ -99,7 +99,7 @@ pax = zeros(1,4);
 iax = zeros(1,4);
 pbin_from_pin = false(1,4); % will contain true if bin boundaries / integration ranges are to be taken from defaults
 vstep = NaN(4,1); % will contain requested step sizes if plot axis (NaN otherwise)
-vlims = zeros(4,2); % will contain requested limits of bin centres / integration range
+cut_lmts_req = zeros(4,2); % will contain requested limits of bin centres / integration range
 for idim=1:4
     if n==3     % case when energy axis not given
         pbin{4}=[-inf,0,inf];
@@ -110,28 +110,28 @@ for idim=1:4
         if length(pin{idim})==2
             niax = niax + 1;
             iax(niax) = idim;
-            vlims(idim,:) = pin{idim};
+            cut_lmts_req(idim,:) = pin{idim};
         elseif length(pin{idim})>2
             npax = npax + 1;
             pax(npax) = idim;
             vstep(idim) = pin{idim}(2)-pin{idim}(1);    % not used as of 13/5/09, but put here for completeness
-            vlims(idim,:) = [pin{idim}(1),pin{idim}(end)];
+            cut_lmts_req(idim,:) = [pin{idim}(1),pin{idim}(end)];
         end
     elseif length(pbin{idim})==2
         % the case of an integration axis
         niax = niax + 1;
         iax(niax) = idim;
-        vlims(idim,:) = pbin{idim};
+        cut_lmts_req(idim,:) = pbin{idim};
     else
         % must be a plot axis
         npax = npax + 1;
         pax(npax) = idim;
         if length(pbin{idim})==1
             vstep(idim) = pbin{idim}(1);
-            vlims(idim,:) = [-inf,inf];
+            cut_lmts_req(idim,:) = [-inf,inf];
         elseif length(pbin{idim})==3
             vstep(idim) = pbin{idim}(2);
-            vlims(idim,:) = [pbin{idim}(1),pbin{idim}(3)];
+            cut_lmts_req(idim,:) = [pbin{idim}(1),pbin{idim}(3)];
         end
         % Check validity of step sizes
         if idim==4 && vstep(idim)<0 % recall that step of zero is valid for energy axis
@@ -144,7 +144,7 @@ for idim=1:4
         end
     end
     % check validity of data ranges
-    if vlims(idim,2)<vlims(idim,1)
+    if cut_lmts_req(idim,2)<cut_lmts_req(idim,1)
         error('aPROJECTION:invalid_arguments',...
             'Check upper limit greater or equal to the lower limit - check axis N: %d',idim);
     end
@@ -174,7 +174,7 @@ for i=1:npax
         p{i}=pin{ipax};
         %pbin_out{ipax} = make_const_bin_boundaries_descr(p{i});
     else
-        pbin_tmp=[vlims(ipax,1),vstep(ipax),vlims(ipax,2)];
+        pbin_tmp=[cut_lmts_req(ipax,1),vstep(ipax),cut_lmts_req(ipax,2)];
         if ipax<4 || (ipax==4 && vstep(ipax)>0)
             % Q axes, and also treat energy axis like other axes if provided with energy bin greater than zero
             p{i}=make_const_bin_boundaries(pbin_tmp,img_range_real(:,ipax));
@@ -202,16 +202,16 @@ end
 % Compute integration ranges.
 for i=1:niax
     iiax = iax(i);
-    iint(1,i)=vlims(iiax,1);
-    iint(2,i)=vlims(iiax,2);
+    iint(1,i)=cut_lmts_req(iiax,1);
+    iint(2,i)=cut_lmts_req(iiax,2);
     % force new binning ranges for integration axis regardless to actual
     % data range
     %img_range_out(1,iiax) =vlims(iiax,1);
     %img_range_out(2,iiax) =vlims(iiax,2);
     % Select the range - union between image range and the requested cut range
     [img_range_out(1,iiax),img_range_out(2,iiax),inf_removed] =...
-        min_max_range(vlims(iiax,1),img_range_real(1,iiax),...
-        vlims(iiax,2),img_range_real(2,iiax));
+        min_max_range(cut_lmts_req(iiax,1),img_range_real(1,iiax),...
+        cut_lmts_req(iiax,2),img_range_real(2,iiax));
     if inf_removed
         iint(1,i)=img_range_out(1,iiax);
         iint(2,i)=img_range_out(2,iiax);

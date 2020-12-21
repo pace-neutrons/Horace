@@ -54,7 +54,8 @@ classdef aProjection
         data_urange_;
         %------------------------------------
         % Transformed coordinates
-        urange_;
+        new_img_range_;
+        %
         usteps_ = [1,1,1,1];
         % data ranges in new coordinate system in units of steps in each
         % direction
@@ -87,7 +88,7 @@ classdef aProjection
             % use later to calculate new transformation.
             this = set_data_transf_(this,data,upix_to_rlu,upix_offset);
         end
-        function this = set_proj_binning(this,new_range,prj_ax_ind,int_ax_ind,prj_ax_bins)
+        function this = set_proj_binning(this,new_img_range,prj_ax_ind,int_ax_ind,prj_ax_bins)
             %   new_range   Array of limits of data that can possibly contribute to the output data structure in the
             %               coordinate frame of the output structure [2x4].
             %   prj_ax_ind  Index of plot axes into the projection axes  [row vector]
@@ -98,7 +99,7 @@ classdef aProjection
             %               i.e. data.p{1}, data.p{2} ... (for as many plot axes as given by length of prj_ax_ind)
             %
             %
-            this = this.set_proj_binning_(new_range,prj_ax_ind,int_ax_ind,prj_ax_bins);
+            this = this.set_proj_binning_(new_img_range,prj_ax_ind,int_ax_ind,prj_ax_bins);
         end
         
         % Create bin boundaries for integration and plot axes from requested limits and step sizes
@@ -156,7 +157,7 @@ classdef aProjection
             % auxiliary variable derived from input data projection axis
             pin=cell(1,4);
             pin(this.data_pax_)=this.data_p_;
-            pin(this.data_iax_)=mat2cell(this.urange_(:,this.data_iax_),2,ones(1,length(this.data_iax_)));
+            pin(this.data_iax_)=mat2cell(this.new_img_range_(:,this.data_iax_),2,ones(1,length(this.data_iax_)));
             nbin_in=zeros(1,4);
             for i=1:4
                 nbin_in(i)=length(pin{i})-1;
