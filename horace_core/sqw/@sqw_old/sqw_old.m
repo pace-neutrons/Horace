@@ -33,14 +33,6 @@ function w = sqw_old (varargin)
 %   lattice Defines crystal lattice: [a,b,c,alpha,beta,gamma]
 %
 %   ndim    Number of dimensions
-%
-% Keyword Arguments:
-% ------------------
-%   pixel_page_size    The maximum amount of memory to allocate to holding
-%                      pixel data. This argument is passed to the PixelData
-%                      constructor's 'mem_alloc' argument.
-%                      The value should have units of bytes.
-%
 
 % Original author: T.G.Perring
 %
@@ -126,10 +118,38 @@ if narg==1 &&( isstruct(args{1}) || isa(args{1},'data_sqw_dnd'))
     end
     return
 
-elseif narg == 1 && is_string(args{1})
-    w = from_file_name(args{1}, dnd_type, class_type);
-elseif narg > 1 && is_string(args{1})
-    w = from_file_name(args{1}, dnd_type, class_type, varargin{2:end});
+elseif narg==1 && ischar(args{1}) && length(size(args{1}))==2 && size(args{1},1)==1
+    % filename: is a single row of characters
+    % ----------------------------------------
+    ldr = sqw_formats_factory.instance().get_loader(args{1});
+    if ~dnd_type    % insist on sqw type
+        if ~strcmpi(ldr.data_type,'a')   % not a valid sqw-type structure
+            error('Data file does not contain valid sqw-type object')
+        end
+
+        w=struct();
+        [w.main_header,w.header,w.detpar,w.data] = ldr.get_sqw('-legacy');
+    else            % insist on dnd type
+        if ~(strcmpi(ldr.data_type,'a')||strcmpi(ldr.data_type,'b+'))   % not a valid sqw or dnd structure
+            error('Data file does not contain valid dnd-type object')
+        end
+
+        w.main_header=make_sqw_main_header;
+        w.header=make_sqw_header;
+        w.detpar=make_sqw_detpar;
+        w.data = ldr.get_data('-nopix');
+        if isa(w.data,'data_sqw_dnd')
+            w.data = clear_sqw_data(w.data);
+        end
+    end
+    [ok,mess,type,w]=check_sqw(w);   % Make check_sqw the ultimate arbiter of the validity of a structure
+    if ok
+        w = class(w,class_type);
+        return
+    else
+        error(mess)
+    end
+
 else
     % All other cases - use as input to a bare constructor
     % ----------------------------------------------------
@@ -148,47 +168,3 @@ else
 
 end
 
-end  % function
-
-
-% -----------------------------------------------------------------------------
-function w = from_file_name(file_name, dnd_type, class_type, varargin)
-    if ~dnd_type
-        parser = inputParser();
-        parser.KeepUnmatched = true;  % ignore unmatched parameters
-        parser.addParameter('pixel_page_size', PixelData.DEFAULT_PAGE_SIZE, ...
-                            @PixelData.validate_mem_alloc);
-        parser.parse(varargin{:});
-        pixel_page_size = parser.Results.pixel_page_size;
-    end
-
-    ldr = sqw_formats_factory.instance().get_loader(file_name);
-    if ~dnd_type    % insist on sqw type
-        if ~strcmpi(ldr.data_type, 'a')   % not a valid sqw-type structure
-            error('SQW:sqw', 'Data file does not contain valid sqw-type object');
-        end
-
-        w=struct();
-        [w.main_header, w.header, w.detpar, w.data] = ...
-                 ldr.get_sqw('-legacy', 'pixel_page_size', pixel_page_size);
-    else  % insist on dnd type
-        if ~(strcmpi(ldr.data_type, 'a') || strcmpi(ldr.data_type, 'b+'))
-            % not a valid sqw or dnd structure
-            error('SQW:sqw', 'Data file does not contain valid dnd-type object');
-        end
-
-        w.main_header = make_sqw_main_header;
-        w.header = make_sqw_header;
-        w.detpar = make_sqw_detpar;
-        w.data = ldr.get_data('-nopix');
-        if isa(w.data, 'data_sqw_dnd')
-            w.data = clear_sqw_data(w.data);
-        end
-    end
-    [ok, mess, ~, w] = check_sqw(w);   % Make check_sqw the ultimate arbiter of the validity of a structure
-    if ok
-        w = class(w, class_type);
-    else
-        error('SQW:sqw', mess);
-    end
-end

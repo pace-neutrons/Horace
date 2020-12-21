@@ -275,53 +275,13 @@ an error will be thrown
 
 In order to create merge commits and to post build statuses to GitHub some
 credentials must be provided within the Jenkins GUI.
-For this, the `pace-builder` GitHub account has been created and given write
+For this, the `pace.builder` GitHub account has been created and given write
 permissions to the Horace and Herbert repository.
-The email for this account is `pace.builder.stfc@gmail.com`.
-
-### Using Jenkins credentials
+The email for this account is `pace.buider.stfc@gmail.co.uk`.
 
 Credentials are saved in the Jenkins PACE area providing an API token linked
 to the account.
-See the
-"[using credentials](https://www.jenkins.io/doc/book/using/using-credentials/)"
-section of the Jenkins documentation.
-
 These credentials can be accessed within the Jenkinsfile using a
 `withCredentials` block,
-this block will prevent the credentials being printed to the Jenkins log.
-
-Do not assume Jenkins logs are private,
-be careful to never publish passwords or API tokens.
-
-#### Credentials in shell commands
-
-Avoid string interpolation of credentials when using `"`.
-Use literal (single-quoted) strings instead, or,
-if you need to use string interpolation for another variable,
-escape the `$` with a backslash when referencing the credential.
-See
-[the Jenkins docs](https://www.jenkins.io/doc/book/pipeline/jenkinsfile/#interpolation-of-sensitive-environment-variables)
-for the explanation why.
-
-```Groovy
-def url = "https://github.com/"
-
-withCredentials([string(credentialsId: 'TOKEN_ID', variable: 'secret')]) {
-
-  /* INSECURE */
-  sh """
-    curl -H "Authorization: token ${secret}" ${url}
-  """
-
-  /* OK */
-  sh '''
-    curl -H "Authorization: token ${secret}" https://github.com/
-  '''
-
-  /* OK */
-  sh """
-    curl -H "Authorization: token \${secret}" ${url}
-  """
-}
-```
+this block will prevent the credentials being printed to the terminal.
+Jenkins logs are not private, be careful to never publish passwords or API tokens.

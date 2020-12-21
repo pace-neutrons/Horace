@@ -33,10 +33,7 @@ Horace and Herbert each have their own deploy pipeline named `Deploy`.
 When triggered, this pipeline takes the following parameters:
 
 - `tag_sha`: The SHA of the Git revision on which to create the release tag
-  (usually the head of the release branch).
-
 - `version_number`: The full version number of the release e.g. `3.4.1`
-
 - `release_job_ids`: The IDs of jobs that contain target release artifacts.
 This is a multiline string parameter whose input should have the form:
 
@@ -93,12 +90,7 @@ Set `HERBERT_BRANCH_NAME` to the relevant Herbert branch/revision.
 
 3. When the pipelines have run and created the release artifacts,
 pass the name and numbers of the release's build jobs to the `Deploy` pipeline.
-You must also specify the Git SHA revision to tag on GitHub,
-this should be the full SHA of the Git revision built in the release pipelines
-(usually the head of the release branch).
-The Git SHA is used to validate that all the packages being pushed to GitHub
-are the same revision and that that revision matches the revision to be
-tagged.
+You must also specify the Git SHA revision to tag on GitHub.
 Ensure the parameter `is_draft` is checked/set to true.
 This will create a draft release on GitHub and upload the build artifacts to it.
 

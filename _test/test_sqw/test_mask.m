@@ -248,10 +248,14 @@ methods (Static)
 
     % -- Helpers --
     function [paged_sqw, masked_sqw] = get_paged_sqw(file_path, mask_array)
+        old_pg_size = get(hor_config, 'pixel_page_size');
+        clean_up = onCleanup(@() set(hor_config, 'pixel_page_size', old_pg_size));
+
         file_info = dir(file_path);
         new_pg_size = file_info.bytes/6;
+        set(hor_config, 'pixel_page_size', new_pg_size);
 
-        paged_sqw = sqw_old(file_path, 'pixel_page_size', new_pg_size);
+        paged_sqw = sqw_old(file_path);
         masked_sqw = mask(paged_sqw, mask_array);
 
         % make sure we're actually paging the pixel data

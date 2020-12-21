@@ -27,7 +27,7 @@ while true
 
     else
 
-        pg_size = obj.base_page_size;
+        pg_size = obj.max_page_size_;
         start_idx = (obj.page_number_ - 1)*pg_size + 1;
         end_idx = min(obj.page_number_*pg_size, obj.num_pixels);
 

@@ -64,7 +64,7 @@ for i=1:ndims1
 end
 
 %Next do the same for the 2nd dataset:
-coords_rlu2=inv(w2.data.u_to_rlu) * w2.data.pix.coordinates;%notice we put this in the co-ord
+coords_rlu2=inv(w1.data.u_to_rlu) * w2.data.pix.coordinates;%notice we put this in the co-ord
 %frame of w1. We are not interested in the co-ord frame of w2, just its
 %pixel info, which is in inverse Angstroms and meV
 rlutrans=[(2*pi./w1.data.alatt)'; 1];
@@ -127,20 +127,16 @@ wout.data.pix=PixelData(pixfull');
 %combined dataset is included. Can do this by looking at the minima and
 %maxima of the corresponding values in the pix array.
 nints=4-ndims1;
-intmin_l = cell(2,nints);
-intmax_l = cell(2,nints);
-intmax   = cell(1,nints);
-intmin   = cell(1,nints);
 if nints>=1
     for i=1:nints
-        intmin_l{1,i}=min(coords_rlu1(w1.data.iax(i),:));
-        intmax_l{1,i}=max(coords_rlu1(w1.data.iax(i),:));
-        intmin_l{2,i}=min(coords_rlu2_new(w2.data.iax(i),:));
-        intmax_l{2,i}=max(coords_rlu2_new(w2.data.iax(i),:));
+        intmin_1{i}=min(coords_rlu1(w1.data.iax(i),:));
+        intmax_1{i}=max(coords_rlu1(w1.data.iax(i),:));
+        intmin_2{i}=min(coords_rlu2_new(w2.data.iax(i),:));
+        intmax_2{i}=max(coords_rlu2_new(w2.data.iax(i),:));
     end
     for i=1:nints
-        intmin{i}=min([intmin_l{1,i} intmin_l{2,i}]);
-        intmax{i}=max([intmax_l{1,i} intmax_l{2,i}]);
+        intmin{i}=min([intmin_1{i} intmin_2{i}]);
+        intmax{i}=max([intmax_1{i} intmax_2{i}]);
     end
 
 

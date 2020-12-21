@@ -328,26 +328,8 @@ classdef test_faccess_sqw_v3< TestCase
             assertEqual(fo.filepath,tmp_dir());
         end
 
-        function test_get_pix_at_indices_returns_pixels_at_given_indices(obj)
-            faccess = faccess_sqw_v3(obj.sample_file);
-            pix_indices = [4:6, 100:104, 7679:7680];
-
-            % we trust .get_pix, which is tested elsewhere, to load in the full
-            % range
-            raw_pix_full = faccess.get_pix(1, faccess.npixels);
-
-            raw_pix = faccess.get_pix_at_indices(pix_indices);
-            expected_pix = raw_pix_full(:, pix_indices);
-
-            assertEqualToTol(raw_pix, expected_pix, 5e-4);
-        end
-
-        function test_get_pix_at_indices_raises_if_reading_pix_out_of_range(obj)
-            faccess = faccess_sqw_v3(obj.sample_file);
-            pix_indices = [4:6, 100:104, 7679:7681];
-            f = @() faccess.get_pix_at_indices(pix_indices);
-            assertExceptionThrown(f, 'SQW_BINFILE_COMMON:get_pix_at_indices');
-        end
 
     end
 end
+
+

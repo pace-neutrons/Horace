@@ -5,7 +5,6 @@ properties
     SIGNAL_IDX = 8;
     VARIANCE_IDX = 9;
 
-    ALL_IN_MEM_PG_SIZE = 1e12;
     FLOAT_TOLERANCE = 4.75e-4;
 
     this_dir = fileparts(mfilename('fullpath'));
@@ -351,7 +350,7 @@ methods
 
     function test_mask_deletes_pixels_when_given_npix_argument_pix_in_mem(obj)
         data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
-        pix = PixelData(data, obj.ALL_IN_MEM_PG_SIZE);
+        pix = PixelData(data);
 
         mask_array = [0, 1, 1, 0, 1, 0];
         npix = [4, 5, 1, 2, 3, 5];
@@ -393,116 +392,6 @@ methods
         end
 
         assertExceptionThrown(@() f(), 'MATLAB:minrhs');
-    end
-
-    function test_PixelData_and_raw_arrays_are_not_equal_to_tol(~)
-        raw_array = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
-        pix = PixelData(raw_array);
-        [ok, ~] = pix.equal_to_tol(raw_array);
-        assertFalse(ok);
-    end
-
-    function test_equal_to_tol_err_msg_contains_argument_classes(~)
-        raw_array = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
-        pix = PixelData(raw_array);
-        [~, mess] = pix.equal_to_tol(raw_array);
-        assertTrue(contains(mess, 'PixelData'));
-        assertTrue(contains(mess, 'double'));
-    end
-
-    function test_equal_to_tol_is_false_for_objects_with_unequal_num_pixels(~)
-        data = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
-        pix1 = PixelData(data);
-        pix2 = PixelData(data(:, 1:9));
-        assertFalse(pix1.equal_to_tol(pix2));
-    end
-
-    function test_equal_to_tol_true_if_PixelData_objects_contain_same_data(~)
-        data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
-        pix1 = PixelData(data);
-        pix2 = PixelData(data);
-        assertTrue(pix1.equal_to_tol(pix2));
-        assertTrue(pix2.equal_to_tol(pix1));
-    end
-
-    function test_equal_to_tol_true_if_pixels_paged_and_contain_same_data(obj)
-        data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
-        npix_in_page = 10;
-        pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
-        pix2 = obj.get_pix_with_fake_faccess(data, npix_in_page);
-        assertTrue(pix1.equal_to_tol(pix2));
-        assertTrue(pix2.equal_to_tol(pix1));
-    end
-
-    function test_equal_to_tol_true_if_pixels_differ_less_than_tolerance(obj)
-        data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
-        npix_in_page = 10;
-        tol = 0.1;
-        pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
-        pix2 = obj.get_pix_with_fake_faccess(data - (tol - 0.01), npix_in_page);
-        assertTrue(pix1.equal_to_tol(pix2, tol));
-        assertTrue(pix2.equal_to_tol(pix1, tol));
-    end
-
-    function test_equal_to_tol_false_if_pix_paged_and_contain_unequal_data(obj)
-        data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
-        data2 = data;
-        data2(11) = 0.9;
-        npix_in_page = 10;
-
-        pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
-        pix2 = obj.get_pix_with_fake_faccess(data2, npix_in_page);
-        assertFalse(pix1.equal_to_tol(pix2));
-        assertFalse(pix2.equal_to_tol(pix1));
-    end
-
-    function test_equal_to_tol_true_if_only_1_arg_paged_but_data_is_equal(obj)
-        data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
-        npix_in_page = 6;
-
-        pix1 = PixelData(data);
-        pix2 = obj.get_pix_with_fake_faccess(data, npix_in_page);
-        assertTrue(pix1.equal_to_tol(pix2));
-        assertTrue(pix2.equal_to_tol(pix1));
-    end
-
-    function test_equal_to_tol_false_if_only_1_arg_paged_and_data_not_equal(obj)
-        data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
-        npix_in_page = 6;
-
-        pix1 = PixelData(data);
-        pix2 = obj.get_pix_with_fake_faccess(data - 1, npix_in_page);
-        assertFalse(pix1.equal_to_tol(pix2));
-        assertFalse(pix2.equal_to_tol(pix1));
-    end
-
-    function test_equal_to_tol_throws_if_paged_pix_but_page_sizes_not_equal(obj)
-        data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
-        data2 = data;
-        npix_in_page = 10;
-
-        pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
-        pix2 = obj.get_pix_with_fake_faccess(data2, npix_in_page - 1);
-        f = @() pix1.equal_to_tol(pix2);
-        assertExceptionThrown(f, 'PIXELDATA:equal_to_tol');
-    end
-
-    function test_equal_to_tol_true_when_comparing_NaNs_if_nan_equal_true(~)
-        data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
-        data(:, [5, 10, 15]) = nan;
-        pix1 = PixelData(data);
-        pix2 = PixelData(data);
-
-        assertTrue(pix1.equal_to_tol(pix2, 'nan_equal', true));
-    end
-
-    function test_equal_to_tol_false_when_comparing_NaNs_if_nan_equal_false(~)
-        data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
-        data(:, [5, 10, 15]) = nan;
-        pix1 = PixelData(data);
-        pix2 = PixelData(data);
-
-        assertFalse(pix1.equal_to_tol(pix2, 'nan_equal', false));
     end
 
     % -- Helpers --

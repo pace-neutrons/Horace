@@ -1,23 +1,23 @@
-function [pix_range,u_to_rlu]=calc_urange(obj,varargin)
+function [urange,u_to_rlu]=calc_urange(obj,varargin)
 % Method calculates q-dE range, this rundata object has
 %
 %Usage:
-%>>[pix_range,u_to_rlu]=obj.calc_urange()  Calculate crystal cartesian range 
-%                                      for fully defined rundatah object
-%>>[pix_range,u_to_rlu]=obj.calc_urange('-cache_detectors')
+%>>[urange,u_to_rlu]=obj.calc_urange()  Calculate urange for fully defined
+%                                      rundatah object
+%>>[urange,u_to_rlu]=obj.calc_urange('-cache_detectors')
 %                           Calculate urange for fully defined
 %                           rundatah object, using precacluated
 %                           vectors, pointing detectors positons
 %
-%>>[pix_range,u_to_rlu]=obj.calc_urange(emin,emax) Calculate range of the
+%>>[urange,u_to_rlu]=obj.calc_urange(emin,emax) Calculate urange of the
 %                  rundata object within the energy range provided.
 %                  the object may be not fully defined (only detectors and
 %                  (currently -- not mandatory) lattice should exist.
 %                  if object is defined, energy range is calculated from
 %                  min(emin,obj.en) to max(emax,obj.en)
 %
-%>>[pix_range,u_to_rlu,detdcn]=obj.calc_urange(emin,emax,'-cache_detectors')
-%                   the combination of the previous two options
+%>>[urange,u_to_rlu,detdcn]=obj.calc_urange(emin,emax,'-cache_detectors')
+%                  the combination of the previous two options
 %
 keys_recognized = {'-cache_detectors'};
 [ok,mess,cache_detectors,params] = parse_char_options(varargin,keys_recognized);
@@ -38,7 +38,7 @@ else
     detdcn = [];
 end
 if isempty(obj.transform_sqw) % minor optimization not worth deploying ?
-    [u_to_rlu, pix_range] = b_obj.calc_projections_(detdcn,[],0);
+    [u_to_rlu, urange] = b_obj.calc_projections_(detdcn,[],0);
 else
-    [~,~,pix_range] = b_obj.calc_sqw(3,[],varargin{:});
+    [~,~,urange] = b_obj.calc_sqw(3,[],varargin{:});
 end

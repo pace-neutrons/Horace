@@ -1,4 +1,5 @@
-[<-previous](./0016-use-double-array-in-memory-for-pixel-data.md) |  [next->](./0018-algorithm-migration-to-paged-files.md)
+[<-previous](./0016-use-double-array-in-memory-for-pixel-data.md) |
+next->
 
 # 17 - Separate absolute and relative indexing APIs in pixel array
 

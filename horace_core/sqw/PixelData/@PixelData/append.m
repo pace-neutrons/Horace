@@ -24,11 +24,11 @@ end
 if isempty(pix)
     return;
 end
-if pix.num_pixels > pix_out.base_page_size
+if pix.num_pixels > pix_out.max_page_size_
     error('PIXELDATA:append', ...
           ['Cannot append more pixels than allowed in a single page.\n ' ...
            'Found ''%i'' pixels, ''%i'' allowed.'], pix.num_pixels, ...
-           pix_out.base_page_size);
+           pix_out.max_page_size_);
 elseif pix.get_num_pages_() > 1
     error('PIXELDATA:append', ...
           ['Cannot append pixels from a PixelData object with more than one page.\n ' ...
@@ -46,8 +46,8 @@ if isempty(pix_out)
     pix_out.data_ = pix.data;
     pix_out.set_page_dirty_(true);
 
-elseif pix_out.page_size < pix_out.base_page_size
-    num_to_allocate_to_pg = min(pix_out.base_page_size - pix_out.page_size, ...
+elseif pix_out.page_size < pix_out.max_page_size_
+    num_to_allocate_to_pg = min(pix_out.max_page_size_ - pix_out.page_size, ...
                                 pix.num_pixels);
     pix_out.data_ = horzcat(pix_out.data, pix.data(:, 1:num_to_allocate_to_pg));
     pix_out.set_page_dirty_(true);
@@ -60,7 +60,7 @@ elseif pix_out.page_size < pix_out.base_page_size
         pix_out.set_page_dirty_(true);
     end
 
-elseif pix_out.page_size == pix_out.base_page_size
+elseif pix_out.page_size == pix_out.max_page_size_
     if ~pix_out.is_file_backed_()
         % If data is not file-backed the exisiting data must be saved to a tmp
         % file after page is changed - so mark it dirty

@@ -18,11 +18,11 @@ if hor_log_level>=1
 end
 
 % Get bin boundaries for plot axes and integration ranges
-[iax, iint, pax, p, new_bin_range] = proj.calc_ubins (data.urange, pbin, pin, en);
+[iax, iint, pax, p, urange] = proj.calc_ubins (data.urange, pbin, pin, en);
 
 % Set matrix and translation vector to express plot axes with two or more bins
 % as multiples of step size from lower limits
-proj = proj.set_proj_binning(new_bin_range,pax,iax,p);
+proj = proj.set_proj_binning(urange,pax,iax,p);
 
 % Get indexes of pixels contributing into projection
 [nstart,nend] = proj.get_nbin_range(data.npix);

@@ -88,8 +88,8 @@ classdef aProjection
             % use later to calculate new transformation.
             this = set_data_transf_(this,data,upix_to_rlu,upix_offset);
         end
-        function this = set_proj_binning(this,new_range,prj_ax_ind,int_ax_ind,prj_ax_bins)
-            %   new_range   Array of limits of data that can possibly contribute to the output data structure in the
+        function this = set_proj_binning(this,urange,prj_ax_ind,int_ax_ind,prj_ax_bins)
+            %   urange      Array of limits of data that can possibly contribute to the output data structure in the
             %               coordinate frame of the output structure [2x4].
             %   prj_ax_ind  Index of plot axes into the projection axes  [row vector]
             %               e.g. if data is 3D, data.pax=[1,3,4] means u1, u3, u4 axes are x,y,z in any plotting
@@ -99,7 +99,7 @@ classdef aProjection
             %               i.e. data.p{1}, data.p{2} ... (for as many plot axes as given by length of prj_ax_ind)
             %
             %
-            this = this.set_proj_binning_(new_range,prj_ax_ind,int_ax_ind,prj_ax_bins);
+            this = this.set_proj_binning_(urange,prj_ax_ind,int_ax_ind,prj_ax_bins);
         end
         
         % Create bin boundaries for integration and plot axes from requested limits and step sizes

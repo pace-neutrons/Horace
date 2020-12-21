@@ -309,15 +309,12 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % order are the same
             [ok,mess,dummy_w1,w1b]=is_cut_equal(sqw_file_123456,sqw_file_145623,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output with spe files in a different order are not the same: ',mess]);
-            % Test against saved or store to save later
-            obj.assertEqualToTolWithSave(w1b,'ignore_str',true,'tol',1.e-7);
-            
             
             w1a=cut_sqw(sqw_file_123456,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             % Test against saved or store to save later
-            obj.assertEqualToTolWithSave(w1a,'ignore_str',true,'tol',1.e-7);
+            obj.save_or_test_variables(w1a,w1b);
+            
         end
-        %
         function test_gen_sqw_sym(obj,varargin)
             %-------------------------------------------------------------
             if obj.skip_test
@@ -383,6 +380,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             assertTrue(ok,[' Cuts are not equal Error: ',mess]);
             
         end
+        
         %
         function test_accumulate_sqw14(obj,varargin)
             %-------------------------------------------------------------
@@ -439,7 +437,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same',mess]);
             
             % Test against saved or store to save later
-            obj.assertEqualToTolWithSave(w2_14,'ignore_str',true,'tol',1.e-7);
+            obj.save_or_test_variables(w2_14);
             
             
         end
@@ -511,7 +509,8 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             w2_1456=cut_sqw(sqw_file_accum,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             
             % Test against saved or store to save later
-            obj.assertEqualToTolWithSave(w2_1456,'ignore_str',true,'tol',1.e-7);
+            obj.save_or_test_variables(w2_1456);
+            
         end
         
         function test_accumulate_sqw1456(obj,varargin)
@@ -565,7 +564,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess])
             
             % Test against saved or store to save later
-            obj.assertEqualToTolWithSave(w2_1456,'ignore_str',true,'tol',1.e-7);
+            obj.save_or_test_variables(w2_1456);
         end
         %
         function test_accumulate_sqw11456(obj,varargin)
@@ -631,8 +630,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             end
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same',mess]);
             % Test against saved or store to save later
-            obj.assertEqualToTolWithSave(w2_11456,'ignore_str',true,'tol',1.e-7);
-            %obj.save_or_test_variables(w2_11456);
+            obj.save_or_test_variables(w2_11456);
             
             
             if obj.save_output

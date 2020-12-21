@@ -16,8 +16,11 @@ if(POLICY CMP0074)
     cmake_policy(SET CMP0074 NEW)
 endif()
 
-# Add cmake directory to CMake's module path
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+# Add cmake directory to CMake's path
+list(APPEND CMAKE_MODULE_PATH
+    "${CMAKE_SOURCE_DIR}/cmake"
+    "${CMAKE_SOURCE_DIR}/cmake/external"
+)
 
 # Set some useful global variables
 # This will hold herbert/horace_on.m and worker_v2.m
