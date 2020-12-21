@@ -3,11 +3,8 @@ function wout = cut_sqw_main_single (data_source,...
     proj, pbin, pin, en, opt, hor_log_level)
 % Take a cut from an sqw object by integrating over one or more axes.
 
-
 % Original author: T.G.Perring
 %
-
-
 % Initialise output
 return_cut = (nargout==1);
 
@@ -17,11 +14,11 @@ if hor_log_level>=1
 end
 
 % Get bin boundaries for plot axes and integration ranges
-[iax, iint, pax, p, new_bin_range] = proj.calc_ubins (data.pix.pix_range, pbin, pin, en);
+[iax, iint, pax, p, new_img_range] = proj.calc_ubins (data.img_range, pbin, pin, en);
 
 % Set matrix and translation vector to express plot axes with two or more bins
 % as multiples of step size from lower limits
-proj = proj.set_proj_binning(new_bin_range,pax,iax,p);
+proj = proj.set_proj_binning(new_img_range,pax,iax,p);
 
 % Get indexes of pixels contributing into projection
 [nstart,nend] = proj.get_nbin_range(data.npix);
@@ -121,7 +118,7 @@ else
 end
 
 % Convert range from steps to actual range with respect to output uoffset:
-urange_pix = pix_range_step.*repmat(proj.usteps,[2,1]) + repmat(proj.urange_offset,[2,1]);
+img_range = pix_range_step.*repmat(proj.usteps,[2,1]) + repmat(proj.urange_offset,[2,1]);
 
 % Get size of output signal, error and npix arrays
 % (Account for singleton dimensions i.e. plot axes with just one bin, and look after case
@@ -165,7 +162,7 @@ no_pix = (npix==0);     % true where there are no pixels contributing to the bin
 data_out.s(no_pix)=0;   % want signal to be zero where there are no contributing pixels, not +/- Inf
 data_out.e(no_pix)=0;
 
-data_out.img_range = urange_pix*data_out.u_to_rlu;
+data_out.img_range = img_range;
 if opt.keep_pix
     data_out.pix = PixelData(pix);
 end

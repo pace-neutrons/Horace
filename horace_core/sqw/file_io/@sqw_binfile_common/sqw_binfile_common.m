@@ -306,6 +306,11 @@ classdef sqw_binfile_common < sqw_file_interface
             %
             data_form = get_data_form_(obj,varargin{:});
         end
+        function pix_range_pos = get_pix_range_pos(obj)
+            % returns byte-position from the start of the file
+            % where pix range is stored
+            pix_range_pos  = obj.pix_range_pos_;
+        end
         %
         function struc = saveobj(obj)
             % method used to convert object into structure
@@ -320,7 +325,7 @@ classdef sqw_binfile_common < sqw_file_interface
             % % construction. Should not be stored
             % caches = {'sqw_serializer_','file_closer_','sqw_holder_'};
             % struc = rmfield(struc,caches);
-        end        
+        end
     end
     %
     methods(Static,Hidden=true)

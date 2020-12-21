@@ -28,8 +28,7 @@ function [nstart,nend] = get_nbin_range(this,npix)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
+%
 
 small = 1.0d-10;    % 'small' quantity for cautious dealing of borders, testing matrices are diagonal etc.
 %
@@ -39,7 +38,7 @@ small = 1.0d-10;    % 'small' quantity for cautious dealing of borders, testing 
 border = small*[-1,-1,-1,-1;1,1,1,1];   % put a small border around the range to ensure we don't miss any
 % pixels on the boundary because of rounding errors in get_nrange_rot_section
 
-pix_range = this.urange_+border;
+img_range = this.new_img_range_+border;
 if isempty(npix)
     error('Number array ''npix'' cannot be empty')
 end
@@ -56,7 +55,7 @@ end
 nelmts = reshape(npix,nbin_in);
 
 % Get contiguous arrays
-[istart,iend,irange,inside,outside] = this.get_irange_proj(pix_range,pin{:});
+[istart,iend,irange,inside,outside] = this.get_irange_proj(img_range,pin{:});
 if ~outside
     [nstart,nend] = aProjection.get_nrange_4D(nelmts,istart,iend,irange);
 else
