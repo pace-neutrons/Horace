@@ -2,6 +2,13 @@
 #include <cmath>
 #include "mex.h"
 
+enum ser_types{
+  SELF_SER,
+  SAVEOBJ,
+  STRUCTED
+};
+
+
 const double types_size[] = {
   1,  //   LOGICAL
   1,  //   CHAR

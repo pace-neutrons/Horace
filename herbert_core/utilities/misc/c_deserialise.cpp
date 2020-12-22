@@ -12,10 +12,17 @@
 #include <iostream>
 #include <cstring>
 #include <cmath>
+#include <vector>
 #include "mex.h"
 #include "cpp_serialise.hpp"
 
 size_t memPtr;
+
+template<typename T>
+inline void deser(const uint8_t* data, std::vector<T> output, const double amount) {
+  memcpy(output.data(), &data[memPtr], amount);
+  memPtr += amount;
+}
 
 inline void deser(const uint8_t* data, void* output, const double amount) {
   memcpy(output, &data[memPtr], amount);
@@ -60,45 +67,56 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
   tag_type tag;
   deser(data, &tag, types_size[UINT8]);
   size_t nDims;
-  uint32_t* cast_dims;
-  mwSize* dims;
+  std::vector<uint32_t> cast_dims(2);
+  std::vector<mwSize> vDims(2);
   size_t nElem;
 
   // Special case as function handles work differently
   if (tag.type != FUNCTION_HANDLE) {
     nDims = tag.dim;
-    cast_dims = new uint32_t[nDims];
     deser(data, cast_dims, nDims*types_size[UINT32]);
     switch (nDims) {
     case 0:
       nElem = 1;
       nDims = 2;
-      dims = new mwSize[2] {1, 1};
+      std::fill(vDims.begin(), vDims.end(), 1);
       break;
+
     case 1:
       nElem = cast_dims[0];
       nDims = 2;
       if (nElem == 0) { // Handle null
-        dims = new mwSize[2] {0, 0};
+        std::fill(vDims.begin(), vDims.end(), 0);
       } else {
-        dims = new mwSize[2] {1, nElem};
+        vDims[0] = 1;
+        vDims[1] = nElem;
       }
       break;
+
     default:
-      dims = new mwSize[nDims];
+      if (nDims > 2) {
+        vDims.resize(nDims);
+        cast_dims.resize(nDims);
+      }
       nElem = 1;
+
       for (size_t i = 0; i < nDims; i++) {
-        dims[i] = cast_dims[i];
-        nElem *= dims[i];
+        vDims[i] = cast_dims[i];
+        nElem *= vDims[i];
       }
       break;
+
     }
-  }
-  else {
-    dims = new mwSize[2] {1, 1};
-    cast_dims = new uint32_t[2] {1, 1};
+  } else {
+    // Function handle always scalar
+    std::fill(vDims.begin(), vDims.end(), 1);
+    std::fill(cast_dims.begin(), cast_dims.end(), 1);
     nElem = 1;
+
   }
+
+  // Shorthand for passing to c function
+  mwSize* dims = vDims.data();
 
   switch (tag.type) {
     // Sparse
@@ -117,14 +135,14 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
       }
       mwIndex* ir = mxGetIr(output);
       mwIndex* jc = mxGetJc(output);
-      uint64_t* map_jc = new uint64_t[nnz];
+      std::vector<uint64_t> map_jc(nnz);
 
       deser(data, ir, types_size[UINT64]*nnz);
       deser(data, map_jc, types_size[UINT64]*nnz);
 
       // Unmap Jc
-      for (int i = 0; i < nnz; i++) {
-        jc[map_jc[i]+1]++;
+      for (const uint64_t& row: map_jc) {
+        jc[row+1]++;
       }
 
       for (int i = 1; i < dims[1]+1; i++) {
@@ -132,20 +150,18 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
       }
 
       read_data(data, output, types_size[tag.type], nnz);
-      delete map_jc;
 
     }
     break;
   case CHAR:
     {
-      char* arr = new char[nElem];
+      std::vector<char> arr(nElem);
       deser(data, arr, nElem*types_size[CHAR]);
       output = mxCreateCharArray(nDims, dims);
       char* out = (char*) mxGetPr(output);
       for (int i =0; i < nElem; i++) {
         out[2*i] = arr[i];
       }
-      delete arr;
     }
     break;
   case LOGICAL:
@@ -193,11 +209,10 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
         {
           mxArray* name = deserialise(data, size, 1);
           mxArray* workspace = deserialise(data, size, 1);
-          mxArray** input = new mxArray*[2] {name, workspace};
-          mexCallMATLAB(1, &output, 2, input, "restore_function");
+          std::vector<mxArray*> input {name, workspace};
+          mexCallMATLAB(1, &output, 2, input.data(), "restore_function");
           mxDestroyArray(name);
           mxDestroyArray(workspace);
-          delete input;
         }
         break;
       case 3:
@@ -208,18 +223,17 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
           // Initial output
           output = mxGetCell(parentage, len-1);
 
-          mxArray** input = new mxArray*[3];
+          std::vector<mxArray*> input(3);
 
           mxArray* stringHandle = mxCreateString("handle");
           input[0] = stringHandle;
           for (int i = len-2; i >= 0; i--) {
             input[1] = output;
             input[2] = mxGetCell(parentage, i);
-            mexCallMATLAB(1, &output, 3, input, "arg_report");
+            mexCallMATLAB(1, &output, 3, input.data(), "arg_report");
           }
           mxDestroyArray(stringHandle);
           mxDestroyArray(parentage);
-          delete input;
           break;
         }
       }
@@ -231,49 +245,47 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
       memPtr++; // Skip name_tag
       uint32_t nameLen;
       deser(data, &nameLen, types_size[UINT32]);
-      char* name = new char[nameLen+1] {0};
+      std::vector<char> name(nameLen+1);
+      // Null terminator
+      name[nameLen] = 0;
       deser(data, name, nameLen*types_size[CHAR]);
 
       uint8_t ser_tag;
       deser(data, &ser_tag, types_size[UINT8]);
 
       switch (ser_tag) {
-      case 0:
+      case SELF_SER:
         {
           mxArray* mxData = mxCreateNumericMatrix(size-memPtr,1,mxUINT8_CLASS, (mxComplexity) 0);
-          mxArray* mxName = mxCreateString(name);
+          mxArray* mxName = mxCreateString(name.data());
           mxSetPr(mxData, (double *) &data[memPtr]);
-          mxArray** results = new mxArray*[2];
-          mxArray** input = new mxArray*[2] {mxName, mxData};
-          mexCallMATLAB(2, results, 2, input, "c_hlp_deserialise_object_self");
+          std::vector<mxArray*> results(2);
+          std::vector<mxArray*> input {mxName, mxData};
+          mexCallMATLAB(2, results.data(), 2, input.data(), "c_hlp_deserialise_object_self");
           output = results[0];
           memPtr += mxGetScalar(results[1]);
           mxDestroyArray(mxName);
           mxDestroyArray(mxData);
-          delete input;
-          delete results;
         }
         break;
-      case 1:
+      case SAVEOBJ:
         {
-          mxArray* mxName = mxCreateString(name);
+          mxArray* mxName = mxCreateString(name.data());
           mxArray* conts = deserialise(data, size, 1);
-          mxArray** input = new mxArray*[2] {mxName, conts};
-          mexCallMATLAB(1, &output, 2, input, "c_hlp_deserialise_object_loadobj");
+          std::vector<mxArray*> input {mxName, conts};
+          mexCallMATLAB(1, &output, 2, input.data(), "c_hlp_deserialise_object_loadobj");
           mxDestroyArray(conts);
           mxDestroyArray(mxName);
-          delete input;
         }
         break;
-      case 2:
+      case STRUCTED:
           {
-            mxArray* conts = deserialise(data, size, 1);
-            int nFields = mxGetNumberOfFields(conts);
+            output = deserialise(data, size, 1);
+            mxSetClassName(output, name.data());
           }
         break;
       }
 
-      delete name;
     }
     break;
 
@@ -281,16 +293,18 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
     {
       uint32_t nFields;
       deser(data, &nFields, types_size[UINT32]);
-      uint32_t* fNameLens = new uint32_t[nFields];
+
+      std::vector<uint32_t> fNameLens(nFields);
       deser(data, fNameLens, nFields*types_size[UINT32]);
 
-      char** fNames = new char *[nFields];
+      std::vector<std::vector<char>> fNames(nFields);
       for (int field=0; field < nFields; field++) {
-        fNames[field] = new char[fNameLens[field]+1] {0};
+        fNames[field] = std::vector<char>(fNameLens[field]+1);
+        fNames[field][fNameLens[field]] = 0;
         deser(data, fNames[field], fNameLens[field]*types_size[CHAR]);
       }
 
-      output = mxCreateStructArray(nDims, dims, nFields, (const char**) fNames);
+      output = mxCreateStructArray(nDims, dims, nFields, (const char**) fNames.data());
       if (nFields == 0) break;
 
       mxArray* cellData = deserialise(data, size, 1);
@@ -301,11 +315,7 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
           mxSetFieldByNumber(output, obj, field, cellElem);
         }
       }
-      delete fNameLens;
-      for (int field = 0; field < nFields; field++) {
-        delete fNames[field];
-      }
-      delete fNames;
+
     }
     break;
 
@@ -319,9 +329,6 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
     }
     break;
   }
-
-  delete dims;
-  delete cast_dims;
 
   // Avoid making plhs persistent
   if (recursed) {

@@ -12,11 +12,18 @@
 #include <iostream>
 #include <cstring>
 #include <cmath>
+#include <vector>
 #include "mex.h"
 #include "cpp_serialise.hpp"
 
 // Current byte to write
 size_t memPtr;
+
+template<typename T>
+inline void ser(uint8_t* data, const std::vector<T> data_in, const double amount) {
+  memcpy(&data[memPtr], data_in.data(), amount);
+  memPtr += amount;
+}
 
 inline void ser(uint8_t* data, const void* const data_in, const double amount) {
   // Write bytes and move memory index
@@ -55,7 +62,7 @@ inline void write_data(uint8_t* data, const mxArray* const input, const size_t e
 }
 
 inline void write_header(uint8_t* data, tag_type& tag,
-			 const size_t nElem, const mwSize* dims, const size_t nDims) {
+                         const size_t nElem, const mwSize* dims, const size_t nDims) {
 
   if (nElem == 0) { // Null
     tag.dim = 1;
@@ -74,12 +81,11 @@ inline void write_header(uint8_t* data, tag_type& tag,
   else { // General array
     tag.dim = nDims;
 
-    uint32_t* cast_dims = new uint32_t[nDims];
+    std::vector<uint32_t> cast_dims(nDims);
     for (int i = 0; i < nDims; i++) cast_dims[i] = (uint32_t) dims[i];
 
     ser(data, &tag, 1);
     ser(data, cast_dims, nDims*types_size[UINT32]);
-    delete cast_dims;
   }
 
 }
@@ -100,18 +106,18 @@ void serialise(uint8_t* data, const mxArray* input){
   case SPARSE_COMPLEX_DOUBLE:
     {
 
-      uint32_t* cast_dims = new uint32_t[2];
+      std::vector<uint32_t> cast_dims(2);
       for (int i = 0; i < 2; i++) cast_dims[i] = (uint32_t) dims[i];
 
       mwIndex* ir = mxGetIr(input);
       mwIndex* jc = mxGetJc(input);
       uint32_t nnz = jc[dims[1]];
-      uint64_t* map_jc = new uint64_t[nnz];
+      std::vector<uint64_t> map_jc(nnz);
 
       for (int c = 0, n = 0; n < nnz; c++) {
-	for (int i = jc[c]; i < jc[c+1]; i++, n++) {
-	  map_jc[n] = c;
-	}
+        for (int i = jc[c]; i < jc[c+1]; i++, n++) {
+          map_jc[n] = c;
+        }
       }
 
       tag.dim = 2;
@@ -123,19 +129,16 @@ void serialise(uint8_t* data, const mxArray* input){
       ser(data, map_jc, types_size[UINT64]*nnz);
 
       write_data(data, input, types_size[tag.type], nnz);
-      delete map_jc;
-      delete cast_dims;
     }
     break;
   case CHAR:
     {
 
       write_header(data, tag, nElem, dims, nDims);
-      char *arr = new char[nElem+1];
-      // Copies with NULL terminator
-      mxGetString(input, arr, nElem+1);
+      std::vector<char> arr(nElem+1);
+      // Copies with NULL terminator, don't write with
+      mxGetString(input, arr.data(), nElem+1);
       ser(data, arr, nElem*types_size[CHAR]);
-      delete arr;
     }
     break;
   case INT8:
@@ -187,16 +190,16 @@ void serialise(uint8_t* data, const mxArray* input){
       ser(data, name, name_dim[1]*types_size[CHAR]);
       mxArray* arr = const_cast<mxArray*>(input);
       {
-	mxArray* ser_type;
-	mexCallMATLAB(1, &ser_type, 1, &arr, "get_ser_type");
-	ser(data, mxGetPr(ser_type), types_size[UINT8]);
-	mxDestroyArray(ser_type);
+        mxArray* ser_type;
+        mexCallMATLAB(1, &ser_type, 1, &arr, "get_ser_type");
+        ser(data, mxGetPr(ser_type), types_size[UINT8]);
+        mxDestroyArray(ser_type);
       }
       {
-	mxArray* conts;
-	mexCallMATLAB(1, &conts, 1, &arr, "get_object_conts");
-	serialise(data, conts);
-	mxDestroyArray(conts);
+        mxArray* conts;
+        mexCallMATLAB(1, &conts, 1, &arr, "get_object_conts");
+        serialise(data, conts);
+        mxDestroyArray(conts);
       }
 
     }
@@ -215,21 +218,21 @@ void serialise(uint8_t* data, const mxArray* input){
 
       int parsed = 0;
       for (int field=0; field < nFields; field++) {
-	const char* name = mxGetFieldNameByNumber(input, field);
-	uint32_t size = strlen(name);
-	ser(data, &size, types_size[UINT32]);
-	memcpy(&data[namePtr], name, size);
-	namePtr += size;
-	parsed += size;
+        const char* name = mxGetFieldNameByNumber(input, field);
+        uint32_t size = strlen(name);
+        ser(data, &size, types_size[UINT32]);
+        memcpy(&data[namePtr], name, size);
+        namePtr += size;
+        parsed += size;
       }
 
       memPtr += parsed;
 
       if (nFields > 0) {
-	mxArray* conts;
-	mxArray* arr = const_cast<mxArray*>(input);
-	mexCallMATLAB(1, &conts, 1, &arr, "struct2cell");
-	serialise(data, conts);
+        mxArray* conts;
+        mxArray* arr = const_cast<mxArray*>(input);
+        mexCallMATLAB(1, &conts, 1, &arr, "struct2cell");
+        serialise(data, conts);
       }
 
 
@@ -241,7 +244,7 @@ void serialise(uint8_t* data, const mxArray* input){
 
       write_header(data, tag, nElem, dims, nDims);
       for (mwIndex i = 0; i < nElem; i++){
-	serialise(data, mxGetCell(input, i));
+        serialise(data, mxGetCell(input, i));
       }
 
     }
@@ -258,8 +261,8 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
   for (i=0; i<nrhs; i++)  {
     if (mxIsSparse(prhs[i])) {
       mexErrMsgIdAndTxt("MATLAB:c_serialise:NoSparseCompat",
-			"MEX-files compiled on a 64-bit platform that use sparse array functions "
-			"need to be compiled using -largeArrayDims.");
+                        "MEX-files compiled on a 64-bit platform that use sparse array functions "
+                        "need to be compiled using -largeArrayDims.");
     }
   }
 #endif
