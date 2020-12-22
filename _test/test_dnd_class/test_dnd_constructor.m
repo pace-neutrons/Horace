@@ -205,7 +205,7 @@ methods
     end
 
     %% Filename
-    function test_filename_constructor_returns_populated_class(obj)
+    function test_filename_constructor_returns_populated_class_from_dnd_file(obj)
         d2d_obj = d2d(obj.test_dnd_2d_fullpath);
 
         expected_ulen = [2.101896, 1.486265, 2.101896, 1.0000];
@@ -219,6 +219,31 @@ methods
         assertEqualToTol(d2d_obj.ulen, expected_ulen, 'tol', 1e-5);
         assertEqual(d2d_obj.u_to_rlu, expected_u_to_rlu, 'tol', 1e-5);
     end
+
+    function test_filename_constructor_returns_populated_class_from_sqw_file(obj)
+        d2d_obj = d2d(obj.test_sqw_2d_fullpath);
+
+        expected_ulen = [2.101896, 1.486265, 2.101896, 1.0000];
+        expected_u_to_rlu = [1, 0, 1, 0; 1, 0, -1, 0; 0, 1, 0, 0; 0, 0, 0, 1];
+
+        % expected data populated from instance of test object
+        assertTrue(isa(d2d_obj, 'd2d'));
+        assertEqual(d2d_obj.dax, [1, 2]);
+        assertEqual(d2d_obj.iax, [3, 4]);
+        assertEqual(size(d2d_obj.s), [16, 11]);
+        assertEqualToTol(d2d_obj.ulen, expected_ulen, 'tol', 1e-5);
+        assertEqual(d2d_obj.u_to_rlu, expected_u_to_rlu, 'tol', 1e-5);
+    end
+
+    function test_filename_constructor_returns_same_object_as_sqw_constructor_from_sqw_file(obj)
+        sqw_obj = sqw(obj.test_sqw_2d_fullpath);
+        d2d_obj = d2d(obj.test_sqw_2d_fullpath);
+
+        d2d_from_sqw = d2d(sqw_obj);
+
+        assertEqualToTol(d2d_from_sqw, d2d_obj);
+    end
+
 
     %% SQW and dimensions checks
     function test_d2d_sqw_constuctor_raises_error_from_1d_sqw_object(obj)
