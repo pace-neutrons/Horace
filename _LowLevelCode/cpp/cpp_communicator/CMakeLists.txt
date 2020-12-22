@@ -10,6 +10,8 @@ set(HDR_FILES
     "MPI_wrapper.h"
 )
 
+add_subdirectory(serialiser)
+
 set(MEX_NAME "cpp_communicator")
 pace_add_mex(
     NAME "${MEX_NAME}"
