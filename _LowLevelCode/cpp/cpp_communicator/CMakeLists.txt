@@ -10,8 +10,6 @@ set(HDR_FILES
     "MPI_wrapper.h"
 )
 
-add_subdirectory(serialiser)
-
 set(MEX_NAME "cpp_communicator")
 pace_add_mex(
     NAME "${MEX_NAME}"
@@ -21,6 +19,8 @@ target_include_directories("${MEX_NAME}"
     PRIVATE "${CXX_SOURCE_DIR}"
     PRIVATE "${MPI_CXX_INCLUDE_PATH}")
 target_link_libraries("${MEX_NAME}" "${MPI_CXX_LIBRARIES}")
+
+add_subdirectory(serialiser)
 
 if(UNIX)
     # For MPICH on Linux it's necessary to set relative RPATH values so dynamic

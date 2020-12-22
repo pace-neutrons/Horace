@@ -13,7 +13,6 @@
 #include <cstring>
 #include <cmath>
 #include <vector>
-#include "mex.h"
 #include "cpp_serialise.hpp"
 
 size_t memPtr;

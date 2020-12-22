@@ -1,6 +1,6 @@
-#include <cstring>
-#include <cmath>
-#include "mex.h"
+#pragma once
+
+#include <mex.h>
 
 enum ser_types{
   SELF_SER,

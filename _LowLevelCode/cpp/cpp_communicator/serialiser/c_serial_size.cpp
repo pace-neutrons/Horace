@@ -11,9 +11,9 @@
  *=======================================================*/
 
 #include <iostream>
-#include <cmath>
 #include <cstring>
-#include "mex.h"
+#include <cmath>
+#include <vector>
 #include "cpp_serialise.hpp"
 
 double get_size(const mxArray *input) {
