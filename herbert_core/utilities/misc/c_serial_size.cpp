@@ -67,16 +67,16 @@ double get_size(const mxArray *input) {
       double elemSize = types_size[tag.type];
 
       if (nElem == 0) { // Null
-	size += TAG_SIZE + NELEMS_SIZE;
+        size += TAG_SIZE + NELEMS_SIZE;
       }
       else if (nElem == 1) { // Scalar
-	size += TAG_SIZE + elemSize;
+        size += TAG_SIZE + elemSize;
       }
       else if (nDims == 2 && dims[0] == 1) { // List
-	size = 1 + NELEMS_SIZE + elemSize*nElem;
+        size = 1 + NELEMS_SIZE + elemSize*nElem;
       }
       else { // General array
-	size += TAG_SIZE + NELEMS_SIZE*nDims + elemSize * nElem;
+        size += TAG_SIZE + NELEMS_SIZE*nDims + elemSize * nElem;
       }
     }
     break;
@@ -106,16 +106,16 @@ double get_size(const mxArray *input) {
       double data_size = get_size(conts);
 
       if (nElem == 0) {
-	size += TAG_SIZE + NELEMS_SIZE;
+        size += TAG_SIZE + NELEMS_SIZE;
       }
       else if (nElem == 1) {
-	size += TAG_SIZE + class_name_size + 1 + data_size;
+        size += TAG_SIZE + class_name_size + 1 + data_size;
       }
       else if (nDims == 2 && dims[0] == 1) {
-	size += TAG_SIZE + NELEMS_SIZE + class_name_size + 1 + data_size;
+        size += TAG_SIZE + NELEMS_SIZE + class_name_size + 1 + data_size;
       }
       else {
-	size += TAG_SIZE + NELEMS_SIZE*nDims + class_name_size + 1 + data_size;
+        size += TAG_SIZE + NELEMS_SIZE*nDims + class_name_size + 1 + data_size;
       }
     }
 
@@ -132,28 +132,28 @@ double get_size(const mxArray *input) {
       double fn_size = NELEMS_SIZE*(nFields+1); // Nfields + name lens
 
       for (int field=0; field < nFields; field++) {
-	fn_size += strlen(mxGetFieldNameByNumber(input, field)) * types_size[CHAR];
+        fn_size += strlen(mxGetFieldNameByNumber(input, field)) * types_size[CHAR];
       }
 
       double data_size = 0.0;
       if (nFields > 0) {
-	mxArray* arr = const_cast<mxArray *>(input);
-	mxArray* conts;
-	mexCallMATLAB(1, &conts, 1, &arr, "struct2cell");
-	data_size = get_size(conts);
+        mxArray* arr = const_cast<mxArray *>(input);
+        mxArray* conts;
+        mexCallMATLAB(1, &conts, 1, &arr, "struct2cell");
+        data_size = get_size(conts);
       }
 
       if (nElem == 0) {
-	size += TAG_SIZE + NELEMS_SIZE;
+        size += TAG_SIZE + NELEMS_SIZE;
       }
       else if (nElem == 1) {
-	size += TAG_SIZE + fn_size + data_size;
+        size += TAG_SIZE + fn_size + data_size;
       }
       else if (nDims == 2 && dims[0] == 1) {
-	size += TAG_SIZE + NELEMS_SIZE + fn_size + data_size;
+        size += TAG_SIZE + NELEMS_SIZE + fn_size + data_size;
       }
       else {
-	size += TAG_SIZE + NELEMS_SIZE*nDims + fn_size + data_size;
+        size += TAG_SIZE + NELEMS_SIZE*nDims + fn_size + data_size;
       }
 
     }
@@ -161,28 +161,27 @@ double get_size(const mxArray *input) {
 
   case CELL:
     {
-
       size_t nElem = mxGetNumberOfElements(input);
       const mwSize* dims = mxGetDimensions(input);
       size_t nDims = mxGetNumberOfDimensions(input);
 
       double data_size = 0.0;
       for (mwIndex i = 0; i < nElem; i++){
-	mxArray* cellElem = mxGetCell(input, i);
-	data_size += get_size(cellElem);
+        mxArray* cellElem = mxGetCell(input, i);
+        data_size += get_size(cellElem);
       }
 
       if (nElem == 0) { // Null (string?)
-	size += TAG_SIZE + NELEMS_SIZE;
+        size += TAG_SIZE + NELEMS_SIZE;
       }
       else if (nElem == 1) { // Scalar
-	size += TAG_SIZE + data_size;
+        size += TAG_SIZE + data_size;
       }
       else if (nDims == 2 && dims[0] == 1) { // List
-	size += TAG_SIZE + NELEMS_SIZE + data_size;
+        size += TAG_SIZE + NELEMS_SIZE + data_size;
       }
       else { // General array
-	size += TAG_SIZE + NELEMS_SIZE*nDims + data_size;
+        size += TAG_SIZE + NELEMS_SIZE*nDims + data_size;
       }
 
     }
@@ -202,8 +201,8 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
   for (i=0; i<nrhs; i++)  {
     if (mxIsSparse(prhs[i])) {
       mexErrMsgIdAndTxt("MATLAB:explore:NoSparseCompat",
-			"MEX-files compiled on a 64-bit platform that use sparse array functions "
-			"need to be compiled using -largeArrayDims.");
+                        "MEX-files compiled on a 64-bit platform that use sparse array functions "
+                        "need to be compiled using -largeArrayDims.");
     }
   }
 #endif
