@@ -38,6 +38,42 @@ const double types_size[] = {
   0,  //   UNKNOWN
 }; // Sizes
 
+const mxClassID unmap_types[] = {
+  mxLOGICAL_CLASS, //   LOGICAL
+  mxCHAR_CLASS,    //   CHAR
+  mxCHAR_CLASS,    //   STRING
+  mxDOUBLE_CLASS,  //   DOUBLE
+  mxSINGLE_CLASS,  //   SINGLE
+  mxINT8_CLASS,    //   INT8
+  mxUINT8_CLASS,   //   UINT8
+  mxINT16_CLASS,   //   INT16
+  mxUINT16_CLASS,  //   UINT16
+  mxINT32_CLASS,   //   INT32
+  mxUINT32_CLASS,  //   UINT32
+  mxINT64_CLASS,   //   INT64
+  mxUINT64_CLASS,  //   UINT64
+  mxDOUBLE_CLASS,  //   COMPLEX_DOUBLE
+  mxSINGLE_CLASS,  //   COMPLEX_SINGLE
+  mxINT8_CLASS,    //   COMPLEX_INT8
+  mxUINT8_CLASS,   //   COMPLEX_UINT8
+  mxINT16_CLASS,   //   COMPLEX_INT16
+  mxUINT16_CLASS,  //   COMPLEX_UINT16
+  mxINT32_CLASS,   //   COMPLEX_INT32
+  mxUINT32_CLASS,  //   COMPLEX_UINT32
+  mxINT64_CLASS,   //   COMPLEX_INT64
+  mxUINT64_CLASS,  //   COMPLEX_UINT64
+  mxCELL_CLASS,    //   CELL
+  mxSTRUCT_CLASS,  //   STRUCT,
+  mxUNKNOWN_CLASS, //   FUNCTION_HANDLE,
+  mxUNKNOWN_CLASS, //   VALUE_OBJECT,
+  mxUNKNOWN_CLASS, //   HANDLE_OBJECT_REF,
+  mxUNKNOWN_CLASS, //   ENUM,
+  mxLOGICAL_CLASS, //   SPARSE_LOGICAL,
+  mxDOUBLE_CLASS,  //   SPARSE_DOUBLE,
+  mxDOUBLE_CLASS,  //   SPARSE_COMPLEX_DOUBLE,
+  mxUNKNOWN_CLASS, //   UNKNOWN
+};
+
 const std::string types_names[] = {
   "LOGICAL",                //  0
   "CHAR",                   //  1
@@ -135,9 +171,9 @@ tag_type tag_data(const mxArray* input) {
 
     case mxDOUBLE_CLASS:
       if (mxIsComplex(input)) {
-	tag.type = SPARSE_COMPLEX_DOUBLE;
+        tag.type = SPARSE_COMPLEX_DOUBLE;
       } else {
-	tag.type = SPARSE_DOUBLE;
+        tag.type = SPARSE_DOUBLE;
       }
       break;
 
@@ -188,9 +224,9 @@ tag_type tag_data(const mxArray* input) {
       break;
     default:
       if (!strcmp(mxGetClassName(input), "function_handle")) {
-	tag.type = FUNCTION_HANDLE;
+        tag.type = FUNCTION_HANDLE;
       } else {
-	tag.type = VALUE_OBJECT;
+        tag.type = VALUE_OBJECT;
       }
       break;
     }

@@ -61,7 +61,7 @@ function siz = serial_sise_sparse_data(v, type)
 
     siz = 1 + 2*4 + 4 + 2 * nElem * 8 + nElem*type.size;
 
-    % m = [uint8(64 + type.tag); typecast(uint32(dims), 'uint8').'; typecast(uint32(nElem), 'uint8').'; typecast(i(:).', 'uint8').'; typecast(j(:).', 'uint8').'; typecast(data(:).', 'uint8').'];
+    % m = [uint8(64 + type.tag); typecast(uint32(dims), 'uint8').'; typecast(uint32(nElem), 'uint8').'; typecast(i(:)-1.', 'uint8').'; typecast(j(:)-1.', 'uint8').'; typecast(data(:).', 'uint8').'];
 end
 
 % Struct array
@@ -169,7 +169,7 @@ function siz = serial_sise_function_handle(v, type)
     % get the representation
     rep = functions(v);
     switch rep.type
-      case 'simple'
+      case {'simple', 'classsimple'}
         % simple function: Tag & name
 
         siz = 1 + 1 + 4 + numel(rep.function);

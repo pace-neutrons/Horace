@@ -168,7 +168,6 @@ function m = serialise_object(v, type)
             conts = serialise_struct(struct(conts));
         end
     end
-
     if nElem == 0 % Null element
         m = [uint8(32 + type.tag); typecast(uint32(0), 'uint8').'; class_name];
     elseif nElem == 1 % Scalar
@@ -188,12 +187,13 @@ function m = serialise_function_handle(v, type)
     % get the representation
     rep = functions(v);
     switch rep.type
-      case 'simple'
+      case {'simple', 'classsimple'}
         % simple function: Tag & name
         m = [uint8(32+type.tag); serialise_simple_data(rep.function, type_details(2))];
       case 'anonymous'
         % anonymous function: Tag, Code, and reduced workspace
         m = [uint8(64+type.tag); serialise_simple_data(char(v), type_details(2)); serialise_struct(rep.workspace{1}, type_details(25))];
+
       case {'scopedfunction','nested'}
         % scoped function: Tag and Parentage
         m = [uint8(96+type.tag); serialise_cell(rep.parentage, type_details(24))];

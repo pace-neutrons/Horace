@@ -217,7 +217,7 @@ function [v, pos] = deserialise_function_handle(m, pos)
       case 2 % Anonymous
         [code, pos] = deserialise_simple_data(m, pos+1);
         [workspace, pos] = deserialise_struct(m, pos);
-        v = restore_functionise(code, workspace);
+        v = restore_function(code, workspace);
       case 3 % Scoped/Nested
         [parentage, pos] = deserialise_cell(m, pos+1);
         % recursively look up from parents, assuming that these support the arg system
@@ -303,19 +303,6 @@ function [v, pos] = deserialise_object(m, pos)
         v = reshape(v, [nElems 1 1]);
     end
 end
-
-% helper for deserialise_handle
-function f = restore_functionise(decl__,workspace__)
-% create workspace
-    for fn__=fieldnames(workspace__)'
-        % we use underscore names here to not run into conflicts with names defined in the workspace
-        eval([fn__{1} ' = workspace__.(fn__{1}) ;']);
-    end
-    clear workspace__ fn__;
-    % evaluate declaration
-    f = eval(decl__);
-end
-
 
 function [type, nDims] = get_tag_data(m, pos)
     global type_details;
