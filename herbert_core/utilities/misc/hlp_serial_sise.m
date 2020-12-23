@@ -125,6 +125,7 @@ function siz = serial_sise_object(v, type)
     nElem = numel(v);
     nDims = ndims(v);
 
+    % Serialise class name as char string
     class_name_siz = 1 + 4 + numel(class(v));
     % can object serialise/deserialise itself?
     if any(strcmp(methods(v), 'serialize'))
