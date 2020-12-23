@@ -31,7 +31,7 @@ classdef (InferiorClasses = {?d2d}) sqw < SQWDnDBase
 
             % ii) filename
             elseif ~isempty(args.filename)
-                obj = obj.init_from_file(args.filename);
+                obj = obj.init_from_file(args.filename, args.pixel_page_size);
 
             % iii) struct
             elseif ~isempty(args.data_struct)
@@ -82,13 +82,18 @@ classdef (InferiorClasses = {?d2d}) sqw < SQWDnDBase
             % args.filename  % string, presumed to be filename
             % args.sqw_obj   % SQW class instance
             % args.data_struct % generic struct, presumed to represent SQW
+            % args.pixel_page_size % size of PixelData page in bytes
             parser = inputParser();
+            parser.KeepUnmatched = true;  % ignore unmatched parameters
             parser.addOptional('input', [], @(x) (isa(x, 'SQWDnDBase') || is_string(x) || isstruct(x)));
-            parser.KeepUnmatched = true;
+            parser.addParameter('pixel_page_size', PixelData.DEFAULT_PAGE_SIZE, ...
+                            @PixelData.validate_mem_alloc);
             parser.parse(varargin{:});
 
             input = parser.Results.input;
-            args = struct('sqw_obj', [], 'filename', [], 'data_struct', []);
+            args = struct('sqw_obj', [], 'filename', [], 'data_struct', [], 'pixel_page_size', []);
+
+            args.pixel_page_size = parser.Results.pixel_page_size;
 
             if isa(input, 'SQWDnDBase')
                 if isa(input, 'DnDBase')
@@ -107,7 +112,7 @@ classdef (InferiorClasses = {?d2d}) sqw < SQWDnDBase
     end
 
     methods(Access = 'private')
-        function obj = init_from_file(obj, in_filename)
+        function obj = init_from_file(obj, in_filename, pixel_page_size)
             % Parse SQW from file
             %
             % An error is raised if the data file is identified not a SQW object
@@ -117,7 +122,7 @@ classdef (InferiorClasses = {?d2d}) sqw < SQWDnDBase
             end
 
             w = struct();
-            [w.main_header, w.header, w.detpar, w.data] = ldr.get_sqw('-legacy');
+            [w.main_header, w.header, w.detpar, w.data] = ldr.get_sqw('-legacy', 'pixel_page_size', pixel_page_size);
             obj = obj.init_from_loader_struct(w);
         end
 
