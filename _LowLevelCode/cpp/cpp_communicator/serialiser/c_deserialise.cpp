@@ -8,7 +8,6 @@
  *
  * This is a MEX-file for MATLAB.
  *=======================================================*/
-
 #include <iostream>
 #include <cstring>
 #include <cmath>
@@ -17,8 +16,8 @@
 
 size_t memPtr;
 
-template<typename T>
-inline void deser(const uint8_t* data, std::vector<T> output, const double amount) {
+template<typename T, typename A>
+inline void deser(const uint8_t* data, std::vector<T,A>& output, const double amount) {
   memcpy(output.data(), &data[memPtr], amount);
   memPtr += amount;
 }
@@ -73,6 +72,12 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
   // Special case as function handles work differently
   if (tag.type != FUNCTION_HANDLE) {
     nDims = tag.dim;
+
+    if (nDims > 2) {
+      vDims.resize(nDims);
+      cast_dims.resize(nDims);
+    }
+
     deser(data, cast_dims, nDims*types_size[UINT32]);
     switch (nDims) {
     case 0:
@@ -93,10 +98,6 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
       break;
 
     default:
-      if (nDims > 2) {
-        vDims.resize(nDims);
-        cast_dims.resize(nDims);
-      }
       nElem = 1;
 
       for (size_t i = 0; i < nDims; i++) {
@@ -297,14 +298,17 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
       deser(data, fNameLens, nFields*types_size[UINT32]);
 
       std::vector<std::vector<char>> fNames(nFields);
+      std::vector<char*> mxData(nFields);
       for (int field=0; field < nFields; field++) {
         fNames[field] = std::vector<char>(fNameLens[field]+1);
+        mxData[field] = fNames[field].data();
         fNames[field][fNameLens[field]] = 0;
         deser(data, fNames[field], fNameLens[field]*types_size[CHAR]);
       }
 
-      output = mxCreateStructArray(nDims, dims, nFields, (const char**) fNames.data());
+      output = mxCreateStructArray(nDims, dims, nFields, (const char**) mxData.data());
       if (nFields == 0) break;
+
 
       mxArray* cellData = deserialise(data, size, 1);
 
@@ -322,9 +326,9 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
     {
       output = mxCreateCellArray(nDims, dims);
       for (mwIndex i = 0; i < nElem; i++) {
-        mxSetCell(output, i, deserialise(data, size, 1));
+        mxArray* elem = deserialise(data, size, 1);
+        mxSetCell(output, i, elem);
       }
-
     }
     break;
   }
