@@ -270,9 +270,15 @@ function [v, pos] = deserialise_object(m, pos)
             pos = pos + 1;
             switch ser_tag
               case 0 % Object serialises itself
+
+                v(1:totalElem) = feval(class_name);
+                for i=1:totalElem
+                    [v(i), nbytes] = v(i).deserialize(m, pos)
+                    pos = pos+nbytes+8;
+                end
               case 1 % Serialise as saveobj (must have loadobj)
+
                 [conts, pos] = deserialise_value(m, pos);
-                % v = arrayfun(@(i)(eval([class_name '.loadobj(conts(' num2str(i) '))'])), [1:totalElem])
                 % Preallocate
                 v(1:totalElem) = feval(class_name);
                 for i=1:totalElem
@@ -280,20 +286,11 @@ function [v, pos] = deserialise_object(m, pos)
                 end
               case 2 % Serialise as struct
                 [conts, pos] = deserialise_value(m, pos);
-                %                try % Direct assign
-                %  v = arrayfun(@(i)(eval([class_name '(conts(' num2str(i) '))'])), [1:totalElem])
                 % Preallocate
                 v(1:totalElem) = feval(class_name);
                 for i=1:totalElem
                     v(i) = eval([class_name '(conts(' num2str(i) '))']);
                 end
-                %                catch % Loop assign
-                %                      % Preallocate
-                %                    v(1:totalElem) = feval(class_name);
-                %                    for fn=fieldnames(conts)'
-                %                        %                        set(v,fn{1},num2cell(arrayfun(@(x)(x.(fn{1}), conts))));
-                %                    end
-                %                end
             end
         end
 
@@ -307,7 +304,9 @@ end
 function [type, nDims] = get_tag_data(m, pos)
     global type_details;
     type = m(pos);
+    % Take top 3 bits
     nDims = uint32(bitshift(bitand(32+64+128, type), -5));
+    % Take bottom 5 bits
     type = type_details(bitand(31, type) + 1);
 
 end

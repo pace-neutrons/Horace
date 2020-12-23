@@ -357,8 +357,12 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
 #endif
 #endif
 
-  if (nlhs > 1) mexErrMsgIdAndTxt("MATLAB:c_serialise:badLHS", "Bad number of LHS arguments in c_serialise");
-  if (nrhs != 1) mexErrMsgIdAndTxt("MATLAB:c_serialise:badRHS", "Bad number of RHS arguments in c_serialise");
+  if (nlhs > 1) {
+    mexErrMsgIdAndTxt("MATLAB:c_serialise:badLHS", "Bad number of LHS arguments in c_serialise");
+  }
+  if (nrhs != 1) {
+    mexErrMsgIdAndTxt("MATLAB:c_serialise:badRHS", "Bad number of RHS arguments in c_serialise");
+  }
 
   memPtr = 0;
   mwSize size = mxGetNumberOfElements(prhs[0]);

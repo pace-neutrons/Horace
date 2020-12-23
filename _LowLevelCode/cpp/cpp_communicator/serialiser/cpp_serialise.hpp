@@ -21,16 +21,16 @@ const double types_size[] = {
   2,  //   UINT16
   4,  //   INT32
   4,  //   UINT32
-  8, //   INT64
-  8, //   UINT64
+  8,  //   INT64
+  8,  //   UINT64
   16, //   COMPLEX_DOUBLE
   8,  //   COMPLEX_SINGLE
   2,  //   COMPLEX_INT8
   2,  //   COMPLEX_UINT8
   4,  //   COMPLEX_INT16
   4,  //   COMPLEX_UINT16
-  8, //   COMPLEX_INT32
-  8, //   COMPLEX_UINT32
+  8,  //   COMPLEX_INT32
+  8,  //   COMPLEX_UINT32
   16, //   COMPLEX_INT64
   16, //   COMPLEX_UINT64
   0,  //   CELL
