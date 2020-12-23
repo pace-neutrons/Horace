@@ -164,7 +164,7 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
     %   assertEqualToTolWithSave            - assert near-equality with saved variable
     %   assertElementsAlmostEqualWithSave   - test floating array elements near-equality
     %   assertVectorsAlmostEqualWithSave    - test vector near-equality in L2 norm sense
-    %   
+    %
     %
     % Utility methods:
     %   add_to_files_cleanList  - Add file or files to list to be deleted at end of test
@@ -191,12 +191,12 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
     % It can be useful to know in a test method if the data is being saved, for example
     % if new output is being generated that would otherwise cause tests to fail. A
     % common case is with the assertion-without-save functions e.g. assertEqualToTol or
-    % assertEqual. In this case, an error will be thrown and execution will cease. 
+    % assertEqual. In this case, an error will be thrown and execution will cease.
     
     
     % Original author A. Buts, rewritten T.G.Perring
     %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
+    
     
     properties(Dependent)
         % Filename from which to read previously stored test results
@@ -411,12 +411,10 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             %
             % See also assertEqual
             
-            try
-                assertMethodWithSave (this, var, inputname(2),...
-                    @assertEqual, varargin{:});
-            catch ME
-                throwAsCaller (ME)
-            end
+            
+            assertMethodWithSave (this, var, inputname(2),...
+                @assertEqual, varargin{:});
+            
         end
         
         %------------------------------------------------------------------
@@ -449,12 +447,10 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             %
             % See also assertElementsAlmostEqual
             
-            try
-                assertMethodWithSave (this, var, inputname(2),...
-                    @assertElementsAlmostEqual, varargin{:});
-            catch ME
-                throwAsCaller (ME)
-            end
+            
+            assertMethodWithSave (this, var, inputname(2),...
+                @assertElementsAlmostEqual, varargin{:});
+            
         end
         
         %------------------------------------------------------------------
@@ -487,12 +483,9 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             %
             % See also assertVectorsAlmostEqual
             
-            try
-                assertMethodWithSave (this, var, inputname(2),...
-                    @assertVectorsAlmostEqual, varargin{:});
-            catch ME
-                throwAsCaller (ME)
-            end
+            
+            assertMethodWithSave (this, var, inputname(2),...
+                @assertVectorsAlmostEqual, varargin{:});
         end
         
         %------------------------------------------------------------------
@@ -535,7 +528,7 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             % Use static utility methods
             this.delete_files (this.files_to_delete_)
             this.remove_paths (this.paths_to_remove_)
-        end                
+        end
     end
     
     
@@ -637,9 +630,10 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             call_struct = dbstack(1);
             for i=numel(call_struct):-1:2
                 cont=regexp(call_struct(i).name,'\.','split');
+                test_name = cont{end};
+                
                 if strcmp(cont{1},class_name) && ~strcmp(cont{end},class_name) &&...
                         strncmpi(cont{end},'test',4)
-                    test_name = cont{end};
                     break
                 end
             end

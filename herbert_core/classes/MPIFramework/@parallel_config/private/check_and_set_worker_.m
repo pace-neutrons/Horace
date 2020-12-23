@@ -11,7 +11,7 @@ scr_path = which(new_wrkr);
 if isempty(scr_path)
     def_wrkr = obj.worker_;
     if strcmp(new_wrkr,def_wrkr)
-        cur_fmw = get_or_restore_field(obj,'parallel_framework');
+        cur_fmw = get_or_restore_field(obj,'parallel_cluster');
         if ~strcmpi(cur_fmw,'none')
             warning('PARALLEL_CONFIG:invalid_argument',...
                 ['The script to run in parallel (%s) should be available ',...
@@ -19,7 +19,7 @@ if isempty(scr_path)
                 ' Parallel extensions are disabled'],...
                 new_wrkr)
             config_store.instance().store_config(obj,...
-                'parallel_framework','none','cluster_config','none');
+                'parallel_cluster','none','cluster_config','none');
             
         end
     else

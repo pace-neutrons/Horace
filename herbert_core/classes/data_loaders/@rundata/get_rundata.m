@@ -78,9 +78,8 @@ function [varargout] =get_rundata(this,varargin)
 %    been set before and do not have defaults, but are mentioned in the
 %    input parameters list
 
-% $Author: Alex Buts 20/10/2011
+% $Author: AB 20/10/2011
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 
 % possible modifiers of the data format
