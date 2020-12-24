@@ -244,7 +244,11 @@ function [v, pos] = deserialise_function_handle(m, pos)
             % to a nested function. This is not natively supported by MATLAB and can only be made
             % to work if your function's parent implements some mechanism to return such a handle.
             % The below call assumes that your function uses the BCILAB arg system to do this.
-            v = arg_report('handle',v,parentage{k});
+            try
+                v = arg_report('handle',v,parentage{k});
+            catch
+                Error("MATLAB:deserialise_function_handle:hlp_deserialise", "Cannot deserialize a function handle to a nested function.")
+            end
         end
     end
 end

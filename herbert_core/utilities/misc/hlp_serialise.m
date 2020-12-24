@@ -17,7 +17,7 @@ function m = hlp_serialise(v)
 %
 % Limitations:
 %   * Java objects cannot be serialized
-%   * Arrays with more than 255 dimensions have their last dimensions clamped
+%   * Arrays with more than 7 ranks have their last dimensions clamped
 %   * Handles to nested/scoped functions can only be deserialized when their parent functions
 %     support the BCILAB argument reporting protocol (e.g., by using arg_define).
 %   * New MATLAB objects need to be reasonably friendly to serialization; either they support
