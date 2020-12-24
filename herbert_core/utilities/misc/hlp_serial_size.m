@@ -16,13 +16,6 @@ function sz = hlp_serial_size(v)
 %
 
 % Always initialise first
-global types_size;
-if isempty(types_size)
-    classes = {'double','single','int8','uint8','int16','uint16','int32','uint32','int64','uint64'};
-    sizes = [8,4,1,1,2,2,4,4,8,8];
-    types_size = containers.Map(classes,sizes);
-end
-
 
 if isnumeric(v)
     sz = serial_size_numeric(v);
@@ -53,10 +46,7 @@ end
 
 % single scalar
 function sz = serial_size_scalar(v)
-
-global types_size;
-
-sz = 1+types_size(class(v));
+    sz = 1+hlp_serial_types.get_size(class(v));
 end
 
 % char arrays
@@ -86,8 +76,7 @@ end
 function sz = serial_size_numeric_simple(v)
 % Tag & Number of dimensions, Dimensions, Data
 %m = [16+class2tag(class(v)); uint8(ndims(v)); typecast(uint32(size(v)),'uint8').'; typecast(v(:).','uint8').'];
-global types_size;
-bs = types_size(class(v));
+bs = hlp_serial_types.get_size(class(v));
 sz = 1+1+4*numel(size(v))+numel(v)*bs;
 end
 

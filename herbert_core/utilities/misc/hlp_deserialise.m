@@ -1,14 +1,31 @@
 function v = hlp_deserialise(m)
-    global type_details;
-    if isempty(type_details)
-        type_details = struct('name',...
-                              {'logical', 'char', 'string', 'double', 'single', 'int8', 'uint8', 'int16', 'uint16', 'int32', 'uint32', 'int64', 'uint64', 'complex_double', 'complex_single', 'complex_int8', 'complex_uint8', 'complex_int16', 'complex_uint16', 'complex_int32', 'complex_uint32', 'complex_int64', 'complex_uint64', 'cell', 'struct', 'function_handle', 'value_object', 'handle_object_ref', 'enum', 'sparse_logical', 'sparse_double', 'sparse_complex_double'},...
-                              'size',...
-                              {1, 1, 1, 8, 4, 1, 1, 2, 2, 4, 4, 8, 8, 16, 8, 2, 2, 4, 4, 8, 8, 16, 16, 0, 0, 0, 0, 0, 0, 1, 8, 16},...
-                              'tag',...
-                              {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31});
+% Convert a serialised byte vector back into the corresponding MATLAB data structure.
+% Data = hlp_deserialise(Bytes)
+%
+% In:
+%   Bytes : a representation of the original data as a byte stream
+%
+% Out:
+%   Data : some MATLAB data structure
+%
+% See also:
+%   hlp_serialise
+%
+% Examples:
+%   bytes = hlp_serialise(mydata);
+%   ... e.g. transfer the 'bytes' array over the network ...
+%   mydata = hlp_deserialise(bytes);
+%
+%                                Jacob Wilkins, SCD, STFC RAL,
+%                                2020-12-24
+%
+%                                adapted from hlp_deserialize.m
+%                                Christian Kothe, Swartz Center for Computational Neuroscience, UCSD
+%                                2010-04-02
+%
+%                                adapted from deserialize.m
+%                                (C) 2010 Tim Hutt
 
-    end
 
     v = deserialise_value(m,uint32(1));
 
@@ -302,11 +319,10 @@ function [v, pos] = deserialise_object(m, pos)
 end
 
 function [type, nDims] = get_tag_data(m, pos)
-    global type_details;
     type = m(pos);
     % Take top 3 bits
     nDims = uint32(bitshift(bitand(32+64+128, type), -5));
     % Take bottom 5 bits
-    type = type_details(bitand(31, type) + 1);
+    type = hlp_serial_types.type_details(bitand(31, type) + 1);
 
 end

@@ -1,18 +1,48 @@
 function m = hlp_serialise(v)
-    global type_details;
-    global lookup;
-    if isempty(type_details)
-        classes = {'logical', 'char', 'string', 'double', 'single', 'int8', 'uint8', 'int16', 'uint16', 'int32', 'uint32', 'int64', 'uint64', 'complex_double', 'complex_single', 'complex_int8', 'complex_uint8', 'complex_int16', 'complex_uint16', 'complex_int32', 'complex_uint32', 'complex_int64', 'complex_uint64', 'cell', 'struct', 'function_handle', 'value_object', 'handle_object_ref', 'enum', 'sparse_logical', 'sparse_double', 'sparse_complex_double'};
-
-        lookup = containers.Map(classes, 1:32);
-        type_details = struct('name',...
-                              {'logical', 'char', 'string', 'double', 'single', 'int8', 'uint8', 'int16', 'uint16', 'int32', 'uint32', 'int64', 'uint64', 'complex_double', 'complex_single', 'complex_int8', 'complex_uint8', 'complex_int16', 'complex_uint16', 'complex_int32', 'complex_uint32', 'complex_int64', 'complex_uint64', 'cell', 'struct', 'function_handle', 'value_object', 'handle_object_ref', 'enum', 'sparse_logical', 'sparse_double', 'sparse_complex_double'},...
-                              'size',...
-                              {1, 1, 2, 8, 4, 1, 1, 2, 2, 4, 4, 8, 8, 16, 8, 2, 2, 4, 4, 8, 8, 16, 16, 0, 0, 0, 0, 0, 0, 1, 8, 16},...
-                              'tag',...
-                              {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31});
-
-    end
+% Convert a MATLAB data structure into a compact byte vector.
+% Bytes = hlp_serialise(Data)
+%
+% The original data structure can be recovered from the byte vector via hlp_deserialise.
+%
+% In:
+%   Data : some MATLAB data structure
+%
+% Out:
+%   Bytes : a representation of the original data as a byte stream
+%
+% Notes:
+%   The code is a rewrite of Tim Hutt's serialization code. Support has been added for correct
+%   recovery of sparse, complex, single, (u)intX, function handles, anonymous functions, objects,
+%   and structures with unlimited field count. Serialize/deserialize performance is ~10x higher.
+%
+% Limitations:
+%   * Java objects cannot be serialized
+%   * Arrays with more than 255 dimensions have their last dimensions clamped
+%   * Handles to nested/scoped functions can only be deserialized when their parent functions
+%     support the BCILAB argument reporting protocol (e.g., by using arg_define).
+%   * New MATLAB objects need to be reasonably friendly to serialization; either they support
+%     construction from a struct, or they support saveobj/loadobj(struct), or all their important
+%     properties can be set via set(obj,'name',value)
+%   * In anonymous functions, accessing unreferenced variables in the workspace of the original
+%     declaration is not possible
+%
+% See also:
+%   hlp_deserialise
+%
+% Examples:
+%   bytes = hlp_serialise(mydata);
+%   ... e.g. transfer the 'bytes' array over the network ...
+%   mydata = hlp_deserialise(bytes);
+%
+%                                Jacob Wilkins, SCD, STFC RAL,
+%                                2020-12-24
+%
+%                                adapted from hlp_serialize.m
+%                                Christian Kothe, Swartz Center for Computational Neuroscience, UCSD
+%                                2010-04-02
+%
+%                                adapted from serialize.m
+%                                (C) 2010 Tim Hutt
 
     type = type_mapping(v);
     switch type.name
@@ -142,11 +172,10 @@ function m = serialise_cell(v, type)
 end
 
 function m = serialise_object(v, type)
-    global type_details;
     nElem = numel(v);
     nDims = uint8(ndims(v));
 
-    class_name = serialise_simple_data(class(v), type_details(2));
+    class_name = serialise_simple_data(class(v), hlp_serial_types.get_details('char'));
     % can object serialise/deserialise itself?
     if any(strcmp(methods(v), 'serialize'))
             conts = arrayfun(@(x) (x.serialize()), v);
@@ -182,21 +211,19 @@ end
 
 % Function handle
 function m = serialise_function_handle(v, type)
-    global type_details;
-
     % get the representation
     rep = functions(v);
     switch rep.type
       case {'simple', 'classsimple'}
         % simple function: Tag & name
-        m = [uint8(32+type.tag); serialise_simple_data(rep.function, type_details(2))];
+        m = [uint8(32+type.tag); serialise_simple_data(rep.function, hlp_serial_types.get_details('char'))];
       case 'anonymous'
         % anonymous function: Tag, Code, and reduced workspace
-        m = [uint8(64+type.tag); serialise_simple_data(char(v), type_details(2)); serialise_struct(rep.workspace{1}, type_details(25))];
+        m = [uint8(64+type.tag); serialise_simple_data(char(v), hlp_serial_types.get_details('char')); serialise_struct(rep.workspace{1}, hlp_serial_types.get_details('struct'))];
 
       case {'scopedfunction','nested'}
         % scoped function: Tag and Parentage
-        m = [uint8(96+type.tag); serialise_cell(rep.parentage, type_details(24))];
+        m = [uint8(96+type.tag); serialise_cell(rep.parentage, hlp_serial_types.get_details('cell'))];
       otherwise
         warn_once('hlp_serialise:unknown_handle_type','A function handle with unsupported type "%s" was encountered; using a placeholder instead.',rep.type);
         m = serialise_string(['<<hlp_serialise: function handle of type ' rep.type ' unsupported>>']);
@@ -204,8 +231,6 @@ function m = serialise_function_handle(v, type)
 end
 
 function obj = type_mapping(v)
-    global type_details;
-    global lookup;
     type = class(v);
 
     if isnumeric(v) && ~isreal(v)
@@ -215,12 +240,12 @@ function obj = type_mapping(v)
         type = ['sparse_' type];
     end
 
-    if isKey(lookup, type)
-        obj = type_details(lookup(type));
+    if isKey(hlp_serial_types.lookup, type)
+        obj = hlp_serial_types.get_details(type);
     elseif ishandle(v)
-        obj = type_details(lookup('handle_object'));
+        obj = hlp_serial_types.get_details('handle_object');
     else
-        obj = type_details(lookup('value_object'));
+        obj = hlp_serial_types.get_details('value_object');
     end
 
 end

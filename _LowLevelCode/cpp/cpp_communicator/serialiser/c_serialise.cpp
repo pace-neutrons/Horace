@@ -32,7 +32,7 @@ inline void ser(uint8_t* data, const void* const data_in, const double amount) {
 
 inline void write_data(uint8_t* data, const mxArray* const input, const size_t elemSize, const size_t nElem) {
   if (mxIsComplex(input)) {
-    // Size of a complex component is half that of the whole double
+    // Size of a complex component is half that of the whole complex
     size_t compSize = elemSize/2;
 
 #if MX_HAS_INTERLEAVED_COMPLEX

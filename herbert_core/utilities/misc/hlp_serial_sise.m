@@ -1,18 +1,19 @@
 function siz = hlp_serial_sise(v)
-    global type_details;
-    global lookup;
-    if isempty(type_details)
-        classes = {'logical', 'char', 'string', 'double', 'single', 'int8', 'uint8', 'int16', 'uint16', 'int32', 'uint32', 'int64', 'uint64', 'complex_double', 'complex_single', 'complex_int8', 'complex_uint8', 'complex_int16', 'complex_uint16', 'complex_int32', 'complex_uint32', 'complex_int64', 'complex_uint64', 'cell', 'struct', 'function_handle', 'value_object', 'handle_object_ref', 'enum', 'sparse_logical', 'sparse_double', 'sparse_complex_double'};
-
-        lookup = containers.Map(classes, 1:32);
-        type_details = struct('name',...
-                              {'logical', 'char', 'string', 'double', 'single', 'int8', 'uint8', 'int16', 'uint16', 'int32', 'uint32', 'int64', 'uint64', 'complex_double', 'complex_single', 'complex_int8', 'complex_uint8', 'complex_int16', 'complex_uint16', 'complex_int32', 'complex_uint32', 'complex_int64', 'complex_uint64', 'cell', 'struct', 'function_handle', 'value_object', 'handle_object_ref', 'enum', 'sparse_logical', 'sparse_double', 'sparse_complex_double'},...
-                              'size',...
-                              {1, 1, 2, 8, 4, 1, 1, 2, 2, 4, 4, 8, 8, 16, 8, 2, 2, 4, 4, 8, 8, 16, 16, 0, 0, 0, 0, 0, 0, 1, 8, 16},...
-                              'tag',...
-                              {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31});
-
-    end
+% Calculate the size (in bytes) of Matlab structure, which would be produced by
+% hlp_serialise routine. Deduced from hlp_serialise/
+%
+% See also:
+%   hlp_serialise
+%   hlp_deserialise
+%
+% Examples:
+%   >>num_bytes = hlp_serial_sise(mydata);
+%   >>bytes = hlp_serialise(mydata)
+%   >>numel(bytes) == num_bytes
+%   >>True
+%
+%   dispatch according to type
+%
 
     type = type_mapping(v);
     switch type.name
@@ -121,7 +122,6 @@ function siz = serial_sise_cell(v, type)
 end
 
 function siz = serial_sise_object(v, type)
-    global type_details;
     nElem = numel(v);
     nDims = ndims(v);
 
@@ -164,9 +164,6 @@ end
 
 % Function handle
 function siz = serial_sise_function_handle(v, type)
-    global type_details;
-
-
     % get the representation
     rep = functions(v);
     switch rep.type
@@ -174,23 +171,23 @@ function siz = serial_sise_function_handle(v, type)
         % simple function: Tag & name
 
         siz = 1 + 1 + 4 + numel(rep.function);
-        % m = [uint8(32+type.tag); serialise_simple_data(rep.function, type_details(2))];
+        % m = [uint8(32+type.tag); serialise_simple_data(rep.function, hlp_serial_types.get_details(2))];
       case 'anonymous'
         % anonymous function: Tag, Code, and reduced workspace
 
         siz = 1 + 1 + 4 + numel(char(v));
         if ~isempty(rep.workspace)
-            siz = siz + serial_sise_struct(rep.workspace{1}, type_details(25));
-            % m = [uint8(64+type.tag); serialise_simple_data(char(v), type_details(2)); serialise_struct(rep.workspace{1}, type_details(25))];
+            siz = siz + serial_sise_struct(rep.workspace{1}, hlp_serial_types.get_details('struct'));
+            % m = [uint8(64+type.tag); serialise_simple_data(char(v), hlp_serial_types.get_details(2)); serialise_struct(rep.workspace{1}, hlp_serial_types.get_details('struct')];
         else
-            siz = siz + serial_sise_struct(struct(), type_details(25));
-            % m = [uint8(64+type.tag); serialise_simple_data(char(v), type_details(2)); serialise_struct(struct(), type_details(25))];
+            siz = siz + serial_sise_struct(struct(), hlp_serial_types.get_details('struct'));
+            % m = [uint8(64+type.tag); serialise_simple_data(char(v), hlp_serial_types.get_details(2)); serialise_struct(struct(), hlp_serial_types.get_details('struct')];
         end
       case {'scopedfunction','nested'}
         % scoped function: Tag and Parentage
 
-        siz = 1 + serial_sise_cell(rep.parentage, type_details(24));
-        % m = [uint8(96+type.tag); serialise_cell(rep.parentage, type_details(24))];
+        siz = 1 + serial_sise_cell(rep.parentage, hlp_serial_types.get_details('cell'));
+        % m = [uint8(96+type.tag); serialise_cell(rep.parentage, hlp_serial_types.get_details('cell')];
       otherwise
         error('hlp_serial_sise:unknown_handle_type','A function handle with unsupported type "%s" was encountered; using a placeholder instead.',rep.type);
     end
@@ -198,23 +195,23 @@ end
 
 
 function obj = type_mapping(v)
-    global type_details;
-    global lookup;
     type = class(v);
 
     if isnumeric(v) && ~isreal(v)
+        % Prepend complex
         type = ['complex_' type];
     end
     if issparse(v)
+        % Prepend sparse
         type = ['sparse_' type];
     end
 
-    if isKey(lookup, type)
-        obj = type_details(lookup(type));
+    if hlp_serial_types.contains(type)
+        obj = hlp_serial_types.get_details(type);
     elseif ishandle(v)
-        obj = type_details(lookup('handle_object'));
+        obj = hlp_serial_types.get_details('handle_object');
     else
-        obj = type_details(lookup('value_object'));
+        obj = hlp_serial_types.get_details('value_object');
     end
 
 end

@@ -29,7 +29,7 @@ inline void deser(const uint8_t* data, void* output, const double amount) {
 
 inline void read_data(uint8_t* data, mxArray* output, const size_t elemSize, const size_t nElem) {
   if (mxIsComplex(output)) {
-    // Size of a complex component is half that of the whole double
+    // Size of a complex component is half that of the whole complex
     size_t compSize = elemSize/2;
 
 #if MX_HAS_INTERLEAVED_COMPLEX
@@ -60,7 +60,7 @@ inline void read_data(uint8_t* data, mxArray* output, const size_t elemSize, con
 
 mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
 
-  mxArray* output = NULL;
+  mxArray* output = nullptr;
 
   tag_type tag;
   deser(data, &tag, types_size[UINT8]);
@@ -115,7 +115,7 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
 
   }
 
-  // Shorthand for passing to c function
+  // C Mex API requires pointer, not vector
   mwSize* dims = vDims.data();
 
   switch (tag.type) {
