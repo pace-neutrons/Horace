@@ -196,6 +196,14 @@ classdef dnd_file_interface
             % recover such object
             struc = saveobj(obj);
         end
+        function keeps = keeps_img_range(~)
+            % Returns true when the img_range is stored within a file.
+            % 
+            % old sqw file formatters were not storing this variable. 
+            % If it is not stored, it needs to be recalculated.
+            % 
+            keeps = false;
+        end
     end
     methods(Access = protected,Hidden=true)
         %

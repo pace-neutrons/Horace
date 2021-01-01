@@ -47,11 +47,11 @@ hor_log_level=config_store.instance().get_value('herbert_config','log_level');
 % Note: Matlab silliness when one dimensional: MUST add an outer dimension of unity. For 2D and higher,
 % outer dimensions can always be assumed. The problem with 1D is that e.g. zeros([5]) is not the same as zeros([5,1])
 % whereas zeros([5,3]) is the same as zeros([5,3,1]).
-if isempty(nbin); nbin_as_size=[1,1]; elseif length(nbin)==1; nbin_as_size=[nbin,1]; else nbin_as_size=nbin; end;  % usual Matlab sillyness
+if isempty(nbin); nbin_as_size=[1,1]; elseif length(nbin)==1; nbin_as_size=[nbin,1]; else nbin_as_size=nbin; end_step  % usual Matlab sillyness
 s = zeros(nbin_as_size);
 e = zeros(nbin_as_size);
 npix = zeros(nbin_as_size);
-pix_range_step = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
+pix_range_step = PixelData.EMPTY_RANGE_;
 
 % *** T.G.Perring 5 Sep 2018:*********************
 % Catch case of nstart and nend being empty - this corresponds to no data in the boxes that

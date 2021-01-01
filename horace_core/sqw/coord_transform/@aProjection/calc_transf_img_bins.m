@@ -1,9 +1,13 @@
-function [iax, iint, pax, p, img_range_out] = calc_ubins (proj,img_range_in,pbin, pin, en)
+function [iax, iint, pax, p, img_range_out] = calc_transf_img_bins(proj,img_range_in,pbin, pin, en)
+% Build the binning and axis for the coordinate system related to cut 
+%
 % Create bin boundaries for integration and plot axes from requested limits and step sizes
-% Uses knowledge of the range of the data and energy bins of the data to set values for those
+% for the cut, defined by the new projection.
+%
+% Uses knowledge of the range of the initial image and energy bins of the image to set values for those
 % not provided.
 %
-%   >> [iax, iint, pax, p, img_range, pbin_out] =  proj.calc_ubins(img_range_in, pbin, pin, en)
+%   >> [iax, iint, pax, p, img_range, pbin_out] =  proj.calc_transformed_img_bins(img_range_in, pbin, pin, en)
 %
 %      Throws aPROJECTION:invalid_arguments if input parameters are
 %      inconsistent or incorrect
@@ -156,10 +160,11 @@ iax = iax(1:niax);
 
 % Compute plot bin boundaries and integration ranges
 % ------------------------------------------------------------------------
-% Get range in output projection axes from the 8 points defined in momentum space by img_range_in:
-% This gives the maximum extent of the data pixels that can possibly contribute to the output data.
+% Get range of initial data, expressed in the coordinate frame of requested
+% projection from the 8 points defined in momentum space by img_range_in:
+% This gives the maximum extent of the image pixels that can possibly contribute to the output data.
 % third coordinate is not used.
-img_range_real = proj.find_max_data_range(img_range_in);
+old_img_range = proj.find_old_img_range(img_range_in);
 
 % Compute plot bin boundaries and range that fully encloses the requested output plot axes
 iint=zeros(2,niax);
@@ -177,11 +182,11 @@ for i=1:npax
         pbin_tmp=[cut_lmts_req(ipax,1),vstep(ipax),cut_lmts_req(ipax,2)];
         if ipax<4 || (ipax==4 && vstep(ipax)>0)
             % Q axes, and also treat energy axis like other axes if provided with energy bin greater than zero
-            p{i}=make_const_bin_boundaries(pbin_tmp,img_range_real(:,ipax));
+            p{i}=make_const_bin_boundaries(pbin_tmp,old_img_range(:,ipax));
         else
             % Only reaches here if energy axis and requested energy bin width is explicity or implicitly zero
             % Handle this case differently to above, because we ensure bin boundaries synchronised to boundaries in array en
-            p{i}=make_const_bin_boundaries(pbin_tmp,img_range_real(:,ipax),en,true);
+            p{i}=make_const_bin_boundaries(pbin_tmp,old_img_range(:,ipax),en,true);
         end
         % No bins
         if isempty(p{i})
@@ -210,8 +215,8 @@ for i=1:niax
     %img_range_out(2,iiax) =vlims(iiax,2);
     % Select the range - union between image range and the requested cut range
     [img_range_out(1,iiax),img_range_out(2,iiax),inf_removed] =...
-        min_max_range(cut_lmts_req(iiax,1),img_range_real(1,iiax),...
-        cut_lmts_req(iiax,2),img_range_real(2,iiax));
+        min_max_range(cut_lmts_req(iiax,1),old_img_range(1,iiax),...
+        cut_lmts_req(iiax,2),old_img_range(2,iiax));
     if inf_removed
         iint(1,i)=img_range_out(1,iiax);
         iint(2,i)=img_range_out(2,iiax);
@@ -244,4 +249,3 @@ center = 0.5*(min(min_range1,min_range2)+max(max_range1,max_range2));
 
 a_min = max(min_range1-center,min_range2-center)+center;
 a_max = min(max_range1-center,max_range2-center)+center;
-

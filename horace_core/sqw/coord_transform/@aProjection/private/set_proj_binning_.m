@@ -1,6 +1,6 @@
 function this = set_proj_binning_(this,new_img_range,pax,iax,p)
-
-% Check input arguments
+%
+%
 %
 this.new_img_range_ = new_img_range;
 %---------------------------------------------------
@@ -11,7 +11,7 @@ this.new_img_range_ = new_img_range;
 %  In the cutting algorithm, plot axes with one bin only will be treated exactly as integration axes; we can always reshape the output
 % to insert singleton dimensions as required.
 %  (*** Implicitly assumes that there is no energy offset in uoffset, either in the input data or the requested output proj axes
-%   *** Will need to modify get_nrange_rot_section, calc_ubins and routines they call to handle this.)
+%   *** Will need to modify get_nrange_rot_section, calc_transf_img_bins and routines they call to handle this.)
 
 % Get plot axes with two or more bins, and the number of bins along those axes
 j=1;
@@ -52,7 +52,4 @@ this.nbin_gt1_   = nbin_gt1;
 this.usteps_ = ustep;
 this.urange_step_ = urange_step;
 this.urange_offset_ = urange_offset;
-
-
-
 

@@ -911,7 +911,9 @@ classdef test_PixelData < TestCase
             
             % edit a page such that it must be written to a file
             pix.signal = 1;
-            pix = pix.advance();
+            [n_page,num_pages]=pix.advance();
+            assertEqual(n_page,1)
+            assertEqual(num_pages,1)            
             tmp_file_path = fullfile(expected_tmp_dir, '000000001.tmp');
             assertTrue(logical(exist(tmp_file_path, 'file')));
             
@@ -919,7 +921,7 @@ classdef test_PixelData < TestCase
             original_timestamp = java.io.File(tmp_file_path).lastModified();
             
             % move to first page and advance again
-            pix = pix.move_to_first_page();
+            pix.move_to_first_page();
             pix.signal;  % make sure there's data in memory
             pix.advance();  % no writing should happen here
             

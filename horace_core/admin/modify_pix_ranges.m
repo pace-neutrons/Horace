@@ -1,7 +1,11 @@
 function [range_stored,minmax]=modify_pix_ranges(filenames)
-% Helper function to update pixel range stored in old sqw files to correct value
+% Helper function to update pixel ranges stored in old binary sqw files 
+% (version below 3.2 stored by Horace 3.5 and earlier)
+% to the values, used by Horace 3.6 and later.
+%
 % Input:
-% filenames -- filename or list of filenames to check and verify
+% filenames -- filename or list of filenames, describing full path to
+%              binary sqw files to change
 %
 % Result:
 % The pixel ranges of the input sqw files are modified to correct ranges
@@ -18,13 +22,18 @@ for i=1:n_inputs
 end
 hc = hor_config;
 pix_chunk_size = hc.mem_chunk_size*PixelData.DEFAULT_NUM_PIX_FIELDS*4;
+log_level = hc.log_level;
 
 for i=1:n_inputs
     pix = PixelData(loaders{i},pix_chunk_size);
     range_stored = pix.pix_range;
     minmax = [min(pix.coordinates,[],2),max(pix.coordinates,[],2)]';
     while pix.has_more
-        pix.advance;
+        [n_page,tot_page_num]=pix.advance;
+        if log_level>0
+            fprintf('*** Processing page: #%d/of#%d\n',...
+                n_page,tot_page_num);
+        end
         minmax_pg = [min(pix.coordinates,[],2),max(pix.coordinates,[],2)]';
         minmax = [min([minmax(1,:);minmax_pg(1,:)],[],1);...
             max([minmax(2,:);minmax_pg(2,:)],[],1)];

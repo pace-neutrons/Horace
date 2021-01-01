@@ -82,6 +82,17 @@ classdef aProjection
         %------------------------------------------------------------------
         % Common interface to projection data
         %------------------------------------------------------------------
+        % build the binning and axis for the coordinate system related to cut 
+        [iax, iint, pax, p, img_range_out] = calc_transf_img_bins (proj,img_range_in,pbin, pin, en)        
+        % Check that the binning arguments are valid, and update the projection
+        % with the current bin values
+        [proj_update,pbin_update,ndims,pin,en] = update_pbins (proj, header_ave, data, pbin)
+        
+        % Check binning descriptors are valid, and resolve multiple integration axes
+        % using limits and bin widths from the input data.        
+        [ pbin_out, ndims] = calc_pbins(proj, img_range_in, pbin, pin, en)
+        
+        %
         function this=retrieve_existing_tranf(this,data,upix_to_rlu,upix_offset)
             % Retrieve all parameters for transformation already
             % defined over sqw data and store them in projection to
@@ -102,18 +113,6 @@ classdef aProjection
             this = this.set_proj_binning_(new_img_range,prj_ax_ind,int_ax_ind,prj_ax_bins);
         end
         
-        % Create bin boundaries for integration and plot axes from requested limits and step sizes
-        % Uses knowledge of the range of the data and energy bins of the data to set values for those
-        % not provided.
-        [iax, iint, pax, p, img_range, pbin_out] = calc_ubins(proj,img_range_in,pbin, pin, en)
-        
-        % Check that the binning arguments are valid, and update the projection
-        % with the current bin values
-        [proj_update,pbin_update,ndims,pin,en] = update_pbins (proj, header_ave, data, pbin)
-        % Check binning descriptors are valid, and resolve multiple integration axes
-        % using limits and bin widths from the input data.
-        
-        [ pbin_out, ndims] = calc_pbins(proj, img_range_in, pbin, pin, en)
         %------------------------------------------------------------------
         % accessors
         %------------------------------------------------------------------
@@ -283,19 +282,21 @@ classdef aProjection
     %  ABSTRACT INTERFACE -- use
     %----------------------------------------------------------------------
     methods(Abstract)
-        urange_out = find_max_data_range(this,urange_in);
         % find the whole range of input data which may contribute
-        % into the result.
-        
-        [istart,iend,irange,inside,outside] = get_irange_proj(this,urange,varargin);
+        % into the result.        
+        urange_out = find_old_img_range(this,urange_in);
+
+
         % Get ranges of bins that partially or wholly lie inside an n-dimensional shape,
-        % defined by projection limits.
+        % defined by projection limits.        
+        [istart,iend,irange,inside,outside] = get_irange_proj(this,urange,varargin);
+        
+        % get list of pixels indexes contributing into the cut        
         [indx,ok] = get_contributing_pix_ind(this,v);
-        % get list of pixels indexes contributing into the cut
-        %
-        [uoffset,ulabel,dax,u_to_rlu,ulen,title_function] = get_proj_param(this,data_in,pax);
+        
         % get projection parameters, necessary for properly definind a sqw
-        % or dnd object from the projection
+        % or dnd object from the projection        %
+        [uoffset,ulabel,dax,u_to_rlu,ulen,title_function] = get_proj_param(this,data_in,pax);
     end
 end
 

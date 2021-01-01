@@ -240,7 +240,7 @@ classdef data_sqw_dnd
         end
     end
     methods(Static)
-        function img_range = calc_img_range(ds)
+        function img_range = calc_img_range(ds,varargin)
             % function used to retrieve 4D range of a horace image, used
             % for display purposes and as keys to pixels database
             %
@@ -267,26 +267,49 @@ classdef data_sqw_dnd
             %                  data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,
             %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
             %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
+            %                       
             %
-            
-            
-            % NOT IMPLEMENTED!
-            %
-            %if isfield(ds,'pix_range')
-            %    img_range = ds.pix_range*ds.u_to_rlu;
-            %else
-            
+%             function minmax = check_minmax(min, max)
+%                 if min>max
+%                     tmp = max;
+%                     max = min;
+%                     min = tmp;
+%                 end        
+%                 minmax = [min;max];
+%             end
+%             if nargin>1
+%                 u_to_rlu0 = varargin{1};
+%             else
+%                 u_to_rlu0 = eye(4);                
+%             end
+%             img_range = [];
+%             if isfield(ds,'pix_range') &&  all(all(ds.pix_range ~= PixelData.EMPTY_RANGE_))
+%                 img_range = bsxfun(@minus,ds.pix_range,(u_to_rlu0\ds.uoffset)')*u_to_rlu0*(ds.u_to_rlu.*repmat(ds.ulen,[4,1]));            
+%             elseif ds.pix.num_pixels >0 || all(all(ds.pix.pix_range ~= PixelData.EMPTY_RANGE_))
+%                 pix_range = ds.pix.pix_range;
+%                 img_range = bsxfun(@minus,pix_range,(u_to_rlu0\ds.uoffset)')*u_to_rlu0*(ds.u_to_rlu.*repmat(ds.ulen,[4,1]));
+%             end
+%             if ~isempty(img_range)
+%                 mm = arrayfun(@check_minmax,img_range(1,:),img_range(2,:),...
+%                     'UniformOutput',false);                
+%                 img_range = [mm{:}];
+%                 return;                
+%             end
+            % all below is probably incorrect or correct for dnd objects
+            % only.
+            % but it reached only when empty constructor is called or dnd
+            % constructor where img_range is not used (old sqw objects)
+            % TODO: check and refactor for new SQW objects.
             img_range = zeros(2,4);
             img_range(:,ds.iax) = ds.iint;
             
             npax = numel(ds.p);
             pax_range = zeros(2,npax);
             for i=1:npax
-                pax_range(:,i) = [0.5*(ds.p{i}(1)+ds.p{i}(2));...
-                    0.5*(ds.p{i}(end-1)+ds.p{i}(end))];
+                pax_range(:,i) = [ds.p{i}(1);...
+                    ds.p{i}(end)];
             end
-            img_range(:,ds.dax) = pax_range;
-            %end
+            img_range(:,ds.pax) = pax_range;
         end
         %
         function obj = loadobj(input)
