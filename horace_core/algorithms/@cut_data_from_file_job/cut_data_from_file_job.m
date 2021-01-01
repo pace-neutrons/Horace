@@ -73,11 +73,11 @@ classdef cut_data_from_file_job < JobExecutor
         end
     end
     methods(Static)
-        function [s, e, npix, pix_range_step, pix, npix_retain, npix_read] = cut_data_from_file(fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
+        function [s, e, npix, img_range_step, pix, npix_retain, npix_read] = cut_data_from_file(fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
                 proj,pax, nbin)
             % Accumulates pixels retrieved from sqw file into bins defined by cut parameters
             %
-            %   >> [s, e, npix, npix_retain] = cut_data_from_file(fid, nstart, nend, pix_range_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, nbin, keep_pix)
+            %   >> [s, e, npix, npix_retain] = cut_data_from_file(fid, nstart, nend, img_range_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, nbin, keep_pix)
             %
             % Input:
             % ------
@@ -90,7 +90,7 @@ classdef cut_data_from_file_job < JobExecutor
             %                       pix_tmpfile_ok = false: pix is a PixelData object
             %                       pix_tmpfile_ok = true:  Buffering of pixel info to temporary files if pixels exceed a threshold
             %                                              In this case, output argument pix contains details of temporary files (see below)
-            %   pix_range_step     [2x4] array of the ranges of the data as defined by (i) output proj. axes ranges for
+            %   img_range_step     [2x4] array of the ranges of the data as defined by (i) output proj. axes ranges for
             %                  integration axes (or plot axes with one bin), and (ii) step range (0 to no. bins)
             %                  for plotaxes (with more than one bin)
             %   rot_ustep       Matrix [3x3]     --|  that relate a vector expressed in the
@@ -106,7 +106,7 @@ classdef cut_data_from_file_job < JobExecutor
             %   s               Array of accumulated signal from all contributing pixels (dimensions match the plot axes)
             %   e               Array of accumulated variance
             %   npix            Array of number of contributing pixels (if keep_pix==true, otherwise pix=[])
-            %   pix_range_step Actual range of contributing pixels
+            %   img_range_step Actual range of contributing pixels
             %   pix             if keep_pix=false, pix is an empty PixelData object;
             %                   if keep_pix==true, then contents depend on value of pix_tmpfile_ok:
             %                       pix_tmpfile_ok = false: contains PixelData object
@@ -119,27 +119,27 @@ classdef cut_data_from_file_job < JobExecutor
             %
             %
             % Note:
-            % - Redundant input variables in that pix_range_step(2,pax)=nbin in implementation of 19 July 2007
+            % - Redundant input variables in that img_range_step(2,pax)=nbin in implementation of 19 July 2007
             % - Aim to take advantage of in-place working within accumulate_cut
 
             % T.G.Perring   19 July 2007 (based on earlier prototype TGP code)
             %
-            [s, e, npix, pix_range_step, pix, npix_retain, npix_read] = cut_data_from_file_(fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
+            [s, e, npix, img_range_step, pix, npix_retain, npix_read] = cut_data_from_file_(fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
                 proj,pax, nbin);
 
         end
-        function [s, e, npix, pix_range_step, npix_retain, ok, ix] = accumulate_cut(s, e, npix, pix_range_step, keep_pix, ...
+        function [s, e, npix, img_range_step, npix_retain, ok, ix] = accumulate_cut(s, e, npix, img_range_step, keep_pix, ...
                 v, proj, pax)
             % Accumulate signal and pixel if requested into the output arrays
             %
-            %   >> [s,e,npix,npix_retain] = accumulate_cut (s, e, npix, v, pix_range_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, keep_pix)
+            %   >> [s,e,npix,npix_retain] = accumulate_cut (s, e, npix, v, img_range_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, keep_pix)
             %
             % Input: (* denotes output argument with same name exists - exploits in-place working of Matlab R2007a)
             % ------
             % * s               Array of accumulated signal from all contributing pixels (dimensions match the plot axes)
             % * e               Array of accumulated variance
             % * npix            Array of number of contributing pixels
-            % * pix_range_step Actual range of contributing pixels
+            % * img_range_step Actual range of contributing pixels
             %   keep_pix        Set to true if wish to retain the information about individual pixels; set to false if not
             %   v               A PixelData object
             %
@@ -153,13 +153,13 @@ classdef cut_data_from_file_job < JobExecutor
             %   s               Array of accumulated signal from all contributing pixels (dimensions match the plot axes)
             %   e               Array of accumulated variance
             %   npix            Array of number of contributing pixels
-            %   pix_range_step Actual range of contributing pixels
+            %   img_range_step Actual range of contributing pixels
             %   npix_retain     Number of pixels that contribute to the cut
             %   ok              If keep_pix==true: v(:,ok) are the pixels that are retained; otherwise =[]
             %   ix              If keep_pix==true: column vector of single bin index of each retained pixel; otherwise =[]
             %
             %
-            [s, e, npix, pix_range_step, npix_retain, ok, ix] = accumulate_cut_ (s, e, npix, pix_range_step, keep_pix, ...
+            [s, e, npix, img_range_step, npix_retain, ok, ix] = accumulate_cut_ (s, e, npix, img_range_step, keep_pix, ...
                 v, proj, pax);
         end
 

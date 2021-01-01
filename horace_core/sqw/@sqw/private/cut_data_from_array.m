@@ -1,7 +1,7 @@
-function [s, e, npix, pix_range_step, pix, npix_retain, npix_read] = cut_data_from_array (pix_in, nstart, nend, keep_pix, ...
+function [s, e, npix, img_range_step, pix, npix_retain, npix_read] = cut_data_from_array (pix_in, nstart, nend, keep_pix, ...
     proj, pax, nbin)
 
-%function [s, e, npix, pix_range_step, pix, npix_retain, npix_read] = cut_data_from_array (pix_in, nstart, nend, keep_pix, ...
+%function [s, e, npix, img_range_step, pix, npix_retain, npix_read] = cut_data_from_array (pix_in, nstart, nend, keep_pix, ...
 %    urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, nbin)
 % Accumulates pixels into bins defined by cut parameters
 %
@@ -27,7 +27,7 @@ function [s, e, npix, pix_range_step, pix, npix_retain, npix_read] = cut_data_fr
 %   s               Array of accumulated signal from all contributing pixels (dimensions match the plot axes)
 %   e               Array of accumulated variance
 %   npix            Array of number of contributing pixels (if keep_pix==true, otherwise pix.num_pixels = 0)
-%   pix_range_step Actual range of contributing pixels
+%   img_range_step Actual range of contributing pixels
 %   pix             if keep_pix==true: contains full PixelData object; otherwise an empty PixelData object
 %   npix_retain     Number of pixels that contribute to the cut
 %   npix_read       Number of pixels read from file
@@ -47,11 +47,11 @@ hor_log_level=config_store.instance().get_value('herbert_config','log_level');
 % Note: Matlab silliness when one dimensional: MUST add an outer dimension of unity. For 2D and higher,
 % outer dimensions can always be assumed. The problem with 1D is that e.g. zeros([5]) is not the same as zeros([5,1])
 % whereas zeros([5,3]) is the same as zeros([5,3,1]).
-if isempty(nbin); nbin_as_size=[1,1]; elseif length(nbin)==1; nbin_as_size=[nbin,1]; else nbin_as_size=nbin; end_step  % usual Matlab sillyness
+if isempty(nbin); nbin_as_size=[1,1]; elseif length(nbin)==1; nbin_as_size=[nbin,1]; else nbin_as_size=nbin; end  % usual Matlab sillyness
 s = zeros(nbin_as_size);
 e = zeros(nbin_as_size);
 npix = zeros(nbin_as_size);
-pix_range_step = PixelData.EMPTY_RANGE_;
+img_range_step = PixelData.EMPTY_RANGE_;
 
 % *** T.G.Perring 5 Sep 2018:*********************
 % Catch case of nstart and nend being empty - this corresponds to no data in the boxes that
@@ -85,8 +85,8 @@ end
 % Accumulate pixels
 if hor_log_level>=1, bigtic(2), end
 if hor_log_level>=0, disp(['Have data from ',num2str(npix_read),' pixels - now processing data...']), end
-[s, e, npix, pix_range_step, npix_retain, ok, ix] = ...
-    cut_data_from_file_job.accumulate_cut(s, e, npix, pix_range_step, keep_pix, ...
+[s, e, npix, img_range_step, npix_retain, ok, ix] = ...
+    cut_data_from_file_job.accumulate_cut(s, e, npix, img_range_step, keep_pix, ...
     cut_pix_data, proj, pax);
 if hor_log_level>=1, t_accum = bigtoc(2); end
 
