@@ -75,7 +75,7 @@ if ischar(data_source)
             s    = outputs{1}.s;
             e    = outputs{1}.e;
             npix = outputs{1}.npix;
-            pix_range_step = outputs{1}.pix_range_step;
+            img_range_step = outputs{1}.img_range_step;
             pix = outputs{1}.pix;
             npix_retain = outputs{1}.npix_retain;
         else
@@ -96,7 +96,7 @@ if ischar(data_source)
             error('CUT_SQW:runtime_error',...
                 ['Error finding location of pixel data in file ',data_source]);
         end
-        [s, e, npix, pix_range, pix, npix_retain, npix_read] = ...
+        [s, e, npix, img_range_step, pix, npix_retain, npix_read] = ...
             cut_data_from_file_job.cut_data_from_file (fid, nstart, nend,...
             opt.keep_pix, pix_tmpfile_ok, proj, targ_pax, targ_nbin);
         clear clobInput;
@@ -104,7 +104,7 @@ if ischar(data_source)
 
 else
     % Pixel information taken from object
-    [s, e, npix, pix_range_step, pix, npix_retain, npix_read] = cut_data_from_array...
+    [s, e, npix, img_range_step, pix, npix_retain, npix_read] = cut_data_from_array...
         (data.pix, nstart, nend, opt.keep_pix, proj, targ_pax, targ_nbin);
 end
 
@@ -163,7 +163,7 @@ data_out.e(no_pix)=0;
 if opt.keep_pix
     data_out.pix = PixelData(pix);    
 else
-    data_out.pix.set_range(pix_range);
+    %data_out.pix.set_range(img_range_step);
 end
 
 
@@ -171,7 +171,7 @@ end
 % Convert range from steps to actual range with respect to output uoffset:
 % rounds-off actual pix_range in no pix located at boundaries 
 % as ustep_i = pix_range_i/(Np-1);
-img_range = pix_range_step.*repmat(proj.usteps,[2,1]) + repmat(proj.urange_offset,[2,1]);
+img_range = img_range_step.*repmat(proj.usteps,[2,1]) + repmat(proj.urange_offset,[2,1]);
 %hav = header_average(header);
 %img_range = data_sqw_dnd.calc_img_range(data_out,hav.u_to_rlu);
 data_out.img_range = img_range;

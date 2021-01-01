@@ -1,21 +1,21 @@
-function [s, e, npix, pix_range_step, npix_retain, ok, ix] = accumulate_cut_matlab_(s, e, npix, pix_range_step, keep_pix,...
+function [s, e, npix, img_range_step, npix_retain, ok, ix] = accumulate_cut_matlab_(s, e, npix, img_range_step, keep_pix,...
     v, proj, pax)
 
-%function [s, e, npix, pix_range_step, npix_retain, ok, ix] = accumulate_cut_matlab (s, e, npix, pix_range_step, keep_pix,...
-%    v, pix_range_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax)
+%function [s, e, npix, img_range_step, npix_retain, ok, ix] = accumulate_cut_matlab (s, e, npix, img_range_step, keep_pix,...
+%    v, img_range_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax)
 % Accumulate signal into output arrays
 %
 % Syntax:
-%   >> [s,e,npix,npix_retain] = accumulate_cut (s, e, npix, v, pix_range_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, keep_pix)
+%   >> [s,e,npix,npix_retain] = accumulate_cut (s, e, npix, v, img_range_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, keep_pix)
 %
 % Input: (* denotes output argumnet with same name exists - exploits in-place working of Matlab R2007a)
 % * s               Array of accumulated signal from all contributing pixels (dimensions match the plot axes)
 % * e               Array of accumulated variance
 % * npix            Array of number of contributing pixels
-% * pix_range_step Actual range of contributing pixels
+% * img_range_step Actual range of contributing pixels
 %   keep_pix        Set to true if wish to retain the information about individual pixels; set to false if not
 %   v               A PixelData object
-%   pix_range_step     [2x4] array of the ranges of the data as defined by (i) output proj. axes ranges for
+%   img_range_step     [2x4] array of the ranges of the data as defined by (i) output proj. axes ranges for
 %                  integration axes (or plot axes with one bin), and (ii) step range (0 to no. bins)
 %                  for plotaxes (with more than one bin)
 %   rot_ustep       Matrix [3x3]     --|  that relate a vector expressed in the
@@ -29,7 +29,7 @@ function [s, e, npix, pix_range_step, npix_retain, ok, ix] = accumulate_cut_matl
 %   s               Array of accumulated signal from all contributing pixels (dimensions match the plot axes)
 %   e               Array of accumulated variance
 %   npix            Array of number of contributing pixels
-%   pix_range_step Actual range of contributing pixels
+%   img_range_step Actual range of contributing pixels
 %   npix_retain     Number of pixels that contribute to the cut
 %   ok              If keep_pix==true: v(:,ok) are the pixels that are retained; otherwise =[]
 %   ix              If keep_pix==true: column vector of single bin index of each retained pixel; otherwise =[]
@@ -58,7 +58,7 @@ if isempty(indx)    % if no pixels in range, return
     end
     return
 end
-pix_range_step = [min(pix_range_step(1,:),min(indx,[],1));max(pix_range_step(2,:),max(indx,[],1))];  % true range of data
+img_range_step = [min(img_range_step(1,:),min(indx,[],1));max(img_range_step(2,:),max(indx,[],1))];  % true range of data
 
 indx = indx(:,pax); % Now keep only the plot axes with at least two bins
 if ~isempty(pax)        % there is at least one plot axis with two or more bins
