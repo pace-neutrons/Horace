@@ -55,6 +55,10 @@ if ischar(data_source)
     header = ld.get_header('-all');
     detpar = ld.get_detpar();
     data = ld.get_data('-nopix');
+    if ~ld.keeps_img_range()
+        hav = header_average(header);
+        data.img_range = data_sqw_dnd.calc_img_range(data,hav.u_to_rlu);
+    end
     npixtot = ld.npixels;
     pix_position = ld.pix_position;
     ld.delete();

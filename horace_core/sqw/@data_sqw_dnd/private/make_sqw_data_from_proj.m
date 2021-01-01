@@ -27,8 +27,6 @@ function [data,mess]=make_sqw_data_from_proj(data,lattice,proj_in,p1,p2,p3,p4)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
 
 
 % Check projection

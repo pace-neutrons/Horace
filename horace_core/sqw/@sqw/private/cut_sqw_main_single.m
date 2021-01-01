@@ -14,7 +14,7 @@ if hor_log_level>=1
 end
 
 % Get bin boundaries for plot axes and integration ranges
-[iax, iint, pax, p, new_img_range] = proj.calc_ubins (data.img_range, pbin, pin, en);
+[iax, iint, pax, p, new_img_range] = proj.calc_transf_img_bins(data.img_range, pbin, pin, en);
 
 % Set matrix and translation vector to express plot axes with two or more bins
 % as multiples of step size from lower limits
@@ -96,7 +96,7 @@ if ischar(data_source)
             error('CUT_SQW:runtime_error',...
                 ['Error finding location of pixel data in file ',data_source]);
         end
-        [s, e, npix, pix_range_step, pix, npix_retain, npix_read] = ...
+        [s, e, npix, pix_range, pix, npix_retain, npix_read] = ...
             cut_data_from_file_job.cut_data_from_file (fid, nstart, nend,...
             opt.keep_pix, pix_tmpfile_ok, proj, targ_pax, targ_nbin);
         clear clobInput;
@@ -117,8 +117,6 @@ else
     tmpFilesClob = [];
 end
 
-% Convert range from steps to actual range with respect to output uoffset:
-img_range = pix_range_step.*repmat(proj.usteps,[2,1]) + repmat(proj.urange_offset,[2,1]);
 
 % Get size of output signal, error and npix arrays
 % (Account for singleton dimensions i.e. plot axes with just one bin, and look after case
@@ -162,10 +160,21 @@ no_pix = (npix==0);     % true where there are no pixels contributing to the bin
 data_out.s(no_pix)=0;   % want signal to be zero where there are no contributing pixels, not +/- Inf
 data_out.e(no_pix)=0;
 
-data_out.img_range = img_range;
 if opt.keep_pix
-    data_out.pix = PixelData(pix);
+    data_out.pix = PixelData(pix);    
+else
+    data_out.pix.set_range(pix_range);
 end
+
+
+
+% Convert range from steps to actual range with respect to output uoffset:
+% rounds-off actual pix_range in no pix located at boundaries 
+% as ustep_i = pix_range_i/(Np-1);
+img_range = pix_range_step.*repmat(proj.usteps,[2,1]) + repmat(proj.urange_offset,[2,1]);
+%hav = header_average(header);
+%img_range = data_sqw_dnd.calc_img_range(data_out,hav.u_to_rlu);
+data_out.img_range = img_range;
 
 % Collect fields to make those for a valid sqw object
 if opt.keep_pix

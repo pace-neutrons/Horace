@@ -111,7 +111,7 @@ for i=1:n
 end
 
 % Get integration and plot axes
-[~, ~, pax, p] = proj.calc_ubins (img_range_in,pbin_tmp, pin, en);
+[~, ~, pax, p] = proj.calc_transf_img_bins(img_range_in,pbin_tmp, pin, en);
 ndims = numel(p);
 multi = (n_pbin==4);
 if any(multi)

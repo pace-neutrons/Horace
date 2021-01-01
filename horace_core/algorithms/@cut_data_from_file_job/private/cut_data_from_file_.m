@@ -67,7 +67,7 @@ if isempty(nbin); nbin_as_size=[1,1]; elseif length(nbin)==1; nbin_as_size=[nbin
 s = zeros(nbin_as_size);
 e = zeros(nbin_as_size);
 npix = zeros(nbin_as_size);
-pix_range_step = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
+pix_range_step = PixelData.EMPTY_RANGE_;
 
 % *** T.G.Perring 26 Sep 2018:*********************
 % Catch case of nstart and nend being empty - this corresponds to no data in the boxes that
@@ -212,11 +212,6 @@ if ~isempty(pix_retained) || pix_tmpfile_ok  % prepare the output pix array
 
 end
 
-% Bad hack to prevent returning [] for pix, which breaks other routines,
-% notably, parts of cut_sqw_sym_main_single
-if max(size(pix))==0
-    pix = zeros(9,0);
-end
 
 if hor_log_level>=1
     disp('-----------------------------')
@@ -247,19 +242,19 @@ end
 
 
 
-function [noffset,pix_range,block_ind_from,block_ind_to] = find_blocks(noffset,pix_range,buf_size)
+function [noffset,pix_range_step,block_ind_from,block_ind_to] = find_blocks(noffset,pix_range_step,buf_size)
 % find buffers blocks and data ranges to read input pixels in blocks,
 % approximately equal to the buffer sizes
 %
 %
-if any(pix_range>2*buf_size) % split big ranges into parts to fit buffer.
-    [cell_range,cell_offcet] = arrayfun(@(rg,offs)split_ranges(rg,offs,buf_size),pix_range,noffset,'UniformOutput',false);
-    pix_range = [cell_range{:}];
-    pix_range = cell2mat(pix_range);
+if any(pix_range_step>2*buf_size) % split big ranges into parts to fit buffer.
+    [cell_range,cell_offcet] = arrayfun(@(rg,offs)split_ranges(rg,offs,buf_size),pix_range_step,noffset,'UniformOutput',false);
+    pix_range_step = [cell_range{:}];
+    pix_range_step = cell2mat(pix_range_step);
     noffset   = [cell_offcet{:}];
     noffset   = cell2mat(noffset);
 end
-tot_pix = cumsum(pix_range);
+tot_pix = cumsum(pix_range_step);
 nblocks = floor(tot_pix(end)/buf_size)+1;
 block_ind_from = ones(1,nblocks);
 block_ind_to   = zeros(1,nblocks);

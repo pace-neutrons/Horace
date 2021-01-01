@@ -19,12 +19,12 @@ function [rlu_to_ustep, u_to_rlu, ulen, mess] = projaxes_to_rlu (proj, alatt, an
 %
 % Output:
 % -------
-%   rlu_to_ustep    Matrix to convert components of a vector expressed
+%   rlu_to_ustep   Matrix to convert components of a vector expressed
 %                  in r.l.u. to the components along the projection axes
 %                  u1,u2,u3, as multiples of the step size along those axes
 %                       Vstep(i) = rlu_to_ustep(i,j)*Vrlu(j)
 %
-%   u_to_rlu        The projection axis vectors u1, u2, u3 in reciprocal
+%   u_to_rlu       The projection axis vectors u1, u2, u3 in reciprocal
 %                  lattice vectors. The ith column is ui in r.l.u. i.e.
 %                       ui = u_to_rlu(:,i)
 %

@@ -30,7 +30,7 @@ classdef projection<aProjection
     methods(Access = protected)
         % overloads for staitc methods which define if the projection can
         % keep pixels and have mex functions defined
-        function isit= can_mex_cut_(self)
+        function isit= can_mex_cut_(~)
             % ortho projection have mex procedures defined
             isit = true;
         end
@@ -104,11 +104,15 @@ classdef projection<aProjection
         %------------------------------------------------------------------
         % Particular implementation of aProjection abstract interface
         %------------------------------------------------------------------
-        function img_range_out = find_max_data_range(this,img_range_in)
-            % find the whole range of input data which may contribute
-            % into the result.
+        function img_range_out = find_old_img_range(this,img_range_in)
+            % find the range of initial data in the coordinate frame
+            % of the new projection.
+            % Input:
             % img_range_in -- the range of the data in the initial coordinate
             % system.
+            % Output:
+            % img_range_out -- the range the initial image data in the new
+            % (transformed) coordinate system of the cut.
             img_range_out  = find_ranges_(this,img_range_in);
         end
         
