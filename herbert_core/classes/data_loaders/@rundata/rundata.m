@@ -147,12 +147,26 @@ classdef rundata
             %       is used instead;
             [runfiles_list,defined]= rundata.gen_runfiles_of_type('rundata',spe_files,varargin{:});
         end
-        
+        %
         function obj = loadobj(struc)
             % build rundata from the structure, obtained from saveobj
             % method.
             obj = set_up_from_struct_(struc);
             
+        end
+        %
+        function id = extract_id_from_filename(file_name)
+            % method used to extract run id from a filename, if runnumber is
+            % present in the filename, and is first number among all other
+            % numbers
+            %
+            [~,filename] = fileparts(file_name);
+            [l_range,r_range] = regexp(filename,'\d+');
+            if isempty(l_range)
+                id = 1;
+                return;
+            end
+            id = str2double(filename(l_range(1):r_range(1)));
         end
     end
     methods(Static,Access=protected)
@@ -209,6 +223,10 @@ classdef rundata
         % of crystal or powder experiments
         [data_fields,lattice_fields] = what_fields_are_needed(this,varargin);
         %------------------------------------------------------------------
+        % return the index (numerical id which uniquely identifies the file) 
+        % of the file used as the source of the data
+        id = run_id(obj)
+        
         function this=rundata(varargin)
             % rundata class constructor
             %
