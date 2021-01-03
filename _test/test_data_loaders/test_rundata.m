@@ -92,7 +92,7 @@ classdef test_rundata< TestCase
         function test_defaultsOK_andFixed(obj)
             nn=numel(fields(rundata));
             % number of public fields by default;
-            assertEqual(14,nn);
+            assertEqual(15,nn);
         end
         function test_build_from_wrong_struct(obj)
             a.x=10;
@@ -480,10 +480,25 @@ classdef test_rundata< TestCase
             assertTrue(isempty(mess));
             assertTrue(isempty(undef_list));
         end
+        function test_run_id_set_overrides(obj)
+            source = f_name(obj,'MAP11014.nxspe');
+            rd = rundata(source );
+            assertEqual(rd.run_id,11014);
+            
+            rd.run_id = 1204;
+            assertEqual(rd.run_id,1204);
+        end
+        
+        function test_run_id_set(~)
+            rd = rundata();
+            rd.run_id = 1204;
+            assertEqual(rd.run_id,1204);
+        end
+        
         function test_run_id_present(obj)
             source = f_name(obj,'MAP11014.nxspe');
             rd = rundata(source );
-            id =  rd.run_id();
+            id =  rd.run_id;
             assertEqual(id,11014);
         end
         
@@ -495,13 +510,13 @@ classdef test_rundata< TestCase
             copyfile(source,test_file);
             
             rd = rundata(test_file);
-            id =  rd.run_id();
+            id =  rd.run_id;
             assertEqual(id,1);
         end
         %
         function test_run_id_empty(~)
             rd = rundata();
-            id =  rd.run_id();
+            id =  rd.run_id;
             assertTrue(isempty(id));
         end
         %
@@ -529,7 +544,7 @@ classdef test_rundata< TestCase
             assertEqual(1,id);
         end
         %
-        function test_saveNXSPE_unbound(obj)
+        function test_saveNXSPE_unbound(~)
             test_file = fullfile(tmp_dir,'test_saveNXSPE_unbound.nxspe');
             clob = onCleanup(@()delete(test_file));
             if exist(test_file,'file')==2

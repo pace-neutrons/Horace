@@ -1,5 +1,5 @@
-function  id = run_id(obj)
-% return the index (numerical id which uniquely identifies the file) 
+function  id = find_run_id_(obj)
+% calculate and return the index (numerical id which uniquely identifies the file) 
 % of the file used as the source of the data
 %
 % Normally it picks up the numerical part of the file name

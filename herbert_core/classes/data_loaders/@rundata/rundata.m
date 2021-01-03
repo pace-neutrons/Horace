@@ -48,6 +48,9 @@ classdef rundata
         instrument;
         % sample model
         sample;
+        % the number (id) uniquely identyfying the particular experiment
+        % which is the source of this object data.
+        run_id;
     end
     
     properties(Constant,Access=private)
@@ -73,6 +76,8 @@ classdef rundata
         instrument_ = struct();
         % sample model holder
         sample_ = struct();
+        %
+        run_id_ = [];
     end
     methods(Static)
         function fields = main_data_fields()
@@ -223,9 +228,6 @@ classdef rundata
         % of crystal or powder experiments
         [data_fields,lattice_fields] = what_fields_are_needed(this,varargin);
         %------------------------------------------------------------------
-        % return the index (numerical id which uniquely identifies the file) 
-        % of the file used as the source of the data
-        id = run_id(obj)
         
         function this=rundata(varargin)
             % rundata class constructor
@@ -337,6 +339,24 @@ classdef rundata
             end
         end
         %
+        function id = get.run_id(obj)
+            % return the index (numerical id which uniquely identifies
+            % the experiment)
+            % of the data used as the source of the rundata
+            if ~isempty(obj.run_id_)
+                id = obj.run_id_;
+                return
+            end
+            id = find_run_id_(obj);
+        end
+        function obj = set.run_id(obj,val)
+            if ~isnumeric(val)
+                error('RUNDATA:invalid_argument',...
+                    ' run_id can be only numeric')
+            end
+            obj.run_id_ = val;
+        end
+        
         %
         function loader=get.loader(this)
             loader=this.loader_;
@@ -403,12 +423,12 @@ classdef rundata
         %---
         function obj = set.par_file_name(obj,val)
             % method to change par file on a defined loader
-            if isempty(obj.loader_) % assuming both data and parameters are taken from 
-                                    % the same nxspe file (or will be stored in
-                                    % it)
-                obj.loader_ = loader_nxspe('',val);            
+            if isempty(obj.loader_) % assuming both data and parameters are taken from
+                % the same nxspe file (or will be stored in
+                % it)
+                obj.loader_ = loader_nxspe('',val);
             else
-                obj.loader_.par_file_name = val;  
+                obj.loader_.par_file_name = val;
             end
         end
         %
