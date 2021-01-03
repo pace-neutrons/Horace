@@ -76,20 +76,20 @@ end
 % ----------------------------------------------------------------------
 % Get range of data (is an overestimate, but will certainly contain all the data)
 head=cell(1,nfiles);
-pix_range=zeros(2,4,nfiles);
+img_range=zeros(2,4,nfiles);
 for i=1:nfiles
     head{i}=head_sqw(tmp_file{i});
-    pix_range(:,:,i)=head{i}.pix_range;
+    img_range(:,:,i)=head{i}.img_range;
 end
-sgn=sign(pix_range(1,:,:).*pix_range(2,:,:)); % +1 if range does not include zero
-abs_pix_range_min=min(abs(pix_range),[],1);
+sgn=sign(img_range(1,:,:).*img_range(2,:,:)); % +1 if range does not include zero
+abs_pix_range_min=min(abs(img_range),[],1);
 abs_pix_range_min(sgn<1)=0;
-abs_pix_range=[abs_pix_range_min;max(abs(pix_range),[],1)];
+abs_pix_range=[abs_pix_range_min;max(abs(img_range),[],1)];
 abs_pix_range(:,1,:)=sqrt(abs_pix_range(:,1,:).^2 + abs_pix_range(:,2,:).^2 + abs_pix_range(:,3,:).^2);
 Q_min=min(abs_pix_range(1,1,:));
 Q_max=max(abs_pix_range(2,1,:));
-eps_min=min(pix_range(1,4,:));
-eps_max=max(pix_range(2,4,:));
+eps_min=min(img_range(1,4,:));
+eps_max=max(img_range(2,4,:));
 
 % Choose suitable rebinning for the final sqw file
 nQbin_def=100;
