@@ -100,7 +100,7 @@ classdef test_rundata< TestCase
             f = @()rundata(a);
             assertExceptionThrown(f,'RUNDATA:set_fields');
         end
-        function test_build_from_good_struct(obj)
+        function test_build_from_good_struct(~)
             a.efix=10;
             a.psi=2;
             dat=rundata(a);
@@ -108,7 +108,7 @@ classdef test_rundata< TestCase
             assertEqual(dat.lattice.psi,2);
         end
         %
-        function test_build_from_Other_rundata(obj)
+        function test_build_from_Other_rundata(~)
             ro = rundata();
             rn = rundata(ro);
             assertEqual(ro,rn);
