@@ -170,17 +170,49 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
             
             rd = rundatah(test_file,ds);
             rd = rd.load();
+            
+            hc = hor_config;
+            dts = hc.get_data_to_store();
+            clob = onCleanup(@()set(hc,dts));
+            hc.use_mex = false;            
+              
             [sq4,grid,pix_range] = rd.calc_sqw();
             assertEqual(grid,[50,50,50,50]);
             ref_range = [0.0576   -6.6475   -6.6475    2.5000;...
                 3.8615    6.6475    6.6475  147.5000];
             assertElementsAlmostEqual(pix_range,ref_range,'relative',3.e-4);
             assertEqualToTolWithSave(obj,sq4,'ignore_str',true,'tol',1.e-7);
-
+            
             rdr = rundatah(sq4);
             assertEqualToTol(rdr.saveobj(),rd.saveobj(),'ignore_str',true,'tol',1.e-7);
             
         end
-        
+        %
+        function test_rundata_mex_nomex(~)
+            test_file = fullfile(herbert_root(),...
+                '_test','common_data','MAP11014.nxspe');
+            ds = struct('alatt',[2.63,2.63,2.63],'angdeg',[97,60,80],...
+                'u',[1,0,0],'v',[0,1,0]);
+            
+            rd = rundatah(test_file,ds);
+            rd = rd.load();
+            hc = hor_config;
+            dts = hc.get_data_to_store();
+            clob = onCleanup(@()set(hc,dts));
+            
+            hc.use_mex = true;
+            [sq4_mex,grid_mex,pix_range_mex] = rd.calc_sqw();
+            hc.use_mex = false;
+            [sq4_nom,grid_nom,pix_range_nom] = rd.calc_sqw();
+            
+            assertEqual(grid_mex,grid_nom);
+            assertEqual(pix_range_mex,pix_range_nom);
+            
+            assertElementsAlmostEqual(sort(sq4_mex.data.pix.data'),...
+                sort(sq4_nom.data.pix.data'));
+            % Binning here is substantially different. TODO: decrease the
+            % differebce
+            assertEqual(sq4_nom.data.pix.pix_range,sq4_mex.data.pix.pix_range);
+        end
     end
 end

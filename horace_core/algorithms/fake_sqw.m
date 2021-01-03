@@ -226,6 +226,7 @@ for i=1:nfiles
     run_files{i}.S = data.S;
     run_files{i}.ERR = data.ERR;
     run_files{i}.en = en{i};
+    run_files{i}.run_id = i;
     %
     w = run_files{i}.calc_sqw(grid_size, img_range,cache_opt{:});
     

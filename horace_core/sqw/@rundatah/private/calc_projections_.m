@@ -31,7 +31,7 @@ function [u_to_rlu, pix_range, pix] = calc_projections_(obj, detdcn,qspec,proj_m
 %   pix_range  [2 x 4] array containing the full extent of the data in crystal Cartesian
 %              coordinates and energy transfer; first row the minima, second row the
 %              maxima.
-%   pix         PixelData object
+%   pix        PixelData object
 %              The order of the pixels is increasing energy dfor first detector, then
 %              increasing energy for the second detector, ....
 
@@ -77,13 +77,13 @@ if use_mex
             c=neutron_constants;
             k_to_e = c.c_k_to_emev;  % used by calc_projections_c;
 
-            data = struct('S',obj.S,'ERR',obj.ERR,'en',obj.en);
+            data = struct('S',obj.S,'ERR',obj.ERR,'en',obj.en,'run_id',obj.run_id);
             det  = obj.det_par;
             efix  = obj.efix;
             emode = obj.emode;
             %proj_mode = 2;
             %nThreads = 1;
-            [pix_range,pix] =calc_projections_c(spec_to_u, data, det, efix, k_to_e, emode, nThreads,proj_mode);
+            [pix_range,pix] =calc_projections_c(spec_to_u, data, det, efix,k_to_e, emode, nThreads,proj_mode);
             pix = PixelData(pix);
         catch  ERR % use Matlab routine
             warning('HORACE:using_mex','Problem with C-code: %s, using Matlab',ERR.message);
@@ -134,8 +134,8 @@ if ~use_mex
         energy_idx = ones(1,ne*ndet);
     end
     sig_var =[obj.S(:)';((obj.ERR(:)).^2)'];
-    
-    pix = PixelData([ucoords;detector_idx;energy_idx;sig_var]);
+    run_id = ones(1,numel(detector_idx))*obj.run_id();
+    pix = PixelData([ucoords;run_id;detector_idx;energy_idx;sig_var]);
 
 end
 
