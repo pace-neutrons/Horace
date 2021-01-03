@@ -124,7 +124,7 @@ head=cell(1,nfiles);
 pix_range=zeros(2,4,nfiles);
 for i=1:nfiles
     head{i}=head_sqw(tmp_file{i});
-    pix_range(:,:,i)=head{i}.pix_range;
+    pix_range(:,:,i)=head{i}.img_range;
 end
 sgn=sign(pix_range(1,:,:).*pix_range(2,:,:)); % +1 if range does not include zero
 abs_pix_range_min=min(abs(pix_range),[],1);
