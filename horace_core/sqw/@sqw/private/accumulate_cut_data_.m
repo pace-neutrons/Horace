@@ -128,6 +128,12 @@ end
 urange_offset = repmat(proj.urange_offset, [2, 1]);
 urange_pix = urange_step_pix.*repmat(proj.usteps, [2, 1]) + urange_offset;
 
+s = s./npix;
+e = e./(npix.^2);
+no_pix = (npix == 0);  % true where no pixels contribute to given bin
+s(no_pix) = 0;
+e(no_pix) = 0;
+
 end  % function
 
 
