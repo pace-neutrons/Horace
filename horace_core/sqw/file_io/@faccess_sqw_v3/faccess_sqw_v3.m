@@ -55,7 +55,6 @@ classdef faccess_sqw_v3 < sqw_binfile_common
     % already exists in the file.
     %
     %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
     %
     properties(Access=protected,Hidden=true)

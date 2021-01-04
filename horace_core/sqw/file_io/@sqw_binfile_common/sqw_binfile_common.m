@@ -33,10 +33,8 @@ classdef sqw_binfile_common < sqw_file_interface
     %
     % upgrade_file_format - upgrade current sqw file to recent file format.
     %                       May change the sqw file and always opens it in
-    %                       write or upgrade mode.
-    
-    %
-    
+    %                       write or upgrade mode.    
+    %    
     properties(Access=protected,Hidden=true)
         % position (in bytes from start of the file of the appropriate part
         % of Horace data information and the size of this part.
@@ -136,7 +134,7 @@ classdef sqw_binfile_common < sqw_file_interface
             [obj,missinig_fields] = copy_contents_(obj,other_obj,keep_internals);
         end
         %
-        function obj = init_v3_specific(obj)
+        function obj = init_v3_specific(~)
             % Initialize position information specific for sqw v3.1 object.
             % Interface function here. Generic is not implemented and
             % actual implementation in faccess_sqw_v3
@@ -306,6 +304,7 @@ classdef sqw_binfile_common < sqw_file_interface
             %
             data_form = get_data_form_(obj,varargin{:});
         end
+        %
         function pix_range_pos = get_pix_range_pos(obj)
             % returns byte-position from the start of the file
             % where pix range is stored

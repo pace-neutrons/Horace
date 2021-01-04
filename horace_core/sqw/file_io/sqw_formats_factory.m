@@ -30,13 +30,13 @@ classdef sqw_formats_factory < handle
     %                       used to initialize another accessor.
     %
     %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
     properties(Access=private) %
         % List of registered file accessors:
         % Add all new file readers which inherit from sqw_file_interface and dnd_file_interface
         % to this list in the order of expected frequency of their appearance.
-        supported_accessors_ = {faccess_sqw_v3(),faccess_sqw_v3_2(),...
+        supported_accessors_ = {faccess_sqw_v3_3(),faccess_sqw_v3(),...
+            faccess_sqw_v3_2(),...
             faccess_sqw_v2(),faccess_dnd_v2(),faccess_sqw_prototype()};
         %
         % Old class interface:
@@ -44,7 +44,7 @@ classdef sqw_formats_factory < handle
         % sqw2 corresponds to sqw file in indirect mode with varying efixed
         written_types_ = {'sqw','sqw2','dnd','d0d','d1d','d2d','d3d','d4d'};
         % number of loader in the list of loaders to use with correspondent class
-        access_to_type_ind_ = {1,2,4,4,4,4,4,4};
+        access_to_type_ind_ = {1,3,5,5,5,5,5,5};
         types_map_ ;
     end
     properties(Dependent)
@@ -52,7 +52,7 @@ classdef sqw_formats_factory < handle
         % the factory
         supported_accessors
     end
-
+    
     methods(Access=private)
         % Guard the constructor against external invocation.  We only want
         % to allow a single instance of this class.  See description in
@@ -63,7 +63,7 @@ classdef sqw_formats_factory < handle
                 obj.access_to_type_ind_);
         end
     end
-
+    
     methods(Static)
         % Concrete implementation.
         function obj = instance()
@@ -86,7 +86,7 @@ classdef sqw_formats_factory < handle
             end
         end
     end
-
+    
     methods % Public Access
         function loader = get_loader(obj,sqw_file_name)
             % Returns initiated loader which can load the data from the specified data file.
@@ -118,7 +118,7 @@ classdef sqw_formats_factory < handle
             % read initial bytes of binary file and interpret them as Horace headers to identify file format.
             % Returns header block and open file handle not to open file again
             [head_struc,fh] = dnd_file_interface.get_file_header(full_data_name);
-
+            
             for i=1:numel(obj.supported_accessors_)
                 loader = obj.supported_accessors_{i};
                 % check if loader should load the file. Initiate loaders
@@ -156,7 +156,7 @@ classdef sqw_formats_factory < handle
                     ' Is it not a sqw file?'],...
                     full_data_name);
             end
-
+            
         end
         %
         function loader = get_pref_access(obj,varargin)
@@ -188,23 +188,6 @@ classdef sqw_formats_factory < handle
                 the_type = varargin{1};
             else
                 the_type = class(varargin{1});
-                if isa(varargin{1},'sqw')
-                    sobj = varargin{1};
-                    header =sobj.header;
-                    if iscell(header)
-                        header = header{1};
-                    elseif isempty(header)
-                        loader = obj.supported_accessors_{1};
-                        return;
-                    end
-                    emode = header.emode;
-                    if emode == 2
-                        nefix = numel(header.efix);
-                        if nefix>1
-                            the_type = 'sqw2';
-                        end
-                    end
-                end
             end
             if obj.types_map_.isKey(the_type)
                 ld_num = obj.types_map_(the_type);
@@ -233,7 +216,7 @@ classdef sqw_formats_factory < handle
             % class(obj1) == 'faccess_sqw_v2' and class(obj2) == 'faccess_sqw_v3'.
             %
             %NOTE:
-            % faccess_sqw_v3 is not compatible with faccess_sqw_v3_2 as
+            % faccess_sqw_v3 is not compatible with faccess_sqw_v3_2 and faccess_sqw_v3_3 as
             % contains different information about detectors.
             if isa(obj2,class(obj1))
                 is_compartible = true;
@@ -245,7 +228,7 @@ classdef sqw_formats_factory < handle
                 is_compartible = false;
             end
         end
-
+        
         %
         function obj_list = get.supported_accessors(obj)
             obj_list = obj.supported_accessors_;

@@ -250,6 +250,13 @@ classdef dnd_binfile_common < dnd_file_interface
             end
         end
         %
+        function check_error_report_fail_(obj,pos_mess)
+            % check if error occured during io operation and throw if it does happened
+            [mess,res] = ferror(obj.file_id_);
+            if res ~= 0; error('SQW_FILE_IO:io_error',...
+                    '%s -- Reason: %s',pos_mess,mess);
+            end
+        end
     end
     %----------------------------------------------------------------------
     methods % defined by this class
@@ -325,7 +332,7 @@ classdef dnd_binfile_common < dnd_file_interface
         obj = put_dnd_metadata(obj,varargin);
         % write dnd image data, namely s, err and npix ('-update' option updates this
         % information within existing file)
-        obj = put_dnd_data(obj,varargin);
+        [obj,varargout] = put_dnd_data(obj,varargin);
         %
         obj = put_dnd(obj,varargin)
         
@@ -563,5 +570,3 @@ classdef dnd_binfile_common < dnd_file_interface
     end
     
 end
-
-

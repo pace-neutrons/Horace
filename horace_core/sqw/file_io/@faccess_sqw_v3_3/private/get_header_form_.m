@@ -11,7 +11,7 @@ function header = get_header_form_(varargin)
 % --------------------------
 %   header.filename     Name of sqw file excluding path
 %   header.filepath     Path to sqw file including terminating file separator
-%   header.efix         Fixed energy (ei or ef depending on emode)
+%   header.efix         Array of fixed energies for all crystal analysers
 %   header.emode        Emode=1 direct geometry, =2 indirect geometry
 %   header.alatt        Lattice parameters (Angstroms)
 %   header.angdeg       Lattice angles (deg)
@@ -28,6 +28,7 @@ function header = get_header_form_(varargin)
 %                        u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
 %   header.ulen         Length of projection axes vectors in Ang^-1 or meV [row vector]
 %   header.ulabel       Labels of the projection axes [1x4 cell array of character strings]
+%   header.img_range    the range of the image, stored with the data
 %
 %
 %
@@ -38,7 +39,7 @@ if isempty(var_part)
     var_part = {'filename','','filepath',''};
 end
 if isempty(const_part)
-    const_part = {'efix',single(1),'emode',int32(1),...
+    const_part = {'efix',field_var_array(1),'emode',int32(1),...
         'alatt',single([1,3]),'angdeg',single([1,3]),...
         'cu',single([1,3]),'cv',single([1,3]),...
         'psi',single(1),'omega',single(1),'dpsi',single(1),...
@@ -59,5 +60,3 @@ else
     cs = [var_part(:);const_part(:)];
     header = struct(cs{:});
 end
-
-
