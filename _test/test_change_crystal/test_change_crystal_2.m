@@ -71,7 +71,8 @@ save(d1_2,d1_2_file);
 % We assume only that change_crystal_sqw(<filename>,rlu_corr) works, as tested in another routine
 rlu_corr =[1.0817    0.0088   -0.2016;  0.0247    1.0913    0.1802;    0.1982   -0.1788    1.0555];
 
-copyfile(w2_1_file,w2c_1_file); change_crystal_sqw(w2c_1_file,rlu_corr);
+copyfile(w2_1_file,w2c_1_file);
+change_crystal_sqw(w2c_1_file,rlu_corr);
 copyfile(w2_2_file,w2c_2_file); change_crystal_sqw(w2c_2_file,rlu_corr);
 copyfile(w1_1_file,w1c_1_file); change_crystal_sqw(w1c_1_file,rlu_corr);
 copyfile(w1_2_file,w1c_2_file); change_crystal_sqw(w1c_2_file,rlu_corr);
@@ -245,11 +246,11 @@ end
 function [ok_out,mess]=test_result(expect_ok, wout, ref_ans)
 % Test if get expected result (which may also be a failure)
 try
-    [ok, ~]=equal_to_tol(wout, ref_ans,-2e-7,'nan_equal',true,'ignore_str',true);
+    [ok, mess]=equal_to_tol(wout, ref_ans,-2e-7,'nan_equal',true,'ignore_str',true);
     if ok && ~expect_ok
-        ok_out=false; mess='Unexpected equality within tolerance'; return
+        ok_out=false; mess=['Unexpected equality within tolerance: ',mess]; return
     elseif ~ok && expect_ok
-        ok_out=false; mess='Unexpected inequality outside tolerance'; return
+        ok_out=false; mess=['Unexpected inequality outside tolerance: ',mess]; return
     end
     ok_out=true; mess='';
 catch ME
