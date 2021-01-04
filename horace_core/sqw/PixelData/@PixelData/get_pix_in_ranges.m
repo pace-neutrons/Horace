@@ -1,4 +1,4 @@
-function pix_out = get_pix_in_ranges(obj, abs_indices_starts, abs_indices_ends);
+function pix_out = get_pix_in_ranges(obj, abs_indices_starts, abs_indices_ends)
 %%GET_PIX_IN_RANGES
 %
 
