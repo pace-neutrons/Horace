@@ -9,7 +9,7 @@ log_level = get(hor_config, 'log_level');
 
 wout = copy(w, 'exclude_pix', true);
 
-% Get bin boundaries, projection and pix bin ranges
+% Get bin boundaries and projection
 bounds = get_bin_boundaries(proj, w.data.urange, pbin, pin, en);
 proj = proj.set_proj_binning( ...
     bounds.urange, ...
@@ -21,54 +21,20 @@ proj = proj.set_proj_binning( ...
 % Accumulate image and pixel data for cut
 [s, e, npix, pix_out, urange_pix] = accumulate_cut_data_(w, proj, keep_pix, log_level);
 
-ppax = bounds.plot_ax_bounds(1:length(bounds.plot_ax_idx));
-if isempty(ppax)
-    nbin_as_size = [1, 1];
-elseif length(ppax) == 1
-    nbin_as_size = [length(ppax{1}) - 1, 1];
-else
-    nbin_as_size = cellfun(@(nd) length(nd) - 1, ppax);
-end
+% Compile the accumulated cut and projection data into a data_sqw_dnd object
+data_out = compile_sqw_data(w.data, proj, s, e, npix, pix_out, urange_pix, ...
+                            bounds, keep_pix);
 
-% Prepare output data
-data_out = w.data;
-s = reshape(s, nbin_as_size);
-e = reshape(e, nbin_as_size);
-npix = reshape(npix, nbin_as_size);
-
-[ ...
-    data_out.uoffset, ...
-    data_out.ulabel, ...
-    data_out.dax, ...
-    data_out.u_to_rlu, ...
-    data_out.ulen, ...
-    axis_caption ...
-] = proj.get_proj_param(w.data, bounds.plot_ax_idx);
-
-data_out.axis_caption = axis_caption;
-
-data_out.iax = bounds.integration_axis_idx;
-data_out.iint = bounds.integration_range;
-data_out.pax = bounds.plot_ax_idx;
-data_out.p = bounds.plot_ax_bounds;
-
-data_out.s = s./npix;
-data_out.e = e./(npix.^2);
-data_out.npix = npix;
-no_pix = (npix == 0);  % true where no pixels contribute to given bin
-data_out.s(no_pix) = 0;
-data_out.e(no_pix) = 0;
-
+% Assign the new data_sqw_dnd object to the output SQW object, or create a new
+% dnd.
 if keep_pix
-    data_out.urange = urange_pix;
-    data_out.pix = pix_out;
-
     wout.data = data_out;
 else
     dnd_constructor = DND_CONSTRUCTORS{numel(data_out.pax) + 1};
     wout = dnd_constructor(data_out);
 end
 
+% Write result to file if necessary
 if exist('outfile', 'var') && ~isempty(outfile)
     if log_level >= 0
         disp(['Writing cut to output file ', outfile, '...']);
@@ -101,4 +67,41 @@ function save_sqw(sqw_obj, file_path)
     loader = loader.init(sqw_obj, file_path);
     loader.put_sqw();
     loader.delete();
+end
+
+
+function data_out = compile_sqw_data(data, proj, s, e, npix, pix_out, ...
+                                     urange_pix, bounds, keep_pix)
+    ppax = bounds.plot_ax_bounds(1:length(bounds.plot_ax_idx));
+    if isempty(ppax)
+        nbin_as_size = [1, 1];
+    elseif length(ppax) == 1
+        nbin_as_size = [length(ppax{1}) - 1, 1];
+    else
+        nbin_as_size = cellfun(@(nd) length(nd) - 1, ppax);
+    end
+
+    data_out = data;
+    data_out.s = reshape(s, nbin_as_size);
+    data_out.e = reshape(e, nbin_as_size);
+    data_out.npix = reshape(npix, nbin_as_size);
+
+    [ ...
+        data_out.uoffset, ...
+        data_out.ulabel, ...
+        data_out.dax, ...
+        data_out.u_to_rlu, ...
+        data_out.ulen, ...
+        data_out.axis_caption ...
+    ] = proj.get_proj_param(data, bounds.plot_ax_idx);
+
+    data_out.iax = bounds.integration_axis_idx;
+    data_out.iint = bounds.integration_range;
+    data_out.pax = bounds.plot_ax_idx;
+    data_out.p = bounds.plot_ax_bounds;
+
+    if keep_pix
+        data_out.urange = urange_pix;
+        data_out.pix = pix_out;
+    end
 end
