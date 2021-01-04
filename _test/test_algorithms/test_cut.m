@@ -270,6 +270,23 @@ methods
         assertEqual(res(3).e, zeros(9, 9));
     end
 
+    function test_cut_errors_early_if_outfile_cannot_be_created(obj)
+        proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
+
+        u_axis_lims = [-0.1, 0.025, 0.1];
+        v_axis_lims = [-0.1, 0.025, 0.1];
+        w_axis_lims = [-0.1, 0.1];
+        en_axis_lims = [106, 4, 114, 4];
+
+        outfile = fullfile('P:', 'not', 'a_valid', 'path.sqw');
+
+        f = @() cut( ...
+            obj.sqw_file, proj, u_axis_lims, v_axis_lims, w_axis_lims, ...
+            en_axis_lims, outfile ...
+        );
+        assertExceptionThrown(f, 'CUT_SQW:runtime_error');
+    end
+
 end
 
 end
