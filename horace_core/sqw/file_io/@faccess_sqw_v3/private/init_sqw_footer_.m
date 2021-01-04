@@ -4,7 +4,6 @@ function obj=init_sqw_footer_(obj)
 % positions on hdd for subsequent recovery for read/write operations
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 %
 

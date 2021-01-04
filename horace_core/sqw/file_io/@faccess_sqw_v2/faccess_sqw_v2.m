@@ -53,7 +53,6 @@ classdef faccess_sqw_v2 < sqw_binfile_common
     % are treated as v2 format files. sqw_formats_factory returns this loader to access such files.
     %
     %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
     %
     properties(Access = protected)
@@ -131,10 +130,6 @@ classdef faccess_sqw_v2 < sqw_binfile_common
             % Upgrade file from format 2 to format 3
             new_obj = upgrade_file_format_(obj);
         end
-        
-        
-        %
-        %
     end
     
 end

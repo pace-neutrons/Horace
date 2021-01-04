@@ -116,7 +116,7 @@ fseek(obj.file_id_,obj.pix_range_pos_,'bof');
 [mess,res] = ferror(obj.file_id_);
 if res ~= 0
     error('SQW_BINILE_COMMON:io_error',...
-          'Can not move to the urange start position, Reason: %s',mess);
+        'Can not move to the urange start position, Reason: %s',mess);
 end
 % old format. Pix range is stored in urange field
 data_str.pix_range = fread(obj.file_id_,[2,4],'float32');
@@ -133,7 +133,7 @@ data = data_sqw_dnd(data_str);
 
 if ~opts.nopix
     data.pix = PixelData(obj, opts.pixel_page_size);
-    % 
+    %
 end
 
 end  % function
@@ -141,15 +141,15 @@ end  % function
 
 % -----------------------------------------------------------------------------
 function opts = parse_args(varargin)
-    flags = {'header','verbatim','hverbatim','nopix', 'noclass'};
-    kwargs = struct('pixel_page_size', PixelData.DEFAULT_PAGE_SIZE);
-    for flag_idx = 1:numel(flags)
-        kwargs.(flags{flag_idx}) = false;
-    end
-    parser_opts = struct('prefix', '-', 'prefix_req', false);
-    [~, opts, ~, ~, ok, mess] = parse_arguments(varargin, kwargs, flags, ...
-                                                parser_opts);
-    if ~ok
-        error('SQW_FILE_INTERFACE:invalid_argument', ['get_data: ', mess]);
-    end
+flags = {'header','verbatim','hverbatim','nopix', 'noclass'};
+kwargs = struct('pixel_page_size', PixelData.DEFAULT_PAGE_SIZE);
+for flag_idx = 1:numel(flags)
+    kwargs.(flags{flag_idx}) = false;
+end
+parser_opts = struct('prefix', '-', 'prefix_req', false);
+[~, opts, ~, ~, ok, mess] = parse_arguments(varargin, kwargs, flags, ...
+    parser_opts);
+if ~ok
+    error('SQW_FILE_INTERFACE:invalid_argument', ['get_data: ', mess]);
+end
 end
