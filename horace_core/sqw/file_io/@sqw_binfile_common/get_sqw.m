@@ -93,6 +93,7 @@ else
     opt3={};
 end
 
+
 data_opt= [opt1, opt2, opt3];
 sqw_struc.data = obj.get_data(data_opt{:}, 'pixel_page_size', opts.pixel_page_size);
 

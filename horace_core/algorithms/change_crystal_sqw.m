@@ -1,4 +1,4 @@
-function varargout = change_crystal (varargin)
+function change_crystal_sqw(filenames,varargin)
 % Change the crystal lattice and orientation of an sqw object or array of objects
 %
 % Most commonly:
@@ -45,47 +45,30 @@ function varargout = change_crystal (varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 % This routine is also used to change the crystal in sqw files, when it overwrites the input file.
 
 % Parse input
 % -----------
-
-[w, args, mess] = horace_function_parse_input (nargout,varargin{:});
-if ~isempty(mess), error(mess); end
-
-% Perform operations
-% ------------------
-if w.source_is_file
-    for i=1:numel(w.data)
-        ld = w.loaders_list{i};
-        data    = ld.get_data('-verbatim','-head');
-        target_file = fullfile(ld.filepath,ld.filename);
-        ld = ld.set_file_to_update(target_file);        
-        if ld.sqw_type
-            headers = ld.get_header('-all');
-            [headers,data]=change_crystal_alter_fields(headers,data,args{:});
-            ld = ld.put_headers(headers);
-        else
-            headers = struct([]);
-            [~,data]=change_crystal_alter_fields(headers,data,args{:});
-        end
-        ld = ld.put_dnd_metadata(data);
-        ld.delete();
-    end
-    argout={};
-else
-    argout{1}=w.data;
-    for i=1:numel(w.data)
-        [argout{1}(i).header,argout{1}(i).data,ok,mess]=change_crystal_alter_fields(w.data(i).header,w.data(i).data,args{:});
-        if ~ok, error(mess), end
-    end
+if ischar(filenames)
+    filenames = {filenames};
 end
 
-% Package output arguments
-% ------------------------
-[varargout,mess]=horace_function_pack_output(w,argout{:});
-if ~isempty(mess), error(mess), end
-
+% Perform operations
+for i=1:numel(filenames)
+    ld = sqw_formats_factory.instance().get_loader(filenames{i});
+    data    = ld.get_data('-verbatim','-head');
+    target_file = fullfile(ld.filepath,ld.filename);
+    ld = ld.set_file_to_update(target_file);
+    if ld.sqw_type
+        headers = ld.get_header('-all');
+        [headers,data]=change_crystal_alter_fields(headers,data,varargin{:});
+        ld = ld.put_headers(headers);
+    else
+        headers = struct([]);
+        [~,data]=change_crystal_alter_fields(headers,data,varargin{:});
+    end
+    ld = ld.put_dnd_metadata(data);
+    ld.delete();
+end
