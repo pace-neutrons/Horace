@@ -77,8 +77,10 @@ function num_dims = get_num_output_dims(pbin)
     % pbin axes being integrated over will be an array with two elements - the
     % integration range - else the pbin element will have 1 or 3 elements
     % if pbin{x} has more than 3 elements then we are doing a multicut and that
-    % axis is being integrated over
-    non_integrated_axis = cellfun(@(x) numel(x) ~= 2 && numel(x) < 4, pbin);
+    % axis is being integrated over.
+    % The ~isempty catches any dummy axes that are 0x0 doubles.
+    is_non_int_axis = @(x) numel(x) ~= 2 && numel(x) < 4 && ~isempty(x);
+    non_integrated_axis = cellfun(is_non_int_axis, pbin);
     num_dims = sum(non_integrated_axis);
 end
 
