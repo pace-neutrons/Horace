@@ -40,22 +40,11 @@ classdef test_serialise_size< TestCase
             bytes = hlp_serialise(sam1);
             assertEqual(size1,numel(bytes));
 
-            % - TGP 22/07/2019: commented out these two samples as the names are no longer valid
-            %             sam2=IX_sample(true,[1,1,1],[0,2,1],'cylinder_long_name',rand(1,5));
-            %             size2 = hlp_serial_sise(sam2);
-            %             bytes = hlp_serialise(sam2);
-            %             assertEqual(size2,numel(bytes));
-            %
-            %             sam3=IX_sample(true,[1,1,0],[0,0,1],'hypercube_really_long_name',rand(1,6));
-            %             size3 = hlp_serial_sise(sam3);
-            %             bytes = hlp_serialise(sam3);
-            %             assertEqual(size3,numel(bytes));
+            sam2=IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);
 
-            sam4=IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);
-
-            size4 = hlp_serial_sise(sam4);
-            bytes = hlp_serialise(sam4);
-            assertEqual(size4,numel(bytes));
+            size2 = hlp_serial_sise(sam2);
+            bytes = hlp_serialise(sam2);
+            assertEqual(size2,numel(bytes));
 
 
         end

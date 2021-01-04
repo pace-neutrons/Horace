@@ -342,6 +342,7 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
   return output;
 }
 
+/* MATLAB entry point */
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
 
 #if defined(_LP64) || defined (_WIN64)
