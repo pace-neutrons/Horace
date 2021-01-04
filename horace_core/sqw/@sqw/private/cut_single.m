@@ -2,8 +2,6 @@ function wout = cut_single(w, proj, pbin, pin, en, keep_pix, outfile)
 %%CUT_SINGLE
 %
 
-% Add check that we can write to output file at beginning of algorithm
-
 DND_CONSTRUCTORS = {@d0d, @d1d, @d2d, @d3d, @d4d};
 log_level = get(hor_config, 'log_level');
 
