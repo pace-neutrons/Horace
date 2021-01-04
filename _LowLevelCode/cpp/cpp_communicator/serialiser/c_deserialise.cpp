@@ -140,7 +140,7 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
       deser(data, ir, types_size[UINT64]*nnz);
       deser(data, map_jc, types_size[UINT64]*nnz);
 
-      // Unmap Jc
+      // Unmap Jc (see MATLAB docs on sparse arrays in MEX API)
       for (const uint64_t& row: map_jc) {
         jc[row+1]++;
       }
@@ -155,7 +155,7 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
     break;
   case CHAR:
     {
-      std::vector<char> arr(nElem);
+      std::vector<char> arr(nElem+1);
       deser(data, arr, nElem*types_size[CHAR]);
       output = mxCreateCharArray(nDims, dims);
       char* out = (char*) mxGetPr(output);
@@ -189,6 +189,7 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
   case COMPLEX_SINGLE:
   case COMPLEX_DOUBLE:
     {
+      // Complex tags are 13-22
       mxComplexity cmplx = (mxComplexity) (12 < tag.type && tag.type < 23);
       output = mxCreateNumericArray(nDims, dims, unmap_types[tag.type], cmplx);
       read_data(data, output, types_size[tag.type], nElem);
@@ -221,7 +222,7 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
           const int len = mxGetNumberOfElements(parentage);
 
           // Initial output
-          output = mxGetCell(parentage, len-1);
+          output = mxDuplicateArray(mxGetCell(parentage, len-1));
 
           std::vector<mxArray*> input(3);
 
@@ -309,7 +310,6 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
       output = mxCreateStructArray(nDims, dims, nFields, (const char**) mxData.data());
       if (nFields == 0) break;
 
-
       mxArray* cellData = deserialise(data, size, 1);
 
       for (int obj=0, elem=0; obj < nElem; obj++) {
@@ -333,16 +333,15 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
     break;
   }
 
-  // Avoid making plhs persistent
+  /* Avoid making plhs persistent,
+     others *should* deallocate when the root object does
+     (according to MEX docs) */
   if (recursed) {
     mexMakeArrayPersistent(output);
   }
   return output;
 }
 
-
-
-/* The gateway routine. */
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
 
 #if defined(_LP64) || defined (_WIN64)
@@ -358,10 +357,10 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
 #endif
 
   if (nlhs > 1) {
-    mexErrMsgIdAndTxt("MATLAB:c_serialise:badLHS", "Bad number of LHS arguments in c_serialise");
+    mexErrMsgIdAndTxt("MATLAB:c_serialise:badLHS", "Bad number of LHS arguments in c_deserialise");
   }
   if (nrhs != 1) {
-    mexErrMsgIdAndTxt("MATLAB:c_serialise:badRHS", "Bad number of RHS arguments in c_serialise");
+    mexErrMsgIdAndTxt("MATLAB:c_serialise:badRHS", "Bad number of RHS arguments in c_deserialise");
   }
 
   memPtr = 0;

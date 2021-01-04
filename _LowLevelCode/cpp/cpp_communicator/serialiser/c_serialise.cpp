@@ -113,6 +113,7 @@ void serialise(uint8_t* data, const mxArray* input){
       uint32_t nnz = jc[dims[1]];
       std::vector<uint64_t> map_jc(nnz);
 
+      // map Jc (see MATLAB docs on sparse arrays in MEX API)
       for (int c = 0, n = 0; n < nnz; c++) {
         for (int i = jc[c]; i < jc[c+1]; i++, n++) {
           map_jc[n] = c;
@@ -267,8 +268,12 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
 #endif
 #endif
 
-  if (nlhs > 1) mexErrMsgIdAndTxt("MATLAB:c_serialise:badLHS", "Bad number of LHS arguments in c_serialise");
-  if (nrhs != 1) mexErrMsgIdAndTxt("MATLAB:c_serialise:badRHS", "Bad number of RHS arguments in c_serialise");
+  if (nlhs > 1) {
+    mexErrMsgIdAndTxt("MATLAB:c_serialise:badLHS", "Bad number of LHS arguments in c_serialise");
+  }
+  if (nrhs != 1) {
+    mexErrMsgIdAndTxt("MATLAB:c_serialise:badRHS", "Bad number of RHS arguments in c_serialise");
+  }
 
   mxArray* size_arr;
   mxArray* arr = const_cast<mxArray *>(prhs[0]);

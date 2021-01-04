@@ -226,7 +226,6 @@ end
 
 function [v, pos] = deserialise_function_handle(m, pos)
     [~, tag] = get_tag_data(m, pos);
-
     switch tag
       case 1 % Simple
         [name, pos] = deserialise_simple_data(m, pos+1);
@@ -247,7 +246,7 @@ function [v, pos] = deserialise_function_handle(m, pos)
             try
                 v = arg_report('handle',v,parentage{k});
             catch
-                Error("MATLAB:deserialise_function_handle:hlp_deserialise", "Cannot deserialize a function handle to a nested function.")
+                Error("MATLAB:deserialise_function_handle:hlp_deserialise", "Cannot deserialise a function handle to a nested function.")
             end
         end
     end
