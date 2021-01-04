@@ -50,7 +50,7 @@ function [v,pos] = deserialise_value(m,pos)
       case {29, 30, 31}
         [v,pos] = deserialise_sparse(m,pos);
       otherwise
-        error('Unknown class');
+        error('MATLAB:deserialise_value:unrecognised_tag', 'Cannot deserialise tag %s.', hlp_serial_types.type_details(type+1).name);
     end
 end
 
@@ -246,7 +246,7 @@ function [v, pos] = deserialise_function_handle(m, pos)
             try
                 v = arg_report('handle',v,parentage{k});
             catch
-                Error("MATLAB:deserialise_function_handle:hlp_deserialise", "Cannot deserialise a function handle to a nested function.")
+                error('MATLAB:deserialise_function_handle:hlp_deserialise', 'Cannot deserialise a function handle to a nested function.')
             end
         end
     end

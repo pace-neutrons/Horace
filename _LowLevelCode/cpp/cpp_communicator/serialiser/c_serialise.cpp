@@ -253,7 +253,7 @@ void serialise(uint8_t* data, const mxArray* input){
 }
 
 
-/* The gateway routine. */
+/* MATLAB entry point c_serialise */
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
 
 #if defined(_LP64) || defined (_WIN64)

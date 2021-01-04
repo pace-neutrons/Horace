@@ -342,14 +342,14 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
   return output;
 }
 
-/* MATLAB entry point */
+/* MATLAB entry point c_deserialise */
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
 
 #if defined(_LP64) || defined (_WIN64)
 #ifdef MX_COMPAT_32
   for (i=0; i<nrhs; i++)  {
     if (mxIsSparse(prhs[i])) {
-      mexErrMsgIdAndTxt("MATLAB:c_serialise:NoSparseCompat",
+      mexErrMsgIdAndTxt("MATLAB:c_deserialise:NoSparseCompat",
                         "MEX-files compiled on a 64-bit platform that use sparse array functions "
                         "need to be compiled using -largeArrayDims.");
     }
@@ -358,10 +358,10 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
 #endif
 
   if (nlhs > 1) {
-    mexErrMsgIdAndTxt("MATLAB:c_serialise:badLHS", "Bad number of LHS arguments in c_deserialise");
+    mexErrMsgIdAndTxt("MATLAB:c_deserialise:badLHS", "Bad number of LHS arguments in c_deserialise");
   }
   if (nrhs != 1) {
-    mexErrMsgIdAndTxt("MATLAB:c_serialise:badRHS", "Bad number of RHS arguments in c_deserialise");
+    mexErrMsgIdAndTxt("MATLAB:c_deserialise:badRHS", "Bad number of RHS arguments in c_deserialise");
   }
 
   memPtr = 0;

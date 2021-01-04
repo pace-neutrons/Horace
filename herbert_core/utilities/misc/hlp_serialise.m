@@ -61,7 +61,7 @@ function m = hlp_serialise(v)
       case 'function_handle'
         m = serialise_function_handle(v, type);
       otherwise
-        error(['Cannot serialise ', type.name]);
+        error('MATLAB:hlp_serialise:bad_type', 'Cannot serialise type %s.', type.name);
     end
 end
 

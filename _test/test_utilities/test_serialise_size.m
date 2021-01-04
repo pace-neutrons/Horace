@@ -1,4 +1,4 @@
-classdef test_serialise_size< TestCase
+classdef test_serialise_size < TestCase
     properties
     end
     methods

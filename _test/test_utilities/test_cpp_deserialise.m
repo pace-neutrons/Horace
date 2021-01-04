@@ -1,4 +1,4 @@
-classdef test_cpp_deserialise< TestCase
+classdef test_cpp_deserialise < TestCase
     properties
         warned
         use_mex

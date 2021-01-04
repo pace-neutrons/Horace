@@ -1,4 +1,4 @@
-classdef test_cpp_serialise_size< TestCase
+classdef test_cpp_serialise_size < TestCase
     properties
         warned
         use_mex

@@ -55,7 +55,7 @@ switch m(pos)
     case 135
         [v,pos] = obj_deserialize_itself(m,pos);
     otherwise
-        error('Unknown class');
+        error('MATLAB:deserialize_value:unrecognised_tag', 'Unsupported tag %s.', m(pos));
 end
 end
 
@@ -258,7 +258,7 @@ switch kind
             case 128 % struct - struct()
                 prot = struct();
             otherwise
-                error('Unsupported type tag.');
+              error('MATLAB:deserialize_cell:unrecognised_tag', 'Unsupported tag %s.', tag);
         end
         % Number of dims
         ndms = double(m(pos));
@@ -285,7 +285,7 @@ switch kind
         for k=1:numel(v)
             v{k} = content(k); end
     otherwise
-        error('Unsupported cell array type.');
+        error('MATLAB:deserialize_cell:unrecognised_tag', 'Unsupported tag %s.', m(pos));
 end
 end
 % object which can deserialize itself
@@ -376,7 +376,11 @@ switch kind
                 % to a nested function. This is not natively supported by MATLAB and can only be made
                 % to work if your function's parent implements some mechanism to return such a handle.
                 % The below call assumes that your function uses the BCILAB arg system to do this.
-                v = arg_report('handle',v,parentage{k});
+                try
+                    v = arg_report('handle',v,parentage{k});
+                catch
+                    error('MATLAB:deserialise_function_handle:hlp_deserialise', 'Cannot deserialise a function handle to a nested function.')
+                end
             end
             db_nested.(key) = v;
         end
