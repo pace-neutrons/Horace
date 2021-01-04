@@ -188,7 +188,25 @@ methods
         clear loaded_cut ret_sqw
     end
 
-    function test_you_can_take_a_cut_from_an_sqw_object_to_an_sqw_file(~)
+    function test_you_can_take_a_cut_from_an_sqw_object_to_an_sqw_file(obj)
+        sqw_obj = sqw(obj.sqw_file);
+
+        proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
+
+        u_axis_lims = [-0.1, 0.025, 0.1];
+        v_axis_lims = [-0.1, 0.025, 0.1];
+        w_axis_lims = [-0.1, 0.1];
+        en_axis_lims = [105, 1, 114];
+
+        outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
+
+        cut(sqw_obj, proj, u_axis_lims, v_axis_lims, w_axis_lims, en_axis_lims, ...
+            outfile);
+        cleanup = onCleanup(@() delete(outfile));
+
+        loaded_sqw = sqw(outfile);
+        ref_sqw = sqw('test_cut_ref_sqw.sqw');
+        assertEqualToTol(loaded_sqw, ref_sqw, 1e-4, 'ignore_str', true);
     end
 
     function test_you_can_take_a_cut_from_a_dnd_object(obj)
@@ -202,9 +220,6 @@ methods
         res = cut(dnd_obj, u_axis_lims, v_axis_lims, w_axis_lims, en_axis_lims);
         assertTrue(isa(res, 'd3d'));
         assertEqual(size(res.s), [9, 9, 10]);
-    end
-
-    function test_you_can_take_a_cut_from_a_dnd_object_to_an_sqw_file(~)
     end
 
     function test_you_can_take_multiple_cuts_on_proj_axes(obj)
