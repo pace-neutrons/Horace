@@ -10,7 +10,8 @@ if obj.is_file_backed_()
     else
         pix_out = PixelData( ...
             obj.f_accessor_.get_pix_in_ranges( ...
-                abs_indices_starts, abs_indices_ends) ...
+                abs_indices_starts, abs_indices_ends ...
+            ) ...
         );
     end
 else
@@ -33,11 +34,12 @@ function out = get_values_in_ranges(range_starts, range_ends)
 
     % Find the indexes of the boundaries of each range
     range_bounds_idxs = cumsum([1; range_ends(:) - range_starts(:) + 1]);
+    % Generate vector of ones with length equal to output vector length
     z = ones(range_bounds_idxs(end) - 1, 1);
     % Insert size of the difference between boundaries in each boundary index
     z(range_bounds_idxs(1:end - 1)) = [ ...
         range_starts(1), range_starts(2:end) - range_ends(1:end - 1) ...
     ];
-    % Take a cumulative sum
+    % Take the cumulative sum
     out = cumsum(z);
 end
