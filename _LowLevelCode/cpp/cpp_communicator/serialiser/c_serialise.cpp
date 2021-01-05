@@ -15,22 +15,19 @@
 #include <vector>
 #include "cpp_serialise.hpp"
 
-// Current byte to write
-size_t memPtr;
-
 template<typename T>
-inline void ser(uint8_t* data, const std::vector<T> data_in, const double amount) {
+inline void ser(uint8_t* data, size_t& memPtr, const std::vector<T> data_in, const double amount) {
   memcpy(&data[memPtr], data_in.data(), amount);
   memPtr += amount;
 }
 
-inline void ser(uint8_t* data, const void* const data_in, const double amount) {
+inline void ser(uint8_t* data, size_t& memPtr, const void* const data_in, const double amount) {
   // Write bytes and move memory index
   memcpy(&data[memPtr], data_in, amount);
   memPtr += amount;
 }
 
-inline void write_data(uint8_t* data, const mxArray* const input, const size_t elemSize, const size_t nElem) {
+inline void write_data(uint8_t* data, size_t& memPtr, const mxArray* const input, const size_t elemSize, const size_t nElem) {
   if (mxIsComplex(input)) {
     // Size of a complex component is half that of the whole complex
     size_t compSize = elemSize/2;
@@ -48,34 +45,34 @@ inline void write_data(uint8_t* data, const mxArray* const input, const size_t e
 
 #else
     void* toWrite = mxGetPr(input);
-    ser(data, toWrite, compSize*nElem);
+    ser(data, memPtr, toWrite, compSize*nElem);
     toWrite = mxGetPi(input);
-    ser(data, toWrite, compSize*nElem);
+    ser(data, memPtr, toWrite, compSize*nElem);
 
 #endif
 
   } else {
     void* toWrite = mxGetPr(input);
-    ser(data, toWrite, elemSize*nElem);
+    ser(data, memPtr, toWrite, elemSize*nElem);
   }
 }
 
-inline void write_header(uint8_t* data, tag_type& tag,
+inline void write_header(uint8_t* data, size_t& memPtr, tag_type& tag,
                          const size_t nElem, const mwSize* dims, const size_t nDims) {
 
   if (nElem == 0) { // Null
     tag.dim = 1;
-    ser(data, &tag, 1);
-    ser(data, &nElem, 4);
+    ser(data, memPtr, &tag, 1);
+    ser(data, memPtr, &nElem, 4);
   }
   else if (nElem == 1) { // Scalar
     tag.dim = 0;
-    ser(data, &tag, 1);
+    ser(data, memPtr, &tag, 1);
   }
   else if (nDims == 2 && dims[0] == 1) { // List
     tag.dim = 1;
-    ser(data, &tag, 1);
-    ser(data, &nElem, types_size[UINT32]);
+    ser(data, memPtr, &tag, 1);
+    ser(data, memPtr, &nElem, types_size[UINT32]);
   }
   else { // General array
     tag.dim = nDims;
@@ -83,14 +80,14 @@ inline void write_header(uint8_t* data, tag_type& tag,
     std::vector<uint32_t> cast_dims(nDims);
     for (int i = 0; i < nDims; i++) cast_dims[i] = (uint32_t) dims[i];
 
-    ser(data, &tag, 1);
-    ser(data, cast_dims, nDims*types_size[UINT32]);
+    ser(data, memPtr, &tag, 1);
+    ser(data, memPtr, cast_dims, nDims*types_size[UINT32]);
   }
 
 }
 
 
-void serialise(uint8_t* data, const mxArray* input){
+void serialise(uint8_t* data, size_t& memPtr, const mxArray* input){
 
   tag_type tag = tag_data(input);
 
@@ -121,24 +118,24 @@ void serialise(uint8_t* data, const mxArray* input){
       }
 
       tag.dim = 2;
-      ser(data, &tag, 1);
-      ser(data, cast_dims, tag.dim*types_size[UINT32]);
-      ser(data, &nnz, types_size[UINT32]);
+      ser(data, memPtr, &tag, 1);
+      ser(data, memPtr, cast_dims, tag.dim*types_size[UINT32]);
+      ser(data, memPtr, &nnz, types_size[UINT32]);
 
-      ser(data, ir, types_size[UINT64]*nnz);
-      ser(data, map_jc, types_size[UINT64]*nnz);
+      ser(data, memPtr, ir, types_size[UINT64]*nnz);
+      ser(data, memPtr, map_jc, types_size[UINT64]*nnz);
 
-      write_data(data, input, types_size[tag.type], nnz);
+      write_data(data, memPtr, input, types_size[tag.type], nnz);
     }
     break;
   case CHAR:
     {
 
-      write_header(data, tag, nElem, dims, nDims);
+      write_header(data, memPtr, tag, nElem, dims, nDims);
       std::vector<char> arr(nElem+1);
       // Copies with NULL terminator, don't write with
       mxGetString(input, arr.data(), nElem+1);
-      ser(data, arr, nElem*types_size[CHAR]);
+      ser(data, memPtr, arr, nElem*types_size[CHAR]);
     }
     break;
   case INT8:
@@ -164,8 +161,8 @@ void serialise(uint8_t* data, const mxArray* input){
   case COMPLEX_DOUBLE:
     {
 
-      write_header(data, tag, nElem, dims, nDims);
-      write_data(data, input, types_size[tag.type], nElem);
+      write_header(data, memPtr, tag, nElem, dims, nDims);
+      write_data(data, memPtr, input, types_size[tag.type], nElem);
 
     }
     break;
@@ -175,30 +172,30 @@ void serialise(uint8_t* data, const mxArray* input){
       mxArray* conts;
       mxArray* arr = const_cast<mxArray*>(input);
       mexCallMATLAB(1, &conts, 1, &arr, "hlp_serialise");
-      ser(data, mxGetPr(conts), mxGetNumberOfElements(conts)*types_size[UINT8]);
+      ser(data, memPtr, mxGetPr(conts), mxGetNumberOfElements(conts)*types_size[UINT8]);
     }
     break;
 
   case VALUE_OBJECT:
     {
-      write_header(data, tag, nElem, dims, nDims);
+      write_header(data, memPtr, tag, nElem, dims, nDims);
       const char* name = mxGetClassName(input);
       tag_type name_tag;
       name_tag.type = CHAR;
       const mwSize name_dim[] = {1, strlen(name)};
-      write_header(data, name_tag, name_dim[1], name_dim, 2);
-      ser(data, name, name_dim[1]*types_size[CHAR]);
+      write_header(data, memPtr, name_tag, name_dim[1], name_dim, 2);
+      ser(data, memPtr, name, name_dim[1]*types_size[CHAR]);
       mxArray* arr = const_cast<mxArray*>(input);
       {
         mxArray* ser_type;
         mexCallMATLAB(1, &ser_type, 1, &arr, "get_ser_type");
-        ser(data, mxGetPr(ser_type), types_size[UINT8]);
+        ser(data, memPtr, mxGetPr(ser_type), types_size[UINT8]);
         mxDestroyArray(ser_type);
       }
       {
         mxArray* conts;
         mexCallMATLAB(1, &conts, 1, &arr, "get_object_conts");
-        serialise(data, conts);
+        serialise(data, memPtr, conts);
         mxDestroyArray(conts);
       }
 
@@ -209,9 +206,9 @@ void serialise(uint8_t* data, const mxArray* input){
     {
       uint32_t nFields = mxGetNumberOfFields(input);
 
-      write_header(data, tag, nElem, dims, nDims);
+      write_header(data, memPtr, tag, nElem, dims, nDims);
 
-      ser(data, &nFields, types_size[UINT32]);
+      ser(data, memPtr, &nFields, types_size[UINT32]);
 
       int namePtr = memPtr + nFields*types_size[UINT32];
       int namePtr_i = namePtr;
@@ -220,7 +217,7 @@ void serialise(uint8_t* data, const mxArray* input){
       for (int field=0; field < nFields; field++) {
         const char* name = mxGetFieldNameByNumber(input, field);
         uint32_t size = strlen(name);
-        ser(data, &size, types_size[UINT32]);
+        ser(data, memPtr, &size, types_size[UINT32]);
         memcpy(&data[namePtr], name, size);
         namePtr += size;
         parsed += size;
@@ -232,7 +229,7 @@ void serialise(uint8_t* data, const mxArray* input){
         mxArray* conts;
         mxArray* arr = const_cast<mxArray*>(input);
         mexCallMATLAB(1, &conts, 1, &arr, "struct2cell");
-        serialise(data, conts);
+        serialise(data, memPtr, conts);
       }
 
 
@@ -242,9 +239,9 @@ void serialise(uint8_t* data, const mxArray* input){
   case CELL:
     {
 
-      write_header(data, tag, nElem, dims, nDims);
+      write_header(data, memPtr, tag, nElem, dims, nDims);
       for (mwIndex i = 0; i < nElem; i++){
-        serialise(data, mxGetCell(input, i));
+        serialise(data, memPtr, mxGetCell(input, i));
       }
 
     }
@@ -281,8 +278,8 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
   double size = mxGetScalar(size_arr);
   mxArray* ser_arr = mxCreateUninitNumericMatrix(size, 1, mxUINT8_CLASS, (mxComplexity) 0);
   uint8_t* serialised = (uint8_t *) mxGetData(ser_arr);
-  memPtr = 0;
-  serialise(serialised, arr);
+  size_t memPtr = 0;
+  serialise(serialised, memPtr, arr);
 
   plhs[0] = ser_arr;
 }

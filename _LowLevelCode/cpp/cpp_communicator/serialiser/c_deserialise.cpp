@@ -14,20 +14,18 @@
 #include <vector>
 #include "cpp_serialise.hpp"
 
-size_t memPtr;
-
 template<typename T, typename A>
-inline void deser(const uint8_t* data, std::vector<T,A>& output, const double amount) {
+inline void deser(const uint8_t* data, size_t& memPtr, std::vector<T,A>& output, const double amount) {
   memcpy(output.data(), &data[memPtr], amount);
   memPtr += amount;
 }
 
-inline void deser(const uint8_t* data, void* output, const double amount) {
+inline void deser(const uint8_t* data, size_t& memPtr, void* output, const double amount) {
   memcpy(output, &data[memPtr], amount);
   memPtr += amount;
 }
 
-inline void read_data(uint8_t* data, mxArray* output, const size_t elemSize, const size_t nElem) {
+inline void read_data(uint8_t* data, size_t& memPtr, mxArray* output, const size_t elemSize, const size_t nElem) {
   if (mxIsComplex(output)) {
     // Size of a complex component is half that of the whole complex
     size_t compSize = elemSize/2;
@@ -45,25 +43,25 @@ inline void read_data(uint8_t* data, mxArray* output, const size_t elemSize, con
 
 #else
     void* toWrite = mxGetPr(output);
-    deser(data, toWrite, compSize*nElem);
+    deser(data, memPtr, toWrite, compSize*nElem);
     toWrite = mxGetPi(output);
-    deser(data, toWrite, compSize*nElem);
+    deser(data, memPtr, toWrite, compSize*nElem);
 
 #endif
 
   } else {
     void* toWrite = mxGetPr(output);
-    deser(data, toWrite, elemSize*nElem);
+    deser(data, memPtr, toWrite, elemSize*nElem);
   }
 }
 
 
-mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
+mxArray* deserialise(uint8_t* data, size_t& memPtr, size_t size, bool recursed) {
 
   mxArray* output = nullptr;
 
   tag_type tag;
-  deser(data, &tag, types_size[UINT8]);
+  deser(data, memPtr, &tag, types_size[UINT8]);
   size_t nDims;
   std::vector<uint32_t> cast_dims(2);
   std::vector<mwSize> vDims(2);
@@ -78,7 +76,7 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
       cast_dims.resize(nDims);
     }
 
-    deser(data, cast_dims, nDims*types_size[UINT32]);
+    deser(data, memPtr, cast_dims, nDims*types_size[UINT32]);
     switch (nDims) {
     case 0:
       nElem = 1;
@@ -125,7 +123,7 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
   case SPARSE_COMPLEX_DOUBLE:
     {
       uint32_t nnz;
-      deser(data, &nnz, types_size[UINT32]);
+      deser(data, memPtr, &nnz, types_size[UINT32]);
 
       if (tag.type == SPARSE_LOGICAL) {
         output = mxCreateSparseLogicalMatrix(dims[0], dims[1], nnz);
@@ -137,8 +135,8 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
       mwIndex* jc = mxGetJc(output);
       std::vector<uint64_t> map_jc(nnz);
 
-      deser(data, ir, types_size[UINT64]*nnz);
-      deser(data, map_jc, types_size[UINT64]*nnz);
+      deser(data, memPtr, ir, types_size[UINT64]*nnz);
+      deser(data, memPtr, map_jc, types_size[UINT64]*nnz);
 
       // Unmap Jc (see MATLAB docs on sparse arrays in MEX API)
       for (const uint64_t& row: map_jc) {
@@ -149,14 +147,14 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
         jc[i] += jc[i-1];
       }
 
-      read_data(data, output, types_size[tag.type], nnz);
+      read_data(data, memPtr, output, types_size[tag.type], nnz);
 
     }
     break;
   case CHAR:
     {
       std::vector<char> arr(nElem+1);
-      deser(data, arr, nElem*types_size[CHAR]);
+      deser(data, memPtr, arr, nElem*types_size[CHAR]);
       output = mxCreateCharArray(nDims, dims);
       char* out = (char*) mxGetPr(output);
       for (int i =0; i < nElem; i++) {
@@ -166,7 +164,7 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
     break;
   case LOGICAL:
     output = mxCreateLogicalArray(nDims, dims);
-    read_data(data, output, types_size[tag.type], nElem);
+    read_data(data, memPtr, output, types_size[tag.type], nElem);
     break;
   case INT8:
   case UINT8:
@@ -192,7 +190,7 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
       // Complex tags are 13-22
       mxComplexity cmplx = (mxComplexity) (12 < tag.type && tag.type < 23);
       output = mxCreateNumericArray(nDims, dims, unmap_types[tag.type], cmplx);
-      read_data(data, output, types_size[tag.type], nElem);
+      read_data(data, memPtr, output, types_size[tag.type], nElem);
     }
     break;
 
@@ -201,15 +199,15 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
       switch(tag.dim) {
       case 1:
         {
-          mxArray* name = deserialise(data, size, 1);
+          mxArray* name = deserialise(data, memPtr, size, 1);
           mexCallMATLAB(1, &output, 1, &name, "str2func");
           mxDestroyArray(name);
         }
         break;
       case 2:
         {
-          mxArray* name = deserialise(data, size, 1);
-          mxArray* workspace = deserialise(data, size, 1);
+          mxArray* name = deserialise(data, memPtr, size, 1);
+          mxArray* workspace = deserialise(data, memPtr, size, 1);
           std::vector<mxArray*> input {name, workspace};
           mexCallMATLAB(1, &output, 2, input.data(), "restore_function");
           mxDestroyArray(name);
@@ -218,7 +216,7 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
         break;
       case 3:
         {
-          mxArray* parentage = deserialise(data, size, 1);
+          mxArray* parentage = deserialise(data, memPtr, size, 1);
           const int len = mxGetNumberOfElements(parentage);
 
           // Initial output
@@ -245,14 +243,14 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
     {
       memPtr++; // Skip name_tag
       uint32_t nameLen;
-      deser(data, &nameLen, types_size[UINT32]);
+      deser(data, memPtr, &nameLen, types_size[UINT32]);
       std::vector<char> name(nameLen+1);
       // Null terminator
       name[nameLen] = 0;
-      deser(data, name, nameLen*types_size[CHAR]);
+      deser(data, memPtr, name, nameLen*types_size[CHAR]);
 
       uint8_t ser_tag;
-      deser(data, &ser_tag, types_size[UINT8]);
+      deser(data, memPtr, &ser_tag, types_size[UINT8]);
 
       switch (ser_tag) {
       case SELF_SER:
@@ -272,7 +270,7 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
       case SAVEOBJ:
         {
           mxArray* mxName = mxCreateString(name.data());
-          mxArray* conts = deserialise(data, size, 1);
+          mxArray* conts = deserialise(data, memPtr, size, 1);
           std::vector<mxArray*> input {mxName, conts};
           mexCallMATLAB(1, &output, 2, input.data(), "c_hlp_deserialise_object_loadobj");
           mxDestroyArray(conts);
@@ -281,7 +279,7 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
         break;
       case STRUCTED:
           {
-            output = deserialise(data, size, 1);
+            output = deserialise(data, memPtr, size, 1);
             mxSetClassName(output, name.data());
           }
         break;
@@ -293,10 +291,10 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
   case STRUCT:
     {
       uint32_t nFields;
-      deser(data, &nFields, types_size[UINT32]);
+      deser(data, memPtr, &nFields, types_size[UINT32]);
 
       std::vector<uint32_t> fNameLens(nFields);
-      deser(data, fNameLens, nFields*types_size[UINT32]);
+      deser(data, memPtr, fNameLens, nFields*types_size[UINT32]);
 
       std::vector<std::vector<char>> fNames(nFields);
       std::vector<char*> mxData(nFields);
@@ -304,13 +302,13 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
         fNames[field] = std::vector<char>(fNameLens[field]+1);
         mxData[field] = fNames[field].data();
         fNames[field][fNameLens[field]] = 0;
-        deser(data, fNames[field], fNameLens[field]*types_size[CHAR]);
+        deser(data, memPtr, fNames[field], fNameLens[field]*types_size[CHAR]);
       }
 
       output = mxCreateStructArray(nDims, dims, nFields, (const char**) mxData.data());
       if (nFields == 0) break;
 
-      mxArray* cellData = deserialise(data, size, 1);
+      mxArray* cellData = deserialise(data, memPtr, size, 1);
 
       for (int obj=0, elem=0; obj < nElem; obj++) {
         for (int field=0; field < nFields; field++, elem++) {
@@ -326,7 +324,7 @@ mxArray* deserialise(uint8_t* data, size_t size, bool recursed) {
     {
       output = mxCreateCellArray(nDims, dims);
       for (mwIndex i = 0; i < nElem; i++) {
-        mxArray* elem = deserialise(data, size, 1);
+        mxArray* elem = deserialise(data, memPtr, size, 1);
         mxSetCell(output, i, elem);
       }
     }
@@ -364,8 +362,8 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
     mexErrMsgIdAndTxt("MATLAB:c_deserialise:badRHS", "Bad number of RHS arguments in c_deserialise");
   }
 
-  memPtr = 0;
+  size_t memPtr = 0;
   mwSize size = mxGetNumberOfElements(prhs[0]);
   uint8_t* data = (uint8_t*) mxGetPr(prhs[0]);
-  plhs[0] = deserialise(data, size, 0);
+  plhs[0] = deserialise(data, memPtr, size, 0);
 }
