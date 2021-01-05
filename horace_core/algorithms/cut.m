@@ -1,6 +1,7 @@
 function wout = cut(source, varargin)
 %%CUT
 %
+DND_CLASSES = {'d0d', 'd1d', 'd2d', 'd3d', 'd4d'};
 
 if is_string(source)
     ldr = sqw_formats_factory.instance().get_loader(source);
@@ -11,7 +12,7 @@ if is_string(source)
         sqw_dnd_obj = ldr.get_dnd(source);
     end
     ldr.delete();
-elseif ~isa(source, 'sqw') && ~isempty(regexp(class(source), 'd[0-4]d', 'ONCE'))
+elseif isa(source, 'sqw') || ismember(class(source), DND_CLASSES)
     sqw_dnd_obj = source;
 else
     error('HORACE:cut', ...
