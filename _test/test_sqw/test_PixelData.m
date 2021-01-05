@@ -1670,6 +1670,29 @@ methods
         assertEqualToTol(new_pix, expected_pix);
     end
 
+    function test_get_pix_in_ranges_throws_if_index_arrays_not_same_size(~)
+        num_pix = 10;
+        p = PixelData(num_pix);
+        starts = randi(num_pix, [1, 4]);
+        ends = randi(num_pix, [4, 1]);
+        f = @() p.get_pix_in_ranges(starts, ends);
+
+        assertExceptionThrown(f, 'PIXELDATA:get_pix_in_ranges');
+    end
+
+    function test_get_pix_in_ranges_throws_if_index_arrays_not_vectors(~)
+        num_pix = 10;
+        p = PixelData(num_pix);
+        sizes = {[2, 4], [3, 3]};
+        for i = 1:numel(sizes)
+            starts = randi(num_pix, sizes{i});
+            ends = randi(num_pix, sizes{i});
+            f = @() p.get_pix_in_ranges(starts, ends);
+        end
+
+        assertExceptionThrown(f, 'PIXELDATA:get_pix_in_ranges');
+    end
+
     %% -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
