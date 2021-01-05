@@ -6,6 +6,7 @@ function [data_str,obj] = get_data (obj,varargin)
 %
 %   >> data = obj.get_data()
 %   >> data = obj.get_data(opt)
+%   >> data = obj.get_data(opt, 'pixel_page_size', 256e6)
 %
 % Input:
 % ------
@@ -16,6 +17,14 @@ function [data_str,obj] = get_data (obj,varargin)
 %                                  data is written back to the file with a few altered fields.
 %                  '-head'
 %                  '-verbatim'
+%
+% Keyword Arguments:
+% ------------------
+%   pixel_page_size    The maximum amount of memory to allocate to holding
+%                      pixel data. This argument is passed to the PixelData
+%                      constructor's 'mem_alloc' argument.
+%                      The value should have units of bytes.
+%
 % Output:
 % -------
 

@@ -46,6 +46,26 @@ methods
         assertEqual(sqw_obj.data.pix.num_pixels, 100337);
     end
 
+    function test_filename_constructor_sets_pixel_page_size_if_passed(obj)
+        pagesize_pixels = 666; % test value
+        pagesize_bytes = pagesize_pixels * PixelData.DATA_POINT_SIZE * PixelData.DEFAULT_NUM_PIX_FIELDS;
+
+        sqw_obj = sqw(obj.test_sqw_1d_fullpath, 'pixel_page_size', pagesize_bytes);
+
+        assertTrue(isa(sqw_obj, 'sqw'));
+        assertTrue(sqw_obj.data.pix.num_pixels > pagesize_pixels);
+        assertEqual(sqw_obj.data.pix.num_pixels, 100337); % expected value from test file
+        assertEqual(sqw_obj.data.pix.page_size, pagesize_pixels);
+    end
+
+    function test_filename_constructor_sets_all_data_default_pagesize(obj)
+        sqw_obj = sqw(obj.test_sqw_1d_fullpath);
+
+        assertTrue(isa(sqw_obj, 'sqw'));
+        assertEqual(sqw_obj.data.pix.num_pixels, 100337); % expected value from test file
+        assertEqual(sqw_obj.data.pix.page_size, 100337);
+    end
+
     function test_copy_constructor_clones_object(obj)
         sqw_obj = sqw(obj.test_sqw_1d_fullpath);
         sqw_copy = sqw(sqw_obj);

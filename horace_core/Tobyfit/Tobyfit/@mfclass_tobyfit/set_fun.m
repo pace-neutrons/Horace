@@ -226,8 +226,5 @@ function obj = set_fun(obj,varargin)
 % <#doc_end:>
 % -----------------------------------------------------------------------------
 
-try
-    obj = set_fun@mfclass (obj, varargin{:});
-catch ME
-    error(ME.message)
-end
+obj = set_fun@mfclass (obj, varargin{:});
+
