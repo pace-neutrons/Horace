@@ -1,5 +1,11 @@
 function wout = cut(source, varargin)
-%%CUT
+%%CUT Take a cut from the given data source.
+%
+% Inputs:
+% -------
+% source     An `sqw` or `dnd` object or a path to a valid .sqw or .dnd file.
+%
+% For more help see sqw/cut.
 %
 DND_CLASSES = {'d0d', 'd1d', 'd2d', 'd3d', 'd4d'};
 
