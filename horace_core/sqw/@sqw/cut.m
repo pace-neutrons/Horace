@@ -121,7 +121,7 @@ dnd_type = obj.data.pix.num_pixels == 0;
 ndims_source = numel(obj.data.pax);
 
 if dnd_type
-    % Inputs have no pixels, delegate to cut_dnd
+    % Input has no pixels, delegate to cut_dnd
     % TODO: refactor so cut_dnd_main sits on DnDBase class
     wout = cut_dnd_main(obj, ndims_source, varargin{:});
     return
@@ -140,6 +140,7 @@ if return_cut
     wout = allocate_output(sz, pbin, opt.keep_pix, DND_CONSTRUCTORS);
 end
 
+% This loop enables multicuts
 for cut_num = 1:prod(sz)
     pbin_tmp = get_pbin_for_cut(sz, cut_num, pbin);
     args = {obj, proj, pbin_tmp, pin, en, opt.keep_pix, opt.outfile};
@@ -165,7 +166,7 @@ function [proj, pbin, opt] = validate_args(obj, return_cut, ndims_source, vararg
     % Ensure there are no excess input arguments
     if numel(args) ~= 0
         error ('CUT_SQW:invalid_arguments', ...
-               'Check the number and type of input arguments')
+               'Check the number and type of input arguments.')
     end
 end
 
@@ -194,6 +195,7 @@ end
 
 
 function out = allocate_output(sz, pbin, keep_pix, dnd_constructors)
+    % Allocate an array of cut outputs using the projection binning
     sz_squeeze = [sz(sz > 1), ones(1, max(2 - sum(sz > 1), 0))];
     if keep_pix
         out = repmat(sqw, sz_squeeze);

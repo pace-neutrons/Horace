@@ -17,7 +17,7 @@ proj = proj.set_proj_binning( ...
 );
 
 % Accumulate image and pixel data for cut
-[s, e, npix, pix_out, urange_pix] = accumulate_cut_data_(w, proj, keep_pix, log_level);
+[s, e, npix, pix_out, urange_pix] = cut_accumulate_data_(w, proj, keep_pix, log_level);
 
 % Compile the accumulated cut and projection data into a data_sqw_dnd object
 data_out = compile_sqw_data(w.data, proj, s, e, npix, pix_out, urange_pix, ...
