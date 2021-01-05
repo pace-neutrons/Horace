@@ -89,7 +89,7 @@ classdef test_serialise < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_pixdata(this)
+        function DISABLED_test_ser_pixdata(this)
             test_obj = PixelData();
 
             ser = hlp_serialise(test_obj);
