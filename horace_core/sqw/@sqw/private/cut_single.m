@@ -1,5 +1,22 @@
-function wout = cut_single(w, proj, pbin, pin, en, keep_pix, outfile)
-%%CUT_SINGLE
+function wout = cut_single(w, proj, pbin, en, keep_pix, outfile)
+%%CUT_SINGLE Perform a cut on a single sqw object
+%
+% Input:
+% ------
+% w           The sqw object to take a cut from.
+% proj        A `projection` object, defining the projection of the cut.
+% pbin        The binning along each projection axis of the cut (cell array).
+%             See p1_bin, p2_bin etc. in sqw/cut.
+% en          Energy bins of input sqw header average (double).
+% keep_pix    True if pixel information is to be retained in cut, else false.
+% outfile     The output file to write the cut to, empty if cut is not to be
+%             written to file (char).
+%
+% Output:
+% -------
+% wout       The output cut. If keep_pix is true this will be an SQW object,
+%            else it will be DnD object.
+%            This output argument can be omitted if `outfile` is specified.
 %
 
 DND_CONSTRUCTORS = {@d0d, @d1d, @d2d, @d3d, @d4d};
@@ -8,7 +25,7 @@ log_level = get(hor_config, 'log_level');
 wout = copy(w, 'exclude_pix', true);
 
 % Get bin boundaries and projection
-bounds = get_bin_boundaries(proj, w.data.urange, pbin, pin, en);
+bounds = get_bin_boundaries(proj, w.data.urange, pbin, w.data.p, en);
 proj = proj.set_proj_binning( ...
     bounds.urange, ...
     bounds.plot_ax_idx, ...
