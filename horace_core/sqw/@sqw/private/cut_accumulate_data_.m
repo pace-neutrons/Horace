@@ -114,6 +114,7 @@ for iter = 1:max_num_iters
     end
 
     if keep_pix
+        % Retain only the pixels that did contribute to the cut
         pix_retained{iter} = candidate_pix.get_pixels(ok);
         pix_ix_retained{iter} = ix;
     end
