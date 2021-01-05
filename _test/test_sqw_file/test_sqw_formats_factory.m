@@ -3,7 +3,6 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
     %
     properties
         test_folder
-        clob
     end
     
     methods

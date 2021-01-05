@@ -14,8 +14,8 @@ function [w, grid_size, pix_range] = calc_sqw_(obj,detdcn, det0, grid_size_in, p
 %                  [If data has field qspec, then det is ignored]
 %   grid_size_in   Scalar or [1x4] vector of grid dimensions
 %   pix_range_in   Range of data grid for output as a [2x4] matrix:
-%                   [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
-%                   If [] then uses the smallest hyper-cuboid that encloses the whole data range.
+%                  [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
+%                  If [] then uses the smallest hyper-cuboid that encloses the whole data range.
 %
 %
 % Output:
@@ -24,7 +24,8 @@ function [w, grid_size, pix_range] = calc_sqw_(obj,detdcn, det0, grid_size_in, p
 %   grid_size      Actual size of grid used (size is unity along dimensions
 %                  where there is zero range of the data points)
 %   pix_range      Actual range of grid - the specified range if it was given,
-%                  or the range of the data if not.
+%                  or the range of the data if not. In this case, pix range
+%                  is equivalent to image range
 
 
 hor_log_level=config_store.instance().get_value('herbert_config','log_level');
