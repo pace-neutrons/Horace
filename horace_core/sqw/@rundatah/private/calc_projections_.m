@@ -64,8 +64,8 @@ if proj_mode<0 || proj_mode >2
 end
 
 
-% Create matrix to convert from spectrometer axes to coordinates along projection axes
-[spec_to_u, u_to_rlu] = obj.lattice.calc_proj_matrix();
+% Create matrix to convert from spectrometer axes to coordinates along crystal cartesizn projection axes
+[spec_to_cc, u_to_rlu] = obj.lattice.calc_proj_matrix();
 
 % Calculate Q in spectrometer coordinates for each pixel
 [use_mex,nThreads]=config_store.instance().get_value('hor_config','use_mex','threads');
@@ -83,7 +83,7 @@ if use_mex
             emode = obj.emode;
             %proj_mode = 2;
             %nThreads = 1;
-            [pix_range,pix] =calc_projections_c(spec_to_u, data, det, efix,k_to_e, emode, nThreads,proj_mode);
+            [pix_range,pix] =calc_projections_c(spec_to_cc, data, det, efix,k_to_e, emode, nThreads,proj_mode);
             pix = PixelData(pix);
         catch  ERR % use Matlab routine
             warning('HORACE:using_mex','Problem with C-code: %s, using Matlab',ERR.message);
@@ -98,9 +98,9 @@ if ~use_mex
             detdcn = calc_detdcn(obj.det_par);
         end
         [qspec,en]=obj.calc_qspec(detdcn);
-        ucoords = [spec_to_u*qspec;en];
+        ucoords = [spec_to_cc*qspec;en];
     else
-        ucoords = [spec_to_u*qspec(1:3,:);qspec(4,:)];
+        ucoords = [spec_to_cc*qspec(1:3,:);qspec(4,:)];
         qspec_provided = true;
     end
 

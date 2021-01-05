@@ -42,7 +42,7 @@ function [w,grid_size,pix_range,detdcn] = calc_sqw(obj,grid_size_in,pix_range_in
 % w               Output sqw object
 % grid_size       Actual size of grid used (size is unity along dimensions
 %                 where there is zero range of the data points)
-% pix_range          Actual range of grid - the specified range if it was given,
+% pix_range       Actual range of image - the specified range if it was given,
 %                 or the range of the data if not.
 %  detdcn        [3 x ndet] array of unit vectors, poinitng to the detector's
 %                positions in the spectrometer coordinate system (X-axis

@@ -269,23 +269,21 @@ classdef data_sqw_dnd
             %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
             %
             
-            function minmax = check_minmax(min, max)
-                if min>max
-                    tmp = max;
-                    max = min;
-                    min = tmp;
-                end
-                minmax = [min;max];
-            end
+            %             function minmax = check_minmax(min, max)
+            %                 if min>max
+            %                     tmp = max;
+            %                     max = min;
+            %                     min = tmp;
+            %                 end
+            %                 minmax = [min;max];
+            %             end
             %             if nargin>1
             %                 u_to_rlu0 = varargin{1};
             %             else
             %                 u_to_rlu0 = eye(4);
             %             end
             %             img_range = [];
-            %             if isfield(ds,'pix_range') &&  all(all(ds.pix_range ~= PixelData.EMPTY_RANGE_))
-            %                 img_range = bsxfun(@minus,ds.pix_range,(u_to_rlu0\ds.uoffset)')*u_to_rlu0*(ds.u_to_rlu.*repmat(ds.ulen,[4,1]));
-            %             elseif ds.pix.num_pixels >0 || all(all(ds.pix.pix_range ~= PixelData.EMPTY_RANGE_))
+            %             if ds.pix.num_pixels >0 || all(all(ds.pix.pix_range ~= PixelData.EMPTY_RANGE_))
             %                 pix_range = ds.pix.pix_range;
             %                 img_range = bsxfun(@minus,pix_range,(u_to_rlu0\ds.uoffset)')*u_to_rlu0*(ds.u_to_rlu.*repmat(ds.ulen,[4,1]));
             %             end
@@ -310,20 +308,20 @@ classdef data_sqw_dnd
                     ds.p{i}(end)];
             end
             img_range(:,ds.pax) = pax_range;
-            if isfield(ds,'pix_range') &&  all(all(ds.pix_range ~= PixelData.EMPTY_RANGE_))
-                if nargin>1
-                    u_to_rlu0 = varargin{1};
-                else
-                    u_to_rlu0 = eye(4);
-                end
-                
-                img_range1 = bsxfun(@minus,ds.pix_range,(u_to_rlu0\ds.uoffset)')*u_to_rlu0*(ds.u_to_rlu);
-                mm = arrayfun(@check_minmax,img_range1(1,:),img_range1(2,:),...
-                    'UniformOutput',false);
-                img_range1 = [mm{:}];
-                img_range = [min(img_range(1,:),img_range1(1,:));...
-                    max(img_range(2,:),img_range1(2,:))];
-            end
+            %             if isfield(ds,'pix_range') &&  all(all(ds.pix_range ~= PixelData.EMPTY_RANGE_))
+            %                 if nargin>1
+            %                     u_to_rlu0 = varargin{1};
+            %                 else
+            %                     u_to_rlu0 = eye(4);
+            %                 end
+            %
+            %                 img_range1 = bsxfun(@minus,ds.pix_range,(u_to_rlu0\ds.uoffset)')*u_to_rlu0*(ds.u_to_rlu);
+            %                 mm = arrayfun(@check_minmax,img_range1(1,:),img_range1(2,:),...
+            %                     'UniformOutput',false);
+            %                 img_range1 = [mm{:}];
+            %                 img_range = [min(img_range(1,:),img_range1(1,:));...
+            %                     max(img_range(2,:),img_range1(2,:))];
+            %             end
         end
         %
         function obj = loadobj(input)
