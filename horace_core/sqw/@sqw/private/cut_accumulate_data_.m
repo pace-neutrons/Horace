@@ -1,6 +1,6 @@
 function [s, e, npix, pix_out, urange_pix] = ...
-    accumulate_cut_data_(obj, proj, keep_pix, log_level)
-%%ACCUMULATE_CUT_DATA_ Accumulate image and pixel data for a cut
+    cut_accumulate_data_(obj, proj, keep_pix, log_level)
+%%CUT_ACCUMULATE_DATA Accumulate image and pixel data for a cut
 %
 % Input:
 % ------
@@ -20,6 +20,8 @@ function [s, e, npix, pix_out, urange_pix] = ...
 %                  cut.
 % urange_pix       The range of u1, u2, u3, and dE in the contributing pixels.
 %                  size(urange_step_pix) == [2, 4].
+%
+% CALLED BY cut_single
 %
 
 % Pre-allocate image data
