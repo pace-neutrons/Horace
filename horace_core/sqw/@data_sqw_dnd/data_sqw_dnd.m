@@ -5,8 +5,6 @@ classdef data_sqw_dnd
 
     % Original author: T.G.Perring
     %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-    %
     properties
         filename=''   % Name of sqw file that is being read, excluding path
         filepath=''   % Path to sqw file that is being read, including terminating file separator
@@ -42,6 +40,9 @@ classdef data_sqw_dnd
             -Inf,-Inf,-Inf,-Inf] % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf] -- convention if no pixels
         pix = PixelData()      % Object containing data for each pixel
         axis_caption=an_axis_caption(); %  Reference to class, which define axis captions
+        %
+        % returns number of pixels, stored within the PixelData class
+        num_pixels
     end
 
     methods
@@ -221,6 +222,13 @@ classdef data_sqw_dnd
             % disables validation
             %
             [ok, type, mess]=obj.check_sqw_data_(type_in);
+        end
+        function npix= get.num_pixels(obj)
+            if isa(obj.pix,'PixelData')
+                npix = obj.pix.num_pixels;
+            else
+                npix  = [];
+            end
         end
 
     end

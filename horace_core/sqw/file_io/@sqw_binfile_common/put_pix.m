@@ -3,7 +3,6 @@ function   obj = put_pix(obj,varargin)
 %
 %Usage:
 %>>obj = obj.put_pix();
-%>>obj = obj.put_pix(npix_lo,npix_hi);
 % Availible options:
 % '-update' -- update eixsting data rather then (over)writing new file
 % '-nopix'  -- do not write pixels
@@ -38,21 +37,19 @@ if ~isempty(argi) % parse inputs which may or may not contain any
         error('SQW_BINFILE_COMMON:invalid_argument',...
             'put_pixel: the routine accepts only sqw object and/or low and high numbers for pixels to save');
     end
+
     if any(parallel_Fw)
         jobDispatcher = argi{parallel_Fw};
     else
         jobDispatcher  = [];
     end
+
     if any(sqw_pos)
         input_obj = argi{sqw_pos};
     else
         input_obj = [];
     end
-    if any(numeric_pos)
-        input_num = argi{numeric_pos};
-    else
-        input_num = [];
-    end
+
     if ~isempty(input_obj)
         if isa(input_obj,'sqw_old')
             input_obj = input_obj.data;
@@ -74,7 +71,7 @@ if update
         error('SQW_FILE_IO:runtime_error',...
             'SQW_BINFILE_COMMON::put_pix: input object has not been initiated for update mode');
     end
-    if ~nopix && (obj.npixels ~= size(input_obj.pix,2))
+    if ~nopix && (obj.npixels ~= input_obj.pix.num_pixels)
         error('SQW_FILE_IO:runtime_error',...
             'SQW_BINFILE_COMMON::put_pix: unable to update pixels and pix number in file and update are different');
     end
@@ -82,21 +79,6 @@ if update
     start_pos = val(1);
 else
     start_pos = obj.urange_pos_;
-end
-if ~isempty(input_num)
-    correct = cellfun(@(x)(x>0 && x<=obj.npixels),input_num,'UniformOutput',true);
-    if ~all(correct)
-        error('SQW_FILE_IO:invalid_argument',...
-            'SQW_BINFILE_COMMON::put_pixes: range of pixels to save is out of range from 0 to %d',...
-            obj.npixels);
-    end
-    npix_lo = input_num{1};
-    npix_hi = input_num{2};
-    write_all =false;
-else
-    write_all =true;
-    npix_lo = 1;
-    npix_hi = obj.npixels;
 end
 
 head_pix = rmfield(head_pix,'pix');
@@ -152,40 +134,34 @@ end
 if isa(input_obj.pix,'pix_combine_info') % pix field contains info to read &
     %combine pixels from sequence of files. There is special sub-algorithm
     %to do that.
-    obj =put_sqw_data_pix_from_file_(obj,input_obj.pix,jobDispatcher);
+    obj = put_sqw_data_pix_from_file_(obj,input_obj.pix, jobDispatcher);
 else % write pixels directly
 
     % Try writing large array of pixel information a block at a time - seems to speed up the write slightly
     % Need a flag to indicate if pixels are written or not, as cannot rely just on npixtot - we really
     % could have no pixels because none contributed to the given data range.
-    block_size= config_store.instance().get_value('hor_config','mem_chunk_size'); % size of buffer to hold pixel information
-    % block_size=1000000;
-    shift = (npix_lo-1)*9*4;
-    fseek(obj.file_id_,obj.pix_pos_+shift ,'bof');
-    check_error_report_fail_(obj,'Error moving to the start of the pixels record');
+    block_size = config_store.instance().get_value('hor_config','mem_chunk_size'); % size of buffer to hold pixel information
 
-    npix_to_write = npix_hi-npix_lo+1;
-    if npix_to_write <=block_size
-        if write_all
+    fseek(obj.file_id_, obj.pix_pos_ , 'bof');
+    check_error_report_fail_(obj, 'Error moving to the start of the pixels record');
+
+    npix_to_write = obj.npixels;
+    if npix_to_write <= block_size
+        input_obj.pix.move_to_first_page();
+        fwrite(obj.file_id_,input_obj.pix.data,'float32');
+        while input_obj.pix.has_more()
+            input_obj.pix.advance();
             fwrite(obj.file_id_,input_obj.pix.data,'float32');
-            while input_obj.pix.has_more()
-                input_obj.pix.advance();
-                fwrite(obj.file_id_,input_obj.pix.data,'float32');
-            end
-        else
-            fwrite(obj.file_id_,input_obj.pix.get_pixels(npix_lo:npix_hi).data,'float32');
         end
         check_error_report_fail_(obj,'Error writing pixels array');
     else
-        for ipix=npix_lo:block_size:npix_hi
+        for ipix=1:block_size:npix_to_write
             istart = ipix;
-            iend   = min(ipix+block_size-1,npix_hi);
+            iend   = min(ipix+block_size-1, npix_to_write);
             fwrite(obj.file_id_,input_obj.pix.get_pixels(istart:iend).data,'float32');
             check_error_report_fail_(obj,...
                 sprintf('Error writing pixels array, npix from: %d to: %d in the rage from: %d to: %d',...
-                istart,iend,npix_lo,npix_hi));
+                istart,iend,1,npix_to_write));
         end
     end
 end
-
-

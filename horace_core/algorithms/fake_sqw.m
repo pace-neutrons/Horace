@@ -1,4 +1,4 @@
-function [tmp_sqw, grid_size, urange] = fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg,...
+function [tmp_sqw, grid_size, img_range] = fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg,...
     u, v, psi, omega, dpsi, gl, gs, varargin)
 % Create an output sqw file with dummy data using array(s) of energy bins instead spe file(s).
 %
@@ -8,7 +8,7 @@ function [tmp_sqw, grid_size, urange] = fake_sqw (en, par_file, sqw_file, efix, 
 %   >> fake_sqw (sqw, en, par_file, sqw_file, efix, emode, alatt, angdeg,...
 %                    u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
 %
-%   >> [tmp_file, grid_size, urange] = fake_sqw (...)
+%   >> [tmp_file, grid_size, img_range] = fake_sqw (...)
 %
 % Input:
 % ------
@@ -48,11 +48,11 @@ function [tmp_sqw, grid_size, urange] = fake_sqw (en, par_file, sqw_file, efix, 
 %
 % Output:
 % --------
-%   tmp_sqw         List of temporary file names or cellarray of sqw objects if
+%   tmp_sqw        List of temporary file names or cellarray of sqw objects if
 %                  sqw_file is empty string.
-%   grid_size       Actual size of grid used (size is unity along dimensions
+%   grid_size      Actual size of grid used (size is unity along dimensions
 %                  where there is zero range of the data points)
-%   urange          Actual range of grid
+%   img_range      Actual range of image in 
 %
 %
 % Use to generate an sqw file that can be used for creating simulations. Syntax very similar to
@@ -78,8 +78,8 @@ if iscellnum(en) || isnumeric(en)
             error('Energy bins must numeric vectors')
         else
             de=diff(en{i});
-            if any(de)<=0 || any(abs(diff(de))/de(1)>small_bin)
-                error('Energy bins widths must all be the same and non-zero')
+            if any(de<=0) || any(abs(diff(de))/de(1)>small_bin)
+                error('Energy bins widths must all be the same and positive')
             end
             en_lo(i)=(en{i}(1)+en{i}(2))/2;
             en_hi(i)=(en{i}(end-1)+en{i}(end))/2;
@@ -145,7 +145,7 @@ end
 grid_default=[];
 instrument_default=struct;  % default 1x1 struct
 sample_default=struct;      % default 1x1 struct
-[ok,mess,present,grid_size,urange,instrument,sample]=gen_sqw_check_optional_args(...
+[ok,mess,present,grid_size,img_range,instrument,sample]=gen_sqw_check_optional_args(...
     nfiles,grid_default,instrument_default,sample_default,varargin{:});
 
 if ~ok, error(mess), end
@@ -184,15 +184,15 @@ end
 
 
 % Determine urange
-if isempty(urange)
-    urange = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
+if isempty(img_range)
+    img_range = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
     for i=1:numel(run_files)
         urange_l = run_files{i}.calc_urange(en_lo(i),en_hi(i),cache_opt{:});
-        urange = [min(urange_l(1,:),urange(1,:));max(urange_l(2,:),urange(2,:))];
+        img_range = [min(urange_l(1,:),img_range(1,:));max(urange_l(2,:),img_range(2,:))];
     end
     %urange=calc_urange(efix,emode,en_lo,en_hi,det,alatt,angdeg,...
     %    u,v,psi*d2r,omega*d2r,dpsi*d2r,gl*d2r,gs*d2r);
-    urange=range_add_border(urange,-1e-6);     % add a border to account for Matlab matrix multiplication bug
+    img_range=range_add_border(img_range,-1e-6);     % add a border to account for Matlab matrix multiplication bug
 end
 
 % Construct data structure with spe file information
@@ -229,7 +229,7 @@ for i=1:nfiles
     run_files{i}.ERR = data.ERR;
     run_files{i}.en = en{i};
     %
-    w = run_files{i}.calc_sqw(grid_size, urange,cache_opt{:});
+    w = run_files{i}.calc_sqw(grid_size, img_range,cache_opt{:});
     
     if return_sqw_obj
         tmp_sqw{i} = w;
@@ -265,6 +265,6 @@ end
 
 % Clear output arguments if nargout==0 to have a silent return
 if nargout==0
-    clear tmp_file grid_size urange
+    clear tmp_file grid_size pix_range
 end
 

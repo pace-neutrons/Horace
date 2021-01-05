@@ -1,4 +1,4 @@
-function [data,obj] = get_data (obj,varargin)
+function [data,obj] = get_data(obj,varargin)
 % Read the data block from an sqw or dnd file and return the result as the
 % data structure with fields, described below.
 %
@@ -28,6 +28,13 @@ function [data,obj] = get_data (obj,varargin)
 %                            going to be created. May be removed in a future.
 %
 %               Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
+%
+% Keyword Arguments:
+% ------------------
+%   pixel_page_size    The maximum amount of memory to allocate to holding
+%                      pixel data. This argument is passed to the PixelData
+%                      constructor's 'mem_alloc' argument.
+%                      The value should have units of bytes.
 %
 % Output:
 % -------
@@ -105,32 +112,43 @@ if ~ok
 end
 
 [data_str,obj] = obj.get_data@dnd_binfile_common(obj,argi{:});
-%
+
 fseek(obj.file_id_,obj.urange_pos_,'bof');
 [mess,res] = ferror(obj.file_id_);
 if res ~= 0
     error('SQW_BINILE_COMMON:io_error',...
-        'Can not move to the urange start position, Reason: %s',mess);
+          'Can not move to the urange start position, Reason: %s',mess);
 end
 
-data_str.urange =fread(obj.file_id_,[2,4],'float32');
+data_str.urange = fread(obj.file_id_,[2,4],'float32');
 
+% parse all arguments, including those that weren't passed to the parent method
+opts = parse_args(varargin{:});
 
-% process all possible options
-[ok,mess,header_only,~,hverbatim,nopix,argi]=...
-    parse_char_options(varargin,{'-header','-verbatim','-hverbatim','-nopix'});
-if ~ok
-    error('SQW_FILE_INTERFACE:invalid_argument',['get_data: ',mess]);
-end
-
-header_only = header_only||hverbatim;
-
-if header_only || noclass
+if opts.header || opts.hverbatim || noclass
     data  = data_str;
     return;
 end
 data = data_sqw_dnd(data_str);
 
-if ~nopix
-    data.pix = PixelData(obj);
+if ~opts.nopix
+    data.pix = PixelData(obj, opts.pixel_page_size);
+end
+
+end  % function
+
+
+% -----------------------------------------------------------------------------
+function opts = parse_args(varargin)
+    flags = {'header','verbatim','hverbatim','nopix', 'noclass'};
+    kwargs = struct('pixel_page_size', PixelData.DEFAULT_PAGE_SIZE);
+    for flag_idx = 1:numel(flags)
+        kwargs.(flags{flag_idx}) = false;
+    end
+    parser_opts = struct('prefix', '-', 'prefix_req', false);
+    [~, opts, ~, ~, ok, mess] = parse_arguments(varargin, kwargs, flags, ...
+                                                parser_opts);
+    if ~ok
+        error('SQW_FILE_INTERFACE:invalid_argument', ['get_data: ', mess]);
+    end
 end
