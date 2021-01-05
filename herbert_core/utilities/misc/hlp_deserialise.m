@@ -136,13 +136,14 @@ function [v, pos] = deserialise_sparse(m, pos)
     end
 
     [dims, pos] = read_bytes(m, pos, 'uint32', 2);
+    dims = double(dims);
     [nElem, pos] = read_bytes(m, pos, 'uint32', 1);
 
     [i, pos] = read_bytes(m, pos, 'uint64', nElem);
     [j, pos] = read_bytes(m, pos, 'uint64', nElem);
     % +1 is to align with C API which indexes from 0, not 1
-    i = double(i + 1)
-    j = double(j + 1)
+    i = double(i + 1);
+    j = double(j + 1);
     [data, pos] = read_bytes(m, pos, deserialiser, nElem);
 
     switch type.name
