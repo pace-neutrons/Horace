@@ -49,11 +49,11 @@ function out = get_values_in_ranges(range_starts, range_ends)
     end
 
     % Find the indexes of the boundaries of each range
-    range_bounds_idxs = cumsum([1; range_ends(:) - range_starts(:) + 1]);
+    range_boundary_idxs = cumsum([1; range_ends(:) - range_starts(:) + 1]);
     % Generate vector of ones with length equal to output vector length
-    z = ones(range_bounds_idxs(end) - 1, 1);
+    z = ones(range_boundary_idxs(end) - 1, 1);
     % Insert size of the difference between boundaries in each boundary index
-    z(range_bounds_idxs(1:end - 1)) = [ ...
+    z(range_boundary_idxs(1:end - 1)) = [ ...
         range_starts(1), range_starts(2:end) - range_ends(1:end - 1) ...
     ];
     % Take the cumulative sum
