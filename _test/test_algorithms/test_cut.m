@@ -40,7 +40,7 @@ methods
         assertEqualToTol(sqw_cut, ref_sqw, 1e-5, 'ignore_str', true);
     end
 
-    function test_taking_cut_from_a_larger_file(obj)
+    function test_taking_cut_from_a_larger_file(~)
         conf = hor_config();
         old_conf = conf.get_data_to_store();
         conf.pixel_page_size = 128e6;
