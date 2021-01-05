@@ -11,8 +11,13 @@ if is_string(source)
         sqw_dnd_obj = ldr.get_dnd(source);
     end
     ldr.delete();
-else
+elseif ~isa(source, 'sqw') && ~isempty(regexp(class(source), 'd[0-4]d', 'ONCE'))
     sqw_dnd_obj = source;
+else
+    error('HORACE:cut', ...
+          ['Cannot take cut of object of class ''%s''.\n' ...
+           'Argument ''source'' must be sqw, dnd or a valid file path.'], ...
+          class(source));
 end
 
 wout = cut(sqw_dnd_obj, varargin{:});
