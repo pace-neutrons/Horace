@@ -40,17 +40,23 @@ function siz = serial_sise_simple_data(v, type)
     nDims = ndims(v);
 
     if nElem == 0 % Null element
-        siz = 1 + 4; % Tag, 0
-        % m = [uint8(32 + type.tag); typecast(uint32(0), 'uint8').'];
+
+        % Tag; 0
+        siz = hlp_serial_types.tag_size + hlp_serial_types.dim_size;
     elseif nElem == 1 % Scalar
-        siz = 1 + type.size;
-        % m = [uint8(type.tag); typecast(v, 'uint8').'];
+
+        % Tag; data
+        siz = hlp_serial_types.tag_size + type.size;
     elseif nDims == 2 && size(v,1) == 1 % List
-        siz = 1 + 4 + type.size*nElem;
-        % m = [uint8(32 + type.tag); typecast(uint32(nElem), 'uint8').'; typecast(v, 'uint8').'];
+
+        siz = hlp_serial_types.tag_size + ... Tag
+              hlp_serial_types.dim_size + ... nElem
+              type.size*nElem; % Data
     else % General array
-        siz = 1 + 4 * nDims + type.size*nElem;
-        % m = [uint8(bitshift(nDims, 5) + type.tag); typecast(uint32(size(v)), 'uint8').'; typecast(v(:).', 'uint8').'];
+
+        siz = hlp_serial_types.tag_size + ... Tag
+              hlp_serial_types.dim_size * nDims +... Dims
+              type.size*nElem; % Data
     end
 
 end
@@ -60,9 +66,12 @@ function siz = serial_sise_sparse_data(v, type)
 
     nElem = nnz(v);
 
-    siz = 1 + 2*4 + 4 + 2 * nElem * 8 + nElem*type.size;
-
-    % m = [uint8(64 + type.tag); typecast(uint32(dims), 'uint8').'; typecast(uint32(nElem), 'uint8').'; typecast(i(:)-1.', 'uint8').'; typecast(j(:)-1.', 'uint8').'; typecast(data(:).', 'uint8').'];
+    % Sparse data use uint64 indices and dims
+    siz = hlp_serial_types.tag_size + ... Tag
+          2*hlp_serial_types.dim_size + ... Dims
+          hlp_serial_types.dim_size +... Num non-zero
+          2 * nElem * hlp_serial_types.get_size('uint64') + ... Ir/Jc
+          nElem*type.size; % Data
 end
 
 % Struct array
@@ -71,13 +80,15 @@ function siz = serial_sise_struct(v, type)
     fieldNames = fieldnames(v);
     nFields = numel(fieldNames);
 
-    % Content.
-    fn_siz = 4*(nFields+1) + sum(cellfun('length', fieldNames));
+    % Field names sizes.
+    fn_siz = hlp_serial_types.dim_size*(nFields+1) + ... Lengths of each field, +1 for nFields
+             sum(cellfun('length', fieldNames)); % Each fieldname string
 
     if ~isempty(fieldNames)
+        % Convert to cell, and calculate its size
         data_siz = serial_sise_cell(struct2cell(v), type_mapping({}));
-        % data = [serialise_cell(struct2cell(v), type_mapping({}))];
     else
+        % Otherwise, no data
         data_siz = 0;
     end
 
@@ -85,17 +96,21 @@ function siz = serial_sise_struct(v, type)
     nDims = ndims(v);
 
     if nElem == 0 % Null element
-        siz = 1 + 4;
-        % m = [uint8(32 + type.tag); typecast(uint32(0), 'uint8').'];
+
+        % Tag; 0
+        siz = hlp_serial_types.tag_size + hlp_serial_types.dim_size;
     elseif nElem == 1 % Scalar
-        siz = 1 + fn_siz + data_siz;
-        % m = [uint8(type.tag); fnInfo; data];
+
+        % Tag; FieldName block size; data size
+        siz = hlp_serial_types.tag_size + fn_siz + data_siz;
     elseif nDims == 2 && size(v,1) == 1 % List
-        siz = 1 + 4 + fn_siz + data_siz;
-        % m = [uint8(32 + type.tag); typecast(uint32(nElem), 'uint8').'; fnInfo; data];
+
+        % Tag; nElem; FieldName block size; data size
+        siz = hlp_serial_types.tag_size + hlp_serial_types.dim_size + fn_siz + data_siz;
     else % General array
-        siz = 1 + 4*nDims + fn_siz + data_siz;
-        % m = [uint8(bitshift(nDims, 5) + type.tag); typecast(uint32(size(v)), 'uint8'); fnInfo; data];
+
+        % Tag; dims; FieldName block size; data size
+        siz = hlp_serial_types.tag_size + hlp_serial_types.dim_size*nDims + fn_siz + data_siz;
     end
 end
 
@@ -107,17 +122,21 @@ function siz = serial_sise_cell(v, type)
     nDims = ndims(v);
 
     if nElem == 0 % Null element
-        siz = 1 + 4;
-        % m = [uint8(32 + type.tag); typecast(uint32(0), 'uint8').'];
+
+        % Tag; 0
+        siz = hlp_serial_types.tag_size + hlp_serial_types.dim_size;
     elseif nElem == 1 % Scalar
-        siz = 1 + data_siz;
-        % m = [uint8(type.tag); data];
+
+        % Tag; data
+        siz = hlp_serial_types.tag_size + data_siz;
     elseif nDims == 2 && size(v,1) == 1 % List
-        siz = 1 + 4 + data_siz;
-        % m = [uint8(32 + type.tag); typecast(uint32(nElem), 'uint8').'; data];
+
+        % Tag; nElem; data
+        siz = hlp_serial_types.tag_size + hlp_serial_types.dim_size + data_siz;
     else % General array
-        siz = 1 + 4*nDims + data_siz;
-        % m = [uint8(bitshift(nDims, 5) + type.tag); typecast(uint32(size(v)), 'uint8').'; data];
+
+        % Tag; dims; data
+        siz = hlp_serial_types.tag_size + hlp_serial_types.dim_size*nDims + data_siz;
     end
 end
 
@@ -126,9 +145,9 @@ function siz = serial_sise_object(v, type)
     nDims = ndims(v);
 
     % Serialise class name as char string
-    class_name_siz = 1 + 4 + numel(class(v));
-    % can object serialise/deserialise itself?
-    if any(strcmp(methods(v), 'serialize'))
+    class_name_siz = hlp_serial_types.tag_size + hlp_serial_types.dim_size + numel(class(v));
+
+    if any(strcmp(methods(v), 'serialize'))    % can object serialise/deserialise itself?
             conts_siz = hlp_serial_sise(arrayfun(@(x) (x.serialize()), v));
     else
         try
@@ -147,17 +166,21 @@ function siz = serial_sise_object(v, type)
     end
 
     if nElem == 0 % Null element
-        siz = 1 + 4 + class_name_siz;
-        % m = [uint8(32 + type.tag); typecast(uint32(0), 'uint8').'; class_name];
+
+        % Tag; 0; name
+        siz = hlp_serial_types.tag_size + hlp_serial_types.dim_size + class_name_siz;
     elseif nElem == 1 % Scalar
-        siz = 1 + class_name_siz + 1 + conts_siz;
-        % m = [uint8(type.tag); class_name; ser_tag; conts];
+
+        % Tag; name; ser_tag; contents
+        siz = hlp_serial_types.tag_size + class_name_siz + hlp_serial_types.tag_size + conts_siz;
     elseif nDims == 2 && size(v,1) == 1 % List
-        siz = 1 + 4 + class_name_siz + 1 + conts_siz;
-        % m = [uint8(32 + type.tag); typecast(uint32(nElem), 'uint8').'; class_name; ser_tag; conts];
+
+        % Tag; nElem; name; ser_tag; contents
+        siz = hlp_serial_types.tag_size + hlp_serial_types.dim_size + class_name_siz + hlp_serial_types.tag_size + conts_siz;
     else % General array
-        siz = 1 + 4*nDims + class_name_siz + 1 + conts_siz;
-        % m = [uint8(bitshift(nDims, 5) + type.tag); typecast(uint32(size(v)), 'uint8').'; class_name; ser_tag; conts];
+
+        % Tag; dims; name; ser_tag; contents
+        siz = hlp_serial_types.tag_size + hlp_serial_types.dim_size*nDims + class_name_siz + hlp_serial_types.tag_size + conts_siz;
     end
 
 end
@@ -170,24 +193,28 @@ function siz = serial_sise_function_handle(v, type)
       case {'simple', 'classsimple'}
         % simple function: Tag & name
 
-        siz = 1 + 1 + 4 + numel(rep.function);
-        % m = [uint8(32+type.tag); serialise_simple_data(rep.function, hlp_serial_types.get_details(2))];
+        siz = hlp_serial_types.tag_size +...
+              hlp_serial_types.tag_size + hlp_serial_types.dim_size + numel(rep.function); % String of name
       case 'anonymous'
-        % anonymous function: Tag, Code, and reduced workspace
 
-        siz = 1 + 1 + 4 + numel(char(v));
+        % anonymous function: Tag, Code, and reduced workspace
+        siz = hlp_serial_types.tag_size +...
+              hlp_serial_types.tag_size + hlp_serial_types.dim_size + numel(char(v)); % Code as string
         if ~isempty(rep.workspace)
+
+            % If workspace, serialise it
             siz = siz + serial_sise_struct(rep.workspace{1}, hlp_serial_types.get_details('struct'));
-            % m = [uint8(64+type.tag); serialise_simple_data(char(v), hlp_serial_types.get_details(2)); serialise_struct(rep.workspace{1}, hlp_serial_types.get_details('struct')];
         else
+
+            % If workspace, else serialise an empty struct
             siz = siz + serial_sise_struct(struct(), hlp_serial_types.get_details('struct'));
-            % m = [uint8(64+type.tag); serialise_simple_data(char(v), hlp_serial_types.get_details(2)); serialise_struct(struct(), hlp_serial_types.get_details('struct')];
         end
       case {'scopedfunction','nested'}
-        % scoped function: Tag and Parentage
 
-        siz = 1 + serial_sise_cell(rep.parentage, hlp_serial_types.get_details('cell'));
-        % m = [uint8(96+type.tag); serialise_cell(rep.parentage, hlp_serial_types.get_details('cell')];
+        % scoped function: Tag and Parentage
+        siz = hlp_serial_types.tag_size + ...
+              serial_sise_cell(rep.parentage, hlp_serial_types.get_details('cell'));
+
       otherwise
         error('hlp_serial_sise:unknown_handle_type','A function handle with unsupported type "%s" was encountered; using a placeholder instead.',rep.type);
     end

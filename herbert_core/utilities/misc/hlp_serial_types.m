@@ -7,11 +7,15 @@ classdef hlp_serial_types
         % Details associated with type
         type_details = struct('name',...
                               {'logical', 'char', 'string', 'double', 'single', 'int8', 'uint8', 'int16', 'uint16', 'int32', 'uint32', 'int64', 'uint64', 'complex_double', 'complex_single', 'complex_int8', 'complex_uint8', 'complex_int16', 'complex_uint16', 'complex_int32', 'complex_uint32', 'complex_int64', 'complex_uint64', 'cell', 'struct', 'function_handle', 'value_object', 'handle_object_ref', 'enum', 'sparse_logical', 'sparse_double', 'sparse_complex_double'},...
-                              'size',...
+                              'size',... % Sizes of respective data types
                               {1, 1, 2, 8, 4, 1, 1, 2, 2, 4, 4, 8, 8, 16, 8, 2, 2, 4, 4, 8, 8, 16, 16, 0, 0, 0, 0, 0, 0, 1, 8, 16},...
-                              'tag',...
-                              {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31});
+                              'tag',... % Lookup tags for type of serialised data
+                              cellfun(@uint8, num2cell(0:31), 'UniformOutput', false));
 
+        tag_size = 1;  % Size of standard tag (uint8) in bytes
+        ndims_size = 1;% Size of standard num dimensions (uint8) in bytes
+        dim_size = 4;  % Size of standard dimension (uint32) in bytes
+        dims_tag = uint8([32 64 96 128 160 192 224]); % Dims tags to set number of dimensions
     end
 
     methods(Static)

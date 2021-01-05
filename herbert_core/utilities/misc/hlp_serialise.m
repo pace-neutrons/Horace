@@ -78,13 +78,19 @@ function m = serialise_simple_data(v, type)
     end
 
     if nElem == 0 % Null element
-        m = [uint8(32 + type.tag); typecast(uint32(0), 'uint8').'];
+        m = [hlp_serial_types.dims_tag(1) + type.tag; ...
+             typecast(uint32(0), 'uint8').'];
     elseif nElem == 1 % Scalar
-        m = [uint8(type.tag); typecast(v, 'uint8').'];
+        m = [type.tag; ...
+             typecast(v, 'uint8').'];
     elseif nDims == 2 && size(v,1) == 1 % List
-        m = [uint8(32 + type.tag); typecast(uint32(nElem), 'uint8').'; typecast(v, 'uint8').'];
+        m = [hlp_serial_types.dims_tag(1) + type.tag; ...
+             typecast(uint32(nElem), 'uint8').'; ...
+             typecast(v, 'uint8').'];
     else % General array
-        m = [uint8(bitshift(nDims, 5) + type.tag); typecast(uint32(size(v)), 'uint8').'; typecast(v(:).', 'uint8').'];
+        m = [hlp_serial_types.dims_tag(nDims) + type.tag; ...
+             typecast(uint32(size(v)), 'uint8').'; ...
+             typecast(v(:).', 'uint8').'];
     end
 end
 
@@ -93,13 +99,22 @@ function m = serialise_complex_data(v, type)
     nElem = numel(v);
     nDims = uint8(ndims(v));
     if nElem == 0 % Null element
-        m = [uint8(32 + type.tag); typecast(uint32(0), 'uint8')];
+        m = [hlp_serial_types.dims_tag(1) + type.tag; ...
+             typecast(uint32(0), 'uint8')];
     elseif nElem == 1 % Scalar
-        m = [uint8(type.tag); typecast(real(v), 'uint8').'; typecast(imag(v), 'uint8').'];
+        m = [type.tag; ...
+             typecast(real(v), 'uint8').'; ...
+             typecast(imag(v), 'uint8').'];
     elseif nDims == 2 && size(v,1) == 1 % List
-        m = [uint8(32 + type.tag); typecast(uint32(nElem), 'uint8').'; typecast(real(v), 'uint8').'; typecast(imag(v), 'uint8').'];
+        m = [hlp_serial_types.dims_tag(1) + type.tag; ...
+             typecast(uint32(nElem), 'uint8').'; ...
+             typecast(real(v), 'uint8').'; ...
+             typecast(imag(v), 'uint8').'];
     else % General array
-        m = [uint8(bitshift(nDims, 5) + type.tag); typecast(uint32(size(v)), 'uint8').'; typecast(real(v(:)), 'uint8'); typecast(imag(v(:)), 'uint8')];
+        m = [hlp_serial_types.dims_tag(nDims) + type.tag; ...
+             typecast(uint32(size(v)), 'uint8').'; ...
+             typecast(real(v(:)), 'uint8'); ...
+             typecast(imag(v(:)), 'uint8')];
     end
 end
 
@@ -118,13 +133,19 @@ function m = serialise_sparse_data(v, type)
     dims = size(v);
     nElem = nnz(v);
 
-    m = [uint8(64 + type.tag); typecast(uint32(dims), 'uint8').'; typecast(uint32(nElem), 'uint8').'; typecast(uint64(i(:)-1).', 'uint8').'; typecast(uint64(j(:)-1).', 'uint8').'; typecast(data(:).', 'uint8').'];
+    m = [hlp_serial_types.dims_tag(2) + type.tag; ...
+         typecast(uint32(dims), 'uint8').'; ...
+         typecast(uint32(nElem), 'uint8').'; ...
+         typecast(uint64(i(:)-1).', 'uint8').'; ...
+         typecast(uint64(j(:)-1).', 'uint8').'; ...
+         typecast(data(:).', 'uint8').'];
 end
 
 
 % Struct array
 function m = serialise_struct(v, type)
-% Tag, Field Count, Field name lengths, Field name char data, #dimensions, dimensions
+
+    % Tag, Field Count, Field name lengths, Field name char data, #dimensions, dimensions
     fieldNames = fieldnames(v);
     fnLengths = [length(fieldNames); cellfun('length',fieldNames)];
     fnChars = [fieldNames{:}];
@@ -143,13 +164,22 @@ function m = serialise_struct(v, type)
     nDims = uint8(ndims(v));
 
     if nElem == 0 % Null element
-        m = [uint8(32 + type.tag); typecast(uint32(0), 'uint8').'];
+        m = [hlp_serial_types.dims_tag(1) + type.tag; ...
+             typecast(uint32(0), 'uint8').'];
     elseif nElem == 1 % Scalar
-        m = [uint8(type.tag); fnInfo; data];
+        m = [type.tag; ...
+             fnInfo; ...
+             data];
     elseif nDims == 2 && size(v,1) == 1 % List
-        m = [uint8(32 + type.tag); typecast(uint32(nElem), 'uint8').'; fnInfo; data];
+        m = [hlp_serial_types.dims_tag(1) + type.tag; ...
+             typecast(uint32(nElem), 'uint8').'; ...
+             fnInfo; ...
+             data];
     else % General array
-        m = [uint8(bitshift(nDims, 5) + type.tag); typecast(uint32(size(v)), 'uint8').'; fnInfo; data];
+        m = [hlp_serial_types.dims_tag(nDims) + type.tag; ...
+             typecast(uint32(size(v)), 'uint8').'; ...
+             fnInfo; ...
+             data];
     end
 end
 
@@ -161,13 +191,18 @@ function m = serialise_cell(v, type)
     nDims = uint8(ndims(v));
 
     if nElem == 0 % Null element
-        m = [uint8(32 + type.tag); typecast(uint32(0), 'uint8').'];
+        m = [hlp_serial_types.dims_tag(1) + type.tag; ...
+             typecast(uint32(0), 'uint8').'];
     elseif nElem == 1 % Scalar
-        m = [uint8(type.tag); data];
+        m = [type.tag; data];
     elseif nDims == 2 && size(v,1) == 1 % List
-        m = [uint8(32 + type.tag); typecast(uint32(nElem), 'uint8').'; data];
+        m = [hlp_serial_types.dims_tag(1) + type.tag; ...
+             typecast(uint32(nElem), 'uint8').'; ...
+             data];
     else % General array
-        m = [uint8(bitshift(nDims, 5) + type.tag); typecast(uint32(size(v)), 'uint8').'; data];
+        m = [hlp_serial_types.dims_tag(nDims) + type.tag; ...
+             typecast(uint32(size(v)), 'uint8').'; ...
+             data];
     end
 end
 
@@ -198,32 +233,40 @@ function m = serialise_object(v, type)
         end
     end
     if nElem == 0 % Null element
-        m = [uint8(32 + type.tag); typecast(uint32(0), 'uint8').'; class_name];
+        m = [hlp_serial_types.dims_tag(1) + type.tag; ...
+             typecast(uint32(0), 'uint8').'; class_name];
     elseif nElem == 1 % Scalar
-        m = [uint8(type.tag); class_name; ser_tag; conts];
+        m = [type.tag; class_name; ser_tag; conts];
     elseif nDims == 2 && size(v,1) == 1 % List
-        m = [uint8(32 + type.tag); typecast(uint32(nElem), 'uint8').'; class_name; ser_tag; conts];
+        m = [hlp_serial_types.dims_tag(1) + type.tag; ...
+             typecast(uint32(nElem), 'uint8').'; class_name; ser_tag; conts];
     else % General array
-        m = [uint8(bitshift(nDims, 5) + type.tag); typecast(uint32(size(v)), 'uint8').'; class_name; ser_tag; conts];
+        m = [hlp_serial_types.dims_tag(nDims) + type.tag; ...
+             typecast(uint32(size(v)), 'uint8').'; class_name; ser_tag; conts];
     end
 
 end
 
 % Function handle
 function m = serialise_function_handle(v, type)
-    % get the representation
+% get the representation
     rep = functions(v);
     switch rep.type
+        % Tag is used to distinguish function type
       case {'simple', 'classsimple'}
-        % simple function: Tag & name
-        m = [uint8(32+type.tag); serialise_simple_data(rep.function, hlp_serial_types.get_details('char'))];
+        % simple function
+        m = [hlp_serial_types.dims_tag(1)+type.tag; ... Tag
+             serialise_simple_data(rep.function, hlp_serial_types.get_details('char'))]; % Name of function
       case 'anonymous'
-        % anonymous function: Tag, Code, and reduced workspace
-        m = [uint8(64+type.tag); serialise_simple_data(char(v), hlp_serial_types.get_details('char')); serialise_struct(rep.workspace{1}, hlp_serial_types.get_details('struct'))];
+        % anonymous function
+        m = [hlp_serial_types.dims_tag(2)+type.tag; ... Tag
+             serialise_simple_data(char(v), hlp_serial_types.get_details('char')); ... % Code
+             serialise_struct(rep.workspace{1}, hlp_serial_types.get_details('struct'))]; % Workspace
 
       case {'scopedfunction','nested'}
-        % scoped function: Tag and Parentage
-        m = [uint8(96+type.tag); serialise_cell(rep.parentage, hlp_serial_types.get_details('cell'))];
+        % scoped function
+        m = [hlp_serial_types.dims_tag(3)+type.tag; ... Tag
+             serialise_cell(rep.parentage, hlp_serial_types.get_details('cell'))]; % Parentage
       otherwise
         warn_once('hlp_serialise:unknown_handle_type','A function handle with unsupported type "%s" was encountered; using a placeholder instead.',rep.type);
         m = serialise_string(['<<hlp_serialise: function handle of type ' rep.type ' unsupported>>']);
