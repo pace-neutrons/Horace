@@ -1,6 +1,17 @@
 function pix_out = get_pix_in_ranges(obj, abs_indices_starts, abs_indices_ends)
 %%GET_PIX_IN_RANGES
 %
+if size(abs_indices_starts) ~= size(abs_indices_ends)
+    error('PIXELDATA:get_pix_in_ranges', ...
+          ['Indices start and end arrays must have equal size.\n' ...
+           'Found [%s] and [%s].'], ...
+          num2str(size(abs_indices_starts)), num2str(size(abs_indices_ends)));
+end
+if ~isvector(abs_indices_starts)
+    error('PIXELDATA:get_pix_in_ranges', ...
+          'Input arrays must be vectors, found size [%s].', ...
+          num2str(size(abs_indices_starts)));
+end
 
 if obj.is_file_backed_()
     if any(obj.page_dirty_)
@@ -31,6 +42,11 @@ function out = get_values_in_ranges(range_starts, range_ends)
     %   >> range_ends = [4, 17, 14]
     %   >> get_values_in_range(range_starts, range_ends)
     %       ans = [1, 2, 3, 4, 15, 16, 17, 12, 13, 14]
+
+    if length(range_starts) > 1 && size(range_starts, 1) ~= 1
+        range_starts = range_starts(:).';
+        range_ends = range_ends(:).';
+    end
 
     % Find the indexes of the boundaries of each range
     range_bounds_idxs = cumsum([1; range_ends(:) - range_starts(:) + 1]);
