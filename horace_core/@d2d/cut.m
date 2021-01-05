@@ -50,6 +50,14 @@ if ~isempty(mess), error(mess); end
 % Perform operations
 % ------------------
 % Now call sqw cut routine. Output (if any), is a cell array, as method is passed a data source structure
+if iscell(w.data)&& ischar(w.data{1})
+    % Slightly hacky - load dnd object before passing it to sqw.cut so we don't
+    % attempt to load the file in as an SQW file. We reach this point if cut_dnd
+    % is called.
+    % After DnDBase class is implemented, cutting a DnD object need no longer
+    % go through sqw.cut and this file will be largely re-written
+    w.data = d2d(w.data{1});
+end
 argout=cut(sqw(w.data), args{:});
 if ~isempty(argout)
     argout = {dnd(argout)};   % as return argument is sqw object of dnd-type
