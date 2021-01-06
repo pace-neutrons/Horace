@@ -26,12 +26,12 @@ log_level = get(hor_config, 'log_level');
 wout = copy(w, 'exclude_pix', true);
 
 % Get bin boundaries and projection
-bounds = get_bin_boundaries(proj, w.data.urange, pbin, pin, en);
+ubins = get_ubins(proj, w.data.urange, pbin, pin, en);
 proj = proj.set_proj_binning( ...
-    bounds.urange, ...
-    bounds.plot_ax_idx, ...
-    bounds.integration_axis_idx, ...
-    bounds.plot_ax_bounds ...
+    ubins.urange, ...
+    ubins.plot_ax_idx, ...
+    ubins.integration_axis_idx, ...
+    ubins.plot_ax_bounds ...
 );
 
 % Accumulate image and pixel data for cut
@@ -39,7 +39,7 @@ proj = proj.set_proj_binning( ...
 
 % Compile the accumulated cut and projection data into a data_sqw_dnd object
 data_out = compile_sqw_data(w.data, proj, s, e, npix, pix_out, urange_pix, ...
-                            bounds, keep_pix);
+                            ubins, keep_pix);
 
 % Assign the new data_sqw_dnd object to the output SQW object, or create a new
 % dnd.
@@ -68,13 +68,13 @@ end  % function
 
 
 % -----------------------------------------------------------------------------
-function bounds = get_bin_boundaries(proj, urange, pbin, pin, en)
+function ubins = get_ubins(proj, urange, pbin, pin, en)
     [iax, iint, pax, p, urange] = proj.calc_ubins(urange, pbin, pin, en);
-    bounds.integration_axis_idx = iax;
-    bounds.integration_range = iint;
-    bounds.plot_ax_bounds = p;
-    bounds.plot_ax_idx = pax;
-    bounds.urange = urange;
+    ubins.integration_axis_idx = iax;
+    ubins.integration_range = iint;
+    ubins.plot_ax_bounds = p;
+    ubins.plot_ax_idx = pax;
+    ubins.urange = urange;
 end
 
 
@@ -87,8 +87,8 @@ end
 
 
 function data_out = compile_sqw_data(data, proj, s, e, npix, pix_out, ...
-                                     urange_pix, bounds, keep_pix)
-    ppax = bounds.plot_ax_bounds(1:length(bounds.plot_ax_idx));
+                                     urange_pix, ubins, keep_pix)
+    ppax = ubins.plot_ax_bounds(1:length(ubins.plot_ax_idx));
     if isempty(ppax)
         nbin_as_size = [1, 1];
     elseif length(ppax) == 1
@@ -109,12 +109,12 @@ function data_out = compile_sqw_data(data, proj, s, e, npix, pix_out, ...
         data_out.u_to_rlu, ...
         data_out.ulen, ...
         data_out.axis_caption ...
-    ] = proj.get_proj_param(data, bounds.plot_ax_idx);
+    ] = proj.get_proj_param(data, ubins.plot_ax_idx);
 
-    data_out.iax = bounds.integration_axis_idx;
-    data_out.iint = bounds.integration_range;
-    data_out.pax = bounds.plot_ax_idx;
-    data_out.p = bounds.plot_ax_bounds;
+    data_out.iax = ubins.integration_axis_idx;
+    data_out.iint = ubins.integration_range;
+    data_out.pax = ubins.plot_ax_idx;
+    data_out.p = ubins.plot_ax_bounds;
 
     if keep_pix
         data_out.urange = urange_pix;
