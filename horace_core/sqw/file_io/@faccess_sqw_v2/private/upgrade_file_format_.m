@@ -5,7 +5,6 @@ function  new_obj = upgrade_file_format_(obj)
 %
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 %
 
@@ -37,11 +36,13 @@ end
 new_obj = new_obj.init_v3_specific();
 %
 new_obj = new_obj.put_app_header();
-new_obj = new_obj.put_instruments();
+new_obj = new_obj.put_instruments(); % this also upgrades (saves) sqw footer
+
 
 if clear_sample_holder
     new_obj.sqw_holder_ = [];
 end
+
 
 function sq = make_pseudo_sqw(nfiles)
 % if header is a class, the issue would be much better

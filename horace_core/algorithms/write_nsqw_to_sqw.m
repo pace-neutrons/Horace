@@ -1,4 +1,4 @@
-function pix_range=write_nsqw_to_sqw (infiles, outfile,varargin)
+function img_range=write_nsqw_to_sqw (infiles, outfile,varargin)
 % Read a collection of sqw files with a common grid and write to a single sqw file.
 %
 %   >> write_nsqw_to_sqw (infiles, outfiles,varargin)
@@ -30,7 +30,7 @@ function pix_range=write_nsqw_to_sqw (infiles, outfile,varargin)
 %
 % Output:
 % -------
-%  pix_range           -- the limits of the internal coordinates contained in
+%  img_range         -- the limits of the internal coordinates contained in
 %                      the combined fil
 
 
@@ -152,9 +152,9 @@ end
 [header_combined,nspe] = sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers);
 
 
-pix_range=datahdr{1}.pix_range;
+img_range=datahdr{1}.img_range;
 for i=2:nfiles
-    pix_range=[min(pix_range(1,:),datahdr{i}.pix_range(1,:));max(pix_range(2,:),datahdr{i}.pix_range(2,:))];
+    img_range=[min(img_range(1,:),datahdr{i}.img_range(1,:));max(img_range(2,:),datahdr{i}.img_range(2,:))];
 end
 
 
@@ -189,7 +189,7 @@ sqw_data.p=datahdr{1}.p;
 sqw_data.dax=datahdr{1}.dax;    % take the display axes from first file, for sake of choosing something
 % TODO: disentangle!!!
 % img_range at this stage is equal to pix_range
-sqw_data.img_range=pix_range;
+sqw_data.img_range=img_range;
 
 % Now read in binning information
 % ---------------------------------
@@ -278,7 +278,7 @@ end
 % instead of the real pixels to place in target sqw file, place in pix field the
 % information about the way to get the contributing pixels
 sqw_data.pix = pix_combine_info(infiles,numel(sqw_data.npix),pos_npixstart,pos_pixstart,npixtot,run_label);
-sqw_data.pix.pix_range = pix_range;
+sqw_data.pix.pix_range = img_range;
 
 [fp,fn,fe] = fileparts(outfile);
 main_header_combined.filename = [fn,fe];

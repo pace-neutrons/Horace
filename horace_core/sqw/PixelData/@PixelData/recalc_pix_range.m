@@ -11,7 +11,7 @@ if obj.has_more
     hc = hor_config;
     ll = hc.log_level;
     while obj.has_more
-        [current_page_num,total_num_pages]=obj.avance();
+        [current_page_num,total_num_pages]=obj.advance();
         if ll>0
             fprint('*** Processing page %d/%d\n',...
                 current_page_num,total_num_pages);

@@ -182,6 +182,8 @@ classdef test_faccess_sqw_v3_3< TestCase
             assertEqual(tob.file_version,'-v3.3');
             img_range = tob.get_img_range();
             assertElementsAlmostEqual(ref_range,img_range)
+            pix_range = tob.get_pix_range();            
+            assertElementsAlmostEqual(pix_range,img_range)            
         end
         %
         function obj = test_save_load_sqwV3_3(obj)
