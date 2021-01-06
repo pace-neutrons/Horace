@@ -30,6 +30,26 @@ classdef hlp_serial_types
         function cont = contains(type)
             cont = isKey(hlp_serial_types.lookup, type);
         end
+
+        function obj = type_mapping(v)
+            type = class(v);
+
+            if isnumeric(v) && ~isreal(v)
+                type = ['complex_' type];
+            end
+            if issparse(v)
+                type = ['sparse_' type];
+            end
+
+            if isKey(hlp_serial_types.lookup, type)
+                obj = hlp_serial_types.get_details(type);
+            elseif ishandle(v)
+                obj = hlp_serial_types.get_details('handle_object');
+            else
+                obj = hlp_serial_types.get_details('value_object');
+            end
+
+        end
     end
 
 end

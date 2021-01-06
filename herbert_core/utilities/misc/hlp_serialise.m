@@ -44,7 +44,7 @@ function m = hlp_serialise(v)
 %                                adapted from serialize.m
 %                                (C) 2010 Tim Hutt
 
-    type = type_mapping(v);
+    type = hlp_serial_types.type_mapping(v);
     switch type.name
       case {'logical', 'char', 'string', 'double', 'single', 'int8', 'uint8', 'int16', 'uint16', 'int32', 'uint32', 'int64', 'uint64'}
         m = serialise_simple_data(v, type);
@@ -271,24 +271,4 @@ function m = serialise_function_handle(v, type)
         warn_once('hlp_serialise:unknown_handle_type','A function handle with unsupported type "%s" was encountered; using a placeholder instead.',rep.type);
         m = serialise_string(['<<hlp_serialise: function handle of type ' rep.type ' unsupported>>']);
     end
-end
-
-function obj = type_mapping(v)
-    type = class(v);
-
-    if isnumeric(v) && ~isreal(v)
-        type = ['complex_' type];
-    end
-    if issparse(v)
-        type = ['sparse_' type];
-    end
-
-    if isKey(hlp_serial_types.lookup, type)
-        obj = hlp_serial_types.get_details(type);
-    elseif ishandle(v)
-        obj = hlp_serial_types.get_details('handle_object');
-    else
-        obj = hlp_serial_types.get_details('value_object');
-    end
-
 end

@@ -15,7 +15,7 @@ function siz = hlp_serial_sise(v)
 %   dispatch according to type
 %
 
-    type = type_mapping(v);
+    type = hlp_serial_types.type_mapping(v);
     switch type.name
       case {'logical', 'char', 'string', 'double', 'single', 'int8', 'uint8', 'int16', 'uint16', 'int32', 'uint32', 'int64', 'uint64', 'complex_double', 'complex_single', 'complex_int8', 'complex_uint8', 'complex_int16', 'complex_uint16', 'complex_int32', 'complex_uint32', 'complex_int64', 'complex_uint64'}
         siz = serial_sise_simple_data(v, type);
@@ -218,27 +218,4 @@ function siz = serial_sise_function_handle(v, type)
       otherwise
         error('hlp_serial_sise:unknown_handle_type','A function handle with unsupported type "%s" was encountered; using a placeholder instead.',rep.type);
     end
-end
-
-
-function obj = type_mapping(v)
-    type = class(v);
-
-    if isnumeric(v) && ~isreal(v)
-        % Prepend complex
-        type = ['complex_' type];
-    end
-    if issparse(v)
-        % Prepend sparse
-        type = ['sparse_' type];
-    end
-
-    if hlp_serial_types.contains(type)
-        obj = hlp_serial_types.get_details(type);
-    elseif ishandle(v)
-        obj = hlp_serial_types.get_details('handle_object');
-    else
-        obj = hlp_serial_types.get_details('value_object');
-    end
-
 end
