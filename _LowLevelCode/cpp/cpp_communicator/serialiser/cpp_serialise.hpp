@@ -2,12 +2,13 @@
 
 #include <mex.h>
 
+#define DIM_MAX 4294967295
+
 enum ser_types{
   SELF_SER,
   SAVEOBJ,
   STRUCTED
 };
-
 
 const double types_size[] = {
   1,  //   LOGICAL
@@ -42,7 +43,6 @@ const double types_size[] = {
   1,  //   SPARSE_LOGICAL,
   8,  //   SPARSE_DOUBLE,
   16, //   SPARSE_COMPLEX_DOUBLE,
-  0,  //   UNKNOWN
 }; // Sizes
 
 const mxClassID unmap_types[] = {
@@ -78,7 +78,6 @@ const mxClassID unmap_types[] = {
   mxLOGICAL_CLASS, //   SPARSE_LOGICAL,
   mxDOUBLE_CLASS,  //   SPARSE_DOUBLE,
   mxDOUBLE_CLASS,  //   SPARSE_COMPLEX_DOUBLE,
-  mxUNKNOWN_CLASS, //   UNKNOWN
 };
 
 const std::string types_names[] = {
@@ -114,7 +113,6 @@ const std::string types_names[] = {
   "SPARSE_LOGICAL",         // 29
   "SPARSE_DOUBLE",          // 30
   "SPARSE_COMPLEX_DOUBLE",  // 31
-  "UNKNOWN"                 // 32
 };
 
 enum types{
@@ -150,7 +148,6 @@ enum types{
   SPARSE_LOGICAL,           // 29
   SPARSE_DOUBLE,            // 30
   SPARSE_COMPLEX_DOUBLE,    // 31
-  UNKNOWN,                  // 32
 };
 
 struct tag_type {

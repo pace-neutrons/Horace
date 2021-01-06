@@ -44,6 +44,10 @@ function m = hlp_serialise(v)
 %                                adapted from serialize.m
 %                                (C) 2010 Tim Hutt
 
+    if any(size(v) > 2^32-1)
+        error("MATLAB:serialise_sparse_data:bad_size", "Dimensions of sparse array exceed limit of uint32, cannot serialise.")
+    end
+
     type = hlp_serial_types.type_mapping(v);
     switch type.name
       case {'logical', 'char', 'string', 'double', 'single', 'int8', 'uint8', 'int16', 'uint16', 'int32', 'uint32', 'int64', 'uint64'}
@@ -132,7 +136,6 @@ function m = serialise_sparse_data(v, type)
 
     dims = size(v);
     nElem = nnz(v);
-
     m = [hlp_serial_types.dims_tag(2) + type.tag; ...
          typecast(uint32(dims), 'uint8').'; ...
          typecast(uint32(nElem), 'uint8').'; ...
@@ -155,7 +158,7 @@ function m = serialise_struct(v, type)
     fnInfo = [typecast(uint32(fnLengths(:)).','uint8').'; uint8(fnChars(:))];
 
     if ~isempty(fieldNames)
-        data = serialise_cell(struct2cell(v), type_mapping({}));
+        data = serialise_cell(struct2cell(v), hlp_serial_types.type_mapping({}));
     else
         data = [];
     end
