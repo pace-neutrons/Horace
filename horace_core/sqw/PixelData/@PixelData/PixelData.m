@@ -263,6 +263,7 @@ classdef PixelData < handle
         pix_out = mask(obj, mask_array, npix);
         pix_out = noisify(obj, varargin);
         [page_num,total_number_of_pages] = move_to_page(obj, page_number);
+        recalc_pix_range(obj);
         
         function obj = PixelData(arg, mem_alloc)
             % Construct a PixelData object from the given data. Default
@@ -731,6 +732,7 @@ classdef PixelData < handle
             obj.page_number_ = 1;
             obj.num_pixels_ = double(obj.f_accessor_.npixels);
             obj.pix_range_ = f_accessor.get_pix_range();
+            obj = obj.load_current_page_if_data_empty_();
         end
         
         function obj = load_current_page_if_data_empty_(obj)

@@ -197,13 +197,13 @@ classdef dnd_file_interface
             struc = saveobj(obj);
         end
         %
-        function keeps = keeps_img_range(~)
-            % Returns true when the img_range is stored within a file.
+        function has = has_pix_range(~)
+            % Returns true when the pix_range is stored within a file.
             % 
             % old sqw file formatters were not storing this variable. 
             % If it is not stored, it needs to be recalculated.
             % 
-            keeps = false;
+            has = false;
         end
     end
     methods(Access = protected,Hidden=true)
@@ -290,7 +290,8 @@ classdef dnd_file_interface
         % an object
         pix_range = get_pix_range(obj);
         % get [2x4] array of min/max ranges of the image contributing into
-        % an object
+        % an object, which is the basis for the grid, the pixels are sorted
+        % on
         img_range = get_img_range(obj);
         %
         % ----------------------------------------------------------------

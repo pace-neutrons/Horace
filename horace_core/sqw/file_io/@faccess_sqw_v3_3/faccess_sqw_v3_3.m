@@ -7,6 +7,9 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
     % In addition to that, it distinguish between img_range and pix_range
     % and stores/restores both fields
     %
+    % The pix_range is stored in sqw_footer together with the positions of
+    % the main data blocks.
+    %
     %
     %
     % Usage:
@@ -63,12 +66,14 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
     
     %
     properties(Access=public,Hidden=true)
-        img_range_pos_= 0;
+        % the transient class stores pix range together with the data
+        % footer.
+        pix_range_ = [];
     end
     properties(Constant,Access=protected,Hidden=true)
         % list of fileldnames to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file
-        fields_to_save_3_3 = {'img_range_pos_'};
+        fields_to_save_3_3 = {'pix_range_'};
     end
     
     %
@@ -109,123 +114,74 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
                 obj = obj.init(varargin{:});
             end
         end
-        function is = keeps_img_range(~)
-            % Returns true when the img_range is stored within a file.
-            is = true;
+        %
+        function has = has_pix_range(~)
+            % Returns true when the pix_range is stored within a file.
+            has = true;
         end
+        function pix_range = get_pix_range(obj)
+            % get [2x4] array of min/max ranges of the image contributing
+            % into an object
+            %
+            pix_range = obj.pix_range_;
+        end
+        %
+        function obj = store_pix_range(obj,new_range)
+            if any(size(new_range) ~=[2,4])
+                error('FACCESS_SQW_V3_3:invalid_argument',...
+                    ' Pixels range has to be array of size [2,4]');
+            end
+            obj.pix_range_ = new_range;
+            obj = obj.put_footer();
+        end
+        
         %
         function struc = saveobj(obj)
             % method used to convert object into structure
             % for saving it to disc.
             struc = saveobj@faccess_sqw_v3(obj);
-            flds = obj.data_fields_to_save_;
+            flds = obj.fields_to_save_3_3;
             for i=1:numel(flds)
                 struc.(flds{i}) = obj.(flds{i});
             end
         end
-        %
-        function img_range = get_img_range(obj,varargin)
-            % get [2x4] array of min/max ranges of the image contributing
-            % into an object
-            img_range = get_img_range_(obj,varargin{:});
-        end
         %-------------------------------------------------------------------
-        function obj = put_dnd_data(obj,varargin)
-            [obj,obj_to_save] = put_dnd_data@dnd_binfile_common(obj,varargin{:});
-            %
-            fseek(obj.file_id_,obj.img_range_pos_,'bof');
-            check_error_report_fail_(obj,'Error moving to the beginning of the img_range record');
-            fwrite(obj.file_id_,obj_to_save.img_range,'float32');
-            check_error_report_fail_(obj,'Error writing img_range record');
-        end
-        function data_form = get_dnd_form(obj,varargin)
-            % Return the structure of the data file header in the form
-            % it is written on hdd.
-            % Usage:
-            %>>df = obj.get_dnd_form();
-            %>>df = obj.get_dnd_form('-head');
-            %>>df = obj.get_dnd_form('-const');
-            %>>df = obj.get_dnd_form('-data');
-            %
-            % where the options:
-            % '-head' returns metadata field only and
-            % '-const' returns partial methadata which do not change size on hdd
-            % '-data'  returns format for data fields, namely signal, error
-            %          and npix. This information may be used to identify
-            %          the size, these fields occupy on hdd
-            %
-            % Fields in the full structure are:
-            %
-            % ------------------------------
-            %   data.filename   Name of sqw file that is being read, excluding path
-            %   data.filepath   Path to sqw file that is being read, including terminating file separator
-            %          [Note that the filename and filepath that are written to file are ignored; we fill with the
-            %           values corresponding to the file that is being read.]
-            %
-            %   data.title      Title of sqw data structure
-            %   data.alatt      Lattice parameters for data field (Ang^-1)
-            %   data.angdeg     Lattice angles for data field (degrees)
-            %   data.uoffset    Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
-            %   data.u_to_rlu   Matrix (4x4) of projection axes in hkle representation
-            %                      u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
-            %   data.ulen       Length of projection axes vectors in Ang^-1 or meV [row vector]
-            %   data.ulabel     Labels of the projection axes [1x4 cell array of character strings]
-            %   data.iax        Index of integration axes into the projection axes  [row vector]
-            %                  Always in increasing numerical order
-            %                       e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
-            %   data.iint       Integration range along each of the integration axes. [iint(2,length(iax))]
-            %                       e.g. in 2D case above, is the matrix vector [u1_lo, u3_lo; u1_hi, u3_hi]
-            %   data.pax        Index of plot axes into the projection axes  [row vector]
-            %                  Always in increasing numerical order
-            %                       e.g. if data is 3D, data.pax=[1,2,4] means u1, u2, u4 axes are x,y,z in any plotting
-            %                                       2D, data.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
-            %   data.p          Cell array containing bin boundaries along the plot axes [column vectors]
-            %                       i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
-            %   data.dax        Index into data.pax of the axes for display purposes. For example we may have
-            %                  data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,
-            %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
-            %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
-            %                  be reordered [row vector]
-            %   data.s          Cumulative signal.  [size(data.s)=(length(data.p1)-1, length(data.p2)-1, ...)]
-            %   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
-            %   data.npix       No. contributing pixels to each bin of the plot axes.
-            %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-            %
-            %   data.img_range the format of image range stored in the file
-            %
-            argi = varargin;
-            if strcmp(obj.data_type,'un') % we want full data if datatype is undefined
-                argi={};
-            end
-            data_form = get_dnd_form@dnd_binfile_common(obj,argi{:});
-            if isfield(data_form,'npix')
-                data_form.img_range = single([2,4]);
-            end
-        end
-        
-        
     end
     methods(Access=protected,Hidden=true)
         function flds = fields_to_save(obj)
             % returns the fields to save in the structure in sqw binfile v3 format
             head_flds = fields_to_save@faccess_sqw_v3(obj);
-            insertion_ind = find(ismember(head_flds,'npix_pos_'));
-            flds = [head_flds(1:insertion_ind);...
-                obj.fields_to_save_3_3(:);...
-                head_flds(insertion_ind+1:end)];
+            flds = [head_flds(:);obj.fields_to_save_3_3(:)];
         end
         function obj=init_from_sqw_obj(obj,varargin)
             % initialize the structure of faccess class using opened
             % sqw file as input
             obj = init_from_sqw_obj@faccess_sqw_v3(obj,varargin{:});
             %
-            obj.img_range_pos_ =obj.data_fields_locations_.img_range_pos_;
+            data = obj.extract_correct_subobj('data');
+            obj.pix_range_ =data.pix.pix_range;
+            if any(any(obj.pix_range_ == PixelData.EMPTY_RANGE_)) && data.pix.num_pixels>0
+                data.pix.recalc_pix_range();
+                obj.pix_range_ =data.pix.pix_range;                
+            end
         end
-        function obj=init_from_sqw_file(obj)
-            % initialize the structure of faccess class using opened
-            % sqw file as input
-            obj=init_from_sqw_file@faccess_sqw_v3(obj);
-            obj.img_range_pos_ =obj.data_fields_locations_.img_range_pos_;
+%         function obj=init_from_sqw_file(obj)
+%             % initialize the structure of faccess class using opened
+%             % sqw file as input
+%             obj=init_from_sqw_file@faccess_sqw_v3(obj);
+%             %obj.pix_range_ =
+%         end
+        function obj=init_from_structure(obj,obj_structure_from_saveobj)
+            % init file accessors using structure, obtained for object
+            % serialization (saveobj method);
+            obj = init_from_structure@faccess_sqw_v3(obj,obj_structure_from_saveobj);
+            %
+            flds = obj.fields_to_save_3_3;
+            for i=1:numel(flds)
+                if isfield(obj_structure_from_saveobj,flds{i})
+                    obj.(flds{i}) = obj_structure_from_saveobj.(flds{i});
+                end
+            end
         end
     end
     methods(Static,Hidden=true)
