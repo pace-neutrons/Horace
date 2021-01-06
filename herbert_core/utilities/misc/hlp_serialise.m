@@ -158,7 +158,7 @@ function m = serialise_struct(v, type)
     fnInfo = [typecast(uint32(fnLengths(:)).','uint8').'; uint8(fnChars(:))];
 
     if ~isempty(fieldNames)
-        data = serialise_cell(struct2cell(v), hlp_serial_types.type_mapping({}));
+        data = serialise_cell(struct2cell(v), hlp_serial_types.get_details('cell'));
     else
         data = [];
     end

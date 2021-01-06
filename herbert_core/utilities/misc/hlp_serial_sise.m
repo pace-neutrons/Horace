@@ -86,7 +86,7 @@ function siz = serial_sise_struct(v, type)
 
     if ~isempty(fieldNames)
         % Convert to cell, and calculate its size
-        data_siz = serial_sise_cell(struct2cell(v), type_mapping({}));
+        data_siz = serial_sise_cell(struct2cell(v), hlp_serial_types.get_details('cell'));
     else
         % Otherwise, no data
         data_siz = 0;
